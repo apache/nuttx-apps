@@ -68,8 +68,8 @@ CRadioButtonTest::CRadioButtonTest()
 {
   // Initialize state data
 
-  m_widgetControl = (CWidgetControl *)NULL;
-  m_bgWindow      = (CBgWindow *)NULL;
+  m_widgetControl = NULL;
+  m_bgWindow      = NULL;
 
   // Peek at the radio button glyph to get a good estimate of the size
 
@@ -113,7 +113,7 @@ void CRadioButtonTest::disconnect(void)
   if (m_radioButtonGroup)
     {
       delete m_radioButtonGroup;
-      m_radioButtonGroup = (CRadioButtonGroup *)NULL;
+      m_radioButtonGroup = NULL;
     }
 
   // Close the window
@@ -151,7 +151,7 @@ bool CRadioButtonTest::createWindow(void)
 {
   // Initialize the widget control using the default style
 
-  m_widgetControl = new CWidgetControl((CWidgetStyle *)NULL);
+  m_widgetControl = new CWidgetControl(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
@@ -188,7 +188,7 @@ CRadioButton *CRadioButtonTest::newRadioButton(void)
   if (!m_bgWindow->getSize(&windowSize))
     {
       printf("CRadioButtonTest::newRadioButton: Failed to get window size\n");
-      return (CRadioButton *)NULL;
+      return NULL;
     }
 
   // Create the radio button group, if we have not already done so
@@ -205,7 +205,7 @@ CRadioButton *CRadioButtonTest::newRadioButton(void)
       if (!m_radioButtonGroup)
         {
           printf("CRadioButtonTest::newRadioButton: Failed to create the radio button group\n");
-          return (CRadioButton *)NULL;
+          return NULL;
         }
     }
 

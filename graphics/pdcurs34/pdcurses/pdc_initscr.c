@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/pdc_initscr.c
+ * apps/graphics/pdcurs34/pdcurses/pdc_initscr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -121,13 +121,13 @@ const char *_curses_notice = "PDCurses 3.4 - Public Domain 2008";
 
 char ttytype[128];
 
-SCREEN *SP = (SCREEN *) NULL;   /* curses variables */
-WINDOW *curscr = (WINDOW *) NULL;       /* the current screen image */
-WINDOW *stdscr = (WINDOW *) NULL;       /* the default screen window */
-WINDOW *pdc_lastscr = (WINDOW *) NULL;  /* the last screen image */
+SCREEN *SP = NULL;          /* curses variables */
+WINDOW *curscr = NULL;      /* the current screen image */
+WINDOW *stdscr = NULL;      /* the default screen window */
+WINDOW *pdc_lastscr = NULL; /* the last screen image */
 
-int LINES = 0;                  /* current terminal height */
-int COLS = 0;                   /* current terminal width */
+int LINES = 0;              /* current terminal height */
+int COLS = 0;               /* current terminal width */
 int TABSIZE = 8;
 
 MOUSE_STATUS Mouse_status, pdc_mouse_status;
@@ -188,13 +188,13 @@ WINDOW *Xinitscr(int argc, char *argv[])
       exit(4);
     }
 
-  if ((curscr = newwin(LINES, COLS, 0, 0)) == (WINDOW *)NULL)
+  if ((curscr = newwin(LINES, COLS, 0, 0)) == NULL)
     {
       fprintf(stderr, "initscr(): Unable to create curscr.\n");
       exit(2);
     }
 
-  if ((pdc_lastscr = newwin(LINES, COLS, 0, 0)) == (WINDOW *)NULL)
+  if ((pdc_lastscr = newwin(LINES, COLS, 0, 0)) == NULL)
     {
       fprintf(stderr, "initscr(): Unable to create pdc_lastscr.\n");
       exit(2);
@@ -207,7 +207,8 @@ WINDOW *Xinitscr(int argc, char *argv[])
   LINES -= SP->slklines;
 
   /* We have to sort out ripped off lines here, and reduce the height of
-   * stdscr by the number of lines ripped off */
+   * stdscr by the number of lines ripped off
+   */
 
   for (i = 0; i < linesrippedoff; i++)
     {
@@ -339,15 +340,15 @@ void delscreen(SCREEN *sp)
   delwin(stdscr);
   delwin(curscr);
   delwin(pdc_lastscr);
-  stdscr      = (WINDOW *) NULL;
-  curscr      = (WINDOW *) NULL;
-  pdc_lastscr = (WINDOW *) NULL;
+  stdscr      = NULL;
+  curscr      = NULL;
+  pdc_lastscr = NULL;
 
   SP->alive   = false;
 
   PDC_scr_free();               /* Free SP and pdc_atrtab */
 
-  SP = (SCREEN *)NULL;
+  SP = NULL;
 
 #ifdef CONFIG_PDCURSES_MULTITHREAD
 

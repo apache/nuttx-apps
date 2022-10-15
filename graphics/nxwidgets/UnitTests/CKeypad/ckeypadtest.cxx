@@ -67,8 +67,8 @@
 
 CKeypadTest::CKeypadTest()
 {
-  m_widgetControl = (CWidgetControl *)NULL;
-  m_bgWindow      = (CBgWindow *)NULL;
+  m_widgetControl = NULL;
+  m_bgWindow      = NULL;
   m_buttonWidth   = 0;
   m_buttonHeight  = 0;
   m_displayHeight = 0;
@@ -147,7 +147,7 @@ bool CKeypadTest::createWindow(void)
 {
   // Initialize the widget control using the default style
 
-  m_widgetControl = new CWidgetControl((CWidgetStyle *)NULL);
+  m_widgetControl = new CWidgetControl(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
@@ -234,7 +234,7 @@ CKeypad *CKeypadTest::createKeypad(void)
   if (!m_bgWindow->getSize(&windowSize))
     {
       printf("CKeypadTest::createGraphics: Failed to get window size\n");
-      return (CKeypad *)NULL;
+      return NULL;
     }
 
   // Pick a height and width.  Here we use inside information that the number
@@ -262,7 +262,7 @@ CKeypad *CKeypadTest::createKeypad(void)
       if (!m_textbox)
         {
           delete keypad;
-          keypad = (CKeypad *)NULL;
+          keypad = NULL;
         }
       else
         {
@@ -294,7 +294,7 @@ CTextBox *CKeypadTest::createTextBox(void)
   if (!m_bgWindow->getSize(&windowSize))
     {
       printf("CKeypadTest::createGraphics: Failed to get window size\n");
-      return (CTextBox *)NULL;
+      return NULL;
     }
 
   // Pick a height and width.  Here we use inside information that the number

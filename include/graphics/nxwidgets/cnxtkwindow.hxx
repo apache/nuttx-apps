@@ -162,7 +162,7 @@ namespace NXWidgets
 
     inline void detachToolbar(void)
     {
-      m_toolbar       = (CNxToolbar *)NULL;
+      m_toolbar       = NULL;
       m_toolbarHeight = 0;
     }
 

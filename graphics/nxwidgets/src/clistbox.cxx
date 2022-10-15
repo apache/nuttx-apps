@@ -481,7 +481,7 @@ void CListBox::drawContents(CGraphicsPort *port)
   int y = m_canvasY + (topOption * optionHeight);
   int i = topOption;
 
-  const CListBoxDataItem *item = (CListBoxDataItem *)NULL;
+  const CListBoxDataItem *item = NULL;
 
   // Loop through all options drawing each ones
 

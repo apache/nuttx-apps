@@ -72,11 +72,11 @@ static struct aiocb * const g_aiocb_init[AIO_NCTRLBLKS] =
 
 static FAR void * const g_buffers[AIO_NCTRLBLKS] =
 {
-  (FAR void *)g_wrbuffer1,
-  (FAR void *)NULL,
-  (FAR void *)g_wrbuffer2,
-  (FAR void *)NULL,
-  (FAR void *)g_rdbuffer
+  (FAR char *)g_wrbuffer1,
+  NULL,
+  (FAR char *)g_wrbuffer2,
+  NULL,
+  g_rdbuffer
 };
 
 static const FAR uint8_t g_offsets[AIO_NCTRLBLKS] =

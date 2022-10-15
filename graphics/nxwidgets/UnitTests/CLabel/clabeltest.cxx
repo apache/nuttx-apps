@@ -64,9 +64,9 @@
 
 CLabelTest::CLabelTest()
 {
-  m_bgWindow = (CBgWindow *)NULL;
-  m_nxFont   = (CNxFont *)NULL;
-  m_text     = (CNxString *)NULL;
+  m_bgWindow = NULL;
+  m_nxFont   = NULL;
+  m_text     = NULL;
 }
 
 // CLabelTest Descriptor
@@ -122,7 +122,7 @@ void CLabelTest::disconnect(void)
   if (m_text)
     {
       delete m_text;
-      m_text = (CNxString *)NULL;
+      m_text = NULL;
     }
 
   // Free the default font
@@ -130,7 +130,7 @@ void CLabelTest::disconnect(void)
   if (m_nxFont)
     {
       delete m_nxFont;
-      m_nxFont = (CNxFont *)NULL;
+      m_nxFont = NULL;
     }
 
   // And disconnect from the server
@@ -154,7 +154,7 @@ bool CLabelTest::createWindow(void)
 {
   // Initialize the widget control using the default style
 
-  m_widgetControl = new CWidgetControl((CWidgetStyle *)NULL);
+  m_widgetControl = new CWidgetControl(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
@@ -191,7 +191,7 @@ CLabel *CLabelTest::createLabel(FAR const char *text)
   if (!m_bgWindow->getSize(&windowSize))
     {
       printf("CLabelTest::createGraphics: Failed to get window size\n");
-      return (CLabel *)NULL;
+      return NULL;
     }
 
   // Create a CNxString instance to contain the C string

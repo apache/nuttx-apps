@@ -352,7 +352,7 @@ namespace NXWidgets
      *   values stored in the defaultCWidgetStyle object.
      */
 
-     CWidgetControl(FAR const CWidgetStyle *style = (const CWidgetStyle *)NULL);
+     CWidgetControl(FAR const CWidgetStyle *style = NULL);
 
     /**
      * Destructor.
@@ -420,7 +420,7 @@ namespace NXWidgets
      * @return True means some interesting event occurred
      */
 
-    bool pollEvents(CNxWidget *widget = (CNxWidget *)NULL);
+    bool pollEvents(CNxWidget *widget = NULL);
 
     /**
      * Swaps the depth of the supplied widget.
@@ -509,7 +509,7 @@ namespace NXWidgets
     {
       if (widget == m_focusedWidget)
         {
-          m_focusedWidget = (CNxWidget *)NULL;
+          m_focusedWidget = NULL;
         }
     }
 

@@ -215,8 +215,7 @@ namespace Twm4Nx
 
        CWindowEvent(FAR CTwm4Nx *twm4nx, FAR void *client,
                     FAR const struct SAppEvents &events,
-                    FAR const NXWidgets::CWidgetStyle *style =
-                    (const NXWidgets::CWidgetStyle *)NULL);
+                    FAR const NXWidgets::CWidgetStyle *style = NULL);
 
       /**
        * CWindowEvent Destructor.

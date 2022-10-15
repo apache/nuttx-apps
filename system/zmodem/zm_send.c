@@ -1642,7 +1642,7 @@ errout_with_timer:
   zm_timerrelease(&pzms->cmn);
 errout:
   free(pzms);
-  return (ZMSHANDLE)NULL;
+  return NULL;
 }
 
 /****************************************************************************

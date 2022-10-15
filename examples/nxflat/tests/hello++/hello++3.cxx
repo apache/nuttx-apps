@@ -59,7 +59,7 @@ static CThingSayer MyThingSayer;
 CThingSayer::CThingSayer(void)
 {
   printf("CThingSayer::CThingSayer: I am!\n");
-  szWhatToSay = (const char*)NULL;
+  szWhatToSay = NULL;
 }
 
 CThingSayer::~CThingSayer(void)
@@ -70,7 +70,7 @@ CThingSayer::~CThingSayer(void)
       printf("CThingSayer::~CThingSayer: I will never say '%s' again\n",
   	     szWhatToSay);
     }
-  szWhatToSay = (const char*)NULL;
+  szWhatToSay = NULL;
 }
 
 void CThingSayer::Initialize(const char *czSayThis)

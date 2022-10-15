@@ -246,7 +246,7 @@ const CListDataItem *CListData::getSelectedItem(void) const
     {
       return m_items[index];
     }
-  return (CListDataItem *)NULL;
+  return NULL;
 }
 
 /**

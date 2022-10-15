@@ -431,8 +431,7 @@ int main(int argc, char **argv)
 
       ret = task_create("Stack Monitor", CONFIG_SYSTEM_STACKMONITOR_PRIORITY,
                         CONFIG_SYSTEM_STACKMONITOR_STACKSIZE,
-                        (main_t)stackmonitor_daemon,
-                        (FAR char * const *)NULL);
+                        stackmonitor_daemon, NULL);
       if (ret < 0)
         {
           int errcode = errno;

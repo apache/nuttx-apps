@@ -86,7 +86,7 @@ struct i8sak_command_s
 
 static const struct i8sak_command_s g_i8sak_commands[] =
 {
-  {"help",        (CODE void *)NULL},
+  {"help",        NULL},
   {"acceptassoc", (CODE void *)i8sak_acceptassoc_cmd},
   {"assoc",       (CODE void *)i8sak_assoc_cmd},
   {"blaster",     (CODE void *)i8sak_blaster_cmd},

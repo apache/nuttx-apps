@@ -78,7 +78,7 @@ namespace NXWidgets
               nxgl_coord_t x, nxgl_coord_t y,
               nxgl_coord_t width, nxgl_coord_t height,
               nxgl_coord_t buttonHeight,
-              FAR const CWidgetStyle *style = (FAR const CWidgetStyle *)NULL
+              FAR const CWidgetStyle *style = NULL
              );
 
     inline CNxWidget &page(uint8_t index) { return *m_tabpages.at(index); }

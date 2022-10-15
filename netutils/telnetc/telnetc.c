@@ -962,7 +962,7 @@ static int _zmp_telnet(FAR struct telnet_s *telnet, FAR const char *buffer,
                        size_t size)
 {
   union telnet_event_u ev;
-  FAR char **argv;
+  FAR const char **argv;
   FAR const char *c;
   size_t i;
   size_t argc;
@@ -985,7 +985,7 @@ static int _zmp_telnet(FAR struct telnet_s *telnet, FAR const char *buffer,
 
   /* Allocate argument array, bail on error */
 
-  if ((argv = (char **)calloc(argc, sizeof(char *))) == 0)
+  if ((argv = (const char **)calloc(argc, sizeof(char *))) == 0)
     {
       _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
              "calloc() failed: %d", errno);
@@ -996,14 +996,14 @@ static int _zmp_telnet(FAR struct telnet_s *telnet, FAR const char *buffer,
 
   for (i = 0, c = buffer; i != argc; ++i)
     {
-      argv[i] = (char *)c;
+      argv[i] = c;
       c      += strlen(c) + 1;
     }
 
   /* Invoke event with our arguments */
 
   ev.type     = TELNET_EV_ZMP;
-  ev.zmp.argv = (const char **)argv;
+  ev.zmp.argv = argv;
   ev.zmp.argc = argc;
   telnet->eh(telnet, &ev, telnet->ud);
 

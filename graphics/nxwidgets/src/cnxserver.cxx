@@ -63,8 +63,8 @@ CNxServer::CNxServer(void)
 {
   // Initialize server instance state data
 
-  m_hDevice    = (FAR NX_DRIVERTYPE *)NULL;  // LCD/Framebuffer device handle
-  m_hNxServer  = (NXHANDLE)NULL;             // NX server handle
+  m_hDevice    = NULL;  // LCD/Framebuffer device handle
+  m_hNxServer  = NULL;             // NX server handle
   m_connected  = false;                      // True:  Connected to the server
   sem_init(&m_connsem, 0, 0);                // Wait for server connection
 

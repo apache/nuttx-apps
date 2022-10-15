@@ -80,7 +80,7 @@ using namespace NXWidgets;
 
 CNxString::CNxString()
 {
-  m_text          = (FAR nxwidget_char_t *)NULL;
+  m_text          = NULL;
   m_stringLength  = 0;
   m_allocatedSize = 0;
   m_growAmount    = 16;
@@ -95,7 +95,7 @@ CNxString::CNxString()
 
 CNxString::CNxString(FAR const char *text)
 {
-  m_text          = (FAR nxwidget_char_t *)NULL;
+  m_text          = NULL;
   m_stringLength  = 0;
   m_allocatedSize = 0;
   m_growAmount    = 16;
@@ -110,7 +110,7 @@ CNxString::CNxString(FAR const char *text)
 
 CNxString::CNxString(const nxwidget_char_t text)
 {
-  m_text          = (FAR nxwidget_char_t *)NULL;
+  m_text          = NULL;
   m_stringLength  = 0;
   m_allocatedSize = 0;
   m_growAmount    = 16;
@@ -120,7 +120,7 @@ CNxString::CNxString(const nxwidget_char_t text)
 
 CNxString::CNxString(const CNxString &string)
 {
-  m_text          = (FAR nxwidget_char_t *)NULL;
+  m_text          = NULL;
   m_stringLength  = 0;
   m_allocatedSize = 0;
   m_growAmount    = 16;
@@ -783,14 +783,14 @@ FAR nxwidget_char_t *CNxString::getCharPointer(const int index) const
 
   if (!hasData())
     {
-      return (FAR nxwidget_char_t*)NULL;
+      return NULL;
     }
 
   // Early exit if the index is greater than the length of the string
 
   if (index >= m_stringLength)
     {
-      return (FAR nxwidget_char_t*)NULL;
+      return NULL;
     }
 
   return &m_text[index];

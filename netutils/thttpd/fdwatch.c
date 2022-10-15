@@ -344,7 +344,7 @@ void *fdwatch_get_next_client_data(struct fdwatch_s *fw)
   if (fw->next >= fw->nwatched)
     {
       fwinfo("All client data returned: %d\n", fw->next);
-      return (void *)-1;
+      return (void *)(uintptr_t)-1;
     }
 
   fwinfo("client_data[%d]: %p\n", fw->next, fw->client[fw->next]);

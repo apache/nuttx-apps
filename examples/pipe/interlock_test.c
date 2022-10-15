@@ -125,7 +125,7 @@ int interlock_test(void)
   /* Start the null_writer_thread */
 
   printf("interlock_test: Starting null_writer thread\n");
-  ret = pthread_create(&writerid, NULL, null_writer, (pthread_addr_t)NULL);
+  ret = pthread_create(&writerid, NULL, null_writer, NULL);
   if (ret != 0)
     {
       fprintf(stderr, \

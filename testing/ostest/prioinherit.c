@@ -523,7 +523,7 @@ void priority_inheritance(void)
       sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
     }
 
-  my_pri  = sparam.sched_priority;
+  my_pri = sparam.sched_priority;
 
   g_highpri = sched_get_priority_max(SCHED_FIFO);
   g_lowpri = sched_get_priority_min(SCHED_FIFO);
@@ -712,7 +712,7 @@ void priority_inheritance(void)
       snprintf(args[2], sizeof(args[2]), "%d", i == 0 ? 100000 : 1000);
 
       pids[i] = task_create(name, priority, CONFIG_DEFAULT_TASK_STACKSIZE,
-                            adversary, (FAR char * const *)argv);
+                            adversary, argv);
       priority += PRIORIY_SPREED;
     }
 

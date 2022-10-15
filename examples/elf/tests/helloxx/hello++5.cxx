@@ -118,7 +118,7 @@ const char *MyException::what() const throw()
 CThingSayer::CThingSayer(void)
 {
   cout << "CThingSayer::CThingSayer: I am!" << endl;
-  szWhatToSay = (const char*)NULL;
+  szWhatToSay = NULL;
 }
 
 CThingSayer::~CThingSayer(void)
@@ -129,7 +129,7 @@ CThingSayer::~CThingSayer(void)
       cout << "CThingSayer::~CThingSayer: I will never say '"
      << szWhatToSay << "' again" << endl;
     }
-  szWhatToSay = (const char*)NULL;
+  szWhatToSay = NULL;
 }
 
 void CThingSayer::Initialize(const char *czSayThis)

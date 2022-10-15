@@ -77,18 +77,18 @@ void *select_listener(pthread_addr_t pvarg)
   /* Open the FIFO for non-blocking read */
 
   printf("select_listener: Opening %s for non-blocking read\n", FIFO_PATH2);
-  fd = open(FIFO_PATH2, O_RDONLY|O_NONBLOCK);
+  fd = open(FIFO_PATH2, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
       printf("select_listener: ERROR Failed to open FIFO %s: %d\n",
              FIFO_PATH2, errno);
       close(fd);
-      return (void*)-1;
+      return (void *)(uintptr_t)-1;
     }
 
   /* Loop forever */
 
-  for (;;)
+  for (; ; )
     {
       printf("select_listener: Calling select()\n");
 
@@ -101,7 +101,7 @@ void *select_listener(pthread_addr_t pvarg)
       timeout    = false;
       ready      = false;
 
-      ret = select(fd+1, (FAR fd_set*)&rfds, (FAR fd_set*)NULL, (FAR fd_set*)NULL, &tv);
+      ret = select(fd + 1, &rfds, NULL, NULL, &tv);
       printf("\nselect_listener: select returned: %d\n", ret);
 
       if (ret < 0)
@@ -148,18 +148,20 @@ void *select_listener(pthread_addr_t pvarg)
                 {
                   printf("select_listener: read failed: %d\n", errno);
                 }
+
               nbytes = 0;
             }
           else
             {
               if (timeout)
                 {
-                  printf("select_listener: ERROR? Poll timeout, but data read\n");
-                  printf("               (might just be a race condition)\n");
+                  printf("select_listener: ERROR? Poll timeout,\n");
+                  printf("but data read (might just be a race condition)\n");
                 }
 
               buffer[nbytes] = '\0';
-              printf("select_listener: Read '%s' (%ld bytes)\n", buffer, (long)nbytes);
+              printf("select_listener: Read '%s' (%zd bytes)\n",
+                     buffer, nbytes);
             }
 
           timeout = false;

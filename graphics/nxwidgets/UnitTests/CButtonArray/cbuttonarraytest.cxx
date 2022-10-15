@@ -64,8 +64,8 @@
 
 CButtonArrayTest::CButtonArrayTest()
 {
-  m_widgetControl = (CWidgetControl *)NULL;
-  m_bgWindow      = (CBgWindow *)NULL;
+  m_widgetControl = NULL;
+  m_bgWindow      = NULL;
 }
 
 // CButtonArrayTest Descriptor
@@ -134,7 +134,7 @@ bool CButtonArrayTest::createWindow(void)
 {
   // Initialize the widget control using the default style
 
-  m_widgetControl = new CWidgetControl((CWidgetStyle *)NULL);
+  m_widgetControl = new CWidgetControl(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
@@ -171,7 +171,7 @@ CButtonArray *CButtonArrayTest::createButtonArray(void)
   if (!m_bgWindow->getSize(&windowSize))
     {
       printf("CButtonArrayTest::createGraphics: Failed to get window size\n");
-      return (CButtonArray *)NULL;
+      return NULL;
     }
 
   // Pick an X/Y position such that the button array will be centered in the display

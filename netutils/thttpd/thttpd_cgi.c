@@ -1060,8 +1060,7 @@ int cgi(httpd_conn *hc)
       argv[1] = NULL;
 
       child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
-                          CONFIG_THTTPD_CGI_STACKSIZE,
-                          (main_t)cgi_child, (FAR char * const *)argv);
+                          CONFIG_THTTPD_CGI_STACKSIZE, cgi_child, argv);
       if (child < 0)
         {
           nerr("ERROR: task_create: %d\n", errno);

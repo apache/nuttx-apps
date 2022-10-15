@@ -358,7 +358,7 @@ void CScrollingPanel::scrollChildren(int32_t dx, int32_t dy, bool do_redraw)
   nxgl_coord_t widgetY = 0;
   nxgl_coord_t thisX   = getX();
   nxgl_coord_t thisY   = getY();
-  CNxWidget   *widget  = (CNxWidget *)NULL;
+  CNxWidget   *widget  = NULL;
 
   for (int32_t i = 0; i < m_children.size(); i++)
     {

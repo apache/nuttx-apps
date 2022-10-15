@@ -100,7 +100,7 @@ const struct SBitmap NXWidgets::g_checkBoxOff =
   0,                                 // width  - Width in pixels
   0,                                 // height - Height in rows
   (0*CONFIG_NXWIDGETS_BPP + 7) / 8,  // stride - Width in bytes
-  (const nxgl_mxpixel_t*)NULL        // data   - Pointer to the beginning of pixel data
+  NULL                               // data   - Pointer to the beginning of pixel data
 };
 
 #endif // CONFIG_NXWIDGETS_BPP != 8

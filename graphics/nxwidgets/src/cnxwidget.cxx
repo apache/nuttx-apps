@@ -116,7 +116,7 @@ CNxWidget::CNxWidget(CWidgetControl *pWidgetControl,
 
   // Do we need to fetch the default style?
 
-  if (style == (CWidgetStyle *)NULL)
+  if (style == NULL)
     {
       // Get the style from the controlling widget.  This allows different
       // widgets within a window to have the same style, unique to the window.
@@ -161,8 +161,8 @@ CNxWidget::CNxWidget(CWidgetControl *pWidgetControl,
 
   // Set hierarchy pointers
 
-  m_parent                = (CNxWidget *)NULL;
-  m_focusedChild          = (CNxWidget *)NULL;
+  m_parent                = NULL;
+  m_focusedChild          = NULL;
 
   // Double-click
 
@@ -195,11 +195,11 @@ CNxWidget::~CNxWidget(void)
 
       if (m_widgetControl->getClickedWidget() == this)
         {
-          m_widgetControl->setClickedWidget((CNxWidget *)NULL);
+          m_widgetControl->setClickedWidget(NULL);
         }
     }
 
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       m_parent->removeChild(this);
     }
@@ -229,7 +229,7 @@ CNxWidget::~CNxWidget(void)
 
 nxgl_coord_t CNxWidget::getX(void) const
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       return m_parent->getX() + m_rect.getX();
     }
@@ -245,7 +245,7 @@ nxgl_coord_t CNxWidget::getX(void) const
 
 nxgl_coord_t CNxWidget::getY(void) const
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       return m_parent->getY() + m_rect.getY();
     }
@@ -288,7 +288,7 @@ nxgl_coord_t CNxWidget::getRelativeY(void) const
 
 bool CNxWidget::isDeleted(void) const
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       if (m_parent->isDeleted())
         {
@@ -309,7 +309,7 @@ bool CNxWidget::isDeleted(void) const
 
 bool CNxWidget::isDrawingEnabled(void) const
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       if (m_parent->isDrawingEnabled())
         {
@@ -338,7 +338,7 @@ bool CNxWidget::isDrawingEnabled(void) const
 
 bool CNxWidget::isHidden(void) const
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       if (!m_parent->isHidden())
         {
@@ -365,7 +365,7 @@ bool CNxWidget::isHidden(void) const
 
 bool CNxWidget::isEnabled() const
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       if (m_parent->isEnabled())
         {
@@ -552,7 +552,7 @@ void CNxWidget::close(void)
           release(clickedWidget->getX(), clickedWidget->getY());
         }
 
-      if (m_parent != (CNxWidget *)NULL)
+      if (m_parent != NULL)
         {
           m_parent->closeChild(this);
         }
@@ -648,7 +648,7 @@ bool CNxWidget::click(nxgl_coord_t x, nxgl_coord_t y)
 
   // Take focus away from child widgets
 
-  setFocusedWidget((CNxWidget *)NULL);
+  setFocusedWidget(NULL);
 
   // Tell controlling widget that the clicked widget has changed
 
@@ -731,7 +731,7 @@ bool CNxWidget::doubleClick(nxgl_coord_t x, nxgl_coord_t y)
 
   // Take focus away from child widgets
 
-  setFocusedWidget((CNxWidget *)NULL);
+  setFocusedWidget(NULL);
 
   // Tell controlling widget that the clicked widget has changed
 
@@ -776,7 +776,7 @@ bool CNxWidget::release(nxgl_coord_t x, nxgl_coord_t y)
 
   if (m_widgetControl->getClickedWidget() == this)
     {
-      m_widgetControl->setClickedWidget((CNxWidget *)NULL);
+      m_widgetControl->setClickedWidget(NULL);
     }
 
   // Determine which release event to fire
@@ -909,7 +909,7 @@ bool CNxWidget::focus(void)
 
   // Notify parent that this widget has focus
 
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       m_parent->setFocusedWidget(this);
     }
@@ -943,10 +943,10 @@ bool CNxWidget::blur(void)
 
   // Take focus away from child widgets
 
-  if (m_focusedChild != (CNxWidget *)NULL)
+  if (m_focusedChild != NULL)
     {
       m_focusedChild->blur();
-      m_focusedChild = (CNxWidget *)NULL;
+      m_focusedChild = NULL;
       m_widgetControl->clearFocusedWidget(this);
     }
 
@@ -976,7 +976,7 @@ bool CNxWidget::moveTo(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Enforce widget to stay within parent confines if necessary
 
-  if (m_parent != (FAR CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       if (!m_parent->isPermeable())
         {
@@ -1064,7 +1064,7 @@ bool CNxWidget::resize(nxgl_coord_t width, nxgl_coord_t height)
 {
   // Enforce widget to stay within parent confines if necessary
 
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       if (!m_parent->isPermeable())
         {
@@ -1324,7 +1324,7 @@ void CNxWidget::insertWidget(CNxWidget *widget)
 
 bool CNxWidget::remove(void)
 {
-  if (m_parent != (CNxWidget *)NULL)
+  if (m_parent != NULL)
     {
       return m_parent->removeChild(this);
     }
@@ -1348,7 +1348,7 @@ bool CNxWidget::removeChild(CNxWidget *widget)
 
   if (m_focusedChild == widget)
     {
-      m_focusedChild = (CNxWidget *)NULL;
+      m_focusedChild = NULL;
       m_widgetControl->clearFocusedWidget(this);
     }
 
@@ -1362,7 +1362,7 @@ bool CNxWidget::removeChild(CNxWidget *widget)
 
   // Divorce child from parent
 
-  widget->setParent((CNxWidget *)NULL);
+  widget->setParent(NULL);
   widget->disableDrawing();
 
   // Locate widget in main vector
@@ -1395,7 +1395,7 @@ const CNxWidget *CNxWidget::getChild(int index) const
       return m_children[index];
     }
 
-  return (CNxWidget *)NULL;
+  return NULL;
 }
 
 /**
@@ -1479,7 +1479,7 @@ void CNxWidget::closeChild(CNxWidget *widget)
 
   if (m_focusedChild == widget)
     {
-      m_focusedChild = (CNxWidget *)NULL;
+      m_focusedChild = NULL;
       m_widgetControl->clearFocusedWidget(this);
 
       // Try to choose highest widget
@@ -1508,7 +1508,7 @@ void CNxWidget::closeChild(CNxWidget *widget)
         {
           // Give focus to this
 
-          setFocusedWidget((CNxWidget *)NULL);
+          setFocusedWidget(NULL);
         }
     }
 

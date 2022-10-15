@@ -112,8 +112,8 @@ CGlyphSliderHorizontalTest::CGlyphSliderHorizontalTest()
 {
   // Initialize state data
 
-  m_widgetControl = (CWidgetControl *)NULL;
-  m_bgWindow      = (CBgWindow *)NULL;
+  m_widgetControl = NULL;
+  m_bgWindow      = NULL;
 }
 
 // CGlyphSliderHorizontalTest Descriptor
@@ -152,7 +152,7 @@ void CGlyphSliderHorizontalTest::disconnect(void)
   if (m_bgWindow)
     {
       delete m_bgWindow;
-      m_bgWindow = (CBgWindow *)NULL;
+      m_bgWindow = NULL;
     }
 
   // Free the widget control instance
@@ -160,7 +160,7 @@ void CGlyphSliderHorizontalTest::disconnect(void)
   if (m_widgetControl)
     {
       delete m_widgetControl;
-      m_widgetControl = (CWidgetControl *)NULL;
+      m_widgetControl = NULL;
     }
 
   // And disconnect from the server
@@ -184,7 +184,7 @@ bool CGlyphSliderHorizontalTest::createWindow(void)
 {
   // Initialize the widget control using the default style
 
-  m_widgetControl = new CWidgetControl((CWidgetStyle *)NULL);
+  m_widgetControl = new CWidgetControl(NULL);
 
   // Get an (uninitialized) instance of the background window as a class
   // that derives from INxWindow.
