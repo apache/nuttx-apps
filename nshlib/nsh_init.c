@@ -27,9 +27,11 @@
 #include <sys/boardctl.h>
 
 #include "system/readline.h"
+#include "netutils/netinit.h"
 #include "nshlib/nshlib.h"
 
 #include "nsh.h"
+#include "nsh_console.h"
 
 /****************************************************************************
  * Private Data
@@ -66,26 +68,63 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
 
 void nsh_initialize(void)
 {
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  FAR struct console_stdio_s *pstate;
+#endif
+
 #if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
   /* Configure the NSH prompt */
 
   readline_prompt(g_nshprompt);
 
-#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+#  ifdef CONFIG_READLINE_HAVE_EXTMATCH
   /* Set up for tab completion on NSH commands */
 
   readline_extmatch(&g_nsh_extmatch);
-#endif
+#  endif
 #endif
 
   /* Mount the /etc filesystem */
 
   (void)nsh_romfsetc();
 
+#ifdef CONFIG_NSH_USBDEV_TRACE
+  /* Initialize any USB tracing options that were requested */
+
+  usbtrace_enable(TRACE_BITSET);
+#endif
+
 #ifdef CONFIG_NSH_ARCHINIT
   /* Perform architecture-specific initialization (if configured) */
 
   boardctl(BOARDIOC_INIT, 0);
+#endif
+
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  pstate = nsh_newconsole(false);
+
+  /* Execute the system init script */
+
+  nsh_sysinitscript(&pstate->cn_vtbl);
+#endif
+
+#ifdef CONFIG_NSH_NETINIT
+  /* Bring up the network */
+
+  netinit_bringup();
+#endif
+
+#if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
+  /* Perform architecture-specific final-initialization (if configured) */
+
+  boardctl(BOARDIOC_FINALINIT, 0);
+#endif
+
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  /* Execute the start-up script */
+
+  nsh_initscript(&pstate->cn_vtbl);
+  nsh_release(&pstate->cn_vtbl);
 #endif
 
 #if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_DISABLE_TELNETSTART) && \

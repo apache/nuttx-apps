@@ -32,8 +32,6 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#include "netutils/netinit.h"
-
 #if !defined(CONFIG_NSH_ALTCONDEV) && !defined(HAVE_USB_CONSOLE) && \
     !defined(HAVE_USB_KEYBOARD)
 
@@ -70,36 +68,6 @@ int nsh_consolemain(int argc, FAR char *argv[])
   int ret;
 
   DEBUGASSERT(pstate != NULL);
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-  /* Initialize any USB tracing options that were requested */
-
-  usbtrace_enable(TRACE_BITSET);
-#endif
-
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
-  /* Execute the system init script */
-
-  nsh_sysinitscript(&pstate->cn_vtbl);
-#endif
-
-#ifdef CONFIG_NSH_NETINIT
-  /* Bring up the network */
-
-  netinit_bringup();
-#endif
-
-#if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
-  /* Perform architecture-specific final-initialization (if configured) */
-
-  boardctl(BOARDIOC_FINALINIT, 0);
-#endif
-
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
-  /* Execute the start-up script */
-
-  nsh_initscript(&pstate->cn_vtbl);
-#endif
 
   /* Execute the session */
 
