@@ -41,7 +41,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
-#include <spawn.h>
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -55,12 +54,22 @@
  * Private Types
  ****************************************************************************/
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+/* This structure represents the overall state of one telnet daemon instance
+ * (Yes, multiple telnet daemons are supported).
+ */
+
+struct telnetd_s
+{
+  uint16_t              port;      /* The port to listen on (in network byte order) */
+  sa_family_t           family;    /* Address family */
+  uint8_t               priority;  /* The execution priority of the spawned task, */
+  size_t                stacksize; /* The stack size needed by the spawned task */
+  main_t                entry;     /* The entrypoint of the task to spawn when a new
+                                    * connection is accepted. */
+};
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -78,7 +87,7 @@
  *
  ****************************************************************************/
 
-int telnetd_daemon(int argc, FAR char *argv[])
+static int telnetd_daemon(int argc, FAR char *argv[])
 {
   UNUSED(argc);
 
@@ -94,11 +103,6 @@ int telnetd_daemon(int argc, FAR char *argv[])
 #endif
   } addr;
 
-#ifdef CONFIG_NETUTILS_TELNETD_USE_POSIX_SPAWNP
-  posix_spawn_file_actions_t file_actions;
-  posix_spawnattr_t attr;
-  FAR char *argv1[2];
-#endif
   struct telnet_session_s session;
 #ifdef CONFIG_NET_SOLINGER
   struct linger ling;
@@ -314,29 +318,6 @@ int telnetd_daemon(int argc, FAR char *argv[])
           close(drvrfd);
         }
 
-#ifdef CONFIG_NETUTILS_TELNETD_USE_POSIX_SPAWNP
-      posix_spawn_file_actions_init(&file_actions);
-      ret = posix_spawnattr_init(&attr);
-
-      if (ret < 0)
-        {
-          nerr("ERROR in posix_spawnattr_init(): %d\n", errno);
-          goto errout_with_socket;
-        }
-
-      argv1[0] = CONFIG_NETUTILS_TELNETD_SHELL_PATH;
-      argv1[1] = NULL;
-
-      ret = posix_spawnp(&pid,
-                         CONFIG_NETUTILS_TELNETD_SHELL_PATH,
-                         &file_actions, &attr, argv1, NULL);
-
-      if (ret < 0)
-        {
-          nerr("ERROR in posix_spawnp(): %d\n", errno);
-          goto errout_with_attrs;
-        }
-#else
       /* Create a task to handle the connection.  The created task
        * will inherit the new stdin, stdout, and stderr.
        */
@@ -349,7 +330,6 @@ int telnetd_daemon(int argc, FAR char *argv[])
           nerr("ERROR: Failed start the telnet session: %d\n", errno);
           goto errout_with_socket;
         }
-#endif
 
       /* Forget about the connection. */
 
@@ -361,17 +341,16 @@ int telnetd_daemon(int argc, FAR char *argv[])
 errout_with_acceptsd:
   close(acceptsd);
 
-#ifdef CONFIG_NETUTILS_TELNETD_USE_POSIX_SPAWNP
-errout_with_attrs:
-  posix_spawnattr_destroy(&attr);
-#endif
-
 errout_with_socket:
   close(listensd);
 errout_with_daemon:
   free(daemon);
   return 1;
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: telnetd_start
@@ -394,46 +373,10 @@ errout_with_daemon:
 
 int telnetd_start(FAR struct telnetd_config_s *config)
 {
-  FAR char *argv[2];
-  pid_t pid;
-
-#ifdef CONFIG_NETUTILS_TELNETD_USE_POSIX_SPAWNP
-  posix_spawn_file_actions_t file_actions;
-  posix_spawnattr_t attr;
-  int ret = 0;
-
-  posix_spawn_file_actions_init(&file_actions);
-  ret = posix_spawnattr_init(&attr);
-
-  if (ret < 0)
-    {
-      nerr("ERROR in posix_spawnattr_init(): %d\n", errno);
-      pid = -1;
-      goto errout;
-    }
-
-  argv[0] = CONFIG_NETUTILS_TELNETD_PATH;
-  argv[1] = NULL;
-
-  ret = posix_spawnp(&pid,
-                     CONFIG_NETUTILS_TELNETD_PATH,
-                     &file_actions, &attr, argv, NULL);
-
-  if (ret < 0)
-    {
-      nerr("ERROR in posix_spawnp(): %d\n", errno);
-      pid = -1;
-      goto errout_with_attrs;
-    }
-
-errout_with_attrs:
-  posix_spawnattr_destroy(&attr);
-
-errout:
-  return pid;
-#else
   FAR struct telnetd_s *daemon;
+  FAR char *argv[2];
   char arg0[sizeof("0x1234567812345678")];
+  pid_t pid;
 
   /* Allocate a state structure for the new daemon */
 
@@ -470,5 +413,4 @@ errout:
   /* Return success */
 
   return pid;
-#endif
 }
