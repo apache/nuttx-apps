@@ -22,8 +22,6 @@ include $(APPDIR)/Make.defs
 
 # Telnet daemon
 
-ifeq ($(CONFIG_NET_TCP),y)
 CSRCS = telnetd_daemon.c
-endif
 
 include $(APPDIR)/Application.mk

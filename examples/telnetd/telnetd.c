@@ -239,10 +239,9 @@ int main(int argc, FAR char *argv[])
 
   /* Configure the telnet daemon */
 
+  memset(&config, 0, sizeof(config));
   config.d_port      = HTONS(23);
   config.d_family    = AF_INET;
-  config.d_priority  = CONFIG_EXAMPLES_TELNETD_DAEMONPRIO;
-  config.d_stacksize = CONFIG_EXAMPLES_TELNETD_DAEMONSTACKSIZE;
   config.t_priority  = CONFIG_EXAMPLES_TELNETD_CLIENTPRIO;
   config.t_stacksize = CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE;
   config.t_entry     = telnetd_session;
@@ -250,7 +249,7 @@ int main(int argc, FAR char *argv[])
   /* Start the telnet daemon */
 
   printf("telnetd_main: Starting the Telnet daemon\n");
-  ret = telnetd_start(&config);
+  ret = telnetd_daemon(&config);
   if (ret < 0)
     {
       printf("Failed to start the Telnet daemon\n");

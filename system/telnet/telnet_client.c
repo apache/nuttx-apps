@@ -77,8 +77,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_TELNETD_PORT
-#  define DEFAULT_PORT CONFIG_NSH_TELNETD_PORT
+#ifdef CONFIG_SYSTEM_TELNETD_PORT
+#  define DEFAULT_PORT CONFIG_SYSTEM_TELNETD_PORT
 #else
 #  define DEFAULT_PORT 23
 #endif

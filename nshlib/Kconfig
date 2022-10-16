@@ -546,10 +546,6 @@ config NSH_DISABLE_TEST
 	bool "Disable test"
 	default DEFAULT_SMALL
 
-config NSH_DISABLE_TELNETD
-	bool "Disable telnetd"
-	default DEFAULT_SMALL || NSH_NETLOCAL
-
 config NSH_DISABLE_TRUNCATE
 	bool "Disable truncate"
 	default DEFAULT_SMALL
@@ -1156,65 +1152,24 @@ endif # NSH_DISABLE_WGET
 endmenu # Networking Configuration"
 
 menu "Telnet Configuration"
-	depends on NETUTILS_TELNETD
 
 config NSH_TELNET
 	bool "Use Telnet console"
 	default !DEFAULT_SMALL
-	depends on NETUTILS_TELNETD
+	depends on SYSTEM_TELNETD
 	---help---
 		If NSH_TELNET is set to 'y', then a TELENET
 		server front-end is selected.  When this option is provided,
 		you may log into NuttX remotely using telnet in order to
 		access NSH.
 
-if NSH_TELNET
-
-config NSH_TELNETD_PORT
-	int "Telnet port number"
-	default 23
-	---help---
-		The telnet daemon will listen on this TCP port number for connections.
-		Default: 23
-
-config NSH_TELNETD_DAEMONPRIO
-	int "Telnet daemon priority"
-	default 100
-	---help---
-		Priority of the Telnet daemon. Default: 100
-
-config NSH_TELNETD_DAEMONSTACKSIZE
-	int "Telnet daemon stack size"
-	default DEFAULT_TASK_STACKSIZE
-	---help---
-		Stack size allocated for the Telnet daemon. Default: 2048
-
-config NSH_TELNETD_CLIENTPRIO
-	int "Telnet client priority"
-	default 100
-	---help---
-		Priority of the Telnet client. Default: 100
-
-config NSH_TELNETD_CLIENTSTACKSIZE
-	int "Telnet client stack size"
-	default DEFAULT_TASK_STACKSIZE
-	---help---
-		Stack size allocated for the Telnet client. Default: 2048
-
-config NSH_IOBUFFER_SIZE
-	int "Telnet I/O buffer size"
-	default 512
-	---help---
-		Determines the size of the I/O buffer to use for sending/
-		receiving TELNET commands/responses.  Default: 512
-
 config NSH_DISABLE_TELNETSTART
 	bool "Disable to start telnetd"
-	default false
+	default DEFAULT_SMALL
+	depends on NSH_TELNET
 	---help---
 		Determines if the nsh starts telnetd automatically
 
-endif # NSH_TELNET
 endmenu # Telnet Configuration
 
 config NSH_LOGIN

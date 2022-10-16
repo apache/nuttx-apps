@@ -1343,7 +1343,7 @@ system image.
   `nsh_telnetstart()` or it may be started from the NSH command line using this
   `telnetd` command.
 
-  Normally this command would be suppressed with `CONFIG_NSH_DISABLE_TELNETD`
+  Normally this command would be suppressed without `CONFIG_SYSTEM_TELNETD`
   because the Telnet daemon is automatically started in `nsh_main.c`. The
   exception is when `CONFIG_NETINIT_NETLOCAL` is selected. IN that case, the
   network is not enabled at initialization but rather must be enabled from the
@@ -1618,7 +1618,7 @@ shutdown  | `CONFIG_BOARDCTL_POWEROFF` || `CONFIG_BOARDCTL_RESET`
 sleep     | -
 source    | `CONFIG_FILE_STREAM` && !`CONFIG_NSH_DISABLESCRIPT`
 test      | !`CONFIG_NSH_DISABLESCRIPT`
-telnetd   | `CONFIG_NSH_TELNET` && !`CONFIG_NSH_DISABLE_TELNETD`
+telnetd   | `CONFIG_NSH_TELNET` && `CONFIG_SYSTEM_TELNETD`
 time      | -
 truncate  | !`CONFIG_DISABLE_MOUNTPOINT`
 umount    | !`CONFIG_DISABLE_MOUNTPOINT`
@@ -1915,16 +1915,16 @@ The behavior of NSH can be modified with the following settings in the
 If Telnet is selected for the NSH console, then we must configure the resources
 used by the Telnet daemon and by the Telnet clients.
 
-- `CONFIG_NSH_TELNETD_PORT` – The telnet daemon will listen on this TCP port
+- `CONFIG_SYSTEM_TELNETD_PORT` – The telnet daemon will listen on this TCP port
   number for connections. Default: `23`
-- `CONFIG_NSH_TELNETD_DAEMONPRIO` – Priority of the Telnet daemon. Default:
+- `CONFIG_SYSTEM_TELNETD_PRIORITY` – Priority of the Telnet daemon. Default:
   `SCHED_PRIORITY_DEFAULT`
-- `CONFIG_NSH_TELNETD_DAEMONSTACKSIZE` – Stack size allocated for the Telnet
+- `CONFIG_SYSTEM_TELNETD_STACKSIZE` – Stack size allocated for the Telnet
   daemon. Default: `2048`
-- `CONFIG_NSH_TELNETD_CLIENTPRIO` – Priority of the Telnet client. Default:
+- `CONFIG_SYSTEM_TELNETD_SESSION_PRIORITY` – Priority of the Telnet client. Default:
   `SCHED_PRIORITY_DEFAULT`
-- `CONFIG_NSH_TELNETD_CLIENTSTACKSIZE` – Stack size allocated for the Telnet
-  client. Default: `2048`
+- `CONFIG_SYSTEM_TELNETD_SESSION_STACKSIZE` – Stack size allocated for the Telnet
+  client. Default: `3072`
 
 One or both of CONFIG_NSH_CONSOLE and `CONFIG_NSH_TELNET` must be defined. If
 `CONFIG_NSH_TELNET` is selected, then there some other configuration settings
@@ -1933,8 +1933,6 @@ that apply:
 - `CONFIG_NET=y` – Of course, networking must be enabled
 - `CONFIG_NET_TCP=y` – TCP/IP support is required for telnet (as well as various
   other TCP-related configuration settings).
-- `CONFIG_NSH_IOBUFFER_SIZE` – Determines the size of the I/O buffer to use for
-  sending/ receiving TELNET commands/responses.
 - `CONFIG_NETINIT_DHCPC` – Obtain the IP address via DHCP.
 - `CONFIG_NETINIT_IPADDR` – If `CONFIG_NETINIT_DHCPC` is NOT set, then the
   static IP address must be provided.
