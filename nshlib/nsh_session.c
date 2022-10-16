@@ -66,7 +66,7 @@
  ****************************************************************************/
 
 int nsh_session(FAR struct console_stdio_s *pstate,
-                bool login, int argc, FAR char *argv[])
+                int login, int argc, FAR char *argv[])
 {
   FAR struct nsh_vtbl_s *vtbl;
   int ret = EXIT_FAILURE;
@@ -74,9 +74,9 @@ int nsh_session(FAR struct console_stdio_s *pstate,
   DEBUGASSERT(pstate);
   vtbl = &pstate->cn_vtbl;
 
-  if (login)
-    {
 #ifdef CONFIG_NSH_CONSOLE_LOGIN
+  if (login == NSH_LOGIN_LOCAL)
+    {
       /* Login User and Password Check */
 
       if (nsh_login(pstate) != OK)
@@ -84,8 +84,24 @@ int nsh_session(FAR struct console_stdio_s *pstate,
           nsh_exit(vtbl, 1);
           return -1; /* nsh_exit does not return */
         }
+    }
+  else
 #endif /* CONFIG_NSH_CONSOLE_LOGIN */
+#ifdef CONFIG_NSH_TELNET_LOGIN
+  if (login == NSH_LOGIN_TELNET)
+    {
+      /* Login User and Password Check */
 
+      if (nsh_telnetlogin(pstate) != OK)
+        {
+          nsh_exit(vtbl, 1);
+          return -1; /* nsh_exit does not return */
+        }
+    }
+#endif /* CONFIG_NSH_TELNET_LOGIN */
+
+  if (login != NSH_LOGIN_NONE)
+    {
       /* Present a greeting and possibly a Message of the Day (MOTD) */
 
       fputs(g_nshgreeting, pstate->cn_outstream);

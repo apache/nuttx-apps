@@ -292,7 +292,7 @@ int nsh_consolemain(int argc, FAR char *argv[])
 
       /* Execute the session */
 
-      nsh_session(pstate, true, argc, argv);
+      nsh_session(pstate, NSH_LOGIN_LOCAL, argc, argv);
 
       /* Switch to /dev/null because we probably no longer have a
        * valid console device.
