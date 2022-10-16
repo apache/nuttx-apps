@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_ESP8266),y)
+ifneq ($(CONFIG_NETUTILS_ESP8266),)
 CONFIGURED_APPS += $(APPDIR)/netutils/esp8266
 endif

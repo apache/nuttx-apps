@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_NETINIT),y)
+ifneq ($(CONFIG_NETUTILS_NETINIT),)
 CONFIGURED_APPS += $(APPDIR)/netutils/netinit
 endif

@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_SMTP),y)
+ifneq ($(CONFIG_NETUTILS_SMTP),)
 CONFIGURED_APPS += $(APPDIR)/netutils/smtp
 endif

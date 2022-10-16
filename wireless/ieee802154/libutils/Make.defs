@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_IEEE802154_LIBUTILS),y)
+ifneq ($(CONFIG_IEEE802154_LIBUTILS),)
 CONFIGURED_APPS += $(APPDIR)/wireless/ieee802154/libutils
 endif

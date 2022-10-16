@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_XMLRPC),y)
+ifneq ($(CONFIG_NETUTILS_XMLRPC),)
 CONFIGURED_APPS += $(APPDIR)/netutils/xmlrpc
 endif

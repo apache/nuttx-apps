@@ -18,7 +18,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_CRYPTO_LIBTOMCRYPT),y)
+ifneq ($(CONFIG_CRYPTO_LIBTOMCRYPT),)
 CONFIGURED_APPS += $(APPDIR)/crypto/libtomcrypt
 
 # It allows `<tomcrypt.h>` import.

@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_NTPCLIENT),y)
+ifneq ($(CONFIG_NETUTILS_NTPCLIENT),)
 CONFIGURED_APPS += $(APPDIR)/netutils/ntpclient
 endif
