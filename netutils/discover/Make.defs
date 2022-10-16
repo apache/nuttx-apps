@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_DISCOVER),y)
+ifneq ($(CONFIG_NETUTILS_DISCOVER),)
 CONFIGURED_APPS += $(APPDIR)/netutils/discover
 endif

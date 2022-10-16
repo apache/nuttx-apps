@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_EMBEDLOG),y)
+ifneq ($(CONFIG_SYSTEM_EMBEDLOG),)
 CONFIGURED_APPS += $(APPDIR)/system/embedlog
 endif

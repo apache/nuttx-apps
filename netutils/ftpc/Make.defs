@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_FTPC),y)
+ifneq ($(CONFIG_NETUTILS_FTPC),)
 CONFIGURED_APPS += $(APPDIR)/netutils/ftpc
 endif

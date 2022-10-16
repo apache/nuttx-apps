@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_DHCPC),y)
+ifneq ($(CONFIG_NETUTILS_DHCPC),)
 CONFIGURED_APPS += $(APPDIR)/netutils/dhcpc
 endif

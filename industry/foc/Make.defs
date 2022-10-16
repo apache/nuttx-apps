@@ -19,6 +19,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_INDUSTRY_FOC),y)
+ifneq ($(CONFIG_INDUSTRY_FOC),)
 CONFIGURED_APPS += $(APPDIR)/industry/foc
 endif

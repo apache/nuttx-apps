@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_LIBCURL4NX),y)
+ifneq ($(CONFIG_NETUTILS_LIBCURL4NX),)
 CONFIGURED_APPS += $(APPDIR)/netutils/libcurl4nx
 endif

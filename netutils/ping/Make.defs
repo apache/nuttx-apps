@@ -18,8 +18,8 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_PING),y)
+ifneq ($(CONFIG_NETUTILS_PING),)
 CONFIGURED_APPS += $(APPDIR)/netutils/ping
-else ifeq ($(CONFIG_NETUTILS_PING6),y)
+else ifneq ($(CONFIG_NETUTILS_PING6),)
 CONFIGURED_APPS += $(APPDIR)/netutils/ping
 endif

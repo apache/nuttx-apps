@@ -18,7 +18,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_CRYPTO_MBEDTLS),y)
+ifneq ($(CONFIG_CRYPTO_MBEDTLS),)
 CONFIGURED_APPS += $(APPDIR)/crypto/mbedtls
 
 # Allows `<mbedtls/<>.h>` import.

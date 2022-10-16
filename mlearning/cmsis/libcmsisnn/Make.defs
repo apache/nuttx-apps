@@ -18,7 +18,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_CMSIS_NN),y)
+ifneq ($(CONFIG_CMSIS_NN),)
 CONFIGURED_APPS += $(APPDIR)/mlearning/cmsis/libcmsisnn
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/NN/Include/}

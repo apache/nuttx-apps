@@ -18,7 +18,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_DARKNET_YOLO),y)
+ifneq ($(CONFIG_DARKNET_YOLO),)
 CONFIGURED_APPS += $(APPDIR)/mlearning/darknet
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/darknet/darknet/include/}

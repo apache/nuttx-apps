@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_LSM303_READER),y)
+ifneq ($(CONFIG_EXAMPLES_LSM303_READER),)
 CONFIGURED_APPS += examples/lsm303_reader
 endif

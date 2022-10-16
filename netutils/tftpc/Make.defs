@@ -17,6 +17,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_TFTPC),y)
+ifneq ($(CONFIG_NETUTILS_TFTPC),)
 CONFIGURED_APPS += $(APPDIR)/netutils/tftpc
 endif

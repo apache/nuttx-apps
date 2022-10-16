@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_HTS221_READER),y)
+ifneq ($(CONFIG_EXAMPLES_HTS221_READER),)
 CONFIGURED_APPS += examples/hts221_reader
 endif
