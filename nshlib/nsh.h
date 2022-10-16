@@ -264,16 +264,6 @@
 /* If Telnet is selected for the NSH console, then we must configure
  * the resources used by the Telnet daemon and by the Telnet clients.
  *
- * CONFIG_NSH_TELNETD_PORT - The telnet daemon will listen on this.
- *   port.  Default: 23
- * CONFIG_NSH_TELNETD_DAEMONPRIO - Priority of the Telnet daemon.
- *   Default: SCHED_PRIORITY_DEFAULT
- * CONFIG_NSH_TELNETD_DAEMONSTACKSIZE - Stack size allocated for the
- *   Telnet daemon. Default: 2048
- * CONFIG_NSH_TELNETD_CLIENTPRIO - Priority of the Telnet client.
- *   Default: SCHED_PRIORITY_DEFAULT
- * CONFIG_NSH_TELNETD_CLIENTSTACKSIZE - Stack size allocated for the
- *   Telnet client. Default: 2048
  * CONFIG_NSH_TELNET_LOGIN - Support a simple Telnet login.
  *
  * If CONFIG_NSH_TELNET_LOGIN is defined, then these additional
@@ -284,26 +274,6 @@
  * CONFIG_NSH_LOGIN_FAILCOUNT - Number of login retry attempts.
  *   Default 3.
  */
-
-#ifndef CONFIG_NSH_TELNETD_PORT
-#  define CONFIG_NSH_TELNETD_PORT 23
-#endif
-
-#ifndef CONFIG_NSH_TELNETD_DAEMONPRIO
-#  define CONFIG_NSH_TELNETD_DAEMONPRIO SCHED_PRIORITY_DEFAULT
-#endif
-
-#ifndef CONFIG_NSH_TELNETD_DAEMONSTACKSIZE
-#  define CONFIG_NSH_TELNETD_DAEMONSTACKSIZE 2048
-#endif
-
-#ifndef CONFIG_NSH_TELNETD_CLIENTPRIO
-#  define CONFIG_NSH_TELNETD_CLIENTPRIO SCHED_PRIORITY_DEFAULT
-#endif
-
-#ifndef CONFIG_NSH_TELNETD_CLIENTSTACKSIZE
-#  define CONFIG_NSH_TELNETD_CLIENTSTACKSIZE 2048
-#endif
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
 
@@ -445,12 +415,6 @@
 
 #ifndef CONFIG_NSH_LINELEN
 #  define CONFIG_NSH_LINELEN 80
-#endif
-
-/* The following two settings are used only in the telnetd interface */
-
-#ifndef CONFIG_NSH_IOBUFFER_SIZE
-# define CONFIG_NSH_IOBUFFER_SIZE 512
 #endif
 
 /* The maximum number of nested if-then[-else]-fi sequences that
@@ -1151,11 +1115,6 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  endif
 #  ifndef CONFIG_NSH_DISABLE_ROUTE
   int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
-#  endif
-#  if defined(CONFIG_NSH_TELNET)
-#    ifndef CONFIG_NSH_DISABLE_TELNETD
-  int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
-#    endif
 #  endif
 #endif /* CONFIG_NET */
 

@@ -24,10 +24,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
+
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 #include "netutils/telnetd.h"
-#include "netutils/netlib.h"
 #include "nshlib/nshlib.h"
 
 /****************************************************************************
@@ -36,26 +38,62 @@
 
 int main(int argc, FAR char *argv[])
 {
-  FAR char *argv1[3];
-  char arg0[sizeof("0x1234567812345678")];
-  struct telnetd_s daemon;
+  FAR char *argv_[] =
+  {
+    CONFIG_SYSTEM_TELNETD_PROGNAME,
+    "-c",
+    NULL,
+  };
 
-  /* Initialize the daemon structure */
+  struct telnetd_config_s config =
+  {
+    HTONS(CONFIG_SYSTEM_TELNETD_PORT),
+#ifdef CONFIG_NET_IPv4
+    AF_INET,
+#else
+    AF_INET6,
+#endif
+    CONFIG_SYSTEM_TELNETD_SESSION_PRIORITY,
+    CONFIG_SYSTEM_TELNETD_SESSION_STACKSIZE,
+#ifndef CONFIG_BUILD_KERNEL
+    nsh_telnetmain,
+#endif
+#ifdef CONFIG_LIBC_EXECFUNCS
+    CONFIG_SYSTEM_TELNETD_PROGNAME,
+#endif
+    argv_,
+  };
 
-  daemon.port      = HTONS(23);
-  daemon.family    = AF_INET;
-  daemon.entry     = nsh_telnetmain;
+  int daemon = 1;
+  int opt;
 
-  /* NOTE: Settings for telnet session task */
+  while ((opt = getopt(argc, argv, "46cp:")) != ERROR)
+    {
+      switch (opt)
+        {
+#ifdef CONFIG_NET_IPv4
+          case '4':
+            config.d_family = AF_INET;
+            break;
+#endif
+#ifdef CONFIG_NET_IPv6
+          case '6':
+            config.d_family = AF_INET6;
+            break;
+#endif
+          case 'c':
+            daemon = 0;
+            break;
 
-  daemon.priority  = CONFIG_SYSTEM_TELNETD_SESSION_PRIORITY;
-  daemon.stacksize = CONFIG_SYSTEM_TELNETD_SESSION_STACKSIZE;
+          case 'p':
+            config.d_port = atoi(optarg);
+            break;
 
-  snprintf(arg0, sizeof(arg0), "0x%" PRIxPTR, (uintptr_t)&daemon);
-  argv1[0] = "telnetd";
-  argv1[1] = arg0;
-  argv1[2] = NULL;
+          default:
+            fprintf(stderr, "Usage: %s [-4|-6] [-p port]\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+    }
 
-  telnetd_daemon(2, argv1);
-  return 0;
+  return daemon ? telnetd_daemon(&config) : nsh_telnetmain(1, argv);
 }

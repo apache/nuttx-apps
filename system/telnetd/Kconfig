@@ -5,7 +5,7 @@
 
 config SYSTEM_TELNETD
 	tristate "Telnet daemon application"
-	default n
+	default !DEFAULT_SMALL
 	depends on NETUTILS_TELNETD
 	---help---
 		Enable the Telnet daemon application
@@ -27,6 +27,13 @@ config SYSTEM_TELNETD_STACKSIZE
 	int "Telnetd task stack size"
 	default DEFAULT_TASK_STACKSIZE
 	depends on SYSTEM_TELNETD
+
+config SYSTEM_TELNETD_PORT
+	int "Telnetd port number"
+	default 23
+	---help---
+		The telnet daemon will listen on this TCP port number for connections.
+		Default: 23
 
 config SYSTEM_TELNETD_SESSION_PRIORITY
 	int "Telnetd session task priority"
