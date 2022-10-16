@@ -67,131 +67,19 @@ enum telnetd_state_e
 
 int nsh_telnetmain(int argc, FAR char *argv[])
 {
-  UNUSED(argc);
-  UNUSED(argv);
-
   FAR struct console_stdio_s *pstate = nsh_newconsole(true);
-  FAR struct nsh_vtbl_s *vtbl;
   int ret;
 
   DEBUGASSERT(pstate != NULL);
-  vtbl = &pstate->cn_vtbl;
 
-  ninfo("Session [%d] Started\n", getpid());
+  /* Execute the session */
 
-#ifdef CONFIG_NSH_TELNET_LOGIN
-  /* Login User and Password Check */
+  ret = nsh_session(pstate, NSH_LOGIN_TELNET, argc, argv);
 
-  if (nsh_telnetlogin(pstate) != OK)
-    {
-      nsh_exit(vtbl, 1);
-      return -1; /* nsh_exit does not return */
-    }
-#endif /* CONFIG_NSH_TELNET_LOGIN */
+  /* Exit upon return */
 
-  /* The following logic mostly the same as the login in nsh_session.c.  It
-   * differs only in that gets() is called to get the command instead of
-   * readline().
-   */
-
-  /* Present a greeting and possibly a Message of the Day (MOTD) */
-
-  fputs(g_nshgreeting, pstate->cn_outstream);
-
-#ifdef CONFIG_NSH_MOTD
-# ifdef CONFIG_NSH_PLATFORM_MOTD
-  /* Output the platform message of the day */
-
-  platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
-  fprintf(pstate->cn_outstream, "%s\n", vtbl->iobuffer);
-
-# else
-  /* Output the fixed message of the day */
-
-  fprintf(pstate->cn_outstream, "%s\n", g_nshmotd);
-# endif
-#endif
-
-  fflush(pstate->cn_outstream);
-
-  /* Execute the login script */
-
-#ifdef CONFIG_NSH_ROMFSRC
-  nsh_loginscript(vtbl);
-#endif
-
-  /* Then enter the command line parsing loop */
-
-  for (; ; )
-    {
-      /* Get the next line of input from the Telnet client */
-
-#ifdef CONFIG_TELNET_CHARACTER_MODE
-#ifdef CONFIG_NSH_CLE
-      /* cle() returns a negated errno value on failure (errno is not set) */
-
-      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
-                INSTREAM(pstate), OUTSTREAM(pstate));
-      if (ret < 0)
-        {
-          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
-                  "cle", NSH_ERRNO_OF(-ret));
-          nsh_exit(vtbl, 1);
-        }
-#else
-      /* Display the prompt string */
-
-      fputs(g_nshprompt, pstate->cn_outstream);
-      fflush(pstate->cn_outstream);
-
-      /* readline() returns EOF on failure (errno is not set) */
-
-      ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
-                     INSTREAM(pstate), OUTSTREAM(pstate));
-      if (ret == EOF)
-        {
-          /* NOTE: readline() does not set the errno variable, but perhaps we
-           * will be lucky and it will still be valid.
-           */
-
-          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
-                  "readline", NSH_ERRNO);
-          nsh_exit(vtbl, 1);
-        }
-#endif
-#else
-      /* Display the prompt string */
-
-      fputs(g_nshprompt, pstate->cn_outstream);
-      fflush(pstate->cn_outstream);
-
-      /* fgets() returns NULL on failure (errno will be set) */
-
-      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
-                INSTREAM(pstate)) == NULL)
-        {
-          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_telnetmain",
-                  "fgets", NSH_ERRNO);
-          nsh_exit(vtbl, 1);
-        }
-
-      ret = strlen(pstate->cn_line);
-#endif
-
-      /* Parse process the received Telnet command */
-
-      nsh_parse(vtbl, pstate->cn_line);
-      fflush(pstate->cn_outstream);
-    }
-
-  /* Clean up */
-
-  nsh_exit(vtbl, 0);
-
-  /* We do not get here, but this is necessary to keep some compilers happy */
-
-  UNUSED(ret);
-  return OK;
+  nsh_exit(&pstate->cn_vtbl, ret);
+  return ret;
 }
 
 /****************************************************************************

@@ -647,6 +647,13 @@
  * Public Types
  ****************************************************************************/
 
+enum nsh_login_e
+{
+  NSH_LOGIN_NONE = 0,         /* Don't Performs the login sequence */
+  NSH_LOGIN_LOCAL,            /* Performs the login sequence as local user */
+  NSH_LOGIN_TELNET            /* Performs the login sequence as telnet client */
+};
+
 #ifndef CONFIG_NSH_DISABLE_ITEF
 /* State when parsing and if-then-else sequence */
 
@@ -866,7 +873,7 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 
 struct console_stdio_s;
 int nsh_session(FAR struct console_stdio_s *pstate,
-                bool login, int argc, FAR char *argv[]);
+                int login, int argc, FAR char *argv[]);
 int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
 
 /****************************************************************************
