@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
   int bytes_read_from_server = 0;
   struct sockaddr_in serv_addr;
   protocolo_ipc tprotocol;
-  int ndx;
 
   /* Check if there are sufficient arguments passed to this program */
 
@@ -115,7 +114,6 @@ int main(int argc, char *argv[])
       return 1;
     }
 
-  ndx = 1;
   if (strcmp(argv[1], "-h") == 0)
     {
       show_usage(argv[0]);
