@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CWEBSOCKET
+	bool "WebSocket Client Library"
+	default n
+	depends on ALLOW_MIT_COMPONENTS
+	select LIBC_SCANSET
+	---help---
+		Enable WebSocket Client Library.
+		WebSocket Client Library is provided from https://github.com/jeremyhahn/cwebsocket
+		and licensed under MIT.
+

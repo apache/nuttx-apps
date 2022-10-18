@@ -1,0 +1,186 @@
+From 73f37c25e822864d9a07d1c61c0372a3b432e524 Mon Sep 17 00:00:00 2001
+From: SPRESENSE <41312067+SPRESENSE@users.noreply.github.com>
+Date: Fri, 1 May 2020 14:10:35 +0900
+Subject: [PATCH 2/2] Revert dsp_message and app_message to original
+
+---
+ cwebsocket/src/cwebsocket/client.c | 39 +++++++-----------------------
+ cwebsocket/src/cwebsocket/client.h |  5 ++--
+ cwebsocket/src/cwebsocket/common.h | 20 +++------------
+ 3 files changed, 15 insertions(+), 49 deletions(-)
+
+diff --git a/cwebsocket/src/cwebsocket/client.c b/cwebsocket/src/cwebsocket/client.c
+index 50747f0..082b451 100755
+--- a/cwebsocket/src/cwebsocket/client.c
++++ b/cwebsocket/src/cwebsocket/client.c
+@@ -827,14 +827,14 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
+ 		if(websocket->subprotocol != NULL && websocket->subprotocol->onmessage != NULL) {
+ 
+ #ifdef ENABLE_THREADS
+-			cwebsocket_dsp_message *message = malloc(sizeof(cwebsocket_dsp_message));
++			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+ 			if(message == NULL) {
+ 				WS_DEBUG("client_read_data: text message out of memory");
+ 				cwebsocket_client_close(websocket, 1009, "out of memory");
+ 				free(payload);
+ 				return -1;
+ 			}
+-			memset(message, 0, sizeof(cwebsocket_dsp_message));
++			memset(message, 0, sizeof(cwebsocket_message));
+ 			message->opcode = frame.opcode;
+ 			message->payload_len = payload_length;
+ 			message->payload = payload;
+@@ -859,7 +859,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
+ 		    free(payload);
+ 		    return bytes_read;
+ #else
+-			cwebsocket_dsp_message message = {0};
++			cwebsocket_message message = {0};
+ 			message.opcode = frame.opcode;
+ 			message.payload_len = payload_length;
+ 			message.payload = payload;
+@@ -890,7 +890,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
+ 		if(websocket->subprotocol->onmessage != NULL) {
+ 
+ #ifdef ENABLE_THREADS
+-			cwebsocket_dsp_message *message = malloc(sizeof(cwebsocket_dsp_message));
++			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+ 			if(message == NULL) {
+ 				WS_DEBUG("client_read_data: binary message out of memory");
+ 				cwebsocket_client_close(websocket, 1009, "out of memory");
+@@ -919,7 +919,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
+ 			free(payload);
+ 			return bytes_read;
+ #else
+-			cwebsocket_dsp_message message;
++			cwebsocket_message message;
+ 			message.opcode = frame.opcode;
+ 			message.payload_len = payload_length;
+ 			message.payload = payload;
+@@ -1198,41 +1198,20 @@ void cwebsocket_client_onopen(cwebsocket_client *websocket) {
+ 	}
+ }
+ 
+-void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_dsp_message *message) {
++void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
+ 	if(websocket->subprotocol != NULL && websocket->subprotocol->onmessage != NULL) {
+-		uint64_t len;
+-		websocket->message.opcode = message->opcode;
+-
+-		for (len = 0; len < message->payload_len; len += MAX_CHUNK_SIZE){
+-			if (len + MAX_CHUNK_SIZE > message->payload_len){
+-				websocket->message.chunk_len = (message->payload_len - len);
+-				memcpy(websocket->message.payload, &message->payload[len], (message->payload_len - len));
+-				websocket->message.payload[(message->payload_len - len)] = '\0';
+-			} else {
+-				websocket->message.chunk_len = MAX_CHUNK_SIZE;
+-				memcpy(websocket->message.payload, &message->payload[len], MAX_CHUNK_SIZE);
+-				websocket->message.payload[MAX_CHUNK_SIZE] = '\0';
+-			}
+-			websocket->message.chunk_pos = len;
+-			websocket->message.payload_len = message->payload_len;
+-			websocket->subprotocol->onmessage(websocket);
+-		}
++		websocket->subprotocol->onmessage(websocket, message);
+ 	}
+ }
+ 
+ void cwebsocket_client_onclose(cwebsocket_client *websocket, int code, const char *message) {
+ 	if(websocket->subprotocol != NULL && websocket->subprotocol->onclose != NULL) {
+-		strncpy(websocket->message.payload, message, MAX_CHUNK_SIZE);
+-		websocket->code = code;
+-		websocket->message.payload_len = strlen(message);
+-		websocket->subprotocol->onclose(websocket);
++		websocket->subprotocol->onclose(websocket, code, message);
+ 	}
+ }
+ 
+ void cwebsocket_client_onerror(cwebsocket_client *websocket, const char *error) {
+ 	if(websocket->subprotocol != NULL && websocket->subprotocol->onerror != NULL) {
+-		strncpy(websocket->message.payload, error, MAX_CHUNK_SIZE);
+-		websocket->message.payload_len = strlen(error);
+-		websocket->subprotocol->onerror(websocket);
++		websocket->subprotocol->onerror(websocket, error);
+ 	}
+ }
+diff --git a/cwebsocket/src/cwebsocket/client.h b/cwebsocket/src/cwebsocket/client.h
+index d11dc0b..1bad957 100755
+--- a/cwebsocket/src/cwebsocket/client.h
++++ b/cwebsocket/src/cwebsocket/client.h
+@@ -91,7 +91,6 @@ typedef struct _cwebsocket {
+ 	pthread_mutex_t lock;
+ 	pthread_mutex_t write_lock;
+ #endif
+-	cwebsocket_app_message message;
+ 	int code;
+ 	size_t subprotocol_len;
+ 	cwebsocket_subprotocol *subprotocol;
+@@ -100,7 +99,7 @@ typedef struct _cwebsocket {
+ 
+ typedef struct {
+ 	cwebsocket_client *socket;
+-	cwebsocket_dsp_message *message;
++	cwebsocket_message *message;
+ } cwebsocket_client_thread_args;
+ 
+ // "public"
+@@ -223,7 +222,7 @@ int cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len);
+ int cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len);
+ 
+ void cwebsocket_client_onopen(cwebsocket_client *websocket);
+-void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_dsp_message *message);
++void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_message *message);
+ void cwebsocket_client_onclose(cwebsocket_client *websocket, int code, const char *message);
+ void cwebsocket_client_onerror(cwebsocket_client *websocket, const char *error);
+ 
+diff --git a/cwebsocket/src/cwebsocket/common.h b/cwebsocket/src/cwebsocket/common.h
+index faeb8ff..1141639 100644
+--- a/cwebsocket/src/cwebsocket/common.h
++++ b/cwebsocket/src/cwebsocket/common.h
+@@ -108,8 +108,6 @@
+ extern "C" {
+ #endif
+ 
+-#define MAX_CHUNK_SIZE 256
+-
+ typedef int ssize_t;
+ 
+ typedef enum {
+@@ -136,30 +134,20 @@ typedef struct {
+ 	uint32_t opcode;
+ 	uint64_t payload_len;
+ 	char *payload;
+-} cwebsocket_dsp_message;
+-
+-typedef struct {
+-	uint32_t opcode;
+-	uint64_t payload_len;
+-	uint64_t chunk_len;
+-	uint64_t chunk_pos;
+-	char payload[MAX_CHUNK_SIZE + 1];
+-} cwebsocket_app_message;
++} cwebsocket_message;
+ 
+ typedef struct {
+ 	char *name;
+ 	void (*onopen)(void *arg);
+-	void (*onmessage)(void *arg);
+-	void (*onclose)(void *arg);
+-	void (*onerror)(void *arg);
++	void (*onmessage)(void *arg, cwebsocket_message *message);
++	void (*onclose)(void *arg, int code, const char *message);
++	void (*onerror)(void *arg, const char *error);
+ } cwebsocket_subprotocol;
+ 
+ char* cwebsocket_create_key_challenge_response(const char *seckey);
+ char* cwebsocket_base64_encode(const unsigned char *input, int length);
+ void cwebsocket_print_frame(cwebsocket_frame *frame);
+ 
+-void ws_thread_new( const char *pcName, void( *pxThread )( void *pvParameters ), void *pvArg, int iStackSize, int iPriority);
+-
+ #ifdef __cplusplus
+ }
+ #endif
+-- 
+2.37.1
+
