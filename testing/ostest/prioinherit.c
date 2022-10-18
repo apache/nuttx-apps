@@ -518,6 +518,8 @@ void priority_inheritance(void)
   g_medpri = my_pri - 1;
 
   sem_init(&g_sem, 0, NLOWPRI_THREADS);
+  sem_setprotocol(&g_sem, SEM_PRIO_INHERIT);
+
   dump_nfreeholders("priority_inheritance:");
 
   /* Start the low priority threads */
