@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIBJPEG
+	bool "libjpeg"
+	default n
+	---help---
+		Enable libjpeg.
+		This package contains C software to implement JPEG image encoding, decoding,
+		and transcoding.  JPEG is a standardized compression method for full-color
+		and grayscale images.
+		The distributed programs provide conversion between JPEG JFIF format and
+		image files in PBMPLUS PPM/PGM, GIF, BMP, and Targa file formats.  The
+		core compression and decompression library can easily be reused in other
+		programs, such as image viewers.  The package is highly portable C code;
+		we have tested it on many machines ranging from PCs to Crays.
+		libjpeg is provided from http://www.ijg.org/
+
+if LIBJPEG
+
+config LIBJPEG_VER
+	string "libjpeg version"
+	default "9c"
+
+config LIBJPEG_TEMP_DIR
+	string "Temporary directory"
+	default "/mnt/spif/"
+	---help---
+		This is the directory path including the trailing slash '/'
+		to store the temporary files created by libjpeg.
+
+endif # LIBJPEG
