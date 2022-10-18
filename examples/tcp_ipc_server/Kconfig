@@ -6,9 +6,15 @@
 config EXAMPLES_TCP_IPC_SERVER
 	bool "Server for TCP IPC NuttX"
 	default n
-	depends on NET_TCP
-	depends on NET_SOCKOPTS
+	select ARCH_HAVE_NET
+	select ARCH_HAVE_NETDEV_STATISTICS
+	select NET_READAHEAD
+	select NET_TCP
+	select NET
+	select NET_SOCKOPTS
 	select NET_LOOPBACK
+	select NETDEV_LATEINIT
+	select SCHED_HPWORK
 	---help---
 		Enable the TCP SERVER example
 
