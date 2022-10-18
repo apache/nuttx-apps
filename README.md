@@ -257,3 +257,4 @@ Regulations, Section 740.13) for both object code and source code.
 
 The following provides more details on the included cryptographic software:
 https://tls.mbed.org/supported-ssl-ciphersuites.
+https://github.com/intel/tinycrypt
