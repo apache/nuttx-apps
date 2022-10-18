@@ -56,9 +56,7 @@
 #endif
 
 #ifndef CONFIG_FILE_STREAM
-#  undef CONFIG_NSH_TELNET
 #  undef CONFIG_NSH_FILE_APPS
-#  undef CONFIG_NSH_TELNET
 #  undef CONFIG_NSH_CMDPARMS
 #endif
 

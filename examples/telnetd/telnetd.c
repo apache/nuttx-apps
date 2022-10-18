@@ -76,7 +76,7 @@ static void telnetd_parse(FAR char *line, int len);
  * Private Data
  ****************************************************************************/
 
-static struct ptentry_s g_parsetab[] =
+static const struct ptentry_s g_parsetab[] =
 {
   {"help",  telnetd_help},
   {"exit",  telnetd_quit},
@@ -127,7 +127,7 @@ static void telnetd_quit(int argc, char **argv)
 
 static void telnetd_parse(FAR char *line, int len)
 {
-  struct ptentry_s *entry;
+  FAR const struct ptentry_s *entry;
   FAR char *cmd;
   FAR char *saveptr;
 
@@ -140,7 +140,8 @@ static void telnetd_parse(FAR char *line, int len)
 
       for (entry = g_parsetab; entry->commandstr != NULL; entry++)
         {
-          if (strncmp(entry->commandstr, cmd, strlen(entry->commandstr)) == 0)
+          if (strncmp(entry->commandstr, cmd,
+                      strlen(entry->commandstr)) == 0)
             {
              break;
             }
@@ -161,7 +162,7 @@ int telnetd_session(int argc, char *argv[])
   printf("uIP command shell -- NuttX style\n");
   printf("Type '?' and return for help\n");
 
-  for (;;)
+  for (; ; )
     {
       printf(SHELL_PROMPT);
       fflush(stdout);
@@ -188,7 +189,7 @@ static void telnetd_netinit(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-/* Many embedded network interfaces must have a software assigned MAC */
+  /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_TELNETD_NOMAC
   mac[0] = 0x00;
