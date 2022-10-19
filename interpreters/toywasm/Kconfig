@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_TOYWASM
+	tristate "Toywasm Webassembly Runtime"
+	default n
+
+if INTERPRETERS_TOYWASM
+
+config INTERPRETERS_TOYWASM_PRIORITY
+	int "Toywasm cli priority"
+	default 100
+
+config INTERPRETERS_TOYWASM_STACKSIZE
+	int "Toywasm cil stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
