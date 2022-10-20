@@ -243,12 +243,13 @@ static int _write_to_usock(int fd, void *buf, size_t count)
  ****************************************************************************/
 
 static int _send_ack_common(int fd,
+                            uint16_t events,
                             uint64_t xid,
                             FAR struct usrsock_message_req_ack_s *resp)
 {
   resp->head.msgid  = USRSOCK_MESSAGE_RESPONSE_ACK;
   resp->head.flags  = 0;
-  resp->head.events = 0;
+  resp->head.events = events;
   resp->xid = xid;
 
   /* Send ACK response. */
@@ -480,7 +481,7 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
 {
   FAR struct usrsock_request_socket_s *req = hdrbuf;
   struct usrsock_message_req_ack_s resp;
-  FAR struct usock_s *usock;
+  uint16_t events = 0;
   int16_t usockid;
   int ret;
 
@@ -505,22 +506,16 @@ static int socket_request(int fd, FAR struct gs2200m_s *priv,
 
   memset(&resp, 0, sizeof(resp));
   resp.result = usockid;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  if (req->type == SOCK_DGRAM)
+    {
+      events = USRSOCK_EVENT_SENDTO_READY;
+    }
+
+  ret = _send_ack_common(fd, events, req->head.xid, &resp);
 
   if (0 > ret)
     {
       return ret;
-    }
-
-  if (req->type == SOCK_DGRAM)
-    {
-      /* NOTE: If the socket type is DGRAM, it's ready to send
-       * a packet after creating user socket.
-       */
-
-      usock = gs2200m_socket_get(priv, usockid);
-      usock_send_event(fd, priv, usock,
-                       USRSOCK_EVENT_SENDTO_READY);
     }
 
   gs2200m_printf("%s: end\n", __func__);
@@ -565,7 +560,7 @@ errout:
 
   memset(&resp, 0, sizeof(resp));
   resp.result = ret;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
   if (0 > ret)
     {
@@ -704,7 +699,7 @@ prepare:
 
   memset(&resp, 0, sizeof(resp));
   resp.result = ret;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
   if (0 > ret)
     {
@@ -870,7 +865,7 @@ prepare:
 
   memset(&resp, 0, sizeof(resp));
   resp.result = ret;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
   if (0 > ret)
     {
@@ -990,7 +985,7 @@ prepare:
 
           memset(&resp1, 0, sizeof(resp1));
           resp1.result = ret;
-          ret = _send_ack_common(fd, req->head.xid, &resp1);
+          ret = _send_ack_common(fd, 0, req->head.xid, &resp1);
 
           goto err_out;
         }
@@ -1114,7 +1109,7 @@ prepare:
 
   memset(&resp, 0, sizeof(resp));
   resp.result = ret;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
   if (0 > ret)
     {
@@ -1155,7 +1150,7 @@ static int listen_request(int fd, FAR struct gs2200m_s *priv,
 
   memset(&resp, 0, sizeof(resp));
   resp.result = ret;
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
   if (0 > ret)
     {
@@ -1358,7 +1353,7 @@ prepare:
   memset(&resp, 0, sizeof(resp));
   resp.result = ret;
 
-  ret = _send_ack_common(fd, req->head.xid, &resp);
+  ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
   gs2200m_printf("%s: end (ret=%d)\n", __func__, ret);
   return ret;
@@ -1594,7 +1589,7 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
 
       memset(&resp, 0, sizeof(resp));
       resp.result = ret;
-      ret = _send_ack_common(fd, req->head.xid, &resp);
+      ret = _send_ack_common(fd, 0, req->head.xid, &resp);
 
       if (0 > ret)
         {
