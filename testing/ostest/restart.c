@@ -166,6 +166,9 @@ void restart_test(void)
   setenv(g_varname, g_varvalue, TRUE);  /* Variable1=GoodValue1 */
 #endif
 
+  /* Initialize global variables */
+
+  g_restartstep = 0;
   sem_init(&g_sem, 0, 0);
 
   /* Start the task */
