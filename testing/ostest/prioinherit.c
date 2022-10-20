@@ -57,19 +57,7 @@
 #  define NLOWPRI_THREADS 1
 #endif
 
-#ifndef CONFIG_SEM_NNESTPRIO
-#  define CONFIG_SEM_NNESTPRIO 0
-#endif
-
-/* Where resources configured for lots of waiters?  If so then run 3 high
- * priority threads.  Otherwise, just one.
- */
-
-#if CONFIG_SEM_NNESTPRIO > 3
-#  define NHIGHPRI_THREADS 3
-#else
-#  define NHIGHPRI_THREADS 1
-#endif
+#define NHIGHPRI_THREADS 1
 
 #define NUMBER_OF_COMPETING_THREADS     3
 #define COMPETING_THREAD_START_PRIORITY 200
