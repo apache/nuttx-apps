@@ -1,0 +1,170 @@
+menuconfig CANUTILS_LELYCANOPEN
+	bool "Lely CANopen support"
+	default n
+	---help---
+		Enable the Lely CANopen build
+
+if CANUTILS_LELYCANOPEN
+
+config CANUTILS_LELYCANOPEN_URL
+	string "URL where Lely CANopen can be downloaded"
+	default "https://gitlab.com/lely_industries/lely-core/-/archive/master/"
+
+config CANUTILS_LELYCANOPEN_VERSION
+	string "Version number"
+	default "a2ecf70b76a42c25c5338d86e85250bf16fd7023"
+
+menu "Lely CANopen configuration"
+
+config CANUTILS_LELYCANOPEN_CANFD
+	bool "Lely CANopen enable CAN FD support"
+	default n
+
+config CANUTILS_LELYCANOPEN_DIAG
+	bool "Lely CANopen enable diagnostic functions"
+	default n
+
+config CANUTILS_LELYCANOPEN_DCF
+	bool "Lely CANopen enable EDS/DCF support"
+	default n
+
+config CANUTILS_LELYCANOPEN_OBJDEFAULT
+	bool "Lely CANopen enable default values in the object dictionary"
+	default n
+
+config CANUTILS_LELYCANOPEN_OBJFILE
+	bool "Lely CANopen enable file support in the object dictionary"
+	default n
+
+config CANUTILS_LELYCANOPEN_OBJLIMITS
+	bool "Lely CANopen enable limit values in the object dictionary"
+	default n
+
+config CANUTILS_LELYCANOPEN_OBJNAME
+	bool "Lely CANopen enable names in the object dictionary"
+	default n
+
+config CANUTILS_LELYCANOPEN_OBJUPLOAD
+	bool "Lely CANopen enable upload indication functions in the object dictionary"
+	default n
+
+config CANUTILS_LELYCANOPEN_SDEV
+	bool "Lely CANopen enable static device description support"
+	default n
+
+config CANUTILS_LELYCANOPEN_CSDO
+	bool "Lely CANopen enable Client-SDO support"
+	default n
+
+config CANUTILS_LELYCANOPEN_RPDO
+	bool "Lely CANopen enable Receive-PDO support"
+	default n
+
+config CANUTILS_LELYCANOPEN_TPDO
+	bool "Lely CANopen enable Transmit-PDO support"
+	default n
+
+config CANUTILS_LELYCANOPEN_MPDO
+	bool "Lely CANopen enable Multiplex PDO support"
+	default n
+
+config CANUTILS_LELYCANOPEN_SYNC
+	bool "Lely CANopen enable SYNC support"
+	default n
+
+config CANUTILS_LELYCANOPEN_TIME
+	bool "Lely CANopen enable TIME support"
+	default n
+
+config CANUTILS_LELYCANOPEN_EMCY
+	bool "Lely CANopen enable EMCY support"
+	default n
+
+config CANUTILS_LELYCANOPEN_LSS
+	bool "Lely CANopen enable LSS support"
+	default n
+
+config CANUTILS_LELYCANOPEN_WTM
+	bool "Lely CANopen enable WTM support"
+	default n
+
+config CANUTILS_LELYCANOPEN_MASTER
+	bool "Lely CANopen enable MASTER support"
+	default n
+
+config CANUTILS_LELYCANOPEN_NG
+	bool "Lely CANopen enable node guardian support"
+	default n
+
+config CANUTILS_LELYCANOPEN_NMTBOOT
+	bool "Lely CANopen enable NMT boot slave support"
+	default n
+
+config CANUTILS_LELYCANOPEN_NMTCFG
+	bool "Lely CANopen enable NMT configuration request support"
+	default n
+
+config CANUTILS_LELYCANOPEN_GW
+	bool "Lely CANopen enable gateway support"
+	default n
+
+config CANUTILS_LELYCANOPEN_GW_TXT
+	bool "Lely CANopen enable ASCII gateway support"
+	default n
+
+if HAVE_CXX
+
+config CANUTILS_LELYCANOPEN_COAPP_MASTER
+	bool "Lely CANopen C++ CANopen application master support"
+	default n
+
+config CANUTILS_LELYCANOPEN_COAPP_SLAVE
+	bool "Lely CANopen C++ CANopen application slave support"
+	default n
+
+endif # HAVE_CXX
+
+config CANUTILS_LELYCANOPEN_IOLIB
+	bool "Lely CANopen IO lib"
+	default n
+	depends on NET_CAN
+	select NETDEV_IFINDEX
+	select NET_CAN_SOCK_OPTS
+	select PIPES
+
+endmenu # "Lely CANopen configuration"
+
+menu "Lely CANopen tools"
+
+config CANUTILS_LELYCANOPEN_TOOLS_COCTL
+	bool "coctl"
+	depends on SERIAL_TERMIOS
+	depends on SYSTEM_READLINE
+	default n
+	select CANUTILS_LELYCANOPEN_IOLIB
+	select CANUTILS_LELYCANOPEN_DIAG
+	select CANUTILS_LELYCANOPEN_GW
+	select CANUTILS_LELYCANOPEN_DCF
+	select CANUTILS_LELYCANOPEN_OBJNAME
+	select CANUTILS_LELYCANOPEN_GW_TXT
+	select CANUTILS_LELYCANOPEN_EMCY
+	select CANUTILS_LELYCANOPEN_RPDO
+	select CANUTILS_LELYCANOPEN_TPDO
+	select CANUTILS_LELYCANOPEN_SYNC
+	select CANUTILS_LELYCANOPEN_CSDO
+
+if CANUTILS_LELYCANOPEN_TOOLS_COCTL
+
+config CANUTILS_LELYCANOPEN_TOOLS_COCTL_PRIORITY
+	int "coctl task priority"
+	default 100
+
+config CANUTILS_LELYCANOPEN_TOOLS_COCTL_STACKSIZE
+	int "coctl stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif #CANUTILS_LELYCANOPEN_TOOLS_COCTL
+
+endmenu # "Lely CANopen tools"
+
+endif # CANUTILS_LELYCANOPEN
