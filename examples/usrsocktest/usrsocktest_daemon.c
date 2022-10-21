@@ -1579,7 +1579,7 @@ static int handle_usrsock_request(int fd, FAR struct daemon_priv_s *priv)
         },
     };
 
-  uint8_t hdrbuf[16];
+  uint8_t hdrbuf[32];
   FAR struct usrsock_request_common_s *common_hdr = (FAR void *)hdrbuf;
   ssize_t rlen;
 
@@ -1601,7 +1601,8 @@ static int handle_usrsock_request(int fd, FAR struct daemon_priv_s *priv)
       return -EIO;
     }
 
-  assert(handlers[common_hdr->reqid].hdrlen < sizeof(hdrbuf));
+  assert(handlers[common_hdr->reqid].hdrlen <
+         (sizeof(hdrbuf) - sizeof(*common_hdr)));
 
   rlen = read_req(fd, common_hdr, hdrbuf,
                   handlers[common_hdr->reqid].hdrlen);
