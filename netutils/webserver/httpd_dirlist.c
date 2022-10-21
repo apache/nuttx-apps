@@ -109,7 +109,7 @@ bool httpd_is_file(FAR const char *filename)
 {
   char *path;
   int fd;
-  bool ret = false;
+  bool ret = true;
 
   path = malloc(CONFIG_NAME_MAX);
   ASSERT(path);
@@ -117,12 +117,12 @@ bool httpd_is_file(FAR const char *filename)
   snprintf(path, CONFIG_NAME_MAX, "%s/%s",
            CONFIG_NETUTILS_HTTPD_PATH, filename);
 
-  fd = open(path, O_RDONLY);
+  fd = open(path, O_DIRECTORY);
 
   if (-1 != fd)
     {
       close(fd);
-      ret = true;
+      ret = false;
     }
 
   free(path);
