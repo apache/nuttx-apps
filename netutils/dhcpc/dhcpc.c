@@ -696,6 +696,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   int     state;
   clock_t start;
 
+  memset(presult, 0, sizeof(*presult));
+
   /* RFC2131: For example, a client may choose a different,
    * random initial 'xid' each time the client is rebooted, and
    * subsequently use sequential 'xid's until the next reboot.
