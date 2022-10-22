@@ -315,11 +315,13 @@ config EXAMPLES_FOC_FMODE
 config EXAMPLES_FOC_MMODE
 	int "Motor control mode"
 	default 2
-	range 1 3
+	range 1 5
 	---help---
 		1 - torque control
 		2 - velocity control
 		3 - position control
+		4 - align only
+		5 - ident only
 
 config EXAMPLES_FOC_OPENLOOP_Q
 	int "FOC open-loop Vq/Iq setting [x1000]"
