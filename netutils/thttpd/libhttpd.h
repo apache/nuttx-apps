@@ -54,20 +54,12 @@
 #include <time.h>
 
 #include "config.h"
+
 #ifdef CONFIG_THTTPD
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-/* A few convenient defines. */
-
-#ifndef MAX
-#  define MAX(a,b) ((a) > (b) ? (a) : (b))
-#endif
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
-#endif
 
 /* Enable special instrumentation to track down "400 Bad Request" problems */
 
