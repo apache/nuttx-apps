@@ -96,6 +96,13 @@ struct args_s g_args =
     .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
 #  endif
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+    .ident_res_ki = CONFIG_EXAMPLES_FOC_IDENT_RES_KI,
+    .ident_res_curr = CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT,
+    .ident_res_sec = CONFIG_EXAMPLES_FOC_IDENT_RES_SEC,
+    .ident_ind_volt = CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE,
+    .ident_ind_sec = CONFIG_EXAMPLES_FOC_IDENT_IND_SEC,
+#endif
   }
 };
 

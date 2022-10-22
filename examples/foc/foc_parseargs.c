@@ -39,6 +39,12 @@
 #define OPT_FKI     (SCHAR_MAX + 1)
 #define OPT_FKP     (SCHAR_MAX + 2)
 
+#define OPT_IRKI    (SCHAR_MAX + 3)
+#define OPT_IRC     (SCHAR_MAX + 4)
+#define OPT_IRS     (SCHAR_MAX + 5)
+#define OPT_IIV     (SCHAR_MAX + 6)
+#define OPT_IIS     (SCHAR_MAX + 7)
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -66,6 +72,13 @@ static struct option g_long_options[] =
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
     { "fkp", required_argument, 0, OPT_FKP },
     { "fki", required_argument, 0, OPT_FKI },
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+    { "irki", required_argument, 0, OPT_IRKI },
+    { "irc", required_argument, 0, OPT_IRC },
+    { "irs", required_argument, 0, OPT_IRS },
+    { "iiv", required_argument, 0, OPT_IIV },
+    { "iis", required_argument, 0, OPT_IIS },
 #endif
     { 0, 0, 0, 0 }
   };
@@ -127,6 +140,18 @@ static void foc_help(void)
   PRINTF("  [--fkp] PI Ki coefficient [x1000] (default: %d)\n",
          CONFIG_EXAMPLES_FOC_IDQ_KI);
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  PRINTF("  [--irki] res Ki coefficient [x1000] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDENT_RES_KI);
+  PRINTF("  [--irc] res current [x1000] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT);
+  PRINTF("  [--irs] res sec (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDENT_RES_SEC);
+  PRINTF("  [--iiv] ind voltage [x1000] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE);
+  PRINTF("  [--iis] ind sec (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_IDENT_IND_SEC);
+#endif
 }
 
 /****************************************************************************
@@ -164,6 +189,38 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
           case OPT_FKI:
             {
               args->cfg.foc_pi_ki = atoi(optarg);
+              break;
+            }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+          case OPT_IRKI:
+            {
+              args->cfg.ident_res_ki = atoi(optarg);
+              break;
+            }
+
+          case OPT_IRC:
+            {
+              args->cfg.ident_res_curr = atoi(optarg);
+              break;
+            }
+
+          case OPT_IRS:
+            {
+              args->cfg.ident_res_sec = atoi(optarg);
+              break;
+            }
+
+          case OPT_IIV:
+            {
+              args->cfg.ident_ind_volt = atoi(optarg);
+              break;
+            }
+
+          case OPT_IIS:
+            {
+              args->cfg.ident_ind_sec = atoi(optarg);
               break;
             }
 #endif
@@ -326,6 +383,23 @@ int validate_args(FAR struct args_s *args)
       PRINTF("Invalid time value %d s\n", args->time);
       goto errout;
     }
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  /* Motor identification parameters */
+
+  if (args->cfg.ident_res_ki == 0 || args->cfg.ident_res_curr == 0 ||
+      args->cfg.ident_res_sec == 0)
+    {
+      PRINTF("ERROR: missing motor res ident configuration\n");
+      goto errout;
+    }
+
+  if (args->cfg.ident_ind_volt == 0 || args->cfg.ident_ind_sec == 0)
+    {
+      PRINTF("ERROR: missing motor ind ident configuration\n");
+      goto errout;
+    }
+#endif
 
   /* Otherwise OK */
 

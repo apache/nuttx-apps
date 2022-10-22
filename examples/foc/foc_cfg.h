@@ -236,6 +236,14 @@ struct foc_thr_cfg_s
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
   uint32_t posmax;              /* Position max (x1000) */
 #endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
+  uint32_t ident_res_ki;        /* Ident res Ki (x1000) */
+  uint32_t ident_res_curr;      /* Ident res current (x1000) */
+  uint32_t ident_res_sec;       /* Ident res sec */
+  uint32_t ident_ind_volt;      /* Ident res voltage (x1000) */
+  uint32_t ident_ind_sec;       /* Ident ind sec */
+#endif
 };
 
 #endif /* __APPS_EXAMPLES_FOC_FOC_CFG_H */

@@ -988,16 +988,16 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   /* Initialize motor identification data */
 
   ident_cfg.per         = motor->per;
-  ident_cfg.res_current = ftob16(CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT /
+  ident_cfg.res_current = ftob16(motor->envp->cfg->ident_res_curr /
                                  1000.0f);
-  ident_cfg.res_ki      = ftob16(CONFIG_EXAMPLES_FOC_IDENT_RES_KI /
+  ident_cfg.res_ki      = ftob16(motor->envp->cfg->ident_res_ki /
                                  1000.0f);
-  ident_cfg.ind_volt    = ftob16(CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE /
+  ident_cfg.ind_volt    = ftob16(motor->envp->cfg->ident_ind_volt /
                                  1000.0f);
   ident_cfg.res_steps   = (CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ *
-                           CONFIG_EXAMPLES_FOC_IDENT_RES_SEC / 1000);
+                           motor->envp->cfg->ident_res_sec / 1000);
   ident_cfg.ind_steps   = (CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ *
-                           CONFIG_EXAMPLES_FOC_IDENT_IND_SEC / 1000);
+                           motor->envp->cfg->ident_ind_sec / 1000);
   ident_cfg.idle_steps  = CONFIG_EXAMPLES_FOC_IDENT_IDLE;
 
   ret = foc_routine_cfg_b16(&motor->ident, &ident_cfg);
