@@ -62,4 +62,10 @@ struct args_s
 
 void parse_args(FAR struct args_s *args, int argc, FAR char **argv);
 
+/****************************************************************************
+ * Name: validate_args
+ ****************************************************************************/
+
+int validate_args(FAR struct args_s *args);
+
 #endif /* __APPS_EXAMPLES_FOC_FOC_THR_H */
