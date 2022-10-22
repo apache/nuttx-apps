@@ -56,73 +56,51 @@
 #define INST_EN_DEFAULT (0xff)
 
 /****************************************************************************
- * Private Functions
+ * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Name: init_args
- ****************************************************************************/
-
-static void init_args(FAR struct args_s *args)
+struct args_s g_args =
 {
-  args->time =
-    (args->time == 0 ? CONFIG_EXAMPLES_FOC_TIME_DEFAULT : args->time);
-  args->fmode =
-    (args->fmode == 0 ? CONFIG_EXAMPLES_FOC_FMODE : args->fmode);
-  args->mmode =
-    (args->mmode == 0 ? CONFIG_EXAMPLES_FOC_MMODE : args->mmode);
+  .time  = CONFIG_EXAMPLES_FOC_TIME_DEFAULT,
+  .fmode = CONFIG_EXAMPLES_FOC_FMODE,
+  .mmode = CONFIG_EXAMPLES_FOC_MMODE,
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  args->qparam =
-    (args->qparam == 0 ? CONFIG_EXAMPLES_FOC_OPENLOOP_Q : args->qparam);
+  .qparam = CONFIG_EXAMPLES_FOC_OPENLOOP_Q,
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  args->foc_pi_kp =
-    (args->foc_pi_kp == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KP : args->foc_pi_kp);
-  args->foc_pi_ki =
-    (args->foc_pi_ki == 0 ? CONFIG_EXAMPLES_FOC_IDQ_KI : args->foc_pi_ki);
+  .foc_pi_kp = CONFIG_EXAMPLES_FOC_IDQ_KP,
+  .foc_pi_ki = CONFIG_EXAMPLES_FOC_IDQ_KI,
 #endif
 
-  /* Setpoint configuration */
+  .state = CONFIG_EXAMPLES_FOC_STATE_INIT,
+  .en    = INST_EN_DEFAULT,
+#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+  .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
+#  endif
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  .velmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
+#  endif
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+  .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
+#  endif
+#else
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+  .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
+#  endif
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  .velmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
+#  endif
+#  ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
+  .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
+#  endif
+#endif
+};
 
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
-  args->torqmax =
-    (args->torqmax == 0 ?
-     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->torqmax);
-#else
-  args->torqmax =
-    (args->torqmax == 0 ?
-     CONFIG_EXAMPLES_FOC_SETPOINT_MAX : args->torqmax);
-#endif
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
-  args->velmax =
-    (args->velmax == 0 ?
-     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->velmax);
-#else
-  args->velmax =
-    (args->velmax == 0 ?
-     CONFIG_EXAMPLES_FOC_SETPOINT_MAX : args->velmax);
-#endif
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-#ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
-  args->posmax =
-    (args->posmax == 0 ?
-     CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE : args->posmax);
-#else
-  args->posmax =
-    (args->posmax == 0 ?
-     CONFIG_EXAMPLES_FOC_SETPOINT_MAX : args->posmax);
-#endif
-#endif
-
-  args->state =
-    (args->state == 0 ? CONFIG_EXAMPLES_FOC_STATE_INIT : args->state);
-  args->en = (args->en == -1 ? INST_EN_DEFAULT : args->en);
-}
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: validate_args
@@ -297,7 +275,6 @@ int main(int argc, char *argv[])
   struct foc_ctrl_env_s  foc[CONFIG_MOTOR_FOC_INST];
   pthread_t              threads[CONFIG_MOTOR_FOC_INST];
   mqd_t                  mqd[CONFIG_MOTOR_FOC_INST];
-  struct args_s          args;
   struct foc_intf_data_s data;
   int                    ret          = OK;
   int                    i            = 0;
@@ -305,29 +282,20 @@ int main(int argc, char *argv[])
 
   /* Reset some data */
 
-  memset(&args, 0, sizeof(struct args_s));
   memset(mqd, 0, sizeof(mqd_t) * CONFIG_MOTOR_FOC_INST);
   memset(foc, 0, sizeof(struct foc_ctrl_env_s) * CONFIG_MOTOR_FOC_INST);
   memset(threads, 0, sizeof(pthread_t) * CONFIG_MOTOR_FOC_INST);
   memset(&data, 0, sizeof(struct foc_intf_data_s));
 
-  /* Initialize args before parse */
-
-  args.en = -1;
-
 #ifdef CONFIG_BUILTIN
   /* Parse the command line */
 
-  parse_args(&args, argc, argv);
+  parse_args(&g_args, argc, argv);
 #endif
-
-  /* Initialize args */
-
-  init_args(&args);
 
   /* Validate arguments */
 
-  ret = validate_args(&args);
+  ret = validate_args(&g_args);
   if (ret < 0)
     {
       PRINTF("ERROR: validate args failed\n");
@@ -373,25 +341,25 @@ int main(int argc, char *argv[])
       /* Get configuration */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-      foc[i].qparam   = args.qparam;
+      foc[i].qparam   = g_args.qparam;
 #endif
-      foc[i].fmode    = args.fmode;
-      foc[i].mmode    = args.mmode;
+      foc[i].fmode    = g_args.fmode;
+      foc[i].mmode    = g_args.mmode;
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-      foc[i].foc_pi_kp = args.foc_pi_kp;
-      foc[i].foc_pi_ki = args.foc_pi_ki;
+      foc[i].foc_pi_kp = g_args.foc_pi_kp;
+      foc[i].foc_pi_ki = g_args.foc_pi_ki;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-      foc[i].torqmax  = args.torqmax;
+      foc[i].torqmax  = g_args.torqmax;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-      foc[i].velmax   = args.velmax;
+      foc[i].velmax   = g_args.velmax;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-      foc[i].posmax   = args.posmax;
+      foc[i].posmax   = g_args.posmax;
 #endif
 
-      if (args.en & (1 << i))
+      if (g_args.en & (1 << i))
         {
           /* Initialize controller thread if enabled */
 
@@ -422,7 +390,7 @@ int main(int argc, char *argv[])
 
   /* Controller state */
 
-  data.state = args.state;
+  data.state = g_args.state;
 
   /* Auxliary control loop */
 
@@ -445,7 +413,7 @@ int main(int argc, char *argv[])
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
-              if (args.en & (1 << i))
+              if (g_args.en & (1 << i))
                 {
                   PRINTFV("Send vbus to %d\n", i);
 
@@ -471,7 +439,7 @@ int main(int argc, char *argv[])
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
-              if (args.en & (1 << i))
+              if (g_args.en & (1 << i))
                 {
                   PRINTFV("Send state %" PRIu32 " to %d\n", data.state, i);
 
@@ -497,7 +465,7 @@ int main(int argc, char *argv[])
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
-              if (args.en & (1 << i))
+              if (g_args.en & (1 << i))
                 {
                   PRINTFV("Send setpoint = %" PRIu32 "to %d\n",
                           data.sp_raw, i);
@@ -524,7 +492,7 @@ int main(int argc, char *argv[])
         {
           for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
             {
-              if (args.en & (1 << i))
+              if (g_args.en & (1 << i))
                 {
                   PRINTFV("Send start to %d\n", i);
 
@@ -548,9 +516,9 @@ int main(int argc, char *argv[])
 
       time += 1;
 
-      if (args.time != -1)
+      if (g_args.time != -1)
         {
-          if (time >= (args.time * (1000000 / MAIN_LOOP_USLEEP)))
+          if (time >= (g_args.time * (1000000 / MAIN_LOOP_USLEEP)))
             {
               /* Exit loop */
 
@@ -574,7 +542,7 @@ errout:
 
   for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
     {
-      if (args.en & (1 << i))
+      if (g_args.en & (1 << i))
         {
           if (mqd[i] != (mqd_t)-1)
             {
@@ -600,7 +568,7 @@ errout:
 
   for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
     {
-      if (args.en & (1 << i))
+      if (g_args.en & (1 << i))
         {
           /* Close FOC control thread queue */
 
