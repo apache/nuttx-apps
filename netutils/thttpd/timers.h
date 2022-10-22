@@ -72,7 +72,7 @@ typedef union
  * it wants to schedule another timer.
  */
 
-typedef void TimerProc(ClientData client_data, struct timeval *nowP);
+typedef void TimerProc(ClientData client_data, struct timeval *nowp);
 
 /* The Timer struct. */
 
@@ -102,9 +102,11 @@ extern ClientData JunkClientData;       /* For use when you don't care */
 
 extern void tmr_init(void);
 
-/* Set up a timer, either periodic or one-shot. Returns (Timer*) 0 on errors. */
+/* Set up a timer, either periodic or one-shot.
+ * Returns (Timer *)0 on errors.
+ */
 
-extern Timer *tmr_create(struct timeval *nowP, TimerProc * timer_proc,
+extern Timer *tmr_create(struct timeval *nowp, TimerProc *timer_proc,
                          ClientData client_data, long msecs, int periodic);
 
 /* Returns a timeout in milliseconds indicating how long until the next timer
@@ -112,11 +114,13 @@ extern Timer *tmr_create(struct timeval *nowP, TimerProc * timer_proc,
  * Returns INFTIM (-1) if no timers are pending.
  */
 
-extern long tmr_mstimeout(struct timeval *nowP);
+extern long tmr_mstimeout(struct timeval *nowp);
 
-/* Run the list of timers. Your main program needs to call this every so often. */
+/* Run the list of timers.
+ * Your main program needs to call this every so often.
+ */
 
-extern void tmr_run(struct timeval *nowP);
+extern void tmr_run(struct timeval *nowp);
 
 /* Deschedule a timer.  Note that non-periodic timers are automatically
  * descheduled when they run, so you don't have to call this on them.

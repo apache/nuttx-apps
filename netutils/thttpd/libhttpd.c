@@ -120,7 +120,7 @@ extern CODE char *crypt(const char *key, const char *setting);
  ****************************************************************************/
 
 static void free_httpd_server(httpd_server *hs);
-static int  initialize_listen_socket(httpd_sockaddr *saP);
+static int  initialize_listen_socket(httpd_sockaddr *sap);
 static void add_response(httpd_conn *hc, const char *str);
 static void send_mime(httpd_conn *hc, int status, const char *title,
                       const char *encodings, const char *extraheads,
@@ -150,7 +150,7 @@ static int httpd_tilde_map2(httpd_conn *hc);
 #ifdef CONFIG_THTTPD_VHOST
 static int  vhost_map(httpd_conn *hc);
 #endif
-static char *expand_filename(char *path, char **restP, bool tildemapped);
+static char *expand_filename(char *path, char **restp, bool tildemapped);
 static char *bufgets(httpd_conn *hc);
 static void de_dotdot(char *file);
 static void init_mime(void);
@@ -168,11 +168,11 @@ static int  check_referer(httpd_conn *hc);
 static int  really_check_referer(httpd_conn *hc);
 #endif
 #ifdef CONFIG_DEBUG_FEATURES_FEATURES
-static int  sockaddr_check(httpd_sockaddr *saP);
+static int  sockaddr_check(httpd_sockaddr *sap);
 #else
-#  define sockaddr_check(saP) (1)
+#  define sockaddr_check(sap) (1)
 #endif
-static size_t sockaddr_len(httpd_sockaddr *saP);
+static size_t sockaddr_len(httpd_sockaddr *sap);
 
 /****************************************************************************
  * Private Data
@@ -217,7 +217,7 @@ static void free_httpd_server(httpd_server * hs)
     }
 }
 
-static int initialize_listen_socket(httpd_sockaddr *saP)
+static int initialize_listen_socket(httpd_sockaddr *sap)
 {
   int listen_fd;
   int on;
@@ -226,7 +226,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
   /* Check sockaddr. */
 
 #ifdef CONFIG_DEBUG_FEATURES_FEATURES
-  if (!sockaddr_check(saP))
+  if (!sockaddr_check(sap))
     {
       nerr("ERROR: unknown sockaddr family on listen socket\n");
       return -1;
@@ -236,7 +236,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
   /* Create socket. */
 
   ninfo("Create listen socket\n");
-  listen_fd = socket(saP->sin_family, SOCK_STREAM, 0);
+  listen_fd = socket(sap->sin_family, SOCK_STREAM, 0);
   if (listen_fd < 0)
     {
       nerr("ERROR: socket failed: %d\n", errno);
@@ -253,9 +253,9 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
 
   /* Bind to it. */
 
-  if (bind(listen_fd, (struct sockaddr *)saP, sockaddr_len(saP)) < 0)
+  if (bind(listen_fd, (struct sockaddr *)sap, sockaddr_len(sap)) < 0)
     {
-      nerr("ERROR: bind to %s failed: %d\n", httpd_ntoa(saP), errno);
+      nerr("ERROR: bind to %s failed: %d\n", httpd_ntoa(sap), errno);
       close(listen_fd);
       return -1;
     }
@@ -1129,11 +1129,11 @@ static int vhost_map(httpd_conn *hc)
 
 /* Expands filename, deleting ..'s and leading /'s.
  * Returns the expanded path (pointer to static string), or NULL on
- * errors.  Also returns, in the string pointed to by restP, any trailing
+ * errors.  Also returns, in the string pointed to by restp, any trailing
  * parts of the path that don't exist.
  */
 
-static char *expand_filename(char *path, char **restP, bool tildemapped)
+static char *expand_filename(char *path, char **restp, bool tildemapped)
 {
   static char *checked;
   static char *rest;
@@ -1152,7 +1152,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
   ninfo("path: \"%s\"\n", path);
 #if 0 // REVISIT
   /* We need to do the pathinfo check.  we do a single stat() of the whole
-   * filename - if it exists, then we return it as is with nothing in restP.
+   * filename - if it exists, then we return it as is with nothing in restp.
    * If it doesn't exist, we fall through to the existing code.
    */
 
@@ -1172,7 +1172,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
 
       httpd_realloc_str(&rest, &maxrest, 0);
       rest[0] = '\0';
-      *restP = rest;
+      *restp = rest;
       return checked;
     }
 #endif /* 0 */
@@ -1332,7 +1332,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
 
   /* Ok. */
 
-  *restP = r;
+  *restp = r;
   if (checked[0] == '\0')
     {
       strcpy(checked, httpd_root);
@@ -2097,9 +2097,9 @@ static int really_check_referer(httpd_conn *hc)
 #endif /* CONFIG_THTTPD_URLPATTERN */
 
 #ifdef CONFIG_DEBUG_FEATURES_FEATURES
-static int sockaddr_check(httpd_sockaddr *saP)
+static int sockaddr_check(httpd_sockaddr *sap)
 {
-  switch (saP->sin_family)
+  switch (sap->sin_family)
     {
     case AF_INET:
       return 1;
@@ -2115,9 +2115,9 @@ static int sockaddr_check(httpd_sockaddr *saP)
 }
 #endif /* CONFIG_DEBUG_FEATURES_FEATURES */
 
-static size_t sockaddr_len(httpd_sockaddr *saP)
+static size_t sockaddr_len(httpd_sockaddr *sap)
 {
-  switch (saP->sin_family)
+  switch (sap->sin_family)
     {
     case AF_INET:
       return sizeof(struct sockaddr_in);
@@ -3210,7 +3210,7 @@ void httpd_destroy_conn(httpd_conn *hc)
     }
 }
 
-int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
+int httpd_start_request(httpd_conn *hc, struct timeval *nowp)
 {
   static char *indexname;
   static size_t maxindexname = 0;
@@ -3541,7 +3541,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
   return 0;
 }
 
-char *httpd_ntoa(httpd_sockaddr *saP)
+char *httpd_ntoa(httpd_sockaddr *sap)
 {
 #ifdef CONFIG_NET_IPv6
   static char str[200];
@@ -3551,13 +3551,13 @@ char *httpd_ntoa(httpd_sockaddr *saP)
 
 #ifdef CONFIG_NET_IPv6
   if (getnameinfo
-      (&saP->sa, sockaddr_len(saP), str, sizeof(str), 0, 0,
+      (&sap->sa, sockaddr_len(sap), str, sizeof(str), 0, 0,
        NI_NUMERICHOST) != 0)
     {
       str[0] = '?';
       str[1] = '\0';
     }
-  else if (IN6_IS_ADDR_V4MAPPED(&saP->sa_in6.sin6_addr) &&
+  else if (IN6_IS_ADDR_V4MAPPED(&sap->sa_in6.sin6_addr) &&
            strncmp(str, "::ffff:", 7) == 0)
     {
       /* Elide IPv6ish prefix for IPv4 addresses. */
@@ -3569,7 +3569,7 @@ char *httpd_ntoa(httpd_sockaddr *saP)
 
 #else /* CONFIG_NET_IPv6 */
 
-  return inet_ntoa_r(saP->sin_addr, str, sizeof(str));
+  return inet_ntoa_r(sap->sin_addr, str, sizeof(str));
 
 #endif /* CONFIG_NET_IPv6 */
 }

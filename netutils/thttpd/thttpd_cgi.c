@@ -1097,7 +1097,7 @@ errout_with_sem:
 }
 
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
-static void cgi_kill(ClientData client_data, struct timeval *nowP)
+static void cgi_kill(ClientData client_data, struct timeval *nowp)
 {
   pid_t pid = (pid_t)client_data.i;
 

@@ -7,7 +7,8 @@
  *
  * Derived from the file of the same name in the original THTTPD package:
  *
- *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer
+ *     <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +79,9 @@
 #  define BADREQUEST(s)
 #endif
 
-/* Enable special instrumentation to track down "501 Not Implemented" problems */
+/* Enable special instrumentation to track down
+ * "501 Not Implemented" problems
+ */
 
 #undef CONFIG_THTTPD_NOTIMPLEMENTED /* Define to enable "Not Implemented" instrumentation */
 
@@ -95,7 +98,9 @@
 #  define NOTIMPLEMENTED(s)
 #endif
 
-/* Enable special instrumentation to track down "500 Internal Error" problems */
+/* Enable special instrumentation to track down
+ * "500 Internal Error" problems
+ */
 
 #undef CONFIG_THTTPD_INTERNALERROR /* Define to enable "Internal Error" instrumentation */
 
@@ -171,7 +176,9 @@ typedef struct
   httpd_server *hs;
   httpd_sockaddr client_addr;
   char *read_buf;
-  size_t read_size, read_idx, checked_idx;
+  size_t read_size;
+  size_t read_idx;
+  size_t checked_idx;
   int checked_state;
   int method;
   off_t bytes_to_send;
@@ -196,14 +203,24 @@ typedef struct
   char *hostdir;
   char *authorization;
   char *remoteuser;
-  size_t maxdecodedurl, maxorigfilename, maxexpnfilename, maxencodings,
-    maxpathinfo, maxquery, maxaccept, maxaccepte, maxreqhost, maxhostdir,
-    maxremoteuser, maxresponse;
+  size_t maxdecodedurl;
+  size_t maxorigfilename;
+  size_t maxexpnfilename;
+  size_t maxencodings;
+  size_t maxpathinfo;
+  size_t maxquery;
+  size_t maxaccept;
+  size_t maxaccepte;
+  size_t maxreqhost;
+  size_t maxhostdir;
+  size_t maxremoteuser;
+  size_t maxresponse;
 #ifdef CONFIG_THTTPD_TILDE_MAP2
   char *altdir;
   size_t maxaltdir;
 #endif
-  time_t if_modified_since, range_if;
+  time_t if_modified_since;
+  time_t range_if;
   size_t contentlength;
   char *type;                  /* not malloc()ed */
 #ifdef CONFIG_THTTPD_VHOST
@@ -221,7 +238,9 @@ typedef struct
   off_t range_end;             /* File range end from Range= */
   struct stat sb;
 
-  /* This is the I/O buffer that is used to buffer portions of outgoing files */
+  /* This is the I/O buffer that is used to buffer portions of
+   * outgoing files
+   */
 
   uint16_t buflen;             /* Index to first valid data in buffer */
   uint8_t buffer[CONFIG_THTTPD_IOBUFFERSIZE];
@@ -285,7 +304,7 @@ extern int httpd_parse_request(httpd_conn *hc);
  * Returns -1 on error.
  */
 
-extern int httpd_start_request(httpd_conn *hc, struct timeval *nowP);
+extern int httpd_start_request(httpd_conn *hc, struct timeval *nowp);
 
 /* Actually sends any buffered response text. */
 
@@ -304,7 +323,8 @@ extern void httpd_destroy_conn(httpd_conn *hc);
 /* Send an error message back to the client. */
 
 extern void httpd_send_err(httpd_conn *hc, int status, const char *title,
-                           const char *extraheads, const char *form, const char *arg);
+                           const char *extraheads, const char *form,
+                           const char *arg);
 
 /* Generate a string representation of a method number. */
 
@@ -312,7 +332,7 @@ extern const char *httpd_method_str(int method);
 
 /* Format a network socket to a string representation. */
 
-extern char *httpd_ntoa(httpd_sockaddr * saP);
+extern char *httpd_ntoa(httpd_sockaddr *sap);
 
 /* Set NDELAY mode on a socket. */
 

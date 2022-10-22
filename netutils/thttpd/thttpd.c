@@ -129,10 +129,10 @@ static void handle_linger(struct connect_s *conn, struct timeval *tv);
 static void finish_connection(struct connect_s *conn, struct timeval *tv);
 static void clear_connection(struct connect_s *conn, struct timeval *tv);
 static void really_clear_connection(struct connect_s *conn);
-static void idle(ClientData client_data, struct timeval *nowP);
+static void idle(ClientData client_data, struct timeval *nowp);
 static void linger_clear_connection(ClientData client_data,
-                                    struct timeval *nowP);
-static void occasional(ClientData client_data, struct timeval *nowP);
+                                    struct timeval *nowp);
+static void occasional(ClientData client_data, struct timeval *nowp);
 
 /****************************************************************************
  * Private Functions
@@ -597,7 +597,7 @@ static void really_clear_connection(struct connect_s *conn)
   free_connections  = conn;
 }
 
-static void idle(ClientData client_data, struct timeval *nowP)
+static void idle(ClientData client_data, struct timeval *nowp)
 {
   int cnum;
   struct connect_s *conn;
@@ -608,24 +608,24 @@ static void idle(ClientData client_data, struct timeval *nowP)
       switch (conn->conn_state)
         {
         case CNST_READING:
-          if (nowP->tv_sec - conn->active_at >=
+          if (nowp->tv_sec - conn->active_at >=
               CONFIG_THTTPD_IDLE_READ_LIMIT_SEC)
             {
               nerr("ERROR: %s connection timed out reading\n",
                    httpd_ntoa(&conn->hc->client_addr));
               httpd_send_err(conn->hc, 408, httpd_err408title, "",
                              httpd_err408form, "");
-              finish_connection(conn, nowP);
+              finish_connection(conn, nowp);
             }
           break;
 
         case CNST_SENDING:
-          if (nowP->tv_sec - conn->active_at >=
+          if (nowp->tv_sec - conn->active_at >=
               CONFIG_THTTPD_IDLE_SEND_LIMIT_SEC)
             {
               nerr("ERROR: %s connection timed out sending\n",
                    httpd_ntoa(&conn->hc->client_addr));
-              clear_connection(conn, nowP);
+              clear_connection(conn, nowp);
             }
           break;
         }
@@ -633,7 +633,7 @@ static void idle(ClientData client_data, struct timeval *nowP)
 }
 
 static void linger_clear_connection(ClientData client_data,
-                                    struct timeval *nowP)
+                                    struct timeval *nowp)
 {
   struct connect_s *conn;
 
@@ -643,7 +643,7 @@ static void linger_clear_connection(ClientData client_data,
   really_clear_connection(conn);
 }
 
-static void occasional(ClientData client_data, struct timeval *nowP)
+static void occasional(ClientData client_data, struct timeval *nowp)
 {
   tmr_cleanup();
 }
