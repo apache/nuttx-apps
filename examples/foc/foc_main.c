@@ -343,24 +343,7 @@ int main(int argc, char *argv[])
     {
       /* Get configuration */
 
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-      foc[i].qparam   = g_args.cfg.qparam;
-#endif
-      foc[i].fmode    = g_args.cfg.fmode;
-      foc[i].mmode    = g_args.cfg.mmode;
-#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-      foc[i].foc_pi_kp = g_args.cfg.foc_pi_kp;
-      foc[i].foc_pi_ki = g_args.cfg.foc_pi_ki;
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-      foc[i].torqmax  = g_args.cfg.torqmax;
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-      foc[i].velmax   = g_args.cfg.velmax;
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-      foc[i].posmax   = g_args.cfg.posmax;
-#endif
+      foc[i].cfg = &g_args.cfg;
 
       if (g_args.en & (1 << i))
         {
