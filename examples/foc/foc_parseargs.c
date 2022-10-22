@@ -156,13 +156,13 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
           case OPT_FKP:
             {
-              args->foc_pi_kp = atoi(optarg);
+              args->cfg.foc_pi_kp = atoi(optarg);
               break;
             }
 
           case OPT_FKI:
             {
-              args->foc_pi_ki = atoi(optarg);
+              args->cfg.foc_pi_ki = atoi(optarg);
               break;
             }
 #endif
@@ -181,20 +181,20 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 
           case 'f':
             {
-              args->fmode = atoi(optarg);
+              args->cfg.fmode = atoi(optarg);
               break;
             }
 
           case 'm':
             {
-              args->mmode = atoi(optarg);
+              args->cfg.mmode = atoi(optarg);
               break;
             }
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
           case 'r':
             {
-              args->torqmax = atoi(optarg);
+              args->cfg.torqmax = atoi(optarg);
               break;
             }
 #endif
@@ -202,7 +202,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
           case 'v':
             {
-              args->velmax = atoi(optarg);
+              args->cfg.velmax = atoi(optarg);
               break;
             }
 #endif
@@ -210,7 +210,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
           case 'x':
             {
-              args->posmax = atoi(optarg);
+              args->cfg.posmax = atoi(optarg);
               break;
             }
 #endif
@@ -230,7 +230,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
           case 'o':
             {
-              args->qparam = atoi(optarg);
+              args->cfg.qparam = atoi(optarg);
               break;
             }
 #endif

@@ -62,40 +62,43 @@
 struct args_s g_args =
 {
   .time  = CONFIG_EXAMPLES_FOC_TIME_DEFAULT,
-  .fmode = CONFIG_EXAMPLES_FOC_FMODE,
-  .mmode = CONFIG_EXAMPLES_FOC_MMODE,
+  .state = CONFIG_EXAMPLES_FOC_STATE_INIT,
+  .en    = INST_EN_DEFAULT,
+  .cfg =
+  {
+    .fmode = CONFIG_EXAMPLES_FOC_FMODE,
+    .mmode = CONFIG_EXAMPLES_FOC_MMODE,
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  .qparam = CONFIG_EXAMPLES_FOC_OPENLOOP_Q,
+    .qparam = CONFIG_EXAMPLES_FOC_OPENLOOP_Q,
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  .foc_pi_kp = CONFIG_EXAMPLES_FOC_IDQ_KP,
-  .foc_pi_ki = CONFIG_EXAMPLES_FOC_IDQ_KI,
+    .foc_pi_kp = CONFIG_EXAMPLES_FOC_IDQ_KP,
+    .foc_pi_ki = CONFIG_EXAMPLES_FOC_IDQ_KI,
 #endif
 
-  .state = CONFIG_EXAMPLES_FOC_STATE_INIT,
-  .en    = INST_EN_DEFAULT,
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-  .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
+    .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
 #  endif
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-  .velmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
+    .velmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
 #  endif
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-  .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
+    .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
 #  endif
 #else
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-  .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
+    .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
 #  endif
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-  .velmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
+    .velmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
 #  endif
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-  .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
+    .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
 #  endif
 #endif
+  }
 };
 
 /****************************************************************************
@@ -113,7 +116,7 @@ static int validate_args(FAR struct args_s *args)
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   /* Current PI controller */
 
-  if (args->foc_pi_kp == 0 && args->foc_pi_ki == 0)
+  if (args->cfg.foc_pi_kp == 0 && args->cfg.foc_pi_ki == 0)
     {
       PRINTF("ERROR: missing FOC Kp/Ki configuration\n");
       goto errout;
@@ -122,11 +125,11 @@ static int validate_args(FAR struct args_s *args)
 
   /* FOC operation mode */
 
-  if (args->fmode != FOC_FMODE_IDLE &&
-      args->fmode != FOC_FMODE_VOLTAGE &&
-      args->fmode != FOC_FMODE_CURRENT)
+  if (args->cfg.fmode != FOC_FMODE_IDLE &&
+      args->cfg.fmode != FOC_FMODE_VOLTAGE &&
+      args->cfg.fmode != FOC_FMODE_CURRENT)
     {
-      PRINTF("Invalid op mode value %d s\n", args->fmode);
+      PRINTF("Invalid op mode value %d s\n", args->cfg.fmode);
       goto errout;
     }
 
@@ -134,23 +137,23 @@ static int validate_args(FAR struct args_s *args)
 
   if (
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-    args->mmode != FOC_MMODE_TORQ &&
+    args->cfg.mmode != FOC_MMODE_TORQ &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-    args->mmode != FOC_MMODE_VEL &&
+    args->cfg.mmode != FOC_MMODE_VEL &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-    args->mmode != FOC_MMODE_POS &&
+    args->cfg.mmode != FOC_MMODE_POS &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
-    args->mmode != FOC_MMODE_ALIGN_ONLY &&
+    args->cfg.mmode != FOC_MMODE_ALIGN_ONLY &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
-    args->mmode != FOC_MMODE_IDENT_ONLY &&
+    args->cfg.mmode != FOC_MMODE_IDENT_ONLY &&
 #endif
     1)
     {
-      PRINTF("Invalid ctrl mode value %d s\n", args->mmode);
+      PRINTF("Invalid ctrl mode value %d s\n", args->cfg.mmode);
       goto errout;
     }
 
@@ -341,22 +344,22 @@ int main(int argc, char *argv[])
       /* Get configuration */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-      foc[i].qparam   = g_args.qparam;
+      foc[i].qparam   = g_args.cfg.qparam;
 #endif
-      foc[i].fmode    = g_args.fmode;
-      foc[i].mmode    = g_args.mmode;
+      foc[i].fmode    = g_args.cfg.fmode;
+      foc[i].mmode    = g_args.cfg.mmode;
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-      foc[i].foc_pi_kp = g_args.foc_pi_kp;
-      foc[i].foc_pi_ki = g_args.foc_pi_ki;
+      foc[i].foc_pi_kp = g_args.cfg.foc_pi_kp;
+      foc[i].foc_pi_ki = g_args.cfg.foc_pi_ki;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-      foc[i].torqmax  = g_args.torqmax;
+      foc[i].torqmax  = g_args.cfg.torqmax;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-      foc[i].velmax   = g_args.velmax;
+      foc[i].velmax   = g_args.cfg.velmax;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-      foc[i].posmax   = g_args.posmax;
+      foc[i].posmax   = g_args.cfg.posmax;
 #endif
 
       if (g_args.en & (1 << i))

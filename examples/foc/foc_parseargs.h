@@ -28,6 +28,7 @@
 #include <nuttx/config.h>
 
 #include "foc_device.h"
+#include "foc_cfg.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -41,29 +42,10 @@
 
 struct args_s
 {
-  int      time;                /* Run time limit in sec, -1 if forever */
-  int      fmode;               /* FOC control mode */
-  int      mmode;               /* Motor control mode */
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  int      qparam;              /* Open-loop Q setting (x1000) */
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  uint32_t foc_pi_kp;           /* FOC PI Kp (x1000) */
-  uint32_t foc_pi_ki;           /* FOC PI Ki (x1000) */
-#endif
-
-  int      state;               /* Example state (FREE, CW, CCW, STOP) */
-  int8_t   en;                  /* Enabled instances (bit-encoded) */
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-  uint32_t torqmax;             /* Torque max (x1000) */
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-  uint32_t velmax;              /* Velocity max (x1000) */
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-  uint32_t posmax;              /* Position max (x1000) */
-#endif
+  int                  time;    /* Run time limit in sec, -1 if forever */
+  int                  state;   /* Example state (FREE, CW, CCW, STOP) */
+  int8_t               en;      /* Enabled instances (bit-encoded) */
+  struct foc_thr_cfg_s cfg;     /* Control thread configuration */
 };
 
 /****************************************************************************
