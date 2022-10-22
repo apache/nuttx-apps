@@ -3203,7 +3203,6 @@ void httpd_destroy_conn(httpd_conn *hc)
       httpd_free(hc->reqhost);
       httpd_free(hc->hostdir);
       httpd_free(hc->remoteuser);
-      httpd_free(hc->buffer);
 #ifdef CONFIG_THTTPD_TILDE_MAP2
       httpd_free(hc->altdir);
 #endif /* CONFIG_THTTPD_TILDE_MAP2 */
