@@ -232,7 +232,7 @@ static int foc_runmode_init(FAR struct foc_motor_f32_s *motor)
 {
   int ret = OK;
 
-  switch (motor->envp->fmode)
+  switch (motor->envp->cfg->fmode)
     {
       case FOC_FMODE_IDLE:
         {
@@ -254,7 +254,7 @@ static int foc_runmode_init(FAR struct foc_motor_f32_s *motor)
 
       default:
         {
-          PRINTF("ERROR: unsupported op mode %d\n", motor->envp->fmode);
+          PRINTF("ERROR: unsupported op mode %d\n", motor->envp->cfg->fmode);
           ret = -EINVAL;
           goto errout;
         }
@@ -344,10 +344,10 @@ static int foc_motor_configure(FAR struct foc_motor_f32_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   /* Get PI controller configuration */
 
-  ctrl_cfg.id_kp = (motor->envp->foc_pi_kp / 1000.0f);
-  ctrl_cfg.id_ki = (motor->envp->foc_pi_ki / 1000.0f);
-  ctrl_cfg.iq_kp = (motor->envp->foc_pi_kp / 1000.0f);
-  ctrl_cfg.iq_ki = (motor->envp->foc_pi_ki / 1000.0f);
+  ctrl_cfg.id_kp = (motor->envp->cfg->foc_pi_kp / 1000.0f);
+  ctrl_cfg.id_ki = (motor->envp->cfg->foc_pi_ki / 1000.0f);
+  ctrl_cfg.iq_kp = (motor->envp->cfg->foc_pi_kp / 1000.0f);
+  ctrl_cfg.iq_ki = (motor->envp->cfg->foc_pi_ki / 1000.0f);
 #endif
 
 #ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
@@ -425,7 +425,7 @@ static int foc_motor_torq(FAR struct foc_motor_f32_s *motor, uint32_t torq)
   /* Update motor torque destination */
 
   motor->torq.des = (torq * SETPOINT_ADC_SCALE *
-                     motor->envp->torqmax / 1000.0f);
+                     motor->envp->cfg->torqmax / 1000.0f);
 
   return OK;
 }
@@ -443,7 +443,7 @@ static int foc_motor_vel(FAR struct foc_motor_f32_s *motor, uint32_t vel)
   /* Update motor velocity destination */
 
   motor->vel.des = (vel * SETPOINT_ADC_SCALE *
-                    motor->envp->velmax / 1000.0f);
+                    motor->envp->cfg->velmax / 1000.0f);
 
   return OK;
 }
@@ -461,7 +461,7 @@ static int foc_motor_pos(FAR struct foc_motor_f32_s *motor, uint32_t pos)
   /* Update motor position destination */
 
   motor->pos.des = (pos * SETPOINT_ADC_SCALE *
-                    motor->envp->posmax / 1000.0f);
+                    motor->envp->cfg->posmax / 1000.0f);
 
   return OK;
 }
@@ -475,7 +475,7 @@ static int foc_motor_setpoint(FAR struct foc_motor_f32_s *motor, uint32_t sp)
 {
   int ret = OK;
 
-  switch (motor->envp->mmode)
+  switch (motor->envp->cfg->mmode)
     {
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
       case FOC_MMODE_TORQ:
@@ -539,7 +539,8 @@ static int foc_motor_setpoint(FAR struct foc_motor_f32_s *motor, uint32_t sp)
 
       default:
         {
-          PRINTF("ERROR: unsupported ctrl mode %d\n", motor->envp->mmode);
+          PRINTF("ERROR: unsupported ctrl mode %d\n",
+                 motor->envp->cfg->mmode);
           ret = -EINVAL;
           goto errout;
         }
@@ -702,7 +703,7 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
   if (motor->openloop_now == true)
     {
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-      if (motor->envp->mmode != FOC_MMODE_VEL)
+      if (motor->envp->cfg->mmode != FOC_MMODE_VEL)
 #  endif
         {
           PRINTF("ERROR: open-loop only with FOC_MMODE_VEL\n");
@@ -719,7 +720,7 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
 
   /* Controller */
 
-  switch (motor->envp->mmode)
+  switch (motor->envp->cfg->mmode)
     {
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
       case FOC_MMODE_TORQ:
@@ -766,7 +767,7 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
        * NOTE: Id always set to 0
        */
 
-      q_ref = (motor->envp->qparam / 1000.0f);
+      q_ref = (motor->envp->cfg->qparam / 1000.0f);
       d_ref = 0.0f;
     }
 #endif
@@ -991,14 +992,14 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
   /* Initialize controller state */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
-  if (motor->envp->mmode == FOC_MMODE_ALIGN_ONLY)
+  if (motor->envp->cfg->mmode == FOC_MMODE_ALIGN_ONLY)
     {
       motor->ctrl_state = FOC_CTRL_STATE_ALIGN;
     }
   else
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
-  if (motor->envp->mmode == FOC_MMODE_IDENT_ONLY)
+  if (motor->envp->cfg->mmode == FOC_MMODE_IDENT_ONLY)
     {
       motor->ctrl_state = FOC_CTRL_STATE_IDENT;
     }
@@ -1227,7 +1228,7 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
               motor->ctrl_state += 1;
               motor->foc_mode = FOC_HANDLER_MODE_IDLE;
 
-              if (motor->envp->mmode == FOC_MMODE_ALIGN_ONLY)
+              if (motor->envp->cfg->mmode == FOC_MMODE_ALIGN_ONLY)
                 {
                   motor->ctrl_state = FOC_CTRL_STATE_TERMINATE;
                 }
@@ -1256,7 +1257,7 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
               motor->ctrl_state += 1;
               motor->foc_mode = FOC_HANDLER_MODE_IDLE;
 
-              if (motor->envp->mmode == FOC_MMODE_IDENT_ONLY)
+              if (motor->envp->cfg->mmode == FOC_MMODE_IDENT_ONLY)
                 {
                   motor->ctrl_state = FOC_CTRL_STATE_TERMINATE;
                 }

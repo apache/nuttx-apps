@@ -105,30 +105,11 @@ enum foc_controller_state_e
 
 struct foc_ctrl_env_s
 {
-  mqd_t               mqd;      /* Control msg queue */
-  int                 id;       /* FOC device id */
-  int                 inst;     /* Type specific instance counter */
-  int                 type;     /* Controller type */
-  int                 fmode;    /* FOC control mode */
-  int                 mmode;    /* Motor control mode */
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  int                 qparam;   /* Open-loop Q setting (x1000) */
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  uint32_t            foc_pi_kp; /* FOC PI Kp (x1000) */
-  uint32_t            foc_pi_ki; /* FOC PI Ki (x1000) */
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-  uint32_t            torqmax;  /* Torque max (x1000) */
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-  uint32_t            velmax;   /* Velocity max (x1000) */
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-  uint32_t            posmax;   /* Position max (x1000) */
-#endif
+  mqd_t                mqd;     /* Control msg queue */
+  int                  id;      /* FOC device id */
+  int                  inst;    /* Type specific instance counter */
+  int                  type;    /* Controller type */
+  struct foc_thr_cfg_s *cfg;    /* Control thread configuration */
 };
 
 /****************************************************************************
