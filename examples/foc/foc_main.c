@@ -71,12 +71,10 @@ struct args_s g_args =
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
     .qparam = CONFIG_EXAMPLES_FOC_OPENLOOP_Q,
 #endif
-
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
     .foc_pi_kp = CONFIG_EXAMPLES_FOC_IDQ_KP,
     .foc_pi_ki = CONFIG_EXAMPLES_FOC_IDQ_KI,
 #endif
-
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
 #  ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
     .torqmax = CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE,
@@ -104,85 +102,6 @@ struct args_s g_args =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: validate_args
- ****************************************************************************/
-
-static int validate_args(FAR struct args_s *args)
-{
-  int ret = -EINVAL;
-
-#ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  /* Current PI controller */
-
-  if (args->cfg.foc_pi_kp == 0 && args->cfg.foc_pi_ki == 0)
-    {
-      PRINTF("ERROR: missing FOC Kp/Ki configuration\n");
-      goto errout;
-    }
-#endif
-
-  /* FOC operation mode */
-
-  if (args->cfg.fmode != FOC_FMODE_IDLE &&
-      args->cfg.fmode != FOC_FMODE_VOLTAGE &&
-      args->cfg.fmode != FOC_FMODE_CURRENT)
-    {
-      PRINTF("Invalid op mode value %d s\n", args->cfg.fmode);
-      goto errout;
-    }
-
-  /* Example control mode */
-
-  if (
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-    args->cfg.mmode != FOC_MMODE_TORQ &&
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-    args->cfg.mmode != FOC_MMODE_VEL &&
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-    args->cfg.mmode != FOC_MMODE_POS &&
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
-    args->cfg.mmode != FOC_MMODE_ALIGN_ONLY &&
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
-    args->cfg.mmode != FOC_MMODE_IDENT_ONLY &&
-#endif
-    1)
-    {
-      PRINTF("Invalid ctrl mode value %d s\n", args->cfg.mmode);
-      goto errout;
-    }
-
-  /* Example state */
-
-  if (args->state != FOC_EXAMPLE_STATE_FREE &&
-      args->state != FOC_EXAMPLE_STATE_STOP &&
-      args->state != FOC_EXAMPLE_STATE_CW &&
-      args->state != FOC_EXAMPLE_STATE_CCW)
-    {
-      PRINTF("Invalid state value %d s\n", args->state);
-      goto errout;
-    }
-
-  /* Time parameter */
-
-  if (args->time <= 0 && args->time != -1)
-    {
-      PRINTF("Invalid time value %d s\n", args->time);
-      goto errout;
-    }
-
-  /* Otherwise OK */
-
-  ret = OK;
-
-errout:
-  return ret;
-}
 
 /****************************************************************************
  * Name: foc_mq_send
