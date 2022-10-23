@@ -182,6 +182,7 @@ static int timer_gpio_daemon(int argc, char *argv[])
   notify.event.sigev_notify = SIGEV_SIGNAL;
   notify.event.sigev_signo  = CONFIG_EXAMPLES_TIMER_GPIO_SIGNO;
   notify.event.sigev_value.sival_ptr = NULL;
+  notify.oneshot = false;
 
   ret = ioctl(fd_timer, TCIOC_NOTIFICATION,
               (unsigned long)((uintptr_t)&notify));
