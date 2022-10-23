@@ -25,7 +25,7 @@ LIBUV_PATCHS ?= $(sort $(wildcard 000*.patch))
 LIBUV_VERSION  = 1.42.0
 LIBUV_UNPACK   = libuv
 LIBUV_TARBALL  = v$(LIBUV_VERSION).zip
-LIBUV_URL_BASE = https://github.com/libuv/libuv/archive/refs/tags/
+LIBUV_URL_BASE = https://github.com/libuv/libuv/archive/refs/tags
 LIBUV_URL      = $(LIBUV_URL_BASE)/$(LIBUV_TARBALL)
 
 
@@ -38,8 +38,7 @@ $(LIBUV_UNPACK): $(LIBUV_TARBALL)
 	$(call DELDIR, $(LIBUV_UNPACK))
 	$(Q) unzip $(LIBUV_TARBALL)
 	$(Q) mv libuv-$(LIBUV_VERSION) $(LIBUV_UNPACK)
-	$(Q) cat $(LIBUV_PATCHS) | \
-		patch -s -N -d $(LIBUV_UNPACK) -p1
+	$(Q) cat $(LIBUV_PATCHS) | patch -s -N -d $(LIBUV_UNPACK) -p1
 
 $(LIBUV_UNPACK)/.patch: $(LIBUV_UNPACK)
 	$(Q) touch $(LIBUV_UNPACK)/.patch
