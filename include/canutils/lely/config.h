@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/canutils/lely/config.h
+ * apps/canutils/lely/config.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_CANUTILS_LELY_CONFIG_H
-#define __APPS_INCLUDE_CANUTILS_LELY_CONFIG_H
+#ifndef __CANUTILS_LELY_CONFIG_H
+#define __CANUTILS_LELY_CONFIG_H
 
 /****************************************************************************
  * Included Files
@@ -275,4 +275,4 @@
 #  define LELY_NO_CO_COAPP_SLAVE 1
 #endif
 
-#endif  /* __APPS_INCLUDE_CANUTILS_LELY_CONFIG_H */
+#endif  /* __CANUTILS_LELY_CONFIG_H */
