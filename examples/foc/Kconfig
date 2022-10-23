@@ -128,7 +128,7 @@ config EXAMPLES_FOC_QENCO_DEVPATH
 	default "/dev/qe"
 	---help---
 		The default path to the qenco device without the device minor number.
-		Default: /dev/qenco
+		Default: /dev/qe
 
 endif # EXAMPLES_FOC_HAVE_QENCO
 
