@@ -36,7 +36,7 @@
 #ifdef CONFIG_CXX_EXCEPTION
 #include <stdexcept>
 #endif
-#if __cplusplus >= 201703L
+#if defined(CONFIG_LIBCXX) && __cplusplus >= 201703L
 #include <array>
 #include <utility>
 #endif
@@ -61,7 +61,7 @@ public:
   }
 };
 
-#if __cplusplus >= 201703L
+#if defined(CONFIG_LIBCXX) && __cplusplus >= 201703L
 class File
 {
 public:
@@ -193,7 +193,7 @@ static void test_stl()
 // Name: test_stl2
 //***************************************************************************/
 
-#if __cplusplus >= 201703L
+#if defined(CONFIG_LIBCXX) && __cplusplus >= 201703L
 auto test_stl2() -> void
 {
   std::cout << "Test C++17 features ==========================" << std::endl;
@@ -274,7 +274,7 @@ extern "C" int main(int argc, char *argv[])
   test_ofstream();
   test_iostream();
   test_stl();
-#if __cplusplus >= 201703L
+#if defined(CONFIG_LIBCXX) && __cplusplus >= 201703L
   test_stl2();
 #endif
 #ifdef CONFIG_CXX_RTTI
