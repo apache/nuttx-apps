@@ -181,10 +181,7 @@ A: Here are three:
       You can copy any pieces that you like from the old apps/directory to your
       custom apps directory as necessary.
 
-      This is documented in `NuttX/boards/README.txt` and
-      `nuttx/Documentation/NuttXPortingGuide.html` (Online at
-      https://bitbucket.org/nuttx/nuttx/src/master/Documentation/NuttXPortingGuide.html#apndxconfigs
-      under _Build options_). And in the `apps/README.txt` file.
+      This is documented in `NuttX/boards/README.txt`.
 
    3) If you like the random collection of stuff in the `apps/` directory but
       just want to expand the existing components with your own, external
