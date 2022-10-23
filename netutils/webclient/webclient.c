@@ -285,6 +285,7 @@ static int webclient_static_body_func(FAR void *buffer,
                                       size_t reqsize,
                                       FAR void *ctx)
 {
+  UNUSED(buffer);
   *datap = ctx;
   *sizep = reqsize;
   return 0;
@@ -798,6 +799,8 @@ static inline int wget_parsechunkheader(struct webclient_context *ctx,
   int ndx;
   int ret = OK;
 
+  UNUSED(ctx);
+
   offset = ws->offset;
   ndx    = ws->ndx;
 
@@ -908,6 +911,8 @@ static inline int wget_parsechunkenddata(struct webclient_context *ctx,
   int ndx;
   int ret = OK;
 
+  UNUSED(ctx);
+
   offset = ws->offset;
   ndx    = ws->ndx;
 
@@ -965,6 +970,8 @@ static inline int wget_parsechunktrailer(struct webclient_context *ctx,
   int offset;
   int ndx;
   int ret = OK;
+
+  UNUSED(ctx);
 
   offset = ws->offset;
   ndx    = ws->ndx;
@@ -1871,7 +1878,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
 
               DEBUGASSERT(bytes_to_send <= ws->state_len);
               ssize_t ssz = webclient_conn_send(conn,
-                                                ws->data_buffer +
+                                                (char *)ws->data_buffer +
                                                 ws->state_offset,
                                                 bytes_to_send);
               if (ssz < 0)
@@ -1891,7 +1898,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               ws->state_len -= ssz;
               ws->state_offset += ssz;
               DEBUGASSERT(ws->state_offset <= ws->data_len);
-              if (ws->state_offset == ws->data_len)
+              if ((size_t)ws->state_offset == ws->data_len)
                 {
                   ws->data_buffer = NULL;
                 }
