@@ -513,6 +513,7 @@ FAR char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
       snprintf(vtbl->iobuffer, IOBUFFERSIZE, "%s/%s", dirpath, path);
     }
 
+  vtbl->iobuffer[PATH_MAX] = '\0';
   return strdup(vtbl->iobuffer);
 }
 #endif
