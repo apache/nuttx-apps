@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SCPI_PARSER
+	tristate "SCPI instrument side parser"
+	default n
+
+config SCPI_PARSER_DEMO
+	bool "Enable the SCPI parser library demo"
+	default n
+	depends on SCPI_PARSER
+
+if SCPI_PARSER_DEMO
+
+config SCPI_PARSER_DEMO_PRIORITY
+	int "SCPI demo program priority"
+	default 100
+
+config SCPI_PARSER_DEMO_STACKSIZE
+	int "SCPI demo program stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
