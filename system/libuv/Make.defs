@@ -23,9 +23,9 @@ CONFIGURED_APPS += $(APPDIR)/system/libuv
 
 # Enable <uv.h> include.
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+CFLAGS += ${shell $(INCDIR) "$(CC)" \
 	$(APPDIR)/system/libuv/libuv/include}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" \
 	$(APPDIR)/system/libuv/libuv/include}
 
 endif

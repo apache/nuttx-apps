@@ -20,8 +20,8 @@
 
 ifneq ($(CONFIG_UORB),)
 CONFIGURED_APPS += $(APPDIR)/system/uorb
-CFLAGS          += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+CFLAGS          += ${shell $(INCDIR) "$(CC)" \
                    $(APPDIR)/system/uorb/}
-CXXFLAGS        += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+CXXFLAGS        += ${shell $(INCDIR) "$(CC)" \
                    $(APPDIR)/system/uorb/}
 endif

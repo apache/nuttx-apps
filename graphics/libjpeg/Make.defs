@@ -21,6 +21,6 @@
 ifneq ($(CONFIG_LIBJPEG),)
 CONFIGURED_APPS += $(APPDIR)/graphics/libjpeg
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/libjpeg/libjpeg}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/libjpeg/libjpeg}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/libjpeg/libjpeg}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/libjpeg/libjpeg}
 endif

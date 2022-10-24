@@ -23,11 +23,11 @@ CONFIGURED_APPS += $(APPDIR)/graphics/lvgl
 
 # It allows `<lvgl/lvgl.h>` import.
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/lvgl}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/lvgl}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/lvgl}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/lvgl}
 
 # It allows `<lvgl.h>` import.
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/lvgl/lvgl}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/lvgl/lvgl}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/lvgl/lvgl}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/lvgl/lvgl}
 endif
