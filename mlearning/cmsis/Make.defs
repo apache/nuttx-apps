@@ -23,6 +23,6 @@ CONFIGURED_APPS += $(APPDIR)/mlearning/cmsis
 
 include $(wildcard $(APPDIR)/mlearning/cmsis/*/Make.defs)
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/Core/Include/}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/Core/Include/}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/Core/Include/}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/Core/Include/}
 endif

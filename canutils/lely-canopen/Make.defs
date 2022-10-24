@@ -23,6 +23,6 @@ CONFIGURED_APPS += $(APPDIR)/canutils/lely-canopen
 
 # It allows `<lely/xxx.h>` import.
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/canutils/lely-canopen/lely-core/include}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/canutils/lely-canopen/lely-core/include}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/canutils/lely-canopen/lely-core/include}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/canutils/lely-canopen/lely-core/include}
 endif

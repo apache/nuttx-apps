@@ -21,6 +21,6 @@
 ifneq ($(CONFIG_CWEBSOCKET),)
 CONFIGURED_APPS += $(APPDIR)/netutils/cwebsocket
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/netutils/cwebsocket/cwebsocket}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/netutils/cwebsocket/cwebsocket}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/netutils/cwebsocket/cwebsocket}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/netutils/cwebsocket/cwebsocket}
 endif

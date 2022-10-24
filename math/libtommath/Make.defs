@@ -23,6 +23,6 @@ CONFIGURED_APPS += $(APPDIR)/math/libtommath
 
 # It allows `<tommath.h>` import.
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/math/libtommath/libtommath}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/math/libtommath/libtommath}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/math/libtommath/libtommath}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/math/libtommath/libtommath}
 endif

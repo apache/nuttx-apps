@@ -21,6 +21,6 @@
 ifneq ($(CONFIG_DARKNET_YOLO),)
 CONFIGURED_APPS += $(APPDIR)/mlearning/darknet
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/darknet/darknet/include/}
-CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/mlearning/darknet/darknet/include/}
+CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/darknet/darknet/include/}
+CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/darknet/darknet/include/}
 endif
