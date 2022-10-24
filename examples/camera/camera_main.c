@@ -428,6 +428,22 @@ static int stop_stillcapture(int v_fd, enum v4l2_buf_type capture_type)
 }
 
 /****************************************************************************
+ * Name: get_imgsensor_name()
+ *
+ * Description:
+ *   Get image sensor driver name by querying device capabilities.
+ ****************************************************************************/
+
+static FAR const char *get_imgsensor_name(int fd)
+{
+  static struct v4l2_capability cap;
+
+  ioctl(fd, VIDIOC_QUERYCAP, (unsigned long)&cap);
+
+  return (FAR const char *)cap.driver;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -445,7 +461,10 @@ int main(int argc, FAR char *argv[])
   int capture_num = DEFAULT_CAPTURE_NUM;
   enum v4l2_buf_type capture_type = V4L2_BUF_TYPE_STILL_CAPTURE;
   struct v4l2_buffer v4l2_buf;
-  const char *save_dir;
+  FAR const char *save_dir;
+  FAR const char *sensor;
+  uint16_t w;
+  uint16_t h;
   int is_eternal;
   int app_state;
 
@@ -510,16 +529,40 @@ int main(int argc, FAR char *argv[])
    * waits for new VIDIOC_QBUFed frame buffer.
    * And when new VIDIOC_QBUF is executed, the capturing is resumed.
    *
-   * Allocate freame buffers for FullHD JPEG size (512KB).
+   * Allocate frame buffers for JPEG size (512KB).
+   * Set FULLHD size in ISX012 case, QUADVGA size in ISX019 case or other
+   * image sensors,
    * Number of frame buffers is defined as STILL_BUFNUM(1).
    * And all allocated memorys are VIDIOC_QBUFed.
    */
 
   if (capture_num != 0)
     {
+      /* Determine image size from connected image sensor name,
+       * because video driver does not support VIDIOC_ENUM_FRAMESIZES
+       * for now.
+       */
+
+      sensor = get_imgsensor_name(v_fd);
+      if (strncmp(sensor, "ISX012", strlen("ISX012")) == 0)
+        {
+          w = VIDEO_HSIZE_FULLHD;
+          h = VIDEO_VSIZE_FULLHD;
+        }
+      else if (strncmp(sensor, "ISX019", strlen("ISX019")) == 0)
+        {
+          w = VIDEO_HSIZE_QUADVGA;
+          h = VIDEO_VSIZE_QUADVGA;
+        }
+      else
+        {
+          w = VIDEO_HSIZE_QUADVGA;
+          h = VIDEO_VSIZE_QUADVGA;
+        }
+
       ret = camera_prepare(v_fd, V4L2_BUF_TYPE_STILL_CAPTURE,
                            V4L2_BUF_MODE_FIFO, V4L2_PIX_FMT_JPEG,
-                           VIDEO_HSIZE_FULLHD, VIDEO_VSIZE_FULLHD,
+                           w, h,
                            &buffers_still, STILL_BUFNUM, IMAGE_JPG_SIZE);
       if (ret != OK)
         {
@@ -553,7 +596,7 @@ int main(int argc, FAR char *argv[])
   /* This application has 3 states.
    *
    * APP_STATE_BEFORE_CAPTURE:
-   *    This state waits 5 seconds (definded START_CAPTURE_TIME)
+   *    This state waits 5 seconds (defined as START_CAPTURE_TIME)
    *    with displaying preview (VIDEO_CAPTURE stream image) on LCD.
    *    After 5 seconds, state will be changed to APP_STATE_UNDER_CAPTURE.
    *
@@ -565,7 +608,7 @@ int main(int argc, FAR char *argv[])
    *    APP_STATE_AFTER_CAPTURE.
    *
    * APP_STATE_AFTER_CAPTURE:
-   *    This state waits 10 seconds (definded KEEP_VIDEO_TIME)
+   *    This state waits 10 seconds (defined as KEEP_VIDEO_TIME)
    *    with displaying preview (VIDEO_CAPTURE stream image) on LCD.
    *    After 10 seconds, this application will be finished.
    *
@@ -610,7 +653,7 @@ int main(int argc, FAR char *argv[])
         {
           /* BEFORE_CAPTURE and AFTER_CAPTURE is waiting for expiring the
            * time.
-           * In the meantime, Captureing VIDEO image to show pre-view on LCD.
+           * In the meantime, Capturing VIDEO image to show pre-view on LCD.
            */
 
           case APP_STATE_BEFORE_CAPTURE:
@@ -659,7 +702,7 @@ int main(int argc, FAR char *argv[])
            */
 
           case APP_STATE_UNDER_CAPTURE:
-            printf("Start captureing...\n");
+            printf("Start capturing...\n");
             ret = start_stillcapture(v_fd, capture_type);
             if (ret != OK)
               {
@@ -699,11 +742,11 @@ int main(int argc, FAR char *argv[])
             wait.tv_sec = KEEP_VIDEO_TIME;
             wait.tv_usec = 0;
             gettimeofday(&start, NULL);
-            printf("Finished captureing...\n");
+            printf("Finished capturing...\n");
             break; /* Finish APP_STATE_UNDER_CAPTURE */
 
           default:
-            printf("Unknown error is occured.. state=%d\n", app_state);
+            printf("Unknown error is occurred.. state=%d\n", app_state);
             goto exit_this_app;
             break;
         }
