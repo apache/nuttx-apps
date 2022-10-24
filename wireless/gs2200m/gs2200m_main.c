@@ -244,7 +244,7 @@ static int _write_to_usock(int fd, void *buf, size_t count)
 
 static int _send_ack_common(int fd,
                             uint16_t events,
-                            uint64_t xid,
+                            uint32_t xid,
                             FAR struct usrsock_message_req_ack_s *resp)
 {
   resp->head.msgid  = USRSOCK_MESSAGE_RESPONSE_ACK;
