@@ -25,7 +25,7 @@ STACKSIZE = $(CONFIG_TESTING_DRIVER_TEST_STACKSIZE)
 MODULE    = $(CONFIG_TESTING_DRIVER_TEST)
 
 ifneq ($(CONFIG_TESTING_DRIVER_TEST_SIMPLE),)
-MAINSRC  += cmocka_driver_simple.c
+MAINSRC  += drivertest_simple.c
 PROGNAME += cmocka_driver_simple
 endif
 

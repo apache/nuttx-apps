@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/drivertest/cmocka_driver_simple.c
+ * apps/testing/drivertest/drivertest_simple.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -31,15 +31,15 @@
  * Private Functions
  ****************************************************************************/
 
-static void test_case_01(void **state)
+static void test_case_01(FAR void **state)
 {
-  (void) state;
+  UNUSED(state);
   assert_int_equal(0, 0);
 }
 
-static void test_case_02(void **state)
+static void test_case_02(FAR void **state)
 {
-  (void)state;
+  UNUSED(state);
   assert_string_not_equal("hello", "world");
 }
 
@@ -48,7 +48,7 @@ static void test_case_02(void **state)
  ****************************************************************************/
 
 /****************************************************************************
- * cmocka_driver_simple_main
+ * drivertest_simple_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
