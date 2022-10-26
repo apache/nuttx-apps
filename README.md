@@ -181,7 +181,8 @@ A: Here are three:
       You can copy any pieces that you like from the old apps/directory to your
       custom apps directory as necessary.
 
-      This is documented in `NuttX/boards/README.txt`.
+      This is documented in `NuttX/boards/README.txt` and `NuttX Porting Guide`
+      online at <https://cwiki.apache.org/confluence/display/NUTTX/Porting+Guide>.
 
    3) If you like the random collection of stuff in the `apps/` directory but
       just want to expand the existing components with your own, external
