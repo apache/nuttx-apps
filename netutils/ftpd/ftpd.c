@@ -1770,7 +1770,6 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
   size_t wantsize;
   ssize_t rdbytes;
   ssize_t wrbytes;
-  off_t pos = 0;
   int errval = 0;
   int ret;
 
@@ -1899,8 +1898,6 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           ret = -errval;
           goto errout_with_session;
         }
-
-      pos += (off_t)seekoffs;
     }
 
   /* Send success message */
@@ -2063,10 +2060,6 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           ret = -errval;
           break;
         }
-
-      /* Get the next file offset */
-
-      pos += (off_t)wrbytes;
     }
 
 errout_with_session:;
