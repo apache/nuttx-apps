@@ -113,8 +113,6 @@ static const int g_alignment2[NTEST_ALLOCS / 2] =
 static FAR void       *g_allocs[NTEST_ALLOCS];
 static struct mallinfo g_alloc_info;
 
-static dq_queue_t g_realloc_queue;
-
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -306,179 +304,6 @@ static void do_frees(FAR void **mem, FAR const int *size,
     }
 }
 
-static void realloc_boundary_free(void)
-{
-  dq_entry_t *tail;
-
-  /* Free all the memory in the relloc queue */
-
-  printf("Free all the memory in the relloc queue\n");
-
-  while (!dq_empty(&g_realloc_queue))
-    {
-      tail = dq_remlast(&g_realloc_queue);
-      if (tail != NULL)
-        {
-          free(tail);
-        }
-      else
-        {
-          DEBUGASSERT(false);
-        }
-    }
-}
-
-static void *realloc_boundary_malloc(int *nodesize)
-{
-  int size;
-  int index;
-  void *ptr = NULL;
-
-  DEBUGASSERT(nodesize);
-
-  *nodesize = 0;
-  g_alloc_info = mallinfo();
-  if (g_alloc_info.mxordblk < MM_MIN_CHUNK)
-    {
-      size = MM_MIN_CHUNK;
-    }
-  else
-    {
-      /* Get a a suitable size to make sure function
-       * realloc_boundary_malloc() can run twice.
-       */
-
-      index  = fls(g_alloc_info.mxordblk);
-      size = 1 << (index - 1);
-      size = (size < MM_MIN_CHUNK) ? MM_MIN_CHUNK : size;
-    }
-
-  /* Continuously mallocing util success or heap ran out */
-
-  while (ptr == NULL && size >= MM_MIN_CHUNK)
-    {
-      ptr = malloc(size - SIZEOF_MM_ALLOCNODE);
-      if (ptr)
-        {
-          *nodesize = size;
-        }
-      else
-        {
-          size = size >> 1;
-        }
-    }
-
-  if (ptr)
-    {
-      printf("malloc success, ptr=%p, mem node size=%d\n", ptr, size);
-    }
-  else
-    {
-      printf("malloc failed, size=%zu\n",
-             (size_t)((size << 1) - SIZEOF_MM_ALLOCNODE));
-    }
-
-  return ptr;
-}
-
-static void realloc_boundary(void)
-{
-  dq_entry_t *prev_ptr2 = NULL;
-  dq_entry_t *prev_ptr1 = NULL;
-  dq_entry_t *prev_ptr0 = NULL;
-  int prev_size2 = 0;
-  int prev_size1 = 0;
-  int prev_size0 = 0;
-  int reallocsize;
-
-  /* The (MM_MIN_CHUNK - SIZEOF_MM_ALLOCNODE) must >= sizeof(dq_entry_t),
-   * so all the malloced memory can hold dq_entry_t.
-   */
-
-  DEBUGASSERT(sizeof(dq_entry_t) <= (MM_MIN_CHUNK - SIZEOF_MM_ALLOCNODE));
-
-  printf("memory realloc_boundary test start.\n");
-  printf("MM_MIN_CHUNK=%d, SIZEOF_MM_ALLOCNODE=%zu\n",
-         MM_MIN_CHUNK, SIZEOF_MM_ALLOCNODE);
-
-  /* Malloc memory until the memeory ran out */
-
-  while (1)
-    {
-      prev_ptr0 = (dq_entry_t *)realloc_boundary_malloc(&prev_size0);
-      if (prev_ptr0 == NULL)
-        {
-          break;
-        }
-
-      /* Add all the malloced memory into the queue, so we can free
-       * them conveniently after test finished.
-       */
-
-      dq_addlast(prev_ptr0 , &g_realloc_queue);
-
-      /* Make sure prev_ptr1 and prev_ptr2 are at the bottom of heap */
-
-      if (prev_ptr0 > prev_ptr1)
-        {
-          prev_size2 = prev_size1;
-          prev_ptr2  = prev_ptr1;
-          prev_size1 = prev_size0;
-          prev_ptr1  = prev_ptr0;
-        }
-    }
-
-  /* Free the previous 1 memory node. There will be only one freed memory
-   * node in the heap.
-   */
-
-  printf("free the previous 1 memory node, addr: 0x%p\n", prev_ptr1);
-
-  if (prev_ptr1 != NULL)
-    {
-      dq_rem(prev_ptr1, &g_realloc_queue);
-      free(prev_ptr1);
-    }
-  else
-    {
-      /* Free all malloced memory */
-
-      realloc_boundary_free();
-      exit(1);
-    }
-
-  reallocsize = prev_size1 + prev_size2 - SIZEOF_MM_ALLOCNODE;
-
-  printf("realloc the previous 2 memory node: \n");
-  printf("reallocsize = %d, reallocptr = %p\n", reallocsize, prev_ptr2);
-
-  /* Realloc reallocsize, the actual memory occupation in heap is
-   * prev_size1 + prev_size2, rest memory size in the heap
-   * is:
-   * if MM_MIN_CHUNK >= 2 * SIZEOF_MM_ALLOCNODE
-   *   REST = MM_MIN_CHUNK - 2 * SIZEOF_MM_ALLOCNODE
-   * if MM_MIN_CHUNK < 2 * SIZEOF_MM_ALLOCNODE
-   *   REST = 2 * MM_MIN_CHUNK - 2 * SIZEOF_MM_ALLOCNODE
-   * If REST < SIZEOF_MM_FREENODE, software will assert fail in
-   * mm_heap/mm_realloc.c line: 319.
-   */
-
-  prev_ptr0 = realloc(prev_ptr2, reallocsize);
-
-  if (prev_ptr0 != NULL)
-    {
-      printf("realloc success\n");
-    }
-  else
-    {
-      printf("realloc fail\n");
-    }
-
-  /* Free all malloced memory */
-
-  realloc_boundary_free();
-}
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -489,12 +314,6 @@ static void realloc_boundary(void)
 
 int main(int argc, FAR char *argv[])
 {
-  mm_showmallinfo();
-
-  /* Memory boundary realloc test */
-
-  realloc_boundary();
-
   mm_showmallinfo();
 
   /* Allocate some memory */
