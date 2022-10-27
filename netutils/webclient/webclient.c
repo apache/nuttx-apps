@@ -1897,7 +1897,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                     ws->state_len);
               ws->state_len -= ssz;
               ws->state_offset += ssz;
-              DEBUGASSERT(ws->state_offset <= ws->data_len);
+              DEBUGASSERT((size_t)ws->state_offset <= ws->data_len);
               if ((size_t)ws->state_offset == ws->data_len)
                 {
                   ws->data_buffer = NULL;
