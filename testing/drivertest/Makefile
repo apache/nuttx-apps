@@ -71,4 +71,9 @@ MAINSRC  += drivertest_relay.c
 PROGNAME += cmocka_driver_relay
 endif
 
+ifneq ($(CONFIG_SERIAL),)
+MAINSRC  += drivertest_uart.c
+PROGNAME += cmocka_driver_uart
+endif
+
 include $(APPDIR)/Application.mk
