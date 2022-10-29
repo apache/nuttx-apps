@@ -115,7 +115,6 @@ static volatile eMBBytePos eBytePos;
 static volatile uint8_t *pucSndBufferCur;
 static volatile uint16_t usSndBufferCount;
 
-static volatile uint8_t ucLRC;
 static volatile uint8_t ucMBLFCharacter;
 
 /****************************************************************************
@@ -130,11 +129,11 @@ static uint8_t prvucMBint8_t2BIN(uint8_t ucCharacter)
     }
   else if ((ucCharacter >= 'A') && (ucCharacter <= 'F'))
     {
-      return (uint8_t)(ucCharacter - 'A' + 0x0A);
+      return (uint8_t)(ucCharacter - 'A' + 0x0a);
     }
     else
     {
-      return 0xFF;
+      return 0xff;
     }
 }
 
@@ -144,9 +143,9 @@ static uint8_t prvucMBBIN2int8_t(uint8_t ucByte)
     {
       return (uint8_t)('0' + ucByte);
     }
-  else if ((ucByte >= 0x0A) && (ucByte <= 0x0F))
+  else if ((ucByte >= 0x0a) && (ucByte <= 0x0f))
     {
-      return (uint8_t)(ucByte - 0x0A + 'A');
+      return (uint8_t)(ucByte - 0x0a + 'A');
     }
   else
     {
@@ -241,7 +240,7 @@ eMBErrorCode eMBASCIIReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
        * size of address field and CRC checksum.
        */
 
-      *pusLength = (uint16_t)(usRcvBufferPos - MB_SER_PDU_PDU_OFF - MB_SER_PDU_SIZE_LRC);
+      *pusLength = usRcvBufferPos - MB_SER_PDU_PDU_OFF - MB_SER_PDU_SIZE_LRC;
 
       /* Return the start of the Modbus PDU to the caller. */
 
@@ -318,6 +317,7 @@ bool xMBASCIIReceiveFSM(void)
      */
 
     case STATE_RX_RCV:
+
       /* Enable timer for character timeout. */
 
       vMBPortTimersEnable();
@@ -356,7 +356,7 @@ bool xMBASCIIReceiveFSM(void)
 
                 eRcvState = STATE_RX_IDLE;
 
-                /* Disable previously activated timer because of error state. */
+                /* Disable previously activated timer due to error state. */
 
                 vMBPortTimersDisable();
               }
@@ -466,7 +466,7 @@ bool xMBASCIITransmitFSM(void)
           break;
 
         case BYTE_LOW_NIBBLE:
-          ucByte = prvucMBBIN2int8_t((uint8_t)(*pucSndBufferCur & 0x0F));
+          ucByte = prvucMBBIN2int8_t((uint8_t)(*pucSndBufferCur & 0x0f));
           xMBPortSerialPutByte((int8_t)ucByte);
           pucSndBufferCur++;
           eBytePos = BYTE_HIGH_NIBBLE;
@@ -514,6 +514,7 @@ bool xMBASCIITransmitFSM(void)
      */
 
     case STATE_TX_IDLE:
+
       /* enable receiver/disable transmitter. */
 
       vMBPortSerialEnable(true, false);
@@ -530,13 +531,14 @@ bool xMBASCIITimerT1SExpired(void)
   /* If we have a timeout we go back to the idle state and wait for
    * the next frame.
    */
+
   case STATE_RX_RCV:
   case STATE_RX_WAIT_EOF:
     eRcvState = STATE_RX_IDLE;
     break;
 
   default:
-    DEBUGASSERT((eRcvState == STATE_RX_RCV) || (eRcvState == STATE_RX_WAIT_EOF));
+    DEBUGASSERT(eRcvState == STATE_RX_RCV || eRcvState == STATE_RX_WAIT_EOF);
     break;
   }
 
