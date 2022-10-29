@@ -502,7 +502,7 @@ int main(int argc, FAR char *argv[])
 {
   int i;
   int ret;
-  char key;
+  int key;
   bool running = true;
   pthread_t pid;
   struct app_options appopt;
@@ -542,7 +542,7 @@ int main(int argc, FAR char *argv[])
 
   while (running)
     {
-      key = (char)getchar();
+      key = getchar();
       if (key != EOF)
         {
           switch (key)
