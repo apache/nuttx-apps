@@ -89,12 +89,14 @@
  * Name: ls_specialdir
  ****************************************************************************/
 
+#if !defined(CONFIG_NSH_DISABLE_LS)
 static inline int ls_specialdir(FAR const char *dir)
 {
   /* '.' and '..' directories are not listed like normal directories */
 
   return (strcmp(dir, ".")  == 0 || strcmp(dir, "..") == 0);
 }
+#endif
 
 /****************************************************************************
  * Name: ls_handler
