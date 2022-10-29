@@ -760,7 +760,6 @@ int main(int argc, FAR char *argv[])
   struct input_state_s input;
   struct screen_state_s state;
   struct fb_area_s area;
-  int score = 0;
   int ret;
 
   /* Open the framebuffer driver */
@@ -906,8 +905,6 @@ int main(int argc, FAR char *argv[])
             }
 
           usleep(500000);
-
-          score += 100;
         }
 
 #ifdef DEBUG_SHIFT_GAME
