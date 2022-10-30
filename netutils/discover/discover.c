@@ -207,7 +207,8 @@ static int discover_daemon(int argc, char *argv[])
           continue;
         }
 
-      ninfo("Received discover from %08lx'\n", srcaddr.sin_addr.s_addr);
+      ninfo("Received discover from %08" PRIx32 "\n",
+            srcaddr.sin_addr.s_addr);
 
       discover_respond(&srcaddr.sin_addr.s_addr);
     }
@@ -356,7 +357,7 @@ static inline int discover_openlistener(void)
     }
 
   g_state.serverip = ((struct sockaddr_in *)&req.ifr_addr)->sin_addr.s_addr;
-  ninfo("serverip: %08lx\n", ntohl(g_state.serverip));
+  ninfo("serverip: %08" PRIx32 "\n", ntohl(g_state.serverip));
 
   /* Bind the socket to a local port. We have to bind to INADDRY_ANY to
    * receive broadcast messages.
