@@ -151,7 +151,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           goto errout_with_actions;
         }
 
-      ret = task_spawnattr_setstacksize(&attr, builtin->stacksize);
+      ret = posix_spawnattr_setstacksize(&attr, builtin->stacksize);
       if (ret != 0)
         {
           goto errout_with_actions;

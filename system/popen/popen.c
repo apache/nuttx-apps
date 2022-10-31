@@ -198,8 +198,8 @@ FILE *popen(FAR const char *command, FAR const char *mode)
     }
 
 #ifndef CONFIG_SYSTEM_POPEN_SHPATH
-  errcode = task_spawnattr_setstacksize(&attr,
-                                        CONFIG_SYSTEM_POPEN_STACKSIZE);
+  errcode = posix_spawnattr_setstacksize(&attr,
+                                         CONFIG_SYSTEM_POPEN_STACKSIZE);
   if (errcode != 0)
     {
       goto errout_with_actions;
