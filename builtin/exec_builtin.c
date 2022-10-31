@@ -110,7 +110,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       goto errout_with_actions;
     }
 
-  ret = task_spawnattr_setstacksize(&attr, builtin->stacksize);
+  ret = posix_spawnattr_setstacksize(&attr, builtin->stacksize);
   if (ret != 0)
     {
       goto errout_with_actions;
