@@ -133,7 +133,7 @@ struct foc_motor_f32_s
   struct foc_model_f32_s        model;        /* Model handler */
   struct foc_model_state_f32_s  model_state;  /* PMSM model state */
 #endif
-  uint8_t                       poles;        /* Motor poles */
+  struct motor_phy_params_f32_s phy;          /* Motor phy */
 
   /* Motor velocity and angle handlers **************************************/
 

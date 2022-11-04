@@ -364,11 +364,13 @@ static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
 
   foc_handler_cfg_b16(&motor->handler, &ctrl_cfg, &mod_cfg);
 
-#ifdef CONFIG_EXAMPLES_FOC_MOTOR_POLES
-  /* Configure motor poles */
+  /* Configure motor phy */
 
-  motor->poles = CONFIG_EXAMPLES_FOC_MOTOR_POLES;
-#endif
+  motor_phy_params_init_b16(&motor->phy,
+                   CONFIG_EXAMPLES_FOC_MOTOR_POLES,
+                   ftob16(CONFIG_EXAMPLES_FOC_MOTOR_RES / 1000000.0f),
+                   ftob16(CONFIG_EXAMPLES_FOC_MOTOR_IND / 1000000.0f),
+                   ftob16(CONFIG_EXAMPLES_FOC_MOTOR_FLUXLINK / 1000000.0f));
 
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
   /* Initialize PMSM model */
@@ -1200,7 +1202,8 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
       /* Convert mechanical angle to electrical angle */
 
       motor->angle_el = (b16muli(motor->angle_m,
-                                 motor->poles) % MOTOR_ANGLE_E_MAX_B16);
+                                 motor->phy.poles) %
+                         MOTOR_ANGLE_E_MAX_B16);
     }
 
   else
