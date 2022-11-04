@@ -285,7 +285,7 @@ namespace NXWidgets
      * @param index Index at which to insert the text.
      */
 
-    virtual void insertText(const CNxString &text, const int index);
+    virtual void insertText(const CNxString &text, const unsigned int index);
 
     /**
      * Control the highlight state.

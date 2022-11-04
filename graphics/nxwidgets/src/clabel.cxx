@@ -179,7 +179,7 @@ void CLabel::appendText(const CNxString &text)
  * @param index Index at which to insert the text.
  */
 
-void CLabel::insertText(const CNxString &text, const int index)
+void CLabel::insertText(const CNxString &text, const unsigned int index)
 {
   m_text.insert(text, index);
   onTextChange();
