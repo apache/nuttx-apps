@@ -193,6 +193,26 @@ void platform_motd(FAR char *buffer, size_t buflen);
 #endif
 
 /****************************************************************************
+ * Name: platform_challenge
+ *
+ * Description:
+ *   If CONFIG_NSH_PLATFORM_CHALLENGE is defined, then platform-specific
+ *   logic must provide this function in order get the challenge.
+ *
+ * Input Parameters:
+ *   buffer - A caller allocated buffer in which to receive the challenge
+ *   buflen - The length in bytes of the caller allocated buffer
+ *
+ * Returned value:
+ *   None
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+void platform_challenge(FAR char *buffer, size_t buflen);
+#endif
+
+/****************************************************************************
  * Name: platform_user_verify
  *
  * Description:
@@ -211,7 +231,12 @@ void platform_motd(FAR char *buffer, size_t buflen);
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_LOGIN_PLATFORM
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+int platform_user_verify(FAR const char *username, FAR const char *challenge,
+                         FAR const char *password);
+#else
 int platform_user_verify(FAR const char *username, FAR const char *password);
+#endif
 #endif
 
 /****************************************************************************
