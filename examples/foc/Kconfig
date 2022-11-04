@@ -98,6 +98,37 @@ config EXAMPLES_FOC_SENSORED
 
 endchoice #
 
+menu "Motor phy"
+
+config EXAMPLES_FOC_MOTOR_POLES
+	int "FOC example motor poles pairs"
+	default 0
+
+config EXAMPLES_FOC_MOTOR_RES
+	int "FOC example motor phase resistance (x1000000)"
+	default 0
+	---help---
+		The unit is micro-ohm (1/1000000 ohm).
+
+config EXAMPLES_FOC_MOTOR_IND
+	int "FOC example motor phase inductance (x1000000)"
+	default 0
+	---help---
+		The unit is micro micro-henry (1/1000000 henry).
+
+config EXAMPLES_FOC_MOTOR_FLUXLINK
+	int "FOC example motor flux linkage (x1000000)"
+	default 0
+	---help---
+		The unit is micro-Vs (1/1000000 Vs).
+		Flux linkage can be obtained from the formula:
+		lambda_pm = (1 / sqrt(3)) * (60 / 2*PI) * (Ke / P) [Vs]
+		where:
+		Ke - motor voltage constant Ke [V/rpm]
+		P - motor pole pairs
+
+endmenu # Motor phy
+
 if EXAMPLES_FOC_SENSORED
 
 choice
@@ -114,10 +145,6 @@ config EXAMPLES_FOC_HAVE_HALL
 endchoice # FOC sensored sensor selection
 
 if EXAMPLES_FOC_HAVE_QENCO
-
-config EXAMPLES_FOC_MOTOR_POLES
-	int "FOC example motor poles pairs"
-	default 0
 
 config EXAMPLES_FOC_QENCO_POSMAX
 	int "FOC example qencoder maximum position"
