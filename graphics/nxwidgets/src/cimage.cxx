@@ -254,7 +254,7 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
           if (!m_bitmap->getRun(0, srcRow, nLeftPixels, &buffer[m_origin.x]))
             {
               ginfo("IBitmap::getRun failed at image row %d\n", srcRow);
-              delete buffer;
+              delete[] buffer;
               return;
             }
 
@@ -325,7 +325,7 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
         }
     }
 
-   delete buffer;
+   delete[] buffer;
 }
 
 /**

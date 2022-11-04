@@ -579,7 +579,7 @@ void CGraphicsPort::drawBitmapGreyScale(nxgl_coord_t x, nxgl_coord_t y,
        src += bitmap->stride;
     }
 
-  delete run;
+  delete[] run;
 }
 
 /**
@@ -824,7 +824,7 @@ void CGraphicsPort::_drawText(struct nxgl_point_s *pos, CRect *bound,
       pos->x += fontWidth;
     }
 
-  delete glyph;
+  delete[] glyph;
 }
 
 /**
@@ -962,7 +962,7 @@ void CGraphicsPort::greyScale(nxgl_coord_t x, nxgl_coord_t y,
                        &origin, rowBitmap.stride) ;
     }
 
-  delete rowBuffer;
+  delete[] rowBuffer;
 }
 
 /**
@@ -1038,5 +1038,5 @@ void CGraphicsPort::invert(nxgl_coord_t x, nxgl_coord_t y,
                        &origin, rowBitmap.stride) ;
     }
 
-  delete rowBuffer;
+  delete[] rowBuffer;
 };
