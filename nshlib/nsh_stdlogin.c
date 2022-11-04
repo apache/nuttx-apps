@@ -187,6 +187,12 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
           nsh_stdtoken(pstate, username, sizeof(username));
         }
 
+      if (username[0] == '\0')
+        {
+          i--;
+          continue;
+        }
+
 #ifdef CONFIG_NSH_PLATFORM_CHALLENGE
       platform_challenge(challenge, sizeof(challenge));
       printf("%s", challenge);
