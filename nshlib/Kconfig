@@ -1285,6 +1285,17 @@ config NSH_PLATFORM_CHALLENGE
                 which may be included like:
 
                         #include "nshlib/nshlib.h"
+
+config NSH_PLATFORM_SKIP_LOGIN
+        bool "Platform skip login"
+        default n
+        ---help---
+                If this option is selected, the NSH will call into platform-specific
+                logic in order to skip login.  The function prototype for this
+                call is:
+
+                        int platform_skip_login(void);
+
 endif # NSH_LOGIN
 endif # NSH_LIBRARY
 endmenu # NSH Library

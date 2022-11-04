@@ -150,6 +150,13 @@ int nsh_login(FAR struct console_stdio_s *pstate)
   int ret;
   int i;
 
+#ifdef CONFIG_NSH_PLATFORM_SKIP_LOGIN
+  if (platform_skip_login() == OK)
+    {
+      return OK;
+    }
+#endif
+
   /* Loop for the configured number of retries */
 
   for (i = 0; i < CONFIG_NSH_LOGIN_FAILCOUNT; i++)
