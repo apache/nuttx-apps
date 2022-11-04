@@ -1046,6 +1046,39 @@ int foc_motor_deinit(FAR struct foc_motor_b16_s *motor)
 
   DEBUGASSERT(motor);
 
+  #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+  /* Deinitialzie open-loop handler */
+
+  ret = foc_angle_deinit_b16(&motor->openloop);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_deinit_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  /* Deinitialzie qenco handler */
+
+  ret = foc_angle_deinit_b16(&motor->qenco);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_deinit_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
+  /* Deinitialzie hall handler */
+
+  ret = foc_angle_deinit_b16(&motor->hall);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_deinit_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   /* Deinitialize motor alignment routine */
 
@@ -1058,7 +1091,7 @@ int foc_motor_deinit(FAR struct foc_motor_b16_s *motor)
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
-  /* Deinitialize motor identment routine */
+  /* Deinitialize motor identification routine */
 
   ret = foc_routine_deinit_b16(&motor->ident);
   if (ret < 0)
