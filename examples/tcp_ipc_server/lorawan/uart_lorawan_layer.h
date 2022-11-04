@@ -29,6 +29,7 @@
 #define APP_EUI_SIZE                    30
 #define DEVICE_ADDRESS_SIZE             15
 #define CHANNEL_MASK_SIZE               35
+#define ERR_AT_BUSY_ERROR               -1
 
 /****************************************************************************
  * Public Types

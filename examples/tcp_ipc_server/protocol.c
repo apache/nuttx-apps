@@ -80,7 +80,7 @@
 void send_msg_to_lpwan(unsigned char *msg, protocolo_ipc *pt_protocol)
 {
   protocolo_ipc tprotocol;
-  unsigned char buf_recv_downlink[13];
+  unsigned char buf_recv_downlink[12];
   int bytes_recv = 0;
 
   memcpy((unsigned char *)&tprotocol, msg, sizeof(protocolo_ipc));
