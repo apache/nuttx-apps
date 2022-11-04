@@ -143,7 +143,10 @@ static void nsh_stdtoken(FAR struct console_stdio_s *pstate,
 int nsh_stdlogin(FAR struct console_stdio_s *pstate)
 {
   char username[16];
-  char password[16];
+  char password[128];
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+  char challenge[128];
+#endif
   int ret;
   int i;
 
@@ -177,6 +180,10 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
           nsh_stdtoken(pstate, username, sizeof(username));
         }
 
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+      platform_challenge(challenge, sizeof(challenge));
+      printf("%s", challenge);
+#endif
       /* Ask for the login password */
 
       printf("%s", g_passwordprompt);
@@ -195,7 +202,11 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
           if (PASSWORD_VERIFY_MATCH(ret))
 
 #elif defined(CONFIG_NSH_LOGIN_PLATFORM)
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+          ret = platform_user_verify(username, challenge, password);
+#else
           ret = platform_user_verify(username, password);
+#endif
           if (PASSWORD_VERIFY_MATCH(ret))
 
 #elif defined(CONFIG_NSH_LOGIN_FIXED)
