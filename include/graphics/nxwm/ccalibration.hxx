@@ -64,7 +64,7 @@ namespace NxWM
    * Forward references
    */
 
-  struct CTouchscreen;
+  class CTouchscreen;
 
   /**
    * Touchscreen calibration data
