@@ -433,7 +433,7 @@ bool CScaledBitmap::scaleColor(FAR const struct rgbcolor_s &incolor1,
                                FAR const struct rgbcolor_s &incolor2,
                                b16_t fraction, FAR struct rgbcolor_s &outcolor)
 {
-  uint8_t component;
+  uint32_t component;
   b16_t red;
   b16_t green;
   b16_t blue;
