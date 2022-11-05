@@ -102,6 +102,17 @@ struct foc_motor_b16_s
   b16_t                         angle_m;      /* Motor mechanical angle */
   b16_t                         angle_el;     /* Motor electrical angle */
 
+  /* Velocity state *********************************************************/
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  b16_t                         vel_el;       /* Velocity - electrical */
+  b16_t                         vel_mech;     /* Velocity - mechanical */
+  b16_t                         vel_filter;   /* Velocity low-pass filter */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS
+  b16_t                         vel_obs;      /* Velocity observer output */
+#endif
+
   /* Motor setpoints ********************************************************/
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
@@ -149,6 +160,12 @@ struct foc_motor_b16_s
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
   foc_angle_b16_t               qenco;        /* Qenco angle handler */
   char                          qedpath[32];  /* Qenco devpath */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  foc_velocity_b16_t            vel_div;       /* DIV velocity observer */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  foc_velocity_b16_t            vel_pll;       /* PLL velocity observer */
 #endif
 };
 

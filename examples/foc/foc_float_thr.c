@@ -229,12 +229,12 @@ static void foc_float_nxscope(FAR struct foc_nxscope_s *nxs,
   nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VEL)
-#  warning not supported yet
-  i++;
+  ptr = (FAR float *)&motor->vel_el;
+  nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VM)
-#  warning not supported yet
-  i++;
+  ptr = (FAR float *)&motor->vel_mech;
+  nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VBUS)
   ptr = (FAR float *)&motor->vbus;
@@ -277,6 +277,10 @@ static void foc_float_nxscope(FAR struct foc_nxscope_s *nxs,
 
   ptr = svm3_tmp;
   nxscope_put_vfloat(&nxs->nxs, i++, ptr, 4);
+#endif
+#if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VOBS)
+  ptr = (FAR float *)&motor->vel_obs;
+  nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
 #endif
 
   nxscope_unlock(&nxs->nxs);

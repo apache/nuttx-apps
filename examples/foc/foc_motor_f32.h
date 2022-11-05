@@ -102,6 +102,17 @@ struct foc_motor_f32_s
   float                         angle_m;      /* Motor mechanical angle */
   float                         angle_el;     /* Motor electrical angle */
 
+  /* Velocity state *********************************************************/
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  float                         vel_el;       /* Velocity - electrical */
+  float                         vel_mech;     /* Velocity - mechanical */
+  float                         vel_filter;   /* Velocity low-pass filter */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS
+  float                         vel_obs;      /* Velocity observer output */
+#endif
+
   /* Motor setpoints ********************************************************/
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
@@ -149,6 +160,12 @@ struct foc_motor_f32_s
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
   foc_angle_f32_t               qenco;        /* Qenco angle handler */
   char                          qedpath[32];  /* Qenco devpath */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  foc_velocity_f32_t            vel_div;       /* DIV velocity observer */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  foc_velocity_f32_t            vel_pll;       /* PLL velocity observer */
 #endif
 };
 

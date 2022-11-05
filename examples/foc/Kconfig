@@ -189,6 +189,60 @@ config EXAMPLES_FOC_HAVE_POS
 	bool "FOC example position controller support"
 	default n
 
+config EXAMPLES_FOC_VELOBS
+	bool "FOC example velocity observer support"
+	default n
+
+if EXAMPLES_FOC_HAVE_VEL
+
+config EXAMPLES_FOC_VELNOW_FILTER
+	int "FOC example velocity controller (x1000)"
+	default 990
+
+endif # EXAMPLES_FOC_HAVE_VEL
+
+if EXAMPLES_FOC_VELOBS
+
+choice
+	prompt "FOC example velocity observer selection"
+	default EXAMPLES_FOC_VELOBS_DIV
+
+config EXAMPLES_FOC_VELOBS_DIV
+	bool "FOC velocity DIV observer"
+	select INDUSTRY_FOC_VELOCITY_ODIV
+
+config EXAMPLES_FOC_VELOBS_PLL
+	bool "FOC velocity PLL observer"
+	select INDUSTRY_FOC_VELOCITY_OPLL
+
+endchoice # FOC example velocity observer selection
+
+if EXAMPLES_FOC_VELOBS_DIV
+
+config EXAMPLES_FOC_VELOBS_DIV_SAMPLES
+	int "FOC velocity DIV observer samples"
+	default 10
+
+config EXAMPLES_FOC_VELOBS_DIV_FILTER
+	int "FOC velocity DIV observer filter (x1000)"
+	default 990
+
+endif # INDUSTRY_FOC_VELOCITY_ODIV
+
+if EXAMPLES_FOC_VELOBS_PLL
+
+config EXAMPLES_FOC_VELOBS_PLL_KP
+	int "FOC velocity PLL observer Kp (x1)"
+	default 0
+
+config EXAMPLES_FOC_VELOBS_PLL_KI
+	int "FOC velocity PLL observer Ki (x1)"
+	default 0
+
+endif # EXAMPLES_FOC_VELOBS_PLL
+
+endif # EXAMPLES_FOC_VELOBS
+
 menu "FOC user input"
 
 config EXAMPLES_FOC_HAVE_ADC

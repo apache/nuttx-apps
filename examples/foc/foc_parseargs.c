@@ -45,6 +45,11 @@
 #define OPT_IIV     (SCHAR_MAX + 6)
 #define OPT_IIS     (SCHAR_MAX + 7)
 
+#define OPT_VOPLLKP (SCHAR_MAX + 7)
+#define OPT_VOPLLKI (SCHAR_MAX + 8)
+#define OPT_VODIVS  (SCHAR_MAX + 9)
+#define OPT_VODIVF  (SCHAR_MAX + 10)
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -79,6 +84,14 @@ static struct option g_long_options[] =
     { "irs", required_argument, 0, OPT_IRS },
     { "iiv", required_argument, 0, OPT_IIV },
     { "iis", required_argument, 0, OPT_IIS },
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+    { "vopllkp", required_argument, 0, OPT_VOPLLKP },
+    { "vopllki", required_argument, 0, OPT_VOPLLKI },
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+    { "vodivs", required_argument, 0, OPT_VODIVS },
+    { "vodivf", required_argument, 0, OPT_VODIVF },
 #endif
     { 0, 0, 0, 0 }
   };
@@ -153,6 +166,18 @@ static void foc_help(void)
   PRINTF("  [--iis] ind sec (default: %d)\n",
          CONFIG_EXAMPLES_FOC_IDENT_IND_SEC);
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  PRINTF("  [--vopllkp] velobs PLL Kp (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_VELOBS_PLL_KP);
+  PRINTF("  [--vopllki] velobs PLL Ki (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_VELOBS_PLL_KI);
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  PRINTF("  [--vodivs] velobs DIV samples (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_VELOBS_DIV_SAMPLES);
+  PRINTF("  [--vodivf] velobs DIV filter (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_VELOBS_DIV_FILTER);
+#endif
 }
 
 /****************************************************************************
@@ -222,6 +247,34 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
           case OPT_IIS:
             {
               args->cfg.ident_ind_sec = atoi(optarg);
+              break;
+            }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+          case OPT_VOPLLKP:
+            {
+              args->cfg.vel_pll_kp = atoi(optarg);
+              break;
+            }
+
+          case OPT_VOPLLKI:
+            {
+              args->cfg.vel_pll_ki = atoi(optarg);
+              break;
+            }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+          case OPT_VODIVS:
+            {
+              args->cfg.vel_div_samples = atoi(optarg);
+              break;
+            }
+
+          case OPT_VODIVF:
+            {
+              args->cfg.vel_div_filter = atoi(optarg);
               break;
             }
 #endif

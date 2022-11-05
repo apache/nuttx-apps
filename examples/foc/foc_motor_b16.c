@@ -704,9 +704,32 @@ errout:
 
 static int foc_motor_run_init(FAR struct foc_motor_b16_s *motor)
 {
-  /* Empty for now */
+  int ret = OK;
 
-  return OK;
+  /* Reset velocity observer */
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  ret = foc_velocity_zero_b16(&motor->vel_div);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_velocity_zero failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  ret = foc_velocity_zero_b16(&motor->vel_pll);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_velocity_zero failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS
+errout:
+#endif
+  return ret;
 }
 
 /****************************************************************************
@@ -831,6 +854,12 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
   struct foc_hall_cfg_b16_s          hl_cfg;
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  struct foc_vel_div_b16_cfg_s       odiv_cfg;
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  struct foc_vel_pll_b16_cfg_s       opll_cfg;
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   struct foc_routine_align_cfg_b16_s align_cfg;
 #endif
@@ -944,6 +973,56 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
     }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  /* Initialize velocity observer */
+
+  ret = foc_velocity_init_b16(&motor->vel_div,
+                              &g_foc_velocity_odiv_b16);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_init_b16 failed %d!\n", ret);
+      goto errout;
+    }
+
+  /* Configure velocity observer */
+
+  odiv_cfg.samples = (motor->envp->cfg->vel_div_samples);
+  odiv_cfg.filter  = ftob16(motor->envp->cfg->vel_div_samples / 1000.0f);
+  odiv_cfg.per     = motor->per;
+
+  ret = foc_velocity_cfg_b16(&motor->vel_div, &odiv_cfg);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_velocity_cfg_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  /* Initialize velocity observer */
+
+  ret = foc_velocity_init_b16(&motor->vel_pll,
+                              &g_foc_velocity_opll_b16);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_angle_init_b16 failed %d!\n", ret);
+      goto errout;
+    }
+
+  /* Configure velocity observer */
+
+  opll_cfg.kp  = ftob16(motor->envp->cfg->vel_pll_kp / 1.0f);
+  opll_cfg.ki  = ftob16(motor->envp->cfg->vel_pll_ki / 1.0f);
+  opll_cfg.per = motor->per;
+
+  ret = foc_velocity_cfg_b16(&motor->vel_pll, &opll_cfg);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_velocity_cfg_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   /* Initialize motor alignment routine */
 
@@ -1014,6 +1093,12 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
       PRINTFV("ERROR: foc_ident_cfg_b16 failed %d!\n", ret);
       goto errout;
     }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  /* Store velocity filter value */
+
+  motor->vel_filter = ftob16(motor->envp->cfg->vel_filter / 1000.0f);
 #endif
 
   /* Initialize controller state */
@@ -1087,6 +1172,28 @@ int foc_motor_deinit(FAR struct foc_motor_b16_s *motor)
     }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  /* Deinitialize DIV observer handler */
+
+  ret = foc_velocity_deinit_b16(&motor->vel_div);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_velocity_deinit_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  /* Deinitialize PLL observer handler */
+
+  ret = foc_velocity_deinit_b16(&motor->vel_pll);
+  if (ret < 0)
+    {
+      PRINTFV("ERROR: foc_velocity_deinit_b16 failed %d!\n", ret);
+      goto errout;
+    }
+#endif
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   /* Deinitialize motor alignment routine */
 
@@ -1143,9 +1250,13 @@ errout:
 
 int foc_motor_get(FAR struct foc_motor_b16_s *motor)
 {
-  struct foc_angle_in_b16_s  ain;
-  struct foc_angle_out_b16_s aout;
-  int                        ret = OK;
+  struct foc_angle_in_b16_s     ain;
+  struct foc_angle_out_b16_s    aout;
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  struct foc_velocity_in_b16_s  vin;
+  struct foc_velocity_out_b16_s vout;
+#endif
+  int                           ret = OK;
 
   DEBUGASSERT(motor);
 
@@ -1202,7 +1313,7 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
       /* Convert mechanical angle to electrical angle */
 
       motor->angle_el = (b16muli(motor->angle_m,
-                                 motor->phy.poles) %
+                                 motor->phy.p) %
                          MOTOR_ANGLE_E_MAX_B16);
     }
 
@@ -1227,20 +1338,74 @@ int foc_motor_get(FAR struct foc_motor_b16_s *motor)
       motor->angle_now = motor->angle_el;
     }
 
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  /* Update velocity handler input data */
+
+  vin.state = &motor->foc_state;
+  vin.angle = motor->angle_now;
+  vin.vel   = motor->vel.now;
+  vin.dir   = motor->dir;
+
+  /* Get velocity */
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  ret = foc_velocity_run_b16(&motor->vel_div, &vin, &vout);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_velocity_run failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  ret = foc_velocity_run_b16(&motor->vel_pll, &vin, &vout);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_velocity_run failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
+  /* Get motor electrical velocity now */
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   if (motor->openloop_now == true)
     {
-      /* No velocity feedback - assume that velocity now is velocity set */
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS
+      /* Electrical velocity from observer */
 
-      motor->vel.now = motor->vel.set;
+      motor->vel_el = motor->vel_obs;
+#else
+      UNUSED(vin);
+      UNUSED(vout);
+
+      /* No velocity feedback - assume that electical velocity is
+       * velocity set
+       */
+
+      motor->vel_el = motor->vel.set;
+#endif
     }
   else
 #endif
     {
-      /* TODO: velocity observer or sensor */
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS
+      /* Store electrical velocity */
+
+      motor->vel_el = motor->vel_obs;
+#else
+      ASSERT(0);
+#endif
     }
 
-#ifdef CONFIG_EXAMPLES_FOC_SENSORED
+  LP_FILTER_B16(motor->vel.now, motor->vel_el, motor->vel_filter);
+
+  /* Get mechanical velocity */
+
+  motor->vel_mech = b16mulb16(motor->vel_el, motor->phy.one_by_p);
+#endif  /* CONFIG_EXAMPLES_FOC_HAVE_VEL */
+
+#if defined(CONFIG_EXAMPLES_FOC_SENSORED) || defined(CONFIG_EXAMPLES_FOC_VELOBS)
 errout:
 #endif
   return ret;

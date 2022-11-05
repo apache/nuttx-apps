@@ -228,12 +228,12 @@ static void foc_fixed16_nxscope(FAR struct foc_nxscope_s *nxs,
   nxscope_put_vb16(&nxs->nxs, i++, ptr, 1);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VEL)
-#  warning not supported yet
-  i++;
+  ptr = (FAR b16_t *)&motor->vel_el;
+  nxscope_put_vb16(&nxs->nxs, i++, ptr, 1);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VM)
-#  warning not supported yet
-  i++;
+  ptr = (FAR b16_t *)&motor->vel_mech;
+  nxscope_put_vb16(&nxs->nxs, i++, ptr, 1);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VBUS)
   ptr = (FAR b16_t *)&motor->vbus;

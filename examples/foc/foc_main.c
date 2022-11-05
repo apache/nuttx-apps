@@ -109,6 +109,17 @@ struct args_s g_args =
     .ident_ind_volt = CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE,
     .ident_ind_sec = CONFIG_EXAMPLES_FOC_IDENT_IND_SEC,
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+    .vel_filter = CONFIG_EXAMPLES_FOC_VELNOW_FILTER,
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+    .vel_pll_kp = CONFIG_EXAMPLES_FOC_VELOBS_PLL_KP,
+    .vel_pll_ki = CONFIG_EXAMPLES_FOC_VELOBS_PLL_KI,
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+    .vel_div_samples = CONFIG_EXAMPLES_FOC_VELOBS_DIV_SAMPLES,
+    .vel_div_filter = CONFIG_EXAMPLES_FOC_VELOBS_DIV_FILTER,
+#endif
   }
 };
 
