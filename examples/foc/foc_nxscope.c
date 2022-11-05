@@ -239,6 +239,9 @@ int foc_nxscope_init(FAR struct foc_nxscope_s *nxs)
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_SVM3)
       nxscope_chan_init(&nxs->nxs, i++, "svm3", u.u8, 4, 0);
 #endif
+#if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VOBS)
+      nxscope_chan_init(&nxs->nxs, i++, "vobs", u.u8, 1, 0);
+#endif
 
       if (i > CONFIG_EXAMPLES_FOC_NXSCOPE_CHANNELS)
         {

@@ -52,6 +52,7 @@
 #define FOC_NXSCOPE_DQREF      (1 << 14)  /* DQ reference */
 #define FOC_NXSCOPE_VDQCOMP    (1 << 15)  /* VDQ compensation */
 #define FOC_NXSCOPE_SVM3       (1 << 16)  /* Space-vector modulation sector */
+#define FOC_NXSCOPE_VOBS       (1 << 17)  /* Output from velocity observer */
                                           /* Max 32-bit */
 
 /****************************************************************************

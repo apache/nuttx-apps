@@ -244,6 +244,19 @@ struct foc_thr_cfg_s
   uint32_t ident_ind_volt;      /* Ident res voltage (x1000) */
   uint32_t ident_ind_sec;       /* Ident ind sec */
 #endif
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  uint32_t vel_filter;          /* Velocity filter (x1000) */
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  uint32_t vel_pll_kp;          /* Vel PLL observer Kp (x1000) */
+  uint32_t vel_pll_ki;          /* Vel PLL observer Ki (x1000) */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  uint32_t vel_div_samples;     /* Vel DIV observer samples */
+  uint32_t vel_div_filter;      /* Vel DIV observer filter (x1000) */
+#endif
 };
 
 #endif /* __APPS_EXAMPLES_FOC_FOC_CFG_H */
