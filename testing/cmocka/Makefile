@@ -22,6 +22,8 @@ include $(APPDIR)/Make.defs
 
 CSRCS += $(wildcard cmocka/src/*.c)
 CFLAGS += -Dprint_error=nx_print_error
+CFLAGS += -DCMOCKA_PLATFORM_INCLUDE
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/testing/cmocka
 
 PROGNAME  = $(CONFIG_TESTING_CMOCKA_PROGNAME)
 PRIORITY  = $(CONFIG_TESTING_CMOCKA_PRIORITY)
