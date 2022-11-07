@@ -184,7 +184,7 @@ static int iperf_show_socket_error_reason(const char *str, int sockfd)
   int err = errno;
   if (err != 0)
     {
-      printf("%s error, error code: %d, reason: %s",
+      printf("%s error, error code: %d, reason: %s\n",
              str, err, strerror(err));
     }
 
@@ -480,7 +480,7 @@ static int iperf_run_udp_server(void)
 
   buffer = s_iperf_ctrl.buffer;
   want_recv = s_iperf_ctrl.buffer_len;
-  printf("want recv=%d", want_recv);
+  printf("want recv=%d\n", want_recv);
 
   t.tv_sec = IPERF_SOCKET_RX_TIMEOUT;
   t.tv_usec = 0;
@@ -582,7 +582,7 @@ static int iperf_run_udp_client(void)
             }
           else
             {
-              printf("udp client send abort: err=%d", err);
+              printf("udp client send abort: err=%d\n", err);
               break;
             }
         }
@@ -695,7 +695,7 @@ static void iperf_task_traffic(void *arg)
       s_iperf_ctrl.buffer = NULL;
     }
 
-  printf("iperf exit");
+  printf("iperf exit\n");
   s_iperf_is_running = false;
 
   pthread_exit(NULL);
