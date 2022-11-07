@@ -22,11 +22,17 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
 #include <assert.h>
+
+#ifdef CONFIG_TESTING_MM_POWEROFF
+#include <sys/boardctl.h>
+#endif
 
 #include <nuttx/queue.h>
 
@@ -354,5 +360,14 @@ int main(int argc, FAR char *argv[])
   do_frees(g_allocs, g_alloc_small_sizes, g_random1, NTEST_ALLOCS);
 
   printf("TEST COMPLETE\n");
+
+#ifdef CONFIG_TESTING_MM_POWEROFF
+  /* Power down. This is useful when used with the simulator and gcov,
+   * as the graceful shutdown allows for the generation of the .gcda files.
+   */
+
+  boardctl(BOARDIOC_POWEROFF, 0);
+#endif
+
   return 0;
 }
