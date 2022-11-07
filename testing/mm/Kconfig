@@ -26,4 +26,9 @@ config TESTING_MM_STACKSIZE
 	int "Stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config TESTING_MM_POWEROFF
+	bool "Terminate on test completion"
+	default n
+	depends on BOARDCTL_POWEROFF
+
 endif

@@ -71,4 +71,9 @@ config TESTING_FSTEST_VERBOSE
 	bool "Verbose output"
 	default n
 
+config TESTING_FSTEST_POWEROFF
+	bool "Terminate on test completion"
+	default n
+	depends on BOARDCTL_POWEROFF
+
 endif
