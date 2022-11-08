@@ -69,7 +69,6 @@ struct dd_s
   int          infd;       /* File descriptor of the input device */
   int          outfd;      /* File descriptor of the output device */
   uint32_t     nsectors;   /* Number of sectors to transfer */
-  uint32_t     sector;     /* The current sector number */
   uint32_t     skip;       /* The number of sectors skipped on input */
   bool         eof;        /* true: The end of the input or output file has been hit */
   uint16_t     sectsize;   /* Size of one sector */
@@ -202,6 +201,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   uint64_t elapsed;
   uint64_t total;
 #endif
+  uint32_t sector = 0;
   int ret = ERROR;
   int i;
 
@@ -303,8 +303,18 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   clock_gettime(CLOCK_MONOTONIC, &ts0);
 #endif
 
-  dd.sector = 0;
-  while (!dd.eof && dd.nsectors > 0)
+  if (dd.skip)
+    {
+      ret = lseek(dd.infd, dd.skip * dd.sectsize, SEEK_SET);
+      if (ret < -1)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, g_dd, "lseek", NSH_ERRNO);
+          ret = ERROR;
+          goto errout_with_outf;
+        }
+    }
+
+  while (!dd.eof && sector < dd.nsectors)
     {
       /* Read one sector from from the input */
 
@@ -318,31 +328,17 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
       if (!dd.eof)
         {
-          /* Pad with zero if necessary (at the end of file only) */
-
-          for (i = dd.nbytes; i < dd.sectsize; i++)
-            {
-              dd.buffer[i] = 0;
-            }
-
           /* Write one sector to the output file */
 
-          if (dd.sector >= dd.skip)
+          ret = dd_write(&dd);
+          if (ret < 0)
             {
-              ret = dd_write(&dd);
-              if (ret < 0)
-                {
-                  goto errout_with_outf;
-                }
-
-              /* Decrement to show that a sector was written */
-
-              dd.nsectors--;
+              goto errout_with_outf;
             }
 
           /* Increment the sector number */
 
-          dd.sector++;
+          sector++;
         }
     }
 
@@ -355,7 +351,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
   elapsed /= NSEC_PER_USEC; /* usec */
 
-  total = ((uint64_t)dd.sector * (uint64_t)dd.sectsize);
+  total = ((uint64_t)sector * (uint64_t)dd.sectsize);
 
   nsh_output(vtbl, "%llu bytes copied, %u usec, ",
              total, (unsigned int)elapsed);
