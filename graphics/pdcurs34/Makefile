@@ -24,6 +24,6 @@ include $(APPDIR)/Make.defs
 include pdcurses/Make.defs
 include nuttx/Make.defs
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/graphics/pdcurs34/include}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/pdcurs34/include
 
 include $(APPDIR)/Application.mk

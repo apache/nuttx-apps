@@ -28,7 +28,7 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_CANUTILS_CANSEND_STACKSIZE)
 MODULE = $(CONFIG_CANUTILS_CANSEND)
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/canutils/libcanutils}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/canutils/libcanutils
 MAINSRC = cansend.c
 
 include $(APPDIR)/Application.mk

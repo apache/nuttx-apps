@@ -21,9 +21,7 @@
 ifneq ($(CONFIG_INTERPRETERS_WAMR),)
 CONFIGURED_APPS += $(APPDIR)/interpreters/wamr
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" \
-    $(APPDIR)/interpreters/wamr/wamr/core/iwasm/include}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" \
-    $(APPDIR)/interpreters/wamr/wamr/core/iwasm/include}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/wamr/wamr/core/iwasm/include
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/wamr/wamr/core/iwasm/include
 
 endif

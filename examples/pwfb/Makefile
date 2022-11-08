@@ -23,7 +23,7 @@ include $(APPDIR)/Make.defs
 # NuttX per-window frame buffer graphics example.
 
 NXGLYPHS = $(APPDIR)$(DELIM)graphics$(DELIM)nxglyphs
-CFLAGS += ${shell $(INCDIR) "$(CC)" "$(NXGLYPHS)$(DELIM)include"}
+CFLAGS += ${INCDIR_PREFIX}"$(NXGLYPHS)$(DELIM)include"
 
 CSRCS = pwfb_events.c pwfb_motion.c
 MAINSRC = pwfb_main.c

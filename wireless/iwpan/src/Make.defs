@@ -24,6 +24,6 @@ MAINSRC = iwpan.c
 
 DEPPATH += --dep-path src
 VPATH += :src
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/wireless/iwpan/src}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/wireless/iwpan/src
 
 endif

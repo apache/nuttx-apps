@@ -38,6 +38,6 @@ endif
 
 DEPPATH += --dep-path rtu
 VPATH += :rtu
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/modbus/rtu}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/rtu
 
 endif

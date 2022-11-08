@@ -96,7 +96,7 @@ endef
 
 # Standard include path
 
-CFLAGS   += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CFLAGS   += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)include"
+CXXFLAGS += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)include"
 
 NUTTXLIB ?= $(call CONVERT_PATH,$(TOPDIR)$(DELIM)staging)

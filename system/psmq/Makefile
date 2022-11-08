@@ -32,8 +32,8 @@ PSMQ_EXT = tar.gz
 PSMQ_SOURCES = psmq-$(PSMQ_VERSION)
 PSMQ_TARBALL = $(PSMQ_SOURCES).$(PSMQ_EXT)
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)$(DELIM)include$(DELIM)system}
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)$(DELIM)system$(DELIM)psmq$(DELIM)$(PSMQ_SOURCES)}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)system
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system$(DELIM)psmq$(DELIM)$(PSMQ_SOURCES)
 
 # mandatory source files to compile
 CSRCS = $(PSMQ_SOURCES)/lib/psmq.c \

@@ -21,9 +21,7 @@
 ifneq ($(CONFIG_INTERPRETERS_WASM3),)
 CONFIGURED_APPS += $(APPDIR)/interpreters/wasm3
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" \
-    $(APPDIR)/interpreters/wasm3/wasm3/source}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" \
-    $(APPDIR)/interpreters/wasm3/wasm3/source}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/wasm3/wasm3/source
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/wasm3/wasm3/source
 
 endif

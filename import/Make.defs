@@ -27,10 +27,10 @@ include $(TOPDIR)/scripts/Make.defs
 # Compiler
 
 ARCHCRT0OBJ = $(call CONVERT_PATH,$(TOPDIR)$(DELIM)startup$(DELIM)crt0$(OBJEXT))
-ARCHINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include}
+ARCHINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include
 
-ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include}
-ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include$(DELIM)cxx}
+ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include
+ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include$(DELIM)cxx
 
 ARCHCFLAGS += -fno-common -pipe
 ARCHCXXFLAGS += -fno-common -nostdinc++ -pipe
