@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-CFLAGS		+= ${shell $(INCDIR) "$(CC)" "$(APPDIR)$(DELIM)netutils$(DELIM)thttpd"}
+CFLAGS		+= ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)netutils$(DELIM)thttpd"
 CGIBINDIR	= $(APPDIR)/netutils/thttpd/cgi-bin
 CLEANFILES	= *.o redirect ssi phf
 

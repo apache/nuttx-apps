@@ -31,4 +31,4 @@ endif
 
 DEPPATH += --dep-path functions
 VPATH += :functions
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/modbus/functions}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/functions

@@ -21,6 +21,6 @@
 ifneq ($(CONFIG_CMSIS_DSP),)
 CONFIGURED_APPS += $(APPDIR)/mlearning/cmsis/libcmsisdsp
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/DSP/Include/}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/DSP/Include/}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/DSP/Include/
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/mlearning/cmsis/CMSIS_5/CMSIS/DSP/Include/
 endif

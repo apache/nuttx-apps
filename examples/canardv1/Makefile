@@ -25,7 +25,7 @@ PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_EXAMPLES_LIBCANARDV1_DAEMON_STACK_SIZE)
 MODULE = $(CONFIG_EXAMPLES_LIBCANARDV1)
 
-CFLAGS += -std=c11 ${shell $(INCDIR) "$(CC)" $(APPDIR)/include/canutils $(APPDIR)/include/o1heap}
+CFLAGS += -std=c11 ${INCDIR_PREFIX}$(APPDIR)/include/canutils $(APPDIR)/include/o1heap
 CSRCS = socketcan.c
 MAINSRC = canard_main.c
 

@@ -20,6 +20,6 @@
 
 ifneq ($(CONFIG_TINYCRYPT),)
 CONFIGURED_APPS += $(APPDIR)/crypto/tinycrypt
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/crypto/tinycrypt/tinycrypt/lib/include}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/crypto/tinycrypt/tinycrypt/lib/include}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/crypto/tinycrypt/tinycrypt/lib/include
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/crypto/tinycrypt/tinycrypt/lib/include
 endif

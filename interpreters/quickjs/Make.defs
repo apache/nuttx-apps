@@ -22,9 +22,7 @@ ifneq ($(CONFIG_INTERPRETERS_QUICKJS),)
 CONFIGURED_APPS += $(APPDIR)/interpreters/quickjs
 
 # It allows `<quickjs/quickjs.h>` import.
-CFLAGS += ${shell $(INCDIR) "$(CC)" \
-    $(APPDIR)/interpreters/quickjs}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" \
-    $(APPDIR)/interpreters/quickjs}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/quickjs
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/quickjs
 
 endif

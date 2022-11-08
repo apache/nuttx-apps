@@ -21,6 +21,6 @@
 ifneq ($(CONFIG_NNABLA_RT),)
 CONFIGURED_APPS += $(APPDIR)/mlearning/libnnablart
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/libnnablart/nnabla-c-runtime/include/}
-CXXFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/mlearning/libnnablart/nnabla-c-runtime/include/}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/mlearning/libnnablart/nnabla-c-runtime/include/
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/mlearning/libnnablart/nnabla-c-runtime/include/
 endif

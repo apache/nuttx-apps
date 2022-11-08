@@ -151,7 +151,7 @@ endif
 
 # enable config.h
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/include/canutils/lely}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/include/canutils/lely
 CFLAGS += -DHAVE_CONFIG_H=1
 
 CFLAGS += -Wno-shadow -Wno-undef

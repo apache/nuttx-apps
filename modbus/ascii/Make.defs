@@ -24,6 +24,6 @@ CSRCS += mbascii.c
 
 DEPPATH += --dep-path ascii
 VPATH += :ascii
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/modbus/ascii}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/ascii
 
 endif

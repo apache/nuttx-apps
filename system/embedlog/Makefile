@@ -32,7 +32,7 @@ EMBEDLOG_EXT = tar.gz
 EMBEDLOG_SOURCES = embedlog-$(EMBEDLOG_VERSION)
 EMBEDLOG_TARBALL = $(EMBEDLOG_SOURCES).$(EMBEDLOG_EXT)
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)$(DELIM)include$(DELIM)system}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)system
 
 CSRCS = $(EMBEDLOG_SOURCES)/src/el-options.c \
 	$(EMBEDLOG_SOURCES)/src/el-perror.c \

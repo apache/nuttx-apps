@@ -30,7 +30,7 @@ include $(APPDIR)/Make.defs
 
 # Include paths
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
+CFLAGS += ${INCDIR_PREFIX}$(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src
 
 # Source Files
 

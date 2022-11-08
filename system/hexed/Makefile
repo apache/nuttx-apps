@@ -31,7 +31,7 @@ CSRCS   = bfile.c cmdargs.c hexcopy.c hexdump.c hexenter.c hexhelp.c
 CSRCS  += hexinsert.c hexmove.c hexremove.c hexword.c
 MAINSRC = hexed.c
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" include}
+CFLAGS += ${INCDIR_PREFIX}include
 
 VPATH += :src
 DEPPATH += --dep-path src
