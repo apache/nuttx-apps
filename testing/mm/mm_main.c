@@ -310,6 +310,60 @@ static void do_frees(FAR void **mem, FAR const int *size,
     }
 }
 
+static int mm_stress_test(int argc, FAR char *argv[])
+{
+  FAR unsigned char *tmp;
+  int delay = 1;
+  int prio = 0;
+  int size;
+  int i;
+
+  while ((i = getopt(argc, argv, "d:p:")) != ERROR)
+    {
+      if (i == 'd')
+        {
+          delay = atoi(optarg);
+        }
+      else if (i == 'p')
+        {
+          prio = atoi(optarg);
+        }
+      else
+        {
+          printf("Unrecognized option: '%c'\n", i);
+          return -EINVAL;
+        }
+    }
+
+  if (prio != 0)
+    {
+      struct sched_param param;
+
+      sched_getparam(0, &param);
+      param.sched_priority = prio;
+      sched_setparam(0, &param);
+    }
+
+  while (1)
+    {
+      size = random() % 1024 + 1;
+      tmp = malloc(size);
+      assert(tmp);
+
+      memset(tmp, 0xfe, size);
+      usleep(delay);
+
+      for (i = 0; i < size; i++)
+        {
+          assert(tmp[i] == 0xfe);
+        }
+
+      free(tmp);
+    }
+
+  return 0;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -320,6 +374,11 @@ static void do_frees(FAR void **mem, FAR const int *size,
 
 int main(int argc, FAR char *argv[])
 {
+  if (argc > 1)
+    {
+      return mm_stress_test(argc, argv);
+    }
+
   mm_showmallinfo();
 
   /* Allocate some memory */
