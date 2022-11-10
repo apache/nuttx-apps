@@ -28,6 +28,10 @@ CSRCS = builtin_list.c exec_builtin.c
 
 PDATLIST = $(strip $(call RWILDCARD, registry, *.pdat))
 BDATLIST = $(strip $(call RWILDCARD, registry, *.bdat))
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+	PDATLIST  := $(subst /,\,$(PDATLIST))
+	BDATLIST  := $(subst /,\,$(BDATLIST))
+endif
 
 builtin_list.c: builtin_list.h builtin_proto.h
 

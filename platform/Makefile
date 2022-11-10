@@ -25,7 +25,7 @@ CONFIG_ARCH_BOARD ?= dummy
 # Directories
 
 PLATFORMDIR = board
-DUMMYDIR    = $(APPDIR)/platform/dummy
+DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
 
 ifeq ($(CONFIG_ARCH_BOARD_CUSTOM),y)
   LINKDIR   = $(DUMMYDIR)
