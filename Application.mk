@@ -62,7 +62,8 @@ ifeq ($(BUILD_MODULE),y)
 endif
 
 SUFFIX = $(subst $(DELIM),.,$(CWD))
-PROGNAME := $(shell echo $(PROGNAME))
+
+PROGNAME := $(subst ",,$(PROGNAME))
 
 # Object files
 
