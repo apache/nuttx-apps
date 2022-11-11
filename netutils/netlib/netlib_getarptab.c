@@ -122,7 +122,7 @@ ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
 
   /* Bind the socket so that we can use send() and receive() */
 
-  pid            = getpid();
+  pid            = gettid();
   addr.nl_family = AF_NETLINK;
   addr.nl_pad    = 0;
   addr.nl_pid    = pid;

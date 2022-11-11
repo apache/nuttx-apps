@@ -158,7 +158,7 @@ void timedwait_test(void)
     }
 
   prio_max = sched_get_priority_max(SCHED_FIFO);
-  status = sched_getparam (getpid(), &sparam);
+  status = sched_getparam (gettid(), &sparam);
   if (status != 0)
     {
       printf("timedwait_test: sched_getparam failed\n");
