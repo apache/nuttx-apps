@@ -142,7 +142,6 @@ namespace Twm4Nx
       NXWidgets::CNxString        m_name;        /**< Name of the window */
       FAR NXWidgets::CNxTkWindow *m_nxWin;       /**< The contained NX primary window */
       FAR CWindowEvent           *m_windowEvent; /**< Cached window event reference */
-      FAR void                   *m_eventObj;    /**< Object reference that accompanies events */
       nxgl_coord_t                m_minWidth;    /**< The minimum width of the window */
       struct SAppEvents           m_appEvents;   /**< Application event information */
       bool                        m_modal;       /**< Window is in modal state */
