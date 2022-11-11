@@ -100,7 +100,7 @@ static void sleep_and_display(int n, int us)
 
   do
     {
-      int status = sched_getparam(getpid(), &sparam);
+      int status = sched_getparam(gettid(), &sparam);
 
       if (status != 0)
         {
@@ -503,7 +503,7 @@ void priority_inheritance(void)
   for (i = 0; i < NHIGHPRI_THREADS; i++) g_highstate[i] = NOTSTARTED;
   for (i = 0; i < NLOWPRI_THREADS; i++)  g_lowstate[i]  = NOTSTARTED;
 
-  status = sched_getparam(getpid(), &sparam);
+  status = sched_getparam(gettid(), &sparam);
   if (status != 0)
     {
       printf("priority_inheritance: ERROR sched_getparam failed\n");

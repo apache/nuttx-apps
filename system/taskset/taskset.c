@@ -160,7 +160,7 @@ int main(int argc, FAR char *argv[])
               strcat(command, " ");
             }
 
-          sched_setaffinity(getpid(), sizeof(cpu_set_t), &cpuset);
+          sched_setaffinity(gettid(), sizeof(cpu_set_t), &cpuset);
           system(command);
         }
     }

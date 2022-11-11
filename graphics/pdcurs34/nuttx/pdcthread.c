@@ -116,9 +116,9 @@ static FAR struct pdc_context_s *PDC_ctx_new(void)
   ctx->panel_ctx = pdc_alloc_panel_ctx();
   ctx->term_ctx  = pdc_alloc_term_ctx();
 
-  /* Get our PID */
+  /* Get our TID */
 
-  pid = getpid();
+  pid = gettid();
 
 #ifdef CONFIG_PDCURSES_MULTITHREAD_HASH
 
@@ -177,9 +177,9 @@ FAR struct pdc_context_s * PDC_ctx(void)
       PDC_ctx_initialize();
     }
 
-  /* Get our PID */
+  /* Get our TID */
 
-  pid = getpid();
+  pid = gettid();
 
 #ifdef CONFIG_PDCURSES_MULTITHREAD_HASH
 
@@ -262,9 +262,9 @@ void PDC_ctx_free(void)
 #ifdef CONFIG_PDCURSES_MULTITHREAD_HASH
   int pid;
 
-  /* Get a unique hash key from the PID */
+  /* Get a unique hash key from the TID */
 
-  pid = PIDHASH(getpid());
+  pid = PIDHASH(gettid());
   ctx = g_pdc_ctx_per_pid[pid];
 
   /* Free the context memory */

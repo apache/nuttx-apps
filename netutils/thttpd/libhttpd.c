@@ -2135,9 +2135,9 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
 {
   FAR httpd_server *hs;
 
-  /* Save the PID of the main thread */
+  /* Save the TID of the main thread */
 
-  main_thread = getpid();
+  main_thread = gettid();
 
   /* Allocate the server structure */
 
@@ -2203,7 +2203,7 @@ void httpd_write_response(httpd_conn *hc)
 {
   /* If we are in a sub-task, turn off no-delay mode. */
 
-  if (main_thread != getpid())
+  if (main_thread != gettid())
     {
        httpd_clear_ndelay(hc->conn_fd);
     }
