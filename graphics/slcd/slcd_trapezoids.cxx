@@ -81,13 +81,11 @@ namespace SLcd
       .rightx = 10923,
       .y      = 26526
     },
-    [4]       =
     {
       .leftx  = 3121,
       .rightx = 9986,
       .y      = 27307
     },
-    [5]       =
     {
       .leftx  = 6242,
       .rightx = 6242,
