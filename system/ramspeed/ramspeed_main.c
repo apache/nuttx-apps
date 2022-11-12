@@ -138,6 +138,11 @@ static void parse_commandline(int argc, FAR char **argv,
             break;
           case 's':
             OPTARG_TO_VALUE(info->size, size_t, 10);
+            if (info->size < 32)
+              {
+                printf(RAMSPEED_PREFIX "<size> must >= 32");
+                exit(EXIT_FAILURE);
+              }
             break;
           case 'v':
             OPTARG_TO_VALUE(info->value, uint8_t, 16);
@@ -360,39 +365,56 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
   uint32_t cost_time_system;
   uint32_t cost_time_internal;
   uint32_t cnt;
-  const size_t total_size = size * repeat_cnt;
+  uint32_t step;
+  size_t total_size;
   irqstate_t flags;
 
-  if (irq_disable)
+  printf("______memcpy performance______\n");
+
+  for (step = 32; step <= size; step <<= 1)
     {
-      flags = enter_critical_section();
+      total_size = step * repeat_cnt;
+
+      if (step < 1024)
+        {
+          printf("______do %" PRIu32 " B operation______\n", step);
+        }
+      else
+        {
+          printf("______do %" PRIu32  " KB operation______\n", step / 1024);
+        }
+
+      if (irq_disable)
+        {
+          flags = enter_critical_section();
+        }
+
+      start_time = get_timestamp();
+
+      for (cnt = 0; cnt < repeat_cnt; cnt++)
+        {
+          memcpy(dest, src, step);
+        }
+
+      cost_time_system = get_time_elaps(start_time);
+
+      start_time = get_timestamp();
+
+      for (cnt = 0; cnt < repeat_cnt; cnt++)
+        {
+          internal_memcpy(dest, src, step);
+        }
+
+      cost_time_internal = get_time_elaps(start_time);
+
+      if (irq_disable)
+        {
+          leave_critical_section(flags);
+        }
+
+      print_rate("system memcpy():\t", total_size, cost_time_system);
+      print_rate("internal memcpy():\t", total_size, cost_time_internal);
     }
-
-  start_time = get_timestamp();
-
-  for (cnt = 0; cnt < repeat_cnt; cnt++)
-    {
-      memcpy(dest, src, size);
-    }
-
-  cost_time_system = get_time_elaps(start_time);
-
-  start_time = get_timestamp();
-
-  for (cnt = 0; cnt < repeat_cnt; cnt++)
-    {
-      internal_memcpy(dest, src, size);
-    }
-
-  cost_time_internal = get_time_elaps(start_time);
-
-  if (irq_disable)
-    {
-      leave_critical_section(flags);
-    }
-
-  print_rate("system memcpy():\t", total_size, cost_time_system);
-  print_rate("internal memcpy():\t", total_size, cost_time_internal);
 }
 
 /****************************************************************************
@@ -407,39 +429,56 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
   uint32_t cost_time_system;
   uint32_t cost_time_internal;
   uint32_t cnt;
-  const size_t total_size = size * repeat_num;
+  uint32_t step;
+  size_t total_size;
   irqstate_t flags;
 
-  if (irq_disable)
+  printf("______memset performance______\n");
+
+  for (step = 32; step <= size; step <<= 1)
     {
-      flags = enter_critical_section();
+      total_size = step * repeat_num;
+
+      if (step < 1024)
+        {
+          printf("______do %" PRIu32 " B operation______\n", step);
+        }
+      else
+        {
+          printf("______do %" PRIu32  " KB operation______\n", step / 1024);
+        }
+
+      if (irq_disable)
+        {
+          flags = enter_critical_section();
+        }
+
+      start_time = get_timestamp();
+
+      for (cnt = 0; cnt < repeat_num; cnt++)
+        {
+          memset(dest, value, step);
+        }
+
+      cost_time_system = get_time_elaps(start_time);
+
+      start_time = get_timestamp();
+
+      for (cnt = 0; cnt < repeat_num; cnt++)
+        {
+          internal_memset(dest, value, step);
+        }
+
+      cost_time_internal = get_time_elaps(start_time);
+
+      if (irq_disable)
+        {
+          leave_critical_section(flags);
+        }
+
+      print_rate("system memset():\t", total_size, cost_time_system);
+      print_rate("internal memset():\t", total_size, cost_time_internal);
     }
-
-  start_time = get_timestamp();
-
-  for (cnt = 0; cnt < repeat_num; cnt++)
-    {
-      memset(dest, value, size);
-    }
-
-  cost_time_system = get_time_elaps(start_time);
-
-  start_time = get_timestamp();
-
-  for (cnt = 0; cnt < repeat_num; cnt++)
-    {
-      internal_memset(dest, value, size);
-    }
-
-  cost_time_internal = get_time_elaps(start_time);
-
-  if (irq_disable)
-    {
-      leave_critical_section(flags);
-    }
-
-  print_rate("system memset():\t", total_size, cost_time_system);
-  print_rate("internal memset():\t", total_size, cost_time_internal);
 }
 
 /****************************************************************************
