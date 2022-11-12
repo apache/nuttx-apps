@@ -133,6 +133,9 @@ int main(int argc, FAR char *argv[])
           case MINMEA_SENTENCE_GLL:
           case MINMEA_SENTENCE_GST:
           case MINMEA_SENTENCE_GSV:
+          case MINMEA_SENTENCE_GBS:
+          case MINMEA_SENTENCE_VTG:
+          case MINMEA_SENTENCE_ZDA:
             {
             }
             break;
