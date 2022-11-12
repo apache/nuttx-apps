@@ -23,4 +23,20 @@ config WEBCLIENT_TIMEOUT
 	int "Request and receive timeouts"
 	default 10
 
+config WEBCLIENT_MAXHTTPLINE
+	int "Max http line size"
+	default 200
+
+config WEBCLIENT_MAXMIMESIZE
+	int "Max mime size"
+	default 32
+
+config WEBCLIENT_MAXHOSTNAME
+	int "Max host name size"
+	default 40
+
+config WEBCLIENT_MAXFILENAME
+	int "Max file name size"
+	default 100
+
 endif
