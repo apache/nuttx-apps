@@ -155,6 +155,8 @@ void restart_test(void)
 {
   int ret;
 
+  g_restartstep = 0;
+
   /* Start the children and wait for first one to complete */
 
   printf("\nTest task_restart()\n");
