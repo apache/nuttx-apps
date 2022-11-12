@@ -47,45 +47,6 @@
 #include <nuttx/crc32.h>
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* Configuration ************************************************************/
-
-#ifndef CONFIG_TESTING_FSTEST_MAXNAME
-#  define CONFIG_TESTING_FSTEST_MAXNAME 128
-#endif
-
-#if CONFIG_TESTING_FSTEST_MAXNAME > 255
-#  undef CONFIG_TESTING_FSTEST_MAXNAME
-#  define CONFIG_TESTING_FSTEST_MAXNAME 255
-#endif
-
-#ifndef CONFIG_TESTING_FSTEST_MAXFILE
-#  define CONFIG_TESTING_FSTEST_MAXFILE 8192
-#endif
-
-#ifndef CONFIG_TESTING_FSTEST_MAXIO
-#  define CONFIG_TESTING_FSTEST_MAXIO 347
-#endif
-
-#ifndef CONFIG_TESTING_FSTEST_MAXOPEN
-#  define CONFIG_TESTING_FSTEST_MAXOPEN 512
-#endif
-
-#ifndef CONFIG_TESTING_FSTEST_MOUNTPT
-#  error CONFIG_TESTING_FSTEST_MOUNTPT must be provided
-#endif
-
-#ifndef CONFIG_TESTING_FSTEST_NLOOPS
-#  define CONFIG_TESTING_FSTEST_NLOOPS 100
-#endif
-
-#ifndef CONFIG_TESTING_FSTEST_VERBOSE
-#  define CONFIG_TESTING_FSTEST_VERBOSE 0
-#endif
-
-/****************************************************************************
  * Private Types
  ****************************************************************************/
 
