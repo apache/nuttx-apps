@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/hello/gps_main.c
+ * apps/examples/gps/gps_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -29,7 +29,13 @@
 #include <wchar.h>
 #include <syslog.h>
 
-#include "gpsutils/minmea.h"
+#include "minmea/minmea.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define MINMEA_MAX_LENGTH    256
 
 /****************************************************************************
  * Public Functions
