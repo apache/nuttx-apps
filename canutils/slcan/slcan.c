@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
   int nbytes;
   int i;
   int ret;
-  int reccount;
+  int reccount = 0;
   struct sockaddr_can addr;
   struct canfd_frame frame;
   struct msghdr msg;
