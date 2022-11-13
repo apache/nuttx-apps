@@ -1047,7 +1047,8 @@ static int wapi_pta_prio_cmd(int sock, int argc, FAR char **argv)
 
   /* Convert input strings to values */
 
-  pta_prio = (enum wapi_mode_e)wapi_str2ndx(argv[1], g_wapi_pta_prio_flags);
+  pta_prio = (enum wapi_pta_prio_e)
+    wapi_str2ndx(argv[1], g_wapi_pta_prio_flags);
 
   /* Set operating mode */
 
