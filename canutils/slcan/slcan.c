@@ -263,20 +263,23 @@ int main(int argc, char *argv[])
               if (nbytes == CAN_MTU)
                 {
                   reccount++;
-                  debug_print("R%d, Id:0x%lX\n", reccount, frame.can_id);
+                  debug_print("R%d, Id:0x%" PRIx32 "\n",
+                              reccount, frame.can_id);
                   if (frame.can_id & CAN_EFF_FLAG)
                     {
                       /* 29 bit address */
 
                       frame.can_id = frame.can_id & ~CAN_EFF_FLAG;
-                      sprintf(sbuf, "T%08lX%d", frame.can_id, frame.len);
+                      sprintf(sbuf, "T%08" PRIx32 "%d",
+                              frame.can_id, frame.len);
                       sbp = &sbuf[10];
                     }
                   else
                     {
                       /* 11 bit address */
 
-                      sprintf(sbuf, "t%03lX%d", frame.can_id, frame.len);
+                      sprintf(sbuf, "t%03" PRIx32 "%d",
+                              frame.can_id, frame.len);
                       sbp = &sbuf[5];
                     }
 
