@@ -118,10 +118,9 @@ int main(int argc, FAR char *argv[])
       return rc;
     }
 
-  printf("Image version %d.%d.%d.%ld\n", raw_header.version.major,
-                                         raw_header.version.minor,
-                                         raw_header.version.revision,
-                                         raw_header.version.build_num);
+  printf("Image version %d.%d.%d.%" PRId32 "\n",
+          raw_header.version.major, raw_header.version.minor,
+          raw_header.version.revision, raw_header.version.build_num);
 
   return 0;
 }
