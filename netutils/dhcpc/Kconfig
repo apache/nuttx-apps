@@ -32,7 +32,7 @@ config NETUTILS_DHCPC_RETRIES
 
 config NETUTILS_DHCPC_BOOTP_FLAGS
 	hex "Flags of Bootstrap"
-	default 0x8000
+	default 0x0000
 	---help---
 		This setting to set the BOOTP broadcast flags.
 		Reference RFC1542: Clarifications and Extensions for the
