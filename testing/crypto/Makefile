@@ -21,8 +21,8 @@
 include $(APPDIR)/Make.defs
 
 # Generic file system stress test application info
-PROGNAME = des3cbc aesxts aesctr hmac
-MAINSRC =  3descbc.c aesxts.c aesctr.c hmac.c
+PROGNAME = des3cbc aesxts aesctr hmac aescbc
+MAINSRC =  3descbc.c aesxts.c aesctr.c hmac.c aescbc.c
 PRIORITY = $(CONFIG_TESTING_CRYPTO_PRIORITY)
 STACKSIZE = $(CONFIG_TESTING_CRYPTO_STACKSIZE)
 MODULE = $(CONFIG_TESTING_CRYPTO)
