@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXCAMERA
+	bool "NxCamera video test application"
+	default n
+	depends on VIDEO
+	---help---
+		Enable support for the NxCam media tester library and optional
+		command line interface.
+
+if SYSTEM_NXCAMERA
+
+config NXCAMERA_MAINTHREAD_STACKSIZE
+	int "NxCamera main thread stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		Stack size to use with the NxCamera main thread.
+
+config NXCAMERA_LOOPTHREAD_STACKSIZE
+	int "NxCamera thread stack size"
+	default PTHREAD_STACK_DEFAULT
+	---help---
+		Stack size to use with the NxCamera play thread.
+
+config NXCAMERA_MSG_PRIO
+	int "NxCamera priority of message queen"
+	default 1
+	---help---
+		Priority of stop message to notice NxCamera thread.
+
+config NXCAMERA_INCLUDE_HELP
+	bool "Include HELP command and text"
+	default y
+	---help---
+		Compiles in the NxCamera help text to provide online help
+		for available commands with syntax.
+
+endif
