@@ -15,4 +15,28 @@ config SYSTEM_ARGTABLE3_VERSION
 	string "ARGTABLE3 Version"
 	default "3.2.0.7402e6e"
 
+config SYSTEM_ARGTABLE3_TEST
+	tristate "System Argtable3 Test"
+	default n
+	---help---
+		test application for argtable3
+
+if SYSTEM_ARGTABLE3_TEST
+
+config SYSTEM_ARGTABLE3_TEST_PROGNAME
+	string "Test program name"
+	default "argtable3_test"
+	---help---
+		Argtable3 test application name
+
+config SYSTEM_ARGTABLE3_TEST_PRIORITY
+	int "Test application priority"
+	default 100
+
+config SYSTEM_ARGTABLE3_TEST_STACKSIZE
+	int "Test application stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
 endif
