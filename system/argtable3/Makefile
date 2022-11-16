@@ -24,12 +24,34 @@ ARGTABLE3_VERSION := $(patsubst "%",%,$(CONFIG_SYSTEM_ARGTABLE3_VERSION))
 ARGTABLE3_TARBALL  = v$(ARGTABLE3_VERSION).tar.gz
 ARGTABLE3_UNPACK   = argtable3
 ARGTABLE3_SRCDIR   = $(ARGTABLE3_UNPACK)$(DELIM)src
+ARGTABLE3_TESTSDIR = $(ARGTABLE3_UNPACK)$(DELIM)tests
 
 DEPPATH += --dep-path $(ARGTABLE3_SRCDIR)
 VPATH   += :$(ARGTABLE3_SRCDIR)
 
 CFLAGS += ${DEFINE_PREFIX}ARG_REPLACE_GETOPT=0
 CSRCS := $(notdir $(wildcard $(ARGTABLE3_SRCDIR)$(DELIM)*.c))
+
+ifneq ($(CONFIG_SYSTEM_ARGTABLE3_TEST),)
+VPATH   += $(ARGTABLE3_TESTSDIR)
+MAINSRC += testall.c
+
+CSRCS += testargdbl.c
+CSRCS += testarghashtable.c
+CSRCS += testargrex.c
+CSRCS += CuTest.c
+CSRCS += testargcmd.c
+CSRCS += testargdstr.c
+CSRCS += testargint.c
+CSRCS += testargstr.c
+CSRCS += testargdate.c
+CSRCS += testargfile.c
+CSRCS += testarglit.c
+
+PROGNAME += $(CONFIG_SYSTEM_ARGTABLE3_TEST_PROGNAME)
+PRIORITY += $(CONFIG_SYSTEM_ARGTABLE3_TEST_PRIORITY)
+STACKSIZE += $(CONFIG_SYSTEM_ARGTABLE3_TEST_STACKSIZE)
+endif
 
 # workaround for clang.
 #
