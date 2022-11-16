@@ -92,6 +92,10 @@ config INTERPRETERS_WAMR_MINILOADER
 	---help---
 	Mini-loader don't check the integrity of wasm module
 
+config INTERPRETERS_WAMR_REF_TYPES
+	bool "Enable reference types support"
+	default n
+
 config INTERPRETERS_WAMR_STACK_GUARD_SIZE
 	int "Custom stack guard size"
 	default 0
