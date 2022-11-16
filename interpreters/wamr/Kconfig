@@ -96,6 +96,10 @@ config INTERPRETERS_WAMR_REF_TYPES
 	bool "Enable reference types support"
 	default n
 
+config INTERPRETERS_WAMR_ENABLE_SPEC_TEST
+	bool "Enable spectest support"
+	default n
+
 config INTERPRETERS_WAMR_STACK_GUARD_SIZE
 	int "Custom stack guard size"
 	default 0
