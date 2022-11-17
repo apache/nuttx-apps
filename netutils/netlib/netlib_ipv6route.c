@@ -28,7 +28,7 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
-
+#include <ctype.h>
 #include <arpa/inet.h>
 
 #include "netutils/netlib.h"
@@ -110,6 +110,7 @@ ssize_t netlib_read_ipv6route(FILE *stream,
   char line[PROCFS_LINELEN];
   FAR char *addr;
   int ret;
+  int idx = 0;
 
   DEBUGASSERT(stream != NULL && route != NULL);
 
@@ -131,9 +132,14 @@ ssize_t netlib_read_ipv6route(FILE *stream,
       return 0;
     }
 
-  /* The first line of the group should consist of a number index */
+  /* First non-space char of 1st line should be a number index */
 
-  if (line[0] < '0' || line[0] > 9)
+  while (isspace(line[idx]))
+    {
+      idx++;
+    }
+
+  if (line[idx] < '0' || line[idx] > '9')
     {
       return -EINVAL;
     }
