@@ -28,7 +28,7 @@ STACKSIZE = $(CONFIG_EXAMPLES_TCP_IPC_SERVER_STACKSIZE)
 MODULE    = $(CONFIG_EXAMPLES_TCP_IPC_SERVER)
 
 # SERVIDOR Example
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/examples/server_tcp/lorawan
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/examples/tcp_ipc_server/lorawan
 CSRCS  = uart_lorawan_layer.c protocol.c
 
 MAINSRC = tcp_ipc_server_main.c
