@@ -110,7 +110,7 @@ static void print_cmds(FAR const char *header,
                        size_t ncmds,
                        FAR const char *trailer)
 {
-  printf(header);
+  printf("%s", header);
   while (ncmds--)
     {
       printf("  %s %s %c", cmds->name, cmds->args,
@@ -118,7 +118,7 @@ static void print_cmds(FAR const char *header,
       cmds++;
     }
 
-  printf(trailer);
+  printf("%s", trailer);
 }
 
 static const struct command *find_cmd(FAR const char *name,
