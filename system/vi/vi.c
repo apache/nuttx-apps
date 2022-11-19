@@ -885,7 +885,7 @@ static void vi_printf(FAR struct vi_s *vi, FAR const char *prefix,
 
   /* Expand the prefix message in the scratch buffer */
 
-  len = prefix ? snprintf(vi->scratch, SCRATCH_BUFSIZE, prefix) : 0;
+  len = prefix ? snprintf(vi->scratch, SCRATCH_BUFSIZE, "%s", prefix) : 0;
 
   va_start(ap, fmt);
   len += vsnprintf(vi->scratch + len, SCRATCH_BUFSIZE - len, fmt, ap);
