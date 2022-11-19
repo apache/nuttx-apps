@@ -3907,7 +3907,8 @@ int ft80x_coproc_calibrate(int fd, FAR struct ft80x_dlbuffer_s *buffer)
       return ret;
     }
 
-  ft80x_info("Transform A-F: {%08lx, %08lx, %08lx, %08lx, %08lx, %08lx}\n",
+  ft80x_info("Transform A-F: {%08" PRIx32 ", %08" PRIx32 ", %08"
+             PRIx32 ", %08" PRIx32 ", %08" PRIx32 ", %08" PRIx32 "}\n",
              matrix[0], matrix[1], matrix[2],
              matrix[3], matrix[4], matrix[5]);
   return OK;
