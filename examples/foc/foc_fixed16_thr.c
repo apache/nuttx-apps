@@ -185,9 +185,10 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
   struct foc_mq_s         handle;
   struct foc_motor_b16_s  motor;
   struct foc_device_s     dev;
-  int                     time      = 0;
-  int                     ret       = OK;
+  int                     time = 0;
+  int                     ret  = OK;
 
+  UNUSED(time);
   DEBUGASSERT(envp);
 
   PRINTFV("foc_fixed_thr, id=%d\n", envp->id);
