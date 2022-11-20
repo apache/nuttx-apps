@@ -7,7 +7,7 @@ config SYSTEM_DHCPC_RENEW
 	tristate "DHCP Address Renewal"
 	default n
 	select NETUTILS_DHCPC
-	depends on NET_UDP && NET_BROADCAST && NET_IPv4 && NET_ETHERNET
+	depends on NET_UDP
 	---help---
 		Enable the DHCP client 'renew' command
 
