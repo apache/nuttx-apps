@@ -76,7 +76,7 @@ struct iperf_cfg_t
  *
  ****************************************************************************/
 
-int iperf_start(struct iperf_cfg_t *cfg);
+int iperf_start(FAR struct iperf_cfg_t *cfg);
 
 /****************************************************************************
  * Name: iperf_stop

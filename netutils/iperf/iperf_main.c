@@ -50,14 +50,14 @@
 
 struct wifi_iperf_t
 {
-  struct arg_str *ip;
-  struct arg_lit *server;
-  struct arg_lit *udp;
-  struct arg_int *port;
-  struct arg_int *interval;
-  struct arg_int *time;
-  struct arg_lit *abort;
-  struct arg_end *end;
+  FAR struct arg_str *ip;
+  FAR struct arg_lit *server;
+  FAR struct arg_lit *udp;
+  FAR struct arg_int *port;
+  FAR struct arg_int *interval;
+  FAR struct arg_int *time;
+  FAR struct arg_lit *abort;
+  FAR struct arg_end *end;
 };
 
 /****************************************************************************
@@ -119,7 +119,7 @@ int main(int argc, FAR char *argv[])
   iperf_args.abort = arg_lit0("a", "abort", "abort running iperf");
   iperf_args.end = arg_end(1);
 
-  nerrors = arg_parse(argc, argv, (void**) &iperf_args);
+  nerrors = arg_parse(argc, argv, (FAR void**) &iperf_args);
   if (nerrors != 0)
     {
       arg_print_errors(stderr, iperf_args.end, argv[0]);
