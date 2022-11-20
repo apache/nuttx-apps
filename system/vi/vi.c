@@ -537,8 +537,8 @@ static const char g_fmtmodified[]   =
                             "No write since last change (add ! to override)";
 static const char g_fmtnotvalid[]   = "Command not valid";
 static const char g_fmtnotcmd[]     = "Not an editor command: %s";
-static const char g_fmtsrcbot[]     = "search hit BOTTOM, continuing at TOP";
-static const char g_fmtsrctop[]     = "search hit TOP, continuing at BOTTOM";
+static const char g_fmtsrcbot[]     = "search hit BOTTOM(continuing at TOP)";
+static const char g_fmtsrctop[]     = "search hit TOP(continuing at BOTTOM)";
 static const char g_fmtinsert[]     = "--INSERT--";
 
 /****************************************************************************
