@@ -6,7 +6,7 @@
 config SYSTEM_PING6
 	tristate "ICMPv6 'ping6' command"
 	default n
-	depends on NET_ICMPv6
+	depends on NET_ICMPv6 || NET_ICMPv6_NO_STACK
 	select NETUTILS_PING6
 	---help---
 		Enable support for the ICMP 'ping' command.
