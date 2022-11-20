@@ -22,6 +22,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <net/if.h>
@@ -234,6 +235,8 @@ static void iperf_report_task(void *arg)
   uintmax_t now_len;
   int ret;
 
+  prctl(PR_SET_NAME, IPERF_REPORT_TASK_NAME);
+
   now_len = s_iperf_ctrl.total_len;
   ret = clock_gettime(CLOCK_MONOTONIC, &now);
   if (ret != 0)
@@ -308,7 +311,7 @@ static int iperf_start_report(void)
   pthread_attr_setstacksize(&attr, IPERF_REPORT_TASK_STACK);
 
   ret = pthread_create(&thread, &attr, (void *)iperf_report_task,
-                       IPERF_REPORT_TASK_NAME);
+                       NULL);
   if (ret != 0)
     {
       printf("iperf_thread: pthread_create failed: %d, %s\n",
@@ -666,6 +669,8 @@ static int iperf_run_tcp_client(void)
 
 static void iperf_task_traffic(void *arg)
 {
+  prctl(PR_SET_NAME, IPERF_TRAFFIC_TASK_NAME);
+
   if (iperf_is_udp_client())
     {
       iperf_run_udp_client();
@@ -772,7 +777,7 @@ int iperf_start(struct iperf_cfg_t *cfg)
   pthread_attr_setschedparam(&attr, &param);
   pthread_attr_setstacksize(&attr, IPERF_TRAFFIC_TASK_STACK);
   ret = pthread_create(&thread, &attr, (void *)iperf_task_traffic,
-                       IPERF_TRAFFIC_TASK_NAME);
+                       NULL);
 
   if (ret != 0)
     {
