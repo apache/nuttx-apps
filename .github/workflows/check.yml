@@ -30,14 +30,14 @@ jobs:
       - name: Checkout nuttx repo
         uses: actions/checkout@v3
         with:
-          repository: apache/incubator-nuttx
+          repository: apache/nuttx
           path: nuttx
           fetch-depth: 0
 
       - name: Checkout apps repo
         uses: actions/checkout@v3
         with:
-          repository: apache/incubator-nuttx-apps
+          repository: apache/nuttx-apps
           path: apps
           fetch-depth: 0
 
