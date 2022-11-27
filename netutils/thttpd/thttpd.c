@@ -396,7 +396,6 @@ errout_with_400:
 
 errout_with_connection:
   finish_connection(conn, tv);
-  return;
 }
 
 static inline int read_buffer(struct connect_s *conn)
@@ -490,7 +489,6 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
 errout_clear_connection:
   ninfo("Clear connection\n");
   clear_connection(conn, tv);
-  return;
 }
 
 static void handle_linger(struct connect_s *conn, struct timeval *tv)
