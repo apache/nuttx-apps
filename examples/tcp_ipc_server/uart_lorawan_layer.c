@@ -436,7 +436,6 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
   clear_uart_rx_buffer();
 
 END_UART_LORAWAN_MODULE_INIT:
-  return;
 }
 
 /****************************************************************************
