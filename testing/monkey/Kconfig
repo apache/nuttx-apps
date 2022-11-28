@@ -5,6 +5,8 @@
 
 menuconfig TESTING_MONKEY
 	tristate "Monkey test"
+	select UINPUT_TOUCH
+	select UINPUT_BUTTONS
 	default n
 
 if TESTING_MONKEY
