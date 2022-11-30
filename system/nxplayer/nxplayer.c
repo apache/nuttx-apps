@@ -88,6 +88,10 @@ struct nxplayer_ext_fmt_s
 int nxplayer_getmidisubformat(int fd);
 #endif
 
+#ifdef CONFIG_AUDIO_FORMAT_MP3
+int nxplayer_getmp3subformat(int fd);
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -99,7 +103,7 @@ static const struct nxplayer_ext_fmt_s g_known_ext[] =
   { "ac3",      AUDIO_FMT_AC3, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_MP3
-  { "mp3",      AUDIO_FMT_MP3, NULL },
+  { "mp3",      AUDIO_FMT_MP3, nxplayer_getmp3subformat },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_DTS
   { "dts",      AUDIO_FMT_DTS, NULL },
@@ -121,6 +125,21 @@ static const struct nxplayer_ext_fmt_s g_known_ext[] =
 
 static const int g_known_ext_count = sizeof(g_known_ext) /
                     sizeof(struct nxplayer_ext_fmt_s);
+
+static const struct nxplayer_dec_ops_s g_dec_ops[] =
+{
+  {
+    AUDIO_FMT_MP3,
+    nxplayer_parse_mp3,
+    nxplayer_fill_mp3
+  },
+  {
+    AUDIO_FMT_PCM,
+    NULL,
+    nxplayer_fill_pcm
+  }
+};
+
 #endif /* CONFIG_NXPLAYER_FMT_FROM_EXT */
 
 /****************************************************************************
@@ -501,6 +520,11 @@ int nxplayer_getmidisubformat(int fd)
 }
 #endif
 
+int nxplayer_getmp3subformat(int fd)
+{
+  return AUDIO_SUBFMT_PCM_MP3;
+}
+
 /****************************************************************************
  * Name: nxplayer_fmtfromextension
  *
@@ -608,6 +632,8 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pplayer,
 static int nxplayer_readbuffer(FAR struct nxplayer_s *pplayer,
                                FAR struct ap_buffer_s *apb)
 {
+  int ret;
+
   /* Validate the file is still open.  It will be closed automatically when
    * we encounter the end of file (or, perhaps, a read error that we cannot
    * handle.
@@ -622,64 +648,16 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pplayer,
       return -ENODATA;
     }
 
-  /* Read data into the buffer. */
-
-  apb->nbytes  = read(pplayer->fd, apb->samp, apb->nmaxbytes);
-  apb->curbyte = 0;
-  apb->flags   = 0;
-
-#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
-  /* read data up to nmaxbytes from network */
-
-  while (0 < apb->nbytes && apb->nbytes < apb->nmaxbytes)
+  ret = pplayer->ops->fill_data(pplayer->fd, apb);
+  if (ret < 0)
     {
-      int n   = apb->nmaxbytes - apb->nbytes;
-      int ret = read(pplayer->fd, &apb->samp[apb->nbytes], n);
-
-      if (0 >= ret)
-        {
-          break;
-        }
-
-      apb->nbytes += ret;
-    }
-#endif
-
-  if (apb->nbytes < apb->nmaxbytes)
-    {
-#if defined (CONFIG_DEBUG_AUDIO_INFO) || defined (CONFIG_DEBUG_AUDIO_ERROR)
-      int errcode = errno;
-
-      audinfo("Closing audio file, nbytes=%d errcode=%d\n",
-              apb->nbytes, errcode);
-#endif
-
       /* End of file or read error.. We are finished with this file in any
        * event.
        */
 
       close(pplayer->fd);
       pplayer->fd = -1;
-
-      /* Set a flag to indicate that this is the final buffer in the stream */
-
-      apb->flags |= AUDIO_APB_FINAL;
-
-#ifdef CONFIG_DEBUG_AUDIO_ERROR
-      /* Was this a file read error */
-
-      if (apb->nbytes == 0 && errcode != 0)
-        {
-          DEBUGASSERT(errcode > 0);
-          auderr("ERROR: fread failed: %d\n", errcode);
-        }
-#endif
     }
-
-  /* Return OK to indicate that the buffer should be passed through to the
-   * audio device.  This does not necessarily indicate that data was read
-   * correctly.
-   */
 
   return OK;
 }
@@ -1150,6 +1128,7 @@ err_out:
   pplayer->dev_fd = -1;                   /* Mark device as closed */
   mq_close(pplayer->mq);                  /* Close the message queue */
   mq_unlink(pplayer->mqname);             /* Unlink the message queue */
+  pplayer->ops   = NULL;                  /* Clear offload parser */
   pplayer->state = NXPLAYER_STATE_IDLE;   /* Go to IDLE */
 
   sem_post(&pplayer->sem);                /* Release the semaphore */
@@ -1780,6 +1759,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 #endif
   int                 tmpsubfmt = AUDIO_FMT_UNDEF;
   int                 ret;
+  int                 c;
 
   DEBUGASSERT(pplayer != NULL);
   DEBUGASSERT(pfilename != NULL);
@@ -1877,6 +1857,26 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       goto err_out_nodev;
     }
 
+  for (c = 0; c < sizeof(g_dec_ops) / sizeof(g_dec_ops[0]); c++)
+    {
+      if (g_dec_ops[c].format == filefmt)
+        {
+          pplayer->ops = &g_dec_ops[c];
+          break;
+        }
+    }
+
+  if (!pplayer->ops)
+    {
+      goto err_out;
+    }
+
+  if (pplayer->ops->pre_parse)
+    {
+      ret = pplayer->ops->pre_parse(pplayer->fd, &samprate,
+                                    &nchannels, &bpsamp);
+    }
+
   /* Try to reserve the device */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
@@ -1906,6 +1906,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       cap_desc.caps.ac_controls.hw[0] = samprate;
       cap_desc.caps.ac_controls.b[3]  = samprate >> 16;
       cap_desc.caps.ac_controls.b[2]  = bpsamp;
+      cap_desc.caps.ac_subtype        = filefmt;
 
       ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE, (unsigned long)&cap_desc);
     }

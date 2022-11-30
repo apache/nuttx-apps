@@ -39,6 +39,14 @@
  * Public Type Declarations
  ****************************************************************************/
 
+struct nxplayer_dec_ops_s
+{
+  int format;
+  CODE int (*pre_parse)(int fd, FAR uint32_t *samplerate,
+                        FAR uint8_t *chans, FAR uint8_t *bps);
+  CODE int (*fill_data)(int fd, FAR struct ap_buffer_s *apb);
+};
+
 /* This structure describes the internal state of the NxPlayer */
 
 struct nxplayer_s
@@ -72,6 +80,8 @@ struct nxplayer_s
   uint16_t    treble;         /* Treble as a whole % */
   uint16_t    bass;           /* Bass as a whole % */
 #endif
+
+  FAR const struct nxplayer_dec_ops_s *ops;
 };
 
 typedef int (*nxplayer_func)(FAR struct nxplayer_s *pplayer, char *pargs);
@@ -479,6 +489,53 @@ int nxplayer_settreble(FAR struct nxplayer_s *pplayer, uint8_t treble);
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
 int nxplayer_systemreset(FAR struct nxplayer_s *pplayer);
 #endif
+
+/****************************************************************************
+ * Name: nxplayer_parse_mp3
+ *
+ *   Performs pre-process when play mp3 file.
+ *   Parse samplerate, channels, bps.
+ *
+ * Input Parameters:
+ *   pplayer   - Pointer to the context to initialize
+ *
+ * Returned Value:
+ *   OK if file parsed successfully.
+ *
+ ****************************************************************************/
+
+int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps);
+
+/****************************************************************************
+ * Name: nxplayer_fill_mp3
+ *
+ *   Performs read mp3 frame to apb buffer
+ *
+ * Input Parameters:
+ *   pplayer   - Pointer to the context to initialize
+ *
+ * Returned Value:
+ *   OK if file read successfully.
+ *
+ ****************************************************************************/
+
+int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
+
+/****************************************************************************
+ * Name: nxplayer_fill_pcm
+ *
+ *   Performs read pcm file to apb buffer
+ *
+ * Input Parameters:
+ *   pplayer   - Pointer to the context to initialize
+ *
+ * Returned Value:
+ *   OK if file read successfully.
+ *
+ ****************************************************************************/
+
+int nxplayer_fill_pcm(int fd, FAR struct ap_buffer_s *apb);
 
 #undef EXTERN
 #ifdef __cplusplus
