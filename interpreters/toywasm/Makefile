@@ -56,7 +56,7 @@ CSRCS += xlog.c
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/include}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/lib}
 
-TOYWASM_VERSION  = 89465d57a8ad07a2e159711c92d3625bf66c41c7
+TOYWASM_VERSION  = ab861c89be54144d2bdff432e21d431c8a1c1e74
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
