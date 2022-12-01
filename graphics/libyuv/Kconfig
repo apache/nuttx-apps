@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIBYUV
+	bool "libyuv"
+	default n
+	---help---
+		Enable libyuv.
+
+if LIBYUV
+
+config LIBYUV_BRANCH
+	string "libyuv branch (main/stable)"
+	default "stable"
+
+endif # LIBYUV
