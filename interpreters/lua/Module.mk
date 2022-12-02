@@ -30,7 +30,8 @@ endef
 ifneq ($(LUAMODNAME),)
 LUAMODLIST := $(addprefix $(LUAMOD_REGISTRY)$(DELIM),$(addsuffix .bdat,$(LUAMODNAME)))
 $(LUAMODLIST): $(DEPCONFIG) Makefile
-	$(call LUAMOD_REGISTER,$(LUAMODNAME),luaopen_$(LUAMODNAME))
+	$(call LUAMOD_REGISTER,$(firstword $(LUAMODNAME)),$(firstword luaopen_$(LUAMODNAME)))
+	$(eval LUAMODNAME=$(filter-out $(firstword $(LUAMODNAME)),$(LUAMODNAME)))
 
 register:: $(LUAMODLIST)
 endif
