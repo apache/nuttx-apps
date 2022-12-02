@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_HIMEM_TEST
+	tristate "HIMEM TEST APP"
+	default n
+	depends on ESP32_SPIRAM_BANKSWITCH_ENABLE
+	---help---
+		Enable the himem cdev test
+
+if TESTING_HIMEM_TEST
+
+config TESTING_HIMEM_TEST_PROGNAME
+	string "Program name"
+	default "esp32himem_cdev"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_HIMEM_TEST_PRIORITY
+	int "himem test app task priority"
+	default 100
+
+config TESTING_HIMEM_TEST_STACKSIZE
+	int "himem test app stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
