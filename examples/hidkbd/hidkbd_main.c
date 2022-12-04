@@ -119,7 +119,7 @@ static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
   /* Initialize */
 
   memset(&state, 0, sizeof(struct kbd_getstate_s));
-  kbdstream.stream.get  = hidkbd_getstream;
+  kbdstream.stream.getc = hidkbd_getstream;
   kbdstream.stream.nget = 0;
   kbdstream.buffer      = buffer;
   kbdstream.nbytes      = nbytes;

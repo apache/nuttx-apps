@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/clcd/slcd_main.c
+ * apps/examples/slcd/slcd_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -269,7 +269,7 @@ int main(int argc, FAR char *argv[])
       /* Initialize the output stream */
 
       memset(priv, 0, sizeof(struct slcd_test_s));
-      priv->stream.put   = slcd_putc;
+      priv->stream.putc  = slcd_putc;
 #ifdef CONFIG_STDIO_LINEBUFFER
       priv->stream.flush = slcd_flush;
 #endif
