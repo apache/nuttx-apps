@@ -58,47 +58,8 @@
 #endif
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-#ifdef CONFIG_EXAMPLES_HIDKBD_ENCODED
-struct hidbkd_instream_s
-{
-  struct lib_instream_s stream;
-  FAR char *buffer;
-  ssize_t nbytes;
-};
-#endif
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: hidkbd_getstream
- *
- * Description:
- *   Get one character from the keyboard.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_EXAMPLES_HIDKBD_ENCODED
-static int hidkbd_getstream(FAR struct lib_instream_s *this)
-{
-  FAR struct hidbkd_instream_s *kbdstream = \
-    (FAR struct hidbkd_instream_s *)this;
-
-  DEBUGASSERT(kbdstream && kbdstream->buffer);
-  if (kbdstream->nbytes > 0)
-    {
-      kbdstream->nbytes--;
-      kbdstream->stream.nget++;
-      return (int)*kbdstream->buffer++;
-    }
-
-  return EOF;
-}
-#endif
 
 /****************************************************************************
  * Name: hidkbd_decode
@@ -111,7 +72,7 @@ static int hidkbd_getstream(FAR struct lib_instream_s *this)
 #ifdef CONFIG_EXAMPLES_HIDKBD_ENCODED
 static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
 {
-  struct hidbkd_instream_s kbdstream;
+  struct lib_meminstream_s kbdstream;
   struct kbd_getstate_s state;
   uint8_t ch;
   int ret;
@@ -119,10 +80,7 @@ static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
   /* Initialize */
 
   memset(&state, 0, sizeof(struct kbd_getstate_s));
-  kbdstream.stream.getc = hidkbd_getstream;
-  kbdstream.stream.nget = 0;
-  kbdstream.buffer      = buffer;
-  kbdstream.nbytes      = nbytes;
+  lib_meminstream(&kbdstream, buffer, nbytes);
 
   /* Loop until all of the bytes have been consumed.  We implicitly assume
    * that the escaped sequences do not cross buffer boundaries.  That
