@@ -268,11 +268,13 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid);
 #ifdef CONFIG_NET_ARP
 /* ARP Table Support */
 
-int netlib_del_arpmapping(FAR const struct sockaddr_in *inaddr);
+int netlib_del_arpmapping(FAR const struct sockaddr_in *inaddr,
+                          FAR const char *ifname);
 int netlib_get_arpmapping(FAR const struct sockaddr_in *inaddr,
-                          FAR uint8_t *macaddr);
+                          FAR uint8_t *macaddr, FAR const char *ifname);
 int netlib_set_arpmapping(FAR const struct sockaddr_in *inaddr,
-                          FAR const uint8_t *macaddr);
+                          FAR const uint8_t *macaddr,
+                          FAR const char *ifname);
 #ifdef CONFIG_NETLINK_ROUTE
 struct arp_entry_s;
 ssize_t netlib_get_arptable(FAR struct arp_entry_s *arptab,
