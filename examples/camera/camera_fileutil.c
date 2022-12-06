@@ -40,7 +40,8 @@
  * Private Data
  ****************************************************************************/
 
-static const char *save_dir;
+static const char *g_save_dir;
+static int g_framecount;
 
 /****************************************************************************
  * Public Functions
@@ -65,14 +66,14 @@ const char *futil_initialize(void)
   ret = stat("/mnt/sd0", &stat_buf);
   if (ret < 0)
     {
-      save_dir = "/mnt/spif";
+      g_save_dir = "/mnt/spif";
     }
   else
     {
-      save_dir = "/mnt/sd0";
+      g_save_dir = "/mnt/sd0";
     }
 
-  return save_dir;
+  return g_save_dir;
 }
 
 /****************************************************************************
@@ -84,27 +85,23 @@ const char *futil_initialize(void)
 
 int futil_writeimage(uint8_t *data, size_t len, const char *fsuffix)
 {
-  static char s_fname[IMAGE_FILENAME_LEN];
-  static int s_framecount = 0;
-
+  char fname[IMAGE_FILENAME_LEN];
   FILE *fp;
 
-  s_framecount++;
-  if (s_framecount >= 1000)
+  g_framecount++;
+  if (g_framecount >= 1000)
     {
-      s_framecount = 1;
+      g_framecount = 1;
     }
 
-  memset(s_fname, 0, sizeof(s_fname));
-
-  snprintf(s_fname,
+  snprintf(fname,
            IMAGE_FILENAME_LEN,
            "%s/VIDEO%03d.%s",
-           save_dir, s_framecount, fsuffix);
+           g_save_dir, g_framecount, fsuffix);
 
-  printf("FILENAME:%s\n", s_fname);
+  printf("FILENAME:%s\n", fname);
 
-  fp = fopen(s_fname, "wb");
+  fp = fopen(fname, "wb");
   if (NULL == fp)
     {
       printf("fopen error : %d\n", errno);
@@ -119,4 +116,3 @@ int futil_writeimage(uint8_t *data, size_t len, const char *fsuffix)
   fclose(fp);
   return 0;
 }
-

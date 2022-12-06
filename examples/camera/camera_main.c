@@ -36,12 +36,7 @@
 #include <nuttx/video/video.h>
 
 #include "camera_fileutil.h"
-
-#ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
-#include <nuttx/nx/nx.h>
-#include <nuttx/nx/nxglib.h>
 #include "camera_bkgd.h"
-#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -88,7 +83,7 @@ static void free_buffer(struct v_buffer *buffers, uint8_t bufnum);
 static int parse_arguments(int argc, char *argv[],
                            int *capture_num, enum v4l2_buf_type *type);
 static int get_camimage(int fd, struct v4l2_buffer *v4l2_buf,
-    enum v4l2_buf_type buf_type);
+                        enum v4l2_buf_type buf_type);
 static int release_camimage(int fd, struct v4l2_buffer *v4l2_buf);
 static int start_stillcapture(int v_fd, enum v4l2_buf_type capture_type);
 static int stop_stillcapture(int v_fd, enum v4l2_buf_type capture_type);
@@ -109,7 +104,7 @@ static int stop_stillcapture(int v_fd, enum v4l2_buf_type capture_type);
  * Name: camera_prepare()
  *
  * Description:
- *   Allocate frame buffer for camera and Queue the allocated buffer
+ *   Allocate frame buffer for camera and queue the allocated buffer
  *   into video driver.
  ****************************************************************************/
 
@@ -168,7 +163,6 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
   /* Prepare video memory to store images */
 
   *vbuf = malloc(sizeof(v_buffer_t) * buffernum);
-
   if (!(*vbuf))
     {
       printf("Out of memory for array of v_buffer_t[%d]\n", buffernum);
@@ -184,7 +178,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
        * Buffer pointer must be 32bytes aligned.
        */
 
-      (*vbuf)[cnt].start  = memalign(32, buffersize);
+      (*vbuf)[cnt].start = memalign(32, buffersize);
       if (!(*vbuf)[cnt].start)
         {
           printf("Out of memory for image buffer of %d/%d\n",
@@ -192,9 +186,8 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
 
           /* Release allocated memory. */
 
-          while (cnt)
+          while (cnt--)
             {
-              cnt--;
               free((*vbuf)[cnt].start);
             }
 
@@ -288,7 +281,7 @@ static int parse_arguments(int argc, char *argv[],
       else
         {
           *capture_num = atoi(argv[1]);
-          if ((*capture_num < 0) || (*capture_num > MAX_CAPTURE_NUM))
+          if (*capture_num < 0 || *capture_num > MAX_CAPTURE_NUM)
             {
               printf("Invalid capture num(%d). must be >=0 and <=%d\n",
                     *capture_num, MAX_CAPTURE_NUM);
@@ -303,7 +296,7 @@ static int parse_arguments(int argc, char *argv[],
       if (strncmp(argv[1], "-jpg", 5) == 0)
         {
           *capture_num = atoi(argv[2]);
-          if ((*capture_num < 0) || (*capture_num > MAX_CAPTURE_NUM))
+          if (*capture_num < 0 || *capture_num > MAX_CAPTURE_NUM)
             {
               printf("Invalid capture num(%d). must be >=0 and <=%d\n",
                     *capture_num, MAX_CAPTURE_NUM);
@@ -335,7 +328,7 @@ static int parse_arguments(int argc, char *argv[],
  ****************************************************************************/
 
 static int get_camimage(int fd, struct v4l2_buffer *v4l2_buf,
-    enum v4l2_buf_type buf_type)
+                        enum v4l2_buf_type buf_type)
 {
   int ret;
 
@@ -636,7 +629,7 @@ int main(int argc, FAR char *argv[])
       wait.tv_usec = 0;
       printf("Take %d pictures as %s file in %s after %d seconds.\n",
              capture_num,
-              (capture_type == V4L2_BUF_TYPE_STILL_CAPTURE) ? "JPEG" : "RGB",
+             capture_type == V4L2_BUF_TYPE_STILL_CAPTURE ? "JPEG" : "RGB",
              save_dir, START_CAPTURE_TIME);
       printf(" After finishing taking pictures,"
              " this app will be finished after %d seconds.\n",
@@ -720,7 +713,7 @@ int main(int argc, FAR char *argv[])
                 futil_writeimage(
                   (uint8_t *)v4l2_buf.m.userptr,
                   (size_t)v4l2_buf.bytesused,
-                  (capture_type == V4L2_BUF_TYPE_VIDEO_CAPTURE) ?
+                  capture_type == V4L2_BUF_TYPE_VIDEO_CAPTURE ?
                   "RGB" : "JPG");
 
                 ret = release_camimage(v_fd, &v4l2_buf);
@@ -770,4 +763,3 @@ exit_without_cleaning_videodriver:
 #endif
   return ret;
 }
-
