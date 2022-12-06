@@ -47,7 +47,7 @@ struct nximage_data_s
   /* The NX handles */
 
   NXHANDLE hnx;
-  NXHANDLE hbkgd;
+  NXWINDOW hbkgd;
   bool     connected;
 
   /* The screen resolution */
@@ -115,7 +115,7 @@ static struct nximage_data_s g_nximage =
  *   NX event listener for an event from NX server.
  ****************************************************************************/
 
-FAR void *nximage_listener(FAR void *arg)
+static FAR void *nximage_listener(FAR void *arg)
 {
   int ret;
 
@@ -162,7 +162,7 @@ FAR void *nximage_listener(FAR void *arg)
  ****************************************************************************/
 
 static void nximage_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool more, FAR void *arg)
+                           bool more, FAR void *arg)
 {
   ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
@@ -281,7 +281,7 @@ int nximage_initialize(void)
 
   while (!g_nximage.havepos)
     {
-      (void) sem_wait(&g_nximage.sem);
+      sem_wait(&g_nximage.sem);
     }
 
   printf("nximage_initialize: Screen resolution (%d,%d)\n",
@@ -291,7 +291,7 @@ int nximage_initialize(void)
 }
 
 /****************************************************************************
- * Name: nximage_image
+ * Name: nximage_draw
  *
  * Description:
  *   Put the NuttX logo in the center of the display.
@@ -317,11 +317,11 @@ void nximage_draw(FAR void *image, int w, int h)
 
   src[0] = image;
 
-  ret = nx_bitmap((NXWINDOW)g_nximage.hbkgd, &dest, src, &origin,
+  ret = nx_bitmap(g_nximage.hbkgd, &dest, src, &origin,
                   g_nximage.xres * sizeof(nxgl_mxpixel_t));
   if (ret < 0)
     {
-      printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);
+      printf("nximage_image: nx_bitmap failed: %d\n", errno);
     }
 }
 
@@ -336,4 +336,3 @@ void nximage_finalize(void)
 {
   nx_disconnect(g_nximage.hnx);
 }
-
