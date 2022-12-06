@@ -323,7 +323,7 @@ static inline void dhcpd_arpupdate(FAR uint8_t *ipaddr, FAR uint8_t *hwaddr)
 
   /* Update the ARP table */
 
-  netlib_set_arpmapping(&inaddr, hwaddr);
+  netlib_set_arpmapping(&inaddr, hwaddr, NULL);
 }
 #else
 #  define dhcpd_arpupdate(ipaddr,hwaddr)
