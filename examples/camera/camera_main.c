@@ -131,20 +131,6 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
     0
   };
 
-  /* VIDIOC_REQBUFS initiate user pointer I/O */
-
-  req.type   = type;
-  req.memory = V4L2_MEMORY_USERPTR;
-  req.count  = buffernum;
-  req.mode   = buf_mode;
-
-  ret = ioctl(fd, VIDIOC_REQBUFS, (unsigned long)&req);
-  if (ret < 0)
-    {
-      printf("Failed to VIDIOC_REQBUFS: errno = %d\n", errno);
-      return ret;
-    }
-
   /* VIDIOC_S_FMT set format */
 
   fmt.type                = type;
@@ -157,6 +143,20 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
   if (ret < 0)
     {
       printf("Failed to VIDIOC_S_FMT: errno = %d\n", errno);
+      return ret;
+    }
+
+  /* VIDIOC_REQBUFS initiate user pointer I/O */
+
+  req.type   = type;
+  req.memory = V4L2_MEMORY_USERPTR;
+  req.count  = buffernum;
+  req.mode   = buf_mode;
+
+  ret = ioctl(fd, VIDIOC_REQBUFS, (unsigned long)&req);
+  if (ret < 0)
+    {
+      printf("Failed to VIDIOC_REQBUFS: errno = %d\n", errno);
       return ret;
     }
 
