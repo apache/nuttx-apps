@@ -40,7 +40,7 @@
  * Private Data
  ****************************************************************************/
 
-static const char *g_save_dir;
+static FAR const char *g_save_dir;
 static int g_framecount;
 
 /****************************************************************************
@@ -54,7 +54,7 @@ static int g_framecount;
  *   Choose strage to write a file.
  ****************************************************************************/
 
-const char *futil_initialize(void)
+FAR const char *futil_initialize(void)
 {
   int ret;
   struct stat stat_buf;
@@ -83,10 +83,10 @@ const char *futil_initialize(void)
  *   Write a image file to selected storage.
  ****************************************************************************/
 
-int futil_writeimage(uint8_t *data, size_t len, const char *fsuffix)
+int futil_writeimage(FAR uint8_t *data, size_t len, FAR const char *fsuffix)
 {
   char fname[IMAGE_FILENAME_LEN];
-  FILE *fp;
+  FAR FILE *fp;
 
   g_framecount++;
   if (g_framecount >= 1000)
