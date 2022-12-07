@@ -1,0 +1,56 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LOGGING_NXSCOPE
+	bool "NxScope interface"
+	default n
+
+if LOGGING_NXSCOPE
+
+config LOGGING_NXSCOPE_INTF_SERIAL
+	bool "NxScope serial port interface support"
+	select SERIAL_TERMIOS
+	default n
+	---help---
+		For details, see logging/nxscope/nxscope_iserial.c
+
+config LOGGING_NXSCOPE_INTF_DUMMY
+	bool "NxScope dummy interface support"
+	default n
+	---help---
+		Useful for debug purposes. For details, see logging/nxscope/nxscope_idummy.c
+
+config LOGGING_NXSCOPE_PROTO_SER
+	bool "NxScope default serial protocol support"
+	default y
+	---help---
+		For frame details, see logging/nxscope/nxscope_pser.c
+
+config LOGGING_NXSCOPE_DIVIDER
+	bool "NxScope support for samples divider"
+	default n
+	---help---
+		This option enables interface that allows you to reduce
+		the rate of samples written to the stream buffer.
+
+config LOGGING_NXSCOPE_ACKFRAMES
+	bool "NxScope support for ACK frames"
+	default n
+	---help---
+		This option enables ACK frames for set requests
+
+config LOGGING_NXSCOPE_USERTYPES
+	bool "NxScope support for user types"
+	default n
+	---help---
+		This option enables user-defined frames (see enum nxscope_hdr_id_e)
+
+config LOGGING_NXSCOPE_CRICHANNELS
+	bool "NxScope support for critical channels"
+	default n
+	---help---
+		Enable the support for non-buffered critical channels
+
+endif # LOGGING_NXSCOPE
