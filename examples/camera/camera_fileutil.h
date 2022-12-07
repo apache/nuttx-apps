@@ -34,11 +34,11 @@
 
 /* Initialize file util of camera example */
 
-const char *futil_initialize(void);
+FAR const char *futil_initialize(void);
 
 /* Write an image file */
 
-int futil_writeimage(uint8_t *data, size_t len, const char *fsuffix);
+int futil_writeimage(FAR uint8_t *data, size_t len, FAR const char *fsuffix);
 
 #endif  /* __APPS_EXAMPLES_CAMERA_CAMERA_FILEUTIL_H */
 

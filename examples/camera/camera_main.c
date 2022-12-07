@@ -64,7 +64,7 @@
 
 struct v_buffer
 {
-  uint32_t *start;
+  FAR uint32_t *start;
   uint32_t length;
 };
 
@@ -77,14 +77,15 @@ typedef struct v_buffer v_buffer_t;
 static int camera_prepare(int fd, enum v4l2_buf_type type,
                           uint32_t buf_mode, uint32_t pixformat,
                           uint16_t hsize, uint16_t vsize,
-                          struct v_buffer **vbuf,
+                          FAR struct v_buffer **vbuf,
                           uint8_t buffernum, int buffersize);
-static void free_buffer(struct v_buffer *buffers, uint8_t bufnum);
-static int parse_arguments(int argc, char *argv[],
-                           int *capture_num, enum v4l2_buf_type *type);
-static int get_camimage(int fd, struct v4l2_buffer *v4l2_buf,
+static void free_buffer(FAR struct v_buffer *buffers, uint8_t bufnum);
+static int parse_arguments(int argc, FAR char *argv[],
+                           FAR int *capture_num,
+                           FAR enum v4l2_buf_type *type);
+static int get_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf,
                         enum v4l2_buf_type buf_type);
-static int release_camimage(int fd, struct v4l2_buffer *v4l2_buf);
+static int release_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf);
 static int start_stillcapture(int v_fd, enum v4l2_buf_type capture_type);
 static int stop_stillcapture(int v_fd, enum v4l2_buf_type capture_type);
 
@@ -111,7 +112,7 @@ static int stop_stillcapture(int v_fd, enum v4l2_buf_type capture_type);
 static int camera_prepare(int fd, enum v4l2_buf_type type,
                           uint32_t buf_mode, uint32_t pixformat,
                           uint16_t hsize, uint16_t vsize,
-                          struct v_buffer **vbuf,
+                          FAR struct v_buffer **vbuf,
                           uint8_t buffernum, int buffersize)
 {
   int ret;
@@ -239,7 +240,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
  *   All free allocated memory of v_buffer.
  ****************************************************************************/
 
-static void free_buffer(struct v_buffer *buffers, uint8_t bufnum)
+static void free_buffer(FAR struct v_buffer *buffers, uint8_t bufnum)
 {
   uint8_t cnt;
   if (buffers)
@@ -263,8 +264,9 @@ static void free_buffer(struct v_buffer *buffers, uint8_t bufnum)
  *   Parse and decode commandline arguments.
  ****************************************************************************/
 
-static int parse_arguments(int argc, char *argv[],
-                           int *capture_num, enum v4l2_buf_type *type)
+static int parse_arguments(int argc, FAR char *argv[],
+                           FAR int *capture_num,
+                           FAR enum v4l2_buf_type *type)
 {
   if (argc == 1)
     {
@@ -327,7 +329,7 @@ static int parse_arguments(int argc, char *argv[],
  *   DQBUF camera frame buffer from video driver with taken picture data.
  ****************************************************************************/
 
-static int get_camimage(int fd, struct v4l2_buffer *v4l2_buf,
+static int get_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf,
                         enum v4l2_buf_type buf_type)
 {
   int ret;
@@ -355,7 +357,7 @@ static int get_camimage(int fd, struct v4l2_buffer *v4l2_buf,
  *   Re-QBUF to set used frame buffer into video driver.
  ****************************************************************************/
 
-static int release_camimage(int fd, struct v4l2_buffer *v4l2_buf)
+static int release_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf)
 {
   int ret;
 
@@ -466,8 +468,8 @@ int main(int argc, FAR char *argv[])
   struct timeval delta;
   struct timeval wait;
 
-  struct v_buffer *buffers_video = NULL;
-  struct v_buffer *buffers_still = NULL;
+  FAR struct v_buffer *buffers_video = NULL;
+  FAR struct v_buffer *buffers_still = NULL;
 
   /* =====  Parse and Check arguments  ===== */
 
@@ -658,7 +660,7 @@ int main(int argc, FAR char *argv[])
               }
 
 #ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
-            nximage_draw((void *)v4l2_buf.m.userptr,
+            nximage_draw((FAR void *)v4l2_buf.m.userptr,
                          VIDEO_HSIZE_QVGA, VIDEO_VSIZE_QVGA);
 #endif
 
@@ -711,7 +713,7 @@ int main(int argc, FAR char *argv[])
                   }
 
                 futil_writeimage(
-                  (uint8_t *)v4l2_buf.m.userptr,
+                  (FAR uint8_t *)v4l2_buf.m.userptr,
                   (size_t)v4l2_buf.bytesused,
                   capture_type == V4L2_BUF_TYPE_VIDEO_CAPTURE ?
                   "RGB" : "JPG");
