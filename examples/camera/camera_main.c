@@ -140,7 +140,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
   fmt.fmt.pix.field       = V4L2_FIELD_ANY;
   fmt.fmt.pix.pixelformat = pixformat;
 
-  ret = ioctl(fd, VIDIOC_S_FMT, (unsigned long)&fmt);
+  ret = ioctl(fd, VIDIOC_S_FMT, (uintptr_t)&fmt);
   if (ret < 0)
     {
       printf("Failed to VIDIOC_S_FMT: errno = %d\n", errno);
@@ -154,7 +154,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
   req.count  = buffernum;
   req.mode   = buf_mode;
 
-  ret = ioctl(fd, VIDIOC_REQBUFS, (unsigned long)&req);
+  ret = ioctl(fd, VIDIOC_REQBUFS, (uintptr_t)&req);
   if (ret < 0)
     {
       printf("Failed to VIDIOC_REQBUFS: errno = %d\n", errno);
@@ -206,10 +206,10 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
       buf.type = type;
       buf.memory = V4L2_MEMORY_USERPTR;
       buf.index = cnt;
-      buf.m.userptr = (unsigned long)(*vbuf)[cnt].start;
+      buf.m.userptr = (uintptr_t)(*vbuf)[cnt].start;
       buf.length = (*vbuf)[cnt].length;
 
-      ret = ioctl(fd, VIDIOC_QBUF, (unsigned long)&buf);
+      ret = ioctl(fd, VIDIOC_QBUF, (uintptr_t)&buf);
       if (ret)
         {
           printf("Fail QBUF %d\n", errno);
@@ -221,7 +221,7 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
 
   /* VIDIOC_STREAMON start stream */
 
-  ret = ioctl(fd, VIDIOC_STREAMON, (unsigned long)&type);
+  ret = ioctl(fd, VIDIOC_STREAMON, (uintptr_t)&type);
   if (ret < 0)
     {
       printf("Failed to VIDIOC_STREAMON: errno = %d\n", errno);
@@ -340,7 +340,7 @@ static int get_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf,
   v4l2_buf->type = buf_type;
   v4l2_buf->memory = V4L2_MEMORY_USERPTR;
 
-  ret = ioctl(fd, VIDIOC_DQBUF, (unsigned long)v4l2_buf);
+  ret = ioctl(fd, VIDIOC_DQBUF, (uintptr_t)v4l2_buf);
   if (ret)
     {
       printf("Fail DQBUF %d\n", errno);
@@ -363,7 +363,7 @@ static int release_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf)
 
   /* VIDIOC_QBUF sets buffer pointer into video driver again. */
 
-  ret = ioctl(fd, VIDIOC_QBUF, (unsigned long)v4l2_buf);
+  ret = ioctl(fd, VIDIOC_QBUF, (uintptr_t)v4l2_buf);
   if (ret)
     {
       printf("Fail QBUF %d\n", errno);
@@ -433,7 +433,7 @@ static FAR const char *get_imgsensor_name(int fd)
 {
   static struct v4l2_capability cap;
 
-  ioctl(fd, VIDIOC_QUERYCAP, (unsigned long)&cap);
+  ioctl(fd, VIDIOC_QUERYCAP, (uintptr_t)&cap);
 
   return (FAR const char *)cap.driver;
 }
