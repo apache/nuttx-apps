@@ -1,0 +1,26 @@
+From d498349aeb061ab92e6f5eba2538d9f35206697c Mon Sep 17 00:00:00 2001
+From: Peter Bee <bijunda1@xiaomi.com>
+Date: Fri, 9 Dec 2022 13:36:33 +0800
+Subject: [PATCH] include/libyuv: fix strict-prototype warning
+
+Signed-off-by: Peter Bee <bijunda1@xiaomi.com>
+---
+ include/libyuv/planar_functions.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/libyuv/planar_functions.h libyuv/include/libyuv/planar_functions.h
+index fdecdee..3ae8896 100644
+--- a/include/libyuv/planar_functions.h
++++ libyuv/include/libyuv/planar_functions.h
+@@ -744,7 +744,7 @@ typedef void (*ARGBBlendRow)(const uint8_t* src_argb0,
+
+ // Get function to Alpha Blend ARGB pixels and store to destination.
+ LIBYUV_API
+-ARGBBlendRow GetARGBBlend();
++ARGBBlendRow GetARGBBlend(void);
+
+ // Alpha Blend ARGB images and store to destination.
+ // Source is pre-multiplied by alpha using ARGBAttenuate.
+--
+2.38.1
+
