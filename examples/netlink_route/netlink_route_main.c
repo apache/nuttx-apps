@@ -182,8 +182,8 @@ static void dump_neighbor(void)
 #if defined(CONFIG_NET_ARP) && !defined(CONFIG_NETLINK_DISABLE_GETNEIGH)
 static void dump_arp(void)
 {
-  FAR struct arp_entry_s *arptab;
-  FAR char buffer[INET_ADDRSTRLEN];
+  FAR struct arpreq *arptab;
+  char buffer[INET_ADDRSTRLEN];
   size_t allocsize;
   ssize_t nentries;
   int i;
@@ -193,8 +193,8 @@ static void dump_arp(void)
 
   /* Allocate a buffer to hold the ARP table */
 
-  allocsize = CONFIG_NET_ARPTAB_SIZE * sizeof(struct arp_entry_s);
-  arptab = (FAR struct arp_entry_s *)malloc(allocsize);
+  allocsize = CONFIG_NET_ARPTAB_SIZE * sizeof(struct arpreq);
+  arptab = (FAR struct arpreq *)malloc(allocsize);
   if (arptab == NULL)
     {
       fprintf(stderr, "\nERROR: Failed to allocate ARP table\n");
@@ -217,28 +217,23 @@ static void dump_arp(void)
 
   for (i = 0; i < nentries; i++)
     {
-      FAR struct arp_entry_s *arp = &arptab[i];
+      FAR struct arpreq *arp = &arptab[i];
+      FAR struct sockaddr_in *addr = (FAR struct sockaddr_in *)&arp->arp_pa;
 
-      inet_ntop(AF_INET, &arp->at_ipaddr, buffer, INET_ADDRSTRLEN);
+      inet_ntop(AF_INET, &addr->sin_addr.s_addr, buffer, INET_ADDRSTRLEN);
       printf("  Dest: %s MAC Addr: ", buffer);
 
       for (j = 0; j < ETHER_ADDR_LEN; j++)
         {
           if (j == (ETHER_ADDR_LEN - 1))
             {
-              printf("%02x", arp->at_ethaddr.ether_addr_octet[j]);
+              printf("%02x", (uint8_t)arp->arp_ha.sa_data[j]);
             }
           else
             {
-              printf("%02x.", arp->at_ethaddr.ether_addr_octet[j]);
+              printf("%02x.", (uint8_t)arp->arp_ha.sa_data[j]);
             }
         }
-
-#ifdef CONFIG_SYSTEM_TIME64
-      printf(" Time 0x%" PRIx64 "\n", arp->at_time);
-#else
-      printf(" Time 0x%" PRIx32 "\n", arp->at_time);
-#endif
     }
 
   free(arptab);
