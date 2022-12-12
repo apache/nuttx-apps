@@ -153,7 +153,7 @@ struct cle_s
  ****************************************************************************/
 
 #if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
-static void     cle_debug(FAR const char *fmt, ...) printflike(1, 2);
+static void     cle_debug(FAR const char *fmt, ...) printf_like(1, 2);
 #endif
 
 /* Low-level display and data entry functions */

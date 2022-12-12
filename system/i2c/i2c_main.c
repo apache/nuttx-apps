@@ -414,7 +414,7 @@ int main(int argc, FAR char *argv[])
  *
  ****************************************************************************/
 
-int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...)
+int i2ctool_printf(FAR struct i2ctool_s *i2ctool, FAR const char *fmt, ...)
 {
   va_list ap;
   int     ret;

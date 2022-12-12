@@ -111,7 +111,7 @@ static ssize_t ftpd_recv(int sd, FAR void *data, size_t size, int timeout);
 static ssize_t ftpd_send(int sd, FAR const void *data, size_t size,
                          int timeout);
 static ssize_t ftpd_response(int sd, int timeout, FAR const char *fmt, ...)
-               printflike(3, 4);
+               printf_like(3, 4);
 
 static int ftpd_dataopen(FAR struct ftpd_session_s *session);
 static int ftpd_dataclose(FAR struct ftpd_session_s *session);

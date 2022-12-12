@@ -37,7 +37,7 @@
  ****************************************************************************/
 
 #if CONFIG_MODLIB_MAXDEPEND > 0
-void modprint(FAR const char *fmt, ...) printflike(1, 2);
+void modprint(FAR const char *fmt, ...) printf_like(1, 2);
 #endif
 
 /****************************************************************************

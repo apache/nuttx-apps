@@ -81,7 +81,7 @@ typedef enum
 void vMBPortEnterCritical(void);
 void vMBPortExitCritical(void);
 void vMBPortLog(eMBPortLogLevel eLevel, const char *szModule,
-                const char *szFmt, ...) printflike(3, 4);
+                const char *szFmt, ...) printf_like(3, 4);
 void vMBPortTimerPoll(void);
 bool xMBPortSerialPoll(void);
 bool xMBPortSerialSetTimeout(uint32_t dwTimeoutMs);
@@ -90,7 +90,7 @@ bool xMBPortSerialSetTimeout(uint32_t dwTimeoutMs);
   void vMBMasterPortEnterCritical(void);
   void vMBMasterPortExitCritical(void);
   void vMBMasterPortLog(eMBPortLogLevel eLevel, const char *szModule,
-                        const char *szFmt, ...) printflike(3, 4);
+                        const char *szFmt, ...) printf_like(3, 4);
   void vMBMasterPortTimerPoll(void);
   bool xMBMasterPortSerialPoll(void);
   bool xMBMasterPortSerialSetTimeout(uint32_t dwTimeoutMs);
