@@ -69,10 +69,10 @@ void task_mn_print_tasks_status(void)
     {
       /* Open the note driver */
 
-      notefd = open("/dev/note", O_RDONLY);
+      notefd = open("/dev/note/ram", O_RDONLY);
       if (notefd < 0)
         {
-          printf("Error: cannot open /dev/note\n");
+          printf("Error: cannot open /dev/note/ram\n");
           return;
         }
 
@@ -243,10 +243,10 @@ void task_mn_get_task_name(struct noteram_get_taskname_s *task)
 {
   int notefd;
 
-  notefd = open("/dev/note", O_RDONLY);
+  notefd = open("/dev/note/ram", O_RDONLY);
   if (notefd < 0)
     {
-      fprintf(stderr, "trace: cannot open /dev/note\n");
+      fprintf(stderr, "trace: cannot open /dev/note/ram\n");
       return;
     }
 
