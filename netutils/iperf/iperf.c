@@ -267,9 +267,10 @@ static void iperf_report_task(FAR void *arg)
       printf("%7.2lf-%7.2lf sec %10ju Bytes %7.2f Mbits/sec\n",
              ts_diff(&last, &start),
              ts_diff(&now, &start),
-             now_len,
-             (((double)(now_len - last_len) * 8) /
-             ts_diff(&now, &last) / 1e6));
+             now_len -last_len,
+             (double)((now_len - last_len) * 8 / 1000000) /
+             (double)ts_diff(&now, &last)
+             );
       if (time != 0 && ts_diff(&now, &start) >= time)
         {
           break;
@@ -282,8 +283,9 @@ static void iperf_report_task(FAR void *arg)
              ts_diff(&start, &start),
              ts_diff(&now, &start),
              now_len,
-             (((double)now_len * 8) /
-             ts_diff(&now, &start) / 1e6));
+             (double)(now_len * 8 / 1000000) /
+             (double)ts_diff(&now, &start)
+             );
     }
 
   ctrl->finish = true;
