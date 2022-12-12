@@ -787,12 +787,12 @@ static int note_daemon(int argc, char *argv[])
 
   /* Open the note driver */
 
-  syslog(LOG_INFO, "note_daemon: Opening /dev/note\n");
-  fd = open("/dev/note", O_RDONLY);
+  syslog(LOG_INFO, "note_daemon: Opening /dev/note/ram\n");
+  fd = open("/dev/note/ram", O_RDONLY);
   if (fd < 0)
     {
       int errcode = errno;
-      syslog(LOG_ERR, "note_daemon: ERROR: Failed to open /dev/note: %d\n",
+      syslog(LOG_ERR, "note_daemon: ERROR: Failed to open /dev/note/ram: %d\n",
              errcode);
       goto errout;
     }

@@ -128,11 +128,10 @@ static void note_ioctl(int cmd, unsigned long arg)
 {
   int notefd;
 
-  notefd = open("/dev/note", O_RDONLY);
+  notefd = open("/dev/note/ram", O_RDONLY);
   if (notefd < 0)
     {
-      fprintf(stderr,
-             "trace: cannot open /dev/note\n");
+      fprintf(stderr, "trace: cannot open /dev/note/ram\n");
       return;
     }
 
@@ -713,11 +712,10 @@ int trace_dump(trace_dump_t type, FAR FILE *out)
 
   /* Open note for read */
 
-  fd = open("/dev/note", O_RDONLY);
+  fd = open("/dev/note/ram", O_RDONLY);
   if (fd < 0)
     {
-      fprintf(stderr,
-              "trace: cannot open /dev/note\n");
+      fprintf(stderr, "trace: cannot open /dev/note/ram\n");
       return ERROR;
     }
 
