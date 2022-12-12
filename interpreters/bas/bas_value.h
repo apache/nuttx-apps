@@ -103,7 +103,7 @@ double Value_vald(const char *s, char **end, int *overflow);
 
 struct Value *Value_new_NIL(struct Value *this);
 struct Value *Value_new_ERROR(struct Value *this, int code,
-                              const char *error, ...) printflike(3, 4);
+                              const char *error, ...) printf_like(3, 4);
 struct Value *Value_new_INTEGER(struct Value *this, int n);
 struct Value *Value_new_REAL(struct Value *this, double n);
 struct Value *Value_new_STRING(struct Value *this);

@@ -36,7 +36,7 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void modprint(FAR const char *fmt, ...) printflike(1, 2);
+static void modprint(FAR const char *fmt, ...) printf_like(1, 2);
 
 /****************************************************************************
  * Private Data

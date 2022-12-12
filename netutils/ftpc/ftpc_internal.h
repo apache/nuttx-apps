@@ -227,7 +227,7 @@ EXTERN int ftpc_relogin(FAR struct ftpc_session_s *session);
 
 EXTERN void ftpc_reset(struct ftpc_session_s *session);
 EXTERN int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
-           printflike(2, 3);
+           printf_like(2, 3);
 EXTERN int fptc_getreply(struct ftpc_session_s *session);
 EXTERN FAR const char *ftpc_lpwd(void);
 EXTERN int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode);
@@ -253,7 +253,7 @@ EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
 /* Socket I/O helpers */
 
 EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock,
-                           const char *fmt, ...) printflike(2, 3);
+                           const char *fmt, ...) printf_like(2, 3);
 EXTERN void ftpc_timeout(wdparm_t arg);
 
 /* Transfer helpers */

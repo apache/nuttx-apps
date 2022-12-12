@@ -170,8 +170,8 @@ extern const char g_i2cxfrerror[];
 
 ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer,
                       size_t nbytes);
-int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...)
-    printflike(2, 3);
+int i2ctool_printf(FAR struct i2ctool_s *i2ctool,
+                   FAR const char *fmt, ...) printf_like(2, 3);
 void i2ctool_flush(FAR struct i2ctool_s *i2ctool);
 void i2ctool_hexdump(FILE *outstream, void *addr, int len);
 

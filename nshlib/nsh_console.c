@@ -63,9 +63,9 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl);
 static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
   FAR const void *buffer, size_t nbytes);
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
-  FAR const char *fmt, ...) printflike(2, 3);
+  FAR const char *fmt, ...) printf_like(2, 3);
 static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
-  FAR const char *fmt, ...) printflike(2, 3);
+  FAR const char *fmt, ...) printf_like(2, 3);
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
 static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
   FAR uint8_t *save);

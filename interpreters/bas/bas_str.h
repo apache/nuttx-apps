@@ -65,7 +65,7 @@ int String_appendString(struct String *this, const struct String *app);
 int String_appendChar(struct String *this, char ch);
 int String_appendChars(struct String *this, const char *ch);
 int String_appendPrintf(struct String *this, const char *fmt, ...)
-    printflike(2, 3);
+    printf_like(2, 3);
 int String_insertChar(struct String *this, size_t where, char ch);
 int String_delete(struct String *this, size_t where, size_t len);
 void String_ucase(struct String *this);

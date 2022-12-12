@@ -391,7 +391,7 @@ static void     vi_clrscreen(FAR struct vi_s *vi);
 /* Final Line display */
 
 static void     vi_printf(FAR struct vi_s *vi, FAR const char *prefix,
-                  FAR const char *fmt, ...) printflike(3, 4);
+                  FAR const char *fmt, ...) printf_like(3, 4);
 
 /* Line positioning */
 
