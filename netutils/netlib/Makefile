@@ -50,6 +50,9 @@ endif
 ifeq ($(CONFIG_NET_ROUTE),y)
 CSRCS += netlib_ipv4route.c netlib_ipv4router.c
 endif
+ifeq ($(CONFIG_NET_IPTABLES),y)
+CSRCS += netlib_iptables.c
+endif
 endif
 
 ifeq ($(CONFIG_NET_IPv6),y)

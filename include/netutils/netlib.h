@@ -313,6 +313,30 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 int netlib_icmpv6_autoconfiguration(FAR const char *ifname);
 #endif
 
+#ifdef CONFIG_NET_IPTABLES
+/* iptables interface support */
+
+struct ipt_replace;  /* Forward reference */
+struct ipt_entry;    /* Forward reference */
+enum nf_inet_hooks;  /* Forward reference */
+
+FAR struct ipt_replace *netlib_ipt_prepare(FAR const char *table);
+int netlib_ipt_commit(FAR const struct ipt_replace *repl);
+int netlib_ipt_flush(FAR const char *table, enum nf_inet_hooks hook);
+int netlib_ipt_append(FAR struct ipt_replace **repl,
+                      FAR const struct ipt_entry *entry,
+                      enum nf_inet_hooks hook);
+int netlib_ipt_insert(FAR struct ipt_replace **repl,
+                      FAR const struct ipt_entry *entry,
+                      enum nf_inet_hooks hook, int rulenum);
+int netlib_ipt_delete(FAR struct ipt_replace *repl,
+                      FAR const struct ipt_entry *entry,
+                      enum nf_inet_hooks hook, int rulenum);
+#  ifdef CONFIG_NET_NAT
+FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname);
+#  endif
+#endif
+
 /* HTTP support */
 
 int  netlib_parsehttpurl(FAR const char *url, uint16_t *port,
