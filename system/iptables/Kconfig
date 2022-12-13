@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_IPTABLES
+	tristate "'iptables' command"
+	default n
+	depends on NET_IPTABLES
+	select NETUTILS_NETLIB
+	select SYSTEM_ARGTABLE3
+	---help---
+		Enable support for the 'iptables' command.
+
+if SYSTEM_IPTABLES
+
+config SYSTEM_IPTABLES_PROGNAME
+	string "iptables program name"
+	default "iptables"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_IPTABLES_PRIORITY
+	int "iptables task priority"
+	default 100
+
+config SYSTEM_IPTABLES_STACKSIZE
+	int "iptables stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
