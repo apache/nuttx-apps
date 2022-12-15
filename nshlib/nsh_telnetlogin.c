@@ -32,6 +32,7 @@
 
 #include "nsh.h"
 #include "nsh_console.h"
+#include "nshlib/nshlib.h"
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
 
@@ -161,8 +162,18 @@ static void nsh_telnettoken(FAR struct console_stdio_s *pstate,
 int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 {
   char username[16];
-  char password[16];
+  char password[128];
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+  char challenge[128];
+#endif
   int i;
+
+#ifdef CONFIG_NSH_PLATFORM_SKIP_LOGIN
+  if (platform_skip_login() == OK)
+    {
+      return OK;
+    }
+#endif
 
   /* Present the NSH Telnet greeting */
 
@@ -187,6 +198,17 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
           nsh_telnettoken(pstate, username, sizeof(username));
         }
 
+      if (username[0] == '\0')
+        {
+          i--;
+          continue;
+        }
+
+#ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+      platform_challenge(challenge, sizeof(challenge));
+      fputs(challenge, pstate->cn_outstream);
+#endif
+
       /* Ask for the login password */
 
       fputs(g_passwordprompt, pstate->cn_outstream);
@@ -206,8 +228,14 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 #if defined(CONFIG_NSH_LOGIN_PASSWD)
           if (PASSWORD_VERIFY_MATCH(passwd_verify(username, password)))
 #elif defined(CONFIG_NSH_LOGIN_PLATFORM)
+#  ifdef CONFIG_NSH_PLATFORM_CHALLENGE
+          if (PASSWORD_VERIFY_MATCH(platform_user_verify(username,
+                                                         challenge,
+                                                         password)))
+#  else
           if (PASSWORD_VERIFY_MATCH(platform_user_verify(username,
                                                          password)))
+#  endif
 #elif defined(CONFIG_NSH_LOGIN_FIXED)
           if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
               strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
