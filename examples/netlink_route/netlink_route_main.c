@@ -34,9 +34,9 @@
 #include <net/if.h>
 #include <net/route.h>
 #include <net/ethernet.h>
+#include <netinet/arp.h>
 #include <netinet/in.h>
 
-#include <nuttx/net/arp.h>
 #include <nuttx/net/neighbor.h>
 
 #include "netutils/netlib.h"

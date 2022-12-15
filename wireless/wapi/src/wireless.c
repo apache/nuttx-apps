@@ -44,8 +44,8 @@
 #include <strings.h>
 #include <math.h>
 #include <errno.h>
+#include <netinet/arp.h>
 
-#include <nuttx/net/arp.h>
 #include <nuttx/wireless/wireless.h>
 
 #include "wireless/wapi.h"

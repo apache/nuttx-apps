@@ -33,10 +33,10 @@
 #include <assert.h>
 #include <errno.h>
 
+#include <netinet/arp.h>
 #include <netinet/in.h>
 #include <net/if.h>
 
-#include <nuttx/net/arp.h>
 #include "netutils/netlib.h"
 
 /****************************************************************************

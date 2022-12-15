@@ -53,6 +53,7 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/arp.h>
 #include <netinet/ether.h>
 
 #include <nuttx/irq.h>
@@ -69,10 +70,6 @@
 #  ifdef CONFIG_WIRELESS_PKTRADIO
 #    include <nuttx/wireless/pktradio.h>
 #  endif
-#endif
-
-#ifdef CONFIG_NETLINK_ROUTE
-#    include <nuttx/net/arp.h>
 #endif
 
 #ifdef CONFIG_NETUTILS_NETLIB
