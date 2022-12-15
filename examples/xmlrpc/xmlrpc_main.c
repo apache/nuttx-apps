@@ -65,13 +65,8 @@
 #include <net/if.h>
 #include <netinet/in.h>
 
-#include <nuttx/net/arp.h>
 #include "netutils/netlib.h"
 #include "netutils/xmlrpc.h"
-
-#ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC
-#  include <arpa/inet.h>
-#endif
 
 /* Here we include the header file for the application(s) we use in
  * our project as defined in the config/<board-name>/defconfig file

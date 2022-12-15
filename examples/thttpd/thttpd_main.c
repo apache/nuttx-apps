@@ -38,7 +38,6 @@
 #include <netinet/in.h>
 #include <netinet/ether.h>
 
-#include <nuttx/net/arp.h>
 #include "netutils/netlib.h"
 #include "netutils/thttpd.h"
 
