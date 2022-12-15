@@ -193,6 +193,26 @@ void platform_motd(FAR char *buffer, size_t buflen);
 #endif
 
 /****************************************************************************
+ * Name: platform_skip_login
+ *
+ * Description:
+ *   If CONFIG_NSH_PLATFORM_SKIP_LOGIN is defined, then platform-specific logic
+ *   must provide this function in order to skip login.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned value:
+ *   OK   - need to skip login
+ *   else - no need to skip login
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_PLATFORM_SKIP_LOGIN
+int platform_skip_login(void);
+#endif
+
+/****************************************************************************
  * Name: platform_challenge
  *
  * Description:
