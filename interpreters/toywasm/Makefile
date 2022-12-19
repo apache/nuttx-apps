@@ -28,6 +28,7 @@ MODULE    = $(CONFIG_INTERPRETERS_TOYWASM)
 # cli
 MAINSRC = main.c
 CSRCS += repl.c
+CSRCS += toywasm_config.c
 
 # lib
 CSRCS += bitmap.c
@@ -39,6 +40,7 @@ CSRCS += exec.c
 CSRCS += expr.c
 CSRCS += fileio.c
 CSRCS += host_instance.c
+CSRCS += idalloc.c
 CSRCS += import_object.c
 CSRCS += insn.c
 CSRCS += instance.c
@@ -46,6 +48,7 @@ CSRCS += leb128.c
 CSRCS += module.c
 CSRCS += module_writer.c
 CSRCS += report.c
+CSRCS += timeutil.c
 CSRCS += type.c
 CSRCS += util.c
 CSRCS += validation.c
@@ -53,10 +56,17 @@ CSRCS += vec.c
 CSRCS += wasi.c
 CSRCS += xlog.c
 
+# TOYWASM_ENABLE_WASM_THREADS
+CSRCS += lock.c
+CSRCS += waitlist.c
+
+# TOYWASM_ENABLE_WASI_THREADS
+CSRCS += wasi_threads.c
+
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/include}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/lib}
 
-TOYWASM_VERSION  = ab861c89be54144d2bdff432e21d431c8a1c1e74
+TOYWASM_VERSION  = 7c55fe4478e01ae651967f7c5d3fd3fa98a851ba
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
@@ -64,6 +74,7 @@ TOYWASM_URL      = $(TOYWASM_URL_BASE)/$(TOYWASM_TARBALL)
 
 VPATH += $(TOYWASM_UNPACK)/cli
 VPATH += $(TOYWASM_UNPACK)/lib
+VPATH += src
 
 $(TOYWASM_TARBALL):
 	$(Q) echo "Downloading $(TOYWASM_TARBALL)"

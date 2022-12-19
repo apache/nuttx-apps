@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/toywasm/include/toywasm_config.h
+ * apps/interpreters/toywasm/src/toywasm_config.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,22 +18,22 @@
  *
  ****************************************************************************/
 
-#if !defined(_TOYWASM_CONFIG_H)
-#define _TOYWASM_CONFIG_H
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
-#define TOYWASM_USE_SEPARATE_EXECUTE
-#define TOYWASM_USE_TAILCALL
-/* #undef TOYWASM_ENABLE_TRACING */
-#define TOYWASM_USE_JUMP_BINARY_SEARCH
-/* #undef TOYWASM_USE_JUMP_CACHE */
-#define TOYWASM_JUMP_CACHE2_SIZE 4
-#define TOYWASM_USE_LOCALS_CACHE
-#define TOYWASM_USE_SEPARATE_LOCALS
-#define TOYWASM_USE_SMALL_CELLS
-#define TOYWASM_USE_RESULTTYPE_CELLIDX
-#define TOYWASM_USE_LOCALTYPE_CELLIDX
-#define TOYWASM_ENABLE_WRITER
-#define TOYWASM_ENABLE_WASM_THREADS
-#define TOYWASM_ENABLE_WASI_THREADS
-
-#endif /* !defined(_TOYWASM_CONFIG_H) */
+const char *toywasm_config_string =
+"\tTOYWASM_USE_SEPARATE_EXECUTE = ON\n"
+"\tTOYWASM_USE_TAILCALL = ON\n"
+"\tTOYWASM_ENABLE_TRACING = OFF\n"
+"\tTOYWASM_USE_JUMP_BINARY_SEARCH = ON\n"
+"\tTOYWASM_USE_JUMP_CACHE = OFF\n"
+"\tTOYWASM_JUMP_CACHE2_SIZE = 4\n"
+"\tTOYWASM_USE_LOCALS_CACHE = ON\n"
+"\tTOYWASM_USE_SEPARATE_LOCALS = ON\n"
+"\tTOYWASM_USE_SMALL_CELLS = ON\n"
+"\tTOYWASM_USE_RESULTTYPE_CELLIDX = ON\n"
+"\tTOYWASM_USE_LOCALTYPE_CELLIDX = ON\n"
+"\tTOYWASM_ENABLE_WRITER = ON\n"
+"\tTOYWASM_ENABLE_WASM_THREADS = ON\n"
+"\tTOYWASM_ENABLE_WASI_THREADS = ON\n";
