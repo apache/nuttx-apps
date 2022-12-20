@@ -33,8 +33,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define FIFO_PATH1 "/tmp/testfifo-1"
-#define FIFO_PATH2 "/tmp/testfifo-2"
+#define FIFO_PATH1 "/var/testfifo-1"
+#define FIFO_PATH2 "/var/testfifo-2"
 
 /****************************************************************************
  * Public Types
