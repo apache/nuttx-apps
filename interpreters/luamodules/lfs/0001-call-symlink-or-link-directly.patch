@@ -1,0 +1,30 @@
+From f84640912e5c3ff37a2b2b4aab011a3e6cfde6a8 Mon Sep 17 00:00:00 2001
+From: Xu Xingliang <xuxingliang@xiaomi.com>
+Date: Mon, 5 Dec 2022 18:58:40 +0800
+Subject: [PATCH] call symlink or link directly.
+
+Signed-off-by: Xu Xingliang <xuxingliang@xiaomi.com>
+---
+ src/lfs.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/lfs.c b/src/lfs.c
+index e5e5ee4..db6ae18 100644
+--- a/src/lfs.c
++++ b/src/lfs.c
+@@ -566,10 +566,8 @@ static int make_link(lua_State * L)
+   const char *oldpath = luaL_checkstring(L, 1);
+   const char *newpath = luaL_checkstring(L, 2);
+ #ifndef _WIN32
+-  return pushresult(L,
+-                    (lua_toboolean(L, 3) ? symlink : link) (oldpath,
+-                                                            newpath),
+-                    NULL);
++  return pushresult(L, (lua_toboolean(L, 3) ? symlink(oldpath, newpath)\
++                       : link(oldpath, newpath)), NULL);
+ #else
+   int symbolic = lua_toboolean(L, 3);
+   STAT_STRUCT oldpathinfo;
+-- 
+2.25.1
+

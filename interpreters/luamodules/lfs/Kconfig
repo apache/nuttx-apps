@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LUA_LFS_MODULE
+	bool "Lua file system module"
+	default n
+	depends on INTERPRETERS_LUA
+	---help---
+		LUA file system module
+
+if LUA_LFS_MODULE
+
+config LUA_LFS_VERSION
+	string "LFS version"
+	default "1_8_0"
+	---help---
+		Luv release version to fetch and build.
+
+endif # LUA_LFS_MODULE
