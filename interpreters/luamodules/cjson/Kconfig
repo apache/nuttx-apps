@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LUA_CJSON_MODULE
+	bool "Lua cjson module"
+	default n
+	depends on INTERPRETERS_LUA
+	---help---
+		LUA cjson module
+
+if LUA_CJSON_MODULE
+
+config LUA_CJSON_VERSION
+	string "lua csjon version"
+	default "2.1.0.9"
+	---help---
+		Lua cjson module from luarocks.
+
+endif # LUA_CJSON_MODULE
