@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LUA_LSYSLOG_MODULE
+	bool "Lua syslog module"
+	default n
+	depends on INTERPRETERS_LUA
+	---help---
+		LUA syslog module
+
+if LUA_LSYSLOG_MODULE
+
+config LUA_LSYSLOG_VERSION
+	string "lsyslog version"
+	default "2.0.1"
+	---help---
+		Lua lsyslog module release version to fetch and build.
+
+endif # LUA_LSYSLOG_MODULE
