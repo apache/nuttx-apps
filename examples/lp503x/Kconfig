@@ -1,0 +1,33 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LP503X
+	tristate "LP503X PWM LED example"
+	default n
+	---help---
+		Enable the LP503X example
+
+if EXAMPLES_LP503X
+
+config EXAMPLES_LP503X_PROGNAME
+	string "Program name"
+	default "lp503x"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_LP503X_DEVPATH
+	string "LP503X device path"
+	default "/dev/leddrv0"
+	
+config EXAMPLES_LP503X_PRIORITY
+	int "lp503x task priority"
+	default 100
+
+config EXAMPLES_LP503X_STACKSIZE
+	int "lp503x stack size"
+	default DEFAULT_TASK_STACKSIZE
+  
+endif
