@@ -38,6 +38,7 @@ $(LUACJSON_UNPACK): $(LUACJSON_TARBALL)
 	$(Q) echo "Unpacking $(LUACJSON_TARBALL) to $(LUACJSON_UNPACK)"
 	$(Q) tar -xvzf $(LUACJSON_TARBALL)
 	$(Q) mv lua-cjson-$(LUACJSON_VERSION) $(LUACJSON_UNPACK)
+	$(Q) patch -d $(LUACJSON_UNPACK) -p1 < 0001-fix-compile-warnings.patch
 
 $(LUACJSON_UNPACK)/.patch: $(LUACJSON_UNPACK)
 	touch $(LUACJSON_UNPACK)/.patch
