@@ -1,0 +1,55 @@
+From 68d772a032f5cb12526ad6c7769c0b3a671fcfa9 Mon Sep 17 00:00:00 2001
+From: Xuxingliang <xuxingliang@xiaomi.com>
+Date: Thu, 22 Dec 2022 11:01:01 +0800
+Subject: [PATCH] fix compile warnings
+
+Signed-off-by: Xuxingliang <xuxingliang@xiaomi.com>
+---
+ fpconv.c | 4 ++--
+ fpconv.h | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/fpconv.c b/fpconv.c
+index 3e480ec..0ef7f18 100644
+--- a/fpconv.c
++++ b/fpconv.c
+@@ -55,7 +55,7 @@ static char locale_decimal_point = '.';
+  * localconv() may not be thread safe (=>crash), and nl_langinfo() is
+  * not supported on some platforms. Use sprintf() instead - if the
+  * locale does change, at least Lua CJSON won't crash. */
+-static void fpconv_update_locale()
++static void fpconv_update_locale(void)
+ {
+     char buf[8];
+ 
+@@ -202,7 +202,7 @@ int fpconv_g_fmt(char *str, double num, int precision)
+     return len;
+ }
+ 
+-void fpconv_init()
++void fpconv_init(void)
+ {
+     fpconv_update_locale();
+ }
+diff --git a/fpconv.h b/fpconv.h
+index 7b0d0ee..59e0867 100644
+--- a/fpconv.h
++++ b/fpconv.h
+@@ -7,12 +7,12 @@
+ # define FPCONV_G_FMT_BUFSIZE   32
+ 
+ #ifdef USE_INTERNAL_FPCONV
+-static inline void fpconv_init()
++static inline void fpconv_init(void)
+ {
+     /* Do nothing - not required */
+ }
+ #else
+-extern void fpconv_init();
++extern void fpconv_init(void);
+ #endif
+ 
+ extern int fpconv_g_fmt(char*, double, int);
+-- 
+2.25.1
+
