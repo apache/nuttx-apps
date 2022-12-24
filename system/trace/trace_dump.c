@@ -246,7 +246,7 @@ FAR static struct trace_dump_task_context_s *get_task_context(pid_t pid,
       (*tctxp)->syscall_nest = 0;
       (*tctxp)->name[0] = '\0';
 
-#if CONFIG_DRIVER_NOTERAM_TASKNAME_BUFSIZE > 0
+#ifdef NOTERAM_GETTASKNAME
         {
           struct noteram_get_taskname_s tnm;
           int res;
