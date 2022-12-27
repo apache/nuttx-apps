@@ -183,7 +183,7 @@ static void print_result(FAR const char *name, size_t bytes,
 
   rate = (uint64_t)bytes * 1000000000 / cost_time / 1024;
   printf(CACHESPEED_PREFIX
-         "%s avg = %"PRIu32 " ns\t Rate: %" PRIu32 "KB/s\t"
+         "%s avg = %"PRIu32 " ns\t Rate: %" PRIu32 " KB/s\t"
          "[cost = %" PRIu32 " ms]\n",
          name, cost_time / repeat_cnt, rate, cost_time / 1000000);
 }
@@ -201,7 +201,7 @@ static void dcache_speed_test(FAR void *begin, size_t memset_size,
   uint32_t flush_cost_time;
   uint32_t cnt;
   uint32_t pt;
-  irqstate_t flags;
+  irqstate_t flags = 0;
 
   /* Initialize a variable */
 
@@ -289,10 +289,10 @@ static void dcache_speed_test(FAR void *begin, size_t memset_size,
 static void icache_speed_test(FAR void *begin, size_t memset_size,
                               size_t opt_size, uint32_t repeat_cnt)
 {
-  irqstate_t flags;
   int32_t cnt;
   uint32_t pt;
   uint32_t invalidate_cost_time = 0;
+  irqstate_t flags = 0;
 
   /* Accumulate the time to get the total time */
 
