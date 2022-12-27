@@ -367,7 +367,7 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
   uint32_t cnt;
   uint32_t step;
   size_t total_size;
-  irqstate_t flags;
+  irqstate_t flags = 0;
 
   printf("______memcpy performance______\n");
 
@@ -431,7 +431,7 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
   uint32_t cnt;
   uint32_t step;
   size_t total_size;
-  irqstate_t flags;
+  irqstate_t flags = 0;
 
   printf("______memset performance______\n");
 
