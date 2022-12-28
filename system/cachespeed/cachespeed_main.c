@@ -183,7 +183,7 @@ static void print_result(FAR const char *name, size_t bytes,
 
   rate = (uint64_t)bytes * 1000000000 / cost_time / 1024;
   printf(CACHESPEED_PREFIX
-         "%s avg = %"PRIu32 " ns\t Rate: %" PRIu32 "KB/s\t"
+         "%s avg = %"PRIu32 " ns\t Rate: %" PRIu32 " KB/s\t"
          "[cost = %" PRIu32 " ms]\n",
          name, cost_time / repeat_cnt, rate, cost_time / 1000000);
 }
@@ -313,7 +313,7 @@ static void icache_speed_test(FAR void *begin, size_t memset_size,
   print_result("invalidate dcache():\t",
                memset_size * repeat_cnt, invalidate_cost_time, repeat_cnt);
 
-  for (pt = 32; pt <= memset_size; pt <<= 1)
+  for (pt = 32; pt <= opt_size; pt <<= 1)
     {
       const size_t total_size =  pt * repeat_cnt;
       invalidate_cost_time = 0;
