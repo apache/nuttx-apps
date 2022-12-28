@@ -559,6 +559,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifdef CONFIG_NET_IPv6
   struct in6_addr addr6;
   struct in6_addr gip6 = IN6ADDR_ANY_INIT;
+  FAR char *preflen = NULL;
 #endif
   int i;
   FAR char *ifname = NULL;
@@ -665,6 +666,21 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
                 }
 
+#ifdef CONFIG_NET_IPv6
+              else if (!strcmp(tmp, "prefixlen"))
+                {
+                  if (argc - 1 >= i + 1)
+                    {
+                      preflen = argv[i + 1];
+                      i++;
+                    }
+                  else
+                    {
+                      badarg = true;
+                    }
+                }
+#endif
+
 #ifdef HAVE_HWADDR
               /* REVISIT: How will we handle Ethernet and SLIP together? */
 
@@ -752,6 +768,15 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (hostip != NULL)
         {
           /* REVISIT: Should DHCPC check be used here too? */
+
+          if ((tmp = strchr(hostip, '/')) != NULL)
+            {
+              *tmp = 0;
+              if (preflen == NULL)
+                {
+                  preflen = tmp + 1;
+                }
+            }
 
           ninfo("Host IP: %s\n", hostip);
           inet_pton(AF_INET6, hostip, &addr6);
@@ -855,6 +880,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         {
           ninfo("Netmask: %s\n", mask);
           inet_pton(AF_INET6, mask, &addr6);
+        }
+      else if (preflen != NULL)
+        {
+          ninfo("Prefixlen: %s\n", preflen);
+          netlib_prefix2ipv6netmask(atoi(preflen), &addr6);
         }
       else
         {
