@@ -698,8 +698,18 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                     }
                 }
 #endif
-              else if (i == 2)
+              else if (!strcmp(tmp, "add"))
                 {
+                  /* Compatible with linux IPv6 command, do nothing. */
+
+                  continue;
+                }
+              else if (hostip == NULL && i <= 4)
+                {
+                  /* Let first non-option be host ip, to support inet/inet6
+                   * options before address.
+                   */
+
                   hostip = tmp;
                 }
               else
