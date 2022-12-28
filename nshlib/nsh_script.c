@@ -191,7 +191,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_ROMFSETC
+#ifdef CONFIG_NSH_SYSINITSCRIPT_EXEC
 int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl)
 {
   return nsh_script_redirect(vtbl, "sysinit", NSH_SYSINITPATH);

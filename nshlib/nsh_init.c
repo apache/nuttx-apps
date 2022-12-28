@@ -144,7 +144,7 @@ void nsh_initialize(void)
   boardctl(BOARDIOC_INIT, 0);
 #endif
 
-#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_DISABLESCRIPT)
+#if defined(CONFIG_NSH_SYSINITSCRIPT_EXEC) && !defined(CONFIG_NSH_DISABLESCRIPT)
   pstate = nsh_newconsole(false);
 
   /* Execute the system init script */

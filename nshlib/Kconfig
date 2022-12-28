@@ -783,9 +783,17 @@ config NSH_ROMFSMOUNTPT
 		can be changed with this setting.  This must be a absolute path
 		beginning with '/'.
 
+config NSH_SYSINITSCRIPT_EXEC
+	bool "Execute sysinit script"
+	default n
+	depends on NSH_CROMFSETC
+	---help---
+		Executes the sysinit script on consolemain startup
+
 config NSH_SYSINITSCRIPT
 	string "Relative path to sysinit script"
 	default "init.d/rc.sysinit"
+	depends on NSH_SYSINITSCRIPT_EXEC
 	---help---
 		This is the relative path to the sysinit script within the mountpoint.
 		The default is init.d/rc.sysinit. This is a relative path and must not
