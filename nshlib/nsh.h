@@ -803,7 +803,7 @@ int nsh_usbconsole(void);
 
 #if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-               FAR const char *path);
+               FAR const char *path, bool log);
 #ifdef CONFIG_NSH_ROMFSETC
 int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl);
 int nsh_initscript(FAR struct nsh_vtbl_s *vtbl);
