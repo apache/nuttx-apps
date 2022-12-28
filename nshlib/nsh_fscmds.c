@@ -1815,7 +1815,7 @@ int cmd_source(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
-  return nsh_script(vtbl, argv[0], argv[1]);
+  return nsh_script(vtbl, argv[0], argv[1], true);
 }
 #endif
 #endif

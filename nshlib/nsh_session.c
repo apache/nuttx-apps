@@ -165,7 +165,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 #ifndef CONFIG_NSH_DISABLESCRIPT
           /* Execute the shell script */
 
-          return nsh_script(vtbl, argv[0], argv[1]);
+          return nsh_script(vtbl, argv[0], argv[1], true);
 #else
           return EXIT_FAILURE;
 #endif
