@@ -595,6 +595,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   if (argc <= 2)
     {
+      if (argc == 2)
+        {
+          return ifconfig_callback(vtbl, argv[1]);
+        }
+
       ret = nsh_foreach_netdev(ifconfig_callback, vtbl, "ifconfig");
       if (ret < 0)
         {
