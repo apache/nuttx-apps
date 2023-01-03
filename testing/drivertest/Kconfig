@@ -6,6 +6,7 @@
 config TESTING_DRIVER_TEST
 	tristate "vela cmocka driver test"
 	default n
+	depends on TESTING_CMOCKA
 	---help---
 		Enable the cmocka driver test
 
