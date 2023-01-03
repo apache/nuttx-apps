@@ -837,8 +837,6 @@ int main(int argc, FAR char *argv[])
 
   /* Release the NxPlayer context */
 
-  /* nxplayer_detach(pplayer); */
-
   nxplayer_release(pplayer);
 
   return OK;

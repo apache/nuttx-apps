@@ -29,7 +29,6 @@
 
 #include <mqueue.h>
 #include <pthread.h>
-#include <semaphore.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -43,30 +42,30 @@
 
 struct nxlooper_s
 {
-  int         loopstate;                   /* Current looper test state */
-  int         recorddev_fd;                /* File descriptor of active
-                                            * record device */
-  char        recorddev[CONFIG_NAME_MAX];  /* Preferred record device */
-  int         playdev_fd;                  /* File descriptor of active
-                                            * play device */
-  char        playdev[CONFIG_NAME_MAX];    /* Preferred loopback device */
-  int         crefs;                       /* Number of references */
-  sem_t       sem;                         /* Thread sync semaphore */
-  char        mqname[16];                  /* Name of play message queue */
-  mqd_t       mq;                          /* Message queue for the
-                                            * loopthread */
-  pthread_t   loop_id;                     /* Thread ID of the loopthread */
+  int             loopstate;                   /* Current looper test state */
+  int             recorddev_fd;                /* File descriptor of active
+                                                * record device */
+  char            recorddev[CONFIG_NAME_MAX];  /* Preferred record device */
+  int             playdev_fd;                  /* File descriptor of active
+                                                * play device */
+  char            playdev[CONFIG_NAME_MAX];    /* Preferred loopback device */
+  int             crefs;                       /* Number of references */
+  pthread_mutex_t mutex;                       /* Thread sync mutex */
+  char            mqname[16];                  /* Name of play message queue */
+  mqd_t           mq;                          /* Message queue for the
+                                                * loopthread */
+  pthread_t       loop_id;                     /* Thread ID of the loopthread */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  FAR void    *pplayses;       /* Session assignment from device */
+  FAR void        *pplayses;                   /* Session assignment from device */
 #endif
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  FAR void    *precordses;     /* Session assignment from device */
+  FAR void        *precordses;                 /* Session assignment from device */
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-  uint16_t    volume;         /* Volume as a whole percentage (0-100) */
+  uint16_t        volume;                      /* Volume as a whole percentage (0-100) */
 #endif
 };
 

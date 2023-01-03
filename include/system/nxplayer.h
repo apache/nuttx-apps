@@ -29,7 +29,6 @@
 
 #include <mqueue.h>
 #include <pthread.h>
-#include <semaphore.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -51,34 +50,34 @@ struct nxplayer_dec_ops_s
 
 struct nxplayer_s
 {
-  int         state;                       /* Current player state */
-  int         dev_fd;                      /* File descriptor of active device */
-  mqd_t       mq;                          /* Message queue for the playthread */
-  char        mqname[16];                  /* Name of our message queue */
-  pthread_t   play_id;                     /* Thread ID of the playthread */
-  int         crefs;                       /* Number of references to the player */
-  sem_t       sem;                         /* Thread sync semaphore */
-  int         fd;                          /* File descriptor of open file */
+  int             state;                       /* Current player state */
+  int             dev_fd;                      /* File descriptor of active device */
+  mqd_t           mq;                          /* Message queue for the playthread */
+  char            mqname[16];                  /* Name of our message queue */
+  pthread_t       play_id;                     /* Thread ID of the playthread */
+  int             crefs;                       /* Number of references to the player */
+  pthread_mutex_t mutex;                       /* Thread sync mutex */
+  int             fd;                          /* File descriptor of open file */
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
-  char        prefdevice[CONFIG_NAME_MAX]; /* Preferred audio device */
-  int         prefformat;                  /* Formats supported by preferred device */
-  int         preftype;                    /* Types supported by preferred device */
+  char            prefdevice[CONFIG_NAME_MAX]; /* Preferred audio device */
+  int             prefformat;                  /* Formats supported by preferred device */
+  int             preftype;                    /* Types supported by preferred device */
 #endif
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-  char        mediadir[CONFIG_NAME_MAX];   /* Root media directory where media is located */
+  char            mediadir[CONFIG_NAME_MAX];   /* Root media directory where media is located */
 #endif
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  FAR void    *session;       /* Session assignment from device */
+  FAR void        *session;                    /* Session assignment from device */
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-  uint16_t    volume;         /* Volume as a whole percentage (0-100) */
+  uint16_t        volume;                      /* Volume as a whole percentage (0-100) */
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
-  uint16_t    balance;        /* Balance as a whole % (0=left off, 100=right off) */
+  uint16_t        balance;                     /* Balance as a whole % (0=left off, 100=right off) */
 #endif
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
-  uint16_t    treble;         /* Treble as a whole % */
-  uint16_t    bass;           /* Bass as a whole % */
+  uint16_t        treble;                      /* Treble as a whole % */
+  uint16_t        bass;                        /* Bass as a whole % */
 #endif
 
   FAR const struct nxplayer_dec_ops_s *ops;

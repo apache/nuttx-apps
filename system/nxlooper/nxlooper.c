@@ -670,9 +670,7 @@ err_out:
 
   /* Cleanup */
 
-  while (sem_wait(&plooper->sem) < 0)
-    {
-    }
+  pthread_mutex_lock(&plooper->mutex);
 
   close(plooper->playdev_fd);             /* Close the play device */
   close(plooper->recorddev_fd);           /* Close the record device */
@@ -682,7 +680,7 @@ err_out:
   mq_unlink(plooper->mqname);             /* Unlink the message queue */
   plooper->loopstate = NXLOOPER_STATE_IDLE;
 
-  sem_post(&plooper->sem);                /* Release the semaphore */
+  pthread_mutex_unlock(&plooper->mutex);
 
   audinfo("Exit\n");
 
@@ -706,10 +704,7 @@ int nxlooper_setvolume(FAR struct nxlooper_s *plooper, uint16_t volume)
   struct audio_caps_desc_s  cap_desc;
   int ret;
 
-  /* Thread sync using the semaphore */
-
-  while (sem_wait(&plooper->sem) < 0)
-    ;
+  pthread_mutex_lock(&plooper->mutex);
 
   /* If we are currently looping, then we need to post a message to
    * the loopthread to perform the volume change operation.  If we
@@ -735,7 +730,7 @@ int nxlooper_setvolume(FAR struct nxlooper_s *plooper, uint16_t volume)
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: AUDIOIOC_CONFIGURE ioctl failed: %d\n", errcode);
-          sem_post(&plooper->sem);
+          pthread_mutex_unlock(&plooper->mutex);
           return -errcode;
         }
     }
@@ -743,7 +738,7 @@ int nxlooper_setvolume(FAR struct nxlooper_s *plooper, uint16_t volume)
   /* Store the volume setting */
 
   plooper->volume = volume;
-  sem_post(&plooper->sem);
+  pthread_mutex_unlock(&plooper->mutex);
 
   return OK;
 }
@@ -915,14 +910,14 @@ int nxlooper_stop(FAR struct nxlooper_s *plooper)
 
   /* Validate we are not in IDLE state */
 
-  sem_wait(&plooper->sem);                      /* Get the semaphore */
+  pthread_mutex_lock(&plooper->mutex);
   if (plooper->loopstate == NXLOOPER_STATE_IDLE)
     {
-      sem_post(&plooper->sem);                  /* Release the semaphore */
+      pthread_mutex_unlock(&plooper->mutex);
       return OK;
     }
 
-  sem_post(&plooper->sem);
+  pthread_mutex_unlock(&plooper->mutex);
 
   /* Notify the loopback thread that it needs to cancel the loopback */
 
@@ -1207,7 +1202,7 @@ FAR struct nxlooper_s *nxlooper_create(void)
   plooper->precordses = NULL;
 #endif
 
-  sem_init(&plooper->sem, 0, 1);
+  pthread_mutex_init(&plooper->mutex, NULL);
 
   return plooper;
 }
@@ -1230,45 +1225,23 @@ void nxlooper_release(FAR struct nxlooper_s *plooper)
   int      refcount;
   FAR void *value;
 
-  /* Grab the semaphore */
-
-  while (sem_wait(&plooper->sem) < 0)
-    {
-      int errcode = errno;
-      DEBUGASSERT(errcode > 0);
-
-      if (errcode != EINTR)
-        {
-          auderr("ERROR: sem_wait failed: %d\n", errcode);
-          return;
-        }
-    }
+  pthread_mutex_lock(&plooper->mutex);
 
   /* Check if there was a previous thread and join it if there was */
 
   if (plooper->loop_id != 0)
     {
-      sem_post(&plooper->sem);
+      pthread_mutex_unlock(&plooper->mutex);
       pthread_join(plooper->loop_id, &value);
       plooper->loop_id = 0;
 
-      while (sem_wait(&plooper->sem) < 0)
-        {
-          int errcode = errno;
-          DEBUGASSERT(errcode > 0);
-
-          if (errcode != EINTR)
-            {
-              auderr("ERROR: sem_wait failed: %d\n", errcode);
-              return;
-            }
-        }
+      pthread_mutex_lock(&plooper->mutex);
     }
 
   /* Reduce the reference count */
 
   refcount = plooper->crefs--;
-  sem_post(&plooper->sem);
+  pthread_mutex_unlock(&plooper->mutex);
 
   /* If the ref count *was* one, then free the context */
 
@@ -1292,24 +1265,12 @@ void nxlooper_release(FAR struct nxlooper_s *plooper)
 
 void nxlooper_reference(FAR struct nxlooper_s *plooper)
 {
-  /* Grab the semaphore */
-
-  while (sem_wait(&plooper->sem) < 0)
-    {
-      int errcode = errno;
-      DEBUGASSERT(errcode > 0);
-
-      if (errcode != EINTR)
-        {
-          auderr("ERROR: sem_wait failed: %d\n", errcode);
-          return;
-        }
-    }
+  pthread_mutex_lock(&plooper->mutex);
 
   /* Increment the reference count */
 
   plooper->crefs++;
-  sem_post(&plooper->sem);
+  pthread_mutex_unlock(&plooper->mutex);
 }
 
 /****************************************************************************
