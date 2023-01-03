@@ -719,6 +719,36 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pplayer,
 }
 
 /****************************************************************************
+ * Name: nxplayer_jointhread
+ ****************************************************************************/
+
+static void nxplayer_jointhread(FAR struct nxplayer_s *pplayer)
+{
+  FAR void *value;
+  int id = 0;
+
+  if (gettid() == pplayer->play_id)
+    {
+      return;
+    }
+
+  pthread_mutex_lock(&pplayer->mutex);
+
+  if (pplayer->play_id > 0)
+    {
+      id = pplayer->play_id;
+      pplayer->play_id = 0;
+    }
+
+  pthread_mutex_unlock(&pplayer->mutex);
+
+  if (id > 0)
+    {
+      pthread_join(id, &value);
+    }
+}
+
+/****************************************************************************
  * Name: nxplayer_thread_playthread
  *
  *  This is the thread that reads the audio file file and enqueues /
@@ -1670,7 +1700,6 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pplayer,
 int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 {
   struct audio_msg_s term_msg;
-  FAR void           *value;
 
   DEBUGASSERT(pplayer != NULL);
 
@@ -1694,8 +1723,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 
   /* Join the thread.  The thread will do all the cleanup. */
 
-  pthread_join(pplayer->play_id, &value);
-  pplayer->play_id = 0;
+  nxplayer_jointhread(pplayer);
 
   return OK;
 }
@@ -1738,7 +1766,6 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   struct mq_attr      attr;
   struct sched_param  sparam;
   pthread_attr_t      tattr;
-  FAR void           *value;
   struct audio_caps_desc_s cap_desc;
   struct ap_buffer_info_s  buf_info;
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
@@ -1936,10 +1963,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
    * to perform clean-up.
    */
 
-  if (pplayer->play_id != 0)
-    {
-      pthread_join(pplayer->play_id, &value);
-    }
+  nxplayer_jointhread(pplayer);
 
   /* Start the playfile thread to stream the media file to the
    * audio device.
@@ -2159,20 +2183,12 @@ FAR struct nxplayer_s *nxplayer_create(void)
 void nxplayer_release(FAR struct nxplayer_s *pplayer)
 {
   int         refcount;
-  FAR void    *value;
-
-  pthread_mutex_lock(&pplayer->mutex);
 
   /* Check if there was a previous thread and join it if there was */
 
-  if (pplayer->play_id != 0)
-    {
-      pthread_mutex_unlock(&pplayer->mutex);
-      pthread_join(pplayer->play_id, &value);
-      pplayer->play_id = 0;
+  nxplayer_jointhread(pplayer);
 
-      pthread_mutex_lock(&pplayer->mutex);
-    }
+  pthread_mutex_lock(&pplayer->mutex);
 
   /* Reduce the reference count */
 

@@ -216,6 +216,36 @@ static int nxrecorder_enqueuebuffer(FAR struct nxrecorder_s *precorder,
 }
 
 /****************************************************************************
+ * Name: nxrecorder_jointhread
+ ****************************************************************************/
+
+static void nxrecorder_jointhread(FAR struct nxrecorder_s *precorder)
+{
+  FAR void *value;
+  int id = 0;
+
+  if (gettid() == precorder->record_id)
+    {
+      return;
+    }
+
+  pthread_mutex_lock(&precorder->mutex);
+
+  if (precorder->record_id > 0)
+    {
+      id = precorder->record_id;
+      precorder->record_id = 0;
+    }
+
+  pthread_mutex_unlock(&precorder->mutex);
+
+  if (id > 0)
+    {
+      pthread_join(id, &value);
+    }
+}
+
+/****************************************************************************
  * Name: nxrecorder_thread_recordthread
  *
  *  This is the thread that write the audio file file and enqueues /
@@ -710,7 +740,6 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
 int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 {
   struct audio_msg_s term_msg;
-  FAR void           *value;
 
   DEBUGASSERT(precorder != NULL);
 
@@ -734,8 +763,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 
   /* Join the thread.  The thread will do all the cleanup. */
 
-  pthread_join(precorder->record_id, &value);
-  precorder->record_id = 0;
+  nxrecorder_jointhread(precorder);
 
   return OK;
 }
@@ -773,7 +801,6 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
   pthread_attr_t           tattr;
   struct audio_caps_desc_s cap_desc;
   struct ap_buffer_info_s  buf_info;
-  FAR void                 *value;
   int                      ret;
 
   DEBUGASSERT(precorder != NULL);
@@ -884,10 +911,7 @@ int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
    * to perform clean-up.
    */
 
-  if (precorder->record_id != 0)
-    {
-      pthread_join(precorder->record_id, &value);
-    }
+  nxrecorder_jointhread(precorder);
 
   /* Start the recordfile thread to stream the media file to the
    * audio device.
@@ -995,20 +1019,12 @@ FAR struct nxrecorder_s *nxrecorder_create(void)
 void nxrecorder_release(FAR struct nxrecorder_s *precorder)
 {
   int         refcount;
-  FAR void    *value;
-
-  pthread_mutex_lock(&precorder->mutex);
 
   /* Check if there was a previous thread and join it if there was */
 
-  if (precorder->record_id != 0)
-    {
-      pthread_mutex_unlock(&precorder->mutex);
-      pthread_join(precorder->record_id, &value);
-      precorder->record_id = 0;
+  nxrecorder_jointhread(precorder);
 
-      pthread_mutex_lock(&precorder->mutex);
-    }
+  pthread_mutex_lock(&precorder->mutex);
 
   /* Reduce the reference count */
 
