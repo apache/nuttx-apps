@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menuconfig SYSTEM_EMBEDLOG
+menuconfig LOGGING_EMBEDLOG
 	bool "embedlog library"
 	default n
 	---help---
@@ -21,7 +21,7 @@ menuconfig SYSTEM_EMBEDLOG
 		Library is licensed under BSD 2-clause license. See LICENSE file in
 		the downloaded code for license details
 
-if SYSTEM_EMBEDLOG
+if LOGGING_EMBEDLOG
 
 config EMBEDLOG_ENABLE_PTHREAD
 	bool "Enable thread safety"
@@ -222,4 +222,4 @@ config EMBEDLOG_DEMO_PROGRAMS_STACKSIZE
 	default DEFAULT_TASK_STACKSIZE
 
 endif # EMBEDLOG_DEMO_PROGRAMS
-endif # SYSTEM_EMBEDLOG
+endif # LOGGING_EMBEDLOG

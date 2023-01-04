@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-if SYSTEM_EMBEDLOG
+if LOGGING_EMBEDLOG
 
 config EXAMPLES_EMBEDLOG
 	tristate "embedlog example"
@@ -39,4 +39,4 @@ config EXAMPLES_EMBEDLOG_STACKSIZE
 	default DEFAULT_TASK_STACKSIZE
 
 endif #EXAMPLES_EMBEDLOG
-endif #SYSTEM_EMBEDLOG
+endif #LOGGING_EMBEDLOG

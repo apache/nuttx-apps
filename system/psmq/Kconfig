@@ -3,13 +3,13 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-comment "psmq requires SYSTEM_EMBEDLOG and !DISABLE_MQUEUE"
-	depends on DISABLE_MQUEUE || !SYSTEM_EMBEDLOG
+comment "psmq requires LOGGING_EMBEDLOG and !DISABLE_MQUEUE"
+	depends on DISABLE_MQUEUE || !LOGGING_EMBEDLOG
 
 menuconfig SYSTEM_PSMQ
 	bool "psmq"
 	default n
-	depends on !DISABLE_MQUEUE && SYSTEM_EMBEDLOG
+	depends on !DISABLE_MQUEUE && LOGGING_EMBEDLOG
 	---help---
 		psmq is tool set which allows IPC communication in publish/subscribe way
 		created on top of posix messege queue. Full documentation is available
