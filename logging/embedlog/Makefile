@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/embedlog/Makefile
+# apps/logging/embedlog/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -32,7 +32,7 @@ EMBEDLOG_EXT = tar.gz
 EMBEDLOG_SOURCES = embedlog-$(EMBEDLOG_VERSION)
 EMBEDLOG_TARBALL = $(EMBEDLOG_SOURCES).$(EMBEDLOG_EXT)
 
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)system
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)logging
 
 CSRCS = $(EMBEDLOG_SOURCES)/src/el-options.c \
 	$(EMBEDLOG_SOURCES)/src/el-perror.c \
@@ -234,13 +234,13 @@ $(EMBEDLOG_SOURCES)/include/embedlog.h: $(EMBEDLOG_SOURCES)/include/embedlog.h.i
 	    -e "s/^#if n$$/#if 0/" $< > $@
 
 create_includes: $(EMBEDLOG_SOURCES)/include/embedlog.h
-	$(Q) $(CP) $< $(APPDIR)/include/system
+	$(Q) $(CP) $< $(APPDIR)/include/logging
 
 context:: $(EMBEDLOG_SOURCES)
 	$(Q) $(MAKE) create_includes
 
 clean::
-	$(Q) $(call DELFILE, $(APPDIR)/include/system/embedlog.h)
+	$(Q) $(call DELFILE, $(APPDIR)/include/logging/embedlog.h)
 	$(Q) $(foreach COBJ, $(COBJS), $(call DELFILE, $(COBJ)))
 
 distclean::
