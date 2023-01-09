@@ -103,4 +103,9 @@ MAINSRC  += drivertest_framebuffer.c
 PROGNAME += cmocka_driver_framebuffer
 endif
 
+ifneq ($(CONFIG_LCD_DEV),)
+MAINSRC  += drivertest_lcd.c
+PROGNAME += cmocka_driver_lcd
+endif
+
 include $(APPDIR)/Application.mk
