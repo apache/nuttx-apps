@@ -142,15 +142,19 @@ static uint32_t get_time_elaps(uint32_t prev_tick)
 static void wdg_write_reset_cause(FAR struct wdg_state_s *state)
 {
   int fd;
+  int ret;
   ssize_t size;
 
-  fd = open(state->infopath, O_WRONLY | O_CREAT);
+  fd = open(state->infopath, O_WRONLY | O_CREAT, 0666);
   assert_true(fd > 0);
 
   size = write(fd, &state->reset_cause, sizeof(state->reset_cause));
   assert_int_equal(size, sizeof(state->reset_cause));
 
-  close(fd);
+  ret = fsync(fd);
+  assert_return_code(ret, OK);
+  ret = close(fd);
+  assert_return_code(ret, OK);
 }
 
 /****************************************************************************
@@ -160,6 +164,7 @@ static void wdg_write_reset_cause(FAR struct wdg_state_s *state)
 static void wdg_read_reset_cause(FAR struct wdg_state_s *state)
 {
   int fd;
+  int ret;
   ssize_t size;
 
   fd = open(state->infopath, O_RDONLY);
@@ -172,7 +177,8 @@ static void wdg_read_reset_cause(FAR struct wdg_state_s *state)
   size = read(fd, &state->reset_cause, sizeof(state->reset_cause));
   assert_int_equal(size, sizeof(state->reset_cause));
 
-  close(fd);
+  ret = close(fd);
+  assert_return_code(ret, OK);
 }
 
 /****************************************************************************
@@ -457,7 +463,8 @@ static void test_case_wdog_04(FAR void **state)
   wdg_read_reset_cause(wdg_state);
   assert_int_equal(wdg_state->reset_cause, WDG_RESET_CAUSE_IRQ_BUSY_LOOP);
 
-  remove(wdg_state->infopath);
+  ret = remove(wdg_state->infopath);
+  assert_return_code(ret, OK);
 
   dev_fd = wdg_init(wdg_state);
 
@@ -484,7 +491,8 @@ static void test_case_wdog_04(FAR void **state)
   ret = ioctl(dev_fd, WDIOC_STOP, 0);
   assert_return_code(ret, OK);
 
-  close(dev_fd);
+  ret = close(dev_fd);
+  assert_return_code(ret, OK);
 }
 
 /****************************************************************************
