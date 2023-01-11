@@ -1,0 +1,53 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig BENCHMARK_COREMARK
+	bool "Coremark Benchmark"
+	default n
+	---help---
+		Enable support for the EEMBC's Coremark benchmark application.
+
+if BENCHMARK_COREMARK
+
+config COREMARK_PROGNAME
+	string "Coremark program name"
+	default "coremark"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config COREMARK_PRIORITY
+	int "Coremark task priority"
+	default 100
+
+config COREMARK_STACKSIZE
+	int "Coremark task stack size"
+	default 4096
+
+config COREMARK_MULTITHREAD_OVERRIDE
+	bool "Override number of threads"
+	default n
+	---help---
+		Override the default number of threads to be executed.
+		The default value is the same as the number of CPU cores.
+
+config COREMARK_MULTITHREAD_COUNT
+	depends on COREMARK_MULTITHREAD_OVERRIDE
+	int "Number of threads to be executed"
+	default 1
+
+config COREMARK_ITERATIONS_OVERRIDE
+	bool "Override number of iterations"
+	default n
+	---help---
+		Override the default number of iterations for the benchmark.
+		The default value is defined by the application based on the system.
+
+config COREMARK_ITERATIONS_COUNT
+	depends on COREMARK_ITERATIONS_OVERRIDE
+	int "Number of iterations"
+	default 100
+
+endif # BENCHMARK_COREMARK
