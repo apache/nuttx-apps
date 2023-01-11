@@ -148,11 +148,11 @@ static void dump_neighbor(void)
         {
           if ((j + 1) >= nb->ne_addr.na_llsize)
             {
-              printf("%02x", nb->ne_addr.u.na_addr);
+              printf("%02x", nb->ne_addr.u.na_addr[j]);
             }
           else
             {
-              printf("%02x.", nb->ne_addr.u.na_addr);
+              printf("%02x.", nb->ne_addr.u.na_addr[j]);
             }
         }
 
