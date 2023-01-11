@@ -45,8 +45,10 @@ CSRCS += import_object.c
 CSRCS += insn.c
 CSRCS += instance.c
 CSRCS += leb128.c
+CSRCS += list.c
 CSRCS += module.c
 CSRCS += module_writer.c
+CSRCS += nbio.c
 CSRCS += report.c
 CSRCS += timeutil.c
 CSRCS += type.c
@@ -61,12 +63,13 @@ CSRCS += lock.c
 CSRCS += waitlist.c
 
 # TOYWASM_ENABLE_WASI_THREADS
+CSRCS += shared_memory.c
 CSRCS += wasi_threads.c
 
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/include}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/lib}
 
-TOYWASM_VERSION  = 7c55fe4478e01ae651967f7c5d3fd3fa98a851ba
+TOYWASM_VERSION  = 5a1d6bf349571e0b63a9d02d73e01b8e212fb8c0
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
