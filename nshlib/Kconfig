@@ -125,8 +125,9 @@ config NSH_QUOTE
 
 config NSH_CMDPARMS
 	bool "Enable commands as parameters"
-	default !DEFAULT_SMALL
+	default !DEFAULT_SMALL && NSH_QUOTE
 	depends on !DISABLE_MOUNTPOINT
+	depends on FS_TMPFS
 	---help---
 		If selected, then the output from commands, from file applications, and
 		from NSH built-in commands can be used as arguments to other
@@ -141,6 +142,8 @@ config NSH_CMDPARMS
 
 		Because this feature commits significant resources, it is disabled by
 		default.
+
+		This features requires TMPFS mounted at /tmp and NSH_QUOTE enabled.
 
 config NSH_MAXARGUMENTS
 	int "Maximum number of command arguments"
