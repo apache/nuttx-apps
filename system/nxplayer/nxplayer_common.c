@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/nxplayer/nxplayer_pcm.c
+ * apps/system/nxplayer/nxplayer_common.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -38,13 +38,13 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxplayer_fill_pcm
+ * Name: nxplayer_fill_common
  *
- *   nxplayer_fill_pcm fill pcm data into apb buffer.
+ *   nxplayer_fill_common fill data into apb buffer.
  *
  ****************************************************************************/
 
-int nxplayer_fill_pcm(int fd, FAR struct ap_buffer_s *apb)
+int nxplayer_fill_common(int fd, FAR struct ap_buffer_s *apb)
 {
   /* Read data into the buffer. */
 

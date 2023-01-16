@@ -522,9 +522,9 @@ int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
 int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
 
 /****************************************************************************
- * Name: nxplayer_fill_pcm
+ * Name: nxplayer_fill_common
  *
- *   Performs read pcm file to apb buffer
+ *   Performs common function to read data to apb buffer
  *
  * Input Parameters:
  *   pplayer   - Pointer to the context to initialize
@@ -534,7 +534,7 @@ int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
  *
  ****************************************************************************/
 
-int nxplayer_fill_pcm(int fd, FAR struct ap_buffer_s *apb);
+int nxplayer_fill_common(int fd, FAR struct ap_buffer_s *apb);
 
 #undef EXTERN
 #ifdef __cplusplus
