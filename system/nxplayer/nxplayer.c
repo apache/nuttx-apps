@@ -131,12 +131,12 @@ static const struct nxplayer_dec_ops_s g_dec_ops[] =
   {
     AUDIO_FMT_MP3,
     nxplayer_parse_mp3,
-    nxplayer_fill_mp3
+    nxplayer_fill_common
   },
   {
     AUDIO_FMT_PCM,
     NULL,
-    nxplayer_fill_pcm
+    nxplayer_fill_common
   }
 };
 
