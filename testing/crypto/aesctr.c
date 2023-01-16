@@ -179,10 +179,17 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   struct session_op session;
   struct crypt_op cryp;
   int cryptodev_fd = -1;
+  int fd = -1;
 
-  if ((cryptodev_fd = open("/dev/crypto", O_RDWR, 0)) < 0)
+  if ((fd = open("/dev/crypto", O_RDWR, 0)) < 0)
     {
       warn("/dev/crypto");
+      goto err;
+    }
+
+  if (ioctl(fd, CRIOGET, &cryptodev_fd) == -1)
+    {
+      warn("CRIOGET");
       goto err;
     }
 
@@ -218,12 +225,18 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
     }
 
   close(cryptodev_fd);
+  close(fd);
   return (0);
 
 err:
   if (cryptodev_fd != -1)
     {
       close(cryptodev_fd);
+    }
+
+  if (fd != -1)
+    {
+      close(fd);
     }
 
   return (-1);
