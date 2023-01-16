@@ -171,14 +171,27 @@ static demo_create_func_t find_demo_create_func(FAR const char *name)
 int main(int argc, FAR char *argv[])
 {
   demo_create_func_t demo_create_func;
+  FAR const char *demo = NULL;
+  const int func_key_pair_len = sizeof(func_key_pair) /
+                                sizeof(func_key_pair[0]);
 
-  if (argc != 2)
+  /* If no arguments are specified and only 1 demo exists, select the demo */
+
+  if (argc == 1 && func_key_pair_len == 2)  /* 2 because of NULL sentinel */
+    {
+      demo = func_key_pair[0].name;
+    }
+  else if (argc != 2)
     {
       show_usage();
       return EXIT_FAILURE;
     }
+  else
+    {
+      demo = argv[1];
+    }
 
-  demo_create_func = find_demo_create_func(argv[1]);
+  demo_create_func = find_demo_create_func(demo);
 
   if (demo_create_func == NULL)
     {
