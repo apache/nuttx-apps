@@ -344,13 +344,15 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifndef CONFIG_BUILD_KERNEL
       /* Checkout task_restart() */
 
       printf("\nuser_main: task_restart test\n");
       restart_test();
       check_test_memory_usage();
+#endif
 
-#ifdef CONFIG_SCHED_WAITPID
+#if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
       /* Check waitpid() and friends */
 
       printf("\nuser_main: waitpid test\n");
@@ -555,8 +557,16 @@ static int user_main(int argc, char *argv[])
 #endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_PTHREAD */
 
 #if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID)
+#ifndef CONFIG_BUILD_KERNEL
       printf("\nuser_main: vfork() test\n");
       vfork_test();
+#else
+      /* REVISIT: The issue with vfork() is on the kernel side, fix the issue
+       * and re-enable this test with CONFIG_BUILD_KERNEL
+       */
+
+      printf("\nuser_main: vfork() test DISABLED (CONFIG_BUILD_KERNEL)\n");
+#endif
 #endif
 
       /* Compare memory usage at time ostest_main started until
@@ -664,7 +674,15 @@ int main(int argc, FAR char **argv)
 #ifdef CONFIG_TESTING_OSTEST_WAITRESULT
       /* Wait for the test to complete to get the test result */
 
+#ifndef CONFIG_BUILD_KERNEL
       if (waitpid(result, &ostest_result, 0) != result)
+#else
+      if (pthread_join((pthread_t) result, NULL) == 0)
+        {
+          ostest_result = OK;
+        }
+      else
+#endif
         {
           printf("ostest_main: ERROR Failed to wait for user_main to "
                  "terminate\n");

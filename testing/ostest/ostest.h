@@ -118,11 +118,13 @@ void aio_test(void);
 
 /* restart.c ****************************************************************/
 
+#ifndef CONFIG_BUILD_KERNEL
 void restart_test(void);
+#endif
 
 /* waitpid.c ****************************************************************/
 
-#ifdef CONFIG_SCHED_WAITPID
+#if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
 int waitpid_test(void);
 #endif
 
@@ -257,6 +259,12 @@ int sem_nfreeholders(void);
 #else
 #  define sem_enumholders(sem)
 #  define sem_nfreeholders()
+#endif
+
+#ifdef CONFIG_BUILD_KERNEL
+int task_create(FAR const char *name, int priority,
+                int stack_size, main_t entry, FAR char * const argv[]);
+int task_delete(int pid);
 #endif
 
 #endif /* __APPS_TESTING_OSTEST_OSTEST_H */

@@ -123,4 +123,8 @@ ifeq ($(CONFIG_ARCH_SETJMP_H),y)
 CSRCS += setjmp.c
 endif
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+CSRCS += task.c
+endif
+
 include $(APPDIR)/Application.mk

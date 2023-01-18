@@ -35,6 +35,8 @@
 
 #include "ostest.h"
 
+#ifndef CONFIG_BUILD_KERNEL
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -224,3 +226,5 @@ void restart_test(void)
 
   printf("restart_main: Exiting\n");
 }
+
+#endif /* !CONFIG_BUILD_KERNEL */
