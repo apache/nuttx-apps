@@ -6,6 +6,7 @@
 menuconfig SYSTEM_ADBD
 	tristate "ADB daemon application"
 	default n
+	depends on LIBUV
 	---help---
 		Enable support for adb daemon.
 
