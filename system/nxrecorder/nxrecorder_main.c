@@ -68,6 +68,8 @@ static int nxrecorder_cmd_quit(FAR struct nxrecorder_s *precorder,
                                FAR char *parg);
 static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
                                     FAR char *parg);
+static int nxrecorder_cmd_record(FAR struct nxrecorder_s *precorder,
+                                 FAR char *parg);
 static int nxrecorder_cmd_device(FAR struct nxrecorder_s *precorder,
                                  FAR char *parg);
 
@@ -120,6 +122,13 @@ static const struct mp_cmd_s g_nxrecorder_cmds[] =
     nxrecorder_cmd_recordraw,
     NXRECORDER_HELP_TEXT("Record a pcm raw file")
   },
+  {
+    "record",
+    "filename",
+    nxrecorder_cmd_record,
+    NXRECORDER_HELP_TEXT("Record a media file")
+  },
+
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
   {
     "pause",
@@ -186,12 +195,13 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
 
   /* Try to record the file specified */
 
-  ret = nxrecorder_recordraw(precorder,
-                             filename,
-                             channels,
-                             bpsamp,
-                             samprate,
-                             chmap);
+  ret = nxrecorder_recordinternal(precorder,
+                                  filename,
+                                  AUDIO_FMT_PCM,
+                                  channels,
+                                  bpsamp,
+                                  samprate,
+                                  chmap);
 
   /* nxrecorder_recordfile returned values:
    *
@@ -225,6 +235,75 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
 
       default:
         printf("Error recording file: %d\n", -ret);
+        break;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxrecorder_cmd_record
+ *
+ *   nxrecorder_cmd_record() record the specified media file using the
+ *   nxrecorder context.
+ *
+ ****************************************************************************/
+
+static int nxrecorder_cmd_record(FAR struct nxrecorder_s *precorder,
+                                 FAR char *parg)
+{
+  int ret;
+  int channels = 0;
+  int bpsamp = 0;
+  int samprate = 0;
+  int chmap = 0;
+  char filename[128];
+
+  sscanf(parg, "%s %d %d %d %d", filename, &channels, &bpsamp,
+                                 &samprate, &chmap);
+
+  /* Try to record the file specified */
+
+  ret = nxrecorder_recordinternal(precorder,
+                                  filename,
+                                  AUDIO_FMT_UNDEF,
+                                  channels,
+                                  bpsamp,
+                                  samprate,
+                                  chmap);
+
+  /* nxrecorder_recordfile returned values:
+   *
+   *   OK         File is being recorded
+   *   -EBUSY     The media device is busy
+   *   -ENOSYS    The media file is an unsupported type
+   *   -ENODEV    No audio device suitable to play the media type
+   *   -ENOENT    The media file was not found
+   */
+
+  switch (-ret)
+    {
+      case OK:
+        break;
+
+      case ENODEV:
+        printf("No suitable Audio Device found\n");
+        break;
+
+      case EBUSY:
+        printf("Audio device busy\n");
+        break;
+
+      case ENOENT:
+        printf("File %s not found\n", parg);
+        break;
+
+      case ENOSYS:
+        printf("Unknown audio format\n");
+        break;
+
+      default:
+        printf("Error playing file: %d\n", -ret);
         break;
     }
 
