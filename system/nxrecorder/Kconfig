@@ -43,5 +43,15 @@ config NXRECORDER_INCLUDE_HELP
 		Compiles in the NxRecorder help text to provide online help
 		for available commands with syntax.
 
+config NXRECORDER_FMT_FROM_EXT
+	bool "Include code to determine Audio format from extension"
+	default y
+	---help---
+		Compiles in extra code to determine audio format based
+		on the filename extension for known file types.
+		This feature is used if the format is not manually
+		specified, and will take priority over the more lengthy
+		file content detection approach.
+
 endif
 endif

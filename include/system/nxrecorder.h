@@ -153,7 +153,7 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
                          FAR const char *device);
 
 /****************************************************************************
- * Name: nxrecorder_recordraw
+ * Name: nxrecorder_recordinternal
  *
  *   Plays the specified media file (from the filesystem) using the
  *   Audio system.  If a preferred device has been set, that device
@@ -173,9 +173,10 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
  *
  ****************************************************************************/
 
-int nxrecorder_recordraw(FAR struct nxrecorder_s *precorder,
-                         FAR const char *filename, uint8_t nchannels,
-                         uint8_t bpsamp, uint32_t samprate, uint8_t chmap);
+int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
+                              FAR const char *filename, int filefmt,
+                              uint8_t nchannels, uint8_t bpsamp,
+                              uint32_t samprate, uint8_t chmap);
 
 /****************************************************************************
  * Name: nxrecorder_stop
