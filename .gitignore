@@ -16,6 +16,7 @@
 *.src
 *.swp
 *.sym
+*.su
 *~
 .context
 .depend
