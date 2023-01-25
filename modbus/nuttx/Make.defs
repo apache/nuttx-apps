@@ -30,4 +30,4 @@ endif
 
 DEPPATH += --dep-path nuttx
 VPATH += :nuttx
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/modbus/nuttx}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/nuttx
