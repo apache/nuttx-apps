@@ -158,7 +158,10 @@ dirlinks:
 context_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 register_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_register)
 
-context:
+staging:
+	$(Q) mkdir -p $@
+
+context: | staging
 	$(Q) $(MAKE) context_all
 	$(Q) $(MAKE) register_all
 
