@@ -520,10 +520,19 @@ int nxplayer_getmidisubformat(int fd)
 }
 #endif
 
+/****************************************************************************
+ * Name: nxplayer_getmp3subformat
+ *
+ *   nxplayer_getmp3subformat() just return AUDIO_SUBFMT_PCM_MP3
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_AUDIO_FORMAT_MP3
 int nxplayer_getmp3subformat(int fd)
 {
   return AUDIO_SUBFMT_PCM_MP3;
 }
+#endif
 
 /****************************************************************************
  * Name: nxplayer_fmtfromextension
