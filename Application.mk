@@ -93,6 +93,10 @@ ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ)
 endif
 
+# Compile flags
+
+ZIGELFFLAGS ?= $(ZIGFLAGS)
+
 DEPPATH += --dep-path .
 DEPPATH += --obj-path .
 
