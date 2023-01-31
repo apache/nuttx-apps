@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/canardv1/Make.defs
+# apps/examples/dronecan/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,21 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_LIBCANARDV1),)
-CONFIGURED_APPS += $(APPDIR)/examples/canardv1
+include $(APPDIR)/Make.defs
+
+PROGNAME = dronecan
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_EXAMPLES_DRONECAN_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_DRONECAN)
+
+# Conflict with Cyphal's libcanard
+ifeq ($(CONFIG_CANUTILS_LIBOPENCYPHAL),y)
+CFLAGS += -DcanardInit=dronecanardInit
 endif
+
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/canutils/libdronecan/libcanard
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/canutils/libdronecan/libcanard/drivers/nuttx
+
+MAINSRC = canard_main.c
+
+include $(APPDIR)/Application.mk

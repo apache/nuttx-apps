@@ -3,45 +3,45 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_LIBCANARDV1
-	tristate "libcandard v1 example"
+config EXAMPLES_LIBOPENCYPHAL
+	tristate "OpenCyphal Cyphal/CAN example"
 	default n
-	depends on CANUTILS_LIBCANARDV1
+	depends on CANUTILS_LIBOPENCYPHAL
 	---help---
-		Enable the LIBCANARDV1 example
+		Enable the LIBOPENCYPHAL example
 
-if EXAMPLES_LIBCANARDV1
+if EXAMPLES_LIBOPENCYPHAL
 
-config EXAMPLES_LIBCANARDV1_DEV
+config EXAMPLES_LIBOPENCYPHAL_DEV
 	string "Device"
 	default "can0"
 	---help---
 		The device
 
-config EXAMPLES_LIBCANARDV1_NODE_ID
+config EXAMPLES_LIBOPENCYPHAL_NODE_ID
 	int "Node ID"
 	default 1
 	range 1 127
 	---help---
 		Specifies the node's ID
 
-config EXAMPLES_LIBCANARDV1_APP_NODE_NAME
+config EXAMPLES_LIBOPENCYPHAL_APP_NODE_NAME
 	string "Node name"
-	default "org.uavcan.libcanardv1.nuttx.demo"
+	default "org.apache.nuttx.demo"
 	---help---
 		app node name
 
-config EXAMPLES_LIBCANARDV1_NODE_MEM_POOL_SIZE
+config EXAMPLES_LIBOPENCYPHAL_NODE_MEM_POOL_SIZE
 	int "Node Memory Pool Size"
 	default 1024
 	---help---
 		Specifies the node's memory pool size
 
-config EXAMPLES_LIBCANARDV1_DAEMON_PRIORITY
+config EXAMPLES_LIBOPENCYPHAL_DAEMON_PRIORITY
 	int "daemon task priority"
 	default 100
 
-config EXAMPLES_LIBCANARDV1_DAEMON_STACK_SIZE
+config EXAMPLES_LIBOPENCYPHAL_DAEMON_STACK_SIZE
 	int "canard stack size"
 	default DEFAULT_TASK_STACKSIZE
 
