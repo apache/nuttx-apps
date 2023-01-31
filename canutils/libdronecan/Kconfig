@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_LIBDRONECAN
+	bool "libcanard DroneCAN Library"
+	default n
+	depends on (CAN && CAN_EXTID) || NET_CAN
+	---help---
+		Enable the libcanard DroneCAN library.
+
+if CANUTILS_LIBDRONECAN
+
+config LIBDRONECAN_URL
+	string "libcanard URL"
+	default "https://github.com/dronecan/libcanard/archive"
+	---help---
+		libcanard URL.
+
+config LIBDRONECAN_VERSION
+	string "libcanard Version"
+	default "21f2a73df86886101e254d02cfc2277cd2a15717"
+	---help---
+		libcanard version.
+		
+config LIBDRONECAN_CANFD
+	bool "(Experimental) libcanard CAN FD Support"
+	default n
+	depends on NET_CAN_CANFD && EXPERIMENTAL
+	---help---
+		libcanard CAN FD support.
+		Adds support for CAN FD, this is still experimental
+		since libcanard doesn't support runtime switching
+		between CAN2.0B and CAN FD that well
+
+endif

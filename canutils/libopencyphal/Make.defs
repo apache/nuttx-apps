@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/canardv1/Makefile
+# apps/canutils/libopencyphal/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -8,7 +8,7 @@
 # "License"); you may not use this file except in compliance with the
 # License.  You may obtain a copy of the License at
 #
-#   http:#www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -18,15 +18,10 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+ifneq ($(CONFIG_CANUTILS_LIBOPENCYPHAL),)
+CONFIGURED_APPS += $(APPDIR)/canutils/libopencyphal
 
-PROGNAME = canardv1
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_EXAMPLES_LIBCANARDV1_DAEMON_STACK_SIZE)
-MODULE = $(CONFIG_EXAMPLES_LIBCANARDV1)
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/canutils/libopencyphal/o1heap/o1heap
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/canutils/libopencyphal/o1heap/o1heap
 
-CFLAGS += -std=c11 ${INCDIR_PREFIX}$(APPDIR)/include/canutils $(APPDIR)/include/o1heap
-CSRCS = socketcan.c
-MAINSRC = canard_main.c
-
-include $(APPDIR)/Application.mk
+endif

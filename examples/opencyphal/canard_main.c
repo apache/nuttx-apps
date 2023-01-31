@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/canardv1/canard_main.c
+ * apps/examples/opencyphal/canard_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -55,7 +55,7 @@
 
 #define APP_VERSION_MAJOR                        1
 #define APP_VERSION_MINOR                        0
-#define APP_NODE_NAME                            CONFIG_EXAMPLES_LIBCANARDV1_APP_NODE_NAME
+#define APP_NODE_NAME                            CONFIG_EXAMPLES_LIBOPENCYPHAL_APP_NODE_NAME
 
 /****************************************************************************
  * Private Data
@@ -63,7 +63,7 @@
 
 /* Arena for memory allocation, used by the library */
 
-#define O1_HEAP_SIZE CONFIG_EXAMPLES_LIBCANARDV1_NODE_MEM_POOL_SIZE
+#define O1_HEAP_SIZE CONFIG_EXAMPLES_LIBOPENCYPHAL_NODE_MEM_POOL_SIZE
 
 /* Temporary development UAVCAN topic service ID to publish/subscribe from */
 #define PORT_ID                                  4421
@@ -310,13 +310,13 @@ static int canard_daemon(int argc, char *argv[])
       ins.mtu_bytes = CANARD_MTU_CAN_CLASSIC;
     }
 
-  ins.node_id = (pub ? CONFIG_EXAMPLES_LIBCANARDV1_NODE_ID :
-                       CONFIG_EXAMPLES_LIBCANARDV1_NODE_ID + 1);
+  ins.node_id = (pub ? CONFIG_EXAMPLES_LIBOPENCYPHAL_NODE_ID :
+                       CONFIG_EXAMPLES_LIBOPENCYPHAL_NODE_ID + 1);
 
   /* Open the CAN device for reading */
 
   canardsocketinstance sock_ins;
-  socketcanopen(&sock_ins, CONFIG_EXAMPLES_LIBCANARDV1_DEV, can_fd);
+  socketcanopen(&sock_ins, CONFIG_EXAMPLES_LIBOPENCYPHAL_DEV, can_fd);
 
   /* setup poll fd */
 
@@ -326,7 +326,7 @@ static int canard_daemon(int argc, char *argv[])
   if (sock_ins.s < 0)
     {
       printf("canard_daemon: ERROR: open %s failed: %d\n",
-         CONFIG_EXAMPLES_LIBCANARDV1_DEV, errno);
+             CONFIG_EXAMPLES_LIBOPENCYPHAL_DEV, errno);
       errval = 2;
       goto errout_with_dev;
     }
@@ -382,7 +382,7 @@ errout_with_dev:
  *
  ****************************************************************************/
 
-int canardv1_main(int argc, FAR char *argv[])
+int opencyphal_main(int argc, FAR char *argv[])
 {
   int ret;
 
@@ -395,8 +395,8 @@ int canardv1_main(int argc, FAR char *argv[])
     }
 
   ret = task_create("canard_daemon",
-                    CONFIG_EXAMPLES_LIBCANARDV1_DAEMON_PRIORITY,
-                    CONFIG_EXAMPLES_LIBCANARDV1_DAEMON_STACK_SIZE,
+                    CONFIG_EXAMPLES_LIBOPENCYPHAL_DAEMON_PRIORITY,
+                    CONFIG_EXAMPLES_LIBOPENCYPHAL_DAEMON_STACK_SIZE,
                     canard_daemon, argv);
 
   if (ret < 0)

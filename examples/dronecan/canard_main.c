@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/canardv0/canard_main.c
+ * apps/examples/dronecan/canard_main.c
  *
  *   Copyright (C) 2016 ETH Zuerich. All rights reserved.
  *   Author: Matthias Renner <rennerm@ethz.ch>
@@ -38,9 +38,19 @@
  ****************************************************************************/
 
 #include <nuttx/can/can.h>
+
+#ifdef CONFIG_NET_CAN_CANFD
+#  define CANARD_ENABLE_CANFD 1
+#endif
+
 #include <canard.h>
+#ifdef CONFIG_NET_CAN
+#include <socketcan.h>          /* CAN backend driver for nuttx socketcan, distributed
+                                 * with Libcanard */
+#else
 #include <canard_nuttx.h>       /* CAN backend driver for nuttx, distributed
                                  * with Libcanard */
+#endif
 
 #include <sys/ioctl.h>
 #include <sched.h>
@@ -60,7 +70,7 @@
 
 #define APP_VERSION_MAJOR                        1
 #define APP_VERSION_MINOR                        0
-#define APP_NODE_NAME                            CONFIG_EXAMPLES_LIBCANARDV0_APP_NODE_NAME
+#define APP_NODE_NAME                            CONFIG_EXAMPLES_DRONECAN_APP_NODE_NAME
 #define GIT_HASH                                 0xb28bf6ac
 
 /* Some useful constants defined by the UAVCAN specification.
@@ -100,7 +110,7 @@ static CanardInstance canard;
 /* Arena for memory allocation, used by the library */
 
 static uint8_t canard_memory_pool
-               [CONFIG_EXAMPLES_LIBCANARDV0_NODE_MEM_POOL_SIZE];
+               [CONFIG_EXAMPLES_DRONECAN_NODE_MEM_POOL_SIZE];
 
 static uint8_t unique_id[UNIQUE_ID_LENGTH_BYTES] =
 { 0x00, 0x00, 0x00, 0x00,
@@ -114,6 +124,10 @@ static uint8_t unique_id[UNIQUE_ID_LENGTH_BYTES] =
 static uint8_t node_health = UAVCAN_NODE_HEALTH_OK;
 static uint8_t node_mode = UAVCAN_NODE_MODE_INITIALIZATION;
 static bool g_canard_daemon_started;
+
+#if CANARD_ENABLE_CANFD
+static bool canfd;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -227,6 +241,17 @@ static void onTransferReceived(CanardInstance *ins,
        */
 
       const int resp_res =
+#if CANARD_ENABLE_CANFD
+        canardRequestOrRespond(ins,
+                               transfer->source_node_id,
+                               UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
+                               UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
+                               &transfer->transfer_id,
+                               transfer->priority,
+                               CanardResponse,
+                               &buffer[0],
+                               (uint16_t)total_size, canfd);
+#else
         canardRequestOrRespond(ins,
                                transfer->source_node_id,
                                UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
@@ -236,6 +261,7 @@ static void onTransferReceived(CanardInstance *ins,
                                CanardResponse,
                                &buffer[0],
                                (uint16_t) total_size);
+#endif
       if (resp_res <= 0)
         {
           fprintf(stderr, "Could not respond to GetNodeInfo; error %d\n",
@@ -333,10 +359,17 @@ void process1HzTasks(uint64_t timestamp_usec)
       static uint8_t transfer_id;
 
       const int bc_res =
+#if CANARD_ENABLE_CANFD
+        canardBroadcast(&canard, UAVCAN_NODE_STATUS_DATA_TYPE_SIGNATURE,
+                        UAVCAN_NODE_STATUS_DATA_TYPE_ID, &transfer_id,
+                        CANARD_TRANSFER_PRIORITY_LOW,
+                        buffer, UAVCAN_NODE_STATUS_MESSAGE_SIZE, canfd);
+#else
         canardBroadcast(&canard, UAVCAN_NODE_STATUS_DATA_TYPE_SIGNATURE,
                         UAVCAN_NODE_STATUS_DATA_TYPE_ID, &transfer_id,
                         CANARD_TRANSFER_PRIORITY_LOW,
                         buffer, UAVCAN_NODE_STATUS_MESSAGE_SIZE);
+#endif
       if (bc_res <= 0)
         {
           fprintf(stderr, "Could not broadcast node status; error %d\n",
@@ -349,12 +382,21 @@ void process1HzTasks(uint64_t timestamp_usec)
       uint8_t payload[1];
       uint8_t dest_id = 2;
       const int resp_res =
+#if CANARD_ENABLE_CANFD
+        canardRequestOrRespond(&canard, dest_id,
+                               UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
+                               UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
+                               &transfer_id,
+                               CANARD_TRANSFER_PRIORITY_LOW, CanardRequest,
+                               payload, 0, canfd);
+#else
         canardRequestOrRespond(&canard, dest_id,
                                UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
                                UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
                                &transfer_id,
                                CANARD_TRANSFER_PRIORITY_LOW, CanardRequest,
                                payload, 0);
+#endif
       if (resp_res <= 0)
         {
           fprintf(stderr, "Could not request GetNodeInfo; error %d\n",
@@ -372,8 +414,11 @@ void process1HzTasks(uint64_t timestamp_usec)
  *   Transmits all frames from the TX queue, receives up to one frame.
  *
  ****************************************************************************/
-
-void processTxRxOnce(CanardNuttXInstance * nuttxcan, int timeout_msec)
+#ifdef CONFIG_NET_CAN
+void processTxRxOnce(SocketCANInstance *socketcan, int timeout_msec)
+#else
+void processTxRxOnce(CanardNuttXInstance *nuttxcan, int timeout_msec)
+#endif
 {
   const CanardCANFrame *txf;
 
@@ -381,8 +426,12 @@ void processTxRxOnce(CanardNuttXInstance * nuttxcan, int timeout_msec)
 
   for (txf = NULL; (txf = canardPeekTxQueue(&canard)) != NULL; )
     {
+#ifdef CONFIG_NET_CAN
+      const int tx_res = socketcanTransmit(socketcan, txf, 0);
+#else
       const int tx_res = canardNuttXTransmit(nuttxcan, txf, 0);
-      if (tx_res < 0)           /* Failure - drop the frame and report */
+#endif
+      if (tx_res < 0 && tx_res != -EAGAIN)           /* Failure - drop the frame and report */
         {
           canardPopTxQueue(&canard);
           fprintf(stderr,
@@ -403,7 +452,11 @@ void processTxRxOnce(CanardNuttXInstance * nuttxcan, int timeout_msec)
 
   CanardCANFrame rx_frame;
   const uint64_t timestamp = getMonotonicTimestampUSec();
+#ifdef CONFIG_NET_CAN
+  const int rx_res = socketcanReceive(socketcan, &rx_frame, timeout_msec);
+#else
   const int rx_res = canardNuttXReceive(nuttxcan, &rx_frame, timeout_msec);
+#endif
 
   if (rx_res < 0)               /* Failure - report */
     {
@@ -429,12 +482,16 @@ void processTxRxOnce(CanardNuttXInstance * nuttxcan, int timeout_msec)
 
 static int canard_daemon(int argc, char *argv[])
 {
+#ifdef CONFIG_NET_CAN
+  static SocketCANInstance socketcan;
+#else
   static CanardNuttXInstance canardnuttx_instance;
+  int ret;
+#endif
 #ifdef CONFIG_DEBUG_CAN
   struct canioc_bittiming_s bt;
 #endif
   int errval = 0;
-  int ret;
 
   /* Initialization of the CAN hardware is performed by external, board-
    * specific logic to running this test.
@@ -442,17 +499,33 @@ static int canard_daemon(int argc, char *argv[])
 
   /* Open the CAN device for reading */
 
+  
+#ifdef CONFIG_NET_CAN
+  const char * const can_iface_name = "can0";
+
+#  if CANARD_ENABLE_CANFD
+  int16_t res = socketcanInit(&socketcan, can_iface_name, canfd);
+#  else
+  int16_t res = socketcanInit(&socketcan, can_iface_name);
+#  endif
+  if (res < 0)
+    {
+      fprintf(stderr, "Failed to open CAN iface '%s'\n", can_iface_name);
+      return 1;
+    }
+#else
   ret = canardNuttXInit(&canardnuttx_instance,
-                        CONFIG_EXAMPLES_LIBCANARDV0_DEVPATH);
+                        CONFIG_EXAMPLES_DRONECAN_DEVPATH);
   if (ret < 0)
     {
       printf("canard_daemon: ERROR: open %s failed: %d\n",
-             CONFIG_EXAMPLES_LIBCANARDV0_DEVPATH, errno);
+             CONFIG_EXAMPLES_DRONECAN_DEVPATH, errno);
       errval = 2;
       goto errout_with_dev;
     }
+#endif
 
-#ifdef CONFIG_DEBUG_CAN
+#if defined(CONFIG_CAN) && defined(CONFIG_DEBUG_CAN)
   /* Show bit timing information if provided by the driver.  Not all CAN
    * drivers will support this IOCTL.
    */
@@ -476,10 +549,10 @@ static int canard_daemon(int argc, char *argv[])
 
   canardInit(&canard, canard_memory_pool, sizeof(canard_memory_pool),
              onTransferReceived, shouldAcceptTransfer, (void *)(12345));
-  canardSetLocalNodeID(&canard, CONFIG_EXAMPLES_LIBCANARDV0_NODE_ID);
+  canardSetLocalNodeID(&canard, CONFIG_EXAMPLES_DRONECAN_NODE_ID);
   printf("canard_daemon: canard initialized\n");
   printf("start node (ID: %d Name: %s)\n",
-         CONFIG_EXAMPLES_LIBCANARDV0_NODE_ID,
+         CONFIG_EXAMPLES_DRONECAN_NODE_ID,
          APP_NODE_NAME);
 
   g_canard_daemon_started = true;
@@ -487,7 +560,11 @@ static int canard_daemon(int argc, char *argv[])
 
   for (; ; )
     {
+#ifdef CONFIG_NET_CAN
+      processTxRxOnce(&socketcan, 10);
+#else
       processTxRxOnce(&canardnuttx_instance, 10);
+#endif
 
       const uint64_t ts = getMonotonicTimestampUSec();
 
@@ -498,8 +575,10 @@ static int canard_daemon(int argc, char *argv[])
         }
     }
 
+#ifdef CONFIG_CAN
 errout_with_dev:
   canardNuttXClose(&canardnuttx_instance);
+#endif
 
   g_canard_daemon_started = false;
   printf("canard_daemon: Terminating!\n");
@@ -525,9 +604,17 @@ int main(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
+#if CANARD_ENABLE_CANFD
+  if (argc == 2 && strcmp(argv[1], "canfd") == 0)
+    {
+      printf("CAN FD mode enabled\n");
+      canfd = true;
+    }
+#endif
+
   ret = task_create("canard_daemon",
-                    CONFIG_EXAMPLES_LIBCANARDV0_DAEMON_PRIORITY,
-                    CONFIG_EXAMPLES_LIBCANARDV0_STACKSIZE, canard_daemon,
+                    CONFIG_EXAMPLES_DRONECAN_DAEMON_PRIORITY,
+                    CONFIG_EXAMPLES_DRONECAN_STACKSIZE, canard_daemon,
                     NULL);
   if (ret < 0)
     {
