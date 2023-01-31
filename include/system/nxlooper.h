@@ -161,9 +161,9 @@ int nxlooper_setdevice(FAR struct nxlooper_s *plooper,
                        FAR const char *device);
 
 /****************************************************************************
- * Name: nxlooper_loopraw
+ * Name: nxlooper_loopback
  *
- *   nxlooper_loopraw() tries to record and then play the raw data using the
+ *   nxlooper_loopback() tries to record and then play the raw data using the
  *   Audio system.  If a device is specified, it will try to use that
  *   device.
  *
@@ -183,9 +183,9 @@ int nxlooper_setdevice(FAR struct nxlooper_s *plooper,
  *
  ****************************************************************************/
 
-int nxlooper_loopraw(FAR struct nxlooper_s *plooper,
-                     uint8_t nchannels, uint8_t bpsamp,
-                     uint32_t samprate, uint8_t chmap);
+int nxlooper_loopback(FAR struct nxlooper_s *plooper, int format,
+                      uint8_t nchannels, uint8_t bpsamp,
+                      uint32_t samprate, uint8_t chmap);
 
 /****************************************************************************
  * Name: nxlooper_stop

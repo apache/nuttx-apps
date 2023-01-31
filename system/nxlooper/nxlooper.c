@@ -961,13 +961,14 @@ int nxlooper_stop(FAR struct nxlooper_s *plooper)
 #endif /* CONFIG_AUDIO_EXCLUDE_STOP */
 
 /****************************************************************************
- * Name: nxlooper_loopraw
+ * Name: nxlooper_loopback
  *
- *   nxlooper_loopraw() tries to record and then play the raw data using the
+ *   nxlooper_loopback() tries to record and then play the data using the
  *   Audio system.  If a device is specified, it will try to use that
  *   device.
  * Input:
  *   plooper    Pointer to the initialized Looper context
+ *   format     format
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
@@ -982,9 +983,9 @@ int nxlooper_stop(FAR struct nxlooper_s *plooper)
  *
  ****************************************************************************/
 
-int nxlooper_loopraw(FAR struct nxlooper_s *plooper,
-                     uint8_t nchannels, uint8_t bpsamp,
-                     uint32_t samprate, uint8_t chmap)
+int nxlooper_loopback(FAR struct nxlooper_s *plooper, int format,
+                      uint8_t nchannels, uint8_t bpsamp,
+                      uint32_t samprate, uint8_t chmap)
 {
   struct mq_attr           attr;
   struct sched_param       sparam;
@@ -1059,6 +1060,7 @@ int nxlooper_loopraw(FAR struct nxlooper_s *plooper,
   cap_desc.caps.ac_controls.hw[0] = samprate ? samprate : 48000;
   cap_desc.caps.ac_controls.b[3] = samprate >> 16;
   cap_desc.caps.ac_controls.b[2] = bpsamp ? bpsamp : 16;
+  cap_desc.caps.ac_subtype       = format;
   ret = ioctl(plooper->recorddev_fd, AUDIOIOC_CONFIGURE,
               (unsigned long)&cap_desc);
   if (ret < 0)
