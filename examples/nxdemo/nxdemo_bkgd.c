@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <semaphore.h>
+#include <sys/param.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -64,13 +65,6 @@
 #  define RENDERER nxf_convert_32bpp
 #else
 #  error "Unsupported CONFIG_EXAMPLES_NXDEMO_BPP"
-#endif
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
-#endif
-#ifndef MAX
-#  define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
 /****************************************************************************

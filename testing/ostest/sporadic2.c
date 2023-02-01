@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h>
 #include <unistd.h>
 
 #include <pthread.h>
@@ -48,13 +49,6 @@
 #define MAX_BUDGET    (REPL_INTERVAL / 2)
 #define PRIO_HI_NDX   0
 #define PRIO_LO_NDX   1
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
-#endif
-#ifndef MAX
-#  define MAX(a,b) ((a) > (b) ? (a) : (b))
-#endif
 
 /****************************************************************************
  * Private Data

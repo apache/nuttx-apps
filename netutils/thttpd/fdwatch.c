@@ -42,6 +42,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/param.h>
 #include <debug.h>
 #include <poll.h>
 #include <debug.h>
@@ -66,10 +67,6 @@
 #else
 #  define fwerr    _none
 #  define fwinfo   _none
-#endif
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 /****************************************************************************

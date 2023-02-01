@@ -27,6 +27,8 @@
 
 #include "config.h"
 
+#include <sys/param.h>
+
 #include <arpa/inet.h>
 
 /****************************************************************************
@@ -100,10 +102,6 @@
 #  endif
 #else
 #  error "Additional link layer definitions needed"
-#endif
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 #define UDPBLASTER_SENDSIZE MIN(UDPBLASTER_MSS, g_udpblaster_strlen)
