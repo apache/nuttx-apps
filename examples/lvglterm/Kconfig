@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_LVGLTERM
+	tristate "LVGL Terminal"
+	default n
+	depends on GRAPHICS_LVGL
+	---help---
+		Enable LVGL Terminal
+
+if EXAMPLES_LVGLTERM
+
+config EXAMPLES_LVGLTERM_PRIORITY
+	int "lvglterm task priority"
+	default 100
+
+config EXAMPLES_LVGLTERM_STACKSIZE
+	int "lvglterm stack size"
+	default 16384
+
+endif # EXAMPLES_LVGLTERM
