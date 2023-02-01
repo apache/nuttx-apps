@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <sys/param.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -47,10 +48,6 @@
 #undef sched_unlock
 #define sched_lock()
 #define sched_unlock()
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
-#endif
 
 /****************************************************************************
  * Private Data

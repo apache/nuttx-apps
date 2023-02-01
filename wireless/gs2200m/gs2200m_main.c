@@ -36,6 +36,7 @@
 #include <poll.h>
 #include <unistd.h>
 
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
@@ -56,10 +57,6 @@
 # define gs2200m_printf(v, ...) printf(v, ##__VA_ARGS__)
 #else
 # define gs2200m_printf(v, ...)
-#endif
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 #define SOCKET_BASE  10000

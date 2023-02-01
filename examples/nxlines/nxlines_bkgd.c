@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/param.h>
 #include <debug.h>
 #include <fixedmath.h>
 #include <inttypes.h>
@@ -50,10 +51,6 @@
 #  define CLEAR_WIDTH (CONFIG_EXAMPLES_NXLINES_LINEWIDTH + 2)
 #else
 #  define CLEAR_WIDTH CONFIG_EXAMPLES_NXLINES_LINEWIDTH
-#endif
-
-#ifndef MIN
-#  define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 /****************************************************************************
