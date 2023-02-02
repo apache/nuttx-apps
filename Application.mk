@@ -109,34 +109,40 @@ all:: $(OBJS)
 .PRECIOUS: $(BIN)
 
 define ELFASSEMBLE
-	@echo "AS: $1"
+	$(ECHO_BEGIN)"AS: $1 "
 	$(Q) $(CC) -c $(AELFFLAGS) $($(strip $1)_AELFFLAGS) $1 -o $2
+	$(ECHO_END)
 endef
 
 define ELFCOMPILE
-	@echo "CC: $1"
+	$(ECHO_BEGIN)"CC: $1 "
 	$(Q) $(CC) -c $(CELFFLAGS) $($(strip $1)_CELFFLAGS) $1 -o $2
+	$(ECHO_END)
 endef
 
 define ELFCOMPILEXX
-	@echo "CXX: $1"
+	$(ECHO_BEGIN)"CXX: $1 "
 	$(Q) $(CXX) -c $(CXXELFFLAGS) $($(strip $1)_CXXELFFLAGS) $1 -o $2
+	$(ECHO_END)
 endef
 
 define ELFCOMPILERUST
-	@echo "RUSTC: $1"
+	$(ECHO_BEGIN)"RUSTC: $1 "
 	$(Q) $(RUSTC) --emit obj $(RUSTELFFLAGS) $($(strip $1)_RUSTELFFLAGS) $1 -o $2
+	$(ECHO_END)
 endef
 
 define ELFCOMPILEZIG
-	@echo "ZIG: $1"
+	$(ECHO_BEGIN)"ZIG: $1 "
 	# Remove target suffix here since zig compiler add .o automatically
 	$(Q) $(ZIG) build-obj $(ZIGELFFLAGS) $($(strip $1)_ZIGELFFLAGS) --name $(basename $2) $1 
+	$(ECHO_END)
 endef
 
 define ELFLD
-	@echo "LD: $2"
+	$(ECHO_BEGIN)"LD: $2 "
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) $(ARCHCRT0OBJ) $1 $(LDSTARTGROUP) $(LDLIBS) $(LDENDGROUP) -o $2
+	$(ECHO_END)
 endef
 
 $(RAOBJS): %.s$(SUFFIX)$(OBJEXT): %.s
