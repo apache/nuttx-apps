@@ -24,7 +24,9 @@
 
 #include <nuttx/config.h>
 
+#include <stdbool.h>
 #include <sys/types.h>
+#include <termios.h>
 #include <unistd.h>
 #include <errno.h>
 #include <assert.h>
@@ -42,6 +44,7 @@ struct readline_s
   int infd;
 #ifdef CONFIG_READLINE_ECHO
   int outfd;
+  bool isatty;
 #endif
 };
 
@@ -109,13 +112,20 @@ static int readline_getc(FAR struct rl_common_s *vtbl)
  ****************************************************************************/
 
 #ifdef CONFIG_READLINE_ECHO
-static void readline_putc(FAR struct rl_common_s *vtbl, int ch)
+static void readline_putc(FAR struct rl_common_s *vtbl, int ch, bool force)
 {
   FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
   char buffer = ch;
   ssize_t nwritten;
 
   DEBUGASSERT(priv);
+
+  /* Return direct if console is a tty device */
+
+  if (!force && priv->isatty)
+    {
+      return;
+    }
 
   /* Loop until we successfully write a character (or until an unexpected
    * error occurs).
@@ -144,10 +154,17 @@ static void readline_putc(FAR struct rl_common_s *vtbl, int ch)
 
 #ifdef CONFIG_READLINE_ECHO
 static void readline_write(FAR struct rl_common_s *vtbl,
-                           FAR const char *buffer, size_t buflen)
+                           FAR const char *buffer, size_t buflen, bool force)
 {
   FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
   DEBUGASSERT(priv && buffer && buflen > 0);
+
+  /* Return direct if console is a tty device */
+
+  if (!force && priv->isatty)
+    {
+      return;
+    }
 
   write(priv->outfd, buffer, buflen);
 }
@@ -194,14 +211,30 @@ ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 
   /* Set up the vtbl structure */
 
-  vtbl.vtbl.rl_getc  = readline_getc;
-  vtbl.infd          = infd;
-
 #ifdef CONFIG_READLINE_ECHO
+  struct termios ts;
+
+  if (isatty(infd))
+    {
+      if (tcgetattr(infd, &ts) == 0)
+        {
+          vtbl.isatty = true;
+          ts.c_lflag |= ECHO;
+          tcsetattr(infd, 0, &ts);
+        }
+    }
+  else
+    {
+      vtbl.isatty = false;
+    }
+
   vtbl.vtbl.rl_putc  = readline_putc;
   vtbl.vtbl.rl_write = readline_write;
   vtbl.outfd         = outfd;
 #endif
+
+  vtbl.vtbl.rl_getc  = readline_getc;
+  vtbl.infd          = infd;
 
   /* The let the common readline logic do the work */
 

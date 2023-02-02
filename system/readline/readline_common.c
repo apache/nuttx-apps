@@ -647,8 +647,8 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                * understand DEL properly.
                */
 
-              RL_PUTC(vtbl, ASCII_BS);
-              RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
+              RL_PUTCFORCE(vtbl, ASCII_BS);
+              RL_WRITEFORCE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
 #endif
             }
         }

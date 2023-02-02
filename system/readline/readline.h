@@ -26,6 +26,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <stdbool.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -64,8 +65,10 @@
 #define RL_GETC(v)      ((v)->rl_getc(v))
 
 #ifdef CONFIG_READLINE_ECHO
-#  define RL_PUTC(v,ch)   ((v)->rl_putc(v,ch))
-#  define RL_WRITE(v,b,s) ((v)->rl_write(v,b,s))
+#  define RL_PUTC(v,ch)   (v)->rl_putc(v,ch, false)
+#  define RL_PUTCFORCE(v,ch)   (v)->rl_putc(v,ch, true)
+#  define RL_WRITE(v,b,s) (v)->rl_write(v,b,s, false)
+#  define RL_WRITEFORCE(v,b,s) (v)->rl_write(v,b,s, true)
 #endif
 
 /****************************************************************************
@@ -76,9 +79,9 @@ struct rl_common_s
 {
   int  (*rl_getc)(FAR struct rl_common_s *vtbl);
 #ifdef CONFIG_READLINE_ECHO
-  void (*rl_putc)(FAR struct rl_common_s *vtbl, int ch);
+  void (*rl_putc)(FAR struct rl_common_s *vtbl, int ch, bool force);
   void (*rl_write)(FAR struct rl_common_s *vtbl, FAR const char *buffer,
-                   size_t buflen);
+                   size_t buflen, bool force);
 #endif
 };
 
