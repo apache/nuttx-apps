@@ -164,8 +164,8 @@ static void print_valf3(const char *buffer, const char *name)
 static void print_ecg(const char *buffer, const char *name)
 {
   struct sensor_ecg *event = (struct sensor_ecg *)buffer;
-  printf("%s: timestamp:%" PRIu64 " ecg:%.4f status:%lx", name,
-         event->timestamp, event->ecg, event->status);
+  printf("%s: timestamp:%" PRIu64 " ecg:%.4f status:%" PRIu32,
+         name, event->timestamp, event->ecg, event->status);
 }
 
 static void print_ppgd(const char *buffer, const char *name)
