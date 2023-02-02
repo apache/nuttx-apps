@@ -643,12 +643,21 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
               (nst->nst_data[0] == 'B' ||
                nst->nst_data[0] == 'E'))
             {
+#ifdef CONFIG_ALLSYMS
               fprintf(out, "tracing_mark_write: %c|%d|%pS\n",
                       nst->nst_data[0], pid, (FAR void *)ip);
+#else
+              fprintf(out, "tracing_mark_write: %c|%d|%p\n",
+                      nst->nst_data[0], pid, (FAR void *)ip);
+#endif
             }
           else
             {
+#ifdef CONFIG_ALLSYMS
               fprintf(out, "%pS: %s\n", (FAR void *)ip, nst->nst_data);
+#else
+              fprintf(out, "%p: %s\n", (FAR void *)ip, nst->nst_data);
+#endif
             }
         }
         break;
