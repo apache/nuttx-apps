@@ -34,4 +34,10 @@ MAINSRC  += drivertest_rtc.c
 PROGNAME += cmocka_driver_rtc
 endif
 
+ifneq ($(CONFIG_TIMER),)
+MAINSRC  += drivertest_timer.c
+PROGNAME += cmocka_driver_timer
+endif
+
+
 include $(APPDIR)/Application.mk
