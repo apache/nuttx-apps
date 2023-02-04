@@ -28,7 +28,9 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
+
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 

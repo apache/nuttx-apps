@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <fixedmath.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <nuttx/input/ajoystick.h>
 

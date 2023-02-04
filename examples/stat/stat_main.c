@@ -31,6 +31,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Private Data

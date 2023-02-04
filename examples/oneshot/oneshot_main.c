@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/timers/oneshot.h>
 

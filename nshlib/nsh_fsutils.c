@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "nsh.h"
 #include "nsh_console.h"

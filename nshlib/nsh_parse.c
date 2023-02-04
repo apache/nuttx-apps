@@ -29,6 +29,7 @@
 #include <string.h>
 #include <errno.h>
 #include <debug.h>
+#include <unistd.h>
 
 #ifdef CONFIG_NSH_CMDPARMS
 #  include <sys/stat.h>

@@ -46,9 +46,9 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <errno.h>
-
 #include <debug.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <nuttx/sensors/lis3dsh.h>
 

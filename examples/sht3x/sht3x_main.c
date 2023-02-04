@@ -23,12 +23,13 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <stdio.h>
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include <nuttx/sensors/ioctl.h>
 #include <nuttx/sensors/sht3x.h>

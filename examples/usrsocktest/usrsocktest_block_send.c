@@ -32,6 +32,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include "defines.h"
 

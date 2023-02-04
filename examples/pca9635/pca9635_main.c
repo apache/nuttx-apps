@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <nuttx/leds/pca9635pw.h>
 

@@ -31,6 +31,7 @@
 #include <string.h>
 #include <debug.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/fs/fs.h>
 

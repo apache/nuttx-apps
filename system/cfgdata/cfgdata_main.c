@@ -27,6 +27,7 @@
 #include <nuttx/mtd/configdata.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <stdio.h>
 #include <string.h>
