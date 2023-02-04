@@ -1,0 +1,10 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config ESP_HOSTED
+	bool "Use ESP32 as a Tethering device to connect to the Internet"
+	default n
+	---help---
+		Enable ESP Hosted Library to Enable Network in Non Wifi BT Boards
