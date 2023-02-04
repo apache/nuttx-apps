@@ -25,8 +25,8 @@
 #include <nuttx/config.h>
 
 #include <stdlib.h>
-
 #include <ctype.h>
+#include <unistd.h>
 
 #include <nuttx/spi/spi_transfer.h>
 

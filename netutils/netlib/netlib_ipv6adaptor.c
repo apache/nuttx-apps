@@ -32,6 +32,7 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <net/if.h>
 #include <nuttx/net/ip.h>

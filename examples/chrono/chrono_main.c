@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
+#include <unistd.h>
 #include <sys/time.h>
 
 #include <nuttx/input/buttons.h>

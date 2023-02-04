@@ -52,6 +52,7 @@
 #include <poll.h>
 #include <time.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <netinet/in.h>
 #include <net/if.h>

@@ -23,11 +23,13 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include <nuttx/himem/himem.h>
 

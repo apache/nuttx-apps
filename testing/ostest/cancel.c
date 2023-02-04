@@ -31,6 +31,7 @@
 #include <signal.h>
 #include <mqueue.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "ostest.h"
 

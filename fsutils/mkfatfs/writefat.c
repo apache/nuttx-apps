@@ -30,6 +30,7 @@
 #include <string.h>
 #include <errno.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <nuttx/fs/fat.h>
 

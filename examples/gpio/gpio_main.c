@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/ioexpander/gpio.h>
 

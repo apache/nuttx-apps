@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <nuttx/audio/audio.h>
 

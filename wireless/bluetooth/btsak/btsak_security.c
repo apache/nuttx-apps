@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/wireless/bluetooth/bt_core.h>
 #include <nuttx/wireless/bluetooth/bt_hci.h>

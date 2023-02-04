@@ -45,6 +45,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <netutils/netlib.h>
 #include <nuttx/audio/audio.h>

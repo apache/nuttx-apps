@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <unistd.h>
+
 #include <nuttx/can/can.h>
 
 #include "canutils/obd.h"

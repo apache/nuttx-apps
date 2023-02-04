@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/hello/abntcodi_main.c
+ * apps/examples/abntcodi/abntcodi_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <syslog.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "industry/abnt_codi.h"
 
@@ -45,20 +46,22 @@ void print_abnt_codi(FAR struct abnt_codi_proto_s *proto)
          proto->end_act_dem);
   printf("Current Bill Indicator: %d\n", proto->bill_indicator);
   printf("Reactive Interval Indicator: %d\n", proto->react_interval);
-  printf("Capacitive Reactive Pulses are used to calculate consumption: %s\n",
-         boolstr(proto->react_cap_pulse));
+  printf("Capacitive Reactive Pulses are used to calculate consumption: "
+         "%s\n", boolstr(proto->react_cap_pulse));
   printf("Inductive Reactive Pulses are used to calculate consumption: %s\n",
          boolstr(proto->react_ind_pulse));
   printf("Segment type: %s\n",
          proto->segment_type == SEGMENT_PEEK     ? "PEEK"        :
          proto->segment_type == SEGMENT_OUT_PEEK ? "OUT OF PEEK" :
-         proto->segment_type == SEGMENT_RESERVED ? "RESERVED"    : "UNKNOWN");
+         proto->segment_type == SEGMENT_RESERVED ? "RESERVED"    :
+                                                   "UNKNOWN");
   printf("Charges type: %s\n",
          proto->charge_type == CHARGES_BLUE        ? "BLUE"       :
          proto->charge_type == CHARGES_GREEN       ? "GREEN"      :
-         proto->charge_type == CHARGES_IRRIGATORS  ? "IRRIGATORS" : "OTHERS");
-  printf("Number of Active pulses since the beginning of current demand: %d\n",
-         proto->pulses_act_dem);
+         proto->charge_type == CHARGES_IRRIGATORS  ? "IRRIGATORS" :
+                                                     "OTHERS");
+  printf("Number of Active pulses since the beginning of current demand: "
+         "%d\n", proto->pulses_act_dem);
   printf("Number of Reactive pulses since beginning of current demand: %d\n",
          proto->pulses_react_dem);
 }

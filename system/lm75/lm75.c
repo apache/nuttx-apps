@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <fixedmath.h>
+#include <unistd.h>
 
 #include <nuttx/sensors/lm75.h>
 

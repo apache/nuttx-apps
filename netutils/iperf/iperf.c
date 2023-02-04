@@ -30,6 +30,8 @@
 #include <netinet/in.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <unistd.h>
+
 #include "iperf.h"
 
 /****************************************************************************

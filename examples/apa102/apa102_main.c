@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <nuttx/leds/apa102.h>
 
@@ -59,7 +60,8 @@ struct apa102_ledstrip_s ledstrip[NUM_LEDS];
  *   Converts a color from HSV to RGB.
  *
  *   Note: This function is based on Pololu example:
- *   https://github.com/pololu/apa102-arduino/blob/master/examples/Rainbow/Rainbow.ino
+ *   https://github.com/pololu/apa102-arduino/blob/master/examples/Rainbow/
+ *   Rainbow.ino
  *
  * Input Parameters:
  *   h is hue, as a number between 0 and 360.
@@ -79,7 +81,7 @@ static struct apa102_ledstrip_s hsvtorgb(uint16_t h, uint8_t s, uint8_t v)
   uint8_t g = 0;
   uint8_t b = 0;
 
-  switch((h / 60) % 6)
+  switch ((h / 60) % 6)
     {
       case 0:
         r = v;

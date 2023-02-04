@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
+#include <unistd.h>
 
 #include <netdb.h>
 #include <arpa/inet.h>

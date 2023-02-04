@@ -32,6 +32,7 @@
 #include <syslog.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/sched_note.h>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/nuttx/pdcdisp.c
+ * apps/graphics/pdcurs34/nuttx/pdcdisp.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -25,6 +25,7 @@
 #include <sys/ioctl.h>
 #include <assert.h>
 #include <errno.h>
+#include <unistd.h>
 
 #ifdef CONFIG_SYSTEM_TERMCURSES
 #include <system/termcurses.h>

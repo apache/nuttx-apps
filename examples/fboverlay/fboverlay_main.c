@@ -30,6 +30,8 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include <unistd.h>
+
 #include <nuttx/video/fb.h>
 
 #include <nuttx/config.h>

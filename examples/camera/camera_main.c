@@ -32,6 +32,7 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <nuttx/video/video.h>
 

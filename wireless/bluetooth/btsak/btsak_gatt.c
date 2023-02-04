@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/wireless/bluetooth/bt_core.h>
 #include <nuttx/wireless/bluetooth/bt_gatt.h>
