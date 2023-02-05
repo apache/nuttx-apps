@@ -30,6 +30,7 @@
 #include <signal.h>
 #include <assert.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <nuttx/lcd/ft80x.h>
 
@@ -214,10 +215,13 @@ uint16_t ft80x_ramcmd_freespace(int fd, FAR uint16_t *offset,
       return ret;
     }
 
-  /* Return the free space in the FIFO.  NOTE that 4 bytes are not available */
+  /* Return the free space in the FIFO.  NOTE that 4 bytes are not
+   * available
+   */
 
   *offset = regs[1] & FT80X_CMDFIFO_MASK;
-  *avail  = (FT80X_CMDFIFO_SIZE - 4) - ((regs[1] - regs[0]) & FT80X_CMDFIFO_MASK);
+  *avail  = (FT80X_CMDFIFO_SIZE - 4) -
+            ((regs[1] - regs[0]) & FT80X_CMDFIFO_MASK);
   return OK;
 }
 
@@ -270,7 +274,9 @@ int ft80x_ramcmd_waitfifoempty(int fd)
 
   for (; ; )
     {
-      /* Read both the FT80X_REG_CMD_WRITE and FT80X_REG_CMD_READ registers. */
+      /* Read both the FT80X_REG_CMD_WRITE and FT80X_REG_CMD_READ
+       * registers.
+       */
 
       ret = ft80x_getregs(fd, FT80X_REG_CMD_READ, 2, regs);
       if (ret < 0)
@@ -323,7 +329,9 @@ int ft80x_ramcmd_waitfifoempty(int fd)
       ioctl(fd, FT80X_IOC_EVENTNOTIFY,
             (unsigned long)((uintptr_t)&notify));
 
-      /* Check if the signal was received correctly or if the timeout occurred. */
+      /* Check if the signal was received correctly or if the timeout
+       * occurred.
+       */
 
       if (ret < 0)
         {
