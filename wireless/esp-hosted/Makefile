@@ -22,7 +22,7 @@ include $(APPDIR)/Make.defs
 
 # NSH Library
 
-CSRCS   = abnt_codi.c
+CSRCS   = app.c
 CFLAGS += -std=c99
 
 include $(APPDIR)/Application.mk
