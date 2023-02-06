@@ -13,7 +13,7 @@ config NIMBLE_STACKSIZE
 
 config NIMBLE_REF
 	string "Version"
-	default "cd8ab38c3da91b71dd428979153a408f38d3b02e"
+	default "17a8e61fdec48d579df3bc5af59a9cff5edee674"
 	---help---
 		Git ref name to use when downloading from nimBLE repo
 endif
