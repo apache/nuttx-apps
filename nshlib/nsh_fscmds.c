@@ -56,6 +56,9 @@
 #    include <sys/ioctl.h>
 #    include <nuttx/fs/smart.h>
 #  endif
+#  ifdef CONFIG_MTD_LOOP
+#    include <nuttx/fs/loopmtd.h>
+#  endif
 #  ifdef CONFIG_NFS
 #    include <sys/socket.h>
 #    include <netinet/in.h>
@@ -996,6 +999,170 @@ errout_with_paths:
   return ret;
 }
 #endif
+#endif
+
+/****************************************************************************
+ * Name: cmd_lomtd
+ ****************************************************************************/
+
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+#  if defined(CONFIG_MTD_LOOP) && !defined(CONFIG_NSH_DISABLE_LOMTD)
+int cmd_lomtd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  FAR char *loopdev = NULL;
+  FAR char *filepath = NULL;
+  struct mtd_losetup_s setup;
+  bool teardown = false;
+  int erasesize = -1;
+  int sectsize = -1;
+  off_t offset = 0;
+  bool badarg = false;
+  int ret = ERROR;
+  int option;
+  int fd;
+
+  /* Get the lomtd options:  Two forms are supported:
+   *
+   *   lomtd -d <loop-device>
+   *   lomtd [-o <offset>] [-e erasesize] [-s sectsize]
+   *         <loop-device> <filename>
+   *
+   * NOTE that the -o and -r options are accepted with the -d option, but
+   * will be ignored.
+   */
+
+  while ((option = getopt(argc, argv, "d:o:e:s:")) != ERROR)
+    {
+      switch (option)
+        {
+        case 'd':
+          loopdev  = nsh_getfullpath(vtbl, optarg);
+          teardown = true;
+          break;
+
+        case 'e':
+          erasesize = atoi(optarg);
+          break;
+
+        case 'o':
+          offset = atoi(optarg);
+          break;
+
+        case 's':
+          sectsize = atoi(optarg);
+          break;
+
+        case '?':
+        default:
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+          badarg = true;
+          break;
+        }
+    }
+
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
+
+  if (badarg)
+    {
+      goto errout_with_paths;
+    }
+
+  /* If this is not a tear down operation, then additional command line
+   * parameters are required.
+   */
+
+  if (!teardown)
+    {
+      /* There must be two arguments on the command line after the options */
+
+      if (optind + 1 < argc)
+        {
+          loopdev = nsh_getfullpath(vtbl, argv[optind]);
+          optind++;
+
+          filepath = nsh_getfullpath(vtbl, argv[optind]);
+          optind++;
+        }
+      else
+        {
+          nsh_error(vtbl, g_fmtargrequired, argv[0]);
+          goto errout_with_paths;
+        }
+    }
+
+  /* There should be nothing else on the command line */
+
+  if (optind < argc)
+    {
+      nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
+      goto errout_with_paths;
+    }
+
+  /* Open the loop device */
+
+  fd = open("/dev/loopmtd", O_RDONLY);
+  if (fd < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+      goto errout_with_paths;
+    }
+
+  /* Perform the teardown operation */
+
+  if (teardown)
+    {
+      /* Tear down the loop device. */
+
+      ret = ioctl(fd, MTD_LOOPIOC_TEARDOWN,
+                  (unsigned long)((uintptr_t)loopdev));
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+          goto errout_with_fd;
+        }
+    }
+  else
+    {
+      /* Set up the loop device */
+
+      setup.devname   = loopdev;    /* The loop block device to be created */
+      setup.filename  = filepath;   /* The file or character device to use */
+      setup.sectsize  = sectsize;   /* The sector size to use with the block device */
+      setup.erasesize = erasesize;  /* The sector size to use with the block device */
+      setup.offset    = offset;     /* An offset that may be applied to the device */
+
+      ret = ioctl(fd, MTD_LOOPIOC_SETUP,
+                  (unsigned long)((uintptr_t)&setup));
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+          goto errout_with_fd;
+        }
+    }
+
+  ret = OK;
+
+  /* Free resources */
+
+errout_with_fd:
+  close(fd);
+
+errout_with_paths:
+  if (loopdev)
+    {
+      free(loopdev);
+    }
+
+  if (filepath)
+    {
+      free(filepath);
+    }
+
+  return ret;
+}
+#  endif
 #endif
 
 /****************************************************************************

@@ -377,6 +377,10 @@ config NSH_DISABLE_LOSMART
 	bool "Disable losmart"
 	default DEFAULT_SMALL || !MTD_SMART
 
+config NSH_DISABLE_LOMTD
+	bool "Disable lomtd"
+	default DEFAULT_SMALL || !MTD_LOOP
+
 config NSH_DISABLE_LN
 	bool "Disable ln"
 	default DEFAULT_SMALL
