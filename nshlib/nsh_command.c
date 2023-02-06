@@ -283,6 +283,14 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+# if defined(CONFIG_MTD_LOOP) && !defined(CONFIG_NSH_DISABLE_LOMTD)
+  { "lomtd",   cmd_lomtd, 3, 9,
+    "[-d <dev-path>] | [[-o <offset>] [-e <erase-size>] "
+    "[-s <sect-size>] <dev-path> <file-path>]]" },
+# endif
+#endif
+
 #if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
   { "ln",       cmd_ln,       3, 4, "[-s] <target> <link>" },
 #endif

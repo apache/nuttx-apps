@@ -1018,6 +1018,9 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
   int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  endif
+#  if defined(CONFIG_MTD_LOOP) && !defined(CONFIG_NSH_DISABLE_LOMTD)
+  int cmd_lomtd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#  endif
 #  if defined(CONFIG_PIPES) && CONFIG_DEV_FIFO_SIZE > 0 && \
       !defined(CONFIG_NSH_DISABLE_MKFIFO)
   int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
