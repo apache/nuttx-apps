@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_TCPDUMP
+	tristate "tcpdump command"
+	default n
+	depends on NET_PKT
+	select SYSTEM_ARGTABLE3
+	---help---
+		Enable support for the 'tcpdump' command.
+
+if SYSTEM_TCPDUMP
+
+config SYSTEM_TCPDUMP_PROGNAME
+	string "tcpdump program name"
+	default "tcpdump"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_TCPDUMP_PRIORITY
+	int "tcpdump task priority"
+	default 100
+
+config SYSTEM_TCPDUMP_STACKSIZE
+	int "tcpdump stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
