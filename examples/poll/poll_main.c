@@ -156,6 +156,10 @@ int main(int argc, FAR char *argv[])
     }
 #endif
 
+  /* Let the pthreads run first */
+
+  sleep(1);
+
   /* Loop forever */
 
   for (count = 0; ; count++)
