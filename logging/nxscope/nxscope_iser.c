@@ -177,10 +177,35 @@ int nxscope_ser_init(FAR struct nxscope_intf_s *intf,
       flags |= O_NONBLOCK;
     }
 
+#ifdef CONFIG_SERIAL_REMOVABLE
+  do
+    {
+      /* Try to open the console */
+
+      priv->fd = open(priv->cfg->path, flags);
+      if (priv->fd < 0)
+        {
+          /* ENOTCONN means that the USB device is not yet connected.
+           * Anything else is bad.
+           */
+
+          if (errno != ENOTCONN)
+            {
+              break;
+            }
+
+          /* Sleep a bit and try again */
+
+          sleep(1);
+        }
+    }
+  while (priv->fd < 0);
+#else
   priv->fd = open(priv->cfg->path, flags);
+#endif
   if (priv->fd < 0)
     {
-      _err("ERROR: failed to open %s\n", priv->cfg->path);
+      _err("ERROR: failed to open %s %d\n", priv->cfg->path, errno);
       ret = -errno;
       goto errout;
     }
