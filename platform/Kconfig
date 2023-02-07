@@ -16,6 +16,6 @@ config PLATFORM_CONFIGDATA
 		volatile storage can be used:  A file, EEPROM, hardcoded values in
 		FLASH, etc.
 
-source "$APPSDIR/platform/board/Kconfig"
+source "$APPSBINDIR/platform/board/Kconfig"
 
 endmenu # Platform-specific Support
