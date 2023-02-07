@@ -84,7 +84,7 @@ static void btsak_cmd_discover_common(FAR struct btsak_s *btsak,
       btsak_gatt_showusage(btsak->progname, argv[0], EXIT_FAILURE);
     }
 
-  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
+  strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
   btreq.btr_dtype = (uint8_t)type;
 
   ret = btsak_str2addr(argv[1], btreq.btr_dpeer.val);
@@ -209,7 +209,7 @@ static void btsak_cmd_connect_common(FAR struct btsak_s *btsak, int argc,
 
   /* Perform the IOCTL to start/end the connection */
 
-  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
+  strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
@@ -287,7 +287,7 @@ static void btsak_cmd_read_common(FAR struct btsak_s *btsak, int argc,
 
   /* Perform the IOCTL to start the read */
 
-  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
+  strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
   btreq.btr_rdsize = HCI_GATTRD_DATA;
   btreq.btr_rddata = data;
 
@@ -372,7 +372,7 @@ void btsak_cmd_gatt_exchange_mtu(FAR struct btsak_s *btsak, int argc,
 
   /* Perform the IOCTL to start the MTU exchange */
 
-  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
+  strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
@@ -546,7 +546,7 @@ void btsak_cmd_gatt_write(FAR struct btsak_s *btsak, int argc,
 
   /* Perform the IOCTL to start the read */
 
-  strncpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
+  strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
 
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)

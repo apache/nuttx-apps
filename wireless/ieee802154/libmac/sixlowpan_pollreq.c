@@ -45,7 +45,7 @@ int sixlowpan_poll_req(int sock, FAR const char *ifname,
   struct ieee802154_netmac_s arg;
   int ret;
 
-  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
   memcpy(&arg.u.pollreq, req, sizeof(struct ieee802154_poll_req_s));
 
   ret = ioctl(sock, MAC802154IOC_MLME_POLL_REQUEST,

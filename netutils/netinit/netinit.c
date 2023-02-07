@@ -786,7 +786,7 @@ static int netinit_monitor(void)
       /* Configure to receive a signal on changes in link status */
 
       memset(&ifr, 0, sizeof(struct ifreq));
-      strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
+      strlcpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
 
       ifr.ifr_mii_notify_event.sigev_notify = SIGEV_SIGNAL;
       ifr.ifr_mii_notify_event.sigev_signo  = CONFIG_NETINIT_SIGNO;

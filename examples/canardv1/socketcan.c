@@ -49,8 +49,7 @@ int16_t socketcanopen(canardsocketinstance *ins,
       return -1;
     }
 
-  strncpy(ifr.ifr_name, can_iface_name, IFNAMSIZ - 1);
-  ifr.ifr_name[IFNAMSIZ - 1] = '\0';
+  strlcpy(ifr.ifr_name, can_iface_name, IFNAMSIZ);
   ifr.ifr_ifindex = if_nametoindex(ifr.ifr_name);
 
   if (!ifr.ifr_ifindex)

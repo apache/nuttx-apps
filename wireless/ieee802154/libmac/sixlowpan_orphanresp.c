@@ -45,7 +45,7 @@ int sixlowpan_orphan_resp(int sock, FAR const char *ifname,
   struct ieee802154_netmac_s arg;
   int ret;
 
-  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
 
   ret = ioctl(sock, MAC802154IOC_MLME_ORPHAN_RESPONSE,
               (unsigned long)((uintptr_t)&arg));

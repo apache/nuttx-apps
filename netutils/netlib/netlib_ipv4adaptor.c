@@ -165,7 +165,7 @@ static int _netlib_ipv4adaptor(in_addr_t destipaddr,
 
       /* Get the network mask */
 
-      strncpy(maskreq.ifr_name, ifr->ifr_name, IFNAMSIZ);
+      strlcpy(maskreq.ifr_name, ifr->ifr_name, IFNAMSIZ);
 
       ret = ioctl(sd, SIOCGIFNETMASK, (unsigned long)((uintptr_t)&maskreq));
       if (ret < 0)

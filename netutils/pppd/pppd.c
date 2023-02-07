@@ -123,7 +123,7 @@ static int tun_alloc(char *dev)
   ifr.ifr_flags = IFF_TUN;
   if (*dev)
     {
-      strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+      strlcpy(ifr.ifr_name, dev, IFNAMSIZ);
     }
 
   if ((errcode = ioctl(fd, TUNSETIFF, (unsigned long)&ifr)) < 0)
