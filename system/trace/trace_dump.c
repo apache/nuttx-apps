@@ -646,6 +646,14 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
               fprintf(out, "tracing_mark_write: %c|%d|%pS\n",
                       nst->nst_data[0], pid, (FAR void *)ip);
             }
+          else if (type == TRACE_TYPE_ANDROID &&
+              nst->nst_data[1] == '|' &&
+              (nst->nst_data[0] == 'B' ||
+               nst->nst_data[0] == 'E'))
+            {
+              fprintf(out, "tracing_mark_write: %s\n",
+                      nst->nst_data);
+            }
           else
             {
               fprintf(out, "%pS: %s\n", (FAR void *)ip, nst->nst_data);
