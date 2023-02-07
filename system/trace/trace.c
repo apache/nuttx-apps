@@ -199,6 +199,10 @@ static int trace_cmd_dump(int index, int argc, FAR char **argv,
       changed = notectl_enable(false, notectlfd);
     }
 
+  /* Dump the trace header */
+
+  fputs("# tracer: nop\n#\n", out);
+
   /* Dump the trace data */
 
   ret = trace_dump(type, out);
