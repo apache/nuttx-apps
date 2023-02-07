@@ -224,15 +224,6 @@ int nxscope_put_vub32_m(FAR struct nxscope_s *s, uint8_t ch,
 int nxscope_put_vb32_m(FAR struct nxscope_s *s, uint8_t ch,
                        FAR b32_t *val, uint8_t d,
                        FAR uint8_t *meta, uint8_t mlen);
-
-/****************************************************************************
- * Name: nxscope_put_vchar_m
- *
- * NOTE: if a given string is shorten than initialized channel vdim,
- *       we put only string bytes + '\0'
- *
- ****************************************************************************/
-
 int nxscope_put_vchar_m(FAR struct nxscope_s *s, uint8_t ch,
                         FAR char *val, uint8_t d,
                         FAR uint8_t *meta, uint8_t mlen);
@@ -283,15 +274,6 @@ int nxscope_put_vub32(FAR struct nxscope_s *s, uint8_t ch,
                       FAR ub32_t *val, uint8_t d);
 int nxscope_put_vb32(FAR struct nxscope_s *s, uint8_t ch,
                      FAR b32_t *val, uint8_t d);
-
-/****************************************************************************
- * Name: nxscope_put_vchar
- *
- * NOTE: if a given string is shorten than initialized channel vdim,
- *       we put only string bytes + '\0'
- *
- ****************************************************************************/
-
 int nxscope_put_vchar(FAR struct nxscope_s *s, uint8_t ch,
                       FAR char *val, uint8_t d);
 

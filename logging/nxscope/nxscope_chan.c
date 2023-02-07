@@ -360,13 +360,14 @@ static int nxscope_put_vector(FAR uint8_t *buff, uint8_t type, FAR void *val,
 
       case NXSCOPE_TYPE_CHAR:
         {
-          /* Copy only string bytes + '\0' */
+          /* Copy string bytes and fill with '\0' */
 
           DEBUGASSERT(val);
 
           strncpy((FAR char *)buff, (FAR const char *)val, d);
           j += strnlen((FAR char *)buff, d);
-          buff[j++] = '\0';
+          memset(&buff[j], '\0', d - j);
+          j = d;
 
           break;
         }
