@@ -34,6 +34,11 @@ config EXAMPLES_NXSCOPE_SERIAL_BAUD
 	int "nxscope serial baud"
 	default 115200
 
+config EXAMPLES_NXSCOPE_CDCACM
+	bool "nxscope CDCACM device support"
+	depends on CDCACM
+	default n
+
 endif # LOGGING_NXSCOPE_INTF_SERIAL
 
 config EXAMPLES_NXSCOPE_FORCE_ENABLE
