@@ -24,6 +24,8 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
+
 #include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -237,6 +239,34 @@ static FAR void *nxscope_crichan_thr(FAR void *arg)
 }
 #endif
 
+#ifdef CONFIG_EXAMPLES_NXSCOPE_CDCACM
+/****************************************************************************
+ * Name: nxscope_cdcacm_init
+ ****************************************************************************/
+
+static int nxscope_cdcacm_init(void)
+{
+  struct boardioc_usbdev_ctrl_s  ctrl;
+  FAR void                      *handle;
+  int                            ret = OK;
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  if (ret < 0)
+    {
+      printf("ERROR: BOARDIOC_USBDEV_CONTROL failed %d\n", ret);
+      goto errout;
+    }
+
+errout:
+  return ret;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -261,6 +291,29 @@ int main(int argc, FAR char *argv[])
 #endif
 #ifdef CONFIG_LOGGING_NXSCOPE_INTF_DUMMY
   struct nxscope_dummy_cfg_s  nxs_dummy_cfg;
+#endif
+
+#ifndef CONFIG_NSH_ARCHINIT
+  /* Perform architecture-specific initialization (if configured) */
+
+  boardctl(BOARDIOC_INIT, 0);
+
+#  ifdef CONFIG_BOARDCTL_FINALINIT
+  /* Perform architecture-specific final-initialization (if configured) */
+
+  boardctl(BOARDIOC_FINALINIT, 0);
+#  endif
+#endif
+
+#ifdef CONFIG_EXAMPLES_NXSCOPE_CDCACM
+  /* Initialize the USB CDCACM device */
+
+  ret = nxscope_cdcacm_init();
+  if (ret < 0)
+    {
+      printf("ERROR: nxscope_cdcacm_init failed %d\n", ret);
+      goto errout_noproto;
+    }
 #endif
 
   /* Default serial protocol */
