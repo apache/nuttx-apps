@@ -62,4 +62,24 @@ config EXAMPLES_NXSCOPE_RX_PADDING
 	int "nxscope RX padding"
 	default 0
 
+config EXAMPLES_NXSCOPE_TIMER
+	bool "nxscope use timer to wake up samples thread"
+	default n
+
+if EXAMPLES_NXSCOPE_TIMER
+
+config EXAMPLES_NXSCOPE_TIMER_PATH
+	string "nxscope timer path"
+	default "/dev/timer0"
+
+config EXAMPLES_NXSCOPE_TIMER_SIGNO
+	int "nxscope notification signal number"
+	default 17
+
+config EXAMPLES_NXSCOPE_TIMER_INTERVAL
+	int "nxscope timer interval (microseconds)"
+	default 100
+
+endif # EXAMPLES_NXSCOPE_TIMER
+
 endif

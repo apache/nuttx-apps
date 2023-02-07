@@ -31,6 +31,14 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+#  include <sys/ioctl.h>
+#  include <fcntl.h>
+#  include <stdlib.h>
+#  include <signal.h>
+#  include <nuttx/timers/timer.h>
+#endif
+
 #include "logging/nxscope/nxscope.h"
 
 /****************************************************************************
@@ -72,20 +80,122 @@ int nxscope_cb_start(FAR void *priv, bool start)
   return OK;
 }
 
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+/****************************************************************************
+ * Name: nxscope_timer_init
+ ****************************************************************************/
+
+static int nxscope_timer_init(void)
+{
+  int                   fd = 0;
+  int                   ret = 0;
+  struct timer_notify_s notify;
+
+  /* Open the timer driver */
+
+  fd = open(CONFIG_EXAMPLES_NXSCOPE_TIMER_PATH, O_RDONLY);
+  if (fd < 0)
+    {
+      printf("ERROR: Failed to open %s: %d\n",
+             CONFIG_EXAMPLES_NXSCOPE_TIMER_PATH, errno);
+      goto errout;
+    }
+
+  /* Set the timer interval */
+
+  ret = ioctl(fd, TCIOC_SETTIMEOUT,
+              CONFIG_EXAMPLES_NXSCOPE_TIMER_INTERVAL);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to set the timer interval: %d\n", errno);
+      goto errout;
+    }
+
+  /* Configure the timer notifier */
+
+  notify.pid      = getpid();
+  notify.periodic = true;
+
+  notify.event.sigev_notify = SIGEV_SIGNAL;
+  notify.event.sigev_signo  = CONFIG_EXAMPLES_NXSCOPE_TIMER_SIGNO;
+  notify.event.sigev_value.sival_ptr = NULL;
+
+  ret = ioctl(fd, TCIOC_NOTIFICATION,
+              (unsigned long)((uintptr_t)&notify));
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to set the timer handler: %d\n", errno);
+      goto errout;
+    }
+
+  /* Start the timer */
+
+  ret = ioctl(fd, TCIOC_START, 0);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to start the timer: %d\n", errno);
+      goto errout;
+    }
+
+errout:
+  return fd;
+}
+
+/****************************************************************************
+ * Name: nxscope_timer_deinit
+ ****************************************************************************/
+
+static void nxscope_timer_deinit(int fd)
+{
+  int ret = 0;
+
+  /* Stop the timer */
+
+  ret = ioctl(fd, TCIOC_STOP, 0);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to stop the timer: %d\n", errno);
+    }
+
+  close(fd);
+}
+#endif
+
 /****************************************************************************
  * Name: nxscope_samples_thr
  ****************************************************************************/
 
 static FAR void *nxscope_samples_thr(FAR void *arg)
 {
-  FAR struct nxscope_thr_env_s *envp = arg;
-  FAR uint8_t                  *ptr  = NULL;
-  uint32_t                      i    = 0;
+  FAR struct nxscope_thr_env_s *envp     = arg;
+  FAR uint8_t                  *ptr      = NULL;
+  uint32_t                      i        = 0;
   float                         v[3];
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+  int                           fd_timer = 0;
+  int                           ret      = OK;
+  sigset_t                      set;
+#endif
 
   DEBUGASSERT(envp);
 
   printf("nxscope_samples_thr\n");
+
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+  /* Initialize timer for periodic signal. */
+
+  ret = nxscope_timer_init();
+  if (ret < 0)
+    {
+      printf("ERROR: nxscope_timer_init() failed: %d\n", errno);
+      goto errout;
+    }
+
+  /* Configure the signal set for this thread */
+
+  sigemptyset(&set);
+  sigaddset(&set, CONFIG_EXAMPLES_NXSCOPE_TIMER_SIGNO);
+#endif
 
   /* Initialize float vector */
 
@@ -176,8 +286,25 @@ static FAR void *nxscope_samples_thr(FAR void *arg)
 
       i += 1;
 
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+      ret = sigwaitinfo(&set, NULL);
+      if (ret < 0)
+        {
+          printf("ERROR: sigwaitinfo() failed: %d\n", errno);
+          goto errout;
+        }
+#else
       usleep(100);
+#endif
     }
+
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+errout:
+
+  /* Deinit timer */
+
+  nxscope_timer_deinit(fd_timer);
+#endif
 
   return NULL;
 }
