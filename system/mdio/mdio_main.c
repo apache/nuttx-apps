@@ -83,7 +83,7 @@ int get_phy_id(void)
 
   /* Prepare ifreq */
 
-  strncpy(ifr.ifr_name, "eth0", IFNAMSIZ);
+  strlcpy(ifr.ifr_name, "eth0", IFNAMSIZ);
 
   ret = ioctl(g_listen_fd, SIOCGMIIPHY, (unsigned long) &ifr);
 
@@ -105,7 +105,7 @@ int get_phy_reg(uint16_t phy_id, uint16_t reg_num, uint16_t *val)
   int ret;
   struct ifreq ifr;
 
-  strncpy(ifr.ifr_name, "eth0", IFNAMSIZ);
+  strlcpy(ifr.ifr_name, "eth0", IFNAMSIZ);
 
   ifr.ifr_mii_phy_id = phy_id;
   ifr.ifr_mii_reg_num = reg_num;
@@ -125,7 +125,7 @@ int set_phy_reg(uint16_t phy_id, uint16_t reg_num, uint16_t val)
   int ret;
   struct ifreq ifr;
 
-  strncpy(ifr.ifr_name, "eth0", IFNAMSIZ);
+  strlcpy(ifr.ifr_name, "eth0", IFNAMSIZ);
 
   ifr.ifr_mii_phy_id = phy_id;
   ifr.ifr_mii_reg_num = reg_num;

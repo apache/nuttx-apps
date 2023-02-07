@@ -347,7 +347,7 @@ static inline int discover_openlistener(void)
 
   /* Get the IP address of the selected device */
 
-  strncpy(req.ifr_name, CONFIG_DISCOVER_INTERFACE, IFNAMSIZ);
+  strlcpy(req.ifr_name, CONFIG_DISCOVER_INTERFACE, IFNAMSIZ);
   ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
   if (ret < 0)
     {

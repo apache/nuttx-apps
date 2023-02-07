@@ -45,7 +45,7 @@ int sixlowpan_start_req(int sock, FAR const char *ifname,
   struct ieee802154_netmac_s arg;
   int ret;
 
-  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
   memcpy(&arg.u.startreq, req, sizeof(struct ieee802154_start_req_s));
 
   ret = ioctl(sock, MAC802154IOC_MLME_START_REQUEST,

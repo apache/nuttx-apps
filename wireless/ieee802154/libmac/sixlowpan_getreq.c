@@ -45,7 +45,7 @@ int sixlowpan_get_req(int sock, FAR const char *ifname,
   struct ieee802154_netmac_s arg;
   int ret;
 
-  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
 
   /* We must use a shadow arg to perform the operation as we must add the
    * network interface name to the front of the argument.
