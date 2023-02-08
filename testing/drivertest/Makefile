@@ -39,5 +39,9 @@ MAINSRC  += drivertest_timer.c
 PROGNAME += cmocka_driver_timer
 endif
 
+ifneq ($(CONFIG_PWM),)
+MAINSRC  += drivertest_pwm.c
+PROGNAME += cmocka_driver_pwm
+endif
 
 include $(APPDIR)/Application.mk
