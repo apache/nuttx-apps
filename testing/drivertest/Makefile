@@ -49,4 +49,9 @@ MAINSRC  += drivertest_watchdog.c
 PROGNAME += cmocka_driver_watchdog
 endif
 
+ifneq ($(CONFIG_BCH),)
+PROGNAME += cmocka_driver_block
+MAINSRC  += drivertest_block.c
+endif
+
 include $(APPDIR)/Application.mk
