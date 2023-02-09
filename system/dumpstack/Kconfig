@@ -7,7 +7,6 @@ menuconfig SYSTEM_DUMPSTACK
 	tristate "dumpstack tool for show the task backtrace"
 	default n
 	depends on SCHED_BACKTRACE
-	---help---
 
 if SYSTEM_DUMPSTACK
 

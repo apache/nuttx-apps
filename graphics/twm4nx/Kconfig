@@ -97,7 +97,7 @@ choice
 
 config TWM4NX_MOUSE
 	bool "Mouse"
-	select NX_SWCURSOR
+	depends on NX_SWCURSOR
 
 config TWM4NX_TOUCHSCREEN
 	bool "Touchscreen"

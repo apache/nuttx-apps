@@ -314,7 +314,6 @@ config THTTPD_TILDE_MAP2
 config THTTPD_GENERATE_INDICES
 	bool "Generate name indices"
 	default n
-	---help---
 
 config THTTPD_USE_URLPATTERN
 	bool "Use URL pattern"
