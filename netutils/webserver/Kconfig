@@ -143,8 +143,7 @@ config NETUTILS_HTTPD_PATH
 
 config NETUTILS_HTTPD_KEEPALIVE_DISABLE
 	bool "Keepalive Disable"
-	default y if !NETUTILS_HTTPD_TIMEOUT
-	default n if NETUTILS_HTTPD_TIMEOUT
+	default y
 	---help---
 		Disabled HTTP keep-alive for HTTP clients.  Keep-alive permits a
 		client to make multiple requests over the same connection, rather

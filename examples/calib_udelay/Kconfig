@@ -17,11 +17,9 @@ if EXAMPLES_CALIB_UDELAY
 config EXAMPLES_CALIB_UDELAY_NUM_MEASUREMENTS
 	int "Number of measurements to take for each loop iteration count"
 	default 3
-	---help---
 
 config EXAMPLES_CALIB_UDELAY_NUM_RESULTS
 	int "Number of results to generate for calibration slope"
 	default 20
-	---help---
 
 endif

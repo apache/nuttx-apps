@@ -16,7 +16,7 @@ if CMSIS
 
 config CMSIS_VER
 	string "Default CMSIS version"
-	default 5.8.0
+	default "5.8.0"
 
 config CMSIS_DSP
 	bool "CMSIS DSP"
