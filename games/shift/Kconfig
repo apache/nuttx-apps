@@ -38,7 +38,7 @@ config GAMES_SHIFT_STACKSIZE
 #
 
 choice
-        prompt "Input Device (Joystick, Gesture Sensor, etc)"
+	prompt "Input Device (Joystick, Gesture Sensor, etc)"
 	default GAMES_SHIFT_USE_CONSOLEKEY
 
 config GAMES_SHIFT_USE_CONSOLEKEY

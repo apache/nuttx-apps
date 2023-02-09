@@ -8,7 +8,7 @@ config DARKNET_YOLO
 	default n
 	---help---
 		You only look once (YOLO) is a state-of-the-art,
-                real-time object detection system
+		real-time object detection system
 
 if DARKNET_YOLO
 

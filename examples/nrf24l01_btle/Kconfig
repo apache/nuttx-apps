@@ -39,6 +39,6 @@ config NRF24L01_BTLE_DHT11
 	default n
 	depends on SENSORS_DHTXX
 	---help---
-	    Enable driver support for the DHTxx humidity/temperature sensor.
+		Enable driver support for the DHTxx humidity/temperature sensor.
 
 endif
