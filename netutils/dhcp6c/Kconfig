@@ -4,15 +4,15 @@
 #
 
 config NETUTILS_DHCP6C
-    bool "DHCPv6 client"
-    default n
-    depends on NET_IPv6
-    depends on NET_UDP && NET_UDP_CHECKSUMS
+	bool "DHCPv6 client"
+	default n
+	depends on NET_IPv6
+	depends on NET_UDP && NET_UDP_CHECKSUMS
 
 if NETUTILS_DHCP6C
 
 config NETUTILS_DHCP6C_REQUEST_TIMEOUT
-    int "Default single request timeout in second"
-    default 6
+	int "Default single request timeout in second"
+	default 6
 
 endif

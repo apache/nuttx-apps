@@ -26,7 +26,7 @@ config CODECS_HASH_MD5
 	---help---
 		Enables support for the following interfaces: md5_init(),
 		md5_update(), md5_final(), md5_transform(), md5_sum() and
-                md5_hash()
+		md5_hash()
 
 		Contributed NuttX by Darcy Gong.
 

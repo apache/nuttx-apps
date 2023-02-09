@@ -25,100 +25,100 @@ menuconfig LIBTOMMATH_DEMOS
 if LIBTOMMATH_DEMOS
 
 config LIBTOMMATH_TEST
-        tristate "LibTomMath Test"
-        default n
-        ---help---
-                Demo test application for LibTomMath
+	tristate "LibTomMath Test"
+	default n
+	---help---
+		Demo test application for LibTomMath
 
 if LIBTOMMATH_TEST
 
 config LIBTOMMATH_TEST_PROGNAME
-        string "Test program name"
-        default "tommath_test"
-        ---help---
-                LibTomMath test application name
+	string "Test program name"
+	default "tommath_test"
+	---help---
+		LibTomMath test application name
 
 config LIBTOMMATH_TEST_PRIORITY
-        int "Test application priority"
-        default 100
+	int "Test application priority"
+	default 100
 
 config LIBTOMMATH_TEST_STACKSIZE
-        int "Test application stack size"
-        default DEFAULT_TASK_STACKSIZE
+	int "Test application stack size"
+	default DEFAULT_TASK_STACKSIZE
 
 endif # LIBTOMMATH_TEST
 
 config LIBTOMMATH_MTEST_OPPONENT
-        tristate "LibTomMath MTest opponent"
-        default n
-        ---help---
-                Demo mtest opponent application for LibTomMath
+	tristate "LibTomMath MTest opponent"
+	default n
+	---help---
+		Demo mtest opponent application for LibTomMath
 
 if LIBTOMMATH_MTEST_OPPONENT
 
 config LIBTOMMATH_MTEST_OPPONENT_PROGNAME
-        string "MTest opponent program name"
-        default "tommath_mtest_opponent"
-        ---help---
-                LibTomMath mtest opponent application name
+	string "MTest opponent program name"
+	default "tommath_mtest_opponent"
+	---help---
+		LibTomMath mtest opponent application name
 
 config LIBTOMMATH_MTEST_OPPONENT_PRIORITY
-        int "MTest opponent application priority"
-        default 100
+	int "MTest opponent application priority"
+	default 100
 
 config LIBTOMMATH_MTEST_OPPONENT_STACKSIZE
-        int "MTest opponent application stack size"
-        default DEFAULT_TASK_STACKSIZE
+	int "MTest opponent application stack size"
+	default DEFAULT_TASK_STACKSIZE
 
 endif # LIBTOMMATH_MTEST_OPPONENT
 
 config LIBTOMMATH_TIMING
-        tristate "LibTomMath Timing"
-        default n
-        ---help---
-                Demo timing test application for LibTomMath
+	tristate "LibTomMath Timing"
+	default n
+	---help---
+		Demo timing test application for LibTomMath
 
 if LIBTOMMATH_TIMING
 
 config LIBTOMMATH_TIMING_PROGNAME
-        string "Timing program name"
-        default "tommath_timing"
-        ---help---
-                LibTomMath test application name
+	string "Timing program name"
+	default "tommath_timing"
+	---help---
+		LibTomMath test application name
 
 config LIBTOMMATH_TIMING_PRIORITY
-        int "Timing application priority"
-        default 100
+	int "Timing application priority"
+	default 100
 
 config LIBTOMMATH_TIMING_STACKSIZE
-        int "Timing application stack size"
-        default DEFAULT_TASK_STACKSIZE
+	int "Timing application stack size"
+	default DEFAULT_TASK_STACKSIZE
 
 endif # LIBTOMMATH_TIMING
 
 endif # LIBTOMMATH_DEMOS
 
 config LIBTOMMATH_MTEST
-        tristate "LibTomMath MPI Math Library Mtest"
-        default n
-        ---help---
-                LibTomMath mtest applications for LibTomMath
+	tristate "LibTomMath MPI Math Library Mtest"
+	default n
+	---help---
+		LibTomMath mtest applications for LibTomMath
 
 if LIBTOMMATH_MTEST
 
 config LIBTOMMATH_MTEST_PROGNAME
-        string "Mtest program name"
-        default "tommath_mtest"
-        ---help---
-                LibTomMath test application name
+	string "Mtest program name"
+	default "tommath_mtest"
+	---help---
+		LibTomMath test application name
 
 config LIBTOMMATH_MTEST_PRIORITY
-        int "Mtest application priority"
-        default 100
+	int "Mtest application priority"
+	default 100
 
 config LIBTOMMATH_MTEST_STACKSIZE
-        int "Mtest application stack size"
-        default DEFAULT_TASK_STACKSIZE
+	int "Mtest application stack size"
+	default DEFAULT_TASK_STACKSIZE
 
 endif # LIBTOMMATH_MTEST
 

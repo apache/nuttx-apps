@@ -41,11 +41,11 @@ config CMSIS_DSP_ARM_MATH_ROUNDING
 endif # CMSIS_DSP
 
 config CMSIS_NN
-        bool "CMSIS NN"
-        default y
-        depends on CMSIS_DSP
-        ---help---
-                Enable CMSIS-NN: Efficient neural network kernels.
+	bool "CMSIS NN"
+	default y
+	depends on CMSIS_DSP
+	---help---
+		Enable CMSIS-NN: Efficient neural network kernels.
 
 
 endif # CMSIS
