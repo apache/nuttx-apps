@@ -177,12 +177,13 @@ int xmlrpc_buildresponse(struct xmlrpc_s *xmlcall, char *args, ...)
       return -1;
     }
 
-  strcpy(xmlcall->response, "HTTP/1.1 200 OK\n"
-         "Connection: close\n"
-         "Content-length: xyza\n"
-         "Content-Type: text/xml\n"
-         "Server: Lightweight XMLRPC\n\n"
-         "<?xml version=\"1.0\"?>\n" "<methodResponse>\n");
+  strlcpy(xmlcall->response, "HTTP/1.1 200 OK\n"
+          "Connection: close\n"
+          "Content-length: xyza\n"
+          "Content-Type: text/xml\n"
+          "Server: Lightweight XMLRPC\n\n"
+          "<?xml version=\"1.0\"?>\n" "<methodResponse>\n",
+          sizeof(xmlcall->response));
 
   if (xmlcall->error)
     {

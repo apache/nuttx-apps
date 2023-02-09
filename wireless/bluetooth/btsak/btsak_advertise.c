@@ -123,7 +123,7 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak,
   memset(&sd, 0, 2 * sizeof(struct bt_eir_s));
   sd[1].len         = sizeof("btsak");
   sd[1].type        = BT_EIR_NAME_COMPLETE;
-  strcpy((FAR char *)sd[1].data, "btsak");
+  strlcpy((FAR char *)sd[1].data, "btsak", sizeof(sd[1].data));
 
   memset(&btreq, 0, sizeof(struct btreq_s));
   strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);

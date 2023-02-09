@@ -1080,11 +1080,11 @@ static int tcurses_vt100_setattributes(FAR struct termcurses_s *dev,
 
   if (attrib & TCURS_ATTRIB_BOLD)
     {
-      strcpy(str, g_setbold);
+      strlcpy(str, g_setbold, sizeof(str));
     }
   else
     {
-      strcpy(str, g_setnobold);
+      strlcpy(str, g_setnobold, sizeof(str));
     }
 
   if (attrib & TCURS_ATTRIB_BLINK)

@@ -2479,7 +2479,8 @@ int main(int argc, FAR char *argv[])
       switch (option)
         {
           case 'm':
-            strcpy(ctx->mountdir, optarg);
+            strlcpy(ctx->mountdir, optarg,
+                    sizeof(ctx->mountdir));
             break;
           case 'h':
             show_useage();

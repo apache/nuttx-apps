@@ -234,7 +234,7 @@ struct Value *Value_new_ERROR(struct Value *this, int code, const char *error,
   va_end(ap);
   this->type = V_ERROR;
   this->u.error.code = code;
-  this->u.error.msg = strcpy(malloc(strlen(buf) + 1), buf);
+  this->u.error.msg  = strdup(buf);
   return this;
 }
 
@@ -364,13 +364,12 @@ struct Value *Value_clone(struct Value *this, const struct Value *original)
 {
   assert(this != (struct Value *)0);
   assert(original != (struct Value *)0);
+
   switch (original->type)
     {
     case V_ERROR:
       {
-        strcpy(this->u.error.msg =
-               malloc(strlen(original->u.error.msg) + 1),
-               original->u.error.msg);
+        this->u.error.msg = strdup(original->u.error.msg);
         this->u.error.code = original->u.error.code;
         break;
       }

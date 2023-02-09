@@ -2000,7 +2000,7 @@ static void builtin(struct Global *this, const char *ident, enum ValueType type,
   if (*r == (struct Symbol *)0)
     {
       *r = malloc(sizeof(struct Symbol));
-      (*r)->name = strcpy(malloc(strlen(ident) + 1), ident);
+      (*r)->name = strdup(ident);
       (*r)->next = (struct Symbol *)0;
       s = (*r);
     }
@@ -2223,7 +2223,7 @@ int Global_variable(struct Global *this, struct Identifier *ident,
   if (*r == (struct Symbol *)0)
     {
       *r = malloc(sizeof(struct Symbol));
-      (*r)->name = strcpy(malloc(strlen(ident->name) + 1), ident->name);
+      (*r)->name = strdup(ident->name);
       (*r)->next = (struct Symbol *)0;
       (*r)->type = symbolType;
       Var_new(&((*r)->u.var), type, 0, (unsigned int *)0, 0);
@@ -2275,7 +2275,7 @@ int Global_function(struct Global *this, struct Identifier *ident,
     }
 
   *r = malloc(sizeof(struct Symbol));
-  (*r)->name = strcpy(malloc(strlen(ident->name) + 1), ident->name);
+  (*r)->name = strdup(ident->name);
   (*r)->next = (struct Symbol *)0;
   (*r)->type = USERFUNCTION;
   (*r)->u.sub.u.def.scope.start = *deffn;

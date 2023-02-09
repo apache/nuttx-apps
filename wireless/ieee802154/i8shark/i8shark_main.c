@@ -126,7 +126,8 @@ static int i8shark_init(FAR struct i8shark_state_s *i8shark)
 
   /* Set the default settings using config options */
 
-  strcpy(i8shark->devpath, CONFIG_IEEE802154_I8SHARK_DEVPATH);
+  strlcpy(i8shark->devpath, CONFIG_IEEE802154_I8SHARK_DEVPATH,
+          sizeof(i8shark->devpath));
 
   /* Flags for synchronzing with daemon state */
 
@@ -419,7 +420,7 @@ int main(int argc, FAR char *argv[])
 
               /* Copy the path into our state structure */
 
-              strcpy(g_i8shark.devpath, argv[1]);
+              strlcpy(g_i8shark.devpath, argv[1], sizeof(g_i8shark.devpath));
             }
 
           argind++;

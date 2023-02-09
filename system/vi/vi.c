@@ -4035,7 +4035,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
               {
                 /* Emulate :wq */
 
-                strcpy(vi->scratch, "wq");
+                strlcpy(vi->scratch, "wq", sizeof(vi->scratch));
                 vi->cmdlen = 2;
                 vi_parsecolon(vi);
 

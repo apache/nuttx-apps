@@ -236,7 +236,8 @@ static int xmlrpc_parseparam(struct parsebuf_s *pbuf)
       break;
 
     case 's':
-      strcpy(g_xmlcall.arguments[g_xmlcall.argsize].u.string, g_data);
+      strlcpy(g_xmlcall.arguments[g_xmlcall.argsize].u.string, g_data,
+              sizeof(g_xmlcall.arguments[g_xmlcall.argsize].u.string));
       break;
 
     default:
@@ -324,7 +325,7 @@ static int xmlrpc_parsemethod(struct parsebuf_s *pbuf)
         {
           /* Save the method name */
 
-          strcpy(g_xmlcall.name, g_data);
+          strlcpy(g_xmlcall.name, g_data, sizeof(g_xmlcall.name));
 
           /* Find the closing /methodCall */
 
