@@ -592,7 +592,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
       return ERROR;
     }
 
-  strcpy(&i8sak->ifname[0], ifname);
+  strlcpy(i8sak->ifname, ifname, sizeof(i8sak->ifname));
 
   i8sak->chan = 11;
   i8sak->chpage = 0;

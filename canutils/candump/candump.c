@@ -203,7 +203,7 @@ int idx2dindex(int ifidx, int socket) {
 	if (max_devname_len < (int)strlen(ifr.ifr_name))
 		max_devname_len = strlen(ifr.ifr_name);
 
-	strcpy(devname[i], ifr.ifr_name);
+	strlcpy(devname[i], ifr.ifr_name, sizeof(devname[i]));
 
 #ifdef DEBUG
 	printf("new index %d (%s)\n", i, devname[i]);

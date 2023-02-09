@@ -138,7 +138,7 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
   /* 8@3: Usually "MSWIN4.1" */
 
-  strcpy((FAR char *)&var->fv_sect[MBR_OEMNAME], "NUTTX   ");
+  memcpy(&var->fv_sect[MBR_OEMNAME], "NUTTX   ", 8);
 
   /* 2@11: Bytes per sector: 512, 1024, 2048, 4096  */
 

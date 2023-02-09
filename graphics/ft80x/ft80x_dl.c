@@ -357,7 +357,8 @@ int ft80x_dl_data(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   size_t padlen;
   int ret;
 
-  ft80x_info("fd=%d buffer=%p data=%p datlen=%u\n", fd, buffer, data, datlen);
+  ft80x_info("fd=%d buffer=%p data=%p datlen=%u\n",
+             fd, buffer, data, datlen);
   DEBUGASSERT(fd >= 0 && buffer != NULL && data != NULL && datlen > 0);
 
   if (datlen > 0)
@@ -441,7 +442,7 @@ int ft80x_dl_data(int fd, FAR struct ft80x_dlbuffer_s *buffer,
       bufptr           += datlen;
       buffer->dloffset += datlen;
 
-     /* Then append zero bytes as necessary to achieve alignment */
+      /* Then append zero bytes as necessary to achieve alignment */
 
       while (datlen < padlen)
         {
@@ -573,7 +574,8 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
 
   bufptr            = (FAR uint8_t *)buffer->dlbuffer;
   bufptr           += buffer->dloffset;
-  strcpy((FAR char *)bufptr, str);
+  strlcpy((FAR char *)bufptr, str,
+          sizeof(buffer->dlbuffer) - buffer->dloffset);
 
   /* NOTE: that strcpy will copy the NUL terminator too */
 
@@ -605,8 +607,8 @@ int ft80x_dl_string(int fd, FAR struct ft80x_dlbuffer_s *buffer,
  *   hardware and reset the local display list buffer offset to zero.
  *
  * Input Parameters:
- *   fd     - The file descriptor of the FT80x device.  Opened by the caller with
- *            write access.
+ *   fd     - The file descriptor of the FT80x device.  Opened by the caller
+ *            with write access.
  *   buffer - An instance of struct ft80x_dlbuffer_s allocated by the caller.
  *   wait   - True: wait until data has been consumed by the co-processor
  *            (only for co-processor destination); false:  Send to hardware

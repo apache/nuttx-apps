@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/pdcurses/tui.c
+ * apps/examples/pdcurses/tui_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -70,11 +70,21 @@ static const char *g_fieldname[6] =
 
 menu g_mainmenu[] =
 {
-  {"Asub", sub0, "Go inside first submenu"},
-  {"Bsub", sub1, "Go inside second submenu"},
-  {"Csub", sub2, "Go inside third submenu"},
-  {"Dsub", sub3, "Go inside fourth submenu"},
-  {"", (FUNC)0, ""}             /* always add this as the last item! */
+{
+  "Asub", sub0, "Go inside first submenu"
+},
+{
+  "Bsub", sub1, "Go inside second submenu"
+},
+{
+  "Csub", sub2, "Go inside third submenu"
+},
+{
+  "Dsub", sub3, "Go inside fourth submenu"
+},
+{
+  "", (FUNC)0, ""      /* always add this as the last item! */
+}
 };
 
 static const menu g_submenu0[] =
@@ -145,7 +155,8 @@ static char *getfname(char *desc, char *fname, int field)
   fieldname[1] = 0;
   fieldbuf[0]  = fname;
 
-  return (getstrings((const char **)fieldname, fieldbuf, field) == KEY_ESC) ? NULL : fname;
+  return (getstrings((const char **)fieldname,
+                     fieldbuf, field) == KEY_ESC) ? NULL : fname;
 }
 
 static void showfile(char *fname)
@@ -240,7 +251,7 @@ static void subfunc2(void)
 {
   char fname[MAXSTRLEN];
 
-  strcpy(fname, FNAME);
+  strlcpy(fname, FNAME, sizeof(fname));
   if (getfname("File to browse:", fname, 50))
     {
       showfile(fname);
@@ -262,6 +273,7 @@ int main(int argc, FAR char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
-  startmenu(g_mainmenu, "TUI - 'textual user interface' demonstration program");
+  startmenu(g_mainmenu,
+            "TUI - 'textual user interface' demonstration program");
   return 0;
 }

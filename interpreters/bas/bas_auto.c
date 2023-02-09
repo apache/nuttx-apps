@@ -289,7 +289,7 @@ int Auto_variable(struct Auto *this, const struct Identifier *ident)
 
   (*tail) = malloc(sizeof(struct Symbol));
   (*tail)->next = (struct Symbol *)0;
-  (*tail)->name = strcpy(malloc(strlen(ident->name) + 1), ident->name);
+  (*tail)->name = strdup(ident->name);
   (*tail)->type = LOCALVAR;
   (*tail)->u.local.type = ident->defaultType;
 

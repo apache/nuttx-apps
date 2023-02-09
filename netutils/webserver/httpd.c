@@ -609,7 +609,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
               }
 
             *v = '\0';
-            strcpy(pstate->ht_filename, start);
+            strlcpy(pstate->ht_filename, start, sizeof(pstate->ht_filename));
             state = STATE_HEADER;
             break;
 

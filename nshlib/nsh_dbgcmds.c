@@ -288,6 +288,7 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
                     FAR const uint8_t *buffer, ssize_t nbytes)
 {
   char line[128];
+  size_t size;
   int ch;
   int i;
   int j;
@@ -299,13 +300,14 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
 
       for (j = 0; j < 16; j++)
         {
+          size = strlen(line);
           if (i + j < nbytes)
             {
-              sprintf(&line[strlen(line)], "%02x ", buffer[i + j]);
+              sprintf(&line[size], "%02x ", buffer[i + j]);
             }
           else
             {
-              strcpy(&line[strlen(line)], "   ");
+              strlcpy(&line[size], "   ", sizeof(line) - size);
             }
         }
 

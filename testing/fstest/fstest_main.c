@@ -983,7 +983,8 @@ int main(int argc, FAR char *argv[])
   loop_num = CONFIG_TESTING_FSTEST_NLOOPS;
   ctx->max_file = CONFIG_TESTING_FSTEST_MAXFILE;
   ctx->max_open = CONFIG_TESTING_FSTEST_MAXOPEN;
-  strcpy(ctx->mountdir, CONFIG_TESTING_FSTEST_MOUNTPT);
+  strlcpy(ctx->mountdir, CONFIG_TESTING_FSTEST_MOUNTPT,
+          sizeof(ctx->mountdir));
 
   /* Opt Parse */
 
@@ -992,7 +993,7 @@ int main(int argc, FAR char *argv[])
       switch (option)
         {
           case 'm':
-            strcpy(ctx->mountdir, optarg);
+            strlcpy(ctx->mountdir, optarg, sizeof(ctx->mountdir));
             break;
           case 'h':
             show_useage();

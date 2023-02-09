@@ -317,7 +317,7 @@ static FAR struct ftpd_account_s *ftpd_account_new(FAR const char *user,
   if (user != NULL)
     {
       ret->user = (FAR char *)&ret[1];
-      strcpy(ret->user, user);
+      strlcpy(ret->user, user, usersize);
     }
 
   return ret;

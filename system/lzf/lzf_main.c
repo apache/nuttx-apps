@@ -350,7 +350,7 @@ static int compose_name(FAR const char *fname, FAR char *oname, int namelen)
           return -1;
         }
 
-      strcpy(oname, fname);
+      strlcpy(oname, fname, namelen);
       p = strstr(oname, ".lzf");
       if (p == NULL)
         {

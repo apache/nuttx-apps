@@ -237,7 +237,7 @@ FAR struct ipt_replace *netlib_ipt_prepare(FAR const char *table)
       return NULL;
     }
 
-  strcpy(info.name, table);
+  strlcpy(info.name, table, sizeof(info.name));
   len = sizeof(info);
 
   if (getsockopt(sockfd, IPPROTO_IP, IPT_SO_GET_INFO, &info, &len) < 0)
@@ -253,7 +253,7 @@ FAR struct ipt_replace *netlib_ipt_prepare(FAR const char *table)
       goto errout;
     }
 
-  strcpy(entries->name, table);
+  strlcpy(entries->name, table, sizeof(entries->name));
   entries->size = info.size;
   if (getsockopt(sockfd, IPPROTO_IP, IPT_SO_GET_ENTRIES, entries, &len) < 0)
     {
@@ -268,7 +268,7 @@ FAR struct ipt_replace *netlib_ipt_prepare(FAR const char *table)
       goto errout_with_entries;
     }
 
-  strcpy(repl->name, table);
+  strlcpy(repl->name, table, sizeof(repl->name));
 
   repl->valid_hooks  = info.valid_hooks;
   repl->num_entries  = info.num_entries;
@@ -562,7 +562,8 @@ FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname)
 
   IPT_FILL_ENTRY(entry, XT_MASQUERADE_TARGET);
 
-  strcpy(entry->entry.ip.outiface, ifname);
+  strlcpy(entry->entry.ip.outiface, ifname,
+          sizeof(entry->entry.ip.outiface));
   memset(entry->entry.ip.outiface_mask, 0xff, len + 1);
 
   return &entry->entry;
