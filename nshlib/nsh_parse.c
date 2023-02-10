@@ -338,7 +338,6 @@ static void nsh_releaseargs(struct cmdarg_s *arg)
   FAR struct nsh_vtbl_s *vtbl = arg->vtbl;
   int i;
 
-#ifdef CONFIG_FILE_STREAM
   /* If the output was redirected, then file descriptor should
    * be closed.  The created task has its one, independent copy of
    * the file descriptor
@@ -348,7 +347,6 @@ static void nsh_releaseargs(struct cmdarg_s *arg)
     {
       close(arg->fd);
     }
-#endif
 
   /* Released the cloned vtbl instance */
 
@@ -487,9 +485,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                        int argc, FAR char *argv[],
                        FAR const char *redirfile, int oflags)
 {
-#if defined(CONFIG_FILE_STREAM) || !defined(CONFIG_NSH_DISABLEBG)
   int fd = -1;
-#endif
   int ret;
 
   /* DO NOT CHANGE THE ORDERING OF THE FOLLOWING STEPS
@@ -527,11 +523,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    */
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#ifdef CONFIG_FILE_STREAM
   ret = nsh_builtin(vtbl, argv[0], argv, redirfile, oflags);
-#else
-  ret = nsh_builtin(vtbl, argv[0], argv, NULL, 0);
-#endif
   if (ret >= 0)
     {
       /* nsh_builtin() returned 0 or 1.  This means that the built-in
@@ -587,7 +579,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
 #endif
 
-#ifdef CONFIG_FILE_STREAM
   /* Redirected output? */
 
   if (vtbl->np.np_redirect)
@@ -605,7 +596,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
           goto errout;
         }
     }
-#endif
 
   /* Handle the case where the command is executed in background.
    * However is app is to be started as built-in new process will
@@ -641,14 +631,12 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
           goto errout_with_redirect;
         }
 
-#ifdef CONFIG_FILE_STREAM
       /* Handle redirection of output via a file descriptor */
 
       if (vtbl->np.np_redirect)
         {
           nsh_redirect(bkgvtbl, fd, NULL);
         }
-#endif
 
       /* Get the execution priority of this task */
 
@@ -723,7 +711,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
   else
 #endif
     {
-#ifdef CONFIG_FILE_STREAM
       uint8_t save[SAVE_SIZE];
 
       /* Handle redirection of output via a file descriptor */
@@ -732,7 +719,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
         {
           nsh_redirect(vtbl, fd, save);
         }
-#endif
 
       /* Then execute the command in "foreground" -- i.e., while the user
        * waits for the next prompt.  nsh_command will return:
@@ -743,7 +729,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
       ret = nsh_command(vtbl, argc, argv);
 
-#ifdef CONFIG_FILE_STREAM
       /* Restore the original output.  Undirect will close the redirection
        * file descriptor.
        */
@@ -752,7 +737,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
         {
           nsh_undirect(vtbl, save);
         }
-#endif
 
       /* Mark errors so that it is possible to test for non-zero return
        * values in nsh scripts.
@@ -772,12 +756,10 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
 #ifndef CONFIG_NSH_DISABLEBG
 errout_with_redirect:
-#ifdef CONFIG_FILE_STREAM
   if (vtbl->np.np_redirect)
     {
       close(fd);
     }
-#endif
 #endif
 
 errout:
@@ -1879,7 +1861,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 #endif
               np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE ||
               np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL ||
-              np->np_stream == NULL || np->np_foffs < 0)
+              np->np_fd < 0 || np->np_foffs < 0)
             {
               nsh_error(vtbl, g_fmtcontext, cmd);
               goto errout;
@@ -1971,7 +1953,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
             {
               /* Set the new file position to the top of the loop offset */
 
-              ret = fseek(np->np_stream,
+              ret = lseek(np->np_fd,
                           np->np_lpstate[np->np_lpndx].lp_topoffs,
                           SEEK_SET);
               if (ret < 0)
@@ -2392,9 +2374,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   int       oflags = 0;
   int       argc;
   int       ret;
-#ifdef CONFIG_FILE_STREAM
   bool      redirect_save = false;
-#endif
 
   /* Initialize parser state */
 
@@ -2405,9 +2385,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   vtbl->np.np_bg       = false;
 #endif
 
-#ifdef CONFIG_FILE_STREAM
   vtbl->np.np_redirect = false;
-#endif
 
   /* Parse out the command at the beginning of the line */
 
@@ -2550,7 +2528,6 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
     }
 #endif
 
-#ifdef CONFIG_FILE_STREAM
   /* Check if the output was re-directed using > or >> */
 
   if (argc > 2)
@@ -2577,7 +2554,6 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           argc                -= 2;
         }
     }
-#endif
 
   /* Last argument vector must be empty */
 
@@ -2596,7 +2572,6 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
   /* Free any allocated resources */
 
-#ifdef CONFIG_FILE_STREAM
   /* Free the redirected output file path */
 
   if (redirfile)
@@ -2604,7 +2579,6 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       nsh_freefullpath(redirfile);
       vtbl->np.np_redirect = redirect_save;
     }
-#endif
 
   NSH_MEMLIST_FREE(&memlist);
   return ret;

@@ -76,7 +76,7 @@ int main(int argc, FAR char *argv[])
    * is wrong.
    */
 
-  fprintf(stderr, "ERROR: nsh_consolemain() returned: %d\n", ret);
+  dprintf(STDERR_FILENO, "ERROR: nsh_consolemain() returned: %d\n", ret);
   ret = 1;
 #endif
 

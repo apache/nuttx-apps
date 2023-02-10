@@ -60,10 +60,6 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       return -ENODEV;
     }
 
-  /* Flush stderr: we only flush stderr if we opened the alternative one */
-
-  fflush(stderr);
-
   /* Associate the new opened file descriptor to stderr */
 
   dup2(fd, 2);
@@ -83,10 +79,6 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
       return -ENODEV;
     }
 
-  /* Flush stdout: we only flush stdout if we opened the alternative one */
-
-  fflush(stdout);
-
   /* Associate the new opened file descriptor to stdout */
 
   dup2(fd, 1);
@@ -100,23 +92,11 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
 
   /* Setup the stderr */
 
-  pstate->cn_errfd     = 2;
-  pstate->cn_errstream = fdopen(pstate->cn_errfd, "a");
-  if (!pstate->cn_errstream)
-    {
-      free(pstate);
-      return -EIO;
-    }
+  ERRFD(pstate) = 2;
 
   /* Setup the stdout */
 
-  pstate->cn_outfd     = 1;
-  pstate->cn_outstream = fdopen(pstate->cn_outfd, "a");
-  if (!pstate->cn_outstream)
-    {
-      free(pstate);
-      return -EIO;
-    }
+  OUTFD(pstate) = 1;
 
   return OK;
 }
@@ -195,15 +175,6 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
       /* Setup the input console */
 
       pstate->cn_confd = 0;
-
-      /* Create a standard C stream on the console device */
-
-      pstate->cn_constream = fdopen(pstate->cn_confd, "r+");
-      if (!pstate->cn_constream)
-        {
-          free(pstate);
-          return -EIO;
-        }
 
       /* Close the input device that we just opened */
 
