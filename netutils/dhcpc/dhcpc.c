@@ -860,7 +860,8 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                * that we requested from.
                */
 
-              else if (msgtype == DHCPOFFER)
+              else if (msgtype == DHCPOFFER &&
+                       pdhcpc->serverid.s_addr != presult->serverid.s_addr)
                 {
                   ninfo("Received another OFFER, send DECLINE\n");
                   dhcpc_sendmsg(pdhcpc, presult, DHCPDECLINE);
