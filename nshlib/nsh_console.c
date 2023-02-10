@@ -42,15 +42,11 @@
  * Private Types
  ****************************************************************************/
 
-#ifdef CONFIG_FILE_STREAM
 struct serialsave_s
 {
   int   cn_errfd;     /* Re-directed error output file descriptor */
   int   cn_outfd;     /* Re-directed output file descriptor */
-  FILE *cn_errstream; /* Re-directed error output stream */
-  FILE *cn_outstream; /* Re-directed output stream */
 };
-#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -79,35 +75,6 @@ static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_openifnotopen
- ****************************************************************************/
-
-static int nsh_openifnotopen(struct console_stdio_s *pstate)
-{
-  /* The stream is open in a lazy fashion.  This is done because the file
-   * descriptor may be opened on a different task than the stream.
-   */
-
-  if (!pstate->cn_outstream)
-    {
-      pstate->cn_outstream = fdopen(pstate->cn_outfd, "w");
-      if (!pstate->cn_outstream)
-        {
-          return ERROR;
-        }
-
-#if !defined(CONFIG_NSH_ALTCONDEV)
-      /* If the alternative console is not enabled then stderr = stdout */
-
-      pstate->cn_errfd     = pstate->cn_outfd;
-      pstate->cn_errstream = pstate->cn_outstream;
-#endif
-    }
-
-  return 0;
-}
-
-/****************************************************************************
  * Name: nsh_closeifnotclosed
  *
  * Description:
@@ -115,33 +82,22 @@ static int nsh_openifnotopen(struct console_stdio_s *pstate)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_FILE_STREAM
 static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
 {
-  if (pstate->cn_outstream == OUTSTREAM(pstate))
+  if (OUTFD(pstate) >= 0 && OUTFD(pstate) != STDOUT_FILENO)
     {
-      fflush(OUTSTREAM(pstate));
-      pstate->cn_outfd = OUTFD(pstate);
+      close(OUTFD(pstate));
     }
-  else
-    {
-      if (pstate->cn_outstream)
-        {
-          fflush(pstate->cn_outstream);
-          fclose(pstate->cn_outstream);
-        }
-      else if (pstate->cn_outfd >= 0 && pstate->cn_outfd != OUTFD(pstate))
-        {
-          close(pstate->cn_outfd);
-        }
 
-      pstate->cn_errfd     = -1;
-      pstate->cn_outfd     = -1;
-      pstate->cn_errstream = NULL;
-      pstate->cn_outstream = NULL;
+  if (ERRFD(pstate) >= 0 && ERRFD(pstate) != STDERR_FILENO
+      && ERRFD(pstate) != OUTFD(pstate))
+    {
+      close(ERRFD(pstate));
     }
+
+  ERRFD(pstate) = -1;
+  OUTFD(pstate) = -1;
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_consolewrite
@@ -159,28 +115,14 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   ssize_t ret;
 
-  /* The stream is open in a lazy fashion.  This is done because the file
-   * descriptor may be opened on a different task than the stream.  The
-   * actual open will then occur with the first output from the new task.
-   */
-
-  if (nsh_openifnotopen(pstate) != 0)
-    {
-      return ERROR;
-    }
-
   /* Write the data to the output stream */
 
-  ret = fwrite(buffer, 1, nbytes, pstate->cn_outstream);
+  ret = write(OUTFD(pstate), buffer, nbytes);
   if (ret < 0)
     {
       _err("ERROR: [%d] Failed to send buffer: %d\n",
-          pstate->cn_outfd, errno);
+          OUTFD(pstate), errno);
     }
-
-  /* Flush the data to the output stream */
-
-  fflush(pstate->cn_outstream);
 
   return ret;
 }
@@ -200,18 +142,8 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
   va_list ap;
   int ret;
 
-  /* The stream is open in a lazy fashion.  This is done because the file
-   * descriptor may be opened on a different task than the stream.  The
-   * actual open will then occur with the first output from the new task.
-   */
-
-  if (nsh_openifnotopen(pstate) != 0)
-    {
-      return ERROR;
-    }
-
   va_start(ap, fmt);
-  ret = vfprintf(pstate->cn_outstream, fmt, ap);
+  ret = vdprintf(OUTFD(pstate), fmt, ap);
   va_end(ap);
 
   return ret;
@@ -232,18 +164,8 @@ static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
   va_list ap;
   int ret;
 
-  /* The stream is open in a lazy fashion.  This is done because the file
-   * descriptor may be opened on a different task than the stream.  The
-   * actual open will then occur with the first output from the new task.
-   */
-
-  if (nsh_openifnotopen(pstate) != 0)
-    {
-      return ERROR;
-    }
-
   va_start(ap, fmt);
-  ret = vfprintf(pstate->cn_errstream, fmt, ap);
+  ret = vdprintf(ERRFD(pstate), fmt, ap);
   va_end(ap);
 
   return ret;
@@ -298,7 +220,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
   /* Close the console stream */
 
 #ifdef CONFIG_NSH_ALTCONDEV
-  fclose(pstate->cn_constream);
+  close(pstate->cn_confd);
 #endif
 
 #ifdef CONFIG_NSH_VARS
@@ -351,44 +273,21 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
 
-  /* Case 1: Redirected foreground commands */
+  /* Redirected foreground commands */
 
   if (ssave)
     {
-      /* pstate->cn_outstream and cn_outfd refer refer to the
-       * currently opened output stream.  If the output stream is open, flush
-       * any pending output.
-       */
-
-      if (pstate->cn_outstream)
-        {
-          fflush(pstate->cn_errstream);
-          fflush(pstate->cn_outstream);
-        }
-
       /* Save the current fd and stream values.  These will be restored
        * when nsh_consoleundirect() is called.
        */
 
-      ssave->cn_errfd     = pstate->cn_errfd;
-      ssave->cn_outfd     = pstate->cn_outfd;
-      ssave->cn_errstream = pstate->cn_errstream;
-      ssave->cn_outstream = pstate->cn_outstream;
-    }
-  else
-    {
-      /* nsh_consoleclone() set pstate->cn_outfd and cn_outstream to refer
-       * to standard out.  We just want to leave these alone and overwrite
-       * them with the fd for the re-directed stream.
-       */
+      ERRFD(ssave) = ERRFD(pstate);
+      OUTFD(ssave) = OUTFD(pstate);
     }
 
-  /* In either case, set the fd of the new, re-directed output and nullify
-   * the output stream (it will be fdopen'ed if it is used).
-   */
+  /* Set the fd of the new. */
 
-  pstate->cn_outfd     = fd;
-  pstate->cn_outstream = NULL;
+  OUTFD(pstate) = fd;
 }
 
 /****************************************************************************
@@ -403,13 +302,11 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
                                 FAR uint8_t *save)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
-  FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
+  FAR struct serialsave_s *ssave = (FAR struct serialsave_s *)save;
 
   nsh_closeifnotclosed(pstate);
-  pstate->cn_errfd     = ssave->cn_errfd;
-  pstate->cn_outfd     = ssave->cn_outfd;
-  pstate->cn_errstream = ssave->cn_errstream;
-  pstate->cn_outstream = ssave->cn_outstream;
+  ERRFD(pstate) = ERRFD(ssave);
+  OUTFD(pstate) = OUTFD(ssave);
 }
 
 /****************************************************************************
@@ -462,20 +359,16 @@ FAR struct console_stdio_s *nsh_newconsole(bool isctty)
       pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
 #endif
 
-#ifdef CONFIG_FILE_STREAM
       pstate->cn_vtbl.redirect    = nsh_consoleredirect;
       pstate->cn_vtbl.undirect    = nsh_consoleundirect;
 
       /* Initialize the error stream */
 
-      pstate->cn_errfd            = ERRFD(pstate);
-      pstate->cn_errstream        = ERRSTREAM(pstate);
+      ERRFD(pstate)               = STDERR_FILENO;
 
       /* Initialize the output stream */
 
-      pstate->cn_outfd            = OUTFD(pstate);
-      pstate->cn_outstream        = OUTSTREAM(pstate);
-#endif
+      OUTFD(pstate)               = STDOUT_FILENO;
     }
 
   return pstate;

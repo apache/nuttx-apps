@@ -136,7 +136,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
             {
               /* Setup up to receive SIGINT if control-C entered. */
 
-              tc = ioctl(stdout->fs_fd, TIOCSCTTY, ret);
+              tc = ioctl(STDOUT_FILENO, TIOCSCTTY, ret);
             }
 
           /* Wait for the application to exit.  We did lock the scheduler
@@ -201,7 +201,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           if (vtbl->isctty && tc == 0)
             {
-              ioctl(stdout->fs_fd, TIOCNOTTY);
+              ioctl(STDOUT_FILENO, TIOCNOTTY);
             }
         }
 #  ifndef CONFIG_NSH_DISABLEBG

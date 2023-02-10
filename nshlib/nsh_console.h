@@ -64,32 +64,23 @@
 
 /* Are we using the NuttX console for I/O?  Or some other character device? */
 
-#ifdef CONFIG_FILE_STREAM
-#  ifdef CONFIG_NSH_ALTCONDEV
+#ifdef CONFIG_NSH_ALTCONDEV
 
-#    if !defined(CONFIG_NSH_ALTSTDIN) && !defined(CONFIG_NSH_ALTSTDOUT) && \
-        !defined(CONFIG_NSH_ALTSTDERR)
-#      error CONFIG_NSH_ALTCONDEV selected but CONFIG_NSH_ALTSTDxxx not provided
-#    endif
-
-#    define INFD(p)      ((p)->cn_confd)
-#    define INSTREAM(p)  ((p)->cn_constream)
-#    define OUTFD(p)     ((p)->cn_outfd)
-#    define OUTSTREAM(p) ((p)->cn_outstream)
-#    define ERRFD(p)     ((p)->cn_errfd)
-#    define ERRSTREAM(p) ((p)->cn_errstream)
-
-#  else
-
-#    define INFD(p)      0
-#    define INSTREAM(p)  stdin
-#    define OUTFD(p)     1
-#    define OUTSTREAM(p) stdout
-#    define ERRFD(p)     2
-#    define ERRSTREAM(p) stderr
-
+#  if !defined(CONFIG_NSH_ALTSTDIN) && !defined(CONFIG_NSH_ALTSTDOUT) && \
+      !defined(CONFIG_NSH_ALTSTDERR)
+#    error CONFIG_NSH_ALTCONDEV selected but CONFIG_NSH_ALTSTDxxx not provided
 #  endif
+
+#  define INFD(p)      ((p)->cn_confd)
+
+#else
+
+#  define INFD(p)      0
+
 #endif
+
+#  define OUTFD(p)     ((p)->cn_outfd)
+#  define ERRFD(p)     ((p)->cn_errfd)
 
 /****************************************************************************
  * Public Types
@@ -148,18 +139,11 @@ struct console_stdio_s
 
   /* NSH input/output streams */
 
-#ifdef CONFIG_FILE_STREAM
 #ifdef CONFIG_NSH_ALTCONDEV
   int   cn_confd;     /* Console I/O file descriptor */
 #endif
   int   cn_outfd;     /* Output file descriptor (possibly redirected) */
   int   cn_errfd;     /* Error Output file descriptor (possibly redirected) */
-#ifdef CONFIG_NSH_ALTCONDEV
-  FILE *cn_constream; /* Console I/O stream (possibly redirected) */
-#endif
-  FILE *cn_outstream; /* Output stream */
-  FILE *cn_errstream; /* Error Output stream */
-#endif
 
 #ifdef CONFIG_NSH_VARS
   /* Allocation and size of NSH variables */

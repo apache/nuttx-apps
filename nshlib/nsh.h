@@ -687,9 +687,7 @@ struct nsh_parser_s
 #ifndef CONFIG_NSH_DISABLEBG
   bool     np_bg;       /* true: The last command executed in background */
 #endif
-#ifdef CONFIG_FILE_STREAM
   bool     np_redirect; /* true: Output from the last command was re-directed */
-#endif
   bool     np_fail;     /* true: The last command failed */
 #ifndef CONFIG_NSH_DISABLESCRIPT
   uint8_t  np_flags;    /* See nsh_npflags_e above */
@@ -699,7 +697,7 @@ struct nsh_parser_s
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  FILE    *np_stream;   /* Stream of current script */
+  int      np_fd;       /* Stream of current script */
 #ifndef CONFIG_NSH_DISABLE_LOOPS
   long     np_foffs;    /* File offset to the beginning of a line */
 #ifndef NSH_DISABLE_SEMICOLON
@@ -801,7 +799,7 @@ int nsh_usbconsole(void);
 #  define nsh_usbconsole() (-ENOSYS)
 #endif
 
-#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
+#ifndef CONFIG_NSH_DISABLESCRIPT
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                FAR const char *path, bool log);
 #ifdef CONFIG_NSH_ROMFSETC

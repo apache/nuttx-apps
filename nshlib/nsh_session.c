@@ -104,23 +104,20 @@ int nsh_session(FAR struct console_stdio_s *pstate,
     {
       /* Present a greeting and possibly a Message of the Day (MOTD) */
 
-      fputs(g_nshgreeting, pstate->cn_outstream);
+      write(OUTFD(pstate), g_nshgreeting, strlen(g_nshgreeting));
 
 #ifdef CONFIG_NSH_MOTD
 # ifdef CONFIG_NSH_PLATFORM_MOTD
       /* Output the platform message of the day */
 
       platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
-      fprintf(pstate->cn_outstream, "%s\n", vtbl->iobuffer);
-
+      dprintf(OUTFD(pstate), "%s\n", vtbl->iobuffer);
 # else
       /* Output the fixed message of the day */
 
-      fprintf(pstate->cn_outstream, "%s\n", g_nshmotd);
+      dprintf(OUTFD(pstate), "%s\n", g_nshmotd);
 # endif
 #endif
-
-      fflush(pstate->cn_outstream);
 
       /* Execute the login script */
 
@@ -194,34 +191,33 @@ int nsh_session(FAR struct console_stdio_s *pstate,
        * occurs. Either  will cause the session to terminate.
        */
 
-      ret = cle(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
-                INSTREAM(pstate), OUTSTREAM(pstate));
+      ret = cle_fd(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
+                   INFD(pstate), OUTFD(pstate));
       if (ret < 0)
         {
-          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_session",
+          dprintf(ERRFD(pstate), g_fmtcmdfailed, "nsh_session",
                   "cle", NSH_ERRNO_OF(-ret));
           continue;
         }
 #else
       /* Display the prompt string */
 
-      fputs(g_nshprompt, pstate->cn_outstream);
-      fflush(pstate->cn_outstream);
+      write(OUTFD(pstate), g_nshprompt, strlen(g_nshprompt));
 
       /* readline() normally returns the number of characters read, but
        * will return EOF on end of file or if an error occurs.  EOF
        * will cause the session to terminate.
        */
 
-      ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
-                    INSTREAM(pstate), OUTSTREAM(pstate));
+      ret = readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
+                        INFD(pstate), OUTFD(pstate));
       if (ret == EOF)
         {
           /* NOTE: readline() does not set the errno variable, but
            * perhaps we will be lucky and it will still be valid.
            */
 
-          fprintf(pstate->cn_errstream, g_fmtcmdfailed, "nsh_session",
+          dprintf(ERRFD(pstate), g_fmtcmdfailed, "nsh_session",
                   "readline", NSH_ERRNO);
           ret = EXIT_SUCCESS;
           break;
@@ -231,7 +227,6 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       /* Parse process the command */
 
       nsh_parse(vtbl, pstate->cn_line);
-      fflush(pstate->cn_outstream);
     }
 
   return ret;
