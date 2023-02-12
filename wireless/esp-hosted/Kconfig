@@ -4,7 +4,7 @@
 #
 
 config ESP_HOSTED
-	bool "Use ESP32 as a Tethering device to connect to the Internet"
+	bool "Use ESP32 HOSTED as a Tethering device to connect to the Internet"
 	default n
 	---help---
 		Enable ESP Hosted Library to Enable Network in Non Wifi BT Boards

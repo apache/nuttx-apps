@@ -20,10 +20,10 @@
 #define HOSTED_SEM_NON_BLOCKING                0
 
 #define CTRL_PATH_TASK_STACK_SIZE              4096
-#define CTRL_PATH_TASK_PRIO                    osPriorityAboveNormal
+#define CTRL_PATH_TASK_PRIO                    (SCHED_PRIORITY_MAX -10)
 
-#define thread_handle_t                        osThreadId
-#define semaphore_handle_t                     osSemaphoreId
+#define thread_handle_t                        pthread_t
+#define semaphore_handle_t                     sem_t
 
 #define mem_free(x)                            \
 {                                              \

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <nuttx/config.h>
+
 #include "string.h"
 #include "trace.h"
 #include "serial_if.h"
@@ -19,7 +21,7 @@
 #include "platform_wrapper.h"
 
 #define MILLISEC_TO_SEC			1000
-#define TICKS_PER_SEC (1000 / portTICK_PERIOD_MS);
+#define TICKS_PER_SEC (1000 / CONFIG_USEC_PER_TICK);
 #define SEC_TO_MILLISEC(x) (1000*(x))
 
 #define HOSTED_CALLOC(buff,nbytes) do {                           \
@@ -31,7 +33,7 @@
 } while(0);
 
 
-static osSemaphoreId readSemaphore;
+static semaphore_handle_t readSemaphore;
 static serial_ll_handle_t * serial_ll_if_g;
 
 static void control_path_rx_indication(void);
@@ -41,19 +43,19 @@ struct serial_drv_handle_t {
 };
 
 struct timer_handle_t {
-	osTimerId timer_id;
+	time_t timer_id;
 };
 
 int control_path_platform_init(void)
 {
-	osSemaphoreDef(READSEM);
+	sem_init(READSEM);
 
 	/* control path semaphore */
-	readSemaphore = osSemaphoreCreate(osSemaphore(READSEM) , 1);
+	readSemaphore = sem_open(osSemaphore(READSEM) , 1);
 	assert(readSemaphore);
 
 	/* grab the semaphore, so that task will be mandated to wait on semaphore */
-	if (osSemaphoreWait(readSemaphore , portMAX_DELAY) != osOK) {
+	if (sem_wait(readSemaphore , portMAX_DELAY) != osOK) {
 		printf("could not obtain readSemaphore\n\r");
 		return STM_FAIL;
 	}
@@ -84,7 +86,7 @@ static void control_path_rx_indication(void)
 {
 	/* heads up to control path for read */
 	if(readSemaphore) {
-		osSemaphoreRelease(readSemaphore);
+		sem_close(readSemaphore);
 	}
 }
 
@@ -147,7 +149,12 @@ void *hosted_thread_create(void (*start_routine)(void const *), void *arg)
 		printf("Failed to allocate thread handle\n");
 		return NULL;
 	}
-
+//osThreadDef(name, priority, instances, stacksz)
+// 	Create a Thread Definition with function, priority, and stack requirements.
+	task_create(Ctrl_port_tsk, CTRL_PATH_TASK_PRIO, CTRL_PATH_TASK_STACK_SIZE, start_routine, arg);
+	task_init(struct tcb_s *tcb, char *name, int priority, uint32_t *stack, uint32_t stack_size,
+                 maint_t entry, char * const argv[]);
+	task_activate(struct tcb_s *tcb);
 	osThreadDef(
 			Ctrl_port_tsk,
 			start_routine,

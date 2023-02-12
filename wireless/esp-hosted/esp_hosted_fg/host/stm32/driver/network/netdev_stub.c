@@ -45,11 +45,11 @@ int netdev_open(netdev_handle_t ndev)
 		return STM_FAIL;
 
 	if (ndev->rx_q) {
-		xQueueReset(ndev->rx_q);
+		mq_close(ndev->rx_q);
 		return STM_OK;
 	}
 
-	ndev->rx_q = xQueueCreate(RX_QUEUE_SIZE, sizeof(struct pbuf));
+	ndev->rx_q = mq_open(RX_QUEUE_SIZE, sizeof(struct pbuf));
 
 	if (!ndev->rx_q)
 		return STM_FAIL;
@@ -243,7 +243,7 @@ int netdev_rx(netdev_handle_t dev, struct pbuf *net_buf)
 
 	if (!ndev || !net_buf) {
 		printf ("Invalid arguments\n");
-		osDelay(50);
+		usleep(50);
 		return STM_FAIL;
 	}
 
@@ -276,6 +276,6 @@ done:
 		free(net_buf);
 		net_buf = NULL;
 	}
-	osDelay(50);
+	usleep(50);
 	return STM_FAIL;
 }

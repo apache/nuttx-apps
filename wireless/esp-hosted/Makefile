@@ -19,10 +19,30 @@
 ############################################################################
 
 include $(APPDIR)/Make.defs
-
-# NSH Library
+	CSRCS = {CODE_BASE}/common/include
+	CSRCS = {CODE_BASE}/common/protobuf-c
+	CSRCS = {CODE_BASE}/host/control_lib/include
+	CSRCS = {CODE_BASE}/host/control_lib/src/include
+	CSRCS = {CODE_BASE}/host/virtual_serial_if/include
+	CSRCS = {CODE_BASE}/host/stm32/port/include
+	CSRCS = {CODE_BASE}/host/stm32/common
+	CSRCS = {CODE_BASE}/host/stm32/driver/transport/spi
+	CSRCS = {CODE_BASE}/host/stm32/driver/serial/
+	CSRCS = {CODE_BASE}/host/stm32/driver/network
+	CSRCS = {CODE_BASE}/host/stm32/driver/netif
+	CSRCS = {CODE_BASE}/host/stm32/app/control
+	CSRCS = {CODE_BASE}/host/stm32/app/data
+	CSRCS = {CODE_BASE}/host/stm32/app
 
 CSRCS   = app.c
+CSRCS = nx_events.c nx_kbdin.c
+MAINSRC = nx_main.c
 CFLAGS += -std=c99
+PROGNAME = esphosted
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_NX)
 
 include $(APPDIR)/Application.mk
+
+

@@ -1,3 +1,0 @@
-ifneq ($(CONFIG_INTERPRETERS_FICL),)
-CONFIGURED_APPS += $(APPDIR)/interpreters/ficl
-endif
