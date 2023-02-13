@@ -1077,12 +1077,12 @@ static int cle_editloop(FAR struct cle_s *priv)
 
         /* Newline terminates editing.  But what is a newline? */
 
-#if defined(CONFIG_EOL_IS_CR) || defined(CONFIG_EOL_IS_EITHER_CRLF)
+#if defined(CONFIG_EOL_IS_EITHER_CRLF)
         case '\r': /* CR terminates line */
-
-#elif defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF) || \
-      defined(CONFIG_EOL_IS_EITHER_CRLF)
-
+        case '\n': /* LF terminates line */
+#elif defined(CONFIG_EOL_IS_CR)
+        case '\r': /* CR terminates line */
+#elif defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
         case '\n': /* LF terminates line */
 #endif
           {
