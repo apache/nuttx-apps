@@ -6,7 +6,7 @@
 config EXAMPLES_WATCHER
 	tristate "Watcher example"
 	default n
-	depends on DRIVER_NOTERAM
+	depends on DRIVERS_NOTERAM
 	depends on FSUTILS_MKFATFS
 	---help---
 		Enable the watcher example. The watcher is a task that will monitor
