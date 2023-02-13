@@ -117,6 +117,13 @@ static void readline_putc(FAR struct rl_common_s *vtbl, int ch)
 
   DEBUGASSERT(priv);
 
+  /* If outfd is a invalid fd, return directly. */
+
+  if (priv->outfd < 0)
+    {
+      return;
+    }
+
   /* Loop until we successfully write a character (or until an unexpected
    * error occurs).
    */
@@ -148,6 +155,13 @@ static void readline_write(FAR struct rl_common_s *vtbl,
 {
   FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
   DEBUGASSERT(priv && buffer && buflen > 0);
+
+  /* If outfd is a invalid fd, return directly. */
+
+  if (priv->outfd < 0)
+    {
+      return;
+    }
 
   write(priv->outfd, buffer, buflen);
 }
