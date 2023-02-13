@@ -95,8 +95,10 @@ UNPACK ?= unzip -o
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
+ifneq($(wildcard $(LVGL_UNPACKDIR)/CMakeLists.txt),)
+
 $(LVGL_TARBALL):
-	$(Q) echo "Downloading: $(LVGL_TARBALL)"
+	$(Q) echo "Downloading: lvgl $(LVGL_TARBALL)"
 	$(Q) curl -O -L $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
 
 $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
@@ -105,13 +107,14 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
-# Download and unpack tarball if no git repo found
-ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
-context:: $(LVGL_UNPACKNAME)
+#Download and unpack tarball if no git repo found
+	ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
+	context:: $(LVGL_UNPACKNAME)
 
-distclean::
-	$(call DELDIR, $(LVGL_UNPACKNAME))
-	$(call DELFILE, $(LVGL_TARBALL))
+	distclean::
+		$(call DELDIR, $(LVGL_UNPACKNAME))
+		$(call DELFILE, $(LVGL_TARBALL))
+endif
 endif
 
 include $(APPDIR)/Application.mk
