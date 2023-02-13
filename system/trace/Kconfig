@@ -6,7 +6,7 @@
 config SYSTEM_TRACE
 	tristate "Trace command"
 	default n
-	depends on DRIVER_NOTECTL
+	depends on DRIVERS_NOTECTL
 	---help---
 		Enable support for the trace command.
 
