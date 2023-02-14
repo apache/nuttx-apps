@@ -95,7 +95,7 @@ UNPACK ?= unzip -o
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
-ifneq($(wildcard $(LVGL_UNPACKDIR)/CMakeLists.txt),)
+ifneq ($(wildcard $(LVGL_UNPACKNAME)/CMakeLists.txt),)
 
 $(LVGL_TARBALL):
 	$(Q) echo "Downloading: lvgl $(LVGL_TARBALL)"
@@ -108,7 +108,7 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
 #Download and unpack tarball if no git repo found
-	ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
+ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
 	context:: $(LVGL_UNPACKNAME)
 
 	distclean::
