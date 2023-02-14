@@ -95,8 +95,7 @@ UNPACK ?= unzip -o
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
-ifneq ($(wildcard $(LVGL_UNPACKNAME)/CMakeLists.txt),)
-
+ifneq ($(wildcard $(LVGL_UNPACKNAME)/lvgl.h),)
 $(LVGL_TARBALL):
 	$(Q) echo "Downloading: lvgl $(LVGL_TARBALL)"
 	$(Q) curl -O -L $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
