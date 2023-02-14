@@ -108,6 +108,7 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(Q) touch $(LVGL_UNPACKNAME)
 
 #Download and unpack tarball if no git repo found
+
 ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
 	context:: $(LVGL_UNPACKNAME)
 
