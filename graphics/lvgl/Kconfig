@@ -63,6 +63,11 @@ config LV_PORT_TOUCHPAD_DEFAULT_DEVICEPATH
 	string "Touchpad default device path"
 	default "/dev/input0"
 
+config LV_PORT_TOUCHPAD_CURSOR_SIZE
+	depends on LV_PORT_USE_TOUCHPAD
+	int "Touchpad cursor size"
+	default 0
+
 config LV_USE_ENCODER
 	depends on INPUT_MOUSE_WHEEL
 	bool "Encoder interface"
