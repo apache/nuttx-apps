@@ -152,12 +152,12 @@ static int nxcamera_cmd_stream(FAR struct nxcamera_s *pcam, FAR char *parg)
   uint32_t framerate = 0;
   uint32_t format = 0;
   int      ret;
-  char     cc[4] =
+  char     cc[5] =
     {
       0
     };
 
-  sscanf(parg, "%hd %hd %d %s", &width, &height, &framerate, cc);
+  sscanf(parg, "%hd %hd %d %4s", &width, &height, &framerate, cc);
   format = v4l2_fourcc(cc[0], cc[1], cc[2], cc[3]);
 
   /* Try to stream raw data with settings specified */
