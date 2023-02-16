@@ -129,6 +129,33 @@ static FAR lv_indev_t *touchpad_init(int fd)
 }
 
 /****************************************************************************
+ * Name: touchpad_cursor_init
+ ****************************************************************************/
+
+static void touchpad_cursor_init(FAR lv_indev_t *indev, lv_coord_t size)
+{
+  FAR lv_obj_t *cursor;
+
+  if (size <= 0)
+    {
+      return;
+    }
+
+  cursor = lv_obj_create(lv_layer_sys());
+  lv_obj_remove_style_all(cursor);
+
+  lv_obj_set_size(cursor, size, size);
+  lv_obj_set_style_translate_x(cursor, -size / 2, 0);
+  lv_obj_set_style_translate_y(cursor, -size / 2, 0);
+  lv_obj_set_style_radius(cursor, LV_RADIUS_CIRCLE, 0);
+  lv_obj_set_style_bg_opa(cursor, LV_OPA_50, 0);
+  lv_obj_set_style_bg_color(cursor, lv_color_black(), 0);
+  lv_obj_set_style_border_width(cursor, 2, 0);
+  lv_obj_set_style_border_color(cursor, lv_palette_main(LV_PALETTE_GREY), 0);
+  lv_indev_set_cursor(indev, cursor);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -173,6 +200,8 @@ FAR lv_indev_t *lv_port_touchpad_init(FAR const char *dev_path)
     {
       close(fd);
     }
+
+  touchpad_cursor_init(indev, CONFIG_LV_PORT_TOUCHPAD_CURSOR_SIZE);
 
   return indev;
 }
