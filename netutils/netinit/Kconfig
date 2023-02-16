@@ -503,28 +503,89 @@ menu "WAPI Configuration"
 	depends on NET && WIRELESS_WAPI
 
 config NETINIT_WAPI_STAMODE
-	int "Wireless mode of operation"
-	default 2
-	range 0 8
+	int
+	default 0 if NETINIT_WAPI_STAMODE_AUTO
+	default 1 if NETINIT_WAPI_STAMODE_ADHOC
+	default 2 if NETINIT_WAPI_STAMODE_INFRA
+	default 3 if NETINIT_WAPI_STAMODE_MASTER
+	default 4 if NETINIT_WAPI_STAMODE_REPEAT
+	default 5 if NETINIT_WAPI_STAMODE_MONITOR
+	default 6 if NETINIT_WAPI_STAMODE_MESH
+
+choice
+	prompt "Select the WiFi Operation Mode"
+	default NETINIT_WAPI_STAMODE_INFRA
 	---help---
 		Mode of operation.  See the IW_MODE_* definitions in
 		include/nuttx/wireless/wireless.  The default value corresponds to
 		IW_MODE_INFRA
 
+
+config NETINIT_WAPI_STAMODE_AUTO
+	bool "Auto"
+
+config NETINIT_WAPI_STAMODE_ADHOC
+	bool "Adhoc"
+
+config NETINIT_WAPI_STAMODE_INFRA
+	bool "Infra"
+
+config NETINIT_WAPI_STAMODE_MASTER
+	bool "Master"
+
+config NETINIT_WAPI_STAMODE_REPEAT
+	bool "Repeater"
+
+config NETINIT_WAPI_STAMODE_MONITOR
+	bool "Monitor"
+
+config NETINIT_WAPI_STAMODE_MESH
+	bool "Mesh"
+
+endchoice # WiFi Configuration Mode
+
 config NETINIT_WAPI_AUTHWPA
-	hex "IW_AUTH_WPA_VERSION value"
-	default 0x00000004
-	range 0x00000001 0x00000004
+	hex
+	default 0x00000001 if NETINIT_WAPI_AUTHWPA_DISABLED
+	default 0x00000002 if NETINIT_WAPI_AUTHWPA_WPA
+	default 0x00000004 if NETINIT_WAPI_AUTHWPA_WPA2
+	default 0x00000006 if NETINIT_WAPI_AUTHWPA_WPA_WPA2
+
+choice
+	prompt "Select the WPA Version"
+	default NETINIT_WAPI_AUTHWPA_WPA2
 	---help---
 		IW_AUTH_WPA_VERSION values.  See the IW_AUTH_WPA_VERSION_* definitions
 		in include/nuttx/wireless/wireless.  The default value corresponds to
 		IW_AUTH_WPA_VERSION_WPA2.  NOTE that this is a bit-encoded field.  The
 		only valid values are 0x00000001, 0x00000002, and 0x00000004
 
+config NETINIT_WAPI_AUTHWPA_DISABLED
+	bool "Disabled"
+
+config NETINIT_WAPI_AUTHWPA_WPA
+	bool "WPA Only"
+
+config NETINIT_WAPI_AUTHWPA_WPA2
+	bool "WPA2 Only"
+
+config NETINIT_WAPI_AUTHWPA_WPA_WPA2
+	bool "WPA or WPA2"
+
+endchoice # WPA Version
+
 config NETINIT_WAPI_CIPHERMODE
-	hex "IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values"
-	default 0x00000008
-	range 0x00000001 0x00000010
+	hex
+	default 0x00000001 if NETINIT_WAPI_CIPHERMODE_NONE
+	default 0x00000002 if NETINIT_WAPI_CIPHERMODE_WEP40
+	default 0x00000004 if NETINIT_WAPI_CIPHERMODE_TKIP
+	default 0x00000008 if NETINIT_WAPI_CIPHERMODE_CCMP
+	default 0x00000010 if NETINIT_WAPI_CIPHERMODE_WEP104
+	default 0x00000020 if NETINIT_WAPI_CIPHERMODE_AES_CMAC
+
+choice
+	prompt "Select the Cipher Mode"
+	default NETINIT_WAPI_CIPHERMODE_CCMP
 	---help---
 		IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values. See the
 		IW_AUTH_CIPHER_* definitions in include/nuttx/wireless/wireless.
@@ -532,13 +593,93 @@ config NETINIT_WAPI_CIPHERMODE
 		this is a bit-encoded field.  The only valid values are 0x00000001,
 		0x00000002,0x00000004, ... 0x00000010
 
+config NETINIT_WAPI_CIPHERMODE_NONE
+	bool "None"
+
+config NETINIT_WAPI_CIPHERMODE_WEP40
+	bool "WEP40"
+
+config NETINIT_WAPI_CIPHERMODE_TKIP
+	bool "TKIP"
+
+config NETINIT_WAPI_CIPHERMODE_CCMP
+	bool "CCMP"
+
+config NETINIT_WAPI_CIPHERMODE_WEP104
+	bool "WEP104"
+
+config NETINIT_WAPI_CIPHERMODE_AES_CMAC
+	bool "AES-CMAC"
+
+endchoice # WiFi Cipher
+
 config NETINIT_WAPI_ALG
-	int "Algorithm"
-	default 3
-	range 0 13
+	int
+	default 0 if NETINIT_WAPI_ALG_NONE
+	default 1 if NETINIT_WAPI_ALG_WEP
+	default 2 if NETINIT_WAPI_ALG_TKIP
+	default 3 if NETINIT_WAPI_ALG_CCMP
+	default 4 if NETINIT_WAPI_ALG_IGTK
+	default 5 if NETINIT_WAPI_ALG_PMK
+	default 6 if NETINIT_WAPI_ALG_GCMP
+	default 7 if NETINIT_WAPI_ALG_SMS4
+	default 8 if NETINIT_WAPI_ALG_KRK
+	default 9 if NETINIT_WAPI_ALG_GCMP_256
+	default 10 if NETINIT_WAPI_ALG_CCMP_256
+	default 11 if NETINIT_WAPI_ALG_GMAC_128
+	default 12 if NETINIT_WAPI_ALG_GMAC_256
+	default 13 if NETINIT_WAPI_ALG_CMAC_256
+
+choice
+	prompt "Select the Crypto Algorithm"
+	default NETINIT_WAPI_ALG_CCMP
 	---help---
 		Algorithm.  See enum wpa_alg_e in apps/include/wireless/wapi.h.  The
 		default corresponds to WPA_ALG_CCMP.
+
+config NETINIT_WAPI_ALG_NONE
+	bool "None"
+
+config NETINIT_WAPI_ALG_WEP
+	bool "WEP"
+
+config NETINIT_WAPI_ALG_TKIP
+	bool "TKIP"
+
+config NETINIT_WAPI_ALG_CCMP
+	bool "CCMP"
+
+config NETINIT_WAPI_ALG_IGTK
+	bool "IGTK"
+
+config NETINIT_WAPI_ALG_PMK
+	bool "PMK"
+
+config NETINIT_WAPI_ALG_GCMP
+	bool "GCMP"
+
+config NETINIT_WAPI_ALG_SMS4
+	bool "SMS4"
+
+config NETINIT_WAPI_ALG_KRK
+	bool "KRK"
+
+config NETINIT_WAPI_ALG_GCMP_256
+	bool "GCMP-256"
+
+config NETINIT_WAPI_ALG_CCMP_256
+	bool "CCMP-256"
+
+config NETINIT_WAPI_ALG_GMAC_128
+	bool "GMAC-128"
+
+config NETINIT_WAPI_ALG_GMAC_256
+	bool "GMAC-256"
+
+config NETINIT_WAPI_ALG_CMAC_256
+	bool "CMAC-256"
+
+endchoice # WiFi Algorithm
 
 config NETINIT_WAPI_SSID
 	string "SSID"
