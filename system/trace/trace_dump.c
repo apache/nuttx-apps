@@ -224,6 +224,8 @@ FAR static struct trace_dump_task_context_s *get_task_context(pid_t pid,
                                       FAR struct trace_dump_context_s *ctx)
 {
   FAR struct trace_dump_task_context_s *tctxp;
+  FAR struct trace_dump_task_context_s *new;
+
   tctxp = ctx->task;
   while (tctxp != NULL)
     {
@@ -232,19 +234,34 @@ FAR static struct trace_dump_task_context_s *get_task_context(pid_t pid,
           return tctxp;
         }
 
+      if (tctxp->next == NULL)
+        {
+          break;
+        }
+
       tctxp = tctxp->next;
     }
 
   /* Create new trace dump task context */
 
-  tctxp = (FAR struct trace_dump_task_context_s *)
+  new = (FAR struct trace_dump_task_context_s *)
            malloc(sizeof(struct trace_dump_task_context_s));
-  if (tctxp != NULL)
+  if (new != NULL)
     {
-      tctxp->next = NULL;
-      tctxp->pid = pid;
-      tctxp->syscall_nest = 0;
-      tctxp->name[0] = '\0';
+      if (ctx->task == NULL)
+        {
+          tctxp = new;
+          ctx->task = new;
+        }
+      else
+        {
+          tctxp->next = new;
+        }
+
+      new->next = NULL;
+      new->pid = pid;
+      new->syscall_nest = 0;
+      new->name[0] = '\0';
 
 #ifdef NOTERAM_GETTASKNAME
         {
@@ -255,13 +272,13 @@ FAR static struct trace_dump_task_context_s *get_task_context(pid_t pid,
           res = ioctl(ctx->notefd, NOTERAM_GETTASKNAME, (unsigned long)&tnm);
           if (res == 0)
             {
-              copy_task_name(tctxp->name, tnm.taskname);
+              copy_task_name(new->name, tnm.taskname);
             }
         }
 #endif
     }
 
-  return tctxp;
+  return new;
 }
 
 /****************************************************************************
