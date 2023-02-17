@@ -348,7 +348,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%3s ", status.td_cpu);
 #endif
 
-  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
+  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-15s ",
              status.td_priority, status.td_policy, status.td_type,
              status.td_flags, status.td_state, status.td_event);
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
@@ -593,7 +593,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   nsh_output(vtbl, "%3s ", "CPU");
 #endif
 
-  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
+  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-15s ",
              "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
   nsh_output(vtbl, "%-8s ", "SIGMASK");
 
