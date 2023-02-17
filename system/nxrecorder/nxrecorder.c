@@ -1034,7 +1034,8 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
 
   /* Test that the specified file exists */
 
-  if ((precorder->fd = open(pfilename, O_WRONLY | O_CREAT | O_TRUNC)) == -1)
+  if ((precorder->fd = open(pfilename, O_WRONLY | O_CREAT | O_TRUNC,
+                            0666)) == -1)
     {
       /* File not found.  Test if its in the mediadir */
 
