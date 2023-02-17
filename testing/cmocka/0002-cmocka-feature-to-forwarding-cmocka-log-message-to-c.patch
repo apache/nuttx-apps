@@ -1,0 +1,74 @@
+From b4069b535e94c74481bc78ae4363d7741def5e4a Mon Sep 17 00:00:00 2001
+From: chao an <anchao@xiaomi.com>
+Date: Mon, 16 Jan 2023 15:19:59 +0800
+Subject: [PATCH 2/2] cmocka: feature to forwarding cmocka log message to
+ custom channel
+
+Add custom log message implementation to support different backend output, such as linux (vsyslog):
+
+https://www.gnu.org/software/libc/manual/html_node/syslog_003b-vsyslog.html
+
+redefine the vprint output function to native implement:
+
+1. Enable platfrom include: -DCMOCKA_PLATFORM_INCLUDE
+2. Add cmocka platform header to forwarding the log message to custom channel
+
+cmocka_platform.h:
+
+| #ifndef CMOCKA_PLATFORM_H_
+| #define CMOCKA_PLATFORM_H_
+|
+| #include <syslog.h>
+|
+| #define cmocka_vprint_message(f,a) vsyslog(LOG_INFO,f,a)
+| #define cmocka_vprint_error(f,a) vsyslog(LOG_ERR,f,a)
+|
+| #endif /* CMOCKA_PLATFORM_H_ */
+
+Change-Id: I0959c3d1fc372de842b63d9e220561d3df62beb2
+Signed-off-by: chao an <anchao@xiaomi.com>
+---
+ src/cmocka.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/cmocka.c cmocka/src/cmocka.c
+index ff59b53..1cc9eac 100644
+--- a/src/cmocka.c
++++ cmocka/src/cmocka.c
+@@ -2427,6 +2427,7 @@ void cmocka_print_error(const char * const format, ...)
+ /* Standard output and error print methods. */
+ void vprint_message(const char* const format, va_list args)
+ {
++#ifndef cmocka_vprint_message
+     vprintf(format, args);
+     fflush(stdout);
+ #ifdef _WIN32
+@@ -2435,11 +2436,15 @@ void vprint_message(const char* const format, va_list args)
+     vsnprintf(buffer, sizeof(buffer), format, args);
+     OutputDebugString(buffer);
+ #endif /* _WIN32 */
++#else
++    cmocka_vprint_message(format, args);
++#endif
+ }
+ 
+ 
+ void vprint_error(const char* const format, va_list args)
+ {
++#ifndef cmocka_vprint_error
+     vfprintf(stderr, format, args);
+     fflush(stderr);
+ #ifdef _WIN32
+@@ -2448,6 +2453,9 @@ void vprint_error(const char* const format, va_list args)
+     vsnprintf(buffer, sizeof(buffer), format, args);
+     OutputDebugString(buffer);
+ #endif /* _WIN32 */
++#else
++    cmocka_vprint_error(format, args);
++#endif
+ }
+ 
+ 
+-- 
+2.25.1
+
