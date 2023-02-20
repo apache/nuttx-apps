@@ -2031,7 +2031,7 @@ specific watchdog hardware settings might require additional settings).
 - `CONFIG_WATCHDOG` – Enables watchdog timer support.
 - `CONFIG_NSH_BUILTIN_APPS` – Build this example an NSH built-in
   function.
-- `CONFIG_DRIVER_NOTE` and `CONFIG_SCHED_INSTRUMENTATION` – Allows the watcher
+- `CONFIG_DRIVERS_NOTE` and `CONFIG_SCHED_INSTRUMENTATION` – Allows the watcher
   to get the tasks' names.   
 - `CONFIG_FS_FAT` – Allows the creation of a FAT filesystem on the ramdisk
   to create a file with all the necessary info for the watched tasks. 
