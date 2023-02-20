@@ -138,7 +138,7 @@ static int trace_cmd_start(int index, int argc, FAR char **argv,
  * Name: trace_cmd_dump
  ****************************************************************************/
 
-#ifdef CONFIG_DRIVER_NOTERAM
+#ifdef CONFIG_DRIVERS_NOTERAM
 static int trace_cmd_dump(int index, int argc, FAR char **argv,
                           int notectlfd)
 {
@@ -335,7 +335,7 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
 
       switch (argv[index][1])
         {
-#ifdef CONFIG_DRIVER_NOTERAM
+#ifdef CONFIG_DRIVERS_NOTERAM
           case 'o':   /* Overwrite mode */
             owmode = enable;
             break;
@@ -431,7 +431,7 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
          (mode.flag & NOTE_FILTER_MODE_FLAG_ENABLE) ?
           "enabled" : "disabled");
 
-#ifdef CONFIG_DRIVER_NOTERAM
+#ifdef CONFIG_DRIVERS_NOTERAM
   printf(" Overwrite               : %s\n",
          owmode ? "on  (+o)" : "off (-o)");
 #endif
@@ -799,7 +799,7 @@ static void show_usage(void)
           " cmd     [-c] <command> [<args>...]  :"
                                 " Get the trace while running <command>\n"
 #endif
-#ifdef CONFIG_DRIVER_NOTERAM
+#ifdef CONFIG_DRIVERS_NOTERAM
           " dump    [-a][-c][<filename>]        :"
                                 " Output the trace result\n"
           "                                       [-a] <Android SysTrace>\n"
@@ -869,7 +869,7 @@ int main(int argc, FAR char *argv[])
           i++;
           notectl_enable(false, notectlfd);
         }
-#ifdef CONFIG_DRIVER_NOTERAM
+#ifdef CONFIG_DRIVERS_NOTERAM
       else if (strcmp(argv[i], "dump") == 0)
         {
           i = trace_cmd_dump(i + 1, argc, argv, notectlfd);
