@@ -29,7 +29,6 @@
 
 #include <sys/types.h>
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -53,11 +52,6 @@
 #  ifndef CONFIG_NSH_DISABLEBG
 #    define CONFIG_NSH_DISABLEBG 1
 #  endif
-#endif
-
-#ifndef CONFIG_FILE_STREAM
-#  undef CONFIG_NSH_FILE_APPS
-#  undef CONFIG_NSH_CMDPARMS
 #endif
 
 /* rmdir, mkdir, rm, and mv are only available if mountpoints are enabled
@@ -988,11 +982,9 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
   int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
-#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
-#  ifndef CONFIG_NSH_DISABLE_SOURCE
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_SOURCE)
   int cmd_source(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
-#  endif
-#endif /* CONFIG_FILE_STREAM && !CONFIG_NSH_DISABLESCRIPT */
+#endif
 
 #ifdef NSH_HAVE_DIROPTS
 #  ifndef CONFIG_NSH_DISABLE_MKDIR

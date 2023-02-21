@@ -1976,15 +1976,13 @@ int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  * Name: cmd_source
  ****************************************************************************/
 
-#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
-#ifndef CONFIG_NSH_DISABLE_SOURCE
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_SOURCE)
 int cmd_source(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
 
   return nsh_script(vtbl, argv[0], argv[1], true);
 }
-#endif
 #endif
 
 /****************************************************************************

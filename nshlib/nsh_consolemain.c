@@ -24,10 +24,7 @@
 
 #include <nuttx/config.h>
 
-#include <stdio.h>
 #include <assert.h>
-
-#include <sys/boardctl.h>
 
 #include "nsh.h"
 #include "nsh_console.h"

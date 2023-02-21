@@ -24,11 +24,14 @@
 
 #include <nuttx/config.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <debug.h>
+#include <pthread.h>
+#include <sched.h>
 #include <unistd.h>
 
 #ifdef CONFIG_NSH_CMDPARMS
@@ -1958,7 +1961,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                           SEEK_SET);
               if (ret < 0)
                 {
-                  nsh_error(vtbl, g_fmtcmdfailed, "done", "fseek",
+                  nsh_error(vtbl, g_fmtcmdfailed, "done", "lseek",
                             NSH_ERRNO);
                 }
 

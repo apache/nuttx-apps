@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,7 +71,7 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
 static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
                                 FAR uint8_t *save);
 static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl,
-                            int exitstatus) anoreturn_function;
+                            int exitstatus) noreturn_function;
 
 /****************************************************************************
  * Private Functions

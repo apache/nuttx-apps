@@ -87,10 +87,8 @@ static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
 
 static const struct cmdmap_s g_cmdmap[] =
 {
-#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
-# ifndef CONFIG_NSH_DISABLE_SOURCE
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_SOURCE)
   { ".",        cmd_source,   2, 2, "<script-path>" },
-# endif
 #endif
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
@@ -515,10 +513,8 @@ static const struct cmdmap_s g_cmdmap[] =
   { "sleep",    cmd_sleep,    2, 2, "<sec>" },
 #endif
 
-#if defined(CONFIG_FILE_STREAM) && !defined(CONFIG_NSH_DISABLESCRIPT)
-# ifndef CONFIG_NSH_DISABLE_SOURCE
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_SOURCE)
   { "source",   cmd_source,   2, 2, "<script-path>" },
-# endif
 #endif
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)

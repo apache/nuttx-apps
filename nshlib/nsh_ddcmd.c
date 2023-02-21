@@ -24,6 +24,8 @@
 
 #include <nuttx/config.h>
 
+#include <nuttx/clock.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 

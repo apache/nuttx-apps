@@ -115,7 +115,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
         {
           if (log)
             {
-              nsh_error(vtbl, g_fmtcmdfailed, cmd, "fopen", NSH_ERRNO);
+              nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
             }
 
           /* Free the allocated path */
@@ -138,7 +138,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
           /* Get the current file position.  This is used to control
            * looping.  If a loop begins in the next line, then this file
            * offset will be needed to locate the top of the loop in the
-           * script file.  Note that ftell will return -1 on failure.
+           * script file.  Note that lseek will return -1 on failure.
            */
 
           vtbl->np.np_foffs = lseek(vtbl->np.np_fd, 0, SEEK_CUR);
@@ -146,7 +146,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
 
           if (vtbl->np.np_foffs < 0 && log)
             {
-              nsh_error(vtbl, g_fmtcmdfailed, "loop", "ftell", NSH_ERRNO);
+              nsh_error(vtbl, g_fmtcmdfailed, "loop", "lseek", NSH_ERRNO);
             }
 #endif
 
