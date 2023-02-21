@@ -24,7 +24,6 @@
 
 #include <nuttx/config.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -150,8 +149,7 @@ static int nsh_wait_inputdev(FAR struct console_stdio_s *pstate,
                * to open the keyboard device.
                */
 
-              puts(msg);
-              fflush(stdout);
+              write(STDOUT_FILENO, msg, strlen(msg));
               msg = NULL;
             }
 

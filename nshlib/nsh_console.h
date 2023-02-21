@@ -29,7 +29,6 @@
 
 #include <sys/types.h>
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -61,7 +60,7 @@
  * See struct serialsave_s in nsh_console.c
  */
 
-#define SAVE_SIZE (2 * sizeof(int) + 2 * sizeof(FILE*))
+#define SAVE_SIZE (2 * sizeof(int))
 
 /* Are we using the NuttX console for I/O?  Or some other character device? */
 
