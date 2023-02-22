@@ -38,6 +38,12 @@ MBEDTLS_UNPACKPROGDIR = $(MBEDTLS_UNPACKNAME)$(DELIM)programs
 # This lets Mbed TLS better use some of the POSIX features we have
 CFLAGS += ${DEFINE_PREFIX}__unix__
 
+library/bignum.c_CFLAGS += -fno-lto
+
+ifeq ($(CONFIG_ARCH_SIM),y)
+  CFLAGS += -O0
+endif
+
 CSRCS = $(wildcard $(MBEDTLS_UNPACKLIBDIR)$(DELIM)*.c)
 
 $(MBEDTLS_ZIP):
