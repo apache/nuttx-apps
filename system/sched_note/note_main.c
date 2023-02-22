@@ -40,17 +40,10 @@
  * Pre-processor Definitions
  ************************************************************************************/
 
-#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
-#  define syslog_time(priority, fmt, ...) \
-            syslog(priority, "%08lx.%08lx: " fmt, \
-                   (unsigned long)systime_sec, (unsigned long)systime_nsec, \
-                   __VA_ARGS__)
-#else
 #  define syslog_time(priority, fmt, ...) \
             syslog(priority, "%08lx: " fmt, \
                    (unsigned long)systime, \
                    __VA_ARGS__)
-#endif
 
 /************************************************************************************
  * Private Data
@@ -109,12 +102,8 @@ static void trace_dump_unflatten(FAR void *dst,
 static void dump_notes(size_t nread)
 {
   FAR struct note_common_s *note;
-#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
   uint32_t systime_sec;
   uint32_t systime_nsec;
-#else
-  uint32_t systime;
-#endif
   pid_t pid;
   off_t offset;
 
@@ -123,14 +112,10 @@ static void dump_notes(size_t nread)
     {
       note    = (FAR struct note_common_s *)&g_note_buffer[offset];
       trace_dump_unflatten(&pid, note->nc_pid, sizeof(pid));
-#ifdef CONFIG_SCHED_INSTRUMENTATION_HIRES
       trace_dump_unflatten(&systime_nsec,
                            note->nc_systime_nsec, sizeof(systime_nsec));
       trace_dump_unflatten(&systime_sec,
                            note->nc_systime_sec, sizeof(systime_sec));
-#else
-      trace_dump_unflatten(&systime, note->nc_systime, sizeof(systime));
-#endif
 
       switch (note->nc_type)
         {
