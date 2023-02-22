@@ -27,7 +27,7 @@ LVGL_DIR_NAME = lvgl
 
 # Relax LVGL's format checking and unused variable checking to avoid errors
 
-CFLAGS += -Wno-format -Wno-unused-variable
+CFLAGS += -Wno-format -Wno-format-security -Wno-unused-variable
 
 -include ./lvgl/lvgl.mk
 
