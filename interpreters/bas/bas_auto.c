@@ -14,8 +14,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -77,7 +77,7 @@ void Auto_destroy(struct Auto *this)
       free(this->slot);
     }
 
-  for (l = this->all; l != (struct Symbol *)0;)
+  for (l = this->all; l != (struct Symbol *)0; )
     {
       struct Symbol *f;
 
@@ -203,7 +203,8 @@ int Auto_gosubReturn(struct Auto *this, struct Pc *pc)
   return 1;
 }
 
-void Auto_frameToError(struct Auto *this, struct Program *program, struct Value *v)
+void Auto_frameToError(struct Auto *this,
+                       struct Program *program, struct Value *v)
 {
   struct Pc p;
   int framePointer;
@@ -229,7 +230,8 @@ void Auto_frameToError(struct Auto *this, struct Program *program, struct Value 
     }
 }
 
-void Auto_setError(struct Auto *this, long int line, struct Pc *pc, struct Value *v)
+void Auto_setError(struct Auto *this, long int line,
+                   struct Pc *pc, struct Value *v)
 {
   this->erpc = *pc;
   this->erl = line;
@@ -238,6 +240,7 @@ void Auto_setError(struct Auto *this, long int line, struct Pc *pc, struct Value
 }
 
 /* compilation methods */
+
 int Auto_find(struct Auto *this, struct Identifier *ident)
 {
   struct Symbol *find;
@@ -293,7 +296,9 @@ int Auto_variable(struct Auto *this, const struct Identifier *ident)
   (*tail)->type = LOCALVAR;
   (*tail)->u.local.type = ident->defaultType;
 
-  /* the offset -1 of the V_VOID procedure return symbol is ok, it is not used */
+  /* the offset -1 of the V_VOID procedure return symbol is ok,
+   * it is not used
+   */
 
   (*tail)->u.local.offset =
     offset - (this->cur->u.local.type == V_VOID ? 1 : 0);
@@ -310,7 +315,8 @@ enum ValueType Auto_argType(const struct Auto *this, int l)
       ++l;
     }
 
-  for (offset = 0, find = this->cur; l != offset; find = find->next, ++offset)
+  for (offset = 0, find = this->cur; l != offset;
+       find = find->next, ++offset)
     {
       assert(find != (struct Symbol *)0);
     }
@@ -338,7 +344,7 @@ void Auto_funcEnd(struct Auto *this)
 {
   struct Symbol **tail;
 
-  for (tail = &this->all; *tail != (struct Symbol *)0; tail = &(*tail)->next);
+  for (tail = &this->all; *tail != NULL; tail = &(*tail)->next);
   *tail = this->cur;
   this->cur = (struct Symbol *)0;
 }
