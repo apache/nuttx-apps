@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <sys/boardctl.h>
+#include <sys/param.h>
 #include <unistd.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -113,8 +114,7 @@ static const struct func_key_pair_s func_key_pair[] =
 static void show_usage(void)
 {
   int i;
-  const int len = sizeof(func_key_pair)
-                  / sizeof(struct func_key_pair_s) - 1;
+  const int len = nitems(func_key_pair) - 1;
 
   if (len == 0)
     {
@@ -141,8 +141,7 @@ static void show_usage(void)
 static demo_create_func_t find_demo_create_func(FAR const char *name)
 {
   int i;
-  const int len = sizeof(func_key_pair)
-                  / sizeof(struct func_key_pair_s) - 1;
+  const int len = nitems(func_key_pair) - 1;
 
   for (i = 0; i < len; i++)
     {
@@ -177,8 +176,7 @@ int main(int argc, FAR char *argv[])
 {
   demo_create_func_t demo_create_func;
   FAR const char *demo = NULL;
-  const int func_key_pair_len = sizeof(func_key_pair) /
-                                sizeof(func_key_pair[0]);
+  const int func_key_pair_len = nitems(func_key_pair);
 
 #ifdef CONFIG_LIBUV
   uv_loop_t ui_loop;
