@@ -43,6 +43,7 @@
 #define nsh_clone(v)           (v)->clone(v)
 #define nsh_release(v)         (v)->release(v)
 #define nsh_write(v,b,n)       (v)->write(v,b,n)
+#define nsh_ioctl(v,c,a)       (v)->ioctl(v,c,a)
 #define nsh_linebuffer(v)      (v)->linebuffer(v)
 #define nsh_redirect(v,f,s)    (v)->redirect(v,f,s)
 #define nsh_undirect(v,s)      (v)->undirect(v,s)
@@ -103,6 +104,7 @@ struct nsh_vtbl_s
   void (*release)(FAR struct nsh_vtbl_s *vtbl);
   ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer,
                    size_t nbytes);
+  int (*ioctl)(FAR struct nsh_vtbl_s *vtbl, int cmd, unsigned long arg);
   int (*error)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...)
       printf_like(2, 3);
   int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...)
