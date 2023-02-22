@@ -57,18 +57,20 @@ static FAR struct nsh_vtbl_s *nsh_consoleclone(FAR struct nsh_vtbl_s *vtbl);
 #endif
 static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl);
 static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
-  FAR const void *buffer, size_t nbytes);
+                                FAR const void *buffer, size_t nbytes);
+static int nsh_consoleioctl(FAR struct nsh_vtbl_s *vtbl,
+                            int cmd, unsigned long arg);
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
-  FAR const char *fmt, ...) printf_like(2, 3);
+                             FAR const char *fmt, ...) printf_like(2, 3);
 static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
-  FAR const char *fmt, ...) printf_like(2, 3);
+                           FAR const char *fmt, ...) printf_like(2, 3);
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
 static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
-  FAR uint8_t *save);
+                                FAR uint8_t *save);
 static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
-  FAR uint8_t *save);
-static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
-  noreturn_function;
+                                FAR uint8_t *save);
+static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl,
+                            int exitstatus) anoreturn_function;
 
 /****************************************************************************
  * Private Functions
@@ -125,6 +127,22 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
     }
 
   return ret;
+}
+
+/****************************************************************************
+ * Name: nsh_consolewrite
+ *
+ * Description:
+ *   Issue ioctl to the currently selected stream.
+ *
+ ****************************************************************************/
+
+static int nsh_consoleioctl(FAR struct nsh_vtbl_s *vtbl,
+                            int cmd, unsigned long arg)
+{
+  FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
+
+  return ioctl(OUTFD(pstate), cmd, arg);
 }
 
 /****************************************************************************
@@ -347,6 +365,7 @@ FAR struct console_stdio_s *nsh_newconsole(bool isctty)
 #endif
       pstate->cn_vtbl.release     = nsh_consolerelease;
       pstate->cn_vtbl.write       = nsh_consolewrite;
+      pstate->cn_vtbl.ioctl       = nsh_consoleioctl;
       pstate->cn_vtbl.output      = nsh_consoleoutput;
       pstate->cn_vtbl.error       = nsh_erroroutput;
       pstate->cn_vtbl.linebuffer  = nsh_consolelinebuffer;
