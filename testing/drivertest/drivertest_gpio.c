@@ -45,8 +45,8 @@
 
 struct pre_build_s
 {
-  char *gpio_a;
-  char *gpio_b;
+  FAR char *gpio_a;
+  FAR char *gpio_b;
 };
 
 /****************************************************************************
@@ -121,7 +121,7 @@ static int setup(FAR void **state)
 {
   FAR struct pre_build_s *pre_build;
   time_t t;
-  pre_build = (struct pre_build_s *)*state;
+  pre_build = (FAR struct pre_build_s *)*state;
 
   /* Seed the random number generated */
 
@@ -144,7 +144,7 @@ static void gpiotest01(FAR void **state)
   int ret;
   int i;
 
-  pre_build = (struct pre_build_s *)*state;
+  pre_build = (FAR struct pre_build_s *)*state;
 
   fd_a = open(pre_build->gpio_a, O_RDWR);
   assert_false(fd_a < 0);
