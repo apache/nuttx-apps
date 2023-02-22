@@ -45,34 +45,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Some environments may return CR as end-of-line, others LF, and others
- * both.  If not specified, the logic here assumes either (but not both) as
- * the default.
- */
-
-#if defined(CONFIG_EOL_IS_CR)
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#  undef  CONFIG_EOL_IS_EITHER_CRLF
-#elif defined(CONFIG_EOL_IS_LF)
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#  undef  CONFIG_EOL_IS_EITHER_CRLF
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_EITHER_CRLF
-#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#else
-#  undef  CONFIG_EOL_IS_CR
-#  undef  CONFIG_EOL_IS_LF
-#  undef  CONFIG_EOL_IS_BOTH_CRLF
-#  define CONFIG_EOL_IS_EITHER_CRLF 1
-#endif
-
 /* Control characters */
 
 #undef  CTRL
@@ -1077,14 +1049,7 @@ static int cle_editloop(FAR struct cle_s *priv)
 
         /* Newline terminates editing.  But what is a newline? */
 
-#if defined(CONFIG_EOL_IS_EITHER_CRLF)
-        case '\r': /* CR terminates line */
         case '\n': /* LF terminates line */
-#elif defined(CONFIG_EOL_IS_CR)
-        case '\r': /* CR terminates line */
-#elif defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
-        case '\n': /* LF terminates line */
-#endif
           {
             /* Add the newline to the buffer at the end of the line */
 
@@ -1094,11 +1059,6 @@ static int cle_editloop(FAR struct cle_s *priv)
             return OK;
           }
           break;
-
-#if defined(CONFIG_EOL_IS_BOTH_CRLF)
-        case '\r': /* Wait for the LF */
-          break;
-#endif
 
         /* Text to insert or unimplemented/invalid keypresses */
 

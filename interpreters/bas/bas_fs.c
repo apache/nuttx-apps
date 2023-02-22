@@ -294,64 +294,43 @@ static int edit(int chn, int nl)
         }
       else if ((f->inCapacity + 1) < sizeof(f->inBuf))
         {
-#ifdef CONFIG_EOL_IS_BOTH_CRLF
-          /* Ignore carriage returns that may accompany a CRLF sequence. */
+          /* Is this a new line character */
 
-          if (ch != '\r')
-#endif
+          if (ch != '\n')
             {
-              /* Is this a new line character */
+              /* No.. escape control characters other than newline and
+               * carriage return
+               */
 
-#ifdef CONFIG_EOL_IS_CR
-              if (ch != '\r')
-#elif defined(CONFIG_EOL_IS_LF)
-              if (ch != '\n')
-#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
-              if (ch != '\n' && ch != '\r')
-#endif
+              if (ch >= '\0' && ch < ' ')
                 {
-                  /* No.. escape control characters other than newline and
-                   * carriage return
-                   */
-
-                  if (ch >= '\0' && ch < ' ')
-                    {
-                      FS_putChar(chn, '^');
-                      FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
-                    }
-
-                  /* Output normal, printable characters */
-
-                  else
-                    {
-                      FS_putChar(chn, ch);
-                    }
+                  FS_putChar(chn, '^');
+                  FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
                 }
 
-              /* It is a newline */
+              /* Output normal, printable characters */
 
               else
                 {
-                  /* Echo the newline (or not).  We always use newline
-                   * termination when talking to the host.
-                   */
-
-                  if (nl)
-                    {
-                      FS_putChar(chn, '\n');
-                    }
-
-#if defined(CONFIG_EOL_IS_CR) || defined(CONFIG_EOL_IS_EITHER_CRLF)
-                  /* If the host is talking to us with CR line terminations,
-                   * switch to use LF internally.
-                   */
-
-                  ch = '\n';
-#endif
+                  FS_putChar(chn, ch);
                 }
-
-              f->inBuf[f->inCapacity++] = ch;
             }
+
+          /* It is a newline */
+
+          else
+            {
+              /* Echo the newline (or not).  We always use newline
+               * termination when talking to the host.
+               */
+
+              if (nl)
+                {
+                  FS_putChar(chn, '\n');
+                }
+            }
+
+          f->inBuf[f->inCapacity++] = ch;
         }
     }
   while (ch != '\n');
