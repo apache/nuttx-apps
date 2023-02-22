@@ -170,7 +170,7 @@ static int setup(FAR void **state)
   FAR struct pre_build    *pre_build;
   time_t t;
 
-  pre_build = (struct pre_build *)*state;
+  pre_build = (FAR struct pre_build *)*state;
 
   /* Allocate memory space and initialize */
 
@@ -202,7 +202,7 @@ static void blktest_stress(FAR void **state)
   char *output;
   uint32_t output_crc;
 
-  test_state = (struct test_state_s *)*state;
+  test_state = (FAR struct test_state_s *)*state;
 
   /* Create some random context */
 
@@ -250,7 +250,7 @@ static int teardown(FAR void **state)
 {
   FAR struct test_state_s *test_state;
 
-  test_state = (struct test_state_s *)*state;
+  test_state = (FAR struct test_state_s *)*state;
 
   close(test_state->fd);
   free(test_state);
