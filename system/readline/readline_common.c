@@ -667,13 +667,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
        * others both.
        */
 
-#if  defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
       else if (ch == '\n')
-#elif defined(CONFIG_EOL_IS_CR)
-      else if (ch == '\r')
-#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
-      else if (ch == '\n' || ch == '\r')
-#endif
         {
 #ifdef CONFIG_READLINE_CMD_HISTORY
           /* Save history of command, only if there was something
