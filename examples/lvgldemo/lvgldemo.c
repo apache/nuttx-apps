@@ -36,6 +36,11 @@
 #include <port/lv_port.h>
 #include <lvgl/demos/lv_demos.h>
 
+#ifdef CONFIG_LIBUV
+#  include <uv.h>
+#  include <port/lv_port_libuv.h>
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -175,6 +180,10 @@ int main(int argc, FAR char *argv[])
   const int func_key_pair_len = sizeof(func_key_pair) /
                                 sizeof(func_key_pair[0]);
 
+#ifdef CONFIG_LIBUV
+  uv_loop_t ui_loop;
+#endif
+
   /* If no arguments are specified and only 1 demo exists, select the demo */
 
   if (argc == 1 && func_key_pair_len == 2)  /* 2 because of NULL sentinel */
@@ -225,6 +234,11 @@ int main(int argc, FAR char *argv[])
 
   /* Handle LVGL tasks */
 
+#ifdef CONFIG_LIBUV
+  uv_loop_init(&ui_loop);
+  lv_port_libuv_init(&ui_loop);
+  uv_run(&ui_loop, UV_RUN_DEFAULT);
+#else
   while (1)
     {
       uint32_t idle;
@@ -235,6 +249,7 @@ int main(int argc, FAR char *argv[])
       idle = idle ? idle : 1;
       usleep(idle * 1000);
     }
+#endif
 
   return EXIT_SUCCESS;
 }
