@@ -168,10 +168,10 @@ void udp_server(void)
              ntohs(client.sin6_port));
 #else
       tmpaddr = ntohl(client.sin_addr.s_addr);
-      printf("server: %d. Received %d bytes from %d.%d.%d.%d:%d\n",
+      printf("server: %d. Received %d bytes from %u.%u.%u.%u:%d\n",
              offset, nbytes,
-             tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-             (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+             (uint8_t)(tmpaddr >> 24), (uint8_t)((tmpaddr >> 16) & 0xff),
+             (uint8_t)((tmpaddr >> 8) & 0xff), (uint8_t)(tmpaddr & 0xff),
              ntohs(client.sin_port));
 #endif
       if (nbytes < 0)
