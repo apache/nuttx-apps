@@ -94,19 +94,22 @@ LVGL_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LVGL_VERSION)))
 LVGL_TARBALL = v$(LVGL_VERSION).zip
 
 LVGL_UNPACKNAME = lvgl
-UNPACK ?= unzip -o
+UNPACK ?= unzip -o $(if $(V),,-q)
+CURL ?= curl -L -O $(if $(V),,-Ss)
 
 LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
 
 $(LVGL_TARBALL):
-	$(Q) echo "Downloading: $(LVGL_TARBALL)"
-	$(Q) curl -O -L $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
+	$(ECHO_BEGIN)"Downloading: $(LVGL_TARBALL)"
+	$(Q) $(CURL) $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
+	$(ECHO_END)
 
 $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
-	$(Q) echo "Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
+	$(ECHO_BEGIN)"Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
 	$(Q) $(UNPACK) $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
