@@ -14,8 +14,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -188,7 +188,8 @@ static struct Value *hex(struct Value *v, long int value, long int digits)
 static struct Value *find(struct Value *v, struct String *pattern,
                           long int occurrence)
 {
-  struct String dirname, basename;
+  struct String dirname;
+  struct String basename;
   char *slash;
   DIR *dir;
   struct dirent *ent;
@@ -322,8 +323,8 @@ static struct Value *string(struct Value *v, long int len, int c)
   return v;
 }
 
-static struct Value *mid(struct Value *v, struct String *s, long int position,
-                         long int length)
+static struct Value *mid(struct Value *v, struct String *s,
+                         long int position, long int length)
 {
   --position;
   if (position < 0)
@@ -520,7 +521,8 @@ static struct Value *fn_binid(struct Value *v, struct Auto *stack)
 static struct Value *fn_bindd(struct Value *v, struct Auto *stack)
 {
   int overflow;
-  long int n, digits;
+  long int n;
+  long int digits;
 
   n = Value_toi(realValue(stack, 0), &overflow);
   if (overflow)
@@ -691,7 +693,8 @@ static struct Value *fn_date(struct Value *v, struct Auto *stack)
 
 static struct Value *fn_dec(struct Value *v, struct Auto *stack)
 {
-  struct Value value, *arg;
+  struct Value value;
+  struct Value *arg;
   size_t using;
 
   Value_new_STRING(v);
@@ -718,7 +721,10 @@ static struct Value *fn_det(struct Value *v, struct Auto *stack)
 static struct Value *fn_edit(struct Value *v, struct Auto *stack)
 {
   int code;
-  char *begin, *end, *rd, *wr;
+  char *begin;
+  char *end;
+  char *rd;
+  char *wr;
   char quote;
 
   code = intValue(stack, 1);
@@ -755,11 +761,12 @@ static struct Value *fn_edit(struct Value *v, struct Auto *stack)
         }
 
       /* 4 - Discard all carriage returns, line feeds, form feeds, deletes,
-       * escapes, and nulls */
+       * escapes, and nulls
+       */
 
       if ((code & 4) &&
-          (*rd == '\r' || *rd == '\n' || *rd == '\f' || *rd == 127 || *rd == 27
-           || *rd == '\0'))
+          (*rd == '\r' || *rd == '\n' || *rd == '\f' || *rd == 127 ||
+           *rd == 27 || *rd == '\0'))
         {
           ++rd;
           continue;
@@ -996,6 +1003,7 @@ static struct Value *fn_hexdi(struct Value *v, struct Auto *stack)
     {
       return Value_new_ERROR(v, OUTOFRANGE, _("number"));
     }
+
   return hex(v, n, intValue(stack, 1));
 }
 
@@ -1201,8 +1209,8 @@ static struct Value *fn_instr3ssd(struct Value *v, struct Auto *stack)
 
 static struct Value *fn_instr4ii(struct Value *v, struct Auto *stack)
 {
-  return instr(v, intValue(stack, 2), intValue(stack, 3), stringValue(stack, 0),
-               stringValue(stack, 1));
+  return instr(v, intValue(stack, 2), intValue(stack, 3),
+               stringValue(stack, 0), stringValue(stack, 1));
 }
 
 static struct Value *fn_instr4id(struct Value *v, struct Auto *stack)
@@ -1502,7 +1510,8 @@ static struct Value *fn_mid2d(struct Value *v, struct Auto *stack)
 
 static struct Value *fn_mid3ii(struct Value *v, struct Auto *stack)
 {
-  return mid(v, stringValue(stack, 0), intValue(stack, 1), intValue(stack, 2));
+  return mid(v, stringValue(stack, 0),
+             intValue(stack, 1), intValue(stack, 2));
 }
 
 static struct Value *fn_mid3id(struct Value *v, struct Auto *stack)
@@ -1931,6 +1940,7 @@ static struct Value *fn_tl(struct Value *v, struct Auto *stack)
           memcpy(v->u.string.character, s->character + 1, tail);
         }
     }
+
   return v;
 }
 
@@ -1966,7 +1976,7 @@ static struct Value *fn_val(struct Value *v, struct Auto *stack)
     }
   else
     {
-      return Value_new_REAL(v, Value_vald(s->character, (char **)0, &overflow));
+      return Value_new_REAL(v, Value_vald(s->character, NULL, &overflow));
     }
 }
 
@@ -1983,10 +1993,11 @@ static unsigned int hash(const char *s)
   return h % GLOBAL_HASHSIZE;
 }
 
-static void builtin(struct Global *this, const char *ident, enum ValueType type,
+static void builtin(struct Global *this,
+                    const char *ident, enum ValueType type,
                     struct Value *(*func) (struct Value * value,
-                                           struct Auto * stack), int argLength,
-                    ...)
+                                           struct Auto * stack),
+                    int argLength, ...)
 {
   struct Symbol **r;
   struct Symbol *s, **sptr;
@@ -2040,7 +2051,8 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "atn", V_REAL, fn_atn, 1, (int)V_REAL);
   builtin(this, "bin$", V_STRING, fn_bini, 1, (int)V_INTEGER);
   builtin(this, "bin$", V_STRING, fn_bind, 1, (int)V_REAL);
-  builtin(this, "bin$", V_STRING, fn_binii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "bin$", V_STRING, fn_binii, 2,
+          (int)V_INTEGER, (int)V_INTEGER);
   builtin(this, "bin$", V_STRING, fn_bindi, 2, (int)V_REAL, (int)V_INTEGER);
   builtin(this, "bin$", V_STRING, fn_binid, 2, (int)V_INTEGER, (int)V_REAL);
   builtin(this, "bin$", V_STRING, fn_bindd, 2, (int)V_REAL, (int)V_REAL);
@@ -2060,7 +2072,8 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "dec$", V_STRING, fn_dec, 2, (int)V_STRING, (int)V_STRING);
   builtin(this, "deg", V_REAL, fn_deg, 1, (int)V_REAL);
   builtin(this, "det", V_REAL, fn_det, 0);
-  builtin(this, "edit$", V_STRING, fn_edit, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "edit$", V_STRING, fn_edit, 2,
+          (int)V_STRING, (int)V_INTEGER);
   builtin(this, "environ$", V_STRING, fn_environi, 1, (int)V_INTEGER);
   builtin(this, "environ$", V_STRING, fn_environd, 1, (int)V_REAL);
   builtin(this, "environ$", V_STRING, fn_environs, 1, (int)V_STRING);
@@ -2070,7 +2083,8 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "exp", V_REAL, fn_exp, 1, (int)V_REAL);
   builtin(this, "false", V_INTEGER, fn_false, 0);
   builtin(this, "find$", V_STRING, fn_find, 1, (int)V_STRING);
-  builtin(this, "find$", V_STRING, fn_findi, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "find$", V_STRING, fn_findi, 2,
+          (int)V_STRING, (int)V_INTEGER);
   builtin(this, "find$", V_STRING, fn_findd, 2, (int)V_STRING, (int)V_REAL);
   builtin(this, "fix", V_REAL, fn_fix, 1, (int)V_REAL);
   builtin(this, "frac", V_REAL, fn_frac, 1, (int)V_REAL);
@@ -2078,43 +2092,51 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "fp", V_REAL, fn_frac, 1, (int)V_REAL);
   builtin(this, "hex$", V_STRING, fn_hexi, 1, (int)V_INTEGER);
   builtin(this, "hex$", V_STRING, fn_hexd, 1, (int)V_REAL);
-  builtin(this, "hex$", V_STRING, fn_hexii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "hex$", V_STRING, fn_hexii, 2,
+          (int)V_INTEGER, (int)V_INTEGER);
   builtin(this, "hex$", V_STRING, fn_hexdi, 2, (int)V_REAL, (int)V_INTEGER);
   builtin(this, "hex$", V_STRING, fn_hexid, 2, (int)V_INTEGER, (int)V_REAL);
   builtin(this, "hex$", V_STRING, fn_hexdd, 2, (int)V_REAL, (int)V_REAL);
   builtin(this, "inkey$", V_STRING, fn_inkey, 0);
   builtin(this, "inkey$", V_STRING, fn_inkeyi, 1, (int)V_INTEGER);
   builtin(this, "inkey$", V_STRING, fn_inkeyd, 1, (int)V_REAL);
-  builtin(this, "inkey$", V_STRING, fn_inkeyii, 2, (int)V_INTEGER, (int)V_INTEGER);
-  builtin(this, "inkey$", V_STRING, fn_inkeyid, 2, (int)V_INTEGER, (int)V_REAL);
-  builtin(this, "inkey$", V_STRING, fn_inkeydi, 2, (int)V_REAL, (int)V_INTEGER);
-  builtin(this, "inkey$", V_STRING, fn_inkeydd, 2, (int)V_REAL, (int)V_REAL);
+  builtin(this, "inkey$", V_STRING, fn_inkeyii, 2,
+          (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "inkey$", V_STRING, fn_inkeyid, 2,
+          (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "inkey$", V_STRING, fn_inkeydi, 2,
+          (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "inkey$", V_STRING, fn_inkeydd, 2,
+          (int)V_REAL, (int)V_REAL);
   builtin(this, "inp", V_INTEGER, fn_inp, 1, (int)V_INTEGER);
   builtin(this, "input$", V_STRING, fn_input1, 1, (int)V_INTEGER);
-  builtin(this, "input$", V_STRING, fn_input2, 2, (int)V_INTEGER, (int)V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr2, 2, (int)V_STRING, (int)V_STRING);
-  builtin(this, "instr", V_INTEGER, fn_instr3iss, 3, (int)V_INTEGER, (int)V_STRING,
-          V_STRING);
-  builtin(this, "instr", V_INTEGER, fn_instr3ssi, 3, (int)V_STRING, (int)V_STRING,
-          V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr3dss, 3, (int)V_REAL, (int)V_STRING,
-          V_STRING);
-  builtin(this, "instr", V_INTEGER, fn_instr3ssd, 3, (int)V_STRING, (int)V_STRING,
-          V_REAL);
-  builtin(this, "instr", V_INTEGER, fn_instr4ii, 4, (int)V_STRING, (int)V_STRING,
+  builtin(this, "input$", V_STRING, fn_input2, 2,
           (int)V_INTEGER, (int)V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr4id, 4, (int)V_STRING, (int)V_STRING,
-          (int)V_INTEGER, (int)V_REAL);
-  builtin(this, "instr", V_INTEGER, fn_instr4di, 4, (int)V_STRING, (int)V_STRING,
-          (int)V_REAL, (int)V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr4dd, 4, (int)V_STRING, (int)V_STRING,
-          (int)V_REAL, (int)V_REAL);
+  builtin(this, "instr", V_INTEGER, fn_instr2, 2,
+          (int)V_STRING, (int)V_STRING);
+  builtin(this, "instr", V_INTEGER, fn_instr3iss, 3,
+          (int)V_INTEGER, (int)V_STRING, (int)V_STRING);
+  builtin(this, "instr", V_INTEGER, fn_instr3ssi, 3,
+          (int)V_STRING, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "instr", V_INTEGER, fn_instr3dss, 3,
+          (int)V_REAL, (int)V_STRING, (int)V_STRING);
+  builtin(this, "instr", V_INTEGER, fn_instr3ssd, 3,
+          (int)V_STRING, (int)V_STRING, (int)V_REAL);
+  builtin(this, "instr", V_INTEGER, fn_instr4ii, 4,
+          (int)V_STRING, (int)V_STRING, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "instr", V_INTEGER, fn_instr4id, 4,
+          (int)V_STRING, (int)V_STRING, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "instr", V_INTEGER, fn_instr4di, 4,
+          (int)V_STRING, (int)V_STRING, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "instr", V_INTEGER, fn_instr4dd, 4,
+          (int)V_STRING, (int)V_STRING, (int)V_REAL, (int)V_REAL);
   builtin(this, "int", V_REAL, fn_int, 1, (int)V_REAL);
   builtin(this, "int%", V_INTEGER, fn_intp, 1, (int)V_REAL);
   builtin(this, "ip", V_REAL, fn_fix, 1, (int)V_REAL);
   builtin(this, "lcase$", V_STRING, fn_lcase, 1, (int)V_STRING);
   builtin(this, "lower$", V_STRING, fn_lcase, 1, (int)V_STRING);
-  builtin(this, "left$", V_STRING, fn_left, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "left$", V_STRING, fn_left, 2,
+          (int)V_STRING, (int)V_INTEGER);
   builtin(this, "len", V_INTEGER, fn_len, 1, (int)V_STRING);
   builtin(this, "loc", V_INTEGER, fn_loc, 1, (int)V_INTEGER);
   builtin(this, "lof", V_INTEGER, fn_lof, 1, (int)V_INTEGER);
@@ -2122,20 +2144,26 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "log10", V_REAL, fn_log10, 1, (int)V_REAL);
   builtin(this, "log2", V_REAL, fn_log2, 1, (int)V_REAL);
   builtin(this, "ltrim$", V_STRING, fn_ltrim, 1, (int)V_STRING);
-  builtin(this, "match", V_INTEGER, fn_match, 3, (int)V_STRING, (int)V_STRING,
-          (int)V_INTEGER);
-  builtin(this, "max", V_INTEGER, fn_maxii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "match", V_INTEGER, fn_match, 3,
+          (int)V_STRING, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "max", V_INTEGER, fn_maxii, 2,
+          (int)V_INTEGER, (int)V_INTEGER);
   builtin(this, "max", V_REAL, fn_maxdi, 2, (int)V_REAL, (int)V_INTEGER);
   builtin(this, "max", V_REAL, fn_maxid, 2, (int)V_INTEGER, (int)V_REAL);
   builtin(this, "max", V_REAL, fn_maxdd, 2, (int)V_REAL, (int)V_REAL);
-  builtin(this, "mid$", V_STRING, fn_mid2i, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid2i, 2,
+          (int)V_STRING, (int)V_INTEGER);
   builtin(this, "mid$", V_STRING, fn_mid2d, 2, (int)V_STRING, (int)V_REAL);
-  builtin(this, "mid$", V_STRING, fn_mid3ii, 3, (int)V_STRING, (int)V_INTEGER,
-          V_INTEGER);
-  builtin(this, "mid$", V_STRING, fn_mid3id, 3, (int)V_STRING, (int)V_INTEGER, (int)V_REAL);
-  builtin(this, "mid$", V_STRING, fn_mid3di, 3, (int)V_STRING, (int)V_REAL, (int)V_INTEGER);
-  builtin(this, "mid$", V_STRING, fn_mid3dd, 3, (int)V_STRING, (int)V_REAL, (int)V_REAL);
-  builtin(this, "min", V_INTEGER, fn_minii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid3ii, 3,
+          (int)V_STRING, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid3id, 3,
+          (int)V_STRING, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "mid$", V_STRING, fn_mid3di, 3,
+          (int)V_STRING, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid3dd, 3,
+          (int)V_STRING, (int)V_REAL, (int)V_REAL);
+  builtin(this, "min", V_INTEGER, fn_minii, 2,
+          (int)V_INTEGER, (int)V_INTEGER);
   builtin(this, "min", V_REAL, fn_mindi, 2, (int)V_REAL, (int)V_INTEGER);
   builtin(this, "min", V_REAL, fn_minid, 2, (int)V_INTEGER, (int)V_REAL);
   builtin(this, "min", V_REAL, fn_mindd, 2, (int)V_REAL, (int)V_REAL);
@@ -2147,20 +2175,21 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "pi", V_REAL, fn_pi, 0);
   builtin(this, "pos", V_INTEGER, fn_pos, 1, (int)V_INTEGER);
   builtin(this, "pos", V_INTEGER, fn_pos, 1, (int)V_REAL);
-  builtin(this, "pos", V_INTEGER, fn_instr3ssi, 3, (int)V_STRING, (int)V_STRING,
-          (int)V_INTEGER);
-  builtin(this, "pos", V_INTEGER, fn_instr3ssd, 3, (int)V_STRING, (int)V_STRING,
-          (int)V_REAL);
+  builtin(this, "pos", V_INTEGER, fn_instr3ssi, 3,
+          (int)V_STRING, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "pos", V_INTEGER, fn_instr3ssd, 3,
+          (int)V_STRING, (int)V_STRING, (int)V_REAL);
   builtin(this, "rad", V_REAL, fn_rad, 1, (int)V_REAL);
-  builtin(this, "right$", V_STRING, fn_right, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "right$", V_STRING, fn_right, 2,
+          (int)V_STRING, (int)V_INTEGER);
   builtin(this, "rnd", V_INTEGER, fn_rnd, 0);
   builtin(this, "rnd", V_INTEGER, fn_rndd, 1, (int)V_REAL);
   builtin(this, "rnd", V_INTEGER, fn_rndi, 1, (int)V_INTEGER);
   builtin(this, "rtrim$", V_STRING, fn_rtrim, 1, (int)V_STRING);
-  builtin(this, "seg$", V_STRING, fn_mid3ii, 3, (int)V_STRING, (int)V_INTEGER,
-          (int)V_INTEGER);
-  builtin(this, "seg$", V_STRING, fn_mid3id, 3, (int)V_STRING, (int)V_INTEGER,
-          (int)V_REAL);
+  builtin(this, "seg$", V_STRING, fn_mid3ii, 3,
+          (int)V_STRING, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "seg$", V_STRING, fn_mid3id, 3,
+          (int)V_STRING, (int)V_INTEGER, (int)V_REAL);
   builtin(this, "seg$", V_STRING, fn_mid3di, 3, (int)V_STRING, (int)V_REAL,
           (int)V_INTEGER);
   builtin(this, "seg$", V_STRING, fn_mid3dd, 3, (int)V_STRING, (int)V_REAL,
@@ -2171,12 +2200,18 @@ struct Global *Global_new(struct Global *this)
   builtin(this, "sqr", V_REAL, fn_sqr, 1, (int)V_REAL);
   builtin(this, "str$", V_STRING, fn_str, 1, (int)V_REAL);
   builtin(this, "str$", V_STRING, fn_str, 1, (int)V_INTEGER);
-  builtin(this, "string$", V_STRING, fn_stringii, 2, (int)V_INTEGER, (int)V_INTEGER);
-  builtin(this, "string$", V_STRING, fn_stringid, 2, (int)V_INTEGER, (int)V_REAL);
-  builtin(this, "string$", V_STRING, fn_stringdi, 2, (int)V_REAL, (int)V_INTEGER);
-  builtin(this, "string$", V_STRING, fn_stringdd, 2, (int)V_REAL, (int)V_REAL);
-  builtin(this, "string$", V_STRING, fn_stringis, 2, (int)V_INTEGER, (int)V_STRING);
-  builtin(this, "string$", V_STRING, fn_stringds, 2, (int)V_REAL, (int)V_STRING);
+  builtin(this, "string$", V_STRING, fn_stringii, 2,
+          (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "string$", V_STRING, fn_stringid, 2,
+          (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "string$", V_STRING, fn_stringdi, 2,
+          (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "string$", V_STRING, fn_stringdd, 2,
+          (int)V_REAL, (int)V_REAL);
+  builtin(this, "string$", V_STRING, fn_stringis, 2,
+          (int)V_INTEGER, (int)V_STRING);
+  builtin(this, "string$", V_STRING, fn_stringds, 2,
+          (int)V_REAL, (int)V_STRING);
   builtin(this, "strip$", V_STRING, fn_strip, 1, (int)V_STRING);
   builtin(this, "tan", V_REAL, fn_tan, 1, (int)V_REAL);
   builtin(this, "time", V_INTEGER, fn_timei, 0);
