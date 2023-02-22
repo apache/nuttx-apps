@@ -185,6 +185,24 @@ config NSH_DISABLEBG
 		where a minimal footprint is a necessity and background command
 		execution is not.
 
+config NSH_ALIAS
+	bool "Enable alias support"
+	default !DEFAULT_SMALL
+	---help---
+		Enable alias support for nsh. This enables command substitution from
+		a table of alias strings for individual commands. The maximum amount
+		of alias strings is configurable with NSH_ALIAS_MAX_AMOUNT.
+
+if NSH_ALIAS
+
+config NSH_ALIAS_MAX_AMOUNT
+	int "Maximum amount of aliases"
+	default 1
+	---help---
+		Set the maximum amount of alias entries.
+
+endif # NSH_ALIAS
+
 endmenu # Command Line Configuration
 
 config NSH_BUILTIN_APPS

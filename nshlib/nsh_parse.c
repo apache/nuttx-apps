@@ -54,7 +54,8 @@
  */
 
 #undef HAVE_MEMLIST
-#if defined(CONFIG_NSH_CMDPARMS) || defined(CONFIG_NSH_ARGCAT)
+#if defined(CONFIG_NSH_CMDPARMS) || defined(CONFIG_NSH_ALIAS) || \
+    defined(CONFIG_NSH_ARGCAT)
 #  define HAVE_MEMLIST 1
 #endif
 
@@ -89,6 +90,19 @@
 #  define NEED_NULLSTRING       1
 #endif
 
+/* Mark already expanded aliases into a list, to prevent recursion */
+
+#ifdef CONFIG_NSH_ALIAS
+#  define NSH_ALIASLIST_TYPE       struct nsh_alist_s
+#  define NSH_ALIASLIST_INIT(l)    memset(&(l), 0, sizeof(struct nsh_alist_s))
+#  define NSH_ALIASLIST_ADD(l, a)  nsh_alist_add((l), (a))
+#  define NSH_ALIASLIST_FREE(v, l) nsh_alist_free((v), (l))
+#else
+#  define NSH_ALIASLIST_TYPE       uint8_t
+#  define NSH_ALIASLIST_INIT(l)    do { (l) = 0; } while (0)
+#  define NSH_ALIASLIST_FREE(v, l)
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -115,6 +129,14 @@ struct nsh_memlist_s
 };
 #endif
 
+#ifdef CONFIG_NSH_ALIAS
+struct nsh_alist_s
+{
+  int nallocs;
+  FAR struct nsh_alias_s *allocs[CONFIG_NSH_ALIAS_MAX_AMOUNT];
+};
+#endif
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -123,6 +145,13 @@ struct nsh_memlist_s
 static void nsh_memlist_add(FAR struct nsh_memlist_s *memlist,
               FAR char *allocation);
 static void nsh_memlist_free(FAR struct nsh_memlist_s *memlist);
+#endif
+
+#ifdef CONFIG_NSH_ALIAS
+static void nsh_alist_add(FAR struct nsh_alist_s *alist,
+                          FAR struct nsh_alias_s *alias);
+static void nsh_alist_free(FAR struct nsh_vtbl_s *vtbl,
+                           FAR struct nsh_alist_s *alist);
 #endif
 
 #ifndef CONFIG_NSH_DISABLEBG
@@ -155,6 +184,11 @@ static FAR char *nsh_strchr(FAR const char *str, int ch);
 #  define nsh_strchr(s,c) strchr(s,c)
 #endif
 
+#ifdef CONFIG_NSH_ALIAS
+static FAR char *nsh_aliasexpand(FAR struct nsh_vtbl_s *vtbl,
+               FAR char *cmdline, FAR NSH_ALIASLIST_TYPE *alist);
+#endif
+
 #ifdef NSH_HAVE_VARS
 static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *varname);
@@ -173,6 +207,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl,
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
                               FAR char **saveptr,
                               FAR NSH_MEMLIST_TYPE *memlist,
+                              FAR NSH_ALIASLIST_TYPE *alist,
                               FAR int *isenvvar);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
@@ -185,17 +220,20 @@ static bool nsh_itef_enabled(FAR struct nsh_vtbl_s *vtbl);
 static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl);
 #ifndef CONFIG_NSH_DISABLE_LOOPS
 static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist,
+                    FAR NSH_ALIASLIST_TYPE *alist);
 #endif
 #ifndef CONFIG_NSH_DISABLE_ITEF
 static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist,
+                    FAR NSH_ALIASLIST_TYPE *alist);
 #endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLEBG
 static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-               FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+               FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist,
+               FAR NSH_ALIASLIST_TYPE *alist);
 #endif
 
 #ifdef CONFIG_NSH_CMDPARMS
@@ -330,6 +368,57 @@ static void nsh_memlist_free(FAR struct nsh_memlist_s *memlist)
         }
 
       memlist->nallocs = 0;
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_alist_add
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_ALIAS
+static void nsh_alist_add(FAR struct nsh_alist_s *alist,
+                          FAR struct nsh_alias_s *alias)
+{
+  if (alist && alias)
+    {
+      int index = alist->nallocs;
+      if (index < CONFIG_NSH_ALIAS_MAX_AMOUNT)
+        {
+          alias->exp = 1;
+          alist->allocs[index] = alias;
+          alist->nallocs = index + 1;
+        }
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_alist_free
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_ALIAS
+static void nsh_alist_free(FAR struct nsh_vtbl_s *vtbl,
+                           FAR struct nsh_alist_s *alist)
+{
+  if (vtbl && alist)
+    {
+      FAR struct nsh_alias_s *alias;
+      int index;
+
+      for (index = 0; index < alist->nallocs; index++)
+        {
+          alias = alist->allocs[index];
+          alias->exp = 0;
+          if (alias->rem == 1)
+            {
+              nsh_aliasfree(vtbl, alias);
+            }
+
+          alist->allocs[index] = NULL;
+        }
+
+      alist->nallocs = 0;
     }
 }
 #endif
@@ -1037,6 +1126,31 @@ static FAR char *nsh_strchr(FAR const char *str, int ch)
 #endif
 
 /****************************************************************************
+ * Name: nsh_aliasexpand
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_ALIAS
+static FAR char *nsh_aliasexpand(FAR struct nsh_vtbl_s *vtbl,
+               FAR char *cmdline, FAR NSH_ALIASLIST_TYPE *alist)
+{
+  FAR struct nsh_alias_s *alias;
+
+  /* Does such an alias exist ? */
+
+  alias = nsh_aliasfind(vtbl, cmdline);
+  if (alias)
+    {
+      /* Yes, expand and mark it as already expanded */
+
+      NSH_ALIASLIST_ADD(alist, alias);
+      return alias->value;
+    }
+
+  return cmdline;
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_envexpand
  ****************************************************************************/
 
@@ -1171,7 +1285,7 @@ static FAR char *nsh_rmquotes(FAR char *qbegin, FAR char *qend)
       ch     = *ptr++;
       *dst++ = ch;
     }
-  while(ch != '\0');
+  while (ch != '\0');
 
   return qend - 2;
 }
@@ -1513,6 +1627,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl,
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
                               FAR char **saveptr,
                               FAR NSH_MEMLIST_TYPE *memlist,
+                              FAR NSH_ALIASLIST_TYPE *alist,
                               FAR int *isenvvar)
 {
   FAR char *pbegin     = *saveptr;
@@ -1523,6 +1638,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
   FAR char *prev;
   bool escaped;
 #endif
+  bool quoted;
 
   /* Find the beginning of the next token */
 
@@ -1578,6 +1694,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
        * make sure that we do not break up any quoted substrings.
        */
 
+      quoted = false;
 #ifdef CONFIG_NSH_QUOTE
       escaped = false;
 
@@ -1611,7 +1728,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 
           /* Are we entering a quoted string ? */
 
-          if (nsh_strchr(g_quote_separator, *pend))
+          if ((quoted = (nsh_strchr(g_quote_separator, *pend) != NULL)))
             {
               /* Yes, find the terminator and continue from there */
 
@@ -1622,7 +1739,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 
                   char qterm[2];
 
-                  qterm[0] = ptr;
+                  qterm[0] = *pend;
                   qterm[1] = '\0';
 
                   nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
@@ -1668,6 +1785,15 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
       /* Save the pointer where we left off */
 
       *saveptr = pend;
+
+#ifdef CONFIG_NSH_ALIAS
+      /* Expand aliases (if applicable) first, quoting prevents this */
+
+      if (!quoted)
+        {
+          pbegin = nsh_aliasexpand(vtbl, pbegin, alist);
+        }
+#endif
 
       /* Perform expansions as necessary for the argument */
 
@@ -1769,7 +1895,8 @@ static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
 static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist,
+                    FAR NSH_ALIASLIST_TYPE *alist)
 {
   FAR struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
@@ -1792,7 +1919,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Get the cmd following the "while" or "until" */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, 0);
           if (*ppcmd == NULL || **ppcmd == '\0')
             {
               nsh_error(vtbl, g_fmtarginvalid, cmd);
@@ -1849,7 +1976,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the "do" -- there may or may not be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
 
           /* Verify that "do" is valid in this context */
 
@@ -1869,7 +1996,7 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the "done" -- there should be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
           if (*ppcmd)
             {
               nsh_error(vtbl, g_fmtarginvalid, "done");
@@ -1961,7 +2088,8 @@ errout:
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_ITEF)
 static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist,
+                    FAR NSH_ALIASLIST_TYPE *alist)
 {
   FAR struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
@@ -1976,7 +2104,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the if */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
           if (*ppcmd == NULL || **ppcmd == '\0')
             {
               nsh_error(vtbl, g_fmtarginvalid, "if");
@@ -1991,7 +2119,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
               /* Get the next cmd */
 
-              *ppcmd = nsh_argument(vtbl, saveptr, memlist, 0);
+              *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, 0);
               if (*ppcmd == NULL || **ppcmd == '\0')
                 {
                   nsh_error(vtbl, g_fmtarginvalid, "if");
@@ -2033,7 +2161,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
            * one.
            */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
 
           /* Verify that "then" is valid in this context */
 
@@ -2054,7 +2182,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
            * one.
            */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
 
           /* Verify that "else" is valid in this context */
 
@@ -2073,7 +2201,7 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the fi -- there should be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
           if (*ppcmd)
             {
               nsh_error(vtbl, g_fmtarginvalid, "fi");
@@ -2129,7 +2257,8 @@ errout:
 
 #ifndef CONFIG_NSH_DISABLEBG
 static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist,
+                    FAR NSH_ALIASLIST_TYPE *alist)
 {
   FAR char *cmd = *ppcmd;
 
@@ -2148,10 +2277,11 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Get the cmd (or -d option of nice command) */
 
-          cmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+          cmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
           if (cmd && strcmp(cmd, "-d") == 0)
             {
-              FAR char *val = nsh_argument(vtbl, saveptr, memlist, NULL);
+              FAR char *val = nsh_argument(vtbl, saveptr, memlist, alist,
+                                           NULL);
               if (val)
                 {
                   FAR char *endptr;
@@ -2163,7 +2293,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                       return ERROR;
                     }
 
-                  cmd = nsh_argument(vtbl, saveptr, memlist, NULL);
+                  cmd = nsh_argument(vtbl, saveptr, memlist, alist, NULL);
                 }
             }
 
@@ -2196,6 +2326,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                              FAR const char *redirfile)
 {
   NSH_MEMLIST_TYPE memlist;
+  NSH_ALIASLIST_TYPE alist;
   FAR char *argv[MAX_ARGV_ENTRIES];
   FAR char *saveptr;
   FAR char *cmd;
@@ -2210,6 +2341,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
   NSH_MEMLIST_INIT(memlist);
+  NSH_ALIASLIST_INIT(alist);
 
   /* If any options like nice, redirection, or backgrounding are attempted,
    * these will not be recognized and will just be passed through as
@@ -2233,7 +2365,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   /* Parse out the command at the beginning of the line */
 
   saveptr = cmdline;
-  cmd = nsh_argument(vtbl, &saveptr, &memlist, NULL);
+  cmd = nsh_argument(vtbl, &saveptr, &memlist, &alist, NULL);
 
   /* Check if any command was provided -OR- if command processing is
    * currently disabled.
@@ -2268,7 +2400,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   argv[0] = cmd;
   for (argc = 1; argc < MAX_ARGV_ENTRIES - 1; argc++)
     {
-      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, NULL);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, &alist, NULL);
       if (!argv[argc])
         {
           break;
@@ -2297,6 +2429,7 @@ exit:
 #endif
   vtbl->np.np_redirect = redirsave;
 
+  NSH_ALIASLIST_FREE(vtbl, &alist);
   NSH_MEMLIST_FREE(&memlist);
   return ret;
 }
@@ -2313,6 +2446,7 @@ exit:
 static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 {
   NSH_MEMLIST_TYPE memlist;
+  NSH_ALIASLIST_TYPE alist;
   FAR char *argv[MAX_ARGV_ENTRIES];
   FAR char *saveptr;
   FAR char *cmd;
@@ -2326,6 +2460,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
   NSH_MEMLIST_INIT(memlist);
+  NSH_ALIASLIST_INIT(alist);
 
 #ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = false;
@@ -2336,26 +2471,26 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Parse out the command at the beginning of the line */
 
   saveptr = cmdline;
-  cmd = nsh_argument(vtbl, &saveptr, &memlist, NULL);
+  cmd = nsh_argument(vtbl, &saveptr, &memlist, &alist, NULL);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 #ifndef CONFIG_NSH_DISABLE_LOOPS
   /* Handle while-do-done and until-do-done loops */
 
-  if (nsh_loop(vtbl, &cmd, &saveptr, &memlist) != 0)
+  if (nsh_loop(vtbl, &cmd, &saveptr, &memlist, &alist) != 0)
     {
-      NSH_MEMLIST_FREE(&memlist);
-      return nsh_saveresult(vtbl, true);
+      ret = nsh_saveresult(vtbl, true);
+      goto dynlist_free;
     }
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_ITEF
   /* Handle if-then-else-fi */
 
-  if (nsh_itef(vtbl, &cmd, &saveptr, &memlist) != 0)
+  if (nsh_itef(vtbl, &cmd, &saveptr, &memlist, &alist) != 0)
     {
-      NSH_MEMLIST_FREE(&memlist);
-      return nsh_saveresult(vtbl, true);
+      ret = nsh_saveresult(vtbl, true);
+      goto dynlist_free;
     }
 
 #endif
@@ -2364,10 +2499,10 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Handle nice */
 
 #ifndef CONFIG_NSH_DISABLEBG
-  if (nsh_nice(vtbl, &cmd, &saveptr, &memlist) != 0)
+  if (nsh_nice(vtbl, &cmd, &saveptr, &memlist, &alist) != 0)
     {
-      NSH_MEMLIST_FREE(&memlist);
-      return nsh_saveresult(vtbl, true);
+      ret = nsh_saveresult(vtbl, true);
+      goto dynlist_free;
     }
 #endif
 
@@ -2386,8 +2521,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
        * status.
        */
 
-      NSH_MEMLIST_FREE(&memlist);
-      return OK;
+      ret = OK;
+      goto dynlist_free;
     }
 
   /* Parse all of the arguments following the command name.  The form
@@ -2409,7 +2544,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
     {
       int isenvvar = 0; /* flag for if an environment variable gets expanded */
 
-      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, &isenvvar);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, &alist, &isenvvar);
 
       if (!argv[argc])
         {
@@ -2526,6 +2661,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       vtbl->np.np_redirect = redirect_save;
     }
 
+dynlist_free:
+  NSH_ALIASLIST_FREE(vtbl, &alist);
   NSH_MEMLIST_FREE(&memlist);
   return ret;
 }

@@ -106,4 +106,8 @@ ifeq ($(CONFIG_NSH_LOGIN_PASSWD),y)
 CSRCS += nsh_passwdcmds.c
 endif
 
+ifeq ($(CONFIG_NSH_ALIAS),y)
+CSRCS += nsh_alias.c
+endif
+
 include $(APPDIR)/Application.mk

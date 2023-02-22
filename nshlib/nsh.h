@@ -715,6 +715,25 @@ struct nsh_parser_s
 #endif
 };
 
+#ifdef CONFIG_NSH_ALIAS
+struct nsh_alias_s
+{
+  FAR struct nsh_alias_s *next;    /* Single link list for traversing */
+  FAR char               *name;    /* Name of the alias */
+  FAR char               *value;   /* Value behind the name */
+  union
+  {
+    struct
+    {
+      uint8_t             exp : 1; /* Already expanded ? */
+      uint8_t             rem : 1; /* Marked for deletion */
+    };
+
+    uint8_t               flags;   /* Raw value */
+  };
+};
+#endif
+
 /* This is the general form of a command handler */
 
 struct nsh_vtbl_s; /* Defined in nsh_console.h */
@@ -791,6 +810,13 @@ int nsh_romfsetc(void);
 int nsh_usbconsole(void);
 #else
 #  define nsh_usbconsole() (-ENOSYS)
+#endif
+
+#ifdef CONFIG_NSH_ALIAS
+FAR struct nsh_alias_s *nsh_aliasfind(FAR struct nsh_vtbl_s *vtbl,
+                                      FAR const char *token);
+void nsh_aliasfree(FAR struct nsh_vtbl_s *vtbl,
+                   FAR struct nsh_alias_s *alias);
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
@@ -1191,6 +1217,11 @@ int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  ifndef CONFIG_NSH_DISABLE_URLENCODE
   int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  endif
+#endif
+
+#ifdef CONFIG_NSH_ALIAS
+int cmd_alias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+int cmd_unalias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
 /****************************************************************************
