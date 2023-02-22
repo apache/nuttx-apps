@@ -104,6 +104,13 @@ static const struct cmdmap_s g_cmdmap[] =
   { "addroute", cmd_addroute, 3, 4, "<target> [<netmask>] <router>" },
 #endif
 
+#ifdef CONFIG_NSH_ALIAS
+  { "alias",    cmd_alias,   1, CONFIG_NSH_MAXARGUMENTS,
+    "[name[=value] ... ]" },
+  { "unalias",  cmd_unalias, 1, CONFIG_NSH_MAXARGUMENTS,
+    "[-a] name [name ... ]" },
+#endif
+
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
   { "arp",      cmd_arp,      1, 6,
     "[-i <ifname>] [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]" },

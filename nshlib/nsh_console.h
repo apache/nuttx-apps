@@ -33,6 +33,8 @@
 #include <stdbool.h>
 #include <errno.h>
 
+#include <nuttx/queue.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -117,6 +119,14 @@ struct nsh_vtbl_s
   /* Common buffer for file I/O. */
 
   char iobuffer[IOBUFFERSIZE];
+#endif
+
+#ifdef CONFIG_NSH_ALIAS
+  /* Shell alias support */
+
+  struct nsh_alias_s atab[CONFIG_NSH_ALIAS_MAX_AMOUNT];
+  struct sq_queue_s  alist;
+  struct sq_queue_s  afreelist;
 #endif
 
   /* Parser state data */
