@@ -30,3 +30,9 @@ Supported interfaces:
 
 A default serial protocol is implemented in `apps/logging/nxscope/nxscope_pser.c`
 It just packs NxScope data into simple frames with a CRC-16 checksum.
+
+## External tools
+
+- [Nxslib](https://github.com/railab/nxslib) - a Python (3.10+) client library for NxScope devices,
+- [Nxscli](https://github.com/railab/nxscli) - a Python (3.10+) command-line interface for NxScope,
+supporting data capture and visualization
