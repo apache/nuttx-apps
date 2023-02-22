@@ -139,18 +139,21 @@ HEAD_OBJ += $(wildcard $(APPDIR)$(DELIM)import$(DELIM)startup$(DELIM)*$(OBJEXT))
 HEAD_OBJ += $(wildcard $(APPDIR)$(DELIM)builtin$(DELIM)*$(OBJEXT))
 
 .import: $(BIN) install
-	$(Q) echo "LD: nuttx"
+	$(ECHO_BEGIN)"LD: nuttx "
 	$(Q) $(LD) --entry=__start $(LDFLAGS) $(LDLIBPATH) $(EXTRA_LIBPATHS) \
 	  -L$(APPDIR)$(DELIM)import$(DELIM)scripts -T$(LDNAME) \
 	  -o nuttx$(EXEEXT) $(HEAD_OBJ) $(EXTRA_OBJS) $(LDSTARTGROUP) \
 	  $(BIN) $(LDLIBS) $(EXTRA_LIBS) $(LDENDGROUP)
+	$(ECHO_END)
 ifeq ($(CONFIG_INTELHEX_BINARY),y)
-	$(Q) echo "CP: nuttx.hex"
+	$(ECHO_BEGIN)"CP: nuttx.hex "
 	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O ihex nuttx$(EXEEXT) nuttx.hex
+	$(ECHO_END)
 endif
 ifeq ($(CONFIG_RAW_BINARY),y)
-	$(Q) echo "CP: nuttx.bin"
+	$(ECHO_BEGIN)"CP: nuttx.bin "
 	$(Q) $(OBJCOPY) $(OBJCOPYARGS) -O binary nuttx$(EXEEXT) nuttx.bin
+	$(ECHO_END)
 endif
 	$(call POSTBUILD, $(APPDIR))
 

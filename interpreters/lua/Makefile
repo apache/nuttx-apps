@@ -33,7 +33,6 @@ LUA_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_INTERPRETER_LUA_VERSION)))
 LUA_TARBALL  = lua-$(LUA_VERSION).tar.gz
 LUA_UNPACK   = lua-$(LUA_VERSION)
 LUA_URL_BASE = http://www.lua.org/ftp
-LUA_URL      = $(LUA_URL_BASE)/$(LUA_TARBALL)
 LUA_SRC      = $(LUA_UNPACK)$(DELIM)src
 
 MAINSRC       = $(LUA_SRC)$(DELIM)lua.c
@@ -68,10 +67,10 @@ endif
 # Lua download and unpack
 
 $(LUA_TARBALL):
-	$(Q) echo "Downloading $(LUA_TARBALL)"
-	$(Q) curl -O -L $(LUA_URL)
-	$(Q) echo "Unpacking $(LUA_TARBALL) to $(LUA_UNPACK)"
+	$(call DOWNLOAD,$(LUA_URL_BASE),$(LUA_TARBALL))
+	$(ECHO_BEGIN)"Unpacking $(LUA_TARBALL) to $(LUA_UNPACK) "
 	$(Q) tar -xvzf $(LUA_TARBALL)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LUA_UNPACK)/.git),)

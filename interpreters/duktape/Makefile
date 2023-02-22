@@ -24,7 +24,6 @@ DUKTAPE_VERSION  = 2.5.0
 DUKTAPE_UNPACK   = duktape
 DUKTAPE_TARBALL  = duktape-$(DUKTAPE_VERSION).tar.xz
 DUKTAPE_URL_BASE = https://github.com/svaarala/duktape/releases/download/
-DUKTAPE_URL      = $(DUKTAPE_URL_BASE)v$(DUKTAPE_VERSION)/$(DUKTAPE_TARBALL)
 
 CSRCS = duktape.c
 CSRCS += duk_console.c
@@ -49,15 +48,16 @@ CFLAGS += -DDUK_CMDLINE_CONSOLE_SUPPORT
 CFLAGS += -DDUK_CMDLINE_PRINTALERT_SUPPORT
 
 $(DUKTAPE_TARBALL):
-	$(Q) echo "Downloading $(DUKTAPE_TARBALL)"
-	$(Q) curl -O -L $(DUKTAPE_URL)
+	$(call DOWNLOAD,$(DUKTAPE_URL_BASE),$(DUKTAPE_TARBALL))
 
 $(DUKTAPE_UNPACK): $(DUKTAPE_TARBALL)
-	$(Q) echo "Unpacking $(DUKTAPE_TARBALL) to $(DUKTAPE_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(DUKTAPE_TARBALL) to $(DUKTAPE_UNPACK) "
 	$(Q) tar xfJ $(DUKTAPE_TARBALL)
 	$(Q) mv duktape-$(DUKTAPE_VERSION) $(DUKTAPE_UNPACK)
-	$(Q) echo "Patching $(DUKTAPE_UNPACK)"
+	$(ECHO_END)
+	$(ECHO_BEGIN)"Patching $(DUKTAPE_UNPACK) "
 	$(Q) patch -p0 < duk_cmdline.patch
+	$(ECHO_END)
 
 $(DUKTAPE_UNPACK)/.patch: $(DUKTAPE_UNPACK)
 	$(Q) touch $(DUKTAPE_UNPACK)/.patch

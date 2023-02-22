@@ -24,21 +24,20 @@ LUACJSON_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_LUA_CJSON_VERSION)))
 LUACJSON_TARBALL  = $(LUACJSON_VERSION).tar.gz
 LUACJSON_UNPACK   = lua-cjson
 LUACJSON_URL_BASE = https://github.com/openresty/lua-cjson/archive/refs/tags
-LUACJSON_URL      = $(LUACJSON_URL_BASE)/$(LUACJSON_TARBALL)
 LUACJSON_SRC      = $(LUACJSON_UNPACK)
 
 VPATH += lua-cjson
 CSRCS = lua_cjson.c strbuf.c fpconv.c
 
 $(LUACJSON_TARBALL):
-	$(Q) echo "Downloading $(LUACJSON_TARBALL) from $(LUACJSON_URL)"
-	$(Q) curl -O -L $(LUACJSON_URL)
+	$(call DOWNLOAD,$(LUACJSON_URL_BASE),$(LUACJSON_TARBALL))
 
 $(LUACJSON_UNPACK): $(LUACJSON_TARBALL)
-	$(Q) echo "Unpacking $(LUACJSON_TARBALL) to $(LUACJSON_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(LUACJSON_TARBALL) to $(LUACJSON_UNPACK) "
 	$(Q) tar -xvzf $(LUACJSON_TARBALL)
 	$(Q) mv lua-cjson-$(LUACJSON_VERSION) $(LUACJSON_UNPACK)
 	$(Q) patch -d $(LUACJSON_UNPACK) -p1 < 0001-fix-compile-warnings.patch
+	$(ECHO_END)
 
 $(LUACJSON_UNPACK)/.patch: $(LUACJSON_UNPACK)
 	touch $(LUACJSON_UNPACK)/.patch

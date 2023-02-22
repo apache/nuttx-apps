@@ -24,7 +24,6 @@ WASM3_VERSION  = 0.4.7
 WASM3_UNPACK   = wasm3
 WASM3_TARBALL  = v$(WASM3_VERSION).tar.gz
 WASM3_URL_BASE = https://github.com/wasm3/wasm3/archive
-WASM3_URL      = $(WASM3_URL_BASE)/$(WASM3_TARBALL)
 
 MAINSRC = main.c
 
@@ -60,13 +59,13 @@ STACKSIZE = $(CONFIG_INTERPRETERS_WASM3_STACKSIZE)
 MODULE    = $(CONFIG_INTERPRETERS_WASM3)
 
 $(WASM3_TARBALL):
-	$(Q) echo "Downloading $(WASM3_TARBALL)"
-	$(Q) curl -O -L $(WASM3_URL)
+	$(call DOWNLOAD,$(WASM3_URL_BASE),$(WASM3_TARBALL))
 
 $(WASM3_UNPACK): $(WASM3_TARBALL)
-	$(Q) echo "Unpacking $(WASM3_TARBALL) to $(WASM3_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(WASM3_TARBALL) to $(WASM3_UNPACK) "
 	$(Q) tar xzvf $(WASM3_TARBALL)
 	$(Q) mv wasm3-$(WASM3_VERSION) $(WASM3_UNPACK)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(WASM3_UNPACK)/.git),)

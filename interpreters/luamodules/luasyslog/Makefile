@@ -24,7 +24,6 @@ LSYSLOG_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_LUA_LSYSLOG_VERSION)))
 LSYSLOG_TARBALL  = $(LSYSLOG_VERSION).tar.gz
 LSYSLOG_UNPACK   = lsyslog
 LSYSLOG_URL_BASE = https://github.com/lunarmodules/luasyslog/archive/refs/tags
-LSYSLOG_URL      = $(LSYSLOG_URL_BASE)/$(LSYSLOG_TARBALL)
 LSYSLOG_SRC      = $(LSYSLOG_UNPACK)
 
 VPATH += $(LSYSLOG_SRC)
@@ -34,13 +33,13 @@ CFLAGS += -D'openlog(a,b,c)={(void)a; (void)c;}'
 CFLAGS += -D'closelog()={}'
 
 $(LSYSLOG_TARBALL):
-	$(Q) echo "Downloading $(LSYSLOG_TARBALL) from $(LSYSLOG_URL)"
-	$(Q) curl -O -L $(LSYSLOG_URL)
+	$(call DOWNLOAD,$(LSYSLOG_URL_BASE),$(LSYSLOG_TARBALL))
 
 $(LSYSLOG_UNPACK): $(LSYSLOG_TARBALL)
-	$(Q) echo "Unpacking $(LSYSLOG_TARBALL) to $(LSYSLOG_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(LSYSLOG_TARBALL) to $(LSYSLOG_UNPACK) "
 	$(Q) tar -xvzf $(LSYSLOG_TARBALL)
 	$(Q) mv luasyslog-$(LSYSLOG_VERSION) $(LSYSLOG_UNPACK)
+	$(ECHO_END)
 
 $(LSYSLOG_UNPACK)/.patch: $(LSYSLOG_UNPACK)
 	touch $(LSYSLOG_UNPACK)/.patch

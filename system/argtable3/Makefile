@@ -22,6 +22,7 @@ include $(APPDIR)/Make.defs
 
 ARGTABLE3_VERSION := $(patsubst "%",%,$(CONFIG_SYSTEM_ARGTABLE3_VERSION))
 ARGTABLE3_TARBALL  = v$(ARGTABLE3_VERSION).tar.gz
+ARGTABLE3_URL_BASE = https://github.com/argtable/argtable3/archive
 ARGTABLE3_UNPACK   = argtable3
 ARGTABLE3_SRCDIR   = $(ARGTABLE3_UNPACK)$(DELIM)src
 ARGTABLE3_TESTSDIR = $(ARGTABLE3_UNPACK)$(DELIM)tests
@@ -65,10 +66,7 @@ ifneq "$(shell $(CC) --version | grep clang)" ""
 endif
 
 $(ARGTABLE3_TARBALL):
-	$(Q) echo "Downloading argtable3-$(ARGTABLE3_VERSION)"
-	$(Q) echo "$(ARGTABLE3_SRCDIR)"
-	$(Q) echo "$(ARGTABLE3_TARBALL)--$(ARGTABLE3_UNPACK)"
-	$(Q) curl -O -L https://github.com/argtable/argtable3/archive/$(ARGTABLE3_TARBALL)
+	$(call DOWNLOAD,$(ARGTABLE3_URL_BASE),$(ARGTABLE3_TARBALL))
 
 $(ARGTABLE3_UNPACK): $(ARGTABLE3_TARBALL)
 	$(Q) tar zxf $(ARGTABLE3_TARBALL)

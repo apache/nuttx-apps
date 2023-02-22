@@ -21,6 +21,7 @@
 include $(APPDIR)/Make.defs
 
 MCUBOOT_VERSION := $(patsubst "%",%,$(CONFIG_MCUBOOT_VERSION))
+MCUBOOT_URL_BASE = https://github.com/mcu-tools/mcuboot/archive
 MCUBOOT_TARBALL  = $(MCUBOOT_VERSION).tar.gz
 MCUBOOT_UNPACK   = mcuboot
 MCUBOOT_SRCDIR   = $(MCUBOOT_UNPACK)$(DELIM)boot$(DELIM)bootutil$(DELIM)src
@@ -77,14 +78,14 @@ CXXFLAGS += ${INCDIR_PREFIX}mcuboot/ext/tinycrypt/lib/include
 endif
 
 $(MCUBOOT_TARBALL):
-	$(Q) echo "Downloading MCUboot-$(MCUBOOT_VERSION)"
-	$(Q) curl -O -L https://github.com/mcu-tools/mcuboot/archive/$(MCUBOOT_TARBALL)
+	$(call DOWNLOAD,$(MCUBOOT_URL_BASE),$(MCUBOOT_TARBALL))
 
 $(MCUBOOT_UNPACK): $(MCUBOOT_TARBALL)
-	$(Q) echo "Unpacking: $(MCUBOOT_TARBALL) -> $(MCUBOOT_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking: $(MCUBOOT_TARBALL) -> $(MCUBOOT_UNPACK) "
 	$(Q) tar zxf $(MCUBOOT_TARBALL)
 	$(Q) mv mcuboot-$(MCUBOOT_VERSION) $(MCUBOOT_UNPACK)
 	$(Q) touch $(MCUBOOT_UNPACK)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(MCUBOOT_UNPACK)/.git),)

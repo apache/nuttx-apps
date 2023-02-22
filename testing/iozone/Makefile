@@ -44,16 +44,17 @@ IOZONE_VERSION = $(patsubst "%",%,$(strip $(CONFIG_TESTING_IOZONE_VERSION)))
 IOZONE_ZIP = iozone$(IOZONE_VERSION).tgz
 
 $(IOZONE_ZIP):
-	@echo "Downloading: $(IOZONE_ZIP)"
-	$(Q) curl -O -L $(CONFIG_TESTING_IOZONE_URL)/$(IOZONE_ZIP)
+	$(call DOWNLOAD,$(CONFIG_TESTING_IOZONE_URL),$(IOZONE_ZIP))
 
 $(IOZONE_UNPACKNAME): $(IOZONE_ZIP)
-	@echo "Unpacking: $(IOZONE_ZIP) -> $(IOZONE_UNPACKNAME)"
+	$(ECHO_BEGIN)"Unpacking: $(IOZONE_ZIP) -> $(IOZONE_UNPACKNAME)"
 	$(Q) tar zxvf $(IOZONE_ZIP)
 	$(Q) mv iozone$(IOZONE_VERSION) $(IOZONE_UNPACKNAME)
-	$(Q) echo "Patching $(IOZONE_UNPACKNAME)"
-	$(Q) cat iozone.patch | patch -s -N -d $(IOZONE_UNPACKNAME) -p1
+	$(ECHO_END)
+	$(ECHO_BEGIN)"Patching $(IOZONE_UNPACKNAME)"
+	$(Q) patch -s -N -d $(IOZONE_UNPACKNAME) -p1 < iozone.patch
 	$(Q) touch $(IOZONE_UNPACKNAME)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(IOZONE_UNPACKNAME)/.git),)

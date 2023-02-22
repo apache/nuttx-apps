@@ -464,17 +464,18 @@ endif
 endif
 
 $(LIBTOMCRYPT_ZIP):
-	@echo "Downloading: $(LIBTOMCRYPT_ZIP)"
-	$(Q) curl -O -L $(CONFIG_LIBTOMCRYPT_URL)/$(LIBTOMCRYPT_ZIP)
+	$(call DOWNLOAD,$(CONFIG_LIBTOMCRYPT_URL),$(LIBTOMCRYPT_ZIP))
 
 $(LIBTOMCRYPT_UNPACKNAME): $(LIBTOMCRYPT_ZIP)
-	@echo "Unpacking: $(LIBTOMCRYPT_ZIP) -> $(LIBTOMCRYPT_UNPACKNAME)"
+	$(ECHO_BEGIN)"Unpacking: $(LIBTOMCRYPT_ZIP) -> $(LIBTOMCRYPT_UNPACKNAME) "
 	$(Q) $(UNPACK) $(LIBTOMCRYPT_ZIP)
 	$(Q) mv	libtomcrypt-$(LIBTOMCRYPT_VERSION) $(LIBTOMCRYPT_UNPACKNAME)
-	$(Q) echo "Patching $(LIBTOMCRYPT_UNPACKNAME)"
+	$(ECHO_END)
+	$(ECHO_BEGIN)"Patching $(LIBTOMCRYPT_UNPACKNAME) "
 	$(Q) patch -p0 < digit-bit.patch # Update deprecated macro from ltm
 	$(Q) patch -p0 < ltcrypt-flush.patch # Missing stdout flush in demo app
 	$(Q) touch $(LIBTOMCRYPT_UNPACKNAME)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LIBTOMCRYPT_UNPACKNAME)/.git),)

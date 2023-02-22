@@ -26,7 +26,6 @@ LUV_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_LUA_LUV_VERSION)))
 LUV_TARBALL  = luv-$(LUV_VERSION).tar.gz
 LUV_UNPACK   = luv
 LUV_URL_BASE = https://github.com/luvit/luv/releases/download/
-LUV_URL      = $(LUV_URL_BASE)/$(LUV_VERSION)/$(LUV_TARBALL)
 LUV_SRC      = $(LUV_UNPACK)$(DELIM)src
 
 VPATH += $(LUV_SRC)
@@ -35,14 +34,14 @@ CSRCS = luv.c
 # Luv download and unpack
 
 $(LUV_TARBALL):
-	$(Q) echo "Downloading $(LUV_TARBALL)"
-	$(Q) curl -O -L $(LUV_URL)
+	$(call DOWNLOAD,$(LUV_URL_BASE),$(LUV_TARBALL))
 
 $(LUV_UNPACK): $(LUV_TARBALL)
-	$(Q) echo "Unpacking $(LUV_TARBALL) to $(LUV_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(LUV_TARBALL) to $(LUV_UNPACK) "
 	$(Q) tar -xvzf $(LUV_TARBALL)
 	$(Q) mv luv-$(LUV_VERSION) $(LUV_UNPACK)
 	$(Q) patch -d $(LUV_UNPACK) -p1 < 0001-fix-compile-warnings.patch
+	$(ECHO_END)
 
 $(LUV_UNPACK)/.patch: $(LUV_UNPACK)
 	touch $(LUV_UNPACK)/.patch

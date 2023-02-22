@@ -24,7 +24,6 @@ SCPI_VERSION  = 2.2
 SCPI_UNPACK   = scpi-parser
 SCPI_TARBALL  = v$(SCPI_VERSION).tar.gz
 SCPI_URL_BASE = https://github.com/j123b567/scpi-parser/archive/refs/tags
-SCPI_URL      = $(SCPI_URL_BASE)/$(SCPI_TARBALL)
 
 CSRCS += error.c fifo.c ieee488.c
 CSRCS += minimal.c parser.c units.c utils.c
@@ -51,11 +50,11 @@ VPATH += $(SCPI_UNPACK)/examples/common
 endif # CONFIG_SCPI_PARSER_DEMO
 
 $(SCPI_TARBALL):
-	$(Q) echo "Downloading $(SCPI_TARBALL)"
-	$(Q) curl -O -L $(SCPI_URL)
-	$(Q) echo "Unpacking $(SCPI_TARBALL) to $(SCPI_UNPACK)"
+	$(call DOWNLOAD,$(SCPI_URL_BASE),$(SCPI_TARBALL))
+	$(ECHO_BEGIN)"Unpacking $(SCPI_TARBALL) to $(SCPI_UNPACK) "
 	$(Q) tar xzvf $(SCPI_TARBALL)
 	$(Q) mv scpi-parser-$(SCPI_VERSION) $(SCPI_UNPACK)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(SCPI_UNPACK)/.git),)

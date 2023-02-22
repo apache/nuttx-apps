@@ -21,10 +21,12 @@
 LUAMOD_REGISTRY = $(APPDIR)$(DELIM)interpreters$(DELIM)lua$(DELIM)registry
 
 define LUAMOD_REGISTER
-	$(Q) echo Register Lua Module: $1
+	$(ECHO_BEGIN)"Register Lua Module: $1 "
 	$(Q) echo { \"$1\", $2 }, > "$(LUAMOD_REGISTRY)$(DELIM)$1.bdat"
-	$(Q) echo "int $2(lua_State *L);" > "$(LUAMOD_REGISTRY)$(DELIM)$1.pdat"
+	$(ECHO_END)
+	$(ECHO_BEGIN)"int $2(lua_State *L);" > "$(LUAMOD_REGISTRY)$(DELIM)$1.pdat "
 	$(Q) touch "$(LUAMOD_REGISTRY)$(DELIM).updated"
+	$(ECHO_END)
 endef
 
 ifneq ($(LUAMODNAME),)

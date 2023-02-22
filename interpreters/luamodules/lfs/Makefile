@@ -24,21 +24,20 @@ LFS_VERSION  = $(patsubst "%",%,$(strip $(CONFIG_LUA_LFS_VERSION)))
 LFS_TARBALL  = v$(LFS_VERSION).tar.gz
 LFS_UNPACK   = lfs
 LFS_URL_BASE = https://github.com/lunarmodules/luafilesystem/archive/refs/tags
-LFS_URL      = $(LFS_URL_BASE)/$(LFS_TARBALL)
 LFS_SRC      = $(LFS_UNPACK)$(DELIM)src
 
 VPATH += $(LFS_SRC)
 CSRCS = lfs.c
 
 $(LFS_TARBALL):
-	$(Q) echo "Downloading $(LFS_TARBALL) from $(LFS_URL)"
-	$(Q) curl -O -L $(LFS_URL)
+	$(call DOWNLOAD,$(LFS_URL_BASE),$(LFS_TARBALL))
 
 $(LFS_UNPACK): $(LFS_TARBALL)
-	$(Q) echo "Unpacking $(LFS_TARBALL) to $(LFS_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(LFS_TARBALL) to $(LFS_UNPACK) "
 	$(Q) tar -xvzf $(LFS_TARBALL)
 	$(Q) mv luafilesystem-$(LFS_VERSION) $(LFS_UNPACK)
 	$(Q) patch -d $(LFS_UNPACK) -p1 < 0001-call-symlink-or-link-directly.patch
+	$(ECHO_END)
 
 $(LFS_UNPACK)/.patch: $(LFS_UNPACK)
 	touch $(LFS_UNPACK)/.patch

@@ -25,7 +25,6 @@ WAMR_UNPACK   = wamr
 
 WAMR_TARBALL  = $(WAMR_VERSION).zip
 WAMR_URL_BASE = https://github.com/bytecodealliance/wasm-micro-runtime/archive/
-WAMR_URL      = $(WAMR_URL_BASE)/$(WAMR_TARBALL)
 
 -include $(WAMR_UNPACK)/product-mini/platforms/nuttx/wamr.mk
 
@@ -41,14 +40,14 @@ MODULE    = $(CONFIG_INTERPRETERS_WAMR)
 endif
 
 $(WAMR_TARBALL):
-	$(Q) echo "Downloading $(WAMR_TARBALL)"
-	$(Q) curl -O -L $(WAMR_URL)
+	$(call DOWNLOAD,$(WAMR_URL_BASE),$(WAMR_TARBALL))
 
 $(WAMR_UNPACK): $(WAMR_TARBALL)
-	$(Q) echo "Unpacking $(WAMR_TARBALL) to $(WAMR_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(WAMR_TARBALL) to $(WAMR_UNPACK) "
 	$(Q) unzip $(WAMR_TARBALL)
 	$(Q) mv wasm-micro-runtime-$(WAMR_VERSION) $(WAMR_UNPACK)
 	$(Q) touch $(WAMR_UNPACK)
+	$(ECHO_END)
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(WAMR_UNPACK)/.git),)

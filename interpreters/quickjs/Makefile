@@ -24,7 +24,6 @@ QUICKJS_VERSION  = 2020-11-08
 QUICKJS_UNPACK   = quickjs
 QUICKJS_TARBALL  = quickjs-$(QUICKJS_VERSION).tar.xz
 QUICKJS_URL_BASE = https://bellard.org/quickjs/
-QUICKJS_URL      = $(QUICKJS_URL_BASE)/$(QUICKJS_TARBALL)
 
 CSRCS = quickjs.c libregexp.c libbf.c libunicode.c cutils.c
 
@@ -60,14 +59,14 @@ MODULE    = $(CONFIG_INTERPRETERS_QUICKJS)
 endif
 
 $(QUICKJS_TARBALL):
-	$(Q) echo "Downloading $(QUICKJS_TARBALL)"
-	$(Q) curl -O -L $(QUICKJS_URL)
+	$(call DOWNLOAD,$(QUICKJS_URL_BASE),$(QUICKJS_TARBALL))
 
 $(QUICKJS_UNPACK): $(QUICKJS_TARBALL)
-	$(Q) echo "Unpacking $(QUICKJS_TARBALL) to $(QUICKJS_UNPACK)"
+	$(ECHO_BEGIN)"Unpacking $(QUICKJS_TARBALL) to $(QUICKJS_UNPACK) "
 	$(Q) tar -Jxf $(QUICKJS_TARBALL)
 	$(Q) mv quickjs-$(QUICKJS_VERSION) $(QUICKJS_UNPACK)
 	$(Q) patch -d $(QUICKJS_UNPACK) -p1 < 0001-Disabled-unsupported-feature-on-NuttX.patch
+	$(ECHO_END)
 
 $(QUICKJS_UNPACK)/.patch: $(QUICKJS_UNPACK)
 	$(Q) touch $(QUICKJS_UNPACK)/.patch

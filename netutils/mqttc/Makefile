@@ -24,6 +24,7 @@ MQTTC_VERSION := $(patsubst "%",%,$(CONFIG_NETUTILS_MQTTC_VERSION))
 MQTTC_TARBALL  = $(MQTTC_VERSION).tar.gz
 MQTTC_UNPACK   = MQTT-C
 MQTTC_SRCDIR   = $(MQTTC_UNPACK)$(DELIM)src
+MQTTC_URL_BASE = https://github.com/LiamBindle/MQTT-C/archive
 
 DEPPATH += --dep-path $(MQTTC_SRCDIR)
 VPATH   += :$(MQTTC_SRCDIR)
@@ -31,8 +32,7 @@ VPATH   += :$(MQTTC_SRCDIR)
 CSRCS := $(notdir $(wildcard $(MQTTC_SRCDIR)$(DELIM)*.c))
 
 $(MQTTC_TARBALL):
-	$(Q) echo "Downloading MQTT-C-$(MQTTC_VERSION)"
-	$(Q) curl -O -L https://github.com/LiamBindle/MQTT-C/archive/$(MQTTC_TARBALL)
+	$(call DOWNLOAD,$(MQTTC_URL_BASE),$(MQTTC_TARBALL))
 
 $(MQTTC_UNPACK): $(MQTTC_TARBALL)
 	$(Q) tar zxf $(MQTTC_TARBALL)
