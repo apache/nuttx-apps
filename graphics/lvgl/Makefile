@@ -34,6 +34,9 @@ CFLAGS += -Wno-format -Wno-unused-variable
 CSRCS += port/lv_port.c
 CSRCS += port/lv_port_tick.c
 
+ifeq ($(CONFIG_LIBUV),y)
+CSRCS += port/lv_port_libuv.c
+endif
 
 ifeq ($(CONFIG_LV_PORT_USE_LCDDEV),y)
 CSRCS += port/lv_port_lcddev.c

@@ -54,6 +54,11 @@ config LV_PORT_FBDEV_DEFAULT_DEVICEPATH
 	default "/dev/fb0"
 	depends on LV_PORT_USE_FBDEV
 
+config LV_PORT_UV_POLL_DEVICEPATH
+	string "Display poll device path"
+	depends on LIBUV
+	default "/dev/fb0"
+
 config LV_PORT_USE_TOUCHPAD
 	bool "Enable touchpad port"
 	default n
