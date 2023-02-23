@@ -26,6 +26,10 @@ config COREMARK_STACKSIZE
 	int "Coremark task stack size"
 	default 4096
 
+config COREMARK_MEM_LOCATION
+	string "Coremark memory location string"
+	default "Defined by the NuttX configuration"
+
 config COREMARK_MULTITHREAD_OVERRIDE
 	bool "Override number of threads"
 	default n
