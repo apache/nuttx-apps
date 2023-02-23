@@ -435,9 +435,12 @@ int FS_opendev(int chn, int infd, int outfd)
 
 int FS_openin(const char *name)
 {
-  int chn, fd;
+  int chn;
+  int fd;
 
-  if ((fd = open(name, O_RDONLY)) == -1)
+  fd = open(name, O_RDONLY);
+
+  if (fd < 0)
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -526,9 +529,12 @@ int FS_openinChn(int chn, const char *name, int mode)
 
 int FS_openout(const char *name)
 {
-  int chn, fd;
+  int chn;
+  int fd;
 
-  if ((fd = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0666)) == -1)
+  fd = open(name, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+
+  if (fd < 0)
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -911,7 +917,8 @@ void FS_xonxoff(int chn, int on)
 
 int FS_put(int chn)
 {
-  ssize_t offset, written;
+  ssize_t offset;
+  size_t written;
 
   if (opened(chn, 2) == -1)
     {
@@ -1397,7 +1404,8 @@ int FS_getChar(int dev)
 
 int FS_get(int chn)
 {
-  ssize_t offset, rd;
+  ssize_t offset;
+  size_t rd;
 
   if (opened(chn, 2) == -1)
     {
@@ -1523,7 +1531,8 @@ int FS_eof(int chn)
 long int FS_loc(int chn)
 {
   int fd;
-  off_t cur, offset = 0;
+  off_t cur;
+  off_t offset = 0;
 
   if (opened(chn, -1) == -1)
     {
@@ -1773,9 +1782,11 @@ int FS_charpos(int chn)
 
 int FS_copy(const char *from, const char *to)
 {
-  int infd, outfd;
+  int infd;
+  int outfd;
   char buf[4096];
-  ssize_t inlen, outlen = -1;
+  ssize_t inlen;
+  ssize_t outlen = -1;
 
   if ((infd = open(from, O_RDONLY)) == -1)
     {
