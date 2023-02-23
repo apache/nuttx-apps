@@ -562,7 +562,7 @@ static void do_wake_test(enum e_test_type type, int flags)
 
       for (tidx = 0; tidx < nthreads; tidx++)
         {
-          pthread_kill(tid[tidx], 1);
+          pthread_kill(tid[tidx], SIGUSR1);
 
           /* Wait threads to complete work. */
 
