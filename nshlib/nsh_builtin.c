@@ -32,6 +32,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <sched.h>
+#include <signal.h>
 #include <string.h>
 
 #include <nuttx/lib/builtin.h>
