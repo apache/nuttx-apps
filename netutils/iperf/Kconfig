@@ -2,7 +2,7 @@
 # For a description of the syntax of this configuration file,
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
-		
+
 config NETUTILS_IPERF
 	bool "iperf example"
 	default n
@@ -14,7 +14,7 @@ config NETUTILS_IPERF
 		Enable the \"iperf example\"
 
 if NETUTILS_IPERF
-		
+
 config NETUTILS_IPERF_PROGNAME
 	string "Program name"
 	default "iperf"

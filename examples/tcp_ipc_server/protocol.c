@@ -62,7 +62,7 @@
 
 #define LORAWAN_DOWNLINK_TIME_MS       10000
 #define MAX_MESSAGE_SIZE               12
-#define SEND_MESSAGE                   'U' 
+#define SEND_MESSAGE                   'U'
 #define DOWNLINK_RESPONSE              'D'
 
 /****************************************************************************

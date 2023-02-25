@@ -15,7 +15,7 @@ config EXAMPLES_TIMER_GPIO
 		connected to the digital output. This example differs from the timer
 		example because it waits on a sigwaitinfo() instead of using a signal
 		handler. This approach ensures a deterministic wake-up time when the
-		signal occurs. 
+		signal occurs.
 
 if EXAMPLES_TIMER_GPIO
 

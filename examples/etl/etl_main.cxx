@@ -81,7 +81,7 @@ class CETL
         printf("v1 with 0 through 9\n");
         for (auto& it : v1) {
             printf("%i ", it);
-        }    
+        }
         printf("\n");
 
         printf("v2 with 10 through 29\n");

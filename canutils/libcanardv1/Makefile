@@ -55,7 +55,7 @@ $(LIBCANARDV1_UNPACKNAME): $(LIBCANARDV1_PACKNAME)
 	$(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
-	
+
 $(O1HEAP_PACKNAME):
 	@echo "Downloading: $@"
 	$(Q) curl -o $@ -L $(O1HEAP_URL)$(DELIM)$(O1HEAP_VERSION)$(PACKEXT)
@@ -77,7 +77,7 @@ $(APPS_INCDIR)$(DELIM)canard.h: $(LIBCANARDV1_DRVDIR)$(DELIM)canard.h
 
 $(APPS_INCDIR)$(DELIM)canard_dsdl.h: $(LIBCANARDV1_DRVDIR)$(DELIM)canard_dsdl.h
 	$(Q) cp $< $@
-	
+
 $(APPS_INCDIR)$(DELIM)o1heap.h: $(O1HEAP_DRVDIR)$(DELIM)o1heap.h
 	$(Q) cp $< $@
 

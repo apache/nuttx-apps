@@ -32,7 +32,7 @@
 
 #include <audioutils/mml_parser.h>
 
-#ifdef DEBUG_ON 
+#ifdef DEBUG_ON
 #include <stdio.h>
 #endif
 
@@ -50,7 +50,7 @@
 #define TUPLET_START '{'
 #define TUPLET_END   '}'
 
-#ifdef DEBUG_ON 
+#ifdef DEBUG_ON
 #define DEBUG printf
 #else
 #define DEBUG(...)

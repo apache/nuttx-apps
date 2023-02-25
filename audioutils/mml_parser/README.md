@@ -66,7 +66,7 @@ ex: ``"CDEFGAB > C R C < BAGFEDC"``, ``"O4 CDEFGAB O5 C R C O4 BAGFEDC"``
 ### Tempo
 
 Tempo is indicated as "T" and numter following after the "T".
-Tempo number decide a speed of the score. This value is used for culculating sample number for 
+Tempo number decide a speed of the score. This value is used for culculating sample number for
 the note (or rest).
 ex: ``"T120"``
 

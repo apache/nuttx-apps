@@ -21,7 +21,7 @@ config EXAMPLES_LP503X_PROGNAME
 config EXAMPLES_LP503X_DEVPATH
 	string "LP503X device path"
 	default "/dev/leddrv0"
-	
+
 config EXAMPLES_LP503X_PRIORITY
 	int "lp503x task priority"
 	default 100
@@ -29,5 +29,5 @@ config EXAMPLES_LP503X_PRIORITY
 config EXAMPLES_LP503X_STACKSIZE
 	int "lp503x stack size"
 	default DEFAULT_TASK_STACKSIZE
-  
+
 endif

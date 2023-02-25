@@ -10,7 +10,7 @@ config EXAMPLES_WATCHER
 	depends on FSUTILS_MKFATFS
 	---help---
 		Enable the watcher example. The watcher is a task that will monitor
-		other tasks that have previously subscribed to be watched. If the 
+		other tasks that have previously subscribed to be watched. If the
 		watched tasks don't signal the watcher during the watchdog time period,
 		the watchdog timer will expire and the watcher will print the tasks that
 		did not signal and the ones that signaled. This example will only be supported
