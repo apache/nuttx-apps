@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HELLO_NIM
+	tristate "\"Hello, World!\" example (Nim)"
+	default n
+	---help---
+		Enable the \"Hello, World!\" example
+
+if EXAMPLES_HELLO_NIM
+
+config EXAMPLES_HELLO_NIM_PROGNAME
+	string "Program name"
+	default "hello_nim"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_HELLO_NIM_PRIORITY
+	int "Hello task priority"
+	default 100
+
+config EXAMPLES_HELLO_NIM_STACKSIZE
+	int "Hello stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
