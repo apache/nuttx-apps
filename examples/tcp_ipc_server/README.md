@@ -2,21 +2,21 @@
 
 ## What's this?
 
-This program consists of a server socket & custom messages to establish IPC for multiple applications (client_tcp) and one process that controls LoRaWAN connectivity (server_tcp). 
+This program consists of a server socket & custom messages to establish IPC for multiple applications (client_tcp) and one process that controls LoRaWAN connectivity (server_tcp).
 For more details about client side, please see client_tcp example.
 
 This approach using TCP/IP sockets as IPC channel ensures controlled access to LoRaWAN connectivity.
 The goals of using this approach are:
 
 * Having a solid and reliable infrastructure to ensure IPC works fine for multiple applications simultaneously
-* Having the possibility to host different IoT projects and solutions that use LPWAN in a single ESP32 
+* Having the possibility to host different IoT projects and solutions that use LPWAN in a single ESP32
 * Having the possibility to validate, test and debug multiple IoT projects and solutions at the same time, under the same connectivity conditions (same signal strength, same antenna, same modem/transceiver, etc.)
 
 Both client and server work on local network scope.
 
 
 ## How do I use this?
- 
+
 In order to test client_tcp & server_tcp together, there are two ways to proceed:
 
 1) Init server manually (command: SERVER &), and after successfull server init, also init client manually (CLIENT 127.0.0.1)

@@ -43,7 +43,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <arpa/inet.h> 
+#include <arpa/inet.h>
 
 #include "protocol.h"
 
@@ -90,7 +90,7 @@ static void show_usage(FAR const char *progname)
 #define SOCKET_PORT                     5000
 #define TCP_DATA_RCV_WITHOUT_FLAGS      0
 #define RCV_BUFFER_SIZE                 520
-#define SEND_BUFFER_SIZE                500 
+#define SEND_BUFFER_SIZE                500
 #define TIME_SECONDS_TO_SEND_NEXT_DATA  15
 
 /****************************************************************************

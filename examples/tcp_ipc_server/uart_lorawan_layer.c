@@ -83,7 +83,7 @@ static int read_uart_lorawan_resp(unsigned char * ptr_response_buffer,
  ****************************************************************************/
 
 #define PATH_TO_UART1              "/dev/ttyS1"
-#define FULL_AT_CMD_MAX_SIZE       200    
+#define FULL_AT_CMD_MAX_SIZE       200
 #define TIME_BETWEEN_AT_CMDS       1 //s
 #define MAX_ATTEMPTS_TO_SEND       3
 

@@ -17,7 +17,7 @@ limits on your own so as not to break your hardware.
 
 # Configuration
 
-The FOC PI current controller parameters can be obtained from the given 
+The FOC PI current controller parameters can be obtained from the given
 equations:
 
 ```
@@ -43,41 +43,40 @@ where:
     Ls     = 8.73 uH
     i\_max = ?
     v\_max = ?
- 
+
   Example configuration for f\_PWM = 20kHz, f\_notifier = 10kHz, ccb=1000:
     Kp = 0.0087
     Ki = 0.0025
- 
+
 * Linix 45ZWN24-40 (PMSM motor dedicated for NXP FRDM-MC-LVMTR kit)
     p      = 2
     Rs     = 0.5 Ohm
     Ls     = 0.400 mH
     i\_max = 2.34 A
     v\_max = 24 V
- 
+
   Example configuration for f\_PWM = 10kHz, f\_notifier = 5kHz, ccb=1000:
     Kp = 0.4
     Ki = 0.1
- 
+
 * Bull-Running BR2804-1700 kV (motor provided with the ST P-NUCLEO-IHM07 kit)
     p      = 7
     Rs     = 0.11 Ohm
     Ls     = 0.018 mH
     i\_max = 1.2A
     v\_max = 12V
- 
+
   Example configuration for f\_PWM = 20kHz, f\_notifier = 10kHz, ccb=200:
     Kp = 0.036
     Ki = 0.022
- 
+
 * iPower GBM2804H-100T (gimbal motor provided with the ST P-NUCLEO-IHM03 kit)
     p      = 7
     Rs     = 5.29 Ohm
     Ls     = 1.05 mH
     i\_max = 0.15A
     v\_max = 12V
- 
+
   Example configuration for f\_PWM = 10kHz, f\_notifier = 5kHz, ccb=TODO:
     Kp = TODO
     Ki = TODO
- 

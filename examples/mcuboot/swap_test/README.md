@@ -39,16 +39,16 @@ NuttShell (NSH) NuttX-10.2.0
 nsh> ?
 help usage:  help [-v] [<cmd>]
 
-  .         cd        echo      hexdump   mv        rmdir     true      xd        
-  [         cp        exec      kill      printf    set       truncate  
-  ?         cmp       exit      ls        ps        sleep     uname     
-  basename  dirname   false     mkdir     pwd       source    umount    
-  break     dd        free      mkrd      reboot    test      unset     
-  cat       df        help      mount     rm        time      usleep    
+  .         cd        echo      hexdump   mv        rmdir     true      xd
+  [         cp        exec      kill      printf    set       truncate
+  ?         cmp       exit      ls        ps        sleep     uname
+  basename  dirname   false     mkdir     pwd       source    umount
+  break     dd        free      mkrd      reboot    test      unset
+  cat       df        help      mount     rm        time      usleep
 
 Builtin Apps:
-  mcuboot_set_img  mcuboot_confirm  sh               
-  mcuboot_version  ramtest          nsh              
+  mcuboot_set_img  mcuboot_confirm  sh
+  mcuboot_version  ramtest          nsh
 nsh>
 ```
 
