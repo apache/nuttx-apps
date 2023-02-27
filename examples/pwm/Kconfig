@@ -44,7 +44,7 @@ config EXAMPLES_PWM_DUTYPCT1
 config EXAMPLES_PWM_CHANNEL1
 	int "First PWM channel number"
 	default 1
-	range 1 6
+	range -1 6
 	---help---
 		The first PWM channel number.  Default: 1
 
@@ -60,7 +60,7 @@ config EXAMPLES_PWM_DUTYPCT2
 config EXAMPLES_PWM_CHANNEL2
 	int "Second PWM channel number"
 	default 2
-	range 1 6
+	range -1 6
 	---help---
 		The second PWM channel number.  Default: 2
 
@@ -78,7 +78,7 @@ config EXAMPLES_PWM_DUTYPCT3
 config EXAMPLES_PWM_CHANNEL3
 	int "Third PWM channel number"
 	default 3
-	range 1 6
+	range -1 6
 	---help---
 		The third PWM channel number.  Default: 3
 
@@ -96,7 +96,7 @@ config EXAMPLES_PWM_DUTYPCT4
 config EXAMPLES_PWM_CHANNEL4
 	int "Fourth PWM channel number"
 	default 4
-	range 1 6
+	range -1 6
 	---help---
 		The fourth PWM channel number.  Default: 4
 
@@ -114,7 +114,7 @@ config EXAMPLES_PWM_DUTYPCT5
 config EXAMPLES_PWM_CHANNEL5
 	int "Fifth PWM channel number"
 	default 5
-	range 1 6
+	range -1 6
 	---help---
 		The fifth PWM channel number.  Default: 5
 
@@ -129,10 +129,10 @@ config EXAMPLES_PWM_DUTYPCT6
 	---help---
 		The sixth PWM duty as a percentage.  Default: 50%
 
-config EXAMPLES_PWM_CHANNEL5
+config EXAMPLES_PWM_CHANNEL6
 	int "Sixth PWM channel number"
 	default 6
-	range 1 6
+	range -1 6
 	---help---
 		The sixth PWM channel number.  Default: 6
 
