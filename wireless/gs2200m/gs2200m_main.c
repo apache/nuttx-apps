@@ -1563,6 +1563,7 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
   struct gs2200m_ifreq_msg imsg;
   uint8_t sock_type;
   bool getreq = false;
+  bool drvreq = true;
   int ret = -EINVAL;
 
   memset(&imsg.ifr, 0, sizeof(imsg.ifr));
@@ -1575,14 +1576,29 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
       case SIOCGIWNWID:
       case SIOCGIWFREQ:
       case SIOCGIWSENS:
-        getreq = true;
+        if (priv->usock_enable)
+          {
+            getreq = true;
+          }
+        else
+          {
+            ret = -ENOTTY;
+            drvreq = false;
+          }
         break;
 
       case SIOCSIFADDR:
       case SIOCSIFDSTADDR:
       case SIOCSIFNETMASK:
-
-        read(fd, &imsg.ifr, sizeof(imsg.ifr));
+        if (priv->usock_enable)
+          {
+            read(fd, &imsg.ifr, sizeof(imsg.ifr));
+          }
+        else
+          {
+            ret = -ENOTTY;
+            drvreq = false;
+          }
         break;
 
       case SIOCDENYINETSOCK:
@@ -1604,11 +1620,19 @@ static int ioctl_request(int fd, FAR struct gs2200m_s *priv,
         break;
 
       default:
+        if (!priv->usock_enable)
+          {
+            ret = -ENOTTY;
+            drvreq = false;
+          }
         break;
     }
 
-  imsg.cmd = req->cmd;
-  ret = ioctl(priv->gsfd, GS2200M_IOC_IFREQ, (unsigned long)&imsg);
+  if (drvreq)
+    {
+      imsg.cmd = req->cmd;
+      ret = ioctl(priv->gsfd, GS2200M_IOC_IFREQ, (unsigned long)&imsg);
+    }
 
   if (!getreq)
     {
