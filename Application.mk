@@ -203,16 +203,16 @@ else
 MAINNAME := $(addsuffix _main,$(PROGNAME))
 
 $(MAINCXXOBJ): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
-	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(firstword $(MAINNAME))})
-	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(firstword $(MAINNAME))})
-	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
+	$(eval MAIN=$(word $(call GETINDEX,$<,$(MAINCXXSRCS)),$(MAINNAME)))
+	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(MAIN)})
+	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(MAIN)})
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 $(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
-	$(eval $<_CFLAGS += ${DEFINE_PREFIX}main=$(firstword $(MAINNAME)))
-	$(eval $<_CELFFLAGS += ${DEFINE_PREFIX}main=$(firstword $(MAINNAME)))
-	$(eval MAINNAME=$(filter-out $(firstword $(MAINNAME)),$(MAINNAME)))
+	$(eval MAIN=$(word $(call GETINDEX,$<,$(MAINCSRCS)),$(MAINNAME)))
+	$(eval $<_CFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
+	$(eval $<_CELFFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
