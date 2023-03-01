@@ -165,10 +165,17 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
                   nsh_output(vtbl, "%s", buffer);
                 }
 
-              ret = nsh_parse(vtbl, buffer);
+              if (vtbl->np.np_flags & NSH_PFLAG_IGNORE)
+                {
+                  nsh_parse(vtbl, buffer);
+                }
+              else
+                {
+                  ret = nsh_parse(vtbl, buffer);
+                }
             }
         }
-      while (ret >= 0 || (vtbl->np.np_flags & NSH_PFLAG_IGNORE));
+      while (ret >= 0);
 
       /* Close the script file */
 
