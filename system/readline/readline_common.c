@@ -708,11 +708,6 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           buf[nch++] = '\n';
           buf[nch]   = '\0';
 
-#ifdef CONFIG_READLINE_ECHO
-          /* Echo the newline to the console */
-
-          RL_PUTC(vtbl, '\n');
-#endif
           return nch;
         }
 
@@ -724,11 +719,6 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
         {
           buf[nch++] = ch;
 
-#ifdef CONFIG_READLINE_ECHO
-          /* Echo the character to the console */
-
-          RL_PUTC(vtbl, ch);
-#endif
           /* Check if there is room for another character and the line's
            * null terminator.  If not then we have to end the line now.
            */
