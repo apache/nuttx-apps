@@ -79,29 +79,30 @@ int main(int argc, FAR char *argv[])
 
   while (1)
     {
-      SCHED_NOTE_PRINTF("shced note test count = %d.", count++);
-      SCHED_NOTE_STRING(str);
-      SCHED_NOTE_DUMP(1, &binary, sizeof(struct binary));
-      SCHED_NOTE_BPRINTF(2, "%hhd", c);
-      SCHED_NOTE_BPRINTF(3, "%hd", s);
-      SCHED_NOTE_BPRINTF(4, "%d", i);
-      SCHED_NOTE_BPRINTF(5, "%ld", l);
+      sched_note_printf(NOTE_TAG_ALWAYS,
+                        "shced note test count = %d.", count++);
+      sched_note_string(NOTE_TAG_ALWAYS, str);
+      sched_note_dump(NOTE_TAG_ALWAYS, 1, &binary, sizeof(struct binary));
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 2, "%hhd", c);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 3, "%hd", s);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 4, "%d", i);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 5, "%ld", l);
 #ifdef CONFIG_HAVE_LONG_LONG
-      SCHED_NOTE_BPRINTF(6, "%lld", ll);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 6, "%lld", ll);
 #endif
-      SCHED_NOTE_BPRINTF(7, "%jd", im);
-      SCHED_NOTE_BPRINTF(8, "%zd", sz);
-      SCHED_NOTE_BPRINTF(9, "%td", ptr);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 7, "%jd", im);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 8, "%zd", sz);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 9, "%td", ptr);
 #ifdef CONFIG_HAVE_FLOAT
-      SCHED_NOTE_BPRINTF(10, "%e", f);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 10, "%e", f);
 #endif
 #ifdef CONFIG_HAVE_DOUBLE
-      SCHED_NOTE_BPRINTF(11, "%le", d);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 11, "%le", d);
 #endif
 #ifdef CONFIG_HAVE_LONG_DOUBLE
-      SCHED_NOTE_BPRINTF(12, "%Le", ld);
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 12, "%Le", ld);
 #endif
-      SCHED_NOTE_BPRINTF(13,
+      sched_note_bprintf(NOTE_TAG_ALWAYS, 13,
                          "%hhd  %hd  %d  %ld  %lld  %jd  %zd  %td",
                           c,    s,   i,  l,    ll,  im,  sz,  ptr);
       usleep(10);
