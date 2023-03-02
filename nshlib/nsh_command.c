@@ -615,6 +615,8 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
   unsigned int i;
   unsigned int j;
   unsigned int k;
+  unsigned int offset;
+  char line[HELP_LINELEN];
 
   /* Pick an optimal column width */
 
@@ -650,22 +652,32 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
 
   for (i = 0; i < ncmdrows; i++)
     {
-      nsh_output(vtbl, "  ");
+      /* Tab before a new line */
+
+      offset = 4;
+      memset(line, ' ', offset);
+
       for (j = 0, k = i;
            j < cmdsperline && k < NUM_CMDS;
            j++, k += ncmdrows)
         {
-          nsh_output(vtbl, "%s", g_cmdmap[k].cmd);
+          /* Copy the cmd name to line buffer */
+
+          offset += strlcpy(line + offset, g_cmdmap[k].cmd,
+                            sizeof(line) - offset);
+
+          /* Add space between commands */
 
           for (cmdwidth = strlen(g_cmdmap[k].cmd);
                cmdwidth < colwidth;
                cmdwidth++)
             {
-              nsh_output(vtbl, " ");
+              line[offset++] = ' ';
             }
         }
 
-      nsh_output(vtbl, "\n");
+      line[offset++] = '\n';
+      nsh_write(vtbl, line, offset);
     }
 }
 #endif
@@ -796,6 +808,9 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
   unsigned int i;
   unsigned int j;
   unsigned int k;
+  unsigned int offset;
+  char line[HELP_LINELEN];
+  static const char *g_builtin_prompt = "\nBuiltin Apps:\n";
 
   /* Count the number of built-in commands and get the optimal column width */
 
@@ -845,10 +860,12 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
 
   /* List the set of available built-in commands */
 
-  nsh_output(vtbl, "\nBuiltin Apps:\n");
+  nsh_write(vtbl, g_builtin_prompt, strlen(g_builtin_prompt));
   for (i = 0; i < num_builtin_rows; i++)
     {
-      nsh_output(vtbl, "  ");
+      offset = 4;
+      memset(line, ' ', offset);
+
       for (j = 0, k = i;
            j < builtins_per_line &&
            (builtin = builtin_for_index(k));
@@ -859,17 +876,19 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
               continue;
             }
 
-          nsh_output(vtbl, "%s", builtin->name);
+          offset += strlcpy(line + offset, builtin->name,
+                            sizeof(line) - offset);
 
           for (builtin_width = strlen(builtin->name);
                builtin_width < column_width;
                builtin_width++)
             {
-              nsh_output(vtbl, " ");
+              line[offset++] = ' ';
             }
         }
 
-      nsh_output(vtbl, "\n");
+      line[offset++] = '\n';
+      nsh_write(vtbl, line, offset);
     }
 #endif
 }
