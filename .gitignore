@@ -11,6 +11,7 @@
 *.lib
 *.lst
 *.o
+*.wo
 *.obj
 *.rel
 *.src
@@ -28,6 +29,7 @@
 /romfs.img
 /staging
 /symtab_apps.c
+/wasm
 cscope.out
 Make.dep
 .context

@@ -1,0 +1,149 @@
+############################################################################
+# apps/interpreters/wamr/Toolchain.defs
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+# Wasm32 toolchain setting
+# Target: wasm32-unknown-wasi
+
+WCC ?= $(WASI_SDK_PATH)/bin/clang
+WAR ?= $(WASI_SDK_PATH)/bin/llvm-ar rcs
+WRC ?= wamrc
+WSYSROOT ?= $(TOPDIR)
+
+CFLAGS_STRIP = -fsanitize=kernel-address -fsanitize=address -fsanitize=undefined
+CFLAGS_STRIP += $(ARCHCPUFLAGS) $(ARCHCFLAGS) $(ARCHINCLUDES) $(ARCHDEFINES) $(ARCHOPTIMIZATION) $(EXTRAFLAGS)
+
+WCFLAGS += $(filter-out $(CFLAGS_STRIP),$(CFLAGS))
+WCFLAGS += --sysroot=$(WSYSROOT) -nostdlib -D__NuttX__
+
+WLDFLAGS = -z stack-size=$(STACKSIZE) -Wl,--initial-memory=$(INITIAL_MEMORY)
+WLDFLAGS += -Wl,--export=main -Wl,--export=__main_argc_argv
+WLDFLAGS += -Wl,--export=__heap_base -Wl,--export=__data_end
+WLDFLAGS += -Wl,--no-entry -Wl,--strip-all -Wl,--allow-undefined
+
+ifeq ($(CONFIG_ARCH_ARM),y)
+  ifeq ($(CONFIG_ARM_THUMB),y)
+    WTARGET = thumb
+  else
+    WTARGET = arm
+  endif
+
+  ifeq ($(CONFIG_ARCH_CORTEXM85),y)
+    WTARGET := $(WTARGET)v8.1m.main
+    WCPU     = --cpu=cortex-m85
+  else ifeq ($(CONFIG_ARCH_CORTEXM55),y)
+    WTARGET := $(WTARGET)v8.1m.main
+    WCPU     = --cpu=cortex-m55
+  else ifeq ($(CONFIG_ARCH_CORTEXM35P),y)
+    WTARGET := $(WTARGET)v8m.main
+    WCPU     = --cpu=cortex-m35p
+  else ifeq ($(CONFIG_ARCH_CORTEXM33),y)
+    WTARGET := $(WTARGET)v8m.main
+    WCPU     = --cpu=cortex-m33
+  else ifeq ($(CONFIG_ARCH_CORTEXM23),y)
+    WTARGET := $(WTARGET)v8m.main
+    WCPU     = --cpu=cortex-m23
+  else ifeq ($(CONFIG_ARCH_CORTEXM7),y)
+    WTARGET := $(WTARGET)v7em
+    WCPU     = --cpu=cortex-m7
+  else ifeq ($(CONFIG_ARCH_CORTEXM4),y)
+    WTARGET := $(WTARGET)v7em
+    WCPU     = --cpu=cortex-m4
+  else ifeq ($(CONFIG_ARCH_CORTEXM3),y)
+    WTARGET := $(WTARGET)v7em
+    WCPU     = --cpu=cortex-m3
+  else ifeq ($(CONFIG_ARCH_CORTEXM0),y)
+    WTARGET := $(WTARGET)v6m
+    WCPU     = --cpu=cortex-m0
+  endif
+
+  ifeq ($(CONFIG_ARCH_CORTEXA5),y)
+    WTARGET := $(WTARGET)armv7
+    WCPU     = --cpu=cortex-a5
+  else ifeq ($(CONFIG_ARCH_CORTEXA7),y)
+    WTARGET := $(WTARGET)armv7
+    WCPU     = --cpu=cortex-a7
+  else ifeq ($(CONFIG_ARCH_CORTEXA8),y)
+    WTARGET := $(WTARGET)armv8a
+    WCPU     = --cpu=cortex-a8
+  else ifeq ($(CONFIG_ARCH_CORTEXA9),y)
+    WTARGET := $(WTARGET)armv7
+    WCPU     = --cpu=cortex-a9
+  endif
+
+  ifeq ($(CONFIG_ARCH_CORTEXR4),y)
+    WTARGET := $(WTARGET)armv7
+    WCPU     = --cpu=cortex-r4
+  else ifeq ($(CONFIG_ARCH_CORTEXR5),y)
+    WTARGET := $(WTARGET)armv7
+    WCPU     = --cpu=cortex-r5
+  else ifeq ($(CONFIG_ARCH_CORTEXR7),y)
+    WTARGET := $(WTARGET)armv7
+    WCPU     = --cpu=cortex-r7
+  endif
+
+else ifeq ($(CONFIG_ARCH_RISCV),y)
+  ifeq ($(CONFIG_ARCH_RV64),y)
+    WTARGET = riscv64
+  else
+    WTARGET = riscv32
+  endif
+else ifeq ($(CONFIG_ARCH_XTENSA),y)
+  WTARGET = xtensa
+else ifeq ($(CONFIG_ARCH_X86_64),y)
+  WTARGET = x86_64
+else ifeq ($(CONFIG_ARCH_X86),y)
+  WTARGET = i386
+else ifeq ($(CONFIG_ARCH_MIPS),y)
+  WTARGET = mips
+else ifeq ($(CONFIG_ARCH_SIM),y)
+  RCFLAGS += --disable-simd
+  ifeq ($(CONFIG_SIM_M32),y)
+    WTARGET = i386
+  else
+    WTARGET = x86_64
+  endif
+endif
+
+RCFLAGS += --target=$(WTARGET) $(WCPU)
+
+define LINK_WAMR
+	$(if $(wildcard $(APPDIR)$(DELIM)wasm$(DELIM)*.wo), \
+	  $(foreach bin,$(wildcard $(APPDIR)$(DELIM)wasm$(DELIM)*.wo), \
+	    $(eval INITIAL_MEMORY=$(shell echo $(notdir $(bin)) | cut -d'#' -f2)) \
+	    $(eval STACKSIZE=$(shell echo $(notdir $(bin)) | cut -d'#' -f3)) \
+	    $(eval PROGNAME=$(shell echo $(notdir $(bin)) | cut -d'#' -f1)) \
+	    $(eval WAMRMODE=$(shell echo $(notdir $(bin)) | cut -d'#' -f5)) \
+	    $(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm) \
+	    $(if $(CONFIG_INTERPRETERS_WAMR_AOT), \
+	      $(if $(filter AOT,$(WAMRMODE)), \
+	        $(info Wamrc Generate AoT: $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot) \
+	        $(shell $(WRC) $(RCFLAGS) -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot \
+	                          $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm > /dev/null), \
+	        $(if $(filter XIP,$(WAMRMODE)), \
+	          $(info Wamrc Generate XiP: $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).xip) \
+	          $(shell $(WRC) $(RCFLAGS) --enable-indirect-mode --disable-llvm-intrinsics \
+	                         -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).xip \
+	                            $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm > /dev/null) \
+	         ) \
+	       ) \
+	     ) \
+	   ) \
+	 )
+endef
