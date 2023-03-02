@@ -105,4 +105,8 @@ STACKSIZE += $(CONFIG_COREMARK_STACKSIZE)
 
 MAINSRC += core_main.c
 
+# Build with WebAssembly when CONFIG_INTERPRETERS_WAMR is enabled
+
+WASM_BUILD = y
+
 include $(APPDIR)/Application.mk

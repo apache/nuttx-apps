@@ -262,3 +262,9 @@ distclean:: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
+
+ifeq ($(WASM_BUILD),y)
+  ifneq ($(CONFIG_INTERPRETERS_WAMR)$(CONFIG_INTERPRETERS_WAMR3),)
+    include $(APPDIR)$(DELIM)interpreters$(DELIM)Wasm.mk
+  endif # CONFIG_INTERPRETERS_WAMR || CONFIG_INTERPRETERS_WAMR3
+endif # WASM_BUILD

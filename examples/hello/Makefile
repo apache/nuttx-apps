@@ -31,4 +31,12 @@ MODULE    = $(CONFIG_EXAMPLES_HELLO)
 
 MAINSRC = hello_main.c
 
+# Build with WebAssembly when CONFIG_INTERPRETERS_WAMR is enabled
+
+WASM_BUILD = y
+
+# Mode of WebAssembly Micro Runtime
+
+WAMR_MODE  = AOT
+
 include $(APPDIR)/Application.mk

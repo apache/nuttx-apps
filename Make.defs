@@ -65,7 +65,8 @@ BINDIR ?= $(APPDIR)$(DELIM)bin
 
 # The final build target
 
-BIN ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
+BIN  ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
+WBIN ?= $(APPDIR)$(DELIM)wasm$(DELIM)libwasm$(LIBEXT)
 
 # Tools
 
@@ -105,3 +106,19 @@ CFLAGS   += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)include"
 CXXFLAGS += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)include"
 
 NUTTXLIB ?= $(call CONVERT_PATH,$(TOPDIR)$(DELIM)staging)
+
+# Function to get entry index
+
+define GETINDEX
+	$(eval i=1)
+	$(eval entry=)
+	$(foreach e,$(2), \
+	  $(if $(filter $(notdir $(1)),$(notdir $(e))), \
+	    $(eval entry=$(1)), \
+	    $(if $(entry), \
+	      ,$(eval i=$(shell expr $(i) + 1)) \
+	    ) \
+	  ) \
+	)
+	$(i)
+endef
