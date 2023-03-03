@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# USB Host HID keyboard Example
+# USB Host HID keyboard built-in application info
 
 PROGNAME = $(CONFIG_EXAMPLES_HIDKBD_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_HIDKBD_DEFPRIO)
 STACKSIZE = $(CONFIG_EXAMPLES_HIDKBD_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_HIDKBD)
 
-# Hello, World! Example
+# USB Host HID keyboard example
 
 MAINSRC = hidkbd_main.c
 
