@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_YMODEM
+	tristate "YMODEM"
+	depends on SERIAL_TERMIOS
+	---help---
+		Enable support for ymodem.
+
+if SYSTEM_YMODEM
+
+config SYSTEM_YMODEM_STACKSIZE
+	int "ymodem stack size"
+	default 4096
+	---help---
+		The size of stack allocated for the ymodem task.
+
+config SYSTEM_YMODEM_PRIORITY
+	int "ymodem priority"
+	default 255
+	---help---
+		The priority of the ymodem task.
+
+config SYSTEM_YMODEM_DEBUG
+	bool "ymodem debug"
+	default false
+
+if SYSTEM_YMODEM_DEBUG
+config SYSTEM_YMODEM_DEBUGFILE_PATH
+	string "save ymodem debug log path"
+	default "/tmp/ymodem"
+
+endif
+
+endif
