@@ -238,7 +238,7 @@ int nsh_login(FAR struct console_stdio_s *pstate)
 
   /* Too many failed login attempts */
 
-  write(OUTFD(pstate), g_loginfailure, strlen(g_loginsuccess));
+  write(OUTFD(pstate), g_loginfailure, strlen(g_loginfailure));
   return -1;
 }
 
