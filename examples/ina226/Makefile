@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/ina219/Makefile
+# apps/examples/ina226/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
