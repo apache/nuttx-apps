@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/toywasm/include/toywasm_config.h
+ * apps/interpreters/toywasm/include/toywasm_version.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,32 +18,9 @@
  *
  ****************************************************************************/
 
-#if !defined(_TOYWASM_CONFIG_H)
-#define _TOYWASM_CONFIG_H
+#if !defined(_TOYWASM_VERSION_H)
+#define _TOYWASM_VERSION_H
 
-#define TOYWASM_USE_SEPARATE_EXECUTE
-#define TOYWASM_USE_TAILCALL
-/* #undef TOYWASM_USE_SHORT_ENUMS */
+#define TOYWASM_VERSION "v0.0.17-1-g7c6ff39"
 
-/* #undef TOYWASM_USE_USER_SCHED */
-
-/* #undef TOYWASM_ENABLE_TRACING */
-
-/* #undef TOYWASM_ENABLE_TRACING_INSN */
-#define TOYWASM_USE_JUMP_BINARY_SEARCH
-/* #undef TOYWASM_USE_JUMP_CACHE */
-#define TOYWASM_JUMP_CACHE2_SIZE 4
-#define TOYWASM_USE_LOCALS_CACHE
-#define TOYWASM_USE_SEPARATE_LOCALS
-#define TOYWASM_USE_SMALL_CELLS
-#define TOYWASM_USE_RESULTTYPE_CELLIDX
-#define TOYWASM_USE_LOCALTYPE_CELLIDX
-#define TOYWASM_ENABLE_WRITER
-#define TOYWASM_ENABLE_WASM_EXTENDED_CONST
-#define TOYWASM_ENABLE_WASM_MULTI_MEMORY
-#define TOYWASM_ENABLE_WASM_TAILCALL
-#define TOYWASM_ENABLE_WASM_THREADS
-#define TOYWASM_ENABLE_WASI
-#define TOYWASM_ENABLE_WASI_THREADS
-
-#endif /* !defined(_TOYWASM_CONFIG_H) */
+#endif /* !defined(_TOYWASM_VERSION_H) */
