@@ -27,6 +27,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include "fsutils/passwd.h"
 #ifdef CONFIG_NSH_CLE
@@ -150,6 +151,9 @@ int nsh_login(FAR struct console_stdio_s *pstate)
 #endif
   int ret;
   int i;
+#ifdef CONFIG_SERIAL_TERMIOS
+  struct termios cfg;
+#endif
 
 #ifdef CONFIG_NSH_PLATFORM_SKIP_LOGIN
   if (platform_skip_login() == OK)
@@ -193,9 +197,37 @@ int nsh_login(FAR struct console_stdio_s *pstate)
 
       write(OUTFD(pstate), g_passwordprompt, strlen(g_passwordprompt));
 
+      /* Disable ECHO if its a tty device */
+
+#ifdef CONFIG_SERIAL_TERMIOS
+      if (isatty(INFD(pstate)))
+        {
+          if (tcgetattr(INFD(pstate), &cfg) == 0)
+            {
+              cfg.c_iflag &= ~ECHO;
+              tcsetattr(INFD(pstate), TCSANOW, &cfg);
+            }
+        }
+#endif
+
       password[0] = '\0';
-      if (readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
-                      INFD(pstate), -1) > 0)
+      ret = readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
+                        INFD(pstate), -1);
+
+      /* Enable echo again after password */
+
+#ifdef CONFIG_SERIAL_TERMIOS
+      if (isatty(INFD(pstate)))
+        {
+          if (tcgetattr(INFD(pstate), &cfg) == 0)
+            {
+              cfg.c_iflag |= ECHO;
+              tcsetattr(INFD(pstate), TCSANOW, &cfg);
+            }
+        }
+#endif
+
+      if (ret > 0)
         {
           /* Parse out the password */
 
