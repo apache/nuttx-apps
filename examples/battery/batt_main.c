@@ -37,6 +37,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 
 #ifndef CONFIG_EXAMPLES_BATTERY_DEVNAME
@@ -69,7 +70,8 @@ void status_report(int status)
 
       case BATTERY_IDLE:
         {
-          printf("Battery is idle, not full, not charging, not discharging!\n");
+          printf("Battery is idle, not full, not charging, "
+                 "not discharging!\n");
         }
         break;
 
@@ -194,7 +196,8 @@ int main(int argc, FAR char *argv[])
     }
 
   printf("Going to read battery info, updated each two seconds.\n");
-  printf("Try to remove the board power supply, etc, to change its status.\n");
+  printf("Try to remove the board power supply, etc, "
+         "to change its status.\n");
 
   /* Wait the user read the information message above */
 
@@ -202,7 +205,8 @@ int main(int argc, FAR char *argv[])
 
   for (i = 0; i < 10; i++)
     {
-      printf("\n-----------------------------------------------------------\n");
+      printf("\n----------------------------"
+             "-------------------------------\n");
 
       /* Read battery status */
 
