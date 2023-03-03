@@ -72,6 +72,7 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 
 config INTERPRETERS_WAMR_LIBC_WASI
 	bool "Enable WASI libc"
+	select PSEUDOFS_SOFTLINKS
 	default n
 	---help---
 	Note: As of writing this, this works only with main branch of
