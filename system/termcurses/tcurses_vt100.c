@@ -36,6 +36,7 @@
 #include <debug.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <termios.h>
 
 #include "tcurses_priv.h"
 #include "graphics/curses.h"
@@ -74,6 +75,9 @@ struct tcurses_vt100_s
   int    out_fd;
   int    keycount;
   char   keybuf[16];
+#ifdef CONFIG_SERIAL_TERMIOS
+  tcflag_t iflag;
+#endif
 };
 
 /************************************************************************************
@@ -1465,6 +1469,9 @@ static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev)
 FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
 {
   FAR struct tcurses_vt100_s *priv;
+#ifdef CONFIG_SERIAL_TERMIOS
+  struct termios cfg;
+#endif
 
   /* Allocate a new device structure */
 
@@ -1483,6 +1490,34 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
   priv->out_fd   = out_fd;
   priv->keycount = 0;
 
+#ifdef CONFIG_SERIAL_TERMIOS
+      if (isatty(priv->in_fd))
+        {
+          if (tcgetattr(priv->in_fd, &cfg) == 0)
+            {
+              /* Save current iflags */
+
+              priv->iflag = cfg.c_iflag;
+
+              /* If ECHO enabled, disable it */
+
+              if (cfg.c_iflag & ECHO)
+                {
+                  cfg.c_iflag &= ~ECHO;
+                  tcsetattr(priv->in_fd, TCSANOW, &cfg);
+                }
+            }
+          else
+            {
+              /* Get attr failed, mark ECHO bit zero to skip set attr in
+               * tcurses_vt100_terminate
+               */
+
+              priv->iflag = 0;
+            }
+        }
+#endif
+
   return (FAR struct termcurses_s *)priv;
 }
 
@@ -1498,6 +1533,9 @@ static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
 {
   FAR struct tcurses_vt100_s *priv;
   int  fd;
+#ifdef CONFIG_SERIAL_TERMIOS
+  struct termios cfg;
+#endif
 
   priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
@@ -1507,6 +1545,17 @@ static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
    */
 
   write(fd, g_setdefcolors, strlen(g_setdefcolors));
+
+#ifdef CONFIG_SERIAL_TERMIOS
+      if (isatty(priv->in_fd))
+        {
+          if (tcgetattr(priv->in_fd, &cfg) == 0 && priv->iflag & ECHO)
+            {
+              cfg.c_iflag |= ECHO;
+              tcsetattr(priv->in_fd, TCSANOW, &cfg);
+            }
+        }
+#endif
 
   return OK;
 }
