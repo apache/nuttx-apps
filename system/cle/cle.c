@@ -1055,7 +1055,6 @@ static int cle_editloop(FAR struct cle_s *priv)
 
             priv->curpos = priv->nchars;
             cle_insertch(priv, '\n');
-            cle_putch(priv, '\n');
             return OK;
           }
           break;
