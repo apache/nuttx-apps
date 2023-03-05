@@ -134,7 +134,8 @@ int main(int argc, FAR char *argv[])
   ret = pthread_create(&tid2, NULL, select_listener, NULL);
   if (ret != 0)
     {
-      printf("poll_main: Failed to create select_listener thread: %d\n", ret);
+      printf("poll_main: Failed to create select_listener thread: %d\n",
+             ret);
       exitcode = 6;
       goto errout;
     }

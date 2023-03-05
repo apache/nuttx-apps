@@ -52,6 +52,7 @@ static inline void fill_buffer(unsigned char *buf, int offset)
         {
           j = 1;
         }
+
       buf[j] = ch;
     }
 }
