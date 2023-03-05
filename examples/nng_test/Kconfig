@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NNG_TEST
+	bool "NNG pubsub program"
+	default n
+	---help---
+		Enable the NNG pubsub program
+
+if EXAMPLES_NNG_TEST
+
+config EXAMPLES_NNG_TEST_STACKSIZE
+	int "NNG pubsub stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_NNG_TEST_PRIORITY
+	int "NNG pubsub task priority"
+	default 50
+
+endif
