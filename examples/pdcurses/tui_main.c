@@ -204,7 +204,7 @@ static void showfile(char *fname)
     }
   else
     {
-      sprintf(buf, "ERROR: file '%s' not found", fname);
+      snprintf(buf, sizeof(buf), "ERROR: file '%s' not found", fname);
       errormsg(buf);
     }
 }

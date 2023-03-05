@@ -184,7 +184,7 @@ static void dstack(char *fmt, int num, PANEL *pan)
 {
   char s80[80];
 
-  sprintf(s80, fmt, num, pan);
+  snprintf(s80, sizeof(s80), fmt, num, pan);
   PDC_LOG(("%s b=%s t=%s", s80, _bottom_panel ? _bottom_panel->user : "--",
            _top_panel ? _top_panel->user : "--"));
 
@@ -220,7 +220,7 @@ static void dtouchline(PANEL *pan, int start, int count)
 {
   char s80[80];
 
-  sprintf(s80, "dtouchline s=%d c=%d", start, count);
+  snprintf(s80, sizeof(s80), "dtouchline s=%d c=%d", start, count);
   dpanel(s80, pan);
   touchline(pan->win, start, count);
 }

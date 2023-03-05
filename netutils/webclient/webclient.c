@@ -1770,7 +1770,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               char post_size[sizeof("18446744073709551615")];
 
               dest = append(dest, ep, g_httpcontsize);
-              sprintf(post_size, "%zu", ctx->bodylen);
+              snprintf(post_size, sizeof(post_size), "%zu", ctx->bodylen);
               dest = append(dest, ep, post_size);
               dest = append(dest, ep, g_httpcrnl);
             }

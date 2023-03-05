@@ -192,8 +192,9 @@ void parse_and_callback(cJSON *item, const char *prefix)
 {
     while (item)
     {
-        char *newprefix = malloc(strlen(prefix) + strlen(item->name) + 2);
-        sprintf(newprefix, "%s/%s", prefix, item->name);
+        size_t len = strlen(prefix) + strlen(item->name) + 2;
+        char *newprefix = malloc(len);
+        snprintf(newprefix, len, "%s/%s", prefix, item->name);
         int dorecurse = callback(newprefix, item->type, item);
         if (item->child && dorecurse) parse_and_callback(item->child, newprefix);
         item = item->next;

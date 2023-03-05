@@ -562,9 +562,11 @@ static void cfgdatacmd_show_all_config_items(void)
   /* Print header */
 
 #ifdef CONFIG_MTD_CONFIG_NAMED
-  sprintf(fmtstr, "%%-%ds%%-6sData\n", CONFIG_MTD_CONFIG_NAME_LEN);
+  snprintf(fmtstr, sizeof(fmtstr),
+           "%%-%ds%%-6sData\n", CONFIG_MTD_CONFIG_NAME_LEN);
   printf(fmtstr, "Name", "Len");
-  sprintf(fmtstr, "%%-%ds%%-6d", CONFIG_MTD_CONFIG_NAME_LEN);
+  snprintf(fmtstr, sizeof(fmtstr),
+           "%%-%ds%%-6d", CONFIG_MTD_CONFIG_NAME_LEN);
 #else
   strlcpy(fmtstr, "%-6s%-6s%-6sData\n", sizeof(fmtstr));
   printf(fmtstr, "ID", "Inst", "Len");
@@ -618,7 +620,8 @@ static void cfgdatacmd_show_all_config_items(void)
           char fmtstr2[10];
 
 #ifdef CONFIG_MTD_CONFIG_NAMED
-          sprintf(fmtstr2, "\n%ds", CONFIG_MTD_CONFIG_NAME_LEN + 6);
+          snprintf(fmtstr2, sizeof(fmtstr2),
+                   "\n%ds", CONFIG_MTD_CONFIG_NAME_LEN + 6);
 #else
           strlcpy(fmtstr2, "\n%18s", sizeof(fmtstr2));
 #endif

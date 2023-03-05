@@ -178,7 +178,7 @@ void httpd_strencode(char *to, int tosize, char *from)
         }
       else
         {
-          sprintf(to, "%%%02x", (int)*from & 0xff);
+          snprintf(to, tosize - tolen, "%%%02x", (int)*from & 0xff);
           to += 3;
           tolen += 3;
         }

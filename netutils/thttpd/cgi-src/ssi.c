@@ -324,7 +324,8 @@ static int check_filename(char *filename)
       *cp = '\0';
     }
 
-  authname = malloc(strlen(dirname) + 1 + sizeof(CONFIG_AUTH_FILE));
+  fnl = strlen(dirname) + 1 + sizeof(CONFIG_AUTH_FILE);
+  authname = malloc(fnl);
   if (!authname)
     {
       /* out of memory */
@@ -333,7 +334,7 @@ static int check_filename(char *filename)
       return 0;
     }
 
-  sprintf(authname, "%s/%s", dirname, CONFIG_AUTH_FILE);
+  snprintf(authname, fnl, "%s/%s", dirname, CONFIG_AUTH_FILE);
   r = stat(authname, &sb);
 
   free(dirname);
@@ -907,6 +908,7 @@ int main(int argc, char *argv[])
   char *script_name;
   char *path_info;
   char *path_translated;
+  size_t len;
   int errcode = 0;
 
   /* Default formats. */
@@ -935,14 +937,15 @@ int main(int argc, char *argv[])
       path_info = "";
     }
 
-  g_url = (char *)malloc(strlen(script_name) + strlen(path_info) + 1);
+  len = strlen(script_name) + strlen(path_info) + 1;
+  g_url = (char *)malloc(len);
   if (!g_url)
     {
       internal_error("Out of memory.");
       return 2;
     }
 
-  sprintf(g_url, "%s%s", script_name, path_info);
+  snprintf(g_url, len, "%s%s", script_name, path_info);
 
   /* Get the name of the file to parse. */
 

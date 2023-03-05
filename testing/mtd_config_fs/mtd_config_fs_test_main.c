@@ -859,7 +859,7 @@ static void test_nvs_gc(struct mtdnvs_ctx_s *ctx)
 
       /* 4 byte key */
 
-      sprintf(data.name, "k%02d", id);
+      snprintf(data.name, sizeof(data.name), "k%02d", id);
       data.configdata = buf;
       data.len = sizeof(buf);
 
@@ -876,7 +876,7 @@ static void test_nvs_gc(struct mtdnvs_ctx_s *ctx)
     {
       /* 4 byte key */
 
-      sprintf(data.name, "k%02d", id);
+      snprintf(data.name, sizeof(data.name), "k%02d", id);
       data.configdata = rd_buf;
       data.len = sizeof(rd_buf);
 
@@ -929,7 +929,7 @@ static void test_nvs_gc(struct mtdnvs_ctx_s *ctx)
     {
       /* 4 byte key */
 
-      sprintf(data.name, "k%02d", id);
+      snprintf(data.name, sizeof(data.name), "k%02d", id);
       data.configdata = rd_buf;
       data.len = sizeof(rd_buf);
 
@@ -1006,7 +1006,7 @@ static int write_content(uint16_t max_id, uint16_t begin, uint16_t end)
 
       /* 4 byte key */
 
-      sprintf(data.name, "k%02d", id);
+      snprintf(data.name, sizeof(data.name), "k%02d", id);
       data.configdata = buf;
       data.len = sizeof(buf);
 
@@ -1054,7 +1054,7 @@ static int check_content(uint16_t max_id)
     {
       /* 4 byte key */
 
-      sprintf(data.name, "k%02d", id);
+      snprintf(data.name, sizeof(data.name), "k%02d", id);
       data.configdata = rd_buf;
       data.len = sizeof(rd_buf);
 
@@ -1512,7 +1512,7 @@ static void test_nvs_full_sector(struct mtdnvs_ctx_s *ctx)
 
   while (1)
     {
-      sprintf(data.name, "k%04x", filling_id);
+      snprintf(data.name, sizeof(data.name), "k%04x", filling_id);
       data.configdata = (FAR uint8_t *)&filling_id;
       data.len = sizeof(filling_id);
 
@@ -1533,7 +1533,7 @@ static void test_nvs_full_sector(struct mtdnvs_ctx_s *ctx)
 
   /* check whether can delete whatever from full storage */
 
-  sprintf(data.name, "k%04x", 1);
+  snprintf(data.name, sizeof(data.name), "k%04x", 1);
   data.configdata = NULL;
   data.len = 0;
 
@@ -1565,7 +1565,7 @@ static void test_nvs_full_sector(struct mtdnvs_ctx_s *ctx)
       goto test_fail;
     }
 
-  sprintf(data.name, "k%04x", filling_id);
+  snprintf(data.name, sizeof(data.name), "k%04x", filling_id);
   data.configdata = (FAR uint8_t *)&filling_id;
   data.len = sizeof(filling_id);
 
@@ -1581,7 +1581,7 @@ static void test_nvs_full_sector(struct mtdnvs_ctx_s *ctx)
 
   for (i = 0; i <= filling_id; i++)
     {
-      sprintf(data.name, "k%04x", i);
+      snprintf(data.name, sizeof(data.name), "k%04x", i);
       data.configdata = (FAR uint8_t *)&data_read;
       data.len = sizeof(data_read);
 
@@ -1997,7 +1997,7 @@ static void test_nvs_gc_touched_deleted_ate(struct mtdnvs_ctx_s *ctx)
 
   while (1)
     {
-      sprintf(data.name, "k%04x", filling_id);
+      snprintf(data.name, sizeof(data.name), "k%04x", filling_id);
       data.configdata = (FAR uint8_t *)&filling_id;
       data.len = sizeof(filling_id);
 
@@ -2032,7 +2032,7 @@ static void test_nvs_gc_touched_deleted_ate(struct mtdnvs_ctx_s *ctx)
    *           B(deleted)       A            gc
    */
 
-  sprintf(data.name, "k%04x", filling_id - 1);
+  snprintf(data.name, sizeof(data.name), "k%04x", filling_id - 1);
   data.configdata = NULL;
   data.len = 0;
   ret = ioctl(fd, CFGDIOC_DELCONFIG, &data);
@@ -2049,7 +2049,7 @@ static void test_nvs_gc_touched_deleted_ate(struct mtdnvs_ctx_s *ctx)
    */
 
   filling_id -= 1;
-  sprintf(data.name, "k%04x", filling_id);
+  snprintf(data.name, sizeof(data.name), "k%04x", filling_id);
   data.configdata = (FAR uint8_t *)&filling_id;
   data.len = sizeof(filling_id);
   ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
@@ -2064,7 +2064,7 @@ static void test_nvs_gc_touched_deleted_ate(struct mtdnvs_ctx_s *ctx)
 
   for (i = 0; i <= filling_id; i++)
     {
-      sprintf(data.name, "k%04x", i);
+      snprintf(data.name, sizeof(data.name), "k%04x", i);
       data.configdata = (FAR uint8_t *)&data_read;
       data.len = sizeof(data_read);
 
@@ -2146,7 +2146,7 @@ static void test_nvs_gc_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
 
   while (1)
     {
-      sprintf(data.name, "k%04x", filling_id);
+      snprintf(data.name, sizeof(data.name), "k%04x", filling_id);
       data.configdata = (FAR uint8_t *)&filling_id;
       data.len = sizeof(filling_id);
       ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
@@ -2170,7 +2170,7 @@ static void test_nvs_gc_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
    *           B                A(deleted)   gc
    */
 
-  sprintf(data.name, "k%04x", 1);
+  snprintf(data.name, sizeof(data.name), "k%04x", 1);
   data.configdata = NULL;
   data.len = 0;
   ret = ioctl(fd, CFGDIOC_DELCONFIG, &data);
@@ -2207,7 +2207,7 @@ static void test_nvs_gc_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
    */
 
   update_id = 3;
-  sprintf(data.name, "k%04x", 2);
+  snprintf(data.name, sizeof(data.name), "k%04x", 2);
   data.configdata = (FAR uint8_t *)&update_id;
   data.len = sizeof(update_id);
   ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
@@ -2222,7 +2222,7 @@ static void test_nvs_gc_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
 
   for (i = 0; i <= filling_id - 1; i++)
     {
-      sprintf(data.name, "k%04x", i);
+      snprintf(data.name, sizeof(data.name), "k%04x", i);
       data.configdata = (FAR uint8_t *)&data_read;
       data.len = sizeof(data_read);
       ret = ioctl(fd, CFGDIOC_GETCONFIG, &data);
@@ -2323,7 +2323,7 @@ static void test_nvs_gc_not_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
 
   while (1)
     {
-      sprintf(data.name, "k%04x", filling_id);
+      snprintf(data.name, sizeof(data.name), "k%04x", filling_id);
       data.configdata = (FAR uint8_t *)&filling_id;
       data.len = sizeof(filling_id);
       ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
@@ -2347,7 +2347,7 @@ static void test_nvs_gc_not_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
    *           B(deleted)       A            gc
    */
 
-  sprintf(data.name, "k%04x", filling_id - 1);
+  snprintf(data.name, sizeof(data.name), "k%04x", filling_id - 1);
   data.configdata = NULL;
   data.len = 0;
   ret = ioctl(fd, CFGDIOC_DELCONFIG, &data);
@@ -2364,7 +2364,7 @@ static void test_nvs_gc_not_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
    */
 
   update_id = 3;
-  sprintf(data.name, "k%04x", 2);
+  snprintf(data.name, sizeof(data.name), "k%04x", 2);
   data.configdata = (FAR uint8_t *)&update_id;
   data.len = sizeof(update_id);
   ret = ioctl(fd, CFGDIOC_SETCONFIG, &data);
@@ -2379,7 +2379,7 @@ static void test_nvs_gc_not_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
 
   for (i = 0; i <= filling_id - 1; i++)
     {
-      sprintf(data.name, "k%04x", i);
+      snprintf(data.name, sizeof(data.name), "k%04x", i);
       data.configdata = (FAR uint8_t *)&data_read;
       data.len = sizeof(data_read);
       ret = ioctl(fd, CFGDIOC_GETCONFIG, &data);

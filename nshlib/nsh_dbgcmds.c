@@ -297,19 +297,22 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
   nsh_output(vtbl, "%s:\n", msg);
   for (i = 0; i < nbytes; i += 16)
     {
-      sprintf(line, "%04x: ", i);
+      snprintf(line, sizeof(line), "%04x: ", i);
+      size = strlen(line);
 
       for (j = 0; j < 16; j++)
         {
-          size = strlen(line);
           if (i + j < nbytes)
             {
-              sprintf(&line[size], "%02x ", buffer[i + j]);
+              snprintf(&line[size], sizeof(line) - size,
+                       "%02x ", buffer[i + j]);
             }
           else
             {
               strlcpy(&line[size], "   ", sizeof(line) - size);
             }
+
+          size += strlen(&line[size]);
         }
 
       for (j = 0; j < 16; j++)
@@ -317,8 +320,9 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
           if (i + j < nbytes)
             {
               ch = buffer[i + j];
-              sprintf(&line[strlen(line)], "%c",
-                      ch >= 0x20 && ch <= 0x7e ? ch : '.');
+              snprintf(&line[size], sizeof(line) - size,
+                       "%c", ch >= 0x20 && ch <= 0x7e ? ch : '.');
+              size += strlen(&line[size]);
             }
         }
 

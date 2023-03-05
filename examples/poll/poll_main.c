@@ -163,7 +163,7 @@ int main(int argc, FAR char *argv[])
        * from the poll.
        */
 
-      sprintf(buffer, "Message %d", count);
+      snprintf(buffer, sizeof(buffer), "Message %d", count);
       nbytes = write(fd1, buffer, strlen(buffer));
       if (nbytes < 0)
         {

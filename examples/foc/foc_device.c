@@ -50,7 +50,8 @@ int foc_device_init(FAR struct foc_device_s *dev, int id)
 
   /* Get FOC devpath */
 
-  sprintf(devpath, "%s%d", CONFIG_EXAMPLES_FOC_DEVPATH, id);
+  snprintf(devpath, sizeof(devpath), "%s%d",
+           CONFIG_EXAMPLES_FOC_DEVPATH, id);
 
   /* Open FOC device */
 

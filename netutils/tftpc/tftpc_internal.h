@@ -158,7 +158,7 @@
 /* Defined in tftp_packet.c *************************************************/
 
 extern int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr);
-extern int tftp_mkreqpacket(uint8_t *buffer, int opcode,
+extern int tftp_mkreqpacket(uint8_t *buffer, size_t len, int opcode,
                             const char *path, bool binary);
 extern int tftp_mkackpacket(uint8_t *buffer, uint16_t blockno);
 extern int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode,

@@ -283,7 +283,7 @@ int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
 
   /* Now, put the new name=value string into the NSH variable buffer */
 
-  sprintf(pair, "%s=%s", name, value);
+  snprintf(pair, varlen, "%s=%s", name, value);
   return OK;
 }
 #endif

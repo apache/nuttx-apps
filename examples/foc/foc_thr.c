@@ -107,7 +107,7 @@ static FAR void *foc_control_thr(FAR void *arg)
 
   /* Get queue name */
 
-  sprintf(mqname, "%s%d", CONTROL_MQ_MQNAME, envp->id);
+  snprintf(mqname, sizeof(mqname), "%s%d", CONTROL_MQ_MQNAME, envp->id);
 
   /* Open queue */
 
@@ -299,7 +299,7 @@ int foc_ctrlthr_init(FAR struct foc_ctrl_env_s *foc, int i, FAR mqd_t *mqd,
 
   /* Get queue name */
 
-  sprintf(mqname, "%s%d", CONTROL_MQ_MQNAME, foc->id);
+  snprintf(mqname, sizeof(mqname), "%s%d", CONTROL_MQ_MQNAME, foc->id);
 
   /* Initialize thread recv queue */
 

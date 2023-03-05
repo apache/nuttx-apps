@@ -729,7 +729,9 @@ static void dump_notes(size_t nread)
 
                     for (i = 0; i < count; i++)
                       {
-                        ret += sprintf(&out[ret], " 0x%x", note_binary->nbi_data[i]);
+                        snprintf(&out[ret], sizeof(out) - ret,
+                                 " 0x%x", note_binary->nbi_data[i]);
+                        ret += strlen(&out[ret]);
                       }
 
                     trace_dump_unflatten(&ip, note_binary->nbi_ip,

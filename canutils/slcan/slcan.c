@@ -270,22 +270,23 @@ int main(int argc, char *argv[])
                       /* 29 bit address */
 
                       frame.can_id = frame.can_id & ~CAN_EFF_FLAG;
-                      sprintf(sbuf, "T%08" PRIx32 "%d",
-                              frame.can_id, frame.len);
+                      snprintf(sbuf, sizeof(sbuf), "T%08" PRIx32 "%d",
+                               frame.can_id, frame.len);
                       sbp = &sbuf[10];
                     }
                   else
                     {
                       /* 11 bit address */
 
-                      sprintf(sbuf, "t%03" PRIx32 "%d",
-                              frame.can_id, frame.len);
+                      snprintf(sbuf, sizeof(sbuf), "t%03" PRIx32 "%d",
+                               frame.can_id, frame.len);
                       sbp = &sbuf[5];
                     }
 
                   for (i = 0; i < frame.len; i++)
                     {
-                      sprintf(sbp, "%02X", frame.data[i]);
+                      snprintf(sbp, sizeof(sbuf) - (sbp - sbuf),
+                               "%02X", frame.data[i]);
                       sbp += 2;
                     }
 
