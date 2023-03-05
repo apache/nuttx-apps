@@ -45,6 +45,7 @@
 /* Help command summary layout */
 
 #define HELP_LINELEN  80
+#define HELP_TABSIZE  4
 #define NUM_CMDS      ((sizeof(g_cmdmap)/sizeof(struct cmdmap_s)) - 1)
 
 /****************************************************************************
@@ -616,7 +617,10 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
   unsigned int j;
   unsigned int k;
   unsigned int offset;
-  char line[HELP_LINELEN];
+
+  /* Extra 5 bytes for tab before newline and '\0' */
+
+  char line[HELP_LINELEN + HELP_TABSIZE + 1];
 
   /* Pick an optimal column width */
 
@@ -654,7 +658,7 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
     {
       /* Tab before a new line */
 
-      offset = 4;
+      offset = HELP_TABSIZE;
       memset(line, ' ', offset);
 
       for (j = 0, k = i;
