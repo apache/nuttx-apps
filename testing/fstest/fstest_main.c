@@ -1021,7 +1021,7 @@ int main(int argc, FAR char *argv[])
 
   if (ctx->mountdir[strlen(ctx->mountdir)-1] != '/')
     {
-      strcat(ctx->mountdir, "/");
+      strlcat(ctx->mountdir, "/", sizeof(ctx->mountdir));
     }
 
   ctx->fileimage = calloc(ctx->max_file, 1);

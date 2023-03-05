@@ -1106,7 +1106,7 @@ static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
   else
     {
       argument[s1size] = '\0';  /* (In case s1 was NULL) */
-      strcat(argument, s2);
+      strlcat(argument, s2, allocsize);
     }
 
   return argument;

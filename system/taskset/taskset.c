@@ -88,8 +88,7 @@ int main(int argc, FAR char *argv[])
   int rc;
   int i;
 
-  memset(command, 0, sizeof(command));
-
+  command[0] = '\0';
   CPU_ZERO(&cpuset);
 
   /* Parse command line options */
@@ -156,8 +155,8 @@ int main(int argc, FAR char *argv[])
 
           for (i = 0; i < argc - 2; i++)
             {
-              strcat(command, argv[i + 2]);
-              strcat(command, " ");
+              strlcat(command, argv[i + 2], sizeof(command));
+              strlcat(command, " ", sizeof(command));
             }
 
           sched_setaffinity(gettid(), sizeof(cpu_set_t), &cpuset);

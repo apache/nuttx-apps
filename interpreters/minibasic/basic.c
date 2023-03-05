@@ -4036,7 +4036,7 @@ static FAR char *mystrconcat(FAR const char *str, FAR const char *cat)
   if (answer)
     {
       strlcpy(answer, str, len);
-      strcat(answer, cat);
+      strlcat(answer, cat, len);
     }
 
   return answer;
