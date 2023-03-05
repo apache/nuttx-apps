@@ -5631,9 +5631,9 @@ int main(int argc, FAR char *argv[])
         {
           /* Make file relative to current working directory */
 
-          getcwd(vi->filename, MAX_STRING - 1);
-          strncat(vi->filename, "/", MAX_STRING - 1);
-          strncat(vi->filename, argv[optind], MAX_STRING - 1);
+          getcwd(vi->filename, MAX_STRING);
+          strlcat(vi->filename, "/", MAX_STRING);
+          strlcat(vi->filename, argv[optind], MAX_STRING);
         }
 
       /* Make sure the (possibly truncated) file name is NUL terminated */
