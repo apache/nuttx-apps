@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_NNG
+	bool "Enable Nanomsg NG"
+	default n
+	---help---
+		Enable Nanomsg-NG library. NNG is a lightweight, broker-less library,
+		offering a simple API to solve common recurring messaging problems,
+		such as publish/subscribe, RPC-style request/reply, or service discovery.
+
+if NETUTILS_NNG
+
+config NETUTILS_NNG_VERSION
+	string "NNG Version"
+	default "1.5.2"
+
+endif
