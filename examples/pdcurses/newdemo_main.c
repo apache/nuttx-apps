@@ -316,8 +316,8 @@ int main(int argc, FAR char *argv[])
   curs_set(0);
   noecho();
 
-  /* Refresh stdscr so that reading from it will not cause it to overwrite the
-   * other windows that are being created.
+  /* Refresh stdscr so that reading from it will not cause it to overwrite
+   * the other windows that are being created.
    */
 
   refresh();
@@ -335,7 +335,7 @@ int main(int argc, FAR char *argv[])
       return 1;
     }
 
-  for (;;)
+  for (; ; )
     {
       init_pair(1, COLOR_WHITE, COLOR_BLUE);
       wbkgd(win, COLOR_PAIR(1));

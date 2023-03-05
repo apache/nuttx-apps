@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/screenshot/screenshot_main.c
+ * apps/graphics/screenshot/screenshot_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -69,7 +69,8 @@
  * Private Functions
  ****************************************************************************/
 
-static void replace_extension(FAR const char *filename, FAR const char *newext,
+static void replace_extension(FAR const char *filename,
+                              FAR const char *newext,
                               FAR char *dest, size_t size)
 {
   FAR char *p = strrchr(filename, '.');
@@ -104,8 +105,15 @@ static void replace_extension(FAR const char *filename, FAR const char *newext,
 int save_screenshot(FAR const char *filename)
 {
   struct tiff_info_s info;
-  struct nx_callback_s cb = {};
-  struct nxgl_size_s size = {CONFIG_SCREENSHOT_WIDTH, CONFIG_SCREENSHOT_HEIGHT};
+  struct nx_callback_s cb =
+  {
+  };
+
+  struct nxgl_size_s size =
+  {
+    CONFIG_SCREENSHOT_WIDTH, CONFIG_SCREENSHOT_HEIGHT
+  };
+
 #ifdef CONFIG_VNCSERVER
   struct boardioc_vncstart_s vnc;
 #endif
@@ -130,18 +138,18 @@ int save_screenshot(FAR const char *filename)
     }
 
 #ifdef CONFIG_VNCSERVER
-   /* Setup the VNC server to support keyboard/mouse inputs */
+  /* Setup the VNC server to support keyboard/mouse inputs */
 
-   vnc.display = 0;
-   vnc.handle  = server;
+  vnc.display = 0;
+  vnc.handle  = server;
 
-   ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-   if (ret < 0)
-     {
-       printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-       nx_disconnect(server);
-       return 1;
-     }
+  ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+  if (ret < 0)
+    {
+      printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+      nx_disconnect(server);
+      return 1;
+    }
 #endif
 
   /* Wait for "connected" event */
@@ -157,11 +165,11 @@ int save_screenshot(FAR const char *filename)
 
   window = nx_openwindow(server, 0, &cb, NULL);
   if (!window)
-  {
-    perror("nx_openwindow");
-    nx_disconnect(server);
-    return 1;
-  }
+    {
+      perror("nx_openwindow");
+      nx_disconnect(server);
+      return 1;
+    }
 
   nx_setsize(window, &size);
 
@@ -192,17 +200,26 @@ int save_screenshot(FAR const char *filename)
   strip = malloc(size.w * 3);
 
   for (row = 0; row < size.h; row++)
-  {
-    struct nxgl_rect_s rect = {{0, row}, {size.w - 1, row}};
-    nx_getrectangle(window, &rect, 0, strip, 0);
-
-    ret = tiff_addstrip(&info, strip);
-    if (ret < 0)
+    {
+      struct nxgl_rect_s rect =
       {
-        printf("tiff_addstrip() #%d failed: %d\n", row, ret);
-        break;
-      }
-  }
+        {
+          0, row
+        },
+        {
+          size.w - 1, row
+        }
+      };
+
+      nx_getrectangle(window, &rect, 0, strip, 0);
+
+      ret = tiff_addstrip(&info, strip);
+      if (ret < 0)
+        {
+          printf("tiff_addstrip() #%d failed: %d\n", row, ret);
+          break;
+        }
+    }
 
   free(strip);
 

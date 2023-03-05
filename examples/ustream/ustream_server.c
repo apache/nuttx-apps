@@ -41,14 +41,14 @@
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+int main(int argc, char *argv[])
 {
 #ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
   struct pollfd pfd;
 #endif
   struct sockaddr_un myaddr;
   socklen_t addrlen;
-  FAR char *buffer;
+  char *buffer;
   int listensd;
   int acceptsd;
   int nbytesread;
@@ -60,7 +60,7 @@ int main(int argc, FAR char *argv[])
 
   /* Allocate a BIG buffer */
 
-  buffer = (char*)malloc(2*SENDSIZE);
+  buffer = (char *)malloc(2 * SENDSIZE);
   if (!buffer)
     {
       printf("server: failed to allocate buffer\n");
@@ -89,7 +89,7 @@ int main(int argc, FAR char *argv[])
   myaddr.sun_path[addrlen] = '\0';
 
   addrlen += sizeof(sa_family_t) + 1;
-  ret = bind(listensd, (struct sockaddr*)&myaddr, addrlen);
+  ret = bind(listensd, (struct sockaddr *)&myaddr, addrlen);
   if (ret < 0)
     {
       printf("server: bind failure: %d\n", errno);
@@ -98,7 +98,8 @@ int main(int argc, FAR char *argv[])
 
   /* Listen for connections on the bound socket */
 
-  printf("server: Accepting connections on %s ...\n", CONFIG_EXAMPLES_USTREAM_ADDR);
+  printf("server: Accepting connections on %s ...\n",
+         CONFIG_EXAMPLES_USTREAM_ADDR);
 
   if (listen(listensd, 5) < 0)
     {
@@ -131,7 +132,7 @@ int main(int argc, FAR char *argv[])
     }
 #endif
 
-  acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
+  acceptsd = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
   if (acceptsd < 0)
     {
       printf("server: accept failure: %d\n", errno);
@@ -169,7 +170,8 @@ int main(int argc, FAR char *argv[])
 #endif
 
       printf("server: Reading...\n");
-      nbytesread = recv(acceptsd, &buffer[totalbytesread], 2*SENDSIZE - totalbytesread, 0);
+      nbytesread = recv(acceptsd, &buffer[totalbytesread],
+                        2 * SENDSIZE - totalbytesread, 0);
       if (nbytesread < 0)
         {
           printf("server: recv failed: %d\n", errno);
@@ -189,7 +191,8 @@ int main(int argc, FAR char *argv[])
 
   if (totalbytesread != SENDSIZE)
     {
-      printf("server: Received %d / Expected %d bytes\n", totalbytesread, SENDSIZE);
+      printf("server: Received %d / Expected %d bytes\n",
+             totalbytesread, SENDSIZE);
       goto errout_with_acceptsd;
     }
 
@@ -198,7 +201,8 @@ int main(int argc, FAR char *argv[])
     {
       if (buffer[i] != ch)
         {
-          printf("server: Byte %d is %02x / Expected %02x\n", i, buffer[i], ch);
+          printf("server: Byte %d is %02x / Expected %02x\n",
+                 i, buffer[i], ch);
           goto errout_with_acceptsd;
         }
 
