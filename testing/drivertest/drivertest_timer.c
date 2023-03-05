@@ -142,9 +142,8 @@ static void parse_commandline(FAR struct timer_state_s *timer_state,
       switch (ch)
         {
           case 'd':
-            strncpy(timer_state->devpath, optarg,
+            strlcpy(timer_state->devpath, optarg,
                     sizeof(timer_state->devpath));
-            timer_state->devpath[sizeof(timer_state->devpath) - 1] = '\0';
             break;
 
           case 'i':

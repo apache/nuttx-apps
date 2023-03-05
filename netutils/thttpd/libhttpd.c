@@ -92,8 +92,6 @@
 #  define STDERR_FILENO 2
 #endif
 
-#define NAMLEN(dirent) strlen((dirent)->d_name)
-
 extern CODE char *crypt(const char *key, const char *setting);
 
 /* Conditional macro to allow two alternate forms for use in the built-in
@@ -1240,7 +1238,7 @@ static char *expand_filename(char *path, char **restp, bool tildemapped)
               /* Special case for absolute paths. */
 
               httpd_realloc_str(&checked, &maxchecked, checkedlen + 1);
-              strncpy(&checked[checkedlen], r, 1);
+              checked[checkedlen] = '/';
               checkedlen += 1;
             }
           else if (strncmp(r, "..", MAX(i, 2)) == 0)
@@ -1660,15 +1658,15 @@ static void ls_child(int argc, char **argv)
           if (maxnames == 0)
             {
               maxnames = 100;
-              names    = NEW(char, maxnames * (PATH_MAX + 1));
+              names    = NEW(char, maxnames * PATH_MAX);
               nameptrs = NEW(char *, maxnames);
             }
           else
             {
               oldmax    = maxnames;
               maxnames *= 2;
-              names     = RENEW(names, char, oldmax * (PATH_MAX + 1),
-                                maxnames * (PATH_MAX + 1));
+              names     = RENEW(names, char, oldmax * PATH_MAX,
+                                maxnames * PATH_MAX);
               nameptrs  = RENEW(nameptrs, char *, oldmax, maxnames);
             }
 
@@ -1680,13 +1678,11 @@ static void ls_child(int argc, char **argv)
 
           for (i = 0; i < maxnames; ++i)
             {
-              nameptrs[i] = &names[i * (PATH_MAX + 1)];
+              nameptrs[i] = &names[i * PATH_MAX];
             }
         }
 
-      namlen = NAMLEN(de);
-      strncpy(nameptrs[nnames], de->d_name, namlen);
-      nameptrs[nnames][namlen] = '\0';
+      strlcpy(nameptrs[nnames], de->d_name, PATH_MAX);
       ++nnames;
     }
 

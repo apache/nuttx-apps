@@ -522,7 +522,7 @@ static int ufstest_rename(FAR void *volinfo, FAR const char *oldrelpath,
   file = ufstest_findbyname(oldrelpath);
   if (file != NULL)
     {
-      strncpy(file->entry.d_name, newrelpath, NAME_MAX + 1);
+      strlcpy(file->entry.d_name, newrelpath, NAME_MAX);
       return OK;
     }
 

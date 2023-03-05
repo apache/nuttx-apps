@@ -88,8 +88,7 @@ static void parse_commandline(FAR struct rtc_state_s *rtc_state, int argc,
       switch (ch)
         {
           case 'd':
-            strncpy(rtc_state->devpath, optarg, sizeof(rtc_state->devpath));
-            rtc_state->devpath[sizeof(rtc_state->devpath) - 1] = '\0';
+            strlcpy(rtc_state->devpath, optarg, sizeof(rtc_state->devpath));
             break;
 
           case '?':

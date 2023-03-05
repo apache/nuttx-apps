@@ -88,15 +88,14 @@ int main(int argc, FAR char *argv[])
 
       /* Set up the server address */
 
-      addrlen = strlen(CONFIG_EXAMPLES_UDGRAM_ADDR);
-      if (addrlen > UNIX_PATH_MAX - 1)
+      addrlen = strlen(CONFIG_EXAMPLES_UDGRAM_ADDR) + 1;
+      if (addrlen > UNIX_PATH_MAX)
         {
-          addrlen = UNIX_PATH_MAX - 1;
+          addrlen = UNIX_PATH_MAX;
         }
 
       server.sun_family = AF_LOCAL;
-      strncpy(server.sun_path, CONFIG_EXAMPLES_UDGRAM_ADDR, addrlen);
-      server.sun_path[addrlen] = '\0';
+      strlcpy(server.sun_path, CONFIG_EXAMPLES_UDGRAM_ADDR, addrlen);
 
       addrlen += sizeof(sa_family_t) + 1;
 

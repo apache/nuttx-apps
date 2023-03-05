@@ -85,8 +85,8 @@ static void replace_extension(FAR const char *filename, FAR const char *newext,
       len = size - strlen(newext);
     }
 
-  strncpy(dest, filename, size);
-  strncpy(dest + len, newext, size - len);
+  strlcpy(dest, filename, size);
+  strlcpy(dest + len, newext, size - len);
 }
 
 /****************************************************************************

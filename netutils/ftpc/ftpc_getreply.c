@@ -238,7 +238,7 @@ int fptc_getreply(struct ftpc_session_s *session)
     {
       /* Multi-line response */
 
-      strncpy(tmp, session->reply, 3);
+      strlcpy(tmp, session->reply, sizeof(tmp));
       do
         {
           if (ftpc_gets(session) == -1)

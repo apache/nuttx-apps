@@ -144,8 +144,8 @@ static inline void discover_initresponse(void)
   g_state.response[0] = DISCOVER_PROTO_ID;
   g_state.response[1] = DISCOVER_RESPONSE;
 
-  strncpy((char *)&g_state.response[2], g_state.info.description,
-          DISCOVER_RESPONSE_SIZE - 3);
+  strlcpy((char *)&g_state.response[2], g_state.info.description,
+          DISCOVER_RESPONSE_SIZE - 2);
 
   for (i = 0; i < DISCOVER_RESPONSE_SIZE - 1; i++)
     {

@@ -107,7 +107,7 @@ static int flowc_cmdline(int argc, char **argv)
 
   if (argc == 2)
     {
-      strncpy(g_tty_devname, argv[1], MAX_DEVNAME);
+      strlcpy(g_tty_devname, argv[1], MAX_DEVNAME);
     }
   else if (argc != 1)
     {
