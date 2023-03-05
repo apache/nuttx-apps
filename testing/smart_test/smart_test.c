@@ -91,7 +91,8 @@ static int smart_create_test_file(char *filename)
     {
       g_line_pos[x] = ftell(fd);
 
-      sprintf(string, "This is line %d at offset %d\n", x, g_line_pos[x]);
+      snprintf(string, sizeof(string),
+               "This is line %d at offset %d\n", x, g_line_pos[x]);
       g_line_len[x] = strlen(string);
       fprintf(fd, "%s", string);
 
@@ -148,8 +149,9 @@ static int smart_seek_test(char *filename)
       fread(readstring, 1, g_line_len[index], fd);
       readstring[g_line_len[index]] = '\0';
 
-      sprintf(cmpstring, "This is line %d at offset %d\n",
-              index, g_line_pos[index]);
+      snprintf(cmpstring, sizeof(cmpstring),
+               "This is line %d at offset %d\n",
+               index, g_line_pos[index]);
 
       if (strcmp(readstring, cmpstring) != 0)
         {

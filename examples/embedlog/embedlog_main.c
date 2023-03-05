@@ -219,7 +219,7 @@ static void el_print_file(const char *workdir)
 
   /* Create full path to log file embedlog will use */
 
-  sprintf(log_path, "%s/log-rotate", workdir);
+  snprintf(log_path, sizeof(log_path), "%s/log-rotate", workdir);
 
   /* Enable file rotation, maximum 5 files will be created, none of the log
    * files size shall exceed 512 bytes. Rotate size is low to present how

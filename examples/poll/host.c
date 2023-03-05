@@ -98,7 +98,7 @@ int main(int argc, char **argv, char **envp)
 
   for (i = 0; ; i++)
     {
-      sprintf(outbuf, "Remote message %d", i);
+      snprintf(outbuf, sizeof(outbuf), "Remote message %d", i);
       len = strlen(outbuf);
 
       printf("client: Sending '%s' (%d bytes)\n", outbuf, len);

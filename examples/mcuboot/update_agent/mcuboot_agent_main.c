@@ -207,7 +207,8 @@ static int download_firmware_image(FAR const char *url)
 
   for (i = 0; i < MD5_DIGEST_LENGTH; i++)
     {
-      sprintf(&hash[i * 2], "%02x", digest[i]);
+      snprintf(&hash[i * 2], sizeof(hash) - i * 2,
+               "%02x", digest[i]);
     }
 
   hash[MD5_HASH_LENGTH] = '\0';

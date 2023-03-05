@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <sys/stat.h>
 
 #include <stdarg.h>
@@ -758,7 +759,7 @@ static void vi_setcursor(FAR struct vi_s *vi, uint16_t row, uint16_t column)
 
   /* Send the VT100 CURSORPOS command */
 
-  vi_write(vi, buffer, len);
+  vi_write(vi, buffer, MIN(len, sizeof(buffer)));
 }
 
 /****************************************************************************
@@ -858,10 +859,13 @@ static void vi_printf(FAR struct vi_s *vi, FAR const char *prefix,
 
   /* Expand the prefix message in the scratch buffer */
 
-  len = prefix ? snprintf(vi->scratch, SCRATCH_BUFSIZE, "%s", prefix) : 0;
+  len = prefix ? snprintf(vi->scratch,
+                          sizeof(vi->scratch), "%s", prefix) : 0;
+  len = MIN(len, sizeof(vi->scratch));
 
   va_start(ap, fmt);
-  len += vsnprintf(vi->scratch + len, SCRATCH_BUFSIZE - len, fmt, ap);
+  len += vsnprintf(vi->scratch + len, sizeof(vi->scratch) - len, fmt, ap);
+  len = MIN(len, sizeof(vi->scratch));
   vvidbg(fmt, ap);
   va_end(ap);
 
@@ -1299,8 +1303,8 @@ static bool vi_savetext(FAR struct vi_s *vi, FAR const char *filename,
 
   fclose(stream);
 
-  len = sprintf(vi->scratch, "%dC written", nwritten);
-  vi_write(vi, vi->scratch, len);
+  len = snprintf(vi->scratch, sizeof(vi->scratch), "%dC written", nwritten);
+  vi_write(vi, vi->scratch, MIN(len, sizeof(vi->scratch)));
   return true;
 }
 
@@ -1955,10 +1959,10 @@ static void vi_showlinecol(FAR struct vi_s *vi)
   vi_cursoroff(vi);
   vi_setcursor(vi, vi->display.row - 1, vi->display.column - 15);
 
-  len = snprintf(vi->scratch, SCRATCH_BUFSIZE, "%jd,%d",
+  len = snprintf(vi->scratch, sizeof(vi->scratch), "%jd,%d",
                  (uintmax_t)(vi->cursor.row + vi->vscroll + 1),
                  vi->cursor.column + vi->hscroll + 1);
-  vi_write(vi, vi->scratch, len);
+  vi_write(vi, vi->scratch, MIN(len, sizeof(vi->scratch)));
 
   vi_clrtoeol(vi);
   vi_cursoron(vi);

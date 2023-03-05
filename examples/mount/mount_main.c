@@ -212,7 +212,8 @@ static void show_directories(const char *path, int indent)
         {
           char *subdir;
           printf("%s/\n", direntry->d_name);
-          sprintf(g_namebuffer, "%s/%s", path, direntry->d_name);
+          snprintf(g_namebuffer, sizeof(g_namebuffer),
+                   "%s/%s", path, direntry->d_name);
           subdir = strdup(g_namebuffer);
           show_directories(subdir, indent + 1);
           free(subdir);

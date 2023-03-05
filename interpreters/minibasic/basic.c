@@ -2746,7 +2746,7 @@ static FAR char *strstring(void)
   x = expr();
   match(CPAREN);
 
-  sprintf(g_iobuffer, "%g", x);
+  snprintf(g_iobuffer, sizeof(g_iobuffer), "%g", x);
   answer = mystrdup(g_iobuffer);
   if (!answer)
     {

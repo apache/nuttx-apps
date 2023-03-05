@@ -162,7 +162,8 @@ static void Xref_print(struct Xref *root,
               FS_putChars(chn, "\n        ");
             }
 
-          sprintf(buf, " %ld", Program_lineNumber(p, &cur->line));
+          snprintf(buf, sizeof(buf), " %ld",
+                   Program_lineNumber(p, &cur->line));
           FS_putChars(chn, buf);
         }
       while (cur != tail);
@@ -184,7 +185,8 @@ static void printLine(const void *k, struct Program *p, int chn)
 {
   char buf[80];
 
-  sprintf(buf, "%8ld", Program_lineNumber(p, (const struct Pc *)k));
+  snprintf(buf, sizeof(buf), "%8ld",
+           Program_lineNumber(p, (const struct Pc *)k));
   FS_putChars(chn, buf);
 }
 
@@ -603,7 +605,8 @@ void Program_trace(struct Program *this, struct Pc *pc, int dev, int tr)
     {
       char buf[40];
 
-      sprintf(buf, "<%ld>\n", this->code[pc->line]->u.integer);
+      snprintf(buf, sizeof(buf), "<%ld>\n",
+               this->code[pc->line]->u.integer);
       FS_putChars(dev, buf);
     }
 }

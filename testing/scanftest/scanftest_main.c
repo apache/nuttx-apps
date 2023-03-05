@@ -1126,7 +1126,7 @@ int main(int argc, FAR char *argv[])
                 {
                   fscanf(fp, "%s", s2);
                   fscanf(fp, "%2c", s3);
-                  sprintf(s1, "%s%s", s2, s3);
+                  snprintf(s1, sizeof(s1), "%s%s", s2, s3);
 
                   if (strcmp(s1, teststring) != 0)
                     {
