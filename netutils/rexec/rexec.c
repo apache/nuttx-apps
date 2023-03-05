@@ -165,8 +165,8 @@ int main(int argc, FAR char **argv)
   cmd[0] = '\0';
   for (i = optind; i < argc; i++)
     {
-      strcat(cmd, argv[i]);
-      strcat(cmd, " ");
+      strlcat(cmd, argv[i], sizeof(cmd));
+      strlcat(cmd, " ", sizeof(cmd));
     }
 
   arg.command = cmd;

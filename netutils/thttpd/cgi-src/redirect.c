@@ -236,7 +236,8 @@ int main(int argc, char *argv[])
                     {
                       /* Got it; put together the full name. */
 
-                      strcat(g_url, script_name + (star - g_file));
+                      strlcat(g_url, script_name + (star - g_file),
+                              sizeof(g_url));
 
                       /* XXX Whack the script_name, too? */
 
