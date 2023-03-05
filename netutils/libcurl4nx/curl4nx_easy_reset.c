@@ -78,9 +78,9 @@ void curl4nx_easy_reset(FAR struct curl4nx_s *handle)
   /* Setup default options */
 
   handle->port = 80;
-  strncpy(handle->useragent, CONFIG_LIBCURL4NX_USERAGENT,
+  strlcpy(handle->useragent, CONFIG_LIBCURL4NX_USERAGENT,
           sizeof(handle->useragent));
-  strncpy(handle->method, "GET", sizeof(handle->method));
+  strlcpy(handle->method, "GET", sizeof(handle->method));
   handle->version = CURL4NX_HTTP_VERSION_1_1;
   handle->writefunc = curl4nx_default_writefunc;
 

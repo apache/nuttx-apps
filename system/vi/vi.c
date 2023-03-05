@@ -4432,13 +4432,7 @@ static void vi_parsecolon(FAR struct vi_s *vi)
                * as unmodified.
                */
 
-              strncpy(vi->filename, filename, MAX_FILENAME - 1);
-
-             /* Make sure that the (possibly truncated) file name is NUL
-              * terminated
-              */
-
-              vi->filename[MAX_FILENAME - 1] = '\0';
+              strlcpy(vi->filename, filename, MAX_FILENAME);
               vi->modified = false;
             }
           else
@@ -4462,13 +4456,7 @@ static void vi_parsecolon(FAR struct vi_s *vi)
 
       if (filename)
         {
-          strncpy(vi->filename, filename, MAX_FILENAME - 1);
-
-         /* Make sure that the (possibly truncated) file name is NUL
-          * terminated
-          */
-
-          vi->filename[MAX_FILENAME - 1] = '\0';
+          strlcpy(vi->filename, filename, MAX_FILENAME);
         }
 
       /* If it is not a new file and if there are no changes to the text
@@ -4783,13 +4771,7 @@ static void vi_parsefind(FAR struct vi_s *vi, bool revfind)
     {
       /* Copy the new search string from the scratch to the find buffer */
 
-      strncpy(vi->findstr, vi->scratch, MAX_STRING - 1);
-
-      /* Make sure that the (possibly truncated) search string is NUL
-       * terminated
-       */
-
-      vi->findstr[MAX_STRING - 1] = '\0';
+      strlcpy(vi->findstr, vi->scratch, MAX_STRING);
     }
 
   /* Then attempt to find the string */
@@ -5643,7 +5625,7 @@ int main(int argc, FAR char *argv[])
 
       if (argv[optind][0] == '/')
         {
-          strncpy(vi->filename, argv[optind], MAX_STRING - 1);
+          strlcpy(vi->filename, argv[optind], MAX_STRING);
         }
       else
         {

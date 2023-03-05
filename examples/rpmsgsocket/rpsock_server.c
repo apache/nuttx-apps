@@ -187,10 +187,10 @@ static int rpsock_stream_server(int argc, char *argv[])
   /* Bind the socket to a local address */
 
   myaddr.rp_family = AF_RPMSG;
-  strncpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
   if (argc == 5)
     {
-      strncpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
+      strlcpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
     }
   else
     {
@@ -300,10 +300,10 @@ static int rpsock_dgram_server(int argc, char *argv[])
   /* Bind the socket to a local address */
 
   myaddr.rp_family = AF_RPMSG;
-  strncpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
   if (argc == 5)
     {
-      strncpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
+      strlcpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
     }
   else
     {

@@ -2167,8 +2167,8 @@ FAR struct nxplayer_s *nxplayer_create(void)
 #endif
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-  strncpy(pplayer->mediadir, CONFIG_NXPLAYER_DEFAULT_MEDIADIR,
-      sizeof(pplayer->mediadir));
+  strlcpy(pplayer->mediadir, CONFIG_NXPLAYER_DEFAULT_MEDIADIR,
+          sizeof(pplayer->mediadir));
 #endif
 
   pthread_mutex_init(&pplayer->mutex, NULL);

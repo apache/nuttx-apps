@@ -126,7 +126,7 @@ static void nsh_token(FAR struct console_stdio_s *pstate,
 
   /* Copied the token into the buffer */
 
-  strncpy(buffer, start, buflen);
+  strlcpy(buffer, start, buflen);
 }
 
 /****************************************************************************

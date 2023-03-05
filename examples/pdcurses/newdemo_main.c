@@ -433,7 +433,7 @@ int main(int argc, FAR char *argv[])
           for (i = w + msg_len; i > 0; i--)
             {
               memset(visbuf, ' ', w);
-              strncpy(scrollbuf + i, message, msg_len);
+              strlcpy(scrollbuf + i, message, msg_len);
               mvwaddnstr(win, height / 2, 1, visbuf, w);
               wrefresh(win);
 

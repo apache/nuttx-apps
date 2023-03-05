@@ -1724,7 +1724,7 @@ static FAR void *dhcp6c_precise_open(FAR const char *ifname,
 
   /* Detect interface */
 
-  strncpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
+  strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
   if (ioctl(pdhcp6c->sockfd, SIOCGIFINDEX, &ifr))
     {
       close(pdhcp6c->urandom_fd);

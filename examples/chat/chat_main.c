@@ -256,9 +256,7 @@ static int chat_parse_args(FAR struct chat_app *priv)
 
               /* set the TTY device node */
 
-              strncpy(priv->tty,
-                      (FAR char *)priv->argv[i] + 2,
-                      CHAT_TTYNAME_SIZE - 1);
+              strlcpy(priv->tty, priv->argv[i] + 2, CHAT_TTYNAME_SIZE);
               break;
 
             case 'e':
@@ -266,13 +264,11 @@ static int chat_parse_args(FAR struct chat_app *priv)
               break;
 
             case 'f':
-              ret = chat_script_read(priv,
-                                     (FAR char *)priv->argv[i] + 2);
+              ret = chat_script_read(priv, priv->argv[i] + 2);
               break;
 
             case 'p':
-              numarg = strtol((FAR char *)priv->argv[i] + 2,
-                              NULL, 10);
+              numarg = strtol(priv->argv[i] + 2, NULL, 10);
               if (errno < 0)
                 {
                   ret = -EINVAL;
@@ -283,8 +279,7 @@ static int chat_parse_args(FAR struct chat_app *priv)
               break;
 
             case 't':
-              numarg = strtol((FAR char *)priv->argv[i] + 2,
-                              NULL, 10);
+              numarg = strtol(priv->argv[i] + 2, NULL, 10);
 
               if (errno < 0 || numarg < 0)
                 {
@@ -336,7 +331,7 @@ int main(int argc, FAR char **argv)
   priv.ctl.timeout = CONFIG_EXAMPLES_CHAT_TIMEOUT_SECONDS;
   priv.script = NULL;
   priv.script_dynalloc = false;
-  strncpy(priv.tty, CONFIG_EXAMPLES_CHAT_TTY_DEVNODE, CHAT_TTYNAME_SIZE - 1);
+  strlcpy(priv.tty, CONFIG_EXAMPLES_CHAT_TTY_DEVNODE, CHAT_TTYNAME_SIZE);
 
   _info("parsing the arguments\n");
   ret = chat_parse_args((FAR struct chat_app *)&priv);

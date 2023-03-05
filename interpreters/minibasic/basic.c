@@ -2913,8 +2913,7 @@ static FAR char *midstring(void)
       return str;
     }
 
-  strncpy(answer, temp, len);
-  answer[len] = 0;
+  strlcpy(answer, temp, len + 1);
   free(str);
   return answer;
 }

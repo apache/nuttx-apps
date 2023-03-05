@@ -335,8 +335,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
             }
 
 #endif
-          strncpy(buf, tmp_name, buflen - 1);
-
+          strlcpy(buf, tmp_name, buflen);
           name_len = strlen(tmp_name);
 
           /* Output the original prompt */

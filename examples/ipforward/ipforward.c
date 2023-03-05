@@ -228,7 +228,7 @@ static int ipfwd_tun_configure(FAR struct ipfwd_tun_s *tun)
       return -errcode;
     }
 
-  strncpy(tun->it_devname, ifr.ifr_name, MAX_DEVNAME);
+  strlcpy(tun->it_devname, ifr.ifr_name, MAX_DEVNAME);
   printf("Created TUN device: %s\n", tun->it_devname);
   return 0;
 }

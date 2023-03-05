@@ -248,7 +248,7 @@ static void cfgdatacmd_set(int argc, char *argv[])
 
   /* Copy the name to the cfg struct */
 
-  strncpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
+  strlcpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
 
 #else
 
@@ -377,7 +377,7 @@ static void cfgdatacmd_unset(int argc, char *argv[])
 #ifdef CONFIG_MTD_CONFIG_NAMED
   /* Copy the name to the cfg struct */
 
-  strncpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
+  strlcpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
 
 #else
   int                   x;
@@ -443,7 +443,7 @@ static void cfgdatacmd_print(int argc, char *argv[])
 
   /* Copy the name to the cfg struct */
 
-  strncpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
+  strlcpy(cfg.name, argv[2], CONFIG_MTD_CONFIG_NAME_LEN);
 
 #else
 

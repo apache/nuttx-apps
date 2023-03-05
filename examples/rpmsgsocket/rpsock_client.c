@@ -274,8 +274,8 @@ static int rpsock_stream_client(int argc, char *argv[])
   /* Connect the socket to the server */
 
   myaddr.rp_family = AF_RPMSG;
-  strncpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
-  strncpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
+  strlcpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
 
   printf("client: Connecting to %s,%s...\n", myaddr.rp_cpu, myaddr.rp_name);
   ret = connect(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
@@ -468,8 +468,8 @@ static int rpsock_dgram_client(int argc, char *argv[])
   /* Connect the socket to the server */
 
   myaddr.rp_family = AF_RPMSG;
-  strncpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
-  strncpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
+  strlcpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
 
   printf("client: Connecting to %s,%s...\n", myaddr.rp_cpu, myaddr.rp_name);
   ret = connect(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));

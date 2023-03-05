@@ -457,10 +457,9 @@ static inline int wget_parsestatus(struct webclient_context *ctx,
               ninfo("Got HTTP status %lu\n", http_status);
               if (ctx->http_reason != NULL)
                 {
-                  strncpy(ctx->http_reason,
+                  strlcpy(ctx->http_reason,
                           ep + 1,
-                          ctx->http_reason_len - 1);
-                  ctx->http_reason[ctx->http_reason_len - 1] = 0;
+                          ctx->http_reason_len);
                 }
 
               /* Check for 2xx (Successful) */
@@ -693,7 +692,7 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                       *dest = 0;
                     }
 
-                  strncpy(ws->mimetype, ws->line + strlen(g_httpcontenttype),
+                  strlcpy(ws->mimetype, ws->line + strlen(g_httpcontenttype),
                           sizeof(ws->mimetype));
                   found = true;
                 }
@@ -1564,7 +1563,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                 {
                   memset(&server_un, 0, sizeof(server_un));
                   server_un.sun_family = AF_LOCAL;
-                  strncpy(server_un.sun_path, ctx->unix_socket_path,
+                  strlcpy(server_un.sun_path, ctx->unix_socket_path,
                           sizeof(server_un.sun_path));
 #if !defined(__NuttX__) && !defined(__linux__)
                   server_un.sun_len = SUN_LEN(&server_un);

@@ -78,14 +78,14 @@ int main(int argc, FAR char *argv[])
 
   /* Connect the socket to the server */
 
-  addrlen = strlen(CONFIG_EXAMPLES_USTREAM_ADDR);
-  if (addrlen > UNIX_PATH_MAX - 1)
+  addrlen = strlen(CONFIG_EXAMPLES_USTREAM_ADDR) + 1;
+  if (addrlen > UNIX_PATH_MAX)
     {
-      addrlen = UNIX_PATH_MAX - 1;
+      addrlen = UNIX_PATH_MAX;
     }
 
   myaddr.sun_family = AF_LOCAL;
-  strncpy(myaddr.sun_path, CONFIG_EXAMPLES_USTREAM_ADDR, addrlen);
+  strlcpy(myaddr.sun_path, CONFIG_EXAMPLES_USTREAM_ADDR, addrlen);
   myaddr.sun_path[addrlen] = '\0';
 
   printf("client: Connecting to %s...\n", CONFIG_EXAMPLES_USTREAM_ADDR);

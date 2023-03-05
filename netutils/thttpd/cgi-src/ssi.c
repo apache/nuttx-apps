@@ -216,7 +216,7 @@ static int get_filename(char *vfilename, char *filename,
           return -1;
         }
 
-      strncpy(fn, filename, size);
+      strlcpy(fn, filename, fnsize);
       strlcpy(&fn[size], val, fnsize - size);
     }
   else if (strcmp(tag, "file") == 0)
@@ -419,8 +419,7 @@ static void do_config(FILE *instream, char *vfilename, char *filename,
 
   if (strcmp(tag, "g_timeformat") == 0)
     {
-      strncpy(g_timeformat, val, TIMEFMT_SIZE - 1);
-      g_timeformat[TIMEFMT_SIZE - 1] = '\0';
+      strlcpy(g_timeformat, val, TIMEFMT_SIZE);
     }
   else if (strcmp(tag, "g_sizefmt") == 0)
     {
