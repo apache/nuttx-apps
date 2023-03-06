@@ -22,9 +22,11 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdio.h>
 #include <pthread.h>
+#include <sched.h>
+#include <stdio.h>
 #include <unistd.h>
+
 #include "ostest.h"
 
 /****************************************************************************

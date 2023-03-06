@@ -22,15 +22,18 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/sensors/sensor.h>
 #include <nuttx/config.h>
-#include <sys/ioctl.h>
+
 #include <inttypes.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#include <nuttx/sensors/sensor.h>
 
 /****************************************************************************
  * Pre-processor Definitions

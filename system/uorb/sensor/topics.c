@@ -22,10 +22,13 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <fcntl.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <string.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 #include <sensor/accel.h>
 #include <sensor/baro.h>

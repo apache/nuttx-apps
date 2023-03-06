@@ -47,6 +47,7 @@
 #include <sys/ioctl.h>
 
 #include <inttypes.h>
+#include <sched.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
