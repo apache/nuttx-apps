@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/CLIENTE/Make.defs
+# apps/examples/tcp_ipc_client/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# CLIENT built-in application info
+# Client tcp built-in application info
 
 PROGNAME  = $(CONFIG_EXAMPLES_TCP_IPC_CLIENT_PROGNAME)
 PRIORITY  = $(CONFIG_EXAMPLES_TCP_IPC_CLIENT_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_TCP_IPC_CLIENT_STACKSIZE)
 MODULE    = $(CONFIG_EXAMPLES_TCP_IPC_CLIENT)
 
-# CLIENT Example
+# Client tcp Example
 
 MAINSRC = tcp_ipc_client_main.c
 
