@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/SERVIDOR/Make.defs
+# apps/examples/tcp_ipc_server/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# SERVIDOR built-in application info
+# Server TCP built-in application info
 
 PROGNAME  = $(CONFIG_EXAMPLES_TCP_IPC_SERVER_PROGNAME)
 PRIORITY  = $(CONFIG_EXAMPLES_TCP_IPC_SERVER_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_TCP_IPC_SERVER_STACKSIZE)
 MODULE    = $(CONFIG_EXAMPLES_TCP_IPC_SERVER)
 
-# SERVIDOR Example
+# Server TCP Example
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/examples/tcp_ipc_server/lorawan
 CSRCS  = uart_lorawan_layer.c protocol.c
 
