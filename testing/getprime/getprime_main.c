@@ -24,13 +24,14 @@
 
 #include <nuttx/config.h>
 
-#include <stdio.h>
+#include <assert.h>
+#include <pthread.h>
+#include <sched.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <time.h>
-#include <assert.h>
 
 /****************************************************************************
  * Pre-processor Definitions

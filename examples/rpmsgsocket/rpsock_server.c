@@ -24,16 +24,16 @@
 
 #include <nuttx/config.h>
 
-#include <sys/socket.h>
+#include <assert.h>
+#include <errno.h>
 #include <netpacket/rpmsg.h>
-
+#include <pthread.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <poll.h>
-#include <assert.h>
-#include <errno.h>
+#include <sys/socket.h>
 
 /****************************************************************************
  * Private types
