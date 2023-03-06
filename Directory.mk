@@ -24,12 +24,10 @@ include $(APPDIR)/Make.defs
 
 SUBDIRS       := $(dir $(wildcard */Makefile))
 CONFIGSUBDIRS := $(filter-out $(dir $(wildcard */Kconfig)),$(SUBDIRS))
-CLEANSUBDIRS  += $(dir $(wildcard */.depend))
-CLEANSUBDIRS  += $(dir $(wildcard */.kconfig))
-CLEANSUBDIRS  := $(sort $(CLEANSUBDIRS))
+CLEANSUBDIRS  := $(sort $(SUBDIRS))
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	CONFIGSUBDIRS  := $(subst /,\,$(CONFIGSUBDIRS))
-	CLEANSUBDIRS  := $(subst /,\,$(CLEANSUBDIRS))
+  CONFIGSUBDIRS := $(subst /,\,$(CONFIGSUBDIRS))
+  CLEANSUBDIRS  := $(subst /,\,$(CLEANSUBDIRS))
 endif
 
 all: nothing
@@ -55,7 +53,6 @@ clean: $(foreach SDIR, $(CLEANSUBDIRS), $(SDIR)_clean)
 distclean: $(foreach SDIR, $(CLEANSUBDIRS), $(SDIR)_distclean)
 ifneq ($(MENUDESC),)
 	$(call DELFILE, Kconfig)
-	$(call DELFILE, .kconfig)
 endif
 
 -include Make.dep

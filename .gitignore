@@ -21,7 +21,6 @@
 *~
 .context
 .depend
-.kconfig
 /bin
 /boot_romfsimg.h
 /external
