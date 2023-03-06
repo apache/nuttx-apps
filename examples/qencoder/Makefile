@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/qe/Makefile
+# apps/examples/qencoder/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-# NuttX NX Graphics Example.
+# Quadrature Encoder example.
 
 MAINSRC = qe_main.c
 
