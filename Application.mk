@@ -105,7 +105,7 @@ VPATH += :.
 # Targets follow
 
 all:: $(OBJS)
-.PHONY: clean depend distclean
+.PHONY: clean preconfig depend distclean
 .PRECIOUS: $(BIN)
 
 define ELFASSEMBLE

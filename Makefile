@@ -176,7 +176,7 @@ context: | staging
 	$(Q) $(MAKE) register_all
 
 Kconfig:
-	$(foreach SDIR, $(CONFIGDIRS), $(call MAKE_template,$(SDIR),preconfig))
+	$(foreach SDIR, $(BUILDIRS), $(call MAKE_template,$(SDIR),preconfig))
 	$(Q) $(MKKCONFIG)
 
 preconfig: Kconfig
