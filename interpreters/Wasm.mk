@@ -21,9 +21,14 @@
 ifeq ($(WASM_BUILD),y)
   ifneq ($(CONFIG_INTERPRETERS_WAMR)$(CONFIG_INTERPRETERS_WAMR3),)
 
-WASM_INITIAL_MEMORY ?= 65536
-STACKSIZE           ?= $(CONFIG_DEFAULT_TASK_STACKSIZE)
-PRIORITY            ?= SCHED_PRIORITY_DEFAULT
+STACKSIZE  ?= $(CONFIG_DEFAULT_TASK_STACKSIZE)
+PRIORITY   ?= SCHED_PRIORITY_DEFAULT
+
+ifneq ($(INITMEMORY),)
+  ifeq ($(shell test $(INITMEMORY) -lt $(STACKSIZE); echo $$?),0)
+    INITMEMORY := $(shell expr $(STACKSIZE) + $(INITMEMORY))
+  endif
+endif
 
 # Wamr mode:
 # INT: Interpreter (Default)
@@ -56,7 +61,7 @@ $(WBIN): $(WOBJS)
 	  $(eval mainindex=$(strip $(call GETINDEX,$(main),$(MAINSRC)))) \
 	  $(eval dstname=$(shell echo $(main:%.c=%.wo) | sed -e 's/\//_/g')) \
 	  $(shell cp -rf $(strip $(main:%.c=%.wo)) \
-	    $(strip $(APPDIR)/wasm/$(word $(mainindex),$(PROGNAME))#$(WASM_INITIAL_MEMORY)#$(STACKSIZE)#$(PRIORITY)#$(WAMR_MODE)#$(dstname)) \
+	    $(strip $(APPDIR)/wasm/$(word $(mainindex),$(PROGNAME))#$(INITMEMORY)#$(STACKSIZE)#$(PRIORITY)#$(WAMR_MODE)#$(dstname)) \
 	   ) \
 	 )
 
