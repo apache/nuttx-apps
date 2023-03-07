@@ -179,6 +179,10 @@ static int set_termios(int fd, int rate, enum parity_mode parity,
       tio.c_oflag |= ONLCR;
     }
 
+  /* disable echo if it's enabled to avoid double input character */
+
+  tio.c_iflag &= ~ECHO;
+
   ret = tcsetattr(fd, TCSANOW, &tio);
   if (ret)
     {
