@@ -1,0 +1,12 @@
+--- coremark/posix/core_portme.c
++++ coremark/posix/core_portme.c
+@@ -208,6 +208,9 @@ ee_u32 default_num_contexts = MULTITHREAD;
+ void
+ portable_init(core_portable *p, int *argc, char *argv[])
+ {
++
++    ee_printf("Running CoreMark...\n");
++
+ #if PRINT_ARGS
+     int i;
+     for (i = 0; i < *argc; i++)

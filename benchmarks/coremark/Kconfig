@@ -4,31 +4,34 @@
 #
 
 menuconfig BENCHMARK_COREMARK
-	bool "Coremark Benchmark"
+	bool "CoreMark Benchmark"
+	select LIBC_FLOATINGPOINT
 	default n
 	---help---
-		Enable support for the EEMBC's Coremark benchmark application.
+		Enable support for the EEMBC's CoreMark benchmark application.
 
 if BENCHMARK_COREMARK
 
 config COREMARK_PROGNAME
-	string "Coremark program name"
+	string "CoreMark program name"
 	default "coremark"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
 config COREMARK_PRIORITY
-	int "Coremark task priority"
+	int "CoreMark task priority"
 	default 100
 
 config COREMARK_STACKSIZE
-	int "Coremark task stack size"
+	int "CoreMark task stack size"
 	default 4096
 
-config COREMARK_MEM_LOCATION
-	string "Coremark memory location string"
-	default "Defined by the NuttX configuration"
+config COREMARK_PRINT_ARGS
+	bool "Print CoreMark arguments when executing"
+	default n
+	---help---
+		Print the command line arguments passed on to coremark.
 
 config COREMARK_MULTITHREAD_OVERRIDE
 	bool "Override number of threads"
