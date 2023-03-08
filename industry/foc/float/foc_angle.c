@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <string.h>
 
 #include "industry/foc/foc_log.h"
 #include "industry/foc/float/foc_angle.h"

@@ -22,11 +22,13 @@
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
+#include <nuttx/config.h>
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <nuttx/audio/audio.h>

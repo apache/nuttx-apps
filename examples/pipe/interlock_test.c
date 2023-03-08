@@ -23,14 +23,14 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <sys/stat.h>
 
-#include <sys/types.h>
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "pipe.h"
 

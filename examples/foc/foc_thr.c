@@ -24,9 +24,10 @@
 
 #include <nuttx/config.h>
 
-#include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sched.h>
 
 #include "foc_mq.h"
 #include "foc_thr.h"
