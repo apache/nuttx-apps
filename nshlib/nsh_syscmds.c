@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <nuttx/rptun/rptun.h>
+#include <nuttx/streams.h>
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
@@ -488,6 +489,7 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR const char *str;
+  struct lib_memoutstream_s stream;
   struct utsname info;
   unsigned int set;
   int option;
@@ -579,6 +581,8 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Process each option */
 
   first = true;
+  lib_memoutstream(&stream, alloca(sizeof(struct utsname)),
+                   sizeof(struct utsname));
   for (i = 0; set != 0; i++)
     {
       unsigned int mask = (1 << i);
@@ -623,15 +627,16 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
           if (!first)
             {
-              nsh_output(vtbl, " ");
+              lib_stream_putc(&stream, ' ');
             }
 
-          nsh_output(vtbl, "%s", str);
+          lib_stream_puts(&stream, str, strlen(str));
           first = false;
         }
     }
 
-  nsh_output(vtbl, "\n");
+  lib_stream_putc(&stream, '\n');
+  nsh_write(vtbl, stream.buffer, stream.public.nput);
   return OK;
 }
 #endif
