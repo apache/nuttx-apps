@@ -36,12 +36,19 @@ CFLAGS += -DNNG_TRANSPORT_WS
 CFLAGS += -DNNG_TRANSPORT_WSS
 
 CFLAGS += -DNNG_USE_EVENTFD
+ifeq ($(CONFIG_NETUTILS_NNG_HAVE_EPOLL),y)
 CFLAGS += -DNNG_HAVE_EPOLL
 CFLAGS += -DNNG_HAVE_EPOLL_CREATE1
+endif
+
+ifeq ($(CONFIG_NETUTILS_NNG_USE_MBEDTLS),y)
+CFLAGS += -DNNG_TLS_ENGINE_INIT=nng_tls_engine_init_mbed
+CFLAGS += -DNNG_TLS_ENGINE_FINI=nng_tls_engine_fini_mbed
+CFLAGS += -DNNG_SUPP_TLS
+endif
 
 DEPPATH += --dep-path $(NNG_SRCDIR)
 VPATH   += :$(NNG_SRCDIR)
-
 
 CSRCS  = $(NNG_SRCDIR)/nng.c 
 CSRCS += $(NNG_SRCDIR)/nng_legacy.c
@@ -88,9 +95,12 @@ CSRCS += $(NNG_SRCDIR)/platform/posix/posix_tcpdial.c
 CSRCS += $(NNG_SRCDIR)/platform/posix/posix_tcplisten.c
 CSRCS += $(NNG_SRCDIR)/platform/posix/posix_thread.c
 CSRCS += $(NNG_SRCDIR)/platform/posix/posix_udp.c
+ifeq ($(CONFIG_NETUTILS_NNG_HAVE_EPOLL),y)
 CSRCS += $(NNG_SRCDIR)/platform/posix/posix_pollq_epoll.c
+else
+CSRCS += $(NNG_SRCDIR)/platform/posix/posix_pollq_poll.c
+endif
 CSRCS += $(NNG_SRCDIR)/platform/posix/posix_rand_getrandom.c
-#CSRCS += $(NNG_SRCDIR)/platform/posix/posix_rand_urandom.c
 
 CSRCS += $(NNG_SRCDIR)/sp/transport.c
 CSRCS += $(NNG_SRCDIR)/sp/protocol/bus0/bus.c
@@ -126,8 +136,9 @@ CSRCS += $(NNG_SRCDIR)/supplemental/http/http_schemes.c
 CSRCS += $(NNG_SRCDIR)/supplemental/http/http_server.c
 CSRCS += $(NNG_SRCDIR)/supplemental/sha1/sha1.c
 CSRCS += $(NNG_SRCDIR)/supplemental/tls/tls_common.c
-#CSRCS += $(NNG_SRCDIR)/supplemental/tls/mbedtls/tls.c
-#CSRCS += $(NNG_SRCDIR)/supplemental/util/options.c
+ifeq ($(CONFIG_NETUTILS_NNG_USE_MBEDTLS),y)
+CSRCS += $(NNG_SRCDIR)/supplemental/tls/mbedtls/tls.c
+endif
 CSRCS += $(NNG_SRCDIR)/supplemental/util/platform.c
 CSRCS += $(NNG_SRCDIR)/supplemental/websocket/websocket.c
 

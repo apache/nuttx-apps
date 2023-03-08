@@ -17,4 +17,25 @@ config NETUTILS_NNG_VERSION
 	string "NNG Version"
 	default "1.5.2"
 
+config NETUTILS_NNG_HAVE_EPOLL
+	bool "Build with epoll"
+	default n
+	---help---
+		If this option is selected, an epoll based poll gueue
+		is included in the build. Otherwise poll based queue
+		is included in the build.
+
+choice
+	prompt "TLS engine"
+	default NETUTILS_NNG_USE_NONE
+
+config NETUTILS_NNG_USE_NONE
+	bool "None"
+
+config NETUTILS_NNG_USE_MBEDTLS
+	bool "MbedTLS"
+	select CRYPTO_MBEDTLS
+
+endchoice # TLS engine
+
 endif
