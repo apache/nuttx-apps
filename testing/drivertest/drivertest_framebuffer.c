@@ -208,8 +208,8 @@ static void draw_rect(FAR struct fb_info_s *fb_info, int x, int y,
   int i = 0;
   int j = 0;
   int offset = 0;
-  uint32_t *fb_bpp32 = fb_info->fb_mem;
-  uint16_t *fb_bpp16 = fb_info->fb_mem;
+  uint32_t *fb_bpp32 = (uint32_t *)fb_info->fb_mem;
+  uint16_t *fb_bpp16 = (uint16_t *)fb_info->fb_mem;
   const uint8_t bpp = fb_info->plane_info.bpp;
   const uint32_t xres = fb_info->video_info.xres;
   const uint32_t yres = fb_info->video_info.yres;
