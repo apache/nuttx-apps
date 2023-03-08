@@ -24,12 +24,12 @@
 
 #include <nuttx/config.h>
 
-#include <stdio.h>
-#include <fcntl.h>
 #include <assert.h>
-#include <unistd.h>
-
 #include <dspb16.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "foc_cfg.h"
 #include "foc_debug.h"

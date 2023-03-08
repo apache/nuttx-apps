@@ -22,8 +22,11 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <assert.h>
 #include <errno.h>
+#include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>
 #include <signal.h>

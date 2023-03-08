@@ -25,11 +25,11 @@
 #include <nuttx/config.h>
 
 #include <assert.h>
-
-#include "foc_motor_b16.h"
+#include <string.h>
 
 #include "foc_cfg.h"
 #include "foc_debug.h"
+#include "foc_motor_b16.h"
 
 /****************************************************************************
  * Pre-processor Definitions
