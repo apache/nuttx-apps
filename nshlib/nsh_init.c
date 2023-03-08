@@ -28,11 +28,14 @@
 #include <nuttx/symtab.h>
 
 #include "system/readline.h"
-#include "netutils/netinit.h"
 #include "nshlib/nshlib.h"
 
 #include "nsh.h"
 #include "nsh_console.h"
+
+#ifdef CONFIG_NSH_NETINIT
+#  include "netutils/netinit.h"
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
