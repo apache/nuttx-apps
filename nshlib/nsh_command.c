@@ -813,7 +813,11 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
   unsigned int j;
   unsigned int k;
   unsigned int offset;
-  char line[HELP_LINELEN];
+
+  /* Extra 5 bytes for tab before newline and '\0' */
+
+  char line[HELP_LINELEN + HELP_TABSIZE + 1];
+
   static const char *g_builtin_prompt = "\nBuiltin Apps:\n";
 
   /* Count the number of built-in commands and get the optimal column width */
