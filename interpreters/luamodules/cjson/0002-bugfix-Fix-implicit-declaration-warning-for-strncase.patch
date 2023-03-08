@@ -1,0 +1,26 @@
+From e6e8fbe68a95bf6fca463781dbc22e631c4b7b7a Mon Sep 17 00:00:00 2001
+From: Gustavo Henrique Nihei <gustavo.nihei@espressif.com>
+Date: Wed, 8 Mar 2023 17:18:02 -0300
+Subject: [PATCH] bugfix: Fix implicit declaration warning for strncasecmp
+ function
+
+Signed-off-by: Gustavo Henrique Nihei <gustavo.nihei@espressif.com>
+---
+ lua_cjson.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lua_cjson.c b/lua_cjson.c
+index 42672de..f443626 100644
+--- a/lua_cjson.c
++++ b/lua_cjson.c
+@@ -39,6 +39,7 @@
+ #include <assert.h>
+ #include <stdint.h>
+ #include <string.h>
++#include <strings.h>
+ #include <math.h>
+ #include <limits.h>
+ #include <lua.h>
+-- 
+2.37.2
+
