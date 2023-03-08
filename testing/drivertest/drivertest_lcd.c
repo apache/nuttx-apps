@@ -231,8 +231,8 @@ static void draw_rect(FAR struct lcd_info_s *lcd_info, int x, int y,
   draw_area.col_end = y + valid_h - 1;
   draw_area.data = malloc(valid_w * valid_h * (bpp >> 3));
   assert_ptr_not_equal(draw_area.data, NULL);
-  fb_bpp16 = draw_area.data;
-  fb_bpp32 = draw_area.data;
+  fb_bpp16 = (uint16_t *)draw_area.data;
+  fb_bpp32 = (uint32_t *)draw_area.data;
   for (j = 0; j <= (draw_area.col_end - draw_area.col_start); j++)
     {
       offset = j  * valid_w;
