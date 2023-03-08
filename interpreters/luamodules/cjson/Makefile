@@ -39,6 +39,7 @@ $(LUACJSON_UNPACK): $(LUACJSON_TARBALL)
 	$(Q) tar -xvzf $(LUACJSON_TARBALL)
 	$(Q) mv lua-cjson-$(LUACJSON_VERSION) $(LUACJSON_UNPACK)
 	$(Q) patch -d $(LUACJSON_UNPACK) -p1 < 0001-fix-compile-warnings.patch
+	$(Q) patch -d $(LUACJSON_UNPACK) -p1 < 0002-bugfix-Fix-implicit-declaration-warning-for-strncase.patch
 
 $(LUACJSON_UNPACK)/.patch: $(LUACJSON_UNPACK)
 	touch $(LUACJSON_UNPACK)/.patch
