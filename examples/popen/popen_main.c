@@ -167,7 +167,8 @@ int main(int argc, FAR char *argv[])
 
       if (errcode == ECHILD)
         {
-          printf("The shell has already exited (and exit status is not available)\n");
+          printf("The shell has already exited "
+                 "(and exit status is not available)\n");
         }
       else
         {
