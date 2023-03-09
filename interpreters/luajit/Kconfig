@@ -1,0 +1,49 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_LUAJIT
+	tristate "LuaJIT"
+	default n
+
+if INTERPRETERS_LUAJIT
+
+config LUAJIT_VERSION
+	string "LuaJIT version"
+	default "03080b795aa3496ed62d4a0697c9f4767e7ca7e5"
+
+config LUAJIT_PRIORITY
+	int "LuaJIT REPL priority"
+	default 100
+
+config LUAJIT_STACKSIZE
+	int "LuaJIT REPL stack size"
+	default 16384
+
+config LUAJIT_ALLOC_START
+	hex "Alloc heap address"
+	default 0x20200000
+	---help---
+		Allocation heap address for Lua objects.
+
+config LUAJIT_ALLOC_SIZE
+	hex "Alloc heap size"
+	default 0x80000
+	---help---
+		Allocation heap size for Lua objects.
+
+config LUAJIT_MCODE_START
+	hex "MCode heap address"
+	default 0x00002000
+	depends on ARMV7M_ITCM
+	---help---
+		Allocation heap address for JIT MCode traces.
+
+config LUAJIT_MCODE_SIZE
+	hex "MCode heap size"
+	default 0x1e000
+	---help---
+		Allocation heap size for JIT MCode traces.
+
+endif
