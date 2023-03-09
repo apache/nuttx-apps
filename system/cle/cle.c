@@ -108,9 +108,8 @@ enum cle_key_e
 
 struct cle_s
 {
-  uint16_t curpos;          /* Current cursor position */
-  uint16_t cursave;         /* Saved cursor position */
-  uint16_t row;             /* This is the row that we are editing in */
+  int16_t  curpos;          /* Current cursor position in buffer */
+  int16_t  realpos;         /* Current cursor position in terminal */
   uint16_t coloffs;         /* Left cursor offset */
   uint16_t linelen;         /* Size of the line buffer */
   uint16_t nchars;          /* Size of data in the line buffer */
@@ -136,9 +135,7 @@ static void     cle_putch(FAR struct cle_s *priv, char ch);
 static int      cle_getch(FAR struct cle_s *priv);
 static void     cle_cursoron(FAR struct cle_s *priv);
 static void     cle_cursoroff(FAR struct cle_s *priv);
-static void     cle_setcursor(FAR struct cle_s *priv, uint16_t column);
-static int      cle_getcursor(FAR struct cle_s *priv, uint16_t *prow,
-                  uint16_t *pcolumn);
+static void     cle_setcursor(FAR struct cle_s *priv, int16_t column);
 static void     cle_clrtoeol(FAR struct cle_s *priv);
 
 /* Editor function */
@@ -183,10 +180,9 @@ static int g_cmd_history_len             = 0;
 
 static const char g_cursoron[]     = VT100_CURSORON;
 static const char g_cursoroff[]    = VT100_CURSOROFF;
-static const char g_getcursor[]    = VT100_GETCURSOR;
 static const char g_erasetoeol[]   = VT100_CLEAREOL;
-static const char g_fmtcursorpos[] = VT100_FMT_CURSORPOS;
 static const char g_clrscr[]       = VT100_CLEARSCREEN;
+static const char g_clrline[]      = VT100_CLEARLINE;
 static const char g_home[]         = VT100_CURSORHOME;
 #ifdef CONFIG_SYSTEM_COLOR_CLE
 static const char g_setcolor[]     = VT100_FMT_FORE_COLOR;
@@ -367,21 +363,49 @@ static void cle_cursoroff(FAR struct cle_s *priv)
  *
  ****************************************************************************/
 
-static void cle_setcursor(FAR struct cle_s *priv, uint16_t column)
+static void cle_setcursor(FAR struct cle_s *priv, int16_t column)
 {
   char buffer[16];
   int len;
+  int off;
 
-  cleinfo("row=%d column=%d offset=%d\n", priv->row, column, priv->coloffs);
+  /* Sub prompt offset from real postion to get correct offset to execute */
 
-  /* Format the cursor position command.  The origin is (1,1). */
+  off = column - (priv->realpos - priv->coloffs);
 
-  len = snprintf(buffer, 16, g_fmtcursorpos,
-                 priv->row, column + priv->coloffs);
+  cleinfo("column=%d offset=%d\n", column, off);
+
+  /* If cursor not move, retrun directly */
+
+  if (off == 0)
+    {
+      return;
+    }
+
+  /* If position after adjustment is belong to promot area,
+   * limit it to edge of the prompt.
+   */
+
+  if (off + priv->realpos < priv->coloffs)
+    {
+      off = priv->realpos - priv->coloffs;
+    }
+
+  /* Format the cursor position command.
+   * Move left or right depends on the current cursor position in buffer.
+   */
+
+  len = snprintf(buffer, sizeof(buffer),
+                 off < 0 ? VT100_FMT_CURSORLF : VT100_FMT_CURSORRT,
+                 off < 0 ? -off : off);
 
   /* Send the VT100 CURSORPOS command */
 
   cle_write(priv, buffer, len);
+
+  /* Update the current cursor position in terminal */
+
+  priv->realpos = priv->coloffs + column;
 }
 
 /****************************************************************************
@@ -436,94 +460,7 @@ static void cle_clrscr(FAR struct cle_s *priv)
 
   cle_write(priv, g_clrscr, sizeof(g_clrscr));
   cle_write(priv, g_home, sizeof(g_home));
-  priv->row = 1;
   cle_outputprompt(priv);
-}
-
-/****************************************************************************
- * Name: cle_getcursor
- *
- * Description:
- *   Get the current cursor position.
- *
- ****************************************************************************/
-
-static int cle_getcursor(FAR struct cle_s *priv, FAR uint16_t *prow,
-                         FAR uint16_t *pcolumn)
-{
-  uint32_t row;
-  uint32_t column;
-  int nbad;
-  int ch;
-
-  /* Send the VT100 GETCURSOR command */
-
-  cle_write(priv, g_getcursor, sizeof(g_getcursor));
-
-  /* We expect to get back ESC[v;hR where v is the row and h is the column.
-   * once the sequence has started we don't expect any characters
-   * interspersed.
-   */
-
-  for (nbad = 0; nbad < 10; nbad++)
-    {
-      /* Look for initial ESC */
-
-      ch = cle_getch(priv);
-      if (ch != ASCII_ESC)
-        {
-          continue;
-        }
-
-      /* Have ESC, now we expect '[' */
-
-      ch = cle_getch(priv);
-      if (ch != '[')
-        {
-          continue;
-        }
-
-      /* ...now we expect to see a numeric value terminated with ';' */
-
-      row = 0;
-
-      while (isdigit(ch = cle_getch(priv)))
-        {
-          row = row * 10 + (ch - '0');
-        }
-
-      if (ch != ';')
-        {
-          continue;
-        }
-
-      /* ...now we expect to see another numeric value terminated with 'R' */
-
-      column = 0;
-      while (isdigit(ch = cle_getch(priv)))
-        {
-          column = 10 * column + (ch - '0');
-        }
-
-      /* ...we are done */
-
-      cleinfo("row=%" PRId32 " column=%" PRId32 "\n", row, column);
-
-      /* Make sure that the values are within range */
-
-      if (row <= UINT16_MAX && column <= UINT16_MAX)
-        {
-          *prow = row;
-          *pcolumn = column;
-          return OK;
-        }
-      else
-        {
-          return -ERANGE;
-        }
-    }
-
-  return -EINVAL;
 }
 
 /****************************************************************************
@@ -627,7 +564,7 @@ static void cle_closetext(FAR struct cle_s *priv, uint16_t pos,
            * the beginning of the deleted region.
            */
 
-        priv->curpos = pos;
+          priv->curpos = pos;
         }
     }
 }
@@ -672,6 +609,7 @@ static void cle_showtext(FAR struct cle_s *priv)
               for (; column < tabcol; column++)
                 {
                   cle_putch(priv, ' ');
+                  priv->realpos++;
                 }
             }
           else
@@ -690,6 +628,7 @@ static void cle_showtext(FAR struct cle_s *priv)
         {
           cle_putch(priv, priv->line[column]);
           column++;
+          priv->realpos++;
         }
     }
 
@@ -1070,6 +1009,13 @@ static int cle_editloop(FAR struct cle_s *priv)
                 /* Insert the filtered character into the buffer */
 
                 cle_insertch(priv, ch);
+
+                /* Printable character will change the cursor position in */
+
+                if (ch != '\t')
+                  {
+                    priv->realpos++;
+                  }
               }
             else
               {
@@ -1104,7 +1050,6 @@ int cle_fd(FAR char *line, FAR const char *prompt, uint16_t linelen,
            int infd, int outfd)
 {
   FAR struct cle_s priv;
-  uint16_t column;
   int ret;
 
   /* Initialize the CLE state structure */
@@ -1117,30 +1062,21 @@ int cle_fd(FAR char *line, FAR const char *prompt, uint16_t linelen,
   priv.infd     = infd;
   priv.outfd    = outfd;
 
+  /* Clear line, move cursor to column 1 */
+
+  cle_write(&priv, g_clrline, sizeof(g_clrline));
+
   /* Store the prompt in case we need to re-print it */
 
   priv.prompt = prompt;
   cle_outputprompt(&priv);
 
-  /* Get the current cursor position */
+  /* Assumption:
+   *  nsh prompt is always shown at line start by clear line.
+   */
 
-  ret = cle_getcursor(&priv, &priv.row, &column);
-
-  if (ret < 0)
-    {
-      return ret;
-    }
-
-  /* Turn the column number into an offset */
-
-  if (column < 1)
-    {
-      return -EINVAL;
-    }
-
-  priv.coloffs = column;
-
-  cleinfo("row=%d column=%d\n", priv.row, column);
+  priv.coloffs = strlen(prompt);
+  priv.realpos = priv.coloffs;
 
   /* The editor loop */
 
