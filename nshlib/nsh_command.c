@@ -675,7 +675,7 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
         }
     }
 
-  colwidth += 2;
+  colwidth += HELP_TABSIZE;
 
   /* Determine the number of commands to put on one line */
 
@@ -890,7 +890,7 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
       return;
     }
 
-  column_width += 2;
+  column_width += HELP_TABSIZE;
 
   /* Determine the number of commands to put on one line */
 
@@ -913,7 +913,7 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
   nsh_write(vtbl, g_builtin_prompt, strlen(g_builtin_prompt));
   for (i = 0; i < num_builtin_rows; i++)
     {
-      offset = 4;
+      offset = HELP_TABSIZE;
       memset(line, ' ', offset);
 
       for (j = 0, k = i;
