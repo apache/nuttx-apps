@@ -126,7 +126,6 @@ CCalibration::CCalibration(FAR CTwm4Nx *twm4nx)
 
   sem_init(&m_exclSem, 0, 1);
   sem_init(&m_synchSem, 0, 0);
-  sem_setprotocol(&m_synchSem, SEM_PRIO_NONE);
 }
 
 /**

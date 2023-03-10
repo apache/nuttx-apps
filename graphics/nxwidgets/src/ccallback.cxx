@@ -83,7 +83,6 @@ CCallback::CCallback(CWidgetControl *widgetControl)
   m_synchronized       = false;
 
   sem_init(&m_semevent, 0, 0);
-  sem_setprotocol(&m_semevent, SEM_PRIO_NONE);
 
 #ifdef CONFIG_NXTERM_NXKBDIN
   // Keyboard input is initially directed to the widgets within the window
