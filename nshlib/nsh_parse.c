@@ -166,6 +166,8 @@ static void nsh_dequote(FAR char *cmdline);
 #  define nsh_dequote(c)
 #endif
 
+static FAR char *nsh_rmquotes(FAR char *qbegin, FAR char *qend);
+
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *cmdline, FAR char **allocation, FAR int *isenvvar);
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
@@ -208,8 +210,9 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
  ****************************************************************************/
 
 static const char g_token_separator[] = " \t\n";
+static const char g_quote_separator[] = "'\"`";
 #ifndef NSH_DISABLE_SEMICOLON
-static const char g_line_separator[]  = "\"#;\n";
+static const char g_line_separator[]  = "\"'#;\n";
 #endif
 #ifdef CONFIG_NSH_ARGCAT
 static const char g_arg_separator[]   = "`$";
@@ -1142,6 +1145,38 @@ static void nsh_dequote(FAR char *cmdline)
 #endif
 
 /****************************************************************************
+ * Name: nsh_rmquotes
+ ****************************************************************************/
+
+static FAR char *nsh_rmquotes(FAR char *qbegin, FAR char *qend)
+{
+  FAR char *dst;
+  FAR char *ptr;
+  char ch;
+
+  /* Remove the starting quote */
+
+  dst = qbegin;
+  ptr = qbegin + 1;
+
+  do
+    {
+      /* Remove the ending quote */
+
+      if (ptr == qend)
+        {
+          ptr++;
+        }
+
+      ch     = *ptr++;
+      *dst++ = ch;
+    }
+  while(ch != '\0');
+
+  return qend - 2;
+}
+
+/****************************************************************************
  * Name: nsh_argexpand
  ****************************************************************************/
 
@@ -1484,13 +1519,9 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
   FAR char *pend       = NULL;
   FAR char *allocation = NULL;
   FAR char *argument   = NULL;
-  FAR const char *term;
 #ifdef CONFIG_NSH_QUOTE
   FAR char *prev;
-  bool quoted;
-#endif
-#ifdef CONFIG_NSH_CMDPARMS
-  bool backquote;
+  bool escaped;
 #endif
 
   /* Find the beginning of the next token */
@@ -1543,111 +1574,77 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 
   else
     {
-      /* However, the rules are a little different if the next argument is
-       * a quoted string.
-       */
-
-      if (*pbegin == '"')
-        {
-          /* A quoted string can only be terminated with another quotation
-           * mark.  Set pbegin to point at the character after the opening
-           * quote mark.
-           */
-
-          pbegin++;
-          term = "\"";
-
-          /* If this is an environment variable in double quotes, we don't
-           * want it split into multiple arguments. So just invalidate the
-           * flag pointer which would otherwise communicate such back up
-           * the call tree.
-           */
-
-          isenvvar = NULL;
-        }
-      else
-        {
-          /* No, then any of the usual separators will terminate the
-           * argument.  In this case, pbegin points for the first character
-           * of the token following the previous separator.
-           */
-
-          term = g_token_separator;
-        }
-
-      /* Find the end of the string */
-
-#ifdef CONFIG_NSH_CMDPARMS
-      /* Some special care must be exercised to make sure that we do not
-       * break up any back-quote delimited substrings.  NOTE that the
-       * absence of a closing back-quote is not detected;  That case should
-       * be detected later.
+      /* Find the end of the string. Some special care must be exercised to
+       * make sure that we do not break up any quoted substrings.
        */
 
 #ifdef CONFIG_NSH_QUOTE
-      quoted    = false;
-      backquote = false;
+      escaped = false;
 
       for (prev = NULL, pend = pbegin; *pend != '\0'; prev = pend, pend++)
-        {
-          /* Check if the current character is quoted */
-
-          if (prev != NULL && *prev == '\\' && !quoted)
-            {
-              /* Do no special checks on the quoted character */
-
-              quoted = true;
-              continue;
-            }
-
-          quoted = false;
-
-          /* Check if the current character is an (unquoted) back-quote */
-
-          if (*pend == '\\' && !quoted)
-            {
-              /* Yes.. Do no special processing on the backspace character */
-
-              continue;
-            }
-
-          /* Toggle the back-quote flag when one is encountered? */
-
-          if (*pend == '`')
-            {
-              backquote = !backquote;
-            }
-
-          /* Check for a delimiting character only if we are not in a
-           * back-quoted sub-string.
-           */
-
-          else if (!backquote && nsh_strchr(term, *pend) != NULL)
-            {
-              /* We found a delimiter outside of any back-quoted substring.
-               * Now we can break out of the loop.
-               */
-
-              break;
-            }
-        }
 #else
-      backquote = false;
-
       for (pend = pbegin; *pend != '\0'; pend++)
+#endif
         {
-          /* Toggle the back-quote flag when one is encountered? */
+#ifdef CONFIG_NSH_QUOTE
+          /* Check if the current character is escaped */
 
-          if (*pend == '`')
+          if (prev != NULL && *prev == '\\' && !escaped)
             {
-              backquote = !backquote;
+              /* Do no special checks on the quoted character */
+
+              escaped = true;
+              continue;
             }
 
-          /* Check for a delimiting character only if we are not in a
-           * back-quoted sub-string.
+          escaped = false;
+
+          /* Check if the current character is an (unescaped) back-slash */
+
+          if (*pend == '\\' && !escaped)
+            {
+              /* Yes.. Do no special processing on the backspace character */
+
+              continue;
+            }
+#endif
+
+          /* Are we entering a quoted string ? */
+
+          if (nsh_strchr(g_quote_separator, *pend))
+            {
+              /* Yes, find the terminator and continue from there */
+
+              FAR char *qend = nsh_strchr(pend + 1, *pend);
+              if (!qend)
+                {
+                  /* No terminator found, get out */
+
+                  char qterm[2];
+
+                  qterm[0] = ptr;
+                  qterm[1] = '\0';
+
+                  nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
+
+                  return NULL;
+                }
+
+              /* Is it a back-quote ? These are not removed here */
+
+              if (*pend != '`')
+                {
+                  /* No, get rid of the single / double quotes here */
+
+                  pend = nsh_rmquotes(pend, qend);
+                }
+            }
+
+          /* Check for a delimiting character only if we are not in a quoted
+           * sub-string.
            */
 
-          else if (!backquote && nsh_strchr(term, *pend) != NULL)
+          else if (nsh_strchr(g_token_separator, *pend) != NULL)
             {
               /* We found a delimiter outside of any back-quoted substring.
                * Now we can break out of the loop.
@@ -1656,60 +1653,6 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
               break;
             }
         }
-
-#endif /* CONFIG_NSH_QUOTE */
-#else  /* CONFIG_NSH_CMDPARMS */
-
-      /* Search the next occurrence of a terminating character (or the end
-       * of the line).
-       */
-
-#ifdef CONFIG_NSH_QUOTE
-      quoted = false;
-
-      for (prev = NULL, pend = pbegin; *pend != '\0'; prev = pend, pend++)
-        {
-          /* Check if the current character is quoted */
-
-          if (prev != NULL && *prev == '\\' && !quoted)
-            {
-              /* Do no special checks on the quoted character */
-
-              quoted = true;
-              continue;
-            }
-
-          quoted = false;
-
-          /* Check if the current character is an (unquoted) back-quote */
-
-          if (*pend == '\\' && !quoted)
-            {
-              /* Yes.. Do no special processing on the backspace character */
-
-              continue;
-            }
-
-          /* Check for a delimiting character */
-
-          if (nsh_strchr(term, *pend) != NULL)
-            {
-              /* We found a delimiter. Now we can break out of the loop. */
-
-              break;
-            }
-        }
-
-#else
-
-      for (pend = pbegin;
-          *pend != '\0' && nsh_strchr(term, *pend) == NULL;
-           pend++)
-        {
-        }
-
-#endif /* CONFIG_NSH_QUOTE */
-#endif /* CONFIG_NSH_CMDPARMS */
 
       /* pend either points to the end of the string or to the first
        * delimiter after the string.
@@ -2688,16 +2631,22 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
       /* Check if we encountered a quoted string */
 
-      else /* if (*ptr == '"') */
+      else /* if (*ptr == '"' || *ptr == '\'') */
         {
           /* Find the closing quotation mark */
 
-          FAR char *tmp = nsh_strchr(ptr + 1, '"');
+          FAR char *tmp = nsh_strchr(ptr + 1, *ptr);
           if (!tmp)
             {
               /* No closing quotation mark! */
 
-              nsh_error(vtbl, g_fmtnomatching, "\"", "\"");
+              char qterm[2];
+
+              qterm[0] = *ptr;
+              qterm[1] = '\0';
+
+              nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
+
               return ERROR;
             }
 
