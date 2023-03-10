@@ -307,27 +307,6 @@ static int edit(int chn, int nl)
                   FS_putChar(chn, '^');
                   FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
                 }
-
-              /* Output normal, printable characters */
-
-              else
-                {
-                  FS_putChar(chn, ch);
-                }
-            }
-
-          /* It is a newline */
-
-          else
-            {
-              /* Echo the newline (or not).  We always use newline
-               * termination when talking to the host.
-               */
-
-              if (nl)
-                {
-                  FS_putChar(chn, '\n');
-                }
             }
 
           f->inBuf[f->inCapacity++] = ch;
