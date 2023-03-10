@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello_zig/Make.defs
+# apps/examples/hello_zig/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
