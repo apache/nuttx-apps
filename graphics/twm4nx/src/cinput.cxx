@@ -97,7 +97,6 @@ CInput::CInput(CTwm4Nx *twm4nx)
   // Initialize the semaphore used to synchronize with the listener thread
 
   sem_init(&m_waitSem, 0, 0);
-  sem_setprotocol(&m_waitSem, SEM_PRIO_NONE);
 
 #ifdef CONFIG_TWM4NX_TOUCHSCREEN
   // Calibration

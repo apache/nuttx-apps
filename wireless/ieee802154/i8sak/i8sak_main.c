@@ -682,10 +682,8 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
   sem_init(&i8sak->exclsem, 0, 1);
 
   sem_init(&i8sak->updatesem, 0, 0);
-  sem_setprotocol(&i8sak->updatesem, SEM_PRIO_NONE);
 
   sem_init(&i8sak->sigsem, 0, 0);
-  sem_setprotocol(&i8sak->sigsem, SEM_PRIO_NONE);
 
   sem_init(&i8sak->eventsem, 0, 1);
 
