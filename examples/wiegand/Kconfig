@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WIEGAND
+	tristate "Wiegand example"
+	default n
+	---help---
+		Enable the wiegand example
+
+if EXAMPLES_WIEGAND
+
+config EXAMPLES_WIEGAND_PROGNAME
+	string "Program name"
+	default "wiegand"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_WIEGAND_PRIORITY
+	int "wiegand task priority"
+	default 100
+
+config EXAMPLES_WIEGAND_STACKSIZE
+	int "wiegand stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
