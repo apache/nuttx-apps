@@ -37,9 +37,9 @@ endif
 # we need to fix up the path so the DELIM will match the actual delimiter.
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-CWD = $(strip ${shell echo %CD% | cut -d: -f2})
+  CWD = $(strip ${shell echo %CD% | cut -d: -f2})
 else
-CWD = $(CURDIR)
+  CWD = $(CURDIR)
 endif
 
 # Add the static application library to the linked libraries.

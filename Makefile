@@ -32,7 +32,7 @@ endif
 # use
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-export APPDIR = $(subst /,\,$(CURDIR))
+  export APPDIR = $(subst /,\,$(CURDIR))
 endif
 
 # Symbol table for loadable apps.
