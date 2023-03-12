@@ -33,9 +33,9 @@ CONFIGDIRS := $(filter-out $(APPDIR)/builtin/,$(BUILDIRS))
 CONFIGDIRS := $(filter-out $(dir $(wildcard $(APPDIR)/*/Kconfig)),$(CONFIGDIRS))
 CLEANDIRS  := $(dir $(wildcard $(APPDIR)/*/Makefile))
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	BUILDIRS  := $(subst /,\,$(BUILDIRS))
-	CONFIGDIRS  := $(subst /,\,$(CONFIGDIRS))
-	CLEANDIRS  := $(subst /,\,$(CLEANDIRS))
+  BUILDIRS   := $(subst /,\,$(BUILDIRS))
+  CONFIGDIRS := $(subst /,\,$(CONFIGDIRS))
+  CLEANDIRS  := $(subst /,\,$(CLEANDIRS))
 endif
 
 # CONFIGURED_APPS is the application directories that should be built in
@@ -44,7 +44,7 @@ endif
 CONFIGURED_APPS :=
 
 define Add_Application
-	include $(1)Make.defs
+  include $(1)Make.defs
 endef
 
 $(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))

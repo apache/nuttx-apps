@@ -28,8 +28,8 @@ CLEANSUBDIRS  += $(dir $(wildcard */.depend))
 CLEANSUBDIRS  += $(dir $(wildcard */.kconfig))
 CLEANSUBDIRS  := $(sort $(CLEANSUBDIRS))
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	CONFIGSUBDIRS  := $(subst /,\,$(CONFIGSUBDIRS))
-	CLEANSUBDIRS  := $(subst /,\,$(CLEANSUBDIRS))
+  CONFIGSUBDIRS := $(subst /,\,$(CONFIGSUBDIRS))
+  CLEANSUBDIRS  := $(subst /,\,$(CLEANSUBDIRS))
 endif
 
 all: nothing
