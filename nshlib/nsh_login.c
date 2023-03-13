@@ -204,7 +204,7 @@ int nsh_login(FAR struct console_stdio_s *pstate)
         {
           if (tcgetattr(INFD(pstate), &cfg) == 0)
             {
-              cfg.c_iflag &= ~ECHO;
+              cfg.c_lflag &= ~ECHO;
               tcsetattr(INFD(pstate), TCSANOW, &cfg);
             }
         }
@@ -221,7 +221,7 @@ int nsh_login(FAR struct console_stdio_s *pstate)
         {
           if (tcgetattr(INFD(pstate), &cfg) == 0)
             {
-              cfg.c_iflag |= ECHO;
+              cfg.c_lflag |= ECHO;
               tcsetattr(INFD(pstate), TCSANOW, &cfg);
             }
         }
