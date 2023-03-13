@@ -76,7 +76,7 @@ struct tcurses_vt100_s
   int    keycount;
   char   keybuf[16];
 #ifdef CONFIG_SERIAL_TERMIOS
-  tcflag_t iflag;
+  tcflag_t lflag;
 #endif
 };
 
@@ -1497,13 +1497,13 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
             {
               /* Save current iflags */
 
-              priv->iflag = cfg.c_iflag;
+              priv->lflag = cfg.c_lflag;
 
               /* If ECHO enabled, disable it */
 
-              if (cfg.c_iflag & ECHO)
+              if (cfg.c_lflag & ECHO)
                 {
-                  cfg.c_iflag &= ~ECHO;
+                  cfg.c_lflag &= ~ECHO;
                   tcsetattr(priv->in_fd, TCSANOW, &cfg);
                 }
             }
@@ -1513,7 +1513,7 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
                * tcurses_vt100_terminate
                */
 
-              priv->iflag = 0;
+              priv->lflag = 0;
             }
         }
 #endif
@@ -1549,9 +1549,9 @@ static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
 #ifdef CONFIG_SERIAL_TERMIOS
       if (isatty(priv->in_fd))
         {
-          if (tcgetattr(priv->in_fd, &cfg) == 0 && priv->iflag & ECHO)
+          if (tcgetattr(priv->in_fd, &cfg) == 0 && priv->lflag & ECHO)
             {
-              cfg.c_iflag |= ECHO;
+              cfg.c_lflag |= ECHO;
               tcsetattr(priv->in_fd, TCSANOW, &cfg);
             }
         }
