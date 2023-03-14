@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_ARCH_LIBC
+	tristate "arch-specific libc function test"
+	default n
+	depends on ARCH_TOOLCHAIN_GNU
+	---help---
+		Enable the arch libc test
+
+if TESTING_ARCH_LIBC
+
+config TESTING_ARCH_LIBC_STRCPY
+	bool "test strcpy"
+	default n
+
+config TESTING_ARCH_LIBC_PROGNAME
+	string "Program name"
+	default "arch_libctest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_ARCH_LIBC_PRIORITY
+	int "arch libc test priority"
+	default 100
+
+config TESTING_ARCH_LIBC_STACKSIZE
+	int "arch libc test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_ARCH_LIBC_VERBOSE
+	bool "Verbose output"
+	default n
+
+endif
