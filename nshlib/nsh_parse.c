@@ -1638,6 +1638,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
   FAR char *prev;
   bool escaped;
 #endif
+  bool squote;
   bool quoted;
 
   /* Find the beginning of the next token */
@@ -1694,6 +1695,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
        * make sure that we do not break up any quoted substrings.
        */
 
+      squote = false;
       quoted = false;
 #ifdef CONFIG_NSH_QUOTE
       escaped = false;
@@ -1747,6 +1749,24 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
                   return NULL;
                 }
 
+              /* Is it a single-quote ? No expansion allowed */
+
+              if (*pend == '\'')
+                {
+                  /* Yes, do not allow any expansions whatsoever */
+
+                  squote = true;
+                }
+
+              /* Is it a double-quote ? Variable expansion is allowed */
+
+              if (*pend == '"')
+                {
+                  /* Don't split env variable if inside double quotes */
+
+                  isenvvar = NULL;
+                }
+
               /* Is it a back-quote ? These are not removed here */
 
               if (*pend != '`')
@@ -1797,7 +1817,14 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 
       /* Perform expansions as necessary for the argument */
 
-      argument = nsh_argexpand(vtbl, pbegin, &allocation, isenvvar);
+      if (squote)
+        {
+          argument = pbegin;
+        }
+      else
+        {
+          argument = nsh_argexpand(vtbl, pbegin, &allocation, isenvvar);
+        }
     }
 
   /* If any memory was allocated for this argument, make sure that it is
