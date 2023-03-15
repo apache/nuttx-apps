@@ -359,6 +359,15 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#if !defined(CONFIG_DISABLE_PTHREAD) && \
+    (defined(CONFIG_SCHED_LPWORK) || defined(CONFIG_SCHED_HPWORK))
+      /* Check work queues */
+
+      printf("\nuser_main: wqueue test\n");
+      wqueue_test();
+      check_test_memory_usage();
+#endif
+
 #ifndef CONFIG_DISABLE_PTHREAD
       /* Verify pthreads and pthread mutex */
 

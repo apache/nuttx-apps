@@ -92,6 +92,10 @@ endif
 ifeq ($(CONFIG_SCHED_SPORADIC),y)
 CSRCS += sporadic.c sporadic2.c
 endif
+
+ifeq ($(CONFIG_SCHED_WORKQUEUE),y)
+CSRCS += wqueue.c
+endif
 endif # CONFIG_DISABLE_PTHREAD
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
