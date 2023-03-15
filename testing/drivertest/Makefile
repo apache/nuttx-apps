@@ -82,7 +82,6 @@ endif
 ifneq ($(CONFIG_DEV_GPIO),)
 PROGNAME += cmocka_driver_gpio
 MAINSRC  += drivertest_gpio.c
-endif
 
 ifneq ($(CONFIG_RELAY),)
 MAINSRC  += drivertest_relay.c
@@ -98,7 +97,7 @@ ifneq ($(CONFIG_AUDIO),)
 MAINSRC  += drivertest_audio.c
 PROGNAME += cmocka_driver_audio
 
-ifneq ($(CONFIG_LCD_FRAMEBUFFER)$(CONFIG_SIM_FRAMEBUFFER),)
+ifneq ($(CONFIG_VIDEO_FB),)
 MAINSRC  += drivertest_framebuffer.c
 PROGNAME += cmocka_driver_framebuffer
 endif
