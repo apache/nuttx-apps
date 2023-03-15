@@ -126,6 +126,12 @@ void restart_test(void);
 int waitpid_test(void);
 #endif
 
+/* wqueue.c *****************************************************************/
+
+#if defined(CONFIG_SCHED_LPWORK) || defined(CONFIG_SCHED_HPWORK)
+void wqueue_test(void);
+#endif
+
 /* mutex.c ******************************************************************/
 
 void mutex_test(void);
