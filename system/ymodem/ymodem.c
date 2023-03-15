@@ -53,6 +53,7 @@
 
 #define SOH           0x01  /* Start of 128-byte data packet */
 #define STX           0x02  /* Start of 1024-byte data packet */
+#define STC           0x03  /* Start of custom byte data packet */
 #define EOT           0x04  /* End of transmission */
 #define ACK           0x06  /* Acknowledge */
 #define NAK           0x15  /* Negative acknowledge */
@@ -132,6 +133,9 @@ static int ymodem_recv_packet(FAR struct ymodem_ctx_s *ctx)
         break;
       case STX:
         ctx->packet_size = YMODEM_PACKET_1K_SIZE;
+        break;
+      case STC:
+        ctx->packet_size = ctx->custom_size;
         break;
       case EOT:
         return -EAGAIN;
@@ -411,6 +415,11 @@ send_packet:
       ctx->header[0] = SOH;
       ctx->packet_size = YMODEM_PACKET_SIZE;
     }
+  else if (ctx->custom_size != 0)
+    {
+      ctx->header[0] = STC;
+      ctx->packet_size = ctx->custom_size;
+    }
   else
     {
       ctx->header[0] = STX;
@@ -542,7 +551,15 @@ int ymodem_recv(FAR struct ymodem_ctx_s *ctx)
       return -EINVAL;
     }
 
-  ctx->header = calloc(1, 3 + YMODEM_PACKET_1K_SIZE + 2);
+  if (ctx->custom_size != 0)
+    {
+      ctx->header = calloc(1, + ctx->custom_size + 2);
+    }
+  else
+    {
+      ctx->header = calloc(1, + YMODEM_PACKET_1K_SIZE + 2);
+    }
+
   if (ctx->header == NULL)
     {
       return -ENOMEM;
@@ -588,7 +605,15 @@ int ymodem_send(FAR struct ymodem_ctx_s *ctx)
       return -EINVAL;
     }
 
-  ctx->header = calloc(1, 3 + YMODEM_PACKET_1K_SIZE + 2);
+  if (ctx->custom_size != 0)
+    {
+      ctx->header = calloc(1, + ctx->custom_size + 2);
+    }
+  else
+    {
+      ctx->header = calloc(1, + YMODEM_PACKET_1K_SIZE + 2);
+    }
+
   if (ctx->header == NULL)
     {
       return -ENOMEM;

@@ -330,6 +330,8 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr,
           "\t-t|--threshold <size>: Threshold for writing asynchronously."
           "Threshold must be less than or equal buffersize, Default: 0kB\n");
+  fprintf(stderr,
+          "\t-k <size>: Use a custom size to tansfer, Default: 1kB\n");
 
   exit(EXIT_FAILURE);
 }
@@ -355,7 +357,7 @@ int main(int argc, FAR char *argv[])
 
   memset(&priv, 0, sizeof(priv));
   memset(&ctx, 0, sizeof(ctx));
-  while ((ret = getopt_long(argc, argv, "b:d:f:hp:s:t:", options, NULL))
+  while ((ret = getopt_long(argc, argv, "b:d:f:hk:p:s:t:", options, NULL))
          != ERROR)
     {
       switch (ret)
@@ -377,6 +379,9 @@ int main(int argc, FAR char *argv[])
           case 'h':
             show_usage(argv[0]);
             break;
+          case 'k':
+            ctx.custom_size = atoi(optarg) * 1024;
+            break;
           case 'p':
             priv.skip_perfix = optarg;
             break;
@@ -387,13 +392,15 @@ int main(int argc, FAR char *argv[])
             priv.threshold = atoi(optarg) * 1024;
             break;
 
+          case '?':
           default:
             show_usage(argv[0]);
             break;
         }
     }
 
-  if (priv.threshold > priv.buffersize)
+  if (priv.buffersize && (priv.threshold > priv.buffersize ||
+                          ctx.custom_size > priv.buffersize))
     {
       show_usage(argv[0]);
     }
