@@ -275,6 +275,9 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr,
           "\t-b|--buffersize <size>: Asynchronously send buffer size."
           "If greater than 0, accept data asynchronously, Default: 0kB\n");
+  fprintf(stderr,
+          "\t-k <size>: Use a custom size to tansfer, Default: 1kB\n");
+
   exit(EXIT_FAILURE);
 }
 
@@ -295,7 +298,7 @@ int main(int argc, FAR char *argv[])
 
   memset(&priv, 0, sizeof(priv));
   memset(&ctx, 0, sizeof(ctx));
-  while ((ret = getopt_long(argc, argv, "b:d:h", options, NULL))
+  while ((ret = getopt_long(argc, argv, "b:d:k:h", options, NULL))
          != ERROR)
     {
       switch (ret)
@@ -306,12 +309,25 @@ int main(int argc, FAR char *argv[])
           case 'd':
             devname = optarg;
             break;
+          case 'k':
+            ctx.custom_size = atoi(optarg) * 1024;
+            if (ctx.custom_size == 0)
+              {
+                show_usage(argv[0]);
+              }
+
+            break;
           case 'h':
           case '?':
           default:
             show_usage(argv[0]);
             break;
         }
+    }
+
+  if (priv.buffersize && ctx.custom_size > priv.buffersize)
+    {
+      show_usage(argv[0]);
     }
 
   ctx.packet_handler = handler;

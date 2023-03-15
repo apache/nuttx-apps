@@ -48,6 +48,7 @@ struct ymodem_ctx_s
   int recvfd;
   int sendfd;
   CODE int (*packet_handler)(FAR struct ymodem_ctx_s *ctx);
+  size_t custom_size;
   FAR void *priv;
 
   /* Public data */
