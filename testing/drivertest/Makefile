@@ -103,8 +103,9 @@ endif
 ifneq ($(CONFIG_AUDIO),)
 MAINSRC  += drivertest_audio.c
 PROGNAME += cmocka_driver_audio
+endif
 
-ifneq ($(CONFIG_LCD_FRAMEBUFFER)$(CONFIG_SIM_FRAMEBUFFER),)
+ifneq ($(CONFIG_VIDEO_FB),)
 MAINSRC  += drivertest_framebuffer.c
 PROGNAME += cmocka_driver_framebuffer
 endif

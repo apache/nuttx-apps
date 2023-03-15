@@ -207,25 +207,27 @@ static void draw_rect(FAR struct fb_info_s *fb_info, int x, int y,
 {
   int i = 0;
   int j = 0;
-  int offset = 0;
-  uint32_t *fb_bpp32 = (uint32_t *)fb_info->fb_mem;
-  uint16_t *fb_bpp16 = (uint16_t *)fb_info->fb_mem;
+  uint8_t *fb_tmp;
+  uint32_t *fb_bpp32;
+  uint16_t *fb_bpp16;
   const uint8_t bpp = fb_info->plane_info.bpp;
   const uint32_t xres = fb_info->video_info.xres;
   const uint32_t yres = fb_info->video_info.yres;
 
   for (j = y; j <= (y + h - 1) && j < yres; j++)
     {
-      offset = j * xres;
+      fb_tmp = fb_info->fb_mem + (j * fb_info->plane_info.stride);
       for (i = x; i <= (x + w - 1) && x < xres; i++)
         {
           if (bpp == 32)
             {
-              *(fb_bpp32 + offset + i) = color;
+              fb_bpp32 = (uint32_t *)fb_tmp;
+              *(fb_bpp32 + i) = color;
             }
           else if (bpp == 16)
             {
-              *(fb_bpp16 + offset + i) = COLOR_888_TO_565(color);
+              fb_bpp16 = (uint16_t *)fb_tmp;
+              *(fb_bpp16 + i) = COLOR_888_TO_565(color);
             }
         }
     }
@@ -288,7 +290,7 @@ static void test_case_fb_2(FAR void **state)
       start_x = step_width * i;
       if (i == step_num - 1)
         {
-          step_width = xres - start_x + 1;
+          step_width = xres - start_x;
         }
 
       draw_rect(&fb_state->fb_info, start_x, 0, step_width, yres,
