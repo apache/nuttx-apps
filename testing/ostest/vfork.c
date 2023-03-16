@@ -24,11 +24,12 @@
 
 #include <nuttx/config.h>
 
+#include <assert.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
 
 #include "ostest.h"
 

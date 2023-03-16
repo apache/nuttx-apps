@@ -22,10 +22,11 @@
  * Included Files
  ****************************************************************************/
 
+#include <assert.h>
 #include <errno.h>
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <time.h>
 #include <unistd.h>
 

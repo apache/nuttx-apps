@@ -22,9 +22,10 @@
  * Included Files
  ****************************************************************************/
 
+#include <assert.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
 
 #include "ostest.h"
 

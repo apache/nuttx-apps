@@ -22,14 +22,16 @@
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <unistd.h>
+#include <assert.h>
+#include <errno.h>
+#include <sched.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <sched.h>
-#include <errno.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "ostest.h"
 
 /****************************************************************************

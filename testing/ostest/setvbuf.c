@@ -23,6 +23,8 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <assert.h>
 #include <stdio.h>
 
 #ifndef CONFIG_STDIO_DISABLE_BUFFERING

@@ -22,10 +22,12 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdio.h>
+#include <assert.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <sched.h>
+#include <stdio.h>
+
 #include "ostest.h"
 
 /****************************************************************************

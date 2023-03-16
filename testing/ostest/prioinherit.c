@@ -22,13 +22,14 @@
  * Included Files
  ****************************************************************************/
 
-#include <sched.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <semaphore.h>
-#include <stdlib.h>
-#include <pthread.h>
+#include <assert.h>
 #include <errno.h>
+#include <pthread.h>
+#include <sched.h>
+#include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #ifdef CONFIG_ARCH_SIM
 #  include <nuttx/arch.h>
