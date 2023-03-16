@@ -25,15 +25,16 @@
 #include <nuttx/config.h>
 
 #include <sys/wait.h>
+#include <assert.h>
+#include <errno.h>
+#include <malloc.h>
+#include <sched.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
-#include <unistd.h>
-#include <signal.h>
 #include <string.h>
-#include <sched.h>
-#include <errno.h>
+#include <unistd.h>
 
 #ifdef CONFIG_TESTING_OSTEST_POWEROFF
 #include <sys/boardctl.h>

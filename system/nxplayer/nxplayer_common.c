@@ -24,10 +24,11 @@
 
 #include <sys/types.h>
 
+#include <assert.h>
+#include <debug.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <debug.h>
 #include <unistd.h>
 
 #include <nuttx/audio/audio.h>

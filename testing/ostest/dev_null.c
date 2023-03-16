@@ -23,9 +23,12 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <assert.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <fcntl.h>
+
 #include "ostest.h"
 
 /****************************************************************************

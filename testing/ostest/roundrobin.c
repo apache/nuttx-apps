@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <assert.h>
 #include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>

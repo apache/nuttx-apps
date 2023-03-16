@@ -24,13 +24,14 @@
 
 #include <nuttx/config.h>
 
+#include <assert.h>
+#include <pthread.h>
+#include <sched.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <sys/param.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <semaphore.h>
-#include <sched.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "ostest.h"
 

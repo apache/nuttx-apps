@@ -24,14 +24,15 @@
 
 #include <nuttx/config.h>
 
+#include <aio.h>
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
 #include <string.h>
-#include <fcntl.h>
-#include <aio.h>
-#include <errno.h>
+#include <unistd.h>
 
 #include "ostest.h"
 

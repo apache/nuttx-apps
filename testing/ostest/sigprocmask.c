@@ -22,12 +22,13 @@
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
+#include <assert.h>
+#include <errno.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <signal.h>
 #include <string.h>
-#include <errno.h>
+#include <sys/types.h>
 
 #include "ostest.h"
 
