@@ -112,13 +112,7 @@ int FS_openbinaryChn(int chn, const char *name, int mode);
 int FS_freechn(void);
 int FS_flush(int dev);
 int FS_close(int dev);
-
-#ifdef CONFIG_SERIAL_TERMIOS
 int FS_istty(int chn);
-#else
-#  define FS_istty(chn) (1)
-#endif
-
 int FS_lock(int chn, off_t offset, off_t length, int mode, int w);
 int FS_truncate(int chn);
 void FS_shellmode(int chn);

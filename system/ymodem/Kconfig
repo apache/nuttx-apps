@@ -5,7 +5,6 @@
 
 config SYSTEM_YMODEM
 	tristate "YMODEM"
-	depends on SERIAL_TERMIOS
 	---help---
 		Enable support for ymodem.
 

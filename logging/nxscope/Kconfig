@@ -11,7 +11,6 @@ if LOGGING_NXSCOPE
 
 config LOGGING_NXSCOPE_INTF_SERIAL
 	bool "NxScope serial port interface support"
-	select SERIAL_TERMIOS
 	default n
 	---help---
 		For details, see logging/nxscope/nxscope_iserial.c

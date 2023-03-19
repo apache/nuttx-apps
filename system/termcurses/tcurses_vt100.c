@@ -75,9 +75,7 @@ struct tcurses_vt100_s
   int    out_fd;
   int    keycount;
   char   keybuf[16];
-#ifdef CONFIG_SERIAL_TERMIOS
   tcflag_t lflag;
-#endif
 };
 
 /************************************************************************************
@@ -1469,9 +1467,7 @@ static bool tcurses_vt100_checkkey(FAR struct termcurses_s *dev)
 FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
 {
   FAR struct tcurses_vt100_s *priv;
-#ifdef CONFIG_SERIAL_TERMIOS
   struct termios cfg;
-#endif
 
   /* Allocate a new device structure */
 
@@ -1490,7 +1486,6 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
   priv->out_fd   = out_fd;
   priv->keycount = 0;
 
-#ifdef CONFIG_SERIAL_TERMIOS
       if (isatty(priv->in_fd))
         {
           if (tcgetattr(priv->in_fd, &cfg) == 0)
@@ -1516,7 +1511,6 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
               priv->lflag = 0;
             }
         }
-#endif
 
   return (FAR struct termcurses_s *)priv;
 }
@@ -1532,10 +1526,8 @@ FAR struct termcurses_s *tcurses_vt100_initialize(int in_fd, int out_fd)
 static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
 {
   FAR struct tcurses_vt100_s *priv;
-  int  fd;
-#ifdef CONFIG_SERIAL_TERMIOS
   struct termios cfg;
-#endif
+  int  fd;
 
   priv = (FAR struct tcurses_vt100_s *)dev;
   fd   = priv->out_fd;
@@ -1546,7 +1538,6 @@ static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
 
   write(fd, g_setdefcolors, strlen(g_setdefcolors));
 
-#ifdef CONFIG_SERIAL_TERMIOS
       if (isatty(priv->in_fd))
         {
           if (tcgetattr(priv->in_fd, &cfg) == 0 && priv->lflag & ECHO)
@@ -1555,7 +1546,6 @@ static int tcurses_vt100_terminate(FAR struct termcurses_s *dev)
               tcsetattr(priv->in_fd, TCSANOW, &cfg);
             }
         }
-#endif
 
   return OK;
 }

@@ -49,7 +49,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <termios.h>
 #include <signal.h>
 #include <errno.h>
 
@@ -67,11 +66,8 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-/* Configuration ************************************************************/
 
-#ifndef CONFIG_SERIAL_TERMIOS
-#  error "CONFIG_SERIAL_TERMIOS is needed by modbus example"
-#endif
+/* Configuration ************************************************************/
 
 #ifndef CONFIG_EXAMPLES_MODBUS_PORT
 #  define CONFIG_EXAMPLES_MODBUS_PORT 0
