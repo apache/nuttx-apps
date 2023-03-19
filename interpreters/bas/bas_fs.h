@@ -13,8 +13,8 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
@@ -69,20 +69,24 @@
 
 struct FileStream
 {
-  int dev,tty;
+  int dev;
+  int tty;
   int recLength;
 
   int infd;
   char inBuf[1024];
-  size_t inSize,inCapacity;
+  size_t inSize;
+  size_t inCapacity;
 
   int outfd;
   int outPos;
   int outLineWidth;
   int outColWidth;
   char outBuf[1024];
-  size_t outSize,outCapacity;
-  int outforeground,outbackground;
+  size_t outSize;
+  size_t outCapacity;
+  int outforeground;
+  int outbackground;
 
   int randomfd;
   int recPos;
