@@ -137,6 +137,9 @@ static void show_usage(FAR const char *progname, int errcode)
   fprintf(stderr,
           "\t-p <path>: Save remote file path. Default: Current path\n");
   fprintf(stderr,
+          "\t-k <size>: Use a custom size to tansfer."
+          "The size unit is kb\n");
+  fprintf(stderr,
           "\t--removeprefix <prefix>: Remove save file name prefix\n");
   fprintf(stderr, "\t-t <timeout> timeout for ymodem tansfer."
                   "Default: 3000ms\n");
@@ -153,6 +156,7 @@ int main(int argc, FAR char *argv[])
 {
   struct ymodem_fd ym_fd;
   struct ymodem_ctx *ctx;
+  int customsize = 0;
   int timeout = 3000;
   int recvfd = 0;
   int index;
@@ -164,7 +168,7 @@ int main(int argc, FAR char *argv[])
     };
 
   memset(&ym_fd, 0, sizeof(struct ymodem_fd));
-  while ((ret = getopt_long(argc, argv, "p:d:t:h", options, &index))
+  while ((ret = getopt_long(argc, argv, "p:d:k:t:h", options, &index))
          != ERROR)
     {
       switch (ret)
@@ -192,6 +196,9 @@ int main(int argc, FAR char *argv[])
               }
 
             break;
+          case 'k':
+            customsize = atoi(optarg) * 1024;
+            break;
           case 't':
             timeout = atoi(optarg);
             if (timeout != 0)
@@ -217,6 +224,7 @@ int main(int argc, FAR char *argv[])
 
   memset(ctx, 0, sizeof(struct ymodem_ctx));
   ctx->packet_handler = handler;
+  ctx->customsize = customsize;
   ctx->timeout = timeout;
   ctx->priv = &ym_fd;
   if (recvfd)

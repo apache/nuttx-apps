@@ -41,6 +41,7 @@
 
 #define SOH           0x01  /* start of 128-byte data packet */
 #define STX           0x02  /* start of 1024-byte data packet */
+#define STC           0x03  /* start of custom byte data packet */
 #define EOT           0x04  /* end of transmission */
 #define ACK           0x06  /* acknowledge */
 #define NAK           0x15  /* negative acknowledge */
@@ -86,6 +87,7 @@ static ssize_t ymodem_uart_recv(FAR struct ymodem_ctx *ctx,
       ret = read(ctx->recvfd, buf + i, size - i);
       if (ret >= 0)
         {
+          ymodem_debug("ymodem_uart_recv ret:%d\n", ret);
           i += ret;
         }
       else
@@ -103,11 +105,26 @@ static ssize_t ymodem_uart_send(FAR struct ymodem_ctx *ctx,
                                 uint32_t timeout)
 {
   ssize_t ret = write(ctx->sendfd, buf, size);
+  int count;
+  long base;
+
   if (ret != size)
     {
       ymodem_debug("ymodem_uart_send error\n");
       return ret;
     }
+
+  base = get_current_time();
+  do
+    {
+      ioctl(ctx->sendfd, FIONWRITE, &count);
+      if (get_current_time() - base >= timeout)
+        {
+          ymodem_debug("ymodem_uart_send timeout\n");
+          return -1;
+        }
+    }
+  while (count != 0);
 
   return ret;
 }
@@ -135,6 +152,9 @@ static int ymodem_recv_packet(FAR struct ymodem_ctx *ctx)
         break;
       case STX:
         packet_size = YMODEM_PACKET_1K_SIZE;
+        break;
+      case STC:
+        packet_size = ctx->customsize;
         break;
       case EOT:
         return -EEOT;
@@ -350,12 +370,20 @@ static int ymodem_send_packet(FAR struct ymodem_ctx *ctx)
   uint8_t send_crc[2];
 
   crc = crc16(ctx->data, ctx->packet_size);
-  size = ymodem_uart_send(ctx, &ctx->header, ctx->packet_size + 3,
-                   ctx->timeout);
 
-  if (size != ctx->packet_size + 3)
+  size = ymodem_uart_send(ctx, &ctx->header, 3, ctx->timeout);
+  if (size != 3)
     {
-      ymodem_debug("send packet error\n");
+      ymodem_debug("send head seq error\n");
+      return -1;
+    }
+
+  size = ymodem_uart_send(ctx, ctx->data, ctx->packet_size,
+                          ctx->timeout);
+
+  if (size != ctx->packet_size)
+    {
+      ymodem_debug("send data error\n");
       return -1;
     }
 
@@ -486,6 +514,11 @@ send_packet:
     {
       ctx->header = SOH;
       ctx->packet_size = YMODEM_PACKET_SIZE;
+    }
+  else if (ctx->customsize != 0)
+    {
+      ctx->header = STC;
+      ctx->packet_size = ctx->customsize;
     }
   else
     {
@@ -629,6 +662,20 @@ int ymodem_recv(FAR struct ymodem_ctx *ctx)
       return -EINVAL;
     }
 
+  if (ctx->customsize != 0)
+    {
+      ctx->data = malloc(ctx->customsize);
+    }
+  else
+    {
+      ctx->data = malloc(YMODEM_PACKET_1K_SIZE);
+    }
+
+  if (ctx->data == NULL)
+    {
+      return -ENOMEM;
+    }
+
 #ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
   ctx->debug_fd = open(CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH,
                        O_CREAT | O_RDWR, 0777);
@@ -655,6 +702,8 @@ int ymodem_recv(FAR struct ymodem_ctx *ctx)
     }
 
   tcsetattr(ctx->recvfd, TCSANOW, &saveterm);
+  free(ctx->data);
+
 #ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
   close(ctx->debug_fd);
 #endif
@@ -672,6 +721,20 @@ int ymodem_send(FAR struct ymodem_ctx *ctx)
       || ctx->need_sendfile_num <= 0)
     {
       return -EINVAL;
+    }
+
+  if (ctx->customsize != 0)
+    {
+      ctx->data = zalloc(ctx->customsize);
+    }
+  else
+    {
+      ctx->data = zalloc(YMODEM_PACKET_1K_SIZE);
+    }
+
+  if (ctx->data == NULL)
+    {
+      return -ENOMEM;
     }
 
 #ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
@@ -695,6 +758,8 @@ int ymodem_send(FAR struct ymodem_ctx *ctx)
     }
 
   tcsetattr(ctx->recvfd, TCSANOW, &saveterm);
+  free(ctx->data);
+
 #ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
   close(ctx->debug_fd);
 #endif

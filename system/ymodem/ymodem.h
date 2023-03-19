@@ -55,7 +55,8 @@ struct ymodem_ctx
 {
   uint8_t header;
   uint8_t seq[2];
-  uint8_t data[YMODEM_PACKET_1K_SIZE];
+  uint8_t *data;
+  uint32_t customsize;
   char file_name[YMODEM_FILE_NAME_LENGTH];
   uint16_t packet_size;
   uint32_t file_length;

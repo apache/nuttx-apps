@@ -112,6 +112,9 @@ static void show_usage(FAR const char *progname, int errcode)
                   progname);
   fprintf(stderr, "\nWhere:\n");
   fprintf(stderr, "\t<lname> is the local file name\n");
+  fprintf(stderr,
+          "\t-k <size>: Use a custom size to tansfer."
+          "The size unit is kb\n");
   fprintf(stderr, "\nand OPTIONS include the following:\n");
   fprintf(stderr, "\t-t <timeout> timeout for ymodem tansfer."
                   "Default: 3000ms\n");
@@ -130,11 +133,12 @@ int main(int argc, FAR char *argv[])
   struct ymodem_fd ym_fd;
   struct ymodem_ctx *ctx;
   uint32_t timeout = 3000;
+  int customsize = 0;
   int recvfd = 0;
   int ret = 0;
   int option;
 
-  while ((option = getopt(argc, argv, "d:t:h")) != ERROR)
+  while ((option = getopt(argc, argv, "d:k:t:h")) != ERROR)
     {
       switch (option)
         {
@@ -146,6 +150,8 @@ int main(int argc, FAR char *argv[])
                 return recvfd;
               }
 
+          case 'k':
+            customsize = atoi(optarg) * 1024;
             break;
           case 't':
             timeout = atoi(optarg);
@@ -172,6 +178,7 @@ int main(int argc, FAR char *argv[])
 
   memset(ctx, 0, sizeof(struct ymodem_ctx));
   ctx->packet_handler = handler;
+  ctx->customsize = customsize;
   ctx->timeout = timeout;
   if (recvfd)
     {
