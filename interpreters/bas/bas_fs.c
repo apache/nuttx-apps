@@ -388,11 +388,7 @@ int FS_opendev(int chn, int infd, int outfd)
 
   g_file[chn] = malloc(sizeof(struct FileStream));
   g_file[chn]->dev = 1;
-#ifdef CONFIG_SERIAL_TERMIOS
   g_file[chn]->tty = (infd == 0 ? isatty(infd) && isatty(outfd) : 0);
-#else
-  g_file[chn]->tty = 1;
-#endif
   g_file[chn]->recLength = 1;
   g_file[chn]->infd = infd;
   g_file[chn]->inSize = 0;
@@ -781,12 +777,10 @@ int FS_close(int dev)
   return 0;
 }
 
-#ifdef CONFIG_SERIAL_TERMIOS
 int FS_istty(int chn)
 {
   return (g_file[chn] && g_file[chn]->tty);
 }
-#endif
 
 int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
 {

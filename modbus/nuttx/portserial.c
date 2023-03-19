@@ -45,10 +45,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
-
-#ifdef CONFIG_SERIAL_TERMIOS
-#  include <termios.h>
-#endif
+#include <termios.h>
 
 #include "port.h"
 
@@ -78,9 +75,7 @@ static uint8_t  ucBuffer[BUF_SIZE];
 static int      uiRxBufferPos;
 static int      uiTxBufferPos;
 
-#ifdef CONFIG_SERIAL_TERMIOS
 static struct termios xOldTIO;
-#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -182,9 +177,7 @@ void vMBPortSerialEnable(bool bEnableRx, bool bEnableTx)
 
   if (bEnableRx)
     {
-#ifdef CONFIG_SERIAL_TERMIOS
       tcflush(iSerialFd, TCIFLUSH);
-#endif
       uiRxBufferPos = 0;
       bRxEnabled = true;
     }
@@ -209,10 +202,7 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
 {
   char szDevice[16];
   bool bStatus = true;
-
-#ifdef CONFIG_SERIAL_TERMIOS
   struct termios xNewTIO;
-#endif
 
   snprintf(szDevice, 16, "/dev/ttyS%d", ucPort);
 
@@ -222,8 +212,6 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
                  szDevice, errno);
       bStatus = false;
     }
-
-#ifdef CONFIG_SERIAL_TERMIOS
   else if (tcgetattr(iSerialFd, &xOldTIO) != 0)
     {
       vMBPortLog(MB_LOG_ERROR, "SER-INIT", "Can't get settings from port %s: %d\n",
@@ -298,7 +286,6 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
             }
         }
     }
-#endif
 
   return bStatus;
 }
@@ -321,9 +308,7 @@ void vMBPortClose(void)
 {
   if (iSerialFd != -1)
     {
-#ifdef CONFIG_SERIAL_TERMIOS
       tcsetattr(iSerialFd, TCSANOW, &xOldTIO);
-#endif
       close(iSerialFd);
       iSerialFd = -1;
     }

@@ -83,11 +83,9 @@ enum parity_mode
  ****************************************************************************/
 
 static struct cu_globals_s g_cu;
-#ifdef CONFIG_SERIAL_TERMIOS
 static int fd_std_tty;
 static struct termios g_tio_std;
 static struct termios g_tio_dev;
-#endif
 
 /****************************************************************************
  * Public Data
@@ -135,6 +133,9 @@ static void sigint(int sig)
 #ifdef CONFIG_SERIAL_TERMIOS
 static int set_termios(int fd, int rate, enum parity_mode parity,
                        int rtscts, int nocrlf)
+#else
+static int set_termios(int fd, int nocrlf)
+#endif
 {
   int rc = 0;
   int ret;
@@ -142,6 +143,7 @@ static int set_termios(int fd, int rate, enum parity_mode parity,
 
   tio = g_tio_dev;
 
+#ifdef CONFIG_SERIAL_TERMIOS
   tio.c_cflag &= ~(PARENB | PARODD | CRTSCTS);
 
   switch (parity)
@@ -169,6 +171,7 @@ static int set_termios(int fd, int rate, enum parity_mode parity,
     {
       tio.c_cflag |= CRTS_IFLOW | CCTS_OFLOW;
     }
+#endif
 
   tio.c_oflag = OPOST;
 
@@ -228,7 +231,6 @@ static int retrieve_termios(int fd)
 
   return 0;
 }
-#endif
 
 static void print_help(void)
 {
@@ -239,15 +241,13 @@ static void print_help(void)
          " -o: Set odd parity\n"
          " -s: Use given speed (default %d)\n"
          " -r: Disable RTS/CTS flow control (default: on)\n"
-         " -c: Disable lf -> crlf conversion (default: off)\n"
 #endif
+         " -c: Disable lf -> crlf conversion (default: off)\n"
          " -f: Enable endless mode without escape sequence (default: off)\n"
          " -?: This help\n",
-#ifdef CONFIG_SERIAL_TERMIOS
-         CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE,
-         CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD
-#else
          CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE
+#ifdef CONFIG_SERIAL_TERMIOS
+         , CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD
 #endif
         );
 }
@@ -297,8 +297,8 @@ int main(int argc, FAR char *argv[])
   int baudrate = CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD;
   enum parity_mode parity = PARITY_NONE;
   int rtscts = 1;
-  int nocrlf = 0;
 #endif
+  int nocrlf = 0;
   int nobreak = 0;
   int option;
   int ret;
@@ -342,11 +342,11 @@ int main(int argc, FAR char *argv[])
           case 'r':
             rtscts = 0;
             break;
+#endif
 
           case 'c':
             nocrlf = 1;
             break;
-#endif
 
           case 'f':
             nobreak = 1;
@@ -381,7 +381,6 @@ int main(int argc, FAR char *argv[])
       goto errout_with_devinit;
     }
 
-#ifdef CONFIG_SERIAL_TERMIOS
   /* remember serial device termios attributes */
 
   ret = tcgetattr(g_cu.outfd, &g_tio_dev);
@@ -417,11 +416,14 @@ int main(int argc, FAR char *argv[])
       tcgetattr(fd_std_tty, &g_tio_std);
     }
 
+#ifdef CONFIG_SERIAL_TERMIOS
   if (set_termios(g_cu.outfd, baudrate, parity, rtscts, nocrlf) != 0)
+#else
+  if (set_termios(g_cu.outfd, nocrlf) != 0)
+#endif
     {
       goto errout_with_outfd_retrieve;
     }
-#endif
 
   /* Open the serial device for reading.  Since we are already connected,
    * this should not fail.
@@ -521,10 +523,8 @@ int main(int argc, FAR char *argv[])
 
 errout_with_fds:
   close(g_cu.infd);
-#ifdef CONFIG_SERIAL_TERMIOS
 errout_with_outfd_retrieve:
   retrieve_termios(g_cu.outfd);
-#endif
 errout_with_outfd:
   close(g_cu.outfd);
 errout_with_devinit:

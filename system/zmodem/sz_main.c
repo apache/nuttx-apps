@@ -88,9 +88,7 @@ int main(int argc, FAR char *argv[])
   bool skip = false;
   long tmp;
   int exitcode = EXIT_FAILURE;
-#ifdef CONFIG_SERIAL_TERMIOS
   struct termios saveterm;
-#endif
   int option;
   int ret;
   int fd;
@@ -177,7 +175,6 @@ int main(int argc, FAR char *argv[])
       goto errout;
     }
 
-#ifdef CONFIG_SERIAL_TERMIOS
   /* Save the current terminal setting */
 
   tcgetattr(fd, &saveterm);
@@ -190,7 +187,6 @@ int main(int argc, FAR char *argv[])
   /* Enable hardware Rx/Tx flow control */
 
   zm_flowc(fd);
-#endif
 #endif
 
   /* Get the Zmodem handle */
@@ -264,18 +260,13 @@ errout_with_zmodem:
   zms_release(handle);
 
 errout_with_device:
-#ifdef CONFIG_SERIAL_TERMIOS
-# ifdef CONFIG_SYSTEM_ZMODEM_FLOWC
   /* Flush the serial output to assure do not hang trying to drain it */
 
   tcflush(fd, TCIOFLUSH);
-#endif
 
   /* Restore the saved terminal setting */
 
   tcsetattr(fd, TCSANOW, &saveterm);
-#endif
-
   close(fd);
 
 errout:

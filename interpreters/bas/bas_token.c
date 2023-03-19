@@ -4163,11 +4163,7 @@ static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file)
       b->yy_bs_column = 0;
     }
 
-#ifdef CONFIG_SERIAL_TERMIOS
   b->yy_is_interactive = file ? (isatty(fileno(file)) > 0) : 0;
-#else
-  b->yy_is_interactive = 1;
-#endif
 
   errno = oerrno;
 }
