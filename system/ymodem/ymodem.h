@@ -42,10 +42,10 @@
 #define YMODEM_PACKET_1K_SIZE            1024
 #define YMODEM_FILE_NAME_LENGTH          64
 
-#define YMODEM_FILE_RECV_NAME_PACKET        0
-#define YMODEM_RECV_DATA_PACKET             1
-#define YMODEM_FILE_SEND_NAME_PACKET        2
-#define YMODEM_SEND_DATA_PACKET             3
+#define YMODEM_FILE_RECV_NAME_PACKET     0
+#define YMODEM_RECV_DATA_PACKET          1
+#define YMODEM_FILE_SEND_NAME_PACKET     2
+#define YMODEM_SEND_DATA_PACKET          3
 
 /****************************************************************************
  * Public Types

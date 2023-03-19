@@ -37,21 +37,22 @@ struct ymodem_fd
   int file_fd;
   char pathname[PATH_MAX];
   size_t file_saved_size;
-  char *removeperfix;
-  char *removesuffix;
+  FAR char *removeperfix;
+  FAR char *removesuffix;
 };
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static int handler(FAR struct ymodem_ctx *ctx)
+static ssize_t handler(FAR struct ymodem_ctx *ctx)
 {
   char pathname[PATH_MAX + YMODEM_FILE_NAME_LENGTH];
   FAR struct ymodem_fd *ym_fd = ctx->priv;
   FAR char *filename;
+  ssize_t ret = 0;
   size_t size;
-  size_t ret;
+  size_t i;
 
   if (ctx->packet_type == YMODEM_FILE_RECV_NAME_PACKET)
     {
@@ -66,7 +67,7 @@ static int handler(FAR struct ymodem_ctx *ctx)
           if (strncmp(ctx->file_name, ym_fd->removeperfix,
                       strlen(ym_fd->removeperfix)) == 0)
             {
-              filename = filename + strlen(ym_fd->removeperfix);
+              filename += strlen(ym_fd->removeperfix);
             }
         }
 
@@ -77,7 +78,7 @@ static int handler(FAR struct ymodem_ctx *ctx)
               strcmp(filename + len - strlen(ym_fd->removesuffix),
                      ym_fd->removesuffix) == 0)
             {
-              filename[len - strlen(ym_fd->removesuffix)] = 0;
+              filename[len - strlen(ym_fd->removesuffix)] = '\0';
             }
         }
 
@@ -87,10 +88,10 @@ static int handler(FAR struct ymodem_ctx *ctx)
           filename = pathname;
         }
 
-      ym_fd->file_fd = open(filename, O_CREAT | O_RDWR);
+      ym_fd->file_fd = open(filename, O_CREAT | O_WRONLY, 0777);
       if (ym_fd->file_fd < 0)
         {
-          return -errno;
+          return ym_fd->file_fd;
         }
 
       ym_fd->file_saved_size = 0;
@@ -106,20 +107,23 @@ static int handler(FAR struct ymodem_ctx *ctx)
           size = ctx->packet_size;
         }
 
-      ret = write(ym_fd->file_fd, ctx->data, size);
-      if (ret < 0)
+      i = 0;
+      while (i < size)
         {
-          return -errno;
-        }
-      else if (ret < size)
-        {
-          return ERROR;
+          ret = write(ym_fd->file_fd, ctx->data + i, size - i);
+          if (ret < 0)
+            {
+              return ret;
+            }
+
+          i += ret;
         }
 
+      ret = i;
       ym_fd->file_saved_size += ret;
     }
 
-  return 0;
+  return ret;
 }
 
 static void show_usage(FAR const char *progname, int errcode)
@@ -128,11 +132,14 @@ static void show_usage(FAR const char *progname, int errcode)
   fprintf(stderr, "\nWhere:\n");
   fprintf(stderr, "\nand OPTIONS include the following:\n");
   fprintf(stderr,
-    "\t-d <device>: Communication device to use. Default: stdin & stdout\n");
+          "\t-d <device>: Communication device to use."
+           "Default: stdin & stdout\n");
   fprintf(stderr,
           "\t-p <path>: Save remote file path. Default: Current path\n");
   fprintf(stderr,
           "\t--removeprefix <prefix>: Remove save file name prefix\n");
+  fprintf(stderr, "\t-t <timeout> timeout for ymodem tansfer."
+                  "Default: 3000ms\n");
   fprintf(stderr,
           "\t--removesuffix <suffix>: Remove save file name suffix\n");
   exit(errcode);
@@ -145,7 +152,9 @@ static void show_usage(FAR const char *progname, int errcode)
 int main(int argc, FAR char *argv[])
 {
   struct ymodem_fd ym_fd;
-  struct ymodem_ctx ctx;
+  struct ymodem_ctx *ctx;
+  int timeout = 3000;
+  int recvfd = 0;
   int index;
   int ret;
   struct option options[] =
@@ -155,13 +164,7 @@ int main(int argc, FAR char *argv[])
     };
 
   memset(&ym_fd, 0, sizeof(struct ymodem_fd));
-  memset(&ctx, 0, sizeof(struct ymodem_ctx));
-  ctx.packet_handler = handler;
-  ctx.timeout = 200;
-  ctx.priv = &ym_fd;
-  ctx.recvfd = 0;
-  ctx.sendfd = 1;
-  while ((ret = getopt_long(argc, argv, "p:d:h", options, &index))
+  while ((ret = getopt_long(argc, argv, "p:d:t:h", options, &index))
          != ERROR)
     {
       switch (ret)
@@ -176,40 +179,70 @@ int main(int argc, FAR char *argv[])
             strlcpy(ym_fd.pathname, optarg, PATH_MAX);
             if (ym_fd.pathname[strlen(ym_fd.pathname)] == '/')
               {
-                ym_fd.pathname[strlen(ym_fd.pathname)] = 0;
+                ym_fd.pathname[strlen(ym_fd.pathname)] = '\0';
               }
 
             break;
           case 'd':
-            ctx.recvfd = open(optarg, O_RDWR | O_NONBLOCK);
-            if (ctx.recvfd < 0)
+            recvfd = open(optarg, O_RDWR);
+            if (recvfd < 0)
               {
                 fprintf(stderr, "ERROR: can't open %s\n", optarg);
+                return recvfd;
               }
 
-            ctx.sendfd = ctx.recvfd;
             break;
+          case 't':
+            timeout = atoi(optarg);
+            if (timeout != 0)
+              {
+                break;
+              }
+
           case 'h':
-            show_usage(argv[0], EXIT_FAILURE);
-            break;
-          default:
           case '?':
-            fprintf(stderr, "ERROR: Unrecognized option\n");
+          default:
             show_usage(argv[0], EXIT_FAILURE);
             break;
         }
     }
 
-  ymodem_recv(&ctx);
-  if (ctx.recvfd)
+  ctx = malloc(sizeof(*ctx));
+  if (ctx == NULL)
     {
-      close(ctx.recvfd);
+      fprintf(stderr, "ERROR: can't malloc ymodem ctx\n");
+      ret = -ENOMEM;
+      goto out;
     }
+
+  memset(ctx, 0, sizeof(struct ymodem_ctx));
+  ctx->packet_handler = handler;
+  ctx->timeout = timeout;
+  ctx->priv = &ym_fd;
+  if (recvfd)
+    {
+      ctx->recvfd = recvfd;
+      ctx->sendfd = recvfd;
+    }
+  else
+    {
+      ctx->recvfd = 0;
+      ctx->sendfd = 1;
+    }
+
+  ymodem_recv(ctx);
 
   if (ym_fd.file_fd)
     {
       close(ym_fd.file_fd);
     }
 
-  return 0;
+  free(ctx);
+out:
+  if (recvfd)
+    {
+      close(recvfd);
+    }
+
+  return ret;
 }

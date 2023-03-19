@@ -25,9 +25,10 @@ config SYSTEM_YMODEM_PRIORITY
 
 config SYSTEM_YMODEM_DEBUG
 	bool "ymodem debug"
-	default false
+	default n
 
 if SYSTEM_YMODEM_DEBUG
+
 config SYSTEM_YMODEM_DEBUGFILE_PATH
 	string "save ymodem debug log path"
 	default "/tmp/ymodem"

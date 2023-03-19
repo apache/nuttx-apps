@@ -51,6 +51,8 @@ static ssize_t handler(FAR struct ymodem_ctx *ctx)
   ssize_t ret = -EINVAL;
   FAR char *filename;
   struct stat info;
+  size_t taget;
+  size_t i = 0;
 
   if (ctx->packet_type == YMODEM_FILE_SEND_NAME_PACKET)
     {
@@ -66,7 +68,7 @@ static ssize_t handler(FAR struct ymodem_ctx *ctx)
           return ret;
         }
 
-      ym_fd->file_fd = open(filename, O_RDWR);
+      ym_fd->file_fd = open(filename, O_RDONLY);
       if (ym_fd->file_fd < 0)
         {
           return ym_fd->file_fd;
@@ -78,11 +80,27 @@ static ssize_t handler(FAR struct ymodem_ctx *ctx)
     }
   else if (ctx->packet_type == YMODEM_SEND_DATA_PACKET)
     {
-      ret = read(ym_fd->file_fd, ctx->data, ctx->packet_size);
-      if (ret < 0)
+      if (ctx->file_length > ctx->packet_size)
         {
-          return ret;
+          taget = ctx->packet_size;
         }
+      else
+        {
+          taget = ctx->file_length;
+        }
+
+      while (i < taget)
+        {
+          ret = read(ym_fd->file_fd, ctx->data + i, taget - i);
+          if (ret < 0)
+            {
+              return ret;
+            }
+
+            i += ret;
+        }
+
+      ret = i;
     }
 
   return ret;
@@ -95,6 +113,8 @@ static void show_usage(FAR const char *progname, int errcode)
   fprintf(stderr, "\nWhere:\n");
   fprintf(stderr, "\t<lname> is the local file name\n");
   fprintf(stderr, "\nand OPTIONS include the following:\n");
+  fprintf(stderr, "\t-t <timeout> timeout for ymodem tansfer."
+                  "Default: 3000ms\n");
   fprintf(stderr,
     "\t-d <device>: Communication device to use. Default: stdin & stdout\n");
 
@@ -108,55 +128,80 @@ static void show_usage(FAR const char *progname, int errcode)
 int main(int argc, FAR char *argv[])
 {
   struct ymodem_fd ym_fd;
-  struct ymodem_ctx ctx;
+  struct ymodem_ctx *ctx;
+  uint32_t timeout = 3000;
+  int recvfd = 0;
+  int ret = 0;
   int option;
 
-  memset(&ctx, 0, sizeof(struct ymodem_ctx));
-  ctx.packet_handler = handler;
-  ctx.timeout = 3000;
-  ctx.recvfd = 0;
-  ctx.sendfd = 1;
-  ctx.priv = &ym_fd;
-  while ((option = getopt(argc, argv, "d:h")) != ERROR)
+  while ((option = getopt(argc, argv, "d:t:h")) != ERROR)
     {
       switch (option)
         {
           case 'd':
-            ctx.recvfd = open(optarg, O_RDWR);
-            if (ctx.recvfd < 0)
+            recvfd = open(optarg, O_RDWR);
+            if (recvfd < 0)
               {
                 fprintf(stderr, "ERROR: can't open %s\n", optarg);
+                return recvfd;
               }
 
-            ctx.sendfd = ctx.recvfd;
             break;
+          case 't':
+            timeout = atoi(optarg);
+            if (timeout != 0)
+              {
+                break;
+              }
 
           case 'h':
-            show_usage(argv[0], EXIT_FAILURE);
-
-          default:
           case '?':
-            fprintf(stderr, "ERROR: Unrecognized option\n");
+          default:
             show_usage(argv[0], EXIT_FAILURE);
             break;
         }
     }
 
-  ctx.need_sendfile_num = argc - optind;
+  ctx = malloc(sizeof(*ctx));
+  if (ctx == NULL)
+    {
+      fprintf(stderr, "ERROR: can't malloc ymodem ctx\n");
+      ret = -ENOMEM;
+      goto out;
+    }
+
+  memset(ctx, 0, sizeof(struct ymodem_ctx));
+  ctx->packet_handler = handler;
+  ctx->timeout = timeout;
+  if (recvfd)
+    {
+      ctx->recvfd = recvfd;
+      ctx->sendfd = recvfd;
+    }
+  else
+    {
+      ctx->recvfd = 0;
+      ctx->sendfd = 1;
+    }
+
+  ctx->priv = &ym_fd;
+  ctx->need_sendfile_num = argc - optind;
   ym_fd.file_fd = 0;
   ym_fd.filelist = &argv[optind];
   ym_fd.filenum = 0;
 
-  ymodem_send(&ctx);
-  if (ctx.recvfd)
-    {
-      close(ctx.recvfd);
-    }
-
+  ymodem_send(ctx);
   if (ym_fd.file_fd)
     {
       close(ym_fd.file_fd);
     }
 
-  return 0;
+  free(ctx);
+out:
+  if (recvfd)
+    {
+      close(recvfd);
+    }
+
+  return ret;
 }
