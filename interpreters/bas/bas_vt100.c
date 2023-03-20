@@ -224,7 +224,8 @@ void vt100_setcursor(int chn, uint16_t row, uint16_t column)
 
   /* Format the cursor position command.  The origin is (1,1). */
 
-  len = snprintf(buffer, 16, g_fmt_cursorpos, row + 1, column + 1);
+  len = snprintf(buffer, sizeof(buffer), g_fmt_cursorpos,
+                 row + 1, column + 1);
 
   /* Send the VT100 CURSORPOS command */
 
@@ -324,7 +325,7 @@ void vt100_foreground_color(int chn, uint8_t color)
   /* Format the foreground color command. */
 
   DEBUGASSERT(color < 10);
-  len = snprintf(buffer, 16, g_fmt_forecolor, color);
+  len = snprintf(buffer, sizeof(buffer), g_fmt_forecolor, color);
 
   /* Send the VT100 foreground color command */
 
@@ -347,7 +348,7 @@ void vt100_background_color(int chn, uint8_t color)
   /* Format the background color command. */
 
   DEBUGASSERT(color < 10);
-  len = snprintf(buffer, 16, g_fmt_backcolor, color);
+  len = snprintf(buffer, sizeof(buffer), g_fmt_backcolor, color);
 
   /* Send the VT100 background color command */
 

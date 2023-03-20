@@ -344,7 +344,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_LIBC_ENVPATH
       filename = dirlist[i];
 #else
-      snprintf(fullpath, 128, "%s/%s", MOUNTPT, dirlist[i]);
+      snprintf(fullpath, sizeof(fullpath), "%s/%s", MOUNTPT, dirlist[i]);
       filename = fullpath;
 #endif
 
