@@ -276,5 +276,10 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 errout_with_socket:
   ftpc_sockclose(&session->cmd);
 errout:
+  if (WDOG_ISACTIVE(&session->wdog))
+    {
+      wd_cancel(&session->wdog);
+    }
+
   return ERROR;
 }
