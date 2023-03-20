@@ -82,7 +82,8 @@ static void net_stats(struct httpd_state *pstate, char *ptr)
 
   for (i = 0; i < sizeof(g_netstats) / sizeof(net_stats_t); i++)
     {
-      snprintf(buffer, 16, "%5u\n", ((net_stats_t *)&g_netstats)[i]);
+      snprintf(buffer, sizeof(buffer), "%5u\n",
+               ((net_stats_t *)&g_netstats)[i]);
       httpd_send_datachunk(pstate->ht_sockfd, buffer, strlen(buffer),
                            chunked_http_tx);
     }
@@ -104,7 +105,7 @@ static void file_stats(struct httpd_state *pstate, char *ptr)
   chunked_http_tx = pstate->ht_chunked;
 #endif
 
-  snprintf(buffer, 16, "%5u", httpd_fs_count(pcount));
+  snprintf(buffer, sizeof(buffer), "%5u", httpd_fs_count(pcount));
   httpd_send_datachunk(pstate->ht_sockfd, buffer, strlen(buffer),
                        chunked_http_tx);
 }

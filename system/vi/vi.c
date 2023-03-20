@@ -753,7 +753,8 @@ static void vi_setcursor(FAR struct vi_s *vi, uint16_t row, uint16_t column)
 
   /* Format the cursor position command.  The origin is (1,1). */
 
-  len = snprintf(buffer, 16, g_fmtcursorpos, row + 1, column + 1);
+  len = snprintf(buffer, sizeof(buffer), g_fmtcursorpos,
+                 row + 1, column + 1);
 
   /* Send the VT100 CURSORPOS command */
 

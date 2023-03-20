@@ -250,8 +250,8 @@ int main(int argc, FAR char *argv[])
        * interface
        */
 
-      snprintf(blockname, 32, "/dev/mtdblock%d", i);
-      snprintf(charname, 32, "/dev/mtd%d", i);
+      snprintf(blockname, sizeof(blockname), "/dev/mtdblock%d", i);
+      snprintf(charname, sizeof(charname), "/dev/mtd%d", i);
 
       ret = ftl_initialize(i, part[i]);
       if (ret < 0)
@@ -336,7 +336,7 @@ int main(int argc, FAR char *argv[])
 
       /* Open the master MTD partition character driver for writing */
 
-      snprintf(charname, 32, "/dev/mtd%d", i);
+      snprintf(charname, sizeof(charname), "/dev/mtd%d", i);
       fd = open(charname, O_RDWR);
       if (fd < 0)
         {
