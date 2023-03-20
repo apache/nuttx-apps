@@ -93,6 +93,24 @@ config TINYCRYPT_AES_CMAC
 	---help---
 		This option enables support for AES-128 CMAC mode.
 
+config TINYCRYPT_TEST
+	tristate "Enable TinyCrypt test"
+	default n
+	help
+		Enable the TinyCrypt test.
+
+if TINYCRYPT_TEST
+
+config TINYCRYPT_TEST_PRIORITY
+	int "TinyCrypt test priority"
+	default 100
+
+config TINYCRYPT_TEST_STACKSIZE
+	int "TinyCrypt test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # TINYCRYPT_TEST
+
 endif # TINYCRYPT
 
 endmenu # "Crypto: TinyCrypt cryptography library"
