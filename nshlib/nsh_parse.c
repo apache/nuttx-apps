@@ -1809,7 +1809,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 #ifdef CONFIG_NSH_ALIAS
       /* Expand aliases (if applicable) first, quoting prevents this */
 
-      if (!quoted)
+      if (alist && !quoted)
         {
           pbegin = nsh_aliasexpand(vtbl, pbegin, alist);
         }
@@ -2427,7 +2427,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   argv[0] = cmd;
   for (argc = 1; argc < MAX_ARGV_ENTRIES - 1; argc++)
     {
-      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, &alist, NULL);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, NULL, NULL);
       if (!argv[argc])
         {
           break;
@@ -2571,7 +2571,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
     {
       int isenvvar = 0; /* flag for if an environment variable gets expanded */
 
-      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, &alist, &isenvvar);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist, NULL, &isenvvar);
 
       if (!argv[argc])
         {
