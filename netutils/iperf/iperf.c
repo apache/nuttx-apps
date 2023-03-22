@@ -272,7 +272,7 @@ static void iperf_report_task(FAR void *arg)
              ts_diff(&last, &start),
              ts_diff(&now, &start),
              now_len -last_len,
-             (double)((now_len - last_len) * 8 / 1000000) /
+             ((double)((now_len - last_len) * 8) / 1000000) /
              (double)ts_diff(&now, &last)
              );
       if (time != 0 && ts_diff(&now, &start) >= time)
@@ -287,7 +287,7 @@ static void iperf_report_task(FAR void *arg)
              ts_diff(&start, &start),
              ts_diff(&now, &start),
              now_len,
-             (double)(now_len * 8 / 1000000) /
+             ((double)(now_len * 8) / 1000000) /
              (double)ts_diff(&now, &start)
              );
     }
