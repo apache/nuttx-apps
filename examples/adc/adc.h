@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/examples/adc/adc.h
+ * apps/examples/adc/adc.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,10 +30,13 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* CONFIG_NSH_BUILTIN_APPS - Build the ADC test as an NSH built-in function.
  *  Default: Built as a standalone program
- * CONFIG_EXAMPLES_ADC_DEVPATH - The default path to the ADC device. Default: /dev/adc0
+ * CONFIG_EXAMPLES_ADC_DEVPATH - The default path to the ADC device.
+ *   Default: /dev/adc0
  * CONFIG_EXAMPLES_ADC_NSAMPLES - This number of samples is
  *   collected and the program terminates.  Default:  Samples are collected
  *   indefinitely.
