@@ -154,6 +154,15 @@ static void ftpd_accounts(FTPD_SESSION handle)
     }
 }
 
+static void hint(void)
+{
+  fprintf(stderr,
+      "Usage: ftpd [-46] \n\
+      \t-4    Use IPv4\n\
+      \t-6    Use IPv6\n\
+      ");
+}
+
 /****************************************************************************
  * Name: ftpd_daemon
  ****************************************************************************/
@@ -161,28 +170,51 @@ static void ftpd_accounts(FTPD_SESSION handle)
 int ftpd_daemon(int s_argc, char **s_argv)
 {
   FTPD_SESSION handle;
-  int ret;
+  int ret = EXIT_FAILURE;
+  int option;
+  int family = AF_UNSPEC;
 
   /* The FTPD daemon has been started */
 
   g_ftpdglob.running = true;
   printf("FTP daemon [%d] started\n", g_ftpdglob.pid);
 
+  while ((option = getopt(s_argc, &s_argv[1], "46")) != ERROR)
+    {
+      switch (option)
+      {
+        case '4':
+          family = AF_INET;
+          break;
+        case '6':
+          family = AF_INET6;
+          break;
+        default:
+          break;
+      }
+    }
+
+  if (family == AF_UNSPEC)
+    {
+      hint();
+      goto out;
+    }
+
+  if ((optind + 1) < s_argc)
+    {
+      fprintf(stderr, "%s: Too many arguments\n", s_argv[1]);
+      hint();
+      goto out;
+    }
+
   /* Open FTPD */
 
-#if ADDR_FAMILY == AF_INET6
-  handle = ftpd_open(CONFIG_EXAMPLES_FTPD_PORT, AF_INET6);
-#else
-  handle = ftpd_open(CONFIG_EXAMPLES_FTPD_PORT, AF_INET);
-#endif
+  handle = ftpd_open(CONFIG_EXAMPLES_FTPD_PORT, family);
 
   if (!handle)
     {
       printf("FTP daemon [%d] failed to open FTPD\n", g_ftpdglob.pid);
-      g_ftpdglob.running = false;
-      g_ftpdglob.stop    = false;
-      g_ftpdglob.pid     = -1;
-      return EXIT_FAILURE;
+      goto out;
     }
 
   /* Configure accounts */
@@ -213,12 +245,15 @@ int ftpd_daemon(int s_argc, char **s_argv)
   /* Close the FTPD server and exit. */
 
   printf("FTP daemon [%d] stopping\n", g_ftpdglob.pid);
+  ftpd_close(handle);
+  ret = EXIT_SUCCESS;
+
+out:
   g_ftpdglob.running = false;
   g_ftpdglob.stop    = false;
   g_ftpdglob.pid     = -1;
-  ftpd_close(handle);
 
-  return EXIT_SUCCESS;
+  return ret;
 }
 
 /****************************************************************************
@@ -261,7 +296,7 @@ int main(int argc, FAR char *argv[])
       printf("Starting the FTP daemon\n");
       g_ftpdglob.pid = task_create("FTP daemon", CONFIG_EXAMPLES_FTPD_PRIO,
                                    CONFIG_EXAMPLES_FTPD_STACKSIZE,
-                                   ftpd_daemon, NULL);
+                                   ftpd_daemon, argv);
       if (g_ftpdglob.pid < 0)
         {
           printf("Failed to start the FTP daemon: %d\n", errno);
