@@ -258,7 +258,7 @@ static void test_case_timer(FAR void **state)
       tim = get_timestamp();
       usleep(2 * timer_state->interval);
       tim = get_timestamp() - tim;
-      range = timer_state->interval / 1000 - tim;
+      range = abs(timer_state->interval / 1000 - tim);
       assert_in_range(range, 0, timer_state->range);
     }
 
