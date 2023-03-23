@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/smart_test/Makefile
+# apps/testing/smart_test/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
