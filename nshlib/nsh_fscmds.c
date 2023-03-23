@@ -1911,12 +1911,18 @@ static int unlink_recursive(FAR char *path)
 
 int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  UNUSED(argc);
-
   bool recursive = (strcmp(argv[1], "-r") == 0);
-  FAR char *fullpath = nsh_getfullpath(vtbl, recursive ? argv[2] : argv[1]);
+  FAR char *fullpath;
   char buf[PATH_MAX];
   int ret = ERROR;
+
+  if (recursive && argc == 2)
+    {
+      nsh_error(vtbl, g_fmtargrequired, argv[0]);
+      return ret;
+    }
+
+  fullpath = nsh_getfullpath(vtbl, recursive ? argv[2] : argv[1]);
 
   if (fullpath != NULL)
     {
