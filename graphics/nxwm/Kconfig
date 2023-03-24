@@ -489,10 +489,10 @@ config NXWM_TOUCHSCREEN_DEVPATH
 
 config NXWM_TOUCHSCREEN_SIGNO
 	int "Touchscreen Signal Number"
-	default 5
+	default 32
 	---help---
 		The realtime signal used to wake up the touchscreen listener
-		thread.  Default: 5
+		thread.  Default: 32
 
 config NXWM_TOUCHSCREEN_LISTENERPRIO
 	int "Touchscreen Listener Task Priority"
@@ -552,10 +552,10 @@ config NXWM_KEYBOARD_USBHOST
 
 config NXWM_KEYBOARD_SIGNO
 	int "Keyboard Task Signal Number"
-	default 6
+	default 33
 	---help---
 		The realtime signal used to wake up the keyboard listener thread.
-		Default: 6
+		Default: 33
 
 config NXWM_KEYBOARD_BUFSIZE
 	int "Keyboard Buffer Size"
@@ -729,10 +729,10 @@ endif # NXWM_CUSTOM_CALIBRATION_ICON
 
 config NXWM_CALIBRATION_SIGNO
 	int "Calibration Signal Number"
-	default 5
+	default 32
 	---help---
 		The realtime signal used to wake up the touchscreen calibration
-		thread.  Default: 5
+		thread.  Default: 32
 
 config NXWM_CALIBRATION_LISTENERPRIO
 	int "Calibration Task Priority"

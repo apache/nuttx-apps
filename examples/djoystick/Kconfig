@@ -18,6 +18,6 @@ config EXAMPLES_DJOYSTICK_DEVNAME
 
 config EXAMPLES_DJOYSTICK_SIGNO
 	int "Joystick signal"
-	default 13
+	default 32
 
 endif

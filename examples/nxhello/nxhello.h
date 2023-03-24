@@ -102,9 +102,6 @@
 #ifndef CONFIG_EXAMPLES_NXHELLO_SERVERPRIO
 #  define CONFIG_EXAMPLES_NXHELLO_SERVERPRIO 120
 #endif
-#ifndef CONFIG_EXAMPLES_NXHELLO_NOTIFYSIGNO
-#  define CONFIG_EXAMPLES_NXHELLO_NOTIFYSIGNO 4
-#endif
 
 /****************************************************************************
  * Public Types

@@ -40,11 +40,6 @@ config EXAMPLES_NXTERM_SERVERPRIO
 	int "Server priority"
 	default 120
 
-config EXAMPLES_NXTERM_NOTIFYSIGNO
-	int "Notification signal"
-	default 4
-	range 1 31
-
 config EXAMPLES_NXTERM_BPP
 	int "Pixel width"
 	default 16

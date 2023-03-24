@@ -39,7 +39,7 @@ config EXAMPLES_TIMER_GPIO_INTERVAL
 
 config EXAMPLES_TIMER_GPIO_SIGNO
 	int "Notification signal number"
-	default 17
+	default 32
 	---help---
 		This is the signal number that is used to notify that a timer
 		interrupt occurred.

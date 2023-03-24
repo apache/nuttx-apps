@@ -90,7 +90,7 @@ if NETINIT_MONITOR
 
 config NETINIT_SIGNO
 	int "Notification signal number"
-	default 18
+	default 32
 	---help---
 		The network monitor logic will receive signals when there is any
 		change in the link status.  This setting may be used to customize

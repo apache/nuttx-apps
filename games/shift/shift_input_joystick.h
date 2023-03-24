@@ -33,7 +33,7 @@
  ****************************************************************************/
 
 #define DJOYSTICK_DEVNAME "/dev/djoy0"
-#define DJOYSTICK_SIGNO 13
+#define DJOYSTICK_SIGNO 32
 
 /* The set of supported joystick discretes */
 

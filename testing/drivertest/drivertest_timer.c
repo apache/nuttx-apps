@@ -48,7 +48,7 @@
 #define TIMER_DEFAULT_DEVPATH "/dev/timer0"
 #define TIMER_DEFAULT_INTERVAL 1000000
 #define TIMER_DEFAULT_NSAMPLES 20
-#define TIMER_DEFAULT_SIGNO 17
+#define TIMER_DEFAULT_SIGNO 32
 #define TIMER_DEFAULT_RANGE 1
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
