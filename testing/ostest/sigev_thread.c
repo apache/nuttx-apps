@@ -36,8 +36,8 @@
  * Private Definitions
  ****************************************************************************/
 
-#define MY_TIMER_SIGNAL 17
-#define SIGVALUE_INT  42
+#define MY_TIMER_SIGNAL SIGRTMIN
+#define SIGVALUE_INT    42
 
 /****************************************************************************
  * Private Data
