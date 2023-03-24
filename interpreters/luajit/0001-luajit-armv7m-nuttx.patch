@@ -1742,7 +1742,7 @@ index 7baa011f..1fc72a9d 100644
  #if LJ_TARGET_PS3
    emit_asm_label(ctx, ctx->beginsym, ctx->codesz, 0);
 diff --git a/src/lj_alloc.c b/src/lj_alloc.c
-index 20e60493..9003ba09 100644
+index 20e60493..4cadd673 100644
 --- a/src/lj_alloc.c
 +++ b/src/lj_alloc.c
 @@ -38,10 +38,17 @@
@@ -1763,7 +1763,7 @@ index 20e60493..9003ba09 100644
  
  /* ------------------- size_t and alignment properties -------------------- */
  
-@@ -90,9 +97,34 @@
+@@ -90,9 +97,36 @@
  
  #include <errno.h>
  /* If this include fails, then rebuild with: -DLUAJIT_USE_SYSMALLOC */
@@ -1775,9 +1775,11 @@ index 20e60493..9003ba09 100644
 +
 +static void init_mmap(void)
 +{
++  static uint8_t buffer[CONFIG_LUAJIT_ALLOC_SIZE]
++                 locate_data(CONFIG_LUAJIT_ALLOC_SECTION_NAME);
 +  g_alloc_heap = mm_initialize("alloc",
-+                               (void *)CONFIG_LUAJIT_ALLOC_START,
-+                               CONFIG_LUAJIT_ALLOC_SIZE); 
++                               (void *)buffer,
++                               CONFIG_LUAJIT_ALLOC_SIZE);
 +}
 +#define INIT_MMAP() init_mmap()
 +
@@ -1799,7 +1801,7 @@ index 20e60493..9003ba09 100644
  #if LJ_64
  
 diff --git a/src/lj_arch.h b/src/lj_arch.h
-index bddd757d..522e67f8 100644
+index 882c99cb..92fbae5e 100644
 --- a/src/lj_arch.h
 +++ b/src/lj_arch.h
 @@ -39,6 +39,7 @@
@@ -1810,7 +1812,7 @@ index bddd757d..522e67f8 100644
  
  /* Number mode. */
  #define LJ_NUMMODE_SINGLE	0	/* Single-number mode only. */
-@@ -113,6 +114,8 @@
+@@ -110,6 +111,8 @@
  #define LJ_OS_NAME	"BSD"
  #elif LUAJIT_OS == LUAJIT_OS_POSIX
  #define LJ_OS_NAME	"POSIX"
@@ -1819,7 +1821,7 @@ index bddd757d..522e67f8 100644
  #else
  #define LJ_OS_NAME	"Other"
  #endif
-@@ -122,6 +125,7 @@
+@@ -119,6 +122,7 @@
  #define LJ_TARGET_OSX		(LUAJIT_OS == LUAJIT_OS_OSX)
  #define LJ_TARGET_BSD		(LUAJIT_OS == LUAJIT_OS_BSD)
  #define LJ_TARGET_POSIX		(LUAJIT_OS > LUAJIT_OS_WINDOWS)
@@ -1827,7 +1829,7 @@ index bddd757d..522e67f8 100644
  #define LJ_TARGET_DLOPEN	LJ_TARGET_POSIX
  
  #if TARGET_OS_IPHONE
-@@ -217,8 +221,11 @@
+@@ -214,8 +218,11 @@
  #endif
  
  #elif LUAJIT_TARGET == LUAJIT_ARCH_ARM
@@ -1840,7 +1842,7 @@ index bddd757d..522e67f8 100644
  #define LJ_ARCH_BITS		32
  #define LJ_ARCH_ENDIAN		LUAJIT_LE
  #if !defined(LJ_ARCH_HASFPU) && __SOFTFP__
-@@ -230,8 +237,12 @@
+@@ -227,8 +234,12 @@
  #define LJ_ABI_EABI		1
  #define LJ_TARGET_ARM		1
  #define LJ_TARGET_EHRETREG	0
@@ -1854,7 +1856,7 @@ index bddd757d..522e67f8 100644
  #define LJ_TARGET_MASKSHIFT	0
  #define LJ_TARGET_MASKROT	1
  #define LJ_TARGET_UNIFYROT	2	/* Want only IR_BROR. */
-@@ -239,7 +250,7 @@
+@@ -236,7 +247,7 @@
  
  #if __ARM_ARCH == 8 || __ARM_ARCH_8__ || __ARM_ARCH_8A__
  #define LJ_ARCH_VERSION		80
@@ -1863,7 +1865,7 @@ index bddd757d..522e67f8 100644
  #define LJ_ARCH_VERSION		70
  #elif __ARM_ARCH_6T2__
  #define LJ_ARCH_VERSION		61
-@@ -488,7 +499,7 @@
+@@ -479,7 +490,7 @@
  #if defined(__ARMEB__)
  #error "No support for big-endian ARM"
  #endif
@@ -5006,10 +5008,10 @@ index 00000000..5381df8b
 +#define emit_spsub(as, ofs)	emit_addptr(as, RID_SP, -(ofs))
 +
 diff --git a/src/lj_jit.h b/src/lj_jit.h
-index 7f081730..a95f9972 100644
+index 32b3861a..10644724 100644
 --- a/src/lj_jit.h
 +++ b/src/lj_jit.h
-@@ -109,7 +109,7 @@
+@@ -107,7 +107,7 @@
  #define JIT_P_sizemcode_DEFAULT		64
  #else
  /* Could go as low as 4K, but the mmap() overhead would be rather high. */
@@ -5019,7 +5021,7 @@ index 7f081730..a95f9972 100644
  
  /* Optimization parameters and their defaults. Length is a char in octal! */
 diff --git a/src/lj_mcode.c b/src/lj_mcode.c
-index 163aada4..a9d44cd4 100644
+index 163aada4..7ea1fe2f 100644
 --- a/src/lj_mcode.c
 +++ b/src/lj_mcode.c
 @@ -45,6 +45,8 @@ void lj_mcode_sync(void *start, void *end)
@@ -5031,7 +5033,7 @@ index 163aada4..a9d44cd4 100644
  #elif defined(__GNUC__) || defined(__clang__)
    __clear_cache(start, end);
  #else
-@@ -86,6 +88,48 @@ static int mcode_setprot(void *p, size_t sz, DWORD prot)
+@@ -86,6 +88,50 @@ static int mcode_setprot(void *p, size_t sz, DWORD prot)
    return !LJ_WIN_VPROTECT(p, sz, prot, &oprot);
  }
  
@@ -5052,8 +5054,10 @@ index 163aada4..a9d44cd4 100644
 +  UNUSED(J); UNUSED(prot);
 +
 +  if (!initialized) {
++    static uint8_t buffer[CONFIG_LUAJIT_MCODE_SIZE]
++                   locate_data(CONFIG_LUAJIT_MCODE_SECTION_NAME);
 +    g_mcode_heap = mm_initialize("mcode",
-+                                 (void *)CONFIG_LUAJIT_MCODE_START,
++                                 (void *)buffer,
 +                                 CONFIG_LUAJIT_MCODE_SIZE);
 +    initialized = true;
 +  }
