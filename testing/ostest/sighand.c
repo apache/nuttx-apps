@@ -35,6 +35,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <nuttx/signal.h>
+
 #include "ostest.h"
 
 /****************************************************************************
@@ -120,7 +122,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
       ASSERT(false);
     }
 
-  if (oldset != allsigs)
+  if (!sigset_isequal(&oldset, &allsigs))
     {
       ASSERT(false);
     }
@@ -162,8 +164,8 @@ static int waiter_main(int argc, char *argv[])
 
 #ifndef SDCC
   printf("waiter_main: oact.sigaction=%p oact.sa_flags=%x "
-         "oact.sa_mask=%jx\n",
-          oact.sa_sigaction, oact.sa_flags, (uintmax_t)oact.sa_mask);
+         "oact.sa_mask=" SIGSET_FMT "\n",
+          oact.sa_sigaction, oact.sa_flags, SIGSET_ELEM(&oact.sa_mask));
 #endif
 
   /* Take the semaphore */

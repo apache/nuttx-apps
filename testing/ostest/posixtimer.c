@@ -30,6 +30,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <nuttx/signal.h>
+
 #include "ostest.h"
 
 /****************************************************************************
@@ -115,10 +117,11 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
       ASSERT(false);
     }
 
-  if (oldset != allsigs)
+  if (!sigset_isequal(&oldset, &allsigs))
     {
-      printf("timer_expiration: ERROR sigprocmask=%jx expected=%jx\n",
-              (uintmax_t)oldset, (uintmax_t)allsigs);
+      printf("timer_expiration: ERROR sigprocmask=" SIGSET_FMT
+             " expected=" SIGSET_FMT "\n",
+             SIGSET_ELEM(&oldset), SIGSET_ELEM(&allsigs));
       ASSERT(false);
     }
 }
@@ -170,8 +173,9 @@ void timer_test(void)
     }
 
 #ifndef SDCC
-  printf("timer_test: oact.sigaction=%p oact.sa_flags=%x oact.sa_mask=%jx\n",
-          oact.sa_sigaction, oact.sa_flags, (uintmax_t)oact.sa_mask);
+  printf("timer_test: oact.sigaction=%p oact.sa_flags=%x "
+         "oact.sa_mask=" SIGSET_FMT "\n",
+         oact.sa_sigaction, oact.sa_flags, SIGSET_ELEM(&oact.sa_mask));
 #endif
 
   /* Create the POSIX timer */
