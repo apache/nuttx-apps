@@ -38,7 +38,7 @@ config EXAMPLES_TIMER_NSAMPLES
 
 config EXAMPLES_TIMER_SIGNO
 	int "Notification signal number"
-	default 17
+	default 32
 	---help---
 		This is the signal number that is used to notify the test of
 		timer expiration events.

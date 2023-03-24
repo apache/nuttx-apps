@@ -33,6 +33,6 @@ config EXAMPLES_ALARM_DEVPATH
 
 config EXAMPLES_ALARM_SIGNO
 	int "Alarm signal"
-	default 1
+	default 32
 
 endif # EXAMPLES_ALARM

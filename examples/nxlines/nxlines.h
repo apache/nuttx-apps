@@ -120,9 +120,6 @@
 #ifndef CONFIG_EXAMPLES_NXLINES_SERVERPRIO
 #  define CONFIG_EXAMPLES_NXLINES_SERVERPRIO 120
 #endif
-#ifndef CONFIG_EXAMPLES_NXLINES_NOTIFYSIGNO
-#  define CONFIG_EXAMPLES_NXLINES_NOTIFYSIGNO 4
-#endif
 
 /****************************************************************************
  * Public Types

@@ -74,7 +74,7 @@ config EXAMPLES_NXSCOPE_TIMER_PATH
 
 config EXAMPLES_NXSCOPE_TIMER_SIGNO
 	int "nxscope notification signal number"
-	default 17
+	default 32
 
 config EXAMPLES_NXSCOPE_TIMER_INTERVAL
 	int "nxscope timer interval (microseconds)"

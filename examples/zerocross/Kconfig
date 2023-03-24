@@ -18,6 +18,6 @@ config EXAMPLES_ZEROCROSS_DEVNAME
 
 config EXAMPLES_ZEROCROSS_SIGNO
 	int "Zero Cross signal"
-	default 13
+	default 32
 
 endif

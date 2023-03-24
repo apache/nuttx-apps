@@ -99,9 +99,6 @@
 #ifndef CONFIG_EXAMPLES_NXDEMO_SERVERPRIO
 #  define CONFIG_EXAMPLES_NXDEMO_SERVERPRIO 120
 #endif
-#ifndef CONFIG_EXAMPLES_NXDEMO_NOTIFYSIGNO
-#  define CONFIG_EXAMPLES_NXDEMO_NOTIFYSIGNO 4
-#endif
 
 /* Image Information ********************************************************/
 

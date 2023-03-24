@@ -28,7 +28,7 @@ config EXAMPLES_ONESHOT_DELAY
 
 config EXAMPLES_ONESHOT_SIGNO
 	int "Signal number"
-	default 13
+	default 32
 	---help---
 		This is the number of the signal that will be used in the oneshot
 		notification.

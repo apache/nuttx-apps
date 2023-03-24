@@ -50,7 +50,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_DJOYSTICK_SIGNO
-#  define CONFIG_EXAMPLES_DJOYSTICK_SIGNO 13
+#  define CONFIG_EXAMPLES_DJOYSTICK_SIGNO 32
 #endif
 
 /****************************************************************************

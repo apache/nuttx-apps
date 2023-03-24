@@ -58,7 +58,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_TIMER_SIGNO
-#  define CONFIG_EXAMPLES_TIMER_SIGNO 17
+#  define CONFIG_EXAMPLES_TIMER_SIGNO 32
 #endif
 
 /****************************************************************************
