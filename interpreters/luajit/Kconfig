@@ -21,9 +21,9 @@ config LUAJIT_STACKSIZE
 	int "LuaJIT REPL stack size"
 	default 16384
 
-config LUAJIT_ALLOC_START
-	hex "Alloc heap address"
-	default 0x20200000
+config LUAJIT_ALLOC_SECTION_NAME
+	string "Section name for Alloc heap"
+	default ".luajitalloc"
 	---help---
 		Allocation heap address for Lua objects.
 
@@ -33,10 +33,9 @@ config LUAJIT_ALLOC_SIZE
 	---help---
 		Allocation heap size for Lua objects.
 
-config LUAJIT_MCODE_START
-	hex "MCode heap address"
-	default 0x00002000
-	depends on ARMV7M_ITCM
+config LUAJIT_MCODE_SECTION_NAME
+	string "Section name for MCode heap"
+	default ".luajitmcode"
 	---help---
 		Allocation heap address for JIT MCode traces.
 
