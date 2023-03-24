@@ -41,7 +41,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define WAKEUP_SIGNAL 17
+#define WAKEUP_SIGNAL SIGRTMIN
 #define SIGVALUE_INT  42
 
 /****************************************************************************
