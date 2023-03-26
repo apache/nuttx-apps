@@ -51,6 +51,50 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: null_reader
+ ****************************************************************************/
+
+static void *null_reader(pthread_addr_t pvarg)
+{
+  int fd;
+
+  /* Wait a bit */
+
+  printf("null_reader: started -- sleeping\n");
+  sleep(5);
+
+  /* Then open the FIFO for read access */
+
+  printf("null_reader: Opening FIFO for read access\n");
+  fd = open(FIFO_PATH2, O_RDONLY);
+  if (fd < 0)
+    {
+      fprintf(stderr, \
+              "null_reader: Failed to open FIFO %s for reading, errno=%d\n",
+              FIFO_PATH2, errno);
+      return (void *)(uintptr_t)1;
+    }
+
+  /* Wait a bit more */
+
+  printf("null_reader: Opened %s for reading -- sleeping\n", FIFO_PATH2);
+  sleep(5);
+
+  /* Then close the FIFO */
+
+  printf("null_reader: Closing %s\n", FIFO_PATH2);
+  if (close(fd) != 0)
+    {
+      fprintf(stderr, "null_reader: close failed: %d\n", errno);
+    }
+
+  sleep(5);
+
+  printf("null_reader: Returning success\n");
+  return NULL;
+}
+
+/****************************************************************************
  * Name: null_writer
  ****************************************************************************/
 
@@ -70,7 +114,7 @@ static void *null_writer(pthread_addr_t pvarg)
   if (fd < 0)
     {
       fprintf(stderr, \
-        "null_writer: Failed to open FIFO %s for writing, errno=%d\n",
+              "null_writer: Failed to open FIFO %s for writing, errno=%d\n",
               FIFO_PATH2, errno);
       return (void *)(uintptr_t)1;
     }
@@ -104,6 +148,7 @@ static void *null_writer(pthread_addr_t pvarg)
 
 int interlock_test(void)
 {
+  pthread_t readerid;
   pthread_t writerid;
   void *value;
   char data[16];
@@ -117,28 +162,25 @@ int interlock_test(void)
   if (ret < 0)
     {
       fprintf(stderr, \
-         "interlock_test: mkfifo failed with errno=%d\n", \
-         errno);
+              "interlock_test: mkfifo failed with errno=%d\n", errno);
       return 1;
     }
 
-  /* Start the null_writer_thread */
+  /* Start the null_writer thread */
 
   printf("interlock_test: Starting null_writer thread\n");
   ret = pthread_create(&writerid, NULL, null_writer, NULL);
   if (ret != 0)
     {
       fprintf(stderr, \
-        "interlock_test: Failed to create null_writer thread, \
-         error=%d\n", ret);
+              "interlock_test: Failed to create null_writer thread,"
+              "error=%d\n", ret);
       ret = 2;
       goto errout_with_fifo;
     }
 
-  /* Open one end of the FIFO for reading.
-   * This open call should block until the
-   * null_writer thread opens the other
-   * end of the FIFO for writing.
+  /* Open one end of the FIFO for reading. This open call should block until
+   * the null_writer thread opens the other end of the FIFO for writing.
    */
 
   printf("interlock_test: Opening FIFO for read access\n");
@@ -146,16 +188,15 @@ int interlock_test(void)
   if (fd < 0)
     {
       fprintf(stderr, \
-        "interlock_test: Failed to open FIFO %s for reading, \
-        errno=%d\n",
+              "interlock_test: Failed to open FIFO %s for reading"
+              "errno=%d\n",
               FIFO_PATH2, errno);
       ret = 3;
-      goto errout_with_thread;
+      goto errout_with_null_writer_thread;
     }
 
-  /* Attempt to read one byte from the FIFO.
-   * This should return end-of-file because
-   * the null_writer closes the FIFO without writing anything.
+  /* Attempt to read one byte from the FIFO. This should return end-of-file
+   * because the null_writer closes the FIFO without writing anything.
    */
 
   printf("interlock_test: Reading from %s\n", FIFO_PATH2);
@@ -163,18 +204,20 @@ int interlock_test(void)
   if (nbytes < 0)
     {
       fprintf(stderr, \
-        "interlock_test: read failed, errno=%d\n", errno);
+              "interlock_test: read failed, errno=%d\n", errno);
       ret = 4;
       goto errout_with_file;
     }
   else if (ret != 0)
     {
       fprintf(stderr, \
-        "interlock_test: Read %ld bytes of data -- aborting: %d\n",
+              "interlock_test: Read %ld bytes of data -- aborting: %d\n",
               (long)nbytes, errno);
       ret = 5;
       goto errout_with_file;
     }
+
+  printf("interlock_test: read returned\n");
 
   /* Close the file */
 
@@ -191,7 +234,7 @@ int interlock_test(void)
   if (ret != 0)
     {
       fprintf(stderr, \
-        "interlock_test: pthread_join failed, error=%d\n", ret);
+              "interlock_test: pthread_join failed, error=%d\n", ret);
       ret = 6;
       goto errout_with_fifo;
     }
@@ -205,10 +248,90 @@ int interlock_test(void)
         }
     }
 
-  /* unlink(FIFO_PATH2); */
+  /* Start the null_reader thread */
 
-  printf("interlock_test: Returning success\n");
-  return 0;
+  printf("interlock_test: Starting null_reader thread\n");
+  ret = pthread_create(&readerid, NULL, null_reader, NULL);
+  if (ret != 0)
+    {
+      fprintf(stderr, \
+              "interlock_test: Failed to create null_reader thread,"
+              "error=%d\n", ret);
+      ret = 8;
+      goto errout_with_fifo;
+    }
+
+  /* Open one end of the FIFO for writing. This open call should block until
+   * the null_reader thread opens the other end of the FIFO for reading.
+   */
+
+  printf("interlock_test: Opening FIFO for write access\n");
+  fd = open(FIFO_PATH2, O_WRONLY);
+  if (fd < 0)
+    {
+      fprintf(stderr, \
+              "interlock_test: Failed to open FIFO %s for writing,"
+              "errno=%d\n",
+              FIFO_PATH2, errno);
+      ret = 9;
+      goto errout_with_null_reader_thread;
+    }
+
+  /* Attempt to write one byte from the FIFO. This should return 0 bytes
+   * written because the null_reader closes the FIFO.
+   */
+
+  printf("interlock_test: Writing to %s\n", FIFO_PATH2);
+  nbytes = write(fd, data, 16);
+  if (nbytes < 0)
+    {
+      fprintf(stderr, \
+              "interlock_test: write failed, errno=%d\n", errno);
+      ret = 10;
+      goto errout_with_file;
+    }
+  else if (ret != 0)
+    {
+      fprintf(stderr, \
+              "interlock_test: Wrote %ld bytes of data -- aborting: %d\n",
+              (long)nbytes, errno);
+      ret = 11;
+      goto errout_with_file;
+    }
+
+  printf("interlock_test: write returned\n");
+
+  /* Close the file */
+
+  printf("interlock_test: Closing %s\n", FIFO_PATH2);
+  if (close(fd) != 0)
+    {
+      fprintf(stderr, "interlock_test: close failed: %d\n", errno);
+    }
+
+  /* Wait for null_reader thread to complete */
+
+  printf("interlock_test: Waiting for null_reader thread\n");
+  ret = pthread_join(readerid, &value);
+  if (ret != 0)
+    {
+      fprintf(stderr, \
+              "interlock_test: pthread_join failed, error=%d\n", ret);
+      ret = 12;
+      goto errout_with_fifo;
+    }
+  else
+    {
+      printf("interlock_test: reader returned %p\n", value);
+      if (value != NULL)
+        {
+          ret = 13;
+          goto errout_with_fifo;
+        }
+    }
+
+  ret = 0;
+  goto errout_with_fifo;
 
 errout_with_file:
   if (close(fd) != 0)
@@ -216,12 +339,22 @@ errout_with_file:
       fprintf(stderr, "interlock_test: close failed: %d\n", errno);
     }
 
-errout_with_thread:
+errout_with_null_reader_thread:
+  pthread_detach(readerid);
+  pthread_cancel(readerid);
+
+errout_with_null_writer_thread:
   pthread_detach(writerid);
   pthread_cancel(writerid);
+
 errout_with_fifo:
 
-  /* unlink(FIFO_PATH2); */
+  ret = remove(FIFO_PATH2);
+  if (ret != 0)
+    {
+      fprintf(stderr, \
+              "interlock_test: remove failed with errno=%d\n", errno);
+    }
 
   printf("interlock_test: Returning %d\n", ret);
   return ret;

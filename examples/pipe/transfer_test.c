@@ -77,8 +77,8 @@ static void *transfer_reader(pthread_addr_t pvarg)
       if (ret < 0)
         {
           fprintf(stderr, \
-          "transfer_reader: read failed, errno=%d\n", \
-          errno);
+                  "transfer_reader: read failed, errno=%d\n",
+                  errno);
 
           return (void *)(uintptr_t)1;
         }
@@ -87,8 +87,8 @@ static void *transfer_reader(pthread_addr_t pvarg)
           if (nbytes < NREAD_BYTES)
             {
               fprintf(stderr, \
-              "transfer_reader: Too few bytes read -- aborting: %d\n", \
-              nbytes);
+                      "transfer_reader: Too few bytes read. Aborting: %d\n",
+                      nbytes);
 
               return (void *)(uintptr_t)2;
             }
@@ -105,8 +105,8 @@ static void *transfer_reader(pthread_addr_t pvarg)
           if (buffer[ndx] != value)
             {
               fprintf(stderr, \
-              "transfer_reader: Byte %d, expected %d, found %d\n",
-                    nbytes + ndx, value, buffer[ndx]);
+                      "transfer_reader: Byte %d, expected %d, found %d\n",
+                      nbytes + ndx, value, buffer[ndx]);
 
               return (void *)(uintptr_t)3;
             }
@@ -118,8 +118,8 @@ static void *transfer_reader(pthread_addr_t pvarg)
       if (nbytes > NREAD_BYTES)
         {
           fprintf(stderr, \
-          "transfer_reader: Too many bytes read -- aborting: %d\n", \
-          nbytes);
+                  "transfer_reader: Too many bytes read. Aborting: %d\n",
+                  nbytes);
 
           return (void *)(uintptr_t)4;
         }
@@ -153,13 +153,13 @@ static void *transfer_writer(pthread_addr_t pvarg)
       if (ret < 0)
         {
           fprintf(stderr, \
-          "transfer_writer: write failed, errno=%d\n", errno);
+                  "transfer_writer: write failed, errno=%d\n", errno);
           return (void *)(uintptr_t)1;
         }
       else if (ret != WRITE_SIZE)
         {
           fprintf(stderr, \
-          "transfer_writer: Unexpected write size=%d\n", ret);
+                  "transfer_writer: Unexpected write size=%d\n", ret);
           return (void *)(uintptr_t)2;
         }
     }
@@ -184,17 +184,18 @@ int transfer_test(int fdin, int fdout)
   int tmp;
   int ret;
 
+  printf("transfer_test: fdin=%d fdout=%d\n", fdin, fdout);
+
   /* Start transfer_reader thread */
 
-  printf("transfer_test: \
-        Starting transfer_reader thread\n");
+  printf("transfer_test: Starting transfer_reader thread\n");
   ret = pthread_create(&readerid, NULL, \
         transfer_reader, (void *)(intptr_t)fdin);
   if (ret != 0)
     {
         fprintf(stderr, \
-        "transfer_test: Failed to create transfer_reader thread, \
-        error=%d\n", ret);
+                "transfer_test: Failed to create transfer_reader thread,"
+                "error=%d\n", ret);
       return 1;
     }
 
@@ -206,15 +207,15 @@ int transfer_test(int fdin, int fdout)
   if (ret != 0)
     {
       fprintf(stderr, \
-        "transfer_test: Failed to create transfer_writer thread, \
-        error=%d\n", ret);
+              "transfer_test: Failed to create transfer_writer thread,"
+              "error=%d\n", ret);
       pthread_detach(readerid);
       ret = pthread_cancel(readerid);
       if (ret != 0)
         {
           fprintf(stderr, \
-            "transfer_test: Failed to cancel transfer_reader thread, \
-            error=%d\n", ret);
+                  "transfer_test: Failed to cancel transfer_reader thread,"
+                  "error=%d\n", ret);
         }
 
       return 2;
@@ -256,4 +257,3 @@ int transfer_test(int fdin, int fdout)
   printf("transfer_test: returning %d\n", ret);
   return ret;
 }
-
