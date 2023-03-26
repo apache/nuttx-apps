@@ -59,7 +59,7 @@
 #ifdef CONFIG_SYSTEM_CUTERM_DISABLE_ERROR_PRINT
 # define cu_error(...)
 #else
-# define cu_error(...) fprintf(stderr, __VA_ARGS__)
+# define cu_error(...) dprintf(STDERR_FILENO, __VA_ARGS__)
 #endif
 
 /****************************************************************************
@@ -110,8 +110,7 @@ static FAR void *cu_listener(FAR void *parameter)
           break;
         }
 
-      fputc(ch, stdout);
-      fflush(stdout);
+      write(STDOUT_FILENO, &ch, 1);
     }
 
   /* Won't get here */
@@ -288,7 +287,6 @@ int main(int argc, FAR char *argv[])
   int nocrlf = 0;
   int option;
   int ret;
-  int bcmd;
   int start_of_line = 1;
   int exitval = EXIT_FAILURE;
   bool badarg = false;
@@ -383,17 +381,17 @@ int main(int argc, FAR char *argv[])
    * right descriptor that is used to refer to tty
    */
 
-  if (isatty(fileno(stderr)))
+  if (isatty(STDERR_FILENO))
     {
-      cu->stdfd = fileno(stderr);
+      cu->stdfd = STDERR_FILENO;
     }
-  else if (isatty(fileno(stdout)))
+  else if (isatty(STDOUT_FILENO))
     {
-      cu->stdfd = fileno(stdout);
+      cu->stdfd = STDOUT_FILENO;
     }
-  else if (isatty(fileno(stdin)))
+  else if (isatty(STDIN_FILENO))
     {
-      cu->stdfd = fileno(stdin);
+      cu->stdfd = STDIN_FILENO;
     }
   else
     {
@@ -440,14 +438,11 @@ int main(int argc, FAR char *argv[])
   while (!cu->force_exit)
     {
       char ch;
-      int c = getc(stdin);
 
-      if (c < 0)
+      if (read(STDIN_FILENO, &ch, 1) <= 0)
         {
           continue;
         }
-
-      ch = c;
 
       if (start_of_line == 1 && ch == cu->escape)
         {
@@ -455,9 +450,14 @@ int main(int argc, FAR char *argv[])
            * terminal and read the next char from serial
            */
 
-          fputc(ch, stdout);
-          bcmd = getc(stdin);
-          if (bcmd == ch)
+          write(STDOUT_FILENO, &ch, 1);
+
+          if (read(STDIN_FILENO, &ch, 1) <= 0)
+            {
+              continue;
+            }
+
+          if (ch == cu->escape)
             {
               /* Escaping a tilde: handle like normal char */
 
