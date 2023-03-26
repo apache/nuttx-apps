@@ -22,4 +22,9 @@ ifneq ($(CONFIG_SCPI_PARSER),)
 
 CONFIGURED_APPS += $(APPDIR)/industry/scpi
 
+# Allows `<scpi-parser/<>.h>` import.
+
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/industry/scpi/scpi-parser/libscpi/inc
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/industry/scpi/scpi-parser/libscpi/inc
+
 endif
