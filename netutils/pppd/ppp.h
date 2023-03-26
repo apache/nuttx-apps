@@ -125,7 +125,7 @@ struct ppp_context_s
 
   /* Interfaces */
 
-  int   if_fd;
+  int      if_fd;
   uint8_t  ifname[IFNAMSIZ];
 
   /* Addresses */
@@ -145,21 +145,21 @@ struct ppp_context_s
 
   uint8_t   lcp_state;
   uint8_t   lcp_retry;
-  time_t lcp_prev_seconds;
+  time_t    lcp_prev_seconds;
 
 #ifdef CONFIG_NETUTILS_PPPD_PAP
   /* PAP */
 
   uint8_t   pap_state;
   uint8_t   pap_retry;
-  time_t pap_prev_seconds;
+  time_t    pap_prev_seconds;
 #endif /* CONFIG_NETUTILS_PPPD_PAP */
 
   /* IPCP */
 
   uint8_t   ipcp_state;
   uint8_t   ipcp_retry;
-  time_t ipcp_prev_seconds;
+  time_t    ipcp_prev_seconds;
 
   /* AHDLC */
 
