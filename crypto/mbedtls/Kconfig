@@ -13,7 +13,7 @@ if CRYPTO_MBEDTLS
 
 config MBEDTLS_VERSION
 	string "Mbed TLS Version"
-	default "3.0.0"
+	default "3.4.0"
 
 menuconfig MBEDTLS_APPS
 	tristate "Mbed TLS Applications"
