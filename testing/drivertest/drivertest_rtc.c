@@ -40,6 +40,7 @@
 #include <cmocka.h>
 
 #include <nuttx/timers/rtc.h>
+#include <nuttx/time.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -117,16 +118,28 @@ static void test_case_rtc(FAR void **state)
   fd = open(rtc_state->devpath, O_WRONLY);
   assert_return_code(fd, 0);
 
+  memset(&set_time, 0, sizeof(set_time));
+  set_time.tm_year = 2000 - TM_YEAR_BASE;
+  set_time.tm_mon = TM_FEBRUARY;
+  set_time.tm_mday = 1;
+  set_time.tm_wday = TM_SATURDAY;
+
+  ret = ioctl(fd, RTC_SET_TIME, (unsigned long)((uintptr_t)&set_time));
+  assert_return_code(ret, OK);
+
   ret = ioctl(fd, RTC_HAVE_SET_TIME,
               (unsigned long)((uintptr_t)&have_set_time));
   assert_return_code(ret, OK);
   assert_true(have_set_time);
 
-  ret = ioctl(fd, RTC_SET_TIME, (unsigned long)((uintptr_t)&set_time));
-  assert_return_code(ret, OK);
-
   ret = ioctl(fd, RTC_RD_TIME, (unsigned long)((uintptr_t)&rd_time));
   assert_return_code(ret, OK);
+
+  assert_int_equal(set_time.tm_year, rd_time.tm_year);
+  assert_int_equal(set_time.tm_mon, rd_time.tm_mon);
+  assert_int_equal(set_time.tm_mday, rd_time.tm_mday);
+  assert_int_equal(set_time.tm_wday, rd_time.tm_wday);
+
   ret = strftime(timbuf, sizeof(timbuf), "%a, %b %d %H:%M:%S %Y",
                  (FAR struct tm *)&rd_time);
   assert_return_code(ret, OK);
