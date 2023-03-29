@@ -627,7 +627,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                    "%3s "
 #endif
                    "%3s %-8s %-7s %3s %-8s %-9s "
-                   "%-8s "
+                   "%-16s "
 #if CONFIG_MM_BACKTRACE >= 0 && !defined(CONFIG_NSH_DISABLE_PSHEAPUSAGE)
                    "%8s "
 #endif
