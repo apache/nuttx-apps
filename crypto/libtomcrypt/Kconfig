@@ -79,4 +79,28 @@ endif # LIBTOMCRYPT_HASHSUM
 
 endif # LIBTOMCRYPT_DEMOS
 
+menuconfig LIBTOMCRYPT_TEST
+	tristate "Enable LibTomCrypt tests"
+	default n
+	---help---
+		Enable LibTomCrypt tests.
+
+if LIBTOMCRYPT_TEST
+
+config LIBTOMCRYPT_TEST_PROGNAME
+	string "Program name"
+	default "libtomcrypt_test"
+	---help---
+		LibTomCrypt test priority program name
+
+config LIBTOMCRYPT_TEST_PRIORITY
+	int "LibTomCrypt test priority"
+	default 100
+
+config LIBTOMCRYPT_TEST_STACKSIZE
+	int "LibTomCrypt test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # LIBTOMCRYPT_TEST
+
 endif # CRYPTO_LIBTOMCRYPT
