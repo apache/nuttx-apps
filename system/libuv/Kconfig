@@ -20,6 +20,11 @@ config LIBUV_THREAD_STACKSIZE
 	int "libuv worker thread stack size"
 	default PTHREAD_STACK_DEFAULT
 
+config LIBUV_BACKEND_EPOLL
+	bool "Using epoll backend in libuv"
+	select FS_NOTIFY
+	default y
+
 choice
 	prompt "libuv utils"
 	default LIBUV_UTILS_NONE

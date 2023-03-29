@@ -3544,3 +3544,419 @@ index bbc0c305..4e7996f5 100644
  
    MAKE_VALGRIND_HAPPY(loop);
    return 0;
+diff --git a/include/uv/unix.h b/include/uv/unix.h
+index 4962b932..e6303c45 100644
+--- a/include/uv/unix.h
++++ b/include/uv/unix.h
+@@ -45,7 +45,7 @@
+ 
+ #include "uv/threadpool.h"
+ 
+-#if defined(__linux__)
++#if defined(__linux__) || defined(CONFIG_LIBUV_BACKEND_EPOLL)
+ # include "uv/linux.h"
+ #elif defined (__MVS__)
+ # include "uv/os390.h"
+diff --git a/src/unix/internal.h b/src/unix/internal.h
+index ddc744b2..7ff0c094 100644
+--- a/src/unix/internal.h
++++ b/src/unix/internal.h
+@@ -177,7 +177,7 @@ struct uv__stream_queued_fds_s {
+   int fds[1];
+ };
+ 
+-#ifdef __linux__
++#if defined(__linux__) || defined(__NuttX__)
+ struct uv__statx_timestamp {
+   int64_t tv_sec;
+   uint32_t tv_nsec;
+@@ -207,7 +207,7 @@ struct uv__statx {
+   uint32_t stx_dev_minor;
+   uint64_t unused1[14];
+ };
+-#endif /* __linux__ */
++#endif /* __linux__ || __NuttX__ */
+ 
+ #if defined(_AIX) || \
+     defined(__APPLE__) || \
+diff --git a/src/unix/linux.c b/src/unix/linux.c
+index 48b9c2c4..95f0e3dc 100644
+--- a/src/unix/linux.c
++++ b/src/unix/linux.c
+@@ -52,6 +52,7 @@
+ #include <time.h>
+ #include <unistd.h>
+ 
++#ifdef __linux__
+ #ifndef __NR_io_uring_setup
+ # define __NR_io_uring_setup 425
+ #endif
+@@ -63,6 +64,7 @@
+ #ifndef __NR_io_uring_register
+ # define __NR_io_uring_register 427
+ #endif
++#endif
+ 
+ #ifndef __NR_copy_file_range
+ # if defined(__x86_64__)
+@@ -335,6 +337,7 @@ unsigned uv__kernel_version(void) {
+ }
+ 
+ 
++#ifdef __linux__
+ ssize_t
+ uv__fs_copy_file_range(int fd_in,
+                        off_t* off_in,
+@@ -389,10 +392,15 @@ ssize_t uv__getrandom(void* buf, size_t buflen, unsigned flags) {
+   return rc;
+ #endif
+ }
++#endif
+ 
+ 
+ int uv__io_uring_setup(int entries, struct uv__io_uring_params* params) {
++#ifdef __NR_io_uring_setup
+   return syscall(__NR_io_uring_setup, entries, params);
++#else
++  return errno = ENOSYS, -1;
++#endif
+ }
+ 
+ 
+@@ -404,6 +412,7 @@ int uv__io_uring_enter(int fd,
+    * in newer kernels unless IORING_ENTER_EXT_ARG is set,
+    * in which case it takes a struct io_uring_getevents_arg.
+    */
++#ifdef __NR_io_uring_enter
+   return syscall(__NR_io_uring_enter,
+                  fd,
+                  to_submit,
+@@ -411,16 +420,23 @@ int uv__io_uring_enter(int fd,
+                  flags,
+                  NULL,
+                  0L);
++#else
++  return errno = ENOSYS, -1;
++#endif
+ }
+ 
+ 
+ int uv__io_uring_register(int fd, unsigned opcode, void* arg, unsigned nargs) {
++#ifdef __NR_io_uring_register
+   return syscall(__NR_io_uring_register, fd, opcode, arg, nargs);
++#else
++  return errno = ENOSYS, -1;
++#endif
+ }
+ 
+ 
+ static int uv__use_io_uring(void) {
+-#if defined(__ANDROID_API__)
++#if defined(__ANDROID_API__) || defined(__NuttX__)
+   return 0;  /* Possibly available but blocked by seccomp. */
+ #else
+   /* Ternary: unknown=0, yes=1, no=-1 */
+@@ -695,7 +711,7 @@ int uv__io_check_fd(uv_loop_t* loop, int fd) {
+   return rc;
+ }
+ 
+-
++#ifdef __linux__
+ /* Caller must initialize SQE and call uv__iou_submit(). */
+ static struct uv__io_uring_sqe* uv__iou_get_sqe(struct uv__iou* iou,
+                                                 uv_loop_t* loop,
+@@ -1019,6 +1035,7 @@ int uv__iou_fs_statx(uv_loop_t* loop,
+ 
+   return 1;
+ }
++#endif
+ 
+ 
+ void uv__statx_to_stat(const struct uv__statx* statxbuf, uv_stat_t* buf) {
+@@ -1530,6 +1547,7 @@ update_timeout:
+       uv__epoll_ctl_flush(epollfd, ctl, &prep);
+ }
+ 
++#ifdef __linux__
+ uint64_t uv__hrtime(uv_clocktype_t type) {
+   static _Atomic clock_t fast_clock_id = -1;
+   struct timespec t;
+@@ -2238,6 +2256,7 @@ void uv_loadavg(double avg[3]) {
+   avg[1] = (double) info.loads[1] / 65536.0;
+   avg[2] = (double) info.loads[2] / 65536.0;
+ }
++#endif
+ 
+ 
+ static int compare_watchers(const struct watcher_list* a,
+diff --git a/src/uv-common.h b/src/uv-common.h
+index cd57e5a3..7bd628e8 100644
+--- a/src/uv-common.h
++++ b/src/uv-common.h
+@@ -396,7 +396,7 @@ struct uv__loop_metrics_s {
+ void uv__metrics_update_idle_time(uv_loop_t* loop);
+ void uv__metrics_set_provider_entry_time(uv_loop_t* loop);
+ 
+-#ifdef __linux__
++#if defined(__linux__) || defined(CONFIG_LIBUV_BACKEND_EPOLL)
+ struct uv__iou {
+   uint32_t* sqhead;
+   uint32_t* sqtail;
+@@ -417,17 +417,17 @@ struct uv__iou {
+   uint32_t in_flight;
+   uint32_t flags;
+ };
+-#endif  /* __linux__ */
++#endif  /* __linux__ || CONFIG_LIBUV_BACKEND_EPOLL */
+ 
+ struct uv__loop_internal_fields_s {
+   unsigned int flags;
+   uv__loop_metrics_t loop_metrics;
+   int current_timeout;
+-#ifdef __linux__
++#if defined(__linux__) || defined(CONFIG_LIBUV_BACKEND_EPOLL)
+   struct uv__iou ctl;
+   struct uv__iou iou;
+   void* inv;  /* used by uv__platform_invalidate_fd() */
+-#endif  /* __linux__ */
++#endif  /* __linux__ || CONFIG_LIBUV_BACKEND_EPOLL */
+ };
+ 
+ #endif /* UV_COMMON_H_ */
+diff --git a/test/task.h b/test/task.h
+index 25af255c..4162476a 100644
+--- a/test/task.h
++++ b/test/task.h
+@@ -353,7 +353,7 @@ UNUSED static int can_ipv6(void) {
+   return supported;
+ }
+ 
+-#if defined(__CYGWIN__) || defined(__MSYS__) || defined(__PASE__) || defined(__NuttX__)
++#if defined(__CYGWIN__) || defined(__MSYS__) || defined(__PASE__)
+ # define NO_FS_EVENTS "Filesystem watching not supported on this platform."
+ #endif
+ 
+diff --git a/test/test-fs-event.c b/test/test-fs-event.c
+index 9f231ebf..a1680989 100644
+--- a/test/test-fs-event.c
++++ b/test/test-fs-event.c
+@@ -405,6 +405,11 @@ TEST_IMPL(fs_event_watch_dir) {
+   uv_loop_t* loop = uv_default_loop();
+   int r;
+ 
++  fs_event_cb_called = 0;
++  fs_event_created = 0;
++  fs_event_removed = 0;
++  close_cb_called = 0;
++
+   /* Setup */
+   fs_event_unlink_files(NULL);
+   remove("watch_dir/file2");
+@@ -443,6 +448,12 @@ TEST_IMPL(fs_event_watch_dir_recursive) {
+   int r;
+   uv_fs_event_t fs_event_root;
+ 
++  fs_multievent_cb_called = 0;
++  fs_event_cb_called = 0;
++  fs_event_created = 0;
++  fs_event_removed = 0;
++  close_cb_called = 0;
++
+   /* Setup */
+   loop = uv_default_loop();
+   fs_event_unlink_files(NULL);
+@@ -558,6 +569,9 @@ TEST_IMPL(fs_event_watch_file) {
+ 
+   uv_loop_t* loop = uv_default_loop();
+   int r;
++  fs_event_cb_called = 0;
++  timer_cb_called = 0;
++  close_cb_called = 0;
+ 
+   /* Setup */
+   remove("watch_dir/file2");
+@@ -605,6 +619,7 @@ TEST_IMPL(fs_event_watch_file_exact_path) {
+   int r;
+ 
+   loop = uv_default_loop();
++  timer_cb_exact_called = 0;
+ 
+   /* Setup */
+   remove("watch_dir/file.js");
+@@ -653,6 +668,10 @@ TEST_IMPL(fs_event_watch_file_twice) {
+   uv_timer_t timer;
+   uv_loop_t* loop;
+ 
++  create_dir("test/");
++  create_dir("test/fixtures/");
++  create_file("test/fixtures/empty_file");
++
+   loop = uv_default_loop();
+   timer.data = watchers;
+ 
+@@ -664,6 +683,10 @@ TEST_IMPL(fs_event_watch_file_twice) {
+   ASSERT(0 == uv_timer_start(&timer, timer_cb_watch_twice, 10, 0));
+   ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
+ 
++  remove("test/fixtures/empty_file");
++  remove("test/fixtures/");
++  remove("test/");
++
+   MAKE_VALGRIND_HAPPY(loop);
+   return 0;
+ }
+@@ -677,6 +700,9 @@ TEST_IMPL(fs_event_watch_file_current_dir) {
+   int r;
+ 
+   loop = uv_default_loop();
++  timer_cb_touch_called = 0;
++  fs_event_cb_called = 0;
++  close_cb_called = 0;
+ 
+   /* Setup */
+   remove("watch_file");
+@@ -758,6 +784,9 @@ TEST_IMPL(fs_event_no_callback_after_close) {
+   uv_loop_t* loop = uv_default_loop();
+   int r;
+ 
++  fs_event_cb_called = 0;
++  close_cb_called = 0;
++
+   /* Setup */
+   remove("watch_dir/file1");
+   remove("watch_dir/");
+@@ -796,6 +825,9 @@ TEST_IMPL(fs_event_no_callback_on_close) {
+   uv_loop_t* loop = uv_default_loop();
+   int r;
+ 
++  fs_event_cb_called = 0;
++  close_cb_called = 0;
++
+   /* Setup */
+   remove("watch_dir/file1");
+   remove("watch_dir/");
+@@ -848,6 +880,7 @@ TEST_IMPL(fs_event_immediate_close) {
+   int r;
+ 
+   loop = uv_default_loop();
++  close_cb_called = 0;
+ 
+   r = uv_timer_init(loop, &timer);
+   ASSERT(r == 0);
+@@ -873,6 +906,8 @@ TEST_IMPL(fs_event_close_with_pending_event) {
+ 
+   loop = uv_default_loop();
+ 
++  close_cb_called = 0;
++
+   create_dir("watch_dir");
+   create_file("watch_dir/file");
+ 
+@@ -946,6 +981,9 @@ TEST_IMPL(fs_event_close_in_callback) {
+   int r;
+ 
+   loop = uv_default_loop();
++  close_cb_called = 0;
++  fs_event_cb_called = 0;
++  fs_event_created = 0;
+ 
+   fs_event_unlink_files(NULL);
+   create_dir("watch_dir");
+@@ -987,6 +1025,7 @@ TEST_IMPL(fs_event_start_and_close) {
+   int r;
+ 
+   loop = uv_default_loop();
++  close_cb_called = 0;
+ 
+   create_dir("watch_dir");
+ 
+@@ -1031,6 +1070,7 @@ TEST_IMPL(fs_event_getpath) {
+ 
+   create_dir("watch_dir");
+   create_dir("watch_dir/subfolder");
++  close_cb_called = 0;
+ 
+ 
+   for (i = 0; i < ARRAY_SIZE(watch_dir); i++) {
+@@ -1097,6 +1137,8 @@ TEST_IMPL(fs_event_error_reporting) {
+   uv_loop_t* loop;
+   uv_fs_event_t* event;
+ 
++  fs_event_error_reported = 0;
++
+   TEST_FILE_LIMIT(ARRAY_SIZE(loops) * 3);
+ 
+   remove("watch_dir/");
+diff --git a/test/test-fs-event.c b/test/test-fs-event.c
+index a1680989..ab7b5941 100644
+--- a/test/test-fs-event.c
++++ b/test/test-fs-event.c
+@@ -668,8 +668,8 @@ TEST_IMPL(fs_event_watch_file_twice) {
+   uv_timer_t timer;
+   uv_loop_t* loop;
+ 
+-  create_dir("test/");
+-  create_dir("test/fixtures/");
++  create_dir("test");
++  create_dir("test/fixtures");
+   create_file("test/fixtures/empty_file");
+ 
+   loop = uv_default_loop();
+@@ -684,8 +684,8 @@ TEST_IMPL(fs_event_watch_file_twice) {
+   ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
+ 
+   remove("test/fixtures/empty_file");
+-  remove("test/fixtures/");
+-  remove("test/");
++  remove("test/fixtures");
++  remove("test");
+ 
+   MAKE_VALGRIND_HAPPY(loop);
+   return 0;
+@@ -941,6 +941,7 @@ TEST_IMPL(fs_event_close_with_pending_delete_event) {
+   int r;
+ 
+   loop = uv_default_loop();
++  close_cb_called = 0;
+ 
+   create_dir("watch_dir");
+   create_file("watch_dir/file");
+@@ -1240,6 +1241,8 @@ TEST_IMPL(fs_event_stop_in_cb) {
+   uv_fs_event_t fs;
+   uv_timer_t timer;
+   char path[] = "fs_event_stop_in_cb.txt";
++  timer_cb_touch_called = 0;
++  fs_event_cb_stop_calls = 0;
+ 
+ #if defined(NO_FS_EVENTS)
+   RETURN_SKIP(NO_FS_EVENTS);
+diff --git a/src/unix/nuttx.c b/src/unix/nuttx.c
+index 57afeb2c..ec8eeb08 100644
+--- a/src/unix/nuttx.c
++++ b/src/unix/nuttx.c
+@@ -360,3 +360,25 @@ uv__global_t* uv__global_get(void) {
+   ASSERT(global != NULL);
+   return global;
+ }
++
++#ifndef CONFIG_FS_NOTIFY
++int inotify_init(void)
++{
++  return UV_ENOTSUP;
++}
++
++int inotify_init1(int flags)
++{
++  return UV_ENOTSUP;
++}
++
++int inotify_add_watch(int fd, FAR const char *pathname, uint32_t mask)
++{
++  return UV_ENOTSUP;
++}
++
++int inotify_rm_watch(int fd, int wd)
++{
++  return UV_ENOTSUP;
++}
++#endif

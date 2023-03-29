@@ -74,7 +74,11 @@ CSRCS += loop.c
 CSRCS += thread.c
 CSRCS += thread-common.c
 CSRCS += posix-hrtime.c
+ifneq ($(CONFIG_LIBUV_BACKEND_EPOLL),)
+CSRCS += linux.c
+else
 CSRCS += posix-poll.c
+endif
 CSRCS += uv-data-getter-setters.c
 CSRCS += version.c
 ifeq ($(CONFIG_LIBUV_UTILS_TEST),)
