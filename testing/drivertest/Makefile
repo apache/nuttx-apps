@@ -45,6 +45,18 @@ MAINSRC  += drivertest_timer.c
 PROGNAME += cmocka_driver_timer
 endif
 
+ifneq ($(CONFIG_ONESHOT),)
+MAINSRC  += drivertest_oneshot.c
+PROGNAME += cmocka_driver_oneshot
+endif
+
+ifneq ($(CONFIG_DISABLE_POSIX_TIMERS),y)
+ifneq ($(CONFIG_SIG_EVTHREAD),)
+MAINSRC  += drivertest_posix_timer.c
+PROGNAME += cmocka_posix_timer
+endif
+endif
+
 ifneq ($(CONFIG_PWM),)
 MAINSRC  += drivertest_pwm.c
 PROGNAME += cmocka_driver_pwm
