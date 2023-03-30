@@ -585,9 +585,17 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
 
           nih = (FAR struct note_irqhandler_s *)p;
           trace_dump_header(out, note, ctx);
-          fprintf(out, "irq_handler_entry: irq=%u name=%d\n",
-                  nih->nih_irq, nih->nih_irq);
           cctx->intr_nest++;
+          if (type == TRACE_TYPE_ANDROID)
+            {
+              fprintf(out, "tracing_mark_write: B|0|irq=%d\n",
+                      nih->nih_irq);
+            }
+          else
+            {
+              fprintf(out, "irq_handler_entry: irq=%u name=%d\n",
+                      nih->nih_irq, nih->nih_irq);
+            }
         }
         break;
 
@@ -597,9 +605,17 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
 
           nih = (FAR struct note_irqhandler_s *)p;
           trace_dump_header(out, note, ctx);
-          fprintf(out, "irq_handler_exit: irq=%u ret=handled\n",
-                  nih->nih_irq);
           cctx->intr_nest--;
+          if (type == TRACE_TYPE_ANDROID)
+            {
+              fprintf(out, "tracing_mark_write: E|0|irq=%d\n",
+                      nih->nih_irq);
+            }
+          else
+            {
+              fprintf(out, "irq_handler_exit: irq=%u ret=handled\n",
+                      nih->nih_irq);
+            }
 
           if (cctx->intr_nest <= 0)
             {
