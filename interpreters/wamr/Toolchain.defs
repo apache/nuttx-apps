@@ -37,74 +37,7 @@ WLDFLAGS += -Wl,--export=main -Wl,--export=__main_argc_argv
 WLDFLAGS += -Wl,--export=__heap_base -Wl,--export=__data_end
 WLDFLAGS += -Wl,--no-entry -Wl,--strip-all -Wl,--allow-undefined
 
-ifeq ($(CONFIG_ARCH_ARM),y)
-  ifeq ($(CONFIG_ARM_THUMB),y)
-    WTARGET = thumb
-  else
-    WTARGET = arm
-  endif
-
-  ifeq ($(CONFIG_ARCH_CORTEXM85),y)
-    WTARGET := $(WTARGET)v8.1m.main
-    WCPU     = --cpu=cortex-m85
-  else ifeq ($(CONFIG_ARCH_CORTEXM55),y)
-    WTARGET := $(WTARGET)v8.1m.main
-    WCPU     = --cpu=cortex-m55
-  else ifeq ($(CONFIG_ARCH_CORTEXM35P),y)
-    WTARGET := $(WTARGET)v8m.main
-    WCPU     = --cpu=cortex-m35p
-  else ifeq ($(CONFIG_ARCH_CORTEXM33),y)
-    WTARGET := $(WTARGET)v8m.main
-    WCPU     = --cpu=cortex-m33
-  else ifeq ($(CONFIG_ARCH_CORTEXM23),y)
-    WTARGET := $(WTARGET)v8m.main
-    WCPU     = --cpu=cortex-m23
-  else ifeq ($(CONFIG_ARCH_CORTEXM7),y)
-    WTARGET := $(WTARGET)v7em
-    WCPU     = --cpu=cortex-m7
-  else ifeq ($(CONFIG_ARCH_CORTEXM4),y)
-    WTARGET := $(WTARGET)v7em
-    WCPU     = --cpu=cortex-m4
-  else ifeq ($(CONFIG_ARCH_CORTEXM3),y)
-    WTARGET := $(WTARGET)v7em
-    WCPU     = --cpu=cortex-m3
-  else ifeq ($(CONFIG_ARCH_CORTEXM0),y)
-    WTARGET := $(WTARGET)v6m
-    WCPU     = --cpu=cortex-m0
-  endif
-
-  ifeq ($(CONFIG_ARCH_CORTEXA5),y)
-    WTARGET := $(WTARGET)armv7
-    WCPU     = --cpu=cortex-a5
-  else ifeq ($(CONFIG_ARCH_CORTEXA7),y)
-    WTARGET := $(WTARGET)armv7
-    WCPU     = --cpu=cortex-a7
-  else ifeq ($(CONFIG_ARCH_CORTEXA8),y)
-    WTARGET := $(WTARGET)armv8a
-    WCPU     = --cpu=cortex-a8
-  else ifeq ($(CONFIG_ARCH_CORTEXA9),y)
-    WTARGET := $(WTARGET)armv7
-    WCPU     = --cpu=cortex-a9
-  endif
-
-  ifeq ($(CONFIG_ARCH_CORTEXR4),y)
-    WTARGET := $(WTARGET)armv7
-    WCPU     = --cpu=cortex-r4
-  else ifeq ($(CONFIG_ARCH_CORTEXR5),y)
-    WTARGET := $(WTARGET)armv7
-    WCPU     = --cpu=cortex-r5
-  else ifeq ($(CONFIG_ARCH_CORTEXR7),y)
-    WTARGET := $(WTARGET)armv7
-    WCPU     = --cpu=cortex-r7
-  endif
-
-else ifeq ($(CONFIG_ARCH_RISCV),y)
-  ifeq ($(CONFIG_ARCH_RV64),y)
-    WTARGET = riscv64
-  else
-    WTARGET = riscv32
-  endif
-else ifeq ($(CONFIG_ARCH_XTENSA),y)
+ifeq ($(CONFIG_ARCH_XTENSA),y)
   WTARGET = xtensa
 else ifeq ($(CONFIG_ARCH_X86_64),y)
   WTARGET = x86_64
@@ -119,9 +52,16 @@ else ifeq ($(CONFIG_ARCH_SIM),y)
   else
     WTARGET = x86_64
   endif
+else
+
+  # Flags for other architectures (arm or riscv)
+
+  WTARGET = $(LLVM_ARCHTYPE)
+  WCPU    = $(LLVM_CPUTYPE)
+
 endif
 
-RCFLAGS += --target=$(WTARGET) $(WCPU)
+RCFLAGS += --target=$(WTARGET) --target-abi=$(LLVM_ABITYPE) --cpu=$(WCPU)
 
 define LINK_WAMR
 	$(if $(wildcard $(APPDIR)$(DELIM)wasm$(DELIM)*.wo), \
