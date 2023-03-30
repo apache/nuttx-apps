@@ -642,25 +642,17 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
           trace_dump_header(out, note, ctx);
           trace_dump_unflatten(&ip, nst->nst_ip, sizeof(ip));
 
-          if (type == TRACE_TYPE_ANDROID &&
-              nst->nst_data[1] == '\0' &&
+          if (nst->nst_data[1] == '\0' &&
               (nst->nst_data[0] == 'B' ||
                nst->nst_data[0] == 'E'))
             {
               fprintf(out, "tracing_mark_write: %c|%d|%pS\n",
                       nst->nst_data[0], pid, (FAR void *)ip);
             }
-          else if (type == TRACE_TYPE_ANDROID &&
-              nst->nst_data[1] == '|' &&
-              (nst->nst_data[0] == 'B' ||
-               nst->nst_data[0] == 'E'))
+          else
             {
               fprintf(out, "tracing_mark_write: %s\n",
                       nst->nst_data);
-            }
-          else
-            {
-              fprintf(out, "%pS: %s\n", (FAR void *)ip, nst->nst_data);
             }
         }
         break;
@@ -678,7 +670,7 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
 
           trace_dump_unflatten(&ip, nbi->nbi_ip, sizeof(ip));
 
-          fprintf(out, "0x%" PRIdPTR ": event=%u count=%u",
+          fprintf(out, "tracing_mark_write: 0x%" PRIdPTR ": event=%u count=%u",
                   ip, nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
