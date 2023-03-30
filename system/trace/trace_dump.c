@@ -632,6 +632,34 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
         break;
 #endif
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_CSECTION
+      case NOTE_CSECTION_ENTER:
+      case NOTE_CSECTION_LEAVE:
+        {
+          struct note_csection_s *ncs;
+          ncs = (FAR struct note_csection_s *)p;
+          trace_dump_header(out, &ncs->ncs_cmn, ctx);
+          fprintf(out, "tracing_mark_write: %c|%d|critical_section\n",
+                  note->nc_type == NOTE_CSECTION_ENTER ? 'B': 'E', pid);
+        }
+        break;
+#endif
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_PREEMPTION
+      case NOTE_PREEMPT_LOCK:
+      case NOTE_PREEMPT_UNLOCK:
+        {
+          struct note_preempt_s *npr;
+          int16_t count;
+          npr = (FAR struct note_preempt_s *)p;
+          trace_dump_unflatten(&count, npr->npr_count, sizeof(count));
+          trace_dump_header(out, &npr->npr_cmn, ctx);
+          fprintf(out, "tracing_mark_write: %c|%d|sched_lock:%d\n",
+                  note->nc_type == NOTE_PREEMPT_LOCK ? 'B': 'E', pid, count);
+        }
+        break;
+#endif
+
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
       case NOTE_DUMP_STRING:
         {
@@ -670,8 +698,8 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
 
           trace_dump_unflatten(&ip, nbi->nbi_ip, sizeof(ip));
 
-          fprintf(out, "tracing_mark_write: 0x%" PRIdPTR ": event=%u count=%u",
-                  ip, nbi->nbi_event, count);
+          fprintf(out, "tracing_mark_write: 0x%" PRIdPTR
+                  ": event=%u count=%u", ip, nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
               fprintf(out, " 0x%x", nbi->nbi_data[i]);
