@@ -398,7 +398,7 @@ int main(int argc, FAR char *argv[])
 
   if (g_composite.cmphandle)
     {
-      fprintf(stderr, "conn_main: ERROR: Already connected\n");
+      dprintf(STDERR_FILENO, "conn_main: ERROR: Already connected\n");
       return 1;
     }
 
@@ -410,7 +410,8 @@ int main(int argc, FAR char *argv[])
     }
   else if (argc > 2)
     {
-      fprintf(stderr, "conn_main: ERROR: Too many arguments: %d\n", argc);
+      dprintf(STDERR_FILENO, "conn_main: ERROR: Too many arguments: %d\n",
+              argc);
       return EXIT_FAILURE;
     }
 
@@ -513,7 +514,7 @@ int disconn_main(int argc, char *argv[])
 
   if (!g_composite.cmphandle)
     {
-      fprintf(stderr, "disconn_main: ERROR: Not connected\n");
+      dprintf(STDERR_FILENO, "disconn_main: ERROR: Not connected\n");
       return 1;
     }
 
@@ -527,7 +528,8 @@ int disconn_main(int argc, char *argv[])
     }
   else if (argc > 2)
     {
-      fprintf(stderr, "conn_main: ERROR: Too many arguments: %d\n", argc);
+      dprintf(STDERR_FILENO, "conn_main: ERROR: Too many arguments: %d\n",
+              argc);
       return EXIT_FAILURE;
     }
 
