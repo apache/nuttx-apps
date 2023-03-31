@@ -93,9 +93,10 @@ ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ)
 endif
 
-# Compile flags
+# Compile flags, notice the default flags only suitable for flat build
 
 ZIGELFFLAGS ?= $(ZIGFLAGS)
+RUSTELFFLAGS ?= $(RUSTFLAGS)
 
 DEPPATH += --dep-path .
 DEPPATH += --obj-path .
