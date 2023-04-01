@@ -129,6 +129,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "basename",  cmd_basename, 2, 3, "<path> [<suffix>]" },
 #endif
 
+#if defined(CONFIG_BOARDCTL_BOOT_IMAGE) && !defined(CONFIG_NSH_DISABLE_BOOT)
+  { "boot",     cmd_boot,     1, 3, "[<image path> [<header size>]]" },
+#endif
+
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   { "break",     cmd_break,   1, 1, NULL },
 #endif

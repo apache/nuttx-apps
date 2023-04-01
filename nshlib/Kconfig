@@ -519,6 +519,11 @@ config NSH_DISABLE_READLINK
 	default DEFAULT_SMALL
 	depends on PSEUDOFS_SOFTLINKS
 
+config NSH_DISABLE_BOOT
+	bool "Disable boot"
+	default DEFAULT_SMALL
+	depends on BOARDCTL_BOOT_IMAGE
+
 config NSH_DISABLE_REBOOT
 	bool "Disable reboot"
 	default DEFAULT_SMALL

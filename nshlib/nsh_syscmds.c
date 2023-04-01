@@ -165,7 +165,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
 
   /* boardctl() will not return in any case.  It if does, it means that
-   * there was a problem with the shutdown/resaet operation.
+   * there was a problem with the shutdown/reset operation.
    */
 
   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
@@ -311,6 +311,52 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* boardctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown operation.
+   */
+
+  nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+  return ERROR;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_boot
+ ****************************************************************************/
+
+#if defined(CONFIG_BOARDCTL_BOOT_IMAGE) && !defined(CONFIG_NSH_DISABLE_BOOT)
+int cmd_boot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  struct boardioc_boot_info_s info;
+
+  memset(&info, 0, sizeof(info));
+
+  /* Invoke the BOARDIOC_BOOT_IMAGE board control to reset the board.  If
+   * the board_boot_image() function returns, then it was not possible to
+   * boot the image due to some constraints.
+   */
+
+  switch (argc)
+    {
+      default:
+        info.header_size = strtoul(argv[2], NULL, 0);
+
+        /* Go through */
+
+      case 1:
+        info.path = argv[1];
+
+        /* Go through */
+
+      case 0:
+
+        /* Nothing to do */
+
+        break;
+    }
+
+  boardctl(BOARDIOC_BOOT_IMAGE, (uintptr_t)&info);
+
+  /* boardctl() will not return in this case.  It if does, it means that
+   * there was a problem with the boot operation.
    */
 
   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
