@@ -1158,6 +1158,14 @@ system image.
 
   Show target of a soft link.
 
+- `boot [<image path> [<header size>]]`
+
+  Boot a new firmware image. This command depends on hardware support
+  CONFIG_BOARDCTL_BOOT_IMAGE. `<image path>` may point to a partion or file
+  which contain the firmware to boot. The optional, numeric argument
+  `<header size>` may be useful for skipping metadata information preprended
+  to the firmware image.
+
 - `reboot [<n>]`
 
   Reset and reboot the system immediately. This command depends on hardware
