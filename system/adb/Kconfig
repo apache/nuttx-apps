@@ -50,21 +50,10 @@ config ADBD_TOKEN_SIZE
 
 endif # ADBD_AUTHENTICATION
 
-if BOARDCTL_RESET
-config ADBD_RESET_RECOVERY
-	int "Reset argument for recovery"
-	default 1
-
-config ADBD_RESET_BOOTLOADER
-	int "Reset argument for bootloader"
-	default 2
-endif # BOARDCTL_RESET
-
-if !BOARDCTL_UNIQUEID
 config ADBD_DEVICE_ID
 	string "Default adb device id"
+	depends on !BOARDCTL_UNIQUEID
 	default ""
-endif # BOARDCTL_UNIQUEID
 
 config ADBD_PRODUCT_NAME
 	string "Default adb product name"
