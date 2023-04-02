@@ -1458,6 +1458,41 @@ system image.
   nsh>
   ```
 
+- `uptime [options]`
+
+  Display the current time, how long the system has been running, and the load
+  average of the system over the last 1, 5, and 15 minutes.
+
+  options:
+  - -p, show uptime in pretty format
+  - -h, display this help and exit
+  - -s, system up since
+
+  **Example**:
+
+  ```
+  nsh> uptime
+  19:35:01 up 1:40, load average: 0.00, 0.00, 0.00
+  nsh>
+  nsh>
+  nsh> uptime -s
+  2022-09-16 17:54:26
+  nsh>
+  nsh>
+  nsh> uptime -p
+  up 1 hour, 40 minutes
+  nsh>
+  nsh>
+  nsh> uptime -h
+  Usage:
+  uptime [options]
+  Options:
+  -p, show uptime in pretty format
+  -h, display this help and exit
+  -s, system up since
+  nsh>
+  ```
+
 - `urldecode [-f] <string or filepath>`
 
 - `urlencode [-f] <string or filepath>`
@@ -1632,6 +1667,7 @@ truncate  | !`CONFIG_DISABLE_MOUNTPOINT`
 umount    | !`CONFIG_DISABLE_MOUNTPOINT`
 uname     | !`CONFIG_NSH_DISABLE_UNAME`
 unset     | `CONFIG_NSH_VARS` || !`CONFIG_DISABLE_ENVIRON`
+uptime    | !`CONFIG_NSH_DISABLE_UPTIME`
 urldecode | `CONFIG_NETUTILS_CODECS` && `CONFIG_CODECS_URLCODE`
 urlencode | `CONFIG_NETUTILS_CODECS` && `CONFIG_CODECS_URLCODE`
 useradd   | !`CONFIG_DISABLE_MOUNTPOINT` && `CONFIG_NSH_LOGIN_PASSWD`
@@ -1673,9 +1709,10 @@ CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_R
 CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_ROUTE,     CONFIG_NSH_DISABLE_SET,
 CONFIG_NSH_DISABLE_SHUTDOWN,  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_SOURCE,
 CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_TIME,      CONFIG_NSH_DISABLE_TRUNCATE,
-CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
-CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USERADD,   CONFIG_NSH_DISABLE_USERDEL,
-CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
+CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_UPTIME,
+CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USERADD,
+CONFIG_NSH_DISABLE_USERDEL,   CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,
+CONFIG_NSH_DISABLE_XD
 ```
 
 Verbose help output can be suppressed by defining `CONFIG_NSH_HELP_TERSE`. In
