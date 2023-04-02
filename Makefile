@@ -20,10 +20,7 @@
 
 export APPDIR = $(CURDIR)
 include $(APPDIR)/Make.defs
-
-ifeq ($(CONFIG_INTERPRETERS_WAMR),y)
-  include $(APPDIR)$(DELIM)interpreters$(DELIM)wamr$(DELIM)Toolchain.defs
-endif
+include $(APPDIR)/tools/Wasm.mk
 
 # The GNU make CURDIR will always be a POSIX-like path with forward slashes
 # as path segment separators.  This is fine for the above inclusions but
@@ -105,9 +102,7 @@ $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
 		$(MAKE) -C "$${app}" archive ; \
 	done
-ifeq ($(CONFIG_INTERPRETERS_WAMR),y)
-	$(call LINK_WAMR)
-endif
+	$(call LINK_WASM)
 endif
 
 else
@@ -125,9 +120,7 @@ $(SYMTABOBJ): %$(OBJEXT): %.c
 
 $(BIN): $(SYMTABOBJ)
 	$(call ARCHIVE_ADD, $(call CONVERT_PATH,$(BIN)), $^)
-ifeq ($(CONFIG_INTERPRETERS_WAMR),y)
-	$(call LINK_WAMR)
-endif
+	$(call LINK_WASM)
 
 endif # !CONFIG_BUILD_LOADABLE
 
