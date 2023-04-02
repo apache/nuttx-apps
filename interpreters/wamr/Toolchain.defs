@@ -18,24 +18,9 @@
 #
 ############################################################################
 
-# Wasm32 toolchain setting
-# Target: wasm32-unknown-wasi
+# Wamrc toolchain flags
 
-WCC ?= $(WASI_SDK_PATH)/bin/clang
-WAR ?= $(WASI_SDK_PATH)/bin/llvm-ar rcs
 WRC ?= wamrc
-WSYSROOT ?= $(TOPDIR)
-
-CFLAGS_STRIP = -fsanitize=kernel-address -fsanitize=address -fsanitize=undefined
-CFLAGS_STRIP += $(ARCHCPUFLAGS) $(ARCHCFLAGS) $(ARCHINCLUDES) $(ARCHDEFINES) $(ARCHOPTIMIZATION) $(EXTRAFLAGS)
-
-WCFLAGS += $(filter-out $(CFLAGS_STRIP),$(CFLAGS))
-WCFLAGS += --sysroot=$(WSYSROOT) -nostdlib -D__NuttX__
-
-WLDFLAGS = -z stack-size=$(STACKSIZE) -Wl,--initial-memory=$(INITIAL_MEMORY)
-WLDFLAGS += -Wl,--export=main -Wl,--export=__main_argc_argv
-WLDFLAGS += -Wl,--export=__heap_base -Wl,--export=__data_end
-WLDFLAGS += -Wl,--no-entry -Wl,--strip-all -Wl,--allow-undefined
 
 ifeq ($(CONFIG_ARCH_XTENSA),y)
   WTARGET = xtensa
@@ -63,14 +48,11 @@ endif
 
 RCFLAGS += --target=$(WTARGET) --target-abi=$(LLVM_ABITYPE) --cpu=$(WCPU)
 
-define LINK_WAMR
+define WAMR_AOT_COMPILE
 	$(if $(wildcard $(APPDIR)$(DELIM)wasm$(DELIM)*.wo), \
 	  $(foreach bin,$(wildcard $(APPDIR)$(DELIM)wasm$(DELIM)*.wo), \
-	    $(eval INITIAL_MEMORY=$(shell echo $(notdir $(bin)) | cut -d'#' -f2)) \
-	    $(eval STACKSIZE=$(shell echo $(notdir $(bin)) | cut -d'#' -f3)) \
 	    $(eval PROGNAME=$(shell echo $(notdir $(bin)) | cut -d'#' -f1)) \
 	    $(eval WAMRMODE=$(shell echo $(notdir $(bin)) | cut -d'#' -f5)) \
-	    $(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm) \
 	    $(if $(CONFIG_INTERPRETERS_WAMR_AOT), \
 	      $(if $(filter AOT,$(WAMRMODE)), \
 	        $(info Wamrc Generate AoT: $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot) \
