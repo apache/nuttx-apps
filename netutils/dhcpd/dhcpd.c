@@ -23,6 +23,8 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NETUTILS_DHCPD_HOST
+#  include <sys/types.h>
+
 #  include <stdio.h>
 
 #  define HTONS(a) htons(a)
@@ -33,9 +35,6 @@
 
 #  define nerr(...) printf(__VA_ARGS__)
 #  define ninfo(...) printf(__VA_ARGS__)
-
-#  define ERROR (-1)
-#  define OK    (0)
 #else
 #  include <nuttx/config.h>          /* NuttX configuration */
 #  include <debug.h>                 /* For nerr, info */
