@@ -1158,6 +1158,12 @@ system image.
 
   Show target of a soft link.
 
+- `switchboot <image path>
+
+  Switch to the updated or specified boot system. This command depends on
+  hardware support CONFIG_BOARDCTL_SWITCH_BOOT. `<image path>` point to a
+  partion or file which contain the firmware to boot.
+
 - `boot [<image path> [<header size>]]`
 
   Boot a new firmware image. This command depends on hardware support

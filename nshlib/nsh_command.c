@@ -529,6 +529,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "source",   cmd_source,   2, 2, "<script-path>" },
 #endif
 
+#if defined(CONFIG_BOARDCTL_SWITCH_BOOT) && !defined(CONFIG_NSH_DISABLE_SWITCHBOOT)
+  { "swtichboot", cmd_swtichboot, 2, 2, "<image path>" },
+#endif
+
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   { "test",     cmd_test,     3, CONFIG_NSH_MAXARGUMENTS, "<expression>" },
 #endif
