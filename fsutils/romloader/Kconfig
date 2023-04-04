@@ -1,0 +1,71 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_ROMLOADER
+	bool "Enable ROM image creator and loader (ROMLoader)"
+	default n
+	depends on (FS_ROMFS && BOARDCTL_ROMDISK) || FS_CROMFS
+	depends on !DISABLE_MOUNTPOINT
+	---help---
+		Mount a ROM file system containing the files inside the loader
+		directory (apps/fsutils/romloader/rom). This is a convenience
+		feature that allows the user and/or application files to be built into
+		a ROM file system without code duplication.
+
+if FSUTILS_ROMLOADER
+
+choice
+	prompt "ROM file system type"
+	default FSUTILS_ROMLOADER_ROMFS  if   FS_ROMFS && BOARDCTL_ROMDISK
+	default FSUTILS_ROMLOADER_CROMFS if  !FS_ROMFS && FS_CROMFS
+
+config FSUTILS_ROMLOADER_ROMFS
+	bool "ROMFS"
+	depends on FS_ROMFS && BOARDCTL_ROMDISK
+	---help---
+		Automatically generates and mounts an internal ROMFS file
+		system
+
+config FSUTILS_ROMLOADER_CROMFS
+	bool "CROMFS"
+	depends on FS_CROMFS
+	---help---
+		Automatically generates and mounts an internal CROMFS file
+		system
+
+endchoice # ROM file system type
+
+config FSUTILS_ROMLOADER_MOUNTPOINT
+	string "ROMFS mount point"
+	default "/mnt/romloader"
+	---help---
+		The path where the ROM file system will be mounted.
+
+if FSUTILS_ROMLOADER_ROMFS
+
+config FSUTILS_ROMLOADER_SECTORSIZE
+	int "ROMFS sector size"
+	default 512
+	---help---
+		The sector size of the ROMFS file system.
+
+config FSUTILS_ROMLOADER_DEVMINOR
+	int "ROMFS minor device number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in
+		/dev/ramN. Used for registering the RAM block driver that will hold
+		the ROMFS file system containing the storage files.
+
+config FSUTILS_ROMLOADER_DEVPATH
+	string "ROMFS device path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device. This must match
+		FSUTILS_ROMLOADER_DEVMINOR. Used for registering the RAM block driver
+		that will hold the ROMFS file system containing the storage files.
+
+endif # FSUTILS_ROMLOADER_ROMFS
+endif # FSUTILS_ROMLOADER

@@ -254,6 +254,22 @@ endif
 
 depend:: .depend
 
+ifneq ($(ROMLOADER_COPY),)
+
+# The original idea was to use symbolic links to avoid file duplication.
+# However, the genromfs tool does not follow symbolic links. So, we
+# have to copy the files.
+
+ROMLOADER_DIR = $(APPDIR)$(DELIM)fsutils$(DELIM)romloader$(DELIM)rom
+romloader:: $(ROMLOADER_COPY)
+	$(Q) mkdir -p $(ROMLOADER_DIR)
+	$(Q) for file in ${ROMLOADER_COPY}; do \
+		cp -rf "$${file}" $(ROMLOADER_DIR) ; \
+	done
+else
+romloader::
+endif
+
 clean::
 	$(call CLEAN)
 

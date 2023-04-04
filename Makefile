@@ -58,6 +58,7 @@ $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),install)
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),register)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),romloader)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
 $(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
@@ -76,7 +77,7 @@ ifeq ($(CONFIG_BUILD_KERNEL),y)
 
 install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
-$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_romloader) $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
 		$(MAKE) -C "$${app}" archive ; \
 	done
@@ -98,10 +99,10 @@ else
 
 ifeq ($(CONFIG_BUILD_LOADABLE),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_romloader) $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for %%G in ($(CONFIGURED_APPS)) do ( $(MAKE) -C %%G archive )
 else
-$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_romloader) $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
 		$(MAKE) -C "$${app}" archive ; \
 	done
@@ -112,7 +113,7 @@ endif
 
 else
 
-$(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
+$(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_romloader) $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) for app in ${CONFIGURED_APPS}; do \
 		$(MAKE) -C "$${app}" archive ; \
 	done
