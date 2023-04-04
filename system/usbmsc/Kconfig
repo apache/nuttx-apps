@@ -156,7 +156,7 @@ endif # SYSTEM_USBMSC_TRACE
 
 config SYSTEM_USBMSC_CMD_STACKSIZE
 	int "Stacksize of msconn and msdis commands"
-	default 768
+	default DEFAULT_TASK_STACKSIZE
 	---help---
 		Size of the stack used by the small 'msconn' and 'msdis' command
 		applications.  Warning, just because the applications are small,
