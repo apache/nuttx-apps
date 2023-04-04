@@ -519,6 +519,11 @@ config NSH_DISABLE_READLINK
 	default DEFAULT_SMALL
 	depends on PSEUDOFS_SOFTLINKS
 
+config NSH_DISABLE_SWITCHBOOT
+	bool "Switch boot partition"
+	default DEFAULT_SMALL
+	depends on BOARDCTL_SWITCH_BOOT
+
 config NSH_DISABLE_BOOT
 	bool "Disable boot"
 	default DEFAULT_SMALL

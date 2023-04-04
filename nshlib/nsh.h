@@ -1149,6 +1149,10 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
+#if defined(CONFIG_BOARDCTL_SWITCH_BOOT) && !defined(CONFIG_NSH_DISABLE_SWITCHBOOT)
+int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
 #if defined(CONFIG_BOARDCTL_BOOT_IMAGE) && !defined(CONFIG_NSH_DISABLE_BOOT)
   int cmd_boot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif

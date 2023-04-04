@@ -319,6 +319,24 @@ int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
 
 /****************************************************************************
+ * Name: cmd_switchboot
+ ****************************************************************************/
+
+#if defined(CONFIG_BOARDCTL_SWITCH_BOOT) && !defined(CONFIG_NSH_DISABLE_SWITCHBOOT)
+int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  if (argc != 2)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+
+  boardctl(BOARDIOC_SWITCH_BOOT, (uintptr_t)argv[1]);
+  return 0;
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_boot
  ****************************************************************************/
 
