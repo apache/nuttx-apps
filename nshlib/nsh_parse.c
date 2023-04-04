@@ -1826,7 +1826,13 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 
               /* Is it a back-quote ? These are not removed here */
 
-              if (*pend != '`')
+              if (*pend == '`')
+                {
+                  /* Yes, keep the quotes in place */
+
+                  pend = qend;
+                }
+              else
                 {
                   /* No, get rid of the single / double quotes here */
 
