@@ -75,22 +75,15 @@ struct wifi_iperf_t
  *
  ****************************************************************************/
 
-static void iperf_showusage(FAR const char *progname, int exitcode)
+static void iperf_showusage(FAR const char *progname,
+                            FAR struct wifi_iperf_t *args, int exitcode)
 {
-  printf("USAGE: %s [-sua] [-c <ip>] [-p <port>]\
-         [-i <interval>] [-t <time>]\n", progname);
+  printf("USAGE: %s [-sua] [-c <ip>] [-p <port>] [-i <interval>] "
+         "[-t <time>]\n", progname);
   printf("iperf command:\n");
-  printf("  -c, --client=<ip>  run in client mode,\
-         connecting to <host>\n");
-  printf("  -s, --server  run in server mode\n");
-  printf("  -u, --udp  use UDP rather than TCP\n");
-  printf("  -p, --port=<port>  server port to listen on/connect to\n");
-  printf("  -i, --interval=<interval>\
-         seconds between periodic bandwidth reports\n");
-  printf("  -t, --time=<time>\
-         time in seconds to transmit for (default 10 secs)\n");
-  printf("  -a, --abort  abort running iperf\n");
-  printf("\n");
+  arg_print_glossary(stdout, (FAR void **)args, NULL);
+
+  arg_freetable((FAR void **)args, sizeof(*args) / sizeof(FAR void *));
   exit(exitcode);
 }
 
@@ -126,21 +119,21 @@ int main(int argc, FAR char *argv[])
   if (nerrors != 0)
     {
       arg_print_errors(stderr, iperf_args.end, argv[0]);
-      iperf_showusage(argv[0], 0);
+      iperf_showusage(argv[0], &iperf_args, 0);
     }
 
   if (iperf_args.abort->count != 0)
     {
       iperf_stop();
       printf("ERROR: abort->count: %d\n", iperf_args.abort->count);
-      iperf_showusage(argv[0], 0);
+      iperf_showusage(argv[0], &iperf_args, 0);
     }
 
   if (((iperf_args.ip->count == 0) && (iperf_args.server->count == 0)) ||
          ((iperf_args.ip->count != 0) && (iperf_args.server->count != 0)))
     {
       printf("ERROR: should specific client/server mode\n");
-      iperf_showusage(argv[0], 0);
+      iperf_showusage(argv[0], &iperf_args, 0);
     }
 
   if (iperf_args.ip->count == 0)
