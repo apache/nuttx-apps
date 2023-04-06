@@ -77,6 +77,14 @@ struct iperf_udp_pkt_t
   uint32_t usec;
 };
 
+typedef CODE int (*iperf_client_func_t)(FAR struct iperf_ctrl_t *ctrl,
+                                        FAR struct sockaddr *addr,
+                                        socklen_t addrlen);
+typedef CODE int (*iperf_server_func_t)(FAR struct iperf_ctrl_t *ctrl,
+                                        FAR struct sockaddr *addr,
+                                        socklen_t addrlen,
+                                        FAR struct sockaddr *remote_addr);
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -194,6 +202,31 @@ static int iperf_show_socket_error_reason(FAR const char *str, int sockfd)
     }
 
   return err;
+}
+
+/****************************************************************************
+ * Name: iperf_print_addr
+ *
+ * Description:
+ *   Print addr info
+ *
+ ****************************************************************************/
+
+static void iperf_print_addr(FAR const char *str, FAR struct sockaddr *addr)
+{
+  switch (addr->sa_family)
+    {
+      case AF_INET:
+        {
+          FAR struct sockaddr_in *inaddr = (FAR struct sockaddr_in *)addr;
+          printf("%s: %s:%d\n", str,
+                 inet_ntoa(inaddr->sin_addr), htons(inaddr->sin_port));
+          return;
+        }
+
+      default:
+        assert(false); /* shouldn't happen */
+    }
 }
 
 /****************************************************************************
@@ -332,18 +365,59 @@ static int iperf_start_report(FAR struct iperf_ctrl_t *ctrl)
 }
 
 /****************************************************************************
- * Name: iperf_run_tcp_server
+ * Name: iperf_run_server
  *
  * Description:
- *   Start tcp server
+ *   Start a server
  *
  ****************************************************************************/
 
-static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
+static int iperf_run_server(FAR struct iperf_ctrl_t *ctrl,
+                            iperf_server_func_t server_func)
 {
-  socklen_t addr_len = sizeof(struct sockaddr);
-  struct sockaddr_in remote_addr;
   struct sockaddr_in addr;
+  struct sockaddr_in remote_addr;
+
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(ctrl->cfg.sport);
+  addr.sin_addr.s_addr = ctrl->cfg.sip;
+
+  return server_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr),
+                           (FAR struct sockaddr *)&remote_addr);
+}
+
+/****************************************************************************
+ * Name: iperf_run_client
+ *
+ * Description:
+ *   Start a client
+ *
+ ****************************************************************************/
+
+static int iperf_run_client(FAR struct iperf_ctrl_t *ctrl,
+                            iperf_client_func_t client_func)
+{
+  struct sockaddr_in addr;
+
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(ctrl->cfg.dport);
+  addr.sin_addr.s_addr = ctrl->cfg.dip;
+
+  return client_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr));
+}
+
+/****************************************************************************
+ * Name: iperf_tcp_server
+ *
+ * Description:
+ *   The main tcp server logic
+ *
+ ****************************************************************************/
+
+static int iperf_tcp_server(FAR struct iperf_ctrl_t *ctrl,
+                            FAR struct sockaddr *addr, socklen_t addrlen,
+                            FAR struct sockaddr *remote_addr)
+{
   int actual_recv = 0;
   int want_recv = 0;
   FAR uint8_t *buffer;
@@ -352,7 +426,7 @@ static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
   int sockfd;
   int opt;
 
-  listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  listen_socket = socket(addr->sa_family, SOCK_STREAM, IPPROTO_TCP);
   if (listen_socket < 0)
     {
       iperf_show_socket_error_reason("tcp server create", listen_socket);
@@ -360,10 +434,7 @@ static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
     }
 
   setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(ctrl->cfg.sport);
-  addr.sin_addr.s_addr = ctrl->cfg.sip;
-  if (bind(listen_socket, (FAR struct sockaddr *)&addr, sizeof(addr)) != 0)
+  if (bind(listen_socket, addr, addrlen) != 0)
     {
       iperf_show_socket_error_reason("tcp server bind", listen_socket);
       close(listen_socket);
@@ -383,8 +454,7 @@ static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
     {
       /* TODO need to change to non-block mode */
 
-      sockfd = accept(listen_socket, (FAR struct sockaddr *)&remote_addr,
-                      &addr_len);
+      sockfd = accept(listen_socket, remote_addr, &addrlen);
       if (sockfd < 0)
         {
           iperf_show_socket_error_reason("tcp server listen", listen_socket);
@@ -393,12 +463,7 @@ static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
         }
       else
         {
-          char inetaddr[INET_ADDRSTRLEN];
-
-          printf("accept: %s,%d\n",
-                 inet_ntoa_r(remote_addr.sin_addr, inetaddr,
-                             sizeof(inetaddr)),
-                 htons(remote_addr.sin_port));
+          iperf_print_addr("accept", remote_addr);
           iperf_start_report(ctrl);
 
           t.tv_sec = IPERF_SOCKET_RX_TIMEOUT;
@@ -411,11 +476,7 @@ static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
           actual_recv = recv(sockfd, buffer, want_recv, 0);
           if (actual_recv == 0)
             {
-              char inetaddr[INET_ADDRSTRLEN];
-              printf("closed by the peer: %s,%d\n",
-                     inet_ntoa_r(remote_addr.sin_addr, inetaddr,
-                                 sizeof(inetaddr)),
-                     htons(remote_addr.sin_port));
+              iperf_print_addr("closed by the peer", remote_addr);
 
               /* Note: unlike the original iperf, this implementation
                * exits after finishing a single connection.
@@ -447,17 +508,30 @@ static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
 }
 
 /****************************************************************************
- * Name: iperf_run_udp_server
+ * Name: iperf_run_tcp_server
  *
  * Description:
- *   Start udp server
+ *   Start tcp server
  *
  ****************************************************************************/
 
-static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
+static int iperf_run_tcp_server(FAR struct iperf_ctrl_t *ctrl)
 {
-  socklen_t addr_len = sizeof(struct sockaddr_in);
-  struct sockaddr_in addr;
+  return iperf_run_server(ctrl, iperf_tcp_server);
+}
+
+/****************************************************************************
+ * Name: iperf_udp_server
+ *
+ * Description:
+ *   The main udp server logic
+ *
+ ****************************************************************************/
+
+static int iperf_udp_server(FAR struct iperf_ctrl_t *ctrl,
+                            FAR struct sockaddr *addr, socklen_t addrlen,
+                            FAR struct sockaddr *remote_addr)
+{
   int actual_recv = 0;
   struct timeval t;
   int want_recv = 0;
@@ -466,7 +540,7 @@ static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
   int opt;
   bool udp_recv_start = true;
 
-  sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  sockfd = socket(addr->sa_family, SOCK_DGRAM, IPPROTO_UDP);
   if (sockfd < 0)
     {
       iperf_show_socket_error_reason("udp server create", sockfd);
@@ -475,18 +549,11 @@ static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
 
   setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(ctrl->cfg.sport);
-  addr.sin_addr.s_addr = ctrl->cfg.sip;
-  if (bind(sockfd, (FAR struct sockaddr *)&addr, sizeof(addr)) != 0)
+  if (bind(sockfd, addr, addrlen) != 0)
     {
       iperf_show_socket_error_reason("udp server bind", sockfd);
       return -1;
     }
-
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(ctrl->cfg.sport);
-  addr.sin_addr.s_addr = ctrl->cfg.sip;
 
   buffer = ctrl->buffer;
   want_recv = ctrl->buffer_len;
@@ -499,7 +566,7 @@ static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
   while (!ctrl->finish)
     {
       actual_recv = recvfrom(sockfd, buffer, want_recv, 0,
-                             (FAR struct sockaddr *)&addr, &addr_len);
+                             remote_addr, &addrlen);
       if (actual_recv < 0)
         {
           iperf_show_socket_error_reason("udp server recv", sockfd);
@@ -508,6 +575,7 @@ static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
         {
           if (udp_recv_start == true)
             {
+              iperf_print_addr("accept", remote_addr);
               iperf_start_report(ctrl);
               udp_recv_start = false;
             }
@@ -523,17 +591,30 @@ static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
 }
 
 /****************************************************************************
- * Name: iperf_run_udp_client
+ * Name: iperf_run_udp_server
  *
  * Description:
- *   Start udp client
+ *   Start udp server
  *
  ****************************************************************************/
 
-static int iperf_run_udp_client(FAR struct iperf_ctrl_t *ctrl)
+static int iperf_run_udp_server(FAR struct iperf_ctrl_t *ctrl)
+{
+  return iperf_run_server(ctrl, iperf_udp_server);
+}
+
+/****************************************************************************
+ * Name: iperf_udp_client
+ *
+ * Description:
+ *   The main udp client logic
+ *
+ ****************************************************************************/
+
+static int iperf_udp_client(FAR struct iperf_ctrl_t *ctrl,
+                            FAR struct sockaddr *addr, socklen_t addrlen)
 {
   FAR struct iperf_udp_pkt_t *udp;
-  struct sockaddr_in addr;
   int actual_send = 0;
   bool retry = false;
   uint32_t delay = 1;
@@ -544,7 +625,7 @@ static int iperf_run_udp_client(FAR struct iperf_ctrl_t *ctrl)
   int err;
   int id;
 
-  sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  sockfd = socket(addr->sa_family, SOCK_DGRAM, IPPROTO_UDP);
   if (sockfd < 0)
     {
       iperf_show_socket_error_reason("udp client create", sockfd);
@@ -552,10 +633,6 @@ static int iperf_run_udp_client(FAR struct iperf_ctrl_t *ctrl)
     }
 
   setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(ctrl->cfg.dport);
-  addr.sin_addr.s_addr = ctrl->cfg.dip;
 
   iperf_start_report(ctrl);
   buffer = ctrl->buffer;
@@ -573,8 +650,7 @@ static int iperf_run_udp_client(FAR struct iperf_ctrl_t *ctrl)
         }
 
       retry = false;
-      actual_send = sendto(sockfd, buffer, want_send, 0,
-                           (FAR struct sockaddr *)&addr, sizeof(addr));
+      actual_send = sendto(sockfd, buffer, want_send, 0, addr, addrlen);
 
       if (actual_send != want_send)
         {
@@ -609,34 +685,42 @@ static int iperf_run_udp_client(FAR struct iperf_ctrl_t *ctrl)
 }
 
 /****************************************************************************
- * Name: iperf_run_tcp_client
+ * Name: iperf_run_udp_client
  *
  * Description:
- *   Start tcp client
+ *   Start udp client
  *
  ****************************************************************************/
 
-static int iperf_run_tcp_client(FAR struct iperf_ctrl_t *ctrl)
+static int iperf_run_udp_client(FAR struct iperf_ctrl_t *ctrl)
 {
-  struct sockaddr_in remote_addr;
+  return iperf_run_client(ctrl, iperf_udp_client);
+}
+
+/****************************************************************************
+ * Name: iperf_tcp_client
+ *
+ * Description:
+ *   The main tcp client logic
+ *
+ ****************************************************************************/
+
+static int iperf_tcp_client(FAR struct iperf_ctrl_t *ctrl,
+                            FAR struct sockaddr *addr, socklen_t addrlen)
+{
   FAR uint8_t *buffer;
   int actual_send = 0;
   int want_send = 0;
   int sockfd;
 
-  sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sockfd = socket(addr->sa_family, SOCK_STREAM, IPPROTO_TCP);
   if (sockfd < 0)
     {
       iperf_show_socket_error_reason("tcp client create", sockfd);
       return -1;
     }
 
-  memset(&remote_addr, 0, sizeof(remote_addr));
-  remote_addr.sin_family = AF_INET;
-  remote_addr.sin_port = htons(ctrl->cfg.dport);
-  remote_addr.sin_addr.s_addr = ctrl->cfg.dip;
-  if (connect(sockfd, (FAR struct sockaddr *)&remote_addr,
-              sizeof(remote_addr)) < 0)
+  if (connect(sockfd, addr, addrlen) < 0)
     {
       iperf_show_socket_error_reason("tcp client connect", sockfd);
       return -1;
@@ -664,6 +748,19 @@ static int iperf_run_tcp_client(FAR struct iperf_ctrl_t *ctrl)
   close(sockfd);
 
   return 0;
+}
+
+/****************************************************************************
+ * Name: iperf_run_tcp_client
+ *
+ * Description:
+ *   Start tcp client
+ *
+ ****************************************************************************/
+
+static int iperf_run_tcp_client(FAR struct iperf_ctrl_t *ctrl)
+{
+  return iperf_run_client(ctrl, iperf_tcp_client);
 }
 
 /****************************************************************************
