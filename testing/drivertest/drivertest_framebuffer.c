@@ -315,13 +315,13 @@ static void test_case_fb_3(FAR void **state)
   const uint32_t xres = fb_state->fb_info.video_info.xres;
   const uint32_t yres = fb_state->fb_info.video_info.yres;
 
-  step_height = xres / step_num;
+  step_height = yres / step_num;
   for (i = 0; i < step_num; i++)
     {
       start_y = step_height * i;
       if (i == step_num - 1)
         {
-          step_height = yres - start_y + 1;
+          step_height = yres - start_y;
         }
 
       gray_color = (0xff / step_num) * i;
