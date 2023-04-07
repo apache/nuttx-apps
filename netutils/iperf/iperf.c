@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <netpacket/rpmsg.h>
 #include <pthread.h>
 #include <sched.h>
 #include <stdbool.h>
@@ -232,6 +233,15 @@ static void iperf_print_addr(FAR const char *str, FAR struct sockaddr *addr)
           return;
         }
 
+      case AF_RPMSG:
+        {
+          FAR struct sockaddr_rpmsg *rpaddr =
+                                          (FAR struct sockaddr_rpmsg *)addr;
+          printf("%s: cpu=%s,name=%s\n", str,
+                 rpaddr->rp_cpu, rpaddr->rp_name);
+          return;
+        }
+
       default:
         assert(false); /* shouldn't happen */
     }
@@ -394,6 +404,18 @@ static int iperf_run_server(FAR struct iperf_ctrl_t *ctrl,
       return server_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr),
                                (FAR struct sockaddr *)&remote_addr);
     }
+  else if (ctrl->cfg.flag & IPERF_FLAG_RPMSG)
+    {
+      struct sockaddr_rpmsg addr;
+      struct sockaddr_rpmsg remote_addr;
+
+      addr.rp_family = AF_RPMSG;
+      strlcpy(addr.rp_cpu, ctrl->cfg.host, sizeof(addr.rp_cpu));
+      strlcpy(addr.rp_name, ctrl->cfg.path, sizeof(addr.rp_name));
+
+      return server_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr),
+                               (FAR struct sockaddr *)&remote_addr);
+    }
   else
     {
       struct sockaddr_in addr;
@@ -425,6 +447,16 @@ static int iperf_run_client(FAR struct iperf_ctrl_t *ctrl,
 
       addr.sun_family = AF_LOCAL;
       strlcpy(addr.sun_path, ctrl->cfg.path, sizeof(addr.sun_path));
+
+      return client_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr));
+    }
+  else if (ctrl->cfg.flag & IPERF_FLAG_RPMSG)
+    {
+      struct sockaddr_rpmsg addr;
+
+      addr.rp_family = AF_RPMSG;
+      strlcpy(addr.rp_cpu, ctrl->cfg.host, sizeof(addr.rp_cpu));
+      strlcpy(addr.rp_name, ctrl->cfg.path, sizeof(addr.rp_name));
 
       return client_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr));
     }

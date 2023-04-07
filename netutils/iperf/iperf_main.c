@@ -57,6 +57,7 @@ struct wifi_iperf_t
   FAR struct arg_lit *server;
   FAR struct arg_lit *udp;
   FAR struct arg_str *local;
+  FAR struct arg_str *rpmsg;
   FAR struct arg_int *port;
   FAR struct arg_int *interval;
   FAR struct arg_int *time;
@@ -79,8 +80,8 @@ struct wifi_iperf_t
 static void iperf_showusage(FAR const char *progname,
                             FAR struct wifi_iperf_t *args, int exitcode)
 {
-  printf("USAGE: %s [-sua] [-c <ip>] [-p <port>] [-i <interval>] "
-         "[-t <time>] [--local <path>]\n", progname);
+  printf("USAGE: %s [-sua] [-c <ip|cpu>] [-p <port>] [-i <interval>] "
+         "[-t <time>] [--local <path>] [--rpmsg <name>]\n", progname);
   printf("iperf command:\n");
   arg_print_glossary(stdout, (FAR void **)args, NULL);
 
@@ -99,13 +100,18 @@ static void iperf_showusage(FAR const char *progname,
 static void iperf_printcfg(FAR struct iperf_cfg_t *cfg)
 {
   printf("\n mode=%s%s-%s ",
-         cfg->flag & IPERF_FLAG_LOCAL ? "local-":"",
+         cfg->flag & IPERF_FLAG_LOCAL ? "local-":
+           cfg->flag & IPERF_FLAG_RPMSG ? "rpmsg-":"",
          cfg->flag & IPERF_FLAG_TCP ? "tcp":"udp",
          cfg->flag & IPERF_FLAG_SERVER ? "server":"client");
 
   if (cfg->flag & IPERF_FLAG_LOCAL)
     {
       printf("path=%s, ", cfg->path);
+    }
+  else if (cfg->flag & IPERF_FLAG_RPMSG)
+    {
+      printf("cpu=%s, name=%s, ", cfg->host, cfg->path);
     }
   else
     {
@@ -141,6 +147,7 @@ int main(int argc, FAR char *argv[])
   iperf_args.server = arg_lit0("s", "server", "run in server mode");
   iperf_args.udp = arg_lit0("u", "udp", "use UDP rather than TCP");
   iperf_args.local = arg_str0(NULL, "local", "<path>", "use local socket");
+  iperf_args.rpmsg = arg_str0(NULL, "rpmsg", "<name>", "use RPMsg socket");
   iperf_args.port = arg_int0("p", "port", "<port>",
                              "server port to listen on/connect to");
   iperf_args.interval = arg_int0("i", "interval", "<interval>",
@@ -177,11 +184,13 @@ int main(int argc, FAR char *argv[])
 
   if (iperf_args.ip->count == 0)
     {
+      cfg.host  = "";
       cfg.flag |= IPERF_FLAG_SERVER;
     }
   else
     {
-      cfg.dip = inet_addr(iperf_args.ip->sval[0]);
+      cfg.dip   = inet_addr(iperf_args.ip->sval[0]);
+      cfg.host  = iperf_args.ip->sval[0];
       cfg.flag |= IPERF_FLAG_CLIENT;
     }
 
@@ -205,6 +214,11 @@ int main(int argc, FAR char *argv[])
           printf("ERROR: should specific local socket path\n");
           iperf_showusage(argv[0], &iperf_args, 0);
         }
+    }
+  else if (iperf_args.rpmsg->count > 0)
+    {
+      cfg.flag |= IPERF_FLAG_RPMSG;
+      cfg.path  = iperf_args.rpmsg->sval[0];
     }
   else
     {
