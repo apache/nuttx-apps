@@ -32,6 +32,7 @@
 #include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/un.h>
 #include <unistd.h>
 
 #include "iperf.h"
@@ -224,6 +225,13 @@ static void iperf_print_addr(FAR const char *str, FAR struct sockaddr *addr)
           return;
         }
 
+      case AF_LOCAL:
+        {
+          FAR struct sockaddr_un *unaddr = (FAR struct sockaddr_un *)addr;
+          printf("%s: path=%s\n", str, unaddr->sun_path);
+          return;
+        }
+
       default:
         assert(false); /* shouldn't happen */
     }
@@ -375,15 +383,29 @@ static int iperf_start_report(FAR struct iperf_ctrl_t *ctrl)
 static int iperf_run_server(FAR struct iperf_ctrl_t *ctrl,
                             iperf_server_func_t server_func)
 {
-  struct sockaddr_in addr;
-  struct sockaddr_in remote_addr;
+  if (ctrl->cfg.flag & IPERF_FLAG_LOCAL)
+    {
+      struct sockaddr_un addr;
+      struct sockaddr_un remote_addr;
 
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(ctrl->cfg.sport);
-  addr.sin_addr.s_addr = ctrl->cfg.sip;
+      addr.sun_family = AF_LOCAL;
+      strlcpy(addr.sun_path, ctrl->cfg.path, sizeof(addr.sun_path));
 
-  return server_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr),
-                           (FAR struct sockaddr *)&remote_addr);
+      return server_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr),
+                               (FAR struct sockaddr *)&remote_addr);
+    }
+  else
+    {
+      struct sockaddr_in addr;
+      struct sockaddr_in remote_addr;
+
+      addr.sin_family = AF_INET;
+      addr.sin_port = htons(ctrl->cfg.sport);
+      addr.sin_addr.s_addr = ctrl->cfg.sip;
+
+      return server_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr),
+                               (FAR struct sockaddr *)&remote_addr);
+    }
 }
 
 /****************************************************************************
@@ -397,13 +419,25 @@ static int iperf_run_server(FAR struct iperf_ctrl_t *ctrl,
 static int iperf_run_client(FAR struct iperf_ctrl_t *ctrl,
                             iperf_client_func_t client_func)
 {
-  struct sockaddr_in addr;
+  if (ctrl->cfg.flag & IPERF_FLAG_LOCAL)
+    {
+      struct sockaddr_un addr;
 
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(ctrl->cfg.dport);
-  addr.sin_addr.s_addr = ctrl->cfg.dip;
+      addr.sun_family = AF_LOCAL;
+      strlcpy(addr.sun_path, ctrl->cfg.path, sizeof(addr.sun_path));
 
-  return client_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr));
+      return client_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr));
+    }
+  else
+    {
+      struct sockaddr_in addr;
+
+      addr.sin_family = AF_INET;
+      addr.sin_port = htons(ctrl->cfg.dport);
+      addr.sin_addr.s_addr = ctrl->cfg.dip;
+
+      return client_func(ctrl, (FAR struct sockaddr *)&addr, sizeof(addr));
+    }
 }
 
 /****************************************************************************
