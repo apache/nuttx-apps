@@ -225,18 +225,18 @@ static void draw_rect(FAR struct lcd_info_s *lcd_info, int x, int y,
       valid_h = yres - y;
     }
 
-  draw_area.row_start = x;
-  draw_area.col_start = y;
-  draw_area.row_end = x + valid_w - 1;
-  draw_area.col_end = y + valid_h - 1;
+  draw_area.row_start = y;
+  draw_area.col_start = x;
+  draw_area.row_end = y + valid_h - 1;
+  draw_area.col_end = x + valid_w - 1;
   draw_area.data = malloc(valid_w * valid_h * (bpp >> 3));
   assert_ptr_not_equal(draw_area.data, NULL);
   fb_bpp16 = (uint16_t *)draw_area.data;
   fb_bpp32 = (uint32_t *)draw_area.data;
-  for (j = 0; j <= (draw_area.col_end - draw_area.col_start); j++)
+  for (j = 0; j <= (draw_area.row_end - draw_area.row_start); j++)
     {
       offset = j  * valid_w;
-      for (i = 0; i <= (draw_area.row_end - draw_area.row_start); i++)
+      for (i = 0; i <= (draw_area.col_end - draw_area.col_start); i++)
         {
           if (bpp == 32)
             {
@@ -310,7 +310,7 @@ static void test_case_lcd_2(FAR void **state)
       start_x = step_width * i;
       if (i == step_num - 1)
         {
-          step_width = xres - start_x + 1;
+          step_width = xres - start_x;
         }
 
       draw_rect(&lcd_state->lcd_info, start_x, 0, step_width, yres,
@@ -334,13 +334,13 @@ static void test_case_lcd_3(FAR void **state)
   const uint32_t xres = lcd_state->lcd_info.video_info.xres;
   const uint32_t yres = lcd_state->lcd_info.video_info.yres;
 
-  step_height = xres / step_num;
+  step_height = yres / step_num;
   for (i = 0; i < step_num; i++)
     {
       start_y = step_height * i;
       if (i == step_num - 1)
         {
-          step_height = yres - start_y + 1;
+          step_height = yres - start_y;
         }
 
       gray_color = (0xff / step_num) * i;
