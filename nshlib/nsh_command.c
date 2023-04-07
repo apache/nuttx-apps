@@ -530,7 +530,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_BOARDCTL_SWITCH_BOOT) && !defined(CONFIG_NSH_DISABLE_SWITCHBOOT)
-  { "swtichboot", cmd_swtichboot, 2, 2, "<image path>" },
+  { "swtichboot", cmd_switchboot, 2, 2, "<image path>" },
 #endif
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
