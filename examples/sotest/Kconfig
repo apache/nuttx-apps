@@ -43,14 +43,6 @@ config EXAMPLES_SOTEST_DEVMINOR
 		Used for registering the RAM block driver that will hold the ROMFS file system
 		containing the SOTEST executables to be tested.  Default: 0
 
-config EXAMPLES_SOTEST_DEVPATH
-	string "ROMFS Device Path"
-	default "/dev/ram0"
-	---help---
-		The path to the ROMFS block driver device.  This must match EXAMPLES_SOTEST_DEVMINOR.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the SOTEST executables to be tested.  Default: "/dev/ram0"
-
 endif # EXAMPLES_SOTEST_BUILTINFS
 
 if !EXAMPLES_SOTEST_BUILTINFS
