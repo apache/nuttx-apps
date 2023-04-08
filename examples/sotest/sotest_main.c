@@ -73,13 +73,11 @@
 #  ifndef CONFIG_EXAMPLES_SOTEST_DEVMINOR
 #    define CONFIG_EXAMPLES_SOTEST_DEVMINOR 0
 #  endif
-
-#  ifndef CONFIG_EXAMPLES_SOTEST_DEVPATH
-#    define CONFIG_EXAMPLES_SOTEST_DEVPATH "/dev/ram0"
-#  endif
 #else
 #  define BINDIR       CONFIG_EXAMPLES_SOTEST_BINDIR
 #endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
+
+#define SOTEST_DEVPATH_FMT "/dev/ram%d"
 
 /****************************************************************************
  * Symbols from Auto-Generated Code
@@ -103,6 +101,7 @@ extern const int g_sot_nexports;
 
 int main(int argc, FAR char *argv[])
 {
+  char devname[32];
 #if CONFIG_MODLIB_MAXDEPEND > 0
   FAR void *handle1;
 #endif
@@ -144,15 +143,16 @@ int main(int argc, FAR char *argv[])
 
   /* Mount the file system */
 
+  sprintf(devname, SOTEST_DEVPATH_FMT, CONFIG_EXAMPLES_SOTEST_DEVMINOR);
   printf("main: Mounting ROMFS filesystem at target=%s with source=%s\n",
-         BINDIR, CONFIG_EXAMPLES_SOTEST_DEVPATH);
+         BINDIR, devname);
 
-  ret = mount(CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, "romfs", MS_RDONLY,
+  ret = mount(devname, BINDIR, "romfs", MS_RDONLY,
               NULL);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, strerror(errno));
+              devname, BINDIR, strerror(errno));
       exit(EXIT_FAILURE);
     }
 #endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
