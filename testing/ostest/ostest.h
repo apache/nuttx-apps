@@ -250,6 +250,10 @@ void barrier_test(void);
 
 void priority_inheritance(void);
 
+/* schedlock.c **************************************************************/
+
+void sched_lock_test(void);
+
 /* vfork.c ******************************************************************/
 
 #if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID)
