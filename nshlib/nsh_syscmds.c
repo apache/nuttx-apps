@@ -85,6 +85,43 @@
 static const char g_unknown[] = "unknown";
 #endif
 
+#if defined(CONFIG_BOARDCTL_RESET_CAUSE) && !defined(CONFIG_NSH_DISABLE_RESET_CAUSE)
+
+/* Keep update with nuttx kernel definition */
+
+static FAR const char *const g_resetcause[] =
+{
+  "none",
+  "power_on",
+  "rtc_watchdog",
+  "brown_out",
+  "core_soft_reset",
+  "core_deep_sleep",
+  "core_main_watchdog",
+  "core_rtc_watchdog",
+  "cpu_main_watchdog",
+  "cpu_soft_reset",
+  "cpu_rtc_watchdog",
+  "pin",
+  "lowpower",
+  "unkown"
+};
+#endif
+
+#if (defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)) || \
+    (defined(CONFIG_BOARDCTL_RESET_CAUSE) && !defined(CONFIG_NSH_DISABLE_RESET_CAUSE))
+static FAR const char * const g_resetflag[] =
+{
+  "reboot",
+  "assert",
+  "painc",
+  "bootloader",
+  "recovery",
+  "factory",
+  NULL
+};
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -396,7 +433,26 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   if (argc > 1)
     {
-      boardctl(BOARDIOC_RESET, atoi(argv[1]));
+      int i = 0;
+
+      while (g_resetflag[i] != NULL)
+        {
+          if (strcmp(g_resetflag[i], argv[1]) == 0)
+            {
+              break;
+            }
+
+          i++;
+        }
+
+      if (g_resetflag[i])
+        {
+          boardctl(BOARDIOC_RESET, i);
+        }
+      else
+        {
+          boardctl(BOARDIOC_RESET, atoi(argv[1]));
+        }
     }
   else
     {
@@ -428,8 +484,17 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       return ERROR;
     }
 
-  nsh_output(vtbl, "cause:0x%x,flag:0x%" PRIx32 "\n",
-             cause.cause, cause.flag);
+  if (cause.cause != BOARDIOC_RESETCAUSE_CPU_SOFT)
+    {
+      nsh_output(vtbl, "%s(%lu)\n",
+             g_resetcause[cause.cause], cause.flag);
+    }
+  else
+    {
+      nsh_output(vtbl, "%s(%s)\n",
+             g_resetcause[cause.cause], g_resetflag[cause.flag]);
+    }
+
   return OK;
 }
 #endif
