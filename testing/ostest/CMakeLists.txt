@@ -20,13 +20,7 @@
 
 if(CONFIG_TESTING_OSTEST)
 
-  set(SRCS
-      getopt.c
-      restart.c
-      sigprocmask.c
-      sighand.c
-      signest.c
-      sighelper.c)
+  set(SRCS getopt.c restart.c sigprocmask.c sighand.c signest.c sighelper.c)
 
   if(CONFIG_DEV_NULL)
     list(APPEND SRCS dev_null.c)
@@ -71,8 +65,8 @@ if(CONFIG_TESTING_OSTEST)
       sem.c
       semtimed.c
       barrier.c)
-    list(APPEND SRCS timedwait.c)
-    list(APPEND SRCS pthread_rwlock.c pthread_rwlock_cancel.c)
+    list(APPEND SRCS timedwait.c pthread_rwlock.c pthread_rwlock_cancel.c
+         schedlock.c)
 
     if(CONFIG_SCHED_WAITPID)
       list(APPEND SRCS pthread_exit.c)
@@ -109,6 +103,10 @@ if(CONFIG_TESTING_OSTEST)
     if(CONFIG_SCHED_WORKQUEUE)
       list(APPEND SRCS wqueue.c)
     endif()
+
+    if(CONFIG_PRIORITY_INHERITANCE)
+      list(APPEND SRCS prioinherit.c)
+    endif() # CONFIG_PRIORITY_INHERITANCE
   endif() # CONFIG_DISABLE_PTHREAD
 
   if(NOT CONFIG_DISABLE_MQUEUE)
@@ -129,12 +127,6 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS vfork.c)
     endif()
   endif()
-
-  if(NOT CONFIG_DISABLE_PTHREAD)
-    if(CONFIG_PRIORITY_INHERITANCE)
-      list(APPEND SRCS prioinherit.c)
-    endif() # CONFIG_PRIORITY_INHERITANCE
-  endif() # CONFIG_DISABLE_PTHREAD
 
   if(CONFIG_ARCH_SETJMP_H)
     list(APPEND SRCS setjmp.c)

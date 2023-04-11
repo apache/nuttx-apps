@@ -67,8 +67,7 @@ endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += cancel.c cond.c mutex.c timedmutex.c sem.c semtimed.c barrier.c
-CSRCS += timedwait.c
-CSRCS += pthread_rwlock.c pthread_rwlock_cancel.c
+CSRCS += timedwait.c pthread_rwlock.c pthread_rwlock_cancel.c schedlock.c
 
 ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += pthread_exit.c
@@ -105,6 +104,10 @@ endif
 ifeq ($(CONFIG_SCHED_WORKQUEUE),y)
 CSRCS += wqueue.c
 endif
+
+ifeq ($(CONFIG_PRIORITY_INHERITANCE),y)
+CSRCS += prioinherit.c
+endif
 endif # CONFIG_DISABLE_PTHREAD
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
@@ -125,12 +128,6 @@ ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += vfork.c
 endif
 endif
-
-ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-ifeq ($(CONFIG_PRIORITY_INHERITANCE),y)
-CSRCS += prioinherit.c
-endif # CONFIG_PRIORITY_INHERITANCE
-endif # CONFIG_DISABLE_PTHREAD
 
 ifeq ($(CONFIG_ARCH_SETJMP_H),y)
 CSRCS += setjmp.c
