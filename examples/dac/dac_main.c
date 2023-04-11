@@ -58,8 +58,8 @@
 struct command
 {
   FAR const char *name;
-  CODE int (* const cmd)(int argc, const char *argv[]);
-  const char *args;
+  CODE int (* const cmd)(int argc, FAR const char *argv[]);
+  FAR const char *args;
 };
 
 struct dac_state_s
