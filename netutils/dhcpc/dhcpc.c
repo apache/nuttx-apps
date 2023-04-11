@@ -306,6 +306,7 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
         break;
 
       default:
+        errno = EINVAL;
         return ERROR;
     }
 
@@ -729,6 +730,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
     {
       if (pdhcpc->cancel)
         {
+          errno = EINTR;
           return ERROR;
         }
 
@@ -807,6 +809,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
     {
       if (pdhcpc->cancel)
         {
+          errno = EINTR;
           return ERROR;
         }
 
@@ -852,6 +855,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                   ninfo("Received NAK\n");
                   oldaddr.s_addr = INADDR_ANY;
                   netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
+                  errno = ECONNREFUSED;
                   return ERROR;
                 }
 
@@ -937,12 +941,14 @@ int dhcpc_request_async(FAR void *handle, dhcpc_callback_t callback)
 
   if (!handle || !callback)
     {
+      errno = EINVAL;
       return ERROR;
     }
 
   if (pdhcpc->thread)
     {
       nerr("ERROR: DHCPC thread already running\n");
+      errno = EALREADY;
       return ERROR;
     }
 
@@ -951,6 +957,7 @@ int dhcpc_request_async(FAR void *handle, dhcpc_callback_t callback)
   if (ret != 0)
     {
       nerr("ERROR: Failed to start the DHCPC thread\n");
+      errno = ret;
       return ERROR;
     }
 
