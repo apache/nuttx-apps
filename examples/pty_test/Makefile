@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# PTY Test built-in application info
 
 PROGNAME = $(CONFIG_EXAMPLES_PTYTEST_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_PTYTEST_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_PTYTEST_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_PTYTEST)
 
-# PTY Test! Example
+# PTY Test Example
 
 MAINSRC = pty_test.c
 
