@@ -20,11 +20,11 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! Example
+# DJOYSTICK Example
 
 MAINSRC = djoy_main.c
 
-# Buttons built-in application info
+# DJOYSTICK built-in application info
 
 PROGNAME = djoy
 PRIORITY = SCHED_PRIORITY_DEFAULT
