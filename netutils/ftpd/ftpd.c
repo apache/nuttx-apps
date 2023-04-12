@@ -1007,12 +1007,13 @@ static ssize_t ftpd_response(int sd, int timeout, FAR const char *fmt, ...)
   FAR char *buffer;
   ssize_t bytessent;
   va_list ap;
+  int ret;
 
   va_start(ap, fmt);
-  vasprintf(&buffer, fmt, ap);
+  ret = vasprintf(&buffer, fmt, ap);
   va_end(ap);
 
-  if (buffer == NULL)
+  if (ret < 0)
     {
       return -ENOMEM;
     }
@@ -2417,8 +2418,8 @@ static int fptd_listscan(FAR struct ftpd_session_s *session, FAR char *path,
             }
         }
 
-      asprintf(&temp, "%s/%s", path, entry->d_name);
-      if (temp == NULL)
+      ret = asprintf(&temp, "%s/%s", path, entry->d_name);
+      if (ret < 0)
         {
           continue;
         }

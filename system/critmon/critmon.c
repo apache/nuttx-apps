@@ -121,7 +121,6 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   FAR char *maxrun;
   FAR char *endptr;
   FILE *stream;
-  int errcode;
   int len;
   int ret;
 
@@ -134,13 +133,11 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   ret = asprintf(&filepath,
                  CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/%s/status",
                  entryp->d_name);
-  if (ret < 0 || filepath == NULL)
+  if (ret < 0)
     {
-      errcode = errno;
       fprintf(stderr,
-              "Csection Monitor: Failed to create path to status file: %d\n",
-              errcode);
-      return -errcode;
+              "Csection Monitor: Failed to create path to status file\n");
+      return -ENOMEM;
     }
 
   /* Open the status file */
@@ -187,12 +184,10 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   ret = asprintf(&filepath,
                  CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/%s/critmon",
                  entryp->d_name);
-  if (ret < 0 || filepath == NULL)
+  if (ret < 0)
     {
-      errcode = errno;
       fprintf(stderr, "Csection Monitor: "
-              "Failed to create path to Csection file: %d\n",
-              errcode);
+              "Failed to create path to Csection file\n");
       ret = -EINVAL;
       goto errout_with_name;
     }
@@ -324,12 +319,10 @@ static void critmon_global_crit(void)
 
   ret = asprintf(&filepath,
                  CONFIG_SYSTEM_CRITMONITOR_MOUNTPOINT "/critmon");
-  if (ret < 0 || filepath == NULL)
+  if (ret < 0)
     {
-      errcode = errno;
       fprintf(stderr, "Csection Monitor: "
-              "Failed to create path to Csection file: %d\n",
-              errcode);
+              "Failed to create path to Csection file\n");
       return;
     }
 
