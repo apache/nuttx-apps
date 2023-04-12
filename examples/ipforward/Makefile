@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# IPFORWARD built-in application info
 
 PROGNAME = $(CONFIG_EXAMPLES_IPFORWARD_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_IPFORWARD_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_IPFORWARD_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_IPFORWARD)
 
-# Hello, World! Example
+# IPFORWARD Example
 
 MAINSRC = ipforward.c
 
