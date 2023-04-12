@@ -20,14 +20,14 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# INA219 built-in application info
 
 PROGNAME = $(CONFIG_EXAMPLES_INA219_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_INA219_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_INA219_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_INA219)
 
-# Hello, World! Example
+# INA219 Example
 
 MAINSRC = ina219_main.c
 
