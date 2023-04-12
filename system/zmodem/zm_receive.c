@@ -1143,8 +1143,8 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
 
   /* Extend the relative path to the file storage directory */
 
-  asprintf(&pzmr->filename, "%s/%s", pzmr->pathname, namptr);
-  if (!pzmr->filename)
+  ret = asprintf(&pzmr->filename, "%s/%s", pzmr->pathname, namptr);
+  if (ret < 0)
     {
       zmdbg("ERROR: Failed to allocate full path %s/%s\n",
             CONFIG_SYSTEM_ZMODEM_MOUNTPOINT, namptr);
@@ -1331,9 +1331,9 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
               {
                 /* Create a candidate file name */
 
-                asprintf(&candidate, "%s_%" PRId32, pzmr->filename,
-                         ++uniqno);
-                if (!candidate)
+                ret = asprintf(&candidate, "%s_%" PRId32, pzmr->filename,
+                               ++uniqno);
+                if (ret < 0)
                   {
                     zmdbg("ERROR:  Failed to allocate candidate %s_%d\n",
                           pzmr->filename, uniqno);
