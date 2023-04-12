@@ -7,6 +7,8 @@ config LIBUV
 	bool "libuv asynchronous I/O Library"
 	default n
 	select PIPES
+	select PSEUDOFS_SOFTLINKS
+	select SCHED_HAVE_PARENT
 	---help---
 		Enable build for libuv asynchronous I/O Library
 
