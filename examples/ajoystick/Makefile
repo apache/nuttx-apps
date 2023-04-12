@@ -20,11 +20,11 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! Example
+# AJOYSTICK Example
 
 MAINSRC = ajoy_main.c
 
-# Buttons built-in application info
+# AJOYSTICK built-in application info
 
 PROGNAME = ajoy
 PRIORITY = SCHED_PRIORITY_DEFAULT
