@@ -327,6 +327,8 @@ static FAR void *timeout_thread2(FAR void *data)
   struct timespec time;
   int status;
 
+  pthread_yield();
+
   status = clock_gettime(CLOCK_REALTIME, &time);
   time.tv_sec += 2;
 
