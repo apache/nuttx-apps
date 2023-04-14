@@ -339,9 +339,9 @@ FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname);
 
 /* HTTP support */
 
-int  netlib_parsehttpurl(FAR const char *url, uint16_t *port,
-                      FAR char *hostname, int hostlen,
-                      FAR char *filename, int namelen);
+int netlib_parsehttpurl(FAR const char *url, uint16_t *port,
+                        FAR char *hostname, int hostlen,
+                        FAR char *filename, int namelen);
 
 #ifdef CONFIG_NETUTILS_NETLIB_GENERICURLPARSER
 int netlib_parseurl(FAR const char *str, FAR struct url_s *url);
@@ -351,7 +351,7 @@ int netlib_parseurl(FAR const char *str, FAR struct url_s *url);
 
 int netlib_listenon(uint16_t portno);
 void netlib_server(uint16_t portno, pthread_startroutine_t handler,
-                int stacksize);
+                   int stacksize);
 
 int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags);
 int netlib_ifup(FAR const char *ifname);
