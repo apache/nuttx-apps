@@ -89,7 +89,7 @@ void netlib_server(uint16_t portno,
 
   for (; ; )
     {
-      /* Accept the next connectin */
+      /* Accept the next connection */
 
       addrlen = sizeof(struct sockaddr_in);
       acceptsd = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
@@ -157,7 +157,7 @@ void netlib_server(uint16_t portno,
       pthread_detach(child);
     }
 
-  /* Close the listerner socket */
+  /* Close the listener socket */
 
   close(listensd);
 }
