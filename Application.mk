@@ -253,10 +253,19 @@ REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)
 APPLIST := $(PROGNAME)
 
 $(REGLIST): $(DEPCONFIG) Makefile
+ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
+	$(call REGISTER,$(firstword $(APPLIST)),$(firstword $(PRIORITY)),$(firstword $(STACKSIZE)),$(if $(BUILD_MODULE),,$(firstword $(APPLIST))_main),$(firstword $(UID)),$(firstword $(GID)),$(firstword $(MODE)))
+else
 	$(call REGISTER,$(firstword $(APPLIST)),$(firstword $(PRIORITY)),$(firstword $(STACKSIZE)),$(if $(BUILD_MODULE),,$(firstword $(APPLIST))_main))
+endif
 	$(eval APPLIST=$(filter-out $(firstword $(APPLIST)),$(APPLIST)))
 	$(if $(filter-out $(firstword $(PRIORITY)),$(PRIORITY)),$(eval PRIORITY=$(filter-out $(firstword $(PRIORITY)),$(PRIORITY))))
 	$(if $(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE)),$(eval STACKSIZE=$(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE))))
+ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
+	$(if $(filter-out $(firstword $(UID)),$(UID)),$(eval UID=$(filter-out $(firstword $(UID)),$(UID))))
+	$(if $(filter-out $(firstword $(GID)),$(GID)),$(eval GID=$(filter-out $(firstword $(GID)),$(GID))))
+	$(if $(filter-out $(firstword $(MODE)),$(MODE)),$(eval MODE=$(filter-out $(firstword $(MODE)),$(MODE))))
+endif
 
 register:: $(REGLIST)
 	@:
