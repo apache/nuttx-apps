@@ -55,6 +55,12 @@ ifneq ($(CONFIG_SIG_EVTHREAD),)
 MAINSRC  += drivertest_posix_timer.c
 PROGNAME += cmocka_posix_timer
 endif
+
+ifneq ($(CONFIG_WATCHDOG),)
+ifneq ($(CONFIG_BOARDCTL_RESET_CAUSE),)
+MAINSRC  += drivertest_watchdog.c
+PROGNAME += cmocka_driver_watchdog
+endif
 endif
 
 ifneq ($(CONFIG_PWM),)
