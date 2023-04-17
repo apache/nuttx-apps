@@ -45,7 +45,7 @@
 #include <unistd.h>
 #include <stdint.h>
 
-#ifdef CONFIG_ARCH_SIM
+#ifdef CONFIG_SIM_WALLTIME_SLEEP
 #  include <nuttx/arch.h>
 #endif
 
@@ -112,7 +112,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
 
   while (!g_locked)
     {
-#ifdef CONFIG_ARCH_SIM
+#ifdef CONFIG_SIM_WALLTIME_SLEEP
       /* The simulator doesn't have any mechanism to do asynchronous
        * pre-emption (basically because it doesn't have any
        * interrupts/asynchronous events).  The simulator does "fake" a timer
