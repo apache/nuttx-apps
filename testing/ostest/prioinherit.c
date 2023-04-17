@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef CONFIG_ARCH_SIM
+#ifdef CONFIG_SIM_WALLTIME_SLEEP
 #  include <nuttx/arch.h>
 #endif
 
@@ -251,7 +251,7 @@ static FAR void *highpri_thread(FAR void *parameter)
 
 static inline void hog_cpu(void)
 {
-#ifdef CONFIG_ARCH_SIM
+#ifdef CONFIG_SIM_WALLTIME_SLEEP
   /* The simulator doesn't have any mechanism to do asynchronous pre-emption
    * (basically because it doesn't have any interrupts/asynchronous events).
    * The simulator does "fake" a timer interrupt in up_idle() -- the idle
