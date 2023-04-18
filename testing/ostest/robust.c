@@ -202,6 +202,14 @@ void robust_test(void)
       nerrors++;
     }
 
+  /* Make sure waiter exit completely */
+
+  do
+    {
+      sleep(1);
+    }
+  while (kill(g_robust_mutex.pid, 0) == 0 || errno != ESRCH);
+
   /* Make the mutex consistent and try again.  It should succeed this time. */
 
   printf("robust_test: Make the mutex consistent again.\n");
