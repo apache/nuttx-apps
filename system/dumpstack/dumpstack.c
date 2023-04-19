@@ -44,6 +44,7 @@ int main(int argc, FAR char *argv[])
 {
   int spid = -1;
   int epid = -1;
+  int tmp = -1;
 
   if (argc == 2)
     {
@@ -58,6 +59,13 @@ int main(int argc, FAR char *argv[])
   if (spid < 0 || epid < 0)
     {
       spid = epid = gettid();
+    }
+
+  if (spid > epid)
+    {
+      tmp = spid;
+      spid = epid;
+      epid = tmp;
     }
 
   do
