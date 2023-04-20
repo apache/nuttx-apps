@@ -22,416 +22,328 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <fcntl.h>
-#include <stdlib.h>
 #include <errno.h>
-#include <termios.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <poll.h>
+#include <termios.h>
+
 #include <nuttx/crc16.h>
+
 #include "ymodem.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define SOH           0x01  /* start of 128-byte data packet */
-#define STX           0x02  /* start of 1024-byte data packet */
-#define EOT           0x04  /* end of transmission */
-#define ACK           0x06  /* acknowledge */
-#define NAK           0x15  /* negative acknowledge */
-#define CA            0x18  /* two of these in succession aborts transfer */
-#define CRC16         0x43  /* 'C' == 0x43, request 16-bit CRC */
+#ifdef CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH
+#  define ymodem_debug(...) \
+  do \
+    { \
+      dprintf(ctx->debug_fd, ##__VA_ARGS__); \
+      fsync(ctx->debug_fd); \
+    } \
+  while(0)
 
-#define MAX_ERRORS    100
+#else
+#  define ymodem_debug(...)
+#endif
 
-#define EEOT 200    /* End of transfer */
+#define SOH           0x01  /* Start of 128-byte data packet */
+#define STX           0x02  /* Start of 1024-byte data packet */
+#define EOT           0x04  /* End of transmission */
+#define ACK           0x06  /* Acknowledge */
+#define NAK           0x15  /* Negative acknowledge */
+#define CAN           0x18  /* Two of these in succession aborts transfer */
+#define CRC           0x43  /* 'C' == 0x43, request 16-bit CRC */
+
+#define MAX_RETRIES   100
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static long get_current_time(void)
+static int ymodem_recv_buffer(FAR struct ymodem_ctx_s *ctx, FAR uint8_t *buf,
+                              size_t size)
 {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
+  size_t i = 0;
 
-static ssize_t ymodem_uart_recv(FAR struct ymodem_ctx *ctx,
-                                FAR uint8_t *buf, size_t size,
-                                uint32_t timeout)
-{
-  ssize_t i = 0;
-  ssize_t ret;
-  long base;
-  struct pollfd pfd =
+  ymodem_debug("recv buffer data, read size is %zu\n", size);
+  while (i < size)
     {
-      ctx->recvfd, POLLIN, 0
-    };
-
-  base = get_current_time();
-  while (i < size && poll(&pfd, 1, timeout) > 0)
-    {
-      if (get_current_time() - base >= timeout)
-        {
-          ymodem_debug("ymodem_uart_recv timeout\n");
-          return -1;
-        }
-
-      ret = read(ctx->recvfd, buf + i, size - i);
+      ssize_t ret = read(ctx->recvfd, buf + i, size - i);
       if (ret >= 0)
         {
+          ymodem_debug("recv buffer data, size %zd\n", ret);
           i += ret;
         }
       else
         {
-          ymodem_debug("ymodem_uart_recv read data error\n");
-          return ret;
+          ymodem_debug("recv buffer error, ret %d\n", -errno);
+          return -errno;
         }
     }
 
-  if (i == 0)
-    {
-      return -1;
-    }
-
-  return i;
-}
-
-static ssize_t ymodem_uart_send(FAR struct ymodem_ctx *ctx,
-                                FAR uint8_t *buf, size_t size,
-                                uint32_t timeout)
-{
-  ssize_t ret = write(ctx->sendfd, buf, size);
-  if (ret != size)
-    {
-      ymodem_debug("ymodem_uart_send error\n");
-      return ret;
-    }
-
-  return ret;
-}
-
-static int ymodem_rcev_packet(FAR struct ymodem_ctx *ctx)
-{
-  uint32_t timeout = ctx->timeout;
-  uint16_t packet_size;
-  uint16_t rcev_crc;
-  uint16_t cal_crc;
-  uint8_t crchl[2];
-  uint8_t chunk[1];
-  int ret;
-
-  ret = ymodem_uart_recv(ctx, chunk, 1, timeout);
-  if (ret != 1)
-    {
-      return ret;
-    }
-
-  switch (chunk[0])
-    {
-      case SOH:
-        packet_size = YMODEM_PACKET_SIZE;
-        break;
-      case STX:
-        packet_size = YMODEM_PACKET_1K_SIZE;
-        break;
-      case EOT:
-        return -EEOT;
-      case CA:
-        ret = ymodem_uart_recv(ctx, chunk, 1, timeout);
-        if (ret != 1 && chunk[0] == CA)
-          {
-            return -ECANCELED;
-          }
-        else
-          {
-            return -EBADMSG;
-          }
-
-      default:
-          ymodem_debug("rcev_packet: EBADMSG: chunk[0]=%d\n", chunk[0]);
-          return -EBADMSG;
-    }
-
-  ret = ymodem_uart_recv(ctx, ctx->seq, 2, timeout);
-  if (ret != 2)
-    {
-      ymodem_debug("rcev_packet: err=%d\n", ret);
-      return ret;
-    }
-
-  ret = ymodem_uart_recv(ctx, ctx->data, packet_size, timeout);
-  if (ret != packet_size)
-    {
-      ymodem_debug("rcev_packet: err=%d\n", ret);
-      return ret;
-    }
-
-  ret = ymodem_uart_recv(ctx, crchl, 2, timeout);
-  if (ret != 2)
-    {
-      ymodem_debug("rcev_packet: err=%d\n", ret);
-      return ret;
-    }
-
-  if ((ctx->seq[0] + ctx->seq[1]) != 0xff)
-    {
-      ymodem_debug("rcev_packet: EILSEQ seq[]=%d %d\n", ctx->seq[0],
-                                                    ctx->seq[1]);
-      return -EILSEQ;
-    }
-
-  rcev_crc = (uint16_t)((crchl[0] << 8) + crchl[1]);
-  cal_crc = crc16(ctx->data, packet_size);
-  if (rcev_crc != cal_crc)
-    {
-      ymodem_debug("rcev_packet: EBADMSG rcev:cal=%x %x\n",
-                   rcev_crc, cal_crc);
-      return -EBADMSG;
-    }
-
-  ctx->packet_size = packet_size;
-  ymodem_debug("rcev_packet:OK: size=%d, seq=%d\n",
-               packet_size, ctx->seq[0]);
   return 0;
 }
 
-static int ymodem_rcev_file(FAR struct ymodem_ctx *ctx)
+static int ymodem_send_buffer(FAR struct ymodem_ctx_s *ctx,
+                              FAR const uint8_t *buf, size_t size)
 {
-  uint32_t timeout = ctx->timeout;
-  bool file_start = false;
-  bool file_done = false;
-  uint32_t total_seq = 0;
-  bool canceled = false;
-  uint8_t chunk[1];
-  FAR char *str;
-  int ret = 0;
-  int err = 0;
+  size_t i = 0;
 
-  chunk[0] = CRC16;
-  ymodem_uart_send(ctx, chunk, 1, timeout);
-  while (!file_done)
+  ymodem_debug("send buffer data, write size is %zu\n", size);
+  while (i < size)
     {
-      ret = ymodem_rcev_packet(ctx);
-      if (!ret)
+      ssize_t ret = write(ctx->sendfd, buf, size);
+      if (ret >= 0)
         {
-          if ((total_seq & 0xff) != ctx->seq[0])
-            {
-              ymodem_debug("rcev_file: total seq erro:%lu %u\n",
-                           total_seq, ctx->seq[0]);
-              chunk[0] = CRC16;
-              ymodem_uart_send(ctx, chunk, 1, timeout);
-            }
-          else
-            {
-              /* update with the total sequence number */
-
-              ctx->seq[0] = total_seq;
-
-              /* file name packet */
-
-              if (total_seq == 0)
-                {
-                  /* Filename packet is empty, end session */
-
-                  if (ctx->data[0] == '\0')
-                    {
-                      ymodem_debug("rcev_file: session finished\n");
-                      chunk[0] = ACK;
-                      ymodem_uart_send(ctx, chunk, 1, timeout);
-
-                      /* last file done, so the session also finished */
-
-                      file_done = true;
-                    }
-                  else
-                    {
-                      str = (FAR char *)ctx->data;
-                      ctx->packet_type = YMODEM_FILE_RECV_NAME_PACKET;
-                      strncpy(ctx->file_name, str, YMODEM_FILE_NAME_LENGTH);
-                      ctx->file_name[YMODEM_FILE_NAME_LENGTH - 1] = '\0';
-                      str += strlen(str) + 1;
-                      ctx->file_length = atoi(str);
-                      ymodem_debug("rcev_file: new file %s(%lu) start\n",
-                                    ctx->file_name, ctx->file_length);
-                      ret = ctx->packet_handler(ctx);
-                      if (ret)
-                        {
-                          ymodem_debug("rcev_file: handler err for file \
-                                    name packet: ret=%d\n", ret);
-                          canceled = true;
-                          ret = -ENOEXEC;
-                          break;
-                        }
-
-                      file_start = true;
-                      chunk[0] = ACK;
-                      ymodem_uart_send(ctx, chunk, 1, timeout);
-                      chunk[0] = CRC16;
-                      ymodem_uart_send(ctx, chunk, 1, timeout);
-                    }
-                }
-              else
-                {
-                  /* data packet */
-
-                  ctx->packet_type = YMODEM_RECV_DATA_PACKET;
-                  ret = ctx->packet_handler(ctx);
-                  if (ret)
-                    {
-                      ymodem_debug("rcev_file: handler err for data \
-                                packet: ret=%d\n", ret);
-                      canceled = true;
-                      ret = -ENOEXEC;
-                      break;
-                    }
-
-                  chunk[0] = ACK;
-                  ymodem_uart_send(ctx, chunk, 1, timeout);
-                }
-
-              ymodem_debug("rcev_file: packet %lu %s\n",
-                           total_seq, ret ? "failed" : "success");
-
-              total_seq++;
-            }
-        }
-      else if (ret == -ECANCELED)
-        {
-          ymodem_debug("rcev_file: canceled by sender\n");
-          canceled = true;
-          break;
-        }
-      else if (ret == -EEOT)
-        {
-          chunk[0] = ACK;
-          ymodem_uart_send(ctx, chunk, 1, timeout);
-          file_done = true;
-          ymodem_debug("rcev_file: finished one file transfer\n");
+          ymodem_debug("send buffer data, size %zd\n", ret);
+          i += ret;
         }
       else
         {
-          /* other errors, like ETIME, EILSEQ, EBADMSG... */
-
-          if (file_start)
-            {
-             err++;
-            }
-
-          if (err > MAX_ERRORS)
-            {
-              ymodem_debug("rcev_file: too many errors, cancel!!\n");
-              canceled = true;
-              break;
-            }
-
-          chunk[0] = CRC16;
-          ymodem_uart_send(ctx, chunk, 1, timeout);
+          ymodem_debug("send buffer error, ret %d\n", -errno);
+          return -errno;
         }
-    }
-
-  if (canceled)
-    {
-      chunk[0] = CA;
-      ymodem_uart_send(ctx, chunk, 1, timeout);
-      ymodem_uart_send(ctx, chunk, 1, timeout);
-      ymodem_debug("rcev_file: cancel command sent to sender\n");
-    }
-
-  return ret;
-}
-
-static int ymodem_send_packet(FAR struct ymodem_ctx *ctx)
-{
-  size_t size;
-  uint16_t crc;
-  uint8_t send_crc[2];
-
-  crc = crc16(ctx->data, ctx->packet_size);
-  size = ymodem_uart_send(ctx, &ctx->header, ctx->packet_size + 3,
-                   ctx->timeout);
-
-  if (size != ctx->packet_size + 3)
-    {
-      ymodem_debug("send packet error\n");
-      return -1;
-    }
-
-  send_crc[0] = crc >> 8;
-  send_crc[1] = crc & 0x00ff;
-  size = ymodem_uart_send(ctx, send_crc, 2, ctx->timeout);
-  if (size != 2)
-    {
-      ymodem_debug("send crc16 error\n");
-      return -1;
     }
 
   return 0;
 }
 
-static int ymodem_rcev_cmd(FAR struct ymodem_ctx *ctx, uint8_t cmd)
+static int ymodem_recv_packet(FAR struct ymodem_ctx_s *ctx)
 {
-  size_t size;
-  uint8_t chunk[1];
+  uint16_t recv_crc;
+  uint16_t cal_crc;
+  int ret;
 
-  size = ymodem_uart_recv(ctx, chunk, 1, ctx->timeout);
-  if (size != 1)
+  ret = ymodem_recv_buffer(ctx, ctx->header, 1);
+  if (ret < 0)
     {
-      ymodem_debug("recv cmd error\n");
-      return -1;
+      return ret;
     }
 
-  if (chunk[0] == NAK)
+  switch (ctx->header[0])
+    {
+      case SOH:
+        ctx->packet_size = YMODEM_PACKET_SIZE;
+        break;
+      case STX:
+        ctx->packet_size = YMODEM_PACKET_1K_SIZE;
+        break;
+      case EOT:
+        return -EAGAIN;
+      case CAN:
+        ret = ymodem_recv_buffer(ctx, ctx->header, 1);
+        if (ret < 0)
+          {
+            return ret;
+          }
+        else if (ctx->header[0] == CAN)
+          {
+            return -ECANCELED;
+          }
+
+      default:
+          ymodem_debug("recv_packet: EBADMSG: header[0]=0x%x\n",
+                       ctx->header[0]);
+          return -EBADMSG;
+    }
+
+  ret = ymodem_recv_buffer(ctx, &ctx->header[1],
+                           2 + ctx->packet_size + 2);
+  if (ret < 0)
+    {
+      ymodem_debug("recv_packet: err=%d\n", ret);
+      return ret;
+    }
+
+  if ((ctx->header[1] + ctx->header[2]) != 0xff)
+    {
+      ymodem_debug("recv_packet: EILSEQ seq[]=%d %d\n",
+                   ctx->header[1], ctx->header[2]);
+      return -EILSEQ;
+    }
+
+  recv_crc = (ctx->data[ctx->packet_size] << 8) +
+              ctx->data[ctx->packet_size + 1];
+  cal_crc = crc16(ctx->data, ctx->packet_size);
+  if (cal_crc != recv_crc)
+    {
+      ymodem_debug("recv_packet: EBADMSG rcev:cal=0x%x 0x%x\n",
+                   recv_crc, cal_crc);
+      return -EBADMSG;
+    }
+
+  ymodem_debug("recv_packet:OK: size=%d, seq=%d\n",
+               ctx->packet_size, ctx->header[1]);
+  return 0;
+}
+
+static int ymodem_recv_file(FAR struct ymodem_ctx_s *ctx)
+{
+  FAR char *str = NULL;
+  uint32_t total_seq = 0;
+  int retries = 0;
+  int ret;
+
+  ctx->header[0] = CRC;
+recv_packet:
+  ymodem_send_buffer(ctx, ctx->header, 1);
+  ret = ymodem_recv_packet(ctx);
+  if (ret == -ECANCELED)
+    {
+      ymodem_debug("recv_file: canceled by sender\n");
+      goto cancel;
+    }
+  else if (ret == -EAGAIN)
+    {
+      ctx->header[0] = ACK;
+      ymodem_send_buffer(ctx, ctx->header, 1);
+      ymodem_debug("recv_file: finished one file transfer\n");
+      ctx->header[0] = CRC;
+      total_seq = 0;
+      goto recv_packet;
+    }
+  else if (ret < 0)
+    {
+      /* other errors, like ETIMEDOUT, EILSEQ, EBADMSG... */
+
+      if (++retries > MAX_RETRIES)
+        {
+          ymodem_debug("recv_file: too many errors, cancel!!\n");
+          goto cancel;
+        }
+
+      /* Use str to mask transfer start */
+
+      ctx->header[0] = str ? NAK : CRC;
+      goto recv_packet;
+    }
+
+  if ((total_seq & 0xff) - 1 == ctx->header[1])
+    {
+      ymodem_debug("recv_file: Received the previous packet that has"
+                   "been received, continue %lu %u\n", total_seq,
+                   ctx->header[1]);
+
+      ctx->header[0] = ACK;
+      goto recv_packet;
+    }
+  else if ((total_seq & 0xff) != ctx->header[1])
+    {
+      ymodem_debug("recv_file: total seq error:%lu %u\n", total_seq,
+                   ctx->header[1]);
+      ctx->header[0] = CRC;
+      goto recv_packet;
+    }
+
+  /* File name packet */
+
+  if (total_seq == 0)
+    {
+      /* Filename packet is empty, end session */
+
+      if (ctx->data[0] == '\0')
+        {
+          /* Last file done, so the session also finished */
+
+          ymodem_debug("recv_file: session finished\n");
+          ctx->header[0] = ACK;
+          ymodem_send_buffer(ctx, ctx->header, 1);
+          return 0;
+        }
+
+      str = (FAR char *)ctx->data;
+      ctx->packet_type = YMODEM_FILENAME_PACKET;
+      strlcpy(ctx->file_name, str, PATH_MAX);
+      str += strlen(str) + 1;
+      ctx->file_length = atoi(str);
+      ymodem_debug("recv_file: new file %s(%zu) start\n", ctx->file_name,
+                   ctx->file_length);
+      ret = ctx->packet_handler(ctx);
+      if (ret < 0)
+        {
+          ymodem_debug("recv_file: handler err for file name packet:"
+                       " ret=%d\n", ret);
+          goto cancel;
+        }
+
+      ctx->header[0] = ACK;
+      ymodem_send_buffer(ctx, ctx->header, 1);
+      ctx->header[0] = CRC;
+      total_seq++;
+      goto recv_packet;
+    }
+
+  /* data packet */
+
+  ctx->packet_type = YMODEM_DATA_PACKET;
+  ret = ctx->packet_handler(ctx);
+  if (ret < 0)
+    {
+      ymodem_debug("recv_file: handler err for data packet: ret=%d\n", ret);
+      goto cancel;
+    }
+
+  ctx->header[0] = ACK;
+  total_seq++;
+  ymodem_debug("recv_file: recv data success\n");
+  goto recv_packet;
+
+cancel:
+  ctx->header[0] = CAN;
+  ymodem_send_buffer(ctx, ctx->header, 1);
+  ymodem_send_buffer(ctx, ctx->header, 1);
+  ymodem_debug("recv_file: cancel command sent to sender\n");
+  return ret;
+}
+
+static int ymodem_recv_cmd(FAR struct ymodem_ctx_s *ctx, uint8_t cmd)
+{
+  int ret;
+
+  ret = ymodem_recv_buffer(ctx, ctx->header, 1);
+  if (ret < 0)
+    {
+      ymodem_debug("recv cmd error\n");
+      return ret;
+    }
+
+  if (ctx->header[0] == NAK)
     {
       return -EAGAIN;
     }
 
-  if (chunk[0] != cmd)
+  if (ctx->header[0] != cmd)
     {
-      ymodem_debug("recv cmd error, must 0x%x, but receive %d\n",
-               cmd, chunk[0]);
+      ymodem_debug("recv cmd error, must 0x%x, but receive 0x%x\n",
+                   cmd, ctx->header[0]);
       return -EINVAL;
     }
 
   return 0;
 }
 
-static int ymodem_send_file(FAR struct ymodem_ctx *ctx)
+static int ymodem_send_file(FAR struct ymodem_ctx_s *ctx)
 {
-  uint8_t chunk[1];
-  ssize_t readsize;
-  ssize_t size;
-  int err = 0;
+  uint16_t crc;
+  int retries;
   int ret;
 
-  if (!ctx || !ctx->packet_handler)
-    {
-      ymodem_debug("%s: invalid context config\n", __func__);
-      return -EINVAL;
-    }
-
-  if (ctx->need_sendfile_num <= 0)
-    {
-      ymodem_debug("need_sendfile_num is %d, no file to send!\n",
-               ctx->need_sendfile_num);
-      return -EINVAL;
-    }
-
-  chunk[0] = 0;
   ymodem_debug("waiting handshake\n");
-  do
+  for (retries = 0; retries < MAX_RETRIES; retries++)
     {
-      size = ymodem_uart_recv(ctx, chunk, 1, ctx->timeout);
+      ret = ymodem_recv_cmd(ctx, CRC);
+      if (ret >= 0)
+        {
+          break;
+        }
     }
-  while (err++ < MAX_ERRORS && chunk[0] != CRC16);
 
-  if (err >= MAX_ERRORS)
+  if (retries >= MAX_RETRIES)
     {
       ymodem_debug("waiting handshake error\n");
       return -ETIMEDOUT;
@@ -439,34 +351,34 @@ static int ymodem_send_file(FAR struct ymodem_ctx *ctx)
 
   ymodem_debug("ymodem send file start\n");
 send_start:
-  ctx->packet_type = YMODEM_FILE_SEND_NAME_PACKET;
-  ctx->packet_handler(ctx);
-  if ((ctx->file_name[0] == 0 || ctx->file_length == 0))
+  ctx->packet_type = YMODEM_FILENAME_PACKET;
+  ret = ctx->packet_handler(ctx);
+  if (ret < 0)
     {
-      ymodem_debug("get fileinfo error\n");
-      return -EINVAL;
+      goto send_last;
     }
 
-  ymodem_debug("sendfile filename:%s filelength:%lu\n",
+  ymodem_debug("sendfile filename:%s filelength:%zu\n",
                ctx->file_name, ctx->file_length);
-  memset(ctx->data, 0, YMODEM_PACKET_SIZE);
-  strncpy((FAR char *)ctx->data, ctx->file_name, YMODEM_FILE_NAME_LENGTH);
-  sprintf((FAR char *)ctx->data + strlen(ctx->file_name) + 1, "%ld",
-          ctx->file_length);
-  ctx->header = SOH;
+  sprintf((FAR char *)ctx->data, "%s%c%zu", ctx->file_name,
+          '\0', ctx->file_length);
+  ctx->header[0] = SOH;
+  ctx->header[1] = 0x00;
+  ctx->header[2] = 0xff;
   ctx->packet_size = YMODEM_PACKET_SIZE;
-  ctx->seq[0] = 0x00;
-  ctx->seq[1] = 0xff;
+  crc = crc16(ctx->data, ctx->packet_size);
+  ctx->data[ctx->packet_size] = crc >> 8;
+  ctx->data[ctx->packet_size + 1] = crc;
 
 send_name:
-  ret = ymodem_send_packet(ctx);
+  ret = ymodem_send_buffer(ctx, ctx->header, 3 + ctx->packet_size + 2);
   if (ret < 0)
     {
       ymodem_debug("send name packet error\n");
-      return -EINVAL;
+      return ret;
     }
 
-  ret = ymodem_rcev_cmd(ctx, ACK);
+  ret = ymodem_recv_cmd(ctx, ACK);
   if (ret == -EAGAIN)
     {
       ymodem_debug("send name packet recv NAK, need send again\n");
@@ -479,7 +391,7 @@ send_name:
       return ret;
     }
 
-  ret = ymodem_rcev_cmd(ctx, CRC16);
+  ret = ymodem_recv_cmd(ctx, CRC);
   if (ret == -EAGAIN)
     {
       ymodem_debug("send name packet recv NAK, need send again\n");
@@ -492,49 +404,40 @@ send_name:
       return ret;
     }
 
-  ctx->packet_type = YMODEM_SEND_DATA_PACKET;
+  ctx->packet_type = YMODEM_DATA_PACKET;
 send_packet:
-  if (ctx->file_length <= YMODEM_PACKET_1K_SIZE)
+  if (ctx->file_length <= YMODEM_PACKET_SIZE)
     {
-      ctx->header = SOH;
+      ctx->header[0] = SOH;
       ctx->packet_size = YMODEM_PACKET_SIZE;
     }
   else
     {
-      ctx->header = STX;
+      ctx->header[0] = STX;
       ctx->packet_size = YMODEM_PACKET_1K_SIZE;
     }
 
-    ymodem_debug("packet_size is %d\n", ctx->packet_size);
-    ctx->seq[0]++;
-    ctx->seq[1]--;
-    readsize = ctx->packet_handler(ctx);
-    ymodem_debug("%s:%d: readsize is %d\n", __FILE__, __LINE__, readsize);
-
-  if (readsize < 0)
+  ymodem_debug("packet_size is %zu\n", ctx->packet_size);
+  ctx->header[1]++;
+  ctx->header[2]--;
+  ret = ctx->packet_handler(ctx);
+  if (ret < 0)
     {
-      return readsize;
+      return ret;
     }
 
-  if (readsize == 0)
-    {
-      goto send_eot;
-    }
-
-  if (readsize < ctx->packet_size)
-    {
-      memset(ctx->data + readsize, 0x1a, ctx->packet_size - readsize);
-    }
-
+  crc = crc16(ctx->data, ctx->packet_size);
+  ctx->data[ctx->packet_size] = crc >> 8;
+  ctx->data[ctx->packet_size + 1] = crc;
 send_packet_again:
-  ret = ymodem_send_packet(ctx);
+  ret = ymodem_send_buffer(ctx, ctx->header, 3 + ctx->packet_size + 2);
   if (ret < 0)
     {
       ymodem_debug("send data packet error\n");
       return ret;
     }
 
-  ret = ymodem_rcev_cmd(ctx, ACK);
+  ret = ymodem_recv_cmd(ctx, ACK);
   if (ret == -EAGAIN)
     {
       ymodem_debug("send data packet recv NAK, need send again\n");
@@ -547,23 +450,22 @@ send_packet_again:
       return ret;
     }
 
-  ctx->file_length -= readsize;
   if (ctx->file_length != 0)
     {
-      ymodem_debug("The remain bytes sent are %lu\n", ctx->file_length);
+      ymodem_debug("The remain bytes sent are %zu\n", ctx->file_length);
       goto send_packet;
     }
 
 send_eot:
-  chunk[0] = EOT;
-  size = ymodem_uart_send(ctx, chunk, 1, ctx->timeout);
-  if (size < 0)
+  ctx->header[0] = EOT;
+  ret = ymodem_send_buffer(ctx, ctx->header, 1);
+  if (ret < 0)
     {
-      ymodem_debug("%s:%d: send EOT error\n", __FILE__, __LINE__);
-      return -1;
+      ymodem_debug("send EOT error\n");
+      return ret;
     }
 
-  ret = ymodem_rcev_cmd(ctx, ACK);
+  ret = ymodem_recv_cmd(ctx, ACK);
   if (ret == -EAGAIN)
     {
       ymodem_debug("send EOT recv NAK, need send again\n");
@@ -576,7 +478,7 @@ send_eot:
       return ret;
     }
 
-  ret = ymodem_rcev_cmd(ctx, CRC16);
+  ret = ymodem_recv_cmd(ctx, CRC);
   if (ret == -EAGAIN)
     {
       ymodem_debug("send EOT recv NAK, need send again\n");
@@ -585,36 +487,35 @@ send_eot:
 
   if (ret < 0)
     {
-      ymodem_debug("send EOT, recv CRC16 error\n");
+      ymodem_debug("send EOT, recv CRC error\n");
       return ret;
     }
 
-  if (--ctx->need_sendfile_num != 0)
-    {
-      ymodem_debug("need sendfile num is %d, so send file again\n",
-               ctx->need_sendfile_num);
-      goto send_start;
-    }
+  goto send_start;
 
 send_last:
-  ctx->header = SOH;
-  ctx->packet_type = YMODEM_SEND_DATA_PACKET;
+  ctx->header[0] = SOH;
+  ctx->header[1] = 0x00;
+  ctx->header[2] = 0xff;
+  ctx->packet_type = YMODEM_DATA_PACKET;
   ctx->packet_size = YMODEM_PACKET_SIZE;
-  ctx->seq[0] = 0x00;
-  ctx->seq[1] = 0xff;
   memset(ctx->data, 0, YMODEM_PACKET_SIZE);
-  ret = ymodem_send_packet(ctx);
+  crc = crc16(ctx->data, ctx->packet_size);
+  ctx->data[ctx->packet_size] = crc >> 8;
+  ctx->data[ctx->packet_size + 1] = crc;
+send_last_again:
+  ret = ymodem_send_buffer(ctx, ctx->header, 3 + ctx->packet_size + 2);
   if (ret < 0)
     {
       ymodem_debug("send last packet error\n");
-      return -1;
+      return ret;
     }
 
-  ret = ymodem_rcev_cmd(ctx, ACK);
+  ret = ymodem_recv_cmd(ctx, ACK);
   if (ret == -EAGAIN)
     {
       ymodem_debug("send last packet, need send again\n");
-      goto send_last;
+      goto send_last_again;
     }
 
   if (ret < 0)
@@ -630,70 +531,84 @@ send_last:
  * Public Functions
  ****************************************************************************/
 
-int ymodem_recv(FAR struct ymodem_ctx *ctx)
+int ymodem_recv(FAR struct ymodem_ctx_s *ctx)
 {
   struct termios saveterm;
   struct termios term;
   int ret;
 
-  tcgetattr(ctx->recvfd, &saveterm);
-  tcgetattr(ctx->recvfd, &term);
-  cfmakeraw(&term);
-  tcsetattr(ctx->recvfd, TCSANOW, &term);
-
-#ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
-  ctx->debug_fd = open(CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH,
-                       O_CREAT | O_RDWR);
-  if (ctx->debug_fd < 0)
+  if (ctx == NULL || ctx->packet_handler == NULL)
     {
       return -EINVAL;
+    }
+
+  ctx->header = calloc(1, 3 + YMODEM_PACKET_1K_SIZE + 2);
+  if (ctx->header == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  ctx->data = ctx->header + 3;
+#ifdef CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH
+  ctx->debug_fd = open(CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH,
+                       O_CREAT | O_TRUNC | O_WRONLY, 0666);
+  if (ctx->debug_fd < 0)
+    {
+      free(ctx->header);
+      return -errno;
     }
 #endif
 
-  if (!ctx || !ctx->packet_handler)
-    {
-      ymodem_debug("ymodem: invalid context config\n");
-      return -EINVAL;
-    }
+  tcgetattr(ctx->recvfd, &term);
+  memcpy(&saveterm, &term, sizeof(struct termios));
+  cfmakeraw(&term);
+  term.c_cc[VTIME] = 30;
+  term.c_cc[VMIN] = 255;
+  tcsetattr(ctx->recvfd, TCSANOW, &term);
 
-  while (1)
-    {
-      ret = ymodem_rcev_file(ctx);
-      if (ret == -EEOT)
-        {
-          continue;
-        }
+  ret = ymodem_recv_file(ctx);
 
-      break;
-    }
-
-#ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
+  tcsetattr(ctx->recvfd, TCSANOW, &saveterm);
+#ifdef CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH
   close(ctx->debug_fd);
 #endif
 
-  tcsetattr(ctx->recvfd, TCSANOW, &saveterm);
+  free(ctx->header);
   return ret;
 }
 
-int ymodem_send(FAR struct ymodem_ctx *ctx)
+int ymodem_send(FAR struct ymodem_ctx_s *ctx)
 {
   struct termios saveterm;
   struct termios term;
   int ret;
 
-  tcgetattr(ctx->recvfd, &saveterm);
-  tcgetattr(ctx->recvfd, &term);
-  cfmakeraw(&term);
-  tcsetattr(ctx->recvfd, TCSANOW, &term);
-
-#ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
-  ctx->debug_fd = open(CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH,
-                       O_CREAT | O_RDWR);
-  if (ctx->debug_fd < 0)
+  if (ctx == NULL || ctx->packet_handler == NULL)
     {
       return -EINVAL;
     }
+
+  ctx->header = calloc(1, 3 + YMODEM_PACKET_1K_SIZE + 2);
+  if (ctx->header == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  ctx->data = ctx->header + 3;
+#ifdef CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH
+  ctx->debug_fd = open(CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH,
+                       O_CREAT | O_TRUNC | O_WRONLY, 0666);
+  if (ctx->debug_fd < 0)
+    {
+      free(ctx->header);
+      return -errno;
+    }
 #endif
+
+  tcgetattr(ctx->recvfd, &term);
+  memcpy(&saveterm, &term, sizeof(struct termios));
+  cfmakeraw(&term);
+  tcsetattr(ctx->recvfd, TCSANOW, &term);
 
   ret = ymodem_send_file(ctx);
   if (ret < 0)
@@ -701,10 +616,11 @@ int ymodem_send(FAR struct ymodem_ctx *ctx)
       ymodem_debug("ymodem send file error, ret:%d\n", ret);
     }
 
-#ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
+  tcsetattr(ctx->recvfd, TCSANOW, &saveterm);
+#ifdef CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH
   close(ctx->debug_fd);
 #endif
 
-  tcsetattr(ctx->recvfd, TCSANOW, &saveterm);
-  return 0;
+  free(ctx->header);
+  return ret;
 }

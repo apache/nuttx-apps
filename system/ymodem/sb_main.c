@@ -23,72 +23,247 @@
  ****************************************************************************/
 
 #include <fcntl.h>
-#include <libgen.h>
 #include <stdio.h>
-#include <termios.h>
+#include <getopt.h>
+#include <libgen.h>
+#include <pthread.h>
 #include <sys/stat.h>
+
+#include <nuttx/mm/circbuf.h>
 
 #include "ymodem.h"
 
 /****************************************************************************
- * Private Functions
+ * Private Type Definitions
  ****************************************************************************/
 
-struct ymodem_fd
+struct ymodem_priv_s
 {
-  int file_fd;
+  int fd;
   FAR char **filelist;
   size_t filenum;
+
+  /* Async */
+
+  struct circbuf_s circ;
+  pthread_mutex_t mutex;
+  pthread_cond_t cond;
+  size_t buffersize;
+  pthread_t pid;
+  bool exited;
 };
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static ssize_t handler(FAR struct ymodem_ctx *ctx)
+static FAR void *async_read(FAR void *arg)
 {
-  FAR struct ymodem_fd *ym_fd = ctx->priv;
-  ssize_t ret = -EINVAL;
-  FAR char *filename;
-  struct stat info;
+  FAR struct ymodem_priv_s *priv = arg;
 
-  if (ctx->packet_type == YMODEM_FILE_SEND_NAME_PACKET)
+  pthread_mutex_lock(&priv->mutex);
+  while (priv->exited == false)
     {
-      if (ym_fd->file_fd != 0)
+      FAR uint8_t *buffer;
+      ssize_t ret = 0;
+      size_t size;
+
+      if (priv->fd > 0)
         {
-          close(ym_fd->file_fd);
+          buffer = circbuf_get_writeptr(&priv->circ, &size);
+          ret = read(priv->fd, buffer, size);
+          if (ret < 0)
+            {
+              break;
+            }
+
+          circbuf_writecommit(&priv->circ, ret);
         }
 
-      filename = ym_fd->filelist[ym_fd->filenum++];
-      ret = lstat(filename, &info);
+      if (circbuf_is_full(&priv->circ) || priv->fd <= 0 || ret == 0)
+        {
+          pthread_cond_wait(&priv->cond, &priv->mutex);
+        }
+    }
+
+  pthread_mutex_unlock(&priv->mutex);
+  return NULL;
+}
+
+static int read_data(FAR struct ymodem_priv_s *priv,
+                     FAR uint8_t *data, size_t size)
+{
+  ssize_t i = 0;
+
+  if (priv->buffersize)
+    {
+      pthread_mutex_lock(&priv->mutex);
+      while (i < size)
+        {
+          ssize_t ret = circbuf_read(&priv->circ, data + i, size - i);
+
+          if (ret < 0)
+            {
+              pthread_mutex_unlock(&priv->mutex);
+              return ret;
+            }
+
+          if (ret == 0)
+            {
+              ret = read(priv->fd, data + i, size - i);
+              if (ret < 0)
+                {
+                  pthread_mutex_unlock(&priv->mutex);
+                  return -errno;
+                }
+            }
+
+          i += ret;
+        }
+
+      pthread_cond_signal(&priv->cond);
+      pthread_mutex_unlock(&priv->mutex);
+    }
+  else
+    {
+      while (i < size)
+        {
+          ssize_t ret = read(priv->fd, data + i, size - i);
+
+          if (ret < 0)
+            {
+              return -errno;
+            }
+
+          i += ret;
+        }
+    }
+
+  return 0;
+}
+
+static int handler(FAR struct ymodem_ctx_s *ctx)
+{
+  FAR struct ymodem_priv_s *priv = ctx->priv;
+  int ret;
+
+  if (ctx->packet_type == YMODEM_FILENAME_PACKET)
+    {
+      FAR char *filename;
+      struct stat st;
+
+      if (priv->fd > 0)
+        {
+          close(priv->fd);
+          priv->fd = 0;
+        }
+
+      filename = priv->filelist[priv->filenum++];
+      if (filename == NULL)
+        {
+          return -ENOENT;
+        }
+
+      ret = stat(filename, &st);
       if (ret < 0)
         {
-          return ret;
+          return -errno;
         }
 
-      ym_fd->file_fd = open(filename, O_RDWR);
-      if (ym_fd->file_fd < 0)
+      priv->fd = open(filename, O_RDONLY);
+      if (priv->fd < 0)
         {
-          return ym_fd->file_fd;
+          return -errno;
         }
 
       filename = basename(filename);
-      strncpy(ctx->file_name, filename, YMODEM_FILE_NAME_LENGTH);
-      ctx->file_length = info.st_size;
+      strlcpy(ctx->file_name, filename, PATH_MAX);
+      ctx->file_length = st.st_size;
     }
-  else if (ctx->packet_type == YMODEM_SEND_DATA_PACKET)
+  else if (ctx->packet_type == YMODEM_DATA_PACKET)
     {
-      ret = read(ym_fd->file_fd, ctx->data, ctx->packet_size);
+      size_t size;
+
+      if (ctx->file_length > ctx->packet_size)
+        {
+          size = ctx->packet_size;
+        }
+      else
+        {
+          size = ctx->file_length;
+          memset(ctx->data + size, 0x1a,
+                 ctx->packet_size - ctx->file_length);
+        }
+
+      ret = read_data(priv, ctx->data, size);
       if (ret < 0)
         {
           return ret;
         }
+
+      ctx->file_length -= size;
+    }
+
+  return 0;
+}
+
+static int async_init(FAR struct ymodem_priv_s *priv)
+{
+  int ret;
+
+  ret = circbuf_init(&priv->circ, NULL, priv->buffersize);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: circbuf_init error\n");
+      return ret;
+    }
+
+  ret = pthread_mutex_init(&priv->mutex, NULL);
+  if (ret > 0)
+    {
+      fprintf(stderr, "ERROR: pthread_mutex_init error\n");
+      ret = -ret;
+      goto circ_err;
+    }
+
+  ret = pthread_cond_init(&priv->cond, NULL);
+  if (ret > 0)
+    {
+      fprintf(stderr, "ERROR: pthread_cond_init error\n");
+      ret = -ret;
+      goto mutex_err;
+    }
+
+  ret = pthread_create(&priv->pid, NULL, async_read, priv);
+  if (ret < 0)
+    {
+      ret = -ret;
+      goto cond_err;
     }
 
   return ret;
+cond_err:
+  pthread_cond_destroy(&priv->cond);
+mutex_err:
+  pthread_mutex_destroy(&priv->mutex);
+circ_err:
+  circbuf_uninit(&priv->circ);
+  return ret;
 }
 
-static void show_usage(FAR const char *progname, int errcode)
+static void async_uninit(FAR struct ymodem_priv_s *priv)
+{
+  pthread_mutex_lock(&priv->mutex);
+  priv->exited = true;
+  pthread_cond_signal(&priv->cond);
+  pthread_mutex_unlock(&priv->mutex);
+  pthread_join(priv->pid, NULL);
+  pthread_cond_destroy(&priv->cond);
+  pthread_mutex_destroy(&priv->mutex);
+  circbuf_uninit(&priv->circ);
+}
+
+static void show_usage(FAR const char *progname)
 {
   fprintf(stderr, "USAGE: %s [OPTIONS] <lname> [<lname> [<lname> ...]]\n",
                   progname);
@@ -97,8 +272,10 @@ static void show_usage(FAR const char *progname, int errcode)
   fprintf(stderr, "\nand OPTIONS include the following:\n");
   fprintf(stderr,
     "\t-d <device>: Communication device to use. Default: stdin & stdout\n");
-
-  exit(errcode);
+  fprintf(stderr,
+          "\t-b|--buffersize <size>: Asynchronously send buffer size."
+          "If greater than 0, accept data asynchronously, Default: 0kB\n");
+  exit(EXIT_FAILURE);
 }
 
 /****************************************************************************
@@ -107,56 +284,82 @@ static void show_usage(FAR const char *progname, int errcode)
 
 int main(int argc, FAR char *argv[])
 {
-  struct ymodem_fd ym_fd;
-  struct ymodem_ctx ctx;
-  int option;
-
-  memset(&ctx, 0, sizeof(struct ymodem_ctx));
-  ctx.packet_handler = handler;
-  ctx.timeout = 3000;
-  ctx.recvfd = 0;
-  ctx.sendfd = 1;
-  ctx.priv = &ym_fd;
-  while ((option = getopt(argc, argv, "d:h")) != ERROR)
+  struct ymodem_priv_s priv;
+  struct ymodem_ctx_s ctx;
+  FAR char *devname = NULL;
+  int ret = 0;
+  struct option options[] =
     {
-      switch (option)
+      {"buffersize", 1, NULL, 'b'},
+    };
+
+  memset(&priv, 0, sizeof(priv));
+  memset(&ctx, 0, sizeof(ctx));
+  while ((ret = getopt_long(argc, argv, "b:d:h", options, NULL))
+         != ERROR)
+    {
+      switch (ret)
         {
-          case 'd':
-            ctx.recvfd = open(optarg, O_RDWR);
-            if (ctx.recvfd < 0)
-              {
-                fprintf(stderr, "ERROR: can't open %s\n", optarg);
-              }
-
-            ctx.sendfd = ctx.recvfd;
+          case 'b':
+            priv.buffersize = atoi(optarg) * 1024;
             break;
-
+          case 'd':
+            devname = optarg;
+            break;
           case 'h':
-            show_usage(argv[0], EXIT_FAILURE);
-
-          default:
           case '?':
-            fprintf(stderr, "ERROR: Unrecognized option\n");
-            show_usage(argv[0], EXIT_FAILURE);
+          default:
+            show_usage(argv[0]);
             break;
         }
     }
 
-  ctx.need_sendfile_num = argc - optind;
-  ym_fd.file_fd = 0;
-  ym_fd.filelist = &argv[optind];
-  ym_fd.filenum = 0;
+  ctx.packet_handler = handler;
+  if (devname)
+    {
+      ctx.recvfd = open(devname, O_RDWR);
+      if (ctx.recvfd < 0)
+        {
+          fprintf(stderr, "ERROR: can't open %s\n", devname);
+          return -errno;
+        }
 
-  ymodem_send(&ctx);
-  if (ctx.recvfd)
+        ctx.sendfd = ctx.recvfd;
+    }
+  else
+    {
+      ctx.recvfd = STDIN_FILENO;
+      ctx.sendfd = STDOUT_FILENO;
+    }
+
+  ctx.priv = &priv;
+  priv.filelist = &argv[optind];
+  if (priv.buffersize)
+    {
+      ret = async_init(&priv);
+      if (ret < 0)
+        {
+          goto out;
+        }
+    }
+
+  ret = ymodem_send(&ctx);
+
+  if (priv.buffersize)
+    {
+      async_uninit(&priv);
+    }
+
+out:
+  if (priv.fd > 0)
+    {
+      close(priv.fd);
+    }
+
+  if (ctx.recvfd > 0)
     {
       close(ctx.recvfd);
     }
 
-  if (ym_fd.file_fd)
-    {
-      close(ym_fd.file_fd);
-    }
-
-  return 0;
+  return ret;
 }
