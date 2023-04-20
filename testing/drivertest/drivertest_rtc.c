@@ -120,7 +120,7 @@ static void test_case_rtc(FAR void **state)
 
   memset(&set_time, 0, sizeof(set_time));
   set_time.tm_year = 2000 - TM_YEAR_BASE;
-  set_time.tm_mon = TM_FEBRUARY;
+  set_time.tm_mon = TM_JANUARY;
   set_time.tm_mday = 1;
   set_time.tm_wday = TM_SATURDAY;
 
