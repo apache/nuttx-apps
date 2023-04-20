@@ -1,0 +1,37 @@
+From a5e672bb9b4f672d3541d76aac40206cf0fdb714 Mon Sep 17 00:00:00 2001
+From: makejian <makejian@xiaomi.com>
+Date: Tue, 16 May 2023 21:23:20 +0800
+Subject: [PATCH 2/2] Fix bug that crash in running a single test after running all
+ tests
+
+double free same memory
+Signed-off-by: makejian <makejian@xiaomi.com>
+Change-Id: Ie56dabd6d6eae93c0b066ced6148ea362f1c6085
+---
+ sts/src/assess.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git nist-sts/sts/src/assess.c nist-sts/sts/src/assess.c
+index cf41d4f..3aa5800 100644
+--- nist-sts/sts/src/assess.c
++++ nist-sts/sts/src/assess.c
+@@ -84,10 +84,14 @@ main(int argc, char *argv[])
+ 	invokeTestSuite(option, streamFile);
+ 	fclose(freqfp);
+ 	for( i=1; i<=NUMOFTESTS; i++ ) {
+-		if ( stats[i] != NULL )
++		if ( stats[i] != NULL ) {
+ 			fclose(stats[i]);
+-		if ( results[i] != NULL )
++			stats[i] = NULL;
++		}
++		if ( results[i] != NULL ) {
+ 			fclose(results[i]);
++			results[i] = NULL;
++		}
+ 	}
+ 	if ( (testVector[0] == 1) || (testVector[TEST_CUSUM] == 1) )
+ 		partitionResultFile(2, tp.numOfBitStreams, option, TEST_CUSUM);
+--
+2.40.0
+
