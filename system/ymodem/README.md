@@ -15,7 +15,7 @@ then use `<Ctrl + a> , r` chose `ymodem` to receive board file.
 
 ## Sendfile to board
 
-use rb cmd like this `nsh> sb`, this command support receive multiple files together
+use rb cmd like this `nsh> rb`, this command support receive multiple files together
 then use `<Ctrl + a> , s` chose `ymodem`, then chose what file need to send.
 
 ## help

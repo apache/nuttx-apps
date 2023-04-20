@@ -25,48 +25,43 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <stddef.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
-#  define ymodem_debug(...) dprintf(ctx->debug_fd, ##__VA_ARGS__)
-#else
-#  define ymodem_debug(...)
-#endif
-
 #define YMODEM_PACKET_SIZE               128
 #define YMODEM_PACKET_1K_SIZE            1024
-#define YMODEM_FILE_NAME_LENGTH          64
 
-#define YMODEM_FILE_RECV_NAME_PACKET        0
-#define YMODEM_RECV_DATA_PACKET             1
-#define YMODEM_FILE_SEND_NAME_PACKET        2
-#define YMODEM_SEND_DATA_PACKET             3
+#define YMODEM_FILENAME_PACKET           0
+#define YMODEM_DATA_PACKET               1
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-struct ymodem_ctx
+struct ymodem_ctx_s
 {
-  uint8_t header;
-  uint8_t seq[2];
-  uint8_t data[YMODEM_PACKET_1K_SIZE];
-  char file_name[YMODEM_FILE_NAME_LENGTH];
-  uint16_t packet_size;
-  uint32_t file_length;
-  uint32_t timeout;
-  uint32_t packet_type;
+  /* User need initialization */
+
   int recvfd;
   int sendfd;
-  CODE ssize_t (*packet_handler)(FAR struct ymodem_ctx *ctx);
+  CODE int (*packet_handler)(FAR struct ymodem_ctx_s *ctx);
   FAR void *priv;
-  uint16_t need_sendfile_num;
-#ifdef CONFIG_SYSTEM_YMODEM_DEBUGFILE_PATH
+
+  /* Public data */
+
+  FAR uint8_t *data;
+  size_t packet_size;
+  int packet_type;
+  char file_name[PATH_MAX];
+  size_t file_length;
+
+  /* Private data */
+
+  FAR uint8_t *header;
+#ifdef CONFIG_SYSTEM_YMODEM_DEBUG_FILEPATH
   int debug_fd;
 #endif
 };
@@ -75,7 +70,7 @@ struct ymodem_ctx
  * Public Function Prototypes
  ****************************************************************************/
 
-int ymodem_recv(FAR struct ymodem_ctx *ctx);
-int ymodem_send(FAR struct ymodem_ctx *ctx);
+int ymodem_recv(FAR struct ymodem_ctx_s *ctx);
+int ymodem_send(FAR struct ymodem_ctx_s *ctx);
 
 #endif /* __APPS_SYSTEM_YMODEM_YMODEM_H */

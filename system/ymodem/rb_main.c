@@ -25,117 +25,313 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <getopt.h>
-#include <nuttx/fs/ioctl.h>
+#include <pthread.h>
+
+#include <nuttx/mm/circbuf.h>
+
 #include "ymodem.h"
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct ymodem_fd
+struct ymodem_priv_s
 {
-  int file_fd;
-  char pathname[PATH_MAX];
+  int fd;
+  FAR char *foldname;
   size_t file_saved_size;
-  char *removeperfix;
-  char *removesuffix;
+  FAR char *skip_perfix;
+  FAR char *skip_suffix;
+
+  /* Async */
+
+  struct circbuf_s circ;
+  pthread_mutex_t mutex;
+  pthread_cond_t cond;
+  size_t buffersize;
+  size_t threshold;
+  pthread_t pid;
+  bool exited;
 };
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static int handler(FAR struct ymodem_ctx *ctx)
+static int flush_data(FAR struct ymodem_priv_s *priv)
 {
-  char pathname[PATH_MAX + YMODEM_FILE_NAME_LENGTH];
-  FAR struct ymodem_fd *ym_fd = ctx->priv;
-  FAR char *filename;
-  size_t size;
-  size_t ret;
-
-  if (ctx->packet_type == YMODEM_FILE_RECV_NAME_PACKET)
+  while (priv->fd > 0 && circbuf_used(&priv->circ))
     {
-      if (ym_fd->file_fd != 0)
+      FAR uint8_t *buffer;
+      size_t i = 0;
+      size_t size;
+
+      buffer = circbuf_get_readptr(&priv->circ, &size);
+      while (i < size)
         {
-          close(ym_fd->file_fd);
+          ssize_t ret = write(priv->fd, buffer + i, size - i);
+          if (ret < 0)
+            {
+              return -errno;
+            }
+
+          i += ret;
+        }
+
+      circbuf_readcommit(&priv->circ, size);
+    }
+
+  return 0;
+}
+
+static FAR void *async_write(FAR void *arg)
+{
+  FAR struct ymodem_priv_s *priv = arg;
+
+  pthread_mutex_lock(&priv->mutex);
+  while (priv->exited == false)
+    {
+      if (circbuf_used(&priv->circ) <= priv->threshold)
+        {
+          pthread_cond_wait(&priv->cond, &priv->mutex);
+          continue;
+        }
+
+      if (flush_data(priv) < 0)
+        {
+          pthread_mutex_unlock(&priv->mutex);
+          return NULL;
+        }
+    }
+
+  flush_data(priv);
+  pthread_mutex_unlock(&priv->mutex);
+  return NULL;
+}
+
+static int write_data(FAR struct ymodem_priv_s *priv,
+                      FAR const uint8_t *data, size_t size)
+{
+  size_t i = 0;
+
+  if (priv->buffersize)
+    {
+      pthread_mutex_lock(&priv->mutex);
+      while (i < size)
+        {
+          ssize_t ret = circbuf_write(&priv->circ, data + i, size - i);
+          if (ret < 0)
+            {
+              pthread_mutex_unlock(&priv->mutex);
+              return ret;
+            }
+          else if (ret == 0)
+            {
+              ret = flush_data(priv);
+              if (ret < 0)
+                {
+                  pthread_mutex_unlock(&priv->mutex);
+                  return ret;
+                }
+            }
+          else
+            {
+              i += ret;
+            }
+        }
+
+      if (circbuf_used(&priv->circ) > priv->threshold)
+        {
+          pthread_cond_signal(&priv->cond);
+        }
+
+      pthread_mutex_unlock(&priv->mutex);
+    }
+  else
+    {
+      while (i < size)
+        {
+          ssize_t ret = write(priv->fd, data + i, size - i);
+          if (ret < 0)
+            {
+              return -errno;
+            }
+
+          i += ret;
+        }
+    }
+
+  return 0;
+}
+
+static int handler(FAR struct ymodem_ctx_s *ctx)
+{
+  FAR struct ymodem_priv_s *priv = ctx->priv;
+  int ret;
+
+  if (ctx->packet_type == YMODEM_FILENAME_PACKET)
+    {
+      char temp[PATH_MAX];
+      FAR char *filename;
+
+      if (priv->fd > 0)
+        {
+          if (priv->buffersize)
+            {
+              pthread_mutex_lock(&priv->mutex);
+              ret = flush_data(priv);
+              pthread_mutex_unlock(&priv->mutex);
+              if (ret < 0)
+                {
+                  return ret;
+                }
+            }
+
+          close(priv->fd);
         }
 
       filename = ctx->file_name;
-      if (ym_fd->removeperfix)
+      if (priv->skip_perfix != NULL)
         {
-          if (strncmp(ctx->file_name, ym_fd->removeperfix,
-                      strlen(ym_fd->removeperfix)) == 0)
+          size_t len = strlen(priv->skip_perfix);
+
+          if (strncmp(ctx->file_name, priv->skip_perfix,
+                      len) == 0)
             {
-              filename = filename + strlen(ym_fd->removeperfix);
+              filename += len;
             }
         }
 
-      if (ym_fd->removesuffix)
+      if (priv->skip_suffix != NULL)
         {
-          int len = strlen(filename);
-          if (len > strlen(ym_fd->removesuffix) &&
-              strcmp(filename + len - strlen(ym_fd->removesuffix),
-                     ym_fd->removesuffix) == 0)
+          size_t len = strlen(filename);
+          size_t len2 = strlen(priv->skip_suffix);
+
+          if (len > len2 && strcmp(filename + len - len2,
+                                   priv->skip_suffix) == 0)
             {
-              filename[len - strlen(ym_fd->removesuffix)] = 0;
+              filename[len - len2] = '\0';
             }
         }
 
-      if (strlen(ym_fd->pathname) != 0)
+      if (priv->foldname != NULL)
         {
-          sprintf(pathname, "%s/%s", ym_fd->pathname, filename);
-          filename = pathname;
+          snprintf(temp, PATH_MAX, "%s/%s", priv->foldname,
+                   filename);
+          filename = temp;
         }
 
-      ym_fd->file_fd = open(filename, O_CREAT | O_RDWR);
-      if (ym_fd->file_fd < 0)
+      priv->fd = open(filename, O_CREAT | O_WRONLY, 0777);
+      if (priv->fd < 0)
         {
           return -errno;
         }
 
-      ym_fd->file_saved_size = 0;
+      priv->file_saved_size = 0;
     }
-  else if (ctx->packet_type == YMODEM_RECV_DATA_PACKET)
+  else if (ctx->packet_type == YMODEM_DATA_PACKET)
     {
-      if (ym_fd->file_saved_size + ctx->packet_size > ctx->file_length)
+      size_t size;
+
+      if (priv->file_saved_size + ctx->packet_size > ctx->file_length)
         {
-          size = ctx->file_length - ym_fd->file_saved_size;
+          size = ctx->file_length - priv->file_saved_size;
         }
       else
         {
           size = ctx->packet_size;
         }
 
-      ret = write(ym_fd->file_fd, ctx->data, size);
+      ret = write_data(priv, ctx->data, size);
       if (ret < 0)
         {
-          return -errno;
-        }
-      else if (ret < size)
-        {
-          return ERROR;
+          return ret;
         }
 
-      ym_fd->file_saved_size += ret;
+      priv->file_saved_size += size;
     }
 
   return 0;
 }
 
-static void show_usage(FAR const char *progname, int errcode)
+static int async_init(FAR struct ymodem_priv_s *priv)
+{
+  int ret;
+
+  ret = circbuf_init(&priv->circ, NULL, priv->buffersize);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: circbuf_init error\n");
+      return ret;
+    }
+
+  ret = pthread_mutex_init(&priv->mutex, NULL);
+  if (ret > 0)
+    {
+      fprintf(stderr, "ERROR: pthread_mutex_init error\n");
+      ret = -ret;
+      goto circ_err;
+    }
+
+  ret = pthread_cond_init(&priv->cond, NULL);
+  if (ret > 0)
+    {
+      fprintf(stderr, "ERROR: pthread_cond_init error\n");
+      ret = -ret;
+      goto mutex_err;
+    }
+
+  ret = pthread_create(&priv->pid, NULL, async_write, priv);
+  if (ret > 0)
+    {
+      ret = -ret;
+      goto cond_err;
+    }
+
+  return ret;
+cond_err:
+  pthread_cond_destroy(&priv->cond);
+mutex_err:
+  pthread_mutex_destroy(&priv->mutex);
+circ_err:
+  circbuf_uninit(&priv->circ);
+  return ret;
+}
+
+static void async_uninit(FAR struct ymodem_priv_s *priv)
+{
+  pthread_mutex_lock(&priv->mutex);
+  priv->exited = true;
+  pthread_cond_signal(&priv->cond);
+  pthread_mutex_unlock(&priv->mutex);
+  pthread_join(priv->pid, NULL);
+  pthread_cond_destroy(&priv->cond);
+  pthread_mutex_destroy(&priv->mutex);
+  circbuf_uninit(&priv->circ);
+}
+
+static void show_usage(FAR const char *progname)
 {
   fprintf(stderr, "USAGE: %s [OPTIONS]\n", progname);
   fprintf(stderr, "\nWhere:\n");
   fprintf(stderr, "\nand OPTIONS include the following:\n");
   fprintf(stderr,
-    "\t-d <device>: Communication device to use. Default: stdin & stdout\n");
+          "\t-d <device>: Communication device to use."
+           "Default: stdin & stdout\n");
   fprintf(stderr,
-          "\t-p <path>: Save remote file path. Default: Current path\n");
+          "\t-f <foldname>: Save remote file fold. Default: Current fold\n");
   fprintf(stderr,
-          "\t--removeprefix <prefix>: Remove save file name prefix\n");
+          "\t-p|--skip_prefix <prefix>: Remove file name prefix\n");
   fprintf(stderr,
-          "\t--removesuffix <suffix>: Remove save file name suffix\n");
-  exit(errcode);
+          "\t-s|--skip_suffix <suffix>: Remove file name suffix\n");
+  fprintf(stderr,
+          "\t-b|--buffersize <size>: Asynchronously receive buffer size."
+          "If greater than 0, accept data asynchronously, Default: 0kB\n");
+  fprintf(stderr,
+          "\t-t|--threshold <size>: Threshold for writing asynchronously."
+          "Threshold must be less than or equal buffersize, Default: 0kB\n");
+
+  exit(EXIT_FAILURE);
 }
 
 /****************************************************************************
@@ -144,72 +340,108 @@ static void show_usage(FAR const char *progname, int errcode)
 
 int main(int argc, FAR char *argv[])
 {
-  struct ymodem_fd ym_fd;
-  struct ymodem_ctx ctx;
-  int index;
+  struct ymodem_priv_s priv;
+  struct ymodem_ctx_s ctx;
+  FAR char *devname = NULL;
   int ret;
+
   struct option options[] =
     {
-      {"removeprefix", 1, NULL, 1},
-      {"removesuffix", 1, NULL, 2},
+      {"buffersize", 1, NULL, 'b'},
+      {"skip_prefix", 1, NULL, 'p'},
+      {"skip_suffix", 1, NULL, 's'},
+      {"threshold", 1, NULL, 't'}
     };
 
-  memset(&ym_fd, 0, sizeof(struct ymodem_fd));
-  memset(&ctx, 0, sizeof(struct ymodem_ctx));
-  ctx.packet_handler = handler;
-  ctx.timeout = 200;
-  ctx.priv = &ym_fd;
-  ctx.recvfd = 0;
-  ctx.sendfd = 1;
-  while ((ret = getopt_long(argc, argv, "p:d:h", options, &index))
+  memset(&priv, 0, sizeof(priv));
+  memset(&ctx, 0, sizeof(ctx));
+  while ((ret = getopt_long(argc, argv, "b:d:f:hp:s:t:", options, NULL))
          != ERROR)
     {
       switch (ret)
         {
-          case 1:
-            ym_fd.removeperfix = optarg;
-            break;
-          case 2:
-            ym_fd.removesuffix = optarg;
-            break;
-          case 'p':
-            strlcpy(ym_fd.pathname, optarg, PATH_MAX);
-            if (ym_fd.pathname[strlen(ym_fd.pathname)] == '/')
-              {
-                ym_fd.pathname[strlen(ym_fd.pathname)] = 0;
-              }
-
+          case 'b':
+            priv.buffersize = atoi(optarg) * 1024;
             break;
           case 'd':
-            ctx.recvfd = open(optarg, O_RDWR | O_NONBLOCK);
-            if (ctx.recvfd < 0)
+            devname = optarg;
+            break;
+          case 'f':
+            priv.foldname = optarg;
+            if (priv.foldname[strlen(priv.foldname)] == '/')
               {
-                fprintf(stderr, "ERROR: can't open %s\n", optarg);
+                priv.foldname[strlen(priv.foldname)] = '\0';
               }
 
-            ctx.sendfd = ctx.recvfd;
             break;
           case 'h':
-            show_usage(argv[0], EXIT_FAILURE);
+            show_usage(argv[0]);
             break;
+          case 'p':
+            priv.skip_perfix = optarg;
+            break;
+          case 's':
+            priv.skip_suffix = optarg;
+            break;
+          case 't':
+            priv.threshold = atoi(optarg) * 1024;
+            break;
+
           default:
-          case '?':
-            fprintf(stderr, "ERROR: Unrecognized option\n");
-            show_usage(argv[0], EXIT_FAILURE);
+            show_usage(argv[0]);
             break;
         }
     }
 
-  ymodem_recv(&ctx);
-  if (ctx.recvfd)
+  if (priv.threshold > priv.buffersize)
+    {
+      show_usage(argv[0]);
+    }
+
+  if (priv.buffersize)
+    {
+      ret = async_init(&priv);
+      if (ret < 0)
+        {
+          return ret;
+        }
+    }
+
+  ctx.packet_handler = handler;
+  ctx.priv = &priv;
+  if (devname)
+    {
+      ctx.recvfd = open(devname, O_RDWR);
+      if (ctx.recvfd < 0)
+        {
+          fprintf(stderr, "ERROR: can't open %s\n", devname);
+          goto out;
+        }
+
+        ctx.sendfd = ctx.recvfd;
+    }
+  else
+    {
+      ctx.recvfd = STDIN_FILENO;
+      ctx.sendfd = STDOUT_FILENO;
+    }
+
+  ret = ymodem_recv(&ctx);
+  if (ctx.recvfd > 0)
     {
       close(ctx.recvfd);
     }
 
-  if (ym_fd.file_fd)
+out:
+  if (priv.buffersize)
     {
-      close(ym_fd.file_fd);
+      async_uninit(&priv);
     }
 
-  return 0;
+  if (priv.fd > 0)
+    {
+      close(priv.fd);
+    }
+
+  return ret;
 }
