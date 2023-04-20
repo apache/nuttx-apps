@@ -200,6 +200,16 @@ config LV_PORT_KEYPAD_KEY_END_MAP_BIT
 
 endif # LV_PORT_USE_KEYPAD
 
+config LV_USE_TOUCHPAD_INTERFACE
+	depends on INPUT_TOUCHSCREEN
+	bool "Touchpad input interface"
+	default n
+
+config LV_TOUCHPAD_INTERFACE_DEFAULT_DEVICEPATH
+	depends on LV_USE_TOUCHPAD_INTERFACE
+	string "Touchpad default device path"
+	default "/dev/input0"
+
 if LV_PORT_USE_ENCODER
 
 config LV_PORT_ENCODER_DEFAULT_DEVICEPATH
