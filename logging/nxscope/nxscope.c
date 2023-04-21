@@ -809,7 +809,7 @@ int nxscope_init(FAR struct nxscope_s *s, FAR struct nxscope_cfg_s *cfg)
   DEBUGASSERT(cfg->rxbuf_len > 0);
   s->rxbuf_len = cfg->rxbuf_len;
 
-  s->rxbuf = zalloc(s->chinfo_size);
+  s->rxbuf = zalloc(s->rxbuf_len);
   if (s->rxbuf == NULL)
     {
       ret = -errno;
