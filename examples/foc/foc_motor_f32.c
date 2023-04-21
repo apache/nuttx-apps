@@ -531,6 +531,7 @@ static int foc_motor_setpoint(FAR struct foc_motor_f32_s *motor, uint32_t sp)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
       case FOC_MMODE_IDENT_ONLY:
 #endif
+      case FOC_MMODE_IDLE:
         {
           /* Do nothing */
 
@@ -1005,6 +1006,11 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
     }
   else
 #endif
+  if (motor->envp->cfg->mmode == FOC_MMODE_IDLE)
+    {
+      motor->ctrl_state = FOC_CTRL_STATE_IDLE;
+    }
+  else
     {
       motor->ctrl_state = FOC_CTRL_STATE_INIT;
     }
