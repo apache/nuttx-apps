@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <debug.h>
 
 #include "ostest.h"
 
@@ -50,6 +51,8 @@
 
 static sem_t g_waiter_sem;
 static sem_t g_interferer_sem;
+static sem_t g_sem_thread_started;
+static sem_t g_sem_signal_finish;
 static volatile bool g_waiter_running;
 static volatile bool g_interferer_running;
 static volatile bool g_done;
@@ -111,6 +114,8 @@ static void waiter_action(int signo)
     }
 
   g_nest_level = nest_level;
+
+  sem_post(&g_sem_signal_finish);
 }
 
 static int waiter_main(int argc, char *argv[])
@@ -164,6 +169,7 @@ static int waiter_main(int argc, char *argv[])
 
   printf("waiter_main: Waiting on semaphore\n");
   FFLUSH();
+  sem_post(&g_sem_thread_started);
 
   g_waiter_running = true;
   while (!g_done)
@@ -196,6 +202,36 @@ static int interfere_main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
+void wait_finish(int pid, int sig)
+{
+  struct timespec ts;
+  int wait_times;
+
+  wait_times = 0;
+  if (signest_catchable(sig))
+    {
+      wait_times++;
+    }
+
+  if (signest_catchable(sig + 1))
+    {
+      wait_times++;
+    }
+
+  while (wait_times > 0)
+    {
+      clock_gettime(CLOCK_REALTIME, &ts);
+      ts.tv_sec += 2;
+      if (sem_timedwait(&g_sem_signal_finish, &ts) != OK)
+        {
+          sinfo("signest_test wait too long");
+          ASSERT(false);
+        }
+
+      wait_times--;
+    }
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -217,6 +253,8 @@ void signest_test(void)
 
   sem_init(&g_waiter_sem, 0, 0);
   sem_init(&g_interferer_sem, 0, 0);
+  sem_init(&g_sem_thread_started, 0, 0);
+  sem_init(&g_sem_signal_finish, 0, 0);
   g_waiter_running = false;
   g_interferer_running = false;
   g_done = false;
@@ -273,7 +311,7 @@ void signest_test(void)
   /* Wait a bit */
 
   FFLUSH();
-  usleep(500 * 1000L);
+  sem_wait(&g_sem_thread_started);
 
   /* Then signal the waiter thread with back-to-back signals, one masked
    * and the other unmasked.
@@ -295,7 +333,7 @@ void signest_test(void)
               even_signals++;
             }
 
-          usleep(10 * 1000L);
+          wait_finish(waiterpid, j);
 
           /* Even then odd */
 
@@ -311,7 +349,7 @@ void signest_test(void)
               odd_signals++;
             }
 
-          usleep(10 * 1000L);
+          wait_finish(waiterpid, j);
         }
     }
 
@@ -356,7 +394,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10 * 1000L);
+          wait_finish(waiterpid, j);
 
           /* Even then odd */
 
@@ -376,7 +414,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10 * 1000L);
+          wait_finish(waiterpid, j);
         }
     }
 
@@ -420,7 +458,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10 * 1000L);
+          wait_finish(waiterpid, j);
 
           /* Even then odd */
 
@@ -441,7 +479,7 @@ void signest_test(void)
 
           sched_unlock();
 
-          usleep(10 * 1000L);
+          wait_finish(waiterpid, j);
         }
     }
 
@@ -451,7 +489,11 @@ errout_with_waiter:
   g_done = true;
   sem_post(&g_waiter_sem);
   sem_post(&g_interferer_sem);
-  usleep(500 * 1000L);
+  do
+    {
+      usleep(500 * 1000L);
+    }
+  while (g_waiter_running || g_interferer_running);
 
   /* Check the final test results */
 
@@ -511,6 +553,8 @@ errout_with_waiter:
 
   sem_destroy(&g_waiter_sem);
   sem_destroy(&g_interferer_sem);
+  sem_destroy(&g_sem_thread_started);
+  sem_destroy(&g_sem_signal_finish);
 
   printf("signest_test: done\n");
   FFLUSH();
