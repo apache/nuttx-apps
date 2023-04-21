@@ -79,6 +79,7 @@ enum foc_motor_mode_e
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
   FOC_MMODE_IDENT_ONLY = 5,  /* Motor identification only */
 #endif
+  FOC_MMODE_IDLE       = 6,  /* IDLE state */
 };
 
 /* Controller state */

@@ -113,6 +113,7 @@ static void foc_help(void)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
   PRINTF("       5 - ident only\n");
 #endif
+  PRINTF("       6 - IDLE state\n");
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   PRINTF("  [-r] torque [x1000]\n");
@@ -343,23 +344,23 @@ int validate_args(FAR struct args_s *args)
 
   /* Example control mode */
 
-  if (
+  if (args->cfg.mmode != FOC_MMODE_IDLE &&
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
-    args->cfg.mmode != FOC_MMODE_TORQ &&
+      args->cfg.mmode != FOC_MMODE_TORQ &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
-    args->cfg.mmode != FOC_MMODE_VEL &&
+      args->cfg.mmode != FOC_MMODE_VEL &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
-    args->cfg.mmode != FOC_MMODE_POS &&
+      args->cfg.mmode != FOC_MMODE_POS &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
-    args->cfg.mmode != FOC_MMODE_ALIGN_ONLY &&
+      args->cfg.mmode != FOC_MMODE_ALIGN_ONLY &&
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
-    args->cfg.mmode != FOC_MMODE_IDENT_ONLY &&
+      args->cfg.mmode != FOC_MMODE_IDENT_ONLY &&
 #endif
-    1)
+      1)
     {
       PRINTF("Invalid ctrl mode value %d s\n", args->cfg.mmode);
       goto errout;
