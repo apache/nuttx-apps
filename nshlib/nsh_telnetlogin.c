@@ -27,6 +27,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include "fsutils/passwd.h"
 
@@ -52,21 +53,6 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: nsh_telnetecho
- ****************************************************************************/
-
-static void nsh_telnetecho(FAR struct console_stdio_s *pstate,
-                           uint8_t is_use)
-{
-  uint8_t optbuf[4];
-  optbuf[0] = TELNET_IAC;
-  optbuf[1] = (is_use == TELNET_USE_ECHO) ? TELNET_WILL : TELNET_DO;
-  optbuf[2] = 1;
-  optbuf[3] = 0;
-  write(OUTFD(pstate), optbuf, strlen((FAR const char *)optbuf));
-}
 
 /****************************************************************************
  * Name: nsh_telnettoken
@@ -166,7 +152,9 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 #ifdef CONFIG_NSH_PLATFORM_CHALLENGE
   char challenge[128];
 #endif
+  struct termios cfg;
   int i;
+  int ret;
 
 #ifdef CONFIG_NSH_PLATFORM_SKIP_LOGIN
   if (platform_skip_login() == OK)
@@ -211,11 +199,34 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
       /* Ask for the login password */
 
       write(OUTFD(pstate), g_passwordprompt, strlen(g_passwordprompt));
-      nsh_telnetecho(pstate, TELNET_NOTUSE_ECHO);
+
+      /* Disable ECHO if its a tty device */
+
+      if (isatty(INFD(pstate)))
+        {
+          if (tcgetattr(INFD(pstate), &cfg) == 0)
+            {
+              cfg.c_lflag &= ~ECHO;
+              tcsetattr(INFD(pstate), TCSANOW, &cfg);
+            }
+        }
 
       password[0] = '\0';
-      if (readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
-                      INFD(pstate), OUTFD(pstate)) >= 0)
+      ret = readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
+                      INFD(pstate), OUTFD(pstate));
+
+      /* Enable echo again after password */
+
+      if (isatty(INFD(pstate)))
+        {
+          if (tcgetattr(INFD(pstate), &cfg) == 0)
+            {
+              cfg.c_lflag |= ECHO;
+              tcsetattr(INFD(pstate), TCSANOW, &cfg);
+            }
+        }
+
+      if (ret >= 0)
         {
           /* Parse out the password */
 
@@ -242,7 +253,6 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 #endif
             {
               write(OUTFD(pstate), g_loginsuccess, strlen(g_loginsuccess));
-              nsh_telnetecho(pstate, TELNET_USE_ECHO);
               return OK;
             }
           else
@@ -254,8 +264,6 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 #endif
             }
         }
-
-      nsh_telnetecho(pstate, TELNET_USE_ECHO);
     }
 
   /* Too many failed login attempts */
