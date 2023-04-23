@@ -196,14 +196,19 @@ static const int g_nxlooper_cmd_count = sizeof(g_nxlooper_cmds) /
 static int nxlooper_cmd_loopback(FAR struct nxlooper_s *plooper, char *parg)
 {
   int ret;
-  int format = AUDIO_FMT_PCM;
+  int format = AUDIO_FMT_UNDEF;
   int channels = 0;
   int bpsamp = 0;
   int samprate = 0;
   int chmap = 0;
 
   sscanf(parg, "%d %d %d %d %d", &channels, &bpsamp,
-                                 &samprate, &chmap, &format);
+                                &samprate, &chmap, &format);
+
+  if (format == AUDIO_FMT_UNDEF)
+    {
+      format = AUDIO_FMT_PCM;
+    }
 
   /* Try to loopback raw data with settings specified */
 
