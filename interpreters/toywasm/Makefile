@@ -62,6 +62,7 @@ CSRCS += xlog.c
 # TOYWASM_ENABLE_WASM_THREADS
 CSRCS += cluster.c
 CSRCS += lock.c
+CSRCS += suspend.c
 CSRCS += waitlist.c
 #CSRCS += usched.c
 
@@ -76,7 +77,7 @@ CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/include}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/lib}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/libwasi}
 
-TOYWASM_VERSION  = 7c6ff3925d0b0f4d5122df9b1b5761bc2954e014
+TOYWASM_VERSION  = 80d43dfa3377810fff0ff143b2e8be2e229bf7f2
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
