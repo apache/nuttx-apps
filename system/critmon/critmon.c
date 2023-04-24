@@ -248,12 +248,14 @@ static int critmon_process_directory(FAR struct dirent *entryp)
       else
         {
           maxrun = "None";
+          runtime = "None";
         }
     }
   else
     {
       maxcrit = "None";
       maxrun  = "None";
+      runtime = "None";
     }
 
   /* Finally, output the stack info that we gleaned from the procfs */
