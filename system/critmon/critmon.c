@@ -119,6 +119,7 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   FAR char *maxpreemp;
   FAR char *maxcrit;
   FAR char *maxrun;
+  FAR char *runtime;
   FAR char *endptr;
   FILE *stream;
   int len;
@@ -229,10 +230,19 @@ static int critmon_process_directory(FAR struct dirent *entryp)
         {
           *maxrun++ = '\0';
 
-          endptr = strchr(maxrun, '\n');
-          if (endptr != NULL)
+          runtime = strchr(maxrun, ',');
+          if (runtime != NULL)
             {
-              *endptr = '\0';
+              *runtime++ = '\0';
+              endptr = strchr(runtime, '\n');
+              if (endptr != NULL)
+                {
+                  *endptr = '\0';
+                }
+            }
+          else
+            {
+              runtime = "None";
             }
         }
       else
@@ -249,11 +259,11 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   /* Finally, output the stack info that we gleaned from the procfs */
 
 #if CONFIG_TASK_NAME_SIZE > 0
-  printf("%11s %11s %11s %5s %s\n",
-         maxpreemp, maxcrit, maxrun, entryp->d_name, name);
+  printf("%11s %11s %11s %-16s %-5s %s\n",
+         maxpreemp, maxcrit, maxrun, runtime, entryp->d_name, name);
 #else
-  printf("%11s %11s %5s\n",
-         maxpreemp, maxcrit, entryp->d_name);
+  printf("%11s %11s %11s %16s %5s\n",
+         maxpreemp, maxcrit, maxrun, runtime, entryp->d_name);
 #endif
 
   ret = OK;
@@ -374,7 +384,7 @@ static void critmon_global_crit(void)
 
       /* Finally, output the stack info that we gleaned from the procfs */
 
-      printf("%11s %11s ----------- ----- CPU %s\n",
+      printf("%11s %11s ----------- ---------------- ----  CPU %s\n",
               maxpreemp, maxcrit, cpu);
     }
 
@@ -398,9 +408,10 @@ static int critmon_list_once(void)
   /* Output a Header */
 
 #if CONFIG_TASK_NAME_SIZE > 0
-  printf("PRE-EMPTION CSECTION    RUN         PID   DESCRIPTION\n");
+  printf("PRE-EMPTION CSECTION    RUN         TIME             "
+         "PID   DESCRIPTION\n");
 #else
-  printf("PRE-EMPTION CSECTION    RUN         PID\n");
+  printf("PRE-EMPTION CSECTION    RUN         TIME             PID\n");
 #endif
 
   /* Should global usage first */
