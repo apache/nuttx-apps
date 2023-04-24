@@ -55,7 +55,7 @@ static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
  * Private Data
  ****************************************************************************/
 
-static const struct file_operations chardev_fops =
+static const struct file_operations g_chardev_fops =
 {
   NULL,          /* open */
   NULL,          /* close */
@@ -130,5 +130,5 @@ int module_initialize(FAR struct mod_info_s *modinfo)
   modinfo->exports       = NULL;
   modinfo->nexports      = 0;
 
-  return register_driver("/dev/chardev", &chardev_fops, 0666, NULL);
+  return register_driver("/dev/chardev", &g_chardev_fops, 0666, NULL);
 }
