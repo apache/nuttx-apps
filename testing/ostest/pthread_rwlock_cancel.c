@@ -257,6 +257,9 @@ static void test_timeout(void)
     }
 #endif /* CONFIG_CANCELLATION_POINTS */
 #endif /* CONFIG_PTHREAD_CLEANUP */
+
+    pthread_rwlock_destroy(&write_lock);
+    pthread_rwlock_destroy(&read_lock);
 }
 
 /****************************************************************************
