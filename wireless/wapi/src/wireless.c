@@ -132,6 +132,17 @@ FAR const char *g_wapi_alg_flags[] =
   NULL
 };
 
+/* Passphrase WPA Version */
+
+FAR const char *g_wapi_wpa_ver_flags[] =
+{
+  "WPA_VER_NONE",
+  "WPA_VER_1",
+  "WPA_VER_2",
+  "WPA_VER_3",
+  NULL
+};
+
 /* PTA PRIORITY */
 
 FAR const char *g_wapi_pta_prio_flags[] =
