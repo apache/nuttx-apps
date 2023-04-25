@@ -265,6 +265,14 @@ enum wpa_alg_e
   WPA_ALG_BIP_CMAC_256
 };
 
+enum wpa_ver_e
+{
+  WPA_VER_NONE = 0,
+  WPA_VER_1,
+  WPA_VER_2,
+  WPA_VER_3
+};
+
 /* This structure provides the wireless configuration to
  * wpa_driver_wext_associate().
  */
@@ -323,6 +331,10 @@ EXTERN FAR const char *g_wapi_essid_flags[];
 /* Passphrase algorithm flag names. */
 
 EXTERN FAR const char *g_wapi_alg_flags[];
+
+/* Passphrase WPA Version flag names. */
+
+EXTERN FAR const char *g_wapi_wpa_ver_flags[];
 
 /* Supported operation mode names. */
 
