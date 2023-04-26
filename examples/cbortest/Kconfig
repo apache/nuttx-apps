@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TINYCBOR_TEST
+	tristate "TinyCBOR Test Example"
+	default n
+	depends on FSUTILS_TINYCBOR_LIB
+	---help---
+		Enable the TinyCBOR test example
+
+if EXAMPLES_TINYCBOR_TEST
+
+config EXAMPLES_TINYCBOR_TEST_PROGNAME
+	string "Program name"
+	default "cbor"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_TINYCBOR_TEST_PRIORITY
+	int "TINYCBOR_TEST task priority"
+	default 100
+
+config EXAMPLES_TINYCBOR_TEST_STACKSIZE
+	int "TINYCBOR_TEST stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
