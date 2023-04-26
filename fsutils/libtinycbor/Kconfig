@@ -1,0 +1,17 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_TINYCBOR_LIB
+	bool "TinyCBOR Library (RFC 8949)"
+	default n
+	depends on ALLOW_MIT_COMPONENTS
+	---help---
+		Enable support for the TinyCBOR library. This is an
+		implementation of RFC-8949 (Concise Binary Object
+		Representation).
+		More info: https://lupyuen.github.io/articles/cbor2
+
+if FSUTILS_TINYCBOR_LIB
+endif
