@@ -83,6 +83,7 @@ FAR const char *g_wapi_essid_flags[] =
 {
   "WAPI_ESSID_OFF",
   "WAPI_ESSID_ON",
+  "WAPI_ESSID_DELAY_ON",
   NULL
 };
 
