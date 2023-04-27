@@ -103,6 +103,8 @@ ifeq ($(CONFIG_NET_ETHERNET),y)
 CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
 endif
 
+CSRCS += netlib_setmtu.c
+
 ifeq ($(CONFIG_WIRELESS_IEEE802154),y)
 CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_saddrconv.c netlib_eaddrconv.c
 endif

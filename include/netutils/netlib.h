@@ -367,6 +367,8 @@ int netlib_set_ipv4dnsaddr(FAR const struct in_addr *inaddr);
 int netlib_set_ipv6dnsaddr(FAR const struct in6_addr *inaddr);
 #endif
 
+int netlib_set_mtu(FAR const char *ifname, int mtu);
+
 #undef EXTERN
 #ifdef __cplusplus
 }
