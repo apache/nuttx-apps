@@ -670,7 +670,7 @@ system image.
 
   Dump data in hexadecimal format from a file or character device.
 
-- `ifconfig [nic_name [address_family] [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask <net-mask>|prefixlen <len>] [dns <dns-address>] [hw <hw-mac>]`
+- `ifconfig [nic_name [address_family] [mtu <len>] | [[<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask <net-mask>|prefixlen <len>] [dns <dns-address>] [hw <hw-mac>]]`
 
   Show the current configuration of the network, for example:
 
