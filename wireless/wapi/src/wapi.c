@@ -591,7 +591,7 @@ static int wapi_psk_cmd(int sock, int argc, FAR char **argv)
         break;
 
       default:
-        return -1;
+        return -EINVAL;
     }
 
   ret = wpa_driver_wext_set_auth_param(sock, argv[0],
