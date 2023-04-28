@@ -45,7 +45,7 @@ static void *open_write_only(pthread_addr_t pvarg)
 {
   void *fd_addr = (void *)pvarg;
 
-  printf("open_write_only: Opening FIFO for write access\n");
+  fprintf(stderr, "open_write_only: Opening FIFO for write access\n");
   ((int *)fd_addr)[1] = open(FIFO_PATH1, O_WRONLY);
   if (((int *)fd_addr)[1] < 0)
     {
@@ -70,13 +70,15 @@ int main(int argc, FAR char *argv[])
 {
 #if CONFIG_DEV_FIFO_SIZE > 0 || CONFIG_DEV_PIPE_SIZE > 0
   int fd[2];
+  struct file filepipe[2];
+  struct file *filepipep[2];
   int ret;
 #endif
 
 #if CONFIG_DEV_FIFO_SIZE > 0
   /* Test FIFO logic */
 
-  printf("\npipe_main: Performing FIFO test\n");
+  fprintf(stderr, "\npipe_main: Performing FIFO test\n");
 
   pthread_t writeonly;
   void *status;
@@ -159,7 +161,7 @@ int main(int argc, FAR char *argv[])
 
   /* Perform the FIFO interlock test */
 
-  printf("\npipe_main: Performing pipe interlock test\n");
+  fprintf(stderr, "\npipe_main: Performing pipe interlock test\n");
   ret = interlock_test();
   if (ret != 0)
     {
@@ -167,28 +169,28 @@ int main(int argc, FAR char *argv[])
       return 7;
     }
 
-  printf("pipe_main: FIFO interlock test PASSED\n");
+  fprintf(stderr, "pipe_main: FIFO interlock test PASSED\n");
 
-  printf("pipe_main: FIFO test PASSED\n");
+  fprintf(stderr, "pipe_main: FIFO test PASSED\n");
 
 #else
-  printf("\npipe_main: Skipping FIFO test\n");
+  fprintf(stderr, "\npipe_main: Skipping FIFO test\n");
 
 #endif /* CONFIG_DEV_FIFO_SIZE > 0 */
 
 #if CONFIG_DEV_PIPE_SIZE > 0
-  /* Test PIPE logic */
+  /* Test pipe() command */
 
-  printf("\npipe_main: Performing pipe test\n");
+  fprintf(stderr, "\npipe_main: Performing pipe() test\n");
 
   ret = pipe(fd);
   if (ret < 0)
     {
-      fprintf(stderr, "pipe_main: pipe failed with errno=%d\n", errno);
+      fprintf(stderr, "pipe_main: pipe() failed with errno=%d\n", errno);
       return 8;
     }
 
-  /* Then perform the test using those file descriptors */
+  /* Then perform transfer_test test using those file descriptors */
 
   ret = transfer_test(fd[0], fd[1]);
 
@@ -204,26 +206,59 @@ int main(int argc, FAR char *argv[])
 
   if (ret != 0)
     {
-      fprintf(stderr, "pipe_main: PIPE test FAILED (%d)\n", ret);
+      fprintf(stderr, "pipe_main: pipe() transfer_test test FAILED "
+              "(%d)\n", ret);
       return 9;
     }
 
-  /* Perform the pipe redirection test */
+  fprintf(stderr, "pipe_main: pipe() transfer_test test PASSED\n");
 
-  printf("\npipe_main: Performing redirection test\n");
+  /* Perform the pipe() redirection test */
+
+  fprintf(stderr, "\npipe_main: Performing pipe() redirection test\n");
   ret = redirection_test();
   if (ret != 0)
     {
-      fprintf(stderr, "pipe_main: PIPE redirection test FAILED (%d)\n", ret);
+      fprintf(stderr, "pipe_main: pipe() redirection test FAILED (%d)\n",
+              ret);
       return 10;
     }
 
-  printf("pipe_main: PIPE redirection test PASSED\n");
+  fprintf(stderr, "pipe_main: pipe() redirection test PASSED\n");
 
-  printf("pipe_main: PIPE test PASSED\n");
+  /* Test file_pipe() command */
+
+  fprintf(stderr, "\npipe_main: Open with file_pipe()\n");
+
+  filepipep[0] = &filepipe[0];
+  filepipep[1] = &filepipe[1];
+
+  ret = file_pipe(filepipep, CONFIG_DEV_PIPE_SIZE, 0);
+  if (ret < 0)
+    {
+      fprintf(stderr, "pipe_main: file_pipe() failed with errno=%d\n",
+              errno);
+      return 11;
+    }
+
+  if (file_close(filepipep[0]) != 0)
+    {
+      fprintf(stderr, "pipe_main: file_close() failed: %d\n", errno);
+      return 12;
+    }
+
+  if (file_close(filepipep[1]) != 0)
+    {
+      fprintf(stderr, "pipe_main: file_close() failed: %d\n", errno);
+      return 12;
+    }
+
+  fprintf(stderr, "pipe_main: file_pipe() test PASSED\n");
+
+  fprintf(stderr, "pipe_main: PIPE test PASSED\n");
 
 #else
-  printf("\npipe_main: Skipping pipe test\n");
+  fprintf(stderr, "\npipe_main: Skipping PIPE test\n");
 
 #endif /* CONFIG_DEV_PIPE_SIZE > 0 */
 
