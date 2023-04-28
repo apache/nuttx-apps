@@ -1,4 +1,4 @@
-/********************************************************************************
+/****************************************************************************
  * apps/testing/ostest/roundrobin.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -16,11 +16,11 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  *
- ********************************************************************************/
+ ****************************************************************************/
 
-/********************************************************************************
+/****************************************************************************
  * Included Files
- ********************************************************************************/
+ ****************************************************************************/
 
 #include <nuttx/config.h>
 
@@ -35,13 +35,13 @@
 
 #if CONFIG_RR_INTERVAL > 0
 
-/********************************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ********************************************************************************/
+ ****************************************************************************/
 
-/* This numbers should be tuned for different processor speeds via .config file.
- * With default values the test takes about 30s on Cortex-M3 @ 24MHz. With 32767
- * range and 10 runs it takes ~320s.
+/* This numbers should be tuned for different processor speeds
+ * via .config file.  With default values the test takes about 30s
+ * on Cortex-M3 @ 24MHz.  With 32767 range and 10 runs it takes ~320s.
  */
 
 #ifndef CONFIG_TESTING_OSTEST_RR_RANGE
@@ -60,22 +60,23 @@
 #  warning "Invalid value of CONFIG_TESTING_OSTEST_RR_RUNS, using default value = 10"
 #endif
 
-/********************************************************************************
+/****************************************************************************
  * Private Data
- ********************************************************************************/
+ ****************************************************************************/
 
 static sem_t g_rrsem;
 
-/********************************************************************************
+/****************************************************************************
  * Private Functions
- ********************************************************************************/
+ ****************************************************************************/
 
-/********************************************************************************
+/****************************************************************************
  * Name: get_primes
  *
  * Description
- *   This function searches for prime numbers in the most primitive way possible.
- ********************************************************************************/
+ *   This function searches for prime numbers in the most primitive
+ *   way possible.
+ ****************************************************************************/
 
 static void get_primes(int *count, int *last)
 {
@@ -109,9 +110,9 @@ static void get_primes(int *count, int *last)
   *count = local_count;
 }
 
-/********************************************************************************
+/****************************************************************************
  * Name: get_primes_thread
- ********************************************************************************/
+ ****************************************************************************/
 
 static FAR void *get_primes_thread(FAR void *parameter)
 {
@@ -131,20 +132,20 @@ static FAR void *get_primes_thread(FAR void *parameter)
       get_primes(&count, &last);
     }
 
-  printf("get_primes_thread id=%d finished, found %d primes, last one was %d\n",
-         id, count, last);
+  printf("get_primes_thread id=%d finished, found %d primes, "
+         "last one was %d\n", id, count, last);
 
   pthread_exit(NULL);
   return NULL; /* To keep some compilers happy */
 }
 
-/********************************************************************************
+/****************************************************************************
  * Public Functions
- ********************************************************************************/
+ ****************************************************************************/
 
-/********************************************************************************
+/****************************************************************************
  * Name: rr_test
- ********************************************************************************/
+ ****************************************************************************/
 
 void rr_test(void)
 {
@@ -160,7 +161,8 @@ void rr_test(void)
   status = pthread_attr_init(&attr);
   if (status != OK)
     {
-      printf("rr_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
+      printf("rr_test: ERROR: pthread_attr_init failed, status=%d\n",
+             status);
       ASSERT(false);
     }
 
@@ -168,20 +170,21 @@ void rr_test(void)
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("rr_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",
-              status);
+      printf("rr_test: ERROR: pthread_attr_setschedparam failed,"
+             " status=%d\n", status);
       ASSERT(false);
     }
   else
     {
-      printf("rr_test: Set thread priority to %d\n",  sparam.sched_priority);
+      printf("rr_test: Set thread priority to %d\n",
+             sparam.sched_priority);
     }
 
   status = pthread_attr_setschedpolicy(&attr, SCHED_RR);
   if (status != OK)
     {
-      printf("rr_test: ERROR: pthread_attr_setschedpolicy failed, status=%d\n",
-              status);
+      printf("rr_test: ERROR: pthread_attr_setschedpolicy failed,"
+             " status=%d\n", status);
       ASSERT(false);
     }
   else
@@ -213,7 +216,7 @@ void rr_test(void)
                           &attr, get_primes_thread, (FAR void *)2);
   if (status != 0)
     {
-      printf("         ERROR: Thread 2 creation failed: %d\n",  status);
+      printf("         ERROR: Thread 2 creation failed: %d\n", status);
       ASSERT(false);
     }
 
