@@ -46,6 +46,18 @@
 
 #define RAMTEST_PREFIX "RAMTest: "
 
+#define OPTARG_TO_VALUE(value, type) \
+  do \
+  { \
+    FAR char *ptr; \
+    value = (type)strtoul(optarg, &ptr, 0); \
+    if (*ptr != '\0') \
+      { \
+        printf(RAMTEST_PREFIX "Parameter error: -%c %s\n", option, optarg); \
+        show_usage(argv[0], EXIT_FAILURE); \
+      } \
+  } while (0)
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -57,6 +69,7 @@ struct ramtest_s
   size_t size;
   size_t nxfrs;
   uint32_t mask;
+  bool free;
 };
 
 /****************************************************************************
@@ -73,10 +86,11 @@ struct ramtest_s
 
 static void show_usage(FAR const char *progname, int exitcode)
 {
-  printf("\nUsage: %s [-w|h|b] <hex-address> <decimal-size>\n", progname);
+  printf("\nUsage: %s [-w|h|b] -a [hex-address] -s <decimal-size>\n",
+         progname);
   printf("\nWhere:\n");
-  printf("  <hex-address> starting address of the test.\n");
-  printf("  <decimal-size> number of memory locations (in bytes).\n");
+  printf("  -a [hex-address] starting address of the test,\n");
+  printf("  -s <decimal-size> number of memory locations (in bytes).\n");
   printf("  -w Sets the width of a memory location to 32-bits.\n");
   printf("  -h Sets the width of a memory location to 16-bits (default).\n");
   printf("  -b Sets the width of a memory location to 8-bits.\n");
@@ -90,63 +104,60 @@ static void show_usage(FAR const char *progname, int exitcode)
 static void parse_commandline(int argc, char **argv,
                               FAR struct ramtest_s *info)
 {
-  FAR char *ptr;
   int option;
 
-  while ((option = getopt(argc, argv, "whb")) != ERROR)
+  while ((option = getopt(argc, argv, "whba::s:")) != ERROR)
     {
-      if (option == 'w')
+      switch (option)
         {
-          info->width = 32;
-          info->mask  = 0xffffffff;
-        }
-      else if (option == 'h')
-        {
-          info->width = 16;
-          info->mask  = 0x0000ffff;
-        }
-      else if (option == 'b')
-        {
-          info->width = 8;
-          info->mask  = 0x000000ff;
-        }
-      else
-        {
-          printf(RAMTEST_PREFIX "Unrecognized option: '%c'\n", option);
-          show_usage(argv[0], EXIT_FAILURE);
+          case 'w':
+            info->width = 32;
+            info->mask  = 0xffffffff;
+            break;
+          case 'h':
+            info->width = 16;
+            info->mask  = 0x0000ffff;
+            break;
+          case 'b':
+            info->width = 8;
+            info->mask  = 0x000000ff;
+            break;
+          case 'a':
+            OPTARG_TO_VALUE(info->start, uintptr_t);
+            break;
+          case 's':
+            OPTARG_TO_VALUE(info->size, size_t);
+            break;
+          case '?':
+            printf(RAMTEST_PREFIX "Unrecognized option: '%c'\n", option);
+            show_usage(argv[0], EXIT_FAILURE);
+            break;
         }
     }
 
-  /* There should be two parameters remaining on the command line */
+  /* There should be one parameters remaining on the command line */
 
-  if (optind >= argc)
-    {
-      printf(RAMTEST_PREFIX "Missing required arguments\n");
-      show_usage(argv[0], EXIT_FAILURE);
-    }
-
-  info->start = (uintptr_t)strtoul(argv[optind], &ptr, 16);
-  if (*ptr != '\0')
-    {
-      printf(RAMTEST_PREFIX "Invalid <hex-address>: %s->%" PRIxPTR
-             " [%02x]\n",
-             argv[optind], info->start, *ptr);
-      show_usage(argv[0], EXIT_FAILURE);
-    }
-
-  optind++;
-  if (optind >= argc)
+  if (info->size == 0)
     {
       printf(RAMTEST_PREFIX "Missing <decimal-size>\n");
       show_usage(argv[0], EXIT_FAILURE);
     }
 
-  info->size = (size_t)strtoul(argv[optind], &ptr, 10);
-  if (*ptr != '\0')
+  /* If no binary address is specified, then the operation is performed by
+   * allocation from the heap.
+   */
+
+  if (!info->start)
     {
-      printf(RAMTEST_PREFIX "Invalid <decimal-size>: %s->%zx [%02x]\n",
-             argv[optind], info->size, *ptr);
-      show_usage(argv[0], EXIT_FAILURE);
+      info->start = (uintptr_t)malloc(info->size);
+      if (!info->start)
+        {
+          printf(RAMTEST_PREFIX "malloc failed, We were unable"
+                 "to continue with the follow-up work\n");
+          show_usage(argv[0], EXIT_FAILURE);
+        }
+
+      info->free = true;
     }
 
   /* Convert the size (in bytes) to the corresponding number of transfers
@@ -165,13 +176,6 @@ static void parse_commandline(int argc, char **argv,
     {
       info->width = 16;
       info->nxfrs = info->size >> 1;
-    }
-
-  optind++;
-  if (optind != argc)
-    {
-      printf(RAMTEST_PREFIX "Too many arguments\n");
-      show_usage(argv[0], EXIT_FAILURE);
     }
 }
 
@@ -561,8 +565,11 @@ int main(int argc, FAR char *argv[])
 
   /* Setup defaults and parse the command line */
 
+  info.free  = false;
   info.width = 16;
   info.mask  = 0x0000ffff;
+  info.size  = 0;
+  info.start = 0;
   parse_commandline(argc, argv, &info);
 
   /* Perform the memory tests */
@@ -573,6 +580,14 @@ int main(int argc, FAR char *argv[])
   pattern_test(&info, 0x66666666, 0x99999999);
   pattern_test(&info, 0x33333333, 0xcccccccc);
   addr_in_addr(&info);
+
+  /* Let's check if we need to do cleanup work at the end */
+
+  if (info.free)
+    {
+      free((void *)info.start);
+    }
+
   return 0;
 }
 
