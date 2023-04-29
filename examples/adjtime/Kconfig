@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ADJTIME
+	tristate "Ajdtime function example"
+	default n
+	depends on CLOCK_ADJTIME
+	---help---
+		Enable the adjtime example. This application demonstrates the usage
+		of adjtime() interface used to synchronize system clock time if
+		its value varies from real time (usually get by external RTC).
+
+if EXAMPLES_ADJTIME
+
+config EXAMPLES_ADJTIME_PROGNAME
+	string "Program name"
+	default "adjtime"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_ADJTIME_PRIORITY
+	int "Adjtime task priority"
+	default 100
+
+config EXAMPLES_ADJTIME_STACKSIZE
+	int "Adjtime stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
