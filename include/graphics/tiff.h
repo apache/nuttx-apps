@@ -1,4 +1,4 @@
-/************************************************************************************
+/****************************************************************************
  * apps/include/graphics/tiff.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -16,7 +16,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 /* Reference:
  *   "TIFF, Revision 6.0, Final," June 3, 1992, Adobe Developers Association.
@@ -25,21 +25,21 @@
 #ifndef __APPS_INCLUDE_GRAPHICS_TIFF_H
 #define __APPS_INCLUDE_GRAPHICS_TIFF_H
 
-/************************************************************************************
+/****************************************************************************
  * Included Files
- ************************************************************************************/
+ ****************************************************************************/
 
 #include <nuttx/config.h>
 #include <sys/types.h>
 #include <nuttx/nx/nxglib.h>
 
-/************************************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ************************************************************************************/
+ ****************************************************************************/
 
-/* Configuration ********************************************************************/
+/* Configuration ************************************************************/
 
-/* TIFF File Format Definitions *****************************************************/
+/* TIFF File Format Definitions *********************************************/
 
 /* Values for the IFD field type */
 
@@ -207,11 +207,11 @@
 #define IFD_TAG_REFERENCEBW       532 /* ReferenceBlackWhite, RATIONAL */
 #define IFD_TAG_COPYRIGHT       33432 /* Copyright, ASCII */
 
-/************************************************************************************
+/****************************************************************************
  * Public Types
- ************************************************************************************/
+ ****************************************************************************/
 
-/* TIFF File Format Structure *******************************************************/
+/* TIFF File Format Structure ***********************************************/
 
 /* "A TIFF file begins with an 8-byte image file header that points to an
  *  image file directory (IFD). An image file directory contains information
@@ -243,10 +243,10 @@ struct tiff_ifdentry_s
 };
 #define SIZEOF_IFD_ENTRY 12
 
-/************************************************************************************/
+/****************************************************************************/
 
-/* Structures needed to interface with the TIFF file creation library) and also
- * structures used only internally by the TIFF file creation library).
+/* Structures needed to interface with the TIFF file creation library) and
+ * also structures used only internally by the TIFF file creation library).
  */
 
 /* This structure describes on strip in tmpfile2 */
@@ -257,8 +257,8 @@ struct tiff_strip_s
   uint32_t count;  /* Count of pixels in the strip */
 };
 
-/* This structure is used only internally by the TIFF file creation library to
- * manage file offsets.
+/* This structure is used only internally by the TIFF file creation library
+ * to manage file offsets.
  */
 
 struct tiff_filefmt_s
@@ -290,8 +290,8 @@ struct tiff_info_s
    *
    * colorfmt  - Specifies the form of the color data that will be provided
    *             in the strip data.  These are the FB_FMT_* definitions
-   *             provided in include/nuttx/video/fb.h.  Only the following values
-   *             are supported:
+   *             provided in include/nuttx/video/fb.h.  Only the following
+   *             values are supported:
    *
    *             FB_FMT_Y1               BPP=1, monochrome, 0=black
    *             FB_FMT_Y4               BPP=4, 4-bit greyscale, 0=black
@@ -345,9 +345,9 @@ struct tiff_info_s
   FAR const struct tiff_filefmt_s *filefmt;
 };
 
-/************************************************************************************
+/****************************************************************************
  * Public Function Prototypes
- ************************************************************************************/
+ ****************************************************************************/
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
@@ -357,12 +357,12 @@ extern "C"
 #define EXTERN extern
 #endif
 
-/************************************************************************************
+/****************************************************************************
  * Name: tiff_initialize
  *
  * Description:
- *   Setup to create a new TIFF file.  The overall steps to creating a TIFF file are
- *   as follows:
+ *   Setup to create a new TIFF file.  The overall steps to creating a
+ *   TIFF file are as follows:
  *
  *   1) Create an initialize a struct tiff_info_s instance
  *   2) Call tiff_initialize() to setup the file creation
@@ -370,21 +370,23 @@ extern "C"
  *   4) Call tiff_finalize() to complete the file creation.
  *
  * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state instance.
+ *   info - A pointer to the caller allocated parameter passing/TIFF state
+ *          instance.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int tiff_initialize(FAR struct tiff_info_s *info);
 
-/************************************************************************************
+/****************************************************************************
  * Name: tiff_addstrip
  *
  * Description:
- *   Add an image data strip.  The size of the strip in pixels must be equal to
- *   the RowsPerStrip x ImageWidth values that were provided to tiff_initialize().
+ *   Add an image data strip.  The size of the strip in pixels
+ *    must be equal to the RowsPerStrip x ImageWidth values
+ *    that were provided to tiff_initialize().
  *
  * Input Parameters:
  *   info    - A pointer to the caller allocated parameter passing/TIFF state
@@ -394,43 +396,45 @@ int tiff_initialize(FAR struct tiff_info_s *info);
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip);
 
-/************************************************************************************
+/****************************************************************************
  * Name: tiff_finalize
  *
  * Description:
  *   Finalize the TIFF output file, completing the TIFF file creation steps.
  *
  * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state instance.
+ *   info - A pointer to the caller allocated parameter passing/TIFF state
+ *          instance.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 int tiff_finalize(FAR struct tiff_info_s *info);
 
-/************************************************************************************
+/****************************************************************************
  * Name: tiff_abort
  *
  * Description:
  *   Abort the TIFF file creation and create-up resources.
  *
  * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state instance.
+ *   info - A pointer to the caller allocated parameter passing/TIFF state
+ *          instance.
  *
  * Returned Value:
  *   None
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 void tiff_abort(FAR struct tiff_info_s *info);
 
-/************************************************************************************
+/****************************************************************************
  * Name: tiff_put/get16/32
  *
  * Description:
@@ -445,7 +449,7 @@ void tiff_abort(FAR struct tiff_info_s *info);
  *   None (put)
  *   The extracted value (get)
  *
- ************************************************************************************/
+ ****************************************************************************/
 
 void tiff_put16(FAR uint8_t *dest, uint16_t value);
 void tiff_put32(FAR uint8_t *dest, uint32_t value);
