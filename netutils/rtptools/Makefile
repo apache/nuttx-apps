@@ -28,8 +28,21 @@ RTPTOOLS_SRCDIR   = $(RTPTOOLS_UNPACK)
 DEPPATH += --dep-path $(RTPTOOLS_SRCDIR)
 VPATH   += :$(RTPTOOLS_SRCDIR)
 
-CFLAGS += -Wno-maybe-uninitialized -Wno-strict-prototypes
-CFLAGS += -Wno-unused-function -Wno-format -Wno-shadow
+CFLAGS += -Wno-strict-prototypes -Wno-unused-function -Wno-format -Wno-shadow
+
+# Workaround for clang.
+#
+# error: unknown warning option '-Wno-maybe-uninitialized'; did you mean '-Wno-uninitialized'? [-Werror,-Wunknown-warning-option]
+# make[3]: *** [multimer.c.Users.runner.work.nuttx.nuttx.sources.apps.netutils.rtptools.o] Error 1
+#
+# It's possible to use only '-Wno-uninitialized' instead, however, it isn't
+# recommended as it could mask erroneous code.
+#
+ifneq ($(shell $(CC) --version | grep clang),)
+CFLAGS += -Wno-uninitialized
+else
+CFLAGS += -Wno-maybe-uninitialized
+endif
 
 CSRCS += multimer.c
 CSRCS += notify.c
