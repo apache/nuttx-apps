@@ -53,6 +53,7 @@ extern int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp);
 
 pthread_mutex_t g_cntr_lock;
 
+static uint32_t g_foc_thr = 0;
 #ifdef CONFIG_INDUSTRY_FOC_FLOAT
 static int g_float_thr_cntr = 0;
 #endif
@@ -148,6 +149,7 @@ static FAR void *foc_control_thr(FAR void *arg)
           pthread_mutex_lock(&g_cntr_lock);
           envp->inst = g_float_thr_cntr;
           g_float_thr_cntr += 1;
+          g_foc_thr |= (1 << envp->id);
           pthread_mutex_unlock(&g_cntr_lock);
 
           /* Start thread */
@@ -156,6 +158,7 @@ static FAR void *foc_control_thr(FAR void *arg)
 
           pthread_mutex_lock(&g_cntr_lock);
           g_float_thr_cntr -= 1;
+          g_foc_thr &= ~(1 << envp->id);
           pthread_mutex_unlock(&g_cntr_lock);
 
           break;
@@ -168,6 +171,7 @@ static FAR void *foc_control_thr(FAR void *arg)
           pthread_mutex_lock(&g_cntr_lock);
           envp->inst = g_fixed16_thr_cntr;
           g_fixed16_thr_cntr += 1;
+          g_foc_thr |= (1 << envp->id);
           pthread_mutex_unlock(&g_cntr_lock);
 
           /* Start thread */
@@ -176,6 +180,7 @@ static FAR void *foc_control_thr(FAR void *arg)
 
           pthread_mutex_lock(&g_cntr_lock);
           g_fixed16_thr_cntr -= 1;
+          g_foc_thr &= ~(1 << envp->id);
           pthread_mutex_unlock(&g_cntr_lock);
 
           break;
@@ -253,18 +258,26 @@ bool foc_threads_terminated(void)
 
   pthread_mutex_unlock(&g_cntr_lock);
 
-  if (1
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
-      && g_float_thr_cntr <= 0
-#endif
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
-      && g_fixed16_thr_cntr <= 0
-#endif
-    )
+  if (g_foc_thr == 0)
     {
       ret = true;
     }
 
+  pthread_mutex_lock(&g_cntr_lock);
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: foc_threads_get
+ ****************************************************************************/
+
+uint32_t foc_threads_get(void)
+{
+  uint32_t ret = 0;
+
+  pthread_mutex_unlock(&g_cntr_lock);
+  ret = g_foc_thr;
   pthread_mutex_lock(&g_cntr_lock);
 
   return ret;
