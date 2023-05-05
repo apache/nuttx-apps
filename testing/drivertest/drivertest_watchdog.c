@@ -28,8 +28,6 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/boardctl.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,16 +35,14 @@
 #include <errno.h>
 #include <debug.h>
 #include <inttypes.h>
-
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
 #include <stdint.h>
 #include <cmocka.h>
-
 #include <time.h>
 #include <nuttx/timers/watchdog.h>
-#include <sys/boardctl.h>
+#include <nuttx/board.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -57,6 +53,7 @@
 #define WDG_DEFAULT_PINGDELAY 500
 #define WDG_DEFAULT_TIMEOUT 2000
 #define WDG_DEFAULT_TESTCASE 0
+#define WDG_DEFAULT_DEVIATION 20
 #define WDG_COUNT_TESTCASE 4
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
@@ -91,8 +88,6 @@ struct wdg_state_s
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-extern int board_reset_cause(FAR struct boardioc_reset_cause_s *cause);
 
 /****************************************************************************
  * Name: get_timestamp
@@ -411,6 +406,7 @@ static void test_case_wdog_04(FAR void **state)
   int ret;
   uint32_t start_ms;
   FAR struct wdg_state_s *wdg_state;
+  struct watchdog_status_s status;
   struct boardioc_reset_cause_s reset_cause;
 
   wdg_state = (FAR struct wdg_state_s *)*state;
@@ -433,6 +429,16 @@ static void test_case_wdog_04(FAR void **state)
       /* Sleep for the requested amount of time */
 
       usleep(wdg_state->pingdelay * 1000);
+
+      /* Get Status */
+
+      ret = ioctl(dev_fd, WDIOC_GETSTATUS, &status);
+      assert_return_code(ret, OK);
+
+      assert_int_equal(status.timeout, wdg_state->timeout);
+      assert_in_range(
+        status.timeout - status.timeleft - wdg_state->pingdelay,
+        0, WDG_DEFAULT_DEVIATION);
 
       /* Then ping */
 
