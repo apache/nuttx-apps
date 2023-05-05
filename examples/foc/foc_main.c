@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
   if (ret < 0)
     {
       PRINTF("ERROR: validate args failed\n");
-      goto errout_no_mutex;
+      goto errout_no_threads;
     }
 
 #ifndef CONFIG_NSH_ARCHINIT
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
   if (ret < 0)
     {
       PRINTF("ERROR: failed to initialize threads %d\n", ret);
-      goto errout_no_mutex;
+      goto errout_no_intf;
     }
 
   /* Initialize control interface */
@@ -450,6 +450,16 @@ int main(int argc, char *argv[])
 
 errout:
 
+  /* De-initialize control interface */
+
+  ret = foc_intf_deinit();
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_inf_deinit failed %d\n", ret);
+    }
+
+errout_no_intf:
+
   /* Stop FOC control threads */
 
   for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
@@ -491,17 +501,11 @@ errout:
         }
     }
 
-  /* De-initialize control interface */
+  /* De-initialize control threads */
 
-  ret = foc_intf_deinit();
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_inf_deinit failed %d\n", ret);
-      goto errout;
-    }
-
-errout_no_mutex:
   foc_threads_deinit();
+
+errout_no_threads:
 
   PRINTF("foc_main exit\n");
   return 0;
