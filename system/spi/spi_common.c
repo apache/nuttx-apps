@@ -192,7 +192,7 @@ int spitool_common_args(FAR struct spitool_s *spitool, FAR char **arg)
 
       case 'w':
         ret = arg_decimal(arg, &value);
-        if (value != 8 && value != 16)
+        if (value != 8 && value != 16 && value != 32)
           {
             goto out_of_range;
           }
