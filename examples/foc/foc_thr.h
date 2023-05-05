@@ -27,6 +27,7 @@
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
 #include <pthread.h>
 #include <mqueue.h>
 
@@ -124,6 +125,7 @@ struct foc_ctrl_env_s
 int foc_threads_init(void);
 void foc_threads_deinit(void);
 bool foc_threads_terminated(void);
+uint32_t foc_threads_get(void);
 int foc_ctrlthr_init(FAR struct foc_ctrl_env_s *foc, int i, FAR mqd_t *mqd,
                      FAR pthread_t *thread);
 
