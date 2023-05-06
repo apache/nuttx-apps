@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BMP280
+	tristate "BMP280 Barometer sensor example"
+	default n
+	depends on SENSORS_BMP280
+	---help---
+		Enable the BMP280 example
+
+if EXAMPLES_BMP280
+
+config EXAMPLES_BMP280_PROGNAME
+	string "Program name"
+	default "bmp280"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_BMP280_PRIORITY
+	int "BMP280 task priority"
+	default 100
+
+config EXAMPLES_BMP280_STACKSIZE
+	int "BMP280 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
