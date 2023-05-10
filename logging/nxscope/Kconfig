@@ -52,4 +52,12 @@ config LOGGING_NXSCOPE_CRICHANNELS
 	---help---
 		Enable the support for non-buffered critical channels
 
+config LOGGING_NXSCOPE_DISABLE_PUTLOCK
+	bool "NxScope disable lock in channels put interfaces"
+	default n
+	---help---
+		This option disables lock in channels put interfaces.
+		In that case, the user is responsible for ensuring
+		thread-safe operations with nxscope_lock/nxscope_unlock functions.
+
 endif # LOGGING_NXSCOPE
