@@ -314,4 +314,6 @@ void sem_test(void)
       pthread_join(poster_thread, NULL);
     }
 #endif
+
+  sem_destroy(&sem);
 }
