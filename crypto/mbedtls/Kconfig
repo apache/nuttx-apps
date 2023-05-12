@@ -136,6 +136,44 @@ config MBEDTLS_NET_C
 	default y if LIBC_NETDB
 	default n if !LIBC_NETDB
 
+config MBEDTLS_ECDSA_C
+	bool "Enable the elliptic curve DSA library."
+	default n
+
+config MBEDTLS_ECP_C
+	bool "Enable the elliptic curve over GF(p) library."
+	default n
+
+config MBEDTLS_ECP_DP_SECP256R1_ENABLED
+	bool "Enables specific curves within the Elliptic Curve module."
+	default n
+
+config MBEDTLS_PEM_WRITE_C
+	bool "Enable PEM encoding / writing."
+	default n
+
+config MBEDTLS_PK_WRITE_C
+	bool "Enable the generic public (asymmetric) key writer."
+	default n
+
+config MBEDTLS_X509_CREATE_C
+	bool "Enable X.509 core for creating certificates."
+	default n
+
+config MBEDTLS_X509_CRT_WRITE_C
+	bool "Enable creating X.509 certificates."
+	select MBEDTLS_X509_CREATE_C
+	default n
+
+config MBEDTLS_X509_CSR_WRITE_C
+	bool "Enable creating X.509 Certificate Signing Requests (CSR)."
+	select MBEDTLS_X509_CREATE_C
+	default n
+
+config MBEDTLS_X509_CSR_PARSE_C
+	bool "Enable X.509 Certificate Signing Request (CSR) parsing."
+	default n
+
 if CRYPTO_CRYPTODEV
 
 config MBEDTLS_ALT
