@@ -38,7 +38,7 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <cmocka.h>
-
+#include <syslog.h>
 #include <nuttx/timers/timer.h>
 
 /****************************************************************************
@@ -209,8 +209,10 @@ static void test_case_timer(FAR void **state)
   int ret;
   uint32_t range;
   uint32_t tim;
+  uint32_t max_timeout;
   struct sigaction act;
   struct timer_notify_s notify;
+  struct timer_status_s timer_status;
   FAR struct timer_state_s *timer_state;
 
   timer_state = (FAR struct timer_state_s *)*state;
@@ -250,6 +252,20 @@ static void test_case_timer(FAR void **state)
 
   ret = ioctl(fd, TCIOC_START, 0);
   assert_return_code(ret, OK);
+
+  /* Get status */
+
+  ret = ioctl(fd, TCIOC_GETSTATUS, &timer_status);
+  assert_return_code(ret, OK);
+  assert_int_equal(timer_state->interval / 1000, timer_status.timeout);
+  assert_in_range(timer_status.timeleft,
+                  0, timer_state->interval / 1000);
+
+  /* Get max timeout */
+
+  ret = ioctl(fd, TCIOC_MAXTIMEOUT, &max_timeout);
+  assert_return_code(ret, OK);
+  syslog(LOG_DEBUG, "max timeout:%ld\n", max_timeout);
 
   /* Set the timer interval */
 
