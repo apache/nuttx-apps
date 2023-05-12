@@ -1,0 +1,66 @@
+diff -Naur MQTT-C_orig/include/mqtt.h MQTT-C/include/mqtt.h
+--- MQTT-C_orig/include/mqtt.h	2021-03-29 14:53:52.000000000 -0300
++++ MQTT-C/include/mqtt.h	2023-05-13 09:52:45.704346335 -0300
+@@ -1233,6 +1233,9 @@
+ 
+     /** @brief The sending message queue. */
+     struct mqtt_message_queue mq;
++
++    /** @brief Flag is set on connection event */
++    bool event_connect;
+ };
+ 
+ /**
+diff -Naur MQTT-C_orig/src/mqtt.c MQTT-C/src/mqtt.c
+--- MQTT-C_orig/src/mqtt.c	2021-03-29 14:53:52.000000000 -0300
++++ MQTT-C/src/mqtt.c	2023-05-13 10:00:36.725165859 -0300
+@@ -118,6 +118,10 @@
+ 
+     client->socketfd = sockfd;
+ 
++    /* Indicate we are not connected yet */
++
++    client->event_connect = false;
++
+     mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
+ 
+     client->recv_buffer.mem_start = recvbuf;
+@@ -151,6 +155,10 @@
+ 
+     client->socketfd = (mqtt_pal_socket_handle) -1;
+ 
++    /* Indicate we are not connected yet */
++
++    client->event_connect = false;
++
+     mqtt_mq_init(&client->mq, NULL, 0);
+ 
+     client->recv_buffer.mem_start = NULL;
+@@ -179,6 +187,10 @@
+     client->error = MQTT_ERROR_CONNECT_NOT_CALLED;
+     client->socketfd = socketfd;
+ 
++    /* Indicate we are not connected yet */
++
++    client->event_connect = false;
++
+     mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
+ 
+     client->recv_buffer.mem_start = recvbuf;
+@@ -592,6 +604,7 @@
+         case MQTT_CONTROL_PUBCOMP:
+         case MQTT_CONTROL_DISCONNECT:
+             msg->state = MQTT_QUEUED_COMPLETE;
++            client->event_connect = false;
+             break;
+         case MQTT_CONTROL_PUBLISH:
+             inspected = ( MQTT_PUBLISH_QOS_MASK & (msg->start[0]) ) >> 1; /* qos */
+@@ -732,6 +745,8 @@
+                         mqtt_recv_ret = MQTT_ERROR_CONNECTION_REFUSED;
+                     }
+                     break;
++                } else {
++                    client->event_connect = true;
+                 }
+                 break;
+             case MQTT_CONTROL_PUBLISH:
