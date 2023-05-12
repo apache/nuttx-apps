@@ -212,6 +212,7 @@ static int initserver(FAR const struct mqttc_cfg_s *cfg)
 int main(int argc, FAR char *argv[])
 {
   int sockfd;
+  int timeout = 100;
   enum MQTTErrors mqtterr;
   pthread_t thrdid;
   int n = 1;
@@ -278,10 +279,22 @@ int main(int argc, FAR char *argv[])
       goto err_with_socket;
     }
 
+  /* Wait for MQTT ACK or time-out */
+
+  while (!mqtt_cfg.client.event_connect && --timeout > 0)
+    {
+     usleep(10000);
+    }
+
+  if (timeout == 0)
+    {
+      goto err_with_thrd;
+    }
+
   while (n--)
     {
       mqtterr = mqtt_publish(&mqtt_cfg.client, mqtt_cfg.topic,
-                             mqtt_cfg.msg, strlen(mqtt_cfg.msg) + 1,
+                             mqtt_cfg.msg, strlen(mqtt_cfg.msg),
                              mqtt_cfg.qos);
       if (mqtterr != MQTT_OK)
         {
