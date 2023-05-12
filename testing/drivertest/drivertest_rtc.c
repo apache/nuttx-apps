@@ -38,7 +38,7 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <cmocka.h>
-
+#include <syslog.h>
 #include <nuttx/timers/rtc.h>
 #include <nuttx/time.h>
 
@@ -46,7 +46,11 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define RTC_DEFAULT_DEVPATH "/dev/rtc0"
+#define RTC_DEFAULT_DEVPATH   "/dev/rtc0"
+#define RTC_DEFAULT_DEVIATION 10
+#define DEFAULT_TIME_OUT      2
+#define SLEEPSECONDS          5
+#define RTC_SIGNO             13
 
 /****************************************************************************
  * Private Type
@@ -100,10 +104,10 @@ static void parse_commandline(FAR struct rtc_state_s *rtc_state, int argc,
 }
 
 /****************************************************************************
- * Name: test_case_rtc
+ * Name: test_case_rtc_01
  ****************************************************************************/
 
-static void test_case_rtc(FAR void **state)
+static void test_case_rtc_01(FAR void **state)
 {
   int fd;
   int ret;
@@ -147,6 +151,203 @@ static void test_case_rtc(FAR void **state)
   close(fd);
 }
 
+#if defined(CONFIG_RTC_ALARM) || defined(CONFIG_RTC_PERIODIC)
+/****************************************************************************
+ * Name: get_timestamp
+ ****************************************************************************/
+
+static uint32_t get_timestamp(void)
+{
+  struct timespec ts;
+  uint32_t ms;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+  return ms;
+}
+#endif
+
+#ifdef CONFIG_RTC_ALARM
+/****************************************************************************
+ * Name: add_timeout
+ ****************************************************************************/
+
+static void add_timeout(struct rtc_time * rtc_tm)
+{
+  time_t timesp;
+  FAR struct tm *tm;
+
+  timesp = mktime((struct tm *)rtc_tm);
+  timesp += DEFAULT_TIME_OUT;
+
+  tm = localtime(&timesp);
+  rtc_tm->tm_sec = tm->tm_sec;
+  rtc_tm->tm_min = tm->tm_min;
+  rtc_tm->tm_hour = tm->tm_hour;
+  rtc_tm->tm_mday = tm->tm_mday;
+  rtc_tm->tm_mon = tm->tm_mon;
+  rtc_tm->tm_year = tm->tm_year;
+  rtc_tm->tm_wday = tm->tm_wday;
+  rtc_tm->tm_yday = tm->tm_yday;
+  rtc_tm->tm_isdst = tm->tm_isdst;
+}
+
+/****************************************************************************
+ * Name: test_case_rtc_02
+ ****************************************************************************/
+
+static void test_case_rtc_02(FAR void **state)
+{
+  int fd;
+  int ret;
+  int alarmid = 0;
+  struct rtc_setalarm_s rtc_setalarm;
+  struct rtc_rdalarm_s rtc_rdalarm;
+  struct rtc_setrelative_s rtc_setrelative;
+  struct rtc_time rd_time;
+  uint32_t before_timestamp;
+  uint32_t range;
+  sigset_t set;
+  FAR struct rtc_state_s *rtc_state =
+                  (FAR struct rtc_state_s *)*state;
+
+  signal(RTC_SIGNO, SIG_IGN);
+  sigemptyset(&set);
+  sigaddset(&set, RTC_SIGNO);
+
+  fd = open(rtc_state->devpath, O_RDWR);
+  assert_return_code(fd, 0);
+
+  ret = ioctl(fd, RTC_RD_TIME, &rd_time);
+  assert_return_code(ret, OK);
+
+  /* Set rtc alarm */
+
+  rtc_setalarm.id = 0;
+  rtc_setalarm.pid = getpid();
+  rtc_setalarm.event.sigev_notify = SIGEV_SIGNAL;
+  rtc_setalarm.event.sigev_signo = RTC_SIGNO;
+  rtc_setalarm.event.sigev_value.sival_ptr = NULL;
+  rtc_setalarm.time = rd_time;
+
+  add_timeout(&rtc_setalarm.time);
+
+  ret = ioctl(fd, RTC_SET_ALARM, &rtc_setalarm);
+  assert_return_code(ret, OK);
+
+  before_timestamp = get_timestamp();
+
+  /* Read alarm */
+
+  rtc_rdalarm.id = 0;
+  ret = ioctl(fd, RTC_RD_ALARM, &rtc_rdalarm);
+  assert_return_code(ret, OK);
+
+  assert_int_equal(mktime((struct tm *)&rd_time) + DEFAULT_TIME_OUT,
+                   mktime((struct tm *)&rtc_setalarm.time));
+
+  ret = sigwaitinfo(&set, NULL);
+  assert_return_code(ret, RTC_SIGNO);
+
+  range = abs(get_timestamp() - before_timestamp);
+  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
+                  DEFAULT_TIME_OUT * 1000);
+
+  /* Cancel rtc alarm */
+
+  ret = ioctl(fd, RTC_RD_TIME, &rd_time);
+  assert_return_code(ret, OK);
+
+  rtc_setalarm.time = rd_time;
+  add_timeout(&rtc_setalarm.time);
+
+  ret = ioctl(fd, RTC_SET_ALARM, &rtc_setalarm);
+  assert_return_code(ret, OK);
+
+  ret = ioctl(fd, RTC_CANCEL_ALARM, alarmid);
+  assert_return_code(ret, OK);
+
+  /* Set relative */
+
+  rtc_setrelative.id = 0;
+  rtc_setrelative.pid = getpid();
+  rtc_setrelative.event.sigev_notify = SIGEV_SIGNAL;
+  rtc_setrelative.event.sigev_signo = RTC_SIGNO;
+  rtc_setrelative.event.sigev_value.sival_ptr = NULL;
+  rtc_setrelative.reltime = DEFAULT_TIME_OUT;
+
+  ret = ioctl(fd, RTC_SET_RELATIVE, &rtc_setrelative);
+  assert_return_code(ret, OK);
+
+  before_timestamp = get_timestamp();
+
+  ret = sigwaitinfo(&set, NULL);
+  assert_return_code(ret, RTC_SIGNO);
+
+  range = abs(get_timestamp() - before_timestamp);
+  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
+                  DEFAULT_TIME_OUT * 1000);
+  close(fd);
+}
+#endif
+
+#ifdef CONFIG_RTC_PERIODIC
+/****************************************************************************
+ * Name: rtc_periodic_callback
+ ****************************************************************************/
+
+static void rtc_periodic_callback(union sigval arg)
+{
+  FAR int *tim = (int *)arg.sival_ptr;
+  int range = get_timestamp() - *tim;
+  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
+                  DEFAULT_TIME_OUT * 1000);
+  syslog(LOG_DEBUG, "rtc periodic callback trigger!!!\n");
+  *tim = get_timestamp();
+}
+
+/****************************************************************************
+ * Name: test_case_rtc_03
+ ****************************************************************************/
+
+static void test_case_rtc_03(FAR void **state)
+{
+  int alarmid = 0;
+  int ret;
+  int fd;
+  int tim;
+  struct rtc_setperiodic_s rtc_setperiodic;
+  FAR struct rtc_state_s *rtc_state =
+                  (FAR struct rtc_state_s *)*state;
+
+  fd = open(rtc_state->devpath, O_RDWR);
+  assert_return_code(fd, OK);
+
+  /* Set periodic */
+
+  rtc_setperiodic.id = 0;
+  rtc_setperiodic.pid = getpid();
+  rtc_setperiodic.event.sigev_notify = SIGEV_THREAD;
+  rtc_setperiodic.event.sigev_notify_function = rtc_periodic_callback;
+  rtc_setperiodic.event.sigev_notify_attributes = NULL;
+  rtc_setperiodic.event.sigev_value.sival_ptr = &tim;
+  rtc_setperiodic.period.tv_sec = DEFAULT_TIME_OUT;
+  rtc_setperiodic.period.tv_nsec = 0;
+
+  ret = ioctl(fd, RTC_SET_PERIODIC, &rtc_setperiodic);
+  assert_return_code(ret, OK);
+  tim = get_timestamp();
+  sleep(SLEEPSECONDS);
+
+  /* Cancel periodic */
+
+  ret = ioctl(fd, RTC_CANCEL_PERIODIC, alarmid);
+  assert_return_code(ret, OK);
+
+  sleep(SLEEPSECONDS);
+  close(fd);
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -166,7 +367,13 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_rtc, &rtc_state)
+    cmocka_unit_test_prestate(test_case_rtc_01, &rtc_state),
+#ifdef CONFIG_RTC_ALARM
+    cmocka_unit_test_prestate(test_case_rtc_02, &rtc_state),
+#endif
+#ifdef CONFIG_RTC_PERIODIC
+    cmocka_unit_test_prestate(test_case_rtc_03, &rtc_state),
+#endif
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
