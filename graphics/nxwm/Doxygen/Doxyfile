@@ -63,7 +63,7 @@ CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 
 # If the BRIEF_MEMBER_DESC tag is set to YES (the default) Doxygen will
-# include brief member descriptions after the members that are listed in
+#  include brief member descriptions after the members that are listed in
 # the file and class documentation (similar to JavaDoc).
 # Set to NO to disable this.
 
@@ -1084,7 +1084,7 @@ USE_PDFLATEX           = YES
 LATEX_BATCHMODE        = NO
 
 # If LATEX_HIDE_INDICES is set to YES then doxygen will not
-# include the index chapters (such as File Index, Compound Index, etc.)
+#  include the index chapters (such as File Index, Compound Index, etc.)
 # in the output.
 
 LATEX_HIDE_INDICES     = NO

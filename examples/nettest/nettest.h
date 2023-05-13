@@ -29,7 +29,7 @@
 
 #ifdef NETTEST_HOST
 #else
-# include <debug.h>
+#  include <debug.h>
 #endif
 
 /****************************************************************************

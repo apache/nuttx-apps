@@ -42,7 +42,7 @@
 
 const struct builtin_s g_builtins[] =
 {
-# include "builtin_list.h"
+#  include "builtin_list.h"
   { NULL, 0, 0, 0 }
 };
 

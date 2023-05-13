@@ -69,7 +69,7 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
-# include "netutils/dhcpc.h"
+#  include "netutils/dhcpc.h"
 #endif
 
 /* Include uIP webserver definitions */

@@ -45,7 +45,7 @@
 #define PDC_RGB   1
 
 #ifdef CONFIG_PDCURSES_WIDE
-# include <wchar.h>
+#  include <wchar.h>
 #endif
 
 /****************************************************************************
