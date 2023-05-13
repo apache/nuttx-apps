@@ -360,6 +360,7 @@ struct nxscope_s
   FAR uint8_t                 *streambuf;
   size_t                       streambuf_len;
   size_t                       stream_i;
+  bool                         stream_retry;
 
 #ifdef CONFIG_LOGGING_NXSCOPE_CRICHANNELS
   /* Critical buffer data */
