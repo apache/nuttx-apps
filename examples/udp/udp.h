@@ -27,7 +27,7 @@
 
 #ifdef EXAMPLES_UDP_HOST
 #else
-# include <debug.h>
+#  include <debug.h>
 #endif
 
 #include <arpa/inet.h>

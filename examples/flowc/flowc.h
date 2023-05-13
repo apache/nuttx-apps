@@ -27,7 +27,7 @@
 
 #ifdef EXAMPLES_FLOWC_HOST
 #else
-# include <debug.h>
+#  include <debug.h>
 #endif
 
 /****************************************************************************
