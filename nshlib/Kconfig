@@ -70,6 +70,12 @@ config NSH_PROMPT_STRING
 	---help---
 		Provide the shell prompt string, default is "nsh> ".
 
+config NSH_DISABLE_ECHOBACK
+	bool "Disable echoback"
+	default n
+	---help---
+		If this option is selected, the NSH disables echoback.
+
 choice
 	prompt "Command Line Editor"
 	default NSH_READLINE if DEFAULT_SMALL
