@@ -215,6 +215,7 @@ recv_packet:
     {
       /* other errors, like ETIMEDOUT, EILSEQ, EBADMSG... */
 
+      tcflush(ctx->recvfd, TCIOFLUSH);
       if (++retries > MAX_RETRIES)
         {
           ymodem_debug("recv_file: too many errors, cancel!!\n");
@@ -295,6 +296,7 @@ recv_packet:
   ctx->header[0] = ACK;
   total_seq++;
   ymodem_debug("recv_file: recv data success\n");
+  retries = 0;
   goto recv_packet;
 
 cancel:
@@ -553,11 +555,11 @@ int ymodem_recv(FAR struct ymodem_ctx_s *ctx)
 
   if (ctx->custom_size != 0)
     {
-      ctx->header = calloc(1, + ctx->custom_size + 2);
+      ctx->header = calloc(1, 3 + ctx->custom_size + 2);
     }
   else
     {
-      ctx->header = calloc(1, + YMODEM_PACKET_1K_SIZE + 2);
+      ctx->header = calloc(1, 3 + YMODEM_PACKET_1K_SIZE + 2);
     }
 
   if (ctx->header == NULL)
@@ -579,7 +581,7 @@ int ymodem_recv(FAR struct ymodem_ctx_s *ctx)
   tcgetattr(ctx->recvfd, &term);
   memcpy(&saveterm, &term, sizeof(struct termios));
   cfmakeraw(&term);
-  term.c_cc[VTIME] = 30;
+  term.c_cc[VTIME] = 15;
   term.c_cc[VMIN] = 255;
   tcsetattr(ctx->recvfd, TCSANOW, &term);
 
@@ -607,11 +609,11 @@ int ymodem_send(FAR struct ymodem_ctx_s *ctx)
 
   if (ctx->custom_size != 0)
     {
-      ctx->header = calloc(1, + ctx->custom_size + 2);
+      ctx->header = calloc(1, 3 + ctx->custom_size + 2);
     }
   else
     {
-      ctx->header = calloc(1, + YMODEM_PACKET_1K_SIZE + 2);
+      ctx->header = calloc(1, 3 + YMODEM_PACKET_1K_SIZE + 2);
     }
 
   if (ctx->header == NULL)
