@@ -26,6 +26,7 @@
 
 #include <sys/mount.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -44,26 +45,13 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define BLKTEST_MAXLEN  255
-#define BLKTEST_LOOPS   100
-
-/****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct pre_build
+struct pre_build_s
 {
-  FAR const char *mountpt;
-};
-
-struct test_state_s
-{
-  FAR char *context[BLKTEST_MAXLEN];
-  size_t len[BLKTEST_LOOPS];
-  uint32_t crc[BLKTEST_LOOPS];
+  FAR const char *source;
+  struct geometry cfg;
   int fd;
 };
 
@@ -77,10 +65,10 @@ struct test_state_s
 
 static void show_usage(FAR const char *progname, int exitcode)
 {
-  printf("Usage: %s -m <mountpt>\n", progname);
+  printf("Usage: %s -m <source>\n", progname);
   printf("Where:\n");
-  printf("  -m <mountpt> Block device or mtd device"
-         " mount location[default location: dev/ram10].\n");
+  printf("  -m <source> Block device or mtd device"
+         " mount location.\n");
   exit(exitcode);
 }
 
@@ -89,22 +77,30 @@ static void show_usage(FAR const char *progname, int exitcode)
  ****************************************************************************/
 
 static void parse_commandline(int argc, FAR char **argv,
-                              FAR struct pre_build *pre_build)
+                              FAR struct pre_build_s *pre)
 {
   int option;
+
+  pre->source = NULL;
 
   while ((option = getopt(argc, argv, "m:")) != ERROR)
     {
       switch (option)
         {
           case 'm':
-            pre_build->mountpt = optarg;
+            pre->source = optarg;
             break;
           case '?':
             printf("Unknown option: %c\n", optopt);
             show_usage(argv[0], EXIT_FAILURE);
             break;
         }
+    }
+
+  if (pre->source == NULL)
+    {
+      printf("Missing <source>\n");
+      show_usage(argv[0], EXIT_FAILURE);
     }
 }
 
@@ -137,27 +133,15 @@ static inline char blktest_randchar(void)
  * Name: blktest_randcontext
  ****************************************************************************/
 
-static void blktest_randcontext(FAR struct test_state_s *test_state)
+static void blktest_randcontext(FAR struct pre_build_s *pre, char *input)
 {
   int i;
-  int j;
-  int rnd;
-
-  for (i = 0; i < BLKTEST_LOOPS; i++)
+  for (i = 0; i < pre->cfg.geo_sectorsize - 1; i++)
     {
-      rnd = (rand() % BLKTEST_MAXLEN) + 1;
-      test_state->context[i] = malloc(rnd + 1);
-      assert_true(test_state->context[i] != NULL);
-      for (j = 0; j < rnd; j++)
-        {
-          test_state->context[i][j] = blktest_randchar();
-        }
-
-      test_state->context[i][rnd] = '\0';
-      size_t len = strlen(test_state->context[i]);
-      test_state->len[i] = len;
-      test_state->crc[i] = crc32((FAR uint8_t *)test_state->context[i], len);
+      input[i] = blktest_randchar();
     }
+
+  input[i] = '\0';
 }
 
 /****************************************************************************
@@ -166,27 +150,24 @@ static void blktest_randcontext(FAR struct test_state_s *test_state)
 
 static int setup(FAR void **state)
 {
-  FAR struct test_state_s *test_state;
-  FAR struct pre_build    *pre_build;
+  FAR struct pre_build_s *pre = (FAR struct pre_build_s *)*state;
+  struct stat mode;
   time_t t;
+  int ret;
 
-  pre_build = (FAR struct pre_build *)*state;
+  pre->fd = open(pre->source, O_RDWR | O_DIRECT);
+  assert_false(pre->fd < 0);
 
-  /* Allocate memory space and initialize */
+  ret = fstat(pre->fd, &mode);
+  assert_int_equal(ret, 0);
+  ret = (mode.st_mode & S_IFBLK) | (mode.st_mode & S_IFMTD);
+  assert_true(ret != 0);
 
-  test_state = zalloc(sizeof(struct test_state_s));
-  assert_false(test_state == NULL);
-
-  /* Seed the random number generated */
+  ret = ioctl(pre->fd, BIOC_GEOMETRY, (unsigned long)((uintptr_t)&pre->cfg));
+  assert_false(ret < 0);
 
   srand((unsigned)time(&t));
-
-  /* Open */
-
-  test_state->fd = open(pre_build->mountpt, O_RDWR | O_DIRECT);
-  assert_false(test_state->fd < 0);
-  *state = test_state;
-
+  *state = pre;
   return 0;
 }
 
@@ -196,49 +177,42 @@ static int setup(FAR void **state)
 
 static void blktest_stress(FAR void **state)
 {
-  FAR struct test_state_s *test_state;
-  int i;
-  int ret;
-  char *output;
+  FAR struct pre_build_s *pre;
+  FAR char *input;
+  FAR char *output;
+  uint32_t input_crc;
   uint32_t output_crc;
+  int ret;
 
-  test_state = (FAR struct test_state_s *)*state;
+  pre = (FAR struct pre_build_s *)*state;
 
-  /* Create some random context */
-
-  blktest_randcontext(test_state);
-
-  /* Writes all text to the block device bypassing the buffer cache,
-   * ensuring that reads are read from the block device.
-   * Get the value of crc32 after reading and compare it with the crc32
-   * of the previously written text.
-   */
-
-  for (i = 0; i < BLKTEST_LOOPS; i++)
-    {
-      ret = write(test_state->fd, test_state->context[i],
-                  test_state->len[i]);
-      assert_true(ret == test_state->len[i]);
-      fsync(test_state->fd);
-    }
-
-  /* Reset read and write position */
-
-  lseek(test_state->fd, 0, SEEK_SET);
-
-  output = malloc (BLKTEST_MAXLEN);
+  input = malloc(pre->cfg.geo_sectorsize);
+  assert_true(input != NULL);
+  output = malloc(pre->cfg.geo_sectorsize);
   assert_true(output != NULL);
 
-  for (i = 0; i < BLKTEST_LOOPS; i++)
+  for (int i = 0; i < pre->cfg.geo_nsectors; i++)
     {
-      memset(output, 0, BLKTEST_MAXLEN);
-      ret = read(test_state->fd, output, test_state->len[i]);
-      assert_int_equal(ret, test_state->len[i]);
+      input_crc = 0;
+      output_crc = 0;
 
-      output_crc = crc32((FAR uint8_t *)output, test_state->len[i]);
-      assert_false(output_crc != test_state->crc[i]);
+      blktest_randcontext(pre, input);
+      input_crc = crc32((FAR uint8_t *)input, pre->cfg.geo_sectorsize);
+      ret = write(pre->fd, input, pre->cfg.geo_sectorsize);
+      assert_true(ret == pre->cfg.geo_sectorsize);
+      fsync(pre->fd);
+
+      lseek(pre->fd, i * pre->cfg.geo_sectorsize, SEEK_SET);
+
+      ret = read(pre->fd, output, pre->cfg.geo_sectorsize);
+      assert_int_equal(ret, pre->cfg.geo_sectorsize);
+
+      output_crc = crc32((FAR uint8_t *)output, pre->cfg.geo_sectorsize);
+
+      assert_false(output_crc != input_crc);
     }
 
+  free(input);
   free(output);
 }
 
@@ -248,12 +222,11 @@ static void blktest_stress(FAR void **state)
 
 static int teardown(FAR void **state)
 {
-  FAR struct test_state_s *test_state;
+  FAR struct pre_build_s *pre;
 
-  test_state = (FAR struct test_state_s *)*state;
+  pre = (FAR struct pre_build_s *)*state;
 
-  close(test_state->fd);
-  free(test_state);
+  close(pre->fd);
 
   return 0;
 }
@@ -268,15 +241,13 @@ static int teardown(FAR void **state)
 
 int main(int argc, FAR char *argv[])
 {
-  FAR struct pre_build pre_build = {
-    .mountpt = "dev/ram10"
-  };
+  struct pre_build_s pre;
 
-  parse_commandline(argc, argv, &pre_build);
+  parse_commandline(argc, argv, &pre);
   const struct CMUnitTest tests[] =
     {
       cmocka_unit_test_prestate_setup_teardown(blktest_stress, setup,
-                                               teardown, &pre_build),
+                                               teardown, &pre),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
