@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <termios.h>
 
 #ifdef CONFIG_NSH_CLE
 #  include "system/cle.h"
@@ -168,6 +169,21 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 #endif
         }
     }
+
+#ifdef CONFIG_NSH_DISABLE_ECHOBACK
+  /* Disable echoback */
+
+  if (isatty(INFD(pstate)))
+    {
+      struct termios cfg;
+
+      if (tcgetattr(INFD(pstate), &cfg) == 0)
+        {
+          cfg.c_lflag &= ~ECHO;
+          tcsetattr(INFD(pstate), TCSANOW, &cfg);
+        }
+    }
+#endif
 
   /* Then enter the command line parsing loop */
 
