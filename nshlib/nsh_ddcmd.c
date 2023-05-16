@@ -391,7 +391,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   ret = dd_infopen(infile, &dd);
   if (ret < 0)
     {
-      goto errout_with_paths;
+      goto errout_with_alloc;
     }
 
   /* Open the output file */
@@ -475,6 +475,8 @@ errout_with_outf:
 
 errout_with_inf:
   close(dd.infd);
+
+errout_with_alloc:
   free(dd.buffer);
 
 errout_with_paths:
