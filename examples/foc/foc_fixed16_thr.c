@@ -295,10 +295,8 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
   struct foc_mq_s         handle;
   struct foc_motor_b16_s  motor;
   struct foc_device_s     dev;
-  int                     time = 0;
   int                     ret  = OK;
 
-  UNUSED(time);
   DEBUGASSERT(envp);
 
   PRINTFV("foc_fixed_thr, id=%d\n", envp->id);
@@ -341,7 +339,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 
   while (motor.mq.quit == false)
     {
-      PRINTFV("foc_fixed16_thr %d %d\n", envp->id, time);
+      PRINTFV("foc_fixed16_thr %d %d\n", envp->id, motor.time);
 
       /* Handle mqueue */
 
@@ -441,7 +439,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 #ifdef FOC_STATE_PRINT_PRE
           /* Print state if configured */
 
-          if (time % FOC_STATE_PRINT_PRE == 0)
+          if (motor.time % FOC_STATE_PRINT_PRE == 0)
             {
               foc_state_print(&motor);
             }
@@ -467,7 +465,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 #ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
           /* Capture nxscope samples */
 
-          if (time % CONFIG_EXAMPLES_FOC_NXSCOPE_PRESCALER == 0)
+          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_PRESCALER == 0)
             {
               foc_fixed16_nxscope(envp->nxs, &motor, &dev);
             }
@@ -488,7 +486,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 
       /* Increase counter */
 
-      time += 1;
+      motor.time += 1;
     }
 
 errout:

@@ -87,6 +87,7 @@ struct foc_motor_f32_s
   dq_frame_f32_t                dq_ref;       /* DQ reference */
   dq_frame_f32_t                vdq_comp;     /* DQ voltage compensation */
   int                           foc_mode;     /* FOC mode */
+  int                           time;         /* Helper counter */
   float                         vbus;         /* Power bus voltage */
   float                         per;          /* Controller period in seconds */
   float                         iphase_adc;   /* Iphase ADC scaling factor */
@@ -95,6 +96,9 @@ struct foc_motor_f32_s
   /* Velocity controller data ***********************************************/
 
   struct foc_ramp_f32_s         ramp;         /* Velocity ramp data */
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+  pid_controller_f32_t          vel_pi;       /* Velocity controller */
+#endif
 
   /* Motor state ************************************************************/
 

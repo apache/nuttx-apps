@@ -120,6 +120,10 @@ struct args_s g_args =
     .vel_div_samples = CONFIG_EXAMPLES_FOC_VELOBS_DIV_SAMPLES,
     .vel_div_filter = CONFIG_EXAMPLES_FOC_VELOBS_DIV_FILTER,
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+    .vel_pi_kp = CONFIG_EXAMPLES_FOC_VELCTRL_PI_KP,
+    .vel_pi_ki = CONFIG_EXAMPLES_FOC_VELCTRL_PI_KI,
+#endif
   }
 };
 
