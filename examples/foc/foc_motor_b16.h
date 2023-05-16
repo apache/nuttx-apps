@@ -66,31 +66,41 @@ struct foc_setpoint_b16_s
 
 struct foc_motor_b16_s
 {
+  /* App data ***************************************************************/
+
   FAR struct foc_ctrl_env_s    *envp;         /* Thread env */
+  struct foc_mq_s               mq;           /* MQ data */
   bool                          fault;        /* Fault flag */
   bool                          startstop;    /* Start/stop request */
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  bool                          openloop_now; /* Open-loop now */
-  b16_t                         angle_ol;     /* Phase angle open-loop */
-  foc_angle_b16_t               openloop;     /* Open-loop angle handler */
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
-  char                          hldpath[32];  /* Hall devpath */
-  foc_angle_b16_t               hall;         /* Hall angle handler */
-#endif
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
-  char                          qedpath[32];  /* Qenco devpath */
-  foc_angle_b16_t               qenco;        /* Qenco angle handler */
-#endif
-  int                           foc_mode;     /* FOC mode */
+  int                           ctrl_state;   /* Controller state */
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN
   int                           foc_mode_run; /* FOC mode for run state */
 #endif
-  int                           ctrl_state;   /* Controller state */
+
+  /* FOC data ***************************************************************/
+
+  struct foc_state_b16_s        foc_state;    /* FOC controller sate */
+  foc_handler_b16_t             handler;      /* FOC controller */
+  dq_frame_b16_t                dq_ref;       /* DQ reference */
+  dq_frame_b16_t                vdq_comp;     /* DQ voltage compensation */
+  int                           foc_mode;     /* FOC mode */
   b16_t                         vbus;         /* Power bus voltage */
+  b16_t                         per;          /* Controller period in seconds */
+  b16_t                         iphase_adc;   /* Iphase ADC scaling factor */
+  b16_t                         pwm_duty_max; /* PWM duty max */
+
+  /* Velocity controller data ***********************************************/
+
+  struct foc_ramp_b16_s         ramp;         /* Velocity ramp data */
+
+  /* Motor state ************************************************************/
+
   b16_t                         angle_now;    /* Phase angle now */
   b16_t                         angle_m;      /* Motor mechanical angle */
   b16_t                         angle_el;     /* Motor electrical angle */
+
+  /* Motor setpoints ********************************************************/
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   struct foc_setpoint_b16_s     torq;         /* Torque setpoint */
 #endif
@@ -101,16 +111,9 @@ struct foc_motor_b16_s
   struct foc_setpoint_b16_s     pos;          /* Position setpoint */
 #endif
   b16_t                         dir;          /* Motor's direction */
-  b16_t                         per;          /* Controller period in seconds */
-  b16_t                         iphase_adc;   /* Iphase ADC scaling factor */
-  b16_t                         pwm_duty_max; /* PWM duty max */
-  uint8_t                       poles;        /* Motor poles */
-  dq_frame_b16_t                dq_ref;       /* DQ reference */
-  dq_frame_b16_t                vdq_comp;     /* DQ voltage compensation */
-  foc_handler_b16_t             handler;      /* FOC controller */
-  struct foc_mq_s               mq;           /* MQ data */
-  struct foc_state_b16_s        foc_state;    /* FOC controller sate */
-  struct foc_ramp_b16_s         ramp;         /* Velocity ramp data */
+
+  /* Motor routines *********************************************************/
+
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
   struct foc_routine_b16_s      align;        /* Alignment routine */
   bool                          align_done;   /* Alignment done */
@@ -120,9 +123,29 @@ struct foc_motor_b16_s
   struct motor_phy_params_b16_s phy_ident;    /* Motor phy from ident */
   bool                          ident_done;   /* Motor ident done */
 #endif
+
+  /* Motor data *************************************************************/
+
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
-  struct foc_model_b16_s        model;         /* Model handler */
-  struct foc_model_state_b16_s  model_state;   /* PMSM model state */
+  struct foc_model_b16_s        model;        /* Model handler */
+  struct foc_model_state_b16_s  model_state;  /* PMSM model state */
+#endif
+  uint8_t                       poles;        /* Motor poles */
+
+  /* Motor velocity and angle handlers **************************************/
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+  foc_angle_b16_t               openloop;     /* Open-loop angle handler */
+  bool                          openloop_now; /* Open-loop now */
+  b16_t                         angle_ol;     /* Phase angle open-loop */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
+  foc_angle_b16_t               hall;         /* Hall angle handler */
+  char                          hldpath[32];  /* Hall devpath */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
+  foc_angle_b16_t               qenco;        /* Qenco angle handler */
+  char                          qedpath[32];  /* Qenco devpath */
 #endif
 };
 
