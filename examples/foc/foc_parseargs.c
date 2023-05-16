@@ -50,6 +50,9 @@
 #define OPT_VODIVS  (SCHAR_MAX + 9)
 #define OPT_VODIVF  (SCHAR_MAX + 10)
 
+#define OPT_VCPIKP  (SCHAR_MAX + 11)
+#define OPT_VCPIKI  (SCHAR_MAX + 12)
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -92,6 +95,10 @@ static struct option g_long_options[] =
 #ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
     { "vodivs", required_argument, 0, OPT_VODIVS },
     { "vodivf", required_argument, 0, OPT_VODIVF },
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+    { "vcpikp", required_argument, 0, OPT_VCPIKP },
+    { "vcpiki", required_argument, 0, OPT_VCPIKI },
 #endif
     { 0, 0, 0, 0 }
   };
@@ -177,6 +184,12 @@ static void foc_help(void)
          CONFIG_EXAMPLES_FOC_VELOBS_DIV_SAMPLES);
   PRINTF("  [--vodivf] velobs DIV filter (default: %d)\n",
          CONFIG_EXAMPLES_FOC_VELOBS_DIV_FILTER);
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+  PRINTF("  [--vpikp] velctrl PI Kp (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_VELCTRL_PI_KP);
+  PRINTF("  [--vpiki] velctrl PI Ki (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_VELCTRL_PI_KI);
 #endif
 }
 
@@ -275,6 +288,20 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
           case OPT_VODIVF:
             {
               args->cfg.vel_div_filter = atoi(optarg);
+              break;
+            }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+          case OPT_VCPIKP:
+            {
+              args->cfg.vel_pi_kp = atoi(optarg);
+              break;
+            }
+
+          case OPT_VCPIKI:
+            {
+              args->cfg.vel_pi_ki = atoi(optarg);
               break;
             }
 #endif

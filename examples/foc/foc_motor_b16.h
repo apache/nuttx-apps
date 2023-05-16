@@ -87,6 +87,7 @@ struct foc_motor_b16_s
   dq_frame_b16_t                dq_ref;       /* DQ reference */
   dq_frame_b16_t                vdq_comp;     /* DQ voltage compensation */
   int                           foc_mode;     /* FOC mode */
+  int                           time;         /* Helper counter */
   b16_t                         vbus;         /* Power bus voltage */
   b16_t                         per;          /* Controller period in seconds */
   b16_t                         iphase_adc;   /* Iphase ADC scaling factor */
@@ -95,6 +96,9 @@ struct foc_motor_b16_s
   /* Velocity controller data ***********************************************/
 
   struct foc_ramp_b16_s         ramp;         /* Velocity ramp data */
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+  pid_controller_b16_t          vel_pi;       /* Velocity controller */
+#endif
 
   /* Motor state ************************************************************/
 

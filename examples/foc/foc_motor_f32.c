@@ -761,6 +761,9 @@ static int foc_motor_run_init(FAR struct foc_motor_f32_s *motor)
 
 static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
 {
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  float vel_err = 0.0f;
+#endif
   float q_ref = 0.0f;
   float d_ref = 0.0f;
   int   ret   = OK;
@@ -788,6 +791,14 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
   q_ref = motor->dq_ref.q;
   d_ref = motor->dq_ref.d;
 
+  /* Ignore controller if motor is free or stopped */
+
+  if (motor->mq.app_state == FOC_EXAMPLE_STATE_FREE ||
+      motor->mq.app_state == FOC_EXAMPLE_STATE_STOP)
+    {
+      goto no_controller;
+    }
+
   /* Controller */
 
   switch (motor->envp->cfg->mmode)
@@ -807,14 +818,39 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
       case FOC_MMODE_VEL:
         {
-          /* Run velocity ramp controller */
-
-          ret = foc_ramp_run_f32(&motor->ramp, motor->vel.des,
-                                 motor->vel.now, &motor->vel.set);
-          if (ret < 0)
+          if (motor->time % VEL_CONTROL_PRESCALER == 0)
             {
-              PRINTF("ERROR: foc_ramp_run failed %d\n", ret);
-              goto errout;
+              /* Run velocity ramp controller */
+
+              ret = foc_ramp_run_f32(&motor->ramp,
+                                     motor->dir * motor->vel.des,
+                                     motor->vel.now,
+                                     &motor->vel.set);
+              if (ret < 0)
+                {
+                  PRINTF("ERROR: foc_ramp_run failed %d\n", ret);
+                  goto errout;
+                }
+
+              /* Run velocity controller if no in open-loop */
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+              if (motor->openloop_now == false)
+#endif
+                {
+                  /* Get velocity error */
+
+                  vel_err = motor->vel.set - motor->vel.now;
+
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+                  /* PI velocit controller */
+
+                  q_ref = pi_controller(&motor->vel_pi, vel_err);
+                  d_ref = 0;
+#else
+#  error Missing velocity controller
+#endif
+                }
             }
 
           break;
@@ -841,6 +877,8 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
       d_ref = 0.0f;
     }
 #endif
+
+no_controller:
 
   /* Set DQ reference frame */
 
@@ -1049,6 +1087,20 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
       PRINTFV("ERROR: foc_velocity_cfg_f32 failed %d!\n", ret);
       goto errout;
     }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
+  /* Initialize velocity controller */
+
+  pi_controller_init(&motor->vel_pi,
+                     (motor->envp->cfg->vel_pi_kp / 1000000.0f),
+                     (motor->envp->cfg->vel_pi_ki / 1000000.0f));
+
+  pi_saturation_set(&motor->vel_pi,
+                    -(CONFIG_EXAMPLES_FOC_VELCTRL_PI_SAT / 1000.0f),
+                    (CONFIG_EXAMPLES_FOC_VELCTRL_PI_SAT / 1000.0f));
+
+  pi_antiwindup_enable(&motor->vel_pi, 0.99f, true);
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
