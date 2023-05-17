@@ -36,6 +36,17 @@
 #include "industry/foc/foc_common.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifndef CONFIG_EXAMPLES_FOC_FLOAT_INST
+#  define CONFIG_EXAMPLES_FOC_FLOAT_INST   (0)
+#endif
+#ifndef CONFIG_EXAMPLES_FOC_FIXED16_INST
+#  define CONFIG_EXAMPLES_FOC_FIXED16_INST (0)
+#endif
+
+/****************************************************************************
  * Extern Functions Prototypes
  ****************************************************************************/
 
@@ -80,29 +91,13 @@ static FAR void *foc_control_thr(FAR void *arg)
 
   /* Get controller type */
 
-  pthread_mutex_lock(&g_cntr_lock);
-
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
-  if (g_float_thr_cntr < CONFIG_EXAMPLES_FOC_FLOAT_INST)
-    {
-      envp->type = FOC_NUMBER_TYPE_FLOAT;
-    }
-  else
-#endif
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
-  if (g_fixed16_thr_cntr < CONFIG_EXAMPLES_FOC_FIXED16_INST)
-    {
-      envp->type = FOC_NUMBER_TYPE_FIXED16;
-    }
-  else
-#endif
+  envp->type = foc_thread_type(envp->id);
+  if (envp->type == -1)
     {
       /* Invalid configuration */
 
       ASSERT(0);
     }
-
-  pthread_mutex_unlock(&g_cntr_lock);
 
   PRINTF("FOC device %d type = %d!\n", envp->id, envp->type);
 
@@ -279,6 +274,31 @@ uint32_t foc_threads_get(void)
   pthread_mutex_lock(&g_cntr_lock);
   ret = g_foc_thr;
   pthread_mutex_unlock(&g_cntr_lock);
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: foc_thread_type
+ ****************************************************************************/
+
+int foc_thread_type(int id)
+{
+  int ret = -1;
+
+#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+  if (id < CONFIG_EXAMPLES_FOC_FLOAT_INST)
+    {
+      ret = FOC_NUMBER_TYPE_FLOAT;
+    }
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+  if (id < CONFIG_EXAMPLES_FOC_FLOAT_INST + CONFIG_EXAMPLES_FOC_FIXED16_INST)
+    {
+      ret = FOC_NUMBER_TYPE_FIXED16;
+    }
+#endif
 
   return ret;
 }
