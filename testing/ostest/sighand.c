@@ -328,4 +328,6 @@ void sighand_test(void)
 
   printf("sighand_test: done\n");
   FFLUSH();
+  sem_destroy(&sem2);
+  sem_destroy(&sem1);
 }
