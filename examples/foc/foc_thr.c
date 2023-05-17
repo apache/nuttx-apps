@@ -256,14 +256,14 @@ bool foc_threads_terminated(void)
 {
   bool ret = false;
 
-  pthread_mutex_unlock(&g_cntr_lock);
+  pthread_mutex_lock(&g_cntr_lock);
 
   if (g_foc_thr == 0)
     {
       ret = true;
     }
 
-  pthread_mutex_lock(&g_cntr_lock);
+  pthread_mutex_unlock(&g_cntr_lock);
 
   return ret;
 }
@@ -276,9 +276,9 @@ uint32_t foc_threads_get(void)
 {
   uint32_t ret = 0;
 
-  pthread_mutex_unlock(&g_cntr_lock);
-  ret = g_foc_thr;
   pthread_mutex_lock(&g_cntr_lock);
+  ret = g_foc_thr;
+  pthread_mutex_unlock(&g_cntr_lock);
 
   return ret;
 }
