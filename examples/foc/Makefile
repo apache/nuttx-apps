@@ -50,4 +50,10 @@ ifeq ($(CONFIG_INDUSTRY_FOC_FLOAT),y)
   CSRCS += foc_float_thr.c foc_motor_f32.c
 endif
 
+# NxScope support
+
+ifeq ($(CONFIG_EXAMPLES_FOC_NXSCOPE),y)
+  CSRCS += foc_nxscope.c
+endif
+
 include $(APPDIR)/Application.mk

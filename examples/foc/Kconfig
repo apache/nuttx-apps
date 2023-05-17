@@ -421,5 +421,92 @@ config EXAMPLES_FOC_RUN_DISABLE
 	bool "FOC Disable FOC motor controller"
 	default n
 
+config EXAMPLES_FOC_NXSCOPE
+	bool "FOC nxscope support"
+	depends on LOGGING_NXSCOPE
+	select LOGGING_NXSCOPE_DISABLE_PUTLOCK
+	default n
+	---help---
+		This option enables a controller real-time data capture with
+		the NxScope library.
+
+if EXAMPLES_FOC_NXSCOPE
+
+config EXAMPLES_FOC_NXSCOPE_SERIAL
+	bool "FOC nxscope on serial port"
+	select LOGGING_NXSCOPE_INTF_SERIAL
+	default y
+
+if EXAMPLES_FOC_NXSCOPE_SERIAL
+
+config EXAMPLES_FOC_NXSCOPE_SERIAL_PATH
+	string "FOC nxscope serial path"
+	default "/dev/ttyS0"
+
+config EXAMPLES_FOC_NXSCOPE_SERIAL_BAUD
+	int "FOC nxscope serial baud"
+	default 115200
+
+endif # EXAMPLES_FOC_NXSCOPE_SERIAL
+
+config EXAMPLES_FOC_NXSCOPE_STREAMBUF_LEN
+	int "FOC nxscope stream buffer length"
+	default 512
+
+config EXAMPLES_FOC_NXSCOPE_RXBUF_LEN
+	int "FOC nxscope RX buffer length"
+	default 64
+
+config EXAMPLES_FOC_NXSCOPE_RXPADDING
+	int "FOC nxscope RX padding"
+	default 0
+
+config EXAMPLES_FOC_NXSCOPE_CHANNELS
+	int "FOC nxscope channels"
+	default 0
+
+config EXAMPLES_FOC_NXSCOPE_PRESCALER
+	int "FOC nxscope prescaler"
+	default 1
+	---help---
+		This option allows you to reduce the frequency of adding samples to
+		the NxScope buffer.
+
+config EXAMPLES_FOC_NXSCOPE_CFG
+	hex "FOC nxscope configuration"
+	default 0x00000000
+	---help---
+		Each bit defines the controller state variable that can be captured.
+		Look at foc_nxscope.h for bits definitions.
+
+config EXAMPLES_FOC_NXSCOPE_START
+	bool "FOC nxscope start frame sync"
+	default n
+	---help---
+		If this option is set, the controller will be waiting for the start
+		frame from a NxScope master device. This allows us to capture
+		controller data from the very beginning of its operation.
+
+config EXAMPLES_FOC_NXSCOPE_THREAD
+	bool "FOC nxscope uses separate thread"
+	default n
+	---help---
+		Use a separate thread for NxScope communication.
+
+if EXAMPLES_FOC_NXSCOPE_THREAD
+
+config EXAMPLES_FOC_NXSCOPE_PRIO
+	int "FOC nxscope thread priority"
+	default 100
+
+config EXAMPLES_FOC_NXSCOPE_STACKSIZE
+	int "FOC nxscope thread stack size"
+	default 2048
+
+endif # EXAMPLES_FOC_NXSCOPE_THREAD
+
+endif # EXAMPLES_FOC_NXSCOPE
+
 endif # EXAMPLES_FOC
+
 

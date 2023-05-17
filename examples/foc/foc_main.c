@@ -43,6 +43,10 @@
 
 #include "industry/foc/foc_common.h"
 
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+#  include "foc_nxscope.h"
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -58,6 +62,8 @@
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+/* Default configuration */
 
 struct args_s g_args =
 {
@@ -105,6 +111,11 @@ struct args_s g_args =
 #endif
   }
 };
+
+/* Start allowed at defaule */
+
+static bool            g_start_allowed      = true;
+static pthread_mutex_t g_start_allowed_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /****************************************************************************
  * Private Functions
@@ -191,6 +202,20 @@ static int foc_kill_send(mqd_t mqd)
   return foc_mq_send(mqd, CONTROL_MQ_MSG_KILL, (FAR void *)&tmp);
 }
 
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE_START
+/****************************************************************************
+ * Name: foc_nxscope_cb_start
+ ****************************************************************************/
+
+static int foc_nxscope_cb_start(FAR void *priv, bool start)
+{
+  pthread_mutex_lock(&g_start_allowed_lock);
+  g_start_allowed = start;
+  pthread_mutex_unlock(&g_start_allowed_lock);
+  return OK;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -209,6 +234,10 @@ int main(int argc, char *argv[])
   int                    ret          = OK;
   int                    i            = 0;
   int                    time         = 0;
+  bool                   startallowed = false;
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+  struct foc_nxscope_s   nxs;
+#endif
 
   /* Reset some data */
 
@@ -216,6 +245,9 @@ int main(int argc, char *argv[])
   memset(foc, 0, sizeof(struct foc_ctrl_env_s) * CONFIG_MOTOR_FOC_INST);
   memset(threads, 0, sizeof(pthread_t) * CONFIG_MOTOR_FOC_INST);
   memset(&data, 0, sizeof(struct foc_intf_data_s));
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+  memset(&nxs, 0, sizeof(struct foc_nxscope_s));
+#endif
 
 #ifdef CONFIG_BUILTIN
   /* Parse the command line */
@@ -229,7 +261,7 @@ int main(int argc, char *argv[])
   if (ret < 0)
     {
       PRINTF("ERROR: validate args failed\n");
-      goto errout_no_threads;
+      goto errout_no_nxscope;
     }
 
 #ifndef CONFIG_NSH_ARCHINIT
@@ -245,6 +277,28 @@ int main(int argc, char *argv[])
 #endif
 
   PRINTF("\nStart foc_main application!\n\n");
+
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+
+#  ifdef CONFIG_EXAMPLES_FOC_NXSCOPE_START
+  /* Wait for nxscope */
+
+  g_start_allowed = false;
+
+  /* Connect start callback */
+
+  nxs.cb.start = foc_nxscope_cb_start;
+#  endif
+
+  /* Initialize nxscope */
+
+  ret = foc_nxscope_init(&nxs);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: failed to initialize nxscope %d\n", ret);
+      goto errout_no_threads;
+    }
+#endif
 
   /* Initialize threads */
 
@@ -271,6 +325,9 @@ int main(int argc, char *argv[])
       /* Get configuration */
 
       foc[i].cfg = &g_args.cfg;
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+      foc[i].nxs = &nxs;
+#endif
 
       if (g_args.en & (1 << i))
         {
@@ -310,6 +367,11 @@ int main(int argc, char *argv[])
   while (data.terminate != true)
     {
       PRINTFV("foc_main loop %d\n", time);
+
+#if defined(CONFIG_EXAMPLES_FOC_NXSCOPE) &&       \
+    !defined(CONFIG_EXAMPLES_FOC_NXSCOPE_THREAD)
+      foc_nxscope_work(&nxs);
+#endif
 
       /* Get active control threads */
 
@@ -407,26 +469,35 @@ int main(int argc, char *argv[])
 
       if (data.started == false)
         {
-          for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
+          /* Is start allowed now ? */
+
+          pthread_mutex_lock(&g_start_allowed_lock);
+          startallowed = g_start_allowed;
+          pthread_mutex_unlock(&g_start_allowed_lock);
+
+          if (startallowed)
             {
-              if ((g_args.en & (1 << i)) && (thrs_active & (1 << i)))
+              for (i = 0; i < CONFIG_MOTOR_FOC_INST; i += 1)
                 {
-                  PRINTFV("Send start to %d\n", i);
-
-                  /* Send START to threads */
-
-                  ret = foc_start_send(mqd[i]);
-                  if (ret < 0)
+                  if ((g_args.en & (1 << i)) && (thrs_active & (1 << i)))
                     {
-                      PRINTF("ERROR: foc_start_send failed %d\n", ret);
-                      goto errout;
+                      PRINTFV("Send start to %d\n", i);
+
+                      /* Send START to threads */
+
+                      ret = foc_start_send(mqd[i]);
+                      if (ret < 0)
+                        {
+                          PRINTF("ERROR: foc_start_send failed %d\n", ret);
+                          goto errout;
+                        }
                     }
                 }
+
+              /* Set flag */
+
+              data.started = true;
             }
-
-          /* Set flag */
-
-          data.started = true;
         }
 
       /* Handle run time */
@@ -514,8 +585,15 @@ errout_no_intf:
 
   foc_threads_deinit();
 
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
 errout_no_threads:
 
+  /* De-initialize NxScope */
+
+  foc_nxscope_deinit(&nxs);
+#endif
+
+errout_no_nxscope:
   PRINTF("foc_main exit\n");
   return 0;
 }
