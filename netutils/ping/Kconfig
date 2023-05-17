@@ -12,7 +12,7 @@ config NETUTILS_PING
 		send the ICMP ECHO_REQUEST and wait for the ICMP ECHO_RESPONSE from
 		the remote peer.
 
- config NETUTILS_PING6
+config NETUTILS_PING6
 	bool "ICMPv6 ping support"
 	default n
 	depends on NET_ICMPv6
