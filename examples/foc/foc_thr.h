@@ -35,6 +35,10 @@
 
 #include "foc_device.h"
 
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+#  include "foc_nxscope.h"
+#endif
+
 /****************************************************************************
  * Public Type Definition
  ****************************************************************************/
@@ -107,11 +111,14 @@ enum foc_controller_state_e
 
 struct foc_ctrl_env_s
 {
-  mqd_t                mqd;     /* Control msg queue */
-  int                  id;      /* FOC device id */
-  int                  inst;    /* Type specific instance counter */
-  int                  type;    /* Controller type */
-  struct foc_thr_cfg_s *cfg;    /* Control thread configuration */
+  mqd_t                     mqd;   /* Control msg queue */
+  int                       id;    /* FOC device id */
+  int                       inst;  /* Type specific instance counter */
+  int                       type;  /* Controller type */
+  FAR struct foc_thr_cfg_s *cfg;   /* Control thread configuration */
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+  FAR struct foc_nxscope_s *nxs;   /* nxscope handler */
+#endif
 };
 
 /****************************************************************************
