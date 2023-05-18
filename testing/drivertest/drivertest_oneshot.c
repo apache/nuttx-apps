@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <setjmp.h>
 #include <cmocka.h>
