@@ -24,6 +24,6 @@ config TESTING_CMOCKA_PRIORITY
 
 config TESTING_CMOCKA_STACKSIZE
 	int "cmocka test stack size"
-	default  DEFAULT_TASK_STACKSIZE
+	default DEFAULT_TASK_STACKSIZE
 
 endif
