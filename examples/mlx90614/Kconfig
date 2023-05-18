@@ -6,7 +6,7 @@
 config EXAMPLES_MLX90614
 	tristate "MLX90614 Test Example"
 	default n
-	select  LIBC_FLOATINGPOINT
+	select LIBC_FLOATINGPOINT
 	---help---
 		Enable the MLX90614 example
 
