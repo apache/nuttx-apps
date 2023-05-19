@@ -204,7 +204,7 @@ static void httpd_dumpbuffer(FAR const char *msg, FAR const char *buffer,
   ninfodumpbuffer(msg, (FAR const uint8_t *)buffer, nbytes);
 }
 #else
-# define httpd_dumpbuffer(msg,buffer,nbytes)
+#  define httpd_dumpbuffer(msg,buffer,nbytes)
 #endif
 
 #ifdef CONFIG_NETUTILS_HTTPD_DUMPPSTATE
@@ -223,7 +223,7 @@ static void httpd_dumppstate(struct httpd_state *pstate, const char *msg)
 #endif
 }
 #else
-# define httpd_dumppstate(pstate, msg)
+#  define httpd_dumppstate(pstate, msg)
 #endif
 
 #ifndef CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE

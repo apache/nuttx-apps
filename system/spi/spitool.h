@@ -115,7 +115,7 @@
 
 /* Output is via printf but can be changed using this macro */
 
-# define spi_output         printf
+#  define spi_output         printf
 
 /****************************************************************************
  * Public Types

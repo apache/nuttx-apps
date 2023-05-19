@@ -61,10 +61,10 @@
 /* Internal macros for attributes */
 
 #ifndef max
-# define max(a,b) (((a) > (b)) ? (a) : (b))
+#  define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
 #ifndef min
-# define min(a,b) (((a) < (b)) ? (a) : (b))
+#  define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #define DIVROUND(num, divisor) ((num) + ((divisor) >> 1)) / (divisor)

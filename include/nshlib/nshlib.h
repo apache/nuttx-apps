@@ -60,9 +60,9 @@
 #endif
 
 #if CONFIG_RR_INTERVAL > 0
-# define SCHED_NSH SCHED_RR
+#  define SCHED_NSH SCHED_RR
 #else
-# define SCHED_NSH SCHED_FIFO
+#  define SCHED_NSH SCHED_FIFO
 #endif
 
 /****************************************************************************

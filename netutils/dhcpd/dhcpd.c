@@ -337,7 +337,7 @@ static inline void dhcpd_arpupdate(FAR uint8_t *ipaddr, FAR uint8_t *hwaddr)
  ****************************************************************************/
 
 #ifdef CONFIG_NETUTILS_DHCPD_HOST
-# define dhcpd_time() time(0)
+#  define dhcpd_time() time(0)
 #elif defined(HAVE_LEASE_TIME)
 static time_t dhcpd_time(void)
 {
@@ -352,7 +352,7 @@ static time_t dhcpd_time(void)
   return ret;
 }
 #else
-# define dhcpd_time() (0)
+#  define dhcpd_time() (0)
 #endif
 
 /****************************************************************************
@@ -373,7 +373,7 @@ static inline bool dhcpd_leaseexpired(struct lease_s *lease)
     }
 }
 #else
-# define dhcpd_leaseexpired(lease) (false)
+#  define dhcpd_leaseexpired(lease) (false)
 #endif
 
 /****************************************************************************

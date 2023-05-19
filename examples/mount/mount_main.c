@@ -178,7 +178,7 @@ static void show_statfs(const char *path)
     }
 }
 #else
-# define show_statfs(p)
+#  define show_statfs(p)
 #endif
 
 /****************************************************************************
@@ -227,7 +227,7 @@ static void show_directories(const char *path, int indent)
   closedir(dirp);
 }
 #else
-# define show_directories(p,i)
+#  define show_directories(p,i)
 #endif
 
 /****************************************************************************
@@ -558,7 +558,7 @@ static void fail_stat(const char *path, int expectederror)
     }
 }
 #else
-# define fail_stat(p,e);
+#  define fail_stat(p,e);
 #endif
 
 /****************************************************************************

@@ -274,31 +274,31 @@
 #   error "Illegal value for CONFIG_FAT_MAXFNAME"
 # endif
 
-# define LDIR_MAXLFNCHARS   13  /* Max unicode characters in one LFN entry */
-# define LDIR_MAXLFNS       20  /* Max number of LFN entries */
+#  define LDIR_MAXLFNCHARS   13  /* Max unicode characters in one LFN entry */
+#  define LDIR_MAXLFNS       20  /* Max number of LFN entries */
 
 /* LFN directory entry offsets */
 
-# define LDIR_SEQ            0  /*  1@ 0: Sequence number */
-# define LDIR_WCHAR1_5       1  /* 10@ 1: File name characters 1-5 (5 Unicode characters) */
-# define LDIR_ATTRIBUTES    11  /*  1@11: File attributes (always 0x0f) */
-# define LDIR_NTRES         12  /*  1@12: Reserved for use by NT  (always 0x00) */
-# define LDIR_CHECKSUM      13  /*  1@13: Checksum of the DOS filename */
-# define LDIR_WCHAR6_11     14  /* 12@14: File name characters 6-11 (6 Unicode characters) */
-# define LDIR_FSTCLUSTLO    26  /*  2@26: First cluster (always 0x0000) */
-# define LDIR_WCHAR12_13    28  /*  4@28: File name characters 12-13 (2 Unicode characters) */
+#  define LDIR_SEQ            0  /*  1@ 0: Sequence number */
+#  define LDIR_WCHAR1_5       1  /* 10@ 1: File name characters 1-5 (5 Unicode characters) */
+#  define LDIR_ATTRIBUTES    11  /*  1@11: File attributes (always 0x0f) */
+#  define LDIR_NTRES         12  /*  1@12: Reserved for use by NT  (always 0x00) */
+#  define LDIR_CHECKSUM      13  /*  1@13: Checksum of the DOS filename */
+#  define LDIR_WCHAR6_11     14  /* 12@14: File name characters 6-11 (6 Unicode characters) */
+#  define LDIR_FSTCLUSTLO    26  /*  2@26: First cluster (always 0x0000) */
+#  define LDIR_WCHAR12_13    28  /*  4@28: File name characters 12-13 (2 Unicode characters) */
 
 /* LFN sequence number and allocation status */
 
-# define LDIR0_EMPTY       DIR0_EMPTY    /* The directory entry is empty */
-# define LDIR0_ALLEMPTY    DIR0_ALLEMPTY /* This entry and all following are empty */
-# define LDIR0_E5          DIR0_E5       /* The actual value is 0xe5 */
-# define LDIR0_LAST        0x40          /* Last LFN in file name (appears first) */
-# define LDIR0_SEQ_MASK    0x1f          /* Mask for sequence number (1-20) */
+#  define LDIR0_EMPTY       DIR0_EMPTY    /* The directory entry is empty */
+#  define LDIR0_ALLEMPTY    DIR0_ALLEMPTY /* This entry and all following are empty */
+#  define LDIR0_E5          DIR0_E5       /* The actual value is 0xe5 */
+#  define LDIR0_LAST        0x40          /* Last LFN in file name (appears first) */
+#  define LDIR0_SEQ_MASK    0x1f          /* Mask for sequence number (1-20) */
 
 /* The LFN entry attribute */
 
-# define LDDIR_LFNATTR     0x0f
+#  define LDDIR_LFNATTR     0x0f
 #endif
 
 /* File system types */
@@ -453,10 +453,10 @@
 #define DIR_PUTCRTTIMETENTH(p,v)  UBYTE_PUT(p,DIR_CRTTIMETENTH,v)
 
 #ifdef CONFIG_FAT_LFN
-# define LDIR_PUTSEQ(p,v)         UBYTE_PUT(p,LDIR_SEQ,v)
-# define LDIR_PUTATTRIBUTES(p,v)  UBYTE_PUT(p,LDIR_ATTRIBUTES,v)
-# define LDIR_PUTNTRES(p,v)       UBYTE_PUT(p,LDIR_NTRES,v)
-# define LDIR_PUTCHECKSUM(p,v)    UBYTE_PUT(p,LDIR_CHECKSUM,v)
+#  define LDIR_PUTSEQ(p,v)         UBYTE_PUT(p,LDIR_SEQ,v)
+#  define LDIR_PUTATTRIBUTES(p,v)  UBYTE_PUT(p,LDIR_ATTRIBUTES,v)
+#  define LDIR_PUTNTRES(p,v)       UBYTE_PUT(p,LDIR_NTRES,v)
+#  define LDIR_PUTCHECKSUM(p,v)    UBYTE_PUT(p,LDIR_CHECKSUM,v)
 #endif
 
 /* For the all targets, unaligned values need to be accessed byte-by-byte.
@@ -490,9 +490,9 @@
 #define PART4_PUTSIZE(p,v)         FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY4+PART_SIZE),v)
 
 #ifdef CONFIG_FAT_LFN
-# define LDIR_PTRWCHAR1_5(p)       UBYTE_PTR(p,LDIR_WCHAR1_5)
-# define LDIR_PTRWCHAR6_11(p)      UBYTE_PTR(p,LDIR_WCHAR6_11)
-# define LDIR_PTRWCHAR12_13(p)     UBYTE_PTR(p,LDIR_WCHAR12_13)
+#  define LDIR_PTRWCHAR1_5(p)       UBYTE_PTR(p,LDIR_WCHAR1_5)
+#  define LDIR_PTRWCHAR6_11(p)      UBYTE_PTR(p,LDIR_WCHAR6_11)
+#  define LDIR_PTRWCHAR12_13(p)     UBYTE_PTR(p,LDIR_WCHAR12_13)
 #endif
 
 /* But for multi-byte values, the endian-ness of the target vs. the little
@@ -506,48 +506,48 @@
  * accessed byte-by-byte.
  */
 
-# define MBR_PUTRESVDSECCOUNT(p,v) FAT_PUTUINT16(UBYTE_PTR(p,MBR_RESVDSECCOUNT),v)
-# define MBR_PUTFATSZ16(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,MBR_FATSZ16),v)
-# define MBR_PUTSECPERTRK(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR_SECPERTRK),v)
-# define MBR_PUTNUMHEADS(p,v)      FAT_PUTUINT16(UBYTE_PTR(p,MBR_NUMHEADS),v)
-# define MBR_PUTHIDSEC(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,MBR_HIDSEC),v)
-# define MBR_PUTTOTSEC32(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,MBR_TOTSEC32),v)
-# define MBR_PUTFATSZ32(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,MBR32_FATSZ32),v)
-# define MBR_PUTEXTFLAGS(p,v)      FAT_PUTUINT16(UBYTE_PTR(p,MBR32_EXTFLAGS),v)
-# define MBR_PUTFSVER(p,v)         FAT_PUTUINT16(UBYTE_PTR(p,MBR32_FSVER),v)
-# define MBR_PUTROOTCLUS(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,MBR32_ROOTCLUS),v)
-# define MBR_PUTFSINFO(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,MBR32_FSINFO),v)
-# define MBR_PUTBKBOOTSEC(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR32_BKBOOTSEC),v)
-# define MBR_PUTSIGNATURE(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR_SIGNATURE),v)
+#  define MBR_PUTRESVDSECCOUNT(p,v) FAT_PUTUINT16(UBYTE_PTR(p,MBR_RESVDSECCOUNT),v)
+#  define MBR_PUTFATSZ16(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,MBR_FATSZ16),v)
+#  define MBR_PUTSECPERTRK(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR_SECPERTRK),v)
+#  define MBR_PUTNUMHEADS(p,v)      FAT_PUTUINT16(UBYTE_PTR(p,MBR_NUMHEADS),v)
+#  define MBR_PUTHIDSEC(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,MBR_HIDSEC),v)
+#  define MBR_PUTTOTSEC32(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,MBR_TOTSEC32),v)
+#  define MBR_PUTFATSZ32(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,MBR32_FATSZ32),v)
+#  define MBR_PUTEXTFLAGS(p,v)      FAT_PUTUINT16(UBYTE_PTR(p,MBR32_EXTFLAGS),v)
+#  define MBR_PUTFSVER(p,v)         FAT_PUTUINT16(UBYTE_PTR(p,MBR32_FSVER),v)
+#  define MBR_PUTROOTCLUS(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,MBR32_ROOTCLUS),v)
+#  define MBR_PUTFSINFO(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,MBR32_FSINFO),v)
+#  define MBR_PUTBKBOOTSEC(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR32_BKBOOTSEC),v)
+#  define MBR_PUTSIGNATURE(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,MBR_SIGNATURE),v)
 
-# define FBR_PUTRESVDSECCOUNT(p,v) fat_putuint16(UBYTE_PTR(p,FBR_RESVDSECCOUNT),v)
-# define FBR_PUTFATSZ16(p,v)       fat_putuint16(UBYTE_PTR(p,FBR_FATSZ16),v)
-# define FBR_PUTSECPERTRK(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_SECPERTRK),v)
-# define FBR_PUTNUMHEADS(p,v)      fat_putuint16(UBYTE_PTR(p,FBR_NUMHEADS),v)
-# define FBR_PUTHIDSEC(p,v)        fat_putuint32(UBYTE_PTR(p,FBR_HIDSEC),v)
-# define FBR_PUTTOTSEC32(p,v)      fat_putuint32(UBYTE_PTR(p,FBR_TOTSEC32),v)
-# define FBR_PUTFATSZ32(p,v)       fat_putuint32(UBYTE_PTR(p,FBR_FATSZ32),v)
-# define FBR_PUTEXTFLAGS(p,v)      fat_putuint16(UBYTE_PTR(p,FBR_EXTFLAGS),v)
-# define FBR_PUTFSVER(p,v)         fat_putuint16(UBYTE_PTR(p,FBR_FSVER),v)
-# define FBR_PUTROOTCLUS(p,v)      fat_putuint32(UBYTE_PTR(p,FBR_ROOTCLUS),v)
-# define FBR_PUTFSINFO(p,v)        fat_putuint16(UBYTE_PTR(p,FBR_FSINFO),v)
-# define FBR_PUTBKBOOTSEC(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_BKBOOTSEC),v)
-# define FBR_PUTSIGNATURE(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_SIGNATURE),v)
+#  define FBR_PUTRESVDSECCOUNT(p,v) fat_putuint16(UBYTE_PTR(p,FBR_RESVDSECCOUNT),v)
+#  define FBR_PUTFATSZ16(p,v)       fat_putuint16(UBYTE_PTR(p,FBR_FATSZ16),v)
+#  define FBR_PUTSECPERTRK(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_SECPERTRK),v)
+#  define FBR_PUTNUMHEADS(p,v)      fat_putuint16(UBYTE_PTR(p,FBR_NUMHEADS),v)
+#  define FBR_PUTHIDSEC(p,v)        fat_putuint32(UBYTE_PTR(p,FBR_HIDSEC),v)
+#  define FBR_PUTTOTSEC32(p,v)      fat_putuint32(UBYTE_PTR(p,FBR_TOTSEC32),v)
+#  define FBR_PUTFATSZ32(p,v)       fat_putuint32(UBYTE_PTR(p,FBR_FATSZ32),v)
+#  define FBR_PUTEXTFLAGS(p,v)      fat_putuint16(UBYTE_PTR(p,FBR_EXTFLAGS),v)
+#  define FBR_PUTFSVER(p,v)         fat_putuint16(UBYTE_PTR(p,FBR_FSVER),v)
+#  define FBR_PUTROOTCLUS(p,v)      fat_putuint32(UBYTE_PTR(p,FBR_ROOTCLUS),v)
+#  define FBR_PUTFSINFO(p,v)        fat_putuint16(UBYTE_PTR(p,FBR_FSINFO),v)
+#  define FBR_PUTBKBOOTSEC(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_BKBOOTSEC),v)
+#  define FBR_PUTSIGNATURE(p,v)     fat_putuint16(UBYTE_PTR(p,FBR_SIGNATURE),v)
 
-# define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
-# define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
-# define FSI_PUTFREECOUNT(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_FREECOUNT),v)
-# define FSI_PUTNXTFREE(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_NXTFREE),v)
-# define FSI_PUTTRAILSIG(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,FSI_TRAILSIG),v)
+#  define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
+#  define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
+#  define FSI_PUTFREECOUNT(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_FREECOUNT),v)
+#  define FSI_PUTNXTFREE(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_NXTFREE),v)
+#  define FSI_PUTTRAILSIG(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,FSI_TRAILSIG),v)
 
-# define DIR_PUTCRTIME(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,DIR_CRTIME),v)
-# define DIR_PUTCRDATE(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,DIR_CRDATE),v)
-# define DIR_PUTLASTACCDATE(p,v)   FAT_PUTUINT16(UBYTE_PTR(p,DIR_LASTACCDATE),v)
-# define DIR_PUTFSTCLUSTHI(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,DIR_FSTCLUSTHI),v)
-# define DIR_PUTWRTTIME(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,DIR_WRTTIME),v)
-# define DIR_PUTWRTDATE(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,DIR_WRTDATE),v)
-# define DIR_PUTFSTCLUSTLO(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,DIR_FSTCLUSTLO),v)
-# define DIR_PUTFILESIZE(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,DIR_FILESIZE),v)
+#  define DIR_PUTCRTIME(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,DIR_CRTIME),v)
+#  define DIR_PUTCRDATE(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,DIR_CRDATE),v)
+#  define DIR_PUTLASTACCDATE(p,v)   FAT_PUTUINT16(UBYTE_PTR(p,DIR_LASTACCDATE),v)
+#  define DIR_PUTFSTCLUSTHI(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,DIR_FSTCLUSTHI),v)
+#  define DIR_PUTWRTTIME(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,DIR_WRTTIME),v)
+#  define DIR_PUTWRTDATE(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,DIR_WRTDATE),v)
+#  define DIR_PUTFSTCLUSTLO(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,DIR_FSTCLUSTLO),v)
+#  define DIR_PUTFILESIZE(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,DIR_FILESIZE),v)
 
 # ifdef CONFIG_FAT_LFN
 #  define LDIR_PUTWCHAR1(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR1_5),v)
@@ -565,14 +565,14 @@
 #  define LDIR_PUTWCHAR13(p)       FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR12_13+2),v)
 # endif
 
-# define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
-# define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
-# define FSI_PUTFREECOUNT(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_FREECOUNT),v)
-# define FSI_PUTNXTFREE(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_NXTFREE),v)
-# define FSI_PUTTRAILSIG(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,FSI_TRAILSIG),v)
+#  define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
+#  define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
+#  define FSI_PUTFREECOUNT(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_FREECOUNT),v)
+#  define FSI_PUTNXTFREE(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_NXTFREE),v)
+#  define FSI_PUTTRAILSIG(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,FSI_TRAILSIG),v)
 
-# define FAT_PUTFAT16(p,i,v)       FAT_PUTUINT16(UBYTE_PTR(p,i),v)
-# define FAT_PUTFAT32(p,i,v)       FAT_PUTUINT32(UBYTE_PTR(p,i),v)
+#  define FAT_PUTFAT16(p,i,v)       FAT_PUTUINT16(UBYTE_PTR(p,i),v)
+#  define FAT_PUTFAT32(p,i,v)       FAT_PUTUINT32(UBYTE_PTR(p,i),v)
 
 #else
 
@@ -580,48 +580,48 @@
  * to aligned multibyte values.
  */
 
-# define MBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,MBR_RESVDSECCOUNT,v)
-# define MBR_PUTFATSZ16(p,v)       UINT16_PUT(p,MBR_FATSZ16,v)
-# define MBR_PUTSECPERTRK(p,v)     UINT16_PUT(p,MBR_SECPERTRK,v)
-# define MBR_PUTNUMHEADS(p,v)      UINT16_PUT(p,MBR_NUMHEADS,v)
-# define MBR_PUTHIDSEC(p,v)        UINT32_PUT(p,MBR_HIDSEC,v)
-# define MBR_PUTTOTSEC32(p,v)      UINT32_PUT(p,MBR_TOTSEC32,v)
-# define MBR_PUTFATSZ32(p,v)       UINT32_PUT(p,MBR32_FATSZ32,v)
-# define MBR_PUTEXTFLAGS(p,v)      UINT16_PUT(p,MBR32_EXTFLAGS,v)
-# define MBR_PUTFSVER(p,v)         UINT16_PUT(p,MBR32_FSVER,v)
-# define MBR_PUTROOTCLUS(p,v)      UINT32_PUT(p,MBR32_ROOTCLUS,v)
-# define MBR_PUTFSINFO(p,v)        UINT16_PUT(p,MBR32_FSINFO,v)
-# define MBR_PUTBKBOOTSEC(p,v)     UINT16_PUT(p,MBR32_BKBOOTSEC,v)
-# define MBR_PUTSIGNATURE(p,v)     UINT16_PUT(p,MBR_SIGNATURE,v)
+#  define MBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,MBR_RESVDSECCOUNT,v)
+#  define MBR_PUTFATSZ16(p,v)       UINT16_PUT(p,MBR_FATSZ16,v)
+#  define MBR_PUTSECPERTRK(p,v)     UINT16_PUT(p,MBR_SECPERTRK,v)
+#  define MBR_PUTNUMHEADS(p,v)      UINT16_PUT(p,MBR_NUMHEADS,v)
+#  define MBR_PUTHIDSEC(p,v)        UINT32_PUT(p,MBR_HIDSEC,v)
+#  define MBR_PUTTOTSEC32(p,v)      UINT32_PUT(p,MBR_TOTSEC32,v)
+#  define MBR_PUTFATSZ32(p,v)       UINT32_PUT(p,MBR32_FATSZ32,v)
+#  define MBR_PUTEXTFLAGS(p,v)      UINT16_PUT(p,MBR32_EXTFLAGS,v)
+#  define MBR_PUTFSVER(p,v)         UINT16_PUT(p,MBR32_FSVER,v)
+#  define MBR_PUTROOTCLUS(p,v)      UINT32_PUT(p,MBR32_ROOTCLUS,v)
+#  define MBR_PUTFSINFO(p,v)        UINT16_PUT(p,MBR32_FSINFO,v)
+#  define MBR_PUTBKBOOTSEC(p,v)     UINT16_PUT(p,MBR32_BKBOOTSEC,v)
+#  define MBR_PUTSIGNATURE(p,v)     UINT16_PUT(p,MBR_SIGNATURE,v)
 
-# define FBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,FBR_RESVDSECCOUNT,v)
-# define FBR_PUTFATSZ16(p,v)       UINT16_PUT(p,FBR_FATSZ16,v)
-# define FBR_PUTSECPERTRK(p,v)     UINT16_PUT(p,FBR_SECPERTRK,v)
-# define FBR_PUTNUMHEADS(p,v)      UINT16_PUT(p,FBR_NUMHEADS,v)
-# define FBR_PUTHIDSEC(p,v)        UINT32_PUT(p,FBR_HIDSEC,v)
-# define FBR_PUTTOTSEC32(p,v)      UINT32_PUT(p,FBR_TOTSEC32,v)
-# define FBR_PUTFATSZ32(p,v)       UINT32_PUT(p,FBR_FATSZ32,v)
-# define FBR_PUTEXTFLAGS(p,v)      UINT16_PUT(p,FBR_EXTFLAGS,v)
-# define FBR_PUTFSVER(p,v)         UINT16_PUT(p,FBR_FSVER,v)
-# define FBR_PUTROOTCLUS(p,v)      UINT32_PUT(p,FBR_ROOTCLUS,v)
-# define FBR_PUTFSINFO(p,v)        UINT16_PUT(p,FBR_FSINFO,v)
-# define FBR_PUTBKBOOTSEC(p,v)     UINT16_PUT(p,FBR_BKBOOTSEC,v)
-# define FBR_PUTSIGNATURE(p,v)     UINT16_PUT(p,FBR_SIGNATURE,v)
+#  define FBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,FBR_RESVDSECCOUNT,v)
+#  define FBR_PUTFATSZ16(p,v)       UINT16_PUT(p,FBR_FATSZ16,v)
+#  define FBR_PUTSECPERTRK(p,v)     UINT16_PUT(p,FBR_SECPERTRK,v)
+#  define FBR_PUTNUMHEADS(p,v)      UINT16_PUT(p,FBR_NUMHEADS,v)
+#  define FBR_PUTHIDSEC(p,v)        UINT32_PUT(p,FBR_HIDSEC,v)
+#  define FBR_PUTTOTSEC32(p,v)      UINT32_PUT(p,FBR_TOTSEC32,v)
+#  define FBR_PUTFATSZ32(p,v)       UINT32_PUT(p,FBR_FATSZ32,v)
+#  define FBR_PUTEXTFLAGS(p,v)      UINT16_PUT(p,FBR_EXTFLAGS,v)
+#  define FBR_PUTFSVER(p,v)         UINT16_PUT(p,FBR_FSVER,v)
+#  define FBR_PUTROOTCLUS(p,v)      UINT32_PUT(p,FBR_ROOTCLUS,v)
+#  define FBR_PUTFSINFO(p,v)        UINT16_PUT(p,FBR_FSINFO,v)
+#  define FBR_PUTBKBOOTSEC(p,v)     UINT16_PUT(p,FBR_BKBOOTSEC,v)
+#  define FBR_PUTSIGNATURE(p,v)     UINT16_PUT(p,FBR_SIGNATURE,v)
 
-# define FSI_PUTLEADSIG(p,v)       UINT32_PUT(p,FSI_LEADSIG,v)
-# define FSI_PUTSTRUCTSIG(p,v)     UINT32_PUT(p,FSI_STRUCTSIG,v)
-# define FSI_PUTFREECOUNT(p,v)     UINT32_PUT(p,FSI_FREECOUNT,v)
-# define FSI_PUTNXTFREE(p,v)       UINT32_PUT(p,FSI_NXTFREE,v)
-# define FSI_PUTTRAILSIG(p,v)      UINT32_PUT(p,FSI_TRAILSIG,v)
+#  define FSI_PUTLEADSIG(p,v)       UINT32_PUT(p,FSI_LEADSIG,v)
+#  define FSI_PUTSTRUCTSIG(p,v)     UINT32_PUT(p,FSI_STRUCTSIG,v)
+#  define FSI_PUTFREECOUNT(p,v)     UINT32_PUT(p,FSI_FREECOUNT,v)
+#  define FSI_PUTNXTFREE(p,v)       UINT32_PUT(p,FSI_NXTFREE,v)
+#  define FSI_PUTTRAILSIG(p,v)      UINT32_PUT(p,FSI_TRAILSIG,v)
 
-# define DIR_PUTCRTIME(p,v)        UINT16_PUT(p,DIR_CRTIME,v)
-# define DIR_PUTCRDATE(p,v)        UINT16_PUT(p,DIR_CRDATE,v)
-# define DIR_PUTLASTACCDATE(p,v)   UINT16_PUT(p,DIR_LASTACCDATE,v)
-# define DIR_PUTFSTCLUSTHI(p,v)    UINT16_PUT(p,DIR_FSTCLUSTHI,v)
-# define DIR_PUTWRTTIME(p,v)       UINT16_PUT(p,DIR_WRTTIME,v)
-# define DIR_PUTWRTDATE(p,v)       UINT16_PUT(p,DIR_WRTDATE,v)
-# define DIR_PUTFSTCLUSTLO(p,v)    UINT16_PUT(p,DIR_FSTCLUSTLO,v)
-# define DIR_PUTFILESIZE(p,v)      UINT32_PUT(p,DIR_FILESIZE,v)
+#  define DIR_PUTCRTIME(p,v)        UINT16_PUT(p,DIR_CRTIME,v)
+#  define DIR_PUTCRDATE(p,v)        UINT16_PUT(p,DIR_CRDATE,v)
+#  define DIR_PUTLASTACCDATE(p,v)   UINT16_PUT(p,DIR_LASTACCDATE,v)
+#  define DIR_PUTFSTCLUSTHI(p,v)    UINT16_PUT(p,DIR_FSTCLUSTHI,v)
+#  define DIR_PUTWRTTIME(p,v)       UINT16_PUT(p,DIR_WRTTIME,v)
+#  define DIR_PUTWRTDATE(p,v)       UINT16_PUT(p,DIR_WRTDATE,v)
+#  define DIR_PUTFSTCLUSTLO(p,v)    UINT16_PUT(p,DIR_FSTCLUSTLO,v)
+#  define DIR_PUTFILESIZE(p,v)      UINT32_PUT(p,DIR_FILESIZE,v)
 
 # ifdef CONFIG_FAT_LFN
 #  define LDIR_PUTWCHAR1(p,v)      UINT16_PUT(p,LDIR_WCHAR1_5,v)
@@ -639,14 +639,14 @@
 #  define LDIR_PUTWCHAR13(p,v)     UINT16_PUT(p,LDIR_WCHAR12_13+2,v)
 # endif
 
-# define FSI_PUTLEADSIG(p,v)       UINT32_PUT(p,FSI_LEADSIG,v)
-# define FSI_PUTSTRUCTSIG(p,v)     UINT32_PUT(p,FSI_STRUCTSIG,v)
-# define FSI_PUTFREECOUNT(p,v)     UINT32_PUT(p,FSI_FREECOUNT,v)
-# define FSI_PUTNXTFREE(p,v)       UINT32_PUT(p,FSI_NXTFREE,v)
-# define FSI_PUTTRAILSIG(p,v)      UINT32_PUT(p,FSI_TRAILSIG,v)
+#  define FSI_PUTLEADSIG(p,v)       UINT32_PUT(p,FSI_LEADSIG,v)
+#  define FSI_PUTSTRUCTSIG(p,v)     UINT32_PUT(p,FSI_STRUCTSIG,v)
+#  define FSI_PUTFREECOUNT(p,v)     UINT32_PUT(p,FSI_FREECOUNT,v)
+#  define FSI_PUTNXTFREE(p,v)       UINT32_PUT(p,FSI_NXTFREE,v)
+#  define FSI_PUTTRAILSIG(p,v)      UINT32_PUT(p,FSI_TRAILSIG,v)
 
-# define FAT_PUTFAT16(p,i,v)       UINT16_PUT(p,i,v)
-# define FAT_PUTFAT32(p,i,v)       UINT32_PUT(p,i,v)
+#  define FAT_PUTFAT16(p,i,v)       UINT16_PUT(p,i,v)
+#  define FAT_PUTFAT32(p,i,v)       UINT32_PUT(p,i,v)
 
 #endif
 

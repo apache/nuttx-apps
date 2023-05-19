@@ -112,7 +112,7 @@
 
 /* Output is via printf but can be changed using this macro */
 
-# define i2c_output         printf
+#  define i2c_output         printf
 
 /****************************************************************************
  * Public Types
