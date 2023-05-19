@@ -129,9 +129,9 @@ typedef uint64_t orb_abstime;
  * @param name      The name of the topic.
  */
 #if defined(__cplusplus)
-# define ORB_DECLARE(name) extern "C" const struct orb_metadata g_orb_##name
+#  define ORB_DECLARE(name) extern "C" const struct orb_metadata g_orb_##name
 #else
-# define ORB_DECLARE(name) extern const struct orb_metadata g_orb_##name
+#  define ORB_DECLARE(name) extern const struct orb_metadata g_orb_##name
 #endif
 
 /**

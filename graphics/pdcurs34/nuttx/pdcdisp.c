@@ -57,7 +57,7 @@
 
 #ifdef CONFIG_PDCURSES_CHTYPE_LONG
 
-# define A(x) ((chtype)x | A_ALTCHARSET)
+#  define A(x) ((chtype)x | A_ALTCHARSET)
 
 chtype acs_map[128] =
 {

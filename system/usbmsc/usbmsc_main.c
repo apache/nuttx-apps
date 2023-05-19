@@ -123,7 +123,7 @@ static void show_memory_usage(struct mallinfo *mmbefore,
     }
 }
 #else
-# define show_memory_usage(mm1, mm2)
+#  define show_memory_usage(mm1, mm2)
 #endif
 
 /****************************************************************************

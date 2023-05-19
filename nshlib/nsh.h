@@ -416,7 +416,7 @@
  */
 
 #ifndef CONFIG_NSH_NESTDEPTH
-# define CONFIG_NSH_NESTDEPTH 3
+#  define CONFIG_NSH_NESTDEPTH 3
 #endif
 
 /* Define to enable dumping of all input/output buffers */
@@ -426,7 +426,7 @@
 /* Make sure that the home directory is defined */
 
 #ifndef CONFIG_LIBC_HOMEDIR
-# define CONFIG_LIBC_HOMEDIR "/"
+#  define CONFIG_LIBC_HOMEDIR "/"
 #endif
 
 #undef NSH_HAVE_VARS

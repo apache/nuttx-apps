@@ -51,11 +51,11 @@
 #define nsh_exit(v,s)          (v)->exit(v,s)
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-# define nsh_error(v, ...)     (v)->error(v, ##__VA_ARGS__)
-# define nsh_output(v, ...)    (v)->output(v, ##__VA_ARGS__)
+#  define nsh_error(v, ...)     (v)->error(v, ##__VA_ARGS__)
+#  define nsh_output(v, ...)    (v)->output(v, ##__VA_ARGS__)
 #else
-# define nsh_error             vtbl->error
-# define nsh_output            vtbl->output
+#  define nsh_error             vtbl->error
+#  define nsh_output            vtbl->output
 #endif
 
 /* Size of info to be saved in call to nsh_redirect

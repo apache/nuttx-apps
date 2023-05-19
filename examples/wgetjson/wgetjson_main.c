@@ -43,15 +43,15 @@
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_WGETJSON_MAXSIZE
-# define CONFIG_EXAMPLES_WGETJSON_MAXSIZE 1024
+#  define CONFIG_EXAMPLES_WGETJSON_MAXSIZE 1024
 #endif
 
 #ifndef CONFIG_EXAMPLES_WGETJSON_URL
-# define CONFIG_EXAMPLES_WGETJSON_URL "http://10.0.0.1/wgetjson/json_cmd.php"
+#  define CONFIG_EXAMPLES_WGETJSON_URL "http://10.0.0.1/wgetjson/json_cmd.php"
 #endif
 
 #ifndef CONFIG_EXAMPLES_WGETPOST_URL
-# define CONFIG_EXAMPLES_WGETPOST_URL "http://10.0.0.1/wgetjson/post_cmd.php"
+#  define CONFIG_EXAMPLES_WGETPOST_URL "http://10.0.0.1/wgetjson/post_cmd.php"
 #endif
 
 #define MULTI_POST_NDATA 3

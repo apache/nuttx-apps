@@ -54,9 +54,9 @@
 /* #define GS2200M_TRACE */
 
 #ifdef GS2200M_TRACE
-# define gs2200m_printf(v, ...) printf(v, ##__VA_ARGS__)
+#  define gs2200m_printf(v, ...) printf(v, ##__VA_ARGS__)
 #else
-# define gs2200m_printf(v, ...)
+#  define gs2200m_printf(v, ...)
 #endif
 
 #define SOCKET_BASE  10000

@@ -204,7 +204,7 @@ static void show_environment(bool var1_valid, bool var2_valid,
   show_variable(g_var3_name, g_var3_value, var3_valid);
 }
 #else
-# define show_environment()
+#  define show_environment()
 #endif
 
 /****************************************************************************

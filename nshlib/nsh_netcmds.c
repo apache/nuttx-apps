@@ -167,7 +167,7 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
   nsh_catfile(vtbl, "ifconfig", CONFIG_NSH_PROC_MOUNTPOINT "/net/stat");
 }
 #else
-# define net_statistics(vtbl)
+#  define net_statistics(vtbl)
 #endif
 
 /****************************************************************************
