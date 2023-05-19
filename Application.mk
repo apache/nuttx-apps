@@ -106,6 +106,7 @@ VPATH += :.
 # Targets follow
 
 all:: $(OBJS)
+	@:
 .PHONY: clean depend distclean
 .PRECIOUS: $(BIN)
 
@@ -198,6 +199,7 @@ endif
 	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 
 install:: $(PROGLIST)
+	@:
 
 else
 
@@ -226,10 +228,12 @@ $(MAINZIGOBJ): %$(ZIGEXT)$(SUFFIX)$(OBJEXT): %$(ZIGEXT)
 		$(call ELFCOMPILEZIG, $<, $@), $(call COMPILEZIG, $<, $@))
 
 install::
+	@:
 
 endif # BUILD_MODULE
 
 context::
+	@:
 
 ifneq ($(PROGNAME),)
 
@@ -243,8 +247,10 @@ $(REGLIST): $(DEPCONFIG) Makefile
 	$(if $(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE)),$(eval STACKSIZE=$(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE))))
 
 register:: $(REGLIST)
+	@:
 else
 register::
+	@:
 endif
 
 .depend: Makefile $(wildcard $(foreach SRC, $(SRCS), $(addsuffix /$(SRC), $(subst :, ,$(VPATH))))) $(DEPCONFIG)
@@ -254,6 +260,7 @@ endif
 	$(Q) touch $@
 
 depend:: .depend
+	@:
 
 clean::
 	$(call CLEAN)

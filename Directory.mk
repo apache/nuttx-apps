@@ -51,6 +51,7 @@ endif
 	$(Q) touch .kconfig
 
 clean: $(foreach SDIR, $(CLEANSUBDIRS), $(SDIR)_clean)
+	@:
 
 distclean: $(foreach SDIR, $(CLEANSUBDIRS), $(SDIR)_distclean)
 ifneq ($(MENUDESC),)
