@@ -68,6 +68,7 @@ int netlib_set_ipv4dnsaddr(FAR const struct in_addr *inaddr)
       addr.sin_family = AF_INET;
       addr.sin_port   = 0;
       memcpy(&addr.sin_addr, inaddr, sizeof(struct in_addr));
+      bzero(&addr.sin_zero, sizeof(addr.sin_zero));
 
       ret = dns_add_nameserver((FAR const struct sockaddr *)&addr,
                                sizeof(struct sockaddr_in));
