@@ -61,7 +61,7 @@
 #    define CONFIG_EXAMPLES_NXDEMO_BGCOLOR 0x00
 #  else
 #    define CONFIG_EXAMPLES_NXDEMO_BGCOLOR ' '
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXDEMO_DRAWCOLOR

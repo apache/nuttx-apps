@@ -60,7 +60,7 @@
 #    define CONFIG_EXAMPLES_NXHELLO_BGCOLOR 0x00
 #  else
 #    define CONFIG_EXAMPLES_NXHELLO_BGCOLOR ' '
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXHELLO_FONTID

@@ -108,16 +108,16 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       write(OUTFD(pstate), g_nshgreeting, strlen(g_nshgreeting));
 
 #ifdef CONFIG_NSH_MOTD
-# ifdef CONFIG_NSH_PLATFORM_MOTD
+#  ifdef CONFIG_NSH_PLATFORM_MOTD
       /* Output the platform message of the day */
 
       platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
       dprintf(OUTFD(pstate), "%s\n", vtbl->iobuffer);
-# else
+#  else
       /* Output the fixed message of the day */
 
       dprintf(OUTFD(pstate), "%s\n", g_nshmotd);
-# endif
+#  endif
 #endif
 
       /* Execute the login script */
