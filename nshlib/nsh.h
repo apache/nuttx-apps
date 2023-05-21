@@ -1025,7 +1025,7 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  ifndef CONFIG_NSH_DISABLE_RMDIR
   int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  endif
-# endif /* NSH_HAVE_DIROPTS */
+#endif /* NSH_HAVE_DIROPTS */
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 #  if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)

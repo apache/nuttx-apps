@@ -60,7 +60,7 @@
 #    define CONFIG_EXAMPLES_NX_BGCOLOR 0x7b5d
 #  else
 #    define CONFIG_EXAMPLES_NX_BGCOLOR ' '
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_NX_COLOR1
@@ -70,7 +70,7 @@
 #    define CONFIG_EXAMPLES_NX_COLOR1 0xe73f
 #  else
 #    define CONFIG_EXAMPLES_NX_COLOR1 '1'
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_NX_COLOR2
@@ -80,7 +80,7 @@
 #    define CONFIG_EXAMPLES_NX_COLOR2 0xdefb
 #  else
 #    define CONFIG_EXAMPLES_NX_COLOR2 '2'
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_NX_TBCOLOR

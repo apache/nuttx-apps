@@ -89,7 +89,7 @@
 #    define CONFIG_EXAMPLES_PWFB_BGCOLOR 0x7b5d
 #  else
 #    define CONFIG_EXAMPLES_PWFB_BGCOLOR ' '
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_PWFB_COLOR1
@@ -99,7 +99,7 @@
 #    define CONFIG_EXAMPLES_PWFB_COLOR1 0xe73f
 #  else
 #    define CONFIG_EXAMPLES_PWFB_COLOR1 '1'
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_PWFB_COLOR2
@@ -109,7 +109,7 @@
 #    define CONFIG_EXAMPLES_PWFB_COLOR2 0xdefb
 #  else
 #    define CONFIG_EXAMPLES_PWFB_COLOR2 '2'
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_PWFB_COLOR3
@@ -119,7 +119,7 @@
 #    define CONFIG_EXAMPLES_PWFB_COLOR2 0xff76
 #  else
 #    define CONFIG_EXAMPLES_PWFB_COLOR2 '3'
-# endif
+#  endif
 #endif
 
 #ifndef CONFIG_EXAMPLES_PWFB_TBCOLOR

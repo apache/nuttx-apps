@@ -53,18 +53,18 @@
  * unnecessary "weak" functions can be excluded from the link.
  */
 
-# ifndef __CYGWIN__
+#ifndef __CYGWIN__
 #  define CONFIG_HAVE_WEAKFUNCTIONS 1
 #  define weak_alias(name, aliasname) \
    extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
 #  define weak_function __attribute__ ((weak))
 #  define weak_const_function __attribute__ ((weak, __const__))
-# else
+#else
 #  undef  CONFIG_HAVE_WEAKFUNCTIONS
 #  define weak_alias(name, aliasname)
 #  define weak_function
 #  define weak_const_function
-# endif
+#endif
 
 /* The noreturn attribute informs GCC that the function will not return. */
 
@@ -131,18 +131,18 @@
 # undef  CONFIG_PTR_IS_NOT_INT
 
 #elif defined(__AVR__)
-# if defined(CONFIG_AVR_HAS_MEMX_PTR)
+#  if defined(CONFIG_AVR_HAS_MEMX_PTR)
   /* I-space access qualifiers needed by Harvard architecture */
 
-#  define IOBJ __flash
-#  define IPTR __memx
+#    define IOBJ __flash
+#    define IPTR __memx
 
-# else
+#  else
 /* No I-space access qualifiers */
 
-#  define IOBJ
-#  define IPTR
-# endif
+#    define IOBJ
+#    define IPTR
+#  endif
 
 /* Select the small, 16-bit addressing model (for D-Space) */
 
@@ -177,23 +177,23 @@
  * then an integer is 32-bits.  GCC will defined __INT__ accordingly:
  */
 
-# if __INT__ == 16
+#  if __INT__ == 16
 /* int is 16-bits, long is 32-bits */
 
-#   define CONFIG_LONG_IS_NOT_INT 1
+#    define CONFIG_LONG_IS_NOT_INT 1
 
 /* Pointers and int are the same size (16-bits) */
 
-#   undef  CONFIG_PTR_IS_NOT_INT
-# else
+#    undef  CONFIG_PTR_IS_NOT_INT
+#  else
 /* int and long are both 32-bits */
 
-#   undef  CONFIG_LONG_IS_NOT_INT
+#    undef  CONFIG_LONG_IS_NOT_INT
 
 /* Pointers and int are NOT the same size */
 
-#   define CONFIG_PTR_IS_NOT_INT 1
-# endif
+#    define CONFIG_PTR_IS_NOT_INT 1
+#  endif
 
 #else
 

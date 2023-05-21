@@ -87,7 +87,7 @@
 #    define CONFIG_EXAMPLES_NXTEXT_BGCOLOR 0x7b5d
 #  else
 #    define CONFIG_EXAMPLES_NXTEXT_BGCOLOR ' '
-# endif
+#  endif
 #endif
 
 /* Pop-up font ID */
@@ -105,7 +105,7 @@
 #    define CONFIG_EXAMPLES_NXTEXT_PUCOLOR 0xdefb
 #  else
 #    define CONFIG_EXAMPLES_NXTEXT_PUCOLOR '2'
-# endif
+#  endif
 #endif
 
 /* Background font ID */
