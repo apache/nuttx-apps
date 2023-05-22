@@ -1777,6 +1777,8 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   pthread_attr_t      tattr;
   struct audio_caps_desc_s cap_desc;
   struct ap_buffer_info_s  buf_info;
+  struct audio_caps_s      caps;
+  int                      min_channels;
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
   char                path[PATH_MAX];
 #endif
@@ -1915,6 +1917,22 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       auderr("ERROR: Failed to reserve device: %d\n", ret);
       ret = -errno;
       goto err_out;
+    }
+
+  caps.ac_len = sizeof(caps);
+  caps.ac_type = AUDIO_TYPE_OUTPUT;
+  caps.ac_subtype = AUDIO_TYPE_QUERY;
+
+  if (ioctl(pplayer->dev_fd, AUDIOIOC_GETCAPS,
+      (unsigned long)&caps) == caps.ac_len)
+    {
+      min_channels = caps.ac_channels >> 4;
+
+      if (min_channels != 0 && nchannels < min_channels)
+        {
+          ret = -EINVAL;
+          goto err_out;
+        }
     }
 
   if (nchannels && samprate && bpsamp)
