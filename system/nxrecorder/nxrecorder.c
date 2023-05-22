@@ -1015,6 +1015,8 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
   pthread_attr_t           tattr;
   struct audio_caps_desc_s cap_desc;
   struct ap_buffer_info_s  buf_info;
+  struct audio_caps_s      caps;
+  int                      min_channels;
   int                      ret;
   int                      subfmt = AUDIO_FMT_UNDEF;
 
@@ -1082,6 +1084,22 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
       auderr("ERROR: Failed to reserve device: %d\n", ret);
       ret = -errno;
       goto err_out;
+    }
+
+  caps.ac_len = sizeof(caps);
+  caps.ac_type = AUDIO_TYPE_INPUT;
+  caps.ac_subtype = AUDIO_TYPE_QUERY;
+
+  if (ioctl(precorder->dev_fd, AUDIOIOC_GETCAPS,
+      (unsigned long)&caps) == caps.ac_len)
+    {
+      min_channels = caps.ac_channels >> 4;
+
+      if (min_channels != 0 && nchannels < min_channels)
+        {
+          ret = -EINVAL;
+          goto err_out;
+        }
     }
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
