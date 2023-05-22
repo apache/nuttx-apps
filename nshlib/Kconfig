@@ -993,7 +993,7 @@ config NSH_USBCONDEV
 	---help---
 		If NSH_USBCONSOLE is set to 'y', then NSH_USBCONDEV must
 		also be set to select the USB device used to support the
-		NSH console.   This should be set to the quoted name of a
+		NSH console.  This should be set to the quoted name of a
 		read-/write-able USB driver.  Default: "/dev/ttyACM0".
 
 config USBDEV_MINOR
@@ -1043,7 +1043,7 @@ config NSH_ALTSTDIN
 		also be selected to enable use of an alternate character device
 		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
 		then NSH_ALTSTDIN must be set to select the "stdin" device to
-		support the NSH console.   This should be set to the quoted name
+		support the NSH console.  This should be set to the quoted name
 		of a readable character driver such as:
 
 			NSH_ALTSTDIN="/dev/ttyS1".
@@ -1059,7 +1059,7 @@ config NSH_ALTSTDOUT
 		also be selected to enable use of an alternate character device
 		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
 		then NSH_ALTSTDOUT must be set to select the "stdout" device to
-		support the NSH console.   This should be set to the quoted name
+		support the NSH console.  This should be set to the quoted name
 		of a write-able character driver such as:
 
 			NSH_ALTSTDIN="/dev/ttyS1".
@@ -1075,7 +1075,7 @@ config NSH_ALTSTDERR
 		also be selected to enable use of an alternate character device
 		to support the NSH console. If CONFIG_NSH_ALTCONDEV is selected,
 		then NSH_ALTSTDERR must be set to select the "stderr" device to
-		support the NSH console.   This should be set to the quoted name
+		support the NSH console.  This should be set to the quoted name
 		of a write-able character driver such as:
 
 			NSH_ALTSTDIN="/dev/ttyS1".
@@ -1104,7 +1104,7 @@ config NSH_USBKBD_DEVNAME
 	---help---
 		If NSH_USBKBD is set to 'y', then NSH_USBKBD_DEVNAME must also be
 		set to select the USB keyboard device used to support the NSH
-		console input.   This should be set to the quoted name of a read-
+		console input.  This should be set to the quoted name of a read-
 		able keyboard driver. Default: "/dev/kbda".
 
 endif #NSH_USBKBD
