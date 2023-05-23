@@ -80,6 +80,7 @@ struct lcd_info_s
   int fd;
   struct lcd_planeinfo_s plane_info;
   struct fb_videoinfo_s video_info;
+  struct lcddev_area_align_s align_info;
 };
 
 struct lcd_state_s
@@ -191,7 +192,44 @@ static int lcd_setup(FAR void **state)
                &lcd_state->lcd_info.video_info);
   assert_int_equal(ret, 0);
 
+  ret = ioctl(lcd_state->lcd_info.fd, LCDDEVIO_GETAREAALIGN,
+               &lcd_state->lcd_info.align_info);
+  assert_int_equal(ret, 0);
+
   return 0;
+}
+
+static uint16_t align_round_up(uint16_t v, uint16_t align)
+{
+  return ((v + align - 1) / align) * align;
+}
+
+/****************************************************************************
+ * Name: draw_rect_buf_alloc
+ ****************************************************************************/
+
+static void draw_rect_buf_alloc(FAR struct lcd_info_s *lcd_info,
+                                FAR struct lcddev_area_s *area)
+{
+  uint16_t x = area->col_start;
+  uint16_t y = area->row_start;
+  uint16_t w = area->col_end - area->col_start + 1;
+  uint16_t h = area->row_end - area->row_start + 1;
+
+  const uint8_t bpp = lcd_info->plane_info.bpp;
+  FAR struct lcddev_area_align_s *align_info = &lcd_info->align_info;
+
+  y = align_round_up(y, align_info->row_start_align);
+  x = align_round_up(x, align_info->col_start_align);
+  h = align_round_up(h, align_info->height_align);
+  w = align_round_up(w, align_info->width_align);
+
+  area->col_start = x;
+  area->row_start = y;
+  area->col_end = x + w - 1;
+  area->row_end = y + h - 1;
+
+  area->data = aligned_alloc(align_info->buf_align, w * h * (bpp >> 3));
 }
 
 /****************************************************************************
@@ -229,8 +267,9 @@ static void draw_rect(FAR struct lcd_info_s *lcd_info, int x, int y,
   draw_area.col_start = x;
   draw_area.row_end = y + valid_h - 1;
   draw_area.col_end = x + valid_w - 1;
-  draw_area.data = malloc(valid_w * valid_h * (bpp >> 3));
+  draw_rect_buf_alloc(lcd_info, &draw_area);
   assert_ptr_not_equal(draw_area.data, NULL);
+
   fb_bpp16 = (uint16_t *)draw_area.data;
   fb_bpp32 = (uint32_t *)draw_area.data;
   for (j = 0; j <= (draw_area.row_end - draw_area.row_start); j++)
