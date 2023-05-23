@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_COREDUMP
+	tristate "Coredump tool capture system status"
+	default n
+	depends on ELF_COREDUMP
+
+if SYSTEM_COREDUMP
+
+config SYSTEM_COREDUMP_STACKSIZE
+	int "coredump stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		This is the stack size that will be used when starting the coredump.
+
+config SYSTEM_COREDUMP_PRIORITY
+	int "coredump priority"
+	default 100
+	---help---
+		This is the task priority that will be used when starting the coredump.
+
+endif # SYSTEM_COREDUMP
