@@ -348,6 +348,8 @@ void cond_test(void)
   printf("cond_test: signaler terminated, now cancel the waiter\n");
   pthread_detach(waiter);
   pthread_cancel(waiter);
+  pthread_cond_destroy(&cond);
+  pthread_mutex_destroy(&mutex);
   sem_destroy(&sem_thread_started);
 
   printf("cond_test: \tWaiter\tSignaler\n");
