@@ -1,0 +1,71 @@
+config TESTING_NXDIAG
+	bool "System information and diagnostic (nxdiag)"
+	default n
+	---help---
+		Enable the nxdiag application to gather and display host
+		and target system information. It can also perform some
+		diagnostic checks on the host and target systems.
+
+if TESTING_NXDIAG
+
+config TESTING_NXDIAG_PRIORITY
+	int "Nxdiag task priority"
+	default 100
+
+config TESTING_NXDIAG_STACKSIZE
+	int "Nxdiag stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+comment "NuttX system information"
+
+config TESTING_NXDIAG_CONF
+	bool "Get NuttX configuration"
+	default n
+	---help---
+		Enable the nxdiag application to list the configuration options
+		used to compile NuttX. This is useful for debugging the host and
+		target systems. Enables the "-c" and "--nuttx-config" options.
+
+config TESTING_NXDIAG_COMP_FLAGS
+	bool "Get NuttX compilation flags"
+	default n
+	---help---
+		Enable the nxdiag application to list the NuttX compilation
+		flags. This is useful for debugging the host and target
+		systems. Enables the "-f" and "--nuttx-flags" options.
+
+comment "Host system infromation"
+
+config TESTING_NXDIAG_HOST_PATH
+	bool "Get host system PATH"
+	default n
+	---help---
+		Enable the nxdiag application to list the host system PATH
+		variable. This is useful for debugging the host system.
+		Enables the "-p" and "--host-path" options.
+
+config TESTING_NXDIAG_HOST_PACKAGES
+	bool "Get host system packages"
+	default n
+	---help---
+		Enable the nxdiag application to list the installed packages
+		on the host system. This is useful for debugging the host
+		system. Enables the "-k" and "--host-packages" options.
+
+config TESTING_NXDIAG_HOST_MODULES
+	bool "Get host system python modules"
+	default n
+	---help---
+		Enable the nxdiag application to list the installed Python
+		modules on the host system. This is useful for debugging the
+		host system. Enables the "-m" and "--host-modules" options.
+
+comment "Vendor specific information"
+
+config TESTING_NXDIAG_ESPRESSIF
+	bool "Espressif"
+	default n
+	---help---
+		Enable Espressif-specific information and checks.
+
+endif

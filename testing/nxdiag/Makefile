@@ -1,0 +1,88 @@
+############################################################################
+# apps/testing/nxdiag/Makefile
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+include $(APPDIR)/Make.defs
+
+NXTOOLSDIR = $(APPDIR)/tools
+
+# Sysinfo application info
+
+PROGNAME = nxdiag
+PRIORITY = $(CONFIG_TESTING_NXDIAG_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_NXDIAG_STACKSIZE)
+MODULE = $(CONFIG_TESTING_NXDIAG)
+
+# Sysinfo application
+
+MAINSRC = nxdiag.c
+NXDIAG_FLAGS = "$(realpath $(TOPDIR))"
+
+ifeq ($(CONFIG_TESTING_NXDIAG_CONF),y)
+NXDIAG_FLAGS += --config
+endif
+
+ifeq ($(CONFIG_TESTING_NXDIAG_COMP_FLAGS),y)
+NXDIAG_FLAGS += --flags \""$(shell echo '$(CFLAGS)' | sed 's/"/\\\\\\"/g')"\"
+NXDIAG_FLAGS += \""$(shell echo '$(CXXFLAGS)' | sed 's/"/\\\\\\"/g')"\"
+NXDIAG_FLAGS += \""$(shell echo '$(LDFLAGS)' | sed 's/"/\\\\\\"/g')"\"
+endif
+
+ifeq ($(CONFIG_TESTING_NXDIAG_HOST_PACKAGES),y)
+NXDIAG_FLAGS += --packages
+endif
+
+ifeq ($(CONFIG_TESTING_NXDIAG_HOST_MODULES),y)
+NXDIAG_FLAGS += --modules
+endif
+
+ifeq ($(CONFIG_TESTING_NXDIAG_HOST_PATH),y)
+NXDIAG_FLAGS += --path
+endif
+
+# Vendor-specific checks
+
+ifeq ($(CONFIG_TESTING_NXDIAG_ESPRESSIF),y)
+ifdef ESPTOOL_BINDIR
+NXDIAG_FLAGS += --espressif "$(ESPTOOL_BINDIR)"
+else
+NXDIAG_FLAGS += --espressif "$(TOPDIR)"
+endif
+endif
+
+# Common build
+
+.PHONY: sysinfo.h
+
+checkpython3:
+	@if [ -z "$$(which python3)" ]; then \
+		echo "ERROR: python3 not found in PATH"; \
+		echo "       Please install python3 or fix the PATH"; \
+		exit 1; \
+	fi
+
+sysinfo.h : checkpython3
+	@python3 $(NXTOOLSDIR)$(DELIM)host_sysinfo.py $(NXDIAG_FLAGS) > sysinfo.h || (echo "host_sysinfo.py failed $$?"; exit 1)
+
+context:: sysinfo.h
+
+distclean::
+	$(call DELFILE, sysinfo.h)
+
+include $(APPDIR)/Application.mk
