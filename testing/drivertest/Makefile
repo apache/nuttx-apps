@@ -36,8 +36,10 @@ MAINSRC  += drivertest_block.c
 endif
 
 ifneq ($(CONFIG_RTC),)
+ifneq ($(CONFIG_SIG_EVTHREAD),)
 MAINSRC  += drivertest_rtc.c
 PROGNAME += cmocka_driver_rtc
+endif
 endif
 
 ifneq ($(CONFIG_TIMER),)
