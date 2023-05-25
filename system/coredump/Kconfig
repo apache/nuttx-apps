@@ -18,7 +18,7 @@ config SYSTEM_COREDUMP_STACKSIZE
 
 config SYSTEM_COREDUMP_PRIORITY
 	int "coredump priority"
-	default 100
+	default 254
 	---help---
 		This is the task priority that will be used when starting the coredump.
 
