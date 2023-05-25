@@ -48,8 +48,8 @@
 #define TIMER_DEFAULT_DEVPATH "/dev/timer0"
 #define TIMER_DEFAULT_INTERVAL 1000000
 #define TIMER_DEFAULT_NSAMPLES 20
-#define TIMER_DEFAULT_SIGNO 32
-#define TIMER_DEFAULT_RANGE 1
+#define TIMER_DEFAULT_SIGNO 31
+#define TIMER_DEFAULT_RANGE 1000
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
   do                                                                  \
@@ -257,9 +257,9 @@ static void test_case_timer(FAR void **state)
 
   ret = ioctl(fd, TCIOC_GETSTATUS, &timer_status);
   assert_return_code(ret, OK);
-  assert_int_equal(timer_state->interval / 1000, timer_status.timeout);
+  assert_int_equal(timer_state->interval, timer_status.timeout);
   assert_in_range(timer_status.timeleft,
-                  0, timer_state->interval / 1000);
+                  0, timer_state->interval);
 
   /* Get max timeout */
 
