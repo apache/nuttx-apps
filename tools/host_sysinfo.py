@@ -181,8 +181,7 @@ def get_os_version():
     """
     Gets the OS distribution and version. This function works on Linux, Windows,
     and macOS. On Linux, if the distro package is installed, it will be used to
-    get the OS distribution. Otherwise, the platform.system() function will be
-    used.
+    get the OS distribution.
 
     Args:
         None.
@@ -192,24 +191,29 @@ def get_os_version():
     """
 
     os_name = platform.system()
-    os_version = platform.release()
-    os_distro = ""
+    sys_id = ""
 
     if os_name == "Windows":
         os_distro = "Windows"
         os_version = platform.win32_ver()[0]
+        sys_id = f"{os_distro} {os_version}"
+
     elif os_name == "Darwin":
         os_distro = "macOS"
+        os_uname = " ".join(platform.uname())
         os_version = platform.mac_ver()[0]
+        sys_id = f"{os_distro} {os_version} {os_uname}"
+
     elif os_name == "Linux":
+        os_uname = " ".join(platform.uname())
         try:
             import distro
 
-            return distro.name(pretty=True)
+            sys_id = distro.name(pretty=True) + " " + os_uname
         except ImportError:
-            os_distro = platform.system()
+            sys_id = os_uname
 
-    return f"{os_distro} {os_version}"
+    return sys_id
 
 
 def get_compilation_flags(flags):

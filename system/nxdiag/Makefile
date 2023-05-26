@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/nxdiag/Makefile
+# apps/system/nxdiag/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -25,40 +25,40 @@ NXTOOLSDIR = $(APPDIR)/tools
 # Sysinfo application info
 
 PROGNAME = nxdiag
-PRIORITY = $(CONFIG_TESTING_NXDIAG_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_NXDIAG_STACKSIZE)
-MODULE = $(CONFIG_TESTING_NXDIAG)
+PRIORITY = $(CONFIG_SYSTEM_NXDIAG_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_NXDIAG_STACKSIZE)
+MODULE = $(CONFIG_SYSTEM_NXDIAG)
 
 # Sysinfo application
 
 MAINSRC = nxdiag.c
 NXDIAG_FLAGS = "$(realpath $(TOPDIR))"
 
-ifeq ($(CONFIG_TESTING_NXDIAG_CONF),y)
+ifeq ($(CONFIG_SYSTEM_NXDIAG_CONF),y)
 NXDIAG_FLAGS += --config
 endif
 
-ifeq ($(CONFIG_TESTING_NXDIAG_COMP_FLAGS),y)
+ifeq ($(CONFIG_SYSTEM_NXDIAG_COMP_FLAGS),y)
 NXDIAG_FLAGS += --flags \""$(shell echo '$(CFLAGS)' | sed 's/"/\\\\\\"/g')"\"
 NXDIAG_FLAGS += \""$(shell echo '$(CXXFLAGS)' | sed 's/"/\\\\\\"/g')"\"
 NXDIAG_FLAGS += \""$(shell echo '$(LDFLAGS)' | sed 's/"/\\\\\\"/g')"\"
 endif
 
-ifeq ($(CONFIG_TESTING_NXDIAG_HOST_PACKAGES),y)
+ifeq ($(CONFIG_SYSTEM_NXDIAG_HOST_PACKAGES),y)
 NXDIAG_FLAGS += --packages
 endif
 
-ifeq ($(CONFIG_TESTING_NXDIAG_HOST_MODULES),y)
+ifeq ($(CONFIG_SYSTEM_NXDIAG_HOST_MODULES),y)
 NXDIAG_FLAGS += --modules
 endif
 
-ifeq ($(CONFIG_TESTING_NXDIAG_HOST_PATH),y)
+ifeq ($(CONFIG_SYSTEM_NXDIAG_HOST_PATH),y)
 NXDIAG_FLAGS += --path
 endif
 
 # Vendor-specific checks
 
-ifeq ($(CONFIG_TESTING_NXDIAG_ESPRESSIF),y)
+ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF),y)
 ifdef ESPTOOL_BINDIR
 NXDIAG_FLAGS += --espressif "$(ESPTOOL_BINDIR)"
 else

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/nxdiag/nxdiag.c
+ * apps/system/nxdiag/nxdiag.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include <nuttx/config.h>
+#include <nuttx/info.h>
 #include <nuttx/version.h>
 
 #include "sysinfo.h"
@@ -45,25 +46,25 @@ static const char *g_valid_args[] =
   "--help",
   "-n",
   "--nuttx",
-#ifdef CONFIG_TESTING_NXDIAG_COMP_FLAGS
+#ifdef CONFIG_SYSTEM_NXDIAG_COMP_FLAGS
   "-f",
   "--flags",
 #endif
-#ifdef CONFIG_TESTING_NXDIAG_CONF
+#ifdef CONFIG_SYSTEM_NXDIAG_CONF
   "-c",
   "--config",
 #endif
   "-o",
   "--host-os",
-#ifdef CONFIG_TESTING_NXDIAG_HOST_PATH
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_PATH
   "-p",
   "--host-path",
 #endif
-#ifdef CONFIG_TESTING_NXDIAG_HOST_PACKAGES
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_PACKAGES
   "-k",
   "--host-packages",
 #endif
-#ifdef CONFIG_TESTING_NXDIAG_HOST_MODULES
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_MODULES
   "-m",
   "--host-modules",
 #endif
@@ -189,25 +190,25 @@ static void print_usage(char *prg)
           Show this message\n");
   fprintf(stderr, "         -n, --nuttx              \
           Output the NuttX operational system information.\n");
-#ifdef CONFIG_TESTING_NXDIAG_COMP_FLAGS
+#ifdef CONFIG_SYSTEM_NXDIAG_COMP_FLAGS
   fprintf(stderr, "         -f, --flags              \
           Output the NuttX compilation and linker flags used.\n");
 #endif
-#ifdef CONFIG_TESTING_NXDIAG_CONF
+#ifdef CONFIG_SYSTEM_NXDIAG_CONF
   fprintf(stderr, "         -c, --config             \
           Output the NuttX configuration options used.\n");
 #endif
   fprintf(stderr, "         -o, --host-os            \
           Output the host system operational system information.\n");
-#ifdef CONFIG_TESTING_NXDIAG_HOST_PATH
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_PATH
   fprintf(stderr, "         -p, --host-path          \
           Output the host PATH environment variable.\n");
 #endif
-#ifdef CONFIG_TESTING_NXDIAG_HOST_PACKAGES
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_PACKAGES
   fprintf(stderr, "         -k, --host-packages      \
           Output the host installed system packages.\n");
 #endif
-#ifdef CONFIG_TESTING_NXDIAG_HOST_MODULES
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_MODULES
   fprintf(stderr, "         -m, --host-modules       \
           Output the host installed Python modules.\n");
 #endif
@@ -258,10 +259,11 @@ int main(int argc, char *argv[])
 #else
       printf("\tBuild: %s\n", CONFIG_VERSION_BUILD);
 #endif
-      printf("\tArch: %s\n\n", CONFIG_ARCH);
+      printf("\tArch: %s\n", CONFIG_ARCH);
+      printf("\tConfig: %s\n\n", CONFIG_BASE_DEFCONFIG);
     }
 
-#ifdef CONFIG_TESTING_NXDIAG_COMP_FLAGS
+#ifdef CONFIG_SYSTEM_NXDIAG_COMP_FLAGS
   if (search_str_in_arr(argc, argv, "-f") ||
       search_str_in_arr(argc, argv, "--flags") ||
       search_str_in_arr(argc, argv, "--all"))
@@ -275,7 +277,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#ifdef CONFIG_TESTING_NXDIAG_CONF
+#ifdef CONFIG_SYSTEM_NXDIAG_CONF
   if (search_str_in_arr(argc, argv, "-c") ||
       search_str_in_arr(argc, argv, "--config") ||
       search_str_in_arr(argc, argv, "--all"))
@@ -295,7 +297,7 @@ int main(int argc, char *argv[])
       printf("\t%s\n\n", OS_VERSION);
     }
 
-#ifdef CONFIG_TESTING_NXDIAG_HOST_PATH
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_PATH
   if (search_str_in_arr(argc, argv, "-p") ||
       search_str_in_arr(argc, argv, "--host-path") ||
       search_str_in_arr(argc, argv, "--all"))
@@ -305,7 +307,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#ifdef CONFIG_TESTING_NXDIAG_HOST_PACKAGES
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_PACKAGES
   if (search_str_in_arr(argc, argv, "-k") ||
       search_str_in_arr(argc, argv, "--host-packages") ||
       search_str_in_arr(argc, argv, "--all"))
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#ifdef CONFIG_TESTING_NXDIAG_HOST_MODULES
+#ifdef CONFIG_SYSTEM_NXDIAG_HOST_MODULES
   if (search_str_in_arr(argc, argv, "-m") ||
       search_str_in_arr(argc, argv, "--host-modules") ||
       search_str_in_arr(argc, argv, "--all"))
@@ -336,7 +338,7 @@ int main(int argc, char *argv[])
        * in Documentation/applications/nxdiag
        */
 
-#ifdef CONFIG_TESTING_NXDIAG_ESPRESSIF
+#ifdef CONFIG_SYSTEM_NXDIAG_ESPRESSIF
       printf("Espressif specific information:\n\n");
       printf("Bootloader version:\n");
       print_array(ESPRESSIF_BOOTLOADER, ESPRESSIF_BOOTLOADER_ARRAY_SIZE);
