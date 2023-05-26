@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/nxdiag/Make.defs
+# apps/system/nxdiag/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_NXDIAG),)
-CONFIGURED_APPS += $(APPDIR)/testing/nxdiag
+ifneq ($(CONFIG_SYSTEM_NXDIAG),)
+CONFIGURED_APPS += $(APPDIR)/system/nxdiag
 endif

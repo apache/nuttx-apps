@@ -1,4 +1,4 @@
-config TESTING_NXDIAG
+menuconfig SYSTEM_NXDIAG
 	bool "System information and diagnostic (nxdiag)"
 	default n
 	---help---
@@ -6,19 +6,19 @@ config TESTING_NXDIAG
 		and target system information. It can also perform some
 		diagnostic checks on the host and target systems.
 
-if TESTING_NXDIAG
+if SYSTEM_NXDIAG
 
-config TESTING_NXDIAG_PRIORITY
+config SYSTEM_NXDIAG_PRIORITY
 	int "Nxdiag task priority"
 	default 100
 
-config TESTING_NXDIAG_STACKSIZE
+config SYSTEM_NXDIAG_STACKSIZE
 	int "Nxdiag stack size"
 	default DEFAULT_TASK_STACKSIZE
 
 comment "NuttX system information"
 
-config TESTING_NXDIAG_CONF
+config SYSTEM_NXDIAG_CONF
 	bool "Get NuttX configuration"
 	default n
 	---help---
@@ -26,7 +26,7 @@ config TESTING_NXDIAG_CONF
 		used to compile NuttX. This is useful for debugging the host and
 		target systems. Enables the "-c" and "--nuttx-config" options.
 
-config TESTING_NXDIAG_COMP_FLAGS
+config SYSTEM_NXDIAG_COMP_FLAGS
 	bool "Get NuttX compilation flags"
 	default n
 	---help---
@@ -36,7 +36,7 @@ config TESTING_NXDIAG_COMP_FLAGS
 
 comment "Host system infromation"
 
-config TESTING_NXDIAG_HOST_PATH
+config SYSTEM_NXDIAG_HOST_PATH
 	bool "Get host system PATH"
 	default n
 	---help---
@@ -44,7 +44,7 @@ config TESTING_NXDIAG_HOST_PATH
 		variable. This is useful for debugging the host system.
 		Enables the "-p" and "--host-path" options.
 
-config TESTING_NXDIAG_HOST_PACKAGES
+config SYSTEM_NXDIAG_HOST_PACKAGES
 	bool "Get host system packages"
 	default n
 	---help---
@@ -52,7 +52,7 @@ config TESTING_NXDIAG_HOST_PACKAGES
 		on the host system. This is useful for debugging the host
 		system. Enables the "-k" and "--host-packages" options.
 
-config TESTING_NXDIAG_HOST_MODULES
+config SYSTEM_NXDIAG_HOST_MODULES
 	bool "Get host system python modules"
 	default n
 	---help---
@@ -62,10 +62,10 @@ config TESTING_NXDIAG_HOST_MODULES
 
 comment "Vendor specific information"
 
-config TESTING_NXDIAG_ESPRESSIF
+config SYSTEM_NXDIAG_ESPRESSIF
 	bool "Espressif"
 	default n
 	---help---
 		Enable Espressif-specific information and checks.
 
-endif
+endif # SYSTEM_NXDIAG
