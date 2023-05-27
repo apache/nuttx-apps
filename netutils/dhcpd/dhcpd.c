@@ -277,6 +277,21 @@ struct dhcpd_daemon_s
   pid_t            ds_pid;          /* Task ID of the DHCPD daemon */
 };
 
+struct dhcpd_config_s
+{
+  in_addr_t ds_startip;
+  in_addr_t ds_endip;
+#ifdef HAVE_ROUTERIP
+  in_addr_t ds_routerip;
+#endif
+#ifdef HAVE_NETMASK
+  in_addr_t ds_netmask;
+#endif
+#ifdef HAVE_DNSIP
+  in_addr_t ds_dnsip;
+#endif
+};
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -299,6 +314,21 @@ static struct dhcpd_daemon_s g_dhcpd_daemon =
   SEM_INITIALIZER(1),
   SEM_INITIALIZER(0),
   -1
+};
+
+static struct dhcpd_config_s g_dhcpd_config =
+{
+  CONFIG_NETUTILS_DHCPD_STARTIP,
+  CONFIG_NETUTILS_DHCP_OPTION_ENDIP,
+#ifdef HAVE_ROUTERIP
+  CONFIG_NETUTILS_DHCPD_ROUTERIP,
+#endif
+#ifdef HAVE_NETMASK
+  CONFIG_NETUTILS_DHCPD_NETMASK,
+#endif
+#ifdef HAVE_DNSIP
+  CONFIG_NETUTILS_DHCPD_DNSIP
+#endif
 };
 
 /****************************************************************************
@@ -387,11 +417,11 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac,
    * ipaddr must be in host order!
    */
 
-  int ndx = ipaddr - CONFIG_NETUTILS_DHCPD_STARTIP;
+  int ndx = ipaddr - g_dhcpd_config.ds_startip;
   struct lease_s *ret = NULL;
 
   ninfo("ipaddr: %08" PRIx32 " ipaddr: %08" PRIx32 " ndx: %d MAX: %d\n",
-        (uint32_t)ipaddr, (uint32_t)CONFIG_NETUTILS_DHCPD_STARTIP, ndx,
+        (uint32_t)ipaddr, (uint32_t)g_dhcpd_config.ds_startip, ndx,
         CONFIG_NETUTILS_DHCPD_MAXLEASES);
 
   /* Verify that the address offset is within the supported range */
@@ -418,7 +448,7 @@ static inline in_addr_t dhcp_leaseipaddr(FAR struct lease_s *lease)
   /* Return IP address in host order */
 
   return (in_addr_t)(lease - g_state.ds_leases) +
-         CONFIG_NETUTILS_DHCPD_STARTIP;
+         g_dhcpd_config.ds_startip;
 }
 
 /****************************************************************************
@@ -446,11 +476,11 @@ static FAR struct lease_s *dhcpd_findbymac(FAR const uint8_t *mac)
 
 static FAR struct lease_s *dhcpd_findbyipaddr(in_addr_t ipaddr)
 {
-  if (ipaddr >= CONFIG_NETUTILS_DHCPD_STARTIP &&
-      ipaddr <= CONFIG_NETUTILS_DHCP_OPTION_ENDIP)
+  if (ipaddr >= g_dhcpd_config.ds_startip &&
+      ipaddr <= g_dhcpd_config.ds_endip)
     {
       FAR struct lease_s *lease =
-        &g_state.ds_leases[ipaddr - CONFIG_NETUTILS_DHCPD_STARTIP];
+        &g_state.ds_leases[ipaddr - g_dhcpd_config.ds_startip];
       if (lease->allocated > 0)
         {
           return lease;
@@ -469,8 +499,8 @@ static in_addr_t dhcpd_allocipaddr(void)
   struct lease_s *lease = NULL;
   in_addr_t ipaddr, startaddr;
 
-  ipaddr = startaddr = CONFIG_NETUTILS_DHCPD_STARTIP;
-  for (; ipaddr <= CONFIG_NETUTILS_DHCP_OPTION_ENDIP; ipaddr++)
+  ipaddr = startaddr = g_dhcpd_config.ds_startip;
+  for (; ipaddr <= g_dhcpd_config.ds_endip; ipaddr++)
     {
       /* Skip over address ending in 0 or 255 */
 
@@ -681,8 +711,8 @@ static inline bool dhcpd_verifyreqip(void)
    * range
    */
 
-  if (g_state.ds_optreqip >= CONFIG_NETUTILS_DHCPD_STARTIP &&
-      g_state.ds_optreqip <= CONFIG_NETUTILS_DHCP_OPTION_ENDIP)
+  if (g_state.ds_optreqip >= g_dhcpd_config.ds_startip &&
+      g_state.ds_optreqip <= g_dhcpd_config.ds_endip)
     {
       /* And verify that the lease has not already been taken or offered
        * (unless the lease/offer is expired, then the address is free game).
@@ -1015,7 +1045,7 @@ static inline int dhcpd_sendoffer(int sockfd, in_addr_t ipaddr,
   in_addr_t netaddr;
 #ifdef HAVE_DNSIP
   uint32_t dnsaddr;
-  dnsaddr = htonl(CONFIG_NETUTILS_DHCPD_DNSIP);
+  dnsaddr = htonl(g_dhcpd_config.ds_dnsip);
 #endif
   /* IP address is in host order */
 
@@ -1035,11 +1065,11 @@ static inline int dhcpd_sendoffer(int sockfd, in_addr_t ipaddr,
   dhcpd_addoption32(DHCP_OPTION_LEASE_TIME, htonl(leasetime));
 #ifdef HAVE_NETMASK
   dhcpd_addoption32(DHCP_OPTION_SUBNET_MASK,
-                    htonl(CONFIG_NETUTILS_DHCPD_NETMASK));
+                    htonl(g_dhcpd_config.ds_netmask));
 #endif
 #ifdef HAVE_ROUTERIP
   dhcpd_addoption32(DHCP_OPTION_ROUTER,
-                    htonl(CONFIG_NETUTILS_DHCPD_ROUTERIP));
+                    htonl(g_dhcpd_config.ds_routerip));
 #endif
 #ifdef HAVE_DNSIP
   dhcp_addoption32p(DHCP_OPTION_DNS_SERVER, (FAR uint8_t *)&dnsaddr);
@@ -1077,7 +1107,7 @@ int dhcpd_sendack(int sockfd, in_addr_t ipaddr)
   in_addr_t netaddr;
 #ifdef HAVE_DNSIP
   uint32_t dnsaddr;
-  dnsaddr = htonl(CONFIG_NETUTILS_DHCPD_DNSIP);
+  dnsaddr = htonl(g_dhcpd_config.ds_dnsip);
 #endif
 
   /* Initialize the ACK response */
@@ -1099,11 +1129,11 @@ int dhcpd_sendack(int sockfd, in_addr_t ipaddr)
   dhcpd_addoption32(DHCP_OPTION_LEASE_TIME, htonl(leasetime));
 #ifdef HAVE_NETMASK
   dhcpd_addoption32(DHCP_OPTION_SUBNET_MASK,
-                    htonl(CONFIG_NETUTILS_DHCPD_NETMASK));
+                    htonl(g_dhcpd_config.ds_netmask));
 #endif
 #ifdef HAVE_ROUTERIP
   dhcpd_addoption32(DHCP_OPTION_ROUTER,
-                    htonl(CONFIG_NETUTILS_DHCPD_ROUTERIP));
+                    htonl(g_dhcpd_config.ds_routerip));
 #endif
 #ifdef HAVE_DNSIP
   dhcp_addoption32p(DHCP_OPTION_DNS_SERVER, (FAR uint8_t *)&dnsaddr);
@@ -1319,8 +1349,8 @@ static inline int dhcpd_request(int sockfd)
        * maybe requested before the last shutdown, lease again.
        */
 
-      else if (g_state.ds_optreqip >= CONFIG_NETUTILS_DHCPD_STARTIP &&
-               g_state.ds_optreqip <= CONFIG_NETUTILS_DHCP_OPTION_ENDIP)
+      else if (g_state.ds_optreqip >= g_dhcpd_config.ds_startip &&
+               g_state.ds_optreqip <= g_dhcpd_config.ds_endip)
         {
           ipaddr = g_state.ds_optreqip;
           response = DHCPACK;
@@ -1705,3 +1735,78 @@ int dhcpd_stop(void)
   sem_post(&g_dhcpd_daemon.ds_lock);
   return OK;
 }
+
+/****************************************************************************
+ * Name: dhcpd_set_startip
+ *
+ * Description:
+ *   Set start IP for DHCPD
+ *
+ * Returned Value:
+ *   OK
+ *
+ ****************************************************************************/
+
+int dhcpd_set_startip(in_addr_t startip)
+{
+  g_dhcpd_config.ds_startip = startip;
+  g_dhcpd_config.ds_endip = startip + CONFIG_NETUTILS_DHCPD_MAXLEASES - 1;
+  return OK;
+}
+
+#ifdef HAVE_ROUTERIP
+/****************************************************************************
+ * Name: dhcpd_set_routerip
+ *
+ * Description:
+ *   Set Router IP for DHCPD
+ *
+ * Returned Value:
+ *   OK
+ *
+ ****************************************************************************/
+
+int dhcpd_set_routerip(in_addr_t routerip)
+{
+  g_dhcpd_config.ds_routerip = routerip;
+  return OK;
+}
+#endif
+
+#ifdef HAVE_NETMASK
+/****************************************************************************
+ * Name: dhcpd_set_netmask
+ *
+ * Description:
+ *   Set Netmask for DHCPD
+ *
+ * Returned Value:
+ *   OK
+ *
+ ****************************************************************************/
+
+int dhcpd_set_netmask(in_addr_t netmask)
+{
+  g_dhcpd_config.ds_netmask = netmask;
+  return OK;
+}
+#endif
+
+#ifdef HAVE_DNSIP
+/****************************************************************************
+ * Name: dhcpd_set_dnsip
+ *
+ * Description:
+ *   Set DNS for DHCPD
+ *
+ * Returned Value:
+ *   OK
+ *
+ ****************************************************************************/
+
+int dhcpd_set_dnsip(in_addr_t dnsip)
+{
+  g_dhcpd_config.ds_dnsip = dnsip;
+  return OK;
+}
+#endif
