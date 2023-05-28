@@ -45,6 +45,7 @@ CSRCS += insn.c
 CSRCS += instance.c
 CSRCS += leb128.c
 CSRCS += list.c
+CSRCS += load_context.c
 CSRCS += module.c
 CSRCS += module_writer.c
 CSRCS += nbio.c
@@ -77,7 +78,7 @@ CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/include}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/lib}
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/libwasi}
 
-TOYWASM_VERSION  = 80d43dfa3377810fff0ff143b2e8be2e229bf7f2
+TOYWASM_VERSION  = 031ac96574bf95c5ec31e5aeb02787a84e6d4af0
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
