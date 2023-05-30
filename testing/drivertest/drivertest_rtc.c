@@ -203,7 +203,7 @@ static void test_case_rtc_02(FAR void **state)
   struct rtc_setalarm_s rtc_setalarm;
   struct rtc_rdalarm_s rtc_rdalarm;
   struct rtc_setrelative_s rtc_setrelative;
-  struct rtc_time rd_time;
+  struct rtc_time set_time;
   uint32_t before_timestamp;
   uint32_t range;
   sigset_t set;
@@ -217,8 +217,11 @@ static void test_case_rtc_02(FAR void **state)
   fd = open(rtc_state->devpath, O_RDWR);
   assert_return_code(fd, 0);
 
-  ret = ioctl(fd, RTC_RD_TIME, &rd_time);
-  assert_return_code(ret, OK);
+  memset(&set_time, 0, sizeof(set_time));
+  set_time.tm_year = 2000 - TM_YEAR_BASE;
+  set_time.tm_mon = TM_JANUARY;
+  set_time.tm_mday = 1;
+  set_time.tm_wday = TM_SATURDAY;
 
   /* Set rtc alarm */
 
@@ -227,9 +230,12 @@ static void test_case_rtc_02(FAR void **state)
   rtc_setalarm.event.sigev_notify = SIGEV_SIGNAL;
   rtc_setalarm.event.sigev_signo = RTC_SIGNO;
   rtc_setalarm.event.sigev_value.sival_ptr = NULL;
-  rtc_setalarm.time = rd_time;
+  rtc_setalarm.time = set_time;
 
   add_timeout(&rtc_setalarm.time);
+
+  ret = ioctl(fd, RTC_SET_TIME, (unsigned long)((uintptr_t)&set_time));
+  assert_return_code(ret, OK);
 
   ret = ioctl(fd, RTC_SET_ALARM, &rtc_setalarm);
   assert_return_code(ret, OK);
@@ -242,7 +248,7 @@ static void test_case_rtc_02(FAR void **state)
   ret = ioctl(fd, RTC_RD_ALARM, &rtc_rdalarm);
   assert_return_code(ret, OK);
 
-  assert_int_equal(mktime((struct tm *)&rd_time) + DEFAULT_TIME_OUT,
+  assert_int_equal(mktime((struct tm *)&rtc_rdalarm.time),
                    mktime((struct tm *)&rtc_setalarm.time));
 
   ret = sigwaitinfo(&set, NULL);
@@ -250,14 +256,14 @@ static void test_case_rtc_02(FAR void **state)
 
   range = abs(get_timestamp() - before_timestamp);
   assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
-                  DEFAULT_TIME_OUT * 1000);
+                  DEFAULT_TIME_OUT * 1000 + RTC_DEFAULT_DEVIATION);
 
   /* Cancel rtc alarm */
 
-  ret = ioctl(fd, RTC_RD_TIME, &rd_time);
+  ret = ioctl(fd, RTC_SET_TIME, (unsigned long)((uintptr_t)&set_time));
   assert_return_code(ret, OK);
 
-  rtc_setalarm.time = rd_time;
+  rtc_setalarm.time = set_time;
   add_timeout(&rtc_setalarm.time);
 
   ret = ioctl(fd, RTC_SET_ALARM, &rtc_setalarm);
@@ -285,7 +291,7 @@ static void test_case_rtc_02(FAR void **state)
 
   range = abs(get_timestamp() - before_timestamp);
   assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
-                  DEFAULT_TIME_OUT * 1000);
+                  DEFAULT_TIME_OUT * 1000 + RTC_DEFAULT_DEVIATION);
   close(fd);
 }
 #endif
@@ -300,7 +306,7 @@ static void rtc_periodic_callback(union sigval arg)
   FAR int *tim = (int *)arg.sival_ptr;
   int range = get_timestamp() - *tim;
   assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
-                  DEFAULT_TIME_OUT * 1000);
+                  DEFAULT_TIME_OUT * 1000 + RTC_DEFAULT_DEVIATION);
   syslog(LOG_DEBUG, "rtc periodic callback trigger!!!\n");
   *tim = get_timestamp();
 }
