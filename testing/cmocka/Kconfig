@@ -5,6 +5,7 @@
 
 config TESTING_CMOCKA
 	tristate "Enable libcmocka"
+	depends on LIBC_REGEX
 	default n
 	---help---
 		Enable libcmocka and run all testcases
