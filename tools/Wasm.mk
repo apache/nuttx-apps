@@ -93,27 +93,27 @@ PRIORITY            ?= SCHED_PRIORITY_DEFAULT
 # XIP: Execution In Place
 # JIT: Just In Time
 
-WAMR_MODE       ?= INT
+WAMR_MODE ?= INT
 
 # Targets follow
 
 .PRECIOUS: $(WBIN)
 
 WSRCS := $(MAINSRC) $(CSRCS)
-WOBJS := $(WSRCS:%.c=%.wo)
+WOBJS := $(WSRCS:=$(SUFFIX).wo)
 
 all:: $(WBIN)
 
-$(WOBJS): %.wo : %.c
+$(WOBJS): %.c$(SUFFIX).wo : %.c
 	$(Q) $(WCC) $(WCFLAGS) -c $^ -o $@
 
 $(WBIN): $(WOBJS)
 	$(shell mkdir -p $(APPDIR)/wasm)
-	$(Q) $(WAR) $@ $(filter-out $(MAINSRC:%.c=%.wo),$^)
+	$(Q) $(WAR) $@ $(filter-out $(MAINSRC:=$(SUFFIX).wo),$^)
 	$(foreach main,$(MAINSRC), \
 	  $(eval mainindex=$(strip $(call GETINDEX,$(main),$(MAINSRC)))) \
-	  $(eval dstname=$(shell echo $(main:%.c=%.wo) | sed -e 's/\//_/g')) \
-	  $(shell cp -rf $(strip $(main:%.c=%.wo)) \
+	$(eval dstname=$(shell echo $(main:=$(SUFFIX).wo) | sed -e 's/\//_/g')) \
+	  $(shell cp -rf $(strip $(main:=$(SUFFIX).wo)) \
 	    $(strip $(APPDIR)/wasm/$(word $(mainindex),$(PROGNAME))#$(WASM_INITIAL_MEMORY)#$(STACKSIZE)#$(PRIORITY)#$(WAMR_MODE)#$(dstname)) \
 	   ) \
 	 )
