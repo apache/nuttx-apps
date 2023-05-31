@@ -190,7 +190,8 @@ static bool wapi_json_update(FAR cJSON *root,
 
 int wapi_make_socket(void)
 {
-  return socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
+  int fd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
+  return fd < 0 ? -errno : fd;
 }
 
 /****************************************************************************
@@ -441,13 +442,13 @@ int wapi_save_config(FAR const char *ifname,
   FAR char *buf = NULL;
   FAR cJSON *ifobj;
   FAR cJSON *root;
-  int ret = -1;
+  int ret = -ENOMEM;
   int fd = -1;
   bool update;
 
   if (ifname == NULL || conf == NULL)
     {
-      return ret;
+      return -EINVAL;
     }
 
   if (confname == NULL)
@@ -507,10 +508,15 @@ int wapi_save_config(FAR const char *ifname,
   fd = open(confname, O_RDWR | O_CREAT | O_TRUNC);
   if (fd < 0)
     {
+      ret = -errno;
       goto errout;
     }
 
   ret = write(fd, buf, strlen(buf));
+  if (ret < 0)
+    {
+      ret = -errno;
+    }
 
 errout:
   if (buf)
