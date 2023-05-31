@@ -95,7 +95,7 @@ int wpa_driver_wext_get_key_ext(int sockfd, FAR const char *ifname,
   ext = malloc(sizeof(*ext) + *req_len);
   if (ext == NULL)
     {
-      return -1;
+      return -ENOMEM;
     }
 
   memset(&iwr, 0, sizeof(iwr));
@@ -127,7 +127,7 @@ int wpa_driver_wext_get_key_ext(int sockfd, FAR const char *ifname,
 
           default:
             free(ext);
-            return -1;
+            return -EINVAL;
         }
 
      if (key && ext->key_len < *req_len)
@@ -167,7 +167,7 @@ int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname,
   ext = malloc(sizeof(*ext) + key_len);
   if (ext == NULL)
     {
-      return -1;
+      return -ENOMEM;
     }
 
   memset(&iwr, 0, sizeof(iwr));
@@ -203,12 +203,12 @@ int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname,
       default:
         nerr("ERROR: Unknown algorithm %d", alg);
         free(ext);
-        return -1;
+        return -EINVAL;
     }
 
   if (ioctl(sockfd, SIOCSIWENCODEEXT, (unsigned long)&iwr) < 0)
     {
-      ret = errno == EOPNOTSUPP ? -2 : -1;
+      ret = -errno;
       nerr("ERROR: ioctl[SIOCSIWENCODEEXT]: %d", errno);
     }
 
@@ -369,7 +369,7 @@ static int wpa_driver_wext_process_auth_param(int sockfd,
                idx, *value, errcode);
         }
 
-      ret = errcode == EOPNOTSUPP ? -2 : -1;
+      ret = -errcode;
     }
 
   if (ret == 0 && !set)
