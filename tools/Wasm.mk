@@ -59,6 +59,13 @@ WLDFLAGS += -Wl,--export=main -Wl,--export=__main_argc_argv
 WLDFLAGS += -Wl,--export=__heap_base -Wl,--export=__data_end
 WLDFLAGS += -Wl,--no-entry -Wl,--strip-all -Wl,--allow-undefined
 
+COMPILER_RT_LIB = $(shell $(WCC) --print-libgcc-file-name)
+ifeq ($(wildcard $(COMPILER_RT_LIB)),)
+  # if "--print-libgcc-file-name" unable to find the correct libgcc PATH
+  # then go ahead and try "--print-file-name"
+  COMPILER_RT_LIB := $(wildcard $(shell $(WCC) --print-file-name $(notdir $(COMPILER_RT_LIB))))
+endif
+
 # If called from $(APPDIR)/Make.defs, WASM_BUILD is not defined
 # Provide LINK_WASM, but only execute it when file wasm/*.wo exists
 
@@ -71,7 +78,8 @@ define LINK_WASM
 	    $(eval INITIAL_MEMORY=$(shell echo $(notdir $(bin)) | cut -d'#' -f2)) \
 	    $(eval STACKSIZE=$(shell echo $(notdir $(bin)) | cut -d'#' -f3)) \
 	    $(eval PROGNAME=$(shell echo $(notdir $(bin)) | cut -d'#' -f1)) \
-	    $(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm) \
+	    $(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) $(COMPILER_RT_LIB) \
+              -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm) \
 		$(call WAMR_AOT_COMPILE) \
 	   ) \
 	 )
