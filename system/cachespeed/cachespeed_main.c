@@ -38,10 +38,10 @@
  ****************************************************************************/
 
 #define CACHESPEED_PREFIX "CACHE Speed: "
+#define REPEAT_NUM 1000
 
 #ifdef CACHESPEED_PERFTIME
   #define TIME uint64_t
-  #define REPEAT_NUM 10000
 
   #define CONVERT(cost) \
   do \
@@ -54,7 +54,6 @@
   #define TIMESTAMP(x) (x) = up_perf_gettime()
 #else
   #define TIME time_t
-  #define REPEAT_NUM 1000
 
   #define CONVERT(cost)
 
@@ -177,8 +176,8 @@ static void test_skeleton(FAR struct cachespeed_s *cs,
       update_size = cache_line_size;
     }
 
-  for (size_t bytes = cache_line_size;
-       bytes <= cache_size; bytes += update_size)
+  for (size_t bytes = update_size;
+       bytes <= cache_size; bytes = 2 * bytes)
     {
       irqstate_t irq;
       TIME start;
