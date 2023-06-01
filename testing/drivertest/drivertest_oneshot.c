@@ -108,7 +108,7 @@ static void parse_commandline(FAR struct oneshot_state_s *oneshot_state,
             OPTARG_TO_VALUE(converted, time_t, 10);
             if (converted < 1 || converted > INT_MAX)
               {
-                printf("signal out of range: %ld\n", converted);
+                printf("signal out of range:%lld\n", (long long)converted);
                 show_usage(argv[0], EXIT_FAILURE);
               }
 
@@ -161,7 +161,7 @@ static void test_case_oneshot(FAR void **state)
   ret = ioctl(fd, OSIOC_MAXDELAY, &ts);
   assert_return_code(ret, OK);
 
-  syslog(LOG_DEBUG, "maxdelay sec:%ld\n", ts.tv_sec);
+  syslog(LOG_DEBUG, "maxdelay sec:%lld\n", (long long)ts.tv_sec);
   syslog(LOG_DEBUG, "maxdelay nsec:%ld\n", ts.tv_nsec);
 
   for (i = 0; i < ONESHOT_DEFAULT_NSAMPLES; i++)
