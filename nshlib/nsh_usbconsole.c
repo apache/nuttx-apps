@@ -245,7 +245,22 @@ int nsh_consolemain(int argc, FAR char *argv[])
   /* Initialize the USB serial driver */
 
 #if defined(CONFIG_PL2303) || defined(CONFIG_CDCACM)
-#ifdef CONFIG_CDCACM
+#if defined(CONFIG_USBDEV_COMPOSITE)
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+  ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
+  ctrl.instance = 0;
+  ctrl.config   = 0;
+  ctrl.handle   = NULL;
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.config   = 0;
+  ctrl.handle   = &handle;
+
+#elif defined(CONFIG_CDCACM)
 
   ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
   ctrl.action   = BOARDIOC_USBDEV_CONNECT;
