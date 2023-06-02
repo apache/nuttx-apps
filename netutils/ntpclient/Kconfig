@@ -66,6 +66,10 @@ config NETUTILS_NTPCLIENT_SIGWAKEUP
 	int "NTP client wakeup signal number"
 	default 18
 
+config NETUTILS_NTPCLIENT_TIMEOUT_MS
+	int "NTP client timeout of send and recv"
+	default 5000
+
 config NETUTILS_NTPCLIENT_WITH_AUTH
 	bool "NTP client with authentication"
 	default n
