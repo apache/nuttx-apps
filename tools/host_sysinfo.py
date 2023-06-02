@@ -28,6 +28,14 @@ class validate_flags_arg(argparse.Action):
 # Common functions #
 
 
+def eprint(*args, **kwargs):
+    """
+    Prints the arguments passed to stderr.
+    """
+
+    print(*args, file=sys.stderr, **kwargs)
+
+
 def get_installed_packages():
     """
     Gets the list of packages installed on the host system. This function works on
@@ -112,7 +120,7 @@ def get_installed_packages():
                         )
                         packages.append(f"{name} ({version})")
         except subprocess.CalledProcessError:
-            pass
+            eprint("Error: Failed to get installed packages.")
 
     elif platform.system() == "Darwin":
         try:
@@ -130,7 +138,7 @@ def get_installed_packages():
                         version = "Unknown"
                     packages.append(f"{package} ({version})")
         except subprocess.CalledProcessError:
-            pass
+            eprint("Error: Failed to get installed packages.")
 
     packages.sort()
     return packages

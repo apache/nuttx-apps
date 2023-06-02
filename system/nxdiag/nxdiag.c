@@ -29,7 +29,6 @@
 #include <unistd.h>
 
 #include <nuttx/config.h>
-#include <nuttx/info.h>
 #include <nuttx/version.h>
 
 #include "sysinfo.h"
@@ -260,7 +259,7 @@ int main(int argc, char *argv[])
       printf("\tBuild: %s\n", CONFIG_VERSION_BUILD);
 #endif
       printf("\tArch: %s\n", CONFIG_ARCH);
-      printf("\tConfig: %s\n\n", CONFIG_BASE_DEFCONFIG);
+      printf("\tDefconfig: %s\n\n", CONFIG_BASE_DEFCONFIG);
     }
 
 #ifdef CONFIG_SYSTEM_NXDIAG_COMP_FLAGS
