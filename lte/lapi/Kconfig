@@ -1,0 +1,49 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig LTE_LAPI
+	bool "LTE Configuration Library"
+	default n
+	---help---
+		Enable the LTE Configuration Library.
+
+if LTE_LAPI
+
+config LTE_LAPI_DEBUG_MSG
+	bool "Enable debug output messages"
+	default n
+	depends on DEBUG_NET_ERROR
+
+config LTE_LAPI_KEEP_COMPATIBILITY
+	bool "Keep the LTE library compatible."
+	default n
+	---help---
+		lte_get_operator_sync, lte_get_imsi_sync, lte_get_imei_sync, lte_get_phoneno_sync,
+		these functions have changed their specifications to specify the length of the 
+		argument string. Functions in the old spec will be discarded, but enabling this
+		option makes you be able to use them.
+		Furthermore, this option will be removed in the near future, and functions in
+		the old spec will be completely discarded.
+
+config LTE_LAPI_LOG_ACCESS
+	bool "Enable the log access API"
+	default n
+	---help---
+		Enable these log access APIs: lte_log_open, lte_log_close,
+		lte_log_read, lte_log_lseek, lte_log_remove.
+
+config LTE_LAPI_ENABLE_DEPRECATED_API
+	bool "Enable deprecated API"
+	default y
+	---help---
+		If your application does not use the deprecated APIs,
+		this option can help to reduce memory usage.
+		Deprecated APIs are asynchronous APIs except lte_activate_pdn.
+		See include/lte/lte_api.h for a list of asynchronous APIs.
+		Deprecated APIs will be removed in the future,
+		please use the synchronous API instead.
+
+endif
+

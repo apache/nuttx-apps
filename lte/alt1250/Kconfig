@@ -1,0 +1,159 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LTE_ALT1250
+	tristate "ALT1250 usrsock daemon"
+	default n
+	depends on NET_USRSOCK && MODEM_ALT1250
+	select NET_USRSOCK_TCP
+	select PIPES
+	select NET_USRSOCK_OTHER
+	---help---
+		Enable support for the alt1250 usrsock daemon
+
+if LTE_ALT1250
+config LTE_ALT1250_PROGNAME
+	string "alt1250 program name"
+	default "alt1250"
+
+config LTE_ALT1250_PRIORITY
+	int "alt1250 task priority"
+	default 100
+
+config LTE_ALT1250_STACKSIZE
+	int "alt1250 stack size"
+	default 2048
+
+config LTE_ALT1250_ENABLE_HIBERNATION_MODE
+	bool "Enable LTE hibernation mode"
+	default n
+	depends on PM
+	---help---
+		Enable LTE hibernation mode to reduce current
+		consumption during communication standby.
+
+menu "SMS configuration"
+
+config LTE_ALT1250_SMS_TOA
+	bool "Configure type of address of destination address"
+	default n
+	---help---
+		Change the type of address of the destination address.
+
+choice
+	prompt "Configure Nature of Address Indicator"
+	depends on LTE_ALT1250_SMS_TOA
+
+config LTE_ALT1250_SMS_NAI_UNKNOWN
+	bool "Unkown"
+
+config LTE_ALT1250_SMS_NAI_INTERNATIONAL
+	bool "International number"
+
+config LTE_ALT1250_SMS_NAI_NATIONAL
+	bool "National number"
+
+config LTE_ALT1250_SMS_NAI_NETWORK_SPEC
+	bool "Network specific number"
+
+config LTE_ALT1250_SMS_NAI_SUBSCRIBER
+	bool "Subscriber number"
+
+config LTE_ALT1250_SMS_NAI_ALPANUMERIC
+	bool "Alphanumeric"
+
+config LTE_ALT1250_SMS_NAI_ABBREVIATED
+	bool "Abbreviated number"
+
+config LTE_ALT1250_SMS_NAI_RESERVED
+	bool "Reserved for extension"
+
+endchoice # Configure Nature of Address Indicator
+
+choice
+	prompt "Configure Numbering Plan Indicator"
+	depends on LTE_ALT1250_SMS_TOA
+
+config LTE_ALT1250_SMS_NPI_UNKNOWN
+	bool "Unkown"
+
+config LTE_ALT1250_SMS_NPI_ISDN
+	bool "ISDN/telephone numbering plan"
+
+config LTE_ALT1250_SMS_NPI_DATA
+	bool "Data numbering plan"
+
+config LTE_ALT1250_SMS_NPI_TELEX
+	bool "Telex numbering plan"
+
+config LTE_ALT1250_SMS_NPI_SERVICE_CENTRE_SPEC
+	bool "Service Centre Specific plan"
+
+config LTE_ALT1250_SMS_NPI_SERVICE_CENTRE_SPEC2
+	bool "Service Centre Specific plan-2"
+
+config LTE_ALT1250_SMS_NPI_NATIONAL
+	bool "National numbering plan"
+
+config LTE_ALT1250_SMS_NPI_PRIVATE
+	bool "Private numbering plan"
+
+config LTE_ALT1250_SMS_NPI_ERMES
+	bool "ERMES numbering plan"
+
+config LTE_ALT1250_SMS_NPI_RESERVED
+	bool "Reserved for extension"
+
+endchoice # Configure Numbering Plan Indicator
+
+endmenu # SMS configuration
+
+config LTE_ALT1250_EXTEND_IOCTL
+	bool "Enabling extended ioctl handler"
+	default n
+
+config LTE_ALT1250_LAUNCH_EVENT_TASK
+	bool "Launches an internal task to handle events"
+	default y
+	---help---
+		Launches an internal task to handle the event.
+		It is also possible to disable this option and handle events with a user task.
+		If disabled, use lapi_evtinit() and lapi_evtyield().
+
+if LTE_ALT1250_LAUNCH_EVENT_TASK
+
+config LTE_ALT1250_EVENT_TASK_PRIORITY
+	int "internal task priority"
+	default 100
+
+config LTE_ALT1250_EVENT_TASK_STACKSIZE
+	int "internal task stack size"
+	default 2048
+
+endif
+
+config LTE_ALT1250_CONTAINERS
+	int "Number of containers"
+	default 10
+	range 1 255
+	---help---
+		Determines the maximum number of containers.
+		The container is a buffer used to communicate with the ALT1250
+		that contains the relevant information for communication.
+		Increasing this value may improve the performance during parallel processing.
+		On the other hand, decreasing this value will reduce the memory usage.
+
+config LTE_ALT1250_CONTROL_SOCKETS
+	int "Number of sockets for control"
+	default 3
+	range 1 10
+	---help---
+		Determines the maximum number of sockets used for LAPI and SMS.
+
+config LTE_ALT1250_DEBUG_MSG
+	bool "Enable debug output messages"
+	default n
+
+endif
