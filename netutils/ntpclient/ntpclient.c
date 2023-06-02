@@ -875,8 +875,8 @@ static int ntpc_create_dgram_socket(int domain)
 
   /* Setup a send timeout on the socket */
 
-  tv.tv_sec  = 5;
-  tv.tv_usec = 0;
+  tv.tv_sec  = CONFIG_NETUTILS_NTPCLIENT_TIMEOUT_MS / 1000;
+  tv.tv_usec = CONFIG_NETUTILS_NTPCLIENT_TIMEOUT_MS % 1000;
 
   ret = setsockopt(sd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval));
   if (ret < 0)
@@ -887,9 +887,6 @@ static int ntpc_create_dgram_socket(int domain)
     }
 
   /* Setup a receive timeout on the socket */
-
-  tv.tv_sec  = 5;
-  tv.tv_usec = 0;
 
   ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
   if (ret < 0)
