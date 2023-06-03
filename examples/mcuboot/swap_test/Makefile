@@ -22,7 +22,7 @@ include $(APPDIR)/Make.defs
 
 MAINSRC   += confirm_main.c set_img_main.c version_main.c
 
-PROGNAME  += mcuboot_confirm mcuboot_set_img mcuboot_version
+PROGNAME  += mcuboot_confirm_swap mcuboot_set_img mcuboot_version
 PRIORITY  += SCHED_PRIORITY_DEFAULT
 STACKSIZE += $(CONFIG_DEFAULT_TASK_STACKSIZE)
 
