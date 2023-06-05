@@ -27,6 +27,7 @@
 #include <sys/mount.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -43,6 +44,12 @@
 /****************************************************************************
  * Private Type
  ****************************************************************************/
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define SECTORS_RANGE 0.95
 
 /****************************************************************************
  * Private Types
@@ -133,8 +140,10 @@ static inline char blktest_randchar(void)
  * Name: blktest_randcontext
  ****************************************************************************/
 
-static void blktest_randcontext(FAR struct pre_build_s *pre, char *input)
+static void blktest_randcontext(FAR struct pre_build_s *pre, FAR char *input)
 {
+  /* Construct a buffer here and fill it with random characters */
+
   int i;
   for (i = 0; i < pre->cfg.geo_sectorsize - 1; i++)
     {
@@ -150,7 +159,7 @@ static void blktest_randcontext(FAR struct pre_build_s *pre, char *input)
 
 static int setup(FAR void **state)
 {
-  FAR struct pre_build_s *pre = (FAR struct pre_build_s *)*state;
+  FAR struct pre_build_s *pre = *state;
   struct stat mode;
   time_t t;
   int ret;
@@ -180,40 +189,55 @@ static void blktest_stress(FAR void **state)
   FAR struct pre_build_s *pre;
   FAR char *input;
   FAR char *output;
+  blkcnt_t nsectors;
   uint32_t input_crc;
   uint32_t output_crc;
   int ret;
 
-  pre = (FAR struct pre_build_s *)*state;
+  pre = *state;
 
-  input = malloc(pre->cfg.geo_sectorsize);
+  input = malloc(pre->cfg.geo_sectorsize * 2);
   assert_true(input != NULL);
-  output = malloc(pre->cfg.geo_sectorsize);
-  assert_true(output != NULL);
+  output = input + pre->cfg.geo_sectorsize;
 
-  for (int i = 0; i < pre->cfg.geo_nsectors; i++)
+  /* We expect the physical bad block rate on nand flash to be no more
+   * than 5%, we give the redundancy space at the end.
+   */
+
+  nsectors =  pre->cfg.geo_nsectors * SECTORS_RANGE;
+
+  /* Test process: convert the device information of the storage device into
+   * 'sectors' by bch, and fill each 'sector' with random characters, then
+   * read it out and compare whether the writing and The difference between
+   * write and store is verified by crc32.
+   * This behavior simulates the behavior of commands such as 'dd' in the
+   * system. The general flow is user->bch->ftl->driver
+   */
+
+  for (int i = 0; i < nsectors; i++)
     {
-      input_crc = 0;
-      output_crc = 0;
+      lseek(pre->fd, i * pre->cfg.geo_sectorsize, SEEK_SET);
 
       blktest_randcontext(pre, input);
       input_crc = crc32((FAR uint8_t *)input, pre->cfg.geo_sectorsize);
       ret = write(pre->fd, input, pre->cfg.geo_sectorsize);
       assert_true(ret == pre->cfg.geo_sectorsize);
+
       fsync(pre->fd);
+
+      /* Let's write each time we need to move the pointer back to the
+       * beginning
+       */
 
       lseek(pre->fd, i * pre->cfg.geo_sectorsize, SEEK_SET);
 
       ret = read(pre->fd, output, pre->cfg.geo_sectorsize);
       assert_int_equal(ret, pre->cfg.geo_sectorsize);
-
       output_crc = crc32((FAR uint8_t *)output, pre->cfg.geo_sectorsize);
-
       assert_false(output_crc != input_crc);
     }
 
   free(input);
-  free(output);
 }
 
 /****************************************************************************
