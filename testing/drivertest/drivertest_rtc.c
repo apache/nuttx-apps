@@ -52,6 +52,18 @@
 #define SLEEPSECONDS          5
 #define RTC_SIGNO             13
 
+#define OPTARG_TO_VALUE(value, type, base)                            \
+  do                                                                  \
+    {                                                                 \
+      FAR char *ptr;                                                  \
+      value = (type)strtoul(optarg, &ptr, base);                      \
+      if (*ptr != '\0')                                               \
+        {                                                             \
+          printf("Parameter error: -%c %s\n", ch, optarg);            \
+          show_usage(argv[0], rtc_state, EXIT_FAILURE);               \
+        }                                                             \
+    } while (0)
+
 /****************************************************************************
  * Private Type
  ****************************************************************************/
@@ -59,6 +71,8 @@
 struct rtc_state_s
 {
   char devpath[PATH_MAX];
+  int deviation;
+  int tim;
 };
 
 /****************************************************************************
@@ -72,10 +86,13 @@ struct rtc_state_s
 static void show_usage(FAR const char *progname,
                        FAR struct rtc_state_s *rtc_state, int exitcode)
 {
-  printf("Usage: %s -d <devpath>\n", progname);
-  printf("  [-d devpath] selects the PWM device.\n"
+  printf("Usage: %s -d <devpath> -a <deviation>\n", progname);
+  printf("  [-d devpath] selects the rtc device.\n"
          "  Default: %s Current: %s\n", RTC_DEFAULT_DEVPATH,
          rtc_state->devpath);
+  printf("  [-a deviation] input rtc alarm .\n"
+         "  Default: %d Current: %d\n", RTC_DEFAULT_DEVIATION,
+         rtc_state->deviation);
   exit(exitcode);
 }
 
@@ -87,13 +104,24 @@ static void parse_commandline(FAR struct rtc_state_s *rtc_state, int argc,
                               FAR char **argv)
 {
   int ch;
+  int converted;
 
-  while ((ch = getopt(argc, argv, "d:")) != ERROR)
+  while ((ch = getopt(argc, argv, "d:a:")) != ERROR)
     {
       switch (ch)
         {
           case 'd':
             strlcpy(rtc_state->devpath, optarg, sizeof(rtc_state->devpath));
+            break;
+
+          case 'a':
+            OPTARG_TO_VALUE(converted, int, 10);
+            rtc_state->deviation = converted;
+            if (converted < 0)
+              {
+                printf("deviation out of range: %d\n", converted);
+                show_usage(argv[0], rtc_state, EXIT_FAILURE);
+              }
             break;
 
           case '?':
@@ -255,8 +283,8 @@ static void test_case_rtc_02(FAR void **state)
   assert_return_code(ret, RTC_SIGNO);
 
   range = abs(get_timestamp() - before_timestamp);
-  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
-                  DEFAULT_TIME_OUT * 1000 + RTC_DEFAULT_DEVIATION);
+  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - rtc_state->deviation,
+                  DEFAULT_TIME_OUT * 1000 + rtc_state->deviation);
 
   /* Cancel rtc alarm */
 
@@ -290,8 +318,8 @@ static void test_case_rtc_02(FAR void **state)
   assert_return_code(ret, RTC_SIGNO);
 
   range = abs(get_timestamp() - before_timestamp);
-  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
-                  DEFAULT_TIME_OUT * 1000 + RTC_DEFAULT_DEVIATION);
+  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - rtc_state->deviation,
+                  DEFAULT_TIME_OUT * 1000 + rtc_state->deviation);
   close(fd);
 }
 #endif
@@ -303,12 +331,12 @@ static void test_case_rtc_02(FAR void **state)
 
 static void rtc_periodic_callback(union sigval arg)
 {
-  FAR int *tim = (int *)arg.sival_ptr;
-  int range = get_timestamp() - *tim;
-  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - RTC_DEFAULT_DEVIATION,
-                  DEFAULT_TIME_OUT * 1000 + RTC_DEFAULT_DEVIATION);
+  FAR struct rtc_state_s * rtc_state = (FAR struct rtc_state_s *)arg.sival_ptr;
+  int range = get_timestamp() - rtc_state->tim;
+  assert_in_range(range, DEFAULT_TIME_OUT * 1000 - rtc_state->deviation,
+                  DEFAULT_TIME_OUT * 1000 + rtc_state->deviation);
   syslog(LOG_DEBUG, "rtc periodic callback trigger!!!\n");
-  *tim = get_timestamp();
+  rtc_state->tim = get_timestamp();
 }
 
 /****************************************************************************
@@ -320,7 +348,6 @@ static void test_case_rtc_03(FAR void **state)
   int alarmid = 0;
   int ret;
   int fd;
-  int tim;
   struct rtc_setperiodic_s rtc_setperiodic;
   FAR struct rtc_state_s *rtc_state =
                   (FAR struct rtc_state_s *)*state;
@@ -335,13 +362,13 @@ static void test_case_rtc_03(FAR void **state)
   rtc_setperiodic.event.sigev_notify = SIGEV_THREAD;
   rtc_setperiodic.event.sigev_notify_function = rtc_periodic_callback;
   rtc_setperiodic.event.sigev_notify_attributes = NULL;
-  rtc_setperiodic.event.sigev_value.sival_ptr = &tim;
+  rtc_setperiodic.event.sigev_value.sival_ptr = rtc_state;
   rtc_setperiodic.period.tv_sec = DEFAULT_TIME_OUT;
   rtc_setperiodic.period.tv_nsec = 0;
 
   ret = ioctl(fd, RTC_SET_PERIODIC, &rtc_setperiodic);
   assert_return_code(ret, OK);
-  tim = get_timestamp();
+  rtc_state->tim = get_timestamp();
   sleep(SLEEPSECONDS);
 
   /* Cancel periodic */
@@ -367,6 +394,7 @@ int main(int argc, FAR char *argv[])
   struct rtc_state_s rtc_state =
   {
     .devpath = RTC_DEFAULT_DEVPATH,
+    .deviation = RTC_DEFAULT_DEVIATION,
   };
 
   parse_commandline(&rtc_state, argc, argv);
