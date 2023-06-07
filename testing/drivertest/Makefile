@@ -29,6 +29,12 @@ MAINSRC  += drivertest_simple.c
 PROGNAME += cmocka_driver_simple
 endif
 
+ifeq ($(CONFIG_BCH),y)
+CFLAGS += ${INCDIR_PREFIX}${TOPDIR}/fs
+PROGNAME += cmocka_driver_block
+MAINSRC  += drivertest_block.c
+endif
+
 ifneq ($(CONFIG_RTC),)
 MAINSRC  += drivertest_rtc.c
 PROGNAME += cmocka_driver_rtc
