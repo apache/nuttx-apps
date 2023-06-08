@@ -27,7 +27,7 @@ if(CONFIG_SYSTEM_NXPLAYER)
   endif()
   target_sources(apps PRIVATE nxplayer.c)
 
-  set(CSRCS nxplayer.c nxplayer_common.c nxplayer_mp3.c)
+  set(CSRCS nxplayer.c nxplayer_common.c nxplayer_mp3.c nxplayer_sbc.c)
 
   target_sources(apps PRIVATE ${CSRCS})
 endif()

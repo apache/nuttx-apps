@@ -507,6 +507,23 @@ int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
                        FAR uint8_t *chans, FAR uint8_t *bps);
 
 /****************************************************************************
+ * Name: nxplayer_parse_sbc
+ *
+ *   Performs pre-process when play sbc file.
+ *   Parse samplerate, channels, bps.
+ *
+ * Input Parameters:
+ *   pplayer   - Pointer to the context to initialize
+ *
+ * Returned Value:
+ *   OK if file parsed successfully.
+ *
+ ****************************************************************************/
+
+int nxplayer_parse_sbc(int fd, FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps);
+
+/****************************************************************************
  * Name: nxplayer_fill_mp3
  *
  *   Performs read mp3 frame to apb buffer

@@ -25,6 +25,7 @@ include $(APPDIR)/Make.defs
 CSRCS     = nxplayer.c
 CSRCS    += nxplayer_common.c
 CSRCS    += nxplayer_mp3.c
+CSRCS    += nxplayer_sbc.c
 
 ifneq ($(CONFIG_NXPLAYER_COMMAND_LINE),)
 PROGNAME  = nxplayer
