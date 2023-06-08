@@ -419,9 +419,8 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
       if (nbytesread < 0)
         {
-          int errval = errno;
           nsh_error(vtbl, g_fmtcmdfailed, "hexdump", "read",
-                     NSH_ERRNO_OF(errval));
+                     NSH_ERRNO_OF(errno));
           ret = ERROR;
           break;
         }
