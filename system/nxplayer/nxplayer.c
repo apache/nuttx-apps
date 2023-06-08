@@ -92,6 +92,9 @@ int nxplayer_getmidisubformat(int fd);
 int nxplayer_getmp3subformat(int fd);
 #endif
 
+#ifdef CONFIG_AUDIO_FORMAT_SBC
+int nxplayer_getsbcsubformat(int fd);
+#endif
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -119,7 +122,10 @@ static const struct nxplayer_ext_fmt_s g_known_ext[] =
   { "midi",     AUDIO_FMT_MIDI, nxplayer_getmidisubformat },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_OGG_VORBIS
-  { "ogg",      AUDIO_FMT_OGG_VORBIS, NULL }
+  { "ogg",      AUDIO_FMT_OGG_VORBIS, NULL },
+#endif
+#ifdef CONFIG_AUDIO_FORMAT_SBC
+  { "sbc",      AUDIO_FMT_SBC, nxplayer_getsbcsubformat }
 #endif
 };
 
@@ -131,6 +137,11 @@ static const struct nxplayer_dec_ops_s g_dec_ops[] =
   {
     AUDIO_FMT_MP3,
     nxplayer_parse_mp3,
+    nxplayer_fill_common
+  },
+  {
+    AUDIO_FMT_SBC,
+    nxplayer_parse_sbc,
     nxplayer_fill_common
   },
   {
@@ -531,6 +542,13 @@ int nxplayer_getmidisubformat(int fd)
 int nxplayer_getmp3subformat(int fd)
 {
   return AUDIO_SUBFMT_PCM_MP3;
+}
+#endif
+
+#ifdef CONFIG_AUDIO_FORMAT_SBC
+int nxplayer_getsbcsubformat(int fd)
+{
+  return AUDIO_FMT_SBC;
 }
 #endif
 
