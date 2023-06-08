@@ -45,4 +45,8 @@ config SYSTEM_CUTERM_PRIORITY
 	---help---
 		This is the task priority that will be used when starting the CU terminal.
 
+config SYSTEM_CUTERM_DISABLE_ERROR_PRINT
+	bool "Disable CU terminal Error Printing"
+	default DEFAULT_SMALL
+
 endif # SYSTEM_CUTERM

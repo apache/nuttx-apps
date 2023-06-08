@@ -56,6 +56,12 @@
 
 #include "cu.h"
 
+#ifdef CONFIG_SYSTEM_CUTERM_DISABLE_ERROR_PRINT
+# define cu_error(...)
+#else
+# define cu_error(...) fprintf(stderr, __VA_ARGS__)
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -173,7 +179,7 @@ static int set_termios(FAR struct cu_globals_s *cu, int nocrlf)
   ret = tcsetattr(cu->outfd, TCSANOW, &tio);
   if (ret)
     {
-      fprintf(stderr, "set_termios: ERROR during tcsetattr(): %d\n", errno);
+      cu_error("set_termios: ERROR during tcsetattr(): %d\n", errno);
       rc = -1;
       goto errout;
     }
@@ -191,7 +197,7 @@ static int set_termios(FAR struct cu_globals_s *cu, int nocrlf)
     ret = tcsetattr(cu->stdfd, TCSANOW, &tio);
     if (ret)
       {
-        fprintf(stderr, "set_termios: ERROR during tcsetattr(): %d\n",
+        cu_error("set_termios: ERROR during tcsetattr(): %d\n",
                 errno);
         rc = -1;
       }
@@ -354,7 +360,7 @@ int main(int argc, FAR char *argv[])
   cu->outfd = open(devname, O_WRONLY);
   if (cu->outfd < 0)
     {
-      fprintf(stderr, "cu_main: ERROR: Failed to open %s for writing: %d\n",
+      cu_error("cu_main: ERROR: Failed to open %s for writing: %d\n",
               devname, errno);
       goto errout_with_devinit;
     }
@@ -364,7 +370,7 @@ int main(int argc, FAR char *argv[])
   ret = tcgetattr(cu->outfd, &cu->devtio);
   if (ret)
     {
-      fprintf(stderr, "cu_main: ERROR during tcgetattr(): %d\n", errno);
+      cu_error("cu_main: ERROR during tcgetattr(): %d\n", errno);
       goto errout_with_outfd;
     }
 
@@ -410,7 +416,7 @@ int main(int argc, FAR char *argv[])
   cu->infd = open(devname, O_RDONLY);
   if (cu->infd < 0)
     {
-      fprintf(stderr, "cu_main: ERROR: Failed to open %s for reading: %d\n",
+      cu_error("cu_main: ERROR: Failed to open %s for reading: %d\n",
              devname, errno);
       goto errout_with_outfd;
     }
@@ -420,7 +426,7 @@ int main(int argc, FAR char *argv[])
   ret = pthread_attr_init(&attr);
   if (ret != OK)
     {
-      fprintf(stderr, "cu_main: pthread_attr_init failed: %d\n", ret);
+      cu_error("cu_main: pthread_attr_init failed: %d\n", ret);
       goto errout_with_fds;
     }
 
@@ -432,7 +438,7 @@ int main(int argc, FAR char *argv[])
   pthread_attr_destroy(&attr);
   if (ret != 0)
     {
-      fprintf(stderr, "cu_main: Error in thread creation: %d\n", ret);
+      cu_error("cu_main: Error in thread creation: %d\n", ret);
       goto errout_with_fds;
     }
 
