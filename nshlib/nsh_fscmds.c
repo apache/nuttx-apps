@@ -2002,7 +2002,6 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   FAR char *path1 = NULL;
   FAR char *path2 = NULL;
-  off_t total_read = 0;
   int fd1 = -1;
   int fd2 = -1;
   int ret = ERROR;
@@ -2065,14 +2064,13 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           goto errout_with_fd2;
         }
 
-      total_read += nbytesread1 > nbytesread2 ? nbytesread2 : nbytesread1;
-
       /* Compare the file data */
 
       if (nbytesread1 != nbytesread2 ||
           memcmp(buf1, buf2, nbytesread1) != 0)
         {
-          nsh_error(vtbl, "files differ: byte %" PRIuOFF "\n", total_read);
+          nsh_error(vtbl, "files differ: byte %zd\n",
+                    nbytesread1 > nbytesread2 ? nbytesread2 : nbytesread1);
           goto errout_with_fd2;
         }
 

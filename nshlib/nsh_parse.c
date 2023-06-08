@@ -1796,12 +1796,14 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
                 {
                   /* No terminator found, get out */
 
+#ifndef CONFIG_NSH_DISABLE_ERROR_PRINT
                   char qterm[2];
 
                   qterm[0] = *pend;
                   qterm[1] = '\0';
 
                   nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
+#endif
 
                   return NULL;
                 }
@@ -2867,12 +2869,14 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
             {
               /* No closing quotation mark! */
 
+#ifndef CONFIG_NSH_DISABLE_ERROR_PRINT
               char qterm[2];
 
               qterm[0] = *ptr;
               qterm[1] = '\0';
 
               nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
+#endif
 
               return ERROR;
             }

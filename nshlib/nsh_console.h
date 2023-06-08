@@ -58,6 +58,15 @@
 #  define nsh_output            vtbl->output
 #endif
 
+#ifdef CONFIG_NSH_DISABLE_ERROR_PRINT
+#  undef nsh_error
+#  ifdef CONFIG_CPP_HAVE_VARARGS
+#    define nsh_error(v, ...) (void)(v)
+#  else
+#    define nsh_error         (void)(vtbl)
+#  endif
+#endif
+
 /* Size of info to be saved in call to nsh_redirect
  * See struct serialsave_s in nsh_console.c
  */
@@ -106,8 +115,10 @@ struct nsh_vtbl_s
   ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer,
                    size_t nbytes);
   int (*ioctl)(FAR struct nsh_vtbl_s *vtbl, int cmd, unsigned long arg);
+#ifndef CONFIG_NSH_DISABLE_ERROR_PRINT
   int (*error)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...)
       printf_like(2, 3);
+#endif
   int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...)
       printf_like(2, 3);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
