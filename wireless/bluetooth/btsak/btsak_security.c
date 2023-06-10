@@ -83,7 +83,7 @@ static void btsak_security_showusage(FAR const char *progname,
   fprintf(stderr,
           "\toutput capabilities).\n\n");
   fprintf(stderr, "Usage:\n\n");
-  fprintf(stderr, "\t%s <ifname> %s [-h] <addr> public|private <level>\n",
+  fprintf(stderr, "\t%s <ifname> %s [-h] <addr> public|random <level>\n",
           progname, cmd);
   fprintf(stderr,
           "\nWhere:\n\n");

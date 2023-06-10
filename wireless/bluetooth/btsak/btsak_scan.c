@@ -169,7 +169,7 @@ static void btsak_cmd_scanget(FAR struct btsak_s *btsak, FAR char *cmd,
           for (i = 0; i < btreq.btr_nrsp; i++)
             {
               rsp = &result[i];
-              printf("%2d.\taddr:           "
+              printf("%2d.\taddr:            "
                      "%02x:%02x:%02x:%02x:%02x:%02x type: %d\n",
                      i + 1,
                      rsp->sr_addr.val[5], rsp->sr_addr.val[4],
