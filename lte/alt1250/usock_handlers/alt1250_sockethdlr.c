@@ -119,7 +119,7 @@ static int postproc_setfl(FAR struct alt1250_s *dev,
   dbg_alt1250("%s start\n", __func__);
 
   *usock_xid = USOCKET_XID(usock);
-  *usock_result = COMBINE_ERRCODE(*(int *)resp[0], *(int *)resp[1]);
+  *usock_result = COMBINE_ERRCODE(*(FAR int *)resp[0], *(FAR int *)resp[1]);
 
   if (*usock_result >= 0)
     {
@@ -174,7 +174,7 @@ static int postproc_setfl(FAR struct alt1250_s *dev,
             break;
 
           default:
-            dbg_alt1250("unexpected sequense. reqid:0x%02x\n",
+            dbg_alt1250("unexpected sequence. reqid:0x%02x\n",
                         USOCKET_REQID(usock));
             *usock_result = -EFAULT;
             break;
@@ -216,7 +216,7 @@ static int postproc_getfl(FAR struct alt1250_s *dev,
   dbg_alt1250("%s start\n", __func__);
 
   *usock_xid = USOCKET_XID(usock);
-  *usock_result = COMBINE_ERRCODE(*(int *)resp[0], *(int *)resp[1]);
+  *usock_result = COMBINE_ERRCODE(*(FAR int *)resp[0], *(FAR int *)resp[1]);
 
   if (*usock_result >= 0)
     {
@@ -269,7 +269,7 @@ static int postproc_socket(FAR struct alt1250_s *dev,
   dbg_alt1250("%s start\n", __func__);
 
   *usock_xid = USOCKET_XID(usock);
-  *usock_result = COMBINE_ERRCODE(*(int *)resp[0], *(int *)resp[1]);
+  *usock_result = COMBINE_ERRCODE(*(FAR int *)resp[0], *(FAR int *)resp[1]);
 
   if (*usock_result >= 0)
     {

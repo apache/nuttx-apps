@@ -53,10 +53,13 @@
 #define ALTFDNO (0)
 #define USOCKFDNO (1)
 
-#define SET_POLLIN(fds, fid) { \
-  (fds).fd = (fid);  \
-  (fds).events = POLLIN; \
-}
+#define SET_POLLIN(fds, fid) \
+  do \
+    { \
+      (fds).fd = (fid);  \
+      (fds).events = POLLIN; \
+    } \
+  while (0)
 
 #define IS_POLLIN(fds) ((fds).revents & POLLIN)
 
@@ -259,7 +262,7 @@ int main(int argc, FAR char *argv[])
 {
   int ret;
   FAR char *endptr;
-  sem_t *syncsem = NULL;
+  FAR sem_t *syncsem = NULL;
 
   if (argc > 1)
     {

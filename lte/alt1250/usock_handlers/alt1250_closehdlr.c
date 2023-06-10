@@ -92,7 +92,7 @@ int postproc_sockcommon(FAR struct alt1250_s *dev,
    */
 
   *usock_xid = USOCKET_XID(usock);
-  *usock_result = COMBINE_ERRCODE(*(int *)resp[0], *(int *)resp[1]);
+  *usock_result = COMBINE_ERRCODE(*(FAR int *)resp[0], *(FAR int *)resp[1]);
 
   switch (USOCKET_REQID(usock))
     {
@@ -141,7 +141,7 @@ int usockreq_close(FAR struct alt1250_s *dev,
   if (usock == NULL)
     {
       dbg_alt1250("Failed to get socket context: %u\n",
-                     request->usockid);
+                  request->usockid);
       *usock_result = -EBADFD;
       return REP_SEND_ACK_WOFREE;
     }

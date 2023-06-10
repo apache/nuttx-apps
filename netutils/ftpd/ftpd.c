@@ -65,7 +65,7 @@
 #include <arpa/inet.h>
 
 #ifdef CONFIG_FTPD_LOGIN_PASSWD
-  #include "fsutils/passwd.h"
+#  include "fsutils/passwd.h"
 #endif
 
 #include "netutils/ftpd.h"

@@ -100,7 +100,7 @@ void container_free(FAR struct alt_container_s *container)
  ****************************************************************************/
 
 void set_container_ids(FAR struct alt_container_s *container,
-  int16_t usockid, uint32_t cmdid)
+                       int16_t usockid, uint32_t cmdid)
 {
   container->sock = usockid;
   container->cmdid = cmdid;
@@ -111,7 +111,7 @@ void set_container_ids(FAR struct alt_container_s *container,
  ****************************************************************************/
 
 void set_container_argument(FAR struct alt_container_s *container,
-  FAR void *argparams[], size_t paramsz)
+                            FAR void *argparams[], size_t paramsz)
 {
   container->inparam = argparams;
   container->inparamlen = paramsz;
@@ -122,7 +122,7 @@ void set_container_argument(FAR struct alt_container_s *container,
  ****************************************************************************/
 
 void set_container_response(FAR struct alt_container_s *container,
-  FAR void *respparams[], size_t paramsz)
+                            FAR void *respparams[], size_t paramsz)
 {
   container->outparam = respparams;
   container->outparamlen = paramsz;
@@ -133,7 +133,7 @@ void set_container_response(FAR struct alt_container_s *container,
  ****************************************************************************/
 
 void set_container_postproc(FAR struct alt_container_s *container,
-  FAR postproc_hdlr_t func, unsigned long arg)
+                            FAR postproc_hdlr_t func, unsigned long arg)
 {
   FAR struct postproc_s *pp = (FAR struct postproc_s *)container->priv;
   pp->hdlr = func;

@@ -45,13 +45,13 @@ void alt1250_saveapn(FAR struct alt1250_s *dev, FAR lte_apn_setting_t *apn)
   if ((apn->auth_type != LTE_APN_AUTHTYPE_NONE) && (apn->user_name))
     {
       strncpy(dev->user_name, (FAR const char *)apn->user_name,
-        LTE_APN_USER_NAME_LEN);
+              LTE_APN_USER_NAME_LEN);
     }
 
   if ((apn->auth_type != LTE_APN_AUTHTYPE_NONE) && (apn->password))
     {
       strncpy(dev->pass, (FAR const char *)apn->password,
-        LTE_APN_PASSWD_LEN);
+              LTE_APN_PASSWD_LEN);
     }
 
   dev->apn.apn = dev->apn_name;

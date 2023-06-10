@@ -310,8 +310,8 @@ static void trace_dump_header(FAR FILE *out,
          );
 }
 
- #if (defined CONFIG_SCHED_INSTRUMENTATION_SWITCH) || \
-     (defined CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER)
+#if (defined CONFIG_SCHED_INSTRUMENTATION_SWITCH) || \
+    (defined CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER)
 /****************************************************************************
  * Name: trace_dump_sched_switch
  ****************************************************************************/

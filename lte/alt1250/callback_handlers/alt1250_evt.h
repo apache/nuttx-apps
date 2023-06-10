@@ -56,7 +56,7 @@ int alt1250_regevtcb(uint32_t id, FAR void *cb);
 void alt1250_execcb(uint64_t evtbitmap);
 FAR void **alt1250_getevtarg(uint32_t cmdid);
 bool alt1250_checkcmdid(uint32_t cmdid, uint64_t evtbitmap,
-  FAR uint64_t *bit);
+                        FAR uint64_t *bit);
 void alt1250_setevtarg_writable(uint32_t cmdid);
 int alt1250_clrevtcb(uint8_t mode);
 
@@ -65,10 +65,9 @@ void alt1250_evttask_stop(FAR struct alt1250_s *dev);
 int alt1250_evttask_sendmsg(FAR struct alt1250_s *dev, uint64_t msg);
 void alt1250_evttask_msgclose(FAR struct alt1250_s *dev);
 int alt1250_evttask_msgconnect(FAR const char *qname,
-      FAR struct alt1250_s *dev);
+                               FAR struct alt1250_s *dev);
 uint32_t alt1250_search_registered_callback(FAR int *index);
-int alt1250_get_report_ltecmd(FAR struct alt1250_s *dev,
-                              uint32_t cmdid,
+int alt1250_get_report_ltecmd(FAR struct alt1250_s *dev, uint32_t cmdid,
                               FAR struct lte_ioctl_data_s *ltecmd);
 
 #endif /* __APPS_LTE_ALT1250_CALLBACK_HANDLERS_ALT1250_EVT_H */

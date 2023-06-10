@@ -61,7 +61,7 @@ static int postproc_getsockname(FAR struct alt1250_s *dev,
    */
 
   *usock_xid = USOCKET_XID(usock);
-  *usock_result = COMBINE_ERRCODE(*(int *)resp[0], *(int *)resp[1]);
+  *usock_result = COMBINE_ERRCODE(*(FAR int *)resp[0], *(FAR int *)resp[1]);
 
   if (*usock_result >= 0)
     {
@@ -69,8 +69,8 @@ static int postproc_getsockname(FAR struct alt1250_s *dev,
       *usock_xid = USOCKET_XID(usock);
 
       ackinfo->valuelen = MIN(USOCKET_REQADDRLEN(usock),
-                              *(uint16_t *)(resp[2]));
-      ackinfo->valuelen_nontrunc = *(uint16_t *)(resp[2]);
+                              *(FAR uint16_t *)(resp[2]));
+      ackinfo->valuelen_nontrunc = *(FAR uint16_t *)(resp[2]);
       ackinfo->value_ptr = resp[3];
       ackinfo->buf_ptr = NULL;
 
@@ -173,7 +173,7 @@ int usockreq_getsockname(FAR struct alt1250_s *dev,
   if (usock == NULL)
     {
       dbg_alt1250("Failed to get socket context: %u\n",
-                     request->usockid);
+                  request->usockid);
       *usock_result = -EBADFD;
       return REP_SEND_ACK_WOFREE;
     }

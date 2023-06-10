@@ -45,7 +45,7 @@
 
 FAR struct usock_s *usocket_search(FAR struct alt1250_s *dev, int usockid)
 {
-  struct usock_s *ret = NULL;
+  FAR struct usock_s *ret = NULL;
 
   dbg_alt1250("%s usockid: %d\n", __func__, usockid);
 

@@ -357,8 +357,7 @@ int usockif_sendack(int fd, int32_t usock_result, uint32_t usock_xid,
   struct usrsock_message_req_ack_s ack;
 
   ack.head.msgid = USRSOCK_MESSAGE_RESPONSE_ACK;
-  ack.head.flags =
-    (inprogress == true) ? USRSOCK_MESSAGE_FLAG_REQ_IN_PROGRESS: 0;
+  ack.head.flags = inprogress ? USRSOCK_MESSAGE_FLAG_REQ_IN_PROGRESS : 0;
   ack.xid = usock_xid;
   ack.result = usock_result;
 

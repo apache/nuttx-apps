@@ -36,7 +36,7 @@
  * Public Types
  ****************************************************************************/
 
- #ifdef __cplusplus
+#ifdef __cplusplus
 #define EXTERN extern "C"
 extern "C"
 {
