@@ -178,7 +178,7 @@ int btsak_str2addr(FAR const char *str, FAR uint8_t *addr);
  *
  * Description:
  *   Convert a string to an address type.  String options are "public" or
- *   "private".
+ *   "random".
  *
  ****************************************************************************/
 

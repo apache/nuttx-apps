@@ -54,7 +54,7 @@ Description:  Enable security (encryption) for a connection:
               This command may return error if required level of security
               is not possible to achieve due to local or remote device
               limitation (eg input output capabilities).
-Usage:        bt <ifname> security [-h] <addr> public|private <level>
+Usage:        bt <ifname> security [-h] <addr> public|random <level>
 Where:        <addr>  - The 6-byte address of the connected peer
               <level> - Security level, on of:
 
@@ -76,7 +76,7 @@ Where:        See "GATT Commands" below
 ```
 Command:      exchange-mtu
 Description:  Set MTU to out maximum and negotiate MTU with peer
-Usage:        bt <ifname> gatt exchange-mtu [-h] <addr> public|private
+Usage:        bt <ifname> gatt exchange-mtu [-h] <addr> public|random
 ```
 
 ```
@@ -88,19 +88,19 @@ Usage:        bt <ifname> gatt mget [-h]
 ```
 Command:      discover
 Description:  Initiate discovery
-Usage:        bt <ifname> gatt discover [-h] <addr> public|private <uuid16> [<start> [<end>]]
+Usage:        bt <ifname> gatt discover [-h] <addr> public|random <uuid16> [<start> [<end>]]
 ```
 
 ```
 Command:      characteristic
 Description:  Initiate characteristics discovery
-Usage:        bt <ifname> gatt characteristic [-h] <addr> public|private [<start> [<end>]]
+Usage:        bt <ifname> gatt characteristic [-h] <addr> public|random [<start> [<end>]]
 ```
 
 ```
 Command:      descriptor
 Description:  Initiate characteristics discovery
-Usage:        bt <ifname> gatt descriptor [-h] <addr> public|private [<start> [<end>]]
+Usage:        bt <ifname> gatt descriptor [-h] <addr> public|random [<start> [<end>]]
 ```
 
 ```
@@ -112,13 +112,13 @@ Usage:        bt <ifname> gatt dget [-h]
 ```
 Command:      read
 Description:  Initiate a GATT read operation.
-Usage:        bt <ifname> gatt read [-h] <addr> public|private <handle> [<offset>]
+Usage:        bt <ifname> gatt read [-h] <addr> public|random <handle> [<offset>]
 ```
 
 ```
 Command:      read-multiple
 Description:  Initiate a GATT read-multiple operation.
-Usage:        bt <ifname> gatt read-multiple [-h] <addr> public|private <handle> [<handle> [<handle>]..]
+Usage:        bt <ifname> gatt read-multiple [-h] <addr> public|random <handle> [<handle> [<handle>]..]
 ```
 
 ```
@@ -130,7 +130,7 @@ Usage:        bt <ifname> gatt rget [-h]
 ```
 Command:      write
 Description:  Initiate a GATT write operation.
-Usage:        bt <ifname> gatt write [-h] <addr> public|private <handle> <byte> [<byte> [<byte>]..]
+Usage:        bt <ifname> gatt write [-h] <addr> public|random <handle> <byte> [<byte> [<byte>]..]
 ```
 
 ```
