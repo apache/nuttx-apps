@@ -233,26 +233,26 @@ struct lwm2mstub_serverinfo_s
   char security_key[LWM2MSTUB_MAX_SEQKEY];
 };
 
-typedef void (*lwm2mstub_write_cb_t)(int seq_no, int srv_id,
+typedef CODE void (*lwm2mstub_write_cb_t)(int seq_no, int srv_id,
               FAR struct lwm2mstub_instance_s *inst, FAR char *value,
               int len);
 
-typedef void (*lwm2mstub_read_cb_t)(int seq_no, int srv_id,
+typedef CODE void (*lwm2mstub_read_cb_t)(int seq_no, int srv_id,
               FAR struct lwm2mstub_instance_s *inst);
 
-typedef void (*lwm2mstub_exec_cb_t)(int seq_no, int srv_id,
+typedef CODE void (*lwm2mstub_exec_cb_t)(int seq_no, int srv_id,
               FAR struct lwm2mstub_instance_s *inst);
 
-typedef void (*lwm2mstub_ovstart_cb_t)(int seq_no, int srv_id,
+typedef CODE void (*lwm2mstub_ovstart_cb_t)(int seq_no, int srv_id,
               FAR struct lwm2mstub_instance_s *inst, FAR char *token,
               FAR struct lwm2mstub_ovcondition_s *cond);
 
-typedef void (*lwm2mstub_ovstop_cb_t)(int seq_no, int srv_id,
+typedef CODE void (*lwm2mstub_ovstop_cb_t)(int seq_no, int srv_id,
               FAR struct lwm2mstub_instance_s *inst, FAR char *token);
 
-typedef void (*lwm2mstub_operation_cb_t)(int event);
+typedef CODE void (*lwm2mstub_operation_cb_t)(int event);
 
-typedef void (*lwm2mstub_fwupstate_cb_t)(int event);
+typedef CODE void (*lwm2mstub_fwupstate_cb_t)(int event);
 
 #ifdef __cplusplus
 #define EXTERN extern "C"

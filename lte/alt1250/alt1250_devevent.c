@@ -58,9 +58,9 @@
  ****************************************************************************/
 
 static int handle_replypkt(FAR struct alt1250_s *dev,
-  FAR struct alt_container_s *reply,
-  FAR int32_t *usock_result, uint32_t *usock_xid,
-  FAR struct usock_ackinfo_s *ackinfo)
+                           FAR struct alt_container_s *reply,
+                           FAR int32_t *usock_result, uint32_t *usock_xid,
+                           FAR struct usock_ackinfo_s *ackinfo)
 {
   int ret;
   FAR struct usock_s *usock;
@@ -88,7 +88,7 @@ static int handle_replypkt(FAR struct alt1250_s *dev,
  ****************************************************************************/
 
 static int perform_alt1250_reply(FAR struct alt1250_s *dev,
-    FAR struct alt_container_s *container)
+                                 FAR struct alt_container_s *container)
 {
   int ret = REP_NO_ACK;
   int32_t ack_result = OK;

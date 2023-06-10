@@ -92,10 +92,10 @@ int obd_wait_response(FAR struct obd_dev_s *dev, uint8_t opmode, uint8_t pid,
           return -EAGAIN;
         }
 
-      #ifdef CONFIG_DEBUG_INFO
+#ifdef CONFIG_DEBUG_INFO
         printf("  ID: %4u DLC: %u\n",
                dev->can_rxmsg.cm_hdr.ch_id, dev->can_rxmsg.cm_hdr.ch_dlc);
-      #endif
+#endif
 
       msgdlc = dev->can_rxmsg.cm_hdr.ch_dlc;
 

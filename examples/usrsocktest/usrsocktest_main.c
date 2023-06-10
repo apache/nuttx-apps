@@ -49,7 +49,7 @@
  ****************************************************************************/
 
 #ifndef dbg
-  #define dbg _warn
+#  define dbg _warn
 #endif
 
 #define usrsocktest_dbg(...) ((void)0)

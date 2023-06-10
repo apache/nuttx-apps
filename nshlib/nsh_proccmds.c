@@ -48,9 +48,9 @@
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_UPTIME
-  #ifndef FSHIFT
-    #  define FSHIFT SI_LOAD_SHIFT
-  #endif
+#  ifndef FSHIFT
+#    define FSHIFT SI_LOAD_SHIFT
+#  endif
 #  define FIXED_1      (1 << FSHIFT)     /* 1.0 as fixed-point */
 #  define LOAD_INT(x)  ((x) >> FSHIFT)
 #  define LOAD_FRAC(x) (LOAD_INT(((x) & (FIXED_1 - 1)) * 100))

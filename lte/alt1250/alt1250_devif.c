@@ -93,7 +93,7 @@ FAR struct alt_container_s *altdevice_exchange_selcontainer(int fd,
  ****************************************************************************/
 
 int altdevice_send_command(int fd, FAR struct alt_container_s *container,
-    FAR int32_t *usock_res)
+                           FAR int32_t *usock_res)
 {
   int ret;
   ret = ioctl_wrapper(fd, ALT1250_IOC_SEND, (unsigned long)container);
@@ -161,7 +161,7 @@ int altdevice_seteventbuff(int fd, FAR struct alt_evtbuffer_s *buffer)
  ****************************************************************************/
 
 int altdevice_getevent(int fd, FAR uint64_t *evtbitmap,
-    FAR struct alt_container_s **replys)
+                       FAR struct alt_container_s **replys)
 {
   int ret = -EIO;
   struct alt_readdata_s dat;

@@ -34,13 +34,13 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define CONTAINER_SOCKETID(c) ((c)->sock)
-#define CONTAINER_CMDID(c)    ((c)->cmdid)
-#define CONTAINER_ARGUMENT(c) ((c)->inparam)
-#define CONTAINER_ARGSIZE(c)  ((c)->inparamlen)
-#define CONTAINER_RESPONSE(c) ((c)->outparam)
-#define CONTAINER_RESPSIZE(c) ((c)->outparamlen)
-#define CONTAINER_RESPRES(c)  ((c)->result)
+#define CONTAINER_SOCKETID(c)  ((c)->sock)
+#define CONTAINER_CMDID(c)     ((c)->cmdid)
+#define CONTAINER_ARGUMENT(c)  ((c)->inparam)
+#define CONTAINER_ARGSIZE(c)   ((c)->inparamlen)
+#define CONTAINER_RESPONSE(c)  ((c)->outparam)
+#define CONTAINER_RESPSIZE(c)  ((c)->outparamlen)
+#define CONTAINER_RESPRES(c)   ((c)->result)
 #define CONTAINER_POSTPROC(c)  ((FAR struct postproc_s *)(c)->priv)
 
 /****************************************************************************
@@ -54,16 +54,16 @@ FAR struct alt_container_s *container_alloc(void);
 void clear_container(FAR struct alt_container_s *container);
 
 void set_container_ids(FAR struct alt_container_s *container,
-  int16_t usockid, uint32_t cmdid);
+                       int16_t usockid, uint32_t cmdid);
 
 void set_container_argument(FAR struct alt_container_s *container,
-  FAR void *inparams[], size_t paramsz);
+                            FAR void *inparams[], size_t paramsz);
 
 void set_container_response(FAR struct alt_container_s *container,
-  FAR void *outparams[], size_t paramsz);
+                            FAR void *outparams[], size_t paramsz);
 
 void set_container_postproc(FAR struct alt_container_s *container,
-  FAR postproc_hdlr_t func, unsigned long priv);
+                            FAR postproc_hdlr_t func, unsigned long priv);
 
 void container_free(FAR struct alt_container_s *container);
 void container_free_all(FAR struct alt_container_s *head);

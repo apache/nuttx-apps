@@ -26,6 +26,7 @@
 #include <nuttx/net/usrsock.h>
 
 #include <sys/poll.h>
+#include <sys/param.h>
 #include <assert.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -61,7 +62,7 @@ static postproc_hdlr_t ponreset_seq[] =
 {
   postproc_fwgetversion,
 };
-#define PONRESET_SEQ_NUM  (sizeof(ponreset_seq) / sizeof(ponreset_seq[0]))
+#define PONRESET_SEQ_NUM  nitems(ponreset_seq)
 
 /****************************************************************************
  * Private Functions
@@ -72,12 +73,15 @@ static postproc_hdlr_t ponreset_seq[] =
  ****************************************************************************/
 
 static int postproc_ponresetseq(FAR struct alt1250_s *dev,
-  FAR struct alt_container_s *reply, FAR struct usock_s *usock,
-  FAR int32_t *usock_result, FAR uint32_t *usock_xid,
-  FAR struct usock_ackinfo_s *ackinfo, unsigned long arg)
+                                FAR struct alt_container_s *reply,
+                                FAR struct usock_s *usock,
+                                FAR int32_t *usock_result,
+                                FAR uint32_t *usock_xid,
+                                FAR struct usock_ackinfo_s *ackinfo,
+                                unsigned long arg)
 {
   int ret = REP_NO_ACK_WOFREE;
-  struct reset_arg_s *rarg = (struct reset_arg_s *)arg;
+  FAR struct reset_arg_s *rarg = (FAR struct reset_arg_s *)arg;
   ASSERT(rarg->seq_no < PONRESET_SEQ_NUM);
 
   ponreset_seq[rarg->seq_no](dev, reply, usock, usock_result, usock_xid,
@@ -135,7 +139,7 @@ static void str_toupper_case(FAR char *data, int len)
 
 static int recv_atreply_onreset(atreply_parser_t parse,
                                 FAR struct alt1250_s *dev,
-                                void *arg)
+                                FAR void *arg)
 {
   int ret;
   uint64_t bitmap;
@@ -172,7 +176,7 @@ static int recv_atreply_onreset(atreply_parser_t parse,
       ASSERT(rlist == NULL);
 
       reply = (FAR char *)container->outparam[0];
-      rlen = *(int *)container->outparam[2];
+      rlen = *(FAR int *)container->outparam[2];
 
       str_toupper_case(reply, rlen);
       ret = parse(reply, rlen, arg);
@@ -339,11 +343,10 @@ int handle_poweron_reset_stage2(FAR struct alt1250_s *dev)
 {
   int ret;
   int32_t unused;
-
   FAR struct alt_container_s *container;
 
   container = container_alloc();
-  ASSERT(container != 0);
+  ASSERT(container != NULL);
 
   ret = send_getversion_onreset(dev, container, &unused);
 
@@ -373,7 +376,7 @@ int handle_poweron_reset(FAR struct alt1250_s *dev)
   FAR struct alt_container_s *container;
 
   container = container_alloc();
-  ASSERT(container);
+  ASSERT(container != NULL);
 
   while (ret == REP_MODEM_RESET)
     {

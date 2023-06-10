@@ -71,92 +71,98 @@
  ****************************************************************************/
 
 static uint64_t lte_set_report_restart_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable);
 #ifdef CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API
 static uint64_t lte_radio_on_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                     FAR bool *set_writable);
 static uint64_t lte_radio_off_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                      FAR bool *set_writable);
 #endif /* CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API */
 static uint64_t lte_activate_pdn_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                         FAR bool *set_writable);
 #ifdef CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API
 static uint64_t lte_deactivate_pdn_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                           FAR bool *set_writable);
 static uint64_t lte_get_netinfo_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                        FAR bool *set_writable);
 static uint64_t lte_get_imscap_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                       FAR bool *set_writable);
 static uint64_t lte_get_version_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                        FAR bool *set_writable);
 static uint64_t lte_get_phoneno_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                        FAR bool *set_writable);
 static uint64_t lte_get_imsi_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                     FAR bool *set_writable);
 static uint64_t lte_get_imei_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                     FAR bool *set_writable);
 static uint64_t lte_get_pinset_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                       FAR bool *set_writable);
 static uint64_t lte_set_pinenable_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                          FAR bool *set_writable);
 static uint64_t lte_change_pin_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                       FAR bool *set_writable);
 static uint64_t lte_enter_pin_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                      FAR bool *set_writable);
 static uint64_t lte_get_localtime_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                          FAR bool *set_writable);
 static uint64_t lte_get_operator_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                         FAR bool *set_writable);
 static uint64_t lte_get_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                     FAR bool *set_writable);
 static uint64_t lte_set_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                     FAR bool *set_writable);
 static uint64_t lte_get_psm_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                    FAR bool *set_writable);
 static uint64_t lte_set_psm_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                    FAR bool *set_writable);
 static uint64_t lte_get_ce_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                   FAR bool *set_writable);
 static uint64_t lte_set_ce_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                   FAR bool *set_writable);
 static uint64_t lte_get_siminfo_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                        FAR bool *set_writable);
 static uint64_t lte_get_current_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                             FAR bool *set_writable);
 static uint64_t lte_get_current_psm_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                            FAR bool *set_writable);
 static uint64_t lte_get_quality_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable);
+                                        FAR bool *set_writable);
 #endif /* CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API */
 static uint64_t lte_set_report_netinfo_exec_cb(FAR void *cb,
-FAR void **cbarg, FAR bool *set_writable);
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable);
 static uint64_t lte_set_report_simstat_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable);
 static uint64_t lte_set_report_localtime_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
+                                                 FAR void **cbarg,
+                                                 FAR bool *set_writable);
 static uint64_t lte_set_report_quality_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable);
 static uint64_t lte_set_report_cellinfo_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t tls_config_verify_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
+                                                FAR void **cbarg,
+                                                FAR bool *set_writable);
+static uint64_t tls_config_verify_exec_cb(FAR void *cb, FAR void **cbarg,
+                                          FAR bool *set_writable);
 
-static uint64_t lwm2m_read_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t lwm2m_write_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t lwm2m_exec_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t lwm2m_ovstart_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t lwm2m_ovstop_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t lwm2m_operation_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
-static uint64_t lwm2m_fwupdate_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable);
+static uint64_t lwm2m_read_evt_cb(FAR void *cb, FAR void **cbarg,
+                                  FAR bool *set_writable);
+static uint64_t lwm2m_write_evt_cb(FAR void *cb, FAR void **cbarg,
+                                   FAR bool *set_writable);
+static uint64_t lwm2m_exec_evt_cb(FAR void *cb, FAR void **cbarg,
+                                  FAR bool *set_writable);
+static uint64_t lwm2m_ovstart_evt_cb(FAR void *cb, FAR void **cbarg,
+                                     FAR bool *set_writable);
+static uint64_t lwm2m_ovstop_evt_cb(FAR void *cb, FAR void **cbarg,
+                                    FAR bool *set_writable);
+static uint64_t lwm2m_operation_evt_cb(FAR void *cb, FAR void **cbarg,
+                                       FAR bool *set_writable);
+static uint64_t lwm2m_fwupdate_evt_cb(FAR void *cb, FAR void **cbarg,
+                                      FAR bool *set_writable);
 
-static void *get_cbfunc(uint32_t cmdid);
+static FAR void *get_cbfunc(uint32_t cmdid);
 static uint64_t alt1250_evt_search(uint32_t cmdid);
 
 /****************************************************************************
@@ -166,7 +172,8 @@ static uint64_t alt1250_evt_search(uint32_t cmdid);
 struct cbinfo_s
 {
   uint32_t cmdid;
-  uint64_t (*cb)(FAR void *cb, FAR void **cbarg, FAR bool *set_writable);
+  CODE uint64_t (*cb)(FAR void *cb, FAR void **cbarg,
+                      FAR bool *set_writable);
 };
 
 /****************************************************************************
@@ -189,7 +196,7 @@ static void *g_setrestartargs[] =
 
 static int g_getverret;
 static lte_version_t g_ver;
-static void *g_getverargs[] =
+static FAR void *g_getverargs[] =
 {
   &g_getverret, &g_ver
 };
@@ -199,7 +206,7 @@ static void *g_getverargs[] =
 /* event argument for LTE_CMDID_RADIOON */
 
 static int g_radioonret;
-static void *g_radioonargs[] =
+static FAR void *g_radioonargs[] =
 {
   &g_radioonret
 };
@@ -207,7 +214,7 @@ static void *g_radioonargs[] =
 /* event argument for LTE_CMDID_RADIOOFF */
 
 static int g_radiooffret;
-static void *g_radiooffargs[] =
+static FAR void *g_radiooffargs[] =
 {
   &g_radiooffret
 };
@@ -218,7 +225,7 @@ static void *g_radiooffargs[] =
 
 static int g_actpdnret;
 static lte_pdn_t g_pdn;
-static void *g_actpdnargs[] =
+static FAR void *g_actpdnargs[] =
 {
   &g_actpdnret, &g_pdn
 };
@@ -228,7 +235,7 @@ static void *g_actpdnargs[] =
 /* event argument for LTE_CMDID_DEACTPDN */
 
 static int g_deactpdnret;
-static void *g_deactpdnargs[] =
+static FAR void *g_deactpdnargs[] =
 {
   &g_deactpdnret
 };
@@ -243,7 +250,7 @@ static lte_netinfo_t g_netinfo =
 };
 
 static uint8_t g_pdn_num = LTE_SESSION_ID_MAX;
-static void *g_netinfoargs[] =
+static FAR void *g_netinfoargs[] =
 {
   &g_getnetinforet, &g_netinfo, &g_pdn_num
 };
@@ -252,7 +259,7 @@ static void *g_netinfoargs[] =
 
 static int g_imscapret;
 static bool g_imscap;
-static void *g_imscapargs[] =
+static FAR void *g_imscapargs[] =
 {
   &g_imscapret, &g_imscap
 };
@@ -265,7 +272,7 @@ static char g_phoneno[LTE_PHONENO_LEN];
 #ifndef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
 static size_t g_phonenolen = LTE_PHONENO_LEN;
 #endif
-static void *g_getphoneargs[] =
+static FAR void *g_getphoneargs[] =
 {
 #ifdef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
   &g_getphoneret, &g_getphoneerrcause, g_phoneno
@@ -282,7 +289,7 @@ static char g_imsi[LTE_SIMINFO_IMSI_LEN];
 #ifndef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
 static size_t g_imsilen = LTE_SIMINFO_IMSI_LEN;
 #endif
-static void *g_getimsiargs[] =
+static FAR void *g_getimsiargs[] =
 {
 #ifdef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
   &g_getimsiret, &g_getimsierrcause, g_imsi
@@ -298,7 +305,7 @@ static char g_imei[LTE_IMEI_LEN];
 #ifndef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
 static size_t g_imeilen = LTE_IMEI_LEN;
 #endif
-static void *g_getimeiargs[] =
+static FAR void *g_getimeiargs[] =
 {
 #ifdef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
   &g_getimeiret, g_imei
@@ -311,7 +318,7 @@ static void *g_getimeiargs[] =
 
 static int g_getpinsetret;
 static lte_getpin_t g_pinset;
-static void *g_getpinsetargs[] =
+static FAR void *g_getpinsetargs[] =
 {
   &g_getpinsetret, &g_pinset
 };
@@ -320,7 +327,7 @@ static void *g_getpinsetargs[] =
 
 static int g_pinenableret;
 static uint8_t g_pineattleft;
-static void *g_pinenableargs[] =
+static FAR void *g_pinenableargs[] =
 {
   &g_pinenableret, &g_pineattleft
 };
@@ -329,7 +336,7 @@ static void *g_pinenableargs[] =
 
 static int g_changepinret;
 static uint8_t g_chanattleft;
-static void *g_changepinargs[] =
+static FAR void *g_changepinargs[] =
 {
   &g_changepinret, &g_chanattleft
 };
@@ -339,7 +346,7 @@ static void *g_changepinargs[] =
 static int g_enterpinret;
 static uint8_t g_entpinsimstat;
 static uint8_t g_entpinattleft;
-static void *g_enterpinargs[] =
+static FAR void *g_enterpinargs[] =
 {
   &g_enterpinret, &g_entpinsimstat, &g_entpinattleft
 };
@@ -348,7 +355,7 @@ static void *g_enterpinargs[] =
 
 static int g_getltimeret;
 static lte_localtime_t g_ltime;
-static void *g_getltimeargs[] =
+static FAR void *g_getltimeargs[] =
 {
   &g_getltimeret, &g_ltime
 };
@@ -360,7 +367,7 @@ static char g_oper[LTE_OPERATOR_LEN];
 #ifndef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
 static size_t g_operlen = LTE_OPERATOR_LEN;
 #endif
-static void *g_getoperargs[] =
+static FAR void *g_getoperargs[] =
 {
 #ifdef CONFIG_LTE_LAPI_KEEP_COMPATIBILITY
   &g_getoperret, g_oper
@@ -374,7 +381,7 @@ static void *g_getoperargs[] =
 static int g_getedrxret;
 static lte_edrx_setting_t g_getedrx;
 static bool g_is_getedrxevt;
-static void *g_getedrxargs[] =
+static FAR void *g_getedrxargs[] =
 {
   &g_getedrxret, &g_getedrx, &g_is_getedrxevt
 };
@@ -382,7 +389,7 @@ static void *g_getedrxargs[] =
 /* event argument for LTE_CMDID_SETEDRX */
 
 static int g_setedrxret;
-static void *g_setedrxargs[] =
+static FAR void *g_setedrxargs[] =
 {
   &g_setedrxret
 };
@@ -392,7 +399,7 @@ static void *g_setedrxargs[] =
 static int g_getpsmret;
 static lte_psm_setting_t g_getpsm;
 static bool g_is_getpsmevt;
-static void *g_getpsmargs[] =
+static FAR void *g_getpsmargs[] =
 {
   &g_getpsmret, &g_getpsm, &g_is_getpsmevt
 };
@@ -400,7 +407,7 @@ static void *g_getpsmargs[] =
 /* event argument for LTE_CMDID_SETPSM */
 
 static int g_setpsmret;
-static void *g_setpsmargs[] =
+static FAR void *g_setpsmargs[] =
 {
   &g_setpsmret
 };
@@ -409,7 +416,7 @@ static void *g_setpsmargs[] =
 
 static int g_getceret;
 static lte_ce_setting_t g_getce;
-static void *g_getceargs[] =
+static FAR void *g_getceargs[] =
 {
   &g_getceret, &g_getce
 };
@@ -417,7 +424,7 @@ static void *g_getceargs[] =
 /* event argument for LTE_CMDID_SETCE */
 
 static int g_setceret;
-static void *g_setceargs[] =
+static FAR void *g_setceargs[] =
 {
   &g_setceret
 };
@@ -426,7 +433,7 @@ static void *g_setceargs[] =
 
 static int g_setsiminforet;
 static lte_siminfo_t g_siminfo;
-static void *g_getsiminfoargs[] =
+static FAR void *g_getsiminfoargs[] =
 {
   &g_setsiminforet, &g_siminfo
 };
@@ -436,7 +443,7 @@ static void *g_getsiminfoargs[] =
 static int g_getcedrxret;
 static lte_edrx_setting_t g_getcedrx;
 static bool g_is_getcedrxevt;
-static void *g_getcedrxargs[] =
+static FAR void *g_getcedrxargs[] =
 {
   &g_getcedrxret, &g_getcedrx, &g_is_getcedrxevt
 };
@@ -446,7 +453,7 @@ static void *g_getcedrxargs[] =
 static int g_getcpsmret;
 static lte_psm_setting_t g_getcpsm;
 static bool g_is_getcpsmevt;
-static void *g_getcpsmargs[] =
+static FAR void *g_getcpsmargs[] =
 {
   &g_getcpsmret, &g_getcpsm, &g_is_getcpsmevt
 };
@@ -455,7 +462,7 @@ static void *g_getcpsmargs[] =
 
 static int g_getqualret;
 static lte_quality_t g_getqual;
-static void *g_getqualargs[] =
+static FAR void *g_getqualargs[] =
 {
   &g_getqualret, &g_getqual
 };
@@ -469,7 +476,7 @@ static lte_cellinfo_t g_getcell =
   .neighbors = g_neighbors
 }
 ;
-static void *g_getcellargs[] =
+static FAR void *g_getcellargs[] =
 {
   &g_getcellret, &g_getcell
 };
@@ -479,7 +486,7 @@ static void *g_getcellargs[] =
 /* event argument for LTE_CMDID_GETRAT */
 
 static int g_getratret;
-static void *g_getratargs[] =
+static FAR void *g_getratargs[] =
 {
   &g_getratret
 };
@@ -487,7 +494,7 @@ static void *g_getratargs[] =
 /* event argument for LTE_CMDID_SETRAT */
 
 static int g_setratret;
-static void *g_setratargs[] =
+static FAR void *g_setratargs[] =
 {
   &g_setratret
 };
@@ -496,7 +503,7 @@ static void *g_setratargs[] =
 
 static int g_getratinforet;
 static lte_ratinfo_t g_ratinfo;
-static void *g_getratinfoargs[] =
+static FAR void *g_getratinfoargs[] =
 {
   &g_getratinforet, &g_ratinfo
 };
@@ -511,7 +518,7 @@ static lte_netinfo_t g_repnetinfo =
 
 static uint8_t g_ndnsaddrs;
 static struct sockaddr_storage g_dnsaddrs[ALTCOM_DNS_SERVERS];
-static void *g_repnetinfoargs[] =
+static FAR void *g_repnetinfoargs[] =
 {
   &g_repnetinfo, &g_ndnsaddrs, g_dnsaddrs
 };
@@ -519,7 +526,7 @@ static void *g_repnetinfoargs[] =
 /* event argument for LTE_CMDID_REPSIMSTAT */
 
 static uint32_t g_repsimstat;
-static void *g_repsimstatargs[] =
+static FAR void *g_repsimstatargs[] =
 {
   &g_repsimstat
 };
@@ -527,7 +534,7 @@ static void *g_repsimstatargs[] =
 /* event argument for LTE_CMDID_REPLTIME */
 
 static lte_localtime_t g_repltime;
-static void *g_repltimeargs[] =
+static FAR void *g_repltimeargs[] =
 {
   &g_repltime
 };
@@ -535,7 +542,7 @@ static void *g_repltimeargs[] =
 /* event argument for LTE_CMDID_REPQUAL */
 
 static lte_quality_t g_repqual;
-static void *g_repqualargs[] =
+static FAR void *g_repqualargs[] =
 {
   &g_repqual
 };
@@ -548,7 +555,7 @@ static lte_cellinfo_t g_repcell =
   .neighbors = g_repneighbors
 };
 
-static void *g_repcellargs[] =
+static FAR void *g_repcellargs[] =
 {
   &g_repcell
 };
@@ -556,7 +563,7 @@ static void *g_repcellargs[] =
 /* event argument for LTE_CMDID_GETERRINFO */
 
 static lte_errinfo_t g_geterrinfo;
-static void *g_geterrinfoargs[] =
+static FAR void *g_geterrinfoargs[] =
 {
   &g_geterrinfo
 };
@@ -565,7 +572,7 @@ static void *g_geterrinfoargs[] =
 
 static uint32_t g_crt;
 static int32_t g_depth;
-static void *g_vrfycbargs[] =
+static FAR void *g_vrfycbargs[] =
 {
   &g_crt, &g_depth
 };
@@ -577,7 +584,7 @@ static uint16_t g_smsrecv_sz;
 static uint8_t g_sms_maxnum;
 static uint8_t g_sms_seqnum;
 static struct sms_deliver_msg_max_s g_recvmsg;
-static void *g_smsreportargs[] =
+static FAR void *g_smsreportargs[] =
 {
   &g_smsmsg_index, &g_smsrecv_sz, &g_sms_maxnum, &g_sms_seqnum, &g_recvmsg
 };
@@ -585,7 +592,7 @@ static void *g_smsreportargs[] =
 /* event argument for LTE_CMDID_LWM2M_READ_EVT */
 
 static struct lwm2mstub_instance_s g_lwm2mread_inst;
-static void *g_lwm2mreadargs[] =
+static FAR void *g_lwm2mreadargs[] =
 {
   NULL, NULL, &g_lwm2mread_inst
 };
@@ -594,16 +601,16 @@ static void *g_lwm2mreadargs[] =
 
 static struct lwm2mstub_instance_s g_lwm2mwrite_inst;
 static char g_lwm2mwrite_value[LWM2MSTUB_MAX_WRITE_SIZE];
-static void *g_lwm2mwriteargs[] =
+static FAR void *g_lwm2mwriteargs[] =
 {
   NULL, NULL, &g_lwm2mwrite_inst, g_lwm2mwrite_value,
-  NULL, (void *)LWM2MSTUB_MAX_WRITE_SIZE
+  NULL, (FAR void *)LWM2MSTUB_MAX_WRITE_SIZE
 };
 
 /* event argument for LTE_CMDID_LWM2M_EXEC_EVT */
 
 static struct lwm2mstub_instance_s g_lwm2mexec_inst;
-static void *g_lwm2mexecargs[] =
+static FAR void *g_lwm2mexecargs[] =
 {
   NULL, NULL, &g_lwm2mexec_inst, NULL
 };
@@ -613,32 +620,32 @@ static void *g_lwm2mexecargs[] =
 static struct lwm2mstub_instance_s g_lwm2movstart_inst;
 static char g_lwm2movstart_token[LWM2MSTUB_MAX_TOKEN_SIZE];
 static struct lwm2mstub_ovcondition_s g_lwm2movstart_cond;
-static void *g_lwm2movstartargs[] =
+static FAR void *g_lwm2movstartargs[] =
 {
   NULL, NULL, &g_lwm2movstart_inst, g_lwm2movstart_token,
-  (void *)LWM2MSTUB_MAX_TOKEN_SIZE, &g_lwm2movstart_cond
+  (FAR void *)LWM2MSTUB_MAX_TOKEN_SIZE, &g_lwm2movstart_cond
 };
 
 /* event argument for LTE_CMDID_LWM2M_OVSTOP_EVT */
 
 static struct lwm2mstub_instance_s g_lwm2movstop_inst;
 static char g_lwm2movstop_token[LWM2MSTUB_MAX_TOKEN_SIZE];
-static void *g_lwm2movstopargs[] =
+static FAR void *g_lwm2movstopargs[] =
 {
   NULL, NULL, &g_lwm2movstop_inst, &g_lwm2movstop_token,
-  (void *)LWM2MSTUB_MAX_TOKEN_SIZE
+  (FAR void *)LWM2MSTUB_MAX_TOKEN_SIZE
 };
 
 /* event argument for LTE_CMDID_LWM2M_SERVEROP_EVT */
 
-static void *g_lwm2moperationargs[] =
+static FAR void *g_lwm2moperationargs[] =
 {
   NULL
 };
 
 /* event argument for LTE_CMDID_LWM2M_FWUP_EVT */
 
-static void *g_lwm2mfwupargs[] =
+static FAR void *g_lwm2mfwupargs[] =
 {
   NULL
 };
@@ -767,7 +774,8 @@ static sem_t g_cbtablelock;
  ****************************************************************************/
 
 static uint64_t lte_set_report_restart_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable)
 {
   restart_report_cb_t callback = (restart_report_cb_t)cb;
   FAR uint32_t *param = (FAR uint32_t *)cbarg[0];
@@ -783,7 +791,7 @@ static uint64_t lte_set_report_restart_exec_cb(FAR void *cb,
 #ifdef CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API
 
 static uint64_t lte_radio_on_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                     FAR bool *set_writable)
 {
   radio_on_cb_t callback = (radio_on_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -797,7 +805,7 @@ static uint64_t lte_radio_on_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_radio_off_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                      FAR bool *set_writable)
 {
   radio_off_cb_t callback = (radio_off_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -813,7 +821,7 @@ static uint64_t lte_radio_off_exec_cb(FAR void *cb, FAR void **cbarg,
 #endif /* CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API */
 
 static uint64_t lte_activate_pdn_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                         FAR bool *set_writable)
 {
   activate_pdn_cb_t callback = (activate_pdn_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -830,7 +838,7 @@ static uint64_t lte_activate_pdn_exec_cb(FAR void *cb, FAR void **cbarg,
 #ifdef CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API
 
 static uint64_t lte_deactivate_pdn_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                           FAR bool *set_writable)
 {
   deactivate_pdn_cb_t callback = (deactivate_pdn_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -844,7 +852,7 @@ static uint64_t lte_deactivate_pdn_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_netinfo_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                        FAR bool *set_writable)
 {
   get_netinfo_cb_t callback = (get_netinfo_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -859,7 +867,7 @@ static uint64_t lte_get_netinfo_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_imscap_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                       FAR bool *set_writable)
 {
   get_imscap_cb_t callback = (get_imscap_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -874,7 +882,7 @@ static uint64_t lte_get_imscap_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_version_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                        FAR bool *set_writable)
 {
   get_ver_cb_t callback = (get_ver_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -889,7 +897,7 @@ static uint64_t lte_get_version_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_phoneno_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                        FAR bool *set_writable)
 {
   get_phoneno_cb_t callback = (get_phoneno_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -905,7 +913,7 @@ static uint64_t lte_get_phoneno_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_imsi_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                     FAR bool *set_writable)
 {
   get_imsi_cb_t callback = (get_imsi_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -921,7 +929,7 @@ static uint64_t lte_get_imsi_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_imei_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                     FAR bool *set_writable)
 {
   get_imei_cb_t callback = (get_imei_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -936,7 +944,7 @@ static uint64_t lte_get_imei_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_pinset_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                       FAR bool *set_writable)
 {
   get_pinset_cb_t callback = (get_pinset_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -951,7 +959,7 @@ static uint64_t lte_get_pinset_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_set_pinenable_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                          FAR bool *set_writable)
 {
   set_pinenable_cb_t callback = (set_pinenable_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -966,7 +974,7 @@ static uint64_t lte_set_pinenable_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_change_pin_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                       FAR bool *set_writable)
 {
   change_pin_cb_t callback = (change_pin_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -981,7 +989,7 @@ static uint64_t lte_change_pin_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_enter_pin_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                      FAR bool *set_writable)
 {
   enter_pin_cb_t callback = (enter_pin_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -997,7 +1005,7 @@ static uint64_t lte_enter_pin_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_localtime_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                          FAR bool *set_writable)
 {
   get_localtime_cb_t callback = (get_localtime_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1012,7 +1020,7 @@ static uint64_t lte_get_localtime_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_operator_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                         FAR bool *set_writable)
 {
   get_operator_cb_t callback = (get_operator_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1027,7 +1035,7 @@ static uint64_t lte_get_operator_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                     FAR bool *set_writable)
 {
   get_edrx_cb_t callback = (get_edrx_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1049,7 +1057,7 @@ static uint64_t lte_get_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_set_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                     FAR bool *set_writable)
 {
   set_edrx_cb_t callback = (set_edrx_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1063,7 +1071,7 @@ static uint64_t lte_set_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_psm_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                    FAR bool *set_writable)
 {
   get_psm_cb_t callback = (get_psm_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1085,7 +1093,7 @@ static uint64_t lte_get_psm_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_set_psm_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                    FAR bool *set_writable)
 {
   set_psm_cb_t callback = (set_psm_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1099,7 +1107,7 @@ static uint64_t lte_set_psm_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_ce_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                   FAR bool *set_writable)
 {
   get_ce_cb_t callback = (get_ce_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1114,7 +1122,7 @@ static uint64_t lte_get_ce_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_set_ce_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                   FAR bool *set_writable)
 {
   set_ce_cb_t callback = (set_ce_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1128,7 +1136,7 @@ static uint64_t lte_set_ce_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_siminfo_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                        FAR bool *set_writable)
 {
   get_siminfo_cb_t callback = (get_siminfo_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1143,7 +1151,7 @@ static uint64_t lte_get_siminfo_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_current_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                             FAR bool *set_writable)
 {
   get_current_edrx_cb_t callback = (get_current_edrx_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1165,7 +1173,7 @@ static uint64_t lte_get_current_edrx_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_current_psm_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                            FAR bool *set_writable)
 {
   get_current_psm_cb_t callback = (get_current_psm_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1187,7 +1195,7 @@ static uint64_t lte_get_current_psm_exec_cb(FAR void *cb, FAR void **cbarg,
 }
 
 static uint64_t lte_get_quality_exec_cb(FAR void *cb, FAR void **cbarg,
-  FAR bool *set_writable)
+                                        FAR bool *set_writable)
 {
   get_quality_cb_t callback = (get_quality_cb_t)cb;
   FAR uint32_t *result = (FAR uint32_t *)cbarg[0];
@@ -1204,11 +1212,12 @@ static uint64_t lte_get_quality_exec_cb(FAR void *cb, FAR void **cbarg,
 #endif /* CONFIG_LTE_LAPI_ENABLE_DEPRECATED_API */
 
 static uint64_t lte_set_report_netinfo_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable)
 {
   netinfo_report_cb_t callback = (netinfo_report_cb_t)cb;
   FAR lte_netinfo_t *info = (FAR lte_netinfo_t *)cbarg[0];
-  FAR uint8_t ndnsaddrs = *((FAR uint8_t *)cbarg[1]);
+  uint8_t ndnsaddrs = *((FAR uint8_t *)cbarg[1]);
   FAR struct sockaddr_storage *dnsaddr =
     (FAR struct sockaddr_storage *)cbarg[2];
 #if defined(CONFIG_NETDB_DNSCLIENT)
@@ -1223,7 +1232,7 @@ static uint64_t lte_set_report_netinfo_exec_cb(FAR void *cb,
     ALTCOM_DNS_SERVERS : ndnsaddrs;
 
   for (i = 0; (i < ndnsaddrs) && (i < CONFIG_NETDB_DNSSERVER_NAMESERVERS);
-    i++)
+      i++)
     {
       addrlen = (dnsaddr[i].ss_family == AF_INET) ?
         sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
@@ -1240,7 +1249,8 @@ static uint64_t lte_set_report_netinfo_exec_cb(FAR void *cb,
 }
 
 static uint64_t lte_set_report_simstat_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+                                               FAR void **cbarg,
+                                               FAR bool *set_writable)
 {
   simstat_report_cb_t callback = (simstat_report_cb_t)cb;
   FAR uint32_t *simstat = (FAR uint32_t *)cbarg[0];
@@ -1254,7 +1264,8 @@ static uint64_t lte_set_report_simstat_exec_cb(FAR void *cb,
 }
 
 static uint64_t lte_set_report_localtime_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+                                                 FAR void **cbarg,
+                                                 FAR bool *set_writable)
 {
   localtime_report_cb_t callback = (localtime_report_cb_t)cb;
   FAR lte_localtime_t *localtime = (FAR lte_localtime_t *)cbarg[0];
@@ -1268,7 +1279,9 @@ static uint64_t lte_set_report_localtime_exec_cb(FAR void *cb,
 }
 
 static uint64_t lte_set_report_quality_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+                                               FAR void **cbarg,
+
+                                               FAR bool *set_writable)
 {
   quality_report_cb_t callback = (quality_report_cb_t)cb;
   FAR lte_quality_t *quality = (FAR lte_quality_t *)cbarg[0];
@@ -1282,7 +1295,8 @@ static uint64_t lte_set_report_quality_exec_cb(FAR void *cb,
 }
 
 static uint64_t lte_set_report_cellinfo_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+                                                FAR void **cbarg,
+                                                FAR bool *set_writable)
 {
   cellinfo_report_cb_t callback = (cellinfo_report_cb_t)cb;
   FAR lte_cellinfo_t *cellinfo = (FAR lte_cellinfo_t *)cbarg[0];
@@ -1295,11 +1309,11 @@ static uint64_t lte_set_report_cellinfo_exec_cb(FAR void *cb,
   return 0ULL;
 }
 
-static uint64_t tls_config_verify_exec_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t tls_config_verify_exec_cb(FAR void *cb, FAR void **cbarg,
+                                          FAR bool *set_writable)
 {
-  void (*callback)(FAR void **cbarg) = cb;
-  void *arg[2];
+  CODE void (*callback)(FAR void **cbarg) = cb;
+  FAR void *arg[2];
 
   uint32_t crt = *((FAR uint32_t *)cbarg[0]);
   int32_t depth = *((FAR int32_t *)cbarg[1]);
@@ -1325,80 +1339,82 @@ static uint64_t tls_config_verify_exec_cb(FAR void *cb,
   return 0ULL;
 }
 
-static uint64_t lwm2m_read_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_read_evt_cb(FAR void *cb, FAR void **cbarg,
+                                  FAR bool *set_writable)
 {
   lwm2mstub_read_cb_t callback = (lwm2mstub_read_cb_t)cb;
 
   if (callback)
     {
       callback((int)cbarg[0], (int)cbarg[1],
-               (struct lwm2mstub_instance_s *)cbarg[2]);
+               (FAR struct lwm2mstub_instance_s *)cbarg[2]);
     }
 
   return 0ULL;
 }
 
-static uint64_t lwm2m_write_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_write_evt_cb(FAR void *cb, FAR void **cbarg,
+                                   FAR bool *set_writable)
 {
   lwm2mstub_write_cb_t callback = (lwm2mstub_write_cb_t)cb;
 
   if (callback)
     {
       callback((int)cbarg[0], (int)cbarg[1],
-               (struct lwm2mstub_instance_s *)cbarg[2],
-               (char *)cbarg[3], (int)cbarg[4]);
+               (FAR struct lwm2mstub_instance_s *)cbarg[2],
+               (FAR char *)cbarg[3], (int)cbarg[4]);
     }
 
   return 0ULL;
 }
 
-static uint64_t lwm2m_exec_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_exec_evt_cb(FAR void *cb, FAR void **cbarg,
+                                  FAR bool *set_writable)
 {
   lwm2mstub_exec_cb_t callback = (lwm2mstub_exec_cb_t)cb;
 
   if (callback)
     {
       callback((int)cbarg[0], (int)cbarg[1],
-               (struct lwm2mstub_instance_s *)cbarg[2]);
+               (FAR struct lwm2mstub_instance_s *)cbarg[2]);
     }
 
   return 0ULL;
 }
 
-static uint64_t lwm2m_ovstart_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_ovstart_evt_cb(FAR void *cb, FAR void **cbarg,
+                                     FAR bool *set_writable)
 {
   lwm2mstub_ovstart_cb_t callback = (lwm2mstub_ovstart_cb_t)cb;
 
   if (callback)
     {
       callback((int)cbarg[0], (int)cbarg[1],
-               (struct lwm2mstub_instance_s *)cbarg[2], (char *)cbarg[3],
-               (struct lwm2mstub_ovcondition_s *)cbarg[5]);
+               (FAR struct lwm2mstub_instance_s *)cbarg[2],
+               (FAR char *)cbarg[3],
+               (FAR struct lwm2mstub_ovcondition_s *)cbarg[5]);
     }
 
   return 0ULL;
 }
 
-static uint64_t lwm2m_ovstop_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_ovstop_evt_cb(FAR void *cb, FAR void **cbarg,
+                                    FAR bool *set_writable)
 {
   lwm2mstub_ovstop_cb_t callback = (lwm2mstub_ovstop_cb_t)cb;
 
   if (callback)
     {
       callback((int)cbarg[0], (int)cbarg[1],
-               (struct lwm2mstub_instance_s *)cbarg[2], (char *)cbarg[3]);
+               (FAR struct lwm2mstub_instance_s *)cbarg[2],
+               (FAR char *)cbarg[3]);
     }
 
   return 0ULL;
 }
 
-static uint64_t lwm2m_operation_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_operation_evt_cb(FAR void *cb, FAR void **cbarg,
+                                       FAR bool *set_writable)
 {
   lwm2mstub_operation_cb_t callback = (lwm2mstub_operation_cb_t)cb;
 
@@ -1410,8 +1426,8 @@ static uint64_t lwm2m_operation_evt_cb(FAR void *cb,
   return 0ULL;
 }
 
-static uint64_t lwm2m_fwupdate_evt_cb(FAR void *cb,
-  FAR void **cbarg, FAR bool *set_writable)
+static uint64_t lwm2m_fwupdate_evt_cb(FAR void *cb, FAR void **cbarg,
+                                      FAR bool *set_writable)
 {
   lwm2mstub_fwupstate_cb_t callback = (lwm2mstub_fwupstate_cb_t)cb;
 
@@ -1490,8 +1506,10 @@ static void errno2result(FAR int32_t *result_ptr)
  ****************************************************************************/
 
 static uint64_t exec_callback(uint32_t cmdid,
-  uint64_t (*func)(FAR void *cb, FAR void **arg, FAR bool *set_writable),
-  FAR void **arg, FAR bool *set_writable)
+                              CODE uint64_t (*func)(FAR void *cb,
+                                                    FAR void **arg,
+                                                    FAR bool *set_writable),
+                              FAR void **arg, FAR bool *set_writable)
 {
   uint64_t evtbitmap = 0ULL;
   FAR int32_t *result = NULL;
@@ -1519,9 +1537,11 @@ static uint64_t exec_callback(uint32_t cmdid,
    * execute func() and update the evtbitmap
    */
 
-  if (cmdid == LTE_CMDID_GETPSM || cmdid == LTE_CMDID_GETEDRX ||
-    cmdid == LTE_CMDID_REPNETINFO || cmdid == LTE_CMDID_REPSIMSTAT ||
-    cmdid == LTE_CMDID_REPLTIME)
+  if (cmdid == LTE_CMDID_GETPSM ||
+      cmdid == LTE_CMDID_GETEDRX ||
+      cmdid == LTE_CMDID_REPNETINFO ||
+      cmdid == LTE_CMDID_REPSIMSTAT ||
+      cmdid == LTE_CMDID_REPLTIME)
     {
       evtbitmap = func(NULL, arg, set_writable);
     }
@@ -1544,7 +1564,7 @@ static FAR void **get_evtarg(int idx)
  * Name: get_cmdid_byidx
  ****************************************************************************/
 
-static FAR uint32_t get_cmdid_byidx(int idx)
+static uint32_t get_cmdid_byidx(int idx)
 {
   FAR alt_evtbuf_inst_t *inst = &g_evtbuffers[idx];
 
@@ -1590,7 +1610,7 @@ static void update_evtarg_writableall(void)
  * Name: get_execfunc
  ****************************************************************************/
 
-static void *get_execfunc(int idx)
+static FAR void *get_execfunc(int idx)
 {
   int i;
   uint32_t cmdid;
@@ -1612,7 +1632,7 @@ static void *get_execfunc(int idx)
  * Name: get_cbfunc
  ****************************************************************************/
 
-static void *get_cbfunc(uint32_t cmdid)
+static FAR void *get_cbfunc(uint32_t cmdid)
 {
   int i;
   FAR void *ret = NULL;
@@ -1642,7 +1662,8 @@ static uint64_t alt1250_search_execcb(uint64_t evtbitmap)
   int idx;
   uint64_t ret = 0ULL;
   uint64_t l_evtbitmap = 0ULL;
-  uint64_t (*func)(FAR void *cb, FAR void **arg, FAR bool *set_writable);
+  CODE uint64_t (*func)(FAR void *cb, FAR void **arg,
+                        FAR bool *set_writable);
   bool set_writable;
 
   for (idx = 0; idx < nitems(g_evtbuffers); idx++)
@@ -1655,7 +1676,7 @@ static uint64_t alt1250_search_execcb(uint64_t evtbitmap)
 
           func = get_execfunc(idx);
           l_evtbitmap = exec_callback(g_evtbuffers[idx].cmdid, func,
-            get_evtarg(idx), &set_writable);
+                                      get_evtarg(idx), &set_writable);
 
           ret |= l_evtbitmap;
 
@@ -1724,7 +1745,7 @@ static int reg_evtcb(struct cbinfo_s *info, uint32_t cmdid, FAR void *cb)
  * Name: search_evtcb
  ****************************************************************************/
 
-static struct cbinfo_s *search_evtcb(uint32_t cmdid)
+static FAR struct cbinfo_s *search_evtcb(uint32_t cmdid)
 {
   int i;
 
@@ -1870,7 +1891,7 @@ FAR void **alt1250_getevtarg(uint32_t cmdid)
  ****************************************************************************/
 
 bool alt1250_checkcmdid(uint32_t cmdid, uint64_t evtbitmap,
-  FAR uint64_t *bit)
+                        FAR uint64_t *bit)
 {
   int idx;
   bool ret = false;
@@ -2016,7 +2037,8 @@ int alt1250_evttask_start(void)
 {
 #ifdef CONFIG_LTE_ALT1250_LAUNCH_EVENT_TASK
   g_cbpid = task_create(EVTTASK_NAME, CONFIG_LTE_ALT1250_EVENT_TASK_PRIORITY,
-    CONFIG_LTE_ALT1250_EVENT_TASK_STACKSIZE, internal_evttask, NULL);
+                        CONFIG_LTE_ALT1250_EVENT_TASK_STACKSIZE,
+                        internal_evttask, NULL);
   return g_cbpid;
 #else
   return 1; /* Always success */
@@ -2052,7 +2074,7 @@ void alt1250_evttask_msgclose(FAR struct alt1250_s *dev)
 }
 
 int alt1250_evttask_msgconnect(FAR const char *qname,
-      FAR struct alt1250_s *dev)
+                               FAR struct alt1250_s *dev)
 {
   int ret = OK;
 
@@ -2086,8 +2108,7 @@ uint32_t alt1250_search_registered_callback(FAR int *index)
   return ret;
 }
 
-int alt1250_get_report_ltecmd(FAR struct alt1250_s *dev,
-                              uint32_t cmdid,
+int alt1250_get_report_ltecmd(FAR struct alt1250_s *dev, uint32_t cmdid,
                               FAR struct lte_ioctl_data_s *ltecmd)
 {
   int ret = OK;
