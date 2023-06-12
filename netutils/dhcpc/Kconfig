@@ -32,10 +32,15 @@ config NETUTILS_DHCPC_RETRIES
 
 config NETUTILS_DHCPC_BOOTP_FLAGS
 	hex "Flags of Bootstrap"
-	default 0x0000
+	default 0x0000 if !NET_IPFORWARD
+	default 0x8000 if NET_IPFORWARD
 	---help---
 		This setting to set the BOOTP broadcast flags.
 		Reference RFC1542: Clarifications and Extensions for the
 		Bootstrap Protocol.
+
+		Note: We're not always able to receive unicast traffic before
+		being fully configured, e.g. with forward enabled. Then we need
+		to enable the broadcast flag under these situations.
 
 endif
