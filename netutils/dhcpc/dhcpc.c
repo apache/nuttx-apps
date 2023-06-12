@@ -267,8 +267,12 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
       /* Broadcast DISCOVER message to all servers */
 
       case DHCPDISCOVER:
-        /* REVISIT: We don't need the broadcast flag since we can receive
-         * unicast traffic before being fully configured.
+        /* Socket binded to INADDR_ANY is not intended to receive unicast
+         * traffic before being fully configured, at least dhclient
+         * configured with socket-only won't do so on Linux and BSDs.
+         * We can sometimes receive unicast traffic before being fully
+         * configured, it's good, but not always, so we need to set the
+         * broadcast flag under some situations.
          */
 
         /* Broadcast bit. */
@@ -283,9 +287,6 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
       /* Send REQUEST message to the server that sent the *first* OFFER */
 
       case DHCPREQUEST:
-        /* REVISIT: We don't need the broadcast flag since we can receive
-         * unicast traffic before being fully configured.
-         */
 
         /* Broadcast bit. */
 
