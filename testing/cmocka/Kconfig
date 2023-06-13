@@ -26,4 +26,8 @@ config TESTING_CMOCKA_STACKSIZE
 	int "cmocka test stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config TESTING_CMOCKA_LEAKDETECT
+	bool "Memory leaks can be checked using cmocka"
+	default n
+
 endif
