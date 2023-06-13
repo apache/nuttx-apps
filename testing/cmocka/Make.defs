@@ -22,4 +22,7 @@ ifneq ($(CONFIG_TESTING_CMOCKA),)
 CONFIGURED_APPS += $(APPDIR)/testing/cmocka
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/testing/cmocka/cmocka/include
 CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/testing/cmocka/cmocka/include
+ifneq ($(CONFIG_TESTING_CMOCKA_LEAKDETECT),)
+CFLAGS += -DUNIT_TESTING=ON
+endif
 endif
