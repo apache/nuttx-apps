@@ -70,7 +70,7 @@ ifneq ($(CONFIG_TLS_NELEM),0)
 CSRCS += specific.c
 endif
 
-ifeq ($(CONFIG_PTHREAD_CLEANUP),y)
+ifneq ($(CONFIG_PTHREAD_CLEANUP_STACKSIZE),0)
 CSRCS += pthread_cleanup.c
 endif
 
