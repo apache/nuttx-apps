@@ -365,6 +365,11 @@ config NSH_DISABLE_EXPORT
 	bool "Disable export"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_FDINFO
+	bool "Disable fdinfo"
+	default DEFAULT_SMALL
+	depends on FS_PROCFS
+
 config NSH_DISABLE_FREE
 	bool "Disable free"
 	default DEFAULT_SMALL

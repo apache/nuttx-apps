@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <ctype.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -375,6 +376,60 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 }
 
 #endif /* !CONFIG_NSH_DISABLE_LS */
+
+/****************************************************************************
+ * Name: fdinfo_callback
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_FDINFO)
+static int fdinfo_callback(FAR struct nsh_vtbl_s *vtbl,
+                           FAR const char *dirpath,
+                           FAR struct dirent *entryp, FAR void *pvarg)
+{
+  FAR char *filepath;
+  int ret;
+  int i;
+
+  UNUSED(pvarg);
+
+  if (!DIRENT_ISDIRECTORY(entryp->d_type))
+    {
+      /* Not a directory, let's skip it */
+
+      return OK;
+    }
+
+  /* Check name */
+
+  for (i = 0; entryp->d_name[i] != '\0'; i++)
+    {
+      if (!isdigit(entryp->d_name[i]))
+        {
+          /* Name contains something other than a numeric character */
+
+          return OK;
+        }
+    }
+
+  /* Let's initialize all the information */
+
+  ret = asprintf(&filepath, "%s/%s/group/fd", dirpath, entryp->d_name);
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "fdinfo", "asprintf", NSH_ERRNO);
+    }
+
+  nsh_output(vtbl, "\npid:%s", entryp->d_name);
+  ret = nsh_catfile(vtbl, "fdinfo", filepath);
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "fdinfo", "nsh_catfaile", NSH_ERRNO);
+    }
+
+  free(filepath);
+  return ret;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -2237,4 +2292,44 @@ int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   return ret;
 }
 #endif
+#endif
+
+/****************************************************************************
+ * Name: cmd_fdinfo
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_FDINFO)
+int cmd_fdinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  UNUSED(argc);
+
+  if (argv[1] != NULL)
+    {
+      FAR char *fdpath = NULL;
+      int ret;
+
+      /* The directories of the processes are displayed numerically */
+
+      if (!isdigit(argv[1][0]))
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, "fdinfo",
+                   "not process id", NSH_ERRNO);
+          return ERROR;
+        }
+
+      ret = asprintf(&fdpath, "%s/%s/group/fd",
+                     CONFIG_NSH_PROC_MOUNTPOINT, argv[1]);
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      ret = nsh_catfile(vtbl, argv[0], fdpath);
+      free(fdpath);
+      return ret;
+    }
+
+  return nsh_foreach_direntry(vtbl, "fdinfo", CONFIG_NSH_PROC_MOUNTPOINT,
+                              fdinfo_callback, NULL);
+}
 #endif
