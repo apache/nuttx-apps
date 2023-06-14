@@ -234,6 +234,12 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("false",    cmd_false,    1, 1, NULL),
 #endif
 
+#ifdef CONFIG_FS_PROCFS
+#  ifndef CONFIG_NSH_DISABLE_FDINFO
+  CMD_MAP("fdinfo",   cmd_fdinfo,   1, 2, "[pid]"),
+#  endif
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_FREE
   CMD_MAP("free",     cmd_free,     1, 1, NULL),
 #endif

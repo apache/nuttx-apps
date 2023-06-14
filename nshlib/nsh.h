@@ -951,6 +951,9 @@ void nsh_usbtrace(void);
 #ifndef CONFIG_NSH_DISABLE_PS
   int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_FDINFO)
+  int cmd_fdinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
 #ifndef CONFIG_NSH_DISABLE_XD
   int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
