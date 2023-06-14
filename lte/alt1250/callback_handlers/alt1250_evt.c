@@ -638,9 +638,10 @@ static FAR void *g_lwm2movstopargs[] =
 
 /* event argument for LTE_CMDID_LWM2M_SERVEROP_EVT */
 
+static struct lwm2mstub_instance_s g_lwm2msrvop_inst;
 static FAR void *g_lwm2moperationargs[] =
 {
-  NULL
+  NULL, NULL, &g_lwm2msrvop_inst
 };
 
 /* event argument for LTE_CMDID_LWM2M_FWUP_EVT */
@@ -1445,7 +1446,8 @@ static uint64_t lwm2m_operation_evt_cb(FAR void *cb, FAR void **cbarg,
 
   if (callback)
     {
-      callback((int)cbarg[0]);
+      callback((int)cbarg[0], (int)cbarg[1],
+               (FAR struct lwm2mstub_instance_s *)cbarg[2]);
     }
 
   return 0ULL;
