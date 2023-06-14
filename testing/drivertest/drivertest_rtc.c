@@ -48,9 +48,10 @@
 
 #define RTC_DEFAULT_DEVPATH   "/dev/rtc0"
 #define RTC_DEFAULT_DEVIATION 10
-#define DEFAULT_TIME_OUT      2
-#define SLEEPSECONDS          5
+#define DEFAULT_TIME_OUT      5
+#define SLEEPSECONDS          10
 #define RTC_SIGNO             13
+#define VENDOR_DELAY          0
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
   do                                                                  \
@@ -73,6 +74,7 @@ struct rtc_state_s
   char devpath[PATH_MAX];
   int deviation;
   int tim;
+  int vendor_delay;
 };
 
 /****************************************************************************
@@ -86,13 +88,16 @@ struct rtc_state_s
 static void show_usage(FAR const char *progname,
                        FAR struct rtc_state_s *rtc_state, int exitcode)
 {
-  printf("Usage: %s -d <devpath> -a <deviation>\n", progname);
+  printf("Usage: %s -d <devpath> -a <deviation> -v <delay>\n", progname);
   printf("  [-d devpath] selects the rtc device.\n"
          "  Default: %s Current: %s\n", RTC_DEFAULT_DEVPATH,
          rtc_state->devpath);
   printf("  [-a deviation] input rtc alarm .\n"
          "  Default: %d Current: %d\n", RTC_DEFAULT_DEVIATION,
          rtc_state->deviation);
+  printf("  [-v delay] delay after set rtc.\n"
+         "  Default: %d Current: %d\n", VENDOR_DELAY,
+         rtc_state->vendor_delay);
   exit(exitcode);
 }
 
@@ -106,7 +111,7 @@ static void parse_commandline(FAR struct rtc_state_s *rtc_state, int argc,
   int ch;
   int converted;
 
-  while ((ch = getopt(argc, argv, "d:a:")) != ERROR)
+  while ((ch = getopt(argc, argv, "d:a:v:")) != ERROR)
     {
       switch (ch)
         {
@@ -120,6 +125,16 @@ static void parse_commandline(FAR struct rtc_state_s *rtc_state, int argc,
             if (converted < 0)
               {
                 printf("deviation out of range: %d\n", converted);
+                show_usage(argv[0], rtc_state, EXIT_FAILURE);
+              }
+            break;
+
+          case 'v':
+            OPTARG_TO_VALUE(converted, int, 10);
+            rtc_state->vendor_delay = converted;
+            if (converted < 0)
+              {
+                printf("delay out of range: %d\n", converted);
                 show_usage(argv[0], rtc_state, EXIT_FAILURE);
               }
             break;
@@ -162,6 +177,13 @@ static void test_case_rtc_01(FAR void **state)
   ret = ioctl(fd, RTC_HAVE_SET_TIME,
               (unsigned long)((uintptr_t)&have_set_time));
   assert_return_code(ret, OK);
+
+  /* Some vendor need sleep a period of time
+   * after set rtc because of hardware bug.
+   */
+
+  sleep(rtc_state->vendor_delay);
+
   assert_true(have_set_time);
 
   ret = ioctl(fd, RTC_RD_TIME, (unsigned long)((uintptr_t)&rd_time));
@@ -199,13 +221,13 @@ static uint32_t get_timestamp(void)
  * Name: add_timeout
  ****************************************************************************/
 
-static void add_timeout(struct rtc_time * rtc_tm)
+static void add_timeout(struct rtc_time * rtc_tm, const int delay)
 {
   time_t timesp;
   FAR struct tm *tm;
 
-  timesp = mktime((struct tm *)rtc_tm);
-  timesp += DEFAULT_TIME_OUT;
+  timesp = timegm((struct tm *)rtc_tm);
+  timesp += delay;
 
   tm = localtime(&timesp);
   rtc_tm->tm_sec = tm->tm_sec;
@@ -260,15 +282,19 @@ static void test_case_rtc_02(FAR void **state)
   rtc_setalarm.event.sigev_value.sival_ptr = NULL;
   rtc_setalarm.time = set_time;
 
-  add_timeout(&rtc_setalarm.time);
+  add_timeout(&rtc_setalarm.time, DEFAULT_TIME_OUT);
 
   ret = ioctl(fd, RTC_SET_TIME, (unsigned long)((uintptr_t)&set_time));
   assert_return_code(ret, OK);
+
+  sleep(rtc_state->vendor_delay);
+  add_timeout(&rtc_setalarm.time, rtc_state->vendor_delay);
 
   ret = ioctl(fd, RTC_SET_ALARM, &rtc_setalarm);
   assert_return_code(ret, OK);
 
   before_timestamp = get_timestamp();
+  sleep(rtc_state->vendor_delay);
 
   /* Read alarm */
 
@@ -276,8 +302,8 @@ static void test_case_rtc_02(FAR void **state)
   ret = ioctl(fd, RTC_RD_ALARM, &rtc_rdalarm);
   assert_return_code(ret, OK);
 
-  assert_int_equal(mktime((struct tm *)&rtc_rdalarm.time),
-                   mktime((struct tm *)&rtc_setalarm.time));
+  assert_int_equal(timegm((struct tm *)&rtc_rdalarm.time),
+                   timegm((struct tm *)&rtc_setalarm.time));
 
   ret = sigwaitinfo(&set, NULL);
   assert_return_code(ret, RTC_SIGNO);
@@ -291,8 +317,10 @@ static void test_case_rtc_02(FAR void **state)
   ret = ioctl(fd, RTC_SET_TIME, (unsigned long)((uintptr_t)&set_time));
   assert_return_code(ret, OK);
 
+  sleep(rtc_state->vendor_delay);
+
   rtc_setalarm.time = set_time;
-  add_timeout(&rtc_setalarm.time);
+  add_timeout(&rtc_setalarm.time, DEFAULT_TIME_OUT);
 
   ret = ioctl(fd, RTC_SET_ALARM, &rtc_setalarm);
   assert_return_code(ret, OK);
@@ -331,7 +359,8 @@ static void test_case_rtc_02(FAR void **state)
 
 static void rtc_periodic_callback(union sigval arg)
 {
-  FAR struct rtc_state_s * rtc_state = (FAR struct rtc_state_s *)arg.sival_ptr;
+  FAR struct rtc_state_s * rtc_state =
+    (FAR struct rtc_state_s *)arg.sival_ptr;
   int range = get_timestamp() - rtc_state->tim;
   assert_in_range(range, DEFAULT_TIME_OUT * 1000 - rtc_state->deviation,
                   DEFAULT_TIME_OUT * 1000 + rtc_state->deviation);
@@ -395,6 +424,7 @@ int main(int argc, FAR char *argv[])
   {
     .devpath = RTC_DEFAULT_DEVPATH,
     .deviation = RTC_DEFAULT_DEVIATION,
+    .vendor_delay = VENDOR_DELAY,
   };
 
   parse_commandline(&rtc_state, argc, argv);
