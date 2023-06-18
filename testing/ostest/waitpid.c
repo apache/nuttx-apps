@@ -120,7 +120,7 @@ static void waitpid_last(void)
   printf("waitpid_last: Waiting for PID=%d with waitpid()\n",
          g_waitpids[NCHILDREN - 1]);
 
-  ret = (int)waitpid(g_waitpids[NCHILDREN - 1], &stat_loc, 0);
+  ret = waitpid(g_waitpids[NCHILDREN - 1], &stat_loc, 0);
   if (ret < 0)
     {
       int errcode = errno;
