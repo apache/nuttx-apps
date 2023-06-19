@@ -27,13 +27,13 @@ NIMBLE_TAR := $(CONFIG_NIMBLE_REF).tar.gz
 NIMBLE_URL := https://github.com/apache/mynewt-nimble/archive/$(NIMBLE_TAR)
 
 ifneq ($(CONFIG_NIMBLE_PORTING_EXAMPLE),)
-# Nimble porting example built-in application
+# NimBLE porting example built-in application
 
 -include $(NIMBLE_ROOT)/porting/examples/nuttx/Make.defs
 PRIORITY  = 255
 STACKSIZE = $(CONFIG_NIMBLE_PORTING_EXAMPLE_STACKSIZE)
 
-# nimBLE assumes this flag since it expects undefined macros to be zero value
+# NimBLE assumes this flag since it expects undefined macros to be zero value
 
 CFLAGS += -Wno-pointer-to-int-cast -Wno-undef
 endif
