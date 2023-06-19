@@ -1,9 +1,9 @@
 config NIMBLE
-	bool "Apache nimBLE (BLE host-layer)"
+	bool "Apache NimBLE (BLE host-layer)"
 	default n
 	depends on !WIRELESS_BLUETOOTH_HOST
 	---help---
-		Enable Apache nimBLE Bluetooth Low Energy
+		Enable Apache NimBLE Bluetooth Low Energy
 		host-layer stack.
 
 if NIMBLE
@@ -12,10 +12,208 @@ config NIMBLE_REF
 	string "Version"
 	default "bc7828341226d860429c63994065f8f1b8b8d7b0"
 	---help---
-		Git ref name to use when downloading from nimBLE repo
+		Git ref name to use when downloading from NimBLE repo
+
+if DEBUG_FEATURES
+
+config NIMBLE_DEBUG_ERROR
+	bool "Apache NimBLE error output"
+	default n
+	depends on DEBUG_ERROR
+
+config NIMBLE_DEBUG_WARN
+	bool "Apache NimBLE warnings output"
+	default n
+	depends on DEBUG_ERROR
+
+config NIMBLE_DEBUG_INFO
+	bool "Apache NimBLE informational debug output"
+	default n
+	depends on DEBUG_INFO
+
+endif # DEBUG_FEATURES
+
+config NIMBLE_TINYCRYPT
+	bool "Apache NimBLE tinycrypt support"
+	default y
+
+config NIMBLE_MESH
+	bool "Apache NimBLE mesh support"
+	default n
+	depends on EXPERIMENTAL
+
+menu "NimBLE role configuration"
+
+config NIMBLE_ROLE_BROADCASTER
+	bool "NimBLE broadcaster role"
+	default n
+
+config NIMBLE_ROLE_CENTRAL
+	bool "NimBLE central role"
+	default n
+
+config NIMBLE_ROLE_OBSERVER
+	bool "NimBLE observer role"
+	default n
+
+config NIMBLE_ROLE_PERIPHERAL
+	bool "NimBLE peripheral role"
+	default n
+
+endmenu # "NimBLE role configuration"
+
+choice
+	prompt "NimBLE BLE version"
+	default NIMBLE_BLE_VERSION_50
+
+config NIMBLE_BLE_VERSION_50
+	bool "NimBLE BLE version 5.0"
+
+config NIMBLE_BLE_VERSION_51
+	bool "NimBLE BLE version 5.1"
+
+config NIMBLE_BLE_VERSION_52
+	bool "NimBLE BLE version 5.2"
+
+config NIMBLE_BLE_VERSION_53
+	bool "NimBLE BLE version 5.3"
+
+endchoice # "NimBLE BLE version"
+
+config NIMBLE_BLE_VERSION
+	int
+	default 50 if NIMBLE_BLE_VERSION_50
+	default 51 if NIMBLE_BLE_VERSION_51
+	default 52 if NIMBLE_BLE_VERSION_52
+	default 53 if NIMBLE_BLE_VERSION_53
+
+menu "NimBLE BLE features"
+
+config NIMBLE_BLE_SUBRATING
+	bool "NimBLE connection subrating support"
+	default n
+
+config NIMBLE_BLE_EXT_ADV
+	bool "NimBLE extended advertising support"
+	default n
+
+config NIMBLE_BLE_EXT_ADV_MAX_SIZE
+	int "NimBLE extended advertising maximum size"
+	depends on NIMBLE_BLE_EXT_ADV
+	range 31 1650
+	default 31
+
+config NIMBLE_BLE_MAX_CONN
+	int "NimBLE maximum number of connections"
+	default 1
+
+config NIMBLE_BLE_MAX_PERIODIC_SYNCS
+	int "NimBLE maximum number of period syncs"
+	default 1
+
+config NIMBLE_BLE_MULTI_ADV_INSTANCES
+	int "NimBLE number of multi-advertising instances"
+	default 0
+	---help---
+	  The total number of advertising instances is this number plus 1
+
+config NIMBLE_BLE_PERIODIC_ADV
+	bool "NimBLE periodic advertising support"
+	default n
+
+config NIMBLE_BLE_PERIODIC_ADV_SYNC_TRANSFER
+	int "NimBLE periodic advertising sync transfer support"
+	depends on NIMBLE_BLE_PERIODIC_ADV && NIMBLE_BLE_VERSION > 50
+	default 0
+
+config NIMBLE_BLE_POWER_CONTROL
+	bool "NimBLE BLE LE power control support"
+	depends on NIMBLE_BLE_VERSION > 51
+	default n
+
+config NIMBLE_BLE_WHITELIST
+	bool "NimBLE BLE whitelist support"
+	default n
+
+endmenu # "NimBLE BLE features"
+
+menu "NimBLE BLE Host configuration"
+
+config NIMBLE_HS_FLOW_CTRL
+	bool "NimBLE Host flow control enable"
+	default n
+
+endmenu # "NimBLE BLE Host configuration"
+
+config NIMBLE_BLE_ATT_PREFFERED_MTU
+	int "NimBLE preferred MTU size"
+	default 256
+
+config NIMBLE_L2CAP_COC_MAX_NUM
+	int "NimBLE maximum number of connection oriented channels"
+	range 0 9
+	default 0
+	---help---
+	  When set to 0, BLE COC is disabled
+
+menu "NimBLE BLE privacy and security settings"
+
+config NIMBLE_BLE_RPA_TIMEOUT
+	int "NimBLE BLE RPA timeout"
+	default 300
+	---help---
+	  The rate that new random addresses should be generated (seconds)
+
+config NIMBLE_BLE_SM_BONDING
+	bool "NimBLE BLE bonding enable"
+	default y
+	---help---
+	  Enables bonding (persistence and restoration of secure links)
+
+config NIMBLE_BLE_SM_LEGACY
+	bool "NimBLE security manager legacy pairing"
+	default y
+
+config NIMBLE_BLE_SM_SC
+	bool "NimBLE security manager secure connections"
+	default y
+
+if NIMBLE_BLE_SM_SC
+
+config NIMBLE_BLE_SM_SC_DEBUG
+	bool "NimBLE secure connections debug mode"
+	default n
+
+config NIMBLE_BLE_SM_SC_ONLY
+	bool "NimBLE secure connections pairing only"
+	default n
+
+endif # NIMBLE_BLE_SM_SC
+
+endmenu # "NimBLE BLE security manager settings"
+
+menu "NimBLE memory configuration"
+
+config NIMBLE_MSYS_1_BLOCK_COUNT
+	int "NimBLE MSYS_1 block count"
+	default 12
+
+config NIMBLE_MSYS_1_BLOCK_SIZE
+	int "NimBLE MSYS_1 block size"
+	default 292
+
+config NIMBLE_MSYS_2_BLOCK_COUNT
+	int "NimBLE MSYS_2 block count"
+	default 0
+
+config NIMBLE_MSYS_2_BLOCK_SIZE
+	int "NimBLE MSYS_2 block size"
+	default 0
+
+endmenu # "NimBLE memory configuration"
 
 config NIMBLE_PORTING_EXAMPLE
-	bool "Apache nimBLE NuttX porting example"
+	bool "Apache NimBLE NuttX porting example"
 	default y
 
 if NIMBLE_PORTING_EXAMPLE
