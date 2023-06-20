@@ -42,7 +42,7 @@ config TESTING_NXFFS_MAXNAME
 	---help---
 		Determines the maximum size of names used in the filesystem
 
-	config TESTING_NXFFS_MAXFILE
+config TESTING_NXFFS_MAXFILE
 	int "Max file size"
 	default 8192
 	---help---
@@ -68,4 +68,4 @@ config TESTING_NXFFS_VERBOSE
 	bool "Verbose output"
 	default n
 
-endif
+endif # TESTING_NXFFS
