@@ -247,6 +247,12 @@ $(foreach BATCH, $(MAINCSRC_SPILT_TOTAL), \
 endif
 
 MAINSRC       = $(LTP_MAINCSRCS)
+ifneq ($(CONFIG_NET_CAN),)
+PROGNAME     += can_rcv_own_msgs
+PROGNAME     += can_filter
+MAINSRC      += $(TESTDIR)/../network/can/filter-tests/can_filter.c
+MAINSRC      += $(TESTDIR)/../network/can/filter-tests/can_rcv_own_msgs.c
+endif
 PRIORITY      = SCHED_PRIORITY_DEFAULT
 STACKSIZE     = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE        = $(CONFIG_TESTING_LTP)
@@ -254,6 +260,7 @@ MODULE        = $(CONFIG_TESTING_LTP)
 CSRCS        := $(LTP_CSRCS)
 CFLAGS       += -I$(CURDIR)
 CFLAGS       += -I$(TESTDIR)/include
+CFLAGS       += -I$(TESTDIR)/../../include
 endif
 
 # Relax warning checks to avoid expected compile errors:
