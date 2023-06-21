@@ -6,6 +6,7 @@
 config BTSAK
 	tristate "Bluetooth Swiss Army Knife"
 	default n
+	depends on WIRELESS_BLUETOOTH_HOST
 	---help---
 		Enable the Bluetooth Swiss Army Knife
 
