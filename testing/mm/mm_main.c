@@ -318,8 +318,9 @@ static int mm_stress_test(int argc, FAR char *argv[])
   int prio = 0;
   int size;
   int i;
+  int maxsize = 1024;
 
-  while ((i = getopt(argc, argv, "d:p:")) != ERROR)
+  while ((i = getopt(argc, argv, "d:p:s:")) != ERROR)
     {
       if (i == 'd')
         {
@@ -328,6 +329,10 @@ static int mm_stress_test(int argc, FAR char *argv[])
       else if (i == 'p')
         {
           prio = atoi(optarg);
+        }
+      else if (i == 's')
+        {
+          maxsize = atoi(optarg);
         }
       else
         {
@@ -347,7 +352,7 @@ static int mm_stress_test(int argc, FAR char *argv[])
 
   while (1)
     {
-      size = random() % 1024 + 1;
+      size = random() % maxsize + 1;
       tmp = malloc(size);
       assert(tmp);
 
