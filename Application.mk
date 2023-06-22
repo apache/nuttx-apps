@@ -205,8 +205,8 @@ MAINNAME := $(addsuffix _main,$(PROGNAME))
 
 $(MAINCXXOBJ): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
 	$(eval MAIN=$(word $(call GETINDEX,$<,$(MAINCXXSRCS)),$(MAINNAME)))
-	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(MAIN)})
-	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(MAIN)})
+	$(eval $<_CXXFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
+	$(eval $<_CXXELFFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
