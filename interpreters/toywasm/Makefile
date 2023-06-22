@@ -74,9 +74,9 @@ CSRCS += wasi_fdtable.c
 # TOYWASM_ENABLE_WASI_THREADS
 CSRCS += wasi_threads.c
 
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/include}
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/lib}
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/interpreters/toywasm/toywasm/libwasi}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/include
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/lib
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi
 
 TOYWASM_VERSION  = 031ac96574bf95c5ec31e5aeb02787a84e6d4af0
 TOYWASM_UNPACK   = toywasm
