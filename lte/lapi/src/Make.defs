@@ -35,6 +35,6 @@ CSRCS = lapi_evt.c      \
 
 DEPPATH += --dep-path src
 VPATH += :src
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(APPDIR)/lte/lapi/src}
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/lte/lapi/src
 
 endif
