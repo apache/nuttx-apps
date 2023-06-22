@@ -675,7 +675,7 @@ static void listener_top(FAR struct list_node *objlist,
           uorbinfo_raw("\033[H"); /* move cursor to top left corner */
         }
 
-      uorbinfo_raw("\033[K" "current objects: %i", list_length(objlist));
+      uorbinfo_raw("\033[K" "current objects: %zu", list_length(objlist));
       uorbinfo_raw("\033[K" "%-*s INST #SUB RATE #Q SIZE",
                    ORB_MAX_PRINT_NAME - 2, "NAME");
 

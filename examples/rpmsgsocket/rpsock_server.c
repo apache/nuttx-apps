@@ -102,7 +102,7 @@ static void *rpsock_thread(pthread_addr_t pvarg)
         }
       else if (ret < 0)
         {
-          printf("server recv data failed ret %d, errno %d\n", ret, errno);
+          printf("server recv data failed ret %zd, errno %d\n", ret, errno);
           break;
         }
 
@@ -147,7 +147,7 @@ static void *rpsock_thread(pthread_addr_t pvarg)
         }
     }
 
-  printf("server Complete ret %d, errno %d\n", ret, errno);
+  printf("server Complete ret %zd, errno %d\n", ret, errno);
   free(args);
   return NULL;
 }

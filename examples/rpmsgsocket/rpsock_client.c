@@ -325,7 +325,7 @@ static int rpsock_stream_client(int argc, char *argv[])
           ptr[i] = cnt * 100 + i;
         }
 
-      printf("client send data, cnt %d, total len %d, BUFHEAD %s\n",
+      printf("client send data, cnt %d, total len %zu, BUFHEAD %s\n",
                         cnt, sendsize, outbuf);
 
       tmp = outbuf;
@@ -368,7 +368,7 @@ static int rpsock_stream_client(int argc, char *argv[])
             }
           else if (act < 0)
             {
-              printf("client recv data failed %d\n", act);
+              printf("client recv data failed %zd\n", act);
               break;
             }
 
@@ -382,8 +382,8 @@ static int rpsock_stream_client(int argc, char *argv[])
 
           if (recvsize >= sendsize)
             {
-              printf("client recv total %d, send total %d\n",
-                      recvsize, sendsize);
+              printf("client recv total %zu, send total %zu\n",
+                     recvsize, sendsize);
               break;
             }
         }
