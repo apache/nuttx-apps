@@ -39,7 +39,7 @@
  * Name: i2ccmd_dev
  ****************************************************************************/
 
-int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 {
   struct i2c_msg_s msg;
   FAR char *ptr;
