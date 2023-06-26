@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_OSPERF
+	tristate "System performance profiling"
+	default n
+	---help---
+		Measure the performance of core system functions, such as thread
+		switching and the time required for semaphore execution
+
+if TESTING_OSPERF
+
+config TESTING_OSPERF_PRIORITY
+	int "OS profiling task priority"
+	default 100
+
+config TESTING_OSPERF_STACKSIZE
+	int "OS profiling stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
