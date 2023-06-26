@@ -105,7 +105,7 @@ static void draw_rect32(FAR struct fb_state_s *state,
       dest = ((FAR uint32_t *)row) + area->x;
       for (x = 0; x < area->w; x++)
         {
-          *dest++ = g_rgb24[color];
+          *dest++ = g_rgb24[color] | 0xff000000;
         }
 
       row += state->pinfo.stride;
