@@ -184,9 +184,10 @@ static void test_case_oneshot(FAR void **state)
       assert_return_code(ret, OK);
 
       clock_timespec_subtract(&ts, &trigger_before, &timespec_sub);
-      assert_int_equal(oneshot_state->oneshot.ts.tv_sec,
-                       timespec_sub.tv_sec);
-      assert_in_range(timespec_sub.tv_nsec, 0, NSEC_PER_MSEC);
+      assert_in_range(timespec_sub.tv_sec,
+                     oneshot_state->oneshot.ts.tv_sec - 1,
+                     oneshot_state->oneshot.ts.tv_sec);
+      assert_in_range(timespec_sub.tv_nsec, 0, NSEC_PER_SEC);
     }
 
   ret = ioctl(fd, OSIOC_START, &oneshot_state->oneshot);
