@@ -6,6 +6,26 @@ config TESTING_CRYPTO
 
 if TESTING_CRYPTO
 
+config TESTING_CRYPTO_3DES_CBC
+	bool "3des-cbc crypto test"
+	default y
+
+config TESTING_CRYPTO_AES_CBC
+	bool "aes-cbc crypto test"
+	default y
+
+config TESTING_CRYPTO_AES_CTR
+	bool "aes-ctr crypto test"
+	default y
+
+config TESTING_CRYPTO_AES_XTS
+	bool "aes-xts crypto test"
+	default y
+
+config TESTING_CRYPTO_HMAC
+	bool "hmac crypto test"
+	default y
+
 config TESTING_CRYPTO_PRIORITY
 	int "crypto test task priority"
 	default 100
