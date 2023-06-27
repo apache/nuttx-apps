@@ -25,6 +25,139 @@ class validate_flags_arg(argparse.Action):
         setattr(namespace, self.dest, values)
 
 
+# Vendor specific functions #
+
+# Espressif #
+
+
+def get_espressif_bootloader_version(bindir):
+    """
+    Get the bootloader version for Espressif chips from the bootloader binary. This
+    function works on Linux, Windows, and macOS.
+
+    Args:
+        bindir (str): The path to the bootloader binary directory.
+
+    Returns:
+        dict: A dictionary containing the bootloader version for each chip.
+    """
+
+    regex = r"^(?=.*\bv\d+(\.\d+){1,2}\b).+$"
+    bootloader_chips = [
+        "esp32",
+        "esp32s2",
+        "esp32s3",
+        "esp32c2",
+        "esp32c3",
+        "esp32c6",
+        "esp32h2",
+    ]
+    bootloader_version = {}
+
+    for chip in bootloader_chips:
+        file = "bootloader-{}.bin".format(chip)
+        path = os.path.join(bindir, file)
+
+        if os.path.isfile(path):
+            if platform.system() == "Linux":
+                process = subprocess.Popen(["strings", path], stdout=subprocess.PIPE)
+            elif platform.system() == "Windows":
+                process = subprocess.Popen(
+                    [
+                        "powershell",
+                        "Get-Content -Raw -Encoding Byte {} |".format(path)
+                        + " % { [char[]]$_ -join \"\" } | Select-String -Pattern '[\\x20-\\x7E]+'"
+                        + " -AllMatches | % { $_.Matches } | % { $_.Value }",
+                    ],
+                    stdout=subprocess.PIPE,
+                )
+            elif platform.system() == "Darwin":
+                process = subprocess.Popen(
+                    ["strings", "-", path], stdout=subprocess.PIPE
+                )
+            else:
+                bootloader_version[chip] = "Not supported on host OS"
+                break
+
+            output, error = process.communicate()
+            strings_out = output.decode("utf-8", errors="ignore")
+            matches = re.finditer(regex, strings_out, re.MULTILINE)
+
+            try:
+                bootloader_version[chip] = next(matches).group(0)
+            except StopIteration:
+                bootloader_version[chip] = "Unknown"
+
+        else:
+            bootloader_version[chip] = "Bootloader image not found"
+
+    return bootloader_version
+
+
+def get_espressif_toolchain_version():
+    """
+    Get the version of different toolchains used by Espressif chips.
+
+    Args:
+        None.
+
+    Returns:
+        dict: A dictionary containing the toolchain version for each toolchain.
+    """
+
+    toolchain_version = {}
+    toolchain_bins = [
+        "clang",
+        "gcc",
+        "xtensa-esp32-elf-gcc",
+        "xtensa-esp32s2-elf-gcc",
+        "xtensa-esp32s3-elf-gcc",
+        "riscv32-esp-elf-gcc",
+        "riscv64-unknown-elf-gcc",
+    ]
+
+    for binary in toolchain_bins:
+        try:
+            version_output = subprocess.check_output(
+                [binary, "--version"], stderr=subprocess.STDOUT, universal_newlines=True
+            )
+            version_lines = version_output.split("\n")
+            version = version_lines[0].strip()
+            toolchain_version[binary] = version
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            toolchain_version[binary] = "Not found"
+
+    return toolchain_version
+
+
+def get_espressif_hal_version(hal_dir):
+    """
+    Get the version of the ESP HAL used by Espressif chips.
+
+    Args:
+        None.
+
+    Returns:
+        str: The ESP HAL version.
+    """
+
+    hal_version = "Not found"
+
+    try:
+        if os.path.isdir(os.path.join(hal_dir, ".git")):
+            hal_version_output = subprocess.check_output(
+                ["git", "describe", "--tags", "--always"],
+                cwd=hal_dir,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
+            hal_version = hal_version_output.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    return hal_version
+
+
 # Common functions #
 
 
@@ -417,112 +550,16 @@ def generate_header(args):
             info["ESPRESSIF_ESPTOOL"].split("-")[1]
         )
 
+        # Espressif HAL version
+
+        info["ESPRESSIF_HAL"] = get_espressif_hal_version(args.espressif[1])
+        output += 'static const char ESPRESSIF_HAL[] = "{}";\n\n'.format(
+            info["ESPRESSIF_HAL"]
+        )
+
     output += "#endif /* __SYSTEM_INFO_H */\n"
 
     return output
-
-
-# Vendor specific functions #
-
-
-def get_espressif_bootloader_version(bindir):
-    """
-    Get the bootloader version for Espressif chips from the bootloader binary. This
-    function works on Linux, Windows, and macOS.
-
-    Args:
-        bindir (str): The path to the bootloader binary directory.
-
-    Returns:
-        dict: A dictionary containing the bootloader version for each chip.
-    """
-
-    regex = r"^(?=.*\bv\d+(\.\d+){1,2}\b).+$"
-    bootloader_chips = [
-        "esp32",
-        "esp32s2",
-        "esp32s3",
-        "esp32c2",
-        "esp32c3",
-        "esp32c6",
-        "esp32h2",
-    ]
-    bootloader_version = {}
-
-    for chip in bootloader_chips:
-        file = "bootloader-{}.bin".format(chip)
-        path = os.path.join(bindir, file)
-
-        if os.path.isfile(path):
-            if platform.system() == "Linux":
-                process = subprocess.Popen(["strings", path], stdout=subprocess.PIPE)
-            elif platform.system() == "Windows":
-                process = subprocess.Popen(
-                    [
-                        "powershell",
-                        "Get-Content -Raw -Encoding Byte {} |".format(path)
-                        + " % { [char[]]$_ -join \"\" } | Select-String -Pattern '[\\x20-\\x7E]+'"
-                        + " -AllMatches | % { $_.Matches } | % { $_.Value }",
-                    ],
-                    stdout=subprocess.PIPE,
-                )
-            elif platform.system() == "Darwin":
-                process = subprocess.Popen(
-                    ["strings", "-", path], stdout=subprocess.PIPE
-                )
-            else:
-                bootloader_version[chip] = "Not supported on host OS"
-                break
-
-            output, error = process.communicate()
-            strings_out = output.decode("utf-8", errors="ignore")
-            matches = re.finditer(regex, strings_out, re.MULTILINE)
-
-            try:
-                bootloader_version[chip] = next(matches).group(0)
-            except StopIteration:
-                bootloader_version[chip] = "Unknown"
-
-        else:
-            bootloader_version[chip] = "Bootloader image not found"
-
-    return bootloader_version
-
-
-def get_espressif_toolchain_version():
-    """
-    Get the version of different toolchains used by Espressif chips.
-
-    Args:
-        None.
-
-    Returns:
-        dict: A dictionary containing the toolchain version for each toolchain.
-    """
-
-    toolchain_version = {}
-    toolchain_bins = [
-        "clang",
-        "gcc",
-        "xtensa-esp32-elf-gcc",
-        "xtensa-esp32s2-elf-gcc",
-        "xtensa-esp32s3-elf-gcc",
-        "riscv32-esp-elf-gcc",
-        "riscv64-unknown-elf-gcc",
-    ]
-
-    for binary in toolchain_bins:
-        try:
-            version_output = subprocess.check_output(
-                [binary, "--version"], stderr=subprocess.STDOUT, universal_newlines=True
-            )
-            version_lines = version_output.split("\n")
-            version = version_lines[0].strip()
-            toolchain_version[binary] = version
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            toolchain_version[binary] = "Not found"
-
-    return toolchain_version
 
 
 # Main #
@@ -604,10 +641,10 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--espressif",
-        nargs=1,
+        nargs=2,
         default=[],
-        metavar="ESPTOOL_BINDIR",
-        help="Get Espressif specific information. Requires the path to the bootloader binary directory.",
+        metavar=("ESPTOOL_BINDIR", "ESP_HAL_DIR"),
+        help="Get Espressif specific information. Requires the path to the bootloader binary and ESP HAL directories.",
     )
 
     # Parse arguments
