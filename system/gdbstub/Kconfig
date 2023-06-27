@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_GDBSTUB
+	tristate "GDBSTUB"
+	---help---
+		Enable support for gdbstub.
+
+if SYSTEM_GDBSTUB
+
+config SYSTEM_GDBSTUB_STACKSIZE
+	int "gdbstub stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the gdbstub task.
+
+config SYSTEM_GDBSTUB_PRIORITY
+	int "gdbstub priority"
+	default 100
+	---help---
+		The priority of the gdbstub task.
+
+endif
