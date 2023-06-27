@@ -344,6 +344,7 @@ int main(int argc, char *argv[])
       printf("Toolchain version:\n");
       print_array(ESPRESSIF_TOOLCHAIN, ESPRESSIF_TOOLCHAIN_ARRAY_SIZE);
       printf("Esptool version: %s\n\n", ESPRESSIF_ESPTOOL);
+      printf("HAL version: %s\n\n", ESPRESSIF_HAL);
 #endif
     }
 
