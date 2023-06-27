@@ -90,5 +90,8 @@ endif
 
 # ELF module definitions
 
-LDELFFLAGS += -r -e _start -Bstatic
+ifeq ($(CONFIG_BINFMT_ELF_RELOCATABLE),y)
+  LDELFFLAGS += -r
+endif
+LDELFFLAGS += -e _start -Bstatic
 LDELFFLAGS += $(addprefix -T,$(call CONVERT_PATH,$(TOPDIR)/scripts/gnu-elf.ld))
