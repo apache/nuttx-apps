@@ -230,6 +230,12 @@ void pthread_rwlock_test(void);
 
 void pthread_rwlock_cancel_test(void);
 
+/* pthread_exit.c ***********************************************************/
+
+#ifdef CONFIG_SCHED_WAITPID
+void pthread_exit_test(void);
+#endif
+
 /* pthread_cleanup.c ********************************************************/
 
 void pthread_cleanup_test(void);

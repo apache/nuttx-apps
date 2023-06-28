@@ -441,6 +441,14 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifdef CONFIG_SCHED_WAITPID
+      /* Verify pthread_exit() and pthread_self() */
+
+      printf("\nuser_main: pthread_exit() test\n");
+      pthread_exit_test();
+      check_test_memory_usage();
+#endif
+
       /* Verify pthreads rwlock interfaces */
 
       printf("\nuser_main: pthread_rwlock test\n");
