@@ -66,6 +66,10 @@ CSRCS += cancel.c cond.c mutex.c timedmutex.c sem.c semtimed.c barrier.c
 CSRCS += timedwait.c
 CSRCS += pthread_rwlock.c pthread_rwlock_cancel.c
 
+ifeq ($(CONFIG_SCHED_WAITPID),y)
+CSRCS += pthread_exit.c
+endif
+
 ifneq ($(CONFIG_TLS_NELEM),0)
 CSRCS += specific.c
 endif
