@@ -102,9 +102,12 @@ ifneq ($(CONFIG_LIBC_DLFCN),)
 CSRCS += dl.c
 endif
 
-ifneq ($(CONFIG_NET),)
+ifneq ($(CONFIG_LIBC_NETDB),)
 CSRCS += getaddrinfo.c
 CSRCS += getnameinfo.c
+endif
+
+ifneq ($(CONFIG_NET),)
 CSRCS += inet.c
 endif
 
