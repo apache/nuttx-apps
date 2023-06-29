@@ -157,7 +157,7 @@ FAR struct monkey_recorder_s *monkey_recorder_create(FAR const char *path,
       oflag = O_RDONLY;
     }
 
-  fd = open(path_ptr, oflag);
+  fd = open(path_ptr, oflag, 0666);
   if (fd < 0)
     {
       MONKEY_LOG_ERROR("open %s failed: %d", path_ptr, errno);
