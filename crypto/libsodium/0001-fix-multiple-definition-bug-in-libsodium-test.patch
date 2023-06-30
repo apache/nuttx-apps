@@ -1,0 +1,37 @@
+From a0d59e038db8eb305d449ccbfe05fec839c487ba Mon Sep 17 00:00:00 2001
+From: makejian <makejian@xiaomi.com>
+Date: Mon, 3 Jul 2023 13:44:46 +0800
+Subject: [PATCH] fix multiple definition bug in libsodium test
+
+ld: /home/mina/work_profile/vela/nuttx/staging/libapps.a(pwhash_scrypt_ll.c.home.mina.work_profile.vela.apps.crypto.libsodium.o): in function `xmain':
+/home/mina/work_profile/vela/apps/crypto/libsodium/libsodium/test/default/pwhash_scrypt_ll.c:53: multiple definition of `xmain'; /home/mina/work_profile/vela/nuttx/staging/libapps.a(scalarmult6.c.home.mina.work_profile.vela.apps.crypto.libsodium.o):/home/mina/work_profile/vela/apps/crypto/libsodium/libsodium/test/default/scalarmult6.c:19: first defined here
+Change-Id: If818aa076fc51554a2232e63c01ddd5dc017f466
+Signed-off-by: makejian <makejian@xiaomi.com>
+---
+ test/default/cmptest.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git libsodium/test/default/cmptest.h libsodium/test/default/cmptest.h
+index 54a02070..86745f16 100644
+--- libsodium/test/default/cmptest.h
++++ libsodium/test/default/cmptest.h
+@@ -33,7 +33,7 @@
+ # define rand(X) arc4random(X)
+ #endif
+ 
+-int xmain(void);
++static int xmain(void);
+ 
+ static unsigned char *guard_page;
+ 
+@@ -233,6 +233,6 @@ int main(void)
+ 
+ #endif
+ 
+-#define main xmain
++#define main static xmain
+ 
+ #endif
+-- 
+2.40.0
+

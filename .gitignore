@@ -38,3 +38,4 @@ Make.dep
 .vscode
 .DS_Store
 testing/nist-sts/*
+crypto/libsodium/*
