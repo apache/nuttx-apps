@@ -207,4 +207,5 @@ void recursive_mutex_test(void)
     }
 
   printf("recursive_mutex_test: Complete\n");
+  pthread_mutex_destroy(&mut);
 }
