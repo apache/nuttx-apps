@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig LIBSODIUM
+	bool "Libsodium Cryptography Library"
+	default n
+	---help---
+		Enable support for Libsodium.
+
+if LIBSODIUM
+
+config LIBSODIUM_VERSION
+	string "Libsodium Version"
+	default "1.0.18"
+
+config LIBSODIUM_TEST
+	tristate "Enable Libsodium test"
+	default n
+	help
+		Enable the Libsodium test.
+
+if LIBSODIUM_TEST
+
+config LIBSODIUM_TEST_PRIORITY
+	int "Libsodium test priority"
+	default 100
+
+config LIBSODIUM_TEST_STACKSIZE
+	int "Libsodium test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # LIBSODIUM_TEST
+
+endif # LIBSODIUM

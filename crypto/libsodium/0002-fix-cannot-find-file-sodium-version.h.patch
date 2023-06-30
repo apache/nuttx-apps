@@ -1,0 +1,55 @@
+From a98a4eb8b65bc4e84ea75a568b00f4662a2dd7f7 Mon Sep 17 00:00:00 2001
+From: makejian <makejian@xiaomi.com>
+Date: Mon, 3 Jul 2023 14:30:06 +0800
+Subject: [PATCH] fix 'cannot find file sodium/version.h'
+
+version.h is generated from version.h.in in the original library
+Change-Id: Ia96d0da80c3ba44243d4965c35b8c2961fc90a2c
+Signed-off-by: makejian <makejian@xiaomi.com>
+---
+ src/libsodium/include/sodium/version.h | 33 ++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+ create mode 100644 src/libsodium/include/sodium/version.h
+
+diff --git libsodium/src/libsodium/include/sodium/version.h libsodium/src/libsodium/include/sodium/version.h
+new file mode 100644
+index 00000000..e1f24c52
+--- /dev/null
++++ libsodium/src/libsodium/include/sodium/version.h
+@@ -0,0 +1,33 @@
++
++#ifndef sodium_version_H
++#define sodium_version_H
++
++#include "export.h"
++
++#define SODIUM_VERSION_STRING "1.0.18"
++
++#define SODIUM_LIBRARY_VERSION_MAJOR 11
++#define SODIUM_LIBRARY_VERSION_MINOR 0
++
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++SODIUM_EXPORT
++const char *sodium_version_string(void);
++
++SODIUM_EXPORT
++int         sodium_library_version_major(void);
++
++SODIUM_EXPORT
++int         sodium_library_version_minor(void);
++
++SODIUM_EXPORT
++int         sodium_library_minimal(void);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+-- 
+2.40.0
+
