@@ -262,7 +262,7 @@ int main(int argc, FAR char *argv[])
 
   /* Make sure that we are using our symbol tablee */
 
-  symdesc.symtab   = (FAR struct symtab_s *)g_spawn_exports; /* Discard 'const' */
+  symdesc.symtab   = g_spawn_exports;
   symdesc.nsymbols = g_spawn_nexports;
   boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 

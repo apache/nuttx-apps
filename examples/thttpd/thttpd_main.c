@@ -165,7 +165,7 @@
  */
 
 FAR const struct symtab_s *g_thttpdsymtab;
-int                         g_thttpdnsymbols;
+int                        g_thttpdnsymbols;
 #endif
 
 /****************************************************************************
