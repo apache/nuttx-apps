@@ -135,7 +135,7 @@ void nsh_initialize(void)
 #if defined(CONFIG_NSH_SYMTAB)
   /* Make sure that we are using our symbol table */
 
-  symdesc.symtab   = (FAR struct symtab_s *)CONFIG_NSH_SYMTAB_ARRAYNAME; /* Discard 'const' */
+  symdesc.symtab   = CONFIG_NSH_SYMTAB_ARRAYNAME;
   symdesc.nsymbols = CONFIG_NSH_SYMTAB_COUNTNAME;
 
   boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);

@@ -57,7 +57,6 @@
 #include <arpa/inet.h>
 
 #include <nuttx/compiler.h>
-#include <nuttx/symtab.h>
 #include "netutils/thttpd.h"
 
 #include "config.h"

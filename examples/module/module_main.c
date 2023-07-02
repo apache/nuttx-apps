@@ -153,7 +153,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_BUILD_FLAT
   /* Set the OS symbol table indirectly through the boardctl() */
 
-  symdesc.symtab   = (FAR struct symtab_s *)g_mod_exports;
+  symdesc.symtab   = g_mod_exports;
   symdesc.nsymbols = g_mod_nexports;
   ret = boardctl(BOARDIOC_OS_SYMTAB, (uintptr_t)&symdesc);
   if (ret < 0)
