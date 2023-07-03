@@ -64,7 +64,7 @@ print_sensor_gps_satellite_message(FAR const struct orb_metadata *meta,
   for (i = 0; i < message->count; i++)
     {
       uorbinfo_raw("%s:\tnumber:%d svid: %" PRIu32
-                   "elevation: %" PRIu32 "azimuth: %" PRIu32
+                   " elevation: %" PRIu32 " azimuth: %" PRIu32
                    " snr: %" PRIu32 "",
                    meta->o_name, i, message->info[i].svid,
                    message->info[i].elevation, message->info[i].azimuth,
