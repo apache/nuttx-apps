@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <ctype.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -127,14 +128,12 @@ FAR const struct orb_metadata *orb_get_meta(FAR const char *name)
 
   for (i = 0; g_sensor_list[i]; i++)
     {
-      if (!strncmp(g_sensor_list[i]->o_name, name,
-          strlen(g_sensor_list[i]->o_name)))
+      size_t len = strlen(g_sensor_list[i]->o_name);
+      if ((!strncmp(g_sensor_list[i]->o_name, name, len))
+          && (name[len] == '\0' || isdigit(name[len])))
         {
-          if (idx == -1 || strlen(g_sensor_list[idx]->o_name) <
-                           strlen(g_sensor_list[i]->o_name))
-            {
-              idx = i;
-            }
+          idx = i;
+          break;
         }
     }
 
