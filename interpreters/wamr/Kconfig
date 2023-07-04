@@ -165,4 +165,12 @@ config INTERPRETERS_WAMR_GLOBAL_HEAP_POOL_SIZE
 
 endif
 
+config INTERPRETERS_WAMR_CONFIGUABLE_BOUNDS_CHECKS
+	bool "Configuable bounds checks"
+	default n
+	---help---
+		Bounds checks enabled by default. With this option, you can
+		disable bounds checks passing --disable-bounds-checks to
+		iwasm.
+
 endif
