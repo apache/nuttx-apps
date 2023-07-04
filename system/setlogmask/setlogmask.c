@@ -24,11 +24,17 @@
 
 #include <nuttx/config.h>
 
+#include <fcntl.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <syslog.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+
+#include <nuttx/syslog/syslog.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -50,9 +56,77 @@
  * Name: show_usage
  ****************************************************************************/
 
+#ifdef CONFIG_SYSLOG_IOCTL
+static int print_channels(void)
+{
+  struct syslog_channel_info_s info[CONFIG_SYSLOG_MAX_CHANNELS];
+  int ret;
+  int fd;
+  int i;
+
+  fd = open("/dev/log", O_WRONLY);
+  if (fd < 0)
+    {
+      perror("Failed to open /dev/log");
+      return EXIT_FAILURE;
+    }
+
+  memset(info, 0, sizeof(info));
+  ret = ioctl(fd, SYSLOGIOC_GETCHANNELS, &info);
+  if (ret < 0)
+    {
+      perror("Failed to get channels");
+      return EXIT_FAILURE;
+    }
+
+  printf("Channels:\n");
+  for (i = 0; i < CONFIG_SYSLOG_MAX_CHANNELS; i++)
+    {
+      if (info[i].sc_name[0] == '\0')
+        {
+          break;
+        }
+
+      printf("  %s: %s\n", info[i].sc_name,
+             info[i].sc_disable ? "disable" : "enable");
+    }
+
+  return ret;
+}
+
+static int disable_channel(FAR const char *name, bool disable)
+{
+  struct syslog_channel_info_s info;
+  int ret;
+  int fd;
+
+  fd = open("/dev/log", O_WRONLY);
+  if (fd < 0)
+    {
+      perror("Failed to open /dev/log");
+      return EXIT_FAILURE;
+    }
+
+  info.sc_disable = disable;
+  strlcpy(info.sc_name, name, sizeof(info.sc_name));
+  ret = ioctl(fd, SYSLOGIOC_SETFILTER, (unsigned long)&info);
+  if (ret < 0)
+    {
+      perror("Failed to set filter");
+    }
+
+  close(fd);
+  return ret;
+}
+#endif
+
 static void show_usage(FAR const char *progname, int exitcode)
 {
   printf("\nUsage: %s <d|i|n|w|e|c|a|r>\n", progname);
+#ifdef CONFIG_SYSLOG_IOCTL
+  printf("       %s list\n", progname);
+  printf("       %s <enable/disable> <channel>\n", progname);
+#endif
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
   printf("  d=DEBUG\n");
@@ -76,6 +150,29 @@ int main(int argc, FAR char *argv[])
     {
       show_usage(argv[0], EXIT_FAILURE);
     }
+
+#ifdef CONFIG_SYSLOG_IOCTL
+  if (strcmp(argv[1], "list") == 0)
+    {
+      print_channels();
+      return EXIT_SUCCESS;
+    }
+  else if (argc == 3)
+    {
+      if (strcmp(argv[1], "enable") == 0)
+        {
+          return disable_channel(argv[2], false);
+        }
+      else if (strcmp(argv[1], "disable") == 0)
+        {
+          return disable_channel(argv[2], true);
+        }
+      else
+        {
+          show_usage(argv[0], EXIT_FAILURE);
+        }
+    }
+#endif
 
   switch (*argv[1])
     {
