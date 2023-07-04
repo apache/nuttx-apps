@@ -323,7 +323,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_LS
-  CMD_MAP("ls",       cmd_ls,       1, 5, "[-lRs] <dir-path>"),
+  CMD_MAP("ls",       cmd_ls,       1, 5, "[-lRsh] <dir-path>"),
 #endif
 
 #if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)

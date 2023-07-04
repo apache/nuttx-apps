@@ -83,6 +83,11 @@
 #define LSFLAGS_SIZE          1
 #define LSFLAGS_LONG          2
 #define LSFLAGS_RECURSIVE     4
+#define LSFLAGS_HUMANREADBLE  16
+
+#define KB                   (1UL << 10)
+#define MB                   (1UL << 20)
+#define GB                   (1UL << 30)
 
 /****************************************************************************
  * Private Functions
@@ -251,7 +256,25 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
       if ((lsflags & LSFLAGS_SIZE) != 0)
         {
-          nsh_output(vtbl, "%8" PRIdOFF, buf.st_size);
+          if (lsflags & LSFLAGS_HUMANREADBLE && buf.st_size >= KB)
+            {
+              if (buf.st_size >= GB)
+                {
+                  nsh_output(vtbl, "%7.1fG", (float)buf.st_size / GB);
+                }
+              else if (buf.st_size >= MB)
+                {
+                  nsh_output(vtbl, "%7.1fM", (float)buf.st_size / MB);
+                }
+              else
+                {
+                  nsh_output(vtbl, "%7.1fK", (float)buf.st_size / KB);
+                }
+            }
+          else
+            {
+              nsh_output(vtbl, "%8" PRIdOFF, buf.st_size);
+            }
         }
     }
 
@@ -1255,7 +1278,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Get the ls options */
 
   int option;
-  while ((option = getopt(argc, argv, "lRs")) != ERROR)
+  while ((option = getopt(argc, argv, "lRsh")) != ERROR)
     {
       switch (option)
         {
@@ -1269,6 +1292,10 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
           case 's':
             lsflags |= LSFLAGS_SIZE;
+            break;
+
+          case 'h':
+            lsflags |= LSFLAGS_HUMANREADBLE;
             break;
 
           case '?':
