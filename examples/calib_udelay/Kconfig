@@ -22,4 +22,10 @@ config EXAMPLES_CALIB_UDELAY_NUM_RESULTS
 	int "Number of results to generate for calibration slope"
 	default 20
 
+config EXAMPLES_CALIB_UDELAY_DELAY_TEST_ITERATIONS
+	int "Delay loop interrations per test."
+	default 100000
+	---help---
+		Lower numbers decrease the time taken for the test to complete,
+		but may reduce the accuracy of the results.
 endif
