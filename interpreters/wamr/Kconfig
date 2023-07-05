@@ -112,9 +112,17 @@ config INTERPRETERS_WAMR_THREAD_MGR
 	bool "Enable thread manager"
 	default n
 
-config INTERPRETERS_WAMR_LIB_PTHREAD
-	bool "Enable lib pthread"
+config INTERPRETERS_WAMR_LIB_WASI_THREADS
+	bool "Enable wasi-threads"
 	default n
+	---help---
+	See https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/doc/pthread_impls.md
+
+config INTERPRETERS_WAMR_LIB_PTHREAD
+	bool "Enable lib pthread (legacy)"
+	default n
+	---help---
+	See https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/doc/pthread_impls.md
 
 config INTERPRETERS_WAMR_LIB_PTHREAD_SEMAPHORE
 	bool "Enable semaphore"
