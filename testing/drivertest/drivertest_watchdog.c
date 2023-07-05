@@ -324,7 +324,7 @@ static void test_case_wdog_01(FAR void **state)
     {
       /* Sleep for the requested amount of time */
 
-      usleep(wdg_state->pingdelay * 1000);
+      up_udelay(wdg_state->pingdelay * 1000);
 
       /* Then ping */
 
@@ -334,9 +334,11 @@ static void test_case_wdog_01(FAR void **state)
 
   /* Then stop pinging */
 
-  /* Sleep for the requested amount of time */
+  /* Sleep for the requested amount of time, use up_udelay prevent system
+   * into low power mode and watchdog be pause cannot trigger restart.
+   */
 
-  usleep(2 * wdg_state->timeout * 1000);
+  up_udelay(2 * wdg_state->timeout * 1000);
 
   assert_true(false);
 }
@@ -456,9 +458,11 @@ static void test_case_wdog_04(FAR void **state)
 
   while (get_time_elaps(start_ms) < wdg_state->pingtime)
     {
-      /* Sleep for the requested amount of time */
+      /* Sleep for the requested amount of time, use up_udelay prevent
+       * system into low power mode and watchdog be pause stop count.
+       */
 
-      usleep(wdg_state->pingdelay * 1000);
+      up_udelay(wdg_state->pingdelay * 1000);
 
       if (wdg_state->test_getstatus)
         {
