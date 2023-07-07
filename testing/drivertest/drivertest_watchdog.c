@@ -78,6 +78,7 @@ struct wdg_state_s
   uint32_t pingtime;
   uint32_t pingdelay;
   uint32_t timeout;
+  uint32_t deviation;
   int test_case;
 };
 
@@ -160,7 +161,7 @@ static void show_usage(FAR const char *progname,
                        FAR struct wdg_state_s *wdg_state, int exitcode)
 {
   printf("Usage: %s -d <devpath> -r <test case> -t <pingtime>"
-         "-l <pingdelay> -o <timeout>\n", progname);
+         "-l <pingdelay> -o <timeout> -a <deviation>\n", progname);
   printf("  [-d devpath] selects the WATCHDOG device.\n"
          "  Default: %s Current: %s\n", WDG_DEFAULT_DEV_PATH,
          wdg_state->devpath);
@@ -176,6 +177,9 @@ static void show_usage(FAR const char *progname,
   printf("  [-o timeout] Time in milliseconds that the testcase will\n"
          "  Default: %d Current: %" PRIu32 "\n",
          WDG_DEFAULT_TIMEOUT, wdg_state->timeout);
+  printf("  [-a deviation] Watchdog getstatus precision.\n"
+         "  Default: %d Current: %" PRIu32 "\n",
+         WDG_DEFAULT_DEVIATION, wdg_state->deviation);
   printf("  [-h] = Shows this message and exits\n");
 
   exit(exitcode);
@@ -191,7 +195,7 @@ static void parse_commandline(FAR struct wdg_state_s *wdg_state, int argc,
   int ch;
   int converted;
 
-  while ((ch = getopt(argc, argv, "d:r:t:l:o:h")) != ERROR)
+  while ((ch = getopt(argc, argv, "d:r:t:l:o:a:h")) != ERROR)
     {
       switch (ch)
         {
@@ -240,11 +244,22 @@ static void parse_commandline(FAR struct wdg_state_s *wdg_state, int argc,
             OPTARG_TO_VALUE(converted, uint32_t, 10);
             if (converted < 1 || converted > INT_MAX)
               {
-                printf("signal out of range: %d", converted);
+                printf("signal out of range: %d\n", converted);
                 show_usage(argv[0], wdg_state, EXIT_FAILURE);
               }
 
             wdg_state->timeout = (uint32_t)converted;
+            break;
+
+          case 'a':
+            OPTARG_TO_VALUE(converted, uint32_t, 10);
+            if (converted < 1 || converted > INT_MAX)
+              {
+                printf("signal out of range: %d\n", converted);
+                show_usage(argv[0], wdg_state, EXIT_FAILURE);
+              }
+
+            wdg_state->deviation = (uint32_t)converted;
             break;
 
           case '?':
@@ -437,8 +452,9 @@ static void test_case_wdog_04(FAR void **state)
 
       assert_int_equal(status.timeout, wdg_state->timeout);
       assert_in_range(
-        status.timeout - status.timeleft - wdg_state->pingdelay,
-        0, WDG_DEFAULT_DEVIATION);
+        status.timeout - status.timeleft,
+        wdg_state->pingdelay - wdg_state->deviation,
+        wdg_state->pingdelay + wdg_state->deviation);
 
       /* Then ping */
 
@@ -471,7 +487,8 @@ int main(int argc, FAR char *argv[])
     .pingtime = WDG_DEFAULT_PINGTIMER,
     .pingdelay = WDG_DEFAULT_PINGDELAY,
     .timeout = WDG_DEFAULT_TIMEOUT,
-    .test_case = WDG_DEFAULT_TESTCASE
+    .test_case = WDG_DEFAULT_TESTCASE,
+    .deviation = WDG_DEFAULT_DEVIATION
   };
 
   parse_commandline(&wdg_state, argc, argv);
