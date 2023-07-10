@@ -18,6 +18,14 @@
 #
 # ##############################################################################
 
+# ~~~
+# Important note:
+# This CMakeLists.txt is not meant as a top-level CMakeLists.txt. Instead,
+# CMake must be run using the top-level CMakeLists.txt from the nuttx
+# repository and point to this directory via NUTTX_APPS_DIR. For example:
+#   cmake -S <nuttx-dir> -B <build-dir> [...] -DNUTTX_APPS_DIR=<apps-dir>
+# ~~~
+
 if(CONFIG_APPS_DIR)
   nuttx_add_library(apps)
   if(NOT EXISTS {NUTTX_APPS_BINDIR}/dummy.c)
