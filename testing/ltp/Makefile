@@ -122,6 +122,78 @@ ifeq ($(CONFIG_PTHREAD_SPINLOCKS),)
 BLACKSRCS += 3-12-buildonly.c
 endif
 BLACKSRCS += 35-3-buildonly.c
+ifeq ($(CONFIG_SCHED_CHILD_STATUS),)
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/6-1.c
+BLACKSRCS += $(TESTDIR)/conformance/behavior/WIFEXITED/1-1.c
+BLACKSRCS += $(TESTDIR)/conformance/behavior/WIFEXITED/1-2.c
+endif
+ifeq ($(CONFIG_FS_TMPFS),)
+BLACKWORDS += lio_listio
+endif
+ifeq ($(CONFIG_SIG_EVTHREAD),)
+BLACKWORDS += fork
+endif
+ifneq ($(shell expr $(CONFIG_MQ_MAXMSGSIZE) \>= 64),1)
+BLACKWORDS += mq_close
+BLACKWORDS += mq_getattr
+BLACKWORDS += mq_notify
+BLACKWORDS += mq_open
+BLACKWORDS += mq_receive
+BLACKWORDS += mq_send
+BLACKWORDS += mq_setattr
+BLACKWORDS += mq_timedreceive
+BLACKWORDS += mq_timedsend
+BLACKWORDS += mq_unlink
+endif
+ifeq ($(CONFIG_PTHREAD_MUTEX_TYPES),)
+BLACKWORDS += pthread_mutexattr_settype
+endif
+ifeq ($(CONFIG_SCHED_SPORADIC),)
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/sched_setscheduler/19-2.c
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/sched_setscheduler/19-3.c
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/sched_setscheduler/19-4.c
+endif
+ifeq ($(CONFIG_SIG_DEFAULT),)
+BLACKWORDS += SIGKILL
+BLACKWORDS += SIGSTOP
+endif
+ifeq ($(CONFIG_RR_INTERVAL),)
+BLACKSRCS += $(TESTDIR)/functional/threads/condvar/pthread_cond_wait_1.c
+endif
+ifeq ($(CONFIG_FS_NAMED_SEMAPHORES),)
+BLACKWORDS += sem_open
+BLACKWORDS += sem_close
+BLACKWORDS += sem_unlink
+endif
+ifeq ($(CONFIG_PIPES),)
+BLACKWORDS += pipe
+endif
+ifneq ($(shell expr $(CONFIG_LIBC_MAX_EXITFUNS) \>= 32),1)
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/4-1.c
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/5-1.c
+endif
+ifeq ($(CONFIG_CANCELLATION_POINTS),)
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/3-1.c
+endif
+ifneq ($(shell expr $(CONFIG_TLS_NELEM) \>= 16),1)
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_setspecific/1-1.c
+endif
+ifeq ($(CONFIG_PTHREAD_SPINLOCKS),)
+BLACKWORDS += pthread_spin_lock
+endif
+ifeq ($(CONFIG_SCHED_WAITPID),)
+BLACKWORDS += waitpid
+endif
+ifeq ($(CONFIG_SCHED_USER_IDENTITY),)
+BLACKWORDS += setuid
+BLACKWORDS += setgid
+BLACKWORDS += getuid
+BLACKWORDS += getgid
+BLACKWORDS += seteuid
+BLACKWORDS += setegid
+BLACKWORDS += geteuid
+BLACKWORDS += getegid
+endif
 
 MAINWORDS    += "main("
 
