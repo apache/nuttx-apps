@@ -32,89 +32,39 @@ ifeq ($(CONFIG_FS_AIO),)
 BLACKWORDS  += "aio.h"
 BLACKWORDS  += "SIGPOLL"
 endif
-BLACKWORDS  += "SA_RESTART"
-BLACKWORDS  += "pthread_atfork"
-BLACKWORDS  += "pthread_condattr_setpshared"
-BLACKWORDS  += "pthread_condattr_getpshared"
-BLACKWORDS  += "pthread_mutex_getprioceiling"
 BLACKWORDS  += "pthread_mutexattr_setprioceiling"
 BLACKWORDS  += "pthread_mutexattr_getprioceiling"
 BLACKWORDS  += "pthread_getattr_np"
-BLACKWORDS  += "pthread_getcpuclockid"
-BLACKWORDS  += "pthread_rwlockattr_init"
-BLACKWORDS  += "pthread_rwlockattr_destroy"
 BLACKWORDS  += "pthread_mutex_getprioceiling"
-BLACKWORDS  += "clock_getcpuclockid"
-BLACKWORDS  += "shm_unlink"
-BLACKWORDS  += "shm_open"
-BLACKWORDS  += "mlock"
-BLACKWORDS  += "munlock"
-BLACKWORDS  += "mlockall"
-BLACKWORDS  += "msync"
-BLACKWORDS  += "getpgrp"
-BLACKWORDS  += "lfind"
-BLACKWORDS += "killpg"
-BLACKWORDS  += "setpwent"
 ifeq ($(CONFIG_PTHREAD_SPINLOCKS),)
-BLACKWORDS += "pthread_spin_init"
-BLACKWORDS += "pthread_spin_destroy"
-BLACKWORDS += "pthread_spin_trylock"
+BLACKWORDS  += "pthread_spin_init"
+BLACKWORDS  += "pthread_spin_destroy"
+BLACKWORDS  += "pthread_spin_trylock"
 endif
 
-BLACKWORDS  += "affinity.h"
-BLACKWORDS  += "langinfo.h"
-BLACKWORDS  += "ucontext.h"
-BLACKWORDS  += "noatime.h"
-BLACKWORDS  += "CLOCK_PROCESS_CPUTIME_ID"
-BLACKWORDS  += "CLOCK_THREAD_CPUTIME_ID"
-BLACKWORDS  += "fork()"
-BLACKWORDS  += "pthread_attr_setscope"
-BLACKWORDS  += "RLIMIT_MEMLOCK"
+BLACKWORDS  += "CHILD_MAX"
+BLACKWORDS  += "setpgid("
 BLACKWORDS  += "PTHREAD_SCOPE_PROCESS"
-BLACKWORDS  += "SIGABRT"
-BLACKWORDS  += "SIGBUS"
-BLACKWORDS  += "SIGFPE"
-BLACKWORDS  += "SIGHUP"
-BLACKWORDS  += "SIGILL"
-BLACKWORDS  += "SIGPROF"
-BLACKWORDS  += "SIGSEGV"
-BLACKWORDS  += "SIGSYS"
-BLACKWORDS  += "SIGTRAP"
-BLACKWORDS  += "SIGTSTP"
-BLACKWORDS  += "SIGTTIN"
-BLACKWORDS  += "SIGTTOU"
-BLACKWORDS  += "SIGURG"
-BLACKWORDS  += "SIGVTALRM"
-BLACKWORDS  += "SIGXCPU"
-BLACKWORDS  += "SIGXFSZ"
-BLACKWORDS  += "SIGSTKSZ"
-BLACKWORDS  += "stack_t"
-BLACKWORDS  += "siginterrupt"
+BLACKWORDS  += "setpgrp"
 BLACKWORDS  += "threads_scenarii.c"
-BLACKWORDS  += "PTHREAD_PRIO_PROTECT"
 BLACKWORDS  += "pthread_mutex_lock"
+BLACKWORDS  += "ucontext.h"
 
-BLACKWORDS  += "ILL_[A-Z]"
-BLACKWORDS  += "FPE_[A-Z]"
-BLACKWORDS  += "BUS_[A-Z]"
-BLACKWORDS  += "TRAP_[A-Z]"
-BLACKWORDS  += "SEGV_[A-Z]"
-BLACKWORDS  += "POLL_[A-Z]"
-BLACKWORDS  += "SA_ONSTACK"
-BLACKWORDS  += "MINSIGSTKSZ"
-BLACKWORDS  += "FPE_FLTINV"
+BLACKWORDS  += "msync"
+BLACKWORDS  += "lfind"
 
-BLACKSRCS += 19-1-buildonly.c
-BLACKSRCS += 21-1-buildonly.c
-BLACKSRCS += 27-1-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/19-1-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/signal_h/21-1-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/signal_h/27-1-buildonly.c
 ifeq ($(CONFIG_LIBC_LOCALTIME),)
-BLACKSRCS += 34-1-buildonly.c
-BLACKSRCS += 35-3-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/34-1-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/35-3-buildonly.c
 endif
-BLACKSRCS += 35-1-buildonly.c
-BLACKSRCS += 35-2-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/35-1-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/35-2-buildonly.c
+BLACKSRCS += $(TESTDIR)/stress/threads/pthread_kill/stress.c
 ifeq ($(CONFIG_PTHREAD_SPINLOCKS),)
-BLACKSRCS += 3-12-buildonly.c
+BLACKSRCS += $(TESTDIR)/conformance/definitions/pthread_h/3-12-buildonly.c
 endif
 ifeq ($(CONFIG_SCHED_CHILD_STATUS),)
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/6-1.c
@@ -266,6 +216,7 @@ endif
 # Relax warning checks to avoid expected compile errors:
 CFLAGS += -Wno-strict-prototypes -Wno-return-type -Wno-format -Wno-uninitialized
 CFLAGS += -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable -Wno-unused-value
+CFLAGS += -Wno-int-conversion -Wno-shadow
 
 # Should be removed if possible in the future
 CFLAGS += -Wno-incompatible-pointer-types -Wno-overflow -Wno-int-to-pointer-cast
