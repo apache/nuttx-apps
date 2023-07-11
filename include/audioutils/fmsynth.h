@@ -43,6 +43,7 @@
 
 typedef struct fmsynth_sound_s
 {
+  int own_allocate;
   int phase_time;
   int max_phase_time;
   int volume;
@@ -64,6 +65,8 @@ extern "C"
 
 int fmsynth_initialize(int fs);
 FAR fmsynth_sound_t *fmsynthsnd_create(void);
+FAR fmsynth_sound_t *create_fmsynthsnd(FAR fmsynth_sound_t *);
+void fmsynthsnd_stop(FAR fmsynth_sound_t *snd);
 void fmsynthsnd_delete(FAR fmsynth_sound_t *snd);
 int fmsynthsnd_set_operator(FAR fmsynth_sound_t *snd, FAR fmsynth_op_t *op);
 void fmsynthsnd_set_soundfreq(FAR fmsynth_sound_t *snd, float freq);
