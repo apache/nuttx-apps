@@ -58,6 +58,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
   char path[ORB_PATH_MAX];
   int fd;
   int ret;
+  int err;
 
   snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", meta->o_name,
            instance);
@@ -83,8 +84,9 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       /* Register new device node */
 
       ret = ioctl(fd, SNIOC_REGISTER, (unsigned long)(uintptr_t)&reginfo);
+      err = errno;
       close(fd);
-      if (ret < 0 && ret != -EEXIST)
+      if (ret < 0 && err != EEXIST)
         {
           return ret;
         }
@@ -95,7 +97,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
           return fd;
         }
 
-      if (ret != -EEXIST)
+      if (err != EEXIST)
         {
           ioctl(fd, SNIOC_SET_USERPRIV, (unsigned long)(uintptr_t)meta);
         }
