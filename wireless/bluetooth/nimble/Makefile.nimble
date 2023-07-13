@@ -38,7 +38,7 @@ NIMBLE_IGNORE += $(NIMBLE_ROOT)/porting/nimble/src/os_cputime_pwr2.c
 
 # include NimBLE porting defs
 
-include $(NIMBLE_ROOT)/porting/nimble/Makefile.defs
+-include $(NIMBLE_ROOT)/porting/nimble/Makefile.defs
 
 CSRCS += $(NIMBLE_SRC)
 
