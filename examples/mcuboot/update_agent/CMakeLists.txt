@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/boot/CMakeLists.txt
+# apps/examples/mcuboot/update_agent/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,9 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-
-nuttx_generate_kconfig(MENUDESC "Bootloader Utilities")
+if(CONFIG_EXAMPLES_MCUBOOT_UPDATE_AGENT)
+  nuttx_add_application(
+    NAME mcuboot_agent
+    SRCS ${CMAKE_CURRENT_LIST_DIR}/mcuboot_agent_main.c
+    DEPENDS mcuboot)
+endif()

@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/boot/CMakeLists.txt
+# apps/examples/mcuboot/slot_confirm/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,9 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-
-nuttx_generate_kconfig(MENUDESC "Bootloader Utilities")
+if(CONFIG_EXAMPLES_MCUBOOT_SLOT_CONFIRM)
+  nuttx_add_application(
+    NAME mcuboot_confirm2
+    SRCS ${CMAKE_CURRENT_LIST_DIR}/mcuboot_confirm_main.c
+    DEPENDS mcuboot)
+endif()

@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/boot/CMakeLists.txt
+# apps/examples/mcuboot/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -20,4 +20,4 @@
 
 nuttx_add_subdirectory()
 
-nuttx_generate_kconfig(MENUDESC "Bootloader Utilities")
+nuttx_generate_kconfig(MENUDESC "MCUboot Examples")
