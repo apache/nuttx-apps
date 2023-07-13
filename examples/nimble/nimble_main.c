@@ -59,7 +59,7 @@
 
 /* Not used now */
 
-#define TASK_DEFAULT_PRIORITY       0
+#define TASK_DEFAULT_PRIORITY       CONFIG_EXAMPLES_NIMBLE_PRIORITY
 #define TASK_DEFAULT_STACK          NULL
 #define TASK_DEFAULT_STACK_SIZE     0
 
@@ -67,7 +67,7 @@
  * External Functions Prototypes
  ****************************************************************************/
 
-void ble_hci_sock_ack_handler(void *param);
+void ble_hci_sock_ack_handler(FAR void *param);
 void ble_hci_sock_init(void);
 void ble_hci_sock_set_device(int dev);
 
