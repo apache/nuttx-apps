@@ -14,6 +14,10 @@ config NIMBLE_REF
 	---help---
 		Git ref name to use when downloading from NimBLE repo
 
+config NIMBLE_CALLOUT_THREAD_STACKSIZE
+	int "Stack size of NimBLE NPL callout thread"
+	default DEFAULT_TASK_STACKSIZE
+
 if DEBUG_FEATURES
 
 config NIMBLE_DEBUG_ERROR
