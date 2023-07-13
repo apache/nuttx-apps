@@ -42,6 +42,8 @@
 #include <errno.h>
 #include <debug.h>
 
+#include "nsh.h"
+
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #  include <sys/mount.h>
 #  include <sys/boardctl.h>

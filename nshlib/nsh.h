@@ -571,9 +571,9 @@
 #  undef NSH_HAVE_READFILE
 #endif
 
-/* nsh_foreach_direntry used by the ls and ps commands */
+/* nsh_foreach_direntry used by the ls and ps and fdinfo commands */
 
-#if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_PS)
+#if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_PS) && defined(CONFIG_NSH_DISABLE_FDINFO)
 #  undef NSH_HAVE_FOREACH_DIRENTRY
 #endif
 
