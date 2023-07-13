@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/boot/CMakeLists.txt
+# apps/boot/miniboot/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,10 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-
-nuttx_generate_kconfig(MENUDESC "Bootloader Utilities")
+if(CONFIG_BOOT_MINIBOOT)
+  nuttx_add_application(
+    NAME
+    miniboot
+    SRCS
+    miniboot_main.c)
+endif()

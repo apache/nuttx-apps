@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/boot/CMakeLists.txt
+# apps/examples/mcuboot/swap_test/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,19 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+if(CONFIG_EXAMPLES_MCUBOOT_SWAP_TEST)
+  nuttx_add_application(
+    NAME mcuboot_confirm
+    SRCS ${CMAKE_CURRENT_LIST_DIR}/confirm_main.c
+    DEPENDS mcuboot)
 
-nuttx_generate_kconfig(MENUDESC "Bootloader Utilities")
+  nuttx_add_application(
+    NAME mcuboot_set_img
+    SRCS ${CMAKE_CURRENT_LIST_DIR}/set_img_main.c
+    DEPENDS mcuboot)
+
+  nuttx_add_application(
+    NAME mcuboot_version
+    SRCS ${CMAKE_CURRENT_LIST_DIR}/version_main.c
+    DEPENDS mcuboot)
+endif()
