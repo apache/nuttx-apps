@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <debug.h>
 
 #include <sys/random.h>
 #include <sys/stat.h>
@@ -474,6 +475,12 @@ int main(int argc, FAR char **argv)
         }
 
       ret = verify_gpt_pratition(ptbl);
+      if (ret < 0)
+        {
+          lib_dumpbuffer("Dump GPT partition:", (FAR uint8_t *)ptbl,
+                         sizeof(*ptbl));
+        }
+
       goto out;
     }
 
