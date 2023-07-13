@@ -19,5 +19,5 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_MTDPART)
-  nuttx_add_application(NAME mtdpart)
+  nuttx_add_application(NAME mtdpart SRCS mtdpart_main.c)
 endif()

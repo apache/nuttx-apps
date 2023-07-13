@@ -19,9 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_NXPLAYER)
+  # NxPlayer Library
+
   if(CONFIG_NXPLAYER_COMMAND_LINE)
     nuttx_add_application(NAME nxplayer SRCS nxplayer_main.c STACKSIZE
                           ${CONFIG_NXPLAYER_MAINTHREAD_STACKSIZE})
   endif()
   target_sources(apps PRIVATE nxplayer.c)
+
+  set(CSRCS nxplayer.c nxplayer_common.c nxplayer_mp3.c)
+
+  target_sources(apps PRIVATE ${CSRCS})
 endif()

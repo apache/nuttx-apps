@@ -21,8 +21,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(nuttx_tools LANGUAGES C)
 
-set(NUTTX_ACTIVE_DEFCONFIG ${NUTTX_BINARY_DIR}/.config)
-include(${NUTTX_DIR}/cmake/kconfig.cmake)
+include(${NUTTX_DIR}/cmake/nuttx_kconfig.cmake)
+nuttx_export_kconfig(${NUTTX_BINARY_DIR}/.config)
 
 set(HOST_SRCS ../nettest_host.c)
 if(CONFIG_EXAMPLES_NETTEST_SERVER)

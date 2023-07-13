@@ -19,5 +19,5 @@
 # ##############################################################################
 
 if(CONFIG_FSUTILS_MKSMARTFS)
-  nuttx_add_application(NAME mksmartfs SRCS mksmartfs.c)
+  target_sources(apps PRIVATE mksmartfs.c)
 endif()

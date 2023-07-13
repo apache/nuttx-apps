@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/fsutils/flash_eraseall/CMakeLists.txt
+# apps/examples/usrsocktest/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,24 @@
 #
 # ##############################################################################
 
-if(CONFIG_FSUTILS_FLASH_ERASEALL)
-  target_sources(apps PRIVATE flash_eraseall.c)
+if(CONFIG_BTSAK)
+
+  # Application info
+
+  nuttx_add_application(
+    NAME
+    ${CONFIG_BTSAK_PROGNAME}
+    SRCS
+    btsak_main.c
+    STACKSIZE
+    ${CONFIG_BTSAK_STACKSIZE}
+    PRIORITY
+    ${CONFIG_BTSAK_PRIORITY})
+
+  # Bluetooth SAK (swiss army knife)
+
+  set(CSRCS btsak_advertise.c btsak_features.c btsak_gatt.c btsak_info.c
+            btsak_scan.c btsak_security.c)
+
+  target_sources(apps PRIVATE ${CSRCS})
 endif()
