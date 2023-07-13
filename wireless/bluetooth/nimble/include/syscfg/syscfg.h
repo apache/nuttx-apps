@@ -56,7 +56,7 @@
 /* Transport configuration */
 
 #define MYNEWT_VAL_BLE_TRANSPORT_ACL_FROM_HS_COUNT     (10)
-#define MYNEWT_VAL_BLE_TRANSPORT_ACL_FROM_LL_COUNT     (0)
+#define MYNEWT_VAL_BLE_TRANSPORT_ACL_FROM_LL_COUNT     (10)
 #define MYNEWT_VAL_BLE_TRANSPORT_ACL_SIZE              (251)
 #define MYNEWT_VAL_BLE_TRANSPORT_EVT_COUNT             (4)
 #define MYNEWT_VAL_BLE_TRANSPORT_EVT_DISCARDABLE_COUNT (16)
@@ -134,7 +134,7 @@
 #endif
 
 #ifdef CONFIG_NIMBLE_BLE_EXT_ADV
-#  define MYNEWT_VAL_BLE_EXT_ADV                           (1)
+#  define MYNEWT_VAL_BLE_EXT_ADV                    (1)
 #  define MYNEWT_VAL_BLE_EXT_ADV_MAX_SIZE           (CONFIG_NIMBLE_BLE_EXT_ADV_MAX_SIZE)
 #else
 #  define MYNEWT_VAL_BLE_EXT_ADV                    (0)
@@ -236,7 +236,7 @@
 #ifdef CONFIG_NIMBLE_BLE_SM_SC
 #  define MYNEWT_VAL_BLE_SM_SC              (1)
 #else
-#  define MYNEWT_VAL_BLE_SM_SC                             (0)
+#  define MYNEWT_VAL_BLE_SM_SC              (0)
 #endif
 
 #ifdef CONFIG_NIMBLE_BLE_SM_SC_DEBUG
