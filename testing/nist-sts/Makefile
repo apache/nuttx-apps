@@ -49,7 +49,8 @@ $(NIST_UNPACKNAME): $(NIST_ZIP)
 MAINSRC   = nist-sts/sts/src/assess.c
 CSRCS     = $(shell find nist-sts/sts/src -name "*.c" ! -name "assess.c")
 CFLAGS   += -Wno-misleading-indentation -Wno-unused-but-set-variable \
-            -Wno-strict-prototypes -Wno-undef -Wno-shadow -Wno-unused-variable
+            -Wno-strict-prototypes -Wno-undef -Wno-shadow -Wno-unused-variable \
+            -Wno-maybe-uninitialized
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(NIST_UNPACKNAME)/.git),)
