@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/fsutils/flash_eraseall/CMakeLists.txt
+# apps/testing/nxffs/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,6 @@
 #
 # ##############################################################################
 
-if(CONFIG_FSUTILS_FLASH_ERASEALL)
-  target_sources(apps PRIVATE flash_eraseall.c)
+if(CONFIG_TESTING_NXFFS)
+  nuttx_add_application(NAME nxffs SRCS nxffs_main.c)
 endif()
