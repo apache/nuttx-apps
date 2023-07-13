@@ -86,6 +86,8 @@ static int pthread_exit_main(int argc, char **argv)
 
   printf("pthread_exit_main %u: ERROR:  Still running\n", me);
   exit(0);
+
+  return 0;
 }
 
 /****************************************************************************
