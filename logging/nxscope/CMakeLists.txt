@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/industry/CMakeLists.txt
+# apps/logging/nxscope/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,20 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+if(CONFIG_LOGGING_NXSCOPE)
+  set(CSRCS nxscope.c nxscope_chan.c nxscope_internals.c)
 
-nuttx_generate_kconfig(MENUDESC "Industrial Applications")
+  if(CONFIG_LOGGING_NXSCOPE_INTF_SERIAL)
+    list(APPEND CSRCS nxscope_iser.c)
+  endif()
+
+  if(CONFIG_LOGGING_NXSCOPE_INTF_DUMMY)
+    list(APPEND CSRCS nxscope_idummy.c)
+  endif()
+
+  if(CONFIG_LOGGING_NXSCOPE_PROTO_SER)
+    list(APPEND CSRCS nxscope_pser.c)
+  endif()
+
+  target_sources(apps PRIVATE ${CSRCS})
+endif()
