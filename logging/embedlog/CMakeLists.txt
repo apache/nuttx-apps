@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/industry/CMakeLists.txt
+# apps/logging/embedlog/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,4 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-
-nuttx_generate_kconfig(MENUDESC "Industrial Applications")
+# TODO
