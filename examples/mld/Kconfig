@@ -29,8 +29,7 @@ config EXAMPLES_MLD_STACKSIZE
 
 config EXAMPLES_MLD_INIT
 	bool "Initialize network"
-	default n if NSH_NETINIT
-	default y if !NSH_NETINIT
+	default !NSH_NETINIT
 	---help---
 		Include logic to initialize the network.  This should not be done if
 		the network is already initialized when nettest runs.  This is

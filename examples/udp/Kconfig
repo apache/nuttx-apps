@@ -70,8 +70,7 @@ config EXAMPLES_UDP_DEVNAME
 
 config EXAMPLES_UDP_NETINIT
 	bool "Initialize network"
-	default n if NSH_NETINIT
-	default y if !NSH_NETINIT
+	default !NSH_NETINIT
 	---help---
 		Selecting this option will enable logic in the example to perform
 		some basic initialization of the network.  You would probably only

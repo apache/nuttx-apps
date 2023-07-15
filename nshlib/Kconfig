@@ -650,8 +650,7 @@ config NSH_DISABLE_XD
 
 config NSH_DISABLE_RESET_CAUSE
 	bool "Disable reset cause"
-	default n if !DEFAULT_SMALL
-	default y if DEFAULT_SMALL
+	default DEFAULT_SMALL
 	depends on BOARDCTL_RESET_CAUSE
 
 endmenu
