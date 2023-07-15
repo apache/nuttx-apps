@@ -459,7 +459,7 @@ static int user_main(int argc, char *argv[])
       pthread_rwlock_cancel_test();
       check_test_memory_usage();
 
-#if defined(CONFIG_PTHREAD_CLEANUP_STACKSIZE) && CONFIG_PTHREAD_CLEANUP_STACKSIZE > 0
+#if CONFIG_PTHREAD_CLEANUP_STACKSIZE > 0
       /* Verify pthread cancellation cleanup handlers */
 
       printf("\nuser_main: pthread_cleanup test\n");
