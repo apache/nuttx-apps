@@ -18,8 +18,7 @@ menu "NX Server/Device Configuration"
 
 config NXWIDGETS_FLICKERFREE
 	bool "Enable Flicker Reduction Logic"
-	default y if NX_LCDDRIVER
-	default n if !NX_LCDDRIVER
+	default NX_LCDDRIVER
 	---help---
 		Because of their performance an in the manner in which they are
 		updated, LCDs may be prone to "flicker" in the displays when Widgets

@@ -124,8 +124,7 @@ comment "Background Image"
 
 config NXWM_DISABLE_BACKGROUND_IMAGE
 	bool "Disable Background Image"
-	default n if !NXWM_DISABLE_MINIMIZE
-	default y if NXWM_DISABLE_MINIMIZE
+	default NXWM_DISABLE_MINIMIZE
 	---help---
 		Disable support for the "Desktop" background image.
 
@@ -465,8 +464,7 @@ menu "NxWM Touchscreen Configuration"
 
 config NXWM_TOUCHSCREEN
 	bool "Touchscreen Support"
-	default y if INPUT
-	default n if !INPUT
+	default INPUT
 	---help---
 		Define to build in touchscreen support.
 
