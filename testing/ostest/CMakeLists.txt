@@ -22,12 +22,15 @@ if(CONFIG_TESTING_OSTEST)
 
   set(SRCS
       getopt.c
-      dev_null.c
       restart.c
       sigprocmask.c
       sighand.c
       signest.c
       sighelper.c)
+
+  if(CONFIG_DEV_NULL)
+    list(APPEND SRCS dev_null.c)
+  endif()
 
   if(CONFIG_SIG_SIGSTOP_ACTION)
     if(CONFIG_SIG_SIGKILL_ACTION)
