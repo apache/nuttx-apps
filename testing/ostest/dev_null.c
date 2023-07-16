@@ -41,7 +41,7 @@ static FAR char buffer[1024];
  * Public Functions
  ****************************************************************************/
 
-int dev_null(void)
+int dev_null_test(void)
 {
   int nbytes;
   int fd;
