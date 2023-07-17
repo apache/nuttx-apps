@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_XTABLES_H
-#define __APPS_INCLUDE_XTABLES_H
+#ifndef __APPS_INCLUDE_NETUTILS_XTABLES_H
+#define __APPS_INCLUDE_NETUTILS_XTABLES_H
 
 /****************************************************************************
  * Included Files
@@ -121,8 +121,9 @@ struct xtables_globals
   FAR const char *program_version;
   FAR struct option *orig_opts;
   FAR struct option *opts;
-  void (*exit_err)(enum xtables_exittype status, FAR const char *msg, ...)
-        __attribute__ ((noreturn, format(printf, 2, 3)));
+  noreturn_function void (*exit_err)(enum xtables_exittype status,
+                                     FAR const char *msg, ...)
+                          printf_like(2, 3);
   int (*compat_rev)(FAR const char *name, uint8_t rev, int opt);
 };
 
@@ -460,35 +461,48 @@ struct xtables_rule_match
  * Public Data
  ****************************************************************************/
 
-extern FAR struct xtables_match *xtables_matches;
-extern FAR struct xtables_target *xtables_targets;
-extern FAR struct xtables_globals *xt_params;
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
+EXTERN FAR struct xtables_match *xtables_matches;
+EXTERN FAR struct xtables_target *xtables_targets;
+EXTERN FAR struct xtables_globals *xt_params;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-extern int xtables_insmod(FAR const char *, FAR const char *, bool);
-extern int xtables_init_all(FAR struct xtables_globals *xtp,
-                            uint8_t nfproto);
-extern uint16_t xtables_parse_protocol(FAR const char *s);
-extern void xtables_option_tpcall(unsigned int, FAR char **, bool,
-                                  FAR struct xtables_target *, FAR void *);
-extern void xtables_option_mpcall(unsigned int, FAR char **, bool,
-                                  FAR struct xtables_match *, FAR void *);
-extern void xtables_option_tfcall(FAR struct xtables_target *);
-extern void xtables_option_mfcall(FAR struct xtables_match *);
-extern FAR struct option *xtables_options_xfrm(FAR struct option *,
-                    FAR struct option *, FAR const struct xt_option_entry *,
-                    FAR unsigned int *);
-extern FAR struct option *xtables_merge_options(FAR struct option *origopts,
-        FAR struct option *oldopts, FAR const struct option *newopts,
-        FAR unsigned int *option_offset);
-extern FAR struct xtables_match *xtables_find_match(FAR const char *name,
-        enum xtables_tryload, FAR struct xtables_rule_match **match);
-extern FAR struct xtables_target *xtables_find_target(FAR const char *name,
-        enum xtables_tryload);
-extern int xtables_compatible_revision(FAR const char *name,
-                                       uint8_t revision, int opt);
+int xtables_insmod(FAR const char *, FAR const char *, bool);
+int xtables_init_all(FAR struct xtables_globals *xtp,
+                     uint8_t nfproto);
+uint16_t xtables_parse_protocol(FAR const char *s);
+void xtables_option_tpcall(unsigned int, FAR char **, bool,
+                           FAR struct xtables_target *, FAR void *);
+void xtables_option_mpcall(unsigned int, FAR char **, bool,
+                           FAR struct xtables_match *, FAR void *);
+void xtables_option_tfcall(FAR struct xtables_target *);
+void xtables_option_mfcall(FAR struct xtables_match *);
+FAR struct option *xtables_options_xfrm(FAR struct option *,
+                                        FAR struct option *,
+                                        FAR const struct xt_option_entry *,
+                                        FAR unsigned int *);
+FAR struct option *xtables_merge_options(FAR struct option *origopts,
+FAR struct option *oldopts, FAR const struct option *newopts,
+FAR unsigned int *option_offset);
+FAR struct xtables_match *xtables_find_match(FAR const char *name,
+           enum xtables_tryload, FAR struct xtables_rule_match **match);
+FAR struct xtables_target *xtables_find_target(FAR const char *name,
+                                               enum xtables_tryload);
+int xtables_compatible_revision(FAR const char *name,
+                                uint8_t revision, int opt);
 
-#endif /* __APPS_INCLUDE_XTABLES_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __APPS_INCLUDE_NETUTILS_XTABLES_H */
