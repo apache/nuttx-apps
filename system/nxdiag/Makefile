@@ -67,13 +67,20 @@ ARCH_ESP_HALDIR = $(TOPDIR)$(DELIM)arch$(DELIM)$(CONFIG_ARCH)$(DELIM)src$(DELIM)
 
 # If the esp-hal-3rdparty directory is not in the arch directory, then it can be
 # cloned to the nxdiag directory for debugging purposes.
-HALDIR := $(shell if [ -d $(ARCH_ESP_HALDIR)$(DELIM).git ]; then echo "$(ARCH_ESP_HALDIR)"; else echo "$(NXDIAGDIR)$(DELIM)esp-hal-3rdparty"; fi)
+HALDIR := $(shell \
+	if [ -f $(ARCH_ESP_HALDIR)$(DELIM).git$(DELIM)index ]; then \
+		echo "$(ARCH_ESP_HALDIR)"; \
+	else \
+		echo "$(NXDIAGDIR)$(DELIM)esp-hal-3rdparty"; \
+	fi \
+)
 
 INFO_DEPS += espressif_prepare
 
 espressif_prepare:
 ifeq ($(HALDIR),$(ARCH_ESP_HALDIR))
-	(cd ${HALDIR} && git fetch -q --depth=10000 && git fetch -q --tags)
+	@echo "Unshallowing Espressif HAL..."
+	(cd ${HALDIR} && git fetch --depth=10000 && git fetch --tags)
 endif
 
 ifdef ESPTOOL_BINDIR
