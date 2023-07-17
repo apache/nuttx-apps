@@ -18,6 +18,9 @@
 #
 ############################################################################
 
+# Include Wasm specific definitions
+include $(APPDIR)/tools/Wasm.mk
+
 # If this is an executable program (with MAINSRC), we must build it as a
 # loadable module for the KERNEL build (always) or if the tristate module
 # has the value "m"
@@ -95,16 +98,14 @@ endif
 
 # Condition flags
 
-DO_REGISTRATION = y
+DO_REGISTRATION ?= y
 
 ifeq ($(PROGNAME),)
   DO_REGISTRATION = n
 endif
 
 ifeq ($(WASM_BUILD),y)
-ifeq ($(WASM_BUILD_ONLY),y)
   DO_REGISTRATION = n
-endif
 endif
 
 # Compile flags, notice the default flags only suitable for flat build
@@ -284,13 +285,3 @@ distclean:: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
-
-# Default values for WASM_BUILD from Application.mk
-
-WASM_BUILD ?= n
-
-ifeq ($(WASM_BUILD),y)
-	ifneq ($(CONFIG_INTERPRETERS_WAMR)$(CONFIG_INTERPRETERS_WASM)$(CONFIG_INTERPRETERS_TOYWASM),)
-		include $(APPDIR)/tools/Wasm.mk
-	endif
-endif
