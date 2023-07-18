@@ -18,9 +18,6 @@
 #
 ############################################################################
 
-# Include Wasm specific definitions
-include $(APPDIR)/tools/Wasm.mk
-
 # If this is an executable program (with MAINSRC), we must build it as a
 # loadable module for the KERNEL build (always) or if the tristate module
 # has the value "m"
@@ -285,3 +282,6 @@ distclean:: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
+
+# Include Wasm specific definitions
+include $(APPDIR)/tools/Wasm.mk
