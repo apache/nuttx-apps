@@ -91,4 +91,16 @@ endif
 
 endif
 
+# Configuration alternative implementation
+
+ifeq ($(CONFIG_MBEDTLS_ALT),y)
+
+CSRCS += $(APPDIR)/crypto/mbedtls/source/dev_alt.c
+
+ifeq ($(CONFIG_MBEDTLS_SHA1_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/sha1_alt.c
+endif
+
+endif
+
 include $(APPDIR)/Application.mk
