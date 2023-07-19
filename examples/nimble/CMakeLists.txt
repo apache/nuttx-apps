@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/wireless/bluetooth/btsak/CMakeLists.txt
+# apps/examples/nimble/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,24 +18,9 @@
 #
 # ##############################################################################
 
-if(CONFIG_BTSAK)
-
-  # Application info
-
+if(CONFIG_EXAMPLES_NIMBLE)
   nuttx_add_application(
-    NAME
-    ${CONFIG_BTSAK_PROGNAME}
-    SRCS
-    btsak_main.c
-    STACKSIZE
-    ${CONFIG_BTSAK_STACKSIZE}
-    PRIORITY
-    ${CONFIG_BTSAK_PRIORITY})
-
-  # Bluetooth SAK (swiss army knife)
-
-  set(CSRCS btsak_advertise.c btsak_features.c btsak_gatt.c btsak_info.c
-            btsak_scan.c btsak_security.c)
-
-  target_sources(apps PRIVATE ${CSRCS})
+    NAME nimble
+    SRCS ${CMAKE_CURRENT_LIST_DIR}/nimble_main.c
+    DEPENDS nimble)
 endif()
