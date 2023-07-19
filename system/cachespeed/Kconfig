@@ -5,7 +5,7 @@
 
 config SYSTEM_CACHESPEED
 	bool "CACHE Speed Test"
-	depends on (ARCH_ICACHE && ARCH_DCACHE) || (ARMV7M_ICACHE && ARMV7M_DCACHE) || (ARMV8M_ICACHE && ARMV8M_DCACHE)
+	depends on ARCH_ICACHE && ARCH_DCACHE
 	default n
 	---help---
 		Enable a simple CACHE speed test.
