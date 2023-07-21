@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_DD
+	tristate "system 'dd' command"
+	default n
+	select NSH_DISABLE_DD if NSH_LIBRARY
+	---help---
+		Enable support for the system 'dd' command.
+
+if SYSTEM_DD
+
+config SYSTEM_DD_PROGNAME
+	string "dd program name"
+	default "dd"
+	---help---
+		This is the name of the program that will be used when the dd
+		program is installed.
+
+config SYSTEM_DD_PRIORITY
+	int "dd task priority"
+	default 100
+
+config SYSTEM_DD_STACKSIZE
+	int "dd stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
