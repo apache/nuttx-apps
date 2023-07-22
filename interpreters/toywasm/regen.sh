@@ -18,16 +18,8 @@ git -C ${DIR} checkout FETCH_HEAD
 # Note: for this build, TOYWASM_USE_SHORT_ENUMS is only used for
 # the "toywasm --version" output.
 
-# Note: Disable TOYWASM_USE_TAILCALL because it isn't safe for some
-# targets and/or compilers. For example, xtensa windowed ABI doesn't
-# allow tail call optimization. (At least it isn't straightforward
-# unless frame sizes of the caller and the callee happens to match.)
-# REVISIT: This should probably be a Kconfig knob. For now, disable
-# it globally.
-
 cmake -B ${BUILDDIR} \
 -DTOYWASM_USE_SHORT_ENUMS=OFF \
--DTOYWASM_USE_TAILCALL=OFF \
 -DTOYWASM_ENABLE_WASM_EXTENDED_CONST=ON \
 -DTOYWASM_ENABLE_WASM_MULTI_MEMORY=ON \
 -DTOYWASM_ENABLE_WASM_TAILCALL=ON \
