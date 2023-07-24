@@ -123,51 +123,40 @@ BLACKSRCS += 3-12-buildonly.c
 endif
 BLACKSRCS += 35-3-buildonly.c
 
-MAINWORDS    += "main("
+MAINWORDS += "main("
 
-LTP_ORIGS_1  := $(shell find $(TESTDIR) -name *.c | head -n 500)
-LTP_ORIGS_2  := $(shell find $(TESTDIR) -name *.c | head -n 1000|tail -n +501)
-LTP_ORIGS_3  := $(shell find $(TESTDIR) -name *.c | head -n 1500|tail -n +1001)
-LTP_ORIGS_4  := $(shell find $(TESTDIR) -name *.c | head -n 2000|tail -n +1501)
+LTP_ORIGS := $(shell find $(TESTDIR) -name *.c)
+ifneq ($(LTP_ORIGS),)
+$(call SPLITVARIABLE,ORIGS_SPILT,$(LTP_ORIGS),200)
+$(foreach BATCH, $(ORIGS_SPILT_TOTAL), \
+	$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(ORIGS_SPILT_$(BATCH))))) \
+)
+endif
 
-$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGS_1))))
-$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS_1))))
+$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS))))
 
-$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGS_2))))
-$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS_2))))
+LTP_ORIGS := $(filter-out $(BLACKLIST), $(LTP_ORIGS))
+ifneq ($(LTP_ORIGS),)
+$(call SPLITVARIABLE,ORIGS_SPILT,$(LTP_ORIGS),200)
+$(foreach BATCH, $(ORIGS_SPILT_TOTAL), \
+	$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS+=$(shell grep -lr $(word) $(ORIGS_SPILT_$(BATCH))))) \
+)
+endif
 
-$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGS_3))))
-$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS_3))))
+LTP_CSRCS := $(filter-out $(LTP_MAINCSRCS), $(LTP_ORIGS))
+ifneq ($(LTP_MAINCSRCS),)
+$(call SPLITVARIABLE,MAINCSRC_SPILT,$(LTP_MAINCSRCS),50)
+$(foreach BATCH, $(MAINCSRC_SPILT_TOTAL), \
+	$(eval PROGNAME+=$(basename $(shell echo $(MAINCSRC_SPILT_$(BATCH)) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))) \
+)
+endif
 
-$(foreach word, $(BLACKWORDS), $(eval BLACKLIST+=$(shell grep -lr $(word) $(LTP_ORIGS_4))))
-$(foreach src, $(BLACKSRCS), $(eval BLACKLIST+=$(filter %$(src),$(LTP_ORIGS_4))))
-
-LTP_ORIGS_1  := $(filter-out $(BLACKLIST), $(LTP_ORIGS_1))
-LTP_ORIGS_2  := $(filter-out $(BLACKLIST), $(LTP_ORIGS_2))
-LTP_ORIGS_3  := $(filter-out $(BLACKLIST), $(LTP_ORIGS_3))
-LTP_ORIGS_4  := $(filter-out $(BLACKLIST), $(LTP_ORIGS_4))
-
-$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS_1+=$(shell grep -lr $(word) $(LTP_ORIGS_1))))
-$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS_2+=$(shell grep -lr $(word) $(LTP_ORIGS_2))))
-$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS_3+=$(shell grep -lr $(word) $(LTP_ORIGS_3))))
-$(foreach word, $(MAINWORDS), $(eval LTP_MAINCSRCS_4+=$(shell grep -lr $(word) $(LTP_ORIGS_4))))
-
-LTP_CSRCS_1  := $(filter-out $(LTP_MAINCSRCS_1), $(LTP_ORIGS_1))
-LTP_CSRCS_2  := $(filter-out $(LTP_MAINCSRCS_2), $(LTP_ORIGS_2))
-LTP_CSRCS_3  := $(filter-out $(LTP_MAINCSRCS_3), $(LTP_ORIGS_3))
-LTP_CSRCS_4  := $(filter-out $(LTP_MAINCSRCS_4), $(LTP_ORIGS_4))
-
-
-PROGNAME     := $(basename $(shell echo $(LTP_MAINCSRCS_1) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
-PROGNAME     += $(basename $(shell echo $(LTP_MAINCSRCS_2) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
-PROGNAME     += $(basename $(shell echo $(LTP_MAINCSRCS_3) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
-PROGNAME     += $(basename $(shell echo $(LTP_MAINCSRCS_4) | xargs -n 1 | awk -F "[/]" '{print "ltp_"$$(NF-2)"_"$$(NF-1)"_"$$(NF)}' | sed s/-/_/g))
-MAINSRC       = $(LTP_MAINCSRCS_1) $(LTP_MAINCSRCS_2) $(LTP_MAINCSRCS_3) $(LTP_MAINCSRCS_4)
+MAINSRC       = $(LTP_MAINCSRCS)
 PRIORITY      = SCHED_PRIORITY_DEFAULT
 STACKSIZE     = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE        = $(CONFIG_TESTING_LTP)
 
-CSRCS        := $(LTP_CSRCS_1) $(LTP_CSRCS_2) $(LTP_CSRCS_3) $(LTP_CSRCS_4)
+CSRCS        := $(LTP_CSRCS)
 CFLAGS       += -I$(CURDIR)
 CFLAGS       += -I$(TESTDIR)/include
 endif

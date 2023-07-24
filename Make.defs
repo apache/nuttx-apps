@@ -122,3 +122,29 @@ define GETINDEX
 	)
 	$(i)
 endef
+
+# SPLITVARIABLE - Split long variables into specified batches
+# Usage: $(call SPLITVARIABLE, variable-def, variable-ref, batch-size)
+#
+#	Example: VAR:= a b c x y z foo bar
+#			 $(call SPLITVARIABLE, VAR, $(VAR), 3)
+#			 $(foreach, num, $(VAR_TOTAL), $(shell echo $(VAR_$(num))))
+#	Return new variable definition:
+#		$(variable-def)_TOTAL : total split sequence , start with 1.
+#		$(variable-def)_$(num) : newly defined variable , ended with batch num.
+#	In the case above:
+#			$(VAR_TOTAL) = 1 2 3
+#			$(VAR_1) = a b c
+#			$(VAR_2) = x y z
+#			$(VAR_3) = foo bar
+
+define SPLITVARIABLE
+	$(eval PREFIX = $(1))
+	$(eval BATCH_SIZE = $(3))
+	$(eval TOTAL_BATCH = $(shell expr $(words $(2)) / $(BATCH_SIZE) + 1))
+	$(eval $(PREFIX)_TOTAL = $(shell seq 1 $(TOTAL_BATCH)))
+	$(foreach idx, $($(PREFIX)_TOTAL), \
+		$(eval FROMINDEX=$(shell expr 1 + $(idx) \* $(BATCH_SIZE) - $(BATCH_SIZE))) \
+		$(eval $(PREFIX)_$(idx)=$(wordlist $(FROMINDEX), $(shell expr $(FROMINDEX) + $(BATCH_SIZE) - 1), $(2))) \
+	)
+endef
