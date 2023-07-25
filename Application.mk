@@ -93,6 +93,31 @@ ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ)
 endif
 
+ifneq ($(PROGNAME),)
+  PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
+  ifneq ($(words $(PROGOBJ)), $(words $(PROGNAME)))
+    $(warning "program names $(PROGNAME) does not match mainsrcs $(PROGOBJ)")
+  endif
+  PROGLIST := $(addprefix $(BINDIR)$(DELIM),$(PROGNAME))
+  REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)))
+
+  NLIST := $(shell seq 1 $(words $(PROGNAME)))
+  $(foreach i, $(NLIST), \
+    $(eval PROGNAME_$(word $i,$(PROGOBJ)) := $(word $i,$(PROGNAME))) \
+    $(eval PROGOBJ_$(word $i,$(PROGLIST)) := $(word $i,$(PROGOBJ))) \
+    $(eval PRIORITY_$(word $i,$(REGLIST)) := \
+        $(if $(word $i,$(PRIORITY)),$(word $i,$(PRIORITY)),$(lastword $(PRIORITY)))) \
+    $(eval STACKSIZE_$(word $i,$(REGLIST)) := \
+        $(if $(word $i,$(STACKSIZE)),$(word $i,$(STACKSIZE)),$(lastword $(STACKSIZE)))) \
+    $(eval UID_$(word $i,$(REGLIST)) := \
+        $(if $(word $i,$(UID)),$(word $i,$(UID)),$(lastword $(UID)))) \
+    $(eval GID_$(word $i,$(REGLIST)) := \
+        $(if $(word $i,$(GID)),$(word $i,$(GID)),$(lastword $(GID)))) \
+    $(eval MODE_$(word $i,$(REGLIST)) := \
+        $(if $(word $i,$(MODE)),$(word $i,$(MODE)),$(lastword $(MODE)))) \
+  )
+endif
+
 # Condition flags
 
 DO_REGISTRATION ?= y
@@ -196,38 +221,28 @@ $(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
-PROGLIST := $(wordlist 1,$(words $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)),$(PROGNAME))
-PROGLIST := $(addprefix $(BINDIR)$(DELIM),$(PROGLIST))
-PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
-
 $(PROGLIST): $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
 	$(Q) mkdir -p $(BINDIR)
-	$(call ELFLD,$(firstword $(PROGOBJ)),$(call CONVERT_PATH,$(firstword $(PROGLIST))))
-	$(Q) chmod +x $(firstword $(PROGLIST))
+	$(call ELFLD,$(PROGOBJ_$@),$(call CONVERT_PATH,$@))
+	$(Q) chmod +x $@
 ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
-	$(Q) $(STRIP) $(firstword $(PROGLIST))
+	$(Q) $(STRIP) $@
 endif
-	$(eval PROGLIST=$(filter-out $(firstword $(PROGLIST)),$(PROGLIST)))
-	$(eval PROGOBJ=$(filter-out $(firstword $(PROGOBJ)),$(PROGOBJ)))
 
 install:: $(PROGLIST)
 	@:
 
 else
 
-MAINNAME := $(addsuffix _main,$(PROGNAME))
-
 $(MAINCXXOBJ): %$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
-	$(eval MAIN=$(word $(call GETINDEX,$<,$(MAINCXXSRCS)),$(MAINNAME)))
-	$(eval $<_CXXFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
-	$(eval $<_CXXELFFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
+	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(addsuffix _main,$(PROGNAME_$@))})
+	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(addsuffix _main,$(PROGNAME_$@))})
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CXXELFFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 $(MAINCOBJ): %.c$(SUFFIX)$(OBJEXT): %.c
-	$(eval MAIN=$(word $(call GETINDEX,$<,$(MAINCSRCS)),$(MAINNAME)))
-	$(eval $<_CFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
-	$(eval $<_CELFFLAGS += ${DEFINE_PREFIX}main=$(MAIN))
+	$(eval $<_CFLAGS += ${DEFINE_PREFIX}main=$(addsuffix _main,$(PROGNAME_$@)))
+	$(eval $<_CELFFLAGS += ${DEFINE_PREFIX}main=$(addsuffix _main,$(PROGNAME_$@)))
 	$(if $(and $(CONFIG_BUILD_LOADABLE),$(CELFFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
@@ -249,22 +264,12 @@ context::
 
 ifeq ($(DO_REGISTRATION),y)
 
-REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)))
-APPLIST := $(PROGNAME)
-
 $(REGLIST): $(DEPCONFIG) Makefile
+	$(eval PROGNAME_$@ := $(basename $(notdir $@)))
 ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
-	$(call REGISTER,$(firstword $(APPLIST)),$(firstword $(PRIORITY)),$(firstword $(STACKSIZE)),$(if $(BUILD_MODULE),,$(firstword $(APPLIST))_main),$(firstword $(UID)),$(firstword $(GID)),$(firstword $(MODE)))
+	$(call REGISTER,$(PROGNAME_$@),$(PRIORITY_$@),$(STACKSIZE_$@),$(if $(BUILD_MODULE),,$(PROGNAME_$@)_main),$(UID_$@),$(GID_$@),$(MODE_$@))
 else
-	$(call REGISTER,$(firstword $(APPLIST)),$(firstword $(PRIORITY)),$(firstword $(STACKSIZE)),$(if $(BUILD_MODULE),,$(firstword $(APPLIST))_main))
-endif
-	$(eval APPLIST=$(filter-out $(firstword $(APPLIST)),$(APPLIST)))
-	$(if $(filter-out $(firstword $(PRIORITY)),$(PRIORITY)),$(eval PRIORITY=$(filter-out $(firstword $(PRIORITY)),$(PRIORITY))))
-	$(if $(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE)),$(eval STACKSIZE=$(filter-out $(firstword $(STACKSIZE)),$(STACKSIZE))))
-ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
-	$(if $(filter-out $(firstword $(UID)),$(UID)),$(eval UID=$(filter-out $(firstword $(UID)),$(UID))))
-	$(if $(filter-out $(firstword $(GID)),$(GID)),$(eval GID=$(filter-out $(firstword $(GID)),$(GID))))
-	$(if $(filter-out $(firstword $(MODE)),$(MODE)),$(eval MODE=$(filter-out $(firstword $(MODE)),$(MODE))))
+	$(call REGISTER,$(PROGNAME_$@),$(PRIORITY_$@),$(STACKSIZE_$@),$(if $(BUILD_MODULE),,$(PROGNAME_$@)_main))
 endif
 
 register:: $(REGLIST)
