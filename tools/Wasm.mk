@@ -145,10 +145,10 @@ $(WBIN): $(WOBJS)
 	$(shell mkdir -p $(APPDIR)/wasm)
 	$(Q) $(WAR) $@ $(filter-out $(MAINSRC:=$(SUFFIX).wo),$^)
 	$(foreach main,$(MAINSRC), \
-	  $(eval mainindex=$(strip $(call GETINDEX,$(main),$(MAINSRC)))) \
-	$(eval dstname=$(shell echo $(main:=$(SUFFIX).wo) | sed -e 's/\//_/g')) \
+	  $(eval progname=$(strip $(PROGNAME_$(main:=$(SUFFIX)$(OBJEXT))))) \
+	  $(eval dstname=$(shell echo $(main:=$(SUFFIX).wo) | sed -e 's/\//_/g')) \
 	  $(shell cp -rf $(strip $(main:=$(SUFFIX).wo)) \
-	    $(strip $(APPDIR)/wasm/$(word $(mainindex),$(PROGNAME))#$(WASM_INITIAL_MEMORY)#$(STACKSIZE)#$(PRIORITY)#$(WAMR_MODE)#$(dstname)) \
+	    $(strip $(APPDIR)/wasm/$(progname)#$(WASM_INITIAL_MEMORY)#$(STACKSIZE)#$(PRIORITY)#$(WAMR_MODE)#$(dstname)) \
 	   ) \
 	 )
 
