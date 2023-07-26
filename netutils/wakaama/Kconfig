@@ -1,0 +1,83 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_WAKAAMA
+	bool "Eclipse Wakaama"
+	default n
+	depends on ALLOW_ECLIPSE_COMPONENTS
+	---help---
+		Enable Eclipse Wakaama (formerly liblwm2m) - an implementation
+		of LWM2M protocol.
+
+if NETUTILS_WAKAAMA
+
+config WAKAAMA_VERSION
+	string "Wakaama version"
+	default "514659414c792f8c252782af63551b6d09704a7b"
+
+config WAKAAMA_COAP_DEFAULT_BLOCK_SIZE
+	int "Wakaama LWM2M COAP default block size"
+	default 1024
+
+config WAKAAMA_CLIENT_MODE
+	bool "Wakaama client mode"
+	default n
+
+config WAKAAMA_SERVER_MODE
+	bool "Wakaama server mode"
+	default n
+
+config WAKAAMA_BOOTSTRAP
+	bool "Wakaama bootstrap"
+	default n
+
+config WAKAAMA_OLD_CONTENT_FORMAT_SUPPORT
+	bool "Wakaama old content format support"
+	default n
+
+config WAKAAMA_TLV
+	bool "Wakaama TLV support"
+	default n
+
+config WAKAAMA_JSON
+	bool "Wakaama JSON support"
+	default n
+
+config WAKAAMA_SENML_JSON
+	bool "Wakaama SenML JSON support"
+	default n
+
+menuconfig WAKAAMA_EXAMPLES
+	bool "Wakaama examples"
+
+if WAKAAMA_EXAMPLES
+
+if WAKAAMA_CLIENT_MODE
+
+choice
+	prompt "Wakaama clinet example"
+	default WAKAAMA_EXAMPLE_CLIENT_LIGHT
+
+config WAKAAMA_EXAMPLE_CLIENT_LIGHT
+	bool "Wakaama light client example"
+
+config WAKAAMA_EXAMPLE_CLIENT
+	bool "Wakaama client example"
+
+config WAKAAMA_EXAMPLE_CLIENT_DTLS
+	bool "Wakaama client DTLS example"
+	depends on CRYPTO_TINYDTLS
+
+endchoice # "Wakaama clinet example"
+
+config WAKAAMA_EXAMPLE_CLIENT_STACKSIZE
+	int "Wakaama client example stack size"
+	default 8192
+
+endif # WAKAAMA_CLIENT_MODE
+
+endif # WAKAAMA_EXAMPLES
+
+endif # NETUTILS_WAKAAMA
