@@ -39,7 +39,6 @@
 #include <errno.h>
 
 #include <nuttx/drivers/ramdisk.h>
-#include <nuttx/fs/unionfs.h>
 
 #include "romfs_atestdir.h"
 #include "romfs_btestdir.h"
@@ -75,15 +74,15 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_UNIONFS_MOUNTPT
-#  define "/mnt/unionfs"
+#  define CONFIG_EXAMPLES_UNIONFS_MOUNTPT "/mnt/unionfs"
 #endif
 
 #ifndef CONFIG_EXAMPLES_UNIONFS_TMPA
-#  define "/mnt/a"
+#  define CONFIG_EXAMPLES_UNIONFS_TMPA "/mnt/a"
 #endif
 
 #ifndef CONFIG_EXAMPLES_UNIONFS_TMPB
-#  define "/mnt/b"
+#  define CONFIG_EXAMPLES_UNIONFS_TMPB "/mnt/b"
 #endif
 
 #define NSECTORS(b)        (((b)+CONFIG_EXAMPLES_UNIONFS_SECTORSIZE-1)/CONFIG_EXAMPLES_UNIONFS_SECTORSIZE)
@@ -175,9 +174,9 @@ int main(int argc, FAR char *argv[])
 
   /* Now create and mount the union file system */
 
-  ret = unionfs_mount(CONFIG_EXAMPLES_UNIONFS_TMPA, NULL,
-                      CONFIG_EXAMPLES_UNIONFS_TMPB, "offset",
-                      CONFIG_EXAMPLES_UNIONFS_MOUNTPT);
+  ret = mount(NULL, CONFIG_EXAMPLES_UNIONFS_MOUNTPT, "unionfs", 0,
+              "fspath1=" CONFIG_EXAMPLES_UNIONFS_TMPA
+              ",fspath2=" CONFIG_EXAMPLES_UNIONFS_TMPB ",prefix2=offset");
   if (ret < 0)
     {
       printf("ERROR: Failed to create the union file system: %d\n", ret);
