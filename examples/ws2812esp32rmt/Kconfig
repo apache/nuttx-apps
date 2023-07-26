@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WS2812_ESP32_RMT
+	tristate "ws2812 Demo Program using ESP32_RMT"
+	depends on ESP32_RMT
+	default n
+	---help---
+		Enable the ws2812 demo, using ESP32 RMT peripheral to generate the pulses
+
+if EXAMPLES_WS2812_ESP32_RMT
+
+config EXAMPLES_WS2812_ESP32_RMT_PRIORITY
+	int "Task Priority"
+	default 100
+
+config EXAMPLES_WS2812_ESP32_RMT_STACKSIZE
+	int "Stack Size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
