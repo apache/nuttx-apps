@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -230,38 +231,11 @@ static int dd_verify(FAR const char *infile, FAR const char *outfile,
 
       if (memcmp(dd->buffer, buffer, dd->nbytes) != 0)
         {
-          int i;
-
-          nsh_output(dd->vtbl, "infile sector %d", sector);
-          for (i = 0; i < dd->nbytes; i++)
-            {
-              if (i % 16 == 0)
-                {
-                  nsh_output(dd->vtbl, "\n");
-                }
-
-              nsh_output(dd->vtbl, "%02x", dd->buffer[i]);
-              if (i + 1 % 2 == 0)
-                {
-                  nsh_output(dd->vtbl, " ");
-                }
-            }
-
-          nsh_output(dd->vtbl, "\noutfile sector %d", sector);
-          for (i = 0; i < dd->nbytes; i++)
-            {
-              if (i % 16 == 0)
-                {
-                  nsh_output(dd->vtbl, "\n");
-                }
-
-              nsh_output(dd->vtbl, "%02x", dd->buffer[i]);
-              if (i + 1 % 2 == 0)
-                {
-                  nsh_output(dd->vtbl, " ");
-                }
-            }
-
+          char msg[32];
+          snprintf(msg, sizeof(msg), "infile sector %d", sector);
+          nsh_dumpbuffer(dd->vtbl, msg, dd->buffer, dd->nbytes);
+          snprintf(msg, sizeof(msg), "\noutfile sector %d", sector);
+          nsh_dumpbuffer(dd->vtbl, msg, buffer, dd->nbytes);
           nsh_output(dd->vtbl, "\n");
           ret = ERROR;
           break;
