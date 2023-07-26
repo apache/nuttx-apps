@@ -1,0 +1,19 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CRYPTO_TINYDTLS
+	bool "Eclipse Tinydtls"
+	default n
+	depends on ALLOW_ECLIPSE_COMPONENTS
+	---help---
+		Enable Eclipse tinydtls - a minimal library for DTLS.
+
+if CRYPTO_TINYDTLS
+
+config TINYDTLS_VERSION
+	string "Tinydtls version"
+	default "ba830a390642d057fcf21bbb6bd57546d12e584c"
+
+endif # CRYPTO_TINYDTLS
