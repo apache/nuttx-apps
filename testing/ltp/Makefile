@@ -194,6 +194,29 @@ BLACKWORDS += setegid
 BLACKWORDS += geteuid
 BLACKWORDS += getegid
 endif
+ifeq ($(CONFIG_PTHREAD_CLEANUP_STACKSIZE),0)
+BLACKWORDS += pthread_cleanup_push
+BLACKWORDS += pthread_cleanup_pop
+endif
+ifeq ($(CONFIG_LIBC_EXECFUNCS),)
+BLACKWORDS += execl
+BLACKWORDS += execvp
+BLACKWORDS += execlp
+BLACKWORDS += execvpe
+endif
+ifeq ($(CONFIG_FS_SHMFS),)
+BLACKWORDS += shm_open
+BLACKWORDS += shm_unlink
+endif
+ifeq ($(LIBC_LOCALE_CATALOG),)
+BLACKWORDS += catopen
+BLACKWORDS += catgets
+BLACKWORDS += catclose
+endif
+ifeq ($(CONFIG_MM_SHM),)
+BLACKWORDS += shmget
+BLACKWORDS += shmat
+endif
 
 MAINWORDS    += "main("
 
