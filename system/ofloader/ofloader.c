@@ -92,7 +92,7 @@ static FAR struct devinfo_s *parse_devinfo(FAR size_t *index)
 
   *index = 0;
   p = strtok_r(table, ";", &save_once);
-  while(p != NULL)
+  while (p != NULL)
     {
       p = strtok_r(p, ",", &save);
       if (p == NULL)
@@ -144,7 +144,7 @@ again:
       devinfo[*index].pos = devinfo[*index].base;
       p = strtok_r(NULL, ";", &save_once);
       (*index)++;
-  }
+    }
 
   return devinfo;
 
@@ -291,7 +291,7 @@ static ssize_t handle(FAR struct ofloader_msg *msg,
 
 static pthread_addr_t fake_idle(pthread_addr_t arg)
 {
-  for (;;)
+  for (; ; )
     {
     }
 
@@ -310,11 +310,16 @@ int main(int argc, FAR char *argv[])
 {
   FAR struct devinfo_s *devinfo;
   FAR struct ofloader_msg *msg;
+  struct mq_attr mqattr;
   pthread_attr_t attr;
   pthread_t thread;
   size_t count;
   size_t i;
   mqd_t mq;
+
+  memset(&mqattr, 0, sizeof(struct mq_attr));
+  mqattr.mq_msgsize = sizeof(msg);
+  mqattr.mq_maxmsg  = 10;
 
   if (g_create_idle)
     {
@@ -324,7 +329,7 @@ int main(int argc, FAR char *argv[])
       pthread_attr_destroy(&attr);
     }
 
-  mq = mq_open(OFLOADER_QNAME, O_CREAT | O_RDWR, 0660, NULL);
+  mq = mq_open(OFLOADER_QNAME, O_CREAT | O_RDWR, 0660, &mqattr);
   if (mq < 0)
     {
       OFLOADER_DEBUG("mq_open error:%d\n", errno);
@@ -347,13 +352,13 @@ int main(int argc, FAR char *argv[])
 
   while (1)
     {
-      if (mq_receive(mq, (FAR void *)&msg, sizeof(msg), NULL) < 0)
+      if (mq_receive(mq, (FAR char *)&msg, sizeof(msg), NULL) < 0)
         {
           OFLOADER_DEBUG(" mq_receive error %d\n", -errno);
           continue;
         }
 
-      if(handle(msg, devinfo, count) < 0)
+      if (handle(msg, devinfo, count) < 0)
         {
           msg->atcion = OFLOADER_ERROR;
         }
