@@ -300,49 +300,71 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   int newline = 1;
   int escape = 0;
-  int opt;
-  int i;
 
-  while ((opt = getopt(argc, argv, "neE")) != ERROR)
+  --argc;
+  ++argv;
+
+  while (argc > 0 && argv[0][0] == '-')
     {
-      switch (opt)
+      FAR char const *temp = argv[0] + 1;
+      size_t i;
+
+      for (i = 0; temp[i]; i++)
         {
-        case 'n':
-          newline = 0;
-          break;
-
-        case 'e':
-          escape = 1;
-          break;
-
-        case 'E':
-          escape = 0;
-          break;
-
-        case '?':
-        default:
-          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-          return ERROR;
+          switch (temp[i])
+            {
+              case 'e':
+              case 'E':
+              case 'n':
+                break;
+              default:
+                goto do_echo;
+            }
         }
+
+      if (i == 0)
+        {
+          goto do_echo;
+        }
+
+      while (*temp)
+        {
+          switch (*temp++)
+            {
+              case 'e':
+                escape = 1;
+                break;
+
+              case 'E':
+                escape = 0;
+                break;
+
+              case 'n':
+                newline = 0;
+                break;
+            }
+        }
+
+      --argc;
+      ++argv;
     }
 
-  /* echo each argument, separated by a space as it must have been on the
-   * command line.
-   */
-
-  for (i = optind; i < argc; i++)
+do_echo:
+  while (argc > 0)
     {
-      if (i != optind)
+      if (escape)
+        {
+          str_escape(argv[0]);
+        }
+
+      nsh_output(vtbl, "%s", argv[0]);
+
+      --argc;
+      ++argv;
+      if (argc > 0)
         {
           nsh_output(vtbl, " ");
         }
-
-      if (escape)
-        {
-          str_escape(argv[i]);
-        }
-
-      nsh_output(vtbl, "%s", argv[i]);
     }
 
   if (newline)
