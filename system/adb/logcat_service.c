@@ -126,7 +126,7 @@ static void logcat_on_data_available(uv_poll_t * handle,
 
   if (status)
     {
-      adb_log("status error %d\n", status);
+      adb_err("status error %d\n", status);
 
       /* Fatal error, stop service */
 
@@ -139,7 +139,7 @@ static void logcat_on_data_available(uv_poll_t * handle,
   ret = read(fd, ap->p.data, CONFIG_ADBD_PAYLOAD_SIZE);
   if (ret < 0)
     {
-      adb_log("frame read failed %d %d\n", ret, errno);
+      adb_err("frame read failed %d %d\n", ret, errno);
       if (errno == EAGAIN)
         {
           /* TODO this should never happen */
@@ -198,7 +198,7 @@ adb_service_t * logcat_service(adb_client_t *client, const char *params)
 
   if (ret < 0)
     {
-      adb_log("failed to open %s (%d)\n", CONFIG_SYSLOG_DEVPATH, errno);
+      adb_err("failed to open %s (%d)\n", CONFIG_SYSLOG_DEVPATH, errno);
       free(service);
       return NULL;
     }

@@ -50,7 +50,7 @@ int adb_fill_connect_data(char *buf, size_t bufsize)
     {
       /* Failed to get board id */
 
-      adb_log("failed to get board id\n");
+      adb_err("failed to get board id\n");
       len = snprintf(buf, remaining, "device::");
     }
   else
