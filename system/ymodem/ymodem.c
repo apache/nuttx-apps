@@ -231,7 +231,7 @@ recv_packet:
   if ((total_seq & 0xff) - 1 == ctx->header[1])
     {
       ymodem_debug("recv_file: Received the previous packet that has"
-                   "been received, continue %lu %u\n", total_seq,
+                   "been received, continue %" PRIu32 " %u\n", total_seq,
                    ctx->header[1]);
 
       ctx->header[0] = ACK;
@@ -239,7 +239,7 @@ recv_packet:
     }
   else if ((total_seq & 0xff) != ctx->header[1])
     {
-      ymodem_debug("recv_file: total seq error:%lu %u\n", total_seq,
+      ymodem_debug("recv_file: total seq error:%" PRIu32 " %u\n", total_seq,
                    ctx->header[1]);
       ctx->header[0] = CRC;
       goto recv_packet;
