@@ -171,7 +171,7 @@ static int handler(FAR struct ymodem_ctx_s *ctx)
 
   if (ctx->packet_type == YMODEM_FILENAME_PACKET)
     {
-      char temp[PATH_MAX];
+      char temp[PATH_MAX + 1];
       FAR char *filename;
 
       if (priv->fd > 0)
@@ -216,7 +216,7 @@ static int handler(FAR struct ymodem_ctx_s *ctx)
 
       if (priv->foldname != NULL)
         {
-          snprintf(temp, PATH_MAX, "%s/%s", priv->foldname,
+          snprintf(temp, sizeof(temp), "%s/%s", priv->foldname,
                    filename);
           filename = temp;
         }
