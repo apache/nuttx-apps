@@ -171,6 +171,15 @@ config ADBD_BOARD_INIT
 	---help---
 		Setup board before running adb daemon.
 
+config ADBD_USB_BOARDCTL
+	bool "USB Board Control"
+	depends on BOARDCTL
+	depends on ADBD_USB_SERVER
+	select BOARDCTL_USBDEVCTRL
+	default ADBD_BOARD_INIT
+	---help---
+		Connect usbdev before running adb daemon.
+
 config ADBD_NET_INIT
 	bool "Network initialization"
 	default n
