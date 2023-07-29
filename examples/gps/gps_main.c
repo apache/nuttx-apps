@@ -30,7 +30,7 @@
 #include <syslog.h>
 #include <unistd.h>
 
-#include "minmea/minmea.h"
+#include <minmea/minmea.h>
 
 /****************************************************************************
  * Pre-processor Definitions

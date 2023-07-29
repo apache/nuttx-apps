@@ -28,7 +28,7 @@ STACKSIZE = $(CONFIG_EXAMPLES_GPS_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_GPS)
 
 # GPS Example
-CFLAGS += -I$(APPDIR)$(DELIM)gpsutils$(DELIM)minmea
+
 MAINSRC = gps_main.c
 
 include $(APPDIR)/Application.mk
