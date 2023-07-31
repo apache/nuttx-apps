@@ -81,8 +81,11 @@ define LINK_WASM
 	    $(eval INITIAL_MEMORY=$(shell echo $(notdir $(bin)) | cut -d'#' -f2)) \
 	    $(eval STACKSIZE=$(shell echo $(notdir $(bin)) | cut -d'#' -f3)) \
 	    $(eval PROGNAME=$(shell echo $(notdir $(bin)) | cut -d'#' -f1)) \
-	    $(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) $(COMPILER_RT_LIB) \
-              -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm) \
+	    $(eval RETVAL=$(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) $(COMPILER_RT_LIB) \
+	        -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm || echo 1;)) \
+	    $(if $(RETVAL), \
+	        $(error wasm build failed for $(PROGNAME).wasm) \
+	    ) \
 		$(call WAMR_AOT_COMPILE) \
 	   ) \
 	 )
