@@ -26,7 +26,7 @@
  * Public Data
  ****************************************************************************/
 
-const char *toywasm_config_string =
+const char *const toywasm_config_string =
 "\tTOYWASM_USE_SEPARATE_EXECUTE = ON\n"
 "\tTOYWASM_USE_TAILCALL = ON\n"
 "\tTOYWASM_FORCE_USE_TAILCALL = OFF\n"
@@ -52,4 +52,5 @@ const char *toywasm_config_string =
 "\tTOYWASM_ENABLE_WASM_THREADS = ON\n"
 "\tTOYWASM_ENABLE_WASI = ON\n"
 "\tTOYWASM_ENABLE_WASI_THREADS = ON\n"
-"\tTOYWASM_ENABLE_DYLD = ON\n";
+"\tTOYWASM_ENABLE_DYLD = ON\n"
+"\tTOYWASM_ENABLE_DYLD_DLFCN = ON\n";
