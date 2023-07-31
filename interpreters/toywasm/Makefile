@@ -78,12 +78,15 @@ CSRCS += wasi_threads.c
 CSRCS += dyld.c
 CSRCS += dyld_plt.c
 
+# TOYWASM_ENABLE_DYLD_DLFCN
+CSRCS += dyld_dlfcn.c
+
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/include
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/lib
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
-TOYWASM_VERSION  = 12b9e518cd18c9fee09a521afa96eb15cd11edac
+TOYWASM_VERSION  = bfcc5be6eb25c9581c6c3b443ac38c1a814f8e18
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
