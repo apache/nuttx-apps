@@ -1181,15 +1181,15 @@ static FAR char *nsh_aliasexpand(FAR struct nsh_vtbl_s *vtbl,
 
           if ((ptr = strdup(alias->value)) != NULL)
             {
-              /* Set the new command line (expanded alias) */
-
-              cmdline = ptr;
-
               /* Then concatenate the old command line with the new */
 
               ptr = nsh_strcat(vtbl, ptr, " ");
               ptr = nsh_strcat(vtbl, ptr, *saveptr);
               NSH_MEMLIST_ADD(memlist, ptr);
+
+              /* Set the new command line (expanded alias) */
+
+              cmdline = ptr;
 
               /* NULL terminate the new command */
 
