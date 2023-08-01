@@ -42,7 +42,7 @@
 
 /* "-", uint64_t, ".", 9 digits fraction part, NUL */
 
-#define	NTP_TIME_STR_MAX_LEN (1 + 21 + 1 + 9 + 1)
+#define NTP_TIME_STR_MAX_LEN (1 + 21 + 1 + 9 + 1)
 
 static void
 format_ntptimestamp(int64_t ts, FAR char *buf, size_t len)

@@ -35,7 +35,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define SIGN(x)	((x > 0) ? b16ONE : -b16ONE)
+#define SIGN(x) ((x > 0) ? b16ONE : -b16ONE)
 
 #define LINEAR_MAP(x, in_min, in_max, out_min, out_max)     \
   (b16divb16(b16mulb16((x - in_min), (out_max - out_min)),  \

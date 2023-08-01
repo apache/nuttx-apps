@@ -46,4 +46,4 @@ struct postproc_s
   unsigned long priv;
 };
 
-#endif	/* __APPS_LTE_ALT1250_ALT1250_POSTPROC_H */
+#endif /* __APPS_LTE_ALT1250_ALT1250_POSTPROC_H */

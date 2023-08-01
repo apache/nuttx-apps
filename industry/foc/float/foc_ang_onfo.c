@@ -35,7 +35,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define SIGN(x)	((x > 0.0f) ? 1.0f : -1.0f)
+#define SIGN(x) ((x > 0.0f) ? 1.0f : -1.0f)
 
 #define LINEAR_MAP(x, in_min, in_max, out_min, out_max) \
   ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
@@ -280,9 +280,7 @@ static int foc_angle_onfo_run_f32(FAR foc_angle_f32_t *h,
   DEBUGASSERT(h->data);
   ob = h->data;
 
-  /* Normalize the d-q voltage to get the d-q modulation
-   * voltage
-   */
+  /* Normalize the d-q voltage to get the d-q modulation voltage */
 
   v_dq_mod.d = in->state->vdq.d * in->state->mod_scale;
   v_dq_mod.q = in->state->vdq.q * in->state->mod_scale;

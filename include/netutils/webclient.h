@@ -102,7 +102,7 @@
  * the name resolution in a blocking manner.
  */
 
-#define	WEBCLIENT_FLAG_NON_BLOCKING	1U
+#define WEBCLIENT_FLAG_NON_BLOCKING 1U
 
 /* WEBCLIENT_FLAG_TUNNEL: Establish a tunnel
  *
@@ -118,14 +118,14 @@
  * webclient_conn_s from the context. It's users' responsibility
  * to dispose the connection.
  */
-#define	WEBCLIENT_FLAG_TUNNEL	2U
+#define WEBCLIENT_FLAG_TUNNEL 2U
 
 /* The following WEBCLIENT_FLAG_xxx constants are for
  * webclient_poll_info::flags.
  */
 
-#define	WEBCLIENT_POLL_INFO_WANT_READ	1U
-#define	WEBCLIENT_POLL_INFO_WANT_WRITE	2U
+#define WEBCLIENT_POLL_INFO_WANT_READ  1U
+#define WEBCLIENT_POLL_INFO_WANT_WRITE 2U
 
 /****************************************************************************
  * Public types
