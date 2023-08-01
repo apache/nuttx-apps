@@ -71,4 +71,4 @@ void container_free_all(FAR struct alt_container_s *head);
 FAR struct alt_container_s *
     container_pick_listtop(FAR struct alt_container_s **head);
 
-#endif	/* __APPS_LTE_ALT1250_ALT1250_CONTAINER_H */
+#endif /* __APPS_LTE_ALT1250_ALT1250_CONTAINER_H */

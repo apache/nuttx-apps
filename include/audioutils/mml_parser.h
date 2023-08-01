@@ -99,4 +99,4 @@ int parse_mml(FAR struct music_macro_lang_s *mml,
 }
 #endif
 
-#endif	/* __APPS_INCLUDE_AUDIOUTILS_MML_PARSER_MML_PARSER_H */
+#endif /* __APPS_INCLUDE_AUDIOUTILS_MML_PARSER_MML_PARSER_H */

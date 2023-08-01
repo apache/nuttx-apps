@@ -133,11 +133,11 @@
 #define CONN_WANT_WRITE WEBCLIENT_POLL_INFO_WANT_WRITE
 
 #ifdef CONFIG_DEBUG_ASSERTIONS
-#define	_CHECK_STATE(ctx, s)	DEBUGASSERT((ctx)->state == (s))
-#define	_SET_STATE(ctx, s)		ctx->state = (s)
+#define _CHECK_STATE(ctx, s) DEBUGASSERT((ctx)->state == (s))
+#define _SET_STATE(ctx, s)   ctx->state = (s)
 #else
-#define	_CHECK_STATE(ctx, s)	do {} while (0)
-#define	_SET_STATE(ctx, s)		do {} while (0)
+#define _CHECK_STATE(ctx, s) do {} while (0)
+#define _SET_STATE(ctx, s)   do {} while (0)
 #endif
 
 /****************************************************************************
@@ -166,9 +166,9 @@ enum webclient_state_e
 
 /* flags for wget_s::internal_flags */
 
-#define	WGET_FLAG_GOT_CONTENT_LENGTH 1U
-#define	WGET_FLAG_CHUNKED            2U
-#define	WGET_FLAG_GOT_LOCATION       4U
+#define WGET_FLAG_GOT_CONTENT_LENGTH 1U
+#define WGET_FLAG_CHUNKED            2U
+#define WGET_FLAG_GOT_LOCATION       4U
 
 struct wget_target_s
 {
