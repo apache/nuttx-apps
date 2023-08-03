@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <stdlib.h>
 #include <debug.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -224,7 +225,7 @@ static bool memorystress_iter(FAR struct memorystress_context_s *context)
   bool debug = context->debug;
   size_t index;
 
-  index = randnum(context->config->nodelen, &seed);
+  index = rand() % (context->config->nodelen - 1);
   node = &(context->node_array[index]);
   func = (FAR struct memorystress_func_s *)context->config->func;
 
