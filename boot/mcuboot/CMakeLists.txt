@@ -27,18 +27,18 @@ if(CONFIG_BOOT_MCUBOOT)
       DOWNLOAD_NAME "${CONFIG_MCUBOOT_VERSION}.tar.gz"
       DOWNLOAD_DIR ${CMAKE_CURRENT_LIST_DIR}
       URL "https://github.com/mcu-tools/mcuboot/archive/${CONFIG_MCUBOOT_VERSION}.tar.gz"
-      SOURCE_DIR
-      ${CMAKE_CURRENT_LIST_DIR}/mcuboot
-      BINARY_DIR
-      ${CMAKE_BINARY_DIR}/apps/boot/mcuboot/mcuboot
-      CONFIGURE_COMMAND
-      ""
-      BUILD_COMMAND
-      ""
-      INSTALL_COMMAND
-      ""
-      TEST_COMMAND
-      ""
+          SOURCE_DIR
+          ${CMAKE_CURRENT_LIST_DIR}/mcuboot
+          BINARY_DIR
+          ${CMAKE_BINARY_DIR}/apps/boot/mcuboot/mcuboot
+          CONFIGURE_COMMAND
+          ""
+          BUILD_COMMAND
+          ""
+          INSTALL_COMMAND
+          ""
+          TEST_COMMAND
+          ""
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -50,24 +50,21 @@ if(CONFIG_BOOT_MCUBOOT)
   endif()
 
   set(SRCS
-    mcuboot/boot/bootutil/src/boot_record.c
-    mcuboot/boot/bootutil/src/bootutil_misc.c
-    mcuboot/boot/bootutil/src/bootutil_public.c
-    mcuboot/boot/bootutil/src/caps.c
-    mcuboot/boot/bootutil/src/encrypted.c
-    mcuboot/boot/bootutil/src/fault_injection_hardening.c
-    mcuboot/boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c
-    mcuboot/boot/bootutil/src/image_ec.c
-    mcuboot/boot/bootutil/src/image_ec256.c
-    mcuboot/boot/bootutil/src/image_ed25519.c
-    mcuboot/boot/bootutil/src/image_rsa.c
-    mcuboot/boot/bootutil/src/image_validate.c
-    mcuboot/boot/bootutil/src/loader.c
-    mcuboot/boot/bootutil/src/swap_misc.c
-    mcuboot/boot/bootutil/src/swap_move.c
-    mcuboot/boot/bootutil/src/swap_scratch.c
-    mcuboot/boot/bootutil/src/tlv.c
-  )
+      mcuboot/boot/bootutil/src/boot_record.c
+      mcuboot/boot/bootutil/src/bootutil_misc.c
+      mcuboot/boot/bootutil/src/bootutil_public.c
+      mcuboot/boot/bootutil/src/caps.c
+      mcuboot/boot/bootutil/src/encrypted.c
+      mcuboot/boot/bootutil/src/fault_injection_hardening.c
+      mcuboot/boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c
+      mcuboot/boot/bootutil/src/image_ed25519.c
+      mcuboot/boot/bootutil/src/image_rsa.c
+      mcuboot/boot/bootutil/src/image_validate.c
+      mcuboot/boot/bootutil/src/loader.c
+      mcuboot/boot/bootutil/src/swap_misc.c
+      mcuboot/boot/bootutil/src/swap_move.c
+      mcuboot/boot/bootutil/src/swap_scratch.c
+      mcuboot/boot/bootutil/src/tlv.c)
 
   list(APPEND SRCS mcuboot/boot/nuttx/src/flash_map_backend/flash_map_backend.c)
 
@@ -91,16 +88,18 @@ if(CONFIG_BOOT_MCUBOOT)
   endif()
 
   if(CONFIG_MCUBOOT_USE_TINYCRYPT)
-    list(APPEND SRCS
+    list(
+      APPEND
+      SRCS
       mcuboot/ext/tinycrypt/lib/source/aes_encrypt.c
       mcuboot/ext/tinycrypt/lib/source/aes_decrypt.c
       mcuboot/ext/tinycrypt/lib/source/ctr_mode.c
       mcuboot/ext/tinycrypt/lib/source/hmac.c
       mcuboot/ext/tinycrypt/lib/source/ecc_dh.c
       mcuboot/ext/tinycrypt/lib/source/sha256.c
-      mcuboot/ext/tinycrypt/lib/source/utils.c
-    )
-    target_include_directories(mcuboot PRIVATE mcuboot/ext/tinycrypt/lib/include)
+      mcuboot/ext/tinycrypt/lib/source/utils.c)
+    target_include_directories(mcuboot
+                               PRIVATE mcuboot/ext/tinycrypt/lib/include)
   endif()
 
   target_include_directories(mcuboot PUBLIC mcuboot/boot/nuttx/include)
