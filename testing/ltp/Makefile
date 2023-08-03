@@ -20,10 +20,12 @@
 
 include $(APPDIR)/Make.defs
 
-LTP_UNPACK   = ltp
-LTP_URL      = https://github.com/linux-test-project/ltp.git
+LTPS_VERSION     = 20230516
+LTP_DOWNLOAD_URL = https://github.com/linux-test-project/ltp/archive/refs/tags/
+LTP_UNPACK       = ltp
+LTP_URL          = https://github.com/linux-test-project/ltp.git
 
-TESTDIR      = $(LTP_UNPACK)/testcases/open_posix_testsuite
+TESTDIR          = $(LTP_UNPACK)/testcases/open_posix_testsuite
 
 ifneq ($(wildcard $(TESTDIR)),)
 ifeq ($(CONFIG_FS_AIO),)
@@ -179,11 +181,15 @@ CFLAGS += -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable
 # Should be removed if possible in the future
 CFLAGS += -Wno-incompatible-pointer-types -Wno-overflow -Wno-int-to-pointer-cast
 
-$(LTP_UNPACK):
-	$(Q) echo "git clone $(LTP_URL)"
-	$(Q) git clone $(LTP_URL)
-	$(Q) git -C $(LTP_UNPACK) am < 0001-Fix-static-struct-warning.patch
-	$(Q) git -C $(LTP_UNPACK) am < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
+ltp-$(LTPS_VERSION).zip:
+	$(call DOWNLOAD,$(LTP_DOWNLOAD_URL),$(LTPS_VERSION).zip, ltp.zip)
+
+$(LTP_UNPACK): ltp-$(LTPS_VERSION).zip
+	$(Q) echo "dowload $(LTP_DOWNLOAD_URL)$(LTPS_VERSION).zip"
+	$(Q) unzip -o ltp.zip
+	$(Q) mv ltp-$(LTPS_VERSION) $(LTP_UNPACK)
+	$(Q) patch -p1 < 0001-pthread_rwlock_unlock-follow-linux.patch
+	$(Q) patch -p1 < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LTP_UNPACK)/.git),)
