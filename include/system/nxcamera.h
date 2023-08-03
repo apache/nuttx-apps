@@ -57,6 +57,7 @@ struct nxcamera_s
                                                       * display device */
   char                  displaydev[CONFIG_NAME_MAX]; /* Display framebuffer device */
   struct fb_planeinfo_s display_pinfo;               /* Display plane info */
+  struct fb_videoinfo_s display_vinfo;               /* Display video controller info */
   char                  videopath[CONFIG_NAME_MAX];  /* Output video file path */
   char                  imagepath[CONFIG_NAME_MAX];  /* Output image file path */
   int                   crefs;                       /* Number of references */
