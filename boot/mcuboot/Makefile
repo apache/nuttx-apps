@@ -47,8 +47,6 @@ CSRCS := $(MCUBOOT_UNPACK)/boot/bootutil/src/boot_record.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/encrypted.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/fault_injection_hardening.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c \
-         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_ec.c \
-         $(MCUBOOT_UNPACK)/boot/bootutil/src/image_ec256.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/image_ed25519.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/image_rsa.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/image_validate.c \
