@@ -115,6 +115,6 @@ MAINSRC += core_main.c
 
 # Build with WebAssembly when CONFIG_INTERPRETERS_WAMR is enabled
 
-WASM_BUILD = y
+WASM_BUILD = both
 
 include $(APPDIR)/Application.mk
