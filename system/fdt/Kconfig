@@ -1,0 +1,106 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_FDT
+	bool
+	default n
+	---help---
+		Enable support for fdt utility tools.
+
+if LIBFDT
+
+config SYSTEM_FDTDUMP
+	bool "system fdtdump command"
+	default n
+	select SYSTEM_FDT
+	---help---
+		Enable fdtdump cmd.
+
+if SYSTEM_FDTDUMP
+
+config SYSTEM_FDTDUMP_STACKSIZE
+	int "fdtdump stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the fdtdump task.
+
+config SYSTEM_FDTDUMP_PRIORITY
+	int "fdtdump priority"
+	default 100
+	---help---
+		The priority of the fdtdump task.
+
+endif # SYSTEM_FDTDUMP
+
+config SYSTEM_FDTGET
+	bool "system fdtget command"
+	default n
+	select SYSTEM_FDT
+	---help---
+		Enable fdtget cmd.
+
+if SYSTEM_FDTGET
+
+config SYSTEM_FDTGET_STACKSIZE
+	int "fdtget stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the fdtget task.
+
+config SYSTEM_FDTGET_PRIORITY
+	int "fdtget priority"
+	default 100
+	---help---
+		The priority of the fdtget task.
+
+endif # SYSTEM_FDTGET
+
+config SYSTEM_FDTPUT
+	bool "system fdtput command"
+	default n
+	select SYSTEM_FDT
+	---help---
+		Enable fdtput cmd.
+
+if SYSTEM_FDTPUT
+
+config SYSTEM_FDTPUT_STACKSIZE
+	int "fdtput stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the fdtput task.
+
+config SYSTEM_FDTPUT_PRIORITY
+	int "fdtput priority"
+	default 100
+	---help---
+		The priority of the fdtput task.
+
+endif # SYSTEM_FDTPUT
+
+config SYSTEM_FDTOVERLAY
+	bool "system fdtoverlay command"
+	default n
+	select SYSTEM_FDT
+	---help---
+		Enable fdtoverlay cmd.
+
+if SYSTEM_FDTOVERLAY
+
+config SYSTEM_FDTOVERLAY_STACKSIZE
+	int "fdtoverlay stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the fdtoverlay task.
+
+config SYSTEM_FDTOVERLAY_PRIORITY
+	int "fdtoverlay priority"
+	default 100
+	---help---
+		The priority of the fdtoverlay task.
+
+endif # SYSTEM_FDTOVERLAY
+
+endif # LIBFDT
