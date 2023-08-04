@@ -93,6 +93,10 @@ endif
 
 # Configuration alternative implementation
 
+ifeq ($(CONFIG_MBEDTLS_ENTROPY_HARDWARE_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/entropy_alt.c
+endif
+
 ifeq ($(CONFIG_MBEDTLS_ALT),y)
 
 CSRCS += $(APPDIR)/crypto/mbedtls/source/dev_alt.c
