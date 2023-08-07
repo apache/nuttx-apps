@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_KEYBOARD
+	tristate "Keyboard example"
+	default n
+	---help---
+		Enable the keyboard example
+
+if EXAMPLES_KEYBOARD
+
+config EXAMPLES_KEYBOARD_DEVPATH
+	string "Keyboard device path"
+	default "/dev/kbd0"
+	---help---
+		The path to the keyboard device. Default: "/dev/kbd0"
+
+endif
