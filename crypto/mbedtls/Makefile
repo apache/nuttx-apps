@@ -105,6 +105,14 @@ ifeq ($(CONFIG_MBEDTLS_SHA1_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/sha1_alt.c
 endif
 
+ifeq ($(CONFIG_MBEDTLS_SHA256_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/sha256_alt.c
+endif
+
+ifeq ($(CONFIG_MBEDTLS_SHA512_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/sha512_alt.c
+endif
+
 endif
 
 include $(APPDIR)/Application.mk

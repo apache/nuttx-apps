@@ -373,9 +373,13 @@
 #ifdef CONFIG_MBEDTLS_SHA1_ALT
 #define MBEDTLS_SHA1_ALT
 #endif
-/* #define MBEDTLS_SHA256_ALT
- * #define MBEDTLS_SHA512_ALT
- * #define MBEDTLS_XTEA_ALT
+#ifdef CONFIG_MBEDTLS_SHA256_ALT
+#define MBEDTLS_SHA256_ALT
+#endif
+#ifdef CONFIG_MBEDTLS_SHA512_ALT
+#define MBEDTLS_SHA512_ALT
+#endif
+/* #define MBEDTLS_XTEA_ALT
  */
 
 /* When replacing the elliptic curve module, please consider, that it is
