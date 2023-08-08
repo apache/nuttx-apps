@@ -15,7 +15,7 @@ if NETUTILS_WAKAAMA
 
 config WAKAAMA_VERSION
 	string "Wakaama version"
-	default "514659414c792f8c252782af63551b6d09704a7b"
+	default "bf81d0827b6e4f369c8022f9d23c1600b8d4c528"
 
 config WAKAAMA_COAP_DEFAULT_BLOCK_SIZE
 	int "Wakaama LWM2M COAP default block size"
