@@ -39,7 +39,7 @@ if(CONFIG_CRYPTO_LIBTOMCRYPT)
 
     FetchContent_GetProperties(libtomcrypt_fetch)
 
-    if(NOT libtomcrypt_POPULATED)
+    if(NOT libtomcrypt_fetch_POPULATED)
       FetchContent_Populate(libtomcrypt_fetch)
     endif()
 
