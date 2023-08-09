@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/canutils/CMakeLists.txt
+# apps/canutils/candump/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,20 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+if(CONFIG_CANUTILS_CANDUMP)
 
-nuttx_generate_kconfig(MENUDESC "CAN Utilities")
+  set(LIBCANUTILS_DIR ${NUTTX_APPS_DIR}/canutils/libcanutils)
+
+  nuttx_add_application(
+    NAME
+    candump
+    STACKSIZE
+    ${CONFIG_CANUTILS_CANDUMP_STACKSIZE}
+    MODULE
+    ${CONFIG_CANUTILS_CANDUMP}
+    SRCS
+    candump.c
+    INCLUDE_DIRECTORIES
+    ${LIBCANUTILS_DIR})
+
+endif()

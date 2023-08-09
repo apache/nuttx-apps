@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/canutils/CMakeLists.txt
+# apps/canutils/slcan/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,16 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+if(CONFIG_CANUTILS_SLCAN)
 
-nuttx_generate_kconfig(MENUDESC "CAN Utilities")
+  nuttx_add_application(
+    NAME
+    slcan
+    STACKSIZE
+    ${CONFIG_CANUTILS_SLCAN_STACKSIZE}
+    MODULE
+    ${CONFIG_CANUTILS_SLCAN}
+    SRCS
+    slcan.c)
+
+endif()
