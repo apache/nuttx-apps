@@ -18,7 +18,7 @@ config LIBSODIUM_VERSION
 config LIBSODIUM_TEST
 	tristate "Enable Libsodium test"
 	default n
-	help
+	---help---
 		Enable the Libsodium test.
 
 if LIBSODIUM_TEST
