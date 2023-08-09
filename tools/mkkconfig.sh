@@ -56,7 +56,7 @@ fi
 
 echo mkkconfig in $PWD
 
-KCONFIG_LIST=`ls -1 $PWD/*/Kconfig`
+KCONFIG_LIST=`ls -1 $PWD/*/Kconfig 2>/dev/null`
 
 echo "#" > ${KCONFIG}
 echo "# For a description of the syntax of this configuration file," >> ${KCONFIG}
