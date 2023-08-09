@@ -36,10 +36,10 @@
  * Name: hexdump_line
  ****************************************************************************/
 
-static int hexdump_line(FILE *ostream, void *addr, int len)
+static int hexdump_line(FAR FILE *ostream, FAR void *addr, int len)
 {
   int i;
-  uint8_t *p;
+  FAR uint8_t *p;
 
   if (len <= 0)
     {
@@ -100,10 +100,10 @@ static int hexdump_line(FILE *ostream, void *addr, int len)
  * Public Functions
  ****************************************************************************/
 
-void i2ctool_hexdump(FILE *outstream, void *addr, int len)
+void i2ctool_hexdump(FAR FILE *outstream, FAR void *addr, int len)
 {
   int nbytes;
-  uint8_t *p = addr;
+  FAR uint8_t *p = addr;
 
   /* print one line at a time */
 
