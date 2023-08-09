@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/canutils/CMakeLists.txt
+# apps/canutils/canlib/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -17,7 +17,10 @@
 # the License.
 #
 # ##############################################################################
+if(CONFIG_CANUTILS_CANLIB)
 
-nuttx_add_subdirectory()
+  target_sources(
+    apps PRIVATE canlib_getbaud.c canlib_setbaud.c canlib_getloopback.c
+                 canlib_setloopback.c canlib_getsilent.c canlib_setsilent.c)
 
-nuttx_generate_kconfig(MENUDESC "CAN Utilities")
+endif()

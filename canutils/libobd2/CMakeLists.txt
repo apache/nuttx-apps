@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/canutils/CMakeLists.txt
+# apps/canutils/libobd2/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,9 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+if(CONFIG_CANUTILS_LIBOBD2)
 
-nuttx_generate_kconfig(MENUDESC "CAN Utilities")
+  target_sources(apps PRIVATE obd2.c obd_sendrequest.c obd_waitresponse.c
+                              obd_decodepid.c)
+
+endif()
