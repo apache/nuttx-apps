@@ -51,7 +51,7 @@ struct nxlooper_s
   char            playdev[CONFIG_NAME_MAX];    /* Preferred loopback device */
   int             crefs;                       /* Number of references */
   pthread_mutex_t mutex;                       /* Thread sync mutex */
-  char            mqname[16];                  /* Name of play message queue */
+  char            mqname[32];                  /* Name of play message queue */
   mqd_t           mq;                          /* Message queue for the
                                                 * loopthread */
   pthread_t       loop_id;                     /* Thread ID of the loopthread */

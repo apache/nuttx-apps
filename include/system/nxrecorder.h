@@ -45,7 +45,7 @@ struct nxrecorder_s
   int             state;                   /* Current recorder state */
   int             dev_fd;                  /* File descriptor of active device */
   mqd_t           mq;                      /* Message queue for the recordthread */
-  char            mqname[16];              /* Name of our message queue */
+  char            mqname[32];              /* Name of our message queue */
   pthread_t       record_id;               /* Thread ID of the recordthread */
   int             crefs;                   /* Number of references to the recorder */
   pthread_mutex_t mutex;                   /* Thread sync mutex */

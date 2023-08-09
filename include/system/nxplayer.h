@@ -53,7 +53,7 @@ struct nxplayer_s
   int             state;                       /* Current player state */
   int             dev_fd;                      /* File descriptor of active device */
   mqd_t           mq;                          /* Message queue for the playthread */
-  char            mqname[16];                  /* Name of our message queue */
+  char            mqname[32];                  /* Name of our message queue */
   pthread_t       play_id;                     /* Thread ID of the playthread */
   int             crefs;                       /* Number of references to the player */
   pthread_mutex_t mutex;                       /* Thread sync mutex */
