@@ -82,4 +82,9 @@ MAINSRC  += drivertest_uart.c
 PROGNAME += cmocka_driver_uart
 endif
 
+ifneq ($(CONFIG_AUDIO),)
+MAINSRC  += drivertest_audio.c
+PROGNAME += cmocka_driver_audio
+endif
+
 include $(APPDIR)/Application.mk
