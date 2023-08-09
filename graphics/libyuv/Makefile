@@ -23,7 +23,7 @@ include $(APPDIR)/Make.defs
 SRCDIR = libyuv
 
 CXXEXT := .cc
-CXXFLAGS += -Wno-shadow
+CXXFLAGS += -Wno-shadow -Wno-undef
 CXXSRCS = $(wildcard $(SRCDIR)/source/*.cc)
 
 libyuv.tar.gz:
