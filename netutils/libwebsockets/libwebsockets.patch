@@ -1,0 +1,112 @@
+--- libwebsockets/include/libwebsockets.h
++++ libwebsockets/include/libwebsockets.h
+@@ -146,7 +146,7 @@ typedef int suseconds_t;
+ #include <sys/capability.h>
+ #endif
+ 
+-#if defined(__NetBSD__) || defined(__FreeBSD__) || defined(__QNX__) || defined(__OpenBSD__)
++#if defined(__NetBSD__) || defined(__FreeBSD__) || defined(__QNX__) || defined(__OpenBSD__) || defined(__NuttX__)
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #endif
+ 
+--- libwebsockets/lib/plat/unix/private-lib-plat-unix.h
++++ libwebsockets/lib/plat/unix/private-lib-plat-unix.h
+@@ -123,7 +123,7 @@ typedef pthread_mutex_t lws_mutex_t;
+ 
+ #endif
+ 
+-#if defined (__sun) || defined(__HAIKU__) || defined(__QNX__) || defined(__ANDROID__)
++#if defined (__sun) || defined(__HAIKU__) || defined(__QNX__) || defined(__ANDROID__) || defined(__NuttX__)
+ #include <syslog.h>
+ 
+ #if defined(__ANDROID__)
+ 
+--- libwebsockets/lib/plat/unix/unix-sockets.c
++++ libwebsockets/lib/plat/unix/unix-sockets.c
+@@ -171,7 +171,7 @@ lws_plat_set_socket_options(struct lws_vhost *vhost, int fd, int unix_skt)
+ 
+ 	/* Disable Nagle */
+ 	optval = 1;
+-#if defined (__sun) || defined(__QNX__)
++#if defined (__sun) || defined(__QNX__) || defined(__NuttX__)
+ 	if (!unix_skt && setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (const void *)&optval, optlen) < 0)
+ 		return 1;
+ #elif !defined(__APPLE__) && \
+@@ -190,6 +190,7 @@ lws_plat_set_socket_options(struct lws_vhost *vhost, int fd, int unix_skt)
+ 	return lws_plat_set_nonblocking(fd);
+ }
+ 
++#if !defined(__NuttX__)
+ static const int ip_opt_lws_flags[] = {
+ 	LCCSCF_IP_LOW_LATENCY, LCCSCF_IP_HIGH_THROUGHPUT,
+ 	LCCSCF_IP_HIGH_RELIABILITY
+@@ -210,6 +211,7 @@ static const char *ip_opt_names[] = {
+ #endif
+ };
+ #endif
++#endif
+ 
+ int
+ lws_plat_set_socket_options_ip(lws_sockfd_type fd, uint8_t pri, int lws_flags)
+@@ -237,7 +239,8 @@ lws_plat_set_socket_options_ip(lws_sockfd_type fd, uint8_t pri, int lws_flags)
+       !defined(__sun) && \
+       !defined(__HAIKU__) && \
+       !defined(__CYGWIN__) && \
+-      !defined(__QNX__)
++      !defined(__QNX__) && \
++      !defined(__NuttX__)
+ 
+ 	/* the BSDs don't have SO_PRIORITY */
+ 
+@@ -255,6 +258,7 @@ lws_plat_set_socket_options_ip(lws_sockfd_type fd, uint8_t pri, int lws_flags)
+ 	}
+ #endif
+ 
++#if !defined(__NuttX__)
+ 	for (n = 0; n < 4; n++) {
+ 		if (!(lws_flags & ip_opt_lws_flags[n]))
+ 			continue;
+@@ -272,6 +276,7 @@ lws_plat_set_socket_options_ip(lws_sockfd_type fd, uint8_t pri, int lws_flags)
+ 			lwsl_notice("%s: set ip flag %s\n", __func__,
+ 				    ip_opt_names[n]);
+ 	}
++#endif
+ 
+ 	return ret;
+ }
+ 
+--- libwebsockets/lib/roles/ws/client-ws.c
++++ libwebsockets/lib/roles/ws/client-ws.c
+@@ -257,15 +257,15 @@ lws_client_ws_upgrade(struct lws *wsi, const char **cce)
+ 	}
+ 
+ 	if (wsi->http.ah->http_response == 401) {
+-		lwsl_wsi_warn(wsi, "got bad HTTP response '%d'",
+-			      wsi->http.ah->http_response);
++		lwsl_wsi_warn(wsi, "got bad HTTP response '%ld'",
++			      (long)wsi->http.ah->http_response);
+ 		*cce = "HS: ws upgrade unauthorized";
+ 		goto bail3;
+ 	}
+ 
+ 	if (wsi->http.ah->http_response != 101) {
+-		lwsl_wsi_warn(wsi, "got bad HTTP response '%d'",
+-			      wsi->http.ah->http_response);
++		lwsl_wsi_warn(wsi, "got bad HTTP response '%ld'",
++			      (long)wsi->http.ah->http_response);
+ 		*cce = "HS: ws upgrade response not 101";
+ 		goto bail3;
+ 	}
+ 
+--- libwebsockets/lib/secure-streams/system/auth-sigv4/sign.c
++++ libwebsockets/lib/secure-streams/system/auth-sigv4/sign.c
+@@ -459,7 +459,7 @@ lws_ss_sigv4_set_aws_key(struct lws_context* context, uint8_t idx,
+ 
+ #if defined(__linux__) || defined(__APPLE__) || defined(WIN32) || \
+ 	defined(__FreeBSD__) || defined(__NetBSD__) || defined(__ANDROID__) || \
+-	defined(__sun) || defined(__OpenBSD__)
++	defined(__sun) || defined(__OpenBSD__) || defined(__NuttX__)
+ 
+ /* ie, if we have filesystem ops */
+ 
