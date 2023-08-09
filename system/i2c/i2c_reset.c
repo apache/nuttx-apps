@@ -38,7 +38,7 @@
  * Name: i2ccmd_reset
  ****************************************************************************/
 
-int i2ccmd_reset(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+int i2ccmd_reset(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 {
   int ret;
   int fd;
