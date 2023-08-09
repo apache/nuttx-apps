@@ -27,6 +27,32 @@ config COREMARK_STACKSIZE
 	int "CoreMark task stack size"
 	default 4096
 
+config COREMARK_SEED_METHOD
+	int "Coremark Seed Method"
+	default 2
+	---help---
+		Set Coremark Seed Method:
+		0: SEED_ARG
+		1: SEED_FUNC
+		2: SEED_VOLATILE
+
+config COREMARK_MEM_METHOD
+	int "Coremark Memory Method"
+	default 1
+	---help---
+		Set Coremark Memory Method:
+		0: MEM_STATIC
+		1: MEM_MALLOC
+		2: MEM_STACK
+
+config COREMARK_DEBUG
+	int "Coremark Core Debug"
+	default 0
+	---help---
+		Enable the Core Debug:
+		0: Disable
+		1: Enable
+
 config COREMARK_PRINT_ARGS
 	bool "Print CoreMark arguments when executing"
 	default n
