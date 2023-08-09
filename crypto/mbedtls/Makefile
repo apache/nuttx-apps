@@ -101,6 +101,10 @@ ifeq ($(CONFIG_MBEDTLS_ALT),y)
 
 CSRCS += $(APPDIR)/crypto/mbedtls/source/dev_alt.c
 
+ifeq ($(CONFIG_MBEDTLS_AES_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/aes_alt.c
+endif
+
 ifeq ($(CONFIG_MBEDTLS_SHA1_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/sha1_alt.c
 endif
