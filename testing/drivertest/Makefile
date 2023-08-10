@@ -117,4 +117,9 @@ MAINSRC  += drivertest_lcd.c
 PROGNAME += cmocka_driver_lcd
 endif
 
+ifneq ($(CONFIG_REGULATOR),)
+MAINSRC  += drivertest_regulator.c
+PROGNAME += cmocka_driver_regulator
+endif
+
 include $(APPDIR)/Application.mk
