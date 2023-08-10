@@ -23,17 +23,15 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <sys/boardctl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
+#include <pthread.h>
 #include <unistd.h>
 
-#include <nuttx/note/noteram_driver.h>
 #include "task_mn.h"
 
 /****************************************************************************
@@ -62,7 +60,6 @@ struct task_list_s watched_tasks =
 void task_mn_print_tasks_status(void)
 {
   int notefd;
-  struct noteram_get_taskname_s task;
   struct task_node_s *node;
 
   /* If the list is not empty */
@@ -82,15 +79,15 @@ void task_mn_print_tasks_status(void)
 
       for (node = watched_tasks.head; node != NULL; node = node->next)
         {
-          task.pid = node->task_id;
-          ioctl(notefd, NOTERAM_GETTASKNAME, (unsigned long)&task);
+          char taskname[CONFIG_NAME_MAX];
+          pthread_getname_np(node->task_id, taskname, sizeof(taskname));
           if (node->reset)
             {
-              printf("%s fed the dog.\n", task.taskname);
+              printf("%s fed the dog.\n", taskname);
             }
           else
             {
-              printf("%s starved the dog.\n", task.taskname);
+              printf("%s starved the dog.\n", taskname);
             }
         }
 
@@ -241,32 +238,16 @@ void task_mn_remove_from_list(pid_t id)
   fprintf(stderr, "watcher daemon: This node is not in the list.\n");
 }
 
-void task_mn_get_task_name(struct noteram_get_taskname_s *task)
-{
-  int notefd;
-
-  notefd = open("/dev/note/ram", O_RDONLY);
-  if (notefd < 0)
-    {
-      fprintf(stderr, "trace: cannot open /dev/note/ram\n");
-      return;
-    }
-
-  ioctl(notefd, NOTERAM_GETTASKNAME, (unsigned long)task);
-  close(notefd);
-}
-
 void task_mn_subscribe(pid_t id)
 {
-  struct noteram_get_taskname_s task;
+  char taskname[CONFIG_NAME_MAX];
 
   /* Verify if the task exists in the list */
 
   if (task_mn_is_task_subscribed(id) != NULL)
     {
-      task.pid = id;
-      task_mn_get_task_name(&task);
-      printf("Task %s was already subscribed\n", task.taskname);
+      pthread_getname_np(id, taskname, sizeof(taskname));
+      printf("Task %s was already subscribed\n", taskname);
     }
   else
     {
@@ -278,7 +259,7 @@ void task_mn_subscribe(pid_t id)
 
 void task_mn_unsubscribe(pid_t id)
 {
-  struct noteram_get_taskname_s task;
+  char taskname[CONFIG_NAME_MAX];
 
   /* Verify if the task exists in the list */
 
@@ -290,9 +271,8 @@ void task_mn_unsubscribe(pid_t id)
     }
   else
     {
-      task.pid = id;
-      task_mn_get_task_name(&task);
-      printf("Task %s is not subscribed\n", task.taskname);
+      pthread_getname_np(id, taskname, sizeof(taskname));
+      printf("Task %s is not subscribed\n", taskname);
     }
 }
 
