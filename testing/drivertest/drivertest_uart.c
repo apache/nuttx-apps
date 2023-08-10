@@ -216,7 +216,7 @@ static void write_default(FAR void **state)
 static void read_default(FAR void **state)
 {
   FAR struct test_state_s *test_state = (FAR struct test_state_s *)*state;
-  sigset_t buffer_size = sizeof(DEFAULT_CONTENT);
+  size_t buffer_size = sizeof(DEFAULT_CONTENT);
   int cnt = 0;
   FAR char *buffer = test_state->buffer;
   assert_true(buffer != NULL);
