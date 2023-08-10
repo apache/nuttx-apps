@@ -71,7 +71,6 @@ void task_mn_reset_all(void);
 struct task_node_s *task_mn_is_task_subscribed(pid_t id);
 void task_mn_add_to_list(pid_t id);
 void task_mn_remove_from_list(pid_t id);
-void task_mn_get_task_name(struct noteram_get_taskname_s *task);
 void task_mn_subscribe(pid_t id);
 void task_mn_unsubscribe(pid_t id);
 bool task_mn_all_tasks_fed(void);
