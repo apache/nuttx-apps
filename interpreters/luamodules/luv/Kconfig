@@ -8,6 +8,7 @@ config LUA_LUV_MODULE
 	default n
 	depends on INTERPRETERS_LUA && LIBUV
 	select LIBC_EXECFUNCS
+	select LIBC_NETDB
 	select NET
 	select NETDEV_IFINDEX
 	select NET_SOCKOPTS
