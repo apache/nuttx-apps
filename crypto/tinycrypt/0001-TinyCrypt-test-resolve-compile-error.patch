@@ -1,0 +1,204 @@
+--- tests/test_ctr_mode.c	2017-08-30 05:21:56.000000000 +0800
++++ tests/test_ctr_mode.c	2023-08-11 15:31:21.409557000 +0800
+@@ -50,7 +50,7 @@
+ /*
+  * NIST SP 800-38a CTR Test for encryption and decryption.
+  */
+-unsigned int test_1_and_2(void)
++static unsigned int test_1_and_2(void)
+ {
+         const uint8_t key[16] = {
+ 		0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88,
+--- tests/test_hmac.c	2017-08-30 05:21:56.000000000 +0800
++++ tests/test_hmac.c	2023-08-11 15:32:58.239231000 +0800
+@@ -66,7 +66,7 @@
+ /*
+  * NIST test vectors for encryption.
+  */
+-unsigned int test_1(void)
++static unsigned int test_1(void)
+ {
+         unsigned int result = TC_PASS;
+ 
+@@ -94,7 +94,7 @@
+         return result;
+ }
+ 
+-unsigned int test_2(void)
++static unsigned int test_2(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("HMAC %s:\n", __func__);
+@@ -122,7 +122,7 @@
+         return result;
+ }
+ 
+-unsigned int test_3(void)
++static unsigned int test_3(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("HMAC %s:\n", __func__);
+@@ -153,7 +153,7 @@
+         return result;
+ }
+ 
+-unsigned int test_4(void)
++static unsigned int test_4(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("HMAC %s:\n", __func__);
+@@ -186,7 +186,7 @@
+         return result;
+ }
+ 
+-unsigned int test_5(void)
++static unsigned int test_5(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("HMAC %s:\n", __func__);
+@@ -214,7 +214,7 @@
+         return result;
+ }
+ 
+-unsigned int test_6(void)
++static unsigned int test_6(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("HMAC %s:\n", __func__);
+@@ -254,7 +254,7 @@
+         return result;
+ }
+ 
+-unsigned int test_7(void)
++static unsigned int test_7(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("HMAC %s:\n", __func__);
+--- tests/test_sha256.c	2017-08-30 05:21:56.000000000 +0800
++++ tests/test_sha256.c	2023-08-11 15:54:28.022372000 +0800
+@@ -50,7 +50,7 @@
+ /*
+  * NIST SHA256 test vector 1.
+  */
+-unsigned int test_1(void)
++static unsigned int test_1(void)
+ {
+         unsigned int result = TC_PASS;
+ 
+@@ -76,7 +76,7 @@
+ /*
+  * NIST SHA256 test vector 2.
+  */
+-unsigned int test_2(void)
++static unsigned int test_2(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #2:\n");
+@@ -99,7 +99,7 @@
+         return result;
+ }
+ 
+-unsigned int test_3(void)
++static unsigned int test_3(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #3:\n");
+@@ -122,7 +122,7 @@
+         return result;
+ }
+ 
+-unsigned int test_4(void)
++static unsigned int test_4(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #4:\n");
+@@ -145,7 +145,7 @@
+         return result;
+ }
+ 
+-unsigned int test_5(void)
++static unsigned int test_5(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #5:\n");
+@@ -171,7 +171,7 @@
+         return result;
+ }
+ 
+-unsigned int test_6(void)
++static unsigned int test_6(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #6:\n");
+@@ -196,7 +196,7 @@
+         return result;
+ }
+ 
+-unsigned int test_7(void)
++static unsigned int test_7(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #7:\n");
+@@ -221,7 +221,7 @@
+         return result;
+ }
+ 
+-unsigned int test_8(void)
++static unsigned int test_8(void)
+ {
+         unsigned int result = TC_PASS;
+ 
+@@ -247,7 +247,7 @@
+         return result;
+ }
+ 
+-unsigned int test_9(void)
++static unsigned int test_9(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #9:\n");
+@@ -272,7 +272,7 @@
+         return result;
+ }
+ 
+-unsigned int test_10(void)
++static unsigned int test_10(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #10:\n");
+@@ -297,7 +297,7 @@
+         return result;
+ }
+ 
+-unsigned int test_11(void)
++static unsigned int test_11(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #11:\n");
+@@ -322,7 +322,7 @@
+         return result;
+ }
+ 
+-unsigned int test_12(void)
++static unsigned int test_12(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #12:\n");
+@@ -351,7 +351,7 @@
+         return result;
+ }
+ 
+-unsigned int test_13(void)
++static unsigned int test_13(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #13:\n");
+@@ -379,7 +379,7 @@
+         return result;
+ }
+ 
+-unsigned int test_14(void)
++static unsigned int test_14(void)
+ {
+         unsigned int result = TC_PASS;
+         TC_PRINT("SHA256 test #14:\n");
