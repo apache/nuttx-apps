@@ -13,7 +13,7 @@ config INTERPRETERS_WAMR_VERSION
 	string "WAMR Version"
 	default "WAMR-04-15-2021"
 	---help---
-	Version WAMR-09-29-2020 and later (include main) supported.
+		Version WAMR-09-29-2020 and later (include main) supported.
 
 config INTERPRETERS_IWASM_TASK
 	bool "Webassembly iwasm task"
@@ -29,7 +29,7 @@ config INTERPRETERS_WAMR_STACKSIZE
 	int "Webassembly Micro Runtime stack size"
 	default 8192
 
-endif
+endif # INTERPRETERS_IWASM_TASK
 
 config INTERPRETERS_WAMR_AOT
 	bool "Enable AOT"
@@ -49,7 +49,7 @@ config INTERPRETERS_WAMR_CLASSIC
 config INTERPRETERS_NONE
 	bool "Disable interpreter"
 
-endchoice
+endchoice # Enable interpreter
 
 config INTERPRETERS_WAMR_DEBUG_INTERP
 	bool "Enable debugger support in the interpreter"
@@ -75,13 +75,13 @@ config INTERPRETERS_WAMR_LIBC_WASI
 	select PSEUDOFS_SOFTLINKS
 	default n
 	---help---
-	Note: As of writing this, this works only with main branch of
-	wasm-micro-runtime.
-	I.e. INTERPRETERS_WAMR_VERSION="main"
+		Note: As of writing this, this works only with main branch of
+		wasm-micro-runtime.
+		I.e. INTERPRETERS_WAMR_VERSION="main"
 
-	Note: As of writing this, most of the filesystem operations are
-	not implemented. (Mainly because of lack of openat family of
-	the API in NuttX.)
+		Note: As of writing this, most of the filesystem operations are
+		not implemented. (Mainly because of lack of openat family of
+		the API in NuttX.)
 
 config INTERPRETERS_WAMR_MULTI_MODULE
 	bool "Enable multi module support"
@@ -91,7 +91,7 @@ config INTERPRETERS_WAMR_MINILOADER
 	bool "Enable mini-loader"
 	default n
 	---help---
-	Mini-loader don't check the integrity of wasm module
+		Mini-loader don't check the integrity of wasm module
 
 config INTERPRETERS_WAMR_REF_TYPES
 	bool "Enable reference types support"
@@ -105,8 +105,8 @@ config INTERPRETERS_WAMR_STACK_GUARD_SIZE
 	int "Custom stack guard size"
 	default 0
 	---help---
-	Reserve some space in stack as guard to detect stack overflow,
-	use stack base by default but may not safe enough.
+		Reserve some space in stack as guard to detect stack overflow,
+		use stack base by default but may not safe enough.
 
 config INTERPRETERS_WAMR_THREAD_MGR
 	bool "Enable thread manager"
@@ -116,13 +116,13 @@ config INTERPRETERS_WAMR_LIB_WASI_THREADS
 	bool "Enable wasi-threads"
 	default n
 	---help---
-	See https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/doc/pthread_impls.md
+		See https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/doc/pthread_impls.md
 
 config INTERPRETERS_WAMR_LIB_PTHREAD
 	bool "Enable lib pthread (legacy)"
 	default n
 	---help---
-	See https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/doc/pthread_impls.md
+		See https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/doc/pthread_impls.md
 
 config INTERPRETERS_WAMR_LIB_PTHREAD_SEMAPHORE
 	bool "Enable semaphore"
@@ -171,7 +171,7 @@ config INTERPRETERS_WAMR_GLOBAL_HEAP_POOL_SIZE
 	int "Global heap pool size (in KB)"
 	default 128
 
-endif
+endif # INTERPRETERS_WAMR_GLOBAL_HEAP_POOL
 
 config INTERPRETERS_WAMR_CONFIGUABLE_BOUNDS_CHECKS
 	bool "Configuable bounds checks"
@@ -181,4 +181,4 @@ config INTERPRETERS_WAMR_CONFIGUABLE_BOUNDS_CHECKS
 		disable bounds checks passing --disable-bounds-checks to
 		iwasm.
 
-endif
+endif # INTERPRETERS_WAMR

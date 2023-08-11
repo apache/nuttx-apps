@@ -28,8 +28,8 @@ config INTERPRETERS_QUICKJS_BIGNUM
 	bool "Bignum support"
 	default n
 	---help---
-	It's depend on libatomic,
-	Not all platform support it.
+		It's depend on libatomic,
+		Not all platform support it.
 
 config INTERPRETERS_QUICKJS_PRIORITY
 	int "QuickJS interpreter priority"
@@ -47,4 +47,4 @@ config INTERPRETERS_QUICKJS_EXT_HOOK
 		Since minimal interpreter only support 'console.log',
 		you can export custom module by implement init/destory hook.
 
-endif
+endif # INTERPRETERS_QUICKJS
