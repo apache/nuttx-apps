@@ -25,7 +25,7 @@ config INTERPRETERS_WASM3_FIXEDHEAP
 	int "WASM3 Fixed heap size"
 	default 0
 	---help---
-	0 : Use malloc/free instead of internal heap
+		0 : Use malloc/free instead of internal heap
 
 config INTERPRETERS_WASM3_LOG
 	bool "WASM3 log"
@@ -37,6 +37,6 @@ config INTERPRETERS_WASM3_LOG_VERBOSE
 	bool "WASM3 log verbose"
 	default n
 
-endif
+endif # INTERPRETERS_WASM3_LOG
 
-endif
+endif # INTERPRETERS_WASM3
