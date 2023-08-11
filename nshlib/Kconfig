@@ -490,6 +490,11 @@ config NSH_DISABLE_PASSWD
 	default DEFAULT_SMALL
 	depends on NSH_LOGIN_PASSWD && !FSUTILS_PASSWD_READONLY
 
+config NSH_DISABLE_PIDOF
+	bool "Disable pidof"
+	default DEFAULT_SMALL
+	depends on FS_PROCFS
+
 config NSH_DISABLE_PMCONFIG
 	bool "Disable pmconfig"
 	default DEFAULT_SMALL
