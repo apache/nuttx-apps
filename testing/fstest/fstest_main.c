@@ -375,7 +375,7 @@ static int fstest_gc(FAR struct fstest_ctx_s *ctx, size_t nbytes)
 }
 #else
 #  define fstest_gc_withfd(f,n) (-ENOSYS)
-#  define fstest_gc(n)          (-ENOSYS)
+#  define fstest_gc(ctx,n)      (-ENOSYS)
 #endif
 
 /****************************************************************************
@@ -1165,7 +1165,7 @@ int main(int argc, FAR char *argv[])
 
       /* Perform garbage collection, integrity checks */
 
-      ret = fstest_gc(buf.f_bfree);
+      ret = fstest_gc(ctx, buf.f_bfree);
       UNUSED(ret);
 
       /* Show memory usage */
