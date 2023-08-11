@@ -576,9 +576,8 @@
  */
 
 #if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_PS) && \
-    defined(CONFIG_NSH_DISABLE_FDINFO) && \
-    defined(CONFIG_NSH_DISABLE_RPTUN) && \
-    defined(CONFIG_NSH_DISABLE_PMCONFIG)
+    defined(CONFIG_NSH_DISABLE_RPTUN) && defined(CONFIG_NSH_DISABLE_PMCONFIG) && \
+    defined(CONFIG_NSH_DISABLE_FDINFO) && defined(CONFIG_NSH_DISABLE_PIDOF)
 #  undef NSH_HAVE_FOREACH_DIRENTRY
 #endif
 
@@ -955,6 +954,9 @@ void nsh_usbtrace(void);
 #endif
 #ifndef CONFIG_NSH_DISABLE_PS
   int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PIDOF)
+  int cmd_pidof(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 #if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_FDINFO)
   int cmd_fdinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
@@ -1379,6 +1381,28 @@ int nsh_writefile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                          FAR const char *dirpath,
                          nsh_direntry_handler_t handler, void *pvarg);
+#endif
+
+/****************************************************************************
+ * Name: nsh_getpid
+ *
+ * Description:
+ *   Obtain pid through process name
+ *
+ * Input Parameters:
+ *   vtbl    - NSH session data
+ *   name    - the name of the process
+ *   pids    - allocated array for storing pid
+ *   count   - the maximum number of pids obtained
+ *
+ * Returned value:
+ *   the actual number of pids obtained
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PIDOF)
+ssize_t nsh_getpid(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
+                   FAR pid_t *pids, size_t count);
 #endif
 
 /****************************************************************************
