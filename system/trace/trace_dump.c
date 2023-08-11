@@ -356,7 +356,7 @@ static void trace_dump_sched_switch(FAR FILE *out,
  * Name: trace_dump_one
  ****************************************************************************/
 
-static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
+static int trace_dump_one(FAR FILE *out, FAR uint8_t *p,
                           FAR struct trace_dump_context_s *ctx)
 {
   FAR struct note_common_s *note = (FAR struct note_common_s *)p;
@@ -494,16 +494,8 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
             }
 
           trace_dump_header(out, note, ctx);
-          if (type == TRACE_TYPE_ANDROID)
-            {
-              fprintf(out, "tracing_mark_write: B|%d|sys_%s(",
-                      pid, g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
-            }
-          else
-            {
-              fprintf(out, "sys_%s(",
-                      g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
-            }
+          fprintf(out, "sys_%s(",
+                  g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED]);
 
           for (i = j = 0; i < nsc->nsc_argc; i++)
             {
@@ -560,20 +552,9 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
 
           trace_dump_header(out, note, ctx);
           trace_dump_unflatten(&result, nsc->nsc_result, sizeof(result));
-
-          if (type == TRACE_TYPE_ANDROID)
-            {
-              fprintf(out, "tracing_mark_write: E|%d|"
-                      "sys_%s -> 0x%" PRIxPTR "\n", pid,
-                      g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
-                      result);
-            }
-          else
-            {
-              fprintf(out, "sys_%s -> 0x%" PRIxPTR "\n",
-                      g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
-                      result);
-            }
+          fprintf(out, "sys_%s -> 0x%" PRIxPTR "\n",
+                  g_funcnames[nsc->nsc_nr - CONFIG_SYS_RESERVED],
+                  result);
         }
         break;
 #endif
@@ -626,25 +607,17 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
           trace_dump_header(out, note, ctx);
           trace_dump_unflatten(&ip, nst->nst_ip, sizeof(ip));
 
-          if (type == TRACE_TYPE_ANDROID &&
-              nst->nst_data[1] == '\0' &&
+          if (nst->nst_data[1] == '\0' &&
               (nst->nst_data[0] == 'B' ||
                nst->nst_data[0] == 'E'))
             {
               fprintf(out, "tracing_mark_write: %c|%d|%pS\n",
                       nst->nst_data[0], pid, (FAR void *)ip);
             }
-          else if (type == TRACE_TYPE_ANDROID &&
-              nst->nst_data[1] == '|' &&
-              (nst->nst_data[0] == 'B' ||
-               nst->nst_data[0] == 'E'))
+          else
             {
               fprintf(out, "tracing_mark_write: %s\n",
                       nst->nst_data);
-            }
-          else
-            {
-              fprintf(out, "%pS: %s\n", (FAR void *)ip, nst->nst_data);
             }
         }
         break;
@@ -662,7 +635,8 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
 
           trace_dump_unflatten(&ip, nbi->nbi_ip, sizeof(ip));
 
-          fprintf(out, "0x%" PRIdPTR ": event=%u count=%u",
+          fprintf(out, "tracing_mark_write: 0x%" PRIdPTR
+                  ": event=%u count=%u",
                   ip, nbi->nbi_event, count);
           for (i = 0; i < count; i++)
             {
@@ -697,7 +671,7 @@ static int trace_dump_one(trace_dump_t type, FAR FILE *out, FAR uint8_t *p,
  *
  ****************************************************************************/
 
-int trace_dump(trace_dump_t type, FAR FILE *out)
+int trace_dump(FAR FILE *out)
 {
   struct trace_dump_context_s ctx;
   uint8_t tracedata[UCHAR_MAX];
@@ -730,7 +704,7 @@ int trace_dump(trace_dump_t type, FAR FILE *out)
       p = tracedata;
       do
         {
-          size = trace_dump_one(type, out, p, &ctx);
+          size = trace_dump_one(out, p, &ctx);
           p += size;
           ret -= size;
         }

@@ -142,22 +142,10 @@ static int trace_cmd_start(int index, int argc, FAR char **argv,
 static int trace_cmd_dump(int index, int argc, FAR char **argv,
                           int notectlfd)
 {
-  trace_dump_t type = TRACE_TYPE_LTTNG_KERNEL;
   FAR FILE *out = stdout;
   bool changed = false;
   bool cont = false;
   int ret;
-
-  /* Usage: trace dump [-a] "Custom Format : Android SysTrace" */
-
-  if (index < argc)
-    {
-      if (strcmp(argv[index], "-a") == 0)
-        {
-          index++;
-          type = TRACE_TYPE_ANDROID;
-        }
-    }
 
   /* Usage: trace dump [-c][<filename>] */
 
@@ -205,7 +193,7 @@ static int trace_cmd_dump(int index, int argc, FAR char **argv,
 
   /* Dump the trace data */
 
-  ret = trace_dump(type, out);
+  ret = trace_dump(out);
 
   if (changed)
     {
