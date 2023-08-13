@@ -33,7 +33,7 @@
 
 #include "ostest.h"
 
-#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID)
+#if defined(CONFIG_ARCH_HAVE_FORK) && defined(CONFIG_SCHED_WAITPID)
 
 /****************************************************************************
  * Private Data
@@ -84,4 +84,4 @@ int vfork_test(void)
   return 0;
 }
 
-#endif /* CONFIG_ARCH_HAVE_VFORK && CONFIG_SCHED_WAITPID */
+#endif /* CONFIG_ARCH_HAVE_FORK && CONFIG_SCHED_WAITPID */
