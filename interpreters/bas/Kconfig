@@ -72,7 +72,7 @@ config INTERPRETER_BAS_HAVE_FTRUNCATE
 config EXAMPLES_BAS_SHELL
 	bool "Shell support"
 	default n
-	depends on ARCH_HAVE_VFORK && EXPERIMENTAL
+	depends on ARCH_HAVE_FORK && EXPERIMENTAL
 	select LIBC_EXECFUNCS
 	select SCHED_WAITPID
 	---help---
