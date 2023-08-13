@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <mqueue.h>
 #include <sys/ioctl.h>
+#include <sys/boardctl.h>
 
 #include "ofloader.h"
 
@@ -316,6 +317,18 @@ int main(int argc, FAR char *argv[])
   size_t count;
   size_t i;
   mqd_t mq;
+
+#if defined(CONFIG_BOARDCTL) && !defined(CONFIG_NSH_ARCHINIT)
+  /* Perform architecture-specific initialization (if configured) */
+
+  boardctl(BOARDIOC_INIT, 0);
+
+#  ifdef CONFIG_BOARDCTL_FINALINIT
+  /* Perform architecture-specific final-initialization (if configured) */
+
+  boardctl(BOARDIOC_FINALINIT, 0);
+#  endif
+#endif
 
   memset(&mqattr, 0, sizeof(struct mq_attr));
   mqattr.mq_msgsize = sizeof(msg);
