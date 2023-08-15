@@ -50,6 +50,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/param.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -988,7 +989,7 @@ int httpd_send_headers(struct httpd_state *pstate, int status, int len)
     {
       mime = "text/plain";
 
-      for (i = 0; i < sizeof a / sizeof *a; i++)
+      for (i = 0; i < nitems(a); i++)
         {
           if (strncmp(a[i].ext, ptr + 1, strlen(a[i].ext)) == 0)
             {

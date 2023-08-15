@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 
@@ -99,10 +100,6 @@
 #define NTP_VERSION          NTP_VERSION_V4
 
 #define MAX_SERVER_SELECTION_RETRIES 3
-
-#ifndef ARRAY_SIZE
-#  define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-#endif
 
 #ifndef STR
 #  define STR2(x) #x
@@ -1003,7 +1000,7 @@ static int ntp_get_next_hostip(FAR struct ntp_servers_s *srvs,
       /* Refresh DNS for new IP-addresses. */
 
       ret = ntp_gethostip_multi(hostname, srvs->list,
-                                ARRAY_SIZE(srvs->list));
+                                nitems(srvs->list));
       if (ret <= 0)
         {
           return ERROR;

@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <unistd.h>
 
 #include <nuttx/sensors/sensor.h>
@@ -39,7 +40,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define ARRAYSIZE(a)       (sizeof(a) / sizeof(a)[0])
 #define DEVNAME_FMT        "/dev/uorb/sensor_%s"
 #define DEVNAME_MAX        64
 
@@ -317,7 +317,7 @@ int main(int argc, FAR char *argv[])
   if (optind < argc)
     {
       name = argv[optind];
-      for (idx = 0; idx < ARRAYSIZE(g_sensor_info); idx++)
+      for (idx = 0; idx < nitems(g_sensor_info); idx++)
         {
           if (!strncmp(name, g_sensor_info[idx].name,
               strlen(g_sensor_info[idx].name)))

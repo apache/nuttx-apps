@@ -25,6 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <crypto/cryptodev.h>
 #include <crypto/md5.h>
 #include <crypto/sha1.h>
@@ -326,7 +327,7 @@ int main(void)
       printf("syshash init failed\n");
     }
 
-  for (i = 0; i < sizeof(md5_testcase) / sizeof(tb); i++)
+  for (i = 0; i < nitems(md5_testcase); i++)
     {
       ret = syshash_start(&md5_ctx, CRYPTO_MD5);
       if (ret != 0)
@@ -362,7 +363,7 @@ int main(void)
         }
     }
 
-  for (i = 0; i < sizeof(sha_testcase) / sizeof(struct tb); i++)
+  for (i = 0; i < nitems(sha_testcase); i++)
     {
       ret = syshash_start(&sha1_ctx, CRYPTO_SHA1);
       if (ret != 0)
@@ -417,7 +418,7 @@ int main(void)
         }
     }
 
-  for (i = 0; i < sizeof(sha_testcase) / sizeof(struct tb); i++)
+  for (i = 0; i < nitems(sha_testcase); i++)
     {
       ret = syshash_start(&sha2_256_ctx, CRYPTO_SHA2_256);
       if (ret != 0)
@@ -470,7 +471,7 @@ int main(void)
         }
     }
 
-  for (i = 0; i < sizeof(sha512_testcase) / sizeof(struct tb); i++)
+  for (i = 0; i < nitems(sha512_testcase); i++)
     {
       ret = syshash_start(&sha2_512_ctx, CRYPTO_SHA2_512);
       if (ret != 0)

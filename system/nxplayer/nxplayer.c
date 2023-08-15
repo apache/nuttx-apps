@@ -38,6 +38,7 @@
 #include <strings.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/param.h>
 #include <unistd.h>
 #ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
 #  include <sys/time.h>
@@ -1900,7 +1901,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       goto err_out_nodev;
     }
 
-  for (c = 0; c < sizeof(g_dec_ops) / sizeof(g_dec_ops[0]); c++)
+  for (c = 0; c < nitems(g_dec_ops); c++)
     {
       if (g_dec_ops[c].format == filefmt)
         {

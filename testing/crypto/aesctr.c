@@ -351,7 +351,7 @@ int main(int argc, FAR char **argv)
   int fail = 0;
   int i;
 
-  for (i = 0; i < (sizeof(tests) / sizeof(tests[0])); i++)
+  for (i = 0; i < nitems(tests); i++)
     {
       fail += run(i);
     }

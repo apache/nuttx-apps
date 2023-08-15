@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/param.h>
 #include <unistd.h>
 
 #include <nuttx/audio/audio.h>
@@ -157,8 +158,7 @@ static int nxplayer_parse_mpeg(uint32_t header, FAR uint32_t *samplerate,
   padding = (header >> 9) & 1;
   mode    = (header >> 6) & 3;
 
-  if (sr_idx >= sizeof(g_mpa_freq_tab) / sizeof(g_mpa_freq_tab[0]) ||
-      br_idx >= 0xf)
+  if (sr_idx >= nitems(g_mpa_freq_tab) || br_idx >= 0xf)
     {
       return -EINVAL;
     }

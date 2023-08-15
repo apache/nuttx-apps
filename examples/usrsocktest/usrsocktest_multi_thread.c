@@ -22,6 +22,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <assert.h>
 #include <netinet/in.h>
@@ -33,10 +34,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#ifndef ARRAY_SIZE
-#  define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-#endif
 
 /****************************************************************************
  * Private Types
@@ -115,12 +112,12 @@ TEST_SETUP(multithread)
 {
   int i;
 
-  for (i = 0; i < ARRAY_SIZE(sds); i++)
+  for (i = 0; i < nitems(sds); i++)
     {
       sds[i] = -1;
     }
 
-  for (i = 0; i < ARRAY_SIZE(tids); i++)
+  for (i = 0; i < nitems(tids); i++)
     {
       tids[i] = -1;
     }
@@ -150,7 +147,7 @@ TEST_TEAR_DOWN(multithread)
   int ret;
   int i;
 
-  for (i = 0; i < ARRAY_SIZE(tids); i++)
+  for (i = 0; i < nitems(tids); i++)
     {
       if (tids[i] != -1)
         {
@@ -161,7 +158,7 @@ TEST_TEAR_DOWN(multithread)
         }
     }
 
-  for (i = 0; i < ARRAY_SIZE(sds); i++)
+  for (i = 0; i < nitems(sds); i++)
     {
       if (sds[i] != -1)
         {
@@ -213,7 +210,7 @@ TEST(multithread, open_close)
 
   /* Launch worker threads. */
 
-  for (i = 0; i < ARRAY_SIZE(tids); i++)
+  for (i = 0; i < nitems(tids); i++)
     {
       ret = pthread_create(&tids[i], NULL, usrsock_socket_multitask_thread,
                            sds + i);

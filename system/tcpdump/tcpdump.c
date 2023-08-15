@@ -312,6 +312,6 @@ int main(int argc, FAR char *argv[])
   close(cfgs.fd);
 
 out:
-  arg_freetable((FAR void **)&args, sizeof(args) / sizeof(FAR void *));
+  arg_freetable((FAR void **)&args, 1);
   return 0;
 }

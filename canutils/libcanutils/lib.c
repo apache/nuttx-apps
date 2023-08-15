@@ -46,6 +46,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include <sys/param.h>
 #include <sys/socket.h> /* for sa_family_t */
 #include <nuttx/can.h>
 #include <netpacket/can.h>
@@ -496,10 +497,6 @@ static const char *protocol_violation_locations[] = {
 	"unspecified",
 };
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-#endif
-
 static int snprintf_error_data(char *buf, size_t len, uint8_t err,
 			       const char **arr, int arr_len)
 {
@@ -537,7 +534,7 @@ static int snprintf_error_ctrl(char *buf, size_t len, const struct canfd_frame *
 	n += snprintf(buf + n, len - n, "{");
 	n += snprintf_error_data(buf + n, len - n, cf->data[1],
 				controller_problems,
-				ARRAY_SIZE(controller_problems));
+				nitems(controller_problems));
 	n += snprintf(buf + n, len - n, "}");
 
 	return n;
@@ -553,10 +550,10 @@ static int snprintf_error_prot(char *buf, size_t len, const struct canfd_frame *
 	n += snprintf(buf + n, len - n, "{{");
 	n += snprintf_error_data(buf + n, len - n, cf->data[2],
 				protocol_violation_types,
-				ARRAY_SIZE(protocol_violation_types));
+				nitems(protocol_violation_types));
 	n += snprintf(buf + n, len - n, "}{");
 	if (cf->data[3] > 0 &&
-	    cf->data[3] < ARRAY_SIZE(protocol_violation_locations))
+	    cf->data[3] < nitems(protocol_violation_locations))
 		n += snprintf(buf + n, len - n, "%s",
 			      protocol_violation_locations[cf->data[3]]);
 	n += snprintf(buf + n, len - n, "}}");
@@ -575,7 +572,7 @@ void snprintf_can_error_frame(char *buf, size_t len, const struct canfd_frame *c
 		return;
 
 	class = cf->can_id & CAN_EFF_MASK;
-	if (class > (1 << ARRAY_SIZE(error_classes))) {
+	if (class > (1 << nitems(error_classes))) {
 		fprintf(stderr, "Error class %#jx is invalid\n", (uintmax_t)class);
 		return;
 	}
@@ -583,7 +580,7 @@ void snprintf_can_error_frame(char *buf, size_t len, const struct canfd_frame *c
 	if (!sep)
 		sep = defsep;
 
-	for (i = 0; i < (int)ARRAY_SIZE(error_classes); i++) {
+	for (i = 0; i < (int)nitems(error_classes); i++) {
 		mask = 1 << i;
 		if (class & mask) {
 			if (classes)

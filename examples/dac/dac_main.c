@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <nuttx/analog/dac.h>
 #include <nuttx/arch.h>
 
@@ -45,10 +46,6 @@
 
 #ifndef CONFIG_EXAMPLES_DAC_DEVPATH
 #  define CONFIG_EXAMPLES_DAC_DEVPATH "/dev/dac0"
-#endif
-
-#ifndef ARRAY_SIZE
-#  define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
 /****************************************************************************
@@ -226,7 +223,7 @@ static int cmd_dac_put(int argc, FAR const char *argv[])
     {
       msgs[0].am_channel = g_dacstate.channel;
       msgs[0].am_data = data;
-      ret = dac_put(g_dacstate.devpath, msgs, ARRAY_SIZE(msgs), delay);
+      ret = dac_put(g_dacstate.devpath, msgs, nitems(msgs), delay);
       printf("ret=%d\n", ret);
     }
 
@@ -277,7 +274,7 @@ static void dac_help(void)
          "Default: %s Current: %s\n",
          CONFIG_EXAMPLES_DAC_DEVPATH,
          g_dacstate.devpath ? g_dacstate.devpath : "NONE");
-  print_cmds("\nCommands:\n", commands, ARRAY_SIZE(commands), "\n");
+  print_cmds("\nCommands:\n", commands, nitems(commands), "\n");
 }
 
 static int arg_string(FAR const char **arg, FAR const char **value)
@@ -422,7 +419,7 @@ int main(int argc, FAR const char *argv[])
     }
   else
     {
-      ret = execute_cmd(argc, argv, commands, ARRAY_SIZE(commands));
+      ret = execute_cmd(argc, argv, commands, nitems(commands));
     }
 
   return (ret >= 0) ? EXIT_SUCCESS : EXIT_FAILURE;

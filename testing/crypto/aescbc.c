@@ -27,6 +27,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <crypto/cryptodev.h>
 #include <crypto/md5.h>
 #include <crypto/sha1.h>
@@ -192,7 +193,7 @@ int main(int argc, char *argv[])
   int ret;
   unsigned char out[64];
 
-  for (int i = 0; i < sizeof(testcase) / sizeof(struct tb); i++)
+  for (int i = 0; i < nitems(testcase); i++)
     {
       ret = syscrypt(testcase[i].key, 16, testcase[i].iv, testcase[i].plain,
                      out, testcase[i].len, 1);
