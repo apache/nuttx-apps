@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_PWM)
-  nuttx_add_application(NAME pwm)
+  nuttx_add_application(
+    NAME
+    pwm
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PWM}
+    SRCS
+    pwm_main.c)
 endif()

@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_RFID_READUID)
-  nuttx_add_application(NAME rfid_readuid)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_RFID_READUID_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_RFID_READUID_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_RFID_READUID_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_RFID_READUID}
+    SRCS
+    rfid_readuid.c)
 endif()

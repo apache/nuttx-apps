@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_BMP180)
-  nuttx_add_application(NAME bmp180)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_BMP180_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_BMP180_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_BMP180_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_BMP180}
+    SRCS
+    bmp180_main.c)
 endif()

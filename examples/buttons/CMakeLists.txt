@@ -21,11 +21,13 @@
 if(CONFIG_EXAMPLES_BUTTONS)
   nuttx_add_application(
     NAME
-    buttons
-    SRCS
-    buttons_main.c
+    ${CONFIG_EXAMPLES_BUTTONS_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_BUTTONS_PRIORITY}
     STACKSIZE
     ${CONFIG_EXAMPLES_BUTTONS_STACKSIZE}
-    PRIORITY
-    ${CONFIG_EXAMPLES_BUTTONS_PRIORITY})
+    MODULE
+    ${CONFIG_EXAMPLES_BUTTONS}
+    SRCS
+    buttons_main.c)
 endif()

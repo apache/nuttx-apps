@@ -19,5 +19,24 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_FT80X)
-  nuttx_add_application(NAME ft80x)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_FT80X_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_FT80X_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_FT80X_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_FT80X}
+    SRCS
+    ft80x_main.c)
+
+  set(CSRCS ft80x_coprocessor.c)
+  if(CONFIG_EXAMPLES_FT80X_PRIMITIVES)
+    list(APPEND CSRCS ft80x_primitives.c)
+  endif()
+  if(CONFIG_EXAMPLES_FT80X_EXCLUDE_BITMAPS)
+    list(APPEND CSRCS ft80x_bitmaps.c)
+  endif()
+  target_sources(apps PRIVATE ${CSRCS})
 endif()

@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_LVGLDEMO)
-  nuttx_add_application(NAME lvgldemo)
+  nuttx_add_application(
+    NAME
+    lvgldemo
+    PRIORITY
+    ${CONFIG_EXAMPLES_LVGLDEMO_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_LVGLDEMO_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_LVGLDEMO}
+    SRCS
+    lvgldemo.c)
 endif()

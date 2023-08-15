@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_INA219)
-  nuttx_add_application(NAME ina219)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_INA219_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_INA219_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_INA219_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_INA219}
+    SRCS
+    ina219_main.c)
 endif()

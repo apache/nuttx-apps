@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_HELLOXX)
-  nuttx_add_application(NAME helloxx SRCS helloxx_main.cxx)
+  nuttx_add_application(
+    NAME
+    helloxx
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_HELLOXX}
+    SRCS
+    helloxx_main.cxx)
 endif()

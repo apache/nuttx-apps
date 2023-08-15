@@ -19,5 +19,112 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_PDCURSES)
-  nuttx_add_application(NAME pdcurses)
+  target_sources(apps PRIVATE tui.c)
+  nuttx_add_application(
+    NAME
+    charset
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    charset_main.c)
+
+  nuttx_add_application(
+    NAME
+    firework
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    firework_main.c)
+
+  nuttx_add_application(
+    NAME
+    newdemo
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    newdemo_main.c)
+
+  nuttx_add_application(
+    NAME
+    panel
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    panel_main.c)
+
+  nuttx_add_application(
+    NAME
+    rain
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    rain_main.c)
+
+  nuttx_add_application(
+    NAME
+    testcurs
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    testcurs_main.c)
+
+  nuttx_add_application(
+    NAME
+    tui
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    tui_main.c)
+
+  nuttx_add_application(
+    NAME
+    worm
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    worm_main.c)
+
+  nuttx_add_application(
+    NAME
+    xmas
+    PRIORITY
+    ${CONFIG_EXAMPLES_PDCURSES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PDCURSES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PDCURSES}
+    SRCS
+    xmas_main.c)
 endif()

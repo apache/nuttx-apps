@@ -19,5 +19,16 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_NXTERM)
-  nuttx_add_application(NAME nxterm)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_NXTERM_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_NXTERM_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_NXTERM_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_NXTERM}
+    SRCS
+    nxterm_main.c)
+  target_sources(apps PRIVATE nxterm_toolbar.c nxterm_wndo.c nxterm_listener.c)
 endif()

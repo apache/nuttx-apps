@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_CAN)
-  nuttx_add_application(NAME can)
+  nuttx_add_application(
+    NAME
+    can
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_CAN}
+    SRCS
+    can_main.c)
 endif()

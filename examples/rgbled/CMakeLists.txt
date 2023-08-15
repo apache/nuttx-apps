@@ -19,6 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_RGBLED)
-  nuttx_add_application(NAME rgbled SRCS rgbled.c)
-
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_RGBLED_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_RGBLED_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_RGBLED_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_RGBLED}
+    SRCS
+    rgbled.c)
 endif()

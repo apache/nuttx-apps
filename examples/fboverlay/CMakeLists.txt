@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_FBOVERLAY)
-  nuttx_add_application(NAME fboverlay)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_FBOVERLAY_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_FBOVERLAY_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_FBOVERLAY_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_FBOVERLAY}
+    SRCS
+    fboverlay_main.c)
 endif()

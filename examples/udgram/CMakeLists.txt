@@ -19,5 +19,27 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_UDGRAM)
-  nuttx_add_application(NAME udgram)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_UDGRAM_CLIENT_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_UDGRAM_CLIENT_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_UDGRAM_CLIENT_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_UDGRAM}
+    SRCS
+    udgram_client.c)
+
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_UDGRAM_SERVER_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_UDGRAM_SERVER_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_UDGRAM_SERVER_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_UDGRAM}
+    SRCS
+    udgram_server.c)
 endif()

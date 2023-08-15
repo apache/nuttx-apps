@@ -23,5 +23,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_XBC_TEST)
-  nuttx_add_application(NAME xbc_test)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_XBC_TEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_XBC_TEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_XBC_TEST_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_XBC_TEST}
+    SRCS
+    xbc_test_main.c)
 endif()

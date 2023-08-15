@@ -19,5 +19,19 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_I2SCHAR)
-  nuttx_add_application(NAME i2schar)
+  nuttx_add_application(
+    NAME
+    i2schar
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_I2SCHAR}
+    SRCS
+    i2schar_main.c)
+  if(CONFIG_EXAMPLES_I2SCHAR_TX)
+    target_sources(apps PRIVATE i2schar_transmitter.c)
+  endif()
+  if(CONFIG_EXAMPLES_I2SCHAR_RX)
+    target_sources(apps PRIVATE i2schar_receiver.c)
+  endif()
 endif()

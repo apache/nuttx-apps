@@ -19,5 +19,24 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_BASTEST)
-  nuttx_add_application(NAME bastest)
+  nuttx_add_romfs(
+    NAME
+    bastest
+    PATH
+    ${CMAKE_CURRENT_LIST_DIR}/test
+    HEADER
+    PREFIX
+    bastest
+    NONCONST)
+
+  nuttx_add_application(
+    NAME
+    bastest
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_BASTEST}
+    SRCS
+    bastest_main.c)
+
 endif()

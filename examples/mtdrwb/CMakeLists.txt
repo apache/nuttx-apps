@@ -19,6 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_MTDRWB)
-  nuttx_add_application(NAME ${CONFIG_EXAMPLES_MTDRWB_PROGNAME} SRCS
-                        mtdrwb_main.c)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_MTDRWB_PROGNAME}
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_MTDRWB}
+    SRCS
+    mtdrwb_main.c)
 endif()

@@ -19,6 +19,14 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_PIPE)
-  nuttx_add_application(NAME pipe)
-
+  nuttx_add_application(
+    NAME
+    pipe
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PIPE}
+    SRCS
+    pipe_main.c)
+  target_sources(apps PRIVATE transfer_test.c interlock_test.c redirect_test.c)
 endif()

@@ -19,6 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_IGMP)
-  nuttx_add_application(NAME igmp SRCS igmp.c STACKSIZE
-                        ${CONFIG_DEFAULT_TASK_STACKSIZE})
+  nuttx_add_application(
+    NAME
+    igmp
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_IGMP}
+    SRCS
+    igmp.c)
 endif()

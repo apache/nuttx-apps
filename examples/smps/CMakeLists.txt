@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SMPS)
-  nuttx_add_application(NAME smps)
+  nuttx_add_application(
+    NAME
+    smps
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_SMPS}
+    SRCS
+    smps_main.c)
 endif()

@@ -19,5 +19,14 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_NXDEMO)
-  nuttx_add_application(NAME nxdemo)
+  nuttx_add_application(
+    NAME
+    nxdemo
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_NXDEMO}
+    SRCS
+    nxdemo_main.c)
+  target_sources(apps PRIVATE nxdemo_bkgd.c nxdemo_listener.c)
 endif()

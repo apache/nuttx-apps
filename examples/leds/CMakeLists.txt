@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_LEDS)
-  nuttx_add_application(NAME leds)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_LEDS_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_LEDS_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_LEDS_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_LEDS}
+    SRCS
+    leds_main.c)
 endif()

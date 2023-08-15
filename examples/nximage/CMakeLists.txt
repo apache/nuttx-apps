@@ -19,5 +19,17 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_NXIMAGE)
-  nuttx_add_application(NAME nximage)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_NXIMAGE_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_NXIMAGE_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_NXIMAGE_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_NXIMAGE}
+    SRCS
+    nximage_main.c)
+  target_sources(apps PRIVATE nximage_bkgd.c nximage_bitmap.c
+                              nximage_listener.c)
 endif()

@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_VEML6070)
-  nuttx_add_application(NAME veml6070)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_VEML6070_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_VEML6070_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_VEML6070_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_VEML6070}
+    SRCS
+    veml6070_main.c)
 endif()

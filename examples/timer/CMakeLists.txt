@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_TIMER)
-  nuttx_add_application(NAME timer)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_TIMER_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_TIMER_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_TIMER_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_TIMER}
+    SRCS
+    timer_main.c)
 endif()

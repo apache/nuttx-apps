@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_CHAT)
-  nuttx_add_application(NAME chat)
+  nuttx_add_application(
+    NAME
+    chat
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_CHAT}
+    SRCS
+    chat_main.c)
 endif()

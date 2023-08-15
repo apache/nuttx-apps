@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_MLX90614)
-  nuttx_add_application(NAME mlx90614)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_MLX90614_PROGNAME}
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_MLX90614}
+    SRCS
+    mlx90614_main.c)
 endif()

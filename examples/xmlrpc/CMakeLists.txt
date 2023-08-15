@@ -19,5 +19,14 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_XMLRPC)
-  nuttx_add_application(NAME xmlrpc)
+  nuttx_add_application(
+    NAME
+    xmlrpc
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_XMLRPC}
+    SRCS
+    xmlrpc_main.c)
+  target_sources(apps PRIVATE calls.c)
 endif()

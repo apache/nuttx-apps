@@ -19,6 +19,16 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_NXLINES)
-  nuttx_add_application(NAME nxlines SRCS nxlines_bkgd.c nxlines_listener.c
-                        nxlines_main.c)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_NXLINES_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_NXLINES_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_NXLINES_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_NXLINES}
+    SRCS
+    nxlines_main.c)
+  target_sources(apps PRIVATE nxlines_bkgd.c nxlines_listener.c)
 endif()

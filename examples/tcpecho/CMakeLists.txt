@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_TCPECHO)
-  nuttx_add_application(NAME tcpecho)
+  nuttx_add_application(
+    NAME
+    tcpecho
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_TCPECHO}
+    SRCS
+    tcpecho_main.c)
 endif()

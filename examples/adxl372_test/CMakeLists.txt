@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_ADXL372_TEST)
-  nuttx_add_application(NAME adxl372_test)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_ADXL372_TEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_ADXL372_TEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_ADXL372_TEST_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_ADXL372_TEST}
+    SRCS
+    adxl372_test_main.c)
 endif()

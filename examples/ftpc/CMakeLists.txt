@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_FTPC)
-  nuttx_add_application(NAME ftpc)
+  nuttx_add_application(
+    NAME
+    ftpc
+    STACKSIZE
+    ${CONFIG_EXAMPLES_FTPC_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_FTPC}
+    SRCS
+    ftpc_main.c)
+
+  target_sources(apps PRIVATE ftpc_cmds.c)
 endif()
