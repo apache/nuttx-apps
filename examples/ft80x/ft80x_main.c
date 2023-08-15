@@ -61,13 +61,13 @@ struct ft80x_exampleinfo_s
  *  ft80x_prim_lines       LINES           Line drawing primitive
  *  ft80x_prim_linestrip   LINE_STRIP      Line strip drawing primitive
  *  ft80x_prim_edgestrip_r EDGE_STRIP_R    Edge strip right side drawing
-                                           primitive
+ *                                         primitive
  *  (To be provided)       EDGE_STRIP_L    Edge strip left side drawing
-                                           primitive
+ *                                         primitive
  *  (To be provided)       EDGE_STRIP_A    Edge strip above side drawing
-                                           primitive
+ *                                         primitive
  *  (To be provided)       EDGE_STRIP_B    Edge strip below side drawing
-                                           primitive
+ *                                         primitive
  *  ft80x_prim_rectangles  RECTS           Rectangle drawing primitive
  *  ft80x_prim_scissor     SCISSOR         Scissor primitive
  *  ft80x_prim_stencil     STENCIL         Stencil primitives
@@ -96,7 +96,7 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  * possible options.
  *
  *  FUNCTION                 CoProc CMD USED DESCRIPTION
- *  ------------------------ --------------- ----------------------------------
+ *  ------------------------ --------------- --------------------------------
  *  ft80x_coproc_button      CMD_BUTTON      Draw a button
  *  ft80x_coproc_clock       CMD_CLOCK       Draw an analog clock
  *  ft80x_coproc_gauge       CMD_GAUGE       Draw a gauge
@@ -109,12 +109,12 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
  *  ft80x_coproc_toggle      CMD_TOGGLE      Draw a toggle switch
  *  ft80x_coproc_number      CMD_NUMBER      Draw a decimal number
  *  ft80x_coproc_calibrate   CMD_CALIBRATE   Execute the touch screen
-                                             calibration routine
+ *                                           calibration routine
  *  ft80x_coproc_spinner     CMD_SPINNER     Start an animated spinner
  *  ft80x_coproc_screensaver CMD_SCREENSAVER Start an animated screensaver
  *  (To be provided)         CMD_SKETCH      Start a continuous sketch update
  *  (To be provided)         CMD_SNAPSHOT    Take a snapshot of the current
-                                             screen
+ *                                           screen
  *  ft80x_coproc_logo        CMD_LOGO        Play device log animation
  */
 
@@ -180,7 +180,7 @@ static int ft80x_showname(int fd, FAR struct ft80x_dlbuffer_s *buffer,
   /* Clear the display */
 
   cmds.clearrgb.cmd = FT80X_CLEAR_COLOR_RGB(0, 0, 0x80);
-  cmds.clear.cmd    = FT80X_CLEAR(1 ,1, 1);
+  cmds.clear.cmd    = FT80X_CLEAR(1, 1, 1);
   cmds.colorrgb.cmd = FT80X_COLOR_RGB(0xff, 0xff, 0xff);
 
   /* Use the CMD_TEXT co-processor command to show the name of the next

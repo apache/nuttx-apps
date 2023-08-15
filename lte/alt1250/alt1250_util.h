@@ -25,7 +25,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <sys/params.h>
+#include <sys/param.h>
 
 #include "alt1250_daemon.h"
 

@@ -33,10 +33,6 @@
 
 #include "graphics/curses.h"
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
 #ifdef WACS_S1
 #  define HAVE_WIDE 1
 #else
@@ -48,6 +44,10 @@
 #if HAVE_WIDE
 #  include <wchar.h>
 #endif
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 #ifdef A_COLOR
 #  define HAVE_COLOR 1
@@ -112,15 +112,15 @@ static const COMMAND command[] =
   {"Scroll Test", scroll_test},
   {"Input Test", input_test},
   {"Output Test", output_test},
-  {"ACS Test", acs_test}
+  {"ACS Test", acs_test},
 #if HAVE_COLOR
-  , {"Color Test", color_test}
+  {"Color Test", color_test},
 #endif
 #if HAVE_CLIPBOARD
-  , {"Clipboard Test", clipboard_test}
+  {"Clipboard Test", clipboard_test},
 #endif
 #if HAVE_WIDE
-  , {"Wide Input", wide_test}
+  {"Wide Input", wide_test},
 #endif
 };
 
@@ -139,9 +139,9 @@ static const char *acs_names[] =
   "ACS_PLMINUS", "ACS_BULLET",
 
   "ACS_LARROW", "ACS_RARROW", "ACS_UARROW", "ACS_DARROW",
-  "ACS_BOARD", "ACS_LANTERN", "ACS_BLOCK"
+  "ACS_BOARD", "ACS_LANTERN", "ACS_BLOCK",
 #ifdef ACS_S3
-   , "ACS_S3", "ACS_S7", "ACS_LEQUAL", "ACS_GEQUAL",
+  "ACS_S3", "ACS_S7", "ACS_LEQUAL", "ACS_GEQUAL",
   "ACS_PI", "ACS_NEQUAL", "ACS_STERLING"
 #endif
 };
@@ -240,6 +240,7 @@ static int init_test(WINDOW ** win, int argc, char *argv[])
       start_color();
     }
 #endif
+
   /* Create a drawing window */
 
   width  = 60;
@@ -357,7 +358,7 @@ static void input_test(WINDOW *win)
   sw = w / 3;
   sh = h / 3;
 
-  if ((subWin = subwin(win, sh, sw, by + h - sh - 2, bx + w - sw - 2)) == NULL)
+  if (!(subWin = subwin(win, sh, sw, by + h - sh - 2, bx + w - sw - 2)))
     {
       return;
     }
@@ -679,7 +680,7 @@ static void output_test(WINDOW *win)
 
       wattron(win1, A_BLINK);
       mvwaddstr(win1, 4, 1,
-                "This blinking text should appear in only the second window");
+               "This blinking text should appear in only the second window");
       wattroff(win1, A_BLINK);
 
       mvwin(win1, by, bx);
@@ -726,7 +727,7 @@ static void output_test(WINDOW *win)
 
   wclear(win);
   wmove(win, 2, 2);
-  wprintw(win, "This is a formatted string in a window: %d %s\n", 42, "is it");
+  wprintw(win, "This is a formatted string in a window: %d is it\n", 42);
   mvwaddstr(win, 10, 1, "Enter a string: ");
   wrefresh(win);
   echo();
@@ -890,7 +891,8 @@ static void clipboard_test(WINDOW *win)
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
 
-  mvaddstr(1, 1, "This test will display the contents of the system clipboard");
+  mvaddstr(1, 1,
+           "This test will display the contents of the system clipboard");
 
   continue2();
 
@@ -923,7 +925,7 @@ static void clipboard_test(WINDOW *win)
 
   clear();
   mvaddstr(1, 1,
-           "This test will place the following string in the system clipboard:");
+       "This test will place the following string in the system clipboard:");
   mvaddstr(2, 1, text);
 
   i = PDC_setclipboard(text, strlen(text));
@@ -1077,7 +1079,8 @@ static void color_test(WINDOW *win)
       for (j = 0; j < 16; j++)
         {
           mvaddch(tmarg + i + 5, col2 + j, fill | COLOR_PAIR(i + 4));
-          mvaddch(tmarg + i + 5, col3 + j, fill | COLOR_PAIR(i + 4) | A_BOLD);
+          mvaddch(tmarg + i + 5, col3 + j,
+                  fill | COLOR_PAIR(i + 4) | A_BOLD);
         }
     }
 
@@ -1094,7 +1097,7 @@ static void color_test(WINDOW *win)
         short red;
         short green;
         short blue;
-      } orgcolors[16];
+      }orgcolors[16];
 
       int MAXCOL = (COLORS >= 16) ? 16 : 8;
 
@@ -1130,7 +1133,8 @@ static void color_test(WINDOW *win)
 
       for (i = 0; i < MAXCOL; i++)
         {
-          init_color(i, orgcolors[i].red, orgcolors[i].green, orgcolors[i].blue);
+          init_color(i, orgcolors[i].red,
+                     orgcolors[i].green, orgcolors[i].blue);
         }
     }
 }
@@ -1175,7 +1179,8 @@ void display_menu(int old_option, int new_option)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #endif
-  int lmarg = (COLS - 14) / 2, tmarg = (LINES - (MAX_OPTIONS + 2)) / 2;
+  int lmarg = (COLS - 14) / 2;
+  int tmarg = (LINES - (MAX_OPTIONS + 2)) / 2;
 
   if (old_option == -1)
     {

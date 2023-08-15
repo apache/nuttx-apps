@@ -193,7 +193,7 @@ int main(void)
 {
   char output[32];
   int ret = 0;
-  for (int i = 0; i < nitems(testcase) i++)
+  for (int i = 0; i < nitems(testcase); i++)
     {
       ret += syshmac(CRYPTO_MD5_HMAC, testcase[i].key,
                      testcase[i].keylen,
