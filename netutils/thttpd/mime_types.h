@@ -1,6 +1,6 @@
 /****************************************************************************
  * apps/netutils/thttpd/mime_types.h
- * Provides mappings between filename extensions and MIME types and encodings.
+ * Provides mappings between filename extensions, MIME types and encodings.
  *
  * Based on mime_encodings.txt and mime_types.txt by Jef Poskanser which
  * contained no copyright information.
