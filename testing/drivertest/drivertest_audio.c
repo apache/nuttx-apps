@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
+#include <sys/params.h>
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -49,10 +50,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#ifndef MAX
-#  define MAX(a, b)              (((a) > (b)) ? (a) : (b))
-#endif
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
   do                                                                  \
