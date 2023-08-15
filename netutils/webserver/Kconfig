@@ -57,12 +57,12 @@ config NETUTILS_HTTPD_CGIPATH
 		used thus:
 
 		const static struct httpd_cgi_call a[] = {
-		{ NULL, "/abc", cgi_abc },
-		{ NULL, "/xyz", cgi_xyz }
+			{ NULL, "/abc", cgi_abc },
+			{ NULL, "/xyz", cgi_xyz }
 		};
 
-		for (i = 0; i < sizeof a / sizeof *a; i++) {
-		httpd_cgi_register(&a[i]);
+		for (i = 0; i < nitems(a); i++) {
+			httpd_cgi_register(&a[i]);
 		}
 
 		Where (under NETUTILS_HTTPD_CGIPATH) the "/xyz" is a URL path,

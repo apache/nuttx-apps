@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <sys/param.h>
 #include <nuttx/lcd/ft80x.h>
 
 #include "graphics/ft80x.h"
@@ -88,7 +89,6 @@ static const struct ft80x_exampleinfo_s g_primitives[] =
   { "Alpha Blend",  ft80x_prim_alphablend }
 };
 
-#define NPRIMITIVES (sizeof(g_primitives) / sizeof(struct ft80x_exampleinfo_s))
 #endif /* CONFIG_EXAMPLES_FT80X_PRIMITIVES */
 
 /* Co-processor display examples.  Only a small, but interesting, subset
@@ -138,8 +138,6 @@ static const struct ft80x_exampleinfo_s g_coproc[] =
 #endif
   { "Logo",           ft80x_coproc_logo }
 };
-
-#define NCOPROC (sizeof(g_coproc) / sizeof(struct ft80x_exampleinfo_s))
 
 /****************************************************************************
  * Private Functions
@@ -308,7 +306,7 @@ int main(int argc, FAR char *argv[])
 
   ft80x_info("FT80x Primitive Functions\n");
 
-  for (i = 0; i < NPRIMITIVES; i++)
+  for (i = 0; i < nitems(g_primitives); i++)
     {
       ft80x_example(fd, buffer, &g_primitives[i]);
     }
@@ -318,7 +316,7 @@ int main(int argc, FAR char *argv[])
 
   ft80x_info("FT80x Co-processor Functions\n");
 
-  for (i = 0; i < NCOPROC; i++)
+  for (i = 0; i < nitems(g_coproc); i++)
     {
       ft80x_example(fd, buffer, &g_coproc[i]);
     }

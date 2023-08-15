@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
-#include <nuttx/fs/fs.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -41,7 +41,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define ARRAYSIZE(x) (sizeof((x)) / sizeof((x)[0]))
 #define PASSED        0
 
 #define SUB_PROMPT   "stst >"
@@ -394,7 +393,7 @@ int main(int argc, FAR char *argv[])
       adxl372_test,   /* ADXL372 accelerometer tests */
     };
 
-  FAR char *test_path[ARRAYSIZE(test_ptr_array)];
+  FAR char *test_path[nitems(test_ptr_array)];
 
   if (argc < 1 || *argv[1] == 0 || *(argv[1] + 1) == 0)
     {
@@ -490,7 +489,7 @@ int main(int argc, FAR char *argv[])
                   printf("Set to batch mode.\n");
                 }
             }
-          else if (ui >= ARRAYSIZE(test_ptr_array))
+          else if (ui >= nitems(test_ptr_array))
             {
               printf("Huh?\n");
             }
@@ -511,7 +510,7 @@ int main(int argc, FAR char *argv[])
     {
       printf("ADXL372 sensor diagnostic started in batch mode...\n");
 
-      for (ui = 0; ui < ARRAYSIZE(test_ptr_array); ui++)
+      for (ui = 0; ui < nitems(test_ptr_array); ui++)
         {
           step_rc = 0;
           if (test_ptr_array[ui] != 0)

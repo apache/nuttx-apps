@@ -32,6 +32,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/param.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -342,7 +343,7 @@ static void test_case_lcd_2(FAR void **state)
   const uint32_t xres = lcd_state->lcd_info.video_info.xres;
   const uint32_t yres = lcd_state->lcd_info.video_info.yres;
 
-  step_num = sizeof(colors_to_show) / sizeof(uint32_t);
+  step_num = nitems(colors_to_show);
   step_width = xres / step_num;
   for (i = 0; i < step_num; i++)
     {

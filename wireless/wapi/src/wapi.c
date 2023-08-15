@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <strings.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -136,8 +137,6 @@ static const struct wapi_command_s g_wapi_commands[] =
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#define NCOMMANDS (sizeof(g_wapi_commands) / sizeof(struct wapi_command_s))
 
 /* Maximum length of the PASSPHRASE, refer to IEEE802.11i specification */
 
@@ -1200,7 +1199,7 @@ int main(int argc, FAR char *argv[])
   /* Find the command in the g_wapi_command[] list */
 
   wapicmd = NULL;
-  for (i = 0; i < NCOMMANDS; i++)
+  for (i = 0; i < nitems(g_wapi_commands); i++)
     {
       FAR const struct wapi_command_s *cmd = &g_wapi_commands[i];
       if (strcmp(cmdname, cmd->name) == 0)

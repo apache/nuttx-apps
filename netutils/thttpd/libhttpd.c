@@ -43,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/param.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -1503,7 +1504,7 @@ static void figure_mime(httpd_conn *hc)
           if (ext_len == enc_tab[i].ext_len &&
               strncasecmp(ext, enc_tab[i].ext, ext_len) == 0)
             {
-              if (n_me_indexes < sizeof(me_indexes) / sizeof(*me_indexes))
+              if (n_me_indexes < nitems(me_indexes))
                 {
                   me_indexes[n_me_indexes] = i;
                   ++n_me_indexes;
@@ -3284,7 +3285,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowp)
 
       /* Check for an index file. */
 
-      for (i = 0; i < sizeof(index_names) / sizeof(char *); ++i)
+      for (i = 0; i < nitems(index_names); ++i)
         {
           httpd_realloc_str(&indexname, &maxindexname,
                             expnlen + 1 + strlen(index_names[i]));

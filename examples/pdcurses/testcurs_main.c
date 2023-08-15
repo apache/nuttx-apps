@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/param.h>
 
 #include "graphics/curses.h"
 
@@ -123,7 +124,7 @@ static const COMMAND command[] =
 #endif
 };
 
-#define MAX_OPTIONS (sizeof(command) / sizeof(COMMAND))
+#define MAX_OPTIONS nitems(command)
 
 static int height;
 static int width;

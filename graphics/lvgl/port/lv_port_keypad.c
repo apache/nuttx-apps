@@ -24,6 +24,7 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -114,7 +115,7 @@ static uint32_t keypad_get_key(int fd)
       return 0;
     }
 
-  for (i = 0; i < sizeof(g_keypad_map) / sizeof(struct keypad_map_s); i++)
+  for (i = 0; i < nitems(g_keypad_map); i++)
     {
       int bit = g_keypad_map[i].bit;
 

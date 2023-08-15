@@ -45,6 +45,7 @@
  ****************************************************************************/
 
 #include <sys/types.h>
+#include <sys/param.h>
 
 /****************************************************************************
  * Private Types
@@ -73,7 +74,7 @@ static struct mime_entry enc_tab[] =
   { "gz",      0, "gzip",       0 },
   { "uu",      0, "x-uuencode", 0 },
 };
-static const int n_enc_tab = sizeof(enc_tab) / sizeof(*enc_tab);
+static const int n_enc_tab = nitems(enc_tab);
 
 /* A list of file extensions followed by the corresponding MIME type.
  * Extensions not found in the table are returned as text/plain.
@@ -273,6 +274,6 @@ static struct mime_entry typ_tab[] =
   { "xyz",     0, "chemical/x-xyz", 0 },
   { "zip",     0, "application/zip", 0 },
 };
-static const int n_typ_tab = sizeof(typ_tab) / sizeof(*typ_tab);
+static const int n_typ_tab = nitems(typ_tab);
 
 #endif /* __APPS_NETUTILS_THTTPD_MIME_TYPES_H */

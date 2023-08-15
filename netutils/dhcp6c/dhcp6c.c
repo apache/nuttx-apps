@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/compiler.h>
+#include <nuttx/clock.h>
 
 #include <time.h>
 #include <fcntl.h>
@@ -40,7 +41,7 @@
 #include <malloc.h>
 #include <pthread.h>
 #include <sys/time.h>
-#include <nuttx/clock.h>
+#include <sys/param.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -62,8 +63,6 @@
 #define DHCPV6_SERVER_PORT 547
 #define DHCPV6_DUID_LLADDR 3
 #define DHCPV6_REQ_DELAY 1
-
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 #define dhcpv6_for_each_option(_o, start, end, otype, olen, odata)\
     for ((_o) = (FAR uint8_t *)(start); (_o) + 4 <= (FAR uint8_t *)(end) &&\
@@ -614,7 +613,7 @@ static void dhcp6c_send(FAR void *handle, enum dhcpv6_msg_e type,
   dhcp6c_set_iov(&iov[9], &hdr_ia_pd, sizeof(hdr_ia_pd));
   dhcp6c_set_iov(&iov[10], ia_pd, ia_pd_len);
 
-  cnt = ARRAY_SIZE(iov);
+  cnt = nitems(iov);
   if (type == DHCPV6_MSG_INFO_REQ)
     {
       cnt = 5;

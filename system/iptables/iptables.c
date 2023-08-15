@@ -455,6 +455,6 @@ int main(int argc, FAR char *argv[])
       printf("Unknown table: %s\n", args.table->sval[0]);
     }
 
-  arg_freetable((FAR void **)&args, sizeof(args) / sizeof(FAR void *));
+  arg_freetable((FAR void **)&args, 1);
   return ret;
 }

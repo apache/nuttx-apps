@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <sys/param.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -65,7 +66,6 @@ static const struct fptd_account_s g_ftpdaccounts[] =
   { FTPD_ACCOUNTFLAG_GUEST,  "ftp",       NULL,     NULL },
   { FTPD_ACCOUNTFLAG_GUEST,  "anonymous", NULL,     NULL },
 };
-#define NACCOUNTS (sizeof(g_ftpdaccounts) / sizeof(struct fptd_account_s))
 
 /****************************************************************************
  * Public Data
@@ -139,7 +139,7 @@ static void ftpd_accounts(FTPD_SESSION handle)
   int i;
 
   printf("Adding accounts:\n");
-  for (i = 0; i < NACCOUNTS; i++)
+  for (i = 0; i < nitems(g_ftpdaccounts); i++)
     {
       account = &g_ftpdaccounts[i];
 

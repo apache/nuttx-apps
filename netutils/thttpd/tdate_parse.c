@@ -143,14 +143,13 @@ static int scan_wday(char *str_wday, long *tm_wdayP)
 
   if (!sorted)
     {
-      qsort(wday_tab, sizeof(wday_tab) / sizeof(struct strlong),
+      qsort(wday_tab, nitems(wday_tab),
             sizeof(struct strlong), strlong_compare);
       sorted = 1;
     }
 
   pound_case(str_wday);
-  return strlong_search(str_wday, wday_tab,
-                        sizeof(wday_tab) / sizeof(struct strlong), tm_wdayP);
+  return strlong_search(str_wday, wday_tab, nitems(wday_tab), tm_wdayP);
 }
 #endif /* Day of week not yet supported by NuttX */
 
@@ -176,14 +175,13 @@ static int scan_mon(char *str_mon, long *tm_monP)
 
   if (!sorted)
     {
-      qsort(mon_tab, sizeof(mon_tab) / sizeof(struct strlong),
+      qsort(mon_tab, nitems(mon_tab),
             sizeof(struct strlong), strlong_compare);
       sorted = 1;
     }
 
   pound_case(str_mon);
-  return strlong_search(str_mon, mon_tab,
-                        sizeof(mon_tab) / sizeof(struct strlong), tm_monP);
+  return strlong_search(str_mon, mon_tab, nitems(mon_tab), tm_monP);
 }
 #endif
 
