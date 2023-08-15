@@ -91,6 +91,7 @@ choice
 
 config EXAMPLES_FOC_SENSORLESS
 	bool "FOC example sensorless configuration"
+	select EXAMPLES_FOC_ANGOBS
 
 config EXAMPLES_FOC_SENSORED
 	bool "FOC example sensored configuration"
@@ -238,6 +239,90 @@ config EXAMPLES_FOC_VELCTRL_PI_SAT
 endif # EXAMPLES_FOC_VELCTRL_PI
 
 endif # EXAMPLES_FOC_HAVE_VEL
+
+config EXAMPLES_FOC_ANGOBS
+	bool "FOC example phase angle observer support"
+	default n
+
+choice
+	prompt "FOC angle observer selection"
+	default EXAMPLES_FOC_ANGOBS_NFO
+	depends on EXAMPLES_FOC_ANGOBS
+
+config EXAMPLES_FOC_ANGOBS_SMO
+	bool "FOC angle SMO observer"
+	select INDUSTRY_FOC_ANGLE_OSMO
+
+config EXAMPLES_FOC_ANGOBS_NFO
+	bool "FOC angle NFO observer"
+	select INDUSTRY_FOC_ANGLE_ONFO
+
+endchoice # FOC angle observer
+
+if EXAMPLES_FOC_ANGOBS
+
+config EXAMPLES_FOC_ANGOBS_HYS
+	int "FOC angle observer hysteresis [x1]"
+	default 0
+	---help---
+		Hysteresis added to the observer to open-loop transition.
+
+config EXAMPLES_FOC_ANGOBS_THR
+	int "FOC angle observer velocity threshold [x1]"
+	default 0
+	---help---
+		Once the motor reaches this speed, we switch from the open-loop angle
+		to the observer angle.
+
+config EXAMPLES_FOC_ANGOBS_MERGE_RATIO
+	int "FOC angle observer merge ratio"
+	default 50
+	range 0 50
+	---help---
+		This parameter determines how quickly we make the transition from the
+		open-loop angle to the observer angle after reaching the observer threshold
+		velocity. The smaler the value, the smoother the transition.
+		If set to 0 - smooth transition is disabled.
+
+endif # EXAMPLES_FOC_ANGOBS
+
+if EXAMPLES_FOC_ANGOBS_SMO
+
+config EXAMPLES_FOC_ANGOBS_SMO_KSLIDE
+	int "FOC angle SMO observer Kslide (x1000)"
+	default 0
+	---help---
+		The Kslide coefficient used in observer is:
+		Kslide = EXAMPLES_FOC_ANGOBS_SMO_KSLIDE/1000
+
+config EXAMPLES_FOC_ANGOBS_SMO_ERRMAX
+	int "FOC angle SMO observer err_max (x1000)"
+	default 0
+	---help---
+		The err_max coefficient used in observer is:
+		err_max = EXAMPLES_FOC_ANGOBS_SMO_ERRMAX/1000
+
+endif # EXAMPLES_FOC_ANGOBS_SMO
+
+if EXAMPLES_FOC_ANGOBS_NFO
+
+config EXAMPLES_FOC_ANGOBS_NFO_GAIN
+	int "FOC angle NFO observer gain (x1)"
+	default 0
+	---help---
+		The gain coefficient used in observer at maximum duty cycle.
+
+config EXAMPLES_FOC_ANGOBS_NFO_GAINSLOW
+	int "FOC angle NFO observer gain slow (x1)"
+	default 0
+	---help---
+		The gain coefficient used in observer at minimum duty cycle.
+
+endif # EXAMPLES_FOC_ANGOBS_NFO
+
+config EXAMPLES_FOC_VELOBS
+	bool "FOC example velocity observer support"
+	default n
 
 if EXAMPLES_FOC_VELOBS
 

@@ -92,6 +92,11 @@ struct foc_motor_b16_s
   b16_t                         per;          /* Controller period in seconds */
   b16_t                         iphase_adc;   /* Iphase ADC scaling factor */
   b16_t                         pwm_duty_max; /* PWM duty max */
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+  b16_t                         ol_thr;       /* Angle observer threshold velocity */
+  b16_t                         ol_hys;       /* Angle observer hysteresis */
+  b16_t                         angle_step;   /* Open-loop transition step */
+#endif
 
   /* Velocity controller data ***********************************************/
 
@@ -100,11 +105,18 @@ struct foc_motor_b16_s
   pid_controller_b16_t          vel_pi;       /* Velocity controller */
 #endif
 
-  /* Motor state ************************************************************/
+  /* Angle state ************************************************************/
 
   b16_t                         angle_now;    /* Phase angle now */
   b16_t                         angle_m;      /* Motor mechanical angle */
   b16_t                         angle_el;     /* Motor electrical angle */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+  b16_t                         angle_ol;     /* Phase angle open-loop */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+  b16_t                         angle_obs;    /* Angle observer output */
+  b16_t                         angle_err;    /* Open-loop to observer error */
+#endif
 
   /* Velocity state *********************************************************/
 
@@ -154,8 +166,8 @@ struct foc_motor_b16_s
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   foc_angle_b16_t               openloop;     /* Open-loop angle handler */
-  bool                          openloop_now; /* Open-loop now */
-  b16_t                         angle_ol;     /* Phase angle open-loop */
+  uint8_t                       openloop_now; /* Open-loop now */
+  b16_t                         openloop_q;   /* Open-loop Q parameter */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
   foc_angle_b16_t               hall;         /* Hall angle handler */
@@ -170,6 +182,12 @@ struct foc_motor_b16_s
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
   foc_velocity_b16_t            vel_pll;       /* PLL velocity observer */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_SMO
+  foc_angle_b16_t               ang_smo;      /* SMO angle observer */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
+  foc_angle_b16_t               ang_nfo;      /* NFO angle observer */
 #endif
 };
 
