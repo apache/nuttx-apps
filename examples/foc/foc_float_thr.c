@@ -284,6 +284,10 @@ static void foc_float_nxscope(FAR struct foc_nxscope_s *nxs,
   ptr = (FAR float *)&motor->vel_obs;
   nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
 #endif
+#if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_AOBS)
+  ptr = (FAR float *)&motor->angle_obs;
+  nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
+#endif
 
 #ifndef CONFIG_EXAMPLES_FOC_NXSCOPE_CONTROL
   nxscope_unlock(&nxs->nxs);
