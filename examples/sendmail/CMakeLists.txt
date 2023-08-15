@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SENDMAIL)
-  nuttx_add_application(NAME sendmail)
+  nuttx_add_application(
+    NAME
+    sendmail
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_SENDMAIL}
+    SRCS
+    sendmail_main.c)
 endif()

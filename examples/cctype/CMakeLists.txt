@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_CCTYPE)
-  nuttx_add_application(NAME cctype)
+  nuttx_add_application(
+    NAME
+    cctype
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_CCTYPE}
+    SRCS
+    cctype_main.cxx)
 endif()

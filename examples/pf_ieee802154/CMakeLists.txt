@@ -19,5 +19,28 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_PFIEEE802154)
-  nuttx_add_application(NAME pf_ieee802154)
+  target_sources(apps PRIVATE pf_cmdline.c)
+  nuttx_add_application(
+    NAME
+    pfserver
+    PRIORITY
+    ${CONFIG_EXAMPLES_PFIEEE802154_PRIORITY1}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE1}
+    MODULE
+    ${CONFIG_EXAMPLES_PFIEEE802154}
+    SRCS
+    pf_server.c)
+
+  nuttx_add_application(
+    NAME
+    pfclient
+    PRIORITY
+    ${CONFIG_EXAMPLES_PFIEEE802154_PRIORITY1}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PFIEEE802154_STACKSIZE1}
+    MODULE
+    ${CONFIG_EXAMPLES_PFIEEE802154}
+    SRCS
+    pf_client.c)
 endif()

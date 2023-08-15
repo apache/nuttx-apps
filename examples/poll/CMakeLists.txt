@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_POLL)
-  nuttx_add_application(NAME poll)
+  nuttx_add_application(
+    NAME
+    poll
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_POLL}
+    SRCS
+    poll_main.c)
+  target_sources(apps PRIVATE poll_listener.c select_listener.c net_listener.c
+                              net_reader.c)
 endif()

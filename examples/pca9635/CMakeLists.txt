@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_PCA9635)
-  nuttx_add_application(NAME pca9635)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_PCA9635_PROGNAME}
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PCA9635}
+    SRCS
+    pca9635_main.c)
 endif()

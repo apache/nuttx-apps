@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_WGET)
-  nuttx_add_application(NAME wget SRCS wget_main.c)
+  nuttx_add_application(
+    NAME
+    wget
+    STACKSIZE
+    ${CONFIG_EXAMPLES_WGET_STACKSIZ}
+    MODULE
+    ${CONFIG_EXAMPLES_WGET}
+    SRCS
+    wget_main.c)
 endif()

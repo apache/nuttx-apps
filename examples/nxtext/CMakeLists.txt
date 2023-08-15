@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_NXTEXT)
-  nuttx_add_application(NAME nxtext)
+  nuttx_add_application(
+    NAME
+    nxtext
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_NXTEXT}
+    SRCS
+    nxtext_main.c)
+  target_sources(apps PRIVATE nxtext_bkgd.c nxtext_popup.c nxtext_putc.c
+                              nxtext_listener.c)
 endif()

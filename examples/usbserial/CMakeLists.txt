@@ -23,8 +23,9 @@ if(CONFIG_EXAMPLES_USBSERIAL)
     NAME
     usbserial
     STACKSIZE
-    2048
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_USBSERIAL}
     SRCS
-    host.c
     usbserial_main.c)
 endif()

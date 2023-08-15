@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_OBD2)
-  nuttx_add_application(NAME obd2)
+  nuttx_add_application(
+    NAME
+    obd2
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_OBD2}
+    SRCS
+    obd2_main.c)
 endif()

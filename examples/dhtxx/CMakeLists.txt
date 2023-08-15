@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_DHTXX)
-  nuttx_add_application(NAME dhtxx)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_DHTXX_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_DHTXX_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_DHTXX_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_DHTXX}
+    SRCS
+    dhtxx_main.c)
 endif()

@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_POWERMONITOR)
-  nuttx_add_application(NAME powermonitor)
+  nuttx_add_application(
+    NAME
+    powermonitor
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_POWERMONITOR}
+    SRCS
+    powermonitor_main.c)
 endif()

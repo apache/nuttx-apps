@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_FLASH_TEST)
-  nuttx_add_application(NAME flash_test)
+  nuttx_add_application(
+    NAME
+    flash_test
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_FLASH_TEST}
+    SRCS
+    flash_test.c)
 endif()

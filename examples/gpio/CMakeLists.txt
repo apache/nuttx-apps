@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_GPIO)
-  nuttx_add_application(NAME gpio)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_GPIO_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_GPIO_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_GPIO_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_GPIO}
+    SRCS
+    gpio_main.c)
 endif()

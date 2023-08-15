@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_I2SLOOP)
-  nuttx_add_application(NAME i2sloop)
+  nuttx_add_application(
+    NAME
+    i2sloop
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_I2SLOOP}
+    SRCS
+    i2sloop_main.c)
 endif()

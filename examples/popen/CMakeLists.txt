@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_POPEN)
-  nuttx_add_application(NAME popen)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_POPEN_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_POPEN_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_POPEN_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_POPEN}
+    SRCS
+    popen_main.c)
 endif()

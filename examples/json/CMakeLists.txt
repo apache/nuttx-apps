@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_JSON)
-  nuttx_add_application(NAME json)
+  nuttx_add_application(
+    NAME
+    json
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_JSON}
+    SRCS
+    json_main.c)
 endif()

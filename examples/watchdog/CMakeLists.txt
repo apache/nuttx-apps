@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_WATCHDOG)
-  nuttx_add_application(NAME watchdog)
+  nuttx_add_application(
+    NAME
+    wdog
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_WATCHDOG}
+    SRCS
+    watchdog_main.c)
 endif()

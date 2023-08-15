@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_DISCOVER)
-  nuttx_add_application(NAME discover SRCS discover_main.c)
+  nuttx_add_application(
+    NAME
+    discover
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_DISCOVER}
+    SRCS
+    discover_main.c)
 endif()

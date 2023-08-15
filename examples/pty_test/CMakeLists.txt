@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_PTYTEST)
-  nuttx_add_application(NAME pty_test)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_PTYTEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_PTYTEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_PTYTEST_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_PTYTEST}
+    SRCS
+    pty_test.c)
 endif()

@@ -21,11 +21,13 @@
 if(CONFIG_EXAMPLES_ALARM)
   nuttx_add_application(
     NAME
-    alarm
-    SRCS
-    alarm_main.c
+    ${CONFIG_EXAMPLES_ALARM_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_ALARM_PRIORITY}
     STACKSIZE
     ${CONFIG_EXAMPLES_ALARM_STACKSIZE}
-    PRIORITY
-    ${CONFIG_EXAMPLES_ALARM_PRIORITY})
+    MODULE
+    ${CONFIG_EXAMPLES_ALARM}
+    SRCS
+    alarm_main.c)
 endif()

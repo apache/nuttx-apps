@@ -19,5 +19,5 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_CROMFS)
-  nuttx_add_application(NAME cromfs)
+  nuttx_add_cromfs(NAME example_cromfs PATH ${CMAKE_CURRENT_LIST_DIR}/cromfs)
 endif()

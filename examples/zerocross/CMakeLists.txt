@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_ZEROCROSS)
-  nuttx_add_application(NAME zerocross)
+  nuttx_add_application(
+    NAME
+    zerocross
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_ZEROCROSS}
+    SRCS
+    zerocross_main.c)
 endif()

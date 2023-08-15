@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_HIDKBD)
-  nuttx_add_application(NAME hidkbd)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_HIDKBD_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_HIDKBD_DEFPRIO}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_HIDKBD_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_HIDKBD}
+    SRCS
+    hidkbd_main.c)
 endif()

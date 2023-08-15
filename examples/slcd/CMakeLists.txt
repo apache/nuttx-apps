@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SLCD)
-  nuttx_add_application(NAME slcd)
+  nuttx_add_application(
+    NAME
+    slcd
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_SLCD}
+    SRCS
+    slcd_main.c)
 endif()

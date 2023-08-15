@@ -19,5 +19,16 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_NXHELLO)
-  nuttx_add_application(NAME nxhello)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_NXHELLO_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_NXHELLO_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_NXHELLO_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_NXHELLO}
+    SRCS
+    nxhello_main.c)
+  target_sources(apps PRIVATE nxhello_bkgd.c nxhello_listener.c)
 endif()

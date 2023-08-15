@@ -19,5 +19,13 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_POWERLED)
-  nuttx_add_application(NAME powerled)
+  nuttx_add_application(
+    NAME
+    powerled
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_POWERLED}
+    SRCS
+    powerled_main.c)
 endif()

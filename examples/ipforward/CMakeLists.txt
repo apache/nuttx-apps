@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_IPFORWARD)
-  nuttx_add_application(NAME ipforward)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_IPFORWARD_PROGNAME}
+    PRIORITY
+    ${CONFIG_EXAMPLES_IPFORWARD_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_IPFORWARD_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_IPFORWARD}
+    SRCS
+    ipforward.c)
 endif()
