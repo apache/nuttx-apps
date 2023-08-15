@@ -1,0 +1,288 @@
+--- a/src/cmocka.c	2023-08-15 15:54:57.439010743 +0800
++++ cmocka/src/cmocka.c	2023-08-15 15:53:54.240452568 +0800
+@@ -45,6 +45,9 @@
+ #include <stdbool.h>
+ #include <time.h>
+ #include <float.h>
++#include <regex.h>
++#include <mqueue.h>
++#include <fcntl.h>
+ 
+ /*
+  * This allows to add a platform specific header file. Some embedded platforms
+@@ -269,6 +272,7 @@
+ const char *global_last_failed_assert = NULL;
+ static int global_skip_test;
+ static int global_stop_test;
++static int global_list_test;
+ 
+ /* Keeps a map of the values that functions will have to return to provide */
+ /* mocked interfaces. */
+@@ -474,62 +478,18 @@
+     return 0;
+ }
+ 
+-static int c_strmatch(const char *str, const char *pattern)
+-{
+-    int ok;
++static int c_regexmatch(const char *str, const char *pattern){
++    regex_t re;
++    int ret;
+ 
+-    if (str == NULL || pattern == NULL) {
++    ret = regcomp(&re, pattern, REG_EXTENDED | REG_NOSUB);
++    if (ret != 0){
+         return 0;
+     }
++    ret = regexec(&re, str, 0, NULL, 0);
++    regfree(&re);
+ 
+-    for (;;) {
+-        /* Check if pattern is done */
+-        if (*pattern == '\0') {
+-            /* If string is at the end, we're good */
+-            if (*str == '\0') {
+-                return 1;
+-            }
+-
+-            return 0;
+-        }
+-
+-        if (*pattern == '*') {
+-            /* Move on */
+-            pattern++;
+-
+-            /* If we are at the end, everything is fine */
+-            if (*pattern == '\0') {
+-                return 1;
+-            }
+-
+-            /* Try to match each position */
+-            for (; *str != '\0'; str++) {
+-                ok = c_strmatch(str, pattern);
+-                if (ok) {
+-                    return 1;
+-                }
+-            }
+-
+-            /* No match */
+-            return 0;
+-        }
+-
+-        /* If we are at the end, leave */
+-        if (*str == '\0') {
+-            return 0;
+-        }
+-
+-        /* Check if we have a single wildcard or matching char */
+-        if (*pattern != '?' && *str != *pattern) {
+-            return 0;
+-        }
+-
+-        /* Move string and pattern */
+-        str++;
+-        pattern++;
+-    }
+-
+-    return 0;
++    return (ret == 0)? 1 : 0;
+ }
+ 
+ /* Create function results and expected parameter lists. */
+@@ -1850,7 +1810,7 @@
+ {
+     if (result < 0) {
+         if (error > 0) {
+-            cmocka_print_error("%s < 0, errno(%d): %s\n",
++            cmocka_print_error("%s < 0, errno(%"PRIi32"): %s\n",
+                            expression,
+                            error,
+                            strerror(error));
+@@ -2667,21 +2627,21 @@
+     print_message("[==========] %s: %zu test(s) run.\n",
+                   group_name,
+                   total_executed);
+-    print_error("[  PASSED  ] %u test(s).\n",
++    print_message("[  PASSED  ] %u test(s).\n",
+                 (unsigned)(total_passed));
+ 
+     if (total_skipped) {
+-        print_error("[  SKIPPED ] %s: %zu test(s), listed below:\n",
++        print_message("[  SKIPPED ] %s: %zu test(s), listed below:\n",
+                     group_name,
+                     total_skipped);
+         for (i = 0; i < total_executed; i++) {
+             struct CMUnitTestState *cmtest = &cm_tests[i];
+ 
+             if (cmtest->status == CM_TEST_SKIPPED) {
+-                print_error("[  SKIPPED ] %s\n", cmtest->test->name);
++                print_message("[  SKIPPED ] %s\n", cmtest->test->name);
+             }
+         }
+-        print_error("\n %zu SKIPPED TEST(S)\n", total_skipped);
++        print_message("\n %zu SKIPPED TEST(S)\n", total_skipped);
+     }
+ 
+     if (total_failed) {
+@@ -2918,6 +2878,11 @@
+     global_skip_filter_pattern = pattern;
+ }
+ 
++void cmocka_set_list_test(int list_test)
++{
++    global_list_test = list_test;
++}
++
+ /****************************************************************************
+  * TIME CALCULATIONS
+  ****************************************************************************/
+@@ -3194,10 +3159,26 @@
+     double total_runtime = 0;
+     size_t i;
+     int rc;
++    mqd_t mq_id;
+ 
+     /* Make sure uintmax_t is at least the size of a pointer. */
+     assert_true(sizeof(uintmax_t) >= sizeof(void*));
+ 
++    /* Display name of testcase/testsuite but not run */
++    if (global_list_test) {
++        print_message("%s\n", group_name);
++        for (i = 0; i < num_tests; i++) {
++            if (tests[i].name != NULL &&
++                (tests[i].test_func != NULL
++                || tests[i].setup_func != NULL
++                || tests[i].teardown_func != NULL)) {
++                print_message("%4s%s\n", "", tests[i].name);
++            };
++        }
++
++        return 0;
++    }
++
+     cm_tests = libc_calloc(1, sizeof(struct CMUnitTestState) * num_tests);
+     if (cm_tests == NULL) {
+         return -1;
+@@ -3209,10 +3190,15 @@
+             (tests[i].test_func != NULL
+              || tests[i].setup_func != NULL
+              || tests[i].teardown_func != NULL)) {
++            cm_tests[total_tests] = (struct CMUnitTestState) {
++                .test = &tests[i],
++                .status = CM_TEST_NOT_STARTED,
++                .state = NULL,
++            };
+             if (global_test_filter_pattern != NULL) {
+                 int match;
+ 
+-                match = c_strmatch(tests[i].name, global_test_filter_pattern);
++                match = c_regexmatch(tests[i].name, global_test_filter_pattern);
+                 if (!match) {
+                     continue;
+                 }
+@@ -3220,16 +3206,11 @@
+             if (global_skip_filter_pattern != NULL) {
+                 int match;
+ 
+-                match = c_strmatch(tests[i].name, global_skip_filter_pattern);
++                match = c_regexmatch(tests[i].name, global_skip_filter_pattern);
+                 if (match) {
+-                    continue;
++                    cm_tests[i].status = CM_TEST_SKIPPED;
+                 }
+             }
+-            cm_tests[total_tests] = (struct CMUnitTestState) {
+-                .test = &tests[i],
+-                .status = CM_TEST_NOT_STARTED,
+-                .state = NULL,
+-            };
+             total_tests++;
+         }
+     }
+@@ -3261,9 +3242,11 @@
+                 cmtest->state = cmtest->test->initial_state;
+             }
+ 
+-            rc = cmocka_run_one_tests(cmtest);
++            if (cmtest->status != CM_TEST_SKIPPED) {
++                rc = cmocka_run_one_tests(cmtest);
++                total_runtime += cmtest->runtime;
++            }
+             total_executed++;
+-            total_runtime += cmtest->runtime;
+             if (rc == 0) {
+                 switch (cmtest->status) {
+                     case CM_TEST_PASSED:
+@@ -3296,7 +3279,7 @@
+                         break;
+                 }
+             } else {
+-                char err_msg[2048] = {0};
++                char err_msg[256] = {0};
+ 
+                 snprintf(err_msg, sizeof(err_msg),
+                          "Could not run test: %s",
+@@ -3347,6 +3330,24 @@
+                           total_runtime,
+                           cm_tests);
+ 
++    mq_id = mq_open(CMOCKA_QUEUE_NAME, O_WRONLY);
++    if (mq_id != (mqd_t)-1) {
++        struct cm_summary_counter summary_send = {total_tests,
++                                                total_failed,
++                                                total_passed,
++                                                total_executed,
++                                                total_errors,
++                                                total_skipped};
++        if (mq_send(mq_id,
++                    (const char *)&summary_send,
++                    sizeof(summary_send),
++                    0) < 0) {
++            perror("mq_send");
++        }
++
++        mq_close(mq_id);
++    }
++
+     for (i = 0; i < total_tests; i++) {
+         vcm_free_error(discard_const_p(char, cm_tests[i].error_message));
+     }
+--- a/include/cmocka.h	2022-09-06 02:12:20.000000000 +0800
++++ cmocka/include/cmocka.h	2023-08-15 15:53:54.240452568 +0800
+@@ -2279,6 +2279,20 @@
+     uintmax_t check_value_data;
+ } CheckParameterEvent;
+ 
++/* Mutiple suite run summary counter. */
++#define CMOCKA_QUEUE_NAME "/tmp/cmocka"
++#define CMOCKA_MAX_MSG_SIZE 128
++#define CMOCKA_MAX_MSG_NUM 15
++
++typedef struct cm_summary_counter {
++    int tests;
++    int failed;
++    int passed;
++    int executed;
++    int errors;
++    int skipped;
++} cm_summary_counter;
++
+ /* Used by expect_assert_failure() and mock_assert(). */
+ extern int global_expecting_assert;
+ extern jmp_buf global_expect_assert_env;
+@@ -2517,6 +2531,15 @@
+  */
+ void cmocka_set_skip_filter(const char *pattern);
+ 
++/**
++ * @brief Set a flag to list testcase name only.
++ *
++ * This set global list_tests flag to indicate whether to list only,
++ * if list_tests is 1, list only.
++ *
++ * @param list_tests  0 or 1.
++ */
++void cmocka_set_list_test(int list_test);
+ /** @} */
+ 
+ #endif /* CMOCKA_H_ */
