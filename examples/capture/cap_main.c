@@ -269,7 +269,7 @@ int main(int argc, FAR char *argv[])
 
       else
         {
-          printf("pwm duty cycle: %d % \n", dutycycle);
+          printf("pwm duty cycle: %d %% \n", dutycycle);
         }
 
       /* Get the frequence data using the ioctl */
@@ -287,7 +287,7 @@ int main(int argc, FAR char *argv[])
 
       else
         {
-          printf("pwm frequence: %d Hz \n", frequence);
+          printf("pwm frequence: %"PRId32" Hz \n", frequence);
         }
 
       /* Delay a little bit */
