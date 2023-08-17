@@ -32,7 +32,8 @@
 
 int mbedtls_hardware_poll(FAR void *data,
                           FAR unsigned char *output,
-                          size_t len, size_t *olen)
+                          size_t len,
+                          FAR size_t *olen)
 {
   int fd;
   size_t read_len;
