@@ -511,6 +511,12 @@ static int audio_test_cleanup(FAR struct audio_state_s *state, int direction)
 
   ioctl(fd, AUDIOIOC_UNREGISTERMQ, (unsigned long)state->mq);
 
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+  ioctl(fd, AUDIOIOC_RELEASE, (unsigned long)state->session);
+#else
+  ioctl(fd, AUDIOIOC_RELEASE, 0);
+#endif
+
   if (state->out_fd >= 0)
     {
       close(state->out_fd);
@@ -535,6 +541,7 @@ static void audio_test_case(void **audio_state)
     };
 
   struct mq_attr attr;
+  int unconsumed = 0;
   unsigned int prio;
   bool streaming;
   bool running;
@@ -596,6 +603,8 @@ static void audio_test_case(void **audio_state)
       printf("Start %s. \n", direct == AUDIO_TYPE_OUTPUT ?
                              "Playback" : "Capture");
 
+      unconsumed = buf_info.nbuffers;
+
       while (running)
         {
           ret = mq_receive(state->mq, (FAR char *)&msg, sizeof(msg), &prio);
@@ -607,6 +616,7 @@ static void audio_test_case(void **audio_state)
           switch (msg.msg_id)
             {
               case AUDIO_MSG_DEQUEUE:
+                unconsumed--;
                 if (streaming)
                   {
                     if (direct == AUDIO_TYPE_INPUT)
@@ -627,11 +637,15 @@ static void audio_test_case(void **audio_state)
                         ret = audio_test_enqueuebuffer(state,
                                                        msg.u.ptr, direct);
                         if (ret != OK)
-                        {
-                          close(state->out_fd);
-                          state->out_fd = -1;
-                          streaming = false;
-                        }
+                          {
+                            close(state->out_fd);
+                            state->out_fd = -1;
+                            streaming = false;
+                          }
+                        else
+                          {
+                            unconsumed++;
+                          }
                       }
                   }
                 break;
@@ -659,12 +673,16 @@ static void audio_test_case(void **audio_state)
           ret = mq_getattr(state->mq, &attr);
           assert_false(ret < 0);
 
-          if (attr.mq_curmsgs == 0)
-          {
-            break;
-          }
+          if (attr.mq_curmsgs == 0 && unconsumed <= 0)
+            {
+              break;
+            }
 
           mq_receive(state->mq, (FAR char *)&msg, sizeof(msg), &prio);
+          if (msg.msg_id == AUDIO_MSG_DEQUEUE)
+            {
+              unconsumed--;
+            }
         }
       while (ret >= 0);
 
