@@ -26,6 +26,10 @@ CSRCS    += memtester/output.c
 
 MAINSRC   = memtester/memtester.c
 
+ifeq ($(CONFIG_UTILS_MEMTESTER_NARROW),y)
+  CFLAGS += -DTEST_NARROW_WRITES
+endif
+
 ifeq ($(wildcard memtester/.git),)
 VERSION ?= master
 memtester.zip:

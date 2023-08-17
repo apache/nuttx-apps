@@ -32,4 +32,11 @@ config UTILS_MEMTESTER_PRIORITY
 	int "Task PRIORITY"
 	default 100
 
+config UTILS_MEMTESTER_NARROW
+	bool "TEST_NARROW"
+	default n
+	---help---
+		Turn on the "test_8bit_wide_random test_16bit_wide_random" tests, which
+		may result in unaligned access on some platforms.
+
 endif
