@@ -96,7 +96,7 @@ config TINYCRYPT_AES_CMAC
 config TINYCRYPT_TEST
 	tristate "Enable TinyCrypt test"
 	default n
-	help
+	---help---
 		Enable the TinyCrypt test.
 
 if TINYCRYPT_TEST

@@ -18,19 +18,19 @@ config MBEDTLS_VERSION
 config MBEDTLS_DEBUG_C
 	bool "This module provides debugging functions."
 	default n
-	help
+	---help---
 		This module provides debugging functions.
 
 config MBEDTLS_SSL_MAX_CONTENT_LEN
 	int "Maximum length (in bytes) of incoming and outgoing plaintext fragments."
 	default 16384
-	help
+	---help---
 		Maximum length (in bytes) of incoming and outgoing plaintext fragments.
 
 config MBEDTLS_SSL_SRV_C
 	bool "This module is required for SSL/TLS server support."
 	default y
-	help
+	---help---
 		This module is required for SSL/TLS server support.
 
 config MBEDTLS_PLATFORM_MEMORY
@@ -109,7 +109,7 @@ config MBEDTLS_SSL_DTLS_BADMAC_LIMIT
 	bool "Enable support for a limit of records with bad MAC."
 	default n
 
-endif
+endif # MBEDTLS_SSL_PROTO_DTLS
 
 config MBEDTLS_SSL_ALPN
 	bool "Enable support for RFC 7301 Application Layer Protocol Negotiation."
@@ -159,7 +159,7 @@ config MBEDTLS_SHA512_ALT
 	select MBEDTLS_ALT
 	default n
 
-endif
+endif # CRYPTO_CRYPTODEV
 
 menuconfig MBEDTLS_APPS
 	tristate "Mbed TLS Applications"
@@ -195,6 +195,7 @@ config MBEDTLS_APP_BENCHMARK_PRIORITY
 config MBEDTLS_APP_BENCHMARK_STACKSIZE
 	int "Benchmark stack size"
 	default MBEDTLS_DEFAULT_TASK_STACKSIZE
+
 endif # MBEDTLS_APP_BENCHMARK
 
 config MBEDTLS_APP_SELFTEST
@@ -219,6 +220,7 @@ config MBEDTLS_APP_SELFTEST_PRIORITY
 config MBEDTLS_APP_SELFTEST_STACKSIZE
 	int "Self test stack size"
 	default MBEDTLS_DEFAULT_TASK_STACKSIZE
+
 endif # MBEDTLS_APP_SELFTEST
 
 endif # MBEDTLS_APPS
