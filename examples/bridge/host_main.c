@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
   struct sockaddr_in fromaddr;
   struct sockaddr_in toaddr;
   socklen_t addrlen;
-  in_addr_t tmpaddr;
   ssize_t nrecvd;
   ssize_t nsent;
   int optval;
@@ -175,17 +174,15 @@ int main(int argc, char *argv[])
 
   /* Read a packet */
 
-  printf(LABEL "Receiving up to %d bytes\n",  EXAMPLES_BRIDGE_SEND_IOBUFIZE);
+  printf(LABEL "Receiving up to %d bytes\n", EXAMPLES_BRIDGE_SEND_IOBUFIZE);
 
   addrlen = sizeof(struct sockaddr_in);
   nrecvd = recvfrom(recvsd, g_rdbuffer, EXAMPLES_BRIDGE_SEND_IOBUFIZE, 0,
                     (struct sockaddr *)&fromaddr, &addrlen);
 
-  tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
-  printf(LABEL "Received %ld bytes from %d.%d.%d.%d:%d\n",
+  printf(LABEL "Received %ld bytes from %s:%u\n",
          (long)nrecvd,
-         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         inet_ntoa(fromaddr.sin_addr),
          ntohs(fromaddr.sin_port));
 
   /* Check for a receive error or zero bytes received.  The negative

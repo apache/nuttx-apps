@@ -33,6 +33,7 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <nuttx/net/ip.h>
 
 #include "netutils/netlib.h"
 
@@ -327,7 +328,6 @@ static int bridge_net1_worker(int argc, char *argv[])
   struct sockaddr_in fromaddr;
   struct sockaddr_in toaddr;
   socklen_t addrlen;
-  in_addr_t tmpaddr;
   ssize_t nrecvd;
   ssize_t nsent;
   int optval;
@@ -338,13 +338,16 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Create a UDP receive socket on network 1 */
 
-  tmpaddr = ntohl(g_net1_ipaddr);
-  printf("NET1: Create receive socket: %d.%d.%d.%d:%d\n",
-         (int)(tmpaddr >> 24),
-         (int)((tmpaddr >> 16) & 0xff),
-         (int)((tmpaddr >> 8) & 0xff),
-         (int)(tmpaddr & 0xff),
-         CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
+  receiver.sin_family      = AF_INET;
+  receiver.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
+  receiver.sin_addr.s_addr = g_net1_ipaddr;
+
+  printf("NET1: Create receive socket: %u.%u.%u.%u:%u\n",
+         ip4_addr1(receiver.sin_addr.s_addr),
+         ip4_addr2(receiver.sin_addr.s_addr),
+         ip4_addr3(receiver.sin_addr.s_addr),
+         ip4_addr4(receiver.sin_addr.s_addr),
+         htons(receiver.sin_port));
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
@@ -367,10 +370,6 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  receiver.sin_family      = AF_INET;
-  receiver.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
-  receiver.sin_addr.s_addr = g_net1_ipaddr;
-
   if (bind(recvsd, (struct sockaddr *)&receiver,
            sizeof(struct sockaddr_in)) < 0)
     {
@@ -380,12 +379,9 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Create a UDP send socket on network 2 */
 
-  tmpaddr = ntohl(g_net2_ipaddr);
-  printf("NET1: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
-         (int)(tmpaddr >> 24),
-         (int)((tmpaddr >> 16) & 0xff),
-         (int)((tmpaddr >> 8) & 0xff),
-         (int)(tmpaddr & 0xff));
+  printf("NET1: Create send socket: %u.%u.%u.%u:INPORT_ANY\n",
+         ip4_addr1(g_net2_ipaddr), ip4_addr2(g_net2_ipaddr),
+         ip4_addr3(g_net2_ipaddr), ip4_addr4(g_net2_ipaddr));
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -433,13 +429,12 @@ static int bridge_net1_worker(int argc, char *argv[])
                         CONFIG_EXAMPLES_BRIDGE_NET1_IOBUFIZE, 0,
                         (FAR struct sockaddr *)&fromaddr, &addrlen);
 
-      tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
-      printf("NET1: Received %ld bytes from %d.%d.%d.%d:%d\n",
+      printf("NET1: Received %ld bytes from %u.%u.%u.%u:%u\n",
              (long)nrecvd,
-             (int)(tmpaddr >> 24),
-             (int)((tmpaddr >> 16) & 0xff),
-             (int)((tmpaddr >> 8) & 0xff),
-             (int)(tmpaddr & 0xff),
+             ip4_addr1(fromaddr.sin_addr.s_addr),
+             ip4_addr2(fromaddr.sin_addr.s_addr),
+             ip4_addr3(fromaddr.sin_addr.s_addr),
+             ip4_addr4(fromaddr.sin_addr.s_addr),
              ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
@@ -465,17 +460,17 @@ static int bridge_net1_worker(int argc, char *argv[])
 
       /* Send the newly received packet out network 2 */
 
-      printf("NET1: Sending %ld bytes on network 2: %d.%d.%d.%d:%d\n",
-             (long)nrecvd,
-             CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 24,
-             (CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 16) & 0xff,
-             (CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 8) & 0xff,
-             CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST & 0xff,
-             CONFIG_EXAMPLES_BRIDGE_NET2_HOSTPORT);
-
       toaddr.sin_family      = AF_INET;
       toaddr.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET2_HOSTPORT);
       toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST);
+
+      printf("NET1: Sending %ld bytes on network 2: %u.%u.%u.%u:%u\n",
+             (long)nrecvd,
+             ip4_addr1(toaddr.sin_addr.s_addr),
+             ip4_addr2(toaddr.sin_addr.s_addr),
+             ip4_addr3(toaddr.sin_addr.s_addr),
+             ip4_addr4(toaddr.sin_addr.s_addr),
+             htons(toaddr.sin_port));
 
       nsent = sendto(sndsd, g_net1_buffer, nrecvd, 0,
                      (struct sockaddr *)&toaddr,
@@ -518,7 +513,6 @@ static int bridge_net2_worker(int argc, char *argv[])
   struct sockaddr_in fromaddr;
   struct sockaddr_in toaddr;
   socklen_t addrlen;
-  in_addr_t tmpaddr;
   ssize_t nrecvd;
   ssize_t nsent;
   int optval;
@@ -529,13 +523,16 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Create a UDP receive socket on network 2 */
 
-  tmpaddr = ntohl(g_net2_ipaddr);
-  printf("NET2: Create receive socket: %d.%d.%d.%d:%d\n",
-         (int)(tmpaddr >> 24),
-         (int)((tmpaddr >> 16) & 0xff),
-         (int)((tmpaddr >> 8) & 0xff),
-         (int)(tmpaddr & 0xff),
-         CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
+  receiver.sin_family      = AF_INET;
+  receiver.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
+  receiver.sin_addr.s_addr = g_net2_ipaddr;
+
+  printf("NET2: Create receive socket: %u.%u.%u,%u:%u\n",
+         ip4_addr1(receiver.sin_addr.s_addr),
+         ip4_addr2(receiver.sin_addr.s_addr),
+         ip4_addr3(receiver.sin_addr.s_addr),
+         ip4_addr4(receiver.sin_addr.s_addr),
+         htons(receiver.sin_port));
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
@@ -558,10 +555,6 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  receiver.sin_family      = AF_INET;
-  receiver.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
-  receiver.sin_addr.s_addr = g_net2_ipaddr;
-
   if (bind(recvsd, (struct sockaddr *)&receiver,
            sizeof(struct sockaddr_in)) < 0)
     {
@@ -571,12 +564,9 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Create a UDP send socket on network 1 */
 
-  tmpaddr = ntohl(g_net1_ipaddr);
-  printf("NET2: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
-         (int)(tmpaddr >> 24),
-         (int)((tmpaddr >> 16) & 0xff),
-         (int)((tmpaddr >> 8) & 0xff),
-         (int)(tmpaddr & 0xff));
+  printf("NET2: Create send socket: %u.%u.%u.%u:INPORT_ANY\n",
+         ip4_addr1(g_net1_ipaddr), ip4_addr2(g_net1_ipaddr),
+         ip4_addr3(g_net1_ipaddr), ip4_addr4(g_net1_ipaddr));
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -624,13 +614,12 @@ static int bridge_net2_worker(int argc, char *argv[])
                         CONFIG_EXAMPLES_BRIDGE_NET2_IOBUFIZE, 0,
                         (FAR struct sockaddr *)&fromaddr, &addrlen);
 
-      tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
-      printf("NET2: Received %ld bytes from %d.%d.%d.%d:%d\n",
+      printf("NET2: Received %ld bytes from %u.%u.%u.%u:%u\n",
              (long)nrecvd,
-             (int)(tmpaddr >> 24),
-             (int)((tmpaddr >> 16) & 0xff),
-             (int)((tmpaddr >> 8) & 0xff),
-             (int)(tmpaddr & 0xff),
+             ip4_addr1(fromaddr.sin_addr.s_addr),
+             ip4_addr2(fromaddr.sin_addr.s_addr),
+             ip4_addr3(fromaddr.sin_addr.s_addr),
+             ip4_addr4(fromaddr.sin_addr.s_addr),
              ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
@@ -656,17 +645,17 @@ static int bridge_net2_worker(int argc, char *argv[])
 
       /* Send the newly received packet out network 1 */
 
-      printf("NET2: Sending %ld bytes on network 1: %d.%d.%d.%d:%d\n",
-             (long)nrecvd,
-             CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 24,
-             (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 16) & 0xff,
-             (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 8) & 0xff,
-             CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST & 0xff,
-             CONFIG_EXAMPLES_BRIDGE_NET1_HOSTPORT);
-
       toaddr.sin_family      = AF_INET;
       toaddr.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET1_HOSTPORT);
       toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST);
+
+      printf("NET2: Sending %ld bytes on network 1: %u.%u.%u.%u:%u\n",
+             (long)nrecvd,
+             ip4_addr1(toaddr.sin_addr.s_addr),
+             ip4_addr2(toaddr.sin_addr.s_addr),
+             ip4_addr3(toaddr.sin_addr.s_addr),
+             ip4_addr4(toaddr.sin_addr.s_addr),
+             htons(toaddr.sin_port));
 
       nsent = sendto(sndsd, g_net2_buffer, nrecvd, 0,
                      (struct sockaddr *)&toaddr, sizeof(struct sockaddr_in));

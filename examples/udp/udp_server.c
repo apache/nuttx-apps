@@ -79,7 +79,7 @@ void udp_server(void)
 #else
   struct sockaddr_in server;
   struct sockaddr_in client;
-  in_addr_t tmpaddr;
+  char ip_str[INET_ADDRSTRLEN];
 #endif
   unsigned char inbuf[1024];
   socklen_t addrlen;
@@ -167,11 +167,10 @@ void udp_server(void)
              client.sin6_addr.s6_addr[14], client.sin6_addr.s6_addr[15],
              ntohs(client.sin6_port));
 #else
-      tmpaddr = ntohl(client.sin_addr.s_addr);
-      printf("server: %d. Received %d bytes from %u.%u.%u.%u:%d\n",
+      printf("server: %d. Received %d bytes from %s:%u\n",
              offset, nbytes,
-             (uint8_t)(tmpaddr >> 24), (uint8_t)((tmpaddr >> 16) & 0xff),
-             (uint8_t)((tmpaddr >> 8) & 0xff), (uint8_t)(tmpaddr & 0xff),
+             inet_ntop(AF_INET, &client.sin_addr.s_addr,
+                       ip_str, sizeof(ip_str)),
              ntohs(client.sin_port));
 #endif
       if (nbytes < 0)

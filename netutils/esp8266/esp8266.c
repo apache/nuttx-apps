@@ -42,6 +42,7 @@
 
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <nuttx/net/ip.h>
 
 #include "netutils/esp8266.h"
 
@@ -54,15 +55,15 @@
 #define NETAPP_IPCONFIG_MAC_OFFSET     (20)
 
 #ifndef CONFIG_NETUTILS_ESP8266_MAXTXLEN
-#   define CONFIG_NETUTILS_ESP8266_MAXTXLEN  256
+#  define CONFIG_NETUTILS_ESP8266_MAXTXLEN  256
 #endif
 
 #ifndef CONFIG_NETUTILS_ESP8266_MAXRXLEN
-#   define CONFIG_NETUTILS_ESP8266_MAXRXLEN  256
+#  define CONFIG_NETUTILS_ESP8266_MAXRXLEN  256
 #endif
 
 #if (CONFIG_NETUTILS_ESP8266_MAXRXLEN < CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN)
-#   error "CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN would be bigger than CONFIG_NETUTILS_ESP8266_MAXRXLEN"
+#  error "CONFIG_NETUTILS_ESP8266_WORKER_BUF_LEN would be bigger than CONFIG_NETUTILS_ESP8266_MAXRXLEN"
 #endif
 
 #define BUF_CMD_LEN     CONFIG_NETUTILS_ESP8266_MAXTXLEN
@@ -1836,19 +1837,15 @@ int lesp_set_net(lesp_mode_t mode, in_addr_t ip,
 
   if (ret >= 0)
     {
-      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIP%s_CUR=\"%d.%d.%d.%d\","
-                            "\"%d.%d.%d.%d\",\"%d.%d.%d.%d\"\r\n",
+      ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIP%s_CUR=\"%u.%u.%u.%u\","
+                            "\"%u.%u.%u.%u\",\"%u.%u.%u.%u\"\r\n",
                             (mode == LESP_MODE_STATION) ? "STA" : "AP",
-                            *((uint8_t *)&(ip)+0), *((uint8_t *)&(ip)+1),
-                            *((uint8_t *)&(ip)+2), *((uint8_t *)&(ip)+3),
-                            *((uint8_t *)&(gateway)+0),
-                            *((uint8_t *)&(gateway)+1),
-                            *((uint8_t *)&(gateway)+2),
-                            *((uint8_t *)&(gateway)+3),
-                            *((uint8_t *)&(mask)+0),
-                            *((uint8_t *)&(mask)+1),
-                            *((uint8_t *)&(mask)+2),
-                            *((uint8_t *)&(mask)+3));
+                            ip4_addr1(ip), ip4_addr2(ip),
+                            ip4_addr3(ip), ip4_addr4(ip),
+                            ip4_addr1(gateway), ip4_addr2(gateway),
+                            ip4_addr3(gateway), ip4_addr4(gateway),
+                            ip4_addr1(mask), ip4_addr2(mask),
+                            ip4_addr3(mask), ip4_addr4(mask));
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -2337,9 +2334,9 @@ int lesp_connect(int sockfd, FAR const struct sockaddr *addr,
   if (ret >= 0)
     {
       ret = lesp_ask_ans_ok(LESP_TIMEOUT_MS, "AT+CIPSTART=%d,\"%s\","
-                            "\"%d.%d.%d.%d\",%d\r\n", sockfd, proto_str,
-                            *((uint8_t *)&ip + 0), *((uint8_t *)&ip +1),
-                            *((uint8_t *)&ip + 2), *((uint8_t *)&ip + 3),
+                            "\"%u.%u.%u.%u\",%d\r\n", sockfd, proto_str,
+                            ip4_addr1(ip), ip4_addr2(ip),
+                            ip4_addr3(ip), ip4_addr4(ip),
                             port);
       if (ret < 0)
         {
