@@ -87,6 +87,7 @@ define LINK_WASM
 	    $(eval STACKSIZE=$(shell echo $(notdir $(bin)) | cut -d'#' -f3)) \
 	    $(eval PROGNAME=$(shell echo $(notdir $(bin)) | cut -d'#' -f1)) \
 	    $(eval RETVAL=$(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) $(COMPILER_RT_LIB) \
+	        -Wl,--Map=$(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).map \
 	        -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm || echo 1;)) \
 	    $(if $(RETVAL), \
 	        $(error wasm build failed for $(PROGNAME).wasm) \
