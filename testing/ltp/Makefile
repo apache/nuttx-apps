@@ -104,26 +104,18 @@ BLACKWORDS  += "SA_ONSTACK"
 BLACKWORDS  += "MINSIGSTKSZ"
 BLACKWORDS  += "FPE_FLTINV"
 
-BLACKSRCS += testfrmw.c
-BLACKSRCS += 7-3-buildonly.c
-BLACKSRCS += 7-4-buildonly.c
-BLACKSRCS += 7-5-buildonly.c
-BLACKSRCS += 11-1-buildonly.c
-BLACKSRCS += 17-1-buildonly.c
 BLACKSRCS += 19-1-buildonly.c
 BLACKSRCS += 21-1-buildonly.c
-BLACKSRCS += 22-31-buildonly.c
-BLACKSRCS += 22-32-buildonly.c
-BLACKSRCS += 25-1-buildonly.c
 BLACKSRCS += 27-1-buildonly.c
+ifeq ($(CONFIG_LIBC_LOCALTIME),)
 BLACKSRCS += 34-1-buildonly.c
+BLACKSRCS += 35-3-buildonly.c
+endif
 BLACKSRCS += 35-1-buildonly.c
 BLACKSRCS += 35-2-buildonly.c
-BLACKSRCS += 27-2.c
 ifeq ($(CONFIG_PTHREAD_SPINLOCKS),)
 BLACKSRCS += 3-12-buildonly.c
 endif
-BLACKSRCS += 35-3-buildonly.c
 ifeq ($(CONFIG_SCHED_CHILD_STATUS),)
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/6-1.c
 BLACKSRCS += $(TESTDIR)/conformance/behavior/WIFEXITED/1-1.c
@@ -195,6 +187,12 @@ BLACKWORDS += seteuid
 BLACKWORDS += setegid
 BLACKWORDS += geteuid
 BLACKWORDS += getegid
+endif
+ifeq ($(CONFIG_TLS_NELEM),0)
+BLACKWORDS += pthread_key_create
+BLACKWORDS += pthread_key_delete
+BLACKWORDS += pthread_setspecific
+BLACKWORDS += pthread_getspecific
 endif
 ifeq ($(CONFIG_PTHREAD_CLEANUP_STACKSIZE),0)
 BLACKWORDS += pthread_cleanup_push
