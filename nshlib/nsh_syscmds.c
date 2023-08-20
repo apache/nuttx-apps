@@ -538,6 +538,7 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
       if (argv[3] == 0 || argv[4] == 0 ||
           argv[5] == 0 || argv[6] == 0)
         {
+          nsh_error(vtbl, g_fmtargrequired);
           return ERROR;
         }
 
