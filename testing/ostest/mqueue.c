@@ -96,7 +96,7 @@ static void *sender_thread(void *arg)
    */
 
   g_send_mqfd = mq_open("mqueue", O_WRONLY | O_CREAT, 0666, &attr);
-  if (g_send_mqfd == (mqd_t)-1)
+  if (g_send_mqfd == (mqd_t)ERROR)
     {
       printf("sender_thread: ERROR mq_open failed, errno=%d\n", errno);
       ASSERT(false);
@@ -170,7 +170,7 @@ static void *receiver_thread(void *arg)
    */
 
   g_recv_mqfd = mq_open("mqueue", O_RDONLY | O_CREAT, 0666, &attr);
-  if (g_recv_mqfd == (mqd_t)-1)
+  if (g_recv_mqfd == (mqd_t)ERROR)
     {
       printf("receiver_thread: ERROR mq_open failed, errno=%d\n", errno);
       ASSERT(false);
