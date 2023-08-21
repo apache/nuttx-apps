@@ -143,27 +143,72 @@ static void run_once(int interval, int priority_test, int priority_verify)
   pthread_t thread;
   pthread_attr_t attr;
   struct sched_param sparam;
+  int status;
 
-  pthread_attr_init(&attr);
+  status = pthread_attr_init(&attr);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_attr_init failed, status=%d\n", status);
+    }
+
   memset(&sparam, 0, sizeof(sparam));
 
   /* Tester: try race conditions. */
 
   sparam.sched_priority = priority_test;
-  pthread_attr_setschedparam(&attr, &sparam);
+  status = pthread_attr_setschedparam(&attr, &sparam);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_attr_setschedparam failed for tester, "
+             "status=%d\n", status);
+    }
 
-  pthread_create(&thread, &attr, tester, (FAR void *)(intptr_t)interval);
-  pthread_join(thread, NULL);
+  status = pthread_create(&thread, &attr, tester,
+                          (FAR void *)(intptr_t)interval);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_create failed for tester, "
+             "status=%d\n", status);
+    }
+
+  status = pthread_join(thread, NULL);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_join failed for tester, "
+             "status=%d\n", status);
+    }
 
   /* Verifier: make sure queue is still working properly. */
 
   sparam.sched_priority = priority_verify;
-  pthread_attr_setschedparam(&attr, &sparam);
-  pthread_attr_setstacksize(&attr,
-        VERIFY_COUNT * sizeof(struct work_s) + CONFIG_PTHREAD_STACK_DEFAULT);
+  status = pthread_attr_setschedparam(&attr, &sparam);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_attr_setschedparam failed for verifier, "
+             "status=%d\n", status);
+    }
 
-  pthread_create(&thread, &attr, verifier, NULL);
-  pthread_join(thread, NULL);
+  status = pthread_attr_setstacksize(&attr,
+        VERIFY_COUNT * sizeof(struct work_s) + CONFIG_PTHREAD_STACK_DEFAULT);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_attr_setstacksize failed for verifier, "
+             "status=%d\n", status);
+    }
+
+  status = pthread_create(&thread, &attr, verifier, NULL);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_create failed for verifier, "
+             "status=%d\n", status);
+    }
+
+  status = pthread_join(thread, NULL);
+  if (status != 0)
+    {
+      printf("wqueue_test: pthread_join failed for verifier, "
+             "status=%d\n", status);
+    }
 }
 
 /****************************************************************************
