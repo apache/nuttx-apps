@@ -52,10 +52,10 @@ ifeq ($(CONFIG_SYSTEM_FDTOVERLAY),y)
   PRIORITY += $(CONFIG_SYSTEM_FDTOVERLAY_PRIORITY)
 endif
 
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/system/fdt/
-CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/dtc/libfdt/
+CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/fdt/
+CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/fdt/dtc/libfdt/
 
-VPATH += $(TOPDIR)/libs/libc/dtc/
-DEPPATH += --dep-path $(TOPDIR)/libs/libc/dtc/
+VPATH += $(TOPDIR)/libs/libc/fdt/dtc/
+DEPPATH += --dep-path $(TOPDIR)/libs/libc/fdt/dtc/
 
 include $(APPDIR)/Application.mk
