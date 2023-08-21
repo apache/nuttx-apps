@@ -300,7 +300,7 @@ static int user_main(int argc, char *argv[])
   check_test_memory_usage();
 #endif
 
-#if CONFIG_TLS_NELEM > 0
+#if defined(CONFIG_TLS_NELEM) && CONFIG_TLS_NELEM > 0
   /* Test TLS */
 
   tls_test();

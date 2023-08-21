@@ -33,7 +33,7 @@
 
 #include "ostest.h"
 
-#if CONFIG_TLS_NELEM > 0
+#if defined(CONFIG_TLS_NELEM) && CONFIG_TLS_NELEM > 0
 
 /****************************************************************************
  * Preprocessor Definitions
