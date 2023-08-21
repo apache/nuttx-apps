@@ -75,20 +75,12 @@ WAMR_MODE ?= INT
 WSRCS := $(MAINSRC) $(CSRCS)
 WOBJS := $(WSRCS:=$(SUFFIX).wo)
 
-# Copy math.h from $(TOPDIR)/include/nuttx/lib/math.h to $(APPDIR)/include/wasm/math.h
-# Using declaration of math.h is OK for Wasm build
-
-$(APPDIR)$(DELIM)include$(DELIM)wasm$(DELIM)math.h:
-ifeq ($(CONFIG_LIBM),)
-	$(call COPYFILE,$(TOPDIR)$(DELIM)include$(DELIM)nuttx$(DELIM)lib$(DELIM)math.h,$@)
-endif
-
 all:: $(WBIN)
 
 $(BINDIR)/wasm:
 	$(Q) mkdir -p $(BINDIR)/wasm
 
-depend:: $(APPDIR)$(DELIM)include$(DELIM)wasm$(DELIM)math.h $(BINDIR)/wasm
+depend:: $(BINDIR)/wasm
 
 $(WOBJS): %.c$(SUFFIX).wo : %.c
 	$(Q) $(WCC) $(WCFLAGS) -c $^ -o $@
@@ -108,7 +100,6 @@ $(WBIN): $(WOBJS)
 clean::
 	$(call DELFILE, $(WOBJS))
 	$(call DELFILE, $(WBIN))
-	$(call DELFILE, $(APPDIR)$(DELIM)include$(DELIM)wasm$(DELIM)math.h)
 
 endif # WASM_BUILD
 
