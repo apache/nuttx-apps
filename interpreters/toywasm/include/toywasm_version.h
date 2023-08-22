@@ -21,6 +21,6 @@
 #if !defined(_TOYWASM_VERSION_H)
 #define _TOYWASM_VERSION_H
 
-#define TOYWASM_VERSION "v31.0.0"
+#define TOYWASM_VERSION "v33.0.0-4-ge03d1f6"
 
 #endif /* !defined(_TOYWASM_VERSION_H) */
