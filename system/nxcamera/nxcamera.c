@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include <nuttx/queue.h>
 #include <nuttx/video/video.h>
@@ -63,6 +64,25 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * pan_display
+ ****************************************************************************/
+
+static void pan_display(int fb_device, FAR struct fb_planeinfo_s *plane_info)
+{
+  struct pollfd pfd;
+  int ret;
+  pfd.fd = fb_device;
+  pfd.events = POLLOUT;
+
+  ret = poll(&pfd, 1, 0);
+
+  if (ret > 0)
+    {
+      ioctl(fb_device, FBIOPAN_DISPLAY, plane_info);
+    }
+}
 
 static int show_image(FAR struct nxcamera_s *pcam, FAR v4l2_buffer_t *buf)
 {
@@ -379,6 +399,11 @@ static void *nxcamera_loopthread(pthread_addr_t pvarg)
         {
           verr("Fail to show image %d\n", -ret);
           goto err_out;
+        }
+
+      if (pcam->display_pinfo.yres_virtual > pcam->display_vinfo.yres)
+        {
+          pan_display(pcam->display_fd, &pcam->display_pinfo);
         }
 
       ret = ioctl(pcam->capture_fd, VIDIOC_QBUF, (uintptr_t)&buf);
