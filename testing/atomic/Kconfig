@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_ATOMIC
+	tristate "\"Test atomic\" testing"
+	default n
+	---help---
+		Enable the \"Test atomic!\" testing.
+
+if TESTING_ATOMIC
+
+config TESTING_ATOMIC_PROGNAME
+	string "Program name"
+	default "atomic"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is atomic.
+
+config TESTING_ATOMIC_PRIORITY
+	int "Atomic task priority"
+	default 100
+
+config TESTING_ATOMIC_STACKSIZE
+	int "Atomic stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
