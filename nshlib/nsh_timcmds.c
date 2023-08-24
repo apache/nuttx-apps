@@ -367,7 +367,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR char *newtime = NULL;
-  FAR const char *errfmt unused_data;
+  FAR const char *errfmt;
   bool utc = false;
   int option;
   int ret;
