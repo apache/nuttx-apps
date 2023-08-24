@@ -51,20 +51,19 @@
 #define nsh_exit(v,s)          (v)->exit(v,s)
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  define nsh_error(v, ...)     (v)->error(v, ##__VA_ARGS__)
-#  define nsh_output(v, ...)    (v)->output(v, ##__VA_ARGS__)
+#  define nsh_error(v, ...)    (v)->error(v, ##__VA_ARGS__)
+#  define nsh_output(v, ...)   (v)->output(v, ##__VA_ARGS__)
+#  define nsh_none(v, ...)     \
+     do { if (0) nsh_output_none(v, ##__VA_ARGS__); } while (0)
 #else
-#  define nsh_error             vtbl->error
-#  define nsh_output            vtbl->output
+#  define nsh_error            vtbl->error
+#  define nsh_output           vtbl->output
+#  define nsh_none             (void)
 #endif
 
 #ifdef CONFIG_NSH_DISABLE_ERROR_PRINT
 #  undef nsh_error
-#  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define nsh_error(v, ...) (void)(v)
-#  else
-#    define nsh_error         (void)(vtbl)
-#  endif
+#  define nsh_error            nsh_none
 #endif
 
 /* Size of info to be saved in call to nsh_redirect
@@ -182,6 +181,19 @@ struct console_stdio_s
 /****************************************************************************
  * Public Data
  ****************************************************************************/
+
+/****************************************************************************
+ * Inline functions
+ ****************************************************************************/
+
+#ifdef CONFIG_CPP_HAVE_VARARGS
+/* Can be used to suppress any nsh output */
+
+static inline void nsh_output_none(FAR struct nsh_vtbl_s *vtbl, ...)
+{
+  UNUSED(vtbl);
+}
+#endif
 
 /****************************************************************************
  * Public Function Prototypes
