@@ -53,7 +53,7 @@ CFLAGS += -DDEF_THREADPOOL_SIZE=CONFIG_LIBUV_THREADPOOL_SIZE
 CFLAGS += -DDEF_THREADPOOL_STACKSIZE=CONFIG_LIBUV_THREAD_STACKSIZE
 
 ifeq ($(GCCVER),)
-  GCCVER = $(shell $(CC) --version | grep gcc | sed -r 's/.* ([0-9]+\.[0-9]+).*/\1/' | cut -d'.' -f1)
+  export GCCVER = $(shell $(CC) --version | grep gcc | sed -r 's/.* ([0-9]+\.[0-9]+).*/\1/' | cut -d'.' -f1)
 endif
 
 ifeq ($(GCCVER),12)
