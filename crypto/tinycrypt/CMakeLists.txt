@@ -37,6 +37,9 @@ if(CONFIG_TINYCRYPT)
       tinycrypt_fetch
       URL ${TINYCRYPT_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/tinycrypt
           BINARY_DIR ${CMAKE_BINARY_DIR}/apps/crypto/tinycrypt/tinycrypt
+      PATCH_COMMAND
+        patch -p0 -d ${CMAKE_CURRENT_LIST_DIR}/tinycrypt <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-TinyCrypt-test-resolve-compile-error.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -46,18 +49,6 @@ if(CONFIG_TINYCRYPT)
       FetchContent_Populate(tinycrypt_fetch)
     endif()
     set(TINYCRYPT_DIR ${tinycrypt_fetch_SOURCE_DIR})
-
-    if(NOT EXISTS ${TINYCRYPT_DIR}/.tinycrypt_patch)
-      add_custom_command(
-        OUTPUT ${TINYCRYPT_DIR}/.tinycrypt_patch
-        COMMAND touch ${TINYCRYPT_DIR}/.tinycrypt_patch
-        COMMAND
-          patch -p0 -d ${TINYCRYPT_DIR} <
-          ${CMAKE_CURRENT_LIST_DIR}/0001-TinyCrypt-test-resolve-compile-error.patch
-          > /dev/null || (exit 0))
-      add_custom_target(tinycrypt_patch
-                        DEPENDS ${TINYCRYPT_DIR}/.tinycrypt_patch)
-    endif()
 
   endif()
 
@@ -316,8 +307,5 @@ if(CONFIG_TINYCRYPT)
   target_include_directories(tinycrypt PRIVATE ${INCDIR})
   if(CFLAGS)
     target_compile_options(tinycrypt PRIVATE ${CFLAGS})
-  endif()
-  if(TARGET tinycrypt_patch)
-    add_dependencies(tinycrypt tinycrypt_patch)
   endif()
 endif()

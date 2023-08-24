@@ -27,7 +27,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
 
   set(MBEDTLS_DIR ${CMAKE_CURRENT_LIST_DIR}/mbedtls)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/mbedtls/.git)
+  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/mbedtls)
     FetchContent_Declare(
       mbedtls_fetch
       URL ${MBEDTLS_URL}/v${CONFIG_MBEDTLS_VERSION}.zip SOURCE_DIR

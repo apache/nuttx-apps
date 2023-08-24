@@ -21,7 +21,7 @@
 if(CONFIG_SYSTEM_ARGTABLE3)
   nuttx_add_library(argtable3)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/argtable3/.git)
+  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/argtable3)
 
     if(NOT CONFIG_SYSTEM_ARGTABLE3_URL)
       set(CONFIG_SYSTEM_ARGTABLE3_URL

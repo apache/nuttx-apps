@@ -34,6 +34,8 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
           ${CMAKE_CURRENT_LIST_DIR}/lely-canopen
           BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/canutils/lely-canopen/lely-canopen
+      PATCH_COMMAND patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-canopen <
+                    ${CMAKE_CURRENT_LIST_DIR}/0001-NuttX-port.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -45,17 +47,6 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
 
     set(LELYCANOPEN_DIR ${lelycanopen_fetch_SOURCE_DIR})
 
-    if(NOT EXISTS ${LELYCANOPEN_DIR}/.lelycanopen_patch)
-      add_custom_command(
-        OUTPUT ${LELYCANOPEN_DIR}/.lelycanopen_patch
-        COMMAND touch ${LELYCANOPEN_DIR}/.lelycanopen_patch
-        COMMAND
-          patch -p1 -d ${LELYCANOPEN_DIR} <
-          ${CMAKE_CURRENT_LIST_DIR}/0001-NuttX-port.patch > /dev/null || (exit 0
-                                                                         ))
-      add_custom_target(lelycanopen_patch
-                        DEPENDS ${LELYCANOPEN_DIR}/.lelycanopen_patch)
-    endif()
   endif()
 
   nuttx_add_library(lelycanopen STATIC)
@@ -228,8 +219,5 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
   target_compile_options(lelycanopen PRIVATE ${CFLAGS})
   target_sources(lelycanopen PRIVATE ${CSRCS})
   target_include_directories(lelycanopen PRIVATE ${INCDIR})
-  if(TARGET lelycanopen_patch)
-    add_dependencies(lelycanopen lelycanopen_patch)
-  endif()
 
 endif()

@@ -29,10 +29,19 @@ if(CONFIG_MATH_LIBTOMMATH)
 
   if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/libtommath)
     FetchContent_Declare(
-      libtommath URL ${CONFIG_LIBTOMMATH_URL}/v${CONFIG_LIBTOMMATH_VERSION}.zip)
-    FetchContent_MakeAvailable(libtommath)
+      libtommath_fetch
+      URL ${CONFIG_LIBTOMMATH_URL}/v${CONFIG_LIBTOMMATH_VERSION}.zip SOURCE_DIR
+          ${CMAKE_CURRENT_LIST_DIR}/libtommath BINARY_DIR
+          ${CMAKE_BINARY_DIR}/apps/math/libtommath/libtommath
+      DOWNLOAD_NO_PROGRESS true
+      TIMEOUT 30)
 
-    set(LIBTOMMATH_DIR ${libtommath_SOURCE_DIR})
+    FetchContent_GetProperties(libtommath_fetch)
+    if(NOT libtommath_fetch_POPULATED)
+      FetchContent_Populate(libtommath_fetch)
+    endif()
+
+    set(LIBTOMMATH_DIR ${libtommath_fetch_SOURCE_DIR})
   endif()
 
   # ############################################################################
