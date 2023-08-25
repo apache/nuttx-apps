@@ -10,6 +10,8 @@ menuconfig BOOT_MINIBOOT
 	---help---
 		Enable support for the minimal NuttX based bootloader.
 
+if BOOT_MINIBOOT
+
 config MINIBOOT_SLOT_PATH
 	string "Application firmware image slot path"
 	default "/dev/ota0"
@@ -21,3 +23,5 @@ config MINIBOOT_SLOT_PATH
 config MINIBOOT_HEADER_SIZE
 	hex "Application firmware image header size"
 	default 0x200
+
+endif # BOOT_MINIBOOT
