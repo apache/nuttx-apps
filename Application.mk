@@ -93,7 +93,7 @@ ifneq ($(BUILD_MODULE),y)
   OBJS += $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ)
 endif
 
-ifneq ($(PROGNAME),)
+ifneq ($(strip $(PROGNAME)),)
   PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
   ifneq ($(words $(PROGOBJ)), $(words $(PROGNAME)))
     $(warning "program names $(PROGNAME) does not match mainsrcs $(PROGOBJ)")
