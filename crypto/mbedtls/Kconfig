@@ -109,6 +109,15 @@ config MBEDTLS_SSL_DTLS_BADMAC_LIMIT
 	bool "Enable support for a limit of records with bad MAC."
 	default n
 
+config MBEDTLS_SSL_DTLS_CONNECTION_ID
+	bool "Enable the Connection ID extension."
+	default n
+
+config MBEDTLS_SSL_DTLS_CONNECTION_ID_COMPAT
+	bool "Enable the standard version of DTLS Connection ID feature."
+	depends on MBEDTLS_SSL_DTLS_CONNECTION_ID
+	default n
+
 endif # MBEDTLS_SSL_PROTO_DTLS
 
 config MBEDTLS_SSL_ALPN
