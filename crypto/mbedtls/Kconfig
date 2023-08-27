@@ -21,11 +21,17 @@ config MBEDTLS_DEBUG_C
 	---help---
 		This module provides debugging functions.
 
-config MBEDTLS_SSL_MAX_CONTENT_LEN
-	int "Maximum length (in bytes) of incoming and outgoing plaintext fragments."
+config MBEDTLS_SSL_IN_CONTENT_LEN
+	int "Maximum length (in bytes) of incoming plaintext fragments."
 	default 16384
 	---help---
-		Maximum length (in bytes) of incoming and outgoing plaintext fragments.
+		Maximum length (in bytes) of incoming plaintext fragments.
+
+config MBEDTLS_SSL_OUT_CONTENT_LEN
+	int "Maximum length (in bytes) of outgoing plaintext fragments."
+	default 16384
+	---help---
+		Maximum length (in bytes) of outgoing plaintext fragments.
 
 config MBEDTLS_SSL_SRV_C
 	bool "This module is required for SSL/TLS server support."
@@ -47,10 +53,6 @@ config MBEDTLS_AES_ROM_TABLES
 	bool "Store the AES tables in ROM."
 	default n
 
-config MBEDTLS_REMOVE_ARC4_CIPHERSUITES
-	bool "Remove RC4 ciphersuites by default in SSL / TLS."
-	default n
-
 config MBEDTLS_NO_PLATFORM_ENTROPY
 	bool "Do not use built-in platform entropy functions."
 	default n
@@ -61,7 +63,7 @@ config MBEDTLS_ECP_RESTARTABLE
 
 config MBEDTLS_SELF_TEST
 	bool "Enable the checkup functions (*_self_test)."
-	default y
+	default n
 
 config MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE
 	bool "Enable server-side support for clients that reconnect from the same port."
@@ -73,10 +75,6 @@ config MBEDTLS_BLOWFISH_C
 
 config MBEDTLS_CAMELLIA_C
 	bool "Enable the Camellia block cipher."
-	default n
-
-config MBEDTLS_CERTS_C
-	bool "Enable the test certificates."
 	default n
 
 config MBEDTLS_PADLOCK_C
@@ -181,6 +179,10 @@ config MBEDTLS_X509_CSR_WRITE_C
 
 config MBEDTLS_X509_CSR_PARSE_C
 	bool "Enable X.509 Certificate Signing Request (CSR) parsing."
+	default n
+
+config MBEDTLS_X509_CRT_POOL
+	bool "Enable the X509 Certificate Pool"
 	default n
 
 if CRYPTO_CRYPTODEV
