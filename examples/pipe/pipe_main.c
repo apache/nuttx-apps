@@ -45,7 +45,7 @@ static void *open_write_only(pthread_addr_t pvarg)
 {
   void *fd_addr = (void *)pvarg;
 
-  printf("open_write_only: Opening FIFO for write access\n");
+  fprintf(stderr, "open_write_only: Opening FIFO for write access\n");
   ((int *)fd_addr)[1] = open(FIFO_PATH1, O_WRONLY);
   if (((int *)fd_addr)[1] < 0)
     {
@@ -76,7 +76,7 @@ int main(int argc, FAR char *argv[])
 #if CONFIG_DEV_FIFO_SIZE > 0
   /* Test FIFO logic */
 
-  printf("\npipe_main: Performing FIFO test\n");
+  fprintf(stderr, "\npipe_main: Performing FIFO test\n");
 
   pthread_t writeonly;
   void *status;
@@ -159,7 +159,7 @@ int main(int argc, FAR char *argv[])
 
   /* Perform the FIFO interlock test */
 
-  printf("\npipe_main: Performing pipe interlock test\n");
+  fprintf(stderr, "\npipe_main: Performing pipe interlock test\n");
   ret = interlock_test();
   if (ret != 0)
     {
@@ -167,19 +167,19 @@ int main(int argc, FAR char *argv[])
       return 7;
     }
 
-  printf("pipe_main: FIFO interlock test PASSED\n");
+  fprintf(stderr, "pipe_main: FIFO interlock test PASSED\n");
 
-  printf("pipe_main: FIFO test PASSED\n");
+  fprintf(stderr, "pipe_main: FIFO test PASSED\n");
 
 #else
-  printf("\npipe_main: Skipping FIFO test\n");
+  fprintf(stderr, "\npipe_main: Skipping FIFO test\n");
 
 #endif /* CONFIG_DEV_FIFO_SIZE > 0 */
 
 #if CONFIG_DEV_PIPE_SIZE > 0
   /* Test PIPE logic */
 
-  printf("\npipe_main: Performing pipe test\n");
+  fprintf(stderr, "\npipe_main: Performing pipe test\n");
 
   ret = pipe(fd);
   if (ret < 0)
@@ -210,7 +210,7 @@ int main(int argc, FAR char *argv[])
 
   /* Perform the pipe redirection test */
 
-  printf("\npipe_main: Performing redirection test\n");
+  fprintf(stderr, "\npipe_main: Performing redirection test\n");
   ret = redirection_test();
   if (ret != 0)
     {
@@ -218,15 +218,15 @@ int main(int argc, FAR char *argv[])
       return 10;
     }
 
-  printf("pipe_main: PIPE redirection test PASSED\n");
+  fprintf(stderr, "pipe_main: PIPE redirection test PASSED\n");
 
-  printf("pipe_main: PIPE test PASSED\n");
+  fprintf(stderr, "pipe_main: PIPE test PASSED\n");
 
 #else
-  printf("\npipe_main: Skipping pipe test\n");
+  fprintf(stderr, "\npipe_main: Skipping pipe test\n");
 
 #endif /* CONFIG_DEV_PIPE_SIZE > 0 */
 
-  fflush(stdout);
+  fflush(stderr);
   return 0;
 }
