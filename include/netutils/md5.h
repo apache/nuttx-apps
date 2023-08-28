@@ -95,6 +95,7 @@ void md5_final(unsigned char digest[16], struct md5_context_s *context);
 void md5_transform(uint32_t buf[4], uint32_t const in[16]);
 
 void md5_sum(const uint8_t *addr, const size_t len, uint8_t *mac);
+int  md5_file(const char *path, uint8_t *mac);
 char *md5_hash(const uint8_t *addr, const size_t len);
 
 #ifdef __cplusplus
