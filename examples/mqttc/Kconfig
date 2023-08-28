@@ -6,7 +6,7 @@
 config EXAMPLES_MQTTC
 	tristate "Enable MQTT-C Example"
 	default n
-	depends on NETUTILS_MQTTC
+	depends on NETUTILS_MQTTC && !NETUTILS_MQTTC_WITH_MBEDTLS
 	---help---
 		Enable a simple MQTT-C publisher example
 

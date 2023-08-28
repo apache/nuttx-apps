@@ -11,6 +11,20 @@ config NETUTILS_MQTTC
 
 if NETUTILS_MQTTC
 
+config NETUTILS_MQTTC_EXAMPLE
+	tristate "Enable MQTT-C example"
+	default n
+	---help---
+		Enable MQTT-C example
+
+if NETUTILS_MQTTC_EXAMPLE
+
+config NETUTILS_MQTTC_EXAMPLE_STACKSIZE
+	int "Task's stack size"
+	default 8192
+
+endif
+
 config NETUTILS_MQTTC_WITH_MBEDTLS
 	bool "Enable MQTT-C with mbedtls"
 	default n
