@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/fsutils/inifile/CMakeLists.txt
+# apps/fsutils/mkgpt/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_FSUTILS_INIFILE)
-  target_sources(apps PRIVATE inifile.c)
+if(CONFIG_FSUTILS_MKGPT)
+  nuttx_add_application(
+    NAME
+    mkgpt
+    PRIORITY
+    100
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_FSUTILS_MKGPT}
+    SRCS
+    mkgpt.c)
 endif()
