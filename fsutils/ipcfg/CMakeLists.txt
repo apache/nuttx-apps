@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/fsutils/inifile/CMakeLists.txt
+# apps/fsutils/ipcfg/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,13 @@
 #
 # ##############################################################################
 
-if(CONFIG_FSUTILS_INIFILE)
-  target_sources(apps PRIVATE inifile.c)
+if(CONFIG_FSUTILS_IPCFG)
+  target_sources(apps PRIVATE ipcfg.c)
+
+  if(CONFIG_IPCFG_BINARY)
+    target_sources(apps PRIVATE ipcfg_binary.c)
+  else()
+    target_sources(apps PRIVATE ipcfg_text.c)
+  endif()
+
 endif()
