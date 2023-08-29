@@ -188,6 +188,8 @@
 #  define HAVE_LEASE_TIME 1
 #endif
 
+#define g_state  (*g_dhcpd_daemon.ds_data)
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -271,10 +273,11 @@ struct dhcpd_state_s
 
 struct dhcpd_daemon_s
 {
-  uint8_t          ds_state;        /* See enum dhcpd_daemon_e */
-  sem_t            ds_lock;         /* Used to protect the whole structure */
-  sem_t            ds_sync;         /* Used to synchronize start and stop events */
-  pid_t            ds_pid;          /* Task ID of the DHCPD daemon */
+  uint8_t                   ds_state; /* See enum dhcpd_daemon_e */
+  sem_t                     ds_lock;  /* Used to protect the whole structure */
+  sem_t                     ds_sync;  /* Used to synchronize start and stop events */
+  pid_t                     ds_pid;   /* Task ID of the DHCPD daemon */
+  FAR struct dhcpd_state_s *ds_data;  /* DHCPD daemon data */
 };
 
 struct dhcpd_config_s
@@ -301,8 +304,6 @@ static const uint8_t        g_magiccookie[4] =
   99, 130, 83, 99
 };
 
-static struct dhcpd_state_s g_state;
-
 /* This type describes the state of the DHCPD client daemon.  Only one
  * instance of the DHCPD daemon is permitted in this implementation.  This
  * limitation is due only to this global data structure.
@@ -313,7 +314,8 @@ static struct dhcpd_daemon_s g_dhcpd_daemon =
   DHCPD_NOT_RUNNING,
   SEM_INITIALIZER(1),
   SEM_INITIALIZER(0),
-  -1
+  -1,
+  NULL
 };
 
 static struct dhcpd_config_s g_dhcpd_config =
@@ -1520,6 +1522,16 @@ int dhcpd_run(FAR const char *interface)
       return OK;
     }
 
+  /* Initialize everything to zero */
+
+  g_dhcpd_daemon.ds_data = malloc(sizeof(struct dhcpd_state_s));
+  if (g_dhcpd_daemon.ds_data == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  memset(g_dhcpd_daemon.ds_data, 0, sizeof(struct dhcpd_state_s));
+
   /* Update the pid if running in daemon mode */
 
   g_dhcpd_daemon.ds_pid = getpid();
@@ -1529,10 +1541,6 @@ int dhcpd_run(FAR const char *interface)
   g_dhcpd_daemon.ds_state = DHCPD_RUNNING;
 
   sem_post(&g_dhcpd_daemon.ds_sync);
-
-  /* Initialize everything to zero */
-
-  memset(&g_state, 0, sizeof(struct dhcpd_state_s));
 
   /* Now loop indefinitely, reading packets from the DHCP server socket */
 
@@ -1617,6 +1625,8 @@ int dhcpd_run(FAR const char *interface)
         }
     }
 
+  free(g_dhcpd_daemon.ds_data);
+  g_dhcpd_daemon.ds_data = NULL;
   g_dhcpd_daemon.ds_pid   = -1;
   g_dhcpd_daemon.ds_state = DHCPD_STOPPED;
   sem_post(&g_dhcpd_daemon.ds_sync);
