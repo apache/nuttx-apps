@@ -267,14 +267,15 @@ static int wapi_event_stream_extract(FAR struct wapi_event_stream_s *stream,
   int ret = 1;
   FAR struct iw_event *iwe_stream;
 
-  if (stream->current + offsetof(struct iw_event, u) > stream->end)
+  iwe_stream = (FAR struct iw_event *)stream->current;
+
+  if (stream->current + offsetof(struct iw_event, u) > stream->end ||
+      iwe_stream->len == 0)
     {
       /* Nothing to process */
 
       return 0;
     }
-
-  iwe_stream = (FAR struct iw_event *)stream->current;
 
   if (stream->current + iwe_stream->len > stream->end ||
       iwe_stream->len < offsetof(struct iw_event, u))
@@ -1315,14 +1316,15 @@ int wapi_scan_coll(int sock, FAR const char *ifname,
   WAPI_VALIDATE_PTR(aps);
 
   buflen = CONFIG_WIRELESS_WAPI_SCAN_MAX_DATA;
-  buf = malloc(buflen * sizeof(char));
+  buf = malloc(buflen);
   if (!buf)
     {
       WAPI_STRERROR("malloc()");
       return -ENOMEM;
     }
 
-alloc:
+retry:
+  memset(buf, 0, buflen);
 
   /* Collect results. */
 
@@ -1337,16 +1339,16 @@ alloc:
       FAR char *tmp;
 
       buflen *= 2;
-      tmp = realloc(buf, buflen);
+      tmp = malloc(buflen);
+      free(buf);
       if (!tmp)
         {
-          WAPI_STRERROR("realloc()");
-          free(buf);
+          WAPI_STRERROR("malloc()");
           return -ENOMEM;
         }
 
       buf = tmp;
-      goto alloc;
+      goto retry;
     }
 
   /* There is still something wrong. It's either EAGAIN or some other ioctl()
