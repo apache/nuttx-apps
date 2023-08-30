@@ -209,7 +209,10 @@ $(ZIGOBJS): %$(ZIGEXT)$(SUFFIX)$(OBJEXT): %$(ZIGEXT)
 		$(call ELFCOMPILEZIG, $<, $@), $(call COMPILEZIG, $<, $@))
 
 archive:
-	$(call ARCHIVE_ADD, $(call CONVERT_PATH,$(BIN)), $(OBJS))
+	$(call SPLITVARIABLE,ALL_OBJS,$(OBJS),100)
+	$(foreach BATCH, $(ALL_OBJS_TOTAL), \
+		$(call ARCHIVE_ADD, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH))) \
+	)
 
 ifeq ($(BUILD_MODULE),y)
 
