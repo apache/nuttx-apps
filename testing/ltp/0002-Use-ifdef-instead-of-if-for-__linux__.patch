@@ -7,10 +7,10 @@ Subject: [PATCH 2/2] Use #ifdef instead of #if for __linux__
  .../conformance/interfaces/sem_timedwait/3-1.c                  | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/ltp/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c b/ltp/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c
+diff --git a/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c b/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c
 index fb6f2e6cb..739fe86a5 100644
---- a/ltp/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c
-+++ b/ltp/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c
+--- a/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c
++++ b/testcases/open_posix_testsuite/conformance/interfaces/sem_timedwait/3-1.c
 @@ -15,7 +15,7 @@
  #include <sys/stat.h>
  #include <sys/types.h>
