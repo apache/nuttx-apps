@@ -8,10 +8,10 @@ Signed-off-by: Shoukui Zhang <zhangshoukui@xiaomi.com>
  .../conformance/interfaces/pthread_rwlock_unlock/4-1.c          | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/ltp/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c b/ltp/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c
+diff --git a/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c b/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c
 index 2db9e4cc6..5d7c2c565 100644
---- a/ltp/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c
-+++ b/ltp/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c
+--- a/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c
++++ b/testcases/open_posix_testsuite/conformance/interfaces/pthread_rwlock_unlock/4-1.c
 @@ -31,7 +31,7 @@ int main(void)
  	static pthread_rwlock_t rwlock;
  	int rc;

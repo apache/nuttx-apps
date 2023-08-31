@@ -270,8 +270,16 @@ $(LTP_UNPACK): ltp-$(LTPS_VERSION).zip
 	$(Q) echo "dowload $(LTP_DOWNLOAD_URL)$(LTPS_VERSION).zip"
 	$(Q) unzip -o ltp.zip
 	$(Q) mv ltp-$(LTPS_VERSION) $(LTP_UNPACK)
-	$(Q) patch -p1 < 0001-pthread_rwlock_unlock-follow-linux.patch
-	$(Q) patch -p1 < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0001-pthread_rwlock_unlock-follow-linux.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0003-LTP-Re-init-static-variable-to-avoid-errors-during-m.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0004-test-update-ltp-test-case.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0005-ltp-update-pthread_cond_timedwait-testcase.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0006-test-modified-ltp-rwlock-need-init.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0007-pthread_kill-add-usleep-aviod-semcount-overturn.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0008-test-ltp-fix-ltp_interfaces_sigaction_23_10-deadloop.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0009-ltp-modify-user-code-for-fdcheck-compatibility.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0010-ltp-fix-build-warning.patch
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LTP_UNPACK)/.git),)
