@@ -119,7 +119,7 @@ config NIMBLE_BLE_MULTI_ADV_INSTANCES
 	int "NimBLE number of multi-advertising instances"
 	default 0
 	---help---
-	  The total number of advertising instances is this number plus 1
+		The total number of advertising instances is this number plus 1
 
 config NIMBLE_BLE_PERIODIC_ADV
 	bool "NimBLE periodic advertising support"
@@ -158,7 +158,7 @@ config NIMBLE_L2CAP_COC_MAX_NUM
 	range 0 9
 	default 0
 	---help---
-	  When set to 0, BLE COC is disabled
+		When set to 0, BLE COC is disabled
 
 menu "NimBLE BLE privacy and security settings"
 
@@ -166,13 +166,13 @@ config NIMBLE_BLE_RPA_TIMEOUT
 	int "NimBLE BLE RPA timeout"
 	default 300
 	---help---
-	  The rate that new random addresses should be generated (seconds)
+		The rate that new random addresses should be generated (seconds)
 
 config NIMBLE_BLE_SM_BONDING
 	bool "NimBLE BLE bonding enable"
 	default y
 	---help---
-	  Enables bonding (persistence and restoration of secure links)
+		Enables bonding (persistence and restoration of secure links)
 
 config NIMBLE_BLE_SM_LEGACY
 	bool "NimBLE security manager legacy pairing"
