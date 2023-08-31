@@ -163,7 +163,8 @@ int main(int argc, FAR char *argv[])
   if (fd < 0)
     {
       fprintf(stderr,
-              "ws2812esp32rmt: open %s failed: %d\n",
+              "%s: open %s failed: %d\n",
+              argv[0],
               dev_name,
               errno);
       goto errout_with_dev;
