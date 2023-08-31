@@ -12,6 +12,13 @@ config EXAMPLES_WS2812_ESP32_RMT
 
 if EXAMPLES_WS2812_ESP32_RMT
 
+config EXAMPLES_WS2812_ESP32_RMT_PROGNAME
+	string "Program Name"
+	default "ws2812esp32"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
 config EXAMPLES_WS2812_ESP32_RMT_PRIORITY
 	int "Task Priority"
 	default 100
