@@ -31,13 +31,13 @@ config CJSON_UNITY_TEST_DIR
 	default "/data"
 
 config CJSON_TEST_PRIORITY
-        int "task priority"
-        default 100
+	int "task priority"
+	default 100
 
 config CJSON_TEST_STACKSIZE
-        int "stack size"
-        default 102400
+	int "stack size"
+	default 102400
 
-endif
+endif # NETUTILS_CJSON_TEST
 
-endif
+endif # NETUTILS_CJSON
