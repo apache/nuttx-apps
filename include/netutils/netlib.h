@@ -492,6 +492,10 @@ int netlib_del_ipv6dnsaddr(FAR const struct in6_addr *inaddr);
 int netlib_del_ipv6dnsaddr_by_index(int index);
 #endif
 
+#ifdef CONFIG_NETDB_DNSCLIENT
+void netlib_clear_dnsaddr(void);
+#endif
+
 int netlib_set_mtu(FAR const char *ifname, int mtu);
 
 #if defined(CONFIG_NETDEV_STATISTICS)

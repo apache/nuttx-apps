@@ -84,6 +84,10 @@ CSRCS += netlib_ip6tables.c
 endif
 endif
 
+ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
+CSRCS += netlib_cleardnsaddr.c
+endif
+
 # Device support
 
 ifeq ($(CONFIG_NETLINK_ROUTE),y)
