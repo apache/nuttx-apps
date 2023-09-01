@@ -142,7 +142,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
       if (strncmp(filepath, CONFIG_NSH_PROC_MOUNTPOINT,
-                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+                  sizeof(CONFIG_NSH_PROC_MOUNTPOINT) - 1) == 0)
         {
           nsh_error(vtbl,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
@@ -386,7 +386,7 @@ int nsh_writefile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
       if (strncmp(filepath, CONFIG_NSH_PROC_MOUNTPOINT,
-                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+                  sizeof(CONFIG_NSH_PROC_MOUNTPOINT) - 1) == 0)
         {
           nsh_error(vtbl,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
@@ -445,7 +445,7 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
       if (strncmp(dirpath, CONFIG_NSH_PROC_MOUNTPOINT,
-                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+                  sizeof(CONFIG_NSH_PROC_MOUNTPOINT) - 1) == 0)
         {
           nsh_error(vtbl,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
