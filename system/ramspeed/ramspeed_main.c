@@ -348,7 +348,7 @@ static void internal_memset(FAR void *dst, uint8_t v, size_t len)
  * Name: print_rate
  ****************************************************************************/
 
-static void print_rate(FAR const char *name, size_t bytes,
+static void print_rate(FAR const char *name, uint64_t bytes,
                        uint32_t cost_time)
 {
   uint32_t rate;
@@ -360,7 +360,7 @@ static void print_rate(FAR const char *name, size_t bytes,
       return;
     }
 
-  rate = (uint64_t)bytes * 1000 / cost_time / 1024;
+  rate = bytes * 1000 / cost_time / 1024;
   printf(RAMSPEED_PREFIX
          "%s Rate = %" PRIu32 " KB/s\t[cost: %" PRIu32 "ms]\n",
          name, rate, cost_time);
@@ -379,14 +379,14 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
   uint32_t cost_time_internal;
   uint32_t cnt;
   uint32_t step;
-  size_t total_size;
+  uint64_t total_size;
   irqstate_t flags = 0;
 
   printf("______memcpy performance______\n");
 
   for (step = 32; step <= size; step <<= 1)
     {
-      total_size = step * repeat_cnt;
+      total_size = (uint64_t)step * (uint64_t)repeat_cnt;
 
       if (step < 1024)
         {
@@ -444,14 +444,14 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
   uint32_t cost_time_internal;
   uint32_t cnt;
   uint32_t step;
-  size_t total_size;
+  uint64_t total_size;
   irqstate_t flags = 0;
 
   printf("______memset performance______\n");
 
   for (step = 32; step <= size; step <<= 1)
     {
-      total_size = step * repeat_num;
+      total_size = (uint64_t)step * (uint64_t)repeat_num;
 
       if (step < 1024)
         {
