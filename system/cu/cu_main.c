@@ -104,7 +104,7 @@ static FAR void *cu_listener(FAR void *parameter)
       int rc;
       char ch;
 
-      rc = read(cu->infd, &ch, 1);
+      rc = read(cu->devfd, &ch, 1);
       if (rc <= 0)
         {
           break;
@@ -176,7 +176,7 @@ static int set_termios(FAR struct cu_globals_s *cu, int nocrlf)
       tio.c_oflag |= ONLCR;
     }
 
-  ret = tcsetattr(cu->outfd, TCSANOW, &tio);
+  ret = tcsetattr(cu->devfd, TCSANOW, &tio);
   if (ret)
     {
       cu_error("set_termios: ERROR during tcsetattr(): %d\n", errno);
@@ -209,7 +209,7 @@ errout:
 
 static void retrieve_termios(FAR struct cu_globals_s *cu)
 {
-  tcsetattr(cu->outfd, TCSANOW, &cu->devtio);
+  tcsetattr(cu->devfd, TCSANOW, &cu->devtio);
   if (cu->stdfd >= 0)
     {
       tcsetattr(cu->stdfd, TCSANOW, &cu->stdtio);
@@ -355,10 +355,10 @@ int main(int argc, FAR char *argv[])
       return exitval;
     }
 
-  /* Open the serial device for writing */
+  /* Open the serial device for reading and writing */
 
-  cu->outfd = open(devname, O_WRONLY);
-  if (cu->outfd < 0)
+  cu->devfd = open(devname, O_RDWR);
+  if (cu->devfd < 0)
     {
       cu_error("cu_main: ERROR: Failed to open %s for writing: %d\n",
               devname, errno);
@@ -367,11 +367,11 @@ int main(int argc, FAR char *argv[])
 
   /* Remember serial device termios attributes */
 
-  ret = tcgetattr(cu->outfd, &cu->devtio);
+  ret = tcgetattr(cu->devfd, &cu->devtio);
   if (ret)
     {
       cu_error("cu_main: ERROR during tcgetattr(): %d\n", errno);
-      goto errout_with_outfd;
+      goto errout_with_devfd;
     }
 
   /* Remember std termios attributes if it is a tty. Try to select
@@ -406,19 +406,7 @@ int main(int argc, FAR char *argv[])
   if (set_termios(cu, nocrlf) != 0)
 #endif
     {
-      goto errout_with_outfd_retrieve;
-    }
-
-  /* Open the serial device for reading.  Since we are already connected,
-   * this should not fail.
-   */
-
-  cu->infd = open(devname, O_RDONLY);
-  if (cu->infd < 0)
-    {
-      cu_error("cu_main: ERROR: Failed to open %s for reading: %d\n",
-             devname, errno);
-      goto errout_with_outfd;
+      goto errout_with_devfd_retrieve;
     }
 
   /* Start the serial receiver thread */
@@ -427,7 +415,7 @@ int main(int argc, FAR char *argv[])
   if (ret != OK)
     {
       cu_error("cu_main: pthread_attr_init failed: %d\n", ret);
-      goto errout_with_fds;
+      goto errout_with_devfd_retrieve;
     }
 
   /* Set priority of listener to configured value */
@@ -439,7 +427,7 @@ int main(int argc, FAR char *argv[])
   if (ret != 0)
     {
       cu_error("cu_main: Error in thread creation: %d\n", ret);
-      goto errout_with_fds;
+      goto errout_with_devfd_retrieve;
     }
 
   /* Send messages and get responses -- forever */
@@ -458,7 +446,7 @@ int main(int argc, FAR char *argv[])
 
       if (nobreak == 1)
         {
-          write(cu->outfd, &ch, 1);
+          write(cu->devfd, &ch, 1);
           continue;
         }
 
@@ -474,7 +462,7 @@ int main(int argc, FAR char *argv[])
             {
               /* Escaping a tilde: handle like normal char */
 
-              write(cu->outfd, &ch, 1);
+              write(cu->devfd, &ch, 1);
               continue;
             }
           else
@@ -488,7 +476,7 @@ int main(int argc, FAR char *argv[])
 
       /* Normal character */
 
-      write(cu->outfd, &ch, 1);
+      write(cu->devfd, &ch, 1);
 
       /* Determine if we are now at the start of a new line or not */
 
@@ -507,12 +495,10 @@ int main(int argc, FAR char *argv[])
 
   /* Error exits */
 
-errout_with_fds:
-  close(cu->infd);
-errout_with_outfd_retrieve:
+errout_with_devfd_retrieve:
   retrieve_termios(cu);
-errout_with_outfd:
-  close(cu->outfd);
+errout_with_devfd:
+  close(cu->devfd);
 errout_with_devinit:
   return exitval;
 }
