@@ -26,7 +26,7 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
 
   set(LELYCANOPEN_DIR ${CMAKE_CURRENT_LIST_DIR}/lely-canopen)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/lely-canopen)
+  if(NOT EXISTS ${LELYCANOPEN_DIR})
     FetchContent_Declare(
       lelycanopen_fetch
       URL ${CONFIG_CANUTILS_LELYCANOPEN_URL}/lely-core-${CONFIG_CANUTILS_LELYCANOPEN_VERSION}.tar.gz
@@ -44,9 +44,6 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
     if(NOT lelycanopen_fetch_POPULATED)
       FetchContent_Populate(lelycanopen_fetch)
     endif()
-
-    set(LELYCANOPEN_DIR ${lelycanopen_fetch_SOURCE_DIR})
-
   endif()
 
   nuttx_add_library(lelycanopen STATIC)

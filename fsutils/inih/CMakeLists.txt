@@ -25,7 +25,7 @@ if(CONFIG_FSUTILS_INIH)
   # ############################################################################
   set(INIH_DIR ${CMAKE_CURRENT_LIST_DIR}/inih-r42)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/inih-r42)
+  if(NOT EXISTS ${INIH_DIR})
     set(INIH_URL https://github.com/benhoyt/inih/archive/r42.tar.gz)
     FetchContent_Declare(
       inih_fetch
@@ -38,8 +38,6 @@ if(CONFIG_FSUTILS_INIH)
     if(NOT inih_fetch_POPULATED)
       FetchContent_Populate(inih_fetch)
     endif()
-
-    set(INIH_DIR ${inih_fetch_SOURCE_DIR})
   endif()
 
   # ############################################################################
