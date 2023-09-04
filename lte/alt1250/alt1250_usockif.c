@@ -267,6 +267,7 @@ int usockif_readreqioctl(int fd, FAR struct usrsock_request_buff_s *buf)
         rsize = sizeof(struct lte_ioctl_data_s);
         break;
       case SIOCSIFFLAGS:
+      case SIOCGIFFLAGS:
         rsize = sizeof(struct ifreq);
         break;
       case SIOCDENYINETSOCK:
