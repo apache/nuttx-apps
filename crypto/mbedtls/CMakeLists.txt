@@ -23,11 +23,11 @@ if(CONFIG_CRYPTO_MBEDTLS)
   # ############################################################################
   # Config and Fetch MbedTLS lib
   # ############################################################################
-  set(MBEDTLS_URL https://github.com/ARMmbed/mbedtls/archive)
 
   set(MBEDTLS_DIR ${CMAKE_CURRENT_LIST_DIR}/mbedtls)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/mbedtls)
+  if(NOT EXISTS ${MBEDTLS_DIR})
+    set(MBEDTLS_URL https://github.com/ARMmbed/mbedtls/archive)
     FetchContent_Declare(
       mbedtls_fetch
       URL ${MBEDTLS_URL}/v${CONFIG_MBEDTLS_VERSION}.zip SOURCE_DIR
@@ -41,7 +41,6 @@ if(CONFIG_CRYPTO_MBEDTLS)
     if(NOT mbedtls_fetch_POPULATED)
       FetchContent_Populate(mbedtls_fetch)
     endif()
-    set(MBEDTLS_DIR ${mbedtls_fetch_SOURCE_DIR})
   endif()
 
   # ############################################################################
@@ -51,7 +50,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
   set_source_files_properties(${MBEDTLS_DIR}/library/bignum.c
                               PROPERTIES COMPILE_FLAGS -fno-lto)
 
-  if(CONFIG_FRAME_POINTER STREQUAL y)
+  if(CONFIG_FRAME_POINTER)
     if(CONFIG_DEBUG_OPTLEVEL STREQUAL -O3)
       set_source_files_properties(${MBEDTLS_DIR}/library/sha246.c
                                   PROPERTIES COMPILE_FLAGS -O2)
@@ -74,14 +73,14 @@ if(CONFIG_CRYPTO_MBEDTLS)
   # Library Configuration
   # ############################################################################
 
-  nuttx_add_library(mbedtls_nuttx STATIC)
+  nuttx_add_library(mbedtls STATIC)
 
-  target_sources(mbedtls_nuttx PRIVATE ${CSRCS})
-  target_include_directories(mbedtls_nuttx PRIVATE ${INCDIR})
-  target_compile_definitions(mbedtls_nuttx PRIVATE __unix__)
+  target_sources(mbedtls PRIVATE ${CSRCS})
+  target_include_directories(mbedtls PRIVATE ${INCDIR})
+  target_compile_definitions(mbedtls PRIVATE __unix__)
 
-  if(CONFIG_ARCH_SIM STREQUAL y)
-    target_compile_options(mbedtls_nuttx PRIVATE -O0)
+  if(CONFIG_ARCH_SIM)
+    target_compile_options(mbedtls PRIVATE -O0)
   endif()
 
   # ############################################################################
@@ -90,7 +89,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
 
   if(CONFIG_MBEDTLS_APPS)
 
-    if(CONFIG_MBEDTLS_APP_BENCHMARK STREQUAL y)
+    if(CONFIG_MBEDTLS_APP_BENCHMARK)
       nuttx_add_application(
         MODULE
         ${CONFIG_MBEDTLS_APPS}
@@ -108,7 +107,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
         mbedtls_nuttx)
     endif()
 
-    if(CONFIG_MBEDTLS_APP_SELFTEST STREQUAL y)
+    if(CONFIG_MBEDTLS_APP_SELFTEST)
       nuttx_add_application(
         MODULE
         ${CONFIG_MBEDTLS_APPS}
@@ -126,6 +125,6 @@ if(CONFIG_CRYPTO_MBEDTLS)
         mbedtls_nuttx)
     endif()
 
-  endif(CONFIG_MBEDTLS_APPS)
+  endif()
 
 endif()

@@ -25,7 +25,7 @@ if(CONFIG_CANUTILS_LIBOPENCYPHAL)
   # ############################################################################
 
   set(LIBOPENCYPHAL_DIR ${CMAKE_CURRENT_LIST_DIR}/libcanard)
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/libcanard)
+  if(NOT EXISTS ${LIBOPENCYPHAL_DIR})
     FetchContent_Declare(
       libcanard_fetch
       URL ${CONFIG_LIBOPENCYPHAL_URL}/${CONFIG_LIBOPENCYPHAL_VERSION}.zip
@@ -37,11 +37,10 @@ if(CONFIG_CANUTILS_LIBOPENCYPHAL)
     if(NOT libcanard_fetch_POPULATED)
       FetchContent_Populate(libcanard_fetch)
     endif()
-    set(LIBOPENCYPHAL_DIR ${libcanard_fetch_SOURCE_DIR})
   endif()
 
   set(O1HEAP_DIR ${CMAKE_CURRENT_LIST_DIR}/o1heap)
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/o1heap)
+  if(NOT EXISTS ${O1HEAP_DIR})
     FetchContent_Declare(
       o1heap_fetch
       URL ${CONFIG_O1HEAP_URL}/${CONFIG_O1HEAP_VERSION}.zip SOURCE_DIR
@@ -53,7 +52,6 @@ if(CONFIG_CANUTILS_LIBOPENCYPHAL)
     if(NOT o1heap_fetch_POPULATED)
       FetchContent_Populate(o1heap_fetch)
     endif()
-    set(O1HEAP_DIR ${o1heap_fetch_SOURCE_DIR})
   endif()
 
   # ############################################################################

@@ -23,11 +23,11 @@ if(CONFIG_LIBSODIUM)
   # ############################################################################
   # Config and Fetch libsodium lib
   # ############################################################################
-  set(LIBSODIUM_URL https://github.com/jedisct1/libsodium/archive)
-
   set(LIBSODIUM_DIR ${CMAKE_CURRENT_LIST_DIR}/libsodium)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/libsodium)
+  if(NOT EXISTS ${LIBSODIUM_DIR})
+    set(LIBSODIUM_URL https://github.com/jedisct1/libsodium/archive)
+
     FetchContent_Declare(
       libsodium_fetch
       URL ${LIBSODIUM_URL}/${CONFIG_LIBSODIUM_VERSION}.zip SOURCE_DIR
@@ -46,8 +46,6 @@ if(CONFIG_LIBSODIUM)
     if(NOT libsodium_fetch_POPULATED)
       FetchContent_Populate(libsodium_fetch)
     endif()
-    set(LIBSODIUM_DIR ${libsodium_fetch_SOURCE_DIR})
-
   endif()
 
   # ############################################################################

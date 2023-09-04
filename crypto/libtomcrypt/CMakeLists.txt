@@ -23,12 +23,11 @@ if(CONFIG_CRYPTO_LIBTOMCRYPT)
   # ############################################################################
   # Config and Fetch libtomcrypt
   # ############################################################################
-
-  set(CONFIG_LIBTOMCRYPT_URL https://github.com/libtom/libtomcrypt/archive)
-
   set(LIBTOMCRYPT_DIR ${CMAKE_CURRENT_LIST_DIR}/libtomcrypt)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/libtomcrypt)
+  if(NOT EXISTS ${LIBTOMCRYPT_DIR})
+    set(CONFIG_LIBTOMCRYPT_URL https://github.com/libtom/libtomcrypt/archive)
+
     FetchContent_Declare(
       libtomcrypt_fetch
       URL ${CONFIG_LIBTOMCRYPT_URL}/v${CONFIG_LIBTOMCRYPT_VERSION}.zip
@@ -47,9 +46,6 @@ if(CONFIG_CRYPTO_LIBTOMCRYPT)
     if(NOT libtomcrypt_fetch_POPULATED)
       FetchContent_Populate(libtomcrypt_fetch)
     endif()
-
-    set(LIBTOMCRYPT_DIR ${libtomcrypt_fetch_SOURCE_DIR})
-
   endif()
 
   nuttx_add_library(libtomcrypt STATIC)
@@ -496,7 +492,7 @@ if(CONFIG_CRYPTO_LIBTOMCRYPT)
         DEPENDS
         libtomcrypt)
 
-    endif(CONFIG_LIBTOMCRYPT_LTCRYPT)
+    endif()
 
     if(CONFIG_LIBTOMCRYPT_HASHSUM)
 
@@ -514,9 +510,9 @@ if(CONFIG_CRYPTO_LIBTOMCRYPT)
         DEPENDS
         libtomcrypt)
 
-    endif(CONFIG_LIBTOMCRYPT_HASHSUM)
+    endif()
 
-  endif(CONFIG_LIBTOMCRYPT_DEMOS)
+  endif()
 
   # ############################################################################
   # Library Configuration

@@ -23,11 +23,11 @@ if(CONFIG_MATH_LIBTOMMATH)
   # ############################################################################
   # Config and Fetch Tommath lib
   # ############################################################################
-  set(CONFIG_LIBTOMMATH_URL https://github.com/libtom/libtommath/archive)
 
   set(LIBTOMMATH_DIR ${CMAKE_CURRENT_LIST_DIR}/libtommath)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/libtommath)
+  if(NOT EXISTS ${LIBTOMMATH_DIR})
+    set(CONFIG_LIBTOMMATH_URL https://github.com/libtom/libtommath/archive)
     FetchContent_Declare(
       libtommath_fetch
       URL ${CONFIG_LIBTOMMATH_URL}/v${CONFIG_LIBTOMMATH_VERSION}.zip SOURCE_DIR
@@ -40,8 +40,6 @@ if(CONFIG_MATH_LIBTOMMATH)
     if(NOT libtommath_fetch_POPULATED)
       FetchContent_Populate(libtommath_fetch)
     endif()
-
-    set(LIBTOMMATH_DIR ${libtommath_fetch_SOURCE_DIR})
   endif()
 
   # ############################################################################

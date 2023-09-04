@@ -26,7 +26,7 @@ if(CONFIG_CANUTILS_LIBDRONECAN)
 
   set(LIBDRONECAN_DIR ${CMAKE_CURRENT_LIST_DIR}/libcanard)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/libcanard)
+  if(NOT EXISTS ${LIBDRONECAN_DIR})
     FetchContent_Declare(
       libdronecan_fetch
       URL ${CONFIG_LIBDRONECAN_URL}/${CONFIG_LIBDRONECAN_VERSION}.zip SOURCE_DIR
@@ -40,8 +40,6 @@ if(CONFIG_CANUTILS_LIBDRONECAN)
     if(NOT libdronecan_fetch_POPULATED)
       FetchContent_Populate(libdronecan_fetch)
     endif()
-
-    set(LIBDRONECAN_DIR ${libdronecan_fetch_SOURCE_DIR})
   endif()
 
   # ############################################################################

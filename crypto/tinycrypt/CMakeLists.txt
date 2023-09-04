@@ -23,16 +23,14 @@ if(CONFIG_TINYCRYPT)
   # ############################################################################
   # Config and Fetch tinycrypt
   # ############################################################################
-
-  set(TINYCRYPT_VERSION ${CONFIG_TINYCRYPT_VERSION})
-
-  set(TINYCRYPT_URL
-      https://github.com/intel/tinycrypt/archive/refs/tags/v${TINYCRYPT_VERSION}.zip
-  )
-
   set(TINYCRYPT_DIR ${CMAKE_CURRENT_LIST_DIR}/tinycrypt)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/tinycrypt)
+  if(NOT EXISTS ${TINYCRYPT_DIR})
+    set(TINYCRYPT_VERSION ${CONFIG_TINYCRYPT_VERSION})
+
+    set(TINYCRYPT_URL
+        https://github.com/intel/tinycrypt/archive/refs/tags/v${TINYCRYPT_VERSION}.zip
+    )
     FetchContent_Declare(
       tinycrypt_fetch
       URL ${TINYCRYPT_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/tinycrypt
@@ -48,8 +46,6 @@ if(CONFIG_TINYCRYPT)
     if(NOT tinycrypt_fetch_POPULATED)
       FetchContent_Populate(tinycrypt_fetch)
     endif()
-    set(TINYCRYPT_DIR ${tinycrypt_fetch_SOURCE_DIR})
-
   endif()
 
   nuttx_add_library(tinycrypt STATIC)
@@ -68,48 +64,48 @@ if(CONFIG_TINYCRYPT)
       ${TINYCRYPT_DIR}/lib/source/utils.c ${TINYCRYPT_DIR}/lib/source/ecc.c
       ${TINYCRYPT_DIR}/lib/source/ecc_platform_specific.c)
 
-  if(CONFIG_TINYCRYPT_ECC_DH STREQUAL y)
+  if(CONFIG_TINYCRYPT_ECC_DH)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/ecc_dh.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_ECC_DSA STREQUAL y)
+  if(CONFIG_TINYCRYPT_ECC_DSA)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/ecc_dsa.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_AES STREQUAL y)
+  if(CONFIG_TINYCRYPT_AES)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/aes_encrypt.c
          ${TINYCRYPT_DIR}/lib/source/aes_decrypt.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_AES_CBC STREQUAL y)
+  if(CONFIG_TINYCRYPT_AES_CBC)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/cbc_mode.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_AES_CTR STREQUAL y)
+  if(CONFIG_TINYCRYPT_AES_CTR)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/ctr_mode.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_AES_CCM STREQUAL y)
+  if(CONFIG_TINYCRYPT_AES_CCM)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/ccm_mode.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_AES_CMAC STREQUAL y)
+  if(CONFIG_TINYCRYPT_AES_CMAC)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/cmac_mode.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_SHA256 STREQUAL y)
+  if(CONFIG_TINYCRYPT_SHA256)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/sha256.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_SHA256_HMAC STREQUAL y)
+  if(CONFIG_TINYCRYPT_SHA256_HMAC)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/hmac.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_SHA256_HMAC_PRNG STREQUAL y)
+  if(CONFIG_TINYCRYPT_SHA256_HMAC_PRNG)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/hmac_prng.c)
   endif()
 
-  if(CONFIG_TINYCRYPT_CTR_PRNG STREQUAL y)
+  if(CONFIG_TINYCRYPT_CTR_PRNG)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/lib/source/ctr_prng.c)
   endif()
 
@@ -117,7 +113,7 @@ if(CONFIG_TINYCRYPT)
   # Applications Configuration
   # ############################################################################
 
-  if(CONFIG_TINYCRYPT_TEST STREQUAL y)
+  if(CONFIG_TINYCRYPT_TEST)
     list(APPEND CSRCS ${TINYCRYPT_DIR}/tests/test_ecc_utils.c)
     list(APPEND INCDIR ${TINYCRYPT_DIR}/tests/include)
     set(CFLAGS -Dhex2bin=ltp_hex2bin -DENABLE_TESTS)

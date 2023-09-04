@@ -25,7 +25,7 @@ if(CONFIG_FSUTILS_TINYCBOR_LIB)
   # ############################################################################
   set(TINYCBOR_DIR ${CMAKE_CURRENT_LIST_DIR}/tinycbor)
 
-  if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/tinycbor)
+  if(NOT EXISTS ${TINYCBOR_DIR})
     set(TINYCBOR_VERSION 3cba6b11aaa0f6f674cd56ebaa573c4b65f71ee7)
     set(TINYCBOR_URL
         https://github.com/intel/tinycbor/archive/${TINYCBOR_VERSION}.zip)
