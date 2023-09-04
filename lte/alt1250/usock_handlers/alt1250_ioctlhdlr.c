@@ -66,6 +66,7 @@ int usockreq_ioctl(FAR struct alt1250_s *dev,
       switch (request->cmd)
         {
           case FIONBIO:
+          case SIOCGIFFLAGS:
 
             /* ALT1250 doesn't use this command. Only return OK. */
 
