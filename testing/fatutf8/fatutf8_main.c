@@ -146,10 +146,10 @@ int main(int argc, FAR char *argv[])
       printf("open successful\n");
 
       len = read(fd, buf, sizeof(buf));
-      buf[len] = '\0';
 
-      if (len)
+      if (len >= 0)
         {
+          buf[len] = '\0';
           printf("read(\"%s\") successful\n", buf);
         }
       else
