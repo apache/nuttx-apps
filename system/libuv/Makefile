@@ -28,7 +28,6 @@ LIBUV_TARBALL  = v$(LIBUV_VERSION).zip
 LIBUV_URL_BASE = https://github.com/libuv/libuv/archive/refs/tags
 LIBUV_URL      = $(LIBUV_URL_BASE)/$(LIBUV_TARBALL)
 
-
 $(LIBUV_TARBALL):
 	@echo "Downloading: $(LIBUV_TARBALL)"
 	$(Q) curl -L $(LIBUV_URL) -o $(LIBUV_TARBALL)

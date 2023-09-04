@@ -40,6 +40,16 @@ config LIBUV_PREP_EVENT_SIZE
 
 endif
 
+config LIBUV_HANDLE_BACKTRACE
+	int "the depth of libuv handle backtrace"
+	default 0
+	---help---
+		Config the depth of backtrace for libuv handle creation by specified this
+		config: disable backtrace by 0
+		when enabled, uv_print_all_handles & uv_print_active_handles will print
+		handle alloc backtrace additionally.
+		it's useful for libuv handle leak debugging
+
 choice
 	prompt "libuv utils"
 	default LIBUV_UTILS_NONE
