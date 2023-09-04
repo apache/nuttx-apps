@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/fdt/Makefile
+# apps/testing/memtester/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,42 +20,33 @@
 
 include $(APPDIR)/Make.defs
 
-# Utility Tools
+PROGNAME  = $(CONFIG_UTILS_MEMTESTER_PROGNAME)
+PRIORITY  = $(CONFIG_UTILS_MEMTESTER_PRIORITY)
+STACKSIZE = $(CONFIG_UTILS_MEMTESTER_STACKSIZE)
+MODULE    = $(CONFIG_UTILS_MEMTESTER)
 
-CSRCS = util.c
+CSRCS    += memtester/tests.c
+CSRCS    += memtester/output.c
 
-ifeq ($(CONFIG_SYSTEM_FDTDUMP),y)
-  MAINSRC += fdtdump.c
-  PROGNAME += fdtdump
-  STACKSIZE += $(CONFIG_SYSTEM_FDTDUMP_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTDUMP_PRIORITY)
+MAINSRC   = memtester/memtester.c
+
+ifeq ($(CONFIG_UTILS_MEMTESTER_NARROW),y)
+  CFLAGS += -DTEST_NARROW_WRITES
 endif
 
-ifeq ($(CONFIG_SYSTEM_FDTGET),y)
-  MAINSRC += fdtget.c
-  PROGNAME += fdtget
-  STACKSIZE += $(CONFIG_SYSTEM_FDTGET_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTGET_PRIORITY)
+ifeq ($(wildcard memtester/.git),)
+VERSION ?= master
+memtester.zip:
+	$(Q) curl -L https://github.com/jnavila/memtester/archive/refs/heads/master.zip -o memtester.zip
+	$(Q) unzip -o memtester.zip
+	$(Q) mv memtester-$(VERSION) memtester
+
+context:: memtester.zip
+
+distclean::
+	$(call DELDIR, memtester)
+	$(call DELFILE, memtester.zip)
+
 endif
-
-ifeq ($(CONFIG_SYSTEM_FDTPUT),y)
-  MAINSRC += fdtput.c
-  PROGNAME += fdtput
-  STACKSIZE += $(CONFIG_SYSTEM_FDTPUT_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTPUT_PRIORITY)
-endif
-
-ifeq ($(CONFIG_SYSTEM_FDTOVERLAY),y)
-  MAINSRC += fdtoverlay.c
-  PROGNAME += fdtoverlay
-  STACKSIZE += $(CONFIG_SYSTEM_FDTOVERLAY_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTOVERLAY_PRIORITY)
-endif
-
-CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/fdt/
-CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/fdt/dtc/libfdt/
-
-VPATH += $(TOPDIR)/libs/libc/fdt/dtc/
-DEPPATH += --dep-path $(TOPDIR)/libs/libc/fdt/dtc/
 
 include $(APPDIR)/Application.mk

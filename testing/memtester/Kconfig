@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config UTILS_MEMTESTER
+	tristate "utils_memtester"
+	default n
+
+if UTILS_MEMTESTER
+
+config UTILS_MEMTESTER_PROGNAME
+	string "Program Name"
+	default "memtester"
+
+config UTILS_MEMTESTER_STACKSIZE
+	int "utils dhrystone stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config UTILS_MEMTESTER_PRIORITY
+	int "Task PRIORITY"
+	default 100
+
+config UTILS_MEMTESTER_NARROW
+	bool "TEST_NARROW"
+	default n
+	---help---
+		Turn on the "test_8bit_wide_random test_16bit_wide_random" tests, which
+		may result in unaligned access on some platforms.
+
+endif

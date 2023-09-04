@@ -104,26 +104,18 @@ BLACKWORDS  += "SA_ONSTACK"
 BLACKWORDS  += "MINSIGSTKSZ"
 BLACKWORDS  += "FPE_FLTINV"
 
-BLACKSRCS += testfrmw.c
-BLACKSRCS += 7-3-buildonly.c
-BLACKSRCS += 7-4-buildonly.c
-BLACKSRCS += 7-5-buildonly.c
-BLACKSRCS += 11-1-buildonly.c
-BLACKSRCS += 17-1-buildonly.c
 BLACKSRCS += 19-1-buildonly.c
 BLACKSRCS += 21-1-buildonly.c
-BLACKSRCS += 22-31-buildonly.c
-BLACKSRCS += 22-32-buildonly.c
-BLACKSRCS += 25-1-buildonly.c
 BLACKSRCS += 27-1-buildonly.c
+ifeq ($(CONFIG_LIBC_LOCALTIME),)
 BLACKSRCS += 34-1-buildonly.c
+BLACKSRCS += 35-3-buildonly.c
+endif
 BLACKSRCS += 35-1-buildonly.c
 BLACKSRCS += 35-2-buildonly.c
-BLACKSRCS += 27-2.c
 ifeq ($(CONFIG_PTHREAD_SPINLOCKS),)
 BLACKSRCS += 3-12-buildonly.c
 endif
-BLACKSRCS += 35-3-buildonly.c
 ifeq ($(CONFIG_SCHED_CHILD_STATUS),)
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_exit/6-1.c
 BLACKSRCS += $(TESTDIR)/conformance/behavior/WIFEXITED/1-1.c
@@ -195,6 +187,12 @@ BLACKWORDS += seteuid
 BLACKWORDS += setegid
 BLACKWORDS += geteuid
 BLACKWORDS += getegid
+endif
+ifeq ($(CONFIG_TLS_NELEM),0)
+BLACKWORDS += pthread_key_create
+BLACKWORDS += pthread_key_delete
+BLACKWORDS += pthread_setspecific
+BLACKWORDS += pthread_getspecific
 endif
 ifeq ($(CONFIG_PTHREAD_CLEANUP_STACKSIZE),0)
 BLACKWORDS += pthread_cleanup_push
@@ -272,8 +270,16 @@ $(LTP_UNPACK): ltp-$(LTPS_VERSION).zip
 	$(Q) echo "dowload $(LTP_DOWNLOAD_URL)$(LTPS_VERSION).zip"
 	$(Q) unzip -o ltp.zip
 	$(Q) mv ltp-$(LTPS_VERSION) $(LTP_UNPACK)
-	$(Q) patch -p1 < 0001-pthread_rwlock_unlock-follow-linux.patch
-	$(Q) patch -p1 < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0001-pthread_rwlock_unlock-follow-linux.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0003-LTP-Re-init-static-variable-to-avoid-errors-during-m.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0004-test-update-ltp-test-case.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0005-ltp-update-pthread_cond_timedwait-testcase.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0006-test-modified-ltp-rwlock-need-init.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0007-pthread_kill-add-usleep-aviod-semcount-overturn.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0008-test-ltp-fix-ltp_interfaces_sigaction_23_10-deadloop.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0009-ltp-modify-user-code-for-fdcheck-compatibility.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0010-ltp-fix-build-warning.patch
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LTP_UNPACK)/.git),)

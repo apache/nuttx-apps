@@ -1053,6 +1053,7 @@ int nxlooper_loopback(FAR struct nxlooper_s *plooper, int format,
       goto err_out_record;
     }
 
+  memset(&caps, 0, sizeof(struct audio_caps_s));
   caps.ac_len = sizeof(caps);
   caps.ac_type = AUDIO_TYPE_INPUT;
   caps.ac_subtype = AUDIO_TYPE_QUERY;

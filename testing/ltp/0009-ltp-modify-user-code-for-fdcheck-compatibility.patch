@@ -1,0 +1,23 @@
+From 936342de79e8a92727c56d2bf87eb651be061570 Mon Sep 17 00:00:00 2001
+From: hujun5 <hujun5@xiaomi.com>
+Date: Thu, 8 Jun 2023 15:07:46 +0800
+Subject: [PATCH] ltp: modify user code for fdcheck compatibility
+
+Signed-off-by: hujun5 <hujun5@xiaomi.com>
+
+diff --git a/testcases/open_posix_testsuite/conformance/interfaces/mq_close/3-3.c b/testcases/open_posix_testsuite/conformance/interfaces/mq_close/3-3.c
+index d5d8265bd..e33797d57 100644
+--- a/testcases/open_posix_testsuite/conformance/interfaces/mq_close/3-3.c
++++ b/testcases/open_posix_testsuite/conformance/interfaces/mq_close/3-3.c
+@@ -23,7 +23,7 @@
+ int main(void)
+ {
+ 	/* Use some arbitrary but high number for the descriptor.  */
+-	if (mq_close((mqd_t) 274) != -1) {
++	if (mq_close((mqd_t) (OPEN_MAX - 1)) != -1) {
+ 		printf("mq_close() did not return -1 on invalid descriptor\n");
+ 		printf("Test FAILED\n");
+ 		return PTS_FAIL;
+-- 
+2.40.1
+

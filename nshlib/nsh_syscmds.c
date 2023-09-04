@@ -114,7 +114,7 @@ static FAR const char * const g_resetflag[] =
 {
   "reboot",
   "assert",
-  "painc",
+  "panic",
   "bootloader",
   "recovery",
   "factory",

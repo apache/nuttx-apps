@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/fdt/Makefile
+# apps/examples/keyboard/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,42 +20,15 @@
 
 include $(APPDIR)/Make.defs
 
-# Utility Tools
+# Keyboard built-in application info
 
-CSRCS = util.c
+PROGNAME = kbd
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_KEYBOARD)
 
-ifeq ($(CONFIG_SYSTEM_FDTDUMP),y)
-  MAINSRC += fdtdump.c
-  PROGNAME += fdtdump
-  STACKSIZE += $(CONFIG_SYSTEM_FDTDUMP_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTDUMP_PRIORITY)
-endif
+# Keyboard Example
 
-ifeq ($(CONFIG_SYSTEM_FDTGET),y)
-  MAINSRC += fdtget.c
-  PROGNAME += fdtget
-  STACKSIZE += $(CONFIG_SYSTEM_FDTGET_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTGET_PRIORITY)
-endif
-
-ifeq ($(CONFIG_SYSTEM_FDTPUT),y)
-  MAINSRC += fdtput.c
-  PROGNAME += fdtput
-  STACKSIZE += $(CONFIG_SYSTEM_FDTPUT_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTPUT_PRIORITY)
-endif
-
-ifeq ($(CONFIG_SYSTEM_FDTOVERLAY),y)
-  MAINSRC += fdtoverlay.c
-  PROGNAME += fdtoverlay
-  STACKSIZE += $(CONFIG_SYSTEM_FDTOVERLAY_STACKSIZE)
-  PRIORITY += $(CONFIG_SYSTEM_FDTOVERLAY_PRIORITY)
-endif
-
-CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/fdt/
-CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)/libs/libc/fdt/dtc/libfdt/
-
-VPATH += $(TOPDIR)/libs/libc/fdt/dtc/
-DEPPATH += --dep-path $(TOPDIR)/libs/libc/fdt/dtc/
+MAINSRC = kbd_main.c
 
 include $(APPDIR)/Application.mk

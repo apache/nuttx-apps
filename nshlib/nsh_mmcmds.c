@@ -68,7 +68,10 @@ int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       for (i = 1; i < argc; i++)
         {
           strlcat(arg, argv[i], CONFIG_NSH_LINELEN);
-          strlcat(arg, " ", CONFIG_NSH_LINELEN);
+          if (i < argc - 1)
+            {
+              strlcat(arg, " ", CONFIG_NSH_LINELEN);
+            }
         }
     }
 

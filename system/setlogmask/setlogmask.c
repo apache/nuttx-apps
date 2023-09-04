@@ -73,6 +73,7 @@ static int print_channels(void)
 
   memset(info, 0, sizeof(info));
   ret = ioctl(fd, SYSLOGIOC_GETCHANNELS, &info);
+  close(fd);
   if (ret < 0)
     {
       perror("Failed to get channels");

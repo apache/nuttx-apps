@@ -194,6 +194,21 @@ static int test_regulator_resume(FAR struct regulator_dev_s *rdev)
   return 0;
 }
 
+static void test_regulator_register(FAR void **state)
+{
+  FAR struct regulator_dev_s *test = NULL;
+
+  g_fake_regulator.rdev = regulator_register(&g_fake_regulator_desc,
+                                             &g_fake_regulator_ops,
+                                             &g_fake_regulator);
+  assert_false(NULL == g_fake_regulator.rdev);
+  test = regulator_register(&g_fake_regulator_desc,
+                            &g_fake_regulator_ops,
+                            &g_fake_regulator);
+  assert_true(NULL == test);
+  regulator_unregister(g_fake_regulator.rdev);
+}
+
 static void test_regulator_always_on(FAR void **state)
 {
   FAR struct regulator_s *test = NULL;
@@ -592,6 +607,7 @@ int main(int argc, FAR char *argv[])
 {
   const struct CMUnitTest tests[] =
     {
+      cmocka_unit_test_prestate(test_regulator_register, NULL),
       cmocka_unit_test_prestate(test_regulator_always_on, NULL),
       cmocka_unit_test_prestate(test_regulator_supply_1, NULL),
       cmocka_unit_test_prestate(test_regulator_supply_2, NULL),

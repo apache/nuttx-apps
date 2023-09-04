@@ -40,6 +40,74 @@
 #include "nsh_console.h"
 
 /****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct getpid_arg_s
+{
+  FAR const char *name;
+  FAR pid_t *pids;
+  size_t count;
+  size_t next;
+};
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: getpid_callback
+ *
+ * Description:
+ *   It is a callback function of nsh_getpid
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PIDOF)
+static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
+                           FAR const char *dirpath,
+                           FAR struct dirent *entryp, FAR void *pvarg)
+{
+  FAR struct getpid_arg_s *arg = (FAR struct getpid_arg_s *)pvarg;
+  char buffer[PATH_MAX];
+  int fd;
+  int len;
+
+  if (arg->next == arg->count)
+    {
+      return -E2BIG;
+    }
+
+  /* Match the name of the process */
+
+  snprintf(buffer, sizeof(buffer), "%s/%s/cmdline", dirpath, entryp->d_name);
+
+  fd = open(buffer, O_RDONLY);
+  if (fd < 0)
+    {
+      return 0;
+    }
+
+  len = read(fd, buffer, sizeof(buffer));
+  close(fd);
+  if (len < 0)
+    {
+      return -errno;
+    }
+
+  buffer[len] = '\0';
+  len = strlen(arg->name);
+  if (strncmp(buffer, arg->name, len) == 0 &&
+      (isspace(buffer[len]) || buffer[len] == '\0'))
+    {
+        arg->pids[arg->next++] = atoi(entryp->d_name);
+    }
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -74,7 +142,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
       if (strncmp(filepath, CONFIG_NSH_PROC_MOUNTPOINT,
-                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+                  sizeof(CONFIG_NSH_PROC_MOUNTPOINT) - 1) == 0)
         {
           nsh_error(vtbl,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
@@ -318,7 +386,7 @@ int nsh_writefile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
       if (strncmp(filepath, CONFIG_NSH_PROC_MOUNTPOINT,
-                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+                  sizeof(CONFIG_NSH_PROC_MOUNTPOINT) - 1) == 0)
         {
           nsh_error(vtbl,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
@@ -377,7 +445,7 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
       if (strncmp(dirpath, CONFIG_NSH_PROC_MOUNTPOINT,
-                  strlen(CONFIG_NSH_PROC_MOUNTPOINT)) == 0)
+                  sizeof(CONFIG_NSH_PROC_MOUNTPOINT) - 1) == 0)
         {
           nsh_error(vtbl,
                     "nsh: %s: Could not open %s (is procfs mounted?)\n",
@@ -516,5 +584,48 @@ FAR char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
     }
 
   return strdup(vtbl->iobuffer);
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_getpid
+ *
+ * Description:
+ *   Obtain pid through process name
+ *
+ * Input Parameters:
+ *   vtbl    - NSH session data
+ *   name    - the name of the process
+ *   pids    - allocated array for storing pid
+ *   count   - the maximum number of pids obtained
+ *
+ * Returned value:
+ *   the actual number of pids obtained
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PIDOF)
+ssize_t nsh_getpid(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
+                   FAR pid_t *pids, size_t count)
+{
+  struct getpid_arg_s argv =
+    {
+      name,
+      pids,
+      count,
+      0
+    };
+
+  if (NULL == name || pids == NULL)
+    {
+      return -EINVAL;
+    }
+
+  /* No need to determine the return value */
+
+  nsh_foreach_direntry(vtbl, "pidof", CONFIG_NSH_PROC_MOUNTPOINT,
+                       getpid_callback, &argv);
+
+  return argv.next;
 }
 #endif

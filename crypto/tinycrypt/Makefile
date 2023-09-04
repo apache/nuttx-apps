@@ -47,8 +47,11 @@ distclean::
 endif
 
 CSRCS += tinycrypt/lib/source/utils.c
+
+ifeq ($(CONFIG_TINYCRYPT_ECC),y)
 CSRCS += tinycrypt/lib/source/ecc.c
 CSRCS += tinycrypt/lib/source/ecc_platform_specific.c
+endif
 
 ifeq ($(CONFIG_TINYCRYPT_ECC_DH),y)
 	CSRCS += tinycrypt/lib/source/ecc_dh.c

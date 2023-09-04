@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/fsutils/inifile/CMakeLists.txt
+# apps/fsutils/mkmbr/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_FSUTILS_INIFILE)
-  target_sources(apps PRIVATE inifile.c)
+if(CONFIG_FSUTILS_MKMBR)
+  nuttx_add_application(
+    NAME
+    mkmbr
+    PRIORITY
+    100
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_FSUTILS_MKMBR}
+    SRCS
+    mkmbr.c)
 endif()
