@@ -76,6 +76,7 @@ static int send_dataack(int fd, uint32_t ackxid, int32_t ackresult,
 
   dataack.reqack.head.msgid = USRSOCK_MESSAGE_RESPONSE_DATA_ACK;
   dataack.reqack.head.flags = 0;
+  dataack.reqack.head.events = 0;
   dataack.reqack.xid = ackxid;
   dataack.reqack.result = ackresult;
 
@@ -359,6 +360,7 @@ int usockif_sendack(int fd, int32_t usock_result, uint32_t usock_xid,
 
   ack.head.msgid = USRSOCK_MESSAGE_RESPONSE_ACK;
   ack.head.flags = inprogress ? USRSOCK_MESSAGE_FLAG_REQ_IN_PROGRESS : 0;
+  ack.head.events = 0;
   ack.xid = usock_xid;
   ack.result = usock_result;
 
