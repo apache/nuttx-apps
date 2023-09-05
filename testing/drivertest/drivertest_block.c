@@ -298,6 +298,7 @@ static void blktest_cachesize_write(FAR void **state)
   uint32_t output_crc;
   uint32_t size;
   unsigned int block;
+  unsigned int eblock;
   size_t i;
   int ret;
 
@@ -325,6 +326,15 @@ static void blktest_cachesize_write(FAR void **state)
 
   size = block * pre->geo.blocksize;
 
+  if (size > pre->geo.erasesize && (size % pre->geo.erasesize) == 0)
+    {
+      eblock = (pre->geo.erasesize + size) / pre->geo.erasesize - 1;
+    }
+  else
+    {
+      eblock = (pre->geo.erasesize + size) / pre->geo.erasesize;
+    }
+
   output = malloc(size);
   assert_false(output == NULL);
 
@@ -343,7 +353,7 @@ static void blktest_cachesize_write(FAR void **state)
         {
           /* Before writing we need to erase the mtd device */
 
-          ret = MTD_ERASE(pre->driver->u.i_mtd, 0, 1);
+          ret = MTD_ERASE(pre->driver->u.i_mtd, 0, eblock);
           assert_false(ret < 0);
           ret = MTD_BWRITE(pre->driver->u.i_mtd, 0, block, input);
           assert_false(ret != block);
