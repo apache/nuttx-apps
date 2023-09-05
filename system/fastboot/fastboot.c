@@ -146,8 +146,8 @@ static const struct fastboot_cmd_s g_fast_cmd[] =
   { "download:",          fastboot_download         },
   { "erase:",             fastboot_erase            },
   { "flash:",             fastboot_flash            },
-  { "reboot",             fastboot_reboot           },
-  { "reboot-bootloader",  fastboot_reboot_bootloader}
+  { "reboot-bootloader",  fastboot_reboot_bootloader},
+  { "reboot",             fastboot_reboot           }
 };
 
 /****************************************************************************
