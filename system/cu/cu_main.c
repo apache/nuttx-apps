@@ -227,10 +227,11 @@ static void print_help(void)
          " -e: Set even parity\n"
          " -o: Set odd parity\n"
          " -s: Use given speed (default %d)\n"
-         " -r: Disable RTS/CTS flow control (default: on)\n"
+         " -f: Disable RTS/CTS flow control (default: on)\n"
 #endif
          " -c: Disable lf -> crlf conversion (default: off)\n"
-         " -f: Enable endless mode without escape sequence (default: off)\n"
+         " -E: Set the escape character (default: ~).\n"
+         "     To eliminate the escape character, use -E ''\n"
          " -?: This help\n",
          CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE
 #ifdef CONFIG_SERIAL_TERMIOS
@@ -239,19 +240,17 @@ static void print_help(void)
         );
 }
 
-static void print_escape_help(void)
+static void print_escape_help(FAR struct cu_globals_s *cu)
 {
-  printf("[Escape sequences]\n"
-         "[~. hangup]\n"
-         );
+  printf("[Escape sequences]\n[%c. hangup]\n", cu->escape);
 }
 
-static int cu_cmd(char bcmd)
+static int cu_cmd(FAR struct cu_globals_s *cu, char bcmd)
 {
   switch (bcmd)
     {
     case '?':
-      print_escape_help();
+      print_escape_help(cu);
       break;
 
     case '.':
@@ -287,7 +286,6 @@ int main(int argc, FAR char *argv[])
   int rtscts = 1;
 #endif
   int nocrlf = 0;
-  int nobreak = 0;
   int option;
   int ret;
   int bcmd;
@@ -298,6 +296,7 @@ int main(int argc, FAR char *argv[])
   /* Initialize global data */
 
   memset(cu, 0, sizeof(*cu));
+  cu->escape = '~';
 
   /* Install signal handlers */
 
@@ -306,7 +305,7 @@ int main(int argc, FAR char *argv[])
   sigaction(SIGINT, &sa, NULL);
 
   optind = 0;   /* Global that needs to be reset in FLAT mode */
-  while ((option = getopt(argc, argv, "l:s:cefhor?")) != ERROR)
+  while ((option = getopt(argc, argv, "l:s:ceE:fho?")) != ERROR)
     {
       switch (option)
         {
@@ -327,7 +326,7 @@ int main(int argc, FAR char *argv[])
             parity = PARITY_ODD;
             break;
 
-          case 'r':
+          case 'f':
             rtscts = 0;
             break;
 #endif
@@ -336,8 +335,8 @@ int main(int argc, FAR char *argv[])
             nocrlf = 1;
             break;
 
-          case 'f':
-            nobreak = 1;
+          case 'E':
+            cu->escape = atoi(optarg);
             break;
 
           case 'h':
@@ -450,13 +449,7 @@ int main(int argc, FAR char *argv[])
 
       ch = c;
 
-      if (nobreak == 1)
-        {
-          write(cu->devfd, &ch, 1);
-          continue;
-        }
-
-      if (start_of_line == 1 && ch == '~')
+      if (start_of_line == 1 && ch == cu->escape)
         {
           /* We've seen and escape (~) character, echo it to local
            * terminal and read the next char from serial
@@ -473,7 +466,7 @@ int main(int argc, FAR char *argv[])
             }
           else
             {
-              if (cu_cmd(bcmd) == 1)
+              if (cu_cmd(cu, ch) == 1)
                 {
                   break;
                 }
