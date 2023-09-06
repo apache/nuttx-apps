@@ -73,6 +73,7 @@ struct cu_globals_s
 {
   int devfd;             /* I/O data to serial port */
   int stdfd;             /* I/O data to standard console */
+  int escape;            /* Escape char */
   struct termios devtio; /* Original serial port setting */
   struct termios stdtio; /* Original standard console setting */
   pthread_t listener;    /* Terminal listener thread */
