@@ -24,7 +24,7 @@ PROGNAME = hello tasks
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
-CSRCS = hello.c tasks.c
+MAINSRC = hello.c tasks.c
 
 DEPPATH += --dep-path hello --dep-path tasks
 VPATH += :hello:tasks
