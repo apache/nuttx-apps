@@ -158,7 +158,7 @@ static void do_mallocs(FAR void **mem, FAR const int *size,
 
           if (mem[j] == NULL)
             {
-              int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE);
+              int allocsize = MM_ALIGN_UP(size[j] + MM_SIZEOF_ALLOCNODE);
 
               fprintf(stderr, "(%d)malloc failed for allocsize=%d\n",
                       i, allocsize);
@@ -213,7 +213,7 @@ static void do_reallocs(FAR void **mem, FAR const int *oldsize,
 
       if (ptr == NULL)
         {
-          int allocsize = MM_ALIGN_UP(newsize[j] + SIZEOF_MM_ALLOCNODE);
+          int allocsize = MM_ALIGN_UP(newsize[j] + MM_SIZEOF_ALLOCNODE);
 
           fprintf(stderr,
                   "(%d)realloc failed for allocsize=%d\n", i, allocsize);
@@ -257,7 +257,7 @@ static void do_memaligns(FAR void **mem,
 
       if (mem[j] == NULL)
         {
-          int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE) +
+          int allocsize = MM_ALIGN_UP(size[j] + MM_SIZEOF_ALLOCNODE) +
                                       2 * align[i];
 
           fprintf(stderr,
