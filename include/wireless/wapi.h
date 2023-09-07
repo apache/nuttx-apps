@@ -708,6 +708,31 @@ int wapi_scan_channel_init(int sock, FAR const char *ifname,
                            uint8_t *channels, int num_channels);
 
 /****************************************************************************
+ * Name: wapi_escan_init
+ *
+ * Description:
+ *   Starts a extended scan on the given interface, you can specify the scan
+ *   type. Root privileges are required to start a scan.
+ *
+ ****************************************************************************/
+
+int wapi_escan_init(int sock, FAR const char *ifname,
+                    uint8_t scan_type, FAR const char *essid);
+
+/****************************************************************************
+ * Name: wapi_escan_channel_init
+ *
+ * Description:
+ *   Starts a scan on the given interface. Root privileges are required to
+ *   start a scan with specified channels.
+ *
+ ****************************************************************************/
+
+int wapi_escan_channel_init(int sock, FAR const char *ifname,
+                            uint8_t scan_type, FAR const char *essid,
+                            uint8_t *channels, int num_channels);
+
+/****************************************************************************
  * Name: wapi_scan_stat
  *
  * Description:
