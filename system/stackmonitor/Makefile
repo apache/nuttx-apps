@@ -22,7 +22,7 @@ include $(APPDIR)/Make.defs
 
 # Stack Monitor Application
 
-PROGNAME = stackmonitor_start stackmonitor_stop
+PROGNAME = stackmonitor_start
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_STACKMONITOR)
