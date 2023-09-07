@@ -1184,6 +1184,23 @@ int wapi_scan_channel_init(int sock, FAR const char *ifname,
                            FAR const char *essid,
                            uint8_t *channels, int num_channels)
 {
+  return wapi_escan_channel_init(sock, ifname, IW_SCAN_TYPE_ACTIVE, essid,
+                                 channels, num_channels);
+}
+
+/****************************************************************************
+ * Name: wapi_escan_channel_init
+ *
+ * Description:
+ *   Starts a scan on the given interface. Root privileges are required to
+ *   start a scan with specified channels.
+ *
+ ****************************************************************************/
+
+int wapi_escan_channel_init(int sock, FAR const char *ifname,
+                           uint8_t scan_type, FAR const char *essid,
+                           uint8_t *channels, int num_channels)
+{
   struct iw_scan_req req;
   struct iwreq wrq =
   {
@@ -1193,16 +1210,13 @@ int wapi_scan_channel_init(int sock, FAR const char *ifname,
   int ret;
   int i;
 
+  memset(&req, 0, sizeof(req));
+
   if (essid && (essid_len = strlen(essid)) > 0)
     {
-      memset(&req, 0, sizeof(req));
-      req.essid_len       = essid_len;
-      req.bssid.sa_family = ARPHRD_ETHER;
-      memset(req.bssid.sa_data, 0xff, IFHWADDRLEN);
+      req.essid_len    = essid_len;
       memcpy(req.essid, essid, essid_len);
-      wrq.u.data.pointer  = (caddr_t)&req;
-      wrq.u.data.length   = sizeof(req);
-      wrq.u.data.flags    = IW_SCAN_THIS_ESSID;
+      wrq.u.data.flags = IW_SCAN_THIS_ESSID;
     }
 
   if (channels && num_channels > 0)
@@ -1213,6 +1227,12 @@ int wapi_scan_channel_init(int sock, FAR const char *ifname,
           req.channel_list[i].m = channels[i];
         }
     }
+
+  req.scan_type       = scan_type;
+  req.bssid.sa_family = ARPHRD_ETHER;
+  memset(req.bssid.sa_data, 0xff, IFHWADDRLEN);
+  wrq.u.data.pointer  = (caddr_t)&req;
+  wrq.u.data.length   = sizeof(req);
 
   strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
   ret = ioctl(sock, SIOCSIWSCAN, (unsigned long)((uintptr_t)&wrq));
@@ -1238,6 +1258,21 @@ int wapi_scan_channel_init(int sock, FAR const char *ifname,
 int wapi_scan_init(int sock, FAR const char *ifname, FAR const char *essid)
 {
   return wapi_scan_channel_init(sock, ifname, essid, NULL, 0);
+}
+
+/****************************************************************************
+ * Name: wapi_escan_init
+ *
+ * Description:
+ *   Starts a extended scan on the given interface, you can specify the scan
+ *   type. Root privileges are required to start a scan.
+ *
+ ****************************************************************************/
+
+int wapi_escan_init(int sock, FAR const char *ifname,
+                   uint8_t scan_type, FAR const char *essid)
+{
+  return wapi_escan_channel_init(sock, ifname, scan_type, essid, NULL, 0);
 }
 
 /****************************************************************************
