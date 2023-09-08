@@ -129,7 +129,7 @@ int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
     }
 
-  if (length % 16)
+  if ((length % 16) != 0)
     {
       return MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH;
     }

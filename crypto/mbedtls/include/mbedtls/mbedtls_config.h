@@ -391,6 +391,9 @@
 #ifdef CONFIG_MBEDTLS_SHA512_ALT
 #define MBEDTLS_SHA512_ALT
 #endif
+#ifdef CONFIG_MBEDTLS_BIGNUM_ALT
+#define MBEDTLS_BIGNUM_ALT
+#endif
 /* #define MBEDTLS_XTEA_ALT
  */
 

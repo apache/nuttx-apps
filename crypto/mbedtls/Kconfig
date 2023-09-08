@@ -603,6 +603,11 @@ config MBEDTLS_SHA512_ALT
 	select MBEDTLS_ALT
 	default n
 
+config MBEDTLS_BIGNUM_ALT
+	bool "Enable Mbedt TLS Bignum module alted by nuttx mpi"
+	select MBEDTLS_ALT
+	default n
+
 endif # CRYPTO_CRYPTODEV
 
 menuconfig MBEDTLS_APPS
