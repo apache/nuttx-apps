@@ -38,7 +38,7 @@ void mbedtls_poly1305_free(FAR mbedtls_poly1305_context *ctx)
   cryptodev_free(ctx);
 }
 
-int mbedtls_poly1305_starts(mbedtls_poly1305_context *ctx,
+int mbedtls_poly1305_starts(FAR mbedtls_poly1305_context *ctx,
                             const unsigned char key[32])
 {
   ctx->session.mac = CRYPTO_POLY1305;

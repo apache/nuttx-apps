@@ -147,6 +147,10 @@ ifeq ($(CONFIG_MBEDTLS_SHA512_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/sha512_alt.c
 endif
 
+ifeq ($(CONFIG_MBEDTLS_BIGNUM_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/bignum_alt.c
+endif
+
 endif
 
 include $(APPDIR)/Application.mk
