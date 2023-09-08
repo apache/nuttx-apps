@@ -276,6 +276,7 @@ ltp-$(LTPS_VERSION).zip:
 $(LTP_UNPACK): ltp-$(LTPS_VERSION).zip
 	$(Q) echo "dowload $(LTP_DOWNLOAD_URL)$(LTPS_VERSION).zip"
 	$(Q) unzip -o ltp.zip
+	$(Q) rm -f ltp.zip
 	$(Q) mv ltp-$(LTPS_VERSION) $(LTP_UNPACK)
 	$(Q) patch -d $(LTP_UNPACK) -p1 < 0001-pthread_rwlock_unlock-follow-linux.patch
 	$(Q) patch -d $(LTP_UNPACK) -p1 < 0002-Use-ifdef-instead-of-if-for-__linux__.patch
