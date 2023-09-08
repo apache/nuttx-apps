@@ -105,8 +105,7 @@ static int dd_write(FAR struct dd_s *dd)
       if (nbytes < 0)
         {
           FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-          nsh_error(vtbl, g_fmtcmdfailed, g_dd, "write",
-                    NSH_ERRNO_OF(-nbytes));
+          nsh_error(vtbl, g_fmtcmdfailed, g_dd, "write", NSH_ERRNO);
           return ERROR;
         }
 
@@ -134,8 +133,7 @@ static int dd_read(FAR struct dd_s *dd)
       if (nbytes < 0)
         {
           FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-          nsh_error(vtbl, g_fmtcmdfailed, g_dd, "read",
-                    NSH_ERRNO_OF(-nbytes));
+          nsh_error(vtbl, g_fmtcmdfailed, g_dd, "read", NSH_ERRNO);
           return ERROR;
         }
 
