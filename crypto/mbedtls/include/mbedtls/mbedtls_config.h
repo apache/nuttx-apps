@@ -367,8 +367,11 @@
  * #define MBEDTLS_NIST_KW_ALT
  * #define MBEDTLS_MD2_ALT
  * #define MBEDTLS_MD4_ALT
- * #define MBEDTLS_MD5_ALT
- * #define MBEDTLS_POLY1305_ALT
+ */
+#ifdef CONFIG_MBEDTLS_MD5_ALT
+#define MBEDTLS_MD5_ALT
+#endif
+/* #define MBEDTLS_POLY1305_ALT
  * #define MBEDTLS_RIPEMD160_ALT
  * #define MBEDTLS_RSA_ALT
  */
