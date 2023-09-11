@@ -152,3 +152,7 @@ define SPLITVARIABLE
 		$(eval $(PREFIX)_$(idx)=$(wordlist $(FROMINDEX), $(shell expr $(FROMINDEX) + $(BATCH_SIZE) - 1), $(2))) \
 	)
 endef
+
+define ARLOCK
+	flock $1.lock $(call ARCHIVE, $1, $(2))
+endef
