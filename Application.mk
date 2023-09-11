@@ -142,7 +142,7 @@ VPATH += :.
 
 # Targets follow
 
-all:: $(OBJS)
+all:: .built
 	@:
 .PHONY: clean depend distclean
 .PRECIOUS: $(BIN)
@@ -208,11 +208,12 @@ $(ZIGOBJS): %$(ZIGEXT)$(SUFFIX)$(OBJEXT): %$(ZIGEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE), $(CELFFLAGS)), \
 		$(call ELFCOMPILEZIG, $<, $@), $(call COMPILEZIG, $<, $@))
 
-archive:
+.built: $(OBJS)
 	$(call SPLITVARIABLE,ALL_OBJS,$(OBJS),100)
 	$(foreach BATCH, $(ALL_OBJS_TOTAL), \
-		$(call ARCHIVE_ADD, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH))) \
+		$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH))) \
 	)
+	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE),y)
 
@@ -295,6 +296,7 @@ depend:: .depend
 	@:
 
 clean::
+	$(call DELFILE, .built)
 	$(call CLEAN)
 
 distclean:: clean
