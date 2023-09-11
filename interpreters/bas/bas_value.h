@@ -101,53 +101,53 @@ long int Value_toi(double d, int *overflow);
 long int Value_vali(const char *s, char **end, int *overflow);
 double Value_vald(const char *s, char **end, int *overflow);
 
-struct Value *Value_new_NIL(struct Value *this);
-struct Value *Value_new_ERROR(struct Value *this, int code,
+struct Value *Value_new_NIL(struct Value *self);
+struct Value *Value_new_ERROR(struct Value *self, int code,
                               const char *error, ...) printf_like(3, 4);
-struct Value *Value_new_INTEGER(struct Value *this, int n);
-struct Value *Value_new_REAL(struct Value *this, double n);
-struct Value *Value_new_STRING(struct Value *this);
-struct Value *Value_new_VOID(struct Value *this);
-struct Value *Value_new_null(struct Value *this, enum ValueType type);
-int Value_isNull(const struct Value *this);
-void Value_destroy(struct Value *this);
-void Value_errorPrefix(struct Value *this, const char *prefix);
-void Value_errorSuffix(struct Value *this, const char *suffix);
-struct Value *Value_new_typeError(struct Value *this, enum ValueType t1,
+struct Value *Value_new_INTEGER(struct Value *self, int n);
+struct Value *Value_new_REAL(struct Value *self, double n);
+struct Value *Value_new_STRING(struct Value *self);
+struct Value *Value_new_VOID(struct Value *self);
+struct Value *Value_new_null(struct Value *self, enum ValueType type);
+int Value_isNull(const struct Value *self);
+void Value_destroy(struct Value *self);
+void Value_errorPrefix(struct Value *self, const char *prefix);
+void Value_errorSuffix(struct Value *self, const char *suffix);
+struct Value *Value_new_typeError(struct Value *self, enum ValueType t1,
                                   enum ValueType t2);
-struct Value *Value_retype(struct Value *this, enum ValueType type);
-struct Value *Value_clone(struct Value *this, const struct Value *original);
-struct Value *Value_uplus(struct Value *this, int calc);
-struct Value *Value_uneg(struct Value *this, int calc);
-struct Value *Value_unot(struct Value *this, int calc);
-struct Value *Value_add(struct Value *this, struct Value *x, int calc);
-struct Value *Value_sub(struct Value *this, struct Value *x, int calc);
-struct Value *Value_mult(struct Value *this, struct Value *x, int calc);
-struct Value *Value_div(struct Value *this, struct Value *x, int calc);
-struct Value *Value_idiv(struct Value *this, struct Value *x, int calc);
-struct Value *Value_mod(struct Value *this, struct Value *x, int calc);
-struct Value *Value_pow(struct Value *this, struct Value *x, int calc);
-struct Value *Value_and(struct Value *this, struct Value *x, int calc);
-struct Value *Value_or(struct Value *this, struct Value *x, int calc);
-struct Value *Value_xor(struct Value *this, struct Value *x, int calc);
-struct Value *Value_eqv(struct Value *this, struct Value *x, int calc);
-struct Value *Value_imp(struct Value *this, struct Value *x, int calc);
-struct Value *Value_lt(struct Value *this, struct Value *x, int calc);
-struct Value *Value_le(struct Value *this, struct Value *x, int calc);
-struct Value *Value_eq(struct Value *this, struct Value *s, int calc);
-struct Value *Value_ge(struct Value *this, struct Value *x, int calc);
-struct Value *Value_gt(struct Value *this, struct Value *x, int calc);
-struct Value *Value_ne(struct Value *this, struct Value *x, int calc);
-int Value_exitFor(struct Value *this, struct Value *limit,
+struct Value *Value_retype(struct Value *self, enum ValueType type);
+struct Value *Value_clone(struct Value *self, const struct Value *original);
+struct Value *Value_uplus(struct Value *self, int calc);
+struct Value *Value_uneg(struct Value *self, int calc);
+struct Value *Value_unot(struct Value *self, int calc);
+struct Value *Value_add(struct Value *self, struct Value *x, int calc);
+struct Value *Value_sub(struct Value *self, struct Value *x, int calc);
+struct Value *Value_mult(struct Value *self, struct Value *x, int calc);
+struct Value *Value_div(struct Value *self, struct Value *x, int calc);
+struct Value *Value_idiv(struct Value *self, struct Value *x, int calc);
+struct Value *Value_mod(struct Value *self, struct Value *x, int calc);
+struct Value *Value_pow(struct Value *self, struct Value *x, int calc);
+struct Value *Value_and(struct Value *self, struct Value *x, int calc);
+struct Value *Value_or(struct Value *self, struct Value *x, int calc);
+struct Value *Value_xor(struct Value *self, struct Value *x, int calc);
+struct Value *Value_eqv(struct Value *self, struct Value *x, int calc);
+struct Value *Value_imp(struct Value *self, struct Value *x, int calc);
+struct Value *Value_lt(struct Value *self, struct Value *x, int calc);
+struct Value *Value_le(struct Value *self, struct Value *x, int calc);
+struct Value *Value_eq(struct Value *self, struct Value *s, int calc);
+struct Value *Value_ge(struct Value *self, struct Value *x, int calc);
+struct Value *Value_gt(struct Value *self, struct Value *x, int calc);
+struct Value *Value_ne(struct Value *self, struct Value *x, int calc);
+int Value_exitFor(struct Value *self, struct Value *limit,
                   struct Value *step);
-struct String *Value_toString(struct Value *this, struct String *s,
+struct String *Value_toString(struct Value *self, struct String *s,
                               char pad, int headingsign, size_t width,
                               int commas, int dollar, int dollarleft,
                               int precision, int exponent,
                               int trailingsign);
-struct Value *Value_toStringUsing(struct Value *this, struct String *s,
+struct Value *Value_toStringUsing(struct Value *self, struct String *s,
                                   struct String *using, size_t *usingpos);
-struct String *Value_toWrite(struct Value *this, struct String *s);
+struct String *Value_toWrite(struct Value *self, struct String *s);
 struct Value *Value_nullValue(enum ValueType type);
 
 #endif /* __APPS_EXAMPLES_BAS_BAS_VALUE_H */

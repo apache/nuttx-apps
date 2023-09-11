@@ -61,17 +61,17 @@ struct Global
  * Public Function Prototypes
  ****************************************************************************/
 
-struct Global *Global_new(struct Global *this);
-void Global_destroy(struct Global *this);
-void Global_clear(struct Global *this);
-void Global_clearFunctions(struct Global *this);
-int Global_find(struct Global *this, struct Identifier *ident, int oparen);
-int Global_function(struct Global *this, struct Identifier *ident,
+struct Global *Global_new(struct Global *self);
+void Global_destroy(struct Global *self);
+void Global_clear(struct Global *self);
+void Global_clearFunctions(struct Global *self);
+int Global_find(struct Global *self, struct Identifier *ident, int oparen);
+int Global_function(struct Global *self, struct Identifier *ident,
                     enum ValueType type, struct Pc *deffn, struct Pc *begin,
                     int argTypesLength, enum ValueType *argTypes);
-void Global_endfunction(struct Global *this, struct Identifier *ident,
+void Global_endfunction(struct Global *self, struct Identifier *ident,
                         struct Pc *end);
-int Global_variable(struct Global *this, struct Identifier *ident,
+int Global_variable(struct Global *self, struct Identifier *ident,
                     enum ValueType type, enum SymbolType symbolType,
                     int redeclare);
 

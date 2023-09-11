@@ -2967,7 +2967,7 @@
  * \def MBEDTLS_LMS_PRIVATE
  *
  * Enable LMS private-key operations and signing code. Functions enabled by
- *this
+ * this
  * option are experimental, and should not be used in production.
  *
  * Requires: MBEDTLS_LMS_C
