@@ -399,11 +399,9 @@ static int configdata_verifyconfig(void)
   int ret;
   int errcode = OK;
   int i;
-  static int iteration = 0;
 
   /* Create a file for each unused file structure */
 
-  iteration++;
   for (i = 0; i < CONFIG_EXAMPLES_CONFIGDATA_MAXENTRIES; i++)
     {
       entry = &g_entries[i];
