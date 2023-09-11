@@ -80,21 +80,21 @@ union AutoSlot
  * Public Function Prototypes
  ****************************************************************************/
 
-struct Auto *Auto_new(struct Auto *this);
-void Auto_destroy(struct Auto *this);
-struct Var *Auto_pushArg(struct Auto *this);
-void Auto_pushFuncRet(struct Auto *this, int firstarg, struct Pc *pc);
-void Auto_pushGosubRet(struct Auto *this, struct Pc *pc);
-struct Var *Auto_local(struct Auto *this, int l);
-int Auto_funcReturn(struct Auto *this, struct Pc *pc);
-int Auto_gosubReturn(struct Auto *this, struct Pc *pc);
-void Auto_frameToError(struct Auto *this, struct Program *program, struct Value *v);
-void Auto_setError(struct Auto *this, long int line, struct Pc *pc, struct Value *v);
+struct Auto *Auto_new(struct Auto *self);
+void Auto_destroy(struct Auto *self);
+struct Var *Auto_pushArg(struct Auto *self);
+void Auto_pushFuncRet(struct Auto *self, int firstarg, struct Pc *pc);
+void Auto_pushGosubRet(struct Auto *self, struct Pc *pc);
+struct Var *Auto_local(struct Auto *self, int l);
+int Auto_funcReturn(struct Auto *self, struct Pc *pc);
+int Auto_gosubReturn(struct Auto *self, struct Pc *pc);
+void Auto_frameToError(struct Auto *self, struct Program *program, struct Value *v);
+void Auto_setError(struct Auto *self, long int line, struct Pc *pc, struct Value *v);
 
-int Auto_find(struct Auto *this, struct Identifier *ident);
-int Auto_variable(struct Auto *this, const struct Identifier *ident);
-enum ValueType Auto_argType(const struct Auto *this, int l);
-enum ValueType Auto_varType(const struct Auto *this, struct Symbol *sym);
-void Auto_funcEnd(struct Auto *this);
+int Auto_find(struct Auto *self, struct Identifier *ident);
+int Auto_variable(struct Auto *self, const struct Identifier *ident);
+enum ValueType Auto_argType(const struct Auto *self, int l);
+enum ValueType Auto_varType(const struct Auto *self, struct Symbol *sym);
+void Auto_funcEnd(struct Auto *self);
 
 #endif /* __APPS_EXAMPLES_BAS_BAS_AUTO_H */

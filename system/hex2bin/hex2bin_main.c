@@ -227,7 +227,7 @@ int main(int argc, FAR char *argv[])
 
   /* And do the deed */
 
-  ret = hex2bin(&stdinstream.public, &stdoutstream.public,
+  ret = hex2bin(&stdinstream.common, &stdoutstream.common,
                 (uint32_t)baseaddr, (uint32_t)endpaddr,
                 (enum hex2bin_swap_e)swap);
   if (ret < 0)

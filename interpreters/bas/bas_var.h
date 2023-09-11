@@ -36,7 +36,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define VAR_SCALAR_VALUE(this) ((this)->value)
+#define VAR_SCALAR_VALUE(self) ((self)->value)
 
 /****************************************************************************
  * Public Types
@@ -56,26 +56,26 @@ struct Var
  * Public Function Prototypes
  ****************************************************************************/
 
-struct Var *Var_new(struct Var *this, enum ValueType type, unsigned int dim,
+struct Var *Var_new(struct Var *self, enum ValueType type, unsigned int dim,
                     const unsigned int *geometry, int base);
-struct Var *Var_new_scalar(struct Var *this);
-void Var_destroy(struct Var *this);
-void Var_retype(struct Var *this, enum ValueType type);
-struct Value *Var_value(struct Var *this, unsigned int dim, int idx[],
+struct Var *Var_new_scalar(struct Var *self);
+void Var_destroy(struct Var *self);
+void Var_retype(struct Var *self, enum ValueType type);
+struct Value *Var_value(struct Var *self, unsigned int dim, int idx[],
                         struct Value *value);
-void Var_clear(struct Var *this);
-struct Value *Var_mat_assign(struct Var *this, struct Var *x,
+void Var_clear(struct Var *self);
+struct Value *Var_mat_assign(struct Var *self, struct Var *x,
                              struct Value *err, int work);
-struct Value *Var_mat_addsub(struct Var *this, struct Var *x, struct Var *y,
+struct Value *Var_mat_addsub(struct Var *self, struct Var *x, struct Var *y,
                              int add, struct Value *err, int work);
-struct Value *Var_mat_mult(struct Var *this, struct Var *x, struct Var *y,
+struct Value *Var_mat_mult(struct Var *self, struct Var *x, struct Var *y,
                            struct Value *err, int work);
-struct Value *Var_mat_scalarMult(struct Var *this, struct Value *factor,
+struct Value *Var_mat_scalarMult(struct Var *self, struct Value *factor,
                                  struct Var *x, int work);
-void Var_mat_transpose(struct Var *this, struct Var *x);
-struct Value *Var_mat_invert(struct Var *this, struct Var *x,
+void Var_mat_transpose(struct Var *self, struct Var *x);
+struct Value *Var_mat_invert(struct Var *self, struct Var *x,
                              struct Value *det, struct Value *err);
-struct Value *Var_mat_redim(struct Var *this, unsigned int dim,
+struct Value *Var_mat_redim(struct Var *self, unsigned int dim,
                             const unsigned int *geometry,
                             struct Value *err);
 

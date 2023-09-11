@@ -50,34 +50,34 @@
 
 /* interpretation methods */
 
-struct Auto *Auto_new(struct Auto *this)
+struct Auto *Auto_new(struct Auto *self)
 {
-  this->stackPointer = 0;
-  this->stackCapacity = 0;
-  this->framePointer = 0;
-  this->frameSize = 0;
-  this->onerror.line = -1;
-  this->erl = 0;
-  Value_new_NIL(&this->err);
-  Value_new_NIL(&this->lastdet);
-  this->begindata.line = -1;
-  this->slot = (union AutoSlot *)0;
-  this->cur = this->all = (struct Symbol *)0;
-  return this;
+  self->stackPointer = 0;
+  self->stackCapacity = 0;
+  self->framePointer = 0;
+  self->frameSize = 0;
+  self->onerror.line = -1;
+  self->erl = 0;
+  Value_new_NIL(&self->err);
+  Value_new_NIL(&self->lastdet);
+  self->begindata.line = -1;
+  self->slot = (union AutoSlot *)0;
+  self->cur = self->all = (struct Symbol *)0;
+  return self;
 }
 
-void Auto_destroy(struct Auto *this)
+void Auto_destroy(struct Auto *self)
 {
   struct Symbol *l;
 
-  Value_destroy(&this->err);
-  Value_destroy(&this->lastdet);
-  if (this->stackCapacity)
+  Value_destroy(&self->err);
+  Value_destroy(&self->lastdet);
+  if (self->stackCapacity)
     {
-      free(this->slot);
+      free(self->slot);
     }
 
-  for (l = this->all; l != (struct Symbol *)0; )
+  for (l = self->all; l != (struct Symbol *)0; )
     {
       struct Symbol *f;
 
@@ -88,135 +88,135 @@ void Auto_destroy(struct Auto *this)
     }
 }
 
-struct Var *Auto_pushArg(struct Auto *this)
+struct Var *Auto_pushArg(struct Auto *self)
 {
-  if ((this->stackPointer + 1) >= this->stackCapacity)
+  if ((self->stackPointer + 1) >= self->stackCapacity)
     {
-      this->slot =
-        realloc(this->slot,
-                sizeof(this->slot[0]) *
-                (this->
-                 stackCapacity ? (this->stackCapacity =
-                                  this->stackPointer +
-                                  INCREASE_STACK) : (this->stackCapacity =
+      self->slot =
+        realloc(self->slot,
+                sizeof(self->slot[0]) *
+                (self->
+                 stackCapacity ? (self->stackCapacity =
+                                  self->stackPointer +
+                                  INCREASE_STACK) : (self->stackCapacity =
                                                      INCREASE_STACK)));
     }
 
-  return &this->slot[this->stackPointer++].var;
+  return &self->slot[self->stackPointer++].var;
 }
 
-void Auto_pushFuncRet(struct Auto *this, int firstarg, struct Pc *pc)
+void Auto_pushFuncRet(struct Auto *self, int firstarg, struct Pc *pc)
 {
-  if (this->stackPointer + 2 >= this->stackCapacity)
+  if (self->stackPointer + 2 >= self->stackCapacity)
     {
-      this->slot =
-        realloc(this->slot,
-                sizeof(this->slot[0]) *
-                (this->
-                 stackCapacity ? (this->stackCapacity =
-                                  this->stackCapacity +
-                                  INCREASE_STACK) : (this->stackCapacity =
+      self->slot =
+        realloc(self->slot,
+                sizeof(self->slot[0]) *
+                (self->
+                 stackCapacity ? (self->stackCapacity =
+                                  self->stackCapacity +
+                                  INCREASE_STACK) : (self->stackCapacity =
                                                      INCREASE_STACK)));
     }
 
-  this->slot[this->stackPointer].retException.onerror = this->onerror;
-  this->slot[this->stackPointer].retException.resumeable = this->resumeable;
-  ++this->stackPointer;
-  this->slot[this->stackPointer].retFrame.pc = *pc;
-  this->slot[this->stackPointer].retFrame.framePointer = this->framePointer;
-  this->slot[this->stackPointer].retFrame.frameSize = this->frameSize;
-  ++this->stackPointer;
-  this->framePointer = firstarg;
-  this->frameSize = this->stackPointer - firstarg;
-  this->onerror.line = -1;
+  self->slot[self->stackPointer].retException.onerror = self->onerror;
+  self->slot[self->stackPointer].retException.resumeable = self->resumeable;
+  ++self->stackPointer;
+  self->slot[self->stackPointer].retFrame.pc = *pc;
+  self->slot[self->stackPointer].retFrame.framePointer = self->framePointer;
+  self->slot[self->stackPointer].retFrame.frameSize = self->frameSize;
+  ++self->stackPointer;
+  self->framePointer = firstarg;
+  self->frameSize = self->stackPointer - firstarg;
+  self->onerror.line = -1;
 }
 
-void Auto_pushGosubRet(struct Auto *this, struct Pc *pc)
+void Auto_pushGosubRet(struct Auto *self, struct Pc *pc)
 {
-  if ((this->stackPointer + 1) >= this->stackCapacity)
+  if ((self->stackPointer + 1) >= self->stackCapacity)
     {
-      this->slot =
-        realloc(this->slot,
-                sizeof(this->slot[0]) *
-                (this->
-                 stackCapacity ? (this->stackCapacity =
-                                  this->stackPointer +
-                                  INCREASE_STACK) : (this->stackCapacity =
+      self->slot =
+        realloc(self->slot,
+                sizeof(self->slot[0]) *
+                (self->
+                 stackCapacity ? (self->stackCapacity =
+                                  self->stackPointer +
+                                  INCREASE_STACK) : (self->stackCapacity =
                                                      INCREASE_STACK)));
     }
 
-  this->slot[this->stackPointer].retFrame.pc = *pc;
-  ++this->stackPointer;
+  self->slot[self->stackPointer].retFrame.pc = *pc;
+  ++self->stackPointer;
 }
 
-struct Var *Auto_local(struct Auto *this, int l)
+struct Var *Auto_local(struct Auto *self, int l)
 {
-  assert(this->frameSize > (l + 2));
-  return &(this->slot[this->framePointer + l].var);
+  assert(self->frameSize > (l + 2));
+  return &(self->slot[self->framePointer + l].var);
 }
 
-int Auto_funcReturn(struct Auto *this, struct Pc *pc)
+int Auto_funcReturn(struct Auto *self, struct Pc *pc)
 {
   int retException;
   int retFrame;
   int i;
 
-  if (this->stackPointer == 0)
+  if (self->stackPointer == 0)
     {
       return 0;
     }
 
-  assert(this->frameSize);
-  retFrame = this->framePointer + this->frameSize - 1;
-  retException = this->framePointer + this->frameSize - 2;
-  assert(retException >= 0 && retFrame < this->stackPointer);
-  for (i = 0; i < this->frameSize - 2; ++i)
+  assert(self->frameSize);
+  retFrame = self->framePointer + self->frameSize - 1;
+  retException = self->framePointer + self->frameSize - 2;
+  assert(retException >= 0 && retFrame < self->stackPointer);
+  for (i = 0; i < self->frameSize - 2; ++i)
     {
-      Var_destroy(&this->slot[this->framePointer + i].var);
+      Var_destroy(&self->slot[self->framePointer + i].var);
     }
 
-  this->stackPointer = this->framePointer;
+  self->stackPointer = self->framePointer;
   if (pc != (struct Pc *)0)
     {
-      *pc = this->slot[retFrame].retFrame.pc;
+      *pc = self->slot[retFrame].retFrame.pc;
     }
 
-  this->frameSize = this->slot[retFrame].retFrame.frameSize;
-  this->framePointer = this->slot[retFrame].retFrame.framePointer;
-  this->onerror = this->slot[retException].retException.onerror;
+  self->frameSize = self->slot[retFrame].retFrame.frameSize;
+  self->framePointer = self->slot[retFrame].retFrame.framePointer;
+  self->onerror = self->slot[retException].retException.onerror;
   return 1;
 }
 
-int Auto_gosubReturn(struct Auto *this, struct Pc *pc)
+int Auto_gosubReturn(struct Auto *self, struct Pc *pc)
 {
-  if (this->stackPointer <= this->framePointer + this->frameSize)
+  if (self->stackPointer <= self->framePointer + self->frameSize)
     {
       return 0;
     }
 
-  --this->stackPointer;
+  --self->stackPointer;
   if (pc)
     {
-      *pc = this->slot[this->stackPointer].retFrame.pc;
+      *pc = self->slot[self->stackPointer].retFrame.pc;
     }
 
   return 1;
 }
 
-void Auto_frameToError(struct Auto *this,
+void Auto_frameToError(struct Auto *self,
                        struct Program *program, struct Value *v)
 {
   struct Pc p;
   int framePointer;
   int frameSize;
   int retFrame;
-  int i = this->stackPointer;
+  int i = self->stackPointer;
 
-  framePointer = this->framePointer;
-  frameSize = this->frameSize;
+  framePointer = self->framePointer;
+  frameSize = self->frameSize;
   while (i > framePointer + frameSize)
     {
-      p = this->slot[--i].retFrame.pc;
+      p = self->slot[--i].retFrame.pc;
       Value_errorSuffix(v, _("Called"));
       Program_PCtoError(program, &p, v);
     }
@@ -224,28 +224,28 @@ void Auto_frameToError(struct Auto *this,
   if (i)
     {
       retFrame = framePointer + frameSize - 1;
-      p = this->slot[retFrame].retFrame.pc;
+      p = self->slot[retFrame].retFrame.pc;
       Value_errorSuffix(v, _("Proc Called"));
       Program_PCtoError(program, &p, v);
     }
 }
 
-void Auto_setError(struct Auto *this, long int line,
+void Auto_setError(struct Auto *self, long int line,
                    struct Pc *pc, struct Value *v)
 {
-  this->erpc = *pc;
-  this->erl = line;
-  Value_destroy(&this->err);
-  Value_clone(&this->err, v);
+  self->erpc = *pc;
+  self->erl = line;
+  Value_destroy(&self->err);
+  Value_clone(&self->err, v);
 }
 
 /* compilation methods */
 
-int Auto_find(struct Auto *this, struct Identifier *ident)
+int Auto_find(struct Auto *self, struct Identifier *ident)
 {
   struct Symbol *find;
 
-  for (find = this->cur; find != (struct Symbol *)0; find = find->next)
+  for (find = self->cur; find != (struct Symbol *)0; find = find->next)
     {
       const char *s = ident->name;
       const char *r = find->name;
@@ -266,12 +266,12 @@ int Auto_find(struct Auto *this, struct Identifier *ident)
   return 0;
 }
 
-int Auto_variable(struct Auto *this, const struct Identifier *ident)
+int Auto_variable(struct Auto *self, const struct Identifier *ident)
 {
   struct Symbol **tail;
   int offset;
 
-  for (offset = 0, tail = &this->cur;
+  for (offset = 0, tail = &self->cur;
        *tail != (struct Symbol *)0;
        tail = &(*tail)->next, ++offset)
     {
@@ -301,21 +301,21 @@ int Auto_variable(struct Auto *this, const struct Identifier *ident)
    */
 
   (*tail)->u.local.offset =
-    offset - (this->cur->u.local.type == V_VOID ? 1 : 0);
+    offset - (self->cur->u.local.type == V_VOID ? 1 : 0);
   return 1;
 }
 
-enum ValueType Auto_argType(const struct Auto *this, int l)
+enum ValueType Auto_argType(const struct Auto *self, int l)
 {
   struct Symbol *find;
   int offset;
 
-  if (this->cur->u.local.type == V_VOID)
+  if (self->cur->u.local.type == V_VOID)
     {
       ++l;
     }
 
-  for (offset = 0, find = this->cur; l != offset;
+  for (offset = 0, find = self->cur; l != offset;
        find = find->next, ++offset)
     {
       assert(find != (struct Symbol *)0);
@@ -325,11 +325,11 @@ enum ValueType Auto_argType(const struct Auto *this, int l)
   return find->u.local.type;
 }
 
-enum ValueType Auto_varType(const struct Auto *this, struct Symbol *sym)
+enum ValueType Auto_varType(const struct Auto *self, struct Symbol *sym)
 {
   struct Symbol *find;
 
-  for (find = this->cur;
+  for (find = self->cur;
        find->u.local.offset != sym->u.local.offset;
        find = find->next)
     {
@@ -340,11 +340,11 @@ enum ValueType Auto_varType(const struct Auto *this, struct Symbol *sym)
   return find->u.local.type;
 }
 
-void Auto_funcEnd(struct Auto *this)
+void Auto_funcEnd(struct Auto *self)
 {
   struct Symbol **tail;
 
-  for (tail = &this->all; *tail != NULL; tail = &(*tail)->next);
-  *tail = this->cur;
-  this->cur = (struct Symbol *)0;
+  for (tail = &self->all; *tail != NULL; tail = &(*tail)->next);
+  *tail = self->cur;
+  self->cur = (struct Symbol *)0;
 }

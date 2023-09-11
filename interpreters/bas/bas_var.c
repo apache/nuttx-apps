@@ -46,141 +46,141 @@
  * Public Functions
  ****************************************************************************/
 
-struct Var *Var_new(struct Var *this, enum ValueType type, unsigned int dim,
+struct Var *Var_new(struct Var *self, enum ValueType type, unsigned int dim,
                     const unsigned int *geometry, int base)
 {
   unsigned int i;
   size_t newsize;
 
-  this->type = type;
-  this->dim = dim;
-  this->base = base;
-  for (newsize = this->size = 1, dim = 0; dim < this->dim; ++dim)
+  self->type = type;
+  self->dim = dim;
+  self->base = base;
+  for (newsize = self->size = 1, dim = 0; dim < self->dim; ++dim)
     {
-      if ((newsize *= geometry[dim]) < this->size)
+      if ((newsize *= geometry[dim]) < self->size)
         return (struct Var *)0;
-      this->size = newsize;
+      self->size = newsize;
     }
 
-  if ((newsize *= sizeof(struct Value)) < this->size)
+  if ((newsize *= sizeof(struct Value)) < self->size)
     {
       return (struct Var *)0;
     }
 
-  if ((this->value = malloc(newsize)) == (struct Value *)0)
+  if ((self->value = malloc(newsize)) == (struct Value *)0)
     {
       return (struct Var *)0;
     }
 
   if (dim)
     {
-      this->geometry = malloc(sizeof(unsigned int) * dim);
+      self->geometry = malloc(sizeof(unsigned int) * dim);
       for (i = 0; i < dim; ++i)
         {
-          this->geometry[i] = geometry[i];
+          self->geometry[i] = geometry[i];
         }
     }
   else
     {
-      this->geometry = (unsigned int *)0;
+      self->geometry = (unsigned int *)0;
     }
 
-  for (i = 0; i < this->size; ++i)
+  for (i = 0; i < self->size; ++i)
     {
-      Value_new_null(&(this->value[i]), type);
+      Value_new_null(&(self->value[i]), type);
     }
 
-  return this;
+  return self;
 }
 
-struct Var *Var_new_scalar(struct Var *this)
+struct Var *Var_new_scalar(struct Var *self)
 {
-  this->dim = 0;
-  this->size = 1;
-  this->geometry = (unsigned int *)0;
-  this->value = malloc(sizeof(struct Value));
-  return this;
+  self->dim = 0;
+  self->size = 1;
+  self->geometry = (unsigned int *)0;
+  self->value = malloc(sizeof(struct Value));
+  return self;
 }
 
-void Var_destroy(struct Var *this)
+void Var_destroy(struct Var *self)
 {
-  while (this->size--)
+  while (self->size--)
     {
-      Value_destroy(&(this->value[this->size]));
+      Value_destroy(&(self->value[self->size]));
     }
 
-  free(this->value);
-  this->value = (struct Value *)0;
-  this->size = 0;
-  this->dim = 0;
-  if (this->geometry)
+  free(self->value);
+  self->value = (struct Value *)0;
+  self->size = 0;
+  self->dim = 0;
+  if (self->geometry)
     {
-      free(this->geometry);
-      this->geometry = (unsigned int *)0;
+      free(self->geometry);
+      self->geometry = (unsigned int *)0;
     }
 }
 
-void Var_retype(struct Var *this, enum ValueType type)
+void Var_retype(struct Var *self, enum ValueType type)
 {
   unsigned int i;
 
-  for (i = 0; i < this->size; ++i)
+  for (i = 0; i < self->size; ++i)
     {
-      Value_destroy(&(this->value[i]));
-      Value_new_null(&(this->value[i]), type);
+      Value_destroy(&(self->value[i]));
+      Value_new_null(&(self->value[i]), type);
     }
 }
 
-struct Value *Var_value(struct Var *this, unsigned int dim, int idx[],
+struct Value *Var_value(struct Var *self, unsigned int dim, int idx[],
                         struct Value *value)
 {
   unsigned int offset;
   unsigned int i;
 
-  assert(this->value);
-  if (dim != this->dim)
+  assert(self->value);
+  if (dim != self->dim)
     {
       return Value_new_ERROR(value, DIMENSION);
     }
 
   for (offset = 0, i = 0; i < dim; ++i)
     {
-      if (idx[i] < this->base || (idx[i] - this->base) >= this->geometry[i])
+      if (idx[i] < self->base || (idx[i] - self->base) >= self->geometry[i])
         {
           return Value_new_ERROR(value, OUTOFRANGE, _("array index"));
         }
 
-      offset = offset * this->geometry[i] + (idx[i] - this->base);
+      offset = offset * self->geometry[i] + (idx[i] - self->base);
     }
 
-  assert(offset < this->size);
-  return this->value + offset;
+  assert(offset < self->size);
+  return self->value + offset;
 }
 
-void Var_clear(struct Var *this)
+void Var_clear(struct Var *self)
 {
   size_t i;
 
-  for (i = 0; i < this->size; ++i)
+  for (i = 0; i < self->size; ++i)
     {
-      Value_destroy(&(this->value[i]));
+      Value_destroy(&(self->value[i]));
     }
 
-  if (this->geometry)
+  if (self->geometry)
     {
-      free(this->geometry);
-      this->geometry = (unsigned int *)0;
-      this->size = 1;
-      this->dim = 0;
+      free(self->geometry);
+      self->geometry = (unsigned int *)0;
+      self->size = 1;
+      self->dim = 0;
     }
 
-  Value_new_null(&(this->value[0]), this->type);
+  Value_new_null(&(self->value[0]), self->type);
 }
 
-struct Value *Var_mat_assign(struct Var *this, struct Var *x, struct Value *err,
+struct Value *Var_mat_assign(struct Var *self, struct Var *x, struct Value *err,
                              int work)
 {
-  enum ValueType thisType = this->type;
+  enum ValueType thisType = self->type;
 
   if (work)
     {
@@ -190,13 +190,13 @@ struct Value *Var_mat_assign(struct Var *this, struct Var *x, struct Value *err,
 
       assert(x->base == 0 || x->base == 1);
       assert(x->dim == 1 || x->dim == 2);
-      if (this == x)
+      if (self == x)
         {
           return (struct Value *)0;
         }
 
-      Var_destroy(this);
-      Var_new(this, thisType, x->dim, x->geometry, x->base);
+      Var_destroy(self);
+      Var_new(self, thisType, x->dim, x->geometry, x->base);
       g0 = x->geometry[0];
       g1 = x->dim == 1 ? unused + 1 : x->geometry[1];
       for (i = unused; i < g0; ++i)
@@ -205,27 +205,27 @@ struct Value *Var_mat_assign(struct Var *this, struct Var *x, struct Value *err,
             {
               unsigned int element = x->dim == 1 ? i : i * g1 + j;
 
-              Value_destroy(&(this->value[element]));
-              Value_clone(&(this->value[element]), &(x->value[element]));
-              Value_retype(&(this->value[element]), thisType);
+              Value_destroy(&(self->value[element]));
+              Value_clone(&(self->value[element]), &(x->value[element]));
+              Value_retype(&(self->value[element]), thisType);
             }
         }
     }
   else
     {
-      if (Value_commonType[this->type][x->type] == V_ERROR)
+      if (Value_commonType[self->type][x->type] == V_ERROR)
         {
-          return Value_new_typeError(err, this->type, x->type);
+          return Value_new_typeError(err, self->type, x->type);
         }
     }
 
   return (struct Value *)0;
 }
 
-struct Value *Var_mat_addsub(struct Var *this, struct Var *x, struct Var *y,
+struct Value *Var_mat_addsub(struct Var *self, struct Var *x, struct Var *y,
                              int add, struct Value *err, int work)
 {
-  enum ValueType thisType = this->type;
+  enum ValueType thisType = self->type;
   struct Value foo, bar;
 
   if (work)
@@ -243,10 +243,10 @@ struct Value *Var_mat_addsub(struct Var *this, struct Var *x, struct Var *y,
           return Value_new_ERROR(err, DIMENSION);
         }
 
-      if (this != x && this != y)
+      if (self != x && self != y)
         {
-          Var_destroy(this);
-          Var_new(this, thisType, x->dim, x->geometry, x->base);
+          Var_destroy(self);
+          Var_new(self, thisType, x->dim, x->geometry, x->base);
         }
 
       g0 = x->geometry[0];
@@ -276,8 +276,8 @@ struct Value *Var_mat_addsub(struct Var *this, struct Var *x, struct Var *y,
                 }
 
               Value_destroy(&bar);
-              Value_destroy(&(this->value[element]));
-              this->value[element] = *Value_retype(&foo, thisType);
+              Value_destroy(&(self->value[element]));
+              self->value[element] = *Value_retype(&foo, thisType);
             }
         }
     }
@@ -304,10 +304,10 @@ struct Value *Var_mat_addsub(struct Var *this, struct Var *x, struct Var *y,
   return (struct Value *)0;
 }
 
-struct Value *Var_mat_mult(struct Var *this, struct Var *x, struct Var *y,
+struct Value *Var_mat_mult(struct Var *self, struct Var *x, struct Var *y,
                            struct Value *err, int work)
 {
-  enum ValueType thisType = this->type;
+  enum ValueType thisType = self->type;
   struct Var foo;
 
   if (work)
@@ -354,8 +354,8 @@ struct Value *Var_mat_mult(struct Var *this, struct Var *x, struct Var *y,
             }
         }
 
-      Var_destroy(this);
-      *this = foo;
+      Var_destroy(self);
+      *self = foo;
     }
   else
     {
@@ -372,10 +372,10 @@ struct Value *Var_mat_mult(struct Var *this, struct Var *x, struct Var *y,
   return (struct Value *)0;
 }
 
-struct Value *Var_mat_scalarMult(struct Var *this, struct Value *factor,
+struct Value *Var_mat_scalarMult(struct Var *self, struct Value *factor,
                                  struct Var *x, int work)
 {
-  enum ValueType thisType = this->type;
+  enum ValueType thisType = self->type;
 
   if (work)
     {
@@ -385,10 +385,10 @@ struct Value *Var_mat_scalarMult(struct Var *this, struct Value *factor,
 
       assert(x->base == 0 || x->base == 1);
       assert(x->dim == 1 || x->dim == 2);
-      if (this != x)
+      if (self != x)
         {
-          Var_destroy(this);
-          Var_new(this, thisType, x->dim, x->geometry, 0);
+          Var_destroy(self);
+          Var_new(self, thisType, x->dim, x->geometry, 0);
         }
 
       g0 = x->geometry[0];
@@ -409,14 +409,14 @@ struct Value *Var_mat_scalarMult(struct Var *this, struct Value *factor,
                   return factor;
                 }
 
-              Value_destroy(&(this->value[element]));
-              this->value[element] = *Value_retype(&foo, thisType);
+              Value_destroy(&(self->value[element]));
+              self->value[element] = *Value_retype(&foo, thisType);
             }
         }
     }
   else
     {
-      if (Value_mult(factor, this->value, 0)->type == V_ERROR)
+      if (Value_mult(factor, self->value, 0)->type == V_ERROR)
         {
           return factor;
         }
@@ -425,10 +425,10 @@ struct Value *Var_mat_scalarMult(struct Var *this, struct Value *factor,
   return (struct Value *)0;
 }
 
-void Var_mat_transpose(struct Var *this, struct Var *x)
+void Var_mat_transpose(struct Var *self, struct Var *x)
 {
   unsigned int geometry[2];
-  enum ValueType thisType = this->type;
+  enum ValueType thisType = self->type;
   unsigned int i, j;
   struct Var foo;
 
@@ -446,14 +446,14 @@ void Var_mat_transpose(struct Var *this, struct Var *x)
         }
     }
 
-  Var_destroy(this);
-  *this = foo;
+  Var_destroy(self);
+  *self = foo;
 }
 
-struct Value *Var_mat_invert(struct Var *this, struct Var *x, struct Value *det,
+struct Value *Var_mat_invert(struct Var *self, struct Var *x, struct Value *det,
                              struct Value *err)
 {
-  enum ValueType thisType = this->type;
+  enum ValueType thisType = self->type;
   int n, i, j, k, max;
   double t, *a, *u, d;
   int unused = 1 - x->base;
@@ -581,26 +581,26 @@ struct Value *Var_mat_invert(struct Var *this, struct Var *x, struct Value *det,
     }
 
   free(a);
-  if (this != x)
+  if (self != x)
     {
-      Var_destroy(this);
-      Var_new(this, thisType, 2, x->geometry, x->base);
+      Var_destroy(self);
+      Var_new(self, thisType, 2, x->geometry, x->base);
     }
 
   for (i = 0; i < n; ++i)
     {
       for (j = 0; j < n; ++j)
         {
-          Value_destroy(&this->value[(i + unused) * (n + unused) + j + unused]);
+          Value_destroy(&self->value[(i + unused) * (n + unused) + j + unused]);
           if (thisType == V_INTEGER)
             {
-              Value_new_INTEGER(&this->value
+              Value_new_INTEGER(&self->value
                                 [(i + unused) * (n + unused) + j + unused],
                                 u[i * n + j]);
             }
           else
             {
-              Value_new_REAL(&this->
+              Value_new_REAL(&self->
                              value[(i + unused) * (n + unused) + j + unused],
                              u[i * n + j]);
             }
@@ -621,15 +621,15 @@ struct Value *Var_mat_invert(struct Var *this, struct Var *x, struct Value *det,
   return (struct Value *)0;
 }
 
-struct Value *Var_mat_redim(struct Var *this, unsigned int dim,
+struct Value *Var_mat_redim(struct Var *self, unsigned int dim,
                             const unsigned int *geometry, struct Value *err)
 {
   unsigned int i, j, size;
   struct Value *value;
-  int unused = 1 - this->base;
+  int unused = 1 - self->base;
   int g0, g1;
 
-  if (this->dim > 0 && this->dim != dim)
+  if (self->dim > 0 && self->dim != dim)
     {
       return Value_new_ERROR(err, DIMENSION);
     }
@@ -646,39 +646,39 @@ struct Value *Var_mat_redim(struct Var *this, unsigned int dim,
     {
       for (j = 0; j < g1; ++j)
         {
-          if (this->dim == 0 || i < unused || (dim == 2 && j < unused) ||
-              i >= this->geometry[0] || (this->dim == 2 &&
-                                         j >= this->geometry[1]))
+          if (self->dim == 0 || i < unused || (dim == 2 && j < unused) ||
+              i >= self->geometry[0] || (self->dim == 2 &&
+                                         j >= self->geometry[1]))
             {
-              Value_new_null(&(value[i * g1 + j]), this->type);
+              Value_new_null(&(value[i * g1 + j]), self->type);
             }
           else
             {
               Value_clone(&value[dim == 1 ? i : i * g1 + j],
-                          &this->value[dim ==
-                                       1 ? i : i * this->geometry[1] + j]);
+                          &self->value[dim ==
+                                       1 ? i : i * self->geometry[1] + j]);
             }
         }
     }
 
-  for (i = 0; i < this->size; ++i)
+  for (i = 0; i < self->size; ++i)
     {
-      Value_destroy(&this->value[i]);
+      Value_destroy(&self->value[i]);
     }
 
-  free(this->value);
-  if (this->geometry == (unsigned int *)0)
+  free(self->value);
+  if (self->geometry == (unsigned int *)0)
     {
-      this->geometry = malloc(sizeof(unsigned int) * dim);
+      self->geometry = malloc(sizeof(unsigned int) * dim);
     }
 
   for (i = 0; i < dim; ++i)
     {
-      this->geometry[i] = geometry[i];
+      self->geometry[i] = geometry[i];
     }
 
-  this->dim = dim;
-  this->size = size;
-  this->value = value;
+  self->dim = dim;
+  self->size = size;
+  self->value = value;
   return (struct Value *)0;
 }

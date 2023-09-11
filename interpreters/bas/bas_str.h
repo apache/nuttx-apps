@@ -55,29 +55,29 @@ struct StringField
 
 int cistrcmp(const char *s, const char *r);
 
-struct String *String_new(struct String *this);
-void String_destroy(struct String *this);
-int String_joinField(struct String *this, struct StringField *field,
+struct String *String_new(struct String *self);
+void String_destroy(struct String *self);
+int String_joinField(struct String *self, struct StringField *field,
                      char *character, size_t length);
-void String_leaveField(struct String *this);
-struct String *String_clone(struct String *this, const struct String *clon);
-int String_appendString(struct String *this, const struct String *app);
-int String_appendChar(struct String *this, char ch);
-int String_appendChars(struct String *this, const char *ch);
-int String_appendPrintf(struct String *this, const char *fmt, ...)
+void String_leaveField(struct String *self);
+struct String *String_clone(struct String *self, const struct String *clon);
+int String_appendString(struct String *self, const struct String *app);
+int String_appendChar(struct String *self, char ch);
+int String_appendChars(struct String *self, const char *ch);
+int String_appendPrintf(struct String *self, const char *fmt, ...)
     printf_like(2, 3);
-int String_insertChar(struct String *this, size_t where, char ch);
-int String_delete(struct String *this, size_t where, size_t len);
-void String_ucase(struct String *this);
-void String_lcase(struct String *this);
-int String_size(struct String *this, size_t length);
-int String_cmp(const struct String *this, const struct String *s);
-void String_lset(struct String *this, const struct String *s);
-void String_rset(struct String *this, const struct String *s);
-void String_set(struct String *this, size_t pos, const struct String *s,
+int String_insertChar(struct String *self, size_t where, char ch);
+int String_delete(struct String *self, size_t where, size_t len);
+void String_ucase(struct String *self);
+void String_lcase(struct String *self);
+int String_size(struct String *self, size_t length);
+int String_cmp(const struct String *self, const struct String *s);
+void String_lset(struct String *self, const struct String *s);
+void String_rset(struct String *self, const struct String *s);
+void String_set(struct String *self, size_t pos, const struct String *s,
                 size_t length);
 
-struct StringField *StringField_new(struct StringField *this);
-void StringField_destroy(struct StringField *this);
+struct StringField *StringField_new(struct StringField *self);
+void StringField_destroy(struct StringField *self);
 
 #endif /* __APPS_EXAMPLES_BAS_BAS_STR_H */

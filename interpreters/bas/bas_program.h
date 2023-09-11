@@ -37,45 +37,45 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-struct Program *Program_new(struct Program *this);
-void Program_destroy(struct Program *this);
-void Program_norun(struct Program *this);
-void Program_store(struct Program *this, struct Token *line,
+struct Program *Program_new(struct Program *self);
+void Program_destroy(struct Program *self);
+void Program_norun(struct Program *self);
+void Program_store(struct Program *self, struct Token *line,
                    long int where);
-void Program_delete(struct Program *this, const struct Pc *from,
+void Program_delete(struct Program *self, const struct Pc *from,
                     const struct Pc *to);
-void Program_addScope(struct Program *this, struct Scope *scope);
-struct Pc *Program_goLine(struct Program *this, long int line,
+void Program_addScope(struct Program *self, struct Scope *scope);
+struct Pc *Program_goLine(struct Program *self, long int line,
                           struct Pc *pc);
-struct Pc *Program_fromLine(struct Program *this, long int line,
+struct Pc *Program_fromLine(struct Program *self, long int line,
                             struct Pc *pc);
-struct Pc *Program_toLine(struct Program *this, long int line,
+struct Pc *Program_toLine(struct Program *self, long int line,
                           struct Pc *pc);
-int Program_scopeCheck(struct Program *this, struct Pc *pc, struct Pc *fn);
-struct Pc *Program_dataLine(struct Program *this, long int line,
+int Program_scopeCheck(struct Program *self, struct Pc *pc, struct Pc *fn);
+struct Pc *Program_dataLine(struct Program *self, long int line,
                             struct Pc *pc);
-struct Pc *Program_imageLine(struct Program *this, long int line,
+struct Pc *Program_imageLine(struct Program *self, long int line,
                              struct Pc *pc);
-long int Program_lineNumber(const struct Program *this,
+long int Program_lineNumber(const struct Program *self,
                             const struct Pc *pc);
-struct Pc *Program_beginning(struct Program *this, struct Pc *pc);
-struct Pc *Program_end(struct Program *this, struct Pc *pc);
-struct Pc *Program_nextLine(struct Program *this, struct Pc *pc);
-int Program_skipEOL(struct Program *this, struct Pc *pc, int dev, int tr);
-void Program_trace(struct Program *this, struct Pc *pc, int dev, int tr);
-void Program_PCtoError(struct Program *this, struct Pc *pc,
+struct Pc *Program_beginning(struct Program *self, struct Pc *pc);
+struct Pc *Program_end(struct Program *self, struct Pc *pc);
+struct Pc *Program_nextLine(struct Program *self, struct Pc *pc);
+int Program_skipEOL(struct Program *self, struct Pc *pc, int dev, int tr);
+void Program_trace(struct Program *self, struct Pc *pc, int dev, int tr);
+void Program_PCtoError(struct Program *self, struct Pc *pc,
                        struct Value *v);
-struct Value *Program_merge(struct Program *this, int dev,
+struct Value *Program_merge(struct Program *self, int dev,
                             struct Value *value);
-int Program_lineNumberWidth(struct Program *this);
-struct Value *Program_list(struct Program *this, int dev, int watchIntr,
+int Program_lineNumberWidth(struct Program *self);
+struct Value *Program_list(struct Program *self, int dev, int watchIntr,
                            struct Pc *from, struct Pc *to,
                            struct Value *value);
-struct Value *Program_analyse(struct Program *this, struct Pc *pc,
+struct Value *Program_analyse(struct Program *self, struct Pc *pc,
                               struct Value *value);
-void Program_renum(struct Program *this, int first, int inc);
-void Program_unnum(struct Program *this);
-int Program_setname(struct Program *this, const char *filename);
-void Program_xref(struct Program *this, int chn);
+void Program_renum(struct Program *self, int first, int inc);
+void Program_unnum(struct Program *self);
+int Program_setname(struct Program *self, const char *filename);
+void Program_xref(struct Program *self, int chn);
 
 #endif /* __APPS_EXAMPLES_BAS_BAS_PROGRAM_H */

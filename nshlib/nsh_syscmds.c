@@ -766,7 +766,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
 
   lib_stream_putc(&stream, '\n');
-  nsh_write(vtbl, stream.buffer, stream.public.nput);
+  nsh_write(vtbl, stream.buffer, stream.common.nput);
   return OK;
 }
 #endif
