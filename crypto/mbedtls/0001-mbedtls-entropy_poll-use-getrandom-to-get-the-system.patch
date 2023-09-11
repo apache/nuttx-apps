@@ -1,0 +1,35 @@
+From e40fdc9238384ee62013c41d74cb4d47ae8c1aad Mon Sep 17 00:00:00 2001
+From: makejian <makejian@xiaomi.com>
+Date: Mon, 11 Sep 2023 19:40:04 +0800
+Subject: [PATCH] mbedtls/entropy_poll: use 'getrandom' to get the system
+ entropy
+
+VELAPLATFO-16390
+
+Change-Id: I885969c441cd174f5eedf8c9ce17b89e501148c8
+Signed-off-by: makejian <makejian@xiaomi.com>
+---
+ library/entropy_poll.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git mbedtls/library/entropy_poll.c mbedtls/library/entropy_poll.c
+index b5024c83f..e9431e812 100644
+--- mbedtls/library/entropy_poll.c
++++ mbedtls/library/entropy_poll.c
+@@ -103,10 +103,11 @@ static int getrandom_wrapper(void *buf, size_t buflen, unsigned int flags)
+ #endif /* SYS_getrandom */
+ #endif /* __linux__ || __midipix__ */
+ 
+-#if defined(__FreeBSD__) || defined(__DragonFly__)
++#if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__NuttX__)
+ #include <sys/param.h>
+ #if (defined(__FreeBSD__) && __FreeBSD_version >= 1200000) || \
+-    (defined(__DragonFly__) && __DragonFly_version >= 500700)
++    (defined(__DragonFly__) && __DragonFly_version >= 500700) || \
++    (defined(__NuttX__))
+ #include <errno.h>
+ #include <sys/random.h>
+ #define HAVE_GETRANDOM
+-- 
+2.40.0
+

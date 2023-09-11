@@ -65,6 +65,7 @@ $(MBEDTLS_UNPACKNAME): $(MBEDTLS_ZIP)
 	@echo "Unpacking: $(MBEDTLS_ZIP) -> $(MBEDTLS_UNPACKNAME)"
 	$(Q) $(UNPACK) $(MBEDTLS_ZIP)
 	$(Q) mv	mbedtls-$(MBEDTLS_VERSION) $(MBEDTLS_UNPACKNAME)
+	$(Q) patch -p1 -d $(MBEDTLS_UNPACKNAME) < 0001-mbedtls-entropy_poll-use-getrandom-to-get-the-system.patch
 	$(Q) touch $(MBEDTLS_UNPACKNAME)
 
 # Download and unpack tarball if no git repo found
