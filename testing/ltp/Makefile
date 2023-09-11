@@ -270,6 +270,11 @@ CFLAGS += -Wno-unused-variable -Wno-unused-function -Wno-unused-but-set-variable
 # Should be removed if possible in the future
 CFLAGS += -Wno-incompatible-pointer-types -Wno-overflow -Wno-int-to-pointer-cast
 
+# Specific compilation errors ignored in MacOS platform
+ifneq ($(CONFIG_HOST_MACOS),)
+CFLAGS += -Wno-integer-overflow -Wno-absolute-value
+endif
+
 ltp-$(LTPS_VERSION).zip:
 	$(call DOWNLOAD,$(LTP_DOWNLOAD_URL),$(LTPS_VERSION).zip, ltp.zip)
 
