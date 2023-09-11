@@ -75,6 +75,12 @@ void monkey_get_localtime_str(FAR char *str_buf, size_t buf_size);
 bool monkey_dir_check(FAR const char *dir_path);
 
 /****************************************************************************
+ * Name: monkey_map
+ ****************************************************************************/
+
+int monkey_map(int x, int min_in, int max_in, int min_out, int max_out);
+
+/****************************************************************************
  * Name: monkey_dev_type2name
  ****************************************************************************/
 
@@ -85,6 +91,12 @@ FAR const char *monkey_dev_type2name(enum monkey_dev_type_e type);
  ****************************************************************************/
 
 enum monkey_dev_type_e monkey_dev_name2type(FAR const char *name);
+
+/****************************************************************************
+ * Name: monkey_event_type2name
+ ****************************************************************************/
+
+FAR const char *monkey_event_type2name(enum monkey_event_e event);
 
 #undef EXTERN
 #ifdef __cplusplus

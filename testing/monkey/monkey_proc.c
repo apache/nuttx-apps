@@ -26,11 +26,11 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include "monkey.h"
 #include "monkey_assert.h"
-#include "monkey_log.h"
 #include "monkey_dev.h"
+#include "monkey_event.h"
+#include "monkey_log.h"
 #include "monkey_recorder.h"
 #include "monkey_utils.h"
 
@@ -39,79 +39,28 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: monkey_get_random_press
- ****************************************************************************/
-
-static int monkey_get_random_press(int probability)
-{
-  return monkey_random(0, 100) < probability ? 0 : 1;
-}
-
-/****************************************************************************
  * Name: monkey_update_uinput_ramdom
  ****************************************************************************/
 
 static bool monkey_update_uinput_ramdom(FAR struct monkey_s *monkey)
 {
   int i;
+  bool retval = false;
+
   for (i = 0; i < monkey->dev_num; i++)
     {
-      struct monkey_dev_state_s state;
       FAR struct monkey_dev_s *dev = monkey->devs[i];
-      state.type = monkey_dev_get_type(dev);
+      struct monkey_event_param_s param;
+      monkey_event_gen(monkey, &param);
+      retval = monkey_event_exec(monkey, dev, &param);
 
-      if (state.type & MONKEY_DEV_TYPE_TOUCH)
+      if (!retval)
         {
-          int x_max = monkey->config.screen.hor_res - 1;
-          int y_max = monkey->config.screen.ver_res - 1;
-          state.data.touch.x = monkey_random(0, x_max);
-          state.data.touch.y = monkey_random(0, y_max);
-          state.data.touch.is_pressed = monkey_get_random_press(50);
-          monkey_dev_set_state(dev, &state);
-        }
-      else if (state.type & MONKEY_DEV_TYPE_BUTTON)
-        {
-          const int btn_num = CONFIG_TESTING_MONKEY_BUTTON_NUM;
-          int usleep_ret;
-          int btn_bits;
-          if (!btn_num)
-            {
-              MONKEY_LOG_ERROR("Button test number is 0");
-              return false;
-            }
-
-          /* select a button to click */
-
-          btn_bits = monkey_random(0, btn_num - 1);
-
-          /* press button */
-
-          state.data.button.value = 1 << btn_bits;
-          monkey_dev_set_state(dev, &state);
-
-          usleep_ret = usleep(CONFIG_TESTING_MONKEY_BUTTON_CLICK_TIME
-                              * 1000);
-
-          /* release button */
-
-          state.data.button.value = 0;
-          monkey_dev_set_state(dev, &state);
-
-          /* detect monkey killed */
-
-          if (usleep_ret < 0)
-            {
-              MONKEY_LOG_NOTICE("detect monkey killed");
-              return false;
-            }
-        }
-      else
-        {
-          MONKEY_LOG_WARN("unsupport device type: %d", state.type);
+          break;
         }
     }
 
-  return true;
+  return retval;
 }
 
 /****************************************************************************

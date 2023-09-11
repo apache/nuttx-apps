@@ -37,12 +37,17 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define MONKEY_DEV_PATH_TOUCH "/dev/input0"
+#define MONKEY_DEV_PATH_BUTTON "/dev/buttons"
+#define MONKEY_DEV_PATH_UTOUCH "/dev/utouch"
+#define MONKEY_DEV_PATH_UBUTTON "/dev/ubutton"
+
 #define MONKEY_DEV_CREATE_MATCH(monkey, type_mask, type)                  \
 do {                                                                      \
   if (((type_mask) & MONKEY_DEV_TYPE_##type) == MONKEY_DEV_TYPE_##type)   \
     {                                                                     \
       FAR struct monkey_dev_s *dev;                                       \
-      dev = monkey_dev_create(CONFIG_TESTING_MONKEY_DEV_PATH_##type,      \
+      dev = monkey_dev_create(MONKEY_DEV_PATH_##type,                     \
                               MONKEY_DEV_TYPE_##type);                    \
       if (!dev)                                                           \
         {                                                                 \
@@ -126,11 +131,10 @@ void monkey_config_default_init(FAR struct monkey_config_s *config)
 {
   MONKEY_ASSERT_NULL(config);
   memset(config, 0, sizeof(struct monkey_config_s));
-  config->screen.type = MONKEY_SCREEN_TYPE_RECT;
-  config->screen.hor_res = CONFIG_TESTING_MONKEY_SCREEN_HOR_RES;
-  config->screen.ver_res = CONFIG_TESTING_MONKEY_SCREEN_VER_RES;
-  config->period.min = CONFIG_TESTING_MONKEY_PERIOD_MIN_DEFAULT;
-  config->period.max = CONFIG_TESTING_MONKEY_PERIOD_MAX_DEFAULT;
+  config->screen.hor_res = 480;
+  config->screen.ver_res = 480;
+  config->period.min = 100;
+  config->period.max = 500;
 }
 
 /****************************************************************************

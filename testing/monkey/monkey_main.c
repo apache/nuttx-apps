@@ -23,7 +23,10 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/video/fb.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <getopt.h>
 #include <inttypes.h>
 #include <signal.h>
 #include <stdint.h>
@@ -31,7 +34,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include "monkey.h"
+#include "monkey_utils.h"
+#include "monkey_log.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -39,17 +45,78 @@
 
 #define MONKEY_PREFIX "monkey"
 
+#define CONSTRAIN(x, low, high) \
+  ((x) < (low) ? (low) : ((x) > (high) ? (high) : (x)))
+
 #define OPTARG_TO_VALUE(value, type, base)                             \
   do                                                                   \
-  {                                                                    \
-    FAR char *ptr;                                                     \
-    (value) = (type)strtoul(optarg, &ptr, (base));                     \
-    if (*ptr != '\0')                                                  \
-      {                                                                \
-        printf(MONKEY_PREFIX "Parameter error: -%c %s\n", ch, optarg); \
-        show_usage(argv[0], EXIT_FAILURE);                             \
-      }                                                                \
-  } while (0)
+    {                                                                  \
+      FAR char *ptr;                                                   \
+      (value) = (type)strtoul(optarg, &ptr, (base));                   \
+      if (*ptr != '\0')                                                \
+        {                                                              \
+          MONKEY_LOG_ERROR("Parameter error: -%c %s", ch, optarg);     \
+          show_usage(argv[0], EXIT_FAILURE);                           \
+        }                                                              \
+    } while (0)
+
+#define OPTARG_TO_RANGE(value_1, value_2, delimiter)                   \
+  do                                                                   \
+    {                                                                  \
+      int converted;                                                   \
+      int v1;                                                          \
+      int v2;                                                          \
+      converted = sscanf(optarg, "%d" delimiter "%d", &v1, &v2);       \
+      if (converted == 2 && v1 >= 0 && v2 >= 0)                        \
+        {                                                              \
+          value_1 = v1;                                                \
+          value_2 = v2;                                                \
+        }                                                              \
+      else                                                             \
+        {                                                              \
+          MONKEY_LOG_ERROR("Error range: %s", optarg);                 \
+          show_usage(argv[0], EXIT_FAILURE);                           \
+        }                                                              \
+    } while (0)
+
+/* Default parameters */
+
+#if defined(CONFIG_VIDEO_FB)
+#  define MONKEY_SCREEN_DEV "/dev/fb0"
+#  define MONKEY_SCREEN_GETVIDEOINFO FBIOGET_VIDEOINFO
+#elif defined(CONFIG_LCD)
+#  define MONKEY_SCREEN_DEV "/dev/lcd0"
+#  define MONKEY_SCREEN_GETVIDEOINFO LCDDEVIO_GETVIDEOINFO
+#endif
+
+#define MONKEY_SCREEN_HOR_RES_DEFAULT 480
+#define MONKEY_SCREEN_VER_RES_DEFAULT 480
+
+#define MONKEY_PERIOD_MIN_DEFAULT 100
+#define MONKEY_PERIOD_MAX_DEFAULT 500
+#define MONKEY_BUTTON_BIT_DEFAULT 0
+
+#define MONKEY_EVENT_CLICK_WEIGHT_DEFAULT 70
+#define MONKEY_EVENT_LONG_PRESS_WEIGHT_DEFAULT 10
+#define MONKEY_EVENT_DRAG_WEIGHT_DEFAULT 20
+
+#define MONKEY_EVENT_CLICK_DURATION_MIN_DEFAULT 50
+#define MONKEY_EVENT_CLICK_DURATION_MAX_DEFAULT 200
+#define MONKEY_EVENT_LONG_PRESS_DURATION_MIN_DEFAULT 400
+#define MONKEY_EVENT_LONG_PRESS_DURATION_MAX_DEFAULT 600
+#define MONKEY_EVENT_DRAG_DURATION_MIN_DEFAULT 100
+#define MONKEY_EVENT_DRAG_DURATION_MAX_DEFAULT 400
+
+#define MONKEY_EVENT_PARAM_INIT(name)                      \
+  do                                                       \
+    {                                                      \
+      param->event[MONKEY_EVENT_##name].weight =           \
+        MONKEY_EVENT_##name##_WEIGHT_DEFAULT;              \
+      param->event[MONKEY_EVENT_##name].duration_min =     \
+        MONKEY_EVENT_##name##_DURATION_MIN_DEFAULT;        \
+      param->event[MONKEY_EVENT_##name].duration_max =     \
+        MONKEY_EVENT_##name##_DURATION_MAX_DEFAULT;        \
+    } while (0)
 
 /****************************************************************************
  * Private Type Declarations
@@ -63,6 +130,9 @@ struct monkey_param_s
   int ver_res;
   int period_min;
   int period_max;
+  uint8_t btn_bit;
+  uint8_t log_level;
+  struct monkey_event_config_s event[MONKEY_EVENT_LAST];
 };
 
 enum monkey_wait_res_e
@@ -84,9 +154,22 @@ enum monkey_wait_res_e
 static void show_usage(FAR const char *progname, int exitcode)
 {
   printf("\nUsage: %s"
-         " -t <hex-value> -f <string> -p <string> -s <string>\n",
+         " -t <hex-value>"
+         " -f <string>"
+         " -p <string>"
+         " -s <string>"
+         " -b <decimal-value>"
+         " -l <decimal-value>\n"
+         " --weight-click <decimal-value>"
+         " --weight-longpress <decimal-value>"
+         " --weight-drag <decimal-value>\n"
+         " --duration-click <string>"
+         " --duration-longpress <string>"
+         " --duration-drag <string>\n",
          progname);
+
   printf("\nWhere:\n");
+
   printf("  -t <hex-value> Device type mask: uinput = 0x%02X;"
          " touch = 0x%02X; button = 0x%02X.\n",
          MONKEY_UINPUT_TYPE_MASK,
@@ -97,8 +180,64 @@ static void show_usage(FAR const char *progname, int exitcode)
          "<decimal-value min>-<decimal-value max>\n");
   printf("  -s <string> Screen resolution: "
          "<decimal-value hor_res>x<decimal-value ver_res>\n");
+  printf("  -b <decimal-value> Button bit: 0 ~ 31\n");
+  printf("  -l <decimal-value> Log level: 0 ~ 3\n");
+
+  printf("  --weight-click <decimal-value> Click event weight.\n");
+  printf("  --weight-longpress <decimal-value> Long press event weight.\n");
+  printf("  --weight-drag <decimal-value> Drag event weight.\n");
+
+  printf("  --duration-click <string> Click duration(ms) range: "
+         "<decimal-value min>-<decimal-value max>.\n");
+  printf("  --duration-longpress <string> Long press duration(ms) range: "
+         "<decimal-value min>-<decimal-value max>.\n");
+  printf("  --duration-drag <string> Drag duration(ms) range: "
+         "<decimal-value min>-<decimal-value max>.\n");
 
   exit(exitcode);
+}
+
+/****************************************************************************
+ * Name: monkey_get_screen_resolution
+ ****************************************************************************/
+
+static int monkey_get_screen_resolution(FAR int *hor_res, FAR int *ver_res)
+{
+#ifdef MONKEY_SCREEN_DEV
+  struct fb_videoinfo_s vinfo;
+  int fd;
+  int ret;
+  FAR const char *dev_path = MONKEY_SCREEN_DEV;
+  *hor_res = MONKEY_SCREEN_HOR_RES_DEFAULT;
+  *ver_res = MONKEY_SCREEN_VER_RES_DEFAULT;
+  fd = open(dev_path, 0);
+
+  if (fd < 0)
+    {
+      MONKEY_LOG_ERROR("screen dev %s open failed: %d", dev_path, errno);
+      return ERROR;
+    }
+
+  ret = ioctl(fd, MONKEY_SCREEN_GETVIDEOINFO,
+              (unsigned long)((uintptr_t)&vinfo));
+
+  if (ret < 0)
+    {
+      MONKEY_LOG_ERROR("get video info failed: %d", errno);
+    }
+  else
+    {
+      *hor_res = vinfo.xres;
+      *ver_res = vinfo.yres;
+    }
+
+  close(fd);
+  return ret;
+#else
+  *hor_res = MONKEY_SCREEN_HOR_RES_DEFAULT;
+  *ver_res = MONKEY_SCREEN_VER_RES_DEFAULT;
+  return OK;
+#endif /* MONKEY_SCREEN_DEV */
 }
 
 /****************************************************************************
@@ -110,6 +249,7 @@ static FAR struct monkey_s *monkey_init(
 {
   FAR struct monkey_s *monkey;
   struct monkey_config_s config;
+  int i;
 
   if (!param->dev_type_mask)
     {
@@ -124,24 +264,34 @@ static FAR struct monkey_s *monkey_init(
     }
 
   monkey_config_default_init(&config);
-#ifdef CONFIG_TESTING_MONKEY_SCREEN_IS_ROUND
-  config.screen.type = MONKEY_SCREEN_TYPE_ROUND;
-#endif
   config.screen.hor_res = param->hor_res;
   config.screen.ver_res = param->ver_res;
   config.period.min = param->period_min;
   config.period.max = param->period_max;
+  config.btn_bit = param->btn_bit;
+  memcpy(config.event, param->event, sizeof(config.event));
   monkey_set_config(monkey, &config);
+  monkey_log_set_level(param->log_level);
 
-  printf(MONKEY_PREFIX ": Screen: %dx%d %s\n",
-         config.screen.hor_res,
-         config.screen.ver_res,
-         (config.screen.type == MONKEY_SCREEN_TYPE_ROUND)
-         ? "ROUND" : "RECT");
+  MONKEY_LOG_NOTICE("Screen: %dx%d",
+                    config.screen.hor_res,
+                    config.screen.ver_res);
+  MONKEY_LOG_NOTICE("Period: %" PRIu32 " ~ %" PRIu32 "ms",
+                    config.period.min,
+                    config.period.max);
+  MONKEY_LOG_NOTICE("Button bit: %d", config.btn_bit);
+  MONKEY_LOG_NOTICE("Log level: %d", monkey_log_get_level());
 
-  printf(MONKEY_PREFIX ": Period: %" PRIu32 " ~ %" PRIu32 "ms\n",
-         config.period.min,
-         config.period.max);
+  for (i = 0; i < MONKEY_EVENT_LAST; i++)
+    {
+      MONKEY_LOG_NOTICE("Event %d(%s): weight=%d"
+                        " duration %d ~ %dms",
+                        i,
+                        monkey_event_type2name(i),
+                        config.event[i].weight,
+                        config.event[i].duration_min,
+                        config.event[i].duration_max);
+    }
 
   if (MONKEY_IS_UINPUT_TYPE(param->dev_type_mask))
     {
@@ -182,6 +332,42 @@ failed:
 }
 
 /****************************************************************************
+ * Name: parse_long_commandline
+ ****************************************************************************/
+
+static void parse_long_commandline(int argc, FAR char **argv,
+                                   int ch,
+                                   FAR const struct option *longopts,
+                                   int longindex,
+                                   FAR struct monkey_param_s *param)
+{
+  int event_index;
+  switch (longindex)
+    {
+      case 0:
+      case 1:
+      case 2:
+        event_index = longindex;
+        OPTARG_TO_VALUE(param->event[event_index].weight, uint8_t, 10);
+        break;
+
+      case 3:
+      case 4:
+      case 5:
+        event_index = longindex - 3;
+        OPTARG_TO_RANGE(param->event[event_index].duration_min,
+                        param->event[event_index].duration_max,
+                        "-");
+        break;
+
+      default:
+        MONKEY_LOG_WARN("Unknown longindex: %d", longindex);
+        show_usage(argv[0], EXIT_FAILURE);
+        break;
+    }
+}
+
+/****************************************************************************
  * Name: parse_commandline
  ****************************************************************************/
 
@@ -189,22 +375,39 @@ static void parse_commandline(int argc, FAR char **argv,
                               FAR struct monkey_param_s *param)
 {
   int ch;
-  int hor_res = -1;
-  int ver_res = -1;
-  int period_min = -1;
-  int period_max = -1;
-  int converted;
+  int longindex = 0;
+  FAR const char *optstring = "t:f:p:s:b:l:";
+  const struct option longopts[] =
+    {
+      {"weight-click",       required_argument, NULL, 0 },
+      {"weight-longpress",   required_argument, NULL, 0 },
+      {"weight-drag",        required_argument, NULL, 0 },
+      {"duration-click",     required_argument, NULL, 0 },
+      {"duration-longpress", required_argument, NULL, 0 },
+      {"duration-drag",      required_argument, NULL, 0 },
+      {0,                    0,                 NULL, 0 }
+    };
 
   memset(param, 0, sizeof(struct monkey_param_s));
-  param->hor_res = CONFIG_TESTING_MONKEY_SCREEN_HOR_RES;
-  param->ver_res = CONFIG_TESTING_MONKEY_SCREEN_VER_RES;
-  param->period_min = CONFIG_TESTING_MONKEY_PERIOD_MIN_DEFAULT;
-  param->period_max = CONFIG_TESTING_MONKEY_PERIOD_MAX_DEFAULT;
+  monkey_get_screen_resolution(&param->hor_res, &param->ver_res);
+  param->period_min = MONKEY_PERIOD_MIN_DEFAULT;
+  param->period_max = MONKEY_PERIOD_MAX_DEFAULT;
+  param->btn_bit = MONKEY_BUTTON_BIT_DEFAULT;
+  param->log_level = MONKEY_LOG_LEVEL_NOTICE;
+  MONKEY_EVENT_PARAM_INIT(CLICK);
+  MONKEY_EVENT_PARAM_INIT(LONG_PRESS);
+  MONKEY_EVENT_PARAM_INIT(DRAG);
 
-  while ((ch = getopt(argc, argv, "t:f:p:s:")) != ERROR)
+  while ((ch = getopt_long(argc, argv,
+                           optstring, longopts, &longindex)) != ERROR)
     {
       switch (ch)
         {
+          case 0:
+            parse_long_commandline(argc, argv, ch,
+                                   longopts, longindex, param);
+            break;
+
           case 't':
             OPTARG_TO_VALUE(param->dev_type_mask, int, 16);
             break;
@@ -214,36 +417,26 @@ static void parse_commandline(int argc, FAR char **argv,
             break;
 
           case 'p':
-            converted = sscanf(optarg, "%d-%d", &period_min, &period_max);
-            if (converted == 2 && period_min >= 0 && period_max >= 0)
-              {
-                param->period_min = period_min;
-                param->period_max = period_max;
-              }
-            else
-              {
-                printf(MONKEY_PREFIX ": Error period range: %s\n", optarg);
-                show_usage(argv[0], EXIT_FAILURE);
-              }
+            OPTARG_TO_RANGE(param->period_min, param->period_max, "-");
             break;
 
           case 's':
-            converted = sscanf(optarg, "%dx%d", &hor_res, &ver_res);
-            if (converted == 2 && hor_res > 0 && ver_res > 0)
-              {
-                param->hor_res = hor_res;
-                param->ver_res = ver_res;
-              }
-            else
-              {
-                printf(MONKEY_PREFIX ": Error screen resolution: %s\n",
-                       optarg);
-                show_usage(argv[0], EXIT_FAILURE);
-              }
+            OPTARG_TO_RANGE(param->hor_res, param->ver_res, "x");
+            break;
+
+          case 'b':
+            OPTARG_TO_VALUE(param->btn_bit, uint8_t, 10);
+            param->btn_bit = CONSTRAIN(param->btn_bit, 0, 31);
+            break;
+
+          case 'l':
+            OPTARG_TO_VALUE(param->log_level, uint8_t, 10);
+            param->log_level = CONSTRAIN(param->log_level, 0,
+                                         MONKEY_LOG_LEVEL_LAST - 1);
             break;
 
           case '?':
-            printf(MONKEY_PREFIX ": Unknown option: %c\n", optopt);
+            MONKEY_LOG_WARN("Unknown option: %c", optopt);
             show_usage(argv[0], EXIT_FAILURE);
             break;
         }
@@ -302,7 +495,7 @@ static enum monkey_wait_res_e monkey_wait(uint32_t ms)
         }
       else
         {
-          printf(MONKEY_PREFIX ": Unknow error: %d\n", errcode);
+          MONKEY_LOG_ERROR("Unknow error: %d", errcode);
         }
     }
   else if (ret == SIGTSTP)
@@ -318,7 +511,7 @@ static enum monkey_wait_res_e monkey_wait(uint32_t ms)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: main or monkey_main
+ * Name: monkey_main
  *
  * Description:
  *
@@ -363,13 +556,13 @@ int main(int argc, FAR char *argv[])
         }
       else if (res == MONKEY_WAIT_RES_PAUSE)
         {
-          printf(MONKEY_PREFIX ": pause\n");
+          MONKEY_LOG_NOTICE("pause");
           if (monkey_pause() < 0)
             {
               break;
             }
 
-          printf(MONKEY_PREFIX ": continue...\n");
+          MONKEY_LOG_NOTICE("continue...");
         }
       else
         {
