@@ -44,12 +44,6 @@
 struct monkey_dev_s;
 struct monkey_recorder_s;
 
-enum monkey_screen_type_e
-{
-  MONKEY_SCREEN_TYPE_RECT,
-  MONKEY_SCREEN_TYPE_ROUND
-};
-
 enum monkey_mode_e
 {
   MONKEY_MODE_RANDOM,
@@ -64,6 +58,14 @@ enum monkey_dev_type_e
   MONKEY_DEV_TYPE_BUTTON  = 0x02,
   MONKEY_DEV_TYPE_UTOUCH  = MONKEY_UINPUT_TYPE_MASK | MONKEY_DEV_TYPE_TOUCH,
   MONKEY_DEV_TYPE_UBUTTON = MONKEY_UINPUT_TYPE_MASK | MONKEY_DEV_TYPE_BUTTON,
+};
+
+enum monkey_event_e
+{
+  MONKEY_EVENT_CLICK,
+  MONKEY_EVENT_LONG_PRESS,
+  MONKEY_EVENT_DRAG,
+  MONKEY_EVENT_LAST
 };
 
 struct monkey_dev_state_s
@@ -85,11 +87,17 @@ struct monkey_dev_state_s
   } data;
 };
 
+struct monkey_event_config_s
+{
+  int weight;
+  int duration_min;
+  int duration_max;
+};
+
 struct monkey_config_s
 {
   struct
   {
-    enum monkey_screen_type_e type;
     int hor_res;
     int ver_res;
   } screen;
@@ -99,6 +107,10 @@ struct monkey_config_s
     uint32_t min;
     uint32_t max;
   } period;
+
+  uint8_t btn_bit;
+
+  struct monkey_event_config_s event[MONKEY_EVENT_LAST];
 };
 
 struct monkey_s

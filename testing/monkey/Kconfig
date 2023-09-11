@@ -17,70 +17,10 @@ config TESTING_MONKEY_PRIORITY
 
 config TESTING_MONKEY_STACKSIZE
 	int "Stack size"
-	default 16384
-
-config TESTING_MONKEY_LOG_ENABLE
-	bool "Enable log output"
-	default y
-
-config TESTING_MONKEY_LOG_LEVEL_DEFAULT
-	int "Log level default"
-	range 0 3
-	default 1
-	depends on TESTING_MONKEY_LOG_ENABLE
-	---help---
-		0 - INFO
-		1 - NOTICE
-		2 - WARN
-		3 - ERROR
+	default 4096
 
 config TESTING_MONKEY_REC_DIR_PATH
 	string "Recorder directory path"
 	default "/data/monkey"
-
-config TESTING_MONKEY_PERIOD_MIN_DEFAULT
-	int "Default test period[ms] min"
-	default 10
-
-config TESTING_MONKEY_PERIOD_MAX_DEFAULT
-	int "Default test period[ms] max"
-	default 100
-
-config TESTING_MONKEY_SCREEN_HOR_RES
-	int "Screen horizontal resolution"
-	default 480
-
-config TESTING_MONKEY_SCREEN_VER_RES
-	int "Screen vertical resolution"
-	default 480
-
-config TESTING_MONKEY_SCREEN_IS_ROUND
-	bool "Round screen"
-	default n
-
-config TESTING_MONKEY_BUTTON_NUM
-	int "Button test number"
-	range 0 32
-	default 1
-
-config TESTING_MONKEY_BUTTON_CLICK_TIME
-	int "Button click hold time[ms]"
-	default 100
-
-config TESTING_MONKEY_DEV_PATH_TOUCH
-	string "input device path - touch"
-	default "/dev/input0"
-
-config TESTING_MONKEY_DEV_PATH_BUTTON
-	string "input device path - button"
-	default "/dev/buttons"
-
-config TESTING_MONKEY_DEV_PATH_UTOUCH
-	string "uinput device path - utouch"
-	default "/dev/utouch"
-
-config TESTING_MONKEY_DEV_PATH_UBUTTON
-	string "uinput device path - ubutton"
-	default "/dev/ubutton"
 
 endif

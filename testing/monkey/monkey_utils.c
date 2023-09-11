@@ -154,6 +154,45 @@ bool monkey_dir_check(FAR const char *dir_path)
 }
 
 /****************************************************************************
+ * Name: monkey_map
+ ****************************************************************************/
+
+int monkey_map(int x, int min_in, int max_in, int min_out, int max_out)
+{
+  if (max_in >= min_in && x >= max_in)
+    {
+      return max_out;
+    }
+
+  if (max_in >= min_in && x <= min_in)
+    {
+      return min_out;
+    }
+
+  if (max_in <= min_in && x <= max_in)
+    {
+      return max_out;
+    }
+
+  if (max_in <= min_in && x >= min_in)
+    {
+      return min_out;
+    }
+
+  /**
+   * The equation should be:
+   *   ((x - min_in) * delta_out) / delta in) + min_out
+   * To avoid rounding error reorder the operations:
+   *   (x - min_in) * (delta_out / delta_min) + min_out
+   */
+
+  int delta_in = max_in - min_in;
+  int delta_out = max_out - min_out;
+
+  return ((x - min_in) * delta_out) / delta_in + min_out;
+}
+
+/****************************************************************************
  * Name: monkey_dev_type2name
  ****************************************************************************/
 
@@ -194,4 +233,25 @@ enum monkey_dev_type_e monkey_dev_name2type(FAR const char *name)
     }
 
   return MONKEY_DEV_TYPE_UNKNOW;
+}
+
+/****************************************************************************
+ * Name: monkey_event_type2name
+ ****************************************************************************/
+
+FAR const char *monkey_event_type2name(enum monkey_event_e event)
+{
+  switch (event)
+    {
+      case MONKEY_EVENT_CLICK:
+        return "click";
+      case MONKEY_EVENT_LONG_PRESS:
+        return "long-press";
+      case MONKEY_EVENT_DRAG:
+        return "drag";
+      default:
+        break;
+    }
+
+  return "unknow";
 }
