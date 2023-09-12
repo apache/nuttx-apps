@@ -143,7 +143,7 @@ $(WOBJS): %.c$(SUFFIX).wo : %.c
 
 $(WBIN): $(WOBJS)
 	$(shell mkdir -p $(APPDIR)/wasm)
-	$(Q) $(WAR) $@ $(filter-out $(MAINSRC:=$(SUFFIX).wo),$^)
+	$(Q) flock $(WBIN).lock -c '$(WAR) $@ $(filter-out $(MAINSRC:=$(SUFFIX).wo),$^)'
 	$(foreach main,$(MAINSRC), \
 	  $(eval progname=$(strip $(PROGNAME_$(main:=$(SUFFIX)$(OBJEXT))))) \
 	  $(eval dstname=$(shell echo $(main:=$(SUFFIX).wo) | sed -e 's/\//_/g')) \
