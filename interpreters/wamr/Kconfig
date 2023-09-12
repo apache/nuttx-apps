@@ -83,6 +83,15 @@ config INTERPRETERS_WAMR_LIBC_WASI
 		not implemented. (Mainly because of lack of openat family of
 		the API in NuttX.)
 
+config INTERPRETERS_WAMR_LIBC_NUTTX
+	bool "Bypass to NuttX libc"
+	default n
+
+config INTERPRETERS_WAMR_LIBC_NUTTX_POSIXMEMALIGN_MAP_SIZE
+	int "Map size for posix_memalign"
+	default 64
+	depends on INTERPRETERS_WAMR_LIBC_NUTTX
+
 config INTERPRETERS_WAMR_MULTI_MODULE
 	bool "Enable multi module support"
 	default n

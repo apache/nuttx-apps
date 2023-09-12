@@ -38,6 +38,26 @@ PROGNAME  = iwasm
 PRIORITY  = $(CONFIG_INTERPRETERS_WAMR_PRIORITY)
 STACKSIZE = $(CONFIG_INTERPRETERS_WAMR_STACKSIZE)
 MODULE    = $(CONFIG_INTERPRETERS_WAMR)
+
+endif
+
+ifeq ($(CONFIG_INTERPRETERS_WAMR_LIBC_NUTTX),y)
+
+$(WAMR_UNPACK)/product-mini/platforms/nuttx/main.c_CFLAGS = -Dwasm_runtime_full_init=wamr_custom_init
+
+CSRCS += wamr_custom_init.c
+
+GLUECSRCS = syscall_glue.c libc_glue.c libm_glue.c
+CSVSRCS = $(TOPDIR)/syscall/syscall.csv $(TOPDIR)/libs/libc/libc.csv $(TOPDIR)/libs/libm/libm.csv
+
+$(GLUECSRCS): $(CSVSRCS) $(APPDIR)/tools/mkwamrglue.py
+	$(Q) $(APPDIR)/tools/mkwamrglue.py -i $(TOPDIR)/syscall/syscall.csv -o syscall_glue.c
+	$(Q) $(APPDIR)/tools/mkwamrglue.py -i $(TOPDIR)/libs/libc/libc.csv -o libc_glue.c
+	$(Q) $(APPDIR)/tools/mkwamrglue.py -i $(TOPDIR)/libs/libm/libm.csv -o libm_glue.c
+
+
+depend:: $(GLUECSRCS)
+
 endif
 
 $(WAMR_TARBALL):
