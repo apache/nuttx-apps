@@ -45,6 +45,8 @@ extern "C"
 
 unsigned long ERR_peek_last_error(void);
 void ERR_error_string_n(unsigned long e, char *buf, size_t len);
+void ERR_free_strings(void);
+char *ERR_error_string(unsigned long e, char *buf);
 
 #ifdef __cplusplus
 }

@@ -57,11 +57,9 @@ typedef struct BN_CTX BN_CTX;
 typedef struct EC_GROUP EC_GROUP;
 typedef struct EC_KEY EC_KEY;
 typedef struct EC_POINT EC_POINT;
-typedef struct EVP_PKEY EVP_PKEY;
+typedef struct evp_pkey_st EVP_PKEY;
 typedef struct EVP_PKEY_CTX EVP_PKEY_CTX;
 typedef struct PKCS8_PRIV_KEY_INFO PKCS8_PRIV_KEY_INFO;
-typedef struct RSA RSA;
-typedef struct X509 X509;
 typedef struct X509_ALGOR X509_ALGOR;
 typedef struct X509_EXTENSION X509_EXTENSION;
 typedef struct X509_NAME X509_NAME;
@@ -74,6 +72,7 @@ typedef struct sha256_state_st SHA256_CTX;
 typedef struct sha_state_st SHA_CTX;
 typedef struct cbb_st CBB;
 typedef struct ecdsa_sig_st ECDSA_SIG;
+typedef void RSA;
 
 #ifdef __cplusplus
 }

@@ -22,7 +22,10 @@
  * Included Files
  ****************************************************************************/
 
+#include <openssl/ssl_dbg.h>
 #include <openssl/x509.h>
+#include "ssl_port.h"
+#include "ssl_methods.h"
 
 /****************************************************************************
  * Public Functions
@@ -159,5 +162,87 @@ void PKCS8_PRIV_KEY_INFO_free(PKCS8_PRIV_KEY_INFO *key)
 
 EVP_PKEY *EVP_PKCS82PKEY(const PKCS8_PRIV_KEY_INFO *p8)
 {
+  return NULL;
+}
+
+X509 *d2i_X509(X509 **out, const unsigned char **inp, long len)
+{
+  int m = 0;
+  int ret;
+  X509 *x;
+
+  SSL_ASSERT2(inp);
+  SSL_ASSERT2(len);
+
+  if (out && *out)
+    {
+      x = *out;
+    }
+  else
+    {
+      x = X509_new();
+      if (!x)
+        {
+          SSL_DEBUG(SSL_PKEY_ERROR_LEVEL, "X509_new() return NULL");
+          goto failed1;
+        }
+
+      m = 1;
+    }
+
+  ret = X509_METHOD_CALL(load, x, *inp, (int)len);
+  if (ret)
+    {
+      SSL_DEBUG(SSL_PKEY_ERROR_LEVEL,
+                "X509_METHOD_CALL(load) return %d", ret);
+      goto failed2;
+    }
+
+  return x;
+
+failed2:
+  if (m)
+    {
+      X509_free(x);
+    }
+
+failed1:
+  return NULL;
+}
+
+X509 *__X509_new(X509 *ix)
+{
+  int ret;
+  X509 *x;
+
+  x = ssl_mem_zalloc(sizeof(X509));
+  if (!x)
+    {
+      SSL_DEBUG(SSL_X509_ERROR_LEVEL, "no enough memory > (x)");
+      goto no_mem;
+    }
+
+  if (ix)
+    {
+      x->method = ix->method;
+    }
+  else
+    {
+      x->method = X509_method();
+    }
+
+  ret = X509_METHOD_CALL(new, x, ix);
+  if (ret)
+    {
+      SSL_DEBUG(SSL_PKEY_ERROR_LEVEL,
+                "X509_METHOD_CALL(new) return %d", ret);
+      goto failed;
+    }
+
+  return x;
+
+failed:
+  ssl_mem_free(x);
+no_mem:
   return NULL;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/crypto/openssl_mbedtls_wrapper/include/openssl/stack.h
+ * apps/crypto/openssl_mbedtls_wrapper/include/openssl/statem.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,8 +17,8 @@
  * under the License.
  ****************************************************************************/
 
-#ifndef OPENSSL_MBEDTLS_WRAPPER_STACK_H
-#define OPENSSL_MBEDTLS_WRAPPER_STACK_H
+#ifndef OPENSSL_MBEDTLS_WRAPPER_STATEM_H
+#define OPENSSL_MBEDTLS_WRAPPER_STATEM_H
 
 /****************************************************************************
  * Included Files
@@ -35,20 +35,45 @@ extern "C"
  * Public Types
  ****************************************************************************/
 
-struct stack_st
+typedef enum
 {
-    char **data;
-    int num_alloc;
-    OPENSSL_sk_compfunc c;
+/* No handshake in progress */
+
+  MSG_FLOW_UNINITED,
+
+/* A permanent error with this connection */
+
+  MSG_FLOW_ERROR,
+
+/* We are about to renegotiate */
+
+  MSG_FLOW_RENEGOTIATE,
+
+/* We are reading messages */
+
+  MSG_FLOW_READING,
+
+/* We are writing messages */
+
+  MSG_FLOW_WRITING,
+
+/* Handshake has finished */
+
+  MSG_FLOW_FINISHED
+}
+MSG_FLOW_STATE;
+
+struct ossl_statem_st
+{
+  MSG_FLOW_STATE state;
+  int hand_state;
 };
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-OPENSSL_STACK *OPENSSL_sk_new(OPENSSL_sk_compfunc c);
-OPENSSL_STACK *OPENSSL_sk_new_null(void);
-void OPENSSL_sk_free(OPENSSL_STACK *stack);
+int ossl_statem_in_error(const SSL *ssl);
 
 #ifdef __cplusplus
 }

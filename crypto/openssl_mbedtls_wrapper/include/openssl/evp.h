@@ -30,6 +30,7 @@
 #include <openssl/ec_key.h>
 #include <openssl/mem.h>
 #include <openssl/nid.h>
+#include <openssl/types.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -40,6 +41,12 @@
 #define EVP_PKEY_ED25519 NID_ED25519
 
 #define EVP_PKEY_X25519 NID_X25519
+
+struct evp_pkey_st
+{
+  void *pkey_pm;
+  const PKEY_METHOD *method;
+};
 
 #ifdef __cplusplus
 extern "C"
@@ -55,6 +62,8 @@ int EVP_PKEY_id(const EVP_PKEY *pkey);
 RSA *EVP_PKEY_get1_RSA(const EVP_PKEY *pkey);
 
 int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key);
+
+EVP_PKEY *__EVP_PKEY_new(EVP_PKEY *ipk);
 
 EVP_PKEY *EVP_PKEY_new(void);
 
@@ -152,6 +161,8 @@ int PKCS5_PBKDF2_HMAC(const char *password, size_t password_len,
                       const uint8_t *salt, size_t salt_len,
                       unsigned iterations, const EVP_MD *digest,
                       size_t key_len, uint8_t *out_key);
+
+const PKEY_METHOD *EVP_PKEY_method(void);
 
 #ifdef __cplusplus
 }
