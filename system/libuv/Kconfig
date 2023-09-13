@@ -20,6 +20,10 @@ config LIBUV_THREAD_STACKSIZE
 	int "libuv worker thread stack size"
 	default PTHREAD_STACK_DEFAULT
 
+config LIBUV_THREADPOOL_PRIORITY
+	int "libuv default thread pool priority"
+	default 100
+
 config LIBUV_BACKEND_EPOLL
 	bool "Using epoll backend in libuv"
 	default y
