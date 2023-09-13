@@ -211,7 +211,7 @@ $(ZIGOBJS): %$(ZIGEXT)$(SUFFIX)$(OBJEXT): %$(ZIGEXT)
 .built: $(OBJS)
 	$(call SPLITVARIABLE,ALL_OBJS,$(OBJS),100)
 	$(foreach BATCH, $(ALL_OBJS_TOTAL), \
-		$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH))) \
+		$(shell $(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH)))) \
 	)
 	$(Q) touch $@
 
