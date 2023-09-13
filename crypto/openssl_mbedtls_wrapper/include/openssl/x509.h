@@ -24,15 +24,45 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdint.h>
+
 #include <openssl/base.h>
 #include <openssl/bytestring.h>
 #include <openssl/ecdsa.h>
 #include <openssl/obj.h>
+#include <openssl/types.h>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+struct x509_st
+{
+/* X509 certification platform private point */
+
+  void *x509_pm;
+  const X509_METHOD *method;
+};
+
+struct x509_method_st
+{
+  int (*x509_new)(X509 *x, X509 *m_x);
+  void (*x509_free)(X509 *x);
+  int (*x509_load)(X509 *x, const unsigned char *buf, int len);
+  int (*x509_show_info)(X509 *x);
+};
+
+struct cert_st
+{
+  int sec_level;
+  X509 *x509;
+  EVP_PKEY *pkey;
+};
 
 /****************************************************************************
  * Public Function Prototypes
@@ -102,6 +132,10 @@ PKCS8_PRIV_KEY_INFO *d2i_PKCS8_PRIV_KEY_INFO(PKCS8_PRIV_KEY_INFO *info,
                                              size_t key_length);
 
 X509 *d2i_X509(X509 **out, const uint8_t **inp, long len);
+
+const char *X509_verify_cert_error_string(long n);
+
+X509 *__X509_new(X509 *ix);
 
 #ifdef __cplusplus
 }

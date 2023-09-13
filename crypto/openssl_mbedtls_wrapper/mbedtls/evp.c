@@ -15,7 +15,6 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
  * License for the specific language governing permissions and limitations
  * under the License.
- *
  ****************************************************************************/
 
 /****************************************************************************
@@ -24,12 +23,56 @@
 
 #include <openssl/bn.h>
 #include <openssl/cipher.h>
+#include <openssl/ssl_dbg.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
+#include <openssl/types.h>
+#include "ssl_port.h"
 
 #include <mbedtls/md.h>
 #include <mbedtls/pk.h>
 #include <mbedtls/rsa.h>
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+EVP_PKEY *__EVP_PKEY_new(EVP_PKEY *ipk)
+{
+  int ret;
+  EVP_PKEY *pkey;
+
+  pkey = ssl_mem_zalloc(sizeof(EVP_PKEY));
+  if (!pkey)
+    {
+      SSL_DEBUG(SSL_PKEY_ERROR_LEVEL, "no enough memory > (pkey)");
+      goto no_mem;
+    }
+
+  if (ipk)
+    {
+      pkey->method = ipk->method;
+    }
+  else
+    {
+      pkey->method = EVP_PKEY_method();
+    }
+
+  ret = EVP_PKEY_METHOD_CALL(new, pkey, ipk);
+  if (ret)
+    {
+      SSL_DEBUG(SSL_PKEY_ERROR_LEVEL,
+                "EVP_PKEY_METHOD_CALL(new) return %d", ret);
+      goto failed;
+    }
+
+  return pkey;
+
+failed:
+  ssl_mem_free(pkey);
+no_mem:
+  return NULL;
+}
 
 /****************************************************************************
  * Public Functions
@@ -55,6 +98,11 @@ RSA *EVP_PKEY_get1_RSA(const EVP_PKEY *pkey)
 
 void EVP_PKEY_free(EVP_PKEY *pkey)
 {
+    SSL_ASSERT3(pkey);
+
+    EVP_PKEY_METHOD_CALL(free, pkey);
+
+    ssl_mem_free(pkey);
 }
 
 int EVP_PKEY_type(int nid)
@@ -69,7 +117,7 @@ EC_KEY *EVP_PKEY_get1_EC_KEY(const EVP_PKEY *pkey)
 
 EVP_PKEY *EVP_PKEY_new(void)
 {
-  return NULL;
+  return __EVP_PKEY_new(NULL);
 }
 
 int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key)
