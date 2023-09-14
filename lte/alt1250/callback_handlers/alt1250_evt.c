@@ -1238,6 +1238,31 @@ static uint64_t lte_set_report_netinfo_exec_cb(FAR void *cb,
         sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
       dns_add_nameserver((FAR const struct sockaddr *)&dnsaddr[i], addrlen);
     }
+
+  if (info->pdn_num > 0)
+    {
+      FAR lte_pdn_t *pdn = &info->pdn_stat[0];
+      FAR lte_ipaddr_t *ipaddr = &pdn->address[0];
+
+      /* ALT1250 can only connect one PDN, so check the first PDN. */
+
+      if ((pdn->ipaddr_num == 1) && (ipaddr->ip_type == LTE_IPTYPE_V4))
+        {
+          dns_set_queryfamily(AF_INET);
+        }
+      else if ((pdn->ipaddr_num == 1) && (ipaddr->ip_type == LTE_IPTYPE_V6))
+        {
+          dns_set_queryfamily(AF_INET6);
+        }
+      else
+        {
+          dns_set_queryfamily(AF_UNSPEC);
+        }
+    }
+  else
+    {
+      dns_set_queryfamily(AF_UNSPEC);
+    }
 #endif
 
   if (callback)
