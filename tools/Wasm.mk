@@ -19,9 +19,8 @@
 #
 ############################################################################
 
-# Only build wasm if one of the following runtime is enabled
 
-ifneq ($(CONFIG_INTERPRETERS_WAMR)$(CONFIG_INTERPRETERS_WASM)$(CONFIG_INTERPRETERS_TOYWASM),)
+ifeq ($(CONFIG_INTERPRETERS_WAMR_BUILD_MODULES_FOR_NUTTX),y)
 include $(APPDIR)$(DELIM)tools$(DELIM)WASI-SDK.defs
 include $(APPDIR)$(DELIM)interpreters$(DELIM)wamr$(DELIM)Toolchain.defs
 
@@ -113,4 +112,4 @@ clean::
 
 endif # WASM_BUILD
 
-endif # CONFIG_INTERPRETERS_WAMR || CONFIG_INTERPRETERS_WASM || CONFIG_INTERPRETERS_TOYWASM
+endif

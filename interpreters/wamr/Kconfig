@@ -75,6 +75,11 @@ config INTERPRETERS_WAMR_LIBC_BUILTIN
 	bool "Enable built-in libc"
 	default n
 
+config INTERPRETERS_WAMR_BUILD_MODULES_FOR_NUTTX
+	bool "Build WASM modules for NuttX system interface (Experimental)"
+	default n
+	depends on INTERPRETERS_WAMR_LIBC_BUILTIN
+
 config INTERPRETERS_WAMR_LIBC_WASI
 	bool "Enable WASI libc"
 	select PSEUDOFS_SOFTLINKS
