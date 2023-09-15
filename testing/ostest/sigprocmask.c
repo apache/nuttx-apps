@@ -44,11 +44,11 @@
 
 static int g_some_signals[NSIGNALS] =
 {
-  1,
-  3,
-  5,
-  7,
-  9
+  SIGHUP,
+  SIGQUIT,
+  SIGTRAP,
+  SIGBUS,
+  SIGUSR1
 };
 
 /****************************************************************************
@@ -215,6 +215,24 @@ void sigprocmask_test(void)
     }
 
   ret = sigdelset(&newmask, SIGSTOP);
+  if (ret != OK)
+    {
+      int errcode = errno;
+      printf("sigprocmask_test: ERROR sigprocmask failed: %d\n", errcode);
+      ASSERT(false);
+      goto errout_with_mask;
+    }
+
+  ret = sigdelset(&currmask, SIGKILL);
+  if (ret != OK)
+    {
+      int errcode = errno;
+      printf("sigprocmask_test: ERROR sigprocmask failed: %d\n", errcode);
+      ASSERT(false);
+      goto errout_with_mask;
+    }
+
+  ret = sigdelset(&currmask, SIGSTOP);
   if (ret != OK)
     {
       int errcode = errno;
