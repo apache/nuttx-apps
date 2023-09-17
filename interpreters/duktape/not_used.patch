@@ -1,0 +1,42 @@
+From 1ed7f75cf9652b44bc5e1a81552bf4431e10697e Mon Sep 17 00:00:00 2001
+From: Xiang Xiao <xiaoxiang@xiaomi.com>
+Date: Mon, 11 Sep 2023 18:02:36 +0800
+Subject: [PATCH] Fix Error: duktape/src-noline/duktape.c:73222:13: error:
+ variable 'num_stmts' set but not used [-Werror,-Wunused-but-set-variable]
+
+Signed-off-by: Xiang Xiao <xiaoxiang@xiaomi.com>
+---
+ src-input/duk_js_compiler.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git duktape/src-input/duk_js_compiler.c duktape/src-input/duk_js_compiler.c
+index ecf03eaf..866371b5 100644
+--- duktape/src-input/duk_js_compiler.c
++++ duktape/src-input/duk_js_compiler.c
+@@ -5567,7 +5567,6 @@ DUK_LOCAL void duk__parse_switch_stmt(duk_compiler_ctx *comp_ctx, duk_ivalue *re
+ 	temp_at_loop = DUK__GETTEMP(comp_ctx);
+ 
+ 	for (;;) {
+-		duk_int_t num_stmts;
+ 		duk_small_uint_t tok;
+ 
+ 		/* sufficient for keeping temp reg numbers in check */
+@@ -5646,7 +5645,6 @@ DUK_LOCAL void duk__parse_switch_stmt(duk_compiler_ctx *comp_ctx, duk_ivalue *re
+ 		 *  test-bug-case-fallthrough.js.
+ 		 */
+ 
+-		num_stmts = 0;
+ 		if (pc_default == -2) {
+ 			pc_default = duk__get_current_pc(comp_ctx);
+ 		}
+@@ -5665,7 +5663,6 @@ DUK_LOCAL void duk__parse_switch_stmt(duk_compiler_ctx *comp_ctx, duk_ivalue *re
+ 			    tok == DUK_TOK_RCURLY) {
+ 				break;
+ 			}
+-			num_stmts++;
+ 			duk__parse_stmt(comp_ctx, res, 0 /*allow_source_elem*/);
+ 		}
+ 
+-- 
+2.34.1
+
