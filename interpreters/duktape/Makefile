@@ -47,6 +47,7 @@ CFLAGS += -I$(DUKTAPE_UNPACK)/extras/console
 CFLAGS += -I$(DUKTAPE_UNPACK)/extras/print-alert
 CFLAGS += -DDUK_CMDLINE_CONSOLE_SUPPORT
 CFLAGS += -DDUK_CMDLINE_PRINTALERT_SUPPORT
+CFLAGS += -Wno-unused-but-set-variable
 
 $(DUKTAPE_TARBALL):
 	$(Q) echo "Downloading $(DUKTAPE_TARBALL)"
