@@ -58,7 +58,6 @@ $(DUKTAPE_UNPACK): $(DUKTAPE_TARBALL)
 	$(Q) mv duktape-$(DUKTAPE_VERSION) $(DUKTAPE_UNPACK)
 	$(Q) echo "Patching $(DUKTAPE_UNPACK)"
 	$(Q) patch -p0 < duk_cmdline.patch
-	$(Q) patch -p0 < not_used.patch
 
 $(DUKTAPE_UNPACK)/.patch: $(DUKTAPE_UNPACK)
 	$(Q) touch $(DUKTAPE_UNPACK)/.patch
