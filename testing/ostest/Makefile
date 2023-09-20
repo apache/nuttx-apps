@@ -133,4 +133,8 @@ ifeq ($(CONFIG_ARCH_SETJMP_H),y)
 CSRCS += setjmp.c
 endif
 
+ifeq ($(CONFIG_SPINLOCK),y)
+CSRCS += spinlock.c
+endif
+
 include $(APPDIR)/Application.mk
