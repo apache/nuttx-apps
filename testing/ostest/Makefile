@@ -137,4 +137,8 @@ ifeq ($(CONFIG_SMP_CALL),y)
 CSRCS += smp_call.c
 endif
 
+ifeq ($(CONFIG_SPINLOCK),y)
+CSRCS += spinlock.c
+endif
+
 include $(APPDIR)/Application.mk

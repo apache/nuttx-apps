@@ -136,6 +136,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS smp_call.c)
   endif()
 
+  if(CONFIG_SPINLOCK)
+    list(APPEND SRCS spinlock.c)
+  endif()
+
   target_sources(apps PRIVATE ${SRCS})
 
   nuttx_add_application(NAME ostest SRCS ostest_main.c)

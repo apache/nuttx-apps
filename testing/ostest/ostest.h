@@ -256,6 +256,12 @@ void priority_inheritance(void);
 
 void sched_lock_test(void);
 
+/* spinlock.c ***************************************************************/
+
+#if defined(CONFIG_SPINLOCK)
+void spinlock_test(void);
+#endif
+
 /* vfork.c ******************************************************************/
 
 #if defined(CONFIG_ARCH_HAVE_FORK) && defined(CONFIG_SCHED_WAITPID)
