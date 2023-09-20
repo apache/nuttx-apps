@@ -509,7 +509,7 @@ int cmd_md5(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
   else
     {
-      md5_sum((unsigned char *)argv[1], strlen(argv[1]), digest);
+      md5_sum((FAR unsigned char *)argv[1], strlen(argv[1]), digest);
     }
 
   for (i = 0; i < 16; i++)
