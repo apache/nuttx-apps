@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <nuttx/spinlock.h>
+#include <stdatomic.h>
 
 #include "ostest.h"
 
@@ -42,33 +43,39 @@ static spinlock_t lock = SP_UNLOCKED;
 static pthread_t g_thread1;
 static pthread_t g_thread2;
 
+#ifdef CONFIG_RW_SPINLOCK
+static pthread_t g_thread3;
+static rwlock_t rw_lock = RW_SP_UNLOCKED;
+static atomic_int reader_counter = 0;
+#endif
+
 static int g_result = 0;
 
-static FAR void thread_spinlock(FAR void *parameter)
+static FAR void *thread_native_spinlock(FAR FAR void *parameter)
 {
-  int pid = *(int *)parameter;
+  int pid = *(FAR int *)parameter;
 
   for (int i = 0; i < 10; i++)
     {
-      printf("pid %d get lock g_result:%d\n", pid, g_result);
+      printf("pid %d try to get lock g_result:%d\n", pid, g_result);
       spin_lock(&lock);
       g_result++;
       spin_unlock(&lock);
       printf("pid %d release lock g_result:%d\n", pid, g_result);
     }
+
+  return NULL;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-void spinlock_test(void)
+static FAR void test_native_spinlock(void)
 {
   int status;
   g_result = 0;
+  lock = SP_UNLOCKED;
+  spin_initialize(&lock, SP_UNLOCKED);
 
   status = pthread_create(&g_thread1, NULL,
-                          (void *)thread_spinlock, &g_thread1);
+                          thread_native_spinlock, &g_thread1);
   if (status != 0)
     {
       printf("spinlock_test: ERROR pthread_create failed, status=%d\n",
@@ -77,7 +84,7 @@ void spinlock_test(void)
     }
 
   status = pthread_create(&g_thread2, NULL,
-                          (void *)thread_spinlock, &g_thread2);
+                          thread_native_spinlock, &g_thread2);
   if (status != 0)
     {
       printf("spinlock_test: ERROR pthread_create failed, status=%d\n",
@@ -89,4 +96,98 @@ void spinlock_test(void)
   pthread_join(g_thread2, NULL);
 
   assert(g_result == 20);
+}
+
+#if defined(CONFIG_RW_SPINLOCK)
+static void FAR *thread_read_spinlock(FAR void *parameter)
+{
+  int pid = *(FAR int *)parameter;
+  int test;
+
+  for (int i = 0; i < 10; ++i)
+    {
+      printf("pid %d try to get read lock g_result:%d\n", pid, g_result);
+      read_lock(&rw_lock);
+      atomic_fetch_add(&reader_counter, 1);
+      test = g_result + 1;
+      atomic_fetch_sub(&reader_counter, 1);
+      read_unlock(&rw_lock);
+      printf("pid %d release read lock g_result+1:%d\n", pid, test);
+    }
+
+  return NULL;
+}
+
+static void FAR *thread_wrt_spinlock(FAR void *parameter)
+{
+  static int writer_counter = 0;
+  int pid = *(FAR int *)parameter;
+
+  for (int i = 0; i < 10; ++i)
+    {
+      printf("pid %d try to get write lock g_result:%d\n", pid, g_result);
+      write_lock(&rw_lock);
+      writer_counter += 1;
+      g_result++;
+      ASSERT(atomic_load(&reader_counter) == 0 && writer_counter == 1);
+      writer_counter -= 1;
+      write_unlock(&rw_lock);
+      printf("pid %d release write lock g_result:%d\n", pid, g_result);
+    }
+
+  return NULL;
+}
+
+static FAR void test_rw_spinlock(void)
+{
+  int status;
+  g_result = 0;
+  rwlock_init(&rw_lock);
+
+  status = pthread_create(&g_thread1, NULL,
+                          thread_read_spinlock, &g_thread1);
+  if (status != 0)
+    {
+      printf("spinlock_test: ERROR pthread_create failed, status=%d\n",
+              status);
+      ASSERT(false);
+    }
+
+  status = pthread_create(&g_thread2, NULL,
+                          thread_read_spinlock, &g_thread2);
+  if (status != 0)
+    {
+      printf("spinlock_test: ERROR pthread_create failed, status=%d\n",
+              status);
+      ASSERT(false);
+    }
+
+  status = pthread_create(&g_thread3, NULL,
+                          thread_wrt_spinlock, &g_thread3);
+  if (status != 0)
+    {
+      printf("spinlock_test: ERROR pthread_create failed, status=%d\n",
+              status);
+      ASSERT(false);
+    }
+
+  pthread_join(g_thread1, NULL);
+  pthread_join(g_thread2, NULL);
+  pthread_join(g_thread3, NULL);
+
+  assert(g_result == 10);
+}
+#endif
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void spinlock_test(void)
+{
+  test_native_spinlock();
+
+#if defined(CONFIG_RW_SPINLOCK)
+  test_rw_spinlock();
+#endif
 }
