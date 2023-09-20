@@ -57,6 +57,8 @@ static void cm_usage(void)
         "name matches B pattern\n"
         "     --suite C    only run suites where PROGNAME "
         "matches C pattern\n"
+        "     --output-path use xml report instead of standard "
+        "output\n"
         "Example: cmocka --suite mm|sched "
         "--test Test* --skip TestNuttxMm0[123]\n\n";
     printf("%s", mesg);
@@ -92,6 +94,7 @@ int main(int argc, FAR char *argv[])
   FAR char *bypass[argc + 1];
   FAR char *suite = NULL;
   FAR char *skip = NULL;
+  FAR char *xml_path = NULL;
   int num_bypass = 1;
   int ret;
   int i;
@@ -116,6 +119,10 @@ int main(int argc, FAR char *argv[])
         {
           list_tests = 1;
         }
+      else if (strcmp("--output-path", argv[i]) == 0)
+        {
+          xml_path = argv[++i];
+        }
       else if (strcmp("--test", argv[i]) == 0)
         {
           testcase = argv[++i];
@@ -136,10 +143,17 @@ int main(int argc, FAR char *argv[])
 
   cmocka_set_test_filter(NULL);
   cmocka_set_skip_filter(NULL);
+  cmocka_set_message_output(CM_OUTPUT_STDOUT);
   cmocka_set_list_test(list_tests);
 
   if (list_tests == 0)
     {
+      if (xml_path != NULL)
+        {
+          setenv("CMOCKA_XML_FILE", xml_path, 1);
+          cmocka_set_message_output(CM_OUTPUT_XML);
+        }
+
       cmocka_set_test_filter(testcase);
       cmocka_set_skip_filter(skip);
     }
