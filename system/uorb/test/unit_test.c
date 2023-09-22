@@ -702,7 +702,12 @@ static int test_multi2(void)
               0, 0
             };
 
-          orb_copy(ORB_ID(orb_test_medium_multi), orb_data_cur_fd, &msg);
+          if (OK != orb_copy(ORB_ID(orb_test_medium_multi),
+                             orb_data_cur_fd, &msg))
+            {
+              return test_fail("copy failed: %d", errno);
+            }
+
           if (last_time >= msg.timestamp && last_time != 0)
             {
               return test_fail("Timestamp not increasing! (%" PRIu64
