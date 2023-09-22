@@ -200,13 +200,14 @@ static FAR void *context_swtich_task(FAR void *arg)
 static size_t context_switch_performance(void)
 {
   struct performance_time_s time;
+  int tid;
 
-  performance_thread_create(context_swtich_task,  &time,
-                            CONFIG_INIT_PRIORITY);
+  tid = performance_thread_create(context_swtich_task, &time,
+                                  CONFIG_INIT_PRIORITY);
   sched_yield();
   performance_start(&time);
   sched_yield();
-
+  pthread_join(tid, NULL);
   return performance_gettime(&time);
 }
 
@@ -216,21 +217,31 @@ static size_t context_switch_performance(void)
 
 static void work_handle(void *arg)
 {
-  FAR struct performance_time_s *time = (FAR struct performance_time_s *)arg;
+  FAR struct performance_time_s *time = ((FAR void **)arg)[0];
+  FAR sem_t *sem = ((void **)arg)[1];
   performance_end(time);
+  sem_post(sem);
 }
 
 static size_t hpwork_performance(void)
 {
   struct performance_time_s result;
   struct work_s work;
+  sem_t sem = SEM_INITIALIZER(0);
   int ret;
+
+  FAR void *args = (void *[])
+  {
+    (FAR void *)&work,
+    (FAR void *)&sem
+  };
 
   memset(&work, 0, sizeof(work));
   performance_start(&result);
-  ret = work_queue(HPWORK, &work, work_handle, &result, 0);
+  ret = work_queue(HPWORK, &work, work_handle, args, 0);
   DEBUGASSERT(ret == 0);
 
+  sem_wait(&sem);
   return performance_gettime(&result);
 }
 
@@ -264,13 +275,14 @@ static size_t poll_performance(void)
   argv[0] = (FAR char *)&result;
   argv[1] = (FAR char *)(uintptr_t)pipefd[1];
 
-  performance_thread_create(poll_task, argv, CONFIG_INIT_PRIORITY);
+  ret = performance_thread_create(poll_task, argv, CONFIG_INIT_PRIORITY);
 
   poll(&fds, 1, -1);
   performance_end(&result);
 
   close(pipefd[0]);
   close(pipefd[1]);
+  pthread_join(ret, NULL);
   return performance_gettime(&result);
 }
 
