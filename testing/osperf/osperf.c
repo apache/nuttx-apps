@@ -242,7 +242,7 @@ static FAR void *poll_task(FAR void *arg)
 {
   FAR void **argv = arg;
   FAR struct performance_time_s *time = argv[0];
-  int pipefd = (int)argv[1];
+  int pipefd = (int)(uintptr_t)argv[1];
 
   performance_start(time);
   write(pipefd, "a", 1);
@@ -357,12 +357,12 @@ static void performance_run(const FAR struct performance_entry_s *item,
 
       if (detail)
         {
-          printf("\t%d: %zu\n", i, time);
+          printf("\t%zu: %zu\n", i, time);
         }
     }
 
   printf("%-*s %10zu %10zu %10zu\n", NAME_MAX, item->name, max, min,
-          total / count);
+         total / count);
 }
 
 /****************************************************************************
@@ -426,7 +426,7 @@ int main(int argc, FAR char *argv[])
           default:
             performance_help();
             return EXIT_FAILURE;
-          }
+        }
     }
 
   if (optind < argc)
@@ -439,7 +439,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  printf("OS performance args: count:%d, detail:%s\n", count,
+  printf("OS performance args: count:%zu, detail:%s\n", count,
          detail ? "true" : "false");
 
   printf("==============================================================\n");
