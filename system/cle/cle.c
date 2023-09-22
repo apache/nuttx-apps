@@ -1123,6 +1123,12 @@ int cle_fd(FAR char *line, FAR const char *prompt, uint16_t linelen,
 int cle(FAR char *line, FAR const char *prompt, uint16_t linelen,
         FAR FILE *instream, FAR FILE *outstream)
 {
-  return cle_fd(line, prompt, linelen, instream->fs_fd, outstream->fs_fd);
+  int instream_fd;
+  int outstream_fd;
+
+  instream_fd  = fileno(instream);
+  outstream_fd = fileno(outstream);
+
+  return cle_fd(line, prompt, linelen, instream_fd, outstream_fd);
 }
 #endif

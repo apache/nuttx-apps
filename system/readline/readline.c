@@ -44,12 +44,18 @@
 #ifdef CONFIG_FILE_STREAM
 ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream)
 {
+  int instream_fd;
+  int outstream_fd;
+
   /* Sanity checks */
 
   DEBUGASSERT(instream && outstream);
 
   /* Let readline_fd do the work */
 
-  return readline_fd(buf, buflen, instream->fs_fd, outstream->fs_fd);
+  instream_fd  = fileno(instream);
+  outstream_fd = fileno(outstream);
+
+  return readline_fd(buf, buflen, instream_fd, outstream_fd);
 }
 #endif
