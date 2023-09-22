@@ -63,6 +63,12 @@ int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       strlcpy(arg, "used", CONFIG_NSH_LINELEN);
     }
+  else if (argc >= 2 && (strcmp(argv[1], "-h") == 0 ||
+                         strcmp(argv[1], "help") == 0))
+    {
+      return nsh_catfile(vtbl, argv[0],
+                         CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
+    }
   else
     {
       for (i = 1; i < argc; i++)
