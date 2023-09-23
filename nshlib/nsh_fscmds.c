@@ -798,13 +798,13 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Get the losetup options:  Two forms are supported:
    *
    *   losetup -d <loop-device>
-   *   losetup [-o <offset>] [-r] [-s <sectsize> ] <loop-device> <filename>
+   *   losetup [-o <offset>] [-r] [-b <sectsize> ] <loop-device> <filename>
    *
    * NOTE that the -o and -r options are accepted with the -d option, but
    * will be ignored.
    */
 
-  while ((option = getopt(argc, argv, "d:o:rs:")) != ERROR)
+  while ((option = getopt(argc, argv, "d:o:rb:")) != ERROR)
     {
       switch (option)
         {
@@ -821,7 +821,7 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           readonly = true;
           break;
 
-        case 's':
+        case 'b':
           sectsize = atoi(optarg);
           break;
 
@@ -1131,14 +1131,14 @@ int cmd_lomtd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Get the lomtd options:  Two forms are supported:
    *
    *   lomtd -d <loop-device>
-   *   lomtd [-o <offset>] [-e erasesize] [-s sectsize]
+   *   lomtd [-o <offset>] [-e erasesize] [-b sectsize]
    *         <loop-device> <filename>
    *
    * NOTE that the -o and -r options are accepted with the -d option, but
    * will be ignored.
    */
 
-  while ((option = getopt(argc, argv, "d:o:e:s:")) != ERROR)
+  while ((option = getopt(argc, argv, "d:o:e:b:")) != ERROR)
     {
       switch (option)
         {
@@ -1155,7 +1155,7 @@ int cmd_lomtd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           offset = atoi(optarg);
           break;
 
-        case 's':
+        case 'b':
           sectsize = atoi(optarg);
           break;
 
