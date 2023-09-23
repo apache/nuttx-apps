@@ -303,7 +303,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 #  if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
   CMD_MAP("losetup",  cmd_losetup,  3, 6,
-    "[-d <dev-path>] | [[-o <offset>] [-r] [-s <sect-size>] "
+    "[-d <dev-path>] | [[-o <offset>] [-r] [-b <sect-size>] "
     "<dev-path> <file-path>]"),
 #  endif
 #endif
@@ -320,7 +320,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #  if defined(CONFIG_MTD_LOOP) && !defined(CONFIG_NSH_DISABLE_LOMTD)
   CMD_MAP("lomtd",    cmd_lomtd,    3, 9,
     "[-d <dev-path>] | [[-o <offset>] [-e <erase-size>] "
-    "[-s <sect-size>] <dev-path> <file-path>]]"),
+    "[-b <sect-size>] <dev-path> <file-path>]]"),
 #  endif
 #endif
 
