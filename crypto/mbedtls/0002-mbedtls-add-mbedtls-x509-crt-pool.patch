@@ -1,0 +1,280 @@
+From e9eeb5721637faa451f66bbb2789046b9a7963d5 Mon Sep 17 00:00:00 2001
+From: makejian <makejian@xiaomi.com>
+Date: Fri, 18 Aug 2023 15:52:45 +0800
+Subject: [PATCH 1/2] mbedtls: add mbedtls x509 crt pool
+
+Signed-off-by: makejian <makejian@xiaomi.com>
+---
+ include/mbedtls/threading.h |   4 +
+ library/threading.c         |   3 +
+ library/x509_crt.c          |  15 ++++
+ library/x509_crt_pool.c     | 142 ++++++++++++++++++++++++++++++++++++
+ library/x509_crt_pool.h     |  30 ++++++++
+ 5 files changed, 194 insertions(+)
+ create mode 100644 library/x509_crt_pool.c
+ create mode 100644 library/x509_crt_pool.h
+
+diff --git mbedtls/include/mbedtls/threading.h mbedtls/include/mbedtls/threading.h
+index 1b9c7ced2..e3986cd67 100644
+--- mbedtls/include/mbedtls/threading.h
++++ mbedtls/include/mbedtls/threading.h
+@@ -108,6 +108,10 @@ extern mbedtls_threading_mutex_t mbedtls_threading_readdir_mutex;
+ extern mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex;
+ #endif /* MBEDTLS_HAVE_TIME_DATE && !MBEDTLS_PLATFORM_GMTIME_R_ALT */
+ 
++#if defined(MBEDTLS_X509_CRT_POOL)
++extern mbedtls_threading_mutex_t mbedtls_threading_x509crtpool_mutex;
++#endif
++
+ #endif /* MBEDTLS_THREADING_C */
+ 
+ #ifdef __cplusplus
+diff --git mbedtls/library/threading.c mbedtls/library/threading.c
+index 130c6963d..c91df6f6a 100644
+--- mbedtls/library/threading.c
++++ mbedtls/library/threading.c
+@@ -189,5 +189,8 @@ mbedtls_threading_mutex_t mbedtls_threading_readdir_mutex MUTEX_INIT;
+ #if defined(THREADING_USE_GMTIME)
+ mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex MUTEX_INIT;
+ #endif
++#if defined(MBEDTLS_X509_CRT_POOL)
++mbedtls_threading_mutex_t mbedtls_threading_x509crtpool_mutex MUTEX_INIT;
++#endif
+ 
+ #endif /* MBEDTLS_THREADING_C */
+diff --git mbedtls/library/x509_crt.c mbedtls/library/x509_crt.c
+index cf62532f2..8d058a092 100644
+--- mbedtls/library/x509_crt.c
++++ mbedtls/library/x509_crt.c
+@@ -78,6 +78,10 @@
+ #endif /* !_WIN32 || EFIX64 || EFI32 */
+ #endif
+ 
++#if defined(MBEDTLS_X509_CRT_POOL)
++#include "x509_crt_pool.h"
++#endif
++
+ /*
+  * Item in a verification chain: cert and flags for it
+  */
+@@ -995,6 +999,12 @@ static int x509_crt_parse_der_core(mbedtls_x509_crt *crt,
+     end = crt_end = p + len;
+     crt->raw.len = crt_end - buf;
+     if (make_copy != 0) {
++#if defined(MBEDTLS_X509_CRT_POOL)
++        crt->raw.p = p = x509_crt_pool_ref_buf(buf, crt->raw.len);
++        if(crt->raw.p == NULL) {
++            return MBEDTLS_ERR_X509_ALLOC_FAILED;
++        }
++#else
+         /* Create and populate a new buffer for the raw field. */
+         crt->raw.p = p = mbedtls_calloc(1, crt->raw.len);
+         if (crt->raw.p == NULL) {
+@@ -1002,6 +1012,7 @@ static int x509_crt_parse_der_core(mbedtls_x509_crt *crt,
+         }
+ 
+         memcpy(crt->raw.p, buf, crt->raw.len);
++#endif
+         crt->own_buffer = 1;
+ 
+         p += crt->raw.len - len;
+@@ -2839,8 +2850,12 @@ void mbedtls_x509_crt_free(mbedtls_x509_crt *crt)
+         mbedtls_asn1_sequence_free(cert_cur->certificate_policies.next);
+ 
+         if (cert_cur->raw.p != NULL && cert_cur->own_buffer) {
++#if defined(MBEDTLS_X509_CRT_POOL)
++            x509_crt_pool_unref_buf(cert_cur->raw.p);
++#else
+             mbedtls_platform_zeroize(cert_cur->raw.p, cert_cur->raw.len);
+             mbedtls_free(cert_cur->raw.p);
++#endif
+         }
+ 
+         cert_prv = cert_cur;
+diff --git mbedtls/library/x509_crt_pool.c mbedtls/library/x509_crt_pool.c
+new file mode 100644
+index 000000000..da00c88a8
+--- /dev/null
++++ mbedtls/library/x509_crt_pool.c
+@@ -0,0 +1,142 @@
++/*
++ *  X.509 certificate pool
++ *
++ *  Copyright The Mbed TLS Contributors
++ *  SPDX-License-Identifier: Apache-2.0
++ *
++ *  Licensed under the Apache License, Version 2.0 (the "License"); you may
++ *  not use this file except in compliance with the License.
++ *  You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *  Unless required by applicable law or agreed to in writing, software
++ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *  See the License for the specific language governing permissions and
++ *  limitations under the License.
++ */
++
++#include "common.h"
++
++#if defined(MBEDTLS_X509_CRT_POOL)
++
++#include <sys/queue.h>
++#include "mbedtls/platform.h"
++#include "mbedtls/platform_util.h"
++#include "mbedtls/x509.h"
++#include "x509_crt_pool.h"
++
++#if defined(MBEDTLS_THREADING_C)
++#include "mbedtls/threading.h"
++#endif
++
++struct x509_crt_pool_item {
++    mbedtls_x509_buf raw;
++    uint32_t ref_count;
++    SLIST_ENTRY(x509_crt_pool_item) next;
++};
++
++struct x509_crt_pool {
++    SLIST_HEAD(x509_crt_pool_list, x509_crt_pool_item) head;
++};
++
++static struct x509_crt_pool x509_crt_pool_s = {
++    .head = SLIST_HEAD_INITIALIZER(x509_crt_pool_s.head),
++};
++
++static struct x509_crt_pool_item *x509_crt_pool_item_create(const unsigned char *buf,
++                                                            size_t buflen)
++{
++    struct x509_crt_pool_item *item;
++
++    item = mbedtls_calloc(1, sizeof(struct x509_crt_pool_item));
++    if (item == NULL)
++    {
++        return NULL;
++    }
++
++    item->raw.len = buflen;
++    item->raw.p = mbedtls_calloc(1, item->raw.len);
++    if (item->raw.p == NULL)
++    {
++        mbedtls_free(item);
++        return NULL;
++    }
++
++    memcpy(item->raw.p, buf, item->raw.len);
++    item->ref_count = 1;
++    SLIST_INSERT_HEAD(&x509_crt_pool_s.head, item, next);
++    return item;
++}
++
++static void x509_crt_pool_item_free(struct x509_crt_pool_item *item)
++{
++    SLIST_REMOVE(&x509_crt_pool_s.head, item, x509_crt_pool_item, next);
++    mbedtls_platform_zeroize(item->raw.p, item->raw.len);
++    mbedtls_free(item->raw.p);
++    mbedtls_free(item);
++}
++
++unsigned char *x509_crt_pool_ref_buf(const unsigned char *buf, size_t buflen)
++{
++    struct x509_crt_pool_item *item;
++
++#if defined(MBEDTLS_THREADING_C)
++    if (mbedtls_mutex_lock(&mbedtls_threading_x509crtpool_mutex) != 0)
++    {
++        return NULL;
++    }
++#endif
++
++    SLIST_FOREACH(item, &x509_crt_pool_s.head, next)
++    if (item->raw.len == buflen)
++    {
++        if (memcmp(item->raw.p, buf, buflen) == 0)
++        {
++            item->ref_count++;
++            goto unlock;
++        }
++    }
++
++    item = x509_crt_pool_item_create(buf, buflen);
++
++unlock:
++#if defined(MBEDTLS_THREADING_C)
++    if (mbedtls_mutex_unlock(&mbedtls_threading_x509crtpool_mutex) != 0)
++    {
++        return NULL;
++    }
++#endif
++
++    return item == NULL ? NULL : item->raw.p;
++}
++
++void x509_crt_pool_unref_buf(const unsigned char *buf)
++{
++    struct x509_crt_pool_item *item;
++
++#if defined(MBEDTLS_THREADING_C)
++    if (mbedtls_mutex_lock(&mbedtls_threading_x509crtpool_mutex) != 0)
++    {
++        return;
++    }
++#endif
++
++    SLIST_FOREACH(item, &x509_crt_pool_s.head, next)
++    if (item->raw.p == buf)
++    {
++        item->ref_count--;
++        if (item->ref_count == 0)
++        {
++            x509_crt_pool_item_free(item);
++        }
++        break;
++    }
++
++#if defined(MBEDTLS_THREADING_C)
++    mbedtls_mutex_unlock(&mbedtls_threading_x509crtpool_mutex);
++#endif
++}
++
++#endif /* MBEDTLS_X509_CRT_POOL */
+diff --git mbedtls/library/x509_crt_pool.h mbedtls/library/x509_crt_pool.h
+new file mode 100644
+index 000000000..8592761de
+--- /dev/null
++++ mbedtls/library/x509_crt_pool.h
+@@ -0,0 +1,30 @@
++/**
++ * \file x509_crt_pool.h
++ *
++ * \brief This file contains x509_crt_pool definitions and functions.
++ */
++/*
++ *  Copyright The Mbed TLS Contributors
++ *  SPDX-License-Identifier: Apache-2.0
++ *
++ *  Licensed under the Apache License, Version 2.0 (the "License"); you may
++ *  not use this file except in compliance with the License.
++ *  You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *  Unless required by applicable law or agreed to in writing, software
++ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
++ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *  See the License for the specific language governing permissions and
++ *  limitations under the License.
++ */
++#ifndef MBEDTLS_X509_CRT_POOL_H
++#define MBEDTLS_X509_CRT_POOL_H
++
++#include <stdint.h>
++
++unsigned char *x509_crt_pool_ref_buf(const unsigned char *buf, size_t buflen);
++void x509_crt_pool_unref_buf(const unsigned char *buf);
++
++#endif /* mbedtls_x509_crt_pool.h */
+-- 
+2.40.0
+

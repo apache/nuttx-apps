@@ -981,6 +981,21 @@
 #endif
 
 /**
+ * \def MBEDTLS_X509_CRT_POOL
+ *
+ * Enable X.509 certificate pool.
+ *
+ * Module:  library/x509_crt_pool.c
+ *
+ * Requires: MBEDTLS_THREADING_C
+ *
+ * This module is required for X.509 certificate pool.
+ */
+#ifdef CONFIG_MBEDTLS_X509_CRT_POOL
+#define MBEDTLS_X509_CRT_POOL
+#endif
+
+/**
  * \def MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
  *
  * Enable the RSA-only based ciphersuite modes in SSL / TLS.
