@@ -40,7 +40,7 @@
 #include <cmocka.h>
 #include <syslog.h>
 #include <nuttx/timers/rtc.h>
-#include <nuttx/time.h>
+#include <nuttx/clock.h>
 
 /****************************************************************************
  * Pre-processor Definitions
