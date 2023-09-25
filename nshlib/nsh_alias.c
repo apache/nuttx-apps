@@ -408,7 +408,7 @@ int cmd_unalias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* If '-a' is provided, then just wipe them all */
 
-  if ((option = getopt(argc, argv, "a")) != ERROR)
+  if ((option = getopt(argc, argv, "a")) == 'a')
     {
       alias_removeall(vtbl);
       return ret;
