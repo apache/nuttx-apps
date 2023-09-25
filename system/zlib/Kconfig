@@ -1,0 +1,90 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIB_ZLIB
+	tristate "zlib data compression library"
+	default n
+
+if LIB_ZLIB
+
+config LIB_ZLIB_TEST
+	tristate "zlib test"
+	default n
+	help
+		Enable the test for zlib.
+
+if LIB_ZLIB_TEST
+
+config LIB_ZLIB_TEST_PRIORITY
+	int "Zlib test priority"
+	default 100
+
+config LIB_ZLIB_TEST_STACKSIZE
+	int "Zlib test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # LIB_ZLIB_TEST
+
+config UTILS_GZIP
+	bool "GZIP tool"
+	default n
+	---help---
+		Enable gzip utility
+
+if UTILS_GZIP
+config UTILS_GZIP_PROGNAME
+	string "Programe Name"
+	default "gzip"
+
+config UTILS_GZIP_PRIORITY
+	int "gzip utility priority"
+	default 100
+
+config UTILS_GZIP_STACKSIZE
+	int "gzip utility statcksize"
+	default 32768
+endif
+
+config UTILS_ZIP
+	bool "ZIP tool"
+	default n
+	---help---
+		Enable zip utility
+
+if UTILS_ZIP
+config UTILS_ZIP_PROGNAME
+	string "Programe Name"
+	default "zip"
+
+config UTILS_ZIP_PRIORITY
+	int "zip utility priority"
+	default 100
+
+config UTILS_ZIP_STACKSIZE
+	int "zip utility statcksize"
+	default 32768
+endif
+
+config UTILS_UNZIP
+	bool "UNZIP tool"
+	default n
+	---help---
+		Enable unzip utility
+
+if UTILS_UNZIP
+config UTILS_UNZIP_PROGNAME
+	string "Programe Name"
+	default "unzip"
+
+config UTILS_UNZIP_PRIORITY
+	int "unzip utility priority"
+	default 100
+
+config UTILS_UNZIP_STACKSIZE
+	int "unzip utility statcksize"
+	default 32768
+endif
+
+endif
