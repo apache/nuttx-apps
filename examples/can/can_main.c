@@ -139,7 +139,11 @@ int main(int argc, FAR char *argv[])
   struct canioc_bittiming_s bt;
 
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
-  struct can_msg_s txmsg;
+  struct can_msg_s txmsg =
+  {
+    0
+  };
+
 #ifdef CONFIG_CAN_EXTID
   bool extended = true;
   uint32_t msgid;
@@ -154,7 +158,11 @@ int main(int argc, FAR char *argv[])
   int i;
 
 #ifdef CONFIG_EXAMPLES_CAN_READ
-  struct can_msg_s rxmsg;
+  struct can_msg_s rxmsg =
+  {
+    0
+  };
+
 #endif
 
   size_t msgsize;
