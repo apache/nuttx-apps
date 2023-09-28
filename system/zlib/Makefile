@@ -41,13 +41,14 @@ $(ZLIB_ZIP):
 $(ZLIB_SRC) : $(ZLIB_ZIP)
 	unzip -o $(ZLIB_ZIP)
 	mv zlib-1.3 $(ZLIB_SRC)
-endif
 
 context:: $(ZLIB_SRC)
 
 distclean::
 	$(call DELDIR, $(ZLIB_SRC))
 	$(call DELFILE, $(ZLIB_ZIP))
+
+endif
 
 MODULE = $(CONFIG_LIB_ZLIB)
 
