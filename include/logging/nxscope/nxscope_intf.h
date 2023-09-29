@@ -85,7 +85,7 @@ struct nxscope_ser_cfg_s
 {
   FAR char *path;               /* Device path */
   bool      nonblock;           /* Nonblocking operation */
-  speed_t   baud;               /* Baud rate */
+  speed_t   baud;               /* Baud rate. Ignored if set to 0 */
 };
 #endif
 
