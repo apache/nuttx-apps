@@ -33,6 +33,8 @@ config EXAMPLES_NXSCOPE_SERIAL_PATH
 config EXAMPLES_NXSCOPE_SERIAL_BAUD
 	int "nxscope serial baud"
 	default 115200
+	---help---
+		Ignored if set to 0 (for example for RTT interface)
 
 config EXAMPLES_NXSCOPE_CDCACM
 	bool "nxscope CDCACM device support"
