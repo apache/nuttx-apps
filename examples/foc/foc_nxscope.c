@@ -42,7 +42,7 @@
 #  error CONFIG_LOGGING_NXSCOPE_DISABLE_PUTLOCK must be set to proper operation.
 #endif
 
-#ifdef CONFIG_LOGGING_NXSCOPE_INTF_SERIAL
+#if defined(CONFIG_LOGGING_NXSCOPE_INTF_SERIAL) && !defined(CONFIG_SERIAL_RTT)
 #  ifndef CONFIG_SERIAL_TERMIOS
 #    error CONFIG_SERIAL_TERMIOS must be set to proper operation.
 #  endif
