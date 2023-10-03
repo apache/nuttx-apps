@@ -728,7 +728,7 @@ int alt1250_sms_init(FAR struct alt1250_s *dev, FAR struct usock_s *usock,
   if (IS_SMS_UNAVAIL_FWVERSION(dev))
     {
       dbg_alt1250("This ALT1250 FW version does not support SMS.\n");
-      *usock_result = -ENOTSUP;
+      *usock_result = -EAFNOSUPPORT;
       return REP_SEND_ACK_WOFREE;
     }
 
