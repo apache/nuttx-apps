@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SHM
+	tristate "SHM example"
+	default n
+	depends on FS_SHMFS
+	---help---
+		Enable the SHM example which has an shm producer and consumer
+
+if EXAMPLES_SHM
+
+config EXAMPLES_SHM_PROGNAME
+	string "Program name"
+	default "shm_test"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SHM_PRIORITY
+	int "SHM task priority"
+	default 100
+
+config EXAMPLES_SHM_STACKSIZE
+	int "SHM stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
