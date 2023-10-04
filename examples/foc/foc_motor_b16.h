@@ -80,6 +80,9 @@ struct foc_motor_b16_s
   /* FOC data ***************************************************************/
 
   struct foc_state_b16_s        foc_state;    /* FOC controller sate */
+#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+  struct svm3_state_b16_s       mod_state;    /* Modulation state */
+#endif
   foc_handler_b16_t             handler;      /* FOC controller */
   dq_frame_b16_t                dq_ref;       /* DQ reference */
   dq_frame_b16_t                vdq_comp;     /* DQ voltage compensation */

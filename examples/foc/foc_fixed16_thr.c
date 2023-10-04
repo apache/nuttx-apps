@@ -129,7 +129,7 @@ static int foc_handler_run(FAR struct foc_motor_b16_s *motor,
 
   foc_handler_state_b16(&motor->handler,
                         &motor->foc_state,
-                        NULL);
+                        &motor->mod_state);
 
   return ret;
 }
@@ -258,6 +258,24 @@ static void foc_fixed16_nxscope(FAR struct foc_nxscope_s *nxs,
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VDQCOMP)
   ptr = (FAR b16_t *)&motor->vdq_comp;
   nxscope_put_vb16_t(&nxs->nxs, i++, ptr, 2);
+#endif
+#if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_SVM3)
+  b16_t svm3_tmp[4];
+
+  /* Convert sector to b16_t.
+   * Normally, a sector value is an integer in the range 1-6 but we convert
+   * it to b16_t and range to 0.1-0.6. This is to send the entire SVM3 state
+   * as b16_t array and scale the sector value closer to PWM duty values
+   * (range 0.0 to 0.5) which makes it easier to visualize the data later.
+   */
+
+  svm3_tmp[0] = b16mulb16(itob16(motor->mod_state.sector), ftob16(0.1f));
+  svm3_tmp[1] = motor->mod_state.d_u;
+  svm3_tmp[2] = motor->mod_state.d_v;
+  svm3_tmp[3] = motor->mod_state.d_w;
+
+  ptr = svm3_tmp;
+  nxscope_put_vfloat(&nxs->nxs, i++, ptr, 4);
 #endif
 
   nxscope_unlock(&nxs->nxs);
