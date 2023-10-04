@@ -73,6 +73,8 @@ static void foc_modulation_vbase_get_f32(FAR foc_handler_f32_t *h,
 static void foc_modulation_run_f32(FAR foc_handler_f32_t *h,
                                    FAR ab_frame_f32_t *v_ab_mod,
                                    FAR float *duty);
+static void foc_modulation_state_f32(FAR foc_handler_f32_t *h,
+                                     FAR void *v_priv);
 
 /****************************************************************************
  * Public Data
@@ -88,6 +90,7 @@ struct foc_modulation_ops_f32_s g_foc_mod_svm3_f32 =
   .current   = foc_modulation_current_f32,
   .vbase_get = foc_modulation_vbase_get_f32,
   .run       = foc_modulation_run_f32,
+  .state_get = foc_modulation_state_f32,
 };
 
 /****************************************************************************
@@ -243,7 +246,7 @@ static void foc_modulation_current_f32(FAR foc_handler_f32_t *h,
 }
 
 /****************************************************************************
- * Name: foc_modulation_f32
+ * Name: foc_modulation_run_f32
  *
  * Description:
  *   Handle the SVM3 modulation (float32)
@@ -285,4 +288,34 @@ static void foc_modulation_run_f32(FAR foc_handler_f32_t *h,
   f_saturate(&duty[0], 0.0f, svm->cfg.pwm_duty_max);
   f_saturate(&duty[1], 0.0f, svm->cfg.pwm_duty_max);
   f_saturate(&duty[2], 0.0f, svm->cfg.pwm_duty_max);
+}
+
+/****************************************************************************
+ * Name: foc_modulation_state_f32
+ *
+ * Description:
+ *   Get the SVM3 modulation state (float32)
+ *
+ * Input Parameter:
+ *   h     - pointer to FOC handler
+ *   state - pointer to modulation specific data
+ *
+ ****************************************************************************/
+
+static void foc_modulation_state_f32(FAR foc_handler_f32_t *h,
+                                     FAR void *state)
+{
+  FAR struct foc_svm3mod_f32_s *svm = NULL;
+
+  DEBUGASSERT(h);
+  DEBUGASSERT(state);
+
+  /* Get modulation data */
+
+  DEBUGASSERT(h->modulation);
+  svm = h->modulation;
+
+  /* Copy data */
+
+  memcpy(state, &svm->state, sizeof(struct svm3_state_f32_s));
 }

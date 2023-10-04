@@ -127,7 +127,9 @@ static int foc_handler_run(FAR struct foc_motor_f32_s *motor,
 
   /* Get FOC handler state */
 
-  foc_handler_state_f32(&motor->handler, &motor->foc_state);
+  foc_handler_state_f32(&motor->handler,
+                        &motor->foc_state,
+                        NULL);
 
   return ret;
 }

@@ -73,6 +73,8 @@ static void foc_modulation_vbase_get_b16(FAR foc_handler_b16_t *h,
 static void foc_modulation_run_b16(FAR foc_handler_b16_t *h,
                                    FAR ab_frame_b16_t *v_ab_mod,
                                    FAR b16_t *duty);
+static void foc_modulation_state_b16(FAR foc_handler_b16_t *h,
+                                     FAR void *v_priv);
 
 /****************************************************************************
  * Public Data
@@ -88,6 +90,7 @@ struct foc_modulation_ops_b16_s g_foc_mod_svm3_b16 =
   .current   = foc_modulation_current_b16,
   .vbase_get = foc_modulation_vbase_get_b16,
   .run       = foc_modulation_run_b16,
+  .state_get = foc_modulation_state_b16,
 };
 
 /****************************************************************************
@@ -243,7 +246,7 @@ static void foc_modulation_current_b16(FAR foc_handler_b16_t *h,
 }
 
 /****************************************************************************
- * Name: foc_modulation_b16
+ * Name: foc_modulation_run_b16
  *
  * Description:
  *   Handle the SVM3 modulation (fixed16)
@@ -285,4 +288,34 @@ static void foc_modulation_run_b16(FAR foc_handler_b16_t *h,
   f_saturate_b16(&duty[0], 0, svm->cfg.pwm_duty_max);
   f_saturate_b16(&duty[1], 0, svm->cfg.pwm_duty_max);
   f_saturate_b16(&duty[2], 0, svm->cfg.pwm_duty_max);
+}
+
+/****************************************************************************
+ * Name: foc_modulation_state_b16
+ *
+ * Description:
+ *   Get the SVM3 modulation state (fixed16)
+ *
+ * Input Parameter:
+ *   h     - pointer to FOC handler
+ *   state - pointer to modulation specific data
+ *
+ ****************************************************************************/
+
+static void foc_modulation_state_b16(FAR foc_handler_b16_t *h,
+                                     FAR void *state)
+{
+  FAR struct foc_svm3mod_b16_s *svm = NULL;
+
+  DEBUGASSERT(h);
+  DEBUGASSERT(state);
+
+  /* Get modulation data */
+
+  DEBUGASSERT(h->modulation);
+  svm = h->modulation;
+
+  /* Copy data */
+
+  memcpy(state, &svm->state, sizeof(struct svm3_state_b16_s));
 }

@@ -104,6 +104,11 @@ struct foc_modulation_ops_f32_s
   CODE void (*run)(FAR foc_handler_f32_t *h,
                    FAR ab_frame_f32_t *v_ab_mod,
                    FAR float *duty);
+
+  /* Get modulation state */
+
+  CODE void (*state_get)(FAR foc_handler_f32_t *h,
+                         FAR void *state);
 };
 
 /* Current/voltage controller operations */
@@ -236,7 +241,8 @@ void foc_handler_cfg_f32(FAR foc_handler_f32_t *h,
  ****************************************************************************/
 
 void foc_handler_state_f32(FAR foc_handler_f32_t *h,
-                           FAR struct foc_state_f32_s *state);
+                           FAR struct foc_state_f32_s *state,
+                           FAR void *mod_state);
 
 #ifdef CONFIG_INDUSTRY_FOC_HANDLER_PRINT
 /****************************************************************************
