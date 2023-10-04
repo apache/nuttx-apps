@@ -310,18 +310,25 @@ errout:
  *   Get FOC handler state (fixed16)
  *
  * Input Parameter:
- *   h     - pointer to FOC handler
- *   state - pointer to FOC state data
+ *   h         - pointer to FOC handler
+ *   state     - pointer to FOC state data
+ *   mod_state - pointer to modulation state data (optional)
  *
  ****************************************************************************/
 
 void foc_handler_state_b16(FAR foc_handler_b16_t *h,
-                           FAR struct foc_state_b16_s *state)
+                           FAR struct foc_state_b16_s *state,
+                           FAR void *mod_state)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(state);
 
   h->ops.ctrl->state_get(h, state);
+
+  if (mod_state)
+    {
+      h->ops.mod->state_get(h, mod_state);
+    }
 }
 
 #ifdef CONFIG_INDUSTRY_FOC_HANDLER_PRINT
