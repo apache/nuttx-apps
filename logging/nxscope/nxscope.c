@@ -353,7 +353,7 @@ static int nxscope_div_req(FAR struct nxscope_s *s,
             {
               _err("ERROR: invalid div bulk dlen = %d\n", dlen);
               ret = -EINVAL;
-               goto errout;
+              goto errout;
             }
 
           /* Write configuration */
