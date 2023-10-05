@@ -620,11 +620,39 @@ config EXAMPLES_FOC_NXSCOPE_START
 		frame from a NxScope master device. This allows us to capture
 		controller data from the very beginning of its operation.
 
+choice
+	prompt "FOC nxscope work caller"
+	default EXAMPLES_FOC_NXSCOPE_MAIN
+
+config EXAMPLES_FOC_NXSCOPE_MAIN
+	bool "FOC nxscope uses foc_main()"
+	---help---
+		Use foc_main() for NxScope communication.
+
+config EXAMPLES_FOC_NXSCOPE_CONTROL
+	bool "FOC nxscope uses control thread"
+	---help---
+		Use control thread for NxScope communication.
+		With this option enabled you should limit the number of nxscope channels.
+		Otherwise, handling incoming nxscope data may significantly delay the control
+		loop, and consequently, the control cycle may be missed.
+
 config EXAMPLES_FOC_NXSCOPE_THREAD
 	bool "FOC nxscope uses separate thread"
-	default n
 	---help---
 		Use a separate thread for NxScope communication.
+
+endchoice # FOC nxscope work caller
+
+if EXAMPLES_FOC_NXSCOPE_CONTROL
+
+config EXAMPLES_FOC_NXSCOPE_WORK_PRESCALER
+	int "FOC nxscope work prescaler"
+	default 10
+	---help---
+		This option allows you to reduce the frequency of calling nxscope worker.
+
+endif #EXAMPLES_FOC_NXSCOPE_CONTROL
 
 if EXAMPLES_FOC_NXSCOPE_THREAD
 

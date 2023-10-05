@@ -383,8 +383,7 @@ int main(int argc, char *argv[])
     {
       PRINTFV("foc_main loop %d\n", time);
 
-#if defined(CONFIG_EXAMPLES_FOC_NXSCOPE) &&       \
-    !defined(CONFIG_EXAMPLES_FOC_NXSCOPE_THREAD)
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE_MAIN
       foc_nxscope_work(&nxs);
 #endif
 

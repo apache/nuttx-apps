@@ -194,7 +194,9 @@ static void foc_float_nxscope(FAR struct foc_nxscope_s *nxs,
   int        i = nxs->ch_per_inst * motor->envp->id;
 #endif
 
+#ifndef CONFIG_EXAMPLES_FOC_NXSCOPE_CONTROL
   nxscope_lock(&nxs->nxs);
+#endif
 
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_IABC)
   ptr = (FAR float *)&motor->foc_state.curr;
@@ -283,7 +285,9 @@ static void foc_float_nxscope(FAR struct foc_nxscope_s *nxs,
   nxscope_put_vfloat(&nxs->nxs, i++, ptr, 1);
 #endif
 
+#ifndef CONFIG_EXAMPLES_FOC_NXSCOPE_CONTROL
   nxscope_unlock(&nxs->nxs);
+#endif
 }
 #endif
 
@@ -450,15 +454,6 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
             }
 #endif
 
-#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
-          /* Capture nxscope samples */
-
-          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_PRESCALER == 0)
-            {
-              foc_float_nxscope(envp->nxs, &motor, &dev);
-            }
-#endif
-
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
           /* Feed FOC model with data */
 
@@ -475,6 +470,24 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
               PRINTF("ERROR: foc_dev_prams_set failed %d!\n", ret);
               goto errout;
             }
+
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
+          /* Capture nxscope samples */
+
+          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_PRESCALER == 0)
+            {
+              foc_float_nxscope(envp->nxs, &motor, &dev);
+            }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE_CONTROL
+          /* Handle nxscope work */
+
+          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_WORK_PRESCALER == 0)
+            {
+              foc_nxscope_work(envp->nxs);
+            }
+#endif
 
           /* Terminate control thread */
 

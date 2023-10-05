@@ -471,6 +471,15 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
             }
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_NXSCOPE_CONTROL
+          /* Handle nxscope work */
+
+          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_WORK_PRESCALER == 0)
+            {
+              foc_nxscope_work(envp->nxs);
+            }
+#endif
+
           /* Terminate control thread */
 
           if (motor.ctrl_state == FOC_CTRL_STATE_TERMINATE)
