@@ -374,7 +374,7 @@ config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_PSK_EPHEMERAL_ENABLED
 	depends on MBEDTLS_ECDH_C
 	default n
 
-config CONFIG_MBEDTLS_SSL_MAX_EARLY_DATA_SIZE
+config MBEDTLS_SSL_MAX_EARLY_DATA_SIZE
 	int "The default maximum amount of 0-RTT data."
 	default 1024
 
