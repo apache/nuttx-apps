@@ -187,19 +187,19 @@ int arch_libc_test_strcpy(void)
  * Name: arch_libc_strcpy_speed_offset
  ****************************************************************************/
 
-uint32_t arch_libc_strcpy_speed_offset(int dst_offset, int src_offset)
+clock_t arch_libc_strcpy_speed_offset(int dst_offset, int src_offset)
 {
   FAR char *dest;
   FAR char *src;
-  uint32_t start;
-  uint32_t end;
+  clock_t start;
+  clock_t end;
 
   init_short_test_str(dst_offset, src_offset);
   dest = g_test_dst_str + dst_offset;
   src = g_test_src_str + src_offset;
-  start = up_perf_gettime();
+  start = perf_gettime();
   strcpy(dest, src);
-  end = up_perf_gettime();
+  end = perf_gettime();
 
   return end - start;
 }
@@ -212,7 +212,7 @@ int arch_libc_strcpy_speed(void)
 {
   int dest_off;
   int src_off;
-  uint32_t cycles = 0;
+  clock_t cycles = 0;
 
   for (dest_off = 0; dest_off <= 4; dest_off++)
     {
