@@ -47,11 +47,11 @@
   do \
   { \
     struct timespec ts; \
-    up_perf_convert(cost, &ts); \
+    perf_convert(cost, &ts); \
     cost = ts.tv_sec * 1000000000 + ts.tv_nsec; \
   } while (0)
 
-  #define TIMESTAMP(x) (x) = up_perf_gettime()
+  #define TIMESTAMP(x) (x) = perf_gettime()
 #else
   #define TIME time_t
 
