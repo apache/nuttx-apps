@@ -359,11 +359,16 @@ static bool dhcp6c_commit_state(FAR void *handle, enum dhcpv6_state_e state,
   size_t new_len = pdhcp6c->state_len[state] - old_len;
   FAR uint8_t *old_data = pdhcp6c->state_data[state];
   FAR uint8_t *new_data = old_data + old_len;
-  bool upd = (new_len != old_len) ||
+  bool upd = false;
+
+  if (new_len != 0 || old_len != 0)
+    {
+       upd = (new_len != old_len) ||
              (memcmp(old_data, new_data, new_len) != 0);
 
-  memmove(old_data, new_data, new_len);
-  dhcp6c_resize_state(handle, state, -old_len);
+       memmove(old_data, new_data, new_len);
+       dhcp6c_resize_state(handle, state, -old_len);
+    }
 
   return upd;
 }
