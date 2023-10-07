@@ -33,7 +33,6 @@ endif # INTERPRETERS_IWASM_TASK
 
 config INTERPRETERS_WAMR_AOT
 	bool "Enable AOT"
-	select ARCH_USE_TEXT_HEAP if ARCH_HAVE_TEXT_HEAP
 	default n
 
 choice
