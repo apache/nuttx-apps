@@ -1,0 +1,21 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIB_MADGWICK
+	bool "Madgwick Fusion Algorithm"
+	default n
+	depends on ALLOW_MIT_COMPONENTS
+	---help---
+		Enable madgwick fusion algorithm.
+		Madgwick is a quick fusion algorithm use integrate
+		accelerometer, gyroscope and magnotomer (compass).
+
+if LIB_MADGWICK
+
+config LIB_MADGWICK_VER
+        string "Lib Madgwick version"
+        default "1.2.1"
+
+endif # LIB_MADGWICK
