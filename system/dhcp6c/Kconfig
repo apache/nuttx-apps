@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_DHCPC_RENEW6
+	tristate "DHCP IPv6 Address Renewal"
+	default n
+	select NETUTILS_DHCP6C
+	depends on NET_UDP && NET_IPv6
+	---help---
+		Enable the DHCP client 'renew6' command
+
+if SYSTEM_DHCPC_RENEW6
+
+config DHCPC_RENEW6_PROGNAME
+	string "Program dhcpv6 name"
+	default "renew6"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config DHCPC_RENEW6_PRIORITY
+	int "DHCPC6 task priority"
+	default 100
+
+config DHCPC_RENEW6_STACKSIZE
+	int "DHCPC6 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
