@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello/Makefile
+# apps/examples/hello_wasm/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -22,13 +22,21 @@ include $(APPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
-PROGNAME  = $(CONFIG_EXAMPLES_HELLO_PROGNAME)
-PRIORITY  = $(CONFIG_EXAMPLES_HELLO_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_HELLO_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_HELLO)
+PROGNAME  = $(CONFIG_EXAMPLES_HELLO_WASM_PROGNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_HELLO_WASM_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_HELLO_WASM_STACKSIZE)
+MODULE    = $(CONFIG_EXAMPLES_HELLO_WASM)
 
 # Hello, World! Example
 
 MAINSRC = hello_main.c
+
+# Build with WebAssembly when CONFIG_INTERPRETERS_WAMR is enabled
+
+WASM_BUILD = y
+
+# Mode of WebAssembly Micro Runtime
+
+WAMR_MODE  = AOT
 
 include $(APPDIR)/Application.mk
