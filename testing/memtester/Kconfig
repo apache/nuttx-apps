@@ -14,7 +14,7 @@ config UTILS_MEMTESTER_PROGNAME
 	default "memtester"
 
 config UTILS_MEMTESTER_STACKSIZE
-	int "utils dhrystone stack size"
+	int "utils memtester stack size"
 	default DEFAULT_TASK_STACKSIZE
 
 config UTILS_MEMTESTER_PRIORITY
