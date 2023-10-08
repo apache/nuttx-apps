@@ -137,7 +137,7 @@ static int set_termios(FAR struct cu_globals_s *cu, int nocrlf)
   int ret;
   struct termios tio;
 
-  if (isatty(cu->devfd))
+  if (isatty(cu->devfd) && isatty(cu->stdfd))
     {
       tio = cu->devtio;
 
@@ -186,38 +186,31 @@ static int set_termios(FAR struct cu_globals_s *cu, int nocrlf)
           cu_error("set_termios: ERROR during tcsetattr(): %d\n", errno);
           return ret;
         }
+
+      /* Let the remote machine to handle all crlf/echo except Ctrl-C */
+
+      tio = cu->stdtio;
+
+      tio.c_iflag = 0;
+      tio.c_oflag = 0;
+      tio.c_lflag &= ~ECHO;
+
+      ret = tcsetattr(cu->stdfd, TCSANOW, &tio);
+      if (ret)
+        {
+          cu_error("set_termios: ERROR during tcsetattr(): %d\n", errno);
+          return ret;
+        }
     }
-
-  /* Let the remote machine to handle all crlf/echo except Ctrl-C */
-
-  if (cu->stdfd >= 0)
-  {
-    tio = cu->stdtio;
-
-    tio.c_iflag = 0;
-    tio.c_oflag = 0;
-    tio.c_lflag &= ~ECHO;
-
-    ret = tcsetattr(cu->stdfd, TCSANOW, &tio);
-    if (ret)
-      {
-        cu_error("set_termios: ERROR during tcsetattr(): %d\n", errno);
-        return ret;
-      }
-  }
 
   return 0;
 }
 
 static void retrieve_termios(FAR struct cu_globals_s *cu)
 {
-  if (isatty(cu->devfd))
+  if (isatty(cu->devfd) && isatty(cu->stdfd))
     {
       tcsetattr(cu->devfd, TCSANOW, &cu->devtio);
-    }
-
-  if (cu->stdfd >= 0)
-    {
       tcsetattr(cu->stdfd, TCSANOW, &cu->stdtio);
     }
 }
