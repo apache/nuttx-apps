@@ -95,9 +95,6 @@ endif
 
 ifneq ($(strip $(PROGNAME)),)
   PROGOBJ := $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ)
-  ifneq ($(words $(PROGOBJ)), $(words $(PROGNAME)))
-    $(error "program names $(PROGNAME) does not match mainsrcs $(PROGOBJ)")
-  endif
   PROGLIST := $(addprefix $(BINDIR)$(DELIM),$(PROGNAME))
   REGLIST := $(addprefix $(BUILTIN_REGISTRY)$(DELIM),$(addsuffix .bdat,$(PROGNAME)))
 
