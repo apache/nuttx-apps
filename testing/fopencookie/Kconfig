@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FOPENCOOKIE_TEST
+	tristate "Fopencookie test tool"
+	default n
+	---help---
+		Performs a basic operations with fopencookie call.
+
+if TESTING_FOPENCOOKIE_TEST
+endif
