@@ -26,7 +26,7 @@ MAINSRC = composite_main.c
 
 # USB storage built-in application info
 
-PROGNAME = conn
+PROGNAME = conn disconn
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_COMPOSITE)
