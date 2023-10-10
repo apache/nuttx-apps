@@ -180,7 +180,7 @@
 /* CHARCTRL setpoint control */
 
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CHAR
-#  define SETPOINT_ADC_SCALE  (1 / 1000.0f)
+#  define SETPOINT_ADC_SCALE  (1.0f / (CONFIG_EXAMPLES_FOC_SETPOINT_MAX / 1000.0f))
 #endif
 
 /* VBUS source must be specified */
