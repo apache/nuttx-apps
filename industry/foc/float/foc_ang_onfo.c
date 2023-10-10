@@ -280,6 +280,15 @@ static int foc_angle_onfo_run_f32(FAR foc_angle_f32_t *h,
   DEBUGASSERT(h->data);
   ob = h->data;
 
+  if (in->vel == 0.0f)
+    {
+      /* Do nothing if motor stopped */
+
+      out->type  = FOC_ANGLE_TYPE_ELE;
+      out->angle = 0.0f;
+      return OK;
+    }
+
   /* Normalize the d-q voltage to get the d-q modulation voltage */
 
   v_dq_mod.d = in->state->vdq.d * in->state->mod_scale;

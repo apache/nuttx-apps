@@ -268,6 +268,15 @@ static int foc_angle_osmo_run_b16(FAR foc_angle_b16_t *h,
   DEBUGASSERT(h->data);
   ob = h->data;
 
+  if (in->vel == 0)
+    {
+      /* Do nothing if motor stopped */
+
+      out->type  = FOC_ANGLE_TYPE_ELE;
+      out->angle = 0;
+      return OK;
+    }
+
   /* Update observer */
 
   motor_aobserver_smo_b16(&ob->o, &in->state->iab, &in->state->vab,
