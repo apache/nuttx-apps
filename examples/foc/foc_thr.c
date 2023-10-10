@@ -46,6 +46,10 @@
 #  define CONFIG_EXAMPLES_FOC_FIXED16_INST (0)
 #endif
 
+#if CONFIG_EXAMPLES_FOC_FLOAT_INST + CONFIG_EXAMPLES_FOC_FIXED16_INST == 0
+#  warning no control thread enabled !
+#endif
+
 /****************************************************************************
  * Extern Functions Prototypes
  ****************************************************************************/
