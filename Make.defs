@@ -156,3 +156,8 @@ endef
 define ARLOCK
 	flock $1.lock $(call ARCHIVE, $1, $(2))
 endef
+
+define AROBJSRULES
+$(1) : $(2)
+	cp $(2) $(1)
+endef
