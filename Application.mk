@@ -205,8 +205,20 @@ $(ZIGOBJS): %$(ZIGEXT)$(SUFFIX)$(OBJEXT): %$(ZIGEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE), $(CELFFLAGS)), \
 		$(call ELFCOMPILEZIG, $<, $@), $(call COMPILEZIG, $<, $@))
 
-.built: $(OBJS)
-	$(call SPLITVARIABLE,ALL_OBJS,$(OBJS),100)
+AROBJS := 
+ifneq ($(OBJS),)
+$(eval $(call SPLITVARIABLE,OBJS_SPILT,$(OBJS),100))
+$(foreach BATCH, $(OBJS_SPILT_TOTAL), \
+	$(foreach obj, $(OBJS_SPILT_$(BATCH)), \
+		$(eval substitute := $(patsubst %$(OBJEXT),%_$(BATCH)$(OBJEXT),$(obj))) \
+		$(eval AROBJS += $(substitute)) \
+		$(eval $(call AROBJSRULES, $(substitute),$(obj))) \
+	) \
+)
+endif
+
+.built: $(AROBJS)
+	$(call SPLITVARIABLE,ALL_OBJS,$(AROBJS),100)
 	$(foreach BATCH, $(ALL_OBJS_TOTAL), \
 		$(shell $(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH)))) \
 	)
