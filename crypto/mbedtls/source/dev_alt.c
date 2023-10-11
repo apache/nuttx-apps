@@ -94,5 +94,5 @@ int cryptodev_clone(FAR cryptodev_context_t *dst,
 {
   dst->session = src->session;
   dst->crypt = src->crypt;
-  return cryptodev_get_session(dst);
+  return dup2(src->fd, dst->fd);
 }
