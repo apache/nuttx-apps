@@ -415,6 +415,16 @@ config EXAMPLES_FOC_OPENLOOP_Q
 	default 200
 	depends on EXAMPLES_FOC_HAVE_OPENLOOP
 
+config EXAMPLES_FOC_FEEDFORWARD
+	bool "FOC use feedforward compensation for current controller"
+	select INDUSTRY_FOC_FEEDFORWARD
+	default n
+	---help---
+		This option enables feed-forward compensation for PI current controller
+		which can help achieve better performace of FOC. This option is not 
+		recomended for sensorless operations and for current controllers that 
+		already has high update frequency.
+
 if EXAMPLES_FOC_CONTROL_PI
 
 config EXAMPLES_FOC_IDQ_KP
