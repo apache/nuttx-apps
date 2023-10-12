@@ -256,7 +256,7 @@ int main(int argc, FAR char **argv)
 
   while (1)
     {
-      sock = accept(serv, NULL, 0);
+      sock = accept4(serv, NULL, 0, SOCK_CLOEXEC);
       if (sock < 0)
         {
           if (errno == EINTR)
