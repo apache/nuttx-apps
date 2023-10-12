@@ -116,6 +116,12 @@ config INDUSTRY_FOC_MODULATION_SVM3
 	---help---
 		Enable support for FOC 3-phase space vector modulation
 
+config INDUSTRY_FOC_FEEDFORWARD
+	bool "FOC current controller feedforward compensation"
+	default n
+	---help---
+		Enable support for current controller feed forward compensation
+
 config INDUSTRY_FOC_MODEL_PMSM
 	bool "FOC PMSM model support"
 	select INDUSTRY_FOC_HAVE_MODEL
