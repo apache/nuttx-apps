@@ -321,6 +321,13 @@ config EXAMPLES_FOC_MMODE
 		4 - align only
 		5 - ident only
 
+config EXAMPLES_FOC_STOP_CURRENT
+	int "FOC stop state Q voltage/current [x1000]"
+	default 0
+	---help---
+		This current or voltage will be forced on the motor Q axis when
+		the application is in active break state.
+
 config EXAMPLES_FOC_OPENLOOP_Q
 	int "FOC open-loop Vq/Iq setting [x1000]"
 	default 200

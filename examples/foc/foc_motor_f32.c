@@ -585,6 +585,9 @@ static int foc_motor_state(FAR struct foc_motor_f32_s *motor, int state)
 
           /* DQ vector not zero - active brake */
 
+          motor->dq_ref.q = CONFIG_EXAMPLES_FOC_STOP_CURRENT / 1000.0f;
+          motor->dq_ref.d = 0.0f;
+
           break;
         }
 
