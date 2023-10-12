@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <inttypes.h>
 
 #include "foc_debug.h"
 #include "foc_thr.h"
@@ -45,16 +46,16 @@
 #define OPT_IIV     (SCHAR_MAX + 6)
 #define OPT_IIS     (SCHAR_MAX + 7)
 
-#define OPT_VOPLLKP (SCHAR_MAX + 7)
-#define OPT_VOPLLKI (SCHAR_MAX + 8)
-#define OPT_VODIVS  (SCHAR_MAX + 9)
-#define OPT_VODIVF  (SCHAR_MAX + 10)
+#define OPT_VOPLLKP (SCHAR_MAX + 8)
+#define OPT_VOPLLKI (SCHAR_MAX + 9)
+#define OPT_VODIVS  (SCHAR_MAX + 10)
+#define OPT_VODIVF  (SCHAR_MAX + 11)
 
-#define OPT_VCPIKP  (SCHAR_MAX + 11)
-#define OPT_VCPIKI  (SCHAR_MAX + 12)
+#define OPT_VCPIKP  (SCHAR_MAX + 12)
+#define OPT_VCPIKI  (SCHAR_MAX + 13)
 
-#define OPT_ANFOS   (SCHAR_MAX + 13)
-#define OPT_ANFOG   (SCHAR_MAX + 14)
+#define OPT_ANFOS   (SCHAR_MAX + 14)
+#define OPT_ANFOG   (SCHAR_MAX + 15)
 
 #define OPT_OLFORCE (SCHAR_MAX + 16)
 #define OPT_OLTHR   (SCHAR_MAX + 17)
@@ -127,7 +128,7 @@ static struct option g_long_options[] =
  * Name: foc_help
  ****************************************************************************/
 
-static void foc_help(void)
+static void foc_help(FAR struct args_s *args)
 {
   PRINTF("Usage: foc [OPTIONS]\n");
   PRINTF("  [-t] run time (default: %d)\n",
@@ -161,15 +162,15 @@ static void foc_help(void)
   PRINTF("  [-x] position [x1000]\n");
 #endif
   PRINTF("  [-s] motor state init (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_STATE_INIT);
+         args->state);
   PRINTF("       1 - motor free\n");
   PRINTF("       2 - motor stop\n");
   PRINTF("       3 - motor CW\n");
   PRINTF("       4 - motor CCW\n");
   PRINTF("  [-j] enable specific instances\n");
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  PRINTF("  [-o] openloop Vq/Iq setting [x1000] (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_OPENLOOP_Q);
+  PRINTF("  [-o] openloop Vq/Iq setting [x1000] (default: %" PRId32 ")\n",
+         args->cfg.qparam);
   PRINTF("  [--olforce] force openloop\n");
 #  ifdef CONFIG_EXAMPLES_FOC_ANGOBS
   PRINTF("  [--olthr] observer vel threshold [x1] (default: %d)\n",
@@ -179,46 +180,46 @@ static void foc_help(void)
 #  endif
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
-  PRINTF("  [--fki] PI Kp coefficient [x1000] (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDQ_KP);
-  PRINTF("  [--fkp] PI Ki coefficient [x1000] (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDQ_KI);
+  PRINTF("  [--fkp] PI Kp coefficient [x1000] (default: %" PRId32 ")\n",
+         args->cfg.foc_pi_kp);
+  PRINTF("  [--fki] PI Ki coefficient [x1000] (default: %" PRId32 ")\n",
+         args->cfg.foc_pi_ki);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
-  PRINTF("  [--irki] res Ki coefficient [x1000] (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDENT_RES_KI);
-  PRINTF("  [--irc] res current [x1000] (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT);
-  PRINTF("  [--irs] res sec (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDENT_RES_SEC);
-  PRINTF("  [--iiv] ind voltage [x1000] (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE);
-  PRINTF("  [--iis] ind sec (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_IDENT_IND_SEC);
+  PRINTF("  [--irki] res Ki coefficient [x1000] (default: %" PRId32 ")\n",
+         args->cfg.ident_res_ki);
+  PRINTF("  [--irc] res current [x1000] (default: %" PRId32 ")\n",
+         args->cfg.ident_res_curr);
+  PRINTF("  [--irs] res sec (default: %" PRId32 ")\n",
+         args->cfg.ident_res_sec);
+  PRINTF("  [--iiv] ind voltage [x1000] (default: %" PRId32 ")\n",
+         args->cfg.ident_ind_volt);
+  PRINTF("  [--iis] ind sec (default: %" PRId32 ")\n",
+         args->cfg.ident_ind_sec);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
-  PRINTF("  [--vopllkp] velobs PLL Kp (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_VELOBS_PLL_KP);
-  PRINTF("  [--vopllki] velobs PLL Ki (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_VELOBS_PLL_KI);
+  PRINTF("  [--vopllkp] velobs PLL Kp [x1] (default: %" PRId32 ")\n",
+         args->cfg.vel_pll_kp);
+  PRINTF("  [--vopllki] velobs PLL Ki [x1] (default: %" PRId32 ")\n",
+         args->cfg.vel_pll_ki);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
-  PRINTF("  [--vodivs] velobs DIV samples (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_VELOBS_DIV_SAMPLES);
-  PRINTF("  [--vodivf] velobs DIV filter (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_VELOBS_DIV_FILTER);
+  PRINTF("  [--vodivs] velobs DIV samples (default: %" PRId32 ")\n",
+         args->cfg.vel_div_samples);
+  PRINTF("  [--vodivf] velobs DIV filter (default: %" PRId32 ")\n",
+         args->cfg.vel_div_filter);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
-  PRINTF("  [--vcpikp] velctrl PI Kp (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_VELCTRL_PI_KP);
-  PRINTF("  [--vcpiki] velctrl PI Ki (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_VELCTRL_PI_KI);
+  PRINTF("  [--vcpikp] velctrl PI Kp [x1000000] (default: %" PRId32 ")\n",
+         args->cfg.vel_pi_kp);
+  PRINTF("  [--vcpiki] velctrl PI Ki [x1000000] (default: %" PRId32 ")\n",
+         args->cfg.vel_pi_ki);
 #endif
 #ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
-  PRINTF("  [--anfos] angobs NFO Slow (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAINSLOW);
-  PRINTF("  [--anfog] angobs NFO Gain (default: %d)\n",
-         CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAIN);
+  PRINTF("  [--anfos] angobs NFO Slow [x1] (default: %" PRId32 ")\n",
+         args->cfg.ang_nfo_slow);
+  PRINTF("  [--anfog] angobs NFO Gain [x1] (default: %" PRId32 ")\n",
+         args->cfg.ang_nfo_gain);
 #endif
 }
 
@@ -357,7 +358,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 
           case 'h':
             {
-              foc_help();
+              foc_help(args);
               exit(0);
             }
 
@@ -448,7 +449,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
                   PRINTF("ERROR: invalid option %s\n", argv[optind - 1]);
                 }
 
-              foc_help();
+              foc_help(args);
               exit(1);
             }
         }
