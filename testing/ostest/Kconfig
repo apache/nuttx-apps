@@ -82,7 +82,8 @@ if ARCH_FPU && SCHED_WAITPID
 
 config TESTING_OSTEST_FPUTESTDISABLE
 	bool "Disable FPU test"
-	default n
+	default y if !BUILD_FLAT
+	default n if BUILD_FAT
 
 if !TESTING_OSTEST_FPUTESTDISABLE
 
