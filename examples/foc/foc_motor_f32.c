@@ -30,6 +30,9 @@
 #include "foc_cfg.h"
 #include "foc_debug.h"
 #include "foc_motor_f32.h"
+#ifdef CONFIG_EXAMPLES_FOC_FEEDFORWARD
+#  include "industry/foc/float/foc_feedforward.h"
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -780,8 +783,13 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
 
   /* DQ compensation */
 
+#ifdef CONFIG_EXAMPLES_FOC_FEEDFORWARD
+  foc_feedforward_pmsm_f32(&motor->phy, &motor->foc_state.idq,
+                           motor->vel.now, &motor->vdq_comp);
+#else
   motor->vdq_comp.q = 0.0f;
   motor->vdq_comp.d = 0.0f;
+#endif
 
 errout:
   return ret;
