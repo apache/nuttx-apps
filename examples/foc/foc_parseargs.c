@@ -76,6 +76,8 @@ static struct option g_long_options[] =
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
     { "vel", required_argument, 0, 'v' },
+    { "acc", required_argument, 0, 'a' },
+    { "dec", required_argument, 0, 'd' },
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
     { "pos", required_argument, 0, 'x' },
@@ -157,6 +159,10 @@ static void foc_help(FAR struct args_s *args)
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   PRINTF("  [-v] velocity [x1000]\n");
+  PRINTF("  [-a] acceleration [x1000] (default: %" PRId32 ")\n",
+         args->cfg.acc);
+  PRINTF("  [-d] deceleration [x1000] (default: %" PRId32 ")\n",
+         args->cfg.dec);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
   PRINTF("  [-x] position [x1000]\n");
@@ -238,7 +244,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
 
   while (1)
     {
-      c = getopt_long(argc, argv, "ht:f:m:o:r:v:x:s:j:", g_long_options,
+      c = getopt_long(argc, argv, "ht:f:m:o:r:v:a:d:x:s:j:", g_long_options,
                       &option_index);
 
       if (c == -1)
@@ -386,6 +392,18 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
           case 'v':
             {
               args->cfg.velmax = atoi(optarg);
+              break;
+            }
+
+          case 'a':
+            {
+              args->cfg.acc = atoi(optarg);
+              break;
+            }
+
+          case 'd':
+            {
+              args->cfg.dec = atoi(optarg);
               break;
             }
 #endif

@@ -117,8 +117,6 @@
 /* Velocity ramp configuration */
 
 #define RAMP_CFG_THR (CONFIG_EXAMPLES_FOC_RAMP_THR / 1000.0f)
-#define RAMP_CFG_ACC (CONFIG_EXAMPLES_FOC_RAMP_ACC / 1000.0f)
-#define RAMP_CFG_DEC (CONFIG_EXAMPLES_FOC_RAMP_DEC / 1000.0f)
 
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
 
@@ -239,6 +237,8 @@ struct foc_thr_cfg_s
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   uint32_t velmax;              /* Velocity max (x1000) */
+  uint32_t acc;                 /* Acceleration (x1000) */
+  uint32_t dec;                 /* Deceleration (x1000) */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
   uint32_t posmax;              /* Position max (x1000) */
