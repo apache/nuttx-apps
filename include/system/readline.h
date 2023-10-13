@@ -174,16 +174,30 @@ FAR const struct extmatch_vtable_s *
 ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd);
 
 /****************************************************************************
- * Name: readline
+ * Name: readline_stream
  *
- *   readline() is same to readline_fd() but accept a file stream instead
- *   of a file handle.
+ *   readline_stream() is same to readline_fd() but accept a file stream
+ *   instead of a file handle.
  *
  ****************************************************************************/
 
 #ifdef CONFIG_FILE_STREAM
-ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
+ssize_t readline_stream(FAR char *buf, int buflen,
+                        FAR FILE *instream, FAR FILE *outstream);
 #endif
+
+/****************************************************************************
+ * Name: readline
+ *
+ *   readline will read a line from the terminal and return it, using
+ *   prompt as a prompt.  If prompt is NULL or the empty string, no prompt
+ *   is issued.  The line returned is allocated with malloc(3);
+ *   the caller must free it when finished.  The line re‐turned has the
+ *   final newline removed, so only the text of the line remains.
+ *
+ ****************************************************************************/
+
+FAR char *readline(FAR const char *prompt);
 
 /****************************************************************************
  * Name: std_readline
@@ -212,7 +226,7 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
  *
  ****************************************************************************/
 
-#define std_readline(b,s) readline(b,s,stdin,stdout)
+#define std_readline(b,s) readline_stream(b,s,stdin,stdout)
 
 #undef EXTERN
 #ifdef __cplusplus

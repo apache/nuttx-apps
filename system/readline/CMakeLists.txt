@@ -20,6 +20,7 @@
 
 if(CONFIG_SYSTEM_READLINE)
 
-  target_sources(apps PRIVATE readline.c readline_fd.c readline_common.c)
+  target_sources(apps PRIVATE readline.c readline_fd.c readline_stream.c
+                              readline_common.c)
 
 endif()
