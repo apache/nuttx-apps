@@ -576,6 +576,40 @@ errout:
 }
 
 /****************************************************************************
+ * Name: foc_motor_vel_reset
+ ****************************************************************************/
+
+static int foc_motor_vel_reset(FAR struct foc_motor_b16_s *motor)
+{
+  int ret = OK;
+
+  /* Reset velocity observer */
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
+  ret = foc_velocity_zero_b16(&motor->vel_div);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_velocity_zero failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
+  ret = foc_velocity_zero_b16(&motor->vel_pll);
+  if (ret < 0)
+    {
+      PRINTF("ERROR: foc_velocity_zero failed %d\n", ret);
+      goto errout;
+    }
+#endif
+
+#ifdef CONFIG_EXAMPLES_FOC_VELOBS
+  errout:
+#endif
+  return ret;
+}
+
+/****************************************************************************
  * Name: foc_motor_state
  ****************************************************************************/
 
@@ -630,6 +664,27 @@ static int foc_motor_state(FAR struct foc_motor_b16_s *motor, int state)
           goto errout;
         }
     }
+
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+  /* Re-align motor if we change mode from FREE/STOP to CW/CCW otherwise,
+   * the open-loop may fail because the rotor position at the start is
+   * random.
+   */
+
+  if ((motor->mq.app_state == FOC_EXAMPLE_STATE_FREE ||
+       motor->mq.app_state == FOC_EXAMPLE_STATE_STOP) &&
+      (state == FOC_EXAMPLE_STATE_CW ||
+       state == FOC_EXAMPLE_STATE_CCW))
+    {
+      motor->ctrl_state = FOC_CTRL_STATE_ALIGN;
+      motor->align_done = false;
+      motor->angle_now  = 0;
+
+      /* Reset velocity observer */
+
+      foc_motor_vel_reset(motor);
+    }
+#endif
 
   /* Reset current setpoint */
 
@@ -700,29 +755,10 @@ static int foc_motor_run_init(FAR struct foc_motor_b16_s *motor)
 {
   int ret = OK;
 
-  /* Reset velocity observer */
-
-#ifdef CONFIG_EXAMPLES_FOC_VELOBS_DIV
-  ret = foc_velocity_zero_b16(&motor->vel_div);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_velocity_zero failed %d\n", ret);
-      goto errout;
-    }
-#endif
-
-#ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
-  ret = foc_velocity_zero_b16(&motor->vel_pll);
-  if (ret < 0)
-    {
-      PRINTF("ERROR: foc_velocity_zero failed %d\n", ret);
-      goto errout;
-    }
-#endif
-
 #ifdef CONFIG_EXAMPLES_FOC_VELOBS
-errout:
+  ret = foc_motor_vel_reset(motor);
 #endif
+
   return ret;
 }
 
