@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/irtest/main.cxx
+ * apps/system/readline/readline_stream.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -22,56 +22,41 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <stdio.h>
+#include <assert.h>
 
 #include "system/readline.h"
-#include "cmd.hpp"
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-static ssize_t prompt(const char *p, char *buf, size_t len)
-{
-  fputs(p, stdout);
-  fflush(stdout);
-  return readline_stream(buf, len, stdin, stdout);
-}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-extern "C"
+/****************************************************************************
+ * Name: readline_stream
+ *
+ *   readline_stream() is same to readline_fd() but accept a file stream
+ *   instead of a file handle.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_FILE_STREAM
+ssize_t readline_stream(FAR char *buf, int buflen,
+                        FAR FILE *instream, FAR FILE *outstream)
 {
-int main(int argc, char *argv[])
-{
-  char cmdline[512];
+  int instream_fd;
+  int outstream_fd;
 
-  init_device();
+  /* Sanity checks */
 
-  while (prompt("$", cmdline, sizeof(cmdline)))
-    {
-      const char *name = get_first_arg(cmdline);
-      if (name != 0 && *name != 0)
-        {
-          int res =  -ENOSYS;
-          for (int i = 0; g_cmd_table[i]; i++)
-            {
-              if (strcmp(name, g_cmd_table[i]->name) == 0)
-                {
-                  res = g_cmd_table[i]->exec();
-                  break;
-                }
-            }
+  DEBUGASSERT(instream && outstream);
 
-          if (res < 0)
-            {
-              printf("%s: %s(%d)\n", name, strerror(-res), res);
-            }
-        }
-    }
+  /* Let readline_fd do the work */
 
-  return 0;
+  instream_fd  = fileno(instream);
+  outstream_fd = fileno(outstream);
+
+  return readline_fd(buf, buflen, instream_fd, outstream_fd);
 }
-}
+#endif

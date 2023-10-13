@@ -22,6 +22,6 @@ include $(APPDIR)/Make.defs
 
 # The Readline Library
 
-CSRCS = readline.c readline_fd.c readline_common.c
+CSRCS = readline.c readline_fd.c readline_stream.c readline_common.c
 
 include $(APPDIR)/Application.mk
