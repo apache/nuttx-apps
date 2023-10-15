@@ -307,8 +307,8 @@ static int foc_motor_configure(FAR struct foc_motor_f32_s *motor)
   ret = foc_ramp_init_f32(&motor->ramp,
                           motor->per,
                           RAMP_CFG_THR,
-                          (motor->envp->cfg->acc / 1000.0f),
-                          (motor->envp->cfg->dec / 1000.0f));
+                          (motor->envp->cfg->acc / 1.0f),
+                          (motor->envp->cfg->dec / 1.0f));
   if (ret < 0)
     {
       PRINTF("ERROR: foc_ramp_init failed %d\n", ret);
