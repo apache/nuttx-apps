@@ -291,8 +291,8 @@ static int foc_angle_onfo_run_f32(FAR foc_angle_f32_t *h,
 
   /* Update and the observer gain. */
 
-  dyn_gain = LINEAR_MAP(fabsf(duty_now), 0.0, 1.0,
-             ob->cfg.gain * ob->cfg.gain_slow, ob->cfg.gain) * 0.5;
+  dyn_gain = LINEAR_MAP(fabsf(duty_now), 0.0f, 1.0f,
+             ob->cfg.gain * ob->cfg.gain_slow, ob->cfg.gain) * 0.5f;
 
   /* Update observer */
 
