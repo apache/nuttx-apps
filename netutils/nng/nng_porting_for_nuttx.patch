@@ -1,0 +1,180 @@
+diff --git nng/src/core/dialer.c nng/src/core/dialer.c
+index a9674226..7b22f915 100644
+--- nng/src/core/dialer.c
++++ nng/src/core/dialer.c
+@@ -63,7 +63,7 @@ nni_dialer_destroy(nni_dialer *d)
+ 	NNI_FREE_STRUCT(d);
+ }
+ 
+-#if NNG_ENABLE_STATS
++#if defined(NNG_ENABLE_STATS) && NNG_ENABLE_STATS
+ static void
+ dialer_stat_init(nni_dialer *d, nni_stat_item *item, const nni_stat_info *info)
+ {
+diff --git nng/src/core/listener.c nng/src/core/listener.c
+index c2a5863d..9073ccc7 100644
+--- nng/src/core/listener.c
++++ nng/src/core/listener.c
+@@ -513,7 +513,7 @@ nni_listener_getopt(
+ void
+ nni_listener_add_stat(nni_listener *l, nni_stat_item *item)
+ {
+-#if NNG_ENABLE_STATS
++#if defined(NNG_ENABLE_STATS) && NNG_ENABLE_STATS
+ 	nni_stat_add(&l->st_root, item);
+ #else
+ 	NNI_ARG_UNUSED(l);
+diff --git nng/src/core/panic.c nng/src/core/panic.c
+index d50664cf..5bbb6f56 100644
+--- nng/src/core/panic.c
++++ nng/src/core/panic.c
+@@ -23,7 +23,7 @@
+ void
+ nni_show_backtrace(void)
+ {
+-#if NNG_HAVE_BACKTRACE
++#if defined(NNG_HAVE_BACKTRACE) && NNG_HAVE_BACKTRACE
+ 	void *frames[50];
+ 	int   nframes;
+ 
+diff --git nng/src/core/pipe.c nng/src/core/pipe.c
+index a2b6411f..3303bc2a 100644
+--- nng/src/core/pipe.c
++++ nng/src/core/pipe.c
+@@ -334,7 +334,7 @@ nni_pipe_create_listener(nni_pipe **pp, nni_listener *l, void *tdata)
+ 		return (rv);
+ 	}
+ 	p->p_listener = l;
+-#if NNG_ENABLE_STATS
++#if defined(NNG_ENABLE_STATS) && NNG_ENABLE_STATS
+ 	static const nni_stat_info listener_info = {
+ 		.si_name = "listener",
+ 		.si_desc = "listener for pipe",
+diff --git nng/src/core/socket.c nng/src/core/socket.c
+index e170289d..50dddffc 100644
+--- nng/src/core/socket.c
++++ nng/src/core/socket.c
+@@ -659,7 +659,7 @@ nni_sock_open(nni_sock **sockp, const nni_proto *proto)
+ 	nni_mtx_unlock(&sock_lk);
+ 
+ 	// Set the socket name.
+-	(void) snprintf(s->s_name, sizeof(s->s_name), "%u", s->s_id);
++	(void) snprintf(s->s_name, sizeof(s->s_name), "%" PRIu32 "",s->s_id);
+ 
+ #ifdef NNG_ENABLE_STATS
+ 	// Set up basic stat values.
+diff --git nng/src/core/stream.c nng/src/core/stream.c
+index 418bfb15..53905bf5 100644
+--- nng/src/core/stream.c
++++ nng/src/core/stream.c
+@@ -44,6 +44,7 @@ static struct {
+ 	    .listener_alloc = nni_ipc_listener_alloc,
+ 	},
+ #endif
++#ifdef NNG_TRANSPORT_TCP
+ 	{
+ 	    .scheme         = "tcp",
+ 	    .dialer_alloc   = nni_tcp_dialer_alloc,
+@@ -59,6 +60,7 @@ static struct {
+ 	    .dialer_alloc   = nni_tcp_dialer_alloc,
+ 	    .listener_alloc = nni_tcp_listener_alloc,
+ 	},
++#ifdef NNG_TRANSPORT_TLS
+ 	{
+ 	    .scheme         = "tls+tcp",
+ 	    .dialer_alloc   = nni_tls_dialer_alloc,
+@@ -74,6 +76,9 @@ static struct {
+ 	    .dialer_alloc   = nni_tls_dialer_alloc,
+ 	    .listener_alloc = nni_tls_listener_alloc,
+ 	},
++#endif
++#endif
++#ifdef NNG_TRANSPORT_WS
+ 	{
+ 	    .scheme         = "ws",
+ 	    .dialer_alloc   = nni_ws_dialer_alloc,
+@@ -89,11 +94,14 @@ static struct {
+ 	    .dialer_alloc   = nni_ws_dialer_alloc,
+ 	    .listener_alloc = nni_ws_listener_alloc,
+ 	},
++#endif
++#ifdef NNG_TRANSPORT_WSS
+ 	{
+ 	    .scheme         = "wss",
+ 	    .dialer_alloc   = nni_ws_dialer_alloc,
+ 	    .listener_alloc = nni_ws_listener_alloc,
+ 	},
++#endif
+ 	{
+ 	    .scheme = NULL,
+ 	},
+diff --git nng/src/platform/posix/posix_file.c nng/src/platform/posix/posix_file.c
+index d5fb5016..11ad4012 100644
+--- nng/src/platform/posix/posix_file.c
++++ nng/src/platform/posix/posix_file.c
+@@ -289,7 +289,7 @@ nni_plat_file_lock(const char *path, nni_plat_flock *lk)
+ 	rv = 0;
+ #endif
+ 	if (rv < 0) {
+-		int rv = errno;
++		rv = errno;
+ 		close(fd);
+ 		if (rv == EAGAIN) {
+ 			return (NNG_EBUSY);
+diff --git nng/src/platform/posix/posix_pollq_poll.c nng/src/platform/posix/posix_pollq_poll.c
+index f6f81703..94b7c76c 100644
+--- nng/src/platform/posix/posix_pollq_poll.c
++++ nng/src/platform/posix/posix_pollq_poll.c
+@@ -7,6 +7,7 @@
+ // file was obtained (LICENSE.txt).  A copy of the license may also be
+ // found online at https://opensource.org/licenses/MIT.
+ //
++#if !defined(NNG_HAVE_PORT) && !defined(NNG_HAVE_KQUEUE) && !defined(NNG_HAVE_EPOLL)
+ 
+ #include "core/nng_impl.h"
+ #include "platform/posix/posix_pollq.h"
+@@ -346,3 +347,4 @@ nni_posix_pollq_sysfini(void)
+ {
+ 	nni_posix_pollq_destroy(&nni_posix_global_pollq);
+ }
++#endif
+diff --git nng/src/sp/protocol/pair1/pair.c nng/src/sp/protocol/pair1/pair.c
+index 4a909888..1cd69460 100644
+--- nng/src/sp/protocol/pair1/pair.c
++++ nng/src/sp/protocol/pair1/pair.c
+@@ -500,7 +500,7 @@ pair1_pipe_send(pair1_pipe *p, nni_msg *m)
+ 	// assumption: we have unique access to the message at this point.
+ 	NNI_ASSERT(!nni_msg_shared(m));
+ 
+-#if NNG_TEST_LIB
++#if defined(NNG_TEST_LIB) && NNG_TEST_LIB
+ 	if (s->inject_header) {
+ 		goto inject;
+ 	}
+@@ -508,7 +508,7 @@ pair1_pipe_send(pair1_pipe *p, nni_msg *m)
+ 	NNI_ASSERT(nni_msg_header_len(m) == sizeof(uint32_t));
+ 	nni_msg_header_poke_u32(m, nni_msg_header_peek_u32(m) + 1);
+ 
+-#if NNG_TEST_LIB
++#if defined(NNG_TEST_LIB) && NNG_TEST_LIB
+ inject:
+ #endif
+ 
+@@ -533,7 +533,7 @@ pair1_sock_send(void *arg, nni_aio *aio)
+ 		return;
+ 	}
+ 
+-#if NNG_TEST_LIB
++#if defined(NNG_TEST_LIB) && NNG_TEST_LIB
+ 	if (s->inject_header) {
+ 		goto inject;
+ 	}
+@@ -556,7 +556,7 @@ pair1_sock_send(void *arg, nni_aio *aio)
+ 		nni_msg_header_append_u32(m, 0);
+ 	}
+ 
+-#if NNG_TEST_LIB
++#if defined(NNG_TEST_LIB) && NNG_TEST_LIB
+ inject:
+ #endif
+ 
