@@ -1005,5 +1005,12 @@ int foc_routine_align_final_f32(FAR foc_routine_f32_t *r, FAR void *data)
 
   memcpy(data, &a->final, sizeof(struct foc_routine_aling_final_f32_s));
 
+  /* Reset data but leave configuration */
+
+  memset(&a->final,
+         0,
+         (sizeof(struct foc_align_f32_s) -
+          sizeof(struct foc_routine_align_cfg_f32_s)));
+
   return OK;
 }
