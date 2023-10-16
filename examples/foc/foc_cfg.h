@@ -132,17 +132,6 @@
 #  define FOC_MODEL_INDQ  (0.0002f)
 #endif
 
-/* Motor alignment configuration */
-
-#ifdef CONFIG_EXAMPLES_FOC_HAVE_ALIGN
-#  if CONFIG_EXAMPLES_FOC_ALIGN_VOLT == 0
-#    error
-#  endif
-#  if CONFIG_EXAMPLES_FOC_ALIGN_SEC == 0
-#    error
-#  endif
-#endif
-
 /* Qenco configuration */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
