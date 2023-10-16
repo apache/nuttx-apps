@@ -253,11 +253,11 @@ static void foc_fixed16_nxscope(FAR struct foc_nxscope_s *nxs,
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_DQREF)
   ptr = (FAR b16_t *)&motor->dq_ref;
-  nxscope_put_vb16_t(&nxs->nxs, i++, ptr, 2);
+  nxscope_put_vb16(&nxs->nxs, i++, ptr, 2);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_VDQCOMP)
   ptr = (FAR b16_t *)&motor->vdq_comp;
-  nxscope_put_vb16_t(&nxs->nxs, i++, ptr, 2);
+  nxscope_put_vb16(&nxs->nxs, i++, ptr, 2);
 #endif
 #if (CONFIG_EXAMPLES_FOC_NXSCOPE_CFG & FOC_NXSCOPE_SVM3)
   b16_t svm3_tmp[4];
@@ -275,7 +275,7 @@ static void foc_fixed16_nxscope(FAR struct foc_nxscope_s *nxs,
   svm3_tmp[3] = motor->mod_state.d_w;
 
   ptr = svm3_tmp;
-  nxscope_put_vfloat(&nxs->nxs, i++, ptr, 4);
+  nxscope_put_vb16(&nxs->nxs, i++, ptr, 4);
 #endif
 
   nxscope_unlock(&nxs->nxs);
