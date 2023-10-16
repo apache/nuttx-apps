@@ -135,6 +135,12 @@ config INDUSTRY_FOC_ALIGN
 
 if INDUSTRY_FOC_ALIGN
 
+config INDUSTRY_FOC_ALIGN_DIR
+	bool "FOC alignment direction support"
+	default n
+	---help---
+		Enable support for sensor direction alignment
+
 config INDUSTRY_FOC_ALIGN_INDEX
 	bool "FOC alignment index search support"
 	default n
