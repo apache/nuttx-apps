@@ -34,6 +34,9 @@ CFLAGS += -DNNG_TRANSPORT_TCP
 CFLAGS += -DNNG_TRANSPORT_TLS
 CFLAGS += -DNNG_TRANSPORT_WS
 CFLAGS += -DNNG_TRANSPORT_WSS
+CFLAGS += -DNNG_SETSTACKSIZE
+CFLAGS += -DNNG_HAVE_PTHREAD_SETNAME_NP
+CFLAGS += -DNNG_MAX_TASKQ_THREADS=6
 
 CFLAGS += -DNNG_USE_EVENTFD
 ifeq ($(CONFIG_NETUTILS_NNG_HAVE_EPOLL),y)
@@ -149,6 +152,8 @@ $(NNG_TARBALL):
 $(NNG_UNPACK): $(NNG_TARBALL)
 	$(Q) tar zxf $(NNG_TARBALL)
 	$(Q) mv nng-$(NNG_VERSION) $(NNG_UNPACK)
+	$(Q) echo "Patching $(NNG_UNPACK)"
+	$(Q) patch -p0 < nng_porting_for_nuttx.patch
 	$(Q) touch $(NNG_UNPACK)
 
 # Download and unpack tarball if no git repo found
