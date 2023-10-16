@@ -214,6 +214,8 @@ static int foc_velocity_div_zero_b16(FAR foc_velocity_b16_t *h)
                                div->cfg.filter,
                                div->cfg.per);
 
+  div->o.speed = 0;
+
   return ret;
 }
 
