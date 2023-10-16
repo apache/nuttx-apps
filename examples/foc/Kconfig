@@ -366,11 +366,11 @@ config EXAMPLES_FOC_HAVE_ALIGN
 if EXAMPLES_FOC_HAVE_ALIGN
 
 config EXAMPLES_FOC_ALIGN_VOLT
-	int "EXAMPLES_FOC_ALIGN_VOLT (x1000)"
+	int "FOC example motor alignment voltage (x1000)"
 	default 0
 
 config EXAMPLES_FOC_ALIGN_SEC
-	int "EXAMPLES_FOC_ALIGN_SEC (x1000)"
+	int "FOC example motor alignment time (x1000)"
 	default 0
 
 endif # EXAMPLES_FOC_HAVE_ALIGN
