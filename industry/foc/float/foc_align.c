@@ -75,8 +75,10 @@ enum foc_align_run_stage_e
   FOC_ALIGN_RUN_INDEX,
 #endif
   FOC_ALIGN_RUN_OFFSET,
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_DIR
   FOC_ALIGN_RUN_DIR,
   FOC_ALIGN_RUN_IDLE,
+#endif
   FOC_ALIGN_RUN_DONE
 };
 
@@ -347,6 +349,7 @@ errout:
   return ret;
 }
 
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_DIR
 /****************************************************************************
  * Name: foc_align_dir_move_f32
  ****************************************************************************/
@@ -709,6 +712,7 @@ static int foc_align_idle_run_f32(FAR struct foc_align_f32_s *align,
 
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Name: foc_routine_align_init_f32
@@ -910,6 +914,7 @@ int foc_routine_align_run_f32(FAR foc_routine_f32_t *r,
         break;
       }
 
+#ifdef CONFIG_INDUSTRY_FOC_ALIGN_DIR
       case FOC_ALIGN_RUN_DIR:
         {
           /* Align direction procedure */
@@ -951,6 +956,7 @@ int foc_routine_align_run_f32(FAR foc_routine_f32_t *r,
 
           break;
         }
+#endif
 
       case FOC_ALIGN_RUN_DONE:
         {
