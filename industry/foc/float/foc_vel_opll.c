@@ -212,6 +212,8 @@ static int foc_velocity_pll_zero_f32(FAR foc_velocity_f32_t *h)
                            pll->cfg.kp,
                            pll->cfg.ki);
 
+  pll->o.speed = 0.0f;
+
   return ret;
 }
 
