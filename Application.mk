@@ -205,9 +205,10 @@ $(ZIGOBJS): %$(ZIGEXT)$(SUFFIX)$(OBJEXT): %$(ZIGEXT)
 	$(if $(and $(CONFIG_BUILD_LOADABLE), $(CELFFLAGS)), \
 		$(call ELFCOMPILEZIG, $<, $@), $(call COMPILEZIG, $<, $@))
 
-AROBJS := 
+AROBJS :=
 ifneq ($(OBJS),)
-$(eval $(call SPLITVARIABLE,OBJS_SPILT,$(OBJS),100))
+SORTOBJS := $(sort $(OBJS))
+$(eval $(call SPLITVARIABLE,OBJS_SPILT,$(SORTOBJS),100))
 $(foreach BATCH, $(OBJS_SPILT_TOTAL), \
 	$(foreach obj, $(OBJS_SPILT_$(BATCH)), \
 		$(eval substitute := $(patsubst %$(OBJEXT),%_$(BATCH)$(OBJEXT),$(obj))) \
@@ -298,7 +299,7 @@ endif
 	  $(shell $(MKDEP) $(DEPPATH) --obj-suffix .c$(SUFFIX)$(OBJEXT) "$(CC)" -- $(CFLAGS) -- $(filter %.c,$(ALL_DEP_OBJS_$(BATCH))) >Make.dep) \
 	  $(shell $(MKDEP) $(DEPPATH) --obj-suffix .S$(SUFFIX)$(OBJEXT) "$(CC)" -- $(CFLAGS) -- $(filter %.S,$(ALL_DEP_OBJS_$(BATCH))) >>Make.dep) \
 	  $(shell $(MKDEP) $(DEPPATH) --obj-suffix $(CXXEXT)$(SUFFIX)$(OBJEXT) "$(CXX)" -- $(CXXFLAGS) -- $(filter %$(CXXEXT),$(ALL_DEP_OBJS_$(BATCH))) >>Make.dep) \
-	) 
+	)
 	$(Q) touch $@
 
 depend:: .depend
@@ -306,8 +307,8 @@ depend:: .depend
 
 clean::
 	$(call DELFILE, .built)
+	$(call CLEANAROBJS)
 	$(call CLEAN)
-
 distclean:: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
