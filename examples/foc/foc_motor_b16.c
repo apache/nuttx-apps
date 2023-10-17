@@ -439,7 +439,7 @@ static int foc_motor_torq(FAR struct foc_motor_b16_s *motor, uint32_t torq)
    */
 
   tmp1 = itob16(motor->envp->cfg->torqmax / 1000);
-  tmp2 = b16mulb16(ftob16(SETPOINT_ADC_SCALE), tmp1);
+  tmp2 = b16mulb16(ftob16(SETPOINT_INTF_SCALE), tmp1);
 
   motor->torq.des = b16muli(tmp2, torq);
 
@@ -464,7 +464,7 @@ static int foc_motor_vel(FAR struct foc_motor_b16_s *motor, uint32_t vel)
    */
 
   tmp1 = itob16(motor->envp->cfg->velmax / 1000);
-  tmp2 = b16mulb16(ftob16(SETPOINT_ADC_SCALE), tmp1);
+  tmp2 = b16mulb16(ftob16(SETPOINT_INTF_SCALE), tmp1);
 
   motor->vel.des = b16muli(tmp2, vel);
 
@@ -489,7 +489,7 @@ static int foc_motor_pos(FAR struct foc_motor_b16_s *motor, uint32_t pos)
    */
 
   tmp1 = itob16(motor->envp->cfg->posmax / 1000);
-  tmp2 = b16mulb16(ftob16(SETPOINT_ADC_SCALE), tmp1);
+  tmp2 = b16mulb16(ftob16(SETPOINT_INTF_SCALE), tmp1);
 
   motor->pos.des = b16muli(tmp2, pos);
 

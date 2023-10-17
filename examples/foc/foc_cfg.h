@@ -154,13 +154,13 @@
 /* Setpoint ADC scale factor */
 
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_ADC
-#  define SETPOINT_ADC_SCALE (1.0f / CONFIG_EXAMPLES_FOC_ADC_MAX)
+#  define SETPOINT_INTF_SCALE (1.0f / CONFIG_EXAMPLES_FOC_ADC_MAX)
 #endif
 
 /* If constant setpoint is selected, setpoint value must be provided */
 
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
-#  define SETPOINT_ADC_SCALE   (1)
+#  define SETPOINT_INTF_SCALE   (1)
 #  if CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE == 0
 #    error
 #  endif
@@ -169,7 +169,7 @@
 /* CHARCTRL setpoint control */
 
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CHAR
-#  define SETPOINT_ADC_SCALE  (1.0f / (CONFIG_EXAMPLES_FOC_SETPOINT_MAX / 1000.0f))
+#  define SETPOINT_INTF_SCALE  (1.0f / (CONFIG_EXAMPLES_FOC_SETPOINT_MAX / 1000.0f))
 #endif
 
 /* VBUS source must be specified */
