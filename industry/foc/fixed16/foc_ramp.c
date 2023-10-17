@@ -85,6 +85,8 @@ int foc_ramp_init_b16(FAR struct foc_ramp_b16_s *ramp, b16_t per,
 int foc_ramp_run_b16(FAR struct foc_ramp_b16_s *ramp, b16_t des,
                      b16_t now, FAR b16_t *set)
 {
+  b16_t sign = b16ONE;
+
   DEBUGASSERT(ramp);
 
   /* Check if we require soft start/stop operation.
@@ -95,13 +97,41 @@ int foc_ramp_run_b16(FAR struct foc_ramp_b16_s *ramp, b16_t des,
     {
       ramp->diff = des - *set;
 
-      if (ramp->diff >= ramp->ramp_thr)
+      /* If we change direction then the first vel target is 0 */
+
+      if (des * (*set) < 0)
         {
+          ramp->diff = -now;
+          des        = 0;
+        }
+
+      if (now >= 0 && ramp->diff >= ramp->ramp_thr)
+        {
+          /* Soft start in CW direction */
+
+          sign            = b16ONE;
           ramp->ramp_mode = RAMP_MODE_SOFTSTART;
         }
-      else if (ramp->diff <= -ramp->ramp_thr)
+      else if (now >= 0 && ramp->diff <= -ramp->ramp_thr)
         {
+          /* Soft stop in CW direction */
+
+          sign            = -b16ONE;
           ramp->ramp_mode = RAMP_MODE_SOFTSTOP;
+        }
+      else if (now < 0 && ramp->diff >= ramp->ramp_thr)
+        {
+          /* Soft stop in CCW direction */
+
+          sign            = b16ONE;
+          ramp->ramp_mode = RAMP_MODE_SOFTSTOP;
+        }
+      else if (now < 0 && ramp->diff <= -ramp->ramp_thr)
+        {
+          /* Soft start in CCW direction */
+
+          sign            = -b16ONE;
+          ramp->ramp_mode = RAMP_MODE_SOFTSTART;
         }
       else
         {
@@ -129,38 +159,18 @@ int foc_ramp_run_b16(FAR struct foc_ramp_b16_s *ramp, b16_t des,
 
       case RAMP_MODE_SOFTSTART:
         {
-          if (des - *set >= ramp->ramp_thr)
-            {
-              /* Increase setpoint with ramp */
+          /* Increase setpoint with ramp */
 
-              *set = now + ramp->ramp_acc_per;
-            }
-          else
-            {
-              /* Set final setpoint and exit soft start */
-
-              *set            = des;
-              ramp->ramp_mode = RAMP_MODE_NORMAL;
-            }
+          *set = now + b16mulb16(sign, ramp->ramp_acc_per);
 
           break;
         }
 
       case RAMP_MODE_SOFTSTOP:
         {
-          if (des - *set <= -ramp->ramp_thr)
-            {
-              /* Stop motor with ramp */
+          /* Stop motor with ramp */
 
-              *set = now - ramp->ramp_dec_per;
-            }
-          else
-            {
-              /* Set final setpoint and exit soft stop */
-
-              *set            = des;
-              ramp->ramp_mode = RAMP_MODE_NORMAL;
-            }
+          *set = now + b16mulb16(sign, ramp->ramp_dec_per);
 
           break;
         }
