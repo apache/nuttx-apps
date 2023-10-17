@@ -30,4 +30,10 @@ config TESTING_SCANFTEST_STACKSIZE
 	int "Scanftest stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config TESTING_SCANFTEST_FNAME
+	string "Scanftest file name"
+	default "/mnt/fs/test.txt"
+	---help---
+		Path to the file for test writes/reads.
+
 endif
