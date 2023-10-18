@@ -1,0 +1,19 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_LIBWEBSOCKETS
+	bool "libwebsockets library (current version)"
+	default n
+	depends on NET && OPENSSL_MBEDTLS_WRAPPER
+	---help---
+		Enables the libwebsockets library.
+
+if NETUTILS_LIBWEBSOCKETS
+
+config NETUTILS_LIBWEBSOCKETS_VERSION
+	string "Version number"
+	default "4.3.1"
+
+endif
