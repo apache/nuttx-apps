@@ -264,6 +264,12 @@ int vfork_test(void);
 
 void setjmp_test(void);
 
+/* smp_call.c ***************************************************************/
+
+#ifdef CONFIG_SMP_CALL
+void smp_call_test(void);
+#endif
+
 /* APIs exported (conditionally) by the OS specifically for testing of
  * priority inheritance
  */

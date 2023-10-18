@@ -585,6 +585,11 @@ static int user_main(int argc, char *argv[])
       vfork_test();
 #endif
 
+#ifdef CONFIG_SMP_CALL
+      printf("\nuser_main: smp call test\n");
+      smp_call_test();
+#endif
+
       /* Compare memory usage at time ostest_main started until
        * user_main exits.  These should not be identical, but should
        * be similar enough that we can detect any serious OS memory
