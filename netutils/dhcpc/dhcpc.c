@@ -544,6 +544,7 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
        * used by another client.
        */
 
+#if defined(CONFIG_DEV_URANDOM) || defined(CONFIG_DEV_RANDOM)
       ret = getrandom(pdhcpc->xid, 4, 0);
       if (ret != 4)
         {
@@ -553,6 +554,9 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
               memcpy(pdhcpc->xid, default_xid, 4);
             }
         }
+#else
+      memcpy(pdhcpc->xid, default_xid, 4);
+#endif
 
       pdhcpc->interface = interface;
       pdhcpc->maclen    = maclen;
