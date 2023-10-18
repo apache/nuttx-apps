@@ -132,6 +132,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS setjmp.c)
   endif()
 
+  if(CONFIG_SMP_CALL)
+    list(APPEND SRCS smp_call.c)
+  endif()
+
   target_sources(apps PRIVATE ${SRCS})
 
   nuttx_add_application(NAME ostest SRCS ostest_main.c)
