@@ -26,6 +26,7 @@
 #include <openssl/hmac.h>
 #include <mbedtls/hmac_drbg.h>
 #include <mbedtls/md.h>
+#include <stdlib.h>
 
 /****************************************************************************
  * Public Functions
