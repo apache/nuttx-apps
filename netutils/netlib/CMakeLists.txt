@@ -56,6 +56,7 @@ if(CONFIG_NETUTILS_NETLIB)
   endif()
 
   if(CONFIG_NET_IPv6)
+    list(APPEND SRCS netlib_addipv6addr.c netlib_delipv6addr.c)
     list(APPEND SRCS netlib_setipv6addr.c netlib_getipv6addr.c)
     list(APPEND SRCS netlib_setdripv6addr.c netlib_setipv6netmask.c)
     list(APPEND SRCS netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c)
