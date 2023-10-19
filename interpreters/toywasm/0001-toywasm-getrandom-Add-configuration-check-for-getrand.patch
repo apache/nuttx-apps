@@ -1,0 +1,26 @@
+From 18e50a864ab035c115f0124191e752eee0829a48 Mon Sep 17 00:00:00 2001
+From: makejian <makejian@xiaomi.com>
+Date: Thu, 19 Oct 2023 10:26:17 +0800
+Subject: [PATCH] toywasm/getrandom: Add configuration check for 'getrandom'
+
+Signed-off-by: makejian <makejian@xiaomi.com>
+---
+ libwasi/wasi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git toywasm/libwasi/wasi.c toywasm/libwasi/wasi.c
+index 8317fca..98b601d 100644
+--- toywasm/libwasi/wasi.c
++++ toywasm/libwasi/wasi.c
+@@ -2440,7 +2440,7 @@ wasi_random_get(struct exec_context *ctx, struct host_instance *hi,
+         if (host_ret != 0) {
+                 goto fail;
+         }
+-#if defined(__GLIBC__) || defined(__NuttX__)
++#if defined(__GLIBC__) || (defined(__NuttX__) && (defined(CONFIG_DEV_URANDOM) || defined(CONFIG_DEV_RANDOM)))
+         /*
+          * glibc doesn't have arc4random
+          * https://sourceware.org/bugzilla/show_bug.cgi?id=4417
+-- 
+2.40.0
+

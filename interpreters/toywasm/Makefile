@@ -106,6 +106,7 @@ $(TOYWASM_UNPACK): $(TOYWASM_TARBALL)
 	$(Q) echo "Unpacking $(TOYWASM_TARBALL) to $(TOYWASM_UNPACK)"
 	$(Q) unzip $(TOYWASM_TARBALL)
 	$(Q) mv toywasm-$(TOYWASM_VERSION) $(TOYWASM_UNPACK)
+	$(Q) patch -d $(TOYWASM_UNPACK) -p1 < 0001-toywasm-getrandom-Add-configuration-check-for-getrand.patch
 	$(Q) touch $(TOYWASM_UNPACK)
 
 # Download and unpack tarball if no git repo found
