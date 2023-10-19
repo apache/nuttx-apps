@@ -35,8 +35,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define SIGN(x) ((x > 0) ? b16ONE : -b16ONE)
-
 #define LINEAR_MAP(x, in_min, in_max, out_min, out_max)     \
   (b16divb16(b16mulb16((x - in_min), (out_max - out_min)),  \
              (in_max - in_min)) + out_min)
@@ -299,7 +297,7 @@ static int foc_angle_onfo_run_b16(FAR foc_angle_b16_t *h,
 
   /* Update duty cycle now */
 
-  duty_now = b16mulb16(SIGN(in->state->vdq.q),
+  duty_now = b16mulb16(b16sign(in->state->vdq.q),
                        vector2d_mag_b16(v_dq_mod.d, v_dq_mod.q));
 
   /* Update and the observer gain. */
