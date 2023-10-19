@@ -86,7 +86,9 @@ CSRCS += idna.c
 CSRCS += strscpy.c
 CSRCS += strtok.c
 endif
+ifeq ($(CONFIG_FS_NOTIFY),)
 CSRCS += no-fsevents.c
+endif
 CSRCS += uv-common.c
 CSRCS += random-devurandom.c
 CSRCS += random.c
