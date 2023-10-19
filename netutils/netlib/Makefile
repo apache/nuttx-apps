@@ -56,6 +56,7 @@ endif
 endif
 
 ifeq ($(CONFIG_NET_IPv6),y)
+CSRCS += netlib_addipv6addr.c netlib_delipv6addr.c
 CSRCS += netlib_setipv6addr.c netlib_getipv6addr.c
 CSRCS += netlib_setdripv6addr.c netlib_setipv6netmask.c
 CSRCS += netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c

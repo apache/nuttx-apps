@@ -239,7 +239,21 @@ int netlib_get_ipv4netmask(FAR const char *ifname, FAR struct in_addr *addr);
 int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr);
 #endif
 
+/* We support multiple IPv6 addresses on a single interface.
+ * Recommend to use netlib_add/del_ipv6addr to manage them, by which you
+ * don't need to care about the slot it stored.
+ *
+ * Previous interfaces can still work, the ifname can be <eth>:<num>,
+ * e.g. eth0:0 stands for managing the secondary address on eth0
+ */
+
 #ifdef CONFIG_NET_IPv6
+#  ifdef CONFIG_NETDEV_MULTIPLE_IPv6
+int netlib_add_ipv6addr(FAR const char *ifname,
+                        FAR const struct in6_addr *addr, uint8_t preflen);
+int netlib_del_ipv6addr(FAR const char *ifname,
+                        FAR const struct in6_addr *addr, uint8_t preflen);
+#  endif
 int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr);
 int netlib_set_ipv6addr(FAR const char *ifname,
                         FAR const struct in6_addr *addr);

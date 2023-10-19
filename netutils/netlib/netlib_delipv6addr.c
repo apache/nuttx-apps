@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/netlib/netlib_setipv4addr.c
+ * apps/netutils/netlib/netlib_delipv6addr.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NETDEV_MULTIPLE_IPv6
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -42,45 +42,54 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_set_ipv4addr
+ * Name: netlib_del_ipv6addr
  *
  * Description:
- *   Set the network driver IPv4 address
+ *   Remove an IPv6 address from the network driver
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   ipaddr   The address to set
+ *   ipaddr   The address to delete
+ *   preflen  The prefix length of the address
  *
  * Return:
  *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
-int netlib_set_ipv4addr(FAR const char *ifname,
-                        FAR const struct in_addr *addr)
+int netlib_del_ipv6addr(FAR const char *ifname,
+                        FAR const struct in6_addr *addr, uint8_t preflen)
 {
   int ret = ERROR;
 
   if (ifname && addr)
     {
-      int sockfd = socket(AF_INET, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
+      int sockfd = socket(AF_INET6, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
       if (sockfd >= 0)
         {
-          FAR struct sockaddr_in *inaddr;
           struct ifreq req;
+          struct in6_ifreq ifr6;
 
           /* Add the device name to the request */
 
           strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
-          /* Add the INET address to the request */
+          /* Get interface index */
 
-          inaddr             = (FAR struct sockaddr_in *)&req.ifr_addr;
-          inaddr->sin_family = AF_INET;
-          inaddr->sin_port   = 0;
-          memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
+          ret = ioctl(sockfd, SIOCGIFINDEX,
+                     ((unsigned long)(uintptr_t)&req));
+          if (ret == OK)
+            {
+              /* Delete address from the interface. */
 
-          ret = ioctl(sockfd, SIOCSIFADDR, (unsigned long)&req);
+              ifr6.ifr6_ifindex = req.ifr_ifindex;
+              ifr6.ifr6_prefixlen = preflen;
+              memcpy(&ifr6.ifr6_addr, addr, sizeof(struct in6_addr));
+
+              ret = ioctl(sockfd, SIOCDIFADDR,
+                          ((unsigned long)(uintptr_t)&ifr6));
+            }
+
           close(sockfd);
         }
     }
@@ -88,4 +97,4 @@ int netlib_set_ipv4addr(FAR const char *ifname,
   return ret;
 }
 
-#endif /* CONFIG_NET_IPv4 */
+#endif /* CONFIG_NETDEV_MULTIPLE_IPv6 */
