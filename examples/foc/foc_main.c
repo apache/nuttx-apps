@@ -75,7 +75,12 @@ struct args_s g_args =
     .fmode = CONFIG_EXAMPLES_FOC_FMODE,
     .mmode = CONFIG_EXAMPLES_FOC_MMODE,
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-    .qparam = CONFIG_EXAMPLES_FOC_OPENLOOP_Q,
+    .qparam   = CONFIG_EXAMPLES_FOC_OPENLOOP_Q,
+    .ol_force = false,
+#  ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+    .ol_hys = CONFIG_EXAMPLES_FOC_ANGOBS_HYS,
+    .ol_thr = CONFIG_EXAMPLES_FOC_ANGOBS_THR,
+#  endif
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
     .foc_pi_kp = CONFIG_EXAMPLES_FOC_IDQ_KP,
@@ -123,6 +128,10 @@ struct args_s g_args =
 #ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
     .vel_pi_kp = CONFIG_EXAMPLES_FOC_VELCTRL_PI_KP,
     .vel_pi_ki = CONFIG_EXAMPLES_FOC_VELCTRL_PI_KI,
+#endif
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+    .ang_nfo_slow = CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAINSLOW,
+    .ang_nfo_gain = CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAIN,
 #endif
   }
 };

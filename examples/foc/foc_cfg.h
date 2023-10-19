@@ -27,6 +27,8 @@
 
 #include <nuttx/config.h>
 
+#include <stdbool.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -204,6 +206,12 @@
 #define VEL_CONTROL_PRESCALER (CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ /  \
                                CONFIG_EXAMPLES_FOC_VELCTRL_FREQ)
 
+/* Open-loop to observer angle merge factor */
+
+#if CONFIG_EXAMPLES_FOC_ANGOBS_MERGE_RATIO > 0
+#  define ANGLE_MERGE_FACTOR (CONFIG_EXAMPLES_FOC_ANGOBS_MERGE_RATIO / 100.0f)
+#endif
+
 /****************************************************************************
  * Public Type Definition
  ****************************************************************************/
@@ -213,7 +221,12 @@ struct foc_thr_cfg_s
   int      fmode;               /* FOC control mode */
   int      mmode;               /* Motor control mode */
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
-  int      qparam;              /* Open-loop Q setting (x1000) */
+  uint32_t qparam;              /* Open-loop Q setting (x1000) */
+  bool     ol_force;            /* Force open-loop */
+#  ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+  uint32_t ol_thr;             /* Observer vel threshold [x1] */
+  uint32_t ol_hys;             /* Observer vel hysteresys [x1] */
+#  endif
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
@@ -254,6 +267,11 @@ struct foc_thr_cfg_s
 #ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
   uint32_t vel_pi_kp;           /* Vel controller PI Kp (x1000000) */
   uint32_t vel_pi_ki;           /* Vel controller PI Ki (x1000000) */
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+  uint32_t ang_nfo_slow;        /* Ang NFO slow gain (x1) */
+  uint32_t ang_nfo_gain;        /* Ang NFO gain (x1) */
 #endif
 };
 

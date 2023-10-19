@@ -92,6 +92,10 @@ struct foc_motor_f32_s
   float                         per;          /* Controller period in seconds */
   float                         iphase_adc;   /* Iphase ADC scaling factor */
   float                         pwm_duty_max; /* PWM duty max */
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+  float                         ol_thr;       /* Angle observer threshold velocity */
+  float                         ol_hys;       /* Angle observer hysteresis */
+#endif
 
   /* Velocity controller data ***********************************************/
 
@@ -100,11 +104,19 @@ struct foc_motor_f32_s
   pid_controller_f32_t          vel_pi;       /* Velocity controller */
 #endif
 
-  /* Motor state ************************************************************/
+  /* Angle state ************************************************************/
 
   float                         angle_now;    /* Phase angle now */
   float                         angle_m;      /* Motor mechanical angle */
   float                         angle_el;     /* Motor electrical angle */
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+  float                         angle_ol;     /* Phase angle open-loop */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+  float                         angle_obs;    /* Angle observer output */
+  float                         angle_err;    /* Open-loop to observer error */
+  float                         angle_step;   /* Open-loop transition step */
+#endif
 
   /* Velocity state *********************************************************/
 
@@ -154,8 +166,8 @@ struct foc_motor_f32_s
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   foc_angle_f32_t               openloop;     /* Open-loop angle handler */
-  bool                          openloop_now; /* Open-loop now */
-  float                         angle_ol;     /* Phase angle open-loop */
+  uint8_t                       openloop_now; /* Open-loop now */
+  float                         openloop_q;   /* Open-loop Q parameter */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_HALL
   foc_angle_f32_t               hall;         /* Hall angle handler */
@@ -170,6 +182,12 @@ struct foc_motor_f32_s
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_VELOBS_PLL
   foc_velocity_f32_t            vel_pll;       /* PLL velocity observer */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_SMO
+  foc_angle_f32_t               ang_smo;      /* SMO angle observer */
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
+  foc_angle_f32_t               ang_nfo;      /* NFO angle observer */
 #endif
 };
 

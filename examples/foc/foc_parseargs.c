@@ -53,6 +53,13 @@
 #define OPT_VCPIKP  (SCHAR_MAX + 11)
 #define OPT_VCPIKI  (SCHAR_MAX + 12)
 
+#define OPT_ANFOS   (SCHAR_MAX + 13)
+#define OPT_ANFOG   (SCHAR_MAX + 14)
+
+#define OPT_OLFORCE (SCHAR_MAX + 16)
+#define OPT_OLTHR   (SCHAR_MAX + 17)
+#define OPT_OLHYS   (SCHAR_MAX + 18)
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -76,6 +83,11 @@ static struct option g_long_options[] =
     { "en", required_argument, 0, 'j' },
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
     { "oqset", required_argument, 0, 'o' },
+    { "olforce", no_argument, 0, OPT_OLFORCE },
+#  ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+    { "olthr", required_argument, 0, OPT_OLTHR },
+    { "olhys", required_argument, 0, OPT_OLHYS },
+#  endif
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
     { "fkp", required_argument, 0, OPT_FKP },
@@ -99,6 +111,10 @@ static struct option g_long_options[] =
 #ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
     { "vcpikp", required_argument, 0, OPT_VCPIKP },
     { "vcpiki", required_argument, 0, OPT_VCPIKI },
+#endif
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+    { "anfos", required_argument, 0, OPT_ANFOS },
+    { "anfog", required_argument, 0, OPT_ANFOG },
 #endif
     { 0, 0, 0, 0 }
   };
@@ -154,6 +170,13 @@ static void foc_help(void)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
   PRINTF("  [-o] openloop Vq/Iq setting [x1000] (default: %d)\n",
          CONFIG_EXAMPLES_FOC_OPENLOOP_Q);
+  PRINTF("  [--olforce] force openloop\n");
+#  ifdef CONFIG_EXAMPLES_FOC_ANGOBS
+  PRINTF("  [--olthr] observer vel threshold [x1] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_ANGOBS_THR);
+  PRINTF("  [--olhys] observer vel hysteresys [x1] (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_ANGOBS_THR);
+#  endif
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   PRINTF("  [--fki] PI Kp coefficient [x1000] (default: %d)\n",
@@ -186,10 +209,16 @@ static void foc_help(void)
          CONFIG_EXAMPLES_FOC_VELOBS_DIV_FILTER);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_VELCTRL_PI
-  PRINTF("  [--vpikp] velctrl PI Kp (default: %d)\n",
+  PRINTF("  [--vcpikp] velctrl PI Kp (default: %d)\n",
          CONFIG_EXAMPLES_FOC_VELCTRL_PI_KP);
-  PRINTF("  [--vpiki] velctrl PI Ki (default: %d)\n",
+  PRINTF("  [--vcpiki] velctrl PI Ki (default: %d)\n",
          CONFIG_EXAMPLES_FOC_VELCTRL_PI_KI);
+#endif
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+  PRINTF("  [--anfos] angobs NFO Slow (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAINSLOW);
+  PRINTF("  [--anfog] angobs NFO Gain (default: %d)\n",
+         CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAIN);
 #endif
 }
 
@@ -306,6 +335,20 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
             }
 #endif
 
+#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+          case OPT_ANFOS:
+            {
+              args->cfg.ang_nfo_slow = atoi(optarg);
+              break;
+            }
+
+          case OPT_ANFOG:
+            {
+              args->cfg.ang_nfo_gain = atoi(optarg);
+              break;
+            }
+#endif
+
           case 't':
             {
               args->time = atoi(optarg);
@@ -370,6 +413,24 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
           case 'o':
             {
               args->cfg.qparam = atoi(optarg);
+              break;
+            }
+
+          case OPT_OLFORCE:
+            {
+              args->cfg.ol_force = true;
+              break;
+            }
+
+          case OPT_OLTHR:
+            {
+              args->cfg.ol_thr = atoi(optarg);
+              break;
+            }
+
+          case OPT_OLHYS:
+            {
+              args->cfg.ol_hys = atoi(optarg);
               break;
             }
 #endif
