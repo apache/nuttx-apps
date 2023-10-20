@@ -352,6 +352,18 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
 
   while (motor.mq.quit == false)
     {
+      if (motor.mq.start == true)
+        {
+          /* Get FOC device state */
+
+          ret = foc_dev_state_get(&dev);
+          if (ret < 0)
+            {
+              PRINTF("ERROR: foc_dev_state_get failed %d!\n", ret);
+              goto errout;
+            }
+        }
+
       PRINTFV("foc_float_thr %d %d\n", envp->id, motor.time);
 
       /* Handle mqueue */
@@ -389,121 +401,111 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
           motor.startstop = false;
         }
 
-      /* Run control logic if controller started */
+      /* Ignore control logic if controller not started yet */
 
-      if (motor.mq.start == true)
+      if (motor.mq.start == false)
         {
-          /* Get FOC device state */
-
-          ret = foc_dev_state_get(&dev);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_dev_state_get failed %d!\n", ret);
-              goto errout;
-            }
+          usleep(1000);
+          continue;
+        }
 
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
-          /* Get model state */
+      /* Get model state */
 
-          ret = foc_model_state_get(&motor, &dev);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_model_state_get failed %d!\n", ret);
-              goto errout;
-            }
+      ret = foc_model_state_get(&motor, &dev);
+      if (ret < 0)
+        {
+          PRINTF("ERROR: foc_model_state_get failed %d!\n", ret);
+          goto errout;
+        }
 #endif
 
-          /* Handle controller state */
+      /* Handle controller state */
 
-          ret = foc_dev_state_handle(&dev, &motor.fault);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_dev_state_handle failed %d!\n", ret);
-              goto errout;
-            }
+      ret = foc_dev_state_handle(&dev, &motor.fault);
+      if (ret < 0)
+        {
+          PRINTF("ERROR: foc_dev_state_handle failed %d!\n", ret);
+          goto errout;
+        }
 
-          /* Get motor state */
+      /* Get motor state */
 
-          ret = foc_motor_get(&motor);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_motor_get failed %d!\n", ret);
-              goto errout;
-            }
+      ret = foc_motor_get(&motor);
+      if (ret < 0)
+        {
+          PRINTF("ERROR: foc_motor_get failed %d!\n", ret);
+          goto errout;
+        }
 
-          /* Motor control */
+      /* Motor control */
 
-          ret = foc_motor_control(&motor);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_motor_control failed %d!\n", ret);
-              goto errout;
-            }
+      ret = foc_motor_control(&motor);
+      if (ret < 0)
+        {
+          PRINTF("ERROR: foc_motor_control failed %d!\n", ret);
+          goto errout;
+        }
 
-          /* Run FOC */
+      /* Run FOC */
 
-          ret = foc_handler_run(&motor, &dev);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_handler_run failed %d!\n", ret);
-              goto errout;
-            }
+      ret = foc_handler_run(&motor, &dev);
+      if (ret < 0)
+        {
+          PRINTF("ERROR: foc_handler_run failed %d!\n", ret);
+          goto errout;
+        }
 
 #ifdef FOC_STATE_PRINT_PRE
-          /* Print state if configured */
+      /* Print state if configured */
 
-          if (motor.time % FOC_STATE_PRINT_PRE == 0)
-            {
-              foc_state_print(&motor);
-            }
+      if (motor.time % FOC_STATE_PRINT_PRE == 0)
+        {
+          foc_state_print(&motor);
+        }
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
-          /* Feed FOC model with data */
+      /* Feed FOC model with data */
 
-          foc_model_run_f32(&motor.model,
-                            FOC_MODEL_LOAD,
-                            &motor.foc_state.vab);
+      foc_model_run_f32(&motor.model,
+                        FOC_MODEL_LOAD,
+                        &motor.foc_state.vab);
 #endif
 
-          /* Set FOC device parameters */
+      /* Set FOC device parameters */
 
-          ret = foc_dev_params_set(&dev);
-          if (ret < 0)
-            {
-              PRINTF("ERROR: foc_dev_prams_set failed %d!\n", ret);
-              goto errout;
-            }
+      ret = foc_dev_params_set(&dev);
+      if (ret < 0)
+        {
+          PRINTF("ERROR: foc_dev_prams_set failed %d!\n", ret);
+          goto errout;
+        }
 
 #ifdef CONFIG_EXAMPLES_FOC_NXSCOPE
-          /* Capture nxscope samples */
+      /* Capture nxscope samples */
 
-          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_PRESCALER == 0)
-            {
-              foc_float_nxscope(envp->nxs, &motor, &dev);
-            }
+      if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_PRESCALER == 0)
+        {
+          foc_float_nxscope(envp->nxs, &motor, &dev);
+        }
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_NXSCOPE_CONTROL
-          /* Handle nxscope work */
+      /* Handle nxscope work */
 
-          if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_WORK_PRESCALER == 0)
-            {
-              foc_nxscope_work(envp->nxs);
-            }
+      if (motor.time % CONFIG_EXAMPLES_FOC_NXSCOPE_WORK_PRESCALER == 0)
+        {
+          foc_nxscope_work(envp->nxs);
+        }
 #endif
 
-          /* Terminate control thread */
+      /* Terminate control thread */
 
-          if (motor.ctrl_state == FOC_CTRL_STATE_TERMINATE)
-            {
-              PRINTF("TERMINATE CTRL THREAD\n");
-              goto errout;
-            }
-        }
-      else
+      if (motor.ctrl_state == FOC_CTRL_STATE_TERMINATE)
         {
-          usleep(1000);
+          PRINTF("TERMINATE CTRL THREAD\n");
+          goto errout;
         }
 
       /* Increase counter */
