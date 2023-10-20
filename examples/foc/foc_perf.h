@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/foc/foc_device.h
+ * apps/examples/foc/foc_perf.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_FOC_FOC_DEVICE_H
-#define __APPS_EXAMPLES_FOC_FOC_DEVICE_H
+#ifndef __APPS_EXAMPLES_FOC_FOC_PERF_H
+#define __APPS_EXAMPLES_FOC_FOC_PERF_H
 
 /****************************************************************************
  * Included Files
@@ -27,40 +27,31 @@
 
 #include <nuttx/config.h>
 
-#include "foc_perf.h"
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
-#include "industry/foc/foc_utils.h"
+#define PRINTF_PERF(format, ...) printf(format, ##__VA_ARGS__)
 
 /****************************************************************************
  * Public Type Definition
  ****************************************************************************/
 
-/* FOC device data */
-
-struct foc_device_s
+struct foc_perf_s
 {
-  int                 fd;      /* FOC device */
-  struct foc_info_s   info;    /* FOC dev info */
-  struct foc_state_s  state;   /* FOC dev state */
-  struct foc_params_s params;  /* FOC dev params */
-#ifdef CONFIG_EXAMPLES_FOC_PERF
-  struct foc_perf_s   perf;    /* FOC dev perf */
-#endif
+  bool     max_changed;
+  bool     skip;
+  uint32_t max;
+  uint32_t now;
 };
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int foc_device_init(FAR struct foc_device_s *dev, int id);
-int foc_device_deinit(FAR struct foc_device_s *dev);
-int foc_device_start(FAR struct foc_device_s *dev, bool state);
-int foc_dev_state_get(FAR struct foc_device_s *dev);
-int foc_dev_params_set(FAR struct foc_device_s *dev);
-int foc_dev_state_handle(FAR struct foc_device_s *dev, FAR bool *flag);
+int foc_perf_init(struct foc_perf_s *p);
+void foc_perf_start(struct foc_perf_s *p);
+void foc_perf_skip(struct foc_perf_s *p);
+void foc_perf_end(struct foc_perf_s *p);
 
-#endif /* __APPS_EXAMPLES_FOC_FOC_DEVICE_H */
+#endif /* __APPS_EXAMPLES_FOC_FOC_PERF_H */
