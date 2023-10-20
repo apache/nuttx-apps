@@ -30,7 +30,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define MAX_KEY_SIZE      36
+#define MAX_KEY_SIZE      64
 
 typedef struct mbedtls_aes_context
 {
