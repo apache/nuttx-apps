@@ -43,6 +43,10 @@ config EXAMPLES_FOC_VERBOSE
 	default 1
 	range 0 2
 
+config EXAMPLES_FOC_PERF
+	bool "Enable performance meassurements"
+	default n
+
 choice
 	prompt "FOC current controller selection"
 	default EXAMPLES_FOC_CONTROL_PI

@@ -511,6 +511,13 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
       /* Increase counter */
 
       motor.time += 1;
+
+#ifdef CONFIG_EXAMPLES_FOC_PERF
+      if (dev.perf.max_changed)
+        {
+          PRINTF_PERF("max=%" PRId32 "\n", dev.perf.max);
+        }
+#endif
     }
 
 errout:

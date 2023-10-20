@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/foc/foc_device.h
+ * apps/examples/foc/foc_perf.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,49 +18,73 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_FOC_FOC_DEVICE_H
-#define __APPS_EXAMPLES_FOC_FOC_DEVICE_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
+#include <assert.h>
+#include <stdbool.h>
+#include <string.h>
+
+#include <nuttx/clock.h>
+
 #include "foc_perf.h"
 
-#include "industry/foc/foc_utils.h"
-
 /****************************************************************************
- * Public Type Definition
+ * Public Functions
  ****************************************************************************/
 
-/* FOC device data */
+/****************************************************************************
+ * Name: foc_perf_init
+ ****************************************************************************/
 
-struct foc_device_s
+int foc_perf_init(struct foc_perf_s *p)
 {
-  int                 fd;      /* FOC device */
-  struct foc_info_s   info;    /* FOC dev info */
-  struct foc_state_s  state;   /* FOC dev state */
-  struct foc_params_s params;  /* FOC dev params */
-#ifdef CONFIG_EXAMPLES_FOC_PERF
-  struct foc_perf_s   perf;    /* FOC dev perf */
-#endif
-};
+  memset(p, 0, sizeof(struct foc_perf_s));
+
+  return OK;
+}
 
 /****************************************************************************
- * Public Data
+ * Name: foc_perf_start
  ****************************************************************************/
+
+void foc_perf_start(struct foc_perf_s *p)
+{
+  p->now = perf_gettime();
+}
 
 /****************************************************************************
- * Public Function Prototypes
+ * Name: foc_perf_skip
  ****************************************************************************/
 
-int foc_device_init(FAR struct foc_device_s *dev, int id);
-int foc_device_deinit(FAR struct foc_device_s *dev);
-int foc_device_start(FAR struct foc_device_s *dev, bool state);
-int foc_dev_state_get(FAR struct foc_device_s *dev);
-int foc_dev_params_set(FAR struct foc_device_s *dev);
-int foc_dev_state_handle(FAR struct foc_device_s *dev, FAR bool *flag);
+void foc_perf_skip(struct foc_perf_s *p)
+{
+  p->skip = true;
+}
 
-#endif /* __APPS_EXAMPLES_FOC_FOC_DEVICE_H */
+/****************************************************************************
+ * Name: foc_perf_end
+ ****************************************************************************/
+
+void foc_perf_end(struct foc_perf_s *p)
+{
+  p->now = perf_gettime() - p->now;
+
+  p->max_changed = false;
+
+  if (p->skip == false)
+    {
+      if (p->now > p->max)
+        {
+          p->max = p->now;
+          p->max_changed = true;
+        }
+    }
+
+  /* Reset skip flag */
+
+  p->skip = false;
+}

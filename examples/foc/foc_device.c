@@ -90,6 +90,12 @@ int foc_device_init(FAR struct foc_device_s *dev, int id)
       goto errout;
     }
 
+#ifdef CONFIG_EXAMPLES_FOC_PERF
+  /* Initialize perf */
+
+  foc_perf_init(&dev->perf);
+#endif
+
 errout:
   return ret;
 }
@@ -138,6 +144,15 @@ int foc_device_start(FAR struct foc_device_s *dev, bool state)
           PRINTFV("ERROR: foc_dev_start failed %d!\n", ret);
           goto errout;
         }
+
+#ifdef CONFIG_EXAMPLES_FOC_PERF
+      /* Skip this cycle in stats. When the dev is started, many components
+       * are initialized, which significantly increases the cycle time and
+       * disturbs the statistics.
+       */
+
+      foc_perf_skip(&dev->perf);
+#endif
     }
   else
     {
@@ -172,6 +187,10 @@ int foc_dev_state_get(FAR struct foc_device_s *dev)
       goto errout;
     }
 
+#ifdef CONFIG_EXAMPLES_FOC_PERF
+  foc_perf_start(&dev->perf);
+#endif
+
 errout:
   return ret;
 }
@@ -194,6 +213,10 @@ int foc_dev_params_set(FAR struct foc_device_s *dev)
       PRINTFV("ERROR: foc_dev_setparams failed %d!\n", ret);
       goto errout;
     }
+
+#ifdef CONFIG_EXAMPLES_FOC_PERF
+  foc_perf_end(&dev->perf);
+#endif
 
 errout:
   return ret;
