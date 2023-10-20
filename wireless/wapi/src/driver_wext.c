@@ -429,7 +429,7 @@ int wpa_driver_wext_get_auth_param(int sockfd, FAR const char *ifname,
 
 void wpa_driver_wext_disconnect(int sockfd, FAR const char *ifname)
 {
-  uint8_t ssid[WAPI_ESSID_MAX_SIZE];
+  uint8_t ssid[WAPI_ESSID_MAX_SIZE + 1];
   const struct ether_addr bssid =
   {
   };
@@ -470,6 +470,8 @@ void wpa_driver_wext_disconnect(int sockfd, FAR const char *ifname)
         {
           ssid[i] = rand() & 0xff;
         }
+
+      ssid[WAPI_ESSID_MAX_SIZE] = '\0';
 
       if (wapi_set_essid(sockfd, ifname,
                          (FAR const char *)ssid, WAPI_ESSID_OFF) < 0)
