@@ -1,5 +1,5 @@
 ############################################################################
-# apps/games/shift/Make.defs
+# apps/games/brickmatch/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_GAMES_SHIFT),)
-CONFIGURED_APPS += $(APPDIR)/games/shift
+ifneq ($(CONFIG_GAMES_BRICKMATCH),)
+CONFIGURED_APPS += $(APPDIR)/games/brickmatch
 endif

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/games/shift/shift_main.c
+ * apps/games/brickmatch/bm_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -36,16 +36,16 @@
 #include <nuttx/video/fb.h>
 #include <nuttx/video/rgbcolors.h>
 
-#ifdef CONFIG_GAMES_SHIFT_USE_CONSOLEKEY
-#include "shift_input_console.h"
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_CONSOLEKEY
+#include "bm_input_console.h"
 #endif
 
-#ifdef CONFIG_GAMES_SHIFT_USE_DJOYSTICK
-#include "shift_input_joystick.h"
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_DJOYSTICK
+#include "bm_input_joystick.h"
 #endif
 
-#ifdef CONFIG_GAMES_SHIFT_USE_GESTURE
-#include "shift_input_gesture.h"
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_GESTURE
+#include "bm_input_gesture.h"
 #endif
 
 /****************************************************************************
@@ -302,7 +302,7 @@ void draw_board(FAR struct screen_state_s *state,
  *   Draw the board including the user non-visible border for debugging.
  ****************************************************************************/
 
-#ifdef DEBUG_SHIFT_GAME
+#ifdef DEBUG_BRICKMATCH_GAME
 void print_board(void)
 {
   int row;
@@ -750,7 +750,7 @@ int check_board(void)
  ****************************************************************************/
 
 /****************************************************************************
- * shift_main
+ * brick_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
@@ -854,7 +854,7 @@ int main(int argc, FAR char *argv[])
 
       screen.dir = input.dir;
 
-#ifdef DEBUG_SHIFT_GAME
+#ifdef DEBUG_BRICKMATCH_GAME
       printf("Before moving:\n");
       print_board();
       usleep(2000000);
@@ -868,7 +868,7 @@ int main(int argc, FAR char *argv[])
 
       draw_board(&state, &area, &screen);
 
-#ifdef DEBUG_SHIFT_GAME
+#ifdef DEBUG_BRICKMATCH_GAME
       printf("After moving:\n");
       print_board();
       usleep(1000000);
@@ -907,7 +907,7 @@ int main(int argc, FAR char *argv[])
           usleep(500000);
         }
 
-#ifdef DEBUG_SHIFT_GAME
+#ifdef DEBUG_BRICKMATCH_GAME
       printf("After checking:\n");
       print_board();
       usleep(1000000);

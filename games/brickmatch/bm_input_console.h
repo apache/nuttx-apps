@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/games/shift/shift_input_console.h
+ * apps/games/brickmatch/bm_input_console.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -25,7 +25,7 @@
 #include <nuttx/config.h>
 #include <termios.h>
 
-#include "shift_inputs.h"
+#include "bm_inputs.h"
 
 /****************************************************************************
  * Preprocessor Definitions

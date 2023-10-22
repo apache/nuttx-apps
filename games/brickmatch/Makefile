@@ -1,5 +1,5 @@
 ############################################################################
-# apps/games/shift/Makefile
+# apps/games/brickmatch/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,15 +20,15 @@
 
 include $(APPDIR)/Make.defs
 
-# Shift game info
+# Brickmatch game info
 
-PROGNAME = $(CONFIG_GAMES_SHIFT_PROGNAME)
-PRIORITY = $(CONFIG_GAMES_SHIFT_PRIORITY)
-STACKSIZE = $(CONFIG_GAMES_SHIFT_STACKSIZE)
-MODULE = $(CONFIG_GAMES_SHIFT)
+PROGNAME = $(CONFIG_GAMES_BRICKMATCH_PROGNAME)
+PRIORITY = $(CONFIG_GAMES_BRICKMATCH_PRIORITY)
+STACKSIZE = $(CONFIG_GAMES_BRICKMATCH_STACKSIZE)
+MODULE = $(CONFIG_GAMES_BRICKMATCH)
 
-# Shift game application
+# Brickmatch game application
 
-MAINSRC = shift_main.c
+MAINSRC = bm_main.c
 
 include $(APPDIR)/Application.mk
