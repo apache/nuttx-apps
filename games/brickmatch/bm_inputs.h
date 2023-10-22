@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/games/shift/shift_input_gesture.h
+ * apps/games/brickmatch/bm_inputs.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,55 +24,41 @@
 
 #include <nuttx/config.h>
 
-#include <nuttx/sensors/apds9960.h>
-
-#include "shift_inputs.h"
-
 /****************************************************************************
  * Preprocessor Definitions
  ****************************************************************************/
 
-#define APDS9960_DEVNAME "/dev/gest0"
+#ifndef DIR_NONE
+#  define DIR_NONE    0
+#endif
 
-/****************************************************************************
- * dev_input_init
- ****************************************************************************/
+#ifndef DIR_LEFT
+#  define DIR_LEFT    1
+#endif
 
-int dev_input_init(FAR struct input_state_s *dev)
+#ifndef DIR_RIGHT
+#  define DIR_RIGHT   2
+#endif
+
+#ifndef DIR_UP
+#  define DIR_UP      3
+#endif
+
+#ifndef DIR_DOWN
+#  define DIR_DOWN    4
+#endif
+
+struct input_state_s
 {
-  /* Open the gesture sensor APDS9960 */
-
-  dev->fd_gest = open(APDS9960_DEVNAME, O_RDONLY | O_NONBLOCK);
-  if (dev->fd_gest < 0)
-    {
-      int errcode = errno;
-      printf("ERROR: Failed to open %s: %d\n", APDS9960_DEVNAME, errcode);
-      return -ENODEV;
-    }
-
-  return OK;
-}
-
-/****************************************************************************
- * dev_read_input
- ****************************************************************************/
-
-int dev_read_input(FAR struct input_state_s *dev)
-{
-  int nbytes;
-  uint8_t gest;
-
-  nbytes = read(dev->fd_gest, &gest, sizeof(gest));
-  if (nbytes == sizeof(gest))
-    {
-      dev->dir = gest;
-    }
-  else
-    {
-      dev->dir = DIR_NONE;
-      return -EINVAL;
-    }
-
-  return OK;
-}
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_CONSOLEKEY
+  int fd_con;
+#endif
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_DJOYSTICK
+  int fd_joy;
+#endif
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_GESTURE
+  int fd_gest;
+#endif
+  int dir;      /* Direction to move the blocks */
+};
 

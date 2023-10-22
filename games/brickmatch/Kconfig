@@ -3,11 +3,11 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config GAMES_SHIFT
-	bool "Shift Game"
+config GAMES_BRICKMATCH
+	bool "Brickmatch Game"
 	default n
 	---help---
-		Enable Shift games. Shift is a brick game, like a mix
+		Enable Brickmatch games. Brickmatch is like a mix
 		between Tetris and Crush Candy. The inspiration came
 		from a Shift game that was available for Android in the
 		F-Droid store. The original game source code still here:
@@ -16,21 +16,21 @@ config GAMES_SHIFT
 		NOTE: The source code here is not based on that code from
 		above github.
 
-if GAMES_SHIFT
+if GAMES_BRICKMATCH
 
-config GAMES_SHIFT_PROGNAME
+config GAMES_BRICKMATCH_PROGNAME
 	string "Program name"
-	default "shift"
+	default "brick"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
-config GAMES_SHIFT_PRIORITY
-	int "Shift Game task priority"
+config GAMES_BRICKMATCH_PRIORITY
+	int "Brickmatch Game task priority"
 	default 100
 
-config GAMES_SHIFT_STACKSIZE
-	int "Shift Game stack size"
+config GAMES_BRICKMATCH_STACKSIZE
+	int "Brickmatch Game stack size"
 	default DEFAULT_TASK_STACKSIZE
 
 #
@@ -39,17 +39,17 @@ config GAMES_SHIFT_STACKSIZE
 
 choice
 	prompt "Input Device (Joystick, Gesture Sensor, etc)"
-	default GAMES_SHIFT_USE_CONSOLEKEY
+	default GAMES_BRICKMATCH_USE_CONSOLEKEY
 
-config GAMES_SHIFT_USE_CONSOLEKEY
+config GAMES_BRICKMATCH_USE_CONSOLEKEY
 	bool "Serial Console as Input"
 	depends on !INPUT_DJOYSTICK && !SENSORS_APDS9960
 
-config GAMES_SHIFT_USE_DJOYSTICK
+config GAMES_BRICKMATCH_USE_DJOYSTICK
 	bool "Discrete Joystick as Input"
 	depends on INPUT_DJOYSTICK
 
-config GAMES_SHIFT_USE_GESTURE
+config GAMES_BRICKMATCH_USE_GESTURE
 	bool "Gesture Sensor APDS-9960 as Input"
 	depends on SENSORS_APDS9960
 
