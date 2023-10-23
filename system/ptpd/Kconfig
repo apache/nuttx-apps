@@ -10,7 +10,6 @@ config SYSTEM_PTPD
 	---help---
 		Enable 'ptpd' command to start the PTP daemon
 
-
 if SYSTEM_PTPD
 
 config SYSTEM_PTPD_PRIORITY
