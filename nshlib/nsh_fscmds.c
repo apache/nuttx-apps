@@ -290,20 +290,20 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
             {
               if (buf.st_size >= GB)
                 {
-                  nsh_output(vtbl, "%7.1fG", (float)buf.st_size / GB);
+                  nsh_output(vtbl, "%11.1fG", (float)buf.st_size / GB);
                 }
               else if (buf.st_size >= MB)
                 {
-                  nsh_output(vtbl, "%7.1fM", (float)buf.st_size / MB);
+                  nsh_output(vtbl, "%11.1fM", (float)buf.st_size / MB);
                 }
               else
                 {
-                  nsh_output(vtbl, "%7.1fK", (float)buf.st_size / KB);
+                  nsh_output(vtbl, "%11.1fK", (float)buf.st_size / KB);
                 }
             }
           else
             {
-              nsh_output(vtbl, "%8" PRIdOFF, buf.st_size);
+              nsh_output(vtbl, "%12" PRIdOFF, buf.st_size);
             }
         }
     }
