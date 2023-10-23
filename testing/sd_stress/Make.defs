@@ -1,0 +1,3 @@
+ifneq ($(CONFIG_TESTING_SD_STRESS),)
+CONFIGURED_APPS += $(APPDIR)/testing/sd_stress
+endif
