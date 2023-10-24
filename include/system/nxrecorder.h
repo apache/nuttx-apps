@@ -38,6 +38,14 @@
  * Public Type Declarations
  ****************************************************************************/
 
+struct nxrecorder_enc_ops_s
+{
+  int format;
+  CODE int (*pre_write)(int fd, uint32_t samplerate,
+                        uint8_t chans, uint8_t bps);
+  CODE int (*write_data)(int fd, struct ap_buffer_s *apb);
+};
+
 /* This structure describes the internal state of the NxRecorder */
 
 struct nxrecorder_s
@@ -54,6 +62,8 @@ struct nxrecorder_s
 #ifdef CONFIG_AUDIO_MULTI_SESSION
   FAR void        *session;                /* Session assignment from device */
 #endif
+
+  FAR const struct nxrecorder_enc_ops_s *ops;
 };
 
 typedef int (*nxrecorder_func)(FAR struct nxrecorder_s *precorder,
@@ -228,6 +238,41 @@ int nxrecorder_pause(FAR struct nxrecorder_s *precorder);
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxrecorder_resume(FAR struct nxrecorder_s *precorder);
 #endif
+
+/****************************************************************************
+ * Name: nxrecorder_write_amr
+ *
+ *   Performs pre-process when record amr file.
+ *
+ * Input Parameters:
+ *   fd         - recording file descriptor
+ *   samplerate - sample rate
+ *   chans      - channels num
+ *   bps        - bit width
+ *
+ * Returned Value:
+ *   OK if file writed successfully.
+ *
+ ****************************************************************************/
+
+int nxrecorder_write_amr(int fd, uint32_t samplerate,
+                         uint8_t chans, uint8_t bps);
+
+/****************************************************************************
+ * Name: nxrecorder_write_common
+ *
+ *   Performs common function to write apb buffer to FILE
+ *
+ * Input Parameters:
+ *   fd     - recording file descriptor
+ *   apb    - apb buffer
+ *
+ * Returned Value:
+ *   OK if apb buffer write successfully.
+ *
+ ****************************************************************************/
+
+int nxrecorder_write_common(int fd, FAR struct ap_buffer_s *apb);
 
 #undef EXTERN
 #ifdef __cplusplus
