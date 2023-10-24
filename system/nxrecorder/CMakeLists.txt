@@ -24,4 +24,8 @@ if(CONFIG_SYSTEM_NXRECORDER)
                           ${CONFIG_NXRECORDER_MAINTHREAD_STACKSIZE})
   endif()
   target_sources(apps PRIVATE nxrecorder.c)
+
+  set(CSRCS nxrecorder.c nxrecorder_common.c nxrecorder_amr.c)
+
+  target_sources(apps PRIVATE ${CSRCS})
 endif()
