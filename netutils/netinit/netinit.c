@@ -873,6 +873,11 @@ static int netinit_monitor(void)
                   goto errout_with_notification;
                 }
 
+#ifdef CONFIG_NET_ICMPv6_AUTOCONF
+              /* Perform ICMPv6 auto-configuration */
+
+              netlib_icmpv6_autoconfiguration(ifr.ifr_name);
+#endif
               /* And wait for a short delay.  We will want to recheck the
                * link status again soon.
                */
