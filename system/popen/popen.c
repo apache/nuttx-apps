@@ -320,6 +320,11 @@ FILE *popen(FAR const char *command, FAR const char *mode)
   posix_spawn_file_actions_destroy(&file_actions);
   posix_spawnattr_destroy(&attr);
 
+  if (strchr(mode, 'e') == NULL)
+    {
+      fcntl(retfd, F_SETFD, 0);
+    }
+
   /* Finale and return input input/output stream */
 
   memcpy(&container->copy, container->original, sizeof(FILE));
