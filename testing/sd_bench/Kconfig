@@ -1,0 +1,40 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_SD_BENCH
+	tristate "SD benchmark program"
+	depends on ALLOW_BSD_COMPONENTS
+	default n
+	---help---
+		SD benchmark application based on https://github.com/PX4/PX4-Autopilot/blob/main/src/systemcmds/sd_bench/sd_bench.cpp
+
+if TESTING_SD_BENCH
+
+config TESTING_SD_BENCH_PROGNAME
+	string "Program name"
+	default "sdbench"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_SD_BENCH_PRIORITY
+	int "SD bench task priority"
+	default 100
+
+config TESTING_SD_BENCH_STACKSIZE
+	int "SD bench stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_SD_BENCH_DEVICE
+	string "SD / MMC mount point"
+	default "/mnt"
+
+config TESTING_SD_MEM_ALIGN_BYTES
+	int "Allocated memory alignment"
+	---help---
+		Specifies the memory alignment (bytes) used for allocated buffers, when enabled with the -a argument.
+	default 512
+
+endif

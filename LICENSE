@@ -2217,6 +2217,7 @@ library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.
 
 apps/testing/sd_stress
+apps/testing/sd_bench
 ===================
 
 Copyright (c) 2016-2021 PX4 Development Team. All rights reserved.

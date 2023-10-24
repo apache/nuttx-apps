@@ -1,0 +1,3 @@
+ifneq ($(CONFIG_TESTING_SD_BENCH),)
+CONFIGURED_APPS += $(APPDIR)/testing/sd_bench
+endif
