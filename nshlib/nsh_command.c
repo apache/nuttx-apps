@@ -278,7 +278,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifdef CONFIG_NET
 #  ifndef CONFIG_NSH_DISABLE_IFCONFIG
   CMD_MAP("ifconfig", cmd_ifconfig, 1, 12,
-    "[interface [address_family] [mtu <len>] | [<ip-address>|dhcp]]"
+    "[interface [mtu <len>]|[address_family] [[add|del] <ip-address>|dhcp]]"
     "[dr|gw|gateway <dr-address>] [netmask <net-mask>|prefixlen <len>] "
     "[dns <dns-address>] [hw <hw-mac>]"),
 #  endif
