@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/ramtest/ramtest.c
+ * apps/testing/ramtest/ramtest.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -38,7 +38,7 @@
 
 #include <nuttx/usb/usbdev_trace.h>
 
-#ifdef CONFIG_SYSTEM_RAMTEST
+#ifdef CONFIG_TESTING_RAMTEST
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -591,4 +591,4 @@ int main(int argc, FAR char *argv[])
   return 0;
 }
 
-#endif /* CONFIG_SYSTEM_RAMTEST */
+#endif /* CONFIG_TESTING_RAMTEST */

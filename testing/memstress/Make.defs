@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/cachespeed/Makefile
+# apps/testing/memstress/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,19 +18,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
-
-#CACHE speed test
-
-ifneq ($(CONFIG_CACHESPEED_MONOTONIC_TIME),y)
-  CFLAGS += -DCACHESPEED_PERFTIME
+ifneq ($(CONFIG_TESTING_MEMORY_STRESS),)
+CONFIGURED_APPS += $(APPDIR)/testing/memstress
 endif
-
-PROGNAME  = $(CONFIG_SYSTEM_CACHESPEED_PROGNAME)
-PRIORITY  = $(CONFIG_SYSTEM_CACHESPEED_PRIORITY)
-STACKSIZE = $(CONFIG_SYSTEM_CACHESPEED_STACKSIZE)
-MODULE    = $(CONFIG_SYSTEM_CACHESPEED)
-
-MAINSRC   = cachespeed_main.c
-
-include $(APPDIR)/Application.mk
