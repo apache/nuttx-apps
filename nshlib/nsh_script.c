@@ -119,7 +119,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
 
       /* Open the file containing the script */
 
-      vtbl->np.np_fd = open(fullpath, O_RDOK);
+      vtbl->np.np_fd = open(fullpath, O_RDOK | O_CLOEXEC);
       if (vtbl->np.np_fd < 0)
         {
           if (log)
