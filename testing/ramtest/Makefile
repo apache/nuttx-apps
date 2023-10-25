@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/cachespeed/Make.defs
+# apps/testing/ramtest/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,15 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_SYSTEM_CACHESPEED),)
-CONFIGURED_APPS += $(APPDIR)/system/cachespeed
-endif
+include $(APPDIR)/Make.defs
+
+# RAM test
+
+PROGNAME = $(CONFIG_TESTING_RAMTEST_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_RAMTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_RAMTEST_STACKSIZE)
+MODULE = $(CONFIG_TESTING_RAMTEST)
+
+MAINSRC = ramtest.c
+
+include $(APPDIR)/Application.mk
