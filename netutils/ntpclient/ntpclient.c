@@ -409,7 +409,7 @@ static inline void ntpc_setuint64(FAR uint8_t *ptr, uint64_t value)
  * Name: ntp_secpart
  ****************************************************************************/
 
-static uint32_t ntp_secpart(uint64_t time)
+static int32_t ntp_secpart(int64_t time)
 {
   /* NTP timestamps are represented as a 64-bit fixed-point number, in
    * seconds relative to 0000 UT on 1 January 1900.  The integer part is
@@ -434,11 +434,11 @@ static uint32_t ntp_secpart(uint64_t time)
  * Name: ntp_nsecpart
  ****************************************************************************/
 
-static uint32_t ntp_nsecpart(uint64_t time)
+static int32_t ntp_nsecpart(int64_t time)
 {
   /* Get fraction part converted to nanoseconds. */
 
-  return ((time & 0xffffffffu) * NSEC_PER_SEC) >> 32;
+  return (((int64_t)((uint64_t)time << 32) >> 32) * NSEC_PER_SEC) >> 32;
 }
 
 /****************************************************************************
@@ -528,6 +528,30 @@ static void ntpc_calculate_offset(FAR int64_t *offset, FAR int64_t *delay,
 }
 
 /****************************************************************************
+ * Name: ntpc_apply_offset
+ ****************************************************************************/
+
+static void ntpc_apply_offset(FAR struct timespec *tp,
+                              FAR struct timespec *src,
+                              int64_t offset)
+{
+  tp->tv_sec  = src->tv_sec  + ntp_secpart(offset);
+  tp->tv_nsec = src->tv_nsec + ntp_nsecpart(offset);
+
+  while (tp->tv_nsec < 0)
+    {
+      tp->tv_nsec += NSEC_PER_SEC;
+      tp->tv_sec--;
+    }
+
+  while (tp->tv_nsec >= NSEC_PER_SEC)
+    {
+      tp->tv_nsec -= NSEC_PER_SEC;
+      tp->tv_sec++;
+    }
+}
+
+/****************************************************************************
  * Name: ntpc_settime
  *
  * Description:
@@ -580,14 +604,7 @@ static void ntpc_settime(int64_t offset, FAR struct timespec *start_realtime,
 
   /* Apply offset */
 
-  tp = curr_realtime;
-  tp.tv_sec  += ntp_secpart(offset);
-  tp.tv_nsec += ntp_nsecpart(offset);
-  while (tp.tv_nsec >= NSEC_PER_SEC)
-    {
-      tp.tv_nsec -= NSEC_PER_SEC;
-      tp.tv_sec++;
-    }
+  ntpc_apply_offset(&tp, &curr_realtime, offset);
 
   /* Set the system time */
 
