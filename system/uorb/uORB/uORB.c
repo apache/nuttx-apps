@@ -75,7 +75,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       reginfo.nbuffer = queue_size;
       reginfo.persist = !!(flags & SENSOR_PERSIST);
 
-      fd = open(ORB_USENSOR_PATH, O_WRONLY);
+      fd = open(ORB_USENSOR_PATH, O_WRONLY | O_CLOEXEC);
       if (fd < 0)
         {
           return fd;
