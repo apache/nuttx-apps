@@ -577,6 +577,11 @@ config MBEDTLS_MD5_ALT
 	select MBEDTLS_ALT
 	default n
 
+config MBEDTLS_POLY1305_ALT
+	bool "Enable Mbedt TLS POLY1305 module alted by nuttx crypto"
+	select MBEDTLS_ALT
+	default n
+
 config MBEDTLS_RIPEMD160_ALT
 	bool "Enable Mbedt TLS RIPEMD160 module alted by nuttx crypto"
 	select MBEDTLS_ALT
