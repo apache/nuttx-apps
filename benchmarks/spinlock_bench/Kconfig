@@ -1,0 +1,45 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig BENCHMARK_SPINLOCK
+	bool "Spinlock Benchmark"
+	depends on BUILD_FLAT
+	default n
+	---help---
+		Enable the Spinlock benchmark application.
+
+if BENCHMARK_SPINLOCK
+
+config SPINLOCK_PROGNAME
+	string "spinlock benchmark"
+	default "spinlock_bench"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SPINLOCK_PRIORITY
+	int "Spinlock task priority"
+	default 100
+
+config SPINLOCK_STACKSIZE
+	int "Spinlock task stack size"
+	default 4096
+
+
+config SPINLOCK_MULTITHREAD
+	int "Number of threads"
+	default 40
+	---help---
+		Override the default number of threads to be executed.
+		The default value is 40.
+
+config SPINLOCK_ITERATIONS
+	int "Number of iterations"
+	default 100
+	---help---
+		Default number of iterations for the benchmark on each thread.
+		The default value is 100.
+
+endif # BENCHMARK_SPINLOCK
