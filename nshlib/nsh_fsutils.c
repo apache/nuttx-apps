@@ -82,7 +82,7 @@ static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
 
   snprintf(buffer, sizeof(buffer), "%s/%s/cmdline", dirpath, entryp->d_name);
 
-  fd = open(buffer, O_RDONLY);
+  fd = open(buffer, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     {
       return 0;
@@ -137,7 +137,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   /* Open the file for reading */
 
-  fd = open(filepath, O_RDONLY);
+  fd = open(filepath, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     {
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
@@ -282,7 +282,7 @@ int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   /* Open the file */
 
-  fd = open(filepath, O_RDONLY);
+  fd = open(filepath, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
@@ -381,7 +381,7 @@ int nsh_writefile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   /* Open the file for reading */
 
-  fd = open(filepath, O_WRONLY);
+  fd = open(filepath, O_WRONLY | O_CLOEXEC);
   if (fd < 0)
     {
 #if defined(CONFIG_NSH_PROC_MOUNTPOINT)
