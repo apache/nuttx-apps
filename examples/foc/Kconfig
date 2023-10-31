@@ -47,6 +47,24 @@ config EXAMPLES_FOC_PERF
 	bool "Enable performance meassurements"
 	default n
 
+config EXAMPLES_FOC_CONTROL_CRITSEC
+	bool "Protect controller thread with critical section"
+	default y
+	depends on BUILD_FLAT
+	---help---
+		Protect controller thread with critical section.
+
+		If the controller frequency is high, system timer interrupts will
+		eventually interrupt the controller function, thereby increasing the
+		execution time. This may lead to skipping the control cycle, which
+		negatively affects the control algorithm.
+
+		With this option enabled, interrupts are disabled for the duration
+		of the controller function execution.
+
+		This option uses the kernel internal API directly, which means
+		it won't work outside of FLAT build.
+
 if EXAMPLES_FOC_PERF
 
 config EXAMPLES_FOC_PERF_LIVE
