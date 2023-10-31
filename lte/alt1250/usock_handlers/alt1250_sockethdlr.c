@@ -393,11 +393,11 @@ int usockreq_socket(FAR struct alt1250_s *dev,
            request->type != SOCK_CTRL)
     {
       /* If domain is AF_INET while usock_enable is false,
-       * set usockid to -EPROTONOSUPPORT to fallback kernel
+       * set usockid to -ENOTSUP to fallback kernel
        * network stack.
        */
 
-      *usock_result = -EPROTONOSUPPORT;
+      *usock_result = -ENOTSUP;
       return REP_SEND_ACK_WOFREE;
     }
 
