@@ -36,7 +36,7 @@ MBEDTLS_UNPACKLIBDIR = $(MBEDTLS_UNPACKNAME)$(DELIM)library
 MBEDTLS_UNPACKPROGDIR = $(MBEDTLS_UNPACKNAME)$(DELIM)programs
 
 # This lets Mbed TLS better use some of the POSIX features we have
-CFLAGS += ${DEFINE_PREFIX}__unix__
+CFLAGS += ${DEFINE_PREFIX}unix
 
 mbedtls/library/bignum.c_CFLAGS += -fno-lto
 

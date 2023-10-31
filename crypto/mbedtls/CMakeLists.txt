@@ -77,7 +77,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
   nuttx_export_header(TARGET mbedtls INCLUDE_DIRECTORIES ${MBEDTLS_DIR}/include)
   target_sources(mbedtls PRIVATE ${CSRCS})
   target_include_directories(mbedtls PRIVATE ${INCDIR})
-  target_compile_definitions(mbedtls PRIVATE __unix__)
+  target_compile_definitions(mbedtls PRIVATE unix)
 
   if(CONFIG_ARCH_SIM)
     target_compile_options(mbedtls PRIVATE -O0)
