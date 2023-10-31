@@ -12,6 +12,18 @@ config INDUSTRY_FOC
 
 if INDUSTRY_FOC
 
+config INDUSTRY_FOC_DEBUG
+	bool "Enable FOCLIB debug log"
+	default n
+
+config INDUSTRY_FOC_ERROR
+	bool "Enable FOCLIB error log"
+	default n
+
+config INDUSTRY_FOC_WARN
+	bool "Enable FOCLIB warn log"
+	default n
+
 config INDUSTRY_FOC_CORDIC
 	bool "Enable CORDIC support"
 	default n

@@ -35,8 +35,22 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define FOCLIBLOG(format, ...)  printf(format, ##__VA_ARGS__)
-#define FOCLIBERR(format, ...)  printf(format, ##__VA_ARGS__)
-#define FOCLIBWARN(format, ...) printf(format, ##__VA_ARGS__)
+#ifdef CONFIG_INDUSTRY_FOC_DEBUG
+#  define FOCLIBLOG(format, ...)  printf(format, ##__VA_ARGS__)
+#else
+#  define FOCLIBLOG(format, ...)
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_ERROR
+#  define FOCLIBERR(format, ...)  printf(format, ##__VA_ARGS__)
+#else
+#  define FOCLIBERR(format, ...)
+#endif
+
+#ifdef CONFIG_INDUSTRY_FOC_WARN
+#  define FOCLIBWARN(format, ...) printf(format, ##__VA_ARGS__)
+#else
+#  define FOCLIBWARN(format, ...)
+#endif
 
 #endif /* __APPS_INCLUDE_INDUSTRY_FOC_FOC_LOG_H */
