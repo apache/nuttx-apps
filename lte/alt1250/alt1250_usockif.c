@@ -281,7 +281,7 @@ int usockif_readreqioctl(int fd, FAR struct usrsock_request_buff_s *buf)
         break;
       default:
         dbg_alt1250("Unsupported command:0x%08lx\n", req->cmd);
-        return -EINVAL;
+        return -ENOTTY;
         break;
     }
 

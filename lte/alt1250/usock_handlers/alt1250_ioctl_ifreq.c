@@ -391,7 +391,11 @@ int usockreq_ioctl_ifreq(FAR struct alt1250_s *dev,
   *usock_result = OK;
   *usock_xid = request->head.xid;
 
-  if (if_req->ifr_flags & IFF_UP)
+  if (!dev->usock_enable)
+    {
+      *usock_result = -ENOTTY;
+    }
+  else if (if_req->ifr_flags & IFF_UP)
     {
       ret = do_ifup(dev, req, usock_result, usock_xid, ackinfo);
     }
