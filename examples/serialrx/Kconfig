@@ -39,22 +39,22 @@ config EXAMPLES_SERIALRX_DEVPATH
 
 choice
 	prompt "Output method"
-	default EXAMPLES_SERIALRX_PRINTHYPHEN
+	default EXAMPLES_SERIALRX_PRINTSTR
 
-config EXAMPLES_SERIALRX_PRINTHYPHEN
-	bool "Hyphen"
+config EXAMPLES_SERIALRX_PRINTSTR
+	bool "String"
 	---help---
-		Print a hyphen after receiving a full buffer
+		Print the bytes received as a string
 
 config EXAMPLES_SERIALRX_PRINTHEX
 	bool "Hexadecimal"
 	---help---
 		Print the bytes received in hexadecimal
 
-config EXAMPLES_SERIALRX_PRINTSTR
-	bool "String"
+config EXAMPLES_SERIALRX_PRINTHYPHEN
+	bool "Hyphen"
 	---help---
-		Print the bytes received as a string
+		Print a hyphen after receiving a full buffer
 
 endchoice
 

@@ -52,7 +52,6 @@ int main(int argc, FAR char *argv[])
 #else
   int fd;
   int cnt;
-  int bytecount = 0;
 #endif
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   int count = 0;
@@ -64,6 +63,7 @@ int main(int argc, FAR char *argv[])
   bool eof = false;
   FAR char *buf;
   FAR char *devpath;
+  int bytecount = CONFIG_EXAMPLES_SERIALRX_BUFSIZE;
 
   if (argc == 1)
     {
@@ -118,8 +118,7 @@ int main(int argc, FAR char *argv[])
   while (cnt < bytecount)
     {
 #ifdef CONFIG_EXAMPLES_SERIALRX_BUFFERED
-      size_t n = fread(buf, 1, 26, f);
-      cnt++;
+      size_t n = fread(buf, 1, 1, f);
       if (feof(f))
         {
           eof = true;
@@ -145,14 +144,13 @@ int main(int argc, FAR char *argv[])
 #endif
       else
         {
-#if defined(CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN)
-          count += (int)n;
-          if (count >= CONFIG_EXAMPLES_SERIALRX_BUFSIZE)
+#if defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
+          for (i = 0; i < (int)n; i++)
             {
-              printf("-");
-              fflush(stdout);
-              count -= CONFIG_EXAMPLES_SERIALRX_BUFSIZE;
+              printf("%c", buf[i]);
             }
+
+          fflush(stdout);
 #elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHEX)
           for (i = 0; i < (int)n; i++)
             {
@@ -160,13 +158,14 @@ int main(int argc, FAR char *argv[])
             }
 
           fflush(stdout);
-#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
-          for (i = 0; i < (int)n; i++)
+#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN)
+          count += (int)n;
+          if (count >= CONFIG_EXAMPLES_SERIALRX_BUFSIZE)
             {
-              printf("%c", buf[i]);
+              printf("-");
+              fflush(stdout);
+              count -= CONFIG_EXAMPLES_SERIALRX_BUFSIZE;
             }
-
-          fflush(stdout);
 #endif
           cnt += n;
         }
