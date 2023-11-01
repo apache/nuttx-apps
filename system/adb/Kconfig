@@ -113,6 +113,13 @@ config ADBD_USB_SERVER
 	---help---
 		Run adb daemon on USB bus
 
+config ADBD_USB_HOTPLUG_BYTIMER
+	bool "Using 1s timer to check usb hotplug"
+	depends on ADBD_USB_SERVER
+	default n
+	---help---
+		Using 1s timer to check usb hotplug
+
 config ADBD_LOGCAT_SERVICE
 	bool "ADB logcat support"
 	select LIBC_PRINT_EXTENSION
