@@ -172,7 +172,6 @@ int main(int argc, FAR char *argv[])
 
       UNUSED(eof);
     }
-  
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   printf("\n");
 #endif
