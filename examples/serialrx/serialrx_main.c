@@ -144,21 +144,7 @@ int main(int argc, FAR char *argv[])
 #endif
       else
         {
-#if defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
-          for (i = 0; i < (int)n; i++)
-            {
-              printf("%c", buf[i]);
-            }
-
-          fflush(stdout);
-#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHEX)
-          for (i = 0; i < (int)n; i++)
-            {
-              printf("0x%02x ", buf[i]);
-            }
-
-          fflush(stdout);
-#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN)
+#if defined(CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN)
           count += (int)n;
           if (count >= CONFIG_EXAMPLES_SERIALRX_BUFSIZE)
             {
@@ -166,13 +152,27 @@ int main(int argc, FAR char *argv[])
               fflush(stdout);
               count -= CONFIG_EXAMPLES_SERIALRX_BUFSIZE;
             }
+#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHEX)
+          for (i = 0; i < (int)n; i++)
+            {
+              printf("0x%02x ", buf[i]);
+            }
+
+          fflush(stdout);
+#elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
+          for (i = 0; i < (int)n; i++)
+            {
+              printf("%c", buf[i]);
+            }
+
+          fflush(stdout);
 #endif
           cnt += n;
         }
 
       UNUSED(eof);
     }
-
+  
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   printf("\n");
 #endif
