@@ -605,6 +605,27 @@ static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
 
 int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
+  if (argc >= 2 && strcmp(argv[1], "-h") == 0)
+    {
+      nsh_output(vtbl, "usage:\n");
+      nsh_output(vtbl, "  rptun <start|stop|reset|panic|dump> <path> "
+                "<value>\n");
+      nsh_output(vtbl, "  rptun <reset> <path> <resetvalue>\n");
+      nsh_output(vtbl, "  rptun ping <path> <times> <length> <ack> "
+                "<period(ms)>\n\n");
+      nsh_output(vtbl, "  <path>         Rptun device path.\n");
+      nsh_output(vtbl, "  <times>        Times of rptun ping.\n");
+      nsh_output(vtbl, "  <length>       The length of each ping packet.\n");
+      nsh_output(vtbl, "  <ack>          Whether the peer acknowlege or "
+                "check data.\n");
+      nsh_output(vtbl, "                 0 - No acknowledge and check.\n");
+      nsh_output(vtbl, "                 1 - Acknowledge, no data check.\n");
+      nsh_output(vtbl, "                 2 - Acknowledge and data check.\n");
+      nsh_output(vtbl, "  <period(ms)>   ping period (ms) \n\n");
+
+      return OK;
+    }
+
   if (argc < 3)
     {
       nsh_output(vtbl, g_fmtargrequired, argv[0]);
