@@ -1346,7 +1346,6 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   /* Initialize motor data */
 
   motor->per        = b16divi(b16ONE, CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ);
-  motor->iphase_adc = ftob16((CONFIG_EXAMPLES_FOC_IPHASE_ADC) / 100000.0f);
 #ifdef CONFIG_EXAMPLES_FOC_ANGOBS
   motor->ol_thr     = ftob16(motor->envp->cfg->ol_thr / 1.0f);
   motor->ol_hys     = ftob16(motor->envp->cfg->ol_hys / 1.0f);

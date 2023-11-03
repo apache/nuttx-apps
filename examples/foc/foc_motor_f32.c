@@ -1334,7 +1334,6 @@ int foc_motor_init(FAR struct foc_motor_f32_s *motor,
   /* Initialize motor data */
 
   motor->per        = (float)(1.0f / CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ);
-  motor->iphase_adc = ((CONFIG_EXAMPLES_FOC_IPHASE_ADC) / 100000.0f);
 #ifdef CONFIG_EXAMPLES_FOC_ANGOBS
   motor->ol_thr     = (motor->envp->cfg->ol_thr / 1.0f);
   motor->ol_hys     = (motor->envp->cfg->ol_hys / 1.0f);
