@@ -336,9 +336,10 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
       goto errout;
     }
 
-  /* Get PWM max duty */
+  /* Store data from device */
 
   motor.pwm_duty_max = FOCDUTY_TO_FLOAT(dev.info.hw_cfg.pwm_max);
+  motor.iphase_adc = dev.info.hw_cfg.iphase_scale / 100000.0f;
 
   /* Start with motor free */
 
