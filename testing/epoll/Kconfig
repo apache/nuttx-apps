@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_EPOLL
+	tristate "cmocka epoll test"
+	default n
+	depends on TESTING_CMOCKA && TIMER_FD && NET_LOCAL
+	---help---
+		Enable the cmocka driver test
+
+if TESTING_EPOLL
+
+config TESTING_EPOLL_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_EPOLL_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

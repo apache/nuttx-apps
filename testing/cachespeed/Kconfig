@@ -1,0 +1,44 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_CACHESPEED
+	bool "CACHE Speed Test"
+	depends on ARCH_ICACHE && ARCH_DCACHE
+	default n
+	---help---
+		Enable a simple CACHE speed test.
+
+if TESTING_CACHESPEED
+
+config TESTING_CACHESPEED_PROGNAME
+	string "Program name"
+	default "cachespeed"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_CACHESPEED_PRIORITY
+	int "CACHE speed test task priority"
+	default 100
+
+config TESTING_CACHESPEED_STACKSIZE
+	int "CACHE speed test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config CACHESPEED_MONOTONIC_TIME
+	bool "Using Clock Gettime"
+	default n
+	---help---
+		When you turn on this option, your test loop will go from 10000 -> 1000 times
+		Please consider the following scenario:
+		1. By default (PERFTIME) will have a relatively high precision, but this also
+			tends to cause failure in getting values on some smaller bytes, so reducing
+			the precision with this option can make it easier to get data values.
+		2. whether to compare data with the content of other tools (using CLOCK
+			GETTIME method), if so, it is recommended to turn on, so as to ensure that
+			the data precision of both consistent.
+
+endif
+

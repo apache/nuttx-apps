@@ -70,12 +70,14 @@ ifeq ($(CONFIG_BUILD_KERNEL),y)
   ifeq ($(CONFIG_HAVE_CXX),y)
     LDLIBS += -lxx
   endif
-ifneq ($(CONFIG_LIBM),y)
+ifeq ($(CONFIG_LIBM_TOOLCHAIN),y)
   LIBM = ${shell "$(CC)" $(ARCHCPUFLAGS) --print-file-name=libm.a}
 ifneq ($(LIBM),".")
   LDLIBPATH += -L "${shell dirname $(LIBM)}"
   LDLIBS += -lm
 endif
+else ifneq ($(CONFIG_LIBM_NONE),)
+  LDLIBS += -lm
 endif
 endif
 

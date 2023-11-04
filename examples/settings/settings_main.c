@@ -97,9 +97,12 @@ int main(int argc, FAR char *argv[])
     }
 
 #ifdef CONFIG_EXAMPLES_SETTINGS_USE_TMPFS
-# ifndef CONFIG_FS_TMPFS
+#  ifndef CONFIG_FS_TMPFS
 #    error TMPFS must be enabled
-# else
+#  endif
+#  ifndef CONFIG_LIBC_TMPDIR
+#    error LIBC_TMPDIR must be defined
+#  endif
   if (stat(CONFIG_LIBC_TMPDIR, &sbuf))
     {
       ret = nx_mount(NULL, CONFIG_LIBC_TMPDIR, "tmpfs", 0, NULL);
@@ -116,12 +119,13 @@ int main(int argc, FAR char *argv[])
 #endif
 #else
   strcpy(path, CONFIG_EXAMPLES_SETTINGS_EXISTING_STORAGE);
-  strcat(path, "/settings");
   if (path == NULL)
     {
       printf("Settings filepath is empty!");
       goto end;
     }
+
+  strcat(path, "/settings");
 #endif
 
   printf("Example of settings usage: %s. Path: %s\n",

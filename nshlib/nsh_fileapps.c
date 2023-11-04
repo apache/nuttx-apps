@@ -159,12 +159,6 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     }
 #endif
 
-  /* Lock the scheduler in an attempt to prevent the application from
-   * running until waitpid() has been called.
-   */
-
-  sched_lock();
-
   /* Execute the program. posix_spawnp returns a positive errno value on
    * failure.
    */
@@ -295,8 +289,6 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         }
 #endif /* !CONFIG_SCHED_WAITPID || !CONFIG_NSH_DISABLEBG */
     }
-
-  sched_unlock();
 
   /* Free attributes and file actions.  Ignoring return values in the case
    * of an error.

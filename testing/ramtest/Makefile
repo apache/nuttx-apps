@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/nxrecorder/Makefile
+# apps/testing/ramtest/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,19 +20,13 @@
 
 include $(APPDIR)/Make.defs
 
-# NxRecorder Library
+# RAM test
 
-CSRCS     = nxrecorder.c
-CSRCS    += nxrecorder_amr.c
-CSRCS    += nxrecorder_common.c
+PROGNAME = $(CONFIG_TESTING_RAMTEST_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_RAMTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_RAMTEST_STACKSIZE)
+MODULE = $(CONFIG_TESTING_RAMTEST)
 
-ifneq ($(CONFIG_NXRECORDER_COMMAND_LINE),)
-PROGNAME = nxrecorder
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_NXRECORDER_MAINTHREAD_STACKSIZE)
-MODULE = $(CONFIG_NXRECORDER_COMMAND_LINE)
-
-MAINSRC = nxrecorder_main.c
-endif
+MAINSRC = ramtest.c
 
 include $(APPDIR)/Application.mk

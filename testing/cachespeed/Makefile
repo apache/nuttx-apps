@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/nxrecorder/Makefile
+# apps/testing/cachespeed/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,19 +20,17 @@
 
 include $(APPDIR)/Make.defs
 
-# NxRecorder Library
+#CACHE speed test
 
-CSRCS     = nxrecorder.c
-CSRCS    += nxrecorder_amr.c
-CSRCS    += nxrecorder_common.c
-
-ifneq ($(CONFIG_NXRECORDER_COMMAND_LINE),)
-PROGNAME = nxrecorder
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_NXRECORDER_MAINTHREAD_STACKSIZE)
-MODULE = $(CONFIG_NXRECORDER_COMMAND_LINE)
-
-MAINSRC = nxrecorder_main.c
+ifneq ($(CONFIG_CACHESPEED_MONOTONIC_TIME),y)
+  CFLAGS += -DCACHESPEED_PERFTIME
 endif
+
+PROGNAME  = $(CONFIG_TESTING_CACHESPEED_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_CACHESPEED_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_CACHESPEED_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_CACHESPEED)
+
+MAINSRC   = cachespeed_main.c
 
 include $(APPDIR)/Application.mk

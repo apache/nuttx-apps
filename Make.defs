@@ -156,3 +156,22 @@ endef
 define ARLOCK
 	flock $1.lock $(call ARCHIVE, $1, $(2))
 endef
+
+# dynamic AR target
+
+define AROBJSRULES
+$(1) : $(2)
+	cp $(2) $(1)
+endef
+
+# CLEANAROBJS - del AR target files exclusively
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+define CLEANAROBJS
+	$(call DELFILE,$(subst /,\,$(AROBJS)))
+endef
+else
+define CLEANAROBJS
+	$(Q) rm -f $(AROBJS)
+endef
+endif

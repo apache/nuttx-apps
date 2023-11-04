@@ -33,6 +33,7 @@
 #include <spawn.h>
 #include <assert.h>
 #include <debug.h>
+#include <fcntl.h>
 
 #include "nshlib/nshlib.h"
 
@@ -139,7 +140,8 @@ FILE *popen(FAR const char *command, FAR const char *mode)
    * Is the pipe the input to the shell?  Or the output?
    */
 
-  if (strcmp(mode, "r") == 0 && (result = pipe(fd)) >= 0)
+  if (strcmp(mode, "r") == 0 &&
+      (result = pipe2(fd, O_CLOEXEC)) >= 0)
     {
       /* Pipe is the output from the shell */
 
@@ -147,7 +149,8 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       newfd[0] = fd[1];
       retfd    = fd[0]; /* Use read side of the pipe to create the return stream */
     }
-  else if (strcmp(mode, "w") == 0 && (result = pipe(fd)) >= 0)
+  else if (strcmp(mode, "w") == 0 &&
+           (result = pipe2(fd, O_CLOEXEC)) >= 0)
     {
       /* Pipe is the input to the shell */
 
@@ -160,7 +163,8 @@ FILE *popen(FAR const char *command, FAR const char *mode)
 
 #if defined(CONFIG_NET_LOCAL) && defined(CONFIG_NET_LOCAL_STREAM)
   else if ((strcmp(mode, "r+") == 0 || strcmp(mode, "w+") == 0) &&
-           (result = socketpair(AF_UNIX, SOCK_STREAM, 0, fd)) >= 0)
+           (result = socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC,
+                                0, fd)) >= 0)
     {
       /* Socketpair is the input/output to the shell */
 
@@ -315,6 +319,11 @@ FILE *popen(FAR const char *command, FAR const char *mode)
 
   posix_spawn_file_actions_destroy(&file_actions);
   posix_spawnattr_destroy(&attr);
+
+  if (strchr(mode, 'e') == NULL)
+    {
+      fcntl(retfd, F_SETFD, 0);
+    }
 
   /* Finale and return input input/output stream */
 

@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_MEMORY_STRESS
+	tristate "memory stress test"
+	default n
+	---help---
+		Enable a memory stress test.
+
+if TESTING_MEMORY_STRESS
+
+config TESTING_MEMORY_STRESS_PROGNAME
+	string "Program name"
+	default "memstress"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_MEMORY_STRESS_PRIORITY
+	int "MEMORY stress task priority"
+	default 100
+
+config TESTING_MEMORY_STRESS_STACKSIZE
+	int "MEMORY stress stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/nxrecorder/Makefile
+# apps/testing/memstress/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,19 +20,13 @@
 
 include $(APPDIR)/Make.defs
 
-# NxRecorder Library
+# RAM speed test
 
-CSRCS     = nxrecorder.c
-CSRCS    += nxrecorder_amr.c
-CSRCS    += nxrecorder_common.c
+PROGNAME = $(CONFIG_TESTING_MEMORY_STRESS_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_MEMORY_STRESS_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_MEMORY_STRESS_STACKSIZE)
+MODULE = $(CONFIG_TESTING_MEMORY_STRESS)
 
-ifneq ($(CONFIG_NXRECORDER_COMMAND_LINE),)
-PROGNAME = nxrecorder
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_NXRECORDER_MAINTHREAD_STACKSIZE)
-MODULE = $(CONFIG_NXRECORDER_COMMAND_LINE)
-
-MAINSRC = nxrecorder_main.c
-endif
+MAINSRC = memorystress_main.c
 
 include $(APPDIR)/Application.mk

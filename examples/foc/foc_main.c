@@ -107,6 +107,10 @@ struct args_s g_args =
     .posmax = CONFIG_EXAMPLES_FOC_SETPOINT_MAX,
 #  endif
 #endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+    .acc = CONFIG_EXAMPLES_FOC_RAMP_ACC,
+    .dec = CONFIG_EXAMPLES_FOC_RAMP_DEC,
+#endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
     .ident_res_ki = CONFIG_EXAMPLES_FOC_IDENT_RES_KI,
     .ident_res_curr = CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT,

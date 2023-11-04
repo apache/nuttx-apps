@@ -108,13 +108,28 @@ static const struct nxrecorder_ext_fmt_s g_known_ext[] =
   { "midi",     AUDIO_FMT_MIDI, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_OGG_VORBIS
-  { "ogg",      AUDIO_FMT_OGG_VORBIS, NULL }
+  { "ogg",      AUDIO_FMT_OGG_VORBIS, NULL },
 #endif
+  { "amr",      AUDIO_FMT_AMR, NULL }
 };
 
 static const int g_known_ext_count = sizeof(g_known_ext) /
                     sizeof(struct nxrecorder_ext_fmt_s);
 #endif
+
+static const struct nxrecorder_enc_ops_s g_enc_ops[] =
+{
+  {
+    AUDIO_FMT_AMR,
+    nxrecorder_write_amr,
+    nxrecorder_write_common,
+  },
+  {
+    AUDIO_FMT_PCM,
+    NULL,
+    nxrecorder_write_common,
+  }
+};
 
 /****************************************************************************
  * Private Functions
@@ -353,7 +368,7 @@ static int nxrecorder_writebuffer(FAR struct nxrecorder_s *precorder,
 
   /* Write data to the file. */
 
-  ret = write(precorder->fd, apb->samp, apb->nbytes);
+  ret = precorder->ops->write_data(precorder->fd, apb);
   if (ret < 0)
     {
       return ret;
@@ -1019,6 +1034,7 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
   int                      min_channels;
   int                      ret;
   int                      subfmt = AUDIO_FMT_UNDEF;
+  int                      index;
 
   DEBUGASSERT(precorder != NULL);
   DEBUGASSERT(pfilename != NULL);
@@ -1068,6 +1084,30 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
 
       auderr("ERROR: nxrecorder_opendevice failed: %d\n", ret);
       goto err_out_nodev;
+    }
+
+  for (index = 0; index < sizeof(g_enc_ops) / sizeof(g_enc_ops[0]); index++)
+    {
+      if (g_enc_ops[index].format == filefmt)
+        {
+          precorder->ops = &g_enc_ops[index];
+          break;
+        }
+    }
+
+  if (!precorder->ops)
+    {
+      goto err_out;
+    }
+
+  if (precorder->ops->pre_write)
+    {
+      ret = precorder->ops->pre_write(precorder->fd,
+                                      samprate, nchannels, bpsamp);
+      if (ret < 0)
+        {
+          goto err_out;
+        }
     }
 
   /* Try to reserve the device */
