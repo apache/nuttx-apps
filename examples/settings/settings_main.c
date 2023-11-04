@@ -116,7 +116,6 @@ int main(int argc, FAR char *argv[])
 
   strcpy(path, CONFIG_LIBC_TMPDIR);
   strcat(path, "/settings");
-#endif
 #else
   strcpy(path, CONFIG_EXAMPLES_SETTINGS_EXISTING_STORAGE);
   if (path == NULL)
@@ -245,8 +244,8 @@ int main(int argc, FAR char *argv[])
       goto end;
     }
 
-  printf("Creating an IP settings value (IP0) with value:0x%08x\n",
-          save_ip);
+  printf("Creating an IP settings value (IP0) with value:0x%08lx\n",
+          save_ip.s_addr);
   ret = settings_get("IP0", SETTING_IP_ADDR, &load_ip);
   if (ret < 0)
     {
