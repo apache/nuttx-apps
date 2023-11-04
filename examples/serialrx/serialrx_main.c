@@ -52,7 +52,7 @@ int main(int argc, FAR char *argv[])
 #else
   int fd;
   int cnt;
-  int bytecount = 0;
+
 #endif
 #ifdef CONFIG_EXAMPLES_SERIALRX_PRINTHYPHEN
   int count = 0;
@@ -64,6 +64,7 @@ int main(int argc, FAR char *argv[])
   bool eof = false;
   FAR char *buf;
   FAR char *devpath;
+  int bytecount = 0;
 
   if (argc == 1)
     {
