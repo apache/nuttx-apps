@@ -3,27 +3,27 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config TESTING_CACHESPEED
+config BENCHMARK_CACHESPEED
 	bool "CACHE Speed Test"
 	depends on ARCH_ICACHE && ARCH_DCACHE
 	default n
 	---help---
 		Enable a simple CACHE speed test.
 
-if TESTING_CACHESPEED
+if BENCHMARK_CACHESPEED
 
-config TESTING_CACHESPEED_PROGNAME
+config BENCHMARK_CACHESPEED_PROGNAME
 	string "Program name"
 	default "cachespeed"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
-config TESTING_CACHESPEED_PRIORITY
+config BENCHMARK_CACHESPEED_PRIORITY
 	int "CACHE speed test task priority"
 	default 100
 
-config TESTING_CACHESPEED_STACKSIZE
+config BENCHMARK_CACHESPEED_STACKSIZE
 	int "CACHE speed test stack size"
 	default DEFAULT_TASK_STACKSIZE
 

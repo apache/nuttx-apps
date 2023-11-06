@@ -3,27 +3,27 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config TESTING_IOZONE
+config BENCHMARK_IOZONE
 	tristate "IOzone, filesystem benchmark tool"
 	default n
 	---help---
 		https://www.iozone.org/
 
-if TESTING_IOZONE
+if BENCHMARK_IOZONE
 
-config TESTING_IOZONE_PROGNAME
+config BENCHMARK_IOZONE_PROGNAME
 	string "Program name"
 	default "iozone"
 
-config TESTING_IOZONE_PRIORITY
+config BENCHMARK_IOZONE_PRIORITY
 	int "IOzone task priority"
 	default 100
 
-config TESTING_IOZONE_STACKSIZE
+config BENCHMARK_IOZONE_STACKSIZE
 	int "IOzone stack size"
 	default 8192
 
-config TESTING_IOZONE_VERSION
+config BENCHMARK_IOZONE_VERSION
 	string "iozone version"
 	default "3_493"
 

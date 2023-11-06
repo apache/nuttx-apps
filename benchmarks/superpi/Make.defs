@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/superpi/Make.defs
+# apps/benchmarks/superpi/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_SUPERPI),)
-CONFIGURED_APPS += $(APPDIR)/testing/superpi
+ifneq ($(CONFIG_BENCHMARK_SUPERPI),)
+CONFIGURED_APPS += $(APPDIR)/benchmarks/superpi
 endif

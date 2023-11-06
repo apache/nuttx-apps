@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/iozone/Make.defs
+# apps/benchmarks/iozone/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,10 +20,10 @@
 
 include $(APPDIR)/Make.defs
 
-PROGNAME  = $(CONFIG_TESTING_IOZONE_PROGNAME)
-PRIORITY  = $(CONFIG_TESTING_IOZONE_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_IOZONE_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_IOZONE)
+PROGNAME  = $(CONFIG_BENCHMARK_IOZONE_PROGNAME)
+PRIORITY  = $(CONFIG_BENCHMARK_IOZONE_PRIORITY)
+STACKSIZE = $(CONFIG_BENCHMARK_IOZONE_STACKSIZE)
+MODULE    = $(CONFIG_BENCHMARK_IOZONE)
 
 CFLAGS   += -Dunix -DHAVE_ANSIC_C -DHAVE_PREAD -DNAME='"nuttx"'
 CFLAGS   += -DNO_MADVISE -DNO_FORK -D__FreeBSD__ -DNO_THREADS
@@ -37,15 +37,15 @@ CFLAGS   += -DRECLEN_START=1024
 CSRCS     = iozone/src/current/libbif.c
 MAINSRC   = iozone/src/current/iozone.c
 
-CONFIG_TESTING_IOZONE_URL ?= "https://www.iozone.org/src/current/"
+CONFIG_BENCHMARK_IOZONE_URL ?= "https://www.iozone.org/src/current/"
 
 IOZONE_UNPACKNAME = iozone
-IOZONE_VERSION = $(patsubst "%",%,$(strip $(CONFIG_TESTING_IOZONE_VERSION)))
+IOZONE_VERSION = $(patsubst "%",%,$(strip $(CONFIG_BENCHMARK_IOZONE_VERSION)))
 IOZONE_ZIP = iozone$(IOZONE_VERSION).tgz
 
 $(IOZONE_ZIP):
 	@echo "Downloading: $(IOZONE_ZIP)"
-	$(Q) curl -O -L $(CONFIG_TESTING_IOZONE_URL)/$(IOZONE_ZIP)
+	$(Q) curl -O -L $(CONFIG_BENCHMARK_IOZONE_URL)/$(IOZONE_ZIP)
 
 $(IOZONE_UNPACKNAME): $(IOZONE_ZIP)
 	@echo "Unpacking: $(IOZONE_ZIP) -> $(IOZONE_UNPACKNAME)"

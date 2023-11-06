@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/ramspeed/Makefile
+# apps/benchmarks/superpi/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,13 +20,35 @@
 
 include $(APPDIR)/Make.defs
 
-# RAM speed test
+SUPERPI_UNPACK   = superpi
+SUPERPI_URL      = https://github.com/Fibonacci43/SuperPI/archive
+SUPERPI_VERSION  = main
+SUPERPI_ZIP      = $(SUPERPI_VERSION).zip
+UNPACK          ?= unzip -q -o
 
-PROGNAME = $(CONFIG_TESTING_RAMSPEED_PROGNAME)
-PRIORITY = $(CONFIG_TESTING_RAMSPEED_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_RAMSPEED_STACKSIZE)
-MODULE = $(CONFIG_TESTING_RAMSPEED)
+CSRCS    += superpi/fftsg_h.c
+PROGNAME  = $(CONFIG_BENCHMARK_SUPERPI_PROGNAME)
+PRIORITY  = $(CONFIG_BENCHMARK_SUPERPI_PRIORITY)
+STACKSIZE = $(CONFIG_BENCHMARK_SUPERPI_STACKSIZE)
+MODULE    = $(CONFIG_BENCHMARK_SUPERPI)
+MAINSRC   = superpi/pi_fftcs.c
 
-MAINSRC = ramspeed_main.c
+$(SUPERPI_ZIP):
+	@echo "Downloading: $(SUPERPI_URL)/$(SUPERPI_ZIP)"
+	$(Q) curl -O -L $(SUPERPI_URL)/$(SUPERPI_ZIP)
+
+$(SUPERPI_UNPACK): $(SUPERPI_ZIP)
+	@echo "Unpacking: $(SUPERPI_ZIP) -> $(SUPERPI_UNPACK)"
+	$(Q) $(UNPACK) $(SUPERPI_ZIP)
+	$(Q) mv	SuperPI-$(SUPERPI_VERSION) $(SUPERPI_UNPACK)
+	$(Q) touch $(SUPERPI_UNPACK)
+
+ifeq ($(wildcard $(SUPERPI_UNPACK)/.git),)
+context:: $(SUPERPI_UNPACK)
+
+distclean::
+	$(call DELDIR, $(SUPERPI_UNPACK))
+	$(call DELFILE, $(SUPERPI_ZIP))
+endif
 
 include $(APPDIR)/Application.mk

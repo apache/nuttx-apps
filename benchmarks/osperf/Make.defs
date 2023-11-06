@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/osperf/Makefile
+# apps/benchmarks/osperf/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,13 +18,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
-
-PROGNAME  = osperf
-PRIORITY  = $(CONFIG_TESTING_OSPERF_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_OSPERF_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_OSPERF)
-
-MAINSRC = osperf.c
-
-include $(APPDIR)/Application.mk
+ifneq ($(CONFIG_BENCHMARK_OSPERF),)
+CONFIGURED_APPS += $(APPDIR)/benchmarks/osperf
+endif
