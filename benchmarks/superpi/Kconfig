@@ -1,21 +1,21 @@
-config SUPERPI
+config BENCHMARK_SUPERPI
 	tristate "SuperPI test"
 	default n
 
-if SUPERPI
+if BENCHMARK_SUPERPI
 
-config SUPERPI_PROGNAME
+config BENCHMARK_SUPERPI_PROGNAME
 	string "Program Name"
 	default "pi_css5"
 
-config SUPERPI_STACKSIZE
+config BENCHMARK_SUPERPI_STACKSIZE
 	int "SuperPI stack size"
 	default DEFAULT_TASK_STACKSIZE
 
-config SUPERPI_PRIORITY
+config BENCHMARK_SUPERPI_PRIORITY
 	int "Task PRIORITY"
 	default 100
 	---help---
 		The higher the priority value, the lower the priority.
 
-endif # SUPERPI
+endif # BENCHMARK_SUPERPI

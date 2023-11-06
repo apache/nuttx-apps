@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/iozone/Make.defs
+# apps/benchmarks/osperf/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,13 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_IOZONE),)
-CONFIGURED_APPS += $(APPDIR)/testing/iozone
-endif
+include $(APPDIR)/Make.defs
+
+PROGNAME  = osperf
+PRIORITY  = $(CONFIG_BENCHMARK_OSPERF_PRIORITY)
+STACKSIZE = $(CONFIG_BENCHMARK_OSPERF_STACKSIZE)
+MODULE    = $(CONFIG_BENCHMARK_OSPERF)
+
+MAINSRC = osperf.c
+
+include $(APPDIR)/Application.mk

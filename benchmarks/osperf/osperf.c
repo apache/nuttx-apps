@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/osperf/osperf.c
+ * apps/benchmarks/osperf/osperf.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -145,7 +145,7 @@ static size_t pthread_switch_performance(void)
 
   sem_init(&perf.sem, 0, 0);
   tid = performance_thread_create(pthread_switch_task, &perf,
-                                  CONFIG_TESTING_OSPERF_PRIORITY + 1);
+                                  CONFIG_BENCHMARK_OSPERF_PRIORITY + 1);
 
   performance_start(&perf.time);
   sem_post(&perf.sem);
