@@ -34,7 +34,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define CPULOAD_US          (USEC_PER_SEC / CONFIG_SCHED_CPULOAD_TICKSPERSEC)
+#ifdef CONFIG_SCHED_CPULOAD_EXTCLK
+#  define CPULOAD_US        (USEC_PER_SEC / CONFIG_SCHED_CPULOAD_TICKSPERSEC)
+#else
+#  define CPULOAD_US        (USEC_PER_SEC / CLOCKS_PER_SEC)
+#endif
+
 #define CPULOAD_DELAY       (10 * CPULOAD_US)
 
 /****************************************************************************
