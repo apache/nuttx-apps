@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config BENCHMARK_FIO
+	tristate "Flexible I/O Tester"
+	default n
+	depends on LIBC_MODLIB && LIBC_DLFCN
+	---help---
+		https://github.com/axboe/fio Fio spawns a number of threads or processes
+		doing a particular type of I/O action as specified by the user.
+
+if BENCHMARK_FIO
+
+config BENCHMARK_FIO_PRIORITY
+	int "fio task priority"
+	default 100
+
+config BENCHMARK_FIO_STACKSIZE
+	int "fio stack size"
+	default 65536
+
+endif
