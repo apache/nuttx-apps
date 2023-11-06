@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config BENCHMARK_DHRYSTONE
+	tristate "dhrystone benchmark"
+	default n
+	---help---
+		Dhrystone is one of the most common benchmark programs
+		for measuring the computing power of processors and is commonly
+		used to measure the performance of integer computing on processors.
+
+if BENCHMARK_DHRYSTONE
+
+config BENCHMARK_DHRYSTONE_PROGNAME
+	string "Program Name"
+	default "dhrystone"
+
+config BENCHMARK_DHRYSTONE_STACKSIZE
+	int "utils dhrystone stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config BENCHMARK_DHRYSTONE_PRIORITY
+	int "Task PRIORITY"
+	default 100
+
+endif

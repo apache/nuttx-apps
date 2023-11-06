@@ -1,0 +1,81 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig BENCHMARK_COREMARK_PRO
+	bool "Coremark Pro Benchmark"
+	default n
+	depends on LIBC_FLOATINGPOINT
+
+if BENCHMARK_COREMARK_PRO
+
+config BENCHMARK_COREMARK_PRO_STACKSIZE
+	int "Coremark Pro stack size"
+	default 131072
+
+config BENCHMARK_COREMARK_PRO_PRIORITY
+	int "Coremark Pro priority"
+	default 100
+
+config BENCHMARK_COREMARK_PRO_USE_SINGLE_CONTEXT
+	bool "use single context"
+	default n
+
+config BENCHMARK_COREMARK_PRO_SMP
+	bool "Relevant configurations in case of SMP"
+	default n
+	depends on SMP && !BENCHMARK_COREMARK_PRO_USE_SINGLE_CONTEXT
+
+config BENCHMARK_COREMARK_PRO_64BIT
+	bool "Running on 64-bit operating systems"
+	default n
+
+config BENCHMARK_COREMARK_PRO_USE_FP64
+	bool "USE FP64 Data for Test"
+	default n
+
+config BENCHMARK_COREMARK_PRO_CORE_TEST
+	bool "Core Test"
+	default n
+
+config BENCHMARK_COREMARK_PRO_CJPEG_TEST
+	bool "cjpeg-rose7-preset"
+	default n
+	---help---
+		Before using this case, place the files in coremark-pro/benchmarks/libbmp
+		and coremark-pro/benchmarks/libjpeg in /data/libbmp and /data/libjpeg
+		respectively
+
+config BENCHMARK_COREMARK_PRO_LINEAR_ALG_MID_TEST
+	bool "Linear_alg_mid TEST"
+	default n
+
+config BENCHMARK_COREMARK_PRO_SHA_TEST
+	bool "SHA Test"
+	default n
+
+config BENCHMARK_COREMARK_PRO_ZIP_TEST
+	bool "Zip Test"
+	depends on LIB_ZLIB
+	default n
+
+choice
+	prompt "Coremark Pro FP Test Case configuration"
+	default BENCHMARK_COREMARK_PRO_RADIX_TEST
+
+config BENCHMARK_COREMARK_PRO_RADIX_TEST
+	bool "Radix Test"
+
+config BENCHMARK_COREMARK_PRO_LOOPS_ALL_MID_TEST
+	bool "Loops-all-mid test"
+
+config BENCHMARK_COREMARK_PRO_NNET_TEST
+	bool "Nnet Test"
+
+config BENCHMARK_COREMARK_PRO_PARSER_125K
+	bool "Parser 125K Test"
+
+endchoice
+
+endif
