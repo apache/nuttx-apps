@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/batterydump/Make.defs
+# apps/system/batterydump/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,13 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_BATTERYDUMP),)
-CONFIGURED_APPS += $(APPDIR)/testing/batterydump
-endif
+include $(APPDIR)/Make.defs
+
+PROGNAME  = $(CONFIG_SYSTEM_BATTERYDUMP_PROGNAME)
+PRIORITY  = $(CONFIG_SYSTEM_BATTERYDUMP_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_BATTERYDUMP_STACKSIZE)
+MODULE    = $(CONFIG_SYSTEM_BATTERYDUMP)
+
+MAINSRC = batterydump.c
+
+include $(APPDIR)/Application.mk
