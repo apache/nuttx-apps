@@ -25,6 +25,18 @@ config LIBUV_BACKEND_EPOLL
 	select FS_NOTIFY
 	default y
 
+if LIBUV_BACKEND_EPOLL
+
+config LIBUV_MAX_EPOLL_EVENTS
+	int "libuv max epoll events"
+	default 64
+
+config LIBUV_PREP_EVENT_SIZE
+	int "libuv prep event size"
+	default 1
+
+endif
+
 choice
 	prompt "libuv utils"
 	default LIBUV_UTILS_NONE
