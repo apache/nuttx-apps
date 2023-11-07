@@ -45,10 +45,10 @@
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
 #  ifndef CONFIG_EXAMPLES_FOC_HAVE_VEL
-#    error
+#    error open-loop needs CONFIG_EXAMPLES_FOC_HAVE_VEL set
 #  endif
 #  ifndef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
-#    error
+#    error open-loop needs CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
 #  endif
 #endif
 
@@ -61,13 +61,13 @@
 /* Velocity ramp must be configured */
 
 #if (CONFIG_EXAMPLES_FOC_RAMP_THR == 0)
-#  error
+#  error CONFIG_EXAMPLES_FOC_RAMP_THR not configured
 #endif
 #if (CONFIG_EXAMPLES_FOC_RAMP_ACC == 0)
-#  error
+#  error CONFIG_EXAMPLES_FOC_RAMP_ACC not configured
 #endif
 #if (CONFIG_EXAMPLES_FOC_RAMP_DEC == 0)
-#  error
+#  error CONFIG_EXAMPLES_FOC_RAMP_DEC not configured
 #endif
 
 /* ADC Iphase ratio must be provided */
@@ -80,19 +80,19 @@
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
 #  if (CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT == 0)
-#    error
+#    error CONFIG_EXAMPLES_FOC_IDENT_RES_CURRENT not configured
 #  endif
 #  if (CONFIG_EXAMPLES_FOC_IDENT_RES_KI == 0)
-#    error
+#    error CONFIG_EXAMPLES_FOC_IDENT_RES_KI not configured
 #  endif
 #  if (CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE == 0)
-#    error
+#    error CONFIG_EXAMPLES_FOC_IDENT_IND_VOLTAGE not configured
 #  endif
 #  if (CONFIG_EXAMPLES_FOC_IDENT_RES_SEC == 0)
-#    error
+#    error CONFIG_EXAMPLES_FOC_IDENT_RES_SEC not configured
 #  endif
 #  if (CONFIG_EXAMPLES_FOC_IDENT_IND_SEC == 0)
-#    error
+#    error CONFIG_EXAMPLES_FOC_IDENT_IND_SEC not configured
 #  endif
 #endif
 
@@ -128,10 +128,10 @@
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_QENCO
 #  if CONFIG_EXAMPLES_FOC_MOTOR_POLES == 0
-#    error
+#    error CONFIG_EXAMPLES_FOC_MOTOR_POLES must be defined
 #  endif
 #  if CONFIG_EXAMPLES_FOC_QENCO_POSMAX == 0
-#    error
+#    error CONFIG_EXAMPLES_FOC_QENCO_POSMAX must be defined
 #  endif
 #endif
 
@@ -140,7 +140,7 @@
 #if !defined(CONFIG_EXAMPLES_FOC_SETPOINT_CONST) &&  \
     !defined(CONFIG_EXAMPLES_FOC_SETPOINT_ADC) && \
     !defined(CONFIG_EXAMPLES_FOC_SETPOINT_CHAR)
-#  error
+#  error setpoint source not selected
 #endif
 
 /* Setpoint ADC scale factor */
@@ -154,7 +154,7 @@
 #ifdef CONFIG_EXAMPLES_FOC_SETPOINT_CONST
 #  define SETPOINT_INTF_SCALE   (1)
 #  if CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE == 0
-#    error
+#    error CONFIG_EXAMPLES_FOC_SETPOINT_CONST_VALUE not configured
 #  endif
 #endif
 
@@ -168,7 +168,7 @@
 
 #if !defined(CONFIG_EXAMPLES_FOC_VBUS_CONST) &&  \
     !defined(CONFIG_EXAMPLES_FOC_VBUS_ADC)
-#  error
+#  error no VBUS source selected !
 #endif
 
 /* VBUS ADC scale factor */
@@ -187,7 +187,7 @@
 #  define VBUS_ADC_SCALE   (1)
 #  define VBUS_CONST_VALUE (CONFIG_EXAMPLES_FOC_VBUS_CONST_VALUE / 1000.0f)
 #  if CONFIG_EXAMPLES_FOC_VBUS_CONST_VALUE == 0
-#    error
+#    error CONFIG_EXAMPLES_FOC_VBUS_CONST_VALUE not configured
 #  endif
 #endif
 
