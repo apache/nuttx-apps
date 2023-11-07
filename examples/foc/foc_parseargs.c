@@ -441,6 +441,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
               break;
             }
 
+#  ifdef CONFIG_EXAMPLES_FOC_ANGOBS
           case OPT_OLTHR:
             {
               args->cfg.ol_thr = atoi(optarg);
@@ -452,6 +453,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
               args->cfg.ol_hys = atoi(optarg);
               break;
             }
+#  endif
 #endif
 
           case '?':
