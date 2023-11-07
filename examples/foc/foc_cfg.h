@@ -203,8 +203,10 @@
 
 /* Open-loop to observer angle merge factor */
 
-#if CONFIG_EXAMPLES_FOC_ANGOBS_MERGE_RATIO > 0
-#  define ANGLE_MERGE_FACTOR (CONFIG_EXAMPLES_FOC_ANGOBS_MERGE_RATIO / 100.0f)
+#ifdef CONFIG_EXAMPLES_FOC_SENSORLESS
+#  if CONFIG_EXAMPLES_FOC_ANGOBS_MERGE_RATIO > 0
+#    define ANGLE_MERGE_FACTOR (CONFIG_EXAMPLES_FOC_ANGOBS_MERGE_RATIO / 100.0f)
+#  endif
 #endif
 
 /****************************************************************************
