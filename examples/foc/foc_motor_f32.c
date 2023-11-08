@@ -431,7 +431,7 @@ static int foc_motor_torq(FAR struct foc_motor_f32_s *motor, uint32_t torq)
 
   /* Update motor torque destination */
 
-  motor->torq.des = (torq * SETPOINT_INTF_SCALE *
+  motor->torq.des = (motor->dir * torq * SETPOINT_INTF_SCALE *
                      motor->envp->cfg->torqmax / 1000.0f);
 
   return OK;
@@ -449,7 +449,7 @@ static int foc_motor_vel(FAR struct foc_motor_f32_s *motor, uint32_t vel)
 
   /* Update motor velocity destination */
 
-  motor->vel.des = (vel * SETPOINT_INTF_SCALE *
+  motor->vel.des = (motor->dir * vel * SETPOINT_INTF_SCALE *
                     motor->envp->cfg->velmax / 1000.0f);
 
   return OK;
@@ -467,7 +467,7 @@ static int foc_motor_pos(FAR struct foc_motor_f32_s *motor, uint32_t pos)
 
   /* Update motor position destination */
 
-  motor->pos.des = (pos * SETPOINT_INTF_SCALE *
+  motor->pos.des = (motor->dir * pos * SETPOINT_INTF_SCALE *
                     motor->envp->cfg->posmax / 1000.0f);
 
   return OK;
@@ -897,7 +897,9 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
       case FOC_MMODE_TORQ:
         {
-          motor->torq.set = motor->dir * motor->torq.des;
+          /* Torque setpoint */
+
+          motor->torq.set = motor->torq.des;
 
           q_ref = motor->torq.set;
           d_ref = 0.0f;
@@ -914,7 +916,7 @@ static int foc_motor_run(FAR struct foc_motor_f32_s *motor)
               /* Run velocity ramp controller */
 
               ret = foc_ramp_run_f32(&motor->ramp,
-                                     motor->dir * motor->vel.des,
+                                     motor->vel.des,
                                      motor->vel.now,
                                      &motor->vel.set);
               if (ret < 0)

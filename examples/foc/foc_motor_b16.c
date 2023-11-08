@@ -441,7 +441,7 @@ static int foc_motor_torq(FAR struct foc_motor_b16_s *motor, uint32_t torq)
   tmp1 = itob16(motor->envp->cfg->torqmax / 1000);
   tmp2 = b16mulb16(ftob16(SETPOINT_INTF_SCALE), tmp1);
 
-  motor->torq.des = b16muli(tmp2, torq);
+  motor->torq.des = b16mulb16(motor->dir, b16muli(tmp2, torq));
 
   return OK;
 }
@@ -466,7 +466,7 @@ static int foc_motor_vel(FAR struct foc_motor_b16_s *motor, uint32_t vel)
   tmp1 = itob16(motor->envp->cfg->velmax / 1000);
   tmp2 = b16mulb16(ftob16(SETPOINT_INTF_SCALE), tmp1);
 
-  motor->vel.des = b16muli(tmp2, vel);
+  motor->vel.des = b16mulb16(motor->dir, b16muli(tmp2, vel));
 
   return OK;
 }
@@ -491,7 +491,7 @@ static int foc_motor_pos(FAR struct foc_motor_b16_s *motor, uint32_t pos)
   tmp1 = itob16(motor->envp->cfg->posmax / 1000);
   tmp2 = b16mulb16(ftob16(SETPOINT_INTF_SCALE), tmp1);
 
-  motor->pos.des = b16muli(tmp2, pos);
+  motor->pos.des = b16mulb16(motor->dir, b16muli(tmp2, pos));
 
   return OK;
 }
@@ -914,7 +914,9 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
       case FOC_MMODE_TORQ:
         {
-          motor->torq.set = b16mulb16(motor->dir, motor->torq.des);
+          /* Torque setpoint */
+
+          motor->torq.set = motor->torq.des;
 
           q_ref = motor->torq.set;
           d_ref = 0;
@@ -931,7 +933,7 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
               /* Run velocity ramp controller */
 
               ret = foc_ramp_run_b16(&motor->ramp,
-                                     motor->dir * motor->vel.des,
+                                     motor->vel.des,
                                      motor->vel.now,
                                      &motor->vel.set);
               if (ret < 0)
