@@ -81,6 +81,7 @@ ifneq ($(CONFIG_LIBUV_BACKEND_EPOLL),)
 CSRCS += linux.c
 else
 CSRCS += posix-poll.c
+CSRCS += no-fsevents.c
 endif
 CSRCS += uv-data-getter-setters.c
 CSRCS += version.c
@@ -88,9 +89,6 @@ ifeq ($(CONFIG_LIBUV_UTILS_TEST),)
 CSRCS += idna.c
 CSRCS += strscpy.c
 CSRCS += strtok.c
-endif
-ifeq ($(CONFIG_FS_NOTIFY),)
-CSRCS += no-fsevents.c
 endif
 CSRCS += uv-common.c
 CSRCS += random-devurandom.c
