@@ -40,7 +40,6 @@
 struct foc_perf_s
 {
   bool     max_changed;
-  bool     skip;
   uint32_t max;
   uint32_t now;
 };
@@ -51,7 +50,6 @@ struct foc_perf_s
 
 int foc_perf_init(struct foc_perf_s *p);
 void foc_perf_start(struct foc_perf_s *p);
-void foc_perf_skip(struct foc_perf_s *p);
 void foc_perf_end(struct foc_perf_s *p);
 
 #endif /* __APPS_EXAMPLES_FOC_FOC_PERF_H */
