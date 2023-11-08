@@ -1228,7 +1228,7 @@ static int foc_motor_vel_get(FAR struct foc_motor_b16_s *motor)
   UNUSED(vout);
 
   motor->vel_el = motor->vel.set;
-#elif defined(CONFIG_EXAMPLES_FOC_VELOBS)
+#elif defined(CONFIG_EXAMPLES_FOC_VELOBS) && defined(CONFIG_EXAMPLES_FOC_SENSORLESS)
   if (motor->openloop_now == FOC_OPENLOOP_DISABLED)
     {
       /* Get electrical velocity from observer if we are in closed-loop */
@@ -1241,6 +1241,10 @@ static int foc_motor_vel_get(FAR struct foc_motor_b16_s *motor)
 
       motor->vel_el = motor->vel.set;
     }
+#elif defined(CONFIG_EXAMPLES_FOC_VELOBS) && defined(CONFIG_EXAMPLES_FOC_SENSORED)
+  /* Get electrical velocity from observer in sensored mode */
+
+  motor->vel_el = motor->vel_obs;
 #else
   /* Need electrical velocity source here - raise assertion */
 
