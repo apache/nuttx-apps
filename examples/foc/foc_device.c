@@ -144,15 +144,6 @@ int foc_device_start(FAR struct foc_device_s *dev, bool state)
           PRINTFV("ERROR: foc_dev_start failed %d!\n", ret);
           goto errout;
         }
-
-#ifdef CONFIG_EXAMPLES_FOC_PERF
-      /* Skip this cycle in stats. When the dev is started, many components
-       * are initialized, which significantly increases the cycle time and
-       * disturbs the statistics.
-       */
-
-      foc_perf_skip(&dev->perf);
-#endif
     }
   else
     {

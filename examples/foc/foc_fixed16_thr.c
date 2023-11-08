@@ -386,6 +386,10 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
             }
 
           motor.startstop = false;
+
+          /* Start from the beginning of the control loop */
+
+          continue;
         }
 
       /* Ignore control logic if controller not started yet */

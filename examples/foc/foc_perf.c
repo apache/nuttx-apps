@@ -57,15 +57,6 @@ void foc_perf_start(struct foc_perf_s *p)
 }
 
 /****************************************************************************
- * Name: foc_perf_skip
- ****************************************************************************/
-
-void foc_perf_skip(struct foc_perf_s *p)
-{
-  p->skip = true;
-}
-
-/****************************************************************************
  * Name: foc_perf_end
  ****************************************************************************/
 
@@ -75,16 +66,9 @@ void foc_perf_end(struct foc_perf_s *p)
 
   p->max_changed = false;
 
-  if (p->skip == false)
+  if (p->now > p->max)
     {
-      if (p->now > p->max)
-        {
-          p->max = p->now;
-          p->max_changed = true;
-        }
+      p->max = p->now;
+      p->max_changed = true;
     }
-
-  /* Reset skip flag */
-
-  p->skip = false;
 }
