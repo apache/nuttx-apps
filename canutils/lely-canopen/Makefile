@@ -176,6 +176,8 @@ $(LELYCANOPEN_TARBALL):
 $(LELYCANOPEN_SRCNAME): $(LELYCANOPEN_TARBALL)
 	@echo "Unpacking: $(LELYCANOPEN_TARBALL) -> $(LELYCANOPEN_UNPACKNAME)"
 	$(Q) $(UNPACK) $(LELYCANOPEN_TARBALL)
+	# Get the name of the directory created by the tar command
+	$(eval LELYCANOPEN_UNPACKNAME := $(shell ls -d lely-core-master*))
 	$(Q) mv $(LELYCANOPEN_UNPACKNAME) $(LELYCANOPEN_SRCNAME)
 	$(Q) cat 0001-NuttX-port.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
 	$(Q) echo "Patching $(LELYCANOPEN_SRCNAME)"
