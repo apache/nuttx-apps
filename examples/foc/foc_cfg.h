@@ -33,6 +33,11 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#if defined(CONFIG_EXAMPLES_FOC_SENSORLESS) && \
+  defined(CONFIG_EXAMPLES_FOC_SENSORED)
+#  error Simultaneous support for sensorless and sensored mode not supported
+#endif
+
 /* For now only sensorless velocity control supported */
 
 #ifdef CONFIG_EXAMPLES_FOC_SENSORLESS
