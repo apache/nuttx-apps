@@ -25,6 +25,34 @@ if(CONFIG_MATTER)
   get_filename_component(
     CHIP_ROOT ${NUTTX_APPS_DIR}/netutils/connectedhomeip/connectedhomeip
     REALPATH)
+
+  if(NOT EXISTS ${CHIP_ROOT})
+    set(CHIP_URL
+        https://github.com/project-chip/connectedhomeip/archive/refs/tags)
+    set(CHIP_VERSION v1.2.0.1)
+
+    FetchContent_Declare(
+      chip_fetch
+      URL ${CHIP_URL}/${CHIP_VERSION}.zip SOURCE_DIR
+          ${CMAKE_CURRENT_LIST_DIR}/connectedhomeip BINARY_DIR
+          ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+      DOWNLOAD_NO_PROGRESS true
+      TIMEOUT 90)
+
+    FetchContent_GetProperties(chip_fetch)
+
+    if(NOT chip_fetch_POPULATED)
+      FetchContent_Populate(chip_fetch)
+    endif()
+
+    execute_process(
+      COMMAND pwd
+      COMMAND
+        sh -c
+        "patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/0001-chip-add-compile-support-for-NuttX.patch"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/connectedhomeip)
+  endif()
+
   get_filename_component(GN_ROOT_TARGET ${CHIP_ROOT}/config/nuttx/chip-gn
                          REALPATH)
   get_filename_component(COMMON_CMAKE_SOURCE_DIR
