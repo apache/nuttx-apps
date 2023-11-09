@@ -133,6 +133,7 @@ struct foc_motor_b16_s
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
   struct foc_setpoint_b16_s     torq;         /* Torque setpoint */
+  b16_t                         torq_sat;     /* Torque saturation */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   struct foc_setpoint_b16_s     vel;          /* Velocity setpoint */

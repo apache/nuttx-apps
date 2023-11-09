@@ -187,6 +187,17 @@ config EXAMPLES_FOC_HAVE_TORQ
 	bool "FOC example torque controller support"
 	default n
 
+if EXAMPLES_FOC_HAVE_TORQ
+
+config EXAMPLES_FOC_TORQ_MAX
+	int "FOC example torque maximum (x1000)"
+	default 1000
+	---help---
+		The unit is mini-ampere (1/1000 ampere) for current mode.
+		The unit is mini-volt (1/1000 voltage) for voltage mode.
+
+endif # EXAMPLES_FOC_HAVE_TORQ
+
 config EXAMPLES_FOC_HAVE_VEL
 	bool "FOC example velocity controller support"
 	default EXAMPLES_FOC_SENSORLESS
@@ -239,12 +250,6 @@ config EXAMPLES_FOC_VELCTRL_PI_KI
 	---help---
 		The Ki coefficient used in controller is:
 		Ki = EXAMPLES_FOC_VELCTRL_PI_KI/1000000
-
-config EXAMPLES_FOC_VELCTRL_PI_SAT
-	int "FOC velocity PI saturation (1000x)"
-	default 0
-	---help---
-		The unit is micro-ampere (1/1000000 ampere)
 
 endif # EXAMPLES_FOC_VELCTRL_PI
 

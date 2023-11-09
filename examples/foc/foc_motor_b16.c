@@ -932,6 +932,11 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
       case FOC_MMODE_TORQ:
         {
+          /* Saturate torque */
+
+          f_saturate_b16(&motor->torq.des, -motor->torq_sat,
+                         motor->torq_sat);
+
           /* Torque setpoint */
 
           motor->torq.set = motor->torq.des;
@@ -1332,6 +1337,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 #ifdef CONFIG_EXAMPLES_FOC_ANGOBS
   motor->ol_thr     = ftob16(motor->envp->cfg->ol_thr / 1.0f);
   motor->ol_hys     = ftob16(motor->envp->cfg->ol_hys / 1.0f);
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_TORQ
+  motor->torq_sat   = ftob16(CONFIG_EXAMPLES_FOC_TORQ_MAX / 1000.0f);
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   motor->vel_sat    = ftob16(CONFIG_EXAMPLES_FOC_VEL_MAX / 1.0f);
