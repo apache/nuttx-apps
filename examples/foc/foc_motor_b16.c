@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <dspb16.h>
 
 #include "foc_cfg.h"
 #include "foc_debug.h"
@@ -945,6 +946,13 @@ static int foc_motor_run(FAR struct foc_motor_b16_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
       case FOC_MMODE_VEL:
         {
+          /* Saturate velocity */
+
+          f_saturate_b16(&motor->vel.des, -motor->vel_sat,
+                         motor->vel_sat);
+
+          /* Velocity controller */
+
           if (motor->time % VEL_CONTROL_PRESCALER == 0)
             {
               /* Run velocity ramp controller */
@@ -1324,6 +1332,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
 #ifdef CONFIG_EXAMPLES_FOC_ANGOBS
   motor->ol_thr     = ftob16(motor->envp->cfg->ol_thr / 1.0f);
   motor->ol_hys     = ftob16(motor->envp->cfg->ol_hys / 1.0f);
+#endif
+#ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
+  motor->vel_sat    = ftob16(CONFIG_EXAMPLES_FOC_VEL_MAX / 1.0f);
 #endif
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_RUN

@@ -136,6 +136,7 @@ struct foc_motor_f32_s
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   struct foc_setpoint_f32_s     vel;          /* Velocity setpoint */
+  float                         vel_sat;      /* Velocity saturation */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
   struct foc_setpoint_f32_s     pos;          /* Position setpoint */

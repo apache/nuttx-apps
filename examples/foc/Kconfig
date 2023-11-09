@@ -209,6 +209,12 @@ config EXAMPLES_FOC_VELNOW_FILTER
 	int "FOC example velocity controller (x1000)"
 	default 990
 
+config EXAMPLES_FOC_VEL_MAX
+	int "FOC example velocity maximum (x1)"
+	default 1000
+	---help---
+		The unit is rad/s
+
 choice
 	prompt "FOC velocity controller selection"
 	default EXAMPLES_FOC_VELCTRL_PI
