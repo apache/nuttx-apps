@@ -1,0 +1,514 @@
+From faaac5060c5e5f9ab23344d776b44440ca3f1706 Mon Sep 17 00:00:00 2001
+From: zhanghongyu <zhanghongyu@xiaomi.com>
+Date: Tue, 31 Oct 2023 11:01:50 +0800
+Subject: [PATCH] chip: add compile support for NuttX
+
+VELAPLATFO-11575
+
+config/nuttx/chip-gn/BUILD.gn is the most important script, will output libchipnuttx.a file,
+this file include all chip symbol we need.
+
+The reference documentation for matter compilation
+https://xiaomi.f.mioffice.cn/docx/doxk4GkrddACeNZokDg618UjZZb
+
+Change-Id: Icbf140eb348dfa2ad769f76deac0abdc32618025
+Signed-off-by: zhanghongyu <zhanghongyu@xiaomi.com>
+---
+ build/config/compiler/BUILD.gn                |  9 +++
+ config/nuttx/README.md                        |  8 +++
+ config/nuttx/chip-gn/.gn                      | 29 ++++++++++
+ config/nuttx/chip-gn/BUILD.gn                 | 57 +++++++++++++++++++
+ config/nuttx/chip-gn/args.gni                 | 32 +++++++++++
+ config/nuttx/chip-gn/toolchain/BUILD.gn       | 33 +++++++++++
+ examples/lighting-app/linux/main.cpp          |  2 +-
+ scripts/codegen.py                            |  1 +
+ src/inet/BUILD.gn                             |  5 ++
+ src/lib/core/CHIPError.h                      |  8 +--
+ src/platform/BUILD.gn                         |  8 +++
+ src/platform/Linux/BUILD.gn                   |  2 +-
+ src/platform/Linux/CHIPLinuxStorage.cpp       |  2 +-
+ src/platform/Linux/ConnectivityUtils.cpp      |  7 ++-
+ src/platform/Linux/ConnectivityUtils.h        |  4 ++
+ .../Linux/DiagnosticDataProviderImpl.cpp      |  4 ++
+ src/platform/Linux/Logging.cpp                |  4 ++
+ src/platform/Linux/PlatformManagerImpl.cpp    |  4 ++
+ src/platform/device.gni                       | 12 +++-
+ 19 files changed, 220 insertions(+), 11 deletions(-)
+ create mode 100644 config/nuttx/README.md
+ create mode 100644 config/nuttx/chip-gn/.gn
+ create mode 100644 config/nuttx/chip-gn/BUILD.gn
+ create mode 100644 config/nuttx/chip-gn/args.gni
+ create mode 100644 config/nuttx/chip-gn/toolchain/BUILD.gn
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index b6ad67a649..1a590984a5 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -271,6 +271,15 @@ config("strict_warnings") {
+ 
+   cflags_cc = [ "-Wnon-virtual-dtor" ]
+ 
++  if (current_os == "nuttx") {
++    cflags -= [
++      "-Wshadow",
++    ]
++    cflags_cc -= [
++      "-Wnon-virtual-dtor",
++    ]
++  }
++
+   configs = []
+   ldflags = []
+ 
+diff --git a/config/nuttx/README.md b/config/nuttx/README.md
+new file mode 100644
+index 0000000000..3cbdfc264e
+--- /dev/null
++++ b/config/nuttx/README.md
+@@ -0,0 +1,8 @@
++# Nuttx build and configuration files
++
++This directory contains build scripts and common configuration files used by
++CHIP Nuttx applications. It is structured as follows:
++
++| File/Folder | Contents                                                                                                                            |
++| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
++| chip-gn     | GN project used to build selected CHIP libraries with the _nuttx_ platform integration layer                                        |
+diff --git a/config/nuttx/chip-gn/.gn b/config/nuttx/chip-gn/.gn
+new file mode 100644
+index 0000000000..7233a3062b
+--- /dev/null
++++ b/config/nuttx/chip-gn/.gn
+@@ -0,0 +1,29 @@
++# Copyright (c) 2020 Project CHIP Authors
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++# http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++import("//build_overrides/build.gni")
++import("//build_overrides/chip.gni")
++
++# The location of the build configuration file.
++buildconfig = "${build_root}/config/BUILDCONFIG.gn"
++
++# CHIP uses angle bracket includes.
++check_system_includes = true
++
++default_args = {
++  target_cpu = ""
++  target_os = "nuttx"
++
++  import("${chip_root}/config/nuttx/chip-gn/args.gni")
++}
+diff --git a/config/nuttx/chip-gn/BUILD.gn b/config/nuttx/chip-gn/BUILD.gn
+new file mode 100644
+index 0000000000..c4b94ab171
+--- /dev/null
++++ b/config/nuttx/chip-gn/BUILD.gn
+@@ -0,0 +1,57 @@
++# Copyright (c) 2020 Project CHIP Authors
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++# http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++import("//build_overrides/build.gni")
++import("//build_overrides/chip.gni")
++
++import("${chip_root}/build/chip/tests.gni")
++
++assert(current_os == "nuttx")
++
++declare_args() {
++  chip_build_example_providers = false
++  chip_example_lighting = false
++}
++
++static_library("nuttx") {
++  output_name = "libchipnuttx"
++
++  public_deps = [
++    "${chip_root}/examples/platform/linux:app-main",
++    "${chip_root}/src/lib",
++  ]
++
++  if (chip_build_tests) {
++    public_deps += [ "${chip_root}/src:tests" ]
++  }
++
++  if (chip_build_example_providers) {
++    public_deps += [ "${chip_root}/examples/providers:device_info_provider" ]
++  }
++
++  if (chip_example_lighting) {
++    public_deps += [
++      "${chip_root}/examples/lighting-app/lighting-common",
++      "${chip_root}/examples/lighting-app/lighting-common:lighting-manager",
++    ]
++  }
++
++  output_dir = "${root_out_dir}/lib"
++
++  complete_static_lib = true
++}
++
++group("default") {
++  deps = [ ":nuttx" ]
++}
+diff --git a/config/nuttx/chip-gn/args.gni b/config/nuttx/chip-gn/args.gni
+new file mode 100644
+index 0000000000..480dc26e9f
+--- /dev/null
++++ b/config/nuttx/chip-gn/args.gni
+@@ -0,0 +1,32 @@
++# Copyright (c) 2020 Project CHIP Authors
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++# http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++import("//build_overrides/chip.gni")
++
++import("${chip_root}/src/crypto/crypto.gni")
++
++chip_device_platform = "nuttx"
++
++chip_build_tests = false
++
++chip_project_config_include = ""
++chip_system_project_config_include = ""
++chip_ble_project_config_include = ""
++
++chip_crypto = "mbedtls"
++chip_external_mbedtls = true
++
++custom_toolchain = "${chip_root}/config/nuttx/chip-gn/toolchain:nuttx"
++
++pw_build_PIP_CONSTRAINTS = [ "${chip_root}/scripts/setup/constraints.txt" ]
+diff --git a/config/nuttx/chip-gn/toolchain/BUILD.gn b/config/nuttx/chip-gn/toolchain/BUILD.gn
+new file mode 100644
+index 0000000000..576d96f607
+--- /dev/null
++++ b/config/nuttx/chip-gn/toolchain/BUILD.gn
+@@ -0,0 +1,33 @@
++# Copyright (c) 2020 Project CHIP Authors
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++# http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++import("//build/toolchain/gcc_toolchain.gni")
++import("//build_overrides/build.gni")
++
++declare_args() {
++  nuttx_ar = ""
++  nuttx_cc = ""
++  nuttx_cxx = ""
++}
++
++gcc_toolchain("nuttx") {
++  ar = nuttx_ar
++  cc = nuttx_cc
++  cxx = nuttx_cxx
++
++  toolchain_args = {
++    current_os = "nuttx"
++    is_clang = false
++  }
++}
+diff --git a/examples/lighting-app/linux/main.cpp b/examples/lighting-app/linux/main.cpp
+index 3bd27fddc0..21535c3bcd 100644
+--- a/examples/lighting-app/linux/main.cpp
++++ b/examples/lighting-app/linux/main.cpp
+@@ -93,7 +93,7 @@ void ApplicationShutdown()
+     }
+ }
+ 
+-int main(int argc, char * argv[])
++extern "C" int main(int argc, char * argv[])
+ {
+     if (ChipLinuxAppInit(argc, argv) != 0)
+     {
+diff --git a/scripts/codegen.py b/scripts/codegen.py
+index 1f679ea614..1c6a1b1883 100755
+--- a/scripts/codegen.py
++++ b/scripts/codegen.py
+@@ -15,6 +15,7 @@
+ 
+ import logging
+ import sys
++sys.path.append('py_matter_idl')
+ 
+ import click
+ 
+diff --git a/src/inet/BUILD.gn b/src/inet/BUILD.gn
+index 3f81be8964..966aff5c08 100644
+--- a/src/inet/BUILD.gn
++++ b/src/inet/BUILD.gn
+@@ -148,4 +148,9 @@ static_library("inet") {
+   }
+ 
+   cflags = [ "-Wconversion" ]
++  if (current_os == "nuttx") {
++    cflags -= [
++      "-Wconversion",
++    ]
++  }
+ }
+diff --git a/src/lib/core/CHIPError.h b/src/lib/core/CHIPError.h
+index 1b621a694f..e67ce24eb9 100644
+--- a/src/lib/core/CHIPError.h
++++ b/src/lib/core/CHIPError.h
+@@ -374,13 +374,13 @@ public:
+      *
+      * This template ensures that the numeric value is constant and well-formed.
+      */
+-    template <SdkPart PART, StorageType CODE>
++    template <SdkPart PART, StorageType SCODE>
+     struct SdkErrorConstant
+     {
+         static_assert(FitsInField(kSdkPartLength, to_underlying(PART)), "part is too large");
+-        static_assert(FitsInField(kSdkCodeLength, CODE), "code is too large");
+-        static_assert(MakeInteger(PART, CODE) != 0, "value is zero");
+-        static constexpr StorageType value = MakeInteger(PART, CODE);
++        static_assert(FitsInField(kSdkCodeLength, SCODE), "code is too large");
++        static_assert(MakeInteger(PART, SCODE) != 0, "value is zero");
++        static constexpr StorageType value = MakeInteger(PART, SCODE);
+     };
+ };
+ 
+diff --git a/src/platform/BUILD.gn b/src/platform/BUILD.gn
+index 7a7b6a81e6..4c3e2b2e30 100644
+--- a/src/platform/BUILD.gn
++++ b/src/platform/BUILD.gn
+@@ -297,6 +297,12 @@ if (chip_device_platform != "none" && chip_device_platform != "external") {
+     } else if (chip_device_platform == "stm32") {
+       device_layer_target_define = "STM32"
+       defines += [ "CHIP_DEVICE_LAYER_TARGET=stm32" ]
++    } else if (chip_device_platform == "nuttx") {
++      device_layer_target_define = "LINUX"
++      defines += [
++        "CHIP_DEVICE_LAYER_TARGET=Linux",
++        "CHIP_DEVICE_CONFIG_ENABLE_WIFI=${chip_enable_wifi}",
++      ]
+     } else {
+       device_layer_target_define = ""
+     }
+@@ -559,6 +565,8 @@ if (chip_device_platform != "none") {
+       _platform_target = "ASR"
+     } else if (chip_device_platform == "stm32") {
+       _platform_target = "stm32"
++    } else if (chip_device_platform == "nuttx") {
++      _platform_target = "Linux"
+     } else {
+       assert(false, "Unknown chip_device_platform: ${chip_device_platform}")
+     }
+diff --git a/src/platform/Linux/BUILD.gn b/src/platform/Linux/BUILD.gn
+index a2cfa6b39c..f746a999a8 100644
+--- a/src/platform/Linux/BUILD.gn
++++ b/src/platform/Linux/BUILD.gn
+@@ -20,7 +20,7 @@ import("${build_root}/config/linux/pkg_config.gni")
+ import("${chip_root}/src/lib/core/core.gni")
+ import("${chip_root}/src/platform/device.gni")
+ 
+-assert(chip_device_platform == "linux")
++assert(chip_device_platform == "linux" || chip_device_platform == "nuttx")
+ 
+ if (chip_use_pw_logging) {
+   import("//build_overrides/pigweed.gni")
+diff --git a/src/platform/Linux/CHIPLinuxStorage.cpp b/src/platform/Linux/CHIPLinuxStorage.cpp
+index 9a8afb59d7..52a8b778ce 100644
+--- a/src/platform/Linux/CHIPLinuxStorage.cpp
++++ b/src/platform/Linux/CHIPLinuxStorage.cpp
+@@ -198,7 +198,7 @@ CHIP_ERROR ChipLinuxStorage::WriteValue(const char * key, uint32_t val)
+ {
+     char buf[32];
+ 
+-    snprintf(buf, sizeof(buf), "%d", val);
++    snprintf(buf, sizeof(buf), "%" PRIu32, val);
+ 
+     return WriteValueStr(key, buf);
+ }
+diff --git a/src/platform/Linux/ConnectivityUtils.cpp b/src/platform/Linux/ConnectivityUtils.cpp
+index 2924d48612..7d5ce7e163 100644
+--- a/src/platform/Linux/ConnectivityUtils.cpp
++++ b/src/platform/Linux/ConnectivityUtils.cpp
+@@ -27,10 +27,15 @@
+ 
+ #include <arpa/inet.h>
+ #include <ifaddrs.h>
++#ifdef __NuttX__
++#include <nuttx/wireless/wireless.h>
++#include <nuttx/ethtool.h>
++#else
+ #include <linux/ethtool.h>
+ #include <linux/if_link.h>
+ #include <linux/sockios.h>
+ #include <linux/wireless.h>
++#endif
+ #include <netdb.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -688,7 +693,7 @@ CHIP_ERROR ConnectivityUtils::GetEthPHYRate(const char * ifname, app::Clusters::
+         pHYRate = EmberAfPHYRateEnum::EMBER_ZCL_PHY_RATE_ENUM_RATE400_G;
+         break;
+     default:
+-        ChipLogError(DeviceLayer, "Undefined speed! (%d)\n", speed);
++        ChipLogError(DeviceLayer, "Undefined speed! (%" PRIu32 ")\n", speed);
+         err = CHIP_ERROR_READ_FAILED;
+         break;
+     };
+diff --git a/src/platform/Linux/ConnectivityUtils.h b/src/platform/Linux/ConnectivityUtils.h
+index e4884e935b..bd79ba44a3 100644
+--- a/src/platform/Linux/ConnectivityUtils.h
++++ b/src/platform/Linux/ConnectivityUtils.h
+@@ -26,8 +26,12 @@
+ #include <platform/DiagnosticDataProvider.h>
+ #include <platform/internal/CHIPDeviceLayerInternal.h>
+ 
++#ifdef __NuttX__
++#include <nuttx/wireless/wireless.h>
++#else
+ #include <linux/types.h> /* for "caddr_t" et al      */
+ #include <linux/wireless.h>
++#endif
+ 
+ namespace chip {
+ namespace DeviceLayer {
+diff --git a/src/platform/Linux/DiagnosticDataProviderImpl.cpp b/src/platform/Linux/DiagnosticDataProviderImpl.cpp
+index f102b47b65..22bf514a47 100644
+--- a/src/platform/Linux/DiagnosticDataProviderImpl.cpp
++++ b/src/platform/Linux/DiagnosticDataProviderImpl.cpp
+@@ -35,10 +35,14 @@
+ #include <arpa/inet.h>
+ #include <dirent.h>
+ #include <ifaddrs.h>
++#ifdef __NuttX__
++#include <netpacket/netlink.h>
++#else
+ #include <linux/ethtool.h>
+ #include <linux/if_link.h>
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
++#endif
+ #include <malloc.h>
+ #include <net/if.h>
+ #include <netinet/in.h>
+diff --git a/src/platform/Linux/Logging.cpp b/src/platform/Linux/Logging.cpp
+index 28a19a6a30..6617afd54e 100644
+--- a/src/platform/Linux/Logging.cpp
++++ b/src/platform/Linux/Logging.cpp
+@@ -49,7 +49,11 @@ void ENFORCE_FORMAT(3, 0) LogV(const char * module, uint8_t category, const char
+     flockfile(stdout);
+ 
+     printf("[%" PRIu64 ".%06" PRIu64 "][%lld:%lld] CHIP:%s: ", static_cast<uint64_t>(tv.tv_sec), static_cast<uint64_t>(tv.tv_usec),
++#ifdef __NuttX__
++           static_cast<long long>(getpid()), static_cast<long long>(gettid()), module);
++#else
+            static_cast<long long>(syscall(SYS_getpid)), static_cast<long long>(syscall(SYS_gettid)), module);
++#endif
+     vprintf(msg, v);
+     printf("\n");
+     fflush(stdout);
+diff --git a/src/platform/Linux/PlatformManagerImpl.cpp b/src/platform/Linux/PlatformManagerImpl.cpp
+index a1c83faf29..5a9afb1204 100644
+--- a/src/platform/Linux/PlatformManagerImpl.cpp
++++ b/src/platform/Linux/PlatformManagerImpl.cpp
+@@ -27,8 +27,12 @@
+ #include <arpa/inet.h>
+ #include <dirent.h>
+ #include <errno.h>
++#ifdef __NuttX__
++#include <netpacket/netlink.h>
++#else
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
++#endif
+ #include <net/if.h>
+ #include <netinet/in.h>
+ #include <unistd.h>
+diff --git a/src/platform/device.gni b/src/platform/device.gni
+index cf1dc07325..a9fc1b02d6 100644
+--- a/src/platform/device.gni
++++ b/src/platform/device.gni
+@@ -40,6 +40,8 @@ if (chip_device_platform == "auto") {
+     chip_device_platform = "webos"
+   } else if (current_os == "zephyr") {
+     chip_device_platform = "zephyr"
++  } else if (current_os == "nuttx") {
++    chip_device_platform = "nuttx"
+   } else {
+     chip_device_platform = "none"
+   }
+@@ -89,7 +91,8 @@ declare_args() {
+       chip_device_platform == "ameba" || chip_device_platform == "webos" ||
+       chip_device_platform == "cc32xx" || chip_device_platform == "mw320" ||
+       chip_device_platform == "beken" || chip_device_platform == "mt793x" ||
+-      chip_device_platform == "asr" || chip_device_platform == "openiotsdk") {
++      chip_device_platform == "asr" || chip_device_platform == "openiotsdk" ||
++      chip_device_platform == "nuttx") {
+     chip_mdns = "minimal"
+   } else if (chip_device_platform == "darwin" ||
+              chip_device_platform == "cc13x2_26x2" ||
+@@ -104,7 +107,8 @@ declare_args() {
+   # Enable Subscription persistence / resumption for CI and supported platforms
+   if (chip_device_platform == "darwin" || chip_device_platform == "linux" ||
+       chip_device_platform == "esp32" || chip_device_platform == "fake" ||
+-      chip_device_platform == "efr32" || chip_device_platform == "SiWx917") {
++      chip_device_platform == "efr32" || chip_device_platform == "SiWx917" ||
++      chip_device_platform == "nuttx") {
+     chip_persist_subscriptions = true
+   } else {
+     chip_persist_subscriptions = false
+@@ -185,6 +189,8 @@ if (chip_device_platform == "cc13x2_26x2") {
+   _chip_device_layer = "openiotsdk"
+ } else if (chip_device_platform == "asr") {
+   _chip_device_layer = "ASR"
++} else if (chip_device_platform == "nuttx") {
++  _chip_device_layer = "Linux"
+ } else if (chip_device_platform == "stm32") {
+   _chip_device_layer = "stm32"
+ }
+@@ -257,5 +263,5 @@ assert(
+         chip_device_platform == "bl702" || chip_device_platform == "bl702l" ||
+         chip_device_platform == "mt793x" || chip_device_platform == "SiWx917" ||
+         chip_device_platform == "openiotsdk" || chip_device_platform == "asr" ||
+-        chip_device_platform == "stm32",
++        chip_device_platform == "stm32" || chip_device_platform == "nuttx",
+     "Please select a valid value for chip_device_platform")
+-- 
+2.25.1
+
