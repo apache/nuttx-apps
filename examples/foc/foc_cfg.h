@@ -46,6 +46,20 @@
 #  endif
 #endif
 
+/* Position controller needs velocity controller */
+
+#if defined(CONFIG_EXAMPLES_FOC_HAVE_POS) &&    \
+   !defined(CONFIG_EXAMPLES_FOC_HAVE_VEL)
+#  error Position controller needs velocity controller
+#endif
+
+/* Velocity controller needs torque controller */
+
+#if defined(CONFIG_EXAMPLES_FOC_HAVE_VEL) &&    \
+   !defined(CONFIG_EXAMPLES_FOC_HAVE_TORQ)
+#  error Velocity controller needs torque controller
+#endif
+
 /* Open-loop configuration */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
