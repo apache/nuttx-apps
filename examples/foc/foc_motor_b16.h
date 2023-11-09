@@ -136,6 +136,7 @@ struct foc_motor_b16_s
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_VEL
   struct foc_setpoint_b16_s     vel;          /* Velocity setpoint */
+  b16_t                         vel_sat;      /* Velocity saturation */
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_POS
   struct foc_setpoint_b16_s     pos;          /* Position setpoint */
