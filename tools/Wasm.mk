@@ -62,7 +62,7 @@ ifeq ($(CONFIG_LIBM),)
 WCFLAGS += -DCONFIG_LIBM=1 -I$(APPDIR)$(DELIM)include$(DELIM)wasm
 endif
 
-WLDFLAGS = -z stack-size=$(STACKSIZE) -Wl,--initial-memory=$(INITIAL_MEMORY)
+WLDFLAGS += -z stack-size=$(STACKSIZE) -Wl,--initial-memory=$(INITIAL_MEMORY)
 WLDFLAGS += -Wl,--export=main -Wl,--export=__main_argc_argv
 WLDFLAGS += -Wl,--export=__heap_base -Wl,--export=__data_end
 WLDFLAGS += -Wl,--no-entry -Wl,--strip-all -Wl,--allow-undefined
