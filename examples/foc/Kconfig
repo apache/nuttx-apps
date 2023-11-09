@@ -201,10 +201,12 @@ endif # EXAMPLES_FOC_HAVE_TORQ
 config EXAMPLES_FOC_HAVE_VEL
 	bool "FOC example velocity controller support"
 	default EXAMPLES_FOC_SENSORLESS
+	select EXAMPLES_FOC_HAVE_TORQ
 
 config EXAMPLES_FOC_HAVE_POS
 	bool "FOC example position controller support"
 	default n
+	select EXAMPLES_FOC_HAVE_VEL
 
 config EXAMPLES_FOC_VELOBS
 	bool "FOC example velocity observer support"
