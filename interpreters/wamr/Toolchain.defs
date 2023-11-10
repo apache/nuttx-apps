@@ -37,16 +37,35 @@ else ifeq ($(CONFIG_ARCH_SIM),y)
   else
     WTARGET = x86_64
   endif
-else
+else ifeq ($(findstring thumb,$(LLVM_ARCHTYPE)),thumb)
 
-  # Flags for other architectures (arm or riscv)
+  # target triple of thumb may very complex, such as thumbv8m.main+dsp+mve.fp+fp.dp
+  # so we just use the target name before the first plus sign
 
-  WTARGET = $(LLVM_ARCHTYPE)
-  WCPU    = $(LLVM_CPUTYPE)
-
+  WTARGET = $(shell echo $(LLVM_ARCHTYPE) | cut -d'+' -f1)
 endif
 
-RCFLAGS += --target=$(WTARGET) --target-abi=$(LLVM_ABITYPE) --cpu=$(WCPU)
+# If WTARGET is not defined, then use the same as LLVM_ARCHTYPE
+
+ifeq ($(WTARGET),)
+  WTARGET = $(LLVM_ARCHTYPE)
+endif
+
+# If WCPU is not defined, then use the same as LLVM_CPU
+
+ifeq ($(WCPU),)
+  WCPU = $(LLVM_CPUTYPE)
+endif
+
+# If LLVM_ABITYPE is eabihf, then convert it to gnueabihf which is used by wamrc
+
+ifeq ($(LLVM_ABITYPE),eabihf)
+  WABITYPE = gnueabihf
+else
+  WABITYPE = $(LLVM_ABITYPE)
+endif
+
+RCFLAGS += --target=$(WTARGET) --target-abi=$(WABITYPE) --cpu=$(WCPU)
 
 define WAMR_AOT_COMPILE
 	$(if $(wildcard $(APPDIR)$(DELIM)wasm$(DELIM)*.wo), \
