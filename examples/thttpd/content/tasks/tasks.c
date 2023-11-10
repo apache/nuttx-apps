@@ -96,15 +96,13 @@ void show_task(FAR struct tcb_s *tcb, FAR void *arg)
   policy = g_policynames[(tcb->flags & TCB_FLAG_POLICY_MASK) >>
                          TCB_FLAG_POLICY_SHIFT];
 #if CONFIG_TASK_NAME_SIZE > 0
-  printf("%5d %3d %4s %7s%c%c %8s %s\n",
+  printf("%5d %3d %4s %7s %8s %s\n",
 #else
-  printf("%5d %3d %4s %7s%c%c %8s\n",
+  printf("%5d %3d %4s %7s %8s\n",
 #endif
          tcb->pid, tcb->sched_priority, policy,
          g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >>
                       TCB_FLAG_TTYPE_SHIFT],
-         tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
-         tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
          g_statenames[tcb->task_state]
 #if CONFIG_TASK_NAME_SIZE > 0
          , tcb->name
