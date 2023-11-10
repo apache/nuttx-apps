@@ -48,16 +48,16 @@ static void cm_usage(void)
         "with support for mock objects\n"
         "Usage: cmocka [OPTION [ARG]] ...\n"
         " -?, --help       show this help statement\n"
-        "     --list       display only the names of testcases "
+        " -l, --list       display only the names of testcases "
         "and testsuite,\n"
         "                  don't execute them\n"
-        "     --test A     only run cases where case function "
+        " -t, --test A     only run cases where case function "
         "name matches A pattern\n"
-        "     --skip B     don't run cases where case function "
+        " -p, --skip B     don't run cases where case function "
         "name matches B pattern\n"
-        "     --suite C    only run suites where PROGNAME "
+        " -s, --suite C    only run suites where PROGNAME "
         "matches C pattern\n"
-        "     --output-path use xml report instead of standard "
+        " -f, --output-path use xml report instead of standard "
         "output\n"
         "Example: cmocka --suite mm|sched "
         "--test Test* --skip TestNuttxMm0[123]\n\n";
@@ -115,25 +115,32 @@ int main(int argc, FAR char *argv[])
           cm_usage();
           return 0;
         }
-      else if (strcmp("--list", argv[i]) == 0)
+      else if (strcmp("--list", argv[i]) == 0 || strcmp("-l", argv[i]) == 0)
         {
           list_tests = 1;
         }
-      else if (strcmp("--output-path", argv[i]) == 0)
+      else if (strcmp("--output-path", argv[i]) == 0
+               || strcmp("-f", argv[i]) == 0)
         {
           xml_path = argv[++i];
         }
-      else if (strcmp("--test", argv[i]) == 0)
+      else if (strcmp("--test", argv[i]) == 0 || strcmp("-t", argv[i]) == 0)
         {
           testcase = argv[++i];
         }
-      else if (strcmp("--suite", argv[i]) == 0)
+      else if (strcmp("--suite", argv[i]) == 0 || strcmp("-s", argv[i]) == 0)
         {
           suite = argv[++i];
         }
-      else if (strcmp("--skip", argv[i]) == 0)
+      else if (strcmp("--skip", argv[i]) == 0 || strcmp("-p", argv[i]) == 0)
         {
           skip = argv[++i];
+        }
+      else if (argv[i][0] == '-')
+        {
+          printf("Unrecognized arguments: %s\nGet more"
+                 " infomation by --help\n", argv[i]);
+          return 0;
         }
       else
         {
