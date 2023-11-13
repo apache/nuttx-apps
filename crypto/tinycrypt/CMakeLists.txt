@@ -56,6 +56,8 @@ if(CONFIG_TINYCRYPT)
 
   set(INCDIR ${TINYCRYPT_DIR}/lib/include)
 
+  nuttx_export_header(TARGET tinycrypt INCLUDE_DIRECTORIES ${INCDIR})
+
   # ############################################################################
   # Sources
   # ############################################################################
