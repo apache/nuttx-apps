@@ -93,6 +93,7 @@ struct ptp_state_s
 
   struct ptp_announce_s selected_source;
   struct timespec last_received_sync;
+  struct timespec last_received_multicast;
 
   /* Last transmitted sync & announcement packets */
 
@@ -399,6 +400,8 @@ static int ptp_initialize_state(struct ptp_state_s *state,
   bind_addr.sin_family = AF_INET;
   bind_addr.sin_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
 
+  clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
+
   ret = ipmsfilter(&state->interface_addr.sin_addr,
                    &bind_addr.sin_addr,
                    MCAST_INCLUDE);
@@ -472,6 +475,45 @@ static int ptp_destroy_state(struct ptp_state_s *state)
       close(state->info_socket);
       state->info_socket = -1;
     }
+
+  return OK;
+}
+
+/* Re-subscribe multicast address.
+ * This can become necessary if Ethernet interface gets reset or if external
+ * IGMP-compliant Ethernet switch gets plugged in.
+ */
+
+static int ptp_check_multicast_status(struct ptp_state_s *state)
+{
+#if CONFIG_NETUTILS_PTPD_MULTICAST_TIMEOUT_MS > 0
+  struct in_addr mcast_addr;
+  struct timespec time_now;
+  struct timespec delta;
+
+  clock_gettime(CLOCK_MONOTONIC, &time_now);
+  clock_timespec_subtract(&time_now, &state->last_received_multicast,
+                          &delta);
+
+  if (timespec_to_ms(&delta) > CONFIG_NETUTILS_PTPD_MULTICAST_TIMEOUT_MS)
+    {
+      /* Remove and re-add the multicast group */
+
+      state->last_received_multicast = time_now;
+
+      mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
+      ipmsfilter(&state->interface_addr.sin_addr,
+                  &mcast_addr,
+                  MCAST_EXCLUDE);
+
+      return ipmsfilter(&state->interface_addr.sin_addr,
+                        &mcast_addr,
+                        MCAST_INCLUDE);
+    }
+
+#else
+  UNUSED(state);
+#endif /* CONFIG_NETUTILS_PTPD_MULTICAST_TIMEOUT_MS */
 
   return OK;
 }
@@ -779,6 +821,8 @@ static int ptp_process_rx_packet(struct ptp_state_s *state, ssize_t length)
       return OK;
     }
 
+  clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
+
   switch (state->rxbuf.header.messagetype & PTP_MSGTYPE_MASK)
   {
 #ifdef CONFIG_NETUTILS_PTPD_CLIENT
@@ -875,6 +919,13 @@ static int ptp_daemon(int argc, FAR char** argv)
             {
               ptp_process_rx_packet(state, ret);
             }
+        }
+
+      if (pollfds[0].revents == 0 && pollfds[1].revents == 0)
+        {
+          /* No packets received, check for multicast timeout */
+
+          ptp_check_multicast_status(state);
         }
 
       ptp_periodic_send(state);
