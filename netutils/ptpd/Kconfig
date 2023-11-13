@@ -162,6 +162,15 @@ config NETUTILS_PTPD_SETTIME_THRESHOLD_MS
 		time is reset with settimeofday() instead of changing the rate with
 		adjtime().
 
+config NETUTILS_PTPD_MULTICAST_TIMEOUT_MS
+	int "PTP client timeout to rejoin multicast group (ms)"
+	default 30000
+	---help---
+		If no PTP multicast packets are being received, attempt to rejoin the
+		multicast group. This can be necessary if network topology changes, or
+		depending on hardware, after some error recovery events.
+		Set to 0 to disable.
+
 endif # NETUTILS_PTPD_CLIENT
 
 endif # NETUTILS_PTPD
