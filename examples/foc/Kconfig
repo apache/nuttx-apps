@@ -69,12 +69,6 @@ config EXAMPLES_FOC_NOTIFIER_FREQ
 	---help---
 		Select the FOC notifier frequency
 
-config EXAMPLES_FOC_IPHASE_ADC
-	int "FOC phase current scale [x100000]"
-	default 0
-	---help---
-		This parameter is used to get real currents from ADC RAW values
-
 config EXAMPLES_FOC_STATE_PRINT_FREQ
 	int "FOC example data printer frequency"
 	default 0
