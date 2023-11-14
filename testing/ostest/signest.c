@@ -94,7 +94,6 @@ static void waiter_action(int signo)
 
   sched_lock();
   nest_level = g_nest_level++;
-  sched_unlock();
 
   if ((signo & 1) != 0)
     {
@@ -114,11 +113,12 @@ static void waiter_action(int signo)
     }
 
   g_nest_level = nest_level;
+  sched_unlock();
 
   sem_post(&g_sem_signal_finish);
 }
 
-static int waiter_main(int argc, char *argv[])
+static FAR void *waiter_main(FAR void *arg)
 {
   sigset_t set;
   struct sigaction act;
@@ -134,7 +134,7 @@ static int waiter_main(int argc, char *argv[])
     {
       printf("waiter_main: ERROR sigprocmask failed: %d\n", errno);
       ASSERT(false);
-      return EXIT_FAILURE;
+      return NULL;
     }
 
   printf("waiter_main: Registering signal handler\n");
@@ -160,7 +160,7 @@ static int waiter_main(int argc, char *argv[])
             {
               printf("waiter_main: WARNING sigaction failed with %d\n",
                      errno);
-              return EXIT_FAILURE;
+              return NULL;
             }
         }
     }
@@ -180,10 +180,10 @@ static int waiter_main(int argc, char *argv[])
   /* Just exit, the system should clean up the signal handlers */
 
   g_waiter_running = false;
-  return EXIT_SUCCESS;
+  return NULL;
 }
 
-static int interfere_main(int argc, char *argv[])
+static FAR void *interfere_main(FAR void *arg)
 {
   /* Now just loop staying in the way as much as possible */
 
@@ -202,7 +202,7 @@ static int interfere_main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-void wait_finish(int pid, int sig)
+static void wait_finish(int pid, int sig)
 {
   struct timespec ts;
   int wait_times;
@@ -239,6 +239,7 @@ void wait_finish(int pid, int sig)
 void signest_test(void)
 {
   struct sched_param param;
+  pthread_attr_t attr;
   pid_t waiterpid;
   pid_t interferepid;
   int total_signals;
@@ -246,7 +247,6 @@ void signest_test(void)
   int total_nested;
   int even_signals;
   int odd_signals;
-  int prio;
   int ret;
   int i;
   int j;
@@ -280,11 +280,14 @@ void signest_test(void)
 
   /* Start waiter thread  */
 
-  prio = param.sched_priority + 1;
-  printf("signest_test: Starting signal waiter task at priority %d\n", prio);
-  waiterpid = task_create("waiter", prio, STACKSIZE,
-                          waiter_main, NULL);
-  if (waiterpid == ERROR)
+  param.sched_priority++;
+  printf("signest_test: Starting signal waiter task at priority %d\n",
+         param.sched_priority);
+  pthread_attr_init(&attr);
+  pthread_attr_setschedparam(&attr, &param);
+  pthread_attr_setstacksize(&attr, STACKSIZE);
+  ret = pthread_create(&waiterpid, &attr, waiter_main, NULL);
+  if (ret != 0)
     {
       printf("signest_test: ERROR failed to start waiter_main\n");
       ASSERT(false);
@@ -295,11 +298,12 @@ void signest_test(void)
 
   /* Start interfering thread  */
 
-  prio++;
-  printf("signest_test: Starting interfering task at priority %d\n", prio);
-  interferepid = task_create("interfere", prio, STACKSIZE,
-                             interfere_main, NULL);
-  if (interferepid == ERROR)
+  param.sched_priority++;
+  printf("signest_test: Starting interfering task at priority %d\n",
+         param.sched_priority);
+  pthread_attr_setschedparam(&attr, &param);
+  ret = pthread_create(&interferepid, &attr, interfere_main, NULL);
+  if (ret != 0)
     {
       printf("signest_test: ERROR failed to start interfere_main\n");
       ASSERT(false);

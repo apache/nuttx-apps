@@ -115,7 +115,9 @@ void aio_test(void);
 
 /* restart.c ****************************************************************/
 
+#ifndef CONFIG_BUILD_KERNEL
 void restart_test(void);
+#endif
 
 /* waitpid.c ****************************************************************/
 
