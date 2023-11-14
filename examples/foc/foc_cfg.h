@@ -75,12 +75,6 @@
 #  error CONFIG_EXAMPLES_FOC_RAMP_DEC not configured
 #endif
 
-/* ADC Iphase ratio must be provided */
-
-#if (CONFIG_EXAMPLES_FOC_IPHASE_ADC == 0)
-#  error
-#endif
-
 /* Motor identification support */
 
 #ifdef CONFIG_EXAMPLES_FOC_HAVE_IDENT
