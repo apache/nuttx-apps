@@ -35,7 +35,11 @@
 
 #include "ostest.h"
 
-#ifdef CONFIG_SCHED_WAITPID
+/* REVISIT: This could be implemented for CONFIG_BUILD_KERNEL as well, by
+ * starting a new process instead of using task_create()
+ */
+
+#if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -392,4 +396,4 @@ int waitpid_test(void)
   return 0;
 }
 
-#endif /* CONFIG_SCHED_WAITPID */
+#endif /* defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL) */
