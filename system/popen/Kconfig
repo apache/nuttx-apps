@@ -7,7 +7,7 @@ config SYSTEM_POPEN
 	bool "popen()/pclose() Functions"
 	default n
 	select SCHED_WAITPID
-	depends on NSH_LIBRARY
+	depends on NSH_LIBRARY && PIPES
 	---help---
 		Enable support for the popen() and pclose() interfaces.
 		This will support execution of NSH commands from C code with
