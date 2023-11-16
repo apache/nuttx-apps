@@ -15,7 +15,7 @@ config LIB_MADGWICK
 if LIB_MADGWICK
 
 config LIB_MADGWICK_VER
-        string "Lib Madgwick version"
-        default "1.2.1"
+	string "Lib Madgwick version"
+	default "1.2.1"
 
 endif # LIB_MADGWICK
