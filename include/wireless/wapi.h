@@ -53,6 +53,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdbool.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <net/ethernet.h>
@@ -972,6 +973,26 @@ int wapi_get_pta_prio(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 int wapi_extend_params(int sock, int cmd, FAR struct iwreq *wrq);
+
+/****************************************************************************
+ * Name: wapi_set_power_save
+ *
+ * Description:
+ *   Set power save status of wifi.
+ *
+ ****************************************************************************/
+
+int wapi_set_power_save(int sock, FAR const char *ifname, bool on);
+
+/****************************************************************************
+ * Name: wapi_get_power_save
+ *
+ * Description:
+ *   Get power save status of wifi.
+ *
+ ****************************************************************************/
+
+int wapi_get_power_save(int sock, FAR const char *ifname, bool *on);
 
 #undef EXTERN
 #ifdef __cplusplus

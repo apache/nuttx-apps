@@ -1659,3 +1659,54 @@ int wapi_extend_params(int sock, int cmd, FAR struct iwreq *wrq)
   return ret;
 }
 
+/****************************************************************************
+ * Name: wapi_set_power_save
+ *
+ * Description:
+ *   Set power save status of wifi.
+ *
+ ****************************************************************************/
+
+int wapi_set_power_save(int sock, FAR const char *ifname, bool on)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  wrq.u.power.flags = on;
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = wapi_extend_params(sock, SIOCSIWPWSAVE, &wrq);
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_get_power_save
+ *
+ * Description:
+ *   Get power save status of wifi.
+ *
+ ****************************************************************************/
+
+int wapi_get_power_save(int sock, FAR const char *ifname, bool *on)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  WAPI_VALIDATE_PTR(on);
+
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = wapi_extend_params(sock, SIOCGIWPWSAVE, &wrq);
+  if (ret >= 0)
+    {
+      *on = wrq.u.power.flags;
+    }
+
+  return ret;
+}
+
