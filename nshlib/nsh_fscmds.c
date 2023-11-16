@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <ctype.h>
 #include <inttypes.h>
 #include <stdint.h>
@@ -49,14 +50,12 @@
 #  include <sys/boardctl.h>
 #  include <nuttx/drivers/ramdisk.h>
 #  ifdef CONFIG_DEV_LOOP
-#    include <sys/ioctl.h>
 #    include <nuttx/fs/loop.h>
 #  endif
 #  ifdef CONFIG_FS_SMARTFS
 #    include "fsutils/mksmartfs.h"
 #  endif
 #  ifdef CONFIG_SMART_DEV_LOOP
-#    include <sys/ioctl.h>
 #    include <nuttx/fs/smart.h>
 #  endif
 #  ifdef CONFIG_MTD_LOOP
@@ -572,9 +571,43 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #if defined(CONFIG_SYSLOG_DEVPATH) && !defined(CONFIG_NSH_DISABLE_DMESG)
 int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  UNUSED(argc);
+  int ret = ERROR;
+  int fd;
+  int option;
 
-  return nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
+  if (argc > 1 && (option = getopt(argc, argv, "cC:")) != ERROR)
+    {
+      switch (option)
+      {
+        case 'c':
+          ret = nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
+
+          /* Go through */
+
+        case 'C':
+          fd = open(CONFIG_SYSLOG_DEVPATH, O_RDONLY);
+          if (fd < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+              return fd;
+            }
+
+          ret = ioctl(fd, BIOC_FLUSH, 0);
+          if (ret < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+            }
+
+          close(fd);
+          break;
+      }
+    }
+  else
+    {
+      ret = nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
+    }
+
+  return ret;
 }
 #endif
 
