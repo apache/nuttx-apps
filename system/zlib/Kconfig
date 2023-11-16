@@ -12,7 +12,7 @@ if LIB_ZLIB
 config LIB_ZLIB_TEST
 	tristate "zlib test"
 	default n
-	help
+	---help---
 		Enable the test for zlib.
 
 if LIB_ZLIB_TEST
@@ -45,7 +45,8 @@ config UTILS_GZIP_PRIORITY
 config UTILS_GZIP_STACKSIZE
 	int "gzip utility statcksize"
 	default 32768
-endif
+
+endif # UTILS_GZIP
 
 config UTILS_ZIP
 	bool "ZIP tool"
@@ -65,7 +66,8 @@ config UTILS_ZIP_PRIORITY
 config UTILS_ZIP_STACKSIZE
 	int "zip utility statcksize"
 	default 32768
-endif
+
+endif # UTILS_ZIP
 
 config UTILS_UNZIP
 	bool "UNZIP tool"
@@ -85,6 +87,7 @@ config UTILS_UNZIP_PRIORITY
 config UTILS_UNZIP_STACKSIZE
 	int "unzip utility statcksize"
 	default 32768
-endif
 
-endif
+endif # UTILS_UNZIP
+
+endif # LIB_ZLIB
