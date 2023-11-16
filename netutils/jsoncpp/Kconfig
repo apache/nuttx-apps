@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_JSONCPP
+	bool "JSONCPP"
+	default n
+	---help---
+		JsonCpp is a C++ library that allows manipulating JSON values,
+		including serialization and deserialization to and from strings.
+		It can also preserve existing comment in unserialization/
+		serialization steps, making it a convenient format to store user
+		input files.
+
+if NETUTILS_JSONCPP
+
+config JSONCPP_VERSION
+	string "Jsoncpp Version"
+	default "1.9.5"
+
+endif # NETUTILS_JSONCPP
