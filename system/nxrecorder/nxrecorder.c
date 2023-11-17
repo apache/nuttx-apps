@@ -128,6 +128,11 @@ static const struct nxrecorder_enc_ops_s g_enc_ops[] =
     AUDIO_FMT_PCM,
     NULL,
     nxrecorder_write_common,
+  },
+  {
+    AUDIO_FMT_MP3,
+    NULL,
+    nxrecorder_write_common,
   }
 };
 
@@ -1097,6 +1102,7 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
 
   if (!precorder->ops)
     {
+      ret = -ENOSYS;
       goto err_out;
     }
 
@@ -1284,6 +1290,7 @@ FAR struct nxrecorder_s *nxrecorder_create(void)
   precorder->mq = 0;
   precorder->record_id = 0;
   precorder->crefs = 1;
+  precorder->ops = NULL;
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
   precorder->session = NULL;
