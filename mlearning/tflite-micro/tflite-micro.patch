@@ -1,0 +1,14 @@
+diff --git a/signal/src/circular_buffer.cc b/signal/src/circular_buffer.cc
+index 7638d912..3261be56 100644
+--- a/signal/src/circular_buffer.cc
++++ b/signal/src/circular_buffer.cc
+@@ -19,7 +19,9 @@ limitations under the License.
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#ifndef ASSERT
+ #define ASSERT assert
++#endif
+ 
+ namespace tflite {
+ namespace tflm_signal {

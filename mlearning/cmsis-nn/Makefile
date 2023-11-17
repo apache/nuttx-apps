@@ -1,0 +1,51 @@
+############################################################################
+# apps/mlearning/cmsis-nn/Makefile
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+include $(APPDIR)/Make.defs
+
+CMSIS_NN = cmsis-nn/Source
+
+CMSIS_NN_VER = bfc54edb61e873039ec0857cacc40df36b1d644e
+
+cmsis-nn.zip:
+	$(Q) curl -L https://github.com/ARM-software/CMSIS-NN/archive/$(CMSIS_NN_VER).zip -o cmsis-nn.zip
+	$(Q) unzip -o cmsis-nn.zip
+	$(Q) mv CMSIS-NN-$(CMSIS_NN_VER) cmsis-nn
+
+ifeq ($(wildcard cmsis-nn/.git),)
+context:: cmsis-nn.zip
+distclean::
+	$(call DELDIR, cmsis-nn)
+	$(call DELFILE, cmsis-nn.zip)
+endif
+
+CSRCS += $(wildcard $(CMSIS_NN)/ActivationFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/BasicMathFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/PoolingFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/ConvolutionFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/SVDFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/FullyConnectedFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/NNSupportFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/ConcatenationFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/SoftmaxFunctions/*.c)
+CSRCS += $(CMSIS_NN)/LSTMFunctions/arm_lstm_unidirectional_s8_s16.c
+CSRCS += $(CMSIS_NN)/ReshapeFunctions/arm_reshape_s8.c
+
+include $(APPDIR)/Application.mk
