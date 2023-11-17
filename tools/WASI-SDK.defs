@@ -1,0 +1,86 @@
+
+############################################################################
+# apps/tools/WASI-SDK.defs
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+# wasi-sdk toolchain
+
+WCC ?= $(WASI_SDK_PATH)/bin/clang
+WAR ?= $(WASI_SDK_PATH)/bin/llvm-ar rcs
+
+# Sysroot for building wasm module, default is NuttX
+
+WSYSROOT ?= $(TOPDIR)
+
+# Force disable wasm build when WCC is not exist
+
+ifeq ($(wildcard $(WCC)),)
+  WASM_BUILD = n
+else
+  WASM_BUILD ?= n
+endif
+
+# Force disable wasm build when WASM_SYSROOT is not defined and on specific
+# targets that do not support wasm build.
+# Since some architecture level inline assembly instructions can not be
+# recognized by wasm-clang. For example:
+# Error: /github/workspace/sources/nuttx/include/arch/chip/irq.h:220:27: error: invalid output constraint '=a' in asm
+# asm volatile("rdtscp" : "=a" (lo), "=d" (hi)::"memory");
+
+ifeq ($(CONFIG_ARCH_INTEL64)$(CONFIG_ARCH_SPARC_V8)$(CONFIG_ARCH_AVR)$(CONFIG_ARCH_XTENSA),y)
+  WASM_BUILD = n
+endif
+
+# Build optimization flags from scratch
+
+ifeq ($(CONFIG_DEBUG_FULLOPT),y)
+  WCFLAGS += -Oz
+else ifeq ($(CONFIG_DEBUG_CUSTOMOPT),y)
+  WCFLAGS += $(CONFIG_DEBUG_OPTLEVEL)
+endif
+
+ifneq ($(CONFIG_LTO_FULL)$(CONFIG_LTO_THIN),)
+  WCFLAGS += -flto
+  WLDFLAGS += -flto
+endif
+
+# Build other compiler flags from native compiler
+
+CFLAGS_STRIP = -fsanitize=kernel-address -fsanitize=address -fsanitize=undefined
+CFLAGS_STRIP += $(ARCHCPUFLAGS) $(ARCHCFLAGS) $(ARCHINCLUDES) $(ARCHDEFINES) $(ARCHOPTIMIZATION) $(EXTRAFLAGS)
+
+WCFLAGS += $(filter-out $(CFLAGS_STRIP),$(CFLAGS))
+WCFLAGS += --sysroot=$(WSYSROOT) -nostdlib -D__NuttX__
+
+# If CONFIG_LIBM not defined, then define it to 1
+ifeq ($(CONFIG_LIBM),)
+WCFLAGS += -DCONFIG_LIBM=1 -I$(APPDIR)$(DELIM)include$(DELIM)wasm
+endif
+
+WLDFLAGS += -z stack-size=$(STACKSIZE) -Wl,--initial-memory=$(INITIAL_MEMORY)
+WLDFLAGS += -Wl,--export=main -Wl,--export=__main_argc_argv
+WLDFLAGS += -Wl,--export=__heap_base -Wl,--export=__data_end
+WLDFLAGS += -Wl,--no-entry -Wl,--strip-all -Wl,--allow-undefined
+
+WCC_COMPILER_RT_LIB = $(shell $(WCC) --print-libgcc-file-name)
+ifeq ($(wildcard $(WCC_COMPILER_RT_LIB)),)
+  # if "--print-libgcc-file-name" unable to find the correct libgcc PATH
+  # then go ahead and try "--print-file-name"
+  WCC_COMPILER_RT_LIB := $(wildcard $(shell $(WCC) --print-file-name $(notdir $(WCC_COMPILER_RT_LIB))))
+endif
