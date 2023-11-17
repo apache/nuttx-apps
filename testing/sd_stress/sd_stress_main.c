@@ -65,17 +65,17 @@ static const char *TEMPDIR = CONFIG_TESTING_SD_STRESS_DEVICE"/stress";
 static const char *TEMPDIR2 = CONFIG_TESTING_SD_STRESS_DEVICE"/moved";
 static const char *TEMPFILE = "tmp";
 
-const size_t max_runs = 10000;
-const size_t min_runs = 1;
-const size_t default_runs = 32;
+static const size_t max_runs = 10000;
+static const size_t min_runs = 1;
+static const size_t default_runs = 32;
 
-const size_t max_bytes = 10000;
-const size_t min_bytes = 1;
-const size_t default_bytes = 4096;
+static const size_t max_bytes = 10000;
+static const size_t min_bytes = 1;
+static const size_t default_bytes = 4096;
 
-const size_t max_files = 999;
-const size_t min_files = 1;
-const size_t default_files = 64;
+static const size_t max_files = 999;
+static const size_t min_files = 1;
+static const size_t default_files = 64;
 
 /****************************************************************************
  * Private Functions
@@ -272,15 +272,15 @@ static bool rename_dir(const char *old_dir, const char *new_dir)
   return true;
 }
 
-struct timespec get_abs_time(void)
+static struct timespec get_abs_time(void)
 {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ts;
 }
 
-uint64_t get_time_delta(const struct timespec *start,
-                        const struct timespec *end)
+static uint64_t get_time_delta(const struct timespec *start,
+                               const struct timespec *end)
 {
   uint64_t elapsed;
   elapsed = (((uint64_t)end->tv_sec * NSEC_PER_SEC) + end->tv_nsec);
@@ -288,7 +288,7 @@ uint64_t get_time_delta(const struct timespec *start,
   return elapsed / 1000;
 }
 
-float get_elapsed_time_ms(const struct timespec *start)
+static float get_elapsed_time_ms(const struct timespec *start)
 {
   struct timespec now = get_abs_time();
   return get_time_delta(start, &now) / (float)USEC_PER_MSEC;
