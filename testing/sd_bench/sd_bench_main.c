@@ -80,22 +80,22 @@ typedef struct sdb_config
 static const char *BENCHMARK_FILE =
     CONFIG_TESTING_SD_BENCH_DEVICE "/sd_bench";
 
-const size_t max_block = 65536;
-const size_t min_block = 1;
-const size_t default_block = 512;
+static const size_t max_block = 65536;
+static const size_t min_block = 1;
+static const size_t default_block = 512;
 
-const size_t max_runs = 10000;
-const size_t min_runs = 1;
-const size_t default_runs = 5;
+static const size_t max_runs = 10000;
+static const size_t min_runs = 1;
+static const size_t default_runs = 5;
 
-const size_t max_duration = 60000;
-const size_t min_duration = 1;
-const size_t default_duration = 2000;
+static const size_t max_duration = 60000;
+static const size_t min_duration = 1;
+static const size_t default_duration = 2000;
 
-const bool default_keep_test = false;
-const bool default_fsync = false;
-const bool default_verify = true;
-const bool default_aligned = false;
+static const bool default_keep_test = false;
+static const bool default_fsync = false;
+static const bool default_verify = true;
+static const bool default_aligned = false;
 
 /****************************************************************************
  * Private Function Prototypes
@@ -107,11 +107,11 @@ static int read_test(int fd, sdb_config_t *cfg, uint8_t *block,
                      int block_size);
 
 static uint64_t time_fsync_us(int fd);
-struct timespec get_abs_time(void);
-uint64_t get_elapsed_time_us(const struct timespec *start);
-uint64_t time_fsync_us(int fd);
-float ts_to_kb(uint64_t bytes, uint64_t elapsed);
-float block_count_to_mb(size_t blocks, size_t block_size);
+static struct timespec get_abs_time(void);
+static uint64_t get_elapsed_time_us(const struct timespec *start);
+static uint64_t time_fsync_us(int fd);
+static float ts_to_kb(uint64_t bytes, uint64_t elapsed);
+static float block_count_to_mb(size_t blocks, size_t block_size);
 static const char *print_bool(const bool value);
 static void usage(void);
 
@@ -119,15 +119,15 @@ static void usage(void);
  * Private Functions
  ****************************************************************************/
 
-struct timespec get_abs_time(void)
+static struct timespec get_abs_time(void)
 {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ts;
 }
 
-uint64_t get_time_delta_us(const struct timespec *start,
-                        const struct timespec *end)
+static uint64_t get_time_delta_us(const struct timespec *start,
+                                  const struct timespec *end)
 {
   uint64_t elapsed;
   elapsed = (((uint64_t)end->tv_sec * NSEC_PER_SEC) + end->tv_nsec);
@@ -135,25 +135,25 @@ uint64_t get_time_delta_us(const struct timespec *start,
   return elapsed / 1000.;
 }
 
-uint64_t get_elapsed_time_us(const struct timespec *start)
+static uint64_t get_elapsed_time_us(const struct timespec *start)
 {
   struct timespec now = get_abs_time();
   return get_time_delta_us(start, &now);
 }
 
-uint64_t time_fsync_us(int fd)
+static uint64_t time_fsync_us(int fd)
 {
   struct timespec start = get_abs_time();
   fsync(fd);
   return get_elapsed_time_us(&start);
 }
 
-float ts_to_kb(uint64_t bytes, uint64_t elapsed)
+static float ts_to_kb(uint64_t bytes, uint64_t elapsed)
 {
   return (bytes / 1024.) / (elapsed / 1e6);
 }
 
-float block_count_to_mb(size_t blocks, size_t block_size)
+static float block_count_to_mb(size_t blocks, size_t block_size)
 {
   return blocks * block_size / (float)(1024 * 1024);
 }
@@ -163,7 +163,8 @@ static const char *print_bool(const bool value)
   return value ? "true" : "false";
 }
 
-void write_test(int fd, sdb_config_t *cfg, uint8_t *block, int block_size)
+static void write_test(int fd, sdb_config_t *cfg, uint8_t *block,
+                       int block_size)
 {
   struct timespec start;
   struct timespec write_start;
@@ -242,7 +243,8 @@ void write_test(int fd, sdb_config_t *cfg, uint8_t *block, int block_size)
          block_count_to_mb(total_blocks, block_size));
 }
 
-int read_test(int fd, sdb_config_t *cfg, uint8_t *block, int block_size)
+static int read_test(int fd, sdb_config_t *cfg, uint8_t *block,
+                     int block_size)
 {
   uint8_t *read_block;
   uint64_t total_elapsed;
