@@ -115,7 +115,7 @@ static struct option g_long_options[] =
     { "vcpikp", required_argument, 0, OPT_VCPIKP },
     { "vcpiki", required_argument, 0, OPT_VCPIKI },
 #endif
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
     { "anfos", required_argument, 0, OPT_ANFOS },
     { "anfog", required_argument, 0, OPT_ANFOG },
 #endif
@@ -221,7 +221,7 @@ static void foc_help(FAR struct args_s *args)
   PRINTF("  [--vcpiki] velctrl PI Ki [x1000000] (default: %" PRId32 ")\n",
          args->cfg.vel_pi_ki);
 #endif
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
   PRINTF("  [--anfos] angobs NFO Slow [x1] (default: %" PRId32 ")\n",
          args->cfg.ang_nfo_slow);
   PRINTF("  [--anfog] angobs NFO Gain [x1] (default: %" PRId32 ")\n",
@@ -342,7 +342,7 @@ void parse_args(FAR struct args_s *args, int argc, FAR char **argv)
             }
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
           case OPT_ANFOS:
             {
               args->cfg.ang_nfo_slow = atoi(optarg);

@@ -158,7 +158,7 @@ int foc_nxscope_init(FAR struct foc_nxscope_s *nxs)
 
       switch (foc_thread_type(j))
         {
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+#if CONFIG_EXAMPLES_FOC_FLOAT_INST > 0
           case FOC_NUMBER_TYPE_FLOAT:
             {
               u.s.dtype = NXSCOPE_TYPE_FLOAT;
@@ -166,7 +166,7 @@ int foc_nxscope_init(FAR struct foc_nxscope_s *nxs)
             }
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+#if CONFIG_EXAMPLES_FOC_FIXED16_INST > 0
           case FOC_NUMBER_TYPE_FIXED16:
             {
               u.s.dtype = NXSCOPE_TYPE_B16;

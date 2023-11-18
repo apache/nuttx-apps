@@ -80,7 +80,7 @@ struct foc_motor_f32_s
   /* FOC data ***************************************************************/
 
   struct foc_state_f32_s        foc_state;    /* FOC controller sate */
-#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+#ifdef CONFIG_EXAMPLES_FOC_MODULATION_SVM3
   struct svm3_state_f32_s       mod_state;    /* Modulation state */
 #endif
   foc_handler_f32_t             handler;      /* FOC controller */

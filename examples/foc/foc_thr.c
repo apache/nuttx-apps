@@ -54,11 +54,11 @@
  * Extern Functions Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+#if CONFIG_EXAMPLES_FOC_FLOAT_INST > 0
 extern int foc_float_thr(FAR struct foc_ctrl_env_s *envp);
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+#if CONFIG_EXAMPLES_FOC_FIXED16_INST > 0
 extern int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp);
 #endif
 
@@ -69,10 +69,10 @@ extern int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp);
 pthread_mutex_t g_cntr_lock;
 
 static uint32_t g_foc_thr = 0;
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+#if CONFIG_EXAMPLES_FOC_FLOAT_INST > 0
 static int g_float_thr_cntr = 0;
 #endif
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+#if CONFIG_EXAMPLES_FOC_FIXED16_INST > 0
 static int g_fixed16_thr_cntr = 0;
 #endif
 
@@ -142,7 +142,7 @@ static FAR void *foc_control_thr(FAR void *arg)
 
   switch (envp->type)
     {
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+#if CONFIG_EXAMPLES_FOC_FLOAT_INST > 0
       case FOC_NUMBER_TYPE_FLOAT:
         {
           pthread_mutex_lock(&g_cntr_lock);
@@ -164,7 +164,7 @@ static FAR void *foc_control_thr(FAR void *arg)
         }
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+#if CONFIG_EXAMPLES_FOC_FIXED16_INST > 0
       case FOC_NUMBER_TYPE_FIXED16:
         {
           pthread_mutex_lock(&g_cntr_lock);
@@ -290,14 +290,14 @@ int foc_thread_type(int id)
 {
   int ret = -1;
 
-#ifdef CONFIG_INDUSTRY_FOC_FLOAT
+#if CONFIG_EXAMPLES_FOC_FLOAT_INST > 0
   if (id < CONFIG_EXAMPLES_FOC_FLOAT_INST)
     {
       ret = FOC_NUMBER_TYPE_FLOAT;
     }
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_FIXED16
+#if CONFIG_EXAMPLES_FOC_FIXED16_INST > 0
   if (id < CONFIG_EXAMPLES_FOC_FLOAT_INST + CONFIG_EXAMPLES_FOC_FIXED16_INST)
     {
       ret = FOC_NUMBER_TYPE_FIXED16;
