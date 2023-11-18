@@ -48,6 +48,16 @@ config EXAMPLES_FOC_PERF
 	default n
 
 choice
+	prompt "FOC modulation selection"
+	default EXAMPLES_FOC_MODULATION_SVM3
+
+config EXAMPLES_FOC_MODULATION_SVM3
+	bool "FOC use SVM3"
+	select INDUSTRY_FOC_MODULATION_SVM3
+
+endchoice # FOC modulation selection
+
+choice
 	prompt "FOC current controller selection"
 	default EXAMPLES_FOC_CONTROL_PI
 

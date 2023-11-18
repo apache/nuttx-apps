@@ -133,7 +133,7 @@ struct args_s g_args =
     .vel_pi_kp = CONFIG_EXAMPLES_FOC_VELCTRL_PI_KP,
     .vel_pi_ki = CONFIG_EXAMPLES_FOC_VELCTRL_PI_KI,
 #endif
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
     .ang_nfo_slow = CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAINSLOW,
     .ang_nfo_gain = CONFIG_EXAMPLES_FOC_ANGOBS_NFO_GAIN,
 #endif

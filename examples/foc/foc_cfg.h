@@ -66,8 +66,8 @@
 #  ifndef CONFIG_EXAMPLES_FOC_HAVE_VEL
 #    error open-loop needs CONFIG_EXAMPLES_FOC_HAVE_VEL set
 #  endif
-#  ifndef CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
-#    error open-loop needs CONFIG_INDUSTRY_FOC_ANGLE_OPENLOOP
+#  ifndef CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
+#    error open-loop needs CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP
 #  endif
 #endif
 
@@ -276,7 +276,7 @@ struct foc_thr_cfg_s
   uint32_t vel_pi_ki;           /* Vel controller PI Ki (x1000000) */
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_ANGLE_ONFO
+#ifdef CONFIG_EXAMPLES_FOC_ANGOBS_NFO
   uint32_t ang_nfo_slow;        /* Ang NFO slow gain (x1) */
   uint32_t ang_nfo_gain;        /* Ang NFO gain (x1) */
 #endif

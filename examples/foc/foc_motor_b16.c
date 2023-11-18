@@ -292,7 +292,7 @@ static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_PI
   struct foc_initdata_b16_s ctrl_cfg;
 #endif
-#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+#ifdef CONFIG_EXAMPLES_FOC_MODULATION_SVM3
   struct foc_mod_cfg_b16_s mod_cfg;
 #endif
 #ifdef CONFIG_EXAMPLES_FOC_STATE_USE_MODEL_PMSM
@@ -327,7 +327,7 @@ static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
 
   /* Get FOC modulation */
 
-#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+#ifdef CONFIG_EXAMPLES_FOC_MODULATION_SVM3
   foc_mod = &g_foc_mod_svm3_b16;
 #else
 #  error FOC modulation not selected
@@ -358,7 +358,7 @@ static int foc_motor_configure(FAR struct foc_motor_b16_s *motor)
   ctrl_cfg.iq_ki = ftob16(motor->envp->cfg->foc_pi_ki / 1000.0f);
 #endif
 
-#ifdef CONFIG_INDUSTRY_FOC_MODULATION_SVM3
+#ifdef CONFIG_EXAMPLES_FOC_MODULATION_SVM3
   /* Get SVM3 modulation configuration */
 
   mod_cfg.pwm_duty_max = motor->pwm_duty_max;
