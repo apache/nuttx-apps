@@ -71,17 +71,17 @@
 
 #  define SECTORSIZE   512
 #  define NSECTORS(b)  (((b) + SECTORSIZE - 1) / SECTORSIZE)
-#  define MOUNTPT      "/mnt/romfs"
+#  define MOUNTPT      "/mnt/elf/romfs"
 
 #elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
 /* Describe the CROMFS file system */
 
-#  define MOUNTPT      "/mnt/cromfs"
+#  define MOUNTPT      "/mnt/elf/cromfs"
 
 #elif defined(CONFIG_EXAMPLES_ELF_EXTERN) && defined(CONFIG_EXAMPLES_ELF_FSMOUNT)
 /* Describe the external file system */
 
-#  define MOUNTPT      "/mnt/" CONFIG_EXAMPLES_ELF_FSTYPE
+#  define MOUNTPT      "/mnt/elf/" CONFIG_EXAMPLES_ELF_FSTYPE
 
 #else
 #  undef MOUNTPT
