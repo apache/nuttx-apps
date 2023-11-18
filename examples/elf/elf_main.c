@@ -124,8 +124,8 @@ static char fullpath[128];
  ****************************************************************************/
 
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS) || defined(CONFIG_EXAMPLES_ELF_CROMFS)
-extern const unsigned char romfs_img[];
-extern const unsigned int romfs_img_len;
+extern const unsigned char elf_romfs_img[];
+extern const unsigned int elf_romfs_img_len;
 #elif !defined(CONFIG_EXAMPLES_ELF_EXTERN)
 #  error "No file system selected"
 #endif
@@ -223,9 +223,9 @@ int main(int argc, FAR char *argv[])
           CONFIG_EXAMPLES_ELF_DEVMINOR);
 
   desc.minor    = CONFIG_EXAMPLES_ELF_DEVMINOR;         /* Minor device number of the ROM disk. */
-  desc.nsectors = NSECTORS(romfs_img_len);              /* The number of sectors in the ROM disk */
+  desc.nsectors = NSECTORS(elf_romfs_img_len);          /* The number of sectors in the ROM disk */
   desc.sectsize = SECTORSIZE;                           /* The size of one sector in bytes */
-  desc.image    = (FAR uint8_t *)romfs_img;             /* File system image */
+  desc.image    = (FAR uint8_t *)elf_romfs_img;         /* File system image */
 
   ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
