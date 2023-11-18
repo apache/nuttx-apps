@@ -62,20 +62,16 @@
 #  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
 #endif
 
+#ifndef CONFIG_EXAMPLES_ELF_DEVMINOR
+#  define CONFIG_EXAMPLES_ELF_DEVMINOR 0
+#endif
+
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS)
 /* Describe the ROMFS file system */
 
 #  define SECTORSIZE   512
 #  define NSECTORS(b)  (((b) + SECTORSIZE - 1) / SECTORSIZE)
 #  define MOUNTPT      "/mnt/romfs"
-
-#  ifndef CONFIG_EXAMPLES_ELF_DEVMINOR
-#    define CONFIG_EXAMPLES_ELF_DEVMINOR 0
-#  endif
-
-#  ifndef CONFIG_EXAMPLES_ELF_DEVPATH
-#    define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
-#  endif
 
 #elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
 /* Describe the CROMFS file system */
@@ -105,6 +101,8 @@
 #else
 #  define errmsg                printf
 #endif
+
+#define ELF_DEVPATH_FMT "/dev/ram%d"
 
 /****************************************************************************
  * Private Data
@@ -200,6 +198,7 @@ static inline void testheader(FAR const char *progname)
 
 int main(int argc, FAR char *argv[])
 {
+  char devname[32];
 #ifdef CONFIG_EXAMPLES_ELF_FSREMOVEABLE
   struct stat buf;
 #endif
@@ -213,6 +212,8 @@ int main(int argc, FAR char *argv[])
   /* Initialize the memory monitor */
 
   mm_initmonitor();
+
+  sprintf(devname, ELF_DEVPATH_FMT, CONFIG_EXAMPLES_ELF_DEVMINOR);
 
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS)
 
@@ -238,14 +239,13 @@ int main(int argc, FAR char *argv[])
   /* Mount the ROMFS file system */
 
   message("Mounting ROMFS filesystem at target=%s with source=%s\n",
-         MOUNTPT, CONFIG_EXAMPLES_ELF_DEVPATH);
+          MOUNTPT, devname);
 
-  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs",
-              MS_RDONLY, NULL);
+  ret = mount(devname, MOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
-             CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, strerror(errno));
+             devname, MOUNTPT, strerror(errno));
     }
 
 #elif defined(CONFIG_EXAMPLES_ELF_CROMFS)
@@ -268,27 +268,26 @@ int main(int argc, FAR char *argv[])
 
   do
     {
-      ret = stat(CONFIG_EXAMPLES_ELF_DEVPATH, &buf);
+      ret = stat(devname, &buf);
       if (ret < 0)
         {
           int errcode = errno;
           if (errcode == ENOENT)
             {
-              printf("%s does not exist.  Waiting...\n",
-                     CONFIG_EXAMPLES_ELF_DEVPATH);
+              printf("%s does not exist.  Waiting...\n", devname);
               sleep(1);
             }
           else
             {
               printf("ERROR: stat(%s) failed: %s  Aborting...\n",
-                     CONFIG_EXAMPLES_ELF_DEVPATH, strerror(errcode));
+                     devname, strerror(errcode));
               exit(EXIT_FAILURE);
             }
         }
       else if (!S_ISBLK(buf.st_mode))
         {
           printf("ERROR: stat(%s) exists but is not a block driver: %04x\n",
-                 CONFIG_EXAMPLES_ELF_DEVPATH, buf.st_mode);
+                 devname, buf.st_mode);
           exit(EXIT_FAILURE);
         }
     }
@@ -300,13 +299,11 @@ int main(int argc, FAR char *argv[])
   message("Mounting %s filesystem at target=%s\n",
           CONFIG_EXAMPLES_ELF_FSTYPE, MOUNTPT);
 
-  ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT,
-              CONFIG_EXAMPLES_ELF_FSTYPE, MS_RDONLY, NULL);
+  ret = mount(devname, MOUNTPT, CONFIG_EXAMPLES_ELF_FSTYPE, MS_RDONLY, NULL);
   if (ret < 0)
     {
-      errmsg("ERROR: mount(%s, %s, %s) failed: %s\n",
-             CONFIG_EXAMPLES_ELF_DEVPATH, CONFIG_EXAMPLES_ELF_FSTYPE,
-             MOUNTPT, strerror(errno));
+      errmsg("ERROR: mount(%s, %s, %s) failed: %s\n", devname,
+             CONFIG_EXAMPLES_ELF_FSTYPE, MOUNTPT, strerror(errno));
     }
 #endif
 #else
