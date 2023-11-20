@@ -35,6 +35,6 @@ if(CONFIG_EXAMPLES_LIBTEST)
   endif()
 
   nuttx_add_library(libtest STATIC)
-  target_sources(libtest libtest.c)
+  target_sources(libtest PRIVATE libtest.c)
 
 endif()
