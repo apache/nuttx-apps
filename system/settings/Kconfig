@@ -1,0 +1,85 @@
+#
+# Settings Storage Configuration
+#
+
+config SYSTEM_SETTINGS
+	bool "Settings Functions"
+	default n
+		---help---
+		The settings storage can be used to store and retrieve various
+		configurable parameters. This storage is a RAM-based map (for fast access)
+		but one or more files can be used too (so values can persist across system
+		reboots).
+
+if SYSTEM_SETTINGS
+
+config SYSTEM_SETTINGS_MAP_SIZE
+	int "Settings storage size"
+	default 20
+	---help---
+		The size of the settings storage, i.e. the
+		maximum number of settings that can be created.
+
+config SYSTEM_SETTINGS_KEY_SIZE
+	int "Settings key size"
+	default 20
+	---help---
+		Maximum size of a setting key.
+
+config SYSTEM_SETTINGS_VALUE_SIZE
+	int "Settings value size"
+	default 20
+	---help---
+		Maximum size of a string setting value.
+
+config SYSTEM_SETTINGS_MAX_STORAGES
+	int "Settings files"
+	default 2
+	---help---
+		Maximum number of supported settings files.
+
+config SYSTEM_SETTINGS_MAX_FILENAME
+	int "Settings filename size"
+	default 50
+	---help---
+		Maximum size of settings filename.
+
+config SYSTEM_SETTINGS_CACHED_SAVES
+	bool "Cache save operations"
+	default y
+	---help---
+		If enabled saving to the storages will be cached.
+		
+		Whenever a save is triggered, the settings will only
+		be saved in the RAM map (and will be immediately
+		effective). Writes to the storages though will
+		happen after a small delay.
+		
+		This improves performance greatly when multiple
+		successive saves are to be performed, as the actual
+		write will happen only once, asynchronously.
+
+if SYSTEM_SETTINGS_CACHED_SAVES
+
+config SYSTEM_SETTINGS_CACHE_TIME_MS
+	int "Cache Delay (ms)"
+	default 100
+	---help---
+		Sets the delay after a setting is changed before they are written
+endif # SYSTEM_SETTINGS_CACHED_SAVES
+
+config SYSTEM_SETTINGS_MAX_SIGNALS
+	int "Max. settings signals"
+	default 2
+	---help---
+		Maximum number of signals that can be registered
+		on the settings storage.
+
+config SYSTEM_SETTINGS_SIGNO
+	int "Signal Number to use"
+	default 32
+	range 32 63
+	---help---
+		The Signal number to use for notifies
+
+endif # SYSTEM_SETTINGS
