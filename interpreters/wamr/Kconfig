@@ -157,6 +157,10 @@ config INTERPRETERS_WAMR_DISABLE_HW_BOUND_CHECK
 	bool "Disable hardware bound check"
 	default n
 
+config INTERPRETERS_WAMR_LOAD_CUSTOM_SECTIONS
+	bool "Enable load custom section support"
+	default n
+
 config INTERPRETERS_WAMR_CUSTOM_NAME_SECTIONS
 	bool "Enable custom name section support"
 	default n
