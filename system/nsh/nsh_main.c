@@ -28,6 +28,7 @@
 #include <sched.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <syslog.h>
 #include <sys/boardctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -37,7 +38,50 @@
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+void *wdt_feed_thread_entry(void *arg)
+{
+  static int count = 0;
 
+  if (count++ == 0)
+    pthread_setname_np(pthread_self(), "wdt_feed_thread0");
+  else
+    pthread_setname_np(pthread_self(), "wdt_feed_thread1");
+
+  while(1)
+  {
+    up_udelay(1010 * 1000);
+    syslog(1, "%s, line %d\n", __func__, __LINE__);
+    count++;
+  }
+}
+
+void wdt_create_thread(void)
+{
+  pthread_attr_t attr;
+  pthread_t thread;
+  int status;
+  int i;
+
+  status = pthread_attr_init(&attr);
+  if(status != 0)
+  {
+    exit(-1);
+  }
+  for(i = 0; i < CONFIG_SMP_NCPUS; i++)
+  {
+    attr.priority = 1;
+    attr.stacksize = 4096;
+    attr.affinity = (1 << i);
+
+    status = pthread_create(&thread, &attr, wdt_feed_thread_entry, NULL);
+    if(status != 0)
+    {
+        exit(-1);
+    }
+
+    usleep(1000);
+  }
+}
 /****************************************************************************
  * Name: nsh_main
  *
@@ -52,6 +96,8 @@ int main(int argc, FAR char *argv[])
 {
   struct sched_param param;
   int ret = 0;
+
+  wdt_create_thread();
 
   /* Check the task priority that we were started with */
 
