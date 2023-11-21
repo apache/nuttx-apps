@@ -534,10 +534,10 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                "%08lu "
 #endif
 #ifdef PS_SHOW_STACKSIZE
-               "%06lu "
+               "%07lu "
 #endif
 #ifdef PS_SHOW_STACKUSAGE
-               "%06lu "
+               "%07lu "
                "%3lu.%lu%%%c "
 #endif
 #ifdef NSH_HAVE_CPULOAD
