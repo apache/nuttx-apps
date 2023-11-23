@@ -63,6 +63,7 @@ CSRCS += netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c
 CSRCS += netlib_ipv6adaptor.c
 ifeq ($(CONFIG_NET_ICMPv6_AUTOCONF),y)
 CSRCS += netlib_autoconfig.c
+CSRCS += netlib_obtainipv6addr.c
 endif
 ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
 CSRCS += netlib_setipv6dnsaddr.c

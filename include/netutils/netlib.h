@@ -325,6 +325,10 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
 /* ICMPv6 Autoconfiguration */
 
 int netlib_icmpv6_autoconfiguration(FAR const char *ifname);
+
+/* DHCPv6 */
+
+int netlib_obtain_ipv6addr(FAR const char *ifname);
 #endif
 
 #ifdef CONFIG_NET_IPTABLES
