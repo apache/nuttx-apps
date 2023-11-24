@@ -717,7 +717,7 @@ static int cgi_child(int argc, char **argv)
 {
   FAR httpd_conn *hc = (FAR httpd_conn *)strtoul(argv[1], NULL, 16);
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
-  ClientData client_data;
+  clientdata client_data;
 #endif
   FAR char **argp;
   FAR struct cgi_conn_s *cc;
@@ -1096,7 +1096,7 @@ errout_with_sem:
 }
 
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
-static void cgi_kill(ClientData client_data, struct timeval *nowp)
+static void cgi_kill(clientdata client_data, struct timeval *nowp)
 {
   pid_t pid = (pid_t)client_data.i;
 
