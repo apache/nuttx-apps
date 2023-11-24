@@ -33,6 +33,66 @@
  * Public Types
  ****************************************************************************/
 
+/* PTPD status information structure */
+
+struct ptpd_status_s
+{
+  /* Is there a valid remote clock source active? */
+
+  bool clock_source_valid;
+
+  /* Information about selected best clock source */
+
+  struct
+  {
+    uint8_t id[8];     /* Clock identity */
+    int utcoffset;     /* Offset between clock time and UTC time (seconds) */
+    int priority1;     /* Main priority field */
+    int class;         /* Clock class (IEEE-1588, lower is better) */
+    int accuracy;      /* Clock accuracy (IEEE-1588, lower is better) */
+    int variance;      /* Clock variance (IEEE-1588, lower is better) */
+    int priority2;     /* Secondary priority field */
+    uint8_t gm_id[8];  /* Grandmaster clock identity */
+    int stepsremoved;  /* How many steps from grandmaster clock */
+    int timesource;    /* Type of time source (IEEE-1588) */
+  } clock_source_info;
+
+  /* When was clock last updated or adjusted (CLOCK_REALTIME).
+   * Matches last_received_sync but in different clock.
+   */
+
+  struct timespec last_clock_update;
+
+  /* Details of clock adjustment made at last_clock_update */
+
+  int64_t last_delta_ns;     /* Latest measured clock error */
+  int64_t last_adjtime_ns;   /* Previously applied adjtime() offset */
+
+  /* Averaged clock drift estimate (parts per billion).
+   * Positive means remote clock runs faster than local clock before
+   * adjustment.
+   */
+
+  long drift_ppb;
+
+  /* Averaged path delay */
+
+  long path_delay_ns;
+
+  /* Timestamps of latest received packets (CLOCK_MONOTONIC) */
+
+  struct timespec last_received_multicast; /* Any multicast packet */
+  struct timespec last_received_announce;  /* Announce from any server */
+  struct timespec last_received_sync;      /* Sync from selected source */
+
+  /* Timestamps of latest transmitted packets (CLOCK_MONOTONIC) */
+
+  struct timespec last_transmitted_sync;
+  struct timespec last_transmitted_announce;
+  struct timespec last_transmitted_delayresp;
+  struct timespec last_transmitted_delayreq;
+};
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -55,6 +115,9 @@ extern "C"
  * Description:
  *   Start the PTP daemon and bind it to specified interface.
  *
+ * Input Parameters:
+ *   interface - Name of the network interface to bind to, e.g. "eth0"
+ *
  * Returned Value:
  *   On success, the non-negative task ID of the PTP daemon is returned;
  *   On failure, a negated errno value is returned.
@@ -62,6 +125,41 @@ extern "C"
  ****************************************************************************/
 
 int ptpd_start(const char *interface);
+
+/****************************************************************************
+ * Name: ptpd_status
+ *
+ * Description:
+ *   Query status from a running PTP daemon.
+ *
+ * Input Parameters:
+ *   pid     - Process ID previously returned by ptpd_start()
+ *   status  - Pointer to storage for status information.
+ *
+ * Returned Value:
+ *   On success, returns OK.
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ptpd_status(int pid, struct ptpd_status_s *status);
+
+/****************************************************************************
+ * Name: ptpd_stop
+ *
+ * Description:
+ *   Stop PTP daemon
+ *
+ * Input Parameters:
+ *   pid     - Process ID previously returned by ptpd_start()
+ *
+ * Returned Value:
+ *   On success, returns OK.
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ptpd_stop(int pid);
 
 #undef EXTERN
 #ifdef __cplusplus

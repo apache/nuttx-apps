@@ -57,9 +57,22 @@
  * Private Data
  ****************************************************************************/
 
+/* Carrier structure for querying PTPD status */
+
+struct ptpd_statusreq_s
+{
+  sem_t *done;
+  struct ptpd_status_s *dest;
+};
+
+/* Main PTPD state storage */
+
 struct ptp_state_s
 {
+  /* Request for PTPD task to stop or report status */
+
   bool stop;
+  struct ptpd_statusreq_s status_req;
 
   /* Address of network interface we are operating on */
 
@@ -1262,6 +1275,110 @@ static int ptp_process_rx_packet(struct ptp_state_s *state, ssize_t length)
   }
 }
 
+/* Signal handler for status / stop requests */
+
+static void ptp_signal_handler(int signo, FAR siginfo_t *siginfo,
+                                FAR void *context)
+{
+  struct ptp_state_s *state = (struct ptp_state_s *)siginfo->si_user;
+
+  if (signo == SIGHUP)
+    {
+      state->stop = true;
+    }
+  else if (signo == SIGUSR1 && siginfo->si_value.sival_ptr)
+    {
+      state->status_req =
+        *(struct ptpd_statusreq_s *)siginfo->si_value.sival_ptr;
+    }
+}
+
+static void ptp_setup_sighandlers(struct ptp_state_s *state)
+{
+  struct sigaction act;
+
+  act.sa_sigaction = &ptp_signal_handler;
+  sigfillset(&act.sa_mask);
+  act.sa_flags = SA_SIGINFO;
+  act.sa_user = state;
+
+  sigaction(SIGHUP, &act, NULL);
+  sigaction(SIGUSR1, &act, NULL);
+}
+
+/* Process status information request */
+
+static void ptp_process_statusreq(struct ptp_state_s *state)
+{
+  struct ptpd_status_s *status;
+
+  if (!state->status_req.dest)
+    {
+      return; /* No active request */
+    }
+
+  status = state->status_req.dest;
+  status->clock_source_valid = state->selected_source_valid;
+
+  if (status->clock_source_valid)
+    {
+      /* Copy relevant parts of announce info to status struct */
+
+      struct ptp_announce_s *s = &state->selected_source;
+
+      memcpy(status->clock_source_info.id,
+             s->header.sourceidentity,
+             sizeof(status->clock_source_info.id));
+
+      status->clock_source_info.utcoffset =
+          (int16_t)(((uint16_t)s->utcoffset[0] << 8) | s->utcoffset[1]);
+      status->clock_source_info.priority1 = s->gm_priority1;
+      status->clock_source_info.class = s->gm_quality[0];
+      status->clock_source_info.accuracy = s->gm_quality[1];
+      status->clock_source_info.priority2 = s->gm_priority2;
+      status->clock_source_info.variance =
+          ((uint16_t)s->gm_quality[2] << 8) | s->gm_quality[3];
+
+      memcpy(status->clock_source_info.gm_id,
+             s->gm_identity,
+             sizeof(status->clock_source_info.gm_id));
+
+      status->clock_source_info.stepsremoved =
+          ((uint16_t)s->stepsremoved[0] << 8) | s->stepsremoved[1];
+      status->clock_source_info.timesource = s->timesource;
+    }
+
+  /* Copy latest adjustment info */
+
+  status->last_clock_update   = state->last_delta_timestamp;
+  status->last_delta_ns       = state->last_delta_ns;
+  status->last_adjtime_ns     = state->last_adjtime_ns;
+  status->drift_ppb           = state->drift_ppb;
+  status->path_delay_ns       = state->path_delay_ns;
+
+  /* Copy timestamps */
+
+  status->last_received_multicast    = state->last_received_multicast;
+  status->last_received_announce     = state->last_received_announce;
+  status->last_received_sync         = state->last_received_sync;
+  status->last_transmitted_sync      = state->last_transmitted_sync;
+  status->last_transmitted_announce  = state->last_transmitted_announce;
+  status->last_transmitted_delayresp = state->last_transmitted_delayresp;
+  status->last_transmitted_delayreq  = state->last_transmitted_delayreq;
+
+  /* Post semaphore to inform that we are done */
+
+  if (state->status_req.done)
+    {
+      sem_post(state->status_req.done);
+    }
+
+  state->status_req.done = NULL;
+  state->status_req.dest = NULL;
+}
+
+/* Main PTPD task */
+
 static int ptp_daemon(int argc, FAR char** argv)
 {
   const char *interface = "eth0";
@@ -1284,8 +1401,14 @@ static int ptp_daemon(int argc, FAR char** argv)
   if (ptp_initialize_state(state, interface) != OK)
     {
       ptperr("Failed to initialize PTP state, exiting\n");
+
+      ptp_destroy_state(state);
+      free(state);
+
       return ERROR;
     }
+
+  ptp_setup_sighandlers(state);
 
   pollfds[0].events = POLLIN;
   pollfds[0].fd = state->event_socket;
@@ -1346,6 +1469,7 @@ static int ptp_daemon(int argc, FAR char** argv)
       ptp_periodic_send(state);
 
       state->selected_source_valid = is_selected_source_valid(state);
+      ptp_process_statusreq(state);
     }
 
   ptp_destroy_state(state);
@@ -1363,6 +1487,9 @@ static int ptp_daemon(int argc, FAR char** argv)
  *
  * Description:
  *   Start the PTP daemon and bind it to specified interface.
+ *
+ * Input Parameters:
+ *   interface - Name of the network interface to bind to, e.g. "eth0"
  *
  * Returned Value:
  *   On success, the non-negative task ID of the PTP daemon is returned;
@@ -1388,7 +1515,7 @@ int ptpd_start(const char *interface)
   usleep(USEC_PER_TICK);
   if (kill(pid, 0) != OK)
     {
-      return -1;
+      return ERROR;
     }
   else
     {
@@ -1396,4 +1523,90 @@ int ptpd_start(const char *interface)
     }
 }
 
-/* TODO: Implement status and stop interfaces */
+/****************************************************************************
+ * Name: ptpd_status
+ *
+ * Description:
+ *   Query status from a running PTP daemon.
+ *
+ * Input Parameters:
+ *   pid     - Process ID previously returned by ptpd_start()
+ *   status  - Pointer to storage for status information.
+ *
+ * Returned Value:
+ *   On success, returns OK.
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ptpd_status(int pid, struct ptpd_status_s *status)
+{
+#ifdef CONFIG_BUILD_PROTECTED
+
+  /* TODO: Use SHM memory to pass the status information if processes
+   * do not share the same memory space.
+   */
+
+  return -ENOTSUP;
+
+#else
+
+  int ret = OK;
+  sem_t donesem;
+  struct ptpd_statusreq_s req;
+  union sigval val;
+  struct timespec timeout;
+
+  /* Fill in the status request */
+
+  memset(status, 0, sizeof(struct ptpd_status_s));
+  sem_init(&donesem, 0, 0);
+  req.done = &donesem;
+  req.dest = status;
+  val.sival_ptr = (void *)&req;
+
+  if (sigqueue(pid, SIGUSR1, val) != OK)
+    {
+      return -errno;
+    }
+
+  /* Wait for status request to be handled */
+
+  clock_gettime(CLOCK_MONOTONIC, &timeout);
+  timeout.tv_sec += 1;
+  if (sem_clockwait(&donesem, CLOCK_MONOTONIC, &timeout) != 0)
+    {
+      ret = -errno;
+    }
+
+  return ret;
+
+#endif /* CONFIG_BUILD_PROTECTED */
+}
+
+/****************************************************************************
+ * Name: ptpd_stop
+ *
+ * Description:
+ *   Stop PTP daemon
+ *
+ * Input Parameters:
+ *   pid     - Process ID previously returned by ptpd_start()
+ *
+ * Returned Value:
+ *   On success, returns OK.
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ptpd_stop(int pid)
+{
+  if (kill(pid, SIGHUP) == OK)
+    {
+      return OK;
+    }
+  else
+    {
+      return -errno;
+    }
+}
