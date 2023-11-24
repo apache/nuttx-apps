@@ -145,7 +145,12 @@ void nettest_server(void)
 
   printf("server: Accepting connections on port %d\n",
          CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
+#ifdef __APPLE__
   acceptsd = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
+#else
+  acceptsd = accept4(listensd, (struct sockaddr *)&myaddr, &addrlen,
+                     SOCK_CLOEXEC);
+#endif
   if (acceptsd < 0)
     {
       printf("server: accept failure: %d\n", errno);

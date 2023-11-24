@@ -260,7 +260,8 @@ int ftpc_sockaccept(FAR struct ftpc_socket_s *acceptor,
     }
 
   addrlen  = sizeof(addr);
-  sock->sd = accept(acceptor->sd, (struct sockaddr *)&addr, &addrlen);
+  sock->sd = accept4(acceptor->sd, (struct sockaddr *)&addr, &addrlen,
+                     SOCK_CLOEXEC);
   if (sock->sd == -1)
     {
       nerr("ERROR: accept() failed: %d\n", errno);

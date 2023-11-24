@@ -182,7 +182,7 @@ static inline bool net_connection(struct net_listener_s *nls)
       printf("net_listener: Accepting new connection on sd=%d\n",
              nls->listensd);
 
-      sd = accept(nls->listensd, NULL, NULL);
+      sd = accept4(nls->listensd, NULL, NULL, SOCK_CLOEXEC);
       if (sd < 0)
         {
           printf("net_listener: accept failed: %d\n", errno);
