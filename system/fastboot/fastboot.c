@@ -230,7 +230,7 @@ static void fastboot_okay(FAR struct fastboot_ctx_s *context,
 
 static int fastboot_flash_open(FAR const char *name)
 {
-  int fd = open(name, O_RDWR);
+  int fd = open(name, O_RDWR | O_CLOEXEC);
   if (fd < 0)
     {
       fb_err("Open %s error\n", name);
@@ -741,7 +741,7 @@ int main(int argc, FAR char **argv)
 
   snprintf(usbdev, sizeof(usbdev), "%s/ep%d",
            FASTBOOT_USBDEV, FASTBOOT_EP_BULKOUT_IDX + 1);
-  context.usbdev_in = open(usbdev, O_RDONLY);
+  context.usbdev_in = open(usbdev, O_RDONLY | O_CLOEXEC);
   if (context.usbdev_in < 0)
     {
       fb_err("open [%s] error\n", usbdev);
@@ -751,7 +751,7 @@ int main(int argc, FAR char **argv)
 
   snprintf(usbdev, sizeof(usbdev), "%s/ep%d",
            FASTBOOT_USBDEV, FASTBOOT_EP_BULKIN_IDX + 1);
-  context.usbdev_out = open(usbdev, O_WRONLY);
+  context.usbdev_out = open(usbdev, O_WRONLY | O_CLOEXEC);
   if (context.usbdev_out < 0)
     {
       fb_err("open [%s] error\n", usbdev);
