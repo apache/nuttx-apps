@@ -124,7 +124,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int ptpd_start(const char *interface);
+int ptpd_start(FAR const char *interface);
 
 /****************************************************************************
  * Name: ptpd_status
@@ -142,7 +142,7 @@ int ptpd_start(const char *interface);
  *
  ****************************************************************************/
 
-int ptpd_status(int pid, struct ptpd_status_s *status);
+int ptpd_status(int pid, FAR struct ptpd_status_s *status);
 
 /****************************************************************************
  * Name: ptpd_stop
