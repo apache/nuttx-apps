@@ -7,7 +7,8 @@
  *
  * Derived from the file libhttpd.c in the original THTTPD package:
  *
- *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer <jef@mail.acme.com>.
+ *   Copyright (C) 1995,1998,1999,2000,2001 by Jef Poskanzer
+ *   <jef@mail.acme.com>.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +56,7 @@
 extern int cgi(httpd_conn *hc);
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
 struct timeval;
-static void cgi_kill(ClientData client_data, struct timeval *now);
+static void cgi_kill(clientdata client_data, struct timeval *now);
 #endif
 
 #endif /* CONFIG_THTTPD && CONFIG_THTTPD_CGI_PATTERN */

@@ -1854,7 +1854,7 @@ static int ls(httpd_conn *hc)
   char arg[16];
   char *argv[1];
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
-  ClientData client_data;
+  clientdata client_data;
 #endif
 
   dirp = opendir(hc->expnfilename);
