@@ -158,15 +158,13 @@ struct ptp_state_s
  */
 
 #ifdef CONFIG_NETUTILS_PTPD_DEBUG
-#  ifndef CONFIG_DEBUG_NET_INFO
-#    define ptpinfo _info
-#    define ptpwarn _warn
-#    define ptperr  _err
-#  else
-#    define ptpinfo ninfo
-#    define ptpwarn nwarn
-#    define ptperr  nerr
-#  endif
+#  define ptpinfo _info
+#  define ptpwarn _warn
+#  define ptperr  _err
+#else
+#  define ptpinfo ninfo
+#  define ptpwarn nwarn
+#  define ptperr  nerr
 #endif
 
 /****************************************************************************
