@@ -12,3 +12,97 @@ index 7638d912..3261be56 100644
  
  namespace tflite {
  namespace tflm_signal {
+diff --git a/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h b/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h
+index eac00576..abfdea8c 100644
+--- a/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h
++++ b/tensorflow/lite/kernels/internal/reference/integer_ops/conv.h
+@@ -18,6 +18,9 @@ limitations under the License.
+ #include <algorithm>
+ 
+ #include "tensorflow/lite/kernels/internal/common.h"
++#ifdef USE_NEON
++#include <arm_neon.h>
++#endif
+ 
+ namespace tflite {
+ namespace reference_integer_ops {
+@@ -133,6 +136,79 @@ inline void ConvPerChannel(
+       }
+     }
+   }
++#ifdef USE_NEON
++  for (int batch = 0; batch < batches; ++batch) {
++    for (int out_y = 0; out_y < output_height; ++out_y) {
++      int in_y_origin = (out_y * stride_height) - pad_height;
++      for (int out_x = 0; out_x < output_width; ++out_x) {
++        int in_x_origin = (out_x * stride_width) - pad_width;
++        int filter_start_offset = 0;
++        for (int out_channel = 0; out_channel < output_depth; ++out_channel) {
++          auto group = out_channel / filters_per_group;
++          int32_t acc = 0;
++          int8x8_t input_v = vdup_n_s8(0);
++          int8x8_t filter_v = vdup_n_s8(0);
++          int16x8_t mid_mul = vdupq_n_s16(0);
++          int32x4_t res_v = vdupq_n_s32(0);
++          int32x4_t filter_offset_v = vdupq_n_s32(0);
++          int input_offset_temp = 0;
++          for (int filter_y = 0; filter_y < filter_height; ++filter_y) {
++            int in_y = in_y_origin + dilation_height_factor * filter_y;
++            for (int filter_x = 0; filter_x < filter_width; ++filter_x) {
++              int in_x = in_x_origin + dilation_width_factor * filter_x;
++              const bool is_point_inside_image = (in_x >= 0) && (in_x < input_width) && (in_y >= 0) && (in_y < input_height);
++              if (!is_point_inside_image)
++                continue;
++              int input_start_offset = ((batch * input_height + in_y) * input_width + in_x) * input_depth + group * filter_input_depth;
++              int in_channel = 0;
++              for (; in_channel < (filter_input_depth & -8); in_channel += 8) {
++                input_v = vld1_s8(input_data + input_start_offset);
++                input_start_offset += 8;
++                filter_v = vld1_s8(filter_data + filter_start_offset);
++                filter_start_offset += 8;
++
++                mid_mul = vmovl_s8(filter_v);
++                filter_offset_v = vaddw_s16(filter_offset_v, vget_low_s16(mid_mul));
++                filter_offset_v = vaddw_s16(filter_offset_v, vget_high_s16(mid_mul));
++                mid_mul = vmull_s8(input_v, filter_v);
++                res_v = vaddw_s16(res_v, vget_low_s16(mid_mul));
++                res_v = vaddw_s16(res_v, vget_high_s16(mid_mul));
++
++              }
++
++              for (; in_channel < filter_input_depth; ++in_channel) {
++                acc += (input_data[input_start_offset] +  input_offset) * filter_data[filter_start_offset];
++                ++input_start_offset;
++                ++filter_start_offset;
++              }
++            }
++          }
++          acc += vgetq_lane_s32(res_v, 0);
++          acc += vgetq_lane_s32(res_v, 1);
++          acc += vgetq_lane_s32(res_v, 2);
++          acc += vgetq_lane_s32(res_v, 3);
++          input_offset_temp += vgetq_lane_s32(filter_offset_v, 0);
++          input_offset_temp += vgetq_lane_s32(filter_offset_v, 1);
++          input_offset_temp += vgetq_lane_s32(filter_offset_v, 2);
++          input_offset_temp += vgetq_lane_s32(filter_offset_v, 3);
++          acc += input_offset_temp * input_offset;
++
++          if (bias_data)
++          {
++            acc += bias_data[out_channel];
++          }
++          acc = MultiplyByQuantizedMultiplier(
++              acc, output_multiplier[out_channel], output_shift[out_channel]);
++          acc += output_offset;
++          acc = std::max(acc, output_activation_min);
++          acc = std::min(acc, output_activation_max);
++          output_data[Offset(output_shape, batch, out_y, out_x, out_channel)] =
++              static_cast<int8_t>(acc);
++        }
++      }
++    }
++  }
++#endif
+ }
+ 
+ 
