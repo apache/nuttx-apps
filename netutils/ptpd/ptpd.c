@@ -61,8 +61,8 @@
 
 struct ptpd_statusreq_s
 {
-  sem_t *done;
-  struct ptpd_status_s *dest;
+  FAR sem_t *done;
+  FAR struct ptpd_status_s *dest;
 };
 
 /* Main PTPD state storage */
@@ -186,7 +186,8 @@ struct ptp_state_s
 
 /* Convert from timespec to PTP format */
 
-static void timespec_to_ptp_format(struct timespec *ts, uint8_t *timestamp)
+static void timespec_to_ptp_format(FAR struct timespec *ts,
+                                   FAR uint8_t *timestamp)
 {
   /* IEEE 1588 uses 48 bits for seconds and 32 bits for nanoseconds,
    * both fields big-endian.
@@ -212,7 +213,8 @@ static void timespec_to_ptp_format(struct timespec *ts, uint8_t *timestamp)
 
 /* Convert from PTP format to timespec */
 
-static void ptp_format_to_timespec(uint8_t *timestamp, struct timespec *ts)
+static void ptp_format_to_timespec(FAR const uint8_t *timestamp,
+                                   FAR struct timespec *ts)
 {
   ts->tv_sec =
       (((int64_t)timestamp[0]) << 40)
@@ -233,8 +235,8 @@ static void ptp_format_to_timespec(uint8_t *timestamp, struct timespec *ts)
  * Implements Best Master Clock algorithm from IEEE-1588.
  */
 
-static bool is_better_clock(struct ptp_announce_s *a,
-                            struct ptp_announce_s *b)
+static bool is_better_clock(FAR const struct ptp_announce_s *a,
+                            FAR const struct ptp_announce_s *b)
 {
   if  (a->gm_priority1 < b->gm_priority1     /* Main priority field */
     || a->gm_quality[0] < b->gm_quality[0]   /* Clock class */
@@ -252,7 +254,7 @@ static bool is_better_clock(struct ptp_announce_s *a,
     }
 }
 
-static int64_t timespec_to_ms(struct timespec *ts)
+static int64_t timespec_to_ms(FAR const struct timespec *ts)
 {
   return ts->tv_sec * MSEC_PER_SEC + (ts->tv_nsec / NSEC_PER_MSEC);
 }
@@ -261,8 +263,8 @@ static int64_t timespec_to_ms(struct timespec *ts)
  * If value would exceed int64 limit (292 years), return INT64_MAX/MIN.
  */
 
-static int64_t timespec_delta_ns(const struct timespec *ts1,
-                                 const struct timespec *ts2)
+static int64_t timespec_delta_ns(FAR const struct timespec *ts1,
+                                 FAR const struct timespec *ts2)
 {
   int64_t delta_s;
 
@@ -286,7 +288,7 @@ static int64_t timespec_delta_ns(const struct timespec *ts1,
 
 /* Check if the currently selected source is still valid */
 
-static bool is_selected_source_valid(struct ptp_state_s *state)
+static bool is_selected_source_valid(FAR struct ptp_state_s *state)
 {
   struct timespec time_now;
   struct timespec delta;
@@ -314,8 +316,8 @@ static bool is_selected_source_valid(struct ptp_state_s *state)
 
 /* Increment sequence number for packet type, and copy to header */
 
-static void ptp_increment_sequence(uint16_t *sequence_num,
-                                   struct ptp_header_s *hdr)
+static void ptp_increment_sequence(FAR uint16_t *sequence_num,
+                                   FAR struct ptp_header_s *hdr)
 {
   *sequence_num += 1;
   hdr->sequenceid[0] = (uint8_t)(*sequence_num >> 8);
@@ -324,7 +326,7 @@ static void ptp_increment_sequence(uint16_t *sequence_num,
 
 /* Get sequence number from received packet */
 
-static uint16_t ptp_get_sequence(struct ptp_header_s *hdr)
+static uint16_t ptp_get_sequence(FAR const struct ptp_header_s *hdr)
 {
   return ((uint16_t)hdr->sequenceid[0] << 8) | hdr->sequenceid[1];
 }
@@ -334,7 +336,8 @@ static uint16_t ptp_get_sequence(struct ptp_header_s *hdr)
  *       architecture-specific interface for clock access.
  */
 
-static int ptp_gettime(struct ptp_state_s *state, struct timespec *ts)
+static int ptp_gettime(FAR struct ptp_state_s *state,
+                       FAR struct timespec *ts)
 {
   UNUSED(state);
   return clock_gettime(CLOCK_REALTIME, ts);
@@ -342,7 +345,8 @@ static int ptp_gettime(struct ptp_state_s *state, struct timespec *ts)
 
 /* Change current system timestamp by jumping */
 
-static int ptp_settime(struct ptp_state_s *state, struct timespec *ts)
+static int ptp_settime(FAR struct ptp_state_s *state,
+                       FAR struct timespec *ts)
 {
   UNUSED(state);
   return clock_settime(CLOCK_REALTIME, ts);
@@ -350,7 +354,7 @@ static int ptp_settime(struct ptp_state_s *state, struct timespec *ts)
 
 /* Smoothly adjust timestamp. */
 
-static int ptp_adjtime(struct ptp_state_s *state, int64_t delta_ns)
+static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns)
 {
   struct timeval delta;
 
@@ -362,8 +366,9 @@ static int ptp_adjtime(struct ptp_state_s *state, int64_t delta_ns)
 
 /* Get timestamp of latest received packet */
 
-static int ptp_getrxtime(struct ptp_state_s *state, struct msghdr *rxhdr,
-                         struct timespec *ts)
+static int ptp_getrxtime(FAR struct ptp_state_s *state,
+                         FAR struct msghdr *rxhdr,
+                         FAR struct timespec *ts)
 {
   /* Get hardware or kernel timestamp if available */
 
@@ -397,13 +402,16 @@ static int ptp_getrxtime(struct ptp_state_s *state, struct msghdr *rxhdr,
 
 /* Initialize PTP client/server state and create sockets */
 
-static int ptp_initialize_state(struct ptp_state_s *state,
-                                const char *interface)
+static int ptp_initialize_state(FAR struct ptp_state_s *state,
+                                FAR const char *interface)
 {
   int ret;
-  int arg;
   struct ifreq req;
   struct sockaddr_in bind_addr;
+
+#ifdef CONFIG_NET_TIMESTAMP
+  int arg;
+#endif
 
   /* Create sockets */
 
@@ -545,7 +553,7 @@ static int ptp_initialize_state(struct ptp_state_s *state,
 
 /* Unsubscribe multicast and destroy sockets */
 
-static int ptp_destroy_state(struct ptp_state_s *state)
+static int ptp_destroy_state(FAR struct ptp_state_s *state)
 {
   struct in_addr mcast_addr;
 
@@ -580,7 +588,7 @@ static int ptp_destroy_state(struct ptp_state_s *state)
  * IGMP-compliant Ethernet switch gets plugged in.
  */
 
-static int ptp_check_multicast_status(struct ptp_state_s *state)
+static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
 {
 #if CONFIG_NETUTILS_PTPD_MULTICAST_TIMEOUT_MS > 0
   struct in_addr mcast_addr;
@@ -616,7 +624,7 @@ static int ptp_check_multicast_status(struct ptp_state_s *state)
 
 /* Send PTP server announcement packet */
 
-static int ptp_send_announce(struct ptp_state_s *state)
+static int ptp_send_announce(FAR struct ptp_state_s *state)
 {
   struct ptp_announce_s msg;
   struct sockaddr_in addr;
@@ -654,7 +662,7 @@ static int ptp_send_announce(struct ptp_state_s *state)
 
 /* Send PTP server synchronization packet */
 
-static int ptp_send_sync(struct ptp_state_s *state)
+static int ptp_send_sync(FAR struct ptp_state_s *state)
 {
   struct msghdr txhdr;
   struct iovec txiov;
@@ -734,7 +742,7 @@ static int ptp_send_sync(struct ptp_state_s *state)
 
 /* Send delay request packet to selected source */
 
-static int ptp_send_delay_req(struct ptp_state_s *state)
+static int ptp_send_delay_req(FAR struct ptp_state_s *state)
 {
   struct ptp_delay_req_s req;
   struct sockaddr_in addr;
@@ -778,7 +786,7 @@ static int ptp_send_delay_req(struct ptp_state_s *state)
 
 /* Check if we need to send packets */
 
-static int ptp_periodic_send(struct ptp_state_s *state)
+static int ptp_periodic_send(FAR struct ptp_state_s *state)
 {
 #ifdef CONFIG_NETUTILS_PTPD_SERVER
   /* If there is no better master clock on the network,
@@ -832,8 +840,8 @@ static int ptp_periodic_send(struct ptp_state_s *state)
 
 /* Process received PTP announcement */
 
-static int ptp_process_announce(struct ptp_state_s *state,
-                                struct ptp_announce_s *msg)
+static int ptp_process_announce(FAR struct ptp_state_s *state,
+                                FAR struct ptp_announce_s *msg)
 {
   clock_gettime(CLOCK_MONOTONIC, &state->last_received_announce);
 
@@ -859,9 +867,9 @@ static int ptp_process_announce(struct ptp_state_s *state,
  * Remote time was remote_timestamp at local_timestamp.
  */
 
-static int ptp_update_local_clock(struct ptp_state_s *state,
-                                  struct timespec *remote_timestamp,
-                                  struct timespec *local_timestamp)
+static int ptp_update_local_clock(FAR struct ptp_state_s *state,
+                                  FAR struct timespec *remote_timestamp,
+                                  FAR struct timespec *local_timestamp)
 {
   int ret;
   int64_t delta_ns;
@@ -1028,8 +1036,8 @@ static int ptp_update_local_clock(struct ptp_state_s *state,
 
 /* Process received PTP sync packet */
 
-static int ptp_process_sync(struct ptp_state_s *state,
-                            struct ptp_sync_s *msg)
+static int ptp_process_sync(FAR struct ptp_state_s *state,
+                            FAR struct ptp_sync_s *msg)
 {
   struct timespec remote_time;
 
@@ -1062,8 +1070,8 @@ static int ptp_process_sync(struct ptp_state_s *state,
   return ptp_update_local_clock(state, &remote_time, &state->rxtime);
 }
 
-static int ptp_process_followup(struct ptp_state_s *state,
-                                struct ptp_follow_up_s *msg)
+static int ptp_process_followup(FAR struct ptp_state_s *state,
+                                FAR struct ptp_follow_up_s *msg)
 {
   struct timespec remote_time;
 
@@ -1092,8 +1100,8 @@ static int ptp_process_followup(struct ptp_state_s *state,
   return ptp_update_local_clock(state, &remote_time, &state->twostep_rxtime);
 }
 
-static int ptp_process_delay_req(struct ptp_state_s *state,
-                                 struct ptp_delay_req_s *msg)
+static int ptp_process_delay_req(FAR struct ptp_state_s *state,
+                                 FAR struct ptp_delay_req_s *msg)
 {
   struct ptp_delay_resp_s resp;
   struct sockaddr_in addr;
@@ -1140,8 +1148,8 @@ static int ptp_process_delay_req(struct ptp_state_s *state,
   return ret;
 }
 
-static int ptp_process_delay_resp(struct ptp_state_s *state,
-                                  struct ptp_delay_resp_s *msg)
+static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
+                                  FAR struct ptp_delay_resp_s *msg)
 {
   int64_t path_delay;
   int64_t sync_delay;
@@ -1219,7 +1227,8 @@ static int ptp_process_delay_resp(struct ptp_state_s *state,
 
 /* Determine received packet type and process it */
 
-static int ptp_process_rx_packet(struct ptp_state_s *state, ssize_t length)
+static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
+                                 ssize_t length)
 {
   if (length < sizeof(struct ptp_header_s))
     {
@@ -1278,9 +1287,9 @@ static int ptp_process_rx_packet(struct ptp_state_s *state, ssize_t length)
 /* Signal handler for status / stop requests */
 
 static void ptp_signal_handler(int signo, FAR siginfo_t *siginfo,
-                                FAR void *context)
+                               FAR void *context)
 {
-  struct ptp_state_s *state = (struct ptp_state_s *)siginfo->si_user;
+  FAR struct ptp_state_s *state = (FAR struct ptp_state_s *)siginfo->si_user;
 
   if (signo == SIGHUP)
     {
@@ -1289,15 +1298,15 @@ static void ptp_signal_handler(int signo, FAR siginfo_t *siginfo,
   else if (signo == SIGUSR1 && siginfo->si_value.sival_ptr)
     {
       state->status_req =
-        *(struct ptpd_statusreq_s *)siginfo->si_value.sival_ptr;
+        *(FAR struct ptpd_statusreq_s *)siginfo->si_value.sival_ptr;
     }
 }
 
-static void ptp_setup_sighandlers(struct ptp_state_s *state)
+static void ptp_setup_sighandlers(FAR struct ptp_state_s *state)
 {
   struct sigaction act;
 
-  act.sa_sigaction = &ptp_signal_handler;
+  act.sa_sigaction = ptp_signal_handler;
   sigfillset(&act.sa_mask);
   act.sa_flags = SA_SIGINFO;
   act.sa_user = state;
@@ -1308,9 +1317,9 @@ static void ptp_setup_sighandlers(struct ptp_state_s *state)
 
 /* Process status information request */
 
-static void ptp_process_statusreq(struct ptp_state_s *state)
+static void ptp_process_statusreq(FAR struct ptp_state_s *state)
 {
-  struct ptpd_status_s *status;
+  FAR struct ptpd_status_s *status;
 
   if (!state->status_req.dest)
     {
@@ -1350,11 +1359,11 @@ static void ptp_process_statusreq(struct ptp_state_s *state)
 
   /* Copy latest adjustment info */
 
-  status->last_clock_update   = state->last_delta_timestamp;
-  status->last_delta_ns       = state->last_delta_ns;
-  status->last_adjtime_ns     = state->last_adjtime_ns;
-  status->drift_ppb           = state->drift_ppb;
-  status->path_delay_ns       = state->path_delay_ns;
+  status->last_clock_update = state->last_delta_timestamp;
+  status->last_delta_ns     = state->last_delta_ns;
+  status->last_adjtime_ns   = state->last_adjtime_ns;
+  status->drift_ppb         = state->drift_ppb;
+  status->path_delay_ns     = state->path_delay_ns;
 
   /* Copy timestamps */
 
@@ -1382,7 +1391,7 @@ static void ptp_process_statusreq(struct ptp_state_s *state)
 static int ptp_daemon(int argc, FAR char** argv)
 {
   const char *interface = "eth0";
-  struct ptp_state_s *state;
+  FAR struct ptp_state_s *state;
   struct pollfd pollfds[2];
   struct msghdr rxhdr;
   struct iovec rxiov;
@@ -1497,7 +1506,7 @@ static int ptp_daemon(int argc, FAR char** argv)
  *
  ****************************************************************************/
 
-int ptpd_start(const char *interface)
+int ptpd_start(FAR const char *interface)
 {
   int pid;
   FAR char *task_argv[] = {
@@ -1539,9 +1548,9 @@ int ptpd_start(const char *interface)
  *
  ****************************************************************************/
 
-int ptpd_status(int pid, struct ptpd_status_s *status)
+int ptpd_status(int pid, FAR struct ptpd_status_s *status)
 {
-#ifdef CONFIG_BUILD_PROTECTED
+#ifndef CONFIG_BUILD_FLAT
 
   /* TODO: Use SHM memory to pass the status information if processes
    * do not share the same memory space.
@@ -1563,7 +1572,7 @@ int ptpd_status(int pid, struct ptpd_status_s *status)
   sem_init(&donesem, 0, 0);
   req.done = &donesem;
   req.dest = status;
-  val.sival_ptr = (void *)&req;
+  val.sival_ptr = &req;
 
   if (sigqueue(pid, SIGUSR1, val) != OK)
     {
@@ -1581,7 +1590,7 @@ int ptpd_status(int pid, struct ptpd_status_s *status)
 
   return ret;
 
-#endif /* CONFIG_BUILD_PROTECTED */
+#endif /* CONFIG_BUILD_FLAT */
 }
 
 /****************************************************************************
