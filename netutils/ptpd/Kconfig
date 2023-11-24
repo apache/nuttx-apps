@@ -143,6 +143,24 @@ config NETUTILS_PTPD_ANNOUNCE_INTERVAL_MSEC
 	---help---
 		How often to transmit announce packets in server mode.
 
+config NETUTILS_PTPD_TWOSTEP_SYNC
+	bool "PTP server sends two-step synchronization packets"
+	default y
+	---help---
+		If enabled, sends a follow-up packet after every sync packet.
+		This helps compensate for the time taken to initiate the transmission.
+
+config NETUTILS_PTPD_DELAYRESP_INTERVAL
+	int "PTP server suggested interval of delay requests"
+	range 0 255
+	default 4
+	---help---
+		When responding to a delay request, the server can inform the client
+		how often it should test path delay. This is done using header field
+		logMessageInterval. The delay will be 2^N seconds.
+
+		Default value 4 results in 16 second interval.
+
 endif # NETUTILS_PTPD_SERVER
 
 if NETUTILS_PTPD_CLIENT
@@ -170,6 +188,40 @@ config NETUTILS_PTPD_MULTICAST_TIMEOUT_MS
 		multicast group. This can be necessary if network topology changes, or
 		depending on hardware, after some error recovery events.
 		Set to 0 to disable.
+
+config NETUTILS_PTPD_DRIFT_AVERAGE_S
+	int "PTP client clock drift rate averaging time (s)"
+	default 600
+	range 10 86400
+	---help---
+		Clock drift rate is averaged over this time pediod. Larger value
+		gives more stable estimate but reacts slower to crystal oscillator speed
+		changes (such as caused by temperature changes).
+
+config NETUTILS_PTPD_SEND_DELAYREQ
+	bool "PTP client enable delay requests"
+	default n
+	---help---
+		If enabled, sends delay request messages to measure the network delay
+		to server. If disabled, assumes zero delay.
+
+if NETUTILS_PTPD_SEND_DELAYREQ
+
+config NETUTILS_PTPD_MAX_PATH_DELAY_NS
+	int "PTP client maximum path delay (ns)"
+	default 100000
+	range 1 1000000000
+	---help---
+		Measured path delay longer than this is ignored. Delay requests are
+		also not transmitted until clock synchronization is better than this.
+
+config NETUTILS_PTPD_DELAYREQ_AVGCOUNT
+	int "PTP client path delay averaging count"
+	default 100
+	---help---
+		Measured path delay is averaged over this many samples.
+
+endif # NETUTILS_PTPD_SEND_DELAYREQ
 
 endif # NETUTILS_PTPD_CLIENT
 

@@ -114,4 +114,22 @@ struct ptp_follow_up_s
   uint8_t origintimestamp[10];
 };
 
+/* DelayReq: request delay measurement */
+
+struct ptp_delay_req_s
+{
+  struct ptp_header_s header;
+  uint8_t origintimestamp[10];
+};
+
+/* DelayResp: response to DelayReq */
+
+struct ptp_delay_resp_s
+{
+  struct ptp_header_s header;
+  uint8_t receivetimestamp[10];
+  uint8_t reqidentity[8];
+  uint8_t reqportindex[2];
+};
+
 #endif /* __APPS_NETUTILS_PTPD_PTPV2_H */
