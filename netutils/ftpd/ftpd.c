@@ -915,7 +915,7 @@ static int ftpd_accept(int sd, FAR void *addr, FAR socklen_t *addrlen,
 
   /* Accept the connection -- waiting if necessary */
 
-  acceptsd = accept(sd, (FAR struct sockaddr *)addr, addrlen);
+  acceptsd = accept4(sd, (FAR struct sockaddr *)addr, addrlen, SOCK_CLOEXEC);
   if (acceptsd < 0)
     {
       int errval = errno;

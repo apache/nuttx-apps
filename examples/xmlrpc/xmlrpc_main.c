@@ -410,7 +410,8 @@ int main(int argc, FAR char *argv[])
   for (; ; )
     {
       clilen = sizeof(cliaddr);
-      connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
+      connfd = accept4(listenfd, (struct sockaddr *)&cliaddr, &clilen,
+                       SOCK_CLOEXEC);
       if (connfd <= 0)
         {
           break;

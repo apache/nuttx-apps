@@ -197,7 +197,7 @@ int telnetd_daemon(FAR const struct telnetd_config_s *config)
       ninfo("Accepting connections on port %d\n", ntohs(config->d_port));
 
       addrlen = sizeof(addr);
-      acceptsd = accept(listensd, &addr.generic, &addrlen);
+      acceptsd = accept4(listensd, &addr.generic, &addrlen, SOCK_CLOEXEC);
       if (acceptsd < 0)
         {
           /* Just continue if a signal was received */

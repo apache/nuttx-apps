@@ -238,7 +238,8 @@ static int rpsock_stream_server(int argc, char *argv[])
         }
 
       printf("server: try accept ...\n");
-      new = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
+      new = accept4(listensd, (struct sockaddr *)&myaddr, &addrlen,
+                    SOCK_CLOEXEC);
       if (new < 0)
           break;
 
