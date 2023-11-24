@@ -39,7 +39,7 @@ define LINK_WASM
 	    $(eval WLDFLAGS=$(shell cat $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).ldflags)) \
 	    $(eval RETVAL=$(shell $(WCC) $(bin) $(WBIN) $(WCFLAGS) $(WLDFLAGS) $(WCC_COMPILER_RT_LIB) \
 	        -Wl,--Map=$(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).map \
-	        -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm || echo 1;)) \
+	        -o $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm || echo 1;)) \
 	    $(if $(RETVAL), \
 	        $(error wasm build failed for $(PROGNAME).wasm) \
 	    ) \
@@ -86,7 +86,10 @@ endif
 
 all:: $(WBIN)
 
-depend:: $(APPDIR)$(DELIM)include$(DELIM)wasm$(DELIM)math.h
+$(BINDIR)/wasm:
+	$(Q) mkdir -p $(BINDIR)/wasm
+
+depend:: $(APPDIR)$(DELIM)include$(DELIM)wasm$(DELIM)math.h $(BINDIR)/wasm
 
 $(WOBJS): %.c$(SUFFIX).wo : %.c
 	$(Q) $(WCC) $(WCFLAGS) -c $^ -o $@

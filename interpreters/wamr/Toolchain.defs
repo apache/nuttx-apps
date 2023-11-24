@@ -74,14 +74,14 @@ define WAMR_AOT_COMPILE
 	    $(eval WAMRMODE=$(shell echo $(notdir $(bin)) | cut -d'#' -f5)) \
 	    $(if $(CONFIG_INTERPRETERS_WAMR_AOT), \
 	      $(if $(filter AOT,$(WAMRMODE)), \
-	        $(info Wamrc Generate AoT: $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot) \
-	        $(shell $(WRC) $(RCFLAGS) -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot \
-	                          $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm > /dev/null), \
+	        $(info Wamrc Generate AoT: $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot) \
+	        $(shell $(WRC) $(RCFLAGS) -o $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).aot \
+	                          $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm > /dev/null), \
 	        $(if $(filter XIP,$(WAMRMODE)), \
-	          $(info Wamrc Generate XiP: $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).xip) \
+	          $(info Wamrc Generate XiP: $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).xip) \
 	          $(shell $(WRC) $(RCFLAGS) --enable-indirect-mode --disable-llvm-intrinsics \
-	                         -o $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).xip \
-	                            $(APPDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm > /dev/null) \
+	                         -o $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).xip \
+	                            $(BINDIR)$(DELIM)wasm$(DELIM)$(PROGNAME).wasm > /dev/null) \
 	         ) \
 	       ) \
 	     ) \
