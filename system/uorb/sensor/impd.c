@@ -29,21 +29,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_impd_message(FAR const struct orb_metadata *meta,
-                                      FAR const void *buffer)
-{
-  FAR const struct sensor_impd *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "real: %.2f imaginary: %.2f", meta->o_name,
-               message->timestamp, now - message->timestamp,
-               message->real, message->imag);
-}
+static const char sensor_impd_format[] =
+  "timestamp:%" PRIu64 ",real:%hf,imaginary:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_impd, struct sensor_impd, print_sensor_impd_message);
+ORB_DEFINE(sensor_impd, struct sensor_impd, sensor_impd_format);

@@ -29,21 +29,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_baro_message(FAR const struct orb_metadata *meta,
-                                      FAR const void *buffer)
-{
-  FAR const struct sensor_baro *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "temperature: %.2f pressure: %.2f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->temperature, message->pressure);
-}
+static const char sensor_baro_format[] =
+  "timestamp:%" PRIu64 ",pressure:%hf,temperature:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_baro, struct sensor_baro, print_sensor_baro_message);
+ORB_DEFINE(sensor_baro, struct sensor_baro, sensor_baro_format);

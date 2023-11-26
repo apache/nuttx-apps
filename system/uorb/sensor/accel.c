@@ -29,23 +29,14 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_accel_message(FAR const struct orb_metadata *meta,
-                                       FAR const void *buffer)
-{
-  FAR const struct sensor_accel *message = buffer;
-  const orb_abstime now = orb_absolute_time();
+static const char sensor_accel_format[] =
+  "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,temperature:%hf";
 
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "temperature: %.2f x: %.2f y: %.2f z: %.2f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->temperature, message->x, message->y, message->z);
-}
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_accel, struct sensor_accel, print_sensor_accel_message);
-ORB_DEFINE(sensor_accel_uncal, struct sensor_accel,
-           print_sensor_accel_message);
+ORB_DEFINE(sensor_accel, struct sensor_accel, sensor_accel_format);
+ORB_DEFINE(sensor_accel_uncal, struct sensor_accel, sensor_accel_format);

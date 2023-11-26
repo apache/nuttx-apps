@@ -29,20 +29,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_rgb_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_rgb *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) red: %.2f"
-               " green: %.2f blue: %.2f\n", meta->o_name, message->timestamp,
-               now - message->timestamp, message->r, message->g, message->b);
-}
+static const char sensor_rgb_format[] =
+  "timestamp:%" PRIu64 ",r:%hf,g:%hf,b:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_rgb, struct sensor_rgb, print_sensor_rgb_message);
+ORB_DEFINE(sensor_rgb, struct sensor_rgb, sensor_rgb_format);

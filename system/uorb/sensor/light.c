@@ -29,22 +29,13 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_light_message(FAR const struct orb_metadata *meta,
-                                       FAR const void *buffer)
-{
-  FAR const struct sensor_light *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "light: %.2f ir: %.2f", meta->o_name, message->timestamp,
-               now - message->timestamp, message->light, message->ir);
-}
+static const char sensor_light_format[] =
+  "timestamp:%" PRIu64 ",light:%hf,ir:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_light, struct sensor_light, print_sensor_light_message);
-ORB_DEFINE(sensor_light_uncal, struct sensor_light,
-           print_sensor_light_message);
+ORB_DEFINE(sensor_light, struct sensor_light, sensor_light_format);
+ORB_DEFINE(sensor_light_uncal, struct sensor_light, sensor_light_format);
