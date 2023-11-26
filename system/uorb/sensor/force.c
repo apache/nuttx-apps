@@ -29,21 +29,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_force_message(FAR const struct orb_metadata *meta,
-                                       FAR const void *buffer)
-{
-  FAR const struct sensor_force *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "value: %.2f event: %" PRIi32 "",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->force, message->event);
-}
+static const char sensor_force_format[] =
+  "timestamp:%" PRIu64 ",force:%hf,event:%" PRIi32 "";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_force, struct sensor_force, print_sensor_force_message);
+ORB_DEFINE(sensor_force, struct sensor_force, sensor_force_format);

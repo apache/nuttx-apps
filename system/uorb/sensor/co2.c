@@ -29,20 +29,11 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_co2_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_co2 *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) co2: %.2f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->co2);
-}
+static const char sensor_co2_format[] = "timestamp:%" PRIu64 ",co2:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_co2, struct sensor_co2, print_sensor_co2_message);
+ORB_DEFINE(sensor_co2, struct sensor_co2, sensor_co2_format);

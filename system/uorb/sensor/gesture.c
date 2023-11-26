@@ -29,17 +29,8 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void
-print_sensor_wake_gesture_message(FAR const struct orb_metadata *meta,
-                                  FAR const void *buffer)
-{
-  FAR const struct sensor_wake_gesture *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago)"
-               " event: %" PRIu32 "", meta->o_name, message->timestamp,
-               now - message->timestamp, message->event);
-}
+static const char sensor_wake_gesture_format[] =
+  "timestamp:%" PRIu64 ",event:%" PRIu32 "";
 #endif
 
 /****************************************************************************
@@ -47,6 +38,6 @@ print_sensor_wake_gesture_message(FAR const struct orb_metadata *meta,
  ****************************************************************************/
 
 ORB_DEFINE(sensor_wake_gesture, struct sensor_wake_gesture,
-           print_sensor_wake_gesture_message);
+           sensor_wake_gesture_format);
 ORB_DEFINE(sensor_wake_gesture_uncal, struct sensor_wake_gesture,
-           print_sensor_wake_gesture_message);
+           sensor_wake_gesture_format);

@@ -29,23 +29,13 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_cap_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_cap *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "status: %" PRIu32 " rawdata0: %" PRIu32 " rawdata1: "
-               "%" PRIu32 " rawdata2: %" PRIu32 " rawdata3: %" PRIu32 "",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->status, message->rawdata[0], message->rawdata[1],
-               message->rawdata[2], message->rawdata[3]);
-}
+static const char sensor_cap_format[] =
+  "timestamp:%" PRIu64 ",status:%" PRIu32 ",rawdata0:%" PRIu32 ","
+  "rawdata1:%" PRIu32 ",rawdata2:%" PRIu32 ",rawdata3:%" PRIu32 "";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_cap, struct sensor_cap, print_sensor_cap_message);
+ORB_DEFINE(sensor_cap, struct sensor_cap, sensor_cap_format);

@@ -29,23 +29,14 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_mag_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_mag *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "temperature: %.2f x: %.2f y: %.2f z: %.2f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->temperature, message->x, message->y, message->z);
-}
+static const char sensor_mag_format[] =
+  "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,temperature:%hf,"
+  "status:%" PRId32 "";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_mag, struct sensor_mag, print_sensor_mag_message);
-ORB_DEFINE(sensor_mag_uncal, struct sensor_mag,
-           print_sensor_mag_message);
+ORB_DEFINE(sensor_mag, struct sensor_mag, sensor_mag_format);
+ORB_DEFINE(sensor_mag_uncal, struct sensor_mag, sensor_mag_format);

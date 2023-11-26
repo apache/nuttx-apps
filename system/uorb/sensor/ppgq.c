@@ -29,25 +29,14 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_ppgq_message(FAR const struct orb_metadata *meta,
-                                      FAR const void *buffer)
-{
-  FAR const struct sensor_ppgq *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "ppg1: %" PRIu32 " ppg2: %" PRIu32 " ppg3: %" PRIu32 " "
-               "ppg4: %" PRIu32 "current: %" PRIu32 " gain1: %" PRIu16 " "
-               "gain2: %" PRIu16 " gain3: %" PRIu16 " gain4: %" PRIu16 "",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->ppg[0], message->ppg[1], message->ppg[2],
-               message->ppg[3], message->current, message->gain[0],
-               message->gain[1], message->gain[2], message->gain[3]);
-}
+static const char sensor_ppgq_format[] =
+  "timestamp:%" PRIu64 ",ppg0:%" PRIu32 ",ppg1:%" PRIu32 ",ppg2:%" PRIu32 ","
+  "ppg3:%" PRIu32 ",current:%" PRIu32 ",gain0:%" PRIu16 ",gain1:%" PRIu16 ","
+  "gain2:%" PRIu16 ",gain3:%" PRIu16 "";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_ppgq, struct sensor_ppgq, print_sensor_ppgq_message);
+ORB_DEFINE(sensor_ppgq, struct sensor_ppgq, sensor_ppgq_format);

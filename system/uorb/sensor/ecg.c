@@ -29,21 +29,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_ecg_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_ecg *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) ecg: %.4f "
-               "status:0x%" PRIx32 "",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->ecg, message->status);
-}
+static const char sensor_ecg_format[] =
+  "timestamp:%" PRIu64 ",ecg:%hf,status:%" PRIx32 "";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_ecg, struct sensor_ecg, print_sensor_ecg_message);
+ORB_DEFINE(sensor_ecg, struct sensor_ecg, sensor_ecg_format);

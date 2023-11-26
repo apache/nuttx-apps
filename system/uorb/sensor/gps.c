@@ -29,54 +29,25 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_gps_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_gps *message = buffer;
-  const orb_abstime now = orb_absolute_time();
+static const char sensor_gps_format[] =
+  "timestamp:%" PRIu64 ",time_utc:%" PRIu64 ",latitude:%hf,longitude:%hf,"
+  "altitude:%hf,altitude_ellipsoid:%hf,eph:%hf,epv:%hf,hdop:%hf,pdop:%hf,"
+  "vdop:%hf,ground_speed:%hf,course:%hf,satellites_used:%" PRIu32 "";
 
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "time_utc: %" PRIu64 " latitude: %.4f longitude: %.4f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->time_utc, message->latitude, message->longitude);
-
-  uorbinfo_raw("%s:\taltitude: %.4f altitude_ellipsoid: %.4f "
-               "ground_speed: %.4f course: %.4f",
-               meta->o_name, message->altitude, message->altitude_ellipsoid,
-               message->ground_speed, message->course);
-
-  uorbinfo_raw("%s:\teph: %.4f epv: %.4f hdop: %.4f vdop: %.4f",
-               meta->o_name, message->eph, message->epv,
-               message->hdop, message->vdop);
-}
-
-static void
-print_sensor_gps_satellite_message(FAR const struct orb_metadata *meta,
-                                   FAR const void *buffer)
-{
-  FAR const struct sensor_gps_satellite *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-  int i;
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago)",
-               meta->o_name, message->timestamp, now - message->timestamp);
-
-  for (i = 0; i < message->count; i++)
-    {
-      uorbinfo_raw("%s:\tnumber:%d svid: %" PRIu32
-                   " elevation: %" PRIu32 " azimuth: %" PRIu32
-                   " snr: %" PRIu32 "",
-                   meta->o_name, i, message->info[i].svid,
-                   message->info[i].elevation, message->info[i].azimuth,
-                   message->info[i].snr);
-    }
-}
+static const char sensor_gps_satellite_format[] =
+  "timestamp:%" PRIu64 ",count:%" PRIu32 ",satellites:%" PRIu32 ","
+  "svid0:%" PRIu32 ",elevation0:%" PRIu32 ",azimuth0:%" PRIu32 ","
+  "snr0:%" PRIu32 ",svid1:%" PRIu32 ",elevation1:%" PRIu32 ","
+  "azimuth1:%" PRIu32 ",snr1:%" PRIu32 ",svid2:%" PRIu32 ","
+  "elevation2:%" PRIu32 ",azimuth2:%" PRIu32 ",snr2:%" PRIu32 ","
+  "svid3:%" PRIu32 ",elevation3:%" PRIu32 ",azimuth3:%" PRIu32 ","
+  "snr3:%" PRIu32 "";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_gps, struct sensor_gps, print_sensor_gps_message);
+ORB_DEFINE(sensor_gps, struct sensor_gps, sensor_gps_format);
 ORB_DEFINE(sensor_gps_satellite, struct sensor_gps_satellite,
-           print_sensor_gps_satellite_message);
+           sensor_gps_satellite_format);

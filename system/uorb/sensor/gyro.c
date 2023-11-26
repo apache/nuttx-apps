@@ -29,23 +29,13 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_gyro_message(FAR const struct orb_metadata *meta,
-                                      FAR const void *buffer)
-{
-  FAR const struct sensor_gyro *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "temperature: %.2f x: %.2f y: %.2f z: %.2f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->temperature, message->x, message->y, message->z);
-}
+static const char sensor_gyro_format[] =
+  "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,temperature:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_gyro, struct sensor_gyro, print_sensor_gyro_message);
-ORB_DEFINE(sensor_gyro_uncal, struct sensor_gyro,
-           print_sensor_gyro_message);
+ORB_DEFINE(sensor_gyro, struct sensor_gyro, sensor_gyro_format);
+ORB_DEFINE(sensor_gyro_uncal, struct sensor_gyro, sensor_gyro_format);

@@ -29,20 +29,11 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_pm10_message(FAR const struct orb_metadata *meta,
-                                      FAR const void *buffer)
-{
-  FAR const struct sensor_pm10 *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) pm10: %.4f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->pm10);
-}
+static const char sensor_pm10_format[] = "timestamp:%" PRIu64 ",pm10:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_pm10, struct sensor_pm10, print_sensor_pm10_message);
+ORB_DEFINE(sensor_pm10, struct sensor_pm10, sensor_pm10_format);
