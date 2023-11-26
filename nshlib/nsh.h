@@ -287,20 +287,7 @@
 
 /* Verify support for ROMFS /etc directory support options */
 
-#ifdef CONFIG_NSH_ROMFSETC
-#  ifdef CONFIG_DISABLE_MOUNTPOINT
-#    error "Mountpoint support is disabled"
-#    undef CONFIG_NSH_ROMFSETC
-#  endif
-
-#  ifndef CONFIG_FS_ROMFS
-#    error "ROMFS support not enabled"
-#    undef CONFIG_NSH_ROMFSETC
-#  endif
-
-#  ifndef CONFIG_NSH_ROMFSMOUNTPT
-#    define CONFIG_NSH_ROMFSMOUNTPT "/etc"
-#  endif
+#ifdef CONFIG_ETC_ROMFS
 
 #  ifndef CONFIG_NSH_SYSINITSCRIPT
 #    define CONFIG_NSH_SYSINITSCRIPT "init.d/rc.sysinit"
@@ -311,10 +298,10 @@
 #  endif
 
 #  undef NSH_SYSINITPATH
-#  define NSH_SYSINITPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_SYSINITSCRIPT
+#  define NSH_SYSINITPATH CONFIG_ETC_ROMFSMOUNTPT "/" CONFIG_NSH_SYSINITSCRIPT
 
 #  undef NSH_INITPATH
-#  define NSH_INITPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_INITSCRIPT
+#  define NSH_INITPATH CONFIG_ETC_ROMFSMOUNTPT "/" CONFIG_NSH_INITSCRIPT
 
 #  ifdef CONFIG_NSH_ROMFSRC
 #    ifndef CONFIG_NSH_RCSCRIPT
@@ -322,30 +309,14 @@
 #    endif
 
 #    undef NSH_RCPATH
-#    define NSH_RCPATH CONFIG_NSH_ROMFSMOUNTPT "/" CONFIG_NSH_RCSCRIPT
+#    define NSH_RCPATH CONFIG_ETC_ROMFSMOUNTPT "/" CONFIG_NSH_RCSCRIPT
 #  endif
-
-#  ifndef CONFIG_NSH_ROMFSDEVNO
-#    define CONFIG_NSH_ROMFSDEVNO 0
-#  endif
-
-#  ifndef CONFIG_NSH_ROMFSSECTSIZE
-#    define CONFIG_NSH_ROMFSSECTSIZE 64
-#  endif
-
-#  define NSECTORS(b)        (((b)+CONFIG_NSH_ROMFSSECTSIZE-1)/CONFIG_NSH_ROMFSSECTSIZE)
-#  define STR_RAMDEVNO(m)    #m
-#  define MKMOUNT_DEVNAME(m) "/dev/ram" STR_RAMDEVNO(m)
-#  define MOUNT_DEVNAME      MKMOUNT_DEVNAME(CONFIG_NSH_ROMFSDEVNO)
 
 #else
 
 #  undef CONFIG_NSH_ROMFSRC
-#  undef CONFIG_NSH_ROMFSMOUNTPT
 #  undef CONFIG_NSH_INITSCRIPT
 #  undef CONFIG_NSH_RCSCRIPT
-#  undef CONFIG_NSH_ROMFSDEVNO
-#  undef CONFIG_NSH_ROMFSSECTSIZE
 
 #endif
 
@@ -804,12 +775,6 @@ extern "C"
 
 /* Initialization */
 
-#ifdef CONFIG_NSH_ROMFSETC
-int nsh_romfsetc(void);
-#else
-#  define nsh_romfsetc() (-ENOSYS)
-#endif
-
 #ifdef HAVE_USB_CONSOLE
 int nsh_usbconsole(void);
 #else
@@ -826,7 +791,7 @@ void nsh_aliasfree(FAR struct nsh_vtbl_s *vtbl,
 #ifndef CONFIG_NSH_DISABLESCRIPT
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                FAR const char *path, bool log);
-#ifdef CONFIG_NSH_ROMFSETC
+#ifdef CONFIG_ETC_ROMFS
 int nsh_sysinitscript(FAR struct nsh_vtbl_s *vtbl);
 int nsh_initscript(FAR struct nsh_vtbl_s *vtbl);
 #ifdef CONFIG_NSH_ROMFSRC

@@ -9,9 +9,8 @@ config NSH_LIBRARY
 	bool "NSH Library"
 	default n
 	select NETUTILS_NETLIB if NET
-	select BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT || NSH_ROMFSETC
+	select BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT
 	select BOARDCTL_MKRD if !NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT
-	select BOARDCTL_ROMDISK if NSH_ROMFSETC
 	---help---
 		Build the NSH support library.  This is used, for example, by
 		system/nsh in order to implement the full NuttShell (NSH).
@@ -793,29 +792,6 @@ config NSH_DISABLE_LOOPS
 		systems where some minimal scripting is required but looping
 		is not.
 
-endif # !NSH_DISABLESCRIPT
-
-config NSH_ROMFSETC
-	bool "Support ROMFS start-up script"
-	default n
-	depends on FS_ROMFS
-	---help---
-		Mount a ROMFS filesystem at /etc and provide a system init
-		script at /etc/init.d/rc.sysinit and a startup script
-		at /etc/init.d/rcS.  The default system init script will mount
-		a FAT FS RAMDISK at /tmp but the logic is easily extensible.
-
-if NSH_ROMFSETC
-
-config NSH_CROMFSETC
-	bool "Support CROMFS (compressed) start-up script"
-	default n
-	depends on FS_CROMFS
-	---help---
-		Mount a CROMFS filesystem at /etc and provide a compressed system
-		init script at /etc/init.d/rc.sysinit and a startup script
-		at /etc/init.d/rcS.
-
 config NSH_ROMFSRC
 	bool "Support ROMFS login script"
 	default n
@@ -827,14 +803,6 @@ config NSH_ROMFSRC
 		may need another script that is executed at the beginning of each
 		session.  Selecting this option enables support for such a login
 		script
-
-config NSH_ROMFSMOUNTPT
-	string "ROMFS mount point"
-	default "/etc"
-	---help---
-		The default mountpoint for the ROMFS volume is /etc, but that
-		can be changed with this setting.  This must be a absolute path
-		beginning with '/'.
 
 config NSH_SYSINITSCRIPT
 	string "Relative path to sysinit script"
@@ -861,106 +829,14 @@ config NSH_RCSCRIPT
 		The default is .nshrc.  This is a relative path and must not
 		start with '/'.
 
-config NSH_ROMFSDEVNO
-	int "ROMFS block device minor number"
-	default 0
-	---help---
-		This is the minor number of the ROMFS block device.  The default is
-		'0' corresponding to /dev/ram0.
-
-config NSH_ROMFSSECTSIZE
-	int "ROMFS sector size"
-	default 64
-	---help---
-		This is the sector size to use with the ROMFS volume.  Since the
-		default volume is very small, this defaults to 64 but should be
-		increased if the ROMFS volume were to be become large.  Any value
-		selected must be a power of 2.
-
-choice
-	prompt "ROMFS header location"
-	default NSH_DEFAULTROMFS
-
-config NSH_DEFAULTROMFS
-	bool "Default ROMFS header path"
-	---help---
-		Selects the default header located in the source directory of the
-		NSH library.
-
-config NSH_ARCHROMFS
-	bool "Architecture-specific ROMFS path"
-	---help---
-		Enable this option to provide an architecture-specific ROMFS
-		header at arch/<boardname>/nsh_romfsimg.h.  Note that this header
-		will be linked (or copied) from nuttx/boards/<arch>/<chip>/<board>/include
-		and should be stored at that location in the nuttx boards/
-		sub-directory.
-
-config NSH_CUSTOMROMFS
-	bool "Custom ROMFS header path"
-	---help---
-		Enable this option to provide a custom ROMFS header. The path to
-		the header file can be specified in the option "Custom ROMFS header
-		file".
-
-endchoice
-
-if NSH_CUSTOMROMFS
-
-config NSH_CUSTOMROMFS_HEADER
-	string "Custom ROMFS header file path"
-	default ""
-	---help---
-		Specifies the path to the custom ROMFS header file.  This must be
-		either a full path or a path relative to one of the include file
-		search paths provided in your CFLAGS.
-
-endif #NSH_CUSTOMROMFS
-
-config NSH_FATDEVNO
-	int "FAT block device minor number"
-	default 1
-	depends on FS_FAT
-	---help---
-		When the default rcS file used when NSH_ROMFSETC is selected, it
-		will mount a FAT FS under /tmp. This is the minor number of the FAT
-		FS block device.  The default is '1' corresponding to /dev/ram1.
-
-config NSH_FATSECTSIZE
-	int "FAT sector size"
-	default 512
-	depends on FS_FAT
-	---help---
-		When the default rcS file used when NSH_ROMFSETC is selected, it
-		will mount a FAT FS under /tmp. This is the sector size use with the
-		FAT FS. Default is 512.
-
-config NSH_FATNSECTORS
-	int "FAT number of sectors"
-	default 1024
-	depends on FS_FAT
-	---help---
-		When the default rcS file used when NSH_ROMFSETC is selected, it
-		will mount a FAT FS under /tmp. This is the number of sectors to use
-		with the FAT FS.  Default is 1024.  The amount of memory used by the
-		FAT FS will be NSH_FATSECTSIZE * NSH_FATNSECTORS bytes.
-
-config NSH_FATMOUNTPT
-	string "FAT mount point"
-	default "/tmp"
-	depends on FS_FAT
-	---help---
-		When the default rcS file used when NSH_ROMFSETC is selected, it
-		will mount a FAT FS under /tmp. This is the location where the FAT
-		FS will be mounted.  Default is "/tmp".
-
 config NSH_SCRIPT_REDIRECT_PATH
 	string "rcS redirect output"
 	default ""
 	---help---
 		This option can redirect rcS output.such as /dev/log or other.
 
-endif # NSH_ROMFSETC
+endif # !NSH_DISABLESCRIPT
+
 endmenu # Scripting Support
 
 menu "Console Configuration"
