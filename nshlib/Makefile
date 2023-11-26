@@ -45,10 +45,6 @@ ifeq ($(CONFIG_NSH_VARS),y)
 CSRCS += nsh_vars.c
 endif
 
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS += nsh_romfsetc.c
-endif
-
 ifeq ($(CONFIG_NET),y)
 CSRCS += nsh_netcmds.c
 

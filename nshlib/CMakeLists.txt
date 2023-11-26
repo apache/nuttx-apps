@@ -60,10 +60,6 @@ if(CONFIG_NSH_LIBRARY)
     list(APPEND CSRCS nsh_vars.c)
   endif()
 
-  if(CONFIG_NSH_ROMFSETC)
-    list(APPEND CSRCS nsh_romfsetc.c)
-  endif()
-
   if(CONFIG_NET)
     list(APPEND CSRCS nsh_netcmds.c)
 
