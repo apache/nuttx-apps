@@ -33,7 +33,7 @@
  * Private Functions
  ****************************************************************************/
 
-static int do_ptpd_start(const char *interface)
+static int do_ptpd_start(FAR const char *interface)
 {
   int pid;
 

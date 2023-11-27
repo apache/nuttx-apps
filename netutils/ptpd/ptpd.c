@@ -381,7 +381,7 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
           cmsg->cmsg_type == SO_TIMESTAMP &&
           cmsg->cmsg_len == CMSG_LEN(sizeof(struct timeval)))
         {
-          TIMEVAL_TO_TIMESPEC((struct timeval *)CMSG_DATA(cmsg), ts);
+          TIMEVAL_TO_TIMESPEC((FAR struct timeval *)CMSG_DATA(cmsg), ts);
 
           /* Sanity-check the value */
 
@@ -607,8 +607,8 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
 
       mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
       ipmsfilter(&state->interface_addr.sin_addr,
-                  &mcast_addr,
-                  MCAST_EXCLUDE);
+                 &mcast_addr,
+                 MCAST_EXCLUDE);
 
       return ipmsfilter(&state->interface_addr.sin_addr,
                         &mcast_addr,
@@ -762,7 +762,7 @@ static int ptp_send_delay_req(FAR struct ptp_state_s *state)
   timespec_to_ptp_format(&state->delayreq_time, req.origintimestamp);
 
   ret = sendto(state->tx_socket, &req, sizeof(req), 0,
-    (struct sockaddr *)&addr, sizeof(addr));
+               (FAR struct sockaddr *)&addr, sizeof(addr));
 
   /* Get timestamp after send completes.
    * TODO: Implement SO_TIMESTAMPING and use the actual tx timestamp here.
@@ -826,7 +826,7 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
 
       clock_gettime(CLOCK_MONOTONIC, &time_now);
       clock_timespec_subtract(&time_now,
-        &state->last_transmitted_delayreq, &delta);
+                              &state->last_transmitted_delayreq, &delta);
 
       if (timespec_to_ms(&delta) > state->delayreq_interval * MSEC_PER_SEC)
         {
@@ -910,7 +910,7 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       if (ret == OK)
         {
           ptpinfo("Jumped to timestamp %lld.%09ld s\n",
-            (long long)new_time.tv_sec, (long)new_time.tv_nsec);
+                  (long long)new_time.tv_sec, (long)new_time.tv_nsec);
         }
       else
         {
@@ -1012,9 +1012,9 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       state->last_adjtime_ns = adjustment_ns;
 
       ptpinfo("Delta: %+lld ns, adjustment %+lld ns, drift rate %+lld ppb\n",
-        (long long)delta_ns,
-        (long long)state->last_adjtime_ns,
-        (long long)state->drift_ppb);
+              (long long)delta_ns,
+              (long long)state->last_adjtime_ns,
+              (long long)state->drift_ppb);
 
       ret = ptp_adjtime(state, adjustment_ns);
 
@@ -1132,7 +1132,7 @@ static int ptp_process_delay_req(FAR struct ptp_state_s *state,
   resp.header.logmessageinterval = CONFIG_NETUTILS_PTPD_DELAYRESP_INTERVAL;
 
   ret = sendto(state->tx_socket, &resp, sizeof(resp), 0,
-    (struct sockaddr *)&addr, sizeof(addr));
+               (FAR struct sockaddr *)&addr, sizeof(addr));
 
   if (ret < 0)
     {
@@ -1333,7 +1333,7 @@ static void ptp_process_statusreq(FAR struct ptp_state_s *state)
     {
       /* Copy relevant parts of announce info to status struct */
 
-      struct ptp_announce_s *s = &state->selected_source;
+      FAR struct ptp_announce_s *s = &state->selected_source;
 
       memcpy(status->clock_source_info.id,
              s->header.sourceidentity,
@@ -1390,7 +1390,7 @@ static void ptp_process_statusreq(FAR struct ptp_state_s *state)
 
 static int ptp_daemon(int argc, FAR char** argv)
 {
-  const char *interface = "eth0";
+  FAR const char *interface = "eth0";
   FAR struct ptp_state_s *state;
   struct pollfd pollfds[2];
   struct msghdr rxhdr;
@@ -1545,6 +1545,11 @@ int ptpd_start(FAR const char *interface)
  * Returned Value:
  *   On success, returns OK.
  *   On failure, a negated errno value is returned.
+ *
+ * Assumptions/Limitations:
+ *   Multiple threads with priority less than CONFIG_NETUTILS_PTPD_SERVERPRIO
+ *   can request status simultaneously. If higher priority threads request
+ *   status simultaneously, some of the requests may timeout.
  *
  ****************************************************************************/
 
