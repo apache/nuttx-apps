@@ -140,6 +140,11 @@ int ptpd_start(FAR const char *interface);
  *   On success, returns OK.
  *   On failure, a negated errno value is returned.
  *
+ * Assumptions/Limitations:
+ *   Multiple threads with priority less than CONFIG_NETUTILS_PTPD_SERVERPRIO
+ *   can request status simultaneously. If higher priority threads request
+ *   status simultaneously, some of the requests may timeout.
+ *
  ****************************************************************************/
 
 int ptpd_status(int pid, FAR struct ptpd_status_s *status);
