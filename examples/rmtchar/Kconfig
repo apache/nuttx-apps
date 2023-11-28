@@ -1,0 +1,68 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RMTCHAR
+	tristate "RMT character driver test"
+	default n
+	depends on RMT
+	---help---
+		Enable the RMT character driver test
+
+if EXAMPLES_RMTCHAR
+
+config EXAMPLES_RMTCHAR_TX
+	bool "Use RMT transmitter"
+	default n
+	---help---
+		This should be set if the RMT device supports a transmitter.
+
+if EXAMPLES_RMTCHAR_TX
+
+config EXAMPLES_RMTCHAR_TX_DEVPATH
+	string "RMT transmitter character device path"
+	default "/dev/rmt0"
+	---help---
+		The default path to the RMT transmitter character device.
+		Default: /dev/rmt0
+
+config EXAMPLES_RMTCHAR_TXSTACKSIZE
+	int "Transmitter thread stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		This is the stack size to use when starting the transmitter thread.
+
+endif # EXAMPLES_RMTCHAR_TX
+
+config EXAMPLES_RMTCHAR_RX
+	bool "Use RMT receiver"
+	default n
+	---help---
+		This should be set if the RMT device supports a receiver.
+
+if EXAMPLES_RMTCHAR_RX
+
+config EXAMPLES_RMTCHAR_RX_DEVPATH
+		string "RMT receiver character device path"
+		default "/dev/rmt1"
+		---help---
+			The default path to the RMT receiver character device.
+			Default: /dev/rmt1
+
+config EXAMPLES_RMTCHAR_RXSTACKSIZE
+	int "Receiver thread stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		This is the stack size to use when starting the receiver thread.
+
+endif # EXAMPLES_RMTCHAR_RX
+
+config EXAMPLES_RMTCHAR_ITEMS
+	int "Number of words to transmit or receive"
+	default 64
+	---help---
+		This is the total amount of words to be transmitted or
+		received by the RMT RX device.
+
+endif
