@@ -511,7 +511,10 @@ static void fastboot_reboot(FAR struct fastboot_ctx_s *context,
                             FAR const char *arg)
 {
 #ifdef CONFIG_BOARDCTL_RESET
+  fastboot_okay(context, "");
   boardctl(BOARDIOC_RESET, BOARDIOC_SOFTRESETCAUSE_USER_REBOOT);
+#else
+  fastboot_fail(context, "Operation not supported");
 #endif
 }
 
@@ -519,7 +522,10 @@ static void fastboot_reboot_bootloader(FAR struct fastboot_ctx_s *context,
                                        FAR const char *arg)
 {
 #ifdef CONFIG_BOARDCTL_RESET
+  fastboot_okay(context, "");
   boardctl(BOARDIOC_RESET, BOARDIOC_SOFTRESETCAUSE_ENTER_BOOTLOADER);
+#else
+  fastboot_fail(context, "Operation not supported");
 #endif
 }
 
