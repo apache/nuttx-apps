@@ -275,6 +275,12 @@ FAR const char *wapi_ioctl_command_name(int cmd)
     case SIOCSIWPTAPRIO:
       return "SIOCSIWPTAPRIO";
 
+    case SIOCSIWPMKSA:
+      return "SIOCSIWPMKSA";
+
+    case SIOCGIWPMKSA:
+      return "SIOCGIWPMKSA";
+
     default:
       snprintf(g_ioctl_command_namebuf, WAPI_IOCTL_COMMAND_NAMEBUFSIZ,
                "0x%x", cmd);
