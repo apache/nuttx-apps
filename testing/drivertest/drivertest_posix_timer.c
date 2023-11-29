@@ -26,6 +26,9 @@
 #include <signal.h>
 #include <setjmp.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <cmocka.h>
 #include <syslog.h>
 #include <nuttx/timers/timer.h>
