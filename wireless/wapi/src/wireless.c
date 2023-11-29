@@ -1629,6 +1629,74 @@ int wapi_get_pta_prio(int sock, FAR const char *ifname,
 }
 
 /****************************************************************************
+ * Name: wapi_set_pmksa
+ *
+ * Description:
+ *   Set the wlan pmksa.
+ *
+ ****************************************************************************/
+
+int wapi_set_pmksa(int sock, FAR const char *ifname,
+                   FAR const uint8_t *pmk, int len)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  WAPI_VALIDATE_PTR(pmk);
+
+  wrq.u.data.pointer = (FAR void *)pmk;
+  wrq.u.data.length = len;
+
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCSIWPMKSA, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWPMKSA, errcode);
+      ret = -errcode;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wapi_get_pmksa
+ *
+ * Description:
+ *   Get the wlan pmksa.
+ *
+ ****************************************************************************/
+
+int wapi_get_pmksa(int sock, FAR const char *ifname,
+                   FAR uint8_t *pmk, int len)
+{
+  struct iwreq wrq =
+  {
+  };
+
+  int ret;
+
+  WAPI_VALIDATE_PTR(pmk);
+
+  wrq.u.data.pointer = pmk;
+  wrq.u.data.length = len;
+
+  strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
+  ret = ioctl(sock, SIOCGIWPMKSA, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWPMKSA, errcode);
+      ret = -errcode;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: wapi_extend_params
  *
  * Description:

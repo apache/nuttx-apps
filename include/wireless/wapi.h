@@ -965,6 +965,28 @@ int wapi_get_pta_prio(int sock, FAR const char *ifname,
                       enum wapi_pta_prio_e *pta_prio);
 
 /****************************************************************************
+ * Name: wapi_set_pmksa
+ *
+ * Description:
+ *   Set the wlan pmksa.
+ *
+ ****************************************************************************/
+
+int wapi_set_pmksa(int sock, FAR const char *ifname,
+                   FAR const uint8_t *pmk, int len);
+
+/****************************************************************************
+ * Name: wapi_get_pmksa
+ *
+ * Description:
+ *   Get the wlan pmksa.
+ *
+ ****************************************************************************/
+
+int wapi_get_pmksa(int sock, FAR const char *ifname,
+                   FAR uint8_t *pmk, int len);
+
+/****************************************************************************
  * Name: wapi_extend_params
  *
  * Description:
