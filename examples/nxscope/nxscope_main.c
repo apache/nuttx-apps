@@ -698,7 +698,7 @@ int main(int argc, FAR char *argv[])
           printf("ERROR: nxscope_recv failed %d\n", ret);
         }
 
-      usleep(100000);
+      usleep(CONFIG_EXAMPLES_NXSCOPE_MAIN_INTERVAL);
     }
 
 errout:

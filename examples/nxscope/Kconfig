@@ -68,6 +68,13 @@ config EXAMPLES_NXSCOPE_TIMER
 	bool "nxscope use timer to wake up samples thread"
 	default n
 
+config EXAMPLES_NXSCOPE_MAIN_INTERVAL
+	int "nxscope main interval (microseconds)"
+	default 100000
+	---help---
+		This value is responsible for the frequency at which stream
+		frames will be sent and incoming frames will be received.
+
 if EXAMPLES_NXSCOPE_TIMER
 
 config EXAMPLES_NXSCOPE_TIMER_PATH
