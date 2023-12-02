@@ -30,6 +30,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <math.h>
 
 #ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
 #  include <sys/ioctl.h>
@@ -40,6 +41,16 @@
 #endif
 
 #include "logging/nxscope/nxscope.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifdef CONFIG_LIBM_NONE
+#  error "math library must be selected for this example"
+#endif
+
+#define SIN_DT (0.01f)
 
 /****************************************************************************
  * Private Type Definition
@@ -197,14 +208,14 @@ static FAR void *nxscope_samples_thr(FAR void *arg)
   sigaddset(&set, CONFIG_EXAMPLES_NXSCOPE_TIMER_SIGNO);
 #endif
 
-  /* Initialize float vector */
-
-  v[0] = -1.0f;
-  v[1] = 0.0f;
-  v[2] = 1.0f;
-
   while (1)
     {
+      /* Float vector - tree-phase sine waveform */
+
+      v[0] = sinf(i * SIN_DT);
+      v[1] = sinf(i * SIN_DT + (2.0f / 3.0f) * M_PI);
+      v[2] = sinf(i * SIN_DT + (4.0f / 3.0f) * M_PI);
+
       /* Channel 0 */
 
       nxscope_put_uint8(envp->nxs, 0, i);
