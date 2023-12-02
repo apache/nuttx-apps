@@ -55,6 +55,10 @@ config EXAMPLES_NXSCOPE_RXBUF_LEN
 	int "nxscope RX buffer length"
 	default 32
 
+config EXAMPLES_NXSCOPE_CHARLOG
+	bool "nxscope send text message over channel 19"
+	default n
+
 config EXAMPLES_NXSCOPE_CRIBUF_LEN
 	int "nxscope critical channels buffer length"
 	default 32
