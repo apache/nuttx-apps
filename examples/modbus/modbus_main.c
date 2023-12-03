@@ -123,7 +123,6 @@ struct modbus_state_s
 #endif
   pthread_t threadid;
   pthread_mutex_t lock;
-  volatile bool quit;
 };
 
 /****************************************************************************
@@ -165,7 +164,7 @@ static inline int modbus_initialize(void)
 
   /* Verify that we are in the stopped state */
 
-  if (g_modbus.threadstate != STOPPED)
+  if (g_modbus.threadstate == RUNNING)
     {
       fprintf(stderr, "modbus_main: "
               "ERROR: Bad state: %d\n", g_modbus.threadstate);
@@ -379,7 +378,7 @@ static inline int modbus_create_pollthread(void)
 {
   int ret;
 
-  if (g_modbus.threadstate == STOPPED)
+  if (g_modbus.threadstate != RUNNING)
     {
       ret = pthread_create(&g_modbus.threadid, NULL,
                            modbus_pollthread, NULL);
@@ -427,25 +426,26 @@ static void modbus_showusage(FAR const char *progname, int exitcode)
 
 int main(int argc, FAR char *argv[])
 {
+  bool quit = true;
   int option;
   int ret;
 
   /* Handle command line arguments */
-
-  g_modbus.quit = false;
 
   while ((option = getopt(argc, argv, "desqh")) != ERROR)
     {
       switch (option)
         {
           case 'd': /* Disable protocol stack */
-            pthread_mutex_lock(&g_modbus.lock);
             g_modbus.threadstate = SHUTDOWN;
-            pthread_mutex_unlock(&g_modbus.lock);
             break;
 
           case 'e': /* Enable the protocol stack */
             {
+              /* Keep running, otherwise the thread will die */
+
+              quit = false;
+
               ret = modbus_create_pollthread();
               if (ret != OK)
                 {
@@ -481,7 +481,6 @@ int main(int argc, FAR char *argv[])
             break;
 
           case 'q': /* Quit application */
-            g_modbus.quit = true;
             pthread_kill(g_modbus.threadid, 9);
             break;
 
@@ -495,6 +494,13 @@ int main(int argc, FAR char *argv[])
             modbus_showusage(argv[0], EXIT_FAILURE);
             break;
         }
+    }
+
+  /* Don't exit until the thread finishes */
+
+  if (!quit)
+    {
+      pthread_join(g_modbus.threadid, NULL);
     }
 
   return EXIT_SUCCESS;
