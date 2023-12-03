@@ -57,7 +57,7 @@
           usockif_sendevent((fff), (iii), USRSOCK_EVENT_RECVFROM_AVAIL)
 
 /****************************************************************************
- * Public Data Type
+ * Public Types
  ****************************************************************************/
 
 union usrsock_requests_u

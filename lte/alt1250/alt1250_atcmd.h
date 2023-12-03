@@ -38,7 +38,7 @@
 #include <lte/lte_lwm2m.h>
 
 /****************************************************************************
- * Public Data Type
+ * Public Types
  ****************************************************************************/
 
 typedef int (*atreply_parser_t)(FAR char *reply, int len, void *arg);
