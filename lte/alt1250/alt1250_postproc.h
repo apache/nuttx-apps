@@ -32,7 +32,7 @@
 #include "alt1250_usockif.h"
 
 /****************************************************************************
- * Public Data Type
+ * Public Types
  ****************************************************************************/
 
 typedef CODE int (*postproc_hdlr_t)(FAR struct alt1250_s *dev,

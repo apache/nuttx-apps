@@ -36,7 +36,7 @@
 #define THREAD_NUM CONFIG_SPINLOCK_MULTITHREAD
 
 /****************************************************************************
- * Private Type
+ * Private Types
  ****************************************************************************/
 
 struct thread_parmeter_s
