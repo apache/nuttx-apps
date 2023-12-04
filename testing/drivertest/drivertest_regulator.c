@@ -28,8 +28,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
 #include <string.h>
-#include <pthread.h>
 #include <cmocka.h>
 #include <nuttx/power/consumer.h>
 
