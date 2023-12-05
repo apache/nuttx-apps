@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include <nuttx/video/video.h>
+#include <nuttx/video/v4l2_cap.h>
 
 #include "camera_fileutil.h"
 #include "camera_bkgd.h"
@@ -58,6 +59,8 @@
 #define APP_STATE_BEFORE_CAPTURE  (0)
 #define APP_STATE_UNDER_CAPTURE   (1)
 #define APP_STATE_AFTER_CAPTURE   (2)
+
+#define CAMERA_DEV_PATH "/dev/video10"
 
 /****************************************************************************
  * Private Types
@@ -500,7 +503,7 @@ int main(int argc, FAR char *argv[])
 
   /* Initialize video driver to create a device file */
 
-  ret = video_initialize("/dev/video");
+  ret = capture_initialize(CAMERA_DEV_PATH);
   if (ret != 0)
     {
       printf("ERROR: Failed to initialize video: errno = %d\n", errno);
@@ -758,7 +761,7 @@ exit_this_app:
   free_buffer(buffers_still, STILL_BUFNUM);
 
 exit_without_cleaning_buffer:
-  video_uninitialize("/dev/video");
+  capture_uninitialize(CAMERA_DEV_PATH);
 
 exit_without_cleaning_videodriver:
 #ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
