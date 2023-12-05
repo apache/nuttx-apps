@@ -6,7 +6,7 @@
 config EXAMPLES_ROMFS
 	tristate "ROMFS example"
 	default n
-	depends on FS_ROMFS && BUILD_FLAT
+	depends on FS_ROMFS && BUILD_FLAT && BOARDCTL_ROMDISK
 	---help---
 		Enable the ROMFS example
 
