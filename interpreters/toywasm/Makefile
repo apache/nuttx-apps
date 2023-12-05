@@ -156,6 +156,13 @@ VPATH += $(TOYWASM_UNPACK)/libwasi_threads
 VPATH += $(TOYWASM_UNPACK)/libdyld
 VPATH += src
 
+DEPPATH += --dep-path $(TOYWASM_UNPACK)/cli
+DEPPATH += --dep-path $(TOYWASM_UNPACK)/lib
+DEPPATH += --dep-path $(TOYWASM_UNPACK)/libwasi
+DEPPATH += --dep-path $(TOYWASM_UNPACK)/libwasi_threads
+DEPPATH += --dep-path $(TOYWASM_UNPACK)/cllibdyldi
+DEPPATH += --dep-path src
+
 $(TOYWASM_TARBALL):
 	$(Q) echo "Downloading $(TOYWASM_TARBALL)"
 	$(Q) curl -O -L $(TOYWASM_URL)
