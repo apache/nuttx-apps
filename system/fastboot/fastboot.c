@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/mtd/mtd.h>
 #include <nuttx/version.h>
 
 #include <errno.h>
@@ -296,7 +297,15 @@ out:
 
 static int fastboot_flash_erase(int fd)
 {
-  return OK;
+  int ret;
+
+  ret = ioctl(fd, MTDIOC_BULKERASE, 0);
+  if (ret < 0)
+    {
+      printf("Erase device failed\n");
+    }
+
+  return ret;
 }
 
 static int
