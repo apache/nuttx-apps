@@ -31,11 +31,14 @@ CSRCS += repl.c
 
 # lib
 CSRCS += bitmap.c
+CSRCS += cconv.c
 CSRCS += cell.c
 CSRCS += context.c
 CSRCS += decode.c
 CSRCS += endian.c
 CSRCS += exec.c
+CSRCS += exec_debug.c
+CSRCS += exec_insn_subr.c
 CSRCS += expr.c
 CSRCS += fileio.c
 CSRCS += host_instance.c
@@ -51,6 +54,7 @@ CSRCS += module_writer.c
 CSRCS += nbio.c
 CSRCS += options.c
 CSRCS += report.c
+CSRCS += restart.c
 CSRCS += shared_memory.c
 CSRCS += timeutil.c
 CSRCS += toywasm_config.c
@@ -86,7 +90,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/lib
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
-TOYWASM_VERSION  = e03d1f61d3f3163da76b33c4c770dbf0d2024324
+TOYWASM_VERSION  = e2ec1b60e06dbe360ae638970d01906ded5ab497
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
