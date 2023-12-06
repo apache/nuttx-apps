@@ -550,6 +550,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
   in_addr_t gip = INADDR_ANY;
+  in_addr_t mip;
 #endif
 #ifdef CONFIG_NET_IPv6
   struct in6_addr addr6;
@@ -923,6 +924,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           addr.s_addr = inet_addr("255.255.255.0");
         }
 
+      mip = addr.s_addr;
       netlib_set_ipv4netmask(ifname, &addr);
     }
 #endif /* CONFIG_NET_IPv4 */
@@ -959,13 +961,13 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         }
       else
         {
-          if (gip != 0)
+          if (gip != INADDR_ANY)
             {
               ninfo("Gateway: default\n");
-              gip  = NTOHL(gip);
-              gip &= ~0x000000ff;
+              gip  = ntohl(gip);
+              gip &= ntohl(mip);
               gip |= 0x00000001;
-              gip  = HTONL(gip);
+              gip  = htonl(gip);
             }
 
           addr.s_addr = gip;
