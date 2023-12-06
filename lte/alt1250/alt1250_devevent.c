@@ -299,6 +299,19 @@ exit:
 }
 
 /****************************************************************************
+ * Name: perform_alt1250_restartevt
+ ****************************************************************************/
+
+static void perform_alt1250_restartevt(FAR struct alt1250_s *dev)
+{
+  /* All LTE API/Socket requests must be available. */
+
+  alt1250_set_api_enable(dev, true);
+
+  altdevice_powerresponse(dev->altfd, LTE_CMDID_RESTARTAPI, OK);
+}
+
+/****************************************************************************
  * Name: perform_alt1250_suspendevt
  ****************************************************************************/
 
@@ -397,6 +410,12 @@ int perform_alt1250events(FAR struct alt1250_s *dev)
       /* Handling API stop request */
 
       perform_alt1250_apistopevt(dev);
+    }
+  else if (bitmap & ALT1250_EVTBIT_RESTARTAPI)
+    {
+      /* Handling API restart request */
+
+      perform_alt1250_restartevt(dev);
     }
   else if (bitmap & ALT1250_EVTBIT_SUSPEND)
     {
