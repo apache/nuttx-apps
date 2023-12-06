@@ -855,54 +855,6 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
 #endif /* CONFIG_NET_IPv4 */
 
-  /* Set gateway */
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-  if (inet6)
-#endif
-    {
-      /* Only set the gateway address if it was explicitly provided. */
-
-      if (gwip != NULL)
-        {
-          ninfo("Gateway: %s\n", gwip);
-          inet_pton(AF_INET6, gwip, &addr6);
-
-          netlib_set_dripv6addr(ifname, &addr6);
-          gip6 = addr6;
-        }
-    }
-#endif /* CONFIG_NET_IPv6 */
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-  else
-#endif
-    {
-      if (gwip != NULL)
-        {
-          ninfo("Gateway: %s\n", gwip);
-          gip = addr.s_addr = inet_addr(gwip);
-        }
-      else
-        {
-          if (gip != 0)
-            {
-              ninfo("Gateway: default\n");
-              gip  = NTOHL(gip);
-              gip &= ~0x000000ff;
-              gip |= 0x00000001;
-              gip  = HTONL(gip);
-            }
-
-          addr.s_addr = gip;
-        }
-
-      netlib_set_dripv4addr(ifname, &addr);
-    }
-#endif /* CONFIG_NET_IPv4 */
-
   /* Set network mask */
 
 #ifdef CONFIG_NET_IPv6
@@ -972,6 +924,54 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         }
 
       netlib_set_ipv4netmask(ifname, &addr);
+    }
+#endif /* CONFIG_NET_IPv4 */
+
+  /* Set gateway */
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  if (inet6)
+#endif
+    {
+      /* Only set the gateway address if it was explicitly provided. */
+
+      if (gwip != NULL)
+        {
+          ninfo("Gateway: %s\n", gwip);
+          inet_pton(AF_INET6, gwip, &addr6);
+
+          netlib_set_dripv6addr(ifname, &addr6);
+          gip6 = addr6;
+        }
+    }
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+  else
+#endif
+    {
+      if (gwip != NULL)
+        {
+          ninfo("Gateway: %s\n", gwip);
+          gip = addr.s_addr = inet_addr(gwip);
+        }
+      else
+        {
+          if (gip != 0)
+            {
+              ninfo("Gateway: default\n");
+              gip  = NTOHL(gip);
+              gip &= ~0x000000ff;
+              gip |= 0x00000001;
+              gip  = HTONL(gip);
+            }
+
+          addr.s_addr = gip;
+        }
+
+      netlib_set_dripv4addr(ifname, &addr);
     }
 #endif /* CONFIG_NET_IPv4 */
 
