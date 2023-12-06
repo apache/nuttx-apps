@@ -22,6 +22,10 @@ config UORB_LISTENER
 	bool "uorb listener"
 	default n
 
+config UORB_GENERATOR
+	bool "uorb generator"
+	default n
+
 config UORB_TESTS
 	bool "uorb unit tests"
 	default n
