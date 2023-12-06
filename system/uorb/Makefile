@@ -36,6 +36,11 @@ MAINSRC  += listener.c
 PROGNAME += uorb_listener
 endif
 
+ifneq ($(CONFIG_UORB_GENERATOR),)
+MAINSRC  += generator.c
+PROGNAME += uorb_generator
+endif
+
 ifneq ($(CONFIG_UORB_TESTS),)
 CSRCS    += test/utility.c
 MAINSRC  += test/unit_test.c
