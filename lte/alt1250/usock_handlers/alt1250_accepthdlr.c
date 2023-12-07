@@ -90,7 +90,7 @@ static int send_close_command(FAR struct alt1250_s *dev,
   set_container_response(container, USOCKET_REP_RESPONSE(usock), idx);
   set_container_postproc(container, postproc_accepterr, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -188,7 +188,7 @@ static int send_accept_command(FAR struct alt1250_s *dev,
   set_container_response(container, USOCKET_REP_RESPONSE(usock), idx);
   set_container_postproc(container, postproc_accept, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************

@@ -445,7 +445,7 @@ int usockreq_ioctl_fwupdate(FAR struct alt1250_s *dev,
                              ltecmd->outparamlen);
       set_container_postproc(container, postproc_hdlr, postproc_priv);
 
-      ret = altdevice_send_command(dev->altfd, container, usock_result);
+      ret = altdevice_send_command(dev, dev->altfd, container, usock_result);
 
       if (IS_NEED_CONTAINER_FREE(ret))
         {

@@ -94,7 +94,7 @@ static int send_fctl_command(FAR struct alt1250_s *dev,
   set_container_postproc(container, cmd == ALTCOM_SETFL ? postproc_setfl :
                           cmd == ALTCOM_GETFL ? postproc_getfl : NULL, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -331,7 +331,7 @@ static int send_socket_command(FAR struct alt1250_s *dev,
   set_container_response(container, USOCKET_REP_RESPONSE(usock), idx);
   set_container_postproc(container, postproc_socket, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************

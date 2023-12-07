@@ -92,10 +92,20 @@ FAR struct alt_container_s *altdevice_exchange_selcontainer(int fd,
  * name: altdevice_send_command
  ****************************************************************************/
 
-int altdevice_send_command(int fd, FAR struct alt_container_s *container,
+int altdevice_send_command(FAR struct alt1250_s *dev, int fd,
+                           FAR struct alt_container_s *container,
                            FAR int32_t *usock_res)
 {
   int ret;
+
+#ifdef CONFIG_LTE_ALT1250_ENABLE_HIBERNATION_MODE
+  if (dev->is_resuming)
+    {
+      *usock_res = -EOPNOTSUPP;
+      return REP_SEND_ACK;
+    }
+#endif
+
   ret = ioctl_wrapper(fd, ALT1250_IOC_SEND, (unsigned long)container);
   if (ret < 0)
     {

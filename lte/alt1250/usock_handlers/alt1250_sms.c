@@ -172,7 +172,7 @@ static int send_smsinit_command(FAR struct alt1250_s *dev,
   set_container_response(container, &dummy_output, 1);
   set_container_postproc(container, func, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -197,7 +197,7 @@ static int send_smsfin_command(FAR struct alt1250_s *dev,
   set_container_response(container, &dummy_output, 1);
   set_container_postproc(container, func, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -239,7 +239,7 @@ static int send_smssend_command(FAR struct alt1250_s *dev,
   set_container_response(container, USOCKET_REP_RESPONSE(usock), idx);
   set_container_postproc(container, postproc_smssend, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -270,7 +270,7 @@ static int send_smsdelete_command(FAR struct alt1250_s *dev,
   set_container_response(container, &dummy_output, 1);
   set_container_postproc(container, postproc_smsdelete, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -286,7 +286,7 @@ static int send_smsreportrecv_command(FAR struct alt1250_s *dev,
 
   set_container_ids(&container, 0, LTE_CMDID_SMS_REPORT_RECV);
 
-  return altdevice_send_command(dev->altfd, &container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, &container, usock_result);
 }
 
 /****************************************************************************

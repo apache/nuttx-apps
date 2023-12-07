@@ -119,7 +119,7 @@ static int send_select_command(FAR struct alt1250_s *dev,
   set_container_ids(&container, 0, LTE_CMDID_SELECT);
   set_container_argument(&container, in, nitems(in));
 
-  return altdevice_send_command(dev->altfd, &container, &usock_result);
+  return altdevice_send_command(dev, dev->altfd, &container, &usock_result);
 }
 
 /****************************************************************************
