@@ -245,7 +245,7 @@ static int send_internal_at_command(FAR struct alt1250_s *dev,
 
   err_alt1250("Internal ATCMD : %s\n", dev->tx_buff);
 
-  ret = altdevice_send_command(dev->altfd, container, usock_result);
+  ret = altdevice_send_command(dev, dev->altfd, container, usock_result);
   if (ret == REP_NO_ACK)
     {
       /* In case of no error */

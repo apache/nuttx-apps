@@ -116,7 +116,7 @@ static int send_getversion_onreset(FAR struct alt1250_s *dev,
   set_container_postproc(container, postproc_ponresetseq,
                          (unsigned long)&reset_arg);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************

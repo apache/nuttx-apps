@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include <nuttx/modem/alt1250.h>
+#include "alt1250_daemon.h"
 
 #define DEV_ALT1250  "/dev/alt1250"
 
@@ -39,7 +40,8 @@ int init_alt1250_device(void);
 void finalize_alt1250_device(int fd);
 FAR struct alt_container_s *altdevice_exchange_selcontainer(int fd,
     FAR struct alt_container_s *container);
-int altdevice_send_command(int fd, FAR struct alt_container_s *container,
+int altdevice_send_command(FAR struct alt1250_s *dev, int fd,
+                           FAR struct alt_container_s *container,
                            FAR int32_t *usock_res);
 int altdevice_powercontrol(int fd, uint32_t cmd);
 int altdevice_seteventbuff(int fd, FAR struct alt_evtbuffer_s *buffers);

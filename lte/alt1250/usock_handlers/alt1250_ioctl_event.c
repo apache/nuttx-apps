@@ -53,7 +53,7 @@ static int send_eventnotice_command(FAR struct alt1250_s *dev,
   set_container_response(container, ltecmd->outparam, ltecmd->outparamlen);
   set_container_postproc(container, NULL, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************

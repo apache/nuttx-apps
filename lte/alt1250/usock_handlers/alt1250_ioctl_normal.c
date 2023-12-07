@@ -201,7 +201,7 @@ int send_lapi_command(FAR struct alt1250_s *dev,
   set_container_response(container, ltecmd->outparam, ltecmd->outparamlen);
   set_container_postproc(container, hdlr, priv);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 #ifdef CONFIG_LTE_ALT1250_ENABLE_HIBERNATION_MODE
@@ -238,7 +238,7 @@ static int send_getversion_command(FAR struct alt1250_s *dev,
   set_container_response(container, alt1250_getevtarg(LTE_CMDID_GETVER), 2);
   set_container_postproc(container, postproc_fwgetversion, 0);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -257,7 +257,7 @@ static int send_register_command(FAR struct alt1250_s *dev,
   set_container_response(container, ltecmd->outparam, ltecmd->outparamlen);
   set_container_postproc(container, postproc_setreport, index);
 
-  return altdevice_send_command(dev->altfd, container, usock_result);
+  return altdevice_send_command(dev, dev->altfd, container, usock_result);
 }
 
 /****************************************************************************
@@ -355,6 +355,13 @@ static int lte_context_resume(FAR struct alt1250_s *dev,
       goto error;
     }
 
+  /* After the retry mode is disabled, the ALT1250 daemon can receive
+   * commands from the ALT1250 and the ALT1250 daemon is ready for normal
+   * operation, so the "is_resuming" flag is disabled.
+   */
+
+  dev->is_resuming = false;
+
   /* If the ALT1250 is not powered on, return Resume as failure. */
 
   power = altdevice_powercontrol(dev->altfd, LTE_CMDID_GET_POWER_STAT);
@@ -375,10 +382,6 @@ static int lte_context_resume(FAR struct alt1250_s *dev,
     {
       dbg_alt1250("Failed to send resume commands.\n");
     }
-
-  /* Resume phase is over */
-
-  dev->is_resuming = false;
 
   return ret;
 
