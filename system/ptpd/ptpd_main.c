@@ -77,7 +77,7 @@ static int do_ptpd_status(int pid)
 
       printf("|- utcoffset: %d\n", status.clock_source_info.utcoffset);
       printf("|- priority1: %d\n", status.clock_source_info.priority1);
-      printf("|- class: %d\n", status.clock_source_info.class);
+      printf("|- class: %d\n", status.clock_source_info.clockclass);
       printf("|- accuracy: %d\n", status.clock_source_info.accuracy);
       printf("|- variance: %d\n", status.clock_source_info.variance);
       printf("|- priority2: %d\n", status.clock_source_info.priority2);

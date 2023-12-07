@@ -1342,7 +1342,7 @@ static void ptp_process_statusreq(FAR struct ptp_state_s *state)
       status->clock_source_info.utcoffset =
           (int16_t)(((uint16_t)s->utcoffset[0] << 8) | s->utcoffset[1]);
       status->clock_source_info.priority1 = s->gm_priority1;
-      status->clock_source_info.class = s->gm_quality[0];
+      status->clock_source_info.clockclass = s->gm_quality[0];
       status->clock_source_info.accuracy = s->gm_quality[1];
       status->clock_source_info.priority2 = s->gm_priority2;
       status->clock_source_info.variance =
