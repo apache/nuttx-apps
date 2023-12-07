@@ -48,7 +48,7 @@ struct ptpd_status_s
     uint8_t id[8];     /* Clock identity */
     int utcoffset;     /* Offset between clock time and UTC time (seconds) */
     int priority1;     /* Main priority field */
-    int class;         /* Clock class (IEEE-1588, lower is better) */
+    int clockclass;    /* Clock class (IEEE-1588, lower is better) */
     int accuracy;      /* Clock accuracy (IEEE-1588, lower is better) */
     int variance;      /* Clock variance (IEEE-1588, lower is better) */
     int priority2;     /* Secondary priority field */
