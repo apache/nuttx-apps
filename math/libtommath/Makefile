@@ -53,10 +53,12 @@ bn_s_mp_rand_jenkins.c bn_s_mp_rand_platform.c bn_s_mp_reverse.c bn_s_mp_sqr.c b
 bn_s_mp_sub.c bn_s_mp_toom_mul.c bn_s_mp_toom_sqr.c
 
 VPATH += $(LIBTOMMATH_UNPACKNAME)
+DEPPATH += --dep-path $(LIBTOMMATH_UNPACKNAME)
 
 ifneq ($(CONFIG_LIBTOMMATH_DEMOS),)
 CSRCS += shared.c
 VPATH += $(LIBTOMMATH_UNPACKNAME)/demo
+DEPPATH += --dep-path $(LIBTOMMATH_UNPACKNAME)/demo
 
 ifneq ($(CONFIG_LIBTOMMATH_TEST),)
 MAINSRC += test.c
@@ -85,6 +87,7 @@ endif
 ifneq ($(CONFIG_LIBTOMMATH_MTEST),)
 MAINSRC += mtest.c
 VPATH += $(LIBTOMMATH_UNPACKNAME)/mtest
+DEPPATH += --dep-path $(LIBTOMMATH_UNPACKNAME)/mtest
 
 PROGNAME += $(CONFIG_LIBTOMMATH_MTEST_PROGNAME)
 PRIORITY += $(CONFIG_LIBTOMMATH_MTEST_PRIORITY)
