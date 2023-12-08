@@ -219,7 +219,7 @@ reconnect:
 
   do
     {
-      ret = gdb_process(state);
+      ret = gdb_process(state, 0, NULL);
       if (ret == -ECONNRESET)
         {
 #ifdef CONFIG_NET
