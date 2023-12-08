@@ -51,6 +51,7 @@ CSRCS  += qjscalc.c
 endif
 
 VPATH += $(QUICKJS_UNPACK)
+DEPPATH += --dep-path $(QUICKJS_UNPACK)
 
 ifneq ($(CONFIG_INTERPRETERS_QUICKJS_NONE),y)
 PROGNAME  = qjs

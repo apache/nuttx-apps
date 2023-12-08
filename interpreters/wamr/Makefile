@@ -30,6 +30,7 @@ WAMR_URL      = $(WAMR_URL_BASE)/$(WAMR_TARBALL)
 -include $(WAMR_UNPACK)/product-mini/platforms/nuttx/wamr.mk
 
 VPATH += $(WAMR_UNPACK)/product-mini/platforms/nuttx
+DEPPATH += --dep-path $(WAMR_UNPACK)/product-mini/platforms/nuttx
 
 ifeq ($(CONFIG_INTERPRETERS_IWASM_TASK),y)
 MAINSRC = main.c
