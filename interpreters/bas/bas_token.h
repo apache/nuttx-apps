@@ -100,7 +100,7 @@ struct Identifier
 {
   struct Symbol *sym;
   enum ValueType defaultType;
-  char name[2/* ... */];
+  char name[0];
 };
 
 struct Next
