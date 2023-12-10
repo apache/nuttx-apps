@@ -68,12 +68,12 @@ bool xMBPortTimersInit(uint16_t usTim1Timerout50us)
   return xMBPortSerialSetTimeout(ulTimeOut);
 }
 
-void xMBPortTimersClose()
+void xMBPortTimersClose(void)
 {
   /* Does not use any hardware resources. */
 }
 
-void vMBPortTimerPoll()
+void vMBPortTimerPoll(void)
 {
   uint32_t       ulDeltaMS;
   struct timeval xTimeCur;
@@ -101,7 +101,7 @@ void vMBPortTimerPoll()
     }
 }
 
-void vMBPortTimersEnable()
+void vMBPortTimersEnable(void)
 {
   int res = gettimeofday(&xTimeLast, NULL);
 
@@ -109,7 +109,7 @@ void vMBPortTimersEnable()
   bTimeoutEnable = true;
 }
 
-void vMBPortTimersDisable()
+void vMBPortTimersDisable(void)
 {
   bTimeoutEnable = false;
 }
