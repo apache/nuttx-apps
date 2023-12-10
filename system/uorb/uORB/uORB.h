@@ -112,30 +112,29 @@ typedef uint64_t orb_abstime;
 
 #define uorbinfo_raw(fmt, ...) syslog(LOG_INFO, fmt "\n", ##__VA_ARGS__)
 
-/**
- * Generates a pointer to the uORB metadata structure for
+/* Generates a pointer to the uORB metadata structure for
  * a given topic.
  *
  * The topic must have been declared previously in scope
  * with ORB_DECLARE().
  *
- * @param name    The name of the topic.
+ * name    The name of the topic.
  */
+
 #define ORB_ID(name)  &g_orb_##name
 
-/**
- * Declare the uORB metadata for a topic (used by code generators).
+/* Declare the uORB metadata for a topic (used by code generators).
  *
- * @param name      The name of the topic.
+ * name      The name of the topic.
  */
+
 #if defined(__cplusplus)
 #  define ORB_DECLARE(name) extern "C" const struct orb_metadata g_orb_##name
 #else
 #  define ORB_DECLARE(name) extern const struct orb_metadata g_orb_##name
 #endif
 
-/**
- * Define (instantiate) the uORB metadata for a topic.
+/* Define (instantiate) the uORB metadata for a topic.
  *
  * The uORB metadata is used to help ensure that updates and
  * copies are accessing the right data.
@@ -143,9 +142,9 @@ typedef uint64_t orb_abstime;
  * Note that there must be no more than one instance of this macro
  * for each topic.
  *
- * @param name    The name of the topic.
- * @param struct  The structure the topic provides.
- * @param cb      The function pointer of output topic message.
+ * name    The name of the topic.
+ * struct  The structure the topic provides.
+ * cb      The function pointer of output topic message.
  */
 #ifdef CONFIG_DEBUG_UORB
 #define ORB_DEFINE(name, structure, cb) \
