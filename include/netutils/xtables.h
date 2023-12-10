@@ -37,31 +37,30 @@
 
 #define XTABLES_VERSION_CODE 12
 
-/**
- * Select the format the input has to conform to, as well as the target type
+/* Select the format the input has to conform to, as well as the target type
  * (area pointed to with XTOPT_POINTER). Note that the storing is not always
- * uniform. @cb->val will be populated with as much as there is space, i.e.
+ * uniform. cb->val will be populated with as much as there is space, i.e.
  * exactly 2 items for ranges, but the target area can receive more values
- * (e.g. in case of ranges), or less values (e.g. %XTTYPE_HOSTMASK).
+ * (e.g. in case of ranges), or less values (e.g. XTTYPE_HOSTMASK).
  *
- * %XTTYPE_NONE:        option takes no argument
- * %XTTYPE_UINT*:       standard integer
- * %XTTYPE_UINT*RC:     colon-separated range of standard integers
- * %XTTYPE_DOUBLE:      double-precision floating point number
- * %XTTYPE_STRING:      arbitrary string
- * %XTTYPE_TOSMASK:     8-bit TOS value with optional mask
- * %XTTYPE_MARKMASK32:  32-bit mark with optional mask
- * %XTTYPE_SYSLOGLEVEL: syslog level by name or number
- * %XTTYPE_HOST:        one host or address (ptr: union nf_inet_addr)
- * %XTTYPE_HOSTMASK:    one host or address, with an optional prefix length
+ * XTTYPE_NONE:        option takes no argument
+ * XTTYPE_UINT*:       standard integer
+ * XTTYPE_UINT*RC:     colon-separated range of standard integers
+ * XTTYPE_DOUBLE:      double-precision floating point number
+ * XTTYPE_STRING:      arbitrary string
+ * XTTYPE_TOSMASK:     8-bit TOS value with optional mask
+ * XTTYPE_MARKMASK32:  32-bit mark with optional mask
+ * XTTYPE_SYSLOGLEVEL: syslog level by name or number
+ * XTTYPE_HOST:        one host or address (ptr: union nf_inet_addr)
+ * XTTYPE_HOSTMASK:    one host or address, with an optional prefix length
  *                      ptr: union nf_inet_addr; only host portion is stored
- * %XTTYPE_PROTOCOL:    protocol number/name from /etc/protocols ptr: uint8_t
- * %XTTYPE_PORT:        16-bit port name or number (supports %XTOPT_NBO)
- * %XTTYPE_PORTRC:      colon-separated port range (names acceptable),
- *                      (supports %XTOPT_NBO)
- * %XTTYPE_PLEN:        prefix length
- * %XTTYPE_PLENMASK:    prefix length (ptr: union nf_inet_addr)
- * %XTTYPE_ETHERMAC:    Ethernet MAC address in hex form
+ * XTTYPE_PROTOCOL:    protocol number/name from /etc/protocols ptr: uint8_t
+ * XTTYPE_PORT:        16-bit port name or number (supports XTOPT_NBO)
+ * XTTYPE_PORTRC:      colon-separated port range (names acceptable),
+ *                      (supports XTOPT_NBO)
+ * XTTYPE_PLEN:        prefix length
+ * XTTYPE_PLENMASK:    prefix length (ptr: union nf_inet_addr)
+ * XTTYPE_ETHERMAC:    Ethernet MAC address in hex form
  */
 
 enum xt_option_type
@@ -127,17 +126,16 @@ struct xtables_globals
   int (*compat_rev)(FAR const char *name, uint8_t rev, int opt);
 };
 
-/**
- * @name:       name of option
- * @type:       type of input and validation method, see %XTTYPE_*
- * @id:         unique number (within extension) for option, 0-31
- * @excl:       bitmask of flags that cannot be used with this option
- * @also:       bitmask of flags that must be used with this option
- * @flags:      bitmask of option flags, see %XTOPT_*
- * @ptroff:     offset into private structure for member
- * @size:       size of the item pointed to by @ptroff; this is a safeguard
- * @min:        lowest allowed value (for singular integral types)
- * @max:        highest allowed value (for singular integral types)
+/* name:       name of option
+ * type:       type of input and validation method, see XTTYPE_*
+ * id:         unique number (within extension) for option, 0-31
+ * excl:       bitmask of flags that cannot be used with this option
+ * also:       bitmask of flags that must be used with this option
+ * flags:      bitmask of option flags, see XTOPT_*
+ * ptroff:     offset into private structure for member
+ * size:       size of the item pointed to by ptroff; this is a safeguard
+ * min:        lowest allowed value (for singular integral types)
+ * max:        highest allowed value (for singular integral types)
  */
 
 struct xt_option_entry
@@ -163,12 +161,11 @@ struct xt_xlate_tg_params
   bool escape_quotes;
 };
 
-/**
- * @ext_name:   name of extension currently being processed
- * @data:       per-extension (kernel) data block
- * @udata:      per-extension private scratch area
- *              (cf. xtables_{match,target}->udata_size)
- * @xflags:     options of the extension that have been used
+/* ext_name:   name of extension currently being processed
+ * data:       per-extension (kernel) data block
+ * udata:      per-extension private scratch area
+ *             (cf. xtables_{match,target}->udata_size)
+ * xflags:     options of the extension that have been used
  */
 
 struct xt_fcheck_call
@@ -187,17 +184,16 @@ struct xt_xlate_mt_params
   bool escape_quotes;
 };
 
-/**
- * @arg:        input from command line
- * @ext_name:   name of extension currently being processed
- * @entry:      current option being processed
- * @data:       per-extension kernel data block
- * @xflags:     options of the extension that have been used
- * @invert:     whether option was used with !
- * @nvals:      number of results in uXX_multi
- * @val:        parsed result
- * @udata:      per-extension private scratch area
- *              (cf. xtables_{match,target}->udata_size)
+/* arg:        input from command line
+ * ext_name:   name of extension currently being processed
+ * entry:      current option being processed
+ * data:       per-extension kernel data block
+ * xflags:     options of the extension that have been used
+ * invert:     whether option was used with !
+ * nvals:      number of results in uXX_multi
+ * val:        parsed result
+ * udata:      per-extension private scratch area
+ *             (cf. xtables_{match,target}->udata_size)
  */
 
 struct xt_option_call
@@ -353,8 +349,7 @@ struct xtables_match
 
 struct xtables_target
 {
-  /**
-   * ABI/API version this module requires. Must be first member,
+  /* ABI/API version this module requires. Must be first member,
    * as the rest of this struct may be subject to ABI changes.
    */
 

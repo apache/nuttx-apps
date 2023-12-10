@@ -153,10 +153,9 @@ static inline void crc(uint8_t len, uint8_t * dst)
   uint8_t i;
   uint8_t * buf = (uint8_t *)&buffer;
 
-  /**
-   * initialize 24-bit shift register in "wire bit order"
+  /* initialize 24-bit shift register in "wire bit order"
    * dst[0] = bits 23-16, dst[1] = bits 15-8, dst[2] = bits 7-0.
-   **/
+   */
 
   dst[0] = 0xaa;
   dst[1] = 0xaa;
@@ -167,27 +166,24 @@ static inline void crc(uint8_t len, uint8_t * dst)
       uint8_t d = *(buf++);
       for (i = 1; i; i <<= 1, d >>= 1)
         {
-          /**
-           * save bit 23 (highest-value),
+          /* save bit 23 (highest-value),
            * left-shift the entire register by one
-           **/
+           */
 
           uint8_t t = dst[0] & 0x01;         dst[0] >>= 1;
           if (dst[1] & 0x01) dst[0] |= 0x80; dst[1] >>= 1;
           if (dst[2] & 0x01) dst[1] |= 0x80; dst[2] >>= 1;
 
-          /**
-           * if the bit just shifted out (former bit 23) and the incoming
+          /* if the bit just shifted out (former bit 23) and the incoming
            * data bit are not equal (i.e. bit_out ^ bit_in == 1) => toggle
            * tap bits
            */
 
           if (t != (d & 1))
             {
-              /**
-               * toggle register tap bits (=XOR with 1)
+              /* toggle register tap bits (=XOR with 1)
                * according to CRC polynom
-               **/
+               */
 
               /* 0b11011010 inv. = 0b01011011 ^= x^6+x^4+x^3+x+1 */
 

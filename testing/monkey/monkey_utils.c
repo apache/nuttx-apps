@@ -179,8 +179,7 @@ int monkey_map(int x, int min_in, int max_in, int min_out, int max_out)
       return min_out;
     }
 
-  /**
-   * The equation should be:
+  /* The equation should be:
    *   ((x - min_in) * delta_out) / delta in) + min_out
    * To avoid rounding error reorder the operations:
    *   (x - min_in) * (delta_out / delta_min) + min_out
