@@ -812,7 +812,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
             }
 
           ninfo("Host IP: %s\n", hostip);
-          inet_pton(AF_INET6, hostip, &addr6);
+          ret = inet_pton(AF_INET6, hostip, &addr6);
+          if (ret <= 0)
+            {
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+              return ERROR;
+            }
         }
 
 #ifndef CONFIG_NETDEV_MULTIPLE_IPv6
@@ -870,7 +875,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (mask != NULL)
         {
           ninfo("Netmask: %s\n", mask);
-          inet_pton(AF_INET6, mask, &mask6);
+          ret = inet_pton(AF_INET6, mask, &mask6);
+          if (ret <= 0)
+            {
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+              return ERROR;
+            }
         }
       else if (preflen != NULL)
         {
@@ -941,7 +951,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (gwip != NULL)
         {
           ninfo("Gateway: %s\n", gwip);
-          inet_pton(AF_INET6, gwip, &addr6);
+          ret = inet_pton(AF_INET6, gwip, &addr6);
+          if (ret <= 0)
+            {
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+              return ERROR;
+            }
 
           netlib_set_dripv6addr(ifname, &addr6);
           gip6 = addr6;
@@ -988,7 +1003,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (dns != NULL)
         {
           ninfo("DNS: %s\n", dns);
-          inet_pton(AF_INET6, dns, &addr6);
+          ret = inet_pton(AF_INET6, dns, &addr6);
+          if (ret <= 0)
+            {
+              nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+              return ERROR;
+            }
         }
       else
         {
