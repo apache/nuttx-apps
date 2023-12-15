@@ -61,9 +61,14 @@ ifneq ($(CONFIG_LTO_FULL)$(CONFIG_LTO_THIN),)
 endif
 
 # Build other compiler flags from native compiler
+# Filter out some flags that wasm-clang does not support,
+# -m%: Machine flags, -mcpu=, -mfpu=, -mfloat-abi= etc.
+# -Wl,%: Extra linker flags, wasm-ld don't support many of them.
+# -fsanitize%: -fsanitize=address, -fsanitize=thread etc.
+# -fno-sanitize%: -fno-sanitize=address, -fno-sanitize=thread etc.
+# -W%: Warning flags, clang is more strict than gcc
 
-CFLAGS_STRIP = -fsanitize=kernel-address -fsanitize=address -fsanitize=undefined
-CFLAGS_STRIP += $(ARCHCPUFLAGS) $(ARCHCFLAGS) $(ARCHINCLUDES) $(ARCHDEFINES) $(ARCHOPTIMIZATION) $(EXTRAFLAGS)
+CFLAGS_STRIP = -m% -Wl,% -fsanitize% -fno-sanitize% -W%
 
 WCFLAGS += $(filter-out $(CFLAGS_STRIP),$(CFLAGS))
 WCFLAGS += --sysroot=$(WSYSROOT) -nostdlib -D__NuttX__
