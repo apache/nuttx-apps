@@ -33,10 +33,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
 #include <sys/param.h>
+#include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/types.h>
 
@@ -305,7 +307,7 @@ static int fastboot_flash_erase(int fd)
       printf("Erase device failed\n");
     }
 
-  return ret;
+  return ret < 0 ? -errno : ret;
 }
 
 static int
@@ -422,6 +424,7 @@ static void fastboot_erase(FAR struct fastboot_ctx_s *context,
                            FAR const char *arg)
 {
   char blkdev[PATH_MAX];
+  int ret;
   int fd;
 
   snprintf(blkdev, PATH_MAX, FASTBOOT_BLKDEV, arg);
@@ -434,7 +437,32 @@ static void fastboot_erase(FAR struct fastboot_ctx_s *context,
       return;
     }
 
-  if (fastboot_flash_erase(fd) < 0)
+  ret = fastboot_flash_erase(fd);
+  if (ret == -ENOTTY)
+    {
+      struct stat sb;
+
+      ret = fstat(fd, &sb);
+      if (ret >= 0)
+        {
+          memset(context->download_buffer, 0xff, context->download_max);
+
+          while (sb.st_size > 0)
+            {
+              size_t len = MIN(sb.st_size, context->download_max);
+
+              ret = fastboot_write(fd, context->download_buffer, len);
+              if (ret < 0)
+                {
+                  break;
+                }
+
+              sb.st_size -= len;
+            }
+        }
+    }
+
+  if (ret < 0)
     {
       fastboot_fail(context, "Flash erase failure");
     }
