@@ -24,4 +24,11 @@ config SYSTEM_FASTBOOTD_DOWNLOAD_MAX
 	int "USB-fastboot download buffer size"
 	default 40960
 
+config FASTBOOTD_USB_BOARDCTL
+	bool "USB Board Control"
+	depends on BOARDCTL
+	depends on BOARDCTL_USBDEVCTRL
+	---help---
+		Connect usbdev before running fastboot daemon.
+
 endif # SYSTEM_FASTBOOTD

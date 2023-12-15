@@ -623,6 +623,42 @@ int main(int argc, FAR char **argv)
   char usbdev[32];
   int ret = OK;
 
+#ifdef CONFIG_FASTBOOTD_USB_BOARDCTL
+  struct boardioc_usbdev_ctrl_s ctrl;
+#  ifdef CONFIG_USBDEV_COMPOSITE
+    uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
+#  else
+    uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
+#  endif
+  FAR void *handle;
+
+  ctrl.usbdev   = dev;
+  ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
+  ctrl.instance = 0;
+  ctrl.config   = 0;
+  ctrl.handle   = NULL;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  if (ret < 0)
+    {
+      printf("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
+      return ret;
+    }
+
+  ctrl.usbdev   = dev;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.config   = 0;
+  ctrl.handle   = &handle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  if (ret < 0)
+    {
+      printf("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
+      return ret;
+    }
+#endif /* FASTBOOTD_USB_BOARDCTL */
+
   buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
   if (buffer == NULL)
     {
