@@ -17,7 +17,7 @@ config MBEDTLS_VERSION
 
 config MBEDTLS_DEBUG_C
 	bool "This module provides debugging functions."
-	default DEBUG_FEATURES
+	default DEBUG_CRYPTO_INFO
 	---help---
 		This module provides debugging functions.
 
