@@ -201,7 +201,7 @@ static int rpsock_unsync_test(struct rpsock_arg_s *args)
                   if (intp[i] != ALIGN_UP(total) / sizeof(uint32_t) + i)
                     {
                       printf("client check fail total %d, \
-                              i %d, %08" PRIx32 ", %08x\n",
+                              i %d, %08" PRIx32 ", %08zx\n",
                               ALIGN_UP(total), i, intp[i],
                               ALIGN_UP(total) / sizeof(uint32_t) + i);
                     }
