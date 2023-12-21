@@ -59,7 +59,7 @@
  *
  ****************************************************************************/
 
-#if defined(CONFIG_FSUTILS_PASSWD_READONLY)
+#if !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 int passwd_adduser(FAR const char *username, FAR const char *password);
 
 /****************************************************************************
