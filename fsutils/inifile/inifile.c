@@ -603,7 +603,7 @@ long inifile_read_integer(INIHANDLE handle,
 
   /* Assume failure to find the requested value */
 
-  iniinfo("section=\"%s\" variable=\"%s\" defvalue=%d\n",
+  iniinfo("section=\"%s\" variable=\"%s\" defvalue=%ld\n",
           section, variable, defvalue);
 
   /* Get the value as a string first */
@@ -624,7 +624,7 @@ long inifile_read_integer(INIHANDLE handle,
 
   /* Return the value that we found. */
 
-  iniinfo("Returning %d\n", ret);
+  iniinfo("Returning %ld\n", ret);
   return ret;
 }
 
