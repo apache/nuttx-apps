@@ -1141,6 +1141,10 @@ int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
                       FAR char **argv);
 #endif
 
+#if defined(CONFIG_RPMSG) && !defined(CONFIG_NSH_DISABLE_RPMSG)
+  int cmd_rpmsg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
   int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif

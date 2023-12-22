@@ -510,15 +510,15 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
 
 /****************************************************************************
- * Name: cmd_rptun
+ * Name: cmd_rpmsg
  ****************************************************************************/
 
-#if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
-static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
+#if defined(CONFIG_RPMSG) && !defined(CONFIG_NSH_DISABLE_RPMSG)
+static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
                           FAR const char *path, FAR char **argv)
 {
-#ifdef CONFIG_RPTUN_PING
-  struct rptun_ping_s ping;
+#ifdef CONFIG_RPMSG_PING
+  struct rpmsg_ping_s ping;
 #endif
   unsigned long val = 0;
   int cmd;
@@ -526,26 +526,26 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
 
   if (strcmp(argv[1], "start") == 0)
     {
-      cmd = RPTUNIOC_START;
+      cmd = RPMSGIOC_START;
     }
   else if (strcmp(argv[1], "stop") == 0)
     {
-      cmd = RPTUNIOC_STOP;
+      cmd = RPMSGIOC_STOP;
     }
   else if (strcmp(argv[1], "reset") == 0)
     {
       val = atoi(argv[3]);
-      cmd = RPTUNIOC_RESET;
+      cmd = RPMSGIOC_RESET;
     }
   else if (strcmp(argv[1], "panic") == 0)
     {
-      cmd = RPTUNIOC_PANIC;
+      cmd = RPMSGIOC_PANIC;
     }
   else if (strcmp(argv[1], "dump") == 0)
     {
-      cmd = RPTUNIOC_DUMP;
+      cmd = RPMSGIOC_DUMP;
     }
-#ifdef CONFIG_RPTUN_PING
+#ifdef CONFIG_RPMSG_PING
   else if (strcmp(argv[1], "ping") == 0)
     {
       if (argv[3] == 0 || argv[4] == 0 ||
@@ -560,7 +560,7 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
       ping.ack   = atoi(argv[5]);
       ping.sleep = atoi(argv[6]);
 
-      cmd = RPTUNIOC_PING;
+      cmd = RPMSGIOC_PING;
       val = (unsigned long)&ping;
     }
 #endif
@@ -584,7 +584,7 @@ static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
   return cmd;
 }
 
-static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
+static int cmd_rpmsg_recursive(FAR struct nsh_vtbl_s *vtbl,
                                FAR const char *dirpath,
                                FAR struct dirent *entryp,
                                FAR void *pvarg)
@@ -600,36 +600,68 @@ static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
   path = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
   if (path)
     {
-      ret = cmd_rptun_once(vtbl, path, pvarg);
+      ret = cmd_rpmsg_once(vtbl, path, pvarg);
       free(path);
     }
 
   return ret;
 }
 
+static int cmd_rpmsg_help(FAR struct nsh_vtbl_s *vtbl, int argc,
+                          FAR char **argv)
+{
+  nsh_output(vtbl, "%s <panic|dump> <path>\n", argv[0]);
+  nsh_output(vtbl, "%s ping <path> <times> <length> <ack> "
+             "<period(ms)>\n\n", argv[0]);
+  nsh_output(vtbl, "<times>      Times of rptun ping.\n");
+  nsh_output(vtbl, "<length>     The length of each ping packet.\n");
+  nsh_output(vtbl, "<ack>        Whether the peer acknowlege or "
+             "check data.\n");
+  nsh_output(vtbl, "             0 - No acknowledge and check.\n");
+  nsh_output(vtbl, "             1 - Acknowledge, no data check.\n");
+  nsh_output(vtbl, "             2 - Acknowledge and data check.\n");
+  nsh_output(vtbl, "<period(ms)> ping period (ms) \n");
+  nsh_output(vtbl, "<path>       Rpmsg device path.\n\n");
+  return OK;
+}
+
+int cmd_rpmsg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  if (argc >= 2 && strcmp(argv[1], "-h") == 0)
+    {
+      nsh_output(vtbl, "usage:\n\n");
+      return cmd_rpmsg_help(vtbl, argc, argv);
+    }
+
+  if (argc < 3)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+    }
+
+  if (strcmp(argv[2], "all") == 0)
+    {
+      return nsh_foreach_direntry(vtbl, "rpmsg", "/dev/rpmsg",
+                                  cmd_rpmsg_recursive, argv);
+    }
+
+  return cmd_rpmsg_once(vtbl, argv[2], argv);
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_rptun
+ ****************************************************************************/
+
+#if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
 int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   if (argc >= 2 && strcmp(argv[1], "-h") == 0)
     {
-      nsh_output(vtbl, "usage:\n");
-      nsh_output(vtbl, "  rptun <start|stop|reset|panic|dump> <path> "
-                "<value>\n");
-      nsh_output(vtbl, "  rptun <reset> <path> <resetvalue>\n");
-#ifdef CONFIG_RPTUN_PING
-      nsh_output(vtbl, "  rptun ping <path> <times> <length> <ack> "
-                "<period(ms)>\n\n");
-      nsh_output(vtbl, "  <path>         Rptun device path.\n");
-      nsh_output(vtbl, "  <times>        Times of rptun ping.\n");
-      nsh_output(vtbl, "  <length>       The length of each ping packet.\n");
-      nsh_output(vtbl, "  <ack>          Whether the peer acknowlege or "
-                "check data.\n");
-      nsh_output(vtbl, "                 0 - No acknowledge and check.\n");
-      nsh_output(vtbl, "                 1 - Acknowledge, no data check.\n");
-      nsh_output(vtbl, "                 2 - Acknowledge and data check.\n");
-      nsh_output(vtbl, "  <period(ms)>   ping period (ms) \n\n");
-#endif
-
-      return OK;
+      nsh_output(vtbl, "usage:\n\n");
+      nsh_output(vtbl, "rptun <start|stop> <path>\n");
+      nsh_output(vtbl, "rptun <reset> <path> <resetvalue>\n");
+      return cmd_rpmsg_help(vtbl, argc, argv);
     }
 
   if (argc < 3)
@@ -641,10 +673,10 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (strcmp(argv[2], "all") == 0)
     {
       return nsh_foreach_direntry(vtbl, "rptun", "/dev/rptun",
-                                  cmd_rptun_recursive, argv);
+                                  cmd_rpmsg_recursive, argv);
     }
 
-  return cmd_rptun_once(vtbl, argv[2], argv);
+  return cmd_rpmsg_once(vtbl, argv[2], argv);
 }
 #endif
 
