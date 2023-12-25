@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/types.h>
+#include <sys/poll.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -112,6 +113,7 @@ struct fastboot_ctx_s
   size_t download_size;
   size_t download_offset;
   size_t total_imgsize;
+  int wait_ms;
   FAR void *download_buffer;
   FAR struct fastboot_var_s *varlist;
 };
@@ -576,6 +578,19 @@ static void fastboot_reboot_bootloader(FAR struct fastboot_ctx_s *context,
 
 static void fastboot_command_loop(FAR struct fastboot_ctx_s *context)
 {
+  if (context->wait_ms > 0)
+    {
+      struct pollfd fds[1];
+
+      fds[0].fd = context->usbdev_in;
+      fds[0].events = POLLIN;
+
+      if (poll(fds, 1, context->wait_ms) <= 0)
+        {
+          return;
+        }
+    }
+
   while (1)
     {
       char buffer[FASTBOOT_MSG_LEN];
@@ -697,6 +712,21 @@ int main(int argc, FAR char **argv)
       return ret;
     }
 #endif /* FASTBOOTD_USB_BOARDCTL */
+
+  if (argc > 1)
+    {
+      if (strcmp(argv[1], "-h") == 0)
+        {
+          printf("Usage: fastbootd [wait_ms]\n");
+          return 0;
+        }
+
+      context.wait_ms = atoi(argv[1]);
+    }
+  else
+    {
+      context.wait_ms = 0;
+    }
 
   buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
   if (buffer == NULL)
