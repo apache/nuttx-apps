@@ -1256,6 +1256,7 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
     }
 
   ret = handler(vtbl, argc, argv);
+  vtbl->np.np_lastpid = getpid();
   return ret;
 }
 
