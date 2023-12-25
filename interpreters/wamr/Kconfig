@@ -119,10 +119,18 @@ config INTERPRETERS_WAMR_TAIL_CALL
 
 config INTERPRETERS_WAMR_STACK_GUARD_SIZE
 	int "Custom stack guard size"
-	default 0
+	default 1024
 	---help---
-		Reserve some space in stack as guard to detect stack overflow,
-		use stack base by default but may not safe enough.
+		Reserve some space in stack as guard to detect stack overflow.
+
+		Please consider this extra stack consumption when deciding the stack
+		size of your NuttX task on which you run WAMR.
+
+		The default value here (1024) was chosen to match the default value on
+		the majority of other platforms, including Linux. It also matches
+		the expections in the WAMR AoT compiler.
+		On the other hand, it might be a bit larger than what's strictly
+		necessary, especially for typical NuttX targets.
 
 config INTERPRETERS_WAMR_THREAD_MGR
 	bool "Enable thread manager"
