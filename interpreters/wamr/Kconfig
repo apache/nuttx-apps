@@ -51,6 +51,11 @@ config INTERPRETERS_NONE
 
 endchoice # Enable interpreter
 
+config INTERPRETERS_WAMR_DEBUG_AOT
+	bool "Enable debugger support for AOT modules"
+	default n
+	depends on INTERPRETERS_WAMR_AOT
+
 config INTERPRETERS_WAMR_DEBUG_INTERP
 	bool "Enable debugger support in the interpreter"
 	default n
