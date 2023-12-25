@@ -121,6 +121,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        *     foreground
        */
 
+       vtbl->np.np_lastpid = ret;
 #ifdef CONFIG_SCHED_WAITPID
 
       /* CONFIG_SCHED_WAITPID is selected, so we may run the command in
