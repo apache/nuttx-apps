@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <poll.h>
 
 #include <nuttx/video/fb.h>
 #include <nuttx/video/rgbcolors.h>
@@ -55,6 +56,9 @@ struct fb_state_s
   struct fb_overlayinfo_s oinfo;
 #endif
   FAR void *fbmem;
+  FAR void *fbmem2;
+  FAR void *act_fbmem;
+  uint32_t mem2_yoffset;
 };
 
 /****************************************************************************
@@ -88,6 +92,130 @@ static const uint8_t g_rgb8[NCOLORS] =
  ****************************************************************************/
 
 /****************************************************************************
+ * sync_area
+ ****************************************************************************/
+
+static void sync_area(FAR struct fb_state_s *state)
+{
+  if (state->fbmem2 == NULL)
+    {
+      return;
+    }
+
+  if (state->act_fbmem == state->fbmem)
+    {
+      memcpy(state->fbmem, state->fbmem2,
+             state->vinfo.yres * state->pinfo.stride);
+    }
+  else
+    {
+      memcpy(state->fbmem2, state->fbmem,
+             state->vinfo.yres * state->pinfo.stride);
+    }
+}
+
+/****************************************************************************
+ * pan_display
+ ****************************************************************************/
+
+static void pan_display(FAR struct fb_state_s *state)
+{
+  struct pollfd pfd;
+  int ret;
+  pfd.fd = state->fd;
+  pfd.events = POLLOUT;
+
+  ret = poll(&pfd, 1, 0);
+
+  if (ret > 0)
+    {
+      if (state->fbmem2 == NULL)
+        {
+          return;
+        }
+
+      if (state->act_fbmem == state->fbmem)
+        {
+          state->pinfo.yoffset = 0;
+        }
+      else
+        {
+          state->pinfo.yoffset = state->mem2_yoffset;
+        }
+
+      ioctl(state->fd, FBIOPAN_DISPLAY,
+            (unsigned long)(uintptr_t)&state->pinfo);
+
+      state->act_fbmem = state->act_fbmem == state->fbmem ?
+                         state->fbmem2 : state->fbmem;
+    }
+}
+
+/****************************************************************************
+ * fb_init_mem2
+ ****************************************************************************/
+
+static int fb_init_mem2(FAR struct fb_state_s *state,
+                        FAR struct fb_planeinfo_s *pinfo)
+{
+  int ret;
+  uintptr_t buf_offset;
+
+  pinfo->display = state->pinfo.display + 1;
+
+  ret = ioctl(state->fd, FBIOGET_PLANEINFO,
+              (unsigned long)(uintptr_t)pinfo);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
+              errcode);
+      return EXIT_FAILURE;
+    }
+
+  /* Check bpp */
+
+  if (pinfo->bpp != state->pinfo.bpp)
+    {
+      fprintf(stderr, "ERROR: fbmem2 is incorrect");
+      return -EINVAL;
+    }
+
+  /* Check the buffer address offset,
+   * It needs to be divisible by pinfo.stride
+   */
+
+  buf_offset = pinfo->fbmem - state->fbmem;
+
+  if ((buf_offset % state->pinfo.stride) != 0)
+    {
+      fprintf(stderr, "ERROR: It is detected that buf_offset(%" PRIuPTR ") "
+              "and stride(%d) are not divisible, please ensure "
+              "that the driver handles the address offset by itself.",
+              buf_offset, state->pinfo.stride);
+    }
+
+  /* Calculate the address and yoffset of fbmem2 */
+
+  if (buf_offset == 0)
+    {
+      /* Use consecutive fbmem2. */
+
+      state->mem2_yoffset = state->vinfo.yres;
+      state->fbmem2 = pinfo->fbmem + state->mem2_yoffset * pinfo->stride;
+    }
+  else
+    {
+      /* Use non-consecutive fbmem2. */
+
+      state->mem2_yoffset = buf_offset / state->pinfo.stride;
+      state->fbmem2 = pinfo->fbmem;
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * draw_rect
  ****************************************************************************/
 
@@ -99,7 +227,7 @@ static void draw_rect32(FAR struct fb_state_s *state,
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  row = (FAR uint8_t *)state->act_fbmem + state->pinfo.stride * area->y;
   for (y = 0; y < area->h; y++)
     {
       dest = ((FAR uint32_t *)row) + area->x;
@@ -120,7 +248,7 @@ static void draw_rect16(FAR struct fb_state_s *state,
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  row = (FAR uint8_t *)state->act_fbmem + state->pinfo.stride * area->y;
   for (y = 0; y < area->h; y++)
     {
       dest = ((FAR uint16_t *)row) + area->x;
@@ -141,7 +269,7 @@ static void draw_rect8(FAR struct fb_state_s *state,
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  row = (FAR uint8_t *)state->act_fbmem + state->pinfo.stride * area->y;
   for (y = 0; y < area->h; y++)
     {
       dest = row + area->x;
@@ -171,7 +299,7 @@ static void draw_rect1(FAR struct fb_state_s *state,
 
   /* Calculate the framebuffer address of the first row to draw on */
 
-  row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  row    = (FAR uint8_t *)state->act_fbmem + state->pinfo.stride * area->y;
 
   /* Calculate the position of the first complete (with all bits) byte.
    * Then calculate the last byte with all the bits.
@@ -263,6 +391,10 @@ static void draw_rect(FAR struct fb_state_s *state,
     }
 
 #ifdef CONFIG_FB_UPDATE
+  int yoffset = state->act_fbmem == state->fbmem ?
+                0 : state->mem2_yoffset;
+  area->y += yoffset;
+
   ret = ioctl(state->fd, FBIO_UPDATE,
               (unsigned long)((uintptr_t)area));
   if (ret < 0)
@@ -272,6 +404,11 @@ static void draw_rect(FAR struct fb_state_s *state,
               errcode);
     }
 #endif
+
+  if (state->pinfo.yres_virtual == (state->vinfo.yres * 2))
+    {
+      pan_display(state);
+    }
 }
 
 /****************************************************************************
@@ -285,6 +422,7 @@ static void draw_rect(FAR struct fb_state_s *state,
 int main(int argc, FAR char *argv[])
 {
   FAR const char *fbdev = g_default_fbdev;
+  struct fb_planeinfo_s pinfo;
   struct fb_state_s state;
   struct fb_area_s area;
   int nsteps;
@@ -440,8 +578,19 @@ int main(int argc, FAR char *argv[])
 
   printf("Mapped FB: %p\n", state.fbmem);
 
+  /* double buffer mode */
+
+  if (state.pinfo.yres_virtual == (state.vinfo.yres * 2))
+    {
+      if ((ret = fb_init_mem2(&state, &pinfo)) < 0)
+        {
+          goto out;
+        }
+    }
+
   /* Draw some rectangles */
 
+  state.act_fbmem = state.fbmem;
   nsteps = 2 * (NCOLORS - 1) + 1;
   xstep  = state.vinfo.xres / nsteps;
   ystep  = state.vinfo.yres / nsteps;
@@ -465,10 +614,19 @@ int main(int argc, FAR char *argv[])
 
       width  -= (2 * xstep);
       height -= (2 * ystep);
+
+      /* double buffer mode */
+
+      if (state.pinfo.yres_virtual == (state.vinfo.yres * 2))
+        {
+          sync_area(&state);
+        }
     }
 
   printf("Test finished\n");
+  ret = EXIT_SUCCESS;
+out:
   munmap(state.fbmem, state.pinfo.fblen);
   close(state.fd);
-  return EXIT_SUCCESS;
+  return ret;
 }
