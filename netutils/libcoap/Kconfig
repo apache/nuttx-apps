@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_LIBCOAP
+	bool "LIBCOAP"
+	default n
+	---help---
+		libcoap is a C implementation of a lightweight application-protocol
+		for devices that are constrained their resources such as computing
+		power, RF range, memory, bandwidth, or network packet sizes. This
+		protocol, CoAP, is standardized by the IETF as RFC 7252.
+
+if NETUTILS_LIBCOAP
+
+config LIBCOAP_VERSION
+	string "libcoap version"
+	default "4.3.4"
+
+config NETUTILS_LIBCOAP_EXAMPLE
+	tristate "Example coap-server and coap-client"
+	default n
+
+if NETUTILS_LIBCOAP_EXAMPLE
+
+config NETUTILS_LIBCOAP_EXAMPLE_PRIORITY
+	int "libcoap example priority"
+	default 100
+
+config NETUTILS_LIBCOAP_EXAMPLE_STACKSIZE
+	int "libcoap example stacksize"
+	default 2048
+
+endif # NETUTILS_LIBCOAP_EXAMPLE
+
+endif # NETUTILS_LIBCOAP
