@@ -50,6 +50,8 @@ struct ymodem_ctx_s
   CODE int (*packet_handler)(FAR struct ymodem_ctx_s *ctx);
   size_t custom_size;
   FAR void *priv;
+  uint8_t interval;
+  int retry;
 
   /* Public data */
 
