@@ -276,6 +276,12 @@ static void show_usage(FAR const char *progname)
           "\t-b|--buffersize <size>: Asynchronously send buffer size."
           "If greater than 0, accept data asynchronously, Default: 0kB\n");
   fprintf(stderr,
+          "\t-i|--interval <time>: Waiting interval for transmitting data."
+          "Max:255 Min:1 Default:15 unit: 100 milliseconds\n");
+  fprintf(stderr,
+          "\t-r|--retry <retry>: Number of retries."
+          "Will try <retry> times to transmitting, Default:100\n");
+  fprintf(stderr,
           "\t-k <size>: Use a custom size to tansfer, Default: 1kB\n");
 
   exit(EXIT_FAILURE);
@@ -294,10 +300,14 @@ int main(int argc, FAR char *argv[])
   struct option options[] =
     {
       {"buffersize", 1, NULL, 'b'},
+      {"interval", 1, NULL, 'i'},
+      {"retry", 1, NULL, 'r'},
     };
 
   memset(&priv, 0, sizeof(priv));
   memset(&ctx, 0, sizeof(ctx));
+  ctx.interval = 15;
+  ctx.retry = 100;
   while ((ret = getopt_long(argc, argv, "b:d:k:h", options, NULL))
          != ERROR)
     {
@@ -317,6 +327,13 @@ int main(int argc, FAR char *argv[])
               }
 
             break;
+          case 'i':
+            ctx.interval = atoi(optarg);
+            break;
+          case 'r':
+            ctx.retry = atoi(optarg);
+            break;
+
           case 'h':
           case '?':
           default:

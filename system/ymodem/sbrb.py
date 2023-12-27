@@ -21,7 +21,6 @@ import binascii
 import datetime
 import io
 import os
-import signal
 import sys
 import termios
 
@@ -54,47 +53,35 @@ def format_time(seconds):
     return time
 
 
-class Timeout(Exception):
-    pass
-
-
-def timeout_handle(signum, frame):
-    sys.stderr.write("timeout!\n")
-    sys.stderr.flush()
-    raise Timeout("Timeout")
-
-
 def ymodem_stdread(size):
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
-    signal.signal(signal.SIGALRM, timeout_handle)
-    signal.alarm(3)
-    try:
-        new_settings = termios.tcgetattr(fd)
-        new_settings[3] &= ~(termios.ICANON | termios.ECHO)
-        termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
-        data = sys.stdin.buffer.read(size)
-        sys.stdin.flush()
-        return data
-    except Timeout:
-        return
-    finally:
-        signal.alarm(0)
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    new_settings = termios.tcgetattr(fd)
+    new_settings[3] &= ~(termios.ICANON | termios.ECHO)
+    termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
+    data = sys.stdin.buffer.read(size)
+    termios.tcflush(sys.stdin, termios.TCIFLUSH)
+    sys.stdin.flush()
+    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return data
 
 
 def ymodem_stdwrite(data):
     fd = sys.stdout.fileno()
     old_settings = termios.tcgetattr(fd)
-    try:
-        new_settings = termios.tcgetattr(fd)
-        new_settings[3] &= ~(termios.ICANON | termios.ECHO)
-        termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
-        data = sys.stdout.buffer.write(data)
-        sys.stdout.flush()
-        return data
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    new_settings = termios.tcgetattr(fd)
+    new_settings[3] &= ~(termios.ICANON | termios.ECHO)
+    termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
+    data = sys.stdout.buffer.write(data)
+    termios.tcflush(sys.stdout, termios.TCIFLUSH)
+    sys.stdout.flush()
+    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return data
+
+
+def ymodem_stdclear():
+    sys.stdin.flush()
+    sys.stdout.flush()
 
 
 def ymodem_stdprogress(data):
@@ -113,6 +100,13 @@ def ymodem_ser_write(data):
     global fd_serial
     fd_serial.write(data)
     fd_serial.flush()
+
+
+def ymodem_ser_clear():
+    global fd_serial
+
+    fd_serial.reset_input_buffer()
+    fd_serial.reset_output_buffer()
 
 
 def calc_crc16(data, crc=0):
@@ -388,15 +382,21 @@ class ymodem:
         read=ymodem_stdread,
         write=ymodem_stdwrite,
         progress=ymodem_stdprogress,
+        clear=ymodem_stdclear,
         timeout=100,
+        maxretry=RETRIESMAX,
         debug="",
         customsize=0,
     ):
         self.read = read
         self.write = write
+        self.clear = clear
         self.timeout = timeout
+        self.maxretry = maxretry
         self.progress = progress
         self.customsize = customsize
+        self.retries = 0
+
         if debug != "":
             self.debugfd = open(debug, "w+")
         else:
@@ -460,24 +460,28 @@ class ymodem:
 
         return 0
 
+    def send_handshake(self):
+        self.write(CRC)
+        while self.retries < self.maxretry:
+            chunk = self.read(1)
+            if chunk == CRC:
+                return True
+            else:
+                self.retries += 1
+                self.clear()
+
+        self.progress("too many retries\n")
+        return False
+
     def send(self, filelist):
-        retries = 0
         need_sendfile_num = len(filelist)
         cnt = 0
         now = datetime.datetime.now()
         base = float(int(now.timestamp() * 1000)) / 1000
         totolbytes = 0
 
-        while retries < 10:
-            self.write(CRC)
-            chunk = self.read(1)
-            if chunk == CRC:
-                break
-            else:
-                retries += 1
-
-        if retries == 10:
-            return False
+        if not self.send_handshake():
+            return -EINVAL
 
         while need_sendfile_num != 0:
             now = datetime.datetime.now()
@@ -485,13 +489,10 @@ class ymodem:
             self.init_pkt()
             self.head = SOH
             filename = os.path.basename(filelist[cnt])
-
-            self.progress("name:" + filename)
             self.data = filename.encode("utf-8")
             self.data = self.data + bytes([0x00] * 1)
             filesize = os.path.getsize(filelist[cnt])
             sendfilesize = 0
-            self.progress(" filesize:%d\n" % (filesize))
             self.data = self.data + str(filesize).encode("utf-8")
             self.data = self.data.ljust(self.get_pkt_size(), b"\x00")
             self.send_pkt()
@@ -500,13 +501,20 @@ class ymodem:
             if ret == -EAGAIN:
                 continue
             elif ret == -EINVAL:
+                if self.send_handshake():
+                    continue
                 return ret
 
             ret = self.recv_cmd(CRC)
             if ret == -EAGAIN:
                 continue
             elif ret == -EINVAL:
+                if self.send_handshake():
+                    continue
                 return ret
+
+            self.progress("name:" + filename)
+            self.progress(" filesize:%d\n" % (filesize))
 
             self.add_seq()
             readfd = open(filelist[cnt], "rb")
@@ -656,7 +664,6 @@ class ymodem:
         return 0
 
     def recv(self):
-        retries = 0
         now = datetime.datetime.now()
         base = float(int(now.timestamp() * 1000)) / 1000
         totolbytes = 0
@@ -673,12 +680,12 @@ class ymodem:
                 continue
 
             elif ret < 0:
-                if retries > RETRIESMAX:
+                if self.retries > self.maxretry:
                     return -1
 
                 self.progress("recv ret %d\n" % ret)
                 self.debug("recv frist packet\n")
-                retries += 1
+                self.retries += 1
                 continue
 
             filename = bytes.decode(self.data.split(b"\x00")[0], "utf-8")
@@ -699,9 +706,9 @@ class ymodem:
                 ret = self.recv_packet()
                 if ret < 0:
                     self.debug("recv a bad data packet\n")
-                    if retries > RETRIESMAX:
+                    if self.retries > self.maxretry:
                         return -1
-                    retries += 1
+                    self.retries += 1
                     continue
 
                 size = 0
@@ -792,6 +799,13 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--maxretry",
+        type=int,
+        default=RETRIESMAX,
+        help="This opthin set max retry for transmission",
+    )
+
+    parser.add_argument(
         "--debug", help="This opthin is save debug log on host", default=""
     )
 
@@ -821,9 +835,13 @@ if __name__ == "__main__":
             customsize=args.kblocksize * 1024,
             read=ymodem_ser_read,
             write=ymodem_ser_write,
+            clear=ymodem_ser_clear,
+            maxretry=args.maxretry,
         )
     else:
-        sbrb = ymodem(debug=args.debug, customsize=args.kblocksize * 1024)
+        sbrb = ymodem(
+            debug=args.debug, customsize=args.kblocksize * 1024, maxretry=args.maxretry
+        )
 
     if len(args.filelist) == 0:
         sbrb.progress("receiving\n")
