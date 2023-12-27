@@ -82,6 +82,10 @@ ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
 CSRCS += nsh_test.c
 endif
 
+ifneq ($(CONFIG_NSH_DISABLE_WAIT),y)
+CSRCS += nsh_wait.c
+endif
+
 ifeq ($(CONFIG_USBDEV),y)
 CSRCS += nsh_usbconsole.c
 endif

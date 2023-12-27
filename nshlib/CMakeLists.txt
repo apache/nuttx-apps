@@ -98,6 +98,10 @@ if(CONFIG_NSH_LIBRARY)
     list(APPEND CSRCS nsh_test.c)
   endif()
 
+  if(NOT CONFIG_NSH_DISABLE_WAIT)
+    list(APPEND CSRCS nsh_wait.c)
+  endif()
+
   if(CONFIG_USBDEV)
     list(APPEND CSRCS nsh_usbconsole.c)
   endif()
