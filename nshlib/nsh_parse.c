@@ -504,6 +504,12 @@ static pthread_addr_t nsh_child(pthread_addr_t arg)
 
   _info("BG %s complete\n", carg->argv[0]);
   nsh_releaseargs(carg);
+
+  /* Detach from the pthread since we are not going to join with it.
+   * Otherwise, we would have a memory leak.
+   */
+
+  pthread_detach(pthread_self());
   return (pthread_addr_t)((uintptr_t)ret);
 }
 #endif
@@ -843,12 +849,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
           nsh_releaseargs(args);
           goto errout;
         }
-
-      /* Detach from the pthread since we are not going to join with it.
-       * Otherwise, we would have a memory leak.
-       */
-
-      pthread_detach(thread);
 
       nsh_output(vtbl, "%s [%d:%d]\n", argv[0], thread,
                  param.sched_priority);

@@ -699,6 +699,11 @@ config NSH_DISABLE_IRQ_AFFINITY
 	default DEFAULT_SMALL
 	depends on BOARDCTL_IRQ_AFFINITY
 
+config NSH_DISABLE_WAIT
+	bool "Disable wait"
+	default DEFAULT_SMALL
+	depends on SCHED_WAITPID
+
 endmenu
 
 if MMCSD
