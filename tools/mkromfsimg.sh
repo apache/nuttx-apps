@@ -36,6 +36,12 @@ fsdir=${topdir}/bin
 romfsimg=romfs.img
 headerfile=boot_romfsimg.h
 
+if [ -n "$1" ]; then            # output file path
+  _path=$(dirname "$1")
+  # ensure output path exists
+  mkdir -p $_path 2>/dev/null && headerfile=$1
+fi
+
 # Sanity checks
 
 if [ ! -d "${fsdir}" ]; then
