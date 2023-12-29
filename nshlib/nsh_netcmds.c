@@ -90,7 +90,7 @@
 #  endif
 #endif
 
-#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
+#ifdef CONFIG_NETINIT_DHCPC
 #  include "netutils/dhcpc.h"
 #endif
 
@@ -569,7 +569,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifdef HAVE_HWADDR
   FAR char *hw = NULL;
 #endif
-#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
+#ifdef CONFIG_NETDB_DNSCLIENT
   FAR char *dns = NULL;
 #endif
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
@@ -705,7 +705,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                 }
 #endif
 
-#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
+#ifdef CONFIG_NETDB_DNSCLIENT
               else if (!strcmp(tmp, "dns"))
                 {
                   if (argc - 1 >= i + 1)
@@ -994,7 +994,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   UNUSED(ifname); /* Not used in all configurations */
 
-#if defined(CONFIG_NETINIT_DHCPC) || defined(CONFIG_NETINIT_DNS)
+#ifdef CONFIG_NETDB_DNSCLIENT
 #ifdef CONFIG_NET_IPv6
 #ifdef CONFIG_NET_IPv4
   if (inet6)
@@ -1039,7 +1039,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       netlib_set_ipv4dnsaddr(&addr);
     }
 #endif /* CONFIG_NET_IPv4 */
-#endif /* CONFIG_NETINIT_DHCPC || CONFIG_NETINIT_DNS */
+#endif /* CONFIG_NETDB_DNSCLIENT */
 
 #if defined(CONFIG_NETINIT_DHCPC)
   /* Get the MAC address of the NIC */
@@ -1074,10 +1074,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
               netlib_set_dripv4addr("eth0", &ds.default_router);
             }
 
+#ifdef CONFIG_NETDB_DNSCLIENT
           if (ds.dnsaddr.s_addr != 0)
             {
               netlib_set_ipv4dnsaddr(&ds.dnsaddr);
             }
+#endif
 
           dhcpc_close(handle);
         }
