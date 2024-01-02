@@ -57,11 +57,13 @@ genromfs -h 1>/dev/null 2>&1 || { \
 
 # Now we are ready to make the ROMFS image
 
-genromfs -f ${romfsimg} -d ${fsdir} -V "NuttXBootVol" || { echo "genromfs failed" ; exit 1 ; }
+genromfs -f ${romfsimg} -d ${fsdir} -V "NuttXBootVol" || \
+  { echo "genromfs failed" ; exit 1 ; }
 
 # And, finally, create the header file
 
 echo '#include <nuttx/compiler.h>' >${headerfile}
-xxd -i ${romfsimg} | sed 's/^unsigned char/const unsigned char aligned_data(4)/g' >>${headerfile} || \
+xxd -i ${romfsimg} | sed -e 's/^unsigned /const unsigned /' \
+  -e 's/char /char aligned_data(4) /' >>${headerfile} || \
   { echo "ERROR: xxd of $< failed" ; rm -f ${romfsimg}; exit 1 ; }
 rm -f ${romfsimg}
