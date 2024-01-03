@@ -27,6 +27,7 @@ switch "mm", "orc"
 switch "arm.nuttx.gcc.exe", "arm-none-eabi-gcc"
 switch "arm64.nuttx.gcc.exe", "aarch64-none-elf-gcc"
 switch "riscv32.nuttx.gcc.exe", "riscv64-unknown-elf-gcc"
+switch "riscv64.nuttx.gcc.exe", "riscv64-unknown-elf-gcc"
 switch "amd64.nuttx.gcc.exe", "x86_64-linux-gnu-gcc"
 
 switch "nimcache", ".nimcache"
@@ -69,14 +70,19 @@ proc read_config(cfg: string): DotConfig =
       case arch
       of "arm", "arm64":
         result.arch = arch
-      of "riscv":
-        result.arch = "riscv32"
       of "sim":
         if defined(amd64):
           result.arch = "amd64"
         elif defined(aarch64):
           result.arch = "arm64"
         result.isSim = true
+    of "ARCH_FAMILY":
+      let arch = keyval[1].strip(chars = {'"'})
+      case arch
+      of "rv32":
+        result.arch = "riscv32"
+      of "rv64":
+        result.arch = "riscv64"
     of "DEBUG_NOOPT":
       result.opt = oNone
     of "DEBUG_FULLOPT":
