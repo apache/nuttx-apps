@@ -106,6 +106,12 @@ config INTERPRETERS_WAMR_ENABLE_SPEC_TEST
 	bool "Enable spectest support"
 	default n
 
+config INTERPRETERS_WAMR_TAIL_CALL
+	bool "Enable tail call support"
+	default n
+	---help---
+		This only available for WAMR 1.3.0 later (don't include 1.3.0)
+
 config INTERPRETERS_WAMR_STACK_GUARD_SIZE
 	int "Custom stack guard size"
 	default 0
