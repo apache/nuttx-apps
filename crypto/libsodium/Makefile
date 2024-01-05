@@ -33,6 +33,7 @@ LIBSODIUM_UNPACKTESTDIR = $(LIBSODIUM_UNPACKNAME)$(DELIM)test$(DELIM)default
 
 CSRCS += $(shell find $(LIBSODIUM_UNPACKLIBDIR) -name "*.c")
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/crypto/libsodium/libsodium/src/libsodium/include/sodium
+CFLAGS += -DDEV_MODE -DCONFIGURED=1
 CFLAGS += -Wno-unused-function -Wno-undef -Wno-unused-variable -Wno-deprecated-declarations \
           -Wno-shadow
 
