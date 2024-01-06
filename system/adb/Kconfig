@@ -128,17 +128,17 @@ config ADBD_FILE_SERVICE
 
 config ADBD_FILE_SYMLINK
 	bool "File service symlink support"
-	default n
 	depends on ADBD_FILE_SERVICE
 	depends on PSEUDOFS_SOFTLINKS
+	default PSEUDOFS_SOFTLINKS
 	---help---
 		Enable fs symlink support.
 
 config ADBD_SHELL_SERVICE
 	bool "ADB shell support"
 	depends on SYSTEM_NSH
-	select LIBC_EXECFUNCS
-	select PSEUDOTERM
+	depends on LIBC_EXECFUNCS
+	depends on PSEUDOTERM
 	default n
 	---help---
 		Enable "adb shell" feature.
