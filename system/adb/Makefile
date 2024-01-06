@@ -20,8 +20,8 @@
 
 include $(APPDIR)/Make.defs
 
-ADBD_URL ?= "https://github.com/spiriou/microADB/archive"
-ADBD_VERSION ?= b0bc09a7612000186df723f2fe55705b1c2fe873
+ADB_URL ?= "https://github.com/spiriou/microADB/archive"
+ADB_VERSION ?= b0bc09a7612000186df723f2fe55705b1c2fe873
 
 ADB_DIR := $(APPDIR)/system/adb
 ADB_UNPACKNAME := microADB
@@ -29,17 +29,17 @@ ADB_UNPACKDIR := $(ADB_DIR)/$(ADB_UNPACKNAME)
 
 $(ADB_UNPACKDIR):
 	@echo "Downloading: $(ADB_UNPACKNAME)"
-	$(Q) curl -O -L $(ADBD_URL)/$(ADBD_VERSION).zip
-	$(Q) unzip -o $(ADBD_VERSION).zip
-	$(call DELFILE, $(ADBD_VERSION).zip)
-	$(call MOVEFILE, $(ADB_UNPACKNAME)-$(ADBD_VERSION), $(ADB_UNPACKDIR))
+	$(Q) curl -O -L $(ADB_URL)/$(ADB_VERSION).zip
+	$(Q) unzip -o $(ADB_VERSION).zip
+	$(call DELFILE, $(ADB_VERSION).zip)
+	$(call MOVEFILE, $(ADB_UNPACKNAME)-$(ADB_VERSION), $(ADB_UNPACKDIR))
 
 # adb server app
 
 PROGNAME  := $(CONFIG_ADBD_PROGNAME)
 PRIORITY  := $(CONFIG_ADBD_PRIORITY)
 STACKSIZE := $(CONFIG_ADBD_STACKSIZE)
-MODULE    := $(CONFIG_ADB_SERVER)
+MODULE    := $(CONFIG_SYSTEM_ADBD)
 
 # Files
 
