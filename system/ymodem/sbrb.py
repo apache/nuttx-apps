@@ -823,11 +823,12 @@ if __name__ == "__main__":
             tmp = fd_serial.read(len(("sb %s\r\n" % (recvfile)).encode()))
         else:
             if args.sendto:
-                fd_serial.write("rb\r\n".encode())
-                fd_serial.read(len("rb\r\n".encode()))
+                cmd = ("rb -f %s\r\n" % (args.sendto[0])).encode()
             else:
-                fd_serial.write(("rb\r\n").encode())
-                fd_serial.read(len(("rb\r\n").encode()))
+                cmd = ("rb\r\n").encode()
+
+            fd_serial.write(cmd)
+            fd_serial.read(len(cmd))
 
             fd_serial.reset_input_buffer()
         sbrb = ymodem(
