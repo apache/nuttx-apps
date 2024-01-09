@@ -22,34 +22,34 @@ include $(APPDIR)/Make.defs
 
 COAP_URL ?= "https://codeload.github.com/obgm/libcoap/zip/refs/tags"
 
-COAP_ZIP = libcoap-$(CONFIG_LIBCOAP_VERSION).zip
+LIBCOAP_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBCOAP_VERSION)))
+COAP_ZIP = libcoap-$(LIBCOAP_VERSION).zip
 
 COAP_UNPACKNAME = libcoap
 UNPACK ?= unzip -q -o
 
 $(COAP_ZIP):
-	@echo "Downloading: $(COAP_URL)/v$(CONFIG_LIBCOAP_VERSION)"
-	$(Q) curl -o $(COAP_ZIP) -L $(COAP_URL)/v$(CONFIG_LIBCOAP_VERSION)
+	@echo "Downloading: $(COAP_URL)/v$(LIBCOAP_VERSION)"
+	$(Q) curl -o $(COAP_ZIP) -L $(COAP_URL)/v$(LIBCOAP_VERSION)
 
 $(COAP_UNPACKNAME): $(COAP_ZIP)
 	@echo "Unpacking: $(COAP_ZIP) -> $(COAP_UNPACKNAME)"
 	$(Q) $(UNPACK) $(COAP_ZIP)
 	@echo "Unpacking: $(COAP_ZIP) -> $(COAP_UNPACKNAME)"
-	$(Q) mv libcoap-$(CONFIG_LIBCOAP_VERSION) $(COAP_UNPACKNAME)
+	$(Q) mv libcoap-$(LIBCOAP_VERSION) $(COAP_UNPACKNAME)
 	$(Q) touch $(COAP_UNPACKNAME)
 
+context:: $(COAP_UNPACKNAME)/include/coap3/coap.h
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(COAP_UNPACKNAME)/.git),)
-context:: $(COAP_UNPACKNAME)
-
 distclean::
 	$(call DELDIR, $(COAP_UNPACKNAME))
 	$(call DELFILE, $(COAP_ZIP))
-endif
-
-context:: $(COAP_UNPACKNAME)/include/coap3/coap.h
 
 $(COAP_UNPACKNAME)/include/coap3/coap.h:: $(COAP_UNPACKNAME)
+else
+$(COAP_UNPACKNAME)/include/coap3/coap.h::
+endif
 	cd $(COAP_UNPACKNAME) && ./autogen.sh && \
 	./configure --disable-doxygen --disable-manpages
 
