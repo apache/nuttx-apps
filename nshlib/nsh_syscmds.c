@@ -123,6 +123,15 @@ static FAR const char * const g_resetflag[] =
 #endif
 
 /****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+#if defined(CONFIG_RPMSG) && !defined(CONFIG_NSH_DISABLE_RPMSG)
+typedef CODE int (*cmd_rpmsg_cb_t)(FAR int *cmd, FAR unsigned long * val,
+                                   FAR char **argv);
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -515,7 +524,8 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
 #if defined(CONFIG_RPMSG) && !defined(CONFIG_NSH_DISABLE_RPMSG)
 static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
-                          FAR const char *path, FAR char **argv)
+                          FAR const char *path, FAR char **argv,
+                          cmd_rpmsg_cb_t rpmsg_cb)
 {
 #ifdef CONFIG_RPMSG_PING
   struct rpmsg_ping_s ping;
@@ -524,20 +534,7 @@ static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
   int cmd;
   int fd;
 
-  if (strcmp(argv[1], "start") == 0)
-    {
-      cmd = RPMSGIOC_START;
-    }
-  else if (strcmp(argv[1], "stop") == 0)
-    {
-      cmd = RPMSGIOC_STOP;
-    }
-  else if (strcmp(argv[1], "reset") == 0)
-    {
-      val = atoi(argv[3]);
-      cmd = RPMSGIOC_RESET;
-    }
-  else if (strcmp(argv[1], "panic") == 0)
+  if (strcmp(argv[1], "panic") == 0)
     {
       cmd = RPMSGIOC_PANIC;
     }
@@ -564,6 +561,10 @@ static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
       val = (unsigned long)&ping;
     }
 #endif
+  else if (rpmsg_cb && rpmsg_cb(&cmd, &val, argv) == OK)
+    {
+      /* Nothing */
+    }
   else
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[1]);
@@ -600,7 +601,7 @@ static int cmd_rpmsg_recursive(FAR struct nsh_vtbl_s *vtbl,
   path = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
   if (path)
     {
-      ret = cmd_rpmsg_once(vtbl, path, pvarg);
+      ret = cmd_rpmsg_once(vtbl, path, pvarg, NULL);
       free(path);
     }
 
@@ -645,7 +646,7 @@ int cmd_rpmsg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                                   cmd_rpmsg_recursive, argv);
     }
 
-  return cmd_rpmsg_once(vtbl, argv[2], argv);
+  return cmd_rpmsg_once(vtbl, argv[2], argv, NULL);
 }
 #endif
 
@@ -654,6 +655,53 @@ int cmd_rpmsg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  ****************************************************************************/
 
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
+static int cmd_rptun_cb(FAR int *cmd, FAR unsigned long *val,
+                        FAR char **argv)
+{
+  if (strcmp(argv[1], "start") == 0)
+    {
+      *cmd = RPTUNIOC_START;
+    }
+  else if (strcmp(argv[1], "stop") == 0)
+    {
+      *cmd = RPTUNIOC_STOP;
+    }
+  else if (strcmp(argv[1], "reset") == 0)
+    {
+      *val = atoi(argv[3]);
+      *cmd = RPTUNIOC_RESET;
+    }
+  else
+    {
+      return ERROR;
+    }
+
+  return OK;
+}
+
+static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
+                               FAR const char *dirpath,
+                               FAR struct dirent *entryp,
+                               FAR void *pvarg)
+{
+  FAR char *path;
+  int ret = ERROR;
+
+  if (DIRENT_ISDIRECTORY(entryp->d_type))
+    {
+      return 0;
+    }
+
+  path = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
+  if (path)
+    {
+      ret = cmd_rpmsg_once(vtbl, path, pvarg, cmd_rptun_cb);
+      free(path);
+    }
+
+  return ret;
+}
+
 int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   if (argc >= 2 && strcmp(argv[1], "-h") == 0)
@@ -673,10 +721,10 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (strcmp(argv[2], "all") == 0)
     {
       return nsh_foreach_direntry(vtbl, "rptun", "/dev/rptun",
-                                  cmd_rpmsg_recursive, argv);
+                                  cmd_rptun_recursive, argv);
     }
 
-  return cmd_rpmsg_once(vtbl, argv[2], argv);
+  return cmd_rpmsg_once(vtbl, argv[2], argv, cmd_rptun_cb);
 }
 #endif
 

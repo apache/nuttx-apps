@@ -577,7 +577,7 @@ config NSH_DISABLE_RPMSG
 config NSH_DISABLE_RPTUN
 	bool "Disable rptun"
 	default DEFAULT_SMALL
-	depends on RPTUN
+	depends on RPTUN && !NSH_DISABLE_RPMSG
 
 config NSH_DISABLE_SET
 	bool "Disable set"
