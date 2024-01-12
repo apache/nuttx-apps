@@ -58,6 +58,7 @@ struct wifi_iperf_t
   FAR struct arg_lit *udp;
   FAR struct arg_str *local;
   FAR struct arg_str *rpmsg;
+  FAR struct arg_str *bind;
   FAR struct arg_int *port;
   FAR struct arg_int *interval;
   FAR struct arg_int *time;
@@ -148,6 +149,7 @@ int main(int argc, FAR char *argv[])
   iperf_args.udp = arg_lit0("u", "udp", "use UDP rather than TCP");
   iperf_args.local = arg_str0(NULL, "local", "<path>", "use local socket");
   iperf_args.rpmsg = arg_str0(NULL, "rpmsg", "<name>", "use RPMsg socket");
+  iperf_args.bind = arg_str0("B", "bind", "<ip>", "ip to bind");
   iperf_args.port = arg_int0("p", "port", "<port>",
                              "server port to listen on/connect to");
   iperf_args.interval = arg_int0("i", "interval", "<interval>",
@@ -222,11 +224,23 @@ int main(int argc, FAR char *argv[])
     }
   else
     {
-      netlib_get_ipv4addr(DEVNAME, &addr);
-      if (addr.s_addr == 0)
+      if (iperf_args.bind->count > 0)
         {
-          printf("ERROR: access IP is 0x00\n");
-          goto out;
+          addr.s_addr = inet_addr(iperf_args.bind->sval[0]);
+          if (addr.s_addr == INADDR_NONE)
+            {
+              printf("ERROR: access IP is 0xffffffff\n");
+              goto out;
+            }
+        }
+      else
+        {
+          netlib_get_ipv4addr(DEVNAME, &addr);
+          if (addr.s_addr == 0)
+            {
+              printf("ERROR: access IP is 0x00\n");
+              goto out;
+            }
         }
 
       printf("     IP: %s\n", inet_ntoa_r(addr, inetaddr, sizeof(inetaddr)));
