@@ -169,7 +169,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_CP
-  CMD_MAP("cp",       cmd_cp,       3, 3, "<source-path> <dest-path>"),
+  CMD_MAP("cp",       cmd_cp,       3, 4, "[-r] <source-path> <dest-path>"),
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_CMP
