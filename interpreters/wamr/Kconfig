@@ -36,6 +36,17 @@ config INTERPRETERS_WAMR_AOT
 	select ARCH_USE_TEXT_HEAP if ARCH_HAVE_TEXT_HEAP
 	default n
 
+config INTERPRETERS_WAMR_AOT_QUICK_ENTRY
+	bool "Enable AOT quick entry"
+	default n
+	depends on INTERPRETERS_WAMR_AOT
+	---help---
+		Note: This option only works with WAMR 1.3.1 or later.
+		Enable AOT quick entry to improve performance for call
+		AOTed function from host side in some cases with simple
+		signature.
+		Enable this option will increase the size of runtime, ~8KB.
+
 choice
 	prompt "Enable interpreter"
 	default INTERPRETERS_NONE
