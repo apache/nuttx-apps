@@ -359,6 +359,10 @@ config NSH_DISABLE_EXIT
 	bool "Disable exit"
 	default DEFAULT_SMALL && !NSH_TELNET
 
+config NSH_DISABLE_EXPR
+	bool "Disable expr"
+	default DEFAULT_SMALL
+
 config NSH_DISABLE_EXPORT
 	bool "Disable export"
 	default DEFAULT_SMALL
