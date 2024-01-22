@@ -26,6 +26,7 @@
 
 #include <string.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
 #  include <nuttx/lib/builtin.h>
@@ -89,6 +90,10 @@ static int  cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc,
 
 #ifndef CONFIG_NSH_DISABLE_EXIT
 static int  cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_EXPR
+static int cmd_expr(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
 static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc,
@@ -224,6 +229,11 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_EXIT
   CMD_MAP("exit",     cmd_exit,     1, 1, NULL),
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_EXPR
+  CMD_MAP("expr",     cmd_expr,     4, 4,
+    "<operand1> <operator> <operand2>"),
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_EXPORT
@@ -1087,6 +1097,74 @@ static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   UNUSED(argv);
 
   nsh_exit(vtbl, 0);
+  return OK;
+}
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_EXPR
+static int cmd_expr(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  int operand1;
+  int operand2;
+  int result;
+  FAR char *endptr;
+
+  if (argc != 4)
+    {
+      nsh_output(vtbl, "Usage: %s <operand1> <operator> <operand2>\n",
+                 argv[0]);
+      return ERROR;
+    }
+
+  operand1 = strtol(argv[1], &endptr, 0);
+  if (*endptr != '\0')
+    {
+      nsh_output(vtbl, "operand1 invalid\n");
+      return ERROR;
+    }
+
+  operand2 = strtol(argv[3], &endptr, 0);
+  if (*endptr != '\0')
+    {
+      nsh_output(vtbl, "operand2 invalid\n");
+      return ERROR;
+    }
+
+  switch (argv[2][0])
+    {
+      case '+':
+        result = operand1 + operand2;
+        break;
+      case '-':
+        result = operand1 - operand2;
+        break;
+      case '*':
+        result = operand1 * operand2;
+        break;
+      case '/':
+        if (operand2 == 0)
+          {
+            nsh_output(vtbl, "operand2 invalid\n");
+            return ERROR;
+          }
+
+        result = operand1 / operand2;
+        break;
+      case '%':
+        if (operand2 == 0)
+          {
+            nsh_output(vtbl, "operand2 invalid\n");
+            return ERROR;
+          }
+
+        result = operand1 % operand2;
+        break;
+      default:
+        nsh_output(vtbl, "Unknown operator\n");
+        return ERROR;
+    }
+
+  nsh_output(vtbl, "%d\n", result);
   return OK;
 }
 #endif
