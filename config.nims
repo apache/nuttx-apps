@@ -127,6 +127,7 @@ proc setup_cfg(cfg: DotConfig) =
       switch("define", "nimMemAlignTiny")
 
 
-let topdir = getEnv("TOPDIR")
+const key = "TOPDIR"
+let topdir = if existsEnv(key): getEnv(key) else: thisDir() & "/../nuttx"
 let cfg = read_config(topdir & "/.config")
 cfg.setup_cfg()
