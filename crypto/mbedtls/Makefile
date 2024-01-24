@@ -48,6 +48,7 @@ mbedtls/library/bignum.c_CFLAGS += -fno-lto
 ifeq ($(CONFIG_FRAME_POINTER),y)
   ifeq ($(CONFIG_DEBUG_OPTLEVEL),"-O3")
     mbedtls/library/sha256.c_CFLAGS += -O2
+    mbedtls/library/cmac.c_CFLAGS += -O2
   endif
 endif
 
