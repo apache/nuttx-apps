@@ -193,6 +193,37 @@ static int recv_atreply_onreset(atreply_parser_t parse,
 }
 
 /****************************************************************************
+ * name: alt1250_disable_scanplan
+ ****************************************************************************/
+
+static int alt1250_disable_scanplan(FAR struct alt1250_s *dev,
+                                    FAR struct alt_container_s *container)
+{
+  int recv_ret;
+  struct atreply_truefalse_s t_or_f;
+
+  t_or_f.target_str = "0";
+  ltesp_send_getscanplan(dev, container);
+  recv_ret = recv_atreply_onreset(check_atreply_truefalse, dev, &t_or_f);
+  if (recv_ret == REP_MODEM_RESET)
+    {
+      return recv_ret;
+    }
+
+  if (!t_or_f.result)
+    {
+      ltesp_send_setscanplan(dev, container, false);
+      recv_ret = recv_atreply_onreset(check_atreply_ok, dev, NULL);
+      if (recv_ret == REP_MODEM_RESET)
+        {
+          return recv_ret;
+        }
+    }
+
+  return recv_ret;
+}
+
+/****************************************************************************
  * name: alt1250_lwm2m_ponreset
  ****************************************************************************/
 
@@ -317,6 +348,14 @@ static int alt1250_lwm2m_ponreset(FAR struct alt1250_s *dev,
         }
 
       ret = REP_SEND_ACK;
+    }
+
+  /* Make sure SCAN_PALAN_EN is 0 */
+
+  recv_ret = alt1250_disable_scanplan(dev, container);
+  if (recv_ret == REP_MODEM_RESET)
+    {
+      return recv_ret;
     }
 
   if (ret == REP_SEND_ACK)
