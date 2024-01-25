@@ -432,6 +432,33 @@ int ltenwop_send_setnwoptp(FAR struct alt1250_s *dev,
 }
 
 /****************************************************************************
+ * name: ltesp_send_getscanplan
+ ****************************************************************************/
+
+int ltesp_send_getscanplan(FAR struct alt1250_s *dev,
+                           FAR struct alt_container_s *container)
+{
+  int32_t dummy;
+  snprintf((FAR char *)dev->tx_buff, _TX_BUFF_SIZE,
+           "AT%%GETCFG=\"SCAN_PLAN_EN\"\r");
+  return send_internal_at_command(dev, container, -1, NULL, 0, &dummy);
+}
+
+/****************************************************************************
+ * name: ltesp_send_setscanplan
+ ****************************************************************************/
+
+int ltesp_send_setscanplan(FAR struct alt1250_s *dev,
+                           FAR struct alt_container_s *container,
+                           bool enable)
+{
+  int32_t dummy;
+  snprintf((FAR char *)dev->tx_buff, _TX_BUFF_SIZE,
+           "AT%%SETCFG=\"SCAN_PLAN_EN\",\"%s\"\r", (enable ? "1" : "0"));
+  return send_internal_at_command(dev, container, -1, NULL, 0, &dummy);
+}
+
+/****************************************************************************
  * name: lwm2mstub_send_getqueuemode
  ****************************************************************************/
 
