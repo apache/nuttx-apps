@@ -182,7 +182,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_DATE
   CMD_MAP("date",     cmd_date,
-          1, 4, "[-s \"MMM DD HH:MM:SS YYYY\"] [-u]"),
+          1, 4, "[-s \"MMM DD HH:MM:SS YYYY\"] [-u] [+format]"),
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_DD
