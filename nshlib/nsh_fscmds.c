@@ -182,7 +182,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
               details[0] = 'f';
             }
 #endif
-#ifdef CONFIG_FS_SHM
+#ifdef CONFIG_FS_SHMFS
           else if (S_ISSHM(buf.st_mode))
             {
               details[0] = 'h';
