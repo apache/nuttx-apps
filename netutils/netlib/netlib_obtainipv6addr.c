@@ -77,6 +77,15 @@ static int dhcpv6_setup_result(FAR const char *ifname,
 {
   int ret;
 
+#ifdef CONFIG_NETDEV_MULTIPLE_IPv6
+  ret = netlib_add_ipv6addr(ifname, &presult->addr, presult->pl);
+  if (ret != OK)
+    {
+      nerr("netlib_add_ipv6addr fail\n");
+      return ret;
+    }
+#else
+
   ret = netlib_set_ipv6addr(ifname, &presult->addr);
   if (ret != OK)
     {
@@ -90,6 +99,7 @@ static int dhcpv6_setup_result(FAR const char *ifname,
       nerr("netlib_set_ipv6netmask fail\n");
       return ret;
     }
+#endif
 
 #if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETDB_DNSCLIENT)
   ret = netlib_set_ipv6dnsaddr(&presult->dns);
