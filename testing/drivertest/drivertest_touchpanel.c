@@ -42,7 +42,10 @@
 #include <nuttx/crc32.h>
 
 #include <lvgl/lvgl.h>
-#include <lv_porting/lv_porting.h>
+
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+#include <uv.h>
+#endif
 
 /****************************************************************************
  * Private Types
@@ -65,7 +68,6 @@
 typedef struct
 {
   int fd;
-  lv_indev_drv_t indev_drv;
   lv_indev_t *indev;
   bool is_square;
 
@@ -74,7 +76,7 @@ typedef struct
     struct
     {
       lv_obj_t *canvas;
-      lv_color_t *canvas_buf;
+      lv_layer_t layer;
       bool left_top;
       bool right_top;
       bool left_bottom;
@@ -119,7 +121,7 @@ void darw_canvas_frame(touchpad_s *touchpad)
   int i_hor;
   int j_ver;
   lv_draw_line_dsc_t line_dsc;
-  lv_point_t line_point[2];
+  lv_area_t rect_area;
 
   /* Draw squares */
 
@@ -135,53 +137,61 @@ void darw_canvas_frame(touchpad_s *touchpad)
 
   for (i_hor = 0; i_hor < sum_x; i_hor++)
     {
-      lv_canvas_draw_rect(touchpad->canvas, i_hor * SQUARE_X, 0,
-        SQUARE_X, SQUARE_Y, &rect_dsc);
-      lv_canvas_draw_rect(touchpad->canvas, i_hor * SQUARE_X,
-        LV_VER_RES - SQUARE_Y, SQUARE_X, SQUARE_Y, &rect_dsc);
+      rect_area.x1 = i_hor * SQUARE_X;
+      rect_area.x2 = SQUARE_X;
+      rect_area.y1 = 0;
+      rect_area.y2 = SQUARE_Y;
+      lv_draw_rect(&touchpad->layer, &rect_dsc, &rect_area);
+      rect_area.y1 = LV_VER_RES - SQUARE_Y;
+      lv_draw_rect(&touchpad->layer, &rect_dsc, &rect_area);
     }
 
   /* Draw VER left and middle and right */
 
   for (j_ver = 0; j_ver < sum_y; j_ver++)
     {
-      lv_canvas_draw_rect(touchpad->canvas, 0, j_ver * SQUARE_Y,
-        SQUARE_X, SQUARE_Y, &rect_dsc);
-      lv_canvas_draw_rect(touchpad->canvas, LV_HOR_RES - SQUARE_X,
-        j_ver * SQUARE_Y, SQUARE_X, SQUARE_Y, &rect_dsc);
+      rect_area.x1 = 0;
+      rect_area.y1 = j_ver * SQUARE_Y;
+      lv_draw_rect(&touchpad->layer, &rect_dsc, &rect_area);
+      rect_area.x1 = LV_HOR_RES - SQUARE_X;
+      lv_draw_rect(&touchpad->layer, &rect_dsc, &rect_area);
     }
 
   /* Draw line diagonal */
 
   lv_draw_line_dsc_init(&line_dsc);
+  line_dsc.color = lv_palette_main(LV_PALETTE_RED);
+  line_dsc.width = 4;
+  line_dsc.round_end = 1;
+  line_dsc.round_start = 1;
 
   /* left_top to right_bottom */
 
-  line_point[0].x = SQUARE_Y / 2;
-  line_point[0].y = 0;
-  line_point[1].x = LV_HOR_RES;
-  line_point[1].y = LV_VER_RES - SQUARE_Y / 2;
-  lv_canvas_draw_line(touchpad->canvas, line_point, 2, &line_dsc);
+  line_dsc.p1.x = SQUARE_Y / 2;
+  line_dsc.p1.y = 0;
+  line_dsc.p2.x = LV_HOR_RES;
+  line_dsc.p2.y = LV_VER_RES - SQUARE_Y / 2;
+  lv_draw_line(&touchpad->layer, &line_dsc);
 
-  line_point[0].x = 0;
-  line_point[0].y = SQUARE_Y / 2;
-  line_point[1].x = LV_HOR_RES - SQUARE_Y / 2;
-  line_point[1].y = LV_VER_RES;
-  lv_canvas_draw_line(touchpad->canvas, line_point, 2, &line_dsc);
+  line_dsc.p1.x = 0;
+  line_dsc.p1.y = SQUARE_Y / 2;
+  line_dsc.p2.x = LV_HOR_RES - SQUARE_Y / 2;
+  line_dsc.p2.y = LV_VER_RES;
+  lv_draw_line(&touchpad->layer, &line_dsc);
 
   /* right_top to left_bottom */
 
-  line_point[0].x = LV_HOR_RES - SQUARE_Y / 2;
-  line_point[0].y = 0;
-  line_point[1].x = 0;
-  line_point[1].y = LV_VER_RES - SQUARE_Y / 2;
-  lv_canvas_draw_line(touchpad->canvas, line_point, 2, &line_dsc);
+  line_dsc.p1.x = LV_HOR_RES - SQUARE_Y / 2;
+  line_dsc.p1.y = 0;
+  line_dsc.p2.x = 0;
+  line_dsc.p2.y = LV_VER_RES - SQUARE_Y / 2;
+  lv_draw_line(&touchpad->layer, &line_dsc);
 
-  line_point[0].x = LV_HOR_RES;
-  line_point[0].y = SQUARE_Y / 2;
-  line_point[1].x = SQUARE_Y / 2;
-  line_point[1].y = LV_VER_RES;
-  lv_canvas_draw_line(touchpad->canvas, line_point, 2, &line_dsc);
+  line_dsc.p1.x = LV_HOR_RES;
+  line_dsc.p1.y = SQUARE_Y / 2;
+  line_dsc.p2.x = SQUARE_Y / 2;
+  line_dsc.p2.y = LV_VER_RES;
+  lv_draw_line(&touchpad->layer, &line_dsc);
 
   /* left_top to right_bottom */
 
@@ -212,7 +222,7 @@ void draw_track_line(lv_obj_t *canvas, lv_point_t pos)
       for (index_y = pos.y - 1; index_y < pos.y + 2; index_y++)
         {
           lv_canvas_set_px(canvas, index_x, index_y,
-            lv_palette_main(LV_PALETTE_RED));
+            lv_palette_main(LV_PALETTE_RED), LV_OPA_COVER);
         }
     }
 }
@@ -225,7 +235,7 @@ void draw_touch_fill(touchpad_s *touchpad, lv_point_t pos)
 {
   lv_draw_rect_dsc_t rect_dsc;
   lv_draw_line_dsc_t line_dsc;
-  lv_point_t line_point[2];
+  lv_area_t rect_area;
 
   if (pos.x < 1 || pos.x > LV_HOR_RES || pos.y < 1 || pos.y > LV_VER_RES)
     {
@@ -245,8 +255,11 @@ void draw_touch_fill(touchpad_s *touchpad, lv_point_t pos)
   if (x_index == 0 || x_index == LV_HOR_RES / SQUARE_X - 1
     || y_index == 0 || y_index == LV_VER_RES / SQUARE_Y - 1)
     {
-      lv_canvas_draw_rect(touchpad->canvas, x_index * SQUARE_X,
-        y_index * SQUARE_Y, SQUARE_X, SQUARE_Y, &rect_dsc);
+      rect_area.x1 = x_index * SQUARE_X;
+      rect_area.x2 = y_index * SQUARE_Y;
+      rect_area.y1 = SQUARE_X;
+      rect_area.y2 = SQUARE_Y;
+      lv_draw_rect(&touchpad->layer, &rect_dsc, &rect_area);
       draw_track_line(touchpad->canvas, pos);
     }
 
@@ -318,12 +331,11 @@ void draw_touch_fill(touchpad_s *touchpad, lv_point_t pos)
       line_dsc.opa = LV_OPA_COVER;
       line_dsc.color = lv_palette_main(LV_PALETTE_BLUE);
       line_dsc.width = SQUARE_Y;
-
-      line_point[0].x = 0;
-      line_point[0].y = 0;
-      line_point[1].x = LV_HOR_RES;
-      line_point[1].y = LV_VER_RES;
-      lv_canvas_draw_line(touchpad->canvas, line_point, 2, &line_dsc);
+      line_dsc.p1.x = 0;
+      line_dsc.p1.y = 0;
+      line_dsc.p2.x = LV_HOR_RES;
+      line_dsc.p2.y = LV_VER_RES;
+      lv_draw_line(&touchpad->layer, &line_dsc);
     }
 
   /* fill blue color: right_top to left_bottom */
@@ -334,12 +346,11 @@ void draw_touch_fill(touchpad_s *touchpad, lv_point_t pos)
       line_dsc.opa = LV_OPA_COVER;
       line_dsc.color = lv_palette_main(LV_PALETTE_BLUE);
       line_dsc.width = SQUARE_Y;
-
-      line_point[0].x = LV_HOR_RES;
-      line_point[0].y = 0;
-      line_point[1].x = 0;
-      line_point[1].y = LV_VER_RES;
-      lv_canvas_draw_line(touchpad->canvas, line_point, 2, &line_dsc);
+      line_dsc.p1.x = LV_HOR_RES;
+      line_dsc.p1.y = 0;
+      line_dsc.p2.x = 0;
+      line_dsc.p2.y = LV_VER_RES;
+      lv_draw_line(&touchpad->layer, &line_dsc);
     }
 }
 
@@ -405,9 +416,10 @@ bool circle_hit_test(touchpad_s *touchpad, lv_point_t pos)
  * Name: touchpad_read
  ****************************************************************************/
 
-void touchpad_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+void touchpad_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
-  touchpad_s *touchpad = drv->user_data;
+  touchpad_s *touchpad = lv_indev_get_driver_data(indev);
+  LV_ASSERT_NULL(touchpad);
   struct touch_sample_s sample;
   lv_point_t pos;
   int nbytes;
@@ -527,10 +539,11 @@ void touchpad_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
  * Name: touchpad_init
  ****************************************************************************/
 
-bool touchpad_init(touchpad_s **touchpad, int screen_shape)
+bool touchpad_init(touchpad_s **touchpad,
+                   const char * input_path,
+                   int screen_shape)
 {
   touchpad_s *tmp_touchpad;
-  const char *device_path = CONFIG_LV_TOUCHPAD_INTERFACE_DEFAULT_DEVICEPATH;
 
   if (touchpad == NULL)
     {
@@ -547,31 +560,26 @@ bool touchpad_init(touchpad_s **touchpad, int screen_shape)
 
   *touchpad = tmp_touchpad;
 
-  tmp_touchpad->fd = open(device_path, O_RDONLY | O_NONBLOCK);
+  tmp_touchpad->fd = open(input_path, O_RDONLY | O_NONBLOCK);
   if (tmp_touchpad->fd < 0)
     {
       LV_LOG_ERROR("touchpad %s open failed: %d",
-        device_path, errno);
+        input_path, errno);
       return false;
     }
 
   tmp_touchpad->is_square = (bool)screen_shape;
 
-  lv_indev_drv_init(&(tmp_touchpad->indev_drv));
-  tmp_touchpad->indev_drv.type = LV_INDEV_TYPE_POINTER;
-  tmp_touchpad->indev_drv.read_cb = touchpad_read;
-
-#if (LV_USE_USER_DATA != 0)
-  tmp_touchpad->indev_drv.user_data = tmp_touchpad;
-#else
-#error LV_USE_USER_DATA must be enabled
-#endif
-  tmp_touchpad->indev = lv_indev_drv_register(&(tmp_touchpad->indev_drv));
+  tmp_touchpad->indev = lv_indev_create();
   if (tmp_touchpad->indev == NULL)
     {
       LV_LOG_ERROR("touchpad indev is NULL");
       return false;
     }
+
+  lv_indev_set_type(tmp_touchpad->indev, LV_INDEV_TYPE_POINTER);
+  lv_indev_set_read_cb(tmp_touchpad->indev, touchpad_read);
+  lv_indev_set_driver_data(tmp_touchpad->indev, tmp_touchpad);
 
   if (tmp_touchpad->is_square == true)
     {
@@ -580,18 +588,22 @@ bool touchpad_init(touchpad_s **touchpad, int screen_shape)
       tmp_touchpad->right_top = false;
       tmp_touchpad->left_bottom = false;
       tmp_touchpad->right_bottom = false;
-      tmp_touchpad->canvas_buf = (lv_color_t *)malloc(
-        LV_CANVAS_BUF_SIZE_TRUE_COLOR(LV_HOR_RES, LV_VER_RES) *
-        sizeof(lv_color_t));
-      if (tmp_touchpad->canvas_buf == NULL)
+
+      lv_obj_set_size(tmp_touchpad->canvas, LV_HOR_RES, LV_VER_RES);
+
+      /* Create a buffer for the canvas */
+
+      lv_draw_buf_t * draw_buf = lv_draw_buf_create(LV_HOR_RES, LV_VER_RES,
+        LV_COLOR_FORMAT_ARGB8888, LV_STRIDE_AUTO);
+      if (draw_buf == NULL)
         {
-          LV_LOG_ERROR("canvas_buf malloc failed");
+          LV_LOG_ERROR("malloc failed for canvas buffer");
           return false;
         }
 
-      lv_obj_set_size(tmp_touchpad->canvas, LV_HOR_RES, LV_VER_RES);
-      lv_canvas_set_buffer(tmp_touchpad->canvas, tmp_touchpad->canvas_buf,
-        LV_HOR_RES, LV_VER_RES, LV_IMG_CF_TRUE_COLOR);
+      lv_canvas_set_draw_buf(tmp_touchpad->canvas, draw_buf);
+      lv_canvas_init_layer(tmp_touchpad->canvas, &tmp_touchpad->layer);
+
       lv_canvas_fill_bg(tmp_touchpad->canvas,
         lv_palette_lighten(LV_PALETTE_GREY, 3),
         LV_OPA_COVER);
@@ -624,11 +636,6 @@ void touchpad_deinit(touchpad_s *touchpad)
       return;
     }
 
-  if (touchpad->canvas_buf)
-    {
-      free(touchpad->canvas_buf);
-    }
-
   if (touchpad->indev)
     {
       lv_indev_delete(touchpad->indev);
@@ -643,24 +650,6 @@ void touchpad_deinit(touchpad_s *touchpad)
 }
 
 /****************************************************************************
- * Name: lvgl_init
- ****************************************************************************/
-
-void lvgl_init(void)
-{
-  lv_init();
-#if defined(CONFIG_LV_USE_SYSLOG_INTERFACE)
-  lv_syslog_interface_init();
-#endif
-#if defined(CONFIG_LV_USE_LCDDEV_INTERFACE)
-  lv_lcddev_interface_init(NULL, 0);
-#endif
-#if defined(CONFIG_LV_USE_FBDEV_INTERFACE)
-  lv_fbdev_interface_init(NULL, 0);
-#endif
-}
-
-/****************************************************************************
  * Name: show_usage
  ****************************************************************************/
 
@@ -672,14 +661,46 @@ static void show_usage(void)
 }
 
 /****************************************************************************
+ * Name: lv_nuttx_uv_loop
+ ****************************************************************************/
+
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+static void lv_nuttx_uv_loop(uv_loop_t *loop, lv_nuttx_result_t *result)
+{
+  lv_nuttx_uv_t uv_info;
+  void *data;
+
+  uv_loop_init(loop);
+
+  lv_memset(&uv_info, 0, sizeof(uv_info));
+  uv_info.loop = loop;
+  uv_info.disp = result->disp;
+  uv_info.indev = result->indev;
+#ifdef CONFIG_UINPUT_TOUCH
+  uv_info.uindev = result->utouch_indev;
+#endif
+
+  data = lv_nuttx_uv_init(&uv_info);
+  uv_run(loop, UV_RUN_DEFAULT);
+  lv_nuttx_uv_deinit(&data);
+}
+#endif
+
+/****************************************************************************
  * Name: touchpanel_main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
+  lv_nuttx_dsc_t info;
+  lv_nuttx_result_t result;
   touchpad_s *touchpad = NULL;
   int ch;
   int screen_shape = 0;
+
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+  uv_loop_t ui_loop;
+#endif
 
   while ((ch = getopt(argc, argv, "hs::")) != -1)
     {
@@ -700,24 +721,40 @@ int main(int argc, FAR char *argv[])
       return 1;
     }
 
-  /* LVGL interface initialization */
+  /* LVGL initialization */
 
-  lvgl_init();
+  lv_init();
+  lv_nuttx_dsc_init(&info);
+  lv_nuttx_init(&info, &result);
 
-  if (!touchpad_init(&touchpad, screen_shape))
+  if (result.disp == NULL)
+    {
+      LV_LOG_ERROR("touchpad_init initialization failure!");
+      return 1;
+    }
+
+  if (!touchpad_init(&touchpad, info.input_path, screen_shape))
     {
       LV_LOG_ERROR("touchpad_init init failed");
       goto errout;
     }
 
+  /* Handle LVGL tasks */
+
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+  lv_nuttx_uv_loop(&ui_loop, &result);
+#else
   while (1)
     {
       lv_timer_handler();
       usleep(10 * 1000);
     }
+#endif
 
 errout:
   touchpad_deinit(touchpad);
+  lv_disp_remove(result.disp);
+  lv_deinit();
 
   LV_LOG_USER("Terminating!\n");
   return 0;
