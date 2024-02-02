@@ -281,7 +281,7 @@ static void marching_ones(FAR struct ramtest_s *info)
 {
   uint32_t pattern = 0x00000001;
 
-  printf(RAMTEST_PREFIX "Marching ones: %08x %d\n",
+  printf(RAMTEST_PREFIX "Marching ones: %08" PRIxPTR " %zu\n",
          info->start, info->size);
 
   while (pattern != 0)
@@ -301,7 +301,7 @@ static void marching_zeros(FAR struct ramtest_s *info)
 {
   uint32_t pattern = 0xfffffffe;
 
-  printf(RAMTEST_PREFIX "Marching zeroes: %08x %d\n",
+  printf(RAMTEST_PREFIX "Marching zeroes: %08" PRIxPTR " %zu\n",
          info->start, info->size);
 
   while (pattern != 0xffffffff)
@@ -436,7 +436,7 @@ static void verify_memory2(FAR struct ramtest_s *info, uint32_t value_1,
 static void pattern_test(FAR struct ramtest_s *info, uint32_t pattern1,
                          uint32_t pattern2)
 {
-  printf(RAMTEST_PREFIX "Pattern test: %08x %d %08" PRIx32
+  printf(RAMTEST_PREFIX "Pattern test: %08" PRIxPTR " %zu %08" PRIx32
          " %08" PRIx32 "\n",
          info->start, info->size, pattern1, pattern2);
 
@@ -548,7 +548,7 @@ static void verify_addrinaddr(FAR struct ramtest_s *info)
 
 static void addr_in_addr(FAR struct ramtest_s *info)
 {
-  printf(RAMTEST_PREFIX "Address-in-address test: %08x %d\n",
+  printf(RAMTEST_PREFIX "Address-in-address test: %08" PRIxPTR" %zu\n",
          info->start, info->size);
 
   write_addrinaddr(info);
