@@ -103,10 +103,15 @@ static void dumpfile_delete(FAR char *path, FAR const char *filename,
                             FAR void *arg)
 {
   FAR char *dumppath = arg;
+  int ret;
 
   sprintf(dumppath, "%s/%s", path, filename);
   printf("Remove %s\n", dumppath);
-  remove(dumppath);
+  ret = remove(dumppath);
+  if (ret < 0)
+    {
+      printf("Remove %s fail\n", dumppath);
+    }
 }
 
 /****************************************************************************
@@ -116,8 +121,12 @@ static void dumpfile_delete(FAR char *path, FAR const char *filename,
 static void coredump_restore(FAR char *savepath, size_t maxfile)
 {
   FAR struct coredump_info_s *info;
+  char dumppath[PATH_MAX] =
+    {
+      0
+    };
+
   unsigned char *swap;
-  char dumppath[PATH_MAX];
   struct geometry geo;
   ssize_t writesize;
   ssize_t readsize;
@@ -126,6 +135,7 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
   size_t max = 0;
   int dumpfd;
   int blkfd;
+  off_t off;
   int ret;
 
   blkfd = open(CONFIG_BOARD_COREDUMP_BLKDEV_PATH, O_RDWR);
@@ -146,8 +156,20 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
       goto blkfd_err;
     }
 
-  lseek(blkfd, (geo.geo_nsectors - 1) * geo.geo_sectorsize, SEEK_SET);
-  read(blkfd, info, geo.geo_sectorsize);
+  off = lseek(blkfd, (geo.geo_nsectors - 1) * geo.geo_sectorsize, SEEK_SET);
+  if (off < 0)
+    {
+      printf("Seek %s fail\n", CONFIG_BOARD_COREDUMP_BLKDEV_PATH);
+      goto info_err;
+    }
+
+  readsize = read(blkfd, info, geo.geo_sectorsize);
+  if (readsize != geo.geo_sectorsize)
+    {
+      printf("Read %s fail\n", CONFIG_BOARD_COREDUMP_BLKDEV_PATH);
+      goto info_err;
+    }
+
   if (info->magic != COREDUMP_MAGIC)
     {
       printf("%s coredump not found!\n", CONFIG_BOARD_COREDUMP_BLKDEV_PATH);
@@ -220,6 +242,10 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
           printf("Read %s fail\n", CONFIG_BOARD_COREDUMP_BLKDEV_PATH);
           break;
         }
+      else if (readsize == 0)
+        {
+          break;
+        }
 
       writesize = write(dumpfd, swap, readsize);
       if (writesize != readsize)
@@ -231,10 +257,31 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
       offset += writesize;
     }
 
-  printf("Coredump finish [%s][%zu]\n", dumppath, info->size);
+  if (offset < info->size)
+    {
+      printf("Coredump error [%s] need [%zu], but just get %zu\n",
+             dumppath, info->size, offset);
+    }
+  else
+    {
+      printf("Coredump finish [%s][%zu]\n", dumppath, info->size);
+    }
+
   info->magic = 0;
-  lseek(blkfd, (geo.geo_nsectors - 1) * geo.geo_sectorsize, SEEK_SET);
-  write(blkfd, info, geo.geo_sectorsize);
+  off = lseek(blkfd, (geo.geo_nsectors - 1) * geo.geo_sectorsize, SEEK_SET);
+  if (off < 0)
+    {
+      printf("Seek %s fail\n", CONFIG_BOARD_COREDUMP_BLKDEV_PATH);
+      goto swap_err;
+    }
+
+  writesize = write(blkfd, info, geo.geo_sectorsize);
+  if (writesize != geo.geo_sectorsize)
+    {
+      printf("Write %s fail\n", CONFIG_BOARD_COREDUMP_BLKDEV_PATH);
+    }
+
+swap_err:
   free(swap);
 fd_err:
   close(dumpfd);
