@@ -41,37 +41,6 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_NET_ETHERNET
-static void icmpv6_linkipaddr_6(FAR const uint8_t *mac, FAR uint16_t *ipaddr)
-{
-  ipaddr[0]  = htons(0xfe80);
-  ipaddr[1]  = 0;
-  ipaddr[2]  = 0;
-  ipaddr[3]  = 0;
-  ipaddr[4]  = htons(mac[0] << 8 | mac[1]);
-  ipaddr[5]  = htons(mac[2] << 8 | 0x00ff);
-  ipaddr[6]  = htons(0x00fe << 8 | mac[3]);
-  ipaddr[7]  = htons(mac[4] << 8 | mac[5]);
-  ipaddr[4] ^= htons(0x0200);
-}
-
-static void dhcpv6_set_lladdr(FAR const char *ifname)
-{
-  struct in6_addr addr6;
-  uint8_t mac[IFHWADDRLEN];
-
-  /* Get the MAC address of the NIC */
-
-  netlib_getmacaddr(ifname, mac);
-
-  /* Set the Link Local Address of the NIC */
-
-  icmpv6_linkipaddr_6(mac, (uint16_t *)&addr6);
-  netlib_set_ipv6addr(ifname, &addr6);
-  netlib_prefix2ipv6netmask(64, &addr6);
-}
-#endif
-
 static int dhcpv6_setup_result(FAR const char *ifname,
                                FAR struct dhcp6c_state *presult)
 {
@@ -120,9 +89,6 @@ static int dhcpv6_obtain_statefuladdr(FAR const char *ifname)
   int ret;
 
   memset(&result, 0, sizeof(result));
-#ifdef CONFIG_NET_ETHERNET
-  dhcpv6_set_lladdr(ifname);
-#endif
   handle = dhcp6c_open(ifname);
 
   ret = dhcp6c_request(handle, &result);
