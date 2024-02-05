@@ -24,7 +24,7 @@ if(CONFIG_BENCHMARK_SPINLOCK)
   # Config and Fetch Coremark application
   # ############################################################################
 
-  set(SPINLOCKAPP_DIR ${CMAKE_CURRENT_LIST_DIR}/spinlock_bench)
+  set(SPINLOCKAPP_DIR ${CMAKE_CURRENT_LIST_DIR})
 
   # ############################################################################
   # Sources
