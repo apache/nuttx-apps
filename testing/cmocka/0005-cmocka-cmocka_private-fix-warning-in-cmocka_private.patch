@@ -1,0 +1,31 @@
+From bc244df86faa4ac979009a2738c7bb365ee701e1 Mon Sep 17 00:00:00 2001
+From: yintao <yintao@xiaomi.com>
+Date: Fri, 6 Jan 2023 02:03:31 +0800
+Subject: [PATCH] cmocka/cmocka_private:fix warning in cmocka_private
+
+VELAPLATFO-4452
+
+cmocka/include/cmocka_private.h:102:6:error:__WORDSIZE is not defined
+
+Change-Id: Ib3000a12eddec8a247827a32ce3d998cc3497f4b
+Signed-off-by: yintao <yintao@xiaomi.com>
+---
+ include/cmocka_private.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/cmocka_private.h b/include/cmocka_private.h
+index 4d3ff30..6afab25 100644
+--- a/include/cmocka_private.h
++++ b/include/cmocka_private.h
+@@ -99,7 +99,7 @@ WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
+ #else /* _WIN32 */
+ 
+ #ifndef __PRI64_PREFIX
+-# if __WORDSIZE == 64
++# if defined(__WORDSIZE) && __WORDSIZE == 64
+ #  define __PRI64_PREFIX "l"
+ # else
+ #  define __PRI64_PREFIX "ll"
+-- 
+2.25.1
+
