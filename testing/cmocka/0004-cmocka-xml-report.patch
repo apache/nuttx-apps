@@ -1,0 +1,45 @@
+From 875c97edec8143ab66dc73290f8170f8bcd27f6a Mon Sep 17 00:00:00 2001
+From: zhangchao53 <zhangchao53@xiaomi.com>
+Date: Sun, 10 Sep 2023 16:36:58 +0800
+Subject: [PATCH 680/680] Use xml report instead of standard output, support
+ mutiply testsuite
+
+Change-Id: Ia9f339b76d7e2d9509d4be04cc62b4c3ea6f5fe0
+Signed-off-by: zhangchao53 <zhangchao53@xiaomi.com>
+---
+ src/cmocka.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/cmocka.c cmocka/src/cmocka.c
+index ede5b22..ec47f4e 100644
+--- a/src/cmocka.c
++++ cmocka/src/cmocka.c
+@@ -2532,6 +2532,7 @@ static void cmprintf_group_finish_xml(const char *group_name,
+         if (fp == NULL) {
+             fp = fopen(buf, "w");
+             if (fp != NULL) {
++                xml_printed = 0;
+                 file_append = 1;
+                 file_opened = 1;
+             } else {
+@@ -2554,13 +2555,15 @@ static void cmprintf_group_finish_xml(const char *group_name,
+     }
+ 
+     if (!xml_printed || (file_opened && !file_append)) {
+-        fprintf(fp, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
++        fprintf(fp, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<testsuites>\n");
+         if (!file_opened) {
+             xml_printed = 1;
+         }
++    } else {
++        fseek(fp, strlen("</testsuites>\n") * -1, SEEK_END);
++        ftruncate(fileno(fp), ftell(fp));
+     }
+ 
+-    fprintf(fp, "<testsuites>\n");
+     fprintf(fp, "  <testsuite name=\"%s\" time=\"%.3f\" "
+                 "tests=\"%u\" failures=\"%u\" errors=\"%u\" skipped=\"%u\" >\n",
+                 group_name,
+-- 
+2.25.1
+

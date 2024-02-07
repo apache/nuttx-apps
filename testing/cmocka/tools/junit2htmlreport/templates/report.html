@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>
+    Test Report : {{ report.title }}
+</h1>
+<a id="toc"></a>
+<table class="index-table">
+    <tr>
+        <td>
+            <ul class="toc">
+            {% for suite in report %}
+                <li>{{suite.name}}
+                <ul>
+                    {% for test in suite.cases %}
+                    <li><a href="#{{test.anchor()}}">{{test.name}}</a></li>
+                    {% endfor %}
+                </ul>
+                </li>
+            {% endfor %}
+            </ul>
+        </td>
+        <td class="failure-index">
+            <ul class="toc">
+            {% for suite in report %}
+                {% for test in suite.cases %}
+                {% if test.outcome != "passed" %}
+                <li><a href="#{{test.anchor()}}">{{test.prefix()}} {{test.name}}</a></li>
+                {% endif %}
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </td>
+    </tr>
+</table>
+
+{% for suite in report %}
+    <div class="testsuite">
+        <h2>Test Suite: {{ suite.name }}</h2>
+        <a id="{{ suite.anchor() }}"></a>
+        {% if suite.package %}
+        <span>Package: {{suite.package}}</span>
+        {% endif %}
+        {% if suite.properties %}
+        <h3>Suite Properties</h3>
+        <table class="proplist">
+            {% for prop in suite.properties %}
+            <tr>
+                <th>{{prop.name}}</th><td>{{prop.value}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        <h3>summary</h3>
+        <table class="proplist">
+            <tr>
+                <th>time</th><td>{{suite.duration |round(1)}} sec</td>
+            </tr>
+            <tr>
+                <th>tests</th><td>{{suite.tests_num}}</td>
+            </tr>
+            <tr>
+                <th>failures</th><td>{{suite.failures_num}}</td>
+            </tr>
+            <tr>
+                <th>errors</th><td>{{suite.errors_num}}</td>
+            </tr>
+            <tr>
+                <th>skipped</th><td>{{suite.skipped_num}}</td>
+            </tr>
+        </table>
+
+        <h3>cases</h3>
+        <div class="testclass">
+            {% for test in suite.cases %}
+                <div class="test outcome outcome-{{test.outcome}}">
+                    <a id="{{test.anchor()}}"></a>
+                    <table class="proplist">
+                        <tr><th>name</th><td><b>{{test.name}}</b></td></tr>
+                        <tr><th>outcome</th><td>{{test.outcome}}</td></tr>
+                        <tr><th>time</th><td>{{test.duration|round(1)}} sec</td></tr>
+                    {% if test.msg is not none %}
+                        <tr><td>{{test.msg}}</td></tr>
+                    {% endif %}
+                    </table>
+
+                    {% if test.text is not none %}
+                    <pre>{{test.text}}</pre>
+                    {% endif %}
+
+                    {% if test.properties %}
+                    <table class="proplist">
+                        {% for prop in test.properties %}
+                        <tr>
+                            <th>{{prop.name}}</th><td>{{prop.value}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
+                    {% if test.stdout %}
+                    <div class="stdout"><i>Stdout</i><br>
+                        <pre>{{test.stdout}}</pre>
+                    </div>
+                    {% endif %}
+                    {% if test.stderr %}
+                    <div class="stderr"><i>Stderr</i><br>
+                        <pre>{{test.stderr}}</pre>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% if suite.stdout or suite.stderr %}
+        <h3>Suite stdout:</h3>
+        <pre class="stdio">{{suite.stdout}}</pre>
+        <h3>Suite stderr:</h3>
+        <pre class="stdio">{{suite.stderr}}</pre>
+    {% endif %}
+{% endfor %}
+
+{% endblock %}
