@@ -690,6 +690,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   FAR const char *str;
   struct lib_memoutstream_s stream;
   struct utsname info;
+  struct utsname output;
   unsigned int set;
   int option;
   bool badarg;
@@ -780,8 +781,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Process each option */
 
   first = true;
-  lib_memoutstream(&stream, alloca(sizeof(struct utsname)),
-                   sizeof(struct utsname));
+  lib_memoutstream(&stream, (FAR char *)&output, sizeof(output));
   for (i = 0; set != 0; i++)
     {
       unsigned int mask = (1 << i);
