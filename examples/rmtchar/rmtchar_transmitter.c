@@ -78,7 +78,7 @@ pthread_addr_t rmtchar_transmitter(pthread_addr_t arg)
 {
   FAR struct rmtchar_state_s *rmtchar = (FAR struct rmtchar_state_s *)arg;
   struct rmt_item32_s buf[rmtchar->rmtchar_items];
-  int duration = 100;
+  int duration = 1000;
   int nwritten;
   int fd;
   int i;
