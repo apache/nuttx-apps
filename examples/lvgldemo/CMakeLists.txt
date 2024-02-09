@@ -28,6 +28,8 @@ if(CONFIG_EXAMPLES_LVGLDEMO)
     ${CONFIG_EXAMPLES_LVGLDEMO_STACKSIZE}
     MODULE
     ${CONFIG_EXAMPLES_LVGLDEMO}
+    DEPENDS
+    lvgl_nuttx
     SRCS
     lvgldemo.c)
 endif()
