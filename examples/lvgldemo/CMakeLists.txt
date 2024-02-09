@@ -29,7 +29,7 @@ if(CONFIG_EXAMPLES_LVGLDEMO)
     MODULE
     ${CONFIG_EXAMPLES_LVGLDEMO}
     DEPENDS
-    lvgl_nuttx
+    lvgl
     SRCS
     lvgldemo.c)
 endif()
