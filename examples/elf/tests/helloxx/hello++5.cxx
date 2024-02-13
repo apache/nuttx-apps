@@ -154,7 +154,7 @@ void CThingSayer::ThrowThing(void)
 void CThingSayer::ThrowMyThing(const char *czSayThis = NULL)
 {
   cout << "CThingSayer::ThrowMyThing: I am now throwing an MyException (with reason)." << endl;
-  throw MyException(tring(czSayThis));
+  throw MyException(string(czSayThis));
 }
 
 /////////////////////////////////////////////////////////////////////////////
