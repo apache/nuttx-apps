@@ -94,7 +94,7 @@ bool xMBMasterPortEventPost(eMBMasterEventType eEvent)
   return true;
 }
 
-bool xMBMasterPortEventGet(eMBMasterEventType * eEvent)
+bool xMBMasterPortEventGet(eMBMasterEventType *eEvent)
 {
   bool xEventHappened = false;
 
@@ -227,7 +227,7 @@ void vMBMasterRunResRelease(void)
  */
 
 void vMBMasterErrorCBRespondTimeout(uint8_t ucDestAddress,
-                                    const uint8_t * pucPDUData,
+                                    const uint8_t *pucPDUData,
                                     uint16_t usPDULength)
 {
   xMBMasterPortEventPost(EV_MASTER_ERROR_RESPOND_TIMEOUT);
@@ -243,7 +243,7 @@ void vMBMasterErrorCBRespondTimeout(uint8_t ucDestAddress,
  */
 
 void vMBMasterErrorCBReceiveData(uint8_t ucDestAddress,
-                                 const uint8_t * pudPDUData,
+                                 const uint8_t *pudPDUData,
                                  uint16_t usPDULength)
 {
   xMBMasterPortEventPost(EV_MASTER_ERROR_RECEIVE_DATA);
@@ -259,7 +259,7 @@ void vMBMasterErrorCBReceiveData(uint8_t ucDestAddress,
  */
 
 void vMBMasterErrorCBExecuteFunction(uint8_t ucDestAddress,
-                                     const uint8_t * pucPDUData,
+                                     const uint8_t *pucPDUData,
                                      uint16_t usPDULength)
 {
   xMBMasterPortEventPost(EV_MASTER_ERROR_EXECUTE_FUNCTION);

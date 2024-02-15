@@ -429,6 +429,13 @@ eMBErrorCode eMBMasterPoll(void)
 
           vMBMasterRunResRelease();
           break;
+
+          case EV_MASTER_PROCESS_SUCCESS:
+          case EV_MASTER_ERROR_RESPOND_TIMEOUT:
+          case EV_MASTER_ERROR_RECEIVE_DATA:
+          case EV_MASTER_ERROR_EXECUTE_FUNCTION:
+          default:
+          break;
         }
     }
 

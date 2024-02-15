@@ -280,7 +280,7 @@ int main(int argc, FAR char *argv[])
 
   if (ret != OK)
     {
-      fprintf(stderr, "mbmaster_main: ",
+      fprintf(stderr, "mbmaster_main: "
               "ERROR: mbmaster_initialize failed: %d\n", ret);
       goto errout;
     }
@@ -292,10 +292,14 @@ int main(int argc, FAR char *argv[])
 
   if (ret != OK)
     {
-      fprintf(stderr, "mbmaster_main: ",
+      fprintf(stderr, "mbmaster_main: "
               "ERROR: mbmaster_pollthread create failed: %d\n", ret);
       goto errout_with_initialize;
     }
+
+  /* Work around to give time to pthread_create run the modbus poller */
+
+  usleep(100000);
 
   printf("Sending %d requests to slave %d\n",
          MBMASTER_REQUESTS_COUNT, SLAVE_ID);
