@@ -126,7 +126,7 @@ bool xMBPortEventGet(eMBEventType *eEvent);
 
 bool xMBMasterPortEventInit(void);
 bool xMBMasterPortEventPost(eMBMasterEventType eEvent);
-bool xMBMasterPortEventGet(eMBMasterEventType * eEvent);
+bool xMBMasterPortEventGet(eMBMasterEventType *eEvent);
 void vMBMasterOsResInit(void);
 bool xMBMasterRunResTake(int32_t time);
 void vMBMasterRunResRelease(void);
@@ -138,7 +138,7 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
 void vMBPortClose(void);
 void xMBPortSerialClose(void);
 void vMBPortSerialEnable(bool xRxEnable, bool xTxEnable);
-bool xMBPortSerialGetByte(int8_t * pucByte);
+bool xMBPortSerialGetByte(int8_t *pucByte);
 bool xMBPortSerialPutByte(int8_t ucByte);
 
 bool xMBMasterPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
@@ -146,7 +146,7 @@ bool xMBMasterPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
 void vMBMasterPortClose(void);
 void xMBMasterPortSerialClose(void);
 void vMBMasterPortSerialEnable(bool xRxEnable, bool xTxEnable);
-bool xMBMasterPortSerialGetByte(int8_t * pucByte);
+bool xMBMasterPortSerialGetByte(int8_t *pucByte);
 bool xMBMasterPortSerialPutByte(int8_t ucByte);
 
 /* Timers functions */

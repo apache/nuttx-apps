@@ -278,7 +278,7 @@ bool xMBMasterRTUReceiveFSM(void)
 
   /* Always read the character. */
 
-  xMBMasterPortSerialGetByte((uint8_t *) & ucByte);
+  xMBMasterPortSerialGetByte((int8_t *) & ucByte);
 
   switch (eRcvState)
     {
@@ -396,6 +396,10 @@ bool xMBMasterRTUTransmitFSM(void)
               vMBMasterPortTimersRespondTimeoutEnable();
             }
         }
+      break;
+
+      case STATE_M_TX_XFWR:
+      default:
       break;
     }
 
