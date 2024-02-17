@@ -47,6 +47,7 @@ if(CONFIG_IEEE802154_I8SAK)
       i8sak_set.c
       i8sak_reset.c
       i8sak_regdump.c
+      i8sak_tracedump.c
       i8sak_events.c)
 
   target_sources(apps PRIVATE ${CSRCS})

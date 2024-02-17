@@ -95,6 +95,7 @@ static const struct i8sak_command_s g_i8sak_commands[] =
   {"get",         (CODE void *)i8sak_get_cmd},
   {"poll",        (CODE void *)i8sak_poll_cmd},
   {"regdump",     (CODE void *)i8sak_regdump_cmd},
+  {"tracedump",   (CODE void *)i8sak_tracedump_cmd},
   {"reset",       (CODE void *)i8sak_reset_cmd},
   {"scan",        (CODE void *)i8sak_scan_cmd},
   {"set",         (CODE void *)i8sak_set_cmd},
@@ -810,6 +811,7 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    get [-h] parameter\n"
           "    poll [-h]\n"
           "    regdump [-h]\n"
+          "    tracedump [-h]\n"
           "    reset [-h]\n"
           "    scan [-h|p|a|e] minch-maxch\n"
           "    set [-h] param val\n"
