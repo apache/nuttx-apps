@@ -434,6 +434,7 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   return ret;
 
 errout:
+  optind = 0;
   nsh_error(vtbl, errfmt, argv[0]);
   return ERROR;
 }
