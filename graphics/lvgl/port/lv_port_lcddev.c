@@ -148,6 +148,8 @@ static FAR lv_disp_t *lcddev_init(int fd,
       return NULL;
     }
 
+  memset(lcddev_obj, 0, sizeof(struct lcddev_obj_s));
+
   buf1 = malloc(buf_size);
   if (buf1 == NULL)
     {
