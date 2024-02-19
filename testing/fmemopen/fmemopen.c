@@ -88,7 +88,7 @@ static int fmemopen_read_test(void)
   n = fputs(correctbuf, stream);
   if (n >= 0)
     {
-      printf("fmemopen_read_test: error: fputs was successful but" \
+      printf("fmemopen_read_test: error: fputs was successful but"
              "write not permited!.\n");
       fclose(stream);
       return -1;
@@ -181,7 +181,7 @@ static int fmemopen_seek_test(void)
   n = fread(buf, 1, 1, stream);
   if ((n != 1) || (correctbuf[size - 1] != buf[0]))
     {
-      printf("fmemopen_seek_test: read at SEEK_END failed:" \
+      printf("fmemopen_seek_test: read at SEEK_END failed:"
              "expected: %c, read %c\n", correctbuf[size - 1], buf[0]);
       fclose(stream);
       return -1;
@@ -200,7 +200,7 @@ static int fmemopen_seek_test(void)
   n = fread(buf, 1, 1, stream);
   if ((n != 1) || (correctbuf[0] != buf[0]))
     {
-      printf("fmemopen_seek_test: read at SEEK_SET failed:" \
+      printf("fmemopen_seek_test: read at SEEK_SET failed:"
              "expected: %c, read %c\n", correctbuf[0], buf[0]);
       fclose(stream);
       return -1;
@@ -221,7 +221,7 @@ static int fmemopen_seek_test(void)
   n = fread(buf, 1, 1, stream);
   if ((n != 1) || (correctbuf[10] != buf[0]))
     {
-      printf("fmemopen_seek_test: read at SEEK_CUR failed:" \
+      printf("fmemopen_seek_test: read at SEEK_CUR failed:"
              "expected: %c, read %c\n", correctbuf[10], buf[0]);
       fclose(stream);
       return -1;
