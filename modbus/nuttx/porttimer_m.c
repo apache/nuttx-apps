@@ -75,7 +75,7 @@ bool bTimeoutEnable;               /* timeout is active */
  * Private Functions
  ****************************************************************************/
 
-void vMBMasterPortTimersEnable( void )
+void vMBMasterPortTimersEnable(void)
 {
   int res = gettimeofday(&xTimeLast, NULL);
 
@@ -114,33 +114,33 @@ bool xMBMasterPortTimersInit(uint16_t usTimeOut50us)
   return xMBMasterPortSerialSetTimeout(ulTimeOut);
 }
 
-void xMBMasterPortTimersClose()
+void xMBMasterPortTimersClose(void)
 {
   /* Does not use any hardware resources. */
 }
 
-INLINE void vMBMasterPortTimersT35Enable( void )
+INLINE void vMBMasterPortTimersT35Enable(void)
 {
   vMBMasterPortTimersEnable();
   ulTimeOut = ulTimeoutT35;
   vMBMasterSetCurTimerMode(MB_TMODE_T35);
 }
 
-INLINE void vMBMasterPortTimersConvertDelayEnable( void )
+INLINE void vMBMasterPortTimersConvertDelayEnable(void)
 {
   vMBMasterPortTimersEnable();
   ulTimeOut = ulTimeoutConvertDelay;
   vMBMasterSetCurTimerMode(MB_TMODE_CONVERT_DELAY);
 }
 
-INLINE void vMBMasterPortTimersRespondTimeoutEnable( void )
+INLINE void vMBMasterPortTimersRespondTimeoutEnable(void)
 {
   vMBMasterPortTimersEnable();
   ulTimeOut = ulTimeoutResponse;
-  vMBMasterSetCurTimerMode( MB_TMODE_RESPOND_TIMEOUT );
+  vMBMasterSetCurTimerMode(MB_TMODE_RESPOND_TIMEOUT);
 }
 
-void vMBMasterPortTimerPoll( void )
+void vMBMasterPortTimerPoll(void)
 {
   uint32_t       ulDeltaMS;
   struct timeval xTimeCur;
@@ -168,7 +168,7 @@ void vMBMasterPortTimerPoll( void )
     }
 }
 
-void vMBMasterPortTimersDisable()
+void vMBMasterPortTimersDisable(void)
 {
   bTimeoutEnable = false;
 }

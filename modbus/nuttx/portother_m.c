@@ -84,7 +84,10 @@ void vMBMasterPortLog(eMBPortLogLevel eLevel, const char * szModule,
   va_list  args;
   FILE    *fOutput = fLogFile == NULL ? stderr : fLogFile;
 
-  static const char *arszLevel2Str[] = { "ERROR", "WARN", "INFO", "DEBUG" };
+  static const char *arszLevel2Str[] =
+  {
+    "ERROR", "WARN", "INFO", "DEBUG"
+  };
 
   i = snprintf(szBuf, NELEMS(szBuf),
                "%s: %s: ", arszLevel2Str[eLevel], szModule);

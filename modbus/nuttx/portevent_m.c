@@ -102,7 +102,6 @@ bool xMBMasterPortEventGet(eMBMasterEventType *eEvent)
 
   if (eQueuedEvent & ~(WAITER_EVENTS))
     {
-
       /* Fetch events by priority */
 
       if (eQueuedEvent & EV_MASTER_READY)
@@ -136,9 +135,9 @@ bool xMBMasterPortEventGet(eMBMasterEventType *eEvent)
   else
     {
       /* Poll the serial device. The serial device timeouts if no characters
-       * have been received within for t3.5 during an active transmission or if
-       * nothing happens within a specified amount of time. Both timeouts are
-       * configured from the timer init functions.
+       * have been received within for t3.5 during an active transmission or
+       * if nothing happens within a specified amount of time. Both timeouts
+       * are configured from the timer init functions.
        */
 
       xMBMasterPortSerialPoll();
@@ -188,6 +187,7 @@ bool xMBMasterRunResTake(int32_t lTimeOut)
         {
           return false;
         }
+
       return true;
     }
   else
@@ -198,6 +198,7 @@ bool xMBMasterRunResTake(int32_t lTimeOut)
         {
           return false;
         }
+
       return true;
     }
 }
@@ -274,7 +275,8 @@ void vMBMasterCBRequestSuccess(void)
   xMBMasterPortEventPost(EV_MASTER_PROCESS_SUCCESS);
 }
 
-/* This function will wait for Modbus Master request finish and return result.
+/* This function will wait for Modbus Master request finish
+ * and return result.
  */
 
 eMBMasterReqErrCode eMBMasterWaitRequestFinish(void)
@@ -303,6 +305,7 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(void)
         {
           eErrStatus = MB_MRE_EXE_FUN;
         }
+
       eQueuedEvent &= ~WAITER_EVENTS;
     }
 
