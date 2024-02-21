@@ -207,7 +207,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
        * occurs. Either  will cause the session to terminate.
        */
 
-      ret = cle_fd(pstate->cn_line, g_nshprompt, CONFIG_NSH_LINELEN,
+      ret = cle_fd(pstate->cn_line, nsh_prompt(), CONFIG_NSH_LINELEN,
                    INFD(pstate), OUTFD(pstate));
       if (ret < 0)
         {
@@ -218,7 +218,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 #else
       /* Display the prompt string */
 
-      write(OUTFD(pstate), g_nshprompt, strlen(g_nshprompt));
+      write(OUTFD(pstate), nsh_prompt(), strlen(nsh_prompt()));
 
       /* readline() normally returns the number of characters read, but
        * will return EOF on end of file or if an error occurs.  EOF
@@ -243,6 +243,7 @@ int nsh_session(FAR struct console_stdio_s *pstate,
       /* Parse process the command */
 
       nsh_parse(vtbl, pstate->cn_line);
+      nsh_update_prompt();
     }
 
   return ret;

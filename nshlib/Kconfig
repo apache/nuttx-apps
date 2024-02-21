@@ -66,7 +66,31 @@ config NSH_PROMPT_STRING
 	string "Prompt String"
 	default "nsh> "
 	---help---
-		Provide the shell prompt string, default is "nsh> ".
+		Provide the shell prompt string with size limit NSH_PROMPT_MAX.
+		default is "nsh> ".
+
+config NSH_PROMPT_MAX
+	int "Maximum Size of Prompt String"
+	default NAME_MAX
+	---help---
+		The maximum size of shell prompt string, including ending null.
+
+config NSH_PROMPT_ENV
+	string "Prompt String Environment Variable"
+	default "PS1"
+	depends on !DISABLE_ENVIRON
+	---help---
+		The environment variable name containing prompt string.
+		Only used when NSH_PROMPT_STRING is empty.
+
+config NSH_PROMPT_SUFFIX
+	string "Suffix used to derive fallback prompt string"
+	default "> "
+	---help---
+		When NSH_PROMPT_STRING is empty, the environment variable defined
+		by NSH_PROMPT_ENV or hostname will be used to derive the prompt
+		at runtime. This suffix is a part of the final prompt that serves
+		to clearly separate prompt from user inputs.
 
 config NSH_DISABLE_ECHOBACK
 	bool "Disable echoback"

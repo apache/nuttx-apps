@@ -37,6 +37,7 @@ if(CONFIG_NSH_LIBRARY)
     nsh_mmcmds.c
     nsh_timcmds.c
     nsh_envcmds.c
+    nsh_prompt.c
     nsh_syscmds.c
     nsh_dbgcmds.c)
 

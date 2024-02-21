@@ -748,7 +748,6 @@ extern const char g_loginsuccess[];
 extern const char g_badcredentials[];
 extern const char g_loginfailure[];
 #endif
-extern const char g_nshprompt[];
 extern const char g_fmtsyntax[];
 extern const char g_fmtargrequired[];
 extern const char g_fmtnomatching[];
@@ -824,6 +823,11 @@ struct console_stdio_s;
 int nsh_session(FAR struct console_stdio_s *pstate,
                 int login, int argc, FAR char *argv[]);
 int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
+
+/* Prompt string handling */
+
+FAR const char *nsh_prompt(void);
+void nsh_update_prompt(void);
 
 /****************************************************************************
  * Name: nsh_login
