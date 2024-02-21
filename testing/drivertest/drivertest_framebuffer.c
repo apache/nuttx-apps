@@ -40,6 +40,7 @@
 #include <debug.h>
 #include <string.h>
 #include <inttypes.h>
+#include <poll.h>
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -77,6 +78,9 @@
 struct fb_info_s
 {
   FAR void *fb_mem;
+  FAR void *fb_mem2;
+  FAR void *act_fbmem;
+  uint32_t mem2_yoffset;
   struct fb_planeinfo_s plane_info;
   struct fb_videoinfo_s video_info;
 };
@@ -106,7 +110,7 @@ struct fb_state_s
  ****************************************************************************/
 
 static void fb_help(FAR const char *progname,
-                     FAR struct fb_state_s *fb_state, int exitcode)
+                    FAR struct fb_state_s *fb_state, int exitcode)
 {
   printf("Usage: %s"
          " -p <devpath> -t <testcase>\n",
@@ -171,14 +175,81 @@ static void parse_commandline(FAR struct fb_state_s *fb_state, int argc,
 }
 
 /****************************************************************************
+ * fb_init_mem2
+ ****************************************************************************/
+
+static int fb_init_mem2(FAR struct fb_state_s *state,
+                        FAR struct fb_planeinfo_s *pinfo)
+{
+  int ret;
+  uintptr_t buf_offset;
+
+  pinfo->display = state->fb_info.plane_info.display + 1;
+
+  ret = ioctl(state->fb_device, FBIOGET_PLANEINFO,
+              (unsigned long)(uintptr_t)pinfo);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      printf("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errcode);
+      return EXIT_FAILURE;
+    }
+
+  /* Check bpp */
+
+  if (pinfo->bpp != state->fb_info.plane_info.bpp)
+    {
+      printf("ERROR: fbmem2 is incorrect");
+      return -EINVAL;
+    }
+
+  /* Check the buffer address offset,
+   * It needs to be divisible by pinfo.stride
+   */
+
+  buf_offset = pinfo->fbmem - state->fb_info.fb_mem;
+
+  if ((buf_offset % state->fb_info.plane_info.stride) != 0)
+    {
+      printf("ERROR: It is detected that buf_offset(%" PRIuPTR ") "
+             "and stride(%d) are not divisible, please ensure "
+             "that the driver handles the address offset by itself.",
+             buf_offset, state->fb_info.plane_info.stride);
+    }
+
+  /* Calculate the address and yoffset of fbmem2 */
+
+  if (buf_offset == 0)
+    {
+      /* Use consecutive fbmem2. */
+
+      state->fb_info.mem2_yoffset = state->fb_info.video_info.yres;
+      state->fb_info.fb_mem2 =
+          pinfo->fbmem + state->fb_info.mem2_yoffset * pinfo->stride;
+    }
+  else
+    {
+      /* Use non-consecutive fbmem2. */
+
+      state->fb_info.mem2_yoffset =
+          buf_offset / state->fb_info.plane_info.stride;
+      state->fb_info.fb_mem2 = pinfo->fbmem;
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * Name: fb_setup
  ****************************************************************************/
 
 static int fb_setup(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
+  struct fb_planeinfo_s pinfo;
   int ret = 0;
 
+  memset(&pinfo, 0, sizeof(struct fb_planeinfo_s));
   fb_state = (struct fb_state_s *)*state;
   fb_state->fb_device = open(fb_state->devpath, O_RDWR);
   assert_true(fb_state->fb_device > 0);
@@ -196,28 +267,105 @@ static int fb_setup(FAR void **state)
 
   assert_ptr_not_equal(fb_state->fb_info.fb_mem, MAP_FAILED);
 
+  /* double buffer mode */
+
+  if (fb_state->fb_info.plane_info.yres_virtual ==
+      (fb_state->fb_info.video_info.yres * 2))
+    {
+      if ((ret = fb_init_mem2(fb_state, &pinfo)) < 0)
+        {
+          return 0;
+        }
+    }
+
+  fb_state->fb_info.act_fbmem = fb_state->fb_info.fb_mem;
+
   return 0;
+}
+
+/****************************************************************************
+ * pan_display
+ ****************************************************************************/
+
+static void pan_display(FAR struct fb_state_s *state)
+{
+  struct pollfd pfd;
+  int ret;
+  pfd.fd = state->fb_device;
+  pfd.events = POLLOUT;
+
+  ret = poll(&pfd, 1, 0);
+
+  if (ret > 0)
+    {
+      if (state->fb_info.fb_mem2 == NULL)
+        {
+          return;
+        }
+
+      if (state->fb_info.act_fbmem == state->fb_info.fb_mem)
+        {
+          state->fb_info.plane_info.yoffset = 0;
+        }
+      else
+        {
+          state->fb_info.plane_info.yoffset = state->fb_info.mem2_yoffset;
+        }
+
+      ioctl(state->fb_device, FBIOPAN_DISPLAY,
+            (unsigned long)(uintptr_t)&state->fb_info.plane_info);
+
+      state->fb_info.act_fbmem =
+          state->fb_info.act_fbmem == state->fb_info.fb_mem ?
+          state->fb_info.fb_mem2 : state->fb_info.fb_mem;
+    }
+}
+
+/****************************************************************************
+ * sync_area
+ ****************************************************************************/
+
+static void sync_area(FAR struct fb_state_s *state)
+{
+  if (state->fb_info.fb_mem2 == NULL)
+    {
+      return;
+    }
+
+  if (state->fb_info.act_fbmem == state->fb_info.fb_mem)
+    {
+      memcpy(state->fb_info.fb_mem, state->fb_info.fb_mem2,
+             state->fb_info.video_info.yres *
+             state->fb_info.plane_info.stride);
+    }
+  else
+    {
+      memcpy(state->fb_info.fb_mem2, state->fb_info.fb_mem,
+             state->fb_info.video_info.yres *
+             state->fb_info.plane_info.stride);
+    }
 }
 
 /****************************************************************************
  * Name: draw_rect
  ****************************************************************************/
 
-static void draw_rect(FAR struct fb_info_s *fb_info, int x, int y,
-                     int w, int h, uint32_t color)
+static void draw_rect(FAR struct fb_state_s *fb_state, int x, int y,
+                      int w, int h, uint32_t color)
 {
   int i = 0;
   int j = 0;
   uint8_t *fb_tmp;
   uint32_t *fb_bpp32;
   uint16_t *fb_bpp16;
+  struct fb_info_s *fb_info = &fb_state->fb_info;
   const uint8_t bpp = fb_info->plane_info.bpp;
   const uint32_t xres = fb_info->video_info.xres;
   const uint32_t yres = fb_info->video_info.yres;
 
   for (j = y; j <= (y + h - 1) && j < yres; j++)
     {
-      fb_tmp = fb_info->fb_mem + (j * fb_info->plane_info.stride);
+      fb_tmp = fb_info->act_fbmem + (j * fb_info->plane_info.stride);
       for (i = x; i <= (x + w - 1) && x < xres; i++)
         {
           if (bpp == 32)
@@ -231,6 +379,13 @@ static void draw_rect(FAR struct fb_info_s *fb_info, int x, int y,
               *(fb_bpp16 + i) = COLOR_888_TO_565(color);
             }
         }
+    }
+
+  if (fb_info->plane_info.yres_virtual == (fb_info->video_info.yres * 2))
+    {
+      pan_display(fb_state);
+      usleep(50 * 1000);
+      sync_area(fb_state);
     }
 }
 
@@ -246,7 +401,7 @@ static void test_case_fb_0(FAR void **state)
   const uint32_t xres = fb_state->fb_info.video_info.xres;
   const uint32_t yres = fb_state->fb_info.video_info.yres;
 
-  draw_rect(&fb_state->fb_info, 0, 0, xres, yres, 0xff000000);
+  draw_rect(fb_state, 0, 0, xres, yres, 0xff000000);
 }
 
 /****************************************************************************
@@ -261,7 +416,7 @@ static void test_case_fb_1(FAR void **state)
   const uint32_t xres = fb_state->fb_info.video_info.xres;
   const uint32_t yres = fb_state->fb_info.video_info.yres;
 
-  draw_rect(&fb_state->fb_info, 0, 0, xres, yres, 0xffffffff);
+  draw_rect(fb_state, 0, 0, xres, yres, 0xffffffff);
 }
 
 /****************************************************************************
@@ -294,8 +449,7 @@ static void test_case_fb_2(FAR void **state)
           step_width = xres - start_x;
         }
 
-      draw_rect(&fb_state->fb_info, start_x, 0, step_width, yres,
-                  colors_to_show[i]);
+      draw_rect(fb_state, start_x, 0, step_width, yres, colors_to_show[i]);
     }
 }
 
@@ -326,8 +480,8 @@ static void test_case_fb_3(FAR void **state)
         }
 
       gray_color = (0xff / step_num) * i;
-      draw_rect(&fb_state->fb_info, 0, start_y, xres, step_height,
-                  gray_color << 16 | gray_color << 8 | gray_color);
+      draw_rect(fb_state, 0, start_y, xres, step_height,
+                gray_color << 16 | gray_color << 8 | gray_color);
     }
 }
 
@@ -365,24 +519,24 @@ int main(int argc, FAR char *argv[])
 
   memset(&fb_state, 0, sizeof(struct fb_state_s));
   snprintf(fb_state.devpath, sizeof(fb_state.devpath), "%s",
-                                       FB_DEFAULT_DEVPATH);
+           FB_DEFAULT_DEVPATH);
 
   parse_commandline(&fb_state, argc, argv);
 
   const struct CMUnitTest tests[] =
   {
     cmocka_unit_test_prestate_setup_teardown(test_case_fb_0, fb_setup,
-                                               fb_teardown, &fb_state),
+                                             fb_teardown, &fb_state),
     cmocka_unit_test_prestate_setup_teardown(test_case_fb_1, fb_setup,
-                                               fb_teardown, &fb_state),
+                                             fb_teardown, &fb_state),
     cmocka_unit_test_prestate_setup_teardown(test_case_fb_2, fb_setup,
-                                               fb_teardown, &fb_state),
+                                             fb_teardown, &fb_state),
     cmocka_unit_test_prestate_setup_teardown(test_case_fb_3, fb_setup,
-                                               fb_teardown, &fb_state),
+                                             fb_teardown, &fb_state),
   };
 
   snprintf(test_filter, sizeof(test_filter), "test_case_fb_%d",
-                                         fb_state.test_case_id);
+           fb_state.test_case_id);
   cmocka_set_test_filter(test_filter);
 
   return cmocka_run_group_tests(tests, NULL, NULL);
