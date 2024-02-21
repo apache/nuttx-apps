@@ -612,16 +612,18 @@ static int cmd_rpmsg_help(FAR struct nsh_vtbl_s *vtbl, int argc,
                           FAR char **argv)
 {
   nsh_output(vtbl, "%s <panic|dump> <path>\n", argv[0]);
+#ifdef CONFIG_RPMSG_PING
   nsh_output(vtbl, "%s ping <path> <times> <length> <ack> "
              "<period(ms)>\n\n", argv[0]);
-  nsh_output(vtbl, "<times>      Times of rptun ping.\n");
+  nsh_output(vtbl, "<times>      Number of ping operations.\n");
   nsh_output(vtbl, "<length>     The length of each ping packet.\n");
   nsh_output(vtbl, "<ack>        Whether the peer acknowlege or "
              "check data.\n");
   nsh_output(vtbl, "             0 - No acknowledge and check.\n");
   nsh_output(vtbl, "             1 - Acknowledge, no data check.\n");
   nsh_output(vtbl, "             2 - Acknowledge and data check.\n");
-  nsh_output(vtbl, "<period(ms)> ping period (ms) \n");
+  nsh_output(vtbl, "<sleep(ms)>  Sleep interval between two operations.\n");
+#endif
   nsh_output(vtbl, "<path>       Rpmsg device path.\n\n");
   return OK;
 }
