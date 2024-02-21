@@ -616,14 +616,17 @@ static void fastboot_publish(FAR struct fastboot_ctx_s *context,
   FAR struct fastboot_var_s *var;
 
   var = malloc(sizeof(*var));
-  if (var)
+  if (var == NULL)
     {
-      var->name = name;
-      var->string = string;
-      var->data = data;
-      var->next = context->varlist;
-      context->varlist = var;
+      printf("ERROR: Could not allocate the memory.\n");
+      return;
     }
+
+  var->name = name;
+  var->string = string;
+  var->data = data;
+  var->next = context->varlist;
+  context->varlist = var;
 }
 
 static void fastboot_create_publish(FAR struct fastboot_ctx_s *context)
@@ -654,7 +657,7 @@ static void fastboot_free_publish(FAR struct fastboot_ctx_s *context)
 
 int main(int argc, FAR char **argv)
 {
-  FAR struct fastboot_ctx_s context;
+  struct fastboot_ctx_s context;
   FAR void *buffer = NULL;
   char usbdev[32];
   int ret = OK;
@@ -722,7 +725,8 @@ int main(int argc, FAR char **argv)
       goto err_with_in;
     }
 
-  context.flash_fd = -1;
+  context.varlist         = NULL;
+  context.flash_fd        = -1;
   context.download_buffer = buffer;
   context.download_size   = 0;
   context.download_offset = 0;
