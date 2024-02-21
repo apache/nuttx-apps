@@ -321,10 +321,6 @@ const char g_badcredentials[]    = "\nInvalid username or password\n";
 const char g_loginfailure[]      = "Login failed!\n";
 #endif
 
-/* The NSH prompt */
-
-const char g_nshprompt[]         = CONFIG_NSH_PROMPT_STRING;
-
 /* Common, message formats */
 
 const char g_fmtsyntax[]         = "nsh: %s: syntax error\n";

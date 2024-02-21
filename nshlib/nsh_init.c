@@ -110,10 +110,14 @@ void nsh_initialize(void)
   FAR struct console_stdio_s *pstate;
 #endif
 
-#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
-  /* Configure the NSH prompt */
+  /* populate NSH prompt string */
 
-  readline_prompt(g_nshprompt);
+  nsh_update_prompt();
+
+#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
+  /* Configure readline prompt */
+
+  readline_prompt(nsh_prompt());
 
 #  ifdef CONFIG_READLINE_HAVE_EXTMATCH
   /* Set up for tab completion on NSH commands */
