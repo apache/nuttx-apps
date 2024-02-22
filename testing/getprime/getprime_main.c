@@ -119,6 +119,7 @@ static void get_prime_in_parallel(int n)
   int status;
   int i;
 
+  UNUSED(status);
   status = pthread_attr_init(&attr);
   ASSERT(status == OK);
 

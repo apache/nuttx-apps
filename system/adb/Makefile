@@ -34,6 +34,12 @@ $(ADB_UNPACKDIR):
 	$(call DELFILE, $(ADB_VERSION).zip)
 	$(call MOVEFILE, $(ADB_UNPACKNAME)-$(ADB_VERSION), $(ADB_UNPACKDIR))
 
+# Fix warnings in microADB
+# Error: microADB/hal/hal_uv_client_usb.c:90:13: error: unused variable 'ret' [-Werror=unused-variable]
+#  90 |         int ret = uv_read_start((uv_stream_t*)&client->pipe,
+
+CFLAGS += -Wno-error=unused-variable
+
 # adb server app
 
 PROGNAME  := $(CONFIG_ADBD_PROGNAME)

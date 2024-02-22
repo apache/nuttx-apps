@@ -67,6 +67,7 @@ static void logcat_on_kick(struct adb_service_s *service)
   if (!svc->wait_ack)
     {
       int ret;
+      UNUSED(ret);
       ret = uv_poll_start(&svc->poll, UV_READABLE, logcat_on_data_available);
       assert(ret == 0);
     }
@@ -93,6 +94,7 @@ static void logcat_on_close(struct adb_service_s *service)
   int ret;
   logcat_service_t *svc = container_of(service, logcat_service_t, service);
 
+  UNUSED(ret);
   ret = uv_fileno((uv_handle_t *)&svc->poll, &fd);
   assert(ret == 0);
 

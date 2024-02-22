@@ -96,6 +96,7 @@ static void notify_to_lapi_caller(sem_t *syncsem)
 static int initialize_daemon(FAR struct alt1250_s *dev)
 {
   int ret;
+  UNSED(ret);
 
   /* Initialize sub-system */
 
