@@ -1,0 +1,47 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTS_TESTSUITES
+	tristate "vela test suite"
+	default n
+	depends on TESTING_CMOCKA
+	---help---
+		Enable testsuites for the vela
+
+if TESTS_TESTSUITES
+
+config TESTS_TESTSUITES_MOUNT_DIR
+	string "Mount directory for the testsuites"
+	default "/data"
+
+config TESTS_TESTSUITES_PRIORITY
+	int "Testsuites task priority"
+	default 99
+
+config TESTS_TESTSUITES_STACKSIZE
+	int "Testsuites stack size"
+	default 16384
+
+config CM_SCHED_TEST
+	bool "enbale schedule test"
+	default n
+	depends on TESTS_TESTSUITES
+
+config CM_MM_TEST
+	bool "enbale MM test"
+	default n
+	depends on TESTS_TESTSUITES
+
+config CM_TIME_TEST
+	bool "enbale time test"
+	default n
+	depends on TESTS_TESTSUITES
+
+config CM_PTHREAD_TEST
+	bool "enbale pthread test"
+	default n
+	depends on TESTS_TESTSUITES
+
+endif # TESTS_TESTSUITES
