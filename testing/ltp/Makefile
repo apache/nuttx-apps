@@ -66,6 +66,8 @@ BLACKSRCS += $(TESTDIR)/conformance/interfaces/clock_nanosleep/1-3.c
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/clock_nanosleep/2-3.c
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/clock_nanosleep/1-4.c
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_sigmask/18-1.c
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_sigmask/4-1.c
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/sigprocmask/4-1.c
 ifeq ($(CONFIG_LIBC_LOCALTIME),)
 BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/34-1-buildonly.c
 BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/35-3-buildonly.c
