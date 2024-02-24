@@ -41,7 +41,7 @@
 
 #ifndef CONFIG_SYSTEM_LM75_DEVNAME
 #  warning CONFIG_SYSTEM_LM75_DEVNAME is not defined
-#  define CONFIG_SYSTEM_LM75_DEVNAME "/dev/temp"
+#  define CONFIG_SYSTEM_LM75_DEVNAME "/dev/temp0"
 #endif
 
 #if !defined(CONFIG_SYSTEM_LM75_FAHRENHEIT) && !defined(CONFIG_SYSTEM_LM75_CELSIUS)
