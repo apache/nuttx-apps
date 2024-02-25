@@ -101,18 +101,6 @@ if(CONFIG_GRAPHICS_LVGL)
     list(APPEND CSRCS port/lv_port_syslog.c)
   endif()
 
-  if(CONFIG_LIBUV)
-    list(APPEND CSRCS port/lv_port_libuv.c)
-  endif()
-
-  if(CONFIG_LIBUV)
-    list(APPEND CSRCS port/lv_port_libuv.c)
-  endif()
-
-  if(CONFIG_LIBUV)
-    list(APPEND CSRCS port/lv_port_libuv.c)
-  endif()
-
   if(CONFIG_LV_MEM_CUSTOM)
     if(NOT CONFIG_LV_PORT_MEM_CUSTOM_SIZE EQUAL 0)
       list(APPEND CFLAGS -DLV_MEM_CUSTOM_ALLOC=lv_port_mem_alloc)
