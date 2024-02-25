@@ -290,6 +290,7 @@ static int cp_recursive(FAR struct nsh_vtbl_s *vtbl, FAR const char *srcpath,
 
       if (S_ISDIR(buf.st_mode))
         {
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) || !defined(CONFIG_DISABLE_PSEUDOFS_OPERATIONS)
           ret = mkdir(allocdestpath, S_IRWXU | S_IRWXG | S_IROTH |
                       S_IXOTH);
           if (ret != OK)
@@ -297,6 +298,7 @@ static int cp_recursive(FAR struct nsh_vtbl_s *vtbl, FAR const char *srcpath,
               nsh_error(vtbl, g_fmtcmdfailed, "cp", "mkdir", NSH_ERRNO);
               goto errout_with_allocdestpath;
             }
+#endif
 
           ret = cp_recursive(vtbl, allocsrcpath, allocdestpath);
           if (ret != OK)
