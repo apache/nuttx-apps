@@ -39,6 +39,7 @@
 #endif
 
 #include <nuttx/version.h>
+#include <nuttx/sched_note.h>
 #include "nshlib/nshlib.h"
 
 #include "nsh.h"
@@ -2603,6 +2604,13 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   size_t redirect_out2_len = strlen(g_redirect_out2);
   size_t redirect_in1_len = strlen(g_redirect_in1);
 
+#ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
+  char      tracebuf[CONFIG_NSH_LINELEN + 1];
+
+  strlcpy(tracebuf, cmdline, sizeof(tracebuf));
+  sched_note_beginex(NOTE_TAG_APP, tracebuf);
+#endif
+
   /* Initialize parser state */
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
@@ -2866,6 +2874,9 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 dynlist_free:
   NSH_ALIASLIST_FREE(vtbl, &alist);
   NSH_MEMLIST_FREE(&memlist);
+#ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
+  sched_note_endex(NOTE_TAG_APP, tracebuf);
+#endif
   return ret;
 }
 
