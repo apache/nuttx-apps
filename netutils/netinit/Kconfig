@@ -118,6 +118,13 @@ config NETINIT_THREAD_PRIORITY
 		PHY polling is CPU intensive and can interfere with the usability of
 		of threads competing for CPU bandwidth.
 
+config NETINIT_RETRY_MOUNTPATH
+	int "Network initialization retry mount path count"
+	default 0
+	---help---
+		This should be set if the filesystem get mounted after netinit got started.
+		The netinit thread will check for the mount path before continuing.
+
 endif # NETINIT_THREAD
 
 config NETINIT_DEBUG
