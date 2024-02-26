@@ -334,6 +334,30 @@ static void netinit_set_macaddr(void)
 #  define netinit_set_macaddr()
 #endif
 
+#if defined(CONFIG_NETINIT_THREAD) && CONFIG_NETINIT_RETRY_MOUNTPATH > 0
+static inline void netinit_checkpath(void)
+{
+  int retries = CONFIG_NETINIT_RETRY_MOUNTPATH;
+  while (retries > 0)
+    {
+      DIR * dir = opendir(CONFIG_IPCFG_PATH);
+      if (dir)
+        {
+          /* Directory exists. */
+
+          closedir(dir);
+          break;
+        }
+      else
+        {
+        usleep(100000);
+        }
+
+      retries--;
+    }
+}
+#endif
+
 /****************************************************************************
  * Name: netinit_set_ipv4addrs
  *
@@ -354,6 +378,10 @@ static inline void netinit_set_ipv4addrs(void)
   /* Attempt to obtain IPv4 address configuration from the IP configuration
    * file.
    */
+
+#if defined(CONFIG_NETINIT_THREAD) && CONFIG_NETINIT_RETRY_MOUNTPATH > 0
+  netinit_checkpath();
+#endif
 
   ret = ipcfg_read(NET_DEVNAME, (FAR struct ipcfg_s *)&ipv4cfg, AF_INET);
 #ifdef CONFIG_NETUTILS_DHCPC
@@ -511,6 +539,10 @@ static inline void netinit_set_ipv6addrs(void)
   /* Attempt to obtain IPv6 address configuration from the IP configuration
    * file.
    */
+
+#if defined(CONFIG_NETINIT_THREAD) && CONFIG_NETINIT_RETRY_MOUNTPATH > 0
+  netinit_checkpath();
+#endif
 
   ret = ipcfg_read(NET_DEVNAME, (FAR struct ipcfg_s *)&ipv6cfg, AF_INET6);
   if (ret >= 0 && IPCFG_HAVE_STATIC(ipv6cfg.proto))
