@@ -48,6 +48,47 @@
  *
  ****************************************************************************/
 
+static void *edr_wdt_ping(pthread_addr_t pvarg)
+{
+    while (true) {
+        usleep(10);
+    }
+
+    return NULL;
+}
+
+static uint32_t edr_wdt_start_threads(void)
+{
+    struct sched_param sparam;
+    cpu_set_t          cpuset;
+    pthread_attr_t     tattr;
+    pthread_t          threadid[2];
+    uint32_t           ret;
+
+    pthread_attr_init(&tattr);
+    sparam.sched_priority = 100;
+    pthread_attr_setschedparam(&tattr, &sparam);
+    pthread_attr_setstacksize(&tattr, 8192);
+
+    CPU_ZERO(&cpuset);
+    CPU_SET(0, &cpuset);
+    pthread_attr_setaffinity_np(&tattr, sizeof(cpu_set_t), &cpuset);
+    ret = pthread_create(&threadid[0], &tattr, edr_wdt_ping, NULL);
+    if (ret == OK) {
+        pthread_setname_np(threadid[0], "wdt_kick0");
+    }
+
+    CPU_ZERO(&cpuset);
+    CPU_SET(1, &cpuset);
+    pthread_attr_setaffinity_np(&tattr, sizeof(cpu_set_t), &cpuset);
+    ret = pthread_create(&threadid[1], &tattr, edr_wdt_ping, NULL);
+    if (ret == OK) {
+        pthread_setname_np(threadid[1], "wdt_kick1");
+    }
+
+    return ret;
+}
+
 int main(int argc, FAR char *argv[])
 {
   struct sched_param param;
@@ -67,6 +108,8 @@ int main(int argc, FAR char *argv[])
   /* Initialize the NSH library */
 
   nsh_initialize();
+
+  edr_wdt_start_threads();
 
 #ifdef CONFIG_NSH_CONSOLE
   /* If the serial console front end is selected, run it on this thread */
