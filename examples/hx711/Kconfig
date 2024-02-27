@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HX711
+	tristate "HX711 driver example"
+	default n
+	select ADC_HX711
+	---help---
+		Enable the HX711 example. This program is also useful during
+		development as it's possible to manipulate and dump hx711
+		settings, as well as print conversions to terminal.
+
+if EXAMPLES_HX711
+
+config EXAMPLES_HX711_PROGNAME
+	string "Program name"
+	default "hx711"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_HX711_PRIORITY
+	int "hx711 task priority"
+	default 100
+
+config EXAMPLES_HX711_STACKSIZE
+	int "hx711 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
