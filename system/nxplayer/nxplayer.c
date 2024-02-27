@@ -1121,6 +1121,13 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
             audinfo("Play complete.  outstanding=%d\n", outstanding);
             DEBUGASSERT(outstanding == 0);
 #endif
+
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+            ioctl(pplayer->dev_fd, AUDIOIOC_STOP,
+                 (unsigned long)pplayer->session);
+#else
+            ioctl(pplayer->dev_fd, AUDIOIOC_STOP, 0);
+#endif
             running = false;
             break;
 
