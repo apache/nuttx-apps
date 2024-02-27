@@ -63,6 +63,9 @@ extern "C"
 
 int init_nxaudio(FAR struct nxaudio_s *nxaudio,
                  int fs, int bps, int chnum);
+int init_nxaudio_devname(FAR struct nxaudio_s *nxaudio,
+                 int fs, int bps, int chnum,
+                 const char *devname, const char *mqname);
 void fin_nxaudio(FAR struct nxaudio_s *nxaudio);
 int nxaudio_enqbuffer(FAR struct nxaudio_s *nxaudio,
                       FAR struct ap_buffer_s *apb);

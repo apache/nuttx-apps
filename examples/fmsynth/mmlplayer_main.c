@@ -98,6 +98,7 @@ static void app_user_cb(unsigned long arg,
  ****************************************************************************/
 
 static struct mmlplayer_s g_mmlplayer;
+static bool g_running = true;
 
 static struct nxaudio_callbacks_s cbs =
 {
@@ -263,7 +264,11 @@ static void app_dequeue_cb(unsigned long arg,
                                   mmlplayer->nxaudio.chnum,
                                   tick_callback,
                                   (unsigned long)(uintptr_t)mmlplayer);
-  nxaudio_enqbuffer(&mmlplayer->nxaudio, apb);
+
+  if (g_running)
+    {
+      nxaudio_enqbuffer(&mmlplayer->nxaudio, apb);
+    }
 }
 
 /****************************************************************************
@@ -503,12 +508,12 @@ int main(int argc, FAR char *argv[])
   int i;
   int ret;
   int key;
-  bool running = true;
   pthread_t pid;
   struct app_options appopt;
 
   printf("Start %s\n", argv[0]);
 
+  g_running = true;
   if (configure_option(&appopt, argc, argv) != OK)
     {
       print_help(argv[0]);
@@ -540,7 +545,7 @@ int main(int argc, FAR char *argv[])
 
   pid = create_audio_thread(&g_mmlplayer);
 
-  while (running)
+  while (g_running)
     {
       key = getchar();
       if (key != EOF)
@@ -548,7 +553,7 @@ int main(int argc, FAR char *argv[])
           switch (key)
             {
               case 'q':
-                running = false;
+                g_running = false;
                 break;
             }
         }
