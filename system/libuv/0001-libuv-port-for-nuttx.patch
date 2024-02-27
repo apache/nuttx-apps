@@ -3544,3 +3544,33 @@ index bbc0c305..4e7996f5 100644
  
    MAKE_VALGRIND_HAPPY(loop);
    return 0;
+diff --git a/src/uv-common.h b/src/uv-common.h
+index cd57e5a..f951ca8 100644
+--- a/src/uv-common.h
++++ b/src/uv-common.h
+@@ -54,8 +54,10 @@ extern int snprintf(char*, size_t, const char*, ...);
+ #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+ #define ARRAY_END(a)  ((a) + ARRAY_SIZE(a))
+ 
++#ifndef container_of
+ #define container_of(ptr, type, member) \
+   ((type *) ((char *) (ptr) - offsetof(type, member)))
++#endif
+ 
+ /* C11 defines static_assert to be a macro which calls _Static_assert. */
+ #if defined(static_assert)
+diff --git a/test/task.h b/test/task.h
+index 25af255..b451903 100644
+--- a/test/task.h
++++ b/test/task.h
+@@ -71,8 +71,10 @@
+ 
+ #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+ 
++#ifndef container_of
+ #define container_of(ptr, type, member) \
+   ((type *) ((char *) (ptr) - offsetof(type, member)))
++#endif
+ 
+ typedef enum {
+   TCP = 0,
