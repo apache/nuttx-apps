@@ -474,7 +474,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_PS
-  CMD_MAP("ps",       cmd_ps,       1, 1, NULL),
+  CMD_MAP("ps",       cmd_ps,       1, CONFIG_NSH_MAXARGUMENTS,
+    "<pid1 pid2 ...>"),
 #endif
 
 #ifdef CONFIG_NET_UDP

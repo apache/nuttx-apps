@@ -620,9 +620,6 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLE_PS
 int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  UNUSED(argc);
-  UNUSED(argv);
-
   nsh_output(vtbl, "%5s %5s "
 #ifdef CONFIG_SMP
                    "%3s "
@@ -664,6 +661,20 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
                     "COMMAND"
                     );
+
+  if (argc > 1)
+    {
+      int i;
+      for (i = 1; i < argc; i++)
+        {
+          struct dirent entry;
+          entry.d_type = DT_DIR;
+          strcpy(entry.d_name, argv[i]);
+          ps_callback(vtbl, CONFIG_NSH_PROC_MOUNTPOINT, &entry, NULL);
+        }
+
+      return 0;
+    }
 
   return nsh_foreach_direntry(vtbl, "ps", CONFIG_NSH_PROC_MOUNTPOINT,
                               ps_callback, NULL);
