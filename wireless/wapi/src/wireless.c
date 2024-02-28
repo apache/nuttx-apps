@@ -773,9 +773,9 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
 
   /* Prepare request. */
 
+  snprintf(buf, sizeof(buf), "%s", essid);
   wrq.u.essid.pointer = buf;
-  wrq.u.essid.length =
-    snprintf(buf, ((WAPI_ESSID_MAX_SIZE + 1) * sizeof(char)), "%s", essid);
+  wrq.u.essid.length = strlen(buf);
   wrq.u.essid.flags = flag;
 
   strlcpy(wrq.ifr_name, ifname, IFNAMSIZ);
