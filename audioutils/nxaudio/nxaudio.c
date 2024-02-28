@@ -197,7 +197,8 @@ int init_nxaudio_devname(FAR struct nxaudio_s *nxaudio,
 
       /* Create message queue to communicate with audio driver */
 
-      nxaudio->mq = create_audiomq(mqname, nxaudio->fd, buf_info.nbuffers + 8);
+      nxaudio->mq = create_audiomq(mqname, nxaudio->fd,
+                                   buf_info.nbuffers + 8);
 
       /* Create audio buffers to inject audio sample */
 
