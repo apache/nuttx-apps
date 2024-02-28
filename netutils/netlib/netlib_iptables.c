@@ -515,9 +515,9 @@ int netlib_ipt_delete(FAR struct ipt_replace *repl,
     {
       if (e->next_offset == entry->next_offset &&
           e->target_offset == entry->target_offset &&
-          strcmp(e->ip.outiface, entry->ip.outiface) == 0 &&
-          strcmp(IPT_TARGET(e)->u.user.name,
-                 IPT_TARGET(entry)->u.user.name) == 0)
+          memcmp(&e->ip, &entry->ip, sizeof(struct ipt_ip)) == 0 &&
+          memcmp(&e->elems, &entry->elems,
+                 e->next_offset - offsetof(struct ipt_entry, elems)) == 0)
         {
           netlib_ipt_delete_internal(repl, e, hook);
           return OK;
