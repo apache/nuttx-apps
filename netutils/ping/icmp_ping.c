@@ -270,21 +270,20 @@ void icmp_ping(FAR const struct ping_info_s *info)
         }
 
       priv->start = clock();
+      result.nrequests++;
       priv->nsent = sendto(priv->sockfd, iobuffer, result.outsize, 0,
                            (FAR struct sockaddr *)&priv->destaddr,
                            sizeof(struct sockaddr_in));
       if (priv->nsent < 0)
         {
           icmp_callback(&result, ICMP_E_SENDTO, errno);
-          goto done;
+          continue;
         }
       else if (priv->nsent != result.outsize)
         {
           icmp_callback(&result, ICMP_E_SENDSMALL, priv->nsent);
-          goto done;
+          continue;
         }
-
-      result.nrequests++;
 
       priv->elapsed = 0;
       do
