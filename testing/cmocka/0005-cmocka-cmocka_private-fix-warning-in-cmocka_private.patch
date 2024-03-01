@@ -16,7 +16,7 @@ Signed-off-by: yintao <yintao@xiaomi.com>
 diff --git a/include/cmocka_private.h b/include/cmocka_private.h
 index 4d3ff30..6afab25 100644
 --- a/include/cmocka_private.h
-+++ b/include/cmocka_private.h
++++ cmocka/include/cmocka_private.h
 @@ -99,7 +99,7 @@ WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
  #else /* _WIN32 */
  
