@@ -113,7 +113,6 @@ static void el_print_options(void)
   el_ooption(&g_el, EL_TS, EL_TS_LONG);
   el_ooption(&g_el, EL_TS, EL_TS_OFF);
   el_oprint(OELF, "no time information, if your heart desire it");
-  el_ooption(&g_el, EL_TS_FRACT, EL_TS_FRACT_NS);
 
   el_ooption(&g_el, EL_FINFO, 1);
   el_oprint(OELF, "log location is very useful for debugging");
@@ -121,6 +120,10 @@ static void el_print_options(void)
   el_ooption(&g_el, EL_TS, EL_TS_LONG);
   el_ooption(&g_el, EL_TS_TM, EL_TS_TM_REALTIME);
   el_ooption(&g_el, EL_PRINT_LEVEL, 1);
+
+  /* nuttx runs on rather slow cpus, so millisecond precision is enough */
+
+  el_ooption(&g_el, EL_TS_FRACT, EL_TS_FRACT_MS);
   el_oprint(OELF, "Different scenarios need different options");
   el_oprint(OELA, "So we can mix options however we want");
 
@@ -188,6 +191,10 @@ static void el_print_memory(void)
   el_oprint(OELI, "print the same region but this time with nice ascii "
                   "table");
   el_opmemory_table(OELI, s, sizeof(s));
+
+  el_ooption(&g_el, EL_PMEMORY_SPACE, 1);
+  el_oprint(OELI, "print whole ASCII table with additional spacing");
+  el_opmemory(OELI, ascii, sizeof(ascii));
 }
 
 /****************************************************************************
@@ -221,51 +228,18 @@ static void el_print_file(const char *workdir)
 
   snprintf(log_path, sizeof(log_path), "%s/log-rotate", workdir);
 
-  /* Enable file rotation, maximum 5 files will be created, none of the log
-   * files size shall exceed 512 bytes. Rotate size is low to present how
-   * rotation works, in real life this should be much higher, unless you
-   * really know what you are doing and understand the consequences of low
-   * rotate size.
-   */
-
-  el_ooption(&g_el, EL_FROTATE_NUMBER, 5);
-  el_ooption(&g_el, EL_FROTATE_SIZE, 512);
-
-  /* Tell embedlog to sync all buffers and metadata regarding log file.
-   * There are cases, when data (a lot of data) goes into block device,
-   * but metadata of the file are not updated when power loss occurs. This
-   * leads to data loss - even though they landed physically on block device
-   * like sdcard. To prevent losing too much data, you can define how often
-   * you want embedlog to call sync() functions. It basically translates to
-   * "how much data am I ready to loose?". In this example, we sync() once
-   * every 4096 bytes are stored into file.
-   */
-
-  el_ooption(&g_el, EL_FILE_SYNC_EVERY, 4096);
-
-  /* Setting above value to too small value, will cause sync() to be called
-   * very often (depending on how much data you log) and that may criple
-   * performance greatly. And there are situations when you are willing to
-   * loose some info or debug data (up to configured sync every value), but
-   * when critical error shows up, you want data to be synced immediately to
-   * minimize chance of losing information about critical error. For that
-   * you can define which log level will be synced *every* time regardless
-   * of sync every value. Here we will instruct embedlog to log prints that
-   * have severity higher or equal to critical (so critial, alert and fatal)
-   */
-
   el_ooption(&g_el, EL_FILE_SYNC_LEVEL, EL_CRIT);
 
-  /* Print logs to both file and standard error */
-
-  el_ooption(&g_el, EL_OUT, EL_OUT_FILE | EL_OUT_STDERR);
-
-  /* Register path to log file in embedlog. This will cause logger to look
-   * for next valid log file (when log rotate in enabled) and will try to
-   * open file for reading.
+  /* Enable logging to file with file rotation based on file size.
+   * Maximum 5 files will be created, none of the log files size shall
+   * exceed 512 bytes. Rotate size is low to present how rotation works, in
+   * real life this should be much higher, unless you really know what you
+   * are doing and understand the consequences of low rotate size.
+   * This function will also automatically enable file output without
+   * disabling any - already enabled - outputs.
    */
 
-  if (el_ooption(&g_el, EL_FPATH, log_path) != 0)
+  if (el_oenable_file_log(&g_el, log_path, 5, 512))
     {
       if (errno == ENAMETOOLONG || errno == EINVAL)
         {
@@ -285,6 +259,29 @@ static void el_print_file(const char *workdir)
       fprintf(stderr, "WARNING: couldn't open file: %s\n", strerror(errno));
       return;
     }
+
+  /* Tell embedlog to sync all buffers and metadata regarding log file.
+   *
+   * There are cases, when data (a lot of data) goes into block device,
+   * but metadata of the file are not updated when power loss occurs. This
+   * leads to data loss - even though they landed physically on block device
+   * like sdcard. To prevent losing too much data, you can define how often
+   * you want embedlog to call sync() functions. It basically translates to
+   * "how much data am I ready to loose?". In this example, we sync() once
+   * every 4096 bytes are stored into file.
+   *
+   * Setting that value to too small value, will cause sync() to be called
+   * very often (depending on how much data you log) and that may criple
+   * performance greatly. And there are situations when you are willing to
+   * loose some info or debug data (up to configured sync every value), but
+   * when critical error shows up, you want data to be synced immediately to
+   * minimize chance of losing information about critical error. For that
+   * you can define which log level will be synced *every* time regardless
+   * of 'sync every' value. Here we will instruct embedlog to log prints that
+   * have severity higher or equal to critical (so critial, alert and fatal)
+   */
+
+  el_oset_file_sync(&g_el, 4096, EL_CRIT);
 
   /* Now we can print messages */
 
@@ -317,7 +314,21 @@ int main(int argc, FAR char *argv[])
   el_oinit(&g_el);
 
   el_oprint(OELI, "Right after init, embedlog will print to stderr with "
-      "just log level information - these are default settings.");
+            "just log level information - these are default settings.");
+
+  el_oprint(OELI, "You can enable most common and usefull options with just "
+            "a few special functions");
+
+  el_oset_timestamp(&g_el, EL_TS_LONG, EL_TS_TM_REALTIME, EL_TS_FRACT_US);
+  el_oprint_extra_info(&g_el, 1);
+
+  el_oprint(OELI, "timestamp and information about log place in code is "
+            "most usefull for developer");
+  el_oprint(OELI, "If these are not enough, you can always really fine");
+  el_oprint(OELI, "tune embedlog behaviour with options");
+
+  el_oset_timestamp(&g_el, EL_TS_OFF, EL_TS_TM_REALTIME, EL_TS_FRACT_OFF);
+  el_oprint_extra_info(&g_el, 0);
 
   el_print_options();
   el_print_memory();
