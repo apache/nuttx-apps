@@ -19,6 +19,11 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_EMBEDLOG)
+
+  if(CONFIG_EXAMPLES_EMBEDLOG_STRIP_ALL_STRINGS)
+    list(APPEND CFLAGS -DDISABLE_ALL_EMBEDLOG)
+  endif()
+
   nuttx_add_application(
     NAME
     ${CONFIG_EXAMPLES_EMBEDLOG_PROGNAME}
