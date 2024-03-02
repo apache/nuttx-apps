@@ -23,7 +23,7 @@
 .context
 .depend
 .kconfig
-/*.lock
+*.lock
 /bin
 /boot_romfsimg.h
 /external
