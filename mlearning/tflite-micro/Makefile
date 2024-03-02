@@ -20,11 +20,11 @@
 
 include $(APPDIR)/Make.defs
 
-TFLITE_MICRO_VER = main
+TFLITE_MICRO_VER = cfa4c91d1b36c37c7c104b9c664615e59f1abfe3
 TFLITE_MICRO_UNPACK = tflite-micro
 
 tflite-micro.zip:
-	$(Q) curl -L https://github.com/tensorflow/tflite-micro/archive/refs/heads/$(TFLITE_MICRO_VER).zip -o tflite-micro.zip
+	$(Q) curl -L https://github.com/tensorflow/tflite-micro/archive/$(TFLITE_MICRO_VER).zip -o tflite-micro.zip
 	$(Q) unzip -o tflite-micro.zip
 	$(Q) mv tflite-micro-$(TFLITE_MICRO_VER) tflite-micro
 	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < tflite-micro.patch

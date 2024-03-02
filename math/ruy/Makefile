@@ -20,7 +20,7 @@
 
 include $(APPDIR)/Make.defs
 
-RUY_VER = 54774a7a2cf85963777289193629d4bd42de4a59
+RUY_VER = d37128311b445e758136b8602d1bbd2a755e115d
 
 ruy.zip:
 	$(Q) curl -L https://github.com/google/ruy/archive/$(RUY_VER).zip -o ruy.zip

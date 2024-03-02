@@ -22,7 +22,7 @@ include $(APPDIR)/Make.defs
 
 CMSIS_NN = cmsis-nn/Source
 
-CMSIS_NN_VER = bfc54edb61e873039ec0857cacc40df36b1d644e
+CMSIS_NN_VER = 72e1ebf623ab1660a3e14e4e36fdcddce46f1991
 
 cmsis-nn.zip:
 	$(Q) curl -L https://github.com/ARM-software/CMSIS-NN/archive/$(CMSIS_NN_VER).zip -o cmsis-nn.zip
@@ -45,7 +45,7 @@ CSRCS += $(wildcard $(CMSIS_NN)/FullyConnectedFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/NNSupportFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/ConcatenationFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/SoftmaxFunctions/*.c)
-CSRCS += $(CMSIS_NN)/LSTMFunctions/arm_lstm_unidirectional_s8_s16.c
-CSRCS += $(CMSIS_NN)/ReshapeFunctions/arm_reshape_s8.c
+CSRCS += $(wildcard $(CMSIS_NN)/LSTMFunctions/*.c)
+CSRCS += $(wildcard $(CMSIS_NN)/ReshapeFunctions/*.c)
 
 include $(APPDIR)/Application.mk
