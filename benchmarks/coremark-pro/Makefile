@@ -24,10 +24,13 @@ PRIORITY  = $(CONFIG_BENCHMARK_COREMARK_PRO_PRIORITY)
 STACKSIZE = $(CONFIG_BENCHMARK_COREMARK_PRO_STACKSIZE)
 MODULE    = $(CONFIG_BENCHMARK_COREMARK_PRO)
 
+CFLAGS += -Wno-undef -Wno-strict-prototypes -Wno-unused-variable \
+          -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-shadow
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/benchmarks/coremark-pro/coremark-pro/mith/include
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/benchmarks/coremark-pro/coremark-pro/mith/al/include
 CFLAGS += -DNDEBUG -DHOST_EXAMPLE_CODE=1 -DHAVE_SYS_STAT_H=1 \
           -DGCC_INLINE_MACRO=1 -DMAX_CONTEXTS=100 -DEE_SIZEOF_INT=4 \
+          -DUSE_FP128=0
 
 ifneq ($(CONFIG_BENCHMARK_COREMARK_PRO_USE_SINGLE_CONTEXT),)
   CFLAGS += -DUSE_SINGLE_CONTEXT=1 -DHAVE_PTHREAD=0 -DUSE_NATIVE_PTHREAD=0
@@ -44,10 +47,10 @@ ifneq ($(CONFIG_BENCHMARK_COREMARK_PRO_64BIT),)
 endif
 
 ifneq ($(CONFIG_BENCHMARK_COREMARK_PRO_USE_FP64),)
-  CFLAGS += -DUSE_FP64=1
+  CFLAGS += -DUSE_FP64=1 -DUSE_FP32=0
   CSRCS  += coremark-pro/benchmarks/fp/linpack/ref/inputs_f64.c
 else
-  CFLAGS += -DUSE_FP32=1
+  CFLAGS += -DUSE_FP32=1 -DUSE_FP64=0
   CSRCS  += coremark-pro/benchmarks/fp/linpack/ref/inputs_f32.c
 endif
 
