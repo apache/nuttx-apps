@@ -2178,20 +2178,48 @@ static int unlink_recursive(FAR char *path, FAR struct stat *stat)
 
 int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  bool recursive = (strcmp(argv[1], "-r") == 0);
+  bool recursive = false;
+  bool force = false;
   FAR char *fullpath;
   char buf[PATH_MAX];
   struct stat stat;
   int ret = ERROR;
+  int c;
 
-  if (recursive && argc == 2)
+  while ((c = getopt(argc, argv, "rf")) != ERROR)
     {
-      nsh_error(vtbl, g_fmtargrequired, argv[0]);
+      switch (c)
+        {
+          case 'r':
+            recursive = true;
+            break;
+          case 'f':
+            force = true;
+            break;
+          case '?':
+            nsh_output(vtbl, "Unknown option 0x%x\n", optopt);
+            return ret;
+          default:
+            nsh_error(vtbl, g_fmtargrequired, argv[0]);
+            return ret;
+        }
+    }
+
+  if (optind >= argc)
+    {
+      if (force)
+        {
+          ret = OK;
+        }
+      else
+        {
+          nsh_error(vtbl, g_fmtargrequired, argv[0]);
+        }
+
       return ret;
     }
 
-  fullpath = nsh_getfullpath(vtbl, recursive ? argv[2] : argv[1]);
-
+  fullpath = nsh_getfullpath(vtbl, argv[optind]);
   if (fullpath != NULL)
     {
       if (recursive)
@@ -2202,6 +2230,11 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       else
         {
           ret = unlink(fullpath);
+        }
+
+      if (force && errno == ENOENT)
+        {
+          ret = 0;
         }
 
       if (ret < 0)
