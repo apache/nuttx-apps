@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXCODEC
+	bool "NxCodec test application"
+	default n
+	---help---
+		Enable support for the NxCodec test application and optional
+		command line interface.
+
+if SYSTEM_NXCODEC
+
+config SYSTEM_NXCODEC_PROGNAME
+	string "Program name"
+	default "nxcodec"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_NXCODEC_PRIORITY
+	int "nxcodec task priority"
+	default 100
+
+config SYSTEM_NXCODEC_STACKSIZE
+	int "nxcodec stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # SYSTEM_NXCODEC
