@@ -36,6 +36,9 @@ distclean::
 	$(call DELFILE, cmsis-nn.zip)
 endif
 
+CFLAGS += -Wno-undef
+CFLAGS += -O3
+
 CSRCS += $(wildcard $(CMSIS_NN)/ActivationFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/BasicMathFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/PoolingFunctions/*.c)
@@ -47,5 +50,12 @@ CSRCS += $(wildcard $(CMSIS_NN)/ConcatenationFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/SoftmaxFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/LSTMFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/ReshapeFunctions/*.c)
+
+ifeq ($(CONFIG_ARM_NEON),y)
+EXCLUDED_FILES := arm_elementwise_add_s8.c arm_convolve_s8.c arm_nn_mat_mult_kernel_s8_s16.c arm_q7_to_q15_with_offset.c
+CSRCS := $(filter-out $(addprefix $(CMSIS_NN)/BasicMathFunctions/, $(EXCLUDED_FILES)), $(CSRCS))
+CSRCS := $(filter-out $(addprefix $(CMSIS_NN)/NNSupportFunctions/, $(EXCLUDED_FILES)), $(CSRCS))
+CSRCS := $(filter-out $(addprefix $(CMSIS_NN)/ConvolutionFunctions/, $(EXCLUDED_FILES)), $(CSRCS))
+endif
 
 include $(APPDIR)/Application.mk

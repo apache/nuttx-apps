@@ -41,8 +41,12 @@ CXXEXT  := .cc
 
 COMMON_FLAGS += -DTF_LITE_STATIC_MEMORY
 COMMON_FLAGS += -DTF_LITE_DISABLE_X86_NEON
+COMMON_FLAGS += -DTF_LITE_STRIP_ERROR_STRINGS
+COMMON_FLAGS += -Wno-sign-compare
+COMMON_FLAGS += -Wno-unused-variable
 COMMON_FLAGS += -Wno-undef
 COMMON_FLAGS += -Wno-shadow
+COMMON_FLAGS += -O3
 
 SRC_FILES := $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/kernels/*.cc)
 
@@ -53,6 +57,14 @@ NEW_SRC_FILES := $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensor
 SRC_FILES := $(filter-out $(notdir $(NEW_SRC_FILES)), $(notdir $(SRC_FILES)))
 SRC_FILES := $(addprefix $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/kernels/, $(SRC_FILES))
 SRC_FILES += $(NEW_SRC_FILES)
+
+ifeq ($(CONFIG_ARM_NEON),y)
+CSRCS += operators/neon/arm_convolve_s8.c
+CSRCS += operators/neon/arm_nn_mat_mult_kernel_s8_s16.c
+CSRCS += operators/neon/arm_q7_to_q15_with_offset.c
+CSRCS += operators/neon/arm_elementwise_add_s8.c
+endif
+
 endif
 
 COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/gemmlowp/gemmlowp
