@@ -178,6 +178,7 @@ config MBEDTLS_X509_CSR_PARSE_C
 
 config MBEDTLS_X509_CRT_POOL
 	bool "Enable the X509 Certificate Pool"
+	depends on MBEDTLS_THREADING_C
 	default n
 
 config MBEDTLS_HAVE_ASM
