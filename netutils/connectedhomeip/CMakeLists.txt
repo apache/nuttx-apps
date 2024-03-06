@@ -151,12 +151,13 @@ if(CONFIG_MATTER)
   include(${COMMON_CMAKE_SOURCE_DIR}/chip_gn.cmake)
 
   set(nuttx_include_dirs)
-  get_target_property(include_dirs nuttx NUTTX_INCLUDE_DIRECTORIES)
-  list(APPEND nuttx_include_dirs ${include_dirs})
-  get_target_property(include_dirs nuttx INCLUDE_DIRECTORIES)
-  list(APPEND nuttx_include_dirs ${include_dirs})
-  get_target_property(include_dirs mbedtls INCLUDE_DIRECTORIES)
-  list(APPEND nuttx_include_dirs ${include_dirs})
+  get_target_property(include_dirs nuttx NUTTX_CXX_INCLUDE_DIRECTORIES)
+  if(include_dirs)
+    list(APPEND nuttx_include_dirs ${include_dirs})
+  endif()
+  list(APPEND nuttx_include_dirs ${NUTTX_DIR}/include
+       ${CMAKE_BINARY_DIR}/include ${CMAKE_BINARY_DIR}/include_arch)
+  list(APPEND nuttx_include_dirs ${NUTTX_APPS_BINDIR}/include/mbedtls)
 
   set(MATTER_INCDIR
       ${nuttx_include_dirs}
