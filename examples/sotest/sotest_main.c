@@ -102,7 +102,9 @@ extern const int g_sot_nexports;
 
 int main(int argc, FAR char *argv[])
 {
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
   char devname[32];
+#endif
 #if CONFIG_MODLIB_MAXDEPEND > 0
   FAR void *handle1;
 #endif
