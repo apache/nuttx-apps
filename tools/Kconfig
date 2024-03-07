@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menu "Extra Tools"
+
+menu "Wasm Build Options"
+
+config TOOLS_WASM_BUILD
+  bool "Enable Wasm build support"
+  default n
+  ---help---
+    If enabled, then then build system will trigger the Wasm build
+    process. This will require the WASI-SDK to be installed on the
+    host system.
+
+endmenu
+
+endmenu
