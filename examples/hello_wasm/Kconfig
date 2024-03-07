@@ -26,4 +26,16 @@ config EXAMPLES_HELLO_WASM_STACKSIZE
 	int "Hello wasm stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config EXAMPLES_HELLO_WASM_BUILD_WASM
+	bool "Build as WebAssembly module"
+	default y
+	---help---
+		Build the WebAssembly binary from the C source code.
+
+config EXAMPLES_HELLO_WASM_BUILD_NATIVE
+	bool "Build as native program"
+	default n
+	---help---
+		Build the native binary from the C source code.
+
 endif
