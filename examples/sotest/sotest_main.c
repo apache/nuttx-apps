@@ -105,6 +105,7 @@ int main(int argc, FAR char *argv[])
   char devname[32];
 #if CONFIG_MODLIB_MAXDEPEND > 0
   FAR void *handle1;
+  FAR void *handle3;
 #endif
   FAR void *handle2;
   CODE void (*testfunc)(FAR const char *msg);
@@ -170,6 +171,32 @@ int main(int argc, FAR char *argv[])
       fprintf(stderr, "ERROR: dlopen(/modprint) failed\n");
       exit(EXIT_FAILURE);
     }
+
+  handle3 = dlopen(BINDIR "/dynload", RTLD_NOW | RTLD_LOCAL);
+  if (handle3 == NULL)
+    {
+      fprintf(stderr, "ERROR: dlopen(/dynload) failed - %s\n",
+              strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+  else
+    {
+      int (*dynload)(int);
+      dynload = dlsym(handle3, "dynload");
+      if (dynload != NULL)
+        {
+          int a = dynload(32);
+          printf("dynload returned %d which is the %s answer\n",
+                 a, (a == 42 ? "correct" : "incorrect"));
+        }
+      else
+        {
+          fprintf(stderr, "ERROR: dlsym(dynload) failed - %s\n",
+                  strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+    }
+
 #endif
 
   /* Install the second test shared library  */
@@ -271,6 +298,13 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: dlclose(handle1) failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+
+  ret = dlclose(handle3);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: dlclose(handle3) failed: %d\n", ret);
       exit(EXIT_FAILURE);
     }
 #endif

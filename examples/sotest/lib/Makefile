@@ -24,8 +24,8 @@ ALL_SUBDIRS = sotest
 BUILD_SUBDIRS = sotest
 
 ifneq ($(CONFIG_MODLIB_MAXDEPEND),0)
-ALL_SUBDIRS += modprint
-BUILD_SUBDIRS += modprint
+ALL_SUBDIRS += modprint dynload
+BUILD_SUBDIRS += modprint dynload
 endif
 
 SOTEST_DIR = $(APPDIR)/examples/sotest
