@@ -40,6 +40,6 @@ config SYSTEM_TELNETD_SESSION_PRIORITY
 
 config SYSTEM_TELNETD_SESSION_STACKSIZE
 	int "Telnetd session task stack size"
-	default 3072
+	default SYSTEM_NSH_STACKSIZE
 
 endif # SYSTEM_TELNETD
