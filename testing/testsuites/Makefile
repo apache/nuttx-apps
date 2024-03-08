@@ -19,6 +19,15 @@ PRIORITY = $(CONFIG_TESTS_TESTSUITES_PRIORITY)
 STACKSIZE = $(CONFIG_TESTS_TESTSUITES_STACKSIZE)
 MODULE = $(CONFIG_TESTS_TESTSUITES)
 
+ifneq ($(CONFIG_CM_FS_TEST),)
+CFLAGS += -I$(CURDIR)/kernel/fs/include
+CFLAGS += -I$(APPDIR)/nshlib
+CSRCS += $(wildcard kernel/fs/cases/*.c)
+CSRCS += $(wildcard kernel/fs/common/*.c)
+PROGNAME += cmocka_fs_test
+MAINSRC += $(CURDIR)/kernel/fs/cmocka_fs_test.c
+endif
+
 ifneq ($(CONFIG_CM_SCHED_TEST),)
 CFLAGS += -I$(CURDIR)/kernel/sched/include
 CSRCS += $(wildcard kernel/sched/cases/*.c)

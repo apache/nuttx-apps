@@ -24,6 +24,11 @@ config TESTS_TESTSUITES_STACKSIZE
 	int "Testsuites stack size"
 	default 16384
 
+config CM_FS_TEST
+	bool "enable fs test"
+	default n
+	depends on TESTS_TESTSUITES
+
 config CM_SCHED_TEST
 	bool "enbale schedule test"
 	default n
