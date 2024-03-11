@@ -20,7 +20,14 @@
 
 if(CONFIG_TESTING_OSTEST)
 
-  set(SRCS getopt.c restart.c sigprocmask.c sighand.c signest.c sighelper.c)
+  set(SRCS
+      getopt.c
+      libc_memmem.c
+      restart.c
+      sigprocmask.c
+      sighand.c
+      signest.c
+      sighelper.c)
 
   if(CONFIG_DEV_NULL)
     list(APPEND SRCS dev_null.c)
