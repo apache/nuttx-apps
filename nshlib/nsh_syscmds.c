@@ -291,7 +291,7 @@ int cmd_pmconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (argc == 4)
         {
           ctrl.domain = atoi(argv[3]);
-          if (ctrl.domain < 0 || ctrl.domain >= CONFIG_PM_NDOMAINS)
+          if (ctrl.domain >= CONFIG_PM_NDOMAINS)
             {
               nsh_error(vtbl, g_fmtargrange, argv[3]);
               return ERROR;
