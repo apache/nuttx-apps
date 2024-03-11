@@ -91,6 +91,10 @@
 
 int getopt_test(void);
 
+/* libc_memmem.c ************************************************************/
+
+int memmem_test(void);
+
 /* setvbuf.c ****************************************************************/
 
 #ifndef CONFIG_STDIO_DISABLE_BUFFERING
