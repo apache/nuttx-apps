@@ -505,7 +505,7 @@ int wapi_save_config(FAR const char *ifname,
       goto errout;
     }
 
-  fd = open(confname, O_RDWR | O_CREAT | O_TRUNC);
+  fd = open(confname, O_RDWR | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
     {
       ret = -errno;
