@@ -33,6 +33,11 @@
 
 void X509_free(X509 *a)
 {
+  SSL_ASSERT3(a);
+
+  X509_METHOD_CALL(free, a);
+
+  ssl_mem_free(a);
 }
 
 void X509_EXTENSION_free(X509_EXTENSION *a)
@@ -76,7 +81,7 @@ X509_EXTENSION *X509_EXTENSION_create_by_NID(X509_EXTENSION **ex,
 
 X509 *X509_new(void)
 {
-  return NULL;
+  return __X509_new(NULL);
 }
 
 int X509_set_version(X509 *x509, long version)
