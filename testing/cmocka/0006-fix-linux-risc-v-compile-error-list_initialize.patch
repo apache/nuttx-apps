@@ -1,0 +1,31 @@
+From 69f394f331d7b5f3e9d6f54ab789baba4608519f Mon Sep 17 00:00:00 2001
+From: zhangchao53 <zhangchao53@xiaomi.com>
+Date: Fri, 15 Mar 2024 15:44:08 +0800
+Subject: [PATCH] fix linux risc-v compile error:list_initialize
+
+VELAPLATFO-28608
+
+Change-Id: I3155358a9fac328d13697b87b426467a570ad305
+Signed-off-by: zhangchao53 <zhangchao53@xiaomi.com>
+---
+ src/cmocka.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/cmocka.c b/src/cmocka.c
+index 8214d6e..4df687c 100644
+--- a/src/cmocka.c
++++ cmocka/src/cmocka.c
+@@ -99,6 +99,10 @@
+ #define MAX(a,b) ((a) < (b) ? (b) : (a))
+ #endif
+ 
++#ifdef list_initialize
++#undef list_initialize
++#endif
++
+ /**
+  * POSIX has sigsetjmp/siglongjmp, while Windows only has setjmp/longjmp.
+  */
+-- 
+2.25.1
+
