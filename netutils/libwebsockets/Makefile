@@ -128,6 +128,17 @@ CSRCS += \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-session.c \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-client.c \
 
+ifneq ($(CONFIG_NETUTILS_MQTTC),)
+	CFLAGS += -I$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt
+
+	CSRCS += \
+	$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt/mqtt.c \
+	$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt/ops-mqtt.c \
+	$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt/primitives.c \
+	$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt/client/client-mqtt.c \
+	$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt/client/client-mqtt-handshake.c
+endif
+
 ifeq ($(wildcard $(LIBWEBSOCKETS_UNPACK)/.git),)
 $(LIBWEBSOCKETS_TARBALL):
 	$(Q) echo "Downloading libwebsockets-$(LIBWEBSOCKETS_VERSION)"
