@@ -48,6 +48,7 @@
 #include <unistd.h>
 
 #include <nuttx/net/mii.h>
+#include <sys/boardctl.h>
 
 #include "netutils/netlib.h"
 #if defined(CONFIG_NETUTILS_DHCPC) || defined(CONFIG_NETINIT_DNS)
@@ -289,7 +290,9 @@ static const uint16_t g_ipv6_netmask[8] =
     defined(HAVE_MAC)
 static void netinit_set_macaddr(void)
 {
-#if defined(CONFIG_NET_ETHERNET)
+#if defined(CONFIG_NETINIT_UIDMAC)
+  uint8_t uid[CONFIG_BOARDCTL_UNIQUEID_SIZE];
+#elif defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(HAVE_EADDR)
   uint8_t eaddr[8];
@@ -297,7 +300,12 @@ static void netinit_set_macaddr(void)
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
-#if defined(CONFIG_NET_ETHERNET)
+#if defined(CONFIG_NETINIT_UIDMAC)
+  boardctl(BOARDIOC_UNIQUEID, (uintptr_t)&uid);
+  uid[0] = (uid[0] & 0b11110000) | 2; /* Locally Administered MAC */
+  netlib_setmacaddr(NET_DEVNAME, uid);
+
+#elif defined(CONFIG_NET_ETHERNET)
   /* Use the configured, fixed MAC address */
 
   mac[0] = (CONFIG_NETINIT_MACADDR_2 >> (8 * 1)) & 0xff;

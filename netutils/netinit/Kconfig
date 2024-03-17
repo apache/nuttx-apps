@@ -474,6 +474,14 @@ choice
 		address to the hardware before it brings the network up.  This
 		choice allows you select the source of that MAC address.
 
+config NETINIT_UIDMAC
+	bool "Board Unique ID"
+	depends on BOARDCTL_UNIQUEID
+	---help---
+		Assign a MAC address based on the board unique ID.
+		CONFIG_BOARDCTL_UNIQUEID_SIZE must be at least 6 bytes for
+		Ethernet, 8 bytes for 6LOWPAN.
+
 config NETINIT_SWMAC
 	bool "Fixed address"
 	---help---
