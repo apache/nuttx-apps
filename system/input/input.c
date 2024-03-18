@@ -224,7 +224,7 @@ static int input_utouch_swipe(int argc, char **argv)
       DELAY_MS(interval);
     }
 
-  input_utouch_move(fd, 0, 0, TOUCH_UP);
+  input_utouch_move(fd, x1, y1, TOUCH_UP);
   close(fd);
   return 0;
 }
