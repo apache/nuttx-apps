@@ -959,6 +959,7 @@ int dhcpc_request_async(FAR void *handle, dhcpc_callback_t callback)
     }
 
   pdhcpc->callback = callback;
+  pdhcpc->cancel   = 0;
   ret = pthread_create(&pdhcpc->thread, NULL, dhcpc_run, pdhcpc);
   if (ret != 0)
     {
