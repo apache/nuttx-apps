@@ -107,7 +107,7 @@ else
 # In FLAT and protected modes, the modules have already been created.  A
 # symbol table is required.
 
-ifeq ($(CONFIG_BUILD_LOADABLE),)
+ifeq ($(CONFIG_MODULES),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 else
@@ -134,7 +134,7 @@ $(BIN): $(SYMTABOBJ)
 	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
 	$(call LINK_WASM)
 
-endif # !CONFIG_BUILD_LOADABLE
+endif # !CONFIG_MODULES
 
 install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
