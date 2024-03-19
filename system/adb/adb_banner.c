@@ -57,7 +57,8 @@ int adb_fill_connect_data(char *buf, size_t bufsize)
     {
       /* FIXME only keep first 4 bytes */
 
-      len = snprintf(buf, remaining, "device:%x:", *(uint32_t *)board_id);
+      len = snprintf(buf, remaining,
+                     "device:%" PRIx32 ":", *(uint32_t *)board_id);
     }
 #else
   len = snprintf(buf, remaining, "device:" CONFIG_ADBD_DEVICE_ID ":");
