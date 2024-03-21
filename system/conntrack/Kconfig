@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_CONNTRACK
+	tristate "conntrack command"
+	default n
+	depends on NETLINK_NETFILTER
+	select SYSTEM_ARGTABLE3
+	---help---
+		Enable support for the 'conntrack' command, a simple tool like
+		Linux's 'conntrack', only supports printing NAT connections now.
+
+if SYSTEM_CONNTRACK
+
+config SYSTEM_CONNTRACK_PROGNAME
+	string "conntrack program name"
+	default "conntrack"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_CONNTRACK_PRIORITY
+	int "conntrack task priority"
+	default 100
+
+config SYSTEM_CONNTRACK_STACKSIZE
+	int "conntrack stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
