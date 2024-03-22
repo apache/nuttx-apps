@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/sotest/lib/sotest/Makefile
+# apps/examples/module/chardev/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,45 +20,9 @@
 
 include $(APPDIR)/Make.defs
 
-ifeq ($(CONFIG_EXAMPLES_SOTEST_LIBGCC),y)
-LIBGCC = "${shell $(CC) $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
-ifneq ($(LIBGCC),)
-  LDLIBPATH += -L "${shell dirname $(LIBGCC)}"
-  LDLIBS += -lgcc
-endif
-endif
+PROGNAME = chardev
+DYNLIB = y
 
-ifeq ($(CONFIG_EXAMPLES_SOTEST_LIBC),y)
-LDMODULEFLAGS += -Bstatic
-LDLIBPATH +=  -L $(NUTTXLIB)
-endif
+MAINSRC = chardev.c
 
-ifeq ($(CONFIG_EXAMPLES_SOTEST_LIBC),y)
-LDLIBS += -lc
-endif
-
-BIN = sotest
-
-SRCS = $(BIN).c
-OBJS = $(SRCS:.c=$(OBJEXT))
-
-all: $(BIN)
-.PHONY: all clean install
-
-$(OBJS): %$(OBJEXT): %.c
-	@echo "MODULECC: $<"
-	$(Q) $(MODULECC) -c $(CMODULEFLAGS) $< -o $@
-
-$(BIN): $(OBJS)
-	@echo "MODULELD: $<"
-	$(Q) $(MODULELD) $(LDMODULEFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
-
-$(FSROOT_DIR)/$(BIN): $(BIN)
-	$(Q) mkdir -p $(FSROOT_DIR)
-	$(Q) install $(BIN) $(FSROOT_DIR)/$(BIN)
-
-install: $(FSROOT_DIR)/$(BIN)
-
-clean:
-	$(call DELFILE, $(BIN))
-	$(call CLEAN)
+include $(APPDIR)/Application.mk

@@ -1,0 +1,5 @@
+/chardev_romfs.c
+/chardev_romfs.img
+/cromfs.c
+/chardev_mod_symtab.c
+/mod_symtab.c

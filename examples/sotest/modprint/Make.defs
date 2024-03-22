@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/module/Make.defs
+# apps/examples/sotest/modprint/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,4 +18,6 @@
 #
 ############################################################################
 
-include $(wildcard $(APPDIR)/examples/module/*/Make.defs)
+ifneq ($(CONFIG_EXAMPLES_SOTEST),)
+CONFIGURED_APPS += $(APPDIR)/examples/sotest/modprint
+endif

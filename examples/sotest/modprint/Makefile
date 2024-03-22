@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/module/Make.defs
+# apps/examples/sotest/modprint/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,4 +18,11 @@
 #
 ############################################################################
 
-include $(wildcard $(APPDIR)/examples/module/*/Make.defs)
+include $(APPDIR)/Make.defs
+
+PROGNAME = modprint
+DYNLIB = y
+
+MAINSRC = modprint.c
+
+include $(APPDIR)/Application.mk
