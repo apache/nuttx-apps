@@ -18,6 +18,4 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_SOTEST),)
-CONFIGURED_APPS += $(APPDIR)/examples/sotest
-endif
+include $(wildcard $(APPDIR)/examples/sotest/*/Make.defs)
