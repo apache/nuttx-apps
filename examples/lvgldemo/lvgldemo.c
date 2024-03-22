@@ -111,6 +111,7 @@ int main(int argc, FAR char *argv[])
 
 #ifdef CONFIG_LV_USE_NUTTX_LIBUV
   uv_loop_t ui_loop;
+  lv_memzero(&ui_loop, sizeof(ui_loop));
 #endif
 
 #ifdef NEED_BOARDINIT
