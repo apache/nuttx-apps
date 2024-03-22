@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/module/CMakeLists.txt
+# apps/examples/sotest/main/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,6 @@
 #
 # ##############################################################################
 
-if(CONFIG_EXAMPLES_MODULE)
-  nuttx_add_application(NAME module)
+if(CONFIG_EXAMPLES_SOTEST)
+  nuttx_add_application(NAME sotest)
 endif()

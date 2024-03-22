@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/sotest/lib/modprint/modprint.c
+ * apps/examples/sotest/sotest/sotest.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -33,20 +33,50 @@
 #include <nuttx/lib/modlib.h>
 
 /****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#if CONFIG_MODLIB_MAXDEPEND > 0
+void modprint(FAR const char *fmt, ...) printf_like(1, 2);
+#endif
+
+/****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static void modprint(FAR const char *fmt, ...) printf_like(1, 2);
+static void testfunc1(FAR const char *msg);
+static void testfunc2(FAR const char *msg);
+static void testfunc3(FAR const char *msg);
+static int module_uninitialize(FAR void *arg);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct symtab_s g_modprint_exports[1] =
+static const char g_msg1[] = "Hello to you too!";
+static const char g_msg2[] = "Not so bad so far.";
+static const char g_msg3[] = "Yes, don't be a stranger!";
+
+static const struct symtab_s g_sotest_exports[6] =
 {
   {
-    "modprint", (FAR const void *)modprint,
-  }
+    "testfunc1", (FAR const void *)testfunc1,
+  },
+  {
+    "testfunc2", (FAR const void *)testfunc2,
+  },
+  {
+    "testfunc3", (FAR const void *)testfunc3,
+  },
+  {
+    "g_msg1",    (FAR const void *)g_msg1,
+  },
+  {
+    "g_msg2",    (FAR const void *)g_msg2,
+  },
+  {
+    "g_msg3",    (FAR const void *)g_msg3,
+  },
 };
 
 /****************************************************************************
@@ -57,6 +87,7 @@ static const struct symtab_s g_modprint_exports[1] =
  * Name: modprint
  ****************************************************************************/
 
+#if CONFIG_MODLIB_MAXDEPEND < 1
 static void modprint(FAR const char *fmt, ...)
 {
   va_list ap;
@@ -65,6 +96,37 @@ static void modprint(FAR const char *fmt, ...)
   vsyslog(LOG_INFO, fmt, ap);
   va_end(ap);
 }
+#endif
+
+/****************************************************************************
+ * Name: testfunc1
+ ****************************************************************************/
+
+static void testfunc1(FAR const char *msg)
+{
+  modprint("testfunc1: Hello, everyone!\n");
+  modprint("   caller: %s\n", msg);
+}
+
+/****************************************************************************
+ * Name: testfunc2
+ ****************************************************************************/
+
+static void testfunc2(FAR const char *msg)
+{
+  modprint("testfunc2: Hope you are having a great day!\n");
+  modprint("   caller: %s\n", msg);
+}
+
+/****************************************************************************
+ * Name: testfunc3
+ ****************************************************************************/
+
+static void testfunc3(FAR const char *msg)
+{
+  modprint("testfunc3: Let's talk again very soon\n");
+  modprint("   caller: %s\n", msg);
+}
 
 /****************************************************************************
  * Name: module_uninitialize
@@ -72,7 +134,7 @@ static void modprint(FAR const char *fmt, ...)
 
 static int module_uninitialize(FAR void *arg)
 {
-  syslog(LOG_INFO, "module_uninitialize: arg=%p\n", arg);
+  modprint("module_uninitialize: arg=%p\n", arg);
   return OK;
 }
 
@@ -90,12 +152,12 @@ static int module_uninitialize(FAR void *arg)
 
 int module_initialize(FAR struct mod_info_s *modinfo)
 {
-  syslog(LOG_INFO, "module_initialize:\n");
+  modprint("module_initialize:\n");
 
   modinfo->uninitializer = module_uninitialize;
   modinfo->arg           = NULL;
-  modinfo->exports       = g_modprint_exports;
-  modinfo->nexports      = 1;
+  modinfo->exports       = g_sotest_exports;
+  modinfo->nexports      = 6;
 
   return OK;
 }

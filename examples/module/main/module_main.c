@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/module/module_main.c
+ * apps/examples/module/main/module_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -114,8 +114,8 @@ static const char g_write_string[] = "Hi there installed driver\n";
  ****************************************************************************/
 
 #if defined(CONFIG_EXAMPLES_MODULE_ROMFS) || defined(CONFIG_EXAMPLES_MODULE_CROMFS)
-extern const unsigned char romfs_img[];
-extern const unsigned int romfs_img_len;
+extern const unsigned char chardev_romfs_img[];
+extern const unsigned int chardev_romfs_img_len;
 #endif
 
 #ifdef CONFIG_BUILD_FLAT
@@ -172,9 +172,9 @@ int main(int argc, FAR char *argv[])
          CONFIG_EXAMPLES_MODULE_DEVMINOR);
 
   desc.minor    = CONFIG_EXAMPLES_MODULE_DEVMINOR;      /* Minor device number of the ROM disk. */
-  desc.nsectors = NSECTORS(romfs_img_len);              /* The number of sectors in the ROM disk */
+  desc.nsectors = NSECTORS(chardev_romfs_img_len);      /* The number of sectors in the ROM disk */
   desc.sectsize = SECTORSIZE;                           /* The size of one sector in bytes */
-  desc.image    = (FAR uint8_t *)romfs_img;             /* File system image */
+  desc.image    = (FAR uint8_t *)chardev_romfs_img;     /* File system image */
 
   ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
   if (ret < 0)
