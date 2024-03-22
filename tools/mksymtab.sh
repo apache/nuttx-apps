@@ -44,7 +44,16 @@ varlist=`find $dir -name *-thunk.S 2>/dev/null | xargs grep -h asciz | cut -f3 |
 if [ -z "$varlist" ]; then
   execlist=`find $dir -type f 2>/dev/null`
   if [ ! -z "$execlist" ]; then
+
+# Get all undefined symbol names
     varlist=`nm $execlist 2>/dev/null | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
+
+# Get all defined symbol names
+    deflist=`nm $execlist 2>/dev/null | fgrep -v -e ' U ' -e ':' | sed -e "s/^[0-9a-z]* //g" | cut -d' ' -f2 | sort | uniq`
+
+# Remove the intersection between them, and the remaining symbols are found in the main image
+    common=`echo "$varlist" | tr ' ' '\n' | grep -Fxf <(echo "$deflist" | tr ' ' '\n') | tr '\n' ' '`
+    varlist=`echo $varlist | sed "s/$common//g"`
   fi
 fi
 
