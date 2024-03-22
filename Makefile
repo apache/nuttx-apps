@@ -46,11 +46,12 @@ SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 all: $(BIN)
 
 .PHONY: import install dirlinks export .depdirs preconfig depend clean distclean
-.PHONY: context clean_context context_all register register_all
+.PHONY: context postinstall clean_context context_all postinstall_all register register_all
 .PRECIOUS: $(BIN)
 
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),postinstall)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),register)))
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
@@ -96,6 +97,7 @@ $(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 .import: $(BIN)
 	$(Q) install libapps.a $(APPDIR)$(DELIM)import$(DELIM)libs
 	$(Q) $(MAKE) install
+	$(Q) $(MAKE) postinstall
 
 import: $(IMPORT_TOOLS)
 	$(Q) $(MAKE) context TOPDIR="$(APPDIR)$(DELIM)import"
@@ -138,6 +140,7 @@ $(BIN): $(SYMTABOBJ)
 endif # !CONFIG_MODULES
 
 install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
+	$(Q) $(MAKE) postinstall_all
 
 # Link nuttx
 
@@ -173,6 +176,7 @@ dirlinks:
 
 context_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 register_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_register)
+postinstall_all: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_postinstall)
 
 staging:
 	$(Q) mkdir -p $@
