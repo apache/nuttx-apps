@@ -347,8 +347,10 @@ install::
 
 endif # BUILD_MODULE
 
-context::
+postinstall::
 	@:
+
+context::
 
 ifeq ($(DO_REGISTRATION),y)
 
