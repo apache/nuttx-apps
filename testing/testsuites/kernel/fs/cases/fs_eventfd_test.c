@@ -47,7 +47,7 @@ __attribute__((unused)) static void *thread_func(void *args)
   eventfd_t eventfd01_buffer;
   for (int i = 1; i < 6; i++)
     {
-      read((int)args, &eventfd01_buffer, sizeof(eventfd_t));
+      read(*(int *)args, &eventfd01_buffer, sizeof(eventfd_t));
       sleep(1);
     }
 

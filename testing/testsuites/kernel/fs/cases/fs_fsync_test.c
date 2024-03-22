@@ -117,7 +117,7 @@ void test_nuttx_fs_fsync02(FAR void **state)
 
   bufsize = statfsbuf.f_bsize;
 
-  syslog(LOG_INFO, "the bsize = %d\n", statfsbuf.f_bsize);
+  syslog(LOG_INFO, "the bsize = %ld\n", statfsbuf.f_bsize);
 
   /* malloc memory */
 
