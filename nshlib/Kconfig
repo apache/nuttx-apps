@@ -644,6 +644,15 @@ config NSH_DISABLE_UNAME
 	bool "Disable uname"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_UNAME_TIMESTAMP
+	bool "Disable uname timestamp"
+	default n
+	---help---
+		Currently uname command will print the timestamp
+		when the binary was built, and it generates an issue
+		because two identical built binaries will have differents
+		hashes/CRC.
+
 config NSH_DISABLE_UNSET
 	bool "Disable unset"
 	default DEFAULT_SMALL
