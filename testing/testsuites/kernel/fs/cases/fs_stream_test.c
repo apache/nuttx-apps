@@ -267,7 +267,7 @@ void test_nuttx_fs_stream03(FAR void **state)
       if ((size_t)ret != len)
         {
           syslog(LOG_ERR,
-                 "len = %zi != return value from fwrite = %zi",
+                 "len = %zi != return value from fwrite = %i",
                  len, ret);
           fclose(stream);
           assert_true(1 == 0);
@@ -300,7 +300,7 @@ void test_nuttx_fs_stream03(FAR void **state)
       if ((size_t)ret != len)
         {
           syslog(LOG_ERR,
-                 "len = %zi != return value from fread = %zi",
+                 "len = %zi != return value from fread = %i",
                  len, ret);
           free(inbuf);
           fclose(stream);
