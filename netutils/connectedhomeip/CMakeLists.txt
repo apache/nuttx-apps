@@ -86,7 +86,7 @@ if(CONFIG_MATTER)
     NAME
     pigweed
     URL
-    https://github.com/google/pigweed/archive/refs/heads/main.zip
+    https://github.com/google/pigweed/archive/1f12d06f51.zip
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/pigweed
     BINARY_DIR
