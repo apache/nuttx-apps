@@ -85,6 +85,12 @@ CSRCS += netlib_getroute.c
 endif
 endif
 
+# Netfilter connection support
+
+ifeq ($(CONFIG_NETLINK_NETFILTER),y)
+CSRCS += netlib_conntrack.c
+endif
+
 # These require TCP support
 
 ifeq ($(CONFIG_NET_TCP),y)
