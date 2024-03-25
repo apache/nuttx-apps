@@ -84,6 +84,12 @@ if(CONFIG_NETUTILS_NETLIB)
     endif()
   endif()
 
+  # Netfilter connection support
+
+  if(CONFIG_NETLINK_NETFILTER)
+    list(APPEND SRCS netlib_conntrack.c)
+  endif()
+
   # These require TCP support
 
   if(CONFIG_NET_TCP)

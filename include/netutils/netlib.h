@@ -123,6 +123,60 @@ struct netlib_device_s
 };
 #endif /* CONFIG_NETLINK_ROUTE*/
 
+#ifdef CONFIG_NETLINK_NETFILTER
+/* Describes one connection returned by netlib_get_conntrack() */
+
+union netlib_conntrack_addr_u
+{
+#ifdef CONFIG_NET_IPv4
+  struct in_addr ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+  struct in6_addr ipv6;
+#endif
+};
+
+struct netlib_conntrack_tuple_s
+{
+  union netlib_conntrack_addr_u src;
+  union netlib_conntrack_addr_u dst;
+
+  union
+  {
+    struct
+    {
+      uint16_t sport;
+      uint16_t dport;
+    } tcp; /* and udp */
+
+    struct
+    {
+      uint16_t id;
+      uint8_t  type;
+      uint8_t  code;
+    } icmp; /* and icmp6 */
+  } l4;
+
+  uint8_t l4proto;
+};
+
+struct netlib_conntrack_s
+{
+  struct netlib_conntrack_tuple_s orig;
+  struct netlib_conntrack_tuple_s reply;
+
+  sa_family_t family; /* AF_INET or AF_INET6 */
+  uint8_t     type;   /* IPCTNL_MSG_CT_* */
+};
+
+/* There might be many conntrack entries, so we don't use array of data, but
+ * use callback instead.
+ */
+
+typedef CODE int (*netlib_conntrack_cb_t)(FAR struct netlib_conntrack_s *ct);
+
+#endif /* CONFIG_NETLINK_NETFILTER */
+
 #ifdef CONFIG_NETUTILS_NETLIB_GENERICURLPARSER
 struct url_s
 {
@@ -353,6 +407,16 @@ int netlib_ipt_delete(FAR struct ipt_replace *repl,
 #  ifdef CONFIG_NET_NAT
 FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname);
 #  endif
+#endif
+
+#ifdef CONFIG_NETLINK_NETFILTER
+/* Netfilter connection tracking support */
+
+struct nlmsghdr;  /* Forward reference */
+
+int netlib_parse_conntrack(FAR const struct nlmsghdr *nlh, size_t len,
+                           FAR struct netlib_conntrack_s *ct);
+int netlib_get_conntrack(sa_family_t family, netlib_conntrack_cb_t cb);
 #endif
 
 /* HTTP support */
