@@ -24,6 +24,10 @@ config LIBUV_THREADPOOL_PRIORITY
 	int "libuv default thread pool priority"
 	default 100
 
+config LIBUV_STREAM_READ_BUF_SIZE
+	int "libuv stream read buffer size"
+	default 4096
+
 config LIBUV_BACKEND_EPOLL
 	bool "Using epoll backend in libuv"
 	default y
