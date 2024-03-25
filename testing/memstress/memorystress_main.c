@@ -245,7 +245,7 @@ static bool memorystress_iter(FAR struct memorystress_context_s *context)
     {
       /* Selection of test type and test size by random number */
 
-      FAR uint8_t *ptr;
+      FAR uint8_t *ptr = NULL;
       size_t size = randnum(context->config->max_allocsize, &seed);
       int switch_func = randnum(3, &seed);
       int align = 1 << (randnum(4, &seed) + 2);
