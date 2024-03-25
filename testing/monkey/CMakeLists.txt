@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/nxffs/CMakeLists.txt
+# apps/testing/monkey/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,7 +18,19 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_NXFFS)
-  nuttx_add_application(NAME nxffs MODULE ${CONFIG_TESTING_NXFFS} SRCS
-                        nxffs_main.c)
+if(CONFIG_TESTING_MONKEY)
+  file(GLOB CURRENT_SRCS *.c)
+  list(REMOVE_ITEM CURRENT_SRCS monkey_main.c)
+  set(SRCS monkey_main.c ${CURRENT_SRCS})
+  nuttx_add_application(
+    NAME
+    monkey
+    PRIORITY
+    ${CONFIG_TESTING_MONKEY_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_MONKEY_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_MONKEY}
+    SRCS
+    ${SRCS})
 endif()

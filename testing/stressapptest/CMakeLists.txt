@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/nxffs/CMakeLists.txt
+# apps/testing/stressapptest/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,7 +18,39 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_NXFFS)
-  nuttx_add_application(NAME nxffs MODULE ${CONFIG_TESTING_NXFFS} SRCS
-                        nxffs_main.c)
+if(CONFIG_TESTING_STRESSAPPTEST)
+
+  set(SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/stressapptest/src)
+
+  set(SRCS
+      ${SRC_DIR}/main.cc
+      ${SRC_DIR}/adler32memcpy.cc
+      ${SRC_DIR}/disk_blocks.cc
+      ${SRC_DIR}/error_diag.cc
+      ${SRC_DIR}/finelock_queue.cc
+      ${SRC_DIR}/logger.cc
+      ${SRC_DIR}/os.cc
+      ${SRC_DIR}/os_factory.cc
+      ${SRC_DIR}/pattern.cc
+      ${SRC_DIR}/queue.cc
+      ${SRC_DIR}/sat.cc
+      ${SRC_DIR}/sat_factory.cc
+      ${SRC_DIR}/worker.cc)
+
+  set(FLAGS -DHAVE_CONFIG_H -fpermissive)
+
+  nuttx_add_application(
+    NAME
+    stressapptest
+    PRIORITY
+    ${CONFIG_TESTING_STRESSAPPTEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_STRESSAPPTEST_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_STRESSAPPTEST}
+    COMPILE_FLAGS
+    ${FLAGS}
+    SRCS
+    ${SRCS})
+
 endif()

@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/nxffs/CMakeLists.txt
+# apps/testing/mtd_config_fs/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,7 +18,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_NXFFS)
-  nuttx_add_application(NAME nxffs MODULE ${CONFIG_TESTING_NXFFS} SRCS
-                        nxffs_main.c)
+if(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE}
+    SRCS
+    mtd_config_fs_test_main.c)
 endif()

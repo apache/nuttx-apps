@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/nxffs/CMakeLists.txt
+# apps/testing/gpu/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,7 +18,35 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_NXFFS)
-  nuttx_add_application(NAME nxffs MODULE ${CONFIG_TESTING_NXFFS} SRCS
-                        nxffs_main.c)
+if(CONFIG_TESTING_GPU)
+  file(GLOB VG_LITE_SRCS vg_lite/*.c)
+  file(GLOB CURRENT_SRCS *.c)
+  list(REMOVE_ITEM CURRENT_SRCS gpu_main.c)
+
+  set(SRCS gpu_main.c ${CURRENT_SRCS} ${VG_LITE_SRCS})
+
+  set(INCDIR ${CMAKE_CURRENT_LIST_DIR})
+  if(CONFIG_TESTING_GPU_VG_LITE_INCLUDE)
+    list(APPEND INCDIR
+         ${NUTTX_APPS_DIR}/../${CONFIG_TESTING_GPU_VG_LITE_INCLUDE})
+  endif()
+
+  if(CONFIG_LIB_PNG)
+    list(APPEND INCDIR ${NUTTX_APPS_DIR}/../external/libpng
+         ${NUTTX_APPS_DIR}/../external/libpng/libpng)
+  endif()
+
+  nuttx_add_application(
+    NAME
+    gpu_test
+    PRIORITY
+    ${CONFIG_TESTING_GPU_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_GPU_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_GPU}
+    INCLUDE_DIRECTORIES
+    ${INCDIR}
+    SRCS
+    ${SRCS})
 endif()
