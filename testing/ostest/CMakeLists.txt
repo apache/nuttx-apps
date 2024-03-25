@@ -143,8 +143,7 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS smp_call.c)
   endif()
 
-  target_sources(apps PRIVATE ${SRCS})
-
-  nuttx_add_application(NAME ostest SRCS ostest_main.c)
+  set(OSTEST_SRCS ostest_main.c ${SRCS})
+  nuttx_add_application(NAME ostest SRCS ${OSTEST_SRCS})
 
 endif()
