@@ -163,8 +163,8 @@ static int cp_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *srcpath,
 
   for (; ; )
     {
-      int nbytesread;
-      int nbyteswritten;
+      ssize_t nbyteswritten;
+      ssize_t nbytesread;
       FAR char *iobuffer = vtbl->iobuffer;
 
       nbytesread = read(rdfd, iobuffer, IOBUFFERSIZE);
