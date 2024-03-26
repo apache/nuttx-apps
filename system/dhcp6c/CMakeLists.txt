@@ -21,7 +21,7 @@
 if(CONFIG_SYSTEM_DHCPC_RENEW6)
   nuttx_add_application(
     NAME
-    dhcpc6
+    ${CONFIG_DHCPC_RENEW6_PROGNAME}
     SRCS
     renew6_main.c
     STACKSIZE
