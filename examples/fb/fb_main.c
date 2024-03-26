@@ -155,16 +155,17 @@ static void pan_display(FAR struct fb_state_s *state)
  * fb_init_mem2
  ****************************************************************************/
 
-static int fb_init_mem2(FAR struct fb_state_s *state,
-                        FAR struct fb_planeinfo_s *pinfo)
+static int fb_init_mem2(FAR struct fb_state_s *state)
 {
   int ret;
   uintptr_t buf_offset;
+  struct fb_planeinfo_s pinfo;
 
-  pinfo->display = state->pinfo.display + 1;
+  memset(&pinfo, 0, sizeof(pinfo));
+  pinfo.display = state->pinfo.display + 1;
 
   ret = ioctl(state->fd, FBIOGET_PLANEINFO,
-              (unsigned long)(uintptr_t)pinfo);
+              &pinfo);
   if (ret < 0)
     {
       int errcode = errno;
@@ -175,7 +176,7 @@ static int fb_init_mem2(FAR struct fb_state_s *state,
 
   /* Check bpp */
 
-  if (pinfo->bpp != state->pinfo.bpp)
+  if (pinfo.bpp != state->pinfo.bpp)
     {
       fprintf(stderr, "ERROR: fbmem2 is incorrect");
       return -EINVAL;
@@ -185,7 +186,7 @@ static int fb_init_mem2(FAR struct fb_state_s *state,
    * It needs to be divisible by pinfo.stride
    */
 
-  buf_offset = pinfo->fbmem - state->fbmem;
+  buf_offset = pinfo.fbmem - state->fbmem;
 
   if ((buf_offset % state->pinfo.stride) != 0)
     {
@@ -202,14 +203,14 @@ static int fb_init_mem2(FAR struct fb_state_s *state,
       /* Use consecutive fbmem2. */
 
       state->mem2_yoffset = state->vinfo.yres;
-      state->fbmem2 = pinfo->fbmem + state->mem2_yoffset * pinfo->stride;
+      state->fbmem2 = pinfo.fbmem + state->mem2_yoffset * pinfo.stride;
     }
   else
     {
       /* Use non-consecutive fbmem2. */
 
       state->mem2_yoffset = buf_offset / state->pinfo.stride;
-      state->fbmem2 = pinfo->fbmem;
+      state->fbmem2 = pinfo.fbmem;
     }
 
   return 0;
@@ -422,7 +423,6 @@ static void draw_rect(FAR struct fb_state_s *state,
 int main(int argc, FAR char *argv[])
 {
   FAR const char *fbdev = g_default_fbdev;
-  struct fb_planeinfo_s pinfo;
   struct fb_state_s state;
   struct fb_area_s area;
   int nsteps;
@@ -582,7 +582,7 @@ int main(int argc, FAR char *argv[])
 
   if (state.pinfo.yres_virtual == (state.vinfo.yres * 2))
     {
-      if ((ret = fb_init_mem2(&state, &pinfo)) < 0)
+      if ((ret = fb_init_mem2(&state)) < 0)
         {
           goto out;
         }
