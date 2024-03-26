@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_GPROF
+	tristate "gprof tool"
+	default n
+	depends on SCHED_GPROF || SIM_GPROF
+	---help---
+		Enable support for the 'gprof' command.
+
+if SYSTEM_GPROF
+
+config SYSTEM_GPROF_PRIORITY
+	int "gprof task priority"
+	default 100
+
+config SYSTEM_GPROF_STACKSIZE
+	int "gprof stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
