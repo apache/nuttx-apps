@@ -22,11 +22,41 @@
  * Included Files
  ****************************************************************************/
 
+#include <mbedtls/sha1.h>
 #include <openssl/sha.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+int SHA1_Init(SHA_CTX *sha)
+{
+  mbedtls_sha1_init((mbedtls_sha1_context *)sha);
+  mbedtls_sha1_starts((mbedtls_sha1_context *)sha);
+  return 0;
+}
+
+int SHA1_Update(SHA_CTX *sha, const void *data, size_t len)
+{
+  return mbedtls_sha1_update((mbedtls_sha1_context *)sha, data, len);
+}
+
+int SHA1_Final(uint8_t out[SHA_DIGEST_LENGTH], SHA_CTX *sha)
+{
+  return mbedtls_sha1_finish((mbedtls_sha1_context *)sha,
+                             (unsigned char *)out);
+}
+
+uint8_t *SHA1(const uint8_t *data, size_t len,
+              uint8_t out[SHA_DIGEST_LENGTH])
+{
+  if (mbedtls_sha1(data, len, out) != 0)
+    {
+      return NULL;
+    }
+
+  return out;
+}
 
 int SHA256_Init(SHA256_CTX *sha)
 {
