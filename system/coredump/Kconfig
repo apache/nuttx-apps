@@ -22,4 +22,10 @@ config SYSTEM_COREDUMP_PRIORITY
 	---help---
 		This is the task priority that will be used when starting the coredump.
 
+config SYSTEM_COREDUMP_SWAPBUFFER_NUMS
+	int "coredump read/write swap buffer nums"
+	default 64
+	---help---
+		The coredump read/write swap buffer nums. swap buffer size = sectorsize * nums
+
 endif # SYSTEM_COREDUMP
