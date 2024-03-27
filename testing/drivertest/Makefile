@@ -88,6 +88,14 @@ PROGNAME += cmocka_driver_i2c_spi
 endif
 endif
 
+ifneq ($(CONFIG_I2C_DRIVER)$(CONFIG_I2C_SLAVE_DRIVER),)
+MAINSRC  += drivertest_i2c_write.c
+PROGNAME += cmocka_driver_i2c_write
+
+MAINSRC  += drivertest_i2c_read.c
+PROGNAME += cmocka_driver_i2c_read
+endif
+
 ifneq ($(CONFIG_DEV_GPIO),)
 PROGNAME += cmocka_driver_gpio
 MAINSRC  += drivertest_gpio.c
