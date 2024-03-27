@@ -277,12 +277,12 @@ void icmp_ping(FAR const struct ping_info_s *info)
       if (priv->nsent < 0)
         {
           icmp_callback(&result, ICMP_E_SENDTO, errno);
-          continue;
+          goto wait;
         }
       else if (priv->nsent != result.outsize)
         {
           icmp_callback(&result, ICMP_E_SENDSMALL, priv->nsent);
-          continue;
+          goto wait;
         }
 
       priv->elapsed = 0;
@@ -298,18 +298,18 @@ void icmp_ping(FAR const struct ping_info_s *info)
           if (ret < 0)
             {
               icmp_callback(&result, ICMP_E_POLL, errno);
-              goto done;
+              goto wait;
             }
           else if (ret == 0)
             {
               icmp_callback(&result, ICMP_W_TIMEOUT, info->timeout);
-              continue;
+              goto wait;
             }
 
           if (priv->recvfd.revents & (POLLHUP | POLLERR))
             {
               icmp_callback(&result, ICMP_E_POLL, ENETDOWN);
-              continue;
+              goto wait;
             }
 
           /* Get the ICMP response (ignoring the sender) */
@@ -322,12 +322,12 @@ void icmp_ping(FAR const struct ping_info_s *info)
           if (priv->nrecvd < 0)
             {
               icmp_callback(&result, ICMP_E_RECVFROM, errno);
-              goto done;
+              goto wait;
             }
           else if (priv->nrecvd < sizeof(struct icmp_hdr_s))
             {
               icmp_callback(&result, ICMP_E_RECVSMALL, priv->nrecvd);
-              goto done;
+              goto wait;
             }
 
           priv->elapsed = TICK2USEC(clock() - priv->start);
@@ -407,6 +407,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
 
       /* Wait if necessary to preserved the requested ping rate */
 
+wait:
       priv->elapsed = TICK2MSEC(clock() - priv->start);
       if (priv->elapsed < info->delay)
         {
@@ -428,7 +429,6 @@ void icmp_ping(FAR const struct ping_info_s *info)
       priv->outhdr.seqno = htons(++result.seqno);
     }
 
-done:
   icmp_callback(&result, ICMP_I_FINISH, TICK2USEC(clock() - priv->kickoff));
   close(priv->sockfd);
   free(priv);
