@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 /****************************************************************************
@@ -35,11 +36,13 @@
 
 static void show_usage(FAR const char *progname)
 {
-  printf("\nUsage: %s [-d] [-r] [-h]\n", progname);
+  printf("\nUsage: %s [-d path] [-t strip] [-r] [-h]\n", progname);
   printf("\nWhere:\n");
-  printf("  -d dump the coverage.\n");
+  printf("  -d dump the coverage, path is the path to the coverage file\n");
+  printf("  -t strip the path prefix number\n");
   printf("  -r reset the coverage\n");
   printf("  -h show this text and exits.\n");
+  exit(EXIT_FAILURE);
 }
 
 /****************************************************************************
@@ -50,11 +53,30 @@ void __gcov_dump(void);
 void __gcov_reset(void);
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void gcov_dump(FAR const char * path, FAR const char *strip)
+{
+  if (path == NULL || access(path, F_OK) != 0 || atoi(strip) <= 0)
+    {
+      fprintf(stderr, "ERROR: Invalid parameter\n");
+      return;
+    }
+
+  setenv("GCOV_PREFIX_STRIP", strip, 1);
+  setenv("GCOV_PREFIX", path, 1);
+  __gcov_dump();
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
+  FAR const char *strip = "99";
+  FAR const char *path;
   int option;
 
   if (argc < 2)
@@ -62,12 +84,17 @@ int main(int argc, FAR char *argv[])
       show_usage(argv[0]);
     }
 
-  while ((option = getopt(argc, argv, "drh")) != ERROR)
+  while ((option = getopt(argc, argv, "d:t:rh")) != ERROR)
     {
       switch (option)
         {
           case 'd':
-            __gcov_dump();
+            path = optarg;
+            break;
+
+          case 't':
+            strip = optarg;
+
             break;
 
           case 'r':
@@ -83,5 +110,6 @@ int main(int argc, FAR char *argv[])
         }
     }
 
+  gcov_dump(path, strip);
   return 0;
 }
