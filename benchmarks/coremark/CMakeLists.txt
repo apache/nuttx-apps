@@ -61,15 +61,56 @@ if(CONFIG_BENCHMARK_COREMARK)
   # Flags
   # ############################################################################
 
+  if(CONFIG_COREMARK_MULTITHREAD_OVERRIDE)
+    set(COREMARK_NTHREADS ${CONFIG_COREMARK_MULTITHREAD_COUNT})
+  else()
+    if(CONFIG_SMP_NCPUS)
+      set(COREMARK_NTHREADS ${CONFIG_SMP_NCPUS})
+    else()
+      set(COREMARK_NTHREADS 1)
+    endif()
+  endif()
+
+  if(CONFIG_COREMARK_PRINT_ARGS)
+    set(COREMARK_PRINT_ARGS 1)
+  else()
+    set(COREMARK_PRINT_ARGS 0)
+  endif()
+
   get_target_property(FLAGS_STR_LIST nuttx COMPILE_OPTIONS)
   list(JOIN FLAGS_STR_LIST " " FLAGS_STR)
-  set(CFLAGS
-      -Wno-undef -DUSE_PTHREAD -DPERFORMANCE_RUN=1
-      -DMULTITHREAD=${COREMARK_NTHREADS} -DFLAGS_STR="${FLAGS_STR}"
-      -DMEM_LOCATION="Stack")
+
+  set(CFLAGS -Dcrc16=coremark_crc16 -Wno-strict-prototypes -Wno-undef)
+
+  if("${CONFIG_COREMARK_MEM_METHOD}" STREQUAL "1")
+    list(APPEND CFLAGS -DMEM_LOCATION=\"HEAP\")
+  elseif("${CONFIG_COREMARK_MEM_METHOD}" STREQUAL "2")
+    list(APPEND CFLAGS -DMEM_LOCATION=\"STACK\")
+  else()
+    list(APPEND CFLAGS -DMEM_LOCATION=\"GLOBAL\")
+  endif()
+
+  list(
+    APPEND
+    CFLAGS
+    -DCALLGRIND_RUN=0
+    -DCOMPILER_REQUIRES_SORT_RETURN=0
+    -DCORE_DEBUG=${CONFIG_COREMARK_DEBUG}
+    -DFLAGS_STR="${FLAGS_STR}"
+    -DMEM_METHOD=${CONFIG_COREMARK_MEM_METHOD}
+    -DMICA=0
+    -DMULTITHREAD=${COREMARK_NTHREADS}
+    -DPERFORMANCE_RUN=1
+    -DPRINT_ARGS=${COREMARK_PRINT_ARGS}
+    -DSEED_METHOD=${CONFIG_COREMARK_SEED_METHOD}
+    -DUSE_CLOCK=1
+    -DUSE_PTHREAD)
 
   if(CONFIG_COREMARK_ITERATIONS_OVERRIDE)
     list(APPEND CFLAGS -DITERATIONS=${CONFIG_COREMARK_ITERATIONS_COUNT})
+  else()
+    list(APPEND CFLAGS -DITERATIONS=0)
+
   endif()
 
   # ############################################################################
@@ -93,7 +134,7 @@ if(CONFIG_BENCHMARK_COREMARK)
 
   nuttx_add_application(
     NAME
-    coremark
+    ${CONFIG_COREMARK_PROGNAME}
     PRIORITY
     ${CONFIG_COREMARK_PRIORITY}
     STACKSIZE
