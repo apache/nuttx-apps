@@ -497,6 +497,11 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("resetcause", cmd_reset_cause, 1, 1, NULL),
 #endif
 
+#if defined(CONFIG_BOARDCTL_IRQ_AFFINITY) && !defined(CONFIG_NSH_DISABLE_IRQ_AFFINITY)
+  CMD_MAP("irqaff", cmd_irq_affinity, 3, 3,
+    "irqaff [IRQ Number] [Core Mask]"),
+#endif
+
 #ifdef NSH_HAVE_DIROPTS
 #  ifndef CONFIG_NSH_DISABLE_RM
   CMD_MAP("rm",       cmd_rm,       2, 3, "[-r] <file-path>"),
