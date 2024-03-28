@@ -519,6 +519,32 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
 
 /****************************************************************************
+ * Name: cmd_irq_affinity
+ ****************************************************************************/
+
+#if defined(CONFIG_BOARDCTL_IRQ_AFFINITY) && !defined(CONFIG_NSH_DISABLE_IRQ_AFFINITY)
+int cmd_irq_affinity(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  unsigned int affinity[2];
+
+  if (argc == 3)
+    {
+      affinity[0] = strtoul(argv[1], NULL, 0);
+      affinity[1] = strtoul(argv[2], NULL, 0);
+
+      if (affinity[1] == 0)
+        {
+          affinity[1] = 0x1;
+        }
+
+      return boardctl(BOARDIOC_IRQ_AFFINITY, (uintptr_t)affinity);
+    }
+
+  return ERROR;
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_rpmsg
  ****************************************************************************/
 

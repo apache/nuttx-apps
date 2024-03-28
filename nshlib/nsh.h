@@ -1145,6 +1145,11 @@ int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
                       FAR char **argv);
 #endif
 
+#if defined(CONFIG_BOARDCTL_IRQ_AFFINITY) && !defined(CONFIG_NSH_DISABLE_IRQ_AFFINITY)
+  int cmd_irq_affinity(FAR struct nsh_vtbl_s *vtbl, int argc,
+                       FAR char **argv);
+#endif
+
 #if defined(CONFIG_RPMSG) && !defined(CONFIG_NSH_DISABLE_RPMSG)
   int cmd_rpmsg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
