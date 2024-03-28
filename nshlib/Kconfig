@@ -689,6 +689,11 @@ config NSH_DISABLE_RESET_CAUSE
 	default DEFAULT_SMALL
 	depends on BOARDCTL_RESET_CAUSE
 
+config NSH_DISABLE_IRQ_AFFINITY
+	bool "Disable command of irq affinity"
+	default DEFAULT_SMALL
+	depends on BOARDCTL_IRQ_AFFINITY
+
 endmenu
 
 if MMCSD
