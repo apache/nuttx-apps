@@ -85,4 +85,7 @@ PROGNAME += zlib_infcover_test
 MAINSRC += zlib/test/infcover.c
 endif
 
+CFLAGS += -DMAX_WBITS=$(CONFIG_LIB_ZLIB_MAX_WBITS)
+CFLAGS += -DMAX_MEM_LEVEL=$(CONFIG_LIB_ZLIB_MAX_MEM_LEVEL)
+
 include $(APPDIR)/Application.mk
