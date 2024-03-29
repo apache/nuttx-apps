@@ -53,7 +53,9 @@ if [ -z "$varlist" ]; then
 
 # Remove the intersection between them, and the remaining symbols are found in the main image
     common=`echo "$varlist" | tr ' ' '\n' | grep -Fxf <(echo "$deflist" | tr ' ' '\n') | tr '\n' ' '`
-    varlist=`echo $varlist | sed "s/$common//g"`
+    if [ "x$common" != "x" ]; then
+      varlist=`echo $varlist | sed "s/$common//g"`
+    fi
   fi
 fi
 
