@@ -27,10 +27,10 @@ PRIORITY  = $(CONFIG_BENCHMARK_DHRYSTONE_PRIORITY)
 STACKSIZE = $(CONFIG_BENCHMARK_DHRYSTONE_STACKSIZE)
 MODULE    = $(CONFIG_BENCHMARK_DHRYSTONE)
 
-CFLAGS   += -DMSC_CLOCK
+CFLAGS   += -DMSC_CLOCK -Wno-implicit-int -Wno-strict-prototypes
+CFLAGS   += -Wno-implicit-function-declaration -Wno-return-type
 
 CSRCS    += dhrystone/v2.1/dhry_2.c
-
 MAINSRC   = dhrystone/v2.2/dry.c
 
 ifeq ($(wildcard dhrystone/.git),)
