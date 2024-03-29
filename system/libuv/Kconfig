@@ -23,7 +23,6 @@ config LIBUV_THREAD_STACKSIZE
 config LIBUV_BACKEND_EPOLL
 	bool "Using epoll backend in libuv"
 	default y
-	depends on FS_NOTIFY
 
 if LIBUV_BACKEND_EPOLL
 
