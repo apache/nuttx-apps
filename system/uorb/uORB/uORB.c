@@ -257,6 +257,16 @@ int orb_get_interval(int fd, FAR unsigned *interval)
   return ret;
 }
 
+int orb_set_info(int fd, FAR const orb_info_t *info)
+{
+  return ioctl(fd, SNIOC_SET_INFO, (unsigned long)(uintptr_t)info);
+}
+
+int orb_get_info(int fd, FAR orb_info_t *info)
+{
+  return ioctl(fd, SNIOC_GET_INFO, (unsigned long)(uintptr_t)info);
+}
+
 int orb_set_batch_interval(int fd, unsigned batch_interval)
 {
   return ioctl(fd, SNIOC_BATCH, (unsigned long)batch_interval);
@@ -340,7 +350,7 @@ void orb_info(FAR const char *format, FAR const char *name,
 
   vaf.fmt = format;
   vaf.va  = (va_list *)data;
-  uorbinfo_raw("%s(now:%" PRIu64 "):%pB", name, orb_absolute_time(), &vaf);
+  uorbinfo_raw("%s(now:%" PRIu64 "):%pB\n", name, orb_absolute_time(), &vaf);
 }
 
 int orb_fprintf(FAR FILE *stream, FAR const char *format,
