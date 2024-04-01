@@ -69,6 +69,7 @@ struct orb_object
 };
 
 typedef uint64_t orb_abstime;
+typedef struct sensor_device_info_s orb_info_t;
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -589,6 +590,38 @@ int orb_set_interval(int fd, unsigned interval);
  ****************************************************************************/
 
 int orb_get_interval(int fd, FAR unsigned *interval);
+
+/****************************************************************************
+ * Name: orb_set_info
+ *
+ * Description:
+ *   Set topic information.
+ *
+ * Input Parameters:
+ *   fd     A fd returned from orb_subscribe.
+ *   info   Data to be transmitted.
+ *
+ * Returned Value:
+ *   0 on success, -1 otherwise with ERRNO set accordingly.
+ ****************************************************************************/
+
+int orb_set_info(int fd, FAR const orb_info_t *info);
+
+/****************************************************************************
+ * Name: orb_get_info
+ *
+ * Description:
+ *   Get topic information.
+ *
+ * Input Parameters:
+ *   fd     A fd returned from orb_subscribe.
+ *   info   The returned topic info.
+ *
+ * Returned Value:
+ *   0 on success, -1 otherwise with ERRNO set accordingly.
+ ****************************************************************************/
+
+int orb_get_info(int fd, FAR orb_info_t *info);
 
 /****************************************************************************
  * Name:
