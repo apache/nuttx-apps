@@ -79,6 +79,8 @@ typedef struct sensor_device_info_s orb_info_t;
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define ORB_EVENT_FLUSH_COMPLETE SENSOR_EVENT_FLUSH_COMPLETE
+
 #define ORB_SENSOR_PATH        "/dev/uorb/"
 #define ORB_USENSOR_PATH       "/dev/usensor"
 #define ORB_PATH_MAX           (NAME_MAX + 16)
@@ -487,6 +489,23 @@ static inline int orb_copy(FAR const struct orb_metadata *meta,
 int orb_get_state(int fd, FAR struct orb_state *state);
 
 /****************************************************************************
+ * Name: orb_get_events
+ *
+ * Description:
+ *   Get the events about the specify subscriber of topic.
+ *
+ * Input Parameters:
+ *   fd       The fd returned from orb_advertise / orb_subscribe.
+ *   events   Pointer to events, type is unsigned int pointer.
+ *            eg: ORB_EVENT_FLUSH_COMPLETE
+ *
+ * Returned Value:
+ *   -1 on error.
+ ****************************************************************************/
+
+int orb_get_events(int fd, FAR unsigned int *events);
+
+/****************************************************************************
  * Name: orb_check
  *
  * Description:
@@ -527,6 +546,27 @@ int orb_check(int fd, FAR bool *updated);
  ****************************************************************************/
 
 int orb_ioctl(int fd, int cmd, unsigned long arg);
+
+/****************************************************************************
+ * Name: orb_flush
+ *
+ * Description:
+ *   When topic data accumulates in the hardware buffer but does not reach
+ *   the watermark, you can mmediately read the fifo data through the flush
+ *   operation. You can call the flush operation at any time.
+ *
+ *   After you call flush, you can determine whether the flush is completed
+ *   by listening to the POLLPRI event of fd and getting the event in
+ *   orb_get_events
+ *
+ * Input Parameters:
+ *   fd       A fd returned from orb_advertise / orb_subscribe.
+ *
+ * Returned Value:
+ *   0 on success.
+ ****************************************************************************/
+
+int orb_flush(int fd);
 
 /****************************************************************************
  * Name: orb_set_batch_interval

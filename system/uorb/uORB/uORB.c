@@ -229,6 +229,16 @@ int orb_get_state(int fd, FAR struct orb_state *state)
   return ret;
 }
 
+int orb_get_events(int fd, FAR unsigned int *events)
+{
+  if (!events)
+    {
+      return -EINVAL;
+    }
+
+  return ioctl(fd, SNIOC_GET_EVENTS, (unsigned long)(uintptr_t)events);
+}
+
 int orb_check(int fd, FAR bool *updated)
 {
   return ioctl(fd, SNIOC_UPDATED, (unsigned long)(uintptr_t)updated);
@@ -237,6 +247,11 @@ int orb_check(int fd, FAR bool *updated)
 int orb_ioctl(int fd, int cmd, unsigned long arg)
 {
   return ioctl(fd, cmd, arg);
+}
+
+int orb_flush(int fd)
+{
+  return ioctl(fd, SNIOC_FLUSH, 0);
 }
 
 int orb_set_interval(int fd, unsigned interval)
