@@ -406,7 +406,7 @@ config NSH_DISABLE_GET
 
 config NSH_DISABLE_HELP
 	bool "Disable help"
-	default DEFAULT_SMALL
+	default n
 
 config NSH_DISABLE_ERROR_PRINT
 	bool "Disable NSH Error Printing"
