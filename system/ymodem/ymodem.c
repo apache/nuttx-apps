@@ -307,24 +307,25 @@ cancel:
 
 static int ymodem_recv_cmd(FAR struct ymodem_ctx_s *ctx, uint8_t cmd)
 {
+  uint8_t recv;
   int ret;
 
-  ret = ymodem_recv_buffer(ctx, ctx->header, 1);
+  ret = ymodem_recv_buffer(ctx, &recv, 1);
   if (ret < 0)
     {
       ymodem_debug("recv cmd error\n");
       return ret;
     }
 
-  if (ctx->header[0] == NAK)
+  if (recv == NAK)
     {
       return -EAGAIN;
     }
 
-  if (ctx->header[0] != cmd)
+  if (recv != cmd)
     {
       ymodem_debug("recv cmd error, must 0x%x, but receive 0x%x\n",
-                   cmd, ctx->header[0]);
+                   cmd, recv);
       return -EINVAL;
     }
 
