@@ -25,179 +25,22 @@
 #include <nuttx/config.h>
 
 #include <arpa/inet.h>
-#include <errno.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 #include <nuttx/net/netfilter/ip_tables.h>
-#include <nuttx/net/netfilter/nf_nat.h>
 
-#include "argtable3.h"
+#include "iptables.h"
 #include "netutils/netlib.h"
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-/* TODO: Our getopt(), which argtable3 depends, does not support nonoptions
- * in the middle, so commands like 'iptables -I chain rulenum -j MASQUERADE'
- * cannot be supported, because the 'rulenum' will stop getopt() logic and
- * the -j option will never be parsed. Although we write 'rulenum' option
- * here, it may not work well, but it will work when our getopt() is updated.
- */
-
-struct iptables_args_s
-{
-  FAR struct arg_str *table;
-
-  FAR struct arg_str *append_chain;
-  FAR struct arg_str *insert_chain;
-  FAR struct arg_str *delete_chain;
-  FAR struct arg_str *flush_chain;
-  FAR struct arg_str *list_chain;
-
-  FAR struct arg_int *rulenum;
-
-  FAR struct arg_str *target;
-  FAR struct arg_str *outifname;
-
-  FAR struct arg_end *end;
-};
-
-enum iptables_command_e
-{
-  COMMAND_APPEND,
-  COMMAND_INSERT,
-  COMMAND_DELETE,
-  COMMAND_FLUSH,
-  COMMAND_LIST,
-  COMMAND_NUM,
-};
-
-struct iptables_command_s
-{
-  enum iptables_command_e cmd;
-  enum nf_inet_hooks hook;
-  int rulenum;
-};
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-static FAR const char *g_hooknames[] =
-{
-  "PREROUTING", "INPUT", "FORWARD", "OUTPUT", "POSTROUTING"
-};
+typedef CODE int
+  (*iptables_command_func_t)(FAR const struct iptables_args_s *args);
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: iptables_showusage
- *
- * Description:
- *   Show usage of the demo program
- *
- ****************************************************************************/
-
-static void iptables_showusage(FAR const char *progname, FAR void** argtable)
-{
-  printf("USAGE: %s -t table -[AD] chain rule-specification\n", progname);
-  printf("       %s -t table -I chain [rulenum] rule-specification\n",
-         progname);
-  printf("       %s -t table -D chain rulenum\n", progname);
-  printf("       %s -t table -[FL] [chain]\n", progname);
-  printf("iptables command:\n");
-  arg_print_glossary(stdout, argtable, NULL);
-}
-
-/****************************************************************************
- * Name: iptables_parse_hook
- *
- * Description:
- *   Get hook from string
- *
- ****************************************************************************/
-
-static enum nf_inet_hooks iptables_parse_hook(FAR const char *str)
-{
-  unsigned int hook;
-
-  if (str == NULL || strlen(str) == 0) /* Might be no input (-F/-L). */
-    {
-      return NF_INET_NUMHOOKS;
-    }
-
-  for (hook = 0; hook < NF_INET_NUMHOOKS; hook++)
-    {
-      if (strcmp(str, g_hooknames[hook]) == 0)
-        {
-          return hook;
-        }
-    }
-
-  printf("Failed to parse hook: %s, default to %d\n", str, NF_INET_NUMHOOKS);
-  return NF_INET_NUMHOOKS; /* Failed to parse. */
-}
-
-/****************************************************************************
- * Name: iptables_command
- *
- * Description:
- *   Get command from arg list
- *
- ****************************************************************************/
-
-static struct iptables_command_s
-iptables_command(FAR const struct iptables_args_s *args)
-{
-  struct iptables_command_s ret =
-    {
-      COMMAND_NUM,
-      NF_INET_NUMHOOKS,
-      -1
-    };
-
-  if (args->rulenum->count > 0)
-    {
-      ret.rulenum = *args->rulenum->ival;
-    }
-
-  /* Flush & list with no chain specified will result in count > 0 and empty
-   * string in sval[0], then we map the hook to NF_INET_NUMHOOKS.
-   */
-
-  if (args->flush_chain->count > 0)
-    {
-      ret.cmd = COMMAND_FLUSH;
-      ret.hook = iptables_parse_hook(args->flush_chain->sval[0]);
-    }
-  else if (args->list_chain->count > 0)
-    {
-      ret.cmd = COMMAND_LIST;
-      ret.hook = iptables_parse_hook(args->list_chain->sval[0]);
-    }
-  else if (args->append_chain->count > 0)
-    {
-      ret.cmd = COMMAND_APPEND;
-      ret.hook = iptables_parse_hook(args->append_chain->sval[0]);
-    }
-  else if (args->insert_chain->count > 0)
-    {
-      ret.cmd = COMMAND_INSERT;
-      ret.hook = iptables_parse_hook(args->insert_chain->sval[0]);
-      ret.rulenum = MAX(ret.rulenum, 1);
-    }
-  else if (args->delete_chain->count > 0)
-    {
-      ret.cmd = COMMAND_DELETE;
-      ret.hook = iptables_parse_hook(args->delete_chain->sval[0]);
-    }
-
-  return ret;
-}
 
 /****************************************************************************
  * Name: iptables_addr2str
@@ -234,22 +77,45 @@ static FAR char *iptables_addr2str(struct in_addr addr, struct in_addr msk,
 static void iptables_print_chain(FAR const struct ipt_replace *repl,
                                  enum nf_inet_hooks hook)
 {
-  const char fmt[] = "%12s %4s %4s %16s %16s\n";
-  char src[INET_ADDRSTRLEN];
-  char dst[INET_ADDRSTRLEN];
+  /* Format:         target !prot   !idev   !odev   !saddr   !daddr  match */
+
+  const char fmt[] = "%-12s %1s%-4s %1s%-4s %1s%-4s %1s%-18s %1s%-18s %s\n";
+  char src[INET_ADDRSTRLEN + 3]; /* Format: 123.123.123.123/24 */
+  char dst[INET_ADDRSTRLEN + 3];
+
   FAR struct ipt_entry *entry;
+  FAR struct xt_entry_match *match;
+  FAR struct xt_entry_target *target;
   FAR uint8_t *head = (FAR uint8_t *)repl->entries + repl->hook_entry[hook];
   int size = repl->underflow[hook] - repl->hook_entry[hook];
 
-  printf("Chain %s\n", g_hooknames[hook]);
-  printf(fmt, "target", "idev", "odev", "source", "destination");
+  /* The underflow entry contains the default rule. */
+
+  entry  = (FAR struct ipt_entry *)(head + size);
+  target = IPT_TARGET(entry);
+
+  printf("Chain %s (policy %s)\n",
+         iptables_hook2str(hook), iptables_target2str(target));
+  printf(fmt, "target", "", "prot", "", "idev", "", "odev",
+                        "", "source", "", "destination", "");
 
   ipt_entry_for_every(entry, head, size)
     {
-      FAR struct xt_entry_target *target = IPT_TARGET(entry);
-      printf(fmt, target->u.user.name, entry->ip.iniface, entry->ip.outiface,
-        iptables_addr2str(entry->ip.src, entry->ip.smsk, src, sizeof(src)),
-        iptables_addr2str(entry->ip.dst, entry->ip.dmsk, dst, sizeof(dst)));
+      target = IPT_TARGET(entry);
+      match  = entry->target_offset >= sizeof(struct xt_entry_match) ?
+                                                    IPT_MATCH(entry) : NULL;
+      printf(fmt, iptables_target2str(target),
+          INV_FLAG_STR(entry->ip.invflags & IPT_INV_PROTO),
+          iptables_proto2str(entry->ip.proto),
+          INV_FLAG_STR(entry->ip.invflags & IPT_INV_VIA_IN),
+          iptables_iface2str(entry->ip.iniface),
+          INV_FLAG_STR(entry->ip.invflags & IPT_INV_VIA_OUT),
+          iptables_iface2str(entry->ip.outiface),
+          INV_FLAG_STR(entry->ip.invflags & IPT_INV_SRCIP),
+          iptables_addr2str(entry->ip.src, entry->ip.smsk, src, sizeof(src)),
+          INV_FLAG_STR(entry->ip.invflags & IPT_INV_DSTIP),
+          iptables_addr2str(entry->ip.dst, entry->ip.dmsk, dst, sizeof(dst)),
+          iptables_match2str(match));
     }
 
   printf("\n");
@@ -288,49 +154,31 @@ static int iptables_list(FAR const char *table, enum nf_inet_hooks hook)
 }
 
 /****************************************************************************
- * Name: iptables_nat_command
+ * Name: iptables_finish_command
  *
  * Description:
- *   Do a NAT command
+ *   Do a command and commit it
  *
  ****************************************************************************/
 
-static int iptables_nat_command(FAR const struct iptables_command_s *cmd,
-                                FAR const char *ifname)
+static int iptables_finish_command(FAR const struct iptables_args_s *args,
+                                   FAR struct ipt_replace **repl,
+                                   FAR struct ipt_entry *entry)
 {
-  FAR struct ipt_replace *repl = netlib_ipt_prepare(TABLE_NAME_NAT);
-  FAR struct ipt_entry *entry  = NULL;
   int ret;
 
-  if (repl == NULL)
-    {
-      printf("Failed to read table '" TABLE_NAME_NAT "' from kernel!\n");
-      return -EIO;
-    }
-
-  if (ifname && strlen(ifname) > 0) /* No ifname if we delete with rulenum. */
-    {
-      entry = netlib_ipt_masquerade_entry(ifname);
-      if (entry == NULL)
-        {
-          printf("Failed to prepare entry for dev %s!\n", ifname);
-          ret = -ENOMEM;
-          goto errout_with_repl;
-        }
-    }
-
-  switch (cmd->cmd)
+  switch (args->cmd)
     {
       case COMMAND_APPEND:
-        ret = netlib_ipt_append(&repl, entry, cmd->hook);
+        ret = netlib_ipt_append(repl, entry, args->hook);
         break;
 
       case COMMAND_INSERT:
-        ret = netlib_ipt_insert(&repl, entry, cmd->hook, cmd->rulenum);
+        ret = netlib_ipt_insert(repl, entry, args->hook, args->rulenum);
         break;
 
       case COMMAND_DELETE:
-        ret = netlib_ipt_delete(repl, entry, cmd->hook, cmd->rulenum);
+        ret = netlib_ipt_delete(*repl, entry, args->hook, args->rulenum);
         break;
 
       default: /* Other commands should not call into this function. */
@@ -340,58 +188,287 @@ static int iptables_nat_command(FAR const struct iptables_command_s *cmd,
 
   if (ret == OK)
     {
-      ret = netlib_ipt_commit(repl);
+      ret = netlib_ipt_commit(*repl);
     }
 
-  if (entry)
+  return ret;
+}
+
+/****************************************************************************
+ * Name: iptables_finish_directly
+ *
+ * Description:
+ *   Finish command directly without preparing any entry
+ *
+ ****************************************************************************/
+
+static int iptables_finish_directly(FAR const struct iptables_args_s *args)
+{
+  FAR struct ipt_replace *repl = netlib_ipt_prepare(args->table);
+  int ret;
+
+  if (repl == NULL)
     {
-      free(entry);
+      printf("Failed to read table '%s' from kernel!\n", args->table);
+      return -EIO;
     }
 
-errout_with_repl:
+  ret = iptables_finish_command(args, &repl, NULL);
+
   free(repl);
   return ret;
 }
 
 /****************************************************************************
- * Name: iptables_nat
+ * Name: iptables_nat_command
  *
  * Description:
- *   Apply rules for NAT
+ *   Do a NAT command
  *
  ****************************************************************************/
 
-static int iptables_nat(FAR const struct iptables_args_s *args)
+#ifdef CONFIG_NET_NAT
+static int iptables_nat_command(FAR const struct iptables_args_s *args)
 {
-  struct iptables_command_s cmd = iptables_command(args);
+  FAR struct ipt_replace *repl;
+  FAR struct ipt_entry *entry = NULL;
+  int ret;
 
-  switch (cmd.cmd)
+  if (args->outifname == NULL || args->outifname[0] == '\0')
+    {
+      printf("Table '" TABLE_NAME_NAT "' needs an out interface!\n");
+      return -EINVAL;
+    }
+
+  if (args->target != NULL &&
+      strcmp(args->target, XT_MASQUERADE_TARGET))
+    {
+      printf("Only target '" XT_MASQUERADE_TARGET
+             "' is supported for table '" TABLE_NAME_NAT "'!\n");
+      return -EINVAL;
+    }
+
+  repl = netlib_ipt_prepare(TABLE_NAME_NAT);
+  if (repl == NULL)
+    {
+      printf("Failed to read table '" TABLE_NAME_NAT "' from kernel!\n");
+      return -EIO;
+    }
+
+  entry = netlib_ipt_masquerade_entry(args->outifname);
+  if (entry == NULL)
+    {
+      printf("Failed to prepare entry for dev %s!\n", args->outifname);
+      ret = -ENOMEM;
+      goto errout_with_repl;
+    }
+
+  ret = iptables_finish_command(args, &repl, entry);
+
+  free(entry);
+errout_with_repl:
+  free(repl);
+  return ret;
+}
+#endif
+
+/****************************************************************************
+ * Name: iptables_filter_command
+ *
+ * Description:
+ *   Do a FILTER command
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPFILTER
+static int iptables_filter_command(FAR const struct iptables_args_s *args)
+{
+  FAR struct xt_entry_match *match;
+  FAR struct ipt_replace *repl = netlib_ipt_prepare(XT_TABLE_NAME_FILTER);
+  FAR struct ipt_entry *entry  = NULL;
+  int ret;
+
+  if (repl == NULL)
+    {
+      printf("Failed to read table '" XT_TABLE_NAME_FILTER
+             "' from kernel!\n");
+      return -EIO;
+    }
+
+  /* Get entry and fill in proto-specific details. */
+
+  if (args->sport != NULL || args->dport != NULL)
+    {
+      FAR struct xt_udp *tcpudp;
+
+      if (args->protocol != IPPROTO_TCP && args->protocol != IPPROTO_UDP)
+        {
+          printf("Source/destination port is only supported for TCP/UDP!\n");
+          ret = -EINVAL;
+          goto errout;
+        }
+
+      entry = netlib_ipt_filter_entry(args->target, args->verdict,
+                                      args->protocol);
+      if (entry == NULL)
+        {
+          goto errout_prepare_entry;
+        }
+
+      match  = IPT_MATCH(entry);
+      tcpudp = (FAR struct xt_udp *)(match + 1);
+
+      switch (args->protocol)
+        {
+          case IPPROTO_TCP:
+            ((FAR struct xt_tcp *)tcpudp)->invflags = args->tcpudpinv;
+            break;
+
+          case IPPROTO_UDP:
+            ((FAR struct xt_udp *)tcpudp)->invflags = args->tcpudpinv;
+            break;
+        }
+
+      ret = iptables_parse_ports(args->sport, tcpudp->spts);
+      if (ret < 0)
+        {
+          printf("Failed to parse source port!\n");
+          goto errout;
+        }
+
+      ret = iptables_parse_ports(args->dport, tcpudp->dpts);
+      if (ret < 0)
+        {
+          printf("Failed to parse destination port!\n");
+          goto errout;
+        }
+    }
+  else if (args->icmp_type != NULL)
+    {
+      FAR struct ipt_icmp *icmp;
+
+      if (args->protocol != IPPROTO_ICMP)
+        {
+          printf("ICMP type is only supported for ICMP protocol!\n");
+          ret = -EINVAL;
+          goto errout;
+        }
+
+      entry = netlib_ipt_filter_entry(args->target, args->verdict,
+                                      args->protocol);
+      if (entry == NULL)
+        {
+          goto errout_prepare_entry;
+        }
+
+      match = IPT_MATCH(entry);
+      icmp  = (FAR struct ipt_icmp *)(match + 1);
+
+      ret = iptables_parse_icmp(args->icmp_type);
+      if (ret < 0)
+        {
+          printf("Failed to parse ICMP type!\n");
+          goto errout;
+        }
+
+      icmp->type = ret;
+      icmp->invflags = args->icmpinv;
+    }
+  else
+    {
+      entry = netlib_ipt_filter_entry(args->target, args->verdict, 0);
+      if (entry == NULL)
+        {
+          goto errout_prepare_entry;
+        }
+    }
+
+  /* Fill in common details. */
+
+  ret = netlib_ipt_fillifname(entry, args->inifname, args->outifname);
+  if (ret < 0)
+    {
+      printf("Failed to fill in interface names!\n");
+      goto errout;
+    }
+
+  if (args->saddr != NULL)
+    {
+      ret = iptables_parse_ip(args->saddr, &entry->ip.src, &entry->ip.smsk,
+                              AF_INET);
+      if (ret < 0)
+        {
+          printf("Failed to parse source address %s!\n", args->saddr);
+          goto errout;
+        }
+    }
+
+  if (args->daddr != NULL)
+    {
+      ret = iptables_parse_ip(args->daddr, &entry->ip.dst, &entry->ip.dmsk,
+                              AF_INET);
+      if (ret < 0)
+        {
+          printf("Failed to parse destination address %s!\n", args->daddr);
+          goto errout;
+        }
+    }
+
+  entry->ip.proto    = args->protocol;
+  entry->ip.invflags = args->ipinv;
+
+  /* Finish command. */
+
+  ret = iptables_finish_command(args, &repl, entry);
+
+errout:
+  free(entry);
+  free(repl);
+  return ret;
+
+errout_prepare_entry:
+  printf("Failed to prepare entry!\n");
+  ret = -ENOMEM;
+  goto errout;
+}
+#endif
+
+/****************************************************************************
+ * Name: iptables_apply
+ *
+ * Description:
+ *   Apply rules for corresponding table
+ *
+ ****************************************************************************/
+
+static int iptables_apply(FAR const struct iptables_args_s *args,
+                          iptables_command_func_t command_func)
+{
+  switch (args->cmd)
     {
       case COMMAND_FLUSH:
-        return netlib_ipt_flush(TABLE_NAME_NAT, cmd.hook);
+        return netlib_ipt_flush(args->table, args->hook);
 
       case COMMAND_LIST:
-        return iptables_list(TABLE_NAME_NAT, cmd.hook);
+        return iptables_list(args->table, args->hook);
+
+      case COMMAND_POLICY:
+        return netlib_ipt_policy(args->table, args->hook, args->verdict);
+
+      case COMMAND_DELETE:
+
+        /* Delete rule with rulenum can be done directly. */
+
+        if (args->rulenum > 0)
+          {
+            return iptables_finish_directly(args);
+          }
+
+        /* Fall through. */
 
       case COMMAND_APPEND:
       case COMMAND_INSERT:
-      case COMMAND_DELETE:
-        if (args->outifname->count == 0 &&
-            !(cmd.cmd == COMMAND_DELETE && cmd.rulenum > 0))
-          {
-            printf("Table '" TABLE_NAME_NAT "' needs an out interface!\n");
-            return -EINVAL;
-          }
-
-        if (args->target->count > 0 &&
-            strcmp(args->target->sval[0], XT_MASQUERADE_TARGET))
-          {
-            printf("Only target '" XT_MASQUERADE_TARGET
-                  "' is supported for table '" TABLE_NAME_NAT "'!\n");
-            return -EINVAL;
-          }
-
-        return iptables_nat_command(&cmd, args->outifname->sval[0]);
+        return command_func(args);
 
       default:
         printf("No supported command specified!\n");
@@ -406,55 +483,40 @@ static int iptables_nat(FAR const struct iptables_args_s *args)
 int main(int argc, FAR char *argv[])
 {
   struct iptables_args_s args;
-  int nerrors;
-  int ret = 0;
+  int ret = iptables_parse(&args, argc, argv);
 
-  args.table        = arg_str1("t", "table", "table", "table to manipulate");
-
-  args.append_chain = arg_str0("A", "append", "chain",
-                               "Append a rule to chain");
-  args.insert_chain = arg_str0("I", "insert", "chain",
-                               "Insert a rule to chain at rulenum "
-                               "(default = 1)");
-  args.delete_chain = arg_str0("D", "delete", "chain",
-                               "Delete matching rule from chain");
-  args.flush_chain  = arg_str0("F", "flush", "chain",
-                               "Delete all rules in chain or all chains");
-  args.list_chain   = arg_str0("L", "list", "chain",
-                               "List all rules in chain or all chains");
-
-  args.rulenum      = arg_int0(NULL, NULL, "rulenum", "Rule num (1=first)");
-
-  args.target       = arg_str0("j", "jump", "target", "target for rule");
-  args.outifname    = arg_str0("o", "out-interface", "dev",
-                               "output network interface name");
-
-  args.end          = arg_end(1);
-
-  /* The chain of -F or -L is optional. */
-
-  args.flush_chain->hdr.flag |= ARG_HASOPTVALUE;
-  args.list_chain->hdr.flag  |= ARG_HASOPTVALUE;
-
-  nerrors = arg_parse(argc, argv, (FAR void**)&args);
-  if (nerrors != 0)
+  if (ret < 0 || args.cmd == COMMAND_INVALID)
     {
-      arg_print_errors(stderr, args.end, argv[0]);
-      iptables_showusage(argv[0], (FAR void**)&args);
+      iptables_showusage(argv[0]);
+      return ret;
     }
-  else if (strcmp(args.table->sval[0], TABLE_NAME_NAT) == 0)
+
+#ifdef CONFIG_NET_IPFILTER
+  if (args.table == NULL || strcmp(args.table, XT_TABLE_NAME_FILTER) == 0)
     {
-      ret = iptables_nat(&args);
+      args.table = XT_TABLE_NAME_FILTER;
+      ret = iptables_apply(&args, iptables_filter_command);
+      if (ret < 0)
+        {
+          printf("iptables got error on filter: %d!\n", ret);
+        }
+    }
+  else
+#endif
+#ifdef CONFIG_NET_NAT
+  if (strcmp(args.table, TABLE_NAME_NAT) == 0)
+    {
+      ret = iptables_apply(&args, iptables_nat_command);
       if (ret < 0)
         {
           printf("iptables got error on NAT: %d!\n", ret);
         }
     }
   else
+#endif
     {
-      printf("Unknown table: %s\n", args.table->sval[0]);
+      printf("Unknown table: %s\n", args.table);
     }
 
-  arg_freetable((FAR void **)&args, 1);
   return ret;
 }
