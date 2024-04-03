@@ -25,14 +25,22 @@
 #include <errno.h>
 #include <math.h>
 #include <poll.h>
+#include <inttypes.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/param.h>
+#include <sched.h>
+#include <pthread.h>
 
 #include "utility.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define nitems(_a) (sizeof(_a) / sizeof(0[(_a)]))
 
 /****************************************************************************
  * Private Data
@@ -48,7 +56,7 @@ static int           g_pubsubtest_res;
  * Private Functions
  ****************************************************************************/
 
-static int pubsubtest_thread_entry(int argc, FAR char *argv[])
+static FAR void *pubsubtest_thread_entry(FAR void *arg)
 {
   /* poll on test topic and output latency */
 
@@ -68,10 +76,11 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
   unsigned timing_max = 0;
   unsigned i;
 
+  (void)arg;
   timings = malloc(MAX_RUNS * sizeof(unsigned));
   if (timings == NULL)
     {
-      return -ENOMEM;
+      return NULL;
     }
 
   /* clear all ready flags */
@@ -117,7 +126,7 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
 
       if (pret < 0)
         {
-          snerr("poll error %d, %d", pret, errno);
+          printf("poll error %d, %d", pret, errno);
           continue;
         }
     }
@@ -130,14 +139,14 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
       FAR FILE *f;
 
       snprintf(fname, sizeof(fname),
-               CONFIG_UORB_SRORAGE_DIR"/uorb_timings%u.txt", timingsgroup);
+               UORB_STORAGE_DIR"/uorb_timings%u.txt", timingsgroup);
 
       f = fopen(fname, "w");
       if (f == NULL)
         {
-          snerr("Error opening file!");
+          printf("Error opening file!");
           free(timings);
-          return ERROR;
+          return NULL;
         }
 
       for (i = 0; i < MAX_RUNS; i++)
@@ -177,13 +186,13 @@ static int pubsubtest_thread_entry(int argc, FAR char *argv[])
     }
 
   free(timings);
-  return g_pubsubtest_res;
+  return NULL;
 }
 
 static int latency_test(bool print)
 {
   struct orb_test_medium_s sample;
-  int pubsub_task;
+  pthread_t pubsub_task;
   int instance = 0;
   int fd;
 
@@ -202,11 +211,10 @@ static int latency_test(bool print)
   g_pubsubtest_print  = print;
   g_pubsubtest_passed = false;
 
-  pubsub_task = task_create("uorb_latency",
-                            SCHED_PRIORITY_DEFAULT,
-                            CONFIG_UORB_STACKSIZE,
-                            pubsubtest_thread_entry,
-                            NULL);
+  if (pthread_create(&pubsub_task, NULL, pubsubtest_thread_entry, NULL) < 0)
+    {
+      return test_fail("failed launching task");
+    }
 
   /* give the test task some data */
 
@@ -605,7 +613,7 @@ static int test_unadvertise(int *afds)
   return OK;
 }
 
-static int pub_test_multi2_entry(int argc, char *argv[])
+static FAR void *pub_test_multi2_entry(FAR void *arg)
 {
   struct orb_test_medium_s data_topic;
   const int num_instances = 3;
@@ -615,6 +623,7 @@ static int pub_test_multi2_entry(int argc, char *argv[])
   int num_messages = 50 * num_instances;
   int i;
 
+  (void)arg;
   memset(&data_topic, '\0', sizeof(data_topic));
   for (i = 0; i < num_instances; ++i)
     {
@@ -650,7 +659,7 @@ static int pub_test_multi2_entry(int argc, char *argv[])
       orb_unadvertise(orb_pub[i]);
     }
 
-  return OK;
+  return NULL;
 }
 
 static int test_multi2(void)
@@ -659,7 +668,9 @@ static int test_multi2(void)
   int orb_data_fd[num_instances];
   int orb_data_next     = 0;
   orb_abstime last_time = 0;
-  int pubsub_task;
+  struct sched_param param;
+  pthread_attr_t attr;
+  pthread_t pubsub_task;
   int i;
 
   test_note("Testing multi-topic 2 test (queue simulation)");
@@ -675,15 +686,17 @@ static int test_multi2(void)
 
   /* launch the publisher thread */
 
-  pubsub_task = task_create("uorb_test_multi",
-                            SCHED_PRIORITY_MAX - 5,
-                            CONFIG_UORB_STACKSIZE,
-                            pub_test_multi2_entry,
-                            NULL);
-  if (pubsub_task < 0)
+  pthread_attr_init(&attr);
+  param.sched_priority = sched_get_priority_max(0) - 5;
+  pthread_attr_setschedparam(&attr, &param);
+
+  if (pthread_create(&pubsub_task, &attr, pub_test_multi2_entry, NULL) < 0)
     {
+      pthread_attr_destroy(&attr);
       return test_fail("failed launching task");
     }
+
+  pthread_attr_destroy(&attr);
 
   /* loop check update and copy new data */
 
@@ -873,7 +886,7 @@ int test_queue(void)
   return test_note("PASS orb queuing");
 }
 
-static int pub_test_queue_entry(int argc, char *argv[])
+static FAR void *pub_test_queue_entry(FAR void *arg)
 {
   const int queue_size = 50;
   struct orb_test_medium_s t;
@@ -882,13 +895,15 @@ static int pub_test_queue_entry(int argc, char *argv[])
   int instance = 0;
   int ptopic;
 
+  (void)arg;
   memset(&t, '\0', sizeof(t));
   ptopic = orb_advertise_multi_queue_persist(
     ORB_ID(orb_test_medium_queue_poll), &t, &instance, queue_size);
   if (ptopic < 0)
     {
       g_thread_should_exit = true;
-      return test_fail("advertise failed: %d", errno);
+      test_fail("advertise failed: %d", errno);
+      return NULL;
     }
 
   ++t.val;
@@ -915,17 +930,18 @@ static int pub_test_queue_entry(int argc, char *argv[])
   usleep(100 * 1000);
   g_thread_should_exit = true;
   orb_unadvertise(ptopic);
-
-  return 0;
+  return NULL;
 }
 
 static int test_queue_poll_notify(void)
 {
   struct pollfd fds[1];
   struct orb_test_medium_s t;
+  struct sched_param param;
+  pthread_attr_t attr;
   bool updated;
   int next_expected_val = 0;
-  int pubsub_task;
+  pthread_t pubsub_task;
   int sfd;
 
   test_note("Testing orb queuing (poll & notify)");
@@ -951,16 +967,17 @@ static int test_queue_poll_notify(void)
 
   g_thread_should_exit = false;
 
-  pubsub_task = task_create("uorb_test_queue",
-                            SCHED_PRIORITY_MIN + 5,
-                            CONFIG_UORB_STACKSIZE,
-                            pub_test_queue_entry,
-                            NULL);
+  pthread_attr_init(&attr);
+  param.sched_priority = sched_get_priority_min(0) + 5;
+  pthread_attr_setschedparam(&attr, &param);
 
-  if (pubsub_task < 0)
+  if (pthread_create(&pubsub_task, &attr, pub_test_queue_entry, NULL) < 0)
     {
-      return test_fail("failed launching task");
+      pthread_attr_destroy(&attr);
+      return test_fail("failed test queue task");
     }
+
+  pthread_attr_destroy(&attr);
 
   fds[0].fd     = sfd;
   fds[0].events = POLLIN;
