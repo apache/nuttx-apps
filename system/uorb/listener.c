@@ -829,6 +829,7 @@ static void listener_top(FAR struct listen_list_s *objlist,
 
 static void exit_handler(int signo)
 {
+  (void)signo;
   g_should_exit = true;
 }
 
