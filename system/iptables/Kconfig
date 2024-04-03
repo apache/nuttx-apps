@@ -8,7 +8,6 @@ config SYSTEM_IPTABLES
 	default n
 	depends on NET_IPTABLES
 	select NETUTILS_NETLIB
-	select SYSTEM_ARGTABLE3
 	---help---
 		Enable support for the 'iptables' command.
 
