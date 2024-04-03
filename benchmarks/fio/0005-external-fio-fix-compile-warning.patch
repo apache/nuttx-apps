@@ -1,0 +1,172 @@
+From a69a23fb0cf6f9e0ad0cb857dda74e6e9b4bc6da Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Sat, 10 Jun 2023 18:34:17 +0800
+Subject: [PATCH 05/10] external/fio: fix compile warning
+
+io/compiler/compiler.h:25:25: warning: comparison of distinct pointer types lacks a cast
+   25 |         (void)(&__dummy == &__dummy2); \
+      |                         ^~
+fio/os/os.h:291:9: note: in expansion of macro 'typecheck'
+  291 |         typecheck(uint32_t, val);               \
+      |         ^~~~~~~~~
+fio/verify.c:1628:48: note: in expansion of macro 'cpu_to_le32'
+ 1628 |     s->rand.state32.s[0] = cpu_to_le32(td->random_state.state32.s1);
+      |                            ^~~~~~~~~~~
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ client.c                 | 2 +-
+ engines/fileoperations.c | 4 ++--
+ eta.c                    | 6 +++---
+ iolog.c                  | 2 +-
+ os/os.h                  | 2 --
+ verify.c                 | 6 +++---
+ zbd.c                    | 2 +-
+ 7 files changed, 11 insertions(+), 13 deletions(-)
+
+diff --git fio/client.c fio/client.c
+index 37da74bc..f9a3247e 100644
+--- fio/client.c
++++ fio/client.c
+@@ -1406,7 +1406,7 @@ static void client_flush_hist_samples(FILE *f, int hist_coarseness, void *sample
+ 		entry = s->data.plat_entry;
+ 		io_u_plat = entry->io_u_plat;
+ 
+-		fprintf(f, "%lu, %u, %llu, ", (unsigned long) s->time,
++		fprintf(f, "%lu, %"PRIu32", %llu, ", (unsigned long) s->time,
+ 						io_sample_ddir(s), (unsigned long long) s->bs);
+ 		for (j = 0; j < FIO_IO_U_PLAT_NR - stride; j += stride) {
+ 			fprintf(f, "%llu, ", (unsigned long long)hist_sum(j, stride, io_u_plat, NULL));
+diff --git fio/engines/fileoperations.c fio/engines/fileoperations.c
+index 1db60da1..ed0456c0 100644
+--- fio/engines/fileoperations.c
++++ fio/engines/fileoperations.c
+@@ -109,7 +109,7 @@ static int stat_file(struct thread_data *td, struct fio_file *f)
+ 	struct timespec start;
+ 	int do_lat = !td->o.disable_lat;
+ 	struct stat statbuf;
+-#ifndef WIN32
++#if !defined(WIN32) && !defined(__NuttX__)
+ 	struct statx statxbuf;
+ 	char *abspath;
+ #endif
+@@ -137,7 +137,7 @@ static int stat_file(struct thread_data *td, struct fio_file *f)
+ 		ret = lstat(f->file_name, &statbuf);
+ 		break;
+ 	case FIO_FILESTAT_STATX:
+-#ifndef WIN32
++#if !defined(WIN32) && !defined(__NuttX__)
+ 		abspath = realpath(f->file_name, NULL);
+ 		if (abspath) {
+ 			ret = statx(-1, abspath, 0, STATX_ALL, &statxbuf);
+diff --git fio/eta.c fio/eta.c
+index 6017ca31..2df3bd5d 100644
+--- fio/eta.c
++++ fio/eta.c
+@@ -344,7 +344,7 @@ static void calc_rate(int unified_rw_rep, unsigned long mtime,
+ 
+ static void calc_iops(int unified_rw_rep, unsigned long mtime,
+ 		      unsigned long long *io_iops,
+-		      unsigned long long *prev_io_iops, unsigned int *iops)
++		      unsigned long long *prev_io_iops, uint32_t *iops)
+ {
+ 	int i;
+ 
+@@ -594,7 +594,7 @@ void display_thread_status(struct jobs_eta *je)
+ 		p += sprintf(p, "\n");
+ 	}
+ 
+-	p += sprintf(p, "Jobs: %d (f=%d)", je->nr_running, je->files_open);
++	p += sprintf(p, "Jobs: %"PRIi32" (f=%"PRIi32")", je->nr_running, je->files_open);
+ 
+ 	/* rate limits, if any */
+ 	if (je->m_rate[0] || je->m_rate[1] || je->m_rate[2] ||
+@@ -611,7 +611,7 @@ void display_thread_status(struct jobs_eta *je)
+ 		free(mr);
+ 	} else if (je->m_iops[0] || je->m_iops[1] || je->m_iops[2] ||
+ 		   je->t_iops[0] || je->t_iops[1] || je->t_iops[2]) {
+-		p += sprintf(p, ", %d-%d IOPS",
++		p += sprintf(p, ", %"PRIi32"-%"PRIi32" IOPS",
+ 					je->m_iops[0] + je->m_iops[1] + je->m_iops[2],
+ 					je->t_iops[0] + je->t_iops[1] + je->t_iops[2]);
+ 	}
+diff --git fio/iolog.c fio/iolog.c
+index aa9c3bb1..cdb24a2b 100644
+--- fio/iolog.c
++++ fio/iolog.c
+@@ -952,7 +952,7 @@ static void flush_hist_samples(FILE *f, int hist_coarseness, void *samples,
+ 		entry_before = flist_first_entry(&entry->list, struct io_u_plat_entry, list);
+ 		io_u_plat_before = entry_before->io_u_plat;
+ 
+-		fprintf(f, "%lu, %u, %llu, ", (unsigned long) s->time,
++		fprintf(f, "%lu, %"PRIu32", %llu, ", (unsigned long) s->time,
+ 						io_sample_ddir(s), (unsigned long long) s->bs);
+ 		for (j = 0; j < FIO_IO_U_PLAT_NR - stride; j += stride) {
+ 			fprintf(f, "%llu, ", (unsigned long long)
+diff --git fio/os/os.h fio/os/os.h
+index dddff7c1..4d8c7537 100644
+--- fio/os/os.h
++++ fio/os/os.h
+@@ -262,7 +262,6 @@ static inline uint64_t fio_swap64(uint64_t val)
+ 	__le16_to_cpu(val);			\
+ })
+ #define le32_to_cpu(val) ({			\
+-	typecheck(uint32_t, val);		\
+ 	__le32_to_cpu(val);			\
+ })
+ #define le64_to_cpu(val) ({			\
+@@ -288,7 +287,6 @@ static inline uint64_t fio_swap64(uint64_t val)
+ 	__cpu_to_le16(val);			\
+ })
+ #define cpu_to_le32(val) ({			\
+-	typecheck(uint32_t, val);		\
+ 	__cpu_to_le32(val);			\
+ })
+ #define cpu_to_le64(val) ({			\
+diff --git fio/verify.c fio/verify.c
+index 0e1e4639..ea414749 100644
+--- fio/verify.c
++++ fio/verify.c
+@@ -341,7 +341,7 @@ static void log_verify_failure(struct verify_header *hdr, struct vcont *vc)
+ 
+ 	offset = vc->io_u->verify_offset;
+ 	offset += vc->hdr_num * hdr->len;
+-	log_err("%.8s: verify failed at file %s offset %llu, length %u"
++	log_err("%.8s: verify failed at file %s offset %llu, length %"PRIu32""
+ 			" (requested block: offset=%llu, length=%llu, flags=%x)\n",
+ 			vc->name, vc->io_u->file->file_name, offset, hdr->len,
+ 			vc->io_u->verify_offset, vc->io_u->buflen, vc->io_u->flags);
+@@ -819,7 +819,7 @@ static int verify_header(struct io_u *io_u, struct thread_data *td,
+ 		goto err;
+ 	}
+ 	if (hdr->len != hdr_len) {
+-		log_err("verify: bad header length %u, wanted %u",
++		log_err("verify: bad header length %"PRIu32", wanted %u",
+ 			hdr->len, hdr_len);
+ 		goto err;
+ 	}
+@@ -854,7 +854,7 @@ static int verify_header(struct io_u *io_u, struct thread_data *td,
+ 
+ 	crc = fio_crc32c(p, offsetof(struct verify_header, crc32));
+ 	if (crc != hdr->crc32) {
+-		log_err("verify: bad header crc %x, calculated %x",
++		log_err("verify: bad header crc %"PRIx32", calculated %"PRIx32"",
+ 			hdr->crc32, crc);
+ 		goto err;
+ 	}
+diff --git fio/zbd.c fio/zbd.c
+index 114fb665..3933ab2d 100644
+--- fio/zbd.c
++++ fio/zbd.c
+@@ -814,7 +814,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 			break;
+ 
+ 		nrz = zbd_report_zones(td, f, offset, zones,
+-				       min((uint32_t)(nr_zones - j),
++				       min((unsigned)(nr_zones - j),
+ 					   ZBD_REPORT_MAX_ZONES));
+ 		if (nrz < 0) {
+ 			ret = nrz;
+-- 
+2.34.1
+

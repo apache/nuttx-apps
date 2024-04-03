@@ -1,0 +1,30 @@
+From 4104f7946da6a608f40dc6028d2f6570daad8ef0 Mon Sep 17 00:00:00 2001
+From: guohao15 <guohao15@xiaomi.com>
+Date: Wed, 18 Oct 2023 11:09:12 +0800
+Subject: [PATCH 08/10] fio:fix memory leak run cpuio.fio
+
+Signed-off-by: guohao15 <guohao15@xiaomi.com>
+---
+ init.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git fio/init.c fio/init.c
+index 9dcad491..57d8ae18 100644
+--- fio/init.c
++++ fio/init.c
+@@ -493,8 +493,11 @@ static struct thread_data *get_new_job(bool global, struct thread_data *parent,
+ 	td->thread_number = thread_number;
+ 	td->subjob_number = 0;
+ 
+-	if (jobname)
++	if (jobname) {
++		if (td->o.name)
++			free(td->o.name);
+ 		td->o.name = strdup(jobname);
++	}
+ 
+ 	if (!parent->o.group_reporting || parent == &def_thread)
+ 		stat_number++;
+-- 
+2.34.1
+

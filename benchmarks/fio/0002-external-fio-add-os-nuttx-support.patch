@@ -1,0 +1,81 @@
+From 8f78b1199f814ad18e1902edf8d9fbf23b05b4d3 Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Mon, 5 Jun 2023 16:00:49 +0800
+Subject: [PATCH 02/10] external/fio: add os-nuttx support
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ os/os-nuttx.h | 39 +++++++++++++++++++++++++++++++++++++++
+ os/os.h       |  3 +++
+ 2 files changed, 42 insertions(+)
+ create mode 100644 os/os-nuttx.h
+
+diff --git fio/os/os-nuttx.h fio/os/os-nuttx.h
+new file mode 100644
+index 00000000..c81ea32c
+--- /dev/null
++++ fio/os/os-nuttx.h
+@@ -0,0 +1,39 @@
++#ifndef FIO_OS_NUTTX_H
++#define FIO_OS_NUTTX_H
++
++#include <errno.h>
++#include <malloc.h>
++#include <sys/mman.h>
++#include <sys/ioctl.h>
++
++#include <nuttx/fs/ioctl.h>
++
++#include "../file.h"
++
++#define FIO_OS os_nuttx
++#define OS_MAP_ANON MAP_ANON
++
++#define fio_swap16(x) bswap16(x)
++#define fio_swap32(x) bswap32(x)
++#define fio_swap64(x) bswap64(x)
++
++static inline unsigned long long os_phys_mem(void)
++{
++	struct mallinfo info;
++
++	info = mallinfo();
++	return (unsigned long long)info.arena;
++}
++
++static inline int blockdev_invalidate_cache(struct fio_file *f)
++{
++	return ioctl(f->fd, BIOC_FLUSH, 0);
++}
++
++static inline pid_t setsid(void)
++{
++	errno = ENOSYS;
++	return -1;
++}
++
++#endif
+diff --git fio/os/os.h fio/os/os.h
+index aba6813f..dddff7c1 100644
+--- fio/os/os.h
++++ fio/os/os.h
+@@ -24,6 +24,7 @@ enum {
+ 	os_windows,
+ 	os_android,
+ 	os_dragonfly,
++	os_nuttx,
+ 
+ 	os_nr,
+ };
+@@ -53,6 +54,8 @@ typedef enum {
+ #include "os-windows.h"
+ #elif defined (__DragonFly__)
+ #include "os-dragonfly.h"
++#elif defined (__NuttX__)
++#include "os-nuttx.h"
+ #else
+ #error "unsupported os"
+ #endif
+-- 
+2.34.1
+

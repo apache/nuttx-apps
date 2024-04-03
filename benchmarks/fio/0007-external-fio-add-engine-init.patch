@@ -1,0 +1,181 @@
+From b167af3a9446506c6b3f48c0b03ae58bb3f1e9d4 Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Sat, 10 Jun 2023 15:01:29 +0800
+Subject: [PATCH 07/10] external/fio: add engine init
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ engines/cpu.c            |  2 +-
+ engines/exec.c           |  2 +-
+ engines/falloc.c         |  2 +-
+ engines/fileoperations.c |  2 +-
+ engines/ftruncate.c      |  2 +-
+ engines/mmap.c           |  2 +-
+ engines/net.c            |  2 +-
+ engines/null.c           |  2 +-
+ engines/sync.c           |  2 +-
+ libfio.c                 | 24 ++++++++++++++++++++++++
+ 10 files changed, 33 insertions(+), 9 deletions(-)
+
+diff --git fio/engines/cpu.c fio/engines/cpu.c
+index ce74dbce..564a3d7a 100644
+--- fio/engines/cpu.c
++++ fio/engines/cpu.c
+@@ -326,7 +326,7 @@ static struct ioengine_ops ioengine = {
+ 	.option_struct_size	= sizeof(struct cpu_options),
+ };
+ 
+-static void fio_init fio_cpuio_register(void)
++void fio_cpuio_register(void)
+ {
+ 	register_ioengine(&ioengine);
+ }
+diff --git fio/engines/exec.c fio/engines/exec.c
+index 20e50e00..a9025264 100644
+--- fio/engines/exec.c
++++ fio/engines/exec.c
+@@ -383,7 +383,7 @@ static struct ioengine_ops ioengine = {
+ 	.option_struct_size = sizeof(struct exec_options),
+ };
+ 
+-static void fio_init fio_exec_register(void)
++void fio_exec_register(void)
+ {
+ 	register_ioengine(&ioengine);
+ }
+diff --git fio/engines/falloc.c fio/engines/falloc.c
+index 4b05ed68..9fc3bd5b 100644
+--- fio/engines/falloc.c
++++ fio/engines/falloc.c
+@@ -101,7 +101,7 @@ static struct ioengine_ops ioengine = {
+ 	.flags		= FIO_SYNCIO
+ };
+ 
+-static void fio_init fio_syncio_register(void)
++void fio_syncio_falloc_register(void)
+ {
+ 	register_ioengine(&ioengine);
+ }
+diff --git fio/engines/fileoperations.c fio/engines/fileoperations.c
+index ed0456c0..b302cda5 100644
+--- fio/engines/fileoperations.c
++++ fio/engines/fileoperations.c
+@@ -303,7 +303,7 @@ static struct ioengine_ops ioengine_filedelete = {
+ };
+ 
+ 
+-static void fio_init fio_fileoperations_register(void)
++void fio_fileoperations_register(void)
+ {
+ 	register_ioengine(&ioengine_filecreate);
+ 	register_ioengine(&ioengine_filestat);
+diff --git fio/engines/ftruncate.c fio/engines/ftruncate.c
+index c7ad038c..7ed859a4 100644
+--- fio/engines/ftruncate.c
++++ fio/engines/ftruncate.c
+@@ -41,7 +41,7 @@ static struct ioengine_ops ioengine = {
+ 	.flags		= FIO_SYNCIO | FIO_FAKEIO
+ };
+ 
+-static void fio_init fio_syncio_register(void)
++void fio_syncio_ftruncate_register(void)
+ {
+ 	register_ioengine(&ioengine);
+ }
+diff --git fio/engines/mmap.c fio/engines/mmap.c
+index 55ba1ab3..a47b9686 100644
+--- fio/engines/mmap.c
++++ fio/engines/mmap.c
+@@ -327,7 +327,7 @@ static struct ioengine_ops ioengine = {
+ #endif
+ };
+ 
+-static void fio_init fio_mmapio_register(void)
++void fio_mmapio_register(void)
+ {
+ 	register_ioengine(&ioengine);
+ }
+diff --git fio/engines/net.c fio/engines/net.c
+index c6cec584..0f9fd6be 100644
+--- fio/engines/net.c
++++ fio/engines/net.c
+@@ -1450,7 +1450,7 @@ static int str_hostname_cb(void *data, const char *input)
+ 	return 0;
+ }
+ 
+-static void fio_init fio_netio_register(void)
++void fio_netio_register(void)
+ {
+ 	register_ioengine(&ioengine_rw);
+ #ifdef CONFIG_LINUX_SPLICE
+diff --git fio/engines/null.c fio/engines/null.c
+index 68759c26..2b4695c4 100644
+--- fio/engines/null.c
++++ fio/engines/null.c
+@@ -176,7 +176,7 @@ static struct ioengine_ops ioengine = {
+ 	.flags		= FIO_DISKLESSIO | FIO_FAKEIO,
+ };
+ 
+-static void fio_init fio_null_register(void)
++void fio_null_register(void)
+ {
+ 	register_ioengine(&ioengine);
+ }
+diff --git fio/engines/sync.c fio/engines/sync.c
+index 339ba999..f1047114 100644
+--- fio/engines/sync.c
++++ fio/engines/sync.c
+@@ -490,7 +490,7 @@ static struct ioengine_ops ioengine_pvrw2 = {
+ };
+ #endif
+ 
+-static void fio_init fio_syncio_register(void)
++void fio_syncio_register(void)
+ {
+ 	register_ioengine(&ioengine_rw);
+ 	register_ioengine(&ioengine_prw);
+diff --git fio/libfio.c fio/libfio.c
+index 1a891776..b634fbc7 100644
+--- fio/libfio.c
++++ fio/libfio.c
+@@ -350,6 +350,28 @@ static int endian_check(void)
+ 	return 0;
+ }
+ 
++extern void fio_cpuio_register(void);
++extern void fio_exec_register(void);
++extern void fio_syncio_register(void);
++extern void fio_syncio_ftruncate_register(void);
++extern void fio_syncio_falloc_register(void);
++extern void fio_fileoperations_register(void);
++extern void fio_mmapio_register(void);
++extern void fio_netio_register(void);
++extern void fio_null_register(void);
++void fio_engine_init(void)
++{
++	fio_cpuio_register();
++	fio_exec_register();
++	fio_syncio_register();
++	fio_syncio_ftruncate_register();
++	fio_syncio_falloc_register();
++	fio_fileoperations_register();
++	fio_mmapio_register();
++	fio_netio_register();
++	fio_null_register();
++}
++
+ int initialize_fio(char *envp[])
+ {
+ 	long ps;
+@@ -431,6 +453,8 @@ int initialize_fio(char *envp[])
+ 	page_mask = ps - 1;
+ 
+ 	fio_keywords_init();
++
++	fio_engine_init();
+ 	return 0;
+ }
+ 
+-- 
+2.34.1
+

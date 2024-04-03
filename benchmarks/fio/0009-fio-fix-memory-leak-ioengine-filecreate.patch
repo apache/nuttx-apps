@@ -1,0 +1,62 @@
+From a7b806befaf11eccf7f769187717dda1ec352fdc Mon Sep 17 00:00:00 2001
+From: guohao15 <guohao15@xiaomi.com>
+Date: Wed, 18 Oct 2023 21:14:05 +0800
+Subject: [PATCH 09/10] fio:fix memory leak ioengine=filecreate
+
+Signed-off-by: guohao15 <guohao15@xiaomi.com>
+---
+ gettime.c |  2 +-
+ init.c    | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git fio/gettime.c fio/gettime.c
+index 14462420..2f0207d5 100644
+--- fio/gettime.c
++++ fio/gettime.c
+@@ -37,7 +37,7 @@ static pthread_key_t tv_tls_key;
+ 
+ enum fio_cs fio_clock_source = FIO_PREFERRED_CLOCK_SOURCE;
+ int fio_clock_source_set = 0;
+-static enum fio_cs fio_clock_source_inited = CS_INVAL;
++enum fio_cs fio_clock_source_inited = CS_INVAL;
+ 
+ #ifdef FIO_DEBUG_TIME
+ 
+diff --git fio/init.c fio/init.c
+index 57d8ae18..c8f53e62 100644
+--- fio/init.c
++++ fio/init.c
+@@ -90,6 +90,10 @@ unsigned int *fio_warned = NULL;
+ static char cmd_optstr[256];
+ static bool did_arg;
+ 
++extern enum fio_cs fio_clock_source;
++extern int fio_clock_source_set;
++extern enum fio_cs fio_clock_source_inited;
++
+ #define FIO_CLIENT_FLAG		(1 << 16)
+ 
+ /*
+@@ -277,6 +281,11 @@ static void fio_init_global(void)
+ 	nr_clients = 0;
+ 	thread_number = 0;
+ 	prev_group_jobs = 0;
++
++	fio_clock_source = FIO_PREFERRED_CLOCK_SOURCE;
++	fio_clock_source_set = 0;
++	fio_clock_source_inited = CS_INVAL;
++
+ 	memset(&def_thread, 0, sizeof(def_thread));
+ 	memset(segments, 0, sizeof(segments));
+ 	memset(cmd_optstr, 0, sizeof(cmd_optstr));
+@@ -3073,6 +3082,7 @@ int parse_options(int argc, char *argv[])
+ 
+ 	free(ini_file);
+ 	fio_options_free(&def_thread);
++	fio_dump_options_free(&def_thread);
+ 	filesetup_mem_free();
+ 
+ 	if (!thread_number) {
+-- 
+2.34.1
+

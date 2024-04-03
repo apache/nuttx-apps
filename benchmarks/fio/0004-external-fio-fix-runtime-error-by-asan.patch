@@ -1,0 +1,32 @@
+From 02df0c8355b0adf01696e831f319c60f9ae6efb7 Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Fri, 9 Jun 2023 14:39:49 +0800
+Subject: [PATCH 04/10] external/fio: fix runtime error by asan
+
+/home/djz/workspace/test/vela_new/external/fio/fio/arch/arch-x86-common.h:11:7: runtime error: store to
+misaligned address 0xf41f0d47 for type 'unsigned int', which requires 4 byte alignment
+0xf41f0d47: note: pointer points here
+ 16 00 00 00 00  bc 0d 1f f4 00 d4 bd 1a  00 00 00 00 5c 2e 44 57  98 0d 1f f4 26 ab b8 56  18 0e 1f
+             ^
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ arch/arch-x86-common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git fio/arch/arch-x86-common.h fio/arch/arch-x86-common.h
+index f32835cc..fe97cf64 100644
+--- fio/arch/arch-x86-common.h
++++ fio/arch/arch-x86-common.h
+@@ -59,7 +59,7 @@ static inline void arch_init_amd(void)
+ static inline void arch_init(char *envp[])
+ {
+ 	unsigned int level;
+-	char str[13];
++	char str[13] __attribute__((aligned(0x8)));
+ 
+ 	arch_random = tsc_reliable = 0;
+ 
+-- 
+2.34.1
+

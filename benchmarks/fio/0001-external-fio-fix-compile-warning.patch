@@ -1,0 +1,193 @@
+From b51436a258fc010a0ac15b551a9b010e54fccb11 Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Tue, 30 May 2023 22:01:51 +0800
+Subject: [PATCH 01/10] external/fio: fix compile warning
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ backend.c |  2 +-
+ init.c    |  4 ++--
+ server.c  |  2 +-
+ stat.c    | 28 +++++++++++++++-------------
+ zbd.c     |  2 +-
+ 5 files changed, 20 insertions(+), 18 deletions(-)
+
+diff --git fio/backend.c fio/backend.c
+index fe614f6e..0fa10657 100644
+--- fio/backend.c
++++ fio/backend.c
+@@ -1950,7 +1950,7 @@ static void *thread_main(void *data)
+ 	 * another thread is checking its io_u's for overlap
+ 	 */
+ 	if (td_offload_overlap(td)) {
+-		int res = pthread_mutex_lock(&overlap_check);
++		res = pthread_mutex_lock(&overlap_check);
+ 		assert(res == 0);
+ 	}
+ 	td_set_runstate(td, TD_FINISHING);
+diff --git fio/init.c fio/init.c
+index f6a8056a..de9d9d27 100644
+--- fio/init.c
++++ fio/init.c
+@@ -2524,12 +2524,12 @@ static void show_closest_option(const char *name)
+ 		log_err("Did you mean %s?\n", l_opts[best_option].name);
+ }
+ 
+-static int parse_output_format(const char *optarg)
++static int parse_output_format(const char *arg)
+ {
+ 	char *p, *orig, *opt;
+ 	int ret = 0;
+ 
+-	p = orig = strdup(optarg);
++	p = orig = strdup(arg);
+ 
+ 	output_format = 0;
+ 
+diff --git fio/server.c fio/server.c
+index b453be5f..23da2ecf 100644
+--- fio/server.c
++++ fio/server.c
+@@ -356,7 +356,7 @@ static int verify_convert_cmd(struct fio_net_cmd *cmd)
+ 	}
+ 
+ 	if (cmd->pdu_len > FIO_SERVER_MAX_FRAGMENT_PDU) {
+-		log_err("fio: command payload too large: %u\n", cmd->pdu_len);
++		log_err("fio: command payload too large: %"PRIu32"\n", cmd->pdu_len);
+ 		return 1;
+ 	}
+ 
+diff --git fio/stat.c fio/stat.c
+index 949af5ed..6a39ae6e 100644
+--- fio/stat.c
++++ fio/stat.c
+@@ -45,10 +45,12 @@ void update_rusage_stat(struct thread_data *td)
+ 					&td->ru_end.ru_utime);
+ 	ts->sys_time += mtime_since_tv(&td->ru_start.ru_stime,
+ 					&td->ru_end.ru_stime);
++#ifndef __NuttX__
+ 	ts->ctx += td->ru_end.ru_nvcsw + td->ru_end.ru_nivcsw
+ 			- (td->ru_start.ru_nvcsw + td->ru_start.ru_nivcsw);
+ 	ts->minf += td->ru_end.ru_minflt - td->ru_start.ru_minflt;
+ 	ts->majf += td->ru_end.ru_majflt - td->ru_start.ru_majflt;
++#endif
+ 
+ 	memcpy(&td->ru_start, &td->ru_end, sizeof(td->ru_end));
+ }
+@@ -346,7 +348,7 @@ void show_group_stats(struct group_run_stats *rs, struct buf_output *out)
+ 	const char *str[] = { "   READ", "  WRITE" , "   TRIM"};
+ 	int i;
+ 
+-	log_buf(out, "\nRun status group %d (all jobs):\n", rs->groupid);
++	log_buf(out, "\nRun status group %"PRIu32" (all jobs):\n", rs->groupid);
+ 
+ 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
+ 		const int i2p = is_power_of_2(rs->kb_base);
+@@ -595,7 +597,7 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 				char buf[64];
+ 
+ 				snprintf(buf, sizeof(buf),
+-					 "%s prio %u/%u",
++					 "%s prio %"PRIu32"/%"PRIu32"",
+ 					 clat_type,
+ 					 ts->clat_prio[ddir][i].ioprio >> 13,
+ 					 ts->clat_prio[ddir][i].ioprio & 7);
+@@ -636,7 +638,7 @@ static void show_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
+ 
+ 				if (prio_samples > 0) {
+ 					snprintf(prio_name, sizeof(prio_name),
+-						 "%s prio %u/%u (%.2f%% of IOs)",
++						 "%s prio %"PRIu32"/%"PRIu32" (%.2f%% of IOs)",
+ 						 clat_type,
+ 						 ts->clat_prio[ddir][i].ioprio >> 13,
+ 						 ts->clat_prio[ddir][i].ioprio & 7,
+@@ -896,7 +898,7 @@ static void show_block_infos(int nr_block_infos, uint32_t *block_infos,
+ 		uint32_t block_info = percentiles[i];
+ #define LINE_LENGTH	75
+ 		char str[LINE_LENGTH];
+-		int strln = snprintf(str, LINE_LENGTH, " %3.2fth=%u%c",
++		int strln = snprintf(str, LINE_LENGTH, " %3.2fth=%"PRIu32"%c",
+ 				     plist[i].u.f, block_info,
+ 				     i == len - 1 ? '\n' : ',');
+ 		assert(strln < LINE_LENGTH);
+@@ -1177,11 +1179,11 @@ static void show_thread_status_normal(struct thread_stat *ts,
+ 	os_ctime_r((const time_t *) &time_p, time_buf, sizeof(time_buf));
+ 
+ 	if (!ts->error) {
+-		log_buf(out, "%s: (groupid=%d, jobs=%d): err=%2d: pid=%d: %s",
++		log_buf(out, "%s: (groupid=%"PRIu32", jobs=%"PRIu32"): err=%2"PRIu32": pid=%d: %s",
+ 					ts->name, ts->groupid, ts->members,
+ 					ts->error, (int) ts->pid, time_buf);
+ 	} else {
+-		log_buf(out, "%s: (groupid=%d, jobs=%d): err=%2d (%s): pid=%d: %s",
++		log_buf(out, "%s: (groupid=%"PRIu32", jobs=%"PRIu32"): err=%2"PRIu32" (%s): pid=%d: %s",
+ 					ts->name, ts->groupid, ts->members,
+ 					ts->error, ts->verror, (int) ts->pid,
+ 					time_buf);
+@@ -1253,13 +1255,13 @@ static void show_thread_status_normal(struct thread_stat *ts,
+ 					(unsigned long long) ts->drop_io_u[1],
+ 					(unsigned long long) ts->drop_io_u[2]);
+ 	if (ts->continue_on_error) {
+-		log_buf(out, "     errors    : total=%llu, first_error=%d/<%s>\n",
++		log_buf(out, "     errors    : total=%llu, first_error=%"PRIu32"/<%s>\n",
+ 					(unsigned long long)ts->total_err_count,
+ 					ts->first_error,
+ 					strerror(ts->first_error));
+ 	}
+ 	if (ts->latency_depth) {
+-		log_buf(out, "     latency   : target=%llu, window=%llu, percentile=%.2f%%, depth=%u\n",
++		log_buf(out, "     latency   : target=%llu, window=%llu, percentile=%.2f%%, depth=%"PRIu32"\n",
+ 					(unsigned long long)ts->latency_target,
+ 					(unsigned long long)ts->latency_window,
+ 					ts->latency_percentile.u.f,
+@@ -1589,9 +1591,9 @@ static void show_thread_status_terse_all(struct thread_stat *ts,
+ 
+ 	/* General Info */
+ 	if (ver == 2)
+-		log_buf(out, "2;%s;%d;%d", ts->name, ts->groupid, ts->error);
++		log_buf(out, "2;%s;%"PRIu32";%"PRIu32"", ts->name, ts->groupid, ts->error);
+ 	else
+-		log_buf(out, "%d;%s;%s;%d;%d", ver, fio_version_string,
++		log_buf(out, "%d;%s;%s;%"PRIu32";%"PRIu32"", ver, fio_version_string,
+ 			ts->name, ts->groupid, ts->error);
+ 
+ 	/* Log Read Status, or mixed if unified_rw_rep = 1 */
+@@ -1644,7 +1646,7 @@ static void show_thread_status_terse_all(struct thread_stat *ts,
+ 
+ 	/* Additional output if continue_on_error set - default off*/
+ 	if (ts->continue_on_error)
+-		log_buf(out, ";%llu;%d", (unsigned long long) ts->total_err_count, ts->first_error);
++		log_buf(out, ";%llu;%"PRIu32"", (unsigned long long) ts->total_err_count, ts->first_error);
+ 
+ 	/* Additional output if description is set */
+ 	if (strlen(ts->description)) {
+@@ -2519,11 +2521,11 @@ void __show_run_stats(void)
+ 			ts->unified_rw_rep = td->o.unified_rw_rep;
+ 		} else if (ts->kb_base != td->o.kb_base && !kb_base_warned) {
+ 			log_info("fio: kb_base differs for jobs in group, using"
+-				 " %u as the base\n", ts->kb_base);
++				 " %"PRIu32" as the base\n", ts->kb_base);
+ 			kb_base_warned = true;
+ 		} else if (ts->unit_base != td->o.unit_base && !unit_base_warned) {
+ 			log_info("fio: unit_base differs for jobs in group, using"
+-				 " %u as the base\n", ts->unit_base);
++				 " %"PRIu32" as the base\n", ts->unit_base);
+ 			unit_base_warned = true;
+ 		}
+ 
+diff --git fio/zbd.c fio/zbd.c
+index 627fb968..114fb665 100644
+--- fio/zbd.c
++++ fio/zbd.c
+@@ -1491,7 +1491,7 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ 	}
+ 
+ 	if (z->verify_block * min_bs >= z->capacity) {
+-		log_err("%s: %d * %"PRIu64" >= %"PRIu64"\n",
++		log_err("%s: %"PRIu32" * %"PRIu64" >= %"PRIu64"\n",
+ 			f->file_name, z->verify_block, min_bs, z->capacity);
+ 		/*
+ 		 * If the assertion below fails during a test run, adding
+-- 
+2.34.1
+
