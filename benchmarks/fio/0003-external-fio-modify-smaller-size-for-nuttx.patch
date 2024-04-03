@@ -1,0 +1,65 @@
+From c39410be0f4516cd06f6d3597daf025db2efcba1 Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Mon, 5 Jun 2023 16:02:10 +0800
+Subject: [PATCH 03/10] external/fio: modify smaller size for nuttx
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ filehash.c   | 2 ++
+ lib/memcpy.c | 2 ++
+ smalloc.c    | 7 +++++++
+ 3 files changed, 11 insertions(+)
+
+diff --git fio/filehash.c fio/filehash.c
+index 71ec7b18..f13740d2 100644
+--- fio/filehash.c
++++ fio/filehash.c
+@@ -11,7 +11,9 @@
+ #define HASH_BUCKETS	512
+ #define HASH_MASK	(HASH_BUCKETS - 1)
+ 
++#ifndef BLOOM_SIZE
+ #define BLOOM_SIZE	16*1024*1024
++#endif
+ 
+ static unsigned int file_hash_size = HASH_BUCKETS * sizeof(struct flist_head);
+ 
+diff --git fio/lib/memcpy.c fio/lib/memcpy.c
+index a5521343..1b3466c1 100644
+--- fio/lib/memcpy.c
++++ fio/lib/memcpy.c
+@@ -9,7 +9,9 @@
+ #include "../gettime.h"
+ #include "../os/os.h"
+ 
++#ifndef BUF_SIZE
+ #define BUF_SIZE	32 * 1024 * 1024ULL
++#endif
+ 
+ #define NR_ITERS	64
+ 
+diff --git fio/smalloc.c fio/smalloc.c
+index 23243054..142e03d2 100644
+--- fio/smalloc.c
++++ fio/smalloc.c
+@@ -18,10 +18,17 @@
+ #define SMALLOC_BPI	(sizeof(unsigned int) * 8)
+ #define SMALLOC_BPL	(SMALLOC_BPB * SMALLOC_BPI)
+ 
++#ifndef INITIAL_SIZE
+ #define INITIAL_SIZE	16*1024*1024	/* new pool size */
++#endif
++
++#ifndef INITIAL_POOLS
+ #define INITIAL_POOLS	8		/* maximum number of pools to setup */
++#endif
+ 
++#ifndef MAX_POOLS
+ #define MAX_POOLS	16
++#endif
+ 
+ #define SMALLOC_PRE_RED		0xdeadbeefU
+ #define SMALLOC_POST_RED	0x5aa55aa5U
+-- 
+2.34.1
+

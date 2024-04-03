@@ -1,0 +1,438 @@
+From 6afb9af3dd7734d0f6bd090fba947ffaec43482b Mon Sep 17 00:00:00 2001
+From: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+Date: Mon, 5 Jun 2023 14:44:53 +0800
+Subject: [PATCH 06/10] external/fio: reinit global var issue when run multiple
+ times
+
+Signed-off-by: dongjiuzhu1 <dongjiuzhu1@xiaomi.com>
+---
+ init.c    | 386 +++++++++++++++++++++++++-----------------------------
+ smalloc.c |   4 +
+ 2 files changed, 186 insertions(+), 204 deletions(-)
+
+diff --git fio/init.c fio/init.c
+index de9d9d27..9dcad491 100644
+--- fio/init.c
++++ fio/init.c
+@@ -96,214 +96,191 @@ static bool did_arg;
+  * Command line options. These will contain the above, plus a few
+  * extra that only pertain to fio itself and not jobs.
+  */
+-static struct option l_opts[FIO_NR_OPTIONS] = {
+-	{
+-		.name		= (char *) "output",
+-		.has_arg	= required_argument,
+-		.val		= 'o' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "latency-log",
+-		.has_arg	= required_argument,
+-		.val		= 'l' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "bandwidth-log",
+-		.has_arg	= no_argument,
+-		.val		= 'b' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "minimal",
+-		.has_arg	= no_argument,
+-		.val		= 'm' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "output-format",
+-		.has_arg	= required_argument,
+-		.val		= 'F' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "append-terse",
+-		.has_arg	= optional_argument,
+-		.val		= 'f',
+-	},
+-	{
+-		.name		= (char *) "version",
+-		.has_arg	= no_argument,
+-		.val		= 'v' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "help",
+-		.has_arg	= no_argument,
+-		.val		= 'h' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "cmdhelp",
+-		.has_arg	= optional_argument,
+-		.val		= 'c' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "enghelp",
+-		.has_arg	= optional_argument,
+-		.val		= 'i' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "showcmd",
+-		.has_arg	= no_argument,
+-		.val		= 's' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "readonly",
+-		.has_arg	= no_argument,
+-		.val		= 'r' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "eta",
+-		.has_arg	= required_argument,
+-		.val		= 'e' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "eta-interval",
+-		.has_arg	= required_argument,
+-		.val		= 'O' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "eta-newline",
+-		.has_arg	= required_argument,
+-		.val		= 'E' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "debug",
+-		.has_arg	= required_argument,
+-		.val		= 'd' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "parse-only",
+-		.has_arg	= no_argument,
+-		.val		= 'P' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "section",
+-		.has_arg	= required_argument,
+-		.val		= 'x' | FIO_CLIENT_FLAG,
+-	},
++static struct option l_opts[FIO_NR_OPTIONS];
++static void fio_init_global(void)
++{
++	int i = 0;
++
++	l_opts[i].name		= (char *) "output",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'o' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "latency-log",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'l' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "bandwidth-log",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'b' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "minimal",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'm' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "output-format",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'F' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "append-terse",
++	l_opts[i].has_arg	= optional_argument,
++	l_opts[i++].val		= 'f',
++
++	l_opts[i].name		= (char *) "version",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'v' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "help",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'h' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "cmdhelp",
++	l_opts[i].has_arg	= optional_argument,
++	l_opts[i++].val		= 'c' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "enghelp",
++	l_opts[i].has_arg	= optional_argument,
++	l_opts[i++].val		= 'i' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "showcmd",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 's' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "readonly",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'r' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "eta",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'e' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "eta-interval",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'O' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "eta-newline",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'E' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "debug",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'd' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "parse-only",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'P' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "section",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'x' | FIO_CLIENT_FLAG,
++
+ #ifdef CONFIG_ZLIB
+-	{
+-		.name		= (char *) "inflate-log",
+-		.has_arg	= required_argument,
+-		.val		= 'X' | FIO_CLIENT_FLAG,
+-	},
++	l_opts[i].name		= (char *) "inflate-log",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'X' | FIO_CLIENT_FLAG,
+ #endif
+-	{
+-		.name		= (char *) "alloc-size",
+-		.has_arg	= required_argument,
+-		.val		= 'a' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "profile",
+-		.has_arg	= required_argument,
+-		.val		= 'p' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "warnings-fatal",
+-		.has_arg	= no_argument,
+-		.val		= 'w' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "max-jobs",
+-		.has_arg	= required_argument,
+-		.val		= 'j' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "terse-version",
+-		.has_arg	= required_argument,
+-		.val		= 'V' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "server",
+-		.has_arg	= optional_argument,
+-		.val		= 'S',
+-	},
++
++	l_opts[i].name		= (char *) "alloc-size",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'a' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "profile",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'p' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "warnings-fatal",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'w' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "max-jobs",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'j' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "terse-version",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'V' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "server",
++	l_opts[i].has_arg	= optional_argument,
++	l_opts[i++].val		= 'S',
++
+ #ifdef WIN32
+-	{
+-		.name		= (char *) "server-internal",
+-		.has_arg	= required_argument,
+-		.val		= 'N',
+-	},
++	l_opts[i].name		= (char *) "server-internal",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'N',
+ #endif
+-	{	.name		= (char *) "daemonize",
+-		.has_arg	= required_argument,
+-		.val		= 'D',
+-	},
+-	{
+-		.name		= (char *) "client",
+-		.has_arg	= required_argument,
+-		.val		= 'C',
+-	},
+-	{
+-		.name		= (char *) "remote-config",
+-		.has_arg	= required_argument,
+-		.val		= 'R',
+-	},
+-	{
+-		.name		= (char *) "cpuclock-test",
+-		.has_arg	= no_argument,
+-		.val		= 'T',
+-	},
+-	{
+-		.name		= (char *) "crctest",
+-		.has_arg	= optional_argument,
+-		.val		= 'G',
+-	},
+-	{
+-		.name		= (char *) "memcpytest",
+-		.has_arg	= optional_argument,
+-		.val		= 'M',
+-	},
+-	{
+-		.name		= (char *) "idle-prof",
+-		.has_arg	= required_argument,
+-		.val		= 'I',
+-	},
+-	{
+-		.name		= (char *) "status-interval",
+-		.has_arg	= required_argument,
+-		.val		= 'L' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= (char *) "trigger-file",
+-		.has_arg	= required_argument,
+-		.val		= 'W',
+-	},
+-	{
+-		.name		= (char *) "trigger-timeout",
+-		.has_arg	= required_argument,
+-		.val		= 'B',
+-	},
+-	{
+-		.name		= (char *) "trigger",
+-		.has_arg	= required_argument,
+-		.val		= 'H',
+-	},
+-	{
+-		.name		= (char *) "trigger-remote",
+-		.has_arg	= required_argument,
+-		.val		= 'J',
+-	},
+-	{
+-		.name		= (char *) "aux-path",
+-		.has_arg	= required_argument,
+-		.val		= 'K',
+-	},
+-	{
+-		.name		= (char *) "merge-blktrace-only",
+-		.has_arg	= no_argument,
+-		.val		= 'A' | FIO_CLIENT_FLAG,
+-	},
+-	{
+-		.name		= NULL,
+-	},
+-};
++
++	l_opts[i].name		= (char *) "daemonize",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'D',
++
++	l_opts[i].name		= (char *) "client",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'C',
++
++	l_opts[i].name		= (char *) "remote-config",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'R',
++
++	l_opts[i].name		= (char *) "cpuclock-test",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'T',
++
++	l_opts[i].name		= (char *) "crctest",
++	l_opts[i].has_arg	= optional_argument,
++	l_opts[i++].val		= 'G',
++
++	l_opts[i].name		= (char *) "memcpytest",
++	l_opts[i].has_arg	= optional_argument,
++	l_opts[i++].val		= 'M',
++
++	l_opts[i].name		= (char *) "idle-prof",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'I',
++
++	l_opts[i].name		= (char *) "status-interval",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'L' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= (char *) "trigger-file",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'W',
++
++	l_opts[i].name		= (char *) "trigger-timeout",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'B',
++
++	l_opts[i].name		= (char *) "trigger",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'H',
++
++	l_opts[i].name		= (char *) "trigger-remote",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'J',
++
++	l_opts[i].name		= (char *) "aux-path",
++	l_opts[i].has_arg	= required_argument,
++	l_opts[i++].val		= 'K',
++
++	l_opts[i].name		= (char *) "merge-blktrace-only",
++	l_opts[i].has_arg	= no_argument,
++	l_opts[i++].val		= 'A' | FIO_CLIENT_FLAG,
++
++	l_opts[i].name		= NULL,
++
++	thread_number = 0;
++	nr_segments = 0;
++	cur_segment = 0;
++	stat_number = 0;
++
++	did_arg = false;
++	ini_file = NULL;
++	nr_clients = 0;
++	thread_number = 0;
++	prev_group_jobs = 0;
++	memset(&def_thread, 0, sizeof(def_thread));
++	memset(segments, 0, sizeof(segments));
++	memset(cmd_optstr, 0, sizeof(cmd_optstr));
++}
+ 
+ void free_threads_shm(void)
+ {
+@@ -3044,6 +3021,7 @@ int fio_init_options(void)
+ 	f_out = stdout;
+ 	f_err = stderr;
+ 
++	fio_init_global();
+ 	fio_options_fill_optstring();
+ 	fio_options_dup_and_init(l_opts);
+ 
+diff --git fio/smalloc.c fio/smalloc.c
+index 142e03d2..a93290eb 100644
+--- fio/smalloc.c
++++ fio/smalloc.c
+@@ -215,6 +215,10 @@ void sinit(void)
+ 	bool ret;
+ 	int i;
+ 
++	mp = NULL;
++	nr_pools = 0;
++	smalloc_pool_size = INITIAL_SIZE;
++
+ 	/*
+ 	 * sinit() can be called more than once if alloc-size is
+ 	 * set. But we want to allocate space for the struct pool
+-- 
+2.34.1
+

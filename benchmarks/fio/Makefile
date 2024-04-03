@@ -59,4 +59,29 @@ CSRCS += fio/engines/exec.c fio/engines/cpu.c fio/engines/sync.c fio/engines/ftr
          fio/engines/falloc.c fio/engines/fileoperations.c fio/engines/mmap.c \
          fio/engines/null.c fio/engines/net.c
 
+ifeq ($(wildcard fio/.git),)
+VERSION ?= master
+fio.zip:
+	$(Q) curl -L https://github.com/ldorau/fio/archive/refs/heads/master.zip -o fio.zip
+	$(Q) unzip -o fio.zip
+	$(Q) mv fio-$(VERSION) fio
+	$(Q) patch -p0 < 0001-external-fio-fix-compile-warning.patch
+	$(Q) patch -p0 < 0002-external-fio-add-os-nuttx-support.patch
+	$(Q) patch -p0 < 0003-external-fio-modify-smaller-size-for-nuttx.patch
+	$(Q) patch -p0 < 0004-external-fio-fix-runtime-error-by-asan.patch
+	$(Q) patch -p0 < 0005-external-fio-fix-compile-warning.patch
+	$(Q) patch -p0 < 0006-external-fio-reinit-global-var-issue-when-run-multip.patch
+	$(Q) patch -p0 < 0007-external-fio-add-engine-init.patch
+	$(Q) patch -p0 < 0008-fio-fix-memory-leak-run-cpuio.fio.patch
+	$(Q) patch -p0 < 0009-fio-fix-memory-leak-ioengine-filecreate.patch
+	$(Q) patch -p0 < 0010-fio-fix-memory-leak-ioengine-exec.patch
+
+context:: fio.zip
+
+distclean::
+	$(call DELDIR, fio)
+	$(call DELFILE, fio.zip)
+
+endif
+
 include $(APPDIR)/Application.mk

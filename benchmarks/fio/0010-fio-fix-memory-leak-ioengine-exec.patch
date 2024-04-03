@@ -1,0 +1,31 @@
+From 6b211dc0191f0ebef454fdc8f5602474bed65471 Mon Sep 17 00:00:00 2001
+From: guohao15 <guohao15@xiaomi.com>
+Date: Wed, 18 Oct 2023 17:42:33 +0800
+Subject: [PATCH 10/10] fio:fix memory leak ioengine=exec
+
+Signed-off-by: guohao15 <guohao15@xiaomi.com>
+---
+ engines/exec.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git fio/engines/exec.c fio/engines/exec.c
+index a9025264..fbefb99e 100644
+--- fio/engines/exec.c
++++ fio/engines/exec.c
+@@ -188,7 +188,13 @@ static int exec_background(struct thread_options *o, struct exec_options *eo)
+ 			free(outfilename);
+ 			free(errfilename);
+ 		}
++		for (int i = 0; i < arguments_nb_items; i++)
++			free(arguments_array[i]);
++		free(arguments_array);
+ 		free(expanded_arguments);
++		free(exec_cmd);
++		free(outfilename);
++		free(errfilename);
+ 		return 0;
+ 	}
+ 
+-- 
+2.34.1
+
