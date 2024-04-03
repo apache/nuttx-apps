@@ -137,4 +137,19 @@ ifneq ($(CONFIG_BENCHMARK_COREMARK_PRO_PARSER_125K),)
   PROGNAME += parser_125k
 endif
 
+ifeq ($(wildcard coremark-pro/.git),)
+VERSION ?= main
+coremark-pro.zip:
+	$(Q) curl -L https://github.com/eembc/coremark-pro/archive/refs/heads/main.zip -o coremark-pro.zip
+	$(Q) unzip -o coremark-pro.zip
+	$(Q) mv coremark-pro-$(VERSION) coremark-pro
+
+context:: coremark-pro.zip
+
+distclean::
+	$(call DELDIR, coremark-pro)
+	$(call DELFILE, coremark-pro.zip)
+
+endif
+
 include $(APPDIR)/Application.mk
