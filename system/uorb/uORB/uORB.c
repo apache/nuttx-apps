@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <nuttx/streams.h>

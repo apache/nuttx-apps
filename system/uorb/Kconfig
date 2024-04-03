@@ -28,7 +28,7 @@ config UORB_TESTS
 
 if UORB_TESTS
 
-config UORB_SRORAGE_DIR
+config UORB_STORAGE_DIR
 	string "uorb test result storage dir"
 	default "/data/"
 

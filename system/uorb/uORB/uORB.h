@@ -25,10 +25,13 @@
  * Included Files
  ****************************************************************************/
 
+#ifdef __NuttX__
 #include <nuttx/uorb.h>
+#else
+#include <linux/uorb.h>
+#endif
 
 #include <sys/time.h>
-#include <debug.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -79,34 +82,42 @@ typedef struct sensor_device_info_s orb_info_t;
 #define ORB_USENSOR_PATH       "/dev/usensor"
 #define ORB_PATH_MAX           (NAME_MAX + 16)
 
-#ifdef CONFIG_UORB_ALERT
-#  define uorbpanic(fmt, ...)  _alert(fmt "\n", ##__VA_ARGS__)
+#ifdef CONFIG_UORB_STORAGE_DIR
+#define UORB_STORAGE_DIR       CONFIG_UORB_STORAGE_DIR
 #else
-#  define uorbpanic            _none
+#define UORB_STORAGE_DIR       "/data"
+#endif
+
+#define uorbnone(fmt, ...)     do { if (0) syslog(LOG_INFO, fmt, ##__VA_ARGS__); } while (0)
+
+#ifdef CONFIG_UORB_ALERT
+#  define uorbpanic(fmt, ...)  syslog(LOG_EMERGY, fmt "\n", ##__VA_ARGS__)
+#else
+#  define uorbpanic            uorbnone
 #endif
 
 #ifdef CONFIG_UORB_ERROR
-#  define uorberr(fmt, ...)    _err(fmt "\n", ##__VA_ARGS__)
+#  define uorberr(fmt, ...)    syslog(LOG_ERR, fmt "\n", ##__VA_ARGS__)
 #else
-#  define uorberr              _none
+#  define uorberr              uorbnone
 #endif
 
 #ifdef CONFIG_UORB_WARN
-#  define uorbwarn(fmt, ...)   _warn(fmt "\n", ##__VA_ARGS__)
+#  define uorbwarn(fmt, ...)   syslog(LOG_WARN, fmt "\n", ##__VA_ARGS__)
 #else
-#  define uorbwarn             _none
+#  define uorbwarn             uorbnone
 #endif
 
 #ifdef CONFIG_UORB_INFO
-#  define uorbinfo(fmt, ...)   _info(fmt "\n", ##__VA_ARGS__)
+#  define uorbinfo(fmt, ...)   syslog(LOG_INFO, fmt "\n", ##__VA_ARGS__)
 #else
-#  define uorbinfo             _none
+#  define uorbinfo             uorbnone
 #endif
 
 #ifdef CONFIG_DEBUG_UORB
 #  define uorbdebug(fmt, ...)  syslog(LOG_INFO, fmt "\n", ##__VA_ARGS__)
 #else
-#  define uorbdebug            _none
+#  define uorbdebug            uorbnone
 #endif
 
 #define uorbinfo_raw(fmt, ...) syslog(LOG_INFO, fmt "\n", ##__VA_ARGS__)
