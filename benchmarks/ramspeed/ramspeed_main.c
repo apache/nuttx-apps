@@ -87,6 +87,7 @@ struct ramspeed_s
   uint8_t value;
   uint32_t repeat_num;
   bool irq_disable;
+  bool allocate_rw_address;
 };
 
 /****************************************************************************
@@ -130,7 +131,6 @@ static void parse_commandline(int argc, FAR char **argv,
                               FAR struct ramspeed_s *info)
 {
   int ch;
-  bool allocate_rw_address = false;
 
   memset(info, 0, sizeof(struct ramspeed_s));
   info->repeat_num = 100;
@@ -146,7 +146,7 @@ static void parse_commandline(int argc, FAR char **argv,
       switch (ch)
         {
           case 'a':
-            allocate_rw_address = true;
+            info->allocate_rw_address = true;
             break;
           case 'r':
             OPTARG_TO_VALUE(info->src, const void *, 16);
@@ -187,10 +187,20 @@ static void parse_commandline(int argc, FAR char **argv,
         }
     }
 
-  if (allocate_rw_address)
+  if (info->allocate_rw_address)
     {
       info->dest = malloc(info->size);
+      if (info->dest == NULL)
+        {
+          printf(RAMSPEED_PREFIX "Dest Alloc Memory Failed!\n");
+        }
+
       info->src = malloc(info->size);
+      if (info->src == NULL)
+        {
+          free(info->dest);
+          printf(RAMSPEED_PREFIX "Src Alloc Memory Failed!\n");
+        }
     }
 
   if (info->dest == NULL || info->src == NULL || info->size == 0)
@@ -532,6 +542,14 @@ int main(int argc, FAR char *argv[])
   memset_speed_test(ramspeed.dest, ramspeed.value,
                     ramspeed.size, ramspeed.repeat_num,
                     ramspeed.irq_disable);
+
+  /* Check if alloc from heap? */
+
+  if (ramspeed.allocate_rw_address)
+    {
+      free(ramspeed.dest);
+      free((void *)ramspeed.src);
+    }
 
   return EXIT_SUCCESS;
 }
