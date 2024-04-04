@@ -33,4 +33,20 @@ CSRCS    += dhrystone/v2.1/dhry_2.c
 
 MAINSRC   = dhrystone/v2.2/dry.c
 
+ifeq ($(wildcard dhrystone/.git),)
+VERSION ?= master
+dhrystone.zip:
+	$(Q) curl -L https://github.com/Keith-S-Thompson/dhrystone/archive/refs/heads/master.zip -o dhrystone.zip
+	$(Q) unzip -o dhrystone.zip
+	$(Q) mv dhrystone-$(VERSION) dhrystone
+	$(Q) patch -p0 < 0001-dry2.2-Fix-malloc-type-mismatch.patch
+	$(Q) patch -p0 < 0002-dhrystone-fix-redefine-warning.patch
+
+context:: dhrystone.zip
+
+distclean::
+	$(call DELDIR, dhrystone)
+	$(call DELFILE, dhrystone.zip)
+endif
+
 include $(APPDIR)/Application.mk

@@ -1,0 +1,28 @@
+From b5376f06c41e9460044500b24137928c83e06244 Mon Sep 17 00:00:00 2001
+From: chenrun1 <chenrun1@xiaomi.com>
+Date: Mon, 12 Jun 2023 23:07:37 +0800
+Subject: [PATCH 1/2] dry2.2:Fix 'malloc' type mismatch
+
+'extern char *malloc' is a form from the early days of c that is no longer recommended in modern C implementations. This type of declaration can lead to type mismatch problems
+
+Signed-off-by: chenrun1 <chenrun1@xiaomi.com>
+---
+ v2.2/dry.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/v2.2/dry.c b/v2.2/dry.c
+index 602572a..e0fa391 100644
+--- dhrystone/v2.2/dry.c
++++ dhrystone/v2.2/dry.c
+@@ -500,7 +500,7 @@ char            Ch_1_Glob,
+ int             Arr_1_Glob [50];
+ int             Arr_2_Glob [50] [50];
+ 
+-extern char     *malloc ();
++extern void     *malloc ();
+ Enumeration     Func_1 ();
+   /* forward declaration necessary since Enumeration may not simply be int */
+ 
+-- 
+2.34.1
+

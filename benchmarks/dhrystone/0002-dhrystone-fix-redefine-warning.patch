@@ -1,0 +1,67 @@
+From ed7f8720aed17febe5d802cda53b38b80d0d5164 Mon Sep 17 00:00:00 2001
+From: chenrun1 <chenrun1@xiaomi.com>
+Date: Fri, 29 Mar 2024 10:48:37 +0800
+Subject: [PATCH 2/2] dhrystone:fix redefine warning
+
+redefine:
+dhrystone/v2.2/dry.c:458: warning: "true" redefined
+  458 | #define true  1
+      |
+In file included from /home/crafcat7/ext2/vela/vela-dev/nuttx/include/nuttx/fs/fs.h:34,
+                 from /home/crafcat7/ext2/vela/vela-dev/nuttx/include/stdio.h:34,
+                 from dhrystone/v2.2/dry.c:453:
+/home/crafcat7/ext2/vela/vela-dev/nuttx/include/stdbool.h:77: note: this is the location of the previous definition
+   77 | #    define true  (bool)1
+      |
+dhrystone/v2.2/dry.c:459: warning: "false" redefined
+
+Signed-off-by: chenrun1 <chenrun1@xiaomi.com>
+---
+ v2.1/dhry.h | 8 ++++++++
+ v2.2/dry.c  | 7 +++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/v2.1/dhry.h b/v2.1/dhry.h
+index 404adb4..ee848d8 100644
+--- dhrystone/v2.1/dhry.h
++++ dhrystone/v2.1/dhry.h
+@@ -396,8 +396,16 @@
+ 
+ #define Null 0 
+                 /* Value of a Null pointer */
++
++#ifdef true
++#undef true
+ #define true  1
++#endif
++
++#ifdef false
++#undef false
+ #define false 0
++#endif
+ 
+ typedef int     One_Thirty;
+ typedef int     One_Fifty;
+diff --git a/v2.2/dry.c b/v2.2/dry.c
+index e0fa391..2994c13 100644
+--- dhrystone/v2.2/dry.c
++++ dhrystone/v2.2/dry.c
+@@ -455,8 +455,15 @@ struct tms      time_info;
+ 
+ #define Null 0 
+                 /* Value of a Null pointer */
++#ifdef true
++#undef true
+ #define true  1
++#endif
++
++#ifdef false
++#undef false
+ #define false 0
++#endif
+ 
+ typedef int     One_Thirty;
+ typedef int     One_Fifty;
+-- 
+2.34.1
+
