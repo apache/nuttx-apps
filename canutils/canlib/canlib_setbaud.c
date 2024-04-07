@@ -22,15 +22,10 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
 #include <sys/ioctl.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
 #include <debug.h>
 #include <errno.h>
+
 #include <nuttx/can/can.h>
 
 /****************************************************************************

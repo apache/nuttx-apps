@@ -22,15 +22,10 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
 #include <sys/ioctl.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
 #include <debug.h>
 #include <errno.h>
+
 #include <nuttx/can/can.h>
 
 /****************************************************************************
@@ -63,10 +58,9 @@ int canlib_getbaud(int fd, FAR int *bauds)
   if (ret != OK)
     {
       canerr("CANIOC_GET_BITTIMING failed, errno=%d\n", errno);
-      return 0;
+      return ret;
     }
 
   *bauds = timings.bt_baud;
-
   return ret;
 }

@@ -22,16 +22,10 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
 #include <sys/ioctl.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <fcntl.h>
 #include <debug.h>
 #include <errno.h>
+
 #include <nuttx/can/can.h>
 
 /****************************************************************************
@@ -64,10 +58,9 @@ int canlib_getloopback(int fd, FAR bool *loopback)
   if (ret != OK)
     {
       canerr("CANIOC_GET_CONNMODES failed, errno=%d\n", errno);
-      return FALSE;
+      return ret;
     }
 
-  *loopback = (bool)connmodes.bm_loopback;
-
+  *loopback = connmodes.bm_loopback;
   return ret;
 }
