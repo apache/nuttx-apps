@@ -443,8 +443,8 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   total = ((uint64_t)sector * (uint64_t)dd.sectsize);
 
-  nsh_output(vtbl, "%llu bytes copied, %u usec, ",
-             total, (unsigned int)elapsed);
+  nsh_output(vtbl, "%" PRIu64 "bytes copied, %" PRIu64 " usec, ",
+             total, elapsed);
   nsh_output(vtbl, "%u KB/s\n" ,
              (unsigned int)(((double)total / 1024)
              / ((double)elapsed / USEC_PER_SEC)));
