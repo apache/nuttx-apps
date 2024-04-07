@@ -107,6 +107,8 @@ int canlib_getbaud(int fd, FAR int *bauds);
  *
  ****************************************************************************/
 
+int canlib_setloopback(int fd, bool loop);
+
 /****************************************************************************
  * Name: canlib_getloopback
  *
@@ -124,8 +126,6 @@ int canlib_getbaud(int fd, FAR int *bauds);
  *
  ****************************************************************************/
 
-int canlib_setloopback(int fd, bool loop);
-
 int canlib_getloopback(int fd, FAR bool *loop);
 
 /****************************************************************************
@@ -136,8 +136,8 @@ int canlib_getloopback(int fd, FAR bool *loop);
  *   peripheral never transmits on the bus, but receives all bus traffic.
  *
  * Input Parameter:
- *   fd       - file descriptor of an opened can device
- *   loopback - whether to use loopback mode.
+ *   fd     - file descriptor of an opened can device
+ *   silent - whether to use silent mode.
  *
  * Returned Value:
  *   Zero (OK) is returned on success.  Otherwise -1 (ERROR)
@@ -155,8 +155,8 @@ int canlib_setsilent(int fd, bool silent);
  *   Wrapper for CANIOC_GET_CONNMODES.
  *
  * Input Parameter:
- *   fd       - file descriptor of an opened can device
- *   loopback - pointer to a buffer to store the current silent mode state.
+ *   fd     - file descriptor of an opened can device
+ *   silent - pointer to a buffer to store the current silent mode state.
  *
  * Returned Value:
  *   Zero (OK) is returned on success.  Otherwise -1 (ERROR)
