@@ -5,7 +5,7 @@
 
 config SYSTEM_GCOV
 	tristate "gcov tool"
-	depends on ARCH_COVERAGE
+	depends on SCHED_GCOV
 	---help---
 		Enable support for the 'gcov' command.
 
