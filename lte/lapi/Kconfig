@@ -21,7 +21,7 @@ config LTE_LAPI_KEEP_COMPATIBILITY
 	default n
 	---help---
 		lte_get_operator_sync, lte_get_imsi_sync, lte_get_imei_sync, lte_get_phoneno_sync,
-		these functions have changed their specifications to specify the length of the 
+		these functions have changed their specifications to specify the length of the
 		argument string. Functions in the old spec will be discarded, but enabling this
 		option makes you be able to use them.
 		Furthermore, this option will be removed in the near future, and functions in
@@ -45,5 +45,4 @@ config LTE_LAPI_ENABLE_DEPRECATED_API
 		Deprecated APIs will be removed in the future,
 		please use the synchronous API instead.
 
-endif
-
+endif # LTE_LAPI

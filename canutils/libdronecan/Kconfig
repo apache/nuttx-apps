@@ -23,7 +23,7 @@ config LIBDRONECAN_VERSION
 	default "21f2a73df86886101e254d02cfc2277cd2a15717"
 	---help---
 		libcanard version.
-		
+
 config LIBDRONECAN_CANFD
 	bool "(Experimental) libcanard CAN FD Support"
 	default n
@@ -34,4 +34,4 @@ config LIBDRONECAN_CANFD
 		since libcanard doesn't support runtime switching
 		between CAN2.0B and CAN FD that well
 
-endif
+endif # CANUTILS_LIBDRONECAN

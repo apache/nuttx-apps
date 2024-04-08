@@ -564,8 +564,8 @@ config EXAMPLES_FOC_FEEDFORWARD
 	default n
 	---help---
 		This option enables feed-forward compensation for PI current controller
-		which can help achieve better performace of FOC. This option is not 
-		recomended for sensorless operations and for current controllers that 
+		which can help achieve better performace of FOC. This option is not
+		recomended for sensorless operations and for current controllers that
 		already has high update frequency.
 
 if EXAMPLES_FOC_CONTROL_PI
@@ -775,5 +775,4 @@ endif # EXAMPLES_FOC_NXSCOPE_THREAD
 endif # EXAMPLES_FOC_NXSCOPE
 
 endif # EXAMPLES_FOC
-
 
