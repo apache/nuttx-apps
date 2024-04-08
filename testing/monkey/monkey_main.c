@@ -130,8 +130,8 @@ struct monkey_param_s
   int ver_res;
   int period_min;
   int period_max;
-  uint8_t btn_bit;
-  uint8_t log_level;
+  int btn_bit;
+  int log_level;
   struct monkey_event_config_s event[MONKEY_EVENT_LAST];
 };
 
@@ -425,12 +425,12 @@ static void parse_commandline(int argc, FAR char **argv,
             break;
 
           case 'b':
-            OPTARG_TO_VALUE(param->btn_bit, uint8_t, 10);
+            OPTARG_TO_VALUE(param->btn_bit, int, 10);
             param->btn_bit = CONSTRAIN(param->btn_bit, 0, 31);
             break;
 
           case 'l':
-            OPTARG_TO_VALUE(param->log_level, uint8_t, 10);
+            OPTARG_TO_VALUE(param->log_level, int, 10);
             param->log_level = CONSTRAIN(param->log_level, 0,
                                          MONKEY_LOG_LEVEL_LAST - 1);
             break;
