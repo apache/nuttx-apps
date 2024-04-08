@@ -157,6 +157,12 @@ int main(int argc, FAR char *argv[])
       return 6;
     }
 
+  ret = remove(FIFO_PATH1);
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: remove failed with errno=%d\n", errno);
+    }
+
   /* Perform the FIFO interlock test */
 
   fprintf(stderr, "\npipe_main: Performing pipe interlock test\n");
