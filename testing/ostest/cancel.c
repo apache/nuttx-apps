@@ -607,7 +607,7 @@ void cancel_test(void)
       printf("cancel_test: ERROR pthread_join succeeded\n");
       ASSERT(false);
     }
-  else if (status != EINVAL)
+  else if (status != ESRCH)
     {
       printf("cancel_test:"
              " ERROR pthread_join failed but with wrong status=%d\n",
@@ -616,7 +616,7 @@ void cancel_test(void)
     }
   else
     {
-      printf("cancel_test: PASS pthread_join failed with status=EINVAL\n");
+      printf("cancel_test: PASS pthread_join failed with status=ESRCH\n");
     }
 
   /* Test 4: Non-cancelable threads *****************************************/
