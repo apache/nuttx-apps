@@ -48,7 +48,7 @@
  ****************************************************************************/
 
 #define MAX_DEVICES 16
-#define MAX_ROUTES  64
+#define MAX_ROUTES  4
 
 #ifdef CONFIG_NET_IPv6
 #  define ROUTE_BUFSIZE INET6_ADDRSTRLEN
