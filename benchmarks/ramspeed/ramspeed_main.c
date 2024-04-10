@@ -203,11 +203,45 @@ static void parse_commandline(int argc, FAR char **argv,
         }
     }
 
-  if (info->dest == NULL || info->src == NULL || info->size == 0)
+  if ((info->dest == NULL && !info->allocate_rw_address) || info->size == 0)
     {
       printf(RAMSPEED_PREFIX "Missing required arguments\n");
-      show_usage(argv[0], EXIT_FAILURE);
+      goto out;
     }
+  else
+    {
+      /* We need to automatically apply for memory */
+
+      printf(RAMSPEED_PREFIX "Allocate RW buffers on heap\n");
+      info->dest = malloc(info->size);
+      if (info->dest == NULL)
+        {
+          printf(RAMSPEED_PREFIX "Dest Alloc Memory Failed!\n");
+          goto out;
+        }
+
+      info->src = malloc(info->size);
+      if (info->src == NULL)
+        {
+          printf(RAMSPEED_PREFIX "Src Alloc Memory Failed!\n");
+          goto out;
+        }
+    }
+
+  /* Print info */
+
+  printf(RAMSPEED_PREFIX "Write address: %p\n", info->dest);
+  printf(RAMSPEED_PREFIX "Read address: %p\n", info->src);
+  printf(RAMSPEED_PREFIX "Size: %zu bytes\n", info->size);
+  printf(RAMSPEED_PREFIX "Value: 0x%02x\n", info->value);
+  printf(RAMSPEED_PREFIX "Repeat number: %" PRIu32 "\n", info->repeat_num);
+  printf(RAMSPEED_PREFIX "Interrupts disabled: %s\n",
+         info->irq_disable ? "true" : "false");
+
+  return;
+
+out:
+    show_usage(argv[0], EXIT_FAILURE);
 }
 
 /****************************************************************************
@@ -217,10 +251,10 @@ static void parse_commandline(int argc, FAR char **argv,
 static uint32_t get_timestamp(void)
 {
   struct timespec ts;
-  uint32_t ms;
+  uint32_t us;
   clock_gettime(CLOCK_MONOTONIC, &ts);
-  ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
-  return ms;
+  us = ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+  return us;
 }
 
 /****************************************************************************
@@ -376,7 +410,7 @@ static void internal_memset(FAR void *dst, uint8_t v, size_t len)
 static void print_rate(FAR const char *name, uint64_t bytes,
                        uint32_t cost_time)
 {
-  uint32_t rate;
+  double rate;
   if (cost_time == 0)
     {
       printf(RAMSPEED_PREFIX
@@ -385,10 +419,10 @@ static void print_rate(FAR const char *name, uint64_t bytes,
       return;
     }
 
-  rate = bytes * 1000 / cost_time / 1024;
+  rate = (double)bytes / 1024 / (cost_time / 1000000.0);
   printf(RAMSPEED_PREFIX
-         "%s Rate = %" PRIu32 " KB/s\t[cost: %" PRIu32 "ms]\n",
-         name, rate, cost_time);
+         "%s Rate = %.3f KB/s\t[cost: %.3f ms]\n",
+         name, rate, cost_time / 1000.0f);
 }
 
 /****************************************************************************
@@ -535,9 +569,12 @@ int main(int argc, FAR char *argv[])
 
   parse_commandline(argc, argv, &ramspeed);
 
-  memcpy_speed_test(ramspeed.dest, ramspeed.src,
-                    ramspeed.size, ramspeed.repeat_num,
-                    ramspeed.irq_disable);
+  if (ramspeed.src != NULL)
+    {
+      memcpy_speed_test(ramspeed.dest, ramspeed.src,
+                        ramspeed.size, ramspeed.repeat_num,
+                        ramspeed.irq_disable);
+    }
 
   memset_speed_test(ramspeed.dest, ramspeed.value,
                     ramspeed.size, ramspeed.repeat_num,

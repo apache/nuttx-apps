@@ -6,6 +6,7 @@
 config BENCHMARK_RAMSPEED
 	tristate "RAM Speed Test"
 	default n
+	depends on LIBC_FLOATINGPOINT
 	---help---
 		Enable a simple RAM speed test.
 
