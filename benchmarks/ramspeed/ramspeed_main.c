@@ -187,22 +187,6 @@ static void parse_commandline(int argc, FAR char **argv,
         }
     }
 
-  if (info->allocate_rw_address)
-    {
-      info->dest = malloc(info->size);
-      if (info->dest == NULL)
-        {
-          printf(RAMSPEED_PREFIX "Dest Alloc Memory Failed!\n");
-        }
-
-      info->src = malloc(info->size);
-      if (info->src == NULL)
-        {
-          free(info->dest);
-          printf(RAMSPEED_PREFIX "Src Alloc Memory Failed!\n");
-        }
-    }
-
   if ((info->dest == NULL && !info->allocate_rw_address) || info->size == 0)
     {
       printf(RAMSPEED_PREFIX "Missing required arguments\n");
