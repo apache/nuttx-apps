@@ -221,6 +221,9 @@ static void test_case_pwm(FAR void **state)
 {
   int fd;
   int ret;
+#ifdef CONFIG_PWM_MULTICHAN
+  int i;
+#endif
   struct pwm_info_s info;
   FAR struct pwm_state_s *pwm_state;
   pwm_state = (FAR struct pwm_state_s *)*state;
@@ -235,14 +238,15 @@ static void test_case_pwm(FAR void **state)
   memset(&info, 0, sizeof(info));
 
   info.frequency = pwm_state->freq;
-  info.duty = b16divi(uitoub16(pwm_state->duty), 100);
 
 #ifdef CONFIG_PWM_MULTICHAN
   for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
       info.channels[i].channel = i + 1;
-      info.channels[i].duty = info.duty;
+      info.channels[i].duty = b16divi(uitoub16(pwm_state->duty), 100);
     }
+#else
+  info.duty = b16divi(uitoub16(pwm_state->duty), 100);
 #endif
 
 #ifdef CONFIG_PWM_PULSECOUNT
