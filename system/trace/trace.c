@@ -48,14 +48,15 @@
  * Name: notectl_enable
  ****************************************************************************/
 
-static bool notectl_enable(int flag, int notectlfd)
+static bool notectl_enable(FAR const char *name, int flag, int notectlfd)
 {
-  struct note_filter_mode_s mode;
+  struct note_filter_named_mode_s mode;
   int oldflag;
 
+  strlcpy(mode.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETMODE, (unsigned long)&mode);
 
-  oldflag = (mode.flag & NOTE_FILTER_MODE_FLAG_ENABLE) != 0;
+  oldflag = (mode.mode.flag & NOTE_FILTER_MODE_FLAG_ENABLE) != 0;
   if (flag == oldflag)
     {
       /* Already set */
@@ -65,11 +66,11 @@ static bool notectl_enable(int flag, int notectlfd)
 
   if (flag)
     {
-      mode.flag |= NOTE_FILTER_MODE_FLAG_ENABLE;
+      mode.mode.flag |= NOTE_FILTER_MODE_FLAG_ENABLE;
     }
   else
     {
-      mode.flag &= ~NOTE_FILTER_MODE_FLAG_ENABLE;
+      mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_ENABLE;
     }
 
   ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
@@ -81,8 +82,8 @@ static bool notectl_enable(int flag, int notectlfd)
  * Name: trace_cmd_start
  ****************************************************************************/
 
-static int trace_cmd_start(int index, int argc, FAR char **argv,
-                           int notectlfd)
+static int trace_cmd_start(FAR const char *name, int index, int argc,
+                           FAR char **argv, int notectlfd)
 {
   FAR char *endptr;
   int duration = 0;
@@ -121,14 +122,14 @@ static int trace_cmd_start(int index, int argc, FAR char **argv,
 
   /* Start tracing */
 
-  notectl_enable(true, notectlfd);
+  notectl_enable(name, true, notectlfd);
 
   if (duration > 0)
     {
       /* If <duration> is given, stop tracing after specified seconds. */
 
       sleep(duration);
-      notectl_enable(false, notectlfd);
+      notectl_enable(name, false, notectlfd);
     }
 
   return index;
@@ -139,8 +140,8 @@ static int trace_cmd_start(int index, int argc, FAR char **argv,
  ****************************************************************************/
 
 #ifdef CONFIG_DRIVERS_NOTERAM
-static int trace_cmd_dump(int index, int argc, FAR char **argv,
-                          int notectlfd)
+static int trace_cmd_dump(FAR const char *name, int index, int argc,
+                          FAR char **argv, int notectlfd)
 {
   FAR FILE *out = stdout;
   bool changed = false;
@@ -184,7 +185,7 @@ static int trace_cmd_dump(int index, int argc, FAR char **argv,
 
   if (!cont)
     {
-      changed = notectl_enable(false, notectlfd);
+      changed = notectl_enable(name, false, notectlfd);
     }
 
   /* Dump the trace header */
@@ -197,7 +198,7 @@ static int trace_cmd_dump(int index, int argc, FAR char **argv,
 
   if (changed)
     {
-      notectl_enable(true, notectlfd);
+      notectl_enable(name, true, notectlfd);
     }
 
   /* If needed, close the file stream for dump. */
@@ -223,7 +224,8 @@ static int trace_cmd_dump(int index, int argc, FAR char **argv,
  ****************************************************************************/
 
 #ifdef CONFIG_SYSTEM_SYSTEM
-static int trace_cmd_cmd(int index, int argc, FAR char **argv, int notectlfd)
+static int trace_cmd_cmd(FAR const char *name, int index, int argc,
+                         FAR char **argv, int notectlfd)
 {
   char command[CONFIG_NSH_LINELEN];
   bool changed;
@@ -266,13 +268,13 @@ static int trace_cmd_cmd(int index, int argc, FAR char **argv, int notectlfd)
 
   /* Execute the command with tracing */
 
-  changed = notectl_enable(true, notectlfd);
+  changed = notectl_enable(name, true, notectlfd);
 
   system(command);
 
   if (changed)
     {
-      notectl_enable(false, notectlfd);
+      notectl_enable(name, false, notectlfd);
     }
 
   return index;
@@ -283,18 +285,18 @@ static int trace_cmd_cmd(int index, int argc, FAR char **argv, int notectlfd)
  * Name: trace_cmd_mode
  ****************************************************************************/
 
-static int trace_cmd_mode(int index, int argc, FAR char **argv,
-                          int notectlfd)
+static int trace_cmd_mode(FAR const char *name, int index, int argc,
+                          FAR char **argv, int notectlfd)
 {
-  struct note_filter_mode_s mode;
+  struct note_filter_named_mode_s mode;
   bool owmode;
   bool enable;
   bool modified = false;
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
-  struct note_filter_syscall_s filter_syscall;
+  struct note_filter_named_syscall_s filter_syscall;
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
-  struct note_filter_irq_s filter_irq;
+  struct note_filter_named_irq_s filter_irq;
 #endif
 
 #if defined(CONFIG_SCHED_INSTRUMENTATION_SYSCALL) ||\
@@ -307,6 +309,7 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
 
   /* Get current trace mode */
 
+  strlcpy(mode.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETMODE, (unsigned long)&mode);
   owmode = trace_dump_get_overwrite();
 
@@ -333,11 +336,11 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
           case 'w':   /* Switch trace */
             if (enable)
               {
-                mode.flag |= NOTE_FILTER_MODE_FLAG_SWITCH;
+                mode.mode.flag |= NOTE_FILTER_MODE_FLAG_SWITCH;
               }
             else
               {
-                mode.flag &= ~NOTE_FILTER_MODE_FLAG_SWITCH;
+                mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_SWITCH;
               }
             break;
 #endif
@@ -346,22 +349,22 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
           case 's':   /* Syscall trace */
             if (enable)
               {
-                mode.flag |= NOTE_FILTER_MODE_FLAG_SYSCALL;
+                mode.mode.flag |= NOTE_FILTER_MODE_FLAG_SYSCALL;
               }
             else
               {
-                mode.flag &= ~NOTE_FILTER_MODE_FLAG_SYSCALL;
+                mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_SYSCALL;
               }
             break;
 
           case 'a':   /* Record syscall arguments */
             if (enable)
               {
-                mode.flag |= NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS;
+                mode.mode.flag |= NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS;
               }
             else
               {
-                mode.flag &= ~NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS;
+                mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS;
               }
             break;
 #endif
@@ -370,11 +373,11 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
           case 'i':   /* IRQ trace */
             if (enable)
               {
-                mode.flag |= NOTE_FILTER_MODE_FLAG_IRQ;
+                mode.mode.flag |= NOTE_FILTER_MODE_FLAG_IRQ;
               }
             else
               {
-                mode.flag &= ~NOTE_FILTER_MODE_FLAG_IRQ;
+                mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_IRQ;
               }
             break;
 #endif
@@ -383,11 +386,11 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
           case 'd':   /* Dump trace */
             if (enable)
               {
-                mode.flag |= NOTE_FILTER_MODE_FLAG_DUMP;
+                mode.mode.flag |= NOTE_FILTER_MODE_FLAG_DUMP;
               }
             else
               {
-                mode.flag &= ~NOTE_FILTER_MODE_FLAG_DUMP;
+                mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_DUMP;
               }
             break;
 #endif
@@ -414,9 +417,9 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
 
   /* If no parameter, display current trace mode setting. */
 
-  printf("Task trace mode:\n");
+  printf("Task trace mode(%s):\n", mode.name);
   printf(" Trace                   : %s\n",
-         (mode.flag & NOTE_FILTER_MODE_FLAG_ENABLE) ?
+         (mode.mode.flag & NOTE_FILTER_MODE_FLAG_ENABLE) ?
           "enabled" : "disabled");
 
 #ifdef CONFIG_DRIVERS_NOTERAM
@@ -425,43 +428,46 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
+  strlcpy(filter_syscall.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETSYSCALLFILTER,
         (unsigned long)&filter_syscall);
   for (count = i = 0; i < SYS_nsyscalls; i++)
     {
-      if (NOTE_FILTER_SYSCALLMASK_ISSET(i, &filter_syscall))
+      if (NOTE_FILTER_SYSCALLMASK_ISSET(i, &filter_syscall.syscall_mask))
         {
           count++;
         }
     }
 
   printf(" Syscall trace           : %s\n",
-         mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL ?
+         mode.mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL ?
           "on  (+s)" : "off (-s)");
-  if (mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL)
+  if (mode.mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL)
     {
       printf("  Filtered Syscalls      : %d\n", count);
     }
 
   printf(" Syscall trace with args : %s\n",
-         mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS ?
+         mode.mode.flag & NOTE_FILTER_MODE_FLAG_SYSCALL_ARGS ?
           "on  (+a)" : "off (-a)");
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
-  ioctl(notectlfd, NOTECTL_GETIRQFILTER, (unsigned long)&filter_irq);
+  strlcpy(filter_irq.name, name, NAME_MAX);
+  ioctl(notectlfd, NOTECTL_GETIRQFILTER,
+        (unsigned long)&filter_irq.irq_mask);
   for (count = i = 0; i < NR_IRQS; i++)
     {
-      if (NOTE_FILTER_IRQMASK_ISSET(i, &filter_irq))
+      if (NOTE_FILTER_IRQMASK_ISSET(i, &filter_irq.irq_mask))
         {
           count++;
         }
     }
 
   printf(" IRQ trace               : %s\n",
-         mode.flag & NOTE_FILTER_MODE_FLAG_IRQ ?
+         mode.mode.flag & NOTE_FILTER_MODE_FLAG_IRQ ?
           "on  (+i)" : "off (-i)");
-  if (mode.flag & NOTE_FILTER_MODE_FLAG_IRQ)
+  if (mode.mode.flag & NOTE_FILTER_MODE_FLAG_IRQ)
     {
       printf("  Filtered IRQs          : %d\n", count);
     }
@@ -475,16 +481,17 @@ static int trace_cmd_mode(int index, int argc, FAR char **argv,
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
-static int trace_cmd_switch(int index, int argc, FAR char **argv,
-                            int notectlfd)
+static int trace_cmd_switch(FAR const char *name, int index, int argc,
+                            FAR char **argv, int notectlfd)
 {
   bool enable;
-  struct note_filter_mode_s mode;
+  struct note_filter_named_mode_s mode;
 
   /* Usage: trace switch [+|-] */
 
   /* Get current filter setting */
 
+  strlcpy(mode.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETMODE, (unsigned long)&mode);
 
   /* Parse the setting parameters */
@@ -495,7 +502,7 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
         {
           enable = (argv[index++][0] == '+');
           if (enable ==
-              ((mode.flag & NOTE_FILTER_MODE_FLAG_SWITCH) != 0))
+              ((mode.mode.flag & NOTE_FILTER_MODE_FLAG_SWITCH) != 0))
             {
               /* Already set */
 
@@ -504,11 +511,11 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
 
           if (enable)
             {
-              mode.flag |= NOTE_FILTER_MODE_FLAG_SWITCH;
+              mode.mode.flag |= NOTE_FILTER_MODE_FLAG_SWITCH;
             }
           else
             {
-              mode.flag &= ~NOTE_FILTER_MODE_FLAG_SWITCH;
+              mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_SWITCH;
             }
 
           ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
@@ -524,13 +531,13 @@ static int trace_cmd_switch(int index, int argc, FAR char **argv,
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
-static int trace_cmd_syscall(int index, int argc, FAR char **argv,
-                             int notectlfd)
+static int trace_cmd_syscall(FAR const char *name, int index, int argc,
+                             FAR char **argv, int notectlfd)
 {
   bool enable;
   bool modified = false;
   int syscallno;
-  FAR struct note_filter_syscall_s filter_syscall;
+  FAR struct note_filter_named_syscall_s filter_syscall;
   int n;
   int count;
 
@@ -538,6 +545,7 @@ static int trace_cmd_syscall(int index, int argc, FAR char **argv,
 
   /* Get current syscall filter setting */
 
+  strlcpy(filter_syscall.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETSYSCALLFILTER,
         (unsigned long)&filter_syscall);
 
@@ -565,11 +573,13 @@ static int trace_cmd_syscall(int index, int argc, FAR char **argv,
 
           if (enable)
             {
-              NOTE_FILTER_SYSCALLMASK_SET(syscallno, &filter_syscall);
+              NOTE_FILTER_SYSCALLMASK_SET(syscallno,
+                                          &filter_syscall.syscall_mask);
             }
           else
             {
-              NOTE_FILTER_SYSCALLMASK_CLR(syscallno, &filter_syscall);
+              NOTE_FILTER_SYSCALLMASK_CLR(syscallno,
+                                          &filter_syscall.syscall_mask);
             }
         }
 
@@ -590,7 +600,7 @@ static int trace_cmd_syscall(int index, int argc, FAR char **argv,
 
       for (count = n = 0; n < SYS_nsyscalls; n++)
         {
-          if (NOTE_FILTER_SYSCALLMASK_ISSET(n, &filter_syscall))
+          if (NOTE_FILTER_SYSCALLMASK_ISSET(n, &filter_syscall.syscall_mask))
             {
               count++;
             }
@@ -600,7 +610,7 @@ static int trace_cmd_syscall(int index, int argc, FAR char **argv,
 
       for (n = 0; n < SYS_nsyscalls; n++)
         {
-          if (NOTE_FILTER_SYSCALLMASK_ISSET(n, &filter_syscall))
+          if (NOTE_FILTER_SYSCALLMASK_ISSET(n, &filter_syscall.syscall_mask))
             {
               printf("  %s\n", g_funcnames[n]);
             }
@@ -616,13 +626,14 @@ static int trace_cmd_syscall(int index, int argc, FAR char **argv,
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
-static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
+static int trace_cmd_irq(FAR const char *name, int index, int argc,
+                         FAR char **argv, int notectlfd)
 {
   bool enable;
   bool modified = false;
   int irqno;
   FAR char *endptr;
-  struct note_filter_irq_s filter_irq;
+  struct note_filter_named_irq_s filter_irq;
   int n;
   int count;
 
@@ -630,6 +641,7 @@ static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
 
   /* Get current irq filter setting */
 
+  strlcpy(filter_irq.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETIRQFILTER, (unsigned long)&filter_irq);
 
   /* Parse the setting parameters */
@@ -651,12 +663,12 @@ static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
             {
               for (n = 0; n < NR_IRQS; n++)
                 {
-                  NOTE_FILTER_IRQMASK_SET(n, &filter_irq);
+                  NOTE_FILTER_IRQMASK_SET(n, &filter_irq.irq_mask);
                 }
             }
           else
             {
-              NOTE_FILTER_IRQMASK_ZERO(&filter_irq);
+              NOTE_FILTER_IRQMASK_ZERO(&filter_irq.irq_mask);
             }
         }
       else
@@ -676,11 +688,11 @@ static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
 
           if (enable)
             {
-              NOTE_FILTER_IRQMASK_SET(irqno, &filter_irq);
+              NOTE_FILTER_IRQMASK_SET(irqno, &filter_irq.irq_mask);
             }
           else
             {
-              NOTE_FILTER_IRQMASK_CLR(irqno, &filter_irq);
+              NOTE_FILTER_IRQMASK_CLR(irqno, &filter_irq.irq_mask);
             }
         }
 
@@ -700,7 +712,7 @@ static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
 
       for (count = n = 0; n < NR_IRQS; n++)
         {
-          if (NOTE_FILTER_IRQMASK_ISSET(n, &filter_irq))
+          if (NOTE_FILTER_IRQMASK_ISSET(n, &filter_irq.irq_mask))
             {
               count++;
             }
@@ -710,7 +722,7 @@ static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
 
       for (n = 0; n < NR_IRQS; n++)
         {
-          if (NOTE_FILTER_IRQMASK_ISSET(n, &filter_irq))
+          if (NOTE_FILTER_IRQMASK_ISSET(n, &filter_irq.irq_mask))
             {
               printf("  %d\n", n);
             }
@@ -726,16 +738,17 @@ static int trace_cmd_irq(int index, int argc, FAR char **argv, int notectlfd)
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-static int trace_cmd_print(int index, int argc, FAR char **argv,
-                           int notectlfd)
+static int trace_cmd_print(FAR const char *name, int index, int argc,
+                           FAR char **argv, int notectlfd)
 {
   bool enable;
-  struct note_filter_mode_s mode;
+  struct note_filter_named_mode_s mode;
 
   /* Usage: trace print [+|-] */
 
   /* Get current filter setting */
 
+  strlcpy(mode.name, name, NAME_MAX);
   ioctl(notectlfd, NOTECTL_GETMODE, (unsigned long)&mode);
 
   /* Parse the setting parameters */
@@ -746,7 +759,7 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
         {
           enable = (argv[index++][0] == '+');
           if (enable ==
-              ((mode.flag & NOTE_FILTER_MODE_FLAG_DUMP) != 0))
+              ((mode.mode.flag & NOTE_FILTER_MODE_FLAG_DUMP) != 0))
             {
               /* Already set */
 
@@ -755,11 +768,11 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
 
           if (enable)
             {
-              mode.flag |= NOTE_FILTER_MODE_FLAG_DUMP;
+              mode.mode.flag |= NOTE_FILTER_MODE_FLAG_DUMP;
             }
           else
             {
-              mode.flag &= ~NOTE_FILTER_MODE_FLAG_DUMP;
+              mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_DUMP;
             }
 
           ioctl(notectlfd, NOTECTL_SETMODE, (unsigned long)&mode);
@@ -777,7 +790,7 @@ static int trace_cmd_print(int index, int argc, FAR char **argv,
 static void show_usage(void)
 {
   fprintf(stderr,
-          "\nUsage: trace <subcommand>...\n"
+          "\nUsage: trace [-n][<name>] <subcommand>...\n"
           "Subcommand:\n"
           " start   [-c][<duration>]            :"
                                 " Start task tracing\n"
@@ -824,6 +837,7 @@ int main(int argc, FAR char *argv[])
   int notectlfd;
   int exitcode = EXIT_FAILURE;
   int i;
+  char name[NAME_MAX];
 
   /* Open note control device */
 
@@ -835,66 +849,73 @@ int main(int argc, FAR char *argv[])
       goto errout;
     }
 
+  name[0] = '\0';
   if (argc == 1)
     {
       /* No arguments - show current mode */
 
-      trace_cmd_mode(0, 0, NULL, notectlfd);
+      trace_cmd_mode(name, 0, 0, NULL, notectlfd);
       goto exit_with_close;
     }
 
   /* Parse command line arguments */
 
   i = 1;
+  if (strcmp(argv[i], "-n") == 0)
+    {
+      strlcpy(name, argv[++i], NAME_MAX);
+      i++;
+    }
+
   while (i < argc)
     {
       if (strcmp(argv[i], "start") == 0)
         {
-          i = trace_cmd_start(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_start(name, i + 1, argc, argv, notectlfd);
         }
       else if (strcmp(argv[i], "stop") == 0)
         {
           i++;
-          notectl_enable(false, notectlfd);
+          notectl_enable(name, false, notectlfd);
         }
 #ifdef CONFIG_DRIVERS_NOTERAM
       else if (strcmp(argv[i], "dump") == 0)
         {
-          i = trace_cmd_dump(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_dump(name, i + 1, argc, argv, notectlfd);
         }
 #endif
 #ifdef CONFIG_SYSTEM_SYSTEM
       else if (strcmp(argv[i], "cmd") == 0)
         {
-          i = trace_cmd_cmd(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_cmd(name, i + 1, argc, argv, notectlfd);
         }
 #endif
       else if (strcmp(argv[i], "mode") == 0)
         {
-          i = trace_cmd_mode(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_mode(name, i + 1, argc, argv, notectlfd);
         }
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SWITCH
       else if (strcmp(argv[i], "switch") == 0)
         {
-          i = trace_cmd_switch(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_switch(name, i + 1, argc, argv, notectlfd);
         }
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_SYSCALL
       else if (strcmp(argv[i], "syscall") == 0)
         {
-          i = trace_cmd_syscall(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_syscall(name, i + 1, argc, argv, notectlfd);
         }
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
       else if (strcmp(argv[i], "irq") == 0)
         {
-          i = trace_cmd_irq(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_irq(name, i + 1, argc, argv, notectlfd);
         }
 #endif
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
       else if (strcmp(argv[i], "print") == 0)
         {
-          i = trace_cmd_print(i + 1, argc, argv, notectlfd);
+          i = trace_cmd_print(name, i + 1, argc, argv, notectlfd);
         }
 #endif
       else
