@@ -25,8 +25,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/sensors/ioctl.h>
-#include <nuttx/sensors/sensor.h>
+#include <nuttx/uorb.h>
 
 #include <sys/time.h>
 #include <debug.h>
