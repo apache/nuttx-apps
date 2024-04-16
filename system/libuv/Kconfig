@@ -6,7 +6,6 @@
 config LIBUV
 	bool "libuv asynchronous I/O Library"
 	default n
-	select PIPES
 	---help---
 		Enable build for libuv asynchronous I/O Library
 
