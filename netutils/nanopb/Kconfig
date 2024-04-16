@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_NANOPB
+	tristate "Nanopb Protocol Buffers"
+	default n
+	---help---
+		Nanopb is a small code-size Protocol Buffers implementation in ansi C.
+		It is especially suitable for use in microcontrollers, but fits any
+		memory restricted system.
+
+if NETUTILS_NANOPB
+
+config NETUTILS_NANOPB_VERSION
+	string "Nanopb Version"
+	default "0.4.8"
+
+config NETUTILS_NANOPB_EXAMPLE
+	tristate "Enable Nanopb example"
+	default n
+	---help---
+		Enable Nanopb simple example
+
+if NETUTILS_NANOPB_EXAMPLE
+
+config NETUTILS_NANOPB_EXAMPLE_PRIORITY
+	int "Task Priority"
+	default 100
+
+config NETUTILS_NANOPB_EXAMPLE_STACKSIZE
+	int "Task stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+endif
