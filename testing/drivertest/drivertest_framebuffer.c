@@ -433,7 +433,7 @@ static void test_case_fb_2(FAR void **state)
   int step_num = 0;
   uint32_t colors_to_show[] =
     {
-      0x00000000, 0x00ff0000, 0x0000ff00, 0x000000ff, 0x00ffffff
+      0xff000000, 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffffff
     };
 
   const uint32_t xres = fb_state->fb_info.video_info.xres;
@@ -480,8 +480,9 @@ static void test_case_fb_3(FAR void **state)
         }
 
       gray_color = (0xff / step_num) * i;
-      draw_rect(fb_state, 0, start_y, xres, step_height,
-                gray_color << 16 | gray_color << 8 | gray_color);
+      draw_rect(
+        fb_state, 0, start_y, xres, step_height,
+        0xff000000 | gray_color << 16 | gray_color << 8 | gray_color);
     }
 }
 
