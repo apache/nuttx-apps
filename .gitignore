@@ -1,4 +1,6 @@
 *.a
+*.dbo
+*.dba
 *.adb
 *.asm
 *.dSYM
