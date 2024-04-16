@@ -77,7 +77,11 @@ static void ostest_gettime(struct timespec *tp)
       printf("ostest_gettime: ERROR: clock_gettime failed\n");
       ASSERT(false);
     }
+#ifdef CONFIG_SYSTEM_TIME64
   else if (tp->tv_sec < 0 || tp->tv_nsec < 0 ||
+#else
+  else if (tp->tv_nsec < 0 ||
+#endif
            tp->tv_nsec >= 1000 * 1000 * 1000)
     {
       printf("ostest_gettime: ERROR: clock_gettime returned bogus time\n");
