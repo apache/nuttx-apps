@@ -4,7 +4,7 @@
 #
 
 menuconfig BENCHMARK_COREMARK
-	bool "CoreMark Benchmark"
+	tristate "CoreMark Benchmark"
 	select LIBC_FLOATINGPOINT
 	default n
 	---help---
