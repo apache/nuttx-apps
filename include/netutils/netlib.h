@@ -395,6 +395,8 @@ enum nf_inet_hooks;  /* Forward reference */
 FAR struct ipt_replace *netlib_ipt_prepare(FAR const char *table);
 int netlib_ipt_commit(FAR const struct ipt_replace *repl);
 int netlib_ipt_flush(FAR const char *table, enum nf_inet_hooks hook);
+int netlib_ipt_policy(FAR const char *table, enum nf_inet_hooks hook,
+                      int verdict);
 int netlib_ipt_append(FAR struct ipt_replace **repl,
                       FAR const struct ipt_entry *entry,
                       enum nf_inet_hooks hook);
@@ -404,8 +406,16 @@ int netlib_ipt_insert(FAR struct ipt_replace **repl,
 int netlib_ipt_delete(FAR struct ipt_replace *repl,
                       FAR const struct ipt_entry *entry,
                       enum nf_inet_hooks hook, int rulenum);
+int netlib_ipt_fillifname(FAR struct ipt_entry *entry,
+                          FAR const char *inifname,
+                          FAR const char *outifname);
 #  ifdef CONFIG_NET_NAT
 FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname);
+#  endif
+#  ifdef CONFIG_NET_IPFILTER
+FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
+                                              int verdict,
+                                              uint8_t match_proto);
 #  endif
 #endif
 

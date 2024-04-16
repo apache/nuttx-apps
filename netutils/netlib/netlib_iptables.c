@@ -24,22 +24,26 @@
 
 #include <nuttx/config.h>
 
-#include <errno.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/socket.h>
-#include <unistd.h>
 
-#include <nuttx/net/netconfig.h>
 #include <nuttx/net/netfilter/ip_tables.h>
-#include <nuttx/net/netfilter/netfilter.h>
 #include <nuttx/net/netfilter/nf_nat.h>
 
 #include "netutils/netlib.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define IPT_FILL_MATCH(e, match_name) \
+  do \
+    { \
+      strlcpy((e)->match.u.user.name, (match_name), \
+              sizeof((e)->match.u.user.name)); \
+      (e)->match.u.match_size = offsetof(typeof(*(e)), target) - \
+                                offsetof(typeof(*(e)), match); \
+    } \
+  while(0)
 
 /****************************************************************************
  * Private Types
@@ -57,6 +61,39 @@ struct ipt_masquerade_entry_s
       struct xt_entry_target target;
       struct nf_nat_ipv4_multi_range_compat cfg;
     } target;
+};
+
+struct ipt_filter_entry_s
+{
+  struct ipt_entry entry;
+
+  /* Compatible with ACCEPT/DROP/REJECT target. */
+
+  struct xt_standard_target target;
+};
+
+struct ipt_filter_tcp_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match match;
+  struct xt_tcp tcp;
+  struct xt_standard_target target;
+};
+
+struct ipt_filter_udp_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match match;
+  struct xt_udp udp;
+  struct xt_standard_target target;
+};
+
+struct ipt_filter_icmp_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match match;
+  struct ipt_icmp icmp;
+  struct xt_standard_target target;
 };
 
 /****************************************************************************
@@ -355,7 +392,8 @@ int netlib_ipt_flush(FAR const char *table, enum nf_inet_hooks hook)
   if (hook != NF_INET_NUMHOOKS && (repl->valid_hooks & (1 << hook)) == 0)
     {
       fprintf(stderr, "Invalid hook number %d for table %s!\n", hook, table);
-      return -EINVAL;
+      ret = -EINVAL;
+      goto errout;
     }
 
   for (cur_hook = 0; cur_hook < NF_INET_NUMHOOKS; cur_hook++)
@@ -375,6 +413,62 @@ int netlib_ipt_flush(FAR const char *table, enum nf_inet_hooks hook)
             }
         }
     }
+
+  ret = netlib_ipt_commit(repl);
+
+errout:
+  free(repl);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: netlib_ipt_policy
+ *
+ * Description:
+ *   Set policy for the table.  It's a common operation, but may only take
+ *   effect on filter-related tables.
+ *
+ * Input Parameters:
+ *   table   - The table name to set policy.
+ *   hook    - The hook to set policy.
+ *   verdict - The verdict to set.
+ *
+ ****************************************************************************/
+
+int netlib_ipt_policy(FAR const char *table, enum nf_inet_hooks hook,
+                      int verdict)
+{
+  FAR struct ipt_replace *repl = netlib_ipt_prepare(table);
+  FAR struct ipt_entry *entry;
+  FAR struct xt_standard_target *target;
+  int ret;
+
+  if (repl == NULL)
+    {
+      fprintf(stderr, "Failed to read table %s from kernel!\n", table);
+      return -EIO;
+    }
+
+  if ((repl->valid_hooks & (1 << hook)) == 0)
+    {
+      fprintf(stderr, "Invalid hook number %d for table %s!\n", hook, table);
+      ret = -EINVAL;
+      goto errout;
+    }
+
+  /* The underflow entry is the default policy of the chain. */
+
+  entry  = (FAR struct ipt_entry *)((uintptr_t)repl->entries +
+                                               repl->underflow[hook]);
+  target = (FAR struct xt_standard_target *)IPT_TARGET(entry);
+  if (strcmp(target->target.u.user.name, XT_STANDARD_TARGET) != 0)
+    {
+      fprintf(stderr, "Wrong target %s!\n", target->target.u.user.name);
+      ret = -EINVAL;
+      goto errout;
+    }
+
+  target->verdict = verdict;
 
   ret = netlib_ipt_commit(repl);
 
@@ -528,6 +622,59 @@ int netlib_ipt_delete(FAR struct ipt_replace *repl,
 }
 
 /****************************************************************************
+ * Name: netlib_ipt_fillifname
+ *
+ * Description:
+ *   Fill inifname and outifname into entry.
+ *
+ * Input Parameters:
+ *   entry     - The entry to fill.
+ *   inifname  - The input device name, NULL for no change.
+ *   outifname - The output device name, NULL for no change.
+ *
+ ****************************************************************************/
+
+int netlib_ipt_fillifname(FAR struct ipt_entry *entry,
+                          FAR const char *inifname,
+                          FAR const char *outifname)
+{
+  size_t len;
+
+  if (entry == NULL)
+    {
+      return -EINVAL;
+    }
+
+  if (inifname != NULL)
+    {
+      len = strlen(inifname);
+      if (len + 1 > IFNAMSIZ)
+        {
+          fprintf(stderr, "Too long inifname %s!\n", inifname);
+          return -EINVAL;
+        }
+
+      strlcpy(entry->ip.iniface, inifname, sizeof(entry->ip.iniface));
+      memset(entry->ip.iniface_mask, 0xff, len + 1);
+    }
+
+  if (outifname != NULL)
+    {
+      len = strlen(outifname);
+      if (len + 1 > IFNAMSIZ)
+        {
+          fprintf(stderr, "Too long outifname %s!\n", outifname);
+          return -EINVAL;
+        }
+
+      strlcpy(entry->ip.outiface, outifname, sizeof(entry->ip.outiface));
+      memset(entry->ip.outiface_mask, 0xff, len + 1);
+    }
+
+  return OK;
+}
+
+/****************************************************************************
  * Name: netlib_ipt_masquerade_entry
  *
  * Description:
@@ -545,14 +692,7 @@ int netlib_ipt_delete(FAR struct ipt_replace *repl,
 #ifdef CONFIG_NET_NAT
 FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname)
 {
-  size_t len;
   FAR struct ipt_masquerade_entry_s *entry;
-
-  len = strlen(ifname);
-  if (len + 1 > IFNAMSIZ)
-    {
-      return NULL;
-    }
 
   entry = zalloc(sizeof(*entry));
   if (entry == NULL)
@@ -562,10 +702,103 @@ FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname)
 
   IPT_FILL_ENTRY(entry, XT_MASQUERADE_TARGET);
 
-  strlcpy(entry->entry.ip.outiface, ifname,
-          sizeof(entry->entry.ip.outiface));
-  memset(entry->entry.ip.outiface_mask, 0xff, len + 1);
+  if (netlib_ipt_fillifname(&entry->entry, NULL, ifname) < 0)
+    {
+      free(entry);
+      return NULL;
+    }
 
   return &entry->entry;
+}
+#endif
+
+/****************************************************************************
+ * Name: netlib_ipt_filter_entry
+ *
+ * Description:
+ *   Alloc an entry with filter target.
+ *
+ * Input Parameters:
+ *   target      - The target name to apply.
+ *   verdict     - The verdict to set, compatible with reject target's code
+ *   match_proto - The protocol match type in the entry, 0 for no match.
+ *
+ * Returned Value:
+ *   The pointer to the entry, or NULL if failed.
+ *   Caller must free it after use.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPFILTER
+FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
+                                              int verdict,
+                                              uint8_t match_proto)
+{
+  if (target == NULL)
+    {
+      fprintf(stderr, "Empty target!\n");
+      return NULL;
+    }
+
+  switch (match_proto)
+    {
+      case 0:
+        {
+          FAR struct ipt_filter_entry_s *entry = zalloc(sizeof(*entry));
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_ENTRY(entry, target);
+          entry->target.verdict = verdict;
+          return &entry->entry;
+        }
+
+      case IPPROTO_TCP:
+        {
+          FAR struct ipt_filter_tcp_entry_s *entry = zalloc(sizeof(*entry));
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_ENTRY(entry, target);
+          IPT_FILL_MATCH(entry, XT_MATCH_NAME_TCP);
+          entry->target.verdict = verdict;
+          return &entry->entry;
+        }
+
+      case IPPROTO_UDP:
+        {
+          FAR struct ipt_filter_udp_entry_s *entry = zalloc(sizeof(*entry));
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_ENTRY(entry, target);
+          IPT_FILL_MATCH(entry, XT_MATCH_NAME_UDP);
+          entry->target.verdict = verdict;
+          return &entry->entry;
+        }
+
+      case IPPROTO_ICMP:
+        {
+          FAR struct ipt_filter_icmp_entry_s *entry = zalloc(sizeof(*entry));
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_ENTRY(entry, target);
+          IPT_FILL_MATCH(entry, XT_MATCH_NAME_ICMP);
+          entry->target.verdict = verdict;
+          return &entry->entry;
+        }
+
+      default:
+        return NULL;
+    }
 }
 #endif
