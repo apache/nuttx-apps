@@ -4,7 +4,7 @@
 #
 
 menuconfig BENCHMARK_COREMARK_PRO
-	bool "Coremark Pro Benchmark"
+	tristate "Coremark Pro Benchmark"
 	default n
 	depends on LIBC_FLOATINGPOINT
 

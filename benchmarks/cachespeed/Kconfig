@@ -4,7 +4,7 @@
 #
 
 config BENCHMARK_CACHESPEED
-	bool "CACHE Speed Test"
+	tristate "CACHE Speed Test"
 	depends on ARCH_ICACHE && ARCH_DCACHE
 	default n
 	---help---
