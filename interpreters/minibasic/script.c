@@ -1,6 +1,5 @@
-
 /****************************************************************************
- * apps/interpreters/minibasic/sript.c
+ * apps/interpreters/minibasic/script.c
  * Driver file for MiniBasic.
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.

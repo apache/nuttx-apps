@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/examples/can/can.h
+ * apps/examples/can/can.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,7 +30,9 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
+
 /* This test depends on these specific CAN configurations settings (your
  * specific CAN settings might require additional settings).
  *
@@ -41,7 +43,8 @@
  * Specific configuration options for this example include:
  *
  * CONFIG_CAN_LOOPBACK
- * CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device. Default: /dev/can0
+ * CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device.
+ *   Default: /dev/can0
  * CONFIG_EXAMPLES_CAN_NMSGS - This number of CAN message is collected and
  *   the program terminates. Default: 32.
  * CONFIG_EXAMPLES_CAN_READ - Only receive messages

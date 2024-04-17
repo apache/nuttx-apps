@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/nxterm/nxlines_listener.c
+ * apps/examples/nxlines/nxlines_listener.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -46,7 +46,7 @@ FAR void *nxlines_listener(FAR void *arg)
 
   /* Process events forever */
 
-  for (;;)
+  for (; ; )
     {
       /* Handle the next event.  If we were configured blocking, then
        * we will stay right here until the next event is received.  Since
