@@ -6,26 +6,27 @@
 config SYSTEM_IPTABLES
 	tristate "'iptables' command"
 	default n
-	depends on NET_IPTABLES
+	depends on NET_IPTABLES && NET_IPv4
 	select NETUTILS_NETLIB
 	---help---
 		Enable support for the 'iptables' command.
 
-if SYSTEM_IPTABLES
-
-config SYSTEM_IPTABLES_PROGNAME
-	string "iptables program name"
-	default "iptables"
+config SYSTEM_IP6TABLES
+	tristate "'ip6tables' command"
+	default n
+	depends on NET_IPTABLES && NET_IPv6
+	select NETUTILS_NETLIB
 	---help---
-		This is the name of the program that will be used when the NSH ELF
-		program is installed.
+		Enable support for the 'ip6tables' command.
+
+if SYSTEM_IPTABLES || SYSTEM_IP6TABLES
 
 config SYSTEM_IPTABLES_PRIORITY
-	int "iptables task priority"
+	int "iptables & ip6tables task priority"
 	default 100
 
 config SYSTEM_IPTABLES_STACKSIZE
-	int "iptables stack size"
+	int "iptables & ip6tables stack size"
 	default DEFAULT_TASK_STACKSIZE
 
 endif
