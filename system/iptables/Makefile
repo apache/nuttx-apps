@@ -20,12 +20,20 @@
 
 include $(APPDIR)/Make.defs
 
-PROGNAME = $(CONFIG_SYSTEM_IPTABLES_PROGNAME)
 PRIORITY = $(CONFIG_SYSTEM_IPTABLES_PRIORITY)
 STACKSIZE = $(CONFIG_SYSTEM_IPTABLES_STACKSIZE)
-MODULE = $(CONFIG_SYSTEM_IPTABLES)
+MODULE = $(CONFIG_SYSTEM_IPTABLES)$(CONFIG_SYSTEM_IP6TABLES)
 
-CSRCS  += iptables_utils.c
-MAINSRC = iptables.c
+CSRCS += iptables_utils.c
+
+ifeq ($(CONFIG_SYSTEM_IPTABLES),y)
+MAINSRC += iptables.c
+PROGNAME += iptables
+endif
+
+ifeq ($(CONFIG_SYSTEM_IP6TABLES),y)
+MAINSRC += ip6tables.c
+PROGNAME += ip6tables
+endif
 
 include $(APPDIR)/Application.mk

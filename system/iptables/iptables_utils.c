@@ -33,6 +33,7 @@
 #include <strings.h>
 
 #include <nuttx/net/netfilter/ip_tables.h>
+#include <nuttx/net/netfilter/ip6_tables.h>
 
 #include "iptables.h"
 #include "netutils/netlib.h"
@@ -151,6 +152,11 @@ static uint8_t iptables_parse_proto(FAR const char *proto)
   else if (strcmp(proto, "icmp") == 0)
     {
       return IPPROTO_ICMP;
+    }
+  else if (strcmp(proto, "icmp6") == 0 || strcmp(proto, "icmpv6") == 0 ||
+           strcmp(proto, "ipv6-icmp") == 0)
+    {
+      return IPPROTO_ICMP6;
     }
   else if (strcmp(proto, "tcp") == 0)
     {
@@ -469,7 +475,8 @@ int iptables_parse(FAR struct iptables_args_s *args,
 
       /* ICMP type */
 
-      if (strcmp(argv[i], "--icmp-type") == 0)
+      if (strcmp(argv[i], "--icmp-type") == 0 ||
+          strcmp(argv[i], "--icmpv6-type") == 0)
         {
           if (++i >= argc)
             {
@@ -687,6 +694,7 @@ void iptables_showusage(FAR const char *progname)
   printf(fmt, "[!]", "--destination-port,--dport", "", "", "");
   printf(fmt, "   ", "", "", "port[:port]", "Destination port");
   printf(fmt, "[!]", "--icmp-type", "", "type", "ICMP type");
+  printf(fmt, "[!]", "--icmpv6-type", "", "type", "ICMPv6 type");
 }
 
 /****************************************************************************
@@ -757,6 +765,9 @@ FAR const char *iptables_proto2str(uint8_t proto)
       case IPPROTO_ICMP:
         return "icmp";
 
+      case IPPROTO_ICMPV6:
+        return "ipv6-icmp";
+
       case IPPROTO_TCP:
         return "tcp";
 
@@ -818,6 +829,15 @@ FAR const char *iptables_match2str(FAR const struct xt_entry_match *match)
                "icmp %stype %u",
                INV_FLAG_STR(icmp->invflags & IPT_ICMP_INV),
                icmp->type);
+    }
+  else if (strcmp(match->u.user.name, XT_MATCH_NAME_ICMP6) == 0)
+    {
+      FAR struct ip6t_icmp *icmp6 = (FAR struct ip6t_icmp *)(match + 1);
+
+      snprintf(s_buf, MATCH_BUFSIZE,
+               "ipv6-icmp %stype %u",
+               INV_FLAG_STR(icmp6->invflags & IP6T_ICMP_INV),
+               icmp6->type);
     }
   else
     {
