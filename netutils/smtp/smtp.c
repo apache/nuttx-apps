@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutitls/smtp/smtp.c
+ * apps/netutils/smtp/smtp.c
  * smtp SMTP E-mail sender
  *
  *   Copyright (C) 2007, 2009, 2011, 2015, 2020 Gregory Nutt. All rights
@@ -258,7 +258,8 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  if (send(sockfd, g_smtpcrnlperiodcrnl, strlen(g_smtpcrnlperiodcrnl), 0) < 0)
+  if (send(sockfd, g_smtpcrnlperiodcrnl,
+      strlen(g_smtpcrnlperiodcrnl), 0) < 0)
     {
       return ERROR;
     }
@@ -350,7 +351,8 @@ int smtp_send(void *handle, const char *to, const char *cc, const char *from,
   net_ipv4addr_copy(server.sin_addr.s_addr, psmtp->smtpserver);
   server.sin_port = psmtp->port;
 
-  if (connect(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in)) < 0)
+  if (connect(sockfd, (struct sockaddr *)&server,
+      sizeof(struct sockaddr_in)) < 0)
     {
       close(sockfd);
       return ERROR;
@@ -368,7 +370,8 @@ void *smtp_open(void)
 {
   /* Allocate the handle */
 
-  struct smtp_state *psmtp = (struct smtp_state *)malloc(sizeof(struct smtp_state));
+  struct smtp_state *psmtp =
+    (struct smtp_state *)malloc(sizeof(struct smtp_state));
   if (psmtp)
     {
       /* Initialize the handle */

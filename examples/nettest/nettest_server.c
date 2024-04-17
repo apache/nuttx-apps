@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/nettest/nettest-server.c
+ * apps/examples/nettest/nettest_server.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
