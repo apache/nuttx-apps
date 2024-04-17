@@ -100,7 +100,7 @@ static void parsearg(int argc, FAR char *argv[],
 {
   int opt;
 
-  while ((opt = getopt(argc, argv, "h:p:m:t:n:")) != ERROR)
+  while ((opt = getopt(argc, argv, "h:p:m:t:n:q:")) != ERROR)
     {
       switch (opt)
         {
@@ -122,6 +122,21 @@ static void parsearg(int argc, FAR char *argv[],
 
           case 'n':
             *n = strtol(optarg, NULL, 10);
+            break;
+
+          case 'q':
+            switch (strtol(optarg, NULL, 10))
+            {
+              case '0':
+                cfg->qos = MQTT_PUBLISH_QOS_0;
+                break;
+              case '1':
+                cfg->qos = MQTT_PUBLISH_QOS_1;
+                break;
+              case '2':
+                cfg->qos = MQTT_PUBLISH_QOS_2;
+                break;
+            }
             break;
 
           default:
