@@ -18,6 +18,8 @@
 #
 ############################################################################
 
+# Copyright 2023, 2024 NXP
+
 include $(APPDIR)/Make.defs
 
 # controlse built-in application info
@@ -28,7 +30,8 @@ STACKSIZE = $(CONFIG_CRYPTO_CONTROLSE_STACKSIZE)
 
 # controlse main source
 
-MAINSRC = controlse_main.c
-CSRCS = x509_utils.c mbedtls_extension.c
+MAINSRC = controlse_main.cxx
+CXXSRCS = chex_util.cxx	csecure_element.cxx cstring.cxx ccertificate.cxx\
+	ccsr.cxx cpublic_key.cxx cserial_number.cxx csan_builder.cxx
 
 include $(APPDIR)/Application.mk

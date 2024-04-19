@@ -18,8 +18,9 @@ config CRYPTO_CONTROLSE
 	select MBEDTLS_X509_CSR_WRITE_C
 	select MBEDTLS_X509_CRT_WRITE_C
 	---help---
-		Enable the controlse utility. This program is used control the
-		secure element device
+		Enable the controlse library and utility. It provides an
+		access library to the secure element device. The utility can
+		control the secure element device from the nuttx shell
 
 if CRYPTO_CONTROLSE
 
