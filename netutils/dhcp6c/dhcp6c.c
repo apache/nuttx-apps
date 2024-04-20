@@ -49,6 +49,7 @@
 #include <net/if.h>
 #include <net/ethernet.h>
 #include <arpa/inet.h>
+#include <inttypes.h>
 
 #include "netutils/netlib.h"
 #include "netutils/dhcp6c.h"
@@ -432,7 +433,7 @@ static void dhcp6c_get_result(FAR void *handle,
 
   presult->t1 = pdhcp6c->t1;
   presult->t2 = pdhcp6c->t2;
-  ninfo("T1:%d T2:%d for iface %i\n", presult->t1, presult->t2,
+  ninfo("T1:%"PRIu32" T2:%"PRIu32" for iface %i\n", presult->t1, presult->t2,
         pdhcp6c->ifindex);
 }
 
@@ -793,7 +794,7 @@ static int dhcp6c_command(FAR void *handle, enum dhcpv6_msg_e type)
       goto end;
     }
 
-  ninfo("Sending %s (timeout %u s)\n", retx->name, timeout);
+  ninfo("Sending %s (timeout %"PRIu32" s)\n", retx->name, timeout);
   start = dhcp6c_get_milli_time();
   round_start = start;
 
