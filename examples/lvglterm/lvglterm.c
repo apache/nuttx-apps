@@ -38,7 +38,6 @@
 #include <poll.h>
 #include <spawn.h>
 #include <lvgl/lvgl.h>
-#include <port/lv_port.h>
 
 /* NSH Task requires posix_spawn() */
 
@@ -384,11 +383,11 @@ static void input_callback(lv_event_t *e)
     {
       /* Get the Button Index of the Keyboard Button Pressed */
 
-      const uint16_t id = lv_keyboard_get_selected_btn(g_kb);
+      const uint16_t id = lv_keyboard_get_selected_button(g_kb);
 
       /* Get the Text of the Keyboard Button */
 
-      const char *key = lv_keyboard_get_btn_text(g_kb, id);
+      const char *key = lv_keyboard_get_button_text(g_kb, id);
       if (key == NULL)
         {
           return;
@@ -541,7 +540,13 @@ static void remove_escape_codes(char *buf, int len)
 
 int main(int argc, FAR char *argv[])
 {
+  lv_nuttx_dsc_t info;
+  lv_nuttx_result_t result;
   int ret;
+
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+  uv_loop_t ui_loop;
+#endif
 
 #ifdef NEED_BOARDINIT
   /* Perform board-specific driver initialization */
@@ -559,9 +564,19 @@ int main(int argc, FAR char *argv[])
 
   lv_init();
 
-  /* LVGL port initialization */
+  lv_nuttx_dsc_init(&info);
 
-  lv_port_init();
+#ifdef CONFIG_LV_USE_NUTTX_LCD
+  info.fb_path = "/dev/lcd0";
+#endif
+
+  lv_nuttx_init(&info, &result);
+
+  if (result.disp == NULL)
+    {
+      LV_LOG_ERROR("lv_demos initialization failure!");
+      return 1;
+    }
 
   /* Create the LVGL Widgets */
 
@@ -573,6 +588,9 @@ int main(int argc, FAR char *argv[])
 
   /* Handle LVGL tasks */
 
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+  lv_nuttx_uv_loop(&ui_loop, &result);
+#else
   while (1)
     {
       uint32_t idle;
@@ -584,5 +602,6 @@ int main(int argc, FAR char *argv[])
       usleep(idle * 1000);
     }
 
+#endif
   return EXIT_SUCCESS;
 }
