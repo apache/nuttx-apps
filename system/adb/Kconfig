@@ -132,6 +132,20 @@ config ADBD_USB_HOTPLUG_BYNOTIFY
 
 endchoice # Check usb hotplug
 
+config ADBD_QEMU_SERVER
+	bool "QEMU pipe transport support"
+	depends on GOLDFISH_PIPE
+	default n
+	---help---
+		Run adb daemon on qemu pipe
+
+config ADBD_QEMU_SERVER_PORT
+	int "QEMU pipe transport port"
+	depends on ADBD_QEMU_SERVER
+	default 5555
+	---help---
+		Port used by adb daemon qemu pipe server
+
 config ADBD_LOGCAT_SERVICE
 	bool "ADB logcat support"
 	select LIBC_PRINT_EXTENSION
