@@ -20,10 +20,11 @@
 
 include $(APPDIR)/Make.defs
 
-MCUBOOT_VERSION := $(patsubst "%",%,$(CONFIG_MCUBOOT_VERSION))
-MCUBOOT_TARBALL  = $(MCUBOOT_VERSION).tar.gz
-MCUBOOT_UNPACK   = mcuboot
-MCUBOOT_SRCDIR   = $(MCUBOOT_UNPACK)$(DELIM)boot$(DELIM)bootutil$(DELIM)src
+MCUBOOT_VERSION    := $(patsubst "%",%,$(CONFIG_MCUBOOT_VERSION))
+MCUBOOT_REPOSITORY := $(patsubst "%",%,$(CONFIG_MCUBOOT_REPOSITORY))
+MCUBOOT_TARBALL     = $(MCUBOOT_VERSION).tar.gz
+MCUBOOT_UNPACK      = mcuboot
+MCUBOOT_SRCDIR      = $(MCUBOOT_UNPACK)$(DELIM)boot$(DELIM)bootutil$(DELIM)src
 
 DEPPATH += --dep-path $(MCUBOOT_UNPACK)$(DELIM)src
 DEPPATH += --dep-path $(MCUBOOT_SRCDIR)
@@ -75,8 +76,8 @@ CXXFLAGS += ${INCDIR_PREFIX}mcuboot/ext/tinycrypt/lib/include
 endif
 
 $(MCUBOOT_TARBALL):
-	$(Q) echo "Downloading MCUboot-$(MCUBOOT_VERSION)"
-	$(Q) curl -O -L https://github.com/mcu-tools/mcuboot/archive/$(MCUBOOT_TARBALL)
+	$(Q) echo "Downloading MCUboot-$(MCUBOOT_VERSION) from $(MCUBOOT_REPOSITORY)"
+	$(Q) curl -O -L --proto-default https $(MCUBOOT_REPOSITORY)/archive/$(MCUBOOT_TARBALL)
 
 $(MCUBOOT_UNPACK): $(MCUBOOT_TARBALL)
 	$(Q) echo "Unpacking: $(MCUBOOT_TARBALL) -> $(MCUBOOT_UNPACK)"
