@@ -61,6 +61,10 @@ ifeq ($(CONFIG_ADBD_USB_SERVER),y)
 CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_client_usb.c
 endif
 
+ifeq ($(CONFIG_ADBD_QEMU_SERVER),y)
+CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_client_qemu.c
+endif
+
 ifeq ($(CONFIG_ADBD_AUTHENTICATION),y)
 CSRCS += $(ADB_UNPACKNAME)/adb_auth_key.c
 endif
