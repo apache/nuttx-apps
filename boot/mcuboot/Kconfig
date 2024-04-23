@@ -12,9 +12,21 @@ menuconfig BOOT_MCUBOOT
 
 if BOOT_MCUBOOT
 
+config MCUBOOT_REPOSITORY
+	string "MCUboot GIT repository"
+	default "github.com/mcu-tools/mcuboot"
+	---help---
+		Specifies the location of MCUboot GIT repository . This
+		is by default MCUboot main GIT repository, but it can be changed
+		to user's fork if required.
+
 config MCUBOOT_VERSION
 	string "MCUboot version"
 	default "fefc398cc13ebbc527e297fe9df78cd98a359d75"
+	---help---
+		Defines MCUboot version to be downloaded. Either release tag
+		or commit hash should be specified. Using newer MCUboot version
+		may cause compatability issues.
 
 config MCUBOOT_ENABLE_LOGGING
 	bool "Enable MCUboot logging"
