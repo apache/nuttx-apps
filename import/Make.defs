@@ -95,5 +95,5 @@ endif
 ifeq ($(CONFIG_BINFMT_ELF_RELOCATABLE),y)
   LDELFFLAGS += -r
 endif
-LDELFFLAGS += -e _start -Bstatic
+LDELFFLAGS += -e __start -Bstatic
 LDELFFLAGS += $(addprefix -T,$(call CONVERT_PATH,$(TOPDIR)/scripts/gnu-elf.ld))
