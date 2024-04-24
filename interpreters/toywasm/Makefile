@@ -79,10 +79,12 @@ CSRCS += wasi_abi_environ.c
 CSRCS += wasi_abi_fd.c
 CSRCS += wasi_abi_path.c
 CSRCS += wasi_abi_poll.c
+CSRCS += wasi_abi_prestat.c
 CSRCS += wasi_abi_proc.c
 CSRCS += wasi_abi_random.c
 CSRCS += wasi_abi_sched.c
 CSRCS += wasi_abi_sock.c
+CSRCS += wasi_fdinfo.c
 CSRCS += wasi_fdtable.c
 CSRCS += wasi_host_dirent.c
 CSRCS += wasi_host_fdop.c
@@ -91,9 +93,28 @@ CSRCS += wasi_host_subr.c
 CSRCS += wasi_path_subr.c
 CSRCS += wasi_poll_subr.c
 CSRCS += wasi_subr.c
+CSRCS += wasi_table.c
+CSRCS += wasi_uio.c
+CSRCS += wasi_vfs.c
+CSRCS += wasi_vfs_impl_host.c
 
 # TOYWASM_ENABLE_WASI_THREADS
 CSRCS += wasi_threads.c
+
+# libwasi_littlefs TOYWASM_ENABLE_WASI_LITTLEFS
+#CSRCS += wasi_littlefs.c
+#CSRCS += wasi_littlefs_impl.c
+#CSRCS += wasi_littlefs_mount.c
+#CSRCS += wasi_littlefs_ops.c
+#CSRCS += wasi_vfs_impl_littlefs.c
+#CSRCS += lfs.c
+#CSRCS += lfs_util.c
+#toywasm/libwasi_littlefs/littlefs/lfs.c_CFLAGS += -Wno-shadow
+#CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi_littlefs
+#CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi_littlefs/littlefs
+#CFLAGS += -DLFS_THREADSAFE
+#VPATH += $(TOYWASM_UNPACK)/libwasi_littlefs
+#VPATH += $(TOYWASM_UNPACK)/libwasi_littlefs/littlefs
 
 # TOYWASM_ENABLE_DYLD
 CSRCS += dyld.c
@@ -102,12 +123,15 @@ CSRCS += dyld_plt.c
 # TOYWASM_ENABLE_DYLD_DLFCN
 CSRCS += dyld_dlfcn.c
 
+ifeq ($(shell $(CC) --version | grep -i clang),)
+CFLAGS += -Wno-maybe-uninitialized
+endif
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/include
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/lib
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
-TOYWASM_VERSION  = 4ccb44f9f6477412c289f7ffad6a0f660e99d5a5
+TOYWASM_VERSION  = aaf74d68b6c57060da62ef9fc056f9f3a776e845
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
