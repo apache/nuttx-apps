@@ -20,27 +20,30 @@
 
 include $(APPDIR)/Make.defs
 
-TFLITE_MICRO_VER = cfa4c91d1b36c37c7c104b9c664615e59f1abfe3
-TFLITE_MICRO_UNPACK = tflite-micro
+CSRCS        :=
+CXXEXT       := .cc
+CXXSRCS      :=
+COMMON_FLAGS :=
+TFLM_UNPACK  := tflite-micro
+TFLM_VER     := cfa4c91d1b36c37c7c104b9c664615e59f1abfe3
+TFLM_DIR     := $(APPDIR)/mlearning/tflite-micro/$(TFLM_UNPACK)
 
 tflite-micro.zip:
-	$(Q) curl -L https://github.com/tensorflow/tflite-micro/archive/$(TFLITE_MICRO_VER).zip -o tflite-micro.zip
+	$(Q) curl -L https://github.com/tensorflow/tflite-micro/archive/$(TFLM_VER).zip -o tflite-micro.zip
 	$(Q) unzip -o tflite-micro.zip
-	$(Q) mv tflite-micro-$(TFLITE_MICRO_VER) tflite-micro
-	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < tflite-micro.patch
-	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < 0001-dequantize-int8.patch
-	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < 0002-quantize-int8.patch
-	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < 0003-mean-int8.patch
+	$(Q) mv tflite-micro-$(TFLM_VER) $(TFLM_UNPACK)
+	$(Q) patch -d $(TFLM_UNPACK) -p1 < tflite-micro.patch
+	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0001-dequantize-int8.patch
+	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0002-quantize-int8.patch
+	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0003-mean-int8.patch
 
 # Download and unpack tarball if no git repo found
-ifeq ($(wildcard tflite-micro/.git),)
+ifeq ($(wildcard $(TFLM_UNPACK)/.git),)
 context:: tflite-micro.zip
 distclean::
-	$(call DELDIR, tflite-micro)
+	$(call DELDIR, $(TFLM_UNPACK))
 	$(call DELFILE, tflite-micro.zip)
 endif
-
-CXXEXT  := .cc
 
 COMMON_FLAGS += -DTF_LITE_STATIC_MEMORY
 COMMON_FLAGS += -DTF_LITE_DISABLE_X86_NEON
@@ -50,49 +53,46 @@ COMMON_FLAGS += -Wno-unused-variable
 COMMON_FLAGS += -Wno-undef
 COMMON_FLAGS += -Wno-shadow
 COMMON_FLAGS += -O3
+COMMON_FLAGS += ${INCDIR_PREFIX}$(TFLM_DIR)
+COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/gemmlowp/gemmlowp
+COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/kissfft/kissfft
+COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/ruy/ruy
 
-SRC_FILES := $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/kernels/*.cc)
+# tflite micro
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/c/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/core/c/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/core/api/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/internal/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/internal/optimized/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/internal/reference/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/arena_allocator/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/kernels/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/memory_planner/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/tflite_bridge/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/schema/*.cc)
+CXXSRCS := $(filter-out %test.cc, $(CXXSRCS))
 
-ifeq ($(CONFIG_MLEARNING_CMSIS_NN),y)
+# cmsis
+ifneq ($(CONFIG_MLEARNING_CMSIS_NN),)
 COMMON_FLAGS += -DCMSIS_NN
 COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/mlearning/cmsis-nn/cmsis-nn
-NEW_SRC_FILES := $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/kernels/cmsis_nn/*.cc)
-SRC_FILES := $(filter-out $(notdir $(NEW_SRC_FILES)), $(notdir $(SRC_FILES)))
-SRC_FILES := $(addprefix $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/kernels/, $(SRC_FILES))
-SRC_FILES += $(NEW_SRC_FILES)
 
-ifeq ($(CONFIG_ARM_NEON),y)
+CMSIS_NN_SRCS := $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/kernels/cmsis_nn/*.cc)
+UNNEEDED_SRCS := $(addprefix $(TFLM_DIR)/tensorflow/lite/micro/kernels/, $(notdir $(CMSIS_NN_SRCS)))
+CXXSRCS := $(filter-out $(UNNEEDED_SRCS), $(CXXSRCS))
+CXXSRCS += $(CMSIS_NN_SRCS)
+
+ifneq ($(CONFIG_ARM_NEON),)
 CSRCS += operators/neon/arm_convolve_s8.c
 CSRCS += operators/neon/arm_nn_mat_mult_kernel_s8_s16.c
 CSRCS += operators/neon/arm_q7_to_q15_with_offset.c
 CSRCS += operators/neon/arm_elementwise_add_s8.c
 endif
-
 endif
-
-COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/gemmlowp/gemmlowp
-COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/ruy/ruy
-COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/kissfft/kissfft
-COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/mlearning/tflite-micro/tflite-micro
 
 CFLAGS   += ${COMMON_FLAGS}
 CXXFLAGS += ${COMMON_FLAGS}
-
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/c/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/schema/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/core/c/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/kernels/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/kernels/internal/optimized/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/kernels/internal/reference/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/kernels/internal/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/core/api/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/arena_allocator/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/memory_planner/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/*.cc)
-SRC_FILES += $(wildcard $(APPDIR)/mlearning/tflite-micro/tflite-micro/tensorflow/lite/micro/tflite_bridge/*.cc)
-
-SRC_FILES := $(filter-out %test.cc, $(SRC_FILES))
-
-CXXSRCS += $(SRC_FILES)
 
 include $(APPDIR)/Application.mk
