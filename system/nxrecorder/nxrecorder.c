@@ -110,7 +110,12 @@ static const struct nxrecorder_ext_fmt_s g_known_ext[] =
 #ifdef CONFIG_AUDIO_FORMAT_OGG_VORBIS
   { "ogg",      AUDIO_FMT_OGG_VORBIS, NULL },
 #endif
-  { "amr",      AUDIO_FMT_AMR, NULL }
+#ifdef CONFIG_AUDIO_FORMAT_AMR
+  { "amr",      AUDIO_FMT_AMR, NULL },
+#endif
+#ifdef CONFIG_AUDIO_FORMAT_OPUS
+  { "opus",     AUDIO_FMT_OPUS, NULL }
+#endif
 };
 
 static const int g_known_ext_count = sizeof(g_known_ext) /
@@ -131,6 +136,11 @@ static const struct nxrecorder_enc_ops_s g_enc_ops[] =
   },
   {
     AUDIO_FMT_MP3,
+    NULL,
+    nxrecorder_write_common,
+  },
+  {
+    AUDIO_FMT_OPUS,
     NULL,
     nxrecorder_write_common,
   }
@@ -191,12 +201,32 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder,
       if (ioctl(precorder->dev_fd, AUDIOIOC_GETCAPS,
                 (uintptr_t)&cap) == cap.ac_len)
         {
-          if (((cap.ac_format.hw & (1 << (format - 1))) != 0) &&
+          if (((cap.ac_format.hw & (1 << (format - 1))) ||
+               (cap.ac_format.hw & (1 << (AUDIO_FMT_OTHER - 1)))) &&
               (cap.ac_controls.b[0] & AUDIO_TYPE_INPUT))
             {
+              if (!(cap.ac_format.hw & (1 << (format - 1))))
+                {
+                  /* Get the format supported by the driver
+                   * through cap.ac_controls.w
+                   */
+
+                  cap.ac_len     = sizeof(cap);
+                  cap.ac_type    = AUDIO_TYPE_QUERY;
+                  cap.ac_subtype = AUDIO_FMT_OTHER;
+                  if (ioctl(precorder->dev_fd, AUDIOIOC_GETCAPS,
+                            (uintptr_t)&cap) == cap.ac_len)
+                    {
+                      if (!(cap.ac_controls.w & (1 << (format - 1))))
+                        {
+                          supported = false;
+                        }
+                    }
+                }
+
               /* Test if subformat needed and detected */
 
-              if (subfmt != AUDIO_FMT_UNDEF)
+              if (subfmt != AUDIO_FMT_UNDEF && supported)
                 {
                   /* Prepare to get sub-formats for
                    * this main format
