@@ -79,14 +79,20 @@
 
 #define FPU_NTHREADS  2
 
+/* Some architectures require XCPTCONTEXT to be aligned */
+
+#ifndef XCPTCONTEXT_ALIGN
+#  define XCPTCONTEXT_ALIGN 1
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
 struct fpu_threaddata_s
 {
-  uintptr_t save1[XCPTCONTEXT_REGS];
-  uintptr_t save2[XCPTCONTEXT_REGS];
+  uintptr_t save1[XCPTCONTEXT_REGS] aligned_data(XCPTCONTEXT_ALIGN);
+  uintptr_t save2[XCPTCONTEXT_REGS] aligned_data(XCPTCONTEXT_ALIGN);
 
   /* These are just dummy values to force the compiler to do the
    * requested floating point computations without the nonsense
