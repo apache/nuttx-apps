@@ -1,0 +1,101 @@
+From 0cd2a39a346d84da3002fa7ba4085cfc3c61c8ee Mon Sep 17 00:00:00 2001
+From: jihandong <jihandong@xiaomi.com>
+Date: Mon, 22 Apr 2024 18:14:44 +0800
+Subject: [PATCH 2/2] dequantize int8
+
+VELAPLATFO-30990
+
+Change-Id: I0e741a72464c7e497425175d2fcd63f14ed6897b
+Signed-off-by: jihandong <jihandong@xiaomi.com>
+---
+ tensorflow/lite/micro/kernels/dequantize.cc   | 21 +++++++++++++++++++
+ tensorflow/lite/micro/kernels/dequantize.h    |  5 ++++-
+ .../lite/micro/micro_mutable_op_resolver.h    |  6 ++++--
+ 3 files changed, 29 insertions(+), 3 deletions(-)
+
+diff --git a/tensorflow/lite/micro/kernels/dequantize.cc b/tensorflow/lite/micro/kernels/dequantize.cc
+index 428c866a..48f50de4 100644
+--- a/tensorflow/lite/micro/kernels/dequantize.cc
++++ b/tensorflow/lite/micro/kernels/dequantize.cc
+@@ -76,9 +76,30 @@ TfLiteStatus DequantizeEval(TfLiteContext* context, TfLiteNode* node) {
+   return kTfLiteOk;
+ }
+ 
++TfLiteStatus DequantizeEvalInt8(TfLiteContext* context, TfLiteNode* node) {
++  TFLITE_DCHECK(node->user_data != nullptr);
++  DequantizeOpData* data = static_cast<DequantizeOpData*>(node->user_data);
++
++  const TfLiteEvalTensor* input = tflite::micro::GetEvalInput(context, node, 0);
++  TfLiteEvalTensor* output = tflite::micro::GetEvalOutput(context, node, 0);
++
++  TFLITE_DCHECK(input->type == kTfLiteInt8 && output->type == kTfLiteFloat32);
++  reference_ops::Dequantize(data->quantization_params,
++                            tflite::micro::GetTensorShape(input),
++                            tflite::micro::GetTensorData<int8_t>(input),
++                            tflite::micro::GetTensorShape(output),
++                            tflite::micro::GetTensorData<float>(output));
++  return kTfLiteOk;
++}
++
+ TFLMRegistration Register_DEQUANTIZE() {
+   return tflite::micro::RegisterOp(DequantizeInit, DequantizePrepare,
+                                    DequantizeEval);
+ }
+ 
++TFLMRegistration Register_DEQUANTIZE_INT8() {
++  return tflite::micro::RegisterOp(DequantizeInit, DequantizePrepare,
++                                   DequantizeEvalInt8);
++}
++
+ }  // namespace tflite
+diff --git a/tensorflow/lite/micro/kernels/dequantize.h b/tensorflow/lite/micro/kernels/dequantize.h
+index fe6ec169..3dede725 100644
+--- a/tensorflow/lite/micro/kernels/dequantize.h
++++ b/tensorflow/lite/micro/kernels/dequantize.h
+@@ -17,8 +17,8 @@ limitations under the License.
+ #define TENSORFLOW_LITE_MICRO_KERNELS_DEQUANTIZE_H_
+ 
+ #include "tensorflow/lite/c/builtin_op_data.h"
+-#include "tensorflow/lite/c/common.h"
+ #include "tensorflow/lite/kernels/internal/types.h"
++#include "tensorflow/lite/micro/micro_common.h"
+ 
+ namespace tflite {
+ 
+@@ -33,6 +33,9 @@ struct DequantizeOpData {
+ 
+ TfLiteStatus DequantizePrepare(TfLiteContext* context, TfLiteNode* node);
+ 
++TFLMRegistration Register_DEQUANTIZE();
++TFLMRegistration Register_DEQUANTIZE_INT8();
++
+ }  // namespace tflite
+ 
+ #endif  // TENSORFLOW_LITE_MICRO_KERNELS_DEQUANTIZE_H_
+diff --git a/tensorflow/lite/micro/micro_mutable_op_resolver.h b/tensorflow/lite/micro/micro_mutable_op_resolver.h
+index f5f6e38e..b3e3cbcf 100644
+--- a/tensorflow/lite/micro/micro_mutable_op_resolver.h
++++ b/tensorflow/lite/micro/micro_mutable_op_resolver.h
+@@ -26,6 +26,7 @@ limitations under the License.
+ #include "tensorflow/lite/micro/kernels/add.h"
+ #include "tensorflow/lite/micro/kernels/conv.h"
+ #include "tensorflow/lite/micro/kernels/depthwise_conv.h"
++#include "tensorflow/lite/micro/kernels/dequantize.h"
+ #include "tensorflow/lite/micro/kernels/ethosu.h"
+ #include "tensorflow/lite/micro/kernels/fully_connected.h"
+ #include "tensorflow/lite/micro/kernels/micro_ops.h"
+@@ -217,8 +218,9 @@ class MicroMutableOpResolver : public MicroOpResolver {
+                       ParseDepthwiseConv2D);
+   }
+ 
+-  TfLiteStatus AddDequantize() {
+-    return AddBuiltin(BuiltinOperator_DEQUANTIZE, tflite::Register_DEQUANTIZE(),
++  TfLiteStatus AddDequantize(
++      const TFLMRegistration& registration = Register_DEQUANTIZE()) {
++    return AddBuiltin(BuiltinOperator_DEQUANTIZE, registration,
+                       ParseDequantize);
+   }
+ 
+-- 
+2.25.1
+
