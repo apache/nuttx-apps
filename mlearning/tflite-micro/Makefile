@@ -30,6 +30,7 @@ tflite-micro.zip:
 	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < tflite-micro.patch
 	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < 0001-dequantize-int8.patch
 	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < 0002-quantize-int8.patch
+	$(Q) patch -d $(TFLITE_MICRO_UNPACK) -p1 < 0003-mean-int8.patch
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard tflite-micro/.git),)
