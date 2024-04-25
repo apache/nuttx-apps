@@ -1,0 +1,112 @@
+From 9507345939722d4bc2f2791394217680fc5c987b Mon Sep 17 00:00:00 2001
+From: xinhaiteng <xinhaiteng@xiaomi.com>
+Date: Wed, 24 Apr 2024 09:26:54 +0800
+Subject: [PATCH] tflite: add mean-int8 operator
+
+VELAPLATFO-30990
+
+Separate the Int8 implementation of the 'mean' operator to reduce the code size.
+
+Change-Id: I5eb9e3cc939668b6531ef9e56f7c32090f1de141
+Signed-off-by: xinhaiteng <xinhaiteng@xiaomi.com>
+---
+ tensorflow/lite/micro/kernels/reduce.cc          |  9 +++++++++
+ tensorflow/lite/micro/kernels/reduce.h           |  3 +++
+ tensorflow/lite/micro/kernels/reduce_common.cc   | 16 ++++++++++++++++
+ .../lite/micro/micro_mutable_op_resolver.h       |  5 +++--
+ 4 files changed, 31 insertions(+), 2 deletions(-)
+
+diff --git a/tensorflow/lite/micro/kernels/reduce.cc b/tensorflow/lite/micro/kernels/reduce.cc
+index a689d3b93..090bafc3c 100644
+--- a/tensorflow/lite/micro/kernels/reduce.cc
++++ b/tensorflow/lite/micro/kernels/reduce.cc
+@@ -49,6 +49,11 @@ TfLiteStatus EvalMean(TfLiteContext* context, TfLiteNode* node) {
+                         static_cast<OpDataReduce*>(node->user_data));
+ }
+ 
++TfLiteStatus EvalMeanInt8(TfLiteContext* context, TfLiteNode* node) {
++  return EvalMeanHelperInt8(context, node,
++                            static_cast<OpDataReduce*>(node->user_data));
++}
++
+ TfLiteStatus EvalMax(TfLiteContext* context, TfLiteNode* node) {
+   OpDataReduce* op_data = static_cast<OpDataReduce*>(node->user_data);
+   return EvalMaxHelper(context, node, op_data);
+@@ -63,6 +68,10 @@ TFLMRegistration Register_MEAN() {
+   return tflite::micro::RegisterOp(InitReduce, PrepareMeanOrSum, EvalMean);
+ }
+ 
++TFLMRegistration Register_MEAN_INT8() {
++  return tflite::micro::RegisterOp(InitReduce, PrepareMeanOrSum, EvalMeanInt8);
++}
++
+ TFLMRegistration Register_REDUCE_MAX() {
+   return tflite::micro::RegisterOp(InitReduce, PrepareMax, EvalMax);
+ }
+diff --git a/tensorflow/lite/micro/kernels/reduce.h b/tensorflow/lite/micro/kernels/reduce.h
+index 2daeef5fe..0e29b3af8 100644
+--- a/tensorflow/lite/micro/kernels/reduce.h
++++ b/tensorflow/lite/micro/kernels/reduce.h
+@@ -50,6 +50,8 @@ TfLiteStatus EvalMaxHelper(TfLiteContext* context, TfLiteNode* node,
+                            OpDataReduce* op_data);
+ TfLiteStatus EvalMeanHelper(TfLiteContext* context, TfLiteNode* node,
+                             OpDataReduce* op_data);
++TfLiteStatus EvalMeanHelperInt8(TfLiteContext* context, TfLiteNode* node,
++                                OpDataReduce* op_data);
+ TfLiteStatus EvalSumHelper(TfLiteContext* context, TfLiteNode* node,
+                            OpDataReduce* op_data);
+ 
+@@ -57,6 +59,7 @@ void ReduceResolveAxis(const int* axis_data, int axis_count,
+                        MeanParams* op_params);
+ 
+ TFLMRegistration Register_MEAN();
++TFLMRegistration Register_MEAN_INT8();
+ TFLMRegistration Register_REDUCE_MAX();
+ TFLMRegistration Register_SUM();
+ 
+diff --git a/tensorflow/lite/micro/kernels/reduce_common.cc b/tensorflow/lite/micro/kernels/reduce_common.cc
+index 2c1a92a50..6e4ab1cc9 100644
+--- a/tensorflow/lite/micro/kernels/reduce_common.cc
++++ b/tensorflow/lite/micro/kernels/reduce_common.cc
+@@ -236,6 +236,22 @@ TfLiteStatus EvalMeanHelper(TfLiteContext* context, TfLiteNode* node,
+   return kTfLiteOk;
+ }
+ 
++TfLiteStatus EvalMeanHelperInt8(TfLiteContext* context, TfLiteNode* node,
++                                OpDataReduce* op_data) {
++  const TfLiteEvalTensor* input = tflite::micro::GetEvalInput(context, node, 0);
++  const TfLiteEvalTensor* axis = tflite::micro::GetEvalInput(context, node, 1);
++
++  int num_axis = static_cast<int>(ElementCount(*axis->dims));
++  int temp_index[kMaxNumberOfAxis];
++  int resolved_axis[kMaxNumberOfReducedAxis];
++
++  TFLITE_DCHECK(input->type == kTfLiteInt8);
++  TF_LITE_ENSURE_OK(
++      context, EvalIntegerMean<int8_t>(context, node, num_axis, op_data,
++                                        temp_index, resolved_axis));
++  return kTfLiteOk;
++}
++
+ TfLiteStatus EvalMaxHelper(TfLiteContext* context, TfLiteNode* node,
+                            OpDataReduce* op_data) {
+   const TfLiteEvalTensor* input = tflite::micro::GetEvalInput(context, node, 0);
+diff --git a/tensorflow/lite/micro/micro_mutable_op_resolver.h b/tensorflow/lite/micro/micro_mutable_op_resolver.h
+index ec8979c4e..253f83de1 100644
+--- a/tensorflow/lite/micro/micro_mutable_op_resolver.h
++++ b/tensorflow/lite/micro/micro_mutable_op_resolver.h
+@@ -432,8 +432,9 @@ class MicroMutableOpResolver : public MicroOpResolver {
+                       ParseMirrorPad);
+   }
+ 
+-  TfLiteStatus AddMean() {
+-    return AddBuiltin(BuiltinOperator_MEAN, Register_MEAN(), ParseReducer);
++  TfLiteStatus AddMean(
++      const TFLMRegistration& registration = Register_MEAN()) {
++    return AddBuiltin(BuiltinOperator_MEAN, registration, ParseReducer);
+   }
+ 
+   TfLiteStatus AddMinimum() {
+-- 
+2.25.1
+
