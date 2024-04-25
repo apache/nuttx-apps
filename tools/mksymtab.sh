@@ -62,9 +62,9 @@ fi
 
 if [ "x$add_sym" != "x" ]; then
   if [ -f $add_sym ]; then
-    varlist="${varlist}\n$(cat $add_sym)"
+    varlist="${varlist}\n$(cat $add_sym | grep -v "^,.*")"
   elif [ -d $add_sym ]; then
-    varlist="${varlist}\n$(find $add_sym -type f | xargs cat)"
+    varlist="${varlist}\n$(find $add_sym -type f | xargs cat | grep -v "^,.*")"
   else
     echo $usage
     exit 1
@@ -83,7 +83,7 @@ echo ""
 
 for string in $varlist; do
   var=`echo $string | sed -e "s/\"//g"`
-  echo "extern void *${var};"
+  echo "extern void *${var/,*/};"
 done
 
 echo ""
@@ -102,7 +102,7 @@ echo "{"
 
 for string in $varlist; do
   var=`echo $string | sed -e "s/\"//g"`
-  echo "  {\"${var}\", &${var}},"
+  echo "  {\"${var/*,/}\", &${var/,*/}},"
 done
 
 echo "};"
