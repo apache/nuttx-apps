@@ -37,7 +37,6 @@ distclean::
 endif
 
 CFLAGS += -Wno-undef
-CFLAGS += -O3
 
 CSRCS += $(wildcard $(CMSIS_NN)/ActivationFunctions/*.c)
 CSRCS += $(wildcard $(CMSIS_NN)/BasicMathFunctions/*.c)

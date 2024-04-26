@@ -45,18 +45,19 @@ distclean::
 	$(call DELFILE, tflite-micro.zip)
 endif
 
-COMMON_FLAGS += -DTF_LITE_STATIC_MEMORY
-COMMON_FLAGS += -DTF_LITE_DISABLE_X86_NEON
-COMMON_FLAGS += -DTF_LITE_STRIP_ERROR_STRINGS
-COMMON_FLAGS += -Wno-sign-compare
-COMMON_FLAGS += -Wno-unused-variable
-COMMON_FLAGS += -Wno-undef
-COMMON_FLAGS += -Wno-shadow
-COMMON_FLAGS += -O3
 COMMON_FLAGS += ${INCDIR_PREFIX}$(TFLM_DIR)
 COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/gemmlowp/gemmlowp
 COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/kissfft/kissfft
 COMMON_FLAGS += ${INCDIR_PREFIX}$(APPDIR)/math/ruy/ruy
+COMMON_FLAGS += -Wno-shadow
+COMMON_FLAGS += -Wno-sign-compare
+COMMON_FLAGS += -Wno-undef
+COMMON_FLAGS += -Wno-unused-variable
+COMMON_FLAGS += -DTFLITE_EMULATE_FLOAT
+COMMON_FLAGS += -DTF_LITE_DISABLE_X86_NEON
+ifeq ($(CONFIG_TFLITEMICRO_DEBUG),)
+COMMON_FLAGS += -DTF_LITE_STRIP_ERROR_STRINGS
+endif
 
 # tflite micro
 CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/c/*.cc)

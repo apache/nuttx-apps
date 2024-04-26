@@ -22,3 +22,9 @@ config TFLITEMICRO
 	bool "TFLiteMicro"
 	default n
 	depends on SYSTEM_FLATBUFFERS && MATH_GEMMLOWP && MATH_KISSFFT && MATH_RUY
+
+if TFLITEMICRO
+	config TFLITEMICRO_DEBUG
+	bool "TFLITEMICRO_DEBUG"
+	default n
+endif
