@@ -182,7 +182,7 @@ TEST_SETUP(basic_setsockopt)
 
 TEST_TEAR_DOWN(basic_setsockopt)
 {
-  int ret;
+  int unused_data ret;
   if (sd >= 0)
     {
       ret = close(sd);

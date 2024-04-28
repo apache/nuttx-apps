@@ -291,7 +291,7 @@ TEST_SETUP(basic_send)
 
 TEST_TEAR_DOWN(basic_send)
 {
-  int ret;
+  int unused_data ret;
   if (sd >= 0)
     {
       ret = close(sd);

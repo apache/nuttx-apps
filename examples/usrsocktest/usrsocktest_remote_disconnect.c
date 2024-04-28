@@ -972,7 +972,7 @@ TEST_SETUP(remote_disconnect)
 
 TEST_TEAR_DOWN(remote_disconnect)
 {
-  int ret;
+  int unused_data ret;
 
   if (sd >= 0)
     {
