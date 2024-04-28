@@ -648,7 +648,7 @@ TEST_SETUP(wake_with_signal)
 
 TEST_TEAR_DOWN(wake_with_signal)
 {
-  int ret;
+  int unused_data ret;
   int i;
 
   for (i = 0; i < MAX_THREADS; i++)

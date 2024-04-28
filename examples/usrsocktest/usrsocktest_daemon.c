@@ -274,7 +274,7 @@ static FAR void *find_endpoint(FAR struct daemon_priv_s *priv,
                                in_addr_t ipaddr)
 {
   FAR struct sockaddr_in *endpaddr;
-  int ok;
+  int unused_data ok;
 
   endpaddr = malloc(sizeof(*endpaddr));
   usrsocktest_endp_malloc_cnt++;

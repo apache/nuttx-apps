@@ -144,7 +144,7 @@ TEST_SETUP(multithread)
 
 TEST_TEAR_DOWN(multithread)
 {
-  int ret;
+  int unused_data ret;
   int i;
 
   for (i = 0; i < nitems(tids); i++)

@@ -97,7 +97,7 @@ TEST_SETUP(char_dev)
 
 TEST_TEAR_DOWN(char_dev)
 {
-  int ret;
+  int unused_data ret;
 
   if (us_fd >= 0)
     {
