@@ -146,7 +146,17 @@ if(CONFIG_LIBUV)
   target_sources(libuv PRIVATE ${SRCS})
   target_include_directories(libuv PRIVATE ${INCDIR})
   target_compile_options(libuv PRIVATE ${CFLAGS})
-  nuttx_export_header(TARGET libuv INCLUDE_DIRECTORIES ${EXPORT_INCDIR})
+
+  # Global FLAG
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_COMPILE_OPTIONS
+             -DUV_HANDLE_BACKTRACE=CONFIG_LIBUV_HANDLE_BACKTRACE)
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${EXPORT_INCDIR})
 
   # ############################################################################
   # Applications Configuration
