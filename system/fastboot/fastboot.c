@@ -51,8 +51,10 @@
 #define FASTBOOT_USBDEV             "/dev/fastboot"
 #define FASTBOOT_BLKDEV             "/dev/%s"
 
-#define FASTBOOT_EP_BULKIN_IDX      0
-#define FASTBOOT_EP_BULKOUT_IDX     1
+#define FASTBOOT_EP_BULKIN_IDX      1
+#define FASTBOOT_EP_BULKOUT_IDX     2
+#define FASTBOOT_EP_RETRY_TIMES     100
+#define FASTBOOT_EP_RETRY_DELAY_MS  10
 
 #define FASTBOOT_MSG_LEN            64
 
@@ -670,6 +672,31 @@ static void fastboot_free_publish(FAR struct fastboot_ctx_s *context)
     }
 }
 
+static int fastboot_open_usb(int index, int flags)
+{
+  int try = FASTBOOT_EP_RETRY_TIMES;
+  char usbdev[32];
+  int ret;
+
+  snprintf(usbdev, sizeof(usbdev),
+           "%s/ep%d", FASTBOOT_USBDEV, index);
+  do
+    {
+      ret = open(usbdev, flags);
+      if (ret >= 0)
+        {
+          return ret;
+        }
+
+      usleep(FASTBOOT_EP_RETRY_DELAY_MS * 1000);
+    }
+  while (try--);
+
+  fb_err("open [%s] error %d\n", usbdev, errno);
+
+  return -errno;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -678,7 +705,6 @@ int main(int argc, FAR char **argv)
 {
   struct fastboot_ctx_s context;
   FAR void *buffer = NULL;
-  char usbdev[32];
   int ret = OK;
 
 #ifdef CONFIG_FASTBOOTD_USB_BOARDCTL
@@ -739,22 +765,18 @@ int main(int argc, FAR char **argv)
       return -ENOMEM;
     }
 
-  snprintf(usbdev, sizeof(usbdev), "%s/ep%d",
-           FASTBOOT_USBDEV, FASTBOOT_EP_BULKOUT_IDX + 1);
-  context.usbdev_in = open(usbdev, O_RDONLY | O_CLOEXEC);
+  context.usbdev_in =
+      fastboot_open_usb(FASTBOOT_EP_BULKOUT_IDX, O_RDONLY | O_CLOEXEC);
   if (context.usbdev_in < 0)
     {
-      fb_err("open [%s] error\n", usbdev);
       ret = -errno;
       goto err_with_mem;
     }
 
-  snprintf(usbdev, sizeof(usbdev), "%s/ep%d",
-           FASTBOOT_USBDEV, FASTBOOT_EP_BULKIN_IDX + 1);
-  context.usbdev_out = open(usbdev, O_WRONLY | O_CLOEXEC);
+  context.usbdev_out =
+      fastboot_open_usb(FASTBOOT_EP_BULKIN_IDX, O_WRONLY | O_CLOEXEC);
   if (context.usbdev_out < 0)
     {
-      fb_err("open [%s] error\n", usbdev);
       ret = -errno;
       goto err_with_in;
     }
