@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/ws2812/Makefile
+# apps/examples/ws2812esp32rmt/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
