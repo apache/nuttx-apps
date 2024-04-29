@@ -1,0 +1,46 @@
+From d1576c890e8a8622c95dc4a782c457ab3884e7fa Mon Sep 17 00:00:00 2001
+From: Xu Xingliang <xuxingliang@xiaomi.com>
+Date: Mon, 22 Apr 2024 12:26:35 +0800
+Subject: [PATCH] fix(demo): fix compile warning
+
+In file included from /home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/../../lvgl.h:30,
+                 from /home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/../lv_demos.h:16,
+                 from /home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/lv_demo_stress.h:16,
+                 from /home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/lv_demo_stress.c:9:
+/home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/lv_demo_stress.c: In function 'obj_test_task_cb':
+/home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/lv_demo_stress.c:81:29: warning: format '%zu' expects argument of type 'size_t', but argument 6 has type 'long unsigned int' [-Wformat=]
+   81 |                 LV_LOG_USER("mem leak since start: %zu, frag: %3d %%", mem_free_start - mon.free_size, mon.frag_pct);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                       |
+      |                                                                                       long unsigned int
+/home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/../../src/misc/lv_log.h:132:97: note: in definition of macro 'LV_LOG_USER'
+  132 | #    define LV_LOG_USER(...) _lv_log_add(LV_LOG_LEVEL_USER, LV_LOG_FILE, LV_LOG_LINE, __func__, __VA_ARGS__)
+      |                                                                                                 ^~~~~~~~~~~
+/home/neo/projects/nuttx/apps/graphics/lvgl/lvgl/demos/stress/lv_demo_stress.c:81:54: note: format string is defined here
+   81 |                 LV_LOG_USER("mem leak since start: %zu, frag: %3d %%", mem_free_start - mon.free_size, mon.frag_pct);
+      |                                                    ~~^
+      |                                                      |
+      |                                                      unsigned int
+      |                                                    %lu
+
+Signed-off-by: Xu Xingliang <xuxingliang@xiaomi.com>
+---
+ demos/stress/lv_demo_stress.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/demos/stress/lv_demo_stress.c b/demos/stress/lv_demo_stress.c
+index 65728519c..b76c1f655 100644
+--- a/demos/stress/lv_demo_stress.c
++++ b/demos/stress/lv_demo_stress.c
+@@ -32,7 +32,7 @@ static void obj_test_task_cb(lv_timer_t * tmr);
+  **********************/
+ static lv_obj_t * main_page;
+ static lv_obj_t * ta;
+-static uint32_t mem_free_start = 0;
++static size_t mem_free_start = 0;
+ static int16_t g_state = -1;
+ 
+ /**********************
+-- 
+2.34.1
+

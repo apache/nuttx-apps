@@ -42,6 +42,9 @@ if(CONFIG_GRAPHICS_LVGL)
           ""
           TEST_COMMAND
           ""
+      PATCH_COMMAND
+        patch -p1 -s -d ${CMAKE_CURRENT_LIST_DIR}/lvgl <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-fix-demo-fix-compile-warning.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
