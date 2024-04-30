@@ -101,12 +101,12 @@ static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
  * Name: module_uninitialize
  ****************************************************************************/
 
-static int module_uninitialize(FAR void *arg)
+destructor_function void module_uninitialize(void)
 {
   /* TODO: Check if there are any open references to the driver */
 
-  syslog(LOG_INFO, "module_uninitialize: arg=%p\n", arg);
-  return unregister_driver("/dev/chardev");
+  syslog(LOG_INFO, "module_uninitialize\n");
+  unregister_driver("/dev/chardev");
 }
 
 /****************************************************************************
@@ -121,14 +121,8 @@ static int module_uninitialize(FAR void *arg)
  *
  ****************************************************************************/
 
-int module_initialize(FAR struct mod_info_s *modinfo)
+constructor_fuction void module_initialize(void)
 {
-  syslog(LOG_INFO, "module_initialize:\n");
-
-  modinfo->uninitializer = module_uninitialize;
-  modinfo->arg           = NULL;
-  modinfo->exports       = NULL;
-  modinfo->nexports      = 0;
-
-  return register_driver("/dev/chardev", &g_chardev_fops, 0666, NULL);
+  syslog(LOG_INFO, "module_initialize\n");
+  register_driver("/dev/chardev", &g_chardev_fops, 0666, NULL);
 }
