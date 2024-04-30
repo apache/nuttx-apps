@@ -3,3 +3,4 @@
 /cromfs.c
 /chardev_mod_symtab.c
 /mod_symtab.c
+/chardev

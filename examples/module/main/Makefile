@@ -30,6 +30,12 @@ MAINSRC = module_main.c
 SYMTABSRC = mod_symtab.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
+
+ifneq ($(CONFIG_BUILD_FLAT),y)
+  PASS1_SYMTAB = $(TOPDIR)/pass1/mod_symtab.c
+  MODLUE_NAME = chardev
+endif
+
 $(SYMTABSRC):
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) g_mod >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
@@ -79,11 +85,19 @@ endif
 
 endif
 
-postinstall:: $(ROMFSOBJ) $(SYMTABOBJ) $(FSIMG_OBJ)
+# Copy the symbol table into the kernel pass1/ build directory
+
+ifneq ($(CONFIG_BUILD_FLAT),y)
+$(PASS1_SYMTAB): $(SYMTABSRC)
+	$(Q) install -m 0644 $(SYMTABSRC) $(PASS1_SYMTAB)
+	$(Q) mv $(BINDIR)$(DELIM)$(MODLUE_NAME) .
+endif
+
+postinstall:: $(ROMFSOBJ) $(SYMTABOBJ) $(FSIMG_OBJ) $(PASS1_SYMTAB)
 	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
 
 distclean::
-	$(Q) $(call DELFILE, $(SYMTABSRC) $(SYMTABOBJ) $(ROMFSSRC) $(ROMFSIMG) $(ROMFSOBJ))
+	$(Q) $(call DELFILE, $(SYMTABSRC) $(SYMTABOBJ) $(ROMFSSRC) $(ROMFSIMG) $(ROMFSOBJ) $(MODLUE_NAME))
 
 
 include $(APPDIR)/Application.mk
