@@ -27,8 +27,7 @@ if(CONFIG_UORB)
 
   nuttx_add_library(uorb STATIC)
 
-  file(GLOB_RECURSE CSRCS "sensor/*.c")
-  list(APPEND CSRCS uORB/uORB.c)
+  file(GLOB_RECURSE CSRCS "sensor/*.c" "uORB/*.c")
 
   if(CONFIG_UORB_LISTENER)
     nuttx_add_application(

@@ -70,6 +70,41 @@ struct orb_object
 
 typedef uint64_t orb_abstime;
 
+struct orb_handle_s;
+
+typedef CODE int (*orb_datain_cb_t)(FAR struct orb_handle_s *handle,
+                                    FAR void *arg);
+typedef CODE int (*orb_dataout_cb_t)(FAR struct orb_handle_s *handle,
+                                     FAR void *arg);
+typedef CODE int (*orb_eventpri_cb_t)(FAR struct orb_handle_s *handle,
+                                      FAR void *arg);
+typedef CODE int (*orb_eventerr_cb_t)(FAR struct orb_handle_s *handle,
+                                      FAR void *arg);
+
+enum orb_loop_type_e
+{
+  ORB_EPOLL_TYPE = 0,
+};
+
+struct orb_loop_ops_s;
+struct orb_loop_s
+{
+  FAR const struct orb_loop_ops_s *ops;      /* Loop handle ops. */
+  bool                             running;  /* uORB loop is running flag. */
+  int                              fd;       /* Loop fd. */
+};
+
+struct orb_handle_s
+{
+  int                events;      /* Events of interest. */
+  int                fd;          /* Topic fd. */
+  FAR void          *arg;         /* Callback parameter. */
+  orb_datain_cb_t    datain_cb;   /* User EPOLLIN callback funtion. */
+  orb_dataout_cb_t   dataout_cb;  /* User EPOLLOUT callback funtion. */
+  orb_eventpri_cb_t  eventpri_cb; /* User EPOLLPRI callback funtion. */
+  orb_eventerr_cb_t  eventerr_cb; /* User EPOLLERR callback funtion. */
+};
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -773,6 +808,114 @@ void orb_info(FAR const char *format, FAR const char *name,
 int orb_fprintf(FAR FILE *stream, FAR const char *format,
                 FAR const void *data);
 #endif
+
+/****************************************************************************
+ * Name: orb_loop_init
+ *
+ * Description:
+ *   Initialize orb loop, release it with orb_loop_deinit function.
+ *
+ * Input Parameters:
+ *   loop   orb loop contains multiple handles.
+ *   type   orb loop type.
+ *
+ * Returned Value:
+ *   Returns the orb loop handle if successful, or NULL if an error occurs
+ ****************************************************************************/
+
+int orb_loop_init(FAR struct orb_loop_s *loop, enum orb_loop_type_e type);
+
+/****************************************************************************
+ * Name: orb_loop_run
+ *
+ * Description:
+ *   Start the loop. Users can dynamically open new fd(orb_handle_start)
+ *   and close fd(orb_handle_stop) that have been added to the loop after
+ *   the loop is started. after starting it will be in a blocked state.
+ *
+ * Input Parameters:
+ *   loop   orb loop contains multiple handles.
+ *
+ * Returned Value:
+ *   Zero (OK) or positive on success; a negated errno value on failure.
+ ****************************************************************************/
+
+int orb_loop_run(FAR struct orb_loop_s *loop);
+
+/****************************************************************************
+ * Name: orb_loop_deinit
+ *
+ * Description:
+ *   Unregister the current loop. To use it again, you need to reinitialize
+ *   it. The internally added handle needs to be closed by the user.
+ *
+ * Input Parameters:
+ *   loop   orb loop contains multiple handles.
+ *
+ * Returned Value:
+ *   Zero (OK) or positive on success; a negated errno value on failure.
+ ****************************************************************************/
+
+int orb_loop_deinit(FAR struct orb_loop_s *loop);
+
+/****************************************************************************
+ * Name: orb_handle_init
+ *
+ * Description:
+ *   Initialize the orb handle.
+ *
+ * Input Parameters:
+ *   handle       orb loop handle, need to be added to loop for use.
+ *   fd           orb fd, from orb_subscribe or orb_advertise.
+ *   events       Events of interest.
+ *   arg          Parameters passed in by the user.
+ *   data_in_cb   data in callback function.
+ *   data_out_cb  data out callback function.
+ *   pri_cb       pri callback function.
+ *   err_cb       err callback function.
+ *
+ * Returned Value:
+ *   Zero (OK) or positive on success; a negated errno value on failure.
+ ****************************************************************************/
+
+int orb_handle_init(FAR struct orb_handle_s *handle, int fd, int events,
+                    FAR void *arg, orb_datain_cb_t datain_cb,
+                    orb_dataout_cb_t dataout_cb, orb_eventpri_cb_t pri_cb,
+                    orb_eventerr_cb_t err_cb);
+
+/****************************************************************************
+ * Name: orb_handle_start
+ *
+ * Description:
+ *   Start the handle from the loop.
+ *
+ * Input Parameters:
+ *   loop     orb loop contains multiple handles.
+ *   handle   orb loop handle, need to be added to loop for use.
+ *
+ * Returned Value:
+ *   Zero (OK) or positive on success; a negated errno value on failure.
+ ****************************************************************************/
+
+int orb_handle_start(FAR struct orb_loop_s *loop,
+                     FAR struct orb_handle_s *handle);
+
+/****************************************************************************
+ * Name: orb_handle_stop
+ *
+ * Description:
+ *   Stop the handle from the loop.
+ *
+ * Input Parameters:
+ *   loop     orb loop contains multiple handles.
+ *   handle   orb loop handle, need to be added to loop for use.
+ *
+ * Returned Value:
+ *   Zero (OK) or positive on success; a negated errno value on failure.
+ ****************************************************************************/
+
+int orb_handle_stop(FAR struct orb_loop_s *loop,
+                    FAR struct orb_handle_s *handle);
 
 #ifdef __cplusplus
 }

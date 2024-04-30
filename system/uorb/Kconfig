@@ -26,6 +26,10 @@ config UORB_TESTS
 	bool "uorb unit tests"
 	default n
 
+config UORB_LOOP_MAX_EVENTS
+	int "uorb loop max events"
+	default 16
+
 if UORB_TESTS
 
 config UORB_SRORAGE_DIR
