@@ -20,6 +20,7 @@
 *.swp
 *.sym
 *.su
+*.map
 *~
 .built
 .context

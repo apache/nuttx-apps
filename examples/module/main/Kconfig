@@ -8,6 +8,7 @@ config EXAMPLES_MODULE
 	default n
 	depends on MODULE && BOARDCTL
 	select BOARDCTL_OS_SYMTAB
+	select MODULES
 	---help---
 		Enable the module example
 
