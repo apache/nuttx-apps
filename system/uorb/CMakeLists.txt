@@ -20,22 +20,45 @@
 
 if(CONFIG_UORB)
 
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${NUTTX_APPS_DIR}/system/uorb)
+
   nuttx_add_library(uorb STATIC)
 
   file(GLOB_RECURSE CSRCS "sensor/*.c")
   list(APPEND CSRCS uORB/uORB.c)
 
   if(CONFIG_UORB_LISTENER)
-    nuttx_add_application(NAME uorb_listener SRCS listener.c DEPENDS uorb)
+    nuttx_add_application(
+      NAME
+      uorb_listener
+      PRIORITY
+      ${CONFIG_UORB_PRIORITY}
+      STACKSIZE
+      ${CONFIG_UORB_STACKSIZE}
+      MODULE
+      ${CONFIG_UORB}
+      SRCS
+      listener.c
+      DEPENDS
+      uorb)
   endif()
 
   if(CONFIG_UORB_TEST)
     nuttx_add_application(
       NAME
       uorb_unit_test
+      PRIORITY
+      ${CONFIG_UORB_PRIORITY}
+      STACKSIZE
+      ${CONFIG_UORB_STACKSIZE}
+      MODULE
+      ${CONFIG_UORB}
       SRCS
-      test/utility.c
       test/unit_test.c
+      test/utility.c
       DEPENDS
       uorb)
   endif()
