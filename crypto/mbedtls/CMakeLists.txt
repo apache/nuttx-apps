@@ -73,8 +73,12 @@ if(CONFIG_CRYPTO_MBEDTLS)
   # Library Configuration
   # ############################################################################
 
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${INCDIR})
+
   nuttx_add_library(mbedtls STATIC)
-  nuttx_export_header(TARGET mbedtls INCLUDE_DIRECTORIES ${MBEDTLS_DIR}/include)
   target_sources(mbedtls PRIVATE ${CSRCS})
   target_include_directories(mbedtls PRIVATE ${INCDIR})
   target_compile_definitions(mbedtls PRIVATE unix)
