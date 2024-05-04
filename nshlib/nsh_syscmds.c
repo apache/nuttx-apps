@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 
+#include <nuttx/power/pm.h>
 #include <nuttx/rptun/rptun.h>
 #include <nuttx/streams.h>
 #include <sys/boardctl.h>
