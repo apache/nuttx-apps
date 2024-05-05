@@ -208,7 +208,7 @@ void robust_test(void)
     {
       sleep(1);
     }
-  while (kill(g_robust_mutex.pid, 0) == 0 || errno != ESRCH);
+  while (kill(waiter, 0) == 0 || errno != ESRCH);
 
   /* Make the mutex consistent and try again.  It should succeed this time. */
 
