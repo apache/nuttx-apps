@@ -176,8 +176,9 @@ static int fbdev_get_pinfo(int fd, FAR struct fb_planeinfo_s *pinfo)
    * certain color formats are supported.
    */
 
-  if (pinfo->bpp != 32 && pinfo->bpp != 16 &&
-      pinfo->bpp != 8  && pinfo->bpp != 1)
+  if (pinfo->bpp != 32 && pinfo->bpp != 24 &&
+      pinfo->bpp != 16 && pinfo->bpp != 8 &&
+      pinfo->bpp != 1)
     {
       fprintf(stderr, "ERROR: bpp=%u not supported\n", pinfo->bpp);
       return EXIT_FAILURE;
@@ -269,6 +270,29 @@ static void draw_rect32(FAR struct fb_state_s *state,
       for (x = 0; x < area->w; x++)
         {
           *dest++ = g_rgb24[color] | 0xff000000;
+        }
+
+      row += state->pinfo.stride;
+    }
+}
+
+static void draw_rect24(FAR struct fb_state_s *state,
+                        FAR struct fb_area_s *area, int color)
+{
+  FAR uint8_t *dest;
+  FAR uint8_t *row;
+  int x;
+  int y;
+
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  for (y = 0; y < area->h; y++)
+    {
+      dest = ((FAR uint8_t *)row) + area->x * 3;
+      for (x = 0; x < area->w; x++)
+        {
+          *dest++ = g_rgb24[color] & 0xff;
+          *dest++ = (g_rgb24[color] >> 8) & 0xff;
+          *dest++ = (g_rgb24[color] >> 16) & 0xff;
         }
 
       row += state->pinfo.stride;
@@ -409,6 +433,10 @@ static void draw_rect(FAR struct fb_state_s *state,
     {
       case 32:
         draw_rect32(state, area, color);
+        break;
+
+      case 24:
+        draw_rect24(state, area, color);
         break;
 
       case 16:
