@@ -390,8 +390,11 @@ int netlib_obtain_ipv6addr(FAR const char *ifname);
 
 struct ipt_replace;  /* Forward reference */
 struct ipt_entry;    /* Forward reference */
+struct ip6t_replace; /* Forward reference */
+struct ip6t_entry;   /* Forward reference */
 enum nf_inet_hooks;  /* Forward reference */
 
+#  ifdef CONFIG_NET_IPv4
 FAR struct ipt_replace *netlib_ipt_prepare(FAR const char *table);
 int netlib_ipt_commit(FAR const struct ipt_replace *repl);
 int netlib_ipt_flush(FAR const char *table, enum nf_inet_hooks hook);
@@ -409,15 +412,40 @@ int netlib_ipt_delete(FAR struct ipt_replace *repl,
 int netlib_ipt_fillifname(FAR struct ipt_entry *entry,
                           FAR const char *inifname,
                           FAR const char *outifname);
-#  ifdef CONFIG_NET_NAT
+#    ifdef CONFIG_NET_NAT
 FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname);
-#  endif
-#  ifdef CONFIG_NET_IPFILTER
+#    endif
+#    ifdef CONFIG_NET_IPFILTER
 FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
                                               int verdict,
                                               uint8_t match_proto);
-#  endif
-#endif
+#    endif
+#  endif /* CONFIG_NET_IPv4 */
+#  ifdef CONFIG_NET_IPv6
+FAR struct ip6t_replace *netlib_ip6t_prepare(FAR const char *table);
+int netlib_ip6t_commit(FAR const struct ip6t_replace *repl);
+int netlib_ip6t_flush(FAR const char *table, enum nf_inet_hooks hook);
+int netlib_ip6t_policy(FAR const char *table, enum nf_inet_hooks hook,
+                       int verdict);
+int netlib_ip6t_append(FAR struct ip6t_replace **repl,
+                       FAR const struct ip6t_entry *entry,
+                       enum nf_inet_hooks hook);
+int netlib_ip6t_insert(FAR struct ip6t_replace **repl,
+                       FAR const struct ip6t_entry *entry,
+                       enum nf_inet_hooks hook, int rulenum);
+int netlib_ip6t_delete(FAR struct ip6t_replace *repl,
+                       FAR const struct ip6t_entry *entry,
+                       enum nf_inet_hooks hook, int rulenum);
+int netlib_ip6t_fillifname(FAR struct ip6t_entry *entry,
+                           FAR const char *inifname,
+                           FAR const char *outifname);
+#    ifdef CONFIG_NET_IPFILTER
+FAR struct ip6t_entry *netlib_ip6t_filter_entry(FAR const char *target,
+                                                int verdict,
+                                                uint8_t match_proto);
+#    endif
+#  endif /* CONFIG_NET_IPv6 */
+#endif /* CONFIG_NET_IPTABLES */
 
 #ifdef CONFIG_NETLINK_NETFILTER
 /* Netfilter connection tracking support */

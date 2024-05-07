@@ -73,6 +73,9 @@ if(CONFIG_NETUTILS_NETLIB)
     if(CONFIG_NETLINK_ROUTE)
       list(APPEND SRCS netlib_getnbtab.c)
     endif()
+    if(CONFIG_NET_IPTABLES)
+      list(APPEND SRCS netlib_ip6tables.c)
+    endif()
   endif()
 
   # Device support
