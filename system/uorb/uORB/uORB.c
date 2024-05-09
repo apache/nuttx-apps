@@ -246,16 +246,16 @@ int orb_set_interval(int fd, unsigned interval)
 
 int orb_get_interval(int fd, FAR unsigned *interval)
 {
-  struct sensor_state_s tmp;
+  struct sensor_ustate_s tmp;
   int ret;
 
-  ret = ioctl(fd, SNIOC_GET_STATE, (unsigned long)(uintptr_t)&tmp);
+  ret = ioctl(fd, SNIOC_GET_USTATE, (unsigned long)(uintptr_t)&tmp);
   if (ret < 0)
     {
       return ret;
     }
 
-  *interval = tmp.min_interval;
+  *interval = tmp.interval;
   return ret;
 }
 
@@ -276,16 +276,16 @@ int orb_set_batch_interval(int fd, unsigned batch_interval)
 
 int orb_get_batch_interval(int fd, FAR unsigned *batch_interval)
 {
-  struct sensor_state_s tmp;
+  struct sensor_ustate_s tmp;
   int ret;
 
-  ret = ioctl(fd, SNIOC_GET_STATE, (unsigned long)(uintptr_t)&tmp);
+  ret = ioctl(fd, SNIOC_GET_USTATE, (unsigned long)(uintptr_t)&tmp);
   if (ret < 0)
     {
       return ret;
     }
 
-  *batch_interval = tmp.min_latency;
+  *batch_interval = tmp.latency;
   return ret;
 }
 
