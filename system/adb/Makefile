@@ -52,6 +52,7 @@ CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv.c
 CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_packet.c
 
 CFLAGS += -I$(ADB_UNPACKNAME)
+CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 
 ifeq ($(CONFIG_ADBD_TCP_SERVER),y)
 CSRCS += $(ADB_UNPACKNAME)/hal/hal_uv_client_tcp.c
