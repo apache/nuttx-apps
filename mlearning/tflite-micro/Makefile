@@ -93,6 +93,9 @@ CSRCS += operators/neon/arm_elementwise_add_s8.c
 endif
 endif
 
+# extra hardware support.
+-include $(TFLM_DIR)/tensorflow/lite/micro/nuttx/Makefile
+
 CFLAGS   += ${COMMON_FLAGS}
 CXXFLAGS += ${COMMON_FLAGS}
 
