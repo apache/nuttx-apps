@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/cachespeed/CMakeLists.txt
+# apps/benchmarks/cachespeed/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,14 +18,14 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_CACHESPEED)
+if(CONFIG_BENCHMARK_CACHESPEED)
   nuttx_add_application(
     NAME
-    ${CONFIG_TESTING_CACHESPEED_PROGNAME}
+    ${CONFIG_BENCHMARK_CACHESPEED_PROGNAME}
     SRCS
     cachespeed_main.c
     STACKSIZE
-    ${CONFIG_TESTING_CACHESPEED_STACKSIZE}
+    ${CONFIG_BENCHMARK_CACHESPEED_STACKSIZE}
     PRIORITY
-    ${CONFIG_TESTING_CACHESPEED_PRIORITY})
+    ${CONFIG_BENCHMARK_CACHESPEED_PRIORITY})
 endif()
