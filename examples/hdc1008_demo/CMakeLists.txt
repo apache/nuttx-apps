@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/hdc1008/CMakeLists.txt
+# apps/examples/hdc1008_demo/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
