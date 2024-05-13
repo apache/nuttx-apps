@@ -131,7 +131,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/lib
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
-TOYWASM_VERSION  = aaf74d68b6c57060da62ef9fc056f9f3a776e845
+TOYWASM_VERSION  = 76b9d7088ab321e329b6f958360fb05cebd3df9f
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
