@@ -47,6 +47,16 @@ config INTERPRETERS_WAMR_AOT_QUICK_ENTRY
 		signature.
 		Enable this option will increase the size of runtime, ~8KB.
 
+config INTERPRETERS_WAMR_AOT_WORD_ALIGN_READ
+	bool "Make WAMR AOT loader use word-aligned read"
+	default y
+	depends on INTERPRETERS_WAMR_AOT && ARCH_CHIP_ESP32S3
+
+config INTERPRETERS_WAMR_MEM_DUAL_BUS_MIRROR
+	bool "Make WAMR AOT loader aware of ESP32-S3's memory mapping"
+	default y
+	depends on INTERPRETERS_WAMR_AOT && ARCH_CHIP_ESP32S3
+
 choice
 	prompt "Enable interpreter"
 	default INTERPRETERS_NONE
