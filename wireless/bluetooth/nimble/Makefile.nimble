@@ -66,4 +66,4 @@ CFLAGS += -Wno-pointer-to-int-cast -Wno-undef
 
 # disable printf format checks
 
-CFLAGS += -Wno-format
+CFLAGS += -Wno-format -Wno-unused-but-set-variable
