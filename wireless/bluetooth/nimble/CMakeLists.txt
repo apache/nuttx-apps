@@ -194,6 +194,6 @@ if(CONFIG_NIMBLE)
   target_include_directories(nimble PUBLIC include ${INCLUDES})
 
   target_compile_options(nimble PUBLIC -Wno-pointer-to-int-cast -Wno-undef
-                                       -Wno-format)
+                                       -Wno-format -Wno-unused-but-set-variable)
   target_sources(nimble PRIVATE ${SRCS})
 endif()
