@@ -28,6 +28,7 @@
 
 const char *const toywasm_config_string =
 "\tTOYWASM_USE_SEPARATE_EXECUTE = ON\n"
+"\tTOYWASM_USE_SEPARATE_VALIDATE = OFF\n"
 "\tTOYWASM_USE_TAILCALL = ON\n"
 "\tTOYWASM_FORCE_USE_TAILCALL = OFF\n"
 "\tTOYWASM_USE_SIMD = OFF\n"
