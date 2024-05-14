@@ -249,7 +249,8 @@ static FAR void *slave_read_thread(FAR void *arg)
       if (rfds.revents == POLLIN)
         {
           size = read(rfds.fd, buffer, sizeof(buffer));
-          printf("slave size %d", size);
+          printf("read size = %d\n", size);
+          assert(size == SIZE_OF_BUFFER);
           printf("slave poll read \t");
           for (i = 0; i < SIZE_OF_BUFFER; i++)
             {
