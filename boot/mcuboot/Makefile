@@ -39,7 +39,7 @@ PRIORITY  += SCHED_PRIORITY_DEFAULT
 STACKSIZE += $(CONFIG_DEFAULT_TASK_STACKSIZE)
 endif
 
-CFLAGS += -Wno-undef
+CFLAGS += -Wno-undef -Wno-unused-but-set-variable
 
 CSRCS := $(MCUBOOT_UNPACK)/boot/bootutil/src/boot_record.c \
          $(MCUBOOT_UNPACK)/boot/bootutil/src/bootutil_misc.c \
