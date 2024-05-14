@@ -137,7 +137,37 @@ int main(int argc, FAR char *argv[])
 
   /* Then perform the test using those file descriptors */
 
-  ret = transfer_test(fd[0], fd[1]);
+  ret = transfer_test(fd[0], fd[1], 0, 0);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: FIFO test FAILED (00) (%d)\n", ret);
+      return 6;
+    }
+
+  ret = transfer_test(fd[0], fd[1], 1, 0);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: FIFO test FAILED (10) (%d)\n", ret);
+      return 6;
+    }
+
+  ret = transfer_test(fd[0], fd[1], 0, 1);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: FIFO test FAILED (01)(%d)\n", ret);
+      return 6;
+    }
+
+  ret = transfer_test(fd[0], fd[1], 1, 1);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: FIFO test FAILED (11) (%d)\n", ret);
+      return 6;
+    }
 
   if (close(fd[0]) != 0)
     {
@@ -196,7 +226,37 @@ int main(int argc, FAR char *argv[])
 
   /* Then perform the test using those file descriptors */
 
-  ret = transfer_test(fd[0], fd[1]);
+  ret = transfer_test(fd[0], fd[1], 0, 0);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: PIPE test FAILED (00) (%d)\n", ret);
+      return 9;
+    }
+
+  ret = transfer_test(fd[0], fd[1], 1, 0);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: PIPE test FAILED (10) (%d)\n", ret);
+      return 9;
+    }
+
+  ret = transfer_test(fd[0], fd[1], 0, 1);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: PIPE test FAILED (01) (%d)\n", ret);
+      return 9;
+    }
+
+  ret = transfer_test(fd[0], fd[1], 1, 1);
+
+  if (ret != 0)
+    {
+      fprintf(stderr, "pipe_main: PIPE test FAILED (11) (%d)\n", ret);
+      return 9;
+    }
 
   if (close(fd[0]) != 0)
     {
@@ -206,12 +266,6 @@ int main(int argc, FAR char *argv[])
   if (close(fd[1]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
-    }
-
-  if (ret != 0)
-    {
-      fprintf(stderr, "pipe_main: PIPE test FAILED (%d)\n", ret);
-      return 9;
     }
 
   /* Perform the pipe redirection test */
