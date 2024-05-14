@@ -190,7 +190,12 @@ config INTERPRETERS_WAMR_DUMP_CALL_STACK
 
 config INTERPRETERS_WAMR_DISABLE_HW_BOUND_CHECK
 	bool "Disable hardware bound check"
-	default n
+	default y
+	---help---
+		This option is currently a no-op because
+		NuttX doesn't have necessary functionalities.
+		That is, regardless of this setting, WAMR's HW bounds
+		check is not available for NuttX.
 
 config INTERPRETERS_WAMR_LOAD_CUSTOM_SECTIONS
 	bool "Enable load custom section support"
