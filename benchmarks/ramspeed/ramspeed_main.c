@@ -64,6 +64,17 @@
       } \
   } while (0)
 
+  #define HAS_IRQ_CONTROL !defined(CONFIG_BUILD_KERNEL) && \
+                          !defined(CONFIG_BUILD_PROTECTED)
+
+  #if HAS_IRQ_CONTROL
+  #  define ENABLE_IRQ(flags) leave_critical_section(flags);
+  #  define DISABLE_IRQ(flags) flags=enter_critical_section();
+  #else
+  #  define ENABLE_IRQ(flags) (void)flags;
+  #  define DISABLE_IRQ(flags) (void)flags;
+  #endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -104,8 +115,10 @@ static void show_usage(FAR const char *progname, int exitcode)
          " [default value: 0x00].\n");
   printf("  -n <decimal-repeat num> number of repetitions"
          " [default value: 100].\n");
+  #if HAS_IRQ_CONTROL
   printf("  -i turn off interrupts while testing"
          " [default value: false].\n");
+  #endif
   exit(exitcode);
 }
 
@@ -162,9 +175,11 @@ static void parse_commandline(int argc, FAR char **argv,
               }
 
             break;
+          #if HAS_IRQ_CONTROL
           case 'i':
             info->irq_disable = true;
             break;
+          #endif
           case '?':
             printf(RAMSPEED_PREFIX "Unknown option: %c\n", (char)optopt);
             show_usage(argv[0], EXIT_FAILURE);
@@ -400,7 +415,7 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
 
       if (irq_disable)
         {
-          flags = enter_critical_section();
+          DISABLE_IRQ(flags);
         }
 
       start_time = get_timestamp();
@@ -423,7 +438,7 @@ static void memcpy_speed_test(FAR void *dest, FAR const void *src,
 
       if (irq_disable)
         {
-          leave_critical_section(flags);
+          ENABLE_IRQ(flags);
         }
 
       print_rate("system memcpy():\t", total_size, cost_time_system);
@@ -465,7 +480,7 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
 
       if (irq_disable)
         {
-          flags = enter_critical_section();
+          DISABLE_IRQ(flags);
         }
 
       start_time = get_timestamp();
@@ -488,7 +503,7 @@ static void memset_speed_test(FAR void *dest, uint8_t value,
 
       if (irq_disable)
         {
-          leave_critical_section(flags);
+          ENABLE_IRQ(flags);
         }
 
       print_rate("system memset():\t", total_size, cost_time_system);
