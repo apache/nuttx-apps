@@ -114,6 +114,9 @@ if(CONFIG_GRAPHICS_LVGL)
     nuttx_add_dependencies(TARGET lvgl DEPENDS turbojpeg-static)
   endif()
 
-  # allow to include via lvgl/lvgl.h
-  target_include_directories(lvgl PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}
+             ${CMAKE_CURRENT_LIST_DIR}/lvgl)
 endif()
