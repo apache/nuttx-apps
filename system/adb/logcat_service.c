@@ -66,9 +66,7 @@ static void logcat_on_kick(struct adb_service_s *service)
   logcat_service_t *svc = container_of(service, logcat_service_t, service);
   if (!svc->wait_ack)
     {
-      int ret;
-      ret = uv_poll_start(&svc->poll, UV_READABLE, logcat_on_data_available);
-      assert(ret == 0);
+      uv_poll_start(&svc->poll, UV_READABLE, logcat_on_data_available);
     }
 }
 
@@ -90,12 +88,9 @@ static void close_cb(uv_handle_t *handle)
 static void logcat_on_close(struct adb_service_s *service)
 {
   int fd;
-  int ret;
   logcat_service_t *svc = container_of(service, logcat_service_t, service);
 
-  ret = uv_fileno((uv_handle_t *)&svc->poll, &fd);
-  assert(ret == 0);
-
+  uv_fileno((uv_handle_t *)&svc->poll, &fd);
   close(fd);
   uv_close((uv_handle_t *)&svc->poll, close_cb);
 }
