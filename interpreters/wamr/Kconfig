@@ -49,12 +49,12 @@ config INTERPRETERS_WAMR_AOT_QUICK_ENTRY
 
 config INTERPRETERS_WAMR_AOT_WORD_ALIGN_READ
 	bool "Make WAMR AOT loader use word-aligned read"
-	default y if ARCH_TEXT_HEAP_WORD_ALIGNED_READ
+	default y if ARCH_HAVE_TEXT_HEAP_WORD_ALIGNED_READ
 	default n
 
 config INTERPRETERS_WAMR_MEM_DUAL_BUS_MIRROR
 	bool "Make WAMR AOT loader aware of separate instruction/data memory mapping"
-	default y if ARCH_TEXT_HEAP_SEPARATE_DATA_ADDRESS
+	default y if ARCH_HAVE_TEXT_HEAP_SEPARATE_DATA_ADDRESS
 	default n
 
 choice
