@@ -80,7 +80,7 @@ INFO_DEPS += espressif_prepare
 espressif_prepare:
 ifeq ($(HALDIR),$(ARCH_ESP_HALDIR))
 	@echo "Unshallowing Espressif HAL..."
-	(cd ${HALDIR} && git fetch --depth=10000 && git fetch --tags)
+	(cd ${HALDIR} && git fetch && git fetch --tags)
 endif
 
 ifdef ESPTOOL_BINDIR
