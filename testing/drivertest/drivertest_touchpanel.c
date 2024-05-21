@@ -541,7 +541,7 @@ void touchpad_read(lv_indev_t *indev, lv_indev_data_t *data)
 
 bool touchpad_init(touchpad_s **touchpad,
                    const char * input_path,
-                   int screen_shape)
+                   uint32_t screen_shape)
 {
   touchpad_s *tmp_touchpad;
 
@@ -687,20 +687,13 @@ static void lv_nuttx_uv_loop(uv_loop_t *loop, lv_nuttx_result_t *result)
 #endif
 
 /****************************************************************************
- * Name: touchpanel_main
+ * Name: parse_commandline
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+static void parse_commandline(uint32_t *screen_shape,
+                              int argc, FAR char **argv)
 {
-  lv_nuttx_dsc_t info;
-  lv_nuttx_result_t result;
-  touchpad_s *touchpad = NULL;
   int ch;
-  int screen_shape = 0;
-
-#ifdef CONFIG_LV_USE_NUTTX_LIBUV
-  uv_loop_t ui_loop;
-#endif
 
   while ((ch = getopt(argc, argv, "hs::")) != -1)
     {
@@ -710,16 +703,31 @@ int main(int argc, FAR char *argv[])
           show_usage();
           break;
         case 's':
-          screen_shape = atoi(optarg);
+          *screen_shape = atoi(optarg);
           break;
         }
     }
 
-  if (screen_shape != 0 && screen_shape != 1)
+  if (*screen_shape > 1)
     {
       show_usage();
-      return 1;
     }
+}
+
+/****************************************************************************
+ * Name: test_case_touchpanel
+ ****************************************************************************/
+
+static void test_case_touchpanel(FAR void **state)
+{
+  lv_nuttx_dsc_t info;
+  lv_nuttx_result_t result;
+  touchpad_s *touchpad = NULL;
+  FAR uint32_t *screen_shape = (FAR uint32_t *)*state;
+
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
+  uv_loop_t ui_loop;
+#endif
 
   /* LVGL initialization */
 
@@ -730,10 +738,10 @@ int main(int argc, FAR char *argv[])
   if (result.disp == NULL)
     {
       LV_LOG_ERROR("touchpad_init initialization failure!");
-      return 1;
+      return;
     }
 
-  if (!touchpad_init(&touchpad, info.input_path, screen_shape))
+  if (!touchpad_init(&touchpad, info.input_path, *screen_shape))
     {
       LV_LOG_ERROR("touchpad_init init failed");
       goto errout;
@@ -757,5 +765,23 @@ errout:
   lv_deinit();
 
   LV_LOG_USER("Terminating!\n");
-  return 0;
+  return;
+}
+
+/****************************************************************************
+ * Name: touchpanel_main
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  uint32_t screen_shape = 0;
+
+  const struct CMUnitTest tests[] =
+  {
+    cmocka_unit_test_prestate(test_case_touchpanel, &screen_shape)
+  };
+
+  parse_commandline(&screen_shape, argc, argv);
+
+  return cmocka_run_group_tests(tests, NULL, NULL);
 }
