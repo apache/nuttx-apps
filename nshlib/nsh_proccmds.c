@@ -33,6 +33,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/sysinfo.h>
 #include <sys/param.h>
 #include <time.h>
@@ -111,6 +112,14 @@ struct nsh_taskstatus_s
   FAR char       *td_buf;          /* Buffer for reading files */
   size_t          td_bufsize;      /* Size of the buffer */
   size_t          td_bufpos;       /* Position in the buffer */
+};
+
+struct nsh_topstatus_s
+{
+  FAR struct nsh_taskstatus_s **status;
+  bool heap;
+  size_t size;
+  size_t index;
 };
 
 /* Status strings */
@@ -668,6 +677,129 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 }
 #endif
 
+#if !defined(CONFIG_NSH_DISABLE_TOP) && defined(NSH_HAVE_CPULOAD)
+
+/****************************************************************************
+ * Name: top_callback
+ ****************************************************************************/
+
+static int top_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
+                        FAR struct dirent *entryp, FAR void *pvarg)
+{
+  FAR struct nsh_topstatus_s *topstatus = pvarg;
+  FAR struct nsh_taskstatus_s *status;
+  int index = topstatus->index;
+  int ret;
+
+  if (ps_skipfile(entryp))
+    {
+      return OK;
+    }
+
+  if (topstatus->size == 0)
+    {
+      topstatus->status = zalloc(sizeof(FAR struct nsh_taskstatus_s *) * 4);
+      if (topstatus->status == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, "top", "zalloc", NSH_ERRNO);
+          return -ENOMEM;
+        }
+
+      topstatus->size = 4;
+    }
+  else if (topstatus->index >= topstatus->size)
+    {
+      topstatus->status =
+        realloc(topstatus->status,
+                sizeof(topstatus->status[0]) * topstatus->size * 2);
+      if (topstatus->status == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, "top", "realloc", NSH_ERRNO);
+          return -ENOMEM;
+        }
+
+      memset(&topstatus->status[topstatus->index], 0,
+             sizeof(topstatus->status[0]) * topstatus->size);
+      topstatus->size *= 2;
+    }
+
+  if (topstatus->status[index] != NULL)
+    {
+      status = topstatus->status[index];
+      status->td_bufpos = 0;
+    }
+  else
+    {
+      status = zalloc(sizeof(struct nsh_taskstatus_s));
+      if (status == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, "top", "zalloc", NSH_ERRNO);
+          return -ENOMEM;
+        }
+
+      topstatus->status[index] = status;
+      status->td_buf = zalloc(IOBUFFERSIZE);
+      if (status->td_buf == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, "top", "zalloc", NSH_ERRNO);
+          return -ENOMEM;
+        }
+
+      status->td_bufsize = IOBUFFERSIZE;
+    }
+
+  ret = ps_record(vtbl, dirpath, entryp, topstatus->heap, status);
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "top", "ps_record", NSH_ERRNO);
+      return ret;
+    }
+
+  topstatus->index++;
+  return ret;
+}
+
+/****************************************************************************
+ * Name: top_cmpcpuload
+ ****************************************************************************/
+
+static int top_cmpcpuload(FAR const void *item1, FAR const void *item2)
+{
+  FAR const struct nsh_taskstatus_s *status1 =
+    (FAR const struct nsh_taskstatus_s *)(*(FAR uintptr_t *)item1);
+  FAR const struct nsh_taskstatus_s *status2 =
+    (FAR const struct nsh_taskstatus_s *)(*(FAR uintptr_t *)item2);
+  int load1 = atoi(status1->td_cpuload);
+  int load2 = atoi(status2->td_cpuload);
+  FAR const char *s1;
+  FAR const char *s2;
+
+  if (load1 == load2)
+    {
+      s1 = status1->td_cpuload;
+      s2 = status2->td_cpuload;
+      while (*s1++ != '.');
+      while (*s2++ != '.');
+
+      return *s2 > *s1;
+    }
+  else
+    {
+      return load2 > load1;
+    }
+}
+
+/****************************************************************************
+ * Name: top_exit
+ ****************************************************************************/
+
+static void top_exit(int signo, FAR siginfo_t *siginfo, FAR void *context)
+{
+  *(FAR bool *)siginfo->si_user = true;
+}
+
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -1128,5 +1260,140 @@ int cmd_uptime(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   nsh_output(vtbl, "\n");
   return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_top
+ ****************************************************************************/
+
+#if !defined(CONFIG_NSH_DISABLE_TOP) && defined(NSH_HAVE_CPULOAD)
+int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  FAR char *pidlist = NULL;
+  size_t num = SIZE_MAX;
+  size_t i;
+  struct sigaction act;
+  bool quit = false;
+  int delay = 3;
+  int ret = 0;
+  int tc = 0;
+  int opt;
+  struct nsh_topstatus_s topstatus =
+    {
+      0
+    };
+
+  while ((opt = getopt(argc, argv, "d:p:n:h")) != ERROR)
+    {
+      switch (opt)
+        {
+          case 'd':
+            delay = atoi(optarg);
+            break;
+          case 'p':
+            pidlist = optarg;
+            break;
+          case 'h':
+            topstatus.heap = true;
+            break;
+          case 'n':
+            num = atoi(optarg);
+            break;
+
+          default:
+            nsh_output(vtbl, "Usage: top"
+                             "[ -n <num>] [ -d <delay>]"
+                             "[ -p <pidlist>] [ -h ]\n");
+            return ERROR;
+        }
+    }
+
+  act.sa_user = &quit;
+  act.sa_sigaction = top_exit;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = 0;
+  if (sigaction(SIGINT, &act, NULL) < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "top", "sigaction", NSH_ERRNO);
+      return ERROR;
+    }
+
+  if (vtbl->isctty)
+    {
+      tc = nsh_ioctl(vtbl, TIOCSCTTY, getpid());
+    }
+
+  while (!quit)
+    {
+      topstatus.index = 0;
+      nsh_output(vtbl, "\033[2J\033[1;1H");
+      ps_title(vtbl, topstatus.heap);
+
+      if (pidlist)
+        {
+          FAR char *save = NULL;
+          FAR char *pid = strtok_r(pidlist, ",", &save);
+
+          while (pid != NULL && ret >= 0)
+            {
+              struct dirent entry;
+              entry.d_type = DT_DIR;
+              strlcpy(entry.d_name, pid, sizeof(entry.d_name));
+              ret = top_callback(vtbl, CONFIG_NSH_PROC_MOUNTPOINT,
+                                 &entry, &topstatus);
+              *--pid = ',';
+              pid = strtok_r(NULL, ",", &save);
+            }
+        }
+      else
+        {
+          ret = nsh_foreach_direntry(vtbl, "top", CONFIG_NSH_PROC_MOUNTPOINT,
+                                     top_callback, &topstatus);
+        }
+
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, "top", "nsh_foreach_direntry",
+                    NSH_ERRNO);
+          break;
+        }
+
+      qsort(topstatus.status, topstatus.index,
+            sizeof(topstatus.status[0]), top_cmpcpuload);
+
+      for (i = 0; i < MIN(topstatus.index, num); i++)
+        {
+          ps_output(vtbl, topstatus.heap, topstatus.status[i]);
+        }
+
+      if (vtbl->isctty && tc == 0)
+        {
+          nsh_output(vtbl, "use Ctrl+c' to quit\n");
+        }
+
+      sleep(delay);
+    }
+
+  if (topstatus.status != NULL)
+    {
+      for (i = 0; i < topstatus.size; i++)
+        {
+          if (topstatus.status[i] != NULL)
+            {
+              free(topstatus.status[i]->td_buf);
+              free(topstatus.status[i]);
+            }
+        }
+
+      free(topstatus.status);
+    }
+
+  if (vtbl->isctty && tc == 0)
+    {
+      nsh_ioctl(vtbl, TIOCNOTTY, 0);
+    }
+
+  return ret;
 }
 #endif
