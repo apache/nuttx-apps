@@ -637,6 +637,11 @@ config NSH_DISABLE_TEST
 	bool "Disable test"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_TOP
+	bool "Disable top"
+	default DEFAULT_SMALL
+	depends on !NSH_DISABLE_PS
+
 config NSH_DISABLE_TRUNCATE
 	bool "Disable truncate"
 	default DEFAULT_SMALL

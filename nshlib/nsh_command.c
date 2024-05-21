@@ -595,6 +595,11 @@ static const struct cmdmap_s g_cmdmap[] =
           3, CONFIG_NSH_MAXARGUMENTS, "<expression>"),
 #endif
 
+#if !defined(CONFIG_NSH_DISABLE_TOP) && defined(NSH_HAVE_CPULOAD)
+  CMD_MAP("top",       cmd_top,       1, 5,
+          "[ -n <num> ][ -d <delay>] [ -p <pidlist>] [-h]"),
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_TIME
   CMD_MAP("time",     cmd_time,     2, 2, "\"<command>\""),
 #endif
