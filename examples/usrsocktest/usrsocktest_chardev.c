@@ -102,13 +102,13 @@ TEST_TEAR_DOWN(char_dev)
   if (us_fd >= 0)
     {
       ret = close(us_fd);
-      assert(ret >= 0);
+      TEST_ASSERT_TRUE(ret >= 0);
     }
 
   if (us_fd_two >= 0)
     {
       ret = close(us_fd_two);
-      assert(ret >= 0);
+      TEST_ASSERT_TRUE(ret >= 0);
     }
 }
 
