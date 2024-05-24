@@ -590,7 +590,8 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#if defined(CONFIG_ARCH_HAVE_FORK) && defined(CONFIG_SCHED_WAITPID)
+#if defined(CONFIG_ARCH_HAVE_FORK) && defined(CONFIG_SCHED_WAITPID) && \
+   !defined(CONFIG_ARCH_SIM)
 #ifndef CONFIG_BUILD_KERNEL
       printf("\nuser_main: vfork() test\n");
       vfork_test();
