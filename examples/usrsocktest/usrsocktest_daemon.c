@@ -278,13 +278,13 @@ static FAR void *find_endpoint(FAR struct daemon_priv_s *priv,
 
   endpaddr = malloc(sizeof(*endpaddr));
   usrsocktest_endp_malloc_cnt++;
-  assert(endpaddr);
+  DEBUGASSERT(endpaddr != NULL);
 
   ok = inet_pton(AF_INET, priv->conf->endpoint_addr,
                  &endpaddr->sin_addr.s_addr);
   endpaddr->sin_family = AF_INET;
   endpaddr->sin_port = htons(priv->conf->endpoint_port);
-  assert(ok);
+  DEBUGASSERT(ok);
 
   if (endpaddr->sin_addr.s_addr == ipaddr)
     {
@@ -1600,8 +1600,8 @@ static int handle_usrsock_request(int fd, FAR struct daemon_priv_s *priv)
       return -EIO;
     }
 
-  assert(handlers[common_hdr->reqid].hdrlen <
-         (sizeof(hdrbuf) - sizeof(*common_hdr)));
+  DEBUGASSERT(handlers[common_hdr->reqid].hdrlen <
+              sizeof(hdrbuf) - sizeof(*common_hdr));
 
   rlen = read_req(fd, common_hdr, hdrbuf,
                   handlers[common_hdr->reqid].hdrlen);

@@ -152,9 +152,9 @@ TEST_TEAR_DOWN(multithread)
       if (tids[i] != -1)
         {
           ret = pthread_cancel(tids[i]);
-          assert(ret == OK);
+          TEST_ASSERT_EQUAL(ret, OK);
           ret = pthread_join(tids[i], NULL);
-          assert(ret == OK);
+          TEST_ASSERT_EQUAL(ret, OK);
         }
     }
 
@@ -163,14 +163,14 @@ TEST_TEAR_DOWN(multithread)
       if (sds[i] != -1)
         {
           ret = close(sds[i]);
-          assert(ret >= 0);
+          TEST_ASSERT_TRUE(ret >= 0);
         }
     }
 
   if (started)
     {
       ret = usrsocktest_daemon_stop();
-      assert(ret == OK);
+      TEST_ASSERT_EQUAL(ret, OK);
     }
 }
 
