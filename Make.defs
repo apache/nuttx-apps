@@ -19,7 +19,7 @@
 ############################################################################
 
 TOPDIR ?= $(APPDIR)/import
-include $(TOPDIR)/Make.defs
+-include $(TOPDIR)/Make.defs
 
 # Application Directories
 
@@ -80,8 +80,8 @@ endif
 
 # Builtin Registration
 
-BUILTIN_REGISTRY = $(APPDIR)$(DELIM)builtin$(DELIM)registry
-DEPCONFIG = $(TOPDIR)$(DELIM).config
+BUILTIN_REGISTRY ?= $(APPDIR)$(DELIM)builtin$(DELIM)registry
+DEPCONFIG ?= $(TOPDIR)$(DELIM).config
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
@@ -145,13 +145,13 @@ NUTTXLIB ?= $(call CONVERT_PATH,$(TOPDIR)$(DELIM)staging)
 #			$(VAR_3) = foo bar
 
 define SPLITVARIABLE
-	$(eval PREFIX = $(1))
+	$(eval SPLITVARIABLE_PREFIX = $(1))
 	$(eval BATCH_SIZE = $(3))
 	$(eval TOTAL_BATCH = $(shell expr $(words $(2)) / $(BATCH_SIZE) + 1))
-	$(eval $(PREFIX)_TOTAL = $(shell seq 1 $(TOTAL_BATCH)))
-	$(foreach idx, $($(PREFIX)_TOTAL), \
+	$(eval $(SPLITVARIABLE_PREFIX)_TOTAL = $(shell seq 1 $(TOTAL_BATCH)))
+	$(foreach idx, $($(SPLITVARIABLE_PREFIX)_TOTAL), \
 		$(eval FROMINDEX=$(shell expr 1 + $(idx) \* $(BATCH_SIZE) - $(BATCH_SIZE))) \
-		$(eval $(PREFIX)_$(idx)=$(wordlist $(FROMINDEX), $(shell expr $(FROMINDEX) + $(BATCH_SIZE) - 1), $(2))) \
+		$(eval $(SPLITVARIABLE_PREFIX)_$(idx)=$(wordlist $(FROMINDEX), $(shell expr $(FROMINDEX) + $(BATCH_SIZE) - 1), $(2))) \
 	)
 endef
 
