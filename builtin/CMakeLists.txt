@@ -24,6 +24,8 @@ if(CONFIG_BUILTIN)
 
   # generate registry
   get_property(nuttx_app_libs GLOBAL PROPERTY NUTTX_APPS_LIBRARIES)
+  get_property(only_registers GLOBAL PROPERTY NUTTX_APPS_ONLY_REGISTER)
+  list(APPEND nuttx_app_libs ${only_registers})
   set(builtin_list_string)
   set(builtin_proto_string)
   foreach(module ${nuttx_app_libs})
