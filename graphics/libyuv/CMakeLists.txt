@@ -26,4 +26,9 @@ if(CONFIG_LIBYUV)
   nuttx_add_external_library(yuv)
   set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS
                                ${TARGET_SUPPORTS_SHARED_ORIG})
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES
+             ${CMAKE_CURRENT_SOURCE_DIR}/libyuv/include)
 endif()
