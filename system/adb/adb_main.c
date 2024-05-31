@@ -24,8 +24,8 @@
 
 #include "adb.h"
 
-#include <stdio.h>
 #include <syslog.h>
+#include <nuttx/streams.h>
 
 #if defined(CONFIG_ADBD_BOARD_INIT) || defined (CONFIG_BOARDCTL_RESET) || \
     defined(CONFIG_ADBD_USB_BOARDCTL)
