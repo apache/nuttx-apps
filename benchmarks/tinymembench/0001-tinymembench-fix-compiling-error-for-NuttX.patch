@@ -1,0 +1,28 @@
+From f478ab0f728bea1ed352844339f8bdc87f7792fa Mon Sep 17 00:00:00 2001
+From: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+Date: Fri, 31 May 2024 19:58:48 +0800
+Subject: [PATCH] tinymembench: fix compiling error for NuttX
+
+This patch fix compilation error: Resolve conflict between `util.c` function fmin and math library function fmin
+
+Signed-off-by: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+---
+ util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/util.c b/util.c
+index a0d562c..539049f 100644
+--- a/util.c
++++ b/util.c
+@@ -303,7 +303,7 @@ double gettime(void)
+     return (double)((int64_t)tv.tv_sec * 1000000 + tv.tv_usec) / 1000000.;
+ }
+ 
+-double fmin(double a, double b)
++__attribute__((weak)) double fmin(double a, double b)
+ {
+     return a < b ? a : b;
+ }
+-- 
+2.34.1
+
