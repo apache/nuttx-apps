@@ -7,6 +7,7 @@ config INDUSTRY_FOC
 	bool "FOC Library"
 	default n
 	select LIBDSP
+	depends on MOTOR_FOC
 	---help---
 		Enable or disable the FOC Library
 
@@ -27,6 +28,7 @@ config INDUSTRY_FOC_WARN
 config INDUSTRY_FOC_CORDIC
 	bool "Enable CORDIC support"
 	default n
+	depends on MATH_CORDIC
 	---help---
 		Enable support for CORDIC hardware acceleration
 
