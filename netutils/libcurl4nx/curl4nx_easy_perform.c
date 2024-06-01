@@ -522,7 +522,7 @@ int curl4nx_easy_perform(FAR struct curl4nx_s *handle)
 
                                               redirected = true;
                                               redircount += 1;
-                                              curl4nx_info("
+                                              curl4nx_info("\
                                                 REDIRECTION (%d) -> %s\n",
                                                 redircount,
                                                 headerbuf + off);
