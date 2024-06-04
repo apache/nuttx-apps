@@ -551,6 +551,8 @@ static int listener_record(FAR const struct orb_metadata *meta, int fd,
     {
       ret = orb_fprintf(file, meta->o_format, buffer);
     }
+#else
+  (void)file;
 #endif
 
   return ret;
