@@ -40,7 +40,7 @@
 #  define CPULOAD_US        (USEC_PER_SEC / CLOCKS_PER_SEC)
 #endif
 
-#define CPULOAD_DELAY       (10 * CPULOAD_US)
+#define CPULOAD_DELAY       (100 * CPULOAD_US)
 
 /****************************************************************************
  * Private Functions
