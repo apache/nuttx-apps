@@ -54,6 +54,7 @@ $(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
 CXXEXT ?= .cxx
 RUSTEXT ?= .rs
 ZIGEXT ?= .zig
+DEXT ?= .d
 
 # Library path
 

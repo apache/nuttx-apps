@@ -1,7 +1,6 @@
 *.a
 *.adb
 *.asm
-*.d
 *.dSYM
 *.exe
 *.gcno
