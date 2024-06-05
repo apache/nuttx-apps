@@ -28,6 +28,7 @@
 #include <sys/ioctl.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <nuttx/streams.h>
 #include <uORB/uORB.h>
