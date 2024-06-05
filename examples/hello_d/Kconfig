@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HELLO_D
+	tristate "\"Hello, D!\" D example"
+	default n
+	---help---
+		Enable the \"Hello, D!\" D example
+
+if EXAMPLES_HELLO_D
+
+config EXAMPLES_HELLO_D_PROGNAME
+	string "Program name"
+	default "hello_d"
+	---help---
+		This is the name of the program that will be used when the
+		program is installed.
+
+config EXAMPLES_HELLO_D_PRIORITY
+	int "Hello D task priority"
+	default 100
+
+config EXAMPLES_HELLO_D_STACKSIZE
+	int "Hello D stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
