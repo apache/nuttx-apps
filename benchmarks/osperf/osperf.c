@@ -281,9 +281,9 @@ static size_t poll_performance(void)
   poll(&fds, 1, -1);
   performance_end(&result);
 
+  pthread_join(ret, NULL);
   close(pipefd[0]);
   close(pipefd[1]);
-  pthread_join(ret, NULL);
   return performance_gettime(&result);
 }
 
