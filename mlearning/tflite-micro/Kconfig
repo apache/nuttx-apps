@@ -25,6 +25,21 @@ config TFLITEMICRO
 
 if TFLITEMICRO
 	config TFLITEMICRO_DEBUG
-	bool "TFLITEMICRO_DEBUG"
+	bool "Print tflite-micro's debug message"
 	default n
+
+config TFLITEMICRO_TOOL
+	bool "tflite-micro cmdline tool"
+	default n
+
+if TFLITEMICRO_TOOL
+	config TFLITEMICRO_TOOL_PRIORITY
+	int "tflite-micro tool priority"
+	default 100
+
+	config TFLITEMICRO_TOOL_STACKSIZE
+	int "tflite-micro tool stacksize"
+	default 4096
+
+endif
 endif
