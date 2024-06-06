@@ -258,10 +258,9 @@ int main(int argc, FAR char *argv[])
   FAR char *iobuffer = NULL;
   struct sockaddr_in6 host;
 #ifdef CONFIG_NET_ROUTE
-  struct sockaddr_storage target;
-  struct sockaddr_storage router;
-  struct sockaddr_storage netmask;
-  FAR struct sockaddr_in6 *v6_addr;
+  struct sockaddr_in6 target;
+  struct sockaddr_in6 router;
+  struct sockaddr_in6 netmask;
 #endif
   struct ipv6_mreq mrec;
   int nsec;
@@ -361,21 +360,18 @@ int main(int argc, FAR char *argv[])
   /* Set up a routing table entry for the address of the multicast group */
 
   memset(&target, 0, sizeof(target));
-  v6_addr = (FAR struct sockaddr_in6 *)&target;
-  v6_addr->sin6_family  = AF_INET6;
-  v6_addr->sin6_port    = HTONS(0x4321);
+  target.sin6_family  = AF_INET6;
+  target.sin6_port    = HTONS(0x4321);
   memcpy(v6_addr->sin6_addr.s6_addr16, g_grp_addr, sizeof(struct in6_addr));
 
   memset(&netmask, 0, sizeof(netmask));
-  v6_addr = (FAR struct sockaddr_in6 *)&netmask;
-  v6_addr->sin6_family  = AF_INET6;
-  v6_addr->sin6_port    = HTONS(0x4321);
+  netmask.sin6_family  = AF_INET6;
+  netmask.sin6_port    = HTONS(0x4321);
   memset(v6_addr->sin6_addr.s6_addr16, 0xff, sizeof(struct in6_addr));
 
   memset(&router, 0, sizeof(router));
-  v6_addr = (FAR struct sockaddr_in6 *)&router;
-  v6_addr->sin6_family  = AF_INET6;
-  v6_addr->sin6_port    = HTONS(0x4321);
+  router.sin6_family  = AF_INET6;
+  router.sin6_port    = HTONS(0x4321);
 
   ret = netlib_get_ipv6addr("eth0", &v6_addr->sin6_addr);
   if (ret < 0)
@@ -384,7 +380,7 @@ int main(int argc, FAR char *argv[])
     }
   else
     {
-      ret = addroute(sockfd, &target, &netmask, &router);
+      ret = addroute(sockfd, &target, &netmask, &router, sizeof(router));
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: addroute() failed: %d\n", errno);
@@ -406,7 +402,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  ret = delroute(sockfd, &target, &netmask);
+  ret = delroute(sockfd, &target, &netmask, sizeof(target));
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: delroute() failed: %d\n", errno);
