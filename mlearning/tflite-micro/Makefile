@@ -99,6 +99,13 @@ endif
 # extra hardware support.
 -include $(TFLM_DIR)/tensorflow/lite/micro/nuttx/Makefile
 
+ifneq ($(CONFIG_TFLITEMICRO_TOOL),)
+MAINSRC   = tflm_tool.cc
+PROGNAME  = tflm
+PRIORITY  = $(CONFIG_TFLITEMICRO_TOOL_PRIORITY)
+STACKSIZE = $(CONFIG_TFLITEMICRO_TOOL_STACKSIZE)
+endif
+
 CFLAGS   += ${COMMON_FLAGS}
 CXXFLAGS += ${COMMON_FLAGS}
 
