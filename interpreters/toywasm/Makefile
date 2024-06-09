@@ -129,6 +129,7 @@ endif
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/include
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/lib
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libwasi_threads
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 # Keep the compilation parameters consistent with toywasm mainline
@@ -136,7 +137,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 CFLAGS += -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-variable -Wno-return-type
 
-TOYWASM_VERSION  = 9f77f3519f84e9bb0074d855a04d731a5f56ce84
+TOYWASM_VERSION  = 7c60b048825b821a9398529d3af55514a62a3b7c
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
@@ -145,6 +146,7 @@ TOYWASM_URL      = $(TOYWASM_URL_BASE)/$(TOYWASM_TARBALL)
 VPATH += $(TOYWASM_UNPACK)/cli
 VPATH += $(TOYWASM_UNPACK)/lib
 VPATH += $(TOYWASM_UNPACK)/libwasi
+VPATH += $(TOYWASM_UNPACK)/libwasi_threads
 VPATH += $(TOYWASM_UNPACK)/libdyld
 VPATH += src
 
