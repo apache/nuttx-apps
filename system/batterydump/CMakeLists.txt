@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/system/mdio/CMakeLists.txt
+# apps/system/batterydump/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,17 @@
 #
 # ##############################################################################
 
-if(CONFIG_SYSTEM_MDIO)
-  nuttx_add_application(MODULE ${CONFIG_SYSTEM_MDIO} NAME mdio SRCS mdio_main.c)
+if(CONFIG_SYSTEM_BATTERYDUMP)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_BATTERYDUMP}
+    NAME
+    ${CONFIG_SYSTEM_BATTERYDUMP_PROGNAME}
+    STACKSIZE
+    ${CONFIG_SYSTEM_BATTERYDUMP_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_BATTERYDUMP_PRIORITY}
+    SRCS
+    batterydump.c)
+
 endif()

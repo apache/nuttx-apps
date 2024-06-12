@@ -19,5 +19,32 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_ZMODEM)
-  nuttx_add_application(NAME zmodem)
+  set(CSRCS zm_send.c zm_receive.c zm_state.c zm_proto.c zm_watchdog.c
+            zm_utils.c)
+
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_ZMODEM}
+    NAME
+    sz
+    STACKSIZE
+    ${CONFIG_SYSTEM_ZMODEM_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_ZMODEM_PRIORITY}
+    SRCS
+    sz_main.c
+    ${CSRCS})
+
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_ZMODEM}
+    NAME
+    rz
+    STACKSIZE
+    ${CONFIG_SYSTEM_ZMODEM_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_ZMODEM_PRIORITY}
+    SRCS
+    rz_main.c
+    ${CSRCS})
 endif()

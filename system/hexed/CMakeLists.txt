@@ -19,5 +19,27 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_HEXED)
-  nuttx_add_application(NAME hexed)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_HEXED}
+    NAME
+    hexed
+    STACKSIZE
+    ${CONFIG_SYSTEM_HEXED_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_HEXED_PRIORITY}
+    SRCS
+    src/hexed.c
+    src/bfile.c
+    src/cmdargs.c
+    src/hexcopy.c
+    src/hexdump.c
+    src/hexenter.c
+    src/hexhelp.c
+    src/hexinsert.c
+    src/hexmove.c
+    src/hexremove.c
+    src/hexword.c
+    INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_LIST_DIR}/include)
 endif()

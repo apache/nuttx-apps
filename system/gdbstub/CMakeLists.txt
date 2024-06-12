@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/system/mdio/CMakeLists.txt
+# apps/system/gdbstub/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_SYSTEM_MDIO)
-  nuttx_add_application(MODULE ${CONFIG_SYSTEM_MDIO} NAME mdio SRCS mdio_main.c)
+if(CONFIG_SYSTEM_GDBSTUB)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_GDBSTUB}
+    NAME
+    gdbstub
+    STACKSIZE
+    ${CONFIG_SYSTEM_GDBSTUB_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_GDBSTUB_PRIORITY}
+    SRCS
+    gdbstub.c)
 endif()

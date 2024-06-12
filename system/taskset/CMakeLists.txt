@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_TASKSET)
-  nuttx_add_application(NAME taskset)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_TASKSET}
+    NAME
+    ${CONFIG_SYSTEM_TASKSET_PROGNAME}
+    STACKSIZE
+    ${CONFIG_SYSTEM_TASKSET_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_TASKSET_PRIORITY}
+    SRCS
+    taskset.c)
 endif()

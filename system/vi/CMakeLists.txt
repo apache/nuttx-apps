@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_VI)
-  nuttx_add_application(NAME vi)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_VI}
+    NAME
+    vi
+    STACKSIZE
+    ${CONFIG_SYSTEM_VI_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_VI_PRIORITY}
+    SRCS
+    vi.c)
 endif()

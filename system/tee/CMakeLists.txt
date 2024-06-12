@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_TEE)
-  nuttx_add_application(NAME tee)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_TEE}
+    NAME
+    tee
+    STACKSIZE
+    ${CONFIG_SYSTEM_TEE_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_TEE_PRIORITY}
+    SRCS
+    tee.c)
 endif()
