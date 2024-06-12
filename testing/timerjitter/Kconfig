@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_TIMERJITTER
+	bool "timerjitter testing"
+	default n
+	help
+		timerjitter helps profiling timer accuracy and real-time performance.
+
+if TESTING_TIMERJITTER
+
+config TESTING_TIMERJITTER_PRIORITY
+	int "Priority of timerjitter process"
+	default 100
+
+config TESTING_TIMERJITTER_STACKSIZE
+	int "Stack size of timerjitter process"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
