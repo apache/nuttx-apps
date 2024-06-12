@@ -19,5 +19,6 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_UBLOXMODEM)
-  nuttx_add_application(NAME ubloxmodem)
+  nuttx_add_application(MODULE ${CONFIG_SYSTEM_UBLOXMODEM} NAME ubloxmodem SRCS
+                        ubloxmodem_main.c)
 endif()

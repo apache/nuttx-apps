@@ -19,8 +19,28 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_NSH)
-  nuttx_add_application(NAME nsh SRCS nsh_main.c)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_NSH}
+    NAME
+    ${CONFIG_SYSTEM_NSH_PROGNAME}
+    STACKSIZE
+    ${CONFIG_SYSTEM_NSH_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_NSH_PRIORITY}
+    SRCS
+    nsh_main.c)
 
-  nuttx_add_application(NAME sh SRCS sh_main.c)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_NSH}
+    NAME
+    sh
+    STACKSIZE
+    ${CONFIG_SYSTEM_NSH_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_NSH_PRIORITY}
+    SRCS
+    sh_main.c)
 
 endif()

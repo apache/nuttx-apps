@@ -19,5 +19,15 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_PING6)
-  nuttx_add_application(NAME ping6)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_SYSTEM_PING6}
+    NAME
+    ${CONFIG_SYSTEM_PING6_PROGNAME}
+    STACKSIZE
+    ${CONFIG_SYSTEM_PING6_STACKSIZE}
+    PRIORITY
+    ${CONFIG_SYSTEM_PING6_PRIORITY}
+    SRCS
+    ping6.c)
 endif()
