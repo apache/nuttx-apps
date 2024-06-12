@@ -93,6 +93,11 @@
 #define MYNEWT_VAL_BLE_HS_STOP_ON_SHUTDOWN             (1)
 #define MYNEWT_VAL_BLE_HS_STOP_ON_SHUTDOWN_TIMEOUT     (2000)
 
+/* LE Isochronous Channels not supported for now */
+
+#define MYNEWT_BLE_ISO                       (0)
+#define MYNEWT_VAL_BLE_ISO_MAX_BISES         (0)
+
 /* BLE role configuration */
 
 #ifdef CONFIG_NIMBLE_ROLE_BROADCASTER
@@ -143,6 +148,7 @@
 #define MYNEWT_VAL_BLE_MAX_CONNECTIONS              (CONFIG_NIMBLE_BLE_MAX_CONN)
 #define MYNEWT_VAL_BLE_MAX_PERIODIC_SYNCS           (CONFIG_NIMBLE_BLE_MAX_PERIODIC_SYNCS)
 #define MYNEWT_VAL_BLE_MULTI_ADV_INSTANCES          (CONFIG_NIMBLE_BLE_MULTI_ADV_INSTANCES)
+#define MYNEWT_VAL_BLE_HS_EXT_ADV_LEGACY_INSTANCE   (0)
 
 #ifdef CONFIG_NIMBLE_BLE_PERIODIC_ADV
 #  define MYNEWT_VAL_BLE_PERIODIC_ADV               (1)
@@ -178,6 +184,7 @@
 #define MYNEWT_VAL_BLE_ATT_SVR_INDICATE         (1)
 #define MYNEWT_VAL_BLE_ATT_SVR_MAX_PREP_ENTRIES (64)
 #define MYNEWT_VAL_BLE_ATT_SVR_NOTIFY           (1)
+#define MYNEWT_VAL_BLE_ATT_SVR_NOTIFY_MULTI     (1)
 #define MYNEWT_VAL_BLE_ATT_SVR_QUEUED_WRITE     (1)
 #define MYNEWT_VAL_BLE_ATT_SVR_QUEUED_WRITE_TMO (30000)
 #define MYNEWT_VAL_BLE_ATT_SVR_READ             (1)
@@ -188,6 +195,10 @@
 #define MYNEWT_VAL_BLE_ATT_SVR_SIGNED_WRITE     (1)
 #define MYNEWT_VAL_BLE_ATT_SVR_WRITE            (1)
 #define MYNEWT_VAL_BLE_ATT_SVR_WRITE_NO_RSP     (1)
+
+/* EATT disabled for now */
+
+#define MYNEWT_VAL_BLE_EATT_CHAN_NUM            (0)
 
 /* GAP configuration */
 

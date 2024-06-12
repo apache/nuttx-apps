@@ -10,7 +10,7 @@ if NIMBLE
 
 config NIMBLE_REF
 	string "Version"
-	default "bc7828341226d860429c63994065f8f1b8b8d7b0"
+	default "fb15c844542e812ceb49ab5ac8502dc93c167b90"
 	---help---
 		Git ref name to use when downloading from NimBLE repo
 
