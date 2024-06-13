@@ -31,6 +31,15 @@
 #include "nxcodec.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define NXCODEC_VER    "1.00"
+
+#define NXCODEC_WIDTH  640
+#define NXCODEC_HEIGHT 480
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -53,17 +62,17 @@ static const struct option g_long_options[] =
 
 static void usage(FAR const char *progname)
 {
-  printf("Usage: %s [options]\n\n"
-         "Version 1.3\n"
+  printf("NxCodec Version: "NXCODEC_VER"\n"
+         "Usage: %s -d devname -s [wxh] -f [informt] "
+         "-i infile -f [outformat] -o outfile\n"
+         "Default settings for decoder parameters\n\n"
          "Options:\n"
          "-d | --device  Video device name\n"
          "-s | --size    Size of stream\n"
          "-h | --help    Print this message\n"
          "-f | --format  Format of stream\n"
          "-i | --infile  Input filename for M2M devices\n"
-         "-o | --outfile Outputs stream to filename\n\n"
-         "eg: nxcodec -d /dev/video1 -s 256x144 \
-              -f H264 -i input.h264 -f YU12 -o output.yuv\n",
+         "-o | --outfile Outputs stream to filename\n",
          progname);
 
   exit(EXIT_SUCCESS);
@@ -86,7 +95,16 @@ int main(int argc, FAR char **argv)
       0
     };
 
-  memset(&codec, 0, sizeof(codec));
+  /* Default settings for decoder parameters */
+
+  codec.output.format.fmt.pix.width =
+  codec.capture.format.fmt.pix.width = NXCODEC_WIDTH;
+
+  codec.output.format.fmt.pix.height =
+  codec.capture.format.fmt.pix.height = NXCODEC_HEIGHT;
+
+  codec.output.format.fmt.pix.pixelformat = V4L2_PIX_FMT_H264;
+  codec.capture.format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
 
   while (1)
     {
@@ -133,8 +151,11 @@ int main(int argc, FAR char **argv)
             snprintf(codec.output.filename,
                      sizeof(codec.output.filename), "%s", optarg);
 
-            codec.output.format.fmt.pix.pixelformat =
+            if (cc[0])
+              {
+                codec.output.format.fmt.pix.pixelformat =
                                     v4l2_fourcc(cc[0], cc[1], cc[2], cc[3]);
+              }
             break;
 
           case 'o':
@@ -143,20 +164,17 @@ int main(int argc, FAR char **argv)
             snprintf(codec.capture.filename,
                      sizeof(codec.capture.filename), "%s", optarg);
 
-            codec.capture.format.fmt.pix.pixelformat =
+            if (cc[0])
+              {
+                codec.capture.format.fmt.pix.pixelformat =
                                      v4l2_fourcc(cc[0], cc[1], cc[2], cc[3]);
+              }
             break;
 
           default:
             usage(argv[0]);
             break;
         }
-    }
-
-  if (argc != optind)
-    {
-      printf("Too few input parameter!\n\n");
-      usage(argv[0]);
     }
 
   ret = nxcodec_init(&codec);
