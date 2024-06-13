@@ -22,11 +22,11 @@
 if(CONFIG_RPMSGDEV_TEST)
   nuttx_add_application(
     NAME
-    rpmsgdev
+    testdev
     PRIORITY
-    ${CONFIG_TESTING_TESTCASES_PRIORITY}
+    ${SCHED_PRIORITY_DEFAULT}
     STACKSIZE
-    ${CONFIG_TESTING_TESTCASES_STACKSIZE}
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
     SRCS
     testdev.c)
 endif()
