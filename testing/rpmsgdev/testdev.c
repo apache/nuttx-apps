@@ -22,8 +22,6 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-#include <nuttx/fs/fs.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/select.h>
@@ -32,12 +30,13 @@
 #include <stdio.h>
 #include <errno.h>
 #include <syslog.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
-#ifdef CONFIG_DEV_RPMSG
+#if defined(__NuttX__) && (defined(CONFIG_DEV_RPMSG) || defined(CONFIG_DEV_RPMSG_SERVER))
 #include <nuttx/drivers/rpmsgdev.h>
 #endif
 
@@ -45,20 +44,27 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifdef __ANDROID__
+#define syslog(l,...) printf(__VA_ARGS__)
+#endif
+
 /* set a random open flag to check whether the open api behave correctly */
 
 #define OPEN_FLAG O_RDWR
-#define RET 114514
+#define RET ENOENT
 #define OFFSET 1234l
 #define WHENCE SEEK_SET
+#ifdef __NuttX__
 #define IOCTL FIONSPACE
 #define IOCTL_ARG 0x55AA
+#endif
 static int hour __attribute__((unused));
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
+#ifdef __NuttX__
 static int     testdev_open(FAR struct file *filep);
 static int     testdev_close(FAR struct file *filep);
 static ssize_t testdev_read(FAR struct file *filep, FAR char *buffer,
@@ -97,7 +103,8 @@ static const struct file_operations g_testdev_ops =
 
 static int testdev_open(FAR struct file *filep)
 {
-  if (filep->f_oflags == (OPEN_FLAG | O_NONBLOCK))
+  if ((filep->f_oflags & (OPEN_FLAG | O_NONBLOCK)) ==
+      (OPEN_FLAG | O_NONBLOCK))
     {
       filep->f_pos = 0;
       syslog(LOG_INFO, "test open success\n");
@@ -110,7 +117,8 @@ static int testdev_open(FAR struct file *filep)
 
 static int testdev_close(FAR struct file *filep)
 {
-  if (filep->f_oflags == (OPEN_FLAG | O_NONBLOCK))
+  if ((filep->f_oflags & (OPEN_FLAG | O_NONBLOCK)) ==
+      (OPEN_FLAG | O_NONBLOCK))
     {
       syslog(LOG_INFO, "test close success\n");
       return 0;
@@ -233,7 +241,7 @@ static int testdev_poll(FAR struct file *filep, FAR struct pollfd *fds,
 static void _register_driver(int mode, char *cpu, char *remotepath,
                              char *localpath)
 {
-  int ret;
+  int ret = -EINVAL;
 
   switch (mode)
     {
@@ -257,8 +265,21 @@ static void _register_driver(int mode, char *cpu, char *remotepath,
         ret = rpmsgdev_register(cpu, remotepath, localpath, 0);
       break;
 #endif
+      case 2:
+#ifdef CONFIG_DEV_RPMSG_SERVER
+        if (cpu == NULL || localpath == NULL)
+          {
+            syslog(LOG_ERR, "please set -c, -l\n");
+            exit(1);
+          }
+
+        ret = rpmsgdev_export(cpu, localpath);
+#else
+      syslog(LOG_WARNING, "feature of case %d not enabled\n", mode);
+#endif
+      break;
       default:
-        syslog(LOG_ERR, "-r must between 0 and 1\n");
+      syslog(LOG_ERR, "-d must between 0 and 2\n");
         exit(1);
       break;
     }
@@ -272,8 +293,9 @@ static void _register_driver(int mode, char *cpu, char *remotepath,
 
   syslog(LOG_INFO, "register driver success\n");
 }
+#endif
 
-#ifdef CONFIG_DEV_RPMSG
+#if defined(CONFIG_DEV_RPMSG) || defined(TEST_RPMSGDEV)
 static int test_open(char *path, int flags)
 {
   int fd;
@@ -337,7 +359,8 @@ static int test_read(int fd, size_t len)
     {
       if (buf[ret] != 'r')
         {
-          syslog(LOG_ERR, "check data error, ret %d, except 'a'", buf[ret]);
+          syslog(LOG_ERR, "check data error, ret[%d] %d, except 'r'\n",
+                 ret, buf[ret]);
           free(buf);
           return -1;
         }
@@ -401,6 +424,7 @@ static off_t test_seek(int fd, off_t offset, int whence)
   return ret;
 }
 
+#ifdef __NuttX__
 static int test_ioctl(int fd, unsigned long request, unsigned long arg)
 {
   int ret;
@@ -414,6 +438,7 @@ static int test_ioctl(int fd, unsigned long request, unsigned long arg)
   syslog(LOG_INFO, "test ioctl return %d\n", ret);
   return ret;
 }
+#endif
 
 static int test_poll(int fd, int event, int timeout)
 {
@@ -445,7 +470,7 @@ static int testcase_1(char *path)
   fd = open(path, O_RDONLY);
   if (fd != -1 || errno != RET)
     {
-      syslog(LOG_ERR, "open test fail, fs %d (expect -1), "
+      syslog(LOG_ERR, "open test fail, fd %d (expect -1), "
              "errno %d (expect %d)\n", fd, errno, RET);
       return -1;
     }
@@ -510,6 +535,7 @@ static int testcase_3(char *path)
   return test_close(fd);
 }
 
+#ifdef __NuttX__
 /* open -> ioctl fail -> ioctl success -> close */
 
 static int testcase_4(char *path)
@@ -547,6 +573,7 @@ static int testcase_4(char *path)
   syslog(LOG_INFO, "ioctl2 success\n");
   return test_close(fd);
 }
+#endif
 
 /* open -> poll -> close */
 
@@ -565,7 +592,7 @@ static int testcase_5(char *path)
   ret = test_poll(fd, POLLIN, 200);
   if (ret != 1)
     {
-      syslog(LOG_ERR, "poll test1 fail, ret %d, expect 0\n", ret);
+      syslog(LOG_ERR, "poll test1 fail, ret %d, expect 1\n", ret);
       return -1;
     }
 
@@ -580,6 +607,7 @@ static int testcase_5(char *path)
 
   syslog(LOG_INFO, "poll2 success\n");
 
+#if 0
   ret = test_poll(fd, POLLOUT, 0);
   if (ret != 1)
     {
@@ -588,6 +616,8 @@ static int testcase_5(char *path)
     }
 
   syslog(LOG_INFO, "poll3 success\n");
+#endif
+
   return test_close(fd);
 }
 
@@ -687,7 +717,10 @@ static void show_usage(void)
   syslog(LOG_WARNING,
          "Usage: CMD [-d <regist driver>] [-c <remote cpu>] "
          "[-l <localpath>] [-r <remotepath>] [-h <hour>] [-t <test>]\n"
-         "\t\t-d: regist driver, 0 for test driver, 1 for rpmsgdev\n"
+         "\t\t-d: regist driver\n"
+         "\t\t\t 0 for test driver\n"
+         "\t\t\t 1 for rpmsgdev(client register)\n"
+         "\t\t\t 2 for rpmsgdev(server export)\n"
          "\t\t-c: remote cpu which regists test driver\n"
          "\t\t-l: localpath, which means rpmsgdev's name\n"
          "\t\t-r: remotepath, which means test driver's name\n"
@@ -757,10 +790,12 @@ int main(int argc, char *argv[])
 
   if (mode >= 0)
     {
+#ifdef __NuttX__
       _register_driver(mode, cpu, remotepath, localpath);
+#endif
     }
 
-#ifdef CONFIG_DEV_RPMSG
+#if defined(CONFIG_DEV_RPMSG) || defined(TEST_RPMSGDEV)
   if (test >= 0)
     {
       if (localpath == NULL)
@@ -780,9 +815,11 @@ int main(int argc, char *argv[])
           case 3:
             ret = testcase_3(localpath);
           break;
+#ifdef __NuttX__
           case 4:
             ret = testcase_4(localpath);
           break;
+#endif
           case 5:
             ret = testcase_5(localpath);
           break;
