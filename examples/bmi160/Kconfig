@@ -11,6 +11,13 @@ config EXAMPLES_SIXAXIS
 
 if EXAMPLES_SIXAXIS
 
+config EXAMPLES_SIXAXIS_UORB
+	bool "BMI160 sensor uorb example"
+	default n
+	---help---
+		Enables Work with the UORB or Character Device interface.
+		If not set, the Character Device is used by default.
+
 config EXAMPLES_SIXAXIS_PROGNAME
 	string "Program name"
 	default "sixaxis"
