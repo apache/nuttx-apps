@@ -33,6 +33,11 @@ if(CONFIG_CRYPTO_MBEDTLS)
       URL ${MBEDTLS_URL}/v${CONFIG_MBEDTLS_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/mbedtls BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/crypto/mbedtls/mbedtls
+      PATCH_COMMAND
+        patch -p1 -d ${MBEDTLS_DIR} <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-mbedtls-entropy_poll-use-getrandom-to-get-the-system.patch
+        && patch -p1 -d ${MBEDTLS_DIR} <
+        ${CMAKE_CURRENT_LIST_DIR}/0002-mbedtls-add-mbedtls-x509-crt-pool.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -54,6 +59,8 @@ if(CONFIG_CRYPTO_MBEDTLS)
     if(CONFIG_DEBUG_OPTLEVEL STREQUAL -O3)
       set_source_files_properties(${MBEDTLS_DIR}/library/sha246.c
                                   PROPERTIES COMPILE_FLAGS -O2)
+      set_source_files_properties(${MBEDTLS_DIR}/library/cmac.c
+                                  PROPERTIES COMPILE_FLAGS -O2)
     endif()
   endif()
 
@@ -63,12 +70,36 @@ if(CONFIG_CRYPTO_MBEDTLS)
 
   file(GLOB CSRCS ${MBEDTLS_DIR}/library/*.c)
 
+  if(CONFIG_MBEDTLS_ALT)
+    list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/dev_alt.c)
+
+    if(CONFIG_MBEDTLS_AES_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/aes_alt.c)
+    endif()
+
+    if(CONFIG_MBEDTLS_MD5_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/md5_alt.c)
+    endif()
+
+    if(CONFIG_MBEDTLS_SHA1_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/sha1_alt.c)
+    endif()
+
+    if(CONFIG_MBEDTLS_SHA256_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/sha256_alt.c)
+    endif()
+
+    if(CONFIG_MBEDTLS_SHA512_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/sha512_alt.c)
+    endif()
+
+  endif()
+
   # ############################################################################
   # Include Directory
   # ############################################################################
 
-  set(INCDIR ${MBEDTLS_DIR}/include)
-
+  set(INCDIR ${CMAKE_CURRENT_LIST_DIR}/include ${MBEDTLS_DIR}/include)
   # ############################################################################
   # Library Configuration
   # ############################################################################
@@ -77,6 +108,10 @@ if(CONFIG_CRYPTO_MBEDTLS)
     TARGET nuttx
     APPEND
     PROPERTY NUTTX_INCLUDE_DIRECTORIES ${INCDIR})
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_CXX_INCLUDE_DIRECTORIES ${INCDIR})
 
   nuttx_add_library(mbedtls STATIC)
   target_sources(mbedtls PRIVATE ${CSRCS})
@@ -108,7 +143,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
         INCLUDE_DIRECTORIES
         ${INCDIR}
         DEPENDS
-        mbedtls_nuttx)
+        mbedtls)
     endif()
 
     if(CONFIG_MBEDTLS_APP_SELFTEST)
@@ -126,7 +161,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
         INCLUDE_DIRECTORIES
         ${INCDIR}
         DEPENDS
-        mbedtls_nuttx)
+        mbedtls)
     endif()
 
   endif()
