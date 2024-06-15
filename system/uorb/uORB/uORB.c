@@ -348,11 +348,15 @@ int orb_sscanf(FAR const char *buf, FAR const char *format, FAR void *data)
 void orb_info(FAR const char *format, FAR const char *name,
               FAR const void *data)
 {
+  struct lib_stdoutstream_s stdoutstream;
   struct va_format vaf;
 
   vaf.fmt = format;
   vaf.va  = (va_list *)data;
-  uorbinfo_raw("%s(now:%" PRIu64 "):%pB\n", name, orb_absolute_time(), &vaf);
+
+  lib_stdoutstream(&stdoutstream, stdout);
+  lib_sprintf(&stdoutstream.common, "%s(now:%" PRIu64 "):%pB",
+              name, orb_absolute_time(), &vaf);
 }
 
 int orb_fprintf(FAR FILE *stream, FAR const char *format,
