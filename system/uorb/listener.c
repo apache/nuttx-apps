@@ -194,7 +194,7 @@ static int listener_get_state(FAR struct orb_object *object,
   int ret;
   int fd;
 
-  fd = orb_open(object->meta->o_name, object->instance, 0);
+  fd = orb_open(object->meta->o_name, object->instance, O_DIRECT);
   if (fd < 0)
     {
       return fd;
