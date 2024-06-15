@@ -156,7 +156,7 @@ struct orb_handle_s
 #  define uorbdebug            uorbnone
 #endif
 
-#define uorbinfo_raw(fmt, ...) syslog(LOG_INFO, fmt "\n", ##__VA_ARGS__)
+#define uorbinfo_raw(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
 
 /* Generates a pointer to the uORB metadata structure for
  * a given topic.
