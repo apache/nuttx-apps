@@ -27,6 +27,7 @@ MODULE    = $(CONFIG_INTERPRETERS_TOYWASM)
 
 # cli
 MAINSRC = main.c
+CSRCS += str_to_uint.c
 CSRCS += repl.c
 
 # lib
@@ -49,6 +50,7 @@ CSRCS += instance.c
 CSRCS += leb128.c
 CSRCS += list.c
 CSRCS += load_context.c
+CSRCS += mem.c
 CSRCS += module.c
 CSRCS += module_writer.c
 CSRCS += name.c
@@ -137,7 +139,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 CFLAGS += -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-variable -Wno-return-type
 
-TOYWASM_VERSION  = 7c60b048825b821a9398529d3af55514a62a3b7c
+TOYWASM_VERSION  = b43dd5312988a6dbc2b165c5956697d7f1d16000
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
