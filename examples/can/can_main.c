@@ -358,7 +358,7 @@ int main(int argc, FAR char *argv[])
       txmsg.cm_hdr.ch_brs    = brs;
       txmsg.cm_hdr.ch_esi    = false;
 #endif
-      txmsg.cm_hdr.ch_unused = 0;
+      txmsg.cm_hdr.ch_tcf    = 0;
 
       for (i = 0; i < msgbytes; i++)
         {
