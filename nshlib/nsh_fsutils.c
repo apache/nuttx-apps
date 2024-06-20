@@ -583,7 +583,7 @@ FAR char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
       snprintf(vtbl->iobuffer, IOBUFFERSIZE, "%s/%s", dirpath, path);
     }
 
-  return strdup(vtbl->iobuffer);
+  return lib_realpath(vtbl->iobuffer, NULL, true);
 }
 #endif
 
