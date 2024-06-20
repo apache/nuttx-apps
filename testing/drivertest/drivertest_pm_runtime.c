@@ -109,7 +109,7 @@ static void test_pm_runtime(FAR void **state)
                        TEST_PM_RUTIME_FAKE_SUSPEND);
       ret = pm_runtime_put(&g_test_pm_runtime_dev.rpm);
       assert_int_equal(ret, -EPERM);
-      pm_runtime_set_autosuspend_delay(&g_test_pm_runtime_dev.rpm, 3000);
+      pm_runtime_set_autosuspend_delay(&g_test_pm_runtime_dev.rpm, 200);
       ret = pm_runtime_get(&g_test_pm_runtime_dev.rpm);
       assert_int_equal(ret, 0);
       assert_int_equal(g_test_pm_runtime_dev.state,
@@ -118,7 +118,7 @@ static void test_pm_runtime(FAR void **state)
       assert_int_equal(ret, 0);
       assert_int_equal(g_test_pm_runtime_dev.state,
                        TEST_PM_RUTIME_FAKE_RESUME);
-      sleep(3);
+      usleep(210 * 1000);
       assert_int_equal(g_test_pm_runtime_dev.state,
                        TEST_PM_RUTIME_FAKE_SUSPEND);
       ret = pm_runtime_get(&g_test_pm_runtime_dev.rpm);
@@ -134,6 +134,7 @@ static void test_pm_runtime(FAR void **state)
        pm_runtime_set_autosuspend_delay(&g_test_pm_runtime_dev.rpm, 0);
       ret = pm_runtime_put_autosuspend(&g_test_pm_runtime_dev.rpm);
       assert_int_equal(ret, 0);
+      usleep(10 * 1000);
       assert_int_equal(g_test_pm_runtime_dev.state,
                        TEST_PM_RUTIME_FAKE_SUSPEND);
       ret = pm_runtime_put(&g_test_pm_runtime_dev.rpm);
