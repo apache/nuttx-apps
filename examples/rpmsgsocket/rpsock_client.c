@@ -40,10 +40,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define ALIGN_UP(a)     (((a) + 0x3) & ~0x3)
-#define SYNCSIZE        CONFIG_NET_RPMSG_RXBUF_SIZE
-#define BUFSIZE         SYNCSIZE * 2
-#define BUFHEAD         64
+#define SYNCSIZE CONFIG_NET_RPMSG_RXBUF_SIZE
+#define BUFSIZE  SYNCSIZE * 2
+#define BUFHEAD  64
+#ifndef ALIGN_UP
+#  define ALIGN_UP(num, align) (((num) + ((align) - 1)) & ~((align) - 1))
+#endif
 
 /****************************************************************************
  * Private types
@@ -193,17 +195,18 @@ static int rpsock_unsync_test(FAR struct rpsock_arg_s *args)
 
           if (args->check && ret > 4)
             {
-              intp   = (uint32_t *)(args->inbuf + (ALIGN_UP(total) - total));
-              checks = ret - (ALIGN_UP(total) - total);
+              checks = ret - (ALIGN_UP(total, 4) - total);
+              intp   = (FAR uint32_t *)(args->inbuf +
+                                        (ALIGN_UP(total, 4) - total));
 
               for (i = 0; i < checks / sizeof(uint32_t); i++)
                 {
-                  if (intp[i] != ALIGN_UP(total) / sizeof(uint32_t) + i)
+                  if (intp[i] != ALIGN_UP(total, 4) / sizeof(uint32_t) + i)
                     {
                       printf("client check fail total %d, \
                               i %d, %08" PRIx32 ", %08zx\n",
-                              ALIGN_UP(total), i, intp[i],
-                              ALIGN_UP(total) / sizeof(uint32_t) + i);
+                              ALIGN_UP(total, 4), i, intp[i],
+                              ALIGN_UP(total, 4) / sizeof(uint32_t) + i);
                     }
                 }
             }
