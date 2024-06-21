@@ -35,13 +35,14 @@ config EXAMPLES_SOTEST_BUILTINFS
 
 if EXAMPLES_SOTEST_BUILTINFS
 
-config EXAMPLES_SOTEST_DEVMINOR
-	int "ROMFS Minor Device Number"
-	default 0
+config EXAMPLES_SOTEST_DEVMINOR_MAX
+	int "ROMFS Max Minor Device Number"
+	default 5
 	---help---
-		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		The max minor device number of the ROMFS block will be tried.
+		For example, from /dev/ram0 to /dev/ramN.
 		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the SOTEST executables to be tested.  Default: 0
+		containing the SOTEST executables to be tested.  Default: 5
 
 endif # EXAMPLES_SOTEST_BUILTINFS
 
