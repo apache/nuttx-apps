@@ -15,7 +15,7 @@ if EXAMPLES_SOTEST
 config EXAMPLES_SOTEST_BUILTINFS
 	bool "Built-in File System"
 	default y
-	depends on FS_ROMFS && BUILD_FLAT
+	depends on FS_ROMFS && BUILD_FLAT && BOARDCTL_ROMDISK
 	---help---
 		This example supports a very, non-standard but also very convenient
 		way of testing with example using CONFIG_EXAMPLES_SOTEST_BUILTINFS.
