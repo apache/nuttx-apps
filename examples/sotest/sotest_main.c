@@ -71,8 +71,8 @@
 #  define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
 #  define BINDIR       "/mnt/romfs"
 
-#  ifndef CONFIG_EXAMPLES_SOTEST_DEVMINOR
-#    define CONFIG_EXAMPLES_SOTEST_DEVMINOR 0
+#  ifndef CONFIG_EXAMPLES_SOTEST_DEVMINOR_MAX
+#    define CONFIG_EXAMPLES_SOTEST_DEVMINOR_MAX 5
 #  endif
 #else
 #  define BINDIR       CONFIG_EXAMPLES_SOTEST_BINDIR
@@ -127,26 +127,33 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
   /* Create a ROM disk for the ROMFS filesystem */
 
-  desc.minor    = CONFIG_EXAMPLES_SOTEST_DEVMINOR;     /* Minor device number of the ROM disk. */
+  desc.minor    = 0;                                   /* Minor device number of the ROM disk. */
   desc.nsectors = NSECTORS(romfs_img_len);             /* The number of sectors in the ROM disk */
   desc.sectsize = SECTORSIZE;                          /* The size of one sector in bytes */
   desc.image    = (FAR uint8_t *)romfs_img;            /* File system image */
 
-  printf("main: Registering romdisk at /dev/ram%d\n",
-         CONFIG_EXAMPLES_SOTEST_DEVMINOR);
-
-  ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
-
-  if (ret < 0)
+  for (; desc.minor <= CONFIG_EXAMPLES_SOTEST_DEVMINOR_MAX; desc.minor++)
     {
-      fprintf(stderr, "ERROR: romdisk_register failed: %s\n",
-              strerror(errno));
-      exit(EXIT_FAILURE);
+      printf("main: Registering romdisk at /dev/ram%d\n", desc.minor);
+
+      ret = boardctl(BOARDIOC_ROMDISK, (uintptr_t)&desc);
+      if (ret >= 0)
+        {
+          break;
+        }
+
+      if (errno != EEXIST ||
+          desc.minor == CONFIG_EXAMPLES_SOTEST_DEVMINOR_MAX)
+        {
+          fprintf(stderr, "ERROR: romdisk_register failed: %s\n",
+                  strerror(errno));
+          exit(EXIT_FAILURE);
+        }
     }
 
   /* Mount the file system */
 
-  sprintf(devname, SOTEST_DEVPATH_FMT, CONFIG_EXAMPLES_SOTEST_DEVMINOR);
+  sprintf(devname, SOTEST_DEVPATH_FMT, desc.minor);
   printf("main: Mounting ROMFS filesystem at target=%s with source=%s\n",
          BINDIR, devname);
 
