@@ -89,10 +89,21 @@
  * Private Types
  ****************************************************************************/
 
+#ifndef PRIxREG
+typedef uintptr_t   uintreg_t;
+
+#if UINTPTR_MAX <= UINT32_MAX
+#  define PRIxREG   "08" PRIxPTR
+#else
+#  define PRIxREG   "016" PRIxPTR
+#endif
+
+#endif
+
 struct fpu_threaddata_s
 {
-  uintptr_t save1[XCPTCONTEXT_REGS] aligned_data(XCPTCONTEXT_ALIGN);
-  uintptr_t save2[XCPTCONTEXT_REGS] aligned_data(XCPTCONTEXT_ALIGN);
+  uintreg_t save1[XCPTCONTEXT_REGS] aligned_data(XCPTCONTEXT_ALIGN);
+  uintreg_t save2[XCPTCONTEXT_REGS] aligned_data(XCPTCONTEXT_ALIGN);
 
   /* These are just dummy values to force the compiler to do the
    * requested floating point computations without the nonsense
@@ -121,7 +132,7 @@ static uint8_t g_fpuno;
  * Private Functions
  ****************************************************************************/
 
-static void fpu_dump(FAR uintptr_t *buffer, FAR const char *msg)
+static void fpu_dump(FAR uintreg_t *buffer, FAR const char *msg)
 {
   int i;
   int j;
@@ -137,7 +148,7 @@ static void fpu_dump(FAR uintptr_t *buffer, FAR const char *msg)
 
           if (k < XCPTCONTEXT_REGS)
             {
-              printf("%08" PRIxPTR " ", buffer[k]);
+              printf("%" PRIxREG " ", buffer[k]);
             }
           else
             {
@@ -186,8 +197,8 @@ static int fpu_task(int argc, char *argv[])
        * that we can verify that reading of the registers actually occurs.
        */
 
-      memset(fpu->save1, 0xff, XCPTCONTEXT_REGS * sizeof(uintptr_t));
-      memset(fpu->save2, 0xff, XCPTCONTEXT_REGS * sizeof(uintptr_t));
+      memset(fpu->save1, 0xff, XCPTCONTEXT_REGS * sizeof(uintreg_t));
+      memset(fpu->save2, 0xff, XCPTCONTEXT_REGS * sizeof(uintreg_t));
 
       /* Prevent context switches while we set up some stuff */
 
