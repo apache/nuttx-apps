@@ -18,6 +18,6 @@
 #
 # ##############################################################################
 
-if(CONFIG_AUDIOUTILS_MMLPARSER_LIB)
+if(CONFIG_AUDIOUTILS_FMSYNTH_LIB)
   target_sources(apps PRIVATE fmsynth.c fmsynth_eg.c fmsynth_op.c)
 endif()
