@@ -19,7 +19,6 @@
 #############################################################################
 
 include $(APPDIR)/Make.defs
--include $(SDKDIR)/Make.defs
 
 # fxos8700cq built-in application info
 

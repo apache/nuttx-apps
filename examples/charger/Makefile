@@ -19,7 +19,6 @@
 ############################################################################
 
 include $(APPDIR)/Make.defs
--include $(SDKDIR)/Make.defs
 
 PROGNAME = $(CONFIG_EXAMPLES_CHARGER_PROGNAME)
 PRIORITY = $(CONFIG_EXAMPLES_CHARGER_PRIORITY)
