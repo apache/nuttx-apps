@@ -371,7 +371,7 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #if !defined(CONFIG_DISABLE_PTHREAD) && defined(__KERNEL__) && \
-    (defined(CONFIG_SCHED_LPWORK) || defined(CONFIG_SCHED_HPWORK))
+    defined(CONFIG_SCHED_WORKQUEUE)
       /* Check work queues */
 
       printf("\nuser_main: wqueue test\n");
