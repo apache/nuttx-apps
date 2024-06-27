@@ -110,7 +110,11 @@ static FAR void *cu_listener(FAR void *parameter)
           break;
         }
 
-      write(STDOUT_FILENO, &ch, 1);
+      rc = write(STDOUT_FILENO, &ch, 1);
+      if (rc <= 0)
+        {
+          break;
+        }
     }
 
   /* Won't get here */
