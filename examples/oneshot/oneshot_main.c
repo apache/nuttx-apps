@@ -208,8 +208,8 @@ int main(int argc, FAR char *argv[])
         {
           /* Wait for the maximum */
 
-          printf("Starting oneshot timer with delay %llu microseconds\n",
-                 maxus);
+          printf("Starting oneshot timer with delay %" PRId64
+                 " microseconds\n", maxus);
 
           start.ts.tv_sec  = ts.tv_sec;
           start.ts.tv_nsec = ts.tv_nsec;
