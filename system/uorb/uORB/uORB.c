@@ -70,7 +70,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
   if (fd < 0)
     {
       struct sensor_reginfo_s reginfo;
-      reginfo.path    = path;
+      strlcpy(reginfo.path, path, NAME_MAX);
       reginfo.esize   = meta->o_size;
       reginfo.nbuffer = queue_size;
       reginfo.persist = !!(flags & SENSOR_PERSIST);

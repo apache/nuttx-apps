@@ -170,5 +170,5 @@ FAR const struct orb_metadata *orb_get_meta(FAR const char *name)
       return NULL;
     }
 
-  return state.priv;
+  return (FAR const struct orb_metadata *)(uintptr_t)state.priv;
 }
