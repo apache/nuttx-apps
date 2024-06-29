@@ -55,7 +55,7 @@ static int parse_args(int argc, FAR char *argv[],
   args->microstep = -1;
   args->speed = 200;
 
-  for (i i = 2; i < argc; ++i)
+  for (i = 2; i < argc; ++i)
     {
       if (strncmp("-m", argv[i], 2) == 0)
         {
