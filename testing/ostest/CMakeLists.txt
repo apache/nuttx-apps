@@ -27,7 +27,8 @@ if(CONFIG_TESTING_OSTEST)
       sigprocmask.c
       sighand.c
       signest.c
-      sighelper.c)
+      sighelper.c
+      wdog.c)
 
   if(CONFIG_DEV_NULL)
     list(APPEND SRCS dev_null.c)
