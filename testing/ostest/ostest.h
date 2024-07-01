@@ -209,6 +209,10 @@ void signest_test(void);
 
 void suspend_test(void);
 
+/* wdog.c *******************************************************************/
+
+void wdog_test(void);
+
 /* posixtimers.c ************************************************************/
 
 void timer_test(void);
