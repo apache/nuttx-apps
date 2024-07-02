@@ -169,6 +169,9 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
   trans.nwords = spitool->count;
   trans.txbuffer = txdata;
   trans.rxbuffer = rxdata;
+#ifdef CONFIG_SPI_HWFEATURES
+  trans.hwfeat = 0;
+#endif
 
   ret = spidev_transfer(fd, &seq);
 
