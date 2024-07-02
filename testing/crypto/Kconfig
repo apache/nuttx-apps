@@ -30,6 +30,10 @@ config TESTING_CRYPTO_HASH
 	bool "hash crypto test"
 	default n
 
+config TESTING_CRYPTO_CRC32
+	bool "crc32 crypto test"
+	default n
+
 config TESTING_CRYPTO_PRIORITY
 	int "crypto test task priority"
 	default 100
