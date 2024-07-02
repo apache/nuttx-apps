@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/uorb/sensor/gps.h
+ * apps/system/uorb/sensor/gnss.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,22 +18,36 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_UORB_SENSOR_GPS_H
-#define __APPS_SYSTEM_UORB_SENSOR_GPS_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <uORB/uORB.h>
+#include <sensor/gnss.h>
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_DEBUG_UORB
+static const char sensor_gnss_format[] =
+  "timestamp:%" PRIu64 ",time_utc:%" PRIu64 ",latitude:%hf,longitude:%hf,"
+  "altitude:%hf,altitude_ellipsoid:%hf,eph:%hf,epv:%hf,hdop:%hf,pdop:%hf,"
+  "vdop:%hf,ground_speed:%hf,course:%hf,satellites_used:%" PRIu32 "";
+
+static const char sensor_gnss_satellite_format[] =
+  "timestamp:%" PRIu64 ",count:%" PRIu32 ",satellites:%" PRIu32 ","
+  "svid0:%" PRIu32 ",elevation0:%" PRIu32 ",azimuth0:%" PRIu32 ","
+  "snr0:%" PRIu32 ",svid1:%" PRIu32 ",elevation1:%" PRIu32 ","
+  "azimuth1:%" PRIu32 ",snr1:%" PRIu32 ",svid2:%" PRIu32 ","
+  "elevation2:%" PRIu32 ",azimuth2:%" PRIu32 ",snr2:%" PRIu32 ","
+  "svid3:%" PRIu32 ",elevation3:%" PRIu32 ",azimuth3:%" PRIu32 ","
+  "snr3:%" PRIu32 "";
+#endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-/* register this as object request broker structure */
-
-ORB_DECLARE(sensor_gps);
-ORB_DECLARE(sensor_gps_satellite);
-
-#endif
+ORB_DEFINE(sensor_gnss, struct sensor_gnss, sensor_gnss_format);
+ORB_DEFINE(sensor_gnss_satellite, struct sensor_gnss_satellite,
+           sensor_gnss_satellite_format);
