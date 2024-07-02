@@ -71,9 +71,9 @@ static void print_force(FAR const char *buffer, FAR const char *name);
 static void print_ppgd(FAR const char *buffer, FAR const char *name);
 static void print_ppgq(FAR const char *buffer, FAR const char *name);
 static void print_cap(FAR const char *buffer, FAR const char *name);
-static void print_gps(FAR const char *buffer, FAR const char *name);
-static void print_gps_satellite(FAR const char *buffer,
-                                FAR const char *name);
+static void print_gnss(FAR const char *buffer, FAR const char *name);
+static void print_gnss_satellite(FAR const char *buffer,
+                                 FAR const char *name);
 
 /****************************************************************************
  * Private Data
@@ -90,9 +90,9 @@ static const struct sensor_info g_sensor_info[] =
   {print_valf,  sizeof(struct sensor_dust),  "dust"},
   {print_ecg,   sizeof(struct sensor_ecg),   "ecg"},
   {print_force, sizeof(struct sensor_force), "force"},
-  {print_gps,   sizeof(struct sensor_gps),   "gps"},
-  {print_gps_satellite,
-        sizeof(struct sensor_gps_satellite), "gps_satellite"},
+  {print_gnss,  sizeof(struct sensor_gnss),  "gnss"},
+  {print_gnss_satellite,
+       sizeof(struct sensor_gnss_satellite), "gnss_satellite"},
   {print_vec3,  sizeof(struct sensor_gyro),  "gyro"},
   {print_valb,  sizeof(struct sensor_hall),  "hall"},
   {print_valf,  sizeof(struct sensor_hbeat), "hbeat"},
@@ -212,9 +212,9 @@ static void print_cap(FAR const char *buffer, FAR const char *name)
          event->rawdata[1], event->rawdata[2], event->rawdata[3]);
 }
 
-static void print_gps(const char *buffer, const char *name)
+static void print_gnss(const char *buffer, const char *name)
 {
-  FAR struct sensor_gps *event = (FAR struct sensor_gps *)buffer;
+  FAR struct sensor_gnss *event = (FAR struct sensor_gnss *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " time_utc: %" PRIu64 " latitude: %f "
          "longitude: %f altitude: %f altitude_ellipsoid: %f eph: %f epv: %f "
@@ -226,10 +226,11 @@ static void print_gps(const char *buffer, const char *name)
          event->ground_speed, event->course, event->satellites_used);
 }
 
-static void print_gps_satellite(FAR const char *buffer, FAR const char *name)
+static void print_gnss_satellite(FAR const char *buffer,
+                                 FAR const char *name)
 {
-  FAR FAR struct sensor_gps_satellite *event =
-        (FAR struct sensor_gps_satellite *)buffer;
+  FAR FAR struct sensor_gnss_satellite *event =
+        (FAR struct sensor_gnss_satellite *)buffer;
 
   printf("%s: timestamp: %" PRIu64 " count: %" PRIu32
          " satellites: %" PRIu32 "\n",
