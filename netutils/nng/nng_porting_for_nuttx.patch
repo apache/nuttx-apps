@@ -108,6 +108,18 @@ index 418bfb15..53905bf5 100644
  	{
  	    .scheme = NULL,
  	},
+diff --git nng/src/platform/posix/posix_config.h nng/src/platform/posix/posix_config.h
+index 2abe51b4..80a7fdd8 100644
+--- nng/src/platform/posix/posix_config.h
++++ nng/src/platform/posix/posix_config.h
+@@ -61,7 +61,6 @@
+ #endif
+ #endif
+ 
+-#define NNG_USE_CLOCKID CLOCK_REALTIME
+ #ifndef CLOCK_REALTIME
+ #define NNG_USE_GETTIMEOFDAY
+ #elif !defined(NNG_USE_CLOCKID)
 diff --git nng/src/platform/posix/posix_file.c nng/src/platform/posix/posix_file.c
 index d5fb5016..11ad4012 100644
 --- nng/src/platform/posix/posix_file.c
