@@ -209,7 +209,7 @@ static int smart_append_test(char *filename)
 
   /* Now seek to that position and read the data back */
 
-  fseek(fd, 30, SEEK_END);
+  fseek(fd, -30, SEEK_END);
   fread(readstring, 1, 30, fd);
   readstring[30] = '\0';
   if (strcmp(readstring, "This is a test of the append.\n") != 0)
