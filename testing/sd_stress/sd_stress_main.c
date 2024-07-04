@@ -85,11 +85,11 @@ static void usage(void)
 {
   printf("Stress test on a mount point\n");
   printf(CONFIG_TESTING_SD_STRESS_PROGNAME ": [-r] [-b] [-f]\n");
-  printf("  -r   Number of runs (%u-%u), default %u\n",
+  printf("  -r   Number of runs (%zu-%zu), default %zu\n",
          min_runs, max_runs, default_runs);
-  printf("  -b   Number of bytes (%u-%u), default %u\n",
+  printf("  -b   Number of bytes (%zu-%zu), default %zu\n",
          min_bytes, max_bytes, default_bytes);
-  printf("  -f   Number of files (%u-%u), default %u\n",
+  printf("  -f   Number of files (%zu-%zu), default %zu\n",
          min_files, max_files, default_files);
 }
 
@@ -150,7 +150,7 @@ static bool create_files(const char *dir, const char *name,
   for (size_t i = 0; i < num_files; ++i)
     {
       char path[MAX_PATH_LEN];
-      snprintf(path, MAX_PATH_LEN, "%s/%s%03u", dir, name, i);
+      snprintf(path, MAX_PATH_LEN, "%s/%s%03zu", dir, name, i);
 
       memset(read_bytes, 0x0, num_bytes);
 
@@ -243,7 +243,7 @@ static bool remove_files(const char *dir, const char *name,
   for (size_t i = 0; i < num_files; ++i)
     {
       char path[MAX_PATH_LEN];
-      snprintf(path, MAX_PATH_LEN, "%s/%s%03u", dir, name, i);
+      snprintf(path, MAX_PATH_LEN, "%s/%s%03zu", dir, name, i);
 
       int ret = unlink(path);
 
@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
-  printf("Start stress test with %u files, %u bytes and %u iterations.\n",
+  printf("Start stress test with %zu files, %zu bytes and %zu iterations.\n",
          num_files, num_bytes, num_runs);
 
   bytes = (char *)malloc(num_bytes);
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
 
       elapsed_time = get_elapsed_time_ms(&start);
       total_time += elapsed_time;
-      printf("iteration %u took %.3f ms: %s\n", i,
+      printf("iteration %zu took %.3f ms: %s\n", i,
              elapsed_time, result ? "OK" : "FAIL");
 
       if (!result)

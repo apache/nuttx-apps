@@ -176,7 +176,7 @@ static void write_test(int fd, sdb_config_t *cfg, uint8_t *block,
   uint64_t elapsed;
   uint64_t total_elapsed = 0.;
   size_t total_blocks = 0;
-  size_t *blocknumber = (unsigned int *)(void *)&block[0];
+  size_t *blocknumber = (size_t *)(void *)&block[0];
 
   printf("\n");
   printf("Testing Sequential Write Speed...\n");
@@ -277,7 +277,7 @@ static int read_test(int fd, sdb_config_t *cfg, uint8_t *block,
 
   total_elapsed = 0.;
   total_blocks = 0;
-  size_t *blocknumber = (unsigned int *)(void *) &read_block[0];
+  size_t *blocknumber = (size_t *)(void *) &read_block[0];
 
   for (int run = 0; run < cfg->num_runs;  ++run)
     {
@@ -306,8 +306,8 @@ static int read_test(int fd, sdb_config_t *cfg, uint8_t *block,
 
           if (*blocknumber !=  total_blocks + num_blocks)
             {
-              printf("Read data error at block: %d wrote:0x%04x read:0x%04x",
-                     (total_blocks + num_blocks),
+              printf("Read data error at block: %zu wrote:0x%04zx "
+                     "read:0x%04zx", total_blocks + num_blocks,
                      total_blocks + num_blocks, *blocknumber);
             }
 
@@ -316,7 +316,7 @@ static int read_test(int fd, sdb_config_t *cfg, uint8_t *block,
             {
               if (block[i] != read_block[i])
                 {
-                  printf("Read data error at offset: %d wrote:0x%02x "
+                  printf("Read data error at offset: %zu wrote:0x%02x "
                          "read:0x%02x", total_blocks + num_blocks + i,
                          block[i], read_block[i]);
                 }
@@ -353,11 +353,11 @@ static void usage(void)
   printf("Test the speed of an SD card or mount point\n");
   printf(CONFIG_TESTING_SD_BENCH_PROGNAME
          ": [-b] [-r] [-d] [-k] [-s] [-a] [-v]\n");
-  printf("  -b   Block size per write (%u-%u), default %u\n",
+  printf("  -b   Block size per write (%zu-%zu), default %zu\n",
          min_block, max_block, default_block);
-  printf("  -r   Number of runs (%u-%u), default %u\n",
+  printf("  -r   Number of runs (%zu-%zu), default %zu\n",
          min_runs, max_runs, default_runs);
-  printf("  -d   Max duration of a test (ms) (%u-%u), default %u\n",
+  printf("  -d   Max duration of a test (ms) (%zu-%zu), default %zu\n",
          min_duration, max_duration, default_duration);
   printf("  -k   Keep test file when finished, default %s\n",
          print_bool(default_keep_test));
@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
       block[j] = (uint8_t)j;
     }
 
-  printf("Using block size = %u bytes, sync = %s\n", block_size,
+  printf("Using block size = %zu bytes, sync = %s\n", block_size,
          print_bool(cfg.synchronized));
 
   write_test(bench_fd, &cfg, block, block_size);
