@@ -133,7 +133,7 @@ int nxcodec_init(FAR nxcodec_t *codec)
   codec->output.fd = open(codec->output.filename, O_RDONLY);
   if (codec->output.fd < 0)
     {
-      printf("Failed to open input file %s \n", codec->output.filename);
+      printf("Failed to open output file %s \n", codec->output.filename);
       ret = -errno;
       goto err0;
     }
