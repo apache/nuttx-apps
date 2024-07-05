@@ -65,6 +65,7 @@ struct dd_s
   int          outfd;      /* File descriptor of the output device */
   uint32_t     nsectors;   /* Number of sectors to transfer */
   uint32_t     skip;       /* The number of sectors skipped on input */
+  uint32_t     seek;       /* The number of sectors seeked on output */
   bool         eof;        /* true: The end of the input or output file has been hit */
   uint16_t     sectsize;   /* Size of one sector */
   uint16_t     nbytes;     /* Number of valid bytes in the buffer */
@@ -176,7 +177,7 @@ static void print_usage(void)
 {
   fprintf(stderr, "usage:\n");
   fprintf(stderr, "  %s if=<infile> of=<outfile> [bs=<sectsize>] "
-    "[count=<sectors>] [skip=<sectors>]\n", g_dd);
+    "[count=<sectors>] [skip=<sectors>] [seek=<sectors>]\n", g_dd);
 }
 
 /****************************************************************************
@@ -226,6 +227,10 @@ int main(int argc, FAR char **argv)
         {
           dd.skip = atoi(&argv[i][5]);
         }
+      else if (strncmp(argv[i], "seek=", 5) == 0)
+        {
+          dd.seek = atoi(&argv[i][5]);
+        }
     }
 
   if (infile == NULL || outfile == NULL)
@@ -262,9 +267,21 @@ int main(int argc, FAR char **argv)
   if (dd.skip)
     {
       ret = lseek(dd.infd, dd.skip * dd.sectsize, SEEK_SET);
-      if (ret < -1)
+      if (ret < 0)
         {
           fprintf(stderr, "%s: failed to lseek: %s\n",
+            g_dd, strerror(errno));
+          ret = ERROR;
+          goto errout_with_outf;
+        }
+    }
+
+  if (dd.seek)
+    {
+      ret = lseek(dd.outfd, dd.seek * dd.sectsize, SEEK_SET);
+      if (ret < 0)
+        {
+          fprintf(stderr, "%s: failed to lseek on output: %s\n",
             g_dd, strerror(errno));
           ret = ERROR;
           goto errout_with_outf;
