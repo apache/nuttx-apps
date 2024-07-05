@@ -67,7 +67,9 @@ nxcodec_context_dequeue_buf(FAR nxcodec_context_t *ctx)
   ret = ioctl(codec->fd, VIDIOC_DQBUF, &buf);
   if (ret < 0)
     {
-      printf("type: %d VIDIOC_DQBUF, err: %s\n", ctx->type, strerror(errno));
+      printf("%s: VIDIOC_DQBUF - %s\n",
+        V4L2_TYPE_IS_OUTPUT(ctx->type) ? "output" : "capture",
+        strerror(errno));
       return NULL;
     }
 
