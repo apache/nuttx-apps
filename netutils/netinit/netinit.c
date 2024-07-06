@@ -689,10 +689,12 @@ static void netinit_net_bringup(void)
               netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
             }
 
+#  ifdef CONFIG_NETINIT_DNS
           if (ds.dnsaddr.s_addr != 0)
             {
               netlib_set_ipv4dnsaddr(&ds.dnsaddr);
             }
+#  endif
         }
 
       dhcpc_close(handle);
