@@ -30,6 +30,7 @@ CSRCS = quickjs.c libregexp.c libbf.c libunicode.c cutils.c
 
 VERSION=\"$(QUICKJS_VERSION)\"
 
+CFLAGS += -Dmp_add=qjs_mp_add -Dmp_sub=qjs_mp_sub -Dmp_mul=qjs_mp_mul
 CFLAGS += -DCONFIG_VERSION=$(VERSION) -Wno-shadow
 CFLAGS += -Wno-array-bounds -I$(QUICKJS_UNPACK)
 CFLAGS += -D__linux__ -include alloca.h
