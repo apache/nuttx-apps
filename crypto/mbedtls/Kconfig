@@ -562,6 +562,11 @@ config MBEDTLS_AES_ALT
 	select MBEDTLS_ALT
 	default n
 
+config MBEDTLS_CMAC_ALT
+	bool "Enable Mbedt TLS CMAC module alted by nuttx crypto"
+	select MBEDTLS_ALT
+	default n
+
 config MBEDTLS_MD5_ALT
 	bool "Enable Mbedt TLS MD5 module alted by nuttx crypto"
 	select MBEDTLS_ALT

@@ -359,8 +359,11 @@
  * #define MBEDTLS_CCM_ALT
  * #define MBEDTLS_CHACHA20_ALT
  * #define MBEDTLS_CHACHAPOLY_ALT
- * #define MBEDTLS_CMAC_ALT
- * #define MBEDTLS_DES_ALT
+ */
+#ifdef CONFIG_MBEDTLS_CMAC_ALT
+#define MBEDTLS_CMAC_ALT
+#endif
+/* #define MBEDTLS_DES_ALT
  * #define MBEDTLS_DHM_ALT
  * #define MBEDTLS_ECJPAKE_ALT
  * #define MBEDTLS_GCM_ALT
