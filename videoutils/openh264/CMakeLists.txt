@@ -91,7 +91,8 @@ if(CONFIG_VIDEOUTILS_OPENH264)
   # Include Directory
   # ############################################################################
 
-  set(INCLUDES ${SRC_PATH}/codec/api/wels ${SRC_PATH}/codec/common/inc)
+  set(INCLUDES ${SRC_PATH}/codec/api/wels ${SRC_PATH}/codec/common/inc
+               ${CMAKE_CURRENT_LIST_DIR}/include)
   set(DECODER_INCLUDES ${SRC_PATH}/codec/decoder/core/inc
                        ${SRC_PATH}/codec/decoder/plus/inc)
   set(PROCESSING_INCLUDES
@@ -110,20 +111,6 @@ if(CONFIG_VIDEOUTILS_OPENH264)
   # ############################################################################
 
   set(CXXFLAGS -Wno-format -Wno-unused-variable -Wno-shadow)
-
-  # cmake-format: off
-  set(SYSCTLBYNAME
-    [=[
-      #ifndef HAVE_SYSCTLBYNAME
-      #define sysctlbyname(name, oldp, oldlenp, newp, newlen) (-1)
-      #endif
-    ]=])
-  # cmake-format: on
-
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/def_sysctlbyname.h ${SYSCTLBYNAME})
-
-  list(APPEND CXXFLAGS
-       "SHELL:-include ${CMAKE_CURRENT_BINARY_DIR}/def_sysctlbyname.h")
 
   # ############################################################################
   # Library Configuration
