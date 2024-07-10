@@ -37,7 +37,7 @@
 #define WDOGTEST_RAND_ITER 1024
 #define WDOGTEST_THREAD_NR 8
 
-#define wdtest_assert(x)   ASSERT(x)
+#define wdtest_assert(x)   _ASSERT(x, __ASSERT_FILE__, __ASSERT_LINE__)
 
 #define wdtest_printf(...) printf(__VA_ARGS__)
 
@@ -48,7 +48,7 @@
 typedef struct wdtest_param_s
 {
   uint64_t callback_cnt;
-  clock_t  triggerd_tick;
+  clock_t  triggered_tick;
 } wdtest_param_t;
 
 /****************************************************************************
@@ -63,8 +63,8 @@ static void wdtest_callback(wdparm_t param)
 
   clock_gettime(CLOCK_MONOTONIC, &tp);
 
-  wdtest_param->callback_cnt += 1;
-  wdtest_param->triggerd_tick = clock_time2ticks(&tp);
+  wdtest_param->callback_cnt   += 1;
+  wdtest_param->triggered_tick  = clock_time2ticks(&tp);
 }
 
 static void wdtest_once(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
@@ -79,12 +79,12 @@ static void wdtest_once(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
 
   wdset_tick = clock_time2ticks(&tp);
   cnt        = param->callback_cnt;
-  wdtest_assert(wd_start(wdog, NSEC2TICK(delay_ns), wdtest_callback,
+  wdtest_assert(wd_start(wdog, NSEC2TICK((clock_t)delay_ns), wdtest_callback,
                          (wdparm_t)param) == OK);
   usleep(delay_ns / 1000 + 1);
-  diff = (long)(param->triggerd_tick - wdset_tick);
-  wdtest_printf("wd_start with delay %ld ns, latency tick %ld\n",
-                (long)delay_ns, (long)(diff - NSEC2TICK(delay_ns)));
+  diff = (long)(param->triggered_tick - wdset_tick);
+  wdtest_printf("wd_start with delay %ld ns, diff ticks %ld\n",
+                (long)delay_ns, diff);
   wdtest_assert(cnt + 1 == param->callback_cnt);
 }
 
@@ -214,7 +214,6 @@ static FAR void *wdog_test_thread(FAR void *param)
 
 void wdog_test(void)
 {
-  int            ret;
   unsigned int   thread_id;
   pthread_attr_t attr;
   pthread_t      pthreads[WDOGTEST_THREAD_NR];
@@ -225,18 +224,15 @@ void wdog_test(void)
 
   printf("wdog_test start...\n");
 
-  ret = pthread_attr_init(&attr);
-  if (ret)
-    {
-      wdtest_printf("pthread_attr_init failed %d\n", ret);
-    }
+  wdtest_assert(pthread_attr_init(&attr) == 0);
 
   /* Create wdog test thread */
 
   for (thread_id = 0; thread_id < WDOGTEST_THREAD_NR; thread_id++)
     {
-      pthread_create(&pthreads[thread_id], &attr, wdog_test_thread,
-                     &params[thread_id]);
+      wdtest_assert(pthread_create(&pthreads[thread_id], &attr,
+                                   wdog_test_thread, &params[thread_id])
+                                   == 0);
     }
 
   for (thread_id = 0; thread_id < WDOGTEST_THREAD_NR; thread_id++)
@@ -244,11 +240,7 @@ void wdog_test(void)
       pthread_join(pthreads[thread_id], NULL);
     }
 
-  ret = pthread_attr_destroy(&attr);
-  if (ret)
-    {
-      wdtest_printf("pthread_attr_destroy failed %d\n", ret);
-    }
+  wdtest_assert(pthread_attr_destroy(&attr) == 0);
 
   printf("wdog_test end...\n");
 }
