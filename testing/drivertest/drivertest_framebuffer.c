@@ -363,6 +363,15 @@ static void draw_rect(FAR struct fb_state_s *fb_state, int x, int y,
   const uint32_t xres = fb_info->video_info.xres;
   const uint32_t yres = fb_info->video_info.yres;
 
+#ifdef CONFIG_FB_UPDATE
+  int ret;
+  struct fb_area_s area;
+  area.x = 0;
+  area.y = 0;
+  area.w = xres;
+  area.h = yres;
+#endif
+
   for (j = y; j <= (y + h - 1) && j < yres; j++)
     {
       fb_tmp = fb_info->act_fbmem + (j * fb_info->plane_info.stride);
@@ -380,6 +389,12 @@ static void draw_rect(FAR struct fb_state_s *fb_state, int x, int y,
             }
         }
     }
+
+#ifdef CONFIG_FB_UPDATE
+  ret = ioctl(fb_state->fb_device, FBIO_UPDATE,
+              (unsigned long)((uintptr_t)&area));
+  assert_int_equal(ret, 0);
+#endif
 
   if (fb_info->plane_info.yres_virtual == (fb_info->video_info.yres * 2))
     {
