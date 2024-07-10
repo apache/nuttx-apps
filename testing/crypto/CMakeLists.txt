@@ -117,4 +117,18 @@ if(CONFIG_TESTING_CRYPTO)
       crc32.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_AES_CMAC)
+    nuttx_add_application(
+      NAME
+      aescmac
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      aescmac.c)
+  endif()
+
 endif()
