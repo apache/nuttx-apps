@@ -365,7 +365,7 @@ static int coredump_now(int pid, FAR char *filename)
 
   /* Do core dump */
 
-  core_dump(NULL, stream, pid);
+  coredump(NULL, stream, pid);
   setlogmask(logmask);
 #  ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
   printf("Finish coredump (Compression Enabled).\n");
