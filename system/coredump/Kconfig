@@ -6,7 +6,7 @@
 menuconfig SYSTEM_COREDUMP
 	tristate "Coredump tool capture system status"
 	default n
-	depends on ELF_COREDUMP
+	depends on COREDUMP
 
 if SYSTEM_COREDUMP
 
