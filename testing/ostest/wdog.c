@@ -187,7 +187,8 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 
   /* Delay wraparound (delay < 0) */
 
-  wdtest_assert(wd_start(&test_wdog, delay + 1,
+  delay = (sclock_t)((clock_t)delay + 1);
+  wdtest_assert(wd_start(&test_wdog, delay,
                 wdtest_callback, (wdparm_t)param) != OK);
   wdtest_assert(wd_gettime(&test_wdog) == 0);
 
