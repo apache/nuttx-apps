@@ -182,6 +182,10 @@ config INTERPRETERS_WAMR_BULK_MEMORY
 	bool "Enable bluk memory"
 	default n
 
+config INTERPRETERS_WAMR_ENABLE_EXCE_HANDLING
+	bool "Enable exception-handling"
+	default n
+
 config INTERPRETERS_WAMR_PERF_PROFILING
 	bool "Enable performance profiling"
 	default n
