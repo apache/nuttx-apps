@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_LSAN
+	bool "lsan memory leak detection"
+	default y
+	depends on SIM_ASAN
+	---help---
+		Alsans support for the LeakSanitizer (lsan) memory leak detection tool.
+
+if SYSTEM_LSAN
+
+config SYSTEM_LSAN_PROGNAME
+	string "lsan program name"
+	default "lsan"
+	---help---
+		This is the name of the program that will be used when the lsan
+		program is installed.
+
+config SYSTEM_LSAN_PRIORITY
+	int "lsan task priority"
+	default 100
+
+config SYSTEM_LSAN_STACKSIZE
+	int "lsan stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
