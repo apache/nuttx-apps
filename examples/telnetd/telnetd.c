@@ -48,6 +48,11 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+#ifdef CONFIG_BOARDCTL_RESET
+#  include <sys/boardctl.h>
+#  include <sys/ioctl.h>
+#endif
+
 #include "netutils/telnetd.h"
 #include "netutils/netlib.h"
 
@@ -68,6 +73,11 @@ struct ptentry_s
  ****************************************************************************/
 
 static void telnetd_help(int argc, char **argv);
+
+#ifdef CONFIG_BOARDCTL_RESET
+static void telnetd_reset(int argc, char **argv);
+#endif
+
 static void telnetd_quit(int argc, char **argv);
 static void telnetd_unknown(int argc, char **argv);
 static void telnetd_parse(FAR char *line, int len);
@@ -79,6 +89,9 @@ static void telnetd_parse(FAR char *line, int len);
 static const struct ptentry_s g_parsetab[] =
 {
   {"help",  telnetd_help},
+  #ifdef CONFIG_BOARDCTL_RESET
+  {"reset", telnetd_reset},
+  #endif
   {"exit",  telnetd_quit},
   {"?",     telnetd_help},
   {NULL,    telnetd_unknown}
@@ -96,6 +109,9 @@ static void telnetd_help(int argc, char **argv)
 {
   printf("Available commands:\n");
   printf("  help, ? - show help\n");
+  #ifdef CONFIG_BOARDCTL_RESET
+  printf("  reset   - reset the board\n");
+  #endif
   printf("  exit    - exit shell\n");
 }
 
@@ -120,6 +136,18 @@ static void telnetd_quit(int argc, char **argv)
   printf("Bye!\n");
   exit(0);
 }
+
+/****************************************************************************
+ * Name: telnetd_reset
+ ****************************************************************************/
+#ifdef CONFIG_BOARDCTL_RESET
+static void telnetd_reset(int argc, char **argv)
+{
+  printf("Reset!\n");
+  boardctl(BOARDIOC_RESET, 0);
+  exit(0);
+}
+#endif
 
 /****************************************************************************
  * Name: telnetd_parse
