@@ -36,11 +36,14 @@ CSRCS += cconv.c
 CSRCS += cell.c
 CSRCS += context.c
 CSRCS += decode.c
+CSRCS += dummy_host_func.c
 CSRCS += endian.c
+CSRCS += escape.c
 CSRCS += exec.c
 CSRCS += exec_debug.c
 CSRCS += exec_insn_subr.c
 CSRCS += expr.c
+CSRCS += expr_parser.c
 CSRCS += fileio.c
 CSRCS += host_instance.c
 CSRCS += idalloc.c
@@ -139,7 +142,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 CFLAGS += -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-variable -Wno-return-type
 
-TOYWASM_VERSION  = b43dd5312988a6dbc2b165c5956697d7f1d16000
+TOYWASM_VERSION  = 034952e424600381b45d9d400735bfeb96fd5848
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
