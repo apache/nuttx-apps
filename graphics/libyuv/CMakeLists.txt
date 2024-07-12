@@ -19,13 +19,35 @@
 # ##############################################################################
 
 if(CONFIG_LIBYUV)
-  get_property(TARGET_SUPPORTS_SHARED_ORIG GLOBAL
-               PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
-  set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libyuv)
-  nuttx_add_external_library(yuv)
-  set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS
-                               ${TARGET_SUPPORTS_SHARED_ORIG})
+
+  set(LIBYUV_DIR ${CMAKE_CURRENT_LIST_DIR}/libyuv)
+
+  if(NOT EXISTS ${LIBYUV_DIR})
+    FetchContent_Declare(
+      libyuv_fetch
+      URL https://chromium.googlesource.com/libyuv/libyuv/+archive/refs/heads/${CONFIG_LIBYUV_BRANCH}.tar.gz
+          SOURCE_DIR
+          ${CMAKE_CURRENT_LIST_DIR}/libyuv
+          BINARY_DIR
+          ${CMAKE_BINARY_DIR}/apps/graphics/libyuv/libyuv
+      PATCH_COMMAND
+        patch -p0 -d ${CMAKE_CURRENT_LIST_DIR} <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-include-libyuv-fix-strict-prototype-warning.patch
+      DOWNLOAD_NO_PROGRESS true
+      TIMEOUT 30)
+
+    FetchContent_GetProperties(libyuv_fetch)
+
+    if(NOT libyuv_fetch_POPULATED)
+      FetchContent_Populate(llibyuv_fetch)
+    endif()
+  endif()
+
+  nuttx_add_library(libyuv STATIC)
+  file(GLOB SRCS ${LIBYUV_DIR}/source/*.cc)
+  target_sources(libyuv PRIVATE ${SRCS})
+  target_compile_options(libyuv PRIVATE -Wno-shadow -Wno-undef)
+
   set_property(
     TARGET nuttx
     APPEND
