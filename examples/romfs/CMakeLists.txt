@@ -19,5 +19,27 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_ROMFS)
-  nuttx_add_application(NAME romfs)
+
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/romfs_testdir.h
+    COMMAND tar zxf ${CMAKE_CURRENT_LIST_DIR}/testdir.tar.gz
+    COMMAND genromfs -f testdir.img -d testdir -V "ROMFS_Test"
+    COMMAND xxd -i testdir.img romfs_testdir.h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/testdir.tar.gz)
+  add_custom_target(testromfs
+                    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/romfs_testdir.h)
+
+  nuttx_add_application(
+    NAME
+    romfs
+    MODULE
+    ${CONFIG_EXAMPLES_ROMFS}
+    INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+    testromfs
+    SRCS
+    romfs_main.c)
+
 endif()
