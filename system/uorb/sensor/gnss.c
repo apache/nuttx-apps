@@ -29,13 +29,40 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
+#define UORB_DEBUG_FORMAT_SENSOR_GNSS \
+  "timestamp:%" PRIu64 ",time_utc:%" PRIu64 ",latitude:%hf,longitude:%hf," \
+  "altitude:%hf,altitude_ellipsoid:%hf,eph:%hf,epv:%hf,hdop:%hf,pdop:%hf," \
+  "vdop:%hf,ground_speed:%hf,course:%hf,satellites_used:%" PRIu32 ""
+
 static const char sensor_gnss_format[] =
-  "timestamp:%" PRIu64 ",time_utc:%" PRIu64 ",latitude:%hf,longitude:%hf,"
-  "altitude:%hf,altitude_ellipsoid:%hf,eph:%hf,epv:%hf,hdop:%hf,pdop:%hf,"
-  "vdop:%hf,ground_speed:%hf,course:%hf,satellites_used:%" PRIu32 "";
+  UORB_DEBUG_FORMAT_SENSOR_GNSS;
+
+static const char sensor_gnss_clock_format[] =
+  "flags:%" PRIx32 ",leap_second:%" PRId32 ",time_ns:%" PRId64 ","
+  "time_uncertainty_ns:%hf,hw_clock_discontinuity_count:%" PRIu32 ","
+  "full_bias_ns:%" PRId64 ",bias_ns:%hf,bias_uncertainty_ns:%hf,"
+  "drift_nsps:%hf,drift_uncertainty_nsps:%hf";
+
+static const char sensor_gnss_geofence_event_format[] =
+  "type:%" PRId32 ",geofence_id:%" PRId32 ","
+  UORB_DEBUG_FORMAT_SENSOR_GNSS ","
+  "timestamp:%" PRId64 ",status:%" PRId32 ",transition:%" PRId32 "";
+
+static const char sensor_gnss_measurement_format[] =
+  "flags:%" PRIx32 ",svid:%" PRId32 ",constellation:%" PRIu32 ","
+  "time_offset_ns:%hf,received_sv_time_in_ns:%" PRId64 ","
+  "received_sv_time_uncertainty_in_ns:%" PRId64 ",state:%" PRIu32 ","
+  "c_n0_dbhz:%hf,pseudorange_rate_mps:%hf,"
+  "pseudorange_rate_uncertainty_mps:%hf,"
+  "accumulated_delta_range_state:%" PRIu32 ",accumulated_delta_range_m:%hf,"
+  "accumulated_delta_range_uncertainty_m:%hf,"
+  "carrier_frequency_hz:%hf,carrier_cycles:%" PRId64 ",carrier_phase:%hf,"
+  "carrier_phase_uncertainty:%hf,multipath_indicator:%" PRIu32 ","
+  "snr:%" PRIu32 "";
 
 static const char sensor_gnss_satellite_format[] =
   "timestamp:%" PRIu64 ",count:%" PRIu32 ",satellites:%" PRIu32 ","
+  "constellation:%" PRIu32 ","
   "svid0:%" PRIu32 ",elevation0:%" PRIu32 ",azimuth0:%" PRIu32 ","
   "snr0:%" PRIu32 ",svid1:%" PRIu32 ",elevation1:%" PRIu32 ","
   "azimuth1:%" PRIu32 ",snr1:%" PRIu32 ",svid2:%" PRIu32 ","
@@ -49,5 +76,11 @@ static const char sensor_gnss_satellite_format[] =
  ****************************************************************************/
 
 ORB_DEFINE(sensor_gnss, struct sensor_gnss, sensor_gnss_format);
+ORB_DEFINE(sensor_gnss_clock, struct sensor_gnss_clock,
+           sensor_gnss_clock_format);
+ORB_DEFINE(sensor_gnss_geofence_event, struct sensor_gnss_geofence_event,
+           sensor_gnss_geofence_event_format);
+ORB_DEFINE(sensor_gnss_measurement, struct sensor_gnss_measurement,
+           sensor_gnss_measurement_format);
 ORB_DEFINE(sensor_gnss_satellite, struct sensor_gnss_satellite,
            sensor_gnss_satellite_format);
