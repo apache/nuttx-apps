@@ -370,7 +370,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#if !defined(CONFIG_DISABLE_PTHREAD) && \
+#if !defined(CONFIG_DISABLE_PTHREAD) && defined(__KERNEL__) && \
     (defined(CONFIG_SCHED_LPWORK) || defined(CONFIG_SCHED_HPWORK))
       /* Check work queues */
 

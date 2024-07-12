@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <nuttx/clock.h>
 #include <nuttx/timers/oneshot.h>
 
 /****************************************************************************
