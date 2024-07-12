@@ -36,6 +36,8 @@
 
 #include <nuttx/binfmt/binfmt.h>
 #include <nuttx/streams.h>
+#include <nuttx/sched.h>
+#include <nuttx/coredump.h>
 
 /****************************************************************************
  * Private Types

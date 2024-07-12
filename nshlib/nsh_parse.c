@@ -40,10 +40,10 @@
 
 #include <nuttx/version.h>
 #include <nuttx/sched_note.h>
-#include "nshlib/nshlib.h"
 
 #include "nsh.h"
 #include "nsh_console.h"
+#include "nshlib/nshlib.h"
 
 /****************************************************************************
  * Pre-processor Definitions
