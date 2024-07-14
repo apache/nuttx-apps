@@ -8,6 +8,7 @@ config LTE_ALT1250
 	default n
 	depends on NET_USRSOCK && MODEM_ALT1250
 	select NET_USRSOCK_TCP
+	select NET_USRSOCK_ICMP
 	select PIPES
 	select NET_USRSOCK_OTHER
 	---help---
