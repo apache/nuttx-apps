@@ -1,0 +1,38 @@
+From 2a966aab25b6a20176b0f87f1eb8010432edc655 Mon Sep 17 00:00:00 2001
+From: zhangchendong1 <zhangchendong1@xiaomi.com>
+Date: Wed, 6 Sep 2023 12:37:19 +0800
+Subject: [PATCH] x264: fix "UNUSED" redefined
+
+CC:  x264/common/frame.c In file included from x264/common/base.h:43,
+                 from x264/common/common.h:30,
+                 from x264/common/dct.c:28:
+x264/common/osdep.h:347: warning: "UNUSED" redefined
+  347 | #define UNUSED __attribute__((unused))
+      |
+In file included from /ssd1t/nuttx-github/nuttx/include/sys/types.h:29,
+                 from /ssd1t/nuttx-github/nuttx/include/stdio.h:30,
+                 from x264/common/osdep.h:33:
+/ssd1t/nuttx-github/nuttx/include/nuttx/compiler.h:481: note: this is the location of the previous definition
+  481 | #  define UNUSED(a) ((void)(1 || &(a)))
+
+Signed-off-by: zhangchendong1 <zhangchendong1@xiaomi.com>
+Signed-off-by: shizhenghui <shizhenghui@xiaomi.com>
+---
+ common/osdep.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/common/osdep.h b/common/osdep.h
+index 22301212..db5855d2 100644
+--- a/common/osdep.h
++++ b/common/osdep.h
+@@ -343,6 +343,7 @@ static inline int x264_is_regular_file( FILE *filehandle )
+ #endif
+ 
+ #if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
++#undef UNUSED
+ #define UNUSED __attribute__((unused))
+ #define ALWAYS_INLINE __attribute__((always_inline)) inline
+ #define NOINLINE __attribute__((noinline))
+-- 
+2.43.0
+
