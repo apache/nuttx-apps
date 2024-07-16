@@ -110,6 +110,17 @@ struct fastboot_chunk_header_s
   uint32_t total_sz;        /* in bytes of chunk input file including chunk header and data */
 };
 
+struct fastboot_mem_s
+{
+  FAR void *addr;
+};
+
+struct fastboot_file_s
+{
+  char path[PATH_MAX];
+  off_t offset;
+};
+
 struct fastboot_ctx_s
 {
   int usbdev_in;
@@ -122,6 +133,16 @@ struct fastboot_ctx_s
   int wait_ms;
   FAR void *download_buffer;
   FAR struct fastboot_var_s *varlist;
+  CODE int (*upload_func)(FAR struct fastboot_ctx_s *context);
+  struct
+    {
+      size_t size;
+      union
+        {
+          struct fastboot_mem_s mem;
+          struct fastboot_file_s file;
+        } u;
+    } upload_param;
 };
 
 struct fastboot_cmd_s
@@ -147,6 +168,15 @@ static void fastboot_reboot(FAR struct fastboot_ctx_s *context,
                             FAR const char *arg);
 static void fastboot_reboot_bootloader(FAR struct fastboot_ctx_s *context,
                                        FAR const char *arg);
+static void fastboot_oem(FAR struct fastboot_ctx_s *context,
+                         FAR const char *arg);
+static void fastboot_upload(FAR struct fastboot_ctx_s *context,
+                            FAR const char *arg);
+
+static void fastboot_memdump(FAR struct fastboot_ctx_s *context,
+                             FAR const char *arg);
+static void fastboot_filedump(FAR struct fastboot_ctx_s *context,
+                              FAR const char *arg);
 
 /****************************************************************************
  * Private Data
@@ -159,7 +189,15 @@ static const struct fastboot_cmd_s g_fast_cmd[] =
   { "erase:",             fastboot_erase            },
   { "flash:",             fastboot_flash            },
   { "reboot-bootloader",  fastboot_reboot_bootloader},
-  { "reboot",             fastboot_reboot           }
+  { "reboot",             fastboot_reboot           },
+  { "oem",                fastboot_oem              },
+  { "upload",             fastboot_upload           }
+};
+
+static const struct fastboot_cmd_s g_oem_cmd[] =
+{
+  { "filedump",           fastboot_filedump         },
+  { "memdump",            fastboot_memdump          }
 };
 
 /****************************************************************************
@@ -580,6 +618,207 @@ static void fastboot_reboot_bootloader(FAR struct fastboot_ctx_s *context,
 #else
   fastboot_fail(context, "Operation not supported");
 #endif
+}
+
+static int fastboot_memdump_upload(FAR struct fastboot_ctx_s *context)
+{
+  return fastboot_write(context->usbdev_out,
+                        context->upload_param.u.mem.addr,
+                        context->upload_param.size);
+}
+
+/* Usage(host):
+ *   fastboot oem memdump <addr> <size>
+ *
+ * Example
+ *   fastboot oem memdump 0x44000000 0xb6c00
+ *   fastboot get_staged mem_44000000_440b6c00.bin
+ */
+
+static void fastboot_memdump(FAR struct fastboot_ctx_s *context,
+                             FAR const char *arg)
+{
+  if (!arg ||
+      sscanf(arg, "%p %zx",
+             &context->upload_param.u.mem.addr,
+             &context->upload_param.size) != 2)
+    {
+      fastboot_fail(context, "Invalid argument");
+      return;
+    }
+
+  fb_info("Memdump Addr: %p, Size: 0x%zx\n",
+          context->upload_param.u.mem.addr,
+          context->upload_param.size);
+  context->upload_func = fastboot_memdump_upload;
+  fastboot_okay(context, "");
+}
+
+static int fastboot_filedump_upload(FAR struct fastboot_ctx_s *context)
+{
+  size_t size = context->upload_param.size;
+  int fd;
+
+  fd = open(context->upload_param.u.file.path, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      fb_err("No such file or directory %d\n", errno);
+      return -errno;
+    }
+
+  if (context->upload_param.u.file.offset &&
+      lseek(fd, context->upload_param.u.file.offset,
+            context->upload_param.u.file.offset > 0 ? SEEK_SET :
+                                                      SEEK_END) < 0)
+    {
+      fb_err("Invalid argument, offset: %" PRIdOFF "\n",
+             context->upload_param.u.file.offset);
+      return -errno;
+    }
+
+  while (size > 0)
+    {
+      ssize_t nread = fastboot_read(fd, context->download_buffer,
+                                    MIN(size, context->download_max));
+      if (nread == 0)
+        {
+          break;
+        }
+      else if (nread < 0 ||
+               fastboot_write(context->usbdev_out,
+                              context->download_buffer,
+                              nread) < 0)
+        {
+          fb_err("Upload failed (%zu bytes left)\n", size);
+          return -errno;
+        }
+
+      size -= nread;
+    }
+
+  return 0;
+}
+
+/* Usage(host):
+ *   fastboot oem filedump <PATH> [<offset> <size>]
+ *
+ * Example
+ *   a. Upload the entire file:
+ *      fastboot oem filedump /dev/bootloader
+ *      fastboot get_staged bl_all.bin
+ *
+ *   b. Upload 4096 bytes of /dev/mem from offset 2048:
+ *      fastboot oem filedump /dev/mem 2048 4096
+ *      fastboot get_staged bl_2048_6144.bin
+ *
+ *   c. Get 2048 bytes from offset -1044480
+ *      fastboot oem "filedump /dev/bootloader -1044480 2048"
+ *      fastboot get_staged bl_l1044480_l1042432.txt
+ */
+
+static void fastboot_filedump(FAR struct fastboot_ctx_s *context,
+                              FAR const char *arg)
+{
+  struct stat sb;
+  int ret;
+
+  if (!arg)
+    {
+      fastboot_fail(context, "Invalid argument");
+      return;
+    }
+
+  ret = sscanf(arg, "%s %" PRIdOFF " %zu",
+               context->upload_param.u.file.path,
+               &context->upload_param.u.file.offset,
+               &context->upload_param.size);
+  if (ret != 1 && ret != 3)
+    {
+      fastboot_fail(context, "Failed to parse arguments");
+      return;
+    }
+  else if (ret == 1)
+    {
+      ret = stat(context->upload_param.u.file.path, &sb);
+      if (ret < 0)
+        {
+          fastboot_fail(context, "No such file or directory");
+          return;
+        }
+
+      context->upload_param.size = sb.st_size;
+      context->upload_param.u.file.offset = 0;
+    }
+
+  fb_info("Filedump Path: %s, Offset: %" PRIdOFF ", Size: %zu\n",
+          context->upload_param.u.file.path,
+          context->upload_param.u.file.offset,
+          context->upload_param.size);
+  context->upload_func = fastboot_filedump_upload;
+  fastboot_okay(context, "");
+}
+
+static void fastboot_upload(FAR struct fastboot_ctx_s *context,
+                            FAR const char *arg)
+{
+  char response[FASTBOOT_MSG_LEN];
+  int ret;
+
+  if (!context->upload_param.size || !context->upload_func)
+    {
+      fastboot_fail(context, "No data staged by the last command");
+      return;
+    }
+
+  snprintf(response, FASTBOOT_MSG_LEN, "DATA%08zx",
+           context->upload_param.size);
+
+  ret = fastboot_write(context->usbdev_out, response, strlen(response));
+  if (ret < 0)
+    {
+      fb_err("Reponse error [%d]\n", -ret);
+      goto done;
+    }
+
+  ret = context->upload_func(context);
+  if (ret < 0)
+    {
+      fb_err("Upload failed, [%d]\n", -ret);
+      fastboot_fail(context, "Upload failed");
+    }
+  else
+    {
+      fastboot_okay(context, "");
+    }
+
+done:
+  context->upload_param.size = 0;
+  context->upload_func = NULL;
+}
+
+static void fastboot_oem(FAR struct fastboot_ctx_s *context,
+                         FAR const char *arg)
+{
+  size_t ncmds = nitems(g_oem_cmd);
+  size_t index;
+
+  arg++;
+
+  for (index = 0; index < ncmds; index++)
+    {
+      size_t len = strlen(g_oem_cmd[index].prefix);
+      if (memcmp(arg, g_oem_cmd[index].prefix, len) == 0)
+        {
+          arg += len;
+          g_oem_cmd[index].handle(context, *arg == ' ' ? ++arg : NULL);
+          break;
+        }
+    }
+
+  if (index == ncmds)
+    {
+      fastboot_fail(context, "Unknown command");
+    }
 }
 
 static void fastboot_command_loop(FAR struct fastboot_ctx_s *context)
