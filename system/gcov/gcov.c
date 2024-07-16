@@ -76,7 +76,7 @@ static void gcov_dump(FAR const char * path, FAR const char *strip)
 int main(int argc, FAR char *argv[])
 {
   FAR const char *strip = "99";
-  FAR const char *path;
+  FAR const char *path = NULL;
   int option;
 
   if (argc < 2)
