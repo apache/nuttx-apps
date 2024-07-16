@@ -48,7 +48,9 @@ else
 endif
 
 # suppress -Wundef -Wno-format
-CFLAGS += -Wno-undef -Wno-format -fno-var-tracking-assignments -Wno-unused-but-set-variable -Wno-cpp
+CFLAGS += -Wno-undef -Wno-format -fno-var-tracking-assignments \
+          -Wno-unused-but-set-variable -Wno-cpp \
+          -Wno-dangling-pointer -Wno-array-bounds
 
 SRCS = common/osdep.c common/base.c common/cpu.c common/tables.c \
        encoder/api.c
@@ -239,7 +241,7 @@ ifneq ($(CONFIG_UTILS_X264),)
   CSRCS     += $(addprefix $(SRCPATH)$(DELIM), $(SRCCLI) $(SRCCLI_X))
 endif
 
-$(DST_PATH)/config.mak:
+$(DST_PATH)/config.mak: x264
 	$(Q)echo "X264 configure... $(CONFIG_ARCH)"
 	$(Q)cd $(DST_PATH) && $(X264_CONFIG_SCRIPT) --disable-cli --enable-static \
   --disable-bashcompletion --disable-opencl \
@@ -261,6 +263,17 @@ distclean::
 	$(Q)rm -f $(DST_PATH)/x264_config.h $(DST_PATH)/config.mak \
 	  $(DST_PATH)/config.log $(DST_PATH)/x264.pc $(DST_PATH)/x264.def \
 	  $(DST_PATH)/config.h
+
+# Download x264 if no x264/.git found
+x264:
+	$(Q)git clone https://github.com/mirror/x264.git x264
+	$(Q)cd x264 && git apply ../patch/0001-x264-fix-UNUSED-redefined.patch
+
+ifeq ($(wildcard x264/.git),)
+context:: x264
+distclean::
+	$(call DELDIR, x264)
+endif
 
 include $(APPDIR)/Application.mk
 
