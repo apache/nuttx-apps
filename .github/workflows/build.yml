@@ -41,7 +41,7 @@ jobs:
           REF=$GITHUB_REF
 
           # If a base ref is set this is a PR and we will want to use
-          # the base ref instead of the ref that triggered the event
+          # the base ref instead of the ref that triggered the event.
           if [ ${GITHUB_BASE_REF} ]; then
             REF=refs/heads/$GITHUB_BASE_REF
           fi
@@ -155,9 +155,9 @@ jobs:
             git config --global --add safe.directory /github/workspace/sources/apps
             cd sources/nuttx/tools/ci
             if [ "X${{matrix.boards}}" = "Xcodechecker" ]; then
-                ./cibuild.sh -c -A -R --codechecker testlist/${{matrix.boards}}.dat
+                ./cibuild.sh -c -A -N -R --codechecker testlist/${{matrix.boards}}.dat
             else
-                ./cibuild.sh -c -A -R testlist/${{matrix.boards}}.dat
+                ./cibuild.sh -c -A -N -R testlist/${{matrix.boards}}.dat
             fi
 
       - uses: actions/upload-artifact@v3
