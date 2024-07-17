@@ -63,6 +63,10 @@ add_subdirectory(tools)
 add_subdirectory(videoutils)
 add_subdirectory(wireless)
 
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/tests/CMakeLists.txt)
+  add_subdirectory(tests)
+endif()
+
 # add examples and external at the end to allow library dependencies
 add_subdirectory(examples)
 if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/external)
