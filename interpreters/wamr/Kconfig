@@ -47,6 +47,11 @@ config INTERPRETERS_WAMR_AOT_QUICK_ENTRY
 		signature.
 		Enable this option will increase the size of runtime, ~8KB.
 
+config INTERPRETERS_WAMR_AOT_STACK_FRAME
+	bool "Enable AOT stack frame"
+	default n
+	depends on INTERPRETERS_WAMR_AOT
+
 config INTERPRETERS_WAMR_AOT_WORD_ALIGN_READ
 	bool "Make WAMR AOT loader use word-aligned read"
 	default y if ARCH_HAVE_TEXT_HEAP_WORD_ALIGNED_READ
@@ -126,6 +131,10 @@ config INTERPRETERS_WAMR_MINILOADER
 
 config INTERPRETERS_WAMR_REF_TYPES
 	bool "Enable reference types support"
+	default n
+
+config INTERPRETERS_WAMR_GC
+	bool "Enable GC support"
 	default n
 
 config INTERPRETERS_WAMR_ENABLE_SPEC_TEST
