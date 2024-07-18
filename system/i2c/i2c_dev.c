@@ -64,6 +64,14 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
   saveaddr         = i2ctool->regaddr;
   i2ctool->regaddr = 0;
 
+  /* For backwards compatibility, the default behaviour while scanning will
+   * be to send a read request on the I2C bus. It is also possible to specify
+   * the use of a zero-byte write request instead, but this option will not
+   * be sticky.
+   */
+
+  i2ctool->zerowrite = false;
+
   /* Parse any command line arguments */
 
   for (argndx = 1; argndx < argc; )
@@ -126,6 +134,19 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
       goto errout;
     }
 
+  /* Display message warning user about some devices which don't appear
+   * unless using zero-byte write header.
+   */
+
+  if (!i2ctool->zerowrite)
+    {
+      i2ctool_printf(
+          i2ctool,
+          "NOTE: Some devices may not appear with this "
+          "scan.\nYou may also try a scan with the -z flag to "
+          "discover more devices using a zero-byte write request.\n");
+    }
+
   /* Probe each address */
 
   i2ctool_printf(i2ctool,
@@ -146,13 +167,22 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 
           /* Set up data structures */
 
-          regaddr       = i2ctool->regaddr;
-
           msg.frequency = i2ctool->freq;
-          msg.addr      = addr;
-          msg.flags     = I2C_M_READ;
-          msg.buffer    = &regaddr;
-          msg.length    = 1;
+          msg.addr = addr;
+
+          if (i2ctool->zerowrite)
+            {
+              msg.flags = 0;
+              msg.buffer = NULL;
+              msg.length = 0;
+            }
+          else
+            {
+              regaddr = i2ctool->regaddr;
+              msg.flags = I2C_M_READ;
+              msg.buffer = &regaddr;
+              msg.length = 1;
+            }
 
           ret = i2cdev_transfer(fd, &msg, 1);
 
