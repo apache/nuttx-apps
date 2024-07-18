@@ -41,6 +41,12 @@ static int smp_call_func(void *arg)
   return OK;
 }
 
+static void wdg_wdentry(wdparm_t arg)
+{
+  nxsched_smp_call((1 << CONFIG_SMP_NCPUS) - 1, smp_call_func,
+                   (FAR void *)arg, false);
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -53,6 +59,10 @@ void smp_call_test(void)
   int cpu;
   int value;
   int status;
+  struct wdog_s wdog =
+    {
+      0
+    };
 
   printf("smp_call_test: Test start\n");
 
@@ -98,6 +108,20 @@ void smp_call_test(void)
       if (status != 0)
         {
           printf("smp_call_test: Check smp call error\n");
+          ASSERT(false);
+        }
+    }
+
+  printf("smp_call_test: Call in interrupt, wait\n");
+
+  memset(&wdog, 0, sizeof(wdog));
+  wd_start(&wdog, 0, wdg_wdentry, (wdparm_t)&sem);
+  for (cpu = 0; cpu < cpucnt; cpu++)
+    {
+      status = sem_wait(&sem);
+      if (status != 0)
+        {
+          printf("smp_call_test: smp call in interrupt error\n");
           ASSERT(false);
         }
     }
