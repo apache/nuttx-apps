@@ -2970,28 +2970,41 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
       else /* if (*ptr == '"' || *ptr == '\'') */
         {
-          /* Find the closing quotation mark */
+          FAR char *prev = ptr - 1;
 
-          FAR char *tmp = nsh_strchr(ptr + 1, *ptr);
-          if (!tmp)
+          if (prev >= start && *prev == '\\')
             {
-              /* No closing quotation mark! */
+              /* Support \" and \' in command line */
+
+              working++;
+            }
+          else
+            {
+              /* Find the closing quotation mark */
+
+              FAR char *tmp = nsh_strchr(ptr + 1, *ptr);
+              if (!tmp)
+                {
+                  /* No closing quotation mark! */
 
 #ifndef CONFIG_NSH_DISABLE_ERROR_PRINT
-              char qterm[2];
+                  char qterm[2];
 
-              qterm[0] = *ptr;
-              qterm[1] = '\0';
+                  qterm[0] = *ptr;
+                  qterm[1] = '\0';
 
-              nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
+                  nsh_error(vtbl, g_fmtnomatching, qterm, qterm);
 #endif
 
-              return ERROR;
+                  return ERROR;
+                }
+
+              /* Otherwise, continue parsing after the closing quotation
+               * mark
+               */
+
+              working = ++tmp;
             }
-
-          /* Otherwise, continue parsing after the closing quotation mark */
-
-          working = ++tmp;
         }
     }
 
