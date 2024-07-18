@@ -149,6 +149,10 @@ static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc,
   i2ctool_printf(i2ctool,
                  "  [-r regaddr] is the I2C device register index (hex)."
                  "  Default: not used/sent\n");
+  i2ctool_printf(
+      i2ctool,
+      "  [-z] instructs the 'dev' command to scan the I2C bus by sending "
+      "zero-byte write headers (if the architecture supports it)\n");
 
   i2ctool_printf(i2ctool, "\nNOTES:\n");
 #ifndef CONFIG_DISABLE_ENVIRON
@@ -398,6 +402,7 @@ int main(int argc, FAR char *argv[])
     }
 
   g_i2ctool.hasregindx = false;
+  g_i2ctool.zerowrite = false;
 
   /* Parse and process the command line */
 

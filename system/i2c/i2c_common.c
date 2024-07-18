@@ -173,6 +173,10 @@ int i2ctool_common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
         i2ctool->width = (uint8_t)value;
         return ret;
 
+      case 'z':
+        i2ctool->zerowrite = true;
+        return 1;
+
       default:
         goto invalid_argument;
     }
