@@ -63,13 +63,20 @@ if(CONFIG_GRAPHICS_LVGL)
   # Library Configuration
   # ############################################################################
 
-  add_subdirectory(${LVGL_DIR})
-  nuttx_add_external_library(lvgl)
-  nuttx_add_external_library(lvgl_demos)
-  nuttx_add_external_library(lvgl_examples)
+  file(
+    GLOB_RECURSE
+    SRCS
+    "${LVGL_DIR}/src/*.S"
+    "${LVGL_DIR}/src/*.c"
+    "${LVGL_DIR}/src/*.cpp"
+    "${LVGL_DIR}/demos/*.c"
+    "${LVGL_DIR}/examples/*.c")
+  nuttx_add_library(lvgl)
 
-  target_include_directories(lvgl PUBLIC ${CMAKE_BINARY_DIR}/include)
-  target_compile_options(lvgl PRIVATE ${CFLAGS})
+  target_sources(lvgl PRIVATE ${SRCS})
+  target_include_directories(lvgl PRIVATE ${LVGL_DIR})
+  target_compile_options(lvgl PRIVATE -Wno-shadow)
+
   if(NOT CONFIG_LV_ASSERT_HANDLER_INCLUDE STREQUAL "")
     target_compile_definitions(lvgl PRIVATE "LV_ASSERT_HANDLER=ASSERT(0)\;")
   endif()
@@ -78,7 +85,6 @@ if(CONFIG_GRAPHICS_LVGL)
     if(NOT CONFIG_LIB_FREETYPE)
       message(WARNING "LIB_FREETYPE is not enabled")
     endif()
-    target_link_libraries(lvgl PRIVATE freetype)
     nuttx_add_dependencies(TARGET lvgl DEPENDS freetype)
   endif()
 
@@ -86,7 +92,6 @@ if(CONFIG_GRAPHICS_LVGL)
     if(NOT CONFIG_LIB_PNG)
       message(WARNING "LIB_PNG is not enabled")
     endif()
-    target_link_libraries(lvgl PRIVATE png_static)
     nuttx_add_dependencies(TARGET lvgl DEPENDS png_static)
   endif()
 
@@ -94,7 +99,6 @@ if(CONFIG_GRAPHICS_LVGL)
     if(NOT CONFIG_LIB_WEBP)
       message(WARNING "LIB_WEBP is not enabled")
     endif()
-    target_link_libraries(lvgl PRIVATE webpdecoder)
     nuttx_add_dependencies(TARGET lvgl DEPENDS webpdecoder)
   endif()
 
@@ -110,7 +114,6 @@ if(CONFIG_GRAPHICS_LVGL)
     if(NOT CONFIG_LIB_JPEG_TURBO)
       message(WARNING "LIB_JPEG_TURBO is not enabled")
     endif()
-    target_link_libraries(lvgl PRIVATE turbojpeg-static)
     nuttx_add_dependencies(TARGET lvgl DEPENDS turbojpeg-static)
   endif()
 
@@ -119,4 +122,10 @@ if(CONFIG_GRAPHICS_LVGL)
     APPEND
     PROPERTY NUTTX_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}
              ${CMAKE_CURRENT_LIST_DIR}/lvgl)
+
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_COMPILE_OPTIONS -DLV_USE_DEV_VERSION=1)
+
 endif()
