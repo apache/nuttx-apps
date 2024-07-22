@@ -105,7 +105,7 @@ jobs:
         run: tar zcf sources.tar.gz sources
 
       - name: Archive Source Bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: source-bundle
           path: sources.tar.gz
@@ -122,7 +122,7 @@ jobs:
 
     steps:
       - name: Download Source Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: source-bundle
           path: .
@@ -160,24 +160,24 @@ jobs:
                 ./cibuild.sh -c -A -N -R testlist/${{matrix.boards}}.dat
             fi
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: linux-builds
+          name: linux-${{matrix.boards}}-builds
           path: buildartifacts/
         continue-on-error: true
 
   macOS:
     permissions:
       contents: none
-    runs-on: macos-12
+    runs-on: macos-13
     needs: Fetch-Source
     strategy:
       matrix:
         boards: [macos, sim-01, sim-02]
     steps:
       - name: Download Source Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: source-bundle
           path: .
@@ -209,9 +209,9 @@ jobs:
           cd sources/nuttx/tools/ci
           ./cibuild.sh -i -c -A -R testlist/${{matrix.boards}}.dat
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: macos-builds
+          name: macos-${{matrix.boards}}-builds
           path: buildartifacts/
         continue-on-error: true
 
@@ -257,7 +257,7 @@ jobs:
       - run: git config --global core.autocrlf false
 
       - name: Download Source Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: source-bundle
           path: .
@@ -277,8 +277,8 @@ jobs:
           cd sources/nuttx/tools/ci
           ./cibuild.sh -g -i -A -C -R testlist/${{matrix.boards}}.dat
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: msys2-builds
+          name: msys2-${{matrix.boards}}-builds
           path: buildartifacts/
         continue-on-error: true
