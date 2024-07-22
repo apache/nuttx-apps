@@ -27,8 +27,7 @@ if(CONFIG_TESTING_OSTEST)
       sigprocmask.c
       sighand.c
       signest.c
-      sighelper.c
-      wdog.c)
+      sighelper.c)
 
   if(CONFIG_DEV_NULL)
     list(APPEND SRCS dev_null.c)
@@ -146,6 +145,10 @@ if(CONFIG_TESTING_OSTEST)
 
   if(CONFIG_SCHED_EVENTS AND CONFIG_BUILD_FLAT)
     list(APPEND SRCS nxevent.c)
+  endif()
+
+  if(CONFIG_BUILD_FLAT)
+    list(APPEND SRCS wdog.c)
   endif()
 
   set(OSTEST_SRCS ostest_main.c ${SRCS})

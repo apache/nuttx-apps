@@ -55,7 +55,7 @@ typedef struct wdtest_param_s
  * Private Functions
  ****************************************************************************/
 
-#ifndef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_FLAT
 static void wdtest_callback(wdparm_t param)
 {
   struct timespec tp;
