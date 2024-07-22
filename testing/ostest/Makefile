@@ -30,7 +30,7 @@ MODULE = $(CONFIG_TESTING_OSTEST)
 # NuttX OS Test
 
 CSRCS   = getopt.c libc_memmem.c restart.c sigprocmask.c sighand.c \
-          signest.c sighelper.c wdog.c
+          signest.c sighelper.c
 
 MAINSRC = ostest_main.c
 
@@ -142,6 +142,10 @@ ifeq ($(CONFIG_SCHED_EVENTS),y)
 ifeq ($(CONFIG_BUILD_FLAT),y)
 CSRCS += nxevent.c
 endif
+endif
+
+ifeq ($(CONFIG_BUILD_FLAT),y)
+CSRCS += wdog.c
 endif
 
 include $(APPDIR)/Application.mk

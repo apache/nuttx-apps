@@ -524,7 +524,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#ifndef CONFIG_BUILD_KERNEL
+#ifdef CONFIG_BUILD_FLAT
       printf("\nuser_main: wdog test\n");
       wdog_test();
       check_test_memory_usage();
