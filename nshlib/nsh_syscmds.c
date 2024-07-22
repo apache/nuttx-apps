@@ -581,7 +581,7 @@ static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
 
       ping.times = atoi(argv[3]);
       ping.len   = atoi(argv[4]);
-      ping.ack   = atoi(argv[5]);
+      ping.cmd   = atoi(argv[5]);
       ping.sleep = atoi(argv[6]);
 
       cmd = RPMSGIOC_PING;
@@ -640,15 +640,17 @@ static int cmd_rpmsg_help(FAR struct nsh_vtbl_s *vtbl, int argc,
 {
   nsh_output(vtbl, "%s <panic|dump> <path>\n", argv[0]);
 #ifdef CONFIG_RPMSG_PING
-  nsh_output(vtbl, "%s ping <path> <times> <length> <ack> "
+  nsh_output(vtbl, "%s ping <path> <times> <length> <cmd> "
              "<period(ms)>\n\n", argv[0]);
   nsh_output(vtbl, "<times>      Number of ping operations.\n");
   nsh_output(vtbl, "<length>     The length of each ping packet.\n");
-  nsh_output(vtbl, "<ack>        Whether the peer acknowlege or "
+  nsh_output(vtbl, "<cmd>        Whether the peer acknowlege or "
              "check data.\n");
-  nsh_output(vtbl, "             0 - No acknowledge and check.\n");
-  nsh_output(vtbl, "             1 - Acknowledge, no data check.\n");
-  nsh_output(vtbl, "             2 - Acknowledge and data check.\n");
+  nsh_output(vtbl, "             Bit0 - Request need ack or not.\n");
+  nsh_output(vtbl, "             Bit1 - Check the data or not.\n");
+  nsh_output(vtbl, "             Bit2 - Random length or not.\n");
+  nsh_output(vtbl, "             Bit4~7 - Request or response or other"
+                                          "command for future use.\n");
   nsh_output(vtbl, "<sleep(ms)>  Sleep interval between two operations.\n");
 #endif
   nsh_output(vtbl, "<path>       Rpmsg device path.\n\n");
