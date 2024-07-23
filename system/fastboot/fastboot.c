@@ -673,6 +673,7 @@ static int fastboot_filedump_upload(FAR struct fastboot_ctx_s *context)
     {
       fb_err("Invalid argument, offset: %" PRIdOFF "\n",
              context->upload_param.u.file.offset);
+      close(fd);
       return -errno;
     }
 
@@ -690,12 +691,14 @@ static int fastboot_filedump_upload(FAR struct fastboot_ctx_s *context)
                               nread) < 0)
         {
           fb_err("Upload failed (%zu bytes left)\n", size);
+          close(fd);
           return -errno;
         }
 
       size -= nread;
     }
 
+  close(fd);
   return 0;
 }
 
