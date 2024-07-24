@@ -327,6 +327,22 @@ if(CONFIG_TESTING_DRIVER_TEST)
       drivertest_touchpanel.c)
   endif()
 
+  if(CONFIG_PM)
+    nuttx_add_application(
+      NAME
+      cmocka_driver_pm
+      PRIORITY
+      ${CONFIG_TESTING_DRIVER_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_DRIVER_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_DRIVER_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      drivertest_pm.c)
+  endif()
+
   if(CONFIG_PM_RUNTIME)
     nuttx_add_application(
       NAME
