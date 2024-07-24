@@ -38,6 +38,10 @@ config TESTING_CRYPTO_AES_CMAC
 	bool "aes-cmac crypto test"
 	default n
 
+config TESTING_CRYPTO_ECDSA
+	bool "ecdsa crypto test"
+	default n
+
 config TESTING_CRYPTO_PRIORITY
 	int "crypto test task priority"
 	default 100
