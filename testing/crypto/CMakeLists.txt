@@ -131,4 +131,18 @@ if(CONFIG_TESTING_CRYPTO)
       aescmac.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_ECDSA)
+    nuttx_add_application(
+      NAME
+      ecdsa
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      ecdsa.c)
+  endif()
+
 endif()
