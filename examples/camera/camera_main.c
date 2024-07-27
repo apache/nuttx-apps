@@ -60,7 +60,7 @@
 #define APP_STATE_UNDER_CAPTURE   (1)
 #define APP_STATE_AFTER_CAPTURE   (2)
 
-#define CAMERA_DEV_PATH "/dev/video10"
+#define CAMERA_DEV_PATH "/dev/video"
 
 /****************************************************************************
  * Private Types
@@ -512,7 +512,7 @@ int main(int argc, FAR char *argv[])
 
   /* Open the device file. */
 
-  v_fd = open("/dev/video", 0);
+  v_fd = open(CAMERA_DEV_PATH, 0);
   if (v_fd < 0)
     {
       printf("ERROR: Failed to open video.errno = %d\n", errno);
