@@ -39,6 +39,7 @@ struct qe_example_s
 {
   FAR char    *devpath;     /* Path to the QE device */
   bool         reset;       /* True: set the count back to zero */
+  bool         use_qeindex; /* True: use the QEIOC_GETINDEX call to get samples */
   unsigned int nloops;      /* Collect this number of samples */
   unsigned int delay;       /* Delay this number of seconds between samples */
 };

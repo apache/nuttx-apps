@@ -103,6 +103,7 @@ static void qe_help(void)
   printf("  [-n samples] Number of samples\n");
   printf("  [-t msec]    Delay between samples (msec)\n");
   printf("  [-r]         Reset the position to zero\n");
+  printf("  [-i]         Use the QEIOC_GETINDEX call to obtain samples\n");
   printf("  [-h]         Shows this message and exits\n\n");
 }
 
@@ -152,9 +153,10 @@ static void parse_args(int argc, FAR char **argv)
   int index;
   int nargs;
 
-  g_qeexample.reset  = false;
-  g_qeexample.nloops = CONFIG_EXAMPLES_QENCODER_NSAMPLES;
-  g_qeexample.delay  = CONFIG_EXAMPLES_QENCODER_DELAY;
+  g_qeexample.reset       = false;
+  g_qeexample.use_qeindex = false;
+  g_qeexample.nloops      = CONFIG_EXAMPLES_QENCODER_NSAMPLES;
+  g_qeexample.delay       = CONFIG_EXAMPLES_QENCODER_DELAY;
 
   for (index = 1; index < argc; )
     {
@@ -202,6 +204,11 @@ static void parse_args(int argc, FAR char **argv)
             index++;
             break;
 
+          case 'i':
+            g_qeexample.use_qeindex = true;
+            index++;
+            break;
+
           case 'h':
             qe_help();
             exit(EXIT_SUCCESS);
@@ -229,6 +236,7 @@ int main(int argc, FAR char *argv[])
   int exitval = EXIT_SUCCESS;
   int ret;
   int nloops;
+  struct qe_index_s index;
 
   /* Set the default values */
 
@@ -295,19 +303,42 @@ int main(int argc, FAR char *argv[])
 
       /* Get the positions data using the ioctl */
 
-      ret = ioctl(fd, QEIOC_POSITION, (unsigned long)((uintptr_t)&position));
-      if (ret < 0)
+      if (g_qeexample.use_qeindex)
         {
-          printf("qe_main: ioctl(QEIOC_POSITION) failed: %d\n", errno);
-          exitval = EXIT_FAILURE;
-          goto errout_with_dev;
+          ret = ioctl(fd, QEIOC_GETINDEX, (unsigned long)((uintptr_t)&index));
+          if (ret < 0)
+            {
+              printf("qe_main: ioctl(QEIOC_GETINDEX) failed: %d\n", errno);
+              printf("Your MCU probably does not support this ioctl call.\n");
+              printf("Consider using this example without the -i option.\n");
+              exitval = EXIT_FAILURE;
+              goto errout_with_dev;
+            }
+
+          /* GETINDEX succesful */
+
+          else
+            {
+              printf("qe_main: %3d. pos: %" PRIi32 ", last index: %" PRIi32 ", hit indexes: %" \
+                     PRIi16 "\n", nloops + 1, index.qenc_pos, index.indx_pos, index.indx_cnt);
+            }
         }
-
-      /* Print the sample data on successful return */
-
       else
         {
-          printf("qe_main: %3d. %" PRIi32 "\n", nloops + 1, position);
+          ret = ioctl(fd, QEIOC_POSITION, (unsigned long)((uintptr_t)&position));
+          if (ret < 0)
+            {
+              printf("qe_main: ioctl(QEIOC_POSITION) failed: %d\n", errno);
+              exitval = EXIT_FAILURE;
+              goto errout_with_dev;
+            }
+
+          /* Print the sample data on successful return */
+
+          else
+            {
+              printf("qe_main: %3d. %" PRIi32 "\n", nloops + 1, position);
+            }
         }
 
       /* Delay a little bit */
