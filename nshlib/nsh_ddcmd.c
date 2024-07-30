@@ -385,7 +385,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (dd.skip)
     {
       ret = lseek(dd.infd, dd.skip * dd.sectsize, SEEK_SET);
-      if (ret < -1)
+      if (ret < 0)
         {
           nsh_error(vtbl, g_fmtcmdfailed, g_dd, "skip lseek", NSH_ERRNO);
           ret = ERROR;
@@ -396,7 +396,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (dd.seek)
     {
       ret = lseek(dd.outfd, dd.seek * dd.sectsize, SEEK_SET);
-      if (ret < -1)
+      if (ret < 0)
         {
           nsh_error(vtbl, g_fmtcmdfailed, g_dd, "seek lseek", NSH_ERRNO);
           ret = ERROR;
