@@ -1,0 +1,189 @@
+From e04cc6b038201e4751ba8e582d81089c291684c4 Mon Sep 17 00:00:00 2001
+From: liwenxiang1 <liwenxiang1@xiaomi.com>
+Date: Tue, 30 Jul 2024 17:53:49 +0800
+Subject: [PATCH] app/testing:Resolve the issue of compilation failure for
+ x86_64 abi test cases
+
+VELAPLATFO-37440
+
+The source code is compiled and run separately for each case, so compiling all cases together may result in duplicate variable definitions. We put the variables in header files and declare them as static
+
+Change-Id: Iddfb1caf5fc21dec1682b34b2e940df0c62f6499
+Signed-off-by: liwenxiang1 <liwenxiang1@xiaomi.com>
+---
+ abitest/args.h                            | 10 +++++-----
+ abitest/defines.h                         |  1 -
+ abitest/make_passing_tests.c              |  4 ----
+ abitest/test_complex_returning.c          |  5 -----
+ abitest/test_m64m128_returning.c          |  4 ----
+ abitest/test_passing_m64m128.c            |  4 ----
+ abitest/test_passing_structs.c            |  4 ----
+ abitest/test_passing_structs_and_unions.c |  4 ----
+ abitest/test_passing_unions.c             |  4 ----
+ abitest/test_struct_returning.c           |  4 ----
+ 10 files changed, 5 insertions(+), 39 deletions(-)
+
+diff --git a/abitest/args.h b/abitest/args.h
+index 586271e..a91bea2 100644
+--- a/abitest/args.h
++++ b/abitest/args.h
+@@ -39,8 +39,8 @@ typedef union {
+ } X87_T;
+ extern void (*callthis)(void);
+ extern unsigned long rax,rbx,rcx,rdx,rsi,rdi,rsp,rbp,r8,r9,r10,r11,r12,r13,r14,r15;
+-XMM_T xmm_regs[16];
+-X87_T x87_regs[8];
++static XMM_T xmm_regs[16];
++static X87_T x87_regs[8];
+ extern volatile unsigned long volatile_var;
+ extern void snapshot (void);
+ extern void snapshot_ret (void);
+@@ -83,9 +83,9 @@ struct FloatRegisters
+ };
+ 
+ /* Implemented in scalarargs.c  */
+-extern struct IntegerRegisters iregs;
+-extern struct FloatRegisters fregs;
+-extern unsigned int num_iregs, num_fregs;
++static struct IntegerRegisters iregs;
++static struct FloatRegisters fregs;
++static unsigned int num_iregs, num_fregs;
+ 
+ #define check_int_arguments do { \
+   assert (num_iregs <= 0 || iregs.I0 == I0); \
+diff --git a/abitest/defines.h b/abitest/defines.h
+index 42b1426..185d78b 100644
+--- a/abitest/defines.h
++++ b/abitest/defines.h
+@@ -3,7 +3,6 @@
+ 
+ typedef unsigned long ulong;
+ typedef long double ldouble;
+-typedef __int128_t __int128;
+ typedef __uint128_t __uint128;
+ 
+ /* These defines determines what part of the test should be run.  When
+diff --git a/abitest/make_passing_tests.c b/abitest/make_passing_tests.c
+index 9569147..e9e1eda 100644
+--- a/abitest/make_passing_tests.c
++++ b/abitest/make_passing_tests.c
+@@ -62,10 +62,6 @@ open_file (char *filename, int use_ints, int use_floats)
+   fprintf (file, "#include \"macros.h\"\n");
+   fprintf (file, "#include \"args.h\"\n\n");
+ 
+-  fprintf (file, "struct IntegerRegisters iregs;\n");
+-  fprintf (file, "struct FloatRegisters fregs;\n");
+-  fprintf (file, "unsigned int num_iregs, num_fregs;\n\n");
+-
+   /* Make the struct for checking the parameter values.  */
+   fprintf (file, "/* This struct holds values for argument checking.  */\n");
+   if (use_ints)
+diff --git a/abitest/test_complex_returning.c b/abitest/test_complex_returning.c
+index fa2bb70..af5e278 100644
+--- a/abitest/test_complex_returning.c
++++ b/abitest/test_complex_returning.c
+@@ -4,11 +4,6 @@
+ #include "defines.h"
+ #include "args.h"
+ 
+-
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ #define BUILD_F_COMPLEX(real, imag) \
+   ({ __complex__ float __retval = 0; \
+      __real__ __retval = (real); \
+diff --git a/abitest/test_m64m128_returning.c b/abitest/test_m64m128_returning.c
+index cde0346..631bc0c 100644
+--- a/abitest/test_m64m128_returning.c
++++ b/abitest/test_m64m128_returning.c
+@@ -3,10 +3,6 @@
+ #include "macros.h"
+ #include "args.h"
+ 
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ __m64
+ fun_test_returning___m64 (void)
+ {
+diff --git a/abitest/test_passing_m64m128.c b/abitest/test_passing_m64m128.c
+index 2a2f98f..83a419a 100644
+--- a/abitest/test_passing_m64m128.c
++++ b/abitest/test_passing_m64m128.c
+@@ -3,10 +3,6 @@
+ #include "macros.h"
+ #include "args.h"
+ 
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ /* This struct holds values for argument checking.  */
+ struct 
+ {
+diff --git a/abitest/test_passing_structs.c b/abitest/test_passing_structs.c
+index 211c700..0cbbbf0 100644
+--- a/abitest/test_passing_structs.c
++++ b/abitest/test_passing_structs.c
+@@ -3,10 +3,6 @@
+ #include "defines.h"
+ #include "args.h"
+ 
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ struct int_struct
+ {
+   int i;
+diff --git a/abitest/test_passing_structs_and_unions.c b/abitest/test_passing_structs_and_unions.c
+index 5b40196..593d9b7 100644
+--- a/abitest/test_passing_structs_and_unions.c
++++ b/abitest/test_passing_structs_and_unions.c
+@@ -3,10 +3,6 @@
+ #include "defines.h"
+ #include "args.h"
+ 
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ struct int_struct
+ {
+   int i;
+diff --git a/abitest/test_passing_unions.c b/abitest/test_passing_unions.c
+index 0b60704..4d71333 100644
+--- a/abitest/test_passing_unions.c
++++ b/abitest/test_passing_unions.c
+@@ -3,10 +3,6 @@
+ #include "defines.h"
+ #include "args.h"
+ 
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ struct int_struct
+ {
+   int i;
+diff --git a/abitest/test_struct_returning.c b/abitest/test_struct_returning.c
+index ef8d329..f517bd5 100644
+--- a/abitest/test_struct_returning.c
++++ b/abitest/test_struct_returning.c
+@@ -5,10 +5,6 @@
+ #include "macros.h"
+ #include "args.h"
+ 
+-struct IntegerRegisters iregs;
+-struct FloatRegisters fregs;
+-unsigned int num_iregs, num_fregs;
+-
+ int current_test;
+ int num_failed = 0;
+ 
+-- 
+2.34.1
+

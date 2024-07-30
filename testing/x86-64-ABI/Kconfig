@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_X86_64_ABI
+	bool "X86_64_ABI testing support"
+	default n
+	depends on ALLOW_GPL_COMPONENTS
+	---help---
+		Enable support for the X86_64_ABI testing framework
