@@ -371,8 +371,9 @@ fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
   sparse = (FAR struct fastboot_sparse_header_s *)chunk_ptr;
   if (sparse->magic != FASTBOOT_SPARSE_MAGIC)
     {
-      return fastboot_flash_write(fd, 0, context->download_buffer,
-                                  context->download_size);
+      ret = fastboot_flash_write(fd, 0, context->download_buffer,
+                                 context->download_size);
+      goto end;
     }
 
   if (context->total_imgsize == 0)
@@ -400,7 +401,7 @@ fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
                                          chunk_ptr, chunk_size);
               if (ret < 0)
                 {
-                  return ret;
+                  goto end;
                 }
 
               context->download_offset += chunk_size;
@@ -416,7 +417,7 @@ fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
                                          chunk->chunk_sz);
               if (ret < 0)
                 {
-                  return ret;
+                  goto end;
                 }
 
               context->download_offset += chunk_size;
@@ -432,12 +433,14 @@ fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
         }
     }
 
-  if (context->download_offset >= context->total_imgsize)
+  if (context->download_offset < context->total_imgsize)
     {
-      context->total_imgsize = 0;
-      context->download_offset = 0;
+      return 1;
     }
 
+end:
+  context->total_imgsize = 0;
+  context->download_offset = 0;
   return ret;
 }
 
@@ -445,6 +448,7 @@ static void fastboot_flash(FAR struct fastboot_ctx_s *context,
                            FAR const char *arg)
 {
   char blkdev[PATH_MAX];
+  int ret;
 
   snprintf(blkdev, PATH_MAX, FASTBOOT_BLKDEV, arg);
 
@@ -458,7 +462,8 @@ static void fastboot_flash(FAR struct fastboot_ctx_s *context,
         }
     }
 
-  if (fastboot_flash_program(context, context->flash_fd) < 0)
+  ret = fastboot_flash_program(context, context->flash_fd);
+  if (ret < 0)
     {
       fastboot_fail(context, "Image flash failure");
     }
@@ -467,7 +472,7 @@ static void fastboot_flash(FAR struct fastboot_ctx_s *context,
       fastboot_okay(context, "");
     }
 
-  if (context->total_imgsize == 0)
+  if (ret <= 0)
     {
       fastboot_flash_close(context->flash_fd);
       context->flash_fd = -1;
@@ -1029,6 +1034,7 @@ int main(int argc, FAR char **argv)
   context.download_size   = 0;
   context.download_offset = 0;
   context.download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
+  context.total_imgsize   = 0;
 
   fastboot_create_publish(&context);
   fastboot_command_loop(&context);
