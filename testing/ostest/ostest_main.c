@@ -592,16 +592,8 @@ static int user_main(int argc, char *argv[])
 
 #if defined(CONFIG_ARCH_HAVE_FORK) && defined(CONFIG_SCHED_WAITPID) && \
    !defined(CONFIG_ARCH_SIM)
-#ifndef CONFIG_BUILD_KERNEL
       printf("\nuser_main: vfork() test\n");
       vfork_test();
-#else
-      /* REVISIT: The issue with vfork() is on the kernel side, fix the issue
-       * and re-enable this test with CONFIG_BUILD_KERNEL
-       */
-
-      printf("\nuser_main: vfork() test DISABLED (CONFIG_BUILD_KERNEL)\n");
-#endif
 #endif
 
 #ifdef CONFIG_SMP_CALL
