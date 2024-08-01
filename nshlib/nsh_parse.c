@@ -1727,10 +1727,12 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
   FAR char *argument   = NULL;
 #ifdef CONFIG_NSH_QUOTE
   FAR char *prev;
-  bool escaped;
+  bool escaped = false;
 #endif
-  bool squote;
-  bool quoted;
+  bool squote = false;
+#ifdef CONFIG_NSH_ALIAS
+  bool quoted = false;
+#endif
 
   /* Find the beginning of the next token */
 
@@ -1794,11 +1796,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
        * make sure that we do not break up any quoted substrings.
        */
 
-      squote = false;
-      quoted = false;
 #ifdef CONFIG_NSH_QUOTE
-      escaped = false;
-
       for (prev = NULL, pend = pbegin; *pend != '\0'; prev = pend, pend++)
 #else
       for (pend = pbegin; *pend != '\0'; pend++)
@@ -1829,7 +1827,11 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
 
           /* Are we entering a quoted string ? */
 
+#ifdef CONFIG_NSH_ALIAS
           if ((quoted = (nsh_strchr(g_quote_separator, *pend) != NULL)))
+#else
+          if (nsh_strchr(g_quote_separator, *pend) != NULL)
+#endif
             {
               /* Yes, find the terminator and continue from there */
 
