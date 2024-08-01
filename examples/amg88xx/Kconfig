@@ -1,0 +1,24 @@
+config EXAMPLES_AMG88XX
+	tristate "AMG88xx sensor example"
+	default n
+	---help---
+		Enable the AMG88xx sensor example
+
+if EXAMPLES_AMG88XX
+
+config EXAMPLES_AMG88XX_PROGNAME
+	string "Program name"
+	default "amg88xx"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_AMG88XX_PRIORITY
+	int "AMG88xx task priority"
+	default 100
+
+config EXAMPLES_DHTXX_STACKSIZE
+	int "AMG88xx stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
