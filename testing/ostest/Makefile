@@ -138,4 +138,10 @@ ifeq ($(CONFIG_SMP_CALL),y)
 CSRCS += smp_call.c
 endif
 
+ifeq ($(CONFIG_SCHED_EVENTS),y)
+ifeq ($(CONFIG_BUILD_FLAT),y)
+CSRCS += nxevent.c
+endif
+endif
+
 include $(APPDIR)/Application.mk
