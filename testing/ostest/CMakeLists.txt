@@ -143,6 +143,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS smp_call.c)
   endif()
 
+  if(CONFIG_SCHED_EVENTS AND CONFIG_BUILD_FLAT)
+    list(APPEND SRCS nxevent.c)
+  endif()
+
   set(OSTEST_SRCS ostest_main.c ${SRCS})
   nuttx_add_application(NAME ostest SRCS ${OSTEST_SRCS})
 

@@ -288,4 +288,10 @@ int sem_nfreeholders(void);
 #  define sem_nfreeholders()
 #endif
 
+/* nxevent.c ****************************************************************/
+
+#if defined(CONFIG_SCHED_EVENTS) && defined(CONFIG_BUILD_FLAT)
+void nxevent_test(void);
+#endif
+
 #endif /* __APPS_TESTING_OSTEST_OSTEST_H */
