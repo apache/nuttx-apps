@@ -346,7 +346,7 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_ARCH_FPU) && !defined(CONFIG_TESTING_OSTEST_FPUTESTDISABLE) && \
-    !defined(CONFIG_BUILD_KERNEL)
+    defined(CONFIG_BUILD_FLAT)
       /* Check that the FPU is properly supported during context switching */
 
       printf("\nuser_main: FPU test\n");
