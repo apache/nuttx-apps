@@ -122,8 +122,13 @@ $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
+ifneq ($(CONFIG_ARM_TOOLCHAIN_GHS),y)
 $(SYMTABOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@, -fno-lto -fno-builtin)
+else
+$(SYMTABOBJ): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@, -Onolink)
+endif
 
 $(BIN): $(SYMTABOBJ)
 	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
