@@ -63,9 +63,9 @@
 struct pre_build_s
 {
   FAR struct inode *driver;
-  FAR const char *source;
   struct mtd_geometry_s geo;
   struct geometry cfg;
+  char source[PATH_MAX];
   int fd;
 };
 
@@ -95,14 +95,14 @@ static void parse_commandline(int argc, FAR char **argv,
 {
   int option;
 
-  pre->source = NULL;
+  pre->source[0] = '\0';
 
   while ((option = getopt(argc, argv, "m:")) != ERROR)
     {
       switch (option)
         {
           case 'm':
-            pre->source = optarg;
+            strlcpy(pre->source, optarg, sizeof(pre->source));
             break;
           case '?':
             printf("Unknown option: %c\n", optopt);
@@ -111,7 +111,7 @@ static void parse_commandline(int argc, FAR char **argv,
         }
     }
 
-  if (pre->source == NULL)
+  if (pre->source[0] == '\0')
     {
       printf("Missing <source>\n");
       show_usage(argv[0], EXIT_FAILURE);
@@ -312,7 +312,7 @@ static void blktest_cachesize_write(FAR void **state)
 
   if (size > pre->geo.blocksize && (size % pre->geo.blocksize) == 0)
     {
-      block = (pre->geo.blocksize + size) / pre->geo.blocksize - 1;
+      block = size / pre->geo.blocksize;
     }
   else
     {
@@ -325,9 +325,17 @@ static void blktest_cachesize_write(FAR void **state)
 
   size = block * pre->geo.blocksize;
 
+  if (size > pre->geo.erasesize * pre->geo.neraseblocks)
+    {
+      printf("Warning: Total block size too small,"
+             "need larger than %" PRId32 "\n",
+             size);
+      return;
+    }
+
   if (size > pre->geo.erasesize && (size % pre->geo.erasesize) == 0)
     {
-      eblock = (pre->geo.erasesize + size) / pre->geo.erasesize - 1;
+      eblock = size / pre->geo.erasesize;
     }
   else
     {
