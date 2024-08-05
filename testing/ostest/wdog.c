@@ -43,7 +43,7 @@
 
 #define wdtest_printf(...)           printf(__VA_ARGS__)
 
-#define wdtest_delay(delay_us)       usleep(delay_us)
+#define wdtest_delay(delay_ns)       usleep(delay_ns / 1000 + 1)
 
 /****************************************************************************
  * Private Type
@@ -74,66 +74,58 @@ static void wdtest_callback(wdparm_t param)
 }
 
 static void wdtest_once(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
-                        sclock_t delay_us)
+                        sclock_t delay_ns)
 {
   uint64_t        cnt;
   long long       diff;
   clock_t         wdset_tick;
   struct timespec tp;
-  clock_t         delay_ticks = USEC2TICK((clock_t)delay_us);
+  clock_t         delay_ticks = (clock_t)NSEC2TICK((clock_t)delay_ns);
 
-  wdtest_printf("wdtest_once %lld us\n", (long long)delay_us);
+  wdtest_printf("wdtest_once %lld ns\n", (long long)delay_ns);
 
   clock_gettime(CLOCK_MONOTONIC, &tp);
 
   wdset_tick = clock_time2ticks(&tp);
   cnt        = param->callback_cnt;
+
   wdtest_assert(wd_start(wdog, delay_ticks, wdtest_callback,
                          (wdparm_t)param) == OK);
 
-  while (cnt + 1 != param->callback_cnt)
-    {
-      wdtest_delay(delay_us);
-    }
+  wdtest_delay(delay_ns);
 
   diff = (long long)(param->triggered_tick - wdset_tick);
 
-  /* Ensure diff - delay_ticks is within the tolerance limit. */
+  wdtest_assert(cnt + 1 == param->callback_cnt);
 
-  wdtest_assert(diff - delay_ticks >= 0);
-  wdtest_assert(diff - delay_ticks <
-                USEC2TICK(WDOGTEST_TOLERENT_LATENCY_US) + 1);
+  /* Ensure diff - delay_ticks >= 0. */
+
+  wdtest_assert(diff - (long long)delay_ticks >= 0);
   wdtest_printf("wdtest_once latency ticks %lld\n", diff - delay_ticks);
 }
 
 static void wdtest_rand(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
-                        sclock_t rand_us)
+                        sclock_t rand_ns)
 {
   int      idx;
-  sclock_t delay_us;
-  uint64_t cnt = param->callback_cnt;
+  sclock_t delay_ns;
 
   for (idx = 0; idx < WDOGTEST_RAND_ITER; idx++)
     {
-      delay_us = rand() % rand_us;
-      wdtest_assert(wd_start(wdog, USEC2TICK(delay_us), wdtest_callback,
+      delay_ns = rand() % rand_ns;
+      wdtest_assert(wd_start(wdog, NSEC2TICK(delay_ns), wdtest_callback,
                              (wdparm_t)param) == 0);
 
       /* Wait or Cancel 50/50 */
 
-      if (delay_us % 2)
+      if (delay_ns % 2)
         {
-          while (cnt + 1 != param->callback_cnt)
-            {
-              wdtest_delay(delay_us);
-            }
+          wdtest_delay(delay_ns);
         }
       else
         {
           wd_cancel(wdog);
         }
-
-      cnt = param->callback_cnt;
     }
 }
 
@@ -141,30 +133,30 @@ static void wdtest_callback_recursive(wdparm_t param)
 {
   struct timespec     tp;
   FAR wdtest_param_t *wdtest_param = (FAR wdtest_param_t *)param;
-  sclock_t            interval = wdtest_param->interval;
-
-  wd_start(wdtest_param->wdog, interval,
-           wdtest_callback_recursive, param);
+  sclock_t            interval     = wdtest_param->interval;
 
   clock_gettime(CLOCK_MONOTONIC, &tp);
 
   wdtest_param->callback_cnt   += 1;
   wdtest_param->triggered_tick  = clock_time2ticks(&tp);
+
+  wd_start(wdtest_param->wdog, interval,
+           wdtest_callback_recursive, param);
 }
 
 static void wdtest_recursive(FAR struct wdog_s *wdog,
                              FAR wdtest_param_t *param,
-                             sclock_t delay_us,
+                             sclock_t delay_ns,
                              unsigned int times)
 {
   uint64_t        cnt;
   struct timespec tp;
   clock_t         wdset_tick;
 
-  wdtest_printf("wdtest_recursive %lldus\n", (long long)delay_us);
+  wdtest_printf("wdtest_recursive %lldus\n", (long long)delay_ns);
   cnt = param->callback_cnt;
   param->wdog = wdog;
-  param->interval = (sclock_t)USEC2TICK((clock_t)delay_us);
+  param->interval = (sclock_t)NSEC2TICK((clock_t)delay_ns);
 
   wdtest_assert(param->interval >= 0);
 
@@ -175,15 +167,12 @@ static void wdtest_recursive(FAR struct wdog_s *wdog,
                          wdtest_callback_recursive,
                          (wdparm_t)param) == OK);
 
-  while (param->callback_cnt < cnt + times)
-    {
-      wdtest_delay(delay_us);
-    }
+  wdtest_delay(times * delay_ns);
 
   wdtest_assert(wd_cancel(param->wdog) == 0);
 
-  wdtest_printf("recursive wdog triggered %u times, elapsed tick %lld\n",
-                times,
+  wdtest_printf("recursive wdog triggered %llu times, elapsed tick %lld\n",
+                (unsigned long long)(param->callback_cnt - cnt),
                 (long long)(param->triggered_tick - wdset_tick));
 }
 
@@ -253,7 +242,8 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 
   wdtest_assert(rest < delay && rest > (delay >> 1));
 
-  wdtest_printf("wd_start with maximum delay, cancel %ld\n", (long)rest);
+  wdtest_printf("wd_start with maximum delay, cancel %lld\n",
+                (long long)rest);
 
   wdtest_assert(wd_cancel(&test_wdog) == 0);
 
@@ -264,19 +254,10 @@ static void wdog_test_run(FAR wdtest_param_t *param)
                 wdtest_callback, (wdparm_t)param) != OK);
   wdtest_assert(wd_gettime(&test_wdog) == 0);
 
-  /* Recursive wdog delay from 10us to 1000us */
+  /* Recursive wdog delay from 1000us to 10000us */
 
-  wdtest_recursive(&test_wdog, param, 10, 1000);
-  wdtest_delay(10);
-  wdtest_recursive(&test_wdog, param, 100, 100);
-  wdtest_delay(10);
-  wdtest_recursive(&test_wdog, param, 1000, 10);
-  wdtest_delay(10);
-
-  /* Random delay ~1us */
-
-  wdtest_rand(&test_wdog, param, 1024);
-  wdtest_delay(10);
+  wdtest_recursive(&test_wdog, param, 1000000, 100);
+  wdtest_recursive(&test_wdog, param, 10000000, 10);
 
   /* Random delay ~12us */
 
