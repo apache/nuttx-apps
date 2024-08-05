@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/uorb/sensor/gesture.c
+ * apps/system/uorb/sensor/rotation.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -22,36 +22,25 @@
  * Included Files
  ****************************************************************************/
 
-#include <sensor/gesture.h>
+#include <sensor/rotation.h>
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static const char sensor_gesture_format[] =
-  "timestamp:%" PRIu64 ",event:%" PRIu32 "";
+static const char sensor_rotation_format[] =
+  "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf";
+static const char sensor_orientation_format[] =
+  "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,w:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_glance_gesture, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_glance_gesture_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_offbody_detector, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_offbody_detector_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_pickup_gesture, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_pickup_gesture_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_wrist_tilt, struct sensor_event, sensor_gesture_format);
-ORB_DEFINE(sensor_wrist_tilt_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_wake_gesture, struct sensor_event, sensor_gesture_format);
-ORB_DEFINE(sensor_wake_gesture_uncal, struct sensor_event,
-           sensor_gesture_format);
+ORB_DEFINE(sensor_rotation, struct sensor_rotation, sensor_rotation_format);
+ORB_DEFINE(sensor_orientation, struct sensor_orientation,
+           sensor_orientation_format);
+ORB_DEFINE(sensor_device_orientation, struct sensor_orientation,
+           sensor_orientation_format);

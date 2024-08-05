@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/uorb/sensor/gesture.c
+ * apps/system/uorb/sensor/rotation.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,40 +18,23 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_SYSTEM_UORB_SENSOR_ROTATION_H
+#define __APPS_SYSTEM_UORB_SENSOR_ROTATION_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <sensor/gesture.h>
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-#ifdef CONFIG_DEBUG_UORB
-static const char sensor_gesture_format[] =
-  "timestamp:%" PRIu64 ",event:%" PRIu32 "";
-#endif
+#include <uORB/uORB.h>
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_glance_gesture, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_glance_gesture_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_offbody_detector, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_offbody_detector_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_pickup_gesture, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_pickup_gesture_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_wrist_tilt, struct sensor_event, sensor_gesture_format);
-ORB_DEFINE(sensor_wrist_tilt_uncal, struct sensor_event,
-           sensor_gesture_format);
-ORB_DEFINE(sensor_wake_gesture, struct sensor_event, sensor_gesture_format);
-ORB_DEFINE(sensor_wake_gesture_uncal, struct sensor_event,
-           sensor_gesture_format);
+/* register this as object request broker structure */
+
+ORB_DECLARE(sensor_rotation);
+ORB_DECLARE(sensor_orientation);
+ORB_DECLARE(sensor_device_orientation);
+
+#endif
