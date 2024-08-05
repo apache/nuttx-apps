@@ -362,6 +362,7 @@ static int
 fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
 {
   FAR char *chunk_ptr = context->download_buffer;
+  FAR char *end_ptr = chunk_ptr + context->download_size;
   FAR struct fastboot_sparse_header_s *sparse;
   uint32_t chunk_num;
   int ret = OK;
@@ -382,10 +383,9 @@ fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
     }
 
   chunk_num = sparse->total_chunks;
-
   chunk_ptr += FASTBOOT_SPARSE_HEADER;
 
-  while (chunk_num--)
+  while (chunk_ptr < end_ptr && chunk_num--)
     {
       FAR struct fastboot_chunk_header_s *chunk =
         (FAR struct fastboot_chunk_header_s *)chunk_ptr;
