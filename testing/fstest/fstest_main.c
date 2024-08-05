@@ -597,18 +597,19 @@ static inline int fstest_rdfile(FAR struct fstest_ctx_s *ctx,
   uint32_t crc;
   int fd;
 
+  if (file->deleted)
+    {
+      return ERROR;
+    }
+
   /* Open the file for reading */
 
   fd = open(file->name, O_RDONLY);
   if (fd < 0)
     {
-      if (!file->deleted)
-        {
-          printf("ERROR: Failed to open file for reading: %d\n", errno);
-          printf("  File name: %s\n", file->name);
-          printf("  File size: %zd\n", file->len);
-        }
-
+      printf("ERROR: Failed to open file for reading: %d\n", errno);
+      printf("  File name: %s\n", file->name);
+      printf("  File size: %zd\n", file->len);
       return ERROR;
     }
 
