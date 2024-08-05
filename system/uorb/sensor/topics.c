@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include <sensor/accel.h>
+#include <sensor/angle.h>
 #include <sensor/baro.h>
 #include <sensor/cap.h>
 #include <sensor/co2.h>
@@ -51,16 +52,20 @@
 #include <sensor/ir.h>
 #include <sensor/light.h>
 #include <sensor/mag.h>
+#include <sensor/motion.h>
 #include <sensor/noise.h>
 #include <sensor/ots.h>
 #include <sensor/ph.h>
 #include <sensor/pm25.h>
 #include <sensor/pm1p0.h>
 #include <sensor/pm10.h>
+#include <sensor/pose_6dof.h>
 #include <sensor/ppgd.h>
 #include <sensor/ppgq.h>
 #include <sensor/prox.h>
 #include <sensor/rgb.h>
+#include <sensor/rotation.h>
+#include <sensor/step_counter.h>
 #include <sensor/temp.h>
 #include <sensor/tvoc.h>
 #include <sensor/uv.h>
@@ -75,13 +80,17 @@ static FAR const struct orb_metadata *g_sensor_list[] =
 {
   ORB_ID(sensor_accel),
   ORB_ID(sensor_accel_uncal),
+  ORB_ID(sensor_hinge_angle),
   ORB_ID(sensor_baro),
   ORB_ID(sensor_cap),
   ORB_ID(sensor_co2),
+  ORB_ID(sensor_device_orientation),
   ORB_ID(sensor_dust),
   ORB_ID(sensor_ecg),
   ORB_ID(sensor_force),
   ORB_ID(sensor_gas),
+  ORB_ID(sensor_glance_gesture),
+  ORB_ID(sensor_glance_gesture_uncal),
   ORB_ID(sensor_gnss),
   ORB_ID(sensor_gnss_clock),
   ORB_ID(sensor_gnss_geofence_event),
@@ -98,23 +107,40 @@ static FAR const struct orb_metadata *g_sensor_list[] =
   ORB_ID(sensor_ir),
   ORB_ID(sensor_light),
   ORB_ID(sensor_light_uncal),
+  ORB_ID(sensor_linear_accel),
+  ORB_ID(sensor_linear_accel_uncal),
   ORB_ID(sensor_mag),
   ORB_ID(sensor_mag_uncal),
+  ORB_ID(sensor_motion_detect),
   ORB_ID(sensor_noise),
+  ORB_ID(sensor_offbody_detector),
+  ORB_ID(sensor_offbody_detector_uncal),
+  ORB_ID(sensor_orientation),
   ORB_ID(sensor_ots),
   ORB_ID(sensor_ph),
+  ORB_ID(sensor_pickup_gesture),
+  ORB_ID(sensor_pickup_gesture_uncal),
   ORB_ID(sensor_pm10),
   ORB_ID(sensor_pm1p0),
   ORB_ID(sensor_pm25),
+  ORB_ID(sensor_pose_6dof),
   ORB_ID(sensor_ppgd),
   ORB_ID(sensor_ppgq),
   ORB_ID(sensor_prox),
   ORB_ID(sensor_rgb),
+  ORB_ID(sensor_rotation),
+  ORB_ID(sensor_significant_motion),
+  ORB_ID(sensor_step_counter),
+  ORB_ID(sensor_step_detector),
   ORB_ID(sensor_temp),
+  ORB_ID(sensor_tilt_detector),
+  ORB_ID(sensor_tilt_detector_uncal),
   ORB_ID(sensor_tvoc),
   ORB_ID(sensor_uv),
   ORB_ID(sensor_wake_gesture),
   ORB_ID(sensor_wake_gesture_uncal),
+  ORB_ID(sensor_wrist_tilt),
+  ORB_ID(sensor_wrist_tilt_uncal),
   NULL,
 };
 
