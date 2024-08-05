@@ -140,9 +140,13 @@ PROGNAME += cmocka_driver_mps2_zerointerrupt
 endif
 endif
 
-ifneq ($(CONFIG_PM),)
+ifeq ($(CONFIG_PM),y)
 MAINSRC  += drivertest_pm.c
 PROGNAME += cmocka_driver_pm
+ifeq ($(CONFIG_SMP),y)
+MAINSRC  += drivertest_pm_smp.c
+PROGNAME += cmocka_driver_pm_smp
+endif
 endif
 
 ifneq ($(CONFIG_PM_RUNTIME),)

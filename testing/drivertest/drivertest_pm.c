@@ -277,7 +277,7 @@ static void test_pm(FAR void **argv)
 
       /* test when pm prepare succeeded */
 
-      test_pm_fake_driver_init();
+      g_test_pm_dev.prepare_fail = false;
 
       for (int state = 0; state < PM_COUNT; state++)
         {
