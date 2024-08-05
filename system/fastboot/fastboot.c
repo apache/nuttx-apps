@@ -557,6 +557,7 @@ static void fastboot_download(FAR struct fastboot_ctx_s *context,
     }
 
   download = context->download_buffer;
+  context->download_size = len;
 
   while (len > 0)
     {
@@ -564,6 +565,7 @@ static void fastboot_download(FAR struct fastboot_ctx_s *context,
                                 download, len);
       if (r < 0)
         {
+          context->download_size = 0;
           fb_err("fastboot_download usb read error\n");
           return;
         }
@@ -572,7 +574,6 @@ static void fastboot_download(FAR struct fastboot_ctx_s *context,
       download += r;
     }
 
-  context->download_size = len;
   fastboot_okay(context, "");
 }
 
