@@ -530,11 +530,11 @@ static int ps_record(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 static void ps_title(FAR struct nsh_vtbl_s *vtbl, bool heap)
 {
 #ifdef PS_SHOW_HEAPSIZE
-  char heapsize[8];
+  char heapsize[16];
 
   if (heap)
     {
-      sprintf(heapsize, "%7s", "HEAP");
+      snprintf(heapsize, sizeof(heapsize), "%8s", "HEAP");
     }
   else
     {
@@ -591,11 +591,11 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
   /* Finally, print the status information */
 
 #ifdef PS_SHOW_HEAPSIZE
-  char heapsize[8];
+  char heapsize[16];
 
   if (heap)
     {
-      snprintf(heapsize, sizeof(heapsize), "%07lu", status->td_heapsize);
+      snprintf(heapsize, sizeof(heapsize), "%08lu", status->td_heapsize);
     }
   else
     {
