@@ -791,6 +791,25 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         }
     }
 
+  if (argc == 1)
+    {
+      char *buf = malloc(BUFSIZ);
+
+      /* Dump from input */
+
+      while (true)
+        {
+          ssize_t n = nsh_read(vtbl, buf, BUFSIZ);
+
+          if (n == 0)
+            break;
+
+          nsh_write(vtbl, buf, n);
+        }
+
+      free(buf);
+    }
+
   return ret;
 }
 #endif
