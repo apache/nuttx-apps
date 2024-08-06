@@ -140,6 +140,34 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
 }
 
 /****************************************************************************
+ * Name: nsh_consoleread
+ *
+ * Description:
+ *   read a buffer to the remote shell window.
+ *
+ *   Currently only used by cat.
+ *
+ ****************************************************************************/
+
+static ssize_t nsh_consoleread(FAR struct nsh_vtbl_s *vtbl,
+                                FAR void *buffer, size_t nbytes)
+{
+  FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
+  ssize_t ret;
+
+  /* Read the data to the output stream */
+
+  ret = read(INFD(pstate), buffer, nbytes);
+  if (ret < 0)
+    {
+      _err("ERROR: [%d] Failed to read buffer: %d\n",
+          INFD(pstate), errno);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: nsh_consolewrite
  *
  * Description:
@@ -380,6 +408,7 @@ FAR struct console_stdio_s *nsh_newconsole(bool isctty)
 #endif
       pstate->cn_vtbl.release     = nsh_consolerelease;
       pstate->cn_vtbl.write       = nsh_consolewrite;
+      pstate->cn_vtbl.read        = nsh_consoleread;
       pstate->cn_vtbl.ioctl       = nsh_consoleioctl;
       pstate->cn_vtbl.output      = nsh_consoleoutput;
 #ifndef CONFIG_NSH_DISABLE_ERROR_PRINT
