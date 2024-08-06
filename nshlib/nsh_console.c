@@ -47,6 +47,7 @@ struct serialsave_s
 {
   int   cn_errfd;     /* Re-directed error output file descriptor */
   int   cn_outfd;     /* Re-directed output file descriptor */
+  int   cn_infd;      /* Re-directed input file descriptor */
 };
 
 /****************************************************************************
@@ -68,8 +69,8 @@ static int nsh_erroroutput(FAR struct nsh_vtbl_s *vtbl,
                            FAR const char *fmt, ...) printf_like(2, 3);
 #endif
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
-static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
-                                FAR uint8_t *save);
+static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd_in,
+                                int fd_out, FAR uint8_t *save);
 static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
                                 FAR uint8_t *save);
 static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl,
@@ -100,8 +101,14 @@ static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
       close(ERRFD(pstate));
     }
 
+  if (INFD(pstate) >= 0 && INFD(pstate) != STDIN_FILENO)
+    {
+      close(INFD(pstate));
+    }
+
   ERRFD(pstate) = -1;
   OUTFD(pstate) = -1;
+  INFD(pstate) = -1;
 }
 
 /****************************************************************************
@@ -290,8 +297,8 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
-                                FAR uint8_t *save)
+static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd_in,
+                                int fd_out, FAR uint8_t *save)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
@@ -306,11 +313,13 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
 
       ERRFD(ssave) = ERRFD(pstate);
       OUTFD(ssave) = OUTFD(pstate);
+      INFD(ssave) = INFD(pstate);
     }
 
   /* Set the fd of the new. */
 
-  OUTFD(pstate) = fd;
+  OUTFD(pstate) = fd_out;
+  INFD(pstate) = fd_in;
 }
 
 /****************************************************************************
@@ -330,6 +339,7 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
   nsh_closeifnotclosed(pstate);
   ERRFD(pstate) = ERRFD(ssave);
   OUTFD(pstate) = OUTFD(ssave);
+  INFD(pstate) = INFD(ssave);
 }
 
 /****************************************************************************
@@ -395,6 +405,10 @@ FAR struct console_stdio_s *nsh_newconsole(bool isctty)
       /* Initialize the output stream */
 
       OUTFD(pstate)               = STDOUT_FILENO;
+
+      /* Initialize the input stream */
+
+      INFD(pstate)               = STDIN_FILENO;
     }
 
   return pstate;

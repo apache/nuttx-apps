@@ -98,6 +98,10 @@ static int nsh_clone_console(FAR struct console_stdio_s *pstate)
 
   OUTFD(pstate) = 1;
 
+  /* Setup stdin */
+
+  INFD(pstate) = 0;
+
   return OK;
 }
 

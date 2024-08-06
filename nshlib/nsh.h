@@ -654,15 +654,16 @@ enum nsh_npflags_e
 struct nsh_parser_s
 {
 #ifndef CONFIG_NSH_DISABLEBG
-  bool     np_bg;       /* true: The last command executed in background */
+  bool     np_bg;        /* true: The last command executed in background */
 #endif
-  bool     np_redirect; /* true: Output from the last command was re-directed */
-  bool     np_fail;     /* true: The last command failed */
+  bool     np_redir_out; /* true: Output from the last command was re-directed */
+  bool     np_redir_in;  /* true: Input from the last command was re-directed */
+  bool     np_fail;      /* true: The last command failed */
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  uint8_t  np_flags;    /* See nsh_npflags_e above */
+  uint8_t  np_flags;     /* See nsh_npflags_e above */
 #endif
 #ifndef CONFIG_NSH_DISABLEBG
-  int      np_nice;     /* "nice" value applied to last background cmd */
+  int      np_nice;      /* "nice" value applied to last background cmd */
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
@@ -852,7 +853,8 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[]);
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile, int oflags);
+                FAR char **argv, FAR const char *redirfile_in,
+                FAR const char *redirfile_out, int oflags);
 #endif
 
 #ifdef CONFIG_NSH_FILE_APPS
