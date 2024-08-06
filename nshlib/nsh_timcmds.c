@@ -298,7 +298,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLEBG
   bool bgsave;
 #endif
-  bool redirsave;
+  bool redirsave_out;
+  bool redirsave_in;
   int ret;
 
   /* Get the current time */
@@ -315,7 +316,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLEBG
   bgsave    = vtbl->np.np_bg;
 #endif
-  redirsave = vtbl->np.np_redirect;
+  redirsave_out = vtbl->np.np_redir_out;
+  redirsave_in = vtbl->np.np_redir_in;
 
   /* Execute the command */
 
@@ -354,7 +356,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = bgsave;
 #endif
-  vtbl->np.np_redirect = redirsave;
+  vtbl->np.np_redir_out = redirsave_out;
+  vtbl->np.np_redir_out = redirsave_in;
 
   return ret;
 }
