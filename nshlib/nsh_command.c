@@ -158,8 +158,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_CAT
-  CMD_MAP("cat",      cmd_cat,      2, CONFIG_NSH_MAXARGUMENTS,
-    "<path> [<path> [<path> ...]]"),
+  CMD_MAP("cat",      cmd_cat,      1, CONFIG_NSH_MAXARGUMENTS,
+    "[<path> [<path> [<path> ...]]]"),
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
