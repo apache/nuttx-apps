@@ -46,6 +46,10 @@ config TESTING_CRYPTO_ECDH
 	bool "ecdh crypto test"
 	default n
 
+config TESTING_CRYPTO_RSA
+	bool "rsa crypto test"
+	default n
+
 config TESTING_CRYPTO_PRIORITY
 	int "crypto test task priority"
 	default 100

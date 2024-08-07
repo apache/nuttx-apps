@@ -159,4 +159,18 @@ if(CONFIG_TESTING_CRYPTO)
       dhm.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_RSA)
+    nuttx_add_application(
+      NAME
+      rsa
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      rsa.c)
+  endif()
+
 endif()
