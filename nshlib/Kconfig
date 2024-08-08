@@ -709,6 +709,10 @@ config NSH_DISABLE_WAIT
 	default DEFAULT_SMALL
 	depends on SCHED_WAITPID
 
+config NSH_DISABLE_WATCH
+	bool "Disable watch"
+	default DEFAULT_SMALL
+
 endmenu
 
 if MMCSD

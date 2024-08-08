@@ -664,6 +664,11 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("usleep",   cmd_usleep,   2, 2, "<usec>"),
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_WATCH
+  CMD_MAP("watch",     cmd_watch,
+          2, 6, "[-n] interval [-c] count <command>"),
+#endif
+
 #ifdef CONFIG_NET_TCP
 #  ifndef CONFIG_NSH_DISABLE_WGET
   CMD_MAP("wget",     cmd_wget,     2, 4, "[-o <local-path>] <url>"),

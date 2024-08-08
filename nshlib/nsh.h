@@ -1234,6 +1234,10 @@ int cmd_alias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 int cmd_unalias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_WATCH
+int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
 #if !defined(CONFIG_NSH_DISABLE_WAIT) && defined(CONFIG_SCHED_WAITPID) && \
     !defined(CONFIG_DISABLE_PTHREAD)
 int cmd_wait(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
