@@ -859,7 +859,8 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #ifdef CONFIG_NSH_FILE_APPS
 int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile, int oflags);
+                FAR char **argv, FAR const char *redirfile_in,
+                FAR const char *redirfile_out, int oflags);
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON

@@ -685,7 +685,8 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    */
 
 #ifdef CONFIG_NSH_FILE_APPS
-  ret = nsh_fileapp(vtbl, argv[0], argv, redirfile_out, oflags);
+  ret = nsh_fileapp(vtbl, argv[0], argv, redirfile_in,
+                    redirfile_out, oflags);
   if (ret >= 0)
     {
       /* nsh_fileapp() returned 0 or 1.  This means that the built-in
