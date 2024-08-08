@@ -201,16 +201,15 @@ static int setup_driver(FAR void **state)
   ret = find_mtddriver(pre->source, &pre->driver);
   if (ret != 0)
     {
-      struct geometry geometry;
       ret = find_blockdriver(pre->source, 0, &pre->driver);
       assert_false(ret != 0);
 
-      ret = pre->driver->u.i_bops->geometry(pre->driver, &geometry);
+      ret = pre->driver->u.i_bops->geometry(pre->driver, &pre->cfg);
       assert_false(ret < 0);
 
-      pre->geo.blocksize = geometry.geo_sectorsize;
-      pre->geo.erasesize = geometry.geo_sectorsize;
-      pre->geo.neraseblocks = geometry.geo_nsectors;
+      pre->geo.blocksize = pre->cfg.geo_sectorsize;
+      pre->geo.erasesize = pre->cfg.geo_sectorsize;
+      pre->geo.neraseblocks = pre->cfg.geo_nsectors;
     }
   else
     {
@@ -469,20 +468,29 @@ static int teardown_bch(FAR void **state)
 
 int main(int argc, FAR char *argv[])
 {
-  struct pre_build_s pre;
+  struct pre_build_s *pre;
+  int ret;
 
-  parse_commandline(argc, argv, &pre);
+  pre = kmm_zalloc(sizeof(*pre));
+  if (pre == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  parse_commandline(argc, argv, pre);
   const struct CMUnitTest tests[] =
     {
       cmocka_unit_test_prestate_setup_teardown(blktest_stress, setup_bch,
-                                               teardown_bch, &pre),
+                                               teardown_bch, pre),
       cmocka_unit_test_prestate_setup_teardown(blktest_single_write,
                                                setup_driver, teardown_driver,
-                                               &pre),
+                                               pre),
       cmocka_unit_test_prestate_setup_teardown(blktest_cachesize_write,
                                                setup_driver, teardown_driver,
-                                               &pre),
+                                               pre),
     };
 
-  return cmocka_run_group_tests(tests, NULL, NULL);
+  ret = cmocka_run_group_tests(tests, NULL, NULL);
+  kmm_free(pre);
+  return ret;
 }
