@@ -35,6 +35,8 @@
 #include <errno.h>
 #include <string.h>
 #include <libgen.h>
+#include <fcntl.h>
+
 #include <nuttx/lib/builtin.h>
 
 #include "nsh.h"
@@ -68,7 +70,8 @@
  ****************************************************************************/
 
 int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile, int oflags)
+                FAR char **argv, FAR const char *redirfile_in,
+                FAR const char *redirfile_out, int oflags)
 {
   posix_spawn_file_actions_t file_actions;
   posix_spawnattr_t attr;
@@ -104,11 +107,28 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       goto errout_with_actions;
     }
 
+  /* Handle redirection of input */
+
+  if (redirfile_in)
+    {
+      /* Set up to close open redirfile and set to stdin (0) */
+
+      ret = posix_spawn_file_actions_addopen(&file_actions, 0,
+                                             redirfile_in, O_RDONLY, 0);
+      if (ret != 0)
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                     "posix_spawn_file_actions_addopen",
+                     NSH_ERRNO);
+          goto errout_with_actions;
+        }
+    }
+
   /* Handle re-direction of output */
 
-  if (redirfile)
+  if (redirfile_out)
     {
-      ret = posix_spawn_file_actions_addopen(&file_actions, 1, redirfile,
+      ret = posix_spawn_file_actions_addopen(&file_actions, 1, redirfile_out,
                                              oflags, 0644);
       if (ret != 0)
         {
