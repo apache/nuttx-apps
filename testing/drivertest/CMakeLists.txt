@@ -327,6 +327,22 @@ if(CONFIG_TESTING_DRIVER_TEST)
       drivertest_touchpanel.c)
   endif()
 
+  if(CONFIG_ARCH_CHIP_MPS2_AN500 AND CONFIG_ARCH_IRQPRIO)
+    nuttx_add_application(
+      NAME
+      cmocka_driver_mps2
+      PRIORITY
+      ${CONFIG_TESTING_DRIVER_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_DRIVER_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_DRIVER_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      drivertest_mps2.c)
+  endif()
+
   if(CONFIG_PM)
     nuttx_add_application(
       NAME
