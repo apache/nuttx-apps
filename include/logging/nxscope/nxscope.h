@@ -53,6 +53,14 @@
  * Public Types
  ****************************************************************************/
 
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
 /* Nxscope header ID */
 
 enum nxscope_hdr_id_e
@@ -487,5 +495,10 @@ int nxscope_recv(FAR struct nxscope_s *s);
  ****************************************************************************/
 
 int nxscope_stream_start(FAR struct nxscope_s *s, bool start);
+
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __APPS_INCLUDE_LOGGING_NXSCOPE_NXSCOPE_H */

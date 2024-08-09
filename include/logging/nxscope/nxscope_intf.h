@@ -37,6 +37,14 @@
  * Public Types
  ****************************************************************************/
 
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
 /* Forward declaration */
 
 struct nxscope_intf_s;
@@ -123,6 +131,11 @@ int nxscope_ser_init(FAR struct nxscope_intf_s *intf,
  ****************************************************************************/
 
 void nxscope_ser_deinit(FAR struct nxscope_intf_s *intf);
+#endif
+
+#undef EXTERN
+#ifdef __cplusplus
+}
 #endif
 
 #endif  /* __APPS_INCLUDE_LOGGING_NXSCOPE_NXSCOPE_INTF_H */
