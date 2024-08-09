@@ -28,8 +28,10 @@
 #include <cassert>
 #include <cstdio>
 
+#ifdef CONFIG_CXX_LOCALIZATION
 #include <fstream>
 #include <iostream>
+#endif
 #include <map>
 #include <string>
 #include <vector>
@@ -57,7 +59,7 @@ class Extend : public Base
 public:
   void printExtend(void)
   {
-    std::cout << "extend" << std::endl;
+    std::printf("extend\n");
   }
 };
 
@@ -104,6 +106,7 @@ private:
 // Name: test_ostream
 //***************************************************************************/
 
+#ifdef CONFIG_CXX_LOCALIZATION
 static void test_ofstream()
 {
   std::ofstream ttyOut;
@@ -128,11 +131,13 @@ static void test_ofstream()
       ttyOut.close();
     }
 }
+#endif
 
 //***************************************************************************
 // Name: test_iostream
 //***************************************************************************/
 
+#ifdef CONFIG_CXX_LOCALIZATION
 static void test_iostream()
 {
   std::cout << "Test iostream ================================" << std::endl;
@@ -140,6 +145,7 @@ static void test_iostream()
   std::cout << "Print an int: "  <<  190  <<  std::endl;
   std::cout << "Print a char: "  <<  'd'  <<  std::endl;
 }
+#endif
 
 //***************************************************************************
 // Name: test_stl
@@ -147,7 +153,7 @@ static void test_iostream()
 
 static void test_stl()
 {
-  std::cout << "Test std::vector =============================" << std::endl;
+  std::printf("Test std::vector =============================\n");
 
   std::vector<int> v1;
   assert(v1.empty());
@@ -163,7 +169,7 @@ static void test_stl()
   v1.pop_back();
   assert(v1.size() == 3);
 
-  std::cout << "v1=" << v1[0] << ' ' << v1[1] << ' ' << v1[2] << std::endl;
+  std::printf("v1=%d %d %d\n", v1[0], v1[1], v1[2]);
   assert(v1[2] == 3);
 
   std::vector<int> v2 = v1;
@@ -174,13 +180,13 @@ static void test_stl()
   std::vector<std::string>::iterator it;
   for (it = v3.begin(); it != v3.end(); ++it)
     {
-      std::cout << *it << ' ';
+      std::printf("%s ", it->c_str());
     }
 
-  std::cout << std::endl;
+  std::printf("\n");
   assert(v3[1] == "World");
 
-  std::cout << "Test std::map ================================" << std::endl;
+  std::printf("Test std::map ===============================\n");
 
   std::map<int, std::string> m1;
   m1[12] = "Hello";
@@ -196,17 +202,17 @@ static void test_stl()
 #if defined(CONFIG_LIBCXX) && __cplusplus >= 201703L
 auto test_stl2() -> void
 {
-  std::cout << "Test C++17 features ==========================" << std::endl;
+  std::printf("Test C++17 features ==========================\n");
 
   auto check = [](auto&& path)
     {
       if (File::open(path))
         {
-          std::cout << "File " << path << " exists!" << std::endl;
+          std::printf("File %s exists!\n", path.data());
         }
       else
         {
-          std::cerr << "Invalid file! " << path << std::endl;
+          std::printf("File %s does not exist!\n", path.data());
         }
     };
   std::array<std::string_view, 3> path_list{
@@ -224,7 +230,7 @@ auto test_stl2() -> void
 #ifdef CONFIG_CXX_RTTI
 static void test_rtti()
 {
-  std::cout << "Test RTTI ====================================" << std::endl;
+  printf("Test RTTI =============================\n");
   Base *a = new Base();
   Base *b = new Extend();
   assert(a);
@@ -249,14 +255,14 @@ static void test_rtti()
 #ifdef CONFIG_CXX_EXCEPTION
 static void test_exception()
 {
-  std::cout << "Test Exception ===============================" << std::endl;
+  std::printf("Test Exception ===============================\n");
   try
     {
       throw std::runtime_error("runtime error");
     }
   catch (std::runtime_error &e)
     {
-      std::cout << "Catch exception: " << e.what() << std::endl;
+      std::printf("Catch Exception: %s\n", e.what());
     }
 }
 #endif
@@ -271,8 +277,10 @@ static void test_exception()
 
 extern "C" int main(int argc, char *argv[])
 {
+#ifdef CONFIG_CXX_LOCALIZATION
   test_ofstream();
   test_iostream();
+#endif
   test_stl();
 #if defined(CONFIG_LIBCXX) && __cplusplus >= 201703L
   test_stl2();
