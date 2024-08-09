@@ -29,7 +29,7 @@ MAINSRC  += drivertest_simple.c
 PROGNAME += cmocka_driver_simple
 endif
 
-ifeq ($(CONFIG_BCH),y)
+ifeq ($(CONFIG_BCH)$(CONFIG_BUILD_FLAT),yy)
 CFLAGS += ${INCDIR_PREFIX}${TOPDIR}/fs
 PROGNAME += cmocka_driver_block
 MAINSRC  += drivertest_block.c
