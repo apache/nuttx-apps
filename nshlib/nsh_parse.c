@@ -2734,7 +2734,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
               argv[argc] = pbegin;
             }
         }
-      else if (!strncmp(argv[argc], g_redirect_out2, redirect_out2_len))
+
+      if (!strncmp(argv[argc], g_redirect_out2, redirect_out2_len))
         {
           FAR char *arg;
           if (argv[argc][redirect_out2_len])
