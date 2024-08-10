@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/interpreters/CMakeLists.txt
+# apps/interpreters/bas/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,6 +18,32 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+if(CONFIG_INTERPRETERS_BAS)
+  nuttx_add_application(
+    NAME
+    bas
+    SRCS
+    bas_main.c
+    STACKSIZE
+    ${CONFIG_INTERPRETER_BAS_STACKSIZE}
+    PRIORITY
+    ${CONFIG_INTERPRETER_BAS_PRIORITY})
 
-nuttx_generate_kconfig(MENUDESC "Interpreters")
+  set(CSRCS
+      bas_str.c
+      bas_token.c
+      bas_value.c
+      bas_var.c
+      bas.c
+      bas_auto.c
+      bas_fs.c
+      bas_global.c
+      bas_program.c)
+
+  if(CONFIG_INTERPRETER_BAS_VT100)
+    list(APPEND CSRCS bas_vt100.c)
+  endif()
+
+  target_sources(apps PRIVATE ${CSRCS})
+
+endif()
