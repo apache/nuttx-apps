@@ -683,8 +683,8 @@ errout:
 
 int nxscope_chan_all_en(FAR struct nxscope_s *s, bool en)
 {
-  int ret = OK;
-  int i   = 0;
+  int     ret = OK;
+  uint8_t i   = 0;
 
   DEBUGASSERT(s);
 

@@ -166,6 +166,16 @@ static int nxscope_frame_get(FAR struct nxscope_proto_s *p,
         }
     }
 
+  /* Check for no header */
+
+  if (hdr == NULL)
+    {
+      ret = -EINVAL;
+      goto errout;
+    }
+
+  /* Check for no SOF in header */
+
   if (hdr->sof != NXSCOPE_HDR_SOF)
     {
       ret = -EINVAL;
