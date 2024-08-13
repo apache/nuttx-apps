@@ -1,0 +1,16 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config AUDIOUTILS_ALSA_LIB
+	tristate "Enable alsa lib"
+	default n
+
+if AUDIOUTILS_ALSA_LIB
+
+config AUDIOUTILS_ALSA_LIB_DEV_PATH
+	string "play/recored device path"
+	default "/dev/audio"
+
+endif # ALSA_LIB
