@@ -847,7 +847,7 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *context)
 
   while (1)
     {
-      char buffer[FASTBOOT_MSG_LEN];
+      char buffer[FASTBOOT_MSG_LEN + 1];
       size_t ncmds = nitems(g_fast_cmd);
       size_t index;
 
