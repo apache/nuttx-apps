@@ -60,6 +60,10 @@ config TESTING_CRYPTO_RSA
 	bool "rsa crypto test"
 	default n
 
+config TESTING_CRYPTO_KEY_MANAGEMENT
+	bool "key management test"
+	default n
+
 config TESTING_CRYPTO_PRIORITY
 	int "crypto test task priority"
 	default 100
