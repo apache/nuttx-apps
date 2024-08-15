@@ -322,11 +322,15 @@ int8_t *arm_nn_mat_mult_kernel_s8_s16(const int8_t *input_a,
             col_count --;
         }
 
-        for (int i = 0; i < 4; i++)
-        {
-            ch_out[0] += vgetq_lane_s32(res[0], i);
-            ch_out[1] += vgetq_lane_s32(res[1], 1);
-        }
+        ch_out[0] += vgetq_lane_s32(res[0], 0);
+        ch_out[0] += vgetq_lane_s32(res[0], 1);
+        ch_out[0] += vgetq_lane_s32(res[0], 2);
+        ch_out[0] += vgetq_lane_s32(res[0], 3);
+
+        ch_out[1] += vgetq_lane_s32(res[1], 0);
+        ch_out[1] += vgetq_lane_s32(res[1], 1);
+        ch_out[1] += vgetq_lane_s32(res[1], 2);
+        ch_out[1] += vgetq_lane_s32(res[1], 3);
 
         col_count = num_col_a % 8;
         while (col_count)
