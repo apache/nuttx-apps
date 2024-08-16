@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/udpblaster/CMakeLists.txt
+# apps/examples/udpblaster/udpblaster.cmake
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -17,24 +17,23 @@
 # the License.
 #
 # ##############################################################################
+# Configure project
+cmake_minimum_required(VERSION 3.16)
+project(udpblaster_host LANGUAGES C)
 
-if(CONFIG_EXAMPLES_UDPBLASTER)
-
-  if(NOT CONFIG_EXAMPLES_TCPBLASTER_LOOPBACK)
-    include(udpblaster_host.cmake)
-  endif()
-
-  nuttx_add_application(
-    NAME
-    ${CONFIG_EXAMPLES_UDPBLASTER_PROGNAME}
-    PRIORITY
-    ${CONFIG_EXAMPLES_UDPBLASTER_PRIORITY}
-    STACKSIZE
-    ${CONFIG_EXAMPLES_UDPBLASTER_STACKSIZE}
-    MODULE
-    ${CONFIG_EXAMPLES_UDPBLASTER}
-    SRCS
-    udpblaster_target.c
-    udpblaster_text.c)
-
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE
+      "Release"
+      CACHE STRING "Build type" FORCE)
 endif()
+
+message(STATUS "NuttX apps examples udpblaster host")
+
+include_directories(${CMAKE_BINARY_DIR}/include/nuttx)
+
+add_compile_definitions(UDPBLASTER_HOST=1)
+add_library(udpblaster)
+target_sources(udpblaster PRIVATE udpblaster_text.c)
+add_executable(host udpblaster_host.c)
+target_link_libraries(host PRIVATE udpblaster)
+install(TARGETS host DESTINATION bin)
