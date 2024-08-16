@@ -19,5 +19,7 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_STACKMONITOR)
-  nuttx_add_application(NAME stackmonitor)
+  nuttx_add_application(NAME stackmonitor_start SRCS stackmonitor.c)
+
+  nuttx_add_application(NAME stackmonitor_stop)
 endif()

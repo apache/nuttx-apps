@@ -19,5 +19,8 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_CRITMONITOR)
-  nuttx_add_application(NAME critmon)
+  nuttx_add_application(NAME critmon SRCS critmon.c)
+
+  nuttx_add_application(NAME critmon_start)
+  nuttx_add_application(NAME critmon_stop)
 endif()
