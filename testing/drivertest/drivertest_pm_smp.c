@@ -176,14 +176,16 @@ static void test_pm_callback_notify(FAR struct pm_callback_s *cb,
 
 static void test_pm_smp_yield(void)
 {
-  usleep(USEC_PER_TICK);
+  /* two ticks to avoid very quick jump out and idle cannot run one cycle */
+
+  usleep(USEC_PER_TICK * 2);
 }
 #endif
 
 static void test_pm_smp_naps(void)
 {
   int r = random() % (TEST_SNAP_TICK_MAX * USEC_PER_TICK);
-  usleep(r + USEC_PER_TICK);
+  usleep(r + USEC_PER_TICK * 2);
 }
 
 static void *test_pm_smp_thread_entry(void *arg)
