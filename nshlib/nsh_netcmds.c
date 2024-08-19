@@ -90,10 +90,6 @@
 #  endif
 #endif
 
-#ifdef CONFIG_NETINIT_DHCPC
-#  include "netutils/dhcpc.h"
-#endif
-
 #include "nsh.h"
 #include "nsh_console.h"
 
@@ -580,9 +576,6 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifdef HAVE_HWADDR
   mac_addr_t macaddr;
 #endif
-#if defined(CONFIG_NETINIT_DHCPC)
-  FAR void *handle;
-#endif
   int ret;
   int mtu = 0;
 
@@ -833,7 +826,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       if (hostip != NULL)
         {
-#if defined(CONFIG_NETINIT_DHCPC)
+#if defined(CONFIG_NETUTILS_DHCPC)
           if (strcmp(hostip, "dhcp") == 0)
             {
               /* Set DHCP addr */
@@ -1041,48 +1034,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif /* CONFIG_NET_IPv4 */
 #endif /* CONFIG_NETDB_DNSCLIENT */
 
-#if defined(CONFIG_NETINIT_DHCPC)
-  /* Get the MAC address of the NIC */
+#if defined(CONFIG_NETUTILS_DHCPC)
 
   if (!gip)
     {
-      netlib_getmacaddr("eth0", macaddr);
-
-      /* Set up the DHCPC modules */
-
-      handle = dhcpc_open("eth0", &macaddr, IFHWADDRLEN);
-
-      /* Get an IP address.  Note that there is no logic for renewing the IP
-       * address in this example.  The address should be renewed in
-       * ds.lease_time/2 seconds.
-       */
-
-      if (handle != NULL)
-        {
-          struct dhcpc_state ds;
-
-          dhcpc_request(handle, &ds);
-          netlib_set_ipv4addr("eth0", &ds.ipaddr);
-
-          if (ds.netmask.s_addr != 0)
-            {
-              netlib_set_ipv4netmask("eth0", &ds.netmask);
-            }
-
-          if (ds.default_router.s_addr != 0)
-            {
-              netlib_set_dripv4addr("eth0", &ds.default_router);
-            }
-
-#ifdef CONFIG_NETDB_DNSCLIENT
-          if (ds.dnsaddr.s_addr != 0)
-            {
-              netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-            }
-#endif
-
-          dhcpc_close(handle);
-        }
+      netlib_obtain_ipv4addr(ifname);
     }
 #endif
 
