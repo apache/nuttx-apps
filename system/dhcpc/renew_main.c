@@ -30,7 +30,6 @@
 #include <net/if.h>
 
 #include "netutils/netlib.h"
-#include "netutils/dhcpc.h"
 
 /****************************************************************************
  * Private Functions
@@ -56,10 +55,6 @@ static void dhcpc_showusage(FAR const char *progname, int exitcode)
 
 int main(int argc, FAR char *argv[])
 {
-  FAR const char *devname;
-  FAR void *handle;
-  uint8_t mac[IFHWADDRLEN];
-  struct dhcpc_state ds;
   int ret;
 
   /* One and only one argument is expected:  The network device name. */
@@ -70,50 +65,12 @@ int main(int argc, FAR char *argv[])
       dhcpc_showusage(argv[0], EXIT_FAILURE);
     }
 
-  devname = argv[1];
-
-  /* Get the MAC address of the NIC */
-
-  netlib_getmacaddr(devname, mac);
-
-  /* Set up the DHCPC modules */
-
-  handle = dhcpc_open(devname, &mac, IFHWADDRLEN);
-  if (handle == NULL)
-    {
-      fprintf(stderr, "ERROR: dhcpc_open() for '%s' failed\n", devname);
-      return EXIT_FAILURE;
-    }
-
-  /* Get an IP address. */
-
-  ret = dhcpc_request(handle, &ds);
+  ret = netlib_obtain_ipv4addr(argv[1]);
   if (ret < 0)
     {
-      dhcpc_close(handle);
-      fprintf(stderr, "ERROR: dhcpc_request() failed\n");
+      fprintf(stderr, "ERROR: netlib_obtain_ipv4addr() failed\n");
       return EXIT_FAILURE;
     }
 
-  /* Save the addresses that we obtained. */
-
-  netlib_set_ipv4addr(devname, &ds.ipaddr);
-
-  if (ds.netmask.s_addr != 0)
-    {
-      netlib_set_ipv4netmask(devname, &ds.netmask);
-    }
-
-  if (ds.default_router.s_addr != 0)
-    {
-      netlib_set_dripv4addr(devname, &ds.default_router);
-    }
-
-  if (ds.dnsaddr.s_addr != 0)
-    {
-      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-    }
-
-  dhcpc_close(handle);
   return EXIT_SUCCESS;
 }

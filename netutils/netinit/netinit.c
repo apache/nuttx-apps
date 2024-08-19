@@ -34,15 +34,12 @@
 #endif
 
 #include <arpa/inet.h>
-#include <assert.h>
 #include <debug.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>
-#include <signal.h>
-#include <stdint.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -51,9 +48,6 @@
 #include <sys/boardctl.h>
 
 #include "netutils/netlib.h"
-#if defined(CONFIG_NETUTILS_DHCPC) || defined(CONFIG_NETINIT_DNS)
-#  include "netutils/dhcpc.h"
-#endif
 
 #ifdef CONFIG_NET_6LOWPAN
 #  include <nuttx/net/sixlowpan.h>
@@ -627,12 +621,6 @@ static void netinit_set_ipaddrs(void)
 #if defined(NETINIT_HAVE_NETDEV) && !defined(CONFIG_NETINIT_NETLOCAL)
 static void netinit_net_bringup(void)
 {
-#ifdef CONFIG_NETUTILS_DHCPC
-  uint8_t mac[IFHWADDRLEN];
-  struct dhcpc_state ds;
-  FAR void *handle;
-#endif
-
   /* Bring the network up. */
 
   if (netlib_ifup(NET_DEVNAME) < 0)
@@ -658,46 +646,10 @@ static void netinit_net_bringup(void)
 #ifdef CONFIG_NETUTILS_DHCPC
   if (g_use_dhcpc)
     {
-      /* Get the MAC address of the NIC */
-
-      netlib_getmacaddr(NET_DEVNAME, mac);
-
-      /* Set up the DHCPC modules */
-
-      handle = dhcpc_open(NET_DEVNAME, &mac, IFHWADDRLEN);
-      if (handle == NULL)
+      if (netlib_obtain_ipv4addr(NET_DEVNAME) < 0)
         {
           return;
         }
-
-      /* Get an IP address.  Note that there is no logic for renewing the
-       * IP address in this example. The address should be renewed in
-       * (ds.lease_time / 2) seconds.
-       */
-
-      if (dhcpc_request(handle, &ds) == OK)
-        {
-          netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
-
-          if (ds.netmask.s_addr != 0)
-            {
-              netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
-            }
-
-          if (ds.default_router.s_addr != 0)
-            {
-              netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
-            }
-
-#  ifdef CONFIG_NETINIT_DNS
-          if (ds.dnsaddr.s_addr != 0)
-            {
-              netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-            }
-#  endif
-        }
-
-      dhcpc_close(handle);
     }
 #endif
 

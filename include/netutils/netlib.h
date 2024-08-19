@@ -375,6 +375,12 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
                          unsigned int nentries, sa_family_t family);
 #endif
 
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NETUTILS_DHCPC)
+/* DHCP */
+
+int netlib_obtain_ipv4addr(FAR const char *ifname);
+#endif
+
 #ifdef CONFIG_NET_ICMPv6_AUTOCONF
 /* ICMPv6 Autoconfiguration */
 
