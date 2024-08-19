@@ -120,29 +120,30 @@ static const char g_shortmsg[] = "Hello, World!!\n";
 static const char g_longmsg[] =
   "The Spanish Armada a Speech by Queen Elizabeth I of England\n"
   "Addressed to the English army at Tilbury Fort - 1588\n"
-  "My loving people, we have been persuaded by some, that are careful of our "
-  "safety, to take heed how we commit ourselves to armed multitudes, for fear "
-  "of treachery; but I assure you, I do not desire to live to distrust my "
-  "faithful and loving people.\n"
-  "Let tyrants fear; I have always so behaved myself that, under God, I have "
-  "placed my chiefest strength and safeguard in the loyal hearts and good will "
-  "of my subjects. And therefore I am come amongst you at this time, not as for "
-  "my recreation or sport, but being resolved, in the midst and heat of the "
-  "battle, to live or die amongst you all; to lay down, for my God, and for "
-  "my kingdom, and for my people, my honour and my blood, even the dust.\n"
-  "I know I have but the body of a weak and feeble woman; but I have the heart "
-  "of a king, and of a king of England, too; and think foul scorn that Parma "
-  "or Spain, or any prince of Europe, should dare to invade the borders of my "
-  "realms: to which, rather than any dishonour should grow by me, I myself will "
-  "take up arms; I myself will be your general, judge, and rewarder of every "
-  "one of your virtues in the field.\n"
+  "My loving people, we have been persuaded by some, that are careful of "
+  "our safety, to take heed how we commit ourselves to armed multitudes, "
+  "or fear of treachery; but I assure you, I do not desire to live to "
+  "distrust my faithful and loving people.\n"
+  "Let tyrants fear; I have always so behaved myself that, under God, I "
+  "have placed my chiefest strength and safeguard in the loyal hearts and "
+  "good will of my subjects. And therefore I am come amongst you at this "
+  "time, not as for my recreation or sport, but being resolved, in the "
+  "midst and heat of the battle, to live or die amongst you all; to lay "
+  "down, for my God, and for my kingdom, and for my people, my honour and "
+  "my blood, even the dust.\n"
+  "I know I have but the body of a weak and feeble woman; but I have the "
+  "heart of a king, and of a king of England, too; and think foul scorn "
+  "hat Parma or Spain, or any prince of Europe, should dare to invade the "
+  "borders of my realms: to which, rather than any dishonour should grow "
+  "by me, I myself will take up arms; I myself will be your general, "
+  "judge, and rewarder of every one of your virtues in the field.\n"
   "I know already, by your forwardness, that you have deserved rewards and "
-  "crowns; and we do assure you, on the word of a prince, they shall be duly "
-  "paid you. In the mean my lieutenant general shall be in my stead, than whom "
-  "never prince commanded a more noble and worthy subject; not doubting by "
-  "your obedience to my general, by your concord in the camp, and by your "
-  "valour in the field, we shall shortly have a famous victory over the enemies "
-  "of my God, of my kingdom, and of my people.\n";
+  "crowns; and we do assure you, on the word of a prince, they shall be "
+  "duly paid you. In the mean my lieutenant general shall be in my stead, "
+  "than whom never prince commanded a more noble and worthy subject; not "
+  "doubting by your obedience to my general, by your concord in the camp, "
+  "and by your valour in the field, we shall shortly have a famous victory "
+  "over the enemies of my God, of my kingdom, and of my people.\n";
 #endif
 
 #ifndef CONFIG_EXAMPLES_USBSERIAL_INONLY
@@ -191,43 +192,48 @@ int main(int argc, FAR char *argv[])
 #endif
   ssize_t nbytes;
 #ifndef CONFIG_EXAMPLES_USBSERIAL_INONLY
-  int i, j, k;
+  int i;
+  int j;
+  int k;
 #endif
   int ret;
 
-  /* Initialize the USB serial driver */
+  if (access(USBSER_DEVNAME, F_OK) < 0)
+    {
+      /* Initialize the USB serial driver */
 
-  printf("usbserial_main: Registering USB serial driver\n");
+      printf("usbserial_main: Registering USB serial driver\n");
 
 #ifdef CONFIG_CDCACM
 
-  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
-  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
-  ctrl.instance = 0;
-  ctrl.handle   = &handle;
+      ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+      ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+      ctrl.instance = 0;
+      ctrl.handle   = &handle;
 
 #else
 
-  ctrl.usbdev   = BOARDIOC_USBDEV_PL2303;
-  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
-  ctrl.instance = 0;
-  ctrl.handle   = &handle;
+      ctrl.usbdev   = BOARDIOC_USBDEV_PL2303;
+      ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+      ctrl.instance = 0;
+      ctrl.handle   = &handle;
 
 #endif
 
-  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-  if (ret < 0)
-    {
-      printf("usbserial_main: ERROR: Failed to create the USB serial device: %d\n",
-             -ret);
-      return 1;
+      ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+      if (ret < 0)
+        {
+          printf("usbserial_main: ERROR: Failed to create the USB serial "
+                  "device: %d\n", -ret);
+          return 1;
+        }
+
+      printf("usbserial_main: Successfully registered the serial driver\n");
     }
 
-  printf("usbserial_main: Successfully registered the serial driver\n");
-
 #if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
-  /* If USB tracing is enabled and tracing of initial USB events is specified,
-   * then dump all collected trace data to stdout
+  /* If USB tracing is enabled and tracing of initial USB events is
+   * specified, then dump all collected trace data to stdout
    */
 
   sleep(5);
@@ -255,7 +261,7 @@ int main(int argc, FAR char *argv[])
 
           if (errcode == ENOTCONN)
             {
-              printf("usbserial_main:        Not connected. Wait and try again.\n");
+              printf("usbserial_main: Not connected. Wait and try again.\n");
               sleep(5);
             }
           else
@@ -267,7 +273,9 @@ int main(int argc, FAR char *argv[])
             }
         }
 
-      /* If USB tracing is enabled, then dump all collected trace data to stdout */
+      /* If USB tracing is enabled, then dump all collected trace data
+       * to stdout
+       */
 
       dumptrace();
     }
@@ -278,7 +286,7 @@ int main(int argc, FAR char *argv[])
 
 #ifndef CONFIG_EXAMPLES_USBSERIAL_INONLY
 #ifndef CONFIG_EXAMPLES_USBSERIAL_OUTONLY
-  infd = open(USBSER_DEVNAME, O_RDONLY|O_NONBLOCK);
+  infd = open(USBSER_DEVNAME, O_RDONLY | O_NONBLOCK);
   if (infd < 0)
     {
       printf("usbserial_main: ERROR: Failed to open " USBSER_DEVNAME
@@ -289,7 +297,7 @@ int main(int argc, FAR char *argv[])
 #else
   do
     {
-      infd = open(USBSER_DEVNAME, O_RDONLY|O_NONBLOCK);
+      infd = open(USBSER_DEVNAME, O_RDONLY | O_NONBLOCK);
       if (infd < 0)
         {
           int errcode = errno;
@@ -300,7 +308,7 @@ int main(int argc, FAR char *argv[])
 
           if (errcode == ENOTCONN)
             {
-              printf("usbserial_main:        Not connected. Wait and try again.\n");
+              printf("usbserial_main: Not connected. Wait and try again.\n");
               sleep(5);
             }
           else
@@ -312,7 +320,9 @@ int main(int argc, FAR char *argv[])
             }
         }
 
-      /* If USB tracing is enabled, then dump all collected trace data to stdout */
+      /* If USB tracing is enabled, then dump all collected trace data
+       * to stdout
+       */
 
       dumptrace();
     }
@@ -324,9 +334,9 @@ int main(int argc, FAR char *argv[])
 
   /* Send messages and get responses -- forever */
 
-  for (;;)
+  for (; ; )
     {
-     /* Test IN (device-to-host) messages */
+      /* Test IN (device-to-host) messages */
 
 #ifndef CONFIG_EXAMPLES_USBSERIAL_OUTONLY
 #if !defined(CONFIG_EXAMPLES_USBSERIAL_ONLYBIG) && !defined(CONFIG_EXAMPLES_USBSERIAL_ONLYSMALL)
@@ -405,9 +415,9 @@ int main(int argc, FAR char *argv[])
                               printf(" ");
                             }
 
-                          if (j+k < nbytes)
+                          if (j + k < nbytes)
                             {
-                              printf("%02x", g_iobuffer[j+k]);
+                              printf("%02x", g_iobuffer[j + k]);
                             }
                           else
                             {
@@ -423,11 +433,12 @@ int main(int argc, FAR char *argv[])
                               printf(" ");
                             }
 
-                          if (j+k < nbytes)
+                          if (j + k < nbytes)
                             {
-                              if (g_iobuffer[j+k] >= 0x20 && g_iobuffer[j+k] < 0x7f)
+                              if (g_iobuffer[j + k] >= 0x20 &&
+                                  g_iobuffer[j + k] < 0x7f)
                                 {
-                                  printf("%c", g_iobuffer[j+k]);
+                                  printf("%c", g_iobuffer[j + k]);
                                 }
                               else
                                 {
@@ -453,7 +464,9 @@ int main(int argc, FAR char *argv[])
       sleep(5);
 #endif /* CONFIG_EXAMPLES_USBSERIAL_INONLY */
 
-      /* If USB tracing is enabled, then dump all collected trace data to stdout */
+      /* If USB tracing is enabled, then dump all collected trace data
+       * to stdout
+       */
 
       dumptrace();
     }
