@@ -81,10 +81,11 @@ if(CONFIG_SYSTEM_ARGTABLE3)
 
   target_sources(argtable3 PRIVATE ${SRCS})
 
-  if(NOT EXISTS ${CMAKE_BINARY_DIR}/apps/include/argtable3.h)
-    file(CREATE_LINK ${CMAKE_CURRENT_LIST_DIR}/argtable3/src/argtable3.h
-         ${CMAKE_BINARY_DIR}/apps/include/argtable3.h SYMBOLIC)
-  endif()
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES
+             ${NUTTX_APPS_DIR}/system/argtable3/argtable3/src)
 
   target_compile_options(argtable3 PRIVATE -DARG_REPLACE_GETOPT=0)
 
