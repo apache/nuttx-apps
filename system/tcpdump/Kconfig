@@ -26,6 +26,6 @@ config SYSTEM_TCPDUMP_PRIORITY
 
 config SYSTEM_TCPDUMP_STACKSIZE
 	int "tcpdump stack size"
-	default DEFAULT_TASK_STACKSIZE
+	default 4096
 
 endif
