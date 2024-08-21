@@ -47,7 +47,6 @@
 #include <net/if.h>
 #include <termios.h>
 #include <nuttx/can.h>
-#include <netpacket/can.h>
 
 #include "slcan.h"
 

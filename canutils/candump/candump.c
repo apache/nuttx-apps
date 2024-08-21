@@ -62,7 +62,6 @@
 #include <net/if.h>
 
 #include <nuttx/can.h>
-#include <netpacket/can.h>
 
 #include "terminal.h"
 #include "lib.h"

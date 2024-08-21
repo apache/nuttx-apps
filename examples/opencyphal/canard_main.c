@@ -43,7 +43,6 @@
 #include <poll.h>
 
 #include <nuttx/can.h>
-#include <netpacket/can.h>
 
 #include "socketcan.h"
 
