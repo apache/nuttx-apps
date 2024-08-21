@@ -55,7 +55,6 @@ index 4fc133dd..b059c849 100644
  
 +#ifdef __NuttX__
 +#include <nuttx/can.h>
-+#include <netpacket/can.h>
 +#endif
 +
  int
@@ -99,7 +98,6 @@ index ca7e7d95..35d9a9f2 100644
 +#ifdef __NuttX__
 +#include <sys/ioctl.h>
 +#include <nuttx/can.h>
-+#include <netpacket/can.h>
 +#include <net/if.h>
 +#endif
 +
