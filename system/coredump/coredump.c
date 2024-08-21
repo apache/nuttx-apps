@@ -205,7 +205,7 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
   ret = snprintf(dumppath, sizeof(dumppath),
                  "%s/core-%s", savepath,
                  info->name.version);
-  dtime = localtime(&info->time);
+  dtime = localtime(&info->time.tv_sec);
   if (dtime)
     {
       ret += snprintf(dumppath + ret, sizeof(dumppath) - ret,
