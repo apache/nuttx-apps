@@ -55,6 +55,7 @@ CXXEXT ?= .cxx
 RUSTEXT ?= .rs
 ZIGEXT ?= .zig
 DEXT ?= .d
+SWIFTEXT ?= .swift
 
 # Library path
 
