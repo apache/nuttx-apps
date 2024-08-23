@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_FLASHTOOL
+	tristate "FLASH Tool Command"
+	default n
+	depends on MTD
+	depends on BCH
+	---help---
+		Enable support for the FLASH tool.
+
+if FSUTILS_FLASHTOOL
+
+config FSUTILS_FLASHTOOL_STACKSIZE
+	int "flashtool stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		This is the stack size that will be used when starting the flashtool.
+
+config FSUTILS_FLASHTOOL_PRIORITY
+	int "flashtool priority"
+	default 100
+	---help---
+		This is the task priority that will be used when starting the flashtool.
+
+endif
+
