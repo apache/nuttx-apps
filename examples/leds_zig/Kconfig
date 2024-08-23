@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LEDS_ZIG
+	tristate "\"LEDs Zig\" example"
+	default n
+	depends on USERLED
+	---help---
+		Enable the \"LEDs Zig\" example
+
+if EXAMPLES_LEDS_ZIG
+
+config EXAMPLES_LEDS_ZIG_PROGNAME
+	string "Program name"
+	default "leds_zig"
+	---help---
+		This is the name of the program that will be used when the
+		program is installed.
+
+config EXAMPLES_LEDS_ZIG_PRIORITY
+	int "LEDs Zig task priority"
+	default 100
+
+config EXAMPLES_LEDS_ZIG_STACKSIZE
+	int "LEDs Zig stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

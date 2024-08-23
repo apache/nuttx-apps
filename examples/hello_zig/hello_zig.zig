@@ -24,17 +24,35 @@
 const std = @import("std");
 
 //****************************************************************************
-//* Externs
+//* C API - need libc linking (freestanding libc is stubs only)
 //****************************************************************************
+// NuttX namespace
+const NuttX = struct {
+    pub const c = @cImport({
+        @cInclude("nuttx/config.h");
+        @cInclude("stdio.h");
+    });
+    pub fn print(comptime fmt: [*:0]const u8, args: anytype) void {
+        _ = printf(std.fmt.comptimePrint(std.mem.span(fmt), args));
+    }
+};
 
-pub extern fn printf(_format: [*:0]const u8) c_int;
+// or (optional) const c = std.c; // from std library (non-full libc)
 
+// typedef alias
+const printf = NuttX.c.printf;
 //****************************************************************************
 //* hello_zig_main
 //****************************************************************************
-pub export fn main(_argc: c_int, _argv: [*]const [*]const u8) u8 {
-    _ = _argc;
-    _ = _argv;
-    _ = printf("Hello, Zig!\n");
+comptime {
+    // rename to hello_zig_main entry point for nuttx
+    @export(hello_zig, .{
+        .name = "hello_zig_main",
+        .linkage = .weak,
+    });
+}
+
+fn hello_zig(_: c_int, _: ?[*]const [*]const u8) callconv(.C) c_int {
+    NuttX.print("[{s}]: Hello, Zig!\n", .{NuttX.c.CONFIG_ARCH_BOARD});
     return 0;
 }

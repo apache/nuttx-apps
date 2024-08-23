@@ -26,16 +26,39 @@ module examples.hello_d_main;
 // import core.stdc.stdio : printf;
 // import core.stdc.stdlib : malloc, free;
 
-///
-pragma(printf)
-extern (C) int printf(scope const(char)* fmt, scope...) @nogc nothrow @trusted;
-///
-extern (C) void* malloc(size_t size) @nogc nothrow @trusted;
-///
-extern (C) void free(void* ptr) @nogc nothrow @trusted;
+version (D_BetterC) // no DRT
+{
+    /// if betterC and LDC, disable moduleinfo and typeinfo
+    version (LDC)
+    {
+        pragma(LDC_no_moduleinfo);
+        pragma(LDC_no_typeinfo);
+    }
+}
+
+/// use --d-version=NuttX_ImportC to define
+version (NuttX_ImportC)
+{
+    /// D compiler will not import C++ symbols
+    /// so we need to import them manually
+    /// @nogc, @trusted, @safe, nothrow - not allowed
+    /// https://issues.dlang.org/show_bug.cgi?id=23812
+    import nuttx_std : malloc, free, printf; // by default: @system (unsafe)
+}
+else
+{
+    /// Correctly FFI-import C/C++ symbols (@safe compatibility)
+    ///
+    pragma(printf)
+    extern (C) int printf(scope const(char)* fmt, scope...) @nogc nothrow @trusted;
+    ///
+    extern (C) void* malloc(size_t size) @nogc nothrow @trusted;
+    ///
+    extern (C) void free(scope void* ptr) @nogc nothrow @trusted;
+}
 
 //***************************************************************************
-// Private module content
+// Private module content (default is public)
 //***************************************************************************
 private:
 
@@ -43,62 +66,76 @@ private:
 extern (C++,class)
 struct DHelloWorld
 {
-@nogc nothrow:
-
     @disable this();
     @disable this(this);
-    this(int secret) @safe pure
-    {
-        mSecret = secret;
-        debug printf("Constructor\n");
-    }
 
-    ~this() @safe pure
+    /// use --d-version=NuttX_ImportC to define
+    version (NuttX_ImportC)
     {
-        debug printf("Destructor\n");
-    }
-
-    bool HelloWorld() @safe
-    {
-        debug printf("HelloWorld: mSecret=%d\n", mSecret);
-
-        if (mSecret != 42)
+        this(int secret)
         {
-            printf("DHelloWorld.HelloWorld: CONSTRUCTION FAILED!\n");
-            return false;
+            mSecret = secret;
+            printf("Constructor\n");
         }
-        else
+
+        ~this()
         {
-            printf("DHelloWorld.HelloWorld: Hello, World!!\n");
-            return true;
+            printf("Destructor\n");
+        }
+
+        bool HelloWorld()
+        {
+            printf("HelloWorld: mSecret=%d\n", mSecret);
+
+            if (mSecret != 42)
+            {
+                printf("DHelloWorld.HelloWorld: CONSTRUCTION FAILED!\n");
+                return false;
+            }
+            else
+            {
+                printf("DHelloWorld.HelloWorld: Hello, World!!\n");
+                return true;
+            }
         }
     }
+    else
+    {
+        this(int secret) @safe nothrow @nogc
+        {
+            mSecret = secret;
+            printf("Constructor\n");
+        }
 
-    private int mSecret;
+        ~this() @safe nothrow @nogc
+        {
+            printf("Destructor\n");
+        }
+
+        bool HelloWorld() @safe nothrow @nogc
+        {
+            printf("HelloWorld: mSecret=%d\n", mSecret);
+
+            if (mSecret != 42)
+            {
+                printf("DHelloWorld.HelloWorld: CONSTRUCTION FAILED!\n");
+                return false;
+            }
+            else
+            {
+                printf("DHelloWorld.HelloWorld: Hello, World!!\n");
+                return true;
+            }
+        }
+    }
+    private int mSecret = 0;
 }
-
-//***************************************************************************
-// Private Data
-//***************************************************************************
-
-// Define a statically constructed DHellowWorld instance if D static
-// initializers are supported by the platform
-// --d-version=D_Initialize
-version (D_Initialize)
-{
-    static DHelloWorld g_HelloWorld;
-}
-
-//***************************************************************************
-// Public Functions
-//***************************************************************************
 
 /****************************************************************************
  * Name: hello_d_main
  ****************************************************************************/
 // betterC need main function no-mangle.
-extern (C)
-int hello_d_main(int argc, char*[] argv) nothrow @nogc
+extern (C) int hello_d_main(int argc, char*[] argv)
 {
     version (LDC)
     {
@@ -118,5 +155,6 @@ int hello_d_main(int argc, char*[] argv) nothrow @nogc
 
     printf("hello_d_main: Saying hello from the instance constructed on the stack\n");
     HelloWorld.HelloWorld();
+
     return 0;
 }

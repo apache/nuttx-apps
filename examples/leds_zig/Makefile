@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello_d/Makefile
+# apps/examples/leds_zig/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,22 +20,15 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! D Example
+# LEDS in Zig Example
 
-MAINSRC = hello_d_main.d
+MAINSRC = leds_zig.zig
 
-# hello_d built-in application info
-
-# no garbage collection
-DFLAGS += -betterC
-# better informations
-DFLAGS += -vtls -verrors=context
-# like #ifdef/#define NuttX_ImportC
-# importC: need $(CC) to compile C file and -P-I to import C includes
-DFLAGS += -P-I$(TOPDIR)/include --d-version=NuttX_ImportC --gcc=$(CC)
-PROGNAME  = $(CONFIG_EXAMPLES_HELLO_D_PROGNAME)
-PRIORITY  = $(CONFIG_EXAMPLES_HELLO_D_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_HELLO_D_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_HELLO_D)
+# LEDS_zig built-in application info
+ZIGFLAGS += -O ReleaseSmall -lc -I$(TOPDIR)/include
+PROGNAME  = $(CONFIG_EXAMPLES_LEDS_ZIG_PROGNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_LEDS_ZIG_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_LEDS_ZIG_STACKSIZE)
+MODULE    = $(CONFIG_EXAMPLES_LEDS_ZIG)
 
 include $(APPDIR)/Application.mk

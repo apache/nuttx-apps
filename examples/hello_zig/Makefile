@@ -25,7 +25,7 @@ include $(APPDIR)/Make.defs
 MAINSRC = hello_zig.zig
 
 # Hello, Zig! built-in application info
-
+ZIGFLAGS += -lc -I$(TOPDIR)/include
 PROGNAME  = $(CONFIG_EXAMPLES_HELLO_ZIG_PROGNAME)
 PRIORITY  = $(CONFIG_EXAMPLES_HELLO_ZIG_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_HELLO_ZIG_STACKSIZE)
