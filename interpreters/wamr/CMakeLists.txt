@@ -71,4 +71,17 @@ if(CONFIG_INTERPRETERS_WAMR)
     DEPENDS
     wamr)
 
+  if(CONFIG_INTERPRETERS_WAMR_LIBC_NUTTX
+     OR CONFIG_INTERPRETERS_WAMR_EXTERNAL_MODULE_REGISTRY)
+    nuttx_append_source_file_properties(
+      ${WAMR_DIR}/product-mini/platforms/nuttx/main.c COMPILE_FLAGS
+      -Dwasm_runtime_full_init=wamr_custom_init)
+    target_sources(wamr PRIVATE wamr_custom_init.c)
+  endif()
+
+  # Add ${CMAKE_BINARY_DIR}/wamrmod to the include directories
+  if(CONFIG_INTERPRETERS_WAMR_EXTERNAL_MODULE_REGISTRY)
+    target_include_directories(wamr PRIVATE ${CMAKE_BINARY_DIR}/wamrmod)
+  endif()
+
 endif()
