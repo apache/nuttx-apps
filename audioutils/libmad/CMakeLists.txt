@@ -20,6 +20,29 @@
 
 if(CONFIG_AUDIOUTILS_LIBMAD)
 
+  # Download and unpack libmad if no libmad found
+  if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/libmad/configure)
+    set(VERSION "master")
+    set(LIBMAD_URL
+        "https://github.com/markjeee/libmad/archive/refs/heads/master.zip")
+
+    file(DOWNLOAD ${LIBMAD_URL} ${CMAKE_CURRENT_SOURCE_DIR}/libmad.zip)
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E tar -xf ${CMAKE_CURRENT_SOURCE_DIR}/libmad.zip
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(
+      COMMAND
+        ${CMAKE_COMMAND} -E rename
+        ${CMAKE_CURRENT_SOURCE_DIR}/libmad-${VERSION}
+        ${CMAKE_CURRENT_SOURCE_DIR}/libmad)
+
+    add_custom_target(
+      distclean
+      COMMAND ${CMAKE_COMMAND} -E remove_directory
+              ${CMAKE_CURRENT_SOURCE_DIR}/libmad
+      COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_SOURCE_DIR}/libmad.zip)
+  endif()
+
   nuttx_add_library(libmad STATIC)
 
   file(GLOB LIBMAD_SRCS libmad/*.c)
