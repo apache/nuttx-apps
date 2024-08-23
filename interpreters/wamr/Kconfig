@@ -248,4 +248,12 @@ config INTERPRETERS_WAMR_CONFIGUABLE_BOUNDS_CHECKS
 		disable bounds checks passing --disable-bounds-checks to
 		iwasm.
 
-endif # INTERPRETERS_WAMR
+config INTERPRETERS_WAMR_EXTERNAL_MODULE_REGISTRY
+	bool "Enable external module registry"
+	default n
+	---help---
+		This option enables the support for loading WASM modules from
+		external libraries, which is useful when you want to extend the
+		functionality of WAMR without modifying its source code.
+
+endif
