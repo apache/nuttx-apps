@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WAMR_MODULE
+	tristate "WAMR module example"
+	default n
+	---help---
+		This example demonstrates how to register a external module
+		into WAMR runtime.
