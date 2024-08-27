@@ -64,7 +64,7 @@ CXXFLAGS += $(addprefix ${INCDIR_PREFIX}, $(NIMBLE_ALL_INC))
 
 # NimBLE assumes this flag since it expects undefined macros to be zero value
 
-CFLAGS += -Wno-pointer-to-int-cast -Wno-undef
+CFLAGS += -Wno-undef
 
 # disable printf format checks
 
