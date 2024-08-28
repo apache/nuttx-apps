@@ -31,6 +31,8 @@
 #include <assert.h>
 #include <debug.h>
 #include <errno.h>
+#include <execinfo.h>
+#include <syslog.h>
 
 #include "nshlib/nshlib.h"
 
@@ -67,6 +69,11 @@ int system(FAR const char *cmd)
   int errcode;
   int rc;
   int ret;
+
+#ifdef CONFIG_SYSTEM_SYSTEM_DUMPINFO
+  syslog(LOG_INFO, "SYSTEM cmd=%s\n", cmd);
+  dump_stack();
+#endif
 
   /* REVISIT: If cmd is NULL, then system() should return a non-zero value to
    * indicate if the command processor is available or zero if it is not.
