@@ -153,7 +153,7 @@ int mbedtls_cipher_cmac_reset(FAR mbedtls_cipher_context_t *ctx)
   ret = cryptodev_get_session(&cmac_ctx->dev);
   if (ret != 0)
     {
-      cryptodev_free(cmac_ctx->dev);
+      cryptodev_free(&cmac_ctx->dev);
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 

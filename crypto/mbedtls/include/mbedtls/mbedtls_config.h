@@ -1465,7 +1465,9 @@
  * \note This option is experimental and may be removed without notice.
  */
 
-/* #define MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG */
+#ifdef CONFIG_MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+#define MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+#endif
 
 /**
  * \def MBEDTLS_PSA_CRYPTO_SPM
