@@ -609,7 +609,7 @@ static void save(void)
   g_settings.wrpend = true;
 
 #ifdef CONFIG_SYSTEM_SETTINGS_CACHED_SAVES
-  ret = timer_settime(g_settings.timerid, 0, &g_settings.trigger, NULL);
+  timer_settime(g_settings.timerid, 0, &g_settings.trigger, NULL);
 #else
   union sigval value =
   {
