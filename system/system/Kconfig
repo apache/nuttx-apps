@@ -41,4 +41,10 @@ config SYSTEM_SYSTEM_PRIORITY
 	---help---
 		The priority of the shell.
 
+config SYSTEM_SYSTEM_DUMPINFO
+	bool "dump the system information"
+	default n
+	---help---
+		Dump the system information when the system() command is executed.
+
 endif
