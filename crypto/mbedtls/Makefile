@@ -107,7 +107,7 @@ endif
 
 # Configuration alternative implementation
 
-ifeq ($(CONFIG_MBEDTLS_ENTROPY_HARDWARE_ALT),y)
+ifneq ($(CONFIG_MBEDTLS_ENTROPY_HARDWARE_ALT)$(CONFIG_MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG),)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/entropy_alt.c
 endif
 

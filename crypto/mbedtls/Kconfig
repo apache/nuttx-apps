@@ -331,6 +331,11 @@ config MBEDTLS_PK_RSA_ALT_SUPPORT
 	bool "Support external private RSA keys (eg from a HSM) in the PK layer."
 	default y
 
+config MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+	bool "Make the PSA Crypto module use an external random generator provided by a driver, instead of Mbed TLS's entropy and DRBG modules."
+	depends on DEV_RANDOM
+	default n
+
 config MBEDTLS_SSL_CONTEXT_SERIALIZATION
 	bool "Enable serialization of the TLS context structures."
 	depends on MBEDTLS_GCM_C || MBEDTLS_CCM_C || MBEDTLS_CHACHAPOLY_C

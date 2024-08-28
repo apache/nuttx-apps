@@ -25,11 +25,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <psa/crypto.h>
+#include <psa/crypto_platform.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_MBEDTLS_ENTROPY_HARDWARE_ALT
 int mbedtls_hardware_poll(FAR void *data,
                           FAR unsigned char *output,
                           size_t len,
@@ -57,3 +60,35 @@ int mbedtls_hardware_poll(FAR void *data,
 
   return 0;
 }
+#endif /* CONFIG_MBEDTLS_ENTROPY_HARDWARE_ALT */
+
+#ifdef CONFIG_MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+psa_status_t mbedtls_psa_external_get_random(
+  FAR mbedtls_psa_external_random_context_t *context,
+  FAR uint8_t *output, size_t output_size, FAR size_t *output_length)
+{
+  int fd;
+  size_t read_len;
+  *output_length = 0;
+
+  (void)context;
+
+  fd = open("/dev/random", O_RDONLY, 0);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  read_len = read(fd, output, output_size);
+  if (read_len != output_size)
+    {
+      close(fd);
+      return -errno;
+    }
+
+  close(fd);
+  *output_length = read_len;
+
+  return 0;
+}
+#endif /* CONFIG_MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG */
