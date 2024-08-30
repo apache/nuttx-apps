@@ -6,6 +6,8 @@
 config BENCHMARK_OSPERF
 	tristate "System performance profiling"
 	default n
+	depends on PIPES
+	depends on SCHED_HPWORK
 	---help---
 		Measure the performance of core system functions, such as thread
 		switching and the time required for semaphore execution
