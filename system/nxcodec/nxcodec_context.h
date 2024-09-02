@@ -45,7 +45,6 @@ typedef struct nxcodec_context_s
   int                       fd;
   enum v4l2_buf_type        type;
   struct v4l2_format        format;
-  struct v4l2_fmtdesc       fdesc;
   FAR nxcodec_context_buf_t *buf;
   int                       nbuffers;
 } nxcodec_context_t;
