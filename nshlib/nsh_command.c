@@ -886,7 +886,7 @@ static inline void help_builtins(FAR struct nsh_vtbl_s *vtbl)
 
   char line[HELP_LINELEN + HELP_TABSIZE + 1];
 
-  static const char *g_builtin_prompt = "\nBuiltin Apps:\n";
+  static FAR const char *const g_builtin_prompt = "\nBuiltin Apps:\n";
 
   /* Count the number of built-in commands and get the optimal column width */
 
