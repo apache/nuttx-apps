@@ -113,11 +113,6 @@ int dhcpd_daemon(int argc, FAR char *argv[], bool daemon)
   addr.s_addr = HTONL(CONFIG_NETUTILS_DHCPD_ROUTERIP);
   netlib_set_ipv4addr(devname, &addr);
 
-  /* Set up the default router address */
-
-  addr.s_addr = HTONL(CONFIG_NETUTILS_DHCPD_ROUTERIP);
-  netlib_set_dripv4addr(devname, &addr);
-
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_NETUTILS_DHCPD_NETMASK);
