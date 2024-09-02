@@ -3,29 +3,30 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config TESTING_DEBUG
-	tristate "Debug test"
+config SYSTEM_DEBUG
+	tristate "Debugpoint utility"
 	default n
 	depends on ARCH_HAVE_DEBUG
 	depends on LIB_GDBSTUB
 	---help---
 		Enable the DEBUG test program. It is a simple
-		test case of the NuttX debugging facilities.
+		utility for testing the debug point support and
+		add debug points to the system by command line.
 
-if TESTING_DEBUG
+if SYSTEM_DEBUG
 
-config TESTING_DEBUG_PROGNAME
+config SYSTEM_DEBUG_PROGNAME
 	string "Program name"
 	default "debug"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
-config TESTING_DEBUG_PRIORITY
+config SYSTEM_DEBUG_PRIORITY
 	int "Task priority"
 	default 100
 
-config TESTING_DEBUG_STACKSIZE
+config SYSTEM_DEBUG_STACKSIZE
 	int "Stack size"
 	default DEFAULT_TASK_STACKSIZE
 

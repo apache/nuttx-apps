@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/debug/CMakeLists.txt
+# apps/system/debug/CMakeLists.txt
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,14 +18,14 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_DEBUG)
+if(CONFIG_SYSTEM_DEBUG)
   nuttx_add_application(
     NAME
-    ${CONFIG_TESTING_DEBUG_PROGNAME}
+    ${CONFIG_SYSTEM_DEBUG_PROGNAME}
     SRCS
     debug.c
     STACKSIZE
-    ${CONFIG_TESTING_DEBUG_STACKSIZE}
+    ${CONFIG_SYSTEM_DEBUG_STACKSIZE}
     PRIORITY
-    ${CONFIG_TESTING_DEBUG_PRIORITY})
+    ${CONFIG_SYSTEM_DEBUG_PRIORITY})
 endif()
