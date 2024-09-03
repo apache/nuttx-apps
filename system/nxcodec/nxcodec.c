@@ -60,6 +60,7 @@ static int nxcodec_prepare_contexts(FAR nxcodec_t *codec)
   ret = ioctl(codec->fd, VIDIOC_QUERYCAP, &cap);
   if (ret < 0)
     {
+      printf("nxcodec VIDIOC_QUERYCAP error: %d\n", errno);
       return -errno;
     }
 
@@ -67,6 +68,9 @@ static int nxcodec_prepare_contexts(FAR nxcodec_t *codec)
     {
       codec->capture.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
       codec->output.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+
+      printf("nxcodec is multi-planar\n");
+
       return 0;
     }
 
@@ -74,6 +78,9 @@ static int nxcodec_prepare_contexts(FAR nxcodec_t *codec)
     {
       codec->capture.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       codec->output.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+
+      printf("nxcodec is single-planar\n");
+
       return 0;
     }
 
@@ -91,26 +98,28 @@ int nxcodec_init(FAR nxcodec_t *codec)
   codec->fd = open(codec->devname, O_RDWR | O_NONBLOCK);
   if (codec->fd < 0)
     {
+      printf("nxcodec open device error: %d\n", errno);
       return -errno;
     }
 
   ret = nxcodec_prepare_contexts(codec);
   if (ret < 0)
     {
+      printf("nxcodec prepare context error: %d\n", errno);
       goto err0;
     }
 
   ret = nxcodec_context_get_format(&codec->output);
   if (ret < 0)
     {
-      printf("v4l2 output format not supported\n");
+      printf("nxcodec v4l2 output format not supported\n");
       goto err0;
     }
 
   ret = nxcodec_context_get_format(&codec->capture);
   if (ret < 0)
     {
-      printf("v4l2 capture format not supported\n");
+      printf("nxcodec v4l2 capture format not supported\n");
       goto err0;
     }
 
@@ -119,14 +128,17 @@ int nxcodec_init(FAR nxcodec_t *codec)
   ret = nxcodec_context_set_format(&codec->output);
   if (ret < 0)
     {
-      printf("can't set v4l2 output format\n");
+      printf("nxcodec can't set v4l2 output format\n");
       goto err0;
     }
+
+  printf("nxcodec set output format DONE\n");
 
   codec->output.fd = open(codec->output.filename, O_RDONLY);
   if (codec->output.fd < 0)
     {
-      printf("Failed to open output file %s \n", codec->output.filename);
+      printf("nxcodec failed to open output file: %s \n",
+             codec->output.filename);
       ret = -errno;
       goto err0;
     }
@@ -136,15 +148,18 @@ int nxcodec_init(FAR nxcodec_t *codec)
   ret = nxcodec_context_set_format(&codec->capture);
   if (ret < 0)
     {
-      printf("can't to set v4l2 capture format\n");
+      printf("nxcodec can't to set v4l2 capture format\n");
       goto err1;
     }
+
+  printf("nxcodec set capture format DONE\n");
 
   codec->capture.fd = open(codec->capture.filename,
                            O_WRONLY | O_CREAT, 0644);
   if (codec->capture.fd < 0)
     {
-      printf("Failed to open input file %s \n", codec->capture.filename);
+      printf("nxcodec failed to open input file %s \n",
+             codec->capture.filename);
       ret = -errno;
       goto err1;
     }
@@ -165,34 +180,35 @@ int nxcodec_start(FAR nxcodec_t *codec)
   ret = nxcodec_context_init(&codec->output);
   if (ret < 0)
     {
-      printf("can't request output buffers\n");
+      printf("nxcodec can't request output buffers\n");
       return ret;
     }
 
   ret = nxcodec_context_set_status(&codec->output, VIDIOC_STREAMON);
   if (ret < 0)
     {
-      printf("set output VIDIOC_STREAMON failed\n");
+      printf("nxcodec set output VIDIOC_STREAMON failed\n");
       goto err0;
     }
 
   ret = nxcodec_context_init(&codec->capture);
   if (ret < 0)
     {
-      printf("can't request capture buffers\n");
+      printf("nxcodec can't request capture buffers\n");
       goto err0;
     }
 
   ret = nxcodec_context_set_status(&codec->capture, VIDIOC_STREAMON);
   if (ret < 0)
     {
-      printf("set capture VIDIOC_STREAMON failed\n");
+      printf("nxcodec set capture VIDIOC_STREAMON failed\n");
       goto err1;
     }
 
   ret = nxcodec_context_enqueue_frame(&codec->output);
   if (ret < 0 && ret != -EAGAIN)
     {
+      printf("nxcodec enqueue frame failed %d\n", errno);
       goto err1;
     }
 
@@ -219,7 +235,7 @@ int nxcodec_stop(FAR nxcodec_t *codec)
   ret = nxcodec_context_set_status(&codec->output, VIDIOC_STREAMOFF);
   if (ret < 0)
     {
-      printf("set output VIDIOC_STREAMOFF failed\n");
+      printf("nxcodec set output VIDIOC_STREAMOFF failed\n");
       return ret;
     }
 
@@ -228,7 +244,7 @@ int nxcodec_stop(FAR nxcodec_t *codec)
   ret = nxcodec_context_set_status(&codec->capture, VIDIOC_STREAMOFF);
   if (ret < 0)
     {
-      printf("set capture VIDIOC_STREAMOFF failed\n");
+      printf("nxcodec set capture VIDIOC_STREAMOFF failed\n");
       return ret;
     }
 
