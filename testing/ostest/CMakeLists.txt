@@ -83,7 +83,7 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS specific.c)
     endif()
 
-    if(NOT CONFIG_PTHREAD_CLEANUP_STACKSIZE EQUAL 0)
+    if(NOT CONFIG_TLS_NCLEANUP EQUAL 0)
       list(APPEND SRCS pthread_cleanup.c)
     endif()
 

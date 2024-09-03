@@ -156,7 +156,7 @@ BLACKWORDS += pthread_key_delete
 BLACKWORDS += pthread_setspecific
 BLACKWORDS += pthread_getspecific
 endif
-ifeq ($(CONFIG_PTHREAD_CLEANUP_STACKSIZE),0)
+ifeq ($(CONFIG_TLS_NCLEANUP),0)
 BLACKWORDS += pthread_cleanup_push
 BLACKWORDS += pthread_cleanup_pop
 endif
