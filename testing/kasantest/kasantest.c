@@ -50,7 +50,7 @@ typedef struct testcase_s
 
 typedef struct run_s
 {
-  char argv[16];
+  char argv[32];
   FAR const testcase_t *testcase;
   FAR struct mm_heap_s *heap;
   size_t size;
@@ -89,6 +89,8 @@ const static testcase_t g_kasan_test[] =
   {test_heap_memcpy, "heap memcpy"},
   {test_heap_memmove, "heap memmove"}
 };
+
+static char g_kasan_heap[65536] aligned_data(8);
 
 /****************************************************************************
  * Private Functions
@@ -213,7 +215,7 @@ static int run_test(FAR const testcase_t *test)
    * it can be released correctly.
    */
 
-  run = malloc(sizeof(run_t) + heap_size);
+  run = (run_t *)g_kasan_heap;
   if (!run)
     {
       return ERROR;
@@ -222,7 +224,7 @@ static int run_test(FAR const testcase_t *test)
   snprintf(run->argv, sizeof(run->argv), "%p", run);
   run->testcase = test;
   run->size = rand() % (heap_size / 2) + 1;
-  run->heap = mm_initialize("kasan", &run[1], heap_size);
+  run->heap = mm_initialize("kasan", (struct mm_heap_s *)&run[1], heap_size);
   if (!run->heap)
     {
       free(run);
@@ -237,13 +239,14 @@ static int run_test(FAR const testcase_t *test)
   waitpid(pid, &status, 0);
   if (status == 0)
     {
-      printf("KASan test: %s, size: %d FAIL\n", test->name, run->size);
+      printf("KASan test: %s, size: %ld FAIL\n", test->name, run->size);
     }
   else
     {
-      printf("KASan test: %s, size: %d PASS\n", test->name, run->size);
+      printf("KASan test: %s, size: %ld PASS\n", test->name, run->size);
     }
 
+  mm_uninitialize(run->heap);
   return 0;
 }
 
