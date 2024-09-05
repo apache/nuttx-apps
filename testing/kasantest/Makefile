@@ -28,5 +28,6 @@ PRIORITY  = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 
 CFLAGS += -Wno-error -Wno-use-after-free
+CFLAGS += -Wno-array-bounds -Wno-free-nonheap-object
 
 include $(APPDIR)/Application.mk
