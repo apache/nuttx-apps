@@ -96,6 +96,19 @@ static char g_kasan_heap[65536] aligned_data(8);
  * Private Functions
  ****************************************************************************/
 
+static void error_handler(void)
+{
+  int i;
+
+  printf("Usage: kasantest [-h] [case_number]\n");
+  printf("options:\n-h: show this help message\n");
+  printf("case_number:\n");
+  for (i = 0; i < nitems(g_kasan_test); i++)
+    {
+      printf("%d: %s\n", i + 1, g_kasan_test[i].name);
+    }
+}
+
 static bool test_heap_underflow(FAR struct mm_heap_s *heap, size_t size)
 {
   FAR uint8_t *mem = mm_malloc(heap, size);
@@ -197,12 +210,6 @@ static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size)
   return false;
 }
 
-static int run_testcase(int argc, FAR char *argv[])
-{
-  FAR run_t *run = (FAR run_t *)(uintptr_t)strtoul(argv[1], NULL, 0);
-  return run->testcase->func(run->heap, run->size);
-}
-
 static int run_test(FAR const testcase_t *test)
 {
   size_t heap_size = 65536;
@@ -248,6 +255,37 @@ static int run_test(FAR const testcase_t *test)
 
   mm_uninitialize(run->heap);
   return 0;
+}
+
+static int run_testcase(int argc, FAR char *argv[])
+{
+  uintptr_t index = strtoul(argv[1], NULL, 0);
+  FAR run_t *run;
+
+  /* Pass in the number to run the specified case,
+   * and the string of the number will not be very long
+   */
+
+  if (strlen(argv[1]) <= 3)
+    {
+      if (memcmp(argv[1], "-h", 2) == 0
+          || index <= 0 || index > nitems(g_kasan_test))
+        {
+          error_handler();
+        }
+      else
+        {
+          if (run_test(&g_kasan_test[index - 1]) < 0)
+            {
+              return EXIT_FAILURE;
+            }
+        }
+
+      return EXIT_SUCCESS;
+    }
+
+  run = (FAR run_t *)index;
+  return run->testcase->func(run->heap, run->size);
 }
 
 /****************************************************************************
