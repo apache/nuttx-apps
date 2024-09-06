@@ -258,6 +258,7 @@ $(LTP_UNPACK): ltp-$(LTPS_VERSION).zip
 	$(Q) patch -d $(LTP_UNPACK) -p1 < 0010-ltp-fix-build-warning.patch
 	$(Q) patch -d $(LTP_UNPACK) -p1 < 0011-ltp-fix-the-proc.h-header-file-duplicate-inclusion.patch
 	$(Q) patch -d $(LTP_UNPACK) -p1 < 0012-ltp-fix-build-error.patch
+	$(Q) patch -d $(LTP_UNPACK) -p1 < 0013-ltp-handle-low-accuracy-of-time-in-some-platfrom.patch
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LTP_UNPACK)/.git),)
