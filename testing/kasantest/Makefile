@@ -29,5 +29,6 @@ STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 
 CFLAGS += -Wno-error -Wno-use-after-free
 CFLAGS += -Wno-array-bounds -Wno-free-nonheap-object
+CFLAGS += -Wno-stringop-overflow
 
 include $(APPDIR)/Application.mk
