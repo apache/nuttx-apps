@@ -58,6 +58,7 @@
 
 #include <net/if.h>
 #include <netinet/in.h>
+#include <nuttx/net/netdev.h>
 #include <nuttx/net/netconfig.h>
 
 /****************************************************************************
@@ -494,6 +495,11 @@ int netlib_set_ipv6dnsaddr(FAR const struct in6_addr *inaddr);
 #endif
 
 int netlib_set_mtu(FAR const char *ifname, int mtu);
+
+#if defined(CONFIG_NETDEV_STATISTICS)
+int netlib_getifstatistics(FAR const char *ifname,
+                           FAR struct netdev_statistics_s *stat);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus
