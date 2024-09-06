@@ -72,6 +72,11 @@ static bool test_heap_memset(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_memcpy(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size);
 
+#ifdef CONFIG_MM_KASAN_GLOBAL
+static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size);
+static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size);
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -87,10 +92,18 @@ const static testcase_t g_kasan_test[] =
   {test_heap_unpoison, "heap unpoison"},
   {test_heap_memset, "heap memset"},
   {test_heap_memcpy, "heap memcpy"},
-  {test_heap_memmove, "heap memmove"}
+  {test_heap_memmove, "heap memmove"},
+#ifdef CONFIG_MM_KASAN_GLOBAL
+  {test_global_underflow, "globals underflow"},
+  {test_global_overflow, "globals overflow"},
+#endif
 };
 
 static char g_kasan_heap[65536] aligned_data(8);
+
+#ifdef CONFIG_MM_KASAN_GLOBAL
+static char g_kasan_globals[32];
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -209,6 +222,20 @@ static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size)
   memmove(dst, src, size + 4);
   return false;
 }
+
+#ifdef CONFIG_MM_KASAN_GLOBAL
+static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size)
+{
+  memset(g_kasan_globals - 31, 0x12, sizeof(g_kasan_globals));
+  return false;
+}
+
+static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size)
+{
+  memset(g_kasan_globals, 0xef, sizeof(g_kasan_globals) + 31);
+  return false;
+}
+#endif
 
 static int run_test(FAR const testcase_t *test)
 {
