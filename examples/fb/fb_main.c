@@ -284,7 +284,7 @@ static void draw_rect24(FAR struct fb_state_s *state,
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  row = (FAR uint8_t *)state->act_fbmem + state->pinfo.stride * area->y;
   for (y = 0; y < area->h; y++)
     {
       dest = ((FAR uint8_t *)row) + area->x * 3;
