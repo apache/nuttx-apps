@@ -8,3 +8,23 @@ config TESTING_KASAN
 	default n
 	---help---
 		Enable the KASan validity test
+
+if TESTING_KASAN
+
+config TESTING_KASAN_PRIORITY
+	int "KASan test priority"
+	default 101
+
+config TESTING_KASAN_STACKSIZE
+	int "KASan test stack size"
+	default 8192
+
+config TESTING_KASAN_PERF_HEAP_SIZE
+	int "KASan test heap size"
+	default 1024000
+
+config TESTING_KASAN_PERF_CYCLES
+	int "KASan test performance cycles"
+	default 4096
+
+endif

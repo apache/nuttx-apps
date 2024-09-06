@@ -24,11 +24,12 @@ include $(APPDIR)/Make.defs
 
 MAINSRC   = kasantest.c
 PROGNAME  = kasantest
-PRIORITY  = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+PRIORITY  = $(CONFIG_TESTING_KASAN_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_KASAN_STACKSIZE)
 
 CFLAGS += -Wno-error -Wno-use-after-free
 CFLAGS += -Wno-array-bounds -Wno-free-nonheap-object
 CFLAGS += -Wno-stringop-overflow
+CFLAGS += "-O0"
 
 include $(APPDIR)/Application.mk

@@ -28,9 +28,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <syslog.h>
+#include <time.h>
 
+#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 
@@ -45,6 +46,7 @@
 typedef struct testcase_s
 {
   bool (*func)(FAR struct mm_heap_s *heap, size_t size);
+  bool is_auto;
   FAR const char *name;
 } testcase_t;
 
@@ -71,6 +73,8 @@ static bool test_heap_unpoison(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_memset(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_memcpy(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size);
+static bool test_insert_perf(FAR struct mm_heap_s *heap, size_t size);
+static bool test_algorithm_perf(FAR struct mm_heap_s *heap, size_t size);
 
 #ifdef CONFIG_MM_KASAN_GLOBAL
 static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size);
@@ -83,23 +87,25 @@ static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size);
 
 const static testcase_t g_kasan_test[] =
 {
-  {test_heap_underflow, "heap underflow"},
-  {test_heap_overflow, "heap overflow"},
-  {test_heap_use_after_free, "heap use after free"},
-  {test_heap_invalid_free, "heap inval free"},
-  {test_heap_double_free, "test heap double free"},
-  {test_heap_poison, "heap poison"},
-  {test_heap_unpoison, "heap unpoison"},
-  {test_heap_memset, "heap memset"},
-  {test_heap_memcpy, "heap memcpy"},
-  {test_heap_memmove, "heap memmove"},
+  {test_heap_underflow, true, "heap underflow"},
+  {test_heap_overflow, true, "heap overflow"},
+  {test_heap_use_after_free, true, "heap use after free"},
+  {test_heap_invalid_free, true, "heap inval free"},
+  {test_heap_double_free, true, "test heap double free"},
+  {test_heap_poison, true, "heap poison"},
+  {test_heap_unpoison, true, "heap unpoison"},
+  {test_heap_memset, true, "heap memset"},
+  {test_heap_memcpy, true, "heap memcpy"},
+  {test_heap_memmove, true, "heap memmove"},
+  {test_insert_perf, false, "Kasan insert performance testing"},
+  {test_algorithm_perf, false, "Kasan algorithm performance testing"},
 #ifdef CONFIG_MM_KASAN_GLOBAL
-  {test_global_underflow, "globals underflow"},
-  {test_global_overflow, "globals overflow"},
+  {test_global_underflow, true, "globals underflow"},
+  {test_global_overflow, true, "globals overflow"},
 #endif
 };
 
-static char g_kasan_heap[65536] aligned_data(8);
+static char g_kasan_heap[10240] aligned_data(8);
 
 #ifdef CONFIG_MM_KASAN_GLOBAL
 static char g_kasan_globals[32];
@@ -119,6 +125,20 @@ static void error_handler(void)
   for (i = 0; i < nitems(g_kasan_test); i++)
     {
       printf("%d: %s\n", i + 1, g_kasan_test[i].name);
+    }
+}
+
+static void timespec_sub(struct timespec *dest,
+                         struct timespec *ts1,
+                         struct timespec *ts2)
+{
+  dest->tv_sec = ts1->tv_sec - ts2->tv_sec;
+  dest->tv_nsec = ts1->tv_nsec - ts2->tv_nsec;
+
+  if (dest->tv_nsec < 0)
+    {
+      dest->tv_nsec += 1000000000;
+      dest->tv_sec -= 1;
     }
 }
 
@@ -223,6 +243,54 @@ static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size)
   return false;
 }
 
+static bool test_insert_perf(FAR struct mm_heap_s *heap, size_t size)
+{
+  int num = 0;
+  char value;
+  char *p;
+  int i;
+
+  p = (char *)malloc(CONFIG_TESTING_KASAN_PERF_HEAP_SIZE);
+  if (!p)
+    {
+      printf("Failed to allocate memory for performance testing\n");
+      return false;
+    }
+
+  do
+    {
+      value = num % INT8_MAX;
+      for (i = 0; i < CONFIG_TESTING_KASAN_PERF_HEAP_SIZE; i++)
+        {
+          p[i] = value;
+        }
+    }
+  while (num++ < CONFIG_TESTING_KASAN_PERF_CYCLES);
+
+  return true;
+}
+
+static bool test_algorithm_perf(FAR struct mm_heap_s *heap, size_t size)
+{
+  int num = 0;
+  char *p;
+
+  p = (char *)malloc(CONFIG_TESTING_KASAN_PERF_HEAP_SIZE);
+  if (!p)
+    {
+      printf("Failed to allocate memory for performance testing\n");
+      return false;
+    }
+
+  do
+    {
+      memset(p, num % INT8_MAX, CONFIG_TESTING_KASAN_PERF_HEAP_SIZE);
+    }
+  while (num++ < CONFIG_TESTING_KASAN_PERF_CYCLES);
+
+  return true;
+}
+
 #ifdef CONFIG_MM_KASAN_GLOBAL
 static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size)
 {
@@ -239,7 +307,7 @@ static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size)
 
 static int run_test(FAR const testcase_t *test)
 {
-  size_t heap_size = 65536;
+  size_t heap_size = sizeof(g_kasan_heap);
   FAR char *argv[3];
   FAR run_t *run;
   int status;
@@ -273,11 +341,11 @@ static int run_test(FAR const testcase_t *test)
   waitpid(pid, &status, 0);
   if (status == 0)
     {
-      printf("KASan test: %s, size: %ld FAIL\n", test->name, run->size);
+      printf("KASan test: %s, size: %zu FAIL\n", test->name, run->size);
     }
   else
     {
-      printf("KASan test: %s, size: %ld PASS\n", test->name, run->size);
+      printf("KASan test: %s, size: %zu PASS\n", test->name, run->size);
     }
 
   mm_uninitialize(run->heap);
@@ -287,7 +355,11 @@ static int run_test(FAR const testcase_t *test)
 static int run_testcase(int argc, FAR char *argv[])
 {
   uintptr_t index = strtoul(argv[1], NULL, 0);
+  struct timespec result;
+  struct timespec start;
+  struct timespec end;
   FAR run_t *run;
+  int ret;
 
   /* Pass in the number to run the specified case,
    * and the string of the number will not be very long
@@ -311,8 +383,17 @@ static int run_testcase(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
-  run = (FAR run_t *)index;
-  return run->testcase->func(run->heap, run->size);
+  run = (FAR run_t *)(uintptr_t)strtoul(argv[1], NULL, 16);
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  ret = run->testcase->func(run->heap, run->size);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+
+  timespec_sub(&result, &end, &start);
+  printf("%s spending %ld.%lds\n", run->testcase->name,
+                                   result.tv_sec,
+                                   result.tv_nsec);
+
+  return ret;
 }
 
 /****************************************************************************
@@ -326,7 +407,7 @@ int main(int argc, FAR char *argv[])
       size_t j;
       for (j = 0; j < nitems(g_kasan_test); j++)
         {
-          if (run_test(&g_kasan_test[j]) < 0)
+          if (g_kasan_test[j].is_auto && run_test(&g_kasan_test[j]) < 0)
             {
               return EXIT_FAILURE;
             }
