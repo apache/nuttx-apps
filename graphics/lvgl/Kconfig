@@ -1641,4 +1641,8 @@ menu "LVGL configuration"
 
 endmenu
 
+config LV_OPTLEVEL
+	string "Customize compilation optimization level"
+	default ""
+
 endif # GRAPHICS_LVGL
