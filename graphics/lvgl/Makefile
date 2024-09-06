@@ -78,6 +78,11 @@ ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
 context:: $(LVGL_UNPACKNAME)
 endif
 
+ifneq ($(CONFIG_LV_OPTLEVEL), "")
+CFLAGS   += $(CONFIG_LV_OPTLEVEL)
+CXXFLAGS += $(CONFIG_LV_OPTLEVEL)
+endif
+
 include $(APPDIR)/Application.mk
 
 ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
