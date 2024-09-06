@@ -123,6 +123,10 @@ if(CONFIG_NETUTILS_NETLIB)
          netlib_eaddrconv.c)
   endif()
 
+  if(CONFIG_NETDEV_STATISTICS)
+    list(APPEND SRCS netlib_getifstatistics.c)
+  endif()
+
   if(CONFIG_WIRELESS_PKTRADIO)
     list(APPEND SRCS netlib_getproperties.c netlib_getnodeaddr.c
          netlib_setnodeaddr.c)

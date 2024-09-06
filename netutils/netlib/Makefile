@@ -91,6 +91,10 @@ CSRCS += netlib_getroute.c
 endif
 endif
 
+ifeq ($(CONFIG_NETDEV_STATISTICS),y)
+CSRCS += netlib_getifstatistics.c
+endif
+
 # Netfilter connection support
 
 ifeq ($(CONFIG_NETLINK_NETFILTER),y)
