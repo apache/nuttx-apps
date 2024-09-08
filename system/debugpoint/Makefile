@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/debug/Makefile
+# apps/system/debugpoint/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -22,9 +22,9 @@ include $(APPDIR)/Make.defs
 
 # debug built-in application info
 
-PROGNAME = $(CONFIG_SYSTEM_DEBUG_PROGNAME)
-PRIORITY = $(CONFIG_SYSTEM_DEBUG_PRIORITY)
-STACKSIZE = $(CONFIG_SYSTEM_DEBUG_STACKSIZE)
+PROGNAME = $(CONFIG_SYSTEM_DEBUGPOINT_PROGNAME)
+PRIORITY = $(CONFIG_SYSTEM_DEBUGPOINT_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_DEBUGPOINT_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_DEBUG)
 
 # source files
