@@ -117,6 +117,10 @@ if(CONFIG_GRAPHICS_LVGL)
     nuttx_add_dependencies(TARGET lvgl DEPENDS turbojpeg-static)
   endif()
 
+  if(NOT ${CONFIG_LV_OPTLEVEL} STREQUAL "")
+    add_compile_options(${CONFIG_LV_OPTLEVEL})
+  endif()
+
   set_property(
     TARGET nuttx
     APPEND

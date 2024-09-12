@@ -43,6 +43,13 @@ CFLAGS += "-DLV_PROFILER_BEGIN_TAG(str)=sched_note_beginex(NOTE_TAG_GRAPHICS, st
 CFLAGS += "-DLV_PROFILER_END_TAG(str)=sched_note_endex(NOTE_TAG_GRAPHICS, str)"
 endif
 
+ifneq ($(CONFIG_LV_OPTLEVEL), "")
+# Since multiple options need to be supported, subst needs to be used here to remove
+# the redundant double quotes, otherwise it will cause command parsing errors.
+CFLAGS   += $(subst ",, $(CONFIG_LV_OPTLEVEL))
+CXXFLAGS += $(subst ",, $(CONFIG_LV_OPTLEVEL))
+endif
+
 # Set up build configuration and environment
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
@@ -76,11 +83,6 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
 context:: $(LVGL_UNPACKNAME)
-endif
-
-ifneq ($(CONFIG_LV_OPTLEVEL), "")
-CFLAGS   += $(CONFIG_LV_OPTLEVEL)
-CXXFLAGS += $(CONFIG_LV_OPTLEVEL)
 endif
 
 include $(APPDIR)/Application.mk
