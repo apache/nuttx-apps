@@ -289,10 +289,11 @@ static int ipfwd_netconfig(FAR struct ipfwd_tun_s *tun, IPADDR_TYPE ipaddr,
 }
 
 /****************************************************************************
- * Name: Checksums
+ * Name: check_sum
  ****************************************************************************/
 
-static uint16_t chksum(uint16_t sum, FAR const uint8_t *data, uint16_t len)
+static uint16_t check_sum(uint16_t sum, FAR const uint8_t *data,
+                          uint16_t len)
 {
   FAR const uint8_t *dataptr;
   FAR const uint8_t *last_byte;
@@ -335,7 +336,7 @@ static uint16_t ipv4_chksum(FAR const uint8_t *buffer)
 {
   uint16_t sum;
 
-  sum = chksum(0, buffer, IPv4_HDRLEN);
+  sum = check_sum(0, buffer, IPv4_HDRLEN);
   return (sum == 0) ? 0xffff : htons(sum);
 }
 #endif
@@ -362,12 +363,12 @@ static uint16_t common_chksum(FAR uint8_t *buffer, uint8_t proto)
 
   /* Sum IP source and destination addresses. */
 
-  sum = chksum(sum, (FAR uint8_t *)&ipv6->srcipaddr,
-               2 * sizeof(net_ipv6addr_t));
+  sum = check_sum(sum, (FAR uint8_t *)&ipv6->srcipaddr,
+                  2 * sizeof(net_ipv6addr_t));
 
   /* Sum IP payload data. */
 
-  sum = chksum(sum, &buffer[IPv6_HDRLEN], upperlen);
+  sum = check_sum(sum, &buffer[IPv6_HDRLEN], upperlen);
   return (sum == 0) ? 0xffff : htons(sum);
 #else
   FAR struct ipv4_hdr_s *ipv4 = (FAR struct ipv4_hdr_s *)buffer;
@@ -389,11 +390,12 @@ static uint16_t common_chksum(FAR uint8_t *buffer, uint8_t proto)
 
   /* Sum IP source and destination addresses. */
 
-  sum = chksum(sum, (FAR uint8_t *)&ipv4->srcipaddr, 2 * sizeof(in_addr_t));
+  sum = check_sum(sum, (FAR uint8_t *)&ipv4->srcipaddr,
+                  2 * sizeof(in_addr_t));
 
   /* Sum IP payload data. */
 
-  sum = chksum(sum, &buffer[IPv4_HDRLEN], upperlen);
+  sum = check_sum(sum, &buffer[IPv4_HDRLEN], upperlen);
   return (sum == 0) ? 0xffff : htons(sum);
 #endif
 }
