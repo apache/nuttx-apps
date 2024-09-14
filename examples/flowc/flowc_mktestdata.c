@@ -35,7 +35,7 @@ int main(int argc, char **envp)
 
   for (i = 0; i < 100; i++)
     {
-      for (ch = 0x20; ch < 0x7F; ch++)
+      for (ch = 0x20; ch < 0x7f; ch++)
         {
           putchar(ch);
         }
