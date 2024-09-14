@@ -85,7 +85,7 @@ if(CONFIG_TESTING_DRIVER_TEST)
       drivertest_timer.c)
   endif()
 
-  if(CONFIG_ONESHOT)
+  if(CONFIG_TESTING_ONESHOT_TEST)
     nuttx_add_application(
       NAME
       cmocka_driver_oneshot

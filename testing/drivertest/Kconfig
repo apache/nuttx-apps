@@ -24,4 +24,8 @@ config TESTING_DRIVER_TEST_SIMPLE
 	bool "Enable cmocka driver simple test"
 	default n
 
+config TESTING_ONESHOT_TEST
+	bool "Enable cmocka oneshot test"
+	default n
+		depends on ONESHOT
 endif
