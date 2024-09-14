@@ -138,6 +138,7 @@ listener <command> [arguments...]\n\
 \t[-t <val> ]  Time of listener, in seconds, default: 5\n\
 \t[-T       ]  Top, continuously print updating objects\n\
 \t[-l       ]  Top only execute once.\n\
+\t[-i       ]  Get sensor device information based on topic.\n\
   ");
 }
 
@@ -531,6 +532,61 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
 }
 
 /****************************************************************************
+ * Name: listener_print_info
+ *
+ * Description:
+ *   Print sensor device information.
+ *
+ * Input Parameters:
+ *   objlist   topic object list.
+ *
+ * Returned Value:
+ *   void
+ ****************************************************************************/
+
+static void listener_print_info(FAR const struct listen_list_s *objlist)
+{
+  FAR struct listen_object_s *tmp;
+  orb_info_t info;
+  int ret;
+  int fd;
+
+  SLIST_FOREACH(tmp, objlist, node)
+    {
+      fd = orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
+      if (fd < 0)
+        {
+          continue;
+        }
+
+      ret = orb_get_info(fd, &info);
+      orb_unsubscribe(fd);
+      uorbinfo_raw("Topic [%s%d] info:", tmp->object.meta->o_name,
+                   tmp->object.instance);
+      if (ret < 0)
+        {
+          uorbinfo_raw("\t NULL");
+          continue;
+        }
+
+      uorbinfo_raw("\tname:%s" \
+                   "\n\tvendor:%s" \
+                   "\n\tversion:%" PRIu32 "" \
+                   "\n\tpower:%f" \
+                   "\n\tmax_range:%f" \
+                   "\n\tresolution:%f" \
+                   "\n\tmin_delay:%" PRId32 "" \
+                   "\n\tmax_delay:%" PRId32 "" \
+                   "\n\tfifo_reserved_event_count:%" PRIu32 ""\
+                   "\n\tfifo_max_event_count:%" PRIu32 "\n",
+                   info.name, info.vendor, info.version, info.power,
+                   info.max_range, info.resolution, info.min_delay,
+                   info.max_delay, info.fifo_reserved_event_count,
+                   info.fifo_max_event_count);
+    }
+}
+
+/****************************************************************************
  * Name: listener_record
  *
  * Description:
@@ -854,6 +910,7 @@ int main(int argc, FAR char *argv[])
   int nb_msgs       = 0;
   int timeout       = 5;
   bool top          = false;
+  bool info         = false;
   bool record       = false;
   bool only_once    = false;
   FAR char *filter  = NULL;
@@ -868,7 +925,7 @@ int main(int argc, FAR char *argv[])
 
   /* Pasrse Argument */
 
-  while ((ch = getopt(argc, argv, "r:b:n:t:Tflh")) != EOF)
+  while ((ch = getopt(argc, argv, "r:b:n:t:Tflhi")) != EOF)
     {
       switch (ch)
       {
@@ -918,6 +975,10 @@ int main(int argc, FAR char *argv[])
           only_once = true;
           break;
 
+        case 'i':
+          info = true;
+          break;
+
         case 'h':
         default:
           goto error;
@@ -938,6 +999,12 @@ int main(int argc, FAR char *argv[])
       return 0;
     }
 
+  if (info)
+    {
+      listener_print_info(&objlist);
+      goto exit;
+    }
+
   if (top)
     {
       listener_top(&objlist, filter, only_once);
@@ -956,6 +1023,7 @@ int main(int argc, FAR char *argv[])
                        nb_msgs, timeout, record);
     }
 
+exit:
   listener_delete_object_list(&objlist);
   return 0;
 
