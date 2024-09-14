@@ -94,7 +94,6 @@ int ft80x_gpio_configure(int fd, uint8_t gpio, uint8_t dir, uint8_t drive,
 
   /* Set the pin direction */
 
-
   ret = ft80x_getreg8(fd, FT80X_REG_GPIO_DIR, &regval8);
   if (ret < 0)
     {

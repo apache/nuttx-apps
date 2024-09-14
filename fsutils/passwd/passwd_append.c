@@ -64,11 +64,11 @@ int passwd_append(FAR const char *username, FAR const char *password)
 
   stream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "a");
   if (stream == NULL)
-   {
+    {
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
       return errcode;
-   }
+    }
 
   /* The format of the password file is:
    *
