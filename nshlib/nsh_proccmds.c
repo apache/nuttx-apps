@@ -802,6 +802,107 @@ invalid_arg:
 #endif
 
 /****************************************************************************
+ * Name: cmd_pkill
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PKILL)
+int cmd_pkill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  FAR const char *name;
+  FAR char *ptr;
+  pid_t pids[8];
+  int signal;
+  ssize_t ret;
+  int i;
+
+  /* pkill will send SIGTERM to the task in case no signal is selected by
+   * -<signal> option
+   */
+
+  if (argc == 3)  /* pkill -<signal> <name> */
+    {
+      /* Check incoming parameters.
+       * The first parameter should be "-<signal>"
+       */
+
+      ptr = argv[1];
+      if (*ptr != '-' || ptr[1] < '0' || ptr[1] > '9')
+        {
+          goto invalid_arg;
+        }
+
+      /* Extract the signal number */
+
+      signal = atoi(&ptr[1]);
+
+      /* The second parameter should be <pid>  */
+
+      name = argv[2];
+    }
+  else if (argc == 2)           /* kill <pid> */
+    {
+      /* uses default signal number as SIGTERM */
+
+      signal = SIGTERM;  /* SIGTERM is always defined in signal.h */
+
+      /* The first parameter should be name  */
+
+      name = argv[1];
+    }
+  else
+    {
+      /* invalid number of arguments */
+
+      goto invalid_arg;
+    }
+
+  ret = nsh_getpid(vtbl, name, pids, nitems(pids));
+  if (ret <= 0)
+    {
+      nsh_error(vtbl, g_fmtnosuch, argv[0], "task",  name);
+      return ERROR;
+    }
+
+  /* Send the signal.  Kill return values:
+   *
+   *   EINVAL An invalid signal was specified.
+   *   EPERM  The process does not have permission to send the signal to any
+   *          of the target processes.
+   *   ESRCH  The pid or process group does not exist.
+   *   ENOSYS Do not support sending signals to process groups.
+   */
+
+  for (i = 0; i < ret; i++)
+    {
+      if (kill(pids[i], signal) != 0)
+        {
+          switch (errno)
+            {
+            case EINVAL:
+              goto invalid_arg;
+
+            case ESRCH:
+              nsh_error(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
+              return ERROR;
+
+            case EPERM:
+            case ENOSYS:
+            default:
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
+              return ERROR;
+            }
+        }
+    }
+
+  return OK;
+
+invalid_arg:
+  nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+  return ERROR;
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_sleep
  ****************************************************************************/
 

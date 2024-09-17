@@ -310,6 +310,10 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("kill",     cmd_kill,     2, 3, "[-<signal>] <pid>"),
 #endif
 
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PKILL)
+  CMD_MAP("pkill",     cmd_pkill,     2, 3, "[-<signal>] <name>"),
+#endif
+
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 #  if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
   CMD_MAP("losetup",  cmd_losetup,  3, 6,

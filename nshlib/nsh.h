@@ -1181,6 +1181,9 @@ int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #ifndef CONFIG_NSH_DISABLE_KILL
   int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PKILL)
+  int cmd_pkill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
 #ifndef CONFIG_NSH_DISABLE_SLEEP
   int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
