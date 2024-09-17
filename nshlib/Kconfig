@@ -428,6 +428,11 @@ config NSH_DISABLE_KILL
 	bool "Disable kill"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_PKILL
+	bool "Disable pkill"
+	default DEFAULT_SMALL
+	depends on FS_PROCFS
+
 config NSH_DISABLE_LOSETUP
 	bool "Disable losetup"
 	default DEFAULT_SMALL
