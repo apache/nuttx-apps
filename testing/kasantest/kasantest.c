@@ -294,20 +294,20 @@ static bool test_algorithm_perf(FAR struct mm_heap_s *heap, size_t size)
 #ifdef CONFIG_MM_KASAN_GLOBAL
 static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size)
 {
-  memset(g_kasan_globals - 31, 0x12, sizeof(g_kasan_globals));
+  memset(g_kasan_globals - 1, 0x12, sizeof(g_kasan_globals));
   return false;
 }
 
 static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size)
 {
-  memset(g_kasan_globals, 0xef, sizeof(g_kasan_globals) + 31);
+  memset(g_kasan_globals + sizeof(g_kasan_globals), 0xef, 1);
   return false;
 }
 #endif
 
 static int run_test(FAR const testcase_t *test)
 {
-  size_t heap_size = sizeof(g_kasan_heap);
+  size_t heap_size = sizeof(g_kasan_heap) - sizeof(run_t);
   FAR char *argv[3];
   FAR run_t *run;
   int status;
