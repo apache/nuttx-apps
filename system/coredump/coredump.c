@@ -43,6 +43,14 @@
  * Private Types
  ****************************************************************************/
 
+#ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
+#  define COREDUMP_FILE_SUFFIX ".lzf"
+#else
+#  define COREDUMP_FILE_SUFFIX ".core"
+#endif
+
+#define COREDUMP_FILE_SUFFIX_LEN (sizeof(COREDUMP_FILE_SUFFIX) - 1)
+
 typedef CODE void (*dumpfile_cb_t)(FAR char *path, FAR const char *filename,
                                    FAR void *arg);
 
@@ -66,6 +74,22 @@ static struct memory_region_s g_memory_region[] =
  ****************************************************************************/
 
 #ifdef CONFIG_BOARD_COREDUMP_BLKDEV
+
+static bool dumpfile_is_valid(FAR const char *name)
+{
+  FAR const char *suffix;
+  size_t name_len;
+
+  name_len = strlen(name);
+  if (name_len < COREDUMP_FILE_SUFFIX_LEN)
+    {
+      return false;
+    }
+
+  suffix = name + name_len - COREDUMP_FILE_SUFFIX_LEN;
+  return !!memcmp(suffix, COREDUMP_FILE_SUFFIX, COREDUMP_FILE_SUFFIX_LEN);
+}
+
 static int dumpfile_iterate(FAR char *path, dumpfile_cb_t cb, FAR void *arg)
 {
   FAR struct dirent *entry;
@@ -84,7 +108,7 @@ static int dumpfile_iterate(FAR char *path, dumpfile_cb_t cb, FAR void *arg)
 
   while ((entry = readdir(dir)) != NULL)
     {
-      if (entry->d_type == DT_REG && !strncmp(entry->d_name, "core-", 5))
+      if (entry->d_type == DT_REG && dumpfile_is_valid(entry->d_name))
         {
           cb(path, entry->d_name, arg);
         }
@@ -132,16 +156,11 @@ static void dumpfile_delete(FAR char *path, FAR const char *filename,
 static void coredump_restore(FAR char *savepath, size_t maxfile)
 {
   FAR struct coredump_info_s *info;
-  char dumppath[PATH_MAX] =
-    {
-      0
-    };
-
+  char dumppath[PATH_MAX];
   unsigned char *swap;
   struct geometry geo;
   ssize_t writesize;
   ssize_t readsize;
-  struct tm *dtime;
   size_t offset = 0;
   size_t max = 0;
   int dumpfd;
@@ -203,22 +222,9 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
     }
 
   ret = snprintf(dumppath, sizeof(dumppath),
-                 "%s/core-%s", savepath,
-                 info->name.version);
-  dtime = localtime(&info->time.tv_sec);
-  if (dtime)
-    {
-      ret += snprintf(dumppath + ret, sizeof(dumppath) - ret,
-                      "-%d-%d-%d-%d-%d", dtime->tm_mon + 1,
-                      dtime->tm_mday, dtime->tm_hour,
-                      dtime->tm_min, dtime->tm_sec);
-    }
-
-#ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
-  ret += snprintf(dumppath + ret, sizeof(dumppath) - ret, ".lzf");
-#else
-  ret += snprintf(dumppath + ret, sizeof(dumppath) - ret, ".core");
-#endif
+                 "%s/%.16s-%x"COREDUMP_FILE_SUFFIX,
+                 savepath, info->name.version,
+                 (unsigned int)info->time.tv_sec);
 
   while (ret--)
     {
