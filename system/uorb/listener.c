@@ -130,7 +130,7 @@ listener <command> [arguments...]\n\
  Commands:\n\
 \t<topics_name> Topic name. Multi name are separated by ','\n\
 \t[-h       ]  Listener commands help\n\
-\t[-f       ]  Record uorb data to file\n\
+\t[-s       ]  Record uorb data to file\n\
 \t[-n <val> ]  Number of messages, default: 0\n\
 \t[-r <val> ]  Subscription rate (unlimited if 0), default: 0\n\
 \t[-b <val> ]  Subscription maximum report latency in us(unlimited if 0),\n\
@@ -139,6 +139,7 @@ listener <command> [arguments...]\n\
 \t[-T       ]  Top, continuously print updating objects\n\
 \t[-l       ]  Top only execute once.\n\
 \t[-i       ]  Get sensor device information based on topic.\n\
+\t[-f       ]  Flush sensor drive data.\n\
   ");
 }
 
@@ -532,6 +533,137 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
 }
 
 /****************************************************************************
+ * Name: listener_flush_topic
+ *
+ * Description:
+ *   Flush sensor device.
+ *
+ * Input Parameters:
+ *   objlist      Topic object list.
+ *   nb_objects   Length of objects list.
+ *   timeout      Maximum poll waiting time(microsecond).
+ *
+ * Returned Value:
+ *   void
+ ****************************************************************************/
+
+static void listener_flush_topic(FAR const struct listen_list_s *objlist,
+                                 int nb_objects, int timeout)
+{
+  FAR struct listen_object_s *tmp;
+  FAR struct pollfd *fds;
+  unsigned int events;
+  FAR int8_t *result;
+  int nb_flush = 0;
+  int i = 0;
+  int ret;
+
+  fds = calloc(nb_objects, sizeof(struct pollfd));
+  if (!fds)
+    {
+      return;
+    }
+
+  result = calloc(nb_objects, sizeof(int8_t));
+  if (!result)
+    {
+      free(fds);
+      return;
+    }
+
+  /* Prepare pollfd for all flush objects */
+
+  SLIST_FOREACH(tmp, objlist, node)
+    {
+      int fd;
+
+      fd = orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
+      if (fd < 0)
+        {
+          fds[i].fd     = -1;
+          fds[i].events = 0;
+        }
+      else
+        {
+          fds[i].fd     = fd;
+          fds[i].events = POLLPRI;
+          i++;
+        }
+    }
+
+  i = 0;
+  SLIST_FOREACH(tmp, objlist, node)
+    {
+      ret = orb_flush(fds[i].fd);
+      if (ret < 0)
+        {
+          result[i] = ret;
+        }
+      else
+        {
+          nb_flush++;
+        }
+
+      i++;
+    }
+
+  while (nb_flush && !g_should_exit)
+    {
+      if (poll(&fds[0], nb_objects, timeout * 1000) > 0)
+        {
+          i = 0;
+          SLIST_FOREACH(tmp, objlist, node)
+            {
+              if (fds[i].revents & POLLPRI)
+                {
+                  ret = orb_get_events(fds[i].fd, &events);
+                  if (ret < 0)
+                    {
+                      result[i] = ret;
+                    }
+                  else if (events & SENSOR_EVENT_FLUSH_COMPLETE)
+                    {
+                      nb_flush--;
+                    }
+                }
+
+              i++;
+            }
+        }
+      else if (errno != EINTR)
+        {
+          uorbinfo_raw("Waited for %d seconds without flush complete event. "
+                       "Giving up. err:%d\n", timeout, errno);
+          break;
+        }
+    }
+
+  i = 0;
+  uorbinfo_raw("Result:");
+  SLIST_FOREACH(tmp, objlist, node)
+    {
+      if (result[i] == 0)
+        {
+          uorbinfo_raw("\tTopic [%s%d] flush: SUCCESS.",
+                      tmp->object.meta->o_name, tmp->object.instance);
+        }
+      else
+        {
+          uorbinfo_raw("\tTopic [%s%d] flush: FAILURE. [%d]",
+                      tmp->object.meta->o_name,  tmp->object.instance,
+                      result[i]);
+        }
+
+      orb_unsubscribe(fds[i].fd);
+      i++;
+    }
+
+  uorbinfo_raw("Total number of flush topics: %d", nb_objects);
+  free(fds);
+  free(result);
+}
+
+/****************************************************************************
  * Name: listener_print_info
  *
  * Description:
@@ -632,7 +764,7 @@ static int listener_record(FAR const struct orb_metadata *meta, int fd,
  *   topic_rate     Subscribe frequency.
  *   topic_latency  Subscribe report latency.
  *   nb_msgs        Subscribe amount of messages.
- *   timeout        Maximum poll waiting time , ms.
+ *   timeout        Maximum poll waiting time(microseconds).
  *
  * Returned Value:
  *   None
@@ -911,6 +1043,7 @@ int main(int argc, FAR char *argv[])
   int timeout       = 5;
   bool top          = false;
   bool info         = false;
+  bool flush        = false;
   bool record       = false;
   bool only_once    = false;
   FAR char *filter  = NULL;
@@ -925,7 +1058,7 @@ int main(int argc, FAR char *argv[])
 
   /* Pasrse Argument */
 
-  while ((ch = getopt(argc, argv, "r:b:n:t:Tflhi")) != EOF)
+  while ((ch = getopt(argc, argv, "r:b:n:t:Tfslhi")) != EOF)
     {
       switch (ch)
       {
@@ -962,10 +1095,14 @@ int main(int argc, FAR char *argv[])
           break;
 
 #ifdef CONFIG_DEBUG_UORB
-        case 'f':
+        case 's':
           record = true;
           break;
 #endif
+
+        case 'f':
+          flush = true;
+          break;
 
         case 'T':
           top = true;
@@ -997,6 +1134,12 @@ int main(int argc, FAR char *argv[])
   if (ret <= 0)
     {
       return 0;
+    }
+
+  if (flush)
+    {
+      listener_flush_topic(&objlist, ret, timeout);
+      goto exit;
     }
 
   if (info)
