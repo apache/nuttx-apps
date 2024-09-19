@@ -18,7 +18,7 @@
 #
 # ##############################################################################
 
-if(CONFIG_SYSTEM_RAMTEST)
+if(CONFIG_TESTING_RAMTEST)
   nuttx_add_application(
     NAME
     ${CONFIG_TESTING_RAMTEST_PROGNAME}
