@@ -115,6 +115,7 @@ config ADBD_USB_SERVER
 
 config ADBD_LOGCAT_SERVICE
 	bool "ADB logcat support"
+	select LIBC_PRINT_EXTENSION
 	depends on RAMLOG_SYSLOG
 	default n
 	---help---
