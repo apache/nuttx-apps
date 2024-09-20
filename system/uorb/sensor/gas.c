@@ -29,21 +29,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-static void print_sensor_gas_message(FAR const struct orb_metadata *meta,
-                                     FAR const void *buffer)
-{
-  FAR const struct sensor_gas *message = buffer;
-  const orb_abstime now = orb_absolute_time();
-
-  uorbinfo_raw("%s:\ttimestamp: %" PRIu64 " (%" PRIu64 " us ago) "
-               "value: %.4f",
-               meta->o_name, message->timestamp, now - message->timestamp,
-               message->gas_resistance);
-}
+static const char sensor_gas_format[] =
+  "timestamp:%" PRIu64 ",gas_resistance:%hf";
 #endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-ORB_DEFINE(sensor_gas, struct sensor_gas, print_sensor_gas_message);
+ORB_DEFINE(sensor_gas, struct sensor_gas, sensor_gas_format);
