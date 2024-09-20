@@ -140,19 +140,19 @@ static char g_file3_data[UFSTEST_FILE3_MXSIZE] = "This is file 3";
 static struct ufstest_file_s g_rootdir[UFSTEST_NFILES] =
 {
     {
-      { DTYPE_FILE, "File1" },
+      { DTYPE_FILE, 0, "File1" },
       UFSTEST_INIT_FILE1_SIZE,
       UFSTEST_FILE1_MXSIZE,
       g_file1_data
     },
     {
-      { DTYPE_FILE, "File2" },
+      { DTYPE_FILE, 0, "File2" },
       UFSTEST_INIT_FILE2_SIZE,
       UFSTEST_FILE2_MXSIZE,
       g_file2_data
     },
     {
-      { DTYPE_FILE, "File3" },
+      { DTYPE_FILE, 0, "File3" },
       UFSTEST_INIT_FILE3_SIZE,
       UFSTEST_FILE3_MXSIZE,
       g_file3_data
