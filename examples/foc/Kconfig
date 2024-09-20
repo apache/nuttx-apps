@@ -47,6 +47,24 @@ config EXAMPLES_FOC_PERF
 	bool "Enable performance meassurements"
 	default n
 
+if EXAMPLES_FOC_PERF
+
+config EXAMPLES_FOC_PERF_LIVE
+	bool "Print FOC perf results on each max value change"
+	default n
+	---help---
+		With this option perf results are printed every time the maximum value
+		changes. The disadvantage of this method is that printing can directly
+		affect the pref result but it gives results in real time.
+
+config EXAMPLES_FOC_PERF_EXIT
+	bool "Print FOC perf results on thread exit"
+	default y
+	---help---
+		With this option perf results are printed on control thread exit.
+
+endif # EXAMPLES_FOC_PERF
+
 choice
 	prompt "FOC modulation selection"
 	default EXAMPLES_FOC_MODULATION_SVM3

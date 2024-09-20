@@ -503,13 +503,6 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
       /* Increase counter */
 
       motor.time += 1;
-
-#ifdef CONFIG_EXAMPLES_FOC_PERF
-      if (dev.perf.max_changed)
-        {
-          PRINTF_PERF("max=%" PRId32 "\n", dev.perf.max);
-        }
-#endif
     }
 
 errout:
@@ -531,6 +524,12 @@ errout:
     {
       PRINTF("ERROR: foc_device_deinit %d failed %d\n", envp->id, ret);
     }
+
+#ifdef CONFIG_EXAMPLES_FOC_PERF_EXIT
+  /* Print final perf stats */
+
+  foc_perf_exit(&dev.perf);
+#endif
 
   PRINTF("foc_fixed16_thr %d exit\n", envp->id);
 
