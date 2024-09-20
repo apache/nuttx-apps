@@ -85,6 +85,11 @@ else
 CFLAGS += ${DEFINE_PREFIX}ITERATIONS=0
 endif
 
+CFLAGS += ${DEFINE_PREFIX}crcu8=coremark_crcu8
+CFLAGS += ${DEFINE_PREFIX}crcu16=coremark_crcu16
+CFLAGS += ${DEFINE_PREFIX}crcu32=coremark_crcu32
+CFLAGS += ${DEFINE_PREFIX}crc16=coremark_crc16
+
 CSRCS += core_list_join.c
 CSRCS += core_matrix.c
 CSRCS += core_state.c
