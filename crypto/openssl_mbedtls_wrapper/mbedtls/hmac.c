@@ -132,35 +132,35 @@ size_t EVP_MD_size(const EVP_MD *md)
   return mbedtls_md_get_size((const mbedtls_md_info_t *)md);
 }
 
-const EVP_MD *EVP_sha1()
+const EVP_MD *EVP_sha1(void)
 {
   const mbedtls_md_info_t *md_info =
     mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
   return (const EVP_MD *)md_info;
 }
 
-const EVP_MD *EVP_sha224()
+const EVP_MD *EVP_sha224(void)
 {
   const mbedtls_md_info_t *md_info =
     mbedtls_md_info_from_type(MBEDTLS_MD_SHA224);
   return (const EVP_MD *)md_info;
 }
 
-const EVP_MD *EVP_sha256()
+const EVP_MD *EVP_sha256(void)
 {
   const mbedtls_md_info_t *md_info =
     mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
   return (const EVP_MD *)md_info;
 }
 
-const EVP_MD *EVP_sha384()
+const EVP_MD *EVP_sha384(void)
 {
   const mbedtls_md_info_t *md_info =
     mbedtls_md_info_from_type(MBEDTLS_MD_SHA384);
   return (const EVP_MD *)md_info;
 }
 
-const EVP_MD *EVP_sha512()
+const EVP_MD *EVP_sha512(void)
 {
   const mbedtls_md_info_t *md_info =
     mbedtls_md_info_from_type(MBEDTLS_MD_SHA512);
