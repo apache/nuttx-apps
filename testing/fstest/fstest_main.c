@@ -32,6 +32,8 @@
 #include <sys/boardctl.h>
 #endif
 
+#include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,9 +43,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include <debug.h>
-#include <assert.h>
 
+#include <nuttx/compiler.h>
 #include <nuttx/crc32.h>
 
 /****************************************************************************
@@ -110,8 +111,10 @@ static void fstest_showmemusage(struct mallinfo *mmbefore,
                                    mmafter->arena    - mmbefore->arena);
   printf("ordblks  %8d %8d %8d\n", mmbefore->ordblks , mmafter->ordblks,
                                    mmafter->ordblks  - mmbefore->ordblks);
+#ifdef __NuttX__
   printf("mxordblk %8x %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk,
                                    mmafter->mxordblk - mmbefore->mxordblk);
+#endif
   printf("uordblks %8x %8x %8x\n", mmbefore->uordblks, mmafter->uordblks,
                                    mmafter->uordblks - mmbefore->uordblks);
   printf("fordblks %8x %8x %8x\n", mmbefore->fordblks, mmafter->fordblks,
