@@ -31,7 +31,7 @@
  * Public Functions
  ****************************************************************************/
 
-unsigned long ERR_peek_last_error()
+unsigned long ERR_peek_last_error(void)
 {
   return errno;
 }
