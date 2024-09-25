@@ -89,12 +89,13 @@ static FAR void *wapi_json_load(FAR const char *confname)
       return NULL;
     }
 
-  buf = malloc(sb.st_size);
+  buf = malloc(sb.st_size + 1);
   if (!buf)
     {
       goto errout;
     }
 
+  buf[sb.st_size] = '\0';
   fd = open(confname, O_RDONLY);
   if (fd < 0)
     {
