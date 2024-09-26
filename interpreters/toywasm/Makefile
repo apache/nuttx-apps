@@ -124,6 +124,7 @@ CSRCS += wasi_threads.c
 # TOYWASM_ENABLE_DYLD
 CSRCS += dyld.c
 CSRCS += dyld_plt.c
+CSRCS += dyld_stats.c
 
 # TOYWASM_ENABLE_DYLD_DLFCN
 CSRCS += dyld_dlfcn.c
@@ -142,7 +143,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 CFLAGS += -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-variable -Wno-return-type
 
-TOYWASM_VERSION  = 4db87d399cc871845237557020dae595cd6384dc
+TOYWASM_VERSION  = d7bb4aaef08be2d7821891f17bd9ef82ac1ba358
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
