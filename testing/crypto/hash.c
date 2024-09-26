@@ -31,6 +31,10 @@
 #include <crypto/sha1.h>
 #include <crypto/sha2.h>
 
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+#  define HASH_HUGE_BLOCK_SIZE (600 * 1024) /* 600k */
+#endif
+
 typedef struct crypto_context
 {
   int fd;
@@ -93,7 +97,7 @@ tb sha_testcase[] =
     {
       "",
       1000,
-    },
+    }
 };
 
 tb sha512_testcase[] =
@@ -192,6 +196,40 @@ static const unsigned char sha512_result[3][64] =
     0xeb, 0x00, 0x9c, 0x5c, 0x2c, 0x49, 0xaa, 0x2e,
     0x4e, 0xad, 0xb2, 0x17, 0xad, 0x8c, 0xc0, 0x9b }
 };
+
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+static const unsigned char md5_huge_block_result[16] =
+{
+  0xef, 0x6d, 0xcc, 0xc8, 0xe1, 0xcc, 0x7f, 0x08,
+  0xc2, 0x71, 0xd4, 0xc4, 0xe0, 0x13, 0xa3, 0x9b
+};
+
+static const unsigned char sha1_huge_block_result[20] =
+{
+  0xf2, 0x35, 0x65, 0x81, 0x79, 0x4d, 0xac, 0x20, 0x79, 0x7b,
+  0xff, 0x38, 0xee, 0x2b, 0xdc, 0x44, 0x24, 0xd3, 0xf0, 0x4a
+};
+
+static const unsigned char sha256_huge_block_result[32] =
+{
+  0x79, 0xb1, 0xf2, 0x65, 0x7e, 0x33, 0x25, 0xff,
+  0x16, 0xdb, 0x5d, 0x3c, 0x65, 0xa4, 0x7b, 0x78,
+  0x0d, 0xd5, 0xa1, 0x45, 0xb5, 0x30, 0xe0, 0x91,
+  0x54, 0x01, 0x40, 0x0c, 0xff, 0x35, 0x1d, 0xd3
+};
+
+static const unsigned char sha512_huge_block_result[64] =
+{
+  0xa4, 0x3a, 0x66, 0xe8, 0xf7, 0x59, 0x95, 0x6d,
+  0x09, 0x55, 0xdd, 0xad, 0x84, 0x7c, 0xd5, 0xe7,
+  0xd2, 0xbe, 0xac, 0x49, 0xa9, 0x4b, 0xa3, 0x72,
+  0xe1, 0x92, 0xa0, 0x70, 0x83, 0x17, 0x85, 0x5e,
+  0x90, 0x9e, 0x1d, 0x91, 0x6a, 0x93, 0xd9, 0xae,
+  0xb8, 0x1a, 0x43, 0xb5, 0x51, 0x53, 0x10, 0xf1,
+  0xce, 0x3a, 0xcf, 0xb6, 0x9c, 0x8b, 0x6e, 0x07,
+  0x13, 0xca, 0xe1, 0x94, 0x3c, 0x41, 0x50, 0xcc
+};
+#endif
 
 static void syshash_free(FAR crypto_context *ctx)
 {
@@ -304,6 +342,36 @@ static int match(const unsigned char *a, const unsigned char *b, size_t len)
 
   return 1;
 }
+
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+static int testing_hash_huge_block(crypto_context *ctx, int op,
+                    FAR const unsigned char *block, size_t len,
+                    FAR const unsigned char *result, size_t reslen)
+{
+  int ret = 0;
+  unsigned char output[64];
+
+  ret = syshash_start(ctx, op);
+  if (ret != 0)
+    {
+      return ret;
+    }
+
+  ret = syshash_update(ctx, (char *)block, len);
+  if (ret != 0)
+    {
+      return ret;
+    }
+
+  ret = syshash_finish(ctx, output);
+  if (ret != 0)
+    {
+      return ret;
+    }
+
+  return match(result, output, reslen);
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -529,11 +597,75 @@ int main(void)
         }
     }
 
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+  unsigned char *huge_block;
+  huge_block = (unsigned char *)malloc(HASH_HUGE_BLOCK_SIZE);
+  if (huge_block == NULL)
+    {
+      printf("huge block test no memory\n");
+      goto err;
+    }
+
+  memset(huge_block, 'a', HASH_HUGE_BLOCK_SIZE);
+  ret = testing_hash_huge_block(&md5_ctx, CRYPTO_MD5,
+                                huge_block, HASH_HUGE_BLOCK_SIZE,
+                                md5_huge_block_result,
+                                MD5_DIGEST_LENGTH);
+  if (ret != 0)
+    {
+      printf("md5 huge block test failed\n");
+    }
+  else
+    {
+      printf("md5 huge block test success\n");
+    }
+
+  ret = testing_hash_huge_block(&sha1_ctx, CRYPTO_SHA1,
+                                huge_block, HASH_HUGE_BLOCK_SIZE,
+                                sha1_huge_block_result,
+                                SHA1_DIGEST_LENGTH);
+  if (ret != 0)
+    {
+      printf("sha1 huge block test failed\n");
+    }
+  else
+    {
+      printf("sha1 huge block test success\n");
+    }
+
+  ret = testing_hash_huge_block(&sha2_256_ctx, CRYPTO_SHA2_256,
+                                huge_block, HASH_HUGE_BLOCK_SIZE,
+                                sha256_huge_block_result,
+                                SHA256_DIGEST_LENGTH);
+  if (ret != 0)
+    {
+      printf("sha256 huge block test failed\n");
+    }
+  else
+    {
+      printf("sha256 huge block test success\n");
+    }
+
+  ret = testing_hash_huge_block(&sha2_512_ctx, CRYPTO_SHA2_512,
+                                huge_block, HASH_HUGE_BLOCK_SIZE,
+                                sha512_huge_block_result,
+                                SHA512_DIGEST_LENGTH);
+  if (ret != 0)
+    {
+      printf("sha512 huge block test failed\n");
+    }
+  else
+    {
+      printf("sha512 huge block test success\n");
+    }
+
+  free(huge_block);
+#endif
+
 err:
   syshash_free(&md5_ctx);
   syshash_free(&sha1_ctx);
   syshash_free(&sha2_256_ctx);
   syshash_free(&sha2_512_ctx);
-
   return 0;
 }
