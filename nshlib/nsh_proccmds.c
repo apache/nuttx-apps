@@ -694,6 +694,8 @@ int cmd_pidof(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       nsh_output(vtbl, "%d ", pids[i]);
     }
 
+  nsh_output(vtbl, "\n");
+
   return OK;
 }
 #endif
