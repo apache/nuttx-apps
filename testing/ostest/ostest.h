@@ -272,7 +272,7 @@ void setjmp_test(void);
 
 /* smp_call.c ***************************************************************/
 
-#ifdef CONFIG_SMP_CALL
+#ifdef CONFIG_SMP
 void smp_call_test(void);
 #endif
 

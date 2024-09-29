@@ -596,7 +596,7 @@ static int user_main(int argc, char *argv[])
       vfork_test();
 #endif
 
-#if defined(CONFIG_SMP_CALL) && defined(CONFIG_BUILD_FLAT)
+#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
       printf("\nuser_main: smp call test\n");
       smp_call_test();
 #endif

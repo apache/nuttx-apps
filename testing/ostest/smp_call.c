@@ -29,7 +29,7 @@
 
 #include <nuttx/sched.h>
 
-#if defined(CONFIG_SMP_CALL) && defined(CONFIG_BUILD_FLAT)
+#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
