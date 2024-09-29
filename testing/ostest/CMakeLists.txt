@@ -139,7 +139,7 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS setjmp.c)
   endif()
 
-  if(CONFIG_SMP_CALL)
+  if(CONFIG_SMP)
     list(APPEND SRCS smp_call.c)
   endif()
 
