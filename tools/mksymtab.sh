@@ -36,7 +36,6 @@ fi
 # Get the symbol table prefix
 
 prefix=$2
-add_sym=$3
 
 # Extract all of the undefined symbols from the ELF files and create a
 # list of sorted, unique undefined variable names.
@@ -60,16 +59,19 @@ if [ -z "$varlist" ]; then
   fi
 fi
 
-if [ "x$add_sym" != "x" ]; then
-  if [ -f $add_sym ]; then
-    varlist="${varlist}\n$(cat $add_sym | grep -v "^,.*")"
-  elif [ -d $add_sym ]; then
-    varlist="${varlist}\n$(find $add_sym -type f | xargs cat | grep -v "^,.*")"
-  else
-    echo $usage
-    exit 1
-  fi
-  varlist=$(echo -e "${varlist}" | sort -u)
+if [ $# -gt 2 ]; then
+  shift 2
+  for add_sym in $@; do
+    if [ -f $add_sym ]; then
+      varlist="${varlist}\n$(cat $add_sym | grep -v "^,.*")"
+    elif [ -d $add_sym ]; then
+      varlist="${varlist}\n$(find $add_sym -type f | xargs cat | grep -v "^,.*")"
+    else
+      echo $usage
+      exit 1
+    fi
+    varlist=$(echo -e "${varlist}" | sort -u)
+  done
 fi
 
 # Now output the symbol table as a structure in a C source file.  All
