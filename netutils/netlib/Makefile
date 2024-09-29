@@ -142,4 +142,10 @@ CSRCS += netlib_ipmsfilter.c
 endif
 endif
 
+# Network check support
+
+ifeq ($(CONFIG_NET_ARP_ACD),y)
+CSRCS += netlib_checkifconflict.c
+endif
+
 include $(APPDIR)/Application.mk

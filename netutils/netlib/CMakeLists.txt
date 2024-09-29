@@ -143,6 +143,12 @@ if(CONFIG_NETUTILS_NETLIB)
     endif()
   endif()
 
+  # Network check support
+
+  if(CONFIG_NET_ARP_ACD)
+    list(APPEND SRCS netlib_checkifconflict.c)
+  endif()
+
   target_sources(apps PRIVATE ${SRCS})
 
 endif()
