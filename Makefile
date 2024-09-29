@@ -33,6 +33,7 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 endif
 
 # Symbol table for loadable apps.
+#   SYMTABEXT: Extra arguments for mksymtab.sh
 
 SYMTABSRC = symtab_apps.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
@@ -119,7 +120,7 @@ else
 
 $(SYMTABSRC): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 	$(Q) $(MAKE) install
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) $(SYMTABEXT) >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 ifneq ($(CONFIG_ARM_TOOLCHAIN_GHS),y)
