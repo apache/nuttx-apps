@@ -499,6 +499,12 @@ int netlib_getifstatistics(FAR const char *ifname,
                            FAR struct netdev_statistics_s *stat);
 #endif
 
+/* Network check support */
+
+#ifdef CONFIG_NET_ARP_ACD
+int netlib_check_ifconflict(FAR const char *ifname);
+#endif
+
 #undef EXTERN
 #ifdef __cplusplus
 }
