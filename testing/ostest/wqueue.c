@@ -288,7 +288,7 @@ void wqueue_test(void)
   for (i = 1; i < 3; i++)
     {
       printf("wqueue_test: test %d\n", i);
-      wq = work_queue_create("test", 100, 2048, i);
+      wq = work_queue_create("test", 100, NULL, 2048, i);
       DEBUGASSERT(wq != NULL);
       wqueue_priority_test(0, wq, 100);
       work_queue_free(wq);
