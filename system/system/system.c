@@ -23,14 +23,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <sched.h>
-#include <spawn.h>
 #include <assert.h>
-#include <debug.h>
-#include <errno.h>
 
 #include "nshlib/nshlib.h"
 
@@ -61,12 +54,6 @@
 int system(FAR const char *cmd)
 {
   FAR char *argv[4];
-  struct sched_param param;
-  posix_spawnattr_t attr;
-  pid_t pid;
-  int errcode;
-  int rc;
-  int ret;
 
   /* REVISIT: If cmd is NULL, then system() should return a non-zero value to
    * indicate if the command processor is available or zero if it is not.
@@ -74,56 +61,10 @@ int system(FAR const char *cmd)
 
   DEBUGASSERT(cmd != NULL);
 
-  /* Initialize attributes for task_spawn() (or posix_spawn()). */
-
-  errcode = posix_spawnattr_init(&attr);
-  if (errcode != 0)
-    {
-      goto errout;
-    }
-
-  /* Set the correct stack size and priority */
-
-  param.sched_priority = CONFIG_SYSTEM_SYSTEM_PRIORITY;
-  errcode = posix_spawnattr_setschedparam(&attr, &param);
-  if (errcode != 0)
-    {
-      goto errout_with_attrs;
-    }
-
-  errcode = posix_spawnattr_setstacksize(&attr,
-                                         CONFIG_SYSTEM_SYSTEM_STACKSIZE);
-  if (errcode != 0)
-    {
-      goto errout_with_attrs;
-    }
-
-  /* If robin robin scheduling is enabled, then set the scheduling policy
-   * of the new task to SCHED_RR before it has a chance to run.
-   */
-
-#if CONFIG_RR_INTERVAL > 0
-  errcode = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
-  if (errcode != 0)
-    {
-      goto errout_with_attrs;
-    }
-
-  errcode = posix_spawnattr_setflags(&attr,
-                                     POSIX_SPAWN_SETSCHEDPARAM |
-                                     POSIX_SPAWN_SETSCHEDULER);
-  if (errcode != 0)
-    {
-      goto errout_with_attrs;
-    }
-
+#ifdef CONFIG_SYSTEM_SYSTEM_SHPATH
+  argv[0] = CONFIG_SYSTEM_SYSTEM_SHPATH;
 #else
-  errcode = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
-  if (errcode != 0)
-    {
-      goto errout_with_attrs;
-    }
-
+  argv[0] = "system";
 #endif
 
   /* Spawn nsh_system() which will execute the command under the shell. */
@@ -132,42 +73,6 @@ int system(FAR const char *cmd)
   argv[2] = (FAR char *)cmd;
   argv[3] = NULL;
 
-#ifdef CONFIG_SYSTEM_SYSTEM_SHPATH
-  argv[0] = CONFIG_SYSTEM_SYSTEM_SHPATH;
-  errcode = posix_spawn(&pid, argv[0],  NULL, &attr, argv, NULL);
-#else
-  pid = task_spawn("system", nsh_system, NULL, &attr, argv + 1, NULL);
-  if (pid < 0)
-    {
-      errcode = -pid;
-    }
-#endif
-
-  /* Release the attributes and check for an error from the spawn operation */
-
-  if (errcode != 0)
-    {
-      serr("ERROR: Spawn failed: %d\n", errcode);
-      goto errout_with_attrs;
-    }
-
-  /* Wait for the shell to return */
-
-  ret = waitpid(pid, &rc, 0);
-  if (ret < 0)
-    {
-      /* The errno variable has already been set */
-
-      rc = ERROR;
-    }
-
-  posix_spawnattr_destroy(&attr);
-  return rc;
-
-errout_with_attrs:
-  posix_spawnattr_destroy(&attr);
-
-errout:
-  errno = errcode;
-  return ERROR;
+  return nsh_spawn(argv[0], nsh_system, argv, CONFIG_SYSTEM_SYSTEM_PRIORITY,
+                   CONFIG_SYSTEM_SYSTEM_STACKSIZE, NULL, NULL, 0, true);
 }

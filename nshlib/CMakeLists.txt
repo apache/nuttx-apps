@@ -39,7 +39,8 @@ if(CONFIG_NSH_LIBRARY)
     nsh_envcmds.c
     nsh_prompt.c
     nsh_syscmds.c
-    nsh_dbgcmds.c)
+    nsh_dbgcmds.c
+    nsh_spawn.c)
 
   list(APPEND CSRCS nsh_session.c)
 

@@ -26,7 +26,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
+#include <stdbool.h>
 #include <arpa/inet.h>
 
 /****************************************************************************
@@ -300,6 +300,29 @@ int nsh_system(int argc, FAR char *argv[]);
  ****************************************************************************/
 
 int nsh_system_ctty(int argc, FAR char *argv[]);
+
+/****************************************************************************
+ * Name: nsh_spawn
+ *
+ * Description:
+ *    Attempt to execute the application task foreground or background
+ *
+ * Returned Value:
+ *    0 (OK)     if the application task corresponding to 'appname' was
+ *               and successfully started.
+ *               If wait enabled, indicates that the
+ *               application returned successful status (EXIT_SUCCESS)
+ *               If wait not enabled, should not be here.
+ *   >0          If wait enabled, PID of the exec'ed module.
+ *               If wait not enabled, indicates the application
+ *               returned status.
+ *
+ ****************************************************************************/
+
+int nsh_spawn(FAR const char *appname, FAR main_t main,
+              FAR char * const *argv, int priority, size_t stacksize,
+              FAR const char *redirfile_in, FAR const char *redirfile_out,
+              int oflags, bool wait);
 
 #undef EXTERN
 #ifdef __cplusplus
