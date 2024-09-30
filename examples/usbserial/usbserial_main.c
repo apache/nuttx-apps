@@ -456,12 +456,20 @@ int main(int argc, FAR char *argv[])
                 }
             }
 
+#ifdef CONFIG_EXAMPLES_USBSERIAL_CONFIG_WAIT
+          usleep(CONFIG_EXAMPLES_USBSERIAL_OUT_WAITING_TIME * 1000);
+#else
           sleep(1);
+#endif /* CONFIG_EXAMPLES_USBSERIAL_CONFIG_WAIT */
         }
 
 #else /* CONFIG_EXAMPLES_USBSERIAL_INONLY */
       printf("usbserial_main: Waiting\n");
+#ifdef CONFIG_EXAMPLES_USBSERIAL_CONFIG_WAIT
+      usleep(CONFIG_EXAMPLES_USBSERIAL_IN_WAITING_TIME * 1000);
+#else
       sleep(5);
+#endif /* CONFIG_EXAMPLES_USBSERIAL_CONFIG_WAIT */
 #endif /* CONFIG_EXAMPLES_USBSERIAL_INONLY */
 
       /* If USB tracing is enabled, then dump all collected trace data
