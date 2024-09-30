@@ -559,6 +559,8 @@ errout:
   return ret;
 }
 
+#if defined(CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP) || \
+    defined(CONFIG_EXAMPLES_FOC_VELOBS)
 /****************************************************************************
  * Name: foc_motor_vel_reset
  ****************************************************************************/
@@ -592,6 +594,7 @@ static int foc_motor_vel_reset(FAR struct foc_motor_f32_s *motor)
 #endif
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Name: foc_motor_state
@@ -1108,6 +1111,14 @@ static int foc_motor_ang_get(FAR struct foc_motor_f32_s *motor)
   motor->angle_obs = aout.angle;
 #endif
 
+#ifndef CONFIG_EXAMPLES_FOC_HAVE_RUN
+  /* Dummy value when motor controller disabled */
+
+  UNUSED(ain);
+  aout.type  = FOC_ANGLE_TYPE_ELE;
+  aout.angle = 0.0f;
+#endif
+
   /* Store electrical angle from sensor or observer */
 
   if (aout.type == FOC_ANGLE_TYPE_ELE)
@@ -1233,7 +1244,8 @@ static int foc_motor_vel_get(FAR struct foc_motor_f32_s *motor)
   /* Get motor electrical velocity now */
 
 #if defined(CONFIG_EXAMPLES_FOC_HAVE_OPENLOOP) && \
-    !defined(CONFIG_EXAMPLES_FOC_VELOBS)
+    !defined(CONFIG_EXAMPLES_FOC_VELOBS) ||       \
+    !defined(CONFIG_EXAMPLES_FOC_HAVE_RUN)
   /* No velocity feedback - assume that electical velocity is
    * velocity set
    */
@@ -1957,12 +1969,6 @@ int foc_motor_control(FAR struct foc_motor_f32_s *motor)
       case FOC_CTRL_STATE_IDLE:
         {
           motor->foc_mode = FOC_HANDLER_MODE_IDLE;
-
-#ifndef CONFIG_EXAMPLES_FOC_HAVE_RUN
-          /* Terminate */
-
-          motor->ctrl_state += 1;
-#endif
 
           break;
         }

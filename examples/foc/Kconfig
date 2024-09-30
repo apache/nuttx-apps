@@ -112,18 +112,28 @@ config EXAMPLES_FOC_STATE_USE_MODEL_PMSM
 		Use PMSM model instead of real hardware
 
 choice
-	prompt "FOC sensored or sensorless configuration"
+	prompt "FOC motor controller type"
 	default EXAMPLES_FOC_SENSORLESS
 
 config EXAMPLES_FOC_SENSORLESS
-	bool "FOC example sensorless configuration"
+	bool "FOC example sensorless motor controller"
 	select EXAMPLES_FOC_ANGOBS
+	---help---
+		Use sensorless controller, no angle sensor required.
 
 config EXAMPLES_FOC_SENSORED
-	bool "FOC example sensored configuration"
+	bool "FOC example sensored motor controller"
 	select EXAMPLES_FOC_HAVE_ALIGN
+	---help---
+		Use sensored controller, angle sensor for motor required.
 
 endchoice #
+
+config EXAMPLES_FOC_RUN_DISABLE
+	bool "FOC Disable motor controller"
+	---help---
+		Disable motor controller logic. Requested dq is always [0, 0].
+		Useful for testing and benchmarking.
 
 menu "Motor phy"
 
@@ -673,10 +683,6 @@ endmenu # FOC controller parameters
 config EXAMPLES_FOC_HAVE_RUN
 	bool
 	default !EXAMPLES_FOC_RUN_DISABLE
-
-config EXAMPLES_FOC_RUN_DISABLE
-	bool "FOC Disable FOC motor controller"
-	default n
 
 config EXAMPLES_FOC_NXSCOPE
 	bool "FOC nxscope support"
