@@ -56,8 +56,8 @@ static int parse_positions(FAR char *arg, FAR uint8_t *positions,
   FAR char *range_save;
   FAR char *range_item;
   FAR char *endptr;
-  FAR int pos;
-  FAR int pos2;
+  int pos;
+  int pos2;
 
 #define APPEND_POSITION(pos) \
   do \
