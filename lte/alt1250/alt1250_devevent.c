@@ -59,7 +59,8 @@
 
 static int handle_replypkt(FAR struct alt1250_s *dev,
                            FAR struct alt_container_s *reply,
-                           FAR int32_t *usock_result, uint32_t *usock_xid,
+                           FAR int32_t *usock_result,
+                           FAR uint32_t *usock_xid,
                            FAR struct usock_ackinfo_s *ackinfo)
 {
   int ret;
