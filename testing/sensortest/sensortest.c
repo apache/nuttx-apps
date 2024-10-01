@@ -350,7 +350,7 @@ int main(int argc, FAR char *argv[])
       goto name_err;
     }
 
-  snprintf(devname, PATH_MAX, DEVNAME_FMT, name);
+  snprintf(devname, sizeof(devname), DEVNAME_FMT, name);
   fd = open(devname, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
