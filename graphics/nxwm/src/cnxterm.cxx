@@ -331,7 +331,7 @@ void CNxTerm::stop(void)
       // Construct the driver name using this minor number
 
       char devname[32];
-      snprintf(devname, 32, "/dev/nxterm%d", m_minor);
+      snprintf(devname, sizeof(devname), "/dev/nxterm%d", m_minor);
 
       unlink(devname);
       m_nxterm = 0;
@@ -460,7 +460,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // Construct the driver name using this minor number
 
   char devname[32];
-  snprintf(devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
+  snprintf(devname, sizeof(devname), "/dev/nxterm%d", g_nxtermvars.minor);
 
   // Increment the minor number while it is protect by the semaphore
 
