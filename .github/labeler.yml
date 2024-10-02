@@ -1,0 +1,168 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# add arch labels
+
+"Area: Audio":
+  - changed-files:
+      - any-glob-to-any-file: 'audioutils/**'
+      - any-glob-to-any-file: 'include/audioutils/**'
+
+"Area: Benchmarks":
+  - changed-files:
+      - any-glob-to-any-file: 'benchmarks/**'
+      - any-glob-to-any-file: 'include/benchmarks/**'
+
+"Area: Boot":
+  - changed-files:
+      - any-glob-to-any-file: 'boot/**'
+      - any-glob-to-any-file: 'include/boot/**'
+
+"Area: CAN":
+  - changed-files:
+      - any-glob-to-any-file: 'canutils/**'
+      - any-glob-to-any-file: 'include/canutils/**'
+
+"Area: Binfmt":
+  - changed-files:
+      - any-glob-to-any-file: 'builtin/**'
+      - any-glob-to-any-file: 'include/builtin/**'
+
+"Area: Crypto":
+  - changed-files:
+      - any-glob-to-any-file: 'crypto/**'
+      - any-glob-to-any-file: 'include/crypto/**'
+
+"Area: Database":
+  - changed-files:
+      - any-glob-to-any-file: 'database/**'
+      - any-glob-to-any-file: 'include/database/**'
+
+"Area: Examples":
+  - changed-files:
+      - any-glob-to-any-file: 'examples/**'
+
+"Area: File System":
+  - changed-files:
+      - any-glob-to-any-file: 'fsutils/**'
+      - any-glob-to-any-file: 'include/fsutils/**'
+
+"Area: Games":
+  - changed-files:
+      - any-glob-to-any-file: 'games/**'
+      - any-glob-to-any-file: 'include/games/**'
+
+"Area: Graphics":
+  - changed-files:
+      - any-glob-to-any-file: 'graphics/**'
+      - any-glob-to-any-file: 'include/graphics/**'
+
+"Area: Industry":
+  - changed-files:
+      - any-glob-to-any-file: 'industry/**'
+      - any-glob-to-any-file: 'include/industry/**'
+
+"Area: Inertial":
+  - changed-files:
+      - any-glob-to-any-file: 'inertial/**'
+      - any-glob-to-any-file: 'include/inertial/**'
+
+"Area: Interpreters":
+  - changed-files:
+      - any-glob-to-any-file: 'interpreters/**'
+      - any-glob-to-any-file: 'include/interpreters/**'
+
+"Area: Logging":
+  - changed-files:
+      - any-glob-to-any-file: 'logging/**'
+      - any-glob-to-any-file: 'include/logging/**'
+
+"Area: LTE":
+  - changed-files:
+      - any-glob-to-any-file: 'lte/**'
+      - any-glob-to-any-file: 'include/lte/**'
+
+"Area: Math":
+  - changed-files:
+      - any-glob-to-any-file: 'math/**'
+      - any-glob-to-any-file: 'include/math/**'
+
+"Area: Mlearning":
+  - changed-files:
+      - any-glob-to-any-file: 'mlearning/**'
+      - any-glob-to-any-file: 'include/mlearning/**'
+
+"Area: Modbus":
+  - changed-files:
+      - any-glob-to-any-file: 'modbus/**'
+      - any-glob-to-any-file: 'include/modbus/**'
+
+"Area: Networking":
+  - changed-files:
+      - any-glob-to-any-file: 'netutils/**'
+      - any-glob-to-any-file: 'include/netuitls/**'
+
+"Area: NSH":
+  - changed-files:
+      - any-glob-to-any-file: 'nshlib/**'
+      - any-glob-to-any-file: 'include/nshlib/**'
+
+"Area: SDR":
+  - changed-files:
+      - any-glob-to-any-file: 'sdr/**'
+      - any-glob-to-any-file: 'include/sdr/**'
+
+"Area: System":
+  - changed-files:
+      - any-glob-to-any-file: 'system/**'
+      - any-glob-to-any-file: 'include/system/**'
+
+"Area: Testing":
+  - changed-files:
+      - any-glob-to-any-file: 'testing/**'
+      - any-glob-to-any-file: 'include/testing/**'
+
+"Area: Video":
+  - changed-files:
+      - any-glob-to-any-file: 'videotuils/**'
+      - any-glob-to-any-file: 'include/videotuils/**'
+
+"Area: Wireless":
+  - changed-files:
+      - any-glob-to-any-file: 'wireless/**'
+      - any-glob-to-any-file: 'include/wireless/**'
+
+"Area: Build system":
+  - changed-files:
+      - any-glob-to-any-file: 'Makefile'
+      - any-glob-to-any-file: 'Make.defs'
+      - any-glob-to-any-file: '*.mk'
+      - any-glob-to-any-file: 'CMakeLists.txt'
+      - any-glob-to-any-file: 'cmake/**'
+      - any-glob-to-any-file: 'import/**'
+      - any-glob-to-any-file: 'staging/**'
+
+"Area: Tools":
+  - changed-files:
+      - any-glob-to-any-file: 'tools/**'
+
+"Area: CI":
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
