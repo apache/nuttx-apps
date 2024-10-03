@@ -145,11 +145,11 @@ void nettest_server(void)
 
   printf("server: Accepting connections on port %d\n",
          CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
-#ifdef __APPLE__
-  acceptsd = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
-#else
+#ifdef __NuttX__
   acceptsd = accept4(listensd, (struct sockaddr *)&myaddr, &addrlen,
                      SOCK_CLOEXEC);
+#else
+  acceptsd = accept(listensd, (struct sockaddr *)&myaddr, &addrlen);
 #endif
   if (acceptsd < 0)
     {
