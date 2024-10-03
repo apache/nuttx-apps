@@ -32,9 +32,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_LTE_LAPI_DEBUG_MSG
-# define lapi_printf nerr
+#  define lapi_printf nerr
 #else
-# define lapi_printf(v, ...)
+#  define lapi_printf(v, ...)
 #endif
 
-#endif  /* __APPS_LTE_LAPI_LAPI_DBG_H */
+#endif /* __APPS_LTE_LAPI_LAPI_DBG_H */

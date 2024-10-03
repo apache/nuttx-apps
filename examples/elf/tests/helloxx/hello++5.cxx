@@ -37,7 +37,7 @@
 #include <string>
 
 #ifndef NULL
-# define NULL ((void*)0L)
+#  define NULL ((void*)0L)
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
