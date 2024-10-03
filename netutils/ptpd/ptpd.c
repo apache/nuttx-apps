@@ -450,7 +450,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
       return ERROR;
     }
 
-  state->interface_addr = *(struct sockaddr_in *)&req.ifr_ifru.ifru_addr;
+  state->interface_addr = *(FAR struct sockaddr_in *)&req.ifr_ifru.ifru_addr;
 
   /* Get hardware address to initialize the identity field in header.
    * Clock identity is EUI-64, which we make from EUI-48.
@@ -494,8 +494,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
   clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
 
   ret = ipmsfilter(&state->interface_addr.sin_addr,
-                   &bind_addr.sin_addr,
-                   MCAST_INCLUDE);
+                   &bind_addr.sin_addr, MCAST_INCLUDE);
   if (ret < 0)
     {
       ptperr("Failed to bind multicast address: %d\n", errno);
@@ -505,7 +504,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
   /* Bind socket for events */
 
   bind_addr.sin_port = HTONS(PTP_UDP_PORT_EVENT);
-  ret = bind(state->event_socket, (struct sockaddr *)&bind_addr,
+  ret = bind(state->event_socket, (FAR struct sockaddr *)&bind_addr,
              sizeof(bind_addr));
   if (ret < 0)
     {
@@ -529,7 +528,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
   /* Bind socket for announcements */
 
   bind_addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
-  ret = bind(state->info_socket, (struct sockaddr *)&bind_addr,
+  ret = bind(state->info_socket, (FAR struct sockaddr *)&bind_addr,
              sizeof(bind_addr));
   if (ret < 0)
     {
@@ -540,7 +539,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
   /* Bind TX socket to interface address (local addr cannot be multicast) */
 
   bind_addr.sin_addr = state->interface_addr.sin_addr;
-  ret = bind(state->tx_socket, (struct sockaddr *)&bind_addr,
+  ret = bind(state->tx_socket, (FAR struct sockaddr *)&bind_addr,
              sizeof(bind_addr));
   if (ret < 0)
     {
@@ -559,8 +558,7 @@ static int ptp_destroy_state(FAR struct ptp_state_s *state)
 
   mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
   ipmsfilter(&state->interface_addr.sin_addr,
-              &mcast_addr,
-              MCAST_EXCLUDE);
+             &mcast_addr, MCAST_EXCLUDE);
 
   if (state->tx_socket > 0)
     {
@@ -645,7 +643,7 @@ static int ptp_send_announce(FAR struct ptp_state_s *state)
   timespec_to_ptp_format(&ts, msg.origintimestamp);
 
   ret = sendto(state->tx_socket, &msg, sizeof(msg), 0,
-    (struct sockaddr *)&addr, sizeof(addr));
+               (FAR struct sockaddr *)&addr, sizeof(addr));
 
   if (ret < 0)
     {
@@ -723,7 +721,7 @@ static int ptp_send_sync(FAR struct ptp_state_s *state)
   addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
 
   ret = sendto(state->tx_socket, &msg, sizeof(msg), 0,
-               (struct sockaddr *)&addr, sizeof(addr));
+               (FAR struct sockaddr *)&addr, sizeof(addr));
   if (ret < 0)
     {
       ptperr("sendto for follow-up message failed: %d\n", errno);
@@ -1087,8 +1085,8 @@ static int ptp_process_followup(FAR struct ptp_state_s *state,
     {
       ptpwarn("PTP follow-up packet sequence %ld does not match initial "
               "sync packet sequence %ld, ignoring\n",
-        (long)ptp_get_sequence(&msg->header),
-        (long)ptp_get_sequence(&state->twostep_packet.header));
+              (long)ptp_get_sequence(&msg->header),
+              (long)ptp_get_sequence(&state->twostep_packet.header));
       return OK;
     }
 
@@ -1461,7 +1459,7 @@ static int ptp_daemon(int argc, FAR char** argv)
           /* Receive non-time-critical packet. */
 
           ret = recv(state->info_socket, &state->rxbuf, sizeof(state->rxbuf),
-                    MSG_DONTWAIT);
+                     MSG_DONTWAIT);
           if (ret > 0)
             {
               ptp_process_rx_packet(state, ret);
@@ -1509,13 +1507,14 @@ static int ptp_daemon(int argc, FAR char** argv)
 int ptpd_start(FAR const char *interface)
 {
   int pid;
-  FAR char *task_argv[] = {
+  FAR char *task_argv[] =
+  {
     (FAR char *)interface,
     NULL
   };
 
   pid = task_create("PTPD", CONFIG_NETUTILS_PTPD_SERVERPRIO,
-    CONFIG_NETUTILS_PTPD_STACKSIZE, ptp_daemon, task_argv);
+                    CONFIG_NETUTILS_PTPD_STACKSIZE, ptp_daemon, task_argv);
 
   /* Use kill with signal 0 to check if the process is still alive
    * after initialization.
