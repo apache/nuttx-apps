@@ -35,7 +35,7 @@
 #include <iostream>
 
 #ifndef NULL
-# define NULL ((void*)0L)
+#  define NULL ((void*)0L)
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

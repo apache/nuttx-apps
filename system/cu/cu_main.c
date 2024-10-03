@@ -57,9 +57,9 @@
 #include "cu.h"
 
 #ifdef CONFIG_SYSTEM_CUTERM_DISABLE_ERROR_PRINT
-# define cu_error(...)
+#  define cu_error(...)
 #else
-# define cu_error(...) dprintf(STDERR_FILENO, __VA_ARGS__)
+#  define cu_error(...) dprintf(STDERR_FILENO, __VA_ARGS__)
 #endif
 
 /****************************************************************************
