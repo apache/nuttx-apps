@@ -135,6 +135,8 @@ ifeq ($(CONFIG_ARCH_CHIP_MPS2_AN500),y)
 ifeq ($(CONFIG_ARCH_IRQPRIO),y)
 MAINSRC  += drivertest_mps2.c
 PROGNAME += cmocka_driver_mps2
+MAINSRC  += drivertest_mps2_zerointerrupt.c
+PROGNAME += cmocka_driver_mps2_zerointerrupt
 endif
 endif
 
