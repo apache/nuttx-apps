@@ -60,7 +60,7 @@ void alt1250_netdev_unregister(FAR struct alt1250_s *dev)
 
 void alt1250_netdev_ifdown(FAR struct alt1250_s *dev)
 {
-  dev->net_dev.d_flags = IFF_DOWN;
+  dev->net_dev.d_flags = ~IFF_UP;
 #ifdef CONFIG_NET_IPv4
   memset(&dev->net_dev.d_ipaddr, 0, sizeof(dev->net_dev.d_ipaddr));
   memset(&dev->net_dev.d_draddr, 0, sizeof(dev->net_dev.d_draddr));

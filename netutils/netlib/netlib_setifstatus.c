@@ -118,8 +118,6 @@ int netlib_ifdown(const char *ifname)
 
           /* Perform the ioctl to ifup flag */
 
-          req.ifr_flags |= IFF_DOWN;
-
           ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
           close(sockfd);
         }
