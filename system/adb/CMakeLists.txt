@@ -92,7 +92,7 @@ if(CONFIG_SYSTEM_ADBD)
 
   nuttx_add_application(
     MODULE
-    ${CONFIG_ADB_SERVER}
+    ${CONFIG_SYSTEM_ADBD}
     NAME
     ${CONFIG_ADBD_PROGNAME}
     SRCS
