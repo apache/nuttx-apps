@@ -126,6 +126,8 @@ struct monkey_param_s
 {
   int dev_type_mask;
   FAR const char *file_path;
+  int x_offset;
+  int y_offset;
   int hor_res;
   int ver_res;
   int period_min;
@@ -165,7 +167,8 @@ static void show_usage(FAR const char *progname, int exitcode)
          " --weight-drag <decimal-value>\n"
          " --duration-click <string>"
          " --duration-longpress <string>"
-         " --duration-drag <string>\n",
+         " --duration-drag <string>\n"
+         " --screen-offset <string>\n",
          progname);
 
   printf("\nWhere:\n");
@@ -193,6 +196,8 @@ static void show_usage(FAR const char *progname, int exitcode)
          "<decimal-value min>-<decimal-value max>.\n");
   printf("  --duration-drag <string> Drag duration(ms) range: "
          "<decimal-value min>-<decimal-value max>.\n");
+  printf("  --screen-offset <string> Screen offset: "
+         "<decimal-value x_offset>,<decimal-value y_offset>\n");
 
   exit(exitcode);
 }
@@ -264,6 +269,8 @@ static FAR struct monkey_s *monkey_init(
     }
 
   monkey_config_default_init(&config);
+  config.screen.x_offset = param->x_offset;
+  config.screen.y_offset = param->y_offset;
   config.screen.hor_res = param->hor_res;
   config.screen.ver_res = param->ver_res;
   config.period.min = param->period_min;
@@ -273,9 +280,11 @@ static FAR struct monkey_s *monkey_init(
   monkey_set_config(monkey, &config);
   monkey_log_set_level(param->log_level);
 
-  MONKEY_LOG_NOTICE("Screen: %dx%d",
+  MONKEY_LOG_NOTICE("Screen: %dx%d, offset: %d,%d",
                     config.screen.hor_res,
-                    config.screen.ver_res);
+                    config.screen.ver_res,
+                    config.screen.x_offset,
+                    config.screen.y_offset);
   MONKEY_LOG_NOTICE("Period: %" PRIu32 " ~ %" PRIu32 "ms",
                     config.period.min,
                     config.period.max);
@@ -360,6 +369,12 @@ static void parse_long_commandline(int argc, FAR char **argv,
                         "-");
         break;
 
+      case 6:
+        OPTARG_TO_RANGE(param->x_offset,
+                        param->y_offset,
+                        ",");
+        break;
+
       default:
         MONKEY_LOG_WARN("Unknown longindex: %d", longindex);
         show_usage(argv[0], EXIT_FAILURE);
@@ -385,6 +400,7 @@ static void parse_commandline(int argc, FAR char **argv,
       {"duration-click",     required_argument, NULL, 0 },
       {"duration-longpress", required_argument, NULL, 0 },
       {"duration-drag",      required_argument, NULL, 0 },
+      {"screen-offset",      required_argument, NULL, 0 },
       {0,                    0,                 NULL, 0 }
     };
 

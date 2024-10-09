@@ -98,6 +98,8 @@ struct monkey_config_s
 {
   struct
   {
+    int x_offset;
+    int y_offset;
     int hor_res;
     int ver_res;
   } screen;
