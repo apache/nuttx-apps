@@ -149,6 +149,10 @@ if(CONFIG_NETUTILS_NETLIB)
     list(APPEND SRCS netlib_checkifconflict.c)
   endif()
 
+  if(CONFIG_MM_IOB)
+    list(APPEND SRCS netlib_getiobinfo.c)
+  endif()
+
   target_sources(apps PRIVATE ${SRCS})
 
 endif()

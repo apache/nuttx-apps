@@ -52,6 +52,7 @@
 
 #include <net/if.h>
 #include <netinet/in.h>
+#include <nuttx/mm/iob.h>
 #include <nuttx/net/netdev.h>
 #include <nuttx/net/netconfig.h>
 
@@ -505,6 +506,10 @@ int netlib_getifstatistics(FAR const char *ifname,
 
 #ifdef CONFIG_NET_ARP_ACD
 int netlib_check_ifconflict(FAR const char *ifname);
+#endif
+
+#ifdef CONFIG_MM_IOB
+int netlib_get_iobinfo(FAR struct iob_stats_s *iob);
 #endif
 
 #undef EXTERN
