@@ -111,8 +111,10 @@ int main(int argc, FAR char *argv[])
   int argn;
   int fd;
   int ret;
+  int nr_part;
 
-  if (argc < 4 || argc % 2 != 0)
+  nr_part = (argc - 2) / 2;
+  if (argc < 4 || argc % 2 != 0 || nr_part > 4)
     {
       print_usage();
       return EINVAL;
@@ -133,7 +135,7 @@ int main(int argc, FAR char *argv[])
   next = 1;
   bsize = st.st_size / 512;
   mbr_init(&mbr);
-  for (partn = 0; partn < 4 && next < bsize; partn++)
+  for (partn = 0; partn < nr_part && next < bsize; partn++)
     {
       argn = 2 * (partn + 1);
       if (!strcmp(argv[argn], "auto"))
