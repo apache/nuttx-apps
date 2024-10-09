@@ -148,4 +148,8 @@ ifeq ($(CONFIG_NET_ARP_ACD),y)
 CSRCS += netlib_checkifconflict.c
 endif
 
+ifeq ($(CONFIG_MM_IOB),y)
+CSRCS += netlib_getiobinfo.c
+endif
+
 include $(APPDIR)/Application.mk
