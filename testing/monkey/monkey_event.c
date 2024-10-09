@@ -82,6 +82,8 @@ void monkey_event_gen(FAR struct monkey_s *monkey,
   int rnd;
   int duration_min;
   int duration_max;
+  int x_offset;
+  int y_offset;
 
   memset(param, 0, sizeof(struct monkey_event_param_s));
 
@@ -109,12 +111,18 @@ void monkey_event_gen(FAR struct monkey_s *monkey,
 
   duration_min = monkey->config.event[param->event].duration_min;
   duration_max = monkey->config.event[param->event].duration_max;
+  x_offset = monkey->config.screen.x_offset;
+  y_offset = monkey->config.screen.y_offset;
 
   param->duration = monkey_random(duration_min, duration_max);
-  param->x1 = monkey_random(0, monkey->config.screen.hor_res - 1);
-  param->y1 = monkey_random(0, monkey->config.screen.ver_res - 1);
-  param->x2 = monkey_random(0, monkey->config.screen.hor_res - 1);
-  param->y2 = monkey_random(0, monkey->config.screen.ver_res - 1);
+  param->x1 = monkey_random(x_offset,
+                            x_offset + monkey->config.screen.hor_res - 1);
+  param->y1 = monkey_random(y_offset,
+                            y_offset + monkey->config.screen.ver_res - 1);
+  param->x2 = monkey_random(x_offset,
+                            x_offset + monkey->config.screen.hor_res - 1);
+  param->y2 = monkey_random(y_offset,
+                            y_offset + monkey->config.screen.ver_res - 1);
 
   MONKEY_LOG_INFO("event=%d(%s) duration=%d x1=%d y1=%d x2=%d y2=%d",
                   param->event,
