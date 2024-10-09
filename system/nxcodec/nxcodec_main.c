@@ -140,7 +140,7 @@ int main(int argc, FAR char **argv)
                                 codec.capture.format.fmt.pix.width;
             codec.output.format.fmt.pix.height =
                                 codec.capture.format.fmt.pix.height;
-            printf("nxcodec size: %lux%lu\n",
+            printf("nxcodec size: %"PRIu32"x%"PRIu32"\n",
                    codec.output.format.fmt.pix.width,
                    codec.output.format.fmt.pix.height);
 
