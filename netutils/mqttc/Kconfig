@@ -28,6 +28,8 @@ endif
 config NETUTILS_MQTTC_WITH_MBEDTLS
 	bool "Enable MQTT-C with mbedtls"
 	default n
+	depends on CRYPTO_MBEDTLS
+	select DEV_URANDOM
 
 config NETUTILS_MQTTC_VERSION
 	string "MQTT-C Version"
