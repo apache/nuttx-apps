@@ -147,9 +147,6 @@ RUSTELFFLAGS ?= $(RUSTFLAGS)
 DELFFLAGS ?= $(DFLAGS)
 SWIFTELFFLAGS ?= $(SWIFTFLAGS)
 
-DEPPATH += --dep-path .
-DEPPATH += --obj-path .
-
 VPATH += :.
 
 # Targets follow
