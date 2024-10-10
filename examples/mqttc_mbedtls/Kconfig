@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MQTTC_MBEDTLS
+	tristate "Enable MQTT-C Example with MbedTLS support"
+	default n
+	depends on NETUTILS_MQTTC_WITH_MBEDTLS
+	---help---
+		Enable a MQTT-C publisher example with MbedTLS support
+
+if EXAMPLES_MQTTC_MBEDTLS
+
+config EXAMPLES_MQTTC_MBEDTLS_PROGNAME
+	string "Program name"
+	default "mqttc_mbedtls_pub"
+
+config EXAMPLES_MQTTC_MBEDTLS_STACKSIZE
+	int "Task's stack size"
+	default 8192
+
+config EXAMPLES_MQTTC_MBEDTLS_TXSIZE
+	int "TX Buffer size"
+	default 256
+
+config EXAMPLES_MQTTC_MBEDTLS_RXSIZE
+	int "RX Buffer size"
+	default 256
+
+endif
