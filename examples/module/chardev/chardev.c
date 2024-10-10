@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/sotest/lib/modprint/modprint.c
+ * apps/examples/module/chardev/chardev.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,29 +24,43 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <sys/types.h>
-#include <stdarg.h>
-#include <dlfcn.h>
+#include <stdbool.h>
+#include <string.h>
+#include <errno.h>
 #include <syslog.h>
+#include <debug.h>
 
-#include <nuttx/symtab.h>
+#include <nuttx/module.h>
 #include <nuttx/lib/modlib.h>
+#include <nuttx/fs/fs.h>
+
+/****************************************************************************
+ * Private data
+ ****************************************************************************/
+
+static const char g_read_string[] = "Hi there, apps/examples/module test\n";
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static void modprint(FAR const char *fmt, ...) printf_like(1, 2);
+static ssize_t chardev_read(FAR struct file *filep, FAR char *buffer,
+                 size_t buflen);
+static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
+                 size_t buflen);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct symtab_s g_modprint_exports[1] =
+static const struct file_operations g_chardev_fops =
 {
-  {
-    "modprint", (FAR const void *)modprint,
-  }
+  NULL,          /* open */
+  NULL,          /* close */
+  chardev_read,  /* read */
+  chardev_write, /* write */
 };
 
 /****************************************************************************
@@ -54,26 +68,45 @@ static const struct symtab_s g_modprint_exports[1] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: modprint
+ * Name: chardev_read
  ****************************************************************************/
 
-static void modprint(FAR const char *fmt, ...)
+static ssize_t chardev_read(FAR struct file *filep, FAR char *buffer,
+                            size_t len)
 {
-  va_list ap;
+  size_t rdlen = strlen(g_read_string);
+  ssize_t ret = MIN(len, rdlen);
 
-  va_start(ap, fmt);
-  vsyslog(LOG_INFO, fmt, ap);
-  va_end(ap);
+  memcpy(buffer, g_read_string, ret);
+
+  syslog(LOG_INFO, "chardev_read: Returning %d bytes\n", (int)ret);
+  lib_dumpbuffer("chardev_read: Returning",
+                 (FAR const uint8_t *)buffer, ret);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: chardev_write
+ ****************************************************************************/
+
+static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
+                             size_t len)
+{
+  syslog(LOG_INFO, "chardev_write: Writing %d bytes\n", (int)len);
+  lib_dumpbuffer("chardev_write: Writing", (FAR const uint8_t *)buffer, len);
+  return len;
 }
 
 /****************************************************************************
  * Name: module_uninitialize
  ****************************************************************************/
 
-static int module_uninitialize(FAR void *arg)
+destructor_function void module_uninitialize(void)
 {
-  syslog(LOG_INFO, "module_uninitialize: arg=%p\n", arg);
-  return OK;
+  /* TODO: Check if there are any open references to the driver */
+
+  syslog(LOG_INFO, "module_uninitialize\n");
+  unregister_driver("/dev/chardev");
 }
 
 /****************************************************************************
@@ -84,18 +117,12 @@ static int module_uninitialize(FAR void *arg)
  * Name: module_initialize
  *
  * Description:
- *   Register /dev/sotest
+ *   Register /dev/chardev
  *
  ****************************************************************************/
 
-int module_initialize(FAR struct mod_info_s *modinfo)
+constructor_fuction void module_initialize(void)
 {
-  syslog(LOG_INFO, "module_initialize:\n");
-
-  modinfo->uninitializer = module_uninitialize;
-  modinfo->arg           = NULL;
-  modinfo->exports       = g_modprint_exports;
-  modinfo->nexports      = 1;
-
-  return OK;
+  syslog(LOG_INFO, "module_initialize\n");
+  register_driver("/dev/chardev", &g_chardev_fops, 0666, NULL);
 }

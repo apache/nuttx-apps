@@ -18,46 +18,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "Module example"
 
-# Module example built-in application info
-
-PROGNAME = module
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE = $(CONFIG_EXAMPLES_MODULE)
-
-# Module Example
-
-ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
-CSRCS = romfs.c
-endif
-ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
-CSRCS = cromfs.c
-endif
-CSRCS += mod_symtab.c
-drivers$(DELIM)mod_symtab.c_CFLAGS = -fno-builtin
-drivers$(DELIM)mod_symtab.c_CELFFLAGS = -fno-builtin
-MAINSRC = module_main.c
-
-VPATH += drivers
-DEPPATH += --dep-path drivers
-
-# Build targets
-
-ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
-drivers/romfs.c: build
-endif
-ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
-drivers/cromfs.c: build
-endif
-drivers/mod_symtab.c: build
-
-.PHONY: build
-build:
-	+$(Q) $(MAKE) -C drivers TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-
-clean::
-	+$(Q) $(MAKE) -C drivers TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk

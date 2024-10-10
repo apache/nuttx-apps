@@ -18,41 +18,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "sotest example"
 
-# Shared library example built-in application info
-
-PROGNAME = sotest
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE = $(CONFIG_EXAMPLES_SOTEST)
-
-# Shared Library Example
-
-ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
-CSRCS = romfs.c
-endif
-CSRCS += sot_symtab.c
-lib$(DELIM)sot_symtab.c_CFLAGS = -fno-builtin
-lib$(DELIM)sot_symtab.c_CELFFLAGS = -fno-builtin
-MAINSRC = sotest_main.c
-
-DEPPATH += --dep-path lib
-
-# Build targets
-
-VPATH = lib
-
-ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
-lib/romfs.c: build
-endif
-lib/sot_symtab.c: build
-
-.PHONY: build
-build:
-	+$(Q) $(MAKE) -C lib TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-
-clean::
-	+$(Q) $(MAKE) -C lib TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/module/drivers/chardev/chardev.c
+ * apps/examples/sotest/sotest/sotest.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,89 +24,90 @@
 
 #include <nuttx/config.h>
 
-#include <sys/param.h>
 #include <sys/types.h>
-#include <stdbool.h>
-#include <string.h>
-#include <errno.h>
+#include <stdarg.h>
+#include <dlfcn.h>
 #include <syslog.h>
-#include <debug.h>
 
-#include <nuttx/module.h>
+#include <nuttx/symtab.h>
 #include <nuttx/lib/modlib.h>
-#include <nuttx/fs/fs.h>
 
 /****************************************************************************
- * Private data
+ * Public Function Prototypes
  ****************************************************************************/
 
-static const char g_read_string[] = "Hi there, apps/examples/module test\n";
+#if CONFIG_MODLIB_MAXDEPEND > 0
+void modprint(FAR const char *fmt, ...) printf_like(1, 2);
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static ssize_t chardev_read(FAR struct file *filep, FAR char *buffer,
-                 size_t buflen);
-static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
-                 size_t buflen);
-
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct file_operations g_chardev_fops =
-{
-  NULL,          /* open */
-  NULL,          /* close */
-  chardev_read,  /* read */
-  chardev_write, /* write */
-};
+visibility_default const char g_msg1[] = "Hello to you too!";
+visibility_default const char g_msg2[] = "Not so bad so far.";
+visibility_default const char g_msg3[] = "Yes, don't be a stranger!";
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: chardev_read
+ * Name: modprint
  ****************************************************************************/
 
-static ssize_t chardev_read(FAR struct file *filep, FAR char *buffer,
-                            size_t len)
+#if CONFIG_MODLIB_MAXDEPEND < 1
+static void modprint(FAR const char *fmt, ...)
 {
-  size_t rdlen = strlen(g_read_string);
-  ssize_t ret = MIN(len, rdlen);
+  va_list ap;
 
-  memcpy(buffer, g_read_string, ret);
+  va_start(ap, fmt);
+  vsyslog(LOG_INFO, fmt, ap);
+  va_end(ap);
+}
+#endif
 
-  syslog(LOG_INFO, "chardev_read: Returning %d bytes\n", (int)ret);
-  lib_dumpbuffer("chardev_read: Returning",
-                 (FAR const uint8_t *)buffer, ret);
-  return ret;
+/****************************************************************************
+ * Name: testfunc1
+ ****************************************************************************/
+
+visibility_default void testfunc1(FAR const char *msg)
+{
+  modprint("testfunc1: Hello, everyone!\n");
+  modprint("   caller: %s\n", msg);
 }
 
 /****************************************************************************
- * Name: chardev_write
+ * Name: testfunc2
  ****************************************************************************/
 
-static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
-                             size_t len)
+visibility_default void testfunc2(FAR const char *msg)
 {
-  syslog(LOG_INFO, "chardev_write: Writing %d bytes\n", (int)len);
-  lib_dumpbuffer("chardev_write: Writing", (FAR const uint8_t *)buffer, len);
-  return len;
+  modprint("testfunc2: Hope you are having a great day!\n");
+  modprint("   caller: %s\n", msg);
+}
+
+/****************************************************************************
+ * Name: testfunc3
+ ****************************************************************************/
+
+visibility_default void testfunc3(FAR const char *msg)
+{
+  modprint("testfunc3: Let's talk again very soon\n");
+  modprint("   caller: %s\n", msg);
 }
 
 /****************************************************************************
  * Name: module_uninitialize
  ****************************************************************************/
 
-static int module_uninitialize(FAR void *arg)
+destructor_function static void module_uninitialize(void)
 {
-  /* TODO: Check if there are any open references to the driver */
-
-  syslog(LOG_INFO, "module_uninitialize: arg=%p\n", arg);
-  return unregister_driver("/dev/chardev");
+  modprint("module_uninitialize\n");
 }
 
 /****************************************************************************
@@ -117,18 +118,11 @@ static int module_uninitialize(FAR void *arg)
  * Name: module_initialize
  *
  * Description:
- *   Register /dev/chardev
+ *   Register /dev/sotest
  *
  ****************************************************************************/
 
-int module_initialize(FAR struct mod_info_s *modinfo)
+constructor_fuction static void module_initialize(void)
 {
-  syslog(LOG_INFO, "module_initialize:\n");
-
-  modinfo->uninitializer = module_uninitialize;
-  modinfo->arg           = NULL;
-  modinfo->exports       = NULL;
-  modinfo->nexports      = 0;
-
-  return register_driver("/dev/chardev", &g_chardev_fops, 0666, NULL);
+  modprint("module_initialize\n");
 }
