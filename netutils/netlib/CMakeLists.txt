@@ -158,7 +158,7 @@ if(CONFIG_NETUTILS_NETLIB)
   endif()
 
   if(CONFIG_NETUTILS_PING)
-    list(APPEND SRCS netlib_checkipconnectivity.c)
+    list(APPEND SRCS netlib_checkipconnectivity.c netlib_checkifconnectivity.c)
   endif()
 
   target_sources(apps PRIVATE ${SRCS})

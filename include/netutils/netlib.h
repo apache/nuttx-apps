@@ -515,6 +515,8 @@ int netlib_check_ifconflict(FAR const char *ifname);
 
 #ifdef CONFIG_NETUTILS_PING
 int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry);
+int netlib_check_ifconnectivity(FAR const char *ifname,
+                                int timeout, int retry);
 #endif
 
 #ifdef CONFIG_MM_IOB

@@ -157,7 +157,7 @@ CSRCS += netlib_getiobinfo.c
 endif
 
 ifeq ($(CONFIG_NETUTILS_PING),y)
-CSRCS += netlib_checkipconnectivity.c
+CSRCS += netlib_checkipconnectivity.c netlib_checkifconnectivity.c
 endif
 
 include $(APPDIR)/Application.mk
