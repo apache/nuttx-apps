@@ -63,7 +63,7 @@ struct getpid_arg_s
  *
  ****************************************************************************/
 
-#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PIDOF)
+#ifdef CONFIG_FS_PROCFS
 static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
                            FAR const char *dirpath,
                            FAR struct dirent *entryp, FAR void *pvarg)
@@ -604,7 +604,7 @@ FAR char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
  *
  ****************************************************************************/
 
-#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PIDOF)
+#ifdef CONFIG_FS_PROCFS
 ssize_t nsh_getpid(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
                    FAR pid_t *pids, size_t count)
 {
