@@ -121,11 +121,11 @@ static int foc_motor_align(FAR struct foc_motor_f32_s *motor, FAR bool *done)
           goto errout;
         }
 
-      PRINTF("Aling results:\n");
+      PRINTFV("Aling results:\n");
 #ifdef CONFIG_INDUSTRY_FOC_ALIGN_DIR
-      PRINTF("  dir    = %.2f\n", final.dir);
+      PRINTFV("  dir    = %.2f\n", final.dir);
 #endif
-      PRINTF("  offset = %.2f\n", final.offset);
+      PRINTFV("  offset = %.2f\n", final.offset);
 
       *done = true;
     }
