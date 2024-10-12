@@ -2855,10 +2855,12 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       vtbl->np.np_redir_out = redirect_out_save;
     }
 
+  /* Free the redirected input file path */
+
   if (redirfile_in)
     {
       nsh_freefullpath(redirfile_in);
-      vtbl->np.np_redir_out = redirect_in_save;
+      vtbl->np.np_redir_in = redirect_in_save;
     }
 
 dynlist_free:
