@@ -156,4 +156,8 @@ ifeq ($(CONFIG_MM_IOB),y)
 CSRCS += netlib_getiobinfo.c
 endif
 
+ifeq ($(CONFIG_NETUTILS_PING),y)
+CSRCS += netlib_checkipconnectivity.c
+endif
+
 include $(APPDIR)/Application.mk
