@@ -153,6 +153,10 @@ if(CONFIG_NETUTILS_NETLIB)
     list(APPEND SRCS netlib_getiobinfo.c)
   endif()
 
+  if(CONFIG_NETUTILS_PING)
+    list(APPEND SRCS netlib_checkipconnectivity.c)
+  endif()
+
   target_sources(apps PRIVATE ${SRCS})
 
 endif()

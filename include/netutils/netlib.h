@@ -508,6 +508,10 @@ int netlib_getifstatistics(FAR const char *ifname,
 int netlib_check_ifconflict(FAR const char *ifname);
 #endif
 
+#ifdef CONFIG_NETUTILS_PING
+int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry);
+#endif
+
 #ifdef CONFIG_MM_IOB
 int netlib_get_iobinfo(FAR struct iob_stats_s *iob);
 #endif
