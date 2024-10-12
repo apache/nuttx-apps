@@ -38,6 +38,10 @@ config CJSON_TEST_STACKSIZE
 	int "stack size"
 	default 102400
 
+config CJSON_NESTING_LIMIT
+	int "NESTING_LIMIT"
+	default 100
+
 endif # NETUTILS_CJSON_TEST
 
 endif # NETUTILS_CJSON
