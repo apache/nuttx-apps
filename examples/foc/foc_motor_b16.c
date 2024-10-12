@@ -1613,8 +1613,17 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   ret = foc_routine_cfg_b16(&motor->align, &align_cfg);
   if (ret < 0)
     {
+#  ifndef CONFIG_EXAMPLES_FOC_RUN_DISABLE
       PRINTFV("ERROR: foc_routine_cfg_b16 failed %d!\n", ret);
       goto errout;
+#  else
+      /* When motor controller is disabled, most likely we don't care about
+       * align routine failure
+       */
+
+      PRINTFV("ignore align routine failure\n", ret);
+      ret = OK;
+#  endif
     }
 #endif
 
@@ -1647,8 +1656,17 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
   ret = foc_routine_cfg_b16(&motor->ident, &ident_cfg);
   if (ret < 0)
     {
+#  ifndef CONFIG_EXAMPLES_FOC_RUN_DISABLE
       PRINTFV("ERROR: foc_ident_cfg_b16 failed %d!\n", ret);
       goto errout;
+#  else
+      /* When motor controller is disabled, most likely we don't care about
+       * ident routine failure
+       */
+
+      PRINTFV("ident align routine failure\n", ret);
+      ret = OK;
+#  endif
     }
 #endif
 
