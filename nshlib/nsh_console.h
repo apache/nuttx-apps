@@ -71,7 +71,7 @@
  * See struct serialsave_s in nsh_console.c
  */
 
-#define SAVE_SIZE (2 * sizeof(int))
+#define SAVE_SIZE (3 * sizeof(int))
 
 /* Are we using the NuttX console for I/O?  Or some other character device? */
 
