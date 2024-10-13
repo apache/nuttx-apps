@@ -29,11 +29,14 @@
 #include <netpacket/rpmsg.h>
 #include <pthread.h>
 #include <poll.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 /****************************************************************************
  * Private types
@@ -46,19 +49,19 @@ struct rpsock_arg_s
 };
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
-static void *rpsock_thread(pthread_addr_t pvarg)
+static FAR void *rpsock_thread(FAR void *pvarg)
 {
-  struct rpsock_arg_s *args = pvarg;
+  FAR struct rpsock_arg_s *args = pvarg;
   struct pollfd pfd;
   char buf[255];
   ssize_t ret;
 
   while (1)
     {
-      char *tmp;
+      FAR char *tmp;
       int snd;
 
       if (args->nonblock)
@@ -152,7 +155,7 @@ static void *rpsock_thread(pthread_addr_t pvarg)
   return NULL;
 }
 
-static int rpsock_stream_server(int argc, char *argv[])
+static int rpsock_stream_server(int argc, FAR char *argv[])
 {
   struct sockaddr_rpmsg myaddr;
   bool nonblock = false;
@@ -199,7 +202,7 @@ static int rpsock_stream_server(int argc, char *argv[])
 
   printf("server: bind cpu %s, name %s ...\n",
           myaddr.rp_cpu, myaddr.rp_name);
-  ret = bind(listensd, (struct sockaddr *)&myaddr, sizeof(myaddr));
+  ret = bind(listensd, (FAR struct sockaddr *)&myaddr, sizeof(myaddr));
   if (ret < 0)
     {
       printf("server: bind failure: %d\n", errno);
@@ -218,7 +221,7 @@ static int rpsock_stream_server(int argc, char *argv[])
 
   while (1)
     {
-      struct rpsock_arg_s *args;
+      FAR struct rpsock_arg_s *args;
       pthread_t thread;
       struct pollfd pfd;
       int new;
@@ -238,7 +241,7 @@ static int rpsock_stream_server(int argc, char *argv[])
         }
 
       printf("server: try accept ...\n");
-      new = accept4(listensd, (struct sockaddr *)&myaddr, &addrlen,
+      new = accept4(listensd, (FAR struct sockaddr *)&myaddr, &addrlen,
                     SOCK_CLOEXEC);
       if (new < 0)
           break;
@@ -251,8 +254,7 @@ static int rpsock_stream_server(int argc, char *argv[])
       args->fd       = new;
       args->nonblock = nonblock;
 
-      pthread_create(&thread, NULL, rpsock_thread,
-                     (pthread_addr_t)args);
+      pthread_create(&thread, NULL, rpsock_thread, args);
       pthread_detach(thread);
     }
 
@@ -266,10 +268,10 @@ errout_with_listensd:
   return -errno;
 }
 
-static int rpsock_dgram_server(int argc, char *argv[])
+static int rpsock_dgram_server(int argc, FAR char *argv[])
 {
   struct sockaddr_rpmsg myaddr;
-  struct rpsock_arg_s *args;
+  FAR struct rpsock_arg_s *args;
   bool nonblock = false;
   int fd;
   int ret;
@@ -313,8 +315,8 @@ static int rpsock_dgram_server(int argc, char *argv[])
 
   printf("server: bind cpu %s, name %s ...\n",
           myaddr.rp_cpu, myaddr.rp_name);
-  ret = bind(fd, (struct sockaddr *)&myaddr, sizeof(myaddr));
-  ret = connect(fd, (struct sockaddr *)&myaddr, sizeof(myaddr));
+  ret = bind(fd, (FAR struct sockaddr *)&myaddr, sizeof(myaddr));
+  ret = connect(fd, (FAR struct sockaddr *)&myaddr, sizeof(myaddr));
   if (ret < 0 && errno == EINPROGRESS)
     {
       struct pollfd pfd;
@@ -349,9 +351,21 @@ static int rpsock_dgram_server(int argc, char *argv[])
   return 0;
 }
 
-int main(int argc, char *argv[])
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: rpsock_server_main
+ *
+ * Description:
+ *   Main entry point for the rpsock_server example.
+ *
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
 {
-  if (argc != 4 && argc != 5)
+  if (argc < 4)
     {
       printf("Usage: rpsock_server stream/dgram"
              " block/nonblock rp_name [rp_cpu]\n");
