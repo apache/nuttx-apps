@@ -158,6 +158,19 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
               goto errout_with_actions;
             }
         }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (param->fd_in != -1)
+        {
+          ret = posix_spawn_file_actions_adddup2(&file_actions,
+                                                 param->fd_in, 0);
+          if (ret != 0)
+            {
+              serr("ERROR: posix_spawn_file_actions_adddup2 failed: %d\n",
+                   ret);
+              goto errout_with_actions;
+            }
+        }
+#endif
 
       /* Is output being redirected? */
 
@@ -175,6 +188,19 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
               goto errout_with_actions;
             }
         }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (param->fd_out != -1)
+        {
+          ret = posix_spawn_file_actions_adddup2(&file_actions,
+                                                 param->fd_out, 1);
+          if (ret != 0)
+            {
+              serr("ERROR: posix_spawn_file_actions_adddup2 failed: %d\n",
+                   ret);
+              goto errout_with_actions;
+            }
+        }
+#endif
     }
 
 #ifdef CONFIG_LIBC_EXECFUNCS

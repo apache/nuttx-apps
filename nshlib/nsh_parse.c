@@ -259,6 +259,9 @@ static const char g_arg_separator[]   = "`$";
 static const char g_redirect_out1[]   = ">";
 static const char g_redirect_out2[]  = ">>";
 static const char g_redirect_in1[]   = "<";
+#ifdef CONFIG_NSH_PIPELINE
+static const char g_pipeline1[]       = "|";
+#endif
 #ifdef NSH_HAVE_VARS
 static const char g_exitstatus[]      = "?";
 static const char g_lastpid[]         = "!";
@@ -1601,6 +1604,16 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
       argument = (FAR char *)g_redirect_in1;
     }
 
+#ifdef CONFIG_NSH_PIPELINE
+  /* Does the token begin with '|' -- pipeline? */
+
+  if (*pbegin == '|')
+    {
+      *saveptr = pbegin + 1;
+      argument = (FAR char *)g_pipeline1;
+    }
+#endif
+
   /* Does the token begin with '#' -- comment */
 
   else if (*pbegin == '#')
@@ -2415,6 +2428,13 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       .file_out   = NULL
     };
 
+#ifdef CONFIG_NSH_PIPELINE
+  int pipefd[2] =
+    {
+      -1, -1
+    };
+#endif
+
   NSH_MEMLIST_TYPE memlist;
   NSH_ALIASLIST_TYPE alist;
   FAR char *argv[MAX_ARGV_ENTRIES];
@@ -2424,9 +2444,15 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   int       ret;
   bool      redirect_out_save = false;
   bool      redirect_in_save = false;
+#ifdef CONFIG_NSH_PIPELINE
+  bool      bg_save = false;
+#endif
   size_t redirect_out1_len = strlen(g_redirect_out1);
   size_t redirect_out2_len = strlen(g_redirect_out2);
   size_t redirect_in1_len = strlen(g_redirect_in1);
+#ifdef CONFIG_NSH_PIPELINE
+  size_t pipeline1_len = strlen(g_pipeline1);
+#endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
   char      tracebuf[CONFIG_NSH_LINELEN + 1];
@@ -2647,6 +2673,89 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           param.oflags_in       = O_RDONLY;
           param.file_in         = nsh_getfullpath(vtbl, arg);
         }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (!strncmp(argv[argc], g_pipeline1, pipeline1_len))
+        {
+          FAR char *arg;
+          FAR char *sh_argv[4];
+
+          if (argv[argc][pipeline1_len])
+            {
+              arg = &argv[argc][pipeline1_len];
+            }
+          else
+            {
+              arg = nsh_argument(vtbl, &saveptr, &memlist, NULL, &isenvvar);
+            }
+
+          if (!arg)
+            {
+              nsh_error(vtbl, g_fmtarginvalid, cmd);
+              ret = ERROR;
+              goto dynlist_free;
+            }
+
+          for (ret = 0; ret < argc - 1; ret++)
+            {
+              FAR char *p_arg = argv[ret];
+              size_t len = strlen(p_arg);
+
+              /* Restore from split args to concat args. */
+
+              DEBUGASSERT(&p_arg[len + 1] == argv[ret + 1]);
+              p_arg[len] = ' ';
+            }
+
+          sh_argv[0] = "sh";
+          sh_argv[1] = "-c";
+          sh_argv[2] = argv[0];
+          sh_argv[3] = NULL;
+
+          ret = pipe2(pipefd, 0);
+          if (ret < 0)
+            {
+              ret = -errno;
+              goto dynlist_free;
+            }
+
+          redirect_out_save = vtbl->np.np_redir_out;
+          vtbl->np.np_redir_out = true;
+          param.fd_out = pipefd[1];
+
+          bg_save = vtbl->np.np_bg;
+          vtbl->np.np_bg = true;
+
+          ret = nsh_execute(vtbl, 4, sh_argv, &param);
+
+          vtbl->np.np_bg = bg_save;
+
+          if (param.fd_in != -1)
+            {
+              close(param.fd_in);
+              param.fd_in = -1;
+              vtbl->np.np_redir_in = redirect_in_save;
+            }
+
+          if (param.fd_out != -1)
+            {
+              close(param.fd_out);
+              param.fd_out = -1;
+              vtbl->np.np_redir_out = redirect_out_save;
+            }
+
+          redirect_in_save = vtbl->np.np_redir_in;
+          vtbl->np.np_redir_in = true;
+          param.fd_in = pipefd[0];
+
+          argv[0] = arg;
+          argc = 1;
+
+          if (ret == -1)
+            {
+              goto dynlist_free;
+            }
+        }
+#endif
       else
         {
           argc++;
@@ -2678,6 +2787,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
   ret = nsh_execute(vtbl, argc, argv, &param);
 
+dynlist_free:
+
   /* Free any allocated resources */
 
   /* Free the redirected output file path */
@@ -2687,6 +2798,13 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       nsh_freefullpath((char *)param.file_out);
       vtbl->np.np_redir_out = redirect_out_save;
     }
+#ifdef CONFIG_NSH_PIPELINE
+  else if (param.fd_out != -1)
+    {
+      close(param.fd_out);
+      vtbl->np.np_redir_out = redirect_out_save;
+    }
+#endif
 
   /* Free the redirected input file path */
 
@@ -2695,8 +2813,14 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       nsh_freefullpath((char *)param.file_in);
       vtbl->np.np_redir_in = redirect_in_save;
     }
+#ifdef CONFIG_NSH_PIPELINE
+  else if (param.fd_in != -1)
+    {
+      close(param.fd_in);
+      vtbl->np.np_redir_in = redirect_in_save;
+    }
+#endif
 
-dynlist_free:
   NSH_ALIASLIST_FREE(vtbl, &alist);
   NSH_MEMLIST_FREE(&memlist);
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
