@@ -126,6 +126,20 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
               goto errout_with_actions;
             }
         }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (param->fd_in != -1)
+        {
+          ret = posix_spawn_file_actions_adddup2(&file_actions,
+                                                 param->fd_in, 0);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_adddup2",
+                        NSH_ERRNO);
+              goto errout_with_actions;
+            }
+        }
+#endif
 
       /* Handle re-direction of output */
 
@@ -147,6 +161,20 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
               goto errout_with_attrs;
             }
         }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (param->fd_out != -1)
+        {
+          ret = posix_spawn_file_actions_adddup2(&file_actions,
+                                                 param->fd_out, 1);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_adddup2",
+                        NSH_ERRNO);
+              goto errout_with_actions;
+            }
+        }
+#endif
     }
 
 #ifdef CONFIG_BUILTIN
