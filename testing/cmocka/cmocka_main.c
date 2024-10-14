@@ -198,7 +198,7 @@ int main(int argc, FAR char *argv[])
         }
 
       bypass[0] = (FAR char *)builtin->name;
-      ret = exec_builtin(builtin->name, bypass, NULL, NULL, 0);
+      ret = exec_builtin(builtin->name, bypass, NULL);
       if (ret >= 0)
         {
           waitpid(ret, &ret, WUNTRACED);
