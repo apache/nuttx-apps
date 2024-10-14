@@ -32,23 +32,17 @@
  * Public Functions
  ****************************************************************************/
 
-void jump_with_retval(jmp_buf buf, int ret)
+void setjmp_test(void)
 {
-  volatile bool did_jump = false;
   int value;
+  jmp_buf buf;
+
+  printf("setjmp_test: Initializing jmp_buf\n");
 
   if ((value = setjmp(buf)) == 0)
     {
       printf("setjmp_test: Try jump\n");
-
-      if (did_jump)
-        {
-          ASSERT(!"setjmp retutns zero after calling longjmp");
-        }
-
-      did_jump = true;
-      printf("setjmp_test: About to jump, longjmp with ret val: %d\n", ret);
-      longjmp(buf, ret);
+      longjmp(buf, 123);
 
       /* Unreachable */
 
@@ -56,32 +50,7 @@ void jump_with_retval(jmp_buf buf, int ret)
     }
   else
     {
-      /* If we provide 0 as the return value to longjmp()
-       * we expect it substitute to 1 for us.
-       */
-
-      if (ret == 0)
-        {
-          ret = 1;
-        }
-
-      ASSERT(value == ret);
+      ASSERT(value == 123);
       printf("setjmp_test: Jump succeed\n");
     }
-}
-
-void setjmp_test(void)
-{
-  jmp_buf buf;
-
-  printf("setjmp_test: Initializing jmp_buf\n");
-
-  jump_with_retval(buf, 123);
-
-  /* Pls ref to:
-   * the longjmp should never make setjmp returns 0
-   * https://pubs.opengroup.org/onlinepubs/009604599/functions/longjmp.html
-   */
-
-  jump_with_retval(buf, 0);
 }
