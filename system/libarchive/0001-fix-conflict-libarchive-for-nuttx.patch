@@ -1,0 +1,990 @@
+From 576f829c2485267766adc8ca969ee706d3306b97 Mon Sep 17 00:00:00 2001
+From: anjiahao <anjiahao@xiaomi.com>
+Date: Wed, 30 Oct 2024 16:01:34 +0800
+Subject: [PATCH] fix conflict libarchive for nuttx
+
+VELAPLATFO-45304
+
+1.file api conflict with stdio.h
+2.
+libarchive/libarchive_fe/passphrase.c:151: warning: "MAX_SIGNO" redefined
+  151 | #define MAX_SIGNO M(M(M(SIGALRM, SIGHUP), \
+
+Change-Id: I9956cf4281703da4f27a1d381218958517f9a7cb
+Signed-off-by: anjiahao <anjiahao@xiaomi.com>
+---
+ libarchive/archive_read_open_fd.c             |  18 +--
+ libarchive/archive_read_open_file.c           |  12 +-
+ libarchive/archive_read_open_filename.c       |  44 +++----
+ libarchive/archive_write_open_fd.c            |  10 +-
+ libarchive/archive_write_open_file.c          |  10 +-
+ libarchive/archive_write_open_filename.c      |  14 +--
+ libarchive/archive_write_set_format_7zip.c    |  54 ++++-----
+ libarchive/archive_write_set_format_xar.c     | 114 +++++++++---------
+ .../test_archive_read_multiple_data_objects.c |  18 +--
+ libarchive_fe/passphrase.c                    |   2 +
+ 10 files changed, 149 insertions(+), 147 deletions(-)
+
+diff --git a/libarchive/archive_read_open_fd.c b/libarchive/archive_read_open_fd.c
+index debfde20..b23c9dc4 100644
+--- a/libarchive/archive_read_open_fd.c
++++ b/libarchive/archive_read_open_fd.c
+@@ -56,9 +56,9 @@ struct read_fd_data {
+ 	void	*buffer;
+ };
+ 
+-static int	file_close(struct archive *, void *);
+-static ssize_t	file_read(struct archive *, void *, const void **buff);
+-static int64_t	file_seek(struct archive *, void *, int64_t request, int);
++static int	farchive_file_close(struct archive *, void *);
++static ssize_t	farchive_file_read(struct archive *, void *, const void **buff);
++static int64_t	farchive_file_seek(struct archive *, void *, int64_t request, int);
+ static int64_t	file_skip(struct archive *, void *, int64_t request);
+ 
+ int
+@@ -100,16 +100,16 @@ archive_read_open_fd(struct archive *a, int fd, size_t block_size)
+ 	setmode(mine->fd, O_BINARY);
+ #endif
+ 
+-	archive_read_set_read_callback(a, file_read);
++	archive_read_set_read_callback(a, farchive_file_read);
+ 	archive_read_set_skip_callback(a, file_skip);
+-	archive_read_set_seek_callback(a, file_seek);
+-	archive_read_set_close_callback(a, file_close);
++	archive_read_set_seek_callback(a, farchive_file_seek);
++	archive_read_set_close_callback(a, farchive_file_close);
+ 	archive_read_set_callback_data(a, mine);
+ 	return (archive_read_open1(a));
+ }
+ 
+ static ssize_t
+-file_read(struct archive *a, void *client_data, const void **buff)
++farchive_file_read(struct archive *a, void *client_data, const void **buff)
+ {
+ 	struct read_fd_data *mine = (struct read_fd_data *)client_data;
+ 	ssize_t bytes_read;
+@@ -175,7 +175,7 @@ file_skip(struct archive *a, void *client_data, int64_t request)
+  * TODO: Store the offset and use it in the read callback.
+  */
+ static int64_t
+-file_seek(struct archive *a, void *client_data, int64_t request, int whence)
++farchive_file_seek(struct archive *a, void *client_data, int64_t request, int whence)
+ {
+ 	struct read_fd_data *mine = (struct read_fd_data *)client_data;
+ 	int64_t r;
+@@ -199,7 +199,7 @@ file_seek(struct archive *a, void *client_data, int64_t request, int whence)
+ }
+ 
+ static int
+-file_close(struct archive *a, void *client_data)
++farchive_file_close(struct archive *a, void *client_data)
+ {
+ 	struct read_fd_data *mine = (struct read_fd_data *)client_data;
+ 
+diff --git a/libarchive/archive_read_open_file.c b/libarchive/archive_read_open_file.c
+index cf49ebd8..f2a8c649 100644
+--- a/libarchive/archive_read_open_file.c
++++ b/libarchive/archive_read_open_file.c
+@@ -56,8 +56,8 @@ struct read_FILE_data {
+ 	char	 can_skip;
+ };
+ 
+-static int	file_close(struct archive *, void *);
+-static ssize_t	file_read(struct archive *, void *, const void **buff);
++static int	farchive_file_close(struct archive *, void *);
++static ssize_t	farchive_file_read(struct archive *, void *, const void **buff);
+ static int64_t	file_skip(struct archive *, void *, int64_t request);
+ 
+ int
+@@ -97,15 +97,15 @@ archive_read_open_FILE(struct archive *a, FILE *f)
+ 	setmode(fileno(mine->f), O_BINARY);
+ #endif
+ 
+-	archive_read_set_read_callback(a, file_read);
++	archive_read_set_read_callback(a, farchive_file_read);
+ 	archive_read_set_skip_callback(a, file_skip);
+-	archive_read_set_close_callback(a, file_close);
++	archive_read_set_close_callback(a, farchive_file_close);
+ 	archive_read_set_callback_data(a, mine);
+ 	return (archive_read_open1(a));
+ }
+ 
+ static ssize_t
+-file_read(struct archive *a, void *client_data, const void **buff)
++farchive_file_read(struct archive *a, void *client_data, const void **buff)
+ {
+ 	struct read_FILE_data *mine = (struct read_FILE_data *)client_data;
+ 	size_t bytes_read;
+@@ -168,7 +168,7 @@ file_skip(struct archive *a, void *client_data, int64_t request)
+ }
+ 
+ static int
+-file_close(struct archive *a, void *client_data)
++farchive_file_close(struct archive *a, void *client_data)
+ {
+ 	struct read_FILE_data *mine = (struct read_FILE_data *)client_data;
+ 
+diff --git a/libarchive/archive_read_open_filename.c b/libarchive/archive_read_open_filename.c
+index 8def020f..347ea014 100644
+--- a/libarchive/archive_read_open_filename.c
++++ b/libarchive/archive_read_open_filename.c
+@@ -82,12 +82,12 @@ struct read_file_data {
+ 	} filename; /* Must be last! */
+ };
+ 
+-static int	file_open(struct archive *, void *);
+-static int	file_close(struct archive *, void *);
+-static int file_close2(struct archive *, void *);
++static int	farchive_file_open(struct archive *, void *);
++static int	farchive_file_close(struct archive *, void *);
++static int farchive_file_close2(struct archive *, void *);
+ static int file_switch(struct archive *, void *, void *);
+-static ssize_t	file_read(struct archive *, void *, const void **buff);
+-static int64_t	file_seek(struct archive *, void *, int64_t request, int);
++static ssize_t	farchive_file_read(struct archive *, void *, const void **buff);
++static int64_t	farchive_file_seek(struct archive *, void *, int64_t request, int);
+ static int64_t	file_skip(struct archive *, void *, int64_t request);
+ static int64_t	file_skip_lseek(struct archive *, void *, int64_t request);
+ 
+@@ -141,12 +141,12 @@ archive_read_open_filenames(struct archive *a, const char **filenames,
+ 			break;
+ 		filename = *(filenames++);
+ 	} while (filename != NULL && filename[0] != '\0');
+-	archive_read_set_open_callback(a, file_open);
+-	archive_read_set_read_callback(a, file_read);
++	archive_read_set_open_callback(a, farchive_file_open);
++	archive_read_set_read_callback(a, farchive_file_read);
+ 	archive_read_set_skip_callback(a, file_skip);
+-	archive_read_set_close_callback(a, file_close);
++	archive_read_set_close_callback(a, farchive_file_close);
+ 	archive_read_set_switch_callback(a, file_switch);
+-	archive_read_set_seek_callback(a, file_seek);
++	archive_read_set_seek_callback(a, farchive_file_seek);
+ 
+ 	return (archive_read_open1(a));
+ no_memory:
+@@ -221,12 +221,12 @@ archive_read_open_filenames_w(struct archive *a, const wchar_t **wfilenames,
+ 			break;
+ 		wfilename = *(wfilenames++);
+ 	} while (wfilename != NULL && wfilename[0] != '\0');
+-	archive_read_set_open_callback(a, file_open);
+-	archive_read_set_read_callback(a, file_read);
++	archive_read_set_open_callback(a, farchive_file_open);
++	archive_read_set_read_callback(a, farchive_file_read);
+ 	archive_read_set_skip_callback(a, file_skip);
+-	archive_read_set_close_callback(a, file_close);
++	archive_read_set_close_callback(a, farchive_file_close);
+ 	archive_read_set_switch_callback(a, file_switch);
+-	archive_read_set_seek_callback(a, file_seek);
++	archive_read_set_seek_callback(a, farchive_file_seek);
+ 
+ 	return (archive_read_open1(a));
+ no_memory:
+@@ -245,7 +245,7 @@ archive_read_open_filename_w(struct archive *a, const wchar_t *wfilename,
+ }
+ 
+ static int
+-file_open(struct archive *a, void *client_data)
++farchive_file_open(struct archive *a, void *client_data)
+ {
+ 	struct stat st;
+ 	struct read_file_data *mine = (struct read_file_data *)client_data;
+@@ -415,7 +415,7 @@ fail:
+ }
+ 
+ static ssize_t
+-file_read(struct archive *a, void *client_data, const void **buff)
++farchive_file_read(struct archive *a, void *client_data, const void **buff)
+ {
+ 	struct read_file_data *mine = (struct read_file_data *)client_data;
+ 	ssize_t bytes_read;
+@@ -458,7 +458,7 @@ file_read(struct archive *a, void *client_data, const void **buff)
+  * without needing to round the request to the block size.
+  *
+  * TODO: This can leave future reads mis-aligned.  Since we know the
+- * offset here, we should store it and use it in file_read() above
++ * offset here, we should store it and use it in farchive_file_read() above
+  * to determine whether we should perform a short read to get back
+  * into alignment.  Long series of mis-aligned reads can negatively
+  * impact disk throughput.  (Of course, the performance impact should
+@@ -537,7 +537,7 @@ file_skip(struct archive *a, void *client_data, int64_t request)
+  * TODO: Store the offset and use it in the read callback.
+  */
+ static int64_t
+-file_seek(struct archive *a, void *client_data, int64_t request, int whence)
++farchive_file_seek(struct archive *a, void *client_data, int64_t request, int whence)
+ {
+ 	struct read_file_data *mine = (struct read_file_data *)client_data;
+ 	int64_t r;
+@@ -561,7 +561,7 @@ file_seek(struct archive *a, void *client_data, int64_t request, int whence)
+ }
+ 
+ static int
+-file_close2(struct archive *a, void *client_data)
++farchive_file_close2(struct archive *a, void *client_data)
+ {
+ 	struct read_file_data *mine = (struct read_file_data *)client_data;
+ 
+@@ -600,10 +600,10 @@ file_close2(struct archive *a, void *client_data)
+ }
+ 
+ static int
+-file_close(struct archive *a, void *client_data)
++farchive_file_close(struct archive *a, void *client_data)
+ {
+ 	struct read_file_data *mine = (struct read_file_data *)client_data;
+-	file_close2(a, client_data);
++	farchive_file_close2(a, client_data);
+ 	free(mine);
+ 	return (ARCHIVE_OK);
+ }
+@@ -611,6 +611,6 @@ file_close(struct archive *a, void *client_data)
+ static int
+ file_switch(struct archive *a, void *client_data1, void *client_data2)
+ {
+-	file_close2(a, client_data1);
+-	return file_open(a, client_data2);
++	farchive_file_close2(a, client_data1);
++	return farchive_file_open(a, client_data2);
+ }
+diff --git a/libarchive/archive_write_open_fd.c b/libarchive/archive_write_open_fd.c
+index 8a3f68d0..ed244039 100644
+--- a/libarchive/archive_write_open_fd.c
++++ b/libarchive/archive_write_open_fd.c
+@@ -54,8 +54,8 @@ struct write_fd_data {
+ };
+ 
+ static int	file_free(struct archive *, void *);
+-static int	file_open(struct archive *, void *);
+-static ssize_t	file_write(struct archive *, void *, const void *buff, size_t);
++static int	farchive_file_open(struct archive *, void *);
++static ssize_t	farchive_file_write(struct archive *, void *, const void *buff, size_t);
+ 
+ int
+ archive_write_open_fd(struct archive *a, int fd)
+@@ -72,11 +72,11 @@ archive_write_open_fd(struct archive *a, int fd)
+ 	setmode(mine->fd, O_BINARY);
+ #endif
+ 	return (archive_write_open2(a, mine,
+-		    file_open, file_write, NULL, file_free));
++		    farchive_file_open, farchive_file_write, NULL, file_free));
+ }
+ 
+ static int
+-file_open(struct archive *a, void *client_data)
++farchive_file_open(struct archive *a, void *client_data)
+ {
+ 	struct write_fd_data *mine;
+ 	struct stat st;
+@@ -114,7 +114,7 @@ file_open(struct archive *a, void *client_data)
+ }
+ 
+ static ssize_t
+-file_write(struct archive *a, void *client_data, const void *buff, size_t length)
++farchive_file_write(struct archive *a, void *client_data, const void *buff, size_t length)
+ {
+ 	struct write_fd_data	*mine;
+ 	ssize_t	bytesWritten;
+diff --git a/libarchive/archive_write_open_file.c b/libarchive/archive_write_open_file.c
+index 4c6ebfb2..9fe18bf6 100644
+--- a/libarchive/archive_write_open_file.c
++++ b/libarchive/archive_write_open_file.c
+@@ -51,8 +51,8 @@ struct write_FILE_data {
+ };
+ 
+ static int	file_free(struct archive *, void *);
+-static int	file_open(struct archive *, void *);
+-static ssize_t	file_write(struct archive *, void *, const void *buff, size_t);
++static int	farchive_file_open(struct archive *, void *);
++static ssize_t	farchive_file_write(struct archive *, void *, const void *buff, size_t);
+ 
+ int
+ archive_write_open_FILE(struct archive *a, FILE *f)
+@@ -65,12 +65,12 @@ archive_write_open_FILE(struct archive *a, FILE *f)
+ 		return (ARCHIVE_FATAL);
+ 	}
+ 	mine->f = f;
+-	return (archive_write_open2(a, mine, file_open, file_write,
++	return (archive_write_open2(a, mine, farchive_file_open, farchive_file_write,
+ 	    NULL, file_free));
+ }
+ 
+ static int
+-file_open(struct archive *a, void *client_data)
++farchive_file_open(struct archive *a, void *client_data)
+ {
+ 	(void)a; /* UNUSED */
+ 	(void)client_data; /* UNUSED */
+@@ -79,7 +79,7 @@ file_open(struct archive *a, void *client_data)
+ }
+ 
+ static ssize_t
+-file_write(struct archive *a, void *client_data, const void *buff, size_t length)
++farchive_file_write(struct archive *a, void *client_data, const void *buff, size_t length)
+ {
+ 	struct write_FILE_data	*mine;
+ 	size_t	bytesWritten;
+diff --git a/libarchive/archive_write_open_filename.c b/libarchive/archive_write_open_filename.c
+index 6842b98d..5e92c4e1 100644
+--- a/libarchive/archive_write_open_filename.c
++++ b/libarchive/archive_write_open_filename.c
+@@ -60,10 +60,10 @@ struct write_file_data {
+ 	struct archive_mstring filename;
+ };
+ 
+-static int	file_close(struct archive *, void *);
++static int	farchive_file_close(struct archive *, void *);
+ static int	file_free(struct archive *, void *);
+-static int	file_open(struct archive *, void *);
+-static ssize_t	file_write(struct archive *, void *, const void *buff, size_t);
++static int	farchive_file_open(struct archive *, void *);
++static ssize_t	farchive_file_write(struct archive *, void *, const void *buff, size_t);
+ static int	open_filename(struct archive *, int, const void *);
+ 
+ int
+@@ -124,11 +124,11 @@ open_filename(struct archive *a, int mbs_fn, const void *filename)
+ 	}
+ 	mine->fd = -1;
+ 	return (archive_write_open2(a, mine,
+-		    file_open, file_write, file_close, file_free));
++		    farchive_file_open, farchive_file_write, farchive_file_close, file_free));
+ }
+ 
+ static int
+-file_open(struct archive *a, void *client_data)
++farchive_file_open(struct archive *a, void *client_data)
+ {
+ 	int flags;
+ 	struct write_file_data *mine;
+@@ -218,7 +218,7 @@ file_open(struct archive *a, void *client_data)
+ }
+ 
+ static ssize_t
+-file_write(struct archive *a, void *client_data, const void *buff,
++farchive_file_write(struct archive *a, void *client_data, const void *buff,
+     size_t length)
+ {
+ 	struct write_file_data	*mine;
+@@ -238,7 +238,7 @@ file_write(struct archive *a, void *client_data, const void *buff,
+ }
+ 
+ static int
+-file_close(struct archive *a, void *client_data)
++farchive_file_close(struct archive *a, void *client_data)
+ {
+ 	struct write_file_data	*mine = (struct write_file_data *)client_data;
+ 
+diff --git a/libarchive/archive_write_set_format_7zip.c b/libarchive/archive_write_set_format_7zip.c
+index b870338f..3cb6984a 100644
+--- a/libarchive/archive_write_set_format_7zip.c
++++ b/libarchive/archive_write_set_format_7zip.c
+@@ -159,10 +159,10 @@ struct coder {
+ 	uint8_t			*props;
+ };
+ 
+-struct file {
++struct archive_file {
+ 	struct archive_rb_node	 rbnode;
+ 
+-	struct file		*next;
++	struct archive_file		*next;
+ 	unsigned		 name_len;
+ 	uint8_t			*utf16name;/* UTF16-LE name. */
+ 	uint64_t		 size;
+@@ -191,7 +191,7 @@ struct _7zip {
+ 	int			 temp_fd;
+ 	uint64_t		 temp_offset;
+ 
+-	struct file		*cur_file;
++	struct archive_file		*cur_file;
+ 	size_t			 total_number_entry;
+ 	size_t			 total_number_nonempty_entry;
+ 	size_t			 total_number_empty_entry;
+@@ -224,12 +224,12 @@ struct _7zip {
+ 
+ 	/*
+ 	 * The list of the file entries which has its contents is used to
+-	 * manage struct file objects.
+-	 * We use 'next' (a member of struct file) to chain.
++	 * manage struct archive_file objects.
++	 * We use 'next' (a member of struct archive_file) to chain.
+ 	 */
+ 	struct {
+-		struct file	*first;
+-		struct file	**last;
++		struct archive_file	*first;
++		struct archive_file	**last;
+ 	}			 file_list, empty_list;
+ 	struct archive_rb_tree	 rbtree;/* for empty files */
+ };
+@@ -247,10 +247,10 @@ static int	file_cmp_node(const struct archive_rb_node *,
+ 		    const struct archive_rb_node *);
+ static int	file_cmp_key(const struct archive_rb_node *, const void *);
+ static int	file_new(struct archive_write *a, struct archive_entry *,
+-		    struct file **);
+-static void	file_free(struct file *);
+-static void	file_register(struct _7zip *, struct file *);
+-static void	file_register_empty(struct _7zip *, struct file *);
++		    struct archive_file **);
++static void	file_free(struct archive_file *);
++static void	file_register(struct _7zip *, struct archive_file *);
++static void	file_register_empty(struct _7zip *, struct archive_file *);
+ static void	file_init_register(struct _7zip *);
+ static void	file_init_register_empty(struct _7zip *);
+ static void	file_free_register(struct _7zip *);
+@@ -443,7 +443,7 @@ static int
+ _7z_write_header(struct archive_write *a, struct archive_entry *entry)
+ {
+ 	struct _7zip *zip;
+-	struct file *file;
++	struct archive_file *file;
+ 	int r;
+ 
+ 	zip = (struct _7zip *)a->format_data;
+@@ -765,7 +765,7 @@ _7z_close(struct archive_write *a)
+ 		}
+ 		/* Connect a directory file list. */
+ 		ARCHIVE_RB_TREE_FOREACH(n, &(zip->rbtree)) {
+-			file_register(zip, (struct file *)n);
++			file_register(zip, (struct archive_file *)n);
+ 		}
+ 
+ 		/*
+@@ -900,7 +900,7 @@ static int
+ make_substreamsInfo(struct archive_write *a, struct coder *coders)
+ {
+ 	struct _7zip *zip = (struct _7zip *)a->format_data;
+-	struct file *file;
++	struct archive_file *file;
+ 	int r;
+ 
+ 	/*
+@@ -1009,7 +1009,7 @@ make_streamsInfo(struct archive_write *a, uint64_t offset, uint64_t pack_size,
+ 		return (r);
+ 
+ 	if (numFolders > 1) {
+-		struct file *file = zip->file_list.first;
++		struct archive_file *file = zip->file_list.first;
+ 		for (;file != NULL; file = file->next) {
+ 			if (file->size == 0)
+ 				break;
+@@ -1106,7 +1106,7 @@ make_streamsInfo(struct archive_write *a, uint64_t offset, uint64_t pack_size,
+ 		return (r);
+ 
+ 	if (numFolders > 1) {
+-		struct file *file = zip->file_list.first;
++		struct archive_file *file = zip->file_list.first;
+ 		for (;file != NULL; file = file->next) {
+ 			if (file->size == 0)
+ 				break;
+@@ -1183,7 +1183,7 @@ make_time(struct archive_write *a, uint8_t type, unsigned flg, int ti)
+ {
+ 	uint8_t filetime[8];
+ 	struct _7zip *zip = (struct _7zip *)a->format_data;
+-	struct file *file;
++	struct archive_file *file;
+ 	int r;
+ 	uint8_t b, mask;
+ 
+@@ -1272,7 +1272,7 @@ make_header(struct archive_write *a, uint64_t offset, uint64_t pack_size,
+     uint64_t unpack_size, int codernum, struct coder *coders)
+ {
+ 	struct _7zip *zip = (struct _7zip *)a->format_data;
+-	struct file *file;
++	struct archive_file *file;
+ 	int r;
+ 	uint8_t b, mask;
+ 
+@@ -1497,8 +1497,8 @@ static int
+ file_cmp_node(const struct archive_rb_node *n1,
+     const struct archive_rb_node *n2)
+ {
+-	const struct file *f1 = (const struct file *)n1;
+-	const struct file *f2 = (const struct file *)n2;
++	const struct archive_file *f1 = (const struct archive_file *)n1;
++	const struct archive_file *f2 = (const struct archive_file *)n2;
+ 
+ 	if (f1->name_len == f2->name_len)
+ 		return (memcmp(f1->utf16name, f2->utf16name, f1->name_len));
+@@ -1508,17 +1508,17 @@ file_cmp_node(const struct archive_rb_node *n1,
+ static int
+ file_cmp_key(const struct archive_rb_node *n, const void *key)
+ {
+-	const struct file *f = (const struct file *)n;
++	const struct archive_file *f = (const struct archive_file *)n;
+ 
+ 	return (f->name_len - *(const char *)key);
+ }
+ 
+ static int
+ file_new(struct archive_write *a, struct archive_entry *entry,
+-    struct file **newfile)
++    struct archive_file **newfile)
+ {
+ 	struct _7zip *zip;
+-	struct file *file;
++	struct archive_file *file;
+ 	const char *u16;
+ 	size_t u16len;
+ 	int ret = ARCHIVE_OK;
+@@ -1596,14 +1596,14 @@ file_new(struct archive_write *a, struct archive_entry *entry,
+ }
+ 
+ static void
+-file_free(struct file *file)
++file_free(struct archive_file *file)
+ {
+ 	free(file->utf16name);
+ 	free(file);
+ }
+ 
+ static void
+-file_register(struct _7zip *zip, struct file *file)
++file_register(struct _7zip *zip, struct archive_file *file)
+ {
+ 	file->next = NULL;
+ 	*zip->file_list.last = file;
+@@ -1620,7 +1620,7 @@ file_init_register(struct _7zip *zip)
+ static void
+ file_free_register(struct _7zip *zip)
+ {
+-	struct file *file, *file_next;
++	struct archive_file *file, *file_next;
+ 
+ 	file = zip->file_list.first;
+ 	while (file != NULL) {
+@@ -1631,7 +1631,7 @@ file_free_register(struct _7zip *zip)
+ }
+ 
+ static void
+-file_register_empty(struct _7zip *zip, struct file *file)
++file_register_empty(struct _7zip *zip, struct archive_file *file)
+ {
+ 	file->next = NULL;
+ 	*zip->empty_list.last = file;
+diff --git a/libarchive/archive_write_set_format_xar.c b/libarchive/archive_write_set_format_xar.c
+index 96ef85c6..6a5ef35d 100644
+--- a/libarchive/archive_write_set_format_xar.c
++++ b/libarchive/archive_write_set_format_xar.c
+@@ -175,27 +175,27 @@ struct heap_data {
+ 	struct chksumval	 e_sum;		/* extracted checksum.	*/
+ };
+ 
+-struct file {
++struct archive_file {
+ 	struct archive_rb_node	 rbnode;
+ 
+ 	int			 id;
+ 	struct archive_entry	*entry;
+ 
+ 	struct archive_rb_tree	 rbtree;
+-	struct file		*next;
+-	struct file		*chnext;
+-	struct file		*hlnext;
++	struct archive_file		*next;
++	struct archive_file		*chnext;
++	struct archive_file		*hlnext;
+ 	/* For hardlinked files.
+ 	 * Use only when archive_entry_nlink() > 1 */
+-	struct file		*hardlink_target;
+-	struct file		*parent;	/* parent directory entry */
++	struct archive_file		*hardlink_target;
++	struct archive_file		*parent;	/* parent directory entry */
+ 	/*
+ 	 * To manage sub directory files.
+-	 * We use 'chnext' (a member of struct file) to chain.
++	 * We use 'chnext' (a member of struct archive_file) to chain.
+ 	 */
+ 	struct {
+-		struct file	*first;
+-		struct file	**last;
++		struct archive_file	*first;
++		struct archive_file	**last;
+ 	}			 children;
+ 
+ 	/* For making a directory tree. */
+@@ -219,8 +219,8 @@ struct hardlink {
+ 	struct archive_rb_node	 rbnode;
+ 	int			 nlink;
+ 	struct {
+-		struct file	*first;
+-		struct file	**last;
++		struct archive_file	*first;
++		struct archive_file	**last;
+ 	}			 file_list;
+ };
+ 
+@@ -229,10 +229,10 @@ struct xar {
+ 	uint64_t		 temp_offset;
+ 
+ 	int			 file_idx;
+-	struct file		*root;
+-	struct file		*cur_dirent;
++	struct archive_file		*root;
++	struct archive_file		*cur_dirent;
+ 	struct archive_string	 cur_dirstr;
+-	struct file		*cur_file;
++	struct archive_file		*cur_file;
+ 	uint64_t		 bytes_remaining;
+ 	struct archive_string	 tstr;
+ 	struct archive_string	 vstr;
+@@ -255,17 +255,17 @@ struct xar {
+ 
+ 	struct heap_data	 toc;
+ 	/*
+-	 * The list of all file entries is used to manage struct file
++	 * The list of all file entries is used to manage struct archive_file
+ 	 * objects.
+-	 * We use 'next' (a member of struct file) to chain.
++	 * We use 'next' (a member of struct archive_file) to chain.
+ 	 */
+ 	struct {
+-		struct file	*first;
+-		struct file	**last;
++		struct archive_file	*first;
++		struct archive_file	**last;
+ 	}			 file_list;
+ 	/*
+ 	 * The list of hard-linked file entries.
+-	 * We use 'hlnext' (a member of struct file) to chain.
++	 * We use 'hlnext' (a member of struct archive_file) to chain.
+ 	 */
+ 	struct archive_rb_tree	 hardlink_rbtree;
+ };
+@@ -280,21 +280,21 @@ static int	xar_finish_entry(struct archive_write *);
+ static int	xar_close(struct archive_write *);
+ static int	xar_free(struct archive_write *);
+ 
+-static struct file *file_new(struct archive_write *a, struct archive_entry *);
+-static void	file_free(struct file *);
+-static struct file *file_create_virtual_dir(struct archive_write *a, struct xar *,
++static struct archive_file *file_new(struct archive_write *a, struct archive_entry *);
++static void	file_free(struct archive_file *);
++static struct archive_file *file_create_virtual_dir(struct archive_write *a, struct xar *,
+ 		    const char *);
+-static int	file_add_child_tail(struct file *, struct file *);
+-static struct file *file_find_child(struct file *, const char *);
++static int	file_add_child_tail(struct archive_file *, struct archive_file *);
++static struct archive_file *file_find_child(struct archive_file *, const char *);
+ static int	file_gen_utility_names(struct archive_write *,
+-		    struct file *);
++		    struct archive_file *);
+ static int	get_path_component(char *, int, const char *);
+-static int	file_tree(struct archive_write *, struct file **);
+-static void	file_register(struct xar *, struct file *);
++static int	file_tree(struct archive_write *, struct archive_file **);
++static void	file_register(struct xar *, struct archive_file *);
+ static void	file_init_register(struct xar *);
+ static void	file_free_register(struct xar *);
+ static int	file_register_hardlink(struct archive_write *,
+-		    struct file *);
++		    struct archive_file *);
+ static void	file_connect_hardlink_files(struct xar *);
+ static void	file_init_hardlinks(struct xar *);
+ static void	file_free_hardlinks(struct xar *);
+@@ -328,7 +328,7 @@ static int	compression_code(struct archive *,
+ 		    struct la_zstream *, enum la_zaction);
+ static int	compression_end(struct archive *,
+ 		    struct la_zstream *);
+-static int	save_xattrs(struct archive_write *, struct file *);
++static int	save_xattrs(struct archive_write *, struct archive_file *);
+ static int	getalgsize(enum sumalg);
+ static const char *getalgname(enum sumalg);
+ 
+@@ -534,7 +534,7 @@ static int
+ xar_write_header(struct archive_write *a, struct archive_entry *entry)
+ {
+ 	struct xar *xar;
+-	struct file *file;
++	struct archive_file *file;
+ 	struct archive_entry *file_entry;
+ 	int r, r2;
+ 
+@@ -780,7 +780,7 @@ static int
+ xar_finish_entry(struct archive_write *a)
+ {
+ 	struct xar *xar;
+-	struct file *file;
++	struct archive_file *file;
+ 	size_t s;
+ 	ssize_t w;
+ 
+@@ -1146,7 +1146,7 @@ make_fflags_entry(struct archive_write *a, xmlTextWriterPtr writer,
+ 
+ static int
+ make_file_entry(struct archive_write *a, xmlTextWriterPtr writer,
+-    struct file *file)
++    struct archive_file *file)
+ {
+ 	struct xar *xar;
+ 	const char *filetype, *filelink, *fflags;
+@@ -1529,7 +1529,7 @@ static int
+ make_toc(struct archive_write *a)
+ {
+ 	struct xar *xar;
+-	struct file *np;
++	struct archive_file *np;
+ 	xmlBufferPtr bp;
+ 	xmlTextWriterPtr writer;
+ 	int algsize;
+@@ -1927,8 +1927,8 @@ static int
+ file_cmp_node(const struct archive_rb_node *n1,
+     const struct archive_rb_node *n2)
+ {
+-	const struct file *f1 = (const struct file *)n1;
+-	const struct file *f2 = (const struct file *)n2;
++	const struct archive_file *f1 = (const struct archive_file *)n1;
++	const struct archive_file *f2 = (const struct archive_file *)n2;
+ 
+ 	return (strcmp(f1->basename.s, f2->basename.s));
+ }
+@@ -1936,15 +1936,15 @@ file_cmp_node(const struct archive_rb_node *n1,
+ static int
+ file_cmp_key(const struct archive_rb_node *n, const void *key)
+ {
+-	const struct file *f = (const struct file *)n;
++	const struct archive_file *f = (const struct archive_file *)n;
+ 
+ 	return (strcmp(f->basename.s, (const char *)key));
+ }
+ 
+-static struct file *
++static struct archive_file *
+ file_new(struct archive_write *a, struct archive_entry *entry)
+ {
+-	struct file *file;
++	struct archive_file *file;
+ 	static const struct archive_rb_tree_ops rb_ops = {
+ 		file_cmp_node, file_cmp_key
+ 	};
+@@ -1977,7 +1977,7 @@ file_new(struct archive_write *a, struct archive_entry *entry)
+ }
+ 
+ static void
+-file_free(struct file *file)
++file_free(struct archive_file *file)
+ {
+ 	struct heap_data *heap, *next_heap;
+ 
+@@ -1995,11 +1995,11 @@ file_free(struct file *file)
+ 	free(file);
+ }
+ 
+-static struct file *
++static struct archive_file *
+ file_create_virtual_dir(struct archive_write *a, struct xar *xar,
+     const char *pathname)
+ {
+-	struct file *file;
++	struct archive_file *file;
+ 
+ 	(void)xar; /* UNUSED */
+ 
+@@ -2016,7 +2016,7 @@ file_create_virtual_dir(struct archive_write *a, struct xar *xar,
+ }
+ 
+ static int
+-file_add_child_tail(struct file *parent, struct file *child)
++file_add_child_tail(struct archive_file *parent, struct archive_file *child)
+ {
+ 	if (!__archive_rb_tree_insert_node(
+ 	    &(parent->rbtree), (struct archive_rb_node *)child))
+@@ -2031,12 +2031,12 @@ file_add_child_tail(struct file *parent, struct file *child)
+ /*
+  * Find a entry from `parent'
+  */
+-static struct file *
+-file_find_child(struct file *parent, const char *child_name)
++static struct archive_file *
++file_find_child(struct archive_file *parent, const char *child_name)
+ {
+-	struct file *np;
++	struct archive_file *np;
+ 
+-	np = (struct file *)__archive_rb_tree_find_node(
++	np = (struct archive_file *)__archive_rb_tree_find_node(
+ 	    &(parent->rbtree), child_name);
+ 	return (np);
+ }
+@@ -2062,7 +2062,7 @@ cleanup_backslash(char *utf8, size_t len)
+  * Generate a parent directory name and a base name from a pathname.
+  */
+ static int
+-file_gen_utility_names(struct archive_write *a, struct file *file)
++file_gen_utility_names(struct archive_write *a, struct archive_file *file)
+ {
+ 	struct xar *xar;
+ 	const char *pp;
+@@ -2247,7 +2247,7 @@ get_path_component(char *name, int n, const char *fn)
+  * Add a new entry into the tree.
+  */
+ static int
+-file_tree(struct archive_write *a, struct file **filepp)
++file_tree(struct archive_write *a, struct archive_file **filepp)
+ {
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	char name[_MAX_FNAME];/* Included null terminator size. */
+@@ -2257,7 +2257,7 @@ file_tree(struct archive_write *a, struct file **filepp)
+ 	char name[256];
+ #endif
+ 	struct xar *xar = (struct xar *)a->format_data;
+-	struct file *dent, *file, *np;
++	struct archive_file *dent, *file, *np;
+ 	struct archive_entry *ent;
+ 	const char *fn, *p;
+ 	int l;
+@@ -2278,7 +2278,7 @@ file_tree(struct archive_write *a, struct file **filepp)
+ 	      == archive_strlen(&(file->parentdir)) &&
+ 	    strcmp(xar->cur_dirstr.s, fn) == 0) {
+ 		if (!file_add_child_tail(xar->cur_dirent, file)) {
+-			np = (struct file *)__archive_rb_tree_find_node(
++			np = (struct archive_file *)__archive_rb_tree_find_node(
+ 			    &(xar->cur_dirent->rbtree),
+ 			    file->basename.s);
+ 			goto same_entry;
+@@ -2327,7 +2327,7 @@ file_tree(struct archive_write *a, struct file **filepp)
+ 		 * Create virtual parent directories.
+ 		 */
+ 		while (fn[0] != '\0') {
+-			struct file *vp;
++			struct archive_file *vp;
+ 			struct archive_string as;
+ 
+ 			archive_string_init(&as);
+@@ -2389,7 +2389,7 @@ file_tree(struct archive_write *a, struct file **filepp)
+ 		}
+ 
+ 		if (!file_add_child_tail(dent, file)) {
+-			np = (struct file *)__archive_rb_tree_find_node(
++			np = (struct archive_file *)__archive_rb_tree_find_node(
+ 			    &(dent->rbtree), file->basename.s);
+ 			goto same_entry;
+ 		}
+@@ -2424,7 +2424,7 @@ same_entry:
+ }
+ 
+ static void
+-file_register(struct xar *xar, struct file *file)
++file_register(struct xar *xar, struct archive_file *file)
+ {
+ 	file->id = xar->file_idx++;
+         file->next = NULL;
+@@ -2442,7 +2442,7 @@ file_init_register(struct xar *xar)
+ static void
+ file_free_register(struct xar *xar)
+ {
+-	struct file *file, *file_next;
++	struct archive_file *file, *file_next;
+ 
+ 	file = xar->file_list.first;
+ 	while (file != NULL) {
+@@ -2456,7 +2456,7 @@ file_free_register(struct xar *xar)
+  * Register entry to get a hardlink target.
+  */
+ static int
+-file_register_hardlink(struct archive_write *a, struct file *file)
++file_register_hardlink(struct archive_write *a, struct archive_file *file)
+ {
+ 	struct xar *xar = (struct xar *)a->format_data;
+ 	struct hardlink *hl;
+@@ -2505,7 +2505,7 @@ file_connect_hardlink_files(struct xar *xar)
+ {
+ 	struct archive_rb_node *n;
+ 	struct hardlink *hl;
+-	struct file *target, *nf;
++	struct archive_file *target, *nf;
+ 
+ 	ARCHIVE_RB_TREE_FOREACH(n, &(xar->hardlink_rbtree)) {
+ 		hl = (struct hardlink *)n;
+@@ -3122,7 +3122,7 @@ compression_end(struct archive *a, struct la_zstream *lastrm)
+ 
+ 
+ static int
+-save_xattrs(struct archive_write *a, struct file *file)
++save_xattrs(struct archive_write *a, struct archive_file *file)
+ {
+ 	struct xar *xar;
+ 	const char *name;
+diff --git a/libarchive/test/test_archive_read_multiple_data_objects.c b/libarchive/test/test_archive_read_multiple_data_objects.c
+index f9f75d96..7f20f627 100644
+--- a/libarchive/test/test_archive_read_multiple_data_objects.c
++++ b/libarchive/test/test_archive_read_multiple_data_objects.c
+@@ -175,7 +175,7 @@ struct mydata {
+ };
+ 
+ static int
+-file_open(struct archive *a, void *data)
++farchive_file_open(struct archive *a, void *data)
+ {
+   struct mydata *mydata = (struct mydata *)data;
+   (void)a;
+@@ -191,7 +191,7 @@ file_open(struct archive *a, void *data)
+   return (ARCHIVE_OK);
+ }
+ static ssize_t
+-file_read(struct archive *a, void *data, const void **buff)
++farchive_file_read(struct archive *a, void *data, const void **buff)
+ {
+   struct mydata *mydata = (struct mydata *)data;
+   (void)a;
+@@ -225,12 +225,12 @@ file_switch(struct archive *a, void *data1, void *data2)
+   }
+   if (mydata2)
+   {
+-    r = file_open(a, mydata2);
++    r = farchive_file_open(a, mydata2);
+   }
+   return (r);
+ }
+ static int
+-file_close(struct archive *a, void *data)
++farchive_file_close(struct archive *a, void *data)
+ {
+   struct mydata *mydata = (struct mydata *)data;
+   if (mydata == NULL)
+@@ -241,7 +241,7 @@ file_close(struct archive *a, void *data)
+   return (ARCHIVE_OK);
+ }
+ static int64_t
+-file_seek(struct archive *a, void *data, int64_t request, int whence)
++farchive_file_seek(struct archive *a, void *data, int64_t request, int whence)
+ {
+   struct mydata *mine = (struct mydata *)data;
+   int64_t r;
+@@ -290,12 +290,12 @@ test_customized_multiple_data_objects(void)
+     filename = reffiles[++i];
+     assertA(0 == archive_read_append_callback_data(a, mydata));
+   }
+-  assertA(0 == archive_read_set_open_callback(a, file_open));
+-  assertA(0 == archive_read_set_read_callback(a, file_read));
++  assertA(0 == archive_read_set_open_callback(a, farchive_file_open));
++  assertA(0 == archive_read_set_read_callback(a, farchive_file_read));
+   assertA(0 == archive_read_set_skip_callback(a, file_skip));
+-  assertA(0 == archive_read_set_close_callback(a, file_close));
++  assertA(0 == archive_read_set_close_callback(a, farchive_file_close));
+   assertA(0 == archive_read_set_switch_callback(a, file_switch));
+-  assertA(0 == archive_read_set_seek_callback(a, file_seek));
++  assertA(0 == archive_read_set_seek_callback(a, farchive_file_seek));
+   assertA(0 == archive_read_open1(a));
+ 
+   /* First header. */
+diff --git a/libarchive_fe/passphrase.c b/libarchive_fe/passphrase.c
+index 90fef32d..02318a79 100644
+--- a/libarchive_fe/passphrase.c
++++ b/libarchive_fe/passphrase.c
+@@ -148,10 +148,12 @@ readpassphrase(const char *prompt, char *buf, size_t bufsiz, int flags)
+ #endif
+ 
+ #define M(a,b) (a > b ? a : b)
++#ifndef MAX_SIGNO
+ #define MAX_SIGNO M(M(M(SIGALRM, SIGHUP), \
+                       M(SIGINT, SIGPIPE)), \
+                     M(M(SIGQUIT, SIGTERM), \
+                       M(M(SIGTSTP, SIGTTIN), SIGTTOU)))
++#endif
+ 
+ static volatile sig_atomic_t signo[MAX_SIGNO + 1];
+ 
+-- 
+2.43.0
+

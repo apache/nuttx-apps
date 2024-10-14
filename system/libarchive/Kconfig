@@ -1,0 +1,163 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config UTILS_LIBARCHIVE
+	tristate "libarchive"
+	default n
+
+if UTILS_LIBARCHIVE
+
+config UTILS_LIBARCHIVE_BSDUNZIP
+	bool "Enable bsdunzip"
+	depends on LIB_ZLIB
+	default n
+
+if UTILS_LIBARCHIVE_BSDUNZIP
+
+config UTILS_LIBARCHIVE_BSDUNZIP_PROGNAME
+	string "Programe Name"
+	default "bsdunzip"
+
+config UTILS_LIBARCHIVE_BSDUNZIP_PRIORITY
+	int "bsdunzip priority"
+	default 100
+
+config UTILS_LIBARCHIVE_BSDUNZIP_STACKSIZE
+	int "bsdunzip stacksize"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+config UTILS_LIBARCHIVE_BSDTAR
+	bool "Enable bsdtar"
+	depends on LIBC_REGEX
+	depends on PIPES
+	depends on LIBC_EXECFUNCS
+	default n
+
+if UTILS_LIBARCHIVE_BSDTAR
+
+config UTILS_LIBARCHIVE_BSDTAR_PROGNAME
+	string "Programe Name"
+	default "bsdtar"
+
+config UTILS_LIBARCHIVE_BSDTAR_PRIORITY
+	int "bsdtar priority"
+	default 100
+
+config UTILS_LIBARCHIVE_BSDTAR_STACKSIZE
+	int "bsdtar stacksize"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+config UTILS_LIBARCHIVE_BSDCAT
+	bool "Enable bsdcat"
+	depends on LIBC_REGEX
+	depends on PIPES
+	depends on LIBC_EXECFUNCS
+	default n
+
+if UTILS_LIBARCHIVE_BSDCAT
+
+config UTILS_LIBARCHIVE_BSDCAT_PROGNAME
+	string "Programe Name"
+	default "bsdcat"
+
+config UTILS_LIBARCHIVE_BSDCAT_PRIORITY
+	int "bsdcat priority"
+	default 100
+
+config UTILS_LIBARCHIVE_BSDCAT_STACKSIZE
+	int "bsdcat stacksize"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+config UTILS_LIBARCHIVE_CPIO
+	bool "Enable cpio"
+	depends on PSEUDOFS_SOFTLINKS
+	depends on PIPES
+	depends on DEV_FIFO_SIZE > 0
+	depends on LIBC_EXECFUNCS
+	default n
+
+if UTILS_LIBARCHIVE_CPIO
+
+config UTILS_LIBARCHIVE_CPIO_PROGNAME
+	string "Programe Name"
+	default "cpio"
+
+config UTILS_LIBARCHIVE_CPIO_PRIORITY
+	int "cpio priority"
+	default 100
+
+config UTILS_LIBARCHIVE_CPIO_STACKSIZE
+	int "cpio stacksize"
+	default 32768
+
+endif
+
+config UTILS_LIBARCHIVE_MINITAR
+	bool "Enable minitar"
+	default n
+
+if UTILS_LIBARCHIVE_MINITAR
+
+config UTILS_LIBARCHIVE_MINITAR_PROGNAME
+	string "Programe Name"
+	default "minitar"
+
+config UTILS_LIBARCHIVE_MINITAR_PRIORITY
+	int "minitar priority"
+	default 100
+
+config UTILS_LIBARCHIVE_MINITAR_STACKSIZE
+	int "minitar stacksize"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+config UTILS_LIBARCHIVE_TARFILTER
+	bool "Enable tarfilter"
+	default n
+
+if UTILS_LIBARCHIVE_TARFILTER
+
+config UTILS_LIBARCHIVE_TARFILTER_PROGNAME
+	string "Programe Name"
+	default "tarfilter"
+
+config UTILS_LIBARCHIVE_TARFILTER_PRIORITY
+	int "tarfilter priority"
+	default 100
+
+config UTILS_LIBARCHIVE_TARFILTER_STACKSIZE
+	int "tarfilter stacksize"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+config UTILS_LIBARCHIVE_UNTAR
+	bool "Enable untar"
+	default n
+
+if UTILS_LIBARCHIVE_UNTAR
+
+config UTILS_LIBARCHIVE_UNTAR_PROGNAME
+	string "Programe Name"
+	default "untar"
+
+config UTILS_LIBARCHIVE_UNTAR_PRIORITY
+	int "untar priority"
+	default 100
+
+config UTILS_LIBARCHIVE_UNTAR_STACKSIZE
+	int "untar stacksize"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
+
+endif
