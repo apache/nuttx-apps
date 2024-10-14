@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BLE
+	tristate "BLE sensor reading example"
+	default n
+	depends on WIRELESS_BLUETOOTH
+	---help---
+		Enable the BLE example
+
+if EXAMPLES_BLE
+
+config EXAMPLES_BLE_PROGNAME
+	string "Program name"
+	default "ble"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_BLE_PRIORITY
+	int "BLE task priority"
+	default 100
+
+config EXAMPLES_BLE_STACKSIZE
+	int "BLE stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_BLE_USE_BME680
+	bool "Use BME680 sensor data"
+	default n
+	depends on SENSORS_BME680
+	---help---
+		If enabled, use real BME680 sensor data. If disabled, use dummy data.
+
+endif
