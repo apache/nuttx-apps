@@ -526,6 +526,10 @@ int netlib_check_ifconnectivity(FAR const char *ifname,
 int netlib_get_iobinfo(FAR struct iob_stats_s *iob);
 #endif
 
+int netlib_check_httpconnectivity(FAR const char *host,
+                                  FAR const char *getmsg,
+                                  int port, int expect_code);
+
 #undef EXTERN
 #ifdef __cplusplus
 }

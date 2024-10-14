@@ -160,4 +160,6 @@ ifeq ($(CONFIG_NETUTILS_PING),y)
 CSRCS += netlib_checkipconnectivity.c netlib_checkifconnectivity.c
 endif
 
+CSRCS += netlib_checkhttpconnectivity.c
+
 include $(APPDIR)/Application.mk
