@@ -45,13 +45,7 @@
  * Input Parameter:
  *   filename      - Name of the linked-in binary to be started.
  *   argv          - Argument list
- *   redirfile_in  - If input is redirected, this parameter will be non-NULL
- *                   and will provide the full path to the file.
- *   redirfile_out - If output is redirected, this parameter will be non-NULL
- *                   and will provide the full path to the file.
- *   oflags        - If output is redirected, this parameter will provide the
- *                   open flags to use.  This will support file replacement
- *                   of appending to an existing file.
+ *   param         - Parameters for execute.
  *
  * Returned Value:
  *   This is an end-user function, so it follows the normal convention:
@@ -61,13 +55,12 @@
  ****************************************************************************/
 
 int exec_builtin(FAR const char *appname, FAR char * const *argv,
-                 FAR const char *redirfile_in, FAR const char *redirfile_out,
-                 int oflags)
+                 FAR const struct nsh_param_s *param)
 {
   FAR const struct builtin_s *builtin;
   posix_spawnattr_t attr;
   posix_spawn_file_actions_t file_actions;
-  struct sched_param param;
+  struct sched_param sched;
   pid_t pid;
   int index;
   int ret;
@@ -106,8 +99,8 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
 
   /* Set the correct task size and priority */
 
-  param.sched_priority = builtin->priority;
-  ret = posix_spawnattr_setschedparam(&attr, &param);
+  sched.sched_priority = builtin->priority;
+  ret = posix_spawnattr_setschedparam(&attr, &sched);
   if (ret != 0)
     {
       goto errout_with_actions;
@@ -147,33 +140,40 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
 
 #endif
 
-  /* Is input being redirected? */
-
-  if (redirfile_in)
+  if (param)
     {
-      /* Set up to close open redirfile and set to stdin (0) */
+      /* Is input being redirected? */
 
-      ret = posix_spawn_file_actions_addopen(&file_actions, 0,
-                                             redirfile_in, O_RDONLY, 0);
-      if (ret != 0)
+      if (param->file_in)
         {
-          serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
-          goto errout_with_actions;
+          /* Set up to close open redirfile and set to stdin (0) */
+
+          ret = posix_spawn_file_actions_addopen(&file_actions, 0,
+                                                 param->file_in,
+                                                 param->oflags_in, 0);
+          if (ret != 0)
+            {
+              serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n",
+                   ret);
+              goto errout_with_actions;
+            }
         }
-    }
 
-  /* Is output being redirected? */
+      /* Is output being redirected? */
 
-  if (redirfile_out)
-    {
-      /* Set up to close open redirfile and set to stdout (1) */
-
-      ret = posix_spawn_file_actions_addopen(&file_actions, 1,
-                                             redirfile_out, oflags, 0644);
-      if (ret != 0)
+      if (param->file_out)
         {
-          serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
-          goto errout_with_actions;
+          /* Set up to close open redirfile and set to stdout (1) */
+
+          ret = posix_spawn_file_actions_addopen(&file_actions, 1,
+                                                 param->file_out,
+                                                 param->oflags_out, 0644);
+          if (ret != 0)
+            {
+              serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n",
+                   ret);
+              goto errout_with_actions;
+            }
         }
     }
 

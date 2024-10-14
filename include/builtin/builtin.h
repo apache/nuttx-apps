@@ -30,6 +30,7 @@
 #include <sys/types.h>
 
 #include <nuttx/lib/builtin.h>
+#include <nshlib/nshlib.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -66,13 +67,7 @@ extern "C"
  * Input Parameter:
  *   filename      - Name of the linked-in binary to be started.
  *   argv          - Argument list
- *   redirfile_in  - If input is redirected, this parameter will be non-NULL
- *                   and will provide the full path to the file.
- *   redirfile_out - If output is redirected, this parameter will be non-NULL
- *                   and will provide the full path to the file.
- *   oflags        - If output is redirected, this parameter will provide the
- *                   open flags to use.  This will support file replacement
- *                   of appending to an existing file.
+ *   param         - Parameters for execute.
  *
  * Returned Value:
  *   This is an end-user function, so it follows the normal convention:
@@ -82,8 +77,7 @@ extern "C"
  ****************************************************************************/
 
 int exec_builtin(FAR const char *appname, FAR char * const *argv,
-                 FAR const char *redirfile_in, FAR const char *redirfile_out,
-                 int oflags);
+                 FAR const struct nsh_param_s *param);
 
 #undef EXTERN
 #if defined(__cplusplus)

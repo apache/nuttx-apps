@@ -69,8 +69,8 @@
  ****************************************************************************/
 
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile_in,
-                FAR const char *redirfile_out, int oflags)
+                FAR char **argv,
+                FAR const struct nsh_param_s *param)
 {
 #if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
   struct sigaction act;
@@ -102,7 +102,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    * applications.
    */
 
-  ret = exec_builtin(cmd, argv, redirfile_in, redirfile_out, oflags);
+  ret = exec_builtin(cmd, argv, param);
   if (ret >= 0)
     {
       /* The application was successfully started with pre-emption disabled.
@@ -234,9 +234,9 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           sigaction(SIGCHLD, &old, NULL);
 #  endif
-          struct sched_param param;
-          sched_getparam(ret, &param);
-          nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, param.sched_priority);
+          struct sched_param sched;
+          sched_getparam(ret, &sched);
+          nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, sched.sched_priority);
 
           /* Backgrounded commands always 'succeed' as long as we can start
            * them.

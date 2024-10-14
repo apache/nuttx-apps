@@ -70,8 +70,7 @@
  ****************************************************************************/
 
 int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile_in,
-                FAR const char *redirfile_out, int oflags)
+                FAR char **argv, FAR const struct nsh_param_s *param)
 {
   posix_spawn_file_actions_t file_actions;
   posix_spawnattr_t attr;
@@ -107,39 +106,46 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       goto errout_with_actions;
     }
 
-  /* Handle redirection of input */
-
-  if (redirfile_in)
+  if (param)
     {
-      /* Set up to close open redirfile and set to stdin (0) */
+      /* Handle redirection of input */
 
-      ret = posix_spawn_file_actions_addopen(&file_actions, 0,
-                                             redirfile_in, O_RDONLY, 0);
-      if (ret != 0)
+      if (param->file_in)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, cmd,
-                     "posix_spawn_file_actions_addopen",
-                     NSH_ERRNO);
-          goto errout_with_actions;
+          /* Set up to close open redirfile and set to stdin (0) */
+
+          ret = posix_spawn_file_actions_addopen(&file_actions, 0,
+                                                 param->file_in,
+                                                 param->oflags_in,
+                                                 0);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_addopen",
+                        NSH_ERRNO);
+              goto errout_with_actions;
+            }
         }
-    }
 
-  /* Handle re-direction of output */
+      /* Handle re-direction of output */
 
-  if (redirfile_out)
-    {
-      ret = posix_spawn_file_actions_addopen(&file_actions, 1, redirfile_out,
-                                             oflags, 0644);
-      if (ret != 0)
+      if (param->file_out)
         {
-          /* posix_spawn_file_actions_addopen returns a positive errno
-           * value on failure.
-           */
+          ret = posix_spawn_file_actions_addopen(&file_actions, 1,
+                                                 param->file_out,
+                                                 param->oflags_out,
+                                                 0644);
+          if (ret != 0)
+            {
+              /* posix_spawn_file_actions_addopen returns a positive errno
+               * value on failure.
+               */
 
-          nsh_error(vtbl, g_fmtcmdfailed, cmd,
-                     "posix_spawn_file_actions_addopen",
-                     NSH_ERRNO);
-          goto errout_with_attrs;
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_addopen",
+                        NSH_ERRNO);
+              goto errout_with_attrs;
+            }
         }
     }
 
@@ -151,7 +157,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   if (index >= 0)
     {
       FAR const struct builtin_s *builtin;
-      struct sched_param param;
+      struct sched_param sched;
 
       /* Get information about the builtin */
 
@@ -164,8 +170,8 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
       /* Set the correct task size and priority */
 
-      param.sched_priority = builtin->priority;
-      ret = posix_spawnattr_setschedparam(&attr, &param);
+      sched.sched_priority = builtin->priority;
+      ret = posix_spawnattr_setschedparam(&attr, &sched);
       if (ret != 0)
         {
           goto errout_with_actions;
@@ -298,9 +304,9 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
         {
-          struct sched_param param;
-          sched_getparam(ret, &param);
-          nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, param.sched_priority);
+          struct sched_param sched;
+          sched_getparam(ret, &sched);
+          nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, sched.sched_priority);
 
           /* Backgrounded commands always 'succeed' as long as we can start
            * them.

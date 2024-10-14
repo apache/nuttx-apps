@@ -39,6 +39,7 @@
 #endif
 
 #include <nuttx/usb/usbdev_trace.h>
+#include <nshlib/nshlib.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -858,14 +859,12 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[]);
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile_in,
-                FAR const char *redirfile_out, int oflags);
+                FAR char **argv, FAR const struct nsh_param_s *param);
 #endif
 
 #ifdef CONFIG_NSH_FILE_APPS
 int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile_in,
-                FAR const char *redirfile_out, int oflags);
+                FAR char **argv, FAR const struct nsh_param_s *param);
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
