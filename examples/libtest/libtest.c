@@ -22,8 +22,9 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include <nuttx/compiler.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /****************************************************************************
  * Public Functions
@@ -35,5 +36,16 @@
 
 void library_test(void)
 {
+  FAR int *p = malloc(sizeof(int));
+  if (p == NULL)
+    {
+      printf("libtest failed to allocate memory\n");
+      return;
+    }
+
+  *p = 12345;
+  printf("libtest: p=%p *p=%d\n", p, *p);
+  free(p);
+
   printf("Hello, Library!!\n");
 }
