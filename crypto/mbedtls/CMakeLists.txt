@@ -90,6 +90,14 @@ if(CONFIG_CRYPTO_MBEDTLS)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/md5_alt.c)
     endif()
 
+    if(CONFIG_MBEDTLS_POLY1305_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/poly1305_alt.c)
+    endif()
+
+    if(CONFIG_MBEDTLS_RIPEMD160_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/ripemd160_alt.c)
+    endif()
+
     if(CONFIG_MBEDTLS_SHA1_ALT)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/sha1_alt.c)
     endif()
@@ -100,6 +108,10 @@ if(CONFIG_CRYPTO_MBEDTLS)
 
     if(CONFIG_MBEDTLS_SHA512_ALT)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/sha512_alt.c)
+    endif()
+
+    if(CONFIG_MBEDTLS_BIGNUM_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/bignum_alt.c)
     endif()
 
   endif()

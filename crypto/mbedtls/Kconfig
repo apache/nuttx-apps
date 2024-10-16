@@ -72,6 +72,10 @@ config MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE
 	depends on MBEDTLS_SSL_DTLS_HELLO_VERIFY
 	default y
 
+config MBEDTLS_BLOWFISH_C
+	bool "Enable the Blowfish block cipher."
+	default n
+
 config MBEDTLS_CAMELLIA_C
 	bool "Enable the Camellia block cipher."
 	default y
@@ -402,6 +406,10 @@ config MBEDTLS_AESCE_C
 	bool "Enable AES cryptographic extension support on 64-bit Arm."
 	depends on MBEDTLS_HAVE_ASM
 	default y
+
+config MBEDTLS_ARC4_C
+	bool "Enable the ARCFOUR stream cipher."
+	default n
 
 config MBEDTLS_ARIA_C
 	bool "Enable the ARIA block cipher."
