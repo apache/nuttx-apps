@@ -801,12 +801,13 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
       while (true)
         {
-          ssize_t n = nsh_read(vtbl, buf, BUFSIZ);
+          ret = nsh_read(vtbl, buf, BUFSIZ);
+          if (ret <= 0)
+            {
+              break;
+            }
 
-          if (n == 0)
-            break;
-
-          nsh_write(vtbl, buf, n);
+          nsh_write(vtbl, buf, ret);
         }
 
       free(buf);
