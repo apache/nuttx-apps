@@ -79,30 +79,30 @@ The following table summarizes the code size measurements for different componen
 | **Component**        | **Text** | **Data** | **BSS** | **DEC** |
 | ---------------------|---------|---------|---------|--------|
 | basic c++            | 3712    | 0       | 128     | 3840   |
-| array                | 32      | 0       | 0       | 32     |
-| condition_variable   | 584     | 8       | 16      | 608    |
-| deque                | 41196   | 300     | 40      | 41544  |
-| exception            | 32      | 0       | 32      | 32     |
-| forward_list         | 41164   | 308     | 40      | 41512  |
-| future               | 43504   | 356     | 112     | 43972  |
-| iostream             | 148004  | 404     | 3160    | 151568 |
-| list                 | 41516   | 308     | 40      | 41864  |
-| map                  | 45252   | 308     | 40      | 45600  |
-| multiset             | 44676   | 308     | 40      | 45024  |
-| mutex                | 552     | 8       | 16      | 576    |
-| rtti                 | 41420   | 308     | 40      | 41768  |
-| semaphore            | 1352    | 8       | 16488   | 17808  |
-| set                  | 44644   | 308     | 40      | 44992  |
-| shared_ptr           | 43204   | 308     | 40      | 41712  |
-| string               | 42044   | 308     | 40      | 42392  |
-| string_view          | 448     | 0       | 0       | 448    |
-| thread               | 41956   | 356     | 12      | 42424  |
-| unordered_map        | 47668   | 308     | 40      | 48016  |
-| unordered_multimap   | 46868   | 308     | 40      | 47216  |
-| unordered_multiset   | 46836   | 308     | 40      | 47184  |
-| unordered_set        | 46452   | 308     | 40      | 46800  |
-| vector               | 41444   | 308     | 40      | 41792  |
-| weak_ptr             | 43460   | 308     | 40      | 41936  |
+| array                | 16      | 0       | 0       | 16      |
+| condition_variable   | 144     | 0       | 0       | 144     |
+| deque                | 240     | 0       | 8       | 248     |
+| exception            | 16      | 0       | 0       | 16      |
+| forward_list         | 144     | 0       | 8       | 152     |
+| future               | 3920    | 48      | 72      | 4040    |
+| iostream             | 66192   | 120     | 1704    | 68016   |
+| list                 | 528     | 0       | 8       | 536     |
+| map                  | 4256    | 0       | 8       | 4264    |
+| multiset             | 3680    | 0       | 8       | 3688    |
+| mutex                | 112     | 0       | 0       | 112     |
+| rtti                 | 2208    | 0       | 8       | 2216    |
+| semaphore            | 1300    | 12      | 84      | 1392    |
+| set                  | 3616    | 0       | 8       | 3624    |
+| shared_ptr           | 464     | 0       | 8       | 472     |
+| string_view          | 432     | 0       | 0       | 432     |
+| string               | 1376    | 0       | 8       | 1384    |
+| thread               | 1040    | 48      | 72      | 1160    |
+| unordered_map        | 6616    | 0       | 0       | 6616    |
+| unordered_multimap   | 5864    | 0       | 0       | 5864    |
+| unordered_multiset   | 5816    | 0       | 0       | 5816    |
+| unordered_set        | 5432    | 0       | 0       | 5432    |
+| vector               | 456     | 0       | 8       | 464     |
+| weak_ptr             | 624     | 0       | 8       | 632     |
 
 ## Conclusion
 
