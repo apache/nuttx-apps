@@ -47,6 +47,17 @@ typedef CODE void (*dumpfile_cb_t)(FAR char *path, FAR const char *filename,
                                    FAR void *arg);
 
 /****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+#ifdef CONFIG_BOARD_MEMORY_RANGE
+static struct memory_region_s g_memory_region[] =
+  {
+    CONFIG_BOARD_MEMORY_RANGE
+  };
+#endif
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -299,7 +310,6 @@ blkfd_err:
 
 static int coredump_now(int pid, FAR char *filename)
 {
-  FAR const struct memory_region_s *region;
   FAR struct lib_stdoutstream_s *outstream;
   FAR struct lib_hexdumpstream_s *hstream;
 #ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
@@ -373,8 +383,12 @@ static int coredump_now(int pid, FAR char *filename)
 
   /* Do core dump */
 
-  region = alloc_memory_region(CONFIG_BOARD_MEMORY_RANGE);
-  coredump(region, stream, pid);
+#ifdef CONFIG_BOARD_MEMORY_RANGE
+  coredump(g_memory_region, stream, pid);
+#else
+  coredump(NULL, stream, pid);
+#endif
+
   setlogmask(logmask);
 #  ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
   printf("Finish coredump (Compression Enabled).\n");
@@ -386,11 +400,6 @@ static int coredump_now(int pid, FAR char *filename)
   if (filename != NULL)
     {
       fclose(file);
-    }
-
-  if (region != NULL)
-    {
-      free_memory_region(region);
     }
 
   return 0;
