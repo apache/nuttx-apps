@@ -780,12 +780,16 @@ static int top_cmpcpuload(FAR const void *item1, FAR const void *item2)
       s2 = status2->td_cpuload;
       while (*s1++ != '.');
       while (*s2++ != '.');
+      if (*s2 == *s1)
+        {
+          return 0;
+        }
 
-      return *s2 > *s1;
+      return *s2 > *s1 ? 1 : -1;
     }
   else
     {
-      return load2 > load1;
+      return load2 > load1 ? 1 : -1;
     }
 }
 
