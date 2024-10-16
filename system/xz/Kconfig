@@ -1,0 +1,52 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config UTILS_XZ
+	tristate "xz utils"
+	default n
+
+if UTILS_XZ
+
+config UTILS_XZ_APP
+	bool "xz program"
+	default n
+
+if UTILS_XZ_APP
+
+config UTILS_XZ_PROGNAME
+	string "Programe Name"
+	default "xz"
+
+config UTILS_XZ_PRIORITY
+	int "xz priority"
+	default 100
+
+config UTILS_XZ_STACKSIZE
+	int "xz stacksize"
+	default 4096
+
+endif
+
+config UTILS_XZDEC_APP
+	bool "xz program"
+	default n
+
+if UTILS_XZDEC_APP
+
+config UTILS_XZDEC_PROGNAME
+	string "Programe Name"
+	default "xzdec"
+
+config UTILS_XZDEC_PRIORITY
+	int "xz priority"
+	default 100
+
+config UTILS_XZDEC_STACKSIZE
+	int "xz stacksize"
+	default 4096
+
+endif
+
+endif
