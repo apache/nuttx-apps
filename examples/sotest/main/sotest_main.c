@@ -177,7 +177,7 @@ int main(int argc, FAR char *argv[])
   handle1 = dlopen(BINDIR "/modprint", RTLD_NOW | RTLD_LOCAL);
   if (handle1 == NULL)
     {
-      fprintf(stderr, "ERROR: dlopen(/modprint) failed\n");
+      fprintf(stderr, "ERROR: dlopen(%s/modprint) failed\n", BINDIR);
       exit(EXIT_FAILURE);
     }
 #endif
@@ -187,7 +187,7 @@ int main(int argc, FAR char *argv[])
   handle2 = dlopen(BINDIR "/sotest", RTLD_NOW | RTLD_LOCAL);
   if (handle2 == NULL)
     {
-      fprintf(stderr, "ERROR: dlopen(/sotest) failed\n");
+      fprintf(stderr, "ERROR: dlopen(%s/sotest) failed\n", BINDIR);
       exit(EXIT_FAILURE);
     }
 
