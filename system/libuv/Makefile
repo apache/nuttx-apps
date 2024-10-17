@@ -54,11 +54,7 @@ CFLAGS += -DDEF_THREADPOOL_PRIORITY=CONFIG_LIBUV_THREADPOOL_PRIORITY
 CFLAGS += -DMAX_EPOLL_EVENTS=CONFIG_LIBUV_MAX_EPOLL_EVENTS
 CFLAGS += -DPREP_EVENT_SIZE=CONFIG_LIBUV_PREP_EVENT_SIZE
 
-ifeq ($(GCCVER),)
-  export GCCVER = $(shell $(CC) --version | grep gcc | sed -r 's/.* ([0-9]+\.[0-9]+).*/\1/' | cut -d'.' -f1)
-endif
-
-ifeq ($(GCCVER),12)
+ifeq ($(shell expr "$(GCCVER)" \>= 12), 1)
   CFLAGS += -Wno-dangling-pointer
 endif
 
