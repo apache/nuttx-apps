@@ -44,13 +44,6 @@ if(CONFIG_LIBUV)
     endif()
   endif()
 
-  if(NOT DEFINED GCCVER)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} --version
-                    OUTPUT_VARIABLE GCC_VERSION_OUTPUT)
-    string(REGEX MATCH "\\+\\+.* ([0-9]+)\\.[0-9]+" GCC_VERSION_REGEX
-                 "${GCC_VERSION_OUTPUT}")
-    set(GCCVER ${CMAKE_MATCH_1})
-  endif()
   # ############################################################################
   # Flags
   # ############################################################################
@@ -60,7 +53,7 @@ if(CONFIG_LIBUV)
       -DDEF_THREADPOOL_STACKSIZE=CONFIG_LIBUV_THREAD_STACKSIZE
       -DDEF_THREADPOOL_PRIORITY=CONFIG_LIBUV_THREADPOOL_PRIORITY)
 
-  if(GCCVER EQUAL 12)
+  if(GCCVER GREATER_EQUAL 12)
     list(APPEND CFLAGS -Wno-dangling-pointer)
   endif()
   # ############################################################################
