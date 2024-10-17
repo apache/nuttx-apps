@@ -1665,8 +1665,9 @@ int foc_motor_init(FAR struct foc_motor_b16_s *motor,
       motor->ctrl_state = FOC_CTRL_STATE_INIT;
     }
 
-#if defined(CONFIG_EXAMPLES_FOC_SENSORED) ||  \
-    defined(CONFIG_EXAMPLES_FOC_HAVE_RUN) ||  \
+#if defined(CONFIG_EXAMPLES_FOC_SENSORED)   || \
+    defined(CONFIG_EXAMPLES_FOC_HAVE_RUN)   || \
+    defined(CONFIG_EXAMPLES_FOC_HAVE_ALIGN) || \
     defined(CONFIG_EXAMPLES_FOC_HAVE_IDENT)
 errout:
 #endif
