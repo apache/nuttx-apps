@@ -122,6 +122,15 @@
 #  define NSH_ALIASLIST_FREE(v, l)
 #endif
 
+#ifdef CONFIG_NSH_PIPELINE_NEST_DEPTH
+#  if CONFIG_NSH_PIPELINE_NEST_DEPTH < 2
+#    error "Minimum pipeline depth is 2"
+#  endif
+#  define EXEC_DEPTH CONFIG_NSH_PIPELINE_NEST_DEPTH
+#else
+#  define EXEC_DEPTH 1
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -157,6 +166,15 @@ struct nsh_alist_s
 };
 #endif
 
+struct nsh_arg_s
+{
+#ifdef CONFIG_NSH_PIPELINE
+  int       pipefd[2];
+#endif
+  int       argc;
+  FAR char *argv[MAX_ARGV_ENTRIES];
+};
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -183,8 +201,8 @@ static struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
 
 static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result);
 static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
-               int argc, FAR char *argv[], FAR const char *redirfile_in,
-               FAR const char *redirfile_out, int oflags);
+               int argc, FAR char *argv[],
+               FAR const struct nsh_param_s *exec);
 
 #ifdef CONFIG_NSH_CMDPARMS
 static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
@@ -260,7 +278,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
 #ifdef CONFIG_NSH_CMDPARMS
 static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
-               FAR const char *redirfile_out);
+               FAR const struct nsh_param_s *exec);
 #endif
 
 static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
@@ -280,6 +298,9 @@ static const char g_arg_separator[]   = "`$";
 static const char g_redirect_out1[]   = ">";
 static const char g_redirect_out2[]  = ">>";
 static const char g_redirect_in1[]   = "<";
+#ifdef CONFIG_NSH_PIPELINE
+static const char g_pipeline1[]       = "|";
+#endif
 #ifdef NSH_HAVE_VARS
 static const char g_exitstatus[]      = "?";
 static const char g_lastpid[]         = "!";
@@ -613,8 +634,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 
 static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                        int argc, FAR char *argv[],
-                       FAR const char *redirfile_in,
-                       FAR const char *redirfile_out, int oflags)
+                       FAR const struct nsh_param_s *exec)
 {
   int fd_in = STDIN_FILENO;
   int fd_out = STDOUT_FILENO;
@@ -655,8 +675,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    */
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-  ret = nsh_builtin(vtbl, argv[0], argv, redirfile_in, redirfile_out,
-                    oflags);
+  ret = nsh_builtin(vtbl, argv[0], argv, exec);
   if (ret >= 0)
     {
       /* nsh_builtin() returned 0 or 1.  This means that the built-in
@@ -693,8 +712,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    */
 
 #ifdef CONFIG_NSH_FILE_APPS
-  ret = nsh_fileapp(vtbl, argv[0], argv, redirfile_in,
-                    redirfile_out, oflags);
+  ret = nsh_fileapp(vtbl, argv[0], argv, exec);
   if (ret >= 0)
     {
       /* nsh_fileapp() returned 0 or 1.  This means that the built-in
@@ -717,17 +735,24 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
   if (vtbl->np.np_redir_out)
     {
-      /* Open the redirection file.  This file will eventually
-       * be closed by a call to either nsh_release (if the command
-       * is executed in the background) or by nsh_undirect if the
-       * command is executed in the foreground.
-       */
-
-      fd_out = open(redirfile_out, oflags, 0666);
-      if (fd_out < 0)
+      if (exec->file_out)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
-          goto errout;
+          /* Open the redirection file.  This file will eventually
+           * be closed by a call to either nsh_release (if the command
+           * is executed in the background) or by nsh_undirect if the
+           * command is executed in the foreground.
+           */
+
+          fd_out = open(exec->file_out, exec->oflags_out, 0666);
+          if (fd_out < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+              goto errout;
+            }
+        }
+      else
+        {
+          fd_out = exec->fd_out;
         }
     }
 
@@ -735,17 +760,24 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
   if (vtbl->np.np_redir_in)
     {
-      /* Open the redirection file.  This file will eventually
-       * be closed by a call to either nsh_release (if the command
-       * is executed in the background) or by nsh_undirect if the
-       * command is executed in the foreground.
-       */
-
-      fd_in = open(redirfile_in, O_RDONLY, 0);
-      if (fd_in < 0)
+      if (exec->file_in)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
-          goto errout;
+          /* Open the redirection file.  This file will eventually
+           * be closed by a call to either nsh_release (if the command
+           * is executed in the background) or by nsh_undirect if the
+           * command is executed in the foreground.
+           */
+
+          fd_in = open(exec->file_in, exec->oflags_in, 0);
+          if (fd_in < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+              goto errout;
+            }
+        }
+      else
+        {
+          fd_in = exec->fd_in;
         }
     }
 
@@ -1047,6 +1079,15 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                              FAR char **allocation)
 {
   FAR char *tmpfile;
+  struct nsh_param_s param_exec = {
+      .fd_in      = -1,
+      .fd_out     = -1,
+      .oflags_in  = 0,
+      .oflags_out = O_WRONLY | O_CREAT | O_TRUNC,
+      .file_in    = NULL,
+      .file_out   = NULL
+  };
+
   FAR char *argument;
   int ret;
 
@@ -1074,7 +1115,8 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
    * options.
    */
 
-  ret = nsh_parse_cmdparm(vtbl, cmdline, tmpfile);
+  param_exec.file_out = tmpfile;
+  ret = nsh_parse_cmdparm(vtbl, cmdline, &param_exec);
   if (ret != OK)
     {
       /* Report the failure */
@@ -1783,6 +1825,16 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
       argument = (FAR char *)g_redirect_in1;
     }
 
+#ifdef CONFIG_NSH_PIPELINE
+  /* Does the token begin with '|' -- pipeline? */
+
+  if (*pbegin == '|')
+    {
+      *saveptr = pbegin + 1;
+      argument = (FAR char *)g_pipeline1;
+    }
+#endif
+
   /* Does the token begin with '#' -- comment */
 
   else if (*pbegin == '#')
@@ -2466,7 +2518,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
 #ifdef CONFIG_NSH_CMDPARMS
 static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
-                             FAR const char *redirfile_out)
+                             FAR const struct nsh_param_s *exec)
 {
   NSH_MEMLIST_TYPE memlist;
   NSH_ALIASLIST_TYPE alist;
@@ -2561,8 +2613,7 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   /* Then execute the command */
 
-  ret = nsh_execute(vtbl, argc, argv, NULL, redirfile_out,
-                    O_WRONLY | O_CREAT | O_TRUNC);
+  ret = nsh_execute(vtbl, argc, argv, exec);
 
   /* Restore the backgrounding and redirection state */
 
@@ -2590,19 +2641,28 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 {
   NSH_MEMLIST_TYPE memlist;
   NSH_ALIASLIST_TYPE alist;
-  FAR char *argv[MAX_ARGV_ENTRIES];
+  FAR char **argv;
   FAR char *saveptr;
   FAR char *cmd;
-  FAR char *redirfile_out = NULL;
-  FAR char *redirfile_in = NULL;
-  int       oflags = 0;
+  struct nsh_param_s param_exec = {
+      .fd_in      = -1,
+      .fd_out     = -1,
+      .oflags_in  = 0,
+      .oflags_out = 0,
+      .file_in    = NULL,
+      .file_out   = NULL
+  };
+
   int       argc;
-  int       ret;
+  int       ret = ERROR;
   bool      redirect_out_save = false;
   bool      redirect_in_save = false;
   size_t redirect_out1_len = strlen(g_redirect_out1);
   size_t redirect_out2_len = strlen(g_redirect_out2);
   size_t redirect_in1_len = strlen(g_redirect_in1);
+#ifdef CONFIG_NSH_PIPELINE
+  size_t pipeline1_len = strlen(g_pipeline1);
+#endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
   char      tracebuf[CONFIG_NSH_LINELEN + 1];
@@ -2611,9 +2671,23 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   sched_note_beginex(NOTE_TAG_APP, tracebuf);
 #endif
 
+  struct nsh_arg_s cmd_args[EXEC_DEPTH];
+  int cmd_idx = 0;
+  int i;
+
   /* Initialize parser state */
 
-  memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+  for (i = 0; i < EXEC_DEPTH; i++)
+    {
+#ifdef CONFIG_NSH_PIPELINE
+      cmd_args[i].pipefd[0] = -1;
+      cmd_args[i].pipefd[1] = -1;
+#endif
+      cmd_args[i].argc = 0;
+      memset(cmd_args[i].argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+    }
+
+  argv = cmd_args[cmd_idx].argv;
   NSH_MEMLIST_INIT(memlist);
   NSH_ALIASLIST_INIT(alist);
 
@@ -2772,8 +2846,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
           redirect_out_save     = vtbl->np.np_redir_out;
           vtbl->np.np_redir_out = true;
-          oflags                = O_WRONLY | O_CREAT | O_APPEND;
-          redirfile_out         = nsh_getfullpath(vtbl, arg);
+          param_exec.oflags_out = O_WRONLY | O_CREAT | O_APPEND;
+          param_exec.file_out   = nsh_getfullpath(vtbl, arg);
         }
       else if (!strncmp(argv[argc], g_redirect_out1, redirect_out1_len))
         {
@@ -2796,8 +2870,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
           redirect_out_save     = vtbl->np.np_redir_out;
           vtbl->np.np_redir_out = true;
-          oflags                = O_WRONLY | O_CREAT | O_TRUNC;
-          redirfile_out         = nsh_getfullpath(vtbl, arg);
+          param_exec.oflags_out = O_WRONLY | O_CREAT | O_TRUNC;
+          param_exec.file_out   = nsh_getfullpath(vtbl, arg);
         }
       else if (!strncmp(argv[argc], g_redirect_in1, redirect_in1_len))
         {
@@ -2818,10 +2892,47 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
               goto dynlist_free;
             }
 
-          redirect_in_save     = vtbl->np.np_redir_in;
-          vtbl->np.np_redir_in = true;
-          redirfile_in         = nsh_getfullpath(vtbl, arg);
+          redirect_in_save      = vtbl->np.np_redir_in;
+          vtbl->np.np_redir_in  = true;
+          param_exec.oflags_in  = O_RDONLY;
+          param_exec.file_in    = nsh_getfullpath(vtbl, arg);
         }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (!strncmp(argv[argc], g_pipeline1, pipeline1_len))
+        {
+          FAR char *arg;
+          if (argv[argc][pipeline1_len])
+            {
+              arg = &argv[argc][pipeline1_len];
+            }
+          else
+            {
+              arg = nsh_argument(vtbl, &saveptr, &memlist, NULL, &isenvvar);
+            }
+
+          if (!arg)
+            {
+              nsh_error(vtbl, g_fmtarginvalid, cmd);
+              ret = ERROR;
+              goto dynlist_free;
+            }
+
+          if (cmd_idx >= EXEC_DEPTH - 1)
+            {
+              nsh_error(vtbl, g_fmtdeepnesting, cmd);
+              ret = ERROR;
+              goto dynlist_free;
+            }
+
+          argv[argc] = NULL;
+          cmd_args[cmd_idx].argc = argc;
+          cmd_idx++;
+
+          argv = cmd_args[cmd_idx].argv;
+          argv[0] = arg;
+          argc = 1;
+        }
+#endif
       else
         {
           argc++;
@@ -2841,6 +2952,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Last argument vector must be empty */
 
   argv[argc] = NULL;
+  cmd_args[cmd_idx].argc = argc;
 
   /* Check if the maximum number of arguments was exceeded */
 
@@ -2849,27 +2961,107 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       nsh_error(vtbl, g_fmttoomanyargs, cmd);
     }
 
+#ifdef CONFIG_NSH_PIPELINE
+  for (i = 0; i < cmd_idx; i++)
+    {
+      ret = pipe2(cmd_args[i].pipefd, 0);
+      if (ret < 0)
+        {
+          ret = -EPIPE;
+          goto pipe_close;
+        }
+    }
+#endif
+
   /* Then execute the command */
 
-  ret = nsh_execute(vtbl, argc, argv, redirfile_in, redirfile_out, oflags);
+  for (i = 0; i <= cmd_idx; i++)
+    {
+#ifdef CONFIG_NSH_PIPELINE
+      if (cmd_idx > 0)
+        {
+          param_exec.file_in = NULL;
+          param_exec.file_out = NULL;
+          redirect_in_save = vtbl->np.np_redir_in;
+          redirect_out_save = vtbl->np.np_redir_out;
+
+          if (i == 0)
+            {
+              vtbl->np.np_redir_in = false;
+              param_exec.fd_in = -1;
+            }
+          else
+            {
+              vtbl->np.np_redir_in = true;
+              param_exec.fd_in = cmd_args[i - 1].pipefd[0];
+            }
+
+          if (i == cmd_idx)
+            {
+              vtbl->np.np_redir_out = false;
+              param_exec.fd_out = -1;
+            }
+          else
+            {
+              vtbl->np.np_redir_out = true;
+              param_exec.fd_out = cmd_args[i].pipefd[1];
+            }
+
+          if (i > 0)
+            {
+              close(cmd_args[i - 1].pipefd[1]);
+              cmd_args[i - 1].pipefd[1] = -1;
+            }
+        }
+#endif
+
+      ret = nsh_execute(vtbl, cmd_args[i].argc, cmd_args[i].argv,
+                        &param_exec);
+
+      /* Free the redirected output file path */
+
+      if (param_exec.file_out)
+        {
+          nsh_freefullpath((char *)param_exec.file_out);
+          vtbl->np.np_redir_out = redirect_out_save;
+        }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (param_exec.fd_out != -1)
+        {
+          vtbl->np.np_redir_out = redirect_out_save;
+        }
+#endif
+
+      /* Free the redirected input file path */
+
+      if (param_exec.file_in)
+        {
+          nsh_freefullpath((char *)param_exec.file_in);
+          vtbl->np.np_redir_in = redirect_in_save;
+        }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (param_exec.fd_in)
+        {
+          vtbl->np.np_redir_in = redirect_in_save;
+        }
+#endif
+    }
 
   /* Free any allocated resources */
 
-  /* Free the redirected output file path */
-
-  if (redirfile_out)
+#ifdef CONFIG_NSH_PIPELINE
+pipe_close:
+  for (argc = 0; argc < cmd_idx; argc++)
     {
-      nsh_freefullpath(redirfile_out);
-      vtbl->np.np_redir_out = redirect_out_save;
+      for (i = 0; i < 2; i++)
+        {
+          if (cmd_args[argc].pipefd[i] != -1)
+            {
+              close(cmd_args[argc].pipefd[i]);
+            }
+        }
     }
-
-  /* Free the redirected input file path */
-
-  if (redirfile_in)
-    {
-      nsh_freefullpath(redirfile_in);
-      vtbl->np.np_redir_in = redirect_in_save;
-    }
+#endif
 
 dynlist_free:
   NSH_ALIASLIST_FREE(vtbl, &alist);

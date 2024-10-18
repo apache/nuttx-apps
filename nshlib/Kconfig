@@ -231,6 +231,23 @@ config NSH_ALIAS_MAX_AMOUNT
 
 endif # NSH_ALIAS
 
+config NSH_PIPELINE
+	bool "Enable pipeline support"
+	default !DEFAULT_SMALL
+	depends on PIPES
+	---help---
+		Enable pipeline support for nsh.
+
+if NSH_PIPELINE
+
+config NSH_PIPELINE_NEST_DEPTH
+	int "Max nesting depth"
+	default 2
+	---help---
+		Max depth of pipeline nesting.
+
+endif # NSH_PIPELINE
+
 endmenu # Command Line Configuration
 
 config NSH_BUILTIN_APPS
