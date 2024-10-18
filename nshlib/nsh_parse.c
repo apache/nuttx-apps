@@ -126,19 +126,6 @@
  * Private Types
  ****************************************************************************/
 
-/* These structure describes the parsed command line */
-
-#ifndef CONFIG_NSH_DISABLEBG
-struct cmdarg_s
-{
-  FAR struct nsh_vtbl_s *vtbl;      /* For front-end interaction */
-  int fd_in;                        /* FD for output redirection */
-  int fd_out;                       /* FD for output redirection */
-  int argc;                         /* Number of arguments in argv */
-  FAR char *argv[MAX_ARGV_ENTRIES]; /* Argument list */
-};
-#endif
-
 /* This structure describes the allocation list */
 
 #ifdef HAVE_MEMLIST
@@ -172,13 +159,6 @@ static void nsh_alist_add(FAR struct nsh_alist_s *alist,
                           FAR struct nsh_alias_s *alias);
 static void nsh_alist_free(FAR struct nsh_vtbl_s *vtbl,
                            FAR struct nsh_alist_s *alist);
-#endif
-
-#ifndef CONFIG_NSH_DISABLEBG
-static void nsh_releaseargs(struct cmdarg_s *arg);
-static pthread_addr_t nsh_child(pthread_addr_t arg);
-static struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
-               int fd_in, int fd_out, int argc, FAR char *argv[]);
 #endif
 
 static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result);
@@ -444,104 +424,15 @@ static void nsh_alist_free(FAR struct nsh_vtbl_s *vtbl,
 #endif
 
 /****************************************************************************
- * Name: nsh_releaseargs
- ****************************************************************************/
-
-#ifndef CONFIG_NSH_DISABLEBG
-static void nsh_releaseargs(struct cmdarg_s *arg)
-{
-  FAR struct nsh_vtbl_s *vtbl = arg->vtbl;
-  int i;
-
-  /* If the output was redirected, then file descriptor should
-   * be closed.  The created task has its one, independent copy of
-   * the file descriptor
-   */
-
-  if (vtbl->np.np_redir_out)
-    {
-      close(arg->fd_out);
-    }
-
-  /* Same for the input */
-
-  if (vtbl->np.np_redir_in)
-    {
-      close(arg->fd_in);
-    }
-
-  /* Released the cloned vtbl instance */
-
-  nsh_release(vtbl);
-
-  /* Release the cloned args */
-
-  for (i = 0; i < arg->argc; i++)
-    {
-      free(arg->argv[i]);
-    }
-
-  free(arg);
-}
-#endif
-
-/****************************************************************************
  * Name: nsh_child
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLEBG
-static pthread_addr_t nsh_child(pthread_addr_t arg)
-{
-  struct cmdarg_s *carg = (struct cmdarg_s *)arg;
-  int ret;
-
-  _info("BG %s\n", carg->argv[0]);
-
-  /* Execute the specified command on the child thread */
-
-  ret = nsh_command(carg->vtbl, carg->argc, carg->argv);
-
-  /* Released the cloned arguments */
-
-  _info("BG %s complete\n", carg->argv[0]);
-  nsh_releaseargs(carg);
-
-  /* Detach from the pthread since we are not going to join with it.
-   * Otherwise, we would have a memory leak.
-   */
-
-  pthread_detach(pthread_self());
-  return (pthread_addr_t)((uintptr_t)ret);
-}
-#endif
-
-/****************************************************************************
- * Name: nsh_cloneargs
- ****************************************************************************/
-
-#ifndef CONFIG_NSH_DISABLEBG
-static struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
-                                      int fd_in, int fd_out, int argc,
-                                      FAR char *argv[])
-{
-  struct cmdarg_s *ret = (struct cmdarg_s *)zalloc(sizeof(struct cmdarg_s));
-  int i;
-
-  if (ret)
-    {
-      ret->vtbl = vtbl;
-      ret->fd_in = fd_in;
-      ret->fd_out = fd_out;
-      ret->argc = argc;
-
-      for (i = 0; i < argc; i++)
-        {
-          ret->argv[i] = strdup(argv[i]);
-        }
-    }
-
-  return ret;
-}
+#  ifndef CONFIG_BUILD_KERNEL
+#    define nsh_child_task nsh_system
+#  else
+#    define nsh_child_task NULL
+#  endif
 #endif
 
 /****************************************************************************
@@ -608,6 +499,171 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 }
 
 /****************************************************************************
+ * Name: nsh_bg_spawn
+ *
+ * Description:
+ *    Attempt to execute the application task foreground or background
+ *
+ * Returned Value:
+ *   >0          The bg spawn created task pid.
+ *   <0          The bg spawn failed.
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLEBG
+static
+int nsh_bg_spawn(FAR const char *appname, main_t main,
+                 FAR char * const *argv, int priority, size_t stacksize,
+                 FAR const char *redirfile_in, FAR const char *redirfile_out,
+                 int oflags)
+{
+  posix_spawn_file_actions_t file_actions;
+  struct sched_param param;
+  posix_spawnattr_t attr;
+  pid_t pid;
+  int ret;
+
+  /* Initialize attributes for task_spawn(). */
+
+  ret = posix_spawnattr_init(&attr);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+
+  ret = posix_spawn_file_actions_init(&file_actions);
+  if (ret != 0)
+    {
+      goto errout_with_attrs;
+    }
+
+  /* Set the correct task size and priority */
+
+  param.sched_priority = priority;
+  ret = posix_spawnattr_setschedparam(&attr, &param);
+  if (ret != 0)
+    {
+      goto errout_with_actions;
+    }
+
+  ret = posix_spawnattr_setstacksize(&attr, stacksize);
+  if (ret != 0)
+    {
+      goto errout_with_actions;
+    }
+
+  /* If robin robin scheduling is enabled, then set the scheduling policy
+   * of the new task to SCHED_RR before it has a chance to run.
+   */
+
+#if CONFIG_RR_INTERVAL > 0
+  ret = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
+  if (ret != 0)
+    {
+      goto errout_with_actions;
+    }
+
+  ret = posix_spawnattr_setflags(&attr,
+                                 POSIX_SPAWN_SETSCHEDPARAM |
+                                 POSIX_SPAWN_SETSCHEDULER);
+  if (ret != 0)
+    {
+      goto errout_with_actions;
+    }
+
+#else
+  ret = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
+  if (ret != 0)
+    {
+      goto errout_with_actions;
+    }
+
+#endif
+
+  /* Is output being redirected? */
+
+  if (redirfile_in)
+    {
+      /* Set up to close open redirfile_out and set to stdout (1) */
+
+      ret = posix_spawn_file_actions_addopen(&file_actions, STDIN_FILENO,
+                                             redirfile_in, O_RDONLY, 0666);
+      if (ret != 0)
+        {
+          serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
+          goto errout_with_actions;
+        }
+    }
+
+  if (redirfile_out)
+    {
+      /* Set up to close open redirfile_out and set to stdout (1) */
+
+      ret = posix_spawn_file_actions_addopen(&file_actions, STDOUT_FILENO,
+                                             redirfile_out, oflags, 0);
+      if (ret != 0)
+        {
+          serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
+          goto errout_with_actions;
+        }
+    }
+
+#ifdef CONFIG_LIBC_EXECFUNCS
+  /* Load and execute the application. */
+
+  ret = posix_spawnp(&pid, appname, &file_actions, &attr, argv, NULL);
+  if (ret != 0 && main != NULL)
+#endif
+    {
+#ifndef CONFIG_BUILD_KERNEL
+      /* Start the built-in */
+
+      pid = task_spawn(appname, main, &file_actions,
+                       &attr, argv ? &argv[1] : NULL, NULL);
+      if (pid < 0)
+        {
+          ret = -pid;
+        }
+      else
+        {
+          ret = OK;
+        }
+#endif
+    }
+
+  /* Free attributes and file actions.  Ignoring return values in the case
+   * of an error.
+   */
+
+  if (ret != 0)
+    {
+      serr("ERROR: task_spawn failed: %d\n", ret);
+      goto errout_with_actions;
+    }
+
+  /* Return the task ID of the new task if the task was successfully
+   * started.  Otherwise, ret will be ERROR (and the errno value will
+   * be set appropriately).
+   */
+
+  posix_spawn_file_actions_destroy(&file_actions);
+  posix_spawnattr_destroy(&attr);
+
+  return pid;
+
+errout_with_actions:
+  posix_spawn_file_actions_destroy(&file_actions);
+
+errout_with_attrs:
+  posix_spawnattr_destroy(&attr);
+
+errout_with_errno:
+  errno = ret;
+  return ERROR;
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_execute
  ****************************************************************************/
 
@@ -616,8 +672,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                        FAR const char *redirfile_in,
                        FAR const char *redirfile_out, int oflags)
 {
-  int fd_in = STDIN_FILENO;
-  int fd_out = STDOUT_FILENO;
   int ret;
 
   /* DO NOT CHANGE THE ORDERING OF THE FOLLOWING STEPS
@@ -713,42 +767,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
 #endif
 
-  /* Redirected output? */
-
-  if (vtbl->np.np_redir_out)
-    {
-      /* Open the redirection file.  This file will eventually
-       * be closed by a call to either nsh_release (if the command
-       * is executed in the background) or by nsh_undirect if the
-       * command is executed in the foreground.
-       */
-
-      fd_out = open(redirfile_out, oflags, 0666);
-      if (fd_out < 0)
-        {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
-          goto errout;
-        }
-    }
-
-  /* Redirected input? */
-
-  if (vtbl->np.np_redir_in)
-    {
-      /* Open the redirection file.  This file will eventually
-       * be closed by a call to either nsh_release (if the command
-       * is executed in the background) or by nsh_undirect if the
-       * command is executed in the foreground.
-       */
-
-      fd_in = open(redirfile_in, O_RDONLY, 0);
-      if (fd_in < 0)
-        {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
-          goto errout;
-        }
-    }
-
   /* Handle the case where the command is executed in background.
    * However is app is to be started as built-in new process will
    * be created anyway, so skip this step.
@@ -758,50 +776,15 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
   if (vtbl->np.np_bg)
     {
       struct sched_param param;
-      struct nsh_vtbl_s *bkgvtbl;
-      struct cmdarg_s *args;
-      pthread_attr_t attr;
-      pthread_t thread;
-
-      /* Get a cloned copy of the vtbl with reference count=1.
-       * after the command has been processed, the nsh_release() call
-       * at the end of nsh_child() will destroy the clone.
-       */
-
-      bkgvtbl = nsh_clone(vtbl);
-      if (!bkgvtbl)
-        {
-          goto errout_with_redirect;
-        }
-
-      /* Create a container for the command arguments */
-
-      args = nsh_cloneargs(bkgvtbl, fd_in, fd_out, argc, argv);
-      if (!args)
-        {
-          nsh_release(bkgvtbl);
-          goto errout_with_redirect;
-        }
-
-      /* Handle redirection of output via a file descriptor */
-
-      if (vtbl->np.np_redir_out || vtbl->np.np_redir_in)
-        {
-          nsh_redirect(bkgvtbl, fd_in, fd_out, NULL);
-        }
-
-      /* Get the execution priority of this task */
+      FAR char *spawn_argv[4];
+      int i;
 
       ret = sched_getparam(0, &param);
       if (ret != 0)
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "sched_getparm",
                     NSH_ERRNO);
-
-          /* NOTE: bkgvtbl is released in nsh_relaseargs() */
-
-          nsh_releaseargs(args);
-          goto errout;
+          return nsh_saveresult(vtbl, true);
         }
 
       /* Determine the priority to execute the command */
@@ -829,35 +812,80 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
           param.sched_priority = priority;
         }
 
-      /* Set up the thread attributes */
-
-      pthread_attr_init(&attr);
-      pthread_attr_setschedpolicy(&attr, SCHED_NSH);
-      pthread_attr_setschedparam(&attr, &param);
-
-      /* Execute the command as a separate thread at the appropriate
-       * priority.
-       */
-
-      ret = pthread_create(&thread, &attr, nsh_child, (pthread_addr_t)args);
-      if (ret != 0)
+      spawn_argv[0] = "sh";
+      spawn_argv[1] = "-c";
+      for (i = 0; i < argc - 1; i++)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "pthread_create",
-                    NSH_ERRNO_OF(ret));
+          char *p_arg = argv[i];
+          size_t len = strlen(p_arg);
 
-          /* NOTE: bkgvtbl is released in nsh_relaseargs() */
+          /* Restore from split args to concat args. */
 
-          nsh_releaseargs(args);
-          goto errout;
+          DEBUGASSERT(&p_arg[len + 1] == argv[i + 1]);
+          p_arg[len] = ' ';
         }
 
-      nsh_output(vtbl, "%s [%d:%d]\n", argv[0], thread,
+      spawn_argv[2] = argv[0];
+      spawn_argv[3] = NULL;
+
+      ret = nsh_bg_spawn(spawn_argv[0], nsh_child_task,
+                         spawn_argv, param.sched_priority,
+#ifdef CONFIG_SYSTEM_NSH
+                         CONFIG_SYSTEM_NSH_STACKSIZE,
+#else
+                         CONFIG_DEFAULT_TASK_STACKSIZE,
+#endif
+                         redirfile_in, redirfile_out, oflags);
+      nsh_output(vtbl, "%s [%d:%d]\n", argv[0], ret,
                  param.sched_priority);
+      if (ret < 0)
+        {
+          return nsh_saveresult(vtbl, true);
+        }
     }
   else
 #endif
     {
       uint8_t save[SAVE_SIZE];
+
+      int fd_in = STDIN_FILENO;
+      int fd_out = STDOUT_FILENO;
+
+      /* Redirected output? */
+
+      if (vtbl->np.np_redir_out)
+        {
+          /* Open the redirection file.  This file will eventually
+           * be closed by a call to either nsh_release (if the command
+           * is executed in the background) or by nsh_undirect if the
+           * command is executed in the foreground.
+           */
+
+          fd_out = open(redirfile_out, oflags, 0666);
+          if (fd_out < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+              return nsh_saveresult(vtbl, true);
+            }
+        }
+
+      /* Redirected input? */
+
+      if (vtbl->np.np_redir_in)
+        {
+          /* Open the redirection file.  This file will eventually
+           * be closed by a call to either nsh_release (if the command
+           * is executed in the background) or by nsh_undirect if the
+           * command is executed in the foreground.
+           */
+
+          fd_in = open(redirfile_in, O_RDONLY, 0);
+          if (fd_in < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+              return nsh_saveresult(vtbl, true);
+            }
+        }
 
       /* Handle redirection of stdin/stdout file descriptor */
 
@@ -890,7 +918,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
       if (ret < 0)
         {
-          goto errout;
+          return nsh_saveresult(vtbl, true);
         }
     }
 
@@ -899,22 +927,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    */
 
   return nsh_saveresult(vtbl, false);
-
-#ifndef CONFIG_NSH_DISABLEBG
-errout_with_redirect:
-  if (vtbl->np.np_redir_out)
-    {
-      close(fd_out);
-    }
-
-  if (vtbl->np.np_redir_in)
-    {
-      close(fd_in);
-    }
-#endif
-
-errout:
-  return nsh_saveresult(vtbl, true);
 }
 
 /****************************************************************************
