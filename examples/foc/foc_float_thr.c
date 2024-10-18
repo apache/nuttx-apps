@@ -50,6 +50,16 @@
 #  error
 #endif
 
+/* Critical section */
+
+#ifdef CONFIG_EXAMPLES_FOC_CONTROL_CRITSEC
+#  define foc_enter_critical() irqstate_t intflags = enter_critical_section()
+#  define foc_leave_critical() leave_critical_section(intflags)
+#else
+#  define foc_enter_critical()
+#  define foc_leave_critical()
+#endif
+
 /****************************************************************************
  * Private Type Definition
  ****************************************************************************/
@@ -353,6 +363,8 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
 
   while (motor.mq.quit == false)
     {
+      foc_enter_critical();
+
       if (motor.mq.start == true)
         {
           /* Get FOC device state */
@@ -403,6 +415,7 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
 
           /* Start from the beginning of the control loop */
 
+          foc_leave_critical();
           continue;
         }
 
@@ -410,6 +423,7 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
 
       if (motor.mq.start == false)
         {
+          foc_leave_critical();
           usleep(1000);
           continue;
         }
@@ -517,12 +531,7 @@ int foc_float_thr(FAR struct foc_ctrl_env_s *envp)
 
       motor.time += 1;
 
-#ifdef CONFIG_EXAMPLES_FOC_PERF
-      if (dev.perf.max_changed)
-        {
-          PRINTF_PERF("max=%" PRId32 "\n", dev.perf.max);
-        }
-#endif
+      foc_leave_critical();
     }
 
 errout:
@@ -544,6 +553,12 @@ errout:
     {
       PRINTF("ERROR: foc_device_deinit %d failed %d\n", envp->id, ret);
     }
+
+#ifdef CONFIG_EXAMPLES_FOC_PERF_EXIT
+  /* Print final perf stats */
+
+  foc_perf_exit(&dev.perf);
+#endif
 
   PRINTF("foc_float_thr %d exit\n", envp->id);
 

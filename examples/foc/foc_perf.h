@@ -28,20 +28,41 @@
 #include <nuttx/config.h>
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define PRINTF_PERF(format, ...) printf(format, ##__VA_ARGS__)
-
-/****************************************************************************
  * Public Type Definition
  ****************************************************************************/
 
+/* The diagram below illustrates the operation of a simple FOC ocntroller
+ * performance measurement tool:
+ *
+ *     | notify      | notify      | notify
+ *     v             v             v
+ *        ctrl          ctrl
+ *      |------|      |------|      |---
+ *      | BUSY | wait | BUSY | wait |
+ *  ____|      |------|      |------|
+ *
+ *      ^      ^      ^
+ *      | exec |      |
+ *      |<---->|      |
+ *      |             |
+ *      |     per     |
+ *      |<----------->|
+ *
+ *
+ *  exec   - FOC control loop execution time
+ *  per    - FOC control loop period
+ *  notify - notification event from FOC device,
+ *           called with CONFIG_EXAMPLES_FOC_NOTIFIER_FREQ frequency
+ */
+
 struct foc_perf_s
 {
-  bool     max_changed;
-  uint32_t max;
-  uint32_t now;
+  bool     exec_max_changed;    /* Max execution time changed */
+  bool     per_max_changed;     /* Max period changed */
+  uint32_t exec_max;            /* Control loop execution max */
+  uint32_t per_max;             /* Control loop period max */
+  uint32_t exec;                /* Temporary storage */
+  uint32_t per;                 /* Temporary storage */
 };
 
 /****************************************************************************
@@ -51,5 +72,7 @@ struct foc_perf_s
 int foc_perf_init(struct foc_perf_s *p);
 void foc_perf_start(struct foc_perf_s *p);
 void foc_perf_end(struct foc_perf_s *p);
+void foc_perf_live(struct foc_perf_s *p);
+void foc_perf_exit(struct foc_perf_s *p);
 
 #endif /* __APPS_EXAMPLES_FOC_FOC_PERF_H */

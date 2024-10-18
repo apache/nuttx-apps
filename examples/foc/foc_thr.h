@@ -112,7 +112,7 @@ enum foc_controller_state_e
 struct foc_ctrl_env_s
 {
   mqd_t                     mqd;   /* Control msg queue */
-  int                       id;    /* FOC device id */
+  uint8_t                   id;    /* FOC device id */
   int                       inst;  /* Type specific instance counter */
   int                       type;  /* Controller type */
   FAR struct foc_thr_cfg_s *cfg;   /* Control thread configuration */

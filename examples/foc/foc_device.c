@@ -209,6 +209,12 @@ int foc_dev_params_set(FAR struct foc_device_s *dev)
   foc_perf_end(&dev->perf);
 #endif
 
+#ifdef CONFIG_EXAMPLES_FOC_PERF_LIVE
+  /* Print perf live stats */
+
+  foc_perf_live(&dev->perf);
+#endif
+
 errout:
   return ret;
 }
