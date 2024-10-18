@@ -51,7 +51,7 @@
 
 struct test_state_s
 {
-  FAR const char *dev_path;
+  char dev_path[PATH_MAX];
   int fd;
 };
 
@@ -60,20 +60,29 @@ struct test_state_s
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: show_usage
+ ****************************************************************************/
+
+static void show_usage(FAR const char *progname,
+                       FAR const char *path, int exitcode)
+{
+  printf("Usage: %s -d <devpath>\n", progname);
+  printf("  [-d devpath] Sensor device node.\n"
+         "  Default: %s Current: %s\n", ACC_DEVPATH, path);
+  exit(exitcode);
+}
+
+/****************************************************************************
  * Name: setup
  ****************************************************************************/
 
 static int setup(FAR void **state)
 {
   FAR struct test_state_s *test_state;
-  test_state = malloc(sizeof(struct test_state_s));
-  assert_true(test_state != NULL);
-
-  test_state->dev_path = ACC_DEVPATH;
+  test_state = (FAR struct test_state_s *)*state;
   test_state->fd = open(test_state->dev_path, O_RDONLY);
   assert_true(test_state->fd > 0);
 
-  *state = test_state;
   return 0;
 }
 
@@ -86,7 +95,6 @@ static int teardown(FAR void **state)
   FAR struct test_state_s *test_state;
   test_state = (FAR struct test_state_s *)*state;
   assert_int_equal(close(test_state->fd), 0);
-  free(test_state);
   return 0;
 }
 
@@ -131,9 +139,31 @@ static void read_from_device(FAR void **state)
 
 int main(int argc, FAR char *argv[])
 {
+  struct test_state_s test_state;
+  int ch;
+
+  memset(&test_state, 0, sizeof(test_state));
+  snprintf(test_state.dev_path, sizeof(test_state.dev_path), "%s",
+           ACC_DEVPATH);
+  while ((ch = getopt(argc, argv, "d:h")) != ERROR)
+    {
+      switch (ch)
+        {
+          case 'd':
+            snprintf(test_state.dev_path, sizeof(test_state.dev_path), "%s",
+                     optarg);
+            break;
+          case 'h':
+          case '?':
+            show_usage(argv[0], test_state.dev_path, EXIT_FAILURE);
+            break;
+        }
+    }
+
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_setup_teardown(read_from_device, setup, teardown),
+      cmocka_unit_test_prestate_setup_teardown(read_from_device, setup,
+                                               teardown, &test_state),
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
