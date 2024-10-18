@@ -186,7 +186,12 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_DD
-  CMD_MAP("dd",       cmd_dd,       3, 7,
+  CMD_MAP("dd",       cmd_dd,
+#  ifdef CONFIG_NSH_PIPELINE
+          1, 7,
+#  else
+          3, 7,
+#  endif
     "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] "
     "[skip=<sectors>] [seek=<sectors>] [verify] [conv=<nocreat,notrunc>]"),
 #endif
