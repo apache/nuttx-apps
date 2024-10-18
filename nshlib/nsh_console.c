@@ -45,9 +45,13 @@
 
 struct serialsave_s
 {
+#ifdef CONFIG_NSH_ALTCONDEV
+  int   cn_confd;     /* Console I/O file descriptor */
+#else
+  int   cn_infd;      /* Re-directed input file descriptor */
+#endif
   int   cn_errfd;     /* Re-directed error output file descriptor */
   int   cn_outfd;     /* Re-directed output file descriptor */
-  int   cn_infd;      /* Re-directed input file descriptor */
 };
 
 /****************************************************************************
