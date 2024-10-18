@@ -911,6 +911,7 @@ static int wapi_country_cmd(int sock, int argc, FAR char **argv)
 
   if (argc == 1)
     {
+      memset(country, 0, sizeof(country));
       ret = wapi_get_country(sock, argv[0], country);
       if (ret >= 0)
         {
