@@ -1,0 +1,88 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig BOOT_NXBOOT
+	bool "NuttX bootloader"
+	default n
+	select BCH
+	---help---
+		Enable support for the minimal NuttX based bootloader.
+
+if BOOT_NXBOOT
+
+config NXBOOT_PRIMARY_SLOT_PATH
+	string "Application firmware primary image slot path"
+	default "/dev/ota0"
+	---help---
+		The path to the application firmware image primary slot character
+		device driver. The image runs from this location.
+		Default: /dev/ota0
+
+config NXBOOT_SECONDARY_SLOT_PATH
+	string "Application firmware secondary image slot path"
+	default "/dev/ota1"
+	---help---
+		The path to the application firmware image primary slot character
+		device driver. This is either update or recovery slot.
+		Default: /dev/ota1
+
+config NXBOOT_TERTIARY_SLOT_PATH
+	string "Application firmware tertiary image slot path"
+	default "/dev/ota2"
+	---help---
+		The path to the application firmware image primary slot character
+		device driver. This is either update or recovery slot.
+		Default: /dev/ota2
+
+config NXBOOT_HEADER_SIZE
+	hex "Application firmware image header size"
+	default 0x200
+	---help---
+		Note that this size should be aligned with the program memory write
+		page size!
+
+config NXBOOT_BOOTLOADER
+	bool "Build nxboot bootloader application"
+	default n
+	select BOARDCTL
+	select BOARDCTL_BOOT_IMAGE
+	---help---
+		This option builds and links a bootloader application. This application
+		should be an entry function for NuttX. It checks for possible update/
+		revert operation, performs it and boot the correct image.
+
+if NXBOOT_BOOTLOADER
+
+config NXBOOT_SWRESET_ONLY
+	bool "Perform update/revert only on SW reset"
+	default n
+	select BOARDCTL_RESET_CAUSE
+	---help---
+		This option ensures the update/revert is performed only for following
+		reset causes:
+			BOARDIOC_RESETCAUSE_CPU_SOFT: software reset
+			BOARDIOC_RESETCAUSE_CPU_RWDT: watchdog error
+			BOARDIOC_RESETCAUSE_PIN: reset button
+
+		This way the board can keep its image (even if not confirmed) during
+		for example power shutdown and perform update/revent only if expected
+		based on user/maintainer input.
+
+config NXBOOT_PREVENT_DOWNGRADE
+	bool "Perform update only for newer version"
+	default n
+	---help---
+		NXboot uses Semantic Version 2.0.0 (without build metadata). By default
+		the update is performed for every version that doesn't match the
+		currently running one. If NXBOOT_PREVENT_DOWNGRADE selected, update is
+		performed only for newer versions  (according to Semantic Version
+		preference rules).
+
+		WARNING: NXboot currently implementes preferences only for
+		MAJOR.MINOR.PATCH and ignores prerelease.
+
+endif # NXBOOT_BOOTLOADER
+
+endif # BOOT_NXBOOT
