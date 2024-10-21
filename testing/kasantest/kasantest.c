@@ -70,9 +70,46 @@ static bool test_heap_invalid_free(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_double_free(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_poison(FAR struct mm_heap_s *heap, size_t size);
 static bool test_heap_unpoison(FAR struct mm_heap_s *heap, size_t size);
-static bool test_heap_memset(FAR struct mm_heap_s *heap, size_t size);
-static bool test_heap_memcpy(FAR struct mm_heap_s *heap, size_t size);
-static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_illegal_memchr(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_memcpy(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_memcmp(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_memmove(FAR struct mm_heap_s *heap,
+                                      size_t size);
+static bool test_heap_illegal_memset(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_strcmp(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_strcpy(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_strlen(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_strncpy(FAR struct mm_heap_s *heap,
+                                      size_t size);
+static bool test_heap_illegal_strchr(FAR struct mm_heap_s *heap,
+                                     size_t size);
+static bool test_heap_illegal_strncmp(FAR struct mm_heap_s *heap,
+                                      size_t size);
+static bool test_heap_illegal_strnlen(FAR struct mm_heap_s *heap,
+                                      size_t size);
+static bool test_heap_illegal_strrchr(FAR struct mm_heap_s *heap,
+                                      size_t size);
+static bool test_heap_legal_memchr(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_memcpy(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_memcmp(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_memmove(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_memset(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strcmp(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strcpy(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strlen(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strncpy(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strchr(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strncmp(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strnlen(FAR struct mm_heap_s *heap, size_t size);
+static bool test_heap_legal_strrchr(FAR struct mm_heap_s *heap, size_t size);
+
 static bool test_insert_perf(FAR struct mm_heap_s *heap, size_t size);
 static bool test_algorithm_perf(FAR struct mm_heap_s *heap, size_t size);
 
@@ -90,15 +127,38 @@ const static testcase_t g_kasan_test[] =
   {test_heap_underflow, true, "heap underflow"},
   {test_heap_overflow, true, "heap overflow"},
   {test_heap_use_after_free, true, "heap use after free"},
-  {test_heap_invalid_free, true, "heap inval free"},
-  {test_heap_double_free, true, "test heap double free"},
+  {test_heap_invalid_free, true, "heap invalid free"},
+  {test_heap_double_free, true, "heap double free"},
   {test_heap_poison, true, "heap poison"},
   {test_heap_unpoison, true, "heap unpoison"},
-  {test_heap_memset, true, "heap memset"},
-  {test_heap_memcpy, true, "heap memcpy"},
-  {test_heap_memmove, true, "heap memmove"},
-  {test_insert_perf, false, "Kasan insert performance testing"},
-  {test_algorithm_perf, false, "Kasan algorithm performance testing"},
+  {test_heap_illegal_memchr, true, "heap illegal memchr"},
+  {test_heap_illegal_memcpy, true, "heap illegal memcpy"},
+  {test_heap_illegal_memcmp, true, "heap illegal memcmp"},
+  {test_heap_illegal_memmove, true, "heap illegal memmove"},
+  {test_heap_illegal_memset, true, "heap illegal memset"},
+  {test_heap_illegal_strcmp, true, "heap illegal strcmp"},
+  {test_heap_illegal_strcpy, true, "heap illegal strcpy"},
+  {test_heap_illegal_strlen, true, "heap illegal strlen"},
+  {test_heap_illegal_strncpy, true, "heap illegal strncpy"},
+  {test_heap_illegal_strchr, true, "heap illegal strchr"},
+  {test_heap_illegal_strncmp, true, "heap illegal strncmp"},
+  {test_heap_illegal_strnlen, true, "heap illegal strnlen"},
+  {test_heap_illegal_strrchr, true, "heap illegal strrchr"},
+  {test_heap_legal_memchr, true, "heap legal memchr"},
+  {test_heap_legal_memcpy, true, "heap legal memcpy"},
+  {test_heap_legal_memcmp, true, "heap legal memcmp"},
+  {test_heap_legal_memmove, true, "heap legal memmove"},
+  {test_heap_legal_memset, true, "heap legal memset"},
+  {test_heap_legal_strcmp, true, "heap legal strcmp"},
+  {test_heap_legal_strcpy, true, "heap legal strlen"},
+  {test_heap_legal_strlen, true, "heap legal strlen"},
+  {test_heap_legal_strncpy, true, "heap legal strncpy"},
+  {test_heap_legal_strchr, true, "heap legal strchr"},
+  {test_heap_legal_strncmp, true, "heap legal strncmp"},
+  {test_heap_legal_strnlen, true, "heap legal strnlen"},
+  {test_heap_legal_strrchr, true, "heap legal strrchr"},
+  {test_insert_perf, false, "Kasan insert performance"},
+  {test_algorithm_perf, false, "Kasan algorithm performance"},
 #ifdef CONFIG_MM_KASAN_GLOBAL
   {test_global_underflow, true, "globals underflow"},
   {test_global_overflow, true, "globals overflow"},
@@ -164,7 +224,7 @@ static bool test_heap_use_after_free(FAR struct mm_heap_s *heap, size_t size)
 
   mm_free(heap, mem);
   mem[0] = 0x10;
-  return 0;
+  return false;
 }
 
 static bool test_heap_invalid_free(FAR struct mm_heap_s *heap, size_t size)
@@ -204,16 +264,15 @@ static bool test_heap_unpoison(FAR struct mm_heap_s *heap, size_t size)
   return true;
 }
 
-static bool test_heap_memset(FAR struct mm_heap_s *heap, size_t size)
+static bool test_heap_illegal_memchr(FAR struct mm_heap_s *heap, size_t size)
 {
   FAR uint8_t *mem = mm_malloc(heap, size);
   size = mm_malloc_size(heap, mem);
 
-  memset(mem, 0x11, size + 1);
-  return false;
+  return memchr(mem, 0x00, size + 1) == NULL;
 }
 
-static bool test_heap_memcpy(FAR struct mm_heap_s *heap, size_t size)
+static bool test_heap_illegal_memcpy(FAR struct mm_heap_s *heap, size_t size)
 {
   FAR uint8_t *src;
   FAR uint8_t *dst;
@@ -228,7 +287,16 @@ static bool test_heap_memcpy(FAR struct mm_heap_s *heap, size_t size)
   return false;
 }
 
-static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size)
+static bool test_heap_illegal_memcmp(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR uint8_t *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  return memcmp(mem, mem + size, 1) < 0;
+}
+
+static bool test_heap_illegal_memmove(FAR struct mm_heap_s *heap,
+                                      size_t size)
 {
   FAR uint8_t *src;
   FAR uint8_t *dst;
@@ -241,6 +309,225 @@ static bool test_heap_memmove(FAR struct mm_heap_s *heap, size_t size)
   memmove(dst, src, size);
   memmove(dst, src, size + 4);
   return false;
+}
+
+static bool test_heap_illegal_memset(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR uint8_t *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  memset(mem, 0x11, size + 1);
+  return false;
+}
+
+static bool test_heap_illegal_strcmp(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  *(int *)mem = rand();
+  return strcmp(mem, mem + size) == 0;
+}
+
+static bool test_heap_illegal_strcpy(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *dst = mm_malloc(heap, 16);
+  FAR char *src;
+  int i;
+  size = mm_malloc_size(heap, dst);
+  src = mm_malloc(heap, size + 16);
+
+  for (i = 0; i < size + 16; i++)
+    {
+      src[i] = 'a';
+    }
+
+  strcpy(dst, src);
+  return false;
+}
+
+static bool test_heap_illegal_strlen(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  return strlen(mem + size) < 0;
+}
+
+static bool test_heap_illegal_strncpy(FAR struct mm_heap_s *heap,
+                                      size_t size)
+{
+  FAR char *dst = mm_malloc(heap, size);
+  const char *src = "Hello, World!";
+
+  size = mm_malloc_size(heap, dst);
+  strncpy(dst, src, size + 1);
+  return false;
+}
+
+static bool test_heap_illegal_strchr(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  return strchr(mem + size, 0x00) == NULL;
+}
+
+static bool test_heap_illegal_strncmp(FAR struct mm_heap_s *heap,
+                                      size_t size)
+{
+  FAR char *mem1 = mm_malloc(heap, size / 2);
+  FAR char *mem2 = mm_malloc(heap, size / 2);
+  size = mm_malloc_size(heap, mem2);
+
+  *(int *)mem1 = rand();
+  return strncmp(mem1, mem2 + size, size) == 0;
+}
+
+static bool test_heap_illegal_strnlen(FAR struct mm_heap_s *heap,
+                                      size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  return strnlen(mem + size, size) < 0;
+}
+
+static bool test_heap_illegal_strrchr(FAR struct mm_heap_s *heap,
+                                      size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  return strrchr(mem + size, 0x00) == NULL;
+}
+
+static bool test_heap_legal_memchr(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  memset(mem, 0, size);
+  mem[size - 1] = 0x01;
+
+  return memchr(mem, 0x01, size);
+}
+
+static bool test_heap_legal_memcpy(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *des = mm_malloc(heap, size / 2);
+  FAR char *src = mm_malloc(heap, size / 2);
+  size_t des_size = mm_malloc_size(heap, des);
+  size_t src_size = mm_malloc_size(heap, src);
+
+  return memcpy(des, src, des_size > src_size ? src_size : des_size);
+}
+
+static bool test_heap_legal_memcmp(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *des = mm_malloc(heap, size / 2);
+  FAR char *src = mm_malloc(heap, size / 2);
+  size_t des_size = mm_malloc_size(heap, des);
+  size_t src_size = mm_malloc_size(heap, src);
+
+  des[des_size - 1] = 0x01;
+  src[src_size - 1] = 0x02;
+
+  return memcmp(des, src, des_size > src_size ? src_size : des_size);
+}
+
+static bool test_heap_legal_memmove(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *des = mm_malloc(heap, size / 2);
+  FAR char *src = mm_malloc(heap, size / 2);
+  size_t des_size = mm_malloc_size(heap, des);
+  size_t src_size = mm_malloc_size(heap, src);
+
+  return memmove(des, src, des_size > src_size ? src_size : des_size);
+}
+
+static bool test_heap_legal_memset(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *des = mm_malloc(heap, size / 2);
+  size = mm_malloc_size(heap, des);
+
+  return memset(des, 0xef, size);
+}
+
+static bool test_heap_legal_strcmp(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  FAR char *str = "hello world";
+
+  size = mm_malloc_size(heap, mem);
+  strcpy(mem, str);
+  return !strcmp(mem, str);
+}
+
+static bool test_heap_legal_strcpy(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  FAR char *str = "hello world";
+
+  size = mm_malloc_size(heap, mem);
+  return strcpy(mem, str);
+}
+
+static bool test_heap_legal_strlen(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+
+  return strlen(mem);
+}
+
+static bool test_heap_legal_strncpy(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *dst = mm_malloc(heap, size);
+  const char *src = "Hello, World!";
+
+  size = mm_malloc_size(heap, dst);
+  return strncpy(dst, src, size);
+}
+
+static bool test_heap_legal_strchr(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+
+  memset(mem, 0xff, size);
+  mem[size / 2 - 1] = 0x01;
+
+  return strchr(mem, 0x01);
+}
+
+static bool test_heap_legal_strncmp(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem1 = mm_malloc(heap, size / 2);
+  FAR char *mem2 = mm_malloc(heap, size / 2);
+
+  memset(mem1, 0xff, size / 2 - 1);
+  memset(mem2, 0xff, size / 2 - 1);
+  mem1[size / 2 - 2] = 0x01;
+  mem2[size / 2 - 2] = 0x02;
+
+  return strncmp(mem1, mem2, size) != 0;
+}
+
+static bool test_heap_legal_strnlen(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  mem[size - 1] = 0x00;
+  return strnlen(mem, size);
+}
+
+static bool test_heap_legal_strrchr(FAR struct mm_heap_s *heap, size_t size)
+{
+  FAR char *mem = mm_malloc(heap, size);
+  size = mm_malloc_size(heap, mem);
+
+  mem[size - 1] = 0;
+  return strrchr(mem, 0x00);
 }
 
 static bool test_insert_perf(FAR struct mm_heap_s *heap, size_t size)
@@ -339,17 +626,8 @@ static int run_test(FAR const testcase_t *test)
 
   posix_spawn(&pid, "kasantest", NULL, NULL, argv, NULL);
   waitpid(pid, &status, 0);
-  if (status == 0)
-    {
-      printf("KASan test: %s, size: %zu FAIL\n", test->name, run->size);
-    }
-  else
-    {
-      printf("KASan test: %s, size: %zu PASS\n", test->name, run->size);
-    }
-
   mm_uninitialize(run->heap);
-  return 0;
+  return status;
 }
 
 static int run_testcase(int argc, FAR char *argv[])
@@ -374,10 +652,7 @@ static int run_testcase(int argc, FAR char *argv[])
         }
       else
         {
-          if (run_test(&g_kasan_test[index - 1]) < 0)
-            {
-              return EXIT_FAILURE;
-            }
+          run_test(&g_kasan_test[index - 1]);
         }
 
       return EXIT_SUCCESS;
@@ -402,14 +677,28 @@ static int run_testcase(int argc, FAR char *argv[])
 
 int main(int argc, FAR char *argv[])
 {
+  int status[nitems(g_kasan_test)];
+  size_t i;
+
   if (argc < 2)
     {
-      size_t j;
-      for (j = 0; j < nitems(g_kasan_test); j++)
+      for (i = 0; i < nitems(g_kasan_test); i++)
         {
-          if (g_kasan_test[j].is_auto && run_test(&g_kasan_test[j]) < 0)
+          if (g_kasan_test[i].is_auto)
             {
-              return EXIT_FAILURE;
+              printf("KASan test: %s\n", g_kasan_test[i].name);
+              status[i] = run_test(&g_kasan_test[i]);
+            }
+        }
+
+      for (i = 0; i < nitems(status); i++)
+        {
+          if (g_kasan_test[i].is_auto)
+            {
+              printf("KASan Test: %s -> %s\n",
+                      g_kasan_test[i].name,
+                      status[i]? "\033[32mPASS\033[0m" :
+                                 "\033[31mFAIL\033[0m");
             }
         }
     }
