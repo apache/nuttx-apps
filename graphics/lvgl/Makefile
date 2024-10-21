@@ -54,11 +54,9 @@ endif
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-CONFIG_GRAPH_LVGL_URL ?= "https://github.com/lvgl/lvgl/archive/refs/tags"
+CONFIG_GRAPH_LVGL_URL ?= "https://github.com/lvgl/lvgl/archive/refs/heads/release"
 
-LVGL_PATCHS ?= $(sort $(wildcard 000*.patch))
-
-LVGL_VERSION = 9.1.0
+LVGL_VERSION = 9.2
 LVGL_TARBALL = v$(LVGL_VERSION).zip
 
 LVGL_UNPACKNAME = lvgl
@@ -75,8 +73,7 @@ $(LVGL_TARBALL):
 $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 	$(ECHO_BEGIN)"Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
 	$(Q) $(UNPACK) $(LVGL_TARBALL)
-	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
-	$(Q) cat $(LVGL_PATCHS) | patch -s -N -d $(LVGL_UNPACKNAME) -p1
+	$(Q) mv	lvgl-release-v$(LVGL_VERSION) $(LVGL_UNPACKNAME)
 	$(Q) touch $(LVGL_UNPACKNAME)
 	$(ECHO_END)
 
