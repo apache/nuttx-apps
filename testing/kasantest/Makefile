@@ -30,6 +30,6 @@ STACKSIZE = $(CONFIG_TESTING_KASAN_STACKSIZE)
 CFLAGS += -Wno-error -Wno-use-after-free -Wno-stringop-overflow
 CFLAGS += -Wno-array-bounds -Wno-free-nonheap-object
 CFLAGS += -Wno-unused-value -Wno-unused-variable
-CFLAGS += "-O0"
+CFLAGS += -Wno-uninitialized "-O0"
 
 include $(APPDIR)/Application.mk
