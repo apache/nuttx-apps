@@ -1,0 +1,18 @@
+[package]
+name = "hello"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+libc = { git = "https://github.com/no1wudi/libc", branch = "libc-0.2" }
+
+[profile.dev]
+panic ="abort"
+
+# Special hanlding for the panic! macro, can be removed once
+# the libstd port for NuttX is complete.
+[profile.release]
+panic ="abort"
