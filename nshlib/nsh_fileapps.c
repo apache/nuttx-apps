@@ -70,8 +70,7 @@
  ****************************************************************************/
 
 int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile_in,
-                FAR const char *redirfile_out, int oflags)
+                FAR char **argv, FAR const struct nsh_param_s *exec)
 {
   posix_spawn_file_actions_t file_actions;
   posix_spawnattr_t attr;
@@ -107,40 +106,75 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       goto errout_with_actions;
     }
 
-  /* Handle redirection of input */
-
-  if (redirfile_in)
+  if (exec)
     {
-      /* Set up to close open redirfile and set to stdin (0) */
+      /* Handle redirection of input */
 
-      ret = posix_spawn_file_actions_addopen(&file_actions, 0,
-                                             redirfile_in, O_RDONLY, 0);
-      if (ret != 0)
+      if (exec->file_in)
         {
-          nsh_error(vtbl, g_fmtcmdfailed, cmd,
-                     "posix_spawn_file_actions_addopen",
-                     NSH_ERRNO);
-          goto errout_with_actions;
+          /* Set up to close open redirfile and set to stdin (0) */
+
+          ret = posix_spawn_file_actions_addopen(&file_actions, 0,
+                                                 exec->file_in,
+                                                 exec->oflags_in,
+                                                 0);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_addopen",
+                        NSH_ERRNO);
+              goto errout_with_actions;
+            }
         }
-    }
-
-  /* Handle re-direction of output */
-
-  if (redirfile_out)
-    {
-      ret = posix_spawn_file_actions_addopen(&file_actions, 1, redirfile_out,
-                                             oflags, 0644);
-      if (ret != 0)
+#ifdef CONFIG_NSH_PIPELINE
+      else if (exec->fd_in != -1)
         {
-          /* posix_spawn_file_actions_addopen returns a positive errno
-           * value on failure.
-           */
-
-          nsh_error(vtbl, g_fmtcmdfailed, cmd,
-                     "posix_spawn_file_actions_addopen",
-                     NSH_ERRNO);
-          goto errout_with_attrs;
+          ret = posix_spawn_file_actions_adddup2(&file_actions,
+                                                 exec->fd_in, 0);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_adddup2",
+                        NSH_ERRNO);
+              goto errout_with_actions;
+            }
         }
+#endif
+
+      /* Handle re-direction of output */
+
+      if (exec->file_out)
+        {
+          ret = posix_spawn_file_actions_addopen(&file_actions, 1,
+                                                 exec->file_out,
+                                                 exec->oflags_out,
+                                                 0644);
+          if (ret != 0)
+            {
+              /* posix_spawn_file_actions_addopen returns a positive errno
+               * value on failure.
+               */
+
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_addopen",
+                        NSH_ERRNO);
+              goto errout_with_attrs;
+            }
+        }
+#ifdef CONFIG_NSH_PIPELINE
+      else if (exec->fd_out != -1)
+        {
+          ret = posix_spawn_file_actions_adddup2(&file_actions,
+                                                 exec->fd_out, 1);
+          if (ret != 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                        "posix_spawn_file_actions_adddup2",
+                        NSH_ERRNO);
+              goto errout_with_actions;
+            }
+        }
+#endif
     }
 
 #ifdef CONFIG_BUILTIN

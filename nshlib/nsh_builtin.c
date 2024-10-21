@@ -69,8 +69,8 @@
  ****************************************************************************/
 
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char **argv, FAR const char *redirfile_in,
-                FAR const char *redirfile_out, int oflags)
+                FAR char **argv,
+                FAR const struct nsh_param_s *exec)
 {
 #if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
   struct sigaction act;
@@ -102,7 +102,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    * applications.
    */
 
-  ret = exec_builtin(cmd, argv, redirfile_in, redirfile_out, oflags);
+  ret = exec_builtin(cmd, argv, exec);
   if (ret >= 0)
     {
       /* The application was successfully started with pre-emption disabled.
