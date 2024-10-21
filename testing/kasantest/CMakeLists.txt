@@ -27,6 +27,7 @@ if(CONFIG_TESTING_KASAN)
       -Wno-unused-variable
       -Wno-free-nonheap-object
       -Wno-stringop-overflow
+      -Wno-uninitialized
       "-O0")
   nuttx_add_application(NAME kasantest COMPILE_FLAGS ${CFLAGS} SRCS kasantest.c)
 endif()
