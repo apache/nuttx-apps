@@ -1,0 +1,66 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config AUDIOUTILS_ALSA_LIB
+	bool "Enable ALSA lib"
+	default n
+
+if AUDIOUTILS_ALSA_LIB
+
+config AUDIOUTILS_ALSA_LIB_DEV_PATH
+	string "play/recored device path"
+	default "/dev/audio"
+
+config AUDIOUTILS_ALSA_LIB_DUMP_FLAG
+	string "play pcm dump flag"
+	default "/data/alsa_pcm_dump"
+
+config AUDIOUTILS_ALSA_LIB_DUMP_PATH
+	string "play pcm dump path"
+	default "/data"
+
+choice
+	prompt "Alsa Device to be used"
+	default AUDIOUTILS_ALSA_LIB_DEVICE_DMIX
+
+config AUDIOUTILS_ALSA_LIB_DEVICE_DMIX
+	bool "Use Dmix device(support mix)"
+
+config AUDIOUTILS_ALSA_LIB_DEVICE_HW
+	bool "Use hardware device(not support mix, more faster)"
+
+endchoice # Alsa lib Device
+
+config AUDIOUTILS_ALSA_LIB_OUTPUT_FORMAT
+	int "Dmix output format 0/16/32 (16: S16, 32: S32, 0: use input format)"
+	default 0
+
+config AUDIOUTILS_ALSA_LIB_OUTPUT_CHANNELS
+	int "Dmix output channels 0/1/2 (1: 1ch, 2: 2ch, 0: use input channels)"
+	default 0
+
+config AUDIOUTILS_ALSA_LIB_OUTPUT_RATE
+	int "Dmix output rate 0/8000/16000/32000/44100/48000/96000 (0: use input rate)"
+	default 0
+
+choice
+	prompt "Alsa LOG Output Controls"
+	default AUDIOUTILS_ALSA_LIB_LOG_INFO
+
+config AUDIOUTILS_ALSA_LIB_LOG_DEBUG
+	bool "Output DEBUG+ log"
+
+config AUDIOUTILS_ALSA_LIB_LOG_INFO
+	bool "Output INFO+ log"
+
+config AUDIOUTILS_ALSA_LIB_LOG_WARN
+	bool "Output WARN+ log"
+
+config AUDIOUTILS_ALSA_LIB_LOG_ERR
+	bool "Output ERROR+ log"
+
+endchoice # Alsa LOG Output Controls
+
+endif # AUDIOUTILS_ALSA_LIB
