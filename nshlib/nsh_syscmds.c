@@ -592,6 +592,12 @@ static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
       val = (unsigned long)&ping;
     }
 #endif
+#ifdef CONFIG_RPMSG_TEST
+  else if (strcmp(argv[1], "test") == 0)
+    {
+      cmd = RPMSGIOC_TEST;
+    }
+#endif
   else if (rpmsg_cb && rpmsg_cb(&cmd, &val, argv) == OK)
     {
       /* Nothing */
@@ -642,7 +648,7 @@ static int cmd_rpmsg_recursive(FAR struct nsh_vtbl_s *vtbl,
 static int cmd_rpmsg_help(FAR struct nsh_vtbl_s *vtbl, int argc,
                           FAR char **argv)
 {
-  nsh_output(vtbl, "%s <panic|dump> <path>\n", argv[0]);
+  nsh_output(vtbl, "%s <panic|dump|test> <path>\n", argv[0]);
 #ifdef CONFIG_RPMSG_PING
   nsh_output(vtbl, "%s ping <path> <times> <length> <cmd> "
              "<period(ms)>\n\n", argv[0]);
