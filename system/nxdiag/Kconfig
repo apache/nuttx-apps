@@ -68,4 +68,10 @@ config SYSTEM_NXDIAG_ESPRESSIF
 	---help---
 		Enable Espressif-specific information and checks.
 
+config SYSTEM_NXDIAG_ESPRESSIF_CHIP
+	bool "Espressif Chip"
+	default n
+	---help---
+		Enable Espressif-specific information about chip. Chip must be connected during build process.
+
 endif # SYSTEM_NXDIAG

@@ -345,6 +345,16 @@ int main(int argc, char *argv[])
       print_array(ESPRESSIF_TOOLCHAIN, ESPRESSIF_TOOLCHAIN_ARRAY_SIZE);
       printf("Esptool version: %s\n\n", ESPRESSIF_ESPTOOL);
       printf("HAL version: %s\n\n", ESPRESSIF_HAL);
+#ifdef CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP
+      printf("CHIP ID: %s\n\n", ESPRESSIF_CHIP_ID);
+      printf("Flash ID:\n");
+      print_array(ESPRESSIF_FLASH_ID, ESPRESSIF_FLASH_ID_ARRAY_SIZE);
+      printf("Security information:\n");
+      print_array(ESPRESSIF_SECURITY_INFO,
+                  ESPRESSIF_SECURITY_INFO_ARRAY_SIZE);
+      printf("Flash status: %s\n\n", ESPRESSIF_FLASH_STAT);
+      printf("MAC address: %s\n\n", ESPRESSIF_MAC_ADDR);
+#endif
 #endif
     }
 
