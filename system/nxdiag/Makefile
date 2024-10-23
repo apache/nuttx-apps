@@ -89,6 +89,10 @@ else
 NXDIAG_FLAGS += --espressif "$(TOPDIR)" "$(HALDIR)"
 endif
 
+ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP),y)
+NXDIAG_FLAGS += --espressif_chip
+endif
+
 endif
 
 # Common build
