@@ -182,7 +182,7 @@ if(CONFIG_MATTER)
 
   set(MATTER_FLAGS
       -DCHIP_HAVE_CONFIG_H
-      -std=c++17
+      -std=${CONFIG_CXX_STANDARD}
       -Wno-undef
       -DCHIP_ADDRESS_RESOLVE_IMPL_INCLUDE_HEADER=<lib/address_resolve/AddressResolve_DefaultImpl.h>
   )
