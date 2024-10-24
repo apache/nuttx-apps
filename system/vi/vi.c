@@ -559,6 +559,7 @@ static void vi_write(FAR struct vi_s *vi, FAR const char *buffer,
             {
               fprintf(stderr, "ERROR: write to stdout failed: %d\n",
                       errcode);
+              vi_release(vi);
               exit(EXIT_FAILURE);
             }
         }
@@ -635,6 +636,7 @@ static int vi_getch(FAR struct vi_s *vi)
                 {
                   fprintf(stderr, "ERROR: read from stdin failed: %d\n",
                           errcode);
+                  vi_release(vi);
                   exit(EXIT_FAILURE);
                 }
             }
