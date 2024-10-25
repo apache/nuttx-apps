@@ -32,7 +32,6 @@
 #include <string.h>
 #include <debug.h>
 
-#include <sys/random.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 
@@ -130,13 +129,7 @@ static const uint8_t g_partition_type_swap[16] =
 
 static void get_uuid(FAR uint8_t *uuid)
 {
-  /* call getrandom to read  /dev/urandom */
-
-  if (getrandom(uuid, 16, 0) < 0)
-    {
-      fprintf(stderr, "error read primary partition table\n");
-      return;
-    }
+  arc4random_buf(uuid, 16);
 }
 
 static void init_mbr(FAR uint8_t *mbr, uint32_t blocks)
