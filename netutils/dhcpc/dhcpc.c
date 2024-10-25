@@ -44,7 +44,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/random.h>
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -520,10 +519,6 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
   struct sockaddr_in addr;
   struct timeval tv;
   int ret;
-  const uint8_t default_xid[4] =
-  {
-    0xad, 0xde, 0x12, 0x23
-  };
 
   ninfo("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
         ((uint8_t *)macaddr)[0], ((uint8_t *)macaddr)[1],
@@ -544,19 +539,7 @@ FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
        * used by another client.
        */
 
-#if defined(CONFIG_DEV_URANDOM) || defined(CONFIG_DEV_RANDOM)
-      ret = getrandom(pdhcpc->xid, 4, 0);
-      if (ret != 4)
-        {
-          ret = getrandom(pdhcpc->xid, 4, GRND_RANDOM);
-          if (ret != 4)
-            {
-              memcpy(pdhcpc->xid, default_xid, 4);
-            }
-        }
-#else
-      memcpy(pdhcpc->xid, default_xid, 4);
-#endif
+      arc4random_buf(pdhcpc->xid, 4);
 
       pdhcpc->interface = interface;
       pdhcpc->maclen    = maclen;
