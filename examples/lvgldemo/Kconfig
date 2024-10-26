@@ -20,4 +20,11 @@ config EXAMPLES_LVGLDEMO_STACKSIZE
 	int "lvgldemo stack size"
 	default 16384
 
+config EXAMPLES_LVGLDEMO_INPUT_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	depends on INPUT_TOUCHSCREEN
+	---help---
+		The path to the touchscreen device. Default: "/dev/input0"
+
 endif # EXAMPLES_LVGLDEMO
