@@ -129,6 +129,10 @@ int main(int argc, FAR char *argv[])
   info.fb_path = "/dev/lcd0";
 #endif
 
+#ifdef CONFIG_INPUT_TOUCHSCREEN
+  info.input_path = CONFIG_EXAMPLES_LVGLDEMO_INPUT_DEVPATH;
+#endif
+
   lv_nuttx_init(&info, &result);
 
   if (result.disp == NULL)
