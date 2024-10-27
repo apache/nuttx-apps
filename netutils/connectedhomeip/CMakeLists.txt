@@ -65,11 +65,8 @@ if(CONFIG_MATTER)
   endfunction()
 
   get_filename_component(
-    LOCAL_CHIP_ROOT ${NUTTX_APPS_DIR}/netutils/connectedhomeip/connectedhomeip
+    CHIP_ROOT ${NUTTX_APPS_DIR}/netutils/connectedhomeip/connectedhomeip
     REALPATH)
-  if(NOT CHIP_ROOT)
-    set(CHIP_ROOT ${LOCAL_CHIP_ROOT})
-  endif()
 
   chip_download_and_patch(
     NAME
@@ -77,7 +74,7 @@ if(CONFIG_MATTER)
     URL
     https://github.com/project-chip/connectedhomeip/archive/refs/tags/v1.2.0.1.zip
     SOURCE_DIR
-    ${CHIP_ROOT}
+    ${CMAKE_CURRENT_LIST_DIR}/connectedhomeip
     BINARY_DIR
     ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
@@ -159,27 +156,29 @@ if(CONFIG_MATTER)
     list(APPEND nuttx_include_dirs ${include_dirs})
   endif()
   list(APPEND nuttx_include_dirs ${NUTTX_DIR}/include
-       ${CMAKE_BINARY_DIR}/include ${CMAKE_BINARY_DIR}/include_arch)
+       ${CMAKE_BINARY_DIR}/include)
   list(APPEND nuttx_include_dirs ${NUTTX_APPS_BINDIR}/include/mbedtls)
 
   set(MATTER_INCDIR
       ${nuttx_include_dirs}
       ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip/gen/include
+      ${NUTTX_APPS_DIR}/include
       ${NUTTX_APPS_DIR}/netutils/jsoncpp/jsoncpp/include
       inipp
       nlio/include
       nlassert/include
-      ${CHIP_ROOT}/src
-      ${CHIP_ROOT}/src/include
-      ${CHIP_ROOT}/src/lib/dnssd
-      ${CHIP_ROOT}/src/app/util/mock/include
-      ${CHIP_ROOT}/zzz_generated
-      ${CHIP_ROOT}/zzz_generated/lighting-app
-      ${CHIP_ROOT}/zzz_generated/app-common
-      ${CHIP_ROOT}/src/platform/Linux
-      ${CHIP_ROOT}/examples/platform/linux
-      ${CHIP_ROOT}/examples/lighting-app/lighting-common/include)
+      connectedhomeip/src
+      connectedhomeip/src/include
+      connectedhomeip/src/lib/dnssd
+      connectedhomeip/src/app/util/mock/include
+      connectedhomeip/zzz_generated
+      connectedhomeip/zzz_generated/lighting-app
+      connectedhomeip/zzz_generated/app-common
+      connectedhomeip/src/platform/Linux
+      connectedhomeip/examples/platform/linux
+      connectedhomeip/examples/lighting-app/lighting-common/include)
 
+  set(gn_depens mbedtls)
   set(MATTER_FLAGS
       -DCHIP_HAVE_CONFIG_H
       -std=${CONFIG_CXX_STANDARD}
@@ -241,9 +240,18 @@ if(CONFIG_MATTER)
   endif()
 
   matter_add_gn_arg_bool("chip_inet_config_enable_ipv4" CONFIG_NET_IPv4)
+  matter_add_gn_arg_bool("enable_eventlist_attribute" true)
   matter_add_gn_arg_bool("chip_enable_ble")
   matter_add_gn_arg_bool("chip_example_lighting" true)
   matter_add_gn_arg_bool("chip_config_network_layer_ble")
+  if(NOT CONFIG_MATTER_LOG)
+    matter_add_gn_arg_bool("chip_error_logging")
+    matter_add_gn_arg_bool("chip_progress_logging")
+    matter_add_gn_arg_bool("chip_detail_logging")
+    matter_add_gn_arg_bool("chip_automation_logging")
+    matter_add_gn_arg_bool("chip_pw_tokenizer_logging")
+    matter_add_gn_arg_bool("chip_use_pw_logging")
+  endif()
 
   matter_get_compiler_flags_from_targets(nuttx)
   matter_common_gn_args(PROJECT_CONFIG_INC_DIR ${EXTERNAL_MATTER_INCDIR})
@@ -260,69 +268,66 @@ if(CONFIG_MATTER)
     ${CONFIG_CHIP_BUILD_TESTS}
     LIB_MBEDTLS
     GN_DEPENDENCIES
-    mbedtls)
+    ${gn_depens})
 
-  if(${CHIP_ROOT} STREQUAL ${LOCAL_CHIP_ROOT})
-    add_custom_command(
-      OUTPUT connectedhomeip/third_party/pigweed/repo
-      COMMAND rm ${CHIP_ROOT}/third_party/pigweed/repo -rf
-      COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/pigweed
-              ${CHIP_ROOT}/third_party/pigweed/repo)
+  add_custom_command(
+    OUTPUT connectedhomeip/third_party/pigweed/repo
+    COMMAND rm ${CHIP_ROOT}/third_party/pigweed/repo -rf
+    COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/pigweed
+            ${CHIP_ROOT}/third_party/pigweed/repo)
 
-    add_custom_target(chippigweed ALL
-                      DEPENDS connectedhomeip/third_party/pigweed/repo)
-    ExternalProject_Add_StepDependencies(chip-gn configure chippigweed)
+  add_custom_target(chippigweed ALL
+                    DEPENDS connectedhomeip/third_party/pigweed/repo)
+  ExternalProject_Add_StepDependencies(chip-gn configure chippigweed)
 
-    add_custom_command(
-      OUTPUT ${CHIP_ROOT}/build_overrides/pigweed_environment.gni
-      COMMAND touch ${CHIP_ROOT}/build_overrides/pigweed_environment.gni)
+  add_custom_command(
+    OUTPUT ${CHIP_ROOT}/build_overrides/pigweed_environment.gni
+    COMMAND touch ${CHIP_ROOT}/build_overrides/pigweed_environment.gni)
 
-    add_custom_target(
-      chipnpigweedenv ALL
-      DEPENDS ${CHIP_ROOT}/build_overrides/pigweed_environment.gni)
-    ExternalProject_Add_StepDependencies(chip-gn configure chipnpigweedenv)
-    add_dependencies(chippigweed chipnpigweedenv)
+  add_custom_target(
+    chipnpigweedenv ALL
+    DEPENDS ${CHIP_ROOT}/build_overrides/pigweed_environment.gni)
+  ExternalProject_Add_StepDependencies(chip-gn configure chipnpigweedenv)
+  add_dependencies(chippigweed chipnpigweedenv)
 
-    add_custom_command(
-      OUTPUT connectedhomeip/third_party/nlassert/repo
-      COMMAND rm ${CHIP_ROOT}/third_party/nlassert/repo -rf
-      COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/nlassert
-              ${CHIP_ROOT}/third_party/nlassert/repo)
+  add_custom_command(
+    OUTPUT connectedhomeip/third_party/nlassert/repo
+    COMMAND rm ${CHIP_ROOT}/third_party/nlassert/repo -rf
+    COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/nlassert
+            ${CHIP_ROOT}/third_party/nlassert/repo)
 
-    add_custom_target(chipnlassert ALL
-                      DEPENDS connectedhomeip/third_party/nlassert/repo)
-    ExternalProject_Add_StepDependencies(chip-gn configure chipnlassert)
+  add_custom_target(chipnlassert ALL
+                    DEPENDS connectedhomeip/third_party/nlassert/repo)
+  ExternalProject_Add_StepDependencies(chip-gn configure chipnlassert)
 
-    add_custom_command(
-      OUTPUT connectedhomeip/third_party/nlio/repo
-      COMMAND rm ${CHIP_ROOT}/third_party/nlio/repo -rf
-      COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/nlio
-              ${CHIP_ROOT}/third_party/nlio/repo)
+  add_custom_command(
+    OUTPUT connectedhomeip/third_party/nlio/repo
+    COMMAND rm ${CHIP_ROOT}/third_party/nlio/repo -rf
+    COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/nlio
+            ${CHIP_ROOT}/third_party/nlio/repo)
 
-    add_custom_target(chipnlio ALL
-                      DEPENDS connectedhomeip/third_party/nlio/repo)
-    ExternalProject_Add_StepDependencies(chip-gn configure chipnlio)
+  add_custom_target(chipnlio ALL DEPENDS connectedhomeip/third_party/nlio/repo)
+  ExternalProject_Add_StepDependencies(chip-gn configure chipnlio)
 
-    add_custom_command(
-      OUTPUT connectedhomeip/third_party/nlunit-test/repo
-      COMMAND rm ${CHIP_ROOT}/third_party/nlunit-test/repo -rf
-      COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/nlunit-test
-              ${CHIP_ROOT}/third_party/nlunit-test/repo)
+  add_custom_command(
+    OUTPUT connectedhomeip/third_party/nlunit-test/repo
+    COMMAND rm ${CHIP_ROOT}/third_party/nlunit-test/repo -rf
+    COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/connectedhomeip/nlunit-test
+            ${CHIP_ROOT}/third_party/nlunit-test/repo)
 
-    add_custom_target(chipnlunit-test ALL
-                      DEPENDS connectedhomeip/third_party/nlunit-test/repo)
-    ExternalProject_Add_StepDependencies(chip-gn configure chipnlunit-test)
+  add_custom_target(chipnlunit-test ALL
+                    DEPENDS connectedhomeip/third_party/nlunit-test/repo)
+  ExternalProject_Add_StepDependencies(chip-gn configure chipnlunit-test)
 
-    add_custom_command(
-      OUTPUT connectedhomeip/third_party/jsoncpp/repo
-      COMMAND rm -rf ${CHIP_ROOT}/third_party/jsoncpp/repo
-      COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/jsoncpp/jsoncpp
-              ${CHIP_ROOT}/third_party/jsoncpp/repo)
+  add_custom_command(
+    OUTPUT connectedhomeip/third_party/jsoncpp/repo
+    COMMAND rm -rf ${CHIP_ROOT}/third_party/jsoncpp/repo
+    COMMAND ln -s ${NUTTX_APPS_DIR}/netutils/jsoncpp/jsoncpp
+            ${CHIP_ROOT}/third_party/jsoncpp/repo)
 
-    add_custom_target(chipjsoncpp ALL
-                      DEPENDS connectedhomeip/third_party/jsoncpp/repo)
-    ExternalProject_Add_StepDependencies(chip-gn configure chipjsoncpp)
-  endif()
+  add_custom_target(chipjsoncpp ALL
+                    DEPENDS connectedhomeip/third_party/jsoncpp/repo)
+  ExternalProject_Add_StepDependencies(chip-gn configure chipjsoncpp)
 
   set(DEMOSRC
       ${CHIP_ROOT}/examples/lighting-app/linux/main.cpp

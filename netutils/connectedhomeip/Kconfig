@@ -8,3 +8,13 @@ config MATTER
 	default n
 	---help---
 		Enable the Connected Home over IP (CHIP)
+
+if MATTER
+
+config MATTER_LOG
+	bool "Build matter with logs"
+	default n
+	---help---
+		To reduce flash size, logs are not opened by default
+
+endif
