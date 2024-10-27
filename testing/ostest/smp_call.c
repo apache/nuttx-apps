@@ -29,6 +29,12 @@
 
 #include <nuttx/sched.h>
 
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static struct smp_call_data_s g_call_data;
+
 #if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
 /****************************************************************************
  * Private Functions
@@ -37,14 +43,17 @@
 static int smp_call_func(void *arg)
 {
   FAR sem_t *psem = arg;
+
   sem_post(psem);
   return OK;
 }
 
 static void wdg_wdentry(wdparm_t arg)
 {
-  nxsched_smp_call((1 << CONFIG_SMP_NCPUS) - 1, smp_call_func,
-                   (FAR void *)arg, false);
+  cpu_set_t cpus = (1 << CONFIG_SMP_NCPUS) - 1;
+
+  nxsched_smp_call_init(&g_call_data, smp_call_func, (FAR void *)arg);
+  nxsched_smp_call_async(cpus, &g_call_data);
 }
 
 /****************************************************************************
@@ -54,6 +63,7 @@ static void wdg_wdentry(wdparm_t arg)
 void smp_call_test(void)
 {
   cpu_set_t cpuset;
+  struct smp_call_data_s call_data;
   sem_t sem;
   int cpucnt;
   int cpu;
@@ -67,12 +77,13 @@ void smp_call_test(void)
   printf("smp_call_test: Test start\n");
 
   sem_init(&sem, 0, 0);
+  nxsched_smp_call_init(&call_data, smp_call_func, &sem);
 
   for (cpu = 0; cpu < CONFIG_SMP_NCPUS; cpu++)
     {
       printf("smp_call_test: Call cpu %d, nowait\n", cpu);
 
-      nxsched_smp_call_single(cpu, smp_call_func, &sem, false);
+      nxsched_smp_call_single_async(cpu, &call_data);
 
       status = sem_wait(&sem);
       if (status != 0)
@@ -83,7 +94,7 @@ void smp_call_test(void)
 
       printf("smp_call_test: Call cpu %d, wait\n", cpu);
 
-      nxsched_smp_call_single(cpu, smp_call_func, &sem, true);
+      nxsched_smp_call_single(cpu, smp_call_func, &sem);
 
       sem_getvalue(&sem, &value);
       if (value != 1)
@@ -100,7 +111,7 @@ void smp_call_test(void)
   sched_getaffinity(0, sizeof(cpu_set_t), &cpuset);
   cpucnt = CPU_COUNT(&cpuset);
 
-  nxsched_smp_call(cpuset, smp_call_func, &sem, false);
+  nxsched_smp_call_async(cpuset, &call_data);
 
   for (cpu = 0; cpu < cpucnt; cpu++)
     {
@@ -128,7 +139,7 @@ void smp_call_test(void)
 
   printf("smp_call_test: Call multi cpu, wait\n");
 
-  nxsched_smp_call(cpuset, smp_call_func, &sem, true);
+  nxsched_smp_call(cpuset, smp_call_func, &sem);
 
   sem_getvalue(&sem, &value);
   if (value != cpucnt)
