@@ -6,8 +6,7 @@
 config CANUTILS_CANDUMP
 	tristate "SocketCAN candump tool"
 	default n
-	depends on NET_CAN
-	select CANUTILS_LIBCANUTILS
+	depends on NET_CAN && CANUTILS_LIBCANUTILS
 	---help---
 		Enable the SocketCAN candump tool ported from
 		https://github.com/linux-can/can-utils
