@@ -153,8 +153,12 @@ ssize_t netlib_get_arptable(FAR struct arpreq *arptab,
   if (nsent < 0)
     {
       int errcode = errno;
-      fprintf(stderr, "ERROR: send() failed: %d\n", errcode);
-      ret = -errcode;
+      if (errcode != ENOENT)
+        {
+          fprintf(stderr, "ERROR: send() failed: %d\n", errcode);
+          ret = -errcode;
+        }
+
       goto errout_with_socket;
     }
 
