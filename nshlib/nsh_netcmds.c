@@ -1326,7 +1326,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Error exits */
 
 errout_cmdfaild:
-  if (ret == -ENOENT)
+  if (ret == -ENOENT || ret == -ENETUNREACH)
     {
       nsh_error(vtbl, g_fmtnosuch, argv[0], "ARP entry", argv[optind]);
     }
