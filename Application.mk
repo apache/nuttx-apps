@@ -273,7 +273,9 @@ endif
 $(PREFIX).built: $(AROBJS)
 	$(call SPLITVARIABLE,ALL_OBJS,$(AROBJS),100)
 	$(foreach BATCH, $(ALL_OBJS_TOTAL), \
-		$(shell $(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH)))) \
+		$(if $(strip $(ALL_OBJS_$(BATCH))), \
+			$(shell $(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH)))) \
+		) \
 	)
 	$(Q) touch $@
 
