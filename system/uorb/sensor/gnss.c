@@ -35,7 +35,7 @@
   "vdop:%hf,ground_speed:%hf,course:%hf,satellites_used:%" PRIu32 ""
 
 static const char sensor_gnss_format[] =
-  UORB_DEBUG_FORMAT_SENSOR_GNSS;
+  UORB_DEBUG_FORMAT_SENSOR_GNSS ",firmware_version:%" PRIu32 "";
 
 static const char sensor_gnss_clock_format[] =
   "flags:%" PRIx32 ",leap_second:%" PRId32 ",time_ns:%" PRId64 ","
