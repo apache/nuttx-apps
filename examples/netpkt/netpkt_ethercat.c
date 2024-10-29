@@ -40,7 +40,7 @@
 
 static void usage(void)
 {
-  printf("usage: netpkt_ethercat <[ifname] <times>>\n");
+  printf("usage: netpkt_ethercat [<ifname> [times]]\n");
 }
 
 /****************************************************************************
