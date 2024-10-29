@@ -19,8 +19,7 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_YMODEM)
-  set(CSRCS ymodem.c)
-
+  target_sources(apps PRIVATE ymodem.c)
   nuttx_add_application(
     MODULE
     ${CONFIG_SYSTEM_YMODEM}
@@ -31,8 +30,7 @@ if(CONFIG_SYSTEM_YMODEM)
     PRIORITY
     ${CONFIG_SYSTEM_YMODEM_PRIORITY}
     SRCS
-    sb_main.c
-    ${CSRCS})
+    sb_main.c)
 
   nuttx_add_application(
     MODULE
@@ -44,6 +42,6 @@ if(CONFIG_SYSTEM_YMODEM)
     PRIORITY
     ${CONFIG_SYSTEM_YMODEM_PRIORITY}
     SRCS
-    rb_main.c
-    ${CSRCS})
+    rb_main.c)
+
 endif()
