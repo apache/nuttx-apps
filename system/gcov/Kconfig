@@ -5,7 +5,7 @@
 
 config SYSTEM_GCOV
 	tristate "gcov tool"
-	depends on SCHED_GCOV
+	depends on LIBC_GCOV
 	---help---
 		Enable support for the 'gcov' command.
 
