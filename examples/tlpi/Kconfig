@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TLPI
+	tristate "The Linux Programming Interface Example"
+	default n
+	depends on ALLOW_GPL_COMPONENTS
+	---help---
+		Enable the tlpi
+
+if EXAMPLES_TLPI
+
+config EXAMPLES_TLPI_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_TLPI_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

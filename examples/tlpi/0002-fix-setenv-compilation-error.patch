@@ -1,0 +1,111 @@
+From f1154cd6558b99aa5827ac98b20a20753dabd865 Mon Sep 17 00:00:00 2001
+From: chenzhijia <chenzhijia@xiaomi.com>
+Date: Tue, 18 Jun 2024 18:19:18 +0800
+Subject: [PATCH] tlpi/proc:fix setenv case
+
+Remove duplicate functions and invalid commands
+
+Change-Id: I59d84511356f6da7313844bfad63ac466fd3075f
+Signed-off-by: chenzhijia <chenzhijia@xiaomi.com>
+---
+
+diff --git a/proc/setenv.c b/proc/setenv.c
+index d396628..d75ae35 100644
+--- a/proc/setenv.c
++++ b/proc/setenv.c
+@@ -21,92 +21,25 @@
+ #include <errno.h>
+ 
+ int
+-unsetenv(const char *name)
+-{
+-    extern char **environ;
+-    char **ep, **sp;
+-    size_t len;
+-
+-    if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
+-        errno = EINVAL;
+-        return -1;
+-    }
+-
+-    len = strlen(name);
+-
+-    for (ep = environ; *ep != NULL; )
+-        if (strncmp(*ep, name, len) == 0 && (*ep)[len] == '=') {
+-
+-            /* Remove found entry by shifting all successive entries
+-               back one element */
+-
+-            for (sp = ep; *sp != NULL; sp++)
+-                *sp = *(sp + 1);
+-
+-            /* Continue around the loop to further instances of 'name' */
+-
+-        } else {
+-            ep++;
+-        }
+-
+-    return 0;
+-}
+-
+-int
+-setenv(const char *name, const char *value, int overwrite)
+-{
+-    char *es;
+-
+-    if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL ||
+-            value == NULL) {
+-        errno = EINVAL;
+-        return -1;
+-    }
+-
+-    if (getenv(name) != NULL && overwrite == 0)
+-        return 0;
+-
+-    unsetenv(name);             /* Remove all occurrences */
+-
+-    es = malloc(strlen(name) + strlen(value) + 2);
+-                                /* +2 for '=' and null terminator */
+-    if (es == NULL)
+-        return -1;
+-
+-    strcpy(es, name);
+-    strcat(es, "=");
+-    strcat(es, value);
+-
+-    return (putenv(es) != 0) ? -1 : 0;
+-}
+-
+-#ifdef TEST_IT
+-
+-int
+ main()
+ {
+     if (putenv("TT=xxxxx") != 0)
+         perror("putenv");
+ 
+     system("echo '***** Environment before unsetenv(TT)'; "
+-            "printenv | grep ^TT");
+-    system("echo 'Total lines from printenv:' `printenv | wc -l`");
++            "env");
+ 
+     unsetenv("TT");
+ 
+     system("echo '***** Environment after unsetenv(TT)'; "
+-            "printenv | grep ^TT");
+-    system("echo 'Total lines from printenv:' `printenv | wc -l`");
++            "env");
+ 
+     setenv("xyz", "one", 1);
+     setenv("xyz", "two", 0);
+     setenv("xyz2", "222", 0);
+ 
+     system("echo '***** Environment after setenv() calls'; "
+-            "printenv | grep ^x");
+-    system("echo 'Total lines from printenv:' `printenv | wc -l`");
++            "env");
+ 
+     exit(EXIT_SUCCESS);
+ }
+-
+-#endif

@@ -1,0 +1,37 @@
+From 65230c70d69b253028c0f912dcd1ae0cb7446015 Mon Sep 17 00:00:00 2001
+From: chenzhijia <chenzhijia@xiaomi.com>
+Date: Wed, 30 Oct 2024 10:52:48 +0800
+Subject: [PATCH] tlpi/sockets:Fix compilation error
+
+Fix compilation error in qemu
+
+Change-Id: I854ed64d163398807a07fa697bdea89bfab77236
+Signed-off-by: chenzhijia <chenzhijia@xiaomi.com>
+---
+
+diff --git a/sockets/list_host_addresses.c b/sockets/list_host_addresses.c
+index 4db58f6..e1864c8 100644
+--- a/sockets/list_host_addresses.c
++++ b/sockets/list_host_addresses.c
+@@ -23,7 +23,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+-#include <linux/if_link.h>
++//#include <linux/if_link.h>
+ 
+ int
+ main(int argc, char *argv[])
+diff --git a/sockets/sendfile.c b/sockets/sendfile.c
+index 54549d7..3697099 100644
+--- a/sockets/sendfile.c
++++ b/sockets/sendfile.c
+@@ -17,7 +17,7 @@
+ #include "tlpi_hdr.h"
+ #define BUF_SIZE 8192
+ 
+-ssize_t
++static ssize_t
+ sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+ {
+     off_t orig;
