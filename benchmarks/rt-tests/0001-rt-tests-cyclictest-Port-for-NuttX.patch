@@ -1,0 +1,43 @@
+From cbd7831e20f387a35e94a50b95e0b8db5c5e63dd Mon Sep 17 00:00:00 2001
+From: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+Date: Mon, 8 Jul 2024 10:43:14 +0800
+Subject: [PATCH] rt-tests/cyclictest: Port for NuttX
+
+VELAPLATFO-37815
+
+This patch ports cyclictest for NuttX.
+
+Change-Id: I918da053887aaba78910e230db0169239dba3b73
+Signed-off-by: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+---
+ src/cyclictest/cyclictest.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/cyclictest/cyclictest.c b/src/cyclictest/cyclictest.c
+index c5c3389..0edb684 100644
+--- a/src/cyclictest/cyclictest.c
++++ b/src/cyclictest/cyclictest.c
+@@ -847,7 +847,11 @@ static void display_help(int error)
+ static int use_nanosleep = MODE_CLOCK_NANOSLEEP;
+ static int timermode = TIMER_ABSTIME;
+ static int use_system;
++#ifdef RTTESTS_PRIORITY
++static int priority = RTTESTS_PRIORITY;
++#else
+ static int priority;
++#endif
+ static int policy = SCHED_OTHER;	/* default policy if not specified */
+ static int num_threads = 1;
+ static int max_cycles;
+@@ -1224,7 +1228,7 @@ static void process_options(int argc, char *argv[], int max_cpus)
+ 	if (distance == -1)
+ 		distance = DEFAULT_DISTANCE;
+ 
+-	if (priority < 0 || priority > 99)
++	if (priority < 0 || priority > 255)
+ 		error = 1;
+ 
+ 	if (num_threads == -1)
+-- 
+2.34.1
+
