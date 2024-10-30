@@ -1,0 +1,1246 @@
+From 71f51cd5ca4f492a464fb12d5bce91e5fbba300a Mon Sep 17 00:00:00 2001
+From: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+Date: Tue, 11 Jun 2024 16:01:23 +0800
+Subject: [PATCH] tacle-bench: add makefile and all-in-one main file
+
+The original taclebench is used for WCET analysis. This commit allows most taclebench test cases (except parallel test cases) to be compiled and executed.
+
+Signed-off-by: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+---
+ Makefile                                      |  12 +
+ bench/app/lift/lift.c                         |   3 +
+ bench/app/powerwindow/powerwindow.c           |   3 +
+ bench/kernel/binarysearch/binarysearch.c      |   3 +
+ bench/kernel/bitcount/bitcount.c              |   3 +
+ bench/kernel/bitonic/bitonic.c                |   3 +
+ bench/kernel/bsort/bsort.c                    |   3 +
+ .../kernel/complex_updates/complex_updates.c  |   3 +
+ bench/kernel/cosf/cosf.c                      |   3 +
+ bench/kernel/countnegative/countnegative.c    |   3 +
+ bench/kernel/cubic/cubic.c                    |   3 +
+ bench/kernel/deg2rad/deg2rad.c                |   3 +
+ bench/kernel/fac/fac.c                        |   3 +
+ bench/kernel/fft/fft.c                        |   3 +
+ bench/kernel/filterbank/filterbank.c          |   3 +
+ bench/kernel/fir2dim/fir2dim.c                |   3 +
+ bench/kernel/iir/iir.c                        |   3 +
+ bench/kernel/insertsort/insertsort.c          |   3 +
+ bench/kernel/isqrt/isqrt.c                    |   3 +
+ bench/kernel/jfdctint/jfdctint.c              |   3 +
+ bench/kernel/lms/lms.c                        |   3 +
+ bench/kernel/ludcmp/ludcmp.c                  |   3 +
+ bench/kernel/matrix1/matrix1.c                |   3 +
+ bench/kernel/md5/md5.c                        |   3 +
+ bench/kernel/minver/minver.c                  |   3 +
+ bench/kernel/pm/pm.c                          |   3 +
+ bench/kernel/prime/prime.c                    |   3 +
+ bench/kernel/quicksort/quicksort.c            |   3 +
+ bench/kernel/rad2deg/rad2deg.c                |   3 +
+ bench/kernel/recursion/recursion.c            |   3 +
+ bench/kernel/sha/sha.c                        |   3 +
+ bench/kernel/st/st.c                          |   3 +
+ bench/sequential/adpcm_dec/adpcm_dec.c        |   3 +
+ bench/sequential/adpcm_enc/adpcm_enc.c        |   3 +
+ bench/sequential/ammunition/ammunition.c      |   3 +
+ bench/sequential/anagram/anagram.c            |   3 +
+ bench/sequential/audiobeam/audiobeam.c        |   3 +
+ .../cjpeg_transupp/cjpeg_transupp.c           |   3 +
+ bench/sequential/cjpeg_wrbmp/cjpeg_wrbmp.c    |   3 +
+ bench/sequential/dijkstra/dijkstra.c          |   3 +
+ bench/sequential/epic/epic.c                  |   3 +
+ bench/sequential/fmref/fmref.c                |   3 +
+ bench/sequential/g723_enc/g723_enc.c          |   3 +
+ bench/sequential/gsm_dec/gsm_dec.c            |   3 +
+ bench/sequential/gsm_enc/gsm_enc.c            |   3 +
+ bench/sequential/h264_dec/h264_dec.c          |   3 +
+ bench/sequential/huff_dec/huff_dec.c          |   3 +
+ bench/sequential/huff_enc/huff_enc.c          |   3 +
+ bench/sequential/mpeg2/mpeg2.c                |   3 +
+ bench/sequential/ndes/ndes.c                  |   3 +
+ bench/sequential/petrinet/petrinet.c          |   3 +
+ bench/sequential/rijndael_dec/rijndael_dec.c  |   3 +
+ bench/sequential/rijndael_enc/rijndael_enc.c  |   3 +
+ bench/sequential/statemate/statemate.c        |   3 +
+ bench/sequential/susan/susan.c                |   3 +
+ bench/test/cover/cover.c                      |   3 +
+ bench/test/duff/duff.c                        |   3 +
+ bench/test/test3/test3.c                      |   3 +
+ taclebench.c                                  | 349 ++++++++++++++++++
+ 59 files changed, 532 insertions(+)
+ create mode 100644 Makefile
+ create mode 100644 taclebench.c
+
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 0000000..2385c61
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,12 @@
++APP_SRCS :=  $(shell find bench/app -name "*.c")
++# we just need only one wcclibm
++KERNEL_SRCS := $(shell find bench/kernel -name "*.c" | grep -v -E 'wcclibm.c')
++SEQUENTIAL_SRCS := $(shell find bench/sequential -name "*.c")
++TEST_SRCS := $(shell find bench/test -name "*.c")
++
++all:
++	cc -DALL_IN_ONE ${APP_SRCS} ${KERNEL_SRCS} ${SEQUENTIAL_SRCS} ${TEST_SRCS} bench/kernel/cosf/wcclibm.c taclebench.c -static -o taclebench
++
++clean:
++	rm -f taclebench
++
+diff --git a/bench/app/lift/lift.c b/bench/app/lift/lift.c
+index 8c7795f..47ddf4f 100755
+--- a/bench/app/lift/lift.c
++++ b/bench/app/lift/lift.c
+@@ -123,6 +123,9 @@ void  _Pragma( "entrypoint" ) lift_main()
+ }
+ 
+ 
++#ifdef ALL_IN_ONE
++    #define main main_lift
++#endif
+ int main( void )
+ {
+   lift_init();
+diff --git a/bench/app/powerwindow/powerwindow.c b/bench/app/powerwindow/powerwindow.c
+index 1976506..9ea2e50 100644
+--- a/bench/app/powerwindow/powerwindow.c
++++ b/bench/app/powerwindow/powerwindow.c
+@@ -47,6 +47,9 @@ void powerwindow_Uint8inputarray_initialize( powerwindow_uint8_T *,
+ void powerwindow_init();
+ void powerwindow_main();
+ int powerwindow_return();
++#ifdef ALL_IN_ONE
++    #define main main_powerwindow
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/binarysearch/binarysearch.c b/bench/kernel/binarysearch/binarysearch.c
+index c4087f5..69d1191 100755
+--- a/bench/kernel/binarysearch/binarysearch.c
++++ b/bench/kernel/binarysearch/binarysearch.c
+@@ -41,6 +41,9 @@ void binarysearch_init( void );
+ int binarysearch_return( void );
+ int binarysearch_binary_search( int );
+ void binarysearch_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_binarysearch
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/bitcount/bitcount.c b/bench/kernel/bitcount/bitcount.c
+index dfae600..3ec9ff6 100755
+--- a/bench/kernel/bitcount/bitcount.c
++++ b/bench/kernel/bitcount/bitcount.c
+@@ -40,6 +40,9 @@ unsigned long bitcount_random( void );
+ void bitcount_main();
+ int bitcount_return();
+ void bitcount_init();
++#ifdef ALL_IN_ONE
++    #define main main_bitcount
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/bitonic/bitonic.c b/bench/kernel/bitonic/bitonic.c
+index 09bb484..2f1cf6b 100755
+--- a/bench/kernel/bitonic/bitonic.c
++++ b/bench/kernel/bitonic/bitonic.c
+@@ -27,6 +27,9 @@ int bitonic_return( void );
+ void bitonic_compare( int i, int j, int dir );
+ void bitonic_merge( int lo, int cnt, int dir );
+ void bitonic_sort( int lo, int cnt, int dir );
++#ifdef ALL_IN_ONE
++    #define main main_bitonic
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/bsort/bsort.c b/bench/kernel/bsort/bsort.c
+index 8a8b640..4ea2889 100755
+--- a/bench/kernel/bsort/bsort.c
++++ b/bench/kernel/bsort/bsort.c
+@@ -123,6 +123,9 @@ void _Pragma( "entrypoint" ) bsort_main( void )
+   Main function
+ */
+ 
++#ifdef ALL_IN_ONE
++    #define main main_bsort
++#endif
+ int main( void )
+ {
+   bsort_init();
+diff --git a/bench/kernel/complex_updates/complex_updates.c b/bench/kernel/complex_updates/complex_updates.c
+index 91e3ae6..9f07dfd 100755
+--- a/bench/kernel/complex_updates/complex_updates.c
++++ b/bench/kernel/complex_updates/complex_updates.c
+@@ -40,6 +40,9 @@
+ void complex_updates_pin_down( float *pa, float *pb, float *pc, float *pd );
+ void complex_updates_init( void );
+ void complex_updates_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_complex_updates
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/cosf/cosf.c b/bench/kernel/cosf/cosf.c
+index b838546..392f7f9 100755
+--- a/bench/kernel/cosf/cosf.c
++++ b/bench/kernel/cosf/cosf.c
+@@ -29,6 +29,9 @@
+ void cosf_init( void );
+ void cosf_main( void );
+ int cosf_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_cosf
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/countnegative/countnegative.c b/bench/kernel/countnegative/countnegative.c
+index 5835cab..7bc2765 100755
+--- a/bench/kernel/countnegative/countnegative.c
++++ b/bench/kernel/countnegative/countnegative.c
+@@ -39,6 +39,9 @@ void countnegative_init( void );
+ int countnegative_return( void );
+ void countnegative_sum( matrix );
+ void countnegative_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_countnegative
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/kernel/cubic/cubic.c b/bench/kernel/cubic/cubic.c
+index f266394..b26177a 100755
+--- a/bench/kernel/cubic/cubic.c
++++ b/bench/kernel/cubic/cubic.c
+@@ -39,6 +39,9 @@ void cubic_solveCubic( float a, float b, float c, float d,
+ void cubic_main( void );
+ void cubic_init( void );
+ int cubic_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_cubic
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/deg2rad/deg2rad.c b/bench/kernel/deg2rad/deg2rad.c
+index 5fc1817..3cd5f06 100755
+--- a/bench/kernel/deg2rad/deg2rad.c
++++ b/bench/kernel/deg2rad/deg2rad.c
+@@ -32,6 +32,9 @@
+ void deg2rad_init( void );
+ void deg2rad_main( void );
+ int deg2rad_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_deg2rad
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/fac/fac.c b/bench/kernel/fac/fac.c
+index 606b8d1..ba6e2c4 100755
+--- a/bench/kernel/fac/fac.c
++++ b/bench/kernel/fac/fac.c
+@@ -27,6 +27,9 @@ int fac_fac( int n );
+ void fac_init();
+ int fac_return();
+ void fac_main();
++#ifdef ALL_IN_ONE
++    #define main main_fac
++#endif
+ int main( void );
+ /*
+   Declaration of global variables
+diff --git a/bench/kernel/fft/fft.c b/bench/kernel/fft/fft.c
+index 7aff936..f9a30f1 100755
+--- a/bench/kernel/fft/fft.c
++++ b/bench/kernel/fft/fft.c
+@@ -84,6 +84,9 @@ void fft_pin_down( int input_data[  ] );
+ void fft_init( void );
+ void fft_main( void );
+ int fft_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_fft
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/kernel/filterbank/filterbank.c b/bench/kernel/filterbank/filterbank.c
+index c9ab6de..734336d 100755
+--- a/bench/kernel/filterbank/filterbank.c
++++ b/bench/kernel/filterbank/filterbank.c
+@@ -161,6 +161,9 @@ void filterbank_core( float r[ 256 ],
+   Main function
+ */
+ 
++#ifdef ALL_IN_ONE
++    #define main main_filterbank
++#endif
+ int main( void )
+ {
+   filterbank_init();
+diff --git a/bench/kernel/fir2dim/fir2dim.c b/bench/kernel/fir2dim/fir2dim.c
+index 054c144..bc94886 100755
+--- a/bench/kernel/fir2dim/fir2dim.c
++++ b/bench/kernel/fir2dim/fir2dim.c
+@@ -32,6 +32,9 @@ void fir2dim_pin_down( float *pimage, float *parray, float *pcoeff,
+ void fir2dim_init();
+ int fir2dim_return();
+ void fir2dim_main();
++#ifdef ALL_IN_ONE
++    #define main main_fir2dim
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/iir/iir.c b/bench/kernel/iir/iir.c
+index 2f085bd..2245602 100755
+--- a/bench/kernel/iir/iir.c
++++ b/bench/kernel/iir/iir.c
+@@ -55,6 +55,9 @@
+ void iir_init( void );
+ int iir_return( void );
+ void iir_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_iir
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/insertsort/insertsort.c b/bench/kernel/insertsort/insertsort.c
+index 59d90a5..8ba006d 100755
+--- a/bench/kernel/insertsort/insertsort.c
++++ b/bench/kernel/insertsort/insertsort.c
+@@ -35,6 +35,9 @@ void insertsort_initialize( unsigned int *array );
+ void insertsort_init( void );
+ int insertsort_return( void );
+ void insertsort_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_insertsort
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/kernel/isqrt/isqrt.c b/bench/kernel/isqrt/isqrt.c
+index 82b7a72..71d32ba 100755
+--- a/bench/kernel/isqrt/isqrt.c
++++ b/bench/kernel/isqrt/isqrt.c
+@@ -69,6 +69,9 @@ void isqrt_usqrt( unsigned long x, struct int_sqrt *q );
+ void isqrt_init( void );
+ void isqrt_main( void );
+ int isqrt_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_isqrt
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/jfdctint/jfdctint.c b/bench/kernel/jfdctint/jfdctint.c
+index 0e2f4fb..9e65563 100755
+--- a/bench/kernel/jfdctint/jfdctint.c
++++ b/bench/kernel/jfdctint/jfdctint.c
+@@ -101,6 +101,9 @@
+ void jfdctint_init();
+ int jfdctint_return();
+ void jfdctint_main();
++#ifdef ALL_IN_ONE
++    #define main main_jfdctint
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/lms/lms.c b/bench/kernel/lms/lms.c
+index 42b1929..c8d33c5 100755
+--- a/bench/kernel/lms/lms.c
++++ b/bench/kernel/lms/lms.c
+@@ -194,6 +194,9 @@ int lms_return( void )
+ }
+ 
+ 
++#ifdef ALL_IN_ONE
++    #define main main_lms
++#endif
+ int main()
+ {
+   lms_init();
+diff --git a/bench/kernel/ludcmp/ludcmp.c b/bench/kernel/ludcmp/ludcmp.c
+index 6c9127b..9af3fc0 100755
+--- a/bench/kernel/ludcmp/ludcmp.c
++++ b/bench/kernel/ludcmp/ludcmp.c
+@@ -35,6 +35,9 @@ void ludcmp_init( void );
+ int ludcmp_return( void );
+ int  ludcmp_test( int n, double eps );
+ void ludcmp_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_ludcmp
++#endif
+ int main( void );
+ 
+ double ludcmp_a[ 50 ][ 50 ], ludcmp_b[ 50 ], ludcmp_x[ 50 ];
+diff --git a/bench/kernel/matrix1/matrix1.c b/bench/kernel/matrix1/matrix1.c
+index 2b23504..8d7e431 100755
+--- a/bench/kernel/matrix1/matrix1.c
++++ b/bench/kernel/matrix1/matrix1.c
+@@ -72,6 +72,9 @@
+ void matrix1_pin_down( int A[  ], int B[  ], int C[  ] );
+ void matrix1_init( void );
+ void matrix1_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_matrix1
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/md5/md5.c b/bench/kernel/md5/md5.c
+index 09ab091..be2d270 100755
+--- a/bench/kernel/md5/md5.c
++++ b/bench/kernel/md5/md5.c
+@@ -201,6 +201,9 @@ void md5_init( void );
+ int md5_return( void );
+ int md5_bytesNeeded;
+ 
++#ifdef ALL_IN_ONE
++    #define main main_md5
++#endif
+ int main( void );
+ 
+ unsigned char md5_PADDING[ 64 ] = {
+diff --git a/bench/kernel/minver/minver.c b/bench/kernel/minver/minver.c
+index f417d1f..30e975f 100755
+--- a/bench/kernel/minver/minver.c
++++ b/bench/kernel/minver/minver.c
+@@ -36,6 +36,9 @@ double minver_fabs( double n );
+ void minver_init();
+ int minver_return();
+ void minver_main();
++#ifdef ALL_IN_ONE
++    #define main main_minver
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/kernel/pm/pm.c b/bench/kernel/pm/pm.c
+index c046800..fb42960 100755
+--- a/bench/kernel/pm/pm.c
++++ b/bench/kernel/pm/pm.c
+@@ -734,6 +734,9 @@ int pm_kernel( pm_data_t *pmdata )
+   Main function
+ */
+ 
++#ifdef ALL_IN_ONE
++    #define main main_pm
++#endif
+ int main( void )
+ {
+   pm_init();
+diff --git a/bench/kernel/prime/prime.c b/bench/kernel/prime/prime.c
+index b694a6f..a3f7f55 100755
+--- a/bench/kernel/prime/prime.c
++++ b/bench/kernel/prime/prime.c
+@@ -32,6 +32,9 @@ void prime_initSeed();
+ void prime_init ();
+ int prime_return ();
+ void prime_main ();
++#ifdef ALL_IN_ONE
++    #define main main_prime
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/quicksort/quicksort.c b/bench/kernel/quicksort/quicksort.c
+index 55b4c73..b46aeda 100755
+--- a/bench/kernel/quicksort/quicksort.c
++++ b/bench/kernel/quicksort/quicksort.c
+@@ -40,6 +40,9 @@ int quicksort_return( void );
+ void quicksort_str( char *, unsigned long, unsigned long );
+ void quicksort_vec( char *, unsigned long, unsigned long );
+ void quicksort_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_quicksort
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/rad2deg/rad2deg.c b/bench/kernel/rad2deg/rad2deg.c
+index 380fe8b..72f1e14 100755
+--- a/bench/kernel/rad2deg/rad2deg.c
++++ b/bench/kernel/rad2deg/rad2deg.c
+@@ -33,6 +33,9 @@
+ void rad2deg_init( void );
+ void rad2deg_main( void );
+ int rad2deg_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_rad2deg
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/kernel/recursion/recursion.c b/bench/kernel/recursion/recursion.c
+index f0e7edd..462dd5e 100755
+--- a/bench/kernel/recursion/recursion.c
++++ b/bench/kernel/recursion/recursion.c
+@@ -32,6 +32,9 @@ int recursion_fib( int i );
+ void recursion_main( void );
+ void recursion_init( void );
+ int recursion_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_recursion
++#endif
+ int main ( void );
+ 
+ 
+diff --git a/bench/kernel/sha/sha.c b/bench/kernel/sha/sha.c
+index fc1559a..def3990 100755
+--- a/bench/kernel/sha/sha.c
++++ b/bench/kernel/sha/sha.c
+@@ -215,6 +215,9 @@ int sha_return( void )
+   return ( sum - 261944 != 0 );
+ }
+ 
++#ifdef ALL_IN_ONE
++    #define main main_sha
++#endif
+ int main ( void )
+ {
+   sha_init();
+diff --git a/bench/kernel/st/st.c b/bench/kernel/st/st.c
+index 8a716fe..c303945 100755
+--- a/bench/kernel/st/st.c
++++ b/bench/kernel/st/st.c
+@@ -38,6 +38,9 @@ void st_calc_Sum_Mean( float *, float *, float * );
+ void st_calc_Var_Stddev( float *, float, float *, float * );
+ void st_calc_LinCorrCoef( float *, float *, float, float, float * );
+ void st_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_st
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/adpcm_dec/adpcm_dec.c b/bench/sequential/adpcm_dec/adpcm_dec.c
+index 5284bfa..2a11ded 100755
+--- a/bench/sequential/adpcm_dec/adpcm_dec.c
++++ b/bench/sequential/adpcm_dec/adpcm_dec.c
+@@ -54,6 +54,9 @@ int adpcm_dec_sin( int n );
+ void adpcm_dec_init();
+ int adpcm_dec_return();
+ void adpcm_dec_main();
++#ifdef ALL_IN_ONE
++    #define main main_adpcm_dec
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/adpcm_enc/adpcm_enc.c b/bench/sequential/adpcm_enc/adpcm_enc.c
+index 2f58d9a..540a81d 100755
+--- a/bench/sequential/adpcm_enc/adpcm_enc.c
++++ b/bench/sequential/adpcm_enc/adpcm_enc.c
+@@ -57,6 +57,9 @@ int adpcm_enc_abs( int n );
+ void adpcm_enc_init( void );
+ void adpcm_enc_main( void );
+ int adpcm_enc_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_adpcm_enc
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/sequential/ammunition/ammunition.c b/bench/sequential/ammunition/ammunition.c
+index ba5e4c7..f5e9d79 100755
+--- a/bench/sequential/ammunition/ammunition.c
++++ b/bench/sequential/ammunition/ammunition.c
+@@ -42,6 +42,9 @@ int ammunition_arithm_test();
+ void ammunition_init( void );
+ int ammunition_return( void );
+ void ammunition_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_ammunition
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/anagram/anagram.c b/bench/sequential/anagram/anagram.c
+index 90ee4a2..adaa715 100755
+--- a/bench/sequential/anagram/anagram.c
++++ b/bench/sequential/anagram/anagram.c
+@@ -652,6 +652,9 @@ void _Pragma( "entrypoint" ) anagram_main( void )
+   Main function
+ */
+ 
++#ifdef ALL_IN_ONE
++    #define main main_anagram
++#endif
+ int main( void )
+ {
+   anagram_init();
+diff --git a/bench/sequential/audiobeam/audiobeam.c b/bench/sequential/audiobeam/audiobeam.c
+index 3d7ee15..01ebd85 100755
+--- a/bench/sequential/audiobeam/audiobeam.c
++++ b/bench/sequential/audiobeam/audiobeam.c
+@@ -34,6 +34,9 @@
+ void audiobeam_init();
+ int audiobeam_return();
+ void audiobeam_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_audiobeam
++#endif
+ int main( void );
+ void audiobeam_preprocess_delays( struct audiobeam_PreprocessedDelays
+                                   prep_delays[  ], float *delays );
+diff --git a/bench/sequential/cjpeg_transupp/cjpeg_transupp.c b/bench/sequential/cjpeg_transupp/cjpeg_transupp.c
+index c37ab95..a016b8e 100755
+--- a/bench/sequential/cjpeg_transupp/cjpeg_transupp.c
++++ b/bench/sequential/cjpeg_transupp/cjpeg_transupp.c
+@@ -46,6 +46,9 @@ void cjpeg_transupp_do_rot_180( j_compress_ptr );
+ void cjpeg_transupp_do_rot_270( j_compress_ptr );
+ void cjpeg_transupp_do_transverse( j_compress_ptr );
+ void cjpeg_transupp_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_cjpeg_transupp
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/cjpeg_wrbmp/cjpeg_wrbmp.c b/bench/sequential/cjpeg_wrbmp/cjpeg_wrbmp.c
+index cb81d01..71b6835 100755
+--- a/bench/sequential/cjpeg_wrbmp/cjpeg_wrbmp.c
++++ b/bench/sequential/cjpeg_wrbmp/cjpeg_wrbmp.c
+@@ -71,6 +71,9 @@ int cjpeg_wrbmp_putc_modified( int character );
+ void cjpeg_wrbmp_init();
+ void cjpeg_wrbmp_main();
+ int cjpeg_wrbmp_return();
++#ifdef ALL_IN_ONE
++    #define main main_cjpeg_wrbmp
++#endif
+ int main();
+ 
+ /*
+diff --git a/bench/sequential/dijkstra/dijkstra.c b/bench/sequential/dijkstra/dijkstra.c
+index 7437c42..f71357b 100755
+--- a/bench/sequential/dijkstra/dijkstra.c
++++ b/bench/sequential/dijkstra/dijkstra.c
+@@ -63,6 +63,9 @@ void dijkstra_dequeue( int *node, int *dist, int *prev );
+ int dijkstra_qcount( void );
+ int dijkstra_find( int chStart, int chEnd );
+ void dijkstra_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_dijkstra
++#endif
+ int main( void );
+ 
+ void dijkstra_init( void )
+diff --git a/bench/sequential/epic/epic.c b/bench/sequential/epic/epic.c
+index dc781d4..a29d6fb 100755
+--- a/bench/sequential/epic/epic.c
++++ b/bench/sequential/epic/epic.c
+@@ -590,6 +590,9 @@ void epic_internal_filter( float *image, int x_dim, int y_dim, float *filt,
+ void epic_reflect1( float *filt, int x_dim, int y_dim, int x_pos, int y_pos,
+                     float *result, int f_or_e );
+ void epic_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_epic
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/fmref/fmref.c b/bench/sequential/fmref/fmref.c
+index c1b0611..80f65f9 100755
+--- a/bench/sequential/fmref/fmref.c
++++ b/bench/sequential/fmref/fmref.c
+@@ -72,6 +72,9 @@ int fmref_return( void )
+   return 0;
+ }
+ 
++#ifdef ALL_IN_ONE
++    #define main main_fmref
++#endif
+ int main( void )
+ {
+   fmref_init();
+diff --git a/bench/sequential/g723_enc/g723_enc.c b/bench/sequential/g723_enc/g723_enc.c
+index fa46af3..27fd1cb 100755
+--- a/bench/sequential/g723_enc/g723_enc.c
++++ b/bench/sequential/g723_enc/g723_enc.c
+@@ -106,6 +106,9 @@ int g723_enc_pack_output(
+ void g723_enc_init();
+ int g723_enc_return();
+ void g723_enc_main();
++#ifdef ALL_IN_ONE
++    #define main main_g723_enc
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/sequential/gsm_dec/gsm_dec.c b/bench/sequential/gsm_dec/gsm_dec.c
+index 5c6cafd..ecaee90 100755
+--- a/bench/sequential/gsm_dec/gsm_dec.c
++++ b/bench/sequential/gsm_dec/gsm_dec.c
+@@ -110,6 +110,9 @@ void gsm_dec_Coefficients_27_39( word *LARpp_j_1, word *LARpp_j, word *LARp );
+ gsm gsm_dec_create( void );
+ void gsm_dec_init( void );
+ void gsm_dec_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_gsm_dec
++#endif
+ int main( void );
+ 
+ /* add.c */
+diff --git a/bench/sequential/gsm_enc/gsm_enc.c b/bench/sequential/gsm_enc/gsm_enc.c
+index 63ca392..85dc5c8 100755
+--- a/bench/sequential/gsm_enc/gsm_enc.c
++++ b/bench/sequential/gsm_enc/gsm_enc.c
+@@ -2216,6 +2216,9 @@ void _Pragma( "entrypoint" ) gsm_enc_main( void )
+                     gsm_enc_gsmdata + i * sizeof( gsm_frame ) );
+ }
+ 
++#ifdef ALL_IN_ONE
++    #define main main_gsm_enc
++#endif
+ int main( void )
+ {
+   gsm_enc_init();
+diff --git a/bench/sequential/h264_dec/h264_dec.c b/bench/sequential/h264_dec/h264_dec.c
+index db2b022..a4f26d3 100755
+--- a/bench/sequential/h264_dec/h264_dec.c
++++ b/bench/sequential/h264_dec/h264_dec.c
+@@ -36,6 +36,9 @@ void h264_dec_init ();
+ int h264_dec_return ();
+ void h264_dec_decode_one_macroblock( struct h264_dec_img_par *img );
+ void h264_dec_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_h264_dec
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/huff_dec/huff_dec.c b/bench/sequential/huff_dec/huff_dec.c
+index 09e180c..f099760 100755
+--- a/bench/sequential/huff_dec/huff_dec.c
++++ b/bench/sequential/huff_dec/huff_dec.c
+@@ -77,6 +77,9 @@ void huff_dec_read_header( t_bin_val codes_table[ 257 ] );
+ huff_dec_t_tree *huff_dec_tree_encoding( t_bin_val codes_table[ 257 ],
+     huff_dec_t_tree heap[ 514 ] );
+ void huff_dec_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_huff_dec
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/huff_enc/huff_enc.c b/bench/sequential/huff_enc/huff_enc.c
+index a2768dc..7e61011 100755
+--- a/bench/sequential/huff_enc/huff_enc.c
++++ b/bench/sequential/huff_enc/huff_enc.c
+@@ -85,6 +85,9 @@ void huff_enc_encode_codes_table( huff_enc_t_tree *tree,
+ void huff_enc_create_codes_table( huff_enc_t_tree *tree,
+                                   huff_enc_t_bin_val codes_table[ 257 ] );
+ void huff_enc_main();
++#ifdef ALL_IN_ONE
++    #define main main_huff_enc
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/mpeg2/mpeg2.c b/bench/sequential/mpeg2/mpeg2.c
+index 62b8779..7d5cfbd 100755
+--- a/bench/sequential/mpeg2/mpeg2.c
++++ b/bench/sequential/mpeg2/mpeg2.c
+@@ -90,6 +90,9 @@ int mpeg2_bdist2( unsigned char *, unsigned char *, unsigned char *, int, int,
+                   int, int, int, int );
+ int mpeg2_variance( unsigned char *, int );
+ void mpeg2_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_mpeg2
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/ndes/ndes.c b/bench/sequential/ndes/ndes.c
+index 1e3e7d3..b7438f9 100755
+--- a/bench/sequential/ndes/ndes.c
++++ b/bench/sequential/ndes/ndes.c
+@@ -55,6 +55,9 @@ void ndes_ks( /*immense key, */int n, ndes_great *kn );
+ void ndes_init( void );
+ int ndes_return( void );
+ void ndes_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_ndes
++#endif
+ int main( void );
+ 
+ /*
+diff --git a/bench/sequential/petrinet/petrinet.c b/bench/sequential/petrinet/petrinet.c
+index 99b0cda..56a7e1e 100755
+--- a/bench/sequential/petrinet/petrinet.c
++++ b/bench/sequential/petrinet/petrinet.c
+@@ -41,6 +41,9 @@ int petrinet_main_iters_dummy_i = 0,
+ void petrinet_init( void );
+ int petrinet_return( void );
+ void petrinet_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_petrinet
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/sequential/rijndael_dec/rijndael_dec.c b/bench/sequential/rijndael_dec/rijndael_dec.c
+index fc065d1..a0ce4d5 100755
+--- a/bench/sequential/rijndael_dec/rijndael_dec.c
++++ b/bench/sequential/rijndael_dec/rijndael_dec.c
+@@ -179,6 +179,9 @@ void _Pragma( "entrypoint" ) rijndael_dec_main( void )
+   rijndael_dec_decfile( &rijndael_dec_fin, ctx );
+ }
+ 
++#ifdef ALL_IN_ONE
++    #define main main_rijndael_dec
++#endif
+ int main()
+ {
+ 
+diff --git a/bench/sequential/rijndael_enc/rijndael_enc.c b/bench/sequential/rijndael_enc/rijndael_enc.c
+index eaa7183..72e9393 100755
+--- a/bench/sequential/rijndael_enc/rijndael_enc.c
++++ b/bench/sequential/rijndael_enc/rijndael_enc.c
+@@ -222,6 +222,9 @@ void _Pragma( "entrypoint" ) rijndael_enc_main( void )
+   rijndael_enc_encfile( &rijndael_enc_fin, ctx );
+ }
+ 
++#ifdef ALL_IN_ONE
++    #define main main_rijndael_enc
++#endif
+ int main( void )
+ {
+   rijndael_enc_init();
+diff --git a/bench/sequential/statemate/statemate.c b/bench/sequential/statemate/statemate.c
+index 1799905..b72a68d 100755
+--- a/bench/sequential/statemate/statemate.c
++++ b/bench/sequential/statemate/statemate.c
+@@ -1269,6 +1269,9 @@ void _Pragma ( "entrypoint" ) statemate_main( void )
+ }
+ 
+ 
++#ifdef ALL_IN_ONE
++    #define main main_statemate
++#endif
+ int main ( void )
+ {
+   statemate_init();
+diff --git a/bench/sequential/susan/susan.c b/bench/sequential/susan/susan.c
+index 676bf61..807be77 100755
+--- a/bench/sequential/susan/susan.c
++++ b/bench/sequential/susan/susan.c
+@@ -2499,6 +2499,9 @@ int susan_return( void )
+   return 0;
+ }
+ 
++#ifdef ALL_IN_ONE
++    #define main main_susan
++#endif
+ int main( void )
+ {
+   susan_init();
+diff --git a/bench/test/cover/cover.c b/bench/test/cover/cover.c
+index 051fa91..6c5153f 100755
+--- a/bench/test/cover/cover.c
++++ b/bench/test/cover/cover.c
+@@ -693,6 +693,9 @@ void _Pragma( "entrypoint" ) cover_main( void )
+   Main function
+ */
+ 
++#ifdef ALL_IN_ONE
++    #define main main_cover
++#endif
+ int main( void )
+ {
+   cover_init();
+diff --git a/bench/test/duff/duff.c b/bench/test/duff/duff.c
+index 9fb49f1..83313ce 100755
+--- a/bench/test/duff/duff.c
++++ b/bench/test/duff/duff.c
+@@ -28,6 +28,9 @@ void duff_initialize( char *arr, int length );
+ void duff_init();
+ void duff_main( void );
+ int duff_return( void );
++#ifdef ALL_IN_ONE
++    #define main main_duff
++#endif
+ int main( void );
+ 
+ 
+diff --git a/bench/test/test3/test3.c b/bench/test/test3/test3.c
+index 0235738..6eaf8c2 100755
+--- a/bench/test/test3/test3.c
++++ b/bench/test/test3/test3.c
+@@ -154,6 +154,9 @@ void test3_func_2_0( void );
+ void test3_func_1_0( void );
+ void test3_func_0_0( void );
+ void test3_main( void );
++#ifdef ALL_IN_ONE
++    #define main main_test3
++#endif
+ int main( void );
+ 
+ 
+diff --git a/taclebench.c b/taclebench.c
+new file mode 100644
+index 0000000..1231b87
+--- /dev/null
++++ b/taclebench.c
+@@ -0,0 +1,349 @@
++#include <stdio.h>
++
++int main_epic(void);
++int main_mpeg2(void);
++int main_cjpeg_transupp(void);
++int main_adpcm_enc(void);
++int main_rijndael_dec(void);
++int main_huff_enc(void);
++int main_dijkstra(void);
++int main_gsm_dec(void);
++int main_ammunition(void);
++int main_susan(void);
++int main_ndes(void);
++int main_petrinet(void);
++int main_gsm_enc(void);
++int main_h264_dec(void);
++int main_rijndael_enc(void);
++int main_huff_dec(void);
++int main_anagram(void);
++int main_g723_enc(void);
++int main_adpcm_dec(void);
++int main_cjpeg_wrbmp(void);
++int main_statemate(void);
++int main_fmref(void);
++int main_audiobeam(void);
++int main_test3(void);
++int main_duff(void);
++int main_cover(void);
++int main_powerwindow(void);
++int main_lift(void);
++int main_fac(void);
++int main_bsort(void);
++int main_complex_updates(void);
++int main_cosf(void);
++int main_isqrt(void);
++int main_minver(void);
++int main_pm(void);
++int main_lms(void);
++int main_binarysearch(void);
++int main_fft(void);
++int main_sha(void);
++int main_iir(void);
++int main_matrix1(void);
++int main_st(void);
++int main_prime(void);
++int main_deg2rad(void);
++int main_filterbank(void);
++int main_jfdctint(void);
++int main_fir2dim(void);
++int main_ludcmp(void);
++int main_bitcount(void);
++int main_md5(void);
++int main_recursion(void);
++int main_insertsort(void);
++int main_cubic(void);
++int main_rad2deg(void);
++int main_quicksort(void);
++int main_countnegative(void);
++int main_bitonic(void);
++
++int main(void)
++{
++  if (main_epic() != 0)
++    {
++      printf("main_epic error\n");
++    }
++
++  if (main_mpeg2() != 0)
++    {
++      printf("main_mpeg2 error\n");
++    }
++
++  if (main_cjpeg_transupp() != 0)
++    {
++      printf("main_cjpeg_transupp error\n");
++    }
++
++  if (main_adpcm_enc() != 0)
++    {
++      printf("main_adpcm_enc error\n");
++    }
++
++  if (main_rijndael_dec() != 0)
++    {
++      printf("main_rijndael_dec error\n");
++    }
++
++  if (main_huff_enc() != 0)
++    {
++      printf("main_huff_enc error\n");
++    }
++
++  if (main_dijkstra() != 0)
++    {
++      printf("main_dijkstra error\n");
++    }
++
++  if (main_gsm_dec() != 0)
++    {
++      printf("main_gsm_dec error\n");
++    }
++
++  if (main_ammunition() != 0)
++    {
++      printf("main_ammunition error\n");
++    }
++
++  if (main_susan() != 0)
++    {
++      printf("main_susan error\n");
++    }
++
++  if (main_ndes() != 0)
++    {
++      printf("main_ndes error\n");
++    }
++
++  if (main_petrinet() != 0)
++    {
++      printf("main_petrinet error\n");
++    }
++
++  if (main_gsm_enc() != 0)
++    {
++      printf("main_gsm_enc error\n");
++    }
++
++  if (main_h264_dec() != 0)
++    {
++      printf("main_h264_dec error\n");
++    }
++
++  if (main_rijndael_enc() != 0)
++    {
++      printf("main_rijndael_enc error\n");
++    }
++
++  if (main_huff_dec() != 0)
++    {
++      printf("main_huff_dec error\n");
++    }
++
++  if (main_anagram() != 0)
++    {
++      printf("main_anagram error\n");
++    }
++
++  if (main_g723_enc() != 0)
++    {
++      printf("main_g723_enc error\n");
++    }
++
++  if (main_adpcm_dec() != 0)
++    {
++      printf("main_adpcm_dec error\n");
++    }
++
++  if (main_cjpeg_wrbmp() != 0)
++    {
++      printf("main_cjpeg_wrbmp error\n");
++    }
++
++  if (main_statemate() != 0)
++    {
++      printf("main_statemate error\n");
++    }
++
++  if (main_fmref() != 0)
++    {
++      printf("main_fmref error\n");
++    }
++
++  if (main_audiobeam() != 0)
++    {
++      printf("main_audiobeam error\n");
++    }
++
++  if (main_test3() != 0)
++    {
++      printf("main_test3 error\n");
++    }
++
++  if (main_duff() != 0)
++    {
++      printf("main_duff error\n");
++    }
++
++  if (main_cover() != 0)
++    {
++      printf("main_cover error\n");
++    }
++
++  if (main_powerwindow() != 0)
++    {
++      printf("main_powerwindow error\n");
++    }
++
++  if (main_lift() != 0)
++    {
++      printf("main_lift error\n");
++    }
++
++  if (main_fac() != 0)
++    {
++      printf("main_fac error\n");
++    }
++
++  if (main_bsort() != 0)
++    {
++      printf("main_bsort error\n");
++    }
++
++  if (main_complex_updates() != 0)
++    {
++      printf("main_complex_updates error\n");
++    }
++
++  if (main_cosf() != 0)
++    {
++      printf("main_cosf error\n");
++    }
++
++  if (main_isqrt() != 0)
++    {
++      printf("main_isqrt error\n");
++    }
++
++  if (main_minver() != 0)
++    {
++      printf("main_minver error\n");
++    }
++
++  if (main_pm() != 0)
++    {
++      printf("main_pm error\n");
++    }
++
++  if (main_lms() != 0)
++    {
++      printf("main_lms error\n");
++    }
++
++  if (main_binarysearch() != 0)
++    {
++      printf("main_binarysearch error\n");
++    }
++
++  if (main_fft() != 0)
++    {
++      printf("main_fft error\n");
++    }
++
++  if (main_sha() != 0)
++    {
++      printf("main_sha error\n");
++    }
++
++  if (main_iir() != 0)
++    {
++      printf("main_iir error\n");
++    }
++
++  if (main_matrix1() != 0)
++    {
++      printf("main_matrix1 error\n");
++    }
++
++  if (main_st() != 0)
++    {
++      printf("main_st error\n");
++    }
++
++  if (main_prime() != 0)
++    {
++      printf("main_prime error\n");
++    }
++
++  if (main_deg2rad() != 0)
++    {
++      printf("main_deg2rad error\n");
++    }
++
++  if (main_filterbank() != 0)
++    {
++      printf("main_filterbank error\n");
++    }
++
++  if (main_jfdctint() != 0)
++    {
++      printf("main_jfdctint error\n");
++    }
++
++  if (main_fir2dim() != 0)
++    {
++      printf("main_fir2dim error\n");
++    }
++
++  if (main_ludcmp() != 0)
++    {
++      printf("main_ludcmp error\n");
++    }
++
++  if (main_bitcount() != 0)
++    {
++      printf("main_bitcount error\n");
++    }
++
++  if (main_md5() != 0)
++    {
++      printf("main_md5 error\n");
++    }
++
++  if (main_recursion() != 0)
++    {
++      printf("main_recursion error\n");
++    }
++
++  if (main_insertsort() != 0)
++    {
++      printf("main_insertsort error\n");
++    }
++
++  if (main_cubic() != 0)
++    {
++      printf("main_cubic error\n");
++    }
++
++  if (main_rad2deg() != 0)
++    {
++      printf("main_rad2deg error\n");
++    }
++
++  if (main_quicksort() != 0)
++    {
++      printf("main_quicksort error\n");
++    }
++
++  if (main_countnegative() != 0)
++    {
++      printf("main_countnegative error\n");
++    }
++
++  if (main_bitonic() != 0)
++    {
++      printf("main_bitonic error\n");
++    }
++
++  return 0;
++}
+-- 
+2.34.1
+
