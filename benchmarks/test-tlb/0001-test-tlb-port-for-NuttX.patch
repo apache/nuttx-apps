@@ -1,0 +1,139 @@
+From fe4108f726a0e30d429f031a6006f030c5eda113 Mon Sep 17 00:00:00 2001
+From: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+Date: Thu, 6 Jun 2024 19:53:37 +0800
+Subject: [PATCH] test-tlb: port for NuttX
+
+VELAPLATFO-25227
+
+This commit ports the test-tlb test program to the NuttX. Additionally, it implements dynamic CPU frequency calculation.
+
+Change-Id: If1c15f36742d7ee5a7d13147b41b3372047dad08
+Signed-off-by: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
+---
+ test-tlb.c | 68 ++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 63 insertions(+), 5 deletions(-)
+
+diff --git a/test-tlb.c b/test-tlb.c
+index 5c8aaa5..767794a 100644
+--- a/test-tlb.c
++++ b/test-tlb.c
+@@ -14,13 +14,58 @@
+ #include <math.h>
+ #include <time.h>
+ 
+-#define PAGE_SIZE 4096
+-
+-#define FREQ 3.9
+ 
+ static int test_hugepage = 0;
+ static int random_list = 0;
+ 
++/* Fix definition conflict */
++#ifndef PAGE_SIZE
++#define PAGE_SIZE		4096
++#endif
++
++/* dynamic calculate freq */
++#define MEASURE_GAP		500000
++
++#ifdef __x86_64__
++static inline unsigned long rdcnt_relax(void)
++{
++	unsigned int lo,hi;
++	asm volatile ("rdtsc" : "=a" (lo), "=d" (hi));
++	return ((unsigned long)hi << 32) | (unsigned long)lo;
++}
++#elif defined(__aarch64__)
++static inline unsigned long rdcnt_relax(void)
++{
++	unsigned long time;
++	asm volatile("mrs %0, cntvct_el0" : "=r"(time));
++	return time;
++}
++#else
++#error "Unsupported architecture for dynamic frequencies measuring"
++#endif
++
++static inline unsigned long rdcnt(void)
++{
++	return rdcnt_relax();
++}
++
++static unsigned long measure_freq(void)
++{
++	unsigned long cycles_per_useconds;
++	unsigned long start;
++	unsigned long end;
++
++	start = rdcnt();
++	usleep(MEASURE_GAP);
++	end = rdcnt();
++
++	cycles_per_useconds = (end - start) / MEASURE_GAP;
++
++	printf("cycles_per_microseconds: %lu\n", cycles_per_useconds);
++
++	return cycles_per_useconds;
++}
++
+ static void die(const char *fmt, ...)
+ {
+ 	va_list argp;
+@@ -69,7 +114,7 @@ static unsigned long warmup(void *map)
+ 
+ static double do_test(void *map)
+ {
+-	unsigned long count = 0, offset = 0, usec;
++	unsigned long volatile count = 0, offset = 0, usec;
+ 	struct timeval start, end;
+ 	struct itimerval itval =  {
+ 		.it_interval = { 0, 0 },
+@@ -190,7 +235,14 @@ static void *create_map(void *map, unsigned long size, unsigned long stride)
+ 	if (map) {
+ 		if (test_hugepage)
+ 			return map;
++
++#ifdef __NuttX__
++		if (munmap(map, size) != 0)
++			die("munmap failed\n");
++		map = NULL;
++#else
+ 		flags |= MAP_FIXED;
++#endif
+ 	}
+ 
+ 	mapsize = size;
+@@ -237,9 +289,14 @@ int main(int argc, char **argv)
+ 	const char *arg;
+ 	void *map;
+ 	double cycles;
++	unsigned long freq;
+ 
+ 	srandom(time(NULL));
+ 
++	/* Fix segmentation fault when execution without any arguments in NuttX */
++	if (argc < 3)
++		die("bad arguments: test-tlb [-H] <size> <stride>");
++
+ 	while ((arg = argv[1]) != NULL) {
+ 		if (*arg != '-')
+ 			break;
+@@ -261,6 +318,7 @@ int main(int argc, char **argv)
+ 		argv++;
+ 	}
+ 
++	freq = measure_freq();
+ 	size = get_num(argv[1]);
+ 	stride = get_num(argv[2]);
+ 	if (stride < 4 || size < stride)
+@@ -281,6 +339,6 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	printf("%6.2fns (~%.1f cycles)\n",
+-		cycles, cycles*FREQ);
++		cycles, cycles * freq);
+ 	return 0;
+ }
+-- 
+2.34.1
+
