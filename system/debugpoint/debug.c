@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 static uint8_t g_test_data[8];
-static const char g_test_rodata[] = "This is a read-only string";
+static const char g_test_rodata[32] = "This is a read-only string";
 
 /****************************************************************************
  * Name: debug_option
