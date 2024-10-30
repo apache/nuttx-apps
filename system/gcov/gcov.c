@@ -22,9 +22,26 @@
  * Included Files
  ****************************************************************************/
 
+#include <gcov.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <syslog.h>
 #include <unistd.h>
+
+#include <nuttx/crc16.h>
+#include <nuttx/streams.h>
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct gcov_arg
+{
+  FAR const char *name;
+  struct lib_stdoutstream_s stdoutstream;
+  struct lib_hexdumpstream_s hexstream;
+};
 
 /****************************************************************************
  * Private Functions
@@ -38,7 +55,8 @@ static void show_usage(FAR const char *progname)
 {
   printf("\nUsage: %s [-d path] [-t strip] [-r] [-h]\n", progname);
   printf("\nWhere:\n");
-  printf("  -d dump the coverage, path is the path to the coverage file\n");
+  printf("  -d dump the coverage, path is the path to the coverage file, "
+         "the default output is to stdout\n");
   printf("  -t strip the path prefix number\n");
   printf("  -r reset the coverage\n");
   printf("  -h show this text and exits.\n");
@@ -46,14 +64,7 @@ static void show_usage(FAR const char *progname)
 }
 
 /****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-void __gcov_dump(void);
-void __gcov_reset(void);
-
-/****************************************************************************
- * Private Functions
+ * Name: gcov_dump
  ****************************************************************************/
 
 static void gcov_dump(FAR const char * path, FAR const char *strip)
@@ -70,6 +81,75 @@ static void gcov_dump(FAR const char * path, FAR const char *strip)
 }
 
 /****************************************************************************
+ * Name: stdout_dump
+ ****************************************************************************/
+
+#ifndef CONFIG_COVERAGE_TOOLCHAIN
+static void stdout_dump(FAR const void *buffer, size_t size,
+                        FAR void *arg)
+{
+  FAR struct gcov_arg *args = (FAR struct gcov_arg *)arg;
+  uint16_t checksum = 0;
+  int i;
+
+  if (size == 0)
+    {
+      return;
+    }
+
+  for (i = 0; i < size; i++)
+    {
+      checksum += ((FAR const uint8_t *)buffer)[i];
+    }
+
+  lib_sprintf(&args->stdoutstream.common,
+              "gcov start filename:%s size: %zuByte\n",
+              args->name, size);
+  lib_stream_puts(&args->hexstream, buffer, size);
+  lib_stream_flush(&args->hexstream);
+  lib_sprintf(&args->stdoutstream.common,
+              "gcov end filename:%s checksum: %#0x\n",
+              args->name, checksum);
+  lib_stream_flush(&args->stdoutstream);
+}
+
+/****************************************************************************
+ * Name: stdout_filename
+ ****************************************************************************/
+
+static void stdout_filename(const char *name, FAR void *arg)
+{
+  FAR struct gcov_arg *args = (FAR struct gcov_arg *)arg;
+  args->name = name;
+  __gcov_filename_to_gcfn(name, NULL, NULL);
+}
+
+/****************************************************************************
+ * Name: gcov_stdout_dump
+ *
+ * Description:
+ *   Dump the gcov information of all translation units to stdout.
+ *
+ ****************************************************************************/
+
+static void gcov_stdout_dump(void)
+{
+  FAR struct gcov_info *info = __gcov_info_start;
+  FAR struct gcov_info *end = __gcov_info_end;
+  struct gcov_arg arg;
+
+  lib_stdoutstream(&arg.stdoutstream, stdout);
+  lib_hexdumpstream(&arg.hexstream, &arg.stdoutstream.common);
+
+  while (info != end)
+    {
+      __gcov_info_to_gcda(info, stdout_filename, stdout_dump, NULL, &arg);
+      info = info->next;
+    }
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -84,32 +164,41 @@ int main(int argc, FAR char *argv[])
       show_usage(argv[0]);
     }
 
-  while ((option = getopt(argc, argv, "d:t:rh")) != ERROR)
+  while ((option = getopt(argc, argv, "d::t:rh")) != ERROR)
     {
       switch (option)
         {
-          case 'd':
-            path = optarg;
-            break;
+        case 'd':
+          path = optarg;
+          break;
 
-          case 't':
-            strip = optarg;
+        case 't':
+          strip = optarg;
+          break;
 
-            break;
+        case 'r':
+          __gcov_reset();
+          break;
 
-          case 'r':
-            __gcov_reset();
-            break;
+        case '?':
+        default:
+          fprintf(stderr, "ERROR: Unrecognized option\n");
 
-          case '?':
-          default:
-            fprintf(stderr, "ERROR: Unrecognized option\n");
-
-          case 'h':
-            show_usage(argv[0]);
+        case 'h':
+          show_usage(argv[0]);
         }
     }
 
-  gcov_dump(path, strip);
+#ifndef CONFIG_COVERAGE_TOOLCHAIN
+  if (path == NULL)
+    {
+      gcov_stdout_dump();
+    }
+  else
+#endif
+    {
+      gcov_dump(path, strip);
+    }
+
   return 0;
 }
