@@ -19,5 +19,27 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SOTEST)
-  nuttx_add_application(NAME sotest)
+
+  # FIXME: fix all empty a after the kernel build is implemented
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c
+    COMMAND
+      ${NUTTX_APPS_DIR}/tools/mksymtab.sh ${CMAKE_CURRENT_BINARY_DIR}/empty
+      g_sot > ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c)
+
+  add_custom_target(
+    sotest_romfs
+    COMMAND genromfs -f sotest_romfs.img -d empty
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+  add_custom_command(
+    OUTPUT sotest_romfs.c
+    COMMAND xxd -i sotest_romfs.img > sotest_romfs.c
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS sotest_romfs)
+
+  nuttx_add_application(
+    NAME sotest SRCS sotest_main.c ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c
+    ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
+
 endif()
