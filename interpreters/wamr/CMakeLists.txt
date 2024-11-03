@@ -47,6 +47,12 @@ if(CONFIG_INTERPRETERS_WAMR)
 
   nuttx_add_library(wamr STATIC)
 
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES
+             ${CMAKE_CURRENT_SOURCE_DIR}/wamr/core/iwasm/include)
+
   include(${WAMR_DIR}/product-mini/platforms/nuttx/CMakeLists.txt)
   target_sources(wamr PRIVATE ${WAMR_SOURCES})
   target_compile_options(wamr PRIVATE ${WAMR_CFLAGS})
