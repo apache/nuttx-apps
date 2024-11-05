@@ -209,12 +209,12 @@ int main(int argc, FAR char **argv)
       default:
       case AF_INET:
         ((FAR struct sockaddr_in *)&addr)->sin_family = AF_INET;
-        ((FAR struct sockaddr_in *)&addr)->sin_port = REXECD_PORT;
+        ((FAR struct sockaddr_in *)&addr)->sin_port = htons(REXECD_PORT);
         ret = sizeof(struct sockaddr_in);
         break;
       case AF_INET6:
         ((FAR struct sockaddr_in6 *)&addr)->sin6_family = AF_INET6;
-        ((FAR struct sockaddr_in6 *)&addr)->sin6_port = REXECD_PORT;
+        ((FAR struct sockaddr_in6 *)&addr)->sin6_port = htons(REXECD_PORT);
         ret = sizeof(struct sockaddr_in6);
         break;
       case AF_RPMSG:
