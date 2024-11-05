@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <poll.h>
+#include <syslog.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -280,6 +281,7 @@ int main(int argc, FAR char **argv)
 attr_out:
   pthread_attr_destroy(&attr);
 err_out:
+  syslog(LOG_ERR, "rexecd failed ret:%d errno:%d\n", ret, errno);
   close(serv);
   return ret;
 }
