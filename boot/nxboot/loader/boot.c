@@ -577,6 +577,7 @@ int nxboot_get_state(struct nxboot_state *state)
 int nxboot_get_confirm(void)
 {
   int primary;
+  struct nxboot_img_header primary_header;
 
   primary = flash_partition_open(CONFIG_NXBOOT_PRIMARY_SLOT_PATH);
   if (primary < 0)
@@ -584,7 +585,9 @@ int nxboot_get_confirm(void)
       return ERROR;
     }
 
-  if (get_image_flag(primary, NXBOOT_CONFIRMED_PAGE_INDEX))
+  get_image_header(primary, &primary_header);
+  if (get_image_flag(primary, NXBOOT_CONFIRMED_PAGE_INDEX) ||
+      primary_header.magic == NXBOOT_HEADER_MAGIC_INV)
     {
       return 1;
     }
