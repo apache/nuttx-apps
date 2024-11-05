@@ -87,7 +87,7 @@ static int do_rexec(FAR struct rexec_arg_s *arg)
   int sock;
   int ret;
 
-  sock = rexec_af(&arg->host, arg->port, arg->user,
+  sock = rexec_af(&arg->host, htons(arg->port), arg->user,
                   arg->password, arg->command,
                   NULL, arg->af);
   if (sock < 0)
