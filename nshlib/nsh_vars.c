@@ -346,7 +346,6 @@ int nsh_unsetvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
         }
     }
 
-  sched_unlock();
   return ret;
 }
 #endif
