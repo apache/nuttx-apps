@@ -29,13 +29,14 @@
 
 #include <nuttx/sched.h>
 
+#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 static struct smp_call_data_s g_call_data;
 
-#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
