@@ -282,11 +282,11 @@ int nxaudio_stop(FAR struct nxaudio_s *nxaudio)
 {
   struct audio_msg_s term_msg;
 
-  ioctl(nxaudio->fd, AUDIOIOC_STOP, 0);
-
   term_msg.msg_id = AUDIO_MSG_STOP;
   term_msg.u.data = 0;
   mq_send(nxaudio->mq, (FAR const char *)&term_msg, sizeof(term_msg), 0);
+
+  ioctl(nxaudio->fd, AUDIOIOC_STOP, 0);
 
   return OK;
 }
