@@ -226,7 +226,7 @@ static void read_default(FAR void **state)
 
   while (cnt < sizeof(DEFAULT_CONTENT) - 1)
     {
-      ssize_t n = read(test_state->fd, buffer + cnt, buffer_size - cnt);
+      ssize_t n = read(test_state->fd, buffer + cnt, buffer_size - cnt - 1);
 
       assert_true(n >= 0);
       if (n == 0)
