@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig BENCHMARK_CYCLICTEST
+	bool "Cyclictest"
+	default n
+	---help---
+		Enable the cyclictest application.
+
+if BENCHMARK_CYCLICTEST
+
+config BENCHMARK_CYCLICTEST_PROGNAME
+	string "Cyclictest App Name"
+	default "cyclictest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config BENCHMARK_CYCLICTEST_PRIORITY
+	int "Cyclictest task priority"
+	default 100
+
+config BENCHMARK_CYCLICTEST_STACKSIZE
+	int "Cyclictest task stack size"
+	default 4096
+
+endif # BENCHMARK_CYCLICTEST
