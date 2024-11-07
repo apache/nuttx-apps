@@ -139,6 +139,7 @@ static void *transfer_writer(pthread_addr_t pvarg)
   char buffer[WRITE_SIZE];
   int fd = (intptr_t)pvarg;
   int ret;
+  int nbytes;
   int i;
 
   printf("transfer_writer: started\n");
@@ -149,18 +150,23 @@ static void *transfer_writer(pthread_addr_t pvarg)
 
   for (i = 0; i < NWRITES; i++)
     {
-      ret = write(fd, buffer, WRITE_SIZE);
-      if (ret < 0)
+      for (nbytes = 0; nbytes < WRITE_SIZE; )
         {
-          fprintf(stderr, \
-                  "transfer_writer: write failed, errno=%d\n", errno);
-          return (void *)(uintptr_t)1;
-        }
-      else if (ret != WRITE_SIZE)
-        {
-          fprintf(stderr, \
-                  "transfer_writer: Unexpected write size=%d\n", ret);
-          return (void *)(uintptr_t)2;
+          ret = write(fd, buffer + nbytes, WRITE_SIZE - nbytes);
+          if (ret < 0)
+            {
+              fprintf(stderr, \
+                      "transfer_writer: write failed, errno=%d\n", errno);
+              return (void *)(uintptr_t)1;
+            }
+          else if (ret == 0)
+            {
+              fprintf(stderr, \
+                      "transfer_writer: Unexpected zero write size\n");
+              return (void *)(uintptr_t)2;
+            }
+
+          nbytes += ret;
         }
     }
 
