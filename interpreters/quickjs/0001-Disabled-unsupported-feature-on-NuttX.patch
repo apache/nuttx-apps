@@ -1,37 +1,16 @@
-From a3374db7eca1141ec8a3909ff001f52f3e79d905 Mon Sep 17 00:00:00 2001
-From: Huang Qi <huangqi3@xiaomi.com>
-Date: Wed, 10 Mar 2021 16:30:13 +0800
-Subject: [PATCH] Disabled unsupported feature on NuttX.
+commit cb2d8c8e6c8e120c6b09830fbb89487ed1048e3c
+Author: wenlingyun1 <wenlingyun1@xiaomi.com>
+Date:   Mon Nov 11 11:43:56 2024 +0800
 
-N/A
+    update quickjs patch
+    
+    Signed-off-by: wenlingyun1 <wenlingyun1@xiaomi.com>
 
-Signed-off-by: Huang Qi <huangqi3@xiaomi.com>
-Change-Id: I4ff1793609b752320d64406deec3c0ed9b4da965
----
- qjs.c          |  2 ++
- quickjs-libc.c | 14 +++++++-------
- 2 files changed, 9 insertions(+), 7 deletions(-)
-
-diff --git a/qjs.c b/qjs.c
-index 4dd11f8..a35a500 100644
---- a/qjs.c
-+++ b/qjs.c
-@@ -448,8 +448,10 @@ int main(int argc, char **argv)
-         }
-     }
- 
-+#ifdef CONFIG_BIGNUM
-     if (load_jscalc)
-         bignum_ext = 1;
-+#endif
- 
-     if (trace_memory) {
-         js_trace_malloc_init(&trace_data);
 diff --git a/quickjs-libc.c b/quickjs-libc.c
-index e8b81e9..858703c 100644
+index 141f79f..67f31e8 100644
 --- a/quickjs-libc.c
 +++ b/quickjs-libc.c
-@@ -3558,10 +3558,10 @@ static const JSCFunctionListEntry js_os_funcs[] = {
+@@ -3695,10 +3695,10 @@ static const JSCFunctionListEntry js_os_funcs[] = {
      JS_CFUNC_MAGIC_DEF("setWriteHandler", 2, js_os_setReadHandler, 1 ),
      JS_CFUNC_DEF("signal", 2, js_os_signal ),
      OS_FLAG(SIGINT),
@@ -46,7 +25,7 @@ index e8b81e9..858703c 100644
      OS_FLAG(SIGTERM),
  #if !defined(_WIN32)
      OS_FLAG(SIGQUIT),
-@@ -3573,8 +3573,8 @@ static const JSCFunctionListEntry js_os_funcs[] = {
+@@ -3710,8 +3710,8 @@ static const JSCFunctionListEntry js_os_funcs[] = {
      OS_FLAG(SIGCONT),
      OS_FLAG(SIGSTOP),
      OS_FLAG(SIGTSTP),
@@ -55,17 +34,277 @@ index e8b81e9..858703c 100644
 +    // OS_FLAG(SIGTTIN),
 +    // OS_FLAG(SIGTTOU),
  #endif
+     JS_CFUNC_DEF("now", 0, js_os_now ),
      JS_CFUNC_DEF("setTimeout", 2, js_os_setTimeout ),
-     JS_CFUNC_DEF("clearTimeout", 1, js_os_clearTimeout ),
-@@ -3603,7 +3603,7 @@ static const JSCFunctionListEntry js_os_funcs[] = {
-     JS_CFUNC_DEF("realpath", 1, js_os_realpath ),
+@@ -3743,7 +3743,7 @@ static const JSCFunctionListEntry js_os_funcs[] = {
+     JS_CFUNC_MAGIC_DEF("lstat", 1, js_os_stat, 1 ),
      JS_CFUNC_DEF("symlink", 2, js_os_symlink ),
      JS_CFUNC_DEF("readlink", 1, js_os_readlink ),
 -    JS_CFUNC_DEF("exec", 1, js_os_exec ),
 +    // JS_CFUNC_DEF("exec", 1, js_os_exec ),
+     JS_CFUNC_DEF("getpid", 0, js_os_getpid ),
      JS_CFUNC_DEF("waitpid", 2, js_os_waitpid ),
      OS_FLAG(WNOHANG),
-     JS_CFUNC_DEF("pipe", 0, js_os_pipe ),
--- 
-2.25.1
+commit 33590bf30396733a5f5365feec47f40a73bdfd5a
+Author: wenlingyun1 <wenlingyun1@xiaomi.com>
+Date:   Tue May 28 11:16:56 2024 +0800
 
+    add CMakeLists.txt for building qjsc
+    
+    VELAPLATFO-30697
+    
+    Change-Id: Idcb98f8b0b3f7b694b381f9f376202938d562048
+    Signed-off-by: wenlingyun1 <wenlingyun1@xiaomi.com>
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..0dc6fd5
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,121 @@
++cmake_minimum_required(VERSION 3.16)
++project(jsc)
++
++set(CONFIG_LTO y)
++set(prefix "/usr/local")
++
++set(QUICKJS_DIR ${CMAKE_CURRENT_LIST_DIR})
++
++if(CONFIG_DARWIN)
++  set(CONFIG_CLANG y)
++  set(CONFIG_DEFAULT_AR y)
++endif()
++
++if(CONFIG_WIN32)
++  if(CONFIG_M32)
++    set(CROSS_PREFIX i686-w64-mingw32-)
++  else()
++    set(CROSS_PREFIX x86_64-w64-mingw32-)
++  endif()
++else()
++  set(CROSS_PREFIX)
++endif()
++
++set(QUICKJS_COMMON_OPT)
++set(QJSC_OPT)
++if(CONFIG_CLANG)
++  set(HOST_CC clang)
++  set(CC ${CROSS_PREFIX}clang)
++  list(APPEND QUICKJS_COMMON_OPT -g -Wall)
++  list(APPEND QUICKJS_COMMON_OPT -Wextra)
++  list(APPEND QUICKJS_COMMON_OPT -Wno-sign-compare)
++  list(APPEND QUICKJS_COMMON_OPT -Wno-missing-field-initializers)
++  list(APPEND QUICKJS_COMMON_OPT -Wundef -Wuninitialized)
++  list(APPEND QUICKJS_COMMON_OPT -Wunused -Wno-unused-parameter)
++  list(APPEND QUICKJS_COMMON_OPT -Wwrite-strings)
++  list(APPEND QUICKJS_COMMON_OPT -Wchar-subscripts -funsigned-char)
++  if(CONFIG_DEFAULT_AR)
++    set(AR ${CROSS_PREFIX}ar)
++  else()
++    if(CONFIG_LTO)
++      set(AR ${CROSS_PREFIX}llvm-ar)
++    else()
++      set(AR ${CROSS_PREFIX}ar)
++    endif()
++  endif()
++else()
++  set(HOST_CC gcc)
++  set(CC ${CROSS_PREFIX}gcc)
++  list(APPEND QUICKJS_COMMON_OPT -g -Wall)
++  list(APPEND QUICKJS_COMMON_OPT -Wno-array-bounds -Wno-format-truncation)
++  if(CONFIG_LTO)
++    set(AR ${CROSS_PREFIX}gcc-ar)
++  else()
++    set(AR ${CROSS_PREFIX}ar)
++  endif()
++endif()
++
++set(STRIP ${CROSS_PREFIX}strip)
++
++if(CONFIG_WERROR)
++  list(APPEND QUICKJS_COMMON_OPT -Werror)
++endif()
++
++set(QUICKJS_COMMON_DEF)
++set(QUICKJS_DEF)
++set(QJSC_DEF)
++list(APPEND QUICKJS_COMMON_DEF -D_GNU_SOURCE
++     -DCONFIG_VERSION=${QUICKJS_VERSION})
++
++if(CONFIG_BIGNUM STREQUAL y)
++  list(APPEND QUICKJS_COMMON_DEF -DCONFIG_BIGNUM)
++endif()
++
++list(APPEND QJSC_OPT -O2)
++
++if(CONFIG_LTO)
++  list(APPEND CFLAGS_SMALL -flto)
++  list(APPEND QUICKJS_COMMON_OPT -flto)
++  list(APPEND LDFLAGS -flto)
++endif()
++
++if(CONFIG_PROFILE)
++  list(APPEND CFLAGS -p)
++  list(APPEND LDFLAGS -p)
++endif()
++
++if(CONFIG_ASAN)
++  list(APPEND CFLAGS -fsanitize=address -fno-omit-frame-pointer)
++  list(APPEND LDFLAGS -fsanitize=address -fno-omit-frame-pointer)
++endif()
++
++if(CROSS_PREFIX)
++  set(QJSC_CC gcc)
++  set(QJSC ./host-qjsc)
++else()
++  set(QJSC_CC ${CC})
++  set(QJSC ./qjsc)
++endif()
++
++list(APPEND QUICKJS_COMMON_OPT -O2)
++
++list(APPEND QJSC_OPT ${QUICKJS_COMMON_OPT})
++
++list(APPEND QUICKJS_DEF ${QUICKJS_COMMON_DEF})
++
++list(APPEND QJSC_DEF ${QUICKJS_COMMON_DEF})
++list(APPEND QJSC_DEF -DCONFIG_LTO -DCONFIG_CC=\"gcc\"
++     -DCONFIG_PREFIX=\"/usr/local\")
++
++set(QUICKJS_SRC
++    ${QUICKJS_DIR}/quickjs.c
++    ${QUICKJS_DIR}/libbf.c
++    ${QUICKJS_DIR}/libunicode.c
++    ${QUICKJS_DIR}/libregexp.c
++    ${QUICKJS_DIR}/cutils.c
++    ${QUICKJS_DIR}/quickjs-libc.c)
++add_library(quickjs ${QUICKJS_SRC})
++target_compile_options(quickjs PRIVATE ${QUICKJS_COMMON_OPT})
++target_compile_definitions(quickjs PRIVATE ${QUICKJS_DEF})
++
++include(qjsc.cmake)
+diff --git a/qjsc.cmake b/qjsc.cmake
+new file mode 100644
+index 0000000..f64fcbe
+--- /dev/null
++++ b/qjsc.cmake
+@@ -0,0 +1,119 @@
++cmake_minimum_required(VERSION 3.16)
++project(qjsc)
++set(CONFIG_LTO y)
++set(prefix "/usr/local")
++
++set(QUICKJS_DIR ${CMAKE_CURRENT_LIST_DIR}/)
++
++if(CONFIG_DARWIN)
++  set(CONFIG_CLANG y)
++  set(CONFIG_DEFAULT_AR y)
++endif()
++
++if(CONFIG_WIN32)
++  if(CONFIG_M32)
++    set(CROSS_PREFIX i686-w64-mingw32-)
++  else()
++    set(CROSS_PREFIX x86_64-w64-mingw32-)
++  endif()
++else()
++  set(CROSS_PREFIX)
++endif()
++
++set(QUICKJS_COMMON_OPT)
++set(QJSC_OPT)
++if(CONFIG_CLANG)
++  set(HOST_CC clang)
++  set(CC ${CROSS_PREFIX}clang)
++  list(APPEND QUICKJS_COMMON_OPT -g -Wall)
++  list(APPEND QUICKJS_COMMON_OPT -Wextra)
++  list(APPEND QUICKJS_COMMON_OPT -Wno-sign-compare)
++  list(APPEND QUICKJS_COMMON_OPT -Wno-missing-field-initializers)
++  list(APPEND QUICKJS_COMMON_OPT -Wundef -Wuninitialized)
++  list(APPEND QUICKJS_COMMON_OPT -Wunused -Wno-unused-parameter)
++  list(APPEND QUICKJS_COMMON_OPT -Wwrite-strings)
++  list(APPEND QUICKJS_COMMON_OPT -Wchar-subscripts -funsigned-char)
++  if(CONFIG_DEFAULT_AR)
++    set(AR ${CROSS_PREFIX}ar)
++  else()
++    if(CONFIG_LTO)
++      set(AR ${CROSS_PREFIX}llvm-ar)
++    else()
++      set(AR ${CROSS_PREFIX}ar)
++    endif()
++  endif()
++else()
++  set(HOST_CC gcc)
++  set(CC ${CROSS_PREFIX}gcc)
++  list(APPEND QUICKJS_COMMON_OPT -g -Wall)
++  list(APPEND QUICKJS_COMMON_OPT -Wno-array-bounds -Wno-format-truncation)
++  if(CONFIG_LTO)
++    set(AR ${CROSS_PREFIX}gcc-ar)
++  else()
++    set(AR ${CROSS_PREFIX}ar)
++  endif()
++endif()
++
++set(STRIP ${CROSS_PREFIX}strip)
++
++if(CONFIG_WERROR)
++  list(APPEND QUICKJS_COMMON_OPT -Werror)
++endif()
++
++set(QUICKJS_COMMON_DEF)
++set(QUICKJS_DEF)
++set(QJSC_DEF)
++list(APPEND QUICKJS_COMMON_DEF -D_GNU_SOURCE
++     -DCONFIG_VERSION=${QUICKJS_VERSION})
++
++if(CONFIG_BIGNUM STREQUAL y)
++  list(APPEND QUICKJS_COMMON_DEF -DCONFIG_BIGNUM)
++endif()
++
++list(APPEND QJSC_OPT -O2)
++
++if(CONFIG_LTO)
++  list(APPEND CFLAGS_SMALL -flto)
++  list(APPEND QUICKJS_COMMON_OPT -flto)
++  list(APPEND LDFLAGS -flto)
++endif()
++
++if(CONFIG_PROFILE)
++  list(APPEND CFLAGS -p)
++  list(APPEND LDFLAGS -p)
++endif()
++
++if(CONFIG_ASAN)
++  list(APPEND CFLAGS -fsanitize=address -fno-omit-frame-pointer)
++  list(APPEND LDFLAGS -fsanitize=address -fno-omit-frame-pointer)
++endif()
++
++if(CROSS_PREFIX)
++  set(QJSC_CC gcc)
++  set(QJSC ./host-qjsc)
++else()
++  set(QJSC_CC ${CC})
++  set(QJSC ./qjsc)
++endif()
++
++list(APPEND QUICKJS_COMMON_OPT -O2)
++
++list(APPEND QJSC_OPT ${QUICKJS_COMMON_OPT})
++
++list(APPEND QUICKJS_DEF ${QUICKJS_COMMON_DEF})
++
++list(APPEND QJSC_DEF ${QUICKJS_COMMON_DEF})
++list(APPEND QJSC_DEF -DCONFIG_LTO -DCONFIG_CC=\"gcc\"
++     -DCONFIG_PREFIX=\"/usr/local\")
++
++add_executable(qjsc qjsc.c)
++target_compile_options(qjsc PRIVATE ${QJSC_OPT})
++target_compile_definitions(qjsc PRIVATE ${QJSC_DEF})
++
++target_link_options(qjsc PRIVATE -g -flto)
++target_link_libraries(qjsc quickjs)
++
++if(UNIX)
++  find_package(Threads)
++  target_link_libraries(quickjs ${CMAKE_DL_LIBS} m Threads::Threads)
++endif()
