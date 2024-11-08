@@ -802,8 +802,17 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       while (true)
         {
           ret = nsh_read(vtbl, buf, BUFSIZ);
-          if (ret <= 0)
+          if (ret == 0)
             {
+              break;
+            }
+          else if (ret < 0)
+            {
+              if (errno == EINTR)
+                {
+                  continue;
+                }
+
               break;
             }
 
