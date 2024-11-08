@@ -143,7 +143,23 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 
           if (argc > 2)
             {
-              return nsh_parse(vtbl, argv[2]);
+              char cmdline[CONFIG_NSH_LINELEN];
+
+              memset(cmdline, 0, sizeof(cmdline));
+
+              for (ret = 0; ret < argc - 2; ret++)
+                {
+                  if (sizeof(cmdline) - strlen(cmdline) - 1 <
+                      strlen(argv[ret + 2]) + 1)
+                    {
+                      break;
+                    }
+
+                  strcat(cmdline, argv[ret + 2]);
+                  strcat(cmdline, ret == argc - 3 ? "\n" : " ");
+                }
+
+              return nsh_parse(vtbl, cmdline);
             }
           else
             {
