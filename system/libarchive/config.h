@@ -735,10 +735,12 @@ typedef uint64_t uintmax_t;
 /* #undef HAVE_LIBLZ4 1 */
 
 /* Define to 1 if you have the `lzma' library (-llzma). */
-/* #undef HAVE_LIBLZMA */
+#ifdef CONFIG_UTILS_XZ
+#define HAVE_LIBLZMA 1
 
 /* Define to 1 if you have the `lzmadec' library (-llzmadec). */
-/* #undef HAVE_LIBLZMADEC */
+#define HAVE_LIBLZMADEC 1
+#endif
 
 /* Define to 1 if you have the `lzo2' library (-llzo2). */
 /* #undef HAVE_LIBLZO2 */
@@ -771,7 +773,9 @@ typedef uint64_t uintmax_t;
 /* #undef HAVE_LIBXML_XMLWRITER_H */
 
 /* Define to 1 if you have the `z' library (-lz). */
-/* #undef HAVE_LIBZ */
+#ifdef CONFIG_LIB_ZLIB
+#define HAVE_LIBZ 1
+#endif
 
 /* Define to 1 if you have the `zstd' library (-lzstd). */
 /* #undef HAVE_LIBZSTD */
