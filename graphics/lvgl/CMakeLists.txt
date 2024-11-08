@@ -43,7 +43,7 @@ if(CONFIG_GRAPHICS_LVGL)
           TEST_COMMAND
           ""
       DOWNLOAD_NO_PROGRESS true
-      TIMEOUT 30)
+      TIMEOUT 120)
 
     FetchContent_GetProperties(lvgl_fetch)
 
