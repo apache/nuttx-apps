@@ -69,13 +69,6 @@ struct memorystress_func_s
   void (*freefunc)(FAR void *ptr);
 };
 
-struct memorystress_config_s
-{
-  FAR struct memorystress_func_s *func;
-  size_t max_allocsize;
-  size_t nodelen;
-};
-
 struct memorystress_error_s
 {
   FAR uint8_t *buf;
@@ -95,14 +88,21 @@ struct memorystress_node_s
   size_t size;
 };
 
-struct memorystress_context_s
+struct memorystress_thread_context_s
 {
   FAR struct memorystress_node_s *node_array;
-  FAR struct memorystress_config_s *config;
-  FAR pthread_t *threads;
+  FAR struct memorystress_global_s *global;
   struct memorystress_error_s error;
-  uint32_t sleep_us;
+};
+
+struct memorystress_global_s
+{
+  FAR struct memorystress_func_s func;
+  FAR pthread_t *threads;
+  size_t max_allocsize;
   size_t nthreads;
+  size_t nodelen;
+  uint32_t sleep_us;
   bool debug;
 };
 
@@ -116,13 +116,14 @@ struct memorystress_context_s
 
 static void show_usage(FAR const char *progname)
 {
-  printf("\nUsage: %s -m <max allocsize> -n <node length> -t <sleep us>"
+  printf("\nUsage: %s -m [max allocsize Default:8192] "
+         "-n [node length Default:1024] -t [sleep us Default:100]"
          " -x [nthreads Default:1] -d [debuger mode]\n",
         progname);
   printf("\nWhere:\n");
-  printf("  -m <max-allocsize> max alloc size.\n");
-  printf("  -n <node length> Number of allocated memory blocks .\n");
-  printf("  -t <sleep us> Length of time between each test.\n");
+  printf("  -m [max-allocsize] max alloc size.\n");
+  printf("  -n [node length] Number of allocated memory blocks .\n");
+  printf("  -t [sleep us] Length of time between each test.\n");
   printf("  -x [nthreads] Enable multi-thread stress testing. \n");
   printf("  -d [debug mode] Helps to localize the problem situation,"
          "there is a lot of information output in this mode.\n");
@@ -187,7 +188,7 @@ static void error_result(struct memorystress_error_s error)
  * Name: checknode
  ****************************************************************************/
 
-static void checknode(FAR struct memorystress_context_s *context,
+static void checknode(FAR struct memorystress_thread_context_s *context,
                       FAR struct memorystress_node_s *node,
                       enum memorystress_rwerror_e rwerror)
 {
@@ -199,7 +200,7 @@ static void checknode(FAR struct memorystress_context_s *context,
 
   for (i = 0; i < size; i++)
     {
-      uint8_t write_value = genvalue(&seed, context->debug);
+      uint8_t write_value = genvalue(&seed, context->global->debug);
       uint8_t read_value = node->buf[i];
 
       if (read_value != write_value)
@@ -225,17 +226,18 @@ static void checknode(FAR struct memorystress_context_s *context,
  * Name: memorystress_iter
  ****************************************************************************/
 
-static bool memorystress_iter(FAR struct memorystress_context_s *context)
+static bool memorystress_iter(FAR struct memorystress_thread_context_s
+                              *context)
 {
   FAR struct memorystress_node_s *node;
   FAR struct memorystress_func_s *func;
   uint32_t seed = rand() % UINT32_MAX;
-  bool debug = context->debug;
+  bool debug = context->global->debug;
   size_t index;
 
-  index = randnum(context->config->nodelen, &seed);
+  index = randnum(context->global->nodelen, &seed);
   node = &(context->node_array[index]);
-  func = (FAR struct memorystress_func_s *)context->config->func;
+  func = &context->global->func;
 
   /* Record the current index and node address */
 
@@ -249,7 +251,7 @@ static bool memorystress_iter(FAR struct memorystress_context_s *context)
       /* Selection of test type and test size by random number */
 
       FAR uint8_t *ptr = NULL;
-      size_t size = randnum(context->config->max_allocsize, &seed);
+      size_t size = randnum(context->global->max_allocsize, &seed);
       int switch_func = randnum(3, &seed);
       int align = 1 << (randnum(4, &seed) + 2);
 
@@ -372,46 +374,41 @@ static FAR void *debug_realloc(FAR void *ptr, size_t new_size)
 }
 
 /****************************************************************************
- * Name: init
+ * Name: global_init
  ****************************************************************************/
 
-static void init(FAR struct memorystress_context_s *context, int argc,
-                 FAR char *argv[])
+static void global_init(FAR struct memorystress_global_s *global, int argc,
+                        FAR char *argv[])
 {
-  FAR struct memorystress_config_s *config;
-  FAR struct memorystress_func_s *func;
   int ch;
 
-  memset(context, 0, sizeof(struct memorystress_context_s));
-  context->nthreads = 1;
-  config = zalloc(sizeof(struct memorystress_config_s));
-  func = zalloc(sizeof(struct memorystress_func_s));
-  if (func == NULL || config == NULL)
-    {
-      free(config);
-      free(func);
-      syslog(LOG_ERR, MEMSTRESS_PREFIX "Malloc struct Failed\n");
-      exit(EXIT_FAILURE);
-    }
+  memset(global, 0, sizeof(struct memorystress_global_s));
+
+  /* The default maximum memory held by a single thread is 8M */
+
+  global->nthreads = 1;
+  global->sleep_us = 100;
+  global->max_allocsize = 8192;
+  global->nodelen = 1024;
 
   while ((ch = getopt(argc, argv, "dm:n:t:x::")) != ERROR)
     {
       switch (ch)
         {
           case 'd':
-            context->debug = true;
+            global->debug = true;
             break;
           case 'm':
-            OPTARG_TO_VALUE(config->max_allocsize, size_t);
+            OPTARG_TO_VALUE(global->max_allocsize, size_t);
             break;
           case 'n':
-            OPTARG_TO_VALUE(config->nodelen, int);
+            OPTARG_TO_VALUE(global->nodelen, int);
             break;
           case 't':
-            OPTARG_TO_VALUE(context->sleep_us, uint32_t);
+            OPTARG_TO_VALUE(global->sleep_us, uint32_t);
             break;
           case 'x':
-            OPTARG_TO_VALUE(context->nthreads, int);
+            OPTARG_TO_VALUE(global->nthreads, int);
             break;
           default:
             show_usage(argv[0]);
@@ -419,57 +416,52 @@ static void init(FAR struct memorystress_context_s *context, int argc,
         }
     }
 
-  if (config->max_allocsize == 0 || config->nodelen == 0 ||
-      context->sleep_us == 0)
-    {
-      free(config);
-      free(func);
-      show_usage(argv[0]);
-    }
+    if (global->debug)
+      {
+        global->func.malloc = debug_malloc;
+        global->func.aligned_alloc = debug_aligned_alloc;
+        global->func.realloc = debug_realloc;
+        global->func.freefunc = debug_free;
+      }
+    else
+      {
+        global->func.malloc = malloc;
+        global->func.aligned_alloc = aligned_alloc;
+        global->func.realloc = realloc;
+        global->func.freefunc = free;
+      }
 
-  /* initialization function */
+    global->threads = (FAR pthread_t *)malloc(sizeof(pthread_t) *
+                                              global->nthreads);
+    if (global->threads == NULL)
+      {
+        syslog(LOG_ERR, MEMSTRESS_PREFIX "Malloc threads Failed\n");
+        exit(EXIT_FAILURE);
+      }
 
-  if (context->debug)
-    {
-      func->malloc = debug_malloc;
-      func->aligned_alloc = debug_aligned_alloc;
-      func->realloc = debug_realloc;
-      func->freefunc = debug_free;
-    }
-  else
-    {
-      func->malloc = malloc;
-      func->aligned_alloc = aligned_alloc;
-      func->realloc = realloc;
-      func->freefunc = free;
-    }
+    syslog(LOG_INFO, MEMSTRESS_PREFIX "\n max_allocsize: %zu\n"
+           " nodelen: %zu\n sleep_us: %lu\n nthreads: %zu\n debug: %s\n",
+           global->max_allocsize, global->nodelen, global->sleep_us,
+           global->nthreads, global->debug ? "true" : "false");
 
-  config->func = func;
-  context->config = config;
+    srand(time(NULL));
+}
 
-  /* init node array */
+/****************************************************************************
+ * Name: thread_init
+ ****************************************************************************/
 
-  context->node_array = zalloc(config->nodelen *
-                               sizeof(struct memorystress_node_s));
+static void thread_init(FAR struct memorystress_thread_context_s *context,
+                        FAR struct memorystress_global_s *global)
+{
+  context->global = global;
+  context->node_array = zalloc(sizeof(struct memorystress_node_s) *
+                               global->nodelen);
   if (context->node_array == NULL)
     {
-      free(func);
-      free(config);
       syslog(LOG_ERR, MEMSTRESS_PREFIX "Malloc Node Array Failed\n");
       exit(EXIT_FAILURE);
     }
-
-  context->threads = zalloc(context->nthreads * sizeof(pthread_t));
-  if (context->threads == NULL)
-    {
-      free(func);
-      free(config);
-      free(context->node_array);
-      syslog(LOG_ERR, MEMSTRESS_PREFIX "Malloc threads Failed\n");
-      exit(EXIT_FAILURE);
-    }
-
-  srand(time(NULL));
 }
 
 /****************************************************************************
@@ -478,12 +470,14 @@ static void init(FAR struct memorystress_context_s *context, int argc,
 
 FAR void *memorystress_thread(FAR void *arg)
 {
-  FAR struct memorystress_context_s *context;
+  FAR struct memorystress_global_s *global;
+  struct memorystress_thread_context_s context;
 
-  context = (FAR struct memorystress_context_s *)arg;
-  while (memorystress_iter(context))
+  global = (FAR struct memorystress_global_s *)arg;
+  thread_init(&context, global);
+  while (memorystress_iter(&context))
     {
-      usleep(context->sleep_us);
+      usleep(global->sleep_us);
     }
 
   return NULL;
@@ -499,24 +493,24 @@ FAR void *memorystress_thread(FAR void *arg)
 
 int main(int argc, FAR char *argv[])
 {
-  struct memorystress_context_s context;
+  struct memorystress_global_s global;
   int i;
 
-  init(&context, argc, argv);
+  global_init(&global, argc, argv);
   syslog(LOG_INFO, MEMSTRESS_PREFIX "testing...\n");
-  for (i = 0; i < context.nthreads; i++)
+  for (i = 0; i < global.nthreads; i++)
     {
-      if (pthread_create(&context.threads[i], NULL, memorystress_thread,
-                         (FAR void *)&context) != 0)
+      if (pthread_create(&global.threads[i], NULL, memorystress_thread,
+                         (FAR void *)&global) != 0)
         {
           syslog(LOG_ERR, "Failed to create thread\n");
           return 1;
         }
     }
 
-  for (i = 0; i < context.nthreads; i++)
+  for (i = 0; i < global.nthreads; i++)
     {
-      pthread_join(context.threads[i], NULL);
+      pthread_join(global.threads[i], NULL);
     }
 
   return 0;
