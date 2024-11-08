@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <setjmp.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /****************************************************************************
  * Public Functions
