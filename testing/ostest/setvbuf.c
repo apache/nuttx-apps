@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #ifndef CONFIG_STDIO_DISABLE_BUFFERING
 

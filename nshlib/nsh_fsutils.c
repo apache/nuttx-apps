@@ -36,6 +36,8 @@
 #include <assert.h>
 #include <unistd.h>
 
+#include <nuttx/lib/lib.h>
+
 #include "nsh.h"
 #include "nsh_console.h"
 

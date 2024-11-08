@@ -26,6 +26,7 @@
 #include <nuttx/event.h>
 
 #include <stdio.h>
+#include <sched.h>
 #include <pthread.h>
 
 #include "ostest.h"

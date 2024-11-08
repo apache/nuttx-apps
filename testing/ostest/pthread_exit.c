@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 #include <sys/wait.h>
 #include <stdio.h>
+#include <sched.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
