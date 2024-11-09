@@ -93,7 +93,7 @@ static bool dumpfile_is_valid(FAR const char *name)
     }
 
   suffix = name + name_len - COREDUMP_FILE_SUFFIX_LEN;
-  return !!memcmp(suffix, COREDUMP_FILE_SUFFIX, COREDUMP_FILE_SUFFIX_LEN);
+  return !memcmp(suffix, COREDUMP_FILE_SUFFIX, COREDUMP_FILE_SUFFIX_LEN);
 }
 
 static int dumpfile_iterate(FAR char *path, dumpfile_cb_t cb, FAR void *arg)
