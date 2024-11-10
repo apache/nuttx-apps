@@ -126,6 +126,11 @@ static int dd_read(FAR struct dd_s *dd)
       nbytes = read(dd->infd, buffer, dd->sectsize - dd->nbytes);
       if (nbytes < 0)
         {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
           FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
           nsh_error(vtbl, g_fmtcmdfailed, g_dd, "read", NSH_ERRNO);
           return ERROR;
@@ -134,7 +139,7 @@ static int dd_read(FAR struct dd_s *dd)
       dd->nbytes += nbytes;
       buffer     += nbytes;
     }
-  while (dd->nbytes < dd->sectsize && nbytes > 0);
+  while (dd->nbytes < dd->sectsize && nbytes != 0);
 
   dd->eof |= (dd->nbytes == 0);
   return OK;
