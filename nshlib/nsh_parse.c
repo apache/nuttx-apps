@@ -603,24 +603,25 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
     {
       FAR char *sh_argv[4];
       FAR char *sh_cmd = "sh";
-      int i;
+      char sh_arg2[CONFIG_NSH_LINELEN];
 
       DEBUGASSERT(strncmp(argv[0], sh_cmd, 3) != 0);
 
-      sh_argv[0] = sh_cmd;
-      sh_argv[1] = "-c";
-      for (i = 0; i < argc - 1; i++)
+      sh_arg2[0] = '\0';
+
+      for (ret = 0; ret < argc; ret++)
         {
-          FAR char *p_arg = argv[i];
-          size_t len = strlen(p_arg);
+          strlcat(sh_arg2, argv[ret], sizeof(sh_arg2));
 
-          /* Restore from split args to concat args. */
-
-          DEBUGASSERT(&p_arg[len + 1] == argv[i + 1]);
-          p_arg[len] = ' ';
+          if (ret < argc - 1)
+            {
+              strcat(sh_arg2, " ");
+            }
         }
 
-      sh_argv[2] = argv[0];
+      sh_argv[0] = sh_cmd;
+      sh_argv[1] = "-c";
+      sh_argv[2] = sh_arg2;
       sh_argv[3] = NULL;
 
       /* np.np_bg still there, try use nsh_builtin or nsh_fileapp to
