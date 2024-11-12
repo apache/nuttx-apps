@@ -2676,6 +2676,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
         {
           FAR char *arg;
           FAR char *sh_argv[4];
+          char sh_arg2[CONFIG_NSH_LINELEN];
 
           if (argv[argc][g_pipeline1_len])
             {
@@ -2693,20 +2694,21 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
               goto dynlist_free;
             }
 
-          for (ret = 0; ret < argc - 1; ret++)
+          sh_arg2[0] = '\0';
+
+          for (ret = 0; ret < argc; ret++)
             {
-              FAR char *p_arg = argv[ret];
-              size_t len = strlen(p_arg);
+              strlcat(sh_arg2, argv[ret], sizeof(sh_arg2));
 
-              /* Restore from split args to concat args. */
-
-              DEBUGASSERT(&p_arg[len + 1] == argv[ret + 1]);
-              p_arg[len] = ' ';
+              if (ret < argc - 1)
+                {
+                  strcat(sh_arg2, " ");
+                }
             }
 
           sh_argv[0] = "sh";
           sh_argv[1] = "-c";
-          sh_argv[2] = argv[0];
+          sh_argv[2] = sh_arg2;
           sh_argv[3] = NULL;
 
           ret = pipe2(pipefd, 0);
