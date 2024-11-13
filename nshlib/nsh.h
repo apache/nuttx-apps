@@ -1238,7 +1238,8 @@ int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
 #if !defined(CONFIG_NSH_DISABLE_WAIT) && defined(CONFIG_SCHED_WAITPID) && \
-    !defined(CONFIG_DISABLE_PTHREAD)
+    !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_FS_PROCFS) && \
+    !defined(CONFIG_FS_PROCFS_EXCLUDE_PROCESS)
 int cmd_wait(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 

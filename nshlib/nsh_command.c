@@ -679,7 +679,8 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("xd",       cmd_xd,       3, 3, "<hex-address> <byte-count>"),
 #endif
 #if !defined(CONFIG_NSH_DISABLE_WAIT) && defined(CONFIG_SCHED_WAITPID) && \
-    !defined(CONFIG_DISABLE_PTHREAD)
+    !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_FS_PROCFS) && \
+    !defined(CONFIG_FS_PROCFS_EXCLUDE_PROCESS)
   CMD_MAP("wait",     cmd_wait,     1, CONFIG_NSH_MAXARGUMENTS,
           "pid1 [pid2 [pid3] ...]"),
 #endif
