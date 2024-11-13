@@ -715,6 +715,7 @@ config NSH_DISABLE_WAIT
 	bool "Disable wait"
 	default DEFAULT_SMALL
 	depends on SCHED_WAITPID
+	depends on FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS
 
 config NSH_DISABLE_WATCH
 	bool "Disable watch"

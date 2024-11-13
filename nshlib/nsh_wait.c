@@ -35,7 +35,8 @@
 #include "nsh_console.h"
 
 #if !defined(CONFIG_NSH_DISABLE_WAIT) && defined(CONFIG_SCHED_WAITPID) && \
-    !defined(CONFIG_DISABLE_PTHREAD)
+    !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_FS_PROCFS) && \
+    !defined(CONFIG_FS_PROCFS_EXCLUDE_PROCESS)
 
 static const char g_groupid[] = "Group:";
 
