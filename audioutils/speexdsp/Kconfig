@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config AUDIOUTILS_SPEEXDSP
+	bool "Audio libspeexdsp Library"
+	depends on ALLOW_BSD_COMPONENTS
+	default n
+	---help---
+		Enable build for various resample functions
+
+if AUDIOUTILS_SPEEXDSP
+
+choice
+	prompt "Resample precision"
+	default FIXED_POINT
+
+config FIXED_POINT
+	bool "fixed point precision"
+
+config FLOATING_POINT
+	bool "floating point precision"
+
+endchoice # Resample precision
+
+endif # AUDIOUTILS_SPEEXDSP
