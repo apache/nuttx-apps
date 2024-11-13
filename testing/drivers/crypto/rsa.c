@@ -20,6 +20,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -277,7 +283,7 @@ static int cryptodev_rsa_verify(
   return cryptk.crk_status;
 }
 
-static int rsa_test(void)
+static void test_rsa(void **state)
 {
   crypto_context_t ctx;
   rsa_data_t rsa_data;
@@ -289,21 +295,12 @@ static int rsa_test(void)
   unsigned char data_he[MOD_LEN];
   unsigned char pad_he[PADDING_LEN];
   unsigned char hash_he[MOD_LEN];
-  int ret = 0;
 
-  ret = cryptodev_init(&ctx);
-  if (ret != 0)
-    {
-      goto free;
-    }
+  assert_int_equal(cryptodev_init(&ctx), 0);
 
-  ret = rsa_data_init(&rsa_data, g_rsa_e, sizeof(g_rsa_e) - 1,
-                      g_rsa_d, sizeof(g_rsa_d) - 1,
-                      g_rsa_n, sizeof(g_rsa_n) - 1);
-  if (ret != 0)
-    {
-      goto free;
-    }
+  assert_int_equal(rsa_data_init(&rsa_data, g_rsa_e, sizeof(g_rsa_e) - 1,
+                                 g_rsa_d, sizeof(g_rsa_d) - 1,
+                                 g_rsa_n, sizeof(g_rsa_n) - 1), 0);
 
   /* test 1: encrypt with private key and decrypt with public key */
 
@@ -312,34 +309,15 @@ static int rsa_test(void)
 
   /* encrypt with private key: g_message ^ ctx.data.d % n = cipher */
 
-  ret = cryptodev_rsa_calc(&ctx, &rsa_data, g_message, PLAIN_LEN,
-                           cipher, MOD_LEN, TRUE);
-  if (ret != 0)
-    {
-      printf("rsa encrypt with private key failed\n");
-      goto free;
-    }
+  assert_int_equal(cryptodev_rsa_calc(&ctx, &rsa_data, g_message, PLAIN_LEN,
+                                      cipher, MOD_LEN, TRUE), 0);
 
   /* dencrypt with public key: cipher ^ ctx.data.e % n = plain */
 
-  ret = cryptodev_rsa_calc(&ctx, &rsa_data, cipher, MOD_LEN, plain,
-                           PLAIN_LEN, FALSE);
-  if (ret != 0)
-    {
-      printf("rsa decrypt with pulic key failed\n");
-      goto free;
-    }
+  assert_int_equal(cryptodev_rsa_calc(&ctx, &rsa_data, cipher, MOD_LEN,
+                                      plain, PLAIN_LEN, FALSE), 0);
 
-  ret = memcmp(g_message, plain, PLAIN_LEN);
-  if (ret != 0)
-    {
-      printf("rsa test case 1 failed\n");
-      goto free;
-    }
-  else
-    {
-      printf("rsa test case 1 success\n");
-    }
+  assert_int_equal(memcmp(g_message, plain, PLAIN_LEN), 0);
 
   /* test 2: rsa sign and verify */
 
@@ -359,46 +337,27 @@ static int rsa_test(void)
 
   /* sign with private key: (hash + padding) ^ d % n = sig */
 
-  ret = cryptodev_rsa_calc(&ctx, &rsa_data, data_he, MOD_LEN, sig,
-                           MOD_LEN, TRUE);
-  if (ret != 0)
-    {
-      printf("rsa sign failed\n");
-      goto free;
-    }
+  assert_int_equal(cryptodev_rsa_calc(&ctx, &rsa_data, data_he, MOD_LEN, sig,
+                                      MOD_LEN, TRUE), 0);
 
   /* verify with public key: sig ^ e % n = (hash + padding) */
 
-  ret = cryptodev_rsa_verify(&ctx, &rsa_data, sig, MOD_LEN, hash_he,
-                             PLAIN_LEN, pad_he, PADDING_LEN);
-  if (ret != 0)
-    {
-      printf("rsa verify failed\n");
-    }
-  else
-    {
-      printf("rsa test case 2 success\n");
-    }
+  assert_int_equal(cryptodev_rsa_verify(&ctx, &rsa_data, sig, MOD_LEN,
+                                        hash_he, PLAIN_LEN,
+                                        pad_he, PADDING_LEN), 0);
 
-free:
   cryptodev_free(&ctx);
-  return ret;
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int main(void)
+int main(int argc, FAR char *argv[])
 {
-  if (rsa_test() == 0)
-    {
-      printf("rsa test success\n");
-    }
-  else
-    {
-      printf("rsa test failed\n");
-    }
+  const struct CMUnitTest rsa_tests[] = {
+      cmocka_unit_test(test_rsa),
+  };
 
-  return 0;
+  return cmocka_run_group_tests(rsa_tests, NULL, NULL);
 }

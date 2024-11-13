@@ -20,6 +20,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -47,7 +53,7 @@ typedef struct tb
 }
 tb;
 
-static tb g_crc32_testcase[] =
+static const tb g_crc32_testcase[] =
 {
     /* testcase 1-7: Individual testing */
 
@@ -193,108 +199,59 @@ static int match(const uint32_t a, const uint32_t b)
 
   warnx("crc32 mismatch");
 
-  printf("%02lx", a);
-  printf("%02lx", b);
+  printf("%02x", a);
+  printf("%02x", b);
   printf("\n");
 
   return 1;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(void)
+static void test_crc32(void **state)
 {
   crypto_context crc32_ctx;
   uint32_t output;
   uint32_t startval = 0;
-  int ret = 0;
   int i;
 
-  ret = syscrc32_init(&crc32_ctx);
-  if (ret != 0)
-    {
-      printf("syscrc32 init failed\n");
-    }
+  assert_int_equal(syscrc32_init(&crc32_ctx), 0);
 
   /* testcase 1-7: test crc32 vector */
 
   for (i = 0; i < sizeof(g_crc32_testcase) / sizeof(tb) - 1; i++)
     {
-      ret = syscrc32_start(&crc32_ctx, &startval);
-      if (ret != 0)
-        {
-          printf("syscrc32 start failed\n");
-          goto err;
-        }
+      assert_int_equal(syscrc32_start(&crc32_ctx, &startval), 0);
+      assert_int_equal(syscrc32_update(&crc32_ctx, g_crc32_testcase[i].data,
+                                       g_crc32_testcase[i].datalen), 0);
 
-      ret = syscrc32_update(&crc32_ctx, g_crc32_testcase[i].data,
-                            g_crc32_testcase[i].datalen);
-      if (ret)
-        {
-          printf("syscrc32 update failed\n");
-          goto err;
-        }
-
-      ret = syscrc32_finish(&crc32_ctx, &output);
-      if (ret)
-        {
-          printf("syscrc32 finish failed\n");
-          goto err;
-        }
-
-      ret = match(g_crc32_testcase[i].result, output);
-      if (ret)
-        {
-          printf("match crc32 test case %d failed\n", i + 1);
-          goto err;
-        }
-      else
-        {
-          printf("crc32 test case %d success\n", i + 1);
-        }
+      assert_int_equal(syscrc32_finish(&crc32_ctx, &output), 0);
+      assert_int_equal(match(g_crc32_testcase[i].result, output), 0);
     }
 
   /* testcase 8: test segmented computing capabilities in crc32 mode */
 
   for (i = 0; i < 8; i++)
     {
-      ret = syscrc32_start(&crc32_ctx, &startval);
-      if (ret != 0)
-        {
-          printf("syscrc32 start failed\n");
-          goto err;
-        }
+      assert_int_equal(syscrc32_start(&crc32_ctx, &startval), 0);
 
-      ret = syscrc32_update(&crc32_ctx, g_crc32_testcase[7].data,
-                            g_crc32_testcase[7].datalen);
-      if (ret)
-        {
-          printf("syscrc32 update failed\n");
-          goto err;
-        }
+      assert_int_equal(syscrc32_update(&crc32_ctx, g_crc32_testcase[7].data,
+                                       g_crc32_testcase[7].datalen), 0);
 
-      ret = syscrc32_finish(&crc32_ctx, &startval);
-      if (ret)
-        {
-          printf("syscrc32 finish failed\n");
-          goto err;
-        }
+      assert_int_equal(syscrc32_finish(&crc32_ctx, &startval), 0);
     }
 
-  ret = match(g_crc32_testcase[7].result, startval);
-  if (ret)
-    {
-      printf("match crc32 testcase 8 failed\n");
-      goto err;
-    }
-  else
-    {
-      printf("crc32 test case 8 success\n");
-    }
-
-err:
+  assert_int_equal(match(g_crc32_testcase[7].result, startval), 0);
   syscrc32_free(&crc32_ctx);
-  return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest crc32_tests[] = {
+      cmocka_unit_test(test_crc32),
+  };
+
+  return cmocka_run_group_tests(crc32_tests, NULL, NULL);
 }

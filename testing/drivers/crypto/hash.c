@@ -20,6 +20,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -53,7 +59,7 @@ typedef struct tb
 }
 tb;
 
-tb md5_testcase[] =
+static const tb g_md5_testcase[] =
 {
     {
       "",
@@ -86,7 +92,7 @@ tb md5_testcase[] =
     }
 };
 
-tb sha_testcase[] =
+static const tb g_sha_testcase[] =
 {
     {
       "abc",
@@ -102,7 +108,7 @@ tb sha_testcase[] =
     }
 };
 
-tb sha512_testcase[] =
+static const tb g_sha512_testcase[] =
 {
     {
       "abc",
@@ -121,7 +127,7 @@ tb sha512_testcase[] =
 
 /* RFC 1321 test vectors */
 
-static const unsigned char md5_result[7][16] =
+static const unsigned char g_md5_result[7][16] =
 {
   { 0xd4, 0x1d, 0x8c, 0xd9, 0x8f, 0x00, 0xb2, 0x04,
     0xe9, 0x80, 0x09, 0x98, 0xec, 0xf8, 0x42, 0x7e },
@@ -141,7 +147,7 @@ static const unsigned char md5_result[7][16] =
 
 /* FIPS-180-1 test vectors */
 
-static const unsigned char sha1_result[3][20] =
+static const unsigned char g_sha1_result[3][20] =
 {
   { 0xa9, 0x99, 0x3e, 0x36, 0x47, 0x06, 0x81, 0x6a, 0xba, 0x3e,
     0x25, 0x71, 0x78, 0x50, 0xc2, 0x6c, 0x9c, 0xd0, 0xd8, 0x9d },
@@ -153,7 +159,7 @@ static const unsigned char sha1_result[3][20] =
 
 /* FIPS-180-2 test vectors */
 
-static const unsigned char sha256_result[3][32] =
+static const unsigned char g_sha256_result[3][32] =
 {
   { 0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea,
     0x41, 0x41, 0x40, 0xde, 0x5d, 0xae, 0x22, 0x23,
@@ -171,7 +177,7 @@ static const unsigned char sha256_result[3][32] =
 
 /* FIPS-180-2 test vectors */
 
-static const unsigned char sha512_result[3][64] =
+static const unsigned char g_sha512_result[3][64] =
 {
   { 0xdd, 0xaf, 0x35, 0xa1, 0x93, 0x61, 0x7a, 0xba,
     0xcc, 0x41, 0x73, 0x49, 0xae, 0x20, 0x41, 0x31,
@@ -200,19 +206,19 @@ static const unsigned char sha512_result[3][64] =
 };
 
 #ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
-static const unsigned char md5_huge_block_result[16] =
+static const unsigned char g_md5_huge_block_result[16] =
 {
   0xef, 0x6d, 0xcc, 0xc8, 0xe1, 0xcc, 0x7f, 0x08,
   0xc2, 0x71, 0xd4, 0xc4, 0xe0, 0x13, 0xa3, 0x9b
 };
 
-static const unsigned char sha1_huge_block_result[20] =
+static const unsigned char g_sha1_huge_block_result[20] =
 {
   0xf2, 0x35, 0x65, 0x81, 0x79, 0x4d, 0xac, 0x20, 0x79, 0x7b,
   0xff, 0x38, 0xee, 0x2b, 0xdc, 0x44, 0x24, 0xd3, 0xf0, 0x4a
 };
 
-static const unsigned char sha256_huge_block_result[32] =
+static const unsigned char g_sha256_huge_block_result[32] =
 {
   0x79, 0xb1, 0xf2, 0x65, 0x7e, 0x33, 0x25, 0xff,
   0x16, 0xdb, 0x5d, 0x3c, 0x65, 0xa4, 0x7b, 0x78,
@@ -220,7 +226,7 @@ static const unsigned char sha256_huge_block_result[32] =
   0x54, 0x01, 0x40, 0x0c, 0xff, 0x35, 0x1d, 0xd3
 };
 
-static const unsigned char sha512_huge_block_result[64] =
+static const unsigned char g_sha512_huge_block_result[64] =
 {
   0xa4, 0x3a, 0x66, 0xe8, 0xf7, 0x59, 0x95, 0x6d,
   0x09, 0x55, 0xdd, 0xad, 0x84, 0x7c, 0xd5, 0xe7,
@@ -350,324 +356,221 @@ static int testing_hash_huge_block(crypto_context *ctx, int op,
                     FAR const unsigned char *block, size_t len,
                     FAR const unsigned char *result, size_t reslen)
 {
-  int ret = 0;
   unsigned char output[64];
 
-  ret = syshash_start(ctx, op);
-  if (ret != 0)
-    {
-      return ret;
-    }
-
-  ret = syshash_update(ctx, (char *)block, len);
-  if (ret != 0)
-    {
-      return ret;
-    }
-
-  ret = syshash_finish(ctx, output);
-  if (ret != 0)
-    {
-      return ret;
-    }
-
+  assert_int_equal(syshash_start(ctx, op), 0);
+  assert_int_equal(syshash_update(ctx, (char *)block, len), 0);
+  assert_int_equal(syshash_finish(ctx, output), 0);
   return match(result, output, reslen);
 }
 #endif
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(void)
+static void test_hash_md5(void **state)
 {
   crypto_context md5_ctx;
-  crypto_context sha1_ctx;
-  crypto_context sha2_256_ctx;
-  crypto_context sha2_512_ctx;
   unsigned char output[64];
-  unsigned char buf[1024];
-  int ret = 0;
   int i;
-  int j;
 
-  ret += syshash_init(&md5_ctx);
-  ret += syshash_init(&sha1_ctx);
-  ret += syshash_init(&sha2_256_ctx);
-  ret += syshash_init(&sha2_512_ctx);
-  if (ret != 0)
+  assert_int_equal(syshash_init(&md5_ctx), 0);
+
+  for (i = 0; i < nitems(g_md5_testcase); i++)
     {
-      printf("syshash init failed\n");
-    }
+      assert_int_equal(syshash_start(&md5_ctx, CRYPTO_MD5), 0);
 
-  for (i = 0; i < nitems(md5_testcase); i++)
-    {
-      ret = syshash_start(&md5_ctx, CRYPTO_MD5);
-      if (ret != 0)
-        {
-          printf("syshash md5 start failed\n");
-          goto err;
-        }
+      assert_int_equal(syshash_update(&md5_ctx, g_md5_testcase[i].data,
+                                      g_md5_testcase[i].datalen), 0);
 
-      ret = syshash_update(&md5_ctx, md5_testcase[i].data,
-                           md5_testcase[i].datalen);
-      if (ret)
-        {
-          printf("syshash md5 update failed\n");
-          goto err;
-        }
+      assert_int_equal(syshash_finish(&md5_ctx, output), 0);
 
-      ret = syshash_finish(&md5_ctx, output);
-      if (ret)
-        {
-          printf("syshash md5 finish failed\n");
-          goto err;
-        }
-
-      ret = match(md5_result[i], output, MD5_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match md5 failed\n");
-          goto err;
-        }
-      else
-        {
-          printf("hash md5 success\n");
-        }
-    }
-
-  for (i = 0; i < nitems(sha_testcase); i++)
-    {
-      ret = syshash_start(&sha1_ctx, CRYPTO_SHA1);
-      if (ret != 0)
-        {
-          printf("syshash sha1 start failed\n");
-          goto err;
-        }
-
-      if (i == 2)
-        {
-          memset(buf, 'a', sha_testcase[i].datalen);
-          for (j = 0; j < 1000; j++)
-            {
-              ret = syshash_update(&sha1_ctx, (char *)buf,
-                                   sha_testcase[i].datalen);
-              if (ret)
-                {
-                  break;
-                }
-            }
-        }
-      else
-        {
-          ret = syshash_update(&sha1_ctx, sha_testcase[i].data,
-                               sha_testcase[i].datalen);
-        }
-
-      if (ret)
-        {
-          printf("sha1 update failed\n");
-          goto err;
-        }
-
-      ret = syshash_finish(&sha1_ctx, output);
-      if (ret)
-        {
-          printf("sha1 finish failed\n");
-          goto err;
-        }
-
-      ret = match((unsigned char *)sha1_result[i],
-                  (unsigned char *)output,
-                  SHA1_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match sha1 failed\n");
-          goto err;
-        }
-      else
-        {
-          printf("hash sha1 success\n");
-        }
-    }
-
-  for (i = 0; i < nitems(sha_testcase); i++)
-    {
-      ret = syshash_start(&sha2_256_ctx, CRYPTO_SHA2_256);
-      if (ret != 0)
-        {
-          printf("sha256 start failed\n");
-          goto err;
-        }
-
-      if (i == 2)
-        {
-          memset(buf, 'a', sha_testcase[i].datalen);
-          for (j = 0; j < 1000; j++)
-            {
-              ret = syshash_update(&sha2_256_ctx, (char *)buf,
-                                   sha_testcase[i].datalen);
-              if (ret)
-                {
-                  break;
-                }
-            }
-        }
-      else
-        {
-          ret = syshash_update(&sha2_256_ctx, sha_testcase[i].data,
-                               sha_testcase[i].datalen);
-        }
-
-      if (ret)
-        {
-          printf("sha256 update failed\n");
-          goto err;
-        }
-
-      ret = syshash_finish(&sha2_256_ctx, output);
-      if (ret)
-        {
-          printf("sha256 finish failed\n");
-        }
-
-      ret = match((unsigned char *)sha256_result[i],
-                  (unsigned char *)output,
-                  SHA256_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match sha256 failed\n");
-        }
-      else
-        {
-          printf("hash sha256 success\n");
-        }
-    }
-
-  for (i = 0; i < nitems(sha512_testcase); i++)
-    {
-      ret = syshash_start(&sha2_512_ctx, CRYPTO_SHA2_512);
-      if (ret != 0)
-        {
-          printf("sha512 start failed\n");
-          goto err;
-        }
-
-      if (i == 2)
-        {
-          memset(buf, 'a', sha512_testcase[i].datalen);
-          for (j = 0; j < 1000; j++)
-            {
-              ret = syshash_update(&sha2_512_ctx, (char *)buf,
-                                   sha512_testcase[i].datalen);
-              if (ret)
-                {
-                  break;
-                }
-            }
-        }
-      else
-        {
-          ret = syshash_update(&sha2_512_ctx, sha512_testcase[i].data,
-                               sha512_testcase[i].datalen);
-        }
-
-      if (ret)
-        {
-          printf("sha512 update failed\n");
-          goto err;
-        }
-
-      ret = syshash_finish(&sha2_512_ctx, output);
-      if (ret)
-        {
-          printf("sha512 finish failed\n");
-          goto err;
-        }
-
-      ret = match((unsigned char *)sha512_result[i],
-                  (unsigned char *)output,
-                  SHA512_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match sha512 failed\n");
-          goto err;
-        }
-      else
-        {
-          printf("hash sha512 success\n");
-        }
+      assert_int_equal(match(g_md5_result[i], output, MD5_DIGEST_LENGTH), 0);
     }
 
 #ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
   unsigned char *huge_block;
   huge_block = (unsigned char *)malloc(HASH_HUGE_BLOCK_SIZE);
-  if (huge_block == NULL)
-    {
-      printf("huge block test no memory\n");
-      goto err;
-    }
+  assert_true(huge_block != NULL);
 
   memset(huge_block, 'a', HASH_HUGE_BLOCK_SIZE);
-  ret = testing_hash_huge_block(&md5_ctx, CRYPTO_MD5,
-                                huge_block, HASH_HUGE_BLOCK_SIZE,
-                                md5_huge_block_result,
-                                MD5_DIGEST_LENGTH);
-  if (ret != 0)
-    {
-      printf("md5 huge block test failed\n");
-    }
-  else
-    {
-      printf("md5 huge block test success\n");
-    }
-
-  ret = testing_hash_huge_block(&sha1_ctx, CRYPTO_SHA1,
-                                huge_block, HASH_HUGE_BLOCK_SIZE,
-                                sha1_huge_block_result,
-                                SHA1_DIGEST_LENGTH);
-  if (ret != 0)
-    {
-      printf("sha1 huge block test failed\n");
-    }
-  else
-    {
-      printf("sha1 huge block test success\n");
-    }
-
-  ret = testing_hash_huge_block(&sha2_256_ctx, CRYPTO_SHA2_256,
-                                huge_block, HASH_HUGE_BLOCK_SIZE,
-                                sha256_huge_block_result,
-                                SHA256_DIGEST_LENGTH);
-  if (ret != 0)
-    {
-      printf("sha256 huge block test failed\n");
-    }
-  else
-    {
-      printf("sha256 huge block test success\n");
-    }
-
-  ret = testing_hash_huge_block(&sha2_512_ctx, CRYPTO_SHA2_512,
-                                huge_block, HASH_HUGE_BLOCK_SIZE,
-                                sha512_huge_block_result,
-                                SHA512_DIGEST_LENGTH);
-  if (ret != 0)
-    {
-      printf("sha512 huge block test failed\n");
-    }
-  else
-    {
-      printf("sha512 huge block test success\n");
-    }
+  assert_int_equal(testing_hash_huge_block(&md5_ctx, CRYPTO_MD5,
+                                           huge_block, HASH_HUGE_BLOCK_SIZE,
+                                           g_md5_huge_block_result,
+                                           MD5_DIGEST_LENGTH), 0);
 
   free(huge_block);
 #endif
 
-err:
   syshash_free(&md5_ctx);
+}
+
+static void test_hash_sha1(void **state)
+{
+  crypto_context sha1_ctx;
+  unsigned char output[64];
+  unsigned char buf[1024];
+  int i;
+  int j;
+
+  assert_int_equal(syshash_init(&sha1_ctx), 0);
+
+  for (i = 0; i < nitems(g_sha_testcase); i++)
+    {
+      assert_int_equal(syshash_start(&sha1_ctx, CRYPTO_SHA1), 0);
+
+      if (i == 2)
+        {
+          memset(buf, 'a', g_sha_testcase[i].datalen);
+          for (j = 0; j < 1000; j++)
+            {
+              assert_int_equal(syshash_update(&sha1_ctx, (char *)buf,
+                               g_sha_testcase[i].datalen), 0);
+            }
+        }
+      else
+        {
+          assert_int_equal(syshash_update(&sha1_ctx, g_sha_testcase[i].data,
+                                          g_sha_testcase[i].datalen), 0);
+        }
+
+      assert_int_equal(syshash_finish(&sha1_ctx, output), 0);
+
+      assert_int_equal(match((unsigned char *)g_sha1_result[i],
+                      (unsigned char *)output, SHA1_DIGEST_LENGTH), 0);
+    }
+
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+  unsigned char *huge_block;
+  huge_block = (unsigned char *)malloc(HASH_HUGE_BLOCK_SIZE);
+  assert_true(huge_block != NULL);
+
+  memset(huge_block, 'a', HASH_HUGE_BLOCK_SIZE);
+  assert_int_equal(testing_hash_huge_block(&sha1_ctx, CRYPTO_SHA1,
+                                           huge_block, HASH_HUGE_BLOCK_SIZE,
+                                           g_sha1_huge_block_result,
+                                           SHA1_DIGEST_LENGTH), 0);
+
+  free(huge_block);
+#endif
+
   syshash_free(&sha1_ctx);
+}
+
+static void test_hash_sha256(void **state)
+{
+  crypto_context sha2_256_ctx;
+  unsigned char output[64];
+  unsigned char buf[1024];
+  int i;
+  int j;
+
+  assert_int_equal(syshash_init(&sha2_256_ctx), 0);
+
+  for (i = 0; i < nitems(g_sha_testcase); i++)
+    {
+      assert_int_equal(syshash_start(&sha2_256_ctx, CRYPTO_SHA2_256), 0);
+
+      if (i == 2)
+        {
+          memset(buf, 'a', g_sha_testcase[i].datalen);
+          for (j = 0; j < 1000; j++)
+            {
+              assert_int_equal(syshash_update(&sha2_256_ctx, (char *)buf,
+                               g_sha_testcase[i].datalen), 0);
+            }
+        }
+      else
+        {
+          assert_int_equal(syshash_update(&sha2_256_ctx,
+                                          g_sha_testcase[i].data,
+                                          g_sha_testcase[i].datalen), 0);
+        }
+
+      assert_int_equal(syshash_finish(&sha2_256_ctx, output), 0);
+      assert_int_equal(match((unsigned char *)g_sha256_result[i],
+                             (unsigned char *)output,
+                              SHA256_DIGEST_LENGTH), 0);
+    }
+
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+  unsigned char *huge_block;
+  huge_block = (unsigned char *)malloc(HASH_HUGE_BLOCK_SIZE);
+  assert_true(huge_block != NULL);
+
+  memset(huge_block, 'a', HASH_HUGE_BLOCK_SIZE);
+  assert_int_equal(testing_hash_huge_block(&sha2_256_ctx, CRYPTO_SHA2_256,
+                                           huge_block, HASH_HUGE_BLOCK_SIZE,
+                                           g_sha256_huge_block_result,
+                                           SHA256_DIGEST_LENGTH), 0);
+
+  free(huge_block);
+#endif
+
   syshash_free(&sha2_256_ctx);
+}
+
+static void test_hash_sha512(void **state)
+{
+  crypto_context sha2_512_ctx;
+  unsigned char output[64];
+  unsigned char buf[1024];
+  int i;
+  int j;
+
+  assert_int_equal(syshash_init(&sha2_512_ctx), 0);
+
+  for (i = 0; i < nitems(g_sha512_testcase); i++)
+    {
+      assert_int_equal(syshash_start(&sha2_512_ctx, CRYPTO_SHA2_512), 0);
+
+      if (i == 2)
+        {
+          memset(buf, 'a', g_sha512_testcase[i].datalen);
+          for (j = 0; j < 1000; j++)
+            {
+              assert_int_equal(syshash_update(&sha2_512_ctx, (char *)buf,
+                               g_sha512_testcase[i].datalen), 0);
+            }
+        }
+      else
+        {
+          assert_int_equal(syshash_update(&sha2_512_ctx,
+                                          g_sha512_testcase[i].data,
+                                          g_sha512_testcase[i].datalen), 0);
+        }
+
+      assert_int_equal(syshash_finish(&sha2_512_ctx, output), 0);
+      assert_int_equal(match((unsigned char *)g_sha512_result[i],
+                             (unsigned char *)output,
+                              SHA512_DIGEST_LENGTH), 0);
+    }
+
+#ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
+  unsigned char *huge_block;
+  huge_block = (unsigned char *)malloc(HASH_HUGE_BLOCK_SIZE);
+  assert_true(huge_block != NULL);
+
+  memset(huge_block, 'a', HASH_HUGE_BLOCK_SIZE);
+  assert_int_equal(testing_hash_huge_block(&sha2_512_ctx, CRYPTO_SHA2_512,
+                                           huge_block, HASH_HUGE_BLOCK_SIZE,
+                                           g_sha512_huge_block_result,
+                                           SHA512_DIGEST_LENGTH), 0);
+  free(huge_block);
+#endif
+
   syshash_free(&sha2_512_ctx);
-  return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest hash_tests[] = {
+      cmocka_unit_test(test_hash_md5),
+      cmocka_unit_test(test_hash_sha1),
+      cmocka_unit_test(test_hash_sha256),
+      cmocka_unit_test(test_hash_sha512),
+  };
+
+  return cmocka_run_group_tests(hash_tests, NULL, NULL);
 }

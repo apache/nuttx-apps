@@ -21,6 +21,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -45,7 +51,7 @@ struct tb
   FAR const char *cipher;
   uint32_t len;
 }
-static testcase [] =
+static const g_testcase [] =
 {
   {
     "\x06\xa9\x21\x40\x36\xb8\xa1\x5b\x51\x2e\x03\xd5\x34\x12\x00\x06",
@@ -186,50 +192,37 @@ static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
   return -1;
 }
 
+static void test_aescbc(void **state)
+{
+  unsigned char out[64];
+
+  for (int i = 0; i < nitems(g_testcase); i++)
+    {
+      assert_int_equal(syscrypt(g_testcase[i].key, 16,
+                                g_testcase[i].iv, g_testcase[i].plain,
+                                out, g_testcase[i].len, 1), 0);
+
+      assert_int_equal(match(out, (FAR unsigned char *)g_testcase[i].cipher,
+                             g_testcase[i].len), 0);
+
+      assert_int_equal(syscrypt(g_testcase[i].key, 16,
+                                g_testcase[i].iv, g_testcase[i].cipher,
+                                out, g_testcase[i].len, 0), 0);
+
+      assert_int_equal(match(out, (FAR unsigned char *)g_testcase[i].plain,
+                             g_testcase[i].len), 0);
+    }
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, char *argv[])
+int main(int argc, FAR char *argv[])
 {
-  int ret;
-  unsigned char out[64];
+  const struct CMUnitTest aescbc_tests[] = {
+      cmocka_unit_test(test_aescbc),
+  };
 
-  for (int i = 0; i < nitems(testcase); i++)
-    {
-      ret = syscrypt(testcase[i].key, 16, testcase[i].iv, testcase[i].plain,
-                     out, testcase[i].len, 1);
-      if (ret)
-        {
-          printf("aescbc encrypt field in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = match(out, (FAR unsigned char *)testcase[i].cipher,
-                  testcase[i].len);
-      if (ret)
-        {
-          printf("aescbc encrypt field in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = syscrypt(testcase[i].key, 16, testcase[i].iv, testcase[i].cipher,
-                     out, testcase[i].len, 0);
-      if (ret)
-        {
-          printf("aescbc decrypt field in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = match(out, (FAR unsigned char *)testcase[i].plain,
-                  testcase[i].len);
-      if (ret)
-        {
-          printf("aescbc decrypt field in testcase:%d\n", i);
-          return -1;
-        }
-    }
-
-  printf("aescbc test ok\n");
-  return 0;
+  return cmocka_run_group_tests(aescbc_tests, NULL, NULL);
 }

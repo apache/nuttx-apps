@@ -20,6 +20,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -52,7 +58,7 @@ static const unsigned char g_aes_128_key[16] =
     0xab, 0xf7, 0x15, 0x88,     0x09, 0xcf, 0x4f, 0x3c
 };
 
-static const  unsigned int g_message_lengths[4] =
+static const unsigned int g_message_lengths[4] =
 {
     0,
     16,
@@ -189,34 +195,29 @@ static int match(FAR const unsigned char *a, FAR const unsigned char *b,
   return -1;
 }
 
+static void test_aescmac(void **state)
+{
+  unsigned char out[64];
+
+  for (int i = 0; i < 4; i++)
+    {
+      assert_int_equal(syscrypt(g_aes_128_key, sizeof(g_aes_128_key),
+                                g_test_message, g_message_lengths[i],
+                                out, sizeof(out)), 0);
+
+      assert_int_equal(match(out, g_aes_128_expected_result[i], 16), 0);
+    }
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
-  int ret;
-  unsigned char out[64];
+  const struct CMUnitTest aescmac_tests[] = {
+      cmocka_unit_test(test_aescmac),
+  };
 
-  for (int i = 0; i < 4; i++)
-    {
-      ret = syscrypt(g_aes_128_key, sizeof(g_aes_128_key), g_test_message,
-                     g_message_lengths[i], out, sizeof(out));
-      if (ret)
-        {
-          printf("aes cmac failed in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = match(out, g_aes_128_expected_result[i], 16);
-      if (ret)
-        {
-          printf("aes cmac failed in testcase:%d\n", i);
-          return -1;
-        }
-
-      printf("aescbc test %d ok\n", i);
-    }
-
-  return 0;
+  return cmocka_run_group_tests(aescmac_tests, NULL, NULL);
 }

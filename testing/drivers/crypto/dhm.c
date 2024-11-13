@@ -23,6 +23,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <fcntl.h>
 #include <stddef.h>
@@ -220,9 +226,8 @@ static int dh_compute_key(FAR cryptodev_context *ctx,
   return 0;
 }
 
-static int test_dh_compute_key(void)
+static void test_dhm(void **state)
 {
-  int ret;
   cryptodev_context ctx;
   static const unsigned char dhm_p_1024[] =
       DHM_RFC5114_MODP_1024_P_BIN;
@@ -235,11 +240,7 @@ static int test_dh_compute_key(void)
   unsigned char gx2[DHM_SIZE];
   unsigned char k2[DHM_SIZE];
 
-  ret = cryptodev_init(&ctx);
-  if (ret != 0)
-    {
-      goto free;
-    }
+  assert_int_equal(cryptodev_init(&ctx), 0);
 
   /* X-private key  GX-pulic key  K-share key */
 
@@ -250,63 +251,32 @@ static int test_dh_compute_key(void)
   memset(gx2, 0, DHM_SIZE);
   memset(k2, 0, DHM_SIZE);
 
-  ret = dh_make_public(&ctx, dhm_p_1024, DHM_SIZE, dhm_g_1024,
-                       DHM_SIZE, x1, DHM_SIZE, gx1, DHM_SIZE);
-  if (ret != 0)
-    {
-      printf("DH make Alice's public key failed\n");
-      goto free;
-    }
+  assert_int_equal(dh_make_public(&ctx, dhm_p_1024, DHM_SIZE, dhm_g_1024,
+                                  DHM_SIZE, x1, DHM_SIZE, gx1, DHM_SIZE), 0);
 
-  ret = dh_make_public(&ctx, dhm_p_1024, DHM_SIZE, dhm_g_1024,
-                       DHM_SIZE, x2, DHM_SIZE, gx2, DHM_SIZE);
-  if (ret != 0)
-    {
-      printf("DH make Bob's public failed\n");
-      goto free;
-    }
+  assert_int_equal(dh_make_public(&ctx, dhm_p_1024, DHM_SIZE, dhm_g_1024,
+                                  DHM_SIZE, x2, DHM_SIZE, gx2, DHM_SIZE), 0);
 
-  ret = dh_compute_key(&ctx, gx2, DHM_SIZE, x1, DHM_SIZE,
-                       dhm_p_1024, DHM_SIZE, k1, DHM_SIZE);
-  if (ret != 0)
-    {
-      printf("DH compute Alice's share key failed\n");
-      goto free;
-    }
+  assert_int_equal(dh_compute_key(&ctx, gx2, DHM_SIZE, x1, DHM_SIZE,
+                                  dhm_p_1024, DHM_SIZE, k1, DHM_SIZE), 0);
 
-  ret = dh_compute_key(&ctx, gx1, DHM_SIZE, x2, DHM_SIZE,
-                       dhm_p_1024, DHM_SIZE, k2, DHM_SIZE);
-  if (ret != 0)
-    {
-      printf("DH compute Bob's share key failed\n");
-      goto free;
-    }
+  assert_int_equal(dh_compute_key(&ctx, gx1, DHM_SIZE, x2, DHM_SIZE,
+                                  dhm_p_1024, DHM_SIZE, k2, DHM_SIZE), 0);
 
-  ret = match(k1, k2, DHM_SIZE);
-  if (ret != 0)
-    {
-      printf("mismatch share key\n");
-    }
+  assert_int_equal(match(k1, k2, DHM_SIZE), 0);
 
-free:
   cryptodev_free(&ctx);
-  return 0;
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int main(void)
+int main(int argc, FAR char *argv[])
 {
-  if (test_dh_compute_key() != 0)
-    {
-      printf("test dh compute key failed\n");
-    }
-  else
-    {
-      printf("test dh compute key ok\n");
-    }
+  const struct CMUnitTest dhm_tests[] = {
+      cmocka_unit_test(test_dhm),
+  };
 
-  return 0;
+  return cmocka_run_group_tests(dhm_tests, NULL, NULL);
 }

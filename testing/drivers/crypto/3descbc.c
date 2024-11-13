@@ -29,6 +29,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
@@ -138,15 +144,11 @@ static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
 }
 #define SZ 16
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static void test_3descbc(void **state)
 {
+  const unsigned char key[24] = "012345670123456701234567";
   unsigned char iv0[8];
   unsigned char iv[8];
-  unsigned char key[24] = "012345670123456701234567";
   unsigned char b1[SZ];
   unsigned char b2[SZ];
   int i;
@@ -202,5 +204,18 @@ int main(int argc, FAR char **argv)
       printf("ok, encrypt with /dev/crypto, decrypt with /dev/crypto\n");
     }
 
-  exit((fail > 0) ? 1 : 0);
+  assert_int_equal(fail, 0);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest descbc_tests[] = {
+      cmocka_unit_test(test_3descbc),
+  };
+
+  return cmocka_run_group_tests(descbc_tests, NULL, NULL);
 }
