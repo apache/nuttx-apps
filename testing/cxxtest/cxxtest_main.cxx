@@ -172,6 +172,10 @@ static void test_stl()
   std::printf("v1=%d %d %d\n", v1[0], v1[1], v1[2]);
   assert(v1[2] == 3);
 
+  static const std::string s1 = "Hello, World!";
+  std::printf("s1=%s\n", s1.c_str());
+  assert(s1 == "Hello, World!");
+
   std::vector<int> v2 = v1;
   assert(v2 == v1);
 
