@@ -21,6 +21,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
@@ -51,7 +57,7 @@ struct
 {
   FAR char *data[TST_NUM];
 }
-static tests[] =
+static const g_tests[] =
 {
   /* 128 bit key */
 
@@ -289,7 +295,7 @@ static int run(int num)
 
   for (i = 0; i < TST_NUM; i++)
     {
-      from = tests[num].data[i];
+      from = g_tests[num].data[i];
       if (debug)
         {
           printf("%s\n", from);
@@ -342,19 +348,28 @@ done:
   return (fail);
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static void test_aesctr(void **state)
 {
   int fail = 0;
   int i;
 
-  for (i = 0; i < nitems(tests); i++)
+  for (i = 0; i < nitems(g_tests); i++)
     {
       fail += run(i);
     }
 
-  exit((fail > 0) ? 1 : 0);
+  assert_int_equal(fail, 0);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest aesctr_tests[] = {
+      cmocka_unit_test(test_aesctr),
+  };
+
+  return cmocka_run_group_tests(aesctr_tests, NULL, NULL);
 }

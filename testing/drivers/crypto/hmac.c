@@ -21,6 +21,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -40,7 +46,7 @@ struct tb
   FAR char *data;
   int datalen;
 }
-testcase[] =
+static const g_testcase[] =
 {
     {
       "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b",
@@ -106,7 +112,7 @@ testcase[] =
     },
 };
 
-FAR char *md5_result[] =
+static FAR const char *g_md5_result[] =
 {
   "\x92\x94\x72\x7a\x36\x38\xbb\x1c\x13\xf4\x8e\xf8\x15\x8b\xfc\x9d",
   "\x75\x0c\x78\x3e\x6a\xb0\xb5\x03\xea\xa8\x6e\x31\x0a\x5d\xb7\x38",
@@ -115,7 +121,7 @@ FAR char *md5_result[] =
   "\x09\xb8\xae\x7b\x15\xad\xbb\xb2\x43\xac\xa3\x49\x1b\x51\x51\x2b"
 };
 
-FAR char *sha1_result[] =
+static FAR const char *g_sha1_result[] =
 {
   "\x67\x5b\x0b\x3a\x1b\x4d\xdf\x4e\x12\x48\x72\xda\x6c\x2f\x63\x2b"
   "\xfe\xd9\x57\xe9",
@@ -129,7 +135,7 @@ FAR char *sha1_result[] =
   "\x97\xc6\x33\x56"
 };
 
-FAR char *sha256_result[] =
+static FAR const char *g_sha256_result[] =
 {
   "\x49\x2c\xe0\x20\xfe\x25\x34\xa5\x78\x9d\xc3\x84\x88\x06\xc7\x8f"
   "\x4f\x67\x11\x39\x7f\x08\xe7\xe7\xa1\x2c\xa5\xa4\x48\x3c\x8a\xa6",
@@ -143,8 +149,8 @@ FAR char *sha256_result[] =
   "\xbf\xdc\x63\x64\x4f\x07\x13\x93\x8a\x7f\x51\x53\x5c\x3a\x35\xe2"
 };
 
-int syshmac(int mac, FAR const char *key, size_t keylen,
-            FAR const char *s, size_t len, FAR char *out)
+static int syshmac(int mac, FAR const char *key, size_t keylen,
+                   FAR const char *s, size_t len, FAR char *out)
 {
   struct session_op session;
   struct crypt_op cryp;
@@ -237,82 +243,71 @@ static int match(unsigned char *a, unsigned char *b, size_t len)
   return (1);
 }
 
+static void test_hmac_md5(void **state)
+{
+  char output[32];
+
+  for (int i = 0; i < nitems(g_testcase); i++)
+    {
+      assert_int_equal(syshmac(CRYPTO_MD5_HMAC, g_testcase[i].key,
+                               g_testcase[i].keylen,
+                               g_testcase[i].data,
+                               g_testcase[i].datalen,
+                               output), 0);
+
+      assert_int_equal(match((unsigned char *)g_md5_result[i],
+                             (unsigned char *)output,
+                              MD5_DIGEST_LENGTH), 0);
+    }
+}
+
+static void test_hmac_sha1(void **state)
+{
+  char output[32];
+
+  for (int i = 0; i < nitems(g_testcase); i++)
+    {
+      assert_int_equal(syshmac(CRYPTO_SHA1_HMAC, g_testcase[i].key,
+                               g_testcase[i].keylen,
+                               g_testcase[i].data,
+                               g_testcase[i].datalen,
+                               output), 0);
+
+      assert_int_equal(match((unsigned char *)g_sha1_result[i],
+                             (unsigned char *)output,
+                              SHA1_DIGEST_LENGTH), 0);
+    }
+}
+
+static void test_hmac_sha256(void **state)
+{
+  char output[32];
+
+  for (int i = 0; i < nitems(g_testcase); i++)
+    {
+      assert_int_equal(syshmac(CRYPTO_SHA2_256_HMAC, g_testcase[i].key,
+                               g_testcase[i].keylen,
+                               g_testcase[i].data,
+                               g_testcase[i].datalen,
+                               output), 0);
+
+      assert_int_equal(match((unsigned char *)g_sha256_result[i],
+                             (unsigned char *)output,
+                              SHA256_DIGEST_LENGTH), 0);
+    }
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int main(void)
+int main(int argc, FAR char *argv[])
 {
-  char output[32];
-  int ret = 0;
-  for (int i = 0; i < nitems(testcase); i++)
-    {
-      ret += syshmac(CRYPTO_MD5_HMAC, testcase[i].key,
-                     testcase[i].keylen,
-                     testcase[i].data, testcase[i].datalen, output);
-      if (ret)
-        {
-          printf("syshamc md5 failed\n");
-        }
+  const struct CMUnitTest hmac_tests[] = {
+      cmocka_unit_test(test_hmac_md5),
+      cmocka_unit_test(test_hmac_sha1),
+      cmocka_unit_test(test_hmac_sha256),
+  };
 
-      ret += match((unsigned char *)md5_result[i],
-                   (unsigned char *)output,
-                   MD5_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match md5 failed\n");
-        }
-      else
-        {
-          printf("hmac md5 success\n");
-        }
-    }
-
-  for (int i = 0; i < nitems(testcase); i++)
-    {
-      ret = syshmac(CRYPTO_SHA1_HMAC, testcase[i].key,
-                    testcase[i].keylen,
-                    testcase[i].data, testcase[i].datalen, output);
-      if (ret)
-        {
-          printf("syshamc sha1 failed\n");
-        }
-
-      ret = match((unsigned char *)sha1_result[i],
-                   (unsigned char *)output,
-                   SHA1_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match sha1 failed\n");
-        }
-      else
-        {
-          printf("hmac sha1 success\n");
-        }
-    }
-
-  for (int i = 0; i < nitems(testcase); i++)
-    {
-      ret = syshmac(CRYPTO_SHA2_256_HMAC, testcase[i].key,
-                    testcase[i].keylen,
-                    testcase[i].data, testcase[i].datalen, output);
-      if (ret)
-        {
-          printf("syshamc sha256 failed\n");
-        }
-
-      ret = match((unsigned char *)sha256_result[i],
-                   (unsigned char *)output,
-                   SHA256_DIGEST_LENGTH);
-      if (ret)
-        {
-          printf("match sha256 failed\n");
-        }
-      else
-        {
-          printf("hmac sha256 success\n");
-        }
-    }
-
-  return 0;
+  return cmocka_run_group_tests(hmac_tests, NULL, NULL);
 }

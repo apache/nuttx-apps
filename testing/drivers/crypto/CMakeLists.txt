@@ -32,7 +32,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      3descbc.c)
+      3descbc.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_AES_XTS)
@@ -46,7 +48,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      aesxts.c)
+      aesxts.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_AES_CTR)
@@ -60,7 +64,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      aesctr.c)
+      aesctr.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_AES_CBC)
@@ -74,7 +80,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      aescbc.c)
+      aescbc.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_HMAC)
@@ -88,7 +96,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      hmac.c)
+      hmac.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_HASH)
@@ -102,7 +112,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      hash.c)
+      hash.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_CRC32)
@@ -116,7 +128,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      crc32.c)
+      crc32.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_AES_CMAC)
@@ -130,7 +144,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      aescmac.c)
+      aescmac.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_ECDSA)
@@ -144,7 +160,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      ecdsa.c)
+      ecdsa.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_ECDH)
@@ -158,7 +176,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      dhm.c)
+      dhm.c
+      DEPENDS
+      cmocka)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_RSA)
@@ -172,7 +192,9 @@ if(CONFIG_TESTING_CRYPTO)
       MODULE
       ${CONFIG_TESTING_CRYPTO}
       SRCS
-      rsa.c)
+      rsa.c
+      DEPENDS
+      cmocka)
   endif()
 
 endif()

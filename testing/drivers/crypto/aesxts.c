@@ -30,6 +30,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/param.h>
@@ -63,7 +69,7 @@ struct aes_xts_tv
 
 /* Test vectors from IEEE P1619/D16, Annex B. */
 
-struct aes_xts_tv aes_xts_test_vectors[] =
+static const struct aes_xts_tv g_aes_xts_test_vectors[] =
 {
   {
     0x00000000ull,
@@ -1729,7 +1735,8 @@ struct aes_xts_tv aes_xts_test_vectors[] =
   },
 };
 
-static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
+static int match(FAR unsigned char *a,
+                 FAR const unsigned char *b, size_t len)
 {
   size_t i;
 
@@ -1826,20 +1833,16 @@ err:
   return (-1);
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static void test_aesxts(void **state)
 {
-  struct aes_xts_tv *tv;
+  const struct aes_xts_tv *tv;
   u_int8_t result[512];
   int fail = 0;
   size_t i;
 
-  for (i = 0; i < nitems(aes_xts_test_vectors); i++)
+  for (i = 0; i < nitems(g_aes_xts_test_vectors); i++)
     {
-      tv = &aes_xts_test_vectors[i];
+      tv = &g_aes_xts_test_vectors[i];
 
       /* Encrypt test */
 
@@ -1878,5 +1881,18 @@ int main(int argc, FAR char **argv)
       printf("OK decrypt test vector %zu\n", i);
     }
 
-  exit((fail > 0) ? 1 : 0);
+  assert_int_equal(fail, 0);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest aesxts_tests[] = {
+      cmocka_unit_test(test_aesxts),
+  };
+
+  return cmocka_run_group_tests(aesxts_tests, NULL, NULL);
 }
