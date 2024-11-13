@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <string.h>
+#include <unistd.h>
 #include <cmocka.h>
 #include <nuttx/power/pm_runtime.h>
 

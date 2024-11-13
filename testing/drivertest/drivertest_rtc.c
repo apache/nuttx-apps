@@ -39,6 +39,7 @@
 #include <stdint.h>
 #include <cmocka.h>
 #include <syslog.h>
+#include <getopt.h>
 #include <nuttx/timers/rtc.h>
 #include <nuttx/clock.h>
 

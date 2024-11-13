@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <sched.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "pipe.h"
 
