@@ -27,6 +27,9 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
+
+#include <nuttx/fs/fs.h>
+
 #include "fstest.h"
 
 /****************************************************************************

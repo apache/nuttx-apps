@@ -31,6 +31,7 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
 #include <sys/wait.h>
 #include <builtin/builtin.h>

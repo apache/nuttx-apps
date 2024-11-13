@@ -3960,3 +3960,15 @@ index 57afeb2c..ec8eeb08 100644
 +  return UV_ENOTSUP;
 +}
 +#endif
+diff --color -ur libuv_back/src/unix/thread.c libuv/src/unix/thread.c
+--- libuv_back/src/unix/thread.c	2024-11-13 09:37:22.507687159 +0800
++++ libuv/src/unix/thread.c	2024-11-13 09:37:47.822236556 +0800
+@@ -41,7 +41,7 @@
+ #include <gnu/libc-version.h>  /* gnu_get_libc_version() */
+ #endif
+ 
+-#if defined(__linux__)
++#if defined(__linux__) || defined (__NuttX__)
+ # include <sched.h>
+ # define uv__cpu_set_t cpu_set_t
+ #elif defined(__FreeBSD__)

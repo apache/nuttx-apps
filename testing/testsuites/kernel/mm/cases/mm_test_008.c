@@ -39,6 +39,9 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <malloc.h>
+
+#include <nuttx/sched.h>
+
 #include "MmTest.h"
 
 /****************************************************************************

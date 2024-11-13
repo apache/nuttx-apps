@@ -31,6 +31,8 @@
 #include <stdint.h>
 #include <cmocka.h>
 #include <syslog.h>
+#include <getopt.h>
+#include <time.h>
 #include <nuttx/timers/timer.h>
 
 /****************************************************************************

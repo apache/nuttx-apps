@@ -35,6 +35,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include "nshlib/nshlib.h"
 

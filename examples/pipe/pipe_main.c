@@ -30,6 +30,7 @@
 #include <sched.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "pipe.h"
 
