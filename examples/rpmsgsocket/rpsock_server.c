@@ -269,6 +269,191 @@ errout_with_listensd:
   return -errno;
 }
 
+static int rpsock_recv_send_single(FAR struct rpsock_arg_s *args)
+{
+  struct pollfd pfd;
+  ssize_t ret;
+  char buf[255];
+  FAR char *tmp;
+  int snd;
+
+  if (args->nonblock)
+    {
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = args->fd;
+      pfd.events = POLLIN;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("server poll failed errno %d\n", errno);
+          goto end;
+        }
+    }
+
+  ret = recv(args->fd, buf, sizeof(buf), 0);
+  if (ret == 0 || (ret < 0 && errno == ECONNRESET))
+    {
+      printf("server recv data normal exit\n");
+      goto end;
+    }
+  else if (ret < 0 && errno == EINPROGRESS)
+    {
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = args->fd;
+      pfd.events = POLLOUT;
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("server: poll failure: %d\n", errno);
+          goto end;
+        }
+    }
+  else if(ret < 0)
+    {
+      printf("server recv data failed ret %zd, errno %d\n", ret, errno);
+      goto end;
+    }
+
+  snd = ret;
+  tmp = buf;
+
+  if (args->nonblock)
+    {
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = args->fd;
+      pfd.events = POLLOUT;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("server: poll failure: %d\n", errno);
+          goto end;
+        }
+    }
+
+  ret = send(args->fd, tmp, snd, 0);
+  if (ret == 0)
+    {
+      printf("server send data normal exit\n");
+    }
+  else if (ret < 0)
+    {
+      printf("server send data failed errno %d\n", errno);
+    }
+
+end:
+  printf("server Complete ret %zd, errno %d\n", ret, errno);
+  free(args);
+  return -errno;
+}
+
+static int rpsock_stream_multi_times_server(FAR char *argv[])
+{
+  struct sockaddr_rpmsg myaddr;
+  FAR struct rpsock_arg_s *args;
+  struct pollfd pfd;
+  socklen_t addrlen;
+  bool nonblock = false;
+  int fd;
+  int newfd;
+  int ret;
+
+  /* Create a new rpmsg domain socket */
+
+  if (strcmp(argv[2], "nonblock") == 0)
+    {
+      nonblock = true;
+    }
+
+  printf("server: create socket SOCK_STREAM nonblock %d\n", nonblock);
+
+  if (nonblock)
+    {
+      fd = socket(PF_RPMSG, SOCK_STREAM | SOCK_NONBLOCK, 0);
+    }
+  else
+    {
+      fd = socket(PF_RPMSG, SOCK_STREAM, 0);
+    }
+
+  if (fd < 0)
+    {
+      printf("server: socket failure: %d\n", errno);
+      return -errno;
+    }
+
+  /* Bind the socket to a local address */
+
+  myaddr.rp_family = AF_RPMSG;
+  strlcpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
+
+  printf("server: bind cpu %s, name %s ...\n",
+         myaddr.rp_cpu, myaddr.rp_name);
+  ret = bind(fd, (struct sockaddr *)&myaddr, sizeof(myaddr));
+  if (ret < 0)
+    {
+      printf("server: bind failure: %d\n", errno);
+      goto errout_with_listensd;
+    }
+
+  /* Listen for connections on the bound socket */
+
+  printf("server: listen ...\n");
+  ret = listen(fd, 16);
+  if (ret < 0)
+    {
+      printf("server: listen failure %d\n", errno);
+      goto errout_with_listensd;
+    }
+
+  if (nonblock)
+    {
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = fd;
+      pfd.events = POLLIN;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("server: poll failure: %d\n", errno);
+          goto errout_with_listensd;
+        }
+    }
+
+  printf("server: try accept ...\n");
+  newfd = accept4(fd, (FAR struct sockaddr *)&myaddr, &addrlen,
+                SOCK_CLOEXEC);
+  if (newfd < 0)
+    {
+      printf("server: accept4 failure: %d\n", errno);
+      goto errout_with_listensd;
+    }
+
+  printf("server: Connection accepted -- %d\n", newfd);
+
+  args = malloc(sizeof(struct rpsock_arg_s));
+  assert(args);
+
+  args->fd       = newfd;
+  args->nonblock = nonblock;
+
+  ret = rpsock_recv_send_single(args);
+  if (ret < 0)
+    {
+      printf("rpsock_recv_send_single failed errno %d\n", errno);
+    }
+
+  printf("server: Terminating\n");
+  close(fd);
+  return 0;
+
+errout_with_listensd:
+  close(fd);
+  return -errno;
+}
+
 static int rpsock_dgram_server(int argc, FAR char *argv[])
 {
   struct sockaddr_rpmsg myaddr;
@@ -366,10 +551,14 @@ static int rpsock_dgram_server(int argc, FAR char *argv[])
 
 int main(int argc, FAR char *argv[])
 {
+  int times = 0;
+  int ret = 0;
+  int num = 0;
+
   if (argc < 4)
     {
-      printf("Usage: rpsock_server stream/dgram"
-             " block/nonblock rp_name [rp_cpu]\n");
+      printf("Usage: rpsock_server stream/dgram/server_multi_times"
+             " block/nonblock rp_name [rp_cpu] times\n");
       return -EINVAL;
     }
 
@@ -380,6 +569,26 @@ int main(int argc, FAR char *argv[])
   else if (!strcmp(argv[1], "dgram"))
     {
       return rpsock_dgram_server(argc, argv);
+    }
+  else if (!strcmp(argv[1], "server_multi_times"))
+    {
+      if (argc < 6 || atoi(argv[5]) <= 0)
+        {
+          printf("Usage: rpsock_server server_multi_times"
+                 " block/nonblock rp_name rp_cpu times\n");
+          return -EINVAL;
+        }
+
+      for (times = atoi(argv[5]); times > 0; times--)
+        {
+          printf("server_multi_times: %d\n", num++);
+          ret = rpsock_stream_multi_times_server(argv);
+          if (ret < 0 && ret != -EINPROGRESS)
+            {
+              printf("server socket failure %d\n", ret);
+              return ret;
+            }
+        }
     }
 
   return -EINVAL;
