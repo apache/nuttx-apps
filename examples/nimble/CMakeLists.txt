@@ -20,7 +20,12 @@
 
 if(CONFIG_EXAMPLES_NIMBLE)
   nuttx_add_application(
-    NAME nimble
-    SRCS ${CMAKE_CURRENT_LIST_DIR}/nimble_main.c
-    DEPENDS nimble)
+    NAME
+    nimble
+    SRCS
+    ${CMAKE_CURRENT_LIST_DIR}/nimble_main.c
+    INCLUDE_DIRECTORIES
+    $<GENEX_EVAL:$<TARGET_PROPERTY:nimble,INCLUDE_DIRECTORIES>>
+    DEPENDS
+    nimble)
 endif()
