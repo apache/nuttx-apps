@@ -57,7 +57,8 @@
  ****************************************************************************/
 
 static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
-                           int instance, unsigned int queue_size)
+                           int instance, unsigned int queue_size,
+                           FAR orb_info_t *info)
 {
   char path[ORB_PATH_MAX];
   int fd;
@@ -78,6 +79,14 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       reginfo.esize   = meta->o_size;
       reginfo.nbuffer = queue_size;
       reginfo.persist = !!(flags & SENSOR_PERSIST);
+      if (info != NULL)
+        {
+          memcpy(&reginfo.devinfo, info, sizeof(*info));
+        }
+      else
+        {
+          memset(&reginfo.devinfo, 0, sizeof(*info));
+        }
 
       fd = open(ORB_USENSOR_PATH, O_WRONLY | O_CLOEXEC);
       if (fd < 0)
@@ -120,7 +129,8 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
 static int
 orb_advertise_multi_queue_flags(FAR const struct orb_metadata *meta,
                                 FAR const void *data, FAR int *instance,
-                                unsigned int queue_size, int flags)
+                                unsigned int queue_size, int flags,
+                                FAR orb_info_t *info)
 {
   int inst;
   int fd;
@@ -129,7 +139,7 @@ orb_advertise_multi_queue_flags(FAR const struct orb_metadata *meta,
 
   inst = instance ? *instance : orb_group_count(meta);
 
-  fd = orb_advsub_open(meta, flags, inst, queue_size);
+  fd = orb_advsub_open(meta, flags, inst, queue_size, info);
   if (fd < 0)
     {
       uorberr("%s advertise failed (%i)", meta->o_name, fd);
@@ -172,24 +182,27 @@ int orb_close(int fd)
   return close(fd);
 }
 
-int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
-                              FAR const void *data, FAR int *instance,
-                              unsigned int queue_size)
+int orb_advertise_multi_queue_info(FAR const struct orb_metadata *meta,
+                                   FAR const void *data, FAR int *instance,
+                                   unsigned int queue_size,
+                                   FAR orb_info_t *info)
 {
   return orb_advertise_multi_queue_flags(meta, data, instance,
-                                         queue_size, O_WRONLY);
+                                         queue_size, O_WRONLY, info);
 }
 
-int orb_advertise_multi_queue_persist(FAR const struct orb_metadata *meta,
-                                      FAR const void *data,
-                                      FAR int *instance,
-                                      unsigned int queue_size)
+int
+orb_advertise_multi_queue_persist_info(FAR const struct orb_metadata *meta,
+                                       FAR const void *data,
+                                       FAR int *instance,
+                                       unsigned int queue_size,
+                                       FAR orb_info_t *info)
 {
   return orb_advertise_multi_queue_flags(meta, data, instance, queue_size,
-                                         O_WRONLY | SENSOR_PERSIST);
+                                         O_WRONLY | SENSOR_PERSIST, info);
 }
 
-ssize_t orb_publish_multi(int fd, const void *data, size_t len)
+ssize_t orb_publish_multi(int fd, FAR const void *data, size_t len)
 {
   return write(fd, data, len);
 }
@@ -197,7 +210,7 @@ ssize_t orb_publish_multi(int fd, const void *data, size_t len)
 int orb_subscribe_multi(FAR const struct orb_metadata *meta,
                         unsigned instance)
 {
-  return orb_advsub_open(meta, O_RDONLY, instance, 0);
+  return orb_advsub_open(meta, O_RDONLY, instance, 0, NULL);
 }
 
 ssize_t orb_copy_multi(int fd, FAR void *buffer, size_t len)
@@ -274,11 +287,6 @@ int orb_get_interval(int fd, FAR unsigned *interval)
 
   *interval = tmp.interval;
   return ret;
-}
-
-int orb_set_info(int fd, FAR const orb_info_t *info)
-{
-  return ioctl(fd, SNIOC_SET_INFO, (unsigned long)(uintptr_t)info);
 }
 
 int orb_get_info(int fd, FAR orb_info_t *info)

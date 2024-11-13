@@ -266,7 +266,7 @@ int orb_open(FAR const char *name, int instance, int flags);
 int orb_close(int fd);
 
 /****************************************************************************
- * Name: orb_advertise_multi_queue
+ * Name: orb_advertise_multi_queue_info
  *
  * Description:
  *   This performs the initial advertisement of a topic; it creates the topic
@@ -278,6 +278,7 @@ int orb_close(int fd);
  *   instance     Pointer to an integer which yield the instance ID,
  *                (has default 0 if pointer is NULL).
  *   queue_size   Maximum number of buffered elements.
+ *   info         A pointer to the orb_info_t.
  *
  * Returned Value:
  *   -1 on error, otherwise returns an file descriptor
@@ -287,10 +288,21 @@ int orb_close(int fd);
  *   this function will return -1 and set errno to ENOENT.
  ****************************************************************************/
 
+int orb_advertise_multi_queue_info(FAR const struct orb_metadata *meta,
+                                   FAR const void *data,
+                                   FAR int *instance,
+                                   unsigned int queue_size,
+                                   FAR orb_info_t *info);
+
+static inline
 int orb_advertise_multi_queue(FAR const struct orb_metadata *meta,
                               FAR const void *data,
                               FAR int *instance,
-                              unsigned int queue_size);
+                              unsigned int queue_size)
+{
+  return orb_advertise_multi_queue_info(meta, data, instance,
+                                        queue_size, NULL);
+}
 
 static inline int orb_advertise(FAR const struct orb_metadata *meta,
                                 FAR const void *data)
@@ -338,10 +350,22 @@ static inline int orb_advertise_multi(FAR const struct orb_metadata *meta,
  *   this function will return -1 and set errno to ENOENT.
  ****************************************************************************/
 
+int
+orb_advertise_multi_queue_persist_info(FAR const struct orb_metadata *meta,
+                                       FAR const void *data,
+                                       FAR int *instance,
+                                       unsigned int queue_size,
+                                       FAR orb_info_t *info);
+
+static inline
 int orb_advertise_multi_queue_persist(FAR const struct orb_metadata *meta,
                                       FAR const void *data,
                                       FAR int *instance,
-                                      unsigned int queue_size);
+                                      unsigned int queue_size)
+{
+  return orb_advertise_multi_queue_persist_info(meta, data, instance,
+                                                queue_size, NULL);
+}
 
 /****************************************************************************
  * Name: orb_unadvertise
@@ -690,22 +714,6 @@ int orb_set_interval(int fd, unsigned interval);
  ****************************************************************************/
 
 int orb_get_interval(int fd, FAR unsigned *interval);
-
-/****************************************************************************
- * Name: orb_set_info
- *
- * Description:
- *   Set topic information.
- *
- * Input Parameters:
- *   fd     A fd returned from orb_subscribe.
- *   info   Data to be transmitted.
- *
- * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
- ****************************************************************************/
-
-int orb_set_info(int fd, FAR const orb_info_t *info);
 
 /****************************************************************************
  * Name: orb_get_info
