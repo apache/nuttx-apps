@@ -102,9 +102,15 @@ if(CONFIG_BOOT_MCUBOOT)
                                PRIVATE mcuboot/ext/tinycrypt/lib/include)
   endif()
 
-  target_include_directories(mcuboot PUBLIC mcuboot/boot/nuttx/include)
-  target_include_directories(mcuboot PUBLIC mcuboot/boot/bootutil/include)
+  set(INCDIR ${CMAKE_CURRENT_LIST_DIR}/mcuboot/boot/nuttx/include
+             ${CMAKE_CURRENT_LIST_DIR}/mcuboot/boot/bootutil/include)
+  target_include_directories(mcuboot PRIVATE ${INCDIR})
 
   target_compile_options(mcuboot PRIVATE -Wno-undef)
   target_sources(mcuboot PRIVATE ${SRCS})
+
+  set_property(
+    TARGET nuttx
+    APPEND
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${INCDIR})
 endif()
