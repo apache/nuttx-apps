@@ -6,7 +6,7 @@
 config SYSTEM_GPROF
 	tristate "gprof tool"
 	default n
-	depends on SCHED_GPROF || SIM_GPROF
+	depends on !PROFILE_NONE || SIM_GPROF
 	---help---
 		Enable support for the 'gprof' command.
 
