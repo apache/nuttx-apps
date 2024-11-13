@@ -425,7 +425,140 @@ errout_with_buffers:
   return -errno;
 }
 
-static int rpsock_dgram_client(FAR char *argv[])
+static int rpsock_stream_conn_multi_times_client(FAR char *argv[], int argc)
+{
+  struct sockaddr_rpmsg myaddr;
+  struct pollfd pfd;
+  size_t sendsize = BUFHEAD;
+  ssize_t act;
+  bool delayflag = false;
+  bool nonblock = false;
+  FAR char *outbuf;
+  FAR char *inbuf;
+  FAR char *tmp;
+  int sockfd;
+  int ret;
+
+  /* Allocate buffers */
+
+  inbuf = malloc(2 * BUFSIZE);
+  outbuf = inbuf + BUFSIZE;
+  if (inbuf == NULL)
+    {
+      printf("client: failed to allocate buffers\n");
+      ret = -ENOMEM;
+      goto errout_with_buffers;
+    }
+
+  /* Create a new rpmsg domain socket */
+
+  if (strcmp(argv[2], "nonblock") == 0)
+    {
+      nonblock = true;
+    }
+
+  if (argc >= 7 && strcmp(argv[6], "delay") == 0)
+    {
+      delayflag = true;
+    }
+
+  printf("client: create socket SOCK_STREAM nonblock %d\n", nonblock);
+
+  if (nonblock)
+    {
+      sockfd = socket(PF_RPMSG, SOCK_STREAM | SOCK_NONBLOCK, 0);
+    }
+  else
+    {
+      sockfd = socket(PF_RPMSG, SOCK_STREAM, 0);
+    }
+
+  if (sockfd < 0)
+    {
+      printf("client socket failure %d\n", errno);
+      goto errout_with_buffers;
+    }
+
+  /* Connect the socket to the server */
+
+  myaddr.rp_family = AF_RPMSG;
+  strlcpy(myaddr.rp_name, argv[3], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_cpu, argv[4], RPMSG_SOCKET_CPU_SIZE);
+
+  printf("client: Connecting to %s,%s...\n", myaddr.rp_cpu, myaddr.rp_name);
+  ret = connect(sockfd, (FAR struct sockaddr *)&myaddr, sizeof(myaddr));
+  if (ret < 0 && errno == EINPROGRESS)
+    {
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = sockfd;
+      pfd.events = POLLOUT;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("client: poll failure: %d\n", errno);
+          goto errout_with_socket;
+        }
+    }
+  else if (ret < 0)
+    {
+      printf("client: connect failure: %d\n", errno);
+      goto errout_with_socket;
+    }
+
+  printf("client: Connected\n");
+
+  snprintf(outbuf, BUFHEAD, "process%04d, name:%s", getpid(), argv[3]);
+
+  printf("client send data, total len %zu, BUFHEAD %s\n", sendsize, outbuf);
+
+  tmp = outbuf;
+
+  ret = send(sockfd, tmp, sendsize, 0);
+  if (ret < 0)
+    {
+      printf("client: send failure: %d\n", errno);
+      goto errout_with_socket;
+    }
+
+  tmp = inbuf;
+  if (nonblock)
+    {
+      memset(&pfd, 0, sizeof(struct pollfd));
+      pfd.fd = sockfd;
+      pfd.events = POLLIN;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("client: poll failure: %d\n", errno);
+          goto errout_with_socket;
+        }
+    }
+
+  act = recv(sockfd, tmp, SYNCSIZE, 0);
+  if (act < 0)
+    {
+      printf("client recv data failed %zd\n", act);
+      goto errout_with_socket;
+    }
+
+  printf("client: Terminating\n");
+
+  if (delayflag)
+    {
+      sleep(1);
+    }
+
+errout_with_socket:
+  close(sockfd);
+
+errout_with_buffers:
+  free(inbuf);
+  return -errno;
+}
+
+static int rpsock_dgram_client(char *argv[])
 {
   struct sockaddr_rpmsg myaddr;
   struct rpsock_arg_s args;
@@ -534,10 +667,14 @@ errout_with_buffers:
 
 int main(int argc, FAR char *argv[])
 {
+  int times = 0;
+  int ret = 0;
+  int num = 0;
+
   if (argc < 4)
     {
-      printf("Usage: rpsock_client stream/dgram"
-             " block/nonblock rp_name rp_cpu\n");
+      printf("Usage: rpsock_client stream/dgram/conn_multi_times/delay"
+             " block/nonblock rp_name rp_cpu times\n");
       return -EINVAL;
     }
 
@@ -548,6 +685,26 @@ int main(int argc, FAR char *argv[])
   else if (!strcmp(argv[1], "dgram"))
     {
       return rpsock_dgram_client(argv);
+    }
+  else if (!strcmp(argv[1], "conn_multi_times"))
+    {
+      if (argc < 6 || atoi(argv[5]) <= 0)
+        {
+          printf("Usage: rpsock_client conn_multi_times"
+                 " block/nonblock rp_name rp_cpu times (delay)\n");
+          return -EINVAL;
+        }
+
+      for (times = atoi(argv[5]); times > 0; times--)
+        {
+          printf("client conn_multi_times: %d\n", num++);
+          ret = rpsock_stream_conn_multi_times_client(argv, argc);
+          if (ret < 0 && ret != -EINPROGRESS)
+            {
+              printf("client socket failure %d\n", ret);
+              return ret;
+            }
+        }
     }
 
   return -EINVAL;
