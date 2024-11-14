@@ -57,7 +57,6 @@ static sem_t g_sem_signal_finish;
 static volatile bool g_waiter_running;
 static volatile bool g_interferer_running;
 static volatile bool g_done;
-static volatile int g_nestlevel;
 
 static volatile int g_even_handled;
 static volatile int g_odd_handled;
@@ -259,7 +258,6 @@ void signest_test(void)
   g_waiter_running = false;
   g_interferer_running = false;
   g_done = false;
-  g_nestlevel = 0;
 
   even_signals = 0;
   odd_signals = 0;
