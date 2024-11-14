@@ -45,38 +45,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Check configuration.  This is not all of the configuration settings that
- * are required -- only the more obvious.
- */
-
-#ifdef CONFIG_BINFMT_DISABLE
-#  error "The binary loader is disabled (CONFIG_BINFMT_DISABLE)!"
-#endif
-
-#ifndef CONFIG_ELF
-#  error "You must select CONFIG_ELF in your configuration file"
-#endif
-
-#ifndef CONFIG_FS_ROMFS
-#  error "You must select CONFIG_FS_ROMFS in your configuration file"
-#endif
-
-#ifdef CONFIG_DISABLE_MOUNTPOINT
-#  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
-#endif
-
-#ifdef CONFIG_BINFMT_DISABLE
-#  error "You must not disable loadable modules via CONFIG_BINFMT_DISABLE in your configuration file"
-#endif
-
-#ifndef CONFIG_BOARDCTL
-#  error "This configuration requires CONFIG_BOARDCTL"
-#endif
-
-#ifndef CONFIG_BOARDCTL_APP_SYMTAB
-#  error "You must enable the symobol table interface with CONFIG_BOARDCTL_APP_SYMTAB"
-#endif
-
 /* Describe the ROMFS file system */
 
 #define SECTORSIZE   512
