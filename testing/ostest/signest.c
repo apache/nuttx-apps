@@ -144,7 +144,7 @@ static FAR void *waiter_main(FAR void *arg)
   act.sa_flags   = 0;
 
   sigemptyset(&act.sa_mask);
-  for (i = 1; i < MAX_SIGNO; i += 2)
+  for (i = 1; i <= MAX_SIGNO; i += 2)
     {
       if (signest_catchable(i))
         {
@@ -152,7 +152,7 @@ static FAR void *waiter_main(FAR void *arg)
         }
     }
 
-  for (i = 1; i < MAX_SIGNO; i++)
+  for (i = 1; i <= MAX_SIGNO; i++)
     {
       if (signest_catchable(i))
         {
@@ -324,7 +324,7 @@ void signest_test(void)
 
   for (i = 0; i < 10; i++)
     {
-      for (j = 1; j < MAX_SIGNO; j += 2)
+      for (j = 1; j + 1 <= MAX_SIGNO; j += 2)
         {
           if (signest_catchable(j))
             {
@@ -379,7 +379,7 @@ void signest_test(void)
 
   for (i = 0; i < 10; i++)
     {
-      for (j = 1; j < MAX_SIGNO; j += 2)
+      for (j = 1; j + 1 <= MAX_SIGNO; j += 2)
         {
           /* Odd then even */
 
@@ -441,7 +441,7 @@ void signest_test(void)
 
   for (i = 0; i < 10; i++)
     {
-      for (j = 1; j < MAX_SIGNO; j += 2)
+      for (j = 1; j + 1 <= MAX_SIGNO; j += 2)
         {
           /* Odd then even */
 
