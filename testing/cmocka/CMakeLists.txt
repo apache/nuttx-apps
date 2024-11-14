@@ -43,6 +43,8 @@ if(CONFIG_TESTING_CMOCKA)
         ${CMAKE_CURRENT_LIST_DIR}/0005-cmocka-cmocka_private-fix-warning-in-cmocka_private.patch
         && patch -p0 -d ${CMAKE_CURRENT_LIST_DIR}/cmocka <
         ${CMAKE_CURRENT_LIST_DIR}/0006-fix-linux-risc-v-compile-error-list_initialize.patch
+        && patch -p0 -d ${CMAKE_CURRENT_LIST_DIR}/cmocka <
+        ${CMAKE_CURRENT_LIST_DIR}/0007-remove-nuttx-xxx.h-in-stdio-need-add-depend-header-f.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

@@ -47,6 +47,7 @@ cmocka.zip:
 	$(Q) patch -p0 < 0004-cmocka-xml-report.patch
 	$(Q) patch -p0 < 0005-cmocka-cmocka_private-fix-warning-in-cmocka_private.patch
 	$(Q) patch -p0 < 0006-fix-linux-risc-v-compile-error-list_initialize.patch
+	$(Q) patch -p0 < 0007-remove-nuttx-xxx.h-in-stdio-need-add-depend-header-f.patch
 
 context:: cmocka.zip
 

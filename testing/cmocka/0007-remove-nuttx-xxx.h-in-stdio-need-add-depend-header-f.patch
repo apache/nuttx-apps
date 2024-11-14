@@ -1,0 +1,11 @@
+diff --color -ur cmocka_bak/src/cmocka.c cmocka/src/cmocka.c
+--- cmocka_bak/src/cmocka.c	2024-11-14 15:50:02.013648944 +0800
++++ cmocka/src/cmocka.c	2024-11-14 15:50:23.136212001 +0800
+@@ -48,6 +48,7 @@
+ #include <regex.h>
+ #include <mqueue.h>
+ #include <fcntl.h>
++#include <unistd.h>
+ 
+ /*
+  * This allows to add a platform specific header file. Some embedded platforms
