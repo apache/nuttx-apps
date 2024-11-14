@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_IOB
+	tristate "\"Test iob\" testing"
+	default n
+	depends on MM_IOB
+	---help---
+		Enable the \"Test iob!\" testing.
+
+if TESTING_IOB
+
+config TESTING_IOB_PROGNAME
+	string "Program name"
+	default "iob"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is iob.
+
+config TESTING_IOB_PRIORITY
+	int "Iob task priority"
+	default 100
+
+config TESTING_IOB_STACKSIZE
+	int "Iob stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
