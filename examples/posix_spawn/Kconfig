@@ -6,6 +6,12 @@
 config EXAMPLES_POSIXSPAWN
 	tristate "posix_spawn Unit Test"
 	default n
+	depends on !BINFMT_DISABLE
+	depends on !DISABLE_MOUNTPOINT
+	depends on BOARDCTL
+	depends on BOARDCTL_APP_SYMTAB
+	depends on ELF
+	depends on FS_ROMFS
 	---help---
 		Enable the posix_spawn() unit test
 
