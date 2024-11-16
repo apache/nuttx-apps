@@ -78,6 +78,9 @@ if(CONFIG_INTERPRETERS_QUICKJS)
     -include
     alloca.h)
 
+  list(APPEND QUICKJS_FLAGS -Dmp_add=qjs_mp_add -Dmp_sub=qjs_mp_sub
+       -Dmp_mul=qjs_mp_mul)
+
   list(APPEND QUICKJS_INCDIR ${QUICKJS_DIR})
 
   list(
