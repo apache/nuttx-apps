@@ -211,9 +211,9 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
   /* 'date -d @$(printf "%d" 0x6720C67E)' restore utc to date */
 
   ret = snprintf(dumppath, sizeof(dumppath),
-                 "%s/%.16s-%x"COREDUMP_FILE_SUFFIX,
+                 "%s/%.16s-%llx"COREDUMP_FILE_SUFFIX,
                  savepath, info.name.version,
-                 (unsigned int)info.time.tv_sec);
+                 (unsigned long long)info.time.tv_sec);
 
   while (ret--)
     {
