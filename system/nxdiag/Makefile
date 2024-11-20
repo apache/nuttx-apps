@@ -93,6 +93,10 @@ ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP),y)
 NXDIAG_FLAGS += --espressif_chip
 endif
 
+ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_VERBOSE),y)
+NXDIAG_FLAGS += --espressif_verbose
+endif
+
 endif
 
 # Common build
