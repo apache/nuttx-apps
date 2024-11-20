@@ -28,6 +28,7 @@
 .kconfig
 *.lock
 /bin
+/bin_debug
 /boot_romfsimg.h
 /external
 /Kconfig

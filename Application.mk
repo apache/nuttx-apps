@@ -305,7 +305,9 @@ $(PROGLIST): $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ) $(MAINDOBJ) 
 	$(Q) mkdir -p $(BINDIR)
 	$(call ELFLD, $(PROGOBJ_$@), $(call CONVERT_PATH,$@))
 	$(Q) chmod +x $@
-ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
+ifneq ($(CONFIG_DEBUG_SYMBOLS),)
+	$(Q) mkdir -p $(BINDIR_DEBUG)
+	$(Q) cp $@ $(BINDIR_DEBUG)
 	$(Q) $(MODULESTRIP) $@
 endif
 

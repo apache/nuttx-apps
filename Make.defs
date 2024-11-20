@@ -64,6 +64,7 @@ LIBPATH ?= $(TOPDIR)$(DELIM)staging
 # The install path
 
 BINDIR ?= $(APPDIR)$(DELIM)bin
+BINDIR_DEBUG ?= $(APPDIR)$(DELIM)bin_debug
 
 # The final build target
 
