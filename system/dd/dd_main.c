@@ -24,8 +24,6 @@
 
 #include <nuttx/config.h>
 
-#include <nuttx/clock.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -36,7 +34,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include <debug.h>
 #include <errno.h>
 #include <time.h>
 
