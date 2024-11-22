@@ -736,8 +736,13 @@ def generate_header(args):
             )
             build_output += "MAC address:  {}\n\n".format(info["ESPRESSIF_MAC_ADDR"])
 
+        elif args.espressif_chip_runtime:
+            output += "#define ESPRESSIF_INFO_SIZE 384\n"
+            output += 'static char ESPRESSIF_INFO[ESPRESSIF_TOOLCHAIN_ARRAY_SIZE] =\n{\n  0\n};\n\n'
+
         if args.espressif_verbose:
             espressif_verbose(info, build_output)
+
 
     output += "#endif /* __SYSTEM_INFO_H */\n"
 
@@ -774,6 +779,10 @@ if __name__ == "__main__":
                         Requires the path to the bootloader binary directory.
             --espressif_chip:
                         Get Espressif specific information about chip.
+                        Requires device connection during build.
+            --espressif_chip_runtime:
+                        Get Espressif specific information about chip
+                        on runtime.
                         Requires device connection during build.
             --espressif_verbose:
                         Enable printing Espressif-specific information about
@@ -839,6 +848,12 @@ if __name__ == "__main__":
         "--espressif_chip",
         action="store_true",
         help="Get Espressif specific information about chip. Requires device connection during build.",
+    )
+
+    parser.add_argument(
+        "--espressif_chip_runtime",
+        action="store_true",
+        help="Get Espressif specific information about chip on runtime. Requires device connection during build.",
     )
 
     parser.add_argument(
