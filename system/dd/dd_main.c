@@ -138,6 +138,12 @@ static int dd_read(FAR struct dd_s *dd)
 
 static inline int dd_infopen(FAR const char *name, FAR struct dd_s *dd)
 {
+  if (name == NULL)
+    {
+      dd->infd = STDIN_FILENO;
+      return OK;
+    }
+
   dd->infd = open(name, O_RDONLY);
   if (dd->infd < 0)
     {
@@ -155,6 +161,12 @@ static inline int dd_infopen(FAR const char *name, FAR struct dd_s *dd)
 
 static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
 {
+  if (name == NULL)
+    {
+      dd->outfd = STDOUT_FILENO;
+      return OK;
+    }
+
   dd->outfd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (dd->outfd < 0)
     {
@@ -173,7 +185,7 @@ static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
 static void print_usage(void)
 {
   fprintf(stderr, "usage:\n");
-  fprintf(stderr, "  %s if=<infile> of=<outfile> [bs=<sectsize>] "
+  fprintf(stderr, "  %s [if=<infile>] [of=<outfile>] [bs=<sectsize>] "
     "[count=<sectors>] [skip=<sectors>] [seek=<sectors>]\n", g_dd);
 }
 
@@ -233,12 +245,6 @@ int main(int argc, FAR char **argv)
           print_usage();
           goto errout_with_paths;
         }
-    }
-
-  if (infile == NULL || outfile == NULL)
-    {
-      print_usage();
-      goto errout_with_paths;
     }
 
   /* Allocate the I/O buffer */
