@@ -24,6 +24,9 @@
 
 #include "adb.h"
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <syslog.h>
 #include <nuttx/streams.h>
 
@@ -35,6 +38,16 @@
 #ifdef CONFIG_ADBD_NET_INIT
 #  include "netutils/netinit.h"
 #endif
+
+#define ADB_WAIT_EP_READY(ep)             \
+  {                                       \
+    struct stat sb;                       \
+                                          \
+    while (stat(ep, &sb) != 0)            \
+      {                                   \
+        usleep(500000);                   \
+      };                                  \
+  }
 
 /****************************************************************************
  * Public Functions
@@ -143,6 +156,10 @@ int main(int argc, FAR char **argv)
       return 1;
     }
 #endif /* ADBD_USB_BOARDCTL */
+
+  ADB_WAIT_EP_READY("/dev/adb0/ep0");
+  ADB_WAIT_EP_READY("/dev/adb0/ep1");
+  ADB_WAIT_EP_READY("/dev/adb0/ep2");
 
 #ifdef CONFIG_ADBD_NET_INIT
   /* Bring up the network */
