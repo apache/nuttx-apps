@@ -90,7 +90,11 @@ NXDIAG_FLAGS += --espressif "$(TOPDIR)" "$(HALDIR)"
 endif
 
 ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP),y)
+ifneq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP_WO_TOOL),y)
 NXDIAG_FLAGS += --espressif_chip
+else
+NXDIAG_FLAGS += --espressif_chip_runtime
+endif
 endif
 
 ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_VERBOSE),y)
