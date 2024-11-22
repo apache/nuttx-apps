@@ -22,7 +22,9 @@
  * Included Files
  ****************************************************************************/
 
+#if defined(__NuttX__)
 #include <nuttx/config.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -49,6 +51,16 @@
  */
 
 #define DEFAULT_SECTSIZE 512
+
+#if !defined(CONFIG_SYSTEM_DD_PROGNAME)
+#define CONFIG_SYSTEM_DD_PROGNAME "dd"
+#endif
+#if !defined(__NuttX__)
+#define FAR
+#define NSEC_PER_USEC 1000
+#define USEC_PER_SEC 1000000
+#define NSEC_PER_SEC 1000000000
+#endif
 
 #define g_dd CONFIG_SYSTEM_DD_PROGNAME
 
