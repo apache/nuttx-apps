@@ -228,6 +228,11 @@ int main(int argc, FAR char **argv)
         {
           dd.seek = atoi(&argv[i][5]);
         }
+      else
+        {
+          print_usage();
+          goto errout_with_paths;
+        }
     }
 
   if (infile == NULL || outfile == NULL)
