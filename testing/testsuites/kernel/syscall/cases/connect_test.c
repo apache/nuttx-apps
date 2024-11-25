@@ -77,11 +77,13 @@ __attribute__((unused)) static struct test_case_t
 
 tdat[] =
     {
+    #ifndef CONFIG_FDCHECK
         {
           PF_INET, SOCK_STREAM, 0, (struct sockaddr *)&sin1,
         sizeof(struct sockaddr_in), -1, EBADF, setup0, cleanup0,
         "bad file descriptor"
         },
+    #endif
     #ifndef UCLINUX
 
         /* Skip since uClinux does not implement memory protection */
@@ -97,12 +99,12 @@ tdat[] =
           PF_INET, SOCK_STREAM, 0, (struct sockaddr *)&sin1, 3, -1, EINVAL,
         setup1, cleanup1, "invalid salen"
         },
-
+    #ifndef CONFIG_FDCHECK
         {
           0, 0, 0, (struct sockaddr *)&sin1, sizeof(sin1), -1, ENOTSOCK,
         setup0, cleanup0, "invalid socket"
         },
-
+    #endif
         {
           PF_INET, SOCK_STREAM, 0, (struct sockaddr *)&sin1,
           sizeof(sin1), -1, EISCONN, setup2, cleanup1,
