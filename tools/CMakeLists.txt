@@ -20,17 +20,7 @@
 #
 # ##############################################################################
 
-# Fake wasm_add_application function to suppress error from native build process
-function(wasm_add_application)
-
-endfunction()
-
-# Fake wasm_add_library function to suppress error from native build process
-function(wasm_add_library)
-
-endfunction()
-
-if(CONFIG_TOOLS_WASM_BUILD)
+if(CONFIG_TOOLS_WASM_BUILD OR CONFIG_INTERPRETERS_WAMR_BUILD_MODULES_FOR_NUTTX)
 
   include(ExternalProject)
 
@@ -45,14 +35,22 @@ if(CONFIG_TOOLS_WASM_BUILD)
   # Get parent dir of CMAKE_CURRENT_SOURCE_DIR
   get_filename_component(APPDIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 
+  # Get the Wasm build dirs from the wasm_interface target
+  get_property(
+    WASM_DIRS
+    TARGET wasm_interface
+    PROPERTY WASM_DIR)
+
+  # ensure the Wasm build dirs are unique
+  list(REMOVE_DUPLICATES WASM_DIRS)
   # Configure and build the Wasm based application
   add_custom_target(
     configure_wasm_build
     COMMAND
       ${CMAKE_COMMAND} -B${CMAKE_BINARY_DIR}/Wasm
       ${CMAKE_CURRENT_SOURCE_DIR}/Wasm -DAPPDIR=${APPDIR} -DTOPDIR=${TOPDIR}
-      -DKCONFIG_FILE_PATH=${KCONFIG_FILE_PATH}
-      -DWASI_SDK_PATH=$ENV{WASI_SDK_PATH})
+      -DTOPBINDIR=${CMAKE_BINARY_DIR} -DKCONFIG_FILE_PATH=${KCONFIG_FILE_PATH}
+      -DWASI_SDK_PATH=$ENV{WASI_SDK_PATH} -DWASM_DIRS=${WASM_DIRS})
 
   add_custom_target(wasm_build COMMAND ${CMAKE_COMMAND} --build
                                        ${CMAKE_BINARY_DIR}/Wasm)

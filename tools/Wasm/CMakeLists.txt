@@ -32,9 +32,23 @@
 
 cmake_minimum_required(VERSION 3.5)
 
+cmake_policy(SET CMP0079 NEW)
+
+# Include the NuttX kconfig parser to shared the configuration between the NuttX
+# build and the Wasm build. And then parse the input KCONFIG_FILE_PATH to get
+# the configuration.
+include(${TOPDIR}/cmake/nuttx_kconfig.cmake)
+
+# Parse the input KCONFIG_FILE_PATH to get the configuration.
+nuttx_export_kconfig(${KCONFIG_FILE_PATH})
+
+# Include the WASI-SDK.cmake file to setup the necessary flags for building
 include(WASI-SDK.cmake)
 
 project(WasmApps)
+
+# Add the wasm_interface library to hold all the Wasm libraries.
+add_library(wasm_interface INTERFACE)
 
 # Check whether the APPDIR is defined or not. If not, then set it to the parent
 # directory of the current CMakeLists.txt file.
@@ -47,17 +61,20 @@ if(NOT DEFINED TOPDIR)
   message(FATAL_ERROR "TOPDIR is not defined")
 endif()
 
+# Check wether the TOPBINDIR is defined or not. If not, then raise an error.
+if(NOT DEFINED TOPBINDIR)
+  message(FATAL_ERROR "TOPBINDIR is not defined")
+endif()
+
+if(NOT EXISTS ${TOPBINDIR}/wasm)
+  file(MAKE_DIRECTORY ${TOPBINDIR}/wasm)
+endif()
+
 # Check wether the KCONFIG_FILE_PATH is defined or not. If not, then raise an
 # error.
 if(NOT DEFINED KCONFIG_FILE_PATH)
   message(FATAL_ERROR "KCONFIG_FILE_PATH is not defined")
 endif()
-
-# Include the NuttX kconfig parser to shared the configuration between the NuttX
-# build and the Wasm build. And then parse the input KCONFIG_FILE_PATH to get
-# the configuration.
-include(${TOPDIR}/cmake/nuttx_kconfig.cmake)
-nuttx_export_kconfig(${KCONFIG_FILE_PATH})
 
 # Provide FAR macro from command line since it is not supported in wasi-sdk, but
 # it is used in NuttX code.
@@ -78,25 +95,11 @@ function(nuttx_add_library)
 
 endfunction()
 
-# Recursively find all the CMakeLists.txt files in the ${APPDIR} and add it by
-# add_subdirectory, but exclude the CMakeLists.txt file in the ${APPDIR}/tools
-# directory.
-file(GLOB_RECURSE WASM_APPS ${APPDIR}/*/CMakeLists.txt)
-list(FILTER WASM_APPS EXCLUDE REGEX ".*/tools/.*")
-
-# Read and check if wasm_add_application is called in the CMakeLists.txt file in
-# WASM_APPS If true, then add the directory to the build process
-foreach(WASM_APP ${WASM_APPS})
-  file(READ ${WASM_APP} WASM_APP_CONTENTS)
-  string(FIND "${WASM_APP_CONTENTS}" "wasm_add_application" WASM_APP_FOUND)
-  string(FIND "${WASM_APP_CONTENTS}" "wasm_add_library" WASM_LIB_FOUND)
-  if(WASM_APP_FOUND GREATER -1 OR WASM_LIB_FOUND GREATER -1)
-    get_filename_component(WASM_APP_DIR ${WASM_APP} DIRECTORY)
-    # Add subdirectory to the build process and put the build directory in the
-    # current build directory with the name same as the relative path of the
-    # ${APPDIR}
-    string(REPLACE ${APPDIR} "" WASM_APP_BUILD_DIR ${WASM_APP_DIR})
-    add_subdirectory(${WASM_APP_DIR}
-                     ${CMAKE_CURRENT_BINARY_DIR}/Wasm/${WASM_APP_BUILD_DIR})
-  endif()
+# ~~~
+# Add all the Wasm apps to the build process.
+foreach(WASM_APP ${WASM_DIRS})
+  string(REPLACE ${APPDIR} "" WASM_APP_BUILD_DIR ${WASM_APP})
+  add_subdirectory(${WASM_APP}
+                   ${CMAKE_CURRENT_BINARY_DIR}/Wasm/${WASM_APP_BUILD_DIR})
 endforeach()
+# ~~~
