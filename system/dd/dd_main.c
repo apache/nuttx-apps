@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -350,7 +351,7 @@ int main(int argc, FAR char **argv)
 
   total = ((uint64_t)sector * (uint64_t)dd.sectsize);
 
-  fprintf(stderr, "%llu bytes copied, %u usec, ",
+  fprintf(stderr, "%" PRIu64 " bytes copied, %u usec, ",
              total, (unsigned int)elapsed);
   fprintf(stderr, "%u KB/s\n" ,
              (unsigned int)(((double)total / 1024)
