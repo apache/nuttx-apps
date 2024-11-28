@@ -138,10 +138,14 @@ static int dd_read(FAR struct dd_s *dd)
 
       dd->nbytes += nbytes;
       buffer     += nbytes;
+      if (nbytes == 0)
+        {
+          dd->eof = true;
+          break;
+        }
     }
   while (dd->nbytes < dd->sectsize && nbytes > 0);
 
-  dd->eof |= (dd->nbytes == 0);
   return OK;
 }
 
@@ -214,7 +218,7 @@ int main(int argc, FAR char **argv)
   struct timespec ts0;
   struct timespec ts1;
   uint64_t elapsed;
-  uint64_t total;
+  uint64_t total = 0;
   uint32_t sector = 0;
   int ret = ERROR;
   int i;
@@ -325,7 +329,7 @@ int main(int argc, FAR char **argv)
 
       /* Has the incoming data stream ended? */
 
-      if (!dd.eof)
+      if (dd.nbytes > 0)
         {
           /* Write one sector to the output file */
 
@@ -338,6 +342,7 @@ int main(int argc, FAR char **argv)
           /* Increment the sector number */
 
           sector++;
+          total += dd.nbytes;
         }
     }
 
@@ -349,10 +354,8 @@ int main(int argc, FAR char **argv)
   elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
   elapsed /= NSEC_PER_USEC; /* usec */
 
-  total = ((uint64_t)sector * (uint64_t)dd.sectsize);
-
-  fprintf(stderr, "%" PRIu64 " bytes copied, %u usec, ",
-             total, (unsigned int)elapsed);
+  fprintf(stderr, "%" PRIu64 " bytes (%" PRIu32 " blocks) copied, %u usec, ",
+             total, sector, (unsigned int)elapsed);
   fprintf(stderr, "%u KB/s\n" ,
              (unsigned int)(((double)total / 1024)
              / ((double)elapsed / USEC_PER_SEC)));
