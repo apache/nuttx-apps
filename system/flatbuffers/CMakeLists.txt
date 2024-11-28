@@ -33,6 +33,8 @@ if(CONFIG_SYSTEM_FLATBUFFERS)
       flatbuffers_fetch
       URL ${FLATBUFFERS_URL} SOURCE_DIR ${FLATBUFFERS_DIR} BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/math/flatbuffers/flatbuffers
+      PATCH_COMMAND patch -d ${FLATBUFFERS_DIR} -p1 <
+                    ${CMAKE_CURRENT_LIST_DIR}/flatbuffers.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -40,14 +42,6 @@ if(CONFIG_SYSTEM_FLATBUFFERS)
 
     if(NOT flatbuffers_fetch_POPULATED)
       FetchContent_Populate(flatbuffers_fetch)
-
-      # Apply the patch after fetching the content
-      execute_process(
-        COMMAND ${CMAKE_COMMAND} -E echo "Applying patch to flatbuffers"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-
-      execute_process(COMMAND patch -d ${FLATBUFFERS_DIR} -p1 <
-                              ${CMAKE_CURRENT_LIST_DIR}/flatbuffers.patch)
     endif()
   endif()
 
