@@ -20,19 +20,27 @@
 
 include $(APPDIR)/Make.defs
 
+NETTEST_UTILS_DIR := $(APPDIR)/testing/nettest/utils
+
 PRIORITY  = $(CONFIG_TESTING_NET_TEST_PRIORITY)
 STACKSIZE = $(CONFIG_TESTING_NET_TEST_STACKSIZE)
 MODULE    = $(CONFIG_TESTING_NET_TEST)
 
 ifeq ($(CONFIG_TESTING_NET_TEST),y)
 
+CFLAGS += -I$(NETTEST_UTILS_DIR)
+
 ifeq ($(CONFIG_TESTING_NET_TCP),y)
 MAINSRC  += tcp/test_tcp.c
 PROGNAME += cmocka_net_tcp
-CSRCS    += tcp/test_tcp_common.c
+CSRCS    += tcp/test_tcp_common.c utils/nettest_tcpserver.c
 
 ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_connect_ipv4.c
+endif
+
+ifeq ($(CONFIG_NET_IPv6), y)
+CSRCS    += tcp/test_tcp_connect_ipv6.c
 endif
 
 endif

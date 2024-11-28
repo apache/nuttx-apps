@@ -20,11 +20,17 @@
 
 if(CONFIG_TESTING_NET_TEST)
   if(CONFIG_TESTING_NET_TCP)
-    set(SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp.c
-             ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_common.c)
+    set(SRCS
+        ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp.c
+        ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_common.c
+        ${CMAKE_CURRENT_LIST_DIR}/utils/nettest_tcpserver.c)
 
     if(CONFIG_NET_IPv4)
       list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_connect_ipv4.c)
+    endif()
+
+    if(CONFIG_NET_IPv6)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_connect_ipv6.c)
     endif()
 
     nuttx_add_application(
@@ -38,6 +44,8 @@ if(CONFIG_TESTING_NET_TEST)
       ${CONFIG_TESTING_NET_TEST}
       DEPENDS
       cmocka
+      INCLUDE_DIRECTORIES
+      ${CMAKE_CURRENT_LIST_DIR}/utils
       SRCS
       ${SRCS})
   endif()
