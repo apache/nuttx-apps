@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/nettest/tcp/test_tcp.c
+ * apps/testing/nettest/utils/utils.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,38 +18,37 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_TESTING_NETTEST_UTILS_UTILS_H
+#define __APPS_TESTING_NETTEST_UTILS_UTILS_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <cmocka.h>
-
-#include "test_tcp.h"
+#include <pthread.h>
+#include <sys/socket.h>
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
-{
-  const struct CMUnitTest tcp_tests[] =
-    {
-#ifdef CONFIG_NET_IPv4
-      cmocka_unit_test_setup_teardown(test_tcp_connect_ipv4,
-                                      test_tcp_connect_ipv4_setup,
-                                      test_tcp_common_teardown),
-#endif
-#ifdef CONFIG_NET_IPv6
-      cmocka_unit_test_setup_teardown(test_tcp_connect_ipv6,
-                                      test_tcp_connect_ipv6_setup,
-                                      test_tcp_common_teardown),
-#endif
-    };
+/****************************************************************************
+ * Name: nettest_lo_addr
+ ****************************************************************************/
 
-  return cmocka_run_group_tests(tcp_tests, test_tcp_group_setup,
-                                test_tcp_group_teardown);
-}
+#if defined (CONFIG_TESTING_NET_TCP)
+socklen_t nettest_lo_addr(FAR struct sockaddr *addr, int family);
+
+/****************************************************************************
+ * Name: nettest_destroy_tcp_lo_server
+ ****************************************************************************/
+
+int nettest_destroy_tcp_lo_server(pthread_t server_tid);
+
+/****************************************************************************
+ * Name: nettest_create_tcp_lo_server
+ ****************************************************************************/
+
+pthread_t nettest_create_tcp_lo_server(void);
+#endif
+#endif /* __APPS_TESTING_NETTEST_UTILS_UTILS_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/nettest/tcp/test_tcp_connect_ipv4.c
+ * apps/testing/nettest/tcp/test_tcp_connect_ipv6.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -28,7 +28,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <cmocka.h>
-#include <sys/socket.h>
 #include <sys/time.h>
 
 #include "test_tcp.h"
@@ -47,16 +46,16 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_tcp_connect_ipv4_setup
+ * Name: test_tcp_connect_ipv6_setup
  ****************************************************************************/
 
-int test_tcp_connect_ipv4_setup(FAR void **state)
+int test_tcp_connect_ipv6_setup(FAR void **state)
 {
   FAR struct nettest_tcp_state_s *tcp_state = *state;
   struct timeval tv;
   int ret;
 
-  tcp_state->client_fd = socket(PF_INET, SOCK_STREAM, 0);
+  tcp_state->client_fd = socket(PF_INET6, SOCK_STREAM, 0);
   assert_true(tcp_state->client_fd > 0);
 
   tv.tv_sec  = 0;
@@ -73,20 +72,20 @@ int test_tcp_connect_ipv4_setup(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_tcp_connect_ipv4
+ * Name: test_tcp_connect_ipv6
  ****************************************************************************/
 
-void test_tcp_connect_ipv4(FAR void **state)
+void test_tcp_connect_ipv6(FAR void **state)
 {
   FAR struct nettest_tcp_state_s *tcp_state = *state;
-  struct sockaddr_in myaddr;
+  struct sockaddr_in6 myaddr;
   char outbuf[TEST_BUFFER_SIZE];
   char inbuf[TEST_BUFFER_SIZE];
   int addrlen;
   int ret;
   int len;
 
-  addrlen = nettest_lo_addr((FAR struct sockaddr *)&myaddr, AF_INET);
+  addrlen = nettest_lo_addr((FAR struct sockaddr *)&myaddr, AF_INET6);
 
   ret = connect(tcp_state->client_fd, (FAR struct sockaddr *)&myaddr,
                 addrlen);

@@ -22,7 +22,16 @@
  * Included Files
  ****************************************************************************/
 
+#include <netinet/in.h>
+#include <setjmp.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <cmocka.h>
+
 #include "test_tcp.h"
+#include "utils.h"
 
 /****************************************************************************
  * Public Functions
@@ -34,6 +43,14 @@
 
 int test_tcp_group_setup(FAR void **state)
 {
+  FAR struct nettest_tcp_state_s *tcp_state = zalloc(sizeof(*tcp_state));
+  assert_non_null(tcp_state);
+
+  *state = tcp_state;
+
+  tcp_state->server_tid = nettest_create_tcp_lo_server();
+  assert_return_code(tcp_state->server_tid, errno);
+
   return 0;
 }
 
@@ -43,5 +60,30 @@ int test_tcp_group_setup(FAR void **state)
 
 int test_tcp_group_teardown(FAR void **state)
 {
+  FAR struct nettest_tcp_state_s *tcp_state = *state;
+
+  int ret = nettest_destroy_tcp_lo_server(tcp_state->server_tid);
+  assert_return_code(ret, errno);
+
+  free(tcp_state);
+
+  return 0;
+}
+
+/****************************************************************************
+ * Name: test_tcp_common_teardown
+ ****************************************************************************/
+
+int test_tcp_common_teardown(FAR void **state)
+{
+  FAR struct nettest_tcp_state_s *tcp_state = *state;
+
+  if (tcp_state->client_fd > 0)
+    {
+      shutdown(tcp_state->client_fd, SHUT_RDWR);
+      close(tcp_state->client_fd);
+      tcp_state->client_fd = -1;
+    }
+
   return 0;
 }

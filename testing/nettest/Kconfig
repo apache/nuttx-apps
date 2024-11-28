@@ -23,6 +23,15 @@ config TESTING_NET_TEST_STACKSIZE
 config TESTING_NET_TCP
 	bool "Enable cmocka net tcp test"
 	depends on NET_TCP && NET_TCPBACKLOG
+	depends on NET_IPv4 || NET_IPv6
 	default y
+
+if TESTING_NET_TCP
+
+config TESTING_NET_TCP_PORT
+	int "TCP port of test server"
+	default 5471
+
+endif
 
 endif
