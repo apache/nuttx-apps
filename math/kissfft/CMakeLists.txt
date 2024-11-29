@@ -33,6 +33,8 @@ if(CONFIG_MATH_KISSFFT)
       kissfft_fetch
       URL ${KISSFFT_URL} SOURCE_DIR ${KISSFFT_DIR} BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/math/kissfft/kissfft
+      PATCH_COMMAND patch -d ${KISSFFT_DIR} -p1 <
+                    ${CMAKE_CURRENT_LIST_DIR}/kissfft.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -40,14 +42,6 @@ if(CONFIG_MATH_KISSFFT)
 
     if(NOT kissfft_fetch_POPULATED)
       FetchContent_Populate(kissfft_fetch)
-
-      # Apply the patch after fetching the content
-      execute_process(
-        COMMAND ${CMAKE_COMMAND} -E echo "Applying patch to kissfft"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-
-      execute_process(COMMAND patch -d ${KISSFFT_DIR} -p1 <
-                              ${CMAKE_CURRENT_LIST_DIR}/kissfft.patch)
     endif()
   endif()
 
