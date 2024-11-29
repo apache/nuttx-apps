@@ -40,7 +40,7 @@
 #include <nuttx/coredump.h>
 
 /****************************************************************************
- * Private Types
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
@@ -50,6 +50,10 @@
 #endif
 
 #define COREDUMP_FILE_SUFFIX_LEN (sizeof(COREDUMP_FILE_SUFFIX) - 1)
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
 
 typedef CODE void (*dumpfile_cb_t)(FAR char *path, FAR const char *filename,
                                    FAR void *arg);
