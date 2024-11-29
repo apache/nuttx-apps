@@ -440,7 +440,8 @@ static void global_init(FAR struct memorystress_global_s *global, int argc,
       }
 
     syslog(LOG_INFO, MEMSTRESS_PREFIX "\n max_allocsize: %zu\n"
-           " nodelen: %zu\n sleep_us: %lu\n nthreads: %zu\n debug: %s\n",
+           " nodelen: %zu\n sleep_us: %" PRIu32 "\n nthreads: %zu\n "
+           "debug: %s\n",
            global->max_allocsize, global->nodelen, global->sleep_us,
            global->nthreads, global->debug ? "true" : "false");
 
