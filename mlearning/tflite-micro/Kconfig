@@ -24,7 +24,7 @@ config TFLITEMICRO
 	depends on SYSTEM_FLATBUFFERS && MATH_GEMMLOWP && MATH_KISSFFT && MATH_RUY
 
 if TFLITEMICRO
-	config TFLITEMICRO_DEBUG
+config TFLITEMICRO_DEBUG
 	bool "Print tflite-micro's debug message"
 	default n
 
@@ -33,11 +33,11 @@ config TFLITEMICRO_TOOL
 	default n
 
 if TFLITEMICRO_TOOL
-	config TFLITEMICRO_TOOL_PRIORITY
+config TFLITEMICRO_TOOL_PRIORITY
 	int "tflite-micro tool priority"
 	default 100
 
-	config TFLITEMICRO_TOOL_STACKSIZE
+config TFLITEMICRO_TOOL_STACKSIZE
 	int "tflite-micro tool stacksize"
 	default 4096
 

@@ -34,6 +34,14 @@ if(CONFIG_TFLITEMICRO)
       tflite_micro_fetch
       URL ${TFLITE_MICRO_URL} SOURCE_DIR ${TFLITE_MICRO_DIR} BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
+      PATCH_COMMAND
+        patch -d ${TFLITE_MICRO_DIR} -p1 <
+        ${CMAKE_CURRENT_LIST_DIR}/tflite-micro.patch && patch -d
+        ${TFLITE_MICRO_DIR} -p1 <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-dequantize-int8.patch && patch -d
+        ${TFLITE_MICRO_DIR} -p1 <
+        ${CMAKE_CURRENT_LIST_DIR}/0002-quantize-int8.patch && patch -d
+        ${TFLITE_MICRO_DIR} -p1 < ${CMAKE_CURRENT_LIST_DIR}/0003-mean-int8.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -41,21 +49,6 @@ if(CONFIG_TFLITEMICRO)
 
     if(NOT tflite_micro_fetch_POPULATED)
       FetchContent_Populate(tflite_micro_fetch)
-
-      # Apply the patch after fetching the content
-      execute_process(
-        COMMAND ${CMAKE_COMMAND} -E echo "Applying patch to tflite-micro"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-      execute_process(COMMAND patch -d ${TFLITE_MICRO_DIR} -p1 <
-                              ${CMAKE_CURRENT_LIST_DIR}/tflite-micro.patch)
-      execute_process(
-        COMMAND patch -d ${TFLITE_MICRO_DIR} -p1 <
-                ${CMAKE_CURRENT_LIST_DIR}/0001-dequantize-int8.patch)
-      execute_process(
-        COMMAND patch -d ${TFLITE_MICRO_DIR} -p1 <
-                ${CMAKE_CURRENT_LIST_DIR}/0002-quantize-int8.patch)
-      execute_process(COMMAND patch -d ${TFLITE_MICRO_DIR} -p1 <
-                              ${CMAKE_CURRENT_LIST_DIR}/0003-mean-int8.patch)
     endif()
   endif()
 
