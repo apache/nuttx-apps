@@ -136,13 +136,15 @@ if(CONFIG_TFLITEMICRO)
   # ############################################################################
 
   set(INCDIR
-      ${CMAKE_BINARY_DIR}/apps/math/gemmlowp/gemmlowp
-      ${CMAKE_BINARY_DIR}/apps/math/ruy/ruy
-      ${CMAKE_BINARY_DIR}/apps/math/kissfft/kissfft
-      ${CMAKE_BINARY_DIR}/apps/math/tflite-micro/tflite-micro)
+      ${NUTTX_APPS_DIR}/math/gemmlowp/gemmlowp
+      ${NUTTX_APPS_DIR}/math/ruy/ruy
+      ${NUTTX_APPS_DIR}/math/kissfft/kissfft
+      ${NUTTX_APPS_DIR}/math/kissfft/kissfft
+      ${NUTTX_APPS_DIR}/mlearning/tflite-micro/tflite-micro
+      ${NUTTX_APPS_DIR}/system/flatbuffers/flatbuffers/include)
 
   if(CONFIG_MLEARNING_CMSIS_NN)
-    list(APPEND INCDIR ${CMAKE_BINARY_DIR}/apps/mlearning/cmsis-nn/cmsis-nn)
+    list(APPEND INCDIR ${NUTTX_APPS_DIR}/apps/mlearning/cmsis-nn/cmsis-nn)
   endif()
 
   # ############################################################################
