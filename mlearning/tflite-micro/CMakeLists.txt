@@ -59,7 +59,6 @@ if(CONFIG_TFLITEMICRO)
   set(COMMON_FLAGS
       -DTF_LITE_STATIC_MEMORY
       -DTF_LITE_DISABLE_X86_NEON
-      -DTF_LITE_STRIP_ERROR_STRINGS
       -Wno-sign-compare
       -Wno-unused-variable
       -Wno-undef
@@ -68,6 +67,13 @@ if(CONFIG_TFLITEMICRO)
 
   if(CONFIG_MLEARNING_CMSIS_NN)
     list(APPEND COMMON_FLAGS -DCMSIS_NN)
+  endif()
+
+  if(CONFIG_TFLITEMICRO_DEBUG)
+    list(APPEND COMMON_FLAGS -DTF_LITE_SHOW_MEMORY_USE)
+    list(APPEND COMMON_FLAGS -DTF_LITE_USE_CTIME)
+  else()
+    list(APPEND COMMON_FLAGS -DTF_LITE_STRIP_ERROR_STRINGS)
   endif()
 
   # ############################################################################
@@ -155,5 +161,21 @@ if(CONFIG_TFLITEMICRO)
   target_compile_options(tflite_micro PRIVATE ${COMMON_FLAGS})
   target_sources(tflite_micro PRIVATE ${TFLITE_MICRO_SRCS})
   target_include_directories(tflite_micro PUBLIC ${INCDIR})
+
+  if(CONFIG_TFLITEMICRO_TOOL)
+    nuttx_add_application(
+      NAME
+      tflm
+      STACKSIZE
+      ${CONFIG_TFLITEMICRO_TOOL_STACKSIZE}
+      PRIORITY
+      ${CONFIG_TFLITEMICRO_TOOL_PRIORITY}
+      SRCS
+      ${CMAKE_CURRENT_LIST_DIR}/tflm_tool.cc
+      INCLUDE_DIRECTORIES
+      ${INCDIR}
+      COMPILE_FLAGS
+      ${COMMON_FLAGS})
+  endif()
 
 endif()
