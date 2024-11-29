@@ -44,17 +44,4 @@ if(CONFIG_MATH_RUY)
     endif()
   endif()
 
-  # ############################################################################
-  # Include Directory
-  # ############################################################################
-
-  set(INCDIR ${CMAKE_CURRENT_LIST_DIR}/ruy)
-
-  # ############################################################################
-  # Library Configuration
-  # ############################################################################
-
-  nuttx_add_library(ruy STATIC)
-  target_include_directories(ruy PUBLIC ${INCDIR})
-
 endif()
