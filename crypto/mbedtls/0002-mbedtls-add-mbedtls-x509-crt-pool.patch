@@ -1,9 +1,17 @@
-From e9eeb5721637faa451f66bbb2789046b9a7963d5 Mon Sep 17 00:00:00 2001
-From: makejian <makejian@xiaomi.com>
-Date: Fri, 18 Aug 2023 15:52:45 +0800
-Subject: [PATCH 1/2] mbedtls: add mbedtls x509 crt pool
+From f846c8fb13238a4db1f7d5e1a9ebce459c21faf7 Mon Sep 17 00:00:00 2001
+From: George Poulios <gpoulios@census-labs.com>
+Date: Fri, 29 Nov 2024 10:33:57 +0200
+Subject: [PATCH 2/2] mbedtls: add mbedtls x509 crt pool
 
-Signed-off-by: makejian <makejian@xiaomi.com>
+Original patch:
+  From e9eeb5721637faa451f66bbb2789046b9a7963d5 Mon Sep 17 00:00:00 2001
+  From: makejian <makejian@xiaomi.com>
+  Date: Fri, 18 Aug 2023 15:52:45 +0800
+  Subject: [PATCH 1/2] mbedtls: add mbedtls x509 crt pool
+
+  Signed-off-by: makejian <makejian@xiaomi.com>
+
+Signed-off-by: George Poulios <gpoulios@census-labs.com>
 ---
  include/mbedtls/threading.h |   4 +
  library/threading.c         |   3 +
@@ -14,13 +22,13 @@ Signed-off-by: makejian <makejian@xiaomi.com>
  create mode 100644 library/x509_crt_pool.c
  create mode 100644 library/x509_crt_pool.h
 
-diff --git mbedtls/include/mbedtls/threading.h mbedtls/include/mbedtls/threading.h
-index 1b9c7ced2..e3986cd67 100644
---- mbedtls/include/mbedtls/threading.h
-+++ mbedtls/include/mbedtls/threading.h
-@@ -108,6 +108,10 @@ extern mbedtls_threading_mutex_t mbedtls_threading_readdir_mutex;
- extern mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex;
- #endif /* MBEDTLS_HAVE_TIME_DATE && !MBEDTLS_PLATFORM_GMTIME_R_ALT */
+diff --git a/include/mbedtls/threading.h b/include/mbedtls/threading.h
+index d50d04ead1..9fffe6705d 100644
+--- a/include/mbedtls/threading.h
++++ b/include/mbedtls/threading.h
+@@ -128,6 +128,10 @@ extern mbedtls_threading_mutex_t mbedtls_threading_psa_globaldata_mutex;
+ extern mbedtls_threading_mutex_t mbedtls_threading_psa_rngdata_mutex;
+ #endif
  
 +#if defined(MBEDTLS_X509_CRT_POOL)
 +extern mbedtls_threading_mutex_t mbedtls_threading_x509crtpool_mutex;
@@ -29,24 +37,24 @@ index 1b9c7ced2..e3986cd67 100644
  #endif /* MBEDTLS_THREADING_C */
  
  #ifdef __cplusplus
-diff --git mbedtls/library/threading.c mbedtls/library/threading.c
-index 130c6963d..c91df6f6a 100644
---- mbedtls/library/threading.c
-+++ mbedtls/library/threading.c
-@@ -189,5 +189,8 @@ mbedtls_threading_mutex_t mbedtls_threading_readdir_mutex MUTEX_INIT;
- #if defined(THREADING_USE_GMTIME)
- mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex MUTEX_INIT;
+diff --git a/library/threading.c b/library/threading.c
+index 85db243f21..da500193f5 100644
+--- a/library/threading.c
++++ b/library/threading.c
+@@ -191,5 +191,8 @@ mbedtls_threading_mutex_t mbedtls_threading_key_slot_mutex MUTEX_INIT;
+ mbedtls_threading_mutex_t mbedtls_threading_psa_globaldata_mutex MUTEX_INIT;
+ mbedtls_threading_mutex_t mbedtls_threading_psa_rngdata_mutex MUTEX_INIT;
  #endif
 +#if defined(MBEDTLS_X509_CRT_POOL)
 +mbedtls_threading_mutex_t mbedtls_threading_x509crtpool_mutex MUTEX_INIT;
 +#endif
  
  #endif /* MBEDTLS_THREADING_C */
-diff --git mbedtls/library/x509_crt.c mbedtls/library/x509_crt.c
-index cf62532f2..8d058a092 100644
---- mbedtls/library/x509_crt.c
-+++ mbedtls/library/x509_crt.c
-@@ -78,6 +78,10 @@
+diff --git a/library/x509_crt.c b/library/x509_crt.c
+index 53cdcf0266..dd3c83a91a 100644
+--- a/library/x509_crt.c
++++ b/library/x509_crt.c
+@@ -71,6 +71,10 @@
  #endif /* !_WIN32 || EFIX64 || EFI32 */
  #endif
  
@@ -57,9 +65,9 @@ index cf62532f2..8d058a092 100644
  /*
   * Item in a verification chain: cert and flags for it
   */
-@@ -995,6 +999,12 @@ static int x509_crt_parse_der_core(mbedtls_x509_crt *crt,
+@@ -1113,6 +1117,12 @@ static int x509_crt_parse_der_core(mbedtls_x509_crt *crt,
      end = crt_end = p + len;
-     crt->raw.len = crt_end - buf;
+     crt->raw.len = (size_t) (crt_end - buf);
      if (make_copy != 0) {
 +#if defined(MBEDTLS_X509_CRT_POOL)
 +        crt->raw.p = p = x509_crt_pool_ref_buf(buf, crt->raw.len);
@@ -70,7 +78,7 @@ index cf62532f2..8d058a092 100644
          /* Create and populate a new buffer for the raw field. */
          crt->raw.p = p = mbedtls_calloc(1, crt->raw.len);
          if (crt->raw.p == NULL) {
-@@ -1002,6 +1012,7 @@ static int x509_crt_parse_der_core(mbedtls_x509_crt *crt,
+@@ -1120,6 +1130,7 @@ static int x509_crt_parse_der_core(mbedtls_x509_crt *crt,
          }
  
          memcpy(crt->raw.p, buf, crt->raw.len);
@@ -78,24 +86,23 @@ index cf62532f2..8d058a092 100644
          crt->own_buffer = 1;
  
          p += crt->raw.len - len;
-@@ -2839,8 +2850,12 @@ void mbedtls_x509_crt_free(mbedtls_x509_crt *crt)
-         mbedtls_asn1_sequence_free(cert_cur->certificate_policies.next);
+@@ -3246,7 +3257,11 @@ void mbedtls_x509_crt_free(mbedtls_x509_crt *crt)
+         mbedtls_asn1_sequence_free(cert_cur->authority_key_id.authorityCertIssuer.next);
  
          if (cert_cur->raw.p != NULL && cert_cur->own_buffer) {
 +#if defined(MBEDTLS_X509_CRT_POOL)
 +            x509_crt_pool_unref_buf(cert_cur->raw.p);
 +#else
-             mbedtls_platform_zeroize(cert_cur->raw.p, cert_cur->raw.len);
-             mbedtls_free(cert_cur->raw.p);
+             mbedtls_zeroize_and_free(cert_cur->raw.p, cert_cur->raw.len);
 +#endif
          }
  
          cert_prv = cert_cur;
-diff --git mbedtls/library/x509_crt_pool.c mbedtls/library/x509_crt_pool.c
+diff --git a/library/x509_crt_pool.c b/library/x509_crt_pool.c
 new file mode 100644
-index 000000000..da00c88a8
+index 0000000000..da00c88a85
 --- /dev/null
-+++ mbedtls/library/x509_crt_pool.c
++++ b/library/x509_crt_pool.c
 @@ -0,0 +1,142 @@
 +/*
 + *  X.509 certificate pool
@@ -239,11 +246,11 @@ index 000000000..da00c88a8
 +}
 +
 +#endif /* MBEDTLS_X509_CRT_POOL */
-diff --git mbedtls/library/x509_crt_pool.h mbedtls/library/x509_crt_pool.h
+diff --git a/library/x509_crt_pool.h b/library/x509_crt_pool.h
 new file mode 100644
-index 000000000..8592761de
+index 0000000000..8592761de4
 --- /dev/null
-+++ mbedtls/library/x509_crt_pool.h
++++ b/library/x509_crt_pool.h
 @@ -0,0 +1,30 @@
 +/**
 + * \file x509_crt_pool.h
@@ -277,4 +284,3 @@ index 000000000..8592761de
 +#endif /* mbedtls_x509_crt_pool.h */
 -- 
 2.40.0
-

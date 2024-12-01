@@ -13,7 +13,7 @@ if CRYPTO_MBEDTLS
 
 config MBEDTLS_VERSION
 	string "Mbed TLS Version"
-	default "3.4.0"
+	default "3.6.2"
 
 config MBEDTLS_DEBUG_C
 	bool "This module provides debugging functions."
@@ -103,7 +103,7 @@ config MBEDTLS_SSL_DTLS_HELLO_VERIFY
 	default y
 
 config MBEDTLS_SSL_DTLS_CONNECTION_ID
-	bool "Enable the Connection ID extension."
+	bool "Enable support for the DTLS Connection ID (CID) extension."
 	default y
 
 config MBEDTLS_SSL_DTLS_CONNECTION_ID_COMPAT
@@ -138,6 +138,10 @@ config MBEDTLS_NET_C
 	bool "Enable the TCP and UDP over IPv6/IPv4 networking routines"
 	default LIBC_NETDB
 
+config MBEDTLS_OID_C
+	bool "Enable the OID database."
+	default y
+
 config MBEDTLS_ECDSA_C
 	bool "Enable the elliptic curve DSA library."
 	default y
@@ -154,8 +158,19 @@ config MBEDTLS_PEM_WRITE_C
 	bool "Enable PEM encoding / writing."
 	default y
 
+config MBEDTLS_PK_C
+	bool "Enable the generic public (asymmetric) key layer."
+	depends on MBEDTLS_MD_C && MBEDTLS_RSA_C && MBEDTLS_ECP_C
+	default y
+
+config MBEDTLS_PK_PARSE_C
+	bool "Enable the generic public (asymmetric) key parser"
+	depends on MBEDTLS_ASN1_PARSE_C && MBEDTLS_OID_C && MBEDTLS_PK_C
+	default y
+
 config MBEDTLS_PK_WRITE_C
 	bool "Enable the generic public (asymmetric) key writer."
+	depends on MBEDTLS_ASN1_WRITE_C && MBEDTLS_OID_C && MBEDTLS_PK_C
 	default y
 
 config MBEDTLS_X509_CREATE_C
@@ -319,6 +334,10 @@ config MBEDTLS_PK_PARSE_EC_EXTENDED
 	bool "Enhance support for reading EC keys using variants of SEC1 not allowed by RFC 5915 and RFC 5480."
 	default y
 
+config MBEDTLS_PK_PARSE_EC_COMPRESSED
+	bool "Enable the support for parsing public keys of type Short Weierstrass (MBEDTLS_ECP_DP_SECP_XXX and MBEDTLS_ECP_DP_BP_XXX) which are using the compressed point format."
+	default y
+
 config MBEDTLS_ERROR_STRERROR_DUMMY
 	bool "Enable a dummy error function to make use of mbedtls_strerror()."
 	default y
@@ -331,9 +350,22 @@ config MBEDTLS_PK_RSA_ALT_SUPPORT
 	bool "Support external private RSA keys (eg from a HSM) in the PK layer."
 	default y
 
+config MBEDTLS_PKCS1_V21
+	bool "Enable support for PKCS#1 v2.1 encoding."
+	default y
+
 config MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
 	bool "Make the PSA Crypto module use an external random generator provided by a driver, instead of Mbed TLS's entropy and DRBG modules."
 	depends on DEV_RANDOM
+	default n
+
+config MBEDTLS_PSA_KEY_STORE_DYNAMIC
+	bool "Dynamically resize the PSA key store to accommodate any number of volatile keys (until the heap memory is exhausted)."
+	depends on MBEDTLS_PSA_CRYPTO_C
+	default y
+
+config MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
+	bool "Assume all buffers passed to PSA functions are owned exclusively by the PSA function and are not stored in shared memory."
 	default n
 
 config MBEDTLS_SSL_CONTEXT_SERIALIZATION
@@ -357,23 +389,43 @@ config MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
 	bool "Enable support for RFC 6066 max_fragment_length extension in SSL."
 	default y
 
+config MBEDTLS_SSL_PROTO_TLS1_2
+	bool "Enable support for TLS 1.2 (and DTLS 1.2 if DTLS is enabled)."
+	depends on (MBEDTLS_USE_PSA_CRYPTO ||\
+				(MBEDTLS_MD_C && (MBEDTLS_SHA256_C || MBEDTLS_SHA384_C)))
+	default y
+	help
+		If MBEDTLS_USE_PSA_CRYPTO is set, then PSA_WANT_ALG_SHA_256 or PSA_WANT_ALG_SHA_384
+		must be defined.
+
+config MBEDTLS_SSL_PROTO_TLS1_3
+	bool "Enable support for TLS 1.3."
+	depends on MBEDTLS_SSL_KEEP_PEER_CERTIFICATE && MBEDTLS_PSA_CRYPTO_C
+	default y
+
+config MBEDTLS_SSL_TLS1_3_COMPATIBILITY_MODE
+	bool "Enable TLS 1.3 middlebox compatibility mode."
+	default y
+
 config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_PSK_ENABLED
 	bool "Enable TLS 1.3 PSK key exchange mode."
 	default y
 
 config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_EPHEMERAL_ENABLED
 	bool "Enable TLS 1.3 ephemeral key exchange mode."
-	depends on MBEDTLS_ECDH_C
+	depends on MBEDTLS_X509_CRT_PARSE_C && \
+				(MBEDTLS_ECDSA_C || MBEDTLS_USE_PSA_CRYPTO || MBEDTLS_PKCS1_V21)
 	default y
+	help
+		Requires PSA_WANT_ALG_ECDH or PSA_WANT_ALG_FFDH to be defined. Also, if
+		MBEDTLS_USE_PSA_CRYPTO is used to satisfy its dependencies, then PSA_WANT_ALG_ECDSA
+		must also be defined.
 
 config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_PSK_EPHEMERAL_ENABLED
 	bool "Enable TLS 1.3 PSK ephemeral key exchange mode."
-	depends on MBEDTLS_ECDH_C
 	default y
-
-config MBEDTLS_SSL_MAX_EARLY_DATA_SIZE
-	int "The default maximum amount of 0-RTT data."
-	default 1024
+	help
+		Requires PSA_WANT_ALG_ECDH or PSA_WANT_ALG_FFDH.
 
 config MBEDTLS_SSL_SESSION_TICKETS
 	bool "Enable support for RFC 5077 session tickets in SSL."
@@ -388,6 +440,11 @@ config MBEDTLS_THREADING_PTHREAD
 	depends on MBEDTLS_THREADING_C
 	default n
 
+config MBEDTLS_USE_PSA_CRYPTO
+	bool "Make the X.509 and TLS library use PSA for cryptographic operations, and enable new APIs for using keys handled by PSA Crypto."
+	depends on MBEDTLS_PSA_CRYPTO_C
+	default n
+
 config MBEDTLS_VERSION_FEATURES
 	bool "Allow run-time checking of compile-time enabled features."
 	depends on MBEDTLS_VERSION_C
@@ -395,11 +452,24 @@ config MBEDTLS_VERSION_FEATURES
 
 config MBEDTLS_X509_RSASSA_PSS_SUPPORT
 	bool "Enable parsing and verification of X.509 certificates, CRLs and CSRS signed with RSASSA-PSS."
+	depends on MBEDTLS_PKCS1_V21
 	default y
 
 config MBEDTLS_AESCE_C
 	bool "Enable AES cryptographic extension support on 64-bit Arm."
-	depends on MBEDTLS_HAVE_ASM
+	depends on MBEDTLS_AES_C
+	default y
+
+config MBEDTLS_AES_C
+	bool "Enable the AES block cipher."
+	default y
+
+config MBEDTLS_ASN1_PARSE_C
+	bool "Enable the generic ASN1 parser."
+	default y
+
+config MBEDTLS_ASN1_WRITE_C
+	bool "Enable the generic ASN1 writer."
 	default y
 
 config MBEDTLS_ARIA_C
@@ -474,17 +544,32 @@ config MBEDTLS_NIST_KW_C
 	bool "Enable the Key Wrapping mode for 128-bit block ciphers."
 	default y
 
+config MBEDTLS_MD_C
+	bool "Enable the generic layer for message digest (hashing) and HMAC."
+	depends on MBEDTLS_MD5_C || MBEDTLS_RIPEMD160_C || MBEDTLS_SHA1_C ||\
+				MBEDTLS_SHA224_C || MBEDTLS_SHA256_C || MBEDTLS_SHA384_C ||\
+				MBEDTLS_SHA512_C || MBEDTLS_PSA_CRYPTO_C
+	default y
+
+config MBEDTLS_MD5_C
+	bool "Enable the MD5 hash algorithm."
+	default y
+
 config MBEDTLS_PKCS5_C
 	bool "Enable PKCS#5 functions."
+	select MBEDTLS_MD_C
 	default y
 
 config MBEDTLS_PKCS7_C
 	bool "Enable PKCS #7 core for using PKCS #7-formatted signatures."
-	depends on MBEDTLS_X509_CRL_PARSE_C
+	depends on MBEDTLS_ASN1_PARSE_C && MBEDTLS_OID_C && MBEDTLS_PK_PARSE_C &&\
+				MBEDTLS_X509_CRT_PARSE_C && MBEDTLS_X509_CRL_PARSE_C &&\
+				MBEDTLS_MD_C
 	default y
 
 config MBEDTLS_PKCS12_C
 	bool "Enable PKCS#12 PBE functions."
+	depends on MBEDTLS_ASN1_PARSE_C && (MBEDTLS_MD_C || MBEDTLS_PSA_CRYPTO_C)
 	default y
 
 config MBEDTLS_PLATFORM_C
@@ -512,12 +597,33 @@ config MBEDTLS_RIPEMD160_C
 	bool "Enable the RIPEMD-160 hash algorithm."
 	default y
 
+config MBEDTLS_RSA_C
+	bool "Enable the RSA public-key cryptosystem."
+	depends on MBEDTLS_OID_C
+	default y
+
+config MBEDTLS_SHA1_C
+	bool "Enable the SHA1 cryptographic hash algorithm."
+	default y
+
+config MBEDTLS_SHA224_C
+	bool "Enable the SHA-224 cryptographic hash algorithm."
+	default y
+
+config MBEDTLS_SHA256_C
+	bool "Enable the SHA-256 cryptographic hash algorithm."
+	default y
+
 config MBEDTLS_SHA384_C
 	bool "Enable the SHA-384 cryptographic hash algorithm."
 	default y
 
 config MBEDTLS_SHA512_C
 	bool "Enable SHA-512 cryptographic hash algorithms."
+	default y
+
+config MBEDTLS_SHA3_C
+	bool "Enable the SHA3 cryptographic hash algorithm."
 	default y
 
 config MBEDTLS_SSL_CACHE_C
@@ -538,21 +644,19 @@ config MBEDTLS_VERSION_C
 	bool "Enable run-time version information."
 	default y
 
+config MBEDTLS_X509_USE_C
+	bool "Enable X.509 core for using certificates."
+	depends on MBEDTLS_ASN1_PARSE_C && MBEDTLS_OID_C && MBEDTLS_PK_PARSE_C &&\
+				(MBEDTLS_MD_C || MBEDTLS_USE_PSA_CRYPTO)
+	default y
+
+config MBEDTLS_X509_CRT_PARSE_C
+	bool "Enable X.509 certificate parsing."
+	default y
+
 config MBEDTLS_X509_CRL_PARSE_C
 	bool "Enable X.509 CRL parsing."
 	default y
-
-config MBEDTLS_SSL_TLS1_3_TICKET_AGE_TOLERANCE
-	int "Maximum time difference in milliseconds tolerated between the age of a ticket from the server and client point of view."
-	default 6000
-
-config MBEDTLS_SSL_TLS1_3_TICKET_NONCE_LENGTH
-	int "Size in bytes of a ticket nonce."
-	default 32
-
-config MBEDTLS_SSL_TLS1_3_DEFAULT_NEW_SESSION_TICKETS
-	int "Default number of NewSessionTicket messages to be sent by a TLS 1.3 server after handshake completion."
-	default 1
 
 if CRYPTO_CRYPTODEV
 

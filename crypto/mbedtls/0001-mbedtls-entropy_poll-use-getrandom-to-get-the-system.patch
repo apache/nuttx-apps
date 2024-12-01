@@ -1,22 +1,31 @@
-From e40fdc9238384ee62013c41d74cb4d47ae8c1aad Mon Sep 17 00:00:00 2001
-From: makejian <makejian@xiaomi.com>
-Date: Mon, 11 Sep 2023 19:40:04 +0800
-Subject: [PATCH] mbedtls/entropy_poll: use 'getrandom' to get the system
+From b82b0c314d78d44f717a69924e7a60d8d43eb200 Mon Sep 17 00:00:00 2001
+From: George Poulios <gpoulios@census-labs.com>
+Date: Fri, 29 Nov 2024 10:32:54 +0200
+Subject: [PATCH 1/2] mbedtls/entropy_poll: use 'getrandom' to get the system
  entropy
 
-VELAPLATFO-16390
+Original patch:
+  From e40fdc9238384ee62013c41d74cb4d47ae8c1aad Mon Sep 17 00:00:00 2001
+  From: makejian <makejian@xiaomi.com>
+  Date: Mon, 11 Sep 2023 19:40:04 +0800
+  Subject: [PATCH] mbedtls/entropy_poll: use 'getrandom' to get the system
+   entropy
 
-Change-Id: I885969c441cd174f5eedf8c9ce17b89e501148c8
-Signed-off-by: makejian <makejian@xiaomi.com>
+  VELAPLATFO-16390
+
+  Change-Id: I885969c441cd174f5eedf8c9ce17b89e501148c8
+  Signed-off-by: makejian <makejian@xiaomi.com>
+
+Signed-off-by: George Poulios <gpoulios@census-labs.com>
 ---
  library/entropy_poll.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git mbedtls/library/entropy_poll.c mbedtls/library/entropy_poll.c
-index b5024c83f..e9431e812 100644
---- mbedtls/library/entropy_poll.c
-+++ mbedtls/library/entropy_poll.c
-@@ -103,10 +103,11 @@ static int getrandom_wrapper(void *buf, size_t buflen, unsigned int flags)
+diff --git a/library/entropy_poll.c b/library/entropy_poll.c
+index 611768cd85..a26e154db1 100644
+--- a/library/entropy_poll.c
++++ b/library/entropy_poll.c
+@@ -95,10 +95,11 @@ static int getrandom_wrapper(void *buf, size_t buflen, unsigned int flags)
  #endif /* SYS_getrandom */
  #endif /* __linux__ || __midipix__ */
  
