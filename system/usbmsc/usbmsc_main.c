@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/boardctl.h>
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -79,6 +80,26 @@
 
 #define TRACE_BITSET            (TRACE_INIT_BITS|TRACE_ERROR_BITS|TRACE_CLASS_BITS|\
                                  TRACE_TRANSFER_BITS|TRACE_CONTROLLER_BITS|TRACE_INTERRUPT_BITS)
+
+/* Save device path that will bind to a USB storage LUN later */
+
+#define LUN_ADD_BIND(l, i, p, f) \
+  do                             \
+    {                            \
+      l[i].path  = p;            \
+      l[i].flags = f;            \
+      i++;                       \
+    } while (0)
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct usbmsc_lun_t
+{
+  FAR const char *path; /* The full path to the block driver */
+  int flags;            /* Access modes */
+};
 
 /****************************************************************************
  * Private Data
@@ -392,6 +413,23 @@ static void usbmsc_disconnect(FAR void *handle)
   boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
 }
 
+static void help_conn(void)
+{
+  printf("Usage: msconn [-o OPTION]... [-l LUNs]...\n");
+  printf("Configures the USB mass storage device and exports the LUN(s).\n");
+  printf("\nSupported arguments\n");
+  printf("  -o\n");
+  printf("      ro: Readonly\n");
+  printf("      rw: Read/Write(default)\n");
+  printf("  -l\n");
+  printf("      Device path to export\n");
+  printf("\nExamples\n");
+  printf("  1. Export const LUN(s) only\n");
+  printf("      msconn\n");
+  printf("  2. Export /dev/ramx and const LUN(s)\n");
+  printf("      msconn -l /dev/ramx\n");
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -410,8 +448,33 @@ static void usbmsc_disconnect(FAR void *handle)
 int main(int argc, FAR char *argv[])
 {
   struct boardioc_usbdev_ctrl_s ctrl;
+  struct usbmsc_lun_t luns[CONFIG_SYSTEM_USBMSC_NLUNS];
+  int num_luns = 0;
+  int flags = O_RDWR;
   FAR void *handle = NULL;
   int ret;
+
+  memset(luns, 0, sizeof(luns));
+
+  while ((ret = getopt(argc, argv, "l:o:")) != -1)
+    {
+      switch (ret)
+        {
+          case 'o':
+            if (!strcmp("ro", optarg))
+              {
+                flags = O_RDONLY;
+              }
+            else if (!strcmp("rw", optarg))
+              {
+                flags = O_RDWR;
+              }
+            break;
+          case 'l':
+            LUN_ADD_BIND(luns, num_luns, optarg, flags);
+            break;
+        }
+    }
 
   /* If this program is implemented as the NSH 'msconn' command, then we
    * need to do a little error checking to assure that we are not being
@@ -426,6 +489,38 @@ int main(int argc, FAR char *argv[])
     {
       printf("mcsonn_main: ERROR: Already connected\n");
       return EXIT_FAILURE;
+    }
+
+  /* Add const LUNs */
+
+#if CONFIG_SYSTEM_USBMSC_DEVMINOR1 > -1
+#  ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT1
+    LUN_ADD_BIND(luns, num_luns, CONFIG_SYSTEM_USBMSC_DEVPATH1, O_RDONLY);
+#  else
+    LUN_ADD_BIND(luns, num_luns, CONFIG_SYSTEM_USBMSC_DEVPATH1, O_RDWR);
+#  endif
+#endif
+
+#if CONFIG_SYSTEM_USBMSC_DEVMINOR2 > -1
+#  ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT2
+    LUN_ADD_BIND(luns, num_luns, CONFIG_SYSTEM_USBMSC_DEVPATH2, O_RDONLY);
+#  else
+    LUN_ADD_BIND(luns, num_luns, CONFIG_SYSTEM_USBMSC_DEVPATH2, O_RDWR);
+#  endif
+#endif
+
+#if CONFIG_SYSTEM_USBMSC_DEVMINOR3 > -1
+#  ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT3
+    LUN_ADD_BIND(luns, num_luns, CONFIG_SYSTEM_USBMSC_DEVPATH3, O_RDONLY);
+#  else
+    LUN_ADD_BIND(luns, num_luns, CONFIG_SYSTEM_USBMSC_DEVPATH3, O_RDWR);
+#  endif
+#endif
+
+  if (num_luns <= 0)
+    {
+      help_conn();
+      return EINVAL;
     }
 
 #ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
@@ -462,8 +557,8 @@ int main(int argc, FAR char *argv[])
   /* Then exports the LUN(s) */
 
   printf("mcsonn_main: Configuring with NLUNS=%d\n",
-         CONFIG_SYSTEM_USBMSC_NLUNS);
-  ret = usbmsc_configure(CONFIG_SYSTEM_USBMSC_NLUNS, &handle);
+         num_luns);
+  ret = usbmsc_configure(num_luns, &handle);
   if (ret < 0)
     {
       printf("mcsonn_main: usbmsc_configure failed: %d\n", -ret);
@@ -478,72 +573,23 @@ int main(int argc, FAR char *argv[])
   printf("mcsonn_main: handle=%p\n", handle);
   check_test_memory_usage("After usbmsc_configure()");
 
-  printf("mcsonn_main: Bind LUN=0 to %s\n",
-         CONFIG_SYSTEM_USBMSC_DEVPATH1);
-
-#ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT1
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0,
-                       true);
-#else
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0,
-                       false);
-#endif
-  if (ret < 0)
+  while (--num_luns >= 0 && luns[num_luns].path != NULL)
     {
-      printf("mcsonn_main: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
-               CONFIG_SYSTEM_USBMSC_DEVPATH1, -ret);
-      usbmsc_disconnect(handle);
-      return EXIT_FAILURE;
+      printf("mcsonn_main: Bind LUN=%d to %s\n",
+             num_luns, luns[num_luns].path);
+
+      ret = usbmsc_bindlun(handle, luns[num_luns].path, 0, 0, 0,
+                           luns[num_luns].flags & O_WROK ? false : true);
+      if (ret < 0)
+        {
+          printf("mcsonn_main: usbmsc_bindlun failed for LUN %d using %s: "
+                 "%d\n", num_luns, luns[num_luns].path, -ret);
+          usbmsc_disconnect(handle);
+          return EXIT_FAILURE;
+        }
+
+      check_test_memory_usage("After usbmsc_bindlun()");
     }
-
-  check_test_memory_usage("After usbmsc_bindlun()");
-
-#if CONFIG_SYSTEM_USBMSC_NLUNS > 1
-
-  printf("mcsonn_main: Bind LUN=1 to %s\n",
-         CONFIG_SYSTEM_USBMSC_DEVPATH2);
-
-#ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT2
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0,
-                       true);
-#else
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0,
-                       false);
-#endif
-  if (ret < 0)
-    {
-      printf("mcsonn_main: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
-               CONFIG_SYSTEM_USBMSC_DEVPATH2, -ret);
-      usbmsc_disconnect(handle);
-      return EXIT_FAILURE;
-    }
-
-  check_test_memory_usage("After usbmsc_bindlun() #2");
-
-#if CONFIG_SYSTEM_USBMSC_NLUNS > 2
-
-  printf("mcsonn_main: Bind LUN=2 to %s\n",
-         CONFIG_SYSTEM_USBMSC_DEVPATH3);
-
-#ifdef CONFIG_SYSTEM_USBMSC_WRITEPROTECT3
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0,
-                       true);
-#else
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0,
-                       false);
-#endif
-  if (ret < 0)
-    {
-      printf("mcsonn_main: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
-               CONFIG_SYSTEM_USBMSC_DEVPATH3, -ret);
-      usbmsc_disconnect(handle);
-      return EXIT_FAILURE;
-    }
-
-  check_test_memory_usage("After usbmsc_bindlun() #3");
-
-#endif
-#endif
 
   ret = usbmsc_exportluns(handle);
   if (ret < 0)

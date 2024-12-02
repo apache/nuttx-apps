@@ -32,48 +32,6 @@
  * Pre-Processor Definitions
  ****************************************************************************/
 
-/* Configuration ************************************************************/
-
-#ifndef CONFIG_SYSTEM_USBMSC_NLUNS
-#  define CONFIG_SYSTEM_USBMSC_NLUNS 1
-#endif
-
-#ifndef CONFIG_SYSTEM_USBMSC_DEVMINOR1
-#  define CONFIG_SYSTEM_USBMSC_DEVMINOR1 0
-#endif
-
-#ifndef CONFIG_SYSTEM_USBMSC_DEVPATH1
-#  define CONFIG_SYSTEM_USBMSC_DEVPATH1 "/dev/mmcsd0"
-#endif
-
-#if CONFIG_SYSTEM_USBMSC_NLUNS > 1
-#  ifndef CONFIG_SYSTEM_USBMSC_DEVMINOR2
-#    error "CONFIG_SYSTEM_USBMSC_DEVMINOR2 for LUN=2"
-#  endif
-#  ifndef CONFIG_SYSTEM_USBMSC_DEVPATH2
-#    error "CONFIG_SYSTEM_USBMSC_DEVPATH2 for LUN=2"
-#  endif
-#  if CONFIG_SYSTEM_USBMSC_NLUNS > 2
-#    ifndef CONFIG_SYSTEM_USBMSC_DEVMINOR3
-#      error "CONFIG_SYSTEM_USBMSC_DEVMINOR2 for LUN=3"
-#    endif
-#    ifndef CONFIG_SYSTEM_USBMSC_DEVPATH3
-#      error "CONFIG_SYSTEM_USBMSC_DEVPATH3 for LUN=3"
-#    endif
-#    if CONFIG_SYSTEM_USBMSC_NLUNS > 3
-#      error "CONFIG_SYSTEM_USBMSC_NLUNS must be {1,2,3}"
-#    endif
-#  else
-#    undef CONFIG_SYSTEM_USBMSC_DEVMINOR3
-#    undef CONFIG_SYSTEM_USBMSC_DEVPATH3
-#  endif
-#else
-#  undef CONFIG_SYSTEM_USBMSC_DEVMINOR2
-#  undef CONFIG_SYSTEM_USBMSC_DEVPATH2
-#  undef CONFIG_SYSTEM_USBMSC_DEVMINOR3
-#  undef CONFIG_SYSTEM_USBMSC_DEVPATH3
-#endif
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
