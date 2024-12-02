@@ -41,5 +41,20 @@ config TFLITEMICRO_TOOL_STACKSIZE
 	int "tflite-micro tool stacksize"
 	default 4096
 
-endif
-endif
+endif # TFLITEMICRO_TOOL
+
+config TFLITEMICRO_HELLOWORLD
+	bool "Enable Tflite-micro hello world example"
+	default n
+
+if TFLITEMICRO_HELLOWORLD
+config TFLITEMICRO_HELLOWORLD_PRIORITY
+	int "Tflite-micro hello world priority"
+	default 100
+
+config TFLITEMICRO_HELLOWORLD_STACKSIZE
+	int "Tflite-micro hello world stacksize"
+	default 4096
+
+endif # TFLITEMICRO_HELLOWORLD
+endif # TFLITEMICRO

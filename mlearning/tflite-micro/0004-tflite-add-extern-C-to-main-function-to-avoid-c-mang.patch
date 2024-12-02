@@ -1,0 +1,26 @@
+From 971d7129e14c012bb10215cbc7370c3176490617 Mon Sep 17 00:00:00 2001
+From: chao an <anchao@lixiang.com>
+Date: Mon, 2 Dec 2024 10:23:12 +0800
+Subject: [PATCH] tflite: add extern "C" to main function to avoid c++ mangling
+
+Signed-off-by: chao an <anchao@lixiang.com>
+---
+ tensorflow/lite/micro/examples/hello_world/hello_world_test.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc b/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
+index ec23571a..24982e90 100644
+--- a/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
++++ b/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
+@@ -149,7 +149,7 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
+   return kTfLiteOk;
+ }
+
+-int main(int argc, char* argv[]) {
++extern "C" int main(int argc, char* argv[]) {
+   tflite::InitializeTarget();
+   TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
+   TF_LITE_ENSURE_STATUS(LoadFloatModelAndPerformInference());
+--
+2.34.1
+

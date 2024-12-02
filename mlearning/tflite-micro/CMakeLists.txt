@@ -42,6 +42,8 @@ if(CONFIG_TFLITEMICRO)
         ${TFLITE_MICRO_DIR} -p1 <
         ${CMAKE_CURRENT_LIST_DIR}/0002-quantize-int8.patch && patch -d
         ${TFLITE_MICRO_DIR} -p1 < ${CMAKE_CURRENT_LIST_DIR}/0003-mean-int8.patch
+        && patch -d ${TFLITE_MICRO_DIR} -p1 <
+        ${CMAKE_CURRENT_LIST_DIR}/0004-tflite-add-extern-C-to-main-function-to-avoid-c-mang.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -162,6 +164,42 @@ if(CONFIG_TFLITEMICRO)
   target_sources(tflite_micro PRIVATE ${TFLITE_MICRO_SRCS})
   target_include_directories(tflite_micro PUBLIC ${INCDIR})
 
+  # Help function to generate tflite data
+  #
+  # TFLM is designed to run on microcontrollers and other platforms without
+  # dynamic memory allocation and without filesystems. This means that data
+  # files such as TFLite models and test inputs must be built into the binary.
+  #
+  # Historically, data files have been included as cc arrays generated manually
+  # using `xxd -i <tflite data file> <cc header file>`
+
+  function(tflite_generate_data in out declare)
+    set(tflm_data_out
+        ${CMAKE_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro/${out})
+    if(NOT EXISTS ${tflm_data_out})
+      get_filename_component(TFLM_OUT ${tflm_data_out} DIRECTORY)
+      if(NOT EXISTS ${TFLM_OUT})
+        file(MAKE_DIRECTORY ${TFLM_OUT})
+      endif()
+      execute_process(COMMAND xxd -i ${TFLITE_MICRO_DIR}/${in} ${tflm_data_out})
+
+      # Replace array name
+
+      string(REGEX REPLACE "([/|.])" "_" tflm_data_define
+                           ${TFLITE_MICRO_DIR}/${in})
+      string(REPLACE "-" "_" _tflm_data_define ${tflm_data_define})
+      file(READ ${tflm_data_out} tflm_contents)
+      encode_brackets(tflm_contents)
+      encode_semicolon(tflm_contents)
+      string(REPLACE ${_tflm_data_define} ${declare} tflm_contents
+                     ${tflm_contents})
+      decode_semicolon(tflm_contents)
+      decode_brackets(tflm_contents)
+      file(WRITE ${tflm_data_out} "${tflm_contents}")
+
+    endif()
+  endfunction()
+
   if(CONFIG_TFLITEMICRO_TOOL)
     nuttx_add_application(
       NAME
@@ -174,6 +212,32 @@ if(CONFIG_TFLITEMICRO)
       ${CMAKE_CURRENT_LIST_DIR}/tflm_tool.cc
       INCLUDE_DIRECTORIES
       ${INCDIR}
+      COMPILE_FLAGS
+      ${COMMON_FLAGS})
+  endif()
+
+  if(CONFIG_TFLITEMICRO_HELLOWORLD)
+    tflite_generate_data(
+      tensorflow/lite/micro/examples/hello_world/models/hello_world_float.tflite
+      tensorflow/lite/micro/examples/hello_world/models/hello_world_float_model_data.h
+      g_hello_world_float_model_data)
+    tflite_generate_data(
+      tensorflow/lite/micro/examples/hello_world/models/hello_world_int8.tflite
+      tensorflow/lite/micro/examples/hello_world/models/hello_world_int8_model_data.h
+      g_hello_world_int8_model_data)
+
+    nuttx_add_application(
+      NAME
+      tflm_hello
+      STACKSIZE
+      ${CONFIG_TFLITEMICRO_HELLOWORLD_STACKSIZE}
+      PRIORITY
+      ${CONFIG_TFLITEMICRO_HELLOWORLD_PRIORITY}
+      SRCS
+      ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
+      INCLUDE_DIRECTORIES
+      ${INCDIR}
+      ${CMAKE_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
       COMPILE_FLAGS
       ${COMMON_FLAGS})
   endif()
