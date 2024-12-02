@@ -5,6 +5,7 @@
 
 config TESTING_KASAN
 	tristate "KASan validity test"
+	depends on MM_KASAN
 	default n
 	---help---
 		Enable the KASan validity test
