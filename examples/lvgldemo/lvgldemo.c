@@ -114,6 +114,12 @@ int main(int argc, FAR char *argv[])
   lv_memzero(&ui_loop, sizeof(ui_loop));
 #endif
 
+  if (lv_is_initialized())
+    {
+      LV_LOG_ERROR("LVGL already initialized! aborting.");
+      return -1;
+    }
+
 #ifdef NEED_BOARDINIT
   /* Perform board-specific driver initialization */
 
