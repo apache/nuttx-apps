@@ -18,19 +18,21 @@ if SYSTEM_USBMSC
 
 config SYSTEM_USBMSC_NLUNS
 	int "Number of LUNs"
-	default 1
+	default 8
 	---help---
-		Defines the number of logical units (LUNs) exported by the USB
+		Defines the max number of logical units (LUNs) exported by the USB
 		storage driver.  Each LUN corresponds to one exported block driver
-		(or partition of a block driver).  May be 1, 2, or 3.  Default is 1.
+		(or partition of a block driver).  May be 1, 2, or 3.
 
 config SYSTEM_USBMSC_DEVMINOR1
 	int "LUN1 Minor Device Number"
-	default 0
+	default -1
 	---help---
 		The minor device number of the block driver for the first LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
-		Default is zero.
+		Default -1 means the LUN is disabled.
+
+if SYSTEM_USBMSC_DEVMINOR1 > -1
 
 config SYSTEM_USBMSC_DEVPATH1
 	string "LUN1 Device Path"
@@ -46,13 +48,17 @@ config SYSTEM_USBMSC_WRITEPROTECT1
 		Enable this if you want to write-protect the first LUN. Default is
 		off.
 
+endif
+
 config SYSTEM_USBMSC_DEVMINOR2
 	int "LUN2 Minor Device Number"
-	default 1
+	default -1
 	---help---
 		The minor device number of the block driver for the second LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
-		Ignored if SYSTEM_USBMSC_NLUNS < 2. Default is one.
+		Default -1 means the LUN is disabled.
+
+if SYSTEM_USBMSC_DEVMINOR2 > -1
 
 config SYSTEM_USBMSC_DEVPATH2
 	string "LUN2 Device Path"
@@ -68,13 +74,17 @@ config SYSTEM_USBMSC_WRITEPROTECT2
 		Enable this if you want to write-protect the second LUN. Ignored if
 		SYSTEM_USBMSC_NLUNS < 2. Default is off.
 
+endif
+
 config SYSTEM_USBMSC_DEVMINOR3
 	int "LUN3 Minor Device Number"
-	default 2
+	default -1
 	---help---
 		The minor device number of the block driver for the third LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
-		Ignored if SYSTEM_USBMSC_NLUNS < 3. Default is two.
+		Default -1 means the LUN is disabled.
+
+if SYSTEM_USBMSC_DEVMINOR3 > -1
 
 config SYSTEM_USBMSC_DEVPATH3
 	string "LUN3 Device Path"
@@ -89,6 +99,8 @@ config SYSTEM_USBMSC_WRITEPROTECT3
 	---help---
 		Enable this if you want to write-protect the third LUN. Ignored if
 		SYSTEM_USBMSC_NLUNS < 3. Default is off.
+
+endif
 
 config SYSTEM_USBMSC_DEBUGMM
 	bool "USB MSC MM Debug"
