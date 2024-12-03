@@ -446,6 +446,7 @@ static int rpsock_stream_multi_times_server(FAR char *argv[])
     }
 
   printf("server: Terminating\n");
+  close(newfd);
   close(fd);
   return 0;
 
