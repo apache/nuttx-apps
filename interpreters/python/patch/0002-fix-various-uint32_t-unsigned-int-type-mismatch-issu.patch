@@ -1,0 +1,151 @@
+From 036b39478c2419af1e0a64763b9ac741cf886387 Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <ivan@espressif.com>
+Date: Wed, 23 Oct 2024 16:48:49 +0200
+Subject: [PATCH 02/10] fix various uint32_t/'unsigned int' type mismatch
+ issues
+
+In a few places existing code assumes that uint32_t == unsigned int.
+Since in Xtensa and RISC-V bare metal toolchains uint32_t is instead
+'unsigned long', the original code fails to build.
+---
+ Modules/zlibmodule.c | 28 ++++++++++++++--------------
+ Objects/typeobject.c |  2 +-
+ 2 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/Modules/zlibmodule.c b/Modules/zlibmodule.c
+index b115f67f228..034a9420b16 100644
+--- a/Modules/zlibmodule.c
++++ b/Modules/zlibmodule.c
+@@ -28,13 +28,13 @@
+    On failure, return -1 */
+ static inline Py_ssize_t
+ OutputBuffer_InitAndGrow(_BlocksOutputBuffer *buffer, Py_ssize_t max_length,
+-                         Bytef **next_out, uint32_t *avail_out)
++                         Bytef **next_out, unsigned int *avail_out)
+ {
+     Py_ssize_t allocated;
+ 
+     allocated = _BlocksOutputBuffer_InitAndGrow(
+                     buffer, max_length, (void**) next_out);
+-    *avail_out = (uint32_t) allocated;
++    *avail_out = (unsigned) allocated;
+     return allocated;
+ }
+ 
+@@ -42,24 +42,24 @@ OutputBuffer_InitAndGrow(_BlocksOutputBuffer *buffer, Py_ssize_t max_length,
+    On failure, return -1 */
+ static inline Py_ssize_t
+ OutputBuffer_Grow(_BlocksOutputBuffer *buffer,
+-                  Bytef **next_out, uint32_t *avail_out)
++                  Bytef **next_out, unsigned int *avail_out)
+ {
+     Py_ssize_t allocated;
+ 
+     allocated = _BlocksOutputBuffer_Grow(
+                     buffer, (void**) next_out, (Py_ssize_t) *avail_out);
+-    *avail_out = (uint32_t) allocated;
++    *avail_out = (unsigned int) allocated;
+     return allocated;
+ }
+ 
+ static inline Py_ssize_t
+-OutputBuffer_GetDataSize(_BlocksOutputBuffer *buffer, uint32_t avail_out)
++OutputBuffer_GetDataSize(_BlocksOutputBuffer *buffer, unsigned int avail_out)
+ {
+     return _BlocksOutputBuffer_GetDataSize(buffer, (Py_ssize_t) avail_out);
+ }
+ 
+ static inline PyObject *
+-OutputBuffer_Finish(_BlocksOutputBuffer *buffer, uint32_t avail_out)
++OutputBuffer_Finish(_BlocksOutputBuffer *buffer, unsigned int avail_out)
+ {
+     return _BlocksOutputBuffer_Finish(buffer, (Py_ssize_t) avail_out);
+ }
+@@ -97,7 +97,7 @@ typedef struct {
+ static inline Py_ssize_t
+ OutputBuffer_WindowInitWithSize(_BlocksOutputBuffer *buffer, _Uint32Window *window,
+                                 Py_ssize_t init_size,
+-                                Bytef **next_out, uint32_t *avail_out)
++                                Bytef **next_out, unsigned int *avail_out)
+ {
+     Py_ssize_t allocated = _BlocksOutputBuffer_InitWithSize(
+                                buffer, init_size, (void**) next_out);
+@@ -105,7 +105,7 @@ OutputBuffer_WindowInitWithSize(_BlocksOutputBuffer *buffer, _Uint32Window *wind
+     if (allocated >= 0) {
+         // the UINT32_MAX sliding window
+         Py_ssize_t window_size = Py_MIN((size_t)allocated, UINT32_MAX);
+-        *avail_out = (uint32_t) window_size;
++        *avail_out = (unsigned int) window_size;
+ 
+         window->left_bytes = allocated - window_size;
+         window->next_posi = *next_out + window_size;
+@@ -119,7 +119,7 @@ OutputBuffer_WindowInitWithSize(_BlocksOutputBuffer *buffer, _Uint32Window *wind
+    On failure, return value < 0 */
+ static inline Py_ssize_t
+ OutputBuffer_WindowGrow(_BlocksOutputBuffer *buffer, _Uint32Window *window,
+-                        Bytef **next_out, uint32_t *avail_out)
++                        Bytef **next_out, unsigned int *avail_out)
+ {
+     Py_ssize_t allocated;
+ 
+@@ -136,7 +136,7 @@ OutputBuffer_WindowGrow(_BlocksOutputBuffer *buffer, _Uint32Window *window,
+         Py_ssize_t window_size = Py_MIN((size_t)window->left_bytes, UINT32_MAX);
+ 
+         *next_out = window->next_posi;
+-        *avail_out = (uint32_t) window_size;
++        *avail_out = (unsigned int) window_size;
+ 
+         window->left_bytes -= window_size;
+         window->next_posi += window_size;
+@@ -148,7 +148,7 @@ OutputBuffer_WindowGrow(_BlocksOutputBuffer *buffer, _Uint32Window *window,
+     // only the first block may > UINT32_MAX
+     allocated = _BlocksOutputBuffer_Grow(
+                     buffer, (void**) next_out, (Py_ssize_t) *avail_out);
+-    *avail_out = (uint32_t) allocated;
++    *avail_out = (unsigned int) allocated;
+     return allocated;
+ }
+ 
+@@ -158,7 +158,7 @@ OutputBuffer_WindowGrow(_BlocksOutputBuffer *buffer, _Uint32Window *window,
+    On failure, return NULL */
+ static inline PyObject *
+ OutputBuffer_WindowFinish(_BlocksOutputBuffer *buffer, _Uint32Window *window,
+-                          uint32_t avail_out)
++                          unsigned avail_out)
+ {
+     Py_ssize_t real_avail_out = (Py_ssize_t) avail_out + window->left_bytes;
+     return _BlocksOutputBuffer_Finish(buffer, real_avail_out);
+@@ -1398,7 +1398,7 @@ set_inflate_zdict_ZlibDecompressor(zlibstate *state, ZlibDecompressor *self)
+ }
+ 
+ static Py_ssize_t
+-arrange_output_buffer_with_maximum(uint32_t *avail_out,
++arrange_output_buffer_with_maximum(unsigned int *avail_out,
+                                    uint8_t **next_out,
+                                    PyObject **buffer,
+                                    Py_ssize_t length,
+@@ -1430,7 +1430,7 @@ arrange_output_buffer_with_maximum(uint32_t *avail_out,
+         }
+     }
+ 
+-    *avail_out = (uint32_t)Py_MIN((size_t)(length - occupied), UINT32_MAX);
++    *avail_out = (unsigned)Py_MIN((size_t)(length - occupied), UINT32_MAX);
+     *next_out = (uint8_t *)PyBytes_AS_STRING(*buffer) + occupied;
+ 
+     return length;
+diff --git a/Objects/typeobject.c b/Objects/typeobject.c
+index c911c302003..9c640e0ab65 100644
+--- a/Objects/typeobject.c
++++ b/Objects/typeobject.c
+@@ -5140,7 +5140,7 @@ is_dunder_name(PyObject *name)
+ static PyObject *
+ update_cache(struct type_cache_entry *entry, PyObject *name, unsigned int version_tag, PyObject *value)
+ {
+-    _Py_atomic_store_uint32_relaxed(&entry->version, version_tag);
++    _Py_atomic_store_uint32_relaxed((uint32_t*) &entry->version, version_tag);
+     _Py_atomic_store_ptr_relaxed(&entry->value, value); /* borrowed */
+     assert(_PyASCIIObject_CAST(name)->hash != -1);
+     OBJECT_STAT_INC_COND(type_cache_collisions, entry->name != Py_None && entry->name != name);
+-- 
+2.46.1
+
