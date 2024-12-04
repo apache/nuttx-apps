@@ -224,8 +224,8 @@ int arch_libc_strcpy_speed(void)
         }
     }
 
-  printf("strcpy total(run 25 times) cpu cycles %" PRIu32 "\n", cycles);
-  printf("strcpy average cpu cycles %" PRIu32 "\n", cycles / 25);
+  printf("strcpy total(run 25 times) cpu cycles %"PRIu64"\n", cycles);
+  printf("strcpy average cpu cycles %"PRIu64"\n", cycles / 25);
 
   return 0;
 }
