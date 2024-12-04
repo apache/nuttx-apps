@@ -1,0 +1,29 @@
+From b2ac42cefa3747c7f7a9066fceed834286e829af Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <ivan@espressif.com>
+Date: Tue, 22 Oct 2024 23:58:17 +0200
+Subject: [PATCH 01/10] workaround newlib resource.h limitations
+
+configure script checks if resource.h is available but doesn't check
+if it defines all the necessary functions.
+
+Temporary workaround until these functions are added to IDF.
+---
+ Modules/faulthandler.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Modules/faulthandler.c b/Modules/faulthandler.c
+index b62362f2777..327d883f94e 100644
+--- a/Modules/faulthandler.c
++++ b/Modules/faulthandler.c
+@@ -968,7 +968,7 @@ faulthandler_suppress_crash_report(void)
+     SetErrorMode(mode | SEM_NOGPFAULTERRORBOX);
+ #endif
+ 
+-#ifdef HAVE_SYS_RESOURCE_H
++#if 0 && defined(HAVE_SYS_RESOURCE_H)
+     struct rlimit rl;
+ 
+     /* Disable creation of core dump */
+-- 
+2.46.1
+

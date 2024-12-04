@@ -1,0 +1,60 @@
+From 1bb8d824a4b4e4b38c3541b7c26c5d71f0970266 Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <ivan@espressif.com>
+Date: Wed, 23 Oct 2024 16:55:53 +0200
+Subject: [PATCH 04/10] recognize *-*-nuttx as a supported OS
+
+cpython's configure script bails out when cross-compiling for an
+unknown OS, so we have to add "nuttx" to the list, even though it
+is not used almost anywhere else.
+
+Co-authored-by: Tiago Medicci Serrano <tiago.medicci@espressif.com>
+---
+ config.sub   | 2 +-
+ configure    | 3 +++
+ configure.ac | 3 +++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/config.sub b/config.sub
+index 1bb6a05dc11..2a87d3e0ddb 100755
+--- a/config.sub
++++ b/config.sub
+@@ -1769,7 +1769,7 @@ case $os in
+ 	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
+ 	     | midnightbsd* | amdhsa* | unleashed* | emscripten* | wasi* \
+ 	     | nsk* | powerunix* | genode* | zvmoe* | qnx* | emx* | zephyr* \
+-	     | fiwix* | mlibc* | cos* | mbr* | ironclad* )
++	     | fiwix* | mlibc* | cos* | mbr* | ironclad* | nuttx* )
+ 		;;
+ 	# This one is extra strict with allowed versions
+ 	sco3.2v2 | sco3.2v[4-9]* | sco5v6*)
+diff --git a/configure b/configure
+index 7cdd386c387..6da5e9f3832 100755
+--- a/configure
++++ b/configure
+@@ -4527,6 +4527,9 @@ printf "%s\n" "$IPHONEOS_DEPLOYMENT_TARGET" >&6; }
+ 	wasm32-*-* | wasm64-*-*)
+ 		_host_ident=$host_cpu
+ 		;;
++  *-*-nuttx*)
++    _host_ident=$host_cpu
++    ;;
+ 	*)
+ 		# for now, limit cross builds to known configurations
+ 		MACHDEP="unknown"
+diff --git a/configure.ac b/configure.ac
+index 24e28a1e2de..80d6738fab5 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -777,6 +777,9 @@ if test "$cross_compiling" = yes; then
+ 	wasm32-*-* | wasm64-*-*)
+ 		_host_ident=$host_cpu
+ 		;;
++  *-*-nuttx*)
++    _host_ident=$host_cpu
++    ;;
+ 	*)
+ 		# for now, limit cross builds to known configurations
+ 		MACHDEP="unknown"
+-- 
+2.46.1
+

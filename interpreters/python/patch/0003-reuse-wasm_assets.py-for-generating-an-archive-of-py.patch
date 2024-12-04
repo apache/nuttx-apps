@@ -1,0 +1,42 @@
+From 4af7a9b726ca2c8ac330b51f98acf0a103f6fa71 Mon Sep 17 00:00:00 2001
+From: Ivan Grokhotkov <ivan@espressif.com>
+Date: Wed, 23 Oct 2024 16:54:39 +0200
+Subject: [PATCH 03/10] reuse wasm_assets.py for generating an archive of
+ python lib dir
+
+wasm_assets.py is a useful script to prepare the smallest possible
+package of pre-compiled python stdlib modules. There is very little
+wasm-specific there.
+
+This patch adds nuttx to the supported OS list in the script, as well
+as fixes what I think is a bug in path calculation.
+
+Co-authored-by: Tiago Medicci Serrano <tiago.medicci@espressif.com>
+---
+ Tools/wasm/wasm_assets.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Tools/wasm/wasm_assets.py b/Tools/wasm/wasm_assets.py
+index ffa5e303412..381d4819c39 100755
+--- a/Tools/wasm/wasm_assets.py
++++ b/Tools/wasm/wasm_assets.py
+@@ -99,6 +99,7 @@
+     "_sysconfigdata__emscripten_wasm32-emscripten",
+     "_sysconfigdata__wasi_wasm32-wasi",
+     "_sysconfigdata__wasi_wasm64-wasi",
++    "_sysconfigdata__nuttx_"
+ )
+ 
+ 
+@@ -203,7 +204,7 @@ def main() -> None:
+     relative_prefix = args.prefix.relative_to(pathlib.Path("/"))
+     args.srcdir = SRCDIR
+     args.srcdir_lib = SRCDIR_LIB
+-    args.wasm_root = args.buildroot / relative_prefix
++    args.wasm_root = args.buildroot #/ relative_prefix
+     args.wasm_stdlib_zip = args.wasm_root / WASM_STDLIB_ZIP
+     args.wasm_stdlib = args.wasm_root / WASM_STDLIB
+     args.wasm_dynload = args.wasm_root / WASM_DYNLOAD
+-- 
+2.46.1
+
