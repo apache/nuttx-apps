@@ -138,6 +138,8 @@ PROGNAME += cmocka_driver_mps2
 MAINSRC  += drivertest_mps2_zerointerrupt.c
 PROGNAME += cmocka_driver_mps2_zerointerrupt
 endif
+MAINSRC  += drivertest_mps2_isr_signal.c
+PROGNAME += cmocka_driver_mps2_isr_signal
 endif
 
 ifeq ($(CONFIG_PM),y)
