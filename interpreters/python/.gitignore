@@ -1,0 +1,6 @@
+/*.zip
+/build/
+/install/
+/Python/
+/romfs_cpython_modules.h
+/romfs_cpython_modules.img
