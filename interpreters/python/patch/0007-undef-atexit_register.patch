@@ -1,0 +1,29 @@
+From 1b802bfd159a6a9766ca5834af90f55d54285b4b Mon Sep 17 00:00:00 2001
+From: Tiago Medicci <tiago.medicci@espressif.com>
+Date: Wed, 13 Nov 2024 14:22:04 -0300
+Subject: [PATCH 07/10] undef atexit_register
+
+Even if not built, nuttx/include/nuttx/atexit.h defines it and this
+causes conflicts.
+---
+ Modules/atexitmodule.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Modules/atexitmodule.c b/Modules/atexitmodule.c
+index 297a8d74ba3..1fea72fbc99 100644
+--- a/Modules/atexitmodule.c
++++ b/Modules/atexitmodule.c
+@@ -175,6 +175,10 @@ Register a function to be executed upon normal program termination\n\
+ \n\
+     func is returned to facilitate usage as a decorator.");
+ 
++#ifdef atexit_register
++#  undef atexit_register
++#endif
++
+ static PyObject *
+ atexit_register(PyObject *module, PyObject *args, PyObject *kwargs)
+ {
+-- 
+2.46.1
+

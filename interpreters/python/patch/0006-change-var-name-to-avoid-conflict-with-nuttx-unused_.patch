@@ -1,0 +1,168 @@
+From d424766bff74fb34a80a09c6e2ed8d9b40350bb8 Mon Sep 17 00:00:00 2001
+From: Tiago Medicci <tiago.medicci@espressif.com>
+Date: Wed, 13 Nov 2024 14:20:36 -0300
+Subject: [PATCH 06/10] change var name to avoid conflict with nuttx
+ unused_data macro
+
+---
+ Modules/zlibmodule.c | 42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/Modules/zlibmodule.c b/Modules/zlibmodule.c
+index 034a9420b16..595d4ad32e9 100644
+--- a/Modules/zlibmodule.c
++++ b/Modules/zlibmodule.c
+@@ -213,7 +213,7 @@ typedef struct
+ {
+     PyObject_HEAD
+     z_stream zst;
+-    PyObject *unused_data;
++    PyObject *unused_data_var;
+     PyObject *unconsumed_tail;
+     char eof;
+     bool is_initialised;
+@@ -267,8 +267,8 @@ newcompobject(PyTypeObject *type)
+     self->eof = 0;
+     self->is_initialised = 0;
+     self->zdict = NULL;
+-    self->unused_data = PyBytes_FromStringAndSize("", 0);
+-    if (self->unused_data == NULL) {
++    self->unused_data_var = PyBytes_FromStringAndSize("", 0);
++    if (self->unused_data_var == NULL) {
+         Py_DECREF(self);
+         return NULL;
+     }
+@@ -708,7 +708,7 @@ Dealloc(compobject *self)
+ {
+     PyObject *type = (PyObject *)Py_TYPE(self);
+     PyThread_free_lock(self->lock);
+-    Py_XDECREF(self->unused_data);
++    Py_XDECREF(self->unused_data_var);
+     Py_XDECREF(self->unconsumed_tail);
+     Py_XDECREF(self->zdict);
+     PyObject_Free(self);
+@@ -803,15 +803,15 @@ zlib_Compress_compress_impl(compobject *self, PyTypeObject *cls,
+ }
+ 
+ /* Helper for objdecompress() and flush(). Saves any unconsumed input data in
+-   self->unused_data or self->unconsumed_tail, as appropriate. */
++   self->unused_data_var or self->unconsumed_tail, as appropriate. */
+ static int
+ save_unconsumed_input(compobject *self, Py_buffer *data, int err)
+ {
+     if (err == Z_STREAM_END) {
+         /* The end of the compressed data has been reached. Store the leftover
+-           input data in self->unused_data. */
++           input data in self->unused_data_var. */
+         if (self->zst.avail_in > 0) {
+-            Py_ssize_t old_size = PyBytes_GET_SIZE(self->unused_data);
++            Py_ssize_t old_size = PyBytes_GET_SIZE(self->unused_data_var);
+             Py_ssize_t new_size, left_size;
+             PyObject *new_data;
+             left_size = (Byte *)data->buf + data->len - self->zst.next_in;
+@@ -824,10 +824,10 @@ save_unconsumed_input(compobject *self, Py_buffer *data, int err)
+             if (new_data == NULL)
+                 return -1;
+             memcpy(PyBytes_AS_STRING(new_data),
+-                      PyBytes_AS_STRING(self->unused_data), old_size);
++                      PyBytes_AS_STRING(self->unused_data_var), old_size);
+             memcpy(PyBytes_AS_STRING(new_data) + old_size,
+                       self->zst.next_in, left_size);
+-            Py_SETREF(self->unused_data, new_data);
++            Py_SETREF(self->unused_data_var, new_data);
+             self->zst.avail_in = 0;
+         }
+     }
+@@ -1091,7 +1091,7 @@ zlib_Compress_copy_impl(compobject *self, PyTypeObject *cls)
+         zlib_error(state, self->zst, err, "while copying compression object");
+         goto error;
+     }
+-    Py_XSETREF(return_value->unused_data, Py_NewRef(self->unused_data));
++    Py_XSETREF(return_value->unused_data_var, Py_NewRef(self->unused_data_var));
+     Py_XSETREF(return_value->unconsumed_tail, Py_NewRef(self->unconsumed_tail));
+     Py_XSETREF(return_value->zdict, Py_XNewRef(self->zdict));
+     return_value->eof = self->eof;
+@@ -1176,7 +1176,7 @@ zlib_Decompress_copy_impl(compobject *self, PyTypeObject *cls)
+         goto error;
+     }
+ 
+-    Py_XSETREF(return_value->unused_data, Py_NewRef(self->unused_data));
++    Py_XSETREF(return_value->unused_data_var, Py_NewRef(self->unused_data_var));
+     Py_XSETREF(return_value->unconsumed_tail, Py_NewRef(self->unconsumed_tail));
+     Py_XSETREF(return_value->zdict, Py_XNewRef(self->zdict));
+     return_value->eof = self->eof;
+@@ -1341,7 +1341,7 @@ typedef struct {
+     z_stream zst;
+     PyObject *zdict;
+     PyThread_type_lock lock;
+-    PyObject *unused_data;
++    PyObject *unused_data_var;
+     uint8_t *input_buffer;
+     Py_ssize_t input_buffer_size;
+     /* zst>avail_in is only 32 bit, so we store the true length
+@@ -1367,7 +1367,7 @@ ZlibDecompressor_dealloc(ZlibDecompressor *self)
+         inflateEnd(&self->zst);
+     }
+     PyMem_Free(self->input_buffer);
+-    Py_CLEAR(self->unused_data);
++    Py_CLEAR(self->unused_data_var);
+     Py_CLEAR(self->zdict);
+     PyObject_Free(self);
+     Py_DECREF(type);
+@@ -1602,12 +1602,12 @@ decompress(ZlibDecompressor *self, uint8_t *data,
+         self->needs_input = 0;
+ 
+         if (self->avail_in_real > 0) {
+-            PyObject *unused_data = PyBytes_FromStringAndSize(
++            PyObject *unused_data_var = PyBytes_FromStringAndSize(
+                 (char *)self->zst.next_in, self->avail_in_real);
+-            if (unused_data == NULL) {
++            if (unused_data_var == NULL) {
+                 goto error;
+             }
+-            Py_XSETREF(self->unused_data, unused_data);
++            Py_XSETREF(self->unused_data_var, unused_data_var);
+         }
+     }
+     else if (self->avail_in_real == 0) {
+@@ -1671,7 +1671,7 @@ was less than *max_length* bytes, or because *max_length* was negative),
+ 
+ Attempting to decompress data after the end of stream is reached raises an
+ EOFError.  Any data found after the end of the stream is ignored and saved in
+-the unused_data attribute.
++the unused_data_var attribute.
+ [clinic start generated code]*/
+ 
+ static PyObject *
+@@ -1739,8 +1739,8 @@ ZlibDecompressor__new__(PyTypeObject *cls,
+     self->zst.zfree = PyZlib_Free;
+     self->zst.next_in = NULL;
+     self->zst.avail_in = 0;
+-    self->unused_data = PyBytes_FromStringAndSize(NULL, 0);
+-    if (self->unused_data == NULL) {
++    self->unused_data_var = PyBytes_FromStringAndSize(NULL, 0);
++    if (self->unused_data_var == NULL) {
+         Py_CLEAR(self);
+         return NULL;
+     }
+@@ -1806,7 +1806,7 @@ static PyMethodDef ZlibDecompressor_methods[] = {
+ 
+ #define COMP_OFF(x) offsetof(compobject, x)
+ static PyMemberDef Decomp_members[] = {
+-    {"unused_data",     _Py_T_OBJECT, COMP_OFF(unused_data), Py_READONLY},
++    {"unused_data_var",     _Py_T_OBJECT, COMP_OFF(unused_data_var), Py_READONLY},
+     {"unconsumed_tail", _Py_T_OBJECT, COMP_OFF(unconsumed_tail), Py_READONLY},
+     {"eof",             Py_T_BOOL,   COMP_OFF(eof), Py_READONLY},
+     {NULL},
+@@ -1824,7 +1824,7 @@ PyDoc_STRVAR(ZlibDecompressor_needs_input_doc,
+ static PyMemberDef ZlibDecompressor_members[] = {
+     {"eof", Py_T_BOOL, offsetof(ZlibDecompressor, eof),
+      Py_READONLY, ZlibDecompressor_eof__doc__},
+-    {"unused_data", Py_T_OBJECT_EX, offsetof(ZlibDecompressor, unused_data),
++    {"unused_data_var", Py_T_OBJECT_EX, offsetof(ZlibDecompressor, unused_data_var),
+      Py_READONLY, ZlibDecompressor_unused_data__doc__},
+     {"needs_input", Py_T_BOOL, offsetof(ZlibDecompressor, needs_input), Py_READONLY,
+      ZlibDecompressor_needs_input_doc},
+-- 
+2.46.1
+

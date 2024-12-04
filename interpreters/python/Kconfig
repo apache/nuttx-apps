@@ -1,0 +1,58 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETER_CPYTHON
+	tristate "CPython"
+	depends on LIB_ZLIB
+	depends on EXPERIMENTAL
+	default n
+	---help---
+		Enable the CPython port to NuttX. This is a port of the Python
+		interpreter to NuttX. Initially, it is tweaked to work with the
+		RISC-V QEMU virtual board (`rv-virt`).
+
+if INTERPRETER_CPYTHON
+
+config INTERPRETER_CPYTHON_VERSION
+	string "Python Version"
+	default "3.13.0"
+
+config INTERPRETER_CPYTHON_STACKSIZE
+	int "CPython stack size"
+	default 307200
+	---help---
+		This is the stack size allocated when the CPython task runs.
+
+config INTERPRETER_CPYTHON_PRIORITY
+	int "CPython task priority"
+	default 150
+	---help---
+		This is the priority of the CPython task.
+
+config INTERPRETER_CPYTHON_PROGNAME
+	string "CPython name"
+	default "python"
+	---help---
+		This is the name of the program that will be used from the nsh.
+
+config INTERPRETER_CPYTHON_MOUNT_MODULES_STACKSIZE
+	int "CPython's Modules Mount stack size"
+	default 4096
+	---help---
+		This is the stack size allocated when the CPython's Modules Mount task runs.
+
+config INTERPRETER_CPYTHON_MOUNT_MODULES_PRIORITY
+	int "CPython's Modules Mount task priority"
+	default 150
+	---help---
+		This is the priority of the CPython's Modules Mount task.
+
+config INTERPRETER_CPYTHON_MOUNT_MODULES_PROGNAME
+	string "CPython's Modules Mount app name"
+	default "python_mount_modules"
+	---help---
+		This is the name of the program that will be used from the nsh.
+
+endif
