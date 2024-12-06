@@ -57,6 +57,10 @@ ifeq ($(CONFIG_SYSTEM_NXDIAG_HOST_PATH),y)
 NXDIAG_FLAGS += --path
 endif
 
+ifeq ($(CONFIG_SYSTEM_NXDIAG_VERBOSE),y)
+NXDIAG_FLAGS += --verbose
+endif
+
 # Vendor-specific checks
 
 # Espressif
@@ -95,10 +99,6 @@ NXDIAG_FLAGS += --espressif_chip
 else
 NXDIAG_FLAGS += --espressif_chip_runtime
 endif
-endif
-
-ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_VERBOSE),y)
-NXDIAG_FLAGS += --espressif_verbose
 endif
 
 endif
