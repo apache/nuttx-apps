@@ -234,57 +234,61 @@ def get_espressif_hal_version(hal_dir):
     return hal_version
 
 
-def espressif_verbose(info, esp_logs):
+# Common functions #
+
+
+def verbose(info, logs):
     """
     Prepare and print information on build screen.
 
     Args:
         info (dict): Information dictionary of build system.
-        esp_logs (str): Information string of espressif specific features.
+        logs (str): Vendor specific information string.
 
     Returns:
         None.
     """
-    esp_verbose = "=" * 79 + "\n"
 
-    esp_verbose += "NuttX RTOS info: {}\n\n".format(info["OS_VERSION"])
-    if args.flags:
-        esp_verbose += "NuttX CFLAGS: {}\n\n".format(info["NUTTX_CFLAGS"])
-        esp_verbose += "NuttX CXXFLAGS: {}\n\n".format(info["NUTTX_CXXFLAGS"])
-        esp_verbose += "NuttX LDFLAGS: {}\n\n".format(info["NUTTX_LDFLAGS"])
+    if args.verbose:
 
-    if args.config:
-        esp_verbose += "NuttX configuration options: \n"
-        for i in range(len(info["NUTTX_CONFIG"])):
-            esp_verbose += "  " + info["NUTTX_CONFIG"][i].replace('"', '\\"') + "\n"
-        esp_verbose += "\n\n"
+        out_str = "\n" + "=" * 79 + "\n"
 
-    if args.path:
-        esp_verbose += "Host system PATH: \n"
-        for i in range(len(info["SYSTEM_PATH"])):
-            esp_verbose += "  " + info["SYSTEM_PATH"][i] + "\n"
-        esp_verbose += "\n\n"
+        out_str += "NuttX RTOS info: {}\n\n".format(info["OS_VERSION"])
+        if args.flags:
+            out_str += "NuttX CFLAGS: {}\n\n".format(info["NUTTX_CFLAGS"])
+            out_str += "NuttX CXXFLAGS: {}\n\n".format(info["NUTTX_CXXFLAGS"])
+            out_str += "NuttX LDFLAGS: {}\n\n".format(info["NUTTX_LDFLAGS"])
 
-    if args.packages:
-        esp_verbose += "Host system installed packages: \n"
-        for i in range(len(info["INSTALLED_PACKAGES"])):
-            esp_verbose += "  " + info["INSTALLED_PACKAGES"][i] + "\n"
-        esp_verbose += "\n\n"
+        if args.config:
+            out_str += "NuttX configuration options: \n"
+            for i in range(len(info["NUTTX_CONFIG"])):
+                out_str += "  " + info["NUTTX_CONFIG"][i].replace('"', '\\"') + "\n"
+            out_str += "\n\n"
 
-    if args.modules:
-        esp_verbose += "Host system installed python modules: \n"
-        for i in range(len(info["PYTHON_MODULES"])):
-            esp_verbose += "  " + info["PYTHON_MODULES"][i] + "\n"
-        esp_verbose += "\n\n"
+        if args.path:
+            out_str += "Host system PATH: \n"
+            for i in range(len(info["SYSTEM_PATH"])):
+                out_str += "  " + info["SYSTEM_PATH"][i] + "\n"
+            out_str += "\n\n"
 
-    esp_verbose += "Espressif specific information: \n\n"
-    esp_verbose += esp_logs
-    esp_verbose += "=" * 79 + "\n"
+        if args.packages:
+            out_str += "Host system installed packages: \n"
+            for i in range(len(info["INSTALLED_PACKAGES"])):
+                out_str += "  " + info["INSTALLED_PACKAGES"][i] + "\n"
+            out_str += "\n\n"
 
-    eprint(esp_verbose)
+        if args.modules:
+            out_str += "Host system installed python modules: \n"
+            for i in range(len(info["PYTHON_MODULES"])):
+                out_str += "  " + info["PYTHON_MODULES"][i] + "\n"
+            out_str += "\n\n"
 
+        if args.espressif:
+            out_str += "Espressif specific information: \n\n"
+            out_str += logs
+            out_str += "=" * 79 + "\n"
 
-# Common functions #
+        eprint(out_str)
 
 
 def eprint(*args, **kwargs):
@@ -519,6 +523,7 @@ def generate_header(args):
 
     info = {}
     output = ""
+    build_output = ""
 
     output += "/****************************************************************************\n"
     output += " * sysinfo.h\n"
@@ -738,11 +743,9 @@ def generate_header(args):
 
         elif args.espressif_chip_runtime:
             output += "#define ESPRESSIF_INFO_SIZE 384\n"
-            output += 'static char ESPRESSIF_INFO[ESPRESSIF_TOOLCHAIN_ARRAY_SIZE] =\n{\n  0\n};\n\n'
+            output += "static char ESPRESSIF_INFO[ESPRESSIF_TOOLCHAIN_ARRAY_SIZE] =\n{\n  0\n};\n\n"
 
-        if args.espressif_verbose:
-            espressif_verbose(info, build_output)
-
+    verbose(info, build_output)
 
     output += "#endif /* __SYSTEM_INFO_H */\n"
 
@@ -774,6 +777,8 @@ if __name__ == "__main__":
                         Get the NuttX compilation configurations used.
             -f, --flags <CFLAGS> <CXXFLAGS> <LDFLAGS>:
                         Provide the NuttX compilation flags used.
+            --verbose:
+                        Enable printing information during build.
             --espressif <ESPTOOL_BINDIR>:
                         Get Espressif specific information.
                         Requires the path to the bootloader binary directory.
@@ -784,9 +789,6 @@ if __name__ == "__main__":
                         Get Espressif specific information about chip
                         on runtime.
                         Requires device connection during build.
-            --espressif_verbose:
-                        Enable printing Espressif-specific information about
-                        chip during build.
     """
 
     # Generic arguments
@@ -833,6 +835,11 @@ if __name__ == "__main__":
         action=validate_flags_arg,
         help="Provide the NuttX compilation and linker flags used.",
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable printing information during build",
+    )
 
     # Vendor specific arguments
 
@@ -854,12 +861,6 @@ if __name__ == "__main__":
         "--espressif_chip_runtime",
         action="store_true",
         help="Get Espressif specific information about chip on runtime. Requires device connection during build.",
-    )
-
-    parser.add_argument(
-        "--espressif_verbose",
-        action="store_true",
-        help="Enable printing Espressif-specific information about chip during build",
     )
 
     # Parse arguments
