@@ -211,11 +211,12 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 
       ret = cle_fd(pstate->cn_line, nsh_prompt(), LINE_MAX,
                    INFD(pstate), OUTFD(pstate));
-      if (ret < 0)
+      if (ret == EOF)
         {
           dprintf(ERRFD(pstate), g_fmtcmdfailed, "nsh_session",
                   "cle", NSH_ERRNO_OF(-ret));
-          continue;
+          ret = EXIT_SUCCESS;
+          break;
         }
 #else
       /* Display the prompt string */
