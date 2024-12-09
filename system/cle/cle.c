@@ -316,7 +316,7 @@ static int cle_getch(FAR struct cle_s *priv)
           if (nread == 0 || errcode != EINTR)
             {
               cledbg("ERROR: read from stdin failed: %d\n", errcode);
-              return -EIO;
+              return EOF;
             }
         }
     }
@@ -372,13 +372,13 @@ static void cle_setcursor(FAR struct cle_s *priv, int16_t column)
   int len;
   int off;
 
-  /* Sub prompt offset from real postion to get correct offset to execute */
+  /* Sub prompt offset from real position to get correct offset to execute */
 
   off = column - (priv->realpos - priv->coloffs);
 
   cleinfo("column=%d offset=%d\n", column, off);
 
-  /* If cursor not move, retrun directly */
+  /* If cursor not move, return directly */
 
   if (off == 0)
     {
@@ -703,9 +703,9 @@ static int cle_editloop(FAR struct cle_s *priv)
       for (; ; )
         {
           ch = cle_getch(priv);
-          if (ch < 0)
+          if (ch == EOF)
             {
-              return -EIO;
+              return EOF;
             }
           else if (state != 0)
             {
