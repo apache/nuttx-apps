@@ -32,6 +32,30 @@ config TFLITEMICRO_TOOL
 	bool "tflite-micro cmdline tool"
 	default n
 
+config TFLITEMICRO_SYSLOG
+	bool "tflite-micro syslog backend"
+	default n
+
+if TFLITEMICRO_SYSLOG
+
+config TFLITEMICRO_SYSLOG_LEVEL
+	int "tflite-micro syslog level"
+	default 6
+	---help---
+		Syslog level mapping of tflm, This log level mapping is consistent
+		with the nuttx syslog level, please refer to syslog.h:
+
+		define LOG_EMERG     0  /* System is unusable */
+		define LOG_ALERT     1  /* Action must be taken immediately */
+		define LOG_CRIT      2  /* Critical conditions */
+		define LOG_ERR       3  /* Error conditions */
+		define LOG_WARNING   4  /* Warning conditions */
+		define LOG_NOTICE    5  /* Normal, but significant, condition */
+		define LOG_INFO      6  /* Informational message */
+		define LOG_DEBUG     7  /* Debug-level message */
+
+endif # TFLITEMICRO_SYSLOG
+
 if TFLITEMICRO_TOOL
 config TFLITEMICRO_TOOL_PRIORITY
 	int "tflite-micro tool priority"
