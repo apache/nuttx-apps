@@ -152,7 +152,7 @@ if(CONFIG_TFLITEMICRO)
       ${NUTTX_APPS_DIR}/system/flatbuffers/flatbuffers/include)
 
   if(CONFIG_MLEARNING_CMSIS_NN)
-    list(APPEND INCDIR ${NUTTX_APPS_DIR}/apps/mlearning/cmsis-nn/cmsis-nn)
+    list(APPEND INCDIR ${NUTTX_APPS_DIR}/mlearning/cmsis-nn/cmsis-nn)
   endif()
 
   # ############################################################################

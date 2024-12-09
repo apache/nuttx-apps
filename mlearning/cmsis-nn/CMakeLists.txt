@@ -69,6 +69,8 @@ if(CONFIG_MLEARNING_CMSIS_NN)
     ${CMSIS_NN_DIR}/Source/LSTMFunctions/*.c
     ${CMSIS_NN_DIR}/Source/ReshapeFunctions/*.c)
 
+  set(CMSIS_NN_INCDIR ${CMAKE_CURRENT_LIST_DIR}/cmsis-nn/Include)
+
   if(CONFIG_ARM_NEON)
     list(
       REMOVE_ITEM
@@ -86,5 +88,6 @@ if(CONFIG_MLEARNING_CMSIS_NN)
   nuttx_add_library(cmsis_nn STATIC)
   target_compile_options(cmsis_nn PRIVATE ${CFLAGS})
   target_sources(cmsis_nn PRIVATE ${CMSIS_NN_SRCS})
+  target_include_directories(cmsis_nn PUBLIC ${CMSIS_NN_INCDIR})
 
 endif()
