@@ -330,11 +330,13 @@ function(wasm_add_application)
         set(APP_INSTALL_NAME ${APP_NAME}.xip)
       endif()
     endif()
-  else()
+  endif()
+
+  if(NOT APP_INSTALL_BIN)
     set(APP_INSTALL_BIN ${APP_NAME}.wasm)
-    if(NOT APP_INSTALL_NAME)
-      set(APP_INSTALL_NAME ${APP_NAME}.wasm)
-    endif()
+  endif()
+  if(NOT APP_INSTALL_NAME)
+    set(APP_INSTALL_NAME ${APP_NAME}.wasm)
   endif()
   # install WASM BIN
   add_custom_target(
