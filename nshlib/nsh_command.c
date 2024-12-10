@@ -162,10 +162,8 @@ static const struct cmdmap_s g_cmdmap[] =
     "[<path> [<path> [<path> ...]]]"),
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
-#  ifndef CONFIG_NSH_DISABLE_CD
+#ifndef CONFIG_NSH_DISABLE_CD
   CMD_MAP("cd",       cmd_cd,       1, 2, "[<dir-path>|-|~|..]"),
-#  endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_CP
@@ -485,10 +483,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
-#  ifndef CONFIG_NSH_DISABLE_PWD
+#ifndef CONFIG_NSH_DISABLE_PWD
   CMD_MAP("pwd",      cmd_pwd,      1, 1, NULL),
-#  endif
 #endif
 
 #if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
