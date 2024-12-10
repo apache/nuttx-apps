@@ -1,12 +1,14 @@
-From b2ac42cefa3747c7f7a9066fceed834286e829af Mon Sep 17 00:00:00 2001
+From 3917fd37644948096c6bebf53e701b59fa527cf5 Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Tue, 22 Oct 2024 23:58:17 +0200
-Subject: [PATCH 01/10] workaround newlib resource.h limitations
+Subject: [PATCH 01/11] workaround newlib resource.h limitations
 
 configure script checks if resource.h is available but doesn't check
 if it defines all the necessary functions.
 
 Temporary workaround until these functions are added to IDF.
+
+Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
  Modules/faulthandler.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
