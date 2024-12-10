@@ -1,13 +1,14 @@
-From 1bb8d824a4b4e4b38c3541b7c26c5d71f0970266 Mon Sep 17 00:00:00 2001
+From ff067ccb26c91de352de362a25d87bcbabe924dc Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Wed, 23 Oct 2024 16:55:53 +0200
-Subject: [PATCH 04/10] recognize *-*-nuttx as a supported OS
+Subject: [PATCH 04/11] recognize *-*-nuttx as a supported OS
 
 cpython's configure script bails out when cross-compiling for an
 unknown OS, so we have to add "nuttx" to the list, even though it
 is not used almost anywhere else.
 
 Co-authored-by: Tiago Medicci Serrano <tiago.medicci@espressif.com>
+Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
  config.sub   | 2 +-
  configure    | 3 +++
