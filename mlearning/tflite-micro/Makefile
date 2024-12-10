@@ -78,6 +78,11 @@ CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/tflite_bridge/*.cc)
 CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/schema/*.cc)
 CXXSRCS := $(filter-out %test.cc, $(CXXSRCS))
 
+ifneq ($(CONFIG_TFLITEMICRO_SYSLOG),)
+  CXXSRCS := $(filter-out %micro_log.cc, $(CXXSRCS))
+  CXXSRCS += $(wildcard $(CURDIR)/tflm_syslog.cc)
+endif
+
 # cmsis
 ifneq ($(CONFIG_MLEARNING_CMSIS_NN),)
 COMMON_FLAGS += -DCMSIS_NN
