@@ -442,6 +442,13 @@ FAR struct console_stdio_s *nsh_newconsole(bool isctty)
       /* Initialize the input stream */
 
       INFD(pstate)               = STDIN_FILENO;
+
+      /* Initialize current working directory */
+
+#ifdef CONFIG_DISABLE_ENVIRON
+      strlcpy(pstate->cn_vtbl.cwd, CONFIG_LIBC_HOMEDIR,
+              sizeof(pstate->cn_vtbl.cwd));
+#endif
     }
 
   return pstate;

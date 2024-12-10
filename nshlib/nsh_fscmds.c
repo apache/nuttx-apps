@@ -1578,12 +1578,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
   else if (optind >= argc)
     {
-#ifndef CONFIG_DISABLE_ENVIRON
-      relpath = nsh_getcwd();
-#else
-      nsh_error(vtbl, g_fmtargrequired, argv[0]);
-      return ERROR;
-#endif
+      relpath = nsh_getcwd(vtbl);
     }
   else
     {
