@@ -293,7 +293,13 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
   lseek(blkfd, 0, SEEK_SET);
   while (offset < info.size)
     {
-      readsize = read(blkfd, swap, CONFIG_SYSTEM_COREDUMP_SWAPBUFFER_SIZE);
+      readsize = info.size - offset;
+      if (readsize > CONFIG_SYSTEM_COREDUMP_SWAPBUFFER_SIZE)
+        {
+          readsize = CONFIG_SYSTEM_COREDUMP_SWAPBUFFER_SIZE;
+        }
+
+      readsize = read(blkfd, swap, readsize);
       if (readsize < 0)
         {
           printf("Read %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
