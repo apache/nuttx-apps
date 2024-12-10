@@ -1,13 +1,14 @@
-From cd8af3cbc9881e5a4a7c0644c8844478c8d0245d Mon Sep 17 00:00:00 2001
+From 7e646549488f2d3de4cf1e04ad975625342a9218 Mon Sep 17 00:00:00 2001
 From: Eric Snow <ericsnowcurrently@gmail.com>
 Date: Tue, 13 Aug 2024 14:44:57 -0600
-Subject: [PATCH 05/10] gh-122907: Fix Builds Without HAVE_DYNAMIC_LOADING Set
+Subject: [PATCH 05/11] gh-122907: Fix Builds Without HAVE_DYNAMIC_LOADING Set
  (gh-122952)
 
 As of 529a160 (gh-118204), building with HAVE_DYNAMIC_LOADING stopped working.  This is a minimal fix just to get builds working again.  There are actually a number of long-standing deficiencies with HAVE_DYNAMIC_LOADING builds that need to be resolved separately.
 (cherry picked from commit ee1b8ce26e700350e47a5f65201097121c41912e)
 
 Co-authored-by: Eric Snow <ericsnowcurrently@gmail.com>
+Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
  Include/internal/pycore_importdl.h               |  4 ++++
  Lib/importlib/_bootstrap_external.py             | 16 ++++++++--------
