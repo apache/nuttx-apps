@@ -1,15 +1,37 @@
-From 4f6a1db85c56df378dc3856ed95a0a7342f44d89 Mon Sep 17 00:00:00 2001
+From 4191bf1e4505776efa0780ebc4fc5195a6ce79d3 Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Tue, 3 Dec 2024 17:18:50 -0300
-Subject: [PATCH 10/10] check for the d_ino member of the structure dirent
+Subject: [PATCH 10/11] check for the d_ino member of the structure dirent
 
+Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
- Modules/posixmodule.c | 18 ++++++++++++++++--
- configure             | 43 +++++++++++++++++++++++++++++++++++++++++++
- configure.ac          |  5 +++++
- pyconfig.h.in         |  3 +++
- 4 files changed, 67 insertions(+), 2 deletions(-)
+ Modules/clinic/posixmodule.c.h |  2 ++
+ Modules/posixmodule.c          | 18 ++++++++++++--
+ configure                      | 43 ++++++++++++++++++++++++++++++++++
+ configure.ac                   |  5 ++++
+ pyconfig.h.in                  |  3 +++
+ 5 files changed, 69 insertions(+), 2 deletions(-)
 
+diff --git a/Modules/clinic/posixmodule.c.h b/Modules/clinic/posixmodule.c.h
+index 14a6efb9ac9..6e716f77db8 100644
+--- a/Modules/clinic/posixmodule.c.h
++++ b/Modules/clinic/posixmodule.c.h
+@@ -11652,6 +11652,7 @@ PyDoc_STRVAR(os_DirEntry_inode__doc__,
+ #define OS_DIRENTRY_INODE_METHODDEF    \
+     {"inode", (PyCFunction)os_DirEntry_inode, METH_NOARGS, os_DirEntry_inode__doc__},
+ 
++#ifdef HAVE_DIRENT_D_INO
+ static PyObject *
+ os_DirEntry_inode_impl(DirEntry *self);
+ 
+@@ -11660,6 +11661,7 @@ os_DirEntry_inode(DirEntry *self, PyObject *Py_UNUSED(ignored))
+ {
+     return os_DirEntry_inode_impl(self);
+ }
++#endif
+ 
+ PyDoc_STRVAR(os_DirEntry___fspath____doc__,
+ "__fspath__($self, /)\n"
 diff --git a/Modules/posixmodule.c b/Modules/posixmodule.c
 index 51e34b5f4b7..2aa507aa942 100644
 --- a/Modules/posixmodule.c

@@ -1,7 +1,7 @@
-From 4af7a9b726ca2c8ac330b51f98acf0a103f6fa71 Mon Sep 17 00:00:00 2001
+From dcc6b2b6aa396f96e7c9efe3e793d96c7004ef4f Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Wed, 23 Oct 2024 16:54:39 +0200
-Subject: [PATCH 03/10] reuse wasm_assets.py for generating an archive of
+Subject: [PATCH 03/11] reuse wasm_assets.py for generating an archive of
  python lib dir
 
 wasm_assets.py is a useful script to prepare the smallest possible
@@ -12,6 +12,7 @@ This patch adds nuttx to the supported OS list in the script, as well
 as fixes what I think is a bug in path calculation.
 
 Co-authored-by: Tiago Medicci Serrano <tiago.medicci@espressif.com>
+Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
  Tools/wasm/wasm_assets.py | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)

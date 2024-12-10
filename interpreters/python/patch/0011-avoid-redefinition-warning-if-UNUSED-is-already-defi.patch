@@ -1,0 +1,26 @@
+From b82ab44e498a9e9bcdcbbfa1d6161023d8ea8c5b Mon Sep 17 00:00:00 2001
+From: Tiago Medicci <tiago.medicci@espressif.com>
+Date: Tue, 10 Dec 2024 12:03:47 -0300
+Subject: [PATCH 11/11] avoid redefinition warning if UNUSED is already defined
+
+---
+ Parser/pegen.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Parser/pegen.h b/Parser/pegen.h
+index 32c64e7774b..42574456f23 100644
+--- a/Parser/pegen.h
++++ b/Parser/pegen.h
+@@ -250,7 +250,9 @@ void * _PyPegen_seq_last_item(asdl_seq *seq);
+ #define PyPegen_last_item(seq, type) ((type)_PyPegen_seq_last_item((asdl_seq*)seq))
+ void * _PyPegen_seq_first_item(asdl_seq *seq);
+ #define PyPegen_first_item(seq, type) ((type)_PyPegen_seq_first_item((asdl_seq*)seq))
++#ifndef UNUSED
+ #define UNUSED(expr) do { (void)(expr); } while (0)
++#endif
+ #define EXTRA_EXPR(head, tail) head->lineno, (head)->col_offset, (tail)->end_lineno, (tail)->end_col_offset, p->arena
+ #define EXTRA _start_lineno, _start_col_offset, _end_lineno, _end_col_offset, p->arena
+ PyObject *_PyPegen_new_type_comment(Parser *, const char *);
+-- 
+2.46.1
+

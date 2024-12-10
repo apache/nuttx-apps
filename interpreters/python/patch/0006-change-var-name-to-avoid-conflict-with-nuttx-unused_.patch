@@ -1,9 +1,10 @@
-From d424766bff74fb34a80a09c6e2ed8d9b40350bb8 Mon Sep 17 00:00:00 2001
+From 82a3c7c021324e4245289c565b2d379b83ed4be3 Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Wed, 13 Nov 2024 14:20:36 -0300
-Subject: [PATCH 06/10] change var name to avoid conflict with nuttx
+Subject: [PATCH 06/11] change var name to avoid conflict with nuttx
  unused_data macro
 
+Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
  Modules/zlibmodule.c | 42 +++++++++++++++++++++---------------------
  1 file changed, 21 insertions(+), 21 deletions(-)

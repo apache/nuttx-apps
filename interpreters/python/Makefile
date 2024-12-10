@@ -43,6 +43,18 @@ TARGETLIBPYTHON=$(TARGETINSTALL)/libpython$(CPYTHON_VERSION_MINOR).a
 TARGETMODULESPACK=$(TARGETBUILD)/lib/python$(shell echo $(CPYTHON_VERSION_MINOR) | tr -d .).zip
 TARGETMODULES=$(TARGETINSTALL)/lib/
 
+CFLAGS += ${INCDIR_PREFIX}$(CPYTHON_PATH)$(DELIM)Include
+CFLAGS += ${INCDIR_PREFIX}$(CPYTHON_PATH)$(DELIM)Test
+CFLAGS += ${INCDIR_PREFIX}$(CPYTHON_PATH)$(DELIM)Include$(DELIM)internal
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system$(DELIM)zlib$(DELIM)zlib
+CFLAGS += ${INCDIR_PREFIX}$(TARGETBUILD)
+CFLAGS += -Wno-shadow -Wno-undef -Wno-format -Wno-builtin-macro-redefined
+CFLAGS += -Wno-type-limits -Wno-implicit-fallthrough -Wno-char-subscripts
+CFLAGS += -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function
+CFLAGS += -Wno-unused-variable -Wno-overflow -Wno-unused-but-set-variable
+CFLAGS += -Wno-strict-prototypes
+
 DEPPATH += --dep-path $(CPYTHON_UNPACKNAME)$(DELIM)Programs
 VPATH   += :$(CPYTHON_UNPACKNAME)$(DELIM)Programs
 
@@ -65,6 +77,7 @@ $(CPYTHON_UNPACKNAME): $(CPYTHON_ZIP)
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0008-declare-struct-timeval.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0009-include-nuttx-sys-select-header-to-define-FD_SETSIZE.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0010-check-for-the-d_ino-member-of-the-structure-dirent.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0011-avoid-redefinition-warning-if-UNUSED-is-already-defi.patch
 
 $(HOSTPYTHON):
 	mkdir -p $(HOSTBUILD)
@@ -122,13 +135,6 @@ $(TARGETLIBPYTHON): $(TARGETBUILD)/Makefile
 	$(MAKE) -C $(TARGETBUILD) libpython$(CPYTHON_VERSION_MINOR).a wasm_stdlib
 	$(Q) ( cp $(TARGETBUILD)/libpython$(CPYTHON_VERSION_MINOR).a $(TARGETLIBPYTHON) )
 	$(Q) $(UNPACK) $(TARGETMODULESPACK) -d $(TARGETMODULES)/python$(CPYTHON_VERSION_MINOR)
-
-CFLAGS += ${INCDIR_PREFIX}$(CPYTHON_PATH)$(DELIM)Include
-CFLAGS += ${INCDIR_PREFIX}$(CPYTHON_PATH)$(DELIM)Test
-CFLAGS += ${INCDIR_PREFIX}$(CPYTHON_PATH)$(DELIM)Include$(DELIM)internal
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system$(DELIM)zlib$(DELIM)zlib
-CFLAGS += ${INCDIR_PREFIX}$(TARGETBUILD)
 
 MODULE    = $(CONFIG_INTERPRETER_CPYTHON)
 
