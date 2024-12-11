@@ -39,6 +39,15 @@
 #include <stdbool.h>
 #include <syslog.h>
 #include <inttypes.h>
+#include <unistd.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifndef CONFIG_UORB_LOOP_MAX_EVENTS
+#  define CONFIG_UORB_LOOP_MAX_EVENTS 0
+#endif
 
 /****************************************************************************
  * Public Types
@@ -94,14 +103,6 @@ enum orb_loop_type_e
   ORB_EPOLL_TYPE = 0,
 };
 
-struct orb_loop_ops_s;
-struct orb_loop_s
-{
-  FAR const struct orb_loop_ops_s *ops;      /* Loop handle ops. */
-  bool                             running;  /* uORB loop is running flag. */
-  int                              fd;       /* Loop fd. */
-};
-
 struct orb_handle_s
 {
   int                events;      /* Events of interest. */
@@ -111,6 +112,16 @@ struct orb_handle_s
   orb_dataout_cb_t   dataout_cb;  /* User EPOLLOUT callback funtion. */
   orb_eventpri_cb_t  eventpri_cb; /* User EPOLLPRI callback funtion. */
   orb_eventerr_cb_t  eventerr_cb; /* User EPOLLERR callback funtion. */
+};
+
+struct orb_loop_ops_s;
+struct orb_loop_s
+{
+  FAR const struct orb_loop_ops_s *ops;         /* Loop handle ops. */
+  bool                             running;     /* uORB loop is running flag. */
+  int                              fd;          /* Loop fd. */
+  struct orb_handle_s              exit_handle; /* The exit handle */
+  pid_t                            self;        /* The pid of the loop */
 };
 #endif
 
