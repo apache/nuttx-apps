@@ -25,6 +25,11 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <sys/poll.h>
+#include <unistd.h>
+#include <sys/eventfd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 #include "internal.h"
 
@@ -35,6 +40,7 @@
 int orb_loop_init(FAR struct orb_loop_s *loop, enum orb_loop_type_e type)
 {
   int ret = -EINVAL;
+  int fd;
 
   if (loop == NULL)
     {
@@ -57,20 +63,65 @@ int orb_loop_init(FAR struct orb_loop_s *loop, enum orb_loop_type_e type)
     {
       uorberr("loop init failed! ret:%d", ret);
       loop->ops = NULL;
+      return ret;
     }
 
+  fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+  if (fd < 0)
+    {
+      ret = -errno;
+      uorberr("loop init eventfd failed! ret:%d", ret);
+      goto err_event;
+    }
+
+  ret = orb_handle_init(&loop->exit_handle, fd, POLLIN, loop,
+                        NULL, NULL, NULL, NULL);
+  if (ret < 0)
+    {
+      uorberr("loop init eventfd handle init failed! ret:%d", ret);
+      goto err_init;
+    }
+
+  ret = orb_handle_start(loop, &loop->exit_handle);
+  if (ret < 0)
+    {
+      uorberr("loop init eventfd handle start failed! ret:%d", ret);
+      goto err_init;
+    }
+
+  return ret;
+
+err_init:
+  close(fd);
+err_event:
+  orb_loop_deinit(loop);
   return ret;
 }
 
 int orb_loop_run(FAR struct orb_loop_s *loop)
 {
+  loop->self = gettid();
   return loop->ops->run(loop);
 }
 
 int orb_loop_deinit(FAR struct orb_loop_s *loop)
 {
+  eventfd_t exit = 1;
   int ret;
 
+  loop->running = false;
+  write(loop->exit_handle.fd, &exit, sizeof(exit));
+
+  if (gettid() != loop->self)
+    {
+      ret = waitpid(loop->self, &ret, 0);
+      if (ret < 0)
+        {
+          uorberr("loop deinit waitpid failed! ret:%d", -errno);
+        }
+    }
+
+  close(loop->exit_handle.fd);
   ret = loop->ops->uninit(loop);
   if (ret >= 0)
     {
