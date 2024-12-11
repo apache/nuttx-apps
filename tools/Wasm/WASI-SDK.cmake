@@ -63,6 +63,7 @@ endif()
 
 add_compile_options(--sysroot=${TOPDIR})
 add_compile_options(-nostdlib)
+add_link_options(-nostdlib)
 add_compile_options(-D__NuttX__)
 
 if(NOT CONFIG_LIBM)
@@ -147,7 +148,7 @@ function(wasm_add_application)
   target_link_options(${APP_NAME} PRIVATE -z stack-size=${APP_STACK_SIZE})
   target_link_options(${APP_NAME} PRIVATE
                       -Wl,--initial-memory=${APP_INITIAL_MEMORY_SIZE})
-  target_link_options(${APP_NAME} PRIVATE ${APP_WLD_FLAGS})
+  target_link_options(${APP_NAME} PRIVATE ${APP_WLDFLAGS})
 
   target_link_libraries(${APP_NAME} PRIVATE ${WCC_COMPILER_RT_LIB})
   # Set the target properties
