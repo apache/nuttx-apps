@@ -49,9 +49,12 @@
 
 #ifndef CONFIG_DISABLE_ENVIRON
 static const char g_pwd[]    = "PWD";
-#ifndef CONFIG_NSH_DISABLE_CD
+#  ifndef CONFIG_NSH_DISABLE_CD
 static const char g_oldpwd[] = "OLDPWD";
+#  endif
 #endif
+
+#if !defined(CONFIG_NSH_DISABLE_CD) || !defined(CONFIG_DISABLE_ENVIRON)
 static const char g_home[]   = CONFIG_LIBC_HOMEDIR;
 #endif
 
@@ -169,12 +172,14 @@ static int nsh_dumpvar(FAR struct nsh_vtbl_s *vtbl, FAR void *arg,
  * Name: nsh_getwd
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
-FAR const char *nsh_getcwd(void)
+FAR const char *nsh_getcwd(FAR struct nsh_vtbl_s *vtbl)
 {
+#ifndef CONFIG_DISABLE_ENVIRON
   return nsh_getwd(g_pwd);
-}
+#else
+  return vtbl->cwd;
 #endif
+}
 
 /****************************************************************************
  * Name: nsh_getfullpath
@@ -201,7 +206,7 @@ FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
 
   /* Get the path to the current working directory */
 
-  wd = nsh_getcwd();
+  wd = nsh_getcwd(vtbl);
 
   /* Fake the '.' directory */
 
@@ -214,13 +219,11 @@ FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
 
   return nsh_getdirpath(vtbl, wd, relpath);
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_freefullpath
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
 void nsh_freefullpath(FAR char *fullpath)
 {
   if (fullpath)
@@ -228,13 +231,12 @@ void nsh_freefullpath(FAR char *fullpath)
       free(fullpath);
     }
 }
-#endif
+#endif /* CONFIG_DISABLE_ENVIRON */
 
 /****************************************************************************
  * Name: cmd_cd
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_CD
 int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
@@ -249,14 +251,16 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       path = g_home;
     }
+#ifndef CONFIG_DISABLE_ENVIRON
   else if (strcmp(path, "-") == 0)
     {
       alloc = strdup(nsh_getwd(g_oldpwd));
       path  = alloc;
     }
+#endif
   else if (strcmp(path, "..") == 0)
     {
-      alloc = strdup(nsh_getcwd());
+      alloc = strdup(nsh_getcwd(vtbl));
       path  = dirname(alloc);
     }
   else
@@ -273,6 +277,12 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
       ret = ERROR;
     }
+#ifdef CONFIG_DISABLE_ENVIRON
+  else
+    {
+      strlcpy(vtbl->cwd, path, sizeof(vtbl->cwd));
+    }
+#endif
 
   /* Free any memory that was allocated */
 
@@ -288,7 +298,6 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   return ret;
 }
-#endif
 #endif
 
 /****************************************************************************
@@ -394,17 +403,15 @@ int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  * Name: cmd_pwd
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_PWD
 int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   UNUSED(argc);
   UNUSED(argv);
 
-  nsh_output(vtbl, "%s\n", nsh_getcwd());
+  nsh_output(vtbl, "%s\n", nsh_getcwd(vtbl));
   return OK;
 }
-#endif
 #endif
 
 /****************************************************************************

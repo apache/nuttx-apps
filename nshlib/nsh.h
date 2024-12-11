@@ -867,10 +867,10 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char **argv, FAR const struct nsh_param_s *param);
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
 /* Working directory support */
 
-FAR const char *nsh_getcwd(void);
+FAR const char *nsh_getcwd(FAR struct nsh_vtbl_s *vtbl);
+#ifndef CONFIG_DISABLE_ENVIRON
 FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
                           FAR const char *relpath);
 void nsh_freefullpath(FAR char *fullpath);
@@ -1071,14 +1071,12 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  endif
 #endif /* !CONFIG_DISABLE_MOUNTPOINT */
 
-#if !defined(CONFIG_DISABLE_ENVIRON)
-#  ifndef CONFIG_NSH_DISABLE_CD
+#ifndef CONFIG_NSH_DISABLE_CD
   int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
-#  endif
-#  ifndef CONFIG_NSH_DISABLE_PWD
+#endif
+#ifndef CONFIG_NSH_DISABLE_PWD
   int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
-#  endif
-#endif /* !CONFIG_DISABLE_MOUNTPOINT */
+#endif
 
 #ifndef CONFIG_NSH_DISABLE_ENV
   int cmd_env(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);

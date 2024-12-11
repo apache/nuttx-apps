@@ -150,6 +150,12 @@ struct nsh_vtbl_s
   /* Ctrl tty or not */
 
   bool isctty;
+
+  /* Current working directory */
+
+#ifdef CONFIG_DISABLE_ENVIRON
+  char cwd[PATH_MAX];
+#endif
 };
 
 /* This structure describes a console front-end that is based on stdin and
