@@ -152,16 +152,18 @@ static void parse_commandline(int argc, FAR char **argv,
             OPTARG_TO_VALUE(info->src, const void *, 16);
             if (((uintptr_t)info->src & ALIGN_MASK) != 0)
               {
-                printf(RAMSPEED_PREFIX "<read-adress> must align\n");
+                printf(RAMSPEED_PREFIX "<read-adress> must align %p\n",
+                       info->src);
                 exit(EXIT_FAILURE);
               }
 
             break;
           case 'w':
             OPTARG_TO_VALUE(info->dest, void *, 16);
-            if (((uintptr_t)info->src & ALIGN_MASK) != 0)
+            if (((uintptr_t)info->dest & ALIGN_MASK) != 0)
               {
-                printf(RAMSPEED_PREFIX "<write-adress> must align\n");
+                printf(RAMSPEED_PREFIX "<write-adress> must align %p\n",
+                       info->dest);
                 exit(EXIT_FAILURE);
               }
             break;
