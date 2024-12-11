@@ -200,5 +200,6 @@ int main(int argc, FAR char *argv[])
       gcov_dump(path, strip);
     }
 
+  printf("Gcov dump complete\n");
   return 0;
 }
