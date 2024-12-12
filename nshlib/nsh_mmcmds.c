@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <stdio.h>
 #include <string.h>
 
 #include "nsh.h"
@@ -58,8 +59,17 @@ int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
 int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  char arg[LINE_MAX] = "";
+  FAR char *arg;
+  int ret;
   int i;
+
+  arg = lib_get_tempbuffer(LINE_MAX);
+  if (arg == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  arg[0] = '\0';
 
   if (argc == 1)
     {
@@ -68,8 +78,10 @@ int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   else if (argc >= 2 && (strcmp(argv[1], "-h") == 0 ||
                          strcmp(argv[1], "help") == 0))
     {
-      return nsh_catfile(vtbl, argv[0],
-                         CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
+      ret = nsh_catfile(vtbl, argv[0],
+                        CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
+      lib_put_tempbuffer(arg);
+      return ret;
     }
   else
     {
@@ -83,8 +95,10 @@ int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         }
     }
 
-  return nsh_writefile(vtbl, argv[0], arg, strlen(arg),
-                       CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
+  ret = nsh_writefile(vtbl, argv[0], arg, strlen(arg),
+                      CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
+  lib_put_tempbuffer(arg);
+  return ret;
 }
 
 #endif /* !CONFIG_NSH_DISABLE_MEMDUMP && NSH_HAVE_WRITEFILE */
