@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/audio/audio.h>
+#include <nuttx/lib/lib.h>
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -553,7 +554,7 @@ static int nxrecorder_cmd_help(FAR struct nxrecorder_s *precorder,
 
 int main(int argc, FAR char *argv[])
 {
-  char                    buffer[LINE_MAX];
+  FAR char               *buffer;
   int                     len;
   int                     x;
   int                     running;
@@ -574,6 +575,14 @@ int main(int argc, FAR char *argv[])
       return -ENOMEM;
     }
 
+  buffer = lib_get_tempbuffer(LINE_MAX);
+  if (buffer == NULL)
+    {
+      nxrecorder_release(precorder);
+      printf("Error: lib_get_tempbuffer failed\n");
+      return -ENOMEM;
+    }
+
   /* Loop until the user exits */
 
   running = TRUE;
@@ -586,7 +595,7 @@ int main(int argc, FAR char *argv[])
 
       /* Read a line from the terminal */
 
-      len = readline_stream(buffer, sizeof(buffer),
+      len = readline_stream(buffer, LINE_MAX,
                             stdin, stdout);
       if (len > 0)
         {
@@ -655,6 +664,7 @@ int main(int argc, FAR char *argv[])
   /* Release the NxRecorder context */
 
   nxrecorder_release(precorder);
+  lib_put_tempbuffer(buffer);
 
   return OK;
 }

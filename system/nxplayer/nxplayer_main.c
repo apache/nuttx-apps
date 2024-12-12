@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/audio/audio.h>
+#include <nuttx/lib/lib.h>
 
 #include <inttypes.h>
 #include <sys/types.h>
@@ -802,7 +803,7 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pplayer, char *parg)
 
 int main(int argc, FAR char *argv[])
 {
-  char                    buffer[LINE_MAX];
+  FAR char               *buffer;
   int                     len;
   int                     x;
   int                     running;
@@ -823,6 +824,14 @@ int main(int argc, FAR char *argv[])
       return -ENOMEM;
     }
 
+  buffer = lib_get_tempbuffer(LINE_MAX);
+  if (buffer == NULL)
+    {
+      nxplayer_release(pplayer);
+      printf("Error: lib_get_tempbuffer failed\n");
+      return -ENOMEM;
+    }
+
   /* Loop until the user exits */
 
   running = TRUE;
@@ -835,7 +844,7 @@ int main(int argc, FAR char *argv[])
 
       /* Read a line from the terminal */
 
-      len = readline_stream(buffer, sizeof(buffer),
+      len = readline_stream(buffer, LINE_MAX,
                             stdin, stdout);
       if (len > 0)
         {
@@ -904,6 +913,7 @@ int main(int argc, FAR char *argv[])
   /* Release the NxPlayer context */
 
   nxplayer_release(pplayer);
+  lib_put_tempbuffer(buffer);
 
   return OK;
 }
