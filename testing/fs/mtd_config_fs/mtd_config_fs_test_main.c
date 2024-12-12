@@ -168,7 +168,7 @@ static int write_corrupted_close_ate(int mtd_fd,
   int ret;
 
   memset(close_ate, ctx->erasestate, ate_size);
-  close_ate->id = 0xffffffff;
+  close_ate->id = ctx->erasestate;
   close_ate->len = 0U;
 
   ret = write(mtd_fd, &close_ate, ate_size);
@@ -196,7 +196,7 @@ static int write_close_ate(int mtd_fd, FAR struct mtdnvs_ctx_s *ctx,
   int ret;
 
   memset(close_ate, ctx->erasestate, ate_size);
-  close_ate->id = 0xffffffff;
+  close_ate->id = ctx->erasestate;
   close_ate->len = 0U;
   close_ate->offset = offset;
   fill_crc8_update(close_ate);
@@ -225,7 +225,7 @@ static int write_gc_done_ate(int mtd_fd, FAR struct mtdnvs_ctx_s *ctx)
   int ret;
 
   memset(gc_done_ate, ctx->erasestate, ate_size);
-  gc_done_ate->id = 0xffffffff;
+  gc_done_ate->id = ctx->erasestate;
   gc_done_ate->len = 0U;
   fill_crc8_update(gc_done_ate);
 
@@ -261,8 +261,8 @@ static int write_ate(int mtd_fd, FAR struct mtdnvs_ctx_s *ctx,
   ate->offset = offset;
   ate->key_len = strlen(key) + 1;
   fill_crc8_update(ate);
-  ate->expired[nvs_align_up(ctx, sizeof(struct nvs_ate))]
-    = expired ? 0x7f : 0xff;
+  ate->expired[nvs_align_up(ctx, sizeof(ate)) - sizeof(ate)]
+    = expired ? ~ctx->erasestate : ctx->erasestate;
 
   ret = write(mtd_fd, ate, ate_size);
   if (ret != ate_size)
