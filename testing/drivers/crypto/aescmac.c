@@ -132,6 +132,19 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   memset(&cryp, 0, sizeof(cryp));
   cryp.ses = session.ses;
   cryp.op = COP_ENCRYPT;
+
+  if (len > 0)
+    {
+      cryp.flags |= COP_FLAG_UPDATE;
+      cryp.len = len;
+      cryp.src = (caddr_t)message;
+      if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
+        {
+          perror("CIOCCRYPT");
+          goto err;
+        }
+    }
+
   cryp.flags = 0;
   cryp.len = len;
   cryp.src = (caddr_t)message;
