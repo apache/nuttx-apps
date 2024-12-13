@@ -56,7 +56,7 @@ static bool notectl_enable(FAR const char *name, int flag, int notectlfd)
   int oldflag;
 
   strlcpy(mode.name, name, NAME_MAX);
-  ioctl(notectlfd, NOTE_GETMODE, (unsigned long)&mode);
+  ioctl(notectlfd, NOTE_GETFILTER, (unsigned long)&mode);
 
   oldflag = (mode.mode.flag & NOTE_FILTER_MODE_FLAG_ENABLE) != 0;
   if (flag == oldflag)
@@ -75,7 +75,7 @@ static bool notectl_enable(FAR const char *name, int flag, int notectlfd)
       mode.mode.flag &= ~NOTE_FILTER_MODE_FLAG_ENABLE;
     }
 
-  ioctl(notectlfd, NOTE_SETMODE, (unsigned long)&mode);
+  ioctl(notectlfd, NOTE_SETFILTER, (unsigned long)&mode);
 
   return true;
 }
