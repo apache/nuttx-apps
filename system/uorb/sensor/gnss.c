@@ -69,6 +69,7 @@ static const char sensor_gnss_measurement_format[] =
 static const char sensor_gnss_satellite_format[] =
   "timestamp:%" PRIu64 ",count:%" PRIu32 ",satellites:%" PRIu32 ","
   "constellation:%" PRIu32 ""
+  ",cf:%hf"
   SENSOR_GNSS_SATELLITE_INFO_FORMAT(0)
   SENSOR_GNSS_SATELLITE_INFO_FORMAT(1)
   SENSOR_GNSS_SATELLITE_INFO_FORMAT(2)
