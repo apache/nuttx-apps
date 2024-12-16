@@ -29,10 +29,21 @@
  ****************************************************************************/
 
 #ifdef CONFIG_DEBUG_UORB
-#define UORB_DEBUG_FORMAT_SENSOR_GNSS \
-  "timestamp:%" PRIu64 ",time_utc:%" PRIu64 ",latitude:%hf,longitude:%hf," \
-  "altitude:%hf,altitude_ellipsoid:%hf,eph:%hf,epv:%hf,hdop:%hf,pdop:%hf," \
-  "vdop:%hf,ground_speed:%hf,course:%hf,satellites_used:%" PRIu32 ""
+#define UORB_DEBUG_FORMAT_SENSOR_GNSS     \
+  "timestamp:%" PRIu64                    \
+  ",time_utc:%" PRIu64                    \
+  ",latitude:%hf"                         \
+  ",longitude:%hf"                        \
+  ",altitude:%hf"                         \
+  ",altitude_ellipsoid:%hf"               \
+  ",eph:%hf"                              \
+  ",epv:%hf"                              \
+  ",hdop:%hf"                             \
+  ",pdop:%hf"                             \
+  ",vdop:%hf"                             \
+  ",ground_speed:%hf"                     \
+  ",course:%hf"                           \
+  ",satellites_used:%" PRIu32 ""
 
 #define SENSOR_GNSS_SATELLITE_INFO_FORMAT(idx) \
   ",svid" #idx ":%" PRIu32 \
