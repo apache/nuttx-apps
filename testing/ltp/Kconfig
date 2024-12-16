@@ -13,6 +13,6 @@ if TESTING_LTP
 
 config TESTING_LTP_STACKSIZE
 	int "Linux Test Project stack size"
-	default 4096
+	default 8192
 
 endif #TESTING_LTP
