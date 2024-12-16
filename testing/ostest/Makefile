@@ -58,6 +58,10 @@ ifneq ($(CONFIG_TLS_NELEM),0)
 CSRCS += tls.c
 endif
 
+ifeq ($(CONFIG_SCHED_THREAD_LOCAL),y)
+CSRCS += sched_thread_local.c
+endif
+
 ifeq ($(CONFIG_TESTING_OSTEST_AIO),y)
 CSRCS += aio.c
 endif
