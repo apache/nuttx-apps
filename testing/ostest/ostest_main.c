@@ -313,6 +313,14 @@ static int user_main(int argc, char *argv[])
   check_test_memory_usage();
 #endif
 
+#ifdef CONFIG_SCHED_THREAD_LOCAL
+  /* Test __thread/thread_local keyword */
+
+  printf("\nuser_main: sched_thread_local test\n");
+  sched_thread_local_test();
+  check_test_memory_usage();
+#endif
+
   /* Top of test loop */
 
 #if CONFIG_TESTING_OSTEST_LOOPS > 1

@@ -234,6 +234,10 @@ void sporadic2_test(void);
 
 void tls_test(void);
 
+/* sched_thread_local.c *****************************************************/
+
+void sched_thread_local_test(void);
+
 /* pthread_rwlock.c *********************************************************/
 
 void pthread_rwlock_test(void);
