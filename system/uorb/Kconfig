@@ -28,7 +28,7 @@ config UORB_TESTS
 
 config UORB_LOOP_MAX_EVENTS
 	int "uorb loop max events"
-	default 16
+	default 0
 
 if UORB_TESTS
 

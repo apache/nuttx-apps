@@ -88,6 +88,7 @@ typedef CODE int (*orb_eventpri_cb_t)(FAR struct orb_handle_s *handle,
 typedef CODE int (*orb_eventerr_cb_t)(FAR struct orb_handle_s *handle,
                                       FAR void *arg);
 
+#if CONFIG_UORB_LOOP_MAX_EVENTS
 enum orb_loop_type_e
 {
   ORB_EPOLL_TYPE = 0,
@@ -111,6 +112,7 @@ struct orb_handle_s
   orb_eventpri_cb_t  eventpri_cb; /* User EPOLLPRI callback funtion. */
   orb_eventerr_cb_t  eventerr_cb; /* User EPOLLERR callback funtion. */
 };
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -896,6 +898,7 @@ int orb_fprintf(FAR FILE *stream, FAR const char *format,
                 FAR const void *data);
 #endif
 
+#if CONFIG_UORB_LOOP_MAX_EVENTS
 /****************************************************************************
  * Name: orb_loop_init
  *
@@ -1003,6 +1006,7 @@ int orb_handle_start(FAR struct orb_loop_s *loop,
 
 int orb_handle_stop(FAR struct orb_loop_s *loop,
                     FAR struct orb_handle_s *handle);
+#endif
 
 #ifdef __cplusplus
 }
