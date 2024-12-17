@@ -564,6 +564,13 @@ config NSH_DISABLE_PSSTACKUSAGE
 	---help---
 		Disable to save space and not pull in floating point routines
 
+config NSH_DISABLE_PSSIGMASK
+	bool "Disable ps sigmask"
+	depends on !NSH_DISABLE_PS
+	default DEFAULT_SMALL
+	---help---
+		Disable sigmask print from ps
+
 config NSH_DISABLE_PUT
 	bool "Disable put"
 	default DEFAULT_SMALL
