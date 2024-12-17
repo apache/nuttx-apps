@@ -49,4 +49,19 @@ config CM_PTHREAD_TEST
 	default n
 	depends on TESTS_TESTSUITES
 
+config CM_SOCKET_TEST
+    bool "enbale socket test"
+    default n
+    depends on TESTS_TESTSUITES
+
+config CM_SYSCALL_TEST
+    bool "enbale syscall test"
+    default n
+    depends on TESTS_TESTSUITES
+
+config CM_MUTEX_TEST
+    bool "enbale mutex test"
+    default n
+    depends on TESTS_TESTSUITES
+
 endif # TESTS_TESTSUITES
