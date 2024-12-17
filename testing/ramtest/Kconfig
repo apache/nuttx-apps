@@ -20,7 +20,7 @@ config TESTING_RAMTEST_PROGNAME
 
 config TESTING_RAMTEST_PRIORITY
 	int "RAM test task priority"
-	default 100
+	default 90
 
 config TESTING_RAMTEST_STACKSIZE
 	int "RAM test stack size"
