@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/fs/cases/fs_stat_test.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <string.h>
@@ -51,10 +53,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_print_time
+ * Name: test_nuttx_fs_printtime
  ****************************************************************************/
 
-__attribute__((unused)) static void test_nuttx_fs_print_time(struct tm *TM)
+__attribute__((unused)) static void test_nuttx_fs_printtime(struct tm *TM)
 {
   syslog(LOG_INFO, "    tm_year: %d\n", TM->tm_year + 1900);
   syslog(LOG_INFO, "    tm_mon: %d\n", TM->tm_mon);
@@ -78,7 +80,8 @@ void test_nuttx_fs_stat01(FAR void **state)
   int ret;
   int ret2;
   struct stat file_s;
-  char buf[BUF_SIZE] = {
+  char buf[BUF_SIZE] =
+  {
     0
   };
 

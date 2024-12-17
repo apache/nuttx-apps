@@ -69,4 +69,28 @@ PROGNAME += cmocka_pthread_test
 MAINSRC += $(CURDIR)/kernel/pthread/cmocka_pthread_test.c
 endif
 
+ifneq ($(CONFIG_CM_MUTEX_TEST),)
+CFLAGS += -I$(CURDIR)/kernel/mutex/include
+CSRCS += $(wildcard kernel/mutex/cases/*.c)
+CSRCS += $(wildcard kernel/mutex/common/*.c)
+PROGNAME += cmocka_mutex_test
+MAINSRC += $(CURDIR)/kernel/mutex/cmocka_mutex_test.c
+endif
+
+ifneq ($(CONFIG_CM_SOCKET_TEST),)
+CFLAGS += -I$(CURDIR)/kernel/socket/include
+CSRCS += $(wildcard kernel/socket/cases/*.c)
+PROGNAME += cmocka_socket_test
+MAINSRC += $(CURDIR)/kernel/socket/cmocka_socket_test.c
+endif
+
+ifneq ($(CONFIG_CM_SYSCALL_TEST),)
+CFLAGS += -I$(CURDIR)/kernel/syscall/include
+CFLAGS += -I$(APPDIR)/nshlib
+CSRCS += $(wildcard kernel/syscall/cases/*.c)
+CSRCS += $(wildcard kernel/syscall/common/*.c)
+PROGNAME += cmocka_syscall_test
+MAINSRC += $(CURDIR)/kernel/syscall/cmocka_syscall_test.c
+endif
+
 include $(APPDIR)/Application.mk

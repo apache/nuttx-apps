@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/fs/cases/fs_fstatfs_test.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
@@ -44,23 +46,26 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_print_statfs
+ * Name: test_nuttx_fs_printstatfs
  ****************************************************************************/
 
-__attribute__((unused)) static void test_nuttx_fs_print_statfs
-                                                        (struct statfs *buf)
+__attribute__((unused)) static void
+test_nuttx_fs_printstatfs(struct statfs *buf)
 {
   syslog(LOG_INFO, "statfs buffer:\n");
   syslog(LOG_INFO, "  f_type:     %lu\n", (unsigned long)buf->f_type);
   syslog(LOG_INFO, "  f_namelen:  %lu\n", (unsigned long)buf->f_namelen);
   syslog(LOG_INFO, "  f_bsize:    %lu\n", (unsigned long)buf->f_bsize);
   syslog(LOG_INFO, "  f_blocks:   %llu\n",
-                      (unsigned long long)buf->f_blocks);
-  syslog(LOG_INFO, "  f_bfree:    %llu\n", (unsigned long long)buf->f_bfree);
+         (unsigned long long)buf->f_blocks);
+  syslog(LOG_INFO, "  f_bfree:    %llu\n",
+         (unsigned long long)buf->f_bfree);
   syslog(LOG_INFO, "  f_bavail:   %llu\n",
-                      (unsigned long long)buf->f_bavail);
-  syslog(LOG_INFO, "  f_files:    %llu\n", (unsigned long long)buf->f_files);
-  syslog(LOG_INFO, "  f_ffree:    %llu\n", (unsigned long long)buf->f_ffree);
+         (unsigned long long)buf->f_bavail);
+  syslog(LOG_INFO, "  f_files:    %llu\n",
+         (unsigned long long)buf->f_files);
+  syslog(LOG_INFO, "  f_ffree:    %llu\n",
+         (unsigned long long)buf->f_ffree);
 }
 
 /****************************************************************************
