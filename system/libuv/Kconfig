@@ -6,6 +6,7 @@
 config LIBUV
 	bool "libuv asynchronous I/O Library"
 	default n
+	depends on PIPES
 	---help---
 		Enable build for libuv asynchronous I/O Library
 
