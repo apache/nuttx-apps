@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/sched/cmocka_sched_test.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -40,7 +42,8 @@ int main(int argc, char *argv[])
 {
   /* Add Test Cases */
 
-  const struct CMUnitTest nuttx_sched_testsuites[] = {
+  const struct CMUnitTest nuttx_sched_test_suites[] =
+  {
       cmocka_unit_test(test_nuttx_sched_pthread01),
       cmocka_unit_test(test_nuttx_sched_pthread02),
       cmocka_unit_test(test_nuttx_sched_pthread03),
@@ -61,8 +64,8 @@ int main(int argc, char *argv[])
 
   /* Run Test cases */
 
-  cmocka_run_group_tests(nuttx_sched_testsuites,
-                         test_nuttx_schedtest_group_setup,
-                         test_nuttx_schedtest_group_teardown);
+  cmocka_run_group_tests(nuttx_sched_test_suites,
+                         test_nuttx_sched_test_group_setup,
+                         test_nuttx_sched_test_group_teardown);
   return 0;
 }

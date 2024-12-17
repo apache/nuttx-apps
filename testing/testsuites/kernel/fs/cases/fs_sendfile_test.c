@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/fs/cases/fs_sendfile_test.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <sys/types.h>
 #include <sys/sendfile.h>
@@ -41,33 +43,29 @@
 #define I_FILE1 "inputFile1"
 #define I_FILE2 "inputFile2"
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
 static void set_test(void)
 {
   int fd;
   fd = open(O_FILE, O_CREAT | O_RDWR, 0777);
   if (fd == -1)
     {
-      syslog(LOG_ERR, "Unable to open file %s, errno %d\n", O_FILE, errno);
+      syslog(LOG_ERR, "Unable to open file %s, errno %d\n", O_FILE,
+             errno);
       assert_true(1 == 0);
     }
-
   write(fd, "ABCDEFGHIJ", 10);
   close(fd);
 }
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Name: sendfile
  * Example description:
  *  1.Test copy the entire file
  * Expect results: TEST PASSED
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Functions
  ****************************************************************************/
 
 void test_nuttx_fs_sendfile01(FAR void **state)
@@ -195,7 +193,8 @@ void test_nuttx_fs_sendfile02(FAR void **state)
   close(fd_o);
   close(fd_i);
 
-  /* Checks whether the file pointer is offset to the specified position */
+  /* Checks whether the file pointer is offset to the specified position
+   */
 
   assert_int_equal(offset, f_stat.st_size);
 }
