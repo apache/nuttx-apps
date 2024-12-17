@@ -22,8 +22,12 @@
 
 include $(APPDIR)/Make.defs
 
-CSRCS    += $(wildcard uORB/*.c)
+CSRCS    += uORB/uORB.c
 CSRCS    += $(wildcard sensor/*.c)
+
+ifneq ($(CONFIG_UORB_LOOP_MAX_EVENTS),0)
+CSRCS    += uORB/loop.c uORB/epoll.c
+endif
 
 ifneq ($(CONFIG_UORB_LISTENER),)
 MAINSRC  += listener.c
