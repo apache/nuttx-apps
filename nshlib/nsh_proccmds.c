@@ -93,7 +93,9 @@ struct nsh_taskstatus_s
   FAR const char *td_flags;        /* Thread flags */
   FAR const char *td_priority;     /* Thread priority */
   FAR const char *td_policy;       /* Thread scheduler */
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
   FAR const char *td_sigmask;      /* Signal mask */
+#endif
   FAR char       *td_cmdline;      /* Command line */
   int             td_pid;          /* Task ID */
 #ifdef NSH_HAVE_CPULOAD
@@ -134,7 +136,9 @@ static const char g_state[]     = "State:";
 static const char g_flags[]     = "Flags:";
 static const char g_priority[]  = "Priority:";
 static const char g_scheduler[] = "Scheduler:";
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
 static const char g_sigmask[]   = "SigMask:";
+#endif
 #  ifdef PS_SHOW_HEAPSIZE
 static const char g_heapsize[]  = "AllocSize:";
 #  endif /* PS_SHOW_HEAPSIZE */
@@ -244,10 +248,12 @@ static void nsh_parse_statusline(FAR char *line,
 
       status->td_policy = nsh_trimspaces(&line[12 + 6]);
     }
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
   else if (strncmp(line, g_sigmask, strlen(g_sigmask)) == 0)
     {
       status->td_sigmask = nsh_trimspaces(&line[12]);
     }
+#endif
 }
 #endif
 
@@ -342,7 +348,9 @@ static int ps_record(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   status->td_flags = "";
   status->td_priority = "";
   status->td_policy = "";
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
   status->td_sigmask = "";
+#endif
   status->td_cmdline = "";
   status->td_pid = atoi(entryp->d_name);
 #ifdef NSH_HAVE_CPULOAD
@@ -547,7 +555,10 @@ static void ps_title(FAR struct nsh_vtbl_s *vtbl, bool heap)
 #ifdef CONFIG_SMP
               "%3s "
 #endif
-              "%3s %-8s %-7s %3s %-8s %-9s %-16s "
+              "%3s %-8s %-7s %3s %-8s %-9s "
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
+              "%-16s "
+#endif
 #ifdef PS_SHOW_HEAPSIZE
               "%s "
 #endif
@@ -565,7 +576,10 @@ static void ps_title(FAR struct nsh_vtbl_s *vtbl, bool heap)
 #ifdef CONFIG_SMP
               , "CPU"
 #endif
-              , "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT", "SIGMASK"
+              , "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT"
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
+              , "SIGMASK"
+#endif
 #ifdef PS_SHOW_HEAPSIZE
               , heapsize
 #endif
@@ -608,7 +622,10 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
 #ifdef CONFIG_SMP
              "%3s "
 #endif
-             "%3s %-8s %-7s %3s %-8s %-9s %-8s "
+             "%3s %-8s %-7s %3s %-8s %-9s "
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
+             "%-8s "
+#endif
 #ifdef PS_SHOW_HEAPSIZE
              "%s "
 #endif
@@ -628,7 +645,9 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
 #endif
            , status->td_priority, status->td_policy , status->td_type
            , status->td_flags , status->td_state, status->td_event
+#ifndef CONFIG_NSH_DISABLE_PSSIGMASK
            , status->td_sigmask
+#endif
 #ifdef PS_SHOW_HEAPSIZE
            , heapsize
 #endif
