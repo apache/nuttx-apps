@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/fs/common/test_fs_common.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -46,21 +48,27 @@ unsigned long long cm_get_partition_available_size(void)
 {
   unsigned long long size = 0;
   int ret;
-  struct statfs stat_info;
+  struct statfs statinfo;
 
   /* call statfs() */
 
-  ret = statfs(MOUNT_DIR, &stat_info);
+  ret = statfs(MOUNT_DIR, &statinfo);
   if (ret == 0)
     {
-      size = (unsigned long long)stat_info.f_bsize
-             * (unsigned long long)stat_info.f_bfree;
+      size = (unsigned long long)statinfo.f_bsize *
+             (unsigned long long)statinfo.f_bfree;
     }
   else
     {
       size = (unsigned long long)-1;
     }
   return size;
+}
+
+int get_mem_info(struct mallinfo *mem_info)
+{
+  *mem_info = mallinfo();
+  return 0;
 }
 
 int cm_unlink_recursive(FAR char *path)
@@ -112,10 +120,10 @@ int cm_unlink_recursive(FAR char *path)
 
   ret = closedir(dp);
   if (ret >= 0)
-  {
-    path[len] = '\0';
-    ret = rmdir(path);
-  }
+    {
+      path[len] = '\0';
+      ret = rmdir(path);
+    }
 
   return ret;
 }
@@ -125,10 +133,10 @@ int cm_unlink_recursive(FAR char *path)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_fest_group_set_up
+ * Name: test_nuttx_fs_test_group_setup
  ****************************************************************************/
 
-int test_nuttx_fs_fest_group_set_up(void **state)
+int test_nuttx_fs_test_group_setup(void **state)
 {
   int res;
   struct stat buf;
@@ -148,9 +156,10 @@ int test_nuttx_fs_fest_group_set_up(void **state)
     }
   else
     {
-      char testdir[PATH_MAX] = {
-          0
-        };
+      char testdir[PATH_MAX] =
+      {
+        0
+      };
 
       sprintf(testdir, "%s/%s", MOUNT_DIR, CM_FSTESTDIR);
 
@@ -160,7 +169,8 @@ int test_nuttx_fs_fest_group_set_up(void **state)
       res = mkdir(CM_FSTESTDIR, 0777);
       if (res != 0)
         {
-          syslog(LOG_INFO, "ERROR: Failed to creat the test directory\n");
+          syslog(LOG_INFO,
+                 "ERROR: Failed to creat the test directory\n");
           exit(1);
         }
 
@@ -178,15 +188,16 @@ int test_nuttx_fs_fest_group_set_up(void **state)
 }
 
 /****************************************************************************
- * Name: test_nuttx_fs_test_group_tear_down
+ * Name: test_nuttx_fs_testgroupteardown
  ****************************************************************************/
 
-int test_nuttx_fs_test_group_tear_down(void **state)
+int test_nuttx_fs_test_group_teardown(void **state)
 {
   int res;
-  char testdir[PATH_MAX] = {
-      0
-    };
+  char testdir[PATH_MAX] =
+  {
+    0
+  };
 
   struct fs_testsuites_state_s *test_state;
 

@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/mm/common/test_mm_common.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <malloc.h>
@@ -45,7 +47,7 @@ int mmtest_get_rand_size(int min, int max)
   int rval = 1;
   if (min > 0 && max > 0 && (max - min) > 0)
     {
-    rval = rand() % (max - min) + min;
+      rval = rand() % (max - min) + min;
     }
 
   return rval;
@@ -61,15 +63,15 @@ void mmtest_showmallinfo(void)
   alloc_info = mallinfo();
   syslog(LOG_INFO, "     mallinfo:\n");
   syslog(LOG_INFO, "       Total space allocated from system = %lu\n",
-        (unsigned long)alloc_info.arena);
+         (unsigned long)alloc_info.arena);
   syslog(LOG_INFO, "       Number of non-inuse chunks        = %lu\n",
-        (unsigned long)alloc_info.ordblks);
+         (unsigned long)alloc_info.ordblks);
   syslog(LOG_INFO, "       Largest non-inuse chunk           = %lu\n",
-        (unsigned long)alloc_info.mxordblk);
+         (unsigned long)alloc_info.mxordblk);
   syslog(LOG_INFO, "       Total allocated space             = %lu\n",
-        (unsigned long)alloc_info.uordblks);
+         (unsigned long)alloc_info.uordblks);
   syslog(LOG_INFO, "       Total non-inuse space             = %lu\n",
-        (unsigned long)alloc_info.fordblks);
+         (unsigned long)alloc_info.fordblks);
 }
 
 /****************************************************************************
@@ -93,7 +95,7 @@ unsigned long mmtest_get_memsize(void)
 
   if (memsize > 1024 * 1024 * 2)
     {
-        memsize = 1024 * 1024 * 2;
+      memsize = 1024 * 1024 * 2;
     }
 
   return memsize;
@@ -105,19 +107,19 @@ unsigned long mmtest_get_memsize(void)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: TestNuttxMmsetup
+ * Name: test_nuttx_mm_setup
  ****************************************************************************/
 
-int test_nuttx_mmsetup(void **state)
+int test_nuttx_mm_setup(void **state)
 {
   return 0;
 }
 
 /****************************************************************************
- * Name: TestNuttxMmteardown
+ * Name: test_nuttx_mm_teardown
  ****************************************************************************/
 
-int test_nuttx_mmteardown(void **state)
+int test_nuttx_mm_teardown(void **state)
 {
   return 0;
 }

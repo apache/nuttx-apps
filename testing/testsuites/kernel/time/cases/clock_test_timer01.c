@@ -3,25 +3,24 @@
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.  The
- * ASF licenses this file to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the
- * License.  You may obtain a copy of the License at
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
  *
  ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -49,21 +48,21 @@
  * Private Data
  ****************************************************************************/
 
-static int test_timer01_g_sig_hdl_cnt = 0;
+static int test_timer01_g_sighdlcnt = 0;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: sig_handler01
+ * Name: sighandler01
  ****************************************************************************/
 
-static void sig_handler01(int sig)
+static void sighandler01(int sig)
 {
-  test_timer01_g_sig_hdl_cnt++;
-  syslog(LOG_INFO, "signo = %d test_timer01_g_sig_hdl_cnt = %d\n",
-         sig, test_timer01_g_sig_hdl_cnt);
+  test_timer01_g_sighdlcnt++;
+  syslog(LOG_INFO, "signo = %d test_timer01_g_sighdlcnt = %d\n", sig,
+         test_timer01_g_sighdlcnt);
 }
 
 /****************************************************************************
@@ -86,7 +85,7 @@ void test_nuttx_clock_test_timer01(FAR void **state)
   int ret;
 
   sa.sa_flags = 0;
-  sa.sa_handler = sig_handler01;
+  sa.sa_handler = sighandler01;
   sigemptyset(&sa.sa_mask);
   ret = sigaction(SIG, &sa, NULL);
   syslog(LOG_INFO, "sigaction %d: %d", SIG, ret);
@@ -141,7 +140,9 @@ void test_nuttx_clock_test_timer01(FAR void **state)
 
   syslog(LOG_INFO, "sleep %ds", interval);
 
-  /* timer signal is blocked, this sleep should not be interrupted */
+  /* timer signal is blocked,
+   * this sleep should not be interrupted
+   */
 
   sleep(interval);
 
@@ -162,13 +163,13 @@ void test_nuttx_clock_test_timer01(FAR void **state)
   interval = 1;
   syslog(LOG_INFO, "sleep another %ds", interval);
   sleep(interval); /* this sleep may be interrupted by the timer */
-  syslog(LOG_INFO, "sleep time over, test_timer01_g_sig_hdl_cnt = %d",
-         test_timer01_g_sig_hdl_cnt);
+  syslog(LOG_INFO, "sleep time over, test_timer01_g_sighdlcnt = %d",
+         test_timer01_g_sighdlcnt);
 
   syslog(LOG_INFO, "sleep another %ds", interval);
   sleep(interval); /* this sleep may be interrupted by the timer */
-  syslog(LOG_INFO, "sleep time over, test_timer01_g_sig_hdl_cnt = %d",
-         test_timer01_g_sig_hdl_cnt);
+  syslog(LOG_INFO, "sleep time over, test_timer01_g_sighdlcnt = %d",
+         test_timer01_g_sighdlcnt);
 
   ret = timer_delete(timerid01);
   syslog(LOG_INFO, "timer_delete %p %d", timerid01, ret);
@@ -178,5 +179,5 @@ void test_nuttx_clock_test_timer01(FAR void **state)
   syslog(LOG_INFO, "timer_delete %p %d", timerid02, ret);
   assert_int_equal(ret, 0);
 
-  assert_int_not_equal(test_timer01_g_sig_hdl_cnt, 0);
+  assert_int_not_equal(test_timer01_g_sighdlcnt, 0);
 }

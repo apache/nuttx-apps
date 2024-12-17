@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/fs/cases/fs_seek_test.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,10 +150,10 @@ tcases[] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_verify_lseek
+ * Name: test_nuttx_fs_verifylseek
  ****************************************************************************/
 
-static int test_nuttx_fs_verify_lseek(unsigned int n)
+static int test_nuttx_fs_verifylseek(unsigned int n)
 {
   char read_buf[64];
   struct tcase *tc = &tcases[n];
@@ -182,7 +184,8 @@ static int test_nuttx_fs_verify_lseek(unsigned int n)
   if (ret != tc->exp_off)
     {
       syslog(LOG_ERR, "lseek(%s, %lld, %s) returned %d, expected %lld\n",
-          TFILE, (long long)tc->off, tc->wname, ret, (long long)tc->exp_off);
+             TFILE, (long long)tc->off, tc->wname, ret,
+             (long long)tc->exp_off);
       return -1;
     }
 
@@ -196,8 +199,8 @@ static int test_nuttx_fs_verify_lseek(unsigned int n)
 
   if (tc->exp_data && strcmp(read_buf, tc->exp_data))
     {
-      syslog(LOG_ERR, "lseek(%s, %lld, %s) read incorrect data\n",
-             TFILE, (long long)tc->off, tc->wname);
+      syslog(LOG_ERR, "lseek(%s, %lld, %s) read incorrect data\n", TFILE,
+             (long long)tc->off, tc->wname);
       return -1;
     }
   else
@@ -254,22 +257,22 @@ void test_nuttx_fs_seek02(FAR void **state)
 
   /* do verify lseek */
 
-  ret = test_nuttx_fs_verify_lseek(0);
+  ret = test_nuttx_fs_verifylseek(0);
   assert_int_equal(ret, 0);
 
   /* do verify lseek */
 
-  ret = test_nuttx_fs_verify_lseek(1);
+  ret = test_nuttx_fs_verifylseek(1);
   assert_int_equal(ret, 0);
 
   /* do verify lseek */
 
-  ret = test_nuttx_fs_verify_lseek(2);
+  ret = test_nuttx_fs_verifylseek(2);
   assert_int_equal(ret, 0);
 
   /* do verify lseek */
 
-  ret = test_nuttx_fs_verify_lseek(3);
+  ret = test_nuttx_fs_verifylseek(3);
   assert_int_equal(ret, 0);
 
   /* do clean */
