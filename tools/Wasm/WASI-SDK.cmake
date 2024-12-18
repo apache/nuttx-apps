@@ -378,6 +378,13 @@ function(wasm_add_library)
     message(FATAL_ERROR "NAME is not provided.")
   endif()
 
+  # Check if the LIB_NAME (NAME) is already declared If it is, then skip the
+  # rest of the function
+  if(TARGET ${LIB_NAME})
+    message(STATUS "Target ${LIB_NAME} already declared.")
+    return()
+  endif()
+
   # Check if the LIB_SRCS (SRCS) is provided
   if(NOT LIB_SRCS)
     message(FATAL_ERROR "SRCS is not provided.")

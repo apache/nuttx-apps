@@ -95,6 +95,8 @@ function(nuttx_add_library)
 
 endfunction()
 
+separate_arguments(WASM_DIRS)
+
 # ~~~
 # Add all the Wasm apps to the build process.
 foreach(WASM_APP ${WASM_DIRS})
