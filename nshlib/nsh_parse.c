@@ -500,6 +500,8 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                        int argc, FAR char *argv[],
                        FAR const struct nsh_param_s *param)
 {
+  int fd_out = STDOUT_FILENO;
+  int fd_in = STDIN_FILENO;
   int ret;
 
   /* DO NOT CHANGE THE ORDERING OF THE FOLLOWING STEPS
@@ -635,9 +637,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
     {
       uint8_t save[SAVE_SIZE];
 
-      int fd_in = STDIN_FILENO;
-      int fd_out = STDOUT_FILENO;
-
       /* Redirected output? */
 
       if (vtbl->np.np_redir_out)
@@ -655,7 +654,8 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                 {
                   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open",
                             NSH_ERRNO);
-                  return nsh_saveresult(vtbl, true);
+                  ret = errno;
+                  goto close_redir;
                 }
             }
           else
@@ -681,7 +681,8 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                 {
                   nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open",
                             NSH_ERRNO);
-                  return nsh_saveresult(vtbl, true);
+                  ret = errno;
+                  goto close_redir;
                 }
             }
           else
@@ -714,22 +715,27 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
         {
           nsh_undirect(vtbl, save);
         }
+    }
 
-      /* Mark errors so that it is possible to test for non-zero return
-       * values in nsh scripts.
-       */
+close_redir:
 
-      if (ret < 0)
-        {
-          return nsh_saveresult(vtbl, true);
-        }
+  /* Closing fds opened for redirection if necessary */
+
+  if (fd_out > STDOUT_FILENO)
+    {
+      close(fd_out);
+    }
+
+  if (fd_in > STDIN_FILENO)
+    {
+      close(fd_in);
     }
 
   /* Return success if the command succeeded (or at least, starting of the
    * command task succeeded).
    */
 
-  return nsh_saveresult(vtbl, false);
+  return nsh_saveresult(vtbl, ret != OK);
 }
 
 /****************************************************************************
