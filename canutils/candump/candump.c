@@ -1,9 +1,8 @@
-/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
-/*
- * candump.c
+/****************************************************************************
+ * apps/canutils/candump/candump.c
  *
- * Copyright (c) 2002-2009 Volkswagen Group Electronic Research
- * All rights reserved.
+ * SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+ * SPDX-FileCopyrightText: 2002-2007 Volkswagen Group Electronic Research
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,7 +39,11 @@
  *
  * Send feedback to <linux-can@vger.kernel.org>
  *
- */
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,6 +68,10 @@
 
 #include "terminal.h"
 #include "lib.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 /* for hardware timestamps - since Linux 2.6.30 */
 #ifndef SO_TIMESTAMPING
@@ -97,6 +104,10 @@
 
 const char col_on [MAXCOL][19] = {BLUE, RED, GREEN, BOLD, MAGENTA, CYAN};
 const char col_off [] = ATTRESET;
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 static __u32 dropcnt[MAXSOCK];
 static __u32 last_dropcnt[MAXSOCK];
