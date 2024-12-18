@@ -137,8 +137,8 @@ void test_nuttx_fs_fsync02(FAR void **state)
     }
 
 #endif
-  syslog(LOG_INFO, "the fbsize = %"PRIu64",buffer size=%d\n",
-        statfsbuf.f_bsize, bufsize);
+  syslog(LOG_INFO, "the fbsize = %zu,buffer size=%d\n",
+         statfsbuf.f_bsize, bufsize);
 
   /* malloc memory */
 
