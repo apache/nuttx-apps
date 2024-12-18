@@ -54,7 +54,6 @@ endif # LIBTOMCRYPT_LTCRYPT
 
 config LIBTOMCRYPT_HASHSUM
 	tristate "LibTomCrypt hashsum"
-	depends on SCHED_ATEXIT
 	default n
 	---help---
 		Demo hashsum application
