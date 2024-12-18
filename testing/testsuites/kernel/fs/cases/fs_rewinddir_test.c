@@ -1,24 +1,26 @@
 /****************************************************************************
  * apps/testing/testsuites/kernel/fs/cases/fs_rewinddir_test.c
- * Copyright (C) 2020 Xiaomi Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ *The ASF licenses this file to you under the Apache License, Version 2.0
+ *(the "License"); you may not use this file except in compliance with
+ *the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ *WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *implied.  See the License for the specific language governing
+ *permissions and limitations under the License.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,15 +60,16 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_cteat_file
+ * Name: test_nuttx_fs_cteatfile
  ****************************************************************************/
 
-static void test_nuttx_fs_cteat_file(char *filename, size_t write_size)
+static void test_nuttx_fs_cteatfile(char *filename, size_t write_size)
 {
   int fd;
-  char w_buffer[WRITE_BUF_SIZE] = {
-      0
-    };
+  char w_buffer[WRITE_BUF_SIZE] =
+  {
+    0
+  };
 
   ssize_t size = 0;
 
@@ -126,13 +129,16 @@ void test_nuttx_fs_rewinddir01(FAR void **state)
       fail_msg("Failed to obtain partition information !\n");
     }
 
-  /* Stop the test if the available space of the partition is less than 50K */
+  /* Stop the test if the available space of the partition is less than
+   * 50K
+   */
 
   if (size < 51200)
     {
       syslog(LOG_WARNING, "Partitioned free space not enough !\n");
       syslog(LOG_WARNING, "Test case (%s) exits early !\n", __func__);
     }
+
   else
     {
       /* make directory */
@@ -146,9 +152,9 @@ void test_nuttx_fs_rewinddir01(FAR void **state)
 
       /* create */
 
-      test_nuttx_fs_cteat_file(TEST_CHILD_FILE1, 10);
-      test_nuttx_fs_cteat_file(TEST_CHILD_FILE2, 10);
-      test_nuttx_fs_cteat_file(TEST_CHILD_FILE3, 10);
+      test_nuttx_fs_cteatfile(TEST_CHILD_FILE1, 10);
+      test_nuttx_fs_cteatfile(TEST_CHILD_FILE2, 10);
+      test_nuttx_fs_cteatfile(TEST_CHILD_FILE3, 10);
 
       /* open directory */
 
