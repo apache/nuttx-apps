@@ -247,7 +247,7 @@ void test_nuttx_fs_stream03(FAR void **state)
   char *junk = "abcdefghijklmnopqrstuvwxyz";
   size_t len = strlen(junk);
   char *inbuf = NULL;
-  int ret;
+  size_t ret;
   int lc;
   for (lc = 0; lc < 10; lc++)
     {
@@ -264,10 +264,10 @@ void test_nuttx_fs_stream03(FAR void **state)
           assert_true(1 == 0);
         }
 
-      if ((size_t)ret != len)
+      if (ret != len)
         {
           syslog(LOG_ERR,
-                 "len = %zi != return value from fwrite = %i",
+                 "len = %zi != return value from fwrite = %zi",
                  len, ret);
           fclose(stream);
           assert_true(1 == 0);
@@ -297,10 +297,10 @@ void test_nuttx_fs_stream03(FAR void **state)
           assert_true(1 == 0);
         }
 
-      if ((size_t)ret != len)
+      if (ret != len)
         {
           syslog(LOG_ERR,
-                 "len = %zi != return value from fread = %i",
+                 "len = %zi != return value from fread = %zi",
                  len, ret);
           free(inbuf);
           fclose(stream);
