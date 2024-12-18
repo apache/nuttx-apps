@@ -1,9 +1,7 @@
-/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause) */
-/*
- * lib.h - library include for command line tools
+/****************************************************************************
  *
- * Copyright (c) 2002-2007 Volkswagen Group Electronic Research
- * All rights reserved.
+ * SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
+ * SPDX-FileCopyrightText: 2002-2007 Volkswagen Group Electronic Research
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,7 +38,7 @@
  *
  * Send feedback to <linux-can@vger.kernel.org>
  *
- */
+ ****************************************************************************/
 
 #ifndef CAN_UTILS_LIB_H
 #define CAN_UTILS_LIB_H
