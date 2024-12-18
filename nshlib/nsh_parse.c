@@ -2739,16 +2739,12 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           if (param.fd_in != -1)
             {
               close(param.fd_in);
-              param.fd_in = -1;
               vtbl->np.np_redir_in = redirect_in_save;
             }
 
-          if (param.fd_out != -1)
-            {
-              close(param.fd_out);
-              param.fd_out = -1;
-              vtbl->np.np_redir_out = redirect_out_save;
-            }
+          close(param.fd_out);
+          param.fd_out = -1;
+          vtbl->np.np_redir_out = redirect_out_save;
 
           redirect_in_save = vtbl->np.np_redir_in;
           vtbl->np.np_redir_in = true;
