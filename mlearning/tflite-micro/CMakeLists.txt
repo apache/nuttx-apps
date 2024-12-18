@@ -136,10 +136,10 @@ if(CONFIG_TFLITEMICRO)
       list(
         APPEND
         TFLITE_MICRO_SRCS
-        ${TFLITE_MICRO_DIR}/operators/neon/arm_convolve_s8.c
-        ${TFLITE_MICRO_DIR}/operators/neon/arm_nn_mat_mult_kernel_s8_s16.c
-        ${TFLITE_MICRO_DIR}/operators/neon/arm_q7_to_q15_with_offset.c
-        ${TFLITE_MICRO_DIR}/operators/neon/arm_elementwise_add_s8.c)
+        ${CMAKE_CURRENT_LIST_DIR}/operators/neon/arm_convolve_s8.c
+        ${CMAKE_CURRENT_LIST_DIR}/operators/neon/arm_nn_mat_mult_kernel_s8_s16.c
+        ${CMAKE_CURRENT_LIST_DIR}/operators/neon/arm_q7_to_q15_with_offset.c
+        ${CMAKE_CURRENT_LIST_DIR}/operators/neon/arm_elementwise_add_s8.c)
     endif()
   endif()
 
@@ -157,6 +157,7 @@ if(CONFIG_TFLITEMICRO)
 
   if(CONFIG_MLEARNING_CMSIS_NN)
     list(APPEND INCDIR ${NUTTX_APPS_DIR}/mlearning/cmsis-nn/cmsis-nn)
+    list(APPEND INCDIR ${NUTTX_APPS_DIR}/mlearning/cmsis-nn/cmsis-nn/Include)
   endif()
 
   # ############################################################################
