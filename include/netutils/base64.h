@@ -1,15 +1,10 @@
 /****************************************************************************
  * apps/include/netutils/base64.h
  *
- * This file is part of the NuttX RTOS:
- *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
- *   Author: Darcy Gong
- *
- * Reference:
- *
- *   Base64 encoding/decoding (RFC1341)
- *   Copyright (c) 2005, Jouni Malinen <jkmaline@cc.hut.fi>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2012 Gregory Nutt
+ * SPDX-FileCopyrightText: 2005 Jouni Malinen <jkmaline@cc.hut.fi>
+ * SPDX-FileContributor: Darcy Gong
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License version 2 as

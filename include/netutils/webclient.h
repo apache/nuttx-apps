@@ -1,15 +1,11 @@
 /****************************************************************************
  * apps/include/netutils/webclient.h
- * Header file for the HTTP client
  *
- *   Copyright (C) 2007, 2009, 2011, 2015 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Based remotely on the uIP webclient which also has a BSD style license:
- *
- *   Author: Adam Dunkels <adam@dunkels.com>
- *   Copyright (c) 2002, Adam Dunkels.
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2007, 2009, 2011, 2015 Gregory Nutt.
+ * SPDX-FileCopyrightText: 2002 Adam Dunkels.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Adam Dunkels <adam@sics.se>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

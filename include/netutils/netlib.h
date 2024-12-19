@@ -1,17 +1,11 @@
 /****************************************************************************
  * apps/include/netutils/netlib.h
- * Various non-standard APIs to support netutils.  All non-standard and
- * intended only for internal use.
  *
- *   Copyright (C) 2007, 2009, 2011, 2015, 2017 Gregory Nutt. All rights
- *   reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Some of these APIs derive from uIP.  uIP also has a BSD style license:
- *
- *   Author: Adam Dunkels <adam@sics.se>
- *   Copyright (c) 2002, Adam Dunkels.
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2007, 2009, 2011, 2015, 2017 Gregory Nutt.
+ * SPDX-FileCopyrightText: 2002 Adam Dunkels.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Adam Dunkels <adam@sics.se>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
