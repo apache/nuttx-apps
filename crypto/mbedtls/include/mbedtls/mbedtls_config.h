@@ -1,8 +1,8 @@
 /****************************************************************************
  * apps/crypto/mbedtls/include/mbedtls/mbedtls_config.h
  *
- * Copyright The Mbed TLS Contributors
  * SPDX-License-Identifier: Apache-2.0
+ * SPDX-FileCopyrightText: Copyright The Mbed TLS Contributors
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
