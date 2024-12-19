@@ -1,13 +1,10 @@
 /****************************************************************************
  * apps/include/netutils/dhcpc.h
  *
- *   Copyright (C) 2007, 2009-2011, 2015 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * This logic was leveraged from uIP which also has a BSD-style license:
- *
- *   Copyright (c) 2005, Swedish Institute of Computer Science
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2007, 2009-2011, 2015 Gregory Nutt
+ * SPDX-FileCopyrightText: 2005 Swedish Institute of Computer Science
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
