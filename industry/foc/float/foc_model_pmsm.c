@@ -1,6 +1,7 @@
 /****************************************************************************
  * apps/industry/foc/float/foc_model_pmsm.c
- * This file implements PMSM model for fixed16
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
