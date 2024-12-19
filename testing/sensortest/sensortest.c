@@ -68,6 +68,7 @@ static void print_valb(FAR const char *buffer, FAR const char *name);
 static void print_vali2(FAR const char *buffer, FAR const char *name);
 static void print_ecg(FAR const char *buffer, FAR const char *name);
 static void print_force(FAR const char *buffer, FAR const char *name);
+static void print_velocity(FAR const char *buffer, FAR const char *name);
 static void print_ppgd(FAR const char *buffer, FAR const char *name);
 static void print_ppgq(FAR const char *buffer, FAR const char *name);
 static void print_cap(FAR const char *buffer, FAR const char *name);
@@ -113,6 +114,8 @@ static const struct sensor_info g_sensor_info[] =
   {print_ppgq,  sizeof(struct sensor_ppgq),  "ppgq"},
   {print_valf,  sizeof(struct sensor_prox),  "prox"},
   {print_valf3, sizeof(struct sensor_rgb),   "rgb"},
+  {print_velocity,
+             sizeof(struct sensor_velocity), "velocity"},
   {print_valf,  sizeof(struct sensor_temp),  "temp"},
   {print_valf,  sizeof(struct sensor_tvoc),  "tvoc"},
   {print_valf,  sizeof(struct sensor_uv),    "uv"}
@@ -235,6 +238,15 @@ static void print_gnss_satellite(FAR const char *buffer,
   printf("%s: timestamp: %" PRIu64 " count: %" PRIu32
          " satellites: %" PRIu32 "\n",
          name, event->timestamp, event->count, event->satellites);
+}
+
+static void print_velocity(const char *buffer, const char *name)
+{
+  FAR struct sensor_velocity *event =
+      (FAR struct sensor_velocity *)buffer;
+
+  printf("%s: timestamp:%" PRIu64 " value:%.2f\n",
+         name, event->timestamp, event->velocity);
 }
 
 static void usage(void)
