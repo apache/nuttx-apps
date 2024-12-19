@@ -64,12 +64,14 @@ comment "Vendor specific information"
 
 config SYSTEM_NXDIAG_ESPRESSIF
 	bool "Espressif"
+	depends on ARCH_CHIP_ESP32 || ARCH_CHIP_ESP32S2 || ARCH_CHIP_ESP32S3 || ARCH_CHIP_ESP32C3 || ARCH_CHIP_ESP32C6 || ARCH_CHIP_ESP32H2
 	default n
 	---help---
 		Enable Espressif-specific information and checks.
 
 config SYSTEM_NXDIAG_ESPRESSIF_CHIP
 	bool "Espressif Chip"
+	depends on ARCH_CHIP_ESP32 || ARCH_CHIP_ESP32S2 || ARCH_CHIP_ESP32S3 || ARCH_CHIP_ESP32C3 || ARCH_CHIP_ESP32C6 || ARCH_CHIP_ESP32H2
 	default n
 	---help---
 		Enable Espressif-specific information about chip. Chip must be connected during build process.
