@@ -1,21 +1,12 @@
 /****************************************************************************
  * apps/include/wireless/wapi.h
  *
- *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Adapted for NuttX from WAPI:
- *
- *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
- *   All rights reserved.
- *
- * And includes WPA supplicant logic contributed by:
- *
- *   Author: Simon Piriou <spiriou31@gmail.com>
- *
- * Which was adapted to NuttX from driver_ext.h
- *
- *   Copyright (c) 2003-2005, Jouni Malinen <j@w1.fi>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2017,2019 Gregory Nutt
+ * SPDX-FileCopyrightText: 2010, Volkan YAZICI <volkan.yazici@gmail.com>
+ * SPDX-FileCopyrightText: 2003-2005, Jouni Malinen <j@w1.fi>
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Simon Piriou <spiriou31@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
