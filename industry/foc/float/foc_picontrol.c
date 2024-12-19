@@ -1,6 +1,7 @@
 /****************************************************************************
  * apps/industry/foc/float/foc_picontrol.c
- * This file implements classical FOC PI current controller for float32
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
