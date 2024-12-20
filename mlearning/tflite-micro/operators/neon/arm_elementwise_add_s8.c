@@ -1,10 +1,9 @@
 /****************************************************************************
  * apps/mlearning/tflite-micro/operators/neon/arm_elementwise_add_s8.c
  *
- * SPDX-FileCopyrightText: Copyright 2010-2023 Arm Limited and/or
- * its affiliates <open-source-office@arm.com>
- *
  * SPDX-License-Identifier: Apache-2.0
+ * SPDX-FileCopyrightText: 2010-2023 Arm Limited and/or its affiliates
+ * <open-source-office@arm.com>
  *
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
