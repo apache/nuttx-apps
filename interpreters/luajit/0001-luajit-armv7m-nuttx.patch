@@ -18,9 +18,9 @@ index 00000000..8f94ba40
 +++ b/dynasm/dasm_armv7m.h
 @@ -0,0 +1,563 @@
 +/*
-+** DynASM ARM encoding engine.
-+** Copyright (C) 2018 Jernej Turnsek. All rights reserved.
-+** Copyright (C) 2005-2017 Mike Pall. All rights reserved.
++** SPDX-License-Identifier: MIT
++** SPDX-FileCopyrightText: 2018 Jernej Turnsek. All rights reserved.
++** SPDX-FileCopyrightText: 2005-2017 Mike Pall. All rights reserved.
 +** Released under the MIT license. See dynasm.lua for full copyright notice.
 +*/
 +
