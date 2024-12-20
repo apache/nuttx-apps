@@ -1,9 +1,8 @@
 /****************************************************************************
  * apps/modbus/functions/mbfuncdisc_m.c
  *
- * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
- * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
- * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2013 Armink <armink.ztl@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
