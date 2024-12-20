@@ -1,14 +1,10 @@
 /****************************************************************************
  * apps/netutils/xmlrpc/xmlparser.c
  *
- *   Copyright (C) 2012 Max Holtzberg. All rights reserved.
- *   Author: Max Holtzberg <mh@uvc.de>
- *
- * Based on the embeddable lightweight XML-RPC server code discussed
- * in the article at: http://www.drdobbs.com/web-development/\
- *    an-embeddable-lightweight-xml-rpc-server/184405364
- *
- *  Copyright (c) 2002 Cogito LLC.  All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2012 Max Holtzberg. All rights reserved.
+ * SPDX-FileCopyrightText: 2002 Cogito LLC.  All rights reserved.
+ * SPDX-FileContributor: Max Holtzberg <mh@uvc.de>
  *
  *  Redistribution and use in source and binary forms, with or
  *  without modification, is hereby granted without fee provided
@@ -38,6 +34,12 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************/
+
+/****************************************************************************
+ * Based on the embeddable lightweight XML-RPC server code discussed
+ * in the article at: http://www.drdobbs.com/web-development/\
+ *    an-embeddable-lightweight-xml-rpc-server/184405364
  ****************************************************************************/
 
 /*  Lightweight Embedded XML-RPC Server XML Parser
