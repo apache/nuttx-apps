@@ -1,14 +1,11 @@
 /****************************************************************************
  * apps/netutils/ftpd/ftpd.c
  *
- *   Copyright (C) 2012, 2015, 2020 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Includes original code as well as logic adapted from hwport_ftpd, written
- * by Jaehyuk Cho <minzkn@minzkn.com> which is released under a BSD license.
- *
- *   Copyright (C) hwport.com. All rights reserved.
- *   Author: Jaehyuk Cho <mailto:minzkn@minzkn.com>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2012, 2015, 2020 Gregory Nutt.
+ * SPDX-FileCopyrightText: hwport.com. All rights reserved.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Jaehyuk Cho <mailto:minzkn@minzkn.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

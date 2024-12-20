@@ -1,9 +1,10 @@
 /****************************************************************************
  * apps/netutils/chat/chat.c
  *
- *   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
- *   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
- *   Partly based on code by Max Nekludov <macscomp@gmail.com>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2016 Vladimir Komendantskiy. All rights reserved.
+ * SPDX-FileContributor: Vladimir Komendantskiy <vladimir@moixaenergy.com>
+ * SPDX-FileContributor: Max Nekludov <macscomp@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

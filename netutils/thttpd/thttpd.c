@@ -1,14 +1,12 @@
 /****************************************************************************
  * apps/netutils/thttpd/thttpd.c
- * Tiny HTTP Server
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Derived from the file of the same name in the original THTTPD package:
- *
- *   Copyright (C) 1995,1998,1999,2000,2001 by
- *   Jef Poskanzer <jef@mail.acme.com>. All rights reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ * SPDX-FileCopyrightText: 2009, 2011 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2000, 2001 by Jef Poskanzer <jef@mail.acme.com>.
+ * SPDX-FileCopyrightText: 1998, 1999 by Jef Poskanzer <jef@mail.acme.com>.
+ * SPDX-FileCopyrightText: 1995 by Jef Poskanzer <jef@mail.acme.com>.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
