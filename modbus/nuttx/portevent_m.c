@@ -1,10 +1,9 @@
 /****************************************************************************
  * apps/modbus/nuttx/portevent_m.c
  *
- * FreeModbus Library: NuttX Modbus Master Port
- * Original work (c) 2006 Christian Walter <wolti@sil.at>
- * Modified work (c) 2016 Vytautas Lukenskas <lukevyta@gmail.com>
- * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2006 Christian Walter <wolti@sil.at>
+ * SPDX-FileCopyrightText: 2016 Vytautas Lukenskas <lukevyta@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
