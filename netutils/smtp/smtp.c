@@ -1,22 +1,12 @@
 /****************************************************************************
  * apps/netutils/smtp/smtp.c
- * smtp SMTP E-mail sender
  *
- *   Copyright (C) 2007, 2009, 2011, 2015, 2020 Gregory Nutt. All rights
- *     reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Heavily leveraged from uIP 1.0 which also has a BSD-like license:
- *
- * The Simple Mail Transfer Protocol (SMTP) as defined by RFC821 is
- * the standard way of sending and transferring e-mail on the
- * Internet. This simple example implementation is intended as an
- * example of how to implement protocols in uIP, and is able to send
- * out e-mail but has not been extensively tested.
- *
- *   Author: Adam Dunkels <adam@dunkels.com>
- *   Copyright (c) 2004, Adam Dunkels.
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2015, 2020 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2007, 2009, 2011, Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2004, Adam Dunkels. All rights reserved.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Adam Dunkels <adam@dunkels.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

@@ -1,14 +1,11 @@
 /****************************************************************************
  * apps/netutils/dhcpc/dhcpc.c
  *
- *   Copyright (C) 2007, 2009, 2011-2012 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Based heavily on portions of uIP:
- *
- *   Author: Adam Dunkels <adam@dunkels.com>
- *   Copyright (c) 2005, Swedish Institute of Computer Science
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2007, 2009, 2011-2012 Gregory Nutt.
+ * SPDX-FileCopyrightText: 2005, Swedish Institute of Computer Science
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Adam Dunkels <adam@dunkels.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

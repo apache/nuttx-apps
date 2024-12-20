@@ -1,10 +1,10 @@
 /****************************************************************************
  * apps/netutils/codecs/base64.c
  *
- * This file is part of the NuttX RTOS:
- *
- *   Copyright (C) 2012, 2018 Gregory Nutt. All rights reserved.
- *   Author: Darcy Gong
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2012, 2018 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2005, Jouni Malinen <jkmaline@cc.hut.fi>
+ * SPDX-FileContributor: Darcy Gong
  *
  * Reference:
  *
