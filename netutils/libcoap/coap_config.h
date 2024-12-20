@@ -1,11 +1,11 @@
 /****************************************************************************
  * apps/netutils/libcoap/coap_config.h
  *
- * Copyright (C) 2020 Carlos Gomes Martinho
- *                    <carlos.gomes_martinho@siemens.com>
- * Copyright (C) 2021-2023 Jon Shallow <supjps-libcoap@jpshallow.com>
- *
  * SPDX-License-Identifier: BSD-2-Clause
+ * SPDX-FileCopyrightText: 2020 Carlos Gomes Martinho
+ *                    <carlos.gomes_martinho@siemens.com>
+ * SPDX-FileCopyrightText: 2021-2023 Jon Shallow
+ *                     <supjps-libcoap@jpshallow.com>
  *
  * This file is part of the CoAP library libcoap. Please see README for terms
  * of use.

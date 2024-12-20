@@ -1,16 +1,13 @@
 /****************************************************************************
  * apps/netutils/webclient/webclient.c
- * Implementation of the HTTP client.
  *
- *   Copyright (C) 2007, 2009, 2011-2012, 2014, 2020 Gregory Nutt.
- *   All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Based on uIP which also has a BSD style license:
- *
- *   Author: Adam Dunkels <adam@dunkels.com>
- *   Copyright (c) 2002, Adam Dunkels.
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2014, 2020 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2011-2012 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2007, 2009 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2002 Adam Dunkels. All rights reserved.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-FileContributor: Adam Dunkels <adam@dunkels.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

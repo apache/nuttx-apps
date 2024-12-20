@@ -1,14 +1,10 @@
 /****************************************************************************
  * apps/netutils/thttpd/cgi-src/phf.c
- * Cracker trap
  *
- *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Derived from the file of the same name in the original THTTPD package:
- *
- *   Copyright © 1996 by Jef Poskanzer <jef@mail.acme.com>.
- *   All rights reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ * SPDX-FileCopyrightText: 2009, 2015 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 1996 by Jef Poskanzer <jef@mail.acme.com>.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
