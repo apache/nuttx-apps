@@ -680,7 +680,7 @@ int main(int argc, FAR char *argv[])
               {
                 gettimeofday(&now, NULL);
                 timersub(&now, &start, &delta);
-                if (timercmp(&delta, &wait, >))
+                if (timercmp(&delta, &wait, > /* For checkpatch */))
                   {
                     printf("Expire time is pasted. GoTo next state.\n");
                     if (app_state == APP_STATE_BEFORE_CAPTURE)
