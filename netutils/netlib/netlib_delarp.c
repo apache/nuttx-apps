@@ -76,8 +76,7 @@ int netlib_del_arpmapping(FAR const struct sockaddr_in *inaddr,
           memset(&req.arp_ha, 0, sizeof(struct sockaddr_in));
           if (ifname != NULL)
             {
-               strlcpy((FAR char *)&req.arp_dev, ifname,
-                       sizeof(req.arp_dev));
+               strlcpy(req.arp_dev, ifname, sizeof(req.arp_dev));
             }
           else
             {
