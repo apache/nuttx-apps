@@ -5,6 +5,7 @@
 
 config TESTING_SCANFTEST
 	tristate "sscanf() test"
+	depends on LIBC_SCANSET
 	default n
 	---help---
 		Enable sscanf() test
