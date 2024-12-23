@@ -1310,7 +1310,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           FAR uint8_t *ptr;
 
           if (ifname != NULL &&
-              strcmp(ifname, (FAR char *)arptab[i].arp_dev) != 0)
+              strcmp(ifname, arptab[i].arp_dev) != 0)
             {
               continue;
             }
