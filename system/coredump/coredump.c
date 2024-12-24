@@ -108,7 +108,7 @@ static int dumpfile_iterate(FAR char *path, dumpfile_cb_t cb, FAR void *arg)
       ret = mkdir(path, 0777);
       if (ret < 0)
         {
-          return ret;
+          return -errno;
         }
     }
 
@@ -156,6 +156,61 @@ static void dumpfile_delete(FAR char *path, FAR const char *filename,
 }
 
 /****************************************************************************
+ * dumpfile_get_info
+ ****************************************************************************/
+
+static int dumpfile_get_info(int fd, FAR struct coredump_info_s *info)
+{
+  Elf_Ehdr ehdr;
+  Elf_Phdr phdr;
+  Elf_Nhdr nhdr;
+  char name[COREDUMP_INFONAME_SIZE];
+
+  if (read(fd, &ehdr, sizeof(ehdr)) != sizeof(ehdr) ||
+      memcmp(ehdr.e_ident, ELFMAG, EI_MAGIC_SIZE) != 0)
+    {
+      return -EINVAL;
+    }
+
+  /* The last program header is for NuttX core info note. */
+
+  if (lseek(fd, ehdr.e_phoff + ehdr.e_phentsize * (ehdr.e_phnum - 1),
+            SEEK_SET) < 0)
+    {
+      return -errno;
+    }
+
+  if (read(fd, &phdr, sizeof(phdr)) != sizeof(phdr) ||
+      lseek(fd, phdr.p_offset, SEEK_SET) < 0)
+    {
+      return -errno;
+    }
+
+  /* The note header must match exactly. */
+
+  if (read(fd, &nhdr, sizeof(nhdr)) != sizeof(nhdr) ||
+      nhdr.n_type != COREDUMP_MAGIC ||
+      nhdr.n_namesz != COREDUMP_INFONAME_SIZE ||
+      nhdr.n_descsz != sizeof(struct coredump_info_s))
+    {
+      return -EINVAL;
+    }
+
+  if (read(fd, name, nhdr.n_namesz) != nhdr.n_namesz ||
+      strcmp(name, "NuttX") != 0)
+    {
+      return -EINVAL;
+    }
+
+  if (read(fd, info, sizeof(*info)) != sizeof(*info))
+    {
+      return -errno;
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * coredump_restore
  ****************************************************************************/
 
@@ -172,6 +227,10 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
   int blkfd;
   off_t off;
   int ret;
+  Elf_Nhdr nhdr =
+    {
+      0
+    };
 
   blkfd = open(CONFIG_SYSTEM_COREDUMP_DEVPATH, O_RDWR);
   if (blkfd < 0)
@@ -179,23 +238,10 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
       return;
     }
 
-  off = lseek(blkfd, -(off_t)sizeof(info), SEEK_END);
-  if (off < 0)
+  ret = dumpfile_get_info(blkfd, &info);
+  if (ret < 0)
     {
-      printf("Seek %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
-      goto blkfd_err;
-    }
-
-  readsize = read(blkfd, &info, sizeof(info));
-  if (readsize != sizeof(info))
-    {
-      printf("Read %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
-      goto blkfd_err;
-    }
-
-  if (info.magic != COREDUMP_MAGIC)
-    {
-      printf("%s coredump not found!\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
+      printf("No core data in %s\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
       goto blkfd_err;
     }
 
@@ -277,16 +323,33 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
       printf("Coredump finish [%s][%zu]\n", dumppath, info.size);
     }
 
-  info.magic = 0;
-  off = lseek(blkfd, -(off_t)sizeof(info), SEEK_END);
+  off  = info.size - sizeof(info);
+  off -= COREDUMP_INFONAME_SIZE;
+  off -= sizeof(Elf_Nhdr);
+  off  = lseek(blkfd, off, SEEK_SET);
   if (off < 0)
     {
       printf("Seek %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
       goto swap_err;
     }
 
-  writesize = write(blkfd, &info, sizeof(info));
-  if (writesize != sizeof(info))
+  writesize = write(blkfd, &nhdr, sizeof(nhdr));
+  if (writesize != sizeof(nhdr))
+    {
+      printf("Write %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
+    }
+
+  /* Erase the core file header too */
+
+  off = lseek(blkfd, 0, SEEK_SET);
+  if (off < 0)
+    {
+      printf("Seek %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
+      goto swap_err;
+    }
+
+  writesize = write(blkfd, "\0\0\0\0", EI_MAGIC_SIZE);
+  if (writesize != EI_MAGIC_SIZE)
     {
       printf("Write %s fail\n", CONFIG_SYSTEM_COREDUMP_DEVPATH);
     }
