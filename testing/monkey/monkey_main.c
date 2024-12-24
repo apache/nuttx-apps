@@ -91,6 +91,8 @@
 #  define MONKEY_SCREEN_GETVIDEOINFO LCDDEVIO_GETVIDEOINFO
 #endif
 
+#define MONKEY_RUNNING_MINUTES_MAX (UINT32_MAX / 60 / 1000)
+
 #define MONKEY_SCREEN_HOR_RES_DEFAULT 480
 #define MONKEY_SCREEN_VER_RES_DEFAULT 480
 
@@ -137,6 +139,7 @@ struct monkey_param_s
   int btn_bit;
   int log_level;
   struct monkey_event_config_s event[MONKEY_EVENT_LAST];
+  uint32_t running_minutes;
 };
 
 enum monkey_wait_res_e
@@ -170,7 +173,8 @@ static void show_usage(FAR const char *progname, int exitcode)
          " --duration-click <string>"
          " --duration-longpress <string>"
          " --duration-drag <string>\n"
-         " --screen-offset <string>\n",
+         " --screen-offset <string>\n"
+         " --running-minutes <decimal-value>\n",
          progname);
 
   printf("\nWhere:\n");
@@ -200,6 +204,7 @@ static void show_usage(FAR const char *progname, int exitcode)
          "<decimal-value min>-<decimal-value max>.\n");
   printf("  --screen-offset <string> Screen offset: "
          "<decimal-value x_offset>,<decimal-value y_offset>\n");
+  printf("  --running-minutes <decimal-value> Running minutes.\n");
 
   exit(exitcode);
 }
@@ -304,6 +309,8 @@ static FAR struct monkey_s *monkey_init(
                         config.event[i].duration_max);
     }
 
+  MONKEY_LOG_NOTICE("Running minutes: %" PRIu32, param->running_minutes);
+
   if (MONKEY_IS_UINPUT_TYPE(param->dev_type_mask))
     {
       if (param->file_path)
@@ -377,6 +384,17 @@ static void parse_long_commandline(int argc, FAR char **argv,
                         ",");
         break;
 
+      case 7:
+        OPTARG_TO_VALUE(param->running_minutes, uint32_t, 10);
+
+        if (param->running_minutes > MONKEY_RUNNING_MINUTES_MAX)
+          {
+            MONKEY_LOG_WARN("Running minutes must be less than %d",
+                            MONKEY_RUNNING_MINUTES_MAX);
+            param->running_minutes = MONKEY_RUNNING_MINUTES_MAX;
+          }
+        break;
+
       default:
         MONKEY_LOG_WARN("Unknown longindex: %d", longindex);
         show_usage(argv[0], EXIT_FAILURE);
@@ -403,6 +421,7 @@ static void parse_commandline(int argc, FAR char **argv,
       {"duration-longpress", required_argument, NULL, 0 },
       {"duration-drag",      required_argument, NULL, 0 },
       {"screen-offset",      required_argument, NULL, 0 },
+      {"running-minutes",    required_argument, NULL, 0 },
       {0,                    0,                 NULL, 0 }
     };
 
@@ -545,6 +564,7 @@ int main(int argc, FAR char *argv[])
 {
   struct monkey_param_s param;
   FAR struct monkey_s *monkey;
+  uint32_t start_tick;
   parse_commandline(argc, argv, &param);
 
   monkey = monkey_init(&param);
@@ -554,10 +574,25 @@ int main(int argc, FAR char *argv[])
       return ERROR;
     }
 
+  start_tick = monkey_tick_get();
+
   while (1)
     {
       enum monkey_wait_res_e res;
       int sleep_ms;
+
+      if (param.running_minutes > 0)
+        {
+          uint32_t elaps = monkey_tick_elaps(monkey_tick_get(), start_tick);
+
+          if (elaps > param.running_minutes * 60 * 1000)
+            {
+              MONKEY_LOG_WARN("Running time is over: %" PRIu32
+                              " minutes, exit...",
+                              param.running_minutes);
+              break;
+            }
+        }
 
       sleep_ms = monkey_update(monkey);
 
