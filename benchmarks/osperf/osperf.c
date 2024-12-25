@@ -239,6 +239,7 @@ static size_t hpwork_performance(void)
     (FAR void *)&result
   };
 
+  memset(&result, 0, sizeof(result));
   memset(&work, 0, sizeof(work));
   performance_start(&result);
   ret = work_queue(HPWORK, &work, work_handle, args, 0);
