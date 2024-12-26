@@ -31,4 +31,8 @@ config TESTING_MM_POWEROFF
 	default n
 	depends on BOARDCTL_POWEROFF
 
+config CM_MM_TEST
+	bool "enbale MM test"
+	default n
+	depends on TESTING_CMOCKA
 endif

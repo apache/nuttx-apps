@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/fstest/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,27 +20,23 @@
 
 include $(APPDIR)/Make.defs
 
-# Memory Management Test
+# Generic file system stress test application info
 
-PROGNAME  = $(CONFIG_TESTING_MM_PROGNAME)
-PRIORITY  = $(CONFIG_TESTING_MM_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_MM_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_MM)
+PROGNAME = $(CONFIG_TESTING_FSTEST_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_FSTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_FSTEST_STACKSIZE)
+MODULE = $(CONFIG_TESTING_FSTEST)
 
-ifneq ($(CONFIG_CM_MM_TEST),)
-CFLAGS += -I$(CURDIR)/cm_mm_test/include
-CSRCS += $(wildcard cm_mm_test/cases/*.c)
-CSRCS += $(wildcard cm_mm_test/common/*.c)
-PROGNAME += cmocka_mm_test
-MAINSRC += $(CURDIR)/cm_mm_test/cmocka_mm_test.c
-PROGNAME += mem_batch_opt_perf_test
-MAINSRC += $(CURDIR)/cm_mm_test/tool/mem_batch_opt_perf_test.c
-PROGNAME += mem_cycle_opt_perf_test
-MAINSRC += $(CURDIR)/cm_mm_test/tool/mem_cycle_opt_perf_test.c
+# Generic file system stress test
+ifneq ($(CONFIG_CM_FS_TEST),)
+CFLAGS += -I$(CURDIR)/cm_fs_test/include
+CFLAGS += -I$(APPDIR)/nshlib
+CSRCS += $(wildcard cm_fs_test/cases/*.c)
+CSRCS += $(wildcard cm_fs_test/common/*.c)
+PROGNAME += cmocka_fs_test
+MAINSRC += $(CURDIR)/cm_fs_test/cmocka_fs_test.c
 endif
 
-MAINSRC += mmtest/mm_main.c
-
-CFLAGS += -I$(TOPDIR)/mm/mm_heap
+MAINSRC += $(CURDIR)/fstest/fstest_main.c
 
 include $(APPDIR)/Application.mk

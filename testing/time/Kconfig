@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTS_TIME
+	tristate "vela time test"
+	default n
+	---help---
+		Enable time test for the vela
+
+if TESTS_TIME
+
+config TESTS_TIME_PRIORITY
+	int "Time task priority"
+	default 99
+
+config TESTS_TIME_STACKSIZE
+	int "Time stack size"
+	default 16384
+
+config CM_TIME_TEST
+	bool "enbale time test"
+	default n
+	depends on TESTING_CMOCKA
+
+
+endif # TESTS_TESTSUITES

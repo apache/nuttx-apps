@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/testsuites/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,27 +20,18 @@
 
 include $(APPDIR)/Make.defs
 
-# Memory Management Test
 
-PROGNAME  = $(CONFIG_TESTING_MM_PROGNAME)
-PRIORITY  = $(CONFIG_TESTING_MM_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_MM_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_MM)
+PRIORITY = $(CONFIG_TESTS_TIME_PRIORITY)
+STACKSIZE = $(CONFIG_TESTS_TIME_STACKSIZE)
+MODULE = $(CONFIG_TESTS_TIME)
 
-ifneq ($(CONFIG_CM_MM_TEST),)
-CFLAGS += -I$(CURDIR)/cm_mm_test/include
-CSRCS += $(wildcard cm_mm_test/cases/*.c)
-CSRCS += $(wildcard cm_mm_test/common/*.c)
-PROGNAME += cmocka_mm_test
-MAINSRC += $(CURDIR)/cm_mm_test/cmocka_mm_test.c
-PROGNAME += mem_batch_opt_perf_test
-MAINSRC += $(CURDIR)/cm_mm_test/tool/mem_batch_opt_perf_test.c
-PROGNAME += mem_cycle_opt_perf_test
-MAINSRC += $(CURDIR)/cm_mm_test/tool/mem_cycle_opt_perf_test.c
+
+ifneq ($(CONFIG_CM_TIME_TEST),)
+CFLAGS += -I$(CURDIR)/cm_time_test/include
+CSRCS += $(wildcard cm_time_test/cases/*.c)
+PROGNAME += cmocka_time_test
+MAINSRC += $(CURDIR)/cm_time_test/cmocka_time_test.c
 endif
 
-MAINSRC += mmtest/mm_main.c
-
-CFLAGS += -I$(TOPDIR)/mm/mm_heap
 
 include $(APPDIR)/Application.mk
