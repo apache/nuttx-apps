@@ -56,12 +56,11 @@ int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
 int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  char arg[CONFIG_NSH_LINELEN] = "";
   int i;
 
   if (argc == 1)
     {
-      strlcpy(arg, "used", CONFIG_NSH_LINELEN);
+      strlcpy(vtbl->templine, "used", sizeof(vtbl->templine));
     }
   else if (argc >= 2 && (strcmp(argv[1], "-h") == 0 ||
                          strcmp(argv[1], "help") == 0))
@@ -73,15 +72,16 @@ int cmd_memdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       for (i = 1; i < argc; i++)
         {
-          strlcat(arg, argv[i], CONFIG_NSH_LINELEN);
+          strlcat(vtbl->templine, argv[i], sizeof(vtbl->templine));
           if (i < argc - 1)
             {
-              strlcat(arg, " ", CONFIG_NSH_LINELEN);
+              strlcat(vtbl->templine, " ", sizeof(vtbl->templine));
             }
         }
     }
 
-  return nsh_writefile(vtbl, argv[0], arg, strlen(arg),
+  return nsh_writefile(vtbl, argv[0], vtbl->templine,
+                       strlen(vtbl->templine),
                        CONFIG_NSH_PROC_MOUNTPOINT "/memdump");
 }
 

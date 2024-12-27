@@ -157,6 +157,14 @@ struct nsh_vtbl_s
   char traceline[CONFIG_NSH_LINELEN];
 #endif
 
+  /* Temporary line buffer */
+
+#if (!defined(CONFIG_NSH_DISABLE_MEMDUMP) && defined(NSH_HAVE_WRITEFILE)) || \
+    !defined(CONFIG_NSH_DISABLEBG) || defined(CONFIG_NSH_PIPELINE) || \
+    !defined(CONFIG_NSH_DISABLE_WATCH)
+  char templine[CONFIG_NSH_LINELEN];
+#endif
+
   /* Current working directory */
 
 #ifdef CONFIG_DISABLE_ENVIRON
