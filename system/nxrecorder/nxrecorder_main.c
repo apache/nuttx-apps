@@ -531,7 +531,7 @@ static int nxrecorder_cmd_help(FAR struct nxrecorder_s *precorder,
 
 int main(int argc, FAR char *argv[])
 {
-  char                    buffer[CONFIG_NSH_LINELEN];
+  char                    buffer[LINE_MAX];
   int                     len;
   int                     x;
   int                     running;
