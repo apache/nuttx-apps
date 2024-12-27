@@ -380,7 +380,7 @@
 /* Maximum size of one command line (telnet or serial) */
 
 #ifndef CONFIG_NSH_LINELEN
-#  define CONFIG_NSH_LINELEN 80
+#  define CONFIG_NSH_LINELEN LINE_MAX
 #endif
 
 /* The maximum number of nested if-then[-else]-fi sequences that

@@ -31,16 +31,6 @@
 #include "system/readline.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* Maximum size of one command line (telnet or serial) */
-
-#ifndef CONFIG_NSH_LINELEN
-#  define CONFIG_NSH_LINELEN 80
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -57,14 +47,14 @@
 
 FAR char *readline(FAR const char *prompt)
 {
-  FAR char *line = malloc(CONFIG_NSH_LINELEN);
+  FAR char *line = malloc(LINE_MAX);
 
   if (line != NULL)
     {
 #ifdef CONFIG_READLINE_TABCOMPLETION
       FAR const char *orig = readline_prompt(prompt);
 #endif
-      if (readline_fd(line, CONFIG_NSH_LINELEN,
+      if (readline_fd(line, LINE_MAX,
                       STDIN_FILENO, STDOUT_FILENO) == 0)
         {
           free(line);

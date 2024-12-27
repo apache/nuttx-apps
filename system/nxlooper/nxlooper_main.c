@@ -500,7 +500,7 @@ static int nxlooper_cmd_help(FAR struct nxlooper_s *plooper, char *parg)
 
 int main(int argc, FAR char *argv[])
 {
-  char                  buffer[CONFIG_NSH_LINELEN];
+  char                  buffer[LINE_MAX];
   int                   len;
   int                   x;
   int                   running;

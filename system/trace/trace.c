@@ -227,7 +227,7 @@ static int trace_cmd_dump(FAR const char *name, int index, int argc,
 static int trace_cmd_cmd(FAR const char *name, int index, int argc,
                          FAR char **argv, int notectlfd)
 {
-  char command[CONFIG_NSH_LINELEN];
+  char command[LINE_MAX];
   bool changed;
   bool cont = false;
 

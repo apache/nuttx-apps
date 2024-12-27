@@ -624,7 +624,7 @@ static int lp503x_cmd_help(FAR char *parg)
 int main(int argc, FAR char *argv[])
 {
   bool running;
-  char buffer[CONFIG_NSH_LINELEN];
+  char buffer[LINE_MAX];
   int len;
   int x;
   char *cmd;

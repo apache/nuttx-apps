@@ -396,7 +396,7 @@ static int nxcamera_cmd_help(FAR struct nxcamera_s *pcam, FAR char *parg)
 
 int main(int argc, FAR char *argv[])
 {
-  char                  buffer[CONFIG_NSH_LINELEN];
+  char                  buffer[LINE_MAX];
   int                   len;
   int                   x;
   bool                  running = true;
