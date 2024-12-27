@@ -176,7 +176,7 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
       write(OUTFD(pstate), g_userprompt, strlen(g_userprompt));
 
       username[0] = '\0';
-      if (readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
+      if (readline_fd(pstate->cn_line, sizeof(pstate->cn_line),
                       INFD(pstate), OUTFD(pstate)) >= 0)
 
         {
@@ -212,8 +212,8 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
         }
 
       password[0] = '\0';
-      ret = readline_fd(pstate->cn_line, CONFIG_NSH_LINELEN,
-                      INFD(pstate), OUTFD(pstate));
+      ret = readline_fd(pstate->cn_line, sizeof(pstate->cn_line),
+                        INFD(pstate), OUTFD(pstate));
 
       /* Enable echo again after password */
 
