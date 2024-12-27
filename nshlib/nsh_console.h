@@ -151,6 +151,12 @@ struct nsh_vtbl_s
 
   bool isctty;
 
+  /* Trace line buffer */
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
+  char traceline[CONFIG_NSH_LINELEN];
+#endif
+
   /* Current working directory */
 
 #ifdef CONFIG_DISABLE_ENVIRON

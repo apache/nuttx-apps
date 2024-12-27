@@ -2460,10 +2460,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-  char      tracebuf[CONFIG_NSH_LINELEN + 1];
-
-  strlcpy(tracebuf, cmdline, sizeof(tracebuf));
-  sched_note_beginex(NOTE_TAG_APP, tracebuf);
+  strlcpy(vtbl->traceline, cmdline, sizeof(vtbl->traceline));
+  sched_note_beginex(NOTE_TAG_APP, vtbl->traceline);
 #endif
 
   /* Initialize parser state */
@@ -2827,7 +2825,7 @@ dynlist_free:
   NSH_ALIASLIST_FREE(vtbl, &alist);
   NSH_MEMLIST_FREE(&memlist);
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-  sched_note_endex(NOTE_TAG_APP, tracebuf);
+  sched_note_endex(NOTE_TAG_APP, vtbl->traceline);
 #endif
   return ret;
 }
