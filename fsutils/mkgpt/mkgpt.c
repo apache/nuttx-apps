@@ -576,8 +576,9 @@ int main(int argc, FAR char **argv)
 
   /* reverse these for the secondary copy */
 
-  hdr->header_lba = sz -1;
+  hdr->header_lba = sz - 1;
   hdr->backup_lba = 1;
+  hdr->entries_lba = sz - 33;
   update_crc32(ptbl);
 
   if (write(fd, &ptbl->entry, sizeof(ptbl->entry)) !=
