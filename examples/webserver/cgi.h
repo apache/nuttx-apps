@@ -1,10 +1,9 @@
 /****************************************************************************
  * apps/examples/webserver/cgi.h
- * Web server script interface header file
- * Author: Adam Dunkels <adam@sics.se>
  *
- * Copyright (c) 2001, Adam Dunkels.
- * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2001-2006, Adam Dunkels. All rights reserved.
+ * SPDX-FileContributor: Adam Dunkels <adam@sics.se>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
