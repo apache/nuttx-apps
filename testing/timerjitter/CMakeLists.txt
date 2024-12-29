@@ -1,7 +1,7 @@
 # ##############################################################################
 # apps/testing/timerjitter/CMakeLists.txt
 #
-# Copyright (C) 2024 Xiaomi Corporation
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
