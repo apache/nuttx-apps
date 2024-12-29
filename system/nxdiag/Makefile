@@ -113,7 +113,7 @@ sysinfo.h : checkpython3 $(INFO_DEPS)
 		exit 1; \
 	fi
 
-depend:: sysinfo.h
+context:: sysinfo.h
 
 distclean::
 	$(call DELFILE, sysinfo.h)
