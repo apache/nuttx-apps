@@ -1,8 +1,9 @@
 /****************************************************************************
  * apps/system/cu/cu.h
  *
- *   Copyright (C) 2014 sysmocom - s.f.m.c. GmbH. All rights reserved.
- *   Author: Harald Welte <hwelte@sysmocom.de>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2014 sysmocom - s.f.m.c. GmbH. All rights reserved.
+ * SPDX-FileContributor: Harald Welte <hwelte@sysmocom.de>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

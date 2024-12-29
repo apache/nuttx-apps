@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/system/lzf/lzf_main.c
  *
- *   Copyright (c) 2006 Stefan Traby <stefan@hello-penguin.com>
+ * SPDX-License-Identifier: BSD-2-Clause
+ * SPDX-FileCopyrightText: 2006 Stefan Traby <stefan@hello-penguin.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
