@@ -64,6 +64,7 @@ CSRCS += options.c
 CSRCS += report.c
 CSRCS += restart.c
 CSRCS += shared_memory.c
+CSRCS += slist.c
 CSRCS += timeutil.c
 CSRCS += toywasm_config.c
 CSRCS += type.c
@@ -145,7 +146,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 CFLAGS += -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-variable -Wno-return-type
 
-TOYWASM_VERSION  = d7bb4aaef08be2d7821891f17bd9ef82ac1ba358
+TOYWASM_VERSION  = e972e94fa427c3371fb21ad4bb9f238a1cca7795
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
