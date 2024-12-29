@@ -1,23 +1,12 @@
 /****************************************************************************
  * apps/system/telnet/telnet_client.c
  *
- * Leveraged from libtelnet, https://github.com/seanmiddleditch/libtelnet.
- * Modified and re-released under the BSD license:
- *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * The original authors of libtelnet are listed below.  Per their licesne,
- * "The author or authors of this code dedicate any and all copyright
- * interest in this code to the public domain. We make this dedication for
- * the benefit of the public at large and to the detriment of our heirs and
- * successors.  We intend this dedication to be an overt act of
- * relinquishment in perpetuity of all present and future rights to this
- * code under copyright law."
- *
- *   Author: Sean Middleditch <sean@sourcemud.org>
- *   (Also listed in the AUTHORS file are Jack Kelly <endgame.dos@gmail.com>
- *   and Katherine Flavel <kate@elide.org>)
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2017 Gregory Nutt. All rights reserved.
+ * SPDX-FileContributor: Sean Middleditch <sean@sourcemud.org>
+ * SPDX-FileContributor: Jack Kelly <endgame.dos@gmail.com>
+ * SPDX-FileContributor: Katherine Flavel <kate@elide.org>
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -48,6 +37,21 @@
  *
  ****************************************************************************/
 
+/* Leveraged from libtelnet, https://github.com/seanmiddleditch/libtelnet.
+ * Modified and re-released under the BSD license.
+ *
+ * The original authors of libtelnet are listed below.  Per their licesne,
+ * "The author or authors of this code dedicate any and all copyright
+ * interest in this code to the public domain. We make this dedication for
+ * the benefit of the public at large and to the detriment of our heirs and
+ * successors.  We intend this dedication to be an overt act of
+ * relinquishment in perpetuity of all present and future rights to this
+ * code under copyright law."
+ *
+ *   Author: Sean Middleditch <sean@sourcemud.org>
+ *   (Also listed in the AUTHORS file are Jack Kelly <endgame.dos@gmail.com>
+ *   and Katherine Flavel <kate@elide.org>)
+ */
 /****************************************************************************
  * Included Files
  ****************************************************************************/
