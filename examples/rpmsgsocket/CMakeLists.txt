@@ -1,5 +1,7 @@
-# ##############################################################################
+################################################################################
 # apps/examples/rpmsgsocket/CMakeLists.txt
+#
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -16,7 +18,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 #
-# ##############################################################################
+################################################################################
 
 if(CONFIG_EXAMPLES_RPMSGSOCKET)
   nuttx_add_application(
