@@ -23,6 +23,6 @@
 #if !defined(_TOYWASM_VERSION_H)
 #define _TOYWASM_VERSION_H
 
-#define TOYWASM_VERSION "v63.0.0"
+#define TOYWASM_VERSION "v65.0.0"
 
 #endif /* !defined(_TOYWASM_VERSION_H) */
