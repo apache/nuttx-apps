@@ -1,8 +1,8 @@
 /****************************************************************************
  * apps/testing/crypto/3descbc.c
- * $OpenBSD: des3.c,v 1.8 2010/10/15 10:39:12 jsg Exp $
  *
- * Copyright (c) 2002 Markus Friedl.  All rights reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ * SPDX-FileCopyrightText: 2002 Markus Friedl.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

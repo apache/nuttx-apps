@@ -1,9 +1,9 @@
 /****************************************************************************
  * apps/testing/crypto/aesxts.c
- * $OpenBSD: aes_xts.c,v 1.2 2013/10/06 16:59:34 jsing Exp $
  *
- * Copyright (c) 2002 Markus Friedl.  All rights reserved.
- * Copyright (c) 2008 Damien Miller.  All rights reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ * SPDX-FileCopyrightText: 2002 Markus Friedl.  All rights reserved.
+ * SPDX-FileCopyrightText: 2008 Damien Miller.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

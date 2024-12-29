@@ -1,8 +1,8 @@
 /****************************************************************************
  * apps/testing/crypto/aescbc.c
- * $OpenBSD: aesctr.c,v 1.1 2005/05/25 05:47:53 markus Exp $
  *
- * Copyright (c) 2005 Markus Friedl <markus@openbsd.org>
+ * SPDX-License-Identifier: ISC
+ * SPDX-FileCopyrightText: 2005 Markus Friedl.  All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
