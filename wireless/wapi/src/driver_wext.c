@@ -1,15 +1,11 @@
 /****************************************************************************
  * apps/wireless/wapi/src/driver_wext.c
- * Driver interaction with generic Wireless Extensions
  *
- *   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
- *   Author: Simon Piriou <spiriou31@gmail.com>
- *           Gregory Nutt <gnutt@nuttx.org>
- *
- * Adapted for NuttX from the driver_ext.c of WPA suplicant written
- * originally by Jouni Malinen
- *
- *   Copyright (c) 2003-2015, Jouni Malinen <j@w1.fi>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2017, 2019 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2003-2015 Jouni Malinen <j@w1.fi>
+ * SPDX-FileContributor: Simon Piriou <spiriou31@gmail.com>
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
