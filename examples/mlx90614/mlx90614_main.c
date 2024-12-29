@@ -1,9 +1,10 @@
 /****************************************************************************
  * apps/examples/mlx90614/mlx90614_main.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Copyright (c) 2015-2017 Pololu Corporation.
- *   Author: Alan Carvalho de Assis <acassis@gmail.com>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2017 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2015-2017 Pololu Corporation.
+ * SPDX-FileContributor: Alan Carvalho de Assis <acassis@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

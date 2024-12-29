@@ -1,8 +1,9 @@
 /****************************************************************************
  * apps/examples/dronecan/canard_main.c
  *
- *   Copyright (C) 2016 ETH Zuerich. All rights reserved.
- *   Author: Matthias Renner <rennerm@ethz.ch>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2016 ETH Zuerich. All rights reserved.
+ * SPDX-FileContributor: Matthias Renner <rennerm@ethz.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
