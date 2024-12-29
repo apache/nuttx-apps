@@ -1,8 +1,8 @@
 /****************************************************************************
  * apps/system/hexed/src/hexinsert.c
- * hexed insert command
  *
- *   Copyright (c) 2011, B.ZaaR, All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2011, B.ZaaR, All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
