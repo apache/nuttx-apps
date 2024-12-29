@@ -1,8 +1,9 @@
 /****************************************************************************
  * apps/examples/lis3dsh_reader/lis3dsh_reader_main.c
  *
- *   Copyright (C) 2017 Florian Olbrich. All rights reserved.
- *   Author: Florian Olbrich <florian.olbrich@oth-regensburg.de>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2017 Florian Olbrich. All rights reserved.
+ * SPDX-FileContributor: Florian Olbrich <florian.olbrich@oth-regensburg.de>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

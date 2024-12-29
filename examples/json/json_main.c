@@ -1,14 +1,10 @@
 /****************************************************************************
  * apps/examples/json/json_main.c
  *
- * This file is a part of NuttX:
- *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
- *   Ported by: Darcy Gong
- *
- * And derives from the cJSON Project which has an MIT license:
- *
- *   Copyright (c) 2009 Dave Gamble
+ * SPDX-License-Identifier: MIT
+ * SPDX-FileCopyrightText: 2012 Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2009 Dave Gamble
+ * SPDX-FileContributor: Darcy Gong
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

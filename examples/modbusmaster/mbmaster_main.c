@@ -1,9 +1,9 @@
 /****************************************************************************
  * apps/examples/modbusmaster/mbmaster_main.c
  *
- * Copyright (c) 2016 Vytautas Lukenskas <lukevyta@gmail.com>
- * Copyright (c) 2019 Alan Carvalho de Assis <acassis@gmail.com>
- * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2016 Vytautas Lukenskas <lukevyta@gmail.com>
+ * SPDX-FileCopyrightText: 2019 Alan Carvalho de Assis <acassis@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

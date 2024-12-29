@@ -1,8 +1,9 @@
 /****************************************************************************
  * apps/examples/pppd/pppd_main.c
  *
- *   Copyright (C) 2015 Brennan Ashton. All rights reserved.
- *   Author: Brennan Ashton <brennan@ombitron.com>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2015 Brennan Ashton. All rights reserved.
+ * SPDX-FileContributor: Brennan Ashton <brennan@ombitron.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
