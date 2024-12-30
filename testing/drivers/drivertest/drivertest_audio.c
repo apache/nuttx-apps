@@ -742,7 +742,7 @@ static int audio_test_setup(FAR void **audio_state)
   attr.mq_flags   = 0;
 
   snprintf(state->mqname, sizeof(state->mqname), "/tmp/%p",
-           ((void *)state));
+           state);
 
   state->mq = mq_open(state->mqname, O_RDWR | O_CREAT, 0644, &attr);
   assert_false(state->mq < 0);
