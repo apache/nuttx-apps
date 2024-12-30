@@ -22,7 +22,7 @@
 
 include $(APPDIR)/Make.defs
 
-NXTOOLSDIR = $(APPDIR)$(DELIM)tools
+NXTOOLSDIR = $(realpath $(TOPDIR))$(DELIM)tools
 NXDIAGDIR = $(APPDIR)$(DELIM)system$(DELIM)nxdiag
 
 # Sysinfo application info
@@ -68,41 +68,8 @@ endif
 # Espressif
 
 ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF),y)
-
-ARCH_ESP_HALDIR = $(TOPDIR)$(DELIM)arch$(DELIM)$(CONFIG_ARCH)$(DELIM)src$(DELIM)chip$(DELIM)esp-hal-3rdparty
-
-# If the esp-hal-3rdparty directory is not in the arch directory, then it can be
-# cloned to the nxdiag directory for debugging purposes.
-HALDIR := $(shell \
-	if [ -f $(ARCH_ESP_HALDIR)$(DELIM).git$(DELIM)index ]; then \
-		echo "$(ARCH_ESP_HALDIR)"; \
-	else \
-		echo "$(NXDIAGDIR)$(DELIM)esp-hal-3rdparty"; \
-	fi \
-)
-
-INFO_DEPS += espressif_prepare
-
-espressif_prepare:
-ifeq ($(HALDIR),$(ARCH_ESP_HALDIR))
-	@echo "Unshallowing Espressif HAL..."
-	(cd ${HALDIR} && git fetch && git fetch --tags)
-endif
-
-ifdef ESPTOOL_BINDIR
-NXDIAG_FLAGS += --espressif "$(ESPTOOL_BINDIR)" "$(HALDIR)"
-else
-NXDIAG_FLAGS += --espressif "$(TOPDIR)" "$(HALDIR)"
-endif
-
-ifeq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP),y)
-ifneq ($(CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP_WO_TOOL),y)
-NXDIAG_FLAGS += --espressif_chip
-else
-NXDIAG_FLAGS += --espressif_chip_runtime
-endif
-endif
-
+NXDIAG_FLAGS += "--target_info"
+PY_FLAGS += "-B"
 endif
 
 # Common build
@@ -117,7 +84,7 @@ checkpython3:
 	fi
 
 sysinfo.h : checkpython3 $(INFO_DEPS)
-	@python3 $(NXTOOLSDIR)$(DELIM)host_sysinfo.py $(NXDIAG_FLAGS) > sysinfo.h
+	@python3 $(PY_FLAGS) $(NXTOOLSDIR)$(DELIM)host_info_dump.py $(NXDIAG_FLAGS) > sysinfo.h
 	if ([ $$? -ne 0 ]); then \
 		echo "ERROR: Failed to generate sysinfo.h"; \
 		exit 1; \
