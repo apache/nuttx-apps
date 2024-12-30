@@ -22,7 +22,7 @@
 
 include $(APPDIR)/Make.defs
 
-NXTOOLSDIR = $(APPDIR)$(DELIM)tools
+NXTOOLSDIR = $(realpath $(TOPDIR))$(DELIM)tools
 NXDIAGDIR = $(APPDIR)$(DELIM)system$(DELIM)nxdiag
 
 # Sysinfo application info
