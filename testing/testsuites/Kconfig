@@ -27,41 +27,33 @@ config TESTS_TESTSUITES_STACKSIZE
 config CM_FS_TEST
 	bool "enable fs test"
 	default n
-	depends on TESTS_TESTSUITES
 
 config CM_SCHED_TEST
 	bool "enbale schedule test"
 	default n
-	depends on TESTS_TESTSUITES
 
 config CM_MM_TEST
 	bool "enbale MM test"
 	default n
-	depends on TESTS_TESTSUITES
 
 config CM_TIME_TEST
 	bool "enbale time test"
 	default n
-	depends on TESTS_TESTSUITES
 
 config CM_PTHREAD_TEST
 	bool "enbale pthread test"
 	default n
-	depends on TESTS_TESTSUITES
 
 config CM_SOCKET_TEST
-    bool "enbale socket test"
-    default n
-    depends on TESTS_TESTSUITES
+	bool "enbale socket test"
+	default n
 
 config CM_SYSCALL_TEST
-    bool "enbale syscall test"
-    default n
-    depends on TESTS_TESTSUITES
+	bool "enbale syscall test"
+	default n
 
 config CM_MUTEX_TEST
-    bool "enbale mutex test"
-    default n
-    depends on TESTS_TESTSUITES
+	bool "enbale mutex test"
+	default n
 
 endif # TESTS_TESTSUITES
