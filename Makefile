@@ -47,6 +47,7 @@ all: $(BIN)
 
 .PHONY: import install dirlinks export .depdirs preconfig depend clean distclean
 .PHONY: context postinstall clean_context context_all postinstall_all register register_all
+.PHONY: debug_info
 .PRECIOUS: $(BIN)
 
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
@@ -205,6 +206,11 @@ ifneq ($(BUILTIN_REGISTRY),)
 endif
 endif
 endif
+
+# debug_info: Parse nxdiag example output file (sysinfo.h) and print
+
+debug_info:
+	$(Q) $(MAKE) -C $(CONFIG_APPS_DIR)/system/nxdiag debug_info
 
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 

@@ -103,9 +103,26 @@ endif
 
 endif
 
+# debug_info target flags to get diagnostic info without building nxdiag application
+
+SYSINFO_PARSE_FLAGS = "$(realpath $(TOPDIR))"
+SYSINFO_PARSE_FLAGS += "-f$(CONFIG_APPS_DIR)/system/nxdiag/sysinfo.h"
+
+SYSINFO_FLAGS = "-c"
+SYSINFO_FLAGS += "-p"
+SYSINFO_FLAGS += -f \""$(shell echo '$(CFLAGS)' | sed 's/"/\\\\\\"/g')"\"
+SYSINFO_FLAGS += \""$(shell echo '$(CXXFLAGS)' | sed 's/"/\\\\\\"/g')"\"
+SYSINFO_FLAGS += \""$(shell echo '$(LDFLAGS)' | sed 's/"/\\\\\\"/g')"\"
+
+ifneq ($(findstring esp,$(CONFIG_ARCH_CHIP)),)
+ARCH_ESP_HALDIR = $(TOPDIR)$(DELIM)arch$(DELIM)$(CONFIG_ARCH)$(DELIM)src$(DELIM)chip$(DELIM)esp-hal-3rdparty
+SYSINFO_FLAGS += --espressif "$(TOPDIR)" "$(ARCH_ESP_HALDIR)"
+SYSINFO_FLAGS += "--espressif_chip"
+endif
+
 # Common build
 
-.PHONY: sysinfo.h
+.PHONY: sysinfo.h debug_info
 
 checkpython3:
 	@if [ -z "$$(which python3)" ]; then \
@@ -120,6 +137,16 @@ sysinfo.h : checkpython3 $(INFO_DEPS)
 		echo "ERROR: Failed to generate sysinfo.h"; \
 		exit 1; \
 	fi
+
+# debug_info: Parse nxdiag example output file (sysinfo.h) and print
+
+debug_info: checkpython3
+	@if [[ ! -f "sysinfo.h" ]]; then \
+		echo "file $(CONFIG_APPS_DIR)/system/nxdiag/sysinfo.h not exists"; \
+		python3 $(NXTOOLSDIR)$(DELIM)host_sysinfo.py $(SYSINFO_FLAGS) \
+		 $(realpath $(TOPDIR)) > sysinfo.h; \
+	fi
+	@python3 $(NXTOOLSDIR)$(DELIM)parse_sysinfo.py $(SYSINFO_PARSE_FLAGS)
 
 depend:: sysinfo.h
 
