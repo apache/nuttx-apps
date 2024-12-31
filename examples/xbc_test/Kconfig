@@ -6,6 +6,8 @@
 config EXAMPLES_XBC_TEST
 	tristate "XBox Controller Test example"
 	default n
+	depends on USBHOST
+	depends on !USBHOST_INT_DISABLE
 	---help---
 		Enable the XBox Controller Test example
 

@@ -6,6 +6,7 @@
 config EXAMPLES_RFID_READUID
 	tristate "RFID Read UID example"
 	default n
+	depends on CL_MFRC522
 	---help---
 		Enable the RFID READUID example
 

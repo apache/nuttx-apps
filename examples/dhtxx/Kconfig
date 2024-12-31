@@ -6,6 +6,7 @@
 config EXAMPLES_DHTXX
 	tristate "Dhtxx sensor example"
 	default n
+	depends on SENSORS_DHTXX
 	---help---
 		Enable the dhtxx sensor example
 

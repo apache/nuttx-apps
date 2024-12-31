@@ -6,6 +6,7 @@
 config EXAMPLES_INA226
 	tristate "INA226 example"
 	default n
+	depends on SENSORS_INA226
 	---help---
 		Enable the INA226 example
 

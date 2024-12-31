@@ -6,6 +6,7 @@
 config EXAMPLES_CAMERA
 	tristate "Camera example"
 	default n
+	depends on DRIVERS_VIDEO
 	---help---
 		Enable the camera example
 

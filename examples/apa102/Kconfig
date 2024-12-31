@@ -6,6 +6,7 @@
 config EXAMPLES_APA102
 	tristate "APA102 LED Strip example"
 	default n
+	depends on LCD_APA102
 	---help---
 		Enable the APA102 example
 

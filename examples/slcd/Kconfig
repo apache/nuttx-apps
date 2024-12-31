@@ -6,6 +6,7 @@
 config EXAMPLES_SLCD
 	tristate "Segment LCD test"
 	default n
+	depends on SLCD
 	---help---
 		Enables a simple test of an alphanumer, segment LCD
 

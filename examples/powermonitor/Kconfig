@@ -6,6 +6,7 @@
 config EXAMPLES_POWERMONITOR
 	tristate "LTC4151 powermonitor example"
 	default n
+	depends on SENSORS_LTC4151
 
 if EXAMPLES_POWERMONITOR
 endif # EXAMPLES_POWERMONITOR

@@ -42,23 +42,9 @@
 
 #include <nuttx/power/powerled.h>
 
-#if defined(CONFIG_EXAMPLES_POWERLED)
-
-#ifndef CONFIG_DRIVERS_POWERLED
-#  error "Powerled example requires powerled support"
-#endif
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#ifndef CONFIG_EXAMPLES_POWERLED_CURRENT_LIMIT
-#  error "LED current limit must be set!"
-#endif
-
-#ifndef CONFIG_LIBC_FLOATINGPOINT
-#  error "CONFIG_LIBC_FLOATINGPOINT must be set!"
-#endif
 
 #define DEMO_CONT_BRIGHTNESS_MAX   100.0
 #define DEMO_CONT_BRIGHTNESS_MIN   0.0
@@ -778,4 +764,3 @@ errout:
   return 0;
 }
 
-#endif /* CONFIG_EXAMPLE_POWERLED */
