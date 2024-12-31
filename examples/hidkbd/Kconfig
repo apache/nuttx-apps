@@ -6,6 +6,7 @@
 config EXAMPLES_HIDKBD
 	tristate "USB HID keyboard example"
 	default n
+	depends on USBHOST_HIDKBD
 	---help---
 		Enable the USB HID keyboard example
 

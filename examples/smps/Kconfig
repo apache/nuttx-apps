@@ -5,6 +5,8 @@
 
 config EXAMPLES_SMPS
 	tristate "Smps example"
+	depends on DRIVERS_SMPS
+	depends on LIBC_FLOATINGPOINT
 
 if EXAMPLES_SMPS
 

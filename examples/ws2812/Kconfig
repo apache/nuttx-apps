@@ -6,6 +6,7 @@
 config EXAMPLES_WS2812
 	tristate "ws2812 Demo Program"
 	default n
+	depends on WS2812
 	---help---
 		Enable the ws2812 demo
 

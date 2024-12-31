@@ -6,6 +6,7 @@
 config EXAMPLES_LP503X
 	tristate "LP503X PWM LED example"
 	default n
+	depends on LP503X
 	---help---
 		Enable the LP503X example
 

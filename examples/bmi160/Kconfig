@@ -6,6 +6,7 @@
 config EXAMPLES_SIXAXIS
 	bool "BMI160 sensor example"
 	default n
+	depends on SENSORS_BMG160
 	---help---
 		Enable the 6 axis sensor example
 
@@ -14,6 +15,7 @@ if EXAMPLES_SIXAXIS
 config EXAMPLES_SIXAXIS_UORB
 	bool "BMI160 sensor uorb example"
 	default n
+	depends on SENSORS_BMI160_UORB
 	---help---
 		Enables Work with the UORB or Character Device interface.
 		If not set, the Character Device is used by default.
