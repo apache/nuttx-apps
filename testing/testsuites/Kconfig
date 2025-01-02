@@ -38,6 +38,7 @@ config CM_MM_TEST
 
 config CM_TIME_TEST
 	bool "enbale time test"
+	depends on !DISABLE_POSIX_TIMERS
 	default n
 
 config CM_PTHREAD_TEST

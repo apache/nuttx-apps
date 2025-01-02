@@ -6,6 +6,7 @@
 config TESTING_PCITEST
 	tristate "\"pcitest tools\""
 	default n
+	depends on PCI_EP_TEST
 	---help---
 		Enable the \"pcitest tools\"
 
