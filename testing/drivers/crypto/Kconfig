@@ -1,7 +1,7 @@
 config TESTING_CRYPTO
 	tristate "crypto test"
 	default n
-	depends on TESTING_CMOCKA
+	depends on (CRYPTO_CRYPTODEV_SOFTWARE || CRYPTO_CRYPTODEV_HARDWARE) && TESTING_CMOCKA
 	---help---
 		Enable crypto test
 
@@ -53,6 +53,7 @@ config TESTING_CRYPTO_ECDSA
 
 config TESTING_CRYPTO_ECDH
 	bool "ecdh crypto test"
+	depends on CRYPTO_RANDOM_POOL
 	default n
 
 config TESTING_CRYPTO_RSA
