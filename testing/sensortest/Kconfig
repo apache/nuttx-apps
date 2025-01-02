@@ -6,6 +6,7 @@
 config TESTING_SENSORTEST
 	tristate "Sensor driver test"
 	default n
+	depends on SENSORS
 	---help---
 		Enable the Sensor driver test
 

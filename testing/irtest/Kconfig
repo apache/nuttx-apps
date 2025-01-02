@@ -6,6 +6,7 @@
 config TESTING_IRTEST
 	tristate "IR driver test"
 	default n
+	depends on DRIVERS_RC
 	---help---
 		Enable the IR driver test
 
