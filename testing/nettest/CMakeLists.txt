@@ -50,4 +50,27 @@ if(CONFIG_TESTING_NET_TEST)
       ${SRCS})
   endif()
 
+  if(CONFIG_TESTING_NET_OTHERS)
+    set(SRCS
+        ${CMAKE_CURRENT_LIST_DIR}/others/test_others.c
+        ${CMAKE_CURRENT_LIST_DIR}/others/test_others_common.c
+        ${CMAKE_CURRENT_LIST_DIR}/others/test_others_bufpool.c)
+
+    nuttx_add_application(
+      NAME
+      cmocka_net_others
+      PRIORITY
+      ${CONFIG_TESTING_NET_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_NET_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_NET_TEST}
+      DEPENDS
+      cmocka
+      INCLUDE_DIRECTORIES
+      ${CMAKE_CURRENT_LIST_DIR}/utils
+      SRCS
+      ${SRCS})
+  endif()
+
 endif()

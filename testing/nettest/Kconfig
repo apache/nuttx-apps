@@ -7,6 +7,7 @@ config TESTING_NET_TEST
 	tristate "vela cmocka net test"
 	default n
 	depends on TESTING_CMOCKA
+	depends on NET
 	---help---
 		Enable the cmocka net test
 
@@ -33,5 +34,9 @@ config TESTING_NET_TCP_PORT
 	default 5471
 
 endif
+
+config TESTING_NET_OTHERS
+	bool "Enable cmocka net other test"
+	default y
 
 endif
