@@ -607,25 +607,24 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
     {
       FAR char *sh_argv[4];
       FAR char *sh_cmd = "sh";
-      char sh_arg2[CONFIG_NSH_LINELEN];
 
       DEBUGASSERT(strncmp(argv[0], sh_cmd, 3) != 0);
 
-      sh_arg2[0] = '\0';
+      vtbl->templine[0] = '\0';
 
       for (ret = 0; ret < argc; ret++)
         {
-          strlcat(sh_arg2, argv[ret], sizeof(sh_arg2));
+          strlcat(vtbl->templine, argv[ret], sizeof(vtbl->templine));
 
           if (ret < argc - 1)
             {
-              strcat(sh_arg2, " ");
+              strcat(vtbl->templine, " ");
             }
         }
 
       sh_argv[0] = sh_cmd;
       sh_argv[1] = "-c";
-      sh_argv[2] = sh_arg2;
+      sh_argv[2] = vtbl->templine;
       sh_argv[3] = NULL;
 
       /* np.np_bg still there, try use nsh_builtin or nsh_fileapp to
@@ -2462,15 +2461,13 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-  char      tracebuf[CONFIG_NSH_LINELEN + 1];
-
-  strlcpy(tracebuf, cmdline, sizeof(tracebuf));
-  sched_note_beginex(NOTE_TAG_APP, tracebuf);
+  strlcpy(vtbl->traceline, cmdline, sizeof(vtbl->traceline));
+  sched_note_beginex(NOTE_TAG_APP, vtbl->traceline);
 #endif
 
   /* Initialize parser state */
 
-  memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+  memset(argv, 0, MAX_ARGV_ENTRIES * sizeof(FAR char *));
   NSH_MEMLIST_INIT(memlist);
   NSH_ALIASLIST_INIT(alist);
 
@@ -2685,7 +2682,6 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
         {
           FAR char *arg;
           FAR char *sh_argv[4];
-          char sh_arg2[CONFIG_NSH_LINELEN];
 
           if (argv[argc][g_pipeline1_len])
             {
@@ -2703,21 +2699,22 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
               goto dynlist_free;
             }
 
-          sh_arg2[0] = '\0';
+          vtbl->templine[0] = '\0';
 
           for (ret = 0; ret < argc; ret++)
             {
-              strlcat(sh_arg2, argv[ret], sizeof(sh_arg2));
+              strlcat(vtbl->templine, argv[ret],
+                      sizeof(vtbl->templine));
 
               if (ret < argc - 1)
                 {
-                  strcat(sh_arg2, " ");
+                  strcat(vtbl->templine, " ");
                 }
             }
 
           sh_argv[0] = "sh";
           sh_argv[1] = "-c";
-          sh_argv[2] = sh_arg2;
+          sh_argv[2] = vtbl->templine;
           sh_argv[3] = NULL;
 
           ret = pipe2(pipefd, 0);
@@ -2829,7 +2826,7 @@ dynlist_free:
   NSH_ALIASLIST_FREE(vtbl, &alist);
   NSH_MEMLIST_FREE(&memlist);
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-  sched_note_endex(NOTE_TAG_APP, tracebuf);
+  sched_note_endex(NOTE_TAG_APP, vtbl->traceline);
 #endif
   return ret;
 }
