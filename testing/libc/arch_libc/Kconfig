@@ -14,7 +14,7 @@ if TESTING_ARCH_LIBC
 
 config TESTING_ARCH_LIBC_STRCPY
 	bool "test strcpy"
-	default n
+	default y
 
 config TESTING_ARCH_LIBC_PROGNAME
 	string "Program name"
