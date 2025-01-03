@@ -108,6 +108,7 @@ static int dumpfile_iterate(FAR char *path, dumpfile_cb_t cb, FAR void *arg)
       ret = mkdir(path, 0777);
       if (ret < 0)
         {
+          printf("Coredump mkdir %s fail\n", path);
           return -errno;
         }
     }
