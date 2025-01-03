@@ -12,6 +12,8 @@ config TESTS_TESTSUITES
 
 if TESTS_TESTSUITES
 
+menu "Testsuite cases"
+
 config TESTS_TESTSUITES_MOUNT_DIR
 	string "Mount directory for the testsuites"
 	default "/data"
@@ -27,19 +29,36 @@ config TESTS_TESTSUITES_STACKSIZE
 config CM_FS_TEST
 	bool "enable fs test"
 	default n
+	depends on PSEUDOFS_SOFTLINKS
 
 config CM_SCHED_TEST
 	bool "enable schedule test"
 	default n
 
+config CM_SYSCALL_TEST
+	bool "enbale syscall test"
+	default n
+	depends on PIPES && SCHED_HAVE_PARENT
+
 config CM_MM_TEST
 	bool "enable MM test"
 	default n
+
+config CM_KVDB_TEST
+	bool "enbale kvdb test"
+	default n
+	depends on KVDB
 
 config CM_TIME_TEST
 	bool "enable time test"
 	depends on !DISABLE_POSIX_TIMERS && SIG_EVTHREAD
 	default n
+	depends on SIG_EVTHREAD
+
+config CM_SOCKET_TEST
+	bool "enbale socket test"
+	default n
+	depends on NET && NETDEV_LATEINIT
 
 config CM_PTHREAD_TEST
 	bool "enable pthread test"
@@ -58,4 +77,10 @@ config CM_MUTEX_TEST
 	bool "enable mutex test"
 	default n
 
+config CM_DFX_TEST
+	bool "enbale dfx test"
+	default n
+	depends on NETUTILS_CJSON && DFX && DFX_EVENT
+
+endmenu
 endif # TESTS_TESTSUITES
