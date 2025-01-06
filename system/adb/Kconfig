@@ -95,7 +95,7 @@ config ADBD_FRAME_MAX
 
 config ADBD_TCP_SERVER
 	bool "Network socket transport support"
-	depends on NET_TCP
+	depends on NET_TCP_NO_STACK || NET_TCPBACKLOG
 	default n
 	---help---
 		Run adb daemon on network socket.
