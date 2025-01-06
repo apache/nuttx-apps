@@ -5,6 +5,7 @@
 
 config TESTING_SMART
 	tristate "SMART file system example"
+	depends on SMART_DEV_LOOP && RAMMTD && FS_SMARTFS
 	default n
 	---help---
 		Enable the SMART file system example

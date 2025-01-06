@@ -6,7 +6,7 @@
 config EXAMPLES_UNIONFS
 	tristate "Union file system example"
 	default n
-	depends on (FS_ROMFS || FS_UNIONFS) && BUILD_FLAT
+	depends on FS_ROMFS && FS_UNIONFS && BUILD_FLAT
 	---help---
 		Enable the Union File System example
 
