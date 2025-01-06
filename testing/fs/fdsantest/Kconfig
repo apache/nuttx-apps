@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FDSAN_TEST
+	tristate "Nuttx cmocka fdsan test"
+	default n
+	depends on TESTING_CMOCKA
+	---help---
+		Enable the cmocka fdsan test
+
+if TESTING_FDSAN_TEST
+
+config TESTING_FDSAN_TEST_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_FDSAN_TEST_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_FDSAN_TEST_SIMPLE
+	bool "Enable cmocka fdsan simple test"
+	default y
+
+endif

@@ -20,17 +20,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "mm"
 
-# Memory Management Test
-
-PROGNAME  = $(CONFIG_TESTING_MM_PROGNAME)
-PRIORITY  = $(CONFIG_TESTING_MM_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_MM_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_MM)
-
-MAINSRC = mm_main.c
-
-CFLAGS += -I$(TOPDIR)/mm/mm_heap
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk
