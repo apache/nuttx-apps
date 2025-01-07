@@ -423,6 +423,10 @@ config NSH_DISABLE_IFCONFIG
 	bool "Disable ifconfig"
 	default DEFAULT_SMALL || !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
 
+config NSH_DISABLE_VCONFIG
+	bool "Disable vconfig"
+	default DEFAULT_SMALL || !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
+
 config NSH_DISABLE_IFUPDOWN
 	bool "Disable ifup/down"
 	default DEFAULT_SMALL || !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
