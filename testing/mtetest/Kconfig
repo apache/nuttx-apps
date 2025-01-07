@@ -9,3 +9,11 @@ config TESTING_MTE
 	default n
 	---help---
 		Enable MTE instruction set test
+
+if TESTING_MTE
+
+config TESTING_MTE_PRIORITY
+	int "Task priority"
+	default 101
+
+endif

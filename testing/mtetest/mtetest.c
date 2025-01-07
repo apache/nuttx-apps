@@ -27,23 +27,40 @@
 #include <nuttx/config.h>
 #include <nuttx/compiler.h>
 
+#include <sys/wait.h>
+
+#include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <spawn.h>
 #include <string.h>
-#include <sys/wait.h>
+#include <unistd.h>
+#include <pthread.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Must be a multiple of sixteen */
 #define MTETEST_BUFFER_LEN 512
+
+#define SCTLR_TCF1_BIT       (1ul << 40)
+
+/****************************************************************************
+ * Private Type
+ ****************************************************************************/
 
 struct mte_test_s
 {
   FAR const char *name;
   FAR void (*func)(void);
+};
+
+struct args_s
+{
+  char   *buffer;
+  size_t  safe_len;
+  size_t  len;
+  sem_t   sem;
 };
 
 /****************************************************************************
@@ -55,6 +72,7 @@ static void mtetest2(void);
 static void mtetest3(void);
 static void mtetest4(void);
 static void mtetest5(void);
+static void switch_mtetest(void);
 
 /****************************************************************************
  * Private Data
@@ -71,6 +89,7 @@ static const struct mte_test_s g_mtetest[] =
   { "mtetest3", mtetest3 },
   { "mtetest4", mtetest4 },
   { "mtetest5", mtetest5 },
+  { "Thread switch MTE test", switch_mtetest },
   { NULL, NULL }
 };
 
@@ -95,7 +114,7 @@ static const struct mte_test_s g_mtetest[] =
  *   tagged.
  ****************************************************************************/
 
-static void __attribute__((noinline)) tagset(void *p, size_t size)
+static void tagset(const void *p, size_t size)
 {
   size_t i;
   for (i = 0; i < size; i += 16)
@@ -123,7 +142,7 @@ static void __attribute__((noinline)) tagset(void *p, size_t size)
  *   correct memory tagging and access.
  ****************************************************************************/
 
-static void __attribute__((noinline)) tagcheck(void *p, size_t size)
+static void tagcheck(const void *p, size_t size)
 {
   size_t i;
   void *c;
@@ -133,6 +152,15 @@ static void __attribute__((noinline)) tagcheck(void *p, size_t size)
       asm("ldg %0, [%1]" : "=r"(c) : "r"(p + i), "0"(p));
       assert(c == p);
     }
+}
+
+/* Disable the mte function */
+
+static void disable_mte(void)
+{
+  uint64_t val = read_sysreg(sctlr_el1);
+  val &= ~SCTLR_TCF1_BIT;
+  write_sysreg(val, sctlr_el1);
 }
 
 /****************************************************************************
@@ -314,6 +342,90 @@ static void mtetest5(void)
 
   asm("stg %0, [%0]" : : "r"(p1 + 16));
   assert(1 == *(p1 + 16));
+}
+
+/* The first entry gets the semaphore for safe access,
+ * and the next switch back to unsafe access
+ */
+
+static void *process1(void *arg)
+{
+  struct args_s *args = (struct args_s *)arg;
+  int i;
+
+  while (1)
+    {
+      sem_wait(&args->sem);
+      printf("Process 1 holding lock\n");
+
+      for (i = 0; i < args->safe_len; i++)
+        {
+          args->buffer[i]++;
+        }
+
+      sem_post(&args->sem);
+      sleep(1);
+      printf("Process 1 holding lock again\n");
+      for (i = 0; i < args->len; i++)
+        {
+          args->buffer[i]++;
+        }
+
+      sem_post(&args->sem);
+    }
+
+  return NULL;
+}
+
+/* Disable unsafe access to MTE functions */
+
+static void *process2(void *arg)
+{
+  struct args_s *args = (struct args_s *)arg;
+  int i;
+
+  while (1)
+    {
+      sem_wait(&args->sem);
+
+      printf("Process 2 holding lock\n");
+      disable_mte();
+
+      for (i = 0; i < args->len; i++)
+        {
+          args->buffer[i]++;
+        }
+
+      sem_post(&args->sem);
+      sleep(1);
+    }
+
+  return NULL;
+}
+
+static void switch_mtetest(void)
+{
+  struct args_s args;
+  pthread_t t1;
+  pthread_t t2;
+
+  sem_init(&args.sem, 1, 1);
+
+  asm("irg %0,%1,%2" : "=r"(args.buffer) : "r"(g_buffer), "r"(1l));
+  assert(args.buffer != g_buffer);
+
+  args.safe_len = sizeof(g_buffer) / 2;
+  args.len = sizeof(g_buffer);
+
+  tagset(args.buffer, args.safe_len);
+
+  pthread_create(&t1, NULL, process1, &args);
+  pthread_create(&t2, NULL, process2, &args);
+
+  pthread_join(t1, NULL);
+  pthread_join(t2, NULL);
+
+  sem_destroy(&args.sem);
 }
 
 static void spawn_test_process(const struct mte_test_s *test)
