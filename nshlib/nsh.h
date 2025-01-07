@@ -1093,6 +1093,9 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  ifndef CONFIG_NSH_DISABLE_IFCONFIG
   int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #  endif
+#  ifndef CONFIG_NSH_DISABLE_VCONFIG
+  int cmd_vconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#  endif
 #  ifndef CONFIG_NSH_DISABLE_IFUPDOWN
   int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
   int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
