@@ -118,6 +118,10 @@ if(CONFIG_NETUTILS_NETLIB)
     list(APPEND SRCS netlib_setmacaddr.c netlib_getmacaddr.c)
   endif()
 
+  if(CONFIG_NET_VLAN)
+    list(APPEND SRCS netlib_addvlan.c netlib_delvlan.c)
+  endif()
+
   list(APPEND SRCS netlib_setmtu.c)
 
   if(CONFIG_WIRELESS_IEEE802154)

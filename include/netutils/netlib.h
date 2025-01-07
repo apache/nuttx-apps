@@ -329,6 +329,11 @@ int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen);
 int netlib_setessid(FAR const char *ifname, FAR const char *essid);
 #endif
 
+#ifdef CONFIG_NET_VLAN
+int netlib_add_vlan(FAR const char *ifname, int vlanid);
+int netlib_del_vlan(FAR const char *vlanif);
+#endif
+
 #ifdef CONFIG_NET_ARP
 /* ARP Table Support */
 
