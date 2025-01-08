@@ -135,10 +135,10 @@ static void parse_commandline(FAR struct oneshot_state_s *oneshot_state,
 }
 
 /****************************************************************************
- * Name: test_case_oneshot
+ * Name: drivertest_oneshot
  ****************************************************************************/
 
-static void test_case_oneshot(FAR void **state)
+static void drivertest_oneshot(FAR void **state)
 {
   int ret;
   int fd;
@@ -222,7 +222,7 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_oneshot, &oneshot_state)
+    cmocka_unit_test_prestate(drivertest_oneshot, &oneshot_state)
   };
 
   parse_commandline(&oneshot_state, argc, argv);

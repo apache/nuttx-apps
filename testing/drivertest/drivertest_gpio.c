@@ -133,10 +133,10 @@ static int setup(FAR void **state)
 }
 
 /****************************************************************************
- * Name: gpiotest01
+ * Name: drivertest_gpio
  ****************************************************************************/
 
-static void gpiotest01(FAR void **state)
+static void drivertest_gpio(FAR void **state)
 {
   FAR struct pre_build_s *pre_build;
   int fd_a;
@@ -242,7 +242,7 @@ int main(int argc, FAR char *argv[])
   parse_commandline(argc, argv, &pre_build);
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(gpiotest01, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_gpio, setup,
                                                teardown, &pre_build),
     };
 

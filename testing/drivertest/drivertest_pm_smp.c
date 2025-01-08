@@ -432,7 +432,7 @@ error_out:
   return (void *)(uintptr_t)ret;
 }
 
-static void test_pm_smp(FAR void **argv)
+static void drivertest_pm_smp(FAR void **argv)
 {
   for (int i = 0; i < CONFIG_SMP_NCPUS; i++)
     {
@@ -486,7 +486,7 @@ int main(int argc, FAR char *argv[])
 {
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(test_pm_smp, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_pm_smp, setup,
                                                teardown, NULL),
     };
 

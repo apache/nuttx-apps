@@ -201,10 +201,10 @@ static void parse_commandline(FAR struct timer_state_s *timer_state,
 }
 
 /****************************************************************************
- * Name: test_case_timer
+ * Name: drivertest_timer
  ****************************************************************************/
 
-static void test_case_timer(FAR void **state)
+static void drivertest_timer(FAR void **state)
 {
   int i;
   int fd;
@@ -318,7 +318,7 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_timer, &timer_state)
+    cmocka_unit_test_prestate(drivertest_timer, &timer_state)
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

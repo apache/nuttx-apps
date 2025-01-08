@@ -528,7 +528,7 @@ static int audio_test_cleanup(FAR struct audio_state_s *state, int direction)
   return 0;
 }
 
-static void audio_test_case(void **audio_state)
+static void drivertest_audio(void **audio_state)
 {
   FAR struct audio_state_s *state;
   FAR struct ap_buffer_s **bufs = NULL;
@@ -801,7 +801,7 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(audio_test_case,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_audio,
                                                audio_test_setup,
                                                audio_test_teardown,
                                                &state),

@@ -34,13 +34,13 @@
  * Private Functions
  ****************************************************************************/
 
-static void test_case_01(FAR void **state)
+static void drivertest_simple_assert(FAR void **state)
 {
   UNUSED(state);
   assert_int_equal(0, 0);
 }
 
-static void test_case_02(FAR void **state)
+static void drivertest_simple_assert_string(FAR void **state)
 {
   UNUSED(state);
   assert_string_not_equal("hello", "world");
@@ -58,8 +58,8 @@ int main(int argc, FAR char *argv[])
 {
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test(test_case_01),
-    cmocka_unit_test(test_case_02),
+    cmocka_unit_test(drivertest_simple_assert),
+    cmocka_unit_test(drivertest_simple_assert_string),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

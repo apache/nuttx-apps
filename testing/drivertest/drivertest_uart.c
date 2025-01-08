@@ -199,10 +199,10 @@ static int teardown(FAR void **state)
 }
 
 /****************************************************************************
- * Name: write_default
+ * Name: drivertest_uart_write
  ****************************************************************************/
 
-static void write_default(FAR void **state)
+static void drivertest_uart_write(FAR void **state)
 {
   FAR struct test_state_s *test_state = (FAR struct test_state_s *)*state;
   int res = write(test_state->fd,
@@ -213,10 +213,10 @@ static void write_default(FAR void **state)
 }
 
 /****************************************************************************
- * Name: read_default
+ * Name: drivertest_uart_read
  ****************************************************************************/
 
-static void read_default(FAR void **state)
+static void drivertest_uart_read(FAR void **state)
 {
   FAR struct test_state_s *test_state = (FAR struct test_state_s *)*state;
   size_t buffer_size = sizeof(DEFAULT_CONTENT);
@@ -245,10 +245,10 @@ static void read_default(FAR void **state)
 }
 
 /****************************************************************************
- * Name: burst_test
+ * Name: drivertest_uart_burst
  ****************************************************************************/
 
-static void burst_test(FAR void **state)
+static void drivertest_uart_burst(FAR void **state)
 {
   FAR struct test_state_s *test_state = (FAR struct test_state_s *)*state;
   int res = 0;
@@ -349,11 +349,11 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(write_default, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_uart_write, setup,
                                                teardown, &confs),
-      cmocka_unit_test_prestate_setup_teardown(read_default, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_uart_read, setup,
                                                teardown, &confs),
-      cmocka_unit_test_prestate_setup_teardown(burst_test, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_uart_burst, setup,
                                                teardown, &confs),
     };
 

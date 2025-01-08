@@ -206,7 +206,7 @@ static void *test_irq_awaker_thread_entry(void *arg)
   return 0;
 }
 
-static void test_irqprio(void **argv)
+static void drivertest_mps2_zerointerrupt(void **argv)
 {
   pid_t tid;
   irqstate_t flags;
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 {
   const struct CMUnitTest tests[] = {
     cmocka_unit_test_prestate_setup_teardown(
-        test_irqprio, setup, teardown, NULL),
+        drivertest_mps2_zerointerrupt, setup, teardown, NULL),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

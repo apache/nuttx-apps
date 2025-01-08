@@ -219,7 +219,7 @@ static void parse_commandline(FAR struct pwm_state_s *pwm_state, int argc,
  * Name: test_case_pwm
  ****************************************************************************/
 
-static void test_case_pwm(FAR void **state)
+static void drivertest_pwm(FAR void **state)
 {
   int fd;
   int ret;
@@ -314,7 +314,7 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_pwm, &pwm_state)
+    cmocka_unit_test_prestate(drivertest_pwm, &pwm_state)
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

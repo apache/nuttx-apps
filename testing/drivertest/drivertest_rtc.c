@@ -150,10 +150,10 @@ static void parse_commandline(FAR struct rtc_state_s *rtc_state, int argc,
 }
 
 /****************************************************************************
- * Name: test_case_rtc_01
+ * Name: drivertest_rtc_api
  ****************************************************************************/
 
-static void test_case_rtc_01(FAR void **state)
+static void drivertest_rtc_api(FAR void **state)
 {
   int fd;
   int ret;
@@ -245,10 +245,10 @@ static void add_timeout(struct rtc_time * rtc_tm, const int delay)
 }
 
 /****************************************************************************
- * Name: test_case_rtc_02
+ * Name: drivertest_rtc_alarm
  ****************************************************************************/
 
-static void test_case_rtc_02(FAR void **state)
+static void drivertest_rtc_alarm(FAR void **state)
 {
   int fd;
   int ret;
@@ -372,10 +372,10 @@ static void rtc_periodic_callback(union sigval arg)
 }
 
 /****************************************************************************
- * Name: test_case_rtc_03
+ * Name: drivertest_rtc_periodic
  ****************************************************************************/
 
-static void test_case_rtc_03(FAR void **state)
+static void drivertest_rtc_periodic(FAR void **state)
 {
   int alarmid = 0;
   int ret;
@@ -434,12 +434,12 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_rtc_01, &rtc_state),
+    cmocka_unit_test_prestate(drivertest_rtc_api, &rtc_state),
 #ifdef CONFIG_RTC_ALARM
-    cmocka_unit_test_prestate(test_case_rtc_02, &rtc_state),
+    cmocka_unit_test_prestate(drivertest_rtc_alarm, &rtc_state),
 #endif
 #ifdef CONFIG_RTC_PERIODIC
-    cmocka_unit_test_prestate(test_case_rtc_03, &rtc_state),
+    cmocka_unit_test_prestate(drivertest_rtc_periodic, &rtc_state),
 #endif
   };
 

@@ -296,10 +296,10 @@ static void draw_rect(FAR struct lcd_info_s *lcd_info, int x, int y,
 }
 
 /****************************************************************************
- * Name: test_case_lcd_0
+ * Name: drivertest_lcd_black
  ****************************************************************************/
 
-static void test_case_lcd_0(FAR void **state)
+static void drivertest_lcd_black(FAR void **state)
 {
   FAR struct lcd_state_s * lcd_state;
   lcd_state = (struct lcd_state_s *)*state;
@@ -311,10 +311,10 @@ static void test_case_lcd_0(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_case_lcd_1
+ * Name: drivertest_lcd_white
  ****************************************************************************/
 
-static void test_case_lcd_1(FAR void **state)
+static void drivertest_lcd_white(FAR void **state)
 {
   FAR struct lcd_state_s * lcd_state;
   lcd_state = (struct lcd_state_s *)*state;
@@ -326,10 +326,10 @@ static void test_case_lcd_1(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_case_lcd_2
+ * Name: drivertest_lcd_cross
  ****************************************************************************/
 
-static void test_case_lcd_2(FAR void **state)
+static void drivertest_lcd_cross(FAR void **state)
 {
   FAR struct lcd_state_s * lcd_state = (struct lcd_state_s *)*state;
   int i = 0;
@@ -360,10 +360,10 @@ static void test_case_lcd_2(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_case_lcd_3
+ * Name: drivertest_lcd_vertical
  ****************************************************************************/
 
-static void test_case_lcd_3(FAR void **state)
+static void drivertest_lcd_vertical(FAR void **state)
 {
   FAR struct lcd_state_s * lcd_state = (struct lcd_state_s *)*state;
   int i = 0;
@@ -428,14 +428,18 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate_setup_teardown(test_case_lcd_0, lcd_setup,
-                                               lcd_teardown, &lcd_state),
-    cmocka_unit_test_prestate_setup_teardown(test_case_lcd_1, lcd_setup,
-                                               lcd_teardown, &lcd_state),
-    cmocka_unit_test_prestate_setup_teardown(test_case_lcd_2, lcd_setup,
-                                               lcd_teardown, &lcd_state),
-    cmocka_unit_test_prestate_setup_teardown(test_case_lcd_3, lcd_setup,
-                                               lcd_teardown, &lcd_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_lcd_black,
+                                             lcd_setup, lcd_teardown,
+                                             &lcd_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_lcd_white,
+                                             lcd_setup, lcd_teardown,
+                                             &lcd_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_lcd_cross,
+                                             lcd_setup, lcd_teardown,
+                                             &lcd_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_lcd_vertical,
+                                             lcd_setup, lcd_teardown,
+                                             &lcd_state),
   };
 
   snprintf(test_filter, sizeof(test_filter), "test_case_lcd_%d",
