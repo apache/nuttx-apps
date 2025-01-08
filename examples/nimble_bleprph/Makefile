@@ -27,10 +27,12 @@ PRIORITY  = $(CONFIG_EXAMPLES_NIMBLE_BLEPRPH_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_NIMBLE_BLEPRPH_STACKSIZE)
 MODULE    = $(CONFIG_EXAMPLES_NIMBLE_BLEPRPH)
 
-# NimBLE Example
+# NimBLE Peripheral Example
 
+CSRCS += misc.c gatt_svr.c
 MAINSRC = nimble_bleprph_main.c
 
 include $(APPDIR)/wireless/bluetooth/nimble/Makefile.nimble
 
 include $(APPDIR)/Application.mk
+

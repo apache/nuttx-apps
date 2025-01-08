@@ -27,10 +27,12 @@ PRIORITY  = $(CONFIG_EXAMPLES_NIMBLE_BLECENT_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_NIMBLE_BLECENT_STACKSIZE)
 MODULE    = $(CONFIG_EXAMPLES_NIMBLE_BLECENT)
 
-# NimBLE Example
+# NimBLE Central Example
 
-MAINSRC = nimble_BLECENT_main.c
+CSRCS += misc.c peer.c
+MAINSRC = nimble_blecent_main.c
 
 include $(APPDIR)/wireless/bluetooth/nimble/Makefile.nimble
 
 include $(APPDIR)/Application.mk
+
