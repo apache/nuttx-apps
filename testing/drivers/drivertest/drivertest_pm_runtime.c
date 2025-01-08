@@ -97,7 +97,7 @@ static int test_pm_runtime_resume(FAR struct pm_runtime_s *dev)
   return 0;
 }
 
-static void test_pm_runtime(FAR void **state)
+static void drivertest_pm_runtime(FAR void **state)
 {
   int ret = 0;
   int cnt = 10;
@@ -167,7 +167,7 @@ int main(int argc, FAR char *argv[])
 {
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(test_pm_runtime, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_pm_runtime, setup,
                                                teardown, NULL),
     };
 
