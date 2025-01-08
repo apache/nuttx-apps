@@ -406,10 +406,10 @@ static void draw_rect(FAR struct fb_state_s *fb_state, int x, int y,
 }
 
 /****************************************************************************
- * Name: test_case_fb_0
+ * Name: drivertest_framebuffer_black
  ****************************************************************************/
 
-static void test_case_fb_0(FAR void **state)
+static void drivertest_framebuffer_black(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
   fb_state = (struct fb_state_s *)*state;
@@ -421,10 +421,10 @@ static void test_case_fb_0(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_case_fb_1
+ * Name: drivertest_framebuffer_white
  ****************************************************************************/
 
-static void test_case_fb_1(FAR void **state)
+static void drivertest_framebuffer_white(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
   fb_state = (struct fb_state_s *)*state;
@@ -436,10 +436,10 @@ static void test_case_fb_1(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_case_fb_2
+ * Name: drivertest_framebuffer_cross
  ****************************************************************************/
 
-static void test_case_fb_2(FAR void **state)
+static void drivertest_framebuffer_cross(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
   fb_state = (struct fb_state_s *)*state;
@@ -470,10 +470,10 @@ static void test_case_fb_2(FAR void **state)
 }
 
 /****************************************************************************
- * Name: test_case_fb_3
+ * Name: drivertest_framebuffer_vertical
  ****************************************************************************/
 
-static void test_case_fb_3(FAR void **state)
+static void drivertest_framebuffer_vertical(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
   fb_state = (struct fb_state_s *)*state;
@@ -541,14 +541,18 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate_setup_teardown(test_case_fb_0, fb_setup,
-                                             fb_teardown, &fb_state),
-    cmocka_unit_test_prestate_setup_teardown(test_case_fb_1, fb_setup,
-                                             fb_teardown, &fb_state),
-    cmocka_unit_test_prestate_setup_teardown(test_case_fb_2, fb_setup,
-                                             fb_teardown, &fb_state),
-    cmocka_unit_test_prestate_setup_teardown(test_case_fb_3, fb_setup,
-                                             fb_teardown, &fb_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_framebuffer_black,
+                                             fb_setup, fb_teardown,
+                                             &fb_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_framebuffer_white,
+                                             fb_setup, fb_teardown,
+                                             &fb_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_framebuffer_cross,
+                                             fb_setup, fb_teardown,
+                                             &fb_state),
+    cmocka_unit_test_prestate_setup_teardown(drivertest_framebuffer_vertical,
+                                             fb_setup, fb_teardown,
+                                             &fb_state),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

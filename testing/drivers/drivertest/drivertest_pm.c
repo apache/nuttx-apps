@@ -150,7 +150,7 @@ static void test_pm_callback_notify(FAR struct pm_callback_s *cb,
   return;
 }
 
-static void test_pm(FAR void **argv)
+static void drivertest_pm(FAR void **argv)
 {
   int persist_stay_cnt[PM_COUNT];
   int init_delay;
@@ -409,7 +409,7 @@ int main(int argc, FAR char *argv[])
 {
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(test_pm, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_pm, setup,
                                                teardown, NULL),
     };
 

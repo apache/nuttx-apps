@@ -161,10 +161,10 @@ int32_t adc_read_one_sample(int fd, bool soft_trigger)
 }
 
 /****************************************************************************
- * Name: test_case_adc
+ * Name: drivertest_adc
  ****************************************************************************/
 
-static void test_case_adc(FAR void** state)
+static void drivertest_adc(FAR void** state)
 {
   int fd;
   bool succ = false;
@@ -228,7 +228,7 @@ int main(int argc, FAR char *argv[])
   parse_commandline(&adc_state, argc, argv);
 
   const struct CMUnitTest tests[] = {
-      cmocka_unit_test_prestate(test_case_adc, &adc_state),
+      cmocka_unit_test_prestate(drivertest_adc, &adc_state),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

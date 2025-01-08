@@ -100,10 +100,10 @@ static int teardown(FAR void **state)
 }
 
 /****************************************************************************
- * Name: read_from_device
+ * Name: drivertest_i2c_spi
  ****************************************************************************/
 
-static void read_from_device(FAR void **state)
+static void drivertest_i2c_spi(FAR void **state)
 {
   FAR struct test_state_s *test_state;
   struct accel_gyro_st_s data;
@@ -163,7 +163,7 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(read_from_device, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_i2c_spi, setup,
                                                teardown, &test_state),
     };
 
