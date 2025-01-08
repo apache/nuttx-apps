@@ -20,7 +20,12 @@
 
 if(CONFIG_EXAMPLES_NIMBLE_BLECENT)
   nuttx_add_application(
-    NAME nimble
-    SRCS ${CMAKE_CURRENT_LIST_DIR}/nimble_blecent_main.c ${CMAKE_CURRENT_LIST_DIR}/misc.c ${CMAKE_CURRENT_LIST_DIR}/peer.c
-    DEPENDS nimble)
+    NAME
+    nimble
+    SRCS
+    ${CMAKE_CURRENT_LIST_DIR}/nimble_blecent_main.c
+    ${CMAKE_CURRENT_LIST_DIR}/misc.c
+    ${CMAKE_CURRENT_LIST_DIR}/peer.c
+    DEPENDS
+    nimble)
 endif()

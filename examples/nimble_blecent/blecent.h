@@ -21,10 +21,15 @@
 #ifndef H_BLECENT_
 #define H_BLECENT_
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <stdio.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 struct ble_hs_adv_fields;
@@ -40,7 +45,8 @@ union ble_store_key;
 #define BLECENT_CHR_UNR_ALERT_STAT_UUID     0x2A45
 #define BLECENT_CHR_ALERT_NOT_CTRL_PT       0x2A44
 
-/** Misc. */
+/* Misc. */
+
 void print_bytes(const uint8_t *bytes, int len);
 void print_mbuf(const struct os_mbuf *om);
 char *addr_str(const void *addr);
@@ -48,14 +54,17 @@ void print_uuid(const ble_uuid_t *uuid);
 void print_conn_desc(const struct ble_gap_conn_desc *desc);
 void print_adv_fields(const struct ble_hs_adv_fields *fields);
 
-/** Peer. */
-struct peer_dsc {
+/* Peer. */
+
+struct peer_dsc
+{
     SLIST_ENTRY(peer_dsc) next;
     struct ble_gatt_dsc dsc;
 };
 SLIST_HEAD(peer_dsc_list, peer_dsc);
 
-struct peer_chr {
+struct peer_chr
+{
     SLIST_ENTRY(peer_chr) next;
     struct ble_gatt_chr chr;
 
@@ -63,7 +72,8 @@ struct peer_chr {
 };
 SLIST_HEAD(peer_chr_list, peer_chr);
 
-struct peer_svc {
+struct peer_svc
+{
     SLIST_ENTRY(peer_svc) next;
     struct ble_gatt_svc svc;
 
@@ -74,19 +84,23 @@ SLIST_HEAD(peer_svc_list, peer_svc);
 struct peer;
 typedef void peer_disc_fn(const struct peer *peer, int status, void *arg);
 
-struct peer {
+struct peer
+{
     SLIST_ENTRY(peer) next;
 
     uint16_t conn_handle;
 
-    /** List of discovered GATT services. */
+    /* List of discovered GATT services. */
+
     struct peer_svc_list svcs;
 
-    /** Keeps track of where we are in the service discovery process. */
+    /* Keeps track of where we are in the service discovery process. */
+
     uint16_t disc_prev_chr_val;
     struct peer_svc *cur_svc;
 
-    /** Callback that gets executed when service discovery completes. */
+    /* Callback that gets executed when service discovery completes. */
+
     peer_disc_fn *disc_cb;
     void *disc_cb_arg;
 };
