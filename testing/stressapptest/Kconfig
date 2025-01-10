@@ -16,6 +16,10 @@ config TESTING_STRESSAPPTEST
 
 if TESTING_STRESSAPPTEST
 
+config TESTING_STRESSAPPTEST_VERSION
+	string "Version of stressapptest"
+	default "1.0.11"
+
 config TESTING_STRESSAPPTEST_PRIORITY
 	int "Priority of stressapptest process"
 	default 100
