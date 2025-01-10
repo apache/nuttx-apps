@@ -83,4 +83,17 @@ endif
 
 endif
 
+ifneq ($(CONFIG_NETUTILS_MQTTC_TEST),)
+$(MQTTC_UNPACK)$(DELIM)tests.c_CFLAGS += \
+            -I$(APPDIR)$(DELIM)testing$(DELIM)cmocka$(DELIM)cmocka$(DELIM)include \
+            -Dopen_nb_socket=test_open_nb_socket \
+            -Dpublish_callback=test_publish_callback
+
+PRIORITY  = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_NETUTILS_MQTTC_TEST_STACKSIZE)
+MODULE    = $(CONFIG_NETUTILS_MQTTC_TEST)
+MAINSRC  += $(MQTTC_UNPACK)$(DELIM)tests.c
+PROGNAME += cmocka_mqttc_test
+endif
+
 include $(APPDIR)/Application.mk
