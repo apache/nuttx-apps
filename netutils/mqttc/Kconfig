@@ -17,9 +17,21 @@ config NETUTILS_MQTTC_EXAMPLE
 	---help---
 		Enable MQTT-C example
 
+config NETUTILS_MQTTC_TEST
+	tristate "Enable MQTT-C test"
+	default n
+
 if NETUTILS_MQTTC_EXAMPLE
 
 config NETUTILS_MQTTC_EXAMPLE_STACKSIZE
+	int "Task's stack size"
+	default 8192
+
+endif
+
+if NETUTILS_MQTTC_TEST
+
+config NETUTILS_MQTTC_TEST_STACKSIZE
 	int "Task's stack size"
 	default 8192
 
