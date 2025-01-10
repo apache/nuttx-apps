@@ -22,6 +22,40 @@
 
 if(CONFIG_TESTING_STRESSAPPTEST)
 
+  set(STRESSAPPTEST_DIR ${CMAKE_CURRENT_LIST_DIR}/stressapptest)
+
+  if(NOT EXISTS ${STRESSAPPTEST_DIR})
+
+    set(STRESSAPPTEST_VERSION ${CONFIG_TESTING_STRESSAPPTEST_VERSION})
+
+    FetchContent_Declare(
+      stressapptest
+      DOWNLOAD_NAME "v${STRESSAPPTEST_VERSION}.tar.gz"
+      DOWNLOAD_DIR ${CMAKE_CURRENT_LIST_DIR}
+      URL "https://github.com/stressapptest/stressapptest/archive/refs/tags/v${STRESSAPPTEST_VERSION}.tar.gz"
+          SOURCE_DIR
+          ${CMAKE_CURRENT_LIST_DIR}/stressapptest
+          BINARY_DIR
+          ${CMAKE_BINARY_DIR}/stressapptest
+          CONFIGURE_COMMAND
+          ""
+          BUILD_COMMAND
+          ""
+          INSTALL_COMMAND
+          ""
+          TEST_COMMAND
+          ""
+      DOWNLOAD_NO_PROGRESS true
+      TIMEOUT 30)
+
+    FetchContent_GetProperties(stressapptest)
+
+    if(NOT stressapptest_POPULATED)
+      FetchContent_Populate(stressapptest)
+    endif()
+
+  endif()
+
   set(SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/stressapptest/src)
 
   set(SRCS

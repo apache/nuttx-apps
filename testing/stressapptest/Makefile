@@ -22,6 +22,21 @@
 
 include $(APPDIR)/Make.defs
 
+STRESSAPPTEST_VERSION=$(patsubst "%",%,$(CONFIG_TESTING_STRESSAPPTEST_VERSION))
+
+v$(STRESSAPPTEST_VERSION).tar.gz:
+	$(call DOWNLOAD,https://github.com/stressapptest/stressapptest/archive/refs/tags/,$@)
+
+stressapptest: v$(STRESSAPPTEST_VERSION).tar.gz
+	$(Q) tar -xf $<
+	$(Q) mv stressapptest-$(STRESSAPPTEST_VERSION) stressapptest
+
+context:: stressapptest
+
+distclean::
+	$(Q) $(DELFILE) v$(STRESSAPPTEST_VERSION).tar.gz
+	$(call DELDIR, stressapptest)
+
 VPATH   += stressapptest
 VPATH   += stressapptest/src
 DEPPATH += --dep-path stressapptest
