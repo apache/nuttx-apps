@@ -47,7 +47,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-#include <string.h>
 #include <stdarg.h>
 
 #if defined(HAVE_ZLIB)

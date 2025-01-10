@@ -36,8 +36,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <setjmp.h>
-#include <cmocka.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <netinet/in.h>

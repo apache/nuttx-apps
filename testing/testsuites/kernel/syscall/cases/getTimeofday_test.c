@@ -29,7 +29,6 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>

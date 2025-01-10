@@ -28,7 +28,6 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/statvfs.h>
 #include <sys/resource.h>
 #include <time.h>
@@ -38,7 +37,6 @@
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/types.h>
-#include <sys/resource.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdint.h>

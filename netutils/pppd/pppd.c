@@ -50,7 +50,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <poll.h>
-#include <time.h>
 #include <debug.h>
 #include <unistd.h>
 

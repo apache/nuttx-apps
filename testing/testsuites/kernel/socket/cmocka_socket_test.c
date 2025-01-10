@@ -27,10 +27,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <setjmp.h>
-#include <stdint.h>
 #include <stdio.h>
 #include "SocketTest.h"
 #include <cmocka.h>

@@ -36,7 +36,6 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
-#include <errno.h>
 #include <cmocka.h>
 #include "SyscallTest.h"
 

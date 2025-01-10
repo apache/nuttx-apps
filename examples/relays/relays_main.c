@@ -36,8 +36,6 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/arch.h>
-
 #ifdef CONFIG_ARCH_RELAYS
 
 /****************************************************************************

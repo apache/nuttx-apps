@@ -44,7 +44,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
-#include <ctype.h>
 #include <fcntl.h>
 #include <sched.h>
 #include <assert.h>

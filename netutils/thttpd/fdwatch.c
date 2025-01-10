@@ -41,7 +41,6 @@
 #include <sys/param.h>
 #include <debug.h>
 #include <poll.h>
-#include <debug.h>
 
 #include "config.h"
 #include "thttpd_alloc.h"

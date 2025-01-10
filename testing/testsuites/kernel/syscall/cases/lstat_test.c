@@ -30,7 +30,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>
