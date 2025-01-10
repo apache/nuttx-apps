@@ -31,7 +31,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <fcntl.h>
 #include <syslog.h>
 #include <stdint.h>
 #include <stdarg.h>

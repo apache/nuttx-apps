@@ -46,7 +46,6 @@
 #include <sys/socket.h>
 #include <syslog.h>
 #include <sys/uio.h>
-#include <net/if.h>
 #include <termios.h>
 #include <nuttx/can.h>
 

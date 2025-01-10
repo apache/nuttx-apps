@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <poll.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 #include "nrf24l01_btle.h"
 

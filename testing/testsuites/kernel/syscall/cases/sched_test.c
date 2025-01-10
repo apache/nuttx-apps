@@ -35,9 +35,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <time.h>
-#include <syslog.h>
 #include <sched.h>
-#include <sys/types.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>

@@ -38,9 +38,7 @@
 #include <cmocka.h>
 #include <grp.h>
 #include <pwd.h>
-#include <sys/types.h>
 #include <syslog.h>
-#include <errno.h>
 #include <pthread.h>
 #include <netinet/in.h>
 

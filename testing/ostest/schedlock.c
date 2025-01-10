@@ -44,7 +44,6 @@
 #include <pthread.h>
 #include <errno.h>
 #include <sched.h>
-#include <unistd.h>
 #include <stdint.h>
 
 #ifdef CONFIG_SIM_WALLTIME_SLEEP

@@ -34,8 +34,6 @@
 #include <unistd.h>
 #include <sys/boardctl.h>
 #include <assert.h>
-#include <stdbool.h>
-#include <stdint.h>
 
 #include "netutils/netinit.h"
 
@@ -51,7 +49,6 @@
 #include "services/ias/ble_svc_ias.h"
 #include "services/lls/ble_svc_lls.h"
 #include "services/tps/ble_svc_tps.h"
-#include "services/gap/ble_svc_gap.h"
 #include "services/bas/ble_svc_bas.h"
 #include "services/dis/ble_svc_dis.h"
 

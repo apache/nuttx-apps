@@ -27,7 +27,6 @@
 #include <syslog.h>
 #include <stdio.h>
 #include <errno.h>
-#include <syslog.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdint.h>
