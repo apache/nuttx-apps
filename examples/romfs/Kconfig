@@ -11,4 +11,11 @@ config EXAMPLES_ROMFS
 		Enable the ROMFS example
 
 if EXAMPLES_ROMFS
+
+config EXAMPLES_ROMFS_RAMDEVNO
+	int "ROMFS example ramdevno"
+	default 10
+	---help---
+		Custom RAMDisk number
+
 endif
