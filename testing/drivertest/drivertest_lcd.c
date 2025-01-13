@@ -418,7 +418,6 @@ int main(int argc, FAR char *argv[])
   /* Initialize the state data */
 
   struct lcd_state_s lcd_state;
-  char test_filter[64];
 
   memset(&lcd_state, 0, sizeof(struct lcd_state_s));
   snprintf(lcd_state.devpath, sizeof(lcd_state.devpath), "%s",
@@ -441,10 +440,6 @@ int main(int argc, FAR char *argv[])
                                              lcd_setup, lcd_teardown,
                                              &lcd_state),
   };
-
-  snprintf(test_filter, sizeof(test_filter), "test_case_lcd_%d",
-                                         lcd_state.test_case_id);
-  cmocka_set_test_filter(test_filter);
 
   return cmocka_run_group_tests(tests, NULL, NULL);
 }
