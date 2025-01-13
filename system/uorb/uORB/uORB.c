@@ -51,6 +51,7 @@
  *   flag         The open flag.
  *   instance     Instance number to open.
  *   queue_size   Maximum number of buffered elements.
+ *   non_wakeup   The non wakeup flag.
  *
  * Returned Value:
  *   fd on success, otherwise returns negative value and set errno.
@@ -58,7 +59,7 @@
 
 static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
                            int instance, unsigned int queue_size,
-                           FAR orb_info_t *info)
+                           FAR orb_info_t *info, bool non_wakeup)
 {
   char path[ORB_PATH_MAX];
   int fd;
@@ -123,6 +124,11 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       ioctl(fd, SNIOC_SET_BUFFER_NUMBER, (unsigned long)queue_size);
     }
 
+  if (non_wakeup)
+    {
+      ioctl(fd, SNIOC_SET_NONWAKEUP, (unsigned long)non_wakeup);
+    }
+
   return fd;
 }
 
@@ -139,7 +145,7 @@ orb_advertise_multi_queue_flags(FAR const struct orb_metadata *meta,
 
   inst = instance ? *instance : orb_group_count(meta);
 
-  fd = orb_advsub_open(meta, flags, inst, queue_size, info);
+  fd = orb_advsub_open(meta, flags, inst, queue_size, info, false);
   if (fd < 0)
     {
       uorberr("%s advertise failed (%i)", meta->o_name, fd);
@@ -210,7 +216,13 @@ ssize_t orb_publish_multi(int fd, FAR const void *data, size_t len)
 int orb_subscribe_multi(FAR const struct orb_metadata *meta,
                         unsigned instance)
 {
-  return orb_advsub_open(meta, O_RDONLY, instance, 0, NULL);
+  return orb_advsub_open(meta, O_RDONLY, instance, 0, NULL, false);
+}
+
+int orb_subscribe_multi_nonwakeup(FAR const struct orb_metadata *meta,
+                                  unsigned instance)
+{
+  return orb_advsub_open(meta, O_RDONLY, instance, 0, NULL, true);
 }
 
 ssize_t orb_copy_multi(int fd, FAR void *buffer, size_t len)
