@@ -188,7 +188,7 @@ struct console_stdio_s
 
   /* Line input buffer */
 
-  char   cn_line[CONFIG_NSH_LINELEN];
+  char   cn_line[LINE_MAX];
 };
 
 /****************************************************************************

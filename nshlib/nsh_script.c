@@ -163,7 +163,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const FAR char *cmd,
 
           /* Now read the next line from the script file */
 
-          ret = readline_fd(buffer, CONFIG_NSH_LINELEN, vtbl->np.np_fd, -1);
+          ret = readline_fd(buffer, LINE_MAX, vtbl->np.np_fd, -1);
           if (ret >= 0)
             {
               /* Parse process the command.  NOTE:  this is recursive...

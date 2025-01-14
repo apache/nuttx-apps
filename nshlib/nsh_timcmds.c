@@ -552,7 +552,7 @@ int cmd_timedatectl(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLE_WATCH
 int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  char buffer[CONFIG_NSH_LINELEN];
+  char buffer[LINE_MAX];
   int interval = 2;
   int count = -1;
   FAR char *cmd;
@@ -595,7 +595,7 @@ int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   for (i = 0; i < count; i++)
     {
-      strlcpy(buffer, cmd, CONFIG_NSH_LINELEN);
+      strlcpy(buffer, cmd, LINE_MAX);
       ret = nsh_parse(vtbl, buffer);
       if (ret < 0)
         {
