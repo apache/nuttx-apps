@@ -636,6 +636,9 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
         }
       else
         {
+          /* Set to non-zero value to wait for flush event */
+
+          result[i] = 1;
           nb_flush++;
         }
 
@@ -659,6 +662,7 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
                   else if (events & SENSOR_EVENT_FLUSH_COMPLETE)
                     {
                       nb_flush--;
+                      result[i] = 0;
                     }
                 }
 
