@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello_rust/Makefile
+# apps/examples/rust/baremetal/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,19 +20,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
-
-# Hello, Rust! built-in application info
-
-PROGNAME  = $(CONFIG_EXAMPLES_HELLO_RUST_PROGNAME)
-PRIORITY  = $(CONFIG_EXAMPLES_HELLO_RUST_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_HELLO_RUST_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_HELLO_RUST)
-
-# Hello, Rust! Example
-
-MAINSRC = hello_rust_main.rs
-
-RUSTFLAGS += -C panic=abort -O
-
-include $(APPDIR)/Application.mk
+ifneq ($(CONFIG_EXAMPLES_HELLO_RUST),)
+CONFIGURED_APPS += $(APPDIR)/examples/rust/baremetal
+endif

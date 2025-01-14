@@ -7,7 +7,8 @@ config EXAMPLES_HELLO_RUST
 	tristate "\"Hello, Rust!\" example"
 	default n
 	---help---
-		Enable the \"Hello, Rust!\" example
+		Enable the \"Hello, Rust!\" example to show how to build
+		and run a baremetal Rust application with rustc.
 
 if EXAMPLES_HELLO_RUST
 
