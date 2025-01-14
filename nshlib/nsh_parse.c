@@ -607,7 +607,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
     {
       FAR char *sh_argv[4];
       FAR char *sh_cmd = "sh";
-      char sh_arg2[CONFIG_NSH_LINELEN];
+      char sh_arg2[LINE_MAX];
 
       DEBUGASSERT(strncmp(argv[0], sh_cmd, 3) != 0);
 
@@ -2462,7 +2462,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 #endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_DUMP
-  char      tracebuf[CONFIG_NSH_LINELEN + 1];
+  char      tracebuf[LINE_MAX + 1];
 
   strlcpy(tracebuf, cmdline, sizeof(tracebuf));
   sched_note_beginex(NOTE_TAG_APP, tracebuf);
@@ -2685,7 +2685,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
         {
           FAR char *arg;
           FAR char *sh_argv[4];
-          char sh_arg2[CONFIG_NSH_LINELEN];
+          char sh_arg2[LINE_MAX];
 
           if (argv[argc][g_pipeline1_len])
             {
