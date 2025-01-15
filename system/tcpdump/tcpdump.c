@@ -30,6 +30,8 @@
 #include <fcntl.h>
 #include <net/if.h>
 #include <net/if_arp.h>
+#include <netinet/if_ether.h>
+#include <netinet/in.h>
 #include <netpacket/packet.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -201,6 +203,7 @@ static int socket_open(int ifindex)
 
   addr.sll_family = AF_PACKET;
   addr.sll_ifindex = ifindex;
+  addr.sll_protocol = htons(ETH_P_ALL);
   if (bind(sd, (FAR const struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
       perror("ERROR: binding socket failed");
