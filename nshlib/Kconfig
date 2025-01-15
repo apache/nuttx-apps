@@ -125,14 +125,6 @@ config NSH_CLE
 
 endchoice
 
-config NSH_LINELEN
-	int "Max command line length"
-	default 64 if DEFAULT_SMALL
-	default 80 if !DEFAULT_SMALL
-	---help---
-		The maximum length of one command line and of one output line.
-		Default: 64/80
-
 config NSH_DISABLE_SEMICOLON
 	bool "Disable multiple commands per line"
 	default DEFAULT_SMALL
