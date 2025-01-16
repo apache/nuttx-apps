@@ -532,7 +532,6 @@ int main(int argc, FAR char *argv[])
   /* Initialize the state data */
 
   struct fb_state_s fb_state;
-  char test_filter[64];
 
   memset(&fb_state, 0, sizeof(struct fb_state_s));
   snprintf(fb_state.devpath, sizeof(fb_state.devpath), "%s",
@@ -551,10 +550,6 @@ int main(int argc, FAR char *argv[])
     cmocka_unit_test_prestate_setup_teardown(test_case_fb_3, fb_setup,
                                              fb_teardown, &fb_state),
   };
-
-  snprintf(test_filter, sizeof(test_filter), "test_case_fb_%d",
-           fb_state.test_case_id);
-  cmocka_set_test_filter(test_filter);
 
   return cmocka_run_group_tests(tests, NULL, NULL);
 }
