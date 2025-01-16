@@ -39,12 +39,16 @@ else ifeq ($(CONFIG_ARCH_SIM),y)
   else
     WTARGET = x86_64
   endif
+else ifeq ($(LLVM_ARCHTYPE),thumbv7a)
+  WTARGET = thumbv7
 else ifeq ($(findstring thumb,$(LLVM_ARCHTYPE)),thumb)
 
   # target triple of thumb may very complex, such as thumbv8m.main+dsp+mve.fp+fp.dp
   # so we just use the target name before the first plus sign
 
   WTARGET = $(shell echo $(LLVM_ARCHTYPE) | cut -d'+' -f1)
+else ifeq ($(LLVM_ARCHTYPE),armv7a)
+  WTARGET = armv7
 endif
 
 # If WTARGET is not defined, then use the same as LLVM_ARCHTYPE
