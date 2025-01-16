@@ -616,6 +616,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
         {
           nsh_error(vtbl, g_fmtcmdoutofmemory, sh_cmd);
           ret = -errno;
+          goto close_redir;
         }
 
       sh_arg2[0] = '\0';
