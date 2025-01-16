@@ -49,6 +49,7 @@ struct pre_build_s
 {
   FAR char *gpio_a;
   FAR char *gpio_b;
+  bool loop;
 };
 
 /****************************************************************************
@@ -62,10 +63,11 @@ struct pre_build_s
 static void show_usage(FAR const char *progname, int exitcode)
 {
   printf("Usage: %s -a <gpio_a>[dev/gpio0] -b"
-         " <gpio_b>[dev/gpio1] \n", progname);
+         " <gpio_b>[dev/gpio1] -l [loop test]\n", progname);
   printf("Where:\n");
   printf("  -a <gpio_a> gpio_a location [default location: dev/gpio0].\n");
   printf("  -b <gpio_b> gpio_b location [default location: dev/gpio1].\n");
+  printf("  -l <loop test> [default: Test the input and output of GPIO ]\n");
   exit(exitcode);
 }
 
@@ -78,7 +80,7 @@ static void parse_commandline(int argc, FAR char **argv,
 {
   int option;
 
-  while ((option = getopt(argc, argv, "a:b:")) != ERROR)
+  while ((option = getopt(argc, argv, "a:b:l")) != ERROR)
     {
       switch (option)
         {
@@ -87,6 +89,9 @@ static void parse_commandline(int argc, FAR char **argv,
             break;
           case 'b':
             pre_build->gpio_b = optarg;
+            break;
+          case 'l':
+            pre_build->loop = true;
             break;
           case '?':
             printf("Unknown option: %c\n", optopt);
@@ -133,10 +138,55 @@ static int setup(FAR void **state)
 }
 
 /****************************************************************************
- * Name: gpiotest01
+ * Name: drivertest_gpio_one
  ****************************************************************************/
 
-static void gpiotest01(FAR void **state)
+static void drivertest_gpio_one(FAR void **state)
+{
+  FAR struct pre_build_s *pre_build;
+  bool outvalue;
+  bool invalue;
+  int fd[2];
+  int ret;
+  int i;
+  int j;
+
+  pre_build = (FAR struct pre_build_s *)*state;
+  fd[0] = open(pre_build->gpio_a, O_RDWR);
+  assert_false(fd[0] < 0);
+
+  fd[1] = open(pre_build->gpio_b, O_RDWR);
+  assert_false(fd[1] < 0);
+
+  /* Test Single GPIO I/O functionality */
+
+  for (i = 0; i < 2; i++)
+    {
+      ret = ioctl(fd[i], GPIOC_SETPINTYPE, GPIO_INPUT_PIN | GPIO_OUTPUT_PIN);
+      assert_false(ret < 0);
+      for (j = 0; j < GPIOTEST_MAXVALUE; j++)
+        {
+          outvalue = gpiotest_randbin();
+          ret = ioctl(fd[i], GPIOC_WRITE, outvalue);
+          assert_false(ret < 0);
+
+          ret = ioctl(fd[i], GPIOC_READ, &invalue);
+          assert_false(ret < 0);
+
+          printf("[input and output test]  outvalue is %d, invalue is %d\n",
+                  outvalue, invalue);
+          assert_int_equal(invalue, outvalue);
+        }
+
+        close(fd[i]);
+    }
+}
+
+/****************************************************************************
+ * Name: drivertest_gpio_loop
+ ****************************************************************************/
+
+static void drivertest_gpio_loop(FAR void **state)
 {
   FAR struct pre_build_s *pre_build;
   int fd_a;
@@ -179,7 +229,7 @@ static void gpiotest01(FAR void **state)
       ret = ioctl(fd_b, GPIOC_READ, (unsigned long)((uintptr_t)&invalue));
       assert_false(ret < 0);
 
-      printf("[__Verify__]  outvalue is %d, invalue is %d\n",
+      printf("[Loop test]  outvalue is %d, invalue is %d\n",
             outvalue, invalue);
       assert_int_equal(invalue, outvalue);
     }
@@ -205,7 +255,7 @@ static void gpiotest01(FAR void **state)
       ret = ioctl(fd_a, GPIOC_READ, (unsigned long)((uintptr_t)&invalue));
       assert_false(ret < 0);
 
-      printf("[__Verify__]  outvalue is %d, invalue is %d\n",
+      printf("[Loop test]  outvalue is %d, invalue is %d\n",
              outvalue, invalue);
       assert_int_equal(invalue, outvalue);
     }
@@ -233,16 +283,28 @@ static int teardown(FAR void **state)
 
 int main(int argc, FAR char *argv[])
 {
+  void (*drivertest_gpio)(FAR void **state);
   FAR struct pre_build_s pre_build =
     {
       .gpio_a = "dev/gpio0",
-      .gpio_b = "dev/gpio1"
+      .gpio_b = "dev/gpio1",
+      .loop   = false
     };
 
   parse_commandline(argc, argv, &pre_build);
+
+  if (pre_build.loop)
+    {
+      drivertest_gpio = drivertest_gpio_loop;
+    }
+  else
+    {
+      drivertest_gpio = drivertest_gpio_one;
+    }
+
   const struct CMUnitTest tests[] =
     {
-      cmocka_unit_test_prestate_setup_teardown(gpiotest01, setup,
+      cmocka_unit_test_prestate_setup_teardown(drivertest_gpio, setup,
                                                teardown, &pre_build),
     };
 

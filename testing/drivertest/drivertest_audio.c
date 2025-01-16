@@ -481,7 +481,7 @@ static bool audio_test_timeout(FAR struct audio_state_s *state,
 
   gettimeofday(&now, NULL);
   timersub(&now, &start, &delta);
-  return timercmp(&delta, &wait, >);
+  return timercmp(&delta, &wait, > /* For checkpatch */);
 }
 
 static int audio_test_stop(FAR struct audio_state_s *state, int direction)
@@ -741,8 +741,8 @@ static int audio_test_setup(FAR void **audio_state)
   attr.mq_curmsgs = 0;
   attr.mq_flags   = 0;
 
-  snprintf(state->mqname, sizeof(state->mqname), "/tmp/%0lx",
-           (unsigned long)((uintptr_t)state));
+  snprintf(state->mqname, sizeof(state->mqname), "/tmp/%p",
+           ((void *)state));
 
   state->mq = mq_open(state->mqname, O_RDWR | O_CREAT, 0644, &attr);
   assert_false(state->mq < 0);
