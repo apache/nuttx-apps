@@ -625,20 +625,19 @@ static int lp503x_cmd_help(FAR char *parg)
 
 int main(int argc, FAR char *argv[])
 {
-  bool running;
   char buffer[LINE_MAX];
+  FAR char *cmd;
+  FAR char *arg;
+  bool running;
   int len;
   int x;
-  char *cmd;
-  char *arg;
 
   fd = open(CONFIG_EXAMPLES_LP503X_DEVPATH, O_CREAT);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
               CONFIG_EXAMPLES_LP503X_DEVPATH, errno);
-              close(fd);
-      return ENODEV;
+      return -ENODEV;
     }
 
   running = true;
