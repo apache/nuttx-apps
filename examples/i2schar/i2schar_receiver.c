@@ -99,7 +99,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
 
   /* Loop for the requested number of times */
 
-  for (i = 0; i < CONFIG_EXAMPLES_I2SCHAR_TXBUFFERS; i++)
+  for (i = 0; i < g_i2schar.rxcount; i++)
     {
       /* Allocate an audio buffer of the configured size */
 
