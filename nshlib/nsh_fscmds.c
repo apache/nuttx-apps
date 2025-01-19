@@ -2191,7 +2191,6 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   bool recursive = false;
   bool force = false;
   FAR char *fullpath;
-  char buf[PATH_MAX];
   struct stat stat;
   int ret = ERROR;
   int c;
@@ -2234,8 +2233,7 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       if (recursive)
         {
-          strlcpy(buf, fullpath, PATH_MAX);
-          ret = unlink_recursive(buf, &stat);
+          ret = unlink_recursive(fullpath, &stat);
         }
       else
         {
