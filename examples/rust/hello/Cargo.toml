@@ -9,11 +9,11 @@ crate-type = ["staticlib"]
 [profile.dev]
 panic = "abort"
 
-# Special hanlding for the panic! macro, can be removed once
-# the libstd port for NuttX is complete.
 [profile.release]
 panic = "abort"
 lto = true
+codegen-units = 1
+opt-level = 'z'
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
