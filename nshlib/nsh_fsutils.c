@@ -73,7 +73,7 @@ static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
                            FAR struct dirent *entryp, FAR void *pvarg)
 {
   FAR struct getpid_arg_s *arg = (FAR struct getpid_arg_s *)pvarg;
-  char buffer[PATH_MAX];
+  FAR char *buffer;
   int fd;
   int len;
 
@@ -82,13 +82,19 @@ static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
       return -E2BIG;
     }
 
+  buffer = lib_get_pathbuffer();
+  if (buffer == NULL)
+    {
+      return -errno;
+    }
+
   /* Match the name of the process */
 
-  snprintf(buffer, sizeof(buffer), "%s/%s/cmdline", dirpath, entryp->d_name);
-
+  snprintf(buffer, PATH_MAX, "%s/%s/cmdline", dirpath, entryp->d_name);
   fd = open(buffer, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     {
+      lib_put_pathbuffer(buffer);
       return 0;
     }
 
@@ -96,6 +102,7 @@ static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
   close(fd);
   if (len < 0)
     {
+      lib_put_pathbuffer(buffer);
       return -errno;
     }
 
@@ -107,6 +114,7 @@ static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
         arg->pids[arg->next++] = atoi(entryp->d_name);
     }
 
+  lib_put_pathbuffer(buffer);
   return OK;
 }
 #endif
