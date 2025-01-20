@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/himem_test/LibIncludes.mk
+# apps/testing/arch/mtetest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,7 +20,11 @@
 #
 ############################################################################
 
+include $(APPDIR)/Make.defs
 
-ifneq ($(CONFIG_TESTING_HIMEM_TEST),)
-CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(TOPDIR)/arch/xtensa/src/esp32"}
-endif
+MAINSRC   = mtetest.c
+PROGNAME  = mtetest
+PRIORITY  = $(CONFIG_TESTING_MTE_PRIORITY)
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+
+include $(APPDIR)/Application.mk

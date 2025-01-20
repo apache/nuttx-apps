@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/himem_test/Make.defs
+# apps/testing/arch/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,7 +20,4 @@
 #
 ############################################################################
 
-
-ifneq ($(CONFIG_TESTING_HIMEM_TEST),)
-CONFIGURED_APPS += $(APPDIR)/testing/himem_test
-endif
+include $(wildcard $(APPDIR)/testing/arch/*/Make.defs)

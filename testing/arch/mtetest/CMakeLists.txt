@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mtetest/CMakeLists.txt
+# apps/testing/arch/mtetest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #

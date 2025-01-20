@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mtetest/Make.defs
+# apps/testing/arch/himem_test/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,19 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_MTE),)
-CONFIGURED_APPS += $(APPDIR)/testing/mtetest
-endif
+
+include $(APPDIR)/Make.defs
+include $(APPDIR)/testing/arch/himem_test/LibIncludes.mk
+
+
+#  built-in application info
+PROGNAME  = $(CONFIG_TESTING_HIMEM_TEST_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_HIMEM_TEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_HIMEM_TEST_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_HIMEM_TEST)
+
+
+MAINSRC = himem_chardev_test.c
+
+
+include $(APPDIR)/Application.mk

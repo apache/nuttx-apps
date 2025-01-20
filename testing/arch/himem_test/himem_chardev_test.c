@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/himem_test/himem_chardev_test.c
+ * apps/testing/arch/himem_test/himem_chardev_test.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
