@@ -82,6 +82,7 @@ endef
 ifeq ($(CONFIG_DEBUG_FULLOPT),y)
 define RUST_CARGO_BUILD
 	cargo build --release -Zbuild-std=std,panic_abort \
+    -Zbuild-std-features=panic_immediate_abort \
 		--manifest-path $(2)/$(1)/Cargo.toml \
 		--target $(call RUST_TARGET_TRIPLE)
 endef
