@@ -122,8 +122,10 @@ function(nuttx_add_rust)
   # Determine build profile based on CONFIG_DEBUG_FULLOPT
   if(CONFIG_DEBUG_FULLOPT)
     set(RUST_PROFILE "release")
+    set(RUST_DEBUG_FLAGS "-Zbuild-std-features=panic_immediate_abort")
   else()
     set(RUST_PROFILE "debug")
+    set(RUST_DEBUG_FLAGS "")
   endif()
 
   # Get the Rust target triple
@@ -142,9 +144,9 @@ function(nuttx_add_rust)
   add_custom_command(
     OUTPUT ${RUST_LIB_PATH}
     COMMAND
-      cargo build --${RUST_PROFILE} -Zbuild-std=std,panic_abort --manifest-path
-      ${CRATE_PATH}/Cargo.toml --target ${RUST_TARGET} --target-dir
-      ${RUST_BUILD_DIR}
+      cargo build --${RUST_PROFILE} -Zbuild-std=std,panic_abort
+      ${RUST_DEBUG_FLAGS} --manifest-path ${CRATE_PATH}/Cargo.toml --target
+      ${RUST_TARGET} --target-dir ${RUST_BUILD_DIR}
     COMMENT "Building Rust crate ${CRATE_NAME}"
     VERBATIM)
 
