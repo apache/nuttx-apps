@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/x86-64-ABI/Makefile
+# apps/testing/arch/x86-64-ABI/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

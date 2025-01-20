@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/mtetest/mtetest.c
+ * apps/testing/arch/mtetest/mtetest.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
