@@ -32,6 +32,7 @@ UNPACK ?= unzip -q -o
 
 MACHDEP=nuttx
 CONFIG_SITE=${CURDIR}/config.site
+SETUP_LOCAL=${CURDIR}/Setup.local
 CPYTHON_PATH=$(CURDIR)/$(CPYTHON_UNPACKNAME)
 
 BUILDIR=$(CURDIR)/build
@@ -92,6 +93,35 @@ $(HOSTPYTHON):
 		 )
 	$(MAKE) -C $(HOSTBUILD) install
 
+# The `config.site` file contains settings that override the configuration
+# settings provided by the `configure` script. Depending on the features
+# enabled on NuttX, this file may need to be adjusted.
+
+$(CONFIG_SITE):
+	$(Q) ( cp $(CONFIG_SITE).in $(CONFIG_SITE))
+ifeq ($(CONFIG_ARCH_HAVE_FORK),y)
+	@echo "export ac_cv_func_fork=\"yes\"" >> $@
+else
+	@echo "export ac_cv_func_fork=\"no\"" >> $@
+endif
+ifeq ($(CONFIG_SYSTEM_SYSTEM),y)
+	@echo "export ac_cv_func_system=\"yes\"" >> $@
+else
+	@echo "export ac_cv_func_system=\"no\"" >> $@
+endif
+
+# The `Setup.local` file enables or disables Python modules.
+# Depending on the features enabled on NuttX, this file may need to be
+# adjusted. Please note that the base `Setup.local.in` file  only contains
+# a section to disable Python modules. Inserting lines to it will disable
+# such modules.
+
+$(SETUP_LOCAL):
+	$(Q) ( cp $(SETUP_LOCAL).in $(SETUP_LOCAL))
+ifneq ($(CONFIG_ARCH_HAVE_FORK),y)
+	@echo "_posixsubprocess" >> $@
+endif
+
 # For the Python's `configure` script, please consider the following
 # when building for NuttX:
 #
@@ -103,7 +133,7 @@ $(HOSTPYTHON):
 # Python/Modules/getpath.c (issue will be filed soon to track this
 # problem).
 
-$(TARGETBUILD)/Makefile: $(HOSTPYTHON)
+$(TARGETBUILD)/Makefile: $(HOSTPYTHON) $(CONFIG_SITE) $(SETUP_LOCAL)
 	$(Q) mkdir -p $(TARGETBUILD)/Modules
 	$(Q) mkdir -p $(TARGETMODULES)/python$(CPYTHON_VERSION_MINOR)
 	$(Q) ( cp Setup.local $(TARGETBUILD)/Modules/Setup.local )
@@ -177,5 +207,7 @@ distclean::
 	$(call DELFILE, $(CPYTHON_ZIP))
 	$(call DELFILE, romfs_cpython_modules.img)
 	$(call DELFILE, romfs_cpython_modules.h)
+	$(call DELFILE, config.site)
+	$(call DELFILE, Setup.local)
 
 include $(APPDIR)/Application.mk
