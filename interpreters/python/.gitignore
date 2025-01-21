@@ -4,3 +4,5 @@
 /Python/
 /romfs_cpython_modules.h
 /romfs_cpython_modules.img
+/config.site
+/Setup.local
