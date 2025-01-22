@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/heaptest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,17 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# Memory Management Test
+
+PROGNAME  = $(CONFIG_TESTING_HEAP_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_HEAP_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_HEAP_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_HEAP)
+
+MAINSRC = heap_main.c
+
+CFLAGS += -I$(TOPDIR)/mm/mm_heap
+
+include $(APPDIR)/Application.mk

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/heaptest/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
-
-include $(APPDIR)/Directory.mk
+ifneq ($(CONFIG_TESTING_HEAP),)
+CONFIGURED_APPS += $(APPDIR)/testing/mm/heaptest
+endif

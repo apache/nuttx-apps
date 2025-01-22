@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/mm/heaptest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,18 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_HEAP)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_HEAP_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_HEAP_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_HEAP_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_HEAP}
+    INCLUDE_DIRECTORIES
+    ${NUTTX_DIR}/mm/mm_heap
+    SRCS
+    heap_main.c)
+endif()

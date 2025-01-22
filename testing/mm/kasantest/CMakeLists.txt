@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/mm/kasantest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,15 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_KASAN)
+  set(CFLAGS
+      -Wno-error
+      -Wno-use-after-free
+      -Wno-array-bounds
+      -Wno-unused-value
+      -Wno-unused-variable
+      -Wno-free-nonheap-object
+      -Wno-stringop-overflow
+      "-O0")
+  nuttx_add_application(NAME kasantest COMPILE_FLAGS ${CFLAGS} SRCS kasantest.c)
+endif()

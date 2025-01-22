@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/ramtest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,15 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# RAM test
+
+PROGNAME = $(CONFIG_TESTING_RAMTEST_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_RAMTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_RAMTEST_STACKSIZE)
+MODULE = $(CONFIG_TESTING_RAMTEST)
+
+MAINSRC = ramtest.c
+
+include $(APPDIR)/Application.mk
