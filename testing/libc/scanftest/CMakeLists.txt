@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/arch_libc/CMakeLists.txt
+# apps/testing/libc/scanftest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,16 +20,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_ARCH_LIBC)
+if(CONFIG_TESTING_SCANFTEST)
   nuttx_add_application(
     NAME
-    ${CONFIG_TESTING_ARCH_LIBC_PROGNAME}
+    ${CONFIG_TESTING_SCANFTEST_PROGNAME}
     PRIORITY
-    ${CONFIG_TESTING_ARCH_LIBC_PRIORITY}
+    ${CONFIG_TESTING_SCANFTEST_PRIORITY}
     STACKSIZE
-    ${CONFIG_TESTING_ARCH_LIBC_STACKSIZE}
+    ${CONFIG_TESTING_SCANFTEST_STACKSIZE}
     MODULE
-    ${CONFIG_TESTING_ARCH_LIBC}
+    ${CONFIG_TESTING_SCANFTEST}
     SRCS
-    arch_libc_test_main.c)
+    scanftest_main.c)
 endif()

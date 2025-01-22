@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/fmemopen/fmemopen.c
+ * apps/testing/libc/fmemopen/fmemopen.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

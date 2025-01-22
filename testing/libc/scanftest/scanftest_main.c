@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/scanftest/scanftest_main.c
+ * apps/testing/libc/scanftest/scanftest_main.c
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SPDX-FileCopyrightText: 2005-01-26, Greg King (https://github.com/cc65)
@@ -55,6 +55,7 @@
  *
  *   Modified: Johannes Schock
  */
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
