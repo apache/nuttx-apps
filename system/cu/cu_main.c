@@ -194,7 +194,7 @@ static int set_termios(FAR struct cu_globals_s *cu, int nocrlf)
 
       tio.c_iflag = 0;
       tio.c_oflag = 0;
-      tio.c_lflag &= ~ECHO;
+      tio.c_lflag &= ~(ECHO | ICANON);
 
       ret = tcsetattr(cu->stdfd, TCSANOW, &tio);
       if (ret)
