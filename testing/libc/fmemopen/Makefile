@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/fmemopen/Makefile
+# apps/testing/libc/fmemopen/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

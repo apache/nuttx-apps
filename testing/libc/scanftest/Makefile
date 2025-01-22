@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/arch_libc/Make.defs
+# apps/testing/libc/scanftest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,17 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_ARCH_LIBC),)
-CONFIGURED_APPS += $(APPDIR)/testing/arch_libc
-endif
+include $(APPDIR)/Make.defs
+
+# scanf() test built-in application info
+
+PROGNAME  = $(CONFIG_TESTING_SCANFTEST_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_SCANFTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SCANFTEST_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_SCANFTEST)
+
+# scanf test files
+
+MAINSRC = scanftest_main.c
+
+include $(APPDIR)/Application.mk

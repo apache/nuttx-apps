@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/scanftest/CMakeLists.txt
+# apps/testing/libc/fmemopen/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,16 +20,14 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_SCANFTEST)
+if(CONFIG_TESTING_FMEMOPEN_TEST)
   nuttx_add_application(
     NAME
-    ${CONFIG_TESTING_SCANFTEST_PROGNAME}
-    PRIORITY
-    ${CONFIG_TESTING_SCANFTEST_PRIORITY}
+    fmemopen_test
     STACKSIZE
-    ${CONFIG_TESTING_SCANFTEST_STACKSIZE}
+    4096
     MODULE
-    ${CONFIG_TESTING_SCANFTEST}
+    ${CONFIG_TESTING_FMEMOPEN_TEST}
     SRCS
-    scanftest_main.c)
+    fmemopen.c)
 endif()

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/fmemopen/Make.defs
+# apps/testing/libc/arch_libc/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,17 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_FMEMOPEN_TEST),)
-CONFIGURED_APPS += $(APPDIR)/testing/fmemopen
-endif
+include $(APPDIR)/Make.defs
+
+# test application info
+
+PROGNAME = $(CONFIG_TESTING_ARCH_LIBC_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_ARCH_LIBC_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_ARCH_LIBC_STACKSIZE)
+MODULE = $(CONFIG_TESTING_ARCH_LIBC)
+
+# arch libc test
+
+MAINSRC = arch_libc_test_main.c
+
+include $(APPDIR)/Application.mk

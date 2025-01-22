@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/fmemopen/CMakeLists.txt
+# apps/testing/libc/arch_libc/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,14 +20,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_FMEMOPEN_TEST)
+if(CONFIG_TESTING_ARCH_LIBC)
   nuttx_add_application(
     NAME
-    fmemopen_test
+    ${CONFIG_TESTING_ARCH_LIBC_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_ARCH_LIBC_PRIORITY}
     STACKSIZE
-    4096
+    ${CONFIG_TESTING_ARCH_LIBC_STACKSIZE}
     MODULE
-    ${CONFIG_TESTING_FMEMOPEN_TEST}
+    ${CONFIG_TESTING_ARCH_LIBC}
     SRCS
-    fmemopen.c)
+    arch_libc_test_main.c)
 endif()

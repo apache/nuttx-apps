@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/arch_libc/arch_libc_test_main.c
+ * apps/testing/libc/arch_libc/arch_libc_test_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
