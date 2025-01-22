@@ -2,7 +2,8 @@
  * apps/system/cu/cu_main.c
  *
  * SPDX-License-Identifier: BSD-3-Clause
- * SPDX-FileCopyrightText: 2014 sysmocom - s.f.m.c. GmbH. All rights reserved.
+ * SPDX-FileCopyrightText:
+ *  2014 sysmocom - s.f.m.c. GmbH. All rights reserved.
  * SPDX-FileContributor: Harald Welte <hwelte@sysmocom.de>
  *
  * Redistribution and use in source and binary forms, with or without
