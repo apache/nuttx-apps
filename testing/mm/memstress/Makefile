@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/memstress/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,15 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# RAM speed test
+
+PROGNAME = $(CONFIG_TESTING_MEMORY_STRESS_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_MEMORY_STRESS_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_MEMORY_STRESS_STACKSIZE)
+MODULE = $(CONFIG_TESTING_MEMORY_STRESS)
+
+MAINSRC = memorystress_main.c
+
+include $(APPDIR)/Application.mk

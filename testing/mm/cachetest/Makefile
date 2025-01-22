@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/cachetest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,15 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# Cache test
+
+PROGNAME = $(CONFIG_TESTING_CACHETEST_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_CACHETEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_CACHETEST_STACKSIZE)
+MODULE = $(CONFIG_TESTING_CACHETEST)
+
+MAINSRC = cachetest_main.c
+
+include $(APPDIR)/Application.mk
