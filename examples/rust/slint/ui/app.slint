@@ -1,0 +1,25 @@
+import { Button, VerticalBox, HorizontalBox , AboutSlint } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    property <int> counter: 0;
+
+    timer := Timer {
+        interval: 1s;
+        running: true;
+        triggered() => {
+            counter += 1;
+        }
+    }
+
+    VerticalBox {
+        Text {
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: "Times since start on NuttX: \n\{root.counter}";
+            font-size: 24px;
+        }
+
+        AboutSlint { }
+
+    }
+}

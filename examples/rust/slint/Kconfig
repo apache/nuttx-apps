@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RUST_SLINT
+	tristate "Slint Basic Example"
+	default n
+	---help---
+		Enable the basic Slint example.
+
+if EXAMPLES_RUST_SLINT
+
+config EXAMPLES_RUST_SLINT_PROGNAME
+	string "Program name"
+	default "slint"
+	---help---
+		This is the name of the program that will be used when the
+		program is installed.
+
+config EXAMPLES_RUST_SLINT_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_RUST_SLINT_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
