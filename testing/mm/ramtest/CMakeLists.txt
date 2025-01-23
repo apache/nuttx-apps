@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/mm/ramtest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,16 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_RAMTEST)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_RAMTEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_RAMTEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_RAMTEST_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_RAMTEST}
+    SRCS
+    ramtest.c)
+endif()

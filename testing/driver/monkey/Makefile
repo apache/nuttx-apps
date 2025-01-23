@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/monkey/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,17 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# Monkey test example
+
+PROGNAME = monkey
+PRIORITY = $(CONFIG_TESTING_MONKEY_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_MONKEY_STACKSIZE)
+MODULE = $(CONFIG_TESTING_MONKEY)
+
+MAINSRC = monkey_main.c
+
+CSRCS += $(filter-out monkey_main.c, $(wildcard *.c))
+
+include $(APPDIR)/Application.mk

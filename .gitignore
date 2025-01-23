@@ -47,3 +47,11 @@ build
 .ccls-cache
 compile_commands.json
 .aider*
+testing/arch/Kconfig
+testing/cxx/Kconfig
+testing/driver/Kconfig
+testing/fs/Kconfig
+testing/libc/Kconfig
+testing/mm/Kconfig
+testing/sched/Kconfig
+testing/security/Kconfig

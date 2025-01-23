@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/security/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,4 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
-
-include $(APPDIR)/Directory.mk
+include $(wildcard $(APPDIR)/testing/security/*/Make.defs)

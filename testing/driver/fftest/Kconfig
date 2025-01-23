@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FF
+	bool "Force feedback test"
+	default n
+
+if TESTING_FF
+
+config TESTING_FF_PROGNAME
+	string "Program name"
+	default "fftest"
+
+config TESTING_FF_PRIORITY
+	int "FF driver test task priority"
+	default 100
+
+config TESTING_FF_STACKSIZE
+	int "FF driver test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

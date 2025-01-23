@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/iob/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,19 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# Iob ! built-in application info
+
+PROGNAME  = $(CONFIG_TESTING_IOB_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_IOB_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_IOB_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_IOB)
+
+# Iob! Example
+
+MAINSRC = iob_main.c
+
+CFLAGS += -I$(TOPDIR)/mm/iob
+
+include $(APPDIR)/Application.mk

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/memtester/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,35 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = $(CONFIG_UTILS_MEMTESTER_PROGNAME)
+PRIORITY  = $(CONFIG_UTILS_MEMTESTER_PRIORITY)
+STACKSIZE = $(CONFIG_UTILS_MEMTESTER_STACKSIZE)
+MODULE    = $(CONFIG_UTILS_MEMTESTER)
+
+CSRCS    += memtester/tests.c
+CSRCS    += memtester/output.c
+
+MAINSRC   = memtester/memtester.c
+
+ifeq ($(CONFIG_UTILS_MEMTESTER_NARROW),y)
+  CFLAGS += -DTEST_NARROW_WRITES
+endif
+
+ifeq ($(wildcard memtester/.git),)
+VERSION ?= master
+memtester.zip:
+	$(Q) curl -L https://github.com/jnavila/memtester/archive/refs/heads/master.zip -o memtester.zip
+	$(Q) unzip -o memtester.zip
+	$(Q) mv memtester-$(VERSION) memtester
+
+context:: memtester.zip
+
+distclean::
+	$(call DELDIR, memtester)
+	$(call DELFILE, memtester.zip)
+
+endif
+
+include $(APPDIR)/Application.mk

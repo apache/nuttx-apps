@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/memstress/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
-
-include $(APPDIR)/Directory.mk
+ifneq ($(CONFIG_TESTING_MEMORY_STRESS),)
+CONFIGURED_APPS += $(APPDIR)/testing/mm/memstress
+endif

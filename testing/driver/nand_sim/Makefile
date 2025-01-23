@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/nand_sim/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME = nand
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_TESTING_NAND_SIM_STACK)
+MODULE = $(CONFIG_TESTING_NAND_SIM)
+
+MAINSRC  = nand_sim_main.c
+
+include $(APPDIR)/Application.mk

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/sd_bench/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = $(CONFIG_TESTING_SD_BENCH_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_SD_BENCH_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SD_BENCH_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_SD_BENCH)
+
+MAINSRC = sd_bench_main.c
+
+include $(APPDIR)/Application.mk

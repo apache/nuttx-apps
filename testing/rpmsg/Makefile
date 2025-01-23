@@ -1,7 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
-#
-# SPDX-License-Identifier: Apache-2.0
+# apps/testing/rpmsg/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,6 +18,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME += testdev
+PRIORITY  := SCHED_PRIORITY_DEFAULT
+STACKSIZE := $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE = $(CONFIG_RPMSGDEV_TEST)
+
+MAINSRC += $(CURDIR)/testdev.c
+
+include $(APPDIR)/Application.mk

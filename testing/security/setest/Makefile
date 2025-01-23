@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/security/setest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,16 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# setest built-in application info
+
+PROGNAME  = $(CONFIG_TESTING_SETEST_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_SETEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SETEST_STACKSIZE)
+
+# setest main source
+
+MAINSRC = setest.c
+
+include $(APPDIR)/Application.mk

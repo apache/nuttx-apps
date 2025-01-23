@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/resmonitor/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,22 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PRIORITY = $(CONFIG_TESTING_RESMONITOR_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_RESMONITOR_STACKSIZE)
+MODULE = $(CONFIG_TESTING_RESMONITOR)
+
+PROGNAME += showinfo
+MAINSRC += $(CURDIR)/showinfo.c
+
+ifeq ($(CONFIG_TESTING_RESMONITOR_FILL),y)
+PROGNAME += filldisk
+MAINSRC += $(CURDIR)/filldisk.c
+PROGNAME += fillcpu
+MAINSRC += $(CURDIR)/fillcpu.c
+PROGNAME += fillmem
+MAINSRC += $(CURDIR)/fillmem.c
+endif
+
+include $(APPDIR)/Application.mk

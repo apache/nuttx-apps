@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/security/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -21,4 +21,4 @@
 # ##############################################################################
 
 nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+nuttx_generate_kconfig(MENUDESC "security")

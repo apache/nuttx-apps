@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/security/setest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,14 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_SETEST)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_SETEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_SETEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_SETEST_STACKSIZE}
+    SRCS
+    setest.c)
+endif()

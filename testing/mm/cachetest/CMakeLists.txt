@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/mm/cachetest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,16 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_CACHETEST)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_CACHETEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_CACHETEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_CACHETEST_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_CACHETEST}
+    SRCS
+    cachetest_main.c)
+endif()

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/pcitest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,15 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PRIORITY  = $(CONFIG_TESTING_PCITEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_PCITEST_STACKSIZE)
+
+MAINSRC = pcitest.c
+
+PROGNAME = pcitest
+
+MODULE = pcitest
+
+include $(APPDIR)/Application.mk

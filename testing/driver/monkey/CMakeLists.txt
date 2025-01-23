@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/driver/monkey/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,19 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_MONKEY)
+  file(GLOB CURRENT_SRCS *.c)
+  list(REMOVE_ITEM CURRENT_SRCS monkey_main.c)
+  set(SRCS monkey_main.c ${CURRENT_SRCS})
+  nuttx_add_application(
+    NAME
+    monkey
+    PRIORITY
+    ${CONFIG_TESTING_MONKEY_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_MONKEY_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_MONKEY}
+    SRCS
+    ${SRCS})
+endif()

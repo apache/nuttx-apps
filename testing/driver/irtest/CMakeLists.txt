@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/driver/irtest/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,19 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_IRTEST)
+  file(GLOB CURRENT_SRCS *.cxx)
+  list(REMOVE_ITEM CURRENT_SRCS main.cxx)
+  set(SRCS main.cxx ${CURRENT_SRCS})
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_IRTEST_PROGNAME}
+    PRIORITY
+    ${CONFIG_TESTING_IRTEST_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_IRTEST_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_IRTEST}
+    SRCS
+    ${SRCS})
+endif()

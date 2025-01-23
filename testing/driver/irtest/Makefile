@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/irtest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,14 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = $(CONFIG_TESTING_IRTEST_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_IRTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_IRTEST_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_IRTEST)
+
+MAINSRC   = main.cxx
+CXXSRCS   = $(filter-out $(MAINSRC), $(wildcard *.cxx))
+
+include $(APPDIR)/Application.mk

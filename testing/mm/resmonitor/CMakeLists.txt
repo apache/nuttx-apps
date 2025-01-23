@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/mm/resmonitor/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,46 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_RESMONITOR)
+  nuttx_add_application(
+    NAME
+    showinfo
+    SRCS
+    showinfo.c
+    STACKSIZE
+    ${CONFIG_TESTING_RESMONITOR_STACKSIZE}
+    PRIORITY
+    ${CONFIG_TESTING_RESMONITOR_PRIORITY})
+
+  if(CONFIG_TESTING_RESMONITOR_FILL)
+    nuttx_add_application(
+      NAME
+      filldisk
+      SRCS
+      filldisk.c
+      STACKSIZE
+      ${CONFIG_TESTING_RESMONITOR_STACKSIZE}
+      PRIORITY
+      ${CONFIG_TESTING_RESMONITOR_PRIORITY})
+
+    nuttx_add_application(
+      NAME
+      fillcpu
+      SRCS
+      fillcpu.c
+      STACKSIZE
+      ${CONFIG_TESTING_RESMONITOR_STACKSIZE}
+      PRIORITY
+      ${CONFIG_TESTING_RESMONITOR_PRIORITY})
+
+    nuttx_add_application(
+      NAME
+      fillmem
+      SRCS
+      fillmem.c
+      STACKSIZE
+      ${CONFIG_TESTING_RESMONITOR_STACKSIZE}
+      PRIORITY
+      ${CONFIG_TESTING_RESMONITOR_PRIORITY})
+  endif()
+endif()

@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_PCITEST
+	tristate "\"pcitest tools\""
+	default n
+	depends on PCI_EP_TEST
+	---help---
+		Enable the \"pcitest tools\"
+
+if TESTING_PCITEST
+
+config TESTING_PCITEST_PRIORITY
+	int "pcitest task priority"
+	default 100
+
+config TESTING_PCITEST_STACKSIZE
+	int "pcitest stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

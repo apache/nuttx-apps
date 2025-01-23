@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/driver/nand_sim/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,14 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_NAND_SIM)
+  nuttx_add_application(
+    NAME
+    nand
+    STACKSIZE
+    ${CONFIG_TESTING_NAND_SIM_STACK}
+    MODULE
+    ${CONFIG_TESTING_NAND_SIM}
+    SRCS
+    nand_sim_main.c)
+endif()

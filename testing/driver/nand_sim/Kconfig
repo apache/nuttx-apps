@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_NAND_SIM
+	boolean "NAND Flash Simulator"
+	depends on MTD_NAND_RAM
+	default n
+	---help---
+		Enable the NAND Flash Simulator device.
+
+if TESTING_NAND_SIM
+
+config TESTING_NAND_SIM_SIZE
+	int "Size of NAND Flash in MB"
+	default 2
+	---help---
+		Size of NAND Flash in Megabytes.
+
+config TESTING_NAND_SIM_DEBUG
+	int "Debugging mode"
+	default 1
+	range 0 2
+	---help---
+		0 - Disable debugging mode
+		1 - Enable debugging mode to standard I/O
+		2 - Enable debugging mode to a special file
+
+config TESTING_NAND_SIM_STACK
+	int "Builtin task stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		Size of the task to configure when started nand from NSH
+endif

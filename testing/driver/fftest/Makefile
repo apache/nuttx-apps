@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/fftest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = $(CONFIG_TESTING_FF_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_FF_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_FF_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_FF)
+
+MAINSRC = fftest.c
+
+include $(APPDIR)/Application.mk

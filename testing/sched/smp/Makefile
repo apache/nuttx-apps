@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/sched/smp/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,17 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# SMP built-in application info
+
+PROGNAME = $(CONFIG_TESTING_SMP_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_SMP_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SMP_STACKSIZE)
+MODULE = $(CONFIG_TESTING_SMP)
+
+# SMP Example
+
+MAINSRC = smp_main.c
+
+include $(APPDIR)/Application.mk

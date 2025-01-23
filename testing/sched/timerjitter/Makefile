@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/sched/timerjitter/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = timerjitter
+PRIORITY  = $(CONFIG_TESTING_TIMERJITTER_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_TIMERJITTER_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_TIMERJITTER)
+
+MAINSRC = timerjitter.c
+
+include $(APPDIR)/Application.mk

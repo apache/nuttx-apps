@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/sched/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+MENUDESC = "sched"
 
 include $(APPDIR)/Directory.mk

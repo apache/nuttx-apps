@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/sched/cpuload/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = cpuload
+PRIORITY  = 253
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_CPULOAD)
+
+MAINSRC = cpuload_main.c
+
+include $(APPDIR)/Application.mk

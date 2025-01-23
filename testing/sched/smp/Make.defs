@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/sched/smp/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
-
-include $(APPDIR)/Directory.mk
+ifneq ($(CONFIG_TESTING_SMP),)
+CONFIGURED_APPS += $(APPDIR)/testing/sched/smp
+endif

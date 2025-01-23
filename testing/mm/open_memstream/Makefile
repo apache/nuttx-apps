@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/mm/open_memstream/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,15 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# SMART filesystem test tool
+
+PROGNAME = open_memstream_test
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 4096
+MODULE = $(CONFIG_TESTING_FMEMOPEN_TEST)
+
+MAINSRC = open_memstream.c
+
+include $(APPDIR)/Application.mk

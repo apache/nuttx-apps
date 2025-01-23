@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/sd_stress/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = $(CONFIG_TESTING_SD_STRESS_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_SD_STRESS_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SD_STRESS_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_SD_STRESS)
+
+MAINSRC = sd_stress_main.c
+
+include $(APPDIR)/Application.mk

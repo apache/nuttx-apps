@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/Makefile
+# apps/testing/driver/sensor/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-MENUDESC = "mm"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+PROGNAME  = $(CONFIG_TESTING_SENSORTEST_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_SENSORTEST_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_SENSORTEST_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_SENSORTEST)
+
+MAINSRC = sensortest.c
+
+include $(APPDIR)/Application.mk

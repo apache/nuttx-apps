@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/CMakeLists.txt
+# apps/testing/sched/getprime/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,5 +20,14 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
-nuttx_generate_kconfig(MENUDESC "mm")
+if(CONFIG_TESTING_GETPRIME)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_TESTING_GETPRIME_PROGNAME}
+    SRCS
+    getprime_main.c
+    STACKSIZE
+    ${CONFIG_TESTING_GETPRIME_STACKSIZE}
+    PRIORITY
+    ${CONFIG_TESTING_GETPRIME_PRIORITY})
+endif()
