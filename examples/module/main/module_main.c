@@ -253,7 +253,8 @@ int main(int argc, FAR char *argv[])
          CONFIG_EXAMPLES_MODULE_FSTYPE, MOUNTPT);
 
   ret = mount(CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT,
-              CONFIG_EXAMPLES_MODULE_FSTYPE, MS_RDONLY, NULL);
+              CONFIG_EXAMPLES_MODULE_FSTYPE, MS_RDONLY,
+              CONFIG_EXAMPLES_MODULE_FSDATA);
   if (ret < 0)
     {
       printf("ERROR: mount(%s, %s, %s) failed: %d\n",
