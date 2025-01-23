@@ -47,3 +47,4 @@ build
 .ccls-cache
 compile_commands.json
 .aider*
+.clang-format

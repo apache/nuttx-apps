@@ -54,13 +54,22 @@ int main(int argc, FAR char *argv[])
   int cnt;
   char ch;
   char line[MINMEA_MAX_LENGTH];
+  char *port = "/dev/ttyS1";
+
+  /* Get the GPS serial port argument. If none specified, default to ttyS1 */
+
+  if (argc > 1)
+    {
+      port = argv[1];
+    }
 
   /* Open the GPS serial port */
 
-  fd = open("/dev/ttyS1", O_RDONLY);
+  fd = open(port, O_RDONLY);
   if (fd < 0)
     {
-      printf("Unable to open file /dev/ttyS1\n");
+      fprintf(stderr, "Unable to open file %s\n", port);
+      return 1;
     }
 
   /* Run forever */
