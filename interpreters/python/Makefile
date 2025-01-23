@@ -189,7 +189,7 @@ romfs_cpython_modules.img : $(TARGETLIBPYTHON) checkgenromfs
 	@genromfs -f $@ -d $(TARGETMODULES) -V "ROMFS_Test" || { echo "genromfs failed" ; exit 1 ; }
 
 romfs_cpython_modules.h : romfs_cpython_modules.img
-	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
+	@xxd -i $< | sed -e "s/^unsigned/static const unsigned/g" >$@ || { echo "xxd of $< failed" ; exit 1 ; }
 
 context:: $(CPYTHON_UNPACKNAME)
 
