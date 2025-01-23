@@ -115,6 +115,14 @@ config EXAMPLES_MODULE_BINDIR
 		The full, absolute path to the location for the binaries can be
 		located in a pre-mounted external file system.
 
+config EXAMPLES_MODULE_FSDATA
+	string "Additional data passed to mount"
+	default ""
+	depends on EXAMPLES_MODULE_FSMOUNT
+	---help---
+		Additional data needed by mount. For example, when hostfs
+		is used, this can be "fs=../apps/bin"
+
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"
 	default n
