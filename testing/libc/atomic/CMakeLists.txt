@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/smp/CMakeLists.txt
+# apps/testing/libc/atomic/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,14 +20,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_SMP)
+if(CONFIG_TESTING_ATOMIC)
   nuttx_add_application(
     NAME
-    ${CONFIG_TESTING_SMP_PROGNAME}
-    SRCS
-    smp_main.c
-    STACKSIZE
-    ${CONFIG_TESTING_SMP_STACKSIZE}
+    ${CONFIG_TESTING_ATOMIC_PROGNAME}
     PRIORITY
-    ${CONFIG_TESTING_SMP_PRIORITY})
+    ${CONFIG_TESTING_ATOMIC_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_ATOMIC_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_ATOMIC}
+    SRCS
+    atomic_main.c)
 endif()

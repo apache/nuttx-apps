@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/getprime/getprime_main.c
+ * apps/testing/sched/getprime/getprime_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

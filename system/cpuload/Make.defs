@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/timerjitter/Make.defs
+# apps/system/cpuload/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_TIMERJITTER),)
-CONFIGURED_APPS += $(APPDIR)/testing/timerjitter
+ifneq ($(CONFIG_SYSTEM_CPULOAD),)
+CONFIGURED_APPS += $(APPDIR)/testing/sched/cpuload
 endif

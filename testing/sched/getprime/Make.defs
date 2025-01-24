@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/cpuload/Make.defs
+# apps/testing/sched/getprime/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_CPULOAD),)
-CONFIGURED_APPS += $(APPDIR)/testing/cpuload
+ifneq ($(CONFIG_TESTING_GETPRIME),)
+CONFIGURED_APPS += $(APPDIR)/testing/sched/getprime
 endif

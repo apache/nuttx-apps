@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/atomic/atomic_main.c
+ * apps/testing/libc/atomic/atomic_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
