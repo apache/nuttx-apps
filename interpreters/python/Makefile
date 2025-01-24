@@ -80,6 +80,7 @@ $(CPYTHON_UNPACKNAME): $(CPYTHON_ZIP)
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0009-include-nuttx-sys-select-header-to-define-FD_SETSIZE.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0010-check-for-the-d_ino-member-of-the-structure-dirent.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0011-avoid-redefinition-warning-if-UNUSED-is-already-defi.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0012-hack-place-_PyRuntime-structure-into-PSRAM-bss-regio.patch
 
 $(HOSTPYTHON):
 	mkdir -p $(HOSTBUILD)
