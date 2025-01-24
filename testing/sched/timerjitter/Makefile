@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/atomic/Make.defs
+# apps/testing/sched/timerjitter/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_ATOMIC),)
-CONFIGURED_APPS += $(APPDIR)/testing/atomic
-endif
+include $(APPDIR)/Make.defs
+
+PROGNAME  = timerjitter
+PRIORITY  = $(CONFIG_TESTING_TIMERJITTER_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_TIMERJITTER_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_TIMERJITTER)
+
+MAINSRC = timerjitter.c
+
+include $(APPDIR)/Application.mk

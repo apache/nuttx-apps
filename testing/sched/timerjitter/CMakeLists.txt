@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/cpuload/CMakeLists.txt
+# apps/testing/sched/timerjitter/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,16 +20,22 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_CPULOAD)
+if(CONFIG_TESTING_TIMERJITTER)
+
+  set(SRCS timerjitter.c)
+
   nuttx_add_application(
     NAME
-    cpuload
+    timerjitter
     PRIORITY
-    253
+    ${CONFIG_TESTING_TIMERJITTER_PRIORITY}
     STACKSIZE
-    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    ${CONFIG_TESTING_TIMERJITTER_STACKSIZE}
     MODULE
-    ${CONFIG_TESTING_CPULOAD}
+    ${CONFIG_TESTING_TIMERJITTER}
+    COMPILE_FLAGS
+    ${FLAGS}
     SRCS
-    cpuload_main.c)
+    ${SRCS})
+
 endif()

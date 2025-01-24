@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/smp/Make.defs
+# apps/testing/sched/smp/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -21,5 +21,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_SMP),)
-CONFIGURED_APPS += $(APPDIR)/testing/smp
+CONFIGURED_APPS += $(APPDIR)/testing/sched/smp
 endif

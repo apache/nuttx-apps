@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/timerjitter/Makefile
+# apps/testing/sched/getprime/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -22,11 +22,15 @@
 
 include $(APPDIR)/Make.defs
 
-PROGNAME  = timerjitter
-PRIORITY  = $(CONFIG_TESTING_TIMERJITTER_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_TIMERJITTER_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_TIMERJITTER)
+# getprime built-in application info
 
-MAINSRC = timerjitter.c
+PROGNAME = $(CONFIG_TESTING_GETPRIME_PROGNAME)
+PRIORITY = $(CONFIG_TESTING_GETPRIME_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_GETPRIME_STACKSIZE)
+MODULE = $(CONFIG_TESTING_GETPRIME)
+
+# getprime main source
+
+MAINSRC = getprime_main.c
 
 include $(APPDIR)/Application.mk

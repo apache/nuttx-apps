@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/smp/Makefile
+# apps/testing/libc/atomic/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,17 +20,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
-
-# SMP built-in application info
-
-PROGNAME = $(CONFIG_TESTING_SMP_PROGNAME)
-PRIORITY = $(CONFIG_TESTING_SMP_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_SMP_STACKSIZE)
-MODULE = $(CONFIG_TESTING_SMP)
-
-# SMP Example
-
-MAINSRC = smp_main.c
-
-include $(APPDIR)/Application.mk
+ifneq ($(CONFIG_TESTING_ATOMIC),)
+CONFIGURED_APPS += $(APPDIR)/testing/sched/atomic
+endif

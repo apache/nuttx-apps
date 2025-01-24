@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/timerjitter/timerjitter.c
+ * apps/testing/sched/timerjitter/timerjitter.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/cpuload/cpuload_main.c
+ * apps/system/cpuload/cpuload_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

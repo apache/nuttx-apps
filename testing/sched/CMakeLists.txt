@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/timerjitter/CMakeLists.txt
+# apps/testing/sched/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,22 +20,5 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_TIMERJITTER)
-
-  set(SRCS timerjitter.c)
-
-  nuttx_add_application(
-    NAME
-    timerjitter
-    PRIORITY
-    ${CONFIG_TESTING_TIMERJITTER_PRIORITY}
-    STACKSIZE
-    ${CONFIG_TESTING_TIMERJITTER_STACKSIZE}
-    MODULE
-    ${CONFIG_TESTING_TIMERJITTER}
-    COMPILE_FLAGS
-    ${FLAGS}
-    SRCS
-    ${SRCS})
-
-endif()
+nuttx_add_subdirectory()
+nuttx_generate_kconfig(MENUDESC "sched")

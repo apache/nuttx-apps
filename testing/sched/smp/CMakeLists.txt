@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/getprime/CMakeLists.txt
+# apps/testing/sched/smp/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,14 +20,14 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_GETPRIME)
+if(CONFIG_TESTING_SMP)
   nuttx_add_application(
     NAME
-    ${CONFIG_TESTING_GETPRIME_PROGNAME}
+    ${CONFIG_TESTING_SMP_PROGNAME}
     SRCS
-    getprime_main.c
+    smp_main.c
     STACKSIZE
-    ${CONFIG_TESTING_GETPRIME_STACKSIZE}
+    ${CONFIG_TESTING_SMP_STACKSIZE}
     PRIORITY
-    ${CONFIG_TESTING_GETPRIME_PRIORITY})
+    ${CONFIG_TESTING_SMP_PRIORITY})
 endif()

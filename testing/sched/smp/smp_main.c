@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/smp/smp_main.c
+ * apps/testing/sched/smp/smp_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

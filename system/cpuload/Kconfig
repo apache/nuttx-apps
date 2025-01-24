@@ -3,6 +3,6 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config TESTING_CPULOAD
+config SYSTEM_CPULOAD
 	tristate "cpuload test"
 	default n

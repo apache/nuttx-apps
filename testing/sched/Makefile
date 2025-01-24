@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/atomic/Makefile
+# apps/testing/sched/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,17 +20,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "sched"
 
-# Atomic ! built-in application info
-
-PROGNAME  = $(CONFIG_TESTING_ATOMIC_PROGNAME)
-PRIORITY  = $(CONFIG_TESTING_ATOMIC_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_ATOMIC_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_ATOMIC)
-
-# Atomic! Example
-
-MAINSRC = atomic_main.c
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk

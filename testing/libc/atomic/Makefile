@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/cpuload/Makefile
+# apps/testing/libc/atomic/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -22,11 +22,15 @@
 
 include $(APPDIR)/Make.defs
 
-PROGNAME  = cpuload
-PRIORITY  = 253
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE    = $(CONFIG_TESTING_CPULOAD)
+# Atomic ! built-in application info
 
-MAINSRC = cpuload_main.c
+PROGNAME  = $(CONFIG_TESTING_ATOMIC_PROGNAME)
+PRIORITY  = $(CONFIG_TESTING_ATOMIC_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_ATOMIC_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_ATOMIC)
+
+# Atomic! Example
+
+MAINSRC = atomic_main.c
 
 include $(APPDIR)/Application.mk

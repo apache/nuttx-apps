@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/getprime/Makefile
+# apps/system/cpuload/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -22,15 +22,11 @@
 
 include $(APPDIR)/Make.defs
 
-# getprime built-in application info
+PROGNAME  = cpuload
+PRIORITY  = 253
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE    = $(CONFIG_SYSTEM_CPULOAD)
 
-PROGNAME = $(CONFIG_TESTING_GETPRIME_PROGNAME)
-PRIORITY = $(CONFIG_TESTING_GETPRIME_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_GETPRIME_STACKSIZE)
-MODULE = $(CONFIG_TESTING_GETPRIME)
-
-# getprime main source
-
-MAINSRC = getprime_main.c
+MAINSRC = cpuload_main.c
 
 include $(APPDIR)/Application.mk
