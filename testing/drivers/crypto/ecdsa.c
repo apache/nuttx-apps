@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/ecdsa.c
+ * apps/testing/drivers/crypto/ecdsa.c
  *
  * SPDX-License-Identifier: ISC
  *

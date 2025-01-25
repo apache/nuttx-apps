@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/open_memstream/Makefile
+# apps/testing/libc/open_memstream/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

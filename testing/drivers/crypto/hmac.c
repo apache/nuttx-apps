@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/hmac.c
+ * apps/testing/drivers/crypto/hmac.c
  *
  * SPDX-License-Identifier: ISC
  * SPDX-FileCopyrightText: 2008 Damien Bergamini <damien.bergamini@free.fr>

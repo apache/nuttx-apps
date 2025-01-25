@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/aescbc.c
+ * apps/testing/drivers/crypto/aescbc.c
  *
  * SPDX-License-Identifier: ISC
  * SPDX-FileCopyrightText: 2005 Markus Friedl.  All rights reserved.

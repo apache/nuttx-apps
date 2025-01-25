@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/open_memstream/Make.defs
+# apps/testing/libc/open_memstream/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -21,5 +21,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_OPEN_MEMSTREAM),)
-CONFIGURED_APPS += $(APPDIR)/testing/open_memstream
+CONFIGURED_APPS += $(APPDIR)/testing/libc/open_memstream
 endif

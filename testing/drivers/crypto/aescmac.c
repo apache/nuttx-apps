@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/aescmac.c
+ * apps/testing/drivers/crypto/aescmac.c
  *
  * SPDX-License-Identifier: ISC
  *

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/setest/Make.defs
+# apps/testing/drivers/setest/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -21,5 +21,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_SETEST),)
-CONFIGURED_APPS += $(APPDIR)/testing/setest
+CONFIGURED_APPS += $(APPDIR)/testing/drivers/setest
 endif

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/crc32.c
+ * apps/testing/drivers/crypto/crc32.c
  *
  * SPDX-License-Identifier: ISC
  *

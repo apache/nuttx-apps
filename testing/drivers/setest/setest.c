@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/setest/setest.c
+ * apps/testing/drivers/setest/setest.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

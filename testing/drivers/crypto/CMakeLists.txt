@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/crypto/CMakeLists.txt
+# apps/testing/drivers/crypto/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
