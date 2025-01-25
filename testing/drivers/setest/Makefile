@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/setest/Makefile
+# apps/testing/drivers/setest/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

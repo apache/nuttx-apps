@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/aesxts.c
+ * apps/testing/drivers/crypto/aesxts.c
  *
  * SPDX-License-Identifier: BSD-2-Clause
  * SPDX-FileCopyrightText: 2002 Markus Friedl.  All rights reserved.

@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/open_memstream/CMakeLists.txt
+# apps/testing/libc/open_memstream/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #

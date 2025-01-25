@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/3descbc.c
+ * apps/testing/drivers/crypto/3descbc.c
  *
  * SPDX-License-Identifier: BSD-2-Clause
  * SPDX-FileCopyrightText: 2002 Markus Friedl.  All rights reserved.

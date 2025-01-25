@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/dhm.c
+ * apps/testing/drivers/crypto/dhm.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

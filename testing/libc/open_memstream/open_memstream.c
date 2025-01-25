@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/open_memstream/open_memstream.c
+ * apps/testing/libc/open_memstream/open_memstream.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

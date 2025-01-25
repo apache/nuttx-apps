@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/crypto/Makefile
+# apps/testing/drivers/crypto/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

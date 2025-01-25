@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/rsa.c
+ * apps/testing/drivers/crypto/rsa.c
  *
  * SPDX-License-Identifier: ISC
  *

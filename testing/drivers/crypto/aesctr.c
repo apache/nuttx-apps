@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/aesctr.c
+ * apps/testing/drivers/crypto/aesctr.c
  *
  * SPDX-License-Identifier: ISC
  * SPDX-FileCopyrightText: 2005 Markus Friedl <markus@openbsd.org>

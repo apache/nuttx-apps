@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/crypto/hash.c
+ * apps/testing/drivers/crypto/hash.c
  *
  * SPDX-License-Identifier: ISC
  *
