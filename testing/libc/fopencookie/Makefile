@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/fs/fopencookie/Makefile
+# apps/testing/libc/fopencookie/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

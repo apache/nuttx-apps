@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/fs/fopencookie/fopencookie.c
+ * apps/testing/libc/fopencookie/fopencookie.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

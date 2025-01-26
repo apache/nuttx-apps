@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/fs/fopencookie/Make.defs
+# apps/testing/libc/fopencookie/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -21,5 +21,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_TESTING_FOPENCOOKIE_TEST),)
-CONFIGURED_APPS += $(APPDIR)/testing/fs/fopencookie
+CONFIGURED_APPS += $(APPDIR)/testing/libc/fopencookie
 endif
