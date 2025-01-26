@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SENSORTEST
+	tristate "Sensor driver test"
+	default n
+	depends on SENSORS
+	---help---
+		Enable the Sensor driver test
+
+if SYSTEM_SENSORTEST
+
+config SYSTEM_SENSORTEST_PROGNAME
+	string "Program name"
+	default "sensortest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config SYSTEM_SENSORTEST_PRIORITY
+	int "Sensor driver test task priority"
+	default 100
+
+config SYSTEM_SENSORTEST_STACKSIZE
+	int "Sensor driver test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

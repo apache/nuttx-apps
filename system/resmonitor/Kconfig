@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_RESMONITOR
+	bool "enable resource monitor [showinfo]"
+	default n
+	---help---
+		Enable resource show with specific duration.
+		Should not use with LOW_RESOURCE_TEST at the same time.
+
+if SYSTEM_RESMONITOR
+
+config SYSTEM_RESMONITOR_PRIORITY
+	int "Task priority"
+	default 100
+
+config SYSTEM_RESMONITOR_STACKSIZE
+	int "Stack size"
+	default 4096
+
+config SYSTEM_RESMONITOR_FILL
+	bool "[filldisk/fillcpu/fillmem]"
+	default n
+
+endif
