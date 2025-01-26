@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/rpmsgdev/Make.defs
+# apps/testing/drivers/rpmsgdev/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,6 +18,13 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_RPMSGDEV_TEST),)
-CONFIGURED_APPS += $(APPDIR)/testing/rpmsgdev
-endif
+include $(APPDIR)/Make.defs
+
+PROGNAME += testdev
+PRIORITY  := SCHED_PRIORITY_DEFAULT
+STACKSIZE := $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE = $(CONFIG_RPMSGDEV_TEST)
+
+MAINSRC += $(CURDIR)/testdev.c
+
+include $(APPDIR)/Application.mk
