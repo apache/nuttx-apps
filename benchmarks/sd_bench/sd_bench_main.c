@@ -1,8 +1,9 @@
 /****************************************************************************
- * apps/testing/sd_bench/sd_bench_main.c
+ * apps/benchmarks/sd_bench/sd_bench_main.c
  *
  * SPDX-License-Identifier: BSD-3-Clause
- * SPDX-FileCopyrightText: 2016-2021 PX4 Development Team. All rights reserved.
+ * SPDX-FileCopyrightText: 2016-2021 PX4 Development Team.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -77,7 +78,7 @@ typedef struct sdb_config
  ****************************************************************************/
 
 static const char *BENCHMARK_FILE =
-    CONFIG_TESTING_SD_BENCH_DEVICE "/sd_bench";
+    CONFIG_BENCHMARK_SD_BENCH_DEVICE "/sd_bench";
 
 static const size_t max_block = 65536;
 static const size_t min_block = 1;
@@ -350,7 +351,7 @@ static int read_test(int fd, sdb_config_t *cfg, uint8_t *block,
 static void usage(void)
 {
   printf("Test the speed of an SD card or mount point\n");
-  printf(CONFIG_TESTING_SD_BENCH_PROGNAME
+  printf(CONFIG_BENCHMARK_SD_BENCH_PROGNAME
          ": [-b] [-r] [-d] [-k] [-s] [-a] [-v]\n");
   printf("  -b   Block size per write (%zu-%zu), default %zu\n",
          min_block, max_block, default_block);

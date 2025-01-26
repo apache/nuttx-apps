@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/sd_bench/Make.defs
+# apps/benchmarks/sd_bench/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,13 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_TESTING_SD_BENCH),)
-CONFIGURED_APPS += $(APPDIR)/testing/sd_bench
-endif
+include $(APPDIR)/Make.defs
+
+PROGNAME  = $(CONFIG_BENCHMARK_SD_BENCH_PROGNAME)
+PRIORITY  = $(CONFIG_BENCHMARK_SD_BENCH_PRIORITY)
+STACKSIZE = $(CONFIG_BENCHMARK_SD_BENCH_STACKSIZE)
+MODULE    = $(CONFIG_BENCHMARK_SD_BENCH)
+
+MAINSRC = sd_bench_main.c
+
+include $(APPDIR)/Application.mk
