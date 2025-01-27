@@ -85,6 +85,10 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS specific.c)
     endif()
 
+    if(CONFIG_SCHED_THREAD_LOCAL)
+      list(APPEND SRCS sched_thread_local.c)
+    endif()
+
     if(NOT CONFIG_TLS_NCLEANUP EQUAL 0)
       list(APPEND SRCS pthread_cleanup.c)
     endif()
