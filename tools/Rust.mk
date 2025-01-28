@@ -26,6 +26,8 @@
 #   - LLVM_CPUTYPE: CPU type (e.g. cortex-m23, sifive-e20)
 #
 # Supported architectures and their target triples:
+#   - x86: i686-unknown-nuttx
+#   - x86_64: x86_64-unknown-nuttx
 #   - armv7a: armv7a-nuttx-eabi, armv7a-nuttx-eabihf
 #   - thumbv6m: thumbv6m-nuttx-eabi
 #   - thumbv7a: thumbv7a-nuttx-eabi, thumbv7a-nuttx-eabihf
@@ -44,6 +46,12 @@
 
 define RUST_TARGET_TRIPLE
 $(or \
+  $(and $(filter x86_64,$(LLVM_ARCHTYPE)), \
+    x86_64-unknown-nuttx \
+  ), \
+  $(and $(filter x86,$(LLVM_ARCHTYPE)), \
+    i686-unknown-nuttx \
+  ), \
   $(and $(filter thumb%,$(LLVM_ARCHTYPE)), \
     $(if $(filter thumbv8m%,$(LLVM_ARCHTYPE)), \
       $(if $(filter cortex-m23,$(LLVM_CPUTYPE)),thumbv8m.base,thumbv8m.main)-nuttx-$(LLVM_ABITYPE), \

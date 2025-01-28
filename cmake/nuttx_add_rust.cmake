@@ -33,6 +33,8 @@ include(nuttx_parse_function_args)
 #   - thumbv8m.base: thumbv8m.base-nuttx-eabi, thumbv8m.base-nuttx-eabihf
 #   - riscv32: riscv32imc/imac/imafc-unknown-nuttx-elf
 #   - riscv64: riscv64imac/imafdc-unknown-nuttx-elf
+#   - x86: i686-unknown-nuttx
+#   - x86_64: x86_64-unknown-nuttx
 #
 # Inputs:
 #   ARCHTYPE - Architecture type (e.g. thumbv7m, riscv32)
@@ -45,7 +47,11 @@ include(nuttx_parse_function_args)
 # ~~~
 
 function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
-  if(ARCHTYPE MATCHES "thumb")
+  if(ARCHTYPE STREQUAL "x86_64")
+    set(TARGET_TRIPLE "x86_64-unknown-nuttx")
+  elseif(ARCHTYPE STREQUAL "x86")
+    set(TARGET_TRIPLE "i686-unknown-nuttx")
+  elseif(ARCHTYPE MATCHES "thumb")
     if(ARCHTYPE MATCHES "thumbv8m")
       # Extract just the base architecture type (thumbv8m.main or thumbv8m.base)
       if(ARCHTYPE MATCHES "thumbv8m.main")
