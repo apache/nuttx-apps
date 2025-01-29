@@ -1,0 +1,33 @@
+From 914c80b7969d73840bc1b573b478d9148999b7d0 Mon Sep 17 00:00:00 2001
+From: Tiago Medicci <tiago.medicci@espressif.com>
+Date: Fri, 31 Jan 2025 14:06:21 -0300
+Subject: [PATCH 13/13] transform functions used by NuttX to lowercase
+
+---
+ Include/pylifecycle.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Include/pylifecycle.h b/Include/pylifecycle.h
+index de1bcb1d2cb..044780ee188 100644
+--- a/Include/pylifecycle.h
++++ b/Include/pylifecycle.h
+@@ -33,6 +33,16 @@ PyAPI_FUNC(void) _Py_NO_RETURN Py_Exit(int);
+ PyAPI_FUNC(int) Py_Main(int argc, wchar_t **argv);
+ PyAPI_FUNC(int) Py_BytesMain(int argc, char **argv);
+ 
++#if defined(__NuttX__)
++#define py_bytesmain Py_BytesMain
++#endif
++
++void _PyRuntime_Early_Init(void);
++
++#if defined(__NuttX__)
++#define _pyruntime_early_init _PyRuntime_Early_Init
++#endif
++
+ /* In pathconfig.c */
+ Py_DEPRECATED(3.11) PyAPI_FUNC(void) Py_SetProgramName(const wchar_t *);
+ Py_DEPRECATED(3.13) PyAPI_FUNC(wchar_t *) Py_GetProgramName(void);
+-- 
+2.47.1
+
