@@ -82,6 +82,7 @@ $(CPYTHON_UNPACKNAME): $(CPYTHON_ZIP)
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0010-check-for-the-d_ino-member-of-the-structure-dirent.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0011-avoid-redefinition-warning-if-UNUSED-is-already-defi.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0012-hack-place-_PyRuntime-structure-into-PSRAM-bss-regio.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0013-transform-functions-used-by-NuttX-to-lowercase.patch
 
 $(HOSTPYTHON):
 	mkdir -p $(HOSTBUILD)
@@ -175,13 +176,7 @@ PROGNAME  += $(CONFIG_INTERPRETER_CPYTHON_PROGNAME)
 PRIORITY  += $(CONFIG_INTERPRETER_CPYTHON_PRIORITY)
 STACKSIZE += $(CONFIG_INTERPRETER_CPYTHON_STACKSIZE)
 
-MAINSRC += python.c
-
-PROGNAME  += $(CONFIG_INTERPRETER_CPYTHON_MOUNT_MODULES_PROGNAME)
-PRIORITY  += $(CONFIG_INTERPRETER_CPYTHON_MOUNT_MODULES_PRIORITY)
-STACKSIZE += $(CONFIG_INTERPRETER_CPYTHON_MOUNT_MODULES_STACKSIZE)
-
-MAINSRC += mount_modules.c
+MAINSRC += python_wrapper.c
 
 checkgenromfs:
 	@genromfs -h 1>/dev/null 2>&1 || { \

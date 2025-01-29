@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/python/mount_modules.c
+ * apps/interpreters/python/python_wrapper.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -41,10 +41,13 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
+#include <debug.h>
 
 #include <nuttx/drivers/ramdisk.h>
 
 #include "romfs_cpython_modules.h"
+
+#include "Python.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -61,7 +64,7 @@
 #endif
 
 #ifndef CONFIG_CPYTHON_ROMFS_MOUNTPOINT
-#  define CONFIG_CPYTHON_ROMFS_MOUNTPOINT "/usr/local/lib/"
+#  define CONFIG_CPYTHON_ROMFS_MOUNTPOINT "/usr/local/lib"
 #endif
 
 #ifdef CONFIG_DISABLE_MOUNTPOINT
@@ -90,19 +93,57 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
+ * Name: check_and_mount_romfs
+ *
+ * Description:
+ *   Check if the ROMFS is already mounted, and if not, mount it.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   0 on success, 1 on failure
+ *
  ****************************************************************************/
 
-/****************************************************************************
- * Name: mount_modules
- ****************************************************************************/
-
-int main(int argc, FAR char *argv[])
+static int check_and_mount_romfs(void)
 {
-  int ret;
+  int ret = OK;
   struct boardioc_romdisk_s desc;
+  FILE *fp;
+  char line[256];
+  int is_mounted = 0;
 
-  /* Create a RAM disk for the test */
+  /* Check if the device is already mounted */
+
+  fp = fopen("/proc/fs/mount", "r");
+  if (fp == NULL)
+    {
+      printf("ERROR: Failed to open /proc/fs/mount\n");
+      UNUSED(desc);
+      return ret = ERROR;
+    }
+
+  while (fgets(line, sizeof(line), fp))
+    {
+      if (strstr(line, CONFIG_CPYTHON_ROMFS_MOUNTPOINT) != NULL)
+        {
+          is_mounted = 1;
+          break;
+        }
+    }
+
+  fclose(fp);
+
+  if (is_mounted)
+    {
+      _info("Device is already mounted at %s\n",
+            CONFIG_CPYTHON_ROMFS_MOUNTPOINT);
+      UNUSED(desc);
+      return ret;
+    }
+
+  /* Create a RAM disk */
 
   desc.minor    = CONFIG_CPYTHON_ROMFS_RAMDEVNO;            /* Minor device number of the ROM disk. */
   desc.nsectors = NSECTORS(romfs_cpython_modules_img_len);  /* The number of sectors in the ROM disk */
@@ -119,8 +160,8 @@ int main(int argc, FAR char *argv[])
 
   /* Mount the test file system */
 
-  printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
-         CONFIG_CPYTHON_ROMFS_MOUNTPOINT, MOUNT_DEVNAME);
+  _info("Mounting ROMFS filesystem at target=%s with source=%s\n",
+        CONFIG_CPYTHON_ROMFS_MOUNTPOINT, MOUNT_DEVNAME);
 
   ret = mount(MOUNT_DEVNAME, CONFIG_CPYTHON_ROMFS_MOUNTPOINT, "romfs",
               MS_RDONLY, NULL);
@@ -131,4 +172,31 @@ int main(int argc, FAR char *argv[])
     }
 
   return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: python_wrapper_main
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  int ret;
+
+  ret = check_and_mount_romfs();
+  if (ret != 0)
+    {
+      return ret;
+    }
+
+  _pyruntime_early_init();
+
+  setenv("PYTHONHOME", "/usr/local", 1);
+
+  setenv("PYTHON_BASIC_REPL", "1", 1);
+
+  return py_bytesmain(argc, argv);
 }

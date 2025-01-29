@@ -27,31 +27,13 @@ config INTERPRETER_CPYTHON_STACKSIZE
 
 config INTERPRETER_CPYTHON_PRIORITY
 	int "CPython task priority"
-	default 150
+	default 100
 	---help---
 		This is the priority of the CPython task.
 
 config INTERPRETER_CPYTHON_PROGNAME
 	string "CPython name"
 	default "python"
-	---help---
-		This is the name of the program that will be used from the nsh.
-
-config INTERPRETER_CPYTHON_MOUNT_MODULES_STACKSIZE
-	int "CPython's Modules Mount stack size"
-	default 4096
-	---help---
-		This is the stack size allocated when the CPython's Modules Mount task runs.
-
-config INTERPRETER_CPYTHON_MOUNT_MODULES_PRIORITY
-	int "CPython's Modules Mount task priority"
-	default 150
-	---help---
-		This is the priority of the CPython's Modules Mount task.
-
-config INTERPRETER_CPYTHON_MOUNT_MODULES_PROGNAME
-	string "CPython's Modules Mount app name"
-	default "python_mount_modules"
 	---help---
 		This is the name of the program that will be used from the nsh.
 
