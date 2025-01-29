@@ -38,6 +38,10 @@
 #include <nuttx/video/fb.h>
 #include <nuttx/video/rgbcolors.h>
 
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
+#include <nuttx/leds/ws2812.h>
+#endif
+
 #ifdef CONFIG_GAMES_BRICKMATCH_USE_CONSOLEKEY
 #include "bm_input_console.h"
 #endif
@@ -58,11 +62,17 @@
  * Preprocessor Definitions
  ****************************************************************************/
 
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
 #define BOARDX_SIZE 6
 #define BOARDY_SIZE 6
+#else
+#define BOARDX_SIZE CONFIG_GAMES_BRICKMATCH_LED_MATRIX_ROWS
+#define BOARDY_SIZE CONFIG_GAMES_BRICKMATCH_LED_MATRIX_COLS
+#define N_LEDS      BOARDX_SIZE * BOARDY_SIZE
+#endif
 
-#define ROW         8
-#define COL         8
+#define ROW         BOARDX_SIZE + 2
+#define COL         BOARDY_SIZE + 2
 
 /* Difficult mode:  4, 5, 6 */
 
@@ -102,32 +112,23 @@ struct game_screen_s
  * Private Data
  ****************************************************************************/
 
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
 static const char g_default_fbdev[] = "/dev/fb0";
+#else
+static const char g_default_fbdev[] =
+  CONFIG_GAMES_BRICKMATCH_LED_MATRIX_PATH;
+#endif
 
 /* The edge of the board is invisible to user */
 
 int board[ROW][COL] =
 {
-  {1, 1, 1, 1, 1, 1, 1, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 1, 1, 1, 1, 1, 1, 1}
+  0
 };
 
 int prev_board[ROW][COL] =
 {
-  {1, 1, 1, 1, 1, 1, 1, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 1},
-  {1, 1, 1, 1, 1, 1, 1, 1}
+  0
 };
 
 /* Colors used in the game plus Black */
@@ -145,6 +146,23 @@ static const uint16_t pallete[NCOLORS + 1] =
 
 /****************************************************************************
  * Private Functions
+ ****************************************************************************/
+
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
+/****************************************************************************
+ * Name: draw_rect
+ *
+ * Description:
+ *   Draw a rectangular.
+ *
+ * Parameters:
+ *   state - Reference to the game screen state structure
+ *   area  - Reference to the valid area structure
+ *   color -  Color of the rectangular
+ *
+ * Returned Value:
+ *   None.
+ *
  ****************************************************************************/
 
 static void draw_rect(FAR struct screen_state_s *state,
@@ -168,6 +186,21 @@ static void draw_rect(FAR struct screen_state_s *state,
     }
 }
 
+/****************************************************************************
+ * Name: update_screen
+ *
+ * Description:
+ *   Refresh screen.
+ *
+ * Parameters:
+ *   state  - Reference to the game screen state structure
+ *   area   - Reference to the valid area structure
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
 void update_screen(FAR struct screen_state_s *state,
                    FAR struct fb_area_s *area)
 {
@@ -185,7 +218,21 @@ void update_screen(FAR struct screen_state_s *state,
 #endif
 }
 
-/* Draw the user board without the edges */
+/****************************************************************************
+ * Name: draw_board
+ *
+ * Description:
+ *   Draw the user board without the edges.
+ *
+ * Parameters:
+ *   state  - Reference to the game screen state structure
+ *   area   - Reference to the valid area structure
+ *   screen - Reference to the information structure of game screen
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
 
 void draw_board(FAR struct screen_state_s *state,
                 FAR struct fb_area_s *area,
@@ -300,12 +347,100 @@ void draw_board(FAR struct screen_state_s *state,
       usleep(100000);
     }
 }
+#else
+
+/****************************************************************************
+ * Name: dim_color
+ *
+ * Description:
+ *   Dim led color to handle brightness.
+ *
+ * Parameters:
+ *   val - RGB24 value of the led
+ *   dim - Percentage of brightness
+ *
+ * Returned Value:
+ *   Dimmed RGB24 value.
+ *
+ ****************************************************************************/
+
+uint32_t dim_color(uint32_t val, float dim)
+{
+  uint16_t  r = RGB24RED(val);
+  uint16_t  g = RGB24GREEN(val);
+  uint16_t  b = RGB24BLUE(val);
+
+  float sat = dim;
+
+  r *= sat;
+  g *= sat;
+  b *= sat;
+
+  return RGBTO24(r, g, b);
+}
+
+/****************************************************************************
+ * Name: draw_board
+ *
+ * Description:
+ *   Draw the user board without the edges.
+ *
+ * Parameters:
+ *   state  - Reference to the game screen state structure
+ *   area   - Reference to the valid area structure
+ *   screen - Reference to the information structure of game screen
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
+void draw_board(FAR struct screen_state_s *state,
+                FAR struct fb_area_s *area,
+                FAR struct game_screen_s *screen)
+{
+  int result;
+  uint32_t *bp = state->fbmem;
+  int x;
+  int y;
+  int rgb_val;
+  int tmp;
+
+  for (x = 1; x <= BOARDX_SIZE; x++)
+    {
+      for (y = 1; y <= BOARDY_SIZE; y++)
+        {
+          rgb_val = RGB16TO24(pallete[board[x][y]]);
+          tmp = dim_color(rgb_val, 0.15);
+          *bp++ = ws2812_gamma_correct(tmp);
+        }
+    }
+
+  lseek(state->fd_fb, 0, SEEK_SET);
+
+  result = write(state->fd_fb, state->fbmem, 4 * N_LEDS);
+  if (result != 4 * N_LEDS)
+    {
+      fprintf(stderr,
+              "ws2812_main: write failed: %d  %d\n",
+              result,
+              errno);
+    }
+}
+#endif /* CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX */
 
 /****************************************************************************
  * Name: print_board
  *
  * Description:
  *   Draw the board including the user non-visible border for debugging.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None.
+ *
  ****************************************************************************/
 
 #ifdef DEBUG_BRICKMATCH_GAME
@@ -313,11 +448,16 @@ void print_board(void)
 {
   int row;
   int col;
+  int tmp;
 
   for (row = 0; row < ROW; row++)
     {
-      printf("+---+---+---+---+---+---+---+---+\n");
+      for (tmp = 0; tmp < COL; tmp++)
+        {
+          printf("+---");
+        }
 
+      printf("+\n");
       for (col = 0; col < COL; col++)
         {
           if (row == 0 || col == 0 || row == ROW - 1 || col == COL - 1)
@@ -333,7 +473,12 @@ void print_board(void)
       printf("|\n");
     }
 
-  printf("+---+---+---+---+---+---+---+---+\n\n\n");
+  for (tmp = 0; tmp < COL; tmp++)
+    {
+      printf("+---");
+    }
+
+  printf("+\n\n\n");
 }
 #endif
 
@@ -342,20 +487,27 @@ void print_board(void)
  *
  * Description:
  *   Move the blocks (represented by numbers) to 'dir' direction (L,R,U,D).
+ *
+ * Parameters:
+ *   dir - Direction to move
+ *
+ * Returned Value:
+ *   None.
+ *
  ****************************************************************************/
 
 void move_board(int dir)
 {
-  int row;
-  int row_ini;
-  int col;
-  int col_ini;
-  int row_dir;
-  int row_pos;
-  int col_dir;
-  int col_pos;
-  int row_lim;
-  int col_lim;
+  int row = 0;
+  int row_ini = 0;
+  int col = 0;
+  int col_ini = 0;
+  int row_dir = 0;
+  int row_pos = 0;
+  int col_dir = 0;
+  int col_pos = 0;
+  int row_lim = 0;
+  int col_lim = 0;
 
   if (dir == DIR_UP)
     {
@@ -431,10 +583,54 @@ void move_board(int dir)
 }
 
 /****************************************************************************
+ * Name: init_board
+ *
+ * Description:
+ *   Initialize board to start the game properly
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
+void init_board(void)
+{
+  int i;
+  int j;
+
+  for (i = 0; i < ROW; i++)
+    {
+      for (j = 0; j < COL; j++)
+        {
+          if (i == 0 || i == ROW - 1 || j == 0 || j == COL - 1)
+            {
+              board[i][j] = 1;
+              prev_board[i][j] = 1;
+            }
+          else
+            {
+              board[i][j] = 0;
+              prev_board[i][j] = 0;
+            }
+        }
+    }
+}
+
+/****************************************************************************
  * Name: fill_edge
  *
  * Description:
  *   Fill the invisible border with "colored" blocks
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None.
+ *
  ****************************************************************************/
 
 void fill_edge(void)
@@ -459,6 +655,13 @@ void fill_edge(void)
  *
  * Description:
  *   Fill the visible border with "colored" blocks
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None.
+ *
  ****************************************************************************/
 
 void fill_border(void)
@@ -483,6 +686,13 @@ void fill_border(void)
  *
  * Description:
  *   Search for squares or triples of same colors.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   True(1) if there are squares or triples, False(0) if not.
+ *
  ****************************************************************************/
 
 int search_board_squares(void)
@@ -601,10 +811,17 @@ int search_board_squares(void)
 }
 
 /****************************************************************************
- * Name: search_board_squares
+ * Name: search_board_lines
  *
  * Description:
  *   Search for vertical/horizontal lines of same colours.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   True(1) if there are same colours, False(0) if not.
+ *
  ****************************************************************************/
 
 int search_board_lines(void)
@@ -724,6 +941,13 @@ int search_board_lines(void)
  *
  * Description:
  *   Verify if there are match lines/squares and remove them
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   True(1) if there is a match, False(0) if not.
+ *
  ****************************************************************************/
 
 int check_board(void)
@@ -768,6 +992,8 @@ int main(int argc, FAR char *argv[])
   struct fb_area_s area;
   int ret;
 
+  init_board();
+
   /* Open the framebuffer driver */
 
   state.fd_fb = open(fbdev, O_RDWR);
@@ -778,6 +1004,7 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
   /* Get the characteristics of the framebuffer */
 
   ret = ioctl(state.fd_fb, FBIOGET_VIDEOINFO,
@@ -842,6 +1069,15 @@ int main(int argc, FAR char *argv[])
     }
 
   printf("Mapped FB: %p\n", state.fbmem);
+#else
+  state.fbmem = calloc(4, N_LEDS);
+
+  if (state.fbmem == NULL)
+    {
+      fprintf(stderr, "ws2812_main: buffer allocation failed: %d\n", errno);
+      return ERROR;
+    }
+#endif /* CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX */
 
   /* Fill the edge with random values */
 
@@ -854,9 +1090,14 @@ int main(int argc, FAR char *argv[])
 
   dev_input_init(&input);
 
+  input.dir = DIR_NONE;
+
   while (1)
     {
-      ret = dev_read_input(&input);
+      while (input.dir == DIR_NONE)
+        {
+          ret = dev_read_input(&input);
+        }
 
       screen.dir = input.dir;
 
@@ -885,6 +1126,7 @@ int main(int argc, FAR char *argv[])
       memcpy(prev_board, board, (sizeof(int) * ROW * COL));
 
       screen.dir = DIR_NONE;
+      input.dir = DIR_NONE;
 
       /* If we found bricks with same colors */
 
@@ -919,7 +1161,7 @@ int main(int argc, FAR char *argv[])
       usleep(1000000);
 #endif
 
-      usleep(1000000);
+      usleep(1000);
 
       /* Add random pieces in the not visible border */
 
