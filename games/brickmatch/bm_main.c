@@ -50,6 +50,10 @@
 #include "bm_input_gesture.h"
 #endif
 
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_GPIO
+#include "bm_input_gpio.h"
+#endif
+
 /****************************************************************************
  * Preprocessor Definitions
  ****************************************************************************/

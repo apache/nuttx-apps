@@ -53,6 +53,36 @@ config GAMES_BRICKMATCH_USE_GESTURE
 	bool "Gesture Sensor APDS-9960 as Input"
 	depends on SENSORS_APDS9960
 
+config GAMES_BRICKMATCH_USE_GPIO
+	bool "GPIO pins as Input"
 endchoice
+
+if GAMES_BRICKMATCH_USE_GPIO
+
+config GAMES_BRICKMATCH_UP_KEY_PATH
+	string "Up key path"
+	default "/dev/gpio0"
+	---help---
+		Path of the up key to read
+
+config GAMES_BRICKMATCH_DOWN_KEY_PATH
+	string "Down key path"
+	default "/dev/gpio1"
+	---help---
+		Path of the down key to read
+
+config GAMES_BRICKMATCH_LEFT_KEY_PATH
+	string "Left key path"
+	default "/dev/gpio2"
+	---help---
+		Path of the left key to read
+
+config GAMES_BRICKMATCH_RIGHT_KEY_PATH
+	string "Right key path"
+	default "/dev/gpio3"
+	---help---
+		Path of the right key to read
+
+endif #GAMES_BRICKMATCH_USE_GPIO
 
 endif
