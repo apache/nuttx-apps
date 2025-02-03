@@ -1,6 +1,7 @@
 config EXAMPLES_AMG88XX
 	tristate "AMG88xx sensor example"
 	default n
+	depends on SENSORS_AMG88XX
 	---help---
 		Enable the AMG88xx sensor example
 
@@ -17,7 +18,7 @@ config EXAMPLES_AMG88XX_PRIORITY
 	int "AMG88xx task priority"
 	default 100
 
-config EXAMPLES_DHTXX_STACKSIZE
+config EXAMPLES_AMG88XX_STACKSIZE
 	int "AMG88xx stack size"
 	default DEFAULT_TASK_STACKSIZE
 
