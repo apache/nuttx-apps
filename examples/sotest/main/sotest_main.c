@@ -107,7 +107,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
   char devname[32];
 #endif
-#if CONFIG_MODLIB_MAXDEPEND > 0
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
   FAR void *handle1;
 #endif
   FAR void *handle2;
@@ -170,7 +170,7 @@ int main(int argc, FAR char *argv[])
     }
 #endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
 
-#if CONFIG_MODLIB_MAXDEPEND > 0
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
   /* Install the first test shared library.  The first shared library only
    * verifies that symbols exported by one shared library can be used to
    * resolve undefined symbols in a second shared library.
@@ -253,7 +253,7 @@ int main(int argc, FAR char *argv[])
 
   testfunc(msg);
 
-#if CONFIG_MODLIB_MAXDEPEND > 0
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
   /* This should fail because the second shared library depends on
    * the first.
    */
@@ -276,7 +276,7 @@ int main(int argc, FAR char *argv[])
       exit(EXIT_FAILURE);
     }
 
-#if CONFIG_MODLIB_MAXDEPEND > 0
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
   /* Now we should be able to close the first shared library. */
 
   ret = dlclose(handle1);
