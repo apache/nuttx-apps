@@ -66,7 +66,6 @@ void test_nuttx_syscall_gettimeofday01(FAR void **state)
   int rtime = 3;
   struct timeval tv1;
   struct timeval tv2;
-  unsigned long long cnt = 0;
 
   signal(SIGALRM, breakout);
 
@@ -90,6 +89,5 @@ void test_nuttx_syscall_gettimeofday01(FAR void **state)
 
       sleep(1);
       tv1 = tv2;
-      cnt++;
     }
 }
