@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_SERIAL
+	bool "Serial Error Report (ser)"
+	default n
+	depends on SERIAL_TIOCGICOUNT
+	---help---
+		Enable the serial error reporting test. This test
+		could report U[S]ART erros like frame, overrun, parity, etc
+
+if TESTING_SERIAL
+
+config TESTING_SERIAL_PORT
+	string "Serial Port to Use"
+	default "/dev/ttyS1"
+	---help---
+		This is the name of serial port to use. Please avoid using
+		the ttyS0 because it is used as console.
+
+config TESTING_SERIAL_PROGNAME
+	string "Program name"
+	default "ser"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_SERIAL_PRIORITY
+	int "ser utility task priority"
+	default 100
+
+config TESTING_SERIAL_STACKSIZE
+	int "ser utility stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
