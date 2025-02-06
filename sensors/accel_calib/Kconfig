@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SENSORS_ACCEL_CALIB
+	bool "Accelerometer calibration application"
+	default n
+	---help---
+		Enable the accelerometer calibration application
+
+if SENSORS_ACCEL_CALIB
+
+config ACCEL_CALIB_SAMPLING_FREQ
+	int "Accelerometer sampling frequency"
+    default 50
+    range 1 1000
+	---help---
+		Configure the sampling frequency of the accelerometer used to record
+		calibration data points. Value is in Hz.
+
+config ACCEL_CALIB_DELIM
+	string "Output delimiter"
+    default "	"
+	---help---
+		Select the delimeter used to separate X, Y, Z measurements. Leave empty for tab
+		delimiting.
+
+endif # SENSORS_ACCEL_CALIB
