@@ -41,6 +41,7 @@ endif # UORB_TESTS
 config DEBUG_UORB
 	bool "uorb debug output"
 	select LIBC_PRINT_EXTENSION
+	depends on LIBC_FLOATINGPOINT
 	default n
 
 if DEBUG_UORB
