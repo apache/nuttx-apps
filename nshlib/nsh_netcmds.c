@@ -1108,13 +1108,20 @@ int cmd_vconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   if (!strcmp(argv[1], "add"))
     {
-      if (argc != 4)
+      int prio = 0;
+
+      if (argc != 4 && argc != 5)
         {
           nsh_error(vtbl, g_fmtargrequired, argv[0]);
           return ERROR;
         }
 
-      if (netlib_add_vlan(argv[2], atoi(argv[3])) < 0)
+      if (argc == 5)
+        {
+          prio = atoi(argv[4]);
+        }
+
+      if (netlib_add_vlan(argv[2], atoi(argv[3]), prio) < 0)
         {
           perror("Failed to add VLAN");
           return ERROR;
