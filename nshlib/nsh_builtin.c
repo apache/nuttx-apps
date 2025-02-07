@@ -234,7 +234,13 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           /* Restore the old actions */
 
-          sigaction(SIGCHLD, &old, NULL);
+#  ifndef CONFIG_SCHED_WAITPID
+          if (vtbl->np.np_bg == true)
+#  endif
+            {
+              sigaction(SIGCHLD, &old, NULL);
+            }
+
 #  endif
           struct sched_param sched;
           sched_getparam(ret, &sched);
