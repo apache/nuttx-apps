@@ -98,4 +98,9 @@ ifeq ($(CONFIG_BINFMT_ELF_RELOCATABLE),y)
   LDELFFLAGS += -r
 endif
 LDELFFLAGS += -e __start -Bstatic
+
+# Remove other ld scripts, just use import ld scripts
+#
+LDFILE := $(filter -T %.ld, $(LDELFFLAGS))
+LDELFFLAGS := $(filter-out $(LDFILE), $(LDELFFLAGS))
 LDELFFLAGS += $(addprefix -T,$(call CONVERT_PATH,$(TOPDIR)/scripts/gnu-elf.ld))
