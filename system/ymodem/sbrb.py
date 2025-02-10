@@ -822,7 +822,9 @@ if __name__ == "__main__":
                 recvfile += i + " "
 
             fd_serial.write(("sb %s\r\n" % (recvfile)).encode())
-            tmp = fd_serial.read(len(("sb %s\r\n" % (recvfile)).encode()))
+            fd_serial.flush()
+            tmp = fd_serial.read(len(("sb %s\r\n" % (recvfile)).encode()) - 1)
+            fd_serial.reset_input_buffer()
         else:
             if args.sendto:
                 cmd = ("rb -f %s\r\n" % (args.sendto[0])).encode()
@@ -830,6 +832,7 @@ if __name__ == "__main__":
                 cmd = ("rb\r\n").encode()
 
             fd_serial.write(cmd)
+            fd_serial.flush()
             fd_serial.read(len(cmd))
 
             fd_serial.reset_input_buffer()
