@@ -34,6 +34,9 @@
 static const char sensor_mag_format[] =
   "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,temperature:%hf,"
   "status:%" PRId32 "";
+static const char sensor_mag_uncal_format[] =
+  "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,x_bias:%hf,y_bias:%hf,"
+  "z_bias:%hf,temperature:%hf,status:%" PRId32 "";
 #endif
 
 /****************************************************************************
@@ -41,4 +44,5 @@ static const char sensor_mag_format[] =
  ****************************************************************************/
 
 ORB_DEFINE(sensor_mag, struct sensor_mag, sensor_mag_format);
-ORB_DEFINE(sensor_mag_uncal, struct sensor_mag, sensor_mag_format);
+ORB_DEFINE(sensor_mag_uncal, struct sensor_mag_uncal,
+           sensor_mag_uncal_format);
