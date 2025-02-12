@@ -1,2 +1,6 @@
       mynewt-nimble/nimble/host/services/ans/src/ble_svc_ans.c
       mynewt-nimble/nimble/host/services/ans/include
+#include "crypto/controlse/ccertificate.hxx"
+              object = new Controlse::CCertificate(
+          Controlse::CCertificate cert(se, settings->key_id);
+      auto certificate = Controlse::CCertificate(
