@@ -958,7 +958,7 @@ int main(int argc, FAR char **argv)
   FAR void *buffer = NULL;
   int ret = OK;
 
-#ifdef CONFIG_FASTBOOTD_USB_BOARDCTL
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
   struct boardioc_usbdev_ctrl_s ctrl;
 #  ifdef CONFIG_USBDEV_COMPOSITE
     uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
@@ -992,7 +992,7 @@ int main(int argc, FAR char **argv)
       fb_err("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
       return ret;
     }
-#endif /* FASTBOOTD_USB_BOARDCTL */
+#endif /* SYSTEM_FASTBOOTD_USB_BOARDCTL */
 
   if (argc > 1)
     {
