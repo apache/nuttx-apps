@@ -35,6 +35,7 @@ PSMQ_SOURCES = psmq-$(PSMQ_VERSION)
 PSMQ_TARBALL = $(PSMQ_SOURCES).$(PSMQ_EXT)
 
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)system
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)logging
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system$(DELIM)psmq$(DELIM)$(PSMQ_SOURCES)
 
 # mandatory source files to compile
