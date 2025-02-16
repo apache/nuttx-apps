@@ -99,10 +99,10 @@ int main(int argc, FAR char *argv[]) {
 
 //  Uncomment to read SX1262 registers
 //  #define READ_REGISTERS
-#ifdef READ_REGISTERS
+// #ifdef READ_REGISTERS
     //  Read SX1262 registers 0x00 to 0x0F
     read_registers();
-#endif  //  READ_REGISTERS
+// #endif  //  READ_REGISTERS
 
     //  TODO: Create a Background Thread to handle LoRa Events
     create_task();
