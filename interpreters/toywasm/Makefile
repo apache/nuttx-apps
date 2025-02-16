@@ -146,7 +146,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/interpreters/toywasm/toywasm/libdyld
 
 CFLAGS += -Wno-unknown-warning-option -Wno-unused-but-set-variable -Wno-unused-variable -Wno-return-type
 
-TOYWASM_VERSION  = e972e94fa427c3371fb21ad4bb9f238a1cca7795
+TOYWASM_VERSION  = b0e100a4ebd666f02b2bb9222d402a9f399a740b
 TOYWASM_UNPACK   = toywasm
 TOYWASM_TARBALL  = $(TOYWASM_VERSION).zip
 TOYWASM_URL_BASE = https://github.com/yamt/toywasm/archive/
