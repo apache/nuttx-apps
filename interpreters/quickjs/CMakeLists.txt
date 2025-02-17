@@ -28,8 +28,8 @@ if(CONFIG_INTERPRETERS_QUICKJS)
 
     FetchContent_Declare(
       quickjs_fetch
-      URL ${QUICKJS_URL_BASE}/refs/heads/master.zip SOURCE_DIR
-          ${CMAKE_CURRENT_LIST_DIR}/quickjs BINARY_DIR
+      URL ${QUICKJS_URL_BASE}/6e2e68fd0896957f92eb6c242a2e048c1ef3cae0.zip
+          SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/quickjs BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/interpreters/quickjs/quickjs
       PATCH_COMMAND
         patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/quickjs <
@@ -56,7 +56,7 @@ if(CONFIG_INTERPRETERS_QUICKJS)
     TARGET nuttx
     APPEND
     PROPERTY NUTTX_INCLUDE_DIRECTORIES ${NUTTX_APPS_DIR}/interpreters/quickjs)
-  set(QUICKJS_VERSION "\"2020-11-08\"")
+  set(QUICKJS_VERSION "\"2024-02-14\"")
   set(QUICKJS_FLAGS)
   set(QUICKJS_INCDIR)
   set(QUICKJS_CSRCS)
