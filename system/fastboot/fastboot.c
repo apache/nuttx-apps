@@ -260,9 +260,15 @@ static void fastboot_ack(FAR struct fastboot_ctx_s *context,
 }
 
 static void fastboot_fail(FAR struct fastboot_ctx_s *context,
-                          FAR const char *reason)
+                          FAR const char *fmt, ...)
 {
+  char reason[FASTBOOT_MSG_LEN];
+  va_list ap;
+
+  va_start(ap, fmt);
+  vsnprintf(reason, sizeof(reason), fmt, ap);
   fastboot_ack(context, "FAIL", reason);
+  va_end(ap);
 }
 
 static void fastboot_okay(FAR struct fastboot_ctx_s *context,
