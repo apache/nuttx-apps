@@ -32,4 +32,14 @@ config SYSTEM_FASTBOOTD_USB_BOARDCTL
 	---help---
 		Connect usbdev before running fastboot daemon.
 
+config SYSTEM_FASTBOOTD_SHELL
+	bool "Execute custom commands"
+	default n
+	depends on SCHED_CHILD_STATUS
+	depends on SYSTEM_POPEN
+	---help---
+		Enable to support executing custom commands.
+		e.g. fastboot oem shell ps
+		e.g. fastboot oem shell "mkrd -m 10 -s 512 640"
+
 endif # SYSTEM_FASTBOOTD
