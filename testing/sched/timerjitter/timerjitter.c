@@ -35,7 +35,7 @@
  ****************************************************************************/
 
 #define DEFAULT_CLOCKID   CLOCK_REALTIME
-#define DEFAULT_INTERVAL  1000
+#define DEFAULT_INTERVAL  1000 * USEC_PER_TICK
 #define DEFAULT_ITERATION 1000
 
 /* Fix compilation error for Non-NuttX OS */
