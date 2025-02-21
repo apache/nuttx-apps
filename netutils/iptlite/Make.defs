@@ -1,0 +1,10 @@
+############################################################################
+#
+# netutils/iptlite/Make.defs
+# iptlite sample networking application
+#
+############################################################################
+
+ifneq ($(CONFIG_NETUTILS_IPTLITE),)
+CONFIGURED_APPS += $(APPDIR)/netutils/iptlite
+endif
