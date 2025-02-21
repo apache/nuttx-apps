@@ -45,9 +45,6 @@
 #define SYNCSIZE CONFIG_NET_RPMSG_RXBUF_SIZE
 #define BUFSIZE  SYNCSIZE * 2
 #define BUFHEAD  64
-#ifndef ALIGN_UP
-#  define ALIGN_UP(num, align) (((num) + ((align) - 1)) & ~((align) - 1))
-#endif
 
 /****************************************************************************
  * Private types
@@ -148,6 +145,7 @@ static int rpsock_unsync_test(FAR struct rpsock_arg_s *args)
 {
   pthread_attr_t attr;
   pthread_t thread;
+  int offset = 0;
   int total = 0;
   int cnt = 0;
   int ret;
@@ -180,13 +178,13 @@ static int rpsock_unsync_test(FAR struct rpsock_arg_s *args)
             }
         }
 
-      ret = recv(args->fd, args->inbuf, args->bufsize, 0);
+      ret = recv(args->fd, args->inbuf + offset, args->bufsize - offset, 0);
       if (ret > 0)
         {
           FAR uint32_t *intp;
-          int checks;
           int i;
 
+          ret += offset;
           if (strncmp(args->inbuf, "endflags,", 9) == 0)
             {
               printf("client recv done, total %d, %s\n", total, args->inbuf);
@@ -195,25 +193,25 @@ static int rpsock_unsync_test(FAR struct rpsock_arg_s *args)
 
           printf("client recv data, act len %d, total %d\n", ret, total);
 
-          if (args->check && ret > 4)
+          if (args->check && ret >= sizeof(uint32_t))
             {
-              checks = ret - (ALIGN_UP(total, 4) - total);
-              intp   = (FAR uint32_t *)(args->inbuf +
-                                        (ALIGN_UP(total, 4) - total));
+              intp = (FAR uint32_t *)args->inbuf;
 
-              for (i = 0; i < checks / sizeof(uint32_t); i++)
+              for (i = 0; i < ret / sizeof(uint32_t); i++)
                 {
-                  if (intp[i] != ALIGN_UP(total, 4) / sizeof(uint32_t) + i)
+                  if (intp[i] != total / sizeof(uint32_t) + i)
                     {
                       printf("client check fail total %d, \
                               i %d, %08" PRIx32 ", %08zx\n",
-                              ALIGN_UP(total, 4), i, intp[i],
-                              ALIGN_UP(total, 4) / sizeof(uint32_t) + i);
+                              total, i, intp[i],
+                              total / sizeof(uint32_t) + i);
                     }
                 }
             }
 
-          total += ret;
+          offset = ret % sizeof(uint32_t);
+          memcpy(args->inbuf, args->inbuf + ret - offset, offset);
+          total += ret - offset;
         }
       else
         {
