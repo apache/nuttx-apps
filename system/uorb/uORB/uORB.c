@@ -36,6 +36,21 @@
 #include <uORB/uORB.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define ORB_IOCTL(fd, cmd, arg) \
+  do \
+    { \
+      if (ioctl(fd, cmd, arg) < 0) \
+        { \
+          return -errno; \
+        } \
+      \
+    } \
+  while (0)
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -54,7 +69,7 @@
  *   non_wakeup   The non wakeup flag.
  *
  * Returned Value:
- *   fd on success, otherwise returns negative value and set errno.
+ *   fd on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
@@ -76,6 +91,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
   if (fd < 0)
     {
       struct sensor_reginfo_s reginfo;
+
       strlcpy(reginfo.path, path, NAME_MAX);
       reginfo.esize   = meta->o_size;
       reginfo.nbuffer = queue_size;
@@ -92,7 +108,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       fd = open(ORB_USENSOR_PATH, O_WRONLY | O_CLOEXEC);
       if (fd < 0)
         {
-          return fd;
+          return -errno;
         }
 
       /* Register new device node */
@@ -102,13 +118,13 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
       close(fd);
       if (ret < 0 && err != EEXIST)
         {
-          return ret;
+          return -err;
         }
 
       fd = open(path, flags);
       if (fd < 0)
         {
-          return fd;
+          return -errno;
         }
 
       if (err != EEXIST)
@@ -177,15 +193,30 @@ orb_advertise_multi_queue_flags(FAR const struct orb_metadata *meta,
 
 int orb_open(FAR const char *name, int instance, int flags)
 {
+  int ret;
   char path[ORB_PATH_MAX];
 
   snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", name, instance);
-  return open(path, O_CLOEXEC | flags);
+  ret = open(path, O_CLOEXEC | flags);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  return ret;
 }
 
 int orb_close(int fd)
 {
-  return close(fd);
+  int ret;
+
+  ret = close(fd);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  return ret;
 }
 
 int orb_advertise_multi_queue_info(FAR const struct orb_metadata *meta,
@@ -210,7 +241,15 @@ orb_advertise_multi_queue_persist_info(FAR const struct orb_metadata *meta,
 
 ssize_t orb_publish_multi(int fd, FAR const void *data, size_t len)
 {
-  return write(fd, data, len);
+  ssize_t ret;
+
+  ret = write(fd, data, len);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  return ret;
 }
 
 int orb_subscribe_multi(FAR const struct orb_metadata *meta,
@@ -227,33 +266,34 @@ int orb_subscribe_multi_nonwakeup(FAR const struct orb_metadata *meta,
 
 ssize_t orb_copy_multi(int fd, FAR void *buffer, size_t len)
 {
-  return read(fd, buffer, len);
+  ssize_t ret;
+
+  ret = read(fd, buffer, len);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  return ret;
 }
 
 int orb_get_state(int fd, FAR struct orb_state *state)
 {
   struct sensor_state_s tmp;
-  int ret;
 
   if (!state)
     {
       return -EINVAL;
     }
 
-  ret = ioctl(fd, SNIOC_GET_STATE, (unsigned long)(uintptr_t)&tmp);
-  if (ret < 0)
-    {
-      return ret;
-    }
-
+  ORB_IOCTL(fd, SNIOC_GET_STATE, (unsigned long)(uintptr_t)&tmp);
   state->max_frequency      = tmp.min_interval ?
                               1000000 / tmp.min_interval : 0;
   state->min_batch_interval = tmp.min_latency;
   state->queue_size         = tmp.nbuffer;
   state->nsubscribers       = tmp.nsubscribers;
   state->generation         = tmp.generation;
-
-  return ret;
+  return 0;
 }
 
 int orb_get_events(int fd, FAR unsigned int *events)
@@ -263,67 +303,62 @@ int orb_get_events(int fd, FAR unsigned int *events)
       return -EINVAL;
     }
 
-  return ioctl(fd, SNIOC_GET_EVENTS, (unsigned long)(uintptr_t)events);
+  ORB_IOCTL(fd, SNIOC_GET_EVENTS, (unsigned long)(uintptr_t)events);
+  return 0;
 }
 
 int orb_check(int fd, FAR bool *updated)
 {
-  return ioctl(fd, SNIOC_UPDATED, (unsigned long)(uintptr_t)updated);
+  ORB_IOCTL(fd, SNIOC_UPDATED, (unsigned long)(uintptr_t)updated);
+  return 0;
 }
 
 int orb_ioctl(int fd, int cmd, unsigned long arg)
 {
-  return ioctl(fd, cmd, arg);
+  ORB_IOCTL(fd, cmd, arg);
+  return 0;
 }
 
 int orb_flush(int fd)
 {
-  return ioctl(fd, SNIOC_FLUSH, 0);
+  ORB_IOCTL(fd, SNIOC_FLUSH, 0);
+  return 0;
 }
 
 int orb_set_interval(int fd, unsigned interval)
 {
-  return ioctl(fd, SNIOC_SET_INTERVAL, (unsigned long)interval);
+  ORB_IOCTL(fd, SNIOC_SET_INTERVAL, (unsigned long)interval);
+  return 0;
 }
 
 int orb_get_interval(int fd, FAR unsigned *interval)
 {
   struct sensor_ustate_s tmp;
-  int ret;
 
-  ret = ioctl(fd, SNIOC_GET_USTATE, (unsigned long)(uintptr_t)&tmp);
-  if (ret < 0)
-    {
-      return ret;
-    }
-
+  ORB_IOCTL(fd, SNIOC_GET_USTATE, (unsigned long)(uintptr_t)&tmp);
   *interval = tmp.interval;
-  return ret;
+  return 0;
 }
 
 int orb_get_info(int fd, FAR orb_info_t *info)
 {
-  return ioctl(fd, SNIOC_GET_INFO, (unsigned long)(uintptr_t)info);
+  ORB_IOCTL(fd, SNIOC_GET_INFO, (unsigned long)(uintptr_t)info);
+  return 0;
 }
 
 int orb_set_batch_interval(int fd, unsigned batch_interval)
 {
-  return ioctl(fd, SNIOC_BATCH, (unsigned long)batch_interval);
+  ORB_IOCTL(fd, SNIOC_BATCH, (unsigned long)batch_interval);
+  return 0;
 }
 
 int orb_get_batch_interval(int fd, FAR unsigned *batch_interval)
 {
   struct sensor_ustate_s tmp;
-  int ret;
 
-  ret = ioctl(fd, SNIOC_GET_USTATE, (unsigned long)(uintptr_t)&tmp);
-  if (ret < 0)
-    {
-      return ret;
-    }
-
+  ORB_IOCTL(fd, SNIOC_GET_USTATE, (unsigned long)(uintptr_t)&tmp);
   *batch_interval = tmp.latency;
-  return ret;
+  return 0;
 }
 
 orb_abstime orb_absolute_time(void)
@@ -347,14 +382,14 @@ int orb_exists(FAR const struct orb_metadata *meta, int instance)
   fd = open(path, 0);
   if (fd < 0)
     {
-      return -1;
+      return -errno;
     }
 
   ret = ioctl(fd, SNIOC_GET_STATE, (unsigned long)(uintptr_t)&state);
   close(fd);
   if (ret < 0)
     {
-      return -1;
+      return -errno;
     }
 
   return state.nadvertisers > 0 ? 0 : -1;

@@ -245,7 +245,7 @@ extern "C"
  *   flags        The open flags.
  *
  * Returned Value:
- *   fd on success, otherwise returns negative value and set errno.
+ *   fd on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_open(FAR const char *name, int instance, int flags);
@@ -260,7 +260,7 @@ int orb_open(FAR const char *name, int instance, int flags);
  *   fd       A fd returned by orb_open.
  *
  * Returned Value:
- *   0 on success.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_close(int fd);
@@ -377,7 +377,7 @@ int orb_advertise_multi_queue_persist(FAR const struct orb_metadata *meta,
  *   fd       A fd returned by orb_advertise or orb_advertise_multi.
  *
  * Returned Value:
- *   0 on success.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 static inline int orb_unadvertise(int fd)
@@ -401,7 +401,7 @@ static inline int orb_unadvertise(int fd)
  *   len      The length of the data to be published.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with errno set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 ssize_t orb_publish_multi(int fd, FAR const void *data, size_t len);
@@ -469,11 +469,11 @@ static inline int orb_publish_auto(FAR const struct orb_metadata *meta,
  *              the orb_subscribe() call.
  *
  * Returned Value:
- *   -1 on error, otherwise returns a fd
+ *   A negated errno value on failure, otherwise returns a fd
  *   that can be used to read and update the topic.
  *   If the topic in question is not known (due to an
  *   ORB_DEFINE_OPTIONAL with no corresponding ORB_DECLARE)
- *   this function will return -1 and set errno to ENOENT.
+ *   this function will return -ENOENT.
  ****************************************************************************/
 
 int orb_subscribe_multi(FAR const struct orb_metadata *meta,
@@ -532,7 +532,7 @@ int orb_subscribe_nonwakeup(FAR const struct orb_metadata *meta)
  *   fd       A fd returned from orb_subscribe.
  *
  * Returned Value:
- *   0 on success.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 static inline int orb_unsubscribe(int fd)
@@ -560,7 +560,7 @@ static inline int orb_unsubscribe(int fd)
  * Returned Value:
  *   The positive non-zero number of bytes read on success.
  *   0 on if an end-of-file condition,
- *   -1 otherwise with errno set accordingly.
+ *   otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 ssize_t orb_copy_multi(int fd, FAR void *buffer, size_t len);
@@ -593,7 +593,7 @@ static inline int orb_copy(FAR const struct orb_metadata *meta,
  *            output parameter and will be set to the current state of topic.
  *
  * Returned Value:
- *   -1 on error.
+ *   A negated errno value on failure.
  ****************************************************************************/
 
 int orb_get_state(int fd, FAR struct orb_state *state);
@@ -610,7 +610,7 @@ int orb_get_state(int fd, FAR struct orb_state *state);
  *            eg: ORB_EVENT_FLUSH_COMPLETE
  *
  * Returned Value:
- *   -1 on error.
+ *   A negated errno value on failure.
  ****************************************************************************/
 
 int orb_get_events(int fd, FAR unsigned int *events);
@@ -635,7 +635,7 @@ int orb_get_events(int fd, FAR unsigned int *events);
  *
  * Returned Value:
  *   0 if the check was successful,
- *   -1 otherwise with errno set accordingly.
+ *   otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_check(int fd, FAR bool *updated);
@@ -652,7 +652,7 @@ int orb_check(int fd, FAR bool *updated);
  *   arg      Ioctl argument.
  *
  * Returned Value:
- *   0 on success.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_ioctl(int fd, int cmd, unsigned long arg);
@@ -673,7 +673,7 @@ int orb_ioctl(int fd, int cmd, unsigned long arg);
  *   fd       A fd returned from orb_advertise / orb_subscribe.
  *
  * Returned Value:
- *   0 on success.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_flush(int fd);
@@ -695,7 +695,7 @@ int orb_flush(int fd);
  *   batch_interval An batch interval in us.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_set_batch_interval(int fd, unsigned batch_interval);
@@ -716,7 +716,7 @@ int orb_set_batch_interval(int fd, unsigned batch_interval);
  *   batch_interval  The returned batch interval in us.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_get_batch_interval(int fd, FAR unsigned *batch_interval);
@@ -732,7 +732,7 @@ int orb_get_batch_interval(int fd, FAR unsigned *batch_interval);
  *   interval   An interval period in us.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_set_interval(int fd, unsigned interval);
@@ -748,7 +748,7 @@ int orb_set_interval(int fd, unsigned interval);
  *   interval   The returned interval period in us.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_get_interval(int fd, FAR unsigned *interval);
@@ -764,7 +764,7 @@ int orb_get_interval(int fd, FAR unsigned *interval);
  *   info   The returned topic info.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_get_info(int fd, FAR orb_info_t *info);
@@ -781,7 +781,7 @@ int orb_get_info(int fd, FAR orb_info_t *info);
  *   frequency  A frequency in hz.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 static inline int orb_set_frequency(int fd, unsigned frequency)
@@ -801,7 +801,7 @@ static inline int orb_set_frequency(int fd, unsigned frequency)
  *   frequency  The returned frequency in hz.
  *
  * Returned Value:
- *   0 on success, -1 otherwise with ERRNO set accordingly.
+ *   0 on success, otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 static inline int orb_get_frequency(int fd, FAR unsigned *frequency)
@@ -863,7 +863,8 @@ static inline orb_abstime orb_elapsed_time(FAR const orb_abstime *then)
  *   instance   ORB instance
  *
  * Returned Value:
- *   0 if the topic exists, -1 otherwise.
+ *   0 if the topic exists,
+ *   otherwise returns a negated errno value on failure.
  ****************************************************************************/
 
 int orb_exists(FAR const struct orb_metadata *meta, int instance);
