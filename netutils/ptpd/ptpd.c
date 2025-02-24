@@ -231,20 +231,79 @@ static void ptp_format_to_timespec(FAR const uint8_t *timestamp,
 static bool is_better_clock(FAR const struct ptp_announce_s *a,
                             FAR const struct ptp_announce_s *b)
 {
-  if  (a->gm_priority1 < b->gm_priority1     /* Main priority field */
-    || a->gm_quality[0] < b->gm_quality[0]   /* Clock class */
-    || a->gm_quality[1] < b->gm_quality[1]   /* Clock accuracy */
-    || a->gm_quality[2] < b->gm_quality[2]   /* Clock variance high byte */
-    || a->gm_quality[3] < b->gm_quality[3]   /* Clock variance low byte */
-    || a->gm_priority2 < b->gm_priority2     /* Sub priority field */
-    || memcmp(a->gm_identity, b->gm_identity, sizeof(a->gm_identity)) < 0)
+  /* Main priority field */
+
+  if (a->gm_priority1 < b->gm_priority1)
     {
       return true;
     }
-    else
+
+  if (a->gm_priority1 > b->gm_priority1)
     {
       return false;
     }
+
+  /* Clock class */
+
+  if (a->gm_quality[0] < b->gm_quality[0])
+    {
+      return true;
+    }
+
+  if (a->gm_quality[0] > b->gm_quality[0])
+    {
+      return false;
+    }
+
+  /* Clock accuracy */
+
+  if (a->gm_quality[1] < b->gm_quality[1])
+    {
+      return true;
+    }
+
+  if (a->gm_quality[1] > b->gm_quality[1])
+    {
+      return false;
+    }
+
+  /* Clock variance high byte */
+
+  if (a->gm_quality[2] < b->gm_quality[2])
+    {
+      return true;
+    }
+
+  if (a->gm_quality[2] > b->gm_quality[2])
+    {
+      return false;
+    }
+
+  /* Clock variance low byte */
+
+  if (a->gm_quality[3] < b->gm_quality[3])
+    {
+      return true;
+    }
+
+  if (a->gm_quality[3] > b->gm_quality[3])
+    {
+      return false;
+    }
+
+  /* Sub priority field */
+
+  if (a->gm_priority2 < b->gm_priority2)
+    {
+      return true;
+    }
+
+  if (a->gm_priority2 > b->gm_priority2)
+    {
+      return false;
+    }
+
+  return memcmp(a->gm_identity, b->gm_identity, sizeof(a->gm_identity)) < 0;
 }
 
 static int64_t timespec_to_ms(FAR const struct timespec *ts)
