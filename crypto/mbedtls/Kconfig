@@ -399,7 +399,7 @@ config MBEDTLS_SSL_PROTO_TLS1_2
 	depends on (MBEDTLS_USE_PSA_CRYPTO ||\
 				(MBEDTLS_MD_C && (MBEDTLS_SHA256_C || MBEDTLS_SHA384_C)))
 	default y
-	help
+	---help---
 		If MBEDTLS_USE_PSA_CRYPTO is set, then PSA_WANT_ALG_SHA_256 or PSA_WANT_ALG_SHA_384
 		must be defined.
 
@@ -421,7 +421,7 @@ config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_EPHEMERAL_ENABLED
 	depends on MBEDTLS_X509_CRT_PARSE_C && \
 				(MBEDTLS_ECDSA_C || MBEDTLS_USE_PSA_CRYPTO || MBEDTLS_PKCS1_V21)
 	default y
-	help
+	---help---
 		Requires PSA_WANT_ALG_ECDH or PSA_WANT_ALG_FFDH to be defined. Also, if
 		MBEDTLS_USE_PSA_CRYPTO is used to satisfy its dependencies, then PSA_WANT_ALG_ECDSA
 		must also be defined.
@@ -429,7 +429,7 @@ config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_EPHEMERAL_ENABLED
 config MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_PSK_EPHEMERAL_ENABLED
 	bool "Enable TLS 1.3 PSK ephemeral key exchange mode."
 	default y
-	help
+	---help---
 		Requires PSA_WANT_ALG_ECDH or PSA_WANT_ALG_FFDH.
 
 config MBEDTLS_SSL_SESSION_TICKETS

@@ -6,7 +6,7 @@
 config TESTING_STRESSAPPTEST
 	bool "stressapptest"
 	default n
-	help
+	---help---
 		stressapptest is a userspace memory and CPU stress test tool. It
 		exercises the memory and CPU subsystem stressing for cache misses,
 		TLB misses, memory allocation, memory freeing, etc. It has been
