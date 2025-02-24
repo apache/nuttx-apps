@@ -56,7 +56,7 @@
 #include "ptpv2.h"
 
 /****************************************************************************
- * Private Data
+ * Private Types
  ****************************************************************************/
 
 /* Carrier structure for querying PTPD status */
@@ -179,7 +179,7 @@ struct ptp_state_s
 
 /* Convert from timespec to PTP format */
 
-static void timespec_to_ptp_format(FAR struct timespec *ts,
+static void timespec_to_ptp_format(FAR const struct timespec *ts,
                                    FAR uint8_t *timestamp)
 {
   /* IEEE 1588 uses 48 bits for seconds and 32 bits for nanoseconds,
@@ -490,7 +490,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
    */
 
   memset(&req, 0, sizeof(req));
-  strncpy(req.ifr_name, interface, sizeof(req.ifr_name));
+  strlcpy(req.ifr_name, interface, sizeof(req.ifr_name));
 
   if (ioctl(state->event_socket, SIOCGIFADDR, (unsigned long)&req) < 0)
     {
@@ -1293,7 +1293,7 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
   clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
 
   switch (state->rxbuf.header.messagetype & PTP_MSGTYPE_MASK)
-  {
+    {
 #ifdef CONFIG_NETUTILS_PTPD_CLIENT
     case PTP_MSGTYPE_ANNOUNCE:
       ptpinfo("Got announce packet, seq %ld\n",
@@ -1327,7 +1327,7 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
       ptpinfo("Ignoring unknown PTP packet type: 0x%02x\n",
               state->rxbuf.header.messagetype);
       return OK;
-  }
+    }
 }
 
 /* Signal handler for status / stop requests */
@@ -1610,6 +1610,7 @@ int ptpd_status(int pid, FAR struct ptpd_status_s *status)
       ret = -errno;
     }
 
+  sem_destroy(&donesem);
   return ret;
 
 #endif /* CONFIG_BUILD_FLAT */
