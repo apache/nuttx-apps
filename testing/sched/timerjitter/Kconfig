@@ -6,7 +6,7 @@
 config TESTING_TIMERJITTER
 	bool "timerjitter testing"
 	default n
-	help
+	---help---
 		timerjitter helps profiling timer accuracy and real-time performance.
 
 if TESTING_TIMERJITTER

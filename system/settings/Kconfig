@@ -5,7 +5,7 @@
 config SYSTEM_SETTINGS
 	bool "Settings Functions"
 	default n
-		---help---
+	---help---
 		The settings storage can be used to store and retrieve various
 		configurable parameters. This storage is a RAM-based map (for fast access)
 		but one or more files can be used too (so values can persist across system
