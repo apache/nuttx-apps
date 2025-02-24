@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/benchmarks/superpi/CMakeList.txt
+# apps/benchmarks/superpi/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #

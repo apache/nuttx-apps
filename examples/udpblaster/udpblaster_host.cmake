@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/udpblaster/udpblaster.cmake
+# apps/examples/udpblaster/udpblaster_host.cmake
 #
 # SPDX-License-Identifier: Apache-2.0
 #
