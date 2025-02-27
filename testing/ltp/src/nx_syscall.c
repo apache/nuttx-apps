@@ -81,7 +81,7 @@ int syscall(int syscall_nr, ...)
   va_start(ap, syscall_nr);
   switch (syscall_nr)
   {
-    case SYS__assert:
+    case __NR__assert:
     {
       const char *filename = va_arg(ap, const char *);
       int linenum = va_arg(ap, int);
@@ -92,14 +92,14 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS__exit:
+    case __NR_exit:
     {
       int status = va_arg(ap, int);
       _exit(status);
       break;
     }
 
-    case SYS_accept4:
+    case __NR_accept4:
     {
       int sockfd = va_arg(ap, int);
       struct sockaddr *addr = va_arg(ap, struct sockaddr *);
@@ -110,7 +110,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_CLOCK_TIMEKEEPING) || defined(CONFIG_CLOCK_ADJTIME)
-    case SYS_adjtime:
+    case __NR_adjtimex:
     {
       const struct timeval *delta = va_arg(ap, const struct timeval *);
       const struct timeval *olddelta = va_arg(ap, const struct timeval *);
@@ -120,7 +120,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_FS_AIO
-    case SYS_aio_cancel:
+    case __NR_aio_cancel:
     {
       int fildes = va_arg(ap, int);
       struct aiocb *aiocbp = va_arg(ap, struct aiocb *);
@@ -130,7 +130,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_FS_AIO
-    case SYS_aio_fsync:
+    case __NR_aio_fsync:
     {
       int op = va_arg(ap, int);
       struct aiocb *aiocbp = va_arg(ap, struct aiocb *);
@@ -140,7 +140,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_FS_AIO
-    case SYS_aio_read:
+    case __NR_aio_read:
     {
       struct aiocb *aiocbp = va_arg(ap, struct aiocb *);
       ret = aio_read(aiocbp);
@@ -149,7 +149,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_FS_AIO
-    case SYS_aio_write:
+    case __NR_aio_write:
     {
       struct aiocb *aiocbp = va_arg(ap, struct aiocb *);
       ret = aio_write(aiocbp);
@@ -158,7 +158,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_CRYPTO_RANDOM_POOL
-    case SYS_arc4random_buf:
+    case __NR_arc4random_buf:
     {
       void *buf = va_arg(ap, void *);
       size_t nbytes = va_arg(ap, size_t);
@@ -168,7 +168,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_NET
-    case SYS_bind:
+    case __NR_bind:
     {
       int sockfd = va_arg(ap, int);
       const struct sockaddr *addr = va_arg(ap, const struct sockaddr *);
@@ -179,7 +179,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_BOARDCTL
-    case SYS_boardctl:
+    case __NR_boardctl:
     {
       unsigned int cmd = va_arg(ap, unsigned int);
       uintptr_t arg = va_arg(ap, uintptr_t);
@@ -188,7 +188,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_chmod:
+    case __NR_chmod:
     {
       const char *path = va_arg(ap, const char *);
       mode_t mode = va_arg(ap, mode_t);
@@ -196,7 +196,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_chown:
+    case __NR_chown:
     {
       const char *path = va_arg(ap, const char *);
       uid_t owner = va_arg(ap, uid_t);
@@ -206,20 +206,20 @@ int syscall(int syscall_nr, ...)
     }
 
 #ifndef CONFIG_DISABLE_ENVIRON
-    case SYS_clearenv:
+    case __NR_clearenv:
     {
       ret = clearenv();
       break;
     }
 #endif
 
-    case SYS_clock:
+    case __NR_clock:
     {
       ret = clock();
       break;
     }
 
-    case SYS_clock_gettime:
+    case __NR_clock_gettime:
     {
       int clockid = va_arg(ap, int);
       struct timespec *ts = va_arg(ap, struct timespec *);
@@ -227,7 +227,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_clock_nanosleep:
+    case __NR_clock_nanosleep:
     {
       clockid_t clockid = va_arg(ap, clockid_t);
       int flags = va_arg(ap, int);
@@ -237,7 +237,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_clock_settime:
+    case __NR_clock_settime:
     {
       clockid_t clockid = va_arg(ap, clockid_t);
       struct timespec *ts = va_arg(ap, struct timespec *);
@@ -245,7 +245,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_close:
+    case __NR_close:
     {
       int fd = va_arg(ap, int);
       ret = close(fd);
@@ -253,7 +253,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #ifdef CONFIG_NET
-    case SYS_connect:
+    case __NR_connect:
     {
       int sockfd = va_arg(ap, int);
       const struct sockaddr *addr = va_arg(ap, const struct sockaddr *);
@@ -263,14 +263,14 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_dup:
+    case __NR_dup:
     {
       int fd = va_arg(ap, int);
       ret = dup(fd);
       break;
     }
 
-    case SYS_dup2:
+    case __NR_dup2:
     {
       int fd1 = va_arg(ap, int);
       int fd2 = va_arg(ap, int);
@@ -278,14 +278,14 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_epoll_create1:
+    case __NR_epoll_create1:
     {
       int flags = va_arg(ap, int);
       ret = epoll_create1(flags);
       break;
     }
 
-    case SYS_epoll_ctl:
+    case __NR_epoll_ctl:
     {
       int epfd = va_arg(ap, int);
       int op = va_arg(ap, int);
@@ -295,7 +295,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_epoll_wait:
+    case __NR_epoll_wait:
     {
       int epfd = va_arg(ap, int);
       struct epoll_event *events = va_arg(ap, struct epoll_event *);
@@ -306,7 +306,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_EVENT_FD)
-    case SYS_eventfd:
+    case __NR_eventfd:
     {
       unsigned int count = va_arg(ap, unsigned int);
       int flags = va_arg(ap, int);
@@ -316,7 +316,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_BINFMT_DISABLE) && !defined(CONFIG_BUILD_KERNEL)
-    case SYS_exec:
+    case __NR_exec:
     {
       const char *filename = va_arg(ap, const char *);
       char *const *argv = va_arg(ap, char *const *);
@@ -329,7 +329,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_BINFMT_DISABLE) && defined(CONFIG_LIBC_EXECFUNCS)
-    case SYS_execve:
+    case __NR_execve:
     {
       const char *path = va_arg(ap, const char *);
       char *const *argv = va_arg(ap, char *const *);
@@ -339,7 +339,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_fchmod:
+    case __NR_fchmod:
     {
       int fd = va_arg(ap, int);
       mode_t mode = va_arg(ap, mode_t);
@@ -347,7 +347,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_fchown:
+    case __NR_fchown:
     {
       int fd = va_arg(ap, int);
       uid_t owner = va_arg(ap, uid_t);
@@ -356,14 +356,15 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_fdatasync:
+    case __NR_fdatasync:
     {
       int fd = va_arg(ap, int);
       ret = fdatasync(fd);
       break;
     }
 
-    case SYS_fstatat:
+    case __NR_fstatat:
+    case __NR_fstatat64:
     {
       int dirfd = va_arg(ap, int);
       const char *pathname = va_arg(ap, const char *);
@@ -373,7 +374,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_fcntl:
+    case __NR_fcntl:
     {
       int fd = va_arg(ap, int);
       int cmd = va_arg(ap, int);
@@ -382,7 +383,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_fstat:
+    case __NR_fstat:
     {
       int fd = va_arg(ap, int);
       struct stat *buf = va_arg(ap, struct stat *);
@@ -390,7 +391,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_fstatfs:
+    case __NR_fstatfs:
     {
       int fd = va_arg(ap, int);
       struct statfs *buf = va_arg(ap, struct statfs *);
@@ -398,14 +399,14 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_fsync:
+    case __NR_fsync:
     {
       int fd = va_arg(ap, int);
       ret = fsync(fd);
       break;
     }
 
-    case SYS_ftruncate:
+    case __NR_ftruncate:
     {
       int fd = va_arg(ap, int);
       off_t length = va_arg(ap, off_t);
@@ -413,7 +414,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_futimens:
+    case __NR_futimens:
     {
       int fd = va_arg(ap, int);
       const struct timespec *times = va_arg(ap, const struct timespec *);
@@ -422,7 +423,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_getegid:
+    case __NR_getegid:
     {
       ret = getegid();
       break;
@@ -430,7 +431,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_geteuid:
+    case __NR_geteuid:
     {
       ret = geteuid();
       break;
@@ -438,14 +439,14 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_getgid:
+    case __NR_getgid:
     {
       ret = getgid();
       break;
     }
 #endif
 
-    case SYS_gethostname:
+    case __NR_gethostname:
     {
       char *name = va_arg(ap, char *);
       size_t name_len = va_arg(ap, size_t);
@@ -454,7 +455,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_getitimer:
+    case __NR_getitimer:
     {
       int which = va_arg(ap, int);
       struct itimerval *value = va_arg(ap, struct itimerval *);
@@ -464,7 +465,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_getpeername:
+    case __NR_getpeername:
     {
       int sockfd = va_arg(ap, int);
       struct sockaddr *addr = va_arg(ap, struct sockaddr *);
@@ -474,14 +475,14 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_getpid:
+    case __NR_getpid:
     {
       ret = getpid();
       break;
     }
 
 #if defined(CONFIG_SCHED_HAVE_PARENT)
-    case SYS_getppid:
+    case __NR_getppid:
     {
       ret = getppid();
       break;
@@ -489,7 +490,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_getsockname:
+    case __NR_getsockname:
     {
       int sockfd = va_arg(ap, int);
       struct sockaddr *addr = va_arg(ap, struct sockaddr *);
@@ -500,7 +501,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_getsockopt:
+    case __NR_getsockopt:
     {
       int sockfd = va_arg(ap, int);
       int level = va_arg(ap, int);
@@ -512,13 +513,13 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_gettid:
+    case __NR_gettid:
     {
       ret = gettid();
       break;
     }
 
-    case SYS_gettimeofday:
+    case __NR_gettimeofday:
     {
       struct timeval *tv = va_arg(ap, struct timeval *);
       struct timezone *tz = va_arg(ap, struct timezone *);
@@ -527,7 +528,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_getuid:
+    case __NR_getuid:
     {
       ret = getuid();
       break;
@@ -535,7 +536,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_FS_NOTIFY)
-    case SYS_inotify_add_watch:
+    case __NR_inotify_add_watch:
     {
       int fd = va_arg(ap, int);
       const char *pathname = va_arg(ap, const char *);
@@ -546,7 +547,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_FS_NOTIFY)
-    case SYS_inotify_init:
+    case __NR_inotify_init:
     {
       ret = inotify_init();
       break;
@@ -554,7 +555,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_FS_NOTIFY)
-    case SYS_inotify_init1:
+    case __NR_inotify_init1:
     {
       int flags = va_arg(ap, int);
       ret = inotify_init1(flags);
@@ -563,7 +564,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_FS_NOTIFY)
-    case SYS_inotify_rm_watch:
+    case __NR_inotify_rm_watch:
     {
       int fd = va_arg(ap, int);
       int wd = va_arg(ap, int);
@@ -573,7 +574,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_MODULE)
-    case SYS_insmod:
+    case __NR_insmod:
     {
       const char *file_name = va_arg(ap, const char *);
       const char *mod_name = va_arg(ap, const char *);
@@ -582,7 +583,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_ioctl:
+    case __NR_ioctl:
     {
       int fd = va_arg(ap, int);
       int req = va_arg(ap, int);
@@ -591,7 +592,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_kill:
+    case __NR_kill:
     {
       pid_t pid = va_arg(ap, pid_t);
       int sig = va_arg(ap, int);
@@ -599,7 +600,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_lchmod:
+    case __NR_lchmod:
     {
       const char *pathname = va_arg(ap, const char *);
       mode_t mode = va_arg(ap, mode_t);
@@ -607,7 +608,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_lchown:
+    case __NR_lchown:
     {
       const char *path = va_arg(ap, const char *);
       uid_t owner = va_arg(ap, uid_t);
@@ -617,7 +618,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_PSEUDOFS_SOFTLINKS)
-    case SYS_link:
+    case __NR_link:
     {
       const char *old_path = va_arg(ap, const char *);
       const char *new_path = va_arg(ap, const char *);
@@ -627,7 +628,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_listen:
+    case __NR_listen:
     {
       int sockfd = va_arg(ap, int);
       int backlog = va_arg(ap, int);
@@ -636,7 +637,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_lseek:
+    case __NR_lseek:
     {
       int fd = va_arg(ap, int);
       off_t offset = va_arg(ap, off_t);
@@ -645,7 +646,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_lstat:
+    case __NR_lstat:
     {
       const char *path = va_arg(ap, const char *);
       struct stat *buf = va_arg(ap, struct stat *);
@@ -653,7 +654,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_lutimens:
+    case __NR_lutimens:
     {
       const char *path = va_arg(ap, const char *);
       const struct timespec *times = va_arg(ap, const struct timespec *);
@@ -662,7 +663,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
-    case SYS_mkdir:
+    case __NR_mkdir:
     {
       const char *pathname = va_arg(ap, const char *);
       mode_t mode = va_arg(ap, mode_t);
@@ -671,7 +672,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_mmap:
+    case __NR_mmap:
     {
       void *addr = va_arg(ap, void *);
       size_t length = va_arg(ap, size_t);
@@ -684,7 +685,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_MODULE)
-    case SYS_modhandle:
+    case __NR_modhandle:
     {
       const char *name = va_arg(ap, const char *);
       modhandle(name);
@@ -693,7 +694,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
-    case SYS_mount:
+    case __NR_mount:
     {
       const char *source = va_arg(ap, const char *);
       const char *target = va_arg(ap, const char *);
@@ -706,7 +707,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_close:
+    case __NR_mq_close:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       ret = mq_close(mqdes);
@@ -715,7 +716,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_getattr:
+    case __NR_mq_getattr:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       struct mq_attr *attr = va_arg(ap, struct mq_attr *);
@@ -725,7 +726,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_notify:
+    case __NR_mq_notify:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       const struct sigevent *notification =
@@ -736,7 +737,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_open:
+    case __NR_mq_open:
     {
       const char *name = va_arg(ap, const char *);
       int oflag = va_arg(ap, int);
@@ -748,7 +749,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_receive:
+    case __NR_mq_receive:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       char *msg = va_arg(ap, char *);
@@ -760,7 +761,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_send:
+    case __NR_mq_send:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       const char *msg = va_arg(ap, const char *);
@@ -772,7 +773,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_setattr:
+    case __NR_mq_setattr:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       const struct mq_attr *newattr = va_arg(ap, const struct mq_attr *);
@@ -783,7 +784,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_timedreceive:
+    case __NR_mq_timedreceive:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       char *msg = va_arg(ap, char *);
@@ -796,7 +797,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_timedsend:
+    case __NR_mq_timedsend:
     {
       mqd_t mqdes = va_arg(ap, mqd_t);
       const char *msg = va_arg(ap, const char *);
@@ -809,7 +810,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MQUEUE)
-    case SYS_mq_unlink:
+    case __NR_mq_unlink:
     {
       const char *name = va_arg(ap, const char *);
       ret = mq_unlink(name);
@@ -817,7 +818,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_msync:
+    case __NR_msync:
     {
       void *addr = va_arg(ap, void *);
       size_t length = va_arg(ap, size_t);
@@ -826,7 +827,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_munmap:
+    case __NR_munmap:
     {
       void *addr = va_arg(ap, void *);
       size_t length = va_arg(ap, size_t);
@@ -834,7 +835,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_nanosleep:
+    case __NR_nanosleep:
     {
       const struct timespec *req = va_arg(ap, const struct timespec *);
       struct timespec *rem = va_arg(ap, struct timespec *);
@@ -842,7 +843,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_open:
+    case __NR_open:
     {
       const char *path = va_arg(ap, const char *);
       int oflags = va_arg(ap, int);
@@ -852,7 +853,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_BUILD_KERNEL)
-    case SYS_pgalloc:
+    case __NR_pgalloc:
     {
       uintptr_t brkaddr = va_arg(ap, uintptr_t);
       unsigned int npages = va_arg(ap, unsigned int);
@@ -862,7 +863,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
-    case SYS_pipe2:
+    case __NR_pipe2:
     {
       int *pipefd = va_arg(ap, int *);
       int flags = va_arg(ap, int);
@@ -871,7 +872,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_poll:
+    case __NR_poll:
     {
       struct pollfd *fds = va_arg(ap, struct pollfd *);
       nfds_t nfds = va_arg(ap, nfds_t);
@@ -881,7 +882,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_BINFMT_DISABLE) && defined(CONFIG_LIBC_EXECFUNCS)
-    case SYS_posix_spawn:
+    case __NR_posix_spawn:
     {
       pid_t *pid = va_arg(ap, pid_t *);
       const char *path = va_arg(ap, const char *);
@@ -895,7 +896,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_ppoll:
+    case __NR_ppoll:
     {
       struct pollfd *fds = va_arg(ap, struct pollfd *);
       nfds_t nfds = va_arg(ap, nfds_t);
@@ -906,7 +907,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_prctl:
+    case __NR_prctl:
     {
       int option = va_arg(ap, int);
       unsigned long arg2 = va_arg(ap, unsigned long);
@@ -915,7 +916,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_pread:
+    case __NR_pread:
     {
       int fd = va_arg(ap, int);
       void *buf = va_arg(ap, void *);
@@ -925,7 +926,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_pselect:
+    case __NR_pselect:
     {
       int nfds = va_arg(ap, int);
       fd_set *readfds = va_arg(ap, fd_set *);
@@ -938,7 +939,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_DISABLE_ENVIRON)
-    case SYS_putenv:
+    case __NR_putenv:
     {
       const char *string = va_arg(ap, const char *);
       ret = putenv(string);
@@ -946,7 +947,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_pwrite:
+    case __NR_pwrite:
     {
       int fd = va_arg(ap, int);
       const void *buf = va_arg(ap, const void *);
@@ -956,7 +957,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_read:
+    case __NR_read:
     {
       int fd = va_arg(ap, int);
       void *buf = va_arg(ap, void *);
@@ -966,7 +967,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_PSEUDOFS_SOFTLINKS)
-    case SYS_readlink:
+    case __NR_readlink:
     {
       const char *path = va_arg(ap, const char *);
       char *buf = va_arg(ap, char *);
@@ -977,7 +978,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_recv:
+    case __NR_recv:
     {
       int sockfd = va_arg(ap, int);
       void *buf = va_arg(ap, void *);
@@ -989,7 +990,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_recvfrom:
+    case __NR_recvfrom:
     {
       int sockfd = va_arg(ap, int);
       void *buf = va_arg(ap, void *);
@@ -1003,7 +1004,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_recvmsg:
+    case __NR_recvmsg:
     {
       int sockfd = va_arg(ap, int);
       struct msghdr *msg = va_arg(ap, struct msghdr *);
@@ -1013,7 +1014,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_rename:
+    case __NR_rename:
     {
       const char *old_path = va_arg(ap, const char *);
       const char *new_path = va_arg(ap, const char *);
@@ -1022,7 +1023,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
-    case SYS_rmdir:
+    case __NR_rmdir:
     {
       const char *pathname = va_arg(ap, const char *);
       ret = rmdir(pathname);
@@ -1031,7 +1032,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_MODULE)
-    case SYS_rmmod:
+    case __NR_rmmod:
     {
       void *handle = va_arg(ap, void *);
       ret = rmmod(handle);
@@ -1040,7 +1041,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_BACKTRACE)
-    case SYS_sched_backtrace:
+    case __NR_sched_backtrace:
     {
       pid_t pid = va_arg(ap, int);
       void **buffer = va_arg(ap, void **);
@@ -1051,7 +1052,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sched_getaffinity:
+    case __NR_sched_getaffinity:
     {
       pid_t pid = va_arg(ap, pid_t);
       size_t cpusetsize = va_arg(ap, size_t);
@@ -1060,13 +1061,13 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sched_getcpu:
+    case __NR_sched_getcpu:
     {
       ret = sched_getcpu();
       break;
     }
 
-    case SYS_sched_getparam:
+    case __NR_sched_getparam:
     {
       pid_t pid = va_arg(ap, pid_t);
       struct sched_param *param = va_arg(ap, struct sched_param *);
@@ -1074,26 +1075,26 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sched_getscheduler:
+    case __NR_sched_getscheduler:
     {
       pid_t pid = va_arg(ap, pid_t);
       ret = sched_getscheduler(pid);
       break;
     }
 
-    case SYS_sched_lock:
+    case __NR_sched_lock:
     {
       sched_lock();
       break;
     }
 
-    case SYS_sched_lockcount:
+    case __NR_sched_lockcount:
     {
       ret = sched_lockcount();
       break;
     }
 
-    case SYS_sched_rr_get_interval:
+    case __NR_sched_rr_get_interval:
     {
       pid_t pid = va_arg(ap, pid_t);
       struct timespec *interval = va_arg(ap, struct timespec *);
@@ -1101,7 +1102,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sched_setaffinity:
+    case __NR_sched_setaffinity:
     {
       pid_t pid = va_arg(ap, pid_t);
       size_t cpusetsize = va_arg(ap, size_t);
@@ -1110,7 +1111,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sched_setparam:
+    case __NR_sched_setparam:
     {
       pid_t pid = va_arg(ap, pid_t);
       struct sched_param *param = va_arg(ap, struct sched_param *);
@@ -1118,7 +1119,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sched_setscheduler:
+    case __NR_sched_setscheduler:
     {
       pid_t pid = va_arg(ap, pid_t);
       int policy = va_arg(ap, int);
@@ -1127,19 +1128,19 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sched_unlock:
+    case __NR_sched_unlock:
     {
       sched_unlock();
       break;
     }
 
-    case SYS_sched_yield:
+    case __NR_sched_yield:
     {
       ret = sched_yield();
       break;
     }
 
-    case SYS_select:
+    case __NR_select:
     {
       int nfds = va_arg(ap, int);
       fd_set *readfds = va_arg(ap, fd_set *);
@@ -1151,7 +1152,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_NET)
-    case SYS_send:
+    case __NR_send:
     {
       int sockfd = va_arg(ap, int);
       const void *buf = va_arg(ap, const void *);
@@ -1162,7 +1163,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sendfile:
+    case __NR_sendfile:
     {
       int out_fd = va_arg(ap, int);
       int in_fd = va_arg(ap, int);
@@ -1173,7 +1174,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_NET)
-    case SYS_sendmsg:
+    case __NR_sendmsg:
     {
       int sockfd = va_arg(ap, int);
       const struct msghdr *msg = va_arg(ap, const struct msghdr *);
@@ -1184,7 +1185,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_sendto:
+    case __NR_sendto:
     {
       int sockfd = va_arg(ap, int);
       const void *buf = va_arg(ap, const void *);
@@ -1198,7 +1199,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_setegid:
+    case __NR_setegid:
     {
       gid_t egid = va_arg(ap, gid_t);
       ret = setegid(egid);
@@ -1207,7 +1208,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_ENVIRON)
-    case SYS_setenv:
+    case __NR_setenv:
     {
       const char *name = va_arg(ap, const char *);
       const char *value = va_arg(ap, const char *);
@@ -1218,7 +1219,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_seteuid:
+    case __NR_seteuid:
     {
       uid_t euid = va_arg(ap, uid_t);
       ret = seteuid(euid);
@@ -1227,7 +1228,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_setgid:
+    case __NR_setgid:
     {
       gid_t gid = va_arg(ap, gid_t);
       ret = setgid(gid);
@@ -1235,7 +1236,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sethostname:
+    case __NR_sethostname:
     {
       const char *name = va_arg(ap, const char *);
       size_t len = va_arg(ap, size_t);
@@ -1244,7 +1245,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_setitimer:
+    case __NR_setitimer:
     {
       int which = va_arg(ap, int);
       const struct itimerval *value = va_arg(ap, const struct itimerval *);
@@ -1255,7 +1256,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET) && defined(CONFIG_NET_SOCKOPTS)
-    case SYS_setsockopt:
+    case __NR_setsockopt:
     {
       int sockfd = va_arg(ap, int);
       int level = va_arg(ap, int);
@@ -1267,7 +1268,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_settimeofday:
+    case __NR_settimeofday:
     {
       const struct timeval *tv = va_arg(ap, const struct timeval *);
       const struct timezone *tz = va_arg(ap, const struct timezone *);
@@ -1276,7 +1277,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_SCHED_USER_IDENTITY)
-    case SYS_setuid:
+    case __NR_setuid:
     {
       uid_t euid = va_arg(ap, uid_t);
       ret = seteuid(euid);
@@ -1285,7 +1286,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_MM_SHM)
-    case SYS_shmctl:
+    case __NR_shmctl:
     {
       int shmid = va_arg(ap, int);
       int cmd = va_arg(ap, int);
@@ -1296,7 +1297,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_MM_SHM)
-    case SYS_shmdt:
+    case __NR_shmdt:
     {
       const void *shmaddr = va_arg(ap, const void *);
       ret = shmdt(shmaddr);
@@ -1305,7 +1306,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_MM_SHM)
-    case SYS_shmget:
+    case __NR_shmget:
     {
       key_t key = va_arg(ap, key_t);
       size_t size = va_arg(ap, size_t);
@@ -1316,7 +1317,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_shutdown:
+    case __NR_shutdown:
     {
       int sockfd = va_arg(ap, int);
       int how = va_arg(ap, int);
@@ -1325,7 +1326,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sigaction:
+    case __NR_sigaction:
     {
       int signo = va_arg(ap, int);
       const struct sigaction *act = va_arg(ap, const struct sigaction *);
@@ -1334,7 +1335,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_signal:
+    case __NR_signal:
     {
       int signo = va_arg(ap, int);
       _sa_handler_t func = va_arg(ap, _sa_handler_t);
@@ -1343,7 +1344,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_SIGNAL_FD)
-    case SYS_signalfd:
+    case __NR_signalfd:
     {
       int fd = va_arg(ap, int);
       sigset_t *mask = va_arg(ap, sigset_t *);
@@ -1353,14 +1354,14 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sigpending:
+    case __NR_sigpending:
     {
       sigset_t *set = va_arg(ap, sigset_t *);
       ret = sigpending(set);
       break;
     }
 
-    case SYS_sigprocmask:
+    case __NR_sigprocmask:
     {
       int how = va_arg(ap, int);
       const sigset_t *set = va_arg(ap, const sigset_t *);
@@ -1369,7 +1370,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sigqueue:
+    case __NR_sigqueue:
     {
       int pid = va_arg(ap, int);
       int signo = va_arg(ap, int);
@@ -1378,14 +1379,14 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sigsuspend:
+    case __NR_sigsuspend:
     {
       const sigset_t *mask = va_arg(ap, sigset_t *);
       ret = sigsuspend(mask);
       break;
     }
 
-    case SYS_sigtimedwait:
+    case __NR_sigtimedwait:
     {
       const sigset_t *set = va_arg(ap, sigset_t *);
       struct siginfo *value = va_arg(ap, struct siginfo *);
@@ -1394,7 +1395,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_sigwaitinfo:
+    case __NR_sigwaitinfo:
     {
       const sigset_t *set = va_arg(ap, const sigset_t *);
       struct siginfo *info = va_arg(ap, struct siginfo *);
@@ -1403,7 +1404,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_NET)
-    case SYS_socket:
+    case __NR_socket:
     {
       int domain = va_arg(ap, int);
       int type = va_arg(ap, int);
@@ -1414,7 +1415,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_NET)
-    case SYS_socketpair:
+    case __NR_socketpair:
     {
       int domain = va_arg(ap, int);
       int type = va_arg(ap, int);
@@ -1425,7 +1426,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_stat:
+    case __NR_stat:
     {
       const char *path = va_arg(ap, const char *);
       struct stat *buf = va_arg(ap, struct stat *);
@@ -1433,7 +1434,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_statfs:
+    case __NR_statfs:
     {
       const char *path = va_arg(ap, const char *);
       struct statfs *buf = va_arg(ap, struct statfs *);
@@ -1442,7 +1443,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_PSEUDOFS_SOFTLINKS)
-    case SYS_symlink:
+    case __NR_symlink:
     {
       const char *target = va_arg(ap, const char *);
       const char *linkpath = va_arg(ap, const char *);
@@ -1451,14 +1452,14 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sync:
+    case __NR_sync:
     {
       sync();
       break;
     }
 
 #if defined(CONFIG_FS_SHMFS)
-    case SYS_shm_open:
+    case __NR_shm_open:
     {
       const char *name = va_arg(ap, const char *);
       int oflag = va_arg(ap, int);
@@ -1469,7 +1470,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_FS_SHMFS)
-    case SYS_shm_unlink:
+    case __NR_shm_unlink:
     {
       const char *name = va_arg(ap, const char *);
       ret = shm_unlink(name);
@@ -1478,7 +1479,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_MM_SHM)
-    case SYS_shmat:
+    case __NR_shmat:
     {
       int shmid = va_arg(ap, int);
       const void *shmaddr = va_arg(ap, const void *);
@@ -1493,7 +1494,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_sysinfo:
+    case __NR_sysinfo:
     {
       struct sysinfo *info  = va_arg(ap, struct sysinfo *);
       ret = sysinfo(info);
@@ -1501,7 +1502,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_BUILD_KERNEL)
-    case SYS_task_create:
+    case __NR_task_create:
     {
       const char *name = va_arg(ap, const char *);
       int priority = va_arg(ap, int);
@@ -1514,7 +1515,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_BUILD_KERNEL)
-    case SYS_task_delete:
+    case __NR_task_delete:
     {
       pid_t pid = va_arg(ap, pid_t);
       ret = task_delete(pid);
@@ -1523,7 +1524,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_BUILD_KERNEL)
-    case SYS_task_restart:
+    case __NR_task_restart:
     {
       pid_t pid = va_arg(ap, pid_t);
       ret = task_restart(pid);
@@ -1532,7 +1533,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_BUILD_KERNEL)
-    case SYS_task_spawn:
+    case __NR_task_spawn:
     {
       const char *path = va_arg(ap, const char *);
       main_t entry = va_arg(ap, main_t);
@@ -1546,7 +1547,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_tgkill:
+    case __NR_tgkill:
     {
       pid_t pid = va_arg(ap, pid_t);
       pid_t tid = va_arg(ap, pid_t);
@@ -1555,7 +1556,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_time:
+    case __NR_time:
     {
       time_t *timep = va_arg(ap, time_t *);
       ret = time(timep);
@@ -1563,7 +1564,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_timer_create:
+    case __NR_timer_create:
     {
       int clockid = va_arg(ap, int);
       struct sigevent *sevp = va_arg(ap, struct sigevent *);
@@ -1574,7 +1575,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_timer_delete:
+    case __NR_timer_delete:
     {
       timer_t timerid = va_arg(ap, timer_t);
       ret = timer_delete(timerid);
@@ -1583,7 +1584,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_timer_getoverrun:
+    case __NR_timer_getoverrun:
     {
       timer_t timerid = va_arg(ap, timer_t);
       ret = timer_getoverrun(timerid);
@@ -1592,7 +1593,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_timer_gettime:
+    case __NR_timer_gettime:
     {
       int clockid = va_arg(ap, int);
       struct itimerspec *curr_value = va_arg(ap, struct itimerspec *);
@@ -1602,7 +1603,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS)
-    case SYS_timer_settime:
+    case __NR_timer_settime:
     {
       int clockid = va_arg(ap, int);
       int flags = va_arg(ap, int);
@@ -1615,7 +1616,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_TIMER_FD)
-    case SYS_timerfd_create:
+    case __NR_timerfd_create:
     {
       int clockid = va_arg(ap, int);
       int flags = va_arg(ap, int);
@@ -1625,7 +1626,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_TIMER_FD)
-    case SYS_timerfd_gettime:
+    case __NR_timerfd_gettime:
     {
       int fd = va_arg(ap, int);
       struct itimerspec *curr_value = va_arg(ap, struct itimerspec *);
@@ -1635,7 +1636,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_TIMER_FD)
-    case SYS_timerfd_settime:
+    case __NR_timerfd_settime:
     {
       int fd = va_arg(ap, int);
       int flags = va_arg(ap, int);
@@ -1648,7 +1649,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
-    case SYS_umount2:
+    case __NR_umount2:
     {
       const char *target = va_arg(ap, const char *);
       unsigned int flags = va_arg(ap, unsigned int);
@@ -1658,7 +1659,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
-    case SYS_unlink:
+    case __NR_unlink:
     {
       const char *pathname = va_arg(ap, const char *);
       ret = unlink(pathname);
@@ -1667,7 +1668,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if !defined(CONFIG_DISABLE_ENVIRON)
-    case SYS_unsetenv:
+    case __NR_unsetenv:
     {
       const char *name = va_arg(ap, const char *);
       ret = unsetenv(name);
@@ -1675,13 +1676,13 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_up_fork:
+    case __NR_up_fork:
     {
       ret = up_fork();
       break;
     }
 
-    case SYS_utimens:
+    case __NR_utimens:
     {
       const char *path = va_arg(ap, const char *);
       const struct timespec *times = va_arg(ap, const struct timespec *);
@@ -1690,7 +1691,7 @@ int syscall(int syscall_nr, ...)
     }
 
 #if defined(CONFIG_SCHED_WAITPID) && defined(CONFIG_SCHED_HAVE_PARENT)
-    case SYS_wait:
+    case __NR_wait:
     {
       int *stat_loc = va_arg(ap, int *);
       ret = wait(stat_loc);
@@ -1699,7 +1700,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #if defined(CONFIG_SCHED_WAITPID) && defined(CONFIG_SCHED_HAVE_PARENT)
-    case SYS_waitid:
+    case __NR_waitid:
     {
       idtype_t idtype = (int) va_arg(ap, int);
       id_t id = va_arg(ap, id_t);
@@ -1711,7 +1712,7 @@ int syscall(int syscall_nr, ...)
 #endif
 
 #ifdef CONFIG_SCHED_WAITPID
-    case SYS_waitpid:
+    case __NR_waitpid:
     {
       pid_t pid = va_arg(ap, pid_t);
       int *stat_loc = va_arg(ap, int *);
@@ -1721,7 +1722,7 @@ int syscall(int syscall_nr, ...)
     }
 #endif
 
-    case SYS_write:
+    case __NR_write:
     {
       int fd = va_arg(ap, int);
       const void *buf = va_arg(ap, const void *);
@@ -1730,7 +1731,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_futex:
+    case __NR_futex:
     {
       /* nuttx do not support futex */
 
@@ -1738,7 +1739,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_clock_getres:
+    case __NR_clock_getres:
     {
       clockid_t clockid = va_arg(ap, clockid_t);
       struct timespec *res = va_arg(ap, struct timespec *);
@@ -1746,7 +1747,7 @@ int syscall(int syscall_nr, ...)
       break;
     }
 
-    case SYS_ext_alarm:
+    case __NR_ext_alarm:
     {
       unsigned int seconds = va_arg(ap, unsigned int);
       ret = alarm(seconds);

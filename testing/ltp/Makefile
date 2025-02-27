@@ -484,14 +484,6 @@ BLACKSRCS += $(TESTLINUX_DIR)/syscalls/nftw/test64.c
 BLACKSRCS += $(TESTLINUX_DIR)/syscalls/nftw/lib64.c
 BLACKSRCS += $(TESTLINUX_DIR)/syscalls/nftw/tools64.c
 
-
-# to generate the lapi/syscalls.h to handle syscall for nuttx platform
-.PHONY: gen_ltp_kernel_syscall
-gen_ltp_kernel_syscall:
-	$(Q) echo "start to generate the ltp/include/lapi/syscalls.h"
-	$(Q) bash syscalls/regen.sh ltp/include/lapi/
-	$(Q) mv ../syscalls.h ltp/include/lapi/
-
 LTP_LINUX_ORIGS := $(shell find $(TESTLINUX_DIR) -name *.c)
 
 ifneq ($(LTP_LINUX_ORIGS),)
@@ -610,7 +602,6 @@ STACKSIZE = $(CONFIG_TESTING_LTP_STACKSIZE)
 MODULE    = $(CONFIG_TESTING_LTP)
 
 CFLAGS    += -I$(CURDIR)
-CFLAGS    += -I$(TESTLINUX_DIR)/../../../include
 CFLAGS    += -I$(TESTLINUX_DIR)/include
 CFLAGS    += -I$(TESTLINUX_DIR)/../../include
 CFLAGS    += -I$(TESTLINUX_DIR)/syscalls/ptrace
@@ -699,10 +690,6 @@ context:: $(LTP_UNPACK)
 
 distclean::
 	$(Q) rm -rf $(LTP_UNPACK)
-endif
-
-ifeq ($(CONFIG_TESTING_LTP),y)
-context:: gen_ltp_kernel_syscall
 endif
 
 include $(APPDIR)/Application.mk

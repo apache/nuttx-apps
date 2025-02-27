@@ -603,34 +603,6 @@ if(CONFIG_TESTING_LTP)
       ${CMAKE_CURRENT_LIST_DIR}/ltp/testcases/kernel/syscalls/nftw/lib64.c
       ${CMAKE_CURRENT_LIST_DIR}/ltp/testcases/kernel/syscalls/nftw/tools64.c)
 
-    # to generate the lapi/syscalls.h to handle syscall for NuttX platform
-    set(LAPI_SYSCALL_FILE ${CMAKE_CURRENT_LIST_DIR}/../syscalls.h)
-    if(NOT EXISTS ${LAPI_SYSCALL_FILE})
-      message(
-        STATUS
-          "the ${LAPI_SYSCALL_FILE} do not exist, start to generate at ${CMAKE_CURRENT_LIST_DIR}"
-      )
-
-      get_filename_component(
-        regen_file ${CMAKE_CURRENT_LIST_DIR}/syscalls/regen.sh ABSOLUTE)
-      set(GEN_SYSCALLS_H_CMD_STR
-          "bash ${CMAKE_CURRENT_LIST_DIR}/syscalls/regen.sh ${CMAKE_CURRENT_LIST_DIR}/ltp/include/lapi/"
-      )
-      separate_arguments(GEN_SYSCALLS_H_CMD UNIX_COMMAND
-                         ${GEN_SYSCALLS_H_CMD_STR})
-      add_custom_command(
-        OUTPUT ${LAPI_SYSCALL_FILE}
-        COMMAND ${GEN_SYSCALLS_H_CMD}
-        COMMAND mv ${CMAKE_CURRENT_LIST_DIR}/../syscalls.h
-                ${CMAKE_CURRENT_LIST_DIR}/ltp/include/lapi/
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        DEPENDS ${regen_file}
-        VERBATIM
-        COMMENT "LAPI:Gen and Updating ${LAPI_SYSCALL_FILE}")
-      add_custom_target(GEN_SYSCALLS_H DEPENDS ${LAPI_SYSCALL_FILE})
-      add_dependencies(apps_context GEN_SYSCALLS_H)
-    endif()
-
     add_compile_options(
       -DHAVE_FCHOWNAT
       -DMAXPATHLEN=256
@@ -841,7 +813,6 @@ if(CONFIG_TESTING_LTP)
 
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     include_directories(${TESTLINUX_DIR}/include)
-    include_directories(${TESTLINUX_DIR}/../../../include)
     include_directories(${TESTLINUX_DIR}/../../include)
     include_directories(${TESTLINUX_DIR}/syscalls/ptrace)
     include_directories(${TESTLINUX_DIR}/syscalls/utils)
