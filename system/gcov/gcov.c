@@ -71,7 +71,7 @@ static void show_usage(FAR const char *progname)
 
 static void gcov_dump(FAR const char * path, FAR const char *strip)
 {
-  if (path == NULL || access(path, F_OK) != 0 || atoi(strip) <= 0)
+  if (path == NULL || access(path, F_OK) != 0 || atoi(strip) < 0)
     {
       fprintf(stderr, "ERROR: Invalid parameter\n");
       return;
@@ -157,7 +157,7 @@ static void gcov_stdout_dump(void)
 
 int main(int argc, FAR char *argv[])
 {
-  FAR const char *strip = "99";
+  FAR const char *strip = CONFIG_COVERAGE_DEFAULT_PREFIX_STRIP;
   FAR const char *path = NULL;
   int option;
 
