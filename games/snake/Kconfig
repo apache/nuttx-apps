@@ -1,0 +1,90 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GAMES_SNAKE
+	bool "Snake Game"
+	default n
+	---help---
+		Enable Snake game.
+
+if GAMES_SNAKE
+
+config GAMES_SNAKE_PROGNAME
+	string "Program name"
+	default "snake"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config GAMES_SNAKE_PRIORITY
+	int "Snake Game task priority"
+	default 100
+
+config GAMES_SNAKE_STACKSIZE
+	int "Snake Game stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config DEBUG_SNAKE_GAME
+	bool "Print board status to the serial console for debugging"
+	default n
+
+config GAMES_SNAKE_LED_MATRIX_PATH
+	string "LED matrix path"
+	default "/dev/leds0"
+	---help---
+		Path of the led matrix
+
+config GAMES_SNAKE_LED_MATRIX_ROWS
+	int "LED Matrix row count"
+	default 8
+
+config GAMES_SNAKE_LED_MATRIX_COLS
+	int "LED Matrix column count"
+	default 8
+
+#
+# Input Device Selection
+#
+
+choice INPUT_METHOD
+	prompt "Input Device (Serial Console, GPIO, etc)"
+	default GAMES_SNAKE_USE_CONSOLEKEY
+
+config GAMES_SNAKE_USE_CONSOLEKEY
+	bool "Serial Console as Input"
+
+config GAMES_SNAKE_USE_GPIO
+	bool "GPIO pins as Input"
+endchoice
+
+if GAMES_SNAKE_USE_GPIO
+
+config GAMES_SNAKE_UP_KEY_PATH
+	string "Up key path"
+	default "/dev/gpio0"
+	---help---
+		Path of the up key to read
+
+config GAMES_SNAKE_DOWN_KEY_PATH
+	string "Down key path"
+	default "/dev/gpio1"
+	---help---
+		Path of the down key to read
+
+config GAMES_SNAKE_LEFT_KEY_PATH
+	string "Left key path"
+	default "/dev/gpio2"
+	---help---
+		Path of the left key to read
+
+config GAMES_SNAKE_RIGHT_KEY_PATH
+	string "Right key path"
+	default "/dev/gpio3"
+	---help---
+		Path of the right key to read
+
+endif #GAMES_SNAKE_USE_GPIO
+
+endif
