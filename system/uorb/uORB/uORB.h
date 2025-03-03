@@ -108,10 +108,10 @@ struct orb_handle_s
   int                events;      /* Events of interest. */
   int                fd;          /* Topic fd. */
   FAR void          *arg;         /* Callback parameter. */
-  orb_datain_cb_t    datain_cb;   /* User EPOLLIN callback funtion. */
-  orb_dataout_cb_t   dataout_cb;  /* User EPOLLOUT callback funtion. */
-  orb_eventpri_cb_t  eventpri_cb; /* User EPOLLPRI callback funtion. */
-  orb_eventerr_cb_t  eventerr_cb; /* User EPOLLERR callback funtion. */
+  orb_datain_cb_t    datain_cb;   /* User EPOLLIN callback function. */
+  orb_dataout_cb_t   dataout_cb;  /* User EPOLLOUT callback function. */
+  orb_eventpri_cb_t  eventpri_cb; /* User EPOLLPRI callback function. */
+  orb_eventerr_cb_t  eventerr_cb; /* User EPOLLERR callback function. */
 };
 
 struct orb_loop_ops_s;
@@ -806,7 +806,7 @@ orb_abstime orb_absolute_time(void);
  *   then   Past system time.
  *
  * Returned Value:
- *   Bewteen time.
+ *   Between time.
  ****************************************************************************/
 
 static inline orb_abstime orb_elapsed_time(FAR const orb_abstime *then)
