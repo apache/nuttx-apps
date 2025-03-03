@@ -235,12 +235,6 @@ static int latency_test(bool print)
       usleep(1000); /* simulate >800 Hz system operation */
     }
 
-  if (pubsub_task < 0)
-    {
-      test_fail("failed launching task");
-      goto out;
-    }
-
   ret = OK;
 
 out:

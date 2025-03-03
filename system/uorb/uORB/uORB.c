@@ -43,7 +43,7 @@
  * Name: orb_advsub_open
  *
  * Description:
- *   Open device node as advertiser / subscriber, regist node and save meta
+ *   Open device node as advertiser / subscriber, register node and save meta
  *   in driver for first user, set buffer number for advertisers.
  *
  * Input Parameters:
@@ -68,7 +68,7 @@ static int orb_advsub_open(FAR const struct orb_metadata *meta, int flags,
   snprintf(path, ORB_PATH_MAX, ORB_SENSOR_PATH"%s%d", meta->o_name,
            instance);
 
-  /* Check existance before open */
+  /* Check existence before open */
 
   flags |= O_CLOEXEC;
   fd = open(path, flags);
