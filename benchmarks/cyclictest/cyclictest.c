@@ -96,6 +96,7 @@ struct cyclictest_config_s
   int threads;
   int policy;
   int prio;
+  bool quiet;
   char *timer_dev;
   enum meas_method_e meas_method;
   enum wait_method_e wait_method;
@@ -117,9 +118,11 @@ struct thread_stats_s
   long hist_overflow;
   long min;
   long max;
+  long act;
   double avg;
   unsigned long cycles;
   pthread_t id;
+  int tid;
   bool ended;
 };
 
@@ -141,6 +144,7 @@ static const struct option optargs[] =
   {"measurement", optional_argument, 0, 'm'},
   {"nanosleep", optional_argument, 0, 'n'},
   {"prio", optional_argument, 0, 'p'},
+  {"quiet", optional_argument, 0, 'q'},
   {"threads", optional_argument, 0, 't'},
   {"timer-device", optional_argument, 0, 'T'},
   {"policy", optional_argument, 0, 'y'},
@@ -187,6 +191,7 @@ static void print_help(void)
     "       If METHOD 1 is selected, you need to specify a timer device "
     "(e.g. /dev/timer0) in -T.\n"
     "  -p --prio: Set the priority of the first thread.\n"
+    "  -q --quiet: Print a summary only on exit.\n"
     "  -t --threads [N]: The number of test threads to be created. "
     "Default is 1.\n"
     "  -T --timer-device [DEV]: The measuring timer device.\n"
@@ -214,7 +219,7 @@ static bool parse_args(int argc, char * const argv[])
   int longindex;
   int opt;
   long decimal;
-  while ((opt = getopt_long(argc, argv, "c:d:D:h:Hi:l:m:n:p:t:T:",
+  while ((opt = getopt_long(argc, argv, "c:d:D:h:Hi:l:m:n:p:qt:T:",
                   optargs, &longindex)) != -1)
     {
       switch (opt)
@@ -322,6 +327,9 @@ static bool parse_args(int argc, char * const argv[])
               {
                 return false;
               }
+            break;
+          case 'q':
+            config.quiet = true;
             break;
           case 't':
             decimal = arg_decimal(optarg);
@@ -479,6 +487,7 @@ static void *testthread(void *arg)
   struct thread_param_s *param = (struct thread_param_s *)arg;
   struct thread_stats_s *stats = param->stats;
 
+  stats->tid = gettid();
   stats->min = LONG_MAX;
   interval.tv_sec = param->interval / 1000000;
   interval.tv_nsec = (param->interval % 1000000) * 1000;
@@ -624,6 +633,7 @@ static void *testthread(void *arg)
             break;
         }
 
+      stats->act = diff;
       if (diff < stats->min)
         {
           stats->min = diff;
@@ -805,6 +815,21 @@ static void print_hist(struct thread_param_s *par[], int nthreads)
   printf("\n");
 }
 
+/* Copied from the original rt-tests/cyclictest.
+ * This way, the output is compatible with the original cyclictest.
+ */
+
+static void print_stat(struct thread_param_s *par, int index)
+{
+  struct thread_stats_s *stat = par->stats;
+  char *fmt;
+  fmt = "T:%2d (%5d) P:%2d I:%ld C:%7lu "
+        "Min:%7ld Act:%5ld Avg:%5ld Max:%8ld\n";
+  printf(fmt, index, stat->tid, par->prio, par->interval, stat->cycles,
+         stat->min, stat->act,
+         stat->cycles ? (long)(stat->avg / stat->cycles) : 0, stat->max);
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -834,6 +859,7 @@ int main(int argc, char *argv[])
   config.meas_method = M_GETTIME;
   config.wait_method = W_NANOSLEEP;
   config.timer_dev = NULL;
+  config.quiet = false;
 
   if (!parse_args(argc, argv))
     {
@@ -865,7 +891,7 @@ int main(int argc, char *argv[])
 
       /* Fill in the notify struct
        * We do not want any signalling. But we must configure it,
-       * because without the timer will not start.
+       * because without it the timer will not start.
        */
 
       memset(&event, 0, sizeof(event));
@@ -905,10 +931,6 @@ int main(int argc, char *argv[])
 
           reqtimeout_timer = 3 * (config.interval +
                              (config.threads - 1) * config.distance);
-        }
-      else
-        {
-          reqtimeout_timer = 2 * CONFIG_USEC_PER_TICK;
         }
 
       ret = ioctl(timerfd, TCIOC_MAXTIMEOUT,
@@ -1017,6 +1039,11 @@ int main(int argc, char *argv[])
       int ended = 0;
       for (i = 0; i < config.threads; ++i)
         {
+          if (!config.quiet)
+            {
+              print_stat(params[i], i);
+            }
+
           if (stats[i]->ended)
             {
               ended += 1;
@@ -1026,6 +1053,10 @@ int main(int argc, char *argv[])
       if (ended == config.threads)
         {
           running = false;
+        }
+      else if (!config.quiet)
+        {
+          printf("\x1B[%dA", config.threads);
         }
     }
 
