@@ -559,13 +559,13 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
   int ret;
 
   fds = calloc(nb_objects, sizeof(struct pollfd));
-  if (!fds)
+  if (fds == NULL)
     {
       return;
     }
 
   result = calloc(nb_objects, sizeof(int8_t));
-  if (!result)
+  if (result == NULL)
     {
       free(fds);
       return;
@@ -598,6 +598,8 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
       if (ret < 0)
         {
           result[i] = ret;
+          uorbinfo_raw("topic [%s%d] call flush failed! return:%d\n",
+                       tmp->object.meta->o_name, tmp->object.instance, ret);
         }
       else
         {
