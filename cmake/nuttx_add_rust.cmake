@@ -150,6 +150,8 @@ function(nuttx_add_rust)
   add_custom_command(
     OUTPUT ${RUST_LIB_PATH}
     COMMAND
+      ${CMAKE_COMMAND} -E env
+      NUTTX_INCLUDE_DIR=${PROJECT_SOURCE_DIR}/include:${CMAKE_BINARY_DIR}/include:${CMAKE_BINARY_DIR}/include/arch
       cargo build --${RUST_PROFILE} -Zbuild-std=std,panic_abort
       ${RUST_DEBUG_FLAGS} --manifest-path ${CRATE_PATH}/Cargo.toml --target
       ${RUST_TARGET} --target-dir ${RUST_BUILD_DIR}
