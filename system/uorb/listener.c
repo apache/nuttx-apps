@@ -141,6 +141,7 @@ listener <command> [arguments...]\n\
 \t[-i       ]  Get sensor device information based on topic.\n\
 \t[-f       ]  Flush sensor drive data.\n\
 \t[-w       ]  Subscribe in wakeup mode.\n\
+\t[-k       ]  Unlink the nodes registered on the device.\n\
   ");
 }
 
@@ -560,6 +561,36 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
 #endif
 
   return ret;
+}
+
+/****************************************************************************
+ * Name: listener_unlink_topic
+ *
+ * Description:
+ *   Unlink the device nodes of the topics in the list.
+ *
+ * Input Parameters:
+ *   objlist      Topic object list.
+ *
+ * Returned Value:
+ *   void
+ ****************************************************************************/
+
+static void listener_unlink_topic(FAR const struct listen_list_s *objlist)
+{
+  FAR struct listen_object_s *tmp;
+
+  SLIST_FOREACH(tmp, objlist, node)
+    {
+      int ret = orb_unlink_multi(tmp->object.meta, tmp->object.instance);
+
+      if (ret < 0)
+        {
+          uorbinfo_raw("%s%d unlink failed: %d", tmp->object.meta->o_name,
+                       tmp->object.instance, ret);
+          return;
+        }
+    }
 }
 
 /****************************************************************************
@@ -1086,6 +1117,7 @@ int main(int argc, FAR char *argv[])
   bool record       = false;
   bool wakeup       = false;
   bool only_once    = false;
+  bool unlink_topic = false;
   FAR char *filter  = NULL;
   int ret;
   int ch;
@@ -1098,7 +1130,7 @@ int main(int argc, FAR char *argv[])
 
   /* Pasrse Argument */
 
-  while ((ch = getopt(argc, argv, "r:b:n:t:Tfslhiw")) != EOF)
+  while ((ch = getopt(argc, argv, "r:b:n:t:Tfslhiwk")) != EOF)
     {
       switch (ch)
         {
@@ -1160,6 +1192,10 @@ int main(int argc, FAR char *argv[])
             wakeup = true;
             break;
 
+          case 'k':
+            unlink_topic = true;
+            break;
+
           case 'h':
           default:
             goto error;
@@ -1189,6 +1225,12 @@ int main(int argc, FAR char *argv[])
   if (info)
     {
       listener_print_info(&objlist, wakeup);
+      goto exit;
+    }
+
+  if (unlink_topic)
+    {
+      listener_unlink_topic(&objlist);
       goto exit;
     }
 
