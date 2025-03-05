@@ -18,7 +18,7 @@ opt-level = 'z'
 [dependencies]
 libc = "0.2"
 slint = { version = "1.9", default-features = false, features = ["compat-1-2", "renderer-software", "libm", "unsafe-single-threaded"] }
-nuttx = { git = "https://github.com/no1wudi/nuttx-rs.git", branch = "master" }
+nuttx = { git = "https://github.com/no1wudi/nuttx-rs.git", branch = "main" }
 
 [build-dependencies]
 slint-build = { version = "1.9" }
