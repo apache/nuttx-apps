@@ -161,7 +161,7 @@ static int rpsock_stream_server(int argc, FAR char *argv[])
 {
   struct sockaddr_rpmsg myaddr;
   bool nonblock = false;
-  socklen_t addrlen;
+  socklen_t addrlen = sizeof(myaddr);
   int listensd;
   int ret;
 
@@ -357,7 +357,7 @@ static int rpsock_stream_multi_times_server(FAR char *argv[])
   struct sockaddr_rpmsg myaddr;
   FAR struct rpsock_arg_s *args;
   struct pollfd pfd;
-  socklen_t addrlen;
+  socklen_t addrlen = sizeof(myaddr);
   bool nonblock = false;
   int fd;
   int newfd;
