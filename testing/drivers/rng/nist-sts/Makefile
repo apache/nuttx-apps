@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/nist-sts/Makefile
+# apps/testing/drivers/rng/nist-sts/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
