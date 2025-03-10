@@ -796,7 +796,6 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
   bool                    streaming = true;
   bool                    failed = false;
   struct ap_buffer_info_s buf_info;
-  FAR struct ap_buffer_s  **buffers;
   unsigned int            prio;
 #ifdef CONFIG_DEBUG_FEATURES
   int                     outstanding = 0;
@@ -819,23 +818,11 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
 
   /* Create array of pointers to buffers */
 
-  buffers = (FAR struct ap_buffer_s **)
-    malloc(buf_info.nbuffers * sizeof(FAR void *));
-  if (buffers == NULL)
-    {
-      /* Error allocating memory for buffer storage! */
-
-      ret = -ENOMEM;
-      running = false;
-      goto err_out;
-    }
+  FAR struct ap_buffer_s *buffers[buf_info.nbuffers];
 
   /* Create our audio pipeline buffers to use for queueing up data */
 
-  for (x = 0; x < buf_info.nbuffers; x++)
-    {
-      buffers[x] = NULL;
-    }
+  memset(buffers, 0, sizeof(buffers));
 
   for (x = 0; x < buf_info.nbuffers; x++)
     {
@@ -1145,27 +1132,20 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
 err_out:
   audinfo("Clean-up and exit\n");
 
-  if (buffers != NULL)
+  audinfo("Freeing buffers\n");
+  for (x = 0; x < buf_info.nbuffers; x++)
     {
-      audinfo("Freeing buffers\n");
-      for (x = 0; x < buf_info.nbuffers; x++)
+      /* Fill in the buffer descriptor struct to issue a free request */
+
+      if (buffers[x] != NULL)
         {
-          /* Fill in the buffer descriptor struct to issue a free request */
-
-          if (buffers[x] != NULL)
-            {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-              buf_desc.session = pplayer->session;
+          buf_desc.session = pplayer->session;
 #endif
-              buf_desc.u.buffer = buffers[x];
-              ioctl(pplayer->dev_fd, AUDIOIOC_FREEBUFFER,
-                    (unsigned long)&buf_desc);
-            }
+          buf_desc.u.buffer = buffers[x];
+          ioctl(pplayer->dev_fd, AUDIOIOC_FREEBUFFER,
+                (unsigned long)&buf_desc);
         }
-
-      /* Free the pointers to the buffers */
-
-      free(buffers);
     }
 
   /* Unregister the message queue and release the session */
