@@ -39,26 +39,32 @@
 #define NXBOOT_SECONDARY_SLOT_NUM (1)
 #define NXBOOT_TERTIARY_SLOT_NUM  (2)
 
-/* Offsets to write pages containing confirmed and updated flags. These
- * pages are located at the end of the partition, therefore index 0 means
- * the first page from the end.
- */
-
-#define NXBOOT_CONFIRMED_PAGE_INDEX (0)
-#define NXBOOT_UPDATED_PAGE_INDEX   (1)
-
-#define NXBOOT_HEADER_MAGIC     0x534f584e /* NXOS. */
-#define NXBOOT_HEADER_MAGIC_INV 0xaca0abb1 /* NXOS inverted. This is used
-                                            * for images uploaded directly
-                                            * to the primary flash with
-                                            * the debugger. These images
-                                            * does not have precalculated
-                                            * CRC and flags at the
-                                            * end of the partition, but
-                                            * are considered to be valid.
+#define NXBOOT_HEADER_MAGIC     0x534f584e /* NXOS. The NX images, both
+                                            * uploaded directly to primary
+                                            * partition via debugger and to
+                                            * update via some application
+                                            * are used with this magic. If
+                                            * this image is uploaded to
+                                            * primary flash, it is considered
+                                            * valid.
+                                            */
+#define NXBOOT_HEADER_MAGIC_INT 0xaca0abb0 /* NXOS internal. This is used
+                                            * for internal bootloader
+                                            * handling and operations. It is
+                                            * switch internally to distinguish
+                                            * between images uploaded via
+                                            * debugger or the ones updated
+                                            * after the bootloader performed
+                                            * its operation. The first two
+                                            * bits are reserved to point
+                                            * what partition is a recovery
+                                            * for this image.
                                             */
 
-#define NXBOOT_HEADER_PRERELEASE_MAXLEN 110
+#define NXBOOT_HEADER_MAGIC_INT_MASK 0xfffffff0
+#define NXBOOT_RECOVERY_PTR_MASK 0x3
+
+#define NXBOOT_HEADER_PRERELEASE_MAXLEN 94
 
 /****************************************************************************
  * Public Types
@@ -84,11 +90,30 @@ struct nxboot_img_version
   char pre_release[NXBOOT_HEADER_PRERELEASE_MAXLEN];  /* Additional pre-release version */
 };
 
+struct nxboot_hdr_version
+{
+  uint8_t major;
+  uint8_t minor;
+};
+
 struct nxboot_img_header
 {
-  uint32_t magic;  /* Header magic */
-  uint32_t size;   /* Image size (excluding the header) */
-  uint32_t crc;    /* CRC32 of image (excluding the header). */
+  uint32_t magic;                         /* Header magic */
+  struct nxboot_hdr_version hdr_version;  /* Version of the header */
+
+  uint16_t header_size;     /* Length of the header in bytes */
+  uint32_t crc;             /* CRC32 of image (excluding the previous
+                             * fields in header, but including the following
+                             * ones).
+                             */
+  uint32_t size;            /* Image size (excluding the header) */
+  uint64_t identifier;      /* Platform identifier. An image is rejected
+                             * if it does not match the one set for
+                             * the bootloader in NXBOOT_PLATFORM_IDENTIFIER.
+                             */
+  uint32_t extd_hdr_ptr;    /* Address of the next extended header.
+                             * This is a hook for future additional headers.
+                             */
 
   struct nxboot_img_version img_version; /* Image version */
 };
@@ -101,8 +126,9 @@ struct nxboot_state
   int update;                         /* Number of update slot */
   int recovery;                       /* Number of recovery slot */
   bool recovery_valid;                /* True if recovery image contains valid recovery */
+  bool recovery_present;              /* True if the image in primary has a recovery */
   bool primary_confirmed;             /* True if primary slot is confirmed */
-  enum nxboot_update_type next_boot;  /* True if update slot has a valid image */
+  enum nxboot_update_type next_boot;  /* nxboot_update_type with next operation */
 };
 
 /****************************************************************************
@@ -127,6 +153,22 @@ struct nxboot_state
  ****************************************************************************/
 
 int nxboot_get_state(struct nxboot_state *state);
+
+/****************************************************************************
+ * Name: nxboot_open_update_partition
+ *
+ * Description:
+ *   Gets the current bootloader state and opens the partition to which an
+ *   update image should be stored. It returns the valid file descriptor to
+ *   this partition, the user is responsible for writing to it and closing
+ *   if afterwards.
+ *
+ * Returned Value:
+ *   Valid file descriptor on success, -1 and sets errno on failure.
+ *
+ ****************************************************************************/
+
+int nxboot_open_update_partition(void);
 
 /****************************************************************************
  * Name: nxboot_get_confirm

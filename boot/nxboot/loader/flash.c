@@ -240,10 +240,10 @@ int flash_partition_erase(int fd)
 }
 
 /****************************************************************************
- * Name: flash_partition_erase_last_sector
+ * Name: flash_partition_erase_first_sector
  *
  * Description:
- *   Erases the last sector of the partition
+ *   Erases the first sector of the partition
  *
  * Input parameters:
  *   fd: Valid file descriptor.
@@ -253,18 +253,12 @@ int flash_partition_erase(int fd)
  *
  ****************************************************************************/
 
-int flash_partition_erase_last_sector(int fd)
+int flash_partition_erase_first_sector(int fd)
 {
   int ret;
   struct mtd_erase_s erase;
-  struct flash_partition_info info;
 
-  if (flash_partition_info(fd, &info) < 0)
-    {
-      return ERROR;
-    }
-
-  erase.startblock = info.neraseblocks - 1;
+  erase.startblock = 0;
   erase.nblocks = 1;
 
   ret = ioctl(fd, MTDIOC_ERASESECTORS, &erase);
@@ -308,6 +302,7 @@ int flash_partition_info(int fd, struct flash_partition_info *info)
   info->blocksize = geometry.blocksize;
   info->size = geometry.erasesize * geometry.neraseblocks;
   info->neraseblocks = geometry.neraseblocks;
+  info->erasesize = geometry.erasesize;
 
   return OK;
 }

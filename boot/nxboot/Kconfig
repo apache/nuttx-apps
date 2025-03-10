@@ -43,6 +43,15 @@ config NXBOOT_HEADER_SIZE
 		Note that this size should be aligned with the program memory write
 		page size!
 
+config NXBOOT_PLATFORM_IDENTIFIER
+	hex "A unique platform identifier"
+	default 0x0
+	---help---
+		This is a unique platform identifier used by the bootloader to
+		verify whether the image should be run on a given platform. An update
+		(or even a firmware uploaded via a programmer) is rejected if the
+		value in image's header doesn't match this option.
+
 config NXBOOT_BOOTLOADER
 	bool "Build nxboot bootloader application"
 	default n
@@ -80,7 +89,7 @@ config NXBOOT_PREVENT_DOWNGRADE
 		performed only for newer versions  (according to Semantic Version
 		preference rules).
 
-		WARNING: NXboot currently implementes preferences only for
+		WARNING: NXboot currently implements preferences only for
 		MAJOR.MINOR.PATCH and ignores prerelease.
 
 endif # NXBOOT_BOOTLOADER
