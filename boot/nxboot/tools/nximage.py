@@ -33,57 +33,64 @@ import semantic_version
 
 class NxImage:
     def __init__(
-        self, path: str, result: str, version: str, header_size: int, primary: bool
+        self,
+        path: str,
+        result: str,
+        version: str,
+        header_size: int,
+        identifier: int,
     ) -> None:
         self.path = path
         self.result = result
         self.size = os.stat(path).st_size
         self.version = semantic_version.Version(version)
         self.header_size = header_size
-        self.primary = primary
+        self.identifier = identifier
         self.crc = 0
+        self.extd_hdr_ptr = 0
 
-        with open(path, "rb") as f:
-            while data := f.read(io.DEFAULT_BUFFER_SIZE):
-                self.crc = zlib.crc32(data, self.crc)
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         repr = (
             "<NxImage\n"
             f"  path:        {self.path}\n"
             f"  result:      {self.result}\n"
             f"  fsize:       {self.size}\n"
             f"  version:     {self.version}\n"
-            f"  header_size: {self.header_size}\n"
-            f"  primary:     {self.primary}\n"
-            f"  crc:         {self.crc}\n"
+            f"  header_size: {self.header_size:x}\n"
+            f"  identifier:  {self.identifier:x}\n"
+            f"  crc:         {self.crc:x}\n"
             f">"
         )
         return repr
 
-    def add_header(self):
+    def add_header(self) -> None:
         with open(self.path, "r+b") as src, open(self.result, "w+b") as dest:
-            if self.primary:
-                dest.write(b"\xb1\xab\xa0\xac")
-            else:
-                dest.write(b"\x4e\x58\x4f\x53")
+            dest.write(b"\x4e\x58\x4f\x53")
+            dest.write(struct.pack("<H", 0))
+            dest.write(struct.pack("<H", self.header_size))
+            dest.write(struct.pack("<I", 0xFFFFFFFF))
             dest.write(struct.pack("<I", self.size))
-            if self.primary:
-                dest.write(struct.pack("<I", 0xFFFFFFFF))
-            else:
-                dest.write(struct.pack("<I", self.crc))
+            dest.write(struct.pack("<Q", self.identifier))
+            dest.write(struct.pack("<I", self.extd_hdr_ptr))
             dest.write(struct.pack("<H", self.version.major))
             dest.write(struct.pack("<H", self.version.minor))
             dest.write(struct.pack("<H", self.version.patch))
             if not self.version.prerelease:
-                dest.write(struct.pack("@110s", b"\x00"))
+                dest.write(struct.pack("@94s", b"\x00"))
             else:
                 dest.write(
-                    struct.pack("@110s", bytes(self.version.prerelease[0], "utf-8"))
+                    struct.pack("@94s", bytes(self.version.prerelease[0], "utf-8"))
                 )
             dest.write(bytearray(b"\xff") * (self.header_size - 128))
             while data := src.read(io.DEFAULT_BUFFER_SIZE):
                 dest.write(data)
+
+        with open(self.result, "r+b") as f:
+            f.seek(12)
+            while data := f.read(io.DEFAULT_BUFFER_SIZE):
+                self.crc = zlib.crc32(data, self.crc)
+            f.seek(8)
+            f.write(struct.pack("<I", self.crc))
 
 
 def parse_args() -> argparse.Namespace:
@@ -101,9 +108,10 @@ def parse_args() -> argparse.Namespace:
         help="Size of the image header.",
     )
     parser.add_argument(
-        "--primary",
-        action="store_true",
-        help="Primary image intended to be uploaded directly to primary memory.",
+        "--identifier",
+        type=lambda x: int(x, 0),
+        default=0x0,
+        help="Platform identifier. An image is rejected if its identifier doesn't match the one set in bootloader.",
     )
     parser.add_argument(
         "-v",
@@ -126,7 +134,11 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     image = NxImage(
-        args.PATH, args.RESULT, args.version, args.header_size, args.primary
+        args.PATH,
+        args.RESULT,
+        args.version,
+        args.header_size,
+        args.identifier,
     )
     image.add_header()
     if args.v:
