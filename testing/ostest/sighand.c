@@ -217,12 +217,13 @@ void sighand_test(void)
 #ifdef CONFIG_SCHED_HAVE_PARENT
   struct sigaction act;
   struct sigaction oact;
-  sigset_t set;
 #endif
   struct sched_param param;
   pthread_attr_t attr;
   union sigval sigvalue;
   pid_t waiterpid;
+  sigset_t oset;
+  sigset_t set;
   int status;
 
   printf("sighand_test: Initializing semaphore to 0\n");
@@ -258,6 +259,16 @@ void sighand_test(void)
 #endif
 
   /* Start waiter thread  */
+
+  sigemptyset(&set);
+  sigaddset(&set, WAKEUP_SIGNAL);
+  status = sigprocmask(SIG_BLOCK, &set, &oset);
+  if (status != OK)
+    {
+      printf("sighand_test: ERROR sigprocmask failed, status=%d\n",
+              status);
+      ASSERT(false);
+    }
 
   printf("sighand_test: Starting waiter task\n");
   status = sched_getparam (0, &param);
@@ -332,6 +343,7 @@ void sighand_test(void)
 #endif
 
   printf("sighand_test: done\n");
+  sigprocmask(SIG_SETMASK, &oset, NULL);
   FFLUSH();
   sem_destroy(&sem2);
   sem_destroy(&sem1);
