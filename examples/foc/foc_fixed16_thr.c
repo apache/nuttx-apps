@@ -57,11 +57,11 @@
 /* Critical section */
 
 #ifdef CONFIG_EXAMPLES_FOC_CONTROL_CRITSEC
-#  define foc_enter_critical() irqstate_t intflags = enter_critical_section()
-#  define foc_leave_critical() leave_critical_section(intflags)
+#  define foc_irq_save() irqstate_t intflags = up_irq_save()
+#  define foc_irq_restore() up_irq_restore(intflags)
 #else
-#  define foc_enter_critical()
-#  define foc_leave_critical()
+#  define foc_irq_save()
+#  define foc_irq_restore()
 #endif
 
 /****************************************************************************
@@ -354,7 +354,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 
   while (motor.mq.quit == false)
     {
-      foc_enter_critical();
+      foc_irq_save();
 
       if (motor.mq.start == true)
         {
@@ -406,7 +406,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 
           /* Start from the beginning of the control loop */
 
-          foc_leave_critical();
+          foc_irq_restore();
           continue;
         }
 
@@ -414,7 +414,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 
       if (motor.mq.start == false)
         {
-          foc_leave_critical();
+          foc_irq_restore();
           usleep(1000);
           continue;
         }
@@ -522,7 +522,7 @@ int foc_fixed16_thr(FAR struct foc_ctrl_env_s *envp)
 
       motor.time += 1;
 
-      foc_leave_critical();
+      foc_irq_restore();
     }
 
 errout:
