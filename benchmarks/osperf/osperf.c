@@ -136,10 +136,8 @@ static size_t performance_gettime(FAR struct performance_time_s *result)
 static FAR void *pthread_switch_task(FAR void *arg)
 {
   FAR struct performance_thread_s *perf = arg;
-  irqstate_t flags = enter_critical_section();
   sem_wait(&perf->sem);
   performance_end(&perf->time);
-  leave_critical_section(flags);
   return NULL;
 }
 
@@ -383,9 +381,11 @@ static void performance_run(const FAR struct performance_entry_s *item,
 
   for (i = 0; i < count; i++)
     {
-      irqstate_t flags = enter_critical_section();
+      irqstate_t flags = up_irq_save();
+      sched_lock();
       size_t time = item->entry();
-      leave_critical_section(flags);
+      up_irq_restore(flags);
+      sched_unlock();
 
       total += time;
       if (time > max)
