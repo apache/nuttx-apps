@@ -93,21 +93,26 @@ if(CONFIG_MODBUS)
   # rtu/Make.defs
 
   if(CONFIG_MB_RTU_ENABLED OR CONFIG_MB_RTU_MASTER)
-    list(APPEND rtu/mbcrc.c)
+    list(APPEND CSRCS rtu/mbcrc.c)
     if(CONFIG_MB_RTU_ENABLED)
-      list(APPEND rtu/mbrtu.c)
+      list(APPEND CSRCS rtu/mbrtu.c)
     endif()
 
     if(CONFIG_MB_RTU_MASTER)
-      list(APPEND rtu/mbrtu_m.c)
+      list(APPEND CSRCS rtu/mbrtu_m.c)
     endif()
   endif()
 
   # tcp/Make.defs
 
   if(CONFIG_MB_TCP_ENABLED)
-    list(APPEND tcp/mbtcp.c)
+    list(APPEND CSRCS tcp/mbtcp.c)
   endif()
+
+  # include private headers
+
+  target_include_directories(apps PRIVATE nuttx)
+  target_include_directories(apps PRIVATE rtu)
 
   target_sources(apps PRIVATE ${CSRCS})
 
