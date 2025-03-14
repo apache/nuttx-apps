@@ -74,6 +74,7 @@ void vMBPortLogFile(FILE * fNewLogFile)
   fLogFile = fNewLogFile;
 }
 
+#ifndef CONFIG_MODBUS_DISABLE_LOG
 void vMBPortLog(eMBPortLogLevel eLevel, const char * szModule,
                 const char * szFmt, ...)
 {
@@ -104,6 +105,7 @@ void vMBPortLog(eMBPortLogLevel eLevel, const char * szModule,
         }
     }
 }
+#endif
 
 void vMBPortEnterCritical(void)
 {
