@@ -35,72 +35,236 @@
  ****************************************************************************/
 
 #define NLOOPS 32
+#define NYIELDS 10
 
 /****************************************************************************
- * Private Data
+ * Private Types
  ****************************************************************************/
 
-static pthread_mutex_t mut;
-static volatile int my_mutex = 0;
-static unsigned long nloops[2] =
-  {
-    0,
-    0
-  };
-static unsigned long nerrors[2] =
-  {
-    0,
-    0
-  };
+typedef struct
+{
+  pthread_mutex_t *mutex_ptr;
+  volatile int *mutex_value;
+  int *nloops;
+  int *nerrors;
+  int thread_id;
+} mutex_thread_args_t;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static void *thread_func(FAR void *parameter)
+static void *mutex_thread_func(FAR void *parameter)
 {
-  int id  = (int)((intptr_t)parameter);
+  FAR mutex_thread_args_t *args = (FAR mutex_thread_args_t *)parameter;
+
+  int id = args->thread_id;
   int ndx = id - 1;
   int i;
+  int local_loops = 0;
 
-  for (nloops[ndx] = 0; nloops[ndx] < NLOOPS; nloops[ndx]++)
+  for (local_loops = 0; local_loops < NLOOPS; local_loops++)
     {
-      int status = pthread_mutex_lock(&mut);
+      int status = pthread_mutex_lock(args->mutex_ptr);
       if (status != 0)
         {
-          printf("ERROR thread %d: pthread_mutex_lock failed, status=%d\n",
-                  id, status);
+          printf("ERROR thread %d: pthread_mutex_lock failed, "
+                 "status=%d\n", id, status);
           ASSERT(false);
         }
 
-      if (my_mutex == 1)
+      if (*(args->mutex_value) == 1)
         {
           printf("ERROR thread=%d: "
-                 "my_mutex should be zero, instead my_mutex=%d\n",
-                  id, my_mutex);
+                 "mutex value should be zero, "
+                 "instead mutex value=%d\n",
+                 id, *(args->mutex_value));
           ASSERT(false);
-          nerrors[ndx]++;
+          args->nerrors[ndx]++;
         }
 
-      my_mutex = 1;
-      for (i = 0; i < 10; i++)
+      *(args->mutex_value) = 1;
+      for (i = 0; i < NYIELDS; i++)
         {
           pthread_yield();
         }
 
-      my_mutex = 0;
+      *(args->mutex_value) = 0;
 
-      status = pthread_mutex_unlock(&mut);
+      status = pthread_mutex_unlock(args->mutex_ptr);
       if (status != 0)
         {
-          printf("ERROR thread %d: pthread_mutex_unlock failed, status=%d\n",
-                 id, status);
+          printf("ERROR thread %d: pthread_mutex_unlock failed, "
+                 "status=%d\n", id, status);
           ASSERT(false);
         }
     }
 
+  args->nloops[ndx] = local_loops;
   pthread_exit(NULL);
-  return NULL; /* Non-reachable -- needed for some compilers */
+  return NULL;
+}
+
+/****************************************************************************
+ * Name: mutex_move_test
+ *
+ * Description:
+ *   Test the mutex move functionality.  This test creates a mutex, moves
+ *   it to a new location, and then starts two threads that use the moved
+ *   mutex.
+ *   POSIX specification does not define the behavior of a mutex that is
+ *   moved.  This test is intended to verify that the mutex can be moved,
+ *   which is useful for some cases, see the discussion in
+ *   https://github.com/rust-lang/rust/pull/138400
+ *
+ ****************************************************************************/
+
+static void mutex_move_test(void)
+{
+  pthread_t thread1;
+  pthread_t thread2;
+  int status;
+  pthread_mutex_t initial_mutex;
+  pthread_mutex_t moved_mutex;
+  volatile int moved_mutex_value = 0;
+  int moved_nloops[2] =
+    {
+      0,
+      0
+    };
+
+  int moved_nerrors[2] =
+    {
+      0,
+      0
+    };
+
+  printf("\nTesting moved mutex\n");
+
+  /* Allocate and initialize first mutex */
+
+  pthread_mutex_init(&initial_mutex, NULL);
+
+  /* Copy the mutex to new location */
+
+  memcpy(&moved_mutex, &initial_mutex, sizeof(pthread_mutex_t));
+
+  /* Destroy the original mutex */
+
+  pthread_mutex_destroy(&initial_mutex);
+
+  mutex_thread_args_t thread1_args;
+  mutex_thread_args_t thread2_args;
+
+  thread1_args.mutex_ptr = &moved_mutex;
+  thread1_args.mutex_value = &moved_mutex_value;
+  thread1_args.nloops = moved_nloops;
+  thread1_args.nerrors = moved_nerrors;
+  thread1_args.thread_id = 1;
+
+  thread2_args.mutex_ptr = &moved_mutex;
+  thread2_args.mutex_value = &moved_mutex_value;
+  thread2_args.nloops = moved_nloops;
+  thread2_args.nerrors = moved_nerrors;
+  thread2_args.thread_id = 2;
+
+  /* Start two threads using the moved mutex */
+
+  printf("Starting moved mutex thread 1\n");
+  status = pthread_create(&thread1, NULL, mutex_thread_func,
+                         &thread1_args);
+  if (status != 0)
+    {
+      printf("ERROR in moved mutex thread#1 creation\n");
+      ASSERT(false);
+    }
+
+  printf("Starting moved mutex thread 2\n");
+  status = pthread_create(&thread2, NULL, mutex_thread_func,
+                         &thread2_args);
+  if (status != 0)
+    {
+      printf("ERROR in moved mutex thread#2 creation\n");
+      ASSERT(false);
+    }
+
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+
+  pthread_mutex_destroy(&moved_mutex);
+
+  printf("\t\tThread1\tThread2\n");
+  printf("\tMoved Loops\t%u\t%u\n", moved_nloops[0], moved_nloops[1]);
+  printf("\tMoved Errors\t%u\t%u\n", moved_nerrors[0], moved_nerrors[1]);
+}
+
+void mutex_simple_test(void)
+{
+  pthread_t thread1;
+  pthread_t thread2;
+  int status;
+  mutex_thread_args_t thread1_args;
+  mutex_thread_args_t thread2_args;
+
+  pthread_mutex_t mut;
+  volatile int my_mutex = 0;
+  int nloops[2] =
+    {
+      0,
+      0
+    };
+
+  int nerrors[2] =
+    {
+      0,
+      0
+    };
+
+  /* Initialize the mutex */
+
+  printf("Initializing mutex\n");
+  pthread_mutex_init(&mut, NULL);
+
+  /* Set up thread arguments */
+
+  thread1_args.mutex_ptr = &mut;
+  thread1_args.mutex_value = &my_mutex;
+  thread1_args.nloops = nloops;
+  thread1_args.nerrors = nerrors;
+  thread1_args.thread_id = 1;
+
+  thread2_args.mutex_ptr = &mut;
+  thread2_args.mutex_value = &my_mutex;
+  thread2_args.nloops = nloops;
+  thread2_args.nerrors = nerrors;
+  thread2_args.thread_id = 2;
+
+  /* Start two thread instances */
+
+  printf("Starting thread 1\n");
+  status = pthread_create(&thread1, NULL, mutex_thread_func, &thread1_args);
+  if (status != 0)
+    {
+      printf("ERROR in thread#1 creation\n");
+      ASSERT(false);
+    }
+
+  printf("Starting thread 2\n");
+  status = pthread_create(&thread2, NULL, mutex_thread_func, &thread2_args);
+  if (status != 0)
+    {
+      printf("ERROR in thread#2 creation\n");
+      ASSERT(false);
+    }
+
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+
+  pthread_mutex_destroy(&mut);
+
+  printf("\t\tThread1\tThread2\n");
+  printf("\tLoops\t%u\t%u\n", nloops[0], nloops[1]);
+  printf("\tErrors\t%u\t%u\n", nerrors[0], nerrors[1]);
 }
 
 /****************************************************************************
@@ -109,58 +273,6 @@ static void *thread_func(FAR void *parameter)
 
 void mutex_test(void)
 {
-  pthread_t thread1;
-  pthread_t thread2;
-#ifdef SDCC
-  pthread_addr_t result1;
-  pthread_addr_t result2;
-  pthread_attr_t attr;
-#endif
-  int status;
-
-  /* Initialize the mutex */
-
-  printf("Initializing mutex\n");
-  pthread_mutex_init(&mut, NULL);
-
-  /* Start two thread instances */
-
-  printf("Starting thread 1\n");
-#ifdef SDCC
-  pthread_attr_init(&attr);
-  status = pthread_create(&thread1, &attr, thread_func, (pthread_addr_t)1);
-#else
-  status = pthread_create(&thread1, NULL, thread_func, (pthread_addr_t)1);
-#endif
-  if (status != 0)
-    {
-      printf("ERROR in thread#1 creation\n");
-      ASSERT(false);
-    }
-
-  printf("Starting thread 2\n");
-#ifdef SDCC
-  status = pthread_create(&thread2, &attr, thread_func, (pthread_addr_t)2);
-#else
-  status = pthread_create(&thread2, NULL, thread_func, (pthread_addr_t)2);
-#endif
-  if (status != 0)
-    {
-      printf("ERROR in thread#2 creation\n");
-      ASSERT(false);
-    }
-
-#ifdef SDCC
-  pthread_join(thread1, &result1);
-  pthread_join(thread2, &result2);
-#else
-  pthread_join(thread1, NULL);
-  pthread_join(thread2, NULL);
-#endif
-
-  pthread_mutex_destroy(&mut);
-
-  printf("\t\tThread1\tThread2\n");
-  printf("\tLoops\t%lu\t%lu\n", nloops[0], nloops[1]);
-  printf("\tErrors\t%lu\t%lu\n", nerrors[0], nerrors[1]);
+  mutex_simple_test();
+  mutex_move_test();
 }
