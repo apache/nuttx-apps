@@ -50,6 +50,7 @@
 #define ICMPv6_E_POLL        -11 /* extra: error code    */
 #define ICMPv6_E_RECVFROM    -13 /* extra: error code    */
 #define ICMPv6_E_RECVSMALL   -15 /* extra: recv bytes    */
+#define ICMPV6_E_BINDDEV     -17 /* extra: error bind    */
 
 /* Negative even number represent warning(recoverable) */
 
@@ -70,6 +71,9 @@ struct ping6_result_s;
 struct ping6_info_s
 {
   FAR const char *hostname; /* Host name to ping */
+#ifdef CONFIG_NET_BINDTODEVICE
+  FAR const char *devname;  /* Device name to bind */
+#endif
   uint16_t count;           /* Number of pings requested */
   uint16_t datalen;         /* Number of bytes to be sent */
   uint16_t delay;           /* Deciseconds to delay between pings */
