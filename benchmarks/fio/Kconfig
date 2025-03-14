@@ -6,7 +6,7 @@
 config BENCHMARK_FIO
 	tristate "Flexible I/O Tester"
 	default n
-	depends on LIBC_MODLIB && LIBC_DLFCN
+	depends on LIBC_ELF && LIBC_DLFCN
 	---help---
 		https://github.com/axboe/fio Fio spawns a number of threads or processes
 		doing a particular type of I/O action as specified by the user.
