@@ -113,7 +113,8 @@ static void wdtest_once(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
 
   /* Enter a critical section to prevent interruptions. */
 
-  flags = enter_critical_section();
+  flags = up_irq_save();
+  sched_lock();
 
   /* Record the current system tick before setting the watchdog. */
 
@@ -122,7 +123,8 @@ static void wdtest_once(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
   wdtest_assert(wd_start(wdog, delay_tick, wdtest_callback,
                          (wdparm_t)param) == OK);
 
-  leave_critical_section(flags);
+  up_irq_restore(flags);
+  sched_unlock();
 
   /* Wait until the callback is triggered exactly once. */
 
@@ -164,7 +166,8 @@ static void wdtest_rand(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
 
       if (cnt % 2)
         {
-          flags = enter_critical_section();
+          flags = up_irq_save();
+          sched_lock();
         }
 
       wdset_tick = clock_systime_ticks();
@@ -172,7 +175,8 @@ static void wdtest_rand(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
                              (wdparm_t)param) == 0);
       if (cnt % 2)
         {
-          leave_critical_section(flags);
+          up_irq_restore(flags);
+          sched_unlock();
         }
 
       /* Decide to wait for the callback or cancel the watchdog. */
@@ -231,7 +235,8 @@ static void wdtest_recursive(FAR struct wdog_s *wdog,
 
   wdtest_assert(param->interval >= 0);
 
-  flags = enter_critical_section();
+  flags = up_irq_save();
+  sched_lock();
 
   wdset_tick = clock_systime_ticks();
 
@@ -239,7 +244,8 @@ static void wdtest_recursive(FAR struct wdog_s *wdog,
                          wdtest_callback_recursive,
                          (wdparm_t)param) == OK);
 
-  leave_critical_section(flags);
+  up_irq_restore(flags);
+  sched_unlock();
 
   wdtest_delay(times * delay_ns);
 
