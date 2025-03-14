@@ -100,6 +100,7 @@ static void show_usage(FAR const char *progname, int exitcode)
   printf("  -s <size> specifies the number of data bytes to be sent.  "
          "Default %u.\n",
          ICMP_PING_DATALEN);
+  printf("  -I <interface> is the bind device for traffic\n");
   printf("  -h shows this text and exits.\n");
   exit(exitcode);
 }
@@ -171,6 +172,12 @@ static void ping_result(FAR const struct ping_result_s *result)
       case ICMP_E_RECVSMALL:
         fprintf(stderr, "ERROR: short ICMP packet: %ld\n", result->extra);
         break;
+
+#ifdef CONFIG_NET_BINDTODEVICE
+      case ICMP_E_BINDDEV:
+        fprintf(stderr, "ERROR: setsockopt error: %ld\n", result->extra);
+        break;
+#endif
 
       case ICMP_W_IDDIFF:
         fprintf(stderr,
@@ -300,7 +307,7 @@ int main(int argc, FAR char *argv[])
 
   exitcode = EXIT_FAILURE;
 
-  while ((option = getopt(argc, argv, ":c:i:W:s:h")) != ERROR)
+  while ((option = getopt(argc, argv, ":c:i:W:s:I:h")) != ERROR)
     {
       switch (option)
         {
@@ -358,6 +365,14 @@ int main(int argc, FAR char *argv[])
 
               info.datalen = (uint16_t)datalen;
             }
+            break;
+
+          case 'I':
+#ifdef CONFIG_NET_BINDTODEVICE
+            info.devname = optarg;
+#else
+            fprintf(stderr, "ERROR: Bind to device not supported\n");
+#endif
             break;
 
           case 'h':

@@ -218,6 +218,20 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
       return;
     }
 
+#ifdef CONFIG_NET_BINDTODEVICE
+  if (info->devname)
+    {
+      ret = setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE,
+                       info->devname, strlen(info->devname));
+      if (ret < 0)
+        {
+          icmp6_callback(&result, ICMPV6_E_BINDDEV, errno);
+          free(iobuffer);
+          return;
+        }
+    }
+#endif
+
   kickoff = clock();
 
   memset(&destaddr, 0, sizeof(struct sockaddr_in6));

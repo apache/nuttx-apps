@@ -232,6 +232,20 @@ void icmp_ping(FAR const struct ping_info_s *info)
       return;
     }
 
+#ifdef CONFIG_NET_BINDTODEVICE
+  if (info->devname)
+    {
+      ret = setsockopt(priv->sockfd, SOL_SOCKET, SO_BINDTODEVICE,
+                       info->devname, strlen(info->devname));
+      if (ret < 0)
+        {
+          icmp_callback(&result, ICMP_E_BINDDEV, errno);
+          free(priv);
+          return;
+        }
+    }
+#endif
+
   priv->kickoff = clock();
 
   memset(&priv->destaddr, 0, sizeof(struct sockaddr_in));
