@@ -27,6 +27,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/types.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -34,6 +36,14 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+struct ptpd_config_s
+{
+  FAR const char *interface;
+  FAR const char *clock;
+  bool hardware_ts;
+  sa_family_t af;
+};
 
 /* PTPD status information structure */
 
@@ -115,10 +125,10 @@ extern "C"
  * Name: ptpd_start
  *
  * Description:
- *   Start the PTP daemon and bind it to specified interface.
+ *   Start the PTP daemon and bind it to specified config.
  *
  * Input Parameters:
- *   interface - Name of the network interface to bind to, e.g. "eth0"
+ *   config - The configs of PTP daemon, includes interface, af and clock...
  *
  * Returned Value:
  *   On success, the non-negative task ID of the PTP daemon is returned;
@@ -126,7 +136,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int ptpd_start(FAR const char *interface);
+int ptpd_start(FAR const struct ptpd_config_s *config);
 
 /****************************************************************************
  * Name: ptpd_status

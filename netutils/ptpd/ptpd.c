@@ -1395,7 +1395,7 @@ static void ptp_process_statusreq(FAR struct ptp_state_s *state)
  *
  ****************************************************************************/
 
-int ptpd_start(FAR const char *interface)
+int ptpd_start(FAR const struct ptpd_config_s *config)
 {
   FAR struct ptp_state_s *state;
   struct pollfd pollfds[2];
@@ -1407,8 +1407,12 @@ int ptpd_start(FAR const char *interface)
   memset(&rxiov, 0, sizeof(rxiov));
 
   state = calloc(1, sizeof(struct ptp_state_s));
+  if (state == NULL)
+    {
+      return -ENOMEM;
+    }
 
-  if (ptp_initialize_state(state, interface) != OK)
+  if (ptp_initialize_state(state, config->interface) != OK)
     {
       ptperr("Failed to initialize PTP state, exiting\n");
 
