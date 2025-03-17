@@ -159,6 +159,7 @@ struct ptp_state_s
 
   struct ptp_sync_s twostep_packet;
   struct timespec twostep_rxtime;
+  FAR const struct ptpd_config_s *config;
 };
 
 #ifdef CONFIG_NETUTILS_PTPD_SERVER
@@ -362,10 +363,14 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
                          FAR struct msghdr *rxhdr,
                          FAR struct timespec *ts)
 {
+  FAR struct cmsghdr *cmsg;
+
   /* Get hardware or kernel timestamp if available */
 
-#ifdef CONFIG_NET_TIMESTAMP
-  struct cmsghdr *cmsg;
+  if (!state->config->hardware_ts)
+    {
+      return ptp_gettime(state, ts);
+    }
 
   for_each_cmsghdr(cmsg, rxhdr)
     {
@@ -385,11 +390,7 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
     }
 
   ptpwarn("CONFIG_NET_TIMESTAMP enabled but did not get packet timestamp\n");
-#endif
-
-  /* Fall back to current timestamp */
-
-  return ptp_gettime(state, ts);
+  return ERROR;
 }
 
 /* Initialize PTP client/server state and create sockets */
@@ -398,12 +399,9 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
                                 FAR const char *interface)
 {
   int ret;
+  int arg = 1;
   struct ifreq req;
   struct sockaddr_in bind_addr;
-
-#ifdef CONFIG_NET_TIMESTAMP
-  int arg;
-#endif
 
   /* Create sockets */
 
@@ -504,18 +502,17 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
       return ERROR;
     }
 
-#ifdef CONFIG_NET_TIMESTAMP
-  arg = 1;
-  ret = setsockopt(state->event_socket, SOL_SOCKET, SO_TIMESTAMP,
-                   &arg, sizeof(arg));
-
-  if (ret < 0)
+  if (state->config->hardware_ts)
     {
-      ptperr("Failed to enable SO_TIMESTAMP: %s\n", strerror(errno));
+      ret = setsockopt(state->event_socket, SOL_SOCKET, SO_TIMESTAMP,
+                       &arg, sizeof(arg));
 
-      /* PTPD can operate without, but with worse accuracy */
+      if (ret < 0)
+        {
+          ptperr("Failed to enable SO_TIMESTAMP: %s\n", strerror(errno));
+          return ERROR;
+        }
     }
-#endif
 
   /* Bind socket for announcements */
 
@@ -1412,6 +1409,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
       return -ENOMEM;
     }
 
+  state->config = config;
   if (ptp_initialize_state(state, config->interface) != OK)
     {
       ptperr("Failed to initialize PTP state, exiting\n");
