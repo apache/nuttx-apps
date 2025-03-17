@@ -216,7 +216,7 @@ static int latency_test(bool print)
 
   if (pthread_create(&pubsub_task, NULL, pubsubtest_thread_entry, NULL) < 0)
     {
-      test_fail("failed launching task");
+      test_fail("failed launching latency test task");
       goto out;
     }
 
@@ -606,9 +606,7 @@ static int test_multi_reversed(int *afds, int *sfds)
       return test_fail("mult. pub3 fail");
     }
 
-  /* subscribe to both topics and ensure valid data is received */
-
-  sfds[2] = orb_subscribe_multi(ORB_ID(orb_multitest), 2);
+  /* ensure valid data is received */
 
   if (OK != orb_copy(ORB_ID(orb_multitest), sfds[2], &sub_sample))
     {
@@ -737,7 +735,7 @@ static int test_multi2(void)
   if (pthread_create(&pubsub_task, &attr, pub_test_multi2_entry, NULL) < 0)
     {
       pthread_attr_destroy(&attr);
-      test_fail("failed launching task");
+      test_fail("failed launching test multi task");
       goto out;
     }
 
