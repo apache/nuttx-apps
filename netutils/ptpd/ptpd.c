@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 
@@ -50,6 +51,7 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
+#include <nuttx/clock.h>
 #include <nuttx/net/netconfig.h>
 #include <netutils/ptpd.h>
 
@@ -88,6 +90,10 @@ struct ptp_state_s
 
   int event_socket;
   int info_socket;
+
+  /* The ptp device file descriptor */
+
+  clockid_t clockid;
 
   /* Our own identity as a clock source */
 
@@ -372,16 +378,37 @@ static uint16_t ptp_get_sequence(FAR const struct ptp_header_s *hdr)
   return ((uint16_t)hdr->sequenceid[0] << 8) | hdr->sequenceid[1];
 }
 
-/* Get current system timestamp as a timespec
- * TODO: Possibly add support for selecting different clock or using
- *       architecture-specific interface for clock access.
- */
+static clockid_t ptp_open(FAR const char *clock)
+{
+  int fd;
+
+  if (!strcmp(clock, "realtime"))
+    {
+      return CLOCK_REALTIME;
+    }
+
+  fd = open(clock, O_RDWR | O_CLOEXEC);
+  if (fd < 0)
+    {
+      ptperr("Failed to open PTP clock device:%s, %d\n", clock, errno);
+      return fd;
+    }
+
+  return (fd << CLOCK_SHIFT) | CLOCK_FD;
+}
+
+static void ptp_close(clockid_t clockid)
+{
+  if (clockid > 0 && clockid != CLOCK_REALTIME)
+    {
+      close(clockid >> CLOCK_SHIFT);
+    }
+}
 
 static int ptp_gettime(FAR struct ptp_state_s *state,
                        FAR struct timespec *ts)
 {
-  UNUSED(state);
-  return clock_gettime(CLOCK_REALTIME, ts);
+  return clock_gettime(state->clockid, ts);
 }
 
 /* Change current system timestamp by jumping */
@@ -389,20 +416,32 @@ static int ptp_gettime(FAR struct ptp_state_s *state,
 static int ptp_settime(FAR struct ptp_state_s *state,
                        FAR struct timespec *ts)
 {
-  UNUSED(state);
-  return clock_settime(CLOCK_REALTIME, ts);
+  return clock_settime(state->clockid, ts);
 }
 
 /* Smoothly adjust timestamp. */
 
 static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns)
 {
-  struct timeval delta;
+  if (state->clockid == CLOCK_REALTIME)
+    {
+      struct timeval delta;
 
-  delta.tv_sec = delta_ns / NSEC_PER_SEC;
-  delta_ns -= (int64_t)delta.tv_sec * NSEC_PER_SEC;
-  delta.tv_usec = delta_ns / NSEC_PER_USEC;
-  return adjtime(&delta, NULL);
+      delta.tv_sec = delta_ns / NSEC_PER_SEC;
+      delta_ns -= (int64_t)delta.tv_sec * NSEC_PER_SEC;
+      delta.tv_usec = delta_ns / NSEC_PER_USEC;
+      return adjtime(&delta, NULL);
+    }
+  else
+    {
+      struct timex buf;
+
+      memset(&buf, 0, sizeof(buf));
+      buf.freq = (long)(-state->drift_ppb * 65536 / 1000);
+      buf.modes = ADJ_FREQUENCY;
+
+      return clock_adjtime(state->clockid, &buf);
+    }
 }
 
 /* Get timestamp of latest received packet */
@@ -450,6 +489,13 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
   int arg = 1;
   struct ifreq req;
   struct sockaddr_in bind_addr;
+
+  state->clockid = ptp_open(state->config->clock);
+  if (state->clockid < 0)
+    {
+      ptperr("Invalid clockid %d for ptp daemon\n", state->clockid);
+      return ERROR;
+    }
 
   /* Create sockets */
 
@@ -592,6 +638,8 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
 static int ptp_destroy_state(FAR struct ptp_state_s *state)
 {
   struct in_addr mcast_addr;
+
+  ptp_close(state->clockid);
 
   mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
   ipmsfilter(&state->interface_addr.sin_addr,
@@ -1455,11 +1503,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
   if (ptp_initialize_state(state, config->interface) != OK)
     {
       ptperr("Failed to initialize PTP state, exiting\n");
-
-      ptp_destroy_state(state);
-      free(state);
-
-      return ERROR;
+      goto errout;
     }
 
   if (config->client_only)
@@ -1535,6 +1579,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
       ptp_process_statusreq(state);
     }
 
+errout:
   ptp_destroy_state(state);
   free(state);
 
