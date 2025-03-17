@@ -70,10 +70,10 @@ struct xmlrpc_entry_s get_device_stats =
 
 static int calls_get_device_stats(struct xmlrpc_s *xmlcall)
 {
-  char username[80];
-  char password[80];
-  char lastCommand[80];
-  char curState[80];
+  char username[CONFIG_XMLRPC_STRINGSIZE + 1];
+  char password[CONFIG_XMLRPC_STRINGSIZE + 1];
+  char lastcmd[CONFIG_XMLRPC_STRINGSIZE + 1];
+  char curstate[CONFIG_XMLRPC_STRINGSIZE + 1];
   int request = 0;
   int status;
   int ret;
@@ -105,13 +105,13 @@ static int calls_get_device_stats(struct xmlrpc_s *xmlcall)
       /* Dummy up some data... */
 
       status = 1;
-      strlcpy(lastCommand, "reboot", sizeof(lastCommand));
-      strlcpy(curState, "Normal Operation", sizeof(curState));
+      strlcpy(lastcmd, "reboot", sizeof(lastcmd));
+      strlcpy(curstate, "Normal Operation", sizeof(curstate));
 
       ret = xmlrpc_buildresponse(xmlcall, "{iss}",
                                  "status", status,
-                                 "lastCommand", lastCommand,
-                                 "currentState", curState);
+                                 "lastCommand", lastcmd,
+                                 "currentState", curstate);
     }
 
   return ret;
