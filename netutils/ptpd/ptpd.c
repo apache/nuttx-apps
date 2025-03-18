@@ -45,6 +45,8 @@
 #include <fcntl.h>
 
 #include <netinet/in.h>
+#include <netinet/if_ether.h>
+#include <netpacket/packet.h>
 #include <arpa/inet.h>
 #include <netutils/ipmsfilter.h>
 
@@ -55,6 +57,7 @@
 #include <nuttx/net/netconfig.h>
 #include <netutils/ptpd.h>
 
+#include "netutils/netlib.h"
 #include "ptpv2.h"
 
 /****************************************************************************
@@ -157,7 +160,7 @@ struct ptp_state_s
     uint8_t                 raw[128];
   } rxbuf;
 
-  uint8_t rxcmsg[CMSG_LEN(sizeof(struct timeval))];
+  uint8_t rxcmsg[CMSG_LEN(sizeof(struct timespec))];
 
   /* Buffered sync packet for two-step clock setting where server sends
    * the accurate timestamp in a separate follow-up message.
@@ -464,9 +467,9 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
     {
       if (cmsg->cmsg_level == SOL_SOCKET &&
           cmsg->cmsg_type == SO_TIMESTAMPNS &&
-          cmsg->cmsg_len == CMSG_LEN(sizeof(struct timeval)))
+          cmsg->cmsg_len == CMSG_LEN(sizeof(struct timespec)))
         {
-          TIMEVAL_TO_TIMESPEC((FAR struct timeval *)CMSG_DATA(cmsg), ts);
+          memcpy(ts, CMSG_DATA(cmsg), sizeof(*ts));
 
           /* Sanity-check the value */
 
@@ -479,159 +482,6 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
 
   ptpwarn("CONFIG_NET_TIMESTAMP enabled but did not get packet timestamp\n");
   return ERROR;
-}
-
-/* Initialize PTP client/server state and create sockets */
-
-static int ptp_initialize_state(FAR struct ptp_state_s *state,
-                                FAR const char *interface)
-{
-  int ret;
-  int arg = 1;
-  struct ifreq req;
-  struct sockaddr_in bind_addr;
-
-  state->clockid = ptp_open(state->config->clock);
-  if (state->clockid < 0)
-    {
-      ptperr("Invalid clockid %d for ptp daemon\n", state->clockid);
-      return ERROR;
-    }
-
-  /* Create sockets */
-
-  state->tx_socket = socket(AF_INET, SOCK_DGRAM, 0);
-  if (state->tx_socket < 0)
-    {
-      ptperr("Failed to create tx socket: %d\n", errno);
-      return ERROR;
-    }
-
-  state->event_socket = socket(AF_INET, SOCK_DGRAM, 0);
-  if (state->event_socket < 0)
-    {
-      ptperr("Failed to create event socket: %d\n", errno);
-      return ERROR;
-    }
-
-  state->info_socket = socket(AF_INET, SOCK_DGRAM, 0);
-  if (state->info_socket < 0)
-    {
-      ptperr("Failed to create info socket: %d\n", errno);
-      return ERROR;
-    }
-
-  /* Get address information of the specified interface for binding socket
-   * Only supports IPv4 currently.
-   */
-
-  memset(&req, 0, sizeof(req));
-  strlcpy(req.ifr_name, interface, sizeof(req.ifr_name));
-
-  if (ioctl(state->event_socket, SIOCGIFADDR, (unsigned long)&req) < 0)
-    {
-      ptperr("Failed to get IP address information for interface %s\n",
-             interface);
-      return ERROR;
-    }
-
-  state->interface_addr = *(FAR struct sockaddr_in *)&req.ifr_ifru.ifru_addr;
-
-  /* Get hardware address to initialize the identity field in header.
-   * Clock identity is EUI-64, which we make from EUI-48.
-   */
-
-  if (ioctl(state->event_socket, SIOCGIFHWADDR, (unsigned long)&req) < 0)
-    {
-      ptperr("Failed to get HW address information for interface %s\n",
-             interface);
-      return ERROR;
-    }
-
-  state->own_identity.header.version = 2;
-  state->own_identity.header.domain = CONFIG_NETUTILS_PTPD_DOMAIN;
-  state->own_identity.header.sourceidentity[0] = req.ifr_hwaddr.sa_data[0];
-  state->own_identity.header.sourceidentity[1] = req.ifr_hwaddr.sa_data[1];
-  state->own_identity.header.sourceidentity[2] = req.ifr_hwaddr.sa_data[2];
-  state->own_identity.header.sourceidentity[3] = 0xff;
-  state->own_identity.header.sourceidentity[4] = 0xfe;
-  state->own_identity.header.sourceidentity[5] = req.ifr_hwaddr.sa_data[3];
-  state->own_identity.header.sourceidentity[6] = req.ifr_hwaddr.sa_data[4];
-  state->own_identity.header.sourceidentity[7] = req.ifr_hwaddr.sa_data[5];
-  state->own_identity.header.sourceportindex[0] = 0;
-  state->own_identity.header.sourceportindex[1] = 1;
-  state->own_identity.gm_priority1 = CONFIG_NETUTILS_PTPD_PRIORITY1;
-  state->own_identity.gm_quality[0] = CONFIG_NETUTILS_PTPD_CLASS;
-  state->own_identity.gm_quality[1] = CONFIG_NETUTILS_PTPD_ACCURACY;
-  state->own_identity.gm_quality[2] = 0xff; /* No variance estimate */
-  state->own_identity.gm_quality[3] = 0xff;
-  state->own_identity.gm_priority2 = CONFIG_NETUTILS_PTPD_PRIORITY2;
-  memcpy(state->own_identity.gm_identity,
-         state->own_identity.header.sourceidentity,
-         sizeof(state->own_identity.gm_identity));
-  state->own_identity.timesource = CONFIG_NETUTILS_PTPD_CLOCKSOURCE;
-
-  /* Subscribe to PTP multicast address */
-
-  bind_addr.sin_family = AF_INET;
-  bind_addr.sin_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
-
-  clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
-
-  ret = ipmsfilter(&state->interface_addr.sin_addr,
-                   &bind_addr.sin_addr, MCAST_INCLUDE);
-  if (ret < 0)
-    {
-      ptperr("Failed to bind multicast address: %d\n", errno);
-      return ERROR;
-    }
-
-  /* Bind socket for events */
-
-  bind_addr.sin_port = HTONS(PTP_UDP_PORT_EVENT);
-  ret = bind(state->event_socket, (FAR struct sockaddr *)&bind_addr,
-             sizeof(bind_addr));
-  if (ret < 0)
-    {
-      ptperr("Failed to bind to udp port %d\n", bind_addr.sin_port);
-      return ERROR;
-    }
-
-  if (state->config->hardware_ts)
-    {
-      ret = setsockopt(state->event_socket, SOL_SOCKET, SO_TIMESTAMPNS,
-                       &arg, sizeof(arg));
-
-      if (ret < 0)
-        {
-          ptperr("Failed to enable SO_TIMESTAMPNS: %s\n", strerror(errno));
-          return ERROR;
-        }
-    }
-
-  /* Bind socket for announcements */
-
-  bind_addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
-  ret = bind(state->info_socket, (FAR struct sockaddr *)&bind_addr,
-             sizeof(bind_addr));
-  if (ret < 0)
-    {
-      ptperr("Failed to bind to udp port %d\n", bind_addr.sin_port);
-      return ERROR;
-    }
-
-  /* Bind TX socket to interface address (local addr cannot be multicast) */
-
-  bind_addr.sin_addr = state->interface_addr.sin_addr;
-  ret = bind(state->tx_socket, (FAR struct sockaddr *)&bind_addr,
-             sizeof(bind_addr));
-  if (ret < 0)
-    {
-      ptperr("Failed to bind tx to port %d\n", bind_addr.sin_port);
-      return ERROR;
-    }
-
-  return OK;
 }
 
 /* Unsubscribe multicast and destroy sockets */
@@ -665,6 +515,193 @@ static int ptp_destroy_state(FAR struct ptp_state_s *state)
     }
 
   return OK;
+}
+
+/* Initialize PTP client/server state and create sockets */
+
+static int ptp_initialize_state(FAR struct ptp_state_s *state)
+{
+  int ret;
+  int arg = 1;
+  struct ifreq req;
+
+  state->clockid = ptp_open(state->config->clock);
+  if (state->clockid < 0)
+    {
+      ptperr("Invalid clockid %d for ptp daemon\n", state->clockid);
+      return ERROR;
+    }
+
+  /* Create sockets */
+
+  if (state->config->af == AF_PACKET)
+    {
+      struct sockaddr_ll addr;
+
+      state->tx_socket = socket(AF_PACKET, SOCK_RAW, 0);
+      if (state->tx_socket < 0)
+        {
+          ptperr("Failed to create tx socket: %d\n", errno);
+          goto errout;
+        }
+
+      state->event_socket = dup(state->tx_socket);
+      state->info_socket = -1;
+
+      addr.sll_family = AF_PACKET;
+      addr.sll_ifindex = if_nametoindex(state->config->interface);
+      addr.sll_protocol = htons(ETHERTYPE_PTP);
+      ret = bind(state->tx_socket, (FAR struct sockaddr *)&addr,
+                 sizeof(addr));
+      if (ret < 0)
+        {
+          ptperr("ERROR: binding socket failed: %d\n", errno);
+          goto errout;
+        }
+    }
+  else if (state->config->af == AF_INET)
+    {
+      struct sockaddr_in bind_addr;
+
+      state->tx_socket = socket(AF_INET, SOCK_DGRAM, 0);
+      if (state->tx_socket < 0)
+        {
+          ptperr("Failed to create tx socket: %d\n", errno);
+          goto errout;
+        }
+
+      state->event_socket = socket(AF_INET, SOCK_DGRAM, 0);
+      if (state->event_socket < 0)
+        {
+          ptperr("Failed to create event socket: %d\n", errno);
+          goto errout;
+        }
+
+      state->info_socket = socket(AF_INET, SOCK_DGRAM, 0);
+      if (state->info_socket < 0)
+        {
+          ptperr("Failed to create info socket: %d\n", errno);
+          goto errout;
+        }
+
+      /* Subscribe to PTP multicast address */
+
+      bind_addr.sin_family = AF_INET;
+      bind_addr.sin_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
+
+      ret = ipmsfilter(&state->interface_addr.sin_addr,
+                       &bind_addr.sin_addr, MCAST_INCLUDE);
+      if (ret < 0)
+        {
+          ptperr("Failed to bind multicast address: %d\n", errno);
+          goto errout;
+        }
+
+      /* Bind socket for events */
+
+      bind_addr.sin_port = HTONS(PTP_UDP_PORT_EVENT);
+      ret = bind(state->event_socket, (FAR struct sockaddr *)&bind_addr,
+                 sizeof(bind_addr));
+      if (ret < 0)
+        {
+          ptperr("Failed to bind to udp port %d\n", bind_addr.sin_port);
+          goto errout;
+        }
+
+      /* Bind socket for announcements */
+
+      bind_addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
+      ret = bind(state->info_socket, (FAR struct sockaddr *)&bind_addr,
+                 sizeof(bind_addr));
+      if (ret < 0)
+        {
+          ptperr("Failed to bind to udp port %d\n", bind_addr.sin_port);
+          goto errout;
+        }
+
+      /* Bind TX socket to interface address (local addr cannot be
+       * multicast)
+       */
+
+      bind_addr.sin_addr = state->interface_addr.sin_addr;
+      ret = bind(state->tx_socket, (FAR struct sockaddr *)&bind_addr,
+                 sizeof(bind_addr));
+      if (ret < 0)
+        {
+          ptperr("Failed to bind tx to port %d\n", bind_addr.sin_port);
+          goto errout;
+        }
+    }
+
+  if (state->config->hardware_ts)
+    {
+      ret = setsockopt(state->event_socket, SOL_SOCKET, SO_TIMESTAMPNS,
+                       &arg, sizeof(arg));
+
+      if (ret < 0)
+        {
+          ptperr("Failed to enable SO_TIMESTAMPNS: %s\n", strerror(errno));
+          goto errout;
+        }
+    }
+
+  /* Get address information of the specified interface for binding socket
+   * Only supports IPv4 currently.
+   */
+
+  memset(&req, 0, sizeof(req));
+  strlcpy(req.ifr_name, state->config->interface, sizeof(req.ifr_name));
+
+  if (ioctl(state->event_socket, SIOCGIFADDR, (unsigned long)&req) < 0)
+    {
+      ptperr("Failed to get IP address information for interface %s\n",
+             state->config->interface);
+      goto errout;
+    }
+
+  state->interface_addr = *(FAR struct sockaddr_in *)&req.ifr_ifru.ifru_addr;
+
+  /* Get hardware address to initialize the identity field in header.
+   * Clock identity is EUI-64, which we make from EUI-48.
+   */
+
+  if (ioctl(state->event_socket, SIOCGIFHWADDR, (unsigned long)&req) < 0)
+    {
+      ptperr("Failed to get HW address information for interface %s\n",
+             state->config->interface);
+      goto errout;
+    }
+
+  state->own_identity.header.version = 2;
+  state->own_identity.header.domain = CONFIG_NETUTILS_PTPD_DOMAIN;
+  state->own_identity.header.sourceidentity[0] = req.ifr_hwaddr.sa_data[0];
+  state->own_identity.header.sourceidentity[1] = req.ifr_hwaddr.sa_data[1];
+  state->own_identity.header.sourceidentity[2] = req.ifr_hwaddr.sa_data[2];
+  state->own_identity.header.sourceidentity[3] = 0xff;
+  state->own_identity.header.sourceidentity[4] = 0xfe;
+  state->own_identity.header.sourceidentity[5] = req.ifr_hwaddr.sa_data[3];
+  state->own_identity.header.sourceidentity[6] = req.ifr_hwaddr.sa_data[4];
+  state->own_identity.header.sourceidentity[7] = req.ifr_hwaddr.sa_data[5];
+  state->own_identity.header.sourceportindex[0] = 0;
+  state->own_identity.header.sourceportindex[1] = 1;
+  state->own_identity.gm_priority1 = CONFIG_NETUTILS_PTPD_PRIORITY1;
+  state->own_identity.gm_quality[0] = CONFIG_NETUTILS_PTPD_CLASS;
+  state->own_identity.gm_quality[1] = CONFIG_NETUTILS_PTPD_ACCURACY;
+  state->own_identity.gm_quality[2] = 0xff; /* No variance estimate */
+  state->own_identity.gm_quality[3] = 0xff;
+  state->own_identity.gm_priority2 = CONFIG_NETUTILS_PTPD_PRIORITY2;
+  memcpy(state->own_identity.gm_identity,
+         state->own_identity.header.sourceidentity,
+         sizeof(state->own_identity.gm_identity));
+  state->own_identity.timesource = CONFIG_NETUTILS_PTPD_CLOCKSOURCE;
+
+  clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
+
+  return OK;
+
+errout:
+  ptp_destroy_state(state);
+  return ERROR;
 }
 
 /* Re-subscribe multicast address.
@@ -706,6 +743,76 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
   return OK;
 }
 
+static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
+                       size_t buflen, FAR const void *addr,
+                       socklen_t addrlen, FAR struct timespec *sendts)
+{
+  int ret;
+
+  if (state->config->af == AF_PACKET)
+    {
+      /* IEE802.1AS Multicast address for gptp */
+
+      const uint8_t ptp_multicast_mac[ETHER_ADDR_LEN] =
+      {
+        0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e
+      };
+
+      char raw[sizeof(struct ether_header) + buflen];
+      FAR struct ether_header *header;
+      struct msghdr msg;
+      struct iovec iov;
+
+      header = (FAR struct ether_header *)&raw;
+      memcpy(header->ether_dhost, ptp_multicast_mac, ETHER_ADDR_LEN);
+      netlib_getmacaddr(state->config->interface, header->ether_shost);
+      header->ether_type = ETHERTYPE_PTP;
+      memcpy(&raw[sizeof(*header)], buf, buflen);
+      buflen += sizeof(*header);
+
+      iov.iov_base = raw;
+      iov.iov_len = buflen;
+
+      msg.msg_name = (FAR void *)addr;
+      msg.msg_namelen = addrlen;
+      msg.msg_iov = &iov;
+      msg.msg_iovlen = 1;
+      msg.msg_flags = 0;
+      msg.msg_control = NULL;
+      msg.msg_controllen = 0;
+
+      ret = sendmsg(state->tx_socket, &msg, 0);
+      if (ret < 0)
+        {
+          return ERROR;
+        }
+
+      if (state->config->hardware_ts && sendts != NULL)
+        {
+          uint8_t rxcmsg[CMSG_LEN(sizeof(struct timespec))];
+
+          msg.msg_control = &rxcmsg;
+          msg.msg_controllen = CMSG_LEN(sizeof(struct timespec));
+          ret = recvmsg(state->tx_socket, &msg, 0);
+          if (ret >= 0)
+            {
+              ptp_getrxtime(state, &msg, sendts);
+            }
+        }
+    }
+  else
+    {
+      ret = sendto(state->tx_socket, buf, buflen, 0, addr, addrlen);
+    }
+
+  if (!state->config->hardware_ts && sendts != NULL)
+    {
+      ptp_gettime(state, sendts);
+    }
+
+  return ret;
+}
+
 /* Send PTP server announcement packet */
 
 static int ptp_send_announce(FAR struct ptp_state_s *state)
@@ -728,12 +835,10 @@ static int ptp_send_announce(FAR struct ptp_state_s *state)
   ptp_gettime(state, &ts);
   timespec_to_ptp_format(&ts, msg.origintimestamp);
 
-  ret = sendto(state->tx_socket, &msg, sizeof(msg), 0,
-               (FAR struct sockaddr *)&addr, sizeof(addr));
-
+  ret = ptp_sendmsg(state, &msg, sizeof(msg), &addr, sizeof(addr), NULL);
   if (ret < 0)
     {
-      ptperr("sendto failed: %d", errno);
+      ptperr("ptp sendmsg failed: %d", errno);
     }
   else
     {
@@ -748,16 +853,10 @@ static int ptp_send_announce(FAR struct ptp_state_s *state)
 
 static int ptp_send_sync(FAR struct ptp_state_s *state)
 {
-  struct msghdr txhdr;
-  struct iovec txiov;
   struct ptp_sync_s msg;
   struct sockaddr_in addr;
   struct timespec ts;
-  uint8_t controlbuf[64];
   int ret;
-
-  memset(&txhdr, 0, sizeof(txhdr));
-  memset(&txiov, 0, sizeof(txiov));
 
   addr.sin_family      = AF_INET;
   addr.sin_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
@@ -772,22 +871,13 @@ static int ptp_send_sync(FAR struct ptp_state_s *state)
   msg.header.flags[0] = PTP_FLAGS0_TWOSTEP;
 #endif
 
-  txhdr.msg_name = &addr;
-  txhdr.msg_namelen = sizeof(addr);
-  txhdr.msg_iov = &txiov;
-  txhdr.msg_iovlen = 1;
-  txhdr.msg_control = controlbuf;
-  txhdr.msg_controllen = sizeof(controlbuf);
-  txiov.iov_base = &msg;
-  txiov.iov_len = sizeof(msg);
-
   /* Timestamp and send the sync message */
 
   ptp_increment_sequence(&state->sync_seq, &msg.header);
   ptp_gettime(state, &ts);
   timespec_to_ptp_format(&ts, msg.origintimestamp);
 
-  ret = sendmsg(state->tx_socket, &txhdr, 0);
+  ret = ptp_sendmsg(state, &msg, sizeof(msg), &addr, sizeof(addr), &ts);
   if (ret < 0)
     {
       ptperr("sendmsg for sync message failed: %d\n", errno);
@@ -795,22 +885,16 @@ static int ptp_send_sync(FAR struct ptp_state_s *state)
     }
 
 #ifdef CONFIG_NETUTILS_PTPD_TWOSTEP_SYNC
-  /* Get timestamp after send completes and send follow-up message
-   *
-   * TODO: Implement SO_TIMESTAMPING and use the actual tx timestamp here.
-   */
 
-  ptp_gettime(state, &ts);
   timespec_to_ptp_format(&ts, msg.origintimestamp);
   msg.header.messagetype = PTP_MSGTYPE_FOLLOW_UP;
   msg.header.flags[0] = 0;
   addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
 
-  ret = sendto(state->tx_socket, &msg, sizeof(msg), 0,
-               (FAR struct sockaddr *)&addr, sizeof(addr));
+  ret = ptp_sendmsg(state, &msg, sizeof(msg), &addr, sizeof(addr), NULL);
   if (ret < 0)
     {
-      ptperr("sendto for follow-up message failed: %d\n", errno);
+      ptperr("ptp sendmsg for follow-up message failed: %d\n", errno);
       return ret;
     }
 
@@ -845,18 +929,11 @@ static int ptp_send_delay_req(FAR struct ptp_state_s *state)
   ptp_gettime(state, &state->delayreq_time);
   timespec_to_ptp_format(&state->delayreq_time, req.origintimestamp);
 
-  ret = sendto(state->tx_socket, &req, sizeof(req), 0,
-               (FAR struct sockaddr *)&addr, sizeof(addr));
-
-  /* Get timestamp after send completes.
-   * TODO: Implement SO_TIMESTAMPING and use the actual tx timestamp here.
-   */
-
-  ptp_gettime(state, &state->delayreq_time);
-
+  ret = ptp_sendmsg(state, &req, sizeof(req),
+                    &addr, sizeof(addr), &state->delayreq_time);
   if (ret < 0)
     {
-      ptperr("sendto failed: %d", errno);
+      ptperr("ptp sendmsg failed: %d", errno);
     }
   else
     {
@@ -1219,12 +1296,10 @@ static int ptp_process_delay_req(FAR struct ptp_state_s *state,
          sizeof(resp.header.sequenceid));
   resp.header.logmessageinterval = CONFIG_NETUTILS_PTPD_DELAYRESP_INTERVAL;
 
-  ret = sendto(state->tx_socket, &resp, sizeof(resp), 0,
-               (FAR struct sockaddr *)&addr, sizeof(addr));
-
+  ret = ptp_sendmsg(state, &resp, sizeof(resp), &addr, sizeof(addr), NULL);
   if (ret < 0)
     {
-      ptperr("sendto failed: %d", errno);
+      ptperr("ptp sendmsg failed: %d", errno);
     }
   else
     {
@@ -1318,6 +1393,21 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
 static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
                                  ssize_t length)
 {
+  if (state->config->af == AF_PACKET)
+    {
+      /* Remove the header of ether message */
+
+      FAR struct ethhdr *header = (FAR struct ethhdr *)state->rxbuf.raw;
+
+      if (htons(header->h_proto) != ETHERTYPE_PTP)
+        {
+          return -EINVAL;
+        }
+
+      length -= sizeof(*header);
+      memmove(&state->rxbuf.raw, header + 1, length);
+    }
+
   if (length < sizeof(struct ptp_header_s))
     {
       ptpwarn("Ignoring invalid PTP packet, length only %d bytes\n",
@@ -1496,6 +1586,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
   struct msghdr rxhdr;
   struct iovec rxiov;
   int timeout;
+  int idx = 1;
   int ret;
 
   memset(&rxhdr, 0, sizeof(rxhdr));
@@ -1508,7 +1599,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
     }
 
   state->config = config;
-  if (ptp_initialize_state(state, config->interface) != OK)
+  if (ptp_initialize_state(state) != OK)
     {
       ptperr("Failed to initialize PTP state, exiting\n");
       goto errout;
@@ -1527,8 +1618,12 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
 
   pollfds[0].events = POLLIN;
   pollfds[0].fd = state->event_socket;
-  pollfds[1].events = POLLIN;
-  pollfds[1].fd = state->info_socket;
+  if (state->info_socket > 0)
+    {
+      pollfds[1].events = POLLIN;
+      pollfds[1].fd = state->info_socket;
+      idx++;
+    }
 
   while (!state->stop)
     {
@@ -1546,7 +1641,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
 
       pollfds[0].revents = 0;
       pollfds[1].revents = 0;
-      ret = poll(pollfds, 2, timeout);
+      ret = poll(pollfds, idx, timeout);
 
       if (pollfds[0].revents)
         {
