@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <graphics/input_gen.h>
 #include <nuttx/input/buttons.h>
 #include <nuttx/input/touchscreen.h>
 #include <poll.h>
@@ -48,41 +49,43 @@
  * Name: utouch_write
  ****************************************************************************/
 
-static void utouch_write(int fd, int x, int y, int touch_down)
+static void utouch_write(input_gen_ctx_t input_gen_ctx,
+                         FAR const struct monkey_dev_state_s *state)
 {
   struct touch_sample_s sample;
+  sample.npoints = 1;
+  input_gen_fill_point(sample.point, state->data.touch.x,
+                       state->data.touch.y,
+                       state->data.touch.is_pressed ? TOUCH_DOWN : TOUCH_UP);
 
-  if (touch_down)
+  if (input_gen_write_raw(input_gen_ctx, INPUT_GEN_DEV_UTOUCH, &sample,
+                          sizeof(struct touch_sample_s)) < 0)
     {
-      sample.point[0].x        = x;
-      sample.point[0].y        = y;
-      sample.point[0].pressure = 42;
-      sample.point[0].flags    = TOUCH_DOWN | TOUCH_ID_VALID |
-                                 TOUCH_POS_VALID | TOUCH_PRESSURE_VALID;
-    }
-  else
-    {
-      sample.point[0].flags = TOUCH_UP | TOUCH_ID_VALID;
+      MONKEY_LOG_WARN("unsupported device type: %d", INPUT_GEN_DEV_UTOUCH);
+      return;
     }
 
-  sample.npoints    = 1;
-  sample.point[0].h = 1;
-  sample.point[0].w = 1;
-
-  write(fd, &sample, sizeof(struct touch_sample_s));
   MONKEY_LOG_INFO("%s at x = %d, y = %d",
-                  touch_down ? "PRESS  " : "RELEASE", x, y);
+                  state->data.touch.is_pressed ? "PRESS" : "RELEASE",
+                  state->data.touch.x, state->data.touch.y);
 }
 
 /****************************************************************************
  * Name: ubutton_write
  ****************************************************************************/
 
-static void ubutton_write(int fd, uint32_t btn_bits)
+static void ubutton_write(input_gen_ctx_t input_gen_ctx,
+                          FAR const struct monkey_dev_state_s *state)
 {
-  btn_buttonset_t buttonset = btn_bits;
-  write(fd, &buttonset, sizeof(buttonset));
-  MONKEY_LOG_INFO("btn = 0x%08X", btn_bits);
+  btn_buttonset_t buttonset = state->data.button.value;
+  if (input_gen_write_raw(input_gen_ctx, INPUT_GEN_DEV_UBUTTON, &buttonset,
+                          sizeof(buttonset)) < 0)
+    {
+      MONKEY_LOG_WARN("unsupported device type: %d", INPUT_GEN_DEV_UBUTTON);
+      return;
+    }
+
+  MONKEY_LOG_INFO("btn = 0x%08X", state->data.button.value);
 }
 
 /****************************************************************************
@@ -152,18 +155,12 @@ FAR struct monkey_dev_s *monkey_dev_create(FAR const char *dev_path,
   int fd;
 
   MONKEY_ASSERT_NULL(dev_path);
+  MONKEY_ASSERT(!MONKEY_IS_UINPUT_TYPE(type));
 
   dev = calloc(1, sizeof(struct monkey_dev_s));
   MONKEY_ASSERT_NULL(dev);
 
-  if (MONKEY_IS_UINPUT_TYPE(type))
-    {
-      oflag = O_RDWR | O_NONBLOCK;
-    }
-  else
-    {
-      oflag = O_RDONLY | O_NONBLOCK;
-    }
+  oflag = O_RDONLY | O_NONBLOCK;
 
   fd = open(dev_path, oflag);
   if (fd < 0)
@@ -204,13 +201,6 @@ void monkey_dev_delete(FAR struct monkey_dev_s *dev)
 
   if (dev->fd > 0)
     {
-      /* Reset input state */
-
-      struct monkey_dev_state_s state;
-      memset(&state, 0, sizeof(state));
-      state.type = dev->type;
-      monkey_dev_set_state(dev, &state);
-
       MONKEY_LOG_NOTICE("close fd: %d", dev->fd);
       close(dev->fd);
     }
@@ -222,23 +212,24 @@ void monkey_dev_delete(FAR struct monkey_dev_s *dev)
  * Name: monkey_dev_set_state
  ****************************************************************************/
 
-void monkey_dev_set_state(FAR struct monkey_dev_s *dev,
+void monkey_dev_set_state(input_gen_ctx_t input_gen_ctx,
                           FAR const struct monkey_dev_state_s *state)
 {
-  MONKEY_ASSERT_NULL(dev);
+  MONKEY_ASSERT_NULL(input_gen_ctx);
 
-  switch (MONKEY_GET_DEV_TYPE(dev->type))
+  switch (MONKEY_GET_DEV_TYPE(state->type))
     {
       case MONKEY_DEV_TYPE_TOUCH:
-        utouch_write(dev->fd,
-                    state->data.touch.x,
-                    state->data.touch.y,
-                    state->data.touch.is_pressed);
-        break;
+        {
+          utouch_write(input_gen_ctx, state);
+          break;
+        }
 
       case MONKEY_DEV_TYPE_BUTTON:
-        ubutton_write(dev->fd, state->data.button.value);
-        break;
+        {
+          ubutton_write(input_gen_ctx, state);
+          break;
+        }
 
       default:
         break;
@@ -280,7 +271,7 @@ bool monkey_dev_get_state(FAR struct monkey_dev_s *dev,
 }
 
 /****************************************************************************
- * Name: monkey_dev_get_state
+ * Name: monkey_dev_get_type
  ****************************************************************************/
 
 enum monkey_dev_type_e monkey_dev_get_type(

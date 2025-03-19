@@ -532,7 +532,7 @@ static enum monkey_wait_res_e monkey_wait(uint32_t ms)
         }
       else
         {
-          MONKEY_LOG_ERROR("Unknow error: %d", errcode);
+          MONKEY_LOG_ERROR("Unknown error: %d", errcode);
         }
     }
   else if (ret == SIGTSTP)

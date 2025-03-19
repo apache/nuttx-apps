@@ -4,7 +4,7 @@
 #
 
 config GRAPHICS_INPUT_GENERATOR
-	bool "Input generator library"
+	bool
 	default n
 	---help---
 		This is a simple input generator library that can be used to
@@ -14,6 +14,7 @@ menuconfig GRAPHICS_INPUT_MONKEY
 	tristate "Monkey test"
 	select UINPUT_TOUCH
 	select UINPUT_BUTTONS
+	select GRAPHICS_INPUT_GENERATOR
 	select LIBC_PRINT_EXTENSION
 	default n
 

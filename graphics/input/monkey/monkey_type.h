@@ -27,6 +27,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <graphics/input_gen.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -124,6 +125,7 @@ struct monkey_s
   FAR struct monkey_dev_s *devs[MONKEY_DEV_MAX_NUM];
   int dev_num;
   FAR struct monkey_recorder_s *recorder;
+  input_gen_ctx_t input_gen_ctx;
   struct
   {
     struct monkey_dev_state_s state;

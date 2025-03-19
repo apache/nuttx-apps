@@ -77,12 +77,6 @@ void monkey_get_localtime_str(FAR char *str_buf, size_t buf_size);
 bool monkey_dir_check(FAR const char *dir_path);
 
 /****************************************************************************
- * Name: monkey_map
- ****************************************************************************/
-
-int monkey_map(int x, int min_in, int max_in, int min_out, int max_out);
-
-/****************************************************************************
  * Name: monkey_dev_type2name
  ****************************************************************************/
 

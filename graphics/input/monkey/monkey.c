@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <graphics/input_gen.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
@@ -41,8 +42,6 @@
 
 #define MONKEY_DEV_PATH_TOUCH "/dev/input0"
 #define MONKEY_DEV_PATH_BUTTON "/dev/buttons"
-#define MONKEY_DEV_PATH_UTOUCH "/dev/utouch"
-#define MONKEY_DEV_PATH_UBUTTON "/dev/ubutton"
 
 #define MONKEY_DEV_CREATE_MATCH(monkey, type_mask, type)                  \
 do {                                                                      \
@@ -60,6 +59,23 @@ do {                                                                      \
     }                                                                     \
 } while (0)
 
+#define MONKEY_DEV_CREATE_UINPUT(monkey, _type)                              \
+do {                                                                         \
+  if (input_gen_query_device(monkey->input_gen_ctx, INPUT_GEN_DEV_##_type))  \
+    {                                                                        \
+      FAR struct monkey_dev_s *dev = calloc(1, sizeof(struct monkey_dev_s)); \
+      if (!dev)                                                              \
+        {                                                                    \
+          MONKEY_LOG_ERROR("Failed to create virtual device");               \
+          goto failed;                                                       \
+        }                                                                    \
+      dev->type = MONKEY_DEV_TYPE_##_type;                                   \
+      dev->is_available = true;                                              \
+      (monkey)->devs[(monkey)->dev_num] = dev;                               \
+      (monkey)->dev_num++;                                                   \
+  }                                                                          \
+} while (0)
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -75,8 +91,15 @@ FAR struct monkey_s *monkey_create(int dev_type_mask)
 
   if (MONKEY_IS_UINPUT_TYPE(dev_type_mask))
     {
-      MONKEY_DEV_CREATE_MATCH(monkey, dev_type_mask, UTOUCH);
-      MONKEY_DEV_CREATE_MATCH(monkey, dev_type_mask, UBUTTON);
+      if (input_gen_create(&monkey->input_gen_ctx,
+                           MONKEY_GET_DEV_TYPE(dev_type_mask)) < 0)
+        {
+          MONKEY_LOG_ERROR("input generator create failed");
+          goto failed;
+        }
+
+      MONKEY_DEV_CREATE_UINPUT(monkey, UTOUCH);
+      MONKEY_DEV_CREATE_UINPUT(monkey, UBUTTON);
     }
   else
     {
@@ -109,6 +132,12 @@ void monkey_delete(FAR struct monkey_s *monkey)
 {
   int i;
   MONKEY_ASSERT_NULL(monkey);
+
+  if (monkey->input_gen_ctx)
+    {
+      input_gen_reset_devices(monkey->input_gen_ctx, INPUT_GEN_DEV_ALL);
+      input_gen_destroy(monkey->input_gen_ctx);
+    }
 
   for (i = 0; i < monkey->dev_num; i++)
     {

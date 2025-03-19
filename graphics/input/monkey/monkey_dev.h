@@ -69,7 +69,7 @@ void monkey_dev_delete(FAR struct monkey_dev_s *dev);
  * Name: monkey_dev_set_state
  ****************************************************************************/
 
-void monkey_dev_set_state(FAR struct monkey_dev_s *dev,
+void monkey_dev_set_state(input_gen_ctx_t input_gen_ctx,
                           FAR const struct monkey_dev_state_s *state);
 
 /****************************************************************************

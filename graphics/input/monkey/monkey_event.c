@@ -26,46 +26,11 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <graphics/input_gen.h>
 #include "monkey_dev.h"
 #include "monkey_event.h"
 #include "monkey_log.h"
 #include "monkey_utils.h"
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: monkey_exec_darg
- ****************************************************************************/
-
-static bool monkey_exec_darg(FAR struct monkey_dev_s *dev,
-                             FAR struct monkey_dev_state_s *state,
-                             FAR const struct monkey_event_param_s *param)
-{
-  int t = 0;
-  uint32_t start;
-  state->data.touch.is_pressed = true;
-
-  start = monkey_tick_get();
-
-  while (t < param->duration)
-    {
-      t = monkey_tick_elaps(monkey_tick_get(), start);
-      state->data.touch.x = monkey_map(t, 0, param->duration,
-                                       param->x1, param->x2);
-      state->data.touch.y = monkey_map(t, 0, param->duration,
-                                       param->y1, param->y2);
-      monkey_dev_set_state(dev, state);
-
-      if (usleep(1000) < 0)
-        {
-          return false;
-        }
-    }
-
-  return true;
-}
 
 /****************************************************************************
  * Public Functions
@@ -143,60 +108,46 @@ bool monkey_event_exec(FAR struct monkey_s *monkey,
                        FAR const struct monkey_event_param_s *param)
 {
   bool retval = false;
-  struct monkey_dev_state_s state;
-  memset(&state, 0, sizeof(struct monkey_dev_state_s));
-  state.type = monkey_dev_get_type(dev);
-
+  enum monkey_dev_type_e dev_type = monkey_dev_get_type(dev);
   MONKEY_LOG_INFO("dev=0x%x event=%d(%s) duration=%d"
                   " x1=%d y1=%d x2=%d y2=%d",
-                  state.type,
+                  dev_type,
                   param->event,
                   monkey_event_type2name(param->event),
                   param->duration,
                   param->x1, param->y1,
                   param->x2, param->y2);
 
-  if (state.type & MONKEY_DEV_TYPE_TOUCH)
+  if (dev_type & MONKEY_DEV_TYPE_TOUCH)
     {
-      state.data.touch.x = param->x1;
-      state.data.touch.y = param->y1;
-      state.data.touch.is_pressed = true;
-      monkey_dev_set_state(dev, &state);
-
       if (param->event == MONKEY_EVENT_DRAG)
         {
-          retval = monkey_exec_darg(dev, &state, param);
+          retval = !input_gen_drag(monkey->input_gen_ctx,
+                                   param->x1, param->y1,
+                                   param->x2, param->y2,
+                                   param->duration);
         }
       else
         {
-          retval = usleep(param->duration * 1000) == 0;
-        }
+          /* Use swipe with same start and end point to simulate click or
+           * longpress.
+           */
 
-      if (!retval)
-        {
-          MONKEY_LOG_NOTICE("detect monkey killed");
+          retval = !input_gen_swipe(monkey->input_gen_ctx,
+                                    param->x1, param->y1,
+                                    param->x1, param->y1,
+                                    param->duration);
         }
-
-      state.data.touch.is_pressed = false;
-      monkey_dev_set_state(dev, &state);
     }
-  else if (state.type & MONKEY_DEV_TYPE_BUTTON)
+  else if (dev_type & MONKEY_DEV_TYPE_BUTTON)
     {
-      /* press button */
-
-      state.data.button.value = 1 << monkey->config.btn_bit;
-      monkey_dev_set_state(dev, &state);
-
-      retval = usleep(param->duration * 1000) == 0;
-
-      /* release button */
-
-      state.data.button.value = 0;
-      monkey_dev_set_state(dev, &state);
+      retval = !input_gen_button_longpress(monkey->input_gen_ctx,
+                                           1 << monkey->config.btn_bit,
+                                           param->duration);
     }
   else
     {
-      MONKEY_LOG_WARN("unsupport device type: %d", state.type);
+      MONKEY_LOG_WARN("unsupported device type: %d", dev_type);
     }
 
   return retval;
