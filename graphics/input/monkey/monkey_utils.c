@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/monkey/monkey_utils.c
+ * apps/graphics/input/monkey/monkey_utils.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
