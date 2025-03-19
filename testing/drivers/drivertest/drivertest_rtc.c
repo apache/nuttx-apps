@@ -54,7 +54,7 @@
 #define DEFAULT_TIME_OUT      5
 #define SLEEPSECONDS          10
 #define RTC_SIGNO             13
-#define VENDOR_DELAY          0
+#define VENDOR_DELAY          1
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
   do                                                                  \
