@@ -1,0 +1,71 @@
+From fa0d7ef4f2ef9f1efff4f79bd69c1b59332ab3ba Mon Sep 17 00:00:00 2001
+From: raiden00pl <raiden00@railab.me>
+Date: Fri, 21 Mar 2025 16:10:50 +0100
+Subject: [PATCH 2/5] tools/coctl.c: fix printf issues
+
+Signed-off-by: raiden00pl <raiden00@railab.me>
+---
+ tools/coctl.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/tools/coctl.c b/tools/coctl.c
+index 12f4b3aa..594fe699 100644
+--- a/tools/coctl.c
++++ b/tools/coctl.c
+@@ -40,6 +40,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#include <inttypes.h>
++
+ #if _WIN32
+ #include <io.h>
+ #endif
+@@ -358,7 +360,7 @@ main(int argc, char *argv[])
+ 			if (cmd)
+ 				printf("... ");
+ 			else
+-				printf("[%u] ", seq);
++				printf("[%" PRIu32 "] ", seq);
+ 			fflush(stdout);
+ 		}
+ 		// Keep reading lines until end-of-file.
+@@ -409,7 +411,7 @@ main(int argc, char *argv[])
+ 				free(cmd);
+ 				cmd = tmp;
+ 			} else {
+-				if (asprintf(&cmd, "[%u] %s", seq, line)
++				if (asprintf(&cmd, "[%" PRIu32 "] %s", seq, line)
+ 						== -1) {
+ 					cmd = NULL;
+ 					break;
+@@ -431,7 +433,7 @@ main(int argc, char *argv[])
+ 					result = asprintf(&tmp, "%s%s%s",
+ 							recv_buf, cmd, line);
+ 				else
+-					result = asprintf(&tmp, "%s[%u] %s",
++					result = asprintf(&recv_buf, "%s[%" PRIu32 "] %s",
+ 							recv_buf, seq, line);
+ 				if (result < 0) {
+ 					mtx_unlock(&recv_mtx);
+@@ -444,7 +446,7 @@ main(int argc, char *argv[])
+ 					result = asprintf(&recv_buf, "%s%s",
+ 							cmd, line);
+ 				else
+-					result = asprintf(&recv_buf, "[%u] %s",
++					result = asprintf(&recv_buf, "[%" PRIu32 "] %s",
+ 							seq, line);
+ 				if (result < 0) {
+ 					recv_buf = NULL;
+@@ -561,7 +563,7 @@ gw_rate(co_unsigned16_t id, co_unsigned16_t rate, void *data)
+ 		return;
+ 	bitrate = rate * 1000;
+ 	if (io_can_set_bitrate(net[id - 1].handle, bitrate) == -1)
+-		diag(DIAG_ERROR, 0, "unable to set bitrate of %s to %u bit/s",
++	        diag(DIAG_ERROR, 0, "unable to set bitrate of %s to %" PRIu32 " bit/s",
+ 				net[id - 1].can_path, bitrate);
+ }
+ 
+-- 
+2.48.1
+
