@@ -57,6 +57,8 @@ if(CONFIG_GRAPHICS_INPUT_TOOL)
     ${CONFIG_GRAPHICS_INPUT_TOOL_STACKSIZE}
     PRIORITY
     ${CONFIG_GRAPHICS_INPUT_TOOL_PRIORITY}
+    DEPENDS
+    input_generator
     SRCS
     generator/input.c)
 endif()

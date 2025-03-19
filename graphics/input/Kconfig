@@ -39,7 +39,8 @@ menuconfig GRAPHICS_INPUT_TOOL
 	default n
 	select UINPUT_TOUCH
 	select UINPUT_BUTTONS
-	select UINPUT_KEYBOARD
+	select UINPUT_MOUSE
+	select GRAPHICS_INPUT_GENERATOR
 	---help---
 		Enable support for a command line input tool.
 
