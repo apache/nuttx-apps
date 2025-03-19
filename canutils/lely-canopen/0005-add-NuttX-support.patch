@@ -1,55 +1,23 @@
-From 2232cb2e64241fd56293a6bcc51365dd220bdd5d Mon Sep 17 00:00:00 2001
+From 3c58cd579a24a1b3ae829173c3fb124b08bb42d4 Mon Sep 17 00:00:00 2001
 From: raiden00pl <raiden00@railab.me>
-Date: Thu, 6 Oct 2022 15:12:49 +0200
-Subject: [PATCH] NuttX port   tools/coctl.c: eliminate multiple definitions of
- poll error for flat address space systems
+Date: Wed, 19 Mar 2025 10:44:47 +0100
+Subject: [PATCH 5/5] add NuttX support
 
-  tools/coctl.c: use readline instead of getline
-
-  tools/coctl.c: fix printf warnings
-
-  fix compiler warnings related to 'struct __frbuf'
-
-     warning: 'struct __frbuf' declared inside parameter list will not be visible outside of this definition or declaration
-     warning: 'struct __fwbuf' declared inside parameter list will not be visible outside of this definition or declaration
-
-  src/io/poll.c: NuttX support
-
-  src/util/frbuf.c: NuttX support
-
-  src/util/fwbuf.c: NuttX support
-
-  src/can/socket.c: NuttX support
-
-  src/io/can.c: add support for NuttX
+Signed-off-by: raiden00pl <raiden00@railab.me>
 ---
- include/lely/co/val.h |  2 +-
- src/can/socket.c      |  7 +++-
- src/io/can.c          | 93 ++++++++++++++++++++++++++++++++++++++++++-
- src/io/poll.c         |  2 +-
- src/util/frbuf.c      | 18 ++++-----
- src/util/fwbuf.c      | 27 +++++++------
- tools/coctl.c         | 22 +++++-----
- 7 files changed, 134 insertions(+), 37 deletions(-)
+ src/can/socket.c  |  6 ++-
+ src/io/can.c      | 95 ++++++++++++++++++++++++++++++++++++++++++++++-
+ src/io/poll.c     |  2 +-
+ src/util/errnum.c | 11 +++---
+ src/util/frbuf.c  | 24 ++++++------
+ src/util/fwbuf.c  | 37 +++++++++---------
+ 6 files changed, 136 insertions(+), 39 deletions(-)
 
-diff --git a/include/lely/co/val.h b/include/lely/co/val.h
-index 2629763d..b5cee564 100644
---- a/include/lely/co/val.h
-+++ b/include/lely/co/val.h
-@@ -28,7 +28,7 @@
- #include <float.h>
- #include <stddef.h>
- 
--#if !LELY_NO_CO_DCF || !LELY_NO_CO_OBJ_FILE
-+#if !LELY_NO_STDIO
- // The read file buffer from <lely/util/frbuf.h>
- struct __frbuf;
- // The write file buffer from <lely/util/fwbuf.h>
 diff --git a/src/can/socket.c b/src/can/socket.c
-index 4fc133dd..b059c849 100644
+index 4fc133dd..a35b281e 100644
 --- a/src/can/socket.c
 +++ b/src/can/socket.c
-@@ -39,6 +39,11 @@
+@@ -39,6 +39,10 @@
  #include <linux/can/error.h>
  #endif
  
@@ -60,7 +28,7 @@ index 4fc133dd..b059c849 100644
  int
  can_frame_is_error(const struct can_frame *frame, enum can_state *pstate,
  		enum can_error *perror)
-@@ -51,7 +56,7 @@ can_frame_is_error(const struct can_frame *frame, enum can_state *pstate,
+@@ -51,7 +55,7 @@ can_frame_is_error(const struct can_frame *frame, enum can_state *pstate,
  	enum can_state state = pstate ? *pstate : CAN_STATE_ACTIVE;
  	enum can_error error = perror ? *perror : 0;
  
@@ -70,7 +38,7 @@ index 4fc133dd..b059c849 100644
  		set_errnum(ERRNUM_INVAL);
  		return -1;
 diff --git a/src/io/can.c b/src/io/can.c
-index ca7e7d95..35d9a9f2 100644
+index ca7e7d95..fed1ae16 100644
 --- a/src/io/can.c
 +++ b/src/io/can.c
 @@ -26,7 +26,7 @@
@@ -91,7 +59,7 @@ index ca7e7d95..35d9a9f2 100644
  
  #ifdef HAVE_LINUX_CAN_ERROR_H
  #include <linux/can/error.h>
-@@ -56,6 +56,13 @@
+@@ -56,6 +56,12 @@
  #include <linux/can/raw.h>
  #endif
  
@@ -104,7 +72,16 @@ index ca7e7d95..35d9a9f2 100644
  /// A CAN device.
  struct can {
  	/// The I/O device base handle.
-@@ -656,6 +663,88 @@ io_can_set_txqlen(io_handle_t handle, size_t txqlen)
+@@ -384,6 +390,8 @@ io_can_stop(io_handle_t handle)
+ 
+ #endif // HAVE_LINUX_CAN_NETLINK_H && HAVE_LINUX_RTNETLINK_H
+ 
++
++
+ int
+ io_can_get_state(io_handle_t handle)
+ {
+@@ -656,6 +664,89 @@ io_can_set_txqlen(io_handle_t handle, size_t txqlen)
  
  #endif // HAVE_LINUX_CAN_NETLINK_H && HAVE_LINUX_RTNETLINK_H
  
@@ -190,6 +167,7 @@ index ca7e7d95..35d9a9f2 100644
 +
 +#endif // __NuttX__
 +
++
  static void
  can_fini(struct io_handle *handle)
  {
@@ -206,10 +184,76 @@ index d474e337..e07b36ce 100644
  	case IO_TYPE_CAN:
  #endif
  #if _POSIX_C_SOURCE >= 200112L
+diff --git a/src/util/errnum.c b/src/util/errnum.c
+index 39e4b28a..3b295b8e 100644
+--- a/src/util/errnum.c
++++ b/src/util/errnum.c
+@@ -27,6 +27,7 @@
+ #include <lely/util/util.h>
+ 
+ #include <string.h>
++#include <netdb.h>
+ 
+ #if _WIN32
+ 
+@@ -38,7 +39,7 @@
+ 
+ #endif // _WIN32
+ 
+-#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__)
++#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__) && !defined(__NuttX__)
+ static const char *gai_strerror_r(int ecode, char *strerrbuf, size_t buflen);
+ #endif
+ 
+@@ -545,7 +546,7 @@ errc2num(int errc)
+ 	default: return 0;
+ 	}
+ #else
+-#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__)
++#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__) && !defined(__NuttX__)
+ 	switch (errc) {
+ 	case -ABS(EAI_AGAIN): return ERRNUM_AI_AGAIN;
+ 	case -ABS(EAI_BADFLAGS): return ERRNUM_AI_BADFLAGS;
+@@ -910,7 +911,7 @@ errnum2c(errnum_t errnum)
+ 	default: return 0;
+ 	}
+ #else
+-#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__)
++#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__) && !defined(__NuttX__)
+ 	switch (errnum) {
+ 	case ERRNUM_AI_AGAIN: return -ABS(EAI_AGAIN);
+ 	case ERRNUM_AI_BADFLAGS: return -ABS(EAI_BADFLAGS);
+@@ -1011,7 +1012,7 @@ errc2str_r(int errc, char *strerrbuf, size_t buflen)
+ 		strerrbuf[n - 2] = '\0';
+ 	return strerrbuf;
+ #else
+-#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__)
++#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__) && !defined(__NuttX__)
+ 	switch (errc) {
+ 	case -ABS(EAI_AGAIN):
+ 		return gai_strerror_r(EAI_AGAIN, strerrbuf, buflen);
+@@ -1036,7 +1037,7 @@ errc2str_r(int errc, char *strerrbuf, size_t buflen)
+ #endif
+ }
+ 
+-#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__)
++#if _POSIX_C_SOURCE >= 200112L && !defined(__NEWLIB__) && !defined(__NuttX__)
+ static const char *
+ gai_strerror_r(int ecode, char *strerrbuf, size_t buflen)
+ {
 diff --git a/src/util/frbuf.c b/src/util/frbuf.c
-index 73a15bc8..403901a5 100644
+index e01b7677..7157129b 100644
 --- a/src/util/frbuf.c
 +++ b/src/util/frbuf.c
+@@ -41,7 +41,7 @@
+ #include <stdio.h>
+ #if _POSIX_C_SOURCE >= 200112L
+ #include <fcntl.h>
+-#if _POSIX_MAPPED_FILES >= 200112L
++#if _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ #include <sys/mman.h>
+ #endif
+ #include <sys/stat.h>
 @@ -57,7 +57,7 @@ struct __frbuf {
  	HANDLE hFileMappingObject;
  	/// The base address of the file mapping.
@@ -224,7 +268,7 @@ index 73a15bc8..403901a5 100644
  __frbuf_alloc(void)
  {
 -	void *ptr = malloc(sizeof(struct __frbuf));
-+	void *ptr = zalloc(sizeof(struct __frbuf));
++  void *ptr = zalloc(sizeof(struct __frbuf));
  	if (!ptr)
  		set_errc(errno2c(errno));
  	return ptr;
@@ -237,7 +281,7 @@ index 73a15bc8..403901a5 100644
  	buf->fd = open(filename, O_RDONLY | O_CLOEXEC);
  	if (buf->fd == -1)
  		return NULL;
-@@ -125,7 +125,7 @@ __frbuf_fini(struct __frbuf *buf)
+@@ -127,7 +127,7 @@ __frbuf_fini(struct __frbuf *buf)
  
  #if _WIN32
  	CloseHandle(buf->hFile);
@@ -246,7 +290,7 @@ index 73a15bc8..403901a5 100644
  	close(buf->fd);
  #else
  	fclose(buf->stream);
-@@ -176,7 +176,7 @@ frbuf_get_size(frbuf_t *buf)
+@@ -178,7 +178,7 @@ frbuf_get_size(frbuf_t *buf)
  	if (!GetFileSizeEx(buf->hFile, &FileSize))
  		return -1;
  	return FileSize.QuadPart;
@@ -255,7 +299,7 @@ index 73a15bc8..403901a5 100644
  #ifdef __linux__
  	struct stat64 stat;
  	if (fstat64(buf->fd, &stat) == -1)
-@@ -221,7 +221,7 @@ frbuf_get_pos(frbuf_t *buf)
+@@ -223,7 +223,7 @@ frbuf_get_pos(frbuf_t *buf)
  	if (!SetFilePointerEx(buf->hFile, li, &li, FILE_CURRENT))
  		return -1;
  	return li.QuadPart;
@@ -264,7 +308,7 @@ index 73a15bc8..403901a5 100644
  #ifdef __linux__
  	return lseek64(buf->fd, 0, SEEK_CUR);
  #else
-@@ -250,7 +250,7 @@ frbuf_set_pos(frbuf_t *buf, intmax_t pos)
+@@ -252,7 +252,7 @@ frbuf_set_pos(frbuf_t *buf, intmax_t pos)
  	if (!SetFilePointerEx(buf->hFile, li, &li, FILE_BEGIN))
  		return -1;
  	return li.QuadPart;
@@ -273,7 +317,7 @@ index 73a15bc8..403901a5 100644
  #ifdef __linux__
  	return lseek64(buf->fd, pos, SEEK_SET);
  #else
-@@ -283,7 +283,7 @@ frbuf_read(frbuf_t *buf, void *ptr, size_t size)
+@@ -285,7 +285,7 @@ frbuf_read(frbuf_t *buf, void *ptr, size_t size)
  	if (!ReadFile(buf->hFile, ptr, size, &nNumberOfBytesRead, NULL))
  		return -1;
  	return nNumberOfBytesRead;
@@ -282,7 +326,7 @@ index 73a15bc8..403901a5 100644
  	ssize_t result;
  	do
  		result = read(buf->fd, ptr, size);
-@@ -347,7 +347,7 @@ error_ReadFile:
+@@ -349,7 +349,7 @@ error_ReadFile:
  error_get_pos:
  	SetLastError(dwErrCode);
  	return result;
@@ -291,10 +335,37 @@ index 73a15bc8..403901a5 100644
  	ssize_t result;
  #ifdef __linux__
  	do
+@@ -453,7 +453,7 @@ error_CreateFileMapping:
+ error_size:
+ 	SetLastError(dwErrCode);
+ 	return NULL;
+-#elif _POSIX_MAPPED_FILES >= 200112L
++#elif _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ 	long page_size = sysconf(_SC_PAGE_SIZE);
+ 	if (page_size <= 0)
+ 		return NULL;
+@@ -532,7 +532,7 @@ frbuf_unmap(frbuf_t *buf)
+ 		buf->hFileMappingObject = INVALID_HANDLE_VALUE;
+ 		buf->lpBaseAddress = NULL;
+ 	}
+-#elif _POSIX_MAPPED_FILES >= 200112L
++#elif _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ 	if (buf->addr != MAP_FAILED) {
+ 		result = munmap(buf->addr, buf->len);
+ 
 diff --git a/src/util/fwbuf.c b/src/util/fwbuf.c
-index 22c61fd7..26b7e03b 100644
+index 22c61fd7..33ba11c7 100644
 --- a/src/util/fwbuf.c
 +++ b/src/util/fwbuf.c
+@@ -48,7 +48,7 @@
+ #if _POSIX_C_SOURCE >= 200112L
+ #include <fcntl.h>
+ #include <libgen.h>
+-#if _POSIX_MAPPED_FILES >= 200112L
++#if _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ #include <sys/mman.h>
+ #endif
+ #include <sys/stat.h>
 @@ -72,7 +72,7 @@ struct __fwbuf {
  	LPVOID lpBaseAddress;
  	/// The number of bytes mapped at <b>lpBaseAddress</b>.
@@ -377,6 +448,42 @@ index 22c61fd7..26b7e03b 100644
  	ssize_t result;
  #ifdef __linux__
  	do
+@@ -666,7 +667,7 @@ fwbuf_map(fwbuf_t *buf, intmax_t pos, size_t *psize)
+ 	if (pos < 0) {
+ #if _WIN32
+ 		SetLastError(buf->dwErrCode = ERROR_INVALID_PARAMETER);
+-#elif _POSIX_MAPPED_FILES >= 200112L
++#elif _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ 		errno = buf->errsv = EINVAL;
+ #else
+ 		set_errnum(buf->errnum = ERRNUM_INVAL);
+@@ -676,7 +677,7 @@ fwbuf_map(fwbuf_t *buf, intmax_t pos, size_t *psize)
+ 	if (pos > (intmax_t)size) {
+ #if _WIN32
+ 		SetLastError(buf->dwErrCode = ERROR_INVALID_PARAMETER);
+-#elif _POSIX_MAPPED_FILES >= 200112L
++#elif _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ 		errno = buf->errsv = EOVERFLOW;
+ #else
+ 		set_errnum(buf->errnum = ERRNUM_OVERFLOW);
+@@ -728,7 +729,7 @@ error_CreateFileMapping:
+ error_size:
+ 	SetLastError(buf->dwErrCode);
+ 	return NULL;
+-#elif _POSIX_MAPPED_FILES >= 200112L
++#elif _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ 	long page_size = sysconf(_SC_PAGE_SIZE);
+ 	if (page_size <= 0) {
+ 		buf->errsv = errno;
+@@ -863,7 +864,7 @@ fwbuf_unmap(fwbuf_t *buf)
+ 			buf->dwErrCode = dwErrCode;
+ 		SetLastError(dwErrCode);
+ 	}
+-#elif _POSIX_MAPPED_FILES >= 200112L
++#elif _POSIX_MAPPED_FILES >= 200112L && !defined(__NuttX__)
+ 	int errsv = 0;
+ 	if (buf->errsv) {
+ 		result = -1;
 @@ -931,7 +932,7 @@ fwbuf_clearerr(fwbuf_t *buf)
  
  #if _WIN32
@@ -413,98 +520,6 @@ index 22c61fd7..26b7e03b 100644
  	int errsv = errno;
  
  	if (buf->fd == -1)
-diff --git a/tools/coctl.c b/tools/coctl.c
-index 351b81c0..5f851b50 100644
---- a/tools/coctl.c
-+++ b/tools/coctl.c
-@@ -39,6 +39,9 @@
- #include <signal.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <inttypes.h>
-+
-+#include <system/readline.h>
- 
- #if _WIN32
- #include <io.h>
-@@ -90,7 +93,7 @@ int io_thrd_start(void *arg);
- void co_net_err(struct co_net *net);
- 
- struct co_net net[CO_GW_NUM_NET];
--io_poll_t *poll;
-+static io_poll_t *poll;
- 
- int flags;
- int inhibit = INHIBIT;
-@@ -315,8 +318,8 @@ main(int argc, char *argv[])
- 	errno = errsv;
- 	int eof = 0;
- 
--	char *line = NULL;
--	size_t n = 0;
-+#define LINE_SIZE 100
-+	char line[LINE_SIZE];
- 	co_unsigned32_t seq = 1;
- 	char *cmd = NULL;
- 	while (!done) {
-@@ -358,11 +361,11 @@ main(int argc, char *argv[])
- 			if (cmd)
- 				printf("... ");
- 			else
--				printf("[%u] ", seq);
-+				printf("[%" PRIu32 "] ", seq);
- 			fflush(stdout);
- 		}
- 		// Keep reading lines until end-of-file.
--		if (getline(&line, &n, stdin) == -1) {
-+		if (readline(line, LINE_SIZE-1, stdin, stdout) == -1) {
- 			if (tty)
- 				fputc('\n', stdout);
- 			if (ferror(stdin)) {
-@@ -409,7 +412,7 @@ main(int argc, char *argv[])
- 				free(cmd);
- 				cmd = tmp;
- 			} else {
--				if (asprintf(&cmd, "[%u] %s", seq, line)
-+				if (asprintf(&cmd, "[%" PRIu32 "] %s", seq, line)
- 						== -1) {
- 					cmd = NULL;
- 					break;
-@@ -431,7 +434,7 @@ main(int argc, char *argv[])
- 					result = asprintf(&tmp, "%s%s%s",
- 							recv_buf, cmd, line);
- 				else
--					result = asprintf(&tmp, "%s[%u] %s",
-+					result = asprintf(&tmp, "%s[%" PRIu32 "] %s",
- 							recv_buf, seq, line);
- 				if (result < 0) {
- 					mtx_unlock(&recv_mtx);
-@@ -444,7 +447,7 @@ main(int argc, char *argv[])
- 					result = asprintf(&recv_buf, "%s%s",
- 							cmd, line);
- 				else
--					result = asprintf(&recv_buf, "[%u] %s",
-+					result = asprintf(&recv_buf, "[%" PRIu32 "] %s",
- 							seq, line);
- 				if (result < 0) {
- 					recv_buf = NULL;
-@@ -466,7 +469,6 @@ main(int argc, char *argv[])
- 		}
- 	}
- 	free(cmd);
--	free(line);
- 
- 	io_poll_signal(poll, 1);
- 	thrd_join(thr, NULL);
-@@ -561,7 +563,7 @@ gw_rate(co_unsigned16_t id, co_unsigned16_t rate, void *data)
- 		return;
- 	bitrate = rate * 1000;
- 	if (io_can_set_bitrate(net[id - 1].handle, bitrate) == -1)
--		diag(DIAG_ERROR, 0, "unable to set bitrate of %s to %u bit/s",
-+		diag(DIAG_ERROR, 0, "unable to set bitrate of %s to %" PRIu32 " bit/s",
- 				net[id - 1].can_path, bitrate);
- }
- 
 -- 
-2.37.2
+2.48.1
 

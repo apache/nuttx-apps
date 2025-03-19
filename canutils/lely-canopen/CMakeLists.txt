@@ -26,18 +26,27 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
   # Config and Fetch lelycanopen lib
   # ############################################################################
 
-  set(LELYCANOPEN_DIR ${CMAKE_CURRENT_LIST_DIR}/lely-canopen)
+  set(LELYCANOPEN_DIR ${CMAKE_CURRENT_LIST_DIR}/lely-core)
 
   if(NOT EXISTS ${LELYCANOPEN_DIR})
     FetchContent_Declare(
       lelycanopen_fetch
       URL ${CONFIG_CANUTILS_LELYCANOPEN_URL}/lely-core-${CONFIG_CANUTILS_LELYCANOPEN_VERSION}.tar.gz
           SOURCE_DIR
-          ${CMAKE_CURRENT_LIST_DIR}/lely-canopen
+          ${CMAKE_CURRENT_LIST_DIR}/lely-core
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/canutils/lely-canopen/lely-canopen
-      PATCH_COMMAND patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-canopen <
-                    ${CMAKE_CURRENT_LIST_DIR}/0001-NuttX-port.patch
+          ${CMAKE_BINARY_DIR}/apps/canutils/lely-canopen/lely-core
+      PATCH_COMMAND
+        patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-core <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-tools-eliminate-multiple-definitions-of-poll-compile.patch
+        && patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-core <
+        ${CMAKE_CURRENT_LIST_DIR}/0002-tools-coctl.c-fix-printf-issues.patch &&
+        patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-core <
+        ${CMAKE_CURRENT_LIST_DIR}/0003-src-co-nmt.c-fix-compilation.patch &&
+        patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-core <
+        ${CMAKE_CURRENT_LIST_DIR}/0004-tools-coctl.c-add-missing-mutex-init.patch
+        && patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-core <
+        ${CMAKE_CURRENT_LIST_DIR}/0005-add-NuttX-support.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
