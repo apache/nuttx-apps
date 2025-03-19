@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/monkey/monkey_event.h
+ * apps/graphics/input/monkey/monkey_assert.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,60 +20,20 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_MONKEY_EVENT_H
-#define __APPS_SYSTEM_MONKEY_EVENT_H
+#ifndef __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_ASSERT_H
+#define __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_ASSERT_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
-#include "monkey_type.h"
+#include <assert.h>
 
 /****************************************************************************
- * Public Types
+ * Pre-processor Definitions
  ****************************************************************************/
 
-struct monkey_event_param_s
-{
-  enum monkey_event_e event;
-  int duration;
-  int x1;
-  int y1;
-  int x2;
-  int y2;
-};
+#define MONKEY_ASSERT(expr)     DEBUGASSERT(expr)
+#define MONKEY_ASSERT_NULL(ptr) MONKEY_ASSERT(ptr != NULL)
 
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
-{
-#else
-#define EXTERN extern
-#endif
-
-/****************************************************************************
- * Name: monkey_event_gen
- ****************************************************************************/
-
-void monkey_event_gen(FAR struct monkey_s *monkey,
-                      FAR struct monkey_event_param_s *param);
-
-/****************************************************************************
- * Name: monkey_event_exec
- ****************************************************************************/
-
-bool monkey_event_exec(FAR struct monkey_s *monkey,
-                       FAR struct monkey_dev_s *dev,
-                       FAR const struct monkey_event_param_s *param);
-
-#undef EXTERN
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __APPS_SYSTEM_MONKEY_EVENT_H */
+#endif /* __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_ASSERT_H */

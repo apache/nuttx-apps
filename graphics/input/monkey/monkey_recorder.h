@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/monkey/monkey.h
+ * apps/graphics/input/monkey/monkey_recorder.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,15 +20,40 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_MONKEY_MONKEY_H
-#define __APPS_SYSTEM_MONKEY_MONKEY_H
+#ifndef __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_RECORDER_H
+#define __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_RECORDER_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
 #include "monkey_type.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+enum monkey_recorder_mode_e
+{
+  MONKEY_RECORDER_MODE_RECORD,
+  MONKEY_RECORDER_MODE_PLAYBACK
+};
+
+struct monkey_recorder_s
+{
+  int fd;
+  enum monkey_recorder_mode_e mode;
+};
+
+enum monkey_recorder_res_e
+{
+  MONKEY_RECORDER_RES_OK,
+  MONKEY_RECORDER_RES_END_OF_FILE,
+  MONKEY_RECORDER_RES_DEV_TYPE_ERROR,
+  MONKEY_RECORDER_RES_WRITE_ERROR,
+  MONKEY_RECORDER_RES_READ_ERROR,
+  MONKEY_RECORDER_RES_PARSER_ERROR
+};
 
 /****************************************************************************
  * Public Function Prototypes
@@ -43,58 +68,45 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Name: monkey_create
+ * Name: monkey_recorder_create
  ****************************************************************************/
 
-FAR struct monkey_s *monkey_create(int dev_type_mask);
+FAR struct monkey_recorder_s *monkey_recorder_create(FAR const char *path,
+                                          enum monkey_recorder_mode_e mode);
 
 /****************************************************************************
- * Name: monkey_update
+ * Name: monkey_recorder_delete
  ****************************************************************************/
 
-int monkey_update(FAR struct monkey_s *monkey);
+void monkey_recorder_delete(FAR struct monkey_recorder_s *recorder);
 
 /****************************************************************************
- * Name: monkey_delete
+ * Name: monkey_recorder_write
  ****************************************************************************/
 
-void monkey_delete(FAR struct monkey_s *monkey);
+enum monkey_recorder_res_e monkey_recorder_write(
+                                FAR struct monkey_recorder_s *recorder,
+                                FAR const struct monkey_dev_state_s *state);
 
 /****************************************************************************
- * Name: monkey_config_default_init
+ * Name: monkey_recorder_read
  ****************************************************************************/
 
-void monkey_config_default_init(FAR struct monkey_config_s *config);
+enum monkey_recorder_res_e monkey_recorder_read(
+                                    FAR struct monkey_recorder_s *recorder,
+                                    FAR struct monkey_dev_state_s *state,
+                                    FAR uint32_t *time_stamp);
 
 /****************************************************************************
- * Name: monkey_set_config
+ * Name: monkey_recorder_reset
  ****************************************************************************/
 
-void monkey_set_config(FAR struct monkey_s *monkey,
-                       FAR const struct monkey_config_s *config);
-
-/****************************************************************************
- * Name: monkey_set_mode
- ****************************************************************************/
-
-void monkey_set_mode(FAR struct monkey_s *monkey, enum monkey_mode_e mode);
-
-/****************************************************************************
- * Name: monkey_set_period
- ****************************************************************************/
-
-void monkey_set_period(FAR struct monkey_s *monkey, uint32_t period);
-
-/****************************************************************************
- * Name: monkey_set_recorder_path
- ****************************************************************************/
-
-bool monkey_set_recorder_path(FAR struct monkey_s *monkey,
-                              FAR const char *path);
+enum monkey_recorder_res_e monkey_recorder_reset(
+                                    FAR struct monkey_recorder_s *recorder);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APPS_SYSTEM_MONKEY_MONKEY_H */
+#endif /* __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_RECORDER_H */

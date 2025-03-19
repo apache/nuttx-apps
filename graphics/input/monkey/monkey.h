@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/monkey/monkey_log.h
+ * apps/graphics/input/monkey/monkey.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,39 +20,19 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_MONKEY_MONKEY_LOG_H
-#define __APPS_SYSTEM_MONKEY_MONKEY_LOG_H
+#ifndef __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_H
+#define __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include <stdint.h>
+#include "monkey_type.h"
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Function Prototypes
  ****************************************************************************/
-
-#define MONKEY_LOG_INFO(format, ...)          \
-  monkey_log_printf(MONKEY_LOG_LEVEL_INFO,    \
-  __func__,                                   \
-  format,                                     \
-  ##__VA_ARGS__)
-#define MONKEY_LOG_NOTICE(format, ...)        \
-  monkey_log_printf(MONKEY_LOG_LEVEL_NOTICE,  \
-  __func__,                                   \
-  format,                                     \
-  ##__VA_ARGS__)
-#define MONKEY_LOG_WARN(format, ...)          \
-  monkey_log_printf(MONKEY_LOG_LEVEL_WARN,    \
-  __func__,                                   \
-  format,                                     \
-  ##__VA_ARGS__)
-#define MONKEY_LOG_ERROR(format, ...)         \
-  monkey_log_printf(MONKEY_LOG_LEVEL_ERROR,   \
-  __func__,                                   \
-  format,                                     \
-  ##__VA_ARGS__)
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
@@ -63,46 +43,58 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Public Types
+ * Name: monkey_create
  ****************************************************************************/
 
-enum monkey_log_level_type_e
-{
-  MONKEY_LOG_LEVEL_INFO,
-  MONKEY_LOG_LEVEL_NOTICE,
-  MONKEY_LOG_LEVEL_WARN,
-  MONKEY_LOG_LEVEL_ERROR,
-  MONKEY_LOG_LEVEL_LAST
-};
+FAR struct monkey_s *monkey_create(int dev_type_mask);
 
 /****************************************************************************
- * Public Function Prototypes
+ * Name: monkey_update
  ****************************************************************************/
+
+int monkey_update(FAR struct monkey_s *monkey);
 
 /****************************************************************************
- * Name: monkey_log_printf
+ * Name: monkey_delete
  ****************************************************************************/
 
-void monkey_log_printf(enum monkey_log_level_type_e level,
-                       FAR const char *func,
-                       FAR const char *fmt,
-                       ...);
+void monkey_delete(FAR struct monkey_s *monkey);
 
 /****************************************************************************
- * Name: monkey_log_set_level
+ * Name: monkey_config_default_init
  ****************************************************************************/
 
-void monkey_log_set_level(enum monkey_log_level_type_e level);
+void monkey_config_default_init(FAR struct monkey_config_s *config);
 
 /****************************************************************************
- * Name: monkey_log_get_level
+ * Name: monkey_set_config
  ****************************************************************************/
 
-enum monkey_log_level_type_e monkey_log_get_level(void);
+void monkey_set_config(FAR struct monkey_s *monkey,
+                       FAR const struct monkey_config_s *config);
+
+/****************************************************************************
+ * Name: monkey_set_mode
+ ****************************************************************************/
+
+void monkey_set_mode(FAR struct monkey_s *monkey, enum monkey_mode_e mode);
+
+/****************************************************************************
+ * Name: monkey_set_period
+ ****************************************************************************/
+
+void monkey_set_period(FAR struct monkey_s *monkey, uint32_t period);
+
+/****************************************************************************
+ * Name: monkey_set_recorder_path
+ ****************************************************************************/
+
+bool monkey_set_recorder_path(FAR struct monkey_s *monkey,
+                              FAR const char *path);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APPS_SYSTEM_MONKEY_MONKEY_LOG_H */
+#endif /* __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_H */

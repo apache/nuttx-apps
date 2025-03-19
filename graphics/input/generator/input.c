@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/input/input.c
+ * apps/graphics/input/generator/input.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/monkey/monkey_dev.h
+ * apps/graphics/input/monkey/monkey_dev.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,8 +20,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_MONKEY_MONKEY_DEV_H
-#define __APPS_SYSTEM_MONKEY_MONKEY_DEV_H
+#ifndef __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_DEV_H
+#define __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_DEV_H
 
 /****************************************************************************
  * Included Files
@@ -96,4 +96,4 @@ int monkey_dev_get_available(FAR struct monkey_dev_s *devs[], int dev_num);
 }
 #endif
 
-#endif /* __APPS_SYSTEM_MONKEY_MONKEY_DEV_H */
+#endif /* __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_DEV_H */
