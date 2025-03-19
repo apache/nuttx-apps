@@ -27,17 +27,18 @@
 #include <string.h>
 #include <sys/param.h>
 #include <unistd.h>
+#include <stdbool.h>
 
+#include <graphics/input_gen.h>
 #include <nuttx/input/buttons.h>
-#include <nuttx/input/keyboard.h>
-#include <nuttx/input/touchscreen.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DEFATLT_INTERVAL 30
-#define DEFATLT_DISTANCE 10
+#define SWIPE_DEFAULT_DURATION 300
+#define DRAG_DEFAULT_DURATION 500
+#define BUTTON_LONGPRESS_DEFAULT_DURATION 1000
 
 #define DELAY_MS(ms) usleep((ms) * 1000)
 #define ABS(a)       ((a) > 0 ? (a) : -(a))
@@ -48,22 +49,25 @@
 
 struct input_cmd_s
 {
-  const char *cmd;                    /* Command name */
-  int (*func)(int argc, char **argv); /* Function corresponding to command */
+  /* Command name */
+
+  const char *cmd;
+
+  /* Function corresponding to command */
+
+  int (*func)(input_gen_ctx_t ctx, int argc, char **argv);
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static int  input_button(int argc, char **argv);
-static int  input_help(int argc, char **argv);
-static int  input_keydown(int argc, char **argv);
-static int  input_keyup(int argc, char **argv);
-static int  input_sleep(int argc, char **argv);
-static void input_utouch_move(int fd, int x, int y, int pendown);
-static int  input_utouch_tap(int argc, char **argv);
-static int  input_utouch_swipe(int argc, char **argv);
+static int input_button(input_gen_ctx_t ctx, int argc, char **argv);
+static int input_help(input_gen_ctx_t ctx, int argc, char **argv);
+static int input_sleep(input_gen_ctx_t ctx, int argc, char **argv);
+static int input_utouch_tap(input_gen_ctx_t ctx, int argc, char **argv);
+static int input_utouch_swipe(input_gen_ctx_t ctx, int argc, char **argv);
+static int input_wheel(input_gen_ctx_t ctx, int argc, char **argv);
 
 /****************************************************************************
  * Private Data
@@ -71,14 +75,15 @@ static int  input_utouch_swipe(int argc, char **argv);
 
 static const struct input_cmd_s g_input_cmd_list[] =
 {
-  {"help",    input_help        },
-  {"sleep",   input_sleep       },
-  {"tap",     input_utouch_tap  },
-  {"swipe",   input_utouch_swipe},
-  {"button",  input_button      },
-  {"keyup",   input_keyup       },
-  {"keydown", input_keydown     },
-  {NULL,      NULL              }
+  {"help",        input_help        },
+  {"sleep",       input_sleep       },
+  {"tap",         input_utouch_tap  },
+  {"swipe",       input_utouch_swipe},
+  {"drag",        input_utouch_swipe},
+  {"draganddrop", input_utouch_swipe},
+  {"button",      input_button      },
+  {"wheel",       input_wheel       },
+  {NULL,          NULL              }
 };
 
 /****************************************************************************
@@ -86,40 +91,63 @@ static const struct input_cmd_s g_input_cmd_list[] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: input_utouch_move
+ * Name: parse_arg_to_int16
  ****************************************************************************/
 
-static void input_utouch_move(int fd, int x, int y, int pendown)
+static int parse_arg_to_int16(const char *arg, int16_t *result)
 {
-  struct touch_sample_s sample; /* Sampled touch point data */
+  char *endptr;
+  long  val;
 
-  /* Handle the change from pen down to pen up */
-
-  if (pendown != TOUCH_DOWN)
+  if (!arg || arg[0] == '\0')
     {
-      sample.point[0].flags = TOUCH_UP | TOUCH_ID_VALID;
-    }
-  else
-    {
-      sample.point[0].x        = x;
-      sample.point[0].y        = y;
-      sample.point[0].pressure = 42;
-      sample.point[0].flags    = TOUCH_DOWN | TOUCH_ID_VALID |
-                                 TOUCH_POS_VALID | TOUCH_PRESSURE_VALID;
+      return 1;
     }
 
-  sample.npoints    = 1;
-  sample.point[0].h = 1;
-  sample.point[0].w = 1;
+  errno = 0;
+  val   = strtol(arg, &endptr, 10);
 
-  write(fd, &sample, sizeof(struct touch_sample_s));
+  if (errno != 0 || *endptr != '\0' || arg == endptr ||
+      val < -32768 || val > 32767)
+    {
+      return 1;
+    }
+
+  *result = (int16_t)val;
+  return 0;
+}
+
+/****************************************************************************
+ * Name: parse_arg_to_uint32
+ ****************************************************************************/
+
+static int parse_arg_to_uint32(const char *arg, uint32_t *result)
+{
+  char *endptr;
+  uintmax_t val;
+
+  if (!arg || arg[0] == '\0')
+    {
+      return 1;
+    }
+
+  errno = 0;
+  val   = strtoumax(arg, &endptr, 0);
+
+  if (errno != 0 || *endptr != '\0' || arg == endptr || val > UINT32_MAX)
+    {
+      return 1;
+    }
+
+  *result = (uint32_t)val;
+  return 0;
 }
 
 /****************************************************************************
  * Name: input_sleep
  ****************************************************************************/
 
-static int input_sleep(int argc, char **argv)
+static int input_sleep(input_gen_ctx_t ctx, int argc, char **argv)
 {
   if (argc != 2)
     {
@@ -134,202 +162,141 @@ static int input_sleep(int argc, char **argv)
  * Name: input_utouch_tap
  ****************************************************************************/
 
-static int input_utouch_tap(int argc, char **argv)
+static int input_utouch_tap(input_gen_ctx_t ctx, int argc, char **argv)
 {
-  int fd;
-  int x;
-  int y;
-  int interval = DEFATLT_INTERVAL;
+  int16_t x;
+  int16_t y;
 
-  if (argc < 3 || argc > 4)
+  if (argc != 3)
     {
       return -EINVAL;
     }
 
-  if (argc == 4)
+  if (parse_arg_to_int16(argv[1], &x) || parse_arg_to_int16(argv[2], &y))
     {
-      interval = atoi(argv[3]);
+      return -EINVAL;
     }
 
-  x = atoi(argv[1]);
-  y = atoi(argv[2]);
-
-  fd = open("/dev/utouch", O_WRONLY);
-  if (fd < 0)
-    {
-      return -errno;
-    }
-
-  input_utouch_move(fd, x, y, TOUCH_DOWN);
-  DELAY_MS(interval);
-  input_utouch_move(fd, 0, 0, TOUCH_UP);
-  close(fd);
-
-  return 0;
+  return input_gen_tap(ctx, x, y);
 }
 
 /****************************************************************************
  * Name: input_utouch_swipe
  ****************************************************************************/
 
-static int input_utouch_swipe(int argc, char **argv)
+static int input_utouch_swipe(input_gen_ctx_t ctx, int argc, char **argv)
 {
-  int i;
-  int fd;
-  int x0;
-  int x1;
-  int y0;
-  int y1;
-  int count;
-  int duration;
-  int distance = DEFATLT_DISTANCE;
-  int interval = DEFATLT_INTERVAL;
+  int16_t  x1;
+  int16_t  x2;
+  int16_t  y1;
+  int16_t  y2;
+  bool     is_swipe = strcmp(argv[0], "swipe") == 0;
+  uint32_t duration = is_swipe ? SWIPE_DEFAULT_DURATION
+                               : DRAG_DEFAULT_DURATION;
 
-  if (argc < 5 || argc > 7)
+  if (argc < 5 || argc > 6)
     {
       return -EINVAL;
     }
 
-  x0 = atoi(argv[1]);
-  x1 = atoi(argv[3]);
-  y0 = atoi(argv[2]);
-  y1 = atoi(argv[4]);
-
-  fd = open("/dev/utouch", O_WRONLY);
-  if (fd < 0)
+  if (parse_arg_to_int16(argv[1], &x1) || parse_arg_to_int16(argv[3], &x2) ||
+      parse_arg_to_int16(argv[2], &y1) || parse_arg_to_int16(argv[4], &y2))
     {
-      return -errno;
+      return -EINVAL;
     }
 
   /* Number of times to calculate reports */
 
-  if (argc >= 5)
+  if (argc > 5)
     {
-      duration = atoi(argv[5]);
+      if (parse_arg_to_uint32(argv[5], &duration))
+        {
+          return -EINVAL;
+        }
     }
 
-  if (argc >= 6)
-    {
-      distance = atoi(argv[6]);
-      distance = distance == 0 ? DEFATLT_DISTANCE : distance;
-    }
-
-  count    = MAX(ABS(x0 - x1), ABS(y0 - y1)) / distance;
-  interval = duration == 0 ? DEFATLT_INTERVAL : duration / count;
-
-  for (i = 0; i <= count; i++)
-    {
-      int x = x0 + (x1 - x0) / count * i;
-      int y = y0 + (y1 - y0) / count * i;
-
-      input_utouch_move(fd, x, y, TOUCH_DOWN);
-      DELAY_MS(interval);
-    }
-
-  input_utouch_move(fd, x1, y1, TOUCH_UP);
-  close(fd);
-  return 0;
+  return is_swipe ? input_gen_swipe(ctx, x1, y1, x2, y2, duration)
+                  : input_gen_drag(ctx, x1, y1, x2, y2, duration);
 }
 
-static int input_button(int argc, char **argv)
+/****************************************************************************
+ * Name: input_button
+ ****************************************************************************/
+
+static int input_button(input_gen_ctx_t ctx, int argc, char **argv)
 {
-  int fd;
   btn_buttonset_t button;
+  uint32_t duration = 0;
+  int result = -EINVAL;
+
+  if (argc < 2 || argc > 3)
+    {
+      return result;
+    }
+
+  if (parse_arg_to_uint32(argv[1], &button))
+    {
+      return result;
+    }
+
+  if (argc == 3)
+    {
+      if (parse_arg_to_uint32(argv[2], &duration))
+        {
+          return -EINVAL;
+        }
+    }
+
+  if (duration)
+    {
+      result = input_gen_button_longpress(ctx, button, duration);
+    }
+  else
+    {
+      result = input_gen_button_click(ctx, button);
+    }
+
+  return result;
+}
+
+/****************************************************************************
+ * Name: input_wheel
+ ****************************************************************************/
+
+static int input_wheel(input_gen_ctx_t ctx, int argc, char **argv)
+{
+  int16_t wheel;
 
   if (argc != 2)
     {
       return -EINVAL;
     }
 
-  button = strtoul(argv[1], NULL, 0);
-  fd = open("/dev/ubutton", O_WRONLY);
-  if (fd < 0)
-    {
-      return -errno;
-    }
-
-  write(fd, &button, sizeof(button));
-  close(fd);
-
-  return 0;
-}
-
-/****************************************************************************
- * Name: input_keyup
- ****************************************************************************/
-
-static int input_keyup(int argc, char **argv)
-{
-  int fd;
-  struct keyboard_event_s key;
-
-  if (argc != 2 || argv[1] == NULL)
+  if (parse_arg_to_int16(argv[1], &wheel))
     {
       return -EINVAL;
     }
 
-  fd = open("/dev/ukeyboard", O_WRONLY);
-  if (fd < 0)
-    {
-      return -errno;
-    }
-
-  key.code = strtoul(argv[1], NULL, 0);
-  key.type = KEYBOARD_RELEASE;
-
-  write(fd, &key, sizeof(struct keyboard_event_s));
-  close(fd);
-  return 0;
-}
-
-/****************************************************************************
- * Name: input_keydown
- ****************************************************************************/
-
-static int input_keydown(int argc, char **argv)
-{
-  int fd;
-  struct keyboard_event_s key;
-
-  if (argc != 2 || argv[1] == NULL)
-    {
-      return -EINVAL;
-    }
-
-  fd = open("/dev/ukeyboard", O_WRONLY);
-  if (fd < 0)
-    {
-      return -errno;
-    }
-
-  key.code = strtoul(argv[1], NULL, 0);
-  key.type = KEYBOARD_PRESS;
-
-  write(fd, &key, sizeof(struct keyboard_event_s));
-  close(fd);
-  return 0;
+  return input_gen_mouse_wheel(ctx, wheel);
 }
 
 /****************************************************************************
  * Name: intput_help
  ****************************************************************************/
 
-static int input_help(int argc, char **argv)
+static int input_help(input_gen_ctx_t ctx, int argc, char **argv)
 {
   printf("Usage: input <command> [<arg>...]\n");
-  printf("The commands and default sources are:\n"
+  printf("The commands are:\n"
          "\thelp\n"
          "\tsleep <time(ms)>\n"
-         "\ttap <x> <y> [interval(ms)]\n"
-         "\tswipe <x1> <y1> <x2> <y2> [duration(ms)] [distance(pix)]\n"
-         "\tbutton <buttonvalue>\n"
-         "\tkeyup: <keycode>, input keyup 0x61\n"
-         "\tkeydown: <keycode>, input keydown 0x61\n"
-         "\tinterval: Time interval between two reports of sample\n"
+         "\ttap <x> <y>\n"
+         "\tswipe <x1> <y1> <x2> <y2> [duration(ms)]\n"
+         "\tdrag | draganddrop <x1> <y1> <x2> <y2> [duration(ms)]\n"
+         "\tbutton <buttonvalue> [duration(ms)]\n"
+         "\twheel <wheelvalue>\n"
          "\tduration: Duration of sliding\n"
-         "\tdistance: Report the pixel distance of the sample twice\n"
          "\tbuttonvalue: button value in hex format\n"
-         "\tkeycode: x11 key code, hexadecimal format\n"
          );
 
   return 0;
@@ -351,10 +318,17 @@ int main(int argc, char **argv)
 {
   int i;
   int ret = -EINVAL;
+  input_gen_ctx_t input_gen_ctx;
 
   if (argv[1] == NULL)
     {
       goto errout;
+    }
+
+  if (input_gen_create(&input_gen_ctx, INPUT_GEN_DEV_ALL) < 0)
+    {
+      printf("Failed to create input generator\n");
+      return EXIT_FAILURE;
     }
 
   for (i = 0; g_input_cmd_list[i].cmd != NULL; i++)
@@ -363,15 +337,20 @@ int main(int argc, char **argv)
 
       if (strcmp(g_input_cmd_list[i].cmd, argv[1]) == 0)
         {
-          ret = g_input_cmd_list[i].func(argc - 1, &argv[1]);
+          ret = g_input_cmd_list[i].func(input_gen_ctx, argc - 1, &argv[1]);
           break;
         }
+    }
+
+  if (input_gen_destroy(input_gen_ctx) < 0)
+    {
+      return EXIT_FAILURE;
     }
 
 errout:
   if (ret != 0)
     {
-      input_help(argc, argv);
+      input_help(NULL, argc, argv);
       return EXIT_FAILURE;
     }
 
