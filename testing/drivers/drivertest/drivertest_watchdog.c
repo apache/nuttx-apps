@@ -57,7 +57,11 @@
 #define WDG_DEFAULT_TIMEOUT 2000
 #define WDG_DEFAULT_TESTCASE 0
 #define WDG_DEFAULT_DEVIATION 20
+#if defined(CONFIG_ARCH_ARMV7A) && defined(CONFIG_ARCH_HAVE_TRUSTZONE)
+#define WDG_COUNT_TESTCASE 3
+#else
 #define WDG_COUNT_TESTCASE 4
+#endif
 
 #define OPTARG_TO_VALUE(value, type, base)                            \
   do                                                                  \
@@ -544,7 +548,9 @@ int main(int argc, FAR char *argv[])
     cmocka_unit_test_prestate(drivertest_watchdog_feeding, &wdg_state),
     cmocka_unit_test_prestate(drivertest_watchdog_interrupts, &wdg_state),
     cmocka_unit_test_prestate(drivertest_watchdog_loop, &wdg_state),
+#if !defined(CONFIG_ARCH_ARMV7A) || !defined(CONFIG_ARCH_HAVE_TRUSTZONE)
     cmocka_unit_test_prestate(drivertest_watchdog_api, &wdg_state)
+#endif
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
