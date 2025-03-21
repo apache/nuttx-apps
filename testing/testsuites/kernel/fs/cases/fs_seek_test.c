@@ -57,15 +57,11 @@ void test_nuttx_fs_seek01(FAR void **state)
   char c[] = "This is fseek test !";
   char buffer[sizeof(c)];
   int ret;
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* open file */
 
   fp = fopen(TESTFILE, "w+");
   assert_non_null(fp);
-  test_state->fd1 = fileno(fp);
 
   /* do fwrite */
 
@@ -251,11 +247,8 @@ static void test_nuttx_fs_clean(void)
 void test_nuttx_fs_seek02(FAR void **state)
 {
   int ret;
-  struct fs_testsuites_state_s *test_state;
 
-  test_state = (struct fs_testsuites_state_s *)*state;
   test_nuttx_fs_set();
-  test_state->fd1 = fd;
 
   /* do verify lseek */
 

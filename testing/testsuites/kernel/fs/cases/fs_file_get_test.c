@@ -63,7 +63,6 @@ void test_nuttx_fs_file_get01(FAR void **state)
 
   fd = creat(TEST_FILE, 0700);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* fdopen file */
 
@@ -108,8 +107,6 @@ void test_nuttx_fs_file_get01(FAR void **state)
   assert_int_equal(ret, 0);
 
   assert_int_equal(filep->f_pos, BUF_SIZE);
-
-  test_state->fd2 = fileno(fp);
 
   /* put filep */
 
