@@ -60,15 +60,11 @@ void test_nuttx_fs_dup01(FAR void **state)
   char buffd[5] = "hello";
   char bufnewfd[8] = "littleFS";
   char readbuf[20] = "";
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* open file */
 
   fd = open(TESTFILENAME, O_RDWR | O_CREAT | O_APPEND, 0700);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* do write */
 
@@ -83,7 +79,6 @@ void test_nuttx_fs_dup01(FAR void **state)
   newfd = dup(fd);
   close(fd);
   assert_int_not_equal(newfd, -1);
-  test_state->fd2 = newfd;
 
   /* check if file pos is shared */
 
@@ -112,4 +107,5 @@ void test_nuttx_fs_dup01(FAR void **state)
   /* check readbuf */
 
   assert_int_equal(strncmp(readbuf, "hellolittleFS", 13), 0);
+  close(newfd);
 }

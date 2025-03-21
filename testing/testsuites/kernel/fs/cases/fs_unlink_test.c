@@ -58,15 +58,10 @@
 
 void test_nuttx_fs_unlink01(FAR void **state)
 {
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
-
   /* open file */
 
   int fd = open(test_file, O_RDWR | O_CREAT, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   char buf[MAXSIZE] =
   {

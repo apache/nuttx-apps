@@ -58,20 +58,15 @@ void test_nuttx_fs_poll01(FAR void **state)
   int poll01_fd2;
   int poll01_ret;
   struct pollfd poll01_fds[5];
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   poll01_fd1 = open(I_FILE1, O_RDONLY | O_CREAT);
   assert_true(poll01_fd1 >= 0);
-  test_state->fd1 = poll01_fd1;
 
   poll01_fds[0].fd = poll01_fd1;
   poll01_fds[0].events = POLLOUT;
 
   poll01_fd2 = open(I_FILE2, O_RDWR | O_CREAT);
   assert_true(poll01_fd2 >= 0);
-  test_state->fd2 = poll01_fd2;
 
   poll01_fds[1].fd = poll01_fd2;
   poll01_fds[1].events = POLLIN;
