@@ -61,10 +61,10 @@ ORB_DECLARE(orb_test);
 ORB_DECLARE(orb_multitest);
 ORB_DECLARE(orb_test_large);
 ORB_DECLARE(orb_test_medium);
-ORB_DECLARE(orb_test_medium_multi);
+ORB_DECLARE(orb_test_multi);
 ORB_DECLARE(orb_test_medium_wrap_around);
-ORB_DECLARE(orb_test_medium_queue);
-ORB_DECLARE(orb_test_medium_queue_poll);
+ORB_DECLARE(orb_test_queue);
+ORB_DECLARE(orb_test_queue_poll);
 
 /****************************************************************************
  * Public Function Prototypes

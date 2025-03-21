@@ -45,11 +45,11 @@ static const char orb_test_format[] =
 ORB_DEFINE(orb_test, struct orb_test_s, orb_test_format);
 ORB_DEFINE(orb_multitest, struct orb_test_s, orb_test_format);
 ORB_DEFINE(orb_test_medium, struct orb_test_medium_s, orb_test_format);
-ORB_DEFINE(orb_test_medium_multi, struct orb_test_medium_s, orb_test_format);
+ORB_DEFINE(orb_test_multi, struct orb_test_medium_s, orb_test_format);
 ORB_DEFINE(orb_test_medium_wrap_around, struct orb_test_medium_s,
            orb_test_format);
-ORB_DEFINE(orb_test_medium_queue, struct orb_test_medium_s, orb_test_format);
-ORB_DEFINE(orb_test_medium_queue_poll, struct orb_test_medium_s,
+ORB_DEFINE(orb_test_queue, struct orb_test_medium_s, orb_test_format);
+ORB_DEFINE(orb_test_queue_poll, struct orb_test_medium_s,
            orb_test_format);
 ORB_DEFINE(orb_test_large, struct orb_test_large_s, orb_test_format);
 
