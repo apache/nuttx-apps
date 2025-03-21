@@ -58,6 +58,8 @@ config EXAMPLES_FBCON_BPP_NX_DEFAULT
 config EXAMPLES_FBCON_CUSTOM_BPP
 	bool "Choose custom BPP (must not be disabled in NX)"
 
+endchoice # EXAMPLES_FBCON_BPP_SELECTION
+
 choice EXAMPLES_FBCON_CUSTOM_BPP
 	prompt "Custom Font pixel depth (BPP - Bits Per Pixel)"
 	depends on EXAMPLES_FBCON_CUSTOM_BPP
@@ -93,7 +95,6 @@ config EXAMPLES_FBCON_32BPP
 	depends on !NX_DISABLE_32BPP
 
 endchoice # EXAMPLES_FBCON_CUSTOM_BPP
-endchoice # EXAMPLES_FBCON_BPP_SELECTION
 
 comment "Console appearance"
 
@@ -169,7 +170,7 @@ comment "FB Console App Escape code decoding"
 config EXAMPLES_FBCON_VT100_DECODE
 	bool "Decode VT100 Escape Codes"
 	default y
-	---help--
+	---help---
 		Decode VT100 ESC codes - only minimal supporting functions
 
 comment "FB Console spawn task configuration"
