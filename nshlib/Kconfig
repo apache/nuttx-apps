@@ -506,7 +506,7 @@ config NSH_DISABLE_MW
 	bool "Disable mw"
 	default y
 
-config NSH_DISABLE_NSFMOUNT
+config NSH_DISABLE_NFSMOUNT
 	bool "Disable nfsmount"
 	default DEFAULT_SMALL
 	depends on NFS
