@@ -251,4 +251,13 @@ config MB_MASTER_FUNC_READWRITE_HOLDING_ENABLED
 
 endif # MB_ASCII_MASTER || MB_RTU_MASTER
 endif # MODBUS
+
+config MODBUS_DISABLE_LOG
+	bool "Disable logging for FreeModBus"
+	default !FILE_STREAM
+	---help---
+		Disable all logging features for FreeModBus which can be useful
+		for small optimized systems without console or log file support.
+		This also must be enabled when fputs() is not supported.
+
 endmenu # FreeModBus
