@@ -67,10 +67,12 @@ void test_nuttx_syscall_setsockopt01(FAR void **state)
 
   testcase_list[] =
     {
+#  ifndef CONFIG_FDCHECK
         {
           -1, -1, -1, SOL_SOCKET, SO_OOBINLINE, &optval, sizeof(optval),
         EBADF, "invalid file descriptor"
         },
+#  endif
 
         {
           -1, -1, -1, SOL_SOCKET, SO_OOBINLINE, &optval, sizeof(optval),

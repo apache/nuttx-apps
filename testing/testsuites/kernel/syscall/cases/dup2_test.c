@@ -149,7 +149,6 @@ void test_nuttx_syscall_dup202(FAR void **state)
       assert_int_equal(fstat(*(TC[i].nfd), &newbuf), 0);
       assert_int_equal(oldbuf.st_mode, newbuf.st_mode);
 
-      close(*TC[i].nfd);
       close(ofd);
       close(ret);
 
