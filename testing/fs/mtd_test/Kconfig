@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_MTD_TRANSFER_RATE
+	tristate "MTD transfer rate test"
+	default n
+	depends on BUILD_FLAT && MTD
+	---help---
+		This testing application measures the transfer rate for an MTD flash
+		block device.  It performs a erase/write operation to evaluate write
+		transfer rate and then reads the written content back to evaluate the
+		read transfer rate. Finally, it compares the read data with the
+		previously written data.
+
+		NOTE:  This test uses internal OS interfaces and so it is not
+		available in the NUTTX kernel build.
