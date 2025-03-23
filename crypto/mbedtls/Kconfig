@@ -639,6 +639,10 @@ config MBEDTLS_SSL_CACHE_C
 	bool "Enable simple SSL cache implementation."
 	default y
 
+config MBEDTLS_SSL_COOKIE_C
+	bool "Enable SSL cookie implementation."
+	default y
+
 config MBEDTLS_SSL_TICKET_C
 	bool "Enable an implementation of TLS server-side callbacks for session tickets."
 	depends on (MBEDTLS_CIPHER_C || MBEDTLS_USE_PSA_CRYPTO) && \
