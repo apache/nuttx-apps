@@ -375,7 +375,7 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
   for_each_cmsghdr(cmsg, rxhdr)
     {
       if (cmsg->cmsg_level == SOL_SOCKET &&
-          cmsg->cmsg_type == SO_TIMESTAMP &&
+          cmsg->cmsg_type == SO_TIMESTAMPNS &&
           cmsg->cmsg_len == CMSG_LEN(sizeof(struct timeval)))
         {
           TIMEVAL_TO_TIMESPEC((FAR struct timeval *)CMSG_DATA(cmsg), ts);
@@ -504,12 +504,12 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state,
 
   if (state->config->hardware_ts)
     {
-      ret = setsockopt(state->event_socket, SOL_SOCKET, SO_TIMESTAMP,
+      ret = setsockopt(state->event_socket, SOL_SOCKET, SO_TIMESTAMPNS,
                        &arg, sizeof(arg));
 
       if (ret < 0)
         {
-          ptperr("Failed to enable SO_TIMESTAMP: %s\n", strerror(errno));
+          ptperr("Failed to enable SO_TIMESTAMPNS: %s\n", strerror(errno));
           return ERROR;
         }
     }
