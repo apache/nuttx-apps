@@ -172,16 +172,6 @@ struct ptp_state_s
  * debugging without having excessive amount of logging from net.
  */
 
-#ifdef CONFIG_NETUTILS_PTPD_DEBUG
-#  define ptpinfo _info
-#  define ptpwarn _warn
-#  define ptperr  _err
-#else
-#  define ptpinfo ninfo
-#  define ptpwarn nwarn
-#  define ptperr  nerr
-#endif
-
 /****************************************************************************
  * Private Functions
  ****************************************************************************/

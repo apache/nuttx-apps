@@ -17,13 +17,6 @@ config NETUTILS_PTPD
 
 if NETUTILS_PTPD
 
-config NETUTILS_PTPD_DEBUG
-	bool "Enable PTP debug messages"
-	default n
-	depends on DEBUG_INFO
-	---help---
-		Enable PTP debug messages even if CONFIG_DEBUG_NET_INFO is not enabled.
-
 config NETUTILS_PTPD_CLIENT
 	bool "Enable client support"
 	default y
