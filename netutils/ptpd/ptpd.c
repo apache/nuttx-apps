@@ -1376,11 +1376,27 @@ static void ptp_process_statusreq(FAR struct ptp_state_s *state)
   state->status_req.dest = NULL;
 }
 
-/* Main PTPD task */
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
-static int ptp_daemon(int argc, FAR char** argv)
+/****************************************************************************
+ * Name: ptpd_start
+ *
+ * Description:
+ *   Start the PTP daemon and bind it to specified interface.
+ *
+ * Input Parameters:
+ *   interface - Name of the network interface to bind to, e.g. "eth0"
+ *
+ * Returned Value:
+ *   On success, the non-negative task ID of the PTP daemon is returned;
+ *   On failure, a negated errno value is returned.
+ *
+ ****************************************************************************/
+
+int ptpd_start(FAR const char *interface)
 {
-  FAR const char *interface = "eth0";
   FAR struct ptp_state_s *state;
   struct pollfd pollfds[2];
   struct msghdr rxhdr;
@@ -1391,11 +1407,6 @@ static int ptp_daemon(int argc, FAR char** argv)
   memset(&rxiov, 0, sizeof(rxiov));
 
   state = calloc(1, sizeof(struct ptp_state_s));
-
-  if (argc > 1)
-    {
-      interface = argv[1];
-    }
 
   if (ptp_initialize_state(state, interface) != OK)
     {
@@ -1475,52 +1486,6 @@ static int ptp_daemon(int argc, FAR char** argv)
   free(state);
 
   return 0;
-}
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: ptpd_start
- *
- * Description:
- *   Start the PTP daemon and bind it to specified interface.
- *
- * Input Parameters:
- *   interface - Name of the network interface to bind to, e.g. "eth0"
- *
- * Returned Value:
- *   On success, the non-negative task ID of the PTP daemon is returned;
- *   On failure, a negated errno value is returned.
- *
- ****************************************************************************/
-
-int ptpd_start(FAR const char *interface)
-{
-  int pid;
-  FAR char *task_argv[] =
-  {
-    (FAR char *)interface,
-    NULL
-  };
-
-  pid = task_create("PTPD", CONFIG_NETUTILS_PTPD_SERVERPRIO,
-                    CONFIG_NETUTILS_PTPD_STACKSIZE, ptp_daemon, task_argv);
-
-  /* Use kill with signal 0 to check if the process is still alive
-   * after initialization.
-   */
-
-  usleep(USEC_PER_TICK);
-  if (kill(pid, 0) != OK)
-    {
-      return ERROR;
-    }
-  else
-    {
-      return pid;
-    }
 }
 
 /****************************************************************************
