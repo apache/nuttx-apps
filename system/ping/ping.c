@@ -296,6 +296,9 @@ int main(int argc, FAR char *argv[])
   info.delay     = ICMP_POLL_DELAY;
   info.timeout   = ICMP_POLL_DELAY;
   info.callback  = ping_result;
+#ifdef CONFIG_NET_BINDTODEVICE
+  info.devname   = NULL;
+#endif
   info.priv      = &priv;
   priv.code      = ICMP_I_OK;
   priv.tmin      = LONG_MAX;
