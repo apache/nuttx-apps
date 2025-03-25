@@ -577,7 +577,7 @@ static void *nxlooper_loopthread(pthread_addr_t pvarg)
 
             if (ret == OK && plooper->loopstate == NXLOOPER_STATE_RECORDING)
               {
-#ifdef CONFIG_O_MULTI_SESSION
+#ifdef CONFIG_AUDIO_MULTI_SESSION
                 ret = ioctl(plooper->playdev_fd, AUDIOIOC_START,
                             (unsigned long)plooper->pplayses);
 #else
