@@ -70,6 +70,9 @@ BLACKSRCS += $(TESTDIR)/conformance/interfaces/clock_nanosleep/1-4.c
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_sigmask/18-1.c
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/pthread_sigmask/4-1.c
 BLACKSRCS += $(TESTDIR)/conformance/interfaces/sigprocmask/4-1.c
+ifeq ($(CONFIG_FDCHECK),y)
+BLACKSRCS += $(TESTDIR)/conformance/interfaces/mq_close/4-1.c
+endif
 ifeq ($(CONFIG_LIBC_LOCALTIME),)
 BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/34-1-buildonly.c
 BLACKSRCS += $(TESTDIR)/conformance/definitions/time_h/35-3-buildonly.c
