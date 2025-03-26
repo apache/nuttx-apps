@@ -98,7 +98,7 @@ static int getpid_callback(FAR struct nsh_vtbl_s *vtbl,
       return 0;
     }
 
-  len = read(fd, buffer, sizeof(buffer) - 1);
+  len = read(fd, buffer, PATH_MAX - 1);
   close(fd);
   if (len < 0)
     {
