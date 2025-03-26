@@ -99,7 +99,9 @@ void test_nuttx_syscall_close02(FAR void **state)
 #ifndef CONFIG_FDSAN
   int ret;
   int badfd1 = -1;
+#ifndef CONFIG_FDCHECK
   int badfd2 = 99999999;
+#endif
 
   ret = close(badfd1);
   assert_int_equal(ret, ERROR);
@@ -109,6 +111,7 @@ void test_nuttx_syscall_close02(FAR void **state)
 
   assert_int_equal(errno, EBADF);
 
+#ifndef CONFIG_FDCHECK
   ret = close(badfd2);
   assert_int_equal(ret, ERROR);
 
@@ -116,6 +119,7 @@ void test_nuttx_syscall_close02(FAR void **state)
    */
 
   assert_int_equal(errno, EBADF);
+#endif
 #endif
 }
 
