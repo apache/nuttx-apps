@@ -119,7 +119,8 @@ if(CONFIG_TESTING_LTP)
       ${TESTDIR}/conformance/interfaces/sigprocmask/4-1.c)
 
     if(CONFIG_FDCHECK)
-      list(APPEND BLACKSRCS ${TESTDIR}/conformance/interfaces/mq_close/4-1.c)
+      list(APPEND BLACKSRCS ${TESTDIR}/conformance/interfaces/mq_close/3-1.c
+           ${TESTDIR}/conformance/interfaces/mq_close/4-1.c)
     endif()
 
     if(NOT CONFIG_LIBC_LOCALTIME)
