@@ -272,6 +272,140 @@ errout_with_listensd:
   return -errno;
 }
 
+static FAR void *rpsock_thread_latency(FAR void *pvarg)
+{
+  FAR struct rpsock_arg_s *args = pvarg;
+  char buf[255];
+  ssize_t ret;
+
+  while (1)
+    {
+      FAR char *tmp;
+      ssize_t snd;
+
+      ret = recv(args->fd, buf, sizeof(buf), 0);
+      if (ret == 0 || (ret < 0 && errno == ECONNRESET))
+        {
+          printf("server recv data normal exit\n");
+          break;
+        }
+      else if (ret < 0)
+        {
+          printf("server recv data failed ret %zd, errno %d\n", ret, errno);
+          break;
+        }
+
+      snd = ret;
+      tmp = buf;
+      while (snd > 0)
+        {
+          ret = send(args->fd, tmp, snd, 0);
+          if (ret > 0)
+            {
+              tmp += ret;
+              snd -= ret;
+            }
+          else if (ret == 0)
+            {
+              printf("server send data normal exit\n");
+              break;
+            }
+          else
+            {
+              printf("server send data failed errno %d\n", errno);
+              break;
+            }
+        }
+    }
+
+  printf("server Complete ret %zd, errno %d\n", ret, errno);
+  close(args->fd);
+  free(args);
+  return NULL;
+}
+
+static int rpsock_stream_server_latency(int argc, FAR char *argv[])
+{
+  struct sockaddr_rpmsg myaddr;
+  socklen_t addrlen = sizeof(myaddr);
+  int listensd;
+  int ret;
+
+  /* Create a new rpmsg domain socket */
+
+  listensd = socket(PF_RPMSG, SOCK_STREAM, 0);
+  if (listensd < 0)
+    {
+      printf("server: socket failure: %d\n", errno);
+      return -errno;
+    }
+
+  /* Bind the socket to a local address */
+
+  myaddr.rp_family = AF_RPMSG;
+  strlcpy(myaddr.rp_name, argv[2], RPMSG_SOCKET_NAME_SIZE);
+  if (argc == 4)
+    {
+      strlcpy(myaddr.rp_cpu, argv[3], RPMSG_SOCKET_CPU_SIZE);
+    }
+  else
+    {
+      myaddr.rp_cpu[0] = '\0';
+    }
+
+  printf("server: bind cpu %s, name %s ...\n",
+          myaddr.rp_cpu, myaddr.rp_name);
+  ret = bind(listensd, (FAR struct sockaddr *)&myaddr, sizeof(myaddr));
+  if (ret < 0)
+    {
+      printf("server: bind failure: %d\n", errno);
+      goto errout_with_listensd;
+    }
+
+  /* Listen for connections on the bound socket */
+
+  printf("server: listen ...\n");
+  ret = listen(listensd, 16);
+  if (ret < 0)
+    {
+      printf("server: listen failure %d\n", errno);
+      goto errout_with_listensd;
+    }
+
+  while (1)
+    {
+      FAR struct rpsock_arg_s *args;
+      pthread_t thread;
+      int new;
+
+      printf("server: try accept ...\n");
+      new = accept4(listensd, (FAR struct sockaddr *)&myaddr, &addrlen,
+                    SOCK_CLOEXEC);
+      if (new < 0)
+        {
+          break;
+        }
+
+      printf("server: Connection accepted -- %d\n", new);
+
+      args = malloc(sizeof(struct rpsock_arg_s));
+      assert(args);
+
+      args->fd = new;
+
+      pthread_create(&thread, NULL, rpsock_thread_latency, args);
+      pthread_detach(thread);
+    }
+
+  printf("server: Terminating\n");
+  close(listensd);
+  return 0;
+
+errout_with_listensd:
+  close(listensd);
+  return -errno;
+}
+
 static int rpsock_recv_send_single(FAR struct rpsock_arg_s *args)
 {
   struct pollfd pfd;
@@ -562,7 +696,7 @@ int main(int argc, FAR char *argv[])
   if (argc < 4)
     {
       printf("Usage: rpsock_server stream/dgram/server_multi_times"
-             " block/nonblock rp_name [rp_cpu] times\n");
+             "/latency block/nonblock rp_name [rp_cpu] times\n");
       return -EINVAL;
     }
 
@@ -573,6 +707,17 @@ int main(int argc, FAR char *argv[])
   else if (!strcmp(argv[1], "dgram"))
     {
       return rpsock_dgram_server(argc, argv);
+    }
+  else if (!strcmp(argv[1], "latency"))
+    {
+      if (argc != 4)
+        {
+          printf("Usage: rpsock_server latency"
+                 " rp_name rp_cpu\n");
+          return -EINVAL;
+        }
+
+      return rpsock_stream_server_latency(argc, argv);
     }
   else if (!strcmp(argv[1], "server_multi_times"))
     {
