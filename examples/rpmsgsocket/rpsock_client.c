@@ -37,6 +37,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <time.h>
+#include <sys/param.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -45,6 +47,7 @@
 #define SYNCSIZE CONFIG_NET_RPMSG_RXBUF_SIZE
 #define BUFSIZE  SYNCSIZE * 2
 #define BUFHEAD  64
+#define RPSOCK_NSEC_PER_SEC 1000000000
 
 /****************************************************************************
  * Private types
@@ -424,6 +427,160 @@ errout_with_buffers:
   return -errno;
 }
 
+static void rpsock_logout(FAR const char *s, uint64_t value)
+{
+  struct timespec ts;
+
+  ts.tv_sec = value / RPSOCK_NSEC_PER_SEC;
+  ts.tv_nsec = value % RPSOCK_NSEC_PER_SEC;
+
+  printf("%s: %" PRIu64 " s, %ld ns\n", s, (uint64_t)ts.tv_sec,
+         ts.tv_nsec);
+}
+
+static int rpsock_stream_client_latency(FAR char *argv[], int argc)
+{
+  struct sockaddr_rpmsg myaddr;
+  uint64_t total_time = 0;
+  uint64_t min = UINT64_MAX;
+  uint64_t max = 0;
+  int cnt = 0;
+  FAR char *outbuf;
+  FAR char *inbuf;
+  int sockfd;
+  int times;
+  int ret;
+  int len;
+
+  /* Allocate buffers */
+
+  outbuf = malloc(BUFSIZE);
+  inbuf  = malloc(BUFSIZE);
+  if (!outbuf || !inbuf)
+    {
+      printf("client: failed to allocate buffers\n");
+      ret = -ENOMEM;
+      goto errout_with_buffers;
+    }
+
+  /* Create a new rpmsg domain socket */
+
+  sockfd = socket(PF_RPMSG, SOCK_STREAM, 0);
+  if (sockfd < 0)
+    {
+      printf("client socket failure %d\n", errno);
+      goto errout_with_buffers;
+    }
+
+  /* Connect the socket to the server */
+
+  myaddr.rp_family = AF_RPMSG;
+  strlcpy(myaddr.rp_name, argv[2], RPMSG_SOCKET_NAME_SIZE);
+  strlcpy(myaddr.rp_cpu, argv[3], RPMSG_SOCKET_CPU_SIZE);
+  times = atoi(argv[4]);
+  len   = atoi(argv[5]);
+  if (len > SYNCSIZE)
+    {
+      printf("The length exceeds\n");
+      goto errout_with_socket;
+    }
+
+  printf("client: Connecting to %s,%s...\n", myaddr.rp_cpu, myaddr.rp_name);
+  ret = connect(sockfd, (FAR struct sockaddr *)&myaddr, sizeof(myaddr));
+  if (ret < 0)
+    {
+      printf("client: connect failure: %d\n", errno);
+      goto errout_with_socket;
+    }
+
+  printf("client: Connected\n");
+
+  while (cnt < times)
+    {
+      size_t recvsize = 0;
+      struct timespec start;
+      struct timespec end;
+      FAR char *tmp;
+      uint64_t tm;
+      int snd;
+
+      memset(outbuf, cnt & 0xff, len);
+
+      printf("client send data, cnt %d, total len %d\n", cnt, len);
+
+      tmp = outbuf;
+      snd = len;
+      clock_gettime(CLOCK_MONOTONIC, &start);
+      while (snd > 0)
+        {
+          ret = send(sockfd, tmp, snd, 0);
+          if (ret == 0)
+            {
+              break;
+            }
+          else if (ret < 0)
+            {
+              continue;
+            }
+
+          tmp += ret;
+          snd -= ret;
+        }
+
+      tmp = inbuf;
+      while (recvsize < len)
+        {
+          ret = recv(sockfd, tmp, len - recvsize, 0);
+          if (ret == 0)
+            {
+              break;
+            }
+          else if (ret < 0)
+            {
+              printf("client recv data failed %d\n", ret);
+              break;
+            }
+
+          recvsize += ret;
+          tmp      += ret;
+        }
+
+      clock_gettime(CLOCK_MONOTONIC, &end);
+      tm = (end.tv_sec - start.tv_sec) * RPSOCK_NSEC_PER_SEC +
+            end.tv_nsec - start.tv_nsec;
+      min = MIN(min, tm);
+      max = MAX(max, tm);
+      total_time += tm;
+
+      if (memcmp(outbuf, inbuf, recvsize))
+        {
+          printf("client check fail\n");
+          break;
+        }
+
+      cnt++;
+    }
+
+  printf("client connect times: %d, len:%d\n", cnt, len);
+  if (cnt)
+    {
+      rpsock_logout("avg", total_time / cnt);
+    }
+
+  rpsock_logout("min", min);
+  rpsock_logout("max", max);
+
+  printf("client: Terminating\n");
+
+errout_with_socket:
+  close(sockfd);
+
+errout_with_buffers:
+  free(outbuf);
+  free(inbuf);
+  return -errno;
+}
+
 static int rpsock_stream_conn_multi_times_client(FAR char *argv[], int argc)
 {
   struct sockaddr_rpmsg myaddr;
@@ -674,7 +831,7 @@ int main(int argc, FAR char *argv[])
   if (argc < 4)
     {
       printf("Usage: rpsock_client stream/dgram/conn_multi_times/delay"
-             " block/nonblock rp_name rp_cpu times\n");
+             "/latency block/nonblock rp_name rp_cpu times\n");
       return -EINVAL;
     }
 
@@ -685,6 +842,17 @@ int main(int argc, FAR char *argv[])
   else if (!strcmp(argv[1], "dgram"))
     {
       return rpsock_dgram_client(argv);
+    }
+  else if (!strcmp(argv[1], "latency"))
+    {
+      if (argc != 6 || atoi(argv[4]) <= 0 || atoi(argv[5]) <= 0)
+        {
+          printf("Usage: rpsock_client latency"
+                 " rp_name rp_cpu times length\n");
+          return -EINVAL;
+        }
+
+      return rpsock_stream_client_latency(argv, argc);
     }
   else if (!strcmp(argv[1], "conn_multi_times"))
     {
