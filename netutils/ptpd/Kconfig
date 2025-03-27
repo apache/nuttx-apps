@@ -17,24 +17,6 @@ config NETUTILS_PTPD
 
 if NETUTILS_PTPD
 
-config NETUTILS_PTPD_CLIENT
-	bool "Enable client support"
-	default y
-	---help---
-		Act as a PTP client, synchronizing the NuttX clock to a remote master
-		clock.
-
-config NETUTILS_PTPD_SERVER
-	bool "Enable server support"
-	default n
-	---help---
-		Act as a PTP server, providing NuttX clock time to other systems.
-
-		Both server and client can be simultaneously enabled. NuttX will then
-		synchronize to a higher priority master clock, or act as a master
-		clock itself if it has the highest priority.
-		Refer to Best Master Clock algorithm in IEEE-1588 for details.
-
 config NETUTILS_PTPD_STACKSIZE
 	int "PTP daemon stack stack size"
 	default DEFAULT_TASK_STACKSIZE
@@ -50,8 +32,6 @@ config NETUTILS_PTPD_DOMAIN
 	---help---
 		Set PTP domain to participate in. Default domain is 0, other domains
 		can be used to isolate reference clocks from each other.
-
-if NETUTILS_PTPD_SERVER
 
 config NETUTILS_PTPD_PRIORITY1
 	int "PTP server priority1"
@@ -154,10 +134,6 @@ config NETUTILS_PTPD_DELAYRESP_INTERVAL
 
 		Default value 4 results in 16 second interval.
 
-endif # NETUTILS_PTPD_SERVER
-
-if NETUTILS_PTPD_CLIENT
-
 config NETUTILS_PTPD_TIMEOUT_MS
 	int "PTP client timeout for changing clock source (ms)"
 	default 60000
@@ -191,15 +167,6 @@ config NETUTILS_PTPD_DRIFT_AVERAGE_S
 		gives more stable estimate but reacts slower to crystal oscillator speed
 		changes (such as caused by temperature changes).
 
-config NETUTILS_PTPD_SEND_DELAYREQ
-	bool "PTP client enable delay requests"
-	default n
-	---help---
-		If enabled, sends delay request messages to measure the network delay
-		to server. If disabled, assumes zero delay.
-
-if NETUTILS_PTPD_SEND_DELAYREQ
-
 config NETUTILS_PTPD_MAX_PATH_DELAY_NS
 	int "PTP client maximum path delay (ns)"
 	default 100000
@@ -213,9 +180,5 @@ config NETUTILS_PTPD_DELAYREQ_AVGCOUNT
 	default 100
 	---help---
 		Measured path delay is averaged over this many samples.
-
-endif # NETUTILS_PTPD_SEND_DELAYREQ
-
-endif # NETUTILS_PTPD_CLIENT
 
 endif # NETUTILS_PTPD
