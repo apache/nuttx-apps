@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_VSOCK
+	tristate "\"Vsocket\" example"
+	default n
+
+if EXAMPLES_VSOCK
+
+config EXAMPLES_VSOCK_PROGNAME
+	string "Program name"
+	default "vsock"
+
+config EXAMPLES_VSOCK_PRIORITY
+	int "Vsock task priority"
+	default 100
+
+config EXAMPLES_VSOCK_STACKSIZE
+	int "Vsock stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
