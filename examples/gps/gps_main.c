@@ -99,11 +99,11 @@ int main(int argc, FAR char *argv[])
 
               if (minmea_parse_rmc(&frame, line))
                 {
-                  printf("Fixed-point Latitude...........: %d\n",
+                  printf("Fixed-point Latitude...........: %" PRId32 "\n",
                          minmea_rescale(&frame.latitude, 1000));
-                  printf("Fixed-point Longitude..........: %d\n",
+                  printf("Fixed-point Longitude..........: %" PRId32 "\n",
                          minmea_rescale(&frame.longitude, 1000));
-                  printf("Fixed-point Speed..............: %d\n",
+                  printf("Fixed-point Speed..............: %" PRId32 "\n",
                          minmea_rescale(&frame.speed, 1000));
                   printf("Floating point degree latitude.: %2.6f\n",
                          minmea_tocoord(&frame.latitude));
@@ -127,7 +127,7 @@ int main(int argc, FAR char *argv[])
                 {
                   printf("Fix quality....................: %d\n",
                          frame.fix_quality);
-                  printf("Altitude.......................: %d\n",
+                  printf("Altitude.......................: %" PRId32 "\n",
                          frame.altitude.value);
                   printf("Tracked satellites.............: %d\n",
                          frame.satellites_tracked);
