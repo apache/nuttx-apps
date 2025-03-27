@@ -162,17 +162,6 @@ struct ptp_state_s
   FAR const struct ptpd_config_s *config;
 };
 
-#ifdef CONFIG_NETUTILS_PTPD_SERVER
-#  define PTPD_POLL_INTERVAL CONFIG_NETUTILS_PTPD_SYNC_INTERVAL_MSEC
-#else
-#  define PTPD_POLL_INTERVAL CONFIG_NETUTILS_PTPD_TIMEOUT_MS
-#endif
-
-/* PTP debug messages are enabled by either CONFIG_DEBUG_NET_INFO
- * or separately by CONFIG_NETUTILS_PTPD_DEBUG. This simplifies
- * debugging without having excessive amount of logging from net.
- */
-
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -834,12 +823,11 @@ static int ptp_send_delay_req(FAR struct ptp_state_s *state)
 
 static int ptp_periodic_send(FAR struct ptp_state_s *state)
 {
-#ifdef CONFIG_NETUTILS_PTPD_SERVER
   /* If there is no better master clock on the network,
    * act as the reference source and send server packets.
    */
 
-  if (!state->selected_source_valid)
+  if (!state->config->client_only && !state->selected_source_valid)
     {
       struct timespec time_now;
       struct timespec delta;
@@ -862,10 +850,9 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
           ptp_send_sync(state);
         }
     }
-#endif /* CONFIG_NETUTILS_PTPD_SERVER */
 
-#ifdef CONFIG_NETUTILS_PTPD_SEND_DELAYREQ
-  if (state->selected_source_valid && state->can_send_delayreq)
+  if (state->config->delay_e2e && state->selected_source_valid &&
+      state->can_send_delayreq)
     {
       struct timespec time_now;
       struct timespec delta;
@@ -879,7 +866,6 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
           ptp_send_delay_req(state);
         }
     }
-#endif
 
   return OK;
 }
@@ -1294,7 +1280,6 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
 
   switch (state->rxbuf.header.messagetype & PTP_MSGTYPE_MASK)
     {
-#ifdef CONFIG_NETUTILS_PTPD_CLIENT
     case PTP_MSGTYPE_ANNOUNCE:
       ptpinfo("Got announce packet, seq %ld\n",
               (long)ptp_get_sequence(&state->rxbuf.header));
@@ -1314,14 +1299,11 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
       ptpinfo("Got delay-resp, seq %ld\n",
               (long)ptp_get_sequence(&state->rxbuf.header));
       return ptp_process_delay_resp(state, &state->rxbuf.delay_resp);
-#endif
 
-#ifdef CONFIG_NETUTILS_PTPD_SERVER
     case PTP_MSGTYPE_DELAY_REQ:
       ptpinfo("Got delay req, seq %ld\n",
               (long)ptp_get_sequence(&state->rxbuf.header));
       return ptp_process_delay_req(state, &state->rxbuf.delay_req);
-#endif
 
     default:
       ptpinfo("Ignoring unknown PTP packet type: 0x%02x\n",
@@ -1457,6 +1439,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
   struct pollfd pollfds[2];
   struct msghdr rxhdr;
   struct iovec rxiov;
+  int timeout;
   int ret;
 
   memset(&rxhdr, 0, sizeof(rxhdr));
@@ -1477,6 +1460,15 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
       free(state);
 
       return ERROR;
+    }
+
+  if (config->client_only)
+    {
+      timeout = CONFIG_NETUTILS_PTPD_TIMEOUT_MS;
+    }
+  else
+    {
+      timeout = CONFIG_NETUTILS_PTPD_SYNC_INTERVAL_MSEC;
     }
 
   ptp_setup_sighandlers(state);
@@ -1502,7 +1494,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
 
       pollfds[0].revents = 0;
       pollfds[1].revents = 0;
-      ret = poll(pollfds, 2, PTPD_POLL_INTERVAL);
+      ret = poll(pollfds, 2, timeout);
 
       if (pollfds[0].revents)
         {

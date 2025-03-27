@@ -41,7 +41,9 @@ struct ptpd_config_s
 {
   FAR const char *interface;
   FAR const char *clock;
+  bool client_only;
   bool hardware_ts;
+  bool delay_e2e;
   sa_family_t af;
 };
 
