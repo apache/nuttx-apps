@@ -59,6 +59,56 @@ static int check_buf(char *buf, size_t size)
   return 0;
 }
 
+static int safe_send(int s, char *buf, size_t len, int flags)
+{
+  int sent = 0;
+  int ret;
+
+  while (sent < len)
+    {
+      ret = send(s, buf + sent, len - sent, flags);
+      if (ret < 0)
+        {
+          ret = -errno;
+          printf("Send failed, ret=%u\n", ret);
+          return ret;
+        }
+      else if (ret == 0)
+        {
+          return sent;
+        }
+
+      sent += ret;
+    }
+
+  return sent;
+}
+
+static int safe_recv(int s, char *buf, size_t len, int flags)
+{
+  int recvd = 0;
+  int ret;
+
+  while (recvd < len)
+    {
+      ret = recv(s, buf + recvd, len - recvd, 0);
+      if (ret < 0)
+        {
+          ret = -errno;
+          printf("Recv failed, ret=%u\n", ret);
+          return ret;
+        }
+      else if (ret == 0)
+        {
+          return recvd;
+        }
+
+      recvd += ret;
+    }
+
+  return recvd;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -113,10 +163,9 @@ static int vsock_client(unsigned int port, size_t size,
 
   while (count-- > 0)
     {
-      ret = send(s, buf, size, 0);
-      if (ret < 0)
+      ret = safe_send(s, buf, size, 0);
+      if (ret <= 0)
         {
-          ret = -errno;
           printf("Send failed, ret=%zu\n", ret);
           goto err;
         }
@@ -124,10 +173,9 @@ static int vsock_client(unsigned int port, size_t size,
       vsockdbg("Round %zu send=%zu\n", count, ret);
       sendlen += ret;
 
-      ret = recv(s, buf, size, 0);
-      if (ret < 0)
+      ret = safe_recv(s, buf, size, 0);
+      if (ret <= 0)
         {
-          ret = -errno;
           printf("Recv failed, ret=%zu\n", ret);
           goto err;
         }
@@ -205,17 +253,16 @@ static int vsock_server(unsigned int port, size_t size, int cid)
       goto out;
     }
 
-  while ((ret = recv(peer_fd, buf, size, 0)) > 0)
+  while ((ret = safe_recv(peer_fd, buf, size, 0)) > 0)
     {
       received += ret;
       ret = check_buf(buf, ret);
       assert(ret == 0);
       vsockdbg("Recv=%zd Received=%zu\n", ret, received);
 
-      ret = send(peer_fd, buf, size, 0);
-      if (ret < 0)
+      ret = safe_send(peer_fd, buf, size, 0);
+      if (ret <= 0)
         {
-          ret = -errno;
           printf("Send failed, ret=%zu\n", ret);
           goto err;
         }
@@ -229,6 +276,148 @@ out:
   printf("Close\n");
   close(s);
   return ret;
+}
+
+static int vsock_client_conn(unsigned int port, int count, int cid)
+{
+  struct sockaddr_vm addr;
+  char buf[32];
+  ssize_t ret;
+  int success = 0;
+  int fail = 0;
+  int s;
+  int i;
+
+  memset(&addr, 0, sizeof(struct sockaddr_vm));
+  addr.svm_family = AF_VSOCK;
+  addr.svm_cid = cid;
+  addr.svm_port = port;
+
+  printf("Vsock server conn test: port=%u, count=%u, cid=%u\n",
+         port, count, cid);
+  for (i = 0; i < count; i++)
+    {
+      s = socket(AF_VSOCK, SOCK_STREAM, 0);
+      if (s < 0)
+        {
+          printf("Create socket failed, s=%d, err=%d\n", s, errno);
+          fail++;
+          break;
+        }
+
+      ret = connect(s, (const struct sockaddr *)&addr, sizeof(addr));
+      if (ret == 0)
+        {
+          snprintf(buf, sizeof(buf), "test_%u", i);
+          if (i == count - 1)
+            {
+              snprintf(buf, sizeof(buf), "end");
+            }
+
+          ret = safe_send(s, buf, sizeof(buf), 0);
+          if (ret <= 0)
+            {
+              printf("send() failed, ret=%zu\n", ret);
+              fail++;
+            }
+          else
+            {
+              success++;
+            }
+
+          vsockdbg("Connection %u established\n", i + 1);
+        }
+      else
+        {
+          printf("connect() failed, ret = %zu\n", ret);
+          fail++;
+        }
+
+      close(s);
+    }
+
+  printf("Connection attempts: %u (Success: %d, Failed: %d)\n",
+         count, success, fail);
+  return fail > 0 ? -ETIMEDOUT : 0;
+}
+
+static int vsock_server_conn(unsigned int port, int cid)
+{
+  struct sockaddr_vm addr;
+  char buf[32];
+  ssize_t ret;
+  int success = 0;
+  int fail = 0;
+  int newfd;
+  int s;
+
+  s = socket(AF_VSOCK, SOCK_STREAM, 0);
+  if (s < 0)
+    {
+      printf("Create socket failed, s=%d, err=%d\n", s, errno);
+      return -errno;
+    }
+
+  memset(&addr, 0, sizeof(struct sockaddr_vm));
+  addr.svm_family = AF_VSOCK;
+  addr.svm_cid = cid;
+  addr.svm_port = port;
+  if (bind(s, (const struct sockaddr *)&addr, sizeof(addr)) < 0)
+    {
+      printf("bind() failed");
+      close(s);
+      return -errno;
+    }
+
+  if (listen(s, SOMAXCONN) < 0)
+    {
+      printf("listen() failed");
+      close(s);
+      return -errno;
+    }
+
+  printf("Vsock client conn test: port=%u, cid=%u\n", port, cid);
+  while (1)
+    {
+      newfd = accept(s, NULL, NULL);
+      if (newfd < 0)
+        {
+          if (errno == EINTR)
+            {
+              printf("accept() interrupted\n");
+              continue;
+            }
+
+          printf("accept() failed");
+          fail++;
+          break;
+        }
+
+      ret = safe_recv(newfd, buf, sizeof(buf), 0);
+      if (ret <= 0)
+        {
+          printf("recv failed, ret = %zu\n", ret);
+          fail++;
+        }
+      else
+        {
+          success++;
+        }
+
+      close(newfd);
+      vsockdbg("Accepted connection success:%d\n", success);
+      if (strcmp(buf, "end") == 0)
+        {
+          printf("Test conn end\n");
+          break;
+        }
+    }
+
+  close(s);
+  printf("Total connections: %d (Success: %d, Failed: %d)\n",
+         success + fail, success, fail);
+
+  return fail > 0 ? -ETIMEDOUT : 0;
 }
 
 /****************************************************************************
@@ -303,7 +492,7 @@ int main(int argc, char *argv[])
         }
       else if (strcmp(type, "conn") == 0)
         {
-          printf("Not support yet\n");
+          ret = vsock_server_conn(port, cid);
         }
     }
   else
@@ -314,7 +503,7 @@ int main(int argc, char *argv[])
         }
       else if (strcmp(type, "conn") == 0)
         {
-          printf("Not support yet\n");
+          ret = vsock_client_conn(port, count, cid);
         }
     }
 
