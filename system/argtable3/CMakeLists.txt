@@ -43,14 +43,6 @@ if(CONFIG_SYSTEM_ARGTABLE3)
           ${CMAKE_CURRENT_LIST_DIR}/argtable3
           BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/system/argtable3/argtable3
-          CONFIGURE_COMMAND
-          ""
-          BUILD_COMMAND
-          ""
-          INSTALL_COMMAND
-          ""
-          TEST_COMMAND
-          ""
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

@@ -32,14 +32,6 @@ if(CONFIG_NETUTILS_WAKAAMA)
           ${CMAKE_CURRENT_LIST_DIR}/wakaama
           BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/netutils/wakaama/wakaama
-          CONFIGURE_COMMAND
-          ""
-          BUILD_COMMAND
-          ""
-          INSTALL_COMMAND
-          ""
-          TEST_COMMAND
-          ""
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
