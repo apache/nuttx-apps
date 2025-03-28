@@ -95,7 +95,7 @@ int main(int argc, FAR char *argv[])
   ret = inode->u.i_bops->ioctl(inode, MTDIOC_GEOMETRY, (unsigned long) &geo);
   if (ret != OK)
     {
-      fprintf(stderr, "Device is not a MTD device\n");
+      fprintf(stderr, "Device is not a MTD device");
       goto errout_with_driver;
     }
 
@@ -104,7 +104,7 @@ int main(int argc, FAR char *argv[])
   printf("FLASH device parameters:\n");
   printf("   Sector size:  %10d\n", info.sectorsize);
   printf("   Sector count: %10d\n", info.numsectors);
-  printf("   Erase block:  %10d\n", geo.erasesize);
+  printf("   Erase block:  %10" PRIx32 "\n", geo.erasesize);
   printf("   Total size:   %10d\n", info.sectorsize * info.numsectors);
 
   if (info.sectorsize != geo.erasesize)
