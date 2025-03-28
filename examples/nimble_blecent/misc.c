@@ -1,6 +1,8 @@
 /****************************************************************************
  * apps/examples/nimble_blecent/misc.c
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The
@@ -25,15 +27,16 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "host/ble_hs.h"
 #include "host/ble_uuid.h"
 #include "blecent.h"
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
-void print_bytes(FAR const uint8_t *bytes, int len)
+static void print_bytes(FAR const uint8_t *bytes, int len)
 {
   int i;
 
@@ -42,6 +45,10 @@ void print_bytes(FAR const uint8_t *bytes, int len)
       printf("%s0x%02x", i != 0 ? ":" : "", bytes[i]);
     }
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 void print_mbuf(FAR const struct os_mbuf *om)
 {
@@ -64,7 +71,7 @@ void print_mbuf(FAR const struct os_mbuf *om)
     }
 }
 
-char * addr_str(FAR const void *addr)
+FAR char *addr_str(FAR const void *addr)
 {
   static char buf[6 * 2 + 5 + 1];
   const uint8_t *u8p;
