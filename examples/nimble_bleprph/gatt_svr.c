@@ -1,6 +1,8 @@
 /****************************************************************************
  * apps/examples/nimble_bleprph/gatt_svr.c
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The
@@ -31,12 +33,24 @@
 #include "services/bas/ble_svc_bas.h"
 #include "bleprph.h"
 
-/**
- * The vendor specific security test service consists of two characteristics:
- *     o random-number-generator: generates a random 32-bit number each time
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static int
+gatt_svr_chr_access_sec_test(uint16_t conn_handle, uint16_t attr_handle,
+                             FAR struct ble_gatt_access_ctxt *ctxt,
+                             FAR void *arg);
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/* The vendor specific security test service consists of two characteristics:
+ *     - random-number-generator: generates a random 32-bit number each time
  *       it is read.  This characteristic can only be read over an encrypted
  *       connection.
- *     o static-value: a single-byte characteristic that can always be read,
+ *     - static-value: a single-byte characteristic that can always be read,
  *       but can only be written over an encrypted connection.
  */
 
@@ -60,48 +74,43 @@ static const ble_uuid128_t gatt_svr_chr_sec_test_static_uuid =
 
 static uint8_t gatt_svr_sec_test_static_val;
 
-static int
-gatt_svr_chr_access_sec_test(uint16_t conn_handle, uint16_t attr_handle,
-                             struct ble_gatt_access_ctxt *ctxt,
-                             void *arg);
-
 static const struct ble_gatt_svc_def gatt_svr_svcs[] =
 {
   {
-      /* Service: Security test. */
+    /* Service: Security test. */
 
-      .type = BLE_GATT_SVC_TYPE_PRIMARY,
-      .uuid = &gatt_svr_svc_sec_test_uuid.u,
-      .characteristics = (struct ble_gatt_chr_def[])
+    .type = BLE_GATT_SVC_TYPE_PRIMARY,
+    .uuid = &gatt_svr_svc_sec_test_uuid.u,
+    .characteristics = (struct ble_gatt_chr_def[])
+    {
       {
-        {
-            /* Characteristic: Random number generator. */
+        /* Characteristic: Random number generator. */
 
-            .uuid = &gatt_svr_chr_sec_test_rand_uuid.u,
-            .access_cb = gatt_svr_chr_access_sec_test,
-            .flags = BLE_GATT_CHR_F_READ,
-        },
-        {
-            /* Characteristic: Static value. */
-
-            .uuid = &gatt_svr_chr_sec_test_static_uuid.u,
-            .access_cb = gatt_svr_chr_access_sec_test,
-            .flags = BLE_GATT_CHR_F_READ |
-                    BLE_GATT_CHR_F_WRITE,
-        },
-        {
-            0, /* No more characteristics in this service. */
-        }
+        .uuid = &gatt_svr_chr_sec_test_rand_uuid.u,
+        .access_cb = gatt_svr_chr_access_sec_test,
+        .flags = BLE_GATT_CHR_F_READ,
       },
+      {
+        /* Characteristic: Static value. */
+
+        .uuid = &gatt_svr_chr_sec_test_static_uuid.u,
+        .access_cb = gatt_svr_chr_access_sec_test,
+        .flags = BLE_GATT_CHR_F_READ |
+                 BLE_GATT_CHR_F_WRITE,
+      },
+      {
+        0, /* No more characteristics in this service. */
+      }
+    },
   },
 
   {
-      0, /* No more services. */
+    0, /* No more services. */
   },
 };
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 static int
@@ -131,7 +140,7 @@ gatt_svr_chr_access_sec_test(uint16_t conn_handle, uint16_t attr_handle,
                              FAR struct ble_gatt_access_ctxt *ctxt,
                              FAR void *arg)
 {
-  const ble_uuid_t *uuid;
+  FAR const ble_uuid_t *uuid;
   int rand_num;
   int rc;
 
@@ -148,7 +157,7 @@ gatt_svr_chr_access_sec_test(uint16_t conn_handle, uint16_t attr_handle,
       /* Respond with a 32-bit random number. */
 
       rand_num = rand();
-      rc = os_mbuf_append(ctxt->om, &rand_num, sizeof rand_num);
+      rc       = os_mbuf_append(ctxt->om, &rand_num, sizeof rand_num);
       return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
     }
 
@@ -156,21 +165,21 @@ gatt_svr_chr_access_sec_test(uint16_t conn_handle, uint16_t attr_handle,
     {
       switch (ctxt->op)
         {
-        case BLE_GATT_ACCESS_OP_READ_CHR:
-          rc = os_mbuf_append(ctxt->om, &gatt_svr_sec_test_static_val,
-                              sizeof gatt_svr_sec_test_static_val);
-          return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
+          case BLE_GATT_ACCESS_OP_READ_CHR:
+            rc = os_mbuf_append(ctxt->om, &gatt_svr_sec_test_static_val,
+                                sizeof gatt_svr_sec_test_static_val);
+            return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
 
-        case BLE_GATT_ACCESS_OP_WRITE_CHR:
-          rc = gatt_svr_chr_write(ctxt->om,
-                                  sizeof gatt_svr_sec_test_static_val,
-                                  sizeof gatt_svr_sec_test_static_val,
-                                  &gatt_svr_sec_test_static_val, NULL);
-          return rc;
+          case BLE_GATT_ACCESS_OP_WRITE_CHR:
+            rc = gatt_svr_chr_write(ctxt->om,
+                                    sizeof gatt_svr_sec_test_static_val,
+                                    sizeof gatt_svr_sec_test_static_val,
+                                    &gatt_svr_sec_test_static_val, NULL);
+            return rc;
 
-        default:
-          assert(0);
-          return BLE_ATT_ERR_UNLIKELY;
+          default:
+            assert(0);
+            return BLE_ATT_ERR_UNLIKELY;
         }
     }
 
@@ -182,37 +191,40 @@ gatt_svr_chr_access_sec_test(uint16_t conn_handle, uint16_t attr_handle,
   return BLE_ATT_ERR_UNLIKELY;
 }
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 void gatt_svr_register_cb(FAR struct ble_gatt_register_ctxt *ctxt,
                           FAR void *arg)
 {
   char buf[BLE_UUID_STR_LEN];
 
   switch (ctxt->op)
-  {
-  case BLE_GATT_REGISTER_OP_SVC:
-    printf("registered service %s with handle=%d\n",
-           ble_uuid_to_str(ctxt->svc.svc_def->uuid, buf),
-           ctxt->svc.handle);
-    break;
+    {
+      case BLE_GATT_REGISTER_OP_SVC:
+        printf("registered service %s with handle=%d\n",
+               ble_uuid_to_str(ctxt->svc.svc_def->uuid, buf),
+               ctxt->svc.handle);
+        break;
 
-  case BLE_GATT_REGISTER_OP_CHR:
-    printf("registering characteristic %s with "
-           "def_handle=%d val_handle=%d\n",
-           ble_uuid_to_str(ctxt->chr.chr_def->uuid, buf),
-           ctxt->chr.def_handle,
-           ctxt->chr.val_handle);
-    break;
+      case BLE_GATT_REGISTER_OP_CHR:
+        printf("registering characteristic %s with "
+               "def_handle=%d val_handle=%d\n",
+               ble_uuid_to_str(ctxt->chr.chr_def->uuid, buf),
+               ctxt->chr.def_handle, ctxt->chr.val_handle);
+        break;
 
-  case BLE_GATT_REGISTER_OP_DSC:
-    printf("registering descriptor %s with handle=%d\n",
-           ble_uuid_to_str(ctxt->dsc.dsc_def->uuid, buf),
-           ctxt->dsc.handle);
-    break;
+      case BLE_GATT_REGISTER_OP_DSC:
+        printf("registering descriptor %s with handle=%d\n",
+               ble_uuid_to_str(ctxt->dsc.dsc_def->uuid, buf),
+               ctxt->dsc.handle);
+        break;
 
-  default:
-    assert(0);
-    break;
-  }
+      default:
+        assert(0);
+        break;
+    }
 }
 
 int gatt_svr_init(void)

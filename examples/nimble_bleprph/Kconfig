@@ -7,13 +7,13 @@ config EXAMPLES_NIMBLE_BLEPRPH
 	tristate "NimBLE peripheral"
 	default n
 	---help---
-		Enable the nimble peripheral
+		Enable the nimble peripheral example
 
 if EXAMPLES_NIMBLE_BLEPRPH
 
 config EXAMPLES_NIMBLE_BLEPRPH_PROGNAME
 	string "Program name"
-	default "nimble"
+	default "bleprph"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
