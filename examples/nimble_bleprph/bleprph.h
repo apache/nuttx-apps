@@ -1,6 +1,8 @@
 /****************************************************************************
  * apps/examples/nimble_bleprph/bleprph.h
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The
@@ -27,14 +29,12 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "nimble/ble.h"
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
-struct ble_hs_cfg;
-struct ble_gatt_register_ctxt;
+#include "nimble/ble.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 /* GATT server. */
 
@@ -45,13 +45,30 @@ struct ble_gatt_register_ctxt;
 #define GATT_SVR_CHR_UNR_ALERT_STAT_UUID      0x2A45
 #define GATT_SVR_CHR_ALERT_NOT_CTRL_PT        0x2A44
 
-void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg);
+/****************************************************************************
+ * Public Type Definition
+ ****************************************************************************/
+
+/* Forward references */
+
+struct ble_gatt_register_ctxt;
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+void gatt_svr_register_cb(FAR struct ble_gatt_register_ctxt *ctxt,
+                          FAR void *arg);
 int gatt_svr_init(void);
 
 /* Misc. */
 
-void print_bytes(const uint8_t *bytes, int len);
-void print_addr(const void *addr);
+void print_addr(FAR const void *addr);
 
 #ifdef __cplusplus
 }

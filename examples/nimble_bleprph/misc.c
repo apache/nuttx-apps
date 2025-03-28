@@ -1,6 +1,8 @@
 /****************************************************************************
  * apps/examples/nimble_bleprph/misc.c
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The
@@ -28,19 +30,9 @@
  * Public Functions
  ****************************************************************************/
 
-void print_bytes(FAR const uint8_t *bytes, int len)
-{
-  int i;
-
-  for (i = 0; i < len; i++)
-    {
-      printf("%s0x%02x", i != 0 ? ":" : "", bytes[i]);
-    }
-}
-
 void print_addr(FAR const void *addr)
 {
-  const uint8_t *u8p;
+  FAR const uint8_t *u8p;
 
   u8p = addr;
   printf("%02x:%02x:%02x:%02x:%02x:%02x",
