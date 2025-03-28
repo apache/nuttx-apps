@@ -221,6 +221,7 @@ static FAR void *timerjitter(FAR void *arg)
         }
     }
 
+  timer_delete(timer);
   param->avg = param->avg / param->cur_cnt;
   return NULL;
 }
