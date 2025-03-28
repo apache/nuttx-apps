@@ -6,8 +6,7 @@
 config BENCHMARK_MTD
 	tristate "MTD test and transfer rate benchmark"
 	default n
-	depends on BUILD_FLAT && MTD
-	select LIBC_FLOATINGPOINT
+	depends on BUILD_FLAT && MTD && LIBC_FLOATINGPOINT
 	---help---
 		This testing/benchmark application performs an erase/write
 		operation to evaluate write transfer rate and then reads the
