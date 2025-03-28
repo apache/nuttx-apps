@@ -50,4 +50,16 @@ MODULE    += $(CONFIG_GRAPHICS_INPUT_TOOL)
 MAINSRC   += generator/input.c
 endif
 
+# getevent tool
+
+ifneq ($(CONFIG_GRAPHICS_INPUT_GETEVENT),)
+PROGNAME  += getevent
+PRIORITY  += $(CONFIG_GRAPHICS_INPUT_GETEVENT_PRIORITY)
+STACKSIZE += $(CONFIG_GRAPHICS_INPUT_GETEVENT_STACKSIZE)
+MODULE    += $(CONFIG_GRAPHICS_INPUT_GETEVENT)
+
+MAINSRC   += getevent/getevent.c
+CFLAGS    += -Wno-discarded-qualifiers
+endif
+
 include $(APPDIR)/Application.mk
