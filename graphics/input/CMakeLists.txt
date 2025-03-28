@@ -62,3 +62,17 @@ if(CONFIG_GRAPHICS_INPUT_TOOL)
     SRCS
     generator/input.c)
 endif()
+
+if(CONFIG_GRAPHICS_INPUT_GETEVENT)
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_GRAPHICS_INPUT_GETEVENT}
+    NAME
+    getevent
+    STACKSIZE
+    ${CONFIG_GRAPHICS_INPUT_GETEVENT_STACKSIZE}
+    PRIORITY
+    ${CONFIG_GRAPHICS_INPUT_GETEVENT_PRIORITY}
+    SRCS
+    getevent/getevent.c)
+endif()

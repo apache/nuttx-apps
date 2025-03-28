@@ -59,3 +59,39 @@ config GRAPHICS_INPUT_TOOL_PRIORITY
 		The priority of the input task.
 
 endif # GRAPHICS_INPUT_TOOL
+
+menuconfig GRAPHICS_INPUT_GETEVENT
+	tristate "Enable getevent tool"
+	default n
+	---help---
+		The getevent is a command-line input event monitor. It
+		captures and displays real-time events from mouse,
+		touchscreen, and keyboard devices via the input subsystem.
+
+		Use getevent to debug and verify input drivers, inspect
+		raw event data during device bring-up, or diagnose
+		input issues on a running system. It supports automatic
+		device detection in /dev as well as manual device path
+		specification.
+
+if GRAPHICS_INPUT_GETEVENT
+
+config GRAPHICS_INPUT_GETEVENT_STACKSIZE
+	int "getevent stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the getevent task.
+
+config GRAPHICS_INPUT_GETEVENT_PRIORITY
+	int "getevent priority"
+	default 100
+	---help---
+		The priority of the getevent task.
+
+config GRAPHICS_INPUT_GETEVENT_DETAIL_INFO
+	bool "getevent detail info"
+	default n
+	---help---
+		Enable detailed information in getevent output.
+
+endif # GRAPHICS_INPUT_GETEVENT

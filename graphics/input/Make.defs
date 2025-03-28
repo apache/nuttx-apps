@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_GRAPHICS_INPUT_GENERATOR),)
+ifneq ($(CONFIG_GRAPHICS_INPUT_GENERATOR)$(CONFIG_GRAPHICS_INPUT_GETEVENT),)
 CONFIGURED_APPS += $(APPDIR)/graphics/input
 endif
