@@ -944,7 +944,7 @@ int main(int argc, FAR char *argv[])
     }
   else
     {
-      uorbinfo_raw("\nMointor objects num:%d", ret);
+      uorbinfo_raw("\nMonitor objects num:%d", ret);
       SLIST_FOREACH(tmp, &objlist, node)
         {
           uorbinfo_raw("object_name:%s, object_instance:%d",
