@@ -1,6 +1,8 @@
 # ##############################################################################
 # apps/examples/nimble_bleprph/CMakeLists.txt
 #
+# SPDX-License-Identifier: Apache-2.0
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
 # additional information regarding copyright ownership.  The ASF licenses this
@@ -21,7 +23,7 @@
 if(CONFIG_EXAMPLES_NIMBLE_BLEPRPH)
   nuttx_add_application(
     NAME
-    nimble
+    ${CONFIG_EXAMPLES_NIMBLE_BLECENT_PROGNAME}
     SRCS
     ${CMAKE_CURRENT_LIST_DIR}/nimble_bleprph_main.c
     ${CMAKE_CURRENT_LIST_DIR}/misc.c

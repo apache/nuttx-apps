@@ -1,6 +1,8 @@
 /****************************************************************************
  * apps/examples/nimble_blecent/peer.c
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The
@@ -27,36 +29,25 @@
 #include "host/ble_hs.h"
 #include "blecent.h"
 
-static void *peer_svc_mem;
-static struct os_mempool peer_svc_pool;
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
 
-static void *peer_chr_mem;
-static struct os_mempool peer_chr_pool;
-
-static void *peer_dsc_mem;
-static struct os_mempool peer_dsc_pool;
-
-static void *peer_mem;
-static struct os_mempool peer_pool;
-static SLIST_HEAD(, peer) peers;
-
-static struct peer_svc *
+FAR static struct peer_svc *
 peer_svc_find_range(FAR struct peer *peer, uint16_t attr_handle);
-static struct peer_svc *
+FAR static struct peer_svc *
 peer_svc_find(FAR struct peer *peer, uint16_t svc_start_handle,
               struct peer_svc **out_prev);
-int peer_svc_is_empty(const struct peer_svc *svc);
+static int peer_svc_is_empty(const struct peer_svc *svc);
 
-uint16_t
-chr_end_handle(FAR const struct peer_svc *svc,
-              FAR const struct peer_chr *chr);
-int chr_is_empty(FAR const struct peer_svc *svc,
-                 FAR const struct peer_chr *chr);
-static struct peer_chr *
+static uint16_t chr_end_handle(FAR const struct peer_svc *svc,
+                               FAR const struct peer_chr *chr);
+static int chr_is_empty(FAR const struct peer_svc *svc,
+                        FAR const struct peer_chr *chr);
+FAR static struct peer_chr *
 peer_chr_find(FAR const struct peer_svc *svc, uint16_t chr_def_handle,
               FAR struct peer_chr **out_prev);
-static void
-peer_disc_chrs(FAR struct peer *peer);
+static void peer_disc_chrs(FAR struct peer *peer);
 
 static int
 peer_dsc_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
@@ -64,10 +55,27 @@ peer_dsc_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
                 FAR void *arg);
 
 /****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+FAR static void *peer_svc_mem;
+static struct os_mempool peer_svc_pool;
+
+FAR static void *peer_chr_mem;
+static struct os_mempool peer_chr_pool;
+
+FAR static void *peer_dsc_mem;
+static struct os_mempool peer_dsc_pool;
+
+FAR static void *peer_mem;
+static struct os_mempool peer_pool;
+static SLIST_HEAD(, peer) peers;
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-static struct peer *peer_find(uint16_t conn_handle)
+FAR static struct peer *peer_find(uint16_t conn_handle)
 {
   struct peer *peer;
 
@@ -94,11 +102,11 @@ static void peer_disc_complete(FAR struct peer *peer, int rc)
     }
 }
 
-static struct peer_dsc *
+FAR static struct peer_dsc *
 peer_dsc_find_prev(FAR const struct peer_chr *chr, uint16_t dsc_handle)
 {
-  struct peer_dsc *prev;
-  struct peer_dsc *dsc;
+  FAR struct peer_dsc *prev;
+  FAR struct peer_dsc *dsc;
 
   prev = NULL;
   SLIST_FOREACH(dsc, &chr->dscs, next)
@@ -114,12 +122,12 @@ peer_dsc_find_prev(FAR const struct peer_chr *chr, uint16_t dsc_handle)
   return prev;
 }
 
-static struct peer_dsc *
+FAR static struct peer_dsc *
 peer_dsc_find(FAR const struct peer_chr *chr, uint16_t dsc_handle,
               FAR struct peer_dsc **out_prev)
 {
-  struct peer_dsc *prev;
-  struct peer_dsc *dsc;
+  FAR struct peer_dsc *prev;
+  FAR struct peer_dsc *dsc;
 
   prev = peer_dsc_find_prev(chr, dsc_handle);
   if (prev == NULL)
@@ -148,10 +156,10 @@ static int
 peer_dsc_add(FAR struct peer *peer, uint16_t chr_val_handle,
              FAR const struct ble_gatt_dsc *gatt_dsc)
 {
-  struct peer_dsc *prev;
-  struct peer_dsc *dsc;
-  struct peer_svc *svc;
-  struct peer_chr *chr;
+  FAR struct peer_dsc *prev;
+  FAR struct peer_dsc *dsc;
+  FAR struct peer_svc *svc;
+  FAR struct peer_chr *chr;
 
   svc = peer_svc_find_range(peer, chr_val_handle);
   if (svc == NULL)
@@ -209,8 +217,8 @@ peer_dsc_add(FAR struct peer *peer, uint16_t chr_val_handle,
 
 static void peer_disc_dscs(FAR struct peer *peer)
 {
-  struct peer_chr *chr;
-  struct peer_svc *svc;
+  FAR struct peer_chr *chr;
+  FAR struct peer_svc *svc;
   int rc;
 
   /* Search through the list of discovered characteristics for the first
@@ -251,38 +259,38 @@ peer_dsc_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
                 uint16_t chr_val_handle, FAR const struct ble_gatt_dsc *dsc,
                 FAR void *arg)
 {
-  struct peer *peer;
+  FAR struct peer *peer;
   int rc;
 
   peer = arg;
   assert(peer->conn_handle == conn_handle);
 
   switch (error->status)
-  {
-  case 0:
-    rc = peer_dsc_add(peer, chr_val_handle, dsc);
-    break;
+    {
+      case 0:
+        rc = peer_dsc_add(peer, chr_val_handle, dsc);
+        break;
 
-  case BLE_HS_EDONE:
-    /* All descriptors in this characteristic discovered;
-     * start discovering descriptors in the next characteristic.
-     */
+      case BLE_HS_EDONE:
+        /* All descriptors in this characteristic discovered;
+         * start discovering descriptors in the next characteristic.
+         */
 
-    if (peer->disc_prev_chr_val > 0)
-      {
-        peer_disc_dscs(peer);
-      }
+        if (peer->disc_prev_chr_val > 0)
+          {
+            peer_disc_dscs(peer);
+          }
 
-    rc = 0;
-    break;
+        rc = 0;
+        break;
 
-  default:
+      default:
 
-    /* Error; abort discovery. */
+        /* Error; abort discovery. */
 
-    rc = error->status;
-    break;
-  }
+        rc = error->status;
+        break;
+    }
 
   if (rc != 0)
     {
@@ -294,11 +302,10 @@ peer_dsc_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
   return rc;
 }
 
-uint16_t
-chr_end_handle(FAR const struct peer_svc *svc,
-               FAR const struct peer_chr *chr)
+static uint16_t chr_end_handle(FAR const struct peer_svc *svc,
+                               FAR const struct peer_chr *chr)
 {
-  const struct peer_chr *next_chr;
+  FAR const struct peer_chr *next_chr;
 
   next_chr = SLIST_NEXT(chr, next);
   if (next_chr != NULL)
@@ -311,17 +318,17 @@ chr_end_handle(FAR const struct peer_svc *svc,
     }
 }
 
-int chr_is_empty(FAR const struct peer_svc *svc,
-                 FAR const struct peer_chr *chr)
+static int chr_is_empty(FAR const struct peer_svc *svc,
+                        FAR const struct peer_chr *chr)
 {
   return chr_end_handle(svc, chr) <= chr->chr.val_handle;
 }
 
-static struct peer_chr *
+FAR static struct peer_chr *
 peer_chr_find_prev(const struct peer_svc *svc, uint16_t chr_val_handle)
 {
-  struct peer_chr *prev;
-  struct peer_chr *chr;
+  FAR struct peer_chr *prev;
+  FAR struct peer_chr *chr;
 
   prev = NULL;
   SLIST_FOREACH(chr, &svc->chrs, next)
@@ -337,12 +344,12 @@ peer_chr_find_prev(const struct peer_svc *svc, uint16_t chr_val_handle)
   return prev;
 }
 
-static struct peer_chr *
+FAR static struct peer_chr *
 peer_chr_find(FAR const struct peer_svc *svc, uint16_t chr_val_handle,
               FAR struct peer_chr **out_prev)
 {
-  struct peer_chr *prev;
-  struct peer_chr *chr;
+  FAR struct peer_chr *prev;
+  FAR struct peer_chr *chr;
 
   prev = peer_chr_find_prev(svc, chr_val_handle);
   if (prev == NULL)
@@ -369,7 +376,7 @@ peer_chr_find(FAR const struct peer_svc *svc, uint16_t chr_val_handle,
 
 static void peer_chr_delete(FAR struct peer_chr *chr)
 {
-  struct peer_dsc *dsc;
+  FAR struct peer_dsc *dsc;
 
   while ((dsc = SLIST_FIRST(&chr->dscs)) != NULL)
     {
@@ -384,9 +391,9 @@ static int
 peer_chr_add(FAR struct peer *peer, uint16_t svc_start_handle,
              FAR const struct ble_gatt_chr *gatt_chr)
 {
-  struct peer_chr *prev;
-  struct peer_chr *chr;
-  struct peer_svc *svc;
+  FAR struct peer_chr *prev;
+  FAR struct peer_chr *chr;
+  FAR struct peer_svc *svc;
 
   svc = peer_svc_find(peer, svc_start_handle, NULL);
   if (svc == NULL)
@@ -435,35 +442,35 @@ static int
 peer_chr_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
                 FAR const struct ble_gatt_chr *chr, FAR void *arg)
 {
-  struct peer *peer;
+  FAR struct peer *peer;
   int rc;
 
   peer = arg;
   assert(peer->conn_handle == conn_handle);
 
   switch (error->status)
-  {
-  case 0:
-    rc = peer_chr_add(peer, peer->cur_svc->svc.start_handle, chr);
-    break;
+    {
+      case 0:
+        rc = peer_chr_add(peer, peer->cur_svc->svc.start_handle, chr);
+        break;
 
-  case BLE_HS_EDONE:
-    /* All characteristics in this service discovered; start discovering
-     * characteristics in the next service.
-     */
+      case BLE_HS_EDONE:
+        /* All characteristics in this service discovered; start discovering
+         * characteristics in the next service.
+         */
 
-    if (peer->disc_prev_chr_val > 0)
-      {
-        peer_disc_chrs(peer);
-      }
+        if (peer->disc_prev_chr_val > 0)
+          {
+            peer_disc_chrs(peer);
+          }
 
-    rc = 0;
-    break;
+        rc = 0;
+        break;
 
-  default:
-    rc = error->status;
-    break;
-  }
+      default:
+        rc = error->status;
+        break;
+    }
 
   if (rc != 0)
     {
@@ -477,7 +484,7 @@ peer_chr_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
 
 static void peer_disc_chrs(FAR struct peer *peer)
 {
-  struct peer_svc *svc;
+  FAR struct peer_svc *svc;
   int rc;
 
   /* Search through the list of discovered service for the first
@@ -491,9 +498,9 @@ static void peer_disc_chrs(FAR struct peer *peer)
         {
           peer->cur_svc = svc;
           rc = ble_gattc_disc_all_chrs(peer->conn_handle,
-                                      svc->svc.start_handle,
-                                      svc->svc.end_handle,
-                                      peer_chr_disced, peer);
+                                       svc->svc.start_handle,
+                                       svc->svc.end_handle,
+                                       peer_chr_disced, peer);
           if (rc != 0)
             {
               peer_disc_complete(peer, rc);
@@ -508,16 +515,16 @@ static void peer_disc_chrs(FAR struct peer *peer)
   peer_disc_dscs(peer);
 }
 
-int peer_svc_is_empty(FAR const struct peer_svc *svc)
+static int peer_svc_is_empty(FAR const struct peer_svc *svc)
 {
   return svc->svc.end_handle <= svc->svc.start_handle;
 }
 
-static struct peer_svc *
+FAR static struct peer_svc *
 peer_svc_find_prev(FAR struct peer *peer, uint16_t svc_start_handle)
 {
-  struct peer_svc *prev;
-  struct peer_svc *svc;
+  FAR struct peer_svc *prev;
+  FAR struct peer_svc *svc;
 
   prev = NULL;
   SLIST_FOREACH(svc, &peer->svcs, next)
@@ -533,12 +540,12 @@ peer_svc_find_prev(FAR struct peer *peer, uint16_t svc_start_handle)
   return prev;
 }
 
-static struct peer_svc *
+FAR static struct peer_svc *
 peer_svc_find(FAR struct peer *peer, uint16_t svc_start_handle,
               FAR struct peer_svc **out_prev)
 {
-  struct peer_svc *prev;
-  struct peer_svc *svc;
+  FAR struct peer_svc *prev;
+  FAR struct peer_svc *svc;
 
   prev = peer_svc_find_prev(peer, svc_start_handle);
   if (prev == NULL)
@@ -563,10 +570,10 @@ peer_svc_find(FAR struct peer *peer, uint16_t svc_start_handle,
   return svc;
 }
 
-static struct peer_svc *
+FAR static struct peer_svc *
 peer_svc_find_range(FAR struct peer *peer, uint16_t attr_handle)
 {
-  struct peer_svc *svc;
+  FAR struct peer_svc *svc;
 
   SLIST_FOREACH(svc, &peer->svcs, next)
     {
@@ -580,10 +587,10 @@ peer_svc_find_range(FAR struct peer *peer, uint16_t attr_handle)
   return NULL;
 }
 
-const struct peer_svc *
+FAR const struct peer_svc *
 peer_svc_find_uuid(FAR const struct peer *peer, FAR const ble_uuid_t *uuid)
 {
-  const struct peer_svc *svc;
+  FAR const struct peer_svc *svc;
 
   SLIST_FOREACH(svc, &peer->svcs, next)
     {
@@ -596,13 +603,13 @@ peer_svc_find_uuid(FAR const struct peer *peer, FAR const ble_uuid_t *uuid)
   return NULL;
 }
 
-const struct peer_chr *
+FAR const struct peer_chr *
 peer_chr_find_uuid(FAR const struct peer *peer,
                    FAR const ble_uuid_t *svc_uuid,
                    FAR const ble_uuid_t *chr_uuid)
 {
-  const struct peer_svc *svc;
-  const struct peer_chr *chr;
+  FAR const struct peer_svc *svc;
+  FAR const struct peer_chr *chr;
 
   svc = peer_svc_find_uuid(peer, svc_uuid);
   if (svc == NULL)
@@ -621,14 +628,14 @@ peer_chr_find_uuid(FAR const struct peer *peer,
   return NULL;
 }
 
-const struct peer_dsc *
+FAR const struct peer_dsc *
 peer_dsc_find_uuid(FAR const struct peer *peer,
                    FAR const ble_uuid_t *svc_uuid,
                    FAR const ble_uuid_t *chr_uuid,
                    FAR const ble_uuid_t *dsc_uuid)
 {
-  const struct peer_chr *chr;
-  const struct peer_dsc *dsc;
+  FAR const struct peer_chr *chr;
+  FAR const struct peer_dsc *dsc;
 
   chr = peer_chr_find_uuid(peer, svc_uuid, chr_uuid);
   if (chr == NULL)
@@ -650,8 +657,8 @@ peer_dsc_find_uuid(FAR const struct peer *peer,
 static int
 peer_svc_add(FAR struct peer *peer, FAR const struct ble_gatt_svc *gatt_svc)
 {
-  struct peer_svc *prev;
-  struct peer_svc *svc;
+  FAR struct peer_svc *prev;
+  FAR struct peer_svc *svc;
 
   svc = peer_svc_find(peer, gatt_svc->start_handle, &prev);
   if (svc != NULL)
@@ -688,7 +695,7 @@ peer_svc_add(FAR struct peer *peer, FAR const struct ble_gatt_svc *gatt_svc)
 
 static void peer_svc_delete(FAR struct peer_svc *svc)
 {
-  struct peer_chr *chr;
+  FAR struct peer_chr *chr;
 
   while ((chr = SLIST_FIRST(&svc->chrs)) != NULL)
     {
@@ -703,41 +710,41 @@ static int
 peer_svc_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
                 FAR const struct ble_gatt_svc *service, FAR void *arg)
 {
-  struct peer *peer;
+  FAR struct peer *peer;
   int rc;
 
   peer = arg;
   assert(peer->conn_handle == conn_handle);
 
   switch (error->status)
-  {
-  case 0:
-    rc = peer_svc_add(peer, service);
-    break;
+    {
+      case 0:
+        rc = peer_svc_add(peer, service);
+        break;
 
-  case BLE_HS_EDONE:
+      case BLE_HS_EDONE:
 
-    /* All services discovered; start discovering characteristics. */
+        /* All services discovered; start discovering characteristics. */
 
-    if (peer->disc_prev_chr_val > 0)
-      {
-        peer_disc_chrs(peer);
-      }
+        if (peer->disc_prev_chr_val > 0)
+          {
+            peer_disc_chrs(peer);
+          }
 
-    rc = 0;
-    break;
+        rc = 0;
+        break;
 
-  default:
-    rc = error->status;
-    break;
-  }
+      default:
+        rc = error->status;
+        break;
+    }
 
   if (rc != 0)
-  {
-    /* Error; abort discovery. */
+    {
+      /* Error; abort discovery. */
 
-    peer_disc_complete(peer, rc);
-  }
+      peer_disc_complete(peer, rc);
+    }
 
   return rc;
 }
@@ -745,8 +752,8 @@ peer_svc_disced(uint16_t conn_handle, FAR const struct ble_gatt_error *error,
 int peer_disc_all(uint16_t conn_handle, FAR peer_disc_fn *disc_cb,
                   FAR void *disc_cb_arg)
 {
-  struct peer_svc *svc;
-  struct peer *peer;
+  FAR struct peer_svc *svc;
+  FAR struct peer *peer;
   int rc;
 
   peer = peer_find(conn_handle);
@@ -764,8 +771,8 @@ int peer_disc_all(uint16_t conn_handle, FAR peer_disc_fn *disc_cb,
     }
 
   peer->disc_prev_chr_val = 1;
-  peer->disc_cb = disc_cb;
-  peer->disc_cb_arg = disc_cb_arg;
+  peer->disc_cb           = disc_cb;
+  peer->disc_cb_arg       = disc_cb_arg;
 
   rc = ble_gattc_disc_all_svcs(conn_handle, peer_svc_disced, peer);
   if (rc != 0)
@@ -778,8 +785,8 @@ int peer_disc_all(uint16_t conn_handle, FAR peer_disc_fn *disc_cb,
 
 int peer_delete(uint16_t conn_handle)
 {
-  struct peer_svc *svc;
-  struct peer *peer;
+  FAR struct peer_svc *svc;
+  FAR struct peer *peer;
   int rc;
 
   peer = peer_find(conn_handle);
@@ -807,7 +814,7 @@ int peer_delete(uint16_t conn_handle)
 
 int peer_add(uint16_t conn_handle)
 {
-  struct peer *peer;
+  FAR struct peer *peer;
 
   /* Make sure the connection handle is unique. */
 
@@ -833,8 +840,7 @@ int peer_add(uint16_t conn_handle)
   return 0;
 }
 
-static void
-peer_free_mem(void)
+static void peer_free_mem(void)
 {
   free(peer_mem);
   peer_mem = NULL;
@@ -849,6 +855,10 @@ peer_free_mem(void)
   peer_dsc_mem = NULL;
 }
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int peer_init(int max_peers, int max_svcs, int max_chrs, int max_dscs)
 {
   int rc;
@@ -857,16 +867,14 @@ int peer_init(int max_peers, int max_svcs, int max_chrs, int max_dscs)
 
   peer_free_mem();
 
-  peer_mem = malloc(
-      OS_MEMPOOL_BYTES(max_peers, sizeof(struct peer)));
+  peer_mem = malloc(OS_MEMPOOL_BYTES(max_peers, sizeof(struct peer)));
   if (peer_mem == NULL)
     {
       rc = BLE_HS_ENOMEM;
       goto err;
     }
 
-  rc = os_mempool_init(&peer_pool, max_peers,
-                       sizeof(struct peer), peer_mem,
+  rc = os_mempool_init(&peer_pool, max_peers, sizeof(struct peer), peer_mem,
                        "peer_pool");
   if (rc != 0)
     {
@@ -874,51 +882,45 @@ int peer_init(int max_peers, int max_svcs, int max_chrs, int max_dscs)
       goto err;
     }
 
-  peer_svc_mem = malloc(
-      OS_MEMPOOL_BYTES(max_svcs, sizeof(struct peer_svc)));
+  peer_svc_mem = malloc(OS_MEMPOOL_BYTES(max_svcs, sizeof(struct peer_svc)));
   if (peer_svc_mem == NULL)
     {
       rc = BLE_HS_ENOMEM;
       goto err;
     }
 
-  rc = os_mempool_init(&peer_svc_pool, max_svcs,
-                       sizeof(struct peer_svc), peer_svc_mem,
-                       "peer_svc_pool");
+  rc = os_mempool_init(&peer_svc_pool, max_svcs, sizeof(struct peer_svc),
+                       peer_svc_mem, "peer_svc_pool");
   if (rc != 0)
     {
       rc = BLE_HS_EOS;
       goto err;
     }
 
-  peer_chr_mem = malloc(
-      OS_MEMPOOL_BYTES(max_chrs, sizeof(struct peer_chr)));
+  peer_chr_mem = malloc(OS_MEMPOOL_BYTES(max_chrs, sizeof(struct peer_chr)));
   if (peer_chr_mem == NULL)
     {
       rc = BLE_HS_ENOMEM;
       goto err;
     }
 
-  rc = os_mempool_init(&peer_chr_pool, max_chrs,
-                       sizeof(struct peer_chr), peer_chr_mem,
-                       "peer_chr_pool");
+  rc = os_mempool_init(&peer_chr_pool, max_chrs, sizeof(struct peer_chr),
+                       peer_chr_mem, "peer_chr_pool");
   if (rc != 0)
     {
       rc = BLE_HS_EOS;
       goto err;
     }
 
-  peer_dsc_mem = malloc(
-      OS_MEMPOOL_BYTES(max_dscs, sizeof(struct peer_dsc)));
+  peer_dsc_mem = malloc(OS_MEMPOOL_BYTES(max_dscs, sizeof(struct peer_dsc)));
   if (peer_dsc_mem == NULL)
     {
       rc = BLE_HS_ENOMEM;
       goto err;
     }
 
-  rc = os_mempool_init(&peer_dsc_pool, max_dscs,
-                       sizeof(struct peer_dsc), peer_dsc_mem,
-                       "peer_dsc_pool");
+  rc = os_mempool_init(&peer_dsc_pool, max_dscs, sizeof(struct peer_dsc),
+                       peer_dsc_mem, "peer_dsc_pool");
   if (rc != 0)
     {
       rc = BLE_HS_EOS;
