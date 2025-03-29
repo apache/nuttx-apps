@@ -32,14 +32,6 @@ if(CONFIG_CRYPTO_TINYDTLS)
           ${CMAKE_CURRENT_LIST_DIR}/tinydtls
           BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/crypto/tinydtls/tinydtls
-          CONFIGURE_COMMAND
-          ""
-          BUILD_COMMAND
-          ""
-          INSTALL_COMMAND
-          ""
-          TEST_COMMAND
-          ""
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

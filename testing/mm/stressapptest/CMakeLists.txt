@@ -37,14 +37,6 @@ if(CONFIG_TESTING_STRESSAPPTEST)
           ${CMAKE_CURRENT_LIST_DIR}/stressapptest
           BINARY_DIR
           ${CMAKE_BINARY_DIR}/stressapptest
-          CONFIGURE_COMMAND
-          ""
-          BUILD_COMMAND
-          ""
-          INSTALL_COMMAND
-          ""
-          TEST_COMMAND
-          ""
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

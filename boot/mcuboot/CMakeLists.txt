@@ -33,14 +33,6 @@ if(CONFIG_BOOT_MCUBOOT)
           ${CMAKE_CURRENT_LIST_DIR}/mcuboot
           BINARY_DIR
           ${CMAKE_BINARY_DIR}/apps/boot/mcuboot/mcuboot
-          CONFIGURE_COMMAND
-          ""
-          BUILD_COMMAND
-          ""
-          INSTALL_COMMAND
-          ""
-          TEST_COMMAND
-          ""
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
