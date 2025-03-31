@@ -63,7 +63,6 @@ int main(int argc, FAR char *argv[])
 {
   FAR const char *strip = CONFIG_COVERAGE_DEFAULT_PREFIX_STRIP;
   FAR const char *path = NULL;
-  bool onefile = false;
   int option;
 
   while ((option = getopt(argc, argv, "d::t:orh")) != ERROR)
@@ -89,20 +88,6 @@ int main(int argc, FAR char *argv[])
         case 'h':
           show_usage(argv[0]);
         }
-    }
-
-  if (access(path, F_OK) == 0)
-    {
-      onefile = true;
-    }
-
-  if (onefile)
-    {
-      setenv("GCOV_DUMP_ONEFILE", "1", 1);
-    }
-  else
-    {
-      setenv("GCOV_DUMP_ONEFILE", "0", 1);
     }
 
   setenv("GCOV_PREFIX_STRIP", strip, 1);
