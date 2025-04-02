@@ -421,7 +421,8 @@ static int ptp_settime(FAR struct ptp_state_s *state,
 
 /* Smoothly adjust timestamp. */
 
-static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns)
+static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns,
+                       int64_t ppb)
 {
   if (state->clockid == CLOCK_REALTIME)
     {
@@ -437,7 +438,7 @@ static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns)
       struct timex buf;
 
       memset(&buf, 0, sizeof(buf));
-      buf.freq = (long)(-state->drift_ppb * 65536 / 1000);
+      buf.freq = (long)(-ppb * 65536 / 1000);
       buf.modes = ADJ_FREQUENCY;
 
       return clock_adjtime(state->clockid, &buf);
@@ -1096,7 +1097,14 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
               (long long)state->last_adjtime_ns,
               (long long)state->drift_ppb);
 
-      ret = ptp_adjtime(state, adjustment_ns);
+      if (absdelta_ns > CONFIG_NETUTILS_PTPD_ADJTIME_THRESHOLD_NS)
+        {
+          ret = ptp_adjtime(state, delta_ns, drift_ppb);
+        }
+      else
+        {
+          ret = ptp_adjtime(state, adjustment_ns, state->drift_ppb);
+        }
 
       if (ret != OK)
         {
