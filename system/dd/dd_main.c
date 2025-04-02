@@ -79,6 +79,7 @@ struct dd_s
   uint32_t     skip;       /* The number of sectors skipped on input */
   uint32_t     seek;       /* The number of sectors seeked on output */
   bool         eof;        /* true: The end of the input or output file has been hit */
+  bool         notrunc;    /* conv=notrunc */
   uint16_t     sectsize;   /* Size of one sector */
   uint16_t     nbytes;     /* Number of valid bytes in the buffer */
   FAR uint8_t *buffer;     /* Buffer of data to write to the output file */
@@ -186,7 +187,8 @@ static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
       return OK;
     }
 
-  dd->outfd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  dd->outfd = open(name, O_WRONLY | O_CREAT | (dd->notrunc ? 0 : O_TRUNC),
+                   0644);
   if (dd->outfd < 0)
     {
       fprintf(stderr, "%s: failed to open '%s': %s\n",
@@ -258,6 +260,32 @@ int main(int argc, FAR char **argv)
       else if (strncmp(argv[i], "seek=", 5) == 0)
         {
           dd.seek = atoi(&argv[i][5]);
+        }
+      else if (strncmp(argv[i], "conv=", 5) == 0)
+        {
+          const char *cur = &argv[i][5];
+          while (true)
+            {
+              const char *next = strchr(cur, ',');
+              size_t len = next != NULL ? next - cur : strlen(cur);
+              if (len == 7 && !memcmp(cur, "notrunc", 7))
+                {
+                  dd.notrunc = true;
+                }
+              else
+                {
+                  fprintf(stderr, "%s: unknown conversion '%.*s'\n", g_dd,
+                          (int)len, cur);
+                  goto errout_with_paths;
+                }
+
+              if (next == NULL)
+                {
+                  break;
+                }
+
+              cur = next + 1;
+            }
         }
       else
         {
