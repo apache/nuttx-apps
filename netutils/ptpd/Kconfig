@@ -149,6 +149,14 @@ config NETUTILS_PTPD_SETTIME_THRESHOLD_MS
 		time is reset with settimeofday() instead of changing the rate with
 		adjtime().
 
+config NETUTILS_PTPD_ADJTIME_THRESHOLD_NS
+	int "PTP client threshold for using accumulated ppb to adjust system time (ns)"
+	default 500
+	---help---
+		If difference between local and remote clock exceeds this threshold,
+		the PTP client can utilize current ppb instead of accumulated ppb to
+		accelerate system time adjustment.
+
 config NETUTILS_PTPD_MULTICAST_TIMEOUT_MS
 	int "PTP client timeout to rejoin multicast group (ms)"
 	default 30000
