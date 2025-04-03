@@ -265,7 +265,7 @@ static void audio_test_help(FAR const char *progname, int exitcode)
          " -f <format>\n"
          " -b <bytes per sample> \n"
          " -s <sample rate> \n"
-         " -c <channles> \n",
+         " -c <channels> \n",
          progname);
   printf(" [-a testcase] selects the testcase\n"
          " Case 1: Capture\n"
