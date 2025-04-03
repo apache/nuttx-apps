@@ -133,7 +133,7 @@ int arch_libc_test_strcpy_offset(int dst_offset, int src_offset)
         }
     }
 
-  /* strcpy shouln't change arch_libc_test_strcpy's local variable */
+  /* strcpy shouldn't change arch_libc_test_strcpy's local variable */
 
   if (dest != (g_test_dst_str + dst_offset) ||
       src != (g_test_src_str + src_offset))
