@@ -1,10 +1,11 @@
-From 71f51cd5ca4f492a464fb12d5bce91e5fbba300a Mon Sep 17 00:00:00 2001
+From 6d0be04a4b4208447e75c369e9811d089f466739 Mon Sep 17 00:00:00 2001
 From: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
-Date: Tue, 11 Jun 2024 16:01:23 +0800
+Date: Thu, 3 Apr 2025 11:59:02 +0800
 Subject: [PATCH] tacle-bench: add makefile and all-in-one main file
 
 The original taclebench is used for WCET analysis. This commit allows most taclebench test cases (except parallel test cases) to be compiled and executed.
 
+Change-Id: I707b8ac58d3ddc4b7974c5bedecac1a7b5c887f9
 Signed-off-by: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
 ---
  Makefile                                      |  12 +
@@ -65,14 +66,14 @@ Signed-off-by: ouyangxiangzhen <ouyangxiangzhen@xiaomi.com>
  bench/test/cover/cover.c                      |   3 +
  bench/test/duff/duff.c                        |   3 +
  bench/test/test3/test3.c                      |   3 +
- taclebench.c                                  | 349 ++++++++++++++++++
- 59 files changed, 532 insertions(+)
+ taclebench.c                                  | 366 ++++++++++++++++++
+ 59 files changed, 549 insertions(+)
  create mode 100644 Makefile
  create mode 100644 taclebench.c
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..2385c61
+index 0000000..75ca0a1
 --- /dev/null
 +++ b/Makefile
 @@ -0,0 +1,12 @@
@@ -83,7 +84,7 @@ index 0000000..2385c61
 +TEST_SRCS := $(shell find bench/test -name "*.c")
 +
 +all:
-+	cc -DALL_IN_ONE ${APP_SRCS} ${KERNEL_SRCS} ${SEQUENTIAL_SRCS} ${TEST_SRCS} bench/kernel/cosf/wcclibm.c taclebench.c -static -o taclebench
++	cc -DALL_IN_ONE ${APP_SRCS} ${KERNEL_SRCS} ${SEQUENTIAL_SRCS} ${TEST_SRCS} bench/kernel/cosf/wcclibm.c taclebench.c -static -o taclebench -O3
 +
 +clean:
 +	rm -f taclebench
@@ -888,11 +889,12 @@ index 0235738..6eaf8c2 100755
  
 diff --git a/taclebench.c b/taclebench.c
 new file mode 100644
-index 0000000..1231b87
+index 0000000..aaff1bb
 --- /dev/null
 +++ b/taclebench.c
-@@ -0,0 +1,349 @@
+@@ -0,0 +1,366 @@
 +#include <stdio.h>
++#include <time.h>
 +
 +int main_epic(void);
 +int main_mpeg2(void);
@@ -954,6 +956,10 @@ index 0000000..1231b87
 +
 +int main(void)
 +{
++  struct timespec start_ts;
++  struct timespec end_ts;
++  clock_gettime(CLOCK_MONOTONIC, &start_ts);
++
 +  if (main_epic() != 0)
 +    {
 +      printf("main_epic error\n");
@@ -1238,6 +1244,18 @@ index 0000000..1231b87
 +    {
 +      printf("main_bitonic error\n");
 +    }
++
++  clock_gettime(CLOCK_MONOTONIC, &end_ts);
++  long sec_diff = end_ts.tv_sec - start_ts.tv_sec;
++  long nsec_diff = end_ts.tv_nsec - start_ts.tv_nsec;
++
++  if (nsec_diff < 0)
++    {
++      sec_diff  -= 1;
++      nsec_diff += 1000000000;
++    }
++
++  printf("%ld.%09ld seconds\n", sec_diff, nsec_diff);
 +
 +  return 0;
 +}
