@@ -77,10 +77,12 @@ void test_nuttx_syscall_listen01(FAR void **state)
           0, 0, 0, 0, -1, ENOTSOCK, "setup0", "cleanup0", "not a socket"
         },
 
+#  ifdef CONFIG_NET_UDP
         {
           PF_INET, SOCK_DGRAM, 0, 0, -1, EOPNOTSUPP, "setup1", "cleanup1",
         "UDP listen"
         },
+#  endif
     };
 
   const char set[] = "setup0";
