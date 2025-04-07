@@ -198,7 +198,7 @@ static int dumpfile_get_info(int fd, FAR struct coredump_info_s *info)
     }
 
   if (read(fd, name, nhdr.n_namesz) != nhdr.n_namesz ||
-      strcmp(name, "NuttX") != 0)
+      strncmp(name, "NuttX", 6) != 0)
     {
       return -EINVAL;
     }
