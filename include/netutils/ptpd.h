@@ -44,6 +44,7 @@ struct ptpd_config_s
   bool client_only;
   bool hardware_ts;
   bool delay_e2e;
+  bool bmca;
   sa_family_t af;
 };
 

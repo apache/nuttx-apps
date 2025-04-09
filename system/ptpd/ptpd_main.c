@@ -153,6 +153,7 @@ static void usage(FAR const char *progname)
                   " Time Stamping:\n"
                   " -H       HARDWARE (default) depends on NET_TIMESTAMP\n"
                   " -S       SOFTWARE\n"
+                  " -B       The best master clock algorithm is used\n"
                   " -r       synchronize system (realtime) clock\n"
                   " -E       E2E, support client delay request-response\n"
                   " -i [dev] interface device to use, for example 'eth0'\n"
@@ -186,9 +187,10 @@ int main(int argc, FAR char *argv[])
 #else
   config.hardware_ts = false;
 #endif
+  config.bmca = false;
   config.af = AF_INET;
 
-  while ((option = getopt(argc, argv, "p:i:t:d:rs246EHS")) != ERROR)
+  while ((option = getopt(argc, argv, "p:i:t:d:rs246BEHS")) != ERROR)
     {
       switch (option)
         {
@@ -207,6 +209,9 @@ int main(int argc, FAR char *argv[])
             break;
           case '6':
             config.af = AF_INET6;
+            break;
+          case 'B':
+            config.bmca = true;
             break;
           case 'E':
             config.delay_e2e = true;
