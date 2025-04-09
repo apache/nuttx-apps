@@ -961,7 +961,7 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
       clock_gettime(CLOCK_MONOTONIC, &time_now);
       clock_timespec_subtract(&time_now,
         &state->last_transmitted_announce, &delta);
-      if (timespec_to_ms(&delta)
+      if (state->config->bmca && timespec_to_ms(&delta)
           > CONFIG_NETUTILS_PTPD_ANNOUNCE_INTERVAL_MSEC)
         {
           state->last_transmitted_announce = time_now;
@@ -1003,7 +1003,7 @@ static int ptp_process_announce(FAR struct ptp_state_s *state,
 {
   clock_gettime(CLOCK_MONOTONIC, &state->last_received_announce);
 
-  if (is_better_clock(msg, &state->own_identity))
+  if (state->conifg->bmca && is_better_clock(msg, &state->n_identity))
     {
       if (!state->selected_source_valid ||
           is_better_clock(msg, &state->selected_source))
@@ -1206,7 +1206,8 @@ static int ptp_process_sync(FAR struct ptp_state_s *state,
 {
   struct timespec remote_time;
 
-  if (memcmp(msg->header.sourceidentity,
+  if (state->config->bmca &&
+      memcmp(msg->header.sourceidentity,
              state->selected_source.header.sourceidentity,
              sizeof(msg->header.sourceidentity)) != 0)
     {
@@ -1240,7 +1241,8 @@ static int ptp_process_followup(FAR struct ptp_state_s *state,
 {
   struct timespec remote_time;
 
-  if (memcmp(msg->header.sourceidentity,
+  if (state->config->bmca &&
+      memcmp(msg->header.sourceidentity,
              state->twostep_packet.header.sourceidentity,
              sizeof(msg->header.sourceidentity)) != 0)
     {
