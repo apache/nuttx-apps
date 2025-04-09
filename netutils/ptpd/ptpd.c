@@ -1236,6 +1236,31 @@ static int ptp_process_sync(FAR struct ptp_state_s *state,
   return ptp_update_local_clock(state, &remote_time, &state->rxtime);
 }
 
+static void ptp_add_correction_time(FAR const uint8_t *correction,
+                                    FAR struct timespec *ts)
+{
+  uint64_t correction_time = (((uint64_t)correction[0]) << 40)
+                           | (((uint64_t)correction[1]) << 32)
+                           | (((uint64_t)correction[2]) << 24)
+                           | (((uint64_t)correction[3]) << 16)
+                           | (((uint64_t)correction[4]) <<  8)
+                           | (((uint64_t)correction[5]) <<  0);
+
+  ptpinfo("correction before: %lld.%09ld\n", (long long)ts->tv_sec,
+          ts->tv_nsec);
+
+  ts->tv_sec  += correction_time / NSEC_PER_SEC;
+  ts->tv_nsec += correction_time % NSEC_PER_SEC;
+  if (ts->tv_nsec >= NSEC_PER_SEC)
+    {
+      ts->tv_nsec -= NSEC_PER_SEC;
+      ts->tv_sec  += 1;
+    }
+
+  ptpinfo("correction after: %lld.%09ld\n", (long long)ts->tv_sec,
+          ts->tv_nsec);
+}
+
 static int ptp_process_followup(FAR struct ptp_state_s *state,
                                 FAR struct ptp_follow_up_s *msg)
 {
@@ -1264,6 +1289,13 @@ static int ptp_process_followup(FAR struct ptp_state_s *state,
    */
 
   ptp_format_to_timespec(msg->origintimestamp, &remote_time);
+
+  /* add correction time */
+
+  ptp_add_correction_time(msg->header.correction, &remote_time);
+
+  /* done */
+
   return ptp_update_local_clock(state, &remote_time, &state->twostep_rxtime);
 }
 
