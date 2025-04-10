@@ -25,10 +25,28 @@ if(CONFIG_EXAMPLES_DHCPD)
     NAME
     dhcpd
     SRCS
-    host.c
     target.c
+    dhcpd_daemon.c
     STACKSIZE
-    2048)
+    ${CONFIG_DEFAULT_TASK_STACKSIZE})
+
+  nuttx_add_application(
+    NAME
+    dhcpd_start
+    SRCS
+    dhcpd_start.c
+    dhcpd_daemon.c
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE})
+
+  nuttx_add_application(
+    NAME
+    dhcpd_stop
+    SRCS
+    dhcpd_stop.c
+    dhcpd_daemon.c
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE})
 
   add_definitions(-DCONFIG_NETUTILS_DHCPD_HOST=1 -DHAVE_SO_REUSEADDR=1
                   -DHAVE_SO_BROADCAST=1)
