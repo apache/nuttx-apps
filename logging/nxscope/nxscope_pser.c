@@ -184,7 +184,7 @@ static int nxscope_frame_get(FAR struct nxscope_proto_s *p,
 
   /* Verify crc16 for the whole frame */
 
-  crc = crc16(&buff[i], hdr->len);
+  crc = crc16xmodem(&buff[i], hdr->len);
   if (crc != 0)
     {
       _err("ERROR: invalid crc16 %d\n", crc);
@@ -238,7 +238,7 @@ static int nxscope_frame_final(FAR struct nxscope_proto_s *p,
    *   final xor value = 0x0000
    */
 
-  crc = crc16(buff, *len);
+  crc = crc16xmodem(buff, *len);
 
 #ifdef CONFIG_ENDIAN_BIG
   buff[(*len)++] = (crc >> 0) & 0xff;
