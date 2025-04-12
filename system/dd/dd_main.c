@@ -135,6 +135,11 @@ static int dd_read(FAR struct dd_s *dd)
       nbytes = read(dd->infd, buffer, dd->sectsize - dd->nbytes);
       if (nbytes < 0)
         {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
           fprintf(stderr, "%s: failed to read: %s\n", g_dd, strerror(errno));
           return ERROR;
         }
@@ -147,7 +152,7 @@ static int dd_read(FAR struct dd_s *dd)
           break;
         }
     }
-  while (dd->nbytes < dd->sectsize && nbytes > 0);
+  while (dd->nbytes < dd->sectsize && nbytes != 0);
 
   return OK;
 }
