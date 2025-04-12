@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <debug.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -203,6 +204,75 @@ static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
   return OK;
 }
 
+static int dd_verify(FAR struct dd_s *dd)
+{
+  FAR uint8_t *buffer;
+  unsigned sector = 0;
+  int ret = OK;
+
+  ret = lseek(dd->infd, dd->skip ? dd->skip * dd->sectsize : 0, SEEK_SET);
+  if (ret < 0)
+    {
+      fprintf(stderr, "%s: failed to infd lseek: %s\n",
+              g_dd, strerror(errno));
+      return ret;
+    }
+
+  dd->eof = 0;
+  ret = lseek(dd->outfd, 0, SEEK_SET);
+  if (ret < 0)
+    {
+      fprintf(stderr, "%s: failed to outfd lseek: %s\n",
+              g_dd, strerror(errno));
+      return ret;
+    }
+
+  buffer = malloc(dd->sectsize);
+  if (buffer == NULL)
+    {
+      return ERROR;
+    }
+
+  while (!dd->eof && sector < dd->nsectors)
+    {
+      ret = dd_read(dd);
+      if (ret < 0)
+        {
+          break;
+        }
+
+      ret = read(dd->outfd, buffer, dd->nbytes);
+      if (ret != dd->nbytes)
+        {
+          fprintf(stderr, "%s: failed to outfd read: %d\n",
+                  g_dd, ret < 0 ? errno : ret);
+          break;
+        }
+
+      if (memcmp(dd->buffer, buffer, dd->nbytes) != 0)
+        {
+          char msg[32];
+          snprintf(msg, sizeof(msg), "infile sector %d", sector);
+          lib_dumpbuffer(msg, dd->buffer, dd->nbytes);
+          snprintf(msg, sizeof(msg), "\noutfile sector %d", sector);
+          lib_dumpbuffer(msg, buffer, dd->nbytes);
+          ret = ERROR;
+          break;
+        }
+
+      sector++;
+    }
+
+  if (ret < 0)
+    {
+      fprintf(stderr, "%s: failed to dd verify: %d\n",
+              g_dd, ret);
+    }
+
+  free(buffer);
+  return ret;
+}
+
 /****************************************************************************
  * Name: print_usage
  ****************************************************************************/
@@ -211,7 +281,7 @@ static void print_usage(void)
 {
   fprintf(stderr, "usage:\n");
   fprintf(stderr, "  %s [if=<infile>] [of=<outfile>] [bs=<sectsize>] "
-    "[count=<sectors>] [skip=<sectors>] [seek=<sectors>] "
+    "[count=<sectors>] [skip=<sectors>] [seek=<sectors>] [verify] "
     "[conv=<nocreat,notrunc>]\n", g_dd);
 }
 
@@ -267,6 +337,10 @@ int main(int argc, FAR char **argv)
         {
           dd.seek = atoi(&argv[i][5]);
         }
+      else if (strncmp(argv[i], "verify", 6) == 0)
+        {
+          dd.oflags |= O_RDONLY;
+        }
       else if (strncmp(argv[i], "conv=", 5) == 0)
         {
           const char *cur = &argv[i][5];
@@ -302,6 +376,16 @@ int main(int argc, FAR char **argv)
           print_usage();
           goto errout_with_paths;
         }
+    }
+
+  /* If verify enabled, infile and outfile are mandatory */
+
+  if ((dd.oflags & O_RDONLY) && (infile == NULL || outfile == NULL))
+    {
+      fprintf(stderr, "%s: invalid parameters: %s\n", g_dd,
+              strerror(EINVAL));
+      print_usage();
+      goto errout_with_paths;
     }
 
   /* Allocate the I/O buffer */
@@ -399,6 +483,11 @@ int main(int argc, FAR char **argv)
   fprintf(stderr, "%u KB/s\n" ,
              (unsigned int)(((double)total / 1024)
              / ((double)elapsed / USEC_PER_SEC)));
+
+  if (ret == 0 && (dd.oflags & O_RDONLY) != 0)
+    {
+      ret = dd_verify(&dd);
+    }
 
 errout_with_outf:
   close(dd.outfd);
