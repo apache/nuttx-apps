@@ -78,8 +78,8 @@ struct dd_s
   uint32_t     nsectors;   /* Number of sectors to transfer */
   uint32_t     skip;       /* The number of sectors skipped on input */
   uint32_t     seek;       /* The number of sectors seeked on output */
+  int          oflags;     /* The open flags on output deivce */
   bool         eof;        /* true: The end of the input or output file has been hit */
-  bool         notrunc;    /* conv=notrunc */
   uint16_t     sectsize;   /* Size of one sector */
   uint16_t     nbytes;     /* Number of valid bytes in the buffer */
   FAR uint8_t *buffer;     /* Buffer of data to write to the output file */
@@ -187,8 +187,7 @@ static inline int dd_outfopen(FAR const char *name, FAR struct dd_s *dd)
       return OK;
     }
 
-  dd->outfd = open(name, O_WRONLY | O_CREAT | (dd->notrunc ? 0 : O_TRUNC),
-                   0644);
+  dd->outfd = open(name, dd->oflags, 0644);
   if (dd->outfd < 0)
     {
       fprintf(stderr, "%s: failed to open '%s': %s\n",
@@ -207,7 +206,8 @@ static void print_usage(void)
 {
   fprintf(stderr, "usage:\n");
   fprintf(stderr, "  %s [if=<infile>] [of=<outfile>] [bs=<sectsize>] "
-    "[count=<sectors>] [skip=<sectors>] [seek=<sectors>]\n", g_dd);
+    "[count=<sectors>] [skip=<sectors>] [seek=<sectors>] "
+    "[conv=<nocreat,notrunc>]\n", g_dd);
 }
 
 /****************************************************************************
@@ -232,6 +232,7 @@ int main(int argc, FAR char **argv)
   memset(&dd, 0, sizeof(struct dd_s));
   dd.sectsize  = DEFAULT_SECTSIZE;  /* Sector size if 'bs=' not provided */
   dd.nsectors  = 0xffffffff;        /* MAX_UINT32 */
+  dd.oflags    = O_WRONLY | O_CREAT | O_TRUNC;
 
   /* Parse command line parameters */
 
@@ -270,7 +271,11 @@ int main(int argc, FAR char **argv)
               size_t len = next != NULL ? next - cur : strlen(cur);
               if (len == 7 && !memcmp(cur, "notrunc", 7))
                 {
-                  dd.notrunc = true;
+                  dd.oflags &= ~O_TRUNC;
+                }
+              else if (len == 7 && !memcmp(cur, "nocreat", 7))
+                {
+                  dd.oflags &= ~(O_CREAT | O_TRUNC);
                 }
               else
                 {
