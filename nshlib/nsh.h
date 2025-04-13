@@ -975,9 +975,6 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #ifndef CONFIG_NSH_DISABLE_CMP
   int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
-#ifndef CONFIG_NSH_DISABLE_DD
-  int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
-#endif
 #ifndef CONFIG_NSH_DISABLE_HEXDUMP
   int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
