@@ -81,8 +81,8 @@ struct dd_s
   uint32_t     seek;       /* The number of sectors seeked on output */
   int          oflags;     /* The open flags on output deivce */
   bool         eof;        /* true: The end of the input or output file has been hit */
-  uint16_t     sectsize;   /* Size of one sector */
-  uint16_t     nbytes;     /* Number of valid bytes in the buffer */
+  size_t       sectsize;   /* Size of one sector */
+  size_t       nbytes;     /* Number of valid bytes in the buffer */
   FAR uint8_t *buffer;     /* Buffer of data to write to the output file */
 };
 
@@ -97,7 +97,7 @@ struct dd_s
 static int dd_write(FAR struct dd_s *dd)
 {
   FAR uint8_t *buffer = dd->buffer;
-  uint16_t written;
+  size_t written;
   ssize_t nbytes;
 
   /* Is the out buffer full (or is this the last one)? */
