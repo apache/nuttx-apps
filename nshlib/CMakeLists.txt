@@ -34,7 +34,6 @@ if(CONFIG_NSH_LIBRARY)
     nsh_system.c
     nsh_command.c
     nsh_fscmds.c
-    nsh_ddcmd.c
     nsh_proccmds.c
     nsh_mmcmds.c
     nsh_timcmds.c

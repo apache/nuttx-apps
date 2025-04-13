@@ -5,8 +5,7 @@
 
 config SYSTEM_DD
 	tristate "system 'dd' command"
-	default n
-	select NSH_DISABLE_DD if NSH_LIBRARY
+	default !DEFAULT_SMALL
 	---help---
 		Enable support for the system 'dd' command.
 
@@ -26,5 +25,9 @@ config SYSTEM_DD_PRIORITY
 config SYSTEM_DD_STACKSIZE
 	int "dd stack size"
 	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_DD_STATS
+	bool "dd: Support transfer statistics"
+	default y
 
 endif
