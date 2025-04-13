@@ -490,14 +490,30 @@ int main(int argc, FAR char **argv)
     }
 
 errout_with_outf:
-  close(dd.outfd);
+  if (outfile)
+    {
+      dd.outfd = close(dd.outfd);
+      if (dd.outfd < 0)
+        {
+          fprintf(stderr, "%s failed to close outfd:%s\n",
+                  g_dd, strerror(errno));
+        }
+    }
 
 errout_with_inf:
-  close(dd.infd);
+  if (infile)
+    {
+      dd.infd = close(dd.infd);
+      if (dd.infd < 0)
+        {
+          fprintf(stderr, "%s failed to close infd:%s\n",
+                  g_dd, strerror(errno));
+        }
+    }
 
 errout_with_alloc:
   free(dd.buffer);
 
 errout_with_paths:
-  return ret;
+  return ret < 0 ? ret : (dd.outfd < 0 ? dd.outfd : dd.infd);
 }
