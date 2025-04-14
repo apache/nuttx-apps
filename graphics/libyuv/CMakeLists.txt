@@ -41,7 +41,7 @@ if(CONFIG_LIBYUV)
     FetchContent_GetProperties(libyuv_fetch)
 
     if(NOT libyuv_fetch_POPULATED)
-      FetchContent_Populate(llibyuv_fetch)
+      FetchContent_Populate(libyuv_fetch)
     endif()
   endif()
 
