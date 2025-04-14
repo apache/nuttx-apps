@@ -25,6 +25,7 @@ import io
 import os
 import sys
 import termios
+import time
 
 import serial
 
@@ -92,23 +93,29 @@ def ymodem_stdprogress(data):
 
 
 def ymodem_ser_read(size):
-    global fd_serial
-
     data = fd_serial.read(size)
     return data
 
 
 def ymodem_ser_write(data):
-    global fd_serial
     fd_serial.write(data)
     fd_serial.flush()
 
 
 def ymodem_ser_clear():
-    global fd_serial
-
     fd_serial.reset_input_buffer()
     fd_serial.reset_output_buffer()
+
+
+def ymodem_ser_recv_repeat_c(num, timeout):
+    except_data = b"C" * num
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        read_data = ymodem_ser_read(num)
+        if read_data == except_data:
+            return 0
+    return -1
 
 
 def calc_crc16(data, crc=0):
@@ -385,7 +392,7 @@ class ymodem:
         write=ymodem_stdwrite,
         progress=ymodem_stdprogress,
         clear=ymodem_stdclear,
-        timeout=100,
+        timeout=10,
         maxretry=RETRIESMAX,
         debug="",
         customsize=0,
@@ -452,15 +459,30 @@ class ymodem:
         return PACKET_SIZE
 
     def recv_cmd(self, cmd):
-        chunk = self.read(1)
-        if chunk == NAK:
-            return -EAGAIN
-        if chunk != cmd:
-            self.debug("should be " + binascii.hexlify(cmd).decode("utf-8"))
-            self.debug("but receive " + binascii.hexlify(chunk).decode("utf-8") + "\n")
-            return -EINVAL
-
-        return 0
+        start_time = time.time()
+        unexpected_buffer = b""
+        while time.time() - start_time < self.timeout:
+            chunk = self.read(1)
+            if chunk == cmd:
+                if unexpected_buffer:
+                    # try to decode to UTF-8
+                    decoded = unexpected_buffer.decode("utf-8", errors="replace")
+                    self.progress(f"Ignored unexpected text: {decoded}\n")
+                return 0
+            elif chunk == NAK:
+                if unexpected_buffer:
+                    decoded = unexpected_buffer.decode("utf-8", errors="replace")
+                    self.progress(f"Ignored unexpected text: {decoded}\n")
+                print("EAGAIN!!!")
+                return -EAGAIN
+            elif chunk == b"":
+                continue
+            else:
+                unexpected_buffer += chunk
+        if unexpected_buffer:
+            decoded = unexpected_buffer.decode("utf-8", errors="replace")
+            self.progress(f"Ignored unexpected text: {decoded}\n")
+        return -EINVAL
 
     def send_handshake(self):
         self.write(CRC)
@@ -686,7 +708,7 @@ class ymodem:
                     return -1
 
                 self.progress("recv ret %d\n" % ret)
-                self.debug("recv frist packet\n")
+                self.debug("recv first packet\n")
                 self.retries += 1
                 continue
 
@@ -808,6 +830,29 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "-c",
+        "--countofc",
+        type=int,
+        default=0,
+        help="""
+            When this value is greater than 0, it means that the rb command is not sent to
+            device, but to receive a specified number of consecutive 'C'.
+            If do not receive continuous 'C', time out and exit.
+            """,
+    )
+
+    parser.add_argument(
+        "-w",
+        "--waitctimeout",
+        type=int,
+        default=30,
+        help="""
+            When the -c parameter is valid, this arg will determine whether it has timed out
+            while waiting for consecutive Cs. The unit is second.
+            """,
+    )
+
+    parser.add_argument(
         "--debug", help="This opthin is save debug log on host", default=""
     )
 
@@ -821,19 +866,34 @@ if __name__ == "__main__":
             for i in args.recvfrom:
                 recvfile += i + " "
 
+            if args.kblocksize:
+                recvfile += "-k %d " % (args.kblocksize)
+
             fd_serial.write(("sb %s\r\n" % (recvfile)).encode())
             fd_serial.flush()
             tmp = fd_serial.read(len(("sb %s\r\n" % (recvfile)).encode()) - 1)
             fd_serial.reset_input_buffer()
         else:
-            if args.sendto:
-                cmd = ("rb -f %s\r\n" % (args.sendto[0])).encode()
+            if args.countofc:
+                ret = ymodem_ser_recv_repeat_c(args.countofc, args.waitctimeout)
+                if ret < 0:
+                    print("read C timeout")
+                    fd_serial.close()
+                    sys.exit(1)
             else:
-                cmd = ("rb\r\n").encode()
+                if args.sendto:
+                    cmd = ("rb -f %s" % args.sendto[0]).encode()
+                else:
+                    cmd = "rb".encode()
 
-            fd_serial.write(cmd)
-            fd_serial.flush()
-            fd_serial.read(len(cmd))
+                if args.kblocksize:
+                    cmd += (" -k %d" % args.kblocksize).encode()
+
+                cmd += b"\r\n"
+
+                fd_serial.write(cmd)
+                fd_serial.flush()
+                fd_serial.read(len(cmd))
 
             fd_serial.reset_input_buffer()
         sbrb = ymodem(
