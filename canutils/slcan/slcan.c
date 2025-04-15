@@ -316,9 +316,22 @@ int main(int argc, char *argv[])
                         {
                           /* open CAN interface */
 
-                          mode = 1;
-                          debug_print("Open interface\n");
-                          ok_return(fd);
+                          struct ifreq ifr;
+
+                          strlcpy(ifr.ifr_name, argv[1], IFNAMSIZ);
+
+                          ifr.ifr_flags = IFF_UP;
+                          if (ioctl(s, SIOCSIFFLAGS, &ifr) < 0)
+                            {
+                              syslog(LOG_ERR, "Open interface failed\n");
+                              fail_return(fd);
+                            }
+                          else
+                            {
+                              mode = 1;
+                              debug_print("Open interface\n");
+                              ok_return(fd);
+                            }
                         }
                       else if (buf[0] == 'S')
                         {
@@ -394,9 +407,22 @@ int main(int argc, char *argv[])
                         {
                           /* close interface */
 
-                          mode = 0;
-                          debug_print("Close interface\n");
-                          ok_return(fd);
+                          struct ifreq ifr;
+
+                          strlcpy(ifr.ifr_name, argv[1], IFNAMSIZ);
+
+                          ifr.ifr_flags = 0;
+                          if (ioctl(s, SIOCSIFFLAGS, &ifr) < 0)
+                            {
+                              syslog(LOG_ERR, "Close interface failed\n");
+                              fail_return(fd);
+                            }
+                          else
+                            {
+                              mode = 0;
+                              debug_print("Close interface\n");
+                              ok_return(fd);
+                            }
                         }
                       else if (buf[0] == 'T')
                         {
