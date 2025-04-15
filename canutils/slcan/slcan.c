@@ -137,8 +137,7 @@ static int caninit(char *candev, int *s, struct sockaddr_can *addr,
       syslog(LOG_ERR, "Error opening CAN socket\n");
       return -1;
     }
-  strncpy(ifr.ifr_name, candev, 4);
-  ifr.ifr_name[4] = '\0';
+  strlcpy(ifr.ifr_name, candev, IFNAMSIZ);
   ifr.ifr_ifindex = if_nametoindex(ifr.ifr_name);
   if (!ifr.ifr_ifindex)
     {
