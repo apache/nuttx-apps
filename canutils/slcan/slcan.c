@@ -363,9 +363,7 @@ int main(int argc, char *argv[])
                           /* set the device name */
 
                           strlcpy(ifr.ifr_name, argv[1], IFNAMSIZ);
-
-                          ifr.ifr_ifru.ifru_can_data.arbi_bitrate =
-                            canspeed / 1000; /* Convert bit/s to kbit/s */
+                          ifr.ifr_ifru.ifru_can_data.arbi_bitrate = canspeed;
                           ifr.ifr_ifru.ifru_can_data.arbi_samplep = 80;
 
                           if (ioctl(s, SIOCSCANBITRATE, &ifr) < 0)

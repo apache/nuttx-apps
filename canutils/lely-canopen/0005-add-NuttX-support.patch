@@ -120,7 +120,7 @@ index ca7e7d95..fed1ae16 100644
 +		return -1;
 +	}
 +
-+  *pbitrate = ifr.ifr_ifru.ifru_can_data.arbi_bitrate * 1000;
++  *pbitrate = ifr.ifr_ifru.ifru_can_data.arbi_bitrate;
 +
 +  return 0;
 +}
@@ -141,8 +141,8 @@ index ca7e7d95..fed1ae16 100644
 +  struct ifreq ifr;
 +  if_indextoname(can->ifindex, ifr.ifr_name);
 +
-+  ifr.ifr_ifru.ifru_can_data.arbi_bitrate = bitrate / 1000;
-+  ifr.ifr_ifru.ifru_can_data.data_bitrate = bitrate / 1000;
++  ifr.ifr_ifru.ifru_can_data.arbi_bitrate = bitrate;
++  ifr.ifr_ifru.ifru_can_data.data_bitrate = bitrate;
 +  ifr.ifr_ifru.ifru_can_data.arbi_samplep = 0;
 +  ifr.ifr_ifru.ifru_can_data.data_samplep = 0;
 +
