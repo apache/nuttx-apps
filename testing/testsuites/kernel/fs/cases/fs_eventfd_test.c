@@ -75,12 +75,9 @@ void test_nuttx_fs_eventfd(FAR void **state)
   int eventfd01_ret;
   int eventfd01_efd;
   pthread_t eventfd01_tid;
-  struct fs_testsuites_state_s *test_state;
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   eventfd01_efd = eventfd(0, 0);
   assert_int_not_equal(eventfd01_efd, -1);
-  test_state->fd1 = eventfd01_efd;
   assert_true(pthread_create(&eventfd01_tid, NULL, threadfunc,
                              &eventfd01_efd) >= 0);
 
@@ -94,5 +91,6 @@ void test_nuttx_fs_eventfd(FAR void **state)
     }
 
   sleep(2);
+  close(eventfd01_efd);
 #endif
 }

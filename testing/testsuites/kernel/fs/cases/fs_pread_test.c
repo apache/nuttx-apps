@@ -69,7 +69,6 @@ void test_nuttx_fs_pread01(FAR void **state)
 
   fd = open(TEST_FILE, O_RDWR | O_CREAT, 0777);
   assert_int_not_equal(fd, -1);
-  test_state->fd1 = fd;
 
   /* do write */
 
@@ -98,4 +97,6 @@ void test_nuttx_fs_pread01(FAR void **state)
 
   pread(fd, buf, 3, 1);
   assert_int_equal(strncmp(buf, "BCD", 3), 0);
+
+  close(fd);
 }

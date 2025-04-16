@@ -64,15 +64,11 @@ void test_nuttx_fs_fsync01(FAR void **state)
   int fd;
   int rval;
   int ret;
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* open file */
 
   fd = open(TESTFILE, O_RDWR | O_CREAT, 0700);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   for (int i = 0; i < 20; i++)
     {
@@ -86,6 +82,8 @@ void test_nuttx_fs_fsync01(FAR void **state)
       ret = fsync(fd);
       assert_int_equal(ret, 0);
     }
+
+  close(fd);
 }
 
 /****************************************************************************
@@ -118,7 +116,6 @@ void test_nuttx_fs_fsync02(FAR void **state)
 
   fd = open(TESTFILE, O_CREAT | O_RDWR, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* call fstatfs() */
 
@@ -165,4 +162,5 @@ void test_nuttx_fs_fsync02(FAR void **state)
 
   ret = fstatfs(fd, &statfsbuf);
   assert_int_equal(ret, 0);
+  close(fd);
 }

@@ -64,7 +64,6 @@ void test_nuttx_fs_pwrite01(FAR void **state)
 
   fd = open(TEST_FILE, O_RDWR | O_CREAT, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* malloc memory */
 
@@ -108,4 +107,6 @@ void test_nuttx_fs_pwrite01(FAR void **state)
   /* check buf */
 
   assert_true(strncmp(buf, "CBAA", BUF_SIZE) == 0);
+
+  close(fd);
 }

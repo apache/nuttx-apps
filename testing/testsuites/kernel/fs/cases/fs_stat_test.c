@@ -91,9 +91,6 @@ void test_nuttx_fs_stat01(FAR void **state)
   time_t t_1;
   time_t t_2;
   time_t t_diff;
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* set memory */
 
@@ -103,7 +100,6 @@ void test_nuttx_fs_stat01(FAR void **state)
 
   fd = open(TEST_FILE, O_RDWR | O_CREAT, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = 0;
 
   /* do write */
 

@@ -60,21 +60,16 @@ void test_nuttx_fs_dup201(FAR void **state)
   };
 
   off_t currpos;
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* open file */
 
   int fd1 = open(TESTFILE, O_RDWR | O_CREAT, 0777);
   assert_true(fd1 > 0);
-  test_state->fd1 = fd1;
 
   /* open file */
 
   int fd2 = open(TESTFILE, O_RDWR | O_CREAT, 0777);
   assert_true(fd2 > 0);
-  test_state->fd2 = fd2;
 
   /* do dup2 */
 
@@ -114,4 +109,7 @@ void test_nuttx_fs_dup201(FAR void **state)
 
   ret = strncmp(buf, "hello world!", 12);
   assert_int_equal(ret, 0);
+
+  close(fd1);
+  close(fd2);
 }

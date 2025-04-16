@@ -62,10 +62,6 @@ void test_nuttx_fs_open01(FAR void **state)
     0
   };
 
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
-
   /* open file */
 
   fd = open(TESTFILE, O_WRONLY | O_CREAT, 0700);
@@ -81,12 +77,13 @@ void test_nuttx_fs_open01(FAR void **state)
 
   fd = open(TESTFILE, O_RDONLY);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* do read */
 
   ret = read(fd, buffer, sizeof(buffer));
   assert_true(ret > 0);
+
+  close(fd);
 }
 
 /****************************************************************************
