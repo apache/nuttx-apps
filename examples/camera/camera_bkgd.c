@@ -97,13 +97,13 @@ static const struct nx_callback_s g_nximagecb =
 
 static struct nximage_data_s g_nximage =
 {
-  NULL,          /* hnx */
-  NULL,          /* hbkgd */
-  false,         /* connected */
-  0,             /* xres */
-  0,             /* yres */
-  false,         /* havpos */
-  { 0 },         /* sem */
+  NULL,               /* hnx */
+  NULL,               /* hbkgd */
+  false,              /* connected */
+  0,                  /* xres */
+  0,                  /* yres */
+  false,              /* havpos */
+  SEM_INITIALIZER(0), /* sem */
 };
 
 /****************************************************************************
