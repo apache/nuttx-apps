@@ -106,9 +106,12 @@ if(CONFIG_LIBUV)
     ${LIBUV_UNIX_DIR}/fs.c
     ${LIBUV_SRC_DIR}/fs-poll.c
     ${LIBUV_SRC_DIR}/timer.c
-    ${LIBUV_UNIX_DIR}/process-spawn.c
     ${LIBUV_UNIX_DIR}/sysinfo-loadavg.c
     ${LIBUV_UNIX_DIR}/sysinfo-memory.c)
+
+  if(CONFIG_LIBC_EXECFUNCS)
+    list(APPEND SRCS ${LIBUV_UNIX_DIR}/process-spawn.c)
+  endif()
 
   if(CONFIG_LIBC_DLFCN)
     list(APPEND SRCS ${LIBUV_UNIX_DIR}/dl.c)
