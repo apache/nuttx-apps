@@ -100,27 +100,14 @@ err_event:
 
 int orb_loop_run(FAR struct orb_loop_s *loop)
 {
-  loop->self = gettid();
   return loop->ops->run(loop);
 }
 
 int orb_loop_deinit(FAR struct orb_loop_s *loop)
 {
-  eventfd_t exit = 1;
   int ret;
 
-  loop->running = false;
-  write(loop->exit_handle.fd, &exit, sizeof(exit));
-
-  if (gettid() != loop->self)
-    {
-      ret = waitpid(loop->self, &ret, 0);
-      if (ret < 0)
-        {
-          uorberr("loop deinit waitpid failed! ret:%d", -errno);
-        }
-    }
-
+  orb_handle_stop(loop, &loop->exit_handle);
   close(loop->exit_handle.fd);
   ret = loop->ops->uninit(loop);
   if (ret >= 0)
@@ -129,6 +116,25 @@ int orb_loop_deinit(FAR struct orb_loop_s *loop)
     }
 
   return ret;
+}
+
+int orb_loop_exit_async(FAR struct orb_loop_s *loop)
+{
+  eventfd_t exit = 1;
+  ssize_t n;
+
+  if (!loop)
+    {
+      return -EINVAL;
+    }
+
+  n = write(loop->exit_handle.fd, &exit, sizeof(exit));
+  if (n < 0)
+    {
+      return -errno;
+    }
+
+  return n == sizeof(exit) ? OK : ERROR;
 }
 
 int orb_handle_init(FAR struct orb_handle_s *handle, int fd, int events,

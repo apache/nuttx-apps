@@ -118,10 +118,8 @@ struct orb_loop_ops_s;
 struct orb_loop_s
 {
   FAR const struct orb_loop_ops_s *ops;         /* Loop handle ops. */
-  bool                             running;     /* uORB loop is running flag. */
   int                              fd;          /* Loop fd. */
   struct orb_handle_s              exit_handle; /* The exit handle */
-  pid_t                            self;        /* The pid of the loop */
 };
 #endif
 
@@ -958,6 +956,21 @@ int orb_loop_run(FAR struct orb_loop_s *loop);
  ****************************************************************************/
 
 int orb_loop_deinit(FAR struct orb_loop_s *loop);
+
+/****************************************************************************
+ * Name: orb_loop_exit_async
+ *
+ * Description:
+ *   Send exit event to the current loop(not wait).
+ *
+ * Input Parameters:
+ *   loop   orb loop contains multiple handles.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a -1 (ERROR) or negated errno value on failure.
+ ****************************************************************************/
+
+int orb_loop_exit_async(FAR struct orb_loop_s *loop);
 
 /****************************************************************************
  * Name: orb_handle_init
