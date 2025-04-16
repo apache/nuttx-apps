@@ -57,15 +57,11 @@ void test_nuttx_fs_write01(FAR void **state)
   int out;
   int rval;
   char buffer[1024];
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* open file */
 
   out = open(TESTFILE, O_WRONLY | O_CREAT, 0700);
   assert_true(out > 0);
-  test_state->fd1 = out;
 
   /* set memory */
 
@@ -75,6 +71,8 @@ void test_nuttx_fs_write01(FAR void **state)
 
   rval = write(out, buffer, MAXLEN);
   assert_int_in_range(rval, 1, MAXLEN);
+
+  close(out);
 }
 
 /****************************************************************************

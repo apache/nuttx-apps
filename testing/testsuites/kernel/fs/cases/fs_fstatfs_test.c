@@ -102,10 +102,10 @@ void test_nuttx_fs_fstatfs01(FAR void **state)
 
   fd = open(TEST_FILE, O_RDWR | O_CREAT, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* call fstatfs() */
 
   ret = fstatfs(fd, &statfsbuf);
   assert_int_equal(ret, 0);
+  close(fd);
 }

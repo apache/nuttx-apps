@@ -73,10 +73,11 @@ void test_nuttx_fs_creat01(FAR void **state)
 
   fd = creat(test_state->filename, 0700);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* do write */
 
   ret = write(fd, buf, sizeof(buf));
   assert_int_in_range(ret, 1, 20);
+
+  close(fd);
 }

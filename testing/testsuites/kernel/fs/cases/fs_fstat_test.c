@@ -67,7 +67,6 @@ void test_nuttx_fs_fstat01(FAR void **state)
 
   fd = open(TEST_FILE_1, O_RDWR | O_CREAT, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* malloc memory */
 
@@ -98,6 +97,8 @@ void test_nuttx_fs_fstat01(FAR void **state)
 
   ret = (file_s.st_size == BUF_SIZE) ? 1 : 0;
   assert_int_equal(ret, 1);
+
+  close(fd);
 }
 
 /****************************************************************************
@@ -113,15 +114,11 @@ void test_nuttx_fs_fstat02(FAR void **state)
   int fd;
   int ret;
   struct stat file_s;
-  struct fs_testsuites_state_s *test_state;
-
-  test_state = (struct fs_testsuites_state_s *)*state;
 
   /* open file */
 
   fd = open(TEST_FILE_2, O_RDWR | O_CREAT, 0777);
   assert_true(fd > 0);
-  test_state->fd1 = fd;
 
   /* get the file size before write */
 
