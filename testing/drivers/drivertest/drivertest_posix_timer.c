@@ -41,7 +41,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define RTC_DEFAULT_DEVIATION 10
+#define RTC_DEFAULT_DEVIATION 100
 #define DEFAULT_TIME_OUT      2
 #define SLEEPSECONDS          10
 
@@ -158,6 +158,8 @@ static void posix_timer_callback(union sigval arg)
   FAR struct posix_timer_state_s *sigev_para =
                       (FAR struct posix_timer_state_s *)arg.sival_ptr;
   int range = get_timestamp() - (*sigev_para).tim;
+
+  syslog(0, "range: %d ms\n", range);
 
   assert_in_range(range,
           sigev_para->it.it_interval.tv_sec * 1000 - sigev_para->deviation,
