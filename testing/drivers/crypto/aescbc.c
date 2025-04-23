@@ -118,6 +118,7 @@ static int syscrypt(FAR const char *key, size_t klen,
   memset(&session, 0, sizeof(session));
   session.cipher = CRYPTO_AES_CBC;
   session.key = (caddr_t) key;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   session.keylen = klen;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
@@ -131,6 +132,7 @@ static int syscrypt(FAR const char *key, size_t klen,
   cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = len;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) tmp_iv;
