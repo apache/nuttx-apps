@@ -72,6 +72,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   session.cipher = CRYPTO_3DES_CBC;
   session.key = (caddr_t) key;
   session.keylen = klen;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
       warn("CIOCGSESSION");
@@ -83,6 +84,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = len;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) iv;
