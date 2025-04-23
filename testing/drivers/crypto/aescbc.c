@@ -167,6 +167,7 @@ static int syscrypt(FAR const char *key, size_t klen,
   memset(&session, 0, sizeof(session));
   session.cipher = aescbc_cipher_id(klen);
   session.key = (caddr_t) key;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   session.keylen = klen;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
@@ -180,6 +181,7 @@ static int syscrypt(FAR const char *key, size_t klen,
   cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = len;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) tmp_iv;
@@ -244,6 +246,7 @@ static int syscrypt_stream(FAR const char *key, size_t klen,
   memset(&session, 0, sizeof(session));
   session.cipher = aescbc_cipher_id(klen);
   session.key = (caddr_t) key;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   session.keylen = klen;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
@@ -261,6 +264,7 @@ static int syscrypt_stream(FAR const char *key, size_t klen,
   while (len >= 16)
     {
       cryp.len = 16;
+      cryp.olen = 16;
       cryp.src = (caddr_t) in + offset;
       cryp.dst = (caddr_t) out + offset;
       if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
