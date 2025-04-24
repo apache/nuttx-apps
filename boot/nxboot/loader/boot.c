@@ -79,6 +79,9 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
   off_t off;
   uint32_t crc;
   struct flash_partition_info info;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+  int total_size;
+#endif  
 
   if (flash_partition_info(fd, &info) < 0)
     {
@@ -94,6 +97,9 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
   crc = 0xffffffff;
   off = offsetof(struct nxboot_img_header, crc) + sizeof crc;
   remain = header->size + header->header_size - off;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+  total_size = remain;
+#endif
   while (remain > 0)
     {
       readsiz = remain > info.blocksize ? info.blocksize : remain;
@@ -106,6 +112,15 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
       off += readsiz;
       remain -= readsiz;
       crc = crc32part((uint8_t *)buf, readsiz, crc);
+      if ((remain % 25) == 0)
+        {
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+          nxboot_progress(nxboot_progress_percent,
+                          ((total_size - remain) * 100) / total_size);
+#else
+          nxboot_progress(nxboot_progress_dot);
+#endif
+        }
     }
 
   free(buf);
@@ -124,6 +139,9 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
   int blocksize;
   off_t off;
   char *buf;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT  
+  int total_size;
+#endif
 
   get_image_header(from, &header);
 
@@ -143,6 +161,9 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
       return ERROR;
     }
 
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+  total_size = remain * 100;
+#endif
   blocksize = MAX(info_from.blocksize, info_where.blocksize);
 
   buf = malloc(blocksize);
@@ -202,6 +223,15 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
 
       off += readsiz;
       remain -= readsiz;
+      if ((remain % 25) == 0)
+        {
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+          nxboot_progress(nxboot_progress_percent,
+                          ((total_size - remain) * 100) / total_size);
+#else
+          nxboot_progress(nxboot_progress_dot);
+#endif
+        }
     }
 
   free(buf);
@@ -218,6 +248,7 @@ static bool validate_image(int fd)
       return false;
     }
 
+  syslog(LOG_INFO, "Validating image.\n");
   return calculate_crc(fd, &header) == header.crc;
 }
 
@@ -268,17 +299,23 @@ static enum nxboot_update_type
                   struct nxboot_img_header *update_header,
                   struct nxboot_img_header *recovery_header)
 {
+  nxboot_progress(nxboot_progress_start, validate_primary);
   bool primary_valid = validate_image(primary);
+  nxboot_progress(nxboot_progress_end);
 
+  nxboot_progress(nxboot_progress_start, validate_update);
   if (update_header->magic == NXBOOT_HEADER_MAGIC && validate_image(update))
     {
       if (primary_header->crc != update_header->crc ||
           !compare_versions(&primary_header->img_version,
           &update_header->img_version) || !primary_valid)
         {
+          nxboot_progress(nxboot_progress_end);
           return NXBOOT_UPDATE_TYPE_UPDATE;
         }
     }
+
+  nxboot_progress(nxboot_progress_end);
 
   if (IS_INTERNAL_MAGIC(recovery_header->magic) && state->recovery_valid &&
       ((IS_INTERNAL_MAGIC(primary_header->magic) &&
@@ -292,6 +329,7 @@ static enum nxboot_update_type
 
 static int perform_update(struct nxboot_state *state, bool check_only)
 {
+  int successful;
   int update;
   int recovery;
   int primary;
@@ -331,18 +369,25 @@ static int perform_update(struct nxboot_state *state, bool check_only)
       recovery = secondary;
     }
 
+  nxboot_progress(nxboot_progress_start, validate_primary);
   if (state->next_boot == NXBOOT_UPDATE_TYPE_REVERT &&
       (!check_only || !validate_image(primary)))
     {
+      nxboot_progress(nxboot_progress_end);
       if (state->recovery_valid)
         {
           syslog(LOG_INFO, "Reverting image to recovery.\n");
+          nxboot_progress(nxboot_progress_start, recovery_revert);
           copy_partition(recovery, primary, state, false);
+          nxboot_progress(nxboot_progress_end);
         }
     }
   else
     {
+      nxboot_progress(nxboot_progress_end);
+      nxboot_progress(nxboot_progress_start, validate_primary);
       primary_valid = validate_image(primary);
+      nxboot_progress(nxboot_progress_end);
       if (primary_valid && check_only)
         {
           /* Skip if primary image is valid (does not mather whether
@@ -368,21 +413,33 @@ static int perform_update(struct nxboot_state *state, bool check_only)
            */
 
           syslog(LOG_INFO, "Creating recovery image.\n");
+          nxboot_progress(nxboot_progress_start, recovery_create);
           copy_partition(primary, recovery, state, false);
-          if (!validate_image(recovery))
+          nxboot_progress(nxboot_progress_end);
+          nxboot_progress(nxboot_progress_start, validate_recovery);
+          successful = validate_image(recovery);
+          nxboot_progress(nxboot_progress_end);
+          if (!successful)
             {
-              syslog(LOG_INFO, "New recovery is not valid, stop update.\n");
+              syslog(LOG_INFO,
+                            "New recovery is not valid,stop update.\n");
+              nxboot_progress(nxboot_info, recovery_invalid);
               goto perform_update_done;
             }
 
           syslog(LOG_INFO, "Recovery image created.\n");
+          nxboot_progress(nxboot_info, recovery_created);
         }
 
-      if (validate_image(update))
+      nxboot_progress(nxboot_progress_start, validate_update);
+      successful = validate_image(update);
+      nxboot_progress(nxboot_progress_end);
+      if (successful)
         {
           /* Perform update only if update slot contains valid image. */
 
           syslog(LOG_INFO, "Updating from update image.\n");
+          nxboot_progress(nxboot_progress_start, update_from_update);
           if (copy_partition(update, primary, state, true) >= 0)
             {
               /* Erase the first sector of update partition. This marks the
@@ -393,6 +450,8 @@ static int perform_update(struct nxboot_state *state, bool check_only)
 
               flash_partition_erase_first_sector(update);
             }
+
+          nxboot_progress(nxboot_progress_end);
         }
     }
 
@@ -402,6 +461,46 @@ perform_update_done:
   flash_partition_close(tertiary);
   return OK;
 }
+
+#ifdef CONFIG_NXBOOT_COPY_TO_RAM
+int nxboot_ramcopy(void)
+{
+  int ret = OK;
+  int primary;
+  struct nxboot_img_header header;
+  ssize_t bytes;
+  static uint8_t *buf;
+
+  primary = flash_partition_open(CONFIG_NXBOOT_PRIMARY_SLOT_PATH);
+  if (primary < 0)
+    {
+      return ERROR;
+    }
+
+  get_image_header(primary, &header);
+  buf = malloc(header.size);
+  if (!buf)
+    {
+      ret = ERROR;
+      goto exit_with_error;
+    }
+
+  bytes = pread(primary, buf, header.size, header.header_size);
+  if (bytes != header.size)
+    {
+      ret = ERROR;
+      goto exit_with_error;
+    }
+
+  memcpy((uint32_t *)CONFIG_NXBOOT_RAMSTART, buf, header.size);
+
+exit_with_error:
+  flash_partition_close(primary);
+  free(buf);
+
+  return ret;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -528,7 +627,9 @@ int nxboot_get_state(struct nxboot_state *state)
       state->update = NXBOOT_TERTIARY_SLOT_NUM;
     }
 
+  nxboot_progress(nxboot_progress_start, validate_recovery);
   state->recovery_valid = validate_image(recovery);
+  nxboot_progress(nxboot_progress_end);
   state->recovery_present = primary_header.crc == recovery_header->crc;
 
   /* The image is confirmed if it has either NXBOOT_HEADER_MAGIC or a
@@ -611,7 +712,7 @@ int nxboot_get_confirm(void)
   int recovery;
   int recovery_pointer;
   char *path;
-  int ret = 0;
+  int ret = OK;
   struct nxboot_img_header primary_header;
   struct nxboot_img_header recovery_header;
 
@@ -799,6 +900,7 @@ int nxboot_perform_update(bool check_only)
            */
 
           syslog(LOG_ERR, "Update process failed: %s\n", strerror(errno));
+          nxboot_progress(nxboot_error, update_failed);
         }
     }
 
@@ -823,3 +925,4 @@ int nxboot_perform_update(bool check_only)
 
   return ret;
 }
+
