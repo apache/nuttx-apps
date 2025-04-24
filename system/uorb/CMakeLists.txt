@@ -29,7 +29,11 @@ if(CONFIG_UORB)
 
   nuttx_add_library(uorb STATIC)
 
-  file(GLOB_RECURSE CSRCS "sensor/*.c" "uORB/*.c")
+  file(GLOB_RECURSE CSRCS "sensor/*.c" "uORB/uORB.c")
+
+  if(CONFIG_UORB_LOOP_MAX_EVENTS)
+    file(GLOB_RECURSE CSRCS "uORB/loop.c" "uORB/epoll.c")
+  endif()
 
   if(CONFIG_UORB_LISTENER)
     nuttx_add_application(
