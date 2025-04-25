@@ -147,10 +147,20 @@ static int trace_cmd_dump(FAR const char *name, int index, int argc,
 {
   FAR FILE *out = stdout;
   bool changed = false;
+  bool binary = false;
   bool cont = false;
   int ret;
 
-  /* Usage: trace dump [-c][<filename>] */
+  /* Usage: trace dump [-b][-c][<filename>] */
+
+  if (index < argc)
+    {
+      if (strcmp(argv[index], "-b") == 0)
+        {
+          binary = true;
+          index++;
+        }
+    }
 
   if (index < argc)
     {
@@ -192,11 +202,14 @@ static int trace_cmd_dump(FAR const char *name, int index, int argc,
 
   /* Dump the trace header */
 
-  fputs("# tracer: nop\n#\n", out);
+  if (!binary)
+    {
+      fputs("# tracer: nop\n#\n", out);
+    }
 
   /* Dump the trace data */
 
-  ret = trace_dump(out);
+  ret = trace_dump(out, binary);
 
   if (changed)
     {
@@ -803,9 +816,8 @@ static void show_usage(void)
                                 " Get the trace while running <command>\n"
 #endif
 #ifdef CONFIG_DRIVERS_NOTERAM
-          " dump    [-a][-c][<filename>]        :"
+          " dump    [-b][-c][<filename>]        :"
                                 " Output the trace result\n"
-          "                                       [-a] <Android SysTrace>\n"
 #endif
           " mode    [{+|-}{o|w|s|a|i|d}...]     :"
                                 " Set task trace options\n"
