@@ -195,29 +195,40 @@ static int fbdev_get_pinfo(int fd, FAR struct fb_planeinfo_s *pinfo)
 
 static int fb_init_mem2(FAR struct fb_state_s *state)
 {
-  int ret;
-  uintptr_t buf_offset;
   struct fb_planeinfo_s pinfo;
-  FAR void *fbmem;
+  FAR void * phy_mem1;
+  FAR void * phy_mem2;
+  bool is_consecutive;
+  uintptr_t offset;
+  uint32_t fblen;
+  int ret;
+
+  /* Get display[0] planeinfo */
+
+  memset(&pinfo, 0, sizeof(pinfo));
+  pinfo.display = state->pinfo.display;
+
+  if ((ret = fbdev_get_pinfo(state->fd, &pinfo)) < 0)
+    {
+      return ret;
+    }
+
+  phy_mem1 = pinfo.fbmem;
+
+  /* Get display[1] planeinfo */
 
   memset(&pinfo, 0, sizeof(pinfo));
   pinfo.display = state->pinfo.display + 1;
 
   if ((ret = fbdev_get_pinfo(state->fd, &pinfo)) < 0)
     {
-      return EXIT_FAILURE;
+      return ret;
     }
 
-  fbmem = mmap(NULL, pinfo.fblen, PROT_READ | PROT_WRITE,
-               MAP_SHARED | MAP_FILE, state->fd, 0);
+  phy_mem2 = pinfo.fbmem;
 
-  if (fbmem == MAP_FAILED)
-    {
-      int errcode = errno;
-      fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
-              errcode);
-      return EXIT_FAILURE;
-    }
+  offset = (uintptr_t)phy_mem2 - (uintptr_t)phy_mem1;
+  is_consecutive = offset == 0;
 
   /* Check bpp */
 
@@ -231,36 +242,43 @@ static int fb_init_mem2(FAR struct fb_state_s *state)
    * It needs to be divisible by pinfo.stride
    */
 
-  buf_offset = fbmem - state->fbmem;
-
-  if ((buf_offset % state->pinfo.stride) != 0)
+  if ((offset % state->pinfo.stride) != 0)
     {
       fprintf(stderr, "ERROR: It is detected that buf_offset(%" PRIuPTR ") "
               "and stride(%d) are not divisible, please ensure "
               "that the driver handles the address offset by itself.\n",
-              buf_offset, state->pinfo.stride);
+              offset, state->pinfo.stride);
     }
 
   /* Calculate the address and yoffset of fbmem2 */
 
-  if (buf_offset == 0)
+  if (is_consecutive)
     {
-      /* Use consecutive fbmem2. */
-
       state->mem2_yoffset = state->vinfo.yres;
-      state->fbmem2 = fbmem + state->mem2_yoffset * pinfo.stride;
-      printf("Use consecutive fbmem2 = %p, yoffset = %" PRIu32"\n",
-             state->fbmem2, state->mem2_yoffset);
+      offset = state->vinfo.yres * pinfo.stride;
     }
   else
     {
-      /* Use non-consecutive fbmem2. */
-
-      state->mem2_yoffset = buf_offset / state->pinfo.stride;
-      state->fbmem2 = fbmem;
-      printf("Use non-consecutive fbmem2 = %p, yoffset = %" PRIu32"\n",
-             state->fbmem2, state->mem2_yoffset);
+      state->mem2_yoffset = offset / state->pinfo.stride;
     }
+
+  fblen = is_consecutive ? pinfo.fblen / 2 : pinfo.fblen;
+  void * mem2 = mmap(NULL, fblen,
+                    PROT_READ | PROT_WRITE,
+                    MAP_SHARED | MAP_FILE,
+                    state->fd, offset);
+
+  if (mem2 == MAP_FAILED)
+    {
+      fprintf(stderr, "ERROR: mmap failed: %d, offset: %" PRIuPTR,
+            errno, offset);
+      return -errno;
+    }
+
+  state->fbmem2 = mem2;
+  fprintf(stderr, "Use of %sconsecutive mem2 = %p, yoffset = %" PRIu32,
+          is_consecutive ? "" : "non-", state->fbmem2,
+          state->mem2_yoffset);
 
   return 0;
 }
@@ -648,7 +666,9 @@ int main(int argc, FAR char *argv[])
     {
       if ((ret = fb_init_mem2(&state)) < 0)
         {
-          goto out;
+          munmap(state.fbmem, state.pinfo.fblen);
+          close(state.fd);
+          return ret;
         }
     }
 
@@ -689,8 +709,9 @@ int main(int argc, FAR char *argv[])
 
   printf("Test finished\n");
   ret = EXIT_SUCCESS;
-out:
+
   munmap(state.fbmem, state.pinfo.fblen);
+  munmap(state.fbmem2, state.pinfo.fblen);
   close(state.fd);
   return ret;
 }
