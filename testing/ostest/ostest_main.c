@@ -278,7 +278,8 @@ static int user_main(int argc, char *argv[])
    * verify that status is retained correctly.
    */
 
-#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS)
+#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS) && \
+    !defined(CONFIG_DISABLE_SIGNALS)
     {
       struct sigaction sa;
       int ret;
@@ -511,6 +512,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifndef CONFIG_DISABLE_SIGNALS
       /* Verify that we can modify the signal mask */
 
       printf("\nuser_main: sigprocmask test\n");
@@ -534,6 +536,8 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#endif /* !CONFIG_DISABLE_SIGNALS */
+
 #ifdef CONFIG_BUILD_FLAT
       printf("\nuser_main: wdog test\n");
       wdog_test();
@@ -541,11 +545,13 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #ifndef CONFIG_DISABLE_POSIX_TIMERS
+#ifndef CONFIG_DISABLE_SIGNALS
       /* Verify posix timers (with SIGEV_SIGNAL) */
 
       printf("\nuser_main: POSIX timer test\n");
       timer_test();
       check_test_memory_usage();
+#endif
 
 #ifdef CONFIG_SIG_EVTHREAD
       /* Verify posix timers (with SIGEV_THREAD) */
@@ -705,7 +711,7 @@ int main(int argc, FAR char **argv)
   stdio_test();
 
 #ifdef SDCC
-  /* I am not yet certain why SDCC does not like the following initilizers.
+  /* I am not yet certain why SDCC does not like the following initializers.
    * It involves some issues with 2- vs 3-byte pointer types.
    */
 
