@@ -328,13 +328,13 @@ void signest_test(void)
         {
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(waiterpid, j);
               odd_signals++;
             }
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(waiterpid, j + 1);
               even_signals++;
             }
 
@@ -344,13 +344,13 @@ void signest_test(void)
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(waiterpid, j + 1);
               even_signals++;
             }
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(waiterpid, j);
               odd_signals++;
             }
 
@@ -387,13 +387,13 @@ void signest_test(void)
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(waiterpid, j);
               odd_signals++;
             }
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(waiterpid, j + 1);
               even_signals++;
             }
 
@@ -407,13 +407,13 @@ void signest_test(void)
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(waiterpid, j + 1);
               even_signals++;
             }
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(waiterpid, j);
               odd_signals++;
             }
 
@@ -449,7 +449,7 @@ void signest_test(void)
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(waiterpid, j);
               odd_signals++;
             }
 
@@ -457,7 +457,7 @@ void signest_test(void)
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(waiterpid, j + 1);
               even_signals++;
             }
 
@@ -470,7 +470,7 @@ void signest_test(void)
           sched_lock();
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(waiterpid, j + 1);
               even_signals++;
             }
 
@@ -478,7 +478,7 @@ void signest_test(void)
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(waiterpid, j);
               odd_signals++;
             }
 
