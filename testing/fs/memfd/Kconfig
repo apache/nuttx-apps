@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_MEMFD
+	bool "Testing the stability of memfd"
+	depends on !LIBC_MEMFD_ERROR && MM_KASAN
+	default n
+	---help---
+		Enable to test the stability of memfd
