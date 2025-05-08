@@ -223,7 +223,7 @@ int main(int argc, FAR char **argv)
       case AF_RPMSG:
         ((FAR struct sockaddr_rpmsg *)&addr)->rp_family = AF_RPMSG;
         snprintf(((FAR struct sockaddr_rpmsg *)&addr)->rp_name,
-                 RPMSG_SOCKET_NAME_SIZE, "%d", REXECD_PORT);
+                 RPMSG_SOCKET_NAME_SIZE, "%d", htons(REXECD_PORT));
         ret = sizeof(struct sockaddr_rpmsg);
     }
 
