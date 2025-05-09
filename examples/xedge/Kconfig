@@ -17,6 +17,7 @@
 
 config EXAMPLES_XEDGE
 	tristate "Xedge IoT Toolkit"
+	depends on ALLOW_GPL_COMPONENTS
 	default n
 	---help---
 		Enable Xedge support in NuttX. Xedge is a high-level
