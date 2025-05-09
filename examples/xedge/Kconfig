@@ -19,9 +19,11 @@ config EXAMPLES_XEDGE
 	tristate "Xedge IoT Toolkit"
 	default n
 	---help---
-	  Enable Xedge support in NuttX. Xedge is a high-level toolkit that lets you
-	  develop complete IoT device applications using Lua, backed by the Barracuda App Server.
-	  This application demonstrates a complete Xedge runtime integrated into NuttX.
+		Enable Xedge support in NuttX. Xedge is a high-level
+		toolkit that lets you develop complete IoT device
+		applications using Lua, backed by the Barracuda App
+		Server.	This application demonstrates a complete
+		Xedge runtime integrated into NuttX.
 
 if EXAMPLES_XEDGE
 
@@ -29,18 +31,18 @@ config EXAMPLES_XEDGE_PROGNAME
 	string "Program name"
 	default "xedge"
 	---help---
-	  This is the name of the ELF executable for the Xedge application in NSH.
+		This is the name of the ELF executable for the Xedge application in NSH.
 
 config EXAMPLES_XEDGE_PRIORITY
 	int "Xedge task priority"
 	default 100
 	---help---
-	  Set the task priority for the Xedge runtime.
+		Set the task priority for the Xedge runtime.
 
 config EXAMPLES_XEDGE_STACKSIZE
 	int "Xedge stack size"
 	default 20000
 	---help---
-	  Set the stack size allocated to the Xedge Lua interpreter and application runtime.
+		Set the stack size allocated to the Xedge Lua interpreter and application runtime.
 
 endif
