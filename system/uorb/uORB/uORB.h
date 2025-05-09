@@ -485,48 +485,6 @@ static inline int orb_subscribe(FAR const struct orb_metadata *meta)
 }
 
 /****************************************************************************
- * Name: orb_subscribe_multi_nonwakeup/orb_subscribe_nonwakeup
- *
- * Description:
- *   Subscribe to a topic in a non-wakeup ways.
- *
- *   The usage of orb_subscribe_multi_nonwakeup is same to that of
- *   orb_subscribe_multi, with the key difference lying in whether the
- *   system's wakeup status needs to be concerned. This distinction is
- *   particularly beneficial for low-power consumption scenarios.
- *   If the subscription is in a non-wakeup mode, the subscriber will not
- *   receive data while the system is in sleep mode. In such cases, new data
- *   will overwrite old data until the system is awakened, at which point
- *   the subscriber will be notified. Typically, the subscriber and
- *   publisher of a topic reside in two separate systems.
- *
- * Input Parameters:
- *   meta       The uORB metadata (usually from the ORB_ID() macro)
- *   instance   The instance of the topic. Instance 0 matches the topic of
- *              the orb_subscribe() call.
- *
- * Returned Value:
- *   -1 on error, otherwise returns a fd
- *   that can be used to read and update the topic.
- *   If the topic in question is not known (due to an
- *   ORB_DEFINE_OPTIONAL with no corresponding ORB_DECLARE)
- *   this function will return -1 and set errno to ENOENT.
- ****************************************************************************/
-
-static inline
-int orb_subscribe_multi_nonwakeup(FAR const struct orb_metadata *meta,
-                                  unsigned instance)
-{
-  return orb_subscribe_multi(meta, instance);
-}
-
-static inline
-int orb_subscribe_nonwakeup(FAR const struct orb_metadata *meta)
-{
-  return orb_subscribe(meta);
-}
-
-/****************************************************************************
  * Name: orb_subscribe_multi_wakeup/orb_subscribe_wakeup
  *
  * Description:

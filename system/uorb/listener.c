@@ -202,12 +202,12 @@ static int listener_subscribe(FAR struct listen_object_s *tmp,
 {
   if (nonwakeup)
     {
-      return orb_subscribe_multi_nonwakeup(tmp->object.meta,
-                                           tmp->object.instance);
+      return orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
     }
   else
     {
-      return orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
+      return orb_subscribe_multi_wakeup(tmp->object.meta,
+                                        tmp->object.instance);
     }
 }
 
