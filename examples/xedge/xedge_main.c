@@ -1,11 +1,10 @@
-/*
-  Xedge Startup Code
-
-  Xedge, including this startup code, requires the Barracuda App
-  Server library and is licensed using the three license options as
-  explained here: https://github.com/RealTimeLogic/BAS#license
-
+/* Xedge NuttX Startup Code (may need adjustments)
+ *
+ * Xedge, including this startup code, requires the Barracuda App
+ * Server library and is licensed using the three license options as
+ * explained here: https://github.com/RealTimeLogic/BAS#license
 */
+
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <syslog.h>
@@ -22,15 +21,14 @@ extern int (*platformInitDiskIo)(DiskIo*); /* xedge.c */
 /* The LThreadMgr configured in xedge.c */
 extern LThreadMgr ltMgr;
 
-/* BAS is configured to use dlmalloc for NuttX. This is the pool.
-*/
+/* BAS is configured to use dlmalloc for NuttX. This is the pool. */
 static char poolBuf[2*1024*1024]; /* 2M : recommended minimum */
 
 
 /* The following two functions are copied from the example:
-   https://github.com/RealTimeLogic/BAS/blob/main/examples/xedge/src/led.c
-   Details:
-   https://realtimelogic.com/ba/examples/xedge/readme.html#time
+ * https://github.com/RealTimeLogic/BAS/blob/main/examples/xedge/src/led.c
+ * Details:
+ * https://realtimelogic.com/ba/examples/xedge/readme.html#time
  */
 
 /* This callback is called by one of the threads managed by LThreadMgr
@@ -46,7 +44,7 @@ static void executeXedgeEvent(ThreadJob* job, int msgh, LThreadMgr* mgr)
    if(lua_isfunction(L, -1))  /* Do we have _G._XedgeEvent */
    {
       /* Call _XedgeEvent("sntp") */
-      lua_pushstring(L,"sntp"); /* Arg */
+      lua_pushstring(L, "sntp"); /* Arg */
       lua_pcall(L, 1, 0, msgh); /* one arg, no return value */
    }
 }
@@ -64,7 +62,7 @@ checkTimeThread(void *arg)
    const char* d = __DATE__;
    char buf[50];
    if (!(basnprintf(buf, sizeof(buf), "Mon, %c%c %c%c%c %s %s",
-                    d[4],d[5], d[0],d[1],d[2], d + 7, __TIME__) < 0))
+                    d[4], d[5], d[0], d[1], d[2], d + 7, __TIME__) < 0))
    {
       BaTime compileT = baParseDate(buf);
       if(compileT) /* If OK: Seconds since 1970 */
@@ -85,22 +83,21 @@ checkTimeThread(void *arg)
 }
 
 /* xedge.c calls this to initialize the IO.
-   Change "/mnt/lfs" to your preference.
+ * Change "/mnt/lfs" to your preference.
  */
 int xedgeInitDiskIo(DiskIo* io)
 {
-   if(DiskIo_setRootDir(io,"/mnt/lfs"))
+   if(DiskIo_setRootDir(io, "/mnt/lfs"))
    {
-      syslog(LOG_ERR,"Error: cannot set root to /mnt/lfs\n");
+      syslog(LOG_ERR, "Error: cannot set root to /mnt/lfs\n");
       return -1;
    }
    return 0;
 }
 
 
-/*
-  xedge.c calls this; include your Lua bindings here.
-  Tutorial: https://tutorial.realtimelogic.com/Lua-Bindings.lsp
+/* xedge.c calls this; include your Lua bindings here.
+ * Tutorial: https://tutorial.realtimelogic.com/Lua-Bindings.lsp
 */
 int xedgeOpenAUX(XedgeOpenAUX* aux)
 {
@@ -126,25 +123,24 @@ myErrHandler(BaFatalErrorCodes ecode1,
              const char* file,
              int line)
 {
-   syslog(LOG_ERR,"Fatal error in Barracuda %d %d %s %d\n", ecode1, ecode2, file, line);
+   syslog(LOG_ERR, "Fatal error in Barracuda %d %d %s %d\n", ecode1, ecode2, file, line);
    exit(1);
 }
 
 
 /* Redirect server's HttpTrace to syslog.
-   https://realtimelogic.com/ba/doc/en/C/reference/html/structHttpTrace.html
+ * https://realtimelogic.com/ba/doc/en/C/reference/html/structHttpTrace.html
  */
 static void
 flushTrace(char* buf, int bufLen)
 {
    buf[bufLen]=0; /* Zero terminate. Bufsize is at least bufLen+1. */
-   syslog(LOG_INFO,"%s",buf);
+   syslog(LOG_INFO, "%s", buf);
 }
 
 static BaBool isRunning; /* Flag used for running state */
 
-/* CTRL-C handler makes Xedge perform a graceful shutdown.
- */
+/* CTRL-C handler makes Xedge perform a graceful shutdown. */
 static void
 sigHandler(int signo)
 {
