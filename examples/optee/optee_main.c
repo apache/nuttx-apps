@@ -39,6 +39,16 @@
  * Pre-processor definitions
  ****************************************************************************/
 
+#undef USE_ALLOC_IOC
+
+#ifdef USE_ALLOC_IOC
+#  define tee_shm_alloc          tee_shm_mmap
+#  define tee_shm_free_buf(p, s) munmap(p, s)
+#else
+#  define tee_shm_alloc          tee_shm_malloc
+#  define tee_shm_free_buf(p, s) ((void)s, free(p))
+#endif
+
 #define OPTEE_DEV                 "/dev/tee0"
 
 #define PTA_DEVICE_ENUM           { 0x7011a688, 0xddde, 0x4053, \
@@ -183,17 +193,16 @@ static int tee_shm_register(int fd, tee_shm_t *shm)
       return -EINVAL;
     }
 
-  shm->id = (int32_t)(uintptr_t)shm->ptr;
-
   ioc_reg.addr = (uintptr_t)shm->ptr;
   ioc_reg.length = shm->size;
-  ioc_reg.flags = TEE_SHM_REGISTER | TEE_SHM_SEC_REGISTER;
-  ioc_reg.id = shm->id;
 
-  return ioctl(fd, TEE_IOC_SHM_REGISTER, (unsigned long)&ioc_reg);
+  shm->fd = ioctl(fd, TEE_IOC_SHM_REGISTER, (unsigned long)&ioc_reg);
+  shm->id = ioc_reg.id;
+
+  return shm->fd < 0 ? shm->fd : 0;
 }
 
-#if 0 /* Not used */
+#ifdef USE_ALLOC_IOC
 static int tee_shm_mmap(int fd, tee_shm_t *shm, bool reg)
 {
   struct tee_ioctl_shm_alloc_data ioc_alloc;
@@ -235,9 +244,9 @@ static int tee_shm_mmap(int fd, tee_shm_t *shm, bool reg)
 
   return ret;
 }
-#endif
 
-static int tee_shm_alloc(int fd, tee_shm_t *shm, bool reg)
+#else /* !USE_ALLOC_IOC */
+static int tee_shm_malloc(int fd, tee_shm_t *shm, bool reg)
 {
   int ret = 0;
 
@@ -265,6 +274,7 @@ static int tee_shm_alloc(int fd, tee_shm_t *shm, bool reg)
 
   return ret;
 }
+#endif /* !USE_ALLOC_IOC */
 
 static void tee_shm_free(tee_shm_t *shm)
 {
@@ -273,18 +283,11 @@ static void tee_shm_free(tee_shm_t *shm)
       return;
     }
 
-  if (shm->fd > 0)
-    {
-      /* Allocated via tee_shm_mmap() */
+  tee_shm_free_buf(shm->ptr, shm->size);
 
-      munmap(shm->ptr, shm->size);
+  if (shm->fd >= 0)
+    {
       close(shm->fd);
-    }
-  else
-    {
-      /* Allocated via tee_shm_alloc() */
-
-      free(shm->ptr);
     }
 
   shm->ptr = NULL;
@@ -350,6 +353,7 @@ int main(int argc, FAR char *argv[])
     }
 
   par0.attr = TEE_IOCTL_PARAM_ATTR_TYPE_MEMREF_OUTPUT;
+  par0.c = TEE_MEMREF_NULL;
 
   ret = tee_invoke(fd, session, PTA_CMD_GET_DEVICES, &par0, 1);
   if (ret < 0)
@@ -372,7 +376,7 @@ int main(int argc, FAR char *argv[])
   par0.attr = TEE_IOCTL_PARAM_ATTR_TYPE_MEMREF_OUTPUT;
   par0.a = 0;
   par0.b = shm.size;
-  par0.c = (uintptr_t)shm.ptr;
+  par0.c = shm.id;
 
   ret = tee_invoke(fd, session, PTA_CMD_GET_DEVICES, &par0, 1);
   if (ret < 0)
