@@ -31,5 +31,12 @@ MODULE    = $(CONFIG_EXAMPLES_XEDGE)
 
 MAINSRC = xedge_main.c BAS/src/BAS.c BAS/src/dlmalloc.c BAS/src/arch/Posix/ThreadLib.c BAS/src/arch/NET/generic/SoDisp.c BAS/src/DiskIo/posix/BaFile.c BAS/examples/xedge/src/xedge.c BAS/examples/xedge/ BAS/examples/xedge/XedgeZip.c
 
+XEDGEZIP = BAS/examples/xedge/XedgeZip.c
+
+$(XEDGEZIP):
+	. prepare.sh
+
+context:: $(XEDGEZIP)
+
 
 include $(APPDIR)/Application.mk

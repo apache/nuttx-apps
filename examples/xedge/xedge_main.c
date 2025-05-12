@@ -1,5 +1,5 @@
-/****************************************************************************
- * xedge_main.c
+/***************************************************************************
+ * apps/examples/xedge/xedge_main.c
  *
  *   Copyright (C) 2025. All rights reserved.
  *   Author: Real Time Logic
@@ -32,7 +32,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- ****************************************************************************/
+ ***************************************************************************/
 
 /* Xedge NuttX Startup Code (may need adjustments)
  *
@@ -43,6 +43,10 @@
  * library and must be downloaded separately. Use the script
  * prepare.sh to clone and prepare the build env.
  */
+
+/***************************************************************************
+ * Included Files
+ ***************************************************************************/
 
 #include <nuttx/config.h>
 #include <stdio.h>
@@ -56,15 +60,33 @@
 #include <BaServerLib.h>
 #include "BAS/examples/xedge/src/xedge.h"
 
-extern void barracuda();  /* BAS/examples/xedge/src/xedge.c */
-extern void init_dlmalloc(char* heapstart, char* heapend); /* dlmalloc.c */
-extern int (*platformInitDiskIo)(DiskIo*); /* xedge.c */
+/***************************************************************************
+ * Private Data
+ ***************************************************************************/
 
-/* The LThreadMgr configured in xedge.c */
-extern LThreadMgr ltMgr;
+static int running; /* Server running mode */
 
-/* BAS is configured to use dlmalloc for NuttX. This is the pool. */
-static char poolBuf[2 * 1024 * 1024]; /* 2M : recommended minimum */
+/* BAS is configured to use dlmalloc for NuttX. This is the pool.
+ * 2M : recommended minimum
+ */
+
+static char poolbuf[2 * 1024 * 1024];
+
+extern LThreadMgr ltMgr; /* The LThreadMgr configured in xedge.c */
+
+/***************************************************************************
+ * External Function Prototypes
+ ***************************************************************************/
+
+/* barracuda(): BAS/examples/xedge/src/xedge.c */
+
+extern void barracuda(void);
+extern void init_dlmalloc(char *heapstart, char *heapend); /* dlmalloc.c */
+extern int (*platformInitDiskIo)(DiskIo *io);              /* xedge.c */
+
+/***************************************************************************
+ * Private Functions
+ ***************************************************************************/
 
 /* The following two functions are copied from the example:
  * https://github.com/RealTimeLogic/BAS/blob/main/examples/xedge/src/led.c
@@ -77,7 +99,8 @@ static char poolBuf[2 * 1024 * 1024]; /* 2M : recommended minimum */
  * attempts to find the global Lua function '_XedgeEvent', and if the
  * function is found, it will be executed as follows: _XedgeEvent("sntp")
  */
-static void executeXedgeEvent(ThreadJob *job, int msgh, LThreadMgr *mgr)
+
+static void execevent(ThreadJob *job, int msgh, LThreadMgr *mgr)
 {
   lua_State *L = job->Lt;
   lua_pushglobaltable(L);
@@ -91,9 +114,10 @@ static void executeXedgeEvent(ThreadJob *job, int msgh, LThreadMgr *mgr)
 }
 
 /* Thread started by xedgeOpenAUX() */
+
 static void *checkTimeThread(void *arg)
 {
-  ThreadMutex *soDispMutex = HttpServer_getMutex(ltMgr.server);
+  ThreadMutex *dm = HttpServer_getMutex(ltMgr.server);
   const char *d = __DATE__;
   char buf[50];
 
@@ -102,28 +126,66 @@ static void *checkTimeThread(void *arg)
   if (!(basnprintf(buf, sizeof(buf), "Mon, %c%c %c%c%c %s %s",
                    d[4], d[5], d[0], d[1], d[2], d + 7, __TIME__) < 0))
     {
-      BaTime compileT = baParseDate(buf);
-      if (compileT)
+      BaTime t = baParseDate(buf);
+      if (t)
         {
-          compileT -= 24 * 60 * 60;
-          while (baGetUnixTime() < compileT)
+          t -= 24 * 60 * 60;
+          while (baGetUnixTime() < t)
             {
               Thread_sleep(500);
             }
 
-          ThreadJob *job = ThreadJob_lcreate(sizeof(ThreadJob), executeXedgeEvent);
-          ThreadMutex_set(soDispMutex);
+          ThreadJob *job = ThreadJob_lcreate(sizeof(ThreadJob), execevent);
+          ThreadMutex_set(dm);
           LThreadMgr_run(&ltMgr, job);
-          ThreadMutex_release(soDispMutex);
+          ThreadMutex_release(dm);
         }
     }
 
   return NULL;
 }
 
+static void panic(BaFatalErrorCodes ecode1,
+                         unsigned int ecode2,
+                         const char *file,
+                         int line)
+{
+  syslog(LOG_ERR, "Fatal error in Barracuda %d %d %s %d\n",
+         ecode1, ecode2, file, line);
+  exit(1);
+}
+
+/* Redirect server's HttpTrace to syslog.
+ * https://realtimelogic.com/ba/doc/en/C/reference/html/structHttpTrace.html
+ */
+
+static void flushtrace(char *buf, int bufLen)
+{
+  buf[bufLen] = 0;
+  syslog(LOG_INFO, "%s", buf);
+}
+
+static void sighandler(int signo)
+{
+  if (running)
+    {
+      printf("\nGot SIGTERM; exiting...\n");
+      setDispExit();
+
+      /* NuttX feature: Must wait for socket select() to return */
+
+      Thread_sleep(2000);
+    }
+}
+
+/***************************************************************************
+ * Public Functions
+ ***************************************************************************/
+
 /* xedge.c calls this to initialize the IO.
  * Change "/mnt/lfs" to your preference.
  */
+
 int xedgeInitDiskIo(DiskIo *io)
 {
   if (DiskIo_setRootDir(io, "/mnt/lfs"))
@@ -135,10 +197,10 @@ int xedgeInitDiskIo(DiskIo *io)
   return 0;
 }
 
-
 /* xedge.c calls this; include your Lua bindings here.
  * Tutorial: https://tutorial.realtimelogic.com/Lua-Bindings.lsp
-*/
+ */
+
 int xedgeOpenAUX(XedgeOpenAUX *aux)
 {
   pthread_t thread;
@@ -156,51 +218,19 @@ int xedgeOpenAUX(XedgeOpenAUX *aux)
   return 0;
 }
 
-static void myErrHandler(BaFatalErrorCodes ecode1,
-                         unsigned int ecode2,
-                         const char *file,
-                         int line)
-{
-  syslog(LOG_ERR, "Fatal error in Barracuda %d %d %s %d\n",
-         ecode1, ecode2, file, line);
-  exit(1);
-}
-
-
-/* Redirect server's HttpTrace to syslog.
- * https://realtimelogic.com/ba/doc/en/C/reference/html/structHttpTrace.html
- */
-static void flushTrace(char *buf, int bufLen)
-{
-  buf[bufLen] = 0;
-  syslog(LOG_INFO, "%s", buf);
-}
-
-static BaBool isRunning;
-
-static void sigHandler(int signo)
-{
-  if (isRunning)
-    {
-      isRunning = FALSE;
-      printf("\nGot SIGTERM; exiting...\n");
-      setDispExit();
-      Thread_sleep(2000);
-    }
-}
-
 int main(int argc, FAR char *argv[])
 {
-  signal(SIGINT, sigHandler);
-  signal(SIGTERM, sigHandler);
+  signal(SIGINT, sighandler);
+  signal(SIGTERM, sighandler);
 
   ntpc_start();
-  init_dlmalloc(poolBuf, poolBuf + sizeof(poolBuf));
-  HttpTrace_setFLushCallback(flushTrace);
-  HttpServer_setErrHnd(myErrHandler);
+  init_dlmalloc(poolbuf, poolbuf + sizeof(poolbuf));
+  HttpTrace_setFLushCallback(flushtrace);
+  HttpServer_setErrHnd(panic);
 
-  isRunning = TRUE;
+  running = TRUE;
   barracuda();
+  running = FALSE;
 
   printf("Exiting Xedge\n");
   return 0;
