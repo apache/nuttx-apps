@@ -84,7 +84,7 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd);
 static void listener_monitor(FAR struct listen_list_s *objlist,
                              int nb_objects, float topic_rate,
                              int topic_latency, int nb_msgs,
-                             int timeout, bool record, bool nonwakeup);
+                             int timeout, bool record, bool wakeup);
 static int listener_update(FAR struct listen_list_s *objlist,
                            FAR struct orb_object *object);
 static void listener_top(FAR struct listen_list_s *objlist,
@@ -140,7 +140,7 @@ listener <command> [arguments...]\n\
 \t[-l       ]  Top only execute once.\n\
 \t[-i       ]  Get sensor device information based on topic.\n\
 \t[-f       ]  Flush sensor drive data.\n\
-\t[-u       ]  Subscribe in non-wakeup mode to save power.\n\
+\t[-w       ]  Subscribe in wakeup mode.\n\
   ");
 }
 
@@ -187,28 +187,26 @@ static int listener_create_dir(FAR char *dir, size_t size)
  * Name: listener_subscribe
  *
  * Description:
- *   Subscribe topic according to non wakeup mode.
+ *   Subscribe topic according to wakeup mode.
  *
  * Input Parameters:
  *   tmp          Given object
- *   nonwakeup    State of nonwakeup.
+ *   wakeup       State of wakeup.
  *
  * Returned Value:
  *   fd on success, otherwise -1.
  ****************************************************************************/
 
 static int listener_subscribe(FAR struct listen_object_s *tmp,
-                              bool nonwakeup)
+                              bool wakeup)
 {
-  if (nonwakeup)
-    {
-      return orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
-    }
-  else
+  if (wakeup)
     {
       return orb_subscribe_multi_wakeup(tmp->object.meta,
                                         tmp->object.instance);
     }
+
+  return orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
 }
 
 /****************************************************************************
@@ -571,14 +569,14 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
  *   objlist      Topic object list.
  *   nb_objects   Length of objects list.
  *   timeout      Maximum poll waiting time(microsecond).
- *   nonwakeup    The state of non wakeup
+ *   wakeup       The state of wakeup
  *
  * Returned Value:
  *   void
  ****************************************************************************/
 
 static void listener_flush_topic(FAR const struct listen_list_s *objlist,
-                                 int nb_objects, int timeout, bool nonwakeup)
+                                 int nb_objects, int timeout, bool wakeup)
 {
   FAR struct listen_object_s *tmp;
   FAR struct pollfd *fds;
@@ -607,7 +605,7 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
     {
       int fd;
 
-      fd = listener_subscribe(tmp, nonwakeup);
+      fd = listener_subscribe(tmp, wakeup);
       if (fd < 0)
         {
           fds[i].fd     = -1;
@@ -703,14 +701,14 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
  *
  * Input Parameters:
  *   objlist      topic object list.
- *   nonwakeup    The state of non wakeup
+ *   wakeup       The state of wakeup
  *
  * Returned Value:
  *   void
  ****************************************************************************/
 
 static void listener_print_info(FAR const struct listen_list_s *objlist,
-                                bool nonwakeup)
+                                bool wakeup)
 {
   FAR struct listen_object_s *tmp;
   orb_info_t info;
@@ -719,7 +717,7 @@ static void listener_print_info(FAR const struct listen_list_s *objlist,
 
   SLIST_FOREACH(tmp, objlist, node)
     {
-      fd = listener_subscribe(tmp, nonwakeup);
+      fd = listener_subscribe(tmp, wakeup);
       if (fd < 0)
         {
           continue;
@@ -807,7 +805,7 @@ static int listener_record(FAR const struct orb_metadata *meta, int fd,
 static void listener_monitor(FAR struct listen_list_s *objlist,
                              int nb_objects, float topic_rate,
                              int topic_latency, int nb_msgs,
-                             int timeout, bool record, bool nonwakeup)
+                             int timeout, bool record, bool wakeup)
 {
   FAR struct pollfd *fds;
   char path[PATH_MAX];
@@ -838,7 +836,7 @@ static void listener_monitor(FAR struct listen_list_s *objlist,
     {
       int fd;
 
-      fd = listener_subscribe(tmp, nonwakeup);
+      fd = listener_subscribe(tmp, wakeup);
       if (fd < 0)
         {
           fds[i].fd     = -1;
@@ -1079,7 +1077,7 @@ int main(int argc, FAR char *argv[])
   bool info         = false;
   bool flush        = false;
   bool record       = false;
-  bool nonwakeup    = false;
+  bool wakeup       = false;
   bool only_once    = false;
   FAR char *filter  = NULL;
   int ret;
@@ -1093,7 +1091,7 @@ int main(int argc, FAR char *argv[])
 
   /* Pasrse Argument */
 
-  while ((ch = getopt(argc, argv, "r:b:n:t:Tfslhiu")) != EOF)
+  while ((ch = getopt(argc, argv, "r:b:n:t:Tfslhiw")) != EOF)
     {
       switch (ch)
       {
@@ -1151,8 +1149,8 @@ int main(int argc, FAR char *argv[])
           info = true;
           break;
 
-        case 'u':
-          nonwakeup = true;
+        case 'w':
+          wakeup = true;
           break;
 
         case 'h':
@@ -1177,13 +1175,13 @@ int main(int argc, FAR char *argv[])
 
   if (flush)
     {
-      listener_flush_topic(&objlist, ret, timeout, nonwakeup);
+      listener_flush_topic(&objlist, ret, timeout, wakeup);
       goto exit;
     }
 
   if (info)
     {
-      listener_print_info(&objlist, nonwakeup);
+      listener_print_info(&objlist, wakeup);
       goto exit;
     }
 
@@ -1202,7 +1200,7 @@ int main(int argc, FAR char *argv[])
         }
 
       listener_monitor(&objlist, ret, topic_rate, topic_latency,
-                       nb_msgs, timeout, record, nonwakeup);
+                       nb_msgs, timeout, record, wakeup);
     }
 
 exit:
