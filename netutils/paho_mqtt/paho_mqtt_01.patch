@@ -1,0 +1,314 @@
+From 36c02a3935382a32a7fc19d52c9d6ee602dec8d6 Mon Sep 17 00:00:00 2001
+From: zhangshuai39 <zhangshuai39@xiaomi.com>
+Date: Wed, 14 May 2025 11:58:02 +0800
+Subject: [PATCH] paho_mqtt: Fix mqtt compile warning
+
+Signed-off-by: zhangshuai39 <zhangshuai39@xiaomi.com>
+---
+ src/MQTTAsync.c          |  2 +-
+ src/MQTTPacket.h         |  2 ++
+ src/SHA1.c               |  2 +-
+ src/Socket.c             | 16 +++++++++++++++-
+ src/Socket.h             |  1 +
+ src/Thread.c             |  1 +
+ src/Thread.h             |  2 +-
+ src/WebSocket.c          |  1 -
+ src/WebSocket.h          |  2 +-
+ src/samples/paho_c_pub.c | 29 ++++++++++++++++++-----------
+ src/samples/paho_c_sub.c |  4 +++-
+ 11 files changed, 45 insertions(+), 18 deletions(-)
+
+diff --git a/src/MQTTAsync.c b/src/MQTTAsync.c
+index c548ae3..2487d69 100644
+--- a/src/MQTTAsync.c
++++ b/src/MQTTAsync.c
+@@ -989,7 +989,7 @@ exit:
+ }
+ 
+ 
+-int MQTTAsync_inCallback()
++int MQTTAsync_inCallback(void)
+ {
+ 	thread_id_type thread_id = Paho_thread_getid();
+ 	return thread_id == sendThread_id || thread_id == receiveThread_id;
+diff --git a/src/MQTTPacket.h b/src/MQTTPacket.h
+index fd384ae..c833d0c 100644
+--- a/src/MQTTPacket.h
++++ b/src/MQTTPacket.h
+@@ -28,7 +28,9 @@
+ #include "LinkedList.h"
+ #include "Clients.h"
+ 
++#ifndef bool
+ typedef unsigned int bool;
++#endif
+ typedef void* (*pf)(int, unsigned char, char*, size_t);
+ 
+ #include "MQTTProperties.h"
+diff --git a/src/SHA1.c b/src/SHA1.c
+index a1b2c3d..e4f5g6h 100644
+--- a/src/SHA1.c
++++ b/src/SHA1.c
+@@ -58,7 +58,7 @@
+ #  include <libkern/OSByteOrder.h>
+ #  define htobe32(x) OSSwapHostToBigInt32(x)
+ #  define be32toh(x) OSSwapBigToHostInt32(x)
+-#elif defined(__FreeBSD__) || defined(__NetBSD__)
++#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__NuttX__)
+ #  include <sys/endian.h>
+ #endif
+ #include <string.h>
+diff --git a/src/Socket.c b/src/Socket.c
+index ff36657..0ea9009 100644
+--- a/src/Socket.c
++++ b/src/Socket.c
+@@ -130,7 +130,7 @@ int Socket_error(char* aString, SOCKET sock)
+ }
+ 
+ #if !defined(_WIN32)
+-void SIGPIPE_ignore()
++void SIGPIPE_ignore(void)
+ {
+ #if defined(PAHO_IGNORE_WITH_SIGNAL)
+ 	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+@@ -182,6 +182,7 @@ void Socket_outInitialize(void)
+ 	mod_s.saved.fds_write = NULL;
+ 	mod_s.saved.fds_read = NULL;
+ 	mod_s.saved.nfds = 0;
++	mod_s.poll_in_progress = 0;
+ #endif
+ 	FUNC_EXIT;
+ }
+@@ -622,17 +623,24 @@ SOCKET Socket_getReadySocket(int more_work, int timeout, mutex_type mutex, int*
+ 		}
+ 
+ 		/* Check pending write set for writeable sockets */
++		mod_s.poll_in_progress = 1;
+ 		rc1 = poll(mod_s.saved.fds_write, mod_s.saved.nfds, 0);
++		mod_s.poll_in_progress = 0;
+ 		if (rc1 > 0 && Socket_continueWrites(&sock, mutex) == SOCKET_ERROR)
+ 		{
+ 			*rc = SOCKET_ERROR;
++			mod_s.poll_in_progress = 0;
+ 			goto exit;
+ 		}
+ 
+ 		/* Prevent performance issue by unlocking the socket_mutex while waiting for a ready socket. */
++
+ 		Paho_thread_unlock_mutex(mutex);
++		mod_s.poll_in_progress = 1;
+ 		*rc = poll(mod_s.saved.fds_read, mod_s.saved.nfds, timeout_ms);
++		mod_s.poll_in_progress = 0;
+ 		Paho_thread_lock_mutex(mutex);
++
+ 		if (*rc == SOCKET_ERROR)
+ 		{
+ 			Socket_error("poll", 0);
+@@ -1029,6 +1037,12 @@ int Socket_close(SOCKET socket)
+ 	int rc = 0;
+ 
+ 	FUNC_ENTRY;
++
++	/* Waiting for poll to end */
++	while (mod_s.poll_in_progress) {
++		usleep(1000); // 1ms
++	}
++
+ 	Paho_thread_lock_mutex(socket_mutex);
+ 	Socket_close_only(socket);
+ 	Socket_abortWrite(socket);
+diff --git a/src/Socket.h b/src/Socket.h
+index 6e52ab8..8afbdb6 100644
+--- a/src/Socket.h
++++ b/src/Socket.h
+@@ -125,6 +125,7 @@ typedef struct
+ 	unsigned int nfds;         /**< no of file descriptors for poll */
+ 	struct pollfd* fds_read;        /**< poll read file descriptors */
+ 	struct pollfd* fds_write;
++	volatile int poll_in_progress; /**< Indicates poll operation is in progress (poll branch only) */
+ 
+ 	struct {
+ 		int cur_fd;            /**< index into the fds_saved array */
+diff --git a/src/Thread.c b/src/Thread.c
+index f4d43fb..52f810a 100644
+--- a/src/Thread.c
++++ b/src/Thread.c
+@@ -72,6 +72,7 @@ void Paho_thread_start(thread_fn fn, void* parameter)
+ #else
+ 	pthread_attr_init(&attr);
+ 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
++	pthread_attr_setstacksize(&attr, CONFIG_UTILS_MQTT5_STACKSIZE);
+ 	if (pthread_create(&thread, &attr, fn, parameter) != 0)
+ 		thread = 0;
+ 	pthread_attr_destroy(&attr);
+diff --git a/src/Thread.h b/src/Thread.h
+index b0c823b..72dbc43 100644
+--- a/src/Thread.h
++++ b/src/Thread.h
+@@ -76,7 +76,7 @@ LIBMQTT_API int Paho_thread_lock_mutex(mutex_type);
+ LIBMQTT_API int Paho_thread_unlock_mutex(mutex_type);
+ int Paho_thread_destroy_mutex(mutex_type);
+ 
+-LIBMQTT_API thread_id_type Paho_thread_getid();
++LIBMQTT_API thread_id_type Paho_thread_getid(void);
+ 
+ sem_type Thread_create_sem(int*);
+ int Thread_wait_sem(sem_type sem, int timeout);
+diff --git a/src/WebSocket.c b/src/WebSocket.c
+index 4338898..f941cda 100644
+--- a/src/WebSocket.c
++++ b/src/WebSocket.c
+@@ -1136,7 +1136,6 @@ int WebSocket_receiveFrame(networkHandles *net, size_t *actual_len)
+ 
+ 				if ( has_mask )
+ 				{
+-					uint8_t mask[4];
+ 					b = WebSocket_getRawSocketData(net, 4u, &len, &rcs);
+ 					if (rcs == SOCKET_ERROR)
+ 					{
+diff --git a/src/WebSocket.h b/src/WebSocket.h
+index 4e437d4..5343e6f 100644
+--- a/src/WebSocket.h
++++ b/src/WebSocket.h
+@@ -60,7 +60,7 @@ int WebSocket_connect(networkHandles *net, int ssl, const char *uri);
+ /* obtain data from network socket */
+ int WebSocket_getch(networkHandles *net, char* c);
+ char *WebSocket_getdata(networkHandles *net, size_t bytes, size_t* actual_len);
+-size_t WebSocket_framePos();
++size_t WebSocket_framePos(void);
+ void WebSocket_framePosSeekTo(size_t);
+ 
+ /* send data out, in websocket format only if required */
+diff --git a/src/samples/paho_c_pub.c b/src/samples/paho_c_pub.c
+index e891ef8..49392d8 100644
+--- a/src/samples/paho_c_pub.c
++++ b/src/samples/paho_c_pub.c
+@@ -101,16 +101,12 @@ void onConnectFailure5(void* context, MQTTAsync_failureData5* response)
+ 		MQTTAsync_strerror(response->code),
+ 		MQTTReasonCode_toString(response->reasonCode));
+ 	connected = -1;
+-
+-	MQTTAsync client = (MQTTAsync)context;
+ }
+ 
+ void onConnectFailure(void* context, MQTTAsync_failureData* response)
+ {
+ 	fprintf(stderr, "Connect failed, rc %s\n", response ? MQTTAsync_strerror(response->code) : "none");
+ 	connected = -1;
+-
+-	MQTTAsync client = (MQTTAsync)context;
+ }
+ 
+ 
+@@ -140,6 +136,12 @@ void onConnect5(void* context, MQTTAsync_successData5* response)
+ 		}
+ 	}
+ 
++	if (rc != 0)
++		{
++			fprintf(stderr, "Publish failed with code %d\n", rc);
++			toStop = 1;
++		}
++
+ 	connected = 1;
+ }
+ 
+@@ -169,6 +171,12 @@ void onConnect(void* context, MQTTAsync_successData* response)
+ 		}
+ 	}
+ 
++	if (rc != 0)
++		{
++			fprintf(stderr, "Publish failed with code %d\n", rc);
++			toStop = 1;
++		}
++
+ 	connected = 1;
+ }
+ 
+@@ -219,7 +227,6 @@ void onPublish(void* context, MQTTAsync_successData* response)
+ 
+ static int onSSLError(const char *str, size_t len, void *context)
+ {
+-	MQTTAsync client = (MQTTAsync)context;
+ 	return fprintf(stderr, "SSL error: %s\n", str);
+ }
+ 
+@@ -234,11 +241,11 @@ static unsigned int onPSKAuth(const char* hint,
+ 	int k, n;
+ 
+ 	int rc = 0;
+-	struct pubsub_opts* opts = context;
++	struct pubsub_opts* local_opts = context;
+ 
+ 	/* printf("Trying TLS-PSK auth with hint: %s\n", hint);*/
+ 
+-	if (opts->psk == NULL || opts->psk_identity == NULL)
++	if (local_opts->psk == NULL || local_opts->psk_identity == NULL)
+ 	{
+ 		/* printf("No PSK entered\n"); */
+ 		goto exit;
+@@ -246,7 +253,7 @@ static unsigned int onPSKAuth(const char* hint,
+ 
+ 	/* psk should be array of bytes. This is a quick and dirty way to
+ 	 * convert hex to bytes without input validation */
+-	psk_len = (int)strlen(opts->psk) / 2;
++	psk_len = (int)strlen(local_opts->psk) / 2;
+ 	if (psk_len > max_psk_len)
+ 	{
+ 		fprintf(stderr, "PSK too long\n");
+@@ -254,11 +261,11 @@ static unsigned int onPSKAuth(const char* hint,
+ 	}
+ 	for (k=0, n=0; k < psk_len; k++, n += 2)
+ 	{
+-		sscanf(&opts->psk[n], "%2hhx", &psk[k]);
++		sscanf(&local_opts->psk[n], "%2hhx", &psk[k]);
+ 	}
+ 
+ 	/* identity should be NULL terminated string */
+-	strncpy(identity, opts->psk_identity, max_identity_len);
++	strncpy(identity, local_opts->psk_identity, max_identity_len);
+ 	if (identity[max_identity_len - 1] != '\0')
+ 	{
+ 		fprintf(stderr, "Identity too long\n");
+@@ -372,7 +379,6 @@ int main(int argc, char** argv)
+ 	char* url = NULL;
+ 	int url_allocated = 0;
+ 	int rc = 0;
+-	const char* version = NULL;
+ 	const char* program_name = "paho_c_pub";
+ 	MQTTAsync_nameValue* infos = MQTTAsync_getVersionInfo();
+ #if !defined(_WIN32)
+@@ -506,6 +512,7 @@ int main(int argc, char** argv)
+ 	while (!disconnected)
+ 		mysleep(100);
+ 
++	toStop = 0;
+ 	MQTTAsync_destroy(&client);
+ 
+ 	if (url_allocated)
+diff --git a/src/samples/paho_c_sub.c b/src/samples/paho_c_sub.c
+index 85875c9..1fe18ce 100644
+--- a/src/samples/paho_c_sub.c
++++ b/src/samples/paho_c_sub.c
+@@ -207,7 +207,6 @@ int main(int argc, char** argv)
+ 	MQTTAsync_SSLOptions ssl_opts = MQTTAsync_SSLOptions_initializer;
+ 	int rc = 0;
+ 	char* url = NULL;
+-	const char* version = NULL;
+ 	const char* program_name = "paho_c_sub";
+ 	MQTTAsync_nameValue* infos = MQTTAsync_getVersionInfo();
+ #if !defined(_WIN32)
+@@ -343,6 +342,9 @@ int main(int argc, char** argv)
+ 		mysleep(100);
+ 
+ exit:
++	finished = 0;
++	subscribed = 0;
++	disconnected = 0;
+ 	MQTTAsync_destroy(&client);
+ 
+ 	return EXIT_SUCCESS;
+-- 
+2.34.1
+
