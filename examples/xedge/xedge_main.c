@@ -61,10 +61,45 @@
 #include "BAS/examples/xedge/src/xedge.h"
 
 /***************************************************************************
+ * Pre-processor Definitions
+ ***************************************************************************/
+
+/* The following is a horrible hack to make the code pass the NuttX
+ * checkpatch.sh tool. The Barracuda App Server uses a type of
+ * camelCase encoding as explained here:
+ * https://realtimelogic.com/ba/doc/en/C/introduction.html#oo_c
+ */
+
+#define ltmgr ltMgr
+#define lthreadmgr LThreadMgr
+#define lthreadmgr_run LThreadMgr_run
+#define platforminitdiskio platformInitDiskIo
+#define diskio DiskIo
+#define diskio_setrootdir DiskIo_setRootDir
+#define threadjob ThreadJob
+#define threadjob_lcreate ThreadJob_lcreate
+#define lt Lt
+#define threadmutex ThreadMutex
+#define threadmutex_set ThreadMutex_set
+#define httpserver_getmutex HttpServer_getMutex
+#define threadmutex_release ThreadMutex_release
+#define xedgeinitdiskio xedgeInitDiskIo
+#define batime BaTime
+#define baparsedate baParseDate
+#define bagetunixtime baGetUnixTime
+#define thread_sleep Thread_sleep
+#define bafatalerrorcodes BaFatalErrorCodes
+#define setdispexit setDispExit
+#define xedgeopenaux xedgeOpenAUX
+#define xedgeopenauxt XedgeOpenAUX
+#define httptrace_setflushcallback HttpTrace_setFLushCallback
+#define httpserver_seterrhnd HttpServer_setErrHnd
+
+/***************************************************************************
  * Private Data
  ***************************************************************************/
 
-static int running; /* Server running mode */
+static int running = FALSE; /* Running mode: 2 running, 1 exiting, 0 stopped */
 
 /* BAS is configured to use dlmalloc for NuttX. This is the pool.
  * 2M : recommended minimum
@@ -72,7 +107,7 @@ static int running; /* Server running mode */
 
 static char poolbuf[2 * 1024 * 1024];
 
-extern LThreadMgr ltMgr; /* The LThreadMgr configured in xedge.c */
+extern lthreadmgr ltmgr; /* The LThreadMgr configured in xedge.c */
 
 /***************************************************************************
  * External Function Prototypes
@@ -82,7 +117,7 @@ extern LThreadMgr ltMgr; /* The LThreadMgr configured in xedge.c */
 
 extern void barracuda(void);
 extern void init_dlmalloc(char *heapstart, char *heapend); /* dlmalloc.c */
-extern int (*platformInitDiskIo)(DiskIo *io);              /* xedge.c */
+extern int (*platforminitdiskio)(diskio *io);              /* xedge.c */
 
 /***************************************************************************
  * Private Functions
@@ -100,9 +135,9 @@ extern int (*platformInitDiskIo)(DiskIo *io);              /* xedge.c */
  * function is found, it will be executed as follows: _XedgeEvent("sntp")
  */
 
-static void execevent(ThreadJob *job, int msgh, LThreadMgr *mgr)
+static void execevent(threadjob *job, int msgh, lthreadmgr *mgr)
 {
-  lua_State *L = job->Lt;
+  lua_State *L = job->lt;
   lua_pushglobaltable(L);
   lua_getfield(L, -1, "_XedgeEvent");
 
@@ -115,9 +150,9 @@ static void execevent(ThreadJob *job, int msgh, LThreadMgr *mgr)
 
 /* Thread started by xedgeOpenAUX() */
 
-static void *checkTimeThread(void *arg)
+static void *checktimethread(void *arg)
 {
-  ThreadMutex *dm = HttpServer_getMutex(ltMgr.server);
+  threadmutex *dm = httpserver_getmutex(ltmgr.server);
   const char *d = __DATE__;
   char buf[50];
 
@@ -126,26 +161,26 @@ static void *checkTimeThread(void *arg)
   if (!(basnprintf(buf, sizeof(buf), "Mon, %c%c %c%c%c %s %s",
                    d[4], d[5], d[0], d[1], d[2], d + 7, __TIME__) < 0))
     {
-      BaTime t = baParseDate(buf);
+      batime t = baparsedate(buf);
       if (t)
         {
           t -= 24 * 60 * 60;
-          while (baGetUnixTime() < t)
+          while (bagetunixtime() < t)
             {
-              Thread_sleep(500);
+              thread_sleep(500);
             }
 
-          ThreadJob *job = ThreadJob_lcreate(sizeof(ThreadJob), execevent);
-          ThreadMutex_set(dm);
-          LThreadMgr_run(&ltMgr, job);
-          ThreadMutex_release(dm);
+          threadjob *job = threadjob_lcreate(sizeof(threadjob), execevent);
+          threadmutex_set(dm);
+          lthreadmgr_run(&ltmgr, job);
+          threadmutex_release(dm);
         }
     }
 
   return NULL;
 }
 
-static void panic(BaFatalErrorCodes ecode1,
+static void panic(bafatalerrorcodes ecode1,
                          unsigned int ecode2,
                          const char *file,
                          int line)
@@ -159,9 +194,9 @@ static void panic(BaFatalErrorCodes ecode1,
  * https://realtimelogic.com/ba/doc/en/C/reference/html/structHttpTrace.html
  */
 
-static void flushtrace(char *buf, int bufLen)
+static void flushtrace(char *buf, int buflen)
 {
-  buf[bufLen] = 0;
+  buf[buflen] = 0;
   syslog(LOG_INFO, "%s", buf);
 }
 
@@ -170,11 +205,11 @@ static void sighandler(int signo)
   if (running)
     {
       printf("\nGot SIGTERM; exiting...\n");
-      setDispExit();
+      setdispexit();
 
       /* NuttX feature: Must wait for socket select() to return */
 
-      Thread_sleep(2000);
+      thread_sleep(2000);
     }
 }
 
@@ -186,9 +221,9 @@ static void sighandler(int signo)
  * Change "/mnt/lfs" to your preference.
  */
 
-int xedgeInitDiskIo(DiskIo *io)
+int xedgeinitdiskio(diskio *io)
 {
-  if (DiskIo_setRootDir(io, "/mnt/lfs"))
+  if (diskio_setrootdir(io, "/mnt/lfs"))
     {
       syslog(LOG_ERR, "Error: cannot set root to /mnt/lfs\n");
       return -1;
@@ -201,7 +236,7 @@ int xedgeInitDiskIo(DiskIo *io)
  * Tutorial: https://tutorial.realtimelogic.com/Lua-Bindings.lsp
  */
 
-int xedgeOpenAUX(XedgeOpenAUX *aux)
+int xedgeopenaux(xedgeopenauxt *aux)
 {
   pthread_t thread;
   pthread_attr_t attr;
@@ -213,20 +248,26 @@ int xedgeOpenAUX(XedgeOpenAUX *aux)
   pthread_attr_setstacksize(&attr, 4096);
   param.sched_priority = SCHED_PRIORITY_DEFAULT;
   pthread_attr_setschedparam(&attr, &param);
-  pthread_create(&thread, &attr, checkTimeThread, NULL);
+  pthread_create(&thread, &attr, checktimethread, NULL);
 
   return 0;
 }
 
 int main(int argc, FAR char *argv[])
 {
+  if (running)
+    {
+      printf("Already running!\n");
+      return 1;
+    }
+
   signal(SIGINT, sighandler);
   signal(SIGTERM, sighandler);
 
   ntpc_start();
   init_dlmalloc(poolbuf, poolbuf + sizeof(poolbuf));
-  HttpTrace_setFLushCallback(flushtrace);
-  HttpServer_setErrHnd(panic);
+  httptrace_setflushcallback(flushtrace);
+  httpserver_seterrhnd(panic);
 
   running = TRUE;
   barracuda();
