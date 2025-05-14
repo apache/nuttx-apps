@@ -56,7 +56,7 @@ CFLAGS += -Wno-shadow -Wno-undef -Wno-format -Wno-builtin-macro-redefined
 CFLAGS += -Wno-type-limits -Wno-implicit-fallthrough -Wno-char-subscripts
 CFLAGS += -Wno-sign-compare -Wno-unused-const-variable -Wno-unused-function
 CFLAGS += -Wno-unused-variable -Wno-overflow -Wno-unused-but-set-variable
-CFLAGS += -Wno-strict-prototypes
+CFLAGS += -Wno-strict-prototypes -nostdlib
 
 DEPPATH += --dep-path $(CPYTHON_UNPACKNAME)$(DELIM)Programs
 VPATH   += :$(CPYTHON_UNPACKNAME)$(DELIM)Programs
