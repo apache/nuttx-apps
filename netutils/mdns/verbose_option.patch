@@ -1,0 +1,16 @@
+--- mdns/mdns.c
++++ mdns/mdns/mdns.c
+@@ -22,7 +22,9 @@
+ // Alias some things to simulate recieving data to fuzz library
+ #if defined(MDNS_FUZZING)
+ #define recvfrom(sock, buffer, capacity, flags, src_addr, addrlen) ((mdns_ssize_t)capacity)
+-#define printf
++#endif
++#if defined(MDNS_FUZZING) || !defined(CONFIG_NETUTILS_MDNS_VERBOSE)
++#define printf(...)
+ #endif
+ 
+ #include "mdns.h"
+-- 
+2.34.1
+
