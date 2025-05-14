@@ -1,0 +1,45 @@
+############################################################################
+# apps/tee/libteec/Kconfig
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Copyright (C) 2023 Xiaomi Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+############################################################################
+
+config LIBTEEC
+	bool "TEE client library (libteec)"
+	default n
+	---help---
+	        Enable libteec from https://github.com/OP-TEE/optee_client. This
+	        is OP-TEE project's implementation of GlobalPlatform's TEE client
+	        API specification v1.0 (GPD_SPE_007):
+	         https://globalplatform.org/specs-library/?filter-committee=tee
+	        The TEE Client API describes and defines how a client running in
+	        a rich operating environment (REE, in this case NuttX) should
+	        communicate with the Trusted Execution Environment (TEE) and its
+	        Trusted Applications (TAs). The library provides a
+	        well-established and easy-to-use interface abstracting away much
+	        of the details of the underlying subsystems. For more information
+	        please refer to:
+	        https://optee.readthedocs.io/en/latest/architecture/globalplatform_api.html#tee-client-api
+
+if LIBTEEC
+
+config LIBTEEC_VERSION
+	string "optee_client version (4.6.0)"
+	default "4.6.0"
+
+endif # LIBTEEC

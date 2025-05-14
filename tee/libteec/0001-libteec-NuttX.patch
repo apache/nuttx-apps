@@ -1,0 +1,47 @@
+From 70a12eb84a1276cad15bc2ac867ffad513d5c732 Mon Sep 17 00:00:00 2001
+From: George Poulios <gpoulios@census-labs.com>
+Date: Sun, 11 May 2025 00:44:22 +0300
+Subject: [PATCH] libteec: NuttX patches
+
+Fix use of gettid() syscall in teec_trace.c and
+replace include of linux/tee.h with nuttx/tee.h.
+
+Signed-off-by: George Poulios <gpoulios@census-labs.com>
+---
+ libteec/src/tee_client_api.c | 6 +++++-
+ libteec/src/teec_trace.c     | 2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/libteec/src/tee_client_api.c b/libteec/src/tee_client_api.c
+index 512fdac..b54e0b6 100644
+--- a/libteec/src/tee_client_api.c
++++ b/libteec/src/tee_client_api.c
+@@ -44,7 +44,11 @@
+ #ifndef __aligned
+ #define __aligned(x) __attribute__((__aligned__(x)))
+ #endif
+-#include <linux/tee.h>
++#ifdef __NuttX__
++#  include <nuttx/tee.h>
++#else
++#  include <linux/tee.h>
++#endif
+ 
+ #define MIN(x, y) (((x) < (y)) ? (x) : (y))
+ 
+diff --git a/libteec/src/teec_trace.c b/libteec/src/teec_trace.c
+index 7194c8c..025cc4b 100644
+--- a/libteec/src/teec_trace.c
++++ b/libteec/src/teec_trace.c
+@@ -75,7 +75,7 @@ void _dprintf(const char *function, int line, int level, const char *prefix,
+ 	va_list ap;
+ 
+ 	if (function) {
+-		int thread_id = syscall(SYS_gettid);
++		int thread_id = (int)gettid();
+ 
+ 		n = snprintf(msg, sizeof(msg), "%s [%d] %s:%s:%d: ",
+ 			trace_level_strings[level], thread_id, prefix,
+-- 
+2.34.1
+
