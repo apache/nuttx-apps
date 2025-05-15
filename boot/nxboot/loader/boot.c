@@ -79,6 +79,9 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
   off_t off;
   uint32_t crc;
   struct flash_partition_info info;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+  int total_size;
+#endif  
 
   if (flash_partition_info(fd, &info) < 0)
     {
@@ -94,6 +97,9 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
   crc = 0xffffffff;
   off = offsetof(struct nxboot_img_header, crc) + sizeof crc;
   remain = header->size + header->header_size - off;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+  total_size = remain;
+#endif
   while (remain > 0)
     {
       readsiz = remain > info.blocksize ? info.blocksize : remain;
@@ -108,7 +114,12 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
       crc = crc32part((uint8_t *)buf, readsiz, crc);
       if ((remain % 25) == 0)
         {
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+          nxboot_progress(nxboot_progress_percent,
+                          ((total_size - remain) * 100) / total_size);
+#else
           nxboot_progress(nxboot_progress_dot);
+#endif
         }
     }
 
@@ -128,6 +139,9 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
   int blocksize;
   off_t off;
   char *buf;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT  
+  int total_size;
+#endif
 
   get_image_header(from, &header);
 
@@ -147,6 +161,9 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
       return ERROR;
     }
 
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+  total_size = remain * 100;
+#endif
   blocksize = MAX(info_from.blocksize, info_where.blocksize);
 
   buf = malloc(blocksize);
@@ -208,7 +225,12 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
       remain -= readsiz;
       if ((remain % 25) == 0)
         {
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+          nxboot_progress(nxboot_progress_percent,
+                          ((total_size - remain) * 100) / total_size);
+#else
           nxboot_progress(nxboot_progress_dot);
+#endif
         }
     }
 

@@ -35,6 +35,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define ERROR                      -1
+
 #define NXBOOT_PRIMARY_SLOT_NUM   (0)
 #define NXBOOT_SECONDARY_SLOT_NUM (1)
 #define NXBOOT_TERTIARY_SLOT_NUM  (2)
@@ -134,11 +136,12 @@ struct nxboot_state
 
 enum progress_type_e
 {
-  nxboot_info = 0,       /* Prefixes arg. string with "INFO:" */
-  nxboot_error,          /* Prefixes arg. string with "ERR:" */
-  nxboot_progress_start, /* Prints arg. string with no newline to allow ..... sequence to follow */
-  nxboot_progress_dot,   /* Prints of a "." to the ..... progress sequence */
-  nxboot_progress_end,   /* Flags end of a "..." progrees sequence and prints newline */
+  nxboot_info = 0,         /* Prefixes arg. string with "INFO:" */
+  nxboot_error,            /* Prefixes arg. string with "ERR:" */
+  nxboot_progress_start,   /* Prints arg. string with no newline to allow ..... sequence to follow */
+  nxboot_progress_dot,     /* Prints of a "." to the ..... progress sequence */
+  nxboot_progress_percent, /* Displays progress as % remaining */
+  nxboot_progress_end,     /* Flags end of a "..." progrees sequence and prints newline */
 };
 
 enum progress_msg_e

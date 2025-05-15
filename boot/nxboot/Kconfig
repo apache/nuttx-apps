@@ -126,7 +126,24 @@ config NXBOOT_PRINTF_PROGRESS
 	bool "Enable progress messages to be sent to STDOUT"
 	default y
 	---help---
-		Note: the NXboot binary will be approximately 1.5KiB larger with this enabled.
+		This will display progress during typically lengthy operations:
+			- Calculating checksums
+			- copying images between slots
+
+		Note: the NXboot binary will be approximately 2KiB larger with this enabled.
+
+choice
+	prompt "Choose preferred progress indication type"
+	depends on NXBOOT_PRINTF_PROGRESS
+	default NXBOOT_PRINTF_PROGRESS_PERCENT
+
+config NXBOOT_PRINTF_PROGRESS_DOTS
+	bool "Display progress using sequential dots"
+
+config NXBOOT_PRINTF_PROGRESS_PERCENT
+	bool "Display progress using percentage remaining"
+
+endchoice
 
 endif # NXBOOT_BOOTLOADER
 

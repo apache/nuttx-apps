@@ -28,47 +28,85 @@
 
 #include <stdio.h>
 #include <syslog.h>
+#include <nuttx/ascii.h>
+#include <sys/param.h>
 
 #include <nxboot.h>
 #include <sys/boardctl.h>
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+typedef struct progress_msgs_s
+{
+  enum progress_msg_e idx; /* Index to the message */
+  const char         *msg; /* Corresponsing text message */
+} progress_msgs_t;
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
 bool progress_dots_started = false;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
+bool progress_percent_started = false;
+#endif
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS
-static const char *g_progress_txt[] =
-{
-  /* Text that will be printed  ...from...    enum progress_msg_e  */
 
-  "*** nxboot ***",                          /* startup_msg */
-  "Power Reset detected, check images only", /* power_reset */
-  "Soft reset detected, check for update",   /* soft_reset */
-  "Found bootable image, boot from primary", /* found_bootable_image */
-  "No bootable image found",                 /* no_bootable_image */
-  "Board failed to boot bootable image",     /* boardioc_image_boot_fail */
-  "Copying bootable image to RAM",           /* ramcopy_started */
-  "Reverting image to recovery",             /* recovery_revert */
-  "Creating recovery image",                 /* recovery_create */
-  "Updating from update image",              /* update_from_update */
-  "Validating primary image",                /* validate_primary */
-  "Validating recovery image",               /* validate_recovery */
-  "Validating update image",                 /* validate_update */
-  "Recovery image created",                  /* recovery_created */
-  "Recovery image invalid, update stopped",  /* recovery_invalid */
-  "Update failed",                           /* update_failed */
+#  ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT  
+static const char backtab[] =
+{
+  ASCII_BS, ASCII_BS, ASCII_BS, ASCII_BS, '\0',
 };
-#endif
+#  endif
+
+static const progress_msgs_t progress_msgs[] =
+  {
+    {startup_msg,              "*** nxboot ***"},
+    {power_reset,              "Power Reset detected, check images only"},
+    {soft_reset,               "Soft reset detected, check for update"},
+    {found_bootable_image,     "Found bootable image, boot from primary"},
+    {no_bootable_image,        "No bootable image found"},
+    {boardioc_image_boot_fail, "Board failed to boot bootable image"},
+    {ramcopy_started,          "Copying bootable image to RAM"},
+    {recovery_revert,          "Reverting image to recovery"},
+    {recovery_create,          "Creating recovery image"},
+    {update_from_update,       "Updating from update image"},
+    {validate_primary,         "Validating primary image"},
+    {validate_recovery,        "Validating recovery image"},
+    {validate_update,          "Validating update image"},
+    {recovery_created,         "Recovery image created"},
+    {recovery_invalid,         "Recovery image invalid, update stopped"},
+    {update_failed,            "Update failed"},
+    {(-1), NULL},
+  };
+#endif /* CONFIG_NXBOOT_PRINTF_PROGRESS */
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+const char *get_msg(enum progress_msg_e idx, const progress_msgs_t *txt);
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+const char *get_msg(enum progress_msg_e idx, const progress_msgs_t *msg)
+{
+  while (msg->idx != idx && msg->msg != NULL)
+    {
+      msg++;
+    }
+
+  return msg->msg;
+}
 
 /****************************************************************************
  * Public Functions
@@ -78,41 +116,56 @@ static const char *g_progress_txt[] =
  * Name: nxboot_progress
  *
  * Description:
- *   If enabled, thos function prints progress messages to stdout.
+ *   If enabled, this function prints progress messages to stdout.
  *   Messages are handled via integer enums, allowing this function to be
  *   easily replaced if required with no changes needed to the underlying
  *   code
+ *
+ * Input Parameters:
+ *   type - the progress message type to be printed, as per progress_type_e:
+ *          - nxboot_info:             Prefixes arg. string with "INFO:"
+ *          - nxboot_error:            Prefixes arg. string with "ERR:"
+ *          - nxboot_progress_start:   Prints arg. string with no newline
+ *                                     to allow a ..... sequence
+ *                                     or % remaining to follow
+ *          - nxboot_progress_dot:     Prints a "." to the ..... sequence
+ *          - nxboot_progress_percent: Displays progress as % remaining
+ *          - nxboot_progress_end,     Flags end of a progrees sequence
+ *
+ *   ... - variadic argument:
+ *          - the enum (int) reference to the message string or
+ *          - the % remaining in the case of type: nxboot_progress_percent
+ *
+ * Returned Value:
+ *   None
  *
  ****************************************************************************/
 
 void nxboot_progress(enum progress_type_e type, ...)
 {
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS
-  va_list args;
+  va_list arg;
 
-  va_start(args, type);
+  va_start(arg, type);
 
   switch (type)
     {
       case nxboot_info:
         {
-          int idx = va_arg(args, int);
-          const char *msg = g_progress_txt[idx];
-          dprintf(STDOUT_FILENO, "%s\n", msg);
+          int idx = va_arg(arg, int);
+          dprintf(STDOUT_FILENO, "%s\n", get_msg(idx, progress_msgs));
         }
       break;
       case nxboot_error:
         {
-          int idx = va_arg(args, int);
-          const char *msg = g_progress_txt[idx];
-          dprintf(STDOUT_FILENO, "ERROR: %s\n", msg);
+          int idx = va_arg(arg, int);
+          dprintf(STDOUT_FILENO, "ERROR: %s\n", get_msg(idx, progress_msgs));
         }
       break;
       case nxboot_progress_start:
         {
-          int idx = va_arg(args, int);
-          const char *msg = g_progress_txt[idx];
-          dprintf(STDOUT_FILENO, "%s", msg);
+          int idx = va_arg(arg, int);
+          dprintf(STDOUT_FILENO, "%s", get_msg(idx, progress_msgs));
           progress_dots_started = true;
         }
       break;
@@ -130,6 +183,33 @@ void nxboot_progress(enum progress_type_e type, ...)
             }
         }
       break;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT      
+      case nxboot_progress_percent:
+        {
+          assert(progress_dots_started);
+          if (!progress_dots_started)
+            {
+              printf("Progress percent requested "
+                     "but no previous progress start\n");
+            }
+          else
+            {
+              int percent = va_arg(arg, int);
+              if (!progress_percent_started)
+                {
+                  progress_percent_started = true;
+                  dprintf(STDOUT_FILENO, ": ");
+                }
+              else
+                {
+                  dprintf(STDOUT_FILENO, "%s", backtab);
+                }
+
+              dprintf(STDOUT_FILENO, "%3d%%", MIN(percent, 100));
+            }
+        }
+      break;
+#endif
       case nxboot_progress_end:
         {
           assert(progress_dots_started == false);
@@ -144,6 +224,9 @@ void nxboot_progress(enum progress_type_e type, ...)
             }
 
           progress_dots_started = false;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT   
+          progress_percent_started = false;
+#endif
         }
       break;
       default:
@@ -154,7 +237,7 @@ void nxboot_progress(enum progress_type_e type, ...)
       break;
     }
 
-  va_end(args);
+  va_end(arg);
 #endif /* CONFIG_NXBOOT_PRINTF_PROGRESS */
 }
 
