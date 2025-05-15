@@ -51,6 +51,7 @@
 #define ICMP_E_RECVFROM    -13 /* extra: error code    */
 #define ICMP_E_RECVSMALL   -15 /* extra: recv bytes    */
 #define ICMP_E_BINDDEV     -17 /* extra: error bind    */
+#define ICMP_E_FILTER      -19 /* extra: error filter  */
 
 /* Negative even number represent warning(recoverable) */
 
