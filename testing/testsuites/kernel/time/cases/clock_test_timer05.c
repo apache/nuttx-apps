@@ -112,7 +112,7 @@ void test_nuttx_clock_test_timer05(FAR void **state)
 
   /* Start the timer */
 
-  its.it_value.tv_sec = 3; /* 3, timer time 3 seconds. */
+  its.it_value.tv_sec = 1;
   its.it_value.tv_nsec = 0;
   its.it_interval.tv_sec = its.it_value.tv_sec;
   its.it_interval.tv_nsec = its.it_value.tv_nsec;
@@ -124,8 +124,8 @@ void test_nuttx_clock_test_timer05(FAR void **state)
   syslog(LOG_INFO, "timer_create %p: %d", timerid01, ret);
   assert_int_equal(ret, 0);
 
-  its.it_value.tv_sec = 4; /* 4, timer time 4 seconds. */
-  its.it_value.tv_nsec = 0;
+  its.it_value.tv_sec = 0;
+  its.it_value.tv_nsec = 50 * 1000 * 1000; /* 50ms */
   its.it_interval.tv_sec = its.it_value.tv_sec;
   its.it_interval.tv_nsec = its.it_value.tv_nsec;
 
@@ -138,12 +138,7 @@ void test_nuttx_clock_test_timer05(FAR void **state)
   syslog(LOG_INFO, "timer_settime %p: %d", timerid02, ret);
   assert_int_equal(ret, 0);
 
-  its.it_value.tv_sec = 5; /* 5, timer time 5 seconds. */
-  its.it_value.tv_nsec = 0;
-  its.it_interval.tv_sec = its.it_value.tv_sec;
-  its.it_interval.tv_nsec = its.it_value.tv_nsec;
-
-  sleep(20); /* 20, sleep seconds for timer. */
+  sleep(3);
   ret = timer_delete(timerid01);
   syslog(LOG_INFO, "timer_delete %p %d", timerid01, ret);
   assert_int_equal(ret, 0);
@@ -152,6 +147,8 @@ void test_nuttx_clock_test_timer05(FAR void **state)
   syslog(LOG_INFO, "timer_delete %p %d", timerid02, ret);
   assert_int_equal(ret, 0);
 
+  syslog(LOG_INFO, "cnt %d %d\n",
+          test_timer05_g_sighdlcnt01, test_timer05_g_sighdlcnt02);
   assert_int_not_equal(test_timer05_g_sighdlcnt01, 0);
   assert_int_not_equal(test_timer05_g_sighdlcnt02, 0);
 }
