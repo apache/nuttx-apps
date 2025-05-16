@@ -38,6 +38,7 @@
  ****************************************************************************/
 
 static struct smp_call_data_s g_call_data;
+static cpu_set_t g_cpuset;
 
 /****************************************************************************
  * Private Functions
@@ -53,10 +54,8 @@ static int smp_call_func(void *arg)
 
 static void wdg_wdentry(wdparm_t arg)
 {
-  cpu_set_t cpus = (1 << CONFIG_SMP_NCPUS) - 1;
-
   nxsched_smp_call_init(&g_call_data, smp_call_func, (FAR void *)arg);
-  nxsched_smp_call_async(cpus, &g_call_data);
+  nxsched_smp_call_async(g_cpuset, &g_call_data);
 }
 
 /****************************************************************************
@@ -65,7 +64,6 @@ static void wdg_wdentry(wdparm_t arg)
 
 void smp_call_test(void)
 {
-  cpu_set_t cpuset;
   struct smp_call_data_s call_data;
   sem_t sem;
   int cpucnt;
@@ -111,10 +109,10 @@ void smp_call_test(void)
 
   printf("smp_call_test: Call multi cpu, nowait\n");
 
-  sched_getaffinity(0, sizeof(cpu_set_t), &cpuset);
-  cpucnt = CPU_COUNT(&cpuset);
+  sched_getaffinity(0, sizeof(cpu_set_t), &g_cpuset);
+  cpucnt = CPU_COUNT(&g_cpuset);
 
-  nxsched_smp_call_async(cpuset, &call_data);
+  nxsched_smp_call_async(g_cpuset, &call_data);
 
   for (cpu = 0; cpu < cpucnt; cpu++)
     {
@@ -142,7 +140,7 @@ void smp_call_test(void)
 
   printf("smp_call_test: Call multi cpu, wait\n");
 
-  nxsched_smp_call(cpuset, smp_call_func, &sem);
+  nxsched_smp_call(g_cpuset, smp_call_func, &sem);
 
   sem_getvalue(&sem, &value);
   if (value != cpucnt)
