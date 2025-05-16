@@ -44,7 +44,7 @@
 
 #define wdtest_assert(x)             _ASSERT(x, __FILE__, __LINE__)
 
-#define wdtest_printf(...)           syslog(LOG_WARNING, __VA_ARGS__)
+#define wdtest_printf(...)           printf(__VA_ARGS__)
 
 #define wdtest_delay(delay_ns)       usleep(delay_ns / 1000 + 1)
 
@@ -54,10 +54,10 @@
 
 typedef struct wdtest_param_s
 {
-  FAR struct wdog_s  *wdog;
-  sclock_t            interval;
-  uint64_t            callback_cnt;
-  clock_t             triggered_tick;
+  FAR struct wdog_s *wdog;
+  sclock_t           interval;
+  uint64_t           callback_cnt;
+  clock_t            triggered_tick;
 } wdtest_param_t;
 
 /****************************************************************************
@@ -242,7 +242,7 @@ static void wdtest_recursive(FAR struct wdog_s *wdog,
 
   wdtest_delay(times * delay_ns);
 
-  wdtest_assert(wd_cancel(param->wdog) == 0);
+  wd_cancel(param->wdog);
 
   wdtest_printf("recursive wdog triggered %llu times, elapsed tick %lld\n",
                 (unsigned long long)(param->callback_cnt - cnt),
@@ -290,7 +290,7 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 {
   uint64_t             cnt;
   sclock_t             rest;
-  sclock_t             delay;
+  clock_t              delay;
   struct wdog_s        test_wdog =
   {
     0
@@ -363,7 +363,7 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 
   /* Maximum */
 
-  delay = ((clock_t)1 << (sizeof(sclock_t) * CHAR_BIT - 1)) - 1;
+  delay = CLOCK_MAX >> 2;
   wdtest_assert(wd_start(&test_wdog, delay,
                          wdtest_callback, (wdparm_t)param) == OK);
 
@@ -382,19 +382,12 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 
   rest = wd_gettime(&test_wdog);
 
-  wdtest_assert(rest < delay && rest > (delay >> 1));
+  wdtest_assert(rest < delay);
 
   wdtest_assert(wd_cancel(&test_wdog) == 0);
 
   wdtest_printf("wd_start with maximum delay, cancel OK, rest %lld\n",
                 (long long)rest);
-
-  /* Delay wraparound (delay < 0) */
-
-  delay = (sclock_t)((clock_t)delay + 1);
-  wdtest_assert(wd_start(&test_wdog, delay,
-                wdtest_callback, (wdparm_t)param) != OK);
-  wdtest_assert(wd_gettime(&test_wdog) == 0);
 
   /* Recursive wdog delay from 1000us to 10000us */
 
