@@ -1,0 +1,20 @@
+cc_binary {
+    name: "rexec",
+    srcs: ["rexec.c"],
+    cflags: [
+            "-DCONFIG_NSH_LINELEN=256",
+            "-DERROR=-1",
+            "-DFAR=",
+    ],
+    static_libs: [
+        "libnuttx_libc",
+    ],
+    header_libs: [
+        "nuttx_libc_headers"
+    ],
+    defaults: [
+        "nuttx_libc_defaults"
+    ],
+    shared_libs: ["libcutils"],
+    proprietary: true
+}

@@ -1,0 +1,11 @@
+cc_binary {
+    name: "rexecd",
+    srcs: ["rexecd.c"],
+    cflags: [
+            "-DCONFIG_NETUTILS_REXECD_STACKSIZE=0x4000",
+            "-DERROR=-1",
+            "-DFAR=",
+            "-Dpthread_addr_t=void *",
+        ],
+    shared_libs: ["libcutils"],
+}

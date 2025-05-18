@@ -27,12 +27,14 @@
 #include <errno.h>
 #include <netdb.h>
 #include <pthread.h>
+#include <netinet/in.h>
 #include <netpacket/rpmsg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <poll.h>
 #include <syslog.h>
+#include <string.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -273,7 +275,7 @@ int main(int argc, FAR char **argv)
             }
         }
 
-      ret = pthread_create(&tid, &attr, doit, (pthread_addr_t)sock);
+      ret = pthread_create(&tid, &attr, doit, (pthread_addr_t)(long)sock);
       if (ret < 0)
         {
           close(sock);
