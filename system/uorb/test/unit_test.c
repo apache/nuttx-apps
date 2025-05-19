@@ -194,6 +194,8 @@ static FAR void *pubsubtest_thread_entry(FAR void *arg)
 static int latency_test(bool print)
 {
   struct orb_test_medium_s sample;
+  struct sched_param param;
+  pthread_attr_t attr;
   pthread_t pubsub_task;
   int instance = 0;
   int ret = ERROR;
@@ -214,7 +216,11 @@ static int latency_test(bool print)
   g_pubsubtest_print  = print;
   g_pubsubtest_passed = false;
 
-  if (pthread_create(&pubsub_task, NULL, pubsubtest_thread_entry, NULL) < 0)
+  pthread_attr_init(&attr);
+  param.sched_priority = CONFIG_UORB_PRIORITY + 1;
+  pthread_attr_setschedparam(&attr, &param);
+
+  if (pthread_create(&pubsub_task, &attr, pubsubtest_thread_entry, NULL) < 0)
     {
       test_fail("failed launching latency test task");
       goto out;
