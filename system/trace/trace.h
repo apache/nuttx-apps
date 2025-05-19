@@ -54,7 +54,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int trace_dump(FAR FILE *out, bool binary);
+int trace_dump(FAR const char *filename, FAR FILE *out, bool binary);
 
 /****************************************************************************
  * Name: trace_dump_clear

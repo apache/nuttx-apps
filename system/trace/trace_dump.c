@@ -37,6 +37,12 @@
 #include "trace.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define TRACE_DUMP_BUFFER_SIZE 1024
+
+/****************************************************************************
  * Name: note_ioctl
  ****************************************************************************/
 
@@ -67,18 +73,20 @@ static void note_ioctl(int cmd, unsigned long arg)
  *
  ****************************************************************************/
 
-int trace_dump(FAR FILE *out, bool binary)
+int trace_dump(FAR const char *filename, FAR FILE *out, bool binary)
 {
   uint8_t *tracedata = NULL;
+  char path[PATH_MAX];
   int ret;
   int fd;
 
   /* Open note for read */
 
-  fd = open("/dev/note/ram", O_RDONLY);
+  snprintf(path, sizeof(path), "/dev/note/%s", filename);
+  fd = open(path, O_RDONLY);
   if (fd < 0)
     {
-      fprintf(stderr, "trace: cannot open /dev/note/ram\n");
+      fprintf(stderr, "trace: cannot open %s\n", path);
       return ERROR;
     }
 
@@ -95,7 +103,7 @@ int trace_dump(FAR FILE *out, bool binary)
         }
     }
 
-  tracedata = malloc(1024);
+  tracedata = malloc(TRACE_DUMP_BUFFER_SIZE);
   if (tracedata == NULL)
     {
       fprintf(stderr, "trace: cannot allocate memory\n");
@@ -107,8 +115,8 @@ int trace_dump(FAR FILE *out, bool binary)
 
   while (1)
     {
-      ret = read(fd, tracedata, sizeof tracedata);
-      if (ret < 0 || ret > sizeof(tracedata))
+      ret = read(fd, tracedata, TRACE_DUMP_BUFFER_SIZE);
+      if (ret < 0 || ret > TRACE_DUMP_BUFFER_SIZE)
         {
           fprintf(stderr, "trace: read error: %d, errno:%d\n", ret, errno);
           continue;

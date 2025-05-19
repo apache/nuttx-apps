@@ -209,7 +209,7 @@ static int trace_cmd_dump(FAR const char *name, int index, int argc,
 
   /* Dump the trace data */
 
-  ret = trace_dump(out, binary);
+  ret = trace_dump(name, out, binary);
 
   if (changed)
     {
@@ -851,7 +851,7 @@ int main(int argc, FAR char *argv[])
   int notectlfd;
   int exitcode = EXIT_FAILURE;
   int i;
-  char name[NAME_MAX];
+  char name[NAME_MAX] = "ram";
 
   /* Open note control device */
 
@@ -863,7 +863,6 @@ int main(int argc, FAR char *argv[])
       goto errout;
     }
 
-  name[0] = '\0';
   if (argc == 1)
     {
       /* No arguments - show current mode */
