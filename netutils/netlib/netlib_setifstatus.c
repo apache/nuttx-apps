@@ -74,12 +74,16 @@ int netlib_ifup(const char *ifname)
           /* Put the driver name into the request */
 
           strlcpy(req.ifr_name, ifname, IFNAMSIZ);
+          ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
+          if (ret >= 0)
+            {
+              /* Perform the ioctl to ifup flag */
 
-          /* Perform the ioctl to ifup flag */
+              IFF_SET_UP(req.ifr_flags);
 
-          req.ifr_flags |= IFF_UP;
+              ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+            }
 
-          ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
           close(sockfd);
         }
     }
@@ -117,10 +121,112 @@ int netlib_ifdown(const char *ifname)
           /* Put the driver name into the request */
 
           strlcpy(req.ifr_name, ifname, IFNAMSIZ);
+          ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
+          if (ret >= 0)
+            {
+              /* Perform the ioctl to ifdown flag */
+
+              IFF_CLR_UP(req.ifr_flags);
+
+              ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+            }
+
+          close(sockfd);
+        }
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: netlib_ifarp
+ *
+ * Description:
+ *   Enable ARP learning capability on the interface
+ *
+ * Parameters:
+ *   ifname   The name of the interface to use
+ *
+ * Return:
+ *   0 on success; -1 on failure
+ *
+ ****************************************************************************/
+
+int netlib_ifarp(const char *ifname)
+{
+  int ret = ERROR;
+  if (ifname)
+    {
+      /* Get a socket (only so that we get access to the INET subsystem) */
+
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
+      if (sockfd >= 0)
+        {
+          struct ifreq req;
+          memset(&req, 0, sizeof(struct ifreq));
+
+          /* Put the driver name into the request */
+
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to ifup flag */
 
-          ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
+          if (ret >= 0)
+            {
+              IFF_CLR_NOARP(req.ifr_flags);
+
+              ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+            }
+
+          close(sockfd);
+        }
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: netlib_ifnoarp
+ *
+ * Description:
+ *   Disable ARP learning capability on the interface
+ *
+ * Parameters:
+ *   ifname   The name of the interface to use
+ *
+ * Return:
+ *   0 on success; -1 on failure
+ *
+ ****************************************************************************/
+
+int netlib_ifnoarp(const char *ifname)
+{
+  int ret = ERROR;
+  if (ifname)
+    {
+      /* Get a socket (only so that we get access to the INET subsystem) */
+
+      int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
+      if (sockfd >= 0)
+        {
+          struct ifreq req;
+          memset(&req, 0, sizeof(struct ifreq));
+
+          /* Put the driver name into the request */
+
+          strlcpy(req.ifr_name, ifname, IFNAMSIZ);
+
+          /* Perform the ioctl to ifup flag */
+
+          ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
+          if (ret >= 0)
+            {
+              IFF_SET_NOARP(req.ifr_flags);
+
+              ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+            }
+
           close(sockfd);
         }
     }

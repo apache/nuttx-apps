@@ -142,6 +142,15 @@ struct tftpc_args_s
 };
 #endif
 
+#ifdef CONFIG_NET_ARP
+typedef enum
+{
+  ARP_DEFAULT,               /* Did not set arp configure in the command */
+  ARP_ENABLE,                /* Clean the NOARP flag for the interface to enable the arp learning function */
+  ARP_DISABLE                /* Set the NOARP flag for the interface to disable the arp learning function */
+} arp_cfg_e;
+#endif
+
 typedef int (*nsh_netdev_callback_t)(FAR struct nsh_vtbl_s *vtbl,
                                      FAR char *devname);
 
@@ -575,6 +584,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
   bool missingarg = true;
   bool badarg = false;
+#ifdef CONFIG_NET_ARP
+  arp_cfg_e arpflag = ARP_DEFAULT;
+#endif
 #ifdef HAVE_HWADDR
   mac_addr_t macaddr;
 #endif
@@ -742,6 +754,20 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                       badarg = true;
                     }
                 }
+#ifdef CONFIG_NET_ARP
+              else if (!strcmp(tmp, "arp"))
+                {
+                  /* Enable arp function on interface */
+
+                  arpflag = ARP_ENABLE;
+                }
+              else if (!strcmp(tmp, "-arp"))
+                {
+                  /* Disable arp function on interface */
+
+                  arpflag = ARP_DISABLE;
+                }
+#endif
               else if (hostip == NULL && i <= 4)
                 {
                   /* Let first non-option be host ip, to support inet/inet6
@@ -1041,6 +1067,17 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (!gip)
     {
       netlib_obtain_ipv4addr(ifname);
+    }
+#endif
+
+#ifdef CONFIG_NET_ARP
+  if (arpflag == ARP_ENABLE)
+    {
+      netlib_ifarp(ifname);
+    }
+  else if (arpflag == ARP_DISABLE)
+    {
+      netlib_ifnoarp(ifname);
     }
 #endif
 
