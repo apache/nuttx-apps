@@ -12,7 +12,7 @@ if UORB
 
 config UORB_PRIORITY
 	int "task priority"
-	default 100
+	default 250
 
 config UORB_STACKSIZE
 	int "stack size"
