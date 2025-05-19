@@ -477,6 +477,8 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler,
 int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags);
 int netlib_ifup(FAR const char *ifname);
 int netlib_ifdown(FAR const char *ifname);
+int netlib_ifarp(const char *ifname);
+int netlib_ifnoarp(const char *ifname);
 
 /* DNS server addressing */
 
