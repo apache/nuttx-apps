@@ -10,7 +10,7 @@ config EXAMPLES_OPTEE_GP
 	---help---
 		Enable the OP-TEE GP API client example which uses libteec
 
-if EXAMPLES_OPTEE
+if EXAMPLES_OPTEE_GP
 
 config EXAMPLES_OPTEE_GP_PROGNAME
 	string "Program name"
