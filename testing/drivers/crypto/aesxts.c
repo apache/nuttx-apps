@@ -1806,7 +1806,7 @@ static int match(FAR unsigned char *a,
 }
 
 static int syscrypt(FAR const unsigned char *key, size_t klen,
-                    FAR const uint8_t *data_unit,
+                    FAR const uint8_t *data_unit, size_t ivlen,
                     FAR const unsigned char *in,
                     FAR unsigned char *out, size_t len, int encrypt)
 {
@@ -1844,6 +1844,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   cryp.flags = 0;
   cryp.len = len;
   cryp.olen = len;
+  cryp.ivlen = ivlen;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) data_unit;
@@ -1891,7 +1892,7 @@ static void test_aesxts(void **state)
 
       /* Encrypt test */
 
-      if (syscrypt(tv->key, tv->key_len, tv->data_unit, tv->plaintext,
+      if (syscrypt(tv->key, tv->key_len, tv->data_unit, 16, tv->plaintext,
                       result, tv->text_len, 1) < 0)
         {
           printf("FAIL encrypt test vector %zu\n", i);
@@ -1909,7 +1910,7 @@ static void test_aesxts(void **state)
 
       /* Decrypt test */
 
-      if (syscrypt(tv->key, tv->key_len, tv->data_unit, tv->ciphertext,
+      if (syscrypt(tv->key, tv->key_len, tv->data_unit, 16, tv->ciphertext,
           result, tv->text_len, 0) < 0)
         {
           printf("FAIL decrypt test vector %zu\n", i);
