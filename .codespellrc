@@ -8,3 +8,6 @@ exclude-file = .codespell-ignore-lines
 # Ignore complete files (e.g. legal text or other immutable material).
 skip =
   LICENSE,
+
+# Ignore words list (FTP protocol commands and technical terms)
+ignore-words-list = ALLO
