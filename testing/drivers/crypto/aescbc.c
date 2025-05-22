@@ -182,6 +182,7 @@ static int syscrypt(FAR const char *key, size_t klen,
   cryp.flags = 0;
   cryp.len = len;
   cryp.olen = len;
+  cryp.ivlen = 16;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) tmp_iv;
@@ -261,6 +262,7 @@ static int syscrypt_stream(FAR const char *key, size_t klen,
   cryp.flags = 0;
   cryp.mac = 0;
   cryp.iv = (caddr_t) tmp_iv;
+  cryp.ivlen = 16;
   while (len >= 16)
     {
       cryp.len = 16;
