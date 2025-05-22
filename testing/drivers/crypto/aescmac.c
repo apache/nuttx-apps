@@ -189,6 +189,7 @@ static int syscrypt(FAR const unsigned char *key, int keybits,
   cryp.op = COP_ENCRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = outlen;
   cryp.src = (caddr_t)message;
   cryp.mac = (caddr_t)output;
 
