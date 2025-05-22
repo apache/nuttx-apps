@@ -150,7 +150,7 @@ static FAR const char *g_sha256_result[] =
 };
 
 static int syshmac(int mac, FAR const char *key, size_t keylen,
-                   FAR const char *s, size_t len, FAR char *out)
+                   FAR const char *s, size_t len, FAR char *out, size_t olen)
 {
   struct session_op session;
   struct crypt_op cryp;
@@ -186,6 +186,7 @@ static int syshmac(int mac, FAR const char *key, size_t keylen,
   cryp.flags = 0;
   cryp.src = (caddr_t) s;
   cryp.len = len;
+  cryp.olen = olen;
   cryp.dst = 0;
   cryp.mac = (caddr_t) out;
   cryp.iv = 0;
@@ -253,7 +254,7 @@ static void test_hmac_md5(void **state)
                                g_testcase[i].keylen,
                                g_testcase[i].data,
                                g_testcase[i].datalen,
-                               output), 0);
+                               output, MD5_DIGEST_LENGTH), 0);
 
       assert_int_equal(match((unsigned char *)g_md5_result[i],
                              (unsigned char *)output,
@@ -271,7 +272,7 @@ static void test_hmac_sha1(void **state)
                                g_testcase[i].keylen,
                                g_testcase[i].data,
                                g_testcase[i].datalen,
-                               output), 0);
+                               output, SHA1_DIGEST_LENGTH), 0);
 
       assert_int_equal(match((unsigned char *)g_sha1_result[i],
                              (unsigned char *)output,
@@ -289,7 +290,7 @@ static void test_hmac_sha256(void **state)
                                g_testcase[i].keylen,
                                g_testcase[i].data,
                                g_testcase[i].datalen,
-                               output), 0);
+                               output, SHA256_DIGEST_LENGTH), 0);
 
       assert_int_equal(match((unsigned char *)g_sha256_result[i],
                              (unsigned char *)output,

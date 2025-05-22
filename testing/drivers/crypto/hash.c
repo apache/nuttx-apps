@@ -304,9 +304,12 @@ static int syshash_update(FAR crypto_context *ctx, FAR const char *s,
   return 0;
 }
 
-static int syshash_finish(FAR crypto_context *ctx, FAR unsigned char *out)
+static int syshash_finish(FAR crypto_context *ctx,
+                          FAR unsigned char *out,
+                          size_t olen)
 {
   ctx->cryp.flags = 0;
+  ctx->cryp.olen = olen;
   ctx->cryp.mac = (caddr_t) out;
 
   if (ioctl(ctx->crypto_fd, CIOCCRYPT, &ctx->cryp) == -1)
@@ -360,7 +363,7 @@ static int testing_hash_huge_block(crypto_context *ctx, int op,
 
   assert_int_equal(syshash_start(ctx, op), 0);
   assert_int_equal(syshash_update(ctx, (char *)block, len), 0);
-  assert_int_equal(syshash_finish(ctx, output), 0);
+  assert_int_equal(syshash_finish(ctx, output, reslen), 0);
   return match(result, output, reslen);
 }
 #endif
@@ -380,7 +383,7 @@ static void test_hash_md5(void **state)
       assert_int_equal(syshash_update(&md5_ctx, g_md5_testcase[i].data,
                                       g_md5_testcase[i].datalen), 0);
 
-      assert_int_equal(syshash_finish(&md5_ctx, output), 0);
+      assert_int_equal(syshash_finish(&md5_ctx, output, 16), 0);
 
       assert_int_equal(match(g_md5_result[i], output, MD5_DIGEST_LENGTH), 0);
     }
@@ -431,7 +434,7 @@ static void test_hash_sha1(void **state)
                                           g_sha_testcase[i].datalen), 0);
         }
 
-      assert_int_equal(syshash_finish(&sha1_ctx, output), 0);
+      assert_int_equal(syshash_finish(&sha1_ctx, output, 20), 0);
 
       assert_int_equal(match((unsigned char *)g_sha1_result[i],
                       (unsigned char *)output, SHA1_DIGEST_LENGTH), 0);
@@ -484,7 +487,7 @@ static void test_hash_sha256(void **state)
                                           g_sha_testcase[i].datalen), 0);
         }
 
-      assert_int_equal(syshash_finish(&sha2_256_ctx, output), 0);
+      assert_int_equal(syshash_finish(&sha2_256_ctx, output, 32), 0);
       assert_int_equal(match((unsigned char *)g_sha256_result[i],
                              (unsigned char *)output,
                               SHA256_DIGEST_LENGTH), 0);
@@ -537,7 +540,7 @@ static void test_hash_sha512(void **state)
                                           g_sha512_testcase[i].datalen), 0);
         }
 
-      assert_int_equal(syshash_finish(&sha2_512_ctx, output), 0);
+      assert_int_equal(syshash_finish(&sha2_512_ctx, output, 64), 0);
       assert_int_equal(match((unsigned char *)g_sha512_result[i],
                              (unsigned char *)output,
                               SHA512_DIGEST_LENGTH), 0);

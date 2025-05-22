@@ -207,6 +207,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   cryp.flags = 0;
   cryp.len = len;
   cryp.olen = len;
+  cryp.ivlen = 16;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) iv;
