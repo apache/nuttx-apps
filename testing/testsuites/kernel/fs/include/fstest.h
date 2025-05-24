@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <malloc.h>
 #include <string.h>
 #include <libgen.h>
 #include <dirent.h>
