@@ -7,7 +7,8 @@ config EXAMPLES_POSIX_STDIO
 	bool "Posix stdio example"
 	default n
 	---help---
-    	Enable POSIX stdio example that shows how to use open(), write() and close() via /dev/console.
+		Enable POSIX stdio example that shows how to use open(), write() and
+		close() via /dev/console.
 
 config EXAMPLES_POSIX_STDIO_PROGNAME
 	string "Program name"
@@ -15,6 +16,11 @@ config EXAMPLES_POSIX_STDIO_PROGNAME
 	depends on EXAMPLES_POSIX_STDIO
 
 config EXAMPLES_POSIX_STDIO_PRIORITY
-	int "POSIX_STDIO test priority"
+	int "POSIX_STDIO priority"
 	default 100
+	depends on EXAMPLES_POSIX_STDIO
+
+config EXAMPLES_POSIX_STDIO_STACKSIZE
+	int "POSIX_STDIO stack size"
+	default DEFAULT_TASK_STACKSIZE
 	depends on EXAMPLES_POSIX_STDIO
