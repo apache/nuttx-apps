@@ -70,13 +70,13 @@ static void wdtest_callback(wdparm_t param)
 {
   FAR wdtest_param_t *wdtest_param = (FAR wdtest_param_t *)param;
 
-  /* Increment the callback count */
-
-  wdtest_param->callback_cnt   += 1;
-
   /* Record the system tick at which the callback was triggered */
 
   wdtest_param->triggered_tick  = clock_systime_ticks();
+
+  /* Increment the callback count */
+
+  wdtest_param->callback_cnt   += 1;
 }
 
 static void wdtest_checkdelay(sclock_t diff, sclock_t delay_tick)
