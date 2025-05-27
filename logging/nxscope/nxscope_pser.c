@@ -47,7 +47,7 @@
 #define NXSCOPE_CRC_LEN       (sizeof(uint16_t))
 
 /****************************************************************************
- * Private Type Definition
+ * Private Types
  ****************************************************************************/
 
 /* Nxscope serial protocol frame:

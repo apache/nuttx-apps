@@ -35,7 +35,7 @@
 #include <logging/nxscope/nxscope.h>
 
 /****************************************************************************
- * Private Type Definition
+ * Private Types
  ****************************************************************************/
 
 struct nxscope_intf_dummy_s
