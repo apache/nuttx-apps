@@ -52,7 +52,7 @@
 #endif
 
 /****************************************************************************
- * Private Type Declarations
+ * Private Types
  ****************************************************************************/
 
 typedef CODE int (*nxcamera_func)(FAR struct nxcamera_s *cam, FAR char *arg);
