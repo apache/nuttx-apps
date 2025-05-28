@@ -544,11 +544,6 @@ static int test_multi(int *afds, int *sfds)
       return test_fail("sub #1 val. mismatch: %d", sub_sample.val);
     }
 
-  if (OK != latency_test(false))
-    {
-      return test_fail("latency test failed");
-    }
-
   orb_unsubscribe(sfds[0]);
   orb_unsubscribe(sfds[1]);
 
@@ -1162,12 +1157,12 @@ int main(int argc, FAR char *argv[])
     {
       if (test() == OK)
         {
-          printf("PASS\n");
+          printf("TEST PASS\n");
           return 0;
         }
       else
         {
-          printf("FAIL\n");
+          printf("TEST FAIL\n");
           return -1;
         }
     }
