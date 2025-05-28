@@ -202,8 +202,8 @@ int flash_partition_read(int fd, void *buf, size_t count, off_t off)
   nbytes = read(fd, buf, count);
   if (nbytes != count)
     {
-      syslog(LOG_ERR, "Read from offset %ld failed %s\n",
-              off, strerror(errno));
+      syslog(LOG_ERR, "Read from offset %ld failed %s\n", off,
+                      strerror(errno));
       return ERROR;
     }
 
@@ -265,7 +265,7 @@ int flash_partition_erase_first_sector(int fd)
   if (ret < 0)
     {
       syslog(LOG_ERR, "Could not erase the partition: %s\n",
-              strerror(errno));
+                      strerror(errno));
       return ERROR;
     }
 
@@ -295,7 +295,8 @@ int flash_partition_info(int fd, struct flash_partition_info *info)
   ret = ioctl(fd, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&geometry));
   if (ret < 0)
     {
-      syslog(LOG_ERR, "ioctl MTDIOC_GEOMETRY failed: %s\n", strerror(errno));
+      syslog(LOG_ERR, "ioctl MTDIOC_GEOMETRY failed: %s\n",
+                              strerror(errno));
       return ERROR;
     }
 

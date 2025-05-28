@@ -64,6 +64,36 @@ config NXBOOT_BOOTLOADER
 
 if NXBOOT_BOOTLOADER
 
+config NXBOOT_COPY_TO_RAM
+	bool "Copy bootable image to RAM before calling board boot-image function"
+	default n
+	---help---
+		The is a board and/or arch specific option that may be used when running
+		directly from flash, especially if external flash, even in XIP mode, is too
+		slow.
+		Running from RAM usually results in faster execution but the board must, of
+		course, have sufficient RAM available for the application image, stack
+		and heap.
+
+config NXBOOT_RAMSTART
+	hex "Start address in RAM that the application is to be loaded"
+	default 0x0
+	depends on NXBOOT_COPY_TO_RAM
+	---help---
+		This will be board specific. A check of the board's linker script
+		may be informative. For example the SAMA5D2-XULT eval board's uboot
+		linker script - boards/arm/sama5/sama5d2-xult/scripts/uboot.ld - has:
+		
+		sdram (W!RX) : ORIGIN = 0x20008000, LENGTH = 256M - 32K
+
+		This shows the load address to be 0x20008000 and would be the address
+		to use here if the same linker script is to be be used for NXboot.
+
+		Typically the address is the base address of the RAM to be used, plus the
+		size of the NXboot image itself. The example above has reserved
+		32KiB (0x8000) for this from the 256MiB available on the board at
+		address 0x20000000.
+
 config NXBOOT_SWRESET_ONLY
 	bool "Perform update/revert only on SW reset"
 	default n
@@ -86,11 +116,34 @@ config NXBOOT_PREVENT_DOWNGRADE
 		NXboot uses Semantic Version 2.0.0 (without build metadata). By default
 		the update is performed for every version that doesn't match the
 		currently running one. If NXBOOT_PREVENT_DOWNGRADE selected, update is
-		performed only for newer versions  (according to Semantic Version
+		performed only for newer versions (according to Semantic Version
 		preference rules).
 
 		WARNING: NXboot currently implements preferences only for
 		MAJOR.MINOR.PATCH and ignores prerelease.
+
+config NXBOOT_PRINTF_PROGRESS
+	bool "Enable progress messages to be sent to STDOUT"
+	default y
+	---help---
+		This will display progress during typically lengthy operations:
+			- Calculating checksums
+			- copying images between slots
+
+		Note: the NXboot binary will be approximately 2KiB larger with this enabled.
+
+choice
+	prompt "Choose preferred progress indication type"
+	depends on NXBOOT_PRINTF_PROGRESS
+	default NXBOOT_PRINTF_PROGRESS_PERCENT
+
+config NXBOOT_PRINTF_PROGRESS_DOTS
+	bool "Display progress using sequential dots"
+
+config NXBOOT_PRINTF_PROGRESS_PERCENT
+	bool "Display progress using percentage remaining"
+
+endchoice
 
 endif # NXBOOT_BOOTLOADER
 
