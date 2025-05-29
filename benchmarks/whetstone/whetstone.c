@@ -143,10 +143,11 @@ int main(int argc, FAR char *argv[])
   /* added for this version */
 
   long loopstart;
-  long startsec;
-  long finisec;
+  long startmsec;
+  long finimsec;
   float KIPS;
   int continuous;
+  struct timespec ts;
 
   loopstart = 1000;    /* see the note about loop below */
   continuous = 0;
@@ -175,7 +176,8 @@ LCONT:
 
   /* Start benchmark timing at this point. */
 
-  startsec = time(0);
+  clock_gettime(CLOCK_REALTIME, &ts);
+  startmsec = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 
   /* The actual benchmark starts here. */
 
@@ -431,7 +433,8 @@ IILOOP:
 
   /* Stop benchmark timing at this point. */
 
-  finisec = time(0);
+  clock_gettime(CLOCK_REALTIME, &ts);
+  finimsec = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 
   /* Performance in Whetstone KIP's per second is given by
    *
@@ -441,16 +444,16 @@ IILOOP:
    */
 
   printf("\n");
-  if (finisec - startsec <= 0)
+  if (finimsec - startmsec <= 0)
     {
       printf("Insufficient duration- Increase the loop count\n");
       return 1;
     }
 
-  printf("Loops: %ld, Iterations: %d, Duration: %ld sec.\n",
-                                loop, ii, finisec - startsec);
+  printf("Loops: %ld, Iterations: %d, Duration: %ld millisecond.\n",
+                                loop, ii, finimsec - startmsec);
 
-  KIPS = (100.0 * loop * ii) / (float)(finisec - startsec);
+  KIPS = (100.0 * loop * ii) / ((float)(finimsec - startmsec) * 1000);
   if (KIPS >= 1000.0)
     {
       printf("C Converted Double Precision Whetstones: %.1f MIPS\n",
