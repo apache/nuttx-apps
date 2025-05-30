@@ -1,0 +1,81 @@
+config LIB_MDNS
+	bool "MDNS library"
+	default n
+	---help---
+		Enable the mDNS library. This allows calls to the library to be made.
+		
+		This external library is "unlicensed" using the methodology from
+		http://unlicense.org
+		
+		You should be sure that this license is acceptable for your usage.
+
+		By default, the "built-in" demo is added as an application that can
+		be run from nsh <mdns>.
+
+		This is also needed for the optional daemon that allows the demo
+		app's mDNS functionality to be started and stopped from user
+		applications. There is an associated example app
+		(CONFIG_EXAMPLES_MDNSD) to allow the daemon to be tried from nsh.
+
+		Ultimately, this should be used simply as a library, and neither the
+		demo app nor the daemon utilised. If just built as a library,the
+		relevant header file <mdns.h> is copied to the usual netutils
+		include location and can be utilised be including it:
+
+		#include <netutils/mdns.h>
+
+if LIB_MDNS
+
+config NETUTILS_MDNS
+	tristate "Enable mdns built-in demo app"
+	default n
+	---help---
+		Enable the author's original built-in MDNS demo app. This allows the
+		functionality of the library to be demonstrated. Information on using
+		it is available from the original git repo for this external library:
+
+		https://github.com/mjansson/mdns
+
+if NETUTILS_MDNS
+
+config NETUTILS_MDNS_PROGNAME
+	string "mDNS program name"
+	default "mdns"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config NETUTILS_MDNS_PRIORITY
+	int "mDNS task priority"
+	default 100
+
+config NETUTILS_MDNS_STACKSIZE
+	int "mDNS stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The default (4KiB) is adequate for simple networks but this will
+		most likely need to be increased if there are many network devices
+		attached that could send queries.
+
+config NETUTILS_MDNS_VERBOSE
+	bool "Enable verbose printf output from built-in mdns demo"
+	default y
+endif
+
+config NETUTILS_MDNS_DAEMON
+	tristate "Wrap mdns demo app as a daemon, which can be started/stopped"
+	default n
+	depends on NETUTILS_MDNS
+	---help---
+		This option wraps the mdns demo app as a daemon, so requires
+		CONFIG_NETUTILS_MDNS to be selected.
+
+		There is also an example app (CONFIG_EXAMPLES_MDNSD) to allow the
+		mdns daemon to be started/stopped via the NuttX shell.
+
+config NETUTILS_MDNS_DAEMON_STOP_SIGNAL
+	int "Signal used to stop the MDNSD daemon"
+	default 22
+	depends on NETUTILS_MDNS_DAEMON
+
+endif #NETUTILS_MDNS

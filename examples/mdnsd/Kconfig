@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MDNSD
+	tristate "MDNS daemon example"
+	default n
+	depends on NETUTILS_MDNS_DAEMON
+	---help---
+		Enable the MDNS daemon example
+
+if EXAMPLES_MDNSD
+
+config EXAMPLES_MDNS_SERVICE
+	string "Name of the mdns service"
+	default "_nuttx._tcp.local"
+	---help---
+		This is the name of the service to be advertised by this example.
+		The format is _service.protocol.domain where
+			- "service" identifies the type of service being advertised such as 
+			  _http, or _printer
+			- "protocol" as used by the service (e.g. _udp or _tcp)
+			- "domain" which for mDNS is most likely _local
+
+config EXAMPLES_MDNS_SERVICE_PORT
+	string "The port that the advertised service uses"
+	default "32000"
+	---help---
+		The port the advertised service uses. The default is randomly chosen.
+
+endif
