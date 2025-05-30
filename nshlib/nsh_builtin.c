@@ -74,10 +74,14 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char **argv,
                 FAR const struct nsh_param_s *param)
 {
-#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS) && \
+    !defined(CONFIG_DISABLE_SIGNALS)
   struct sigaction act;
   struct sigaction old;
-#endif
+#endif /* !CONFIG_NSH_DISABLEBG && CONFIG_SCHED_CHILD_STATUS &&
+        * !CONFIG_DISABLE_SIGNALS
+        */
+
   int ret = OK;
 
   /* Lock the scheduler in an attempt to prevent the application from
@@ -86,7 +90,8 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   sched_lock();
 
-#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+#if !defined(CONFIG_NSH_DISABLEBG) && \
+    defined(CONFIG_SCHED_CHILD_STATUS) && !defined(CONFIG_DISABLE_SIGNALS)
   /* Ignore the child status if run the application on background. */
 
   if (vtbl->np.np_bg == true)
@@ -98,7 +103,9 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       sigaction(SIGCHLD, &act, &old);
     }
 
-#endif /* CONFIG_NSH_DISABLEBG */
+#endif /* !CONFIG_NSH_DISABLEBG && !CONFIG_SCHED_CHILD_STATUS &&
+        * !CONFIG_DISABLE_SIGNALS
+        */
 
   /* Try to find and execute the command within the list of builtin
    * applications.
@@ -230,7 +237,8 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
         {
-#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS)
+#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS) && \
+    !defined(CONFIG_DISABLE_SIGNALS)
 
           /* Restore the old actions */
 
@@ -241,7 +249,10 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
               sigaction(SIGCHLD, &old, NULL);
             }
 
-#  endif
+#  endif /* !CONFIG_NSH_DISABLEBG && CONFIG_SCHED_CHILD_STATUS && \
+          * !CONFIG_DISABLE_SIGNALS
+          */
+
           struct sched_param sched;
           sched_getparam(ret, &sched);
           nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, sched.sched_priority);
