@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
 #include <stdint.h>
 #include <stdlib.h>
 
