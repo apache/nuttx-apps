@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <debug.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>

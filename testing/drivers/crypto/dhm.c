@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <crypto/cryptodev.h>
 
