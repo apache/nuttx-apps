@@ -32,7 +32,7 @@ if(CONFIG_UORB)
   file(GLOB_RECURSE CSRCS "sensor/*.c" "uORB/uORB.c")
 
   if(CONFIG_UORB_LOOP_MAX_EVENTS)
-    file(GLOB_RECURSE CSRCS "uORB/loop.c" "uORB/epoll.c")
+    list(APPEND CSRCS "uORB/loop.c" "uORB/epoll.c")
   endif()
 
   if(CONFIG_UORB_LISTENER)
