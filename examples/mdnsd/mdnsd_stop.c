@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/nxrecorder/nxrecorder_amr.c
+ * apps/examples/mdnsd/mdnsd_stop.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,46 +24,20 @@
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-
+#include <nuttx/config.h>
 #include <stdio.h>
-#include <unistd.h>
 
-#include <nuttx/audio/audio.h>
-
-#include "system/nxrecorder.h"
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-static const uint8_t AMR_NB[6] = "#!AMR\n";
-static const uint8_t AMR_WB[9] = "#!AMR-WB\n";
+#include "mdnsd_daemon.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxrecorder_record_amr
- *
- *   nxrecorder_record_amr() add amr file header
- *
+ * Name: mdnsd_stop_main
  ****************************************************************************/
 
-int nxrecorder_write_amr(int fd, uint32_t samplerate,
-                         uint8_t chans, uint8_t bps)
+int main(int argc, char **argv)
 {
-  const uint8_t *data;
-  int size;
-
-  if (samplerate != 8000 && samplerate != 16000)
-    {
-      return -EINVAL;
-    }
-
-  data = samplerate == 16000 ? &AMR_WB[0] : &AMR_NB[0];
-  size = samplerate == 16000 ? sizeof(AMR_WB) : sizeof(AMR_NB);
-
-  return write(fd, data, size);
+  return mdnsd_daemon(argc, argv, false);
 }

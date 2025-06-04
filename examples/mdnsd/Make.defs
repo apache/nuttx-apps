@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/drivers/Makefile
+# apps/examples/mdnsd/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "drivers"
-
-include $(APPDIR)/Directory.mk
+ifneq ($(CONFIG_EXAMPLES_MDNSD),)
+CONFIGURED_APPS += $(APPDIR)/examples/mdnsd
+endif

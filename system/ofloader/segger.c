@@ -41,7 +41,7 @@
 #define ALGO_VERSION 0x101   /* Algo version, must not be modified. */
 
 /****************************************************************************
- * Private Type Definitions
+ * Private Typess
  ****************************************************************************/
 
 struct SECTOR_INFO

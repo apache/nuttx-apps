@@ -35,7 +35,7 @@
 #include "monkey_utils.h"
 
 /****************************************************************************
- * Private Type Declarations
+ * Private Types
  ****************************************************************************/
 
 struct monkey_port_dev_type_name_s

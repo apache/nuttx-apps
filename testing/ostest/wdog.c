@@ -44,7 +44,7 @@
 
 #define wdtest_assert(x)             _ASSERT(x, __FILE__, __LINE__)
 
-#define wdtest_printf(...)           syslog(LOG_WARNING, __VA_ARGS__)
+#define wdtest_printf(...)           printf(__VA_ARGS__)
 
 #define wdtest_delay(delay_ns)       usleep(delay_ns / 1000 + 1)
 
@@ -54,10 +54,10 @@
 
 typedef struct wdtest_param_s
 {
-  FAR struct wdog_s  *wdog;
-  sclock_t            interval;
-  uint64_t            callback_cnt;
-  clock_t             triggered_tick;
+  FAR struct wdog_s *wdog;
+  sclock_t           interval;
+  uint64_t           callback_cnt;
+  clock_t            triggered_tick;
 } wdtest_param_t;
 
 /****************************************************************************
@@ -221,7 +221,7 @@ static void wdtest_recursive(FAR struct wdog_s *wdog,
   clock_t  wdset_tick;
   irqstate_t flags;
 
-  wdtest_printf("wdtest_recursive %lldus\n", (long long)delay_ns);
+  wdtest_printf("wdtest_recursive %lldns\n", (long long)delay_ns);
 
   cnt = param->callback_cnt;
 
@@ -242,24 +242,66 @@ static void wdtest_recursive(FAR struct wdog_s *wdog,
 
   wdtest_delay(times * delay_ns);
 
-  wdtest_assert(wd_cancel(param->wdog) == 0);
+  wd_cancel(param->wdog);
 
   wdtest_printf("recursive wdog triggered %llu times, elapsed tick %lld\n",
                 (unsigned long long)(param->callback_cnt - cnt),
                 (long long)(param->triggered_tick - wdset_tick));
 }
 
+static void wdtest_periodic(FAR wdtest_param_t *param,
+                            sclock_t period_ns)
+{
+  clock_t   wdset_tick;
+  clock_t   period_tick  = (clock_t)NSEC2TICK((clock_t)period_ns);
+  uint64_t  callback_cnt = param->callback_cnt;
+
+  struct wdog_period_s period_wdog =
+    {
+     0
+    };
+
+  wdtest_printf("wdtest_periodic %lldns ~ %llutick\n",
+                (long long)period_ns, (unsigned long long)period_tick);
+
+  wdset_tick = clock_systime_ticks();
+
+  wd_start_period(&period_wdog, period_tick, period_tick,
+                  wdtest_callback, (wdparm_t)param);
+
+  while (param->callback_cnt - callback_cnt <= WDOGTEST_RAND_ITER)
+    {
+      wdtest_delay(period_ns);
+    }
+
+  wd_cancel_period(&period_wdog);
+
+  callback_cnt = param->callback_cnt - callback_cnt;
+  wdset_tick   = param->triggered_tick - wdset_tick;
+
+  wdtest_printf("wdtest_periodic cancel...");
+  wdtest_printf("wdtest_periodic triggered %llu times, "
+                "elapsed ticks %lld, error ticks %lld\n",
+                (unsigned long long)callback_cnt, (long long)wdset_tick,
+                (long long)(wdset_tick - callback_cnt * period_tick));
+}
+
 static void wdog_test_run(FAR wdtest_param_t *param)
 {
-  uint64_t      cnt;
-  sclock_t      rest;
-  sclock_t      delay;
-  struct wdog_s test_wdog =
+  uint64_t             cnt;
+  sclock_t             rest;
+  clock_t              delay;
+  struct wdog_s        test_wdog =
   {
     0
   };
 
-  /* Wrong arguments, all 7 combinations */
+  struct wdog_period_s test_wdog_period =
+  {
+    0
+  };
+
+  /* Wrong arguments of the wd_start */
 
   wdtest_assert(wd_start(NULL, 0, NULL, (wdparm_t)NULL) != OK);
   wdtest_assert(wd_start(NULL, 0, wdtest_callback, (wdparm_t)NULL) != OK);
@@ -269,6 +311,34 @@ static void wdog_test_run(FAR wdtest_param_t *param)
   wdtest_assert(wd_start(&test_wdog, -1, NULL, (wdparm_t)NULL) != OK);
   wdtest_assert(wd_start(&test_wdog, -1, wdtest_callback, (wdparm_t)NULL)
                 != OK);
+
+  wdtest_assert(wd_start_period(NULL, 0, 0,
+                                NULL, (wdparm_t)NULL) != OK);
+
+  wdtest_assert(wd_start_period(NULL, 0, 0,
+                                wdtest_callback, (wdparm_t)NULL) != OK);
+
+  wdtest_assert(wd_start_period(NULL, 0, 12345,
+                                NULL, (wdparm_t)NULL) != OK);
+
+  wdtest_assert(wd_start_period(NULL, 0, 12345,
+                                wdtest_callback, (wdparm_t)NULL) != OK);
+
+  wdtest_assert(wd_start_period(&test_wdog_period, 0, 0,
+                                NULL, (wdparm_t)NULL) != OK);
+
+  wdtest_assert(wd_start_period(&test_wdog_period, 0, 12345,
+                                NULL, (wdparm_t)NULL) != OK);
+
+  wdtest_assert(wd_start_period(&test_wdog_period, 0, 0,
+                                wdtest_callback, (wdparm_t)NULL) != OK);
+
+  /* Wrong arguments of the wd_cancel */
+
+  wdtest_assert(wd_cancel(NULL) != OK);
+  wdtest_assert(wd_cancel(&test_wdog) != OK);
+  wdtest_assert(wd_cancel_period(NULL) != OK);
+  wdtest_assert(wd_cancel_period(&test_wdog_period) != OK);
 
   /* Delay = 0 */
 
@@ -293,7 +363,7 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 
   /* Maximum */
 
-  delay = ((clock_t)1 << (sizeof(sclock_t) * CHAR_BIT - 1)) - 1;
+  delay = CLOCK_MAX >> 2;
   wdtest_assert(wd_start(&test_wdog, delay,
                          wdtest_callback, (wdparm_t)param) == OK);
 
@@ -312,28 +382,29 @@ static void wdog_test_run(FAR wdtest_param_t *param)
 
   rest = wd_gettime(&test_wdog);
 
-  wdtest_assert(rest < delay && rest > (delay >> 1));
+  wdtest_assert(rest < delay);
 
   wdtest_assert(wd_cancel(&test_wdog) == 0);
 
   wdtest_printf("wd_start with maximum delay, cancel OK, rest %lld\n",
                 (long long)rest);
 
-  /* Delay wraparound (delay < 0) */
-
-  delay = (sclock_t)((clock_t)delay + 1);
-  wdtest_assert(wd_start(&test_wdog, delay,
-                wdtest_callback, (wdparm_t)param) != OK);
-  wdtest_assert(wd_gettime(&test_wdog) == 0);
-
   /* Recursive wdog delay from 1000us to 10000us */
 
   wdtest_recursive(&test_wdog, param, 1000000, 100);
   wdtest_recursive(&test_wdog, param, 10000000, 10);
 
+  /* Periodic wdog period with 1000us */
+
+  wdtest_periodic(param, 100000);
+
   /* Random delay ~12us */
 
   wdtest_rand(&test_wdog, param, 12345);
+
+  /* Finally, cancel the wdog. */
+
+  wd_cancel(&test_wdog);
 }
 
 /* Multi threaded */

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/drivers/Makefile
+# apps/netutils/mdns/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "drivers"
-
-include $(APPDIR)/Directory.mk
+ifneq ($(CONFIG_LIB_MDNS),)
+CONFIGURED_APPS += $(APPDIR)/netutils/mdns
+endif

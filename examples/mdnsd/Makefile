@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/drivers/Makefile
+# apps/examples/mdnsd/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,19 @@
 #
 ############################################################################
 
-MENUDESC = "drivers"
+include $(APPDIR)/Make.defs
 
-include $(APPDIR)/Directory.mk
+# MDNS Daemon Example
+
+CSRCS = mdnsd_daemon.c
+
+MAINSRC = mdnsd_start.c mdnsd_stop.c
+
+# MDNSD built-in application info
+
+PROGNAME = mdnsd_start mdnsd_stop
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE = $(CONFIG_EXAMPLES_MDNSD)
+
+include $(APPDIR)/Application.mk

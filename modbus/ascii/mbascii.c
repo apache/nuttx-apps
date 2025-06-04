@@ -61,7 +61,7 @@
 #define MB_SER_PDU_PDU_OFF    1     /* Offset of Modbus-PDU in Ser-PDU. */
 
 /****************************************************************************
- * Private Type Definitions
+ * Private Typess
  ****************************************************************************/
 
 typedef enum

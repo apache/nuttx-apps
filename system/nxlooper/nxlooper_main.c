@@ -51,7 +51,7 @@
 #endif
 
 /****************************************************************************
- * Private Type Declarations
+ * Private Types
  ****************************************************************************/
 
 typedef int (*nxlooper_func)(FAR struct nxlooper_s *plooper, char *pargs);

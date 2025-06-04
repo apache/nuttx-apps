@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/nxrecorder/nxrecorder_amr.c
+ * apps/netutils/mdnsd.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,50 +20,39 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INCLUDE_NETUTILS_MDNSD_H
+#define __APPS_INCLUDE_NETUTILS_MDNSD_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-
-#include <stdio.h>
-#include <unistd.h>
-
-#include <nuttx/audio/audio.h>
-
-#include "system/nxrecorder.h"
-
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-static const uint8_t AMR_NB[6] = "#!AMR\n";
-static const uint8_t AMR_WB[9] = "#!AMR-WB\n";
-
-/****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxrecorder_record_amr
- *
- *   nxrecorder_record_amr() add amr file header
- *
+ * Public Types
  ****************************************************************************/
 
-int nxrecorder_write_amr(int fd, uint32_t samplerate,
-                         uint8_t chans, uint8_t bps)
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
 {
-  const uint8_t *data;
-  int size;
+#else
+#define EXTERN extern
+#endif
 
-  if (samplerate != 8000 && samplerate != 16000)
-    {
-      return -EINVAL;
-    }
+int mdnsd_start(FAR char *service_name, FAR char *service_port);
+int mdnsd_stop(void);
 
-  data = samplerate == 16000 ? &AMR_WB[0] : &AMR_NB[0];
-  size = samplerate == 16000 ? sizeof(AMR_WB) : sizeof(AMR_NB);
-
-  return write(fd, data, size);
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* __APPS_INCLUDE_NETUTILS_MDNSD_H */
