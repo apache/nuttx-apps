@@ -42,8 +42,10 @@ struct ymodem_priv_s
   int fd;
   FAR char *foldname;
   size_t file_saved_size;
-  FAR char *skip_perfix;
+  FAR char *skip_prefix;
   FAR char *skip_suffix;
+  FAR char *prepend_prefix;
+  FAR char *append_suffix;
 
   /* Async */
 
@@ -173,8 +175,8 @@ static int handler(FAR struct ymodem_ctx_s *ctx)
 
   if (ctx->packet_type == YMODEM_FILENAME_PACKET)
     {
-      char temp[PATH_MAX + 1];
-      FAR char *filename;
+      char filename[PATH_MAX + 1];
+      FAR char *temp;
 
       if (priv->fd > 0)
         {
@@ -192,35 +194,51 @@ static int handler(FAR struct ymodem_ctx_s *ctx)
           close(priv->fd);
         }
 
-      filename = ctx->file_name;
-      if (priv->skip_perfix != NULL)
-        {
-          size_t len = strlen(priv->skip_perfix);
+      temp = ctx->file_name;
 
-          if (strncmp(ctx->file_name, priv->skip_perfix,
+      if (priv->skip_prefix != NULL)
+        {
+          size_t len = strlen(priv->skip_prefix);
+
+          if (strncmp(ctx->file_name, priv->skip_prefix,
                       len) == 0)
             {
-              filename += len;
+              temp += len;
             }
         }
 
       if (priv->skip_suffix != NULL)
         {
-          size_t len = strlen(filename);
+          size_t len = strlen(temp);
           size_t len2 = strlen(priv->skip_suffix);
 
-          if (len > len2 && strcmp(filename + len - len2,
+          if (len > len2 && strcmp(temp + len - len2,
                                    priv->skip_suffix) == 0)
             {
-              filename[len - len2] = '\0';
+              temp[len - len2] = '\0';
             }
         }
 
       if (priv->foldname != NULL)
         {
-          snprintf(temp, sizeof(temp), "%s/%s", priv->foldname,
-                   filename);
-          filename = temp;
+          ret = snprintf(filename, sizeof(filename), "%s/%s%s%s",
+                         priv->foldname, priv->prepend_prefix, temp,
+                         priv->append_suffix);
+        }
+      else
+        {
+          ret = snprintf(filename, sizeof(filename), "%s%s%s",
+                         priv->prepend_prefix, temp, priv->append_suffix);
+        }
+
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      else if (ret >= sizeof(filename))
+        {
+          return -ENAMETOOLONG;
         }
 
       priv->fd = open(filename, O_CREAT | O_WRONLY, 0777);
@@ -327,6 +345,10 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr,
           "\t-s|--skip_suffix <suffix>: Remove file name suffix\n");
   fprintf(stderr,
+          "\t-e|--prepend_prefix <prefix>: prepend file name a prefix\n");
+  fprintf(stderr,
+          "\t-a|--append_suffix <suffix>: append file name a suffix\n");
+  fprintf(stderr,
           "\t-b|--buffersize <size>: Asynchronously receive buffer size."
           "If greater than 0, accept data asynchronously, Default: 0kB\n");
   fprintf(stderr,
@@ -339,7 +361,7 @@ static void show_usage(FAR const char *progname)
           "\t-r|--retry <retry>: Number of retries."
           "Will try <retry> times to transmitting, Default:100\n");
   fprintf(stderr,
-          "\t-k <size>: Use a custom size to tansfer, Default: 1kB\n");
+          "\t-k <size>: Use a custom size to transfer, Default: 1kB\n");
 
   exit(EXIT_FAILURE);
 }
@@ -353,6 +375,7 @@ int main(int argc, FAR char *argv[])
   struct ymodem_priv_s priv;
   struct ymodem_ctx_s ctx;
   FAR char *devname = NULL;
+  size_t len;
   int ret;
 
   struct option options[] =
@@ -360,16 +383,20 @@ int main(int argc, FAR char *argv[])
       {"buffersize", 1, NULL, 'b'},
       {"skip_prefix", 1, NULL, 'p'},
       {"skip_suffix", 1, NULL, 's'},
+      {"prepend_prefix", 1, NULL, 'e'},
+      {"append_suffix", 1, NULL, 'a'},
       {"threshold", 1, NULL, 't'},
       {"interval", 1, NULL, 'i'},
       {"retry", 1, NULL, 'r'},
     };
 
   memset(&priv, 0, sizeof(priv));
+  priv.prepend_prefix = "";
+  priv.append_suffix  = "";
   memset(&ctx, 0, sizeof(ctx));
   ctx.interval = 15;
   ctx.retry = 100;
-  while ((ret = getopt_long(argc, argv, "b:d:f:hk:p:s:t:i:r:",
+  while ((ret = getopt_long(argc, argv, "b:d:f:hk:p:s:t:i:r:e:a:",
                             options, NULL)) != ERROR)
     {
       switch (ret)
@@ -382,9 +409,10 @@ int main(int argc, FAR char *argv[])
             break;
           case 'f':
             priv.foldname = optarg;
-            if (priv.foldname[strlen(priv.foldname)] == '/')
+            len = strlen(priv.foldname);
+            if (len > 0 && priv.foldname[len - 1] == '/')
               {
-                priv.foldname[strlen(priv.foldname)] = '\0';
+                priv.foldname[len - 1] = '\0';
               }
 
             break;
@@ -395,10 +423,16 @@ int main(int argc, FAR char *argv[])
             ctx.custom_size = atoi(optarg) * 1024;
             break;
           case 'p':
-            priv.skip_perfix = optarg;
+            priv.skip_prefix = optarg;
             break;
           case 's':
             priv.skip_suffix = optarg;
+            break;
+          case 'e':
+            priv.prepend_prefix = optarg;
+            break;
+          case 'a':
+            priv.append_suffix = optarg;
             break;
           case 't':
             priv.threshold = atoi(optarg) * 1024;
