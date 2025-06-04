@@ -6,7 +6,7 @@
 config TESTING_MTD_CONFIG_FAIL_SAFE
 	tristate "MTD Config fail-safe storage test"
 	default n
-	depends on MTD_CONFIG_FAIL_SAFE
+	depends on MTD_CONFIG_NVS
 	select MTD_CONFIG_NAMED
 	---help---
 		Enable the fail-safe storage test
