@@ -29,10 +29,12 @@ typedef void SSL_CIPHER;
 typedef void X509_STORE;
 
 typedef void RSA;
-typedef void BIO;
 
 typedef int (*OPENSSL_sk_compfunc)(const void *, const void *);
 
+typedef struct bio_buf_mem_st BIO_BUF_MEM;
+typedef struct bio_method_st BIO_METHOD;
+typedef struct bio_st BIO;
 typedef struct stack_st OPENSSL_STACK;
 typedef struct ssl_method_st SSL_METHOD;
 typedef struct ssl_method_func_st SSL_METHOD_FUNC;
