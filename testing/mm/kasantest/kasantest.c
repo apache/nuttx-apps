@@ -42,6 +42,18 @@
 #include <nuttx/mm/kasan.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if defined(CONFIG_MM_KASAN_GLOBAL) || defined(CONFIG_MM_KASAN_SIM)
+#  define KASANTEST_GLOBAL
+#endif
+
+#if defined(CONFIG_MM_KASAN_SIM)
+#  define KASANTEST_STACK
+#endif
+
+/****************************************************************************
  * Private Types Prototypes
  ****************************************************************************/
 
@@ -115,9 +127,14 @@ static bool test_heap_legal_strrchr(FAR struct mm_heap_s *heap, size_t size);
 static bool test_insert_perf(FAR struct mm_heap_s *heap, size_t size);
 static bool test_algorithm_perf(FAR struct mm_heap_s *heap, size_t size);
 
-#ifdef CONFIG_MM_KASAN_GLOBAL
+#ifdef KASANTEST_GLOBAL
 static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size);
 static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size);
+#endif
+
+#ifdef KASANTEST_STACK
+static bool test_stack_underflow(FAR struct mm_heap_s *heap, size_t size);
+static bool test_stack_overflow(FAR struct mm_heap_s *heap, size_t size);
 #endif
 
 /****************************************************************************
@@ -161,15 +178,19 @@ const static testcase_t g_kasan_test[] =
   {test_heap_legal_strrchr, true, "heap legal strrchr"},
   {test_insert_perf, false, "Kasan insert performance"},
   {test_algorithm_perf, false, "Kasan algorithm performance"},
-#ifdef CONFIG_MM_KASAN_GLOBAL
+#ifdef KASANTEST_GLOBAL
   {test_global_underflow, true, "globals underflow"},
   {test_global_overflow, true, "globals overflow"},
+#endif
+#ifdef KASANTEST_STACK
+  {test_stack_underflow, true, "stack underflow"},
+  {test_stack_overflow, true, "stack overflow"},
 #endif
 };
 
 static char g_kasan_heap[10240] aligned_data(8);
 
-#ifdef CONFIG_MM_KASAN_GLOBAL
+#ifdef KASANTEST_GLOBAL
 static char g_kasan_globals[32];
 #endif
 
@@ -598,7 +619,7 @@ static bool test_algorithm_perf(FAR struct mm_heap_s *heap, size_t size)
   return true;
 }
 
-#ifdef CONFIG_MM_KASAN_GLOBAL
+#ifdef KASANTEST_GLOBAL
 static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size)
 {
   memset(g_kasan_globals - 1, 0x12, sizeof(g_kasan_globals));
@@ -608,6 +629,22 @@ static bool test_global_underflow(FAR struct mm_heap_s *heap, size_t size)
 static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size)
 {
   memset(g_kasan_globals + sizeof(g_kasan_globals), 0xef, 1);
+  return false;
+}
+#endif
+
+#ifdef KASANTEST_STACK
+static bool test_stack_underflow(FAR struct mm_heap_s *heap, size_t size)
+{
+  char stack[0];
+  memset(stack - 16, 0xef, 16);
+  return false;
+}
+
+static bool test_stack_overflow(FAR struct mm_heap_s *heap, size_t size)
+{
+  char stack[0];
+  memset(stack, 0xef, 16);
   return false;
 }
 #endif
