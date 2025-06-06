@@ -1,0 +1,36 @@
+#############################################################################
+#
+# netutils/iptlite/Kconfig
+# iptlite networking application
+#
+#############################################################################
+
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_IPTLITE
+	bool "iptlite packet filter"
+	default n
+	depends on NET_TCP
+	---help---
+		Enable the iptlite packet filter
+
+if NETUTILS_IPTLITE
+
+config NETUTILS_IPTLITE_PROGNAME
+	string "Program name"
+	default "iptlite"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config NETUTILS_IPTLITE_PRIORITY
+	int "iptlite task priority"
+	default 100
+
+config NETUTILS_IPTLITE_STACKSIZE
+	int "iptlite stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
