@@ -27,10 +27,9 @@
 #include <openssl/ssl.h>
 #include "ssl_pm.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 /* TLS method function implement */
 
@@ -42,7 +41,7 @@ extern "C"
                                   set_bufflen, \
                                   get_verify_result, \
                                   get_state) \
-    static const SSL_METHOD_FUNC func_name LOCAL_ATRR = \
+    static const SSL_METHOD_FUNC func_name = \
       { \
         new, \
         free, \
@@ -62,7 +61,7 @@ extern "C"
 #define IMPLEMENT_TLS_METHOD(ver, mode, fun, func_name) \
     const SSL_METHOD* func_name(void) \
       { \
-        static const SSL_METHOD func_name##_data LOCAL_ATRR = \
+        static const SSL_METHOD func_name##_data = \
           { \
             ver, \
             mode, \
@@ -74,7 +73,7 @@ extern "C"
 #define IMPLEMENT_SSL_METHOD(ver, mode, fun, func_name) \
     const SSL_METHOD* func_name(void) \
       { \
-        static const SSL_METHOD func_name##_data LOCAL_ATRR = \
+        static const SSL_METHOD func_name##_data = \
           { \
             ver, \
             mode, \
@@ -87,14 +86,18 @@ extern "C"
                 new, \
                 free, \
                 load, \
+                load_file, \
+                load_path, \
                 show_info) \
     const X509_METHOD* func_name(void) \
       { \
-        static const X509_METHOD func_name##_data LOCAL_ATRR = \
+        static const X509_METHOD func_name##_data = \
           { \
             new, \
             free, \
             load, \
+            load_file, \
+            load_path, \
             show_info \
           }; \
         return &func_name##_data; \
@@ -106,7 +109,7 @@ extern "C"
                 load) \
     const PKEY_METHOD* func_name(void) \
       { \
-        static const PKEY_METHOD func_name##_data LOCAL_ATRR = \
+        static const PKEY_METHOD func_name##_data = \
           { \
             new, \
             free, \
@@ -114,6 +117,15 @@ extern "C"
           }; \
         return &func_name##_data; \
     }
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * @brief get X509 object method

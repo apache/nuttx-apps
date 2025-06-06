@@ -20,17 +20,18 @@
 #ifndef OPENSSL_MBEDTLS_WRAPPER_TYPES_H
 #define OPENSSL_MBEDTLS_WRAPPER_TYPES_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
-typedef void SSL_CIPHER;
+typedef void CRYPTO_EX_new;
+typedef void CRYPTO_THREADID;
 typedef void X509_STORE;
-
 typedef void RSA;
 
 typedef int (*OPENSSL_sk_compfunc)(const void *, const void *);
+typedef int pem_password_cb(char *buf, int size,
+                            int rwflag, void *userdata);
 
 typedef struct bio_buf_mem_st BIO_BUF_MEM;
 typedef struct bio_method_st BIO_METHOD;
@@ -43,6 +44,7 @@ typedef struct ossl_statem_st OSSL_STATEM;
 typedef struct ssl_session_st SSL_SESSION;
 typedef struct ssl_ctx_st SSL_CTX;
 typedef struct ssl_st SSL;
+typedef struct ssl_cipher_st SSL_CIPHER;
 typedef struct cert_st CERT;
 typedef struct x509_st X509;
 typedef struct X509_VERIFY_PARAM_st X509_VERIFY_PARAM;
@@ -67,9 +69,5 @@ struct pkey_method_st
   void (*pkey_free)(EVP_PKEY *pkey);
   int (*pkey_load)(EVP_PKEY *pkey, const unsigned char *buf, int len);
 };
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* OPENSSL_MBEDTLS_WRAPPER_TYPES_H */

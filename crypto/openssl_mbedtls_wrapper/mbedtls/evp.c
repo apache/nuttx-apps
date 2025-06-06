@@ -344,3 +344,12 @@ int EVP_PKEY_get_raw_private_key(const EVP_PKEY *pkey,
 {
   return 0;
 }
+
+int OpenSSL_add_all_algorithms(void)
+{
+  return 0;
+}
+
+void EVP_cleanup(void)
+{
+}

@@ -25,13 +25,19 @@
  ****************************************************************************/
 
 #include <stddef.h>
+#include <openssl/ex_data.h>
 #include <openssl/types.h>
+#include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/tls1.h>
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 /* Used in SSL_set_shutdown()/SSL_get_shutdown(); */
-#define SSL_SENT_SHUTDOWN       1
-#define SSL_RECEIVED_SHUTDOWN   2
+#define SSL_SENT_SHUTDOWN               1
+#define SSL_RECEIVED_SHUTDOWN           2
 
 #define SSL_VERIFY_NONE                 0x00
 #define SSL_VERIFY_PEER                 0x01
@@ -57,52 +63,133 @@
 #define SSL_ERROR_WANT_READ             2
 #define SSL_ERROR_WANT_WRITE            3
 #define SSL_ERROR_WANT_X509_LOOKUP      4
-#define SSL_ERROR_SYSCALL               5/* look at error stack/return value/errno */
+#define SSL_ERROR_SYSCALL               5 /* look at error stack/return value/errno */
 #define SSL_ERROR_ZERO_RETURN           6
 #define SSL_ERROR_WANT_CONNECT          7
 #define SSL_ERROR_WANT_ACCEPT           8
 #define SSL_ERROR_WANT_ASYNC            9
-#define SSL_ERROR_WANT_ASYNC_JOB       10
+#define SSL_ERROR_WANT_ASYNC_JOB        10
+
+#define SSL_ST_CONNECT                  0x1000
+#define SSL_ST_ACCEPT                   0x2000
+
+#define SSL_ST_MASK                     0x0FFF
+
+#define SSL_CB_LOOP                     0x01
+#define SSL_CB_EXIT                     0x02
+#define SSL_CB_READ                     0x04
+#define SSL_CB_WRITE                    0x08
+#define SSL_CB_ALERT                    0x4000 /* used in callback */
+#define SSL_CB_READ_ALERT               (SSL_CB_ALERT | SSL_CB_READ)
+#define SSL_CB_WRITE_ALERT              (SSL_CB_ALERT | SSL_CB_WRITE)
+#define SSL_CB_ACCEPT_LOOP              (SSL_ST_ACCEPT | SSL_CB_LOOP)
+#define SSL_CB_ACCEPT_EXIT              (SSL_ST_ACCEPT | SSL_CB_EXIT)
+#define SSL_CB_CONNECT_LOOP             (SSL_ST_CONNECT | SSL_CB_LOOP)
+#define SSL_CB_CONNECT_EXIT             (SSL_ST_CONNECT | SSL_CB_EXIT)
+#define SSL_CB_HANDSHAKE_START          0x10
+#define SSL_CB_HANDSHAKE_DONE           0x20
+
+#define SSL_FILETYPE_ASN1               X509_FILETYPE_ASN1
+#define SSL_FILETYPE_PEM                X509_FILETYPE_PEM
+
+/* Allow SSL_write(..., n) to return r with 0 < r < n (i.e. report success
+ * when just a single record has been written):
+ */
+
+#define SSL_MODE_ENABLE_PARTIAL_WRITE   0x00000001U
+
+/* Make it possible to retry SSL_write() with changed buffer location (buffer
+ * contents must stay the same!); this is not the default to avoid the
+ * misconception that non-blocking SSL_write() behaves like non-blocking
+ * write():
+ */
+
+#define SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER 0x00000002U
+
+#define SSLEAY_VERSION                  0
+#define SSLEAY_CFLAGS                   1
+#define SSLEAY_BUILT_ON                 2
+#define SSLEAY_PLATFORM                 3
+#define SSLEAY_DIR                      4
+
+#define SSL2_VERSION                    0x0002
+
+#define SSL2_MT_CLIENT_HELLO            1
+
+#define SSLv23_client_method            TLS_client_method
+#define SSL_library_init()              1
+#define SSL_load_error_strings()
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+typedef unsigned int (*SSL_psk_client_cb_func)(SSL *ssl,
+                                               const char *hint,
+                                               char *identity,
+                                               unsigned int max_identity_len,
+                                               unsigned char *psk,
+                                               unsigned int max_psk_len);
+
+typedef void (*ossl_msg_cb)(int write_p, int version, int content_type,
+                            const void *buf, size_t len, SSL *ssl, void *arg);
 
 typedef enum
 {
-    TLS_ST_BEFORE,
-    TLS_ST_OK,
-    DTLS_ST_CR_HELLO_VERIFY_REQUEST,
-    TLS_ST_CR_SRVR_HELLO,
-    TLS_ST_CR_CERT,
-    TLS_ST_CR_CERT_STATUS,
-    TLS_ST_CR_KEY_EXCH,
-    TLS_ST_CR_CERT_REQ,
-    TLS_ST_CR_SRVR_DONE,
-    TLS_ST_CR_SESSION_TICKET,
-    TLS_ST_CR_CHANGE,
-    TLS_ST_CR_FINISHED,
-    TLS_ST_CW_CLNT_HELLO,
-    TLS_ST_CW_CERT,
-    TLS_ST_CW_KEY_EXCH,
-    TLS_ST_CW_CERT_VRFY,
-    TLS_ST_CW_CHANGE,
-    TLS_ST_CW_NEXT_PROTO,
-    TLS_ST_CW_FINISHED,
-    TLS_ST_SW_HELLO_REQ,
-    TLS_ST_SR_CLNT_HELLO,
-    DTLS_ST_SW_HELLO_VERIFY_REQUEST,
-    TLS_ST_SW_SRVR_HELLO,
-    TLS_ST_SW_CERT,
-    TLS_ST_SW_KEY_EXCH,
-    TLS_ST_SW_CERT_REQ,
-    TLS_ST_SW_SRVR_DONE,
-    TLS_ST_SR_CERT,
-    TLS_ST_SR_KEY_EXCH,
-    TLS_ST_SR_CERT_VRFY,
-    TLS_ST_SR_NEXT_PROTO,
-    TLS_ST_SR_CHANGE,
-    TLS_ST_SR_FINISHED,
-    TLS_ST_SW_SESSION_TICKET,
-    TLS_ST_SW_CERT_STATUS,
-    TLS_ST_SW_CHANGE,
-    TLS_ST_SW_FINISHED
+  TLS_ST_BEFORE,
+  TLS_ST_OK,
+  DTLS_ST_CR_HELLO_VERIFY_REQUEST,
+  TLS_ST_CR_SRVR_HELLO,
+  TLS_ST_CR_CERT,
+  TLS_ST_CR_COMP_CERT,
+  TLS_ST_CR_CERT_STATUS,
+  TLS_ST_CR_KEY_EXCH,
+  TLS_ST_CR_CERT_REQ,
+  TLS_ST_CR_SRVR_DONE,
+  TLS_ST_CR_SESSION_TICKET,
+  TLS_ST_CR_CHANGE,
+  TLS_ST_CR_FINISHED,
+  TLS_ST_CW_CLNT_HELLO,
+  TLS_ST_CW_CERT,
+  TLS_ST_CW_COMP_CERT,
+  TLS_ST_CW_KEY_EXCH,
+  TLS_ST_CW_CERT_VRFY,
+  TLS_ST_CW_CHANGE,
+  TLS_ST_CW_NEXT_PROTO,
+  TLS_ST_CW_FINISHED,
+  TLS_ST_SW_HELLO_REQ,
+  TLS_ST_SR_CLNT_HELLO,
+  DTLS_ST_SW_HELLO_VERIFY_REQUEST,
+  TLS_ST_SW_SRVR_HELLO,
+  TLS_ST_SW_CERT,
+  TLS_ST_SW_COMP_CERT,
+  TLS_ST_SW_KEY_EXCH,
+  TLS_ST_SW_CERT_REQ,
+  TLS_ST_SW_SRVR_DONE,
+  TLS_ST_SR_CERT,
+  TLS_ST_SR_COMP_CERT,
+  TLS_ST_SR_KEY_EXCH,
+  TLS_ST_SR_CERT_VRFY,
+  TLS_ST_SR_NEXT_PROTO,
+  TLS_ST_SR_CHANGE,
+  TLS_ST_SR_FINISHED,
+  TLS_ST_SW_SESSION_TICKET,
+  TLS_ST_SW_CERT_STATUS,
+  TLS_ST_SW_CHANGE,
+  TLS_ST_SW_FINISHED,
+  TLS_ST_SW_ENCRYPTED_EXTENSIONS,
+  TLS_ST_CR_ENCRYPTED_EXTENSIONS,
+  TLS_ST_CR_CERT_VRFY,
+  TLS_ST_SW_CERT_VRFY,
+  TLS_ST_CR_HELLO_REQ,
+  TLS_ST_SW_KEY_UPDATE,
+  TLS_ST_CW_KEY_UPDATE,
+  TLS_ST_SR_KEY_UPDATE,
+  TLS_ST_CR_KEY_UPDATE,
+  TLS_ST_EARLY_DATA,
+  TLS_ST_PENDING_EARLY_DATA_END,
+  TLS_ST_CW_END_OF_EARLY_DATA,
+  TLS_ST_SR_END_OF_EARLY_DATA
 }
 OSSL_HANDSHAKE_STATE;
 
@@ -141,6 +228,8 @@ int SSL_use_certificate_ASN1(SSL *ssl, const unsigned char *d, int len);
 
 int SSL_CTX_use_certificate_file(SSL_CTX *ctx, const char *file, int type);
 
+int SSL_CTX_use_certificate_chain_file(SSL_CTX *ctx, const char *file);
+
 int SSL_use_certificate_file(SSL *ssl, const char *file, int type);
 
 X509 *SSL_get_peer_certificate(const SSL *ssl);
@@ -161,7 +250,7 @@ int SSL_get_error(const SSL *ssl, int ret_code);
 
 OSSL_HANDSHAKE_STATE SSL_get_state(const SSL *ssl);
 
-SSL_CTX *SSL_CTX_new(const SSL_METHOD *method, void *rngctx);
+SSL_CTX *SSL_CTX_new(const SSL_METHOD *method, ...);
 
 void SSL_CTX_free(SSL_CTX *ctx);
 
@@ -298,6 +387,73 @@ int SSL_use_PrivateKey_file(SSL_CTX *ctx, const char *file, int type);
 
 int SSL_CTX_use_RSAPrivateKey_ASN1(SSL_CTX *ctx, const unsigned char *d,
                                    long len);
+
+const SSL_METHOD *TLS_method(void);
+const SSL_METHOD *TLS_server_method(void);
+const SSL_METHOD *TLS_client_method(void);
+
+const SSL_METHOD *TLSv1_method(void); /* TLSv1.0 */
+const SSL_METHOD *TLSv1_server_method(void);
+const SSL_METHOD *TLSv1_client_method(void);
+
+const SSL_METHOD *TLSv1_1_method(void); /* TLSv1.1 */
+const SSL_METHOD *TLSv1_1_server_method(void);
+const SSL_METHOD *TLSv1_1_client_method(void);
+
+const SSL_METHOD *TLSv1_2_method(void); /* TLSv1.2 */
+const SSL_METHOD *TLSv1_2_server_method(void);
+const SSL_METHOD *TLSv1_2_client_method(void);
+
+SSL_SESSION *SSL_get1_session(SSL *ssl);
+
+void SSL_SESSION_free(SSL_SESSION *session);
+
+int SSL_set_session(SSL *s, SSL_SESSION *session);
+
+const char *SSLeay_version(int t);
+
+const char *SSL_state_string_long(const SSL *s);
+
+const char *SSL_get_cipher_name(const SSL *s);
+
+const char *SSL_alert_type_string_long(int value);
+
+const char *SSL_alert_desc_string_long(int value);
+
+void SSL_CTX_set_default_passwd_cb(SSL_CTX *ctx, pem_password_cb *cb);
+
+void SSL_CTX_set_default_passwd_cb_userdata(SSL_CTX *ctx, void *u);
+
+int SSL_CTX_set_default_verify_paths(SSL_CTX *ctx);
+
+void SSL_CTX_set_psk_client_callback(SSL_CTX *ctx, SSL_psk_client_cb_func cb);
+
+long SSL_CTX_set_mode(SSL_CTX *ctx, long larg);
+
+void SSL_CTX_set_info_callback(SSL_CTX *ctx,
+                               void (*cb)(const SSL *ssl, int type, int val));
+
+void SSL_CTX_set_msg_callback(SSL_CTX *ctx,
+                              void (*cb)(int write_p, int version,
+                                         int content_type, const void *buf,
+                                         size_t len, SSL *ssl, void *arg));
+
+const char *SSL_get_cipher_list(const SSL *s, int n);
+
+long SSL_set_tlsext_host_name(SSL *s, void *parg);
+
+int SSL_get_ex_new_index(long argl, void *argp,
+                         CRYPTO_EX_new *new_func, CRYPTO_EX_dup *dup_func,
+                         CRYPTO_EX_free *free_func);
+
+const char *SSL_get_cipher_list(const SSL *s, int n);
+
+int SSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str);
+
+int SSL_CTX_set_ex_data(SSL_CTX *s, int idx, void *arg);
+
+int SSL_CTX_load_verify_locations(SSL_CTX *ctx, const char *CAfile,
+                                  const char *CApath);
 
 #ifdef __cplusplus
 }

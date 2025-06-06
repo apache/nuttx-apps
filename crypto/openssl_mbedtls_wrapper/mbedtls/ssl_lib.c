@@ -21,12 +21,21 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/atomic.h>
 #include <openssl/ssl_dbg.h>
 #include <openssl/ssl3.h>
 #include <openssl/ssl_local.h>
 #include "ssl_port.h"
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 #define SSL_SEND_DATA_MAX_LENGTH 1460
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
 
 struct alpn_ctx
 {
@@ -56,18 +65,13 @@ static SSL_SESSION *SSL_SESSION_new(void)
       goto failed2;
     }
 
+  session->references = 1;
   return session;
 
 failed2:
   ssl_mem_free(session);
 failed1:
   return NULL;
-}
-
-static void SSL_SESSION_free(SSL_SESSION *session)
-{
-  X509_free(session->peer);
-  ssl_mem_free(session);
 }
 
 static void
@@ -256,7 +260,7 @@ int SSL_get_error(const SSL *ssl, int ret_code)
   return ret;
 }
 
-SSL_CTX *SSL_CTX_new(const SSL_METHOD *method, void *rngctx)
+SSL_CTX *SSL_CTX_new(const SSL_METHOD *method, ...)
 {
   SSL_CTX *ctx;
   CERT *cert;
@@ -1013,4 +1017,390 @@ void SSL_set_alpn_select_cb(SSL *ssl, void *arg)
   _openssl_alpn_to_mbedtls(ac, (char * **)&ssl->alpn_protos);
 
   _ssl_set_alpn_list(ssl);
+}
+
+SSL_SESSION *SSL_get1_session(SSL *ssl)
+{
+  SSL_ASSERT2(ssl);
+
+  atomic_fetch_add(&ssl->session->references, 1);
+  return ssl->session;
+}
+
+void SSL_SESSION_free(SSL_SESSION *session)
+{
+  SSL_ASSERT3(session);
+
+  if (atomic_fetch_sub(&session->references, 1) == 1)
+    {
+      X509_free(session->peer);
+      ssl_mem_free(session);
+    }
+}
+
+int SSL_set_session(SSL *s, SSL_SESSION *session)
+{
+  SSL_ASSERT1(s);
+  SSL_ASSERT1(session);
+
+  SSL_SESSION_free(s->session);
+  s->session = session;
+  return 1;
+}
+
+const char *SSLeay_version(int t)
+{
+  return "not available";
+}
+
+const char *SSL_state_string_long(const SSL *s)
+{
+  SSL_ASSERT2(s);
+
+  switch (SSL_get_state(s))
+    {
+      case TLS_ST_CR_CERT_STATUS:
+        return "SSLv3/TLS read certificate status";
+      case TLS_ST_CW_NEXT_PROTO:
+        return "SSLv3/TLS write next proto";
+      case TLS_ST_SR_NEXT_PROTO:
+        return "SSLv3/TLS read next proto";
+      case TLS_ST_SW_CERT_STATUS:
+        return "SSLv3/TLS write certificate status";
+      case TLS_ST_BEFORE:
+        return "before SSL initialization";
+      case TLS_ST_OK:
+        return "SSL negotiation finished successfully";
+      case TLS_ST_CW_CLNT_HELLO:
+        return "SSLv3/TLS write client hello";
+      case TLS_ST_CR_SRVR_HELLO:
+        return "SSLv3/TLS read server hello";
+      case TLS_ST_CR_CERT:
+        return "SSLv3/TLS read server certificate";
+      case TLS_ST_CR_COMP_CERT:
+        return "TLSv1.3 read server compressed certificate";
+      case TLS_ST_CR_KEY_EXCH:
+        return "SSLv3/TLS read server key exchange";
+      case TLS_ST_CR_CERT_REQ:
+        return "SSLv3/TLS read server certificate request";
+      case TLS_ST_CR_SESSION_TICKET:
+        return "SSLv3/TLS read server session ticket";
+      case TLS_ST_CR_SRVR_DONE:
+        return "SSLv3/TLS read server done";
+      case TLS_ST_CW_CERT:
+        return "SSLv3/TLS write client certificate";
+      case TLS_ST_CW_COMP_CERT:
+        return "TLSv1.3 write client compressed certificate";
+      case TLS_ST_CW_KEY_EXCH:
+        return "SSLv3/TLS write client key exchange";
+      case TLS_ST_CW_CERT_VRFY:
+        return "SSLv3/TLS write certificate verify";
+      case TLS_ST_CW_CHANGE:
+      case TLS_ST_SW_CHANGE:
+        return "SSLv3/TLS write change cipher spec";
+      case TLS_ST_CW_FINISHED:
+      case TLS_ST_SW_FINISHED:
+        return "SSLv3/TLS write finished";
+      case TLS_ST_CR_CHANGE:
+      case TLS_ST_SR_CHANGE:
+        return "SSLv3/TLS read change cipher spec";
+      case TLS_ST_CR_FINISHED:
+      case TLS_ST_SR_FINISHED:
+        return "SSLv3/TLS read finished";
+      case TLS_ST_SR_CLNT_HELLO:
+        return "SSLv3/TLS read client hello";
+      case TLS_ST_SW_HELLO_REQ:
+        return "SSLv3/TLS write hello request";
+      case TLS_ST_SW_SRVR_HELLO:
+        return "SSLv3/TLS write server hello";
+      case TLS_ST_SW_CERT:
+        return "SSLv3/TLS write certificate";
+      case TLS_ST_SW_COMP_CERT:
+        return "TLSv1.3 write server compressed certificate";
+      case TLS_ST_SW_KEY_EXCH:
+        return "SSLv3/TLS write key exchange";
+      case TLS_ST_SW_CERT_REQ:
+        return "SSLv3/TLS write certificate request";
+      case TLS_ST_SW_SESSION_TICKET:
+        return "SSLv3/TLS write session ticket";
+      case TLS_ST_SW_SRVR_DONE:
+        return "SSLv3/TLS write server done";
+      case TLS_ST_SR_CERT:
+        return "SSLv3/TLS read client certificate";
+      case TLS_ST_SR_COMP_CERT:
+        return "TLSv1.3 read client compressed certificate";
+      case TLS_ST_SR_KEY_EXCH:
+        return "SSLv3/TLS read client key exchange";
+      case TLS_ST_SR_CERT_VRFY:
+        return "SSLv3/TLS read certificate verify";
+      case DTLS_ST_CR_HELLO_VERIFY_REQUEST:
+        return "DTLS1 read hello verify request";
+      case DTLS_ST_SW_HELLO_VERIFY_REQUEST:
+        return "DTLS1 write hello verify request";
+      case TLS_ST_SW_ENCRYPTED_EXTENSIONS:
+        return "TLSv1.3 write encrypted extensions";
+      case TLS_ST_CR_ENCRYPTED_EXTENSIONS:
+        return "TLSv1.3 read encrypted extensions";
+      case TLS_ST_CR_CERT_VRFY:
+        return "TLSv1.3 read server certificate verify";
+      case TLS_ST_SW_CERT_VRFY:
+        return "TLSv1.3 write server certificate verify";
+      case TLS_ST_CR_HELLO_REQ:
+        return "SSLv3/TLS read hello request";
+      case TLS_ST_SW_KEY_UPDATE:
+        return "TLSv1.3 write server key update";
+      case TLS_ST_CW_KEY_UPDATE:
+        return "TLSv1.3 write client key update";
+      case TLS_ST_SR_KEY_UPDATE:
+        return "TLSv1.3 read client key update";
+      case TLS_ST_CR_KEY_UPDATE:
+        return "TLSv1.3 read server key update";
+      case TLS_ST_EARLY_DATA:
+        return "TLSv1.3 early data";
+      case TLS_ST_PENDING_EARLY_DATA_END:
+        return "TLSv1.3 pending early data end";
+      case TLS_ST_CW_END_OF_EARLY_DATA:
+        return "TLSv1.3 write end of early data";
+      case TLS_ST_SR_END_OF_EARLY_DATA:
+        return "TLSv1.3 read end of early data";
+      default:
+        return "unknown state";
+    }
+}
+
+const char *SSL_get_cipher_name(const SSL *s)
+{
+  SSL_ASSERT2(s);
+  SSL_ASSERT2(s->session);
+
+  return s->session->cipher->name ? s->session->cipher->name : "(NONE)";
+}
+
+const char *SSL_alert_type_string_long(int value)
+{
+  switch (value >> 8)
+  {
+    case SSL3_AL_WARNING:
+      return "warning";
+    case SSL3_AL_FATAL:
+      return "fatal";
+  }
+
+  return "unknown";
+}
+
+const char *SSL_alert_desc_string_long(int value)
+{
+  switch (value & 0xff)
+    {
+      case SSL3_AD_CLOSE_NOTIFY:
+        return "close notify";
+      case SSL3_AD_UNEXPECTED_MESSAGE:
+        return "unexpected message";
+      case SSL3_AD_BAD_RECORD_MAC:
+        return "bad record mac";
+      case SSL3_AD_DECOMPRESSION_FAILURE:
+        return "decompression failure";
+      case SSL3_AD_HANDSHAKE_FAILURE:
+        return "handshake failure";
+      case SSL3_AD_NO_CERTIFICATE:
+        return "no certificate";
+      case SSL3_AD_BAD_CERTIFICATE:
+        return "bad certificate";
+      case SSL3_AD_UNSUPPORTED_CERTIFICATE:
+        return "unsupported certificate";
+      case SSL3_AD_CERTIFICATE_REVOKED:
+        return "certificate revoked";
+      case SSL3_AD_CERTIFICATE_EXPIRED:
+        return "certificate expired";
+      case SSL3_AD_CERTIFICATE_UNKNOWN:
+        return "certificate unknown";
+      case SSL3_AD_ILLEGAL_PARAMETER:
+        return "illegal parameter";
+      case TLS1_AD_DECRYPTION_FAILED:
+        return "decryption failed";
+      case TLS1_AD_RECORD_OVERFLOW:
+        return "record overflow";
+      case TLS1_AD_UNKNOWN_CA:
+        return "unknown CA";
+      case TLS1_AD_ACCESS_DENIED:
+        return "access denied";
+      case TLS1_AD_DECODE_ERROR:
+        return "decode error";
+      case TLS1_AD_DECRYPT_ERROR:
+        return "decrypt error";
+      case TLS1_AD_EXPORT_RESTRICTION:
+        return "export restriction";
+      case TLS1_AD_PROTOCOL_VERSION:
+        return "protocol version";
+      case TLS1_AD_INSUFFICIENT_SECURITY:
+        return "insufficient security";
+      case TLS1_AD_INTERNAL_ERROR:
+        return "internal error";
+      case TLS1_AD_USER_CANCELLED:
+        return "user canceled";
+      case TLS1_AD_NO_RENEGOTIATION:
+        return "no renegotiation";
+      case TLS1_AD_UNSUPPORTED_EXTENSION:
+        return "unsupported extension";
+      case TLS1_AD_CERTIFICATE_UNOBTAINABLE:
+        return "certificate unobtainable";
+      case TLS1_AD_UNRECOGNIZED_NAME:
+        return "unrecognized name";
+      case TLS1_AD_BAD_CERTIFICATE_STATUS_RESPONSE:
+        return "bad certificate status response";
+      case TLS1_AD_BAD_CERTIFICATE_HASH_VALUE:
+        return "bad certificate hash value";
+      case TLS1_AD_UNKNOWN_PSK_IDENTITY:
+        return "unknown PSK identity";
+      case TLS1_AD_NO_APPLICATION_PROTOCOL:
+        return "no application protocol";
+      default:
+        return "unknown";
+    }
+}
+
+void SSL_CTX_set_default_passwd_cb(SSL_CTX *ctx, pem_password_cb *cb)
+{
+  ctx->default_passwd_callback = cb;
+}
+
+void SSL_CTX_set_default_passwd_cb_userdata(SSL_CTX *ctx, void *u)
+{
+    ctx->default_passwd_callback_userdata = u;
+}
+
+void SSL_CTX_set_psk_client_callback(SSL_CTX *ctx, SSL_psk_client_cb_func cb)
+{
+    ctx->psk_client_callback = cb;
+}
+
+int SSL_CTX_set_default_verify_paths(SSL_CTX *ctx)
+{
+  return 0;
+}
+
+long SSL_CTX_set_mode(SSL_CTX *ctx, long larg)
+{
+  return ctx->mode |= larg;
+}
+
+void SSL_CTX_set_info_callback(SSL_CTX *ctx,
+                               void (*cb)(const SSL *ssl, int type, int val))
+{
+  ctx->info_callback = cb;
+}
+
+void SSL_CTX_set_msg_callback(SSL_CTX *ctx,
+                              void (*cb)(int write_p, int version,
+                                         int content_type, const void *buf,
+                                         size_t len, SSL *ssl, void *arg))
+{
+  ctx->msg_callback = cb;
+}
+
+long SSL_set_tlsext_host_name(SSL *s, void *parg)
+{
+  size_t len;
+
+  SSL_ASSERT1(s);
+  SSL_ASSERT1(s->session);
+
+  if (parg == NULL)
+    {
+      return 1;
+    }
+
+  len = strlen(parg);
+  if (len == 0 || len > TLSEXT_MAXLEN_host_name)
+    {
+      return 0;
+    }
+
+  memset(s->session->ext.hostname, 0, TLSEXT_MAXLEN_host_name);
+  memcpy(s->session->ext.hostname, parg, len);
+  return 1;
+}
+
+int SSL_CTX_load_verify_file(SSL_CTX *ctx, const char *CAfile)
+{
+  X509 *x;
+  int ret;
+
+  SSL_ASSERT1(ctx);
+  SSL_ASSERT1(CAfile);
+
+  x = X509_new();
+  ret = X509_METHOD_CALL(load_file, x, CAfile);
+  if (ret)
+    {
+      X509_free(x);
+      return 0;
+    }
+
+  SSL_CTX_add_client_CA(ctx, x);
+  return 1;
+}
+
+int SSL_CTX_load_verify_dir(SSL_CTX *ctx, const char *CApath)
+{
+  X509 *x;
+  int ret;
+
+  SSL_ASSERT1(ctx);
+  SSL_ASSERT1(CApath);
+
+  x = X509_new();
+  ret = X509_METHOD_CALL(load_path, x, CApath);
+  if (ret)
+    {
+      X509_free(x);
+      return 0;
+    }
+
+  SSL_CTX_add_client_CA(ctx, x);
+  return 1;
+}
+
+int SSL_CTX_load_verify_locations(SSL_CTX *ctx, const char *CAfile,
+                                  const char *CApath)
+{
+  if (CAfile == NULL && CApath == NULL)
+    {
+      return 0;
+    }
+
+  if (CAfile != NULL && !SSL_CTX_load_verify_file(ctx, CAfile))
+    {
+      return 0;
+    }
+
+  if (CApath != NULL && !SSL_CTX_load_verify_dir(ctx, CApath))
+    {
+      return 0;
+    }
+
+  return 1;
+}
+
+int SSL_get_ex_new_index(long argl, void *argp,
+                         CRYPTO_EX_new *new_func, CRYPTO_EX_dup *dup_func,
+                         CRYPTO_EX_free *free_func)
+{
+  return 0;
+}
+
+const char *SSL_get_cipher_list(const SSL *s, int n)
+{
+  return NULL;
+}
+
+int SSL_CTX_set_ex_data(SSL_CTX *s, int idx, void *arg)
+{
+  return 0;
+}
+
+int SSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str)
+{
+  return 0;
 }

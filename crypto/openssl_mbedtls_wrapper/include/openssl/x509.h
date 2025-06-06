@@ -34,10 +34,13 @@
 #include <openssl/obj.h>
 #include <openssl/types.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define X509_FILETYPE_PEM       1
+#define X509_FILETYPE_ASN1      2
+#define X509_FILETYPE_DEFAULT   3
 
 /****************************************************************************
  * Public Types
@@ -56,6 +59,8 @@ struct x509_method_st
   int (*x509_new)(X509 *x, X509 *m_x);
   void (*x509_free)(X509 *x);
   int (*x509_load)(X509 *x, const unsigned char *buf, int len);
+  int (*x509_load_file)(X509 *x, const char *file);
+  int (*x509_load_path)(X509 *x, const char *path);
   int (*x509_show_info)(X509 *x);
 };
 
@@ -65,6 +70,11 @@ struct cert_st
   X509 *x509;
   EVP_PKEY *pkey;
 };
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /****************************************************************************
  * Public Function Prototypes
