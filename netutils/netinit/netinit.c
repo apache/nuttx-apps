@@ -286,7 +286,9 @@ static const uint16_t g_ipv6_netmask[8] =
     defined(HAVE_MAC)
 static void netinit_set_macaddr(void)
 {
-#if defined(CONFIG_NETINIT_UIDMAC)
+#if defined(CONFIG_NETINIT_MACADDR)
+  struct boardioc_macaddr_s req;
+#elif defined(CONFIG_NETINIT_UIDMAC)
   uint8_t uid[CONFIG_BOARDCTL_UNIQUEID_SIZE];
 #elif defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
@@ -296,7 +298,14 @@ static void netinit_set_macaddr(void)
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
-#if defined(CONFIG_NETINIT_UIDMAC)
+#if defined(CONFIG_NETINIT_MACADDR)
+  strlcpy(req.ifname, NET_DEVNAME, IFNAMSIZ);
+  if (boardctl(BOARDIOC_MACADDR, (uintptr_t)&req) == 0)
+    {
+      netlib_setmacaddr(NET_DEVNAME, req.macaddr);
+    }
+
+#elif defined(CONFIG_NETINIT_UIDMAC)
   boardctl(BOARDIOC_UNIQUEID, (uintptr_t)&uid);
   uid[0] = (uid[0] & 0b11110000) | 2; /* Locally Administered MAC */
   netlib_setmacaddr(NET_DEVNAME, uid);
