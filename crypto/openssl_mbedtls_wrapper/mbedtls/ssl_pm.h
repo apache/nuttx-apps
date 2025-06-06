@@ -33,7 +33,9 @@ extern "C"
 {
 #endif
 
-#define LOCAL_ATRR
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 int ssl_pm_new(SSL *ssl);
 void ssl_pm_free(SSL *ssl);
@@ -57,6 +59,8 @@ int x509_pm_show_info(X509 *x);
 int x509_pm_new(X509 *x, X509 *m_x);
 void x509_pm_free(X509 *x);
 int x509_pm_load(X509 *x, const unsigned char *buffer, int len);
+int x509_pm_load_file(X509 *x, const char *path);
+int x509_pm_load_path(X509 *x, const char *path);
 
 int pkey_pm_new(EVP_PKEY *pk, EVP_PKEY *m_pk);
 void pkey_pm_free(EVP_PKEY *pk);

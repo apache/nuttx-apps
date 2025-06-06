@@ -38,7 +38,34 @@ unsigned long ERR_peek_last_error(void)
   return errno;
 }
 
+void ERR_free_strings(void)
+{
+}
+
 void ERR_error_string_n(unsigned long e, char *buf, size_t len)
 {
   mbedtls_strerror(e, buf, len);
+}
+
+void ERR_clear_error(void)
+{
+}
+
+unsigned long ERR_get_error(void)
+{
+  return errno;
+}
+
+void ERR_remove_state(unsigned long pid)
+{
+}
+
+int ERR_load_crypto_strings(void)
+{
+  return 1;
+}
+
+void ERR_print_errors_cb(int (*cb)(const char *str, size_t len, void *u),
+                         void *u)
+{
 }

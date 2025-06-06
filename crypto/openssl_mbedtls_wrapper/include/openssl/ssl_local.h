@@ -30,11 +30,6 @@
 #include <openssl/x509_local.h>
 #include <openssl/x509_vfy.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -61,6 +56,24 @@ struct ssl_ctx_st
   int read_ahead;
   int read_buffer_len;
   X509_VERIFY_PARAM param;
+
+  /* Default password callback. */
+
+  pem_password_cb *default_passwd_callback;
+
+  /* Default password callback user data. */
+
+  void *default_passwd_callback_userdata;
+  uint32_t mode;
+
+  /* optional informational callback */
+
+  void (*info_callback)(const SSL *ssl, int type, int val);
+
+  /* callback that allows applications to peek at protocol messages */
+
+  ossl_msg_cb msg_callback;
+  SSL_psk_client_cb_func psk_client_callback;
 };
 
 struct ssl_method_func_st
@@ -97,6 +110,12 @@ struct ssl_session_st
   long timeout;
   long time;
   X509 *peer;
+  const SSL_CIPHER *cipher;
+  int references;
+  struct
+    {
+      char hostname[TLSEXT_MAXLEN_host_name];
+    } ext;
 };
 
 struct ssl_st
@@ -132,7 +151,18 @@ struct ssl_st
 /* SSL low-level system arch point */
 
   void *ssl_pm;
+  SSL_CIPHER *cipher_list;
 };
+
+struct ssl_cipher_st
+{
+  const char *name;           /* text name */
+};
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /****************************************************************************
  * Public Function Prototypes
