@@ -48,3 +48,4 @@ build
 compile_commands.json
 .aider*
 .clang-format
+.cache
