@@ -85,7 +85,7 @@ static FAR void *doit(pthread_addr_t pvarg)
   char buf[REXECD_BUFSIZE];
   struct pollfd fds[2];
   FAR FILE *fp;
-  int sock = (int)pvarg;
+  int sock = (long)pvarg;
   int ret;
 
   /* we need to read err_sock, user and passwd, but ignore them */
