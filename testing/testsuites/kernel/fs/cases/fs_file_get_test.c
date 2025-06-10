@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/testsuites/kernel/fs/cases/fs_getfilep_test.c
+ * apps/testing/testsuites/kernel/fs/cases/fs_file_get_test.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -45,10 +45,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_getfilep01
+ * Name: test_nuttx_fs_file_get01
  ****************************************************************************/
 
-void test_nuttx_fs_getfilep01(FAR void **state)
+void test_nuttx_fs_file_get01(FAR void **state)
 {
   FAR struct file *filep;
   int ret;
@@ -72,7 +72,7 @@ void test_nuttx_fs_getfilep01(FAR void **state)
 
   /* get struct file */
 
-  ret = fs_getfilep(fileno(fp), &filep);
+  ret = file_get(fileno(fp), &filep);
   assert_int_equal(ret, 0);
 
   /* malloc memory */
@@ -100,11 +100,11 @@ void test_nuttx_fs_getfilep01(FAR void **state)
 
   /* put filep */
 
-  fs_putfilep(filep);
+  file_put(filep);
 
   /* get struct file again */
 
-  ret = fs_getfilep(fileno(fp), &filep);
+  ret = file_get(fileno(fp), &filep);
   assert_int_equal(ret, 0);
 
   assert_int_equal(filep->f_pos, BUF_SIZE);
@@ -113,7 +113,7 @@ void test_nuttx_fs_getfilep01(FAR void **state)
 
   /* put filep */
 
-  fs_putfilep(filep);
+  file_put(filep);
 
   assert_int_equal(fclose(fp), 0);
 }
