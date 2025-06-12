@@ -1032,7 +1032,7 @@ static int fastboot_open_usb(int index, int flags)
   return -errno;
 }
 
-static int fastboot_usbdev_initialize(void)
+static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
 {
 #ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
   struct boardioc_usbdev_ctrl_s ctrl;
@@ -1071,7 +1071,56 @@ static int fastboot_usbdev_initialize(void)
     }
 #endif /* SYSTEM_FASTBOOTD_USB_BOARDCTL */
 
+  ctx->usbdev_in  =
+      fastboot_open_usb(FASTBOOT_EP_BULKOUT_IDX, O_RDONLY | O_CLOEXEC);
+  if (ctx->usbdev_in < 0)
+    {
+      return ctx->usbdev_in;
+    }
+
+  ctx->usbdev_out =
+      fastboot_open_usb(FASTBOOT_EP_BULKIN_IDX, O_WRONLY | O_CLOEXEC);
+  if (ctx->usbdev_out < 0)
+    {
+      close(ctx->usbdev_in);
+      ctx->usbdev_in = -1;
+      return ctx->usbdev_out;
+    }
+
   return 0;
+}
+
+static void fastboot_usbdev_deinit(FAR struct fastboot_ctx_s *ctx)
+{
+  close(ctx->usbdev_out);
+  ctx->usbdev_out = -1;
+  close(ctx->usbdev_in);
+  ctx->usbdev_in = -1;
+}
+
+static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx)
+{
+  ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
+  ctx->download_offset = 0;
+  ctx->download_size   = 0;
+  ctx->flash_fd        = -1;
+  ctx->total_imgsize   = 0;
+  ctx->varlist         = NULL;
+  ctx->wait_ms         = 0;
+
+  ctx->download_buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
+  if (ctx->download_buffer == NULL)
+    {
+      fb_err("ERROR: Could not allocate the memory.\n");
+      return -errno;
+    }
+
+  return 0;
+}
+
+static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx)
+{
+  free(ctx->download_buffer);
 }
 
 /****************************************************************************
@@ -1081,8 +1130,13 @@ static int fastboot_usbdev_initialize(void)
 int main(int argc, FAR char **argv)
 {
   struct fastboot_ctx_s context;
-  FAR void *buffer = NULL;
-  int ret = OK;
+  int ret;
+
+  ret = fastboot_context_initialize(&context);
+  if (ret < 0)
+    {
+      return ret;
+    }
 
   if (argc > 1)
     {
@@ -1096,60 +1150,18 @@ int main(int argc, FAR char **argv)
 
       context.wait_ms = atoi(argv[1]);
     }
-  else
-    {
-      context.wait_ms = 0;
-    }
 
-  ret = fastboot_usbdev_initialize();
+  ret = fastboot_usbdev_initialize(&context);
   if (ret < 0)
     {
       return ret;
     }
 
-  buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
-  if (buffer == NULL)
-    {
-      fb_err("ERROR: Could not allocate the memory.\n");
-      return -ENOMEM;
-    }
-
-  context.usbdev_in =
-      fastboot_open_usb(FASTBOOT_EP_BULKOUT_IDX, O_RDONLY | O_CLOEXEC);
-  if (context.usbdev_in < 0)
-    {
-      ret = -errno;
-      goto err_with_mem;
-    }
-
-  context.usbdev_out =
-      fastboot_open_usb(FASTBOOT_EP_BULKIN_IDX, O_WRONLY | O_CLOEXEC);
-  if (context.usbdev_out < 0)
-    {
-      ret = -errno;
-      goto err_with_in;
-    }
-
-  context.varlist         = NULL;
-  context.flash_fd        = -1;
-  context.download_buffer = buffer;
-  context.download_size   = 0;
-  context.download_offset = 0;
-  context.download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
-  context.total_imgsize   = 0;
-
   fastboot_create_publish(&context);
   fastboot_command_loop(&context);
   fastboot_free_publish(&context);
+  fastboot_usbdev_deinit(&context);
+  fastboot_context_deinit(&context);
 
-  close(context.usbdev_out);
-  context.usbdev_out = -1;
-
-err_with_in:
-  close(context.usbdev_in);
-  context.usbdev_in = -1;
-
-err_with_mem:
-  free(buffer);
   return ret;
 }
