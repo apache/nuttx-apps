@@ -71,6 +71,7 @@ static size_t pthread_switch_performance(void);
 static size_t context_switch_performance(void);
 static size_t hpwork_performance(void);
 static size_t poll_performance(void);
+static size_t pipe_performance(void);
 static size_t semwait_performance(void);
 static size_t sempost_performance(void);
 
@@ -85,6 +86,7 @@ static const struct performance_entry_s g_entry_list[] =
   {"context-switch", context_switch_performance},
   {"hpwork", hpwork_performance},
   {"poll-write", poll_performance},
+  {"pipe-rw", pipe_performance},
   {"semwait", semwait_performance},
   {"sempost", sempost_performance},
 };
@@ -285,6 +287,30 @@ static size_t poll_performance(void)
   performance_end(&result);
 
   pthread_join(ret, NULL);
+  close(pipefd[0]);
+  close(pipefd[1]);
+  return performance_gettime(&result);
+}
+
+/****************************************************************************
+ *  pipe performance
+ ****************************************************************************/
+
+static size_t pipe_performance(void)
+{
+  struct performance_time_s result;
+  int pipefd[2];
+  int ret;
+  char r;
+
+  ret = pipe(pipefd);
+  DEBUGASSERT(ret == 0);
+
+  performance_start(&result);
+  write(pipefd[0], "a", 1);
+  read(pipefd[1], &r, 1);
+  performance_end(&result);
+
   close(pipefd[0]);
   close(pipefd[1]);
   return performance_gettime(&result);
