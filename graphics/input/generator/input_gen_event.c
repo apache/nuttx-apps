@@ -293,7 +293,7 @@ static int input_gen_motion(input_gen_ctx_t ctx,
     {
       uint32_t elapsed = input_gen_tick_elapsed(input_gen_tick_get(), start);
       ret = input_gen_write_motion(dev->fd, fingers, nfingers, elapsed);
-      if (ret == -EAGAIN && usleep(1000) < 0)
+      if (ret == -EAGAIN && usleep(8 * 1000) < 0)
         {
           nwarn("WARNING: Maybe interrupted by signal\n");
           input_gen_ungrab(dev);

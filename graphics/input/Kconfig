@@ -54,7 +54,7 @@ config GRAPHICS_INPUT_TOOL_STACKSIZE
 
 config GRAPHICS_INPUT_TOOL_PRIORITY
 	int "input priority"
-	default 100
+	default 110
 	---help---
 		The priority of the input task.
 
