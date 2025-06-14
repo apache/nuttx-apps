@@ -1035,16 +1035,8 @@ static int fastboot_open_usb(int index, int flags)
   return -errno;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static int fastboot_usbdev_initialize(void)
 {
-  struct fastboot_ctx_s context;
-  FAR void *buffer = NULL;
-  int ret = OK;
-
 #ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
   struct boardioc_usbdev_ctrl_s ctrl;
 #  ifdef CONFIG_USBDEV_COMPOSITE
@@ -1053,6 +1045,7 @@ int main(int argc, FAR char **argv)
     uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
 #  endif
   FAR void *handle;
+  int ret;
 
   ctrl.usbdev   = dev;
   ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
@@ -1063,7 +1056,7 @@ int main(int argc, FAR char **argv)
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      fb_err("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
+      fb_err("boardctl(BOARDIOC_USBDEV_INITIALIZE) failed: %d\n", ret);
       return ret;
     }
 
@@ -1076,10 +1069,23 @@ int main(int argc, FAR char **argv)
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      fb_err("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
+      fb_err("boardctl(BOARDIOC_USBDEV_CONNECT) failed: %d\n", ret);
       return ret;
     }
 #endif /* SYSTEM_FASTBOOTD_USB_BOARDCTL */
+
+  return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char **argv)
+{
+  struct fastboot_ctx_s context;
+  FAR void *buffer = NULL;
+  int ret = OK;
 
   if (argc > 1)
     {
@@ -1096,6 +1102,12 @@ int main(int argc, FAR char **argv)
   else
     {
       context.wait_ms = 0;
+    }
+
+  ret = fastboot_usbdev_initialize();
+  if (ret < 0)
+    {
+      return ret;
     }
 
   buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
