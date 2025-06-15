@@ -1,0 +1,53 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SYSLOGD
+	bool "syslogd utility"
+	default n
+	depends on NET_UDP && SYSLOG_RFC5424
+	---help---
+		Enable support for the 'syslogd' utility. This utility will read syslog
+		messages from the syslog device and transmit them over UDP in RFC 5424
+		compatible format. Ensure the syslog device being used is capable of being
+		read from.
+
+if SYSTEM_SYSLOGD
+
+config SYSTEM_SYSLOGD_PROGNAME
+	string "syslogd progname"
+	default "syslogd"
+	---help---
+		This is the name of the program that will be used when the syslogd
+		program is installed.
+
+config SYSTEM_SYSLOGD_PRIORITY
+	int "syslogd task priority"
+	default 100
+
+config SYSTEM_SYSLOGD_STACKSIZE
+	int "syslogd stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_SYSLOGD_ENTRYSIZE
+	int "Max entry size"
+	default 480
+	---help---
+		The maximum size (in bytes) of the UDP message buffer for sending syslog
+		entries. Set this value to the expected maximum length of a syslog entry. RFC
+		5424 specifies a minimum maximum of 480.
+
+config SYSTEM_SYSLOGD_PORT
+	int "syslogd port"
+	default 514
+	---help---
+		The default port for syslogd to send UDP traffic to.
+
+config SYSTEM_SYSLOGD_ADDR
+	string "Log server address"
+	default "127.0.0.1"
+	---help---
+		The network address for syslogd to send UDP traffic to.
+
+endif
