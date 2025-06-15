@@ -1,0 +1,3 @@
+ifneq ($(CONFIG_WIRELESS_SX1262),)
+CONFIGURED_APPS += $(APPDIR)/wireless/sx1262
+endif
