@@ -1,0 +1,206 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FBCON
+	tristate "Framebuffer console example"
+	default n
+	---help---
+		Enable the Framebuffer console example.
+		This example allows STDOUT and/or STDERR to be redirected and displayed
+		on a framebuffer character device.
+
+		A chosen builtin app can be spawned - such as "nsh" - to create a
+		console and, if required, STDIN can be intercepted to allow input
+		characters to be interpreted and pre-processed before passing them
+		on to the spawned app.
+
+		Relies on and uses NX and NXFONTS
+
+if EXAMPLES_FBCON
+
+comment "Console STDIN and/or STDOUT setup"
+
+config EXAMPLES_FBCON_PIPE_STDOUT
+	bool "Pipe stdout to this console"
+	default y
+
+config EXAMPLES_FBCON_PIPE_STDERR
+	bool "Pipe stderr to this console"
+	default y
+
+config EXAMPLES_FBCON_PIPE_STDIN
+	bool "Pipe stdin via this console"
+	default y
+	---help---
+		This is usually needed if the spawned App is "nsh" as we need to
+		intercept input characters in some cases
+
+comment "Console Framebuffer setup"
+
+config EXAMPLES_FBCON_DEF_FB
+	string "Default framebuffer driver"
+	default "/dev/fb0"
+	---help---
+		Default framebuffer drivers.  This selection can be overridden from
+		the command line.
+
+comment "BPP setup"
+
+choice EXAMPLES_FBCON_BPP_SELECTION
+	prompt "BPP Configuration"
+	default EXAMPLES_FBCON_BPP_NX_DEFAULT
+
+config EXAMPLES_FBCON_BPP_NX_DEFAULT
+	bool "Use smallest BPP as enabled via NXFONTS setup"
+
+config EXAMPLES_FBCON_CUSTOM_BPP
+	bool "Choose custom BPP (must not be disabled in NX)"
+
+endchoice # EXAMPLES_FBCON_BPP_SELECTION
+
+choice EXAMPLES_FBCON_CUSTOM_BPP
+	prompt "Custom Font pixel depth (BPP - Bits Per Pixel)"
+	depends on EXAMPLES_FBCON_CUSTOM_BPP
+	---help---
+		Note: The required BPP must not be disabled via the NXFONT setup
+
+config EXAMPLES_FBCON_1BPP
+	bool "1 BPP"
+	depends on !NX_DISABLE_1BPP
+
+config EXAMPLES_FBCON_2BPP
+	bool "2 BPP"
+	depends on !NX_DISABLE_2BPP
+
+config EXAMPLES_FBCON_4BPP
+	bool "4 BPP"
+	depends on !NX_DISABLE_4BPP
+
+config EXAMPLES_FBCON_8BPP
+	bool "8 BPP"
+	depends on !NX_DISABLE_8BPP
+
+config EXAMPLES_FBCON_16BPP
+	bool "16 BPP"
+	depends on !NX_DISABLE_16BPP
+
+config EXAMPLES_FBCON_24BPP
+	bool "24 BPP"
+	depends on !NX_DISABLE_24BPP
+
+config EXAMPLES_FBCON_32BPP
+	bool "32 BPP"
+	depends on !NX_DISABLE_32BPP
+
+endchoice # EXAMPLES_FBCON_CUSTOM_BPP
+
+comment "Console appearance"
+
+config EXAMPLES_FBCON_SHOW_WELCOME
+	bool "Display welcome messages on stdout and/or stdin"
+	default y
+
+config EXAMPLES_FBCON_DEFAULT_COLORS
+	bool "Use Default Colors (white characters on black background)"
+	default y
+
+if !EXAMPLES_FBCON_DEFAULT_COLORS
+
+config EXAMPLES_FBCON_BGCOLOR
+	hex "Background color"
+	default 0x0
+	---help---
+		The color of the background.  Default depends on config
+		EXAMPLES_FBCON_BPP.
+
+config EXAMPLES_FBCON_FCOLOR
+	hex "Console font color"
+	default 0x0
+	---help---
+		The color of the fonts used by the console.
+endif # !EXAMPLES_FBCON_DEFAULT_COLORS
+
+config EXAMPLES_FBCON_LINESPACING
+	int "Line spacing"
+	default 0
+	range 0 4
+	---help---
+		The vertical distance between lines is the sum of (1) the vertical
+		bounding box dimension of the font, and (2) this additional line
+		space.  This value may be zero, but not negative.
+	
+config EXAMPLES_FBCON_NOWRAP
+	bool "No wrap"
+	default n
+	---help---
+		By default, lines will wrap when the test reaches the right hand side
+		of the window. This setting can be defining to change this behavior so
+		that the text is simply truncated until a new line is encountered.
+
+choice EXAMPLES_FBCON_FONT
+	prompt "Font Configuration"
+	default EXAMPLES_FBCON_DEFAULT_FONT
+
+config EXAMPLES_FBCON_DEFAULT_FONT
+	bool "Use Default Font"
+
+config EXAMPLES_FBCON_CUSTOM_FONTID
+	bool "Use Custom Font ID"
+
+config EXAMPLES_FBCON_FONTID
+	int "Custom font ID"
+	depends on EXAMPLES_FBCON_CUSTOM_FONTID 
+	default 0
+	---help---
+		Selects the font used by the console (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+endchoice # EXAMPLES_FBCON_FONT
+
+config EXAMPLES_FBCON_CURSORCHAR
+	int "Character code to use as the cursor"
+	default 95
+	---help---
+		The bitmap code to use as the cursor.  Default '_' (95)
+
+comment "FB Console App Escape code decoding"
+
+config EXAMPLES_FBCON_VT100_DECODE
+	bool "Decode VT100 Escape Codes"
+	default y
+	---help---
+		Decode VT100 ESC codes - only minimal supporting functions
+
+comment "FB Console spawn task configuration"
+
+config EXAMPLES_FBCON_SPAWN_TASK
+	string "Built-in application, or task, to spawn after console setup"
+	default "nsh"
+	---help---
+		The required App must be enabled via Kconfig, of course. Its 
+		priority and stack size will be determined by this example and passed
+		on during the spawn of the chosen app.
+
+comment "FB Console App stack and priority options and glyph cache size"
+
+config EXAMPLES_FBCON_STACKSIZE
+	int "Stack Size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The stacksize to use when starting the example.
+
+config EXAMPLES_FBCON_PRIORITY
+	int "Task Priority"
+	default 100
+	---help---
+		The priority of the example.
+
+config EXAMPLES_FBCON_GLCACHE
+	int "Glyph cache size"
+	default 94
+	---help---
+		Size of the glyph cache. Default allows all usual ASCII characters to be cached
+
+endif # EXAMPLES_FBCON

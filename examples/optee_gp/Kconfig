@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_OPTEE_GP
+	tristate "OP-TEE GP API client example"
+	depends on LIBTEEC
+	default n
+	---help---
+		Enable the OP-TEE GP API client example which uses libteec
+
+if EXAMPLES_OPTEE_GP
+
+config EXAMPLES_OPTEE_GP_PROGNAME
+	string "Program name"
+	default "optee_gp"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_OPTEE_GP_PRIORITY
+	int "OP-TEE GP task priority"
+	default 100
+
+config EXAMPLES_OPTEE_GP_STACKSIZE
+	int "OP-TEE GP stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

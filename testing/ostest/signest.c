@@ -52,6 +52,8 @@
  * Private Data
  ****************************************************************************/
 
+static pthread_t g_waiterpid;
+static pthread_t g_interferepid;
 static sem_t g_waiter_sem;
 static sem_t g_interferer_sem;
 static sem_t g_sem_thread_started;
@@ -90,9 +92,28 @@ static bool signest_catchable(int signo)
   return true;
 }
 
+static void interfere_action(int signo)
+{
+  pthread_t pid = pthread_self();
+  if (pid != g_interferepid)
+    {
+      printf("interfere_action: Delivered to wrong TID %d, expected %d\n",
+             pid, g_interferepid);
+      ASSERT(false);
+    }
+}
+
 static void waiter_action(int signo)
 {
   int nest_level;
+
+  pthread_t pid = pthread_self();
+  if (pid != g_waiterpid)
+    {
+      printf("waiter_action: Delivered to wrong TID %d, expected %d\n",
+             pid, g_waiterpid);
+      ASSERT(false);
+    }
 
   sched_lock();
   nest_level = g_nest_level++;
@@ -145,7 +166,7 @@ static FAR void *waiter_main(FAR void *arg)
   act.sa_flags   = 0;
 
   sigemptyset(&act.sa_mask);
-  for (i = 1; i <= MAX_SIGNO; i += 2)
+  for (i = 1; i <= MAX_SIGNO - 1; i += 2)
     {
       if (signest_catchable(i))
         {
@@ -153,7 +174,7 @@ static FAR void *waiter_main(FAR void *arg)
         }
     }
 
-  for (i = 1; i <= MAX_SIGNO; i++)
+  for (i = 1; i <= MAX_SIGNO - 1; i++)
     {
       if (signest_catchable(i))
         {
@@ -166,6 +187,11 @@ static FAR void *waiter_main(FAR void *arg)
             }
         }
     }
+
+  act.sa_handler = interfere_action;
+  act.sa_flags   = 0;
+  sigemptyset(&act.sa_mask);
+  sigaction(MAX_SIGNO, &act, NULL);
 
   /* Now just loop until the test completes */
 
@@ -242,8 +268,6 @@ void signest_test(void)
 {
   struct sched_param param;
   pthread_attr_t attr;
-  pid_t waiterpid;
-  pid_t interferepid;
   int total_signals;
   int total_handled;
   int total_nested;
@@ -287,7 +311,7 @@ void signest_test(void)
   pthread_attr_init(&attr);
   pthread_attr_setschedparam(&attr, &param);
   pthread_attr_setstacksize(&attr, STACKSIZE);
-  ret = pthread_create(&waiterpid, &attr, waiter_main, NULL);
+  ret = pthread_create(&g_waiterpid, &attr, waiter_main, NULL);
   if (ret != 0)
     {
       printf("signest_test: ERROR failed to start waiter_main\n");
@@ -295,7 +319,7 @@ void signest_test(void)
       return;
     }
 
-  printf("signest_test: Started waiter_main pid=%d\n", waiterpid);
+  printf("signest_test: Started waiter_main pid=%d\n", g_waiterpid);
 
   /* Start interfering thread  */
 
@@ -303,7 +327,7 @@ void signest_test(void)
   printf("signest_test: Starting interfering task at priority %d\n",
          param.sched_priority);
   pthread_attr_setschedparam(&attr, &param);
-  ret = pthread_create(&interferepid, &attr, interfere_main, NULL);
+  ret = pthread_create(&g_interferepid, &attr, interfere_main, NULL);
   if (ret != 0)
     {
       printf("signest_test: ERROR failed to start interfere_main\n");
@@ -311,7 +335,7 @@ void signest_test(void)
       goto errout_with_waiter;
     }
 
-  printf("signest_test: Started interfere_main pid=%d\n", interferepid);
+  printf("signest_test: Started interfere_main pid=%d\n", g_interferepid);
 
   /* Wait a bit */
 
@@ -324,37 +348,37 @@ void signest_test(void)
 
   for (i = 0; i < 10; i++)
     {
-      for (j = 1; j + 1 <= MAX_SIGNO; j += 2)
+      for (j = 1; j + 1 <= MAX_SIGNO - 1; j += 2)
         {
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(g_waiterpid, j);
               odd_signals++;
             }
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(g_waiterpid, j + 1);
               even_signals++;
             }
 
-          wait_finish(waiterpid, j);
+          wait_finish(g_waiterpid, j);
 
           /* Even then odd */
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(g_waiterpid, j + 1);
               even_signals++;
             }
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(g_waiterpid, j);
               odd_signals++;
             }
 
-          wait_finish(waiterpid, j);
+          wait_finish(g_waiterpid, j);
         }
     }
 
@@ -379,7 +403,7 @@ void signest_test(void)
 
   for (i = 0; i < 10; i++)
     {
-      for (j = 1; j + 1 <= MAX_SIGNO; j += 2)
+      for (j = 1; j + 1 <= MAX_SIGNO - 1; j += 2)
         {
           /* Odd then even */
 
@@ -387,19 +411,19 @@ void signest_test(void)
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(g_waiterpid, j);
               odd_signals++;
             }
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(g_waiterpid, j + 1);
               even_signals++;
             }
 
           sched_unlock();
 
-          wait_finish(waiterpid, j);
+          wait_finish(g_waiterpid, j);
 
           /* Even then odd */
 
@@ -407,19 +431,19 @@ void signest_test(void)
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(g_waiterpid, j + 1);
               even_signals++;
             }
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(g_waiterpid, j);
               odd_signals++;
             }
 
           sched_unlock();
 
-          wait_finish(waiterpid, j);
+          wait_finish(g_waiterpid, j);
         }
     }
 
@@ -441,15 +465,17 @@ void signest_test(void)
 
   for (i = 0; i < 10; i++)
     {
-      for (j = 1; j + 1 <= MAX_SIGNO; j += 2)
+      for (j = 1; j + 1 <= MAX_SIGNO - 1; j += 2)
         {
           /* Odd then even */
 
           sched_lock();
 
+          pthread_kill(g_interferepid, MAX_SIGNO);
+
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(g_waiterpid, j);
               odd_signals++;
             }
 
@@ -457,20 +483,20 @@ void signest_test(void)
 
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(g_waiterpid, j + 1);
               even_signals++;
             }
 
           sched_unlock();
 
-          wait_finish(waiterpid, j);
+          wait_finish(g_waiterpid, j);
 
           /* Even then odd */
 
           sched_lock();
           if (signest_catchable(j + 1))
             {
-              kill(waiterpid, j + 1);
+              pthread_kill(g_waiterpid, j + 1);
               even_signals++;
             }
 
@@ -478,13 +504,13 @@ void signest_test(void)
 
           if (signest_catchable(j))
             {
-              kill(waiterpid, j);
+              pthread_kill(g_waiterpid, j);
               odd_signals++;
             }
 
           sched_unlock();
 
-          wait_finish(waiterpid, j);
+          wait_finish(g_waiterpid, j);
         }
     }
 
@@ -554,6 +580,13 @@ errout_with_waiter:
       printf("signest_test: ERROR %d ODD signals were nested\n",
              g_odd_nested);
       ASSERT(false);
+    }
+
+  /* Unregister signal handlers */
+
+  for (i = 1; i <= MAX_SIGNO; i++)
+    {
+      signal(i, SIG_DFL);
     }
 
   sem_destroy(&g_waiter_sem);

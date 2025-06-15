@@ -5,6 +5,7 @@
 
 config TESTING_NXFFS
 	tristate "NXFFS file system example"
+	depends on FS_NXFFS && RAMMTD
 	default n
 	---help---
 		Enable the NXFFS file system example

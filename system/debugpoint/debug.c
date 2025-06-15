@@ -289,7 +289,7 @@ static bool parse_options(int argc, FAR char *argv[],
                           struct debug_option *opt)
 {
   int cmd;
-  while ((cmd = getopt(argc, argv, "r:w:b:x:cl")) != -1)
+  while ((cmd = getopt(argc, argv, "r:w:b:x:cl:")) != -1)
     {
       switch (cmd)
         {

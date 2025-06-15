@@ -21,5 +21,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_SYSTEM_CPULOAD),)
-CONFIGURED_APPS += $(APPDIR)/testing/sched/cpuload
+CONFIGURED_APPS += $(APPDIR)/system/cpuload
 endif

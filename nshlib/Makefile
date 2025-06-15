@@ -25,7 +25,7 @@ include $(APPDIR)/Make.defs
 # NSH Library
 
 CSRCS  = nsh_init.c nsh_parse.c nsh_console.c nsh_script.c nsh_system.c
-CSRCS += nsh_command.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c
+CSRCS += nsh_command.c nsh_fscmds.c nsh_proccmds.c nsh_mmcmds.c
 CSRCS += nsh_timcmds.c nsh_envcmds.c nsh_syscmds.c nsh_dbgcmds.c nsh_prompt.c
 
 CSRCS += nsh_session.c

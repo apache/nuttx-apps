@@ -202,8 +202,8 @@ int flash_partition_read(int fd, void *buf, size_t count, off_t off)
   nbytes = read(fd, buf, count);
   if (nbytes != count)
     {
-      syslog(LOG_ERR, "Read from offset %ld failed %s\n",
-              off, strerror(errno));
+      syslog(LOG_ERR, "Read from offset %ld failed %s\n", off,
+                      strerror(errno));
       return ERROR;
     }
 
@@ -240,10 +240,10 @@ int flash_partition_erase(int fd)
 }
 
 /****************************************************************************
- * Name: flash_partition_erase_last_sector
+ * Name: flash_partition_erase_first_sector
  *
  * Description:
- *   Erases the last sector of the partition
+ *   Erases the first sector of the partition
  *
  * Input parameters:
  *   fd: Valid file descriptor.
@@ -253,25 +253,19 @@ int flash_partition_erase(int fd)
  *
  ****************************************************************************/
 
-int flash_partition_erase_last_sector(int fd)
+int flash_partition_erase_first_sector(int fd)
 {
   int ret;
   struct mtd_erase_s erase;
-  struct flash_partition_info info;
 
-  if (flash_partition_info(fd, &info) < 0)
-    {
-      return ERROR;
-    }
-
-  erase.startblock = info.neraseblocks - 1;
+  erase.startblock = 0;
   erase.nblocks = 1;
 
   ret = ioctl(fd, MTDIOC_ERASESECTORS, &erase);
   if (ret < 0)
     {
       syslog(LOG_ERR, "Could not erase the partition: %s\n",
-              strerror(errno));
+                      strerror(errno));
       return ERROR;
     }
 
@@ -301,13 +295,15 @@ int flash_partition_info(int fd, struct flash_partition_info *info)
   ret = ioctl(fd, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&geometry));
   if (ret < 0)
     {
-      syslog(LOG_ERR, "ioctl MTDIOC_GEOMETRY failed: %s\n", strerror(errno));
+      syslog(LOG_ERR, "ioctl MTDIOC_GEOMETRY failed: %s\n",
+                              strerror(errno));
       return ERROR;
     }
 
   info->blocksize = geometry.blocksize;
   info->size = geometry.erasesize * geometry.neraseblocks;
   info->neraseblocks = geometry.neraseblocks;
+  info->erasesize = geometry.erasesize;
 
   return OK;
 }

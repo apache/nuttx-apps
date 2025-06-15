@@ -31,11 +31,17 @@
 
 #include <fixedmath.h>
 
-#include <logging/nxscope/nxscope.h>
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
 
 /* Nxscope sample type */
 
@@ -399,5 +405,10 @@ int nxscope_put_b16(FAR struct nxscope_s *s, uint8_t ch, b16_t val);
 int nxscope_put_ub32(FAR struct nxscope_s *s, uint8_t ch, ub32_t val);
 int nxscope_put_b32(FAR struct nxscope_s *s, uint8_t ch, b32_t val);
 int nxscope_put_char(FAR struct nxscope_s *s, uint8_t ch, char val);
+
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __APPS_INCLUDE_LOGGING_NXSCOPE_NXSCOPE_CHAN_H */

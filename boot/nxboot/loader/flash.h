@@ -39,6 +39,7 @@ struct flash_partition_info
   int size;
   int blocksize;
   int neraseblocks;
+  int erasesize;
 };
 
 /****************************************************************************
@@ -135,10 +136,10 @@ int flash_partition_read(int fd, void *buf, size_t count, off_t off);
 int flash_partition_erase(int fd);
 
 /****************************************************************************
- * Name: flash_partition_erase_last_sector
+ * Name: flash_partition_erase_first_sector
  *
  * Description:
- *   Erases the last sector of the partition
+ *   Erases the first sector of the partition
  *
  * Input parameters:
  *   fd: Valid file descriptor.
@@ -148,7 +149,7 @@ int flash_partition_erase(int fd);
  *
  ****************************************************************************/
 
-int flash_partition_erase_last_sector(int fd);
+int flash_partition_erase_first_sector(int fd);
 
 /****************************************************************************
  * Name: flash_partition_info

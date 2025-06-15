@@ -61,6 +61,10 @@ struct input_state_s
 #ifdef CONFIG_GAMES_BRICKMATCH_USE_GESTURE
   int fd_gest;
 #endif
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_GPIO
+  int fd_gpio;
+#endif
+
   int dir;      /* Direction to move the blocks */
 };
 

@@ -34,7 +34,7 @@
 #include "system/nxrecorder.h"
 
 /****************************************************************************
- * Private Type Declarations
+ * Private Types
  ****************************************************************************/
 
 static const uint8_t AMR_NB[6] = "#!AMR\n";

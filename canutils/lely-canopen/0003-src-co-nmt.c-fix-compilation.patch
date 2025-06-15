@@ -1,0 +1,32 @@
+From ba671d68bde31fc8e4cd893b3634fa6bbd299784 Mon Sep 17 00:00:00 2001
+From: raiden00pl <raiden00@railab.me>
+Date: Wed, 19 Mar 2025 11:18:13 +0100
+Subject: [PATCH 3/5] src/co/nmt.c: fix compilation
+
+Signed-off-by: raiden00pl <raiden00@railab.me>
+---
+ src/co/nmt.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/co/nmt.c b/src/co/nmt.c
+index fa943fba..4074e238 100644
+--- a/src/co/nmt.c
++++ b/src/co/nmt.c
+@@ -1432,12 +1432,14 @@ co_nmt_on_hb(co_nmt_t *nmt, co_unsigned8_t id, int state, int reason)
+ 		if (co_nmt_is_master(nmt))
+ 			return;
+ #endif
++#if !LELY_NO_CO_EMCY
+ 		if (nmt->srv.emcy) {
+ 			// Remove the EMCY message from the stack.
+ 			ssize_t n = co_emcy_find(nmt->srv.emcy, 0x8130);
+ 			if (n >= 0)
+ 				co_emcy_remove(nmt->srv.emcy, n);
+ 		}
++#endif
+ 	}
+ }
+ 
+-- 
+2.48.1
+

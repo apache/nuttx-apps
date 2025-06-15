@@ -419,7 +419,7 @@ static void *test_irq_prio_thread_entry(void *arg)
   return NULL;
 }
 
-static void test_irqprio(void **argv)
+static void drivertest_mps2(void **argv)
 {
   pid_t tid[CONFIG_TEST_IRQPRIO_TTHREAD + 1];
   pthread_attr_t attr;
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
 {
   const struct CMUnitTest tests[] = {
     cmocka_unit_test_prestate_setup_teardown(
-        test_irqprio, setup, teardown, NULL),
+        drivertest_mps2, setup, teardown, NULL),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

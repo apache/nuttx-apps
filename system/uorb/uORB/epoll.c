@@ -58,7 +58,6 @@ const struct orb_loop_ops_s g_orb_loop_epoll_ops =
 
 static int orb_loop_epoll_init(FAR struct orb_loop_s *loop)
 {
-  loop->running = false;
   loop->fd = epoll_create1(EPOLL_CLOEXEC);
   if (loop->fd < 0)
     {
@@ -75,13 +74,7 @@ static int orb_loop_epoll_run(FAR struct orb_loop_s *loop)
   int nfds;
   int i;
 
-  if (loop->running)
-    {
-      return -EBUSY;
-    }
-
-  loop->running = true;
-  while (loop->running)
+  while (1)
     {
       nfds = epoll_wait(loop->fd, et, CONFIG_UORB_LOOP_MAX_EVENTS, -1);
       if (nfds == -1 && errno != EINTR)
@@ -95,6 +88,10 @@ static int orb_loop_epoll_run(FAR struct orb_loop_s *loop)
           if (handle == NULL)
             {
               continue;
+            }
+          else if (handle == &loop->exit_handle)
+            {
+              return OK;
             }
 
           if (et[i].events & EPOLLIN)
@@ -151,7 +148,6 @@ static int orb_loop_epoll_uninit(FAR struct orb_loop_s *loop)
 {
   int ret;
 
-  loop->running = false;
   ret = close(loop->fd);
   if (ret < 0)
     {

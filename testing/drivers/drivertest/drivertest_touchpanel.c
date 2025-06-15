@@ -717,10 +717,10 @@ static void parse_commandline(uint32_t *screen_shape,
 }
 
 /****************************************************************************
- * Name: test_case_touchpanel
+ * Name: drivertest_touchpanel
  ****************************************************************************/
 
-static void test_case_touchpanel(FAR void **state)
+static void drivertest_touchpanel(FAR void **state)
 {
   lv_nuttx_dsc_t info;
   lv_nuttx_result_t result;
@@ -780,7 +780,7 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_touchpanel, &screen_shape)
+    cmocka_unit_test_prestate(drivertest_touchpanel, &screen_shape)
   };
 
   parse_commandline(&screen_shape, argc, argv);

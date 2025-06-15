@@ -24,11 +24,22 @@ config SYSTEM_FASTBOOTD_DOWNLOAD_MAX
 	int "USB-fastboot download buffer size"
 	default 40960
 
-config FASTBOOTD_USB_BOARDCTL
+config SYSTEM_FASTBOOTD_USB_BOARDCTL
 	bool "USB Board Control"
+	default n
 	depends on BOARDCTL
 	depends on BOARDCTL_USBDEVCTRL
 	---help---
 		Connect usbdev before running fastboot daemon.
+
+config SYSTEM_FASTBOOTD_SHELL
+	bool "Execute custom commands"
+	default n
+	depends on SCHED_CHILD_STATUS
+	depends on SYSTEM_POPEN
+	---help---
+		Enable to support executing custom commands.
+		e.g. fastboot oem shell ps
+		e.g. fastboot oem shell "mkrd -m 10 -s 512 640"
 
 endif # SYSTEM_FASTBOOTD

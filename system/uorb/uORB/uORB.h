@@ -39,6 +39,15 @@
 #include <stdbool.h>
 #include <syslog.h>
 #include <inttypes.h>
+#include <unistd.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifndef CONFIG_UORB_LOOP_MAX_EVENTS
+#  define CONFIG_UORB_LOOP_MAX_EVENTS 0
+#endif
 
 /****************************************************************************
  * Public Types
@@ -88,17 +97,10 @@ typedef CODE int (*orb_eventpri_cb_t)(FAR struct orb_handle_s *handle,
 typedef CODE int (*orb_eventerr_cb_t)(FAR struct orb_handle_s *handle,
                                       FAR void *arg);
 
+#if CONFIG_UORB_LOOP_MAX_EVENTS
 enum orb_loop_type_e
 {
   ORB_EPOLL_TYPE = 0,
-};
-
-struct orb_loop_ops_s;
-struct orb_loop_s
-{
-  FAR const struct orb_loop_ops_s *ops;      /* Loop handle ops. */
-  bool                             running;  /* uORB loop is running flag. */
-  int                              fd;       /* Loop fd. */
 };
 
 struct orb_handle_s
@@ -111,6 +113,15 @@ struct orb_handle_s
   orb_eventpri_cb_t  eventpri_cb; /* User EPOLLPRI callback funtion. */
   orb_eventerr_cb_t  eventerr_cb; /* User EPOLLERR callback funtion. */
 };
+
+struct orb_loop_ops_s;
+struct orb_loop_s
+{
+  FAR const struct orb_loop_ops_s *ops;         /* Loop handle ops. */
+  int                              fd;          /* Loop fd. */
+  struct orb_handle_s              exit_handle; /* The exit handle */
+};
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -896,6 +907,7 @@ int orb_fprintf(FAR FILE *stream, FAR const char *format,
                 FAR const void *data);
 #endif
 
+#if CONFIG_UORB_LOOP_MAX_EVENTS
 /****************************************************************************
  * Name: orb_loop_init
  *
@@ -944,6 +956,21 @@ int orb_loop_run(FAR struct orb_loop_s *loop);
  ****************************************************************************/
 
 int orb_loop_deinit(FAR struct orb_loop_s *loop);
+
+/****************************************************************************
+ * Name: orb_loop_exit_async
+ *
+ * Description:
+ *   Send exit event to the current loop(not wait).
+ *
+ * Input Parameters:
+ *   loop   orb loop contains multiple handles.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a -1 (ERROR) or negated errno value on failure.
+ ****************************************************************************/
+
+int orb_loop_exit_async(FAR struct orb_loop_s *loop);
 
 /****************************************************************************
  * Name: orb_handle_init
@@ -1003,6 +1030,7 @@ int orb_handle_start(FAR struct orb_loop_s *loop,
 
 int orb_handle_stop(FAR struct orb_loop_s *loop,
                     FAR struct orb_handle_s *handle);
+#endif
 
 #ifdef __cplusplus
 }

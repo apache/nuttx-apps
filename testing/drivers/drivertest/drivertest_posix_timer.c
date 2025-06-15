@@ -168,10 +168,10 @@ static void posix_timer_callback(union sigval arg)
 }
 
 /****************************************************************************
- * Name: test_case_posix_timer
+ * Name: drivertest_posix_timer
  ****************************************************************************/
 
-static void test_case_posix_timer(FAR void **state)
+static void drivertest_posix_timer(FAR void **state)
 {
   int ret;
   timer_t timerid;
@@ -230,7 +230,8 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
-    cmocka_unit_test_prestate(test_case_posix_timer, &posix_timer_state)
+    cmocka_unit_test_prestate_setup_teardown(drivertest_posix_timer, NULL,
+                                             NULL, &posix_timer_state)
   };
 
   parse_commandline(&posix_timer_state, argc, argv);

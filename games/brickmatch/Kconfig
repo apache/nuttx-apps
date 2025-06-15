@@ -34,6 +34,39 @@ config GAMES_BRICKMATCH_STACKSIZE
 	default DEFAULT_TASK_STACKSIZE
 
 #
+# Output Device Selection
+#
+
+choice
+	prompt "Output Device (LED Matrix, LCD Screen, etc)"
+	default GAMES_BRICKMATCH_USE_LCD_SCREEN
+
+config GAMES_BRICKMATCH_USE_LCD_SCREEN
+	bool "LCD Screen as Output (Also APA102 Matrix as LCD Interface)"
+
+config GAMES_BRICKMATCH_USE_LED_MATRIX
+	bool "LED Matrix as Output"
+endchoice
+
+if GAMES_BRICKMATCH_USE_LED_MATRIX
+
+config GAMES_BRICKMATCH_LED_MATRIX_PATH
+	string "LED matrix path"
+	default "/dev/leds0"
+	---help---
+		Path of the led matrix
+
+config GAMES_BRICKMATCH_LED_MATRIX_ROWS
+	int "LED Matrix row count"
+	default 8
+
+config GAMES_BRICKMATCH_LED_MATRIX_COLS
+	int "LED Matrix column count"
+	default 8
+
+endif #GAMES_BRICKMATCH_LED_MATRIX_PATH
+
+#
 # Input Device Selection
 #
 
@@ -53,6 +86,36 @@ config GAMES_BRICKMATCH_USE_GESTURE
 	bool "Gesture Sensor APDS-9960 as Input"
 	depends on SENSORS_APDS9960
 
+config GAMES_BRICKMATCH_USE_GPIO
+	bool "GPIO pins as Input"
 endchoice
+
+if GAMES_BRICKMATCH_USE_GPIO
+
+config GAMES_BRICKMATCH_UP_KEY_PATH
+	string "Up key path"
+	default "/dev/gpio0"
+	---help---
+		Path of the up key to read
+
+config GAMES_BRICKMATCH_DOWN_KEY_PATH
+	string "Down key path"
+	default "/dev/gpio1"
+	---help---
+		Path of the down key to read
+
+config GAMES_BRICKMATCH_LEFT_KEY_PATH
+	string "Left key path"
+	default "/dev/gpio2"
+	---help---
+		Path of the left key to read
+
+config GAMES_BRICKMATCH_RIGHT_KEY_PATH
+	string "Right key path"
+	default "/dev/gpio3"
+	---help---
+		Path of the right key to read
+
+endif #GAMES_BRICKMATCH_USE_GPIO
 
 endif

@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config BENCHMARK_MTD
+	tristate "MTD test and transfer rate benchmark"
+	default n
+	depends on BUILD_FLAT && MTD && LIBC_FLOATINGPOINT
+	---help---
+		This testing/benchmark application performs an erase/write
+		operation to evaluate write transfer rate and then reads the
+		written content back to evaluate the read transfer rate. Finally,
+		it compares the read data with the previously written data to
+		ensure the MTD device is working as expected.
+
+		NOTE:  This application uses internal OS interfaces and so it is not
+		available in the NuttX kernel build.

@@ -6,7 +6,7 @@
 config EXAMPLES_SIXAXIS
 	bool "BMI160 sensor example"
 	default n
-	depends on SENSORS_BMG160
+	depends on SENSORS_BMI160
 	---help---
 		Enable the 6 axis sensor example
 

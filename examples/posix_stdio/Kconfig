@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_POSIX_STDIO
+	bool "Posix stdio example"
+	default n
+	---help---
+		Enable POSIX stdio example that shows how to use open(), write() and
+		close() via /dev/console.
+
+config EXAMPLES_POSIX_STDIO_PROGNAME
+	string "Program name"
+	default "posix_stdio"
+	depends on EXAMPLES_POSIX_STDIO
+
+config EXAMPLES_POSIX_STDIO_PRIORITY
+	int "POSIX_STDIO priority"
+	default 100
+	depends on EXAMPLES_POSIX_STDIO
+
+config EXAMPLES_POSIX_STDIO_STACKSIZE
+	int "POSIX_STDIO stack size"
+	default DEFAULT_TASK_STACKSIZE
+	depends on EXAMPLES_POSIX_STDIO

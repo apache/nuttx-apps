@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_WCSTOMBS
+	tristate "wcstombs() test"
+	default n
+	depends on LIBC_LOCALE
+	---help---
+		Enable wcstombs() test
+
+if TESTING_WCSTOMBS
+
+config TESTING_WCSTOMBS_PROGNAME
+	string "Program name"
+	default "wcstombs"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_WCSTOMBS_PRIORITY
+	int "wcstombs task priority"
+	default 100
+
+config TESTING_WCSTOMBS_STACKSIZE
+	int "wcstombs stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

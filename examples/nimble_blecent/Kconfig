@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NIMBLE_BLECENT
+	tristate "NimBLE central"
+	default n
+	---help---
+		Enable the nimble central example
+
+if EXAMPLES_NIMBLE_BLECENT
+
+config EXAMPLES_NIMBLE_BLECENT_PROGNAME
+	string "Program name"
+	default "blecent"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NIMBLE_BLECENT_PRIORITY
+	int "NimBLE task priority"
+	default 100
+
+config EXAMPLES_NIMBLE_BLECENT_STACKSIZE
+	int "NimBLE stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # EXAMPLES_NIMBLE_BLECENT
+

@@ -57,6 +57,7 @@ static const char sensor_gnss_format[] =
   UORB_DEBUG_FORMAT_SENSOR_GNSS ",firmware_version:%" PRIu32 "";
 
 static const char sensor_gnss_clock_format[] =
+  "timestamp:%" PRIu64 ","
   "flags:%" PRIx32 ",leap_second:%" PRId32 ",time_ns:%" PRId64 ","
   "time_uncertainty_ns:%hf,hw_clock_discontinuity_count:%" PRIu32 ","
   "full_bias_ns:%" PRId64 ",bias_ns:%hf,bias_uncertainty_ns:%hf,"
@@ -68,6 +69,7 @@ static const char sensor_gnss_geofence_event_format[] =
   "timestamp:%" PRId64 ",status:%" PRId32 ",transition:%" PRId32 "";
 
 static const char sensor_gnss_measurement_format[] =
+  "timestamp:%" PRIu64 ","
   "flags:%" PRIx32 ",svid:%" PRId32 ",constellation:%" PRIu32 ","
   "time_offset_ns:%hf,received_sv_time_in_ns:%" PRId64 ","
   "received_sv_time_uncertainty_in_ns:%" PRId64 ",state:%" PRIu32 ","

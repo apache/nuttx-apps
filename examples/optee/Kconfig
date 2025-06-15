@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_OPTEE
+	tristate "OP-TEE client example"
+	default n
+	---help---
+		Enable the OP-TEE client example
+
+if EXAMPLES_OPTEE
+
+config EXAMPLES_OPTEE_PROGNAME
+	string "Program name"
+	default "optee"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_OPTEE_PRIORITY
+	int "OP-TEE task priority"
+	default 100
+
+config EXAMPLES_OPTEE_STACKSIZE
+	int "OP-TEE stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

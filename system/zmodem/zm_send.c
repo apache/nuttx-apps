@@ -993,7 +993,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 #endif
           if (!bcrc32)
             {
-              crc = (uint32_t)crc16part(&ch, 1, (uint16_t)crc);
+              crc = (uint32_t)crc16xmodempart(&ch, 1, (uint16_t)crc);
             }
           else
             {
@@ -1049,7 +1049,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 
       if (!bcrc32)
         {
-          crc = (uint32_t)crc16part(&type, 1, (uint16_t)crc);
+          crc = (uint32_t)crc16xmodempart(&type, 1, (uint16_t)crc);
         }
       else
         {

@@ -173,7 +173,7 @@ static int ymodem_recv_packet(FAR struct ymodem_ctx_s *ctx)
 
   recv_crc = (ctx->data[ctx->packet_size] << 8) +
               ctx->data[ctx->packet_size + 1];
-  cal_crc = crc16(ctx->data, ctx->packet_size);
+  cal_crc = crc16xmodem(ctx->data, ctx->packet_size);
   if (cal_crc != recv_crc)
     {
       ymodem_debug("recv_packet: EBADMSG rcev:cal=0x%x 0x%x\n",
@@ -373,7 +373,7 @@ send_start:
   ctx->header[1] = 0x00;
   ctx->header[2] = 0xff;
   ctx->packet_size = YMODEM_PACKET_SIZE;
-  crc = crc16(ctx->data, ctx->packet_size);
+  crc = crc16xmodem(ctx->data, ctx->packet_size);
   ctx->data[ctx->packet_size] = crc >> 8;
   ctx->data[ctx->packet_size + 1] = crc;
 
@@ -438,7 +438,7 @@ send_packet:
       return ret;
     }
 
-  crc = crc16(ctx->data, ctx->packet_size);
+  crc = crc16xmodem(ctx->data, ctx->packet_size);
   ctx->data[ctx->packet_size] = crc >> 8;
   ctx->data[ctx->packet_size + 1] = crc;
 send_packet_again:
@@ -512,7 +512,7 @@ send_last:
   ctx->packet_type = YMODEM_DATA_PACKET;
   ctx->packet_size = YMODEM_PACKET_SIZE;
   memset(ctx->data, 0, YMODEM_PACKET_SIZE);
-  crc = crc16(ctx->data, ctx->packet_size);
+  crc = crc16xmodem(ctx->data, ctx->packet_size);
   ctx->data[ctx->packet_size] = crc >> 8;
   ctx->data[ctx->packet_size + 1] = crc;
 send_last_again:

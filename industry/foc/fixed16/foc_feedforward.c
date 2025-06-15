@@ -63,7 +63,7 @@ int foc_feedforward_pmsm_b16(FAR struct motor_phy_params_b16_s *phy,
 
   vdq_comp->q = -b16mulb16(vel_now,
                            (phy->flux_link + b16mulb16(phy->ind,
-                                                       idq->q)));
+                                                       idq->d)));
   vdq_comp->d = b16mulb16(b16mulb16(vel_now, phy->ind), idq->q);
 
   return OK;

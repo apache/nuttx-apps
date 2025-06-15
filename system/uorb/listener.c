@@ -49,6 +49,10 @@
 #define ORB_TOP_WAIT_TIME  1000
 #define ORB_DATA_DIR       "/data/uorb/"
 
+#if defined(CONFIG_DEBUG_UORB) && !defined(CONFIG_LIBC_FLOATINGPOINT)
+#error "Enable CONFIG_LIBC_FLOATINGPOINT, required to see debug output"
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -940,7 +944,7 @@ int main(int argc, FAR char *argv[])
     }
   else
     {
-      uorbinfo_raw("\nMointor objects num:%d", ret);
+      uorbinfo_raw("\nMonitor objects num:%d", ret);
       SLIST_FOREACH(tmp, &objlist, node)
         {
           uorbinfo_raw("object_name:%s, object_instance:%d",

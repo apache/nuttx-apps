@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-MENUDESC = "dirvers"
+MENUDESC = "drivers"
 
 include $(APPDIR)/Directory.mk

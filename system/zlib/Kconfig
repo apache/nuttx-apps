@@ -91,17 +91,17 @@ config UTILS_UNZIP_STACKSIZE
 endif # UTILS_UNZIP
 
 config LIB_ZLIB_MAX_WBITS
-  int "Zlib max wbits"
-  default 15
-  range 8 15
-  ---help---
-    Default windowBits. memory usage (1 << (windowBits+2)) bytes.
+	int "Zlib max wbits"
+	default 15
+	range 8 15
+	---help---
+		Default windowBits. memory usage (1 << (windowBits+2)) bytes.
 
 config LIB_ZLIB_MAX_MEM_LEVEL
-  int "Zlib max mem level"
-  default 8
-  range 1 9
-  ---help---
-    Default memLevel. memory usage (1 << (memLevel+9)) bytes.
+	int "Zlib max mem level"
+	default 8
+	range 1 9
+	---help---
+		Default memLevel. memory usage (1 << (memLevel+9)) bytes.
 
 endif # LIB_ZLIB

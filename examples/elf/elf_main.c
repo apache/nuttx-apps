@@ -215,7 +215,11 @@ int main(int argc, FAR char *argv[])
 
   mm_initmonitor();
 
+#if defined(CONFIG_EXAMPLES_ELF_FSMOUNT)
+  sprintf(devname, CONFIG_EXAMPLES_ELF_DEVPATH);
+#else
   sprintf(devname, ELF_DEVPATH_FMT, CONFIG_EXAMPLES_ELF_DEVMINOR);
+#endif
 
 #if defined(CONFIG_EXAMPLES_ELF_ROMFS)
 
@@ -298,8 +302,8 @@ int main(int argc, FAR char *argv[])
 
   /* Mount the external file system */
 
-  message("Mounting %s filesystem at target=%s\n",
-          CONFIG_EXAMPLES_ELF_FSTYPE, MOUNTPT);
+  message("Mounting %s filesystem at target=%s on %s\n",
+          CONFIG_EXAMPLES_ELF_FSTYPE, MOUNTPT, devname);
 
   ret = mount(devname, MOUNTPT, CONFIG_EXAMPLES_ELF_FSTYPE, MS_RDONLY, NULL);
   if (ret < 0)

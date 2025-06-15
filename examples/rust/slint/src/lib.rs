@@ -94,7 +94,7 @@ pub extern "C" fn slint_main() {
     println!("{:?}", planeinfo);
     println!("{:?}", videoinfo);
 
-    if videoinfo.fmt != Format::RGB565 as u8 {
+    if videoinfo.fmt != FB_FMT_RGB16_565 as u8 {
         println!("Unsupported pixel format, only RGB565 is supported for now");
         return;
     }

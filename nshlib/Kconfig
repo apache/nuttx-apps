@@ -345,10 +345,6 @@ config NSH_DISABLE_DATE
 	bool "Disable date"
 	default DEFAULT_SMALL || !RTC
 
-config NSH_DISABLE_DD
-	bool "Disable dd"
-	default DEFAULT_SMALL
-
 config NSH_DISABLE_DF
 	bool "Disable df"
 	default DEFAULT_SMALL
@@ -506,7 +502,7 @@ config NSH_DISABLE_MW
 	bool "Disable mw"
 	default y
 
-config NSH_DISABLE_NSFMOUNT
+config NSH_DISABLE_NFSMOUNT
 	bool "Disable nfsmount"
 	default DEFAULT_SMALL
 	depends on NFS
@@ -786,11 +782,6 @@ config NSH_VARS
 		env            Lists all environment       Lists all environment
 		               variables                   variables
 		============== =========================== ===========================
-
-config NSH_CMDOPT_DD_STATS
-	bool "dd: Support transfer statistics"
-	default n
-	depends on !NSH_DISABLE_DD
 
 config NSH_CODECS_BUFSIZE
 	int "File buffer size used by CODEC commands"

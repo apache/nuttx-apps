@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/testing/testsuites/kernel/fs/cases/fs_getfilep_test.c
+ * apps/netutils/mdnsd.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,100 +20,39 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INCLUDE_NETUTILS_MDNSD_H
+#define __APPS_INCLUDE_NETUTILS_MDNSD_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-#include <nuttx/config.h>
-#include <stdio.h>
-#include <syslog.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
-#include "fstest.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define TEST_FILE "fstat_test_file"
-#define BUF_SIZE 512
-
 /****************************************************************************
- * Public Functions
+ * Public Types
  ****************************************************************************/
 
 /****************************************************************************
- * Name: test_nuttx_fs_getfilep01
+ * Public Function Prototypes
  ****************************************************************************/
 
-void test_nuttx_fs_getfilep01(FAR void **state)
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
 {
-  FAR struct file *filep;
-  int ret;
-  int fd;
-  char *buf = NULL;
-  FILE *fp;
-  struct fs_testsuites_state_s *test_state;
+#else
+#define EXTERN extern
+#endif
 
-  test_state = (struct fs_testsuites_state_s *)*state;
+int mdnsd_start(FAR char *service_name, FAR char *service_port);
+int mdnsd_stop(void);
 
-  /* create a file for testing */
-
-  fd = creat(TEST_FILE, 0700);
-  assert_true(fd > 0);
-  test_state->fd1 = fd;
-
-  /* fdopen file */
-
-  fp = fdopen(fd, "r+");
-  assert_non_null(fp);
-
-  /* get struct file */
-
-  ret = fs_getfilep(fileno(fp), &filep);
-  assert_int_equal(ret, 0);
-
-  /* malloc memory */
-
-  buf = malloc(BUF_SIZE);
-  assert_non_null(buf);
-  test_state->ptr = buf;
-
-  /* set memory */
-
-  memset(buf, 'A', BUF_SIZE);
-
-  /* do write */
-
-  ret = write(fileno(fp), buf, BUF_SIZE);
-  assert_int_equal(ret, BUF_SIZE);
-
-  /* do fflush */
-
-  fflush(fp);
-
-  /* do fsync */
-
-  fsync(fileno(fp));
-
-  /* put filep */
-
-  fs_putfilep(filep);
-
-  /* get struct file again */
-
-  ret = fs_getfilep(fileno(fp), &filep);
-  assert_int_equal(ret, 0);
-
-  assert_int_equal(filep->f_pos, BUF_SIZE);
-
-  test_state->fd2 = fileno(fp);
-
-  /* put filep */
-
-  fs_putfilep(filep);
-
-  assert_int_equal(fclose(fp), 0);
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* __APPS_INCLUDE_NETUTILS_MDNSD_H */

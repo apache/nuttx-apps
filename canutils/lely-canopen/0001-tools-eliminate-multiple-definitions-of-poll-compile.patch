@@ -1,0 +1,55 @@
+From c907795a0856f1a0eb5a250fca7c2e02bbfdf28e Mon Sep 17 00:00:00 2001
+From: raiden00pl <raiden00@railab.me>
+Date: Thu, 6 Oct 2022 15:12:49 +0200
+Subject: [PATCH 1/5] tools: eliminate 'multiple definitions of poll' compiler
+ errors for flat address space systems
+
+Signed-off-by: raiden00pl <raiden00@railab.me>
+---
+ tools/can2udp.c | 2 +-
+ tools/cocatd.c  | 2 +-
+ tools/coctl.c   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/tools/can2udp.c b/tools/can2udp.c
+index 960c6117..caee9176 100644
+--- a/tools/can2udp.c
++++ b/tools/can2udp.c
+@@ -79,7 +79,7 @@ int wtm_send(co_wtm_t *wtm, const void *buf, size_t nbytes, void *data);
+ 
+ int flags;
+ int keep = 10000;
+-io_poll_t *poll;
++static io_poll_t *poll;
+ io_handle_t can_handle = IO_HANDLE_ERROR;
+ io_handle_t send_handle = IO_HANDLE_ERROR;
+ io_handle_t recv_handle = IO_HANDLE_ERROR;
+diff --git a/tools/cocatd.c b/tools/cocatd.c
+index 348168d5..ad191b74 100644
+--- a/tools/cocatd.c
++++ b/tools/cocatd.c
+@@ -79,7 +79,7 @@ co_unsigned32_t co_1026_up_ind(
+ #define FLAG_NO_DAEMON 0x02
+ 
+ int flags;
+-io_poll_t *poll;
++static io_poll_t *poll;
+ io_handle_t hcan = IO_HANDLE_ERROR;
+ can_net_t *net;
+ co_dev_t *dev;
+diff --git a/tools/coctl.c b/tools/coctl.c
+index 351b81c0..12f4b3aa 100644
+--- a/tools/coctl.c
++++ b/tools/coctl.c
+@@ -90,7 +90,7 @@ int io_thrd_start(void *arg);
+ void co_net_err(struct co_net *net);
+ 
+ struct co_net net[CO_GW_NUM_NET];
+-io_poll_t *poll;
++static io_poll_t *poll;
+ 
+ int flags;
+ int inhibit = INHIBIT;
+-- 
+2.48.1
+

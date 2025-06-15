@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/memoryregion.h>
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/version.h>
 
@@ -46,6 +47,7 @@
 #include <sys/statfs.h>
 #include <sys/types.h>
 #include <sys/poll.h>
+#include <sys/wait.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -155,6 +157,8 @@ struct fastboot_cmd_s
                       FAR const char *arg);
 };
 
+typedef void (*memdump_print_t)(FAR void *, FAR char *);
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -180,6 +184,10 @@ static void fastboot_memdump(FAR struct fastboot_ctx_s *context,
                              FAR const char *arg);
 static void fastboot_filedump(FAR struct fastboot_ctx_s *context,
                               FAR const char *arg);
+#ifdef CONFIG_SYSTEM_FASTBOOTD_SHELL
+static void fastboot_shell(FAR struct fastboot_ctx_s *context,
+                           FAR const char *arg);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -200,8 +208,18 @@ static const struct fastboot_cmd_s g_fast_cmd[] =
 static const struct fastboot_cmd_s g_oem_cmd[] =
 {
   { "filedump",           fastboot_filedump         },
-  { "memdump",            fastboot_memdump          }
+  { "memdump",            fastboot_memdump          },
+#ifdef CONFIG_SYSTEM_FASTBOOTD_SHELL
+  { "shell",              fastboot_shell            },
+#endif
 };
+
+#ifdef CONFIG_BOARD_MEMORY_RANGE
+static const struct memory_region_s g_memory_region[] =
+{
+  CONFIG_BOARD_MEMORY_RANGE
+};
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -260,9 +278,15 @@ static void fastboot_ack(FAR struct fastboot_ctx_s *context,
 }
 
 static void fastboot_fail(FAR struct fastboot_ctx_s *context,
-                          FAR const char *reason)
+                          FAR const char *fmt, ...)
 {
+  char reason[FASTBOOT_MSG_LEN];
+  va_list ap;
+
+  va_start(ap, fmt);
+  vsnprintf(reason, sizeof(reason), fmt, ap);
   fastboot_ack(context, "FAIL", reason);
+  va_end(ap);
 }
 
 static void fastboot_okay(FAR struct fastboot_ctx_s *context,
@@ -636,6 +660,37 @@ static int fastboot_memdump_upload(FAR struct fastboot_ctx_s *context)
                         context->upload_param.size);
 }
 
+static void fastboot_memdump_region(memdump_print_t memprint, FAR void *priv)
+{
+#ifdef CONFIG_BOARD_MEMORY_RANGE
+  char response[FASTBOOT_MSG_LEN - 4];
+  size_t index;
+
+  for (index = 0; index < nitems(g_memory_region); index++)
+    {
+      snprintf(response, sizeof(response),
+               "fastboot oem memdump 0x%" PRIxPTR " 0x%" PRIxPTR "\n",
+               g_memory_region[index].start,
+               g_memory_region[index].end - g_memory_region[index].start);
+      memprint(priv, response);
+      snprintf(response, sizeof(response),
+               "fastboot get_staged 0x%" PRIxPTR ".bin\n",
+               g_memory_region[index].start);
+      memprint(priv, response);
+    }
+#endif
+}
+
+static void fastboot_memdump_syslog(FAR void *priv, FAR char *response)
+{
+  fb_err("    %s", response);
+}
+
+static void fastboot_memdump_response(FAR void *priv, FAR char *response)
+{
+  fastboot_ack((FAR struct fastboot_ctx_s *)priv, "TEXT", response);
+}
+
 /* Usage(host):
  *   fastboot oem memdump <addr> <size>
  *
@@ -652,6 +707,7 @@ static void fastboot_memdump(FAR struct fastboot_ctx_s *context,
              &context->upload_param.u.mem.addr,
              &context->upload_param.size) != 2)
     {
+      fastboot_memdump_region(fastboot_memdump_response, context);
       fastboot_fail(context, "Invalid argument");
       return;
     }
@@ -769,6 +825,37 @@ static void fastboot_filedump(FAR struct fastboot_ctx_s *context,
   context->upload_func = fastboot_filedump_upload;
   fastboot_okay(context, "");
 }
+
+#ifdef CONFIG_SYSTEM_FASTBOOTD_SHELL
+static void fastboot_shell(FAR struct fastboot_ctx_s *context,
+                           FAR const char *arg)
+{
+  char response[FASTBOOT_MSG_LEN - 4];
+  FILE *fp;
+  int ret;
+
+  fp = popen(arg, "r");
+  if (fp == NULL)
+    {
+      fastboot_fail(context, "popen() fails %d", errno);
+      return;
+    }
+
+  while (fgets(response, sizeof(response), fp))
+    {
+      fastboot_ack(context, "TEXT", response);
+    }
+
+  ret = pclose(fp);
+  if (WIFEXITED(ret) && WEXITSTATUS(ret) == 0)
+    {
+      fastboot_okay(context, "");
+      return;
+    }
+
+  fastboot_fail(context, "error detected 0x%x %d", ret, errno);
+}
+#endif
 
 static void fastboot_upload(FAR struct fastboot_ctx_s *context,
                             FAR const char *arg)
@@ -948,17 +1035,9 @@ static int fastboot_open_usb(int index, int flags)
   return -errno;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static int fastboot_usbdev_initialize(void)
 {
-  struct fastboot_ctx_s context;
-  FAR void *buffer = NULL;
-  int ret = OK;
-
-#ifdef CONFIG_FASTBOOTD_USB_BOARDCTL
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
   struct boardioc_usbdev_ctrl_s ctrl;
 #  ifdef CONFIG_USBDEV_COMPOSITE
     uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
@@ -966,6 +1045,7 @@ int main(int argc, FAR char **argv)
     uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
 #  endif
   FAR void *handle;
+  int ret;
 
   ctrl.usbdev   = dev;
   ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
@@ -976,7 +1056,7 @@ int main(int argc, FAR char **argv)
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      fb_err("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
+      fb_err("boardctl(BOARDIOC_USBDEV_INITIALIZE) failed: %d\n", ret);
       return ret;
     }
 
@@ -989,16 +1069,31 @@ int main(int argc, FAR char **argv)
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      fb_err("boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", ret);
+      fb_err("boardctl(BOARDIOC_USBDEV_CONNECT) failed: %d\n", ret);
       return ret;
     }
-#endif /* FASTBOOTD_USB_BOARDCTL */
+#endif /* SYSTEM_FASTBOOTD_USB_BOARDCTL */
+
+  return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char **argv)
+{
+  struct fastboot_ctx_s context;
+  FAR void *buffer = NULL;
+  int ret = OK;
 
   if (argc > 1)
     {
       if (strcmp(argv[1], "-h") == 0)
         {
           fb_err("Usage: fastbootd [wait_ms]\n");
+          fb_err("\nmemdump: \n");
+          fastboot_memdump_region(fastboot_memdump_syslog, NULL);
           return 0;
         }
 
@@ -1007,6 +1102,12 @@ int main(int argc, FAR char **argv)
   else
     {
       context.wait_ms = 0;
+    }
+
+  ret = fastboot_usbdev_initialize();
+  if (ret < 0)
+    {
+      return ret;
     }
 
   buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);

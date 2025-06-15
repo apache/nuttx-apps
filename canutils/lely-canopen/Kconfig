@@ -12,7 +12,7 @@ config CANUTILS_LELYCANOPEN_URL
 
 config CANUTILS_LELYCANOPEN_VERSION
 	string "Version number"
-	default "a2ecf70b76a42c25c5338d86e85250bf16fd7023"
+	default "637de61625c9e8af2b9598109d6fb0e3a2829ce6"
 
 menu "Lely CANopen configuration"
 

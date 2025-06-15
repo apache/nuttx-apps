@@ -1,0 +1,25 @@
+From 8d361b53e8a1f238a0b1545d237e4b0e29fba1fe Mon Sep 17 00:00:00 2001
+From: raiden00pl <raiden00@railab.me>
+Date: Thu, 20 Mar 2025 13:58:17 +0100
+Subject: [PATCH 4/5] tools/coctl.c: add missing mutex init
+
+Signed-off-by: raiden00pl <raiden00@railab.me>
+---
+ tools/coctl.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/coctl.c b/tools/coctl.c
+index 594fe699..c1d73b21 100644
+--- a/tools/coctl.c
++++ b/tools/coctl.c
+@@ -287,6 +287,7 @@ main(int argc, char *argv[])
+ 	co_gw_txt_set_recv_func(gw_txt, &gw_txt_recv, NULL);
+ 	co_gw_txt_set_send_func(gw_txt, &gw_txt_send, gw);
+ 
++	mtx_init(&wait_mtx, mtx_plain);
+ 	mtx_init(&recv_mtx, mtx_plain);
+ 	cnd_init(&wait_cond);
+ 	wait = 0;
+-- 
+2.48.1
+

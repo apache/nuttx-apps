@@ -44,11 +44,11 @@ config EXAMPLES_RMTCHAR_RX
 if EXAMPLES_RMTCHAR_RX
 
 config EXAMPLES_RMTCHAR_RX_DEVPATH
-		string "RMT receiver character device path"
-		default "/dev/rmt1"
-		---help---
-			The default path to the RMT receiver character device.
-			Default: /dev/rmt1
+	string "RMT receiver character device path"
+	default "/dev/rmt1"
+	---help---
+		The default path to the RMT receiver character device.
+		Default: /dev/rmt1
 
 config EXAMPLES_RMTCHAR_RXSTACKSIZE
 	int "Receiver thread stack size"

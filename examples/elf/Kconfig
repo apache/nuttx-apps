@@ -39,7 +39,7 @@ config EXAMPLES_ELF_EXTERN
 		The file system is assumed to reside on some external media
 		such as an SD card or a USB FLASH drive.  In this case, that
 		external file system must be created manually by copying the
-		files in apps/examples/elf/tests/romfs to the volume.
+		files in apps/examples/elf/tests/extfs to the volume.
 
 		The external volume can optionally be mounted by the test if
 		the CONFIG_EXAMPLES_FSMOUNT option is also selected.
@@ -81,7 +81,10 @@ config EXAMPLES_ELF_FSTYPE
 	depends on EXAMPLES_ELF_FSMOUNT
 	---help---
 		The type of the external file system as will be used in the mount()
-		command.  Default: "vfat"
+		command.  Default: "vfat".
+		If the type of the external file system is set to "romfs" a romfs.img
+		is created in apps/examples/elf/tests/ this can be copied to an
+		internal block device.
 
 config EXAMPLES_ELF_DEVPATH
 	string "Block driver device path"

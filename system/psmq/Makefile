@@ -28,13 +28,14 @@ PACKEXT = .tar.gz
 NXTOOLSDIR = $(APPDIR)/tools
 
 PSMQ_URL = https://distfiles.bofc.pl/psmq
-PSMQ_VERSION = 0.2.1
-PSMQ_SRC_SHA256 = b029fa06752ad7dce89f6b899f27a08a1bd1ee0a4e1d9df407274f0322bf1946
+PSMQ_VERSION = 0.2.2
+PSMQ_SRC_SHA256 = eeef94b348c70ec54e0a36e3baf7740cf34d7525eb185604cef4dd9ab7ef25b5
 PSMQ_EXT = tar.gz
 PSMQ_SOURCES = psmq-$(PSMQ_VERSION)
 PSMQ_TARBALL = $(PSMQ_SOURCES).$(PSMQ_EXT)
 
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)system
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)include$(DELIM)logging
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)system$(DELIM)psmq$(DELIM)$(PSMQ_SOURCES)
 
 # mandatory source files to compile
