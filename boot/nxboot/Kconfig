@@ -122,9 +122,14 @@ config NXBOOT_PREVENT_DOWNGRADE
 		WARNING: NXboot currently implements preferences only for
 		MAJOR.MINOR.PATCH and ignores prerelease.
 
+config NXBOOT_PROGRESS
+	bool
+	default n
+
 config NXBOOT_PRINTF_PROGRESS
 	bool "Enable progress messages to be sent to STDOUT"
 	default y
+	select NXBOOT_PROGRESS
 	---help---
 		This will display progress during typically lengthy operations:
 			- Calculating checksums
