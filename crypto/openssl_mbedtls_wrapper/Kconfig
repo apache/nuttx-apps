@@ -7,3 +7,25 @@ config OPENSSL_MBEDTLS_WRAPPER
 	depends on CRYPTO_MBEDTLS
 	bool "openssl mbedtls wrapper"
 	default n
+
+if OPENSSL_MBEDTLS_WRAPPER
+
+choice
+	prompt "Openssl Mbedtls Wrapper Assert Debug"
+	default OPENSSL_ASSERT_EXIT
+
+config OPENSSL_ASSERT_DEBUG
+	bool "SSL_ASSERT* will show error file name and line"
+
+config OPENSSL_ASSERT_EXIT
+	bool "SSL_ASSERT* will just return error code"
+
+config OPENSSL_ASSERT_DEBUG_EXIT
+	bool "SSL_ASSERT* will show error file name and line, then return error code"
+
+config OPENSSL_ASSERT_DEBUG_BLOCK
+	bool "SSL_ASSERT* will show error file name and line, then block here with 'while (1)'"
+
+endchoice
+
+endif # OPENSSL_MBEDTLS_WRAPPER
