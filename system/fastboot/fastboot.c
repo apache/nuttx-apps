@@ -29,6 +29,7 @@
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/version.h>
 
+#include <endian.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -71,11 +72,6 @@
 
 #define FASTBOOT_SPARSE_HEADER      sizeof(struct fastboot_sparse_header_s)
 #define FASTBOOT_CHUNK_HEADER       sizeof(struct fastboot_chunk_header_s)
-
-#define FASTBOOT_GETUINT32(p)       (((uint32_t)(p)[3] << 24) | \
-                                     ((uint32_t)(p)[2] << 16) | \
-                                     ((uint32_t)(p)[1] << 8) | \
-                                     (uint32_t)(p)[0])
 
 #define fb_info(...)                syslog(LOG_INFO, ##__VA_ARGS__);
 #define fb_err(...)                 syslog(LOG_ERR, ##__VA_ARGS__);
@@ -437,7 +433,7 @@ fastboot_flash_program(FAR struct fastboot_ctx_s *context, int fd)
             break;
           case FASTBOOT_CHUNK_FILL:
             {
-              uint32_t fill_data = FASTBOOT_GETUINT32(chunk_ptr);
+              uint32_t fill_data = be32toh(*(FAR uint32_t *)chunk_ptr);
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
               ret = ffastboot_flash_fill(fd, context->download_offset,
                                          fill_data, sparse->blk_sz,
