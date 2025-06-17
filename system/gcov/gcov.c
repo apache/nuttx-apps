@@ -104,14 +104,14 @@ static void stdout_dump(FAR const void *buffer, size_t size,
       checksum += ((FAR const uint8_t *)buffer)[i];
     }
 
-  lib_sprintf(&args->stdoutstream.common,
-              "gcov start filename:%s size: %zuByte\n",
-              args->name, size);
+  lib_printf(&args->stdoutstream.common,
+             "gcov start filename:%s size: %zuByte\n",
+             args->name, size);
   lib_stream_puts(&args->hexstream, buffer, size);
   lib_stream_flush(&args->hexstream);
-  lib_sprintf(&args->stdoutstream.common,
-              "gcov end filename:%s checksum: %#0x\n",
-              args->name, checksum);
+  lib_printf(&args->stdoutstream.common,
+             "gcov end filename:%s checksum: %#0x\n",
+             args->name, checksum);
   lib_stream_flush(&args->stdoutstream);
 }
 
