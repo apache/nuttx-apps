@@ -20,47 +20,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "Elf example"
 
-# ELF Example
-
-ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
-CSRCS = romfs.c
-endif
-ifeq ($(CONFIG_EXAMPLES_ELF_CROMFS),y)
-CSRCS = cromfs.c
-endif
-CSRCS += dirlist.c
-CSRCS += symtab.c
-tests$(DELIM)symtab.c_CFLAGS = -fno-builtin
-tests$(DELIM)symtab.c_CELFFLAGS = -fno-builtin
-MAINSRC = elf_main.c
-
-PROGNAME = elf
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE = $(CONFIG_EXAMPLES_ELF)
-
-DEPPATH := --dep-path tests
-
-# Build targets
-
-VPATH += :tests
-
-ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
-tests/romfs.c: build
-endif
-ifeq ($(CONFIG_EXAMPLES_ELF_CROMFS),y)
-tests/cromfs.c: build
-endif
-tests/dirlist.c: build
-tests/symtab.c: build
-
-.PHONY: build
-build:
-	+$(Q) $(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-
-clean::
-	+$(Q) $(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk

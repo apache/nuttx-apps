@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/elf/elf_main.c
+ * apps/examples/elf/main/elf_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -132,8 +132,35 @@ extern const unsigned int elf_romfs_img_len;
 #  error "No file system selected"
 #endif
 
-extern const char *dirlist[];
-
+const char *dirlist[] =
+{
+  "errno",
+  "hello",
+  "signal",
+  "struct",
+#ifdef CONFIG_HAVE_CXX
+  "hello++1",
+  "hello++2",
+#  ifdef CONFIG_HAVE_CXXINITIALIZE
+  "hello++3",
+#  endif
+#  ifdef CONFIG_EXAMPLES_ELF_CXX
+  "hello++4",
+  "hello++5",
+#  endif
+#endif
+#ifdef CONFIG_EXAMPLES_ELF_LONGJMP
+  "longjmp"
+#endif
+#ifndef CONFIG_DISABLE_PTHREAD
+  "mutex",
+  "pthread",
+#endif
+#ifndef CONFIG_ARCH_ADDRENV
+  "task",
+#endif
+  NULL
+};
 extern const struct symtab_s g_elf_exports[];
 extern const int g_elf_nexports;
 

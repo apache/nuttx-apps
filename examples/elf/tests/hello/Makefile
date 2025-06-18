@@ -22,49 +22,10 @@
 
 include $(APPDIR)/Make.defs
 
-ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
-LDELFFLAGS += -Bstatic
-LDLIBPATH += -L $(NUTTXLIB)
-else
-ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
-LDELFFLAGS += -Bstatic
-LDLIBPATH +=  -L $(NUTTXLIB)
-endif
-endif
+PROGNAME  = hello
+PRIORITY  = 100
+STACKSIZE = $(CONFIG_ELF_STACKSIZE)
+MODULE    = m
+MAINSRC   = hello.c
 
-ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
-LDLIBS += -lc
-endif
-
-ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
-LDLIBS += -lproxies
-endif
-
-BIN = hello
-
-SRCS = $(BIN).c
-OBJS = $(SRCS:.c=$(OBJEXT))
-
-all: $(BIN)
-.PHONY: all clean install
-
-$(OBJS): %$(OBJEXT): %.c
-	@echo "CC: $<"
-	$(Q) $(CC) -c $(CELFFLAGS) $< -o $@
-
-$(BIN): $(OBJS)
-	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
-
-$(FSIMG_DIR)/$(BIN): $(BIN)
-	$(Q) mkdir -p $(FSIMG_DIR)
-	$(Q) install $(BIN) $(FSIMG_DIR)/$(BIN)
-ifneq ($(CONFIG_DEBUG_SYMBOLS),y)
-	$(Q) $(STRIP) $(FSIMG_DIR)/$(BIN)
-endif
-
-install: $(FSIMG_DIR)/$(BIN)
-
-clean:
-	$(call DELFILE, $(BIN))
-	$(call CLEAN)
+include $(APPDIR)/Application.mk

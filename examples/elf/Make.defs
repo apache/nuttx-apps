@@ -20,6 +20,4 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_EXAMPLES_ELF),)
-CONFIGURED_APPS += $(APPDIR)/examples/elf
-endif
+include $(wildcard $(APPDIR)/examples/elf/*/Make.defs)
