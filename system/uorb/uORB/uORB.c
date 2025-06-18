@@ -359,7 +359,7 @@ int orb_sscanf(FAR const char *buf, FAR const char *format, FAR void *data)
   int lastc;
 
   lib_meminstream(&meminstream, buf, strlen(buf));
-  return lib_bscanf(&meminstream.common, &lastc, format, data);
+  return lib_oscanf(&meminstream.common, &lastc, format, data);
 }
 
 void orb_info(FAR const char *format, FAR const char *name,
@@ -372,8 +372,8 @@ void orb_info(FAR const char *format, FAR const char *name,
   vaf.va  = (va_list *)data;
 
   lib_stdoutstream(&stdoutstream, stdout);
-  lib_sprintf(&stdoutstream.common, "%s(now:%" PRIu64 "):%pB\n",
-              name, orb_absolute_time(), &vaf);
+  lib_printf(&stdoutstream.common, "%s(now:%" PRIu64 "):%pB\n",
+             name, orb_absolute_time(), &vaf);
 }
 
 int orb_fprintf(FAR FILE *stream, FAR const char *format,
@@ -382,6 +382,6 @@ int orb_fprintf(FAR FILE *stream, FAR const char *format,
   struct lib_stdoutstream_s stdoutstream;
 
   lib_stdoutstream(&stdoutstream, stream);
-  return lib_bsprintf(&stdoutstream.common, format, data);
+  return lib_oprintf(&stdoutstream.common, format, data);
 }
 #endif
