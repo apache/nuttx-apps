@@ -231,10 +231,11 @@ static ssize_t fastboot_usbdev_read(FAR struct fastboot_ctx_s *ctx,
                                     FAR void *buf, size_t len);
 static int     fastboot_usbdev_write(FAR struct fastboot_ctx_s *ctx,
                                      FAR const void *buf, size_t len);
-#elif defined(CONFIG_NET_TCP)
+#endif
 
 /* TCP transport */
 
+#ifdef CONFIG_NET_TCP
 static int     fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx);
 static void    fastboot_tcp_deinit(FAR struct fastboot_ctx_s *ctx);
 static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
@@ -275,23 +276,25 @@ static const struct memory_region_s g_memory_region[] =
 };
 #endif
 
+static const struct fastboot_transport_ops_s g_tran_ops[] =
+{
 #ifdef CONFIG_USBFASTBOOT
-static const struct fastboot_transport_ops_s g_tran_ops_usb =
-{
-  .init    = fastboot_usbdev_initialize,
-  .deinit  = fastboot_usbdev_deinit,
-  .read    = fastboot_usbdev_read,
-  .write   = fastboot_usbdev_write,
-};
-#elif defined(CONFIG_NET_TCP)
-static const struct fastboot_transport_ops_s g_tran_ops_tcp =
-{
-  .init    = fastboot_tcp_initialize,
-  .deinit  = fastboot_tcp_deinit,
-  .read    = fastboot_tcp_read,
-  .write   = fastboot_tcp_write,
-};
+  {
+    .init    = fastboot_usbdev_initialize,
+    .deinit  = fastboot_usbdev_deinit,
+    .read    = fastboot_usbdev_read,
+    .write   = fastboot_usbdev_write,
+  },
 #endif
+#ifdef CONFIG_NET_TCP
+  {
+    .init    = fastboot_tcp_initialize,
+    .deinit  = fastboot_tcp_deinit,
+    .read    = fastboot_tcp_read,
+    .write   = fastboot_tcp_write,
+  },
+#endif
+};
 
 /****************************************************************************
  * Private Functions
@@ -660,6 +663,11 @@ static void fastboot_download(FAR struct fastboot_ctx_s *ctx,
       ssize_t r = ctx->ops->read(ctx, download, len);
       if (r < 0)
         {
+          if (errno == EAGAIN)
+            {
+              continue;
+            }
+
           ctx->download_size = 0;
           fb_err("fastboot_download usb read error\n");
           return;
@@ -978,28 +986,34 @@ static void fastboot_oem(FAR struct fastboot_ctx_s *ctx, FAR const char *arg)
     }
 }
 
-static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx)
+static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
+                                  size_t nctx)
 {
-  struct epoll_event ev[1];
+  FAR struct fastboot_ctx_s *c;
+  struct epoll_event ev[nctx];
   int epfd;
+  int n;
+
+  epfd = epoll_create(1);
+  if (epfd < 0)
+    {
+      fb_err("open epoll failed %d", errno);
+      return;
+    }
+
+  for (c = ctx, n = nctx; n-- > 0; c++)
+    {
+      ev[n].events = EPOLLIN;
+      ev[n].data.ptr = c;
+      if (epoll_ctl(epfd, EPOLL_CTL_ADD, c->tran_fd[0], &ev[n]) < 0)
+        {
+          fb_err("err add poll %d", c->tran_fd[0]);
+          return;
+        }
+    }
 
   if (ctx->left > 0)
     {
-      epfd = epoll_create(1);
-      if (epfd < 0)
-        {
-          fb_err("open epoll failed %d", errno);
-          return;
-        }
-
-      ev[0].events = EPOLLIN;
-      ev[0].data.ptr = ctx;
-      if (epoll_ctl(epfd, EPOLL_CTL_ADD, ctx->tran_fd[0], &ev[0]) < 0)
-        {
-          fb_err("err add poll %d", ctx->tran_fd[0]);
-          return;
-        }
-
       if (epoll_wait(epfd, ev, nitems(ev), ctx->left) <= 0)
         {
           return;
@@ -1008,7 +1022,10 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx)
 
   /* Reinitialize for storing TCP transport remaining data size. */
 
-  ctx->left = 0;
+  for (c = ctx, n = nctx; n-- > 0; c++)
+    {
+      c->left = 0;
+    }
 
   while (1)
     {
@@ -1016,27 +1033,32 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx)
       size_t ncmds = nitems(g_fast_cmd);
       size_t index;
 
-      ssize_t r = ctx->ops->read(ctx, buffer, FASTBOOT_MSG_LEN);
-      if (r < 0)
+      n = epoll_wait(epfd, ev, nitems(ev), -1);
+      for (n--; n >= 0; )
         {
-          fb_err("fastboot transport read() %zd\n", r);
-          continue;
-        }
-
-      buffer[r] = '\0';
-      for (index = 0; index < ncmds; index++)
-        {
-          size_t len = strlen(g_fast_cmd[index].prefix);
-          if (memcmp(buffer, g_fast_cmd[index].prefix, len) == 0)
+          c = (FAR struct fastboot_ctx_s *)ev[n].data.ptr;
+          ssize_t r = c->ops->read(c, buffer, FASTBOOT_MSG_LEN);
+          if (r <= 0)
             {
-              g_fast_cmd[index].handle(ctx, buffer + len);
-              break;
+              n--;
+              continue;
             }
-        }
 
-      if (index == ncmds)
-        {
-          fastboot_fail(ctx, "Unknown command");
+          buffer[r] = '\0';
+          for (index = 0; index < ncmds; index++)
+            {
+              size_t len = strlen(g_fast_cmd[index].prefix);
+              if (memcmp(buffer, g_fast_cmd[index].prefix, len) == 0)
+                {
+                  g_fast_cmd[index].handle(c, buffer + len);
+                  break;
+                }
+            }
+
+          if (index == ncmds)
+            {
+              fastboot_fail(c, "Unknown command");
+            }
         }
     }
 }
@@ -1062,25 +1084,33 @@ static void fastboot_publish(FAR struct fastboot_ctx_s *ctx,
   ctx->varlist = var;
 }
 
-static void fastboot_create_publish(FAR struct fastboot_ctx_s *ctx)
+static void fastboot_create_publish(FAR struct fastboot_ctx_s *ctx,
+                                    size_t nctx)
 {
-  fastboot_publish(ctx, "product", "NuttX", 0);
-  fastboot_publish(ctx, "kernel", "NuttX", 0);
-  fastboot_publish(ctx, "version", CONFIG_VERSION_STRING, 0);
-  fastboot_publish(ctx, "slot-count", "1", 0);
-  fastboot_publish(ctx, "max-download-size", NULL,
-                   CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
+  for (; nctx-- > 0; ctx++)
+    {
+      fastboot_publish(ctx, "product", "NuttX", 0);
+      fastboot_publish(ctx, "kernel", "NuttX", 0);
+      fastboot_publish(ctx, "version", CONFIG_VERSION_STRING, 0);
+      fastboot_publish(ctx, "slot-count", "1", 0);
+      fastboot_publish(ctx, "max-download-size", NULL,
+                       CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
+    }
 }
 
-static void fastboot_free_publish(FAR struct fastboot_ctx_s *ctx)
+static void fastboot_free_publish(FAR struct fastboot_ctx_s *ctx,
+                                  size_t nctx)
 {
   FAR struct fastboot_var_s *next;
 
-  while (ctx->varlist)
+  for (; nctx-- > 0; ctx++)
     {
-      next = ctx->varlist->next;
-      free(ctx->varlist);
-      ctx->varlist = next;
+      while (ctx->varlist)
+        {
+          next = ctx->varlist->next;
+          free(ctx->varlist);
+          ctx->varlist = next;
+        }
     }
 }
 
@@ -1149,15 +1179,15 @@ static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
     }
 #endif /* SYSTEM_FASTBOOTD_USB_BOARDCTL */
 
-  ctx->tran_fd[0]  =
-      fastboot_open_usb(FASTBOOT_EP_BULKOUT_IDX, O_RDONLY | O_CLOEXEC);
+  ctx->tran_fd[0]  = fastboot_open_usb(FASTBOOT_EP_BULKOUT_IDX,
+                                       O_RDONLY | O_CLOEXEC | O_NONBLOCK);
   if (ctx->tran_fd[0] < 0)
     {
       return ctx->tran_fd[0];
     }
 
-  ctx->tran_fd[1] =
-      fastboot_open_usb(FASTBOOT_EP_BULKIN_IDX, O_WRONLY | O_CLOEXEC);
+  ctx->tran_fd[1] = fastboot_open_usb(FASTBOOT_EP_BULKIN_IDX,
+                                      O_WRONLY | O_CLOEXEC | O_NONBLOCK);
   if (ctx->tran_fd[1] < 0)
     {
       close(ctx->tran_fd[0]);
@@ -1190,13 +1220,15 @@ static int fastboot_usbdev_write(FAR struct fastboot_ctx_s *ctx,
 {
   return fastboot_write(ctx->tran_fd[1], buf, len);
 }
+#endif
 
-#elif defined(CONFIG_NET_TCP)
+#ifdef CONFIG_NET_TCP
 static int fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx)
 {
   struct sockaddr_in addr;
 
-  ctx->tran_fd[0] = socket(AF_INET, SOCK_STREAM, 0);
+  ctx->tran_fd[0] = socket(AF_INET, SOCK_STREAM,
+                           SOCK_CLOEXEC | SOCK_NONBLOCK);
   if (ctx->tran_fd[0] < 0)
     {
       fb_err("create socket failed %d", errno);
@@ -1357,36 +1389,54 @@ static int fastboot_tcp_write(FAR struct fastboot_ctx_s *ctx,
 }
 #endif
 
-static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx)
+static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
+                                       size_t nctx)
 {
-  ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
-  ctx->download_offset = 0;
-  ctx->download_size   = 0;
-  ctx->flash_fd        = -1;
-  ctx->total_imgsize   = 0;
-  ctx->varlist         = NULL;
-  ctx->left            = 0;
-#ifdef CONFIG_USBFASTBOOT
-  ctx->ops             = &g_tran_ops_usb;
-#elif defined(CONFIG_NET_TCP)
-  ctx->ops             = &g_tran_ops_tcp;
-#endif
-  ctx->tran_fd[0]      = -1;
-  ctx->tran_fd[1]      = -1;
+  int ret;
 
-  ctx->download_buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
-  if (ctx->download_buffer == NULL)
+  for (; nctx-- > 0; ctx++)
     {
-      fb_err("ERROR: Could not allocate the memory.\n");
-      return -errno;
+      ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
+      ctx->download_offset = 0;
+      ctx->download_size   = 0;
+      ctx->flash_fd        = -1;
+      ctx->total_imgsize   = 0;
+      ctx->varlist         = NULL;
+      ctx->left            = ctx[0].left;
+      ctx->ops             = &g_tran_ops[nctx];
+      ctx->tran_fd[0]      = -1;
+      ctx->tran_fd[1]      = -1;
+
+      ctx->download_buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
+      if (ctx->download_buffer == NULL)
+        {
+          fb_err("ERROR: Could not allocate the memory.\n");
+          continue;
+        }
+
+      ret = ctx->ops->init(ctx);
+      if (ret < 0)
+        {
+          free(ctx->download_buffer);
+          ctx->download_buffer = NULL;
+          ctx->ops->deinit(ctx);
+        }
     }
 
   return 0;
 }
 
-static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx)
+static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx,
+                                    size_t nctx)
 {
-  free(ctx->download_buffer);
+  for (; nctx-- > 0; ctx++)
+    {
+      if (ctx->download_buffer)
+        {
+          ctx->ops->deinit(ctx);
+          free(ctx->download_buffer);
+        }
+    }
 }
 
 /****************************************************************************
@@ -1395,14 +1445,8 @@ static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx)
 
 int main(int argc, FAR char **argv)
 {
-  struct fastboot_ctx_s context;
+  struct fastboot_ctx_s context[nitems(g_tran_ops)];
   int ret;
-
-  ret = fastboot_context_initialize(&context);
-  if (ret < 0)
-    {
-      return ret;
-    }
 
   if (argc > 1)
     {
@@ -1414,23 +1458,22 @@ int main(int argc, FAR char **argv)
           return 0;
         }
 
-      if (sscanf(argv[1], "%" SCNu64 , &context.left) != 1)
+      if (sscanf(argv[1], "%" SCNu64 , &context[0].left) != 1)
         {
           return -EINVAL;
         }
     }
 
-  ret = context.ops->init(&context);
+  ret = fastboot_context_initialize(context, nitems(context));
   if (ret < 0)
     {
       return ret;
     }
 
-  fastboot_create_publish(&context);
-  fastboot_command_loop(&context);
-  fastboot_free_publish(&context);
-  context.ops->deinit(&context);
-  fastboot_context_deinit(&context);
+  fastboot_create_publish(context, nitems(context));
+  fastboot_command_loop(context, nitems(context));
+  fastboot_free_publish(context, nitems(context));
+  fastboot_context_deinit(context, nitems(context));
 
   return ret;
 }
