@@ -43,13 +43,13 @@
 
 #include <netinet/in.h>
 #include <sys/boardctl.h>
+#include <sys/epoll.h>
 #include <sys/ioctl.h>
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/types.h>
-#include <sys/poll.h>
 #include <sys/wait.h>
 
 /****************************************************************************
@@ -980,14 +980,27 @@ static void fastboot_oem(FAR struct fastboot_ctx_s *ctx, FAR const char *arg)
 
 static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx)
 {
+  struct epoll_event ev[1];
+  int epfd;
+
   if (ctx->left > 0)
     {
-      struct pollfd fds[1];
+      epfd = epoll_create(1);
+      if (epfd < 0)
+        {
+          fb_err("open epoll failed %d", errno);
+          return;
+        }
 
-      fds[0].fd = ctx->tran_fd[0];
-      fds[0].events = POLLIN;
+      ev[0].events = EPOLLIN;
+      ev[0].data.ptr = ctx;
+      if (epoll_ctl(epfd, EPOLL_CTL_ADD, ctx->tran_fd[0], &ev[0]) < 0)
+        {
+          fb_err("err add poll %d", ctx->tran_fd[0]);
+          return;
+        }
 
-      if (poll(fds, 1, ctx->left) <= 0)
+      if (epoll_wait(epfd, ev, nitems(ev), ctx->left) <= 0)
         {
           return;
         }
