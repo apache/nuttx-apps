@@ -245,6 +245,7 @@ static int latency_test(bool print)
 
 out:
   orb_unadvertise(fd);
+  orb_unlink(ORB_ID(orb_test_medium));
   return ret < 0 ? ret : g_pubsubtest_res;
 }
 
@@ -362,6 +363,7 @@ out:
       test_note("PASS single-topic test");
     }
 
+  orb_unlink_multi(ORB_ID(orb_test), instance);
   return ret;
 }
 
@@ -478,6 +480,11 @@ out_with_sfd:
   if (ret == OK)
     {
       test_note("PASS orb 10-instances");
+    }
+
+  for (i = 0; i < max_inst; i++)
+    {
+      orb_unlink_multi(ORB_ID(orb_test), i);
     }
 
   return ret;
@@ -650,6 +657,8 @@ static int test_unadvertise(int *afds)
         {
           return test_fail("orb_unadvertise failed (%i)", ret);
         }
+
+      orb_unlink_multi(ORB_ID(orb_multitest), i);
     }
 
   return OK;
@@ -693,14 +702,12 @@ static FAR void *pub_test_multi2_entry(FAR void *arg)
     }
 
   usleep(100 * 1000);
-
-  g_thread_should_exit = true;
-
   for (i = 0; i < num_instances; ++i)
     {
       orb_unadvertise(orb_pub[i]);
     }
 
+  g_thread_should_exit = true;
   return NULL;
 }
 
@@ -784,6 +791,7 @@ out:
   for (i = 0; i < num_instances; ++i)
     {
       orb_unsubscribe(orb_data_fd[i]);
+      orb_unlink_multi(ORB_ID(orb_test_multi), i);
     }
 
   if (ret == OK)
@@ -948,6 +956,7 @@ int test_queue(void)
 out:
   orb_unadvertise(ptopic);
   orb_unsubscribe(sfd);
+  orb_unlink(ORB_ID(orb_test_queue));
 
   if (ret == OK)
     {
@@ -998,9 +1007,10 @@ static FAR void *pub_test_queue_entry(FAR void *arg)
     }
 
   g_num_messages_sent = t.val;
-  usleep(100 * 1000);
   g_thread_should_exit = true;
+  usleep(100 * 1000);
   orb_unadvertise(ptopic);
+  orb_unlink(ORB_ID(orb_test_queue_poll));
   return NULL;
 }
 
