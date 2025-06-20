@@ -242,6 +242,90 @@ err:
   return (-1);
 }
 
+static
+int syscrypt_stream(FAR const unsigned char *key, size_t klen,
+                    FAR const unsigned char *iv, FAR const unsigned char *in,
+                    FAR unsigned char *out, size_t len, int encrypt)
+{
+  struct session_op session;
+  struct crypt_op cryp;
+  uint32_t offset = 0;
+  int cryptodev_fd = -1;
+  int fd = -1;
+
+  if ((fd = open("/dev/crypto", O_RDWR, 0)) < 0)
+    {
+      warn("/dev/crypto");
+      goto err;
+    }
+
+  if (ioctl(fd, CRIOGET, &cryptodev_fd) == -1)
+    {
+      warn("CRIOGET");
+      goto err;
+    }
+
+  memset(&session, 0, sizeof(session));
+  session.cipher = CRYPTO_AES_CTR;
+  session.key = (caddr_t) key;
+  session.keylen = klen;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
+  if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
+    {
+      warn("CIOCGSESSION");
+      goto err;
+    }
+
+  memset(&cryp, 0, sizeof(cryp));
+  cryp.ses = session.ses;
+  cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
+  cryp.flags = 0;
+  cryp.mac = 0;
+  cryp.ivlen = RIJNDAEL128_BLOCK_LEN;
+  cryp.iv = (caddr_t) iv;
+  while (len >= RIJNDAEL128_BLOCK_LEN)
+    {
+      cryp.len = RIJNDAEL128_BLOCK_LEN;
+      cryp.olen = RIJNDAEL128_BLOCK_LEN;
+      cryp.src = (caddr_t) in + offset;
+      cryp.dst = (caddr_t) out + offset;
+      if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
+        {
+          warn("CIOCCRYPT");
+          goto err;
+        }
+
+      cryp.flags |= COP_FLAG_UPDATE;
+      cryp.ivlen = 0;
+      cryp.iv = NULL;
+      len -= RIJNDAEL128_BLOCK_LEN;
+      offset += RIJNDAEL128_BLOCK_LEN;
+    }
+
+  if (ioctl(cryptodev_fd, CIOCFSESSION, &session.ses) == -1)
+    {
+      warn("CIOCFSESSION");
+      goto err;
+    }
+
+  close(cryptodev_fd);
+  close(fd);
+  return (0);
+
+err:
+  if (cryptodev_fd != -1)
+    {
+      close(cryptodev_fd);
+    }
+
+  if (fd != -1)
+    {
+      close(fd);
+    }
+
+  return (-1);
+}
+
 static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
 {
   int i;
@@ -332,6 +416,17 @@ static int run(int num)
 
   fail = !match(data[TST_CIPHER], p, len);
   printf("%s test vector %d\n", fail ? "FAILED" : "OK", num);
+
+  if (syscrypt_stream(data[TST_KEY], length[TST_KEY],
+                      data[TST_IV], data[TST_PLAIN], p,
+                      length[TST_PLAIN], 0) < 0)
+    {
+      warnx("crypt with /dev/crypto failed");
+      goto done;
+    }
+
+  fail = !match(data[TST_CIPHER], p, len);
+  printf("%s test vector %d stream mode\n", fail ? "FAILED" : "OK", num);
 done:
   for (i = 0; i < TST_NUM; i++)
     {

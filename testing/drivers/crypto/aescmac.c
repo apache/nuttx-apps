@@ -146,9 +146,9 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
     }
 
   cryp.flags = 0;
-  cryp.len = len;
+  cryp.len = 0;
   cryp.olen = outlen;
-  cryp.src = (caddr_t)message;
+  cryp.src = NULL;
   cryp.mac = (caddr_t)output;
 
   if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
