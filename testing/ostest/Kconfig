@@ -115,4 +115,13 @@ config TESTING_OSTEST_POWEROFF
 	default n
 	depends on BOARDCTL_POWEROFF && TESTING_OSTEST_WAITRESULT
 
+config TESTING_OSTEST_SPINLOCK_THREADS
+	int "Number of spinlock test threads"
+	default 2
+	range 1 32
+
+config TEST_LOOP_SCALE
+	int "Loop scale of spinlock test (N x 10,000)"
+	default 100
+
 endif # TESTING_OSTEST
