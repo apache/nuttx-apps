@@ -31,6 +31,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
+#include <math.h>
 #include <sched.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -652,6 +654,49 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pplayer,
 #endif
 
 /****************************************************************************
+ * Name: nxplayer_filltone
+ *
+ *  Fill the generated tone data into the specified
+ *  buffer.
+ *
+ ****************************************************************************/
+
+static int nxplayer_filltone(FAR struct nxplayer_tone_s *tone,
+                             FAR struct ap_buffer_s *apb)
+{
+  FAR uint16_t *samples;
+  float value;
+  size_t i;
+
+  apb->nbytes = 0;
+  apb->curbyte = 0;
+  samples = (FAR uint16_t *)apb->samp;
+
+  if (tone->cur_samps >= tone->total_samps)
+    {
+      return -ENODATA;
+    }
+
+  for (i = 0; i < apb->nmaxbytes / 4; i++)
+    {
+      value = sinf(2 * M_PI * tone->pitch_freq *
+                   tone->cur_samps / tone->sample_rate);
+      samples[i * 2 + 1] = samples[i * 2] = (uint16_t)(value * 10000);
+
+      tone->cur_samps++;
+      apb->nbytes += 4;
+
+      if (tone->cur_samps >= tone->total_samps)
+        {
+          apb->flags |= AUDIO_APB_FINAL;
+          break;
+        }
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * Name: nxplayer_readbuffer
  *
  *  Read the next block of data from the media file into the specified
@@ -853,7 +898,19 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
     {
       /* Read the next buffer of data */
 
-      ret = nxplayer_readbuffer(pplayer, buffers[x]);
+      if (pplayer->tone.sample_rate)
+        {
+          /* Fill the generated tone data into apb  */
+
+          ret = nxplayer_filltone(&pplayer->tone, buffers[x]);
+        }
+      else
+        {
+          /* Fill the audio data of the file into apb */
+
+          ret = nxplayer_readbuffer(pplayer, buffers[x]);
+        }
+
       if (ret != OK)
         {
           /* nxplayer_readbuffer will return an error if there is no further
@@ -1031,7 +1088,19 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
               {
                 /* Read the next buffer of data */
 
-                ret = nxplayer_readbuffer(pplayer, msg.u.ptr);
+                if (pplayer->tone.sample_rate)
+                  {
+                    /* Fill the generated tone data into apb  */
+
+                    ret = nxplayer_filltone(&pplayer->tone, msg.u.ptr);
+                  }
+                else
+                  {
+                    /* Fill the audio data of the file into apb */
+
+                    ret = nxplayer_readbuffer(pplayer, msg.u.ptr);
+                  }
+
                 if (ret != OK)
                   {
                     /* Out of data.  Stay in the loop until the device sends
@@ -1176,6 +1245,10 @@ err_out:
   mq_unlink(pplayer->mqname);             /* Unlink the message queue */
   pplayer->ops   = NULL;                  /* Clear offload parser */
   pplayer->state = NXPLAYER_STATE_IDLE;   /* Go to IDLE */
+
+  /* Clear the tone field */
+
+  memset(&pplayer->tone, 0, sizeof(pplayer->tone));
 
   pthread_mutex_unlock(&pplayer->mutex);
 
@@ -1756,8 +1829,9 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
  *
  * Input:
  *   pplayer    Pointer to the initialized MPlayer context
- *   pfilename  Pointer to the filename to play
  *   filefmt    Format of the file or AUD_FMT_UNDEF if unknown / to be
+ *              determined by nxplayer_playfile()
+ *   subfmt     Sub-Format of the file or AUD_FMT_UNDEF if unknown / to be
  *              determined by nxplayer_playfile()
  *   nchannels  channels num (raw data playback needed)
  *   bpsamp     bits pre sample (raw data playback needed)
@@ -1775,10 +1849,9 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
  ****************************************************************************/
 
 static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
-                                 FAR const char *pfilename, int filefmt,
-                                 int subfmt, uint8_t nchannels,
-                                 uint8_t bpsamp, uint32_t samprate,
-                                 uint8_t chmap)
+                                 int filefmt, int subfmt,
+                                 uint8_t nchannels, uint8_t bpsamp,
+                                 uint32_t samprate, uint8_t chmap)
 {
   struct mq_attr      attr;
   struct sched_param  sparam;
@@ -1787,97 +1860,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   struct ap_buffer_info_s  buf_info;
   struct audio_caps_s      caps;
   int                      min_channels;
-#ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-  char                path[PATH_MAX];
-#endif
-  int                 tmpsubfmt = AUDIO_FMT_UNDEF;
   int                 ret;
-  int                 c;
-
-  DEBUGASSERT(pplayer != NULL);
-  DEBUGASSERT(pfilename != NULL);
-
-  if (pplayer->state != NXPLAYER_STATE_IDLE)
-    {
-      return -EBUSY;
-    }
-
-  audinfo("==============================\n");
-  audinfo("Playing file %s\n", pfilename);
-  audinfo("==============================\n");
-
-  /* Test that the specified file exists */
-
-#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
-  if ((pplayer->fd = _open_with_http(pfilename)) == -1)
-#else
-  if ((pplayer->fd = open(pfilename, O_RDONLY)) == -1)
-#endif
-    {
-      /* File not found.  Test if its in the mediadir */
-
-#ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-      snprintf(path, sizeof(path), "%s/%s", pplayer->mediadir, pfilename);
-
-      if ((pplayer->fd = open(path, O_RDONLY)) == -1)
-        {
-#ifdef CONFIG_NXPLAYER_MEDIA_SEARCH
-          /* File not found in the media dir.  Do a search */
-
-          if (nxplayer_mediasearch(pplayer, pfilename, path,
-                                   sizeof(path)) != OK)
-            {
-              auderr("ERROR: Could not find file\n");
-              return -ENOENT;
-            }
-#else
-          auderr("ERROR: Could not open %s or %s\n", pfilename, path);
-          return -ENOENT;
-#endif /* CONFIG_NXPLAYER_MEDIA_SEARCH */
-        }
-
-#else   /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
-
-      auderr("ERROR: Could not open %s\n", pfilename);
-      return -ENOENT;
-#endif /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
-    }
-
-#ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
-  /* Try to determine the format of audio file based on the extension */
-
-  if (filefmt == AUDIO_FMT_UNDEF)
-    {
-      filefmt = nxplayer_fmtfromextension(pplayer, pfilename, &tmpsubfmt);
-    }
-#endif
-
-#ifdef CONFIG_NXPLAYER_FMT_FROM_HEADER
-  /* If type not identified, then test for known header types */
-
-  if (filefmt == AUDIO_FMT_UNDEF)
-    {
-      filefmt = nxplayer_fmtfromheader(pplayer, &subfmt, &tmpsubfmt);
-    }
-#endif
-
-  /* Test if we determined the file format */
-
-  if (filefmt == AUDIO_FMT_UNDEF)
-    {
-      /* Hmmm, it's some unknown / unsupported type */
-
-      auderr("ERROR: Unsupported format: %d\n", filefmt);
-      ret = -ENOSYS;
-      goto err_out_nodev;
-    }
-
-  /* Test if we have a sub format assignment from above */
-
-  if (subfmt == AUDIO_FMT_UNDEF)
-    {
-      subfmt = tmpsubfmt;
-    }
 
   /* Try to open the device */
 
@@ -1887,27 +1870,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       /* Error opening the device */
 
       auderr("ERROR: nxplayer_opendevice failed: %d\n", ret);
-      goto err_out_nodev;
-    }
-
-  for (c = 0; c < nitems(g_dec_ops); c++)
-    {
-      if (g_dec_ops[c].format == filefmt)
-        {
-          pplayer->ops = &g_dec_ops[c];
-          break;
-        }
-    }
-
-  if (!pplayer->ops)
-    {
-      goto err_out;
-    }
-
-  if (pplayer->ops->pre_parse)
-    {
-      ret = pplayer->ops->pre_parse(pplayer->fd, &samprate,
-                                    &nchannels, &bpsamp);
+      return ret;
     }
 
   /* Try to reserve the device */
@@ -2033,13 +1996,6 @@ err_out:
   close(pplayer->dev_fd);
   pplayer->dev_fd = -1;
 
-err_out_nodev:
-  if (0 < pplayer->fd)
-    {
-      close(pplayer->fd);
-      pplayer->fd = -1;
-    }
-
   return ret;
 }
 
@@ -2056,6 +2012,8 @@ err_out_nodev:
  *   pfilename  Pointer to the filename to play
  *   filefmt    Format of the file or AUD_FMT_UNDEF if unknown / to be
  *              determined by nxplayer_playfile()
+ *   subfmt     Sub-Format of audio in filename if known, AUDIO_FMT_UNDEF
+ *              to let nxplayer_playfile() determine automatically
  *
  * Returns:
  *   OK         File is being played
@@ -2069,14 +2027,14 @@ err_out_nodev:
 int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
                       FAR const char *pfilename, int filefmt, int subfmt)
 {
-  return nxplayer_playinternal(pplayer, pfilename, filefmt,
-                               subfmt, 0, 0, 0, 0);
+  return nxplayer_playraw(pplayer, pfilename, filefmt,
+                          subfmt, 0, 0, 0, 0);
 }
 
 /****************************************************************************
  * Name: nxplayer_playraw
  *
- *   nxplayer_playraw() tries to play the raw data file using the Audio
+ *   nxplayer_playraw() tries to play the audio file using the Audio
  *   system.  If a preferred device is specified, it will try to use that
  *   device otherwise it will perform a search of the Audio device files
  *   to find a suitable device.
@@ -2084,6 +2042,10 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  * Input:
  *   pplayer    Pointer to the initialized MPlayer context
  *   pfilename  Pointer to the filename to play
+ *   filefmt   - Format of audio in filename if known, AUDIO_FMT_UNDEF
+ *               to let nxplayer_playraw() determine automatically.
+ *   subfmt    - Sub-Format of audio in filename if known, AUDIO_FMT_UNDEF
+ *               to let nxplayer_playraw() determine automatically.
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
@@ -2099,9 +2061,127 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  ****************************************************************************/
 
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
-                     FAR const char *pfilename, uint8_t nchannels,
+                     FAR const char *pfilename,
+                     int filefmt, int subfmt, uint8_t nchannels,
                      uint8_t bpsamp, uint32_t samprate, uint8_t chmap)
 {
+#ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
+  char path[PATH_MAX];
+#endif
+  int  tmpsubfmt = AUDIO_FMT_UNDEF;
+  int  ret;
+  int  c;
+
+  DEBUGASSERT(pplayer != NULL);
+  DEBUGASSERT(pfilename != NULL);
+
+  if (pplayer->state != NXPLAYER_STATE_IDLE)
+    {
+      return -EBUSY;
+    }
+
+  audinfo("==============================\n");
+  audinfo("Playing file %s\n", pfilename);
+  audinfo("==============================\n");
+
+  /* Test that the specified file exists */
+
+#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
+  if ((pplayer->fd = _open_with_http(pfilename)) == -1)
+#else
+  if ((pplayer->fd = open(pfilename, O_RDONLY)) == -1)
+#endif
+    {
+      /* File not found.  Test if its in the mediadir */
+
+#ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
+      snprintf(path, sizeof(path), "%s/%s", pplayer->mediadir, pfilename);
+
+      if ((pplayer->fd = open(path, O_RDONLY)) == -1)
+        {
+#ifdef CONFIG_NXPLAYER_MEDIA_SEARCH
+          /* File not found in the media dir.  Do a search */
+
+          if (nxplayer_mediasearch(pplayer, pfilename, path,
+                                   sizeof(path)) != OK)
+            {
+              auderr("ERROR: Could not find file\n");
+              return -ENOENT;
+            }
+#else
+          auderr("ERROR: Could not open %s or %s\n", pfilename, path);
+          return -ENOENT;
+#endif /* CONFIG_NXPLAYER_MEDIA_SEARCH */
+        }
+
+#else   /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
+
+      auderr("ERROR: Could not open %s\n", pfilename);
+      return -ENOENT;
+#endif /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
+    }
+
+#ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
+  /* Try to determine the format of audio file based on the extension */
+
+  if (filefmt == AUDIO_FMT_UNDEF)
+    {
+      filefmt = nxplayer_fmtfromextension(pplayer, pfilename, &tmpsubfmt);
+    }
+#endif
+
+#ifdef CONFIG_NXPLAYER_FMT_FROM_HEADER
+  /* If type not identified, then test for known header types */
+
+  if (filefmt == AUDIO_FMT_UNDEF)
+    {
+      filefmt = nxplayer_fmtfromheader(pplayer, &subfmt, &tmpsubfmt);
+    }
+#endif
+
+  /* Test if we determined the file format */
+
+  if (filefmt == AUDIO_FMT_UNDEF)
+    {
+      /* Hmmm, it's some unknown / unsupported type */
+
+      auderr("ERROR: Unsupported format: %d\n", filefmt);
+      ret = -ENOSYS;
+      goto err_out;
+    }
+
+  /* Test if we have a sub format assignment from above */
+
+  if (subfmt == AUDIO_FMT_UNDEF)
+    {
+      subfmt = tmpsubfmt;
+    }
+
+  for (c = 0; c < nitems(g_dec_ops); c++)
+    {
+      if (g_dec_ops[c].format == filefmt)
+        {
+          pplayer->ops = &g_dec_ops[c];
+          break;
+        }
+    }
+
+  if (!pplayer->ops)
+    {
+      ret = -ENOSYS;
+      goto err_out;
+    }
+
+  if (pplayer->ops->pre_parse)
+    {
+      ret = pplayer->ops->pre_parse(pplayer->fd, &samprate,
+                                    &nchannels, &bpsamp);
+      if (ret < 0)
+        {
+          goto err_out;
+        }
+    }
+
   if (nchannels == 0)
     {
       nchannels = 2;
@@ -2117,8 +2197,66 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
       samprate = 48000;
     }
 
-  return nxplayer_playinternal(pplayer, pfilename, AUDIO_FMT_PCM, 0,
-                               nchannels, bpsamp, samprate, chmap);
+  ret = nxplayer_playinternal(pplayer, filefmt, subfmt,
+                              nchannels, bpsamp, samprate, chmap);
+  if (ret < 0)
+    {
+      goto err_out;
+    }
+
+  return OK;
+
+err_out:
+  close(pplayer->fd);
+  pplayer->fd = -1;
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxplayer_playtone
+ *
+ *   Plays the generated tone data using the Audio system.
+ *   If a preferred device has been set, that device will be used for
+ *   the playback, otherwise the first suitable device found in
+ *   the /dev/audio directory will be used.
+ *
+ * Input Parameters:
+ *   pplayer   - Pointer to the context to initialize
+ *   samprate  - sample rate
+ *   pitchfreq - pitch frequency‌
+ *   duration  - duration of the generated tone
+ *
+ *
+ * Returned Value:
+ *   OK if device found, and playback started.
+ *
+ ****************************************************************************/
+
+int nxplayer_playtone(FAR struct nxplayer_s *pplayer, uint32_t samprate,
+                      uint32_t pitchfreq, uint32_t duration)
+{
+  DEBUGASSERT(pplayer != NULL);
+
+  if (pplayer->state != NXPLAYER_STATE_IDLE)
+    {
+      return -EBUSY;
+    }
+
+  pplayer->tone.sample_rate = samprate ? samprate : 48000;
+  pplayer->tone.pitch_freq  = pitchfreq ? pitchfreq : 440;
+  pplayer->tone.total_samps = (duration ? duration : 10) *
+                               pplayer->tone.sample_rate;
+
+  audinfo("==============================\n");
+  audinfo("Playing tone : samprate:%" PRIu32 " HZ pitchfreq:%" PRIu32 " HZ \
+          duration:%" PRIu32 " s\n",
+          pplayer->tone.sample_rate, pplayer->tone.pitch_freq,
+          pplayer->tone.total_samps / pplayer->tone.sample_rate);
+  audinfo("==============================\n");
+
+  return nxplayer_playinternal(pplayer, AUDIO_FMT_PCM, AUDIO_FMT_UNDEF,
+                               2, 16, pplayer->tone.sample_rate, 0);
 }
 
 /****************************************************************************
@@ -2191,6 +2329,8 @@ FAR struct nxplayer_s *nxplayer_create(void)
 #ifdef CONFIG_AUDIO_MULTI_SESSION
   pplayer->session = NULL;
 #endif
+
+  memset(&pplayer->tone, 0, sizeof(pplayer->tone));
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
   strlcpy(pplayer->mediadir, CONFIG_NXPLAYER_DEFAULT_MEDIADIR,
