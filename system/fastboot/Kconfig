@@ -6,9 +6,11 @@
 menuconfig SYSTEM_FASTBOOTD
 	bool "fastbootd"
 	default n
-	depends on USBFASTBOOT || NET_TCP
+	depends on USBFASTBOOT || (NET_TCP && NET_TCPBACKLOG)
 	---help---
-		support usb fastboot function.
+		Enable Fastboot daemon.
+		The USB transport depends on USBFASTBOOT.
+		The TCP network transport depends on NET_TCP and NET_TCPBACKLOG.
 
 if SYSTEM_FASTBOOTD
 
