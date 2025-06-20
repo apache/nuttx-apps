@@ -547,6 +547,10 @@ static int user_main(int argc, char *argv[])
 #endif
 #endif
 
+      printf("\nuser_main: spinlock test\n");
+      spinlock_test();
+      check_test_memory_usage();
+
 #ifdef CONFIG_BUILD_FLAT
       printf("\nuser_main: wdog test\n");
       wdog_test();

@@ -286,6 +286,10 @@ void setjmp_test(void);
 void smp_call_test(void);
 #endif
 
+/* spinlock.c ***************************************************************/
+
+void spinlock_test(void);
+
 /* APIs exported (conditionally) by the OS specifically for testing of
  * priority inheritance
  */
