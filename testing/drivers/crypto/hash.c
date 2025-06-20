@@ -309,6 +309,8 @@ static int syshash_finish(FAR crypto_context *ctx,
                           size_t olen)
 {
   ctx->cryp.flags = 0;
+  ctx->cryp.len = 0;
+  ctx->cryp.src = NULL;
   ctx->cryp.olen = olen;
   ctx->cryp.mac = (caddr_t) out;
 

@@ -183,13 +183,22 @@ static int syshmac(int mac, FAR const char *key, size_t keylen,
   memset(&cryp, 0, sizeof(cryp));
   cryp.ses = session.ses;
   cryp.op = COP_ENCRYPT;
-  cryp.flags = 0;
+  cryp.flags |= COP_FLAG_UPDATE;
   cryp.src = (caddr_t) s;
   cryp.len = len;
-  cryp.olen = olen;
   cryp.dst = 0;
-  cryp.mac = (caddr_t) out;
   cryp.iv = 0;
+  if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
+    {
+      warn("CIOCCRYPT");
+      goto err;
+    }
+
+  cryp.flags = 0;
+  cryp.len = 0;
+  cryp.src = NULL;
+  cryp.olen = olen;
+  cryp.mac = (caddr_t) out;
   if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
     {
       warn("CIOCCRYPT");
