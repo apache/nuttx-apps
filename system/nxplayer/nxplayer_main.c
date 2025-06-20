@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <nuttx/audio/audio.h>
 
+#include <inttypes.h>
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,6 +70,7 @@ struct mp_cmd_s
 static int nxplayer_cmd_quit(FAR struct nxplayer_s *pplayer, char *parg);
 static int nxplayer_cmd_play(FAR struct nxplayer_s *pplayer, char *parg);
 static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pplayer, char *parg);
+static int nxplayer_cmd_tone(FAR struct nxplayer_s *pplayer, char *parg);
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
 static int nxplayer_cmd_reset(FAR struct nxplayer_s *pplayer, char *parg);
@@ -207,8 +209,8 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
 #endif
   {
     "tone",
-    "freq secs",
-    NULL,
+    "samplerate duration pitchfreq",
+    nxplayer_cmd_tone,
     NXPLAYER_HELP_TEXT("Produce a pure tone")
   },
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
@@ -335,10 +337,10 @@ static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pplayer, char *parg)
 
   /* Try to play the file specified */
 
-  ret = nxplayer_playraw(pplayer, filename, channels,
-                         bpsamp, samprate, chmap);
+  ret = nxplayer_playraw(pplayer, filename, AUDIO_FMT_PCM, 0,
+                         channels, bpsamp, samprate, chmap);
 
-  /* nxplayer_playfile returned values:
+  /* nxplayer_playraw returned values:
    *
    *   OK         File is being played
    *   -EBUSY     The media device is busy
@@ -370,6 +372,56 @@ static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pplayer, char *parg)
 
       default:
         printf("Error playing file: %d\n", -ret);
+        break;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxplayer_cmd_tone
+ *
+ *   nxplayer_cmd_tone() plays the tone using the nxplayer
+ *   context.
+ *
+ ****************************************************************************/
+
+static int nxplayer_cmd_tone(FAR struct nxplayer_s *pplayer, char *parg)
+{
+  int ret;
+  uint32_t samprate  = 0;
+  uint32_t pitchfreq = 0;
+  uint32_t duration  = 0;
+
+  sscanf(parg, "%" PRIu32 " %" PRIu32 " %" PRIu32 "",
+         &samprate, &duration, &pitchfreq);
+
+  /* Try to play tone */
+
+  ret = nxplayer_playtone(pplayer, samprate, pitchfreq, duration);
+
+  /* nxplayer_playtone returned values:
+   *
+   *   OK         Tone is being played
+   *   -EBUSY     The media device is busy
+   *   -ENODEV    No audio device suitable to play the media type
+   */
+
+  switch (-ret)
+    {
+      case OK:
+        break;
+
+      case ENODEV:
+        printf("No suitable Audio Device found\n");
+        break;
+
+      case EBUSY:
+        printf("Audio device busy\n");
+        break;
+
+      default:
+        printf("Error playing tone: %d\n", -ret);
         break;
     }
 
