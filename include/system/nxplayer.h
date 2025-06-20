@@ -48,6 +48,14 @@ struct nxplayer_dec_ops_s
   CODE int (*fill_data)(int fd, FAR struct ap_buffer_s *apb);
 };
 
+struct nxplayer_tone_s
+{
+  uint32_t cur_samps;    /* The number of samples currently */
+  uint32_t total_samps;  /* Total number of samples */
+  uint32_t sample_rate;  /* Sampling rate */
+  uint32_t pitch_freq;   /* Pitch frequency */
+};
+
 /* This structure describes the internal state of the NxPlayer */
 
 struct nxplayer_s
@@ -83,6 +91,7 @@ struct nxplayer_s
 #endif
 
   FAR const struct nxplayer_dec_ops_s *ops;
+  struct nxplayer_tone_s tone;
 };
 
 typedef int (*nxplayer_func)(FAR struct nxplayer_s *pplayer, char *pargs);
@@ -215,10 +224,14 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  * Input Parameters:
  *   pplayer   - Pointer to the context to initialize
  *   filename  - Pointer to pathname of the file to play
- *   nchannels  channel num
- *   bpsampe    bit width
- *   samprate   sample rate
- *   chmap      channel map
+ *   filefmt   - Format of audio in filename if known, AUDIO_FMT_UNDEF
+ *               to let nxplayer_playraw() determine automatically.
+ *   subfmt    - Sub-Format of audio in filename if known, AUDIO_FMT_UNDEF
+ *               to let nxplayer_playraw() determine automatically.
+ *   nchannels - channel num
+ *   bpsampe   - bit width
+ *   samprate  - sample rate
+ *   chmap     - channel map
  *
  * Returned Value:
  *   OK if file found, device found, and playback started.
@@ -226,8 +239,32 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  ****************************************************************************/
 
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
-                     FAR const char *filename, uint8_t nchannels,
+                     FAR const char *filename,
+                     int filefmt, int subfmt, uint8_t nchannels,
                      uint8_t bpsamp, uint32_t samprate, uint8_t chmap);
+
+/****************************************************************************
+ * Name: nxplayer_playtone
+ *
+ *   Plays the generated tone data using the Audio system.
+ *   If a preferred device has been set, that device will be used for
+ *   the playback, otherwise the first suitable device found in
+ *   the /dev/audio directory will be used.
+ *
+ * Input Parameters:
+ *   pplayer   - Pointer to the context to initialize
+ *   samprate  - sample rate
+ *   pitchfreq - pitch frequency‌
+ *   duration  - duration of the generated tone
+ *
+ *
+ * Returned Value:
+ *   OK if device found, and playback started.
+ *
+ ****************************************************************************/
+
+int nxplayer_playtone(FAR struct nxplayer_s *pplayer, uint32_t samprate,
+                      uint32_t pitchfreq, uint32_t duration);
 
 /****************************************************************************
  * Name: nxplayer_stop
