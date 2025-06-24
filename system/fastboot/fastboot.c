@@ -1008,7 +1008,7 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
       if (epoll_ctl(epfd, EPOLL_CTL_ADD, c->tran_fd[0], &ev[n]) < 0)
         {
           fb_err("err add poll %d", c->tran_fd[0]);
-          return;
+          goto epoll_close;
         }
     }
 
@@ -1016,7 +1016,7 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
     {
       if (epoll_wait(epfd, ev, nitems(ev), ctx->left) <= 0)
         {
-          return;
+          goto epoll_close;
         }
     }
 
@@ -1061,6 +1061,14 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
             }
         }
     }
+
+epoll_close:
+  while (--c >= ctx)
+    {
+      epoll_ctl(epfd, EPOLL_CTL_DEL, c->tran_fd[0], NULL);
+    }
+
+  close(epfd);
 }
 
 static void fastboot_publish(FAR struct fastboot_ctx_s *ctx,
