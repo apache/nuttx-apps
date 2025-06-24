@@ -169,6 +169,7 @@ struct fastboot_ctx_s
    */
 
   uint64_t left;
+  FAR void *handle;
   FAR void *download_buffer;
   FAR struct fastboot_var_s *varlist;
   CODE int (*upload_func)(FAR struct fastboot_ctx_s *);
@@ -1157,7 +1158,6 @@ static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
 #  else
     uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
 #  endif
-  FAR void *handle;
   int ret;
 
   ctrl.usbdev   = dev;
@@ -1177,7 +1177,7 @@ static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
   ctrl.action   = BOARDIOC_USBDEV_CONNECT;
   ctrl.instance = 0;
   ctrl.config   = 0;
-  ctrl.handle   = &handle;
+  ctrl.handle   = &ctx->handle;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
@@ -1208,6 +1208,9 @@ static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
 
 static void fastboot_usbdev_deinit(FAR struct fastboot_ctx_s *ctx)
 {
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
+  struct boardioc_usbdev_ctrl_s ctrl;
+#endif
   int i;
 
   for (i = 0; i < nitems(ctx->tran_fd); i++)
@@ -1215,6 +1218,27 @@ static void fastboot_usbdev_deinit(FAR struct fastboot_ctx_s *ctx)
       close(ctx->tran_fd[i]);
       ctx->tran_fd[i] = -1;
     }
+
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
+  if (ctx->handle)
+    {
+#  ifdef CONFIG_USBDEV_COMPOSITE
+      ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+#  else
+      ctrl.usbdev   =  BOARDIOC_USBDEV_FASTBOOT;
+#  endif
+      ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+      ctrl.instance = 0;
+      ctrl.config   = 0;
+      ctrl.handle   = &ctx->handle;
+
+      i = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+      if (i < 0)
+        {
+          fb_err("boardctl(BOARDIOC_USBDEV_DISCONNECT) failed: %d\n", i);
+        }
+    }
+#endif /* SYSTEM_FASTBOOTD_USB_BOARDCTL */
 }
 
 static ssize_t fastboot_usbdev_read(FAR struct fastboot_ctx_s *ctx,
