@@ -569,6 +569,7 @@ static int test_multi_reversed(int *afds, int *sfds)
   struct orb_test_s sub_sample;
   int instance2 = 2;
   int instance3 = 3;
+  int ret = ERROR;
 
   test_note("try multi-topic support subscribing before publishing");
 
@@ -589,7 +590,8 @@ static int test_multi_reversed(int *afds, int *sfds)
 
   if (instance2 != 2)
     {
-      return test_fail("mult. id2: %d", instance2);
+      test_fail("mult. id2: %d", instance2);
+      goto out2;
     }
 
   afds[3] = orb_advertise_multi_queue_persist(ORB_ID(orb_multitest),
@@ -597,48 +599,69 @@ static int test_multi_reversed(int *afds, int *sfds)
 
   if (instance3 != 3)
     {
-      return test_fail("mult. id3: %d", instance3);
+      test_fail("mult. id3: %d", instance3);
+      goto out2;
     }
 
   sample.val = 204;
 
   if (OK != orb_publish(ORB_ID(orb_multitest), afds[2], &sample))
     {
-      return test_fail("mult. pub2 fail");
+      test_fail("mult. pub2 fail");
+      goto out2;
     }
 
   sample.val = 304;
 
   if (OK != orb_publish(ORB_ID(orb_multitest), afds[3], &sample))
     {
-      return test_fail("mult. pub3 fail");
+      test_fail("mult. pub3 fail");
+      goto out2;
     }
 
   /* ensure valid data is received */
 
   if (OK != orb_copy(ORB_ID(orb_multitest), sfds[2], &sub_sample))
     {
-      return test_fail("sub #2 copy failed: %d", errno);
+      test_fail("sub #2 copy failed: %d", errno);
+      goto out2;
     }
 
   if (sub_sample.val != 204)
     {
-      return test_fail("sub #2 val. mismatch: %d", sub_sample.val);
+      test_fail("sub #2 val. mismatch: %d", sub_sample.val);
+      goto out2;
     }
 
   sfds[3] = orb_subscribe_multi(ORB_ID(orb_multitest), 3);
 
+  if (sfds[3] < 0)
+    {
+      test_fail("sub. id3: ret: %d", sfds[3]);
+      goto out2;
+    }
+
   if (OK != orb_copy(ORB_ID(orb_multitest), sfds[3], &sub_sample))
     {
-      return test_fail("sub #3 copy failed: %d", errno);
+      test_fail("sub #3 copy failed: %d", errno);
+      goto out3;
     }
 
   if (sub_sample.val != 304)
     {
-      return test_fail("sub #3 val. mismatch: %d", sub_sample.val);
+      test_fail("sub #3 val. mismatch: %d", sub_sample.val);
+      goto out3;
     }
 
-  return test_note("PASS multi-topic reversed");
+  ret = OK;
+  test_note("PASS multi-topic reversed");
+
+out3:
+  orb_unsubscribe(sfds[3]);
+
+out2:
+  orb_unsubscribe(sfds[2]);
+  return ret;
 }
 
 static int test_unadvertise(int *afds)
@@ -1006,8 +1029,9 @@ static FAR void *pub_test_queue_entry(FAR void *arg)
       usleep(20 * 1000); /* give subscriber a chance to catch up */
     }
 
-  g_num_messages_sent = t.val;
+  g_num_messages_sent  = t.val;
   g_thread_should_exit = true;
+  g_pubsubtest_passed  = true;
   usleep(100 * 1000);
   orb_unadvertise(ptopic);
   orb_unlink(ORB_ID(orb_test_queue_poll));
@@ -1046,6 +1070,7 @@ static int test_queue_poll_notify(void)
     }
   while (updated);
 
+  g_pubsubtest_passed  = false;
   g_thread_should_exit = false;
 
   pthread_attr_init(&attr);
@@ -1109,7 +1134,7 @@ static int test_queue_poll_notify(void)
 
   orb_unsubscribe(sfd);
 
-  return OK;
+  return g_pubsubtest_passed ? OK : ERROR;
 }
 
 static int test(void)
