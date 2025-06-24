@@ -109,7 +109,7 @@ struct fastboot_sparse_header_s
 {
   uint32_t magic;           /* 0xed26ff3a */
   uint16_t major_version;   /* (0x1) - reject images with higher major versions */
-  uint16_t minor_version;   /* (0x0) - allow images with higer minor versions */
+  uint16_t minor_version;   /* (0x0) - allow images with higher minor versions */
   uint16_t file_hdr_sz;     /* 28 bytes for first revision of the file format */
   uint16_t chunk_hdr_sz;    /* 12 bytes for first revision of the file format */
   uint32_t blk_sz;          /* block size in bytes, must be a multiple of 4 (4096) */
@@ -652,7 +652,7 @@ static void fastboot_download(FAR struct fastboot_ctx_s *ctx,
   ret = ctx->ops->write(ctx, response, strlen(response));
   if (ret < 0)
     {
-      fb_err("Reponse error [%d]\n", -ret);
+      fb_err("Response error [%d]\n", -ret);
       return;
     }
 
@@ -943,7 +943,7 @@ static void fastboot_upload(FAR struct fastboot_ctx_s *ctx,
   ret = ctx->ops->write(ctx, response, strlen(response));
   if (ret < 0)
     {
-      fb_err("Reponse error [%d]\n", -ret);
+      fb_err("Response error [%d]\n", -ret);
       goto done;
     }
 
