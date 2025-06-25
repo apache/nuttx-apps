@@ -1312,7 +1312,7 @@ errout:
 int settings_type(FAR char *key, FAR enum settings_type_e *stype)
 {
   int ret;
-  FAR setting_t *setting;
+  FAR setting_t *setting = NULL;
 
   if (!g_settings.initialized)
     {
@@ -1360,7 +1360,7 @@ int settings_type(FAR char *key, FAR enum settings_type_e *stype)
 int settings_get(FAR char *key, enum settings_type_e type, ...)
 {
   int ret;
-  FAR setting_t *setting;
+  FAR setting_t *setting = NULL;
 
   if (!g_settings.initialized)
     {
@@ -1458,7 +1458,7 @@ errout:
 int settings_set(FAR char *key, enum settings_type_e type, ...)
 {
   int ret;
-  FAR setting_t *setting;
+  FAR setting_t *setting = NULL;
   uint32_t h;
 
   if (!g_settings.initialized)
