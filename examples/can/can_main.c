@@ -105,7 +105,7 @@
 
 static void show_usage(FAR const char *progname)
 {
-  fprintf(stderr, "USAGE: %s"
+  dprintf(STDERR_FILENO, "USAGE: %s"
           " [-n <nmsgs]"
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
 #ifdef CONFIG_CAN_EXTID
@@ -118,24 +118,24 @@ static void show_usage(FAR const char *progname)
 #endif
           "\n",
           progname);
-  fprintf(stderr, "USAGE: %s -h\n",
+  dprintf(STDERR_FILENO, "USAGE: %s -h\n",
           progname);
-  fprintf(stderr, "\nWhere:\n");
-  fprintf(stderr,
+  dprintf(STDERR_FILENO, "\nWhere:\n");
+  dprintf(STDERR_FILENO,
           "-n <nmsgs>: The number of messages to send.  Default: 32\n");
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
 #ifdef CONFIG_CAN_EXTID
-  fprintf(stderr, "-s: Use standard IDs.  Default: Extended ID\n");
+  dprintf(STDERR_FILENO, "-s: Use standard IDs. Default: Extended ID\n");
 #endif
 #ifdef CONFIG_CAN_FD
-  fprintf(stderr, "-e: Use extended data length without bit rate switch. "
-          "Default: bit rate switch enabled\n");
+  dprintf(STDERR_FILENO, "-e: Use extended data length without bit rate "
+          "switch. Default: bit rate switch enabled\n");
 #endif
-  fprintf(stderr, "-a <min-id>: The start message id.  Default 1\n");
-  fprintf(stderr, "-b <max-id>: The start message id.  Default %d\n",
+  dprintf(STDERR_FILENO, "-a <min-id>: The start message id.  Default 1\n");
+  dprintf(STDERR_FILENO, "-b <max-id>: The start message id.  Default %d\n",
           MAX_ID);
 #endif
-  fprintf(stderr, "-h: Show this message and exit\n");
+  dprintf(STDERR_FILENO, "-h: Show this message and exit\n");
 }
 
 /****************************************************************************
@@ -213,7 +213,7 @@ int main(int argc, FAR char *argv[])
             minid = strtol(optarg, NULL, 10);
             if (minid < 1 || minid > maxid)
               {
-                fprintf(stderr, "<min-id> out of range\n");
+                dprintf(STDERR_FILENO, "<min-id> out of range\n");
                 badarg = true;
               }
             break;
@@ -222,7 +222,7 @@ int main(int argc, FAR char *argv[])
             maxid = strtol(optarg, NULL, 10);
             if (maxid < minid || maxid > MAX_ID)
               {
-                fprintf(stderr, "ERROR: <max-id> out of range\n");
+                dprintf(STDERR_FILENO, "ERROR: <max-id> out of range\n");
                 badarg = true;
               }
             break;
@@ -236,19 +236,19 @@ int main(int argc, FAR char *argv[])
             nmsgs = strtol(optarg, NULL, 10);
             if (nmsgs < 1)
               {
-                fprintf(stderr, "ERROR: <nmsgs> out of range\n");
+                dprintf(STDERR_FILENO, "ERROR: <nmsgs> out of range\n");
                 badarg = true;
               }
             break;
 
           case ':':
-            fprintf(stderr, "ERROR: Bad option argument\n");
+            dprintf(STDERR_FILENO, "ERROR: Bad option argument\n");
             badarg = true;
             break;
 
           case '?':
           default:
-            fprintf(stderr, "ERROR: Unrecognized option\n");
+            dprintf(STDERR_FILENO, "ERROR: Unrecognized option\n");
             badarg = true;
             break;
         }
@@ -279,7 +279,7 @@ int main(int argc, FAR char *argv[])
 
   if (optind != argc)
     {
-      fprintf(stderr, "ERROR: Garbage on command line\n");
+      dprintf(STDERR_FILENO, "ERROR: Garbage on command line\n");
       show_usage(argv[0]);
       return EXIT_FAILURE;
     }
@@ -334,12 +334,6 @@ int main(int argc, FAR char *argv[])
 
   for (msgno = 0; !nmsgs || msgno < nmsgs; msgno++)
     {
-      /* Flush any output before the loop entered or from the previous pass
-       * through the loop.
-       */
-
-      fflush(stdout);
-
 #ifdef CONFIG_EXAMPLES_CAN_WRITE
 
       /* Construct the next TX message */
@@ -525,6 +519,5 @@ errout_with_dev:
   close(fd);
 
   printf("Terminating!\n");
-  fflush(stdout);
   return errval;
 }
