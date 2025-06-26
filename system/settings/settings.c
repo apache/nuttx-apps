@@ -291,16 +291,19 @@ static int get_int(FAR setting_t *setting, FAR int *i)
           *i = setting->val.i;
         }
         break;
+
       case SETTING_BOOL:
         {
           *i = !!setting->val.i;
         }
         break;
+
       case SETTING_FLOAT:
         {
           *i = (int)setting->val.f;
         }
         break;
+
       default:
         {
           return -EACCES;
@@ -368,6 +371,7 @@ static int get_bool(FAR setting_t *setting, FAR int *i)
           *i = !!setting->val.i;
         }
         break;
+
       default:
         {
           return -EACCES;
@@ -432,11 +436,13 @@ static int get_float(FAR setting_t *setting, FAR double *f)
           *f = setting->val.f;
         }
         break;
+
       case SETTING_INT:
         {
           *f = (double)setting->val.i;
         }
         break;
+
       default:
         {
           return -EACCES;
@@ -505,11 +511,13 @@ static int get_ip(FAR setting_t *setting, FAR struct in_addr *ip)
           ret = OK;
         }
         break;
+
       case SETTING_STRING:
         {
           ret = inet_pton(AF_INET, setting->val.s, ip);
         }
         break;
+
       default:
         {
           return -EACCES;
