@@ -73,7 +73,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_I2SCHAR_BUFSIZE
-#   efine CONFIG_EXAMPLES_I2SCHAR_BUFSIZE 256
+#   define CONFIG_EXAMPLES_I2SCHAR_BUFSIZE 256
 #endif
 
 /****************************************************************************
