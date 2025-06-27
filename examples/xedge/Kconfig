@@ -1,0 +1,49 @@
+#
+# Xedge IoT Toolkit - NuttX Kconfig integration
+#
+# Xedge is an embedded software toolkit designed to enable high-level developers
+# (e.g., web and Lua programmers) to create sophisticated, secure IoT and industrial
+# device applications. It abstracts low-level embedded development through a lightweight
+# runtime built on top of the Barracuda App Server and Lua, giving developers direct access
+# to HTTP(S), WebSockets, MQTT, file system, and device I/O - all from high-level Lua scripts.
+#
+# This NuttX integration allows developers to compile and run Xedge as a user application,
+# bringing powerful device control capabilities and an embedded web server to NuttX-based
+# systems.
+#
+# Use this if you want to build smart, networked embedded devices with minimal C code,
+# and maximum productivity.
+#
+
+config EXAMPLES_XEDGE
+	tristate "Xedge IoT Toolkit"
+	depends on ALLOW_GPL_COMPONENTS
+	default n
+	---help---
+		Enable Xedge support in NuttX. Xedge is a high-level
+		toolkit that lets you develop complete IoT device
+		applications using Lua, backed by the Barracuda App
+		Server.	This application demonstrates a complete
+		Xedge runtime integrated into NuttX.
+
+if EXAMPLES_XEDGE
+
+config EXAMPLES_XEDGE_PROGNAME
+	string "Program name"
+	default "xedge"
+	---help---
+		This is the name of the ELF executable for the Xedge application in NSH.
+
+config EXAMPLES_XEDGE_PRIORITY
+	int "Xedge task priority"
+	default 100
+	---help---
+		Set the task priority for the Xedge runtime.
+
+config EXAMPLES_XEDGE_STACKSIZE
+	int "Xedge stack size"
+	default 20000
+	---help---
+		Set the stack size allocated to the Xedge Lua interpreter and application runtime.
+
+endif
