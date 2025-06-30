@@ -40,6 +40,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <malloc.h>
+#include <pthread.h>
 #include "MmTest.h"
 
 /****************************************************************************
@@ -53,7 +54,7 @@
 #define MALLOC_MIN_SIZE 32
 #define MALLOC_MAX_SIZE 2048
 
-static int test_nuttx_08_routine_1(int argc, char *argv[])
+static void *test_nuttx_08_routine_1(void *arg)
 {
   char *ptr = NULL;
   char *tmp_ptr = NULL;
@@ -85,10 +86,10 @@ static int test_nuttx_08_routine_1(int argc, char *argv[])
     }
 
   assert_int_equal(flag, 0);
-  return 0;
+  return NULL;
 }
 
-static int test_nuttx_08_routine_2(int argc, char *argv[])
+static void *test_nuttx_08_routine_2(void *arg)
 {
   char *temp_ptr = NULL;
   int flag = 0;
@@ -109,10 +110,10 @@ static int test_nuttx_08_routine_2(int argc, char *argv[])
     }
 
   assert_int_equal(flag, 0);
-  return 0;
+  return NULL;
 }
 
-static int test_nuttx_08_routine_3(int argc, char *argv[])
+static void *test_nuttx_08_routine_3(void *arg)
 {
   char *pm;
   unsigned long memsize;
@@ -143,7 +144,7 @@ static int test_nuttx_08_routine_3(int argc, char *argv[])
       free(pm);
     }
 
-  return 0;
+  return NULL;
 }
 
 /****************************************************************************
@@ -156,17 +157,22 @@ static int test_nuttx_08_routine_3(int argc, char *argv[])
 
 void test_nuttx_mm08(FAR void **state)
 {
-  pid_t pid;
-  int status;
+  pthread_t thread1, thread2, thread3;
+  int status = 0;
 
-  pid = task_create("test_nuttx_08_routine_1", TASK_PRIORITY,
-                    DEFAULT_STACKSIZE, test_nuttx_08_routine_1, NULL);
-  assert_true(pid > 0);
-  pid = task_create("test_nuttx_08_routine_2", TASK_PRIORITY,
-                    DEFAULT_STACKSIZE, test_nuttx_08_routine_2, NULL);
-  assert_true(pid > 0);
-  pid = task_create("test_nuttx_08_routine_3", TASK_PRIORITY,
-                    DEFAULT_STACKSIZE, test_nuttx_08_routine_3, NULL);
-  assert_true(pid > 0);
-  waitpid(pid, &status, 0);
+  status = pthread_create(&thread1, NULL, test_nuttx_08_routine_1, NULL);
+  assert(status == 0);
+  status = pthread_create(&thread2, NULL, test_nuttx_08_routine_2, NULL);
+  assert(status == 0);
+  status = pthread_create(&thread3, NULL, test_nuttx_08_routine_3, NULL);
+  assert(status == 0);
+
+  status = pthread_join(thread1, NULL);
+  assert(status == 0);
+  status = pthread_join(thread2, NULL);
+  assert(status == 0);
+  status = pthread_join(thread3, NULL);
+  assert(status == 0);
+
+  UNUSED(status);
 }
