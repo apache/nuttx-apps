@@ -2354,8 +2354,8 @@ int httpd_get_conn(httpd_server *hs, int listen_fd, httpd_conn *hc)
 
   ninfo("accept() new connection on listen_fd %d\n", listen_fd);
   sz = sizeof(sa);
-  hc->conn_fd = accept4(listen_fd, (struct sockaddr *)&sa, &sz,
-                        SOCK_CLOEXEC);
+  hc->conn_fd = accept4(listen_fd, (struct sockaddr *)&sa, &sz, 0);
+
   if (hc->conn_fd < 0)
     {
       if (errno == EWOULDBLOCK)
