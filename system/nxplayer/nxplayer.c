@@ -199,7 +199,6 @@ static int _open_with_http(const char *fullurl)
   n = netlib_parsehttpurl(fullurl, &port,
                           hostname, sizeof(hostname) - 1,
                           relurl, sizeof(relurl) - 1);
-
   if (OK != n)
     {
       printf("netlib_parsehttpurl() returned %d\n", n);
@@ -221,18 +220,30 @@ static int _open_with_http(const char *fullurl)
 
   FAR struct hostent *he;
   he = gethostbyname(hostname);
+  if (!he)
+    {
+      close(s);
+
+      // DNS resolution failed
+      return -ENETUNREACH;
+    }
 
   memcpy(&server.sin_addr.s_addr,
          he->h_addr, sizeof(in_addr_t));
-
   n = connect(s,
               (struct sockaddr *)&server,
               sizeof(struct sockaddr_in));
-
   if (-1 == n)
     {
+      int err = errno;
       close(s);
-      return -1;
+      switch (err)
+        {
+          case ETIMEDOUT: return -ETIMEDOUT;
+          case ECONNREFUSED: return -ECONNREFUSED;
+          case ENETUNREACH: return -ENETUNREACH;
+          default: return -1;
+        }
     }
 
   /* Send GET request */
@@ -250,8 +261,24 @@ static int _open_with_http(const char *fullurl)
 
   if (200 != n)
     {
+      int err = errno;
       close(s);
-      return -1;
+      switch (err)
+        {
+          // Unauthorized
+          case 401: return -EACCES;
+
+          // No access
+          case 403: return -EACCES;
+
+          case 404: return -ENOENT;
+
+          // Server internal error
+          case 500: return -EREMOTEIO;
+
+          // Other protocol errors
+          default:  return -EPROTO;
+        }
     }
 
   /* Skip response header */
@@ -1809,11 +1836,15 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   /* Test that the specified file exists */
 
 #ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
-  if ((pplayer->fd = _open_with_http(pfilename)) == -1)
+  pplayer->fd = _open_with_http(pfilename);
+  if (pplayer->fd < 0)
 #else
-  if ((pplayer->fd = open(pfilename, O_RDONLY)) == -1)
+  pplayer->fd = open(pfilename, O_RDONLY);
+  if (pplayer->fd == -1)
 #endif
     {
+      int err = errno;
+
       /* File not found.  Test if its in the mediadir */
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
@@ -1827,19 +1858,21 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
           if (nxplayer_mediasearch(pplayer, pfilename, path,
                                    sizeof(path)) != OK)
             {
-              auderr("ERROR: Could not find file\n");
-              return -ENOENT;
+              auderr("ERROR: Media search failed for %s: %s\n",
+                      pfilename, strerror(err));
+              return -err;
             }
 #else
-          auderr("ERROR: Could not open %s or %s\n", pfilename, path);
-          return -ENOENT;
+          auderr("ERROR: Could not open %s or %s: %s\n",
+                  pfilename, path, strerror(err));
+          return -err;
 #endif /* CONFIG_NXPLAYER_MEDIA_SEARCH */
         }
 
 #else   /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
 
-      auderr("ERROR: Could not open %s\n", pfilename);
-      return -ENOENT;
+      auderr("ERROR: Could not open %s: %s\n", pfilename, strerror(err));
+      return -err;
 #endif /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
     }
 
