@@ -353,7 +353,8 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_HASH_MD5)
 #  ifndef CONFIG_NSH_DISABLE_MD5
-  CMD_MAP("md5",      cmd_md5,      2, 3, "[-f] <string or filepath>"),
+  CMD_MAP("md5",      cmd_md5,      1, 3,
+          "[string] or [-f <filepath>] or read stdin"),
 #  endif
 #endif
 
