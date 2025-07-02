@@ -290,6 +290,22 @@ static int nxplayer_cmd_play(FAR struct nxplayer_s *pplayer, char *parg)
         printf("File %s not found\n", parg);
         break;
 
+      case ENETUNREACH:
+        printf("DNS resolution failed\n");
+        break;
+
+      case ETIMEDOUT:
+        printf("Timeout\n");
+        break;
+
+      case EACCES:
+        printf("No access\n");
+        break;
+
+      case ECONNREFUSED:
+        printf("Connect refused\n");
+        break;
+
       case ENOSYS:
         printf("Unknown audio format\n");
         break;
