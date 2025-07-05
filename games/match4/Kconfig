@@ -1,0 +1,84 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GAMES_MATCH4
+	bool "Match 4 Game"
+	default n
+	---help---
+		Enable Match 4 game.
+
+if GAMES_MATCH4
+
+config GAMES_MATCH4_PROGNAME
+	string "Program name"
+	default "match"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config GAMES_MATCH4_PRIORITY
+	int "Match 4 Game task priority"
+	default 100
+
+config GAMES_MATCH4_STACKSIZE
+	int "Match 4 Game stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config MATCH4_GAME_DEBUG
+	bool "Print board status to the serial console for debugging"
+	default n
+
+config GAMES_MATCH4_LED_MATRIX_PATH
+	string "LED matrix path"
+	default "/dev/leds0"
+	---help---
+		Path of the led matrix
+
+config GAMES_MATCH4_LED_MATRIX_ROWS
+	int "LED Matrix row count"
+	default 8
+
+config GAMES_MATCH4_LED_MATRIX_COLS
+	int "LED Matrix column count"
+	default 8
+
+#
+# Input Device Selection
+#
+
+choice
+	prompt "Input Device (Serial Console, GPIO, etc)"
+	default GAMES_MATCH4_USE_CONSOLEKEY
+
+config GAMES_MATCH4_USE_CONSOLEKEY
+	bool "Serial Console as Input"
+
+config GAMES_MATCH4_USE_GPIO
+	bool "GPIO pins as Input"
+endchoice
+
+if GAMES_MATCH4_USE_GPIO
+
+config GAMES_MATCH4_DOWN_KEY_PATH
+	string "Down key path"
+	default "/dev/gpio1"
+	---help---
+		Path of the down key to read
+
+config GAMES_MATCH4_LEFT_KEY_PATH
+	string "Left key path"
+	default "/dev/gpio2"
+	---help---
+		Path of the left key to read
+
+config GAMES_MATCH4_RIGHT_KEY_PATH
+	string "Right key path"
+	default "/dev/gpio3"
+	---help---
+		Path of the right key to read
+
+endif #GAMES_MATCH4_USE_GPIO
+
+endif
