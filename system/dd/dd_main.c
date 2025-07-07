@@ -31,7 +31,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#if defined(__NuttX__)
 #include <debug.h>
+#endif
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -246,11 +248,15 @@ static int dd_verify(FAR struct dd_s *dd)
 
       if (memcmp(dd->buffer, buffer, dd->nbytes) != 0)
         {
+#if defined(__NuttX__)
           char msg[32];
           snprintf(msg, sizeof(msg), "infile sector %d", sector);
           lib_dumpbuffer(msg, dd->buffer, dd->nbytes);
           snprintf(msg, sizeof(msg), "\noutfile sector %d", sector);
           lib_dumpbuffer(msg, buffer, dd->nbytes);
+#else
+          printf("%s: sector %d differs unexpectedly\n", g_dd, sector);
+#endif
           ret = ERROR;
           break;
         }
