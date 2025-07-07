@@ -64,6 +64,25 @@ void init_termios(int echo)
 }
 
 /****************************************************************************
+ * Name: deinit_termios
+ *
+ * Description:
+ *   Restore back g_old terminal I/O settings.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
+void deinit_termios(void)
+{
+  tcsetattr(0, TCSANOW, &g_old);      /* restore old terminal i/o settings */
+}
+
+/****************************************************************************
  * Name: reset_termios
  *
  * Description:
@@ -143,6 +162,27 @@ char getch(void)
 int dev_input_init(FAR struct input_state_s *dev)
 {
   init_termios(0);
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: dev_input_deinit
+ *
+ * Description:
+ *   Deinitialize input method.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   Zero (OK)
+ *
+ ****************************************************************************/
+
+int dev_input_deinit(void)
+{
+  deinit_termios();
 
   return OK;
 }

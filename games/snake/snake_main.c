@@ -737,5 +737,6 @@ restart:
       goto restart;
     }
 
+  dev_input_deinit();
   return 0;
 }
