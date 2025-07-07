@@ -758,10 +758,12 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
         0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e
       };
 
-      char raw[sizeof(struct ether_header) + buflen];
+      char raw[sizeof(struct ether_header) + sizeof(struct ptp_announce_s)];
       FAR struct ether_header *header;
       struct msghdr msg;
       struct iovec iov;
+
+      DEBUGASSERT(sizeof(struct ptp_announce_s) >= buflen);
 
       header = (FAR struct ether_header *)&raw;
       memcpy(header->ether_dhost, ptp_multicast_mac, ETHER_ADDR_LEN);
