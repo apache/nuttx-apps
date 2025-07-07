@@ -418,7 +418,7 @@ static int coredump_now(int pid, FAR char *filename)
 #endif
 
   printf("Start coredump:\n");
-  logmask = setlogmask(LOG_ALERT);
+  logmask = setlogmask(LOG_UPTO(LOG_ALERT));
 
   /* Initialize hex output stream */
 
