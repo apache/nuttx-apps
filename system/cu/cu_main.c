@@ -103,16 +103,16 @@ static FAR void *cu_listener(FAR void *parameter)
 
   for (; ; )
     {
+      char buf[CONFIG_LINE_MAX];
       int rc;
-      char ch;
 
-      rc = read(cu->devfd, &ch, 1);
+      rc = read(cu->devfd, buf, sizeof(buf));
       if (rc <= 0)
         {
           break;
         }
 
-      rc = write(STDOUT_FILENO, &ch, 1);
+      rc = write(STDOUT_FILENO, buf, rc);
       if (rc <= 0)
         {
           break;
@@ -289,6 +289,7 @@ int main(int argc, FAR char *argv[])
   int start_of_line = 1;
   int exitval = EXIT_FAILURE;
   bool badarg = false;
+  bool escaping = false;
 
   /* Initialize global data */
 
@@ -436,55 +437,80 @@ int main(int argc, FAR char *argv[])
 
   while (!cu->force_exit)
     {
-      char ch;
+      char buf[CONFIG_LINE_MAX];
+      ssize_t nwrite = 0;
+      ssize_t nread;
+      ssize_t i;
 
-      if (read(STDIN_FILENO, &ch, 1) <= 0)
+      /* Read multiple characters at once (blocking) */
+
+      nread = read(STDIN_FILENO, buf, sizeof(buf));
+      if (nread <= 0)
         {
           continue;
         }
 
-      if (start_of_line == 1 && ch == cu->escape)
+      /* Process each character */
+
+      for (i = 0; i < nread; i++)
         {
-          /* We've seen and escape (~) character, echo it to local
-           * terminal and read the next char from serial
-           */
+          char ch = buf[i];
 
-          write(STDOUT_FILENO, &ch, 1);
+          /* Check if we're waiting for an escape command character */
 
-          if (read(STDIN_FILENO, &ch, 1) <= 0)
+          if (escaping)
             {
+              /* We got the escape character in previous read,
+               * now process the command character
+               */
+
+              escaping = false;
+              if (cu_cmd(cu, ch) == 1)
+                {
+                  cu->force_exit = true;
+                  nread = i;
+                  break;
+                }
+            }
+
+          if (start_of_line == 1 && ch == cu->escape)
+            {
+              /* Normal character */
+
+              if (i > nwrite)
+                {
+                  write(cu->devfd, &buf[nwrite], i - nwrite);
+                }
+
+              nwrite = i + 1;
+
+              /* We've seen and escape (~) character, echo it to local
+               * terminal and read the next char from serial
+               */
+
+              write(STDOUT_FILENO, &ch, 1);
+              start_of_line = 0;
+              escaping = true;
               continue;
             }
 
-          if (ch == cu->escape)
-            {
-              /* Escaping a tilde: handle like normal char */
+          /* Determine if we are now at the start of a new line or not */
 
-              write(cu->devfd, &ch, 1);
-              continue;
+          if (ch == '\n' || ch == '\r')
+            {
+              start_of_line = 1;
             }
           else
             {
-              if (cu_cmd(cu, ch) == 1)
-                {
-                  break;
-                }
+              start_of_line = 0;
             }
         }
 
       /* Normal character */
 
-      write(cu->devfd, &ch, 1);
-
-      /* Determine if we are now at the start of a new line or not */
-
-      if (ch == '\n' || ch == '\r')
+      if (nread > nwrite)
         {
-          start_of_line = 1;
-        }
-      else
-        {
-          start_of_line = 0;
+          write(cu->devfd, &buf[nwrite], nread - nwrite);
         }
     }
 
