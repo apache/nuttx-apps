@@ -42,12 +42,16 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define LATENCY_THRESHOLD_LOCAL_US  100
+#define LATENCY_THRESHOLD_CROSS_US  2000
+
 #define nitems(_a) (sizeof(_a) / sizeof(0[(_a)]))
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
+static volatile bool g_server_should_exit;
 static volatile bool g_thread_should_exit;
 static volatile int  g_num_messages_sent;
 static bool          g_pubsubtest_passed;
@@ -58,12 +62,19 @@ static int           g_pubsubtest_res;
  * Private Functions
  ****************************************************************************/
 
+static void exit_handler(int signo)
+{
+  (void)signo;
+  g_server_should_exit = true;
+}
+
 static FAR void *pubsubtest_thread_entry(FAR void *arg)
 {
   /* poll on test topic and output latency */
 
   struct pollfd fds[1];
   struct orb_test_medium_s t;
+  struct sensor_state_s state;
 
   static const unsigned MAX_RUNS = 1000;
   float latency_integral = 0.0f;
@@ -76,6 +87,7 @@ static FAR void *pubsubtest_thread_entry(FAR void *arg)
   FAR unsigned *timings;
   unsigned timing_min = 9999999;
   unsigned timing_max = 0;
+  unsigned multiple = 1;
   unsigned i;
 
   (void)arg;
@@ -88,6 +100,23 @@ static FAR void *pubsubtest_thread_entry(FAR void *arg)
   /* clear all ready flags */
 
   test_multi_sub = orb_subscribe_multi(ORB_ID(orb_test_medium), 0);
+
+  /* Query topic state to detect cross-core (pingpong) scenario.
+   * If no local advertiser exists (nadvertisers <= 0), the message
+   * travels across cores via rpmsg round-trip, so divide the measured
+   * latency by 2 to get one-way latency.
+   */
+
+  if (OK == orb_ioctl(test_multi_sub, SNIOC_GET_STATE,
+                      (unsigned long)(uintptr_t)&state))
+    {
+      if (state.nadvertisers <= 0)
+        {
+          multiple = 2;
+        }
+    }
+
+  test_note("latency test multiple:%u", multiple);
 
   orb_copy(ORB_ID(orb_test_medium), test_multi_sub, &t);
 
@@ -107,7 +136,12 @@ static FAR void *pubsubtest_thread_entry(FAR void *arg)
           unsigned elt;
 
           orb_copy(ORB_ID(orb_test_medium), test_multi_sub, &t);
-          elt = (unsigned)orb_elapsed_time(&t.timestamp);
+
+          /* Divide elapsed time by multiple to get one-way latency
+           * in cross-core pingpong scenario (multiple=2).
+           */
+
+          elt = (unsigned)orb_elapsed_time(&t.timestamp) / multiple;
           latency_integral += elt;
           timings[i] = elt;
 
@@ -178,7 +212,14 @@ static FAR void *pubsubtest_thread_entry(FAR void *arg)
 
   g_pubsubtest_passed = true;
 
-  if (latency_integral / MAX_RUNS > 100.0f)
+  /* Check if average latency exceeds threshold:
+   *   - Local (multiple==1): fail if mean > 100 us
+   *   - Cross-core pingpong (multiple==2): fail if mean > 2000 us
+   */
+
+  if (latency_integral / MAX_RUNS >
+      (multiple == 1 ? LATENCY_THRESHOLD_LOCAL_US
+                     : LATENCY_THRESHOLD_CROSS_US))
     {
       g_pubsubtest_res = ERROR;
     }
@@ -191,13 +232,88 @@ static FAR void *pubsubtest_thread_entry(FAR void *arg)
   return NULL;
 }
 
-static int latency_test(bool print)
+static int server_test(void)
+{
+  struct orb_test_medium_s ping;
+  struct pollfd fds;
+  int instance = 0;
+  int ret = ERROR;
+  int ping_fd;
+  int pang_fd;
+
+  /* Subscribe to instance 1 to receive ping messages from the client */
+
+  ping_fd = orb_subscribe_multi(ORB_ID(orb_test_medium), 1);
+  if (ping_fd < 0)
+    {
+      return test_fail("server subscribe failed: %d", ping_fd);
+    }
+
+  /* Advertise a new instance to publish pong (echo) messages back */
+
+  pang_fd = orb_advertise_multi(ORB_ID(orb_test_medium), NULL, &instance);
+  if (pang_fd < 0)
+    {
+      orb_unsubscribe(ping_fd);
+      return test_fail("server advertise failed: %d, errno:%d", pang_fd,
+                       errno);
+    }
+
+  fds.fd     = ping_fd;
+  fds.events = POLLIN;
+  test_note("Pingpang server start!");
+
+  /* Main server loop: wait for ping, then immediately echo back as pong */
+
+  while (!g_server_should_exit)
+    {
+      if (poll(&fds, 1, -1) > 0)
+        {
+          if (fds.revents & POLLIN)
+            {
+              ret = orb_copy(ORB_ID(orb_test_medium), fds.fd, &ping);
+              if (ret == OK)
+                {
+                  ret = orb_publish(ORB_ID(orb_test_medium), pang_fd,
+                                    &ping);
+                  if (ret != OK)
+                    {
+                      test_note("Pingpang server data forwarding error! "
+                                "time:%" PRIu64 ", current time:%" PRIu64 ","
+                                "val:%" PRId32 ", ret:%d errno:%d",
+                                ping.timestamp, orb_absolute_time(),
+                                ping.val, ret, errno);
+                    }
+                }
+              else
+                {
+                  test_note("server orb copy failed! ret:%d, errno:%d", ret,
+                            errno);
+                }
+            }
+          else
+            {
+              test_note("server receive bad value! fds.revents:%#X",
+                        fds.revents);
+            }
+        }
+    }
+
+  /* Cleanup server resources */
+
+  orb_unsubscribe(ping_fd);
+  orb_unadvertise(pang_fd);
+  orb_unlink(ORB_ID(orb_test_medium));
+  test_note("pingpang server exit");
+  return OK;
+}
+
+static int latency_test(bool print, int instance)
 {
   struct orb_test_medium_s sample;
   struct sched_param param;
   pthread_attr_t attr;
   pthread_t pubsub_task;
-  int instance = 0;
   int ret = ERROR;
   int fd;
 
@@ -1201,6 +1317,12 @@ int main(int argc, FAR char *argv[])
 {
   /* Test the driver/device. */
 
+  g_server_should_exit = false;
+  if (signal(SIGINT, exit_handler) == SIG_ERR)
+    {
+      return 1;
+    }
+
   if (argc == 1)
     {
       if (test() == OK)
@@ -1215,13 +1337,29 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  /* Test the latency. */
+  /* Test the latency.
+   *   latency_test - local same-core latency measurement (instance 0)
+   *   server_test  - pingpong echo server on remote core (instance 1 sub)
+   *   client_test  - cross-core client, paired with server_test (instance 1
+   *
+   * Cross-core usage:
+   *   Core A: uorb_tests server_test
+   *   Core B: uorb_tests client_test
+   */
 
   if (argc > 1 && !strcmp(argv[1], "latency_test"))
     {
-      return latency_test(true);
+      return latency_test(true, 0);
+    }
+  else if (argc > 1 && !strcmp(argv[1], "server_test"))
+    {
+      return server_test();
+    }
+  else if (argc > 1 && !strcmp(argv[1], "client_test"))
+    {
+      return latency_test(true, 1);
     }
 
-  printf("Usage: uorb_tests [latency_test]\n");
+  printf("Usage: uorb_tests [latency_test|server_test|client_test]\n");
   return -EINVAL;
 }
