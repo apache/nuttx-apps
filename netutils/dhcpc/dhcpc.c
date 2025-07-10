@@ -817,11 +817,16 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                   pdhcpc->serverid.s_addr = presult->serverid.s_addr;
 
                   /* Temporarily use the address offered by the server
-                   * and break out of the loop.
+                   * if it differs from the current address, then break
+                   * out of the loop.
                    */
 
-                  netlib_set_ipv4addr(pdhcpc->interface,
-                                      &presult->ipaddr);
+                  if (oldaddr.s_addr != presult->ipaddr.s_addr)
+                    {
+                      netlib_set_ipv4addr(pdhcpc->interface,
+                                          &presult->ipaddr);
+                    }
+
                   state = STATE_HAVE_OFFER;
                 }
             }
