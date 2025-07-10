@@ -107,6 +107,9 @@ int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry)
   info.timeout  = timeout;
   info.callback = ping_ipaddr_callback;
   info.priv     = &replies;
+#ifdef CONFIG_NET_BINDTODEVICE
+  info.devname  = NULL;
+#endif
 
   /* if ip is NULL we use default DNS server */
 
