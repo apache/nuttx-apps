@@ -161,7 +161,8 @@ static void posix_timer_callback(union sigval arg)
 
   syslog(0, "range: %d ms\n", range);
 
-  assert(range >= sigev_para->it.it_interval.tv_sec * 1000);
+  assert(range >= sigev_para->it.it_interval.tv_sec * 1000 -
+                  sigev_para->deviation);
 
   syslog(LOG_DEBUG, "callback trigger!!!\n");
   (*sigev_para).tim = get_timestamp();
