@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/ascii.h>
 #include <termios.h>
 
 #include "snake_inputs.h"
@@ -61,6 +62,25 @@ void init_termios(int echo)
   g_new.c_lflag |= echo ? ECHO : 0;          /* set echo mode if requested */
   tcsetattr(0, TCSANOW, &g_new);             /* apply terminal I/O settings */
   fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);  /* set non-blocking mode */
+}
+
+/****************************************************************************
+ * Name: deinit_termios
+ *
+ * Description:
+ *   Restore back g_old terminal I/O settings.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
+void deinit_termios(void)
+{
+  tcsetattr(0, TCSANOW, &g_old);      /* restore old terminal i/o settings */
 }
 
 /****************************************************************************
@@ -148,6 +168,27 @@ int dev_input_init(FAR struct input_state_s *dev)
 }
 
 /****************************************************************************
+ * Name: dev_input_deinit
+ *
+ * Description:
+ *   Deinitialize input method.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   Zero (OK)
+ *
+ ****************************************************************************/
+
+int dev_input_deinit(void)
+{
+  deinit_termios();
+
+  return OK;
+}
+
+/****************************************************************************
  * Name: dev_read_input
  *
  * Description:
@@ -167,24 +208,24 @@ int dev_read_input(FAR struct input_state_s *dev)
 
   /* Arrows keys return three bytes: 27 91 [65-68] */
 
-  if ((ch = getch()) == 27)
+  if ((ch = getch()) == ASCII_ESC)
     {
-      if ((ch = getch()) == 91)
+      if ((ch = getch()) == ASCII_LBRACKET)
         {
           ch = getch();
-          if (ch == 65)
+          if (ch == ASCII_A)
             {
               dev->dir = DIR_UP;
             }
-          else if (ch == 66)
+          else if (ch == ASCII_B)
             {
               dev->dir = DIR_DOWN;
             }
-          else if (ch == 67)
+          else if (ch == ASCII_C)
             {
               dev->dir = DIR_RIGHT;
             }
-          else if (ch == 68)
+          else if (ch == ASCII_D)
             {
               dev->dir = DIR_LEFT;
             }
