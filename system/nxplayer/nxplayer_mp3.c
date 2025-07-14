@@ -253,9 +253,19 @@ int nxplayer_parse_mp3(FAR struct nxplayer_s *pplayer, int fd,
                  (buffer[9] & ID3V2_BIT_MASK) +
                  sizeof(buffer);
 
-      lseek(fd, position, SEEK_SET);
-      read(fd, buffer, 4);
+      position = lseek(fd, position, SEEK_SET);
+      if (position < 0)
+        {
+          return -errno;
+        }
+
+      ret = read(fd, buffer, 4);
+      if (ret < 4)
+        {
+          return -ENODATA;
+        }
     }
+
   else
     {
       position = 0;
@@ -272,7 +282,12 @@ int nxplayer_parse_mp3(FAR struct nxplayer_s *pplayer, int fd,
       return ret;
     }
 
-  lseek(fd, position, SEEK_SET);
+  position = lseek(fd, position, SEEK_SET);
+  if (position < 0)
+    {
+      return -errno;
+    }
+
   return OK;
 }
 
