@@ -23,4 +23,8 @@
 
 ifneq ($(CONFIG_LIB_ZLIB),)
 CONFIGURED_APPS += $(APPDIR)/system/zlib
+
+CFLAGS +=  ${INCDIR_PREFIX}$(APPDIR)/system/zlib/zlib
+CXXFLAGS +=  ${INCDIR_PREFIX}$(APPDIR)/system/zlib/zlib
+
 endif
