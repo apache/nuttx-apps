@@ -303,6 +303,16 @@ static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
         serverid = presult->serverid.s_addr;
         break;
 
+      /* Send RELEASE message to the server to relinquish the lease */
+
+      case DHCPRELEASE:
+
+        memcpy(pdhcpc->packet.ciaddr, &presult->ipaddr.s_addr, 4);
+        pend     = dhcpc_addserverid(&presult->serverid, pend);
+        pend     = dhcpc_addclientid(pdhcpc->macaddr, pdhcpc->maclen, pend);
+        serverid = presult->serverid.s_addr;
+        break;
+
       default:
         errno = EINVAL;
         return ERROR;
@@ -948,5 +958,106 @@ int dhcpc_request_async(FAR void *handle, dhcpc_callback_t callback)
       return ERROR;
     }
 
+  return OK;
+}
+
+/****************************************************************************
+ * Name: dhcpc_release
+ ****************************************************************************/
+
+int dhcpc_release(FAR void *handle, FAR struct dhcpc_state *presult)
+{
+  FAR struct dhcpc_state_s *pdhcpc = (FAR struct dhcpc_state_s *)handle;
+  int ret;
+  int retries = 0;
+#ifdef CONFIG_NETUTILS_DHCPC_RELEASE_CLEAR_IP
+  struct in_addr zero_addr;
+#endif
+
+  if (!handle || !presult)
+    {
+      errno = EINVAL;
+      return ERROR;
+    }
+
+  /* Check that we have valid IP address and server ID to release */
+
+  if (presult->ipaddr.s_addr == 0 || presult->serverid.s_addr == 0)
+    {
+      errno = EINVAL;
+      return ERROR;
+    }
+
+  /* Increment transaction ID for the release message */
+
+  pdhcpc->xid[3]++;
+
+  /* Send DHCPRELEASE message to the server with retry mechanism.
+   * According to RFC 2131, no response is expected from the server.
+   */
+
+  for (; ; )
+    {
+      ret = dhcpc_sendmsg(pdhcpc, presult, DHCPRELEASE);
+      if (ret > 0)
+        {
+          ninfo("DHCPRELEASE message sent successfully (%d bytes)\n", ret);
+          break;
+        }
+      else
+        {
+          retries++;
+          nerr("Failed send DHCPRELEASE (attempt %d/%d), ret=%d, errno=%d\n",
+               retries, CONFIG_NETUTILS_DHCPC_RELEASE_RETRIES, ret, errno);
+
+          if (retries >= CONFIG_NETUTILS_DHCPC_RELEASE_RETRIES)
+            {
+              nerr("ERROR: Failed to send DHCPRELEASE after %d attempts\n",
+                    CONFIG_NETUTILS_DHCPC_RELEASE_RETRIES);
+              return ERROR;
+            }
+
+          usleep(1000 * CONFIG_NETUTILS_DHCPC_RELEASE_TRANSMISSION_DELAY_MS);
+        }
+    }
+
+#ifdef CONFIG_NETUTILS_DHCPC_RELEASE_ENSURE_TRANSMISSION
+  /* Ensure the DHCPRELEASE packet has time to be transmitted.
+   * Since DHCP RELEASE has no ACK response and UDP is connectionless,
+   * we use a delay to give the network stack time to actually send
+   * the packet before the function returns.
+   */
+
+  usleep(1000 * CONFIG_NETUTILS_DHCPC_RELEASE_TRANSMISSION_DELAY_MS);
+#endif
+
+#ifdef CONFIG_NETUTILS_DHCPC_RELEASE_CLEAR_IP
+  /* Clear all network configuration that was obtained via DHCP */
+
+  zero_addr.s_addr = INADDR_ANY;
+
+  ret = netlib_set_ipv4addr(pdhcpc->interface, &zero_addr);
+  if (ret < 0)
+    {
+      nwarn("Warning: Failed clear IP address from interface (errno=%d)\n",
+             errno);
+    }
+
+  ret = netlib_set_ipv4netmask(pdhcpc->interface, &zero_addr);
+  if (ret < 0)
+    {
+      nwarn("Warning: Failed clear netmask from interface (errno=%d)\n",
+             errno);
+    }
+
+  ret = netlib_set_dripv4addr(pdhcpc->interface, &zero_addr);
+  if (ret < 0)
+    {
+      nwarn("Warning: Failed clear gateway from interface (errno=%d)\n",
+             errno);
+    }
+#endif
+
+  ninfo("DHCP released successfully\n");
   return OK;
 }
