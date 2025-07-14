@@ -581,7 +581,7 @@ if(CONFIG_TESTING_LTP)
       "open_kconfig"
       "close_kconfig"
       "firmware" # nuttx do not support linux firmware load framework
-    )
+      "nftw64")
 
     list(
       APPEND
