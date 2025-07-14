@@ -41,7 +41,7 @@ $(NANOPB_TARBALL):
 
 $(NANOPB_UNPACK): $(NANOPB_TARBALL)
 	$(Q) tar zxf $(NANOPB_TARBALL)
-	$(Q) mv nanopb-$(NANOPB_VERSION)-linux-x86 $(NANOPB_UNPACK)
+	$(Q) mv $(NANOPB_NAME) $(NANOPB_UNPACK)
 	$(Q) mv $(NANOPB_TARBALL) $(NANOPB_UNPACK)
 
 ifeq ($(wildcard $(NANOPB_UNPACK)),)
