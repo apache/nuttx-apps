@@ -164,7 +164,7 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
   total_size = remain * 100;
 #endif
-  blocksize = MAX(info_from.blocksize, info_where.blocksize);
+  blocksize = info_where.blocksize;
 
   buf = malloc(blocksize);
   if (!buf)
