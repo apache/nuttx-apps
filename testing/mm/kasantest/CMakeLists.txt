@@ -22,6 +22,7 @@
 
 if(CONFIG_TESTING_KASAN)
   set(CFLAGS
+      -fno-builtin
       -Wno-error
       -Wno-use-after-free
       -Wno-array-bounds
