@@ -1,7 +1,7 @@
-From 7e646549488f2d3de4cf1e04ad975625342a9218 Mon Sep 17 00:00:00 2001
+From d5c061676d7ee6f1fb963bdf79791e37b5b05a36 Mon Sep 17 00:00:00 2001
 From: Eric Snow <ericsnowcurrently@gmail.com>
 Date: Tue, 13 Aug 2024 14:44:57 -0600
-Subject: [PATCH 05/11] gh-122907: Fix Builds Without HAVE_DYNAMIC_LOADING Set
+Subject: [PATCH 05/14] gh-122907: Fix Builds Without HAVE_DYNAMIC_LOADING Set
  (gh-122952)
 
 As of 529a160 (gh-118204), building with HAVE_DYNAMIC_LOADING stopped working.  This is a minimal fix just to get builds working again.  There are actually a number of long-standing deficiencies with HAVE_DYNAMIC_LOADING builds that need to be resolved separately.
@@ -186,5 +186,5 @@ index 7de35b499da..66b2a262e11 100644
              raise
  
 -- 
-2.46.1
+2.50.0
 

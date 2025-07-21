@@ -1,7 +1,7 @@
-From 562138b0486ad050b5ce601d434910973ff6f094 Mon Sep 17 00:00:00 2001
+From 2c684af739d366dce8392ee2bb9af8248283e323 Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Wed, 23 Oct 2024 16:48:49 +0200
-Subject: [PATCH 02/11] fix various uint32_t/'unsigned int' type mismatch
+Subject: [PATCH 02/14] fix various uint32_t/'unsigned int' type mismatch
  issues
 
 In a few places existing code assumes that uint32_t == unsigned int.
@@ -149,5 +149,5 @@ index c911c302003..9c640e0ab65 100644
      assert(_PyASCIIObject_CAST(name)->hash != -1);
      OBJECT_STAT_INC_COND(type_cache_collisions, entry->name != Py_None && entry->name != name);
 -- 
-2.46.1
+2.50.0
 
