@@ -1,7 +1,7 @@
-From fc042cfa496f37f2a859495ad281583f79af0044 Mon Sep 17 00:00:00 2001
+From ce41aed2d663d6a7278b83bcdc2dc0adb65b9f5c Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Wed, 13 Nov 2024 14:23:34 -0300
-Subject: [PATCH 08/11] declare struct timeval
+Subject: [PATCH 08/14] declare struct timeval
 
 Otherwise, build will fail due to redefinition of _PyTime_FromTimeval
 
@@ -25,5 +25,5 @@ index 205ac5d3781..c30e07f4b4a 100644
  #define _SIZEOF_PYTIME_T 8
  
 -- 
-2.46.1
+2.50.0
 
