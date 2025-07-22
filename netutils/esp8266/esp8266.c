@@ -1771,7 +1771,7 @@ int lesp_get_net(lesp_mode_t mode, in_addr_t *ip,
     {
       ninfo("Read:%s\n", g_lesp_state.bufans);
 
-      ret = lesp_parse_cipxxx_ans_line(g_lesp_state.bufans, mask);
+      ret = lesp_parse_cipxxx_ans_line(g_lesp_state.bufans, gw);
       if (ret < 0)
         {
           nerr("ERROR: Line badly formed.\n");
