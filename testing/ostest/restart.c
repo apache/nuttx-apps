@@ -134,7 +134,7 @@ static int restart_main(int argc, char *argv[])
       case 0:
         for (; ; )
           {
-            sleep(2);
+            usleep(20 * 1000);
             printf("restart_main: I am still here\n");
           }
         break;
@@ -194,7 +194,7 @@ void restart_test(void)
 
       /* Wait a bit and restart the task */
 
-      sleep(5);
+      usleep(50 * 1000);
 
       g_restartstep = 1;
 
@@ -211,7 +211,7 @@ void restart_test(void)
 
       /* Wait a bit and restart the task */
 
-      sleep(5);
+      usleep(50 * 1000);
 
       g_restartstep = 2;
 
@@ -222,7 +222,7 @@ void restart_test(void)
           ASSERT(false);
         }
 
-      sleep(1);
+      usleep(10 * 1000);
     }
 
   sem_destroy(&g_sem);

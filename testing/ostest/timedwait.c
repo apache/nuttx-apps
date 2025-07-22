@@ -65,7 +65,7 @@ static void *thread_waiter(void *parameter)
       ASSERT(false);
     }
 
-  printf("thread_waiter: Starting 5 second wait for condition\n");
+  printf("thread_waiter: Starting 1 second wait for condition\n");
 
   status = clock_gettime(CLOCK_REALTIME, &ts);
   if (status != 0)
@@ -74,7 +74,7 @@ static void *thread_waiter(void *parameter)
       ASSERT(false);
     }
 
-  ts.tv_sec += 5;
+  ts.tv_sec += 1;
 
   /* The wait -- no-one is ever going to awaken us */
 

@@ -88,7 +88,7 @@ static void *nuisance_func(void *parameter)
     {
       /* Sleep gracefully for awhile */
 
-      usleep(500 * 1000);
+      usleep(50 * 1000);
 
       /* Then hog some CPU time */
 
@@ -344,19 +344,19 @@ void sporadic_test(void)
 
   /* Wait a while then kill the FIFO thread */
 
-  sleep(15);
+  usleep(150 * 1000);
   ret = pthread_cancel(fifo_thread);
   pthread_join(fifo_thread, &result);
 
   /* Wait a bit longer then kill the nuisance thread */
 
-  sleep(10);
+  usleep(100 * 1000);
   ret = pthread_cancel(nuisance_thread);
   pthread_join(nuisance_thread, &result);
 
   /* Wait a bit longer then kill the sporadic thread */
 
-  sleep(10);
+  usleep(100 * 1000);
   ret = pthread_cancel(sporadic_thread);
   pthread_join(sporadic_thread, &result);
   sched_unlock();

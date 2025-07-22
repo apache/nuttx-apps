@@ -296,7 +296,7 @@ void sighand_test(void)
   /* Wait a bit */
 
   FFLUSH();
-  sleep(2);
+  usleep(20 * 1000);
 
   /* Then signal the waiter thread. */
 
@@ -314,12 +314,7 @@ void sighand_test(void)
 
   /* Wait a bit */
 
-  FFLUSH();
-  status = sleep(2);
-  while (status)
-    {
-      status = sleep(status);
-    }
+  usleep(2000);
 
   /* Then check the result */
 

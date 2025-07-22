@@ -336,7 +336,7 @@ static FAR void *timeout_thread2(FAR void *data)
   pthread_yield();
 
   status = clock_gettime(CLOCK_REALTIME, &time);
-  time.tv_sec += 2;
+  time.tv_sec += 1;
 
   status = pthread_rwlock_timedwrlock(rc->rw_lock, &time);
   if (status != ETIMEDOUT)
@@ -347,7 +347,7 @@ static FAR void *timeout_thread2(FAR void *data)
     }
 
   status = clock_gettime(CLOCK_REALTIME, &time);
-  time.tv_sec += 2;
+  time.tv_sec += 1;
 
   status = pthread_rwlock_timedrdlock(rc->rw_lock, &time);
   if (status != ETIMEDOUT)
@@ -357,7 +357,7 @@ static FAR void *timeout_thread2(FAR void *data)
     }
 
   status = clock_gettime(CLOCK_REALTIME, &time);
-  time.tv_sec += 2;
+  time.tv_sec += 1;
 
   sem_post(rc->sem1);
   status = pthread_rwlock_timedrdlock(rc->rw_lock, &time);

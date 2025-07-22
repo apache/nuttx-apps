@@ -51,10 +51,10 @@ static FAR void *pthread_exit_thread(FAR void *parameter)
 {
   unsigned me = (unsigned)pthread_self();
 
-  printf("pthread_exit_thread %u: Sleeping for 10 second\n", me);
-  sleep(5);
+  printf("pthread_exit_thread %u: Sleeping for 100 ms\n", me);
+  usleep(50 * 1000);
   printf("pthread_exit_thread %u: Still running...\n", me);
-  sleep(5);
+  usleep(50 * 1000);
   printf("pthread_exit_thread %u: Exiting\n", me);
   return NULL;
 }
@@ -80,9 +80,9 @@ static FAR void *pthread_exit_main(FAR void *arg)
       printf("Thread creation failed, return code %d", ret);
     }
 
-  printf("pthread_exit_main %u: Sleeping for 5 seconds\n", me);
+  printf("pthread_exit_main %u: Sleeping for 50 ms\n", me);
   fflush(stdout);
-  sleep(5);
+  usleep(50 * 1000);
 
   printf("pthread_exit_main %u: Calling pthread_exit()\n", me);
   pthread_exit(NULL);

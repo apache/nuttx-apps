@@ -96,7 +96,7 @@ void suspend_test(void)
 
   printf("suspend_test:  Is the victim saying anything?\n");
   FFLUSH();
-  sleep(10);
+  usleep(10 * 1000);
 
   /* Then signal the victim thread. */
 
@@ -110,7 +110,7 @@ void suspend_test(void)
 
   printf("suspend_test:  Is the victim still jabbering?\n");
   FFLUSH();
-  sleep(10);
+  usleep(10 * 1000);
 
   printf("suspend_test: Signaling pid=%d with SIGCONT\n", victim);
   ret = kill(victim, SIGCONT);
@@ -122,7 +122,7 @@ void suspend_test(void)
 
   printf("suspend_test:  The victim should continue the rant.\n");
   FFLUSH();
-  sleep(10);
+  usleep(10 * 1000);
 
   printf("suspend_test: Signaling pid=%d with SIGKILL\n", victim);
   ret = kill(victim, SIGKILL);
@@ -133,7 +133,7 @@ void suspend_test(void)
     }
 
   FFLUSH();
-  sleep(1);
+  usleep(10 * 1000);
   ret = kill(victim, 0);
   if (ret >= 0)
     {

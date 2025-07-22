@@ -180,7 +180,7 @@ static void test_timeout(void)
 
   for (i = 0; i < 10; i++)
     {
-      usleep(300 * 1000); /* Give threads few seconds to run */
+      usleep(30 * 1000); /* Give threads few seconds to run */
     }
 
   status = pthread_cancel(thread1);

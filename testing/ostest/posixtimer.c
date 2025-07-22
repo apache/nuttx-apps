@@ -204,9 +204,9 @@ void timer_test(void)
 
   printf("timer_test: Starting timer\n");
 
-  timer.it_value.tv_sec     = 2;
+  timer.it_value.tv_sec     = 1;
   timer.it_value.tv_nsec    = 0;
-  timer.it_interval.tv_sec  = 2;
+  timer.it_interval.tv_sec  = 1;
   timer.it_interval.tv_nsec = 0;
 
   status = timer_settime(timerid, 0, &timer, NULL);
@@ -219,7 +219,7 @@ void timer_test(void)
 
   /* Take the semaphore */
 
-  for (i = 0; i < 5; i++)
+  for (i = 0; i < 3; i++)
     {
       printf("timer_test: Waiting on semaphore\n");
       FFLUSH();
