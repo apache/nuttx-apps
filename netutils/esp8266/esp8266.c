@@ -315,7 +315,7 @@ static lesp_socket_t *get_sock(int sockfd)
   if (((unsigned int)sockfd) >= SOCKET_NBR)
     {
       errno = EINVAL;
-      ninfo("Esp8266 invalid sockfd\n", sockfd);
+      ninfo("Esp8266 invalid sockfd %d\n", sockfd);
       return NULL;
     }
 
@@ -2283,7 +2283,7 @@ int lesp_connect(int sockfd, FAR const struct sockaddr *addr,
                  socklen_t addrlen)
 {
   int ret = 0;
-  const char *proto_str;
+  const char *proto_str = "";
   lesp_socket_t *sock;
   struct sockaddr_in *in;
   unsigned short port;

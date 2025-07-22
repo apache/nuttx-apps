@@ -37,8 +37,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define lespSSID_SIZE 32 /* Number of character max of SSID (null char not included) */
-#define lespBSSID_SIZE 6
+#define LESP_SSID_SIZE 32 /* Number of character max of SSID (null char not included) */
+#define LESP_BSSID_SIZE 6
 
 #define lespIP(x1,x2,x3,x4) ((x1) << 24 | (x2) << 16 | (x3) << 8 | (x4) << 0)
 
@@ -66,8 +66,8 @@ typedef enum
 typedef struct
 {
   lesp_security_t security;
-  char ssid[lespSSID_SIZE + 1];     /* +1 for null char */
-  uint8_t bssid[lespBSSID_SIZE];
+  char ssid[LESP_SSID_SIZE + 1];    /* +1 for null char */
+  uint8_t bssid[LESP_BSSID_SIZE];
   int rssi;
   int channel;
 } lesp_ap_t;
