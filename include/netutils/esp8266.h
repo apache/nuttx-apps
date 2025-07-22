@@ -48,19 +48,19 @@
 
 typedef enum
 {
-  lesp_eMODE_AP       = 0,
-  lesp_eMODE_STATION  = 1,
-  lesp_eMODE_BOTH     = 2
+  LESP_MODE_AP       = 0,
+  LESP_MODE_STATION  = 1,
+  LESP_MODE_BOTH     = 2
 } lesp_mode_t;
 
 typedef enum
 {
-  lesp_eSECURITY_NONE = 0,
-  lesp_eSECURITY_WEP,
-  lesp_eSECURITY_WPA_PSK,
-  lesp_eSECURITY_WPA2_PSK,
-  lesp_eSECURITY_WPA_WPA2_PSK,
-  lesp_eSECURITY_NBR
+  LESP_SECURITY_NONE = 0,
+  LESP_SECURITY_WEP,
+  LESP_SECURITY_WPA_PSK,
+  LESP_SECURITY_WPA2_PSK,
+  LESP_SECURITY_WPA_WPA2_PSK,
+  LESP_SECURITY_NBR
 } lesp_security_t;
 
 typedef struct
