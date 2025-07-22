@@ -77,6 +77,7 @@ typedef struct
  ****************************************************************************/
 
 int lesp_initialize(void);
+int lesp_finalize(void);
 int lesp_soft_reset(void);
 
 const char *lesp_security_to_str(lesp_security_t security);

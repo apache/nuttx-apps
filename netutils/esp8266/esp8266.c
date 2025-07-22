@@ -1532,6 +1532,70 @@ int lesp_initialize(void)
 }
 
 /****************************************************************************
+ * Name: lesp_finalize
+ *
+ * Description:
+ *   finalize Esp8266 class.
+ *      - destroy worker thread
+ *      - close port
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   0 on success, -1 in case of error.
+ *
+ ****************************************************************************/
+
+int lesp_finalize(void)
+{
+  int i;
+
+  ninfo("Finalizing Esp8266...\n");
+
+  pthread_mutex_lock(&g_lesp_state.mutex);
+
+  if (!g_lesp_state.is_initialized)
+    {
+      pthread_mutex_unlock(&g_lesp_state.mutex);
+      ninfo("Esp8266 already finalized\n");
+      return 0;
+    }
+
+  pthread_mutex_lock(&g_lesp_state.worker.mutex);
+
+  for (i = 0; i < SOCKET_NBR; i++)
+    {
+      if ((g_lesp_state.sockets[i].flags & FLAGS_SOCK_USED) != 0)
+        {
+          nerr("ERROR: Exist opened socket\n");
+          pthread_mutex_unlock(&g_lesp_state.worker.mutex);
+          pthread_mutex_unlock(&g_lesp_state.mutex);
+          return -1;
+        }
+    }
+
+  /* Destroy worker thread */
+
+  g_lesp_state.worker.running = false;
+  pthread_kill(g_lesp_state.worker.thread, SIGTERM);
+  pthread_join(g_lesp_state.worker.thread, NULL);
+
+  if (g_lesp_state.fd > 0)
+    {
+       close(g_lesp_state.fd);
+       g_lesp_state.fd = -1;
+    }
+
+  g_lesp_state.is_initialized = false;
+
+  pthread_mutex_unlock(&g_lesp_state.worker.mutex);
+  pthread_mutex_unlock(&g_lesp_state.mutex);
+
+  return 0;
+}
+
+/****************************************************************************
  * Name: lesp_soft_reset
  *
  * Description:
