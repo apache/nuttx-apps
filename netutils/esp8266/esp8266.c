@@ -1123,6 +1123,7 @@ static int lesp_parse_cwjap_ans_line(char *ptr, lesp_ap_t *ap)
  *    "FreeWifi" => ssid
  *    -90 => rssi
  *    "00:07:cb:07:b6:00" => mac
+ *    1 => channel
  *
  *   Note: Content of ptr is modified and string in ap point into ptr string.
  *
@@ -1218,6 +1219,14 @@ static int lesp_parse_cwlap_ans_line(char *ptr, lesp_ap_t *ap)
                           ptr++;
                         }
                     }
+                }
+              break;
+
+          case 5:
+                {
+                  int i = atoi(ptr);
+
+                  ap->channel = i;
                 }
               break;
         }
