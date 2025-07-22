@@ -84,10 +84,12 @@ void test_nuttx_mm07(FAR void **state)
 
   for (int k = 0; k < MEMORY_LIST_LENGTH; k++)
     {
+      int max_size;
       get_mem_info(&mem_info);
       malloc_size =
           mmtest_get_rand_size(MALLOC_MIN_SIZE, MALLOC_MAX_SIZE);
-      if (mem_info.mxordblk - 16 < 0)
+      max_size = mem_info.mxordblk - 128;
+      if (max_size < 0)
         {
           syslog(LOG_INFO,
                  "TEST END because of the mem_info.mxordblk is:%d",
@@ -95,10 +97,10 @@ void test_nuttx_mm07(FAR void **state)
           break;
         }
 
-      if (malloc_size > mem_info.mxordblk - 16)
+      if (malloc_size > max_size)
         {
-          syslog(LOG_INFO, "SET memsize to:%d", mem_info.mxordblk - 16);
-          malloc_size = mem_info.mxordblk - 16;
+          syslog(LOG_INFO, "SET memsize to:%d", max_size);
+          malloc_size = max_size;
         }
 
       if (malloc_size > 0)
