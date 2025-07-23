@@ -486,6 +486,22 @@ int ssl_pm_read(SSL *ssl, void *buffer, int len)
         {
           ssl->err = SSL_ERROR_SYSCALL;
         }
+      else if (ret == MBEDTLS_ERR_SSL_WANT_READ)
+        {
+          ssl->err = SSL_ERROR_WANT_READ;
+        }
+      else if (ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+        {
+          ssl->err = SSL_ERROR_WANT_WRITE;
+        }
+      else if (ret == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS)
+        {
+          ssl->err = SSL_ERROR_WANT_ASYNC;
+        }
+      else
+        {
+          ssl->err = SSL_ERROR_SSL;
+        }
 
       ret = -1;
     }
