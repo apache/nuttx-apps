@@ -69,7 +69,7 @@ static void note_ioctl(int cmd, unsigned long arg)
 
 int trace_dump(FAR FILE *out, bool binary)
 {
-  uint8_t tracedata[1024];
+  uint8_t *tracedata = NULL;
   int ret;
   int fd;
 
@@ -95,6 +95,14 @@ int trace_dump(FAR FILE *out, bool binary)
         }
     }
 
+  tracedata = malloc(1024);
+  if (tracedata == NULL)
+    {
+      fprintf(stderr, "trace: cannot allocate memory\n");
+      close(fd);
+      return ERROR;
+    }
+
   /* Read and output all notes */
 
   while (1)
@@ -116,7 +124,7 @@ int trace_dump(FAR FILE *out, bool binary)
   /* Close note */
 
   close(fd);
-
+  free(tracedata);
   return ret;
 }
 
