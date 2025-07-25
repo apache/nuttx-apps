@@ -64,7 +64,7 @@ int flash_partition_open(const char *path)
 {
   int fd;
 
-  fd = open(path, O_RDWR);
+  fd = open(path, O_RDWR | O_DIRECT);
   if (fd < 0)
     {
       syslog(LOG_ERR, "Could not open %s partition: %s\n",
