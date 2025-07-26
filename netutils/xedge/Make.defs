@@ -1,5 +1,5 @@
 ############################################################################
-# apps/testing/mm/kasantest/Makefile
+# apps/netutils/xedge/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,18 +20,16 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+ifneq ($(CONFIG_NETUTILS_XEDGE),)
 
-# KASan validity test
+CONFIGURED_APPS += $(APPDIR)/netutils/xedge
 
-MAINSRC   = kasantest.c
-PROGNAME  = kasantest
-PRIORITY  = $(CONFIG_TESTING_KASAN_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_KASAN_STACKSIZE)
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/xedge/BAS/inc
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/xedge/BAS/inc/arch/Posix
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/xedge/BAS/inc/arch/NET/Posix
 
-CFLAGS += -Wno-error -Wno-use-after-free -Wno-stringop-overflow
-CFLAGS += -Wno-array-bounds -Wno-free-nonheap-object
-CFLAGS += -Wno-unused-value -Wno-unused-variable
-CFLAGS += -fno-builtin "-O0"
+CFLAGS += -DNO_INIT_DISK_IO
+CFLAGS += -DUSE_DBGMON=1
+CFLAGS += -DUSE_IPV6
 
-include $(APPDIR)/Application.mk
+endif

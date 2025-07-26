@@ -1,0 +1,316 @@
+From b31fe60eb64610f36c501ad7462f92dfe149fc19 Mon Sep 17 00:00:00 2001
+From: Theodore Karatapanis <tkaratapanis@census-labs.com>
+Date: Fri, 18 Jul 2025 17:10:36 +0300
+Subject: [PATCH] tee-supplicant: port to nuttx
+
+Replace include of linux/tee.h with nuttx/tee.h
+Remove Daemon references
+Remove threads (if the supplicant is killed and it has spawned 2 threads
+it might crash the system).
+---
+ tee-supplicant/src/rpmb.c           |   6 +-
+ tee-supplicant/src/tee_supp_fs.c    |   2 +-
+ tee-supplicant/src/tee_supplicant.c | 163 +---------------------------
+ 3 files changed, 6 insertions(+), 165 deletions(-)
+
+diff --git a/tee-supplicant/src/rpmb.c b/tee-supplicant/src/rpmb.c
+index d5ea0ea..964a758 100644
+--- a/tee-supplicant/src/rpmb.c
++++ b/tee-supplicant/src/rpmb.c
+@@ -27,8 +27,8 @@
+ 
+ #include <dirent.h>
+ #include <fcntl.h>
+-#include <linux/types.h>
+-#include <linux/mmc/ioctl.h>
++#include <sys/types.h>
++#include <nuttx/mmcsd.h>
+ #include <netinet/in.h>
+ #include <pthread.h>
+ #include <rpmb.h>
+@@ -776,7 +776,7 @@ static bool remap_rpmb_dev_id(uint16_t dev_id, uint16_t *ndev_id)
+ #endif /* RPMB_EMU */
+ 
+ static inline void set_mmc_io_cmd(struct mmc_ioc_cmd *cmd, unsigned int blocks,
+-				  __u32 opcode, int write_flag)
++				  uint32_t opcode, int write_flag)
+ {
+ 	cmd->blksz = 512;
+ 	cmd->blocks = blocks;
+diff --git a/tee-supplicant/src/tee_supp_fs.c b/tee-supplicant/src/tee_supp_fs.c
+index cc4120f..460e872 100644
+--- a/tee-supplicant/src/tee_supp_fs.c
++++ b/tee-supplicant/src/tee_supp_fs.c
+@@ -45,7 +45,7 @@
+ #ifndef __aligned
+ #define __aligned(x) __attribute__((__aligned__(x)))
+ #endif
+-#include <linux/tee.h>
++#include <nuttx/tee.h>
+ 
+ #ifndef PATH_MAX
+ #define PATH_MAX 255
+diff --git a/tee-supplicant/src/tee_supplicant.c b/tee-supplicant/src/tee_supplicant.c
+index b6add55..a2765b7 100644
+--- a/tee-supplicant/src/tee_supplicant.c
++++ b/tee-supplicant/src/tee_supplicant.c
+@@ -61,7 +61,7 @@
+ #ifndef __aligned
+ #define __aligned(x) __attribute__((__aligned__(x)))
+ #endif
+-#include <linux/tee.h>
++#include <nuttx/tee.h>
+ 
+ #define RPC_NUM_PARAMS	5
+ 
+@@ -111,34 +111,6 @@ struct tee_supplicant_params supplicant_params = {
+ 	.fs_parent_path  = TEE_FS_PARENT_PATH,
+ };
+ 
+-static void *thread_main(void *a);
+-
+-static size_t num_waiters_inc(struct thread_arg *arg)
+-{
+-	size_t ret = 0;
+-
+-	tee_supp_mutex_lock(&arg->mutex);
+-	arg->num_waiters++;
+-	assert(arg->num_waiters);
+-	ret = arg->num_waiters;
+-	tee_supp_mutex_unlock(&arg->mutex);
+-
+-	return ret;
+-}
+-
+-static size_t num_waiters_dec(struct thread_arg *arg)
+-{
+-	size_t ret = 0;
+-
+-	tee_supp_mutex_lock(&arg->mutex);
+-	assert(arg->num_waiters);
+-	arg->num_waiters--;
+-	ret = arg->num_waiters;
+-	tee_supp_mutex_unlock(&arg->mutex);
+-
+-	return ret;
+-}
+-
+ static void *paged_aligned_alloc(size_t sz)
+ {
+ 	void *p = NULL;
+@@ -492,8 +464,6 @@ static int usage(int status)
+ {
+ 	fprintf(stderr, "Usage: tee-supplicant [options] [<device-name>]\n");
+ 	fprintf(stderr, "\t-h, --help: this help\n");
+-	fprintf(stderr, "\t-d, --daemonize: run as a daemon (fork and return "
+-			"after child has opened the TEE device or on error)\n");
+ 	fprintf(stderr, "\t-f, --fs-parent-path: secure fs parent path [%s]\n",
+ 			supplicant_params.fs_parent_path);
+ 	fprintf(stderr, "\t-l, --ta-path: TA load path\n");
+@@ -546,7 +516,7 @@ static bool write_response(int fd, union tee_rpc_invoke *request)
+ 	data.buf_ptr = (uintptr_t)&request->send;
+ 	data.buf_len = sizeof(struct tee_iocl_supp_send_arg) +
+ 		       sizeof(struct tee_ioctl_param) *
+-				(__u64)request->send.num_params;
++				(uint64_t)request->send.num_params;
+ 	if (ioctl(fd, TEE_IOC_SUPPL_SEND, &data)) {
+ 		EMSG("TEE_IOC_SUPPL_SEND: %s", strerror(errno));
+ 		return false;
+@@ -584,35 +554,6 @@ static bool find_params(union tee_rpc_invoke *request, uint32_t *func,
+ 	return true;
+ }
+ 
+-static bool spawn_thread(struct thread_arg *arg)
+-{
+-	int e = 0;
+-	pthread_t tid;
+-
+-	memset(&tid, 0, sizeof(tid));
+-
+-	DMSG("Spawning a new thread");
+-
+-	/*
+-	 * Increase number of waiters now to avoid starting another thread
+-	 * before this thread has been scheduled.
+-	 */
+-	num_waiters_inc(arg);
+-
+-	e = pthread_create(&tid, NULL, thread_main, arg);
+-	if (e) {
+-		EMSG("pthread_create: %s", strerror(e));
+-		num_waiters_dec(arg);
+-		return false;
+-	}
+-
+-	e = pthread_detach(tid);
+-	if (e)
+-		EMSG("pthread_detach: %s", strerror(e));
+-
+-	return true;
+-}
+-
+ static bool process_one_request(struct thread_arg *arg)
+ {
+ 	size_t num_params = 0;
+@@ -631,17 +572,12 @@ static bool process_one_request(struct thread_arg *arg)
+ 	params = (struct tee_ioctl_param *)(&request.send + 1);
+ 	params->attr = TEE_IOCTL_PARAM_ATTR_META;
+ 
+-	num_waiters_inc(arg);
+-
+ 	if (!read_request(arg->fd, &request))
+ 		return false;
+ 
+ 	if (!find_params(&request, &func, &num_params, &params, &num_meta))
+ 		return false;
+ 
+-	if (num_meta && !num_waiters_dec(arg) && !spawn_thread(arg))
+-		return false;
+-
+ 	switch (func) {
+ 	case OPTEE_MSG_RPC_CMD_LOAD_TA:
+ 		ret = load_ta(num_params, params);
+@@ -681,24 +617,6 @@ static bool process_one_request(struct thread_arg *arg)
+ 	return write_response(arg->fd, &request);
+ }
+ 
+-static void *thread_main(void *a)
+-{
+-	struct thread_arg *arg = a;
+-
+-	/*
+-	 * Now that this thread has been scheduled, compensate for the
+-	 * initial increase in spawn_thread() before.
+-	 */
+-	num_waiters_dec(arg);
+-
+-	while (!arg->abort) {
+-		if (!process_one_request(arg))
+-			arg->abort = true;
+-	}
+-
+-	return NULL;
+-}
+-
+ static void set_ta_path(void)
+ {
+ 	char *ta_path_str = NULL;
+@@ -764,62 +682,10 @@ err_path:
+ 	exit(EXIT_FAILURE);
+ }
+ 
+-/*
+- * Similar to the standard libc function daemon(0, 0) but the parent process
+- * issues a blocking read on pipefd[0] before exiting.
+- * Returns 0 on success, <0 on error.
+- */
+-static int make_daemon(int pipefd[2])
+-{
+-	int fd = 0;
+-	char c = 0;
+-	int n = 0;
+-
+-	switch (fork()) {
+-	case -1:
+-		return -1;
+-	case 0:
+-		/* In child */
+-		close(pipefd[0]);
+-		break;
+-	default:
+-		/* In parent */
+-		close(pipefd[1]);
+-		n = read(pipefd[0], &c, 1);
+-		close(pipefd[0]);
+-		if (!n) {
+-			/*
+-			 * Nothing has been read: child has closed without
+-			 * writing (either exited on error or crashed)
+-			 */
+-			return -1;
+-		}
+-		/* Child is done with the opening of the TEE device */
+-		_exit(EXIT_SUCCESS);
+-	}
+-
+-	if (setsid() < 0)
+-		return -2;
+-
+-	if (chdir("/") < 0)
+-		return -3;
+-
+-	fd = open("/dev/null", O_RDWR);
+-	if (fd < 0)
+-		return -4;
+-	dup2(fd, 0);
+-	dup2(fd, 1);
+-	dup2(fd, 2);
+-	close(fd);
+-
+-	return 0;
+-}
+ 
+ int main(int argc, char *argv[])
+ {
+ 	struct thread_arg arg = { .fd = -1 };
+-	int pipefd[2] = { 0, };
+-	bool daemonize = false;
+ 	char *dev = NULL;
+ 	int e = 0;
+ 	int long_index = 0;
+@@ -835,7 +701,6 @@ int main(int argc, char *argv[])
+ 	static struct option long_options[] = {
+ 		/* long name      | has argument  | flag | short value */
+ 		{ "help",            no_argument,       0, 'h' },
+-		{ "daemonize",       no_argument,       0, 'd' },
+ 		{ "fs-parent-path",  required_argument, 0, 'f' },
+ 		{ "ta-path",         required_argument, 0, 'l' },
+ 		{ "ta-dir",          required_argument, 0, 't' },
+@@ -850,9 +715,6 @@ int main(int argc, char *argv[])
+ 			case 'h' :
+ 				return usage(EXIT_SUCCESS);
+ 				break;
+-			case 'd':
+-				daemonize = true;
+-				break;
+ 			case 'f':
+ 				supplicant_params.fs_parent_path = optarg;
+ 				break;
+@@ -898,18 +760,6 @@ int main(int argc, char *argv[])
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
+-	if (daemonize) {
+-		if (pipe(pipefd) < 0) {
+-			EMSG("pipe(): %s", strerror(errno));
+-			exit(EXIT_FAILURE);
+-		}
+-		e = make_daemon(pipefd);
+-		if (e < 0) {
+-			EMSG("make_daemon(): %d", e);
+-			exit(EXIT_FAILURE);
+-		}
+-	}
+-
+ 	if (dev) {
+ 		arg.fd = open_dev(dev, &arg.gen_caps);
+ 		if (arg.fd < 0) {
+@@ -929,15 +779,6 @@ int main(int argc, char *argv[])
+ 	if(e < 0)
+ 		fprintf(stderr, "sd_notify_ready() failed: %s\n", strerror(-e));
+ 
+-	if (daemonize) {
+-		/* Release parent */
+-		if (write(pipefd[1], "", 1) != 1) {
+-			EMSG("write(): %s", strerror(errno));
+-			exit(EXIT_FAILURE);
+-		}
+-		close(pipefd[1]);
+-	}
+-
+ 	while (!arg.abort) {
+ 		if (!process_one_request(&arg))
+ 			arg.abort = true;
+-- 
+2.49.0.rc2.11.g4b68faf6b9.dirty
+

@@ -1,7 +1,7 @@
-From 82a3c7c021324e4245289c565b2d379b83ed4be3 Mon Sep 17 00:00:00 2001
+From 221e92fa16864f8a590091b643fc40050bab163c Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Wed, 13 Nov 2024 14:20:36 -0300
-Subject: [PATCH 06/11] change var name to avoid conflict with nuttx
+Subject: [PATCH 06/14] change var name to avoid conflict with nuttx
  unused_data macro
 
 Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
@@ -165,5 +165,5 @@ index 034a9420b16..595d4ad32e9 100644
      {"needs_input", Py_T_BOOL, offsetof(ZlibDecompressor, needs_input), Py_READONLY,
       ZlibDecompressor_needs_input_doc},
 -- 
-2.46.1
+2.50.0
 

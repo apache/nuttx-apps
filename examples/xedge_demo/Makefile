@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/testing/mm/kasantest/CMakeLists.txt
+# apps/examples/xedge_demo/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,16 +20,14 @@
 #
 # ##############################################################################
 
-if(CONFIG_TESTING_KASAN)
-  set(CFLAGS
-      -fno-builtin
-      -Wno-error
-      -Wno-use-after-free
-      -Wno-array-bounds
-      -Wno-unused-value
-      -Wno-unused-variable
-      -Wno-free-nonheap-object
-      -Wno-stringop-overflow
-      "-O0")
-  nuttx_add_application(NAME kasantest COMPILE_FLAGS ${CFLAGS} SRCS kasantest.c)
-endif()
+
+include $(APPDIR)/Make.defs
+
+PROGNAME  = $(CONFIG_EXAMPLES_XEDGE_DEMO_PROGNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_XEDGE_DEMO_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_XEDGE_DEMO_STACKSIZE)
+MODULE    = $(CONFIG_EXAMPLES_XEDGE_DEMO)
+
+MAINSRC = xedge_main.c
+
+include $(APPDIR)/Application.mk

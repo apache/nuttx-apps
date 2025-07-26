@@ -1,7 +1,7 @@
-From ff067ccb26c91de352de362a25d87bcbabe924dc Mon Sep 17 00:00:00 2001
+From 9965644a9cee6c85a726d21ff2ed6f1e42445941 Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Wed, 23 Oct 2024 16:55:53 +0200
-Subject: [PATCH 04/11] recognize *-*-nuttx as a supported OS
+Subject: [PATCH 04/14] recognize *-*-nuttx as a supported OS
 
 cpython's configure script bails out when cross-compiling for an
 unknown OS, so we have to add "nuttx" to the list, even though it
@@ -57,5 +57,5 @@ index 24e28a1e2de..80d6738fab5 100644
  		# for now, limit cross builds to known configurations
  		MACHDEP="unknown"
 -- 
-2.46.1
+2.50.0
 

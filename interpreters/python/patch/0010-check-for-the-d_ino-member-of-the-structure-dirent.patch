@@ -1,7 +1,7 @@
-From 4191bf1e4505776efa0780ebc4fc5195a6ce79d3 Mon Sep 17 00:00:00 2001
+From 479f4647bf0c5a841af6a916c21fdef1fa1b5cdf Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Tue, 3 Dec 2024 17:18:50 -0300
-Subject: [PATCH 10/11] check for the d_ino member of the structure dirent
+Subject: [PATCH 10/14] check for the d_ino member of the structure dirent
 
 Signed-off-by: Tiago Medicci <tiago.medicci@espressif.com>
 ---
@@ -191,5 +191,5 @@ index 4d8b1d4f254..4a2ba83a872 100644
     */
  #undef HAVE_DIRENT_H
 -- 
-2.46.1
+2.50.0
 

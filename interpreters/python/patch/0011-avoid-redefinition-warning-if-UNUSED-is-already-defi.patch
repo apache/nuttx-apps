@@ -1,7 +1,7 @@
-From b82ab44e498a9e9bcdcbbfa1d6161023d8ea8c5b Mon Sep 17 00:00:00 2001
+From deadd332eda6355c6598dc9df5f12b34b870d857 Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Tue, 10 Dec 2024 12:03:47 -0300
-Subject: [PATCH 11/11] avoid redefinition warning if UNUSED is already defined
+Subject: [PATCH 11/14] avoid redefinition warning if UNUSED is already defined
 
 ---
  Parser/pegen.h | 2 ++
@@ -22,5 +22,5 @@ index 32c64e7774b..42574456f23 100644
  #define EXTRA _start_lineno, _start_col_offset, _end_lineno, _end_col_offset, p->arena
  PyObject *_PyPegen_new_type_comment(Parser *, const char *);
 -- 
-2.46.1
+2.50.0
 

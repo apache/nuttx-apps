@@ -1,7 +1,7 @@
-From 79b6142580bad5235588faf38c0a22c7280a2d1b Mon Sep 17 00:00:00 2001
+From 70538c2ec3e59df6ce1e767e53908a9cad361f05 Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Wed, 23 Oct 2024 16:52:52 +0200
-Subject: [PATCH 12/13] hack: place _PyRuntime structure into PSRAM bss region,
+Subject: [PATCH 12/14] hack: place _PyRuntime structure into PSRAM bss region,
  initialize later
 
 _PyRuntime occupies around 100kB of RAM in .data region, making it
@@ -50,5 +50,5 @@ index 1701a1cd217..93aa808bc03 100644
  _PyRuntime_Initialize(void)
  {
 -- 
-2.48.1
+2.50.0
 

@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_XEDGE
+	tristate "Xedge IoT Toolkit Dependencies"
+	depends on ALLOW_GPL_COMPONENTS
+	default n
+	---help---
+		Download and prepare Xedge IoT Toolkit dependencies (BAS and BAS-Resources).
+		
+		Xedge is an embedded software toolkit designed to enable high-level developers
+		(e.g., web and Lua programmers) to create sophisticated, secure IoT and industrial
+		device applications. It abstracts low-level embedded development through a lightweight
+		runtime built on top of the Barracuda App Server and Lua.
+
+		This option will download the required Barracuda App Server and BAS-Resources
+		repositories during the build process, making them available for applications
+		that want to use Xedge.
+
+		After enabling this, you can use the examples/xedge_demo as a reference
+		for integrating Xedge into your own applications.

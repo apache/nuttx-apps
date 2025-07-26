@@ -1,7 +1,7 @@
-From 914c80b7969d73840bc1b573b478d9148999b7d0 Mon Sep 17 00:00:00 2001
+From 954d39ba94e772940486575e35d586ba1cf738e3 Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Fri, 31 Jan 2025 14:06:21 -0300
-Subject: [PATCH 13/13] transform functions used by NuttX to lowercase
+Subject: [PATCH 13/14] transform functions used by NuttX to lowercase
 
 ---
  Include/pylifecycle.h | 10 ++++++++++
@@ -29,5 +29,5 @@ index de1bcb1d2cb..044780ee188 100644
  Py_DEPRECATED(3.11) PyAPI_FUNC(void) Py_SetProgramName(const wchar_t *);
  Py_DEPRECATED(3.13) PyAPI_FUNC(wchar_t *) Py_GetProgramName(void);
 -- 
-2.47.1
+2.50.0
 
