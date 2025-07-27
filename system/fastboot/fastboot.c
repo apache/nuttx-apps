@@ -991,11 +991,12 @@ static void fastboot_oem(FAR struct fastboot_ctx_s *ctx, FAR const char *arg)
     }
 }
 
-static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
-                                  size_t nctx)
+static int fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
+                                 size_t nctx)
 {
   FAR struct fastboot_ctx_s *c;
   struct epoll_event ev[nctx];
+  int ret = OK;
   int epfd;
   int n;
 
@@ -1003,14 +1004,15 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
   if (epfd < 0)
     {
       fb_err("open epoll failed %d", errno);
-      return;
+      return epfd;
     }
 
   for (c = ctx, n = nctx; n-- > 0; c++)
     {
       ev[n].events = EPOLLIN;
       ev[n].data.ptr = c;
-      if (epoll_ctl(epfd, EPOLL_CTL_ADD, c->tran_fd[0], &ev[n]) < 0)
+      ret = epoll_ctl(epfd, EPOLL_CTL_ADD, c->tran_fd[0], &ev[n]);
+      if (ret < 0)
         {
           fb_err("err add poll %d", c->tran_fd[0]);
           goto epoll_close;
@@ -1019,7 +1021,8 @@ static void fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
 
   if (ctx->left > 0)
     {
-      if (epoll_wait(epfd, ev, nitems(ev), ctx->left) <= 0)
+      ret = epoll_wait(epfd, ev, nitems(ev), ctx->left);
+      if (ret <= 0)
         {
           goto epoll_close;
         }
@@ -1074,6 +1077,7 @@ epoll_close:
     }
 
   close(epfd);
+  return ret;
 }
 
 static void fastboot_publish(FAR struct fastboot_ctx_s *ctx,
@@ -1434,7 +1438,7 @@ static int fastboot_tcp_write(FAR struct fastboot_ctx_s *ctx,
 static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
                                        size_t nctx)
 {
-  int ret;
+  int ret = ERROR;
 
   for (; nctx-- > 0; ctx++)
     {
@@ -1465,7 +1469,7 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
         }
     }
 
-  return 0;
+  return ret;
 }
 
 static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx,
@@ -1485,10 +1489,29 @@ static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx,
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, FAR char **argv)
+int fastboot_handler(uint64_t timeout)
 {
   struct fastboot_ctx_s context[nitems(g_tran_ops)];
   int ret;
+
+  context[0].left = timeout;
+  ret = fastboot_context_initialize(context, nitems(context));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  fastboot_create_publish(context, nitems(context));
+  ret = fastboot_command_loop(context, nitems(context));
+  fastboot_free_publish(context, nitems(context));
+  fastboot_context_deinit(context, nitems(context));
+
+  return ret;
+}
+
+int main(int argc, FAR char **argv)
+{
+  uint64_t timeout = 0;
 
   if (argc > 1)
     {
@@ -1500,22 +1523,11 @@ int main(int argc, FAR char **argv)
           return 0;
         }
 
-      if (sscanf(argv[1], "%" SCNu64 , &context[0].left) != 1)
+      if (sscanf(argv[1], "%" SCNu64 , &timeout) != 1)
         {
           return -EINVAL;
         }
     }
 
-  ret = fastboot_context_initialize(context, nitems(context));
-  if (ret < 0)
-    {
-      return ret;
-    }
-
-  fastboot_create_publish(context, nitems(context));
-  fastboot_command_loop(context, nitems(context));
-  fastboot_free_publish(context, nitems(context));
-  fastboot_context_deinit(context, nitems(context));
-
-  return ret;
+  return fastboot_handler(timeout);
 }
