@@ -45,4 +45,11 @@ config SYSTEM_FASTBOOTD_SHELL
 		e.g. fastboot oem shell ps
 		e.g. fastboot oem shell "mkrd -m 10 -s 512 640"
 
+config SYSTEM_FASTBOOTD_NET_INIT
+	bool "Network initialization"
+	default n
+	select NETUTILS_NETINIT
+	---help---
+		This option enables/disables all network initialization in fastboot server.
+
 endif # SYSTEM_FASTBOOTD
