@@ -162,7 +162,7 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
     }
 
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
-  total_size = remain * 100;
+  total_size = remain;
 #endif
   blocksize = info_where.blocksize;
 
@@ -227,7 +227,7 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
         {
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
           nxboot_progress(nxboot_progress_percent,
-                          ((total_size - remain) * 100) / total_size);
+                          100 - ((100 * remain) / total_size));
 #else
           nxboot_progress(nxboot_progress_dot);
 #endif
