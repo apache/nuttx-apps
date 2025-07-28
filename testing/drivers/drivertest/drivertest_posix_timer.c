@@ -196,10 +196,10 @@ static void drivertest_posix_timer(FAR void **state)
 
   /* Start the timer */
 
+  posix_timer_state->tim = get_timestamp();
+
   ret = timer_settime(timerid, 0, &(posix_timer_state->it), NULL);
   assert_return_code(ret, OK);
-
-  posix_timer_state->tim = get_timestamp();
 
   /* Get the timer status */
 
