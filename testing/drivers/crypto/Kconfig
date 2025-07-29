@@ -1,7 +1,7 @@
 config TESTING_CRYPTO
 	tristate "crypto test"
 	default n
-	depends on (CRYPTO_CRYPTODEV_SOFTWARE || CRYPTO_CRYPTODEV_HARDWARE) && TESTING_CMOCKA
+	depends on TESTING_CMOCKA
 	---help---
 		Enable crypto test
 
