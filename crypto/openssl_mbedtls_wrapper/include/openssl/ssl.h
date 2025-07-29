@@ -454,6 +454,10 @@ int SSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str);
 
 int SSL_CTX_set_ex_data(SSL_CTX *s, int idx, void *arg);
 
+int SSL_CTX_load_verify_file(SSL_CTX *ctx, const char *CAfile);
+
+int SSL_CTX_load_verify_dir(SSL_CTX *ctx, const char *CApath);
+
 int SSL_CTX_load_verify_locations(SSL_CTX *ctx, const char *CAfile,
                                   const char *CApath);
 
