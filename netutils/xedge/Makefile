@@ -22,13 +22,15 @@
 
 include $(APPDIR)/Make.defs
 
+# BAS configuration
 BAS_UNPACKNAME = BAS
 BAS_HASH = 9f74a2f778b002ad8441471b8a7a5b13172dbe76
+BAS_REPO_URL = https://github.com/RealTimeLogic/BAS.git
+
+# BAS-Resources configuration
 BAS_RESOURCES_UNPACKNAME = BAS-Resources
 BAS_RESOURCES_HASH = 227a4b998300fa4cfde871dc7dac92c09e1636c2
-
-BAS_ZIP_URL = https://github.com/RealTimeLogic/BAS/archive/$(BAS_HASH).zip
-BAS_RESOURCES_ZIP_URL = https://github.com/RealTimeLogic/BAS-Resources/archive/$(BAS_RESOURCES_HASH).zip
+BAS_RESOURCES_REPO_URL = https://github.com/RealTimeLogic/BAS-Resources.git
 
 XEDGEZIP = BAS/examples/xedge/XedgeZip.c
 
@@ -47,49 +49,35 @@ VPATH += $(BAS_UNPACKNAME)/examples/xedge
 
 CSRCS = BAS.c dlmalloc.c ThreadLib.c SoDisp.c BaFile.c xedge.c XedgeZip.c
 
-# Download and prepare BAS and BAS-Resources
-xedge-deps:
-	# ############################################################################
-	# Config and Fetch xedge
-	# ############################################################################
+# Clone and setup BAS repository
+$(BAS_UNPACKNAME):
+	$(Q) echo "Cloning BAS repository..."
+	$(Q) git clone $(BAS_REPO_URL) $(BAS_UNPACKNAME)
+	$(Q) cd $(BAS_UNPACKNAME) && git checkout $(BAS_HASH)
 
-	@if [ ! -d $(BAS_UNPACKNAME) ]; then \
-		echo "Downloading BAS from hash $(BAS_HASH)..."; \
-		curl -f -L $(BAS_ZIP_URL) -o bas-temp.zip || \
-		(echo "Error downloading BAS"; exit 1); \
-		unzip -q bas-temp.zip; \
-		mv BAS-$(BAS_HASH) $(BAS_UNPACKNAME); \
-		rm -f bas-temp.zip; \
-	fi
+# Clone and setup BAS-Resources repository
+$(BAS_RESOURCES_UNPACKNAME):
+	$(Q) echo "Cloning BAS-Resources repository..."
+	$(Q) git clone $(BAS_RESOURCES_REPO_URL) $(BAS_RESOURCES_UNPACKNAME)
+	$(Q) cd $(BAS_RESOURCES_UNPACKNAME) && git checkout $(BAS_RESOURCES_HASH)
 
-	@if [ ! -d $(BAS_RESOURCES_UNPACKNAME) ]; then \
-		echo "Downloading BAS-Resources from hash $(BAS_RESOURCES_HASH)..."; \
-		curl -f -L $(BAS_RESOURCES_ZIP_URL) -o resources-temp.zip || \
-		(echo "Error downloading BAS-Resources"; exit 1); \
-		unzip -q resources-temp.zip; \
-		mv BAS-Resources-$(BAS_RESOURCES_HASH) $(BAS_RESOURCES_UNPACKNAME); \
-		rm -f resources-temp.zip; \
-	fi
-
-	# ############################################################################
-	# Library Configuration
-	# ############################################################################
-
-	@if [ ! -f "$(XEDGEZIP)" ]; then \
-		echo "Creating XedgeZip.c"; \
-		cd $(BAS_RESOURCES_UNPACKNAME)/build/ && \
+# Create XedgeZip.c
+$(XEDGEZIP): $(BAS_UNPACKNAME) $(BAS_RESOURCES_UNPACKNAME)
+	$(Q) echo "Creating XedgeZip.c..."
+	$(Q) cd $(BAS_RESOURCES_UNPACKNAME)/build/ && \
 		printf "n\nl\nn\n" | bash Xedge.sh > /dev/null && \
-		cp XedgeZip.c ../../$(BAS_UNPACKNAME)/examples/xedge/ || exit 1; \
-	fi
+		cp XedgeZip.c ../../$(BAS_UNPACKNAME)/examples/xedge/
+
+xedge-deps: $(XEDGEZIP)
 
 $(CSRCS:.c=$(OBJEXT)): xedge-deps
 
 ifeq ($(wildcard $(BAS_UNPACKNAME)/.git),)
-distclean:: xedge-deps
-	$(call DELDIR, $(BAS_UNPACKNAME))
-	$(call DELDIR, $(BAS_RESOURCES_UNPACKNAME))
-
 context:: xedge-deps
 endif
 
 include $(APPDIR)/Application.mk
+
+distclean::
+	$(call DELDIR, $(BAS_UNPACKNAME))
+	$(call DELDIR, $(BAS_RESOURCES_UNPACKNAME))
