@@ -133,7 +133,8 @@ void suspend_test(void)
     }
 
   FFLUSH();
-  usleep(10 * 1000);
+
+  sleep(1); /* Wait for the task to exit */
   ret = kill(victim, 0);
   if (ret >= 0)
     {
