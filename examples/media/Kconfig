@@ -24,7 +24,7 @@ config EXAMPLES_MEDIA
 		MTD drivers need an additional wrapper layer, the FTL wrapper must
 		first be used to convert the MTD driver to a block device:
 
-			int ret = ftl_initialize(<N>, mtd);
+			int ret = ftl_initialize(/dev/mtdblock<N>, mtd);
 			ret = bchdev_register(/dev/mtdblock<N>, <path-to-character-driver>,
 			                      false);
 
@@ -45,7 +45,7 @@ config EXAMPLES_MEDIA_DEVPATH
 		MTD drivers need an additional wrapper layer, the FTL wrapper must
 		first be used to convert the MTD driver to a block device:
 
-			int ret = ftl_initialize(<N>, mtd);
+			int ret = ftl_initialize(/dev/mtdblock<N>, mtd);
 			ret = bchdev_register(/dev/mtdblock<N>, <path-to-character-driver>,
 			                      false);
 

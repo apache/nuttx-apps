@@ -180,7 +180,7 @@ int main(int argc, FAR char *argv[])
    * interesting.
    */
 
-  ret = ftl_initialize(0, mtdrwb);
+  ret = ftl_initialize("/dev/mtdblock0", mtdrwb, 0);
   if (ret < 0)
     {
       printf("ERROR: ftl_initialize /dev/mtdblock0 failed: %d\n", ret);
