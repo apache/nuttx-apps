@@ -161,7 +161,7 @@ void robust_test(void)
 
   /* Wait one second.. the robust waiter should still be waiting */
 
-  usleep(10 * 1000);
+  sleep(1);
 
   /* Now try to take the mutex held by the robust waiter.  This should wait
    * one second there fail with EOWNERDEAD.
