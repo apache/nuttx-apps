@@ -226,6 +226,10 @@ static void fastboot_filedump(FAR struct fastboot_ctx_s *ctx,
 static void fastboot_shell(FAR struct fastboot_ctx_s *ctx,
                            FAR const char *arg);
 #endif
+#ifdef CONFIG_BOARDCTL_SWITCH_BOOT
+static void fastboot_switchboot(FAR struct fastboot_ctx_s *context,
+                                FAR const char *arg);
+#endif
 
 /* USB transport */
 
@@ -271,6 +275,9 @@ static const struct fastboot_cmd_s g_oem_cmd[] =
   { "memdump",            fastboot_memdump          },
 #ifdef CONFIG_SYSTEM_FASTBOOTD_SHELL
   { "shell",              fastboot_shell            },
+#endif
+#ifdef CONFIG_BOARDCTL_SWITCH_BOOT
+  { "switchboot",         fastboot_switchboot       },
 #endif
 };
 
@@ -927,6 +934,21 @@ static void fastboot_shell(FAR struct fastboot_ctx_s *ctx,
     }
 
   fastboot_fail(ctx, "error detected 0x%x %d", ret, errno);
+}
+#endif
+
+#ifdef CONFIG_BOARDCTL_SWITCH_BOOT
+static void fastboot_switchboot(FAR struct fastboot_ctx_s *context,
+                                FAR const char *arg)
+{
+  if (!arg)
+    {
+      fastboot_fail(context, "Invalid argument");
+      return;
+    }
+
+  boardctl(BOARDIOC_SWITCH_BOOT, (uintptr_t)&arg[0]);
+  fastboot_okay(context, "");
 }
 #endif
 
