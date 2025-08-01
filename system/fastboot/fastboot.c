@@ -352,14 +352,14 @@ static int fastboot_write(int fd, FAR const void *buf, size_t len)
 static void fastboot_ack(FAR struct fastboot_ctx_s *ctx,
                          FAR const char *code, FAR const char *reason)
 {
-  char response[FASTBOOT_MSG_LEN];
+  char response[FASTBOOT_MSG_LEN + 4];
 
   if (reason == NULL)
     {
       reason = "";
     }
 
-  snprintf(response, FASTBOOT_MSG_LEN, "%s%s", code, reason);
+  snprintf(response, FASTBOOT_MSG_LEN + 4, "%s%s", code, reason);
   ctx->ops->write(ctx, response, strlen(response));
 }
 
