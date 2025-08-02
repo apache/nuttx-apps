@@ -24,14 +24,13 @@ if(CONFIG_LIBTEEC)
   set(OPTEE_CLIENT_DIR ${CMAKE_CURRENT_LIST_DIR}/optee_client)
 
   if(NOT EXISTS ${OPTEE_CLIENT_DIR})
-    set(OPTEE_CLIENT_URL https://github.com/OP-TEE/optee_client/archive/refs/tags)
+    set(OPTEE_CLIENT_URL
+        https://github.com/OP-TEE/optee_client/archive/refs/tags)
     set(OPTEE_CLIENT_VER ${CONFIG_LIBTEEC_VERSION})
     FetchContent_Declare(
       optee_client_fetch
-      URL ${OPTEE_CLIENT_URL}/${OPTEE_CLIENT_VER}.zip
-          SOURCE_DIR
-          ${OPTEE_CLIENT_DIR}
-          BINARY_DIR
+      URL ${OPTEE_CLIENT_URL}/${OPTEE_CLIENT_VER}.zip SOURCE_DIR
+          ${OPTEE_CLIENT_DIR} BINARY_DIR
           ${CMAKE_BINARY_DIR}/tee/libteec/optee_client
       PATCH_COMMAND patch -p1 -d ${OPTEE_CLIENT_DIR} <
                     ${CMAKE_CURRENT_LIST_DIR}/0001-libteec-NuttX.patch
@@ -56,6 +55,17 @@ if(CONFIG_LIBTEEC)
                                  optee_client/libteec/src/teec_trace.c)
   target_include_directories(libteec
                              PRIVATE ${OPTEE_CLIENT_DIR}/libteec/include)
-  target_compile_definitions(libteec PRIVATE BINARY_PREFIX=\"TEEC\")
+  target_compile_definitions(libteec PUBLIC BINARY_PREFIX=\"TEEC\")
+
+  if(CONFIG_DEBUG_INFO)
+    target_compile_definitions(libteec PUBLIC DEBUGLEVEL=3)
+  elseif(CONFIG_DEBUG_WARN)
+    target_compile_definitions(libteec PUBLIC DEBUGLEVEL=2)
+  elseif(CONFIG_DEBUG_ERROR)
+    target_compile_definitions(libteec PUBLIC DEBUGLEVEL=1)
+  else()
+    # the default DEBUGLEVEL is 1 (with error level)
+    target_compile_definitions(libteec PUBLIC DEBUGLEVEL=1)
+  endif()
 
 endif()
