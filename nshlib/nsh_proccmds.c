@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/sched.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,6 +101,7 @@ struct nsh_taskstatus_s
 #endif
   FAR char       *td_cmdline;      /* Command line */
   int             td_pid;          /* Task ID */
+  int             td_ppid;         /* Parent task ID */
 #ifdef NSH_HAVE_CPULOAD
   FAR const char *td_cpuload;      /* CPU load */
 #endif
@@ -141,6 +143,7 @@ static const char g_scheduler[] = "Scheduler:";
 #ifndef CONFIG_NSH_DISABLE_PSSIGMASK
 static const char g_sigmask[]   = "SigMask:";
 #endif
+static const char g_ppid[]      = "Parent:";
 #  ifdef PS_SHOW_HEAPSIZE
 static const char g_heapsize[]  = "AllocSize:";
 #  endif /* PS_SHOW_HEAPSIZE */
@@ -257,6 +260,28 @@ static void nsh_parse_statusline(FAR char *line,
     }
 #endif
 }
+
+static void nsh_parse_gstatusline(FAR char *line,
+                                  FAR struct nsh_taskstatus_s *status)
+{
+  /* Parse the group status.
+   *
+   *   Format:
+   *
+   *            111111111122222222223
+   *   123456789012345678901234567890
+   *   Main task:  nnnnn              PID
+   *   Parent:     nnnnn              Parent PID
+   *   Flags:      0x**               Group flags, See GROUP_FLAG_*
+   *   Members:    nnnn...            Count of members
+   *   Member IDs: nnnnn,nnnnn,...    List of members{PID0, PID1, ...)
+   */
+
+  if (strncmp(line, g_ppid, strlen(g_ppid)) == 0)
+    {
+      status->td_ppid = atoi(&line[12]);
+    }
+}
 #endif
 
 /****************************************************************************
@@ -355,6 +380,7 @@ static int ps_record(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 #endif
   status->td_cmdline = "";
   status->td_pid = atoi(entryp->d_name);
+  status->td_ppid = INVALID_PROCESS_ID;
 #ifdef NSH_HAVE_CPULOAD
   status->td_cpuload = "";
 #endif
@@ -391,6 +417,39 @@ static int ps_record(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
           /* Parse the current line */
 
           nsh_parse_statusline(line, status);
+        }
+      while (nextline != NULL);
+    }
+
+  ret = ps_readprocfs(vtbl, "group/status", dirpath, entryp, status);
+  if (ret >= 0)
+    {
+      /* Parse the group status. */
+
+      nextline = status->td_buf + status->td_bufpos;
+      do
+        {
+          /* Find the beginning of the next line and NUL-terminate the
+           * current line.
+           */
+
+          line = nextline;
+          for (nextline++;
+               *nextline != '\n' && *nextline != '\0';
+               nextline++);
+
+          if (*nextline == '\n')
+            {
+              *nextline++ = '\0';
+            }
+          else
+            {
+              nextline = NULL;
+            }
+
+          /* Parse the current line */
+
+          nsh_parse_gstatusline(line, status);
         }
       while (nextline != NULL);
     }
@@ -553,7 +612,7 @@ static void ps_title(FAR struct nsh_vtbl_s *vtbl, bool heap)
 #endif
 
   nsh_output(vtbl,
-             "%5s %5s "
+             "%5s %5s %5s "
 #ifdef CONFIG_SMP
               "%3s "
 #endif
@@ -574,7 +633,7 @@ static void ps_title(FAR struct nsh_vtbl_s *vtbl, bool heap)
               "%6s "
 #endif
               "%s\n"
-              , "PID", "GROUP"
+              , "PID", "PPID", "GROUP"
 #ifdef CONFIG_SMP
               , "CPU"
 #endif
@@ -620,7 +679,7 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
 #endif
 
   nsh_output(vtbl,
-             "%5d %5s "
+             "%5d %5d %5s "
 #ifdef CONFIG_SMP
              "%3s "
 #endif
@@ -641,7 +700,7 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
              "%5s "
 #endif
              "%s\n"
-           , status->td_pid, status->td_groupid
+           , status->td_pid, status->td_ppid, status->td_groupid
 #ifdef CONFIG_SMP
            , status->td_cpu
 #endif
