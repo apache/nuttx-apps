@@ -46,7 +46,8 @@ ifeq ($(wildcard $(LIBTEEC_UNPACKNAME)/.git),)
 context:: $(LIBTEEC_UNPACKNAME)
 
 distclean::
-	$(Q) rm -rf $(LIBTEEC_UNPACKNAME)
+	$(call DELDIR, $(LIBTEEC_UNPACKNAME))
+	$(call DELFILE, $(LIBTEEC_ZIP))
 endif
 
 include $(APPDIR)/Application.mk

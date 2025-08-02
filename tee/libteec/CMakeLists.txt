@@ -24,9 +24,11 @@ if(CONFIG_LIBTEEC)
   set(OPTEE_CLIENT_DIR ${CMAKE_CURRENT_LIST_DIR}/optee_client)
 
   if(NOT EXISTS ${OPTEE_CLIENT_DIR})
+    set(OPTEE_CLIENT_URL https://github.com/OP-TEE/optee_client/archive/refs/tags)
+    set(OPTEE_CLIENT_VER ${CONFIG_LIBTEEC_VERSION})
     FetchContent_Declare(
       optee_client_fetch
-      URL https://github.com/OP-TEE/optee_client/archive/refs/tags/${CONFIG_LIBTEEC_VERSION}.tar.gz
+      URL ${OPTEE_CLIENT_URL}/${OPTEE_CLIENT_VER}.zip
           SOURCE_DIR
           ${OPTEE_CLIENT_DIR}
           BINARY_DIR
