@@ -32,7 +32,7 @@ else ifneq ($(CONFIG_DEBUG_WARN),)
 else ifneq ($(CONFIG_DEBUG_ERROR),)
   FLAGS += ${DEFINE_PREFIX}DEBUGLEVEL=1
 else
-# the default DEBUGLEVEL are 1(with error level)
+# the default DEBUGLEVEL is 1 (with error level)
   FLAGS += ${DEFINE_PREFIX}DEBUGLEVEL=1
 endif
 
