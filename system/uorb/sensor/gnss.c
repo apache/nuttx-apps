@@ -51,7 +51,8 @@
   ",svid" #idx ":%" PRIu32 \
   ",elevation" #idx ":%" PRIu32 \
   ",azimuth" #idx ":%" PRIu32 \
-  ",snr" #idx ":%" PRIu32 ""
+  ",snr" #idx ":%" PRIu32 \
+  ",flags" #idx ":%" PRIx32 ""
 
 static const char sensor_gnss_format[] =
   UORB_DEBUG_FORMAT_SENSOR_GNSS ",firmware_version:%" PRIu32 "";
