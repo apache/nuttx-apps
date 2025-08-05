@@ -546,7 +546,7 @@ int iptables_parse_ip(FAR const char *str, FAR void *addr, FAR void *mask,
               return -EINVAL;
             }
 
-          *mask4 <<= 32 - prefixlen;
+          *mask4 >>= 32 - prefixlen;
         }
 #endif
 
