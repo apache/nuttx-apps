@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_CRC_TEST
+	tristate "vela cmocka CRC test"
+	default n
+	depends on TESTING_CMOCKA
+	---help---
+		Enable the cmocka CRC test
+
+if TESTING_CRC_TEST
+
+config TESTING_CRC_TEST_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_CRC_TEST_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
