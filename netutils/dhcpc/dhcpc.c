@@ -96,6 +96,8 @@
 #define DHCP_OPTION_MSG_TYPE    53
 #define DHCP_OPTION_SERVER_ID   54
 #define DHCP_OPTION_REQ_LIST    55
+#define DHCP_OPTION_T1_TIME     58
+#define DHCP_OPTION_T2_TIME     59
 #define DHCP_OPTION_CLIENT_ID   61
 #define DHCP_OPTION_END         255
 
@@ -340,6 +342,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 {
   FAR uint8_t *end = optptr + len;
   uint8_t type = 0;
+  uint16_t tmp[2];
 
   while (optptr < end)
     {
@@ -421,7 +424,6 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
             if (optptr + 6 <= end)
               {
-                uint16_t tmp[2];
                 memcpy(tmp, optptr + 2, 4);
                 presult->lease_time = ((uint32_t)ntohs(tmp[0])) << 16 |
                                        (uint32_t)ntohs(tmp[1]);
@@ -429,6 +431,38 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
             else
               {
                 nerr("Packet too short (lease time missing)\n");
+              }
+            break;
+
+          case DHCP_OPTION_T1_TIME:
+
+              /* Get renewal (T1) time (in seconds) in host order */
+
+            if (optptr + 6 <= end)
+              {
+                memcpy(tmp, optptr + 2, 4);
+                presult->renewal_time = ((uint32_t)ntohs(tmp[0])) << 16 |
+                                         (uint32_t)ntohs(tmp[1]);
+              }
+            else
+              {
+                nerr("Packet too short (renewal time missing)\n");
+              }
+            break;
+
+          case DHCP_OPTION_T2_TIME:
+
+              /* Get rebinding (T2) time (in seconds) in host order */
+
+            if (optptr + 6 <= end)
+              {
+                memcpy(tmp, optptr + 2, 4);
+                presult->rebinding_time = ((uint32_t)ntohs(tmp[0])) << 16 |
+                                           (uint32_t)ntohs(tmp[1]);
+              }
+            else
+              {
+                nerr("Packet too short (rebinding time missing)\n");
               }
             break;
 
