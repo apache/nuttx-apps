@@ -58,6 +58,8 @@ struct dhcpc_state
   struct in_addr dnsaddr;
   struct in_addr default_router;
   uint32_t       lease_time;      /* Lease expires in this number of seconds */
+  uint32_t       renewal_time;    /* Seconds to transition to RENEW state(T1) */
+  uint32_t       rebinding_time;  /* Seconds to transition to REBIND state(T2) */
 };
 
 typedef void (*dhcpc_callback_t)(FAR struct dhcpc_state *presult);
