@@ -517,6 +517,9 @@ int netlib_check_ifconflict(FAR const char *ifname);
 int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry);
 int netlib_check_ifconnectivity(FAR const char *ifname,
                                 int timeout, int retry);
+#else
+#define netlib_check_ipconnectivity(i, t, r) 1
+#define netlib_check_ifconnectivity(i, t, r) 1
 #endif
 
 #ifdef CONFIG_MM_IOB
