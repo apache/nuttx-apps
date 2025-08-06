@@ -47,4 +47,10 @@
 #  define UNITY_OUTPUT_COLOR 1
 #endif
 
+/* Enable Unity TEST_PRINTF */
+
+#ifdef CONFIG_TESTING_UNITY_PRINT_FORMATTED
+#  define UNITY_INCLUDE_PRINT_FORMATTED 1
+#endif
+
 #endif /* UNITY_CONFIG_H */
