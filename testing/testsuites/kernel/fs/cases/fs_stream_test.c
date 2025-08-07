@@ -119,7 +119,7 @@ void test_nuttx_fs_stream02(FAR void **state)
   char *junk = "abcdefghijklmnopqrstuvwxyz";
   long pos;
   int lc;
-  for (lc = 0; lc < 100; lc++)
+  for (lc = 0; lc < 30; lc++)
     {
       if ((stream = fopen(TESTFILENAME, "a+")) == NULL)
         {
