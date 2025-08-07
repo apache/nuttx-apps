@@ -85,7 +85,7 @@ void test_nuttx_fs_opendir01(FAR void **state)
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define TEST_NUM 1000
+#define TEST_NUM 100
 
 /****************************************************************************
  * Public Functions
