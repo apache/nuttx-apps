@@ -128,10 +128,12 @@ int dhcpd_daemon(int argc, FAR char *argv[], bool daemon)
 
   /* Then start the dhcpd */
 
-  if (daemon)
+#ifndef CONFIG_BUILD_KERNEL
+  if (!daemon)
     {
-      return dhcpd_run(devname);
+      return dhcpd_start(devname);
     }
+#endif
 
-  return dhcpd_start(devname);
+  return dhcpd_run(devname);
 }
