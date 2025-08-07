@@ -47,6 +47,7 @@
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/wait.h>
 
 #include <inttypes.h>
 #include <sched.h>
@@ -276,8 +277,6 @@ struct dhcpd_state_s
 struct dhcpd_daemon_s
 {
   uint8_t                   ds_state; /* See enum dhcpd_daemon_e */
-  sem_t                     ds_lock;  /* Used to protect the whole structure */
-  sem_t                     ds_sync;  /* Used to synchronize start and stop events */
   pid_t                     ds_pid;   /* Task ID of the DHCPD daemon */
   FAR struct dhcpd_state_s *ds_data;  /* DHCPD daemon data */
 };
@@ -314,8 +313,6 @@ static const uint8_t        g_magiccookie[4] =
 static struct dhcpd_daemon_s g_dhcpd_daemon =
 {
   DHCPD_NOT_RUNNING,
-  SEM_INITIALIZER(1),
-  SEM_INITIALIZER(0),
   -1,
   NULL
 };
@@ -1019,7 +1016,7 @@ static int dhcpd_sendpacket(int sockfd, int bbroadcast)
 #endif
 
   /* Create a socket to respond with a packet to the client.  We
-   * cannot re-use the listener socket because it is not bound correctly
+   * cannot reuse the listener socket because it is not bound correctly
    */
 
   /* Then send the response to the DHCP client port at that address */
@@ -1407,7 +1404,7 @@ static inline int dhcpd_decline(void)
   lease = dhcpd_findbymac(g_state.ds_inpacket.chaddr);
   if (lease)
     {
-      /* Disassociate the IP from the MAC, but prevent re-used of this
+      /* Disassociate the IP from the MAC, but prevent reused of this
        * address for a period of time.
        */
 
@@ -1497,9 +1494,73 @@ static inline int dhcpd_openlistener(FAR const char *interface)
  * Name: dhcpd_task_run
  ****************************************************************************/
 
+#ifndef CONFIG_BUILD_KERNEL
 static int dhcpd_task_run(int argc, char **argv)
 {
   return dhcpd_run(argv[1]);
+}
+#endif
+
+/****************************************************************************
+ * Name: dhcpd_get_pid
+ *
+ * Description:
+ *   Use /proc filesystem to get dhcpd process PID
+ *
+ * Returned Value:
+ *   PID of dhcpd process on success, -1 on failure
+ *
+ ****************************************************************************/
+
+#if !defined(CONFIG_BUILD_KERNEL) || defined(CONFIG_SCHED_WAITPID)
+static pid_t dhcpd_get_pid(void)
+{
+  pid_t pid = -1;
+
+#if !defined(CONFIG_BUILD_KERNEL)
+  pid = g_dhcpd_daemon.ds_pid;
+#elif defined(CONFIG_SYSTEM_POPEN)
+  FAR FILE *fp;
+  char line[32];
+
+  fp = popen(("pidof dhcpd"), "r");
+  if (fp == NULL)
+    {
+      return -errno;
+    }
+
+  if (fgets(line, sizeof(line), fp) != NULL)
+    {
+      pid = atoi(line);
+    }
+
+  pclose(fp);
+#endif
+
+  return pid;
+}
+#endif
+
+/****************************************************************************
+ * Name: dhcpd_signal_handler
+ *
+ * Description:
+ *   Signal handler for CONFIG_NETUTILS_DHCPD_SIGWAKEUP
+ *   This function allows dhcpd_stop to terminate dhcpd daemon
+ *
+ * Input Parameters:
+ *   signo - Signal number
+ *   info  - Signal information
+ *   ctx   - Signal context
+ *
+ ****************************************************************************/
+
+static void
+dhcpd_signal_handler(int signo, FAR siginfo_t *info, FAR void *ctx)
+{
+  /* Set global flag to indicate stop request */
+
+  g_dhcpd_daemon.ds_state = DHCPD_STOP_REQUESTED;
 }
 
 /****************************************************************************
@@ -1512,7 +1573,8 @@ static int dhcpd_task_run(int argc, char **argv)
 
 int dhcpd_run(FAR const char *interface)
 {
-  int sockfd;
+  struct sigaction act;
+  int sockfd = -1;
   int nbytes;
 
   ninfo("Started\n");
@@ -1538,15 +1600,19 @@ int dhcpd_run(FAR const char *interface)
 
   g_dhcpd_daemon.ds_pid = getpid();
 
+  /* Install signal handler for CONFIG_NETUTILS_DHCPD_SIGWAKEUP */
+
+  memset(&act, 0, sizeof(act));
+  act.sa_sigaction = dhcpd_signal_handler;
+  act.sa_flags = SA_SIGINFO;
+  sigaction(CONFIG_NETUTILS_DHCPD_SIGWAKEUP, &act, NULL);
+
   /* Indicate that we have started */
 
   g_dhcpd_daemon.ds_state = DHCPD_RUNNING;
 
-  sem_post(&g_dhcpd_daemon.ds_sync);
-
   /* Now loop indefinitely, reading packets from the DHCP server socket */
 
-  sockfd = -1;
   while (g_dhcpd_daemon.ds_state != DHCPD_STOP_REQUESTED)
     {
       /* Create a socket to listen for requests from DHCP clients */
@@ -1631,7 +1697,6 @@ int dhcpd_run(FAR const char *interface)
   g_dhcpd_daemon.ds_data = NULL;
   g_dhcpd_daemon.ds_pid   = -1;
   g_dhcpd_daemon.ds_state = DHCPD_STOPPED;
-  sem_post(&g_dhcpd_daemon.ds_sync);
 
   return OK;
 }
@@ -1648,6 +1713,7 @@ int dhcpd_run(FAR const char *interface)
  *
  ****************************************************************************/
 
+#ifndef CONFIG_BUILD_KERNEL
 int dhcpd_start(FAR const char *interface)
 {
   FAR char *argv[2];
@@ -1658,17 +1724,13 @@ int dhcpd_start(FAR const char *interface)
 
   /* Is the DHCPD in a non-running state? */
 
-  sem_wait(&g_dhcpd_daemon.ds_lock);
-  if (g_dhcpd_daemon.ds_state == DHCPD_NOT_RUNNING ||
-      g_dhcpd_daemon.ds_state == DHCPD_STOPPED)
+  if (dhcpd_get_pid() < 0)
     {
       /* Start the DHCPD daemon */
 
-      g_dhcpd_daemon.ds_state = DHCPD_STARTED;
-      pid =
-        task_create("DHCPD daemon", CONFIG_NETUTILS_DHCPD_PRIORITY,
-                    CONFIG_NETUTILS_DHCPD_STACKSIZE, dhcpd_task_run,
-                    argv);
+      pid = task_create("dhcpd", CONFIG_NETUTILS_DHCPD_PRIORITY,
+                        CONFIG_NETUTILS_DHCPD_STACKSIZE, dhcpd_task_run,
+                        argv);
 
       /* Handle failures to start the DHCPD daemon */
 
@@ -1676,24 +1738,14 @@ int dhcpd_start(FAR const char *interface)
         {
           int errval = errno;
 
-          g_dhcpd_daemon.ds_state = DHCPD_STOPPED;
           nerr("ERROR: Failed to start the DHCPD daemon: %d\n", errval);
-          sem_post(&g_dhcpd_daemon.ds_lock);
           return -errval;
         }
-
-      /* Wait for any daemon state change */
-
-      do
-        {
-          sem_wait(&g_dhcpd_daemon.ds_sync);
-        }
-      while (g_dhcpd_daemon.ds_state == DHCPD_STARTED);
     }
 
-  sem_post(&g_dhcpd_daemon.ds_lock);
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Name: dhcpd_stop
@@ -1707,46 +1759,36 @@ int dhcpd_start(FAR const char *interface)
  *
  ****************************************************************************/
 
+#ifdef CONFIG_SCHED_WAITPID
 int dhcpd_stop(void)
 {
-  int ret;
+  pid_t pid;
 
   /* Is the DHCPD in a running state? */
 
-  sem_wait(&g_dhcpd_daemon.ds_lock);
-  if (g_dhcpd_daemon.ds_state == DHCPD_STARTED ||
-      g_dhcpd_daemon.ds_state == DHCPD_RUNNING)
+  pid = dhcpd_get_pid();
+  if (pid >= 0)
     {
       /* Yes.. request that the daemon stop. */
 
-      g_dhcpd_daemon.ds_state = DHCPD_STOP_REQUESTED;
-
-      /* Wait for any daemon state change */
-
-      do
+      if (kill(pid, CONFIG_NETUTILS_DHCPD_SIGWAKEUP) < 0)
         {
-          /* Signal the DHCPD client */
-
-          ret = kill(g_dhcpd_daemon.ds_pid,
-                     CONFIG_NETUTILS_DHCPD_SIGWAKEUP);
-
-          if (ret < 0)
-            {
-              nerr("ERROR: kill pid %d failed: %d\n",
-                   g_dhcpd_daemon.ds_pid, errno);
-              break;
-            }
-
-          /* Wait for the DHCPD client to respond to the stop request */
-
-          sem_wait(&g_dhcpd_daemon.ds_sync);
+          nerr("ERROR: kill pid %d failed: %d\n", pid, errno);
+          return -errno;
         }
-      while (g_dhcpd_daemon.ds_state == DHCPD_STOP_REQUESTED);
+
+      /* Wait for the DHCPD client to respond to the stop request */
+
+      if (waitpid(pid, NULL, 0) < 0)
+        {
+          nerr("ERROR: waitpid failed: %d\n", errno);
+          return -errno;
+        }
     }
 
-  sem_post(&g_dhcpd_daemon.ds_lock);
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Name: dhcpd_set_startip
