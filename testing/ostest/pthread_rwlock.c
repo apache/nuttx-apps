@@ -357,7 +357,7 @@ static FAR void *timeout_thread2(FAR void *data)
     }
 
   status = clock_gettime(CLOCK_REALTIME, &time);
-  time.tv_sec += 1;
+  time.tv_sec += 10;
 
   sem_post(rc->sem1);
   status = pthread_rwlock_timedrdlock(rc->rw_lock, &time);
