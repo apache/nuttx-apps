@@ -1,31 +1,33 @@
-From a66a373a9417d3f481e9346286d93e33fac8e616 Mon Sep 17 00:00:00 2001
-From: Lee Lup Yuen <luppy@appkaki.com>
-Date: Wed, 5 Jan 2022 08:32:38 +0800
-Subject: [PATCH] Fix open_memstream.c compilation
-
 diff --git a/tinycbor/open_memstream.c b/tinycbor/open_memstream.c
 index 3365378..37a0d08 100644
 --- a/tinycbor/open_memstream.c
 +++ b/tinycbor/open_memstream.c
-@@ -32,7 +32,7 @@
+@@ -32,13 +32,13 @@
  #include <stdlib.h>
  #include <string.h>
- 
+
 -#if defined(__unix__) || defined(__APPLE__)
 +#if defined(__unix__) || defined(__APPLE__) || defined(__NuttX__)
  #  include <unistd.h>
  #endif
- #ifdef __APPLE__
-@@ -41,6 +41,9 @@ typedef int LenType;
- #elif __linux__
+-#ifdef __APPLE__
++#if defined(__APPLE__)
+ typedef int RetType;
+ typedef int LenType;
+-#elif __linux__
++#elif defined(__linux__) || defined(__NuttX__)
  typedef ssize_t RetType;
  typedef size_t LenType;
-+#elif __NuttX__
-+typedef ssize_t RetType;
-+typedef size_t LenType;
  #else
- #  error "Cannot implement open_memstream!"
- #endif
--- 
-2.34.1
+@@ -99,9 +99,9 @@ FILE *open_memstream(char **bufptr, size_t *lenptr)
+     *bufptr = NULL;
+     *lenptr = 0;
 
+-#ifdef __APPLE__
++#if defined(__APPLE__)
+     return funopen(b, NULL, write_to_buffer, NULL, close_buffer);
+-#elif __linux__
++#elif defined(__linux__) || defined(__NuttX__)
+     static const cookie_io_functions_t vtable = {
+         NULL,
+         write_to_buffer,

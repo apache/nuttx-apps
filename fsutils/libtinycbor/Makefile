@@ -23,7 +23,7 @@
 include $(APPDIR)/Make.defs
 
 TINYCBOR_URL ?= "https://github.com/intel/tinycbor/archive"
-TINYCBOR_VERSION ?= 3cba6b11aaa0f6f674cd56ebaa573c4b65f71ee7
+TINYCBOR_VERSION ?= c0aad2fb2137a31b9845fbaae3653540c410f215
 
 TINYCBOR_UNPACKNAME = tinycbor
 
@@ -51,6 +51,7 @@ CSRCS += tinycbor/cborvalidation.c
 CSRCS += tinycbor/open_memstream.c
 
 CFLAGS += -std=c99
+CFLAGS += -DCBOR_NO_HALF_FLOAT_TYPE
 
 clean::
 	$(call DELFILE, $(OBJS))
