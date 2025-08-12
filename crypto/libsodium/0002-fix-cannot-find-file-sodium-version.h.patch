@@ -23,10 +23,10 @@ index 00000000..e1f24c52
 +
 +#include "export.h"
 +
-+#define SODIUM_VERSION_STRING "1.0.18"
++#define SODIUM_VERSION_STRING "1.0.20"
 +
-+#define SODIUM_LIBRARY_VERSION_MAJOR 11
-+#define SODIUM_LIBRARY_VERSION_MINOR 0
++#define SODIUM_LIBRARY_VERSION_MAJOR 26
++#define SODIUM_LIBRARY_VERSION_MINOR 2
 +
 +
 +#ifdef __cplusplus
