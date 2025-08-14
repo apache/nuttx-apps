@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TMP112
+	tristate "TMP112 temperature sensor example"
+	default n
+	depends on SENSORS_TMP112
+	---help---
+		Enable the TMP112 example
+
+if EXAMPLES_TMP112
+
+config EXAMPLES_TMP112_PROGNAME
+	string "Program name"
+	default "tmp112"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_TMP112_PRIORITY
+	int "TMP112 task priority"
+	default 100
+
+config EXAMPLES_TMP112_STACKSIZE
+	int "TMP112 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_TMP112_DEVPATH
+	string "TMP112 device path"
+	default "/dev/temp0"
+	---help---
+		The default path to the TMP112 temperature sensor device
+
+endif
