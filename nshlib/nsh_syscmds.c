@@ -689,6 +689,8 @@ static int cmd_rpmsg_help(FAR struct nsh_vtbl_s *vtbl, int argc,
   nsh_output(vtbl, "             Bit0 - Request need ack or not.\n");
   nsh_output(vtbl, "             Bit1 - Check the data or not.\n");
   nsh_output(vtbl, "             Bit2 - Random length or not.\n");
+  nsh_output(vtbl, "             Bit3 - Use the RT endpoint "
+             "(RPMSG_PRIO_RT) or not.\n");
   nsh_output(vtbl, "             Bit4~7 - Request or response or other"
                                           "command for future use.\n");
   nsh_output(vtbl, "<sleep(ms)>  Sleep interval between two operations.\n");
