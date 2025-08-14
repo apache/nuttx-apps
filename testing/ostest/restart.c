@@ -127,26 +127,16 @@ static int restart_main(int argc, char *argv[])
     }
 #endif
 
-  /* Were we restarted? */
+  /* Let the main task restart */
 
-  switch (g_restartstep)
+  g_restartstep++;
+  sem_post(&g_sem);
+
+  /* Don't call printf here, to avoid recover sem failed during restart */
+
+  for (; ; )
     {
-      case 0:
-        for (; ; )
-          {
-            usleep(20 * 1000);
-            printf("restart_main: I am still here\n");
-          }
-        break;
-      case 1:
-        if (sem_wait(&g_sem) != 0)
-          {
-            printf("restart_main: ERROR thread sem_wait failed\n");
-            ASSERT(false);
-          }
-        break;
-      default:
-        break;
+      sleep(1);
     }
 
   return 0; /* Won't get here unless we were restarted */
@@ -192,11 +182,12 @@ void restart_test(void)
 
       printf("restart_main: Started restart_main at PID=%d\n", pid);
 
-      /* Wait a bit and restart the task */
+      /* Check the child task result */
 
-      usleep(50 * 1000);
+      sem_wait(&g_sem);
+      ASSERT(g_restartstep == 1);
 
-      g_restartstep = 1;
+      /* Restart the task */
 
       ret = task_restart(pid);
       if (ret < 0)
@@ -205,15 +196,14 @@ void restart_test(void)
           ASSERT(false);
         }
 
-      /* Start the task wait for a semaphore */
+      /* Check the child task result */
+
+      sem_wait(&g_sem);
+      ASSERT(g_restartstep == 2);
 
       printf("restart_main: Started restart_main at PID=%d\n", pid);
 
-      /* Wait a bit and restart the task */
-
-      usleep(50 * 1000);
-
-      g_restartstep = 2;
+      /* Restart the task */
 
       ret = task_restart(pid);
       if (ret < 0)
@@ -222,7 +212,10 @@ void restart_test(void)
           ASSERT(false);
         }
 
-      usleep(10 * 1000);
+      /* Check the child task result */
+
+      sem_wait(&g_sem);
+      ASSERT(g_restartstep == 3);
     }
 
   sem_destroy(&g_sem);
