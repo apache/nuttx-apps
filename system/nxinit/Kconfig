@@ -1,0 +1,118 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXINIT
+	tristate "NuttX Init"
+	default n
+	depends on LIBC_EXECFUNCS
+	depends on SCHED_CHILD_STATUS
+	---help---
+		Enable NxInit(NuttX Init) component for system initialization.
+		The script of NxInit(init.rc) is compatible with the Android Init Language syntax.
+
+if SYSTEM_NXINIT
+
+#
+# Basic
+#
+
+config SYSTEM_NXINIT_PRIORITY
+	int "Thread priority"
+	default 100
+
+config SYSTEM_NXINIT_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_NXINIT_PROGNAME
+	string "Program name"
+	default "init"
+
+#
+# RC
+#
+
+config SYSTEM_NXINIT_RC_LINE_MAX
+	int "Max line length of RC file"
+	default 128
+	---help---
+		Maximum line length of RC file.
+		More details: https://android.googlesource.com/platform/system/core/+/master/init/README.md
+
+#
+# Action
+#
+
+config SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX
+	int "Max number of command arguments"
+	default 8
+	---help---
+		Maximum number of command arguments.
+		Form:
+		```
+		on <trigger>
+		   <command>
+		   <command>
+		   <command>
+		   ...
+		```
+
+config SYSTEM_NXINIT_ACTION_MANAGER_EVENT_MAX
+	int "Max number of action manager events"
+	default 32
+	---help---
+		Maximum number of action manager events.
+		```
+		struct action_manager_s
+		{
+		  ...
+		  FAR char *events[CONFIG_SYSTEM_NXINIT_ACTION_MANAGER_EVENT_MAX];
+		  ...
+		};
+		```
+
+#
+# Service
+#
+
+config SYSTEM_NXINIT_SERVICE_ARGS_MAX
+	int "Max number of service arguments"
+	default 8
+	range 3 64
+	---help---
+		Maximum number of service arguments,
+		including "name", "pathname" and key word "service"(at least 3). Form:
+		```
+		service <name> <pathname> [ <argument> ]*
+		   <option>
+		   <option>
+		   ...
+		```
+
+config SYSTEM_NXINIT_SERVICE_RESTART_PERIOD
+	int "Service restart period in ms"
+	default 5000
+
+#
+# Log level
+#
+
+config SYSTEM_NXINIT_ERR
+	bool "Enable error log"
+	default !DEFAULT_SMALL
+
+config SYSTEM_NXINIT_WARN
+	bool "Enable warning log"
+	depends on SYSTEM_NXINIT_ERR
+
+config SYSTEM_NXINIT_INFO
+	bool "Enable info log"
+	depends on SYSTEM_NXINIT_WARN
+
+config SYSTEM_NXINIT_DEBUG
+	bool "Enable debug log"
+	depends on SYSTEM_NXINIT_INFO
+
+endif
