@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <sched.h>
 #include <pthread.h>
+#include <sys/epoll.h>
 
 #include "utility.h"
 
@@ -46,6 +47,21 @@
 #define LATENCY_THRESHOLD_CROSS_US  2000
 
 #define nitems(_a) (sizeof(_a) / sizeof(0[(_a)]))
+#define ORB_CLEAN(meta, adv, sub, instance) \
+  if (adv >= 0) \
+    { \
+      orb_unadvertise(adv); \
+    } \
+  \
+  if (sub >= 0) \
+    { \
+      orb_unsubscribe(sub); \
+    } \
+  \
+  if (orb_unlink_multi(meta, instance) < 0) \
+    { \
+      test_fail("orb_unlink_multi failed\n"); \
+    } \
 
 /****************************************************************************
  * Private Data
@@ -1262,6 +1278,448 @@ static int test_queue_poll_notify(void)
   return g_pubsubtest_passed ? OK : ERROR;
 }
 
+/* test orb_subscribe_multi orb_subscribe_wakeup orb_subscribe
+ * orb_advertise_multi orb_advertise_queue orb_advertise orb_publish_auto
+ */
+
+#define ASSERT_TEST_FAIL(str, instance, ret, state, t, r) \
+  if (ret < 0 || r.timestamp != t.timestamp || r.val != t.val) \
+    { \
+      test_fail("test advertise test %s failed! ret:%d,r.t:%" PRIu64 "," \
+                "t.t:%" PRIu64 ",r.v:%" PRIu32 ",t.v:%" PRIu32 "," \
+                "instance:%d,errno:%d", str, ret, r.timestamp, t.timestamp, \
+                r.val, t.val, instance, errno); \
+      state = ERROR; \
+    } \
+
+static int test_advsub(void)
+{
+  struct orb_test_medium_s t;
+  struct orb_test_medium_s r;
+  const int queue_size = 10;
+  int instance = 2;
+  int state = OK;
+  int adv;
+  int sub;
+  int ret;
+  int i;
+
+  t.timestamp = 10086;
+  t.val = 110;
+
+  test_note("Testing subscribe and advertise family API");
+
+  /* orb_subscribe_multi and orb_advertise_multi */
+
+  sub = orb_subscribe_multi(ORB_ID(orb_test_medium), instance);
+  if (sub < 0)
+    {
+      return test_fail("test subscribe multi failed ret:%d, errno:%d",
+                       sub, errno);
+    }
+
+  adv = orb_advertise_multi(ORB_ID(orb_test_medium), &t, &instance);
+  if (adv < 0)
+    {
+      ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, instance);
+      return test_fail("test advertise multi failed ret:%d, errno:%d",
+                       adv, errno);
+    }
+
+  ret = orb_copy(ORB_ID(orb_test_medium), sub, &r);
+  ASSERT_TEST_FAIL("advertise&subscribe multi", instance, ret, state, t, r);
+  ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, instance);
+
+  /* orb_subscribe and orb_advertise */
+
+  sub = orb_subscribe(ORB_ID(orb_test_medium));
+  if (sub < 0)
+    {
+      return test_fail("test subscribe failed ret:%d, errno:%d",
+                       sub, errno);
+    }
+
+  adv = orb_advertise(ORB_ID(orb_test_medium), &t);
+  if (adv < 0)
+    {
+      ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, 0);
+      return test_fail("test advertise failed ret:%d, errno:%d",
+                       adv, errno);
+    }
+
+  ret = orb_copy(ORB_ID(orb_test_medium), sub, &r);
+  ASSERT_TEST_FAIL("advertise&subscribe", 0, ret, state, t, r);
+  ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, 0);
+
+  /* orb_advertise_queue and orb_subscribe_wakeup */
+
+  sub = orb_subscribe_wakeup(ORB_ID(orb_test_medium));
+  if (sub < 0)
+    {
+      return test_fail("test subscribe wakeup failed ret:%d, errno:%d",
+                       sub, errno);
+    }
+
+  adv = orb_advertise_queue(ORB_ID(orb_test_medium), NULL, queue_size);
+  if (adv < 0)
+    {
+      ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, 0);
+      return test_fail("test advertise queue failed ret:%d, errno:%d",
+                       adv, errno);
+    }
+
+  for (i = -queue_size; i < queue_size; ++i)
+    {
+      t.timestamp++;
+      t.val++;
+      orb_publish(ORB_ID(orb_test_medium), adv, &t);
+    }
+
+  t.timestamp -= queue_size;
+  t.val -= queue_size;
+  for (i = 0; i < queue_size; ++i)
+    {
+      t.timestamp++;
+      t.val++;
+      ret = orb_copy(ORB_ID(orb_test_medium), sub, &r);
+      ASSERT_TEST_FAIL("advertise_queue&subscribe_wakeup copy", 0, ret,
+                       state, t, r);
+    }
+
+  ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, 0);
+
+  /* orb_subscribe and orb_publish_auto */
+
+  instance = 3;
+  sub = orb_subscribe_multi(ORB_ID(orb_test_medium), instance);
+  if (sub < 0)
+    {
+      return test_fail("test subscribe failed ret:%d, errno:%d", sub, errno);
+    }
+
+  adv = orb_publish_auto(ORB_ID(orb_test_medium), NULL, &t, &instance);
+  if (adv < 0 || instance != 3)
+    {
+      ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, instance);
+      return test_fail("test publish auto failed ret:%d, errno:%d",
+                       adv, errno);
+    }
+
+  ret = orb_copy(ORB_ID(orb_test_medium), sub, &r);
+  ASSERT_TEST_FAIL("publish_auto&subscribe copy",
+                   instance, ret, state, t, r);
+  ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, instance);
+  if (state == OK)
+    {
+      test_note("PASS advertise and subscribe");
+    }
+
+  return ret;
+}
+
+#if CONFIG_UORB_LOOP_MAX_EVENTS
+static int data_pollin_cb(FAR struct orb_handle_s *handle, FAR void *arg)
+{
+  FAR struct orb_test_loop_s *test = (FAR struct orb_test_loop_s *)arg;
+  struct orb_test_medium_s t;
+  int ret;
+
+  ret = orb_copy(ORB_ID(orb_test_medium), handle->fd, &t);
+  if (ret < 0)
+    {
+      test_fail("test loop cb copy failed instance:%d, ret:%d, errno:%d",
+                test->instance, ret, errno);
+    }
+
+  if (test->last_val == 0)
+    {
+      test->last_val = t.val;
+      test->cout = 1;
+    }
+  else
+    {
+      ret = t.val - test->last_val;
+      test->last_val = t.val;
+      test->cout++;
+      if (ret != 1)
+        {
+          test_fail("test loop cb data failed! miss:%d, instance:%d, ret:%d,"
+                    "errno:%d", ret - 1, test->instance, ret, errno);
+        }
+    }
+
+  return 0;
+}
+
+static int data_pollpri_cb(FAR struct orb_handle_s *handle, FAR void *arg)
+{
+  FAR struct orb_test_loop_s *test = (FAR struct orb_test_loop_s *)arg;
+  unsigned int events = 0;
+  int ret;
+
+  ret = orb_get_events(handle->fd, &events);
+
+  if ((ret >= 0) && (events & SENSOR_EVENT_FLUSH_COMPLETE))
+    {
+      test->timestamp = orb_elapsed_time(&test->timestamp);
+      test->flush = true;
+    }
+
+  return 0;
+}
+
+static FAR void *loop_entry(FAR void *arg)
+{
+  struct orb_loop_s *loop = (struct orb_loop_s *)arg;
+  int ret;
+
+  test_note("orb loop running......");
+  ret = orb_loop_run(loop);
+  if (ret < 0)
+    {
+      test_fail("failed to run orb loop! ret:%d, errno:%d", ret, errno);
+    }
+
+  test_note("orb loop exit!");
+  return NULL;
+}
+
+static int test_orb_loop(void)
+{
+  struct orb_test_loop_s before_start;
+  struct orb_test_loop_s after_start;
+  struct orb_test_medium_s temp;
+  struct orb_loop_s orb_loop;
+  const int queue_size = 10;
+  struct sched_param param;
+  pthread_t pubsub_task;
+  pthread_attr_t attr;
+  bool thread_created = false;
+  int ret;
+  int i;
+
+  test_note("Testing orb loop (subscribe callback, loop start and exit)");
+
+  memset(&before_start, 0, sizeof(before_start));
+  memset(&after_start, 0, sizeof(after_start));
+  before_start.instance = 5;
+  before_start.sub = -1;
+  before_start.adv = -1;
+  after_start.instance = 6;
+  after_start.sub = -1;
+  after_start.adv = -1;
+
+  before_start.sub = orb_subscribe_multi(ORB_ID(orb_test_medium),
+                                         before_start.instance);
+  if (before_start.sub < 0)
+    {
+      test_fail("subscribe before loop start failed! ret:%d, errno:%d",
+                before_start.sub, errno);
+      return ERROR;
+    }
+
+  ret = orb_loop_init(&orb_loop, ORB_EPOLL_TYPE);
+  if (ret < 0)
+    {
+      test_fail("failed init orb loop! ret:%d, errno:%d", ret, errno);
+      goto clean_before;
+    }
+
+  before_start.loop = &orb_loop;
+  after_start.loop  = &orb_loop;
+  ret = orb_handle_init(&before_start.handle, before_start.sub,
+                        EPOLLIN | EPOLLPRI, &before_start, data_pollin_cb,
+                        NULL, data_pollpri_cb, NULL);
+  if (ret < 0)
+    {
+      test_fail("failed init handler[before_start]! ret:%d, errno:%d",
+                ret, errno);
+      goto clean_before;
+    }
+
+  ret = orb_handle_start(&orb_loop, &before_start.handle);
+  if (ret < 0)
+    {
+      test_fail("failed start handler[before_start]! ret:%d, errno:%d",
+                ret, errno);
+      goto clean_before;
+    }
+
+  /* launch the orb loop subscribe thread */
+
+  pthread_attr_init(&attr);
+  param.sched_priority = sched_get_priority_max(0) - 5;
+  pthread_attr_setschedparam(&attr, &param);
+
+  if (pthread_create(&pubsub_task, &attr, loop_entry, &orb_loop) < 0)
+    {
+      pthread_attr_destroy(&attr);
+      test_fail("failed launching test multi task");
+      goto clean_loop;
+    }
+
+  pthread_attr_destroy(&attr);
+  thread_created = true;
+
+  before_start.adv = orb_advertise_multi_queue(ORB_ID(orb_test_medium),
+                                               NULL,
+                                               &before_start.instance,
+                                               queue_size);
+  if (before_start.adv < 0)
+    {
+      test_fail("test before_start advertise failed ret:%d, errno:%d",
+                before_start.adv, errno);
+      goto clean_loop;
+    }
+
+  after_start.sub = orb_subscribe_multi(ORB_ID(orb_test_medium),
+                                        after_start.instance);
+  if (after_start.sub < 0)
+    {
+      test_fail("subscribe after loop start failed! ret:%d, errno:%d",
+                after_start.sub, errno);
+      goto clean_loop;
+    }
+
+  ret = orb_handle_init(&after_start.handle, after_start.sub,
+                        EPOLLIN | EPOLLPRI, &after_start, data_pollin_cb,
+                        NULL, data_pollpri_cb, NULL);
+  if (ret < 0)
+    {
+      test_fail("failed init handler[after_start]! ret:%d, errno:%d",
+                ret, errno);
+      goto clean_loop;
+    }
+
+  ret = orb_handle_start(&orb_loop, &after_start.handle);
+  if (ret < 0)
+    {
+      test_fail("failed start handler[after_start]! ret:%d, errno:%d",
+                ret, errno);
+      goto clean_loop;
+    }
+
+  after_start.adv = orb_advertise_multi_queue(ORB_ID(orb_test_medium),
+                                              NULL,
+                                              &after_start.instance,
+                                              queue_size);
+  if (after_start.adv < 0)
+    {
+      test_fail("test after_start advertise failed ret:%d, errno:%d",
+                after_start.adv, errno);
+      goto clean_loop;
+    }
+
+  before_start.timestamp = orb_absolute_time();
+  ret = orb_flush(before_start.sub);
+  if (ret < 0)
+    {
+      test_fail("test call flush failed! instance:%d, ret:%d, errno:%d",
+                before_start.instance, ret, errno);
+      goto clean_loop;
+    }
+
+  after_start.timestamp = orb_absolute_time();
+  ret = orb_flush(after_start.sub);
+  if (ret < 0)
+    {
+      test_fail("test call flush failed! instance:%d, ret:%d, errno:%d",
+                after_start.instance, ret, errno);
+      goto clean_loop;
+    }
+
+  temp.timestamp = orb_absolute_time();
+  temp.val = 110;
+  for (i = 0; i < queue_size; i++)
+    {
+      temp.timestamp = orb_absolute_time();
+      temp.val++;
+      ret = orb_publish(ORB_ID(orb_test_medium), before_start.adv, &temp);
+      if (ret < 0)
+        {
+          test_fail("test publish failed! instance:%d, ret:%d, errno:%d",
+                    before_start.instance, ret, errno);
+        }
+
+      ret = orb_publish(ORB_ID(orb_test_medium), after_start.adv, &temp);
+      if (ret < 0)
+        {
+          test_fail("test publish failed! instance:%d, ret:%d, errno:%d",
+                    after_start.instance, ret, errno);
+        }
+    }
+
+  usleep(500 * 1000);
+  ret = orb_handle_stop(&orb_loop, &before_start.handle);
+  if (ret < 0)
+    {
+      test_fail("test stop loop failed ret:%d, errno:%d", ret, errno);
+      goto clean_loop;
+    }
+
+  ret = orb_handle_stop(&orb_loop, &after_start.handle);
+  if (ret < 0)
+    {
+      test_fail("test stop loop failed ret:%d, errno:%d", ret, errno);
+      goto clean_loop;
+    }
+
+  ret = orb_loop_exit_async(&orb_loop);
+  if (ret < 0)
+    {
+      test_fail("test stop loop failed ret:%d, errno:%d", ret, errno);
+      goto clean_after;
+    }
+
+  if (before_start.cout == queue_size && after_start.cout == queue_size &&
+      before_start.flush && after_start.flush)
+    {
+      test_note("  loop before[%d]: recv:%d/10, flush:%d/1, flush "
+                "time:%" PRIu64 "us", before_start.instance,
+                before_start.cout, before_start.flush,
+                before_start.timestamp);
+      test_note("  loop after[%d]: recv:%d/10, flush:%d/1, flush "
+                "time:%" PRIu64 "us", after_start.instance, after_start.cout,
+                after_start.flush, after_start.timestamp);
+      test_note("PASS test loop success!");
+    }
+  else
+    {
+      ret = ERROR;
+      test_fail("test loop failed, before:recv:%d flush:%d,after:recv:%d "
+                "flush:%d, errno:%d", before_start.cout, before_start.flush,
+                after_start.cout, after_start.flush, errno);
+    }
+
+  goto clean_after;
+
+clean_loop:
+  orb_loop_exit_async(&orb_loop);
+
+clean_after:
+  if (thread_created)
+    {
+      pthread_join(pubsub_task, NULL);
+    }
+
+  orb_loop_deinit(&orb_loop);
+
+  ORB_CLEAN(ORB_ID(orb_test_medium), after_start.adv, after_start.sub,
+            after_start.instance);
+
+clean_before:
+  ORB_CLEAN(ORB_ID(orb_test_medium), before_start.adv, before_start.sub,
+            before_start.instance);
+
+  if (ret != OK)
+    {
+      ret = ERROR;
+    }
+
+  return ret;
+}
+#endif
+
 static int test(void)
 {
   int afds[4];
@@ -1309,6 +1767,20 @@ static int test(void)
     {
       return ret;
     }
+
+  ret = test_advsub();
+  if (ret != OK)
+    {
+      return ret;
+    }
+
+#if CONFIG_UORB_LOOP_MAX_EVENTS
+  ret = test_orb_loop();
+  if (ret != OK)
+    {
+      return ret;
+    }
+#endif
 
   return test_queue_poll_notify();
 }
