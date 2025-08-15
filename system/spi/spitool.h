@@ -90,7 +90,11 @@
  * then some.
  */
 
-#define MAX_ARGUMENTS 12
+#ifdef CONFIG_NSH_MAXARGUMENTS
+#define MAX_ARGUMENTS CONFIG_NSH_MAXARGUMENTS
+#else
+#define MAX_ARGUMENTS 16
+#endif
 
 /* Maximum size of one command line */
 
