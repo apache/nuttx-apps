@@ -51,6 +51,21 @@ struct orb_test_large_s
   int32_t val;
 };
 
+#if CONFIG_UORB_LOOP_MAX_EVENTS
+struct orb_test_loop_s
+{
+  FAR struct orb_loop_s *loop;
+  struct orb_handle_s handle;
+  uint64_t timestamp;
+  int32_t last_val;
+  int instance;
+  int cout;
+  int sub;
+  int adv;
+  bool flush;
+};
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
