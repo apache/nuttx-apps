@@ -19,6 +19,7 @@ config NETUTILS_MQTTC_EXAMPLE
 
 config NETUTILS_MQTTC_TEST
 	tristate "Enable MQTT-C test"
+	depends on !NETUTILS_MQTTC_WITH_MBEDTLS
 	default n
 
 if NETUTILS_MQTTC_EXAMPLE
