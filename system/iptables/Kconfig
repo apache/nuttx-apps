@@ -29,4 +29,9 @@ config SYSTEM_IPTABLES_STACKSIZE
 	int "iptables & ip6tables stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config SYSTEM_IPTABLES_LOCK_FILE_PATH
+	string "File lock path to prevent concurrent overwrite"
+	default "/tmp/iptables.lock"
+	depends on FS_LOCK_BUCKET_SIZE > 0
+
 endif
