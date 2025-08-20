@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <fcntl.h>
 #include <arpa/inet.h>
 
 #include <nuttx/net/netfilter/ip_tables.h>
@@ -34,15 +35,60 @@
 #include "netutils/netlib.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if CONFIG_FS_LOCK_BUCKET_SIZE == 0
+#  define iptables_lock()     0
+#  define iptables_unlock(fd) (void)(fd)
+#endif
+
+/****************************************************************************
  * Private Types
  ****************************************************************************/
 
 typedef CODE int
-  (*iptables_command_func_t)(FAR const struct iptables_args_s *args);
+(*iptables_command_func_t)(FAR const struct iptables_args_s *args);
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: iptables_lock / iptables_unlock
+ *
+ * Description:
+ *   Lock and unlock iptables to prevent concurrent overwrite.
+ *
+ ****************************************************************************/
+
+#if CONFIG_FS_LOCK_BUCKET_SIZE > 0
+static int iptables_lock(void)
+{
+  struct flock lock;
+  int lockfd;
+
+  lockfd = open(CONFIG_SYSTEM_IPTABLES_LOCK_FILE_PATH, O_CREAT | O_RDWR,
+                0666);
+  if (lockfd < 0)
+    {
+      return lockfd;
+    }
+
+  lock.l_type = F_WRLCK;
+  lock.l_whence = SEEK_SET;
+  lock.l_start = 0;
+  lock.l_len = 0;
+  fcntl(lockfd, F_SETLKW, &lock);
+
+  return lockfd;
+}
+
+static int iptables_unlock(int lockfd)
+{
+  return close(lockfd);
+}
+#endif
 
 /****************************************************************************
  * Name: iptables_addr2str
@@ -485,12 +531,20 @@ static int iptables_apply(FAR const struct iptables_args_s *args,
 int main(int argc, FAR char *argv[])
 {
   struct iptables_args_s args;
+  int lock;
   int ret = iptables_parse(&args, argc, argv);
 
   if (ret < 0 || args.cmd == COMMAND_INVALID)
     {
       iptables_showusage(argv[0]);
       return ret;
+    }
+
+  lock = iptables_lock();
+  if (lock < 0)
+    {
+      printf("Failed to lock iptables!\n");
+      return lock;
     }
 
 #ifdef CONFIG_NET_IPFILTER
@@ -519,6 +573,8 @@ int main(int argc, FAR char *argv[])
     {
       printf("Unknown table: %s\n", args.table);
     }
+
+  iptables_unlock(lock);
 
   return ret;
 }
