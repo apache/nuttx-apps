@@ -8,7 +8,7 @@ config NETUTILS_PTPD
 	default n
 	depends on NET_IPv4
 	depends on NET_IGMP
-	depends on NET_UDP
+	depends on NET_UDP || NET_PKT
 	---help---
 		Build a minimal implementation of IEEE-1588 precision time protocol.
 		Uses system gettimeofday() and adjtime() calls to synchronize clock
