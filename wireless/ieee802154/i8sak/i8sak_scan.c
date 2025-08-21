@@ -200,7 +200,7 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive,
   int i;
 
   printf("\n\ni8sak: Scan complete: %s\n",
-         IEEE802154_STATUS_STRING[scan->status]);
+         g_ieee802154_status_string[scan->status]);
 
   printf("Scan type: ");
 

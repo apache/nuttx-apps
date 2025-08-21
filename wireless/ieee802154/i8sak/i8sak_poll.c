@@ -176,7 +176,7 @@ static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive,
   else
     {
       printf("i8sak: POLL.request failed: %s\n",
-             IEEE802154_STATUS_STRING[primitive->u.pollconf.status]);
+             g_ieee802154_status_string[primitive->u.pollconf.status]);
     }
 
   sem_post(&i8sak->sigsem);

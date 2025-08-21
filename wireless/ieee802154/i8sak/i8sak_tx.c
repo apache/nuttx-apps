@@ -278,7 +278,7 @@ static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive,
   else
     {
       printf("i8sak: frame failed to send: %s\n",
-             IEEE802154_STATUS_STRING[primitive->u.dataconf.status]);
+             g_ieee802154_status_string[primitive->u.dataconf.status]);
     }
 
   sem_post(&i8sak->sigsem);
