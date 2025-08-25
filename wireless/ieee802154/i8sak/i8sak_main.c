@@ -123,6 +123,40 @@ static int i8sak_showusage(FAR const char *progname, int exitcode);
 static void i8sak_switch_instance(FAR char *ifname);
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
+FAR const char *g_ieee802154_status_string[] =
+{
+  "Success",
+  "Out of capacity",
+  "Denied",
+  "Failure",
+  "Beacon loss",
+  "Channel access failure",
+  "Disable TRX failure",
+  "Failed security check",
+  "Frame too long",
+  "Invalid GTS",
+  "Invalid handle",
+  "Invalid parameter",
+  "No ack",
+  "No beacon",
+  "No data",
+  "No short address",
+  "PAN ID conflict",
+  "Realignment",
+  "Transaction expired",
+  "Transaction overflow",
+  "Tx active",
+  "Unavailable key",
+  "Unsupported attribute",
+  "Limit reached",
+};
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
