@@ -73,7 +73,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_I2SCHAR_BUFSIZE
-#   define CONFIG_EXAMPLES_I2SCHAR_BUFSIZE 256
+#  define CONFIG_EXAMPLES_I2SCHAR_BUFSIZE 256
 #endif
 
 /****************************************************************************
@@ -83,6 +83,7 @@
 struct i2schar_state_s
 {
   bool      initialized;
+  bool      loopback;
   FAR char *devpath;
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
   int       txcount;
