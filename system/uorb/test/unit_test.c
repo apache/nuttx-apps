@@ -1720,6 +1720,160 @@ clean_before:
 }
 #endif
 
+static int test_ioctl_family(void)
+{
+  FAR const struct orb_metadata *meta = NULL;
+  const unsigned frequency = 20;
+  const unsigned interval  = 20000;
+  const unsigned batch     = 120000;
+  unsigned get_frequency;
+  unsigned get_interval;
+  unsigned get_batch;
+  orb_info_t info_sub;
+  int instance = 0;
+  int ret = ERROR;
+  int adv;
+  int sub;
+
+  orb_info_t info_adv =
+    {
+      10085,            /* version */
+      1.23,             /* power */
+      78.48f,           /* max_range */
+      0.0024f,          /* resolution */
+      10000,            /* min_delay */
+      40000,            /* max_delay */
+      20,               /* fifo_reserved_event_count */
+      20,               /* fifo_max_event_count */
+      "test orb info",  /* name */
+      "unit test"       /* vendor */
+    };
+
+  test_note("Testing orb ioctl family and tools");
+
+  adv = orb_advertise_multi_queue_info(ORB_ID(orb_test_medium), NULL,
+                                       &instance, 1, &info_adv);
+  if (adv < 0)
+    {
+      test_fail("test ioctl family advertise failed! instance:%d adv:%d,"
+                " errno:%d", instance, adv, errno);
+      return ERROR;
+    }
+
+  sub = orb_subscribe_multi(ORB_ID(orb_test_medium), instance);
+  if (sub < 0)
+    {
+      test_fail("test ioctl family subscribe failed! instance:%d sub:%d,"
+                " errno:%d", instance, sub, errno);
+      goto out;
+    }
+
+  meta = orb_get_meta("orb_test_medium");
+  if (meta == NULL)
+    {
+      test_fail("test ioctl family get meta failed!");
+      goto out;
+    }
+
+  ret = orb_get_info(sub, &info_sub);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family get info failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  if (info_sub.version != info_adv.version ||
+      strncmp(info_sub.vendor, info_adv.vendor, SENSOR_INFO_NAME_SIZE))
+    {
+      test_fail("test ioctl family info compare failed!");
+      goto out;
+    }
+
+  ret = orb_set_interval(sub, interval);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family set interval failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  ret = orb_get_interval(sub, &get_interval);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family get interval failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  if (interval != get_interval)
+    {
+      test_fail("test ioctl family set/get interval failed! get:%u",
+                get_interval);
+      goto out;
+    }
+
+  ret = orb_set_frequency(sub, frequency);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family set frequency failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  ret = orb_get_frequency(sub, &get_frequency);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family get frequency failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  if (frequency != get_frequency)
+    {
+      test_fail("test ioctl family set/get frequency failed! get:%u",
+                get_frequency);
+      goto out;
+    }
+
+  ret = orb_set_batch_interval(sub, batch);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family set batch failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  ret = orb_get_batch_interval(sub, &get_batch);
+  if (ret < 0)
+    {
+      test_fail("test ioctl family get batch failed! ret:%d errno:%d",
+                ret, errno);
+      goto out;
+    }
+
+  if (batch != get_batch)
+    {
+      test_fail("test ioctl family set/get batch failed! get:%u",
+                get_batch);
+      goto out;
+    }
+
+  ret = orb_group_count(ORB_ID(orb_test_medium));
+  if (ret < 1)
+    {
+      test_fail("test ioctl family group count failed! count:%d", ret);
+      goto out;
+    }
+
+  test_note("PASS test orb ioctl family success!");
+  ret = OK;
+
+out:
+  ORB_CLEAN(ORB_ID(orb_test_medium), adv, sub, instance)
+  return ret;
+}
+
 static int test(void)
 {
   int afds[4];
@@ -1769,6 +1923,12 @@ static int test(void)
     }
 
   ret = test_advsub();
+  if (ret != OK)
+    {
+      return ret;
+    }
+
+  ret = test_ioctl_family();
   if (ret != OK)
     {
       return ret;
