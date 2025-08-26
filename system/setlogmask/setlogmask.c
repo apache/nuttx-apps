@@ -181,42 +181,42 @@ int main(int argc, FAR char *argv[])
     {
       case 'd':
         {
-          setlogmask(LOG_UPTO(LOG_DEBUG));
+          nx_setlogmask(LOG_UPTO(LOG_DEBUG));
         }
         break;
       case 'i':
         {
-          setlogmask(LOG_UPTO(LOG_INFO));
+          nx_setlogmask(LOG_UPTO(LOG_INFO));
         }
         break;
       case 'n':
         {
-          setlogmask(LOG_UPTO(LOG_NOTICE));
+          nx_setlogmask(LOG_UPTO(LOG_NOTICE));
         }
         break;
       case 'w':
         {
-          setlogmask(LOG_UPTO(LOG_WARNING));
+          nx_setlogmask(LOG_UPTO(LOG_WARNING));
         }
         break;
       case 'e':
         {
-          setlogmask(LOG_UPTO(LOG_ERR));
+          nx_setlogmask(LOG_UPTO(LOG_ERR));
         }
         break;
       case 'c':
         {
-          setlogmask(LOG_UPTO(LOG_CRIT));
+          nx_setlogmask(LOG_UPTO(LOG_CRIT));
         }
         break;
       case 'a':
         {
-          setlogmask(LOG_UPTO(LOG_ALERT));
+          nx_setlogmask(LOG_UPTO(LOG_ALERT));
         }
         break;
       case 'r':
         {
-          setlogmask(LOG_UPTO(LOG_EMERG));
+          nx_setlogmask(LOG_UPTO(LOG_EMERG));
         }
         break;
       default:
