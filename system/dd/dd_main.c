@@ -81,7 +81,7 @@ struct dd_s
   uint32_t     nsectors;   /* Number of sectors to transfer */
   uint32_t     skip;       /* The number of sectors skipped on input */
   uint32_t     seek;       /* The number of sectors seeked on output */
-  int          oflags;     /* The open flags on output deivce */
+  int          oflags;     /* The open flags on output device */
   bool         eof;        /* true: The end of the input or output file has been hit */
   size_t       sectsize;   /* Size of one sector */
   size_t       nbytes;     /* Number of valid bytes in the buffer */
