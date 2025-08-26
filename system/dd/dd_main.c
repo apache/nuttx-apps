@@ -24,14 +24,14 @@
  * Included Files
  ****************************************************************************/
 
-#if defined(__NuttX__)
+#ifdef __NuttX__
 #include <nuttx/config.h>
 #endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if defined(__NuttX__)
+#ifdef __NuttX__
 #include <debug.h>
 #endif
 #include <inttypes.h>
@@ -248,7 +248,7 @@ static int dd_verify(FAR struct dd_s *dd)
 
       if (memcmp(dd->buffer, buffer, dd->nbytes) != 0)
         {
-#if defined(__NuttX__)
+#ifdef __NuttX__
           char msg[32];
           snprintf(msg, sizeof(msg), "infile sector %d", sector);
           lib_dumpbuffer(msg, dd->buffer, dd->nbytes);
