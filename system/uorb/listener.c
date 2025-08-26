@@ -614,6 +614,7 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
 {
   FAR struct listen_object_s *tmp;
   FAR struct pollfd *fds;
+  FAR orb_abstime *times;
   unsigned int events;
   FAR int8_t *result;
   int nb_flush = 0;
@@ -626,10 +627,20 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
       return;
     }
 
+  /* 0: success, 1: wait timeout, 2: sub failed, Negative errno on failure */
+
   result = calloc(nb_objects, sizeof(int8_t));
   if (result == NULL)
     {
       free(fds);
+      return;
+    }
+
+  times = calloc(nb_objects, sizeof(orb_abstime));
+  if (!times)
+    {
+      free(fds);
+      free(result);
       return;
     }
 
@@ -644,24 +655,29 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
         {
           fds[i].fd     = -1;
           fds[i].events = 0;
+          result[i]     = 2; /* sub failed */
         }
       else
         {
           fds[i].fd     = fd;
           fds[i].events = POLLPRI;
-          i++;
         }
+
+      i++;
     }
 
   i = 0;
   SLIST_FOREACH(tmp, objlist, node)
     {
+      times[i] = orb_absolute_time();
       ret = orb_flush(fds[i].fd);
       if (ret < 0)
         {
           result[i] = ret;
-          uorbinfo_raw("topic [%s%d] call flush failed! return:%d\n",
-                       tmp->object.meta->o_name, tmp->object.instance, ret);
+          uorbinfo_raw("topic [%s%d] call flush(%" PRIu64 "us) failed! "
+                       "return:%d", tmp->object.meta->o_name,
+                       tmp->object.instance, orb_elapsed_time(&times[i]),
+                       ret);
         }
       else
         {
@@ -692,6 +708,7 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
                     {
                       nb_flush--;
                       result[i] = 0;
+                      times[i] = orb_elapsed_time(&times[i]);
                     }
                 }
 
@@ -712,14 +729,16 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
     {
       if (result[i] == 0)
         {
-          uorbinfo_raw("\tTopic [%s%d] flush: SUCCESS.",
-                      tmp->object.meta->o_name, tmp->object.instance);
+          uorbinfo_raw("\tTopic [%s%d] flush: SUCCESS(%" PRIu64 "us ).",
+                       tmp->object.meta->o_name, tmp->object.instance,
+                       times[i]);
         }
       else
         {
-          uorbinfo_raw("\tTopic [%s%d] flush: FAILURE. [%d]",
-                      tmp->object.meta->o_name,  tmp->object.instance,
-                      result[i]);
+          times[i] = orb_elapsed_time(&times[i]);
+          uorbinfo_raw("\tTopic [%s%d] flush: FAILURE(%" PRIu64 "us). [%d]",
+                       tmp->object.meta->o_name,  tmp->object.instance,
+                       times[i], result[i]);
         }
 
       orb_unsubscribe(fds[i].fd);
@@ -729,6 +748,7 @@ static void listener_flush_topic(FAR const struct listen_list_s *objlist,
   uorbinfo_raw("Total number of flush topics: %d", nb_objects);
   free(fds);
   free(result);
+  free(times);
 }
 
 /****************************************************************************
@@ -749,6 +769,7 @@ static void listener_print_info(FAR const struct listen_list_s *objlist,
                                 bool wakeup)
 {
   FAR struct listen_object_s *tmp;
+  orb_abstime info_time;
   orb_info_t info;
   int ret;
   int fd;
@@ -761,10 +782,13 @@ static void listener_print_info(FAR const struct listen_list_s *objlist,
           continue;
         }
 
+      info_time = orb_absolute_time();
       ret = orb_get_info(fd, &info);
+      info_time = orb_elapsed_time(&info_time);
       orb_unsubscribe(fd);
-      uorbinfo_raw("Topic [%s%d] info:", tmp->object.meta->o_name,
-                   tmp->object.instance);
+      uorbinfo_raw("Topic [%s%d] info(%" PRIu64 "us):",
+                   tmp->object.meta->o_name, tmp->object.instance,
+                   info_time);
       if (ret < 0)
         {
           uorbinfo_raw("\t NULL");
