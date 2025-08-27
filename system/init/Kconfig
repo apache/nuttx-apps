@@ -58,6 +58,13 @@ config SYSTEM_INIT_ACTION_CMD_ARGS_MAX
 		   ...
 		```
 
+config SYSTEM_INIT_ACTION_WARN_SLOW
+	int "Warn if command takes too long"
+	default 50
+	depends on SYSTEM_INIT_WARN
+	---help---
+		Warning if command took more than `SYSTEM_INIT_ACTION_WARN_SLOW` ms.
+
 config SYSTEM_INIT_ACTION_MANAGER_EVENT_MAX
 	int "Max number of action manager events"
 	default 32
