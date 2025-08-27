@@ -64,6 +64,10 @@ struct action_manager_s
 
   FAR struct action_cmd_s *running;
   int pid_running;
+#if defined(CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW) && \
+    CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW > 0
+  struct timespec time_run;
+#endif
   FAR struct service_manager_s *sm;
 };
 

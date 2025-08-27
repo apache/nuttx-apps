@@ -44,7 +44,6 @@
  ****************************************************************************/
 
 #define SYSTEM_NXINIT_SERVICE_GENTLE_KILL_TIMEOUT 200
-#define TIMESPEC2MS(t) (((t).tv_sec * 1000) + (t).tv_nsec / 1000000)
 
 #define check_flags(s, f) ((s)->flags & (f))
 
