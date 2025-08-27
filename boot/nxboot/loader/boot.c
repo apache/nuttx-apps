@@ -313,6 +313,8 @@ static enum nxboot_update_type
           nxboot_progress(nxboot_progress_end);
           return NXBOOT_UPDATE_TYPE_UPDATE;
         }
+
+        flash_partition_erase_first_sector(update);
     }
 
   nxboot_progress(nxboot_progress_end);
@@ -643,12 +645,14 @@ int nxboot_get_state(struct nxboot_state *state)
   else if (IS_INTERNAL_MAGIC(primary_header.magic))
     {
       recovery_pointer = primary_header.magic & NXBOOT_RECOVERY_PTR_MASK;
-      if (recovery_pointer == NXBOOT_SECONDARY_SLOT_NUM)
+      if (recovery_pointer == NXBOOT_SECONDARY_SLOT_NUM &&
+          IS_INTERNAL_MAGIC(secondary_header.magic))
         {
           state->primary_confirmed =
             primary_header.crc == secondary_header.crc;
         }
-      else if (recovery_pointer == NXBOOT_TERTIARY_SLOT_NUM)
+      else if (recovery_pointer == NXBOOT_TERTIARY_SLOT_NUM &&
+               IS_INTERNAL_MAGIC(tertiary_header.magic))
         {
           state->primary_confirmed =
             primary_header.crc == tertiary_header.crc;
