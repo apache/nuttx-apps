@@ -2085,7 +2085,13 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
    * audio device.
    */
 
-  pthread_attr_init(&tattr);
+  ret = pthread_attr_init(&tattr);
+  if (ret != OK)
+    {
+      auderr("ERROR: Failed to init playthread: %d\n", ret);
+      goto err_out;
+    }
+
   sparam.sched_priority = sched_get_priority_max(SCHED_FIFO) - 9;
   pthread_attr_setschedparam(&tattr, &sparam);
   pthread_attr_setstacksize(&tattr,
@@ -2099,6 +2105,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   nxplayer_reference(pplayer);
   ret = pthread_create(&pplayer->play_id, &tattr, nxplayer_playthread,
                        (pthread_addr_t) pplayer);
+  pthread_attr_destroy(&tattr);
   if (ret != OK)
     {
       auderr("ERROR: Failed to create playthread: %d\n", ret);
