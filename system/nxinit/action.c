@@ -210,6 +210,10 @@ int init_action_run_command(FAR struct action_manager_s *am)
                                         struct action_cmd_s, node);
     }
 
+#if defined(CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW) && \
+    CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW > 0
+  clock_gettime(CLOCK_MONOTONIC, &am->time_run);
+#endif
   ret = init_builtin_run(am, am->running->argc, am->running->argv);
   if (ret > 0)
     {
@@ -228,6 +232,28 @@ void init_action_reap_command(FAR struct action_manager_s *am)
   FAR struct action_s *ready = list_peek_head_type(&am->ready_actions,
                                                    struct action_s,
                                                    ready_node);
+
+#if defined(CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW) && \
+    CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW > 0
+  struct timespec time;
+  int ms;
+
+  clock_gettime(CLOCK_MONOTONIC, &time);
+  clock_timespec_subtract(&time, &am->time_run, &time);
+  ms = TIMESPEC2MS(time);
+  if (ms > CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW)
+    {
+      if (am->pid_running <= 0)
+        {
+          init_warn("Command '%s' took %d ms", am->running->argv[0], ms);
+        }
+      else
+        {
+          init_warn("Command '%s' pid %d took %d ms", am->running->argv[0],
+                    am->pid_running, ms);
+        }
+    }
+#endif
 
   am->pid_running = -1;
   if (list_is_tail(&ready->cmds, &am->running->node))

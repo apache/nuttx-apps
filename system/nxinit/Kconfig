@@ -59,6 +59,13 @@ config SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX
 		   ...
 		```
 
+config SYSTEM_NXINIT_ACTION_WARN_SLOW
+	int "Warn if command takes too long"
+	default 50
+	depends on SYSTEM_NXINIT_WARN
+	---help---
+		Warning if command took more than `SYSTEM_NXINIT_ACTION_WARN_SLOW` ms.
+
 config SYSTEM_NXINIT_ACTION_MANAGER_EVENT_MAX
 	int "Max number of action manager events"
 	default 32
