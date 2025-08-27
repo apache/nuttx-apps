@@ -5,6 +5,12 @@
 
 menu "NSH Library"
 
+config NSH_BUILTIN_AS_COMMAND
+	bool "run builtin as command"
+	default n
+	---help---
+		set if users want to run builtin app directly without creating a separate thread
+
 config NSH_LIBRARY
 	bool "NSH Library"
 	default n

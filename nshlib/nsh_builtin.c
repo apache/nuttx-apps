@@ -49,6 +49,83 @@
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_NSH_BUILTIN_AS_COMMAND
+
+#define MAX_ARGC 256
+
+/****************************************************************************
+ * Name: nsh_builtin
+ *
+ * Description:
+ *   Try to execute a built-in command (registered at compile time).
+ *   When CONFIG_NSH_BUILTIN_AS_COMMAND is defined, the command will not be
+ *   executed by creating a new task, but instead by directly calling the
+ *   corresponding builtin main() function.
+ *
+ * Input Parameters:
+ *   vtbl          - NSH vtable pointer, provides input/output interfaces
+ *                   (unused here)
+ *   cmd           - The command string to be executed
+ *   argv          - Argument array, argv[0] is the command itself
+ *
+ * Returned Value:
+ *   -1 (ERROR)  If the command does not exist, too many arguments, or
+ *               builtin lookup fails
+ *    Other      The return value from builtin->main(argc, argv)
+ *
+ ****************************************************************************/
+
+int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                FAR char **argv,
+                FAR const struct nsh_param_s *param)
+{
+  const struct builtin_s *builtin;
+  int argc;
+  int index;
+
+  UNUSED(vtbl);
+
+  /* Check if the command is available in the builtin list */
+
+  index = builtin_isavail(cmd);
+  if (index < 0)
+    {
+      return -1;
+    }
+
+  /* Get the builtin structure by index */
+
+  builtin = builtin_for_index(index);
+  if (builtin == NULL)
+    {
+      return -1;
+    }
+
+  /* Count the number of arguments, ensure it does not exceed MAX_ARGC */
+
+  argc = 0;
+  if (argv != NULL)
+    {
+      while (argv[argc])
+        {
+          if (++argc > MAX_ARGC)
+            {
+              return -1;
+            }
+        }
+    }
+  else
+    {
+      return -1;
+    }
+
+  /* Directly call the builtin main() function to execute the command */
+
+  return (builtin->main)(argc, (FAR char **)argv);
+}
+
+#else
+
 /****************************************************************************
  * Name: nsh_builtin
  *
@@ -268,5 +345,5 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   return ret;
 }
-
+#endif /* CONFIG_NSH_BUILTIN_AS_COMMAND */
 #endif /* CONFIG_NSH_BUILTIN_APPS */
