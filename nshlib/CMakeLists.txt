@@ -51,7 +51,9 @@ if(CONFIG_NSH_LIBRARY)
   list(APPEND CSRCS nsh_fsutils.c)
 
   if(CONFIG_NSH_BUILTIN_APPS)
-    list(APPEND CSRCS nsh_builtin.c)
+    if(NOT CONFIG_NSH_BUILTIN_AS_COMMAND)
+      list(APPEND CSRCS nsh_builtin.c)
+    endif()
   endif()
 
   if(CONFIG_NSH_FILE_APPS)

@@ -540,7 +540,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    * Note the priority is not effected by nice-ness.
    */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
+#if defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_NSH_BUILTIN_AS_COMMAND)
   ret = nsh_builtin(vtbl, argv[0], argv, param);
   if (ret >= 0)
     {
