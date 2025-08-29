@@ -43,7 +43,7 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
+#if defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_NSH_BUILTIN_AS_COMMAND)
 
 /****************************************************************************
  * Public Functions
@@ -268,5 +268,4 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   return ret;
 }
-
 #endif /* CONFIG_NSH_BUILTIN_APPS */
