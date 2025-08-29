@@ -30,12 +30,6 @@ MAINSRC = elf_main.c
 SYMTABSRC = test_symtab.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
-
-ifneq ($(CONFIG_BUILD_FLAT),y)
-  PASS1_SYMTAB = $(TOPDIR)/pass1/mod_symtab.c
-  MODLUE_NAME = tests
-endif
-
 $(SYMTABSRC):
 	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) g_elf >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
@@ -82,15 +76,7 @@ $(FSIMG_OBJ): %$(OBJEXT): %.c
 
 endif
 
-# Copy the symbol table into the kernel pass1/ build directory
-
-ifneq ($(CONFIG_BUILD_FLAT),y)
-$(PASS1_SYMTAB): $(SYMTABSRC)
-	$(Q) install -m 0644 $(SYMTABSRC) $(PASS1_SYMTAB)
-	$(Q) mv $(BINDIR)$(DELIM)$(MODLUE_NAME) .
-endif
-
-postinstall:: $(ROMFSOBJ) $(SYMTABOBJ) $(FSIMG_OBJ) $(PASS1_SYMTAB)
+postinstall:: $(ROMFSOBJ) $(SYMTABOBJ) $(FSIMG_OBJ)
 	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
 
 distclean::
