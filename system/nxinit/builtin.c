@@ -25,9 +25,11 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 #include <spawn.h>
 #include <sys/param.h>
+#include <sys/wait.h>
 
 #include "builtin.h"
 #include "init.h"
@@ -192,6 +194,27 @@ int init_builtin_run(FAR struct action_manager_s *am,
   ret = posix_spawnp(&pid, argv[0], NULL, NULL, argv, NULL);
   if (ret != 0)
     {
+#ifdef CONFIG_SYSTEM_SYSTEM
+      char cmd[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
+
+      for (i = 0, cmd[i] = '\0'; i < argc; i++)
+        {
+          strlcat(cmd, argv[i], sizeof(cmd));
+          if (i < argc - 1)
+            {
+              strcat(cmd, " ");
+            }
+        }
+
+      init_debug("Executing nsh command '%s'", cmd);
+      ret = system(cmd);
+      if (WIFEXITED(ret))
+        {
+          init_debug("NSH command '%s' exited %d", cmd, WEXITSTATUS(ret));
+          return -WEXITSTATUS(ret);
+        }
+#endif
+
       init_err("Executing command '%s': %d", argv[0], ret);
       init_dump_args(argc, argv);
       return -ret;
