@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_SHV_NXBOOT_UPDATER
+	bool "Silicon Heaven Firmware updates for NXBoot"
+	depends on NETUTILS_LIBSHVC
+	default n
+	---help---
+		Enable the shv-nxboot-updater application.
+
+if EXAMPLES_SHV_NXBOOT_UPDATER
+
+config EXAMPLES_SHV_NXBOOT_UPDATER_PROGNAME
+	string "shv-nxboot-updater App Name"
+	default "shv_nxboot_updater"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SHV_NXBOOT_UPDATER_PRIORITY
+	int "shv-nxboot-updater task priority"
+	default 100
+
+config EXAMPLES_SHV_NXBOOT_UPDATER_STACKSIZE
+	int "shv-nxboot-updater task stack size"
+	default 4096
+
+endif # EXAMPLES_NX_SHV_FWUPDATER
