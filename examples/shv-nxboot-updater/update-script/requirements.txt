@@ -1,0 +1,5 @@
+pyshv>=0.10.0
+PyQt6
+argparse
+asyncio
+logging
