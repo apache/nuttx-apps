@@ -144,6 +144,11 @@ MAINSRC  += drivertest_mps2_isr_signal.c
 PROGNAME += cmocka_driver_mps2_isr_signal
 endif
 
+ifneq ($(CONFIG_MTDLOG),)
+MAINSRC  += drivertest_mtd_log.c
+PROGNAME += cmocka_driver_mtd_log
+endif
+
 ifeq ($(CONFIG_PM),y)
 MAINSRC  += drivertest_pm.c
 PROGNAME += cmocka_driver_pm

@@ -327,6 +327,22 @@ if(CONFIG_TESTING_DRIVER_TEST)
       drivertest_lcd.c)
   endif()
 
+  if(CONFIG_MTDLOG)
+    nuttx_add_application(
+      NAME
+      cmocka_driver_mtd_log
+      PRIORITY
+      ${CONFIG_TESTING_DRIVER_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_DRIVER_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_DRIVER_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      drivertest_mtd_log.c)
+  endif()
+
   if(CONFIG_REGULATOR)
     nuttx_add_application(
       NAME
