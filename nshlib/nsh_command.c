@@ -1213,10 +1213,14 @@ static int cmd_expr(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
 int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
 {
-  const struct cmdmap_s *cmdmap;
-  const char            *cmd;
-  nsh_cmd_t              handler = cmd_unrecognized;
-  int                    ret;
+  const struct cmdmap_s  *cmdmap;
+  const char             *cmd;
+  nsh_cmd_t               handler = cmd_unrecognized;
+#ifdef CONFIG_NSH_BUILTIN_AS_COMMAND
+  const struct builtin_s *builtin;
+  int                     index;
+#endif
+  int                     ret;
 
   /* The form of argv is:
    *
@@ -1227,6 +1231,23 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
    */
 
   cmd = argv[0];
+
+#ifdef CONFIG_NSH_BUILTIN_AS_COMMAND
+  /* Check if the command is available in the builtin list */
+
+  index = builtin_isavail(cmd);
+
+  if (index > 0)
+    {
+      /* Get the builtin structure by index */
+
+      builtin = builtin_for_index(index);
+      if (builtin != NULL)
+        {
+          return (builtin->main)(argc, (FAR char **)argv);
+        }
+    }
+#endif
 
   /* See if the command is one that we understand */
 
