@@ -64,7 +64,7 @@
 struct posix_timer_state_s
 {
   struct itimerspec it;
-  uint32_t tim;
+  uint64_t tim;
   uint32_t deviation;
 };
 
@@ -140,12 +140,12 @@ static void parse_commandline(
  * Name: get_timestamp
  ****************************************************************************/
 
-static uint32_t get_timestamp(void)
+static uint64_t get_timestamp(void)
 {
   struct timespec ts;
-  uint32_t ms;
+  uint64_t ms;
   clock_gettime(CLOCK_MONOTONIC, &ts);
-  ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+  ms = (uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
   return ms;
 }
 
