@@ -1,0 +1,10 @@
+[codespell]
+
+# Add complete lines to be ignored to this file.
+# Example for ignoring all current occurrences of (verifiably correct) word usage:
+#   grep -hirw "emac" | sort | uniq >>.codespell-ignore-lines
+exclude-file = .codespell-ignore-lines
+
+# Ignore complete files (e.g. legal text or other immutable material).
+skip =
+  LICENSE,
