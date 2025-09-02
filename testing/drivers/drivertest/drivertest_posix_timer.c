@@ -65,6 +65,7 @@ struct posix_timer_state_s
 {
   struct itimerspec it;
   uint64_t tim;
+  uint32_t trigger_count;
   uint32_t deviation;
 };
 
@@ -157,15 +158,16 @@ static void posix_timer_callback(union sigval arg)
 {
   FAR struct posix_timer_state_s *sigev_para =
                       (FAR struct posix_timer_state_s *)arg.sival_ptr;
-  int range = get_timestamp() - (*sigev_para).tim;
+  uint64_t expected = (*sigev_para).tim +
+                      DEFAULT_TIME_OUT * (*sigev_para).trigger_count;
+  int range = get_timestamp() - expected;
 
   syslog(0, "range: %d ms\n", range);
 
-  assert(range >= sigev_para->it.it_interval.tv_sec * 1000 -
-                  sigev_para->deviation);
+  assert(range >= sigev_para->it.it_interval.tv_sec * 1000);
 
   syslog(LOG_DEBUG, "callback trigger!!!\n");
-  (*sigev_para).tim = get_timestamp();
+  (*sigev_para).trigger_count++;
 }
 
 /****************************************************************************
@@ -226,6 +228,7 @@ int main(int argc, FAR char *argv[])
     .it.it_value.tv_nsec    = 0,
     .it.it_interval.tv_sec  = DEFAULT_TIME_OUT,
     .it.it_interval.tv_nsec = 0,
+    .trigger_count          = 0,
     .deviation              = RTC_DEFAULT_DEVIATION
   };
 
