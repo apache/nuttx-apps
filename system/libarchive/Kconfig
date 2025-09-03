@@ -5,6 +5,7 @@
 
 config UTILS_LIBARCHIVE
 	tristate "libarchive"
+	depends on LIBC_LOCALE
 	default n
 
 if UTILS_LIBARCHIVE
