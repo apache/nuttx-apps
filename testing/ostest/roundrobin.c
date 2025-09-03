@@ -66,6 +66,8 @@
  * Private Data
  ****************************************************************************/
 
+static uint8_t g_rr_values[CONFIG_TESTING_OSTEST_RR_RUNS * 2];
+static atomic_t g_rr_value_index;
 static sem_t g_rrsem;
 
 /****************************************************************************
@@ -132,6 +134,7 @@ static FAR void *get_primes_thread(FAR void *parameter)
   for (i = 0; i < CONFIG_TESTING_OSTEST_RR_RUNS; i++)
     {
       get_primes(&count, &last);
+      g_rr_values[atomic_fetch_add(&g_rr_value_index, 1)] = id;
     }
 
   printf("get_primes_thread id=%d finished, found %d primes, "
@@ -154,11 +157,13 @@ void rr_test(void)
   pthread_t get_primes1_thread;
   pthread_t get_primes2_thread;
   struct sched_param sparam;
+  bool test_passed = false;
   pthread_attr_t attr;
   pthread_addr_t result;
   int status;
+  int i;
 
-  /* Setup common thread attrributes */
+  /* Setup common thread attributes */
 
   status = pthread_attr_init(&attr);
   if (status != OK)
@@ -197,6 +202,8 @@ void rr_test(void)
   /* This semaphore will prevent anything from running until we are ready */
 
   sched_lock();
+  atomic_set(&g_rr_value_index, 0);
+  memset(g_rr_values, 0, sizeof(g_rr_values));
   sem_init(&g_rrsem, 0, 0);
 
   /* Start the threads */
@@ -235,7 +242,26 @@ void rr_test(void)
 
   pthread_join(get_primes2_thread, &result);
   pthread_join(get_primes1_thread, &result);
-  printf("rr_test: Done\n");
+
+  for (i = 1; i < CONFIG_TESTING_OSTEST_RR_RUNS; i++)
+    {
+      if (g_rr_values[i - 1] != g_rr_values[i])
+        {
+          test_passed = true;
+          break;
+        }
+    }
+
+  if (test_passed)
+    {
+      printf("rr_test: Done\n");
+    }
+  else
+    {
+      printf("rr_test: Roundrobin Failed\n");
+      ASSERT(false);
+    }
+
   sem_destroy(&g_rrsem);
 }
 
