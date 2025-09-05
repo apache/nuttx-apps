@@ -9,7 +9,8 @@ config SYSTEM_NTPC
 	select NETUTILS_NTPCLIENT
 	depends on NET_UDP
 	---help---
-		Enable the NTP client 'start' and 'stop' commands
+		Enable the NTP client example. This example provides a command-line
+		interface to manage the NTP client for time synchronization.
 
 if SYSTEM_NTPC
 
