@@ -78,6 +78,7 @@ int netlib_set_arpmapping(FAR const struct sockaddr_in *inaddr,
 
           req.arp_ha.sa_family = ARPHRD_ETHER;
           memcpy(&req.arp_ha.sa_data, macaddr, ETHER_ADDR_LEN);
+          req.arp_flags = ATF_PERM;
           if (ifname != NULL)
             {
                strlcpy((FAR char *)&req.arp_dev, ifname,
