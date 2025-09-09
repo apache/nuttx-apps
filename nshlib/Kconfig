@@ -242,6 +242,14 @@ config NSH_BUILTIN_APPS
 		more information).  This options requires support for builtin
 		applications (BUILTIN).
 
+config NSH_BUILTIN_AS_COMMAND
+	bool "Run builtin apps as command"
+	default n
+	depends on BUILTIN
+	---help---
+		Enable to run builtin application directly without creating
+		a separate thread.
+
 config NSH_FILE_APPS
 	bool "Enable execution of program files"
 	default n
