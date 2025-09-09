@@ -356,6 +356,25 @@ void nxevent_test(void)
   nxevent_clear(&event, 0xf0);
   NXEVENT_TEST(nxevent_trywait(&event, 0xf0, NXEVENT_WAIT_NOCLEAR), 0);
 
+  /**************************************************************************/
+
+  /* 5. Event get mask Test */
+
+  /* Case 5.1: post == 0xff */
+
+  nxevent_post(&event, 0xff, NXEVENT_POST_SET);
+  NXEVENT_TEST(nxevent_getmask(&event), 0xff)
+
+  /* Case 5.2: clear == 0xf */
+
+  nxevent_clear(&event, 0xf);
+  NXEVENT_TEST(nxevent_getmask(&event), 0xf0)
+
+  /* Case 5.3: clear == 0xf0 */
+
+  nxevent_clear(&event, 0xf0);
+  NXEVENT_TEST(nxevent_getmask(&event), 0)
+
   nxevent_reset(&event, 0);
   nxevent_destroy(&event);
 }
