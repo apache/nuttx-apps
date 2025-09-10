@@ -309,6 +309,7 @@ int main(int argc, FAR char **argv)
   uint32_t sector = 0;
   int ret = ERROR;
   int i;
+  bool show_help = false;
 
   /* Initialize the dd structure */
 
@@ -379,11 +380,23 @@ int main(int argc, FAR char **argv)
               cur = next + 1;
             }
         }
+      else if (strcmp(argv[i], "--help") == 0)
+        {
+          show_help = true;
+        }
       else
         {
           print_usage(stderr);
           goto errout_with_paths;
         }
+    }
+
+  /* Help requested? Emit usage hints and exit. */
+
+  if (show_help)
+    {
+      print_usage(stdout);
+      return 0;
     }
 
   /* If verify enabled, infile and outfile are mandatory */
