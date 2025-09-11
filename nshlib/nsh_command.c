@@ -621,7 +621,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #  ifndef CONFIG_NSH_DISABLE_UMOUNT
-  CMD_MAP("umount",   cmd_umount,   2, 2, "<dir-path>"),
+  CMD_MAP("umount",   cmd_umount,   2, 3, "[-f] <dir-path>"),
 #  endif
 #endif
 
