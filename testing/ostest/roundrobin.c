@@ -160,6 +160,9 @@ void rr_test(void)
   bool test_passed = false;
   pthread_attr_t attr;
   pthread_addr_t result;
+#ifdef CONFIG_SMP
+  cpu_set_t cpuset;
+#endif
   int status;
   int i;
 
@@ -198,6 +201,20 @@ void rr_test(void)
     {
       printf("rr_test: Set thread policy to SCHED_RR\n");
     }
+
+#ifdef CONFIG_SMP
+  /* RR case on SMP only run on core0 */
+
+  CPU_ZERO(&cpuset);
+  CPU_SET(0, &cpuset);
+  status = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+  if (status != OK)
+    {
+      printf("rr_test: ERROR: pthread_attr_setaffinity_np failed,"
+             " status=%d\n", status);
+      ASSERT(false);
+    }
+#endif
 
   /* This semaphore will prevent anything from running until we are ready */
 
