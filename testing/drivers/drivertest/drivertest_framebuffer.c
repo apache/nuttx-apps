@@ -54,23 +54,10 @@
  ****************************************************************************/
 
 #define FB_DEFAULT_DEVPATH    "/dev/fb0"
-#define FB_TEST_CASE_NUM      4
 
 #define COLOR_888_TO_565(color) (((((color) >> 19) & 0x1f) << 11) \
                                 |((((color) >> 10) & 0x3f) << 5) \
                                 |(((color) >> 3) & 0x1f))
-
-#define OPTARG_TO_VALUE(value, type, base)                            \
-  do                                                                  \
-    {                                                                 \
-      FAR char *ptr;                                                  \
-      value = (type)strtoul(optarg, &ptr, base);                      \
-      if (*ptr != '\0')                                               \
-        {                                                             \
-          printf("Parameter error: -%c %s\n", ch, optarg);            \
-          fb_help(argv[0], fb_state, EXIT_FAILURE);                   \
-        }                                                             \
-    } while (0)
 
 /****************************************************************************
  * Private Function Prototypes
@@ -89,7 +76,6 @@ struct fb_info_s
 struct fb_state_s
 {
   char devpath[PATH_MAX];
-  int test_case_id;
   int fb_device;
   struct fb_info_s fb_info;
 };
@@ -113,18 +99,19 @@ struct fb_state_s
 static void fb_help(FAR const char *progname,
                     FAR struct fb_state_s *fb_state, int exitcode)
 {
-  printf("Usage: %s"
-         " -p <devpath> -t <testcase>\n",
-         progname);
+  printf("Usage: %s -p <devpath>\n"
+         "       cmocka -s %s -t <testcase>\n",
+         progname, progname);
   printf("  [-p devpath] selects the framebuffer device.  "
          "Default: %s Current: %s\n", FB_DEFAULT_DEVPATH,
          fb_state->devpath);
-  printf("  [-t testcase] selects the testcase to show framebuffer.\n"
-         "  Case 0: show black color on FB\n"
-         "  Case 1: show white color on FB\n"
-         "  Case 2: show black|red|green|blue|white rectangle on FB\n"
-         "  Case 3: show grayscale rectangle on FB\n"
-         );
+  printf("  All testcases run by default; select one with cmocka -t:\n"
+         "  drivertest_framebuffer_black: show black color on FB\n"
+         "  drivertest_framebuffer_white: show white color on FB\n"
+         "  drivertest_framebuffer_cross: show black|red|green|blue|"
+         "white rectangle on FB\n"
+         "  drivertest_framebuffer_vertical: show grayscale rectangle"
+         " on FB\n");
 
   printf("  [-h] shows this message and exits\n");
 
@@ -139,25 +126,14 @@ static void parse_commandline(FAR struct fb_state_s *fb_state, int argc,
                               FAR char **argv)
 {
   int ch;
-  int converted;
 
-  while ((ch = getopt(argc, argv, "p:d:n:f:t:h")) != ERROR)
+  while ((ch = getopt(argc, argv, "p:d:n:h")) != ERROR)
     {
       switch (ch)
         {
           case 'p':
             snprintf(fb_state->devpath, sizeof(fb_state->devpath), "%s",
                       optarg);
-            break;
-          case 't':
-            OPTARG_TO_VALUE(converted, uint8_t, 10);
-            if (converted < 0 || converted >= FB_TEST_CASE_NUM)
-              {
-                printf("Testcase out of range: %d\n", converted);
-                fb_help(argv[0], fb_state, EXIT_FAILURE);
-              }
-
-            fb_state->test_case_id = converted;
             break;
           case 'h':
             fb_help(argv[0], fb_state, EXIT_FAILURE);
@@ -169,10 +145,7 @@ static void parse_commandline(FAR struct fb_state_s *fb_state, int argc,
         }
     }
 
-  printf("devname = %s\n"
-         "testcase = %d\n",
-         fb_state->devpath,
-         fb_state->test_case_id);
+  printf("devname = %s\n", fb_state->devpath);
 }
 
 /****************************************************************************
