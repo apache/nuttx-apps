@@ -32,21 +32,32 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <unistd.h>
+#include <fnmatch.h>
 #include <nuttx/clock.h>
 
 #include "action.h"
 #include "builtin.h"
 #include "init.h"
+#include "property.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Maximum number of parameters for the action trigger.
- * Format: `on <trigger>`
- */
+#define ACTION_SECTION_PROP_PREFIX "property:"
+#define ACTION_SECTION_AND_PREFIX  "&&"
 
-#define ACTION_ARGUMENTS_MAX 2
+#define ACTION_PROP_KEY_DEFAULT    "default"
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct event_arg_s
+{
+  FAR const char *key;
+  FAR const char *value;
+};
 
 /****************************************************************************
  * Private Function Prototypes
@@ -66,9 +77,21 @@ static void init_dump_action(FAR struct action_s *action);
 static void init_dump_action(FAR struct action_s *action)
 {
   FAR struct action_cmd_s *cmd;
+  size_t i;
 
   init_debug("Action %p", action);
-  init_debug("  event trigger: '%s'", action->event ? action->event : "");
+  for (i = 0; i < nitems(action->events); i++)
+    {
+      if (!action->events[i].key)
+        {
+          continue;
+        }
+
+      init_debug("  %s%s%s", action->events[i].key,
+                 action->events[i].invert ? "!=" : "==",
+                 action->events[i].value);
+    }
+
   list_for_every_entry(&action->cmds, cmd, struct action_cmd_s, node)
     {
       init_dump_args(cmd->argc, cmd->argv);
@@ -94,8 +117,8 @@ static void add_ready(FAR struct action_manager_s *am,
     {
       if (ready == a)
         {
-          init_debug("Action %p(%s) already on the queue", a,
-                     a->event ? a->event : "");
+          init_debug("Event %p(%s:%s) already on the queue", a,
+                     a->events[0].key, a->events[0].value);
           init_dump_action(a);
           return;
         }
@@ -104,69 +127,148 @@ static void add_ready(FAR struct action_manager_s *am,
   list_add_tail(&am->ready_actions, &a->ready_node);
 }
 
-static void update_ready(FAR struct action_manager_s *am)
+static int parse_event(FAR char *buf, FAR struct action_event_s *events,
+                       size_t count)
 {
+  FAR char *value;
+  FAR char *key;
   size_t i;
 
-  /* Actions with event trigger */
-
-  for (i = 0; i < nitems(am->events); i++)
+  value = strchr(buf, '=');
+  if (!value || !*(value + 1))
     {
-      if (!am->events[i])
+      return -EINVAL;
+    }
+
+  *(value++) = '\0';
+  key = strchr(buf, ':');
+  if (!key || !*(key + 1))
+    {
+      return -EINVAL;
+    }
+
+  *(key++) = '\0';
+  for (i = 0; i < count; i++)
+    {
+      if (events[i].key)
         {
           continue;
         }
 
-      am->current = list_prepare_entry(am->current, &am->actions,
-                                       struct action_s, node);
-      list_for_every_entry_continue(am->current, &am->actions,
-                                    struct action_s, node)
+      if (key[strlen(key) - 1] == '!')
         {
-          if (am->current->event && !strcmp(am->current->event,
-                                            am->events[i]))
+          events[i].invert = true;
+          key[strlen(key) - 1] = '\0';  /* Skip '!' */
+        }
+      else
+        {
+          events[i].invert = false;
+        }
+
+      events[i].key = strdup(key);
+      events[i].value = strdup(value);
+
+      if (events[i].key && events[i].value)
+        {
+          init_debug("Added action event key:%s value:%s", events[i].key,
+                     events[i].value);
+          return 0;
+        }
+
+      for (; i >= 0; i--)
+        {
+          if (events[i].key)
             {
-              add_ready(am, am->current);
-              return;
+              free((FAR void *)events[i].key);
+              events[i].key = NULL;
+            }
+
+          if (events[i].value)
+            {
+              free(events[i].value);
             }
         }
 
-      init_debug("Remove event [%zu] '%s'", i, am->events[i]);
-      am->current = NULL;
-      free(am->events[i]);
-      am->events[i] = NULL;
+      return -errno;
     }
+
+  init_err("Dropped action event key:%s value:%s", key, value);
+  return -ENOBUFS;
+}
+
+static int event_callback(FAR struct action_manager_s *am,
+                          FAR struct action_s *a,
+                          FAR struct action_event_s *event,
+                          FAR void *argument)
+{
+  struct event_arg_s *arg = argument;
+
+  if (strcmp(arg->key, event->key))
+    {
+      return 0;
+    }
+
+  if (event->invert != fnmatch(event->value, arg->value, 0))
+    {
+      event->pending = false;
+    }
+  else if (!event->pending)
+    {
+      event->pending = true;
+      init_debug("Trigger %s%s%s", event->key,
+                 event->invert ? "!=" : "==",
+                 event->value);
+    }
+
+  return event->pending;
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
+int init_action_foreach_event(FAR struct action_manager_s *am,
+                              init_action_event_cb cb,
+                              FAR void *arg)
+{
+  FAR struct action_s *a;
+  size_t i;
+  int ret = 0;
+
+  list_for_every_entry(&am->actions, a, struct action_s, node)
+    {
+      for (i = 0; i < nitems(a->events) && a->events[i].key; i++)
+        {
+          ret = cb(am, a, &a->events[i], arg);
+          if (ret < 0)
+            {
+              break;
+            }
+          else if (ret > 0)
+            {
+              add_ready(am, a);
+            }
+        }
+    }
+
+  return ret;
+}
+
+void init_action_trigger_event(FAR struct action_manager_s *am,
+                               FAR const char *key,
+                               FAR const char *value)
+{
+  struct event_arg_s arg;
+
+  arg.key = key;
+  arg.value = value;
+  init_action_foreach_event(am, event_callback, &arg);
+}
+
 int init_action_add_event(FAR struct action_manager_s *am,
                           FAR const char *event)
 {
-  int ret = -ENOBUFS;
-  size_t i;
-
-  for (i = 0; i < nitems(am->events); i++)
-    {
-      if (am->events[i])
-        {
-          continue;
-        }
-
-      am->events[i] = strdup(event);
-      if (am->events[i])
-        {
-          init_debug("Add event [%zu] '%s'", i, am->events[i]);
-          return 0;
-        }
-
-      ret = -errno;
-      break;
-    }
-
-  init_warn("Drop event '%s' %d", event, ret);
-  return ret;
+  return init_property_set(am->prop, ACTION_PROP_KEY_DEFAULT, event);
 }
 
 /****************************************************************************
@@ -195,7 +297,6 @@ int init_action_run_command(FAR struct action_manager_s *am)
       return INT_MAX;
     }
 
-  update_ready(am);
   if (list_is_empty(&am->ready_actions))
     {
       return INT_MAX;
@@ -271,7 +372,7 @@ int init_action_parse(FAR const struct parser_s *parser,
                       bool create, FAR char *buf)
 {
   FAR struct action_manager_s *am = parser->priv;
-  FAR char *argv[ACTION_ARGUMENTS_MAX];
+  FAR char *argv[2 * CONFIG_SYSTEM_NXINIT_ACTION_EVENTS_MAX];
   FAR struct action_cmd_s *cmd;
   FAR struct action_s *a;
   int ret;
@@ -294,12 +395,35 @@ int init_action_parse(FAR const struct parser_s *parser,
 
       list_initialize(&a->cmds);
 
-      a->event = strdup(argv[--ret]);
-      if (a->event == NULL)
+      while (--ret > 0)
         {
-          init_err("Event trigger");
-          free(a);
-          return -errno;
+          if (!strncmp(argv[ret], ACTION_SECTION_PROP_PREFIX,
+                       strlen(ACTION_SECTION_PROP_PREFIX)))
+            {
+              ret = parse_event(argv[ret], a->events,
+                                nitems(a->events));
+              if (ret < 0)
+                {
+                  free(a);
+                  return ret;
+                }
+            }
+          else if (strncmp(argv[ret], ACTION_SECTION_AND_PREFIX,
+                           strlen(ACTION_SECTION_AND_PREFIX)))
+            {
+              char tmp[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
+
+              sprintf(tmp, ":%s=%s", ACTION_PROP_KEY_DEFAULT, argv[ret]);
+              ret = parse_event(tmp, a->events,
+                                nitems(a->events));
+              if (ret < 0)
+                {
+                  free(a);
+                  return ret;
+                }
+
+              break;
+            }
         }
 
       list_add_tail(&am->actions, &a->node);
