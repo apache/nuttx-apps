@@ -94,24 +94,6 @@
                                  TRACE_TRANSFER_BITS|TRACE_CONTROLLER_BITS|TRACE_INTERRUPT_BITS)
 
 /****************************************************************************
- * Public Types
- ****************************************************************************/
-
-/* All global variables used by this add-on are packed into a structure in
- * order to avoid name collisions.
- */
-
-struct cdcacm_state_s
-{
-  /* This is the handle that references to this particular USB CDC/ACM driver
-   * instance. The value of the driver handle must be remembered between the
-   * 'sercon' and 'msdis' commands.
-   */
-
-  FAR void *handle;
-};
-
-/****************************************************************************
  * Public Data
  ****************************************************************************/
 
