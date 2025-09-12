@@ -125,7 +125,6 @@ int main(int argc, FAR char *argv[])
     {
       .actions = LIST_INITIAL_VALUE(am.actions),
       .ready_actions = LIST_INITIAL_VALUE(am.ready_actions),
-      .events = { 0 },
       .current = NULL,
       .running = NULL,
       .pid_running = -1,
