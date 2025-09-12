@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/cdcacm/cdcacm_main.c
+ * apps/system/cdcacm/serdis_main.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -38,68 +38,8 @@
 #include "cdcacm.h"
 
 /****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/* All global variables used by this add-on are packed into a structure in
- * order to avoid name collisions.
- */
-
-static struct cdcacm_state_s g_cdcacm;
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-/****************************************************************************
- * sercon_main
- *
- * Description:
- *   This is the main program that configures the CDC/ACM serial device.
- *
- ****************************************************************************/
-
-int main(int argc, FAR char *argv[])
-{
-  struct boardioc_usbdev_ctrl_s ctrl;
-  int ret;
-
-  /* Check if there is a non-NULL USB mass storage device handle
-   * (meaning that the USB mass storage device is already configured).
-   */
-
-  if (g_cdcacm.handle)
-    {
-      printf("sercon:: ERROR: Already connected\n");
-      return EXIT_FAILURE;
-    }
-
-  /* Then, in any event, enable trace data collection as configured BEFORE
-   * enabling the CDC/ACM device.
-   */
-
-  usbtrace_enable(TRACE_BITSET);
-
-  /* Initialize the USB CDC/ACM serial driver */
-
-  printf("sercon: Registering CDC/ACM serial driver\n");
-
-  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
-  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
-  ctrl.instance = CONFIG_SYSTEM_CDCACM_DEVMINOR;
-  ctrl.handle   = &g_cdcacm.handle;
-
-  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-  if (ret < 0)
-    {
-      printf("sercon: ERROR: "
-             "Failed to create the CDC/ACM serial device: %d\n", -ret);
-      return EXIT_FAILURE;
-    }
-
-  printf("sercon: Successfully registered the CDC/ACM serial driver\n");
-  return EXIT_SUCCESS;
-}
 
 /****************************************************************************
  * serdis_main
@@ -109,20 +49,13 @@ int main(int argc, FAR char *argv[])
  *   device.
  ****************************************************************************/
 
-int serdis_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   struct boardioc_usbdev_ctrl_s ctrl;
+  int ret;
 
-  /* First check if the USB mass storage device is already connected */
-
-  if (!g_cdcacm.handle)
-    {
-      printf("serdis: ERROR: Not connected\n");
-      return EXIT_FAILURE;
-    }
-
-  /* Then, in any event, disable trace data collection as configured BEFORE
-   * enabling the CDC/ACM device.
+  /* Disable trace data collection as configured before disabling the
+   * CDC/ACM device.
    */
 
   usbtrace_enable(0);
@@ -134,10 +67,16 @@ int serdis_main(int argc, char *argv[])
   ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = CONFIG_SYSTEM_CDCACM_DEVMINOR;
-  ctrl.handle   = &g_cdcacm.handle;
+  ctrl.handle   = NULL;
 
-  boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-  g_cdcacm.handle = NULL;
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  if (ret < 0)
+    {
+      printf("serdis: ERROR: "
+             "Failed to disconnect the CDC/ACM serial device: %d\n", -ret);
+      return EXIT_FAILURE;
+    }
+
   printf("serdis: Disconnected\n");
   return EXIT_SUCCESS;
 }
