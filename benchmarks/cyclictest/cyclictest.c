@@ -148,6 +148,7 @@ static const struct option optargs[] =
   {"threads", optional_argument, 0, 't'},
   {"timer-device", optional_argument, 0, 'T'},
   {"policy", optional_argument, 0, 'y'},
+  {0, 0, 0, 0}
 };
 
 /****************************************************************************
@@ -525,7 +526,7 @@ static void *testthread(void *arg)
 
   while (running)
     {
-      /* This inicializes the stamp1.timeout field */
+      /* This initializes the stamp1.timeout field */
 
       if (config.meas_method == M_TIMER_API)
         {
@@ -925,7 +926,7 @@ int main(int argc, char *argv[])
         {
           reqtimeout_timer = config.interval;
         }
-      else if (config.wait_method == W_NANOSLEEP)
+      else
         {
           /* Multiply by 3 instead of 2, just to be sure */
 
