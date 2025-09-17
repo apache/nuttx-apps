@@ -56,6 +56,11 @@
 #include <nuttx/net/netdev.h>
 #include <nuttx/net/netconfig.h>
 
+#ifdef CONFIG_NET_IPTABLES
+#  include <nuttx/net/netfilter/ip_tables.h>
+#  include <nuttx/net/netfilter/ip6_tables.h>
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
