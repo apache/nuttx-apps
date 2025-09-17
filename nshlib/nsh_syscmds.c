@@ -108,7 +108,7 @@ static FAR const char *const g_resetcause[] =
   "cpu_rtc_watchdog",
   "pin",
   "lowpower",
-  "unkown"
+  "unknown"
 };
 #endif
 
@@ -648,7 +648,7 @@ static int cmd_rpmsg_help(FAR struct nsh_vtbl_s *vtbl, int argc,
              "<period(ms)>\n\n", argv[0]);
   nsh_output(vtbl, "<times>      Number of ping operations.\n");
   nsh_output(vtbl, "<length>     The length of each ping packet.\n");
-  nsh_output(vtbl, "<cmd>        Whether the peer acknowlege or "
+  nsh_output(vtbl, "<cmd>        Whether the peer acknowledge or "
              "check data.\n");
   nsh_output(vtbl, "             Bit0 - Request need ack or not.\n");
   nsh_output(vtbl, "             Bit1 - Check the data or not.\n");
