@@ -2936,7 +2936,11 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           /* Parse this command */
 
           ret = nsh_parse_command(vtbl, start);
-          if (ret != OK)
+          if (ret != OK
+#ifndef CONFIG_NSH_DISABLESCRIPT
+              && !(vtbl->np.np_flags & NSH_PFLAG_IGNORE)
+#endif
+             )
             {
               /* nsh_parse_command may return (1) -1 (ERROR) meaning that the
                * command failed or we failed to start the command application
