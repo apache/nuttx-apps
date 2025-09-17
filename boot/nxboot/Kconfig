@@ -40,6 +40,9 @@ config NXBOOT_HEADER_SIZE
 	hex "Application firmware image header size"
 	default 0x200
 	---help---
+		The nxboot bootloader itself requires only a few bytes of header
+		data. Increase this value, if you need to store additional
+		application-specific meta data.
 		Note that this size should be aligned with the program memory write
 		page size!
 
@@ -59,8 +62,9 @@ config NXBOOT_BOOTLOADER
 	select BOARDCTL_BOOT_IMAGE
 	---help---
 		This option builds and links a bootloader application. This application
-		should be an entry function for NuttX. It checks for possible update/
-		revert operation, performs it and boot the correct image.
+		("nxboot_loader_main") should be the entry function for NuttX.
+		It checks for a possible update/revert operation, performs it and boots
+		the correct image.
 
 if NXBOOT_BOOTLOADER
 
