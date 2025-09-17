@@ -510,7 +510,7 @@ int cmd_reset_cause(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   if (cause.cause != BOARDIOC_RESETCAUSE_CPU_SOFT)
     {
-      nsh_output(vtbl, "%s(%lu)\n",
+      nsh_output(vtbl, "%s(%" PRIu32 ")\n",
              g_resetcause[cause.cause], cause.flag);
     }
   else
