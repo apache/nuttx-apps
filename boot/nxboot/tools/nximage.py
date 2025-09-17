@@ -116,7 +116,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-v",
         action="store_true",
-        help="Verbose output. This prints information abourt the created image.",
+        help="Verbose output. This prints information about the created image.",
     )
     parser.add_argument(
         "PATH",
