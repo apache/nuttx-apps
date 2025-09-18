@@ -41,6 +41,16 @@
 #include "SchedTest.h"
 
 /****************************************************************************
+ * Private Type Declarations
+ ****************************************************************************/
+
+struct resource_s
+{
+  pthread_mutex_t mutex;
+  int run_flag;
+};
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -50,13 +60,14 @@
 
 static void *schedpthread07threadroutine(void *arg)
 {
+  struct resource_s *resource = (struct resource_s *)arg;
   int i;
-  pthread_mutex_t schedpthreadtest07_mutex = PTHREAD_MUTEX_INITIALIZER;
+
   for (i = 0; i < 100; i++)
     {
-      pthread_mutex_lock(&schedpthreadtest07_mutex);
-      (*((int *)arg))++;
-      pthread_mutex_unlock(&schedpthreadtest07_mutex);
+      pthread_mutex_lock(&resource->mutex);
+      resource->run_flag++;
+      pthread_mutex_unlock(&resource->mutex);
     }
 
   return NULL;
@@ -74,16 +85,20 @@ void test_nuttx_sched_pthread07(FAR void **state)
 {
   int res;
   pthread_t pt_1, pt_2, pt_3;
-  int run_flag = 0;
+  struct resource_s resource =
+  {
+    .mutex = PTHREAD_MUTEX_INITIALIZER,
+    .run_flag = 0
+  };
 
   res = pthread_create(&pt_1, NULL, (void *)schedpthread07threadroutine,
-                       &run_flag);
+                       &resource);
   assert_int_equal(res, OK);
   res = pthread_create(&pt_2, NULL, (void *)schedpthread07threadroutine,
-                       &run_flag);
+                       &resource);
   assert_int_equal(res, OK);
   res = pthread_create(&pt_3, NULL, (void *)schedpthread07threadroutine,
-                       &run_flag);
+                       &resource);
   assert_int_equal(res, OK);
 
   pthread_join(pt_1, NULL);
@@ -91,5 +106,5 @@ void test_nuttx_sched_pthread07(FAR void **state)
   pthread_join(pt_3, NULL);
   sleep(5);
 
-  assert_int_equal(run_flag, 300);
+  assert_int_equal(resource.run_flag, 300);
 }
