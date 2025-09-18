@@ -1,0 +1,17 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+# The ulut library is to be meant primarily used with
+# the Silicon Heaven protocol, hence the info comment.
+
+if !NETUTILS_LIBULUT && !NETUTILS_LIBSHVC
+comment "uLan Utilities Library required to support the Silicon Heaven protocol"
+endif
+
+config NETUTILS_LIBULUT
+	bool "uLan Utilities Library (ULUT)"
+	default n
+	---help---
+		Enable the ULUT library to be used in NuttX applications.
