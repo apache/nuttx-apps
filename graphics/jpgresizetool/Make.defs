@@ -1,0 +1,3 @@
+ifneq ($(CONFIG_GRAPHICS_JPGRESIZETOOL),)
+CONFIGURED_APPS += $(APPDIR)/graphics/jpgresizetool
+endif
