@@ -53,10 +53,26 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <debug.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <semaphore.h>
+#include <termios.h>
 
 #include "system/readline.h"
 
-#include "cu.h"
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Configuration ************************************************************/
+
+#ifndef CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE
+#  define CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE "/dev/ttyS0"
+#endif
+
+#ifndef CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD
+#  define CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD 115200
+#endif
 
 #ifdef CONFIG_SYSTEM_CUTERM_DISABLE_ERROR_PRINT
 #  define cu_error(...)
@@ -73,6 +89,21 @@ enum parity_mode
   PARITY_NONE,
   PARITY_EVEN,
   PARITY_ODD,
+};
+
+/* All terminal state data is packaged in a single structure to minimize
+ * name conflicts with other global symbols -- a poor man's name space.
+ */
+
+struct cu_globals_s
+{
+  int devfd;             /* I/O data to serial port */
+  int stdfd;             /* I/O data to standard console */
+  int escape;            /* Escape char */
+  struct termios devtio; /* Original serial port setting */
+  struct termios stdtio; /* Original standard console setting */
+  pthread_t listener;    /* Terminal listener thread */
+  bool force_exit;       /* Force exit */
 };
 
 /****************************************************************************
@@ -311,6 +342,7 @@ int main(int argc, FAR char *argv[])
                errno);
       return EXIT_FAILURE;
     }
+
 #endif
   optind = 0;   /* Global that needs to be reset in FLAT mode */
   while ((option = getopt(argc, argv, "l:s:ceE:fho?")) != ERROR)
