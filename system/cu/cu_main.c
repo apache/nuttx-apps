@@ -79,8 +79,6 @@ enum parity_mode
  * Private Data
  ****************************************************************************/
 
-static struct cu_globals_s g_cu;
-
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -127,7 +125,8 @@ static FAR void *cu_listener(FAR void *parameter)
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
 static void sigint(int sig)
 {
-  g_cu.force_exit = true;
+  FAR struct cu_globals_s *cu = siginfo->si_user;
+  cu->force_exit = true;
 }
 #endif
 
@@ -280,8 +279,8 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
   struct sigaction sa;
 #endif
+  struct cu_globals_s cu;
   FAR const char *devname = CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE;
-  FAR struct cu_globals_s *cu = &g_cu;
 #ifdef CONFIG_SERIAL_TERMIOS
   int baudrate = CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD;
   enum parity_mode parity = PARITY_NONE;
@@ -297,8 +296,8 @@ int main(int argc, FAR char *argv[])
 
   /* Initialize global data */
 
-  memset(cu, 0, sizeof(*cu));
-  cu->escape = '~';
+  memset(&cu, 0, sizeof(cu));
+  cu.escape = '~';
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
   /* Install signal handlers */
 
@@ -338,7 +337,7 @@ int main(int argc, FAR char *argv[])
             break;
 
           case 'E':
-            cu->escape = atoi(optarg);
+            cu.escape = atoi(optarg);
             break;
 
           case 'h':
@@ -361,8 +360,8 @@ int main(int argc, FAR char *argv[])
 
   /* Open the serial device for reading and writing */
 
-  cu->devfd = open(devname, O_RDWR);
-  if (cu->devfd < 0)
+  cu.devfd = open(devname, O_RDWR);
+  if (cu.devfd < 0)
     {
       cu_error("cu_main: ERROR: Failed to open %s for writing: %d\n",
                devname, errno);
@@ -371,9 +370,9 @@ int main(int argc, FAR char *argv[])
 
   /* Remember serial device termios attributes */
 
-  if (isatty(cu->devfd))
+  if (isatty(cu.devfd))
     {
-      ret = tcgetattr(cu->devfd, &cu->devtio);
+      ret = tcgetattr(cu.devfd, &cu.devtio);
       if (ret)
         {
           cu_error("cu_main: ERROR during tcgetattr(): %d\n", errno);
@@ -387,30 +386,30 @@ int main(int argc, FAR char *argv[])
 
   if (isatty(STDERR_FILENO))
     {
-      cu->stdfd = STDERR_FILENO;
+      cu.stdfd = STDERR_FILENO;
     }
   else if (isatty(STDOUT_FILENO))
     {
-      cu->stdfd = STDOUT_FILENO;
+      cu.stdfd = STDOUT_FILENO;
     }
   else if (isatty(STDIN_FILENO))
     {
-      cu->stdfd = STDIN_FILENO;
+      cu.stdfd = STDIN_FILENO;
     }
   else
     {
-      cu->stdfd = -1;
+      cu.stdfd = -1;
     }
 
-  if (cu->stdfd >= 0)
+  if (cu.stdfd >= 0)
     {
-      tcgetattr(cu->stdfd, &cu->stdtio);
+      tcgetattr(cu.stdfd, &cu.stdtio);
     }
 
 #ifdef CONFIG_SERIAL_TERMIOS
-  if (set_termios(cu, baudrate, parity, rtscts, nocrlf) != 0)
+  if (set_termios(&cu, baudrate, parity, rtscts, nocrlf) != 0)
 #else
-  if (set_termios(cu, nocrlf) != 0)
+  if (set_termios(&cu, nocrlf) != 0)
 #endif
     {
       goto errout_with_devfd_retrieve;
@@ -429,7 +428,7 @@ int main(int argc, FAR char *argv[])
 
   attr.priority = CONFIG_SYSTEM_CUTERM_PRIORITY;
 
-  ret = pthread_create(&cu->listener, &attr, cu_listener, cu);
+  ret = pthread_create(&cu.listener, &attr, cu_listener, &cu);
   pthread_attr_destroy(&attr);
   if (ret != 0)
     {
@@ -439,7 +438,7 @@ int main(int argc, FAR char *argv[])
 
   /* Send messages and get responses -- forever */
 
-  while (!cu->force_exit)
+  while (!cu.force_exit)
     {
       char buf[CONFIG_LINE_MAX];
       ssize_t nwrite = 0;
@@ -469,21 +468,21 @@ int main(int argc, FAR char *argv[])
                */
 
               escaping = false;
-              if (cu_cmd(cu, ch) == 1)
+              if (cu_cmd(&cu, ch) == 1)
                 {
-                  cu->force_exit = true;
+                  cu.force_exit = true;
                   nread = i;
                   break;
                 }
             }
 
-          if (start_of_line == 1 && ch == cu->escape)
+          if (start_of_line == 1 && ch == cu.escape)
             {
               /* Normal character */
 
               if (i > nwrite)
                 {
-                  write(cu->devfd, &buf[nwrite], i - nwrite);
+                  write(cu.devfd, &buf[nwrite], i - nwrite);
                 }
 
               nwrite = i + 1;
@@ -514,19 +513,19 @@ int main(int argc, FAR char *argv[])
 
       if (nread > nwrite)
         {
-          write(cu->devfd, &buf[nwrite], nread - nwrite);
+          write(cu.devfd, &buf[nwrite], nread - nwrite);
         }
     }
 
-  pthread_cancel(cu->listener);
+  pthread_cancel(cu.listener);
   exitval = EXIT_SUCCESS;
 
   /* Error exits */
 
 errout_with_devfd_retrieve:
-  retrieve_termios(cu);
+  retrieve_termios(&cu);
 errout_with_devfd:
-  close(cu->devfd);
+  close(cu.devfd);
 errout_with_devinit:
   return exitval;
 }
