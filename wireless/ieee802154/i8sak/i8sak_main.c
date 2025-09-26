@@ -126,7 +126,8 @@ static void i8sak_switch_instance(FAR char *ifname);
  * Public Data
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
+#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL) || \
+    !defined(CONFIG_IEEE802154_MAC)
 FAR const char *g_ieee802154_status_string[] =
 {
   "Success",
