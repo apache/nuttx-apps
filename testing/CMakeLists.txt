@@ -20,5 +20,5 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+nuttx_add_subdirectory(EXCLUDE cxx-oot-build)
 nuttx_generate_kconfig(MENUDESC "Testing")
