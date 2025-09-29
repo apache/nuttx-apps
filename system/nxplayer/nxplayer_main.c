@@ -48,6 +48,17 @@
 #  define NXPLAYER_HELP_TEXT(x)
 #endif
 
+/* Size of the command input buffer.  Prefer the NSH line length when the
+ * shell is enabled so behaviour matches other readline users, otherwise
+ * fall back to a modest default.
+ */
+
+#ifdef CONFIG_NSH_LINELEN
+#  define NXPLAYER_LINELEN CONFIG_NSH_LINELEN
+#else
+#  define NXPLAYER_LINELEN 80
+#endif
+
 /****************************************************************************
  * Private Type Declarations
  ****************************************************************************/
@@ -737,7 +748,7 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pplayer, char *parg)
 
 int main(int argc, FAR char *argv[])
 {
-  char                    buffer[CONFIG_NSH_LINELEN];
+  char                    buffer[NXPLAYER_LINELEN];
   int                     len;
   int                     x;
   int                     running;
