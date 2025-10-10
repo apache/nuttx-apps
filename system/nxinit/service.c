@@ -97,6 +97,8 @@ static int option_restart_period(FAR struct service_manager_s *sm,
                                  int argc, FAR char **argv);
 static int option_override(FAR struct service_manager_s *sm,
                            int argc, FAR char **argv);
+static int option_oneshot(FAR struct service_manager_s *sm,
+                          int argc, FAR char **argv);
 
 /****************************************************************************
  * Private Data
@@ -108,6 +110,7 @@ static const struct cmd_map_s g_option[] =
   {"gentle_kill", 1, 1, option_gentle_kill},
   {"restart_period", 2, 2, option_restart_period},
   {"override", 1, 1, option_override},
+  {"oneshot", 1, 1, option_oneshot},
 };
 
 #ifdef CONFIG_SYSTEM_NXINIT_DEBUG
@@ -248,6 +251,16 @@ static int option_override(FAR struct service_manager_s *sm,
   return 0;
 }
 
+static int option_oneshot(FAR struct service_manager_s *sm,
+                          int argc, FAR char **argv)
+{
+  FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
+                                            node);
+
+  add_flags(s, SVC_ONESHOT);
+  return 0;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -361,6 +374,11 @@ init_service_find_by_pid(FAR struct service_manager_s *sm, const int pid)
 void init_service_reap(FAR struct service_s *service)
 {
   remove_flags(service, SVC_RUNNING);
+  if (check_flags(service, SVC_ONESHOT))
+    {
+      add_flags(service, SVC_DISABLED | SVC_REMOVE);
+    }
+
   if (!check_flags(service, SVC_DISABLED))
     {
       add_flags(service, SVC_RESTARTING);
