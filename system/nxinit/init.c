@@ -75,6 +75,7 @@ static void reap_process(FAR struct service_manager_s *sm,
   FAR const char *status;
   FAR struct service_s *service;
   int wstatus;
+  int ret;
   int pid;
 
   for (; ; )
@@ -93,12 +94,12 @@ static void reap_process(FAR struct service_manager_s *sm,
       else if (WIFEXITED(wstatus))
         {
           status = "status";
-          wstatus = WEXITSTATUS(wstatus);
+          ret = WEXITSTATUS(wstatus);
         }
       else if (WIFSIGNALED(wtatus))
         {
           status = "signal";
-          wstatus = WTERMSIG(wstatus);
+          ret = WTERMSIG(wstatus);
         }
       else
         {
@@ -115,12 +116,12 @@ static void reap_process(FAR struct service_manager_s *sm,
       if (service != NULL)
         {
           name = service->argv[1];
-          init_service_reap(service);
+          init_service_reap(service, ret);
         }
 
       init_log(service ? LOG_WARNING : LOG_DEBUG,
                "%s '%s' pid %d exited %s %d",
-               service ? "Service" : "Command", name, pid, status, wstatus);
+               service ? "Service" : "Command", name, pid, status, ret);
     }
 }
 

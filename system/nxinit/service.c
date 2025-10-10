@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/clock.h>
+#include <sys/boardctl.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -99,6 +100,10 @@ static int option_override(FAR struct service_manager_s *sm,
                            int argc, FAR char **argv);
 static int option_oneshot(FAR struct service_manager_s *sm,
                           int argc, FAR char **argv);
+#ifdef CONFIG_BOARDCTL_RESET
+static int option_reboot_on_failure(FAR struct service_manager_s *sm,
+                                    int argc, FAR char **argv);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -111,6 +116,9 @@ static const struct cmd_map_s g_option[] =
   {"restart_period", 2, 2, option_restart_period},
   {"override", 1, 1, option_override},
   {"oneshot", 1, 1, option_oneshot},
+#ifdef CONFIG_BOARDCTL_RESET
+  {"reboot_on_failure", 2, 2, option_reboot_on_failure},
+#endif
 };
 
 #ifdef CONFIG_SYSTEM_NXINIT_DEBUG
@@ -159,7 +167,7 @@ static int kill_service(FAR struct service_s *service, int signo)
       ret = -errno;
       if (ret == -ESRCH)
         {
-          init_service_reap(service);
+          init_service_reap(service, 0);
         }
     }
 
@@ -260,6 +268,17 @@ static int option_oneshot(FAR struct service_manager_s *sm,
   add_flags(s, SVC_ONESHOT);
   return 0;
 }
+
+#ifdef CONFIG_BOARDCTL_RESET
+static int option_reboot_on_failure(FAR struct service_manager_s *sm,
+                                    int argc, FAR char **argv)
+{
+  FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
+                                            node);
+  s->reset_reason = atoi(argv[1]);
+  return 0;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -371,8 +390,25 @@ init_service_find_by_pid(FAR struct service_manager_s *sm, const int pid)
   return NULL;
 }
 
-void init_service_reap(FAR struct service_s *service)
+void init_service_reap(FAR struct service_s *service, int status)
 {
+#ifdef CONFIG_BOARDCTL_RESET
+  int ret;
+
+  if (status && service->reset_reason >= 0)
+    {
+      init_err("Reboot on failure of service '%s' reason %d",
+               service->argv[1], service->reset_reason);
+      ret = boardctl(BOARDIOC_RESET, service->reset_reason);
+      if (ret < 0)
+        {
+          init_err("Reset failed %d", errno);
+        }
+    }
+#else
+  UNUSED(status);
+#endif
+
   remove_flags(service, SVC_RUNNING);
   if (check_flags(service, SVC_ONESHOT))
     {
@@ -404,6 +440,7 @@ int init_service_start(FAR struct service_s *service)
   if (ret != 0)
     {
       init_err("Starting service '%s': %d", service->argv[1], ret);
+      init_service_reap(service, ret);
       return -ret;
     }
 
@@ -536,6 +573,9 @@ int init_service_parse(FAR const struct parser_s *parser,
         }
 
       s->restart_period = CONFIG_SYSTEM_NXINIT_SERVICE_RESTART_PERIOD;
+#ifdef CONFIG_BOARDCTL_RESET
+      s->reset_reason = -1;
+#endif
       list_initialize(&s->classes);
       list_add_tail(&sm->services, &s->node);
     }
@@ -618,6 +658,9 @@ void init_dump_service(FAR struct service_s *s)
     }
 
   init_debug("  restart_period: %d", s->restart_period);
+#ifdef CONFIG_BOARDCTL_RESET
+  init_debug("  reboot_on_failure: %d", s->reset_reason);
+#endif
 
   if (s->flags)
     {
