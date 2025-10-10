@@ -260,7 +260,7 @@ int SSL_get_error(const SSL *ssl, int ret_code)
   return ret;
 }
 
-SSL_CTX *SSL_CTX_new(const SSL_METHOD *method, ...)
+SSL_CTX *SSL_CTX_new(const SSL_METHOD *method)
 {
   SSL_CTX *ctx;
   CERT *cert;
