@@ -251,7 +251,7 @@ int SSL_get_error(const SSL *ssl, int ret_code);
 
 OSSL_HANDSHAKE_STATE SSL_get_state(const SSL *ssl);
 
-SSL_CTX *SSL_CTX_new(const SSL_METHOD *method, ...);
+SSL_CTX *SSL_CTX_new(const SSL_METHOD *method);
 
 void SSL_CTX_free(SSL_CTX *ctx);
 
