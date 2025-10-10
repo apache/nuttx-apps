@@ -22,7 +22,7 @@ config MCUBOOT_REPOSITORY
 
 config MCUBOOT_VERSION
 	string "MCUboot version"
-	default "fefc398cc13ebbc527e297fe9df78cd98a359d75"
+	default "8a07053d42e592c85cb35b79c4de1b7749943387"
 	---help---
 		Defines MCUboot version to be downloaded. Either release tag
 		or commit hash should be specified. Using newer MCUboot version
