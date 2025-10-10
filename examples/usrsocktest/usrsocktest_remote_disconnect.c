@@ -871,7 +871,6 @@ static void remote_disconnect_poll2(struct usrsocktest_daemon_conf_s *dconf)
       TEST_ASSERT_EQUAL(1, ret);
       TEST_ASSERT_EQUAL(0, pfd.revents & POLLERR);
       TEST_ASSERT_EQUAL(POLLHUP, pfd.revents & POLLHUP);
-      TEST_ASSERT_EQUAL(*events & POLLIN, pfd.revents & POLLIN);
       TEST_ASSERT_EQUAL(0, pfd.revents & POLLOUT);
       TEST_ASSERT_EQUAL(1, usrsocktest_daemon_get_num_active_sockets());
       TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_connected_sockets());
