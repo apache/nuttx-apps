@@ -100,6 +100,12 @@ struct service_s
   struct timespec time_kill;
   int restart_period;
   pid_t pid;
+
+  /* The "target" of service option "reboot_on_failure" */
+
+#ifdef CONFIG_BOARDCTL_RESET
+  int reset_reason;
+#endif
 };
 
 struct service_manager_s
@@ -112,7 +118,7 @@ struct service_manager_s
  ****************************************************************************/
 
 int  init_service_refresh(FAR struct service_manager_s *sm);
-void init_service_reap(FAR struct service_s *service);
+void init_service_reap(FAR struct service_s *service, int status);
 int  init_service_start(FAR struct service_s *service);
 int  init_service_stop(FAR struct service_s *service);
 int  init_service_start_by_class(FAR struct service_manager_s *sm,
