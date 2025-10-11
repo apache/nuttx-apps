@@ -105,16 +105,17 @@ static void reap_process(FAR struct service_manager_s *sm,
           continue;
         }
 
+      if (pid == am->pid_running)
+        {
+          name = am->running->argv[0];
+          init_action_reap_command(am);
+        }
+
       service = init_service_find_by_pid(sm, pid);
       if (service != NULL)
         {
           name = service->argv[1];
           init_service_reap(service);
-        }
-      else if (pid == am->pid_running)
-        {
-          name = am->running->argv[0];
-          init_action_reap_command(am);
         }
 
       init_log(service ? LOG_WARNING : LOG_DEBUG,
