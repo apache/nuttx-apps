@@ -414,7 +414,7 @@ int init_service_start(FAR struct service_s *service)
   remove_flags(service, SVC_DISABLED);
   init_info("Started service '%s' pid %d", service->argv[1], service->pid);
 
-  return 0;
+  return service->pid;
 }
 
 int init_service_stop(FAR struct service_s *service)
