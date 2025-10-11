@@ -53,6 +53,8 @@ struct cmd_map_s
 
 static int cmd_trigger(FAR struct action_manager_s *am,
                        int argc, FAR char **argv);
+static int cmd_exec_start(FAR struct action_manager_s *am,
+                          int argc, FAR char **argv);
 static int cmd_start(FAR struct action_manager_s *am,
                      int argc, FAR char **argv);
 static int cmd_stop(FAR struct action_manager_s *am,
@@ -73,6 +75,7 @@ static const struct cmd_map_s g_builtin[] =
   {"class_start", 2, 2, cmd_class_start},
   {"class_stop", 2, 2, cmd_class_stop},
   {"exec", 3, 99, cmd_exec},
+  {"exec_start", 2, 2, cmd_exec_start},
   {"start", 2, 2, cmd_start},
   {"stop", 2, 2, cmd_stop},
   {"trigger", 2, 2, cmd_trigger},
@@ -94,8 +97,8 @@ static int cmd_class_stop(FAR struct action_manager_s *am,
   return init_service_stop_by_class(am->sm, argv[1]);
 }
 
-static int cmd_start(FAR struct action_manager_s *am,
-                     int argc, FAR char **argv)
+static int cmd_exec_start(FAR struct action_manager_s *am,
+                          int argc, FAR char **argv)
 {
   FAR struct service_s *service;
 
@@ -107,6 +110,15 @@ static int cmd_start(FAR struct action_manager_s *am,
     }
 
   return init_service_start(service);
+}
+
+static int cmd_start(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv)
+{
+  int ret;
+
+  ret = cmd_exec_start(am, argc, argv);
+  return ret < 0 ? ret : 0;
 }
 
 static int cmd_stop(FAR struct action_manager_s *am,
