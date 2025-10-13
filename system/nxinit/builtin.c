@@ -25,9 +25,11 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <spawn.h>
+#include <sys/boardctl.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 
@@ -70,6 +72,10 @@ static int cmd_class_start(FAR struct action_manager_s *am,
                            int argc, FAR char **argv);
 static int cmd_class_stop(FAR struct action_manager_s *am,
                           int argc, FAR char **argv);
+#ifdef CONFIG_BOARDCTL_BOOT_IMAGE
+static int cmd_boot(FAR struct action_manager_s *am,
+                    int argc, FAR char **argv);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -77,6 +83,9 @@ static int cmd_class_stop(FAR struct action_manager_s *am,
 
 static const struct cmd_map_s g_builtin[] =
 {
+#ifdef CONFIG_BOARDCTL_BOOT_IMAGE
+  {"boot", 1, 3, cmd_boot},
+#endif
   {"class_start", 2, 2, cmd_class_start},
   {"class_stop", 2, 2, cmd_class_stop},
   {"exec", 3, 99, cmd_exec},
@@ -92,6 +101,32 @@ static const struct cmd_map_s g_builtin[] =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef CONFIG_BOARDCTL_BOOT_IMAGE
+static int cmd_boot(FAR struct action_manager_s *am,
+                    int argc, FAR char **argv)
+{
+  struct boardioc_boot_info_s info;
+
+  UNUSED(am);
+  memset(&info, 0, sizeof(info));
+
+  if (argc > 1)
+    {
+      info.path = argv[1];
+    }
+
+  if (argc > 2)
+    {
+      info.header_size = strtoul(argv[2], NULL, 0);
+    }
+
+  boardctl(BOARDIOC_BOOT_IMAGE, (uintptr_t)&info);
+  init_err("boot image '%s' %" PRIu32 "", info.path ? info.path : "",
+           info.header_size);
+  return -ENOENT;
+}
+#endif
 
 static int cmd_class_start(FAR struct action_manager_s *am,
                            int argc, FAR char **argv)
