@@ -178,6 +178,10 @@ int init_parse_config_file(FAR const struct parser_s *parser,
           *(nl++) = '\0';
           n -= nl - buf;
           init_debug("Line %3d: '%s'", ++line, buf);
+          if (*buf == '\0')
+            {
+              continue;
+            }
 
           for (ret = 0; parser[ret].key; ret++)
             {
