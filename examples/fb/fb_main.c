@@ -211,7 +211,7 @@ static int fb_init_mem2(FAR struct fb_state_s *state)
 
   if (pinfo.bpp != state->pinfo.bpp)
     {
-      fprintf(stderr, "ERROR: fbmem2 is incorrect");
+      fprintf(stderr, "ERROR: fbmem2 is incorrect\n");
       return -EINVAL;
     }
 
@@ -622,7 +622,7 @@ int main(int argc, FAR char *argv[])
   if (state.fbmem == MAP_FAILED)
     {
       int errcode = errno;
-      fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
+      fprintf(stderr, "ERROR: mmap() failed: %d\n",
               errcode);
       close(state.fd);
       return EXIT_FAILURE;
