@@ -28,6 +28,8 @@
 
 #include <errno.h>
 #include <poll.h>
+#include <string.h>
+#include <sys/boardctl.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 
@@ -107,6 +109,68 @@ static void reap_process(FAR struct service_manager_s *sm,
     }
 }
 
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
+static int init_boot_reason(FAR struct action_manager_s *am)
+{
+  static FAR const char *const resetcause[] =
+    {
+      [BOARDIOC_RESETCAUSE_NONE]        = "unkown",
+      [BOARDIOC_RESETCAUSE_SYS_CHIPPOR] = "cold",
+      [BOARDIOC_RESETCAUSE_SYS_RWDT]    = "watchdog",
+      [BOARDIOC_RESETCAUSE_SYS_BOR]     = "undervoltage",
+      [BOARDIOC_RESETCAUSE_CORE_SOFT]   = "warm",
+      [BOARDIOC_RESETCAUSE_CORE_DPSP]   = "warm",
+      [BOARDIOC_RESETCAUSE_CORE_MWDT]   = "watchdog",
+      [BOARDIOC_RESETCAUSE_CORE_RWDT]   = "watchdog",
+      [BOARDIOC_RESETCAUSE_CPU_MWDT]    = "watchdog",
+      [BOARDIOC_RESETCAUSE_CPU_SOFT]    = "warm",
+      [BOARDIOC_RESETCAUSE_CPU_RWDT]    = "watchdog",
+      [BOARDIOC_RESETCAUSE_PIN]         = "powerkey",
+      [BOARDIOC_RESETCAUSE_LOWPOWER]    = "lowpower",
+      [BOARDIOC_RESETCAUSE_UNKOWN]      = "unkown",
+    };
+
+  static FAR const char * const resetflag[] =
+    {
+      [BOARDIOC_SOFTRESETCAUSE_USER_REBOOT]             = "reboot",
+      [BOARDIOC_SOFTRESETCAUSE_PANIC]                   = "kernel_panic",
+      [BOARDIOC_SOFTRESETCAUSE_ENTER_BOOTLOADER]        = "bootloader",
+      [BOARDIOC_SOFTRESETCAUSE_ENTER_RECOVERY]          = "recovery",
+      [BOARDIOC_SOFTRESETCAUSE_RESTORE_FACTORY]         = "factory_reset",
+      [BOARDIOC_SOFTRESETCAUSE_RESTORE_FACTORY_INQUIRY] =
+        "factory_reset_inquiry",
+      [BOARDIOC_SOFTRESETCAUSE_THERMAL]                 = "thermal",
+    };
+
+  struct boardioc_reset_cause_s reset;
+  int ret;
+
+  memset(&reset, 0, sizeof(reset));
+  ret = boardctl(BOARDIOC_RESET_CAUSE, (uintptr_t)&reset);
+  if (ret < 0)
+    {
+      init_err("boardctl BOARDIOC_RESET_CAUSE failed: %d", ret);
+      return ret;
+    }
+
+  if (reset.cause >= nitems(resetcause))
+    {
+      reset.cause = nitems(resetcause) - 1;
+    }
+
+  if (reset.flag >= nitems(resetflag))
+    {
+      reset.flag = nitems(resetflag) - 1;
+    }
+
+  return init_property_set(am->prop, "sys.boot.reason",
+                           reset.cause != BOARDIOC_RESETCAUSE_CPU_SOFT ?
+                           resetcause[reset.cause] : resetflag[reset.flag]);
+}
+#else
+#  define init_boot_reason(am) (0)
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -184,6 +248,12 @@ int main(int argc, FAR char *argv[])
 
   init_dump_actions(&am.actions);
   init_dump_services(&sm.services);
+
+  r = init_boot_reason(&am);
+  if (r < 0)
+    {
+      goto out;
+    }
 
   init_action_add_event(&am, "boot");
 
