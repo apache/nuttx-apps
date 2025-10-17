@@ -18,8 +18,7 @@
 #
 ############################################################################
 
-from shv.rpcapi.valueclient import SHVValueClient
-from shv.rpcurl import RpcUrl
+from shv import RpcUrl, SHVValueClient
 
 
 async def shv_confirm(connection: str, path_to_root: str) -> None:

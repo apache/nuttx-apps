@@ -22,9 +22,7 @@ import asyncio
 import io
 import zlib
 
-from shv import SHVBytes
-from shv.rpcapi.valueclient import SHVValueClient
-from shv.rpcurl import RpcUrl
+from shv import RpcUrl, SHVBytes, SHVValueClient
 
 
 async def shv_flasher(

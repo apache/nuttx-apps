@@ -1,4 +1,4 @@
-pyshv>=0.10.0
+pyshv==0.8.0
 PyQt6
 argparse
 asyncio
