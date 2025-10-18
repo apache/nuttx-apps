@@ -313,7 +313,7 @@ int main(int argc, FAR char *argv[])
     }
 #endif
 #else
-#  Warning "No file system selected"
+#  warning "No file system selected"
 #endif
 
   mm_update(&g_mmstep, "after mount");
