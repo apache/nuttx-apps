@@ -342,6 +342,7 @@ jobs:
             ninja
             python-pip
             vim
+            genromfs
 
       - name: pip3 install
         run: |
