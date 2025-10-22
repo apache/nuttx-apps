@@ -179,7 +179,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  r = init_parse_config_file(parser, CONFIG_SYSTEM_NXINIT_RC_FILE_PATH);
+  r = init_parse_configs(parser);
   if (r < 0)
     {
       goto out;

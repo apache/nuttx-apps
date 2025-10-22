@@ -26,6 +26,7 @@
 
 #include <ctype.h>
 #include <fcntl.h>
+#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -255,54 +256,37 @@ out:
   return ret;
 }
 
-int init_parse_configs(FAR const struct parser_s *parser,
-                       FAR const char *path)
+int init_parse_configs(FAR const struct parser_s *parser)
 {
-  FAR struct dirent *entry;
+  FAR const char *path = CONFIG_SYSTEM_NXINIT_RC_FILE_PATH;
+  FAR const char *ext;
   char file[PATH_MAX];
-  struct stat sb;
-  FAR DIR *dir;
-  int ret = 0;
-  size_t i;
+  int ret;
 
-  if (stat(path, &sb) < 0)
+  ret = init_parse_config_file(parser, path);
+  if (ret < 0)
     {
-      init_err("Stat %s", path);
-      return -errno;
+      return ret;
     }
 
-  if (S_ISDIR(sb.st_mode))
-    {
-      dir = opendir(path);
-      if (dir == NULL)
-        {
-          init_err("Opening directory %s", path);
-          return -errno;
-        }
+  /* Parse the optional cpu-specific config derived from the rc path, e.g.
+   * "/etc/init.d/init.rc" -> "/etc/init.d/init.cpu0.rc".
+   */
 
-      while ((entry = readdir(dir)) != NULL)
-        {
-          if (DIRENT_ISFILE(entry->d_type))
-            {
-              i = strlen(entry->d_name);
-              if (i >= 3 && !strcmp(entry->d_name + i - 3, ".rc"))
-                {
-                  snprintf(file, sizeof(file), "%s/%s", path, entry->d_name);
-                  ret = init_parse_config_file(parser, file);
-                  if (ret < 0)
-                    {
-                      break;
-                    }
-                }
-            }
-        }
-
-      closedir(dir);
-    }
-  else if (S_ISREG(sb.st_mode))
+  ext = strrchr(path, '.');
+  if (ext == NULL)
     {
-      ret = init_parse_config_file(parser, path);
+      return 0;
     }
 
-  return ret;
+  snprintf(file, sizeof(file), "%.*s.cpu%d%s",
+           (int)(ext - path), path, sched_getcpu(), ext);
+
+  if (access(file, F_OK) < 0)
+    {
+      init_debug("skipping non-exist file %s", file);
+      return 0;
+    }
+
+  return init_parse_config_file(parser, file);
 }
