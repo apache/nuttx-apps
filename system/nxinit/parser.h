@@ -53,8 +53,7 @@ struct parser_s
  ****************************************************************************/
 
 int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv);
-int init_parse_configs(FAR const struct parser_s *parser,
-                       FAR const char *path);
+int init_parse_configs(FAR const struct parser_s *parser);
 int init_parse_config_file(FAR const struct parser_s *parser,
                            FAR const char *file);
 #endif
