@@ -598,6 +598,7 @@ static int cmd_rpmsg_once(FAR struct nsh_vtbl_s *vtbl,
 
   if (strcmp(argv[1], "dump") == 0)
     {
+      val = 1;
       cmd = RPMSGIOC_DUMP;
     }
 #ifdef CONFIG_RPMSG_PING
