@@ -98,6 +98,10 @@ static void cap_help(void)
   printf("  [-p devpath] Capture device path\n");
   printf("  [-n samples] Number of samples\n");
   printf("  [-t msec]    Delay between samples (msec)\n");
+#ifdef CONFIG_CAPTURE_NOTIFY
+  printf("  [-w signo]:  Wait for a signal if given "
+         "otherwise POLL mode if this is an interrupt pin.\n");
+#endif
   printf("  [-h]         Shows this message and exits\n\n");
 }
 
@@ -149,6 +153,7 @@ static void parse_args(int argc, FAR char **argv)
 
   g_capexample.nloops = CONFIG_EXAMPLES_CAPTURE_NSAMPLES;
   g_capexample.delay  = CONFIG_EXAMPLES_CAPTURE_DELAY;
+  g_capexample.signo  = 1;
 
   for (index = 1; index < argc; )
     {
@@ -191,6 +196,20 @@ static void parse_args(int argc, FAR char **argv)
             index += nargs;
             break;
 
+#ifdef CONFIG_CAPTURE_NOTIFY
+          case 'w':
+            nargs = arg_decimal(&argv[index], &value);
+            if (value < MIN_SIGNO || value > MAX_SIGNO)
+              {
+                printf("Wait signo out of range: %ld\n", value);
+                exit(1);
+              }
+
+            g_capexample.signo = (int)value;
+            index += nargs;
+            break;
+#endif
+
           case 'h':
             cap_help();
             exit(EXIT_SUCCESS);
@@ -214,12 +233,17 @@ static void parse_args(int argc, FAR char **argv)
 int main(int argc, FAR char *argv[])
 {
   int8_t dutycycle;
-  int32_t frequence;
+  int32_t frequency;
   int32_t edges;
   int fd;
   int exitval = EXIT_SUCCESS;
   int ret;
   int nloops;
+#ifdef CONFIG_CAPTURE_NOTIFY
+  struct cap_notify_s notify;
+  struct timespec ts;
+  sigset_t set;
+#endif
 
   /* Set the default values */
 
@@ -241,6 +265,56 @@ int main(int argc, FAR char *argv[])
       exitval = EXIT_FAILURE;
       goto errout;
     }
+
+#ifdef CONFIG_CAPTURE_NOTIFY
+  notify.chan = 0;
+  notify.type = CAP_TYPE_BOTH;
+
+  notify.event.sigev_notify = SIGEV_SIGNAL;
+  notify.event.sigev_signo  = g_capexample.signo;
+
+  ret = ioctl(fd, CAPIOC_REGISTER, (unsigned long)&notify);
+  if (ret < 0)
+    {
+      printf("cap_main: ioctl(GPIOC_REGISTER) failed: %d\n", errno);
+      exitval = EXIT_FAILURE;
+      goto errout_with_dev;
+    }
+
+  /* Wait up to 5 seconds for the signal */
+
+  sigemptyset(&set);
+  sigaddset(&set, g_capexample.signo);
+
+  ts.tv_sec  = 5;
+  ts.tv_nsec = 0;
+
+  ret = sigtimedwait(&set, NULL, &ts);
+  ioctl(fd, CAPIOC_UNREGISTER, notify.chan);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      if (errcode == EAGAIN)
+        {
+          printf("cpu_main: Five second timeout with no signal\n");
+          exitval = EXIT_FAILURE;
+          goto errout_with_dev;
+        }
+      else
+        {
+          printf("cpu_main: ERROR: Failed to wait signal %d "
+                 "from %s: %d\n", g_capexample.signo, g_capexample.devpath,
+                 errcode);
+          exitval = EXIT_FAILURE;
+          goto errout_with_dev;
+        }
+    }
+  else
+    {
+      printf("cap_main: Received signal %d from %s\n",
+             g_capexample.signo, g_capexample.devpath);
+    }
+#endif
 
   /* Now loop the appropriate number of times, displaying the collected
    * encoder samples.
@@ -275,10 +349,10 @@ int main(int argc, FAR char *argv[])
           printf("pwm duty cycle: %d %% \n", dutycycle);
         }
 
-      /* Get the frequence data using the ioctl */
+      /* Get the frequency data using the ioctl */
 
       ret = ioctl(fd, CAPIOC_FREQUENCE,
-                  (unsigned long)((uintptr_t)&frequence));
+                  (unsigned long)((uintptr_t)&frequency));
       if (ret < 0)
         {
           printf("cap_main: ioctl(CAPIOC_FREQUENCE) failed: %d\n", errno);
@@ -290,7 +364,7 @@ int main(int argc, FAR char *argv[])
 
       else
         {
-          printf("pwm frequence: %"PRId32" Hz \n", frequence);
+          printf("pwm frequency: %"PRId32" Hz \n", frequency);
         }
 
       /* Get the edges data using the ioctl */

@@ -42,6 +42,7 @@ struct cap_example_s
   FAR char    *devpath;     /* Path to the capture device */
   unsigned int nloops;      /* Collect this number of samples */
   unsigned int delay;       /* Delay this number of seconds between samples */
+  int          signo;       /* Signal number to deliver on isr occur */
 };
 
 /****************************************************************************
