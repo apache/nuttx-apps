@@ -91,7 +91,12 @@ FAR static void * lock_type##_test_thread(FAR void *arg) \
   struct timespec start; \
   struct timespec end; \
   int i; \
-  VERIFY(0 == pthread_barrier_wait(&param->pub->barrier)); \
+  int ret; \
+  ret = pthread_barrier_wait(&param->pub->barrier); \
+  if (ret != 0 && ret != PTHREAD_BARRIER_SERIAL_THREAD) \
+    { \
+      ASSERT(false); \
+    } \
   clock_gettime(CLOCK_REALTIME, &start); \
   for (i = 0; i < LOOP_TIMES; i++) \
     { \
@@ -121,8 +126,14 @@ static inline void run_test_thread(
   struct timespec stime;
   struct timespec etime;
   int i;
+  int ret;
 
-  VERIFY(0 == pthread_barrier_init(&pub.barrier, NULL, THREAD_NUM + 1));
+  ret = pthread_barrier_init(&pub.barrier, NULL, THREAD_NUM + 1);
+  if (ret != 0)
+    {
+      ASSERT(false);
+    }
+
   pub.counter = 0;
   if (lock_type == RSPINLOCK)
     {
@@ -141,7 +152,11 @@ static inline void run_test_thread(
       pthread_create(&tid[i], NULL, thread_func, &param[i]);
     }
 
-  VERIFY(0 == pthread_barrier_wait(&pub.barrier));
+  ret = pthread_barrier_wait(&pub.barrier);
+  if (ret != 0 && ret != PTHREAD_BARRIER_SERIAL_THREAD)
+    {
+      ASSERT(false);
+    }
 
   for (i = 0; i < THREAD_NUM; i++)
     {
@@ -149,7 +164,11 @@ static inline void run_test_thread(
     }
 
   clock_gettime(CLOCK_REALTIME, &etime);
-  VERIFY(0 == pthread_barrier_destroy(&pub.barrier));
+  ret = pthread_barrier_destroy(&pub.barrier);
+  if (ret != 0)
+    {
+      ASSERT(false);
+    }
 
   uint64_t total_ns = 0;
   for (i = 0; i < THREAD_NUM; i++)
