@@ -149,7 +149,11 @@ static inline void run_test_thread(
     {
       param[i].pub = &pub;
       param[i].delta = 0;
-      pthread_create(&tid[i], NULL, thread_func, &param[i]);
+      ret = pthread_create(&tid[i], NULL, thread_func, &param[i]);
+      if (ret != 0)
+        {
+          ASSERT(false);
+        }
     }
 
   ret = pthread_barrier_wait(&pub.barrier);
