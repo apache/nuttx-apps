@@ -453,16 +453,24 @@ void orb_info(FAR const char *format, FAR const char *name,
   vaf.va  = (va_list *)data;
 
   lib_stdoutstream(&stdoutstream, stdout);
+
+  flockfile(stdout);
   lib_sprintf(&stdoutstream.common, "%s(now:%" PRIu64 "):%pB\n",
               name, orb_absolute_time(), &vaf);
+  funlockfile(stdout);
 }
 
 int orb_fprintf(FAR FILE *stream, FAR const char *format,
                 FAR const void *data)
 {
   struct lib_stdoutstream_s stdoutstream;
+  int ret;
 
   lib_stdoutstream(&stdoutstream, stream);
-  return lib_bsprintf(&stdoutstream.common, format, data);
+
+  flockfile(stream);
+  ret = lib_bsprintf(&stdoutstream.common, format, data);
+  funlockfile(stream);
+  return ret;
 }
 #endif
