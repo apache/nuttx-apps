@@ -144,7 +144,7 @@ jobs:
     steps:
 
       - name: Download Source Artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: source-bundle
           path: .
@@ -198,7 +198,7 @@ jobs:
       DOCKER_BUILDKIT: 1
     steps:
       - name: Download Source Artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: source-bundle
           path: .
@@ -257,7 +257,7 @@ jobs:
         boards: ${{ fromJSON(needs.macOS-Arch.outputs.selected_builds) }}
     steps:
       - name: Download Source Artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: source-bundle
           path: .
@@ -352,7 +352,7 @@ jobs:
       - run: git config --global core.autocrlf false
 
       - name: Download Source Artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: source-bundle
           path: .
@@ -406,7 +406,7 @@ jobs:
       - run: git config --global core.autocrlf false
 
       - name: Download Source Artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: source-bundle
           path: .
