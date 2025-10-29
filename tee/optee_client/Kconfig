@@ -1,5 +1,5 @@
 ############################################################################
-# apps/tee/libteec/Kconfig
+# apps/tee/optee_client/Kconfig
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -38,8 +38,39 @@ config LIBTEEC
 
 if LIBTEEC
 
-config LIBTEEC_VERSION
+config OPTEE_CLIENT_VERSION
 	string "optee_client version (4.6.0)"
 	default "4.6.0"
 
 endif # LIBTEEC
+
+config OPTEE_SUPPLICANT
+	bool "OP-TEE supplicant"
+	depends on LIBTEEC
+	default n
+	---help---
+		Enable OP-TEE supplicant from https://github.com/OP-TEE/optee_client.
+
+if OPTEE_SUPPLICANT
+
+config OPTEE_SUPPLICANT_PROGNAME
+	string "Program name"
+	default "optee_supplicant"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config OPTEE_SUPPLICANT_PRIORITY
+	int "OP-TEE supplicant task priority"
+	default 100
+
+config OPTEE_SUPPLICANT_STACKSIZE
+	int "OP-TEE supplicant stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config OPTEE_SUPPLICANT_LOG_LEVEL
+	int "Log level for the supplicant (0‑4)"
+	range 0 4
+	default 0
+
+endif # OPTEE_SUPPLICANT

@@ -26,14 +26,17 @@ if(CONFIG_LIBTEEC)
   if(NOT EXISTS ${OPTEE_CLIENT_DIR})
     set(OPTEE_CLIENT_URL
         https://github.com/OP-TEE/optee_client/archive/refs/tags)
-    set(OPTEE_CLIENT_VER ${CONFIG_LIBTEEC_VERSION})
+    set(OPTEE_CLIENT_VER ${CONFIG_OPTEE_CLIENT_VERSION})
     FetchContent_Declare(
       optee_client_fetch
       URL ${OPTEE_CLIENT_URL}/${OPTEE_CLIENT_VER}.zip SOURCE_DIR
           ${OPTEE_CLIENT_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/tee/libteec/optee_client
-      PATCH_COMMAND patch -p1 -d ${OPTEE_CLIENT_DIR} <
-                    ${CMAKE_CURRENT_LIST_DIR}/0001-libteec-NuttX.patch
+          ${CMAKE_BINARY_DIR}/tee/optee_client/optee_client
+      PATCH_COMMAND
+        patch -p1 -d ${OPTEE_CLIENT_DIR} <
+        ${CMAKE_CURRENT_LIST_DIR}/0001-libteec-NuttX.patch && patch -p1 -d
+        ${OPTEE_CLIENT_DIR} <
+        ${CMAKE_CURRENT_LIST_DIR}/0002-tee-supplicant-port-to-nuttx.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -53,8 +56,7 @@ if(CONFIG_LIBTEEC)
 
   target_sources(libteec PRIVATE optee_client/libteec/src/tee_client_api.c
                                  optee_client/libteec/src/teec_trace.c)
-  target_include_directories(libteec
-                             PRIVATE ${OPTEE_CLIENT_DIR}/libteec/include)
+  target_include_directories(libteec PUBLIC ${OPTEE_CLIENT_DIR}/libteec/include)
   target_compile_definitions(libteec PUBLIC BINARY_PREFIX=\"TEEC\")
 
   if(CONFIG_DEBUG_INFO)
@@ -68,4 +70,46 @@ if(CONFIG_LIBTEEC)
     target_compile_definitions(libteec PUBLIC DEBUGLEVEL=1)
   endif()
 
-endif()
+  if(CONFIG_OPTEE_SUPPLICANT)
+
+    # Source files for supplicant
+    set(SUPPLICANT_SRCS
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/tee_supplicant.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/handle.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/hmac_sha2.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/sha2.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/sd_notify.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/teec_ta_load.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/tee_supp_fs.c
+        ${OPTEE_CLIENT_DIR}/tee-supplicant/src/rpmb.c)
+
+    set(SUPPLICANT_DEFS
+        TEEC_LOAD_PATH=\"/bin\" TEE_FS_PARENT_PATH=\"/data/tee\"
+        DEBUGLEVEL_${CONFIG_OPTEE_SUPPLICANT_LOG_LEVEL})
+
+    if(CONFIG_OPTEE_GP_SOCKETS)
+      list(APPEND SUPPLICANT_SRCS
+           ${OPTEE_CLIENT_DIR}/tee-supplicant/src/tee_socket.c)
+      list(APPEND SUPPLICANT_DEFS CFG_GP_SOCKETS=1)
+    endif()
+
+    # Add the application
+    nuttx_add_application(
+      NAME
+      ${CONFIG_OPTEE_SUPPLICANT_PROGNAME}
+      SRCS
+      ${SUPPLICANT_SRCS}
+      INCLUDE_DIRECTORIES
+      ${OPTEE_CLIENT_DIR}/tee-supplicant/src
+      DEFINITIONS
+      ${SUPPLICANT_DEFS}
+      STACKSIZE
+      ${CONFIG_OPTEE_SUPPLICANT_STACKSIZE}
+      PRIORITY
+      ${CONFIG_OPTEE_SUPPLICANT_PRIORITY}
+      DEPENDS
+      libteec)
+
+  endif() # CONFIG_OPTEE_SUPPLICANT
+
+endif() # CONFIG_LIBTEEC
