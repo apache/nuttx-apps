@@ -1,9 +1,7 @@
 ############################################################################
-# apps/tee/libteec/Make.defs
+# apps/tee/optee_client/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
-#
-# Copyright (C) 2023 Xiaomi Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +18,9 @@
 ############################################################################
 
 ifneq ($(CONFIG_LIBTEEC),)
-CONFIGURED_APPS += $(APPDIR)/tee/libteec
+CONFIGURED_APPS += $(APPDIR)/tee/optee_client
 
-FLAGS += ${INCDIR_PREFIX}$(APPDIR)/tee/libteec/optee_client/libteec/include
+FLAGS += ${INCDIR_PREFIX}$(APPDIR)/tee/optee_client/optee_client/libteec/include
 FLAGS += ${DEFINE_PREFIX}BINARY_PREFIX="\"TEEC\""
 
 ifneq ($(CONFIG_DEBUG_INFO),)
@@ -39,8 +37,5 @@ endif
 AFLAGS += $(FLAGS)
 CFLAGS += $(FLAGS)
 CXXFLAGS += $(FLAGS)
-
-DEPPATH += --dep-path libteec
-VPATH += :libteec
 
 endif
