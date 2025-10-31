@@ -135,12 +135,7 @@ void lcp_rx(struct ppp_context_s *ctx, uint8_t * buffer, uint16_t count)
       /* In case of new peer connection */
 
       ipcp_init(ctx);
-
-      /* Clear LCP state to keep it in negotiation phase. LCP_TX_UP will be
-       * re-set once a CONF_ACK is received.
-       */
-
-      ctx->lcp_state &= ~LCP_TX_UP;
+      ctx->lcp_state &= ~LCP_RX_UP;
 
       DEBUG1(("received [LCP Config Request id %u\n", id));
       if (scan_packet
