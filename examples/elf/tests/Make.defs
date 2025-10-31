@@ -21,7 +21,9 @@
 ifeq ($(CONFIG_EXAMPLES_ELF),y)
   CONFIGURED_APPS += $(APPDIR)/examples/elf/tests/errno
   CONFIGURED_APPS += $(APPDIR)/examples/elf/tests/hello
-  CONFIGURED_APPS += $(APPDIR)/examples/elf/tests/signal
+  ifneq ($(CONFIG_DISABLE_SIGNALS),y)
+    CONFIGURED_APPS += $(APPDIR)/examples/elf/tests/signal
+  endif
   CONFIGURED_APPS += $(APPDIR)/examples/elf/tests/struct
   ifeq ($(CONFIG_HAVE_CXX),y)
     CONFIGURED_APPS += $(APPDIR)/examples/elf/tests/helloxx
