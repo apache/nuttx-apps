@@ -30,6 +30,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/ioctl.h>
+
 #include <nuttx/bits.h>
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/input/ff.h>
