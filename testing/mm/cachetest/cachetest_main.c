@@ -253,7 +253,7 @@ int main(int argc, FAR char *argv[])
         }
       else
         {
-          syslog(LOG_INFO, CACHETEST_PREFIX "comparsion success!\n");
+          syslog(LOG_INFO, CACHETEST_PREFIX "comparison success!\n");
         }
 
       /* To prevent tasks from being occupied all the time, switch
