@@ -76,7 +76,7 @@ static char *ifindex2name(int fd, unsigned index, char *name)
   int ret;
 
   ifr.ifr_ifindex = index;
-  ret = ioctl(fd, siocgifname, &ifr);
+  ret = ioctl(fd, SIOCGIFNAME, &ifr);
   if (ret < 0)
     {
       return NULL;
@@ -185,7 +185,7 @@ static int ioctltestinternal(int sfd)
   assert_int_equal(ret, lanindex);
 
   ifr.ifr_ifindex = lanindex;
-  ret = ioctl(sfd, siocgifname, &ifr);
+  ret = ioctl(sfd, SIOCGIFNAME, &ifr);
   assert_int_equal(ret, 0);
   syslog(LOG_INFO, "name of ifindex %u: %s", lanindex, ifr.ifr_name);
   assert_string_equal(ifr.ifr_name, lanname);
