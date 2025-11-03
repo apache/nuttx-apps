@@ -78,4 +78,11 @@ config SPITOOL_DEFWORDS
 	---help---
 		Number of words to be transferred (default 1)
 
+config SPITOOL_DEFTRANS
+	int "Number of transfer"
+	default 1
+	range 1 255
+	---help---
+		Number of transfer to be transferred (default 1)
+
 endif # SYSTEM_SPITOOL
