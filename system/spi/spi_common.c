@@ -174,12 +174,12 @@ int spitool_common_args(FAR struct spitool_s *spitool, FAR char **arg)
 
       case 'r':
         ret = arg_decimal(arg, &value);
-        if (value < 0)
+        if (value < 0 || value > UINT8_MAX)
           {
             goto out_of_range;
           }
 
-        spitool->count = (uint32_t)value;
+        spitool->trans_count = (uint8_t)value;
         return ret;
 
       case 'u':

@@ -64,7 +64,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
   };
 
   uint8_t *txdatap = txdata;
-  struct spi_trans_s trans;
+  FAR struct spi_trans_s *trans;
   struct spi_sequence_s seq;
   uint32_t d;
 
@@ -93,7 +93,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
 
   /* There may be transmit data on the command line */
 
-  if (argc - argndx > spitool->count)
+  if (argc - argndx > spitool->count * spitool->trans_count)
     {
       spitool_printf(spitool, g_spitoomanyargs, argv[0]);
       return ERROR;
@@ -120,7 +120,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
     }
 
   spitool_printf(spitool, "Sending:\t");
-  for (d = 0; d < spitool->count; d++)
+  for (d = 0; d < spitool->count * spitool->trans_count; d++)
     {
       if (spitool->width <= 8)
         {
@@ -138,12 +138,20 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
 
   spitool_printf(spitool, "\n");
 
+  trans = malloc(sizeof(struct spi_trans_s) * spitool->trans_count);
+  if (!trans)
+    {
+      spitool_printf(spitool, "Failed to allocate trans memory\n");
+      return ERROR;
+    }
+
   /* Get a handle to the SPI bus */
 
   fd = spidev_open(spitool->bus);
   if (fd < 0)
     {
       spitool_printf(spitool, "Failed to get bus %d\n", spitool->bus);
+      free(trans);
       return ERROR;
     }
 
@@ -153,8 +161,8 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
   seq.mode = spitool->mode;
   seq.nbits = spitool->width;
   seq.frequency = spitool->freq;
-  seq.ntrans = 1;
-  seq.trans = &trans;
+  seq.ntrans = spitool->trans_count;
+  seq.trans = trans;
 
 #ifdef CONFIG_SPI_DELAY_CONTROL
   seq.a = 0;
@@ -163,21 +171,25 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
   seq.c = 0;
 #endif
 
-  trans.deselect = true;
+  for (d = 0; d < spitool->trans_count; d++)
+    {
+      trans[d].deselect = true;
 #ifdef CONFIG_SPI_CMDDATA
-  trans.cmd = spitool->command;
+      trans[d].cmd = spitool->command;
 #endif
-  trans.delay = spitool->udelay;
-  trans.nwords = spitool->count;
-  trans.txbuffer = txdata;
-  trans.rxbuffer = rxdata;
+      trans[d].delay = spitool->udelay;
+      trans[d].nwords = spitool->count;
+      trans[d].txbuffer = &txdata[d * spitool->count * seq.nbits / 8];
+      trans[d].rxbuffer = &rxdata[d * spitool->count * seq.nbits / 8];
 #ifdef CONFIG_SPI_HWFEATURES
-  trans.hwfeat = 0;
+      trans[d].hwfeat = 0;
 #endif
+    }
 
   ret = spidev_transfer(fd, &seq);
 
   close(fd);
+  free(trans);
 
   if (ret)
     {
@@ -185,7 +197,7 @@ int spicmd_exch(FAR struct spitool_s *spitool, int argc, FAR char **argv)
     }
 
   spitool_printf(spitool, "Received:\t");
-  for (d = 0; d < spitool->count; d++)
+  for (d = 0; d < spitool->count * spitool->trans_count; d++)
     {
       if (spitool->width <= 8)
         {

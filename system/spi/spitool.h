@@ -140,6 +140,7 @@ struct spitool_s
   bool command;        /* [-c 0|1] Send as command or data?        */
   useconds_t udelay;   /* [-u udelay] Delay in uS after transfer   */
   uint8_t mode;        /* [-m mode] Mode to use for transfer       */
+  uint8_t trans_count; /* [-r trans count] No of trans to exchange */
 
   /* Output streams */
 
