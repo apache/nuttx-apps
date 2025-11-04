@@ -148,7 +148,7 @@ static void cachetest_parse_commandline(int argc, FAR char **argv,
     }
 
   syslog(LOG_INFO, CACHETEST_PREFIX "waddr:%p, uncacheble addr start:%p,"
-         "size:%u\n", info->waddr,
+         "size:%zu\n", info->waddr,
          (FAR char *)((uintptr_t)info->waddr | info->offset), info->size);
 }
 
