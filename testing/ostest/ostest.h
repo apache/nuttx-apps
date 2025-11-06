@@ -36,13 +36,23 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define OSTEST_NARGS              4
+#define RESTART_NARGS             3
+
+#define HALF_SECOND_USEC          500000L
+#define RETURN_STATUS             14
+
+#ifdef CONFIG_SCHED_WAITPID
+#  define NCHILDREN               3
+#endif
+
+/* The task_create priority can be specified in the defconfig file */
+
+#define PRIORITY                  CONFIG_TESTING_OSTEST_PRIORITY
+
 /* The task_create task size can be specified in the defconfig file */
 
-#ifdef CONFIG_TESTING_OSTEST_STACKSIZE
-#  define STACKSIZE CONFIG_TESTING_OSTEST_STACKSIZE
-#else
-#  define STACKSIZE 8192
-#endif
+#define STACKSIZE                 CONFIG_TESTING_OSTEST_STACKSIZE
 
 /* The number of times to execute the test can be specified in the defconfig
  * file.

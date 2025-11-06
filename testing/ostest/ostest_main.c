@@ -47,14 +47,6 @@
 #include "ostest.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define PRIORITY         100
-#define NARGS              4
-#define HALF_SECOND_USEC 500000L
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -72,9 +64,9 @@ static const char write_data2[] = "stdio_test: write fd=2\n";
  * pointer types.
  */
 
-static const char *g_argv[NARGS + 1];
+static const char *g_argv[OSTEST_NARGS + 1];
 #else
-static const char *g_argv[NARGS + 1] =
+static const char *g_argv[OSTEST_NARGS + 1] =
 {
   arg1, arg2, arg3, arg4, NULL
 };
@@ -229,19 +221,19 @@ static int user_main(int argc, char *argv[])
 
   /* Verify passed arguments */
 
-  if (argc != NARGS + 1)
+  if (argc != OSTEST_NARGS + 1)
     {
       printf("user_main: ERROR expected argc=%d got argc=%d\n",
-             NARGS + 1, argc);
+             OSTEST_NARGS + 1, argc);
       ASSERT(false);
     }
 
-  for (i = 0; i <= NARGS; i++)
+  for (i = 0; i <= OSTEST_NARGS; i++)
     {
       printf("user_main: argv[%d]=\"%s\"\n", i, argv[i]);
     }
 
-  for (i = 1; i <= NARGS; i++)
+  for (i = 1; i <= OSTEST_NARGS; i++)
     {
       if (strcmp(argv[i], g_argv[i - 1]) != 0)
         {

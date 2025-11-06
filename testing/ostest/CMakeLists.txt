@@ -162,6 +162,16 @@ if(CONFIG_TESTING_OSTEST)
   endif()
 
   set(OSTEST_SRCS ostest_main.c ${SRCS})
-  nuttx_add_application(NAME ostest SRCS ${OSTEST_SRCS})
+  nuttx_add_application(
+    MODULE
+    ${CONFIG_TESTING_OSTEST}
+    NAME
+    ostest
+    SRCS
+    ${OSTEST_SRCS}
+    STACKSIZE
+    ${CONFIG_TESTING_OSTEST_STACKSIZE}
+    PRIORITY
+    ${CONFIG_TESTING_OSTEST_PRIORITY})
 
 endif()

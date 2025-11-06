@@ -41,17 +41,10 @@
 #ifndef CONFIG_BUILD_KERNEL
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define PRIORITY    100
-#define NARGS         3
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static char * const g_argv[NARGS + 1] =
+static char * const g_argv[RESTART_NARGS + 1] =
 {
   "This is argument 1",
   "Argument 2 here",
@@ -83,14 +76,14 @@ static int restart_main(int argc, char *argv[])
 
   /* Verify passed arguments */
 
-  if (argc != NARGS + 1)
+  if (argc != RESTART_NARGS + 1)
     {
       printf("restart_main: ERROR: Expected argc=%d got argc=%d\n",
-             NARGS + 1, argc);
+             RESTART_NARGS + 1, argc);
       ASSERT(false);
     }
 
-  for (i = 0; i <= NARGS; i++)
+  for (i = 0; i <= RESTART_NARGS; i++)
     {
       printf("restart_main: argv[%d]=\"%s\"\n", i, argv[i]);
       if (i > 0 && strcmp(argv[i], g_argv[i - 1]) != 0)
