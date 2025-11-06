@@ -81,6 +81,7 @@ static int briget_net1_setup(void)
   struct dhcpc_state ds;
   void *handle;
   char inetaddr[INET_ADDRSTRLEN];
+  int ret;
 #endif
 
   printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
@@ -162,9 +163,17 @@ static int briget_net1_setup(void)
                             &ds.default_router);
     }
 
-  if (ds.dnsaddr.s_addr != 0)
+  for (int i = 0; i < ds.num_dnsaddr; i++)
     {
-      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+      if (ds.dnsaddr[i].s_addr != 0)
+        {
+          ret = netlib_set_ipv4dnsaddr(&ds.dnsaddr[i]);
+          if (ret < 0)
+            {
+              nerr("NET1 ERROR: Set DNS server %d:%s address failed: %d\n",
+                   i, inet_ntoa(ds.dnsaddr[i]), ret);
+            }
+        }
     }
 
   dhcpc_close(handle);
@@ -213,6 +222,7 @@ static int briget_net2_setup(void)
   struct dhcpc_state ds;
   void *handle;
   char inetaddr[INET_ADDRSTRLEN];
+  int ret;
 #endif
 
   printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
@@ -288,9 +298,17 @@ static int briget_net2_setup(void)
                             &ds.default_router);
     }
 
-  if (ds.dnsaddr.s_addr != 0)
+  for (int i = 0; i < ds.num_dnsaddr; i++)
     {
-      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+      if (ds.dnsaddr[i].s_addr != 0)
+        {
+          ret = netlib_set_ipv4dnsaddr(&ds.dnsaddr[i]);
+          if (ret < 0)
+            {
+              nerr("NET2 ERROR: Set DNS server %d:%s address failed: %d\n",
+                   i, inet_ntoa(ds.dnsaddr[i]), ret);
+            }
+        }
     }
 
   dhcpc_close(handle);

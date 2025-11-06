@@ -41,6 +41,7 @@
  * in the article at: http://www.drdobbs.com/web-development/\
  *    an-embeddable-lightweight-xml-rpc-server/184405364
  */
+
 /* Lightweight Embedded XML-RPC Server main
  *
  * mtj@cogitollc.com
@@ -334,6 +335,7 @@ static int xmlrpc_netinit(void)
     {
       struct dhcpc_state ds;
       char inetaddr[INET_ADDRSTRLEN];
+      int ret;
 
       dhcpc_request(handle, &ds);
       netlib_set_ipv4addr("eth0", &ds.ipaddr);
@@ -348,9 +350,17 @@ static int xmlrpc_netinit(void)
           netlib_set_dripv4addr("eth0", &ds.default_router);
         }
 
-      if (ds.dnsaddr.s_addr != 0)
+      for (int i = 0; i < ds.num_dnsaddr; i++)
         {
-          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+          if (ds.dnsaddr[i].s_addr != 0)
+            {
+              ret = netlib_set_ipv4dnsaddr(&ds.dnsaddr[i]);
+              if (ret < 0)
+                {
+                  nerr("ERROR: Set DNS server %d:%s address failed: %d\n",
+                       i, inet_ntoa(ds.dnsaddr[i]), ret);
+                }
+            }
         }
 
       dhcpc_close(handle);
