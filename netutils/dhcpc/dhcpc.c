@@ -378,11 +378,32 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_DNS_SERVER:
 
-            /* Get the DNS server address in network order */
+            /* Get the DNS server addresses in network order.
+             * DHCP option 6 can contain multiple DNS server addresses,
+             * each 4 bytes long.
+             */
 
-            if (optptr + 6 <= end)
+            if (optptr + 2 <= end)
               {
-                memcpy(&presult->dnsaddr.s_addr, optptr + 2, 4);
+                uint8_t optlen = *(optptr + 1);
+                uint8_t num_dns = optlen / 4;
+                uint8_t i;
+
+                /* Limit to configured maximum */
+
+                if (num_dns > CONFIG_NETDB_DNSSERVER_NAMESERVERS)
+                  {
+                    num_dns = CONFIG_NETDB_DNSSERVER_NAMESERVERS;
+                  }
+
+                presult->num_dnsaddr = 0;
+                for (i = 0; i < num_dns && (optptr + 2 + i * 4 + 4) <= end;
+                     i++)
+                  {
+                    memcpy(&presult->dnsaddr[i].s_addr, optptr + 2 + i * 4,
+                           4);
+                    presult->num_dnsaddr++;
+                  }
               }
             else
               {
@@ -946,11 +967,22 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
         ip4_addr2(presult->netmask.s_addr),
         ip4_addr3(presult->netmask.s_addr),
         ip4_addr4(presult->netmask.s_addr));
-  ninfo("Got DNS server %u.%u.%u.%u\n",
-        ip4_addr1(presult->dnsaddr.s_addr),
-        ip4_addr2(presult->dnsaddr.s_addr),
-        ip4_addr3(presult->dnsaddr.s_addr),
-        ip4_addr4(presult->dnsaddr.s_addr));
+
+  /* Print all DNS servers received */
+
+  if (presult->num_dnsaddr > 0)
+    {
+      uint8_t i;
+      for (i = 0; i < presult->num_dnsaddr; i++)
+        {
+          ninfo("Got DNS server %d: %u.%u.%u.%u\n", i,
+                ip4_addr1(presult->dnsaddr[i].s_addr),
+                ip4_addr2(presult->dnsaddr[i].s_addr),
+                ip4_addr3(presult->dnsaddr[i].s_addr),
+                ip4_addr4(presult->dnsaddr[i].s_addr));
+        }
+    }
+
   ninfo("Got default router %u.%u.%u.%u\n",
         ip4_addr1(presult->default_router.s_addr),
         ip4_addr2(presult->default_router.s_addr),

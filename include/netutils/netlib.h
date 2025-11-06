@@ -482,10 +482,14 @@ int netlib_ifdown(FAR const char *ifname);
 
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NETDB_DNSCLIENT)
 int netlib_set_ipv4dnsaddr(FAR const struct in_addr *inaddr);
+int netlib_del_ipv4dnsaddr(FAR const struct in_addr *inaddr);
+int netlib_del_ipv4dnsaddr_by_index(int index);
 #endif
 
 #if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETDB_DNSCLIENT)
 int netlib_set_ipv6dnsaddr(FAR const struct in6_addr *inaddr);
+int netlib_del_ipv6dnsaddr(FAR const struct in6_addr *inaddr);
+int netlib_del_ipv6dnsaddr_by_index(int index);
 #endif
 
 int netlib_set_mtu(FAR const char *ifname, int mtu);
