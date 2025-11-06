@@ -100,7 +100,7 @@ struct nsh_taskstatus_s
   FAR const char *td_sigmask;      /* Signal mask */
 #endif
   FAR char       *td_cmdline;      /* Command line */
-  int             td_pid;          /* Task ID */
+  int             td_tid;          /* Task ID */
   int             td_ppid;         /* Parent task ID */
 #ifdef NSH_HAVE_CPULOAD
   FAR const char *td_cpuload;      /* CPU load */
@@ -379,7 +379,7 @@ static int ps_record(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   status->td_sigmask = "";
 #endif
   status->td_cmdline = "";
-  status->td_pid = atoi(entryp->d_name);
+  status->td_tid = atoi(entryp->d_name);
   status->td_ppid = INVALID_PROCESS_ID;
 #ifdef NSH_HAVE_CPULOAD
   status->td_cpuload = "";
@@ -633,7 +633,7 @@ static void ps_title(FAR struct nsh_vtbl_s *vtbl, bool heap)
               "%6s "
 #endif
               "%s\n"
-              , "PID", "PPID", "GROUP"
+              , "TID", "PID", "PPID"
 #ifdef CONFIG_SMP
               , "CPU"
 #endif
@@ -679,7 +679,7 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
 #endif
 
   nsh_output(vtbl,
-             "%5d %5d %5s "
+             "%5d %5s %5d "
 #ifdef CONFIG_SMP
              "%3s "
 #endif
@@ -700,7 +700,7 @@ static void ps_output(FAR struct nsh_vtbl_s *vtbl, bool heap,
              "%5s "
 #endif
              "%s\n"
-           , status->td_pid, status->td_ppid, status->td_groupid
+           , status->td_tid, status->td_groupid, status->td_ppid
 #ifdef CONFIG_SMP
            , status->td_cpu
 #endif
