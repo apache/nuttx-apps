@@ -30,30 +30,23 @@
 #include <unistd.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <nuttx/atomic.h>
 #include <nuttx/spinlock.h>
+#include <nuttx/seqlock.h>
 
 /****************************************************************************
  * Preprocessor Definitions
  ****************************************************************************/
 
-#define THREAD_NUM    CONFIG_TESTING_OSTEST_SPINLOCK_THREADS
-#define LOOP_TIMES    (CONFIG_TEST_LOOP_SCALE * 10000)
+#define MAX_THREAD_NUM (CONFIG_SMP_NCPUS)
+#define LOOP_TIMES     (CONFIG_TEST_LOOP_SCALE * 100000)
 
-enum lock_type_e
+aligned_data(64) struct spinlock_pub_args_s
 {
-  RSPINLOCK,
-  SPINLOCK
-};
-
-struct spinlock_pub_args_s
-{
+  FAR void         *lock;
   volatile uint32_t counter;
-  pthread_barrier_t barrier;
-  union
-    {
-      rspinlock_t rlock;
-      spinlock_t lock;
-    };
+  atomic_t          barrier;
+  uint32_t          thread_num;
 };
 
 struct spinlock_thread_args_s
@@ -90,103 +83,145 @@ FAR static void * lock_type##_test_thread(FAR void *arg) \
   irqstate_t flags; \
   struct timespec start; \
   struct timespec end; \
-  int i; \
-  int ret; \
-  ret = pthread_barrier_wait(&param->pub->barrier); \
-  if (ret != 0 && ret != PTHREAD_BARRIER_SERIAL_THREAD) \
+  uint32_t i; \
+  FAR struct spinlock_pub_args_s *pub = param->pub; \
+  FAR lock_type *l = (FAR lock_type *)pub->lock; \
+  atomic_fetch_add(&pub->barrier, 1); \
+  while (atomic_read(&pub->barrier) != pub->thread_num) \
     { \
-      ASSERT(false); \
+      sched_yield(); \
     } \
   clock_gettime(CLOCK_REALTIME, &start); \
   for (i = 0; i < LOOP_TIMES; i++) \
     { \
-      flags = lock_func(&param->pub->lock_type); \
-      param->pub->counter++; \
-      unlock_func(&param->pub->lock_type, flags); \
+      flags = lock_func(l); \
+      pub->counter++; \
+      unlock_func(l, flags); \
     } \
   clock_gettime(CLOCK_REALTIME, &end); \
   param->delta = calc_diff(&start, &end); \
   return NULL; \
 }
 
-LOCK_TEST_FUNC(rlock, rspin_lock_irqsave, rspin_unlock_irqrestore)
-LOCK_TEST_FUNC(lock, spin_lock_irqsave, spin_unlock_irqrestore)
+LOCK_TEST_FUNC(spinlock_t, spin_lock_irqsave, spin_unlock_irqrestore)
+LOCK_TEST_FUNC(rspinlock_t, rspin_lock_irqsave, rspin_unlock_irqrestore)
+LOCK_TEST_FUNC(seqcount_t, write_seqlock_irqsave, write_sequnlock_irqrestore)
 
-static inline void run_test_thread(
-  enum lock_type_e lock_type,
-  FAR void *(*thread_func)(FAR void *arg)
-  )
+static inline
+void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
+                     uint32_t thread_num, const char *lock_type)
 {
-  const char *test_type = (lock_type == RSPINLOCK)
-                          ? "RSpin lock" : "Spin lock";
-  printf("Test type: %s\n", test_type);
-  pthread_t tid[THREAD_NUM];
+  pthread_t tid[MAX_THREAD_NUM];
   struct spinlock_pub_args_s pub;
-  struct spinlock_thread_args_s param[THREAD_NUM];
+  pthread_attr_t attr;
+  struct sched_param sparam;
+  struct spinlock_thread_args_s param[MAX_THREAD_NUM];
   struct timespec stime;
   struct timespec etime;
+  cpu_set_t cpu_set = 1u;
+  uint64_t total_ns = 0u;
+  int status;
   int i;
-  int ret;
 
-  ret = pthread_barrier_init(&pub.barrier, NULL, THREAD_NUM + 1);
-  if (ret != 0)
+  /* Initialize the public parameters. */
+
+  printf("Test type: %s\n", lock_type);
+
+  pub.lock       = lock;
+  pub.counter    = 0u;
+  pub.thread_num = thread_num;
+  atomic_set_release(&pub.barrier, 0u);
+
+  /* Set affinity to CPU0 */
+
+#ifdef CONFIG_SMP
+  if (OK != sched_setaffinity(getpid(), sizeof(cpu_set_t), &cpu_set))
     {
+      printf("spinlock_test: ERROR: nxsched_set_affinity failed");
+      ASSERT(false);
+    }
+#else
+  UNUSED(cpu_set);
+#endif
+
+  /* Boost to maximum priority for test threads. */
+
+  status = pthread_attr_init(&attr);
+  if (status != 0)
+    {
+      printf("spinlock_test: ERROR: "
+             "pthread_attr_init failed, status=%d\n",  status);
       ASSERT(false);
     }
 
-  pub.counter = 0;
-  if (lock_type == RSPINLOCK)
+  sparam.sched_priority = SCHED_PRIORITY_MAX;
+  status = pthread_attr_setschedparam(&attr, &sparam);
+  if (status != OK)
     {
-      rspin_lock_init(&pub.rlock);
-    }
-  else
-    {
-      spin_lock_init(&pub.lock);
+      printf("spinlock_test: ERROR: "
+             "pthread_attr_setschedparam failed, status=%d\n",  status);
+      ASSERT(false);
     }
 
   clock_gettime(CLOCK_REALTIME, &stime);
-  for (i = 0; i < THREAD_NUM; i++)
+
+  /* Create new test threads. */
+
+  for (i = 0; i < thread_num; i++)
     {
       param[i].pub = &pub;
       param[i].delta = 0;
-      ret = pthread_create(&tid[i], NULL, thread_func, &param[i]);
-      if (ret != 0)
+
+      /* Set affinity */
+
+#ifdef CONFIG_SMP
+      cpu_set = 1u << ((i + 1) % CONFIG_SMP_NCPUS);
+
+      status = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t),
+                                           &cpu_set);
+      if (status != OK)
         {
+          printf("spinlock_test: ERROR: "
+                 "pthread_attr_setaffinity_np failed, status=%d\n",  status);
+          ASSERT(false);
+        }
+#endif
+
+      status = pthread_create(&tid[i], &attr, thread_func, &param[i]);
+      if (status != 0)
+        {
+          printf("spinlock_test: ERROR: "
+                 "pthread_create failed, status=%d\n",  status);
           ASSERT(false);
         }
     }
 
-  ret = pthread_barrier_wait(&pub.barrier);
-  if (ret != 0 && ret != PTHREAD_BARRIER_SERIAL_THREAD)
+  for (i = 0; i < thread_num; i++)
     {
-      ASSERT(false);
+      status = pthread_join(tid[i], NULL);
+      if (status != 0)
+        {
+          printf("spinlock_test: ERROR: "
+                 "pthread_join failed, status=%d\n",  status);
+          ASSERT(false);
+        }
     }
 
-  for (i = 0; i < THREAD_NUM; i++)
-    {
-      pthread_join(tid[i], NULL);
-    }
+  /* Calculate the average throughput. */
 
   clock_gettime(CLOCK_REALTIME, &etime);
-  ret = pthread_barrier_destroy(&pub.barrier);
-  if (ret != 0)
-    {
-      ASSERT(false);
-    }
-
-  uint64_t total_ns = 0;
-  for (i = 0; i < THREAD_NUM; i++)
+  for (i = 0; i < thread_num; i++)
     {
       total_ns += param[i].delta;
     }
 
-  printf("%s: Test Results:\n", test_type);
-  printf("%s: Final counter: %" PRIu32 "\n", test_type, pub.counter);
-  assert(pub.counter == THREAD_NUM * LOOP_TIMES);
-  printf("%s: Average time per thread: %" PRIu64 " ns\n"
-        , test_type, total_ns / THREAD_NUM);
-  printf("%s: Total execution time: %" PRIu64 " ns\n \n"
-        , test_type, calc_diff(&stime, &etime));
+  printf("%s: Test Results:\n", lock_type);
+  printf("%s: Final counter: %" PRIu32 "\n", lock_type, pub.counter);
+  assert(pub.counter == thread_num * LOOP_TIMES);
+  printf("%s: Average throughput : %" PRIu64 " op/s\n", lock_type,
+         (uint64_t)NSEC_PER_SEC * LOOP_TIMES * thread_num / total_ns);
+  printf("%s: Total execution time: %" PRIu64 " ns\n \n",
+         lock_type, calc_diff(&stime, &etime));
 }
 
 /****************************************************************************
@@ -197,12 +232,34 @@ static inline void run_test_thread(
  * Name: spinlock_test
  ****************************************************************************/
 
+static void spinlock_test_thread_num(unsigned thread_num)
+{
+  aligned_data(64) union
+    {
+      spinlock_t  spinlock;
+      rspinlock_t rspinlock;
+      seqcount_t  seqcount;
+    } lock;
+
+  printf("Start Lock test:\n");
+  printf("Thread num: %u, Loop times: %d\n\n", thread_num, LOOP_TIMES);
+
+  spin_lock_init(&lock.spinlock);
+  run_test_thread(&lock, spinlock_t_test_thread, thread_num, "spinlock");
+
+  rspin_lock_init(&lock.rspinlock);
+  run_test_thread(&lock, rspinlock_t_test_thread, thread_num, "rspinlock");
+
+  seqlock_init(&lock.seqcount);
+  run_test_thread(&lock, seqcount_t_test_thread, thread_num, "seqcount");
+}
+
 void spinlock_test(void)
 {
-  printf("Start Spin lock test:\n");
-  printf("Thread num: %d, Loop times: %d\n\n", THREAD_NUM, LOOP_TIMES);
+  unsigned tnr;
 
-  run_test_thread(SPINLOCK, lock_test_thread);
-
-  run_test_thread(RSPINLOCK, rlock_test_thread);
+  for (tnr = 1; tnr < MAX_THREAD_NUM; tnr++)
+    {
+      spinlock_test_thread_num(tnr);
+    }
 }
