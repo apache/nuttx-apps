@@ -299,6 +299,7 @@ static void wdog_test_run(FAR wdtest_param_t *param)
   /* Maximum */
 
   delay = CLOCK_MAX >> 2;
+  delay -= 1;
   wdtest_assert(wd_start(&test_wdog, delay,
                          wdtest_callback, (wdparm_t)param) == OK);
 
