@@ -1,0 +1,80 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GAMES_CGOL
+	bool "Conway's Game of Life"
+	depends on VIDEO_FB
+	default n
+	---help---
+		Enable Conway's Game of Life.
+
+if GAMES_CGOL
+
+config GAMES_CGOL_PROGNAME
+	string "Program name"
+	default "cgol"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config GAMES_CGOL_PRIORITY
+	int "CGOL task priority"
+	default 100
+
+config GAMES_CGOL_STACKSIZE
+	int "CGOL stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config GAMES_CGOL_FBDEV
+	string "CGOL frame buffer device path"
+	default "/dev/fb0"
+	---help---
+		The frame buffer device path that will be used by default for rendering.
+		Device path can still be selected from first command line argument.
+
+config GAMES_CGOL_DBLBUF
+	bool "CGOL double buffered"
+	default n
+	---help---
+		If enabled, CGOL will allocate enough RAM for a 'second frame buffer'.
+		Rendering will be done to this buffer and copied to the real frame
+		buffer once complete. This is necessary for some devices, but requires
+		a lot more memory.
+
+config GAMES_CGOL_MAPWIDTH
+	int "Map width"
+	range 1 500000
+	default 256
+	---help---
+		This is the width of the game map. It must be greater than or equal to
+		the width of the frame buffer. It must also be a multiple of the target
+		device's `sizeof(unsigned int) * 8`.
+
+config GAMES_CGOL_MAPHEIGHT
+	int "Map height"
+	range 1 500000
+	default 256
+	---help---
+		This is the height of the game map. It must be greater than or equal to
+		the height of the frame buffer.
+
+config GAMES_CGOL_FRAMEDELAY
+	int "Microseconds between frames"
+	range 0 10000000
+	default 0
+	---help---
+		This adds a delay between frames in microseconds. If the render is too
+		fast for you to "enjoy", then you can slow it down with this.
+
+config GAMES_CGOL_DENSITY
+	int "Cell density"
+	range 1 10000
+	default 6
+	---help---
+		The initial cell density to populate the map with. The map will be
+		randomly initialized with `TOTAL_CELLS * (1 / density)` cells, not
+		accounting for overlap.
+
+endif
