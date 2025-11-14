@@ -27,6 +27,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <poll.h>
 #include <syslog.h>
 
 /****************************************************************************
@@ -89,5 +90,20 @@
               } \
           } \
         while (0)
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+struct init_poller_s
+{
+  FAR struct pollfd *pfd;
+  FAR void *priv;
+  FAR struct service_manager_s *sm;
+  FAR struct action_manager_s *am;
+  CODE int  (*init)   (FAR struct init_poller_s *);
+  CODE void (*handle) (FAR struct init_poller_s *);
+  CODE void (*deinit) (FAR struct init_poller_s *);
+};
 
 #endif /* __APPS_SYSTEM_NXINIT_INIT_H */

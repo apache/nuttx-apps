@@ -24,6 +24,8 @@ if(CONFIG_SYSTEM_NXINIT)
 
   set(CSRCS init.c action.c builtin.c import.c parser.c service.c)
 
+  list(APPEND CSRCS property_simple.c)
+
   nuttx_add_application(
     MODULE
     ${CONFIG_SYSTEM_NXINIT}
