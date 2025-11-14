@@ -22,7 +22,7 @@
 
 include $(APPDIR)/Make.defs
 
-# Snake game info
+# CGOL game info
 
 PROGNAME = $(CONFIG_GAMES_CGOL_PROGNAME)
 PRIORITY = $(CONFIG_GAMES_CGOL_PRIORITY)
