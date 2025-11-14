@@ -30,6 +30,7 @@ CSRCS += parser.c
 CSRCS += action.c
 CSRCS += service.c
 CSRCS += import.c
+CSRCS += property_simple.c
 
 PROGNAME = $(CONFIG_SYSTEM_NXINIT_PROGNAME)
 PRIORITY = $(CONFIG_SYSTEM_NXINIT_PRIORITY)

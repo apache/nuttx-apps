@@ -71,6 +71,8 @@ struct action_manager_s
   struct timespec time_run;
 #endif
   FAR struct service_manager_s *sm;
+
+  FAR struct init_poller_s *prop;
 };
 
 /****************************************************************************
