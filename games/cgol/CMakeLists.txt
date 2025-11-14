@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/games/CMakeLists.txt
+# apps/games/cgol/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,6 +20,18 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+# CGOL game info
 
-nuttx_generate_kconfig(MENUDESC "Games")
+if(CONFIG_GAMES_CGOL)
+  nuttx_add_application(
+    NAME
+    ${CONFIG_GAMES_CGOL_PROGNAME}
+    PRIORITY
+    ${CONFIG_GAMES_CGOL_PRIORITY}
+    STACKSIZE
+    ${CONFIG_GAMES_CGOL_STACKSIZE}
+    MODULE
+    ${CONFIG_GAMES_CGOL}
+    SRCS
+    cgol_main.c)
+endif()
