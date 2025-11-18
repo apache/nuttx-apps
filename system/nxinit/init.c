@@ -90,7 +90,7 @@ static void reap_process(FAR struct service_manager_s *sm,
           status = "status";
           ret = WEXITSTATUS(wstatus);
         }
-      else if (WIFSIGNALED(wtatus))
+      else if (WIFSIGNALED(wstatus))
         {
           status = "signal";
           ret = WTERMSIG(wstatus);
