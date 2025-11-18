@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <unistd.h>
+#include <nuttx/clock.h>
 
 #include "action.h"
 #include "builtin.h"
