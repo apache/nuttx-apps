@@ -37,11 +37,18 @@
 #include <nuttx/mtd/mtd_log.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define MTDLOG_DEVPATH "/dev/mtdlog"
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 static void drivertest_mtdlog_case1(FAR void **state)
 {
+  uint32_t log_count;
   char wrbuf[32];
   char rdbuf[32];
   int testcnt;
@@ -50,16 +57,34 @@ static void drivertest_mtdlog_case1(FAR void **state)
 
   UNUSED(state);
 
-  ret = open("/dev/mtdlog", O_RDWR);
+  ret = open(MTDLOG_DEVPATH, O_RDWR);
   if (ret < 0)
     {
-      printf("ERROR: Failed to open /dev/mtdlog: %d\n", errno);
+      printf("ERROR: Failed to open %s: %d\n", MTDLOG_DEVPATH, errno);
       assert_int_equal((ret > 0), 1);
       return;
     }
 
   logfd = ret;
   testcnt = 1000;
+
+  /* Skip all log entries and obtain the log information. */
+
+  ret = ioctl(logfd, MTDLOGIOC_LOG_COUNT, (unsigned long)&log_count);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to get log entry count: %d\n", ret);
+      assert_int_equal((ret > 0), 1);
+      return;
+    }
+
+  ret = ioctl(logfd, MTDLOGIOC_LOG_SEEK_SET, log_count);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to seek log entry: %d\n", ret);
+      assert_int_equal((ret > 0), 1);
+      return;
+    }
 
   while (testcnt--)
     {
@@ -70,7 +95,7 @@ static void drivertest_mtdlog_case1(FAR void **state)
       ret = write(logfd, wrbuf, sizeof(wrbuf));
       if (ret != sizeof(wrbuf))
         {
-          printf("ERROR: Failed to write /dev/mtdlog: %d\n", errno);
+          printf("ERROR: Failed to write %s: %d\n", MTDLOG_DEVPATH, errno);
           assert_int_equal((ret > 0), 1);
           return;
         }
@@ -81,7 +106,7 @@ static void drivertest_mtdlog_case1(FAR void **state)
       ret = read(logfd, rdbuf, sizeof(rdbuf));
       if (ret != sizeof(rdbuf))
         {
-          printf("ERROR: Failed to read /dev/mtdlog: %d\n", errno);
+          printf("ERROR: Failed to read %s: %d\n", MTDLOG_DEVPATH, errno);
           assert_int_equal((ret > 0), 1);
           return;
         }
@@ -109,10 +134,10 @@ static void drivertest_mtdlog_case2(FAR void **state)
 
   UNUSED(state);
 
-  ret = open("/dev/mtdlog", O_RDWR);
+  ret = open(MTDLOG_DEVPATH, O_RDWR);
   if (ret < 0)
     {
-      printf("ERROR: Failed to open /dev/mtdlog: %d\n", errno);
+      printf("ERROR: Failed to open %s: %d\n", MTDLOG_DEVPATH, errno);
       assert_int_equal((ret > 0), 1);
       return;
     }
@@ -195,7 +220,7 @@ static void drivertest_mtdlog_case2(FAR void **state)
   ret = write(logfd, wrbuf, sizeof(wrbuf));
   if (ret != sizeof(wrbuf))
     {
-      printf("ERROR: Failed to write /dev/mtdlog: %d\n", errno);
+      printf("ERROR: Failed to write %s: %d\n", MTDLOG_DEVPATH, errno);
       assert_int_equal((ret > 0), 1);
       return;
     }
@@ -252,6 +277,61 @@ static void drivertest_mtdlog_case2(FAR void **state)
   close(logfd);
 }
 
+static void drivertest_mtdlog_case3(FAR void **state)
+{
+  uint8_t buffer[1024];
+  int testcnt;
+  int logfd;
+  int len;
+  int ret;
+
+  UNUSED(state);
+
+  ret = open(MTDLOG_DEVPATH, O_RDWR);
+  if (ret < 0)
+    {
+      printf("ERROR: Failed to open %s: %d\n", MTDLOG_DEVPATH, errno);
+      assert_int_equal((ret > 0), 1);
+      return;
+    }
+
+  logfd = ret;
+  testcnt = 5;
+  memset(buffer, 'm', sizeof(buffer));
+
+  while (testcnt--)
+    {
+      for (len = 1; len <= sizeof(buffer); len++)
+        {
+          ret = write(logfd, buffer, len);
+          if (ret != len)
+            {
+              printf("ERROR: Failed to write %s: %d\n",
+                     MTDLOG_DEVPATH, errno);
+              assert_int_equal((ret > 0), 1);
+              return;
+            }
+        }
+    }
+
+  while (1)
+    {
+      ret = read(logfd, buffer, sizeof(buffer));
+      if (ret < 0 && errno != ENOENT)
+        {
+          printf("ERROR: Failed to read %s: %d\n", MTDLOG_DEVPATH, errno);
+          assert_int_equal((ret > 0), 1);
+          return;
+        }
+      else if (ret == 0 || errno == ENOENT)
+        {
+          break;
+        }
+    }
+
+  close(logfd);
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -266,6 +346,7 @@ int main(int argc, FAR char *argv[])
   {
     cmocka_unit_test(drivertest_mtdlog_case1),
     cmocka_unit_test(drivertest_mtdlog_case2),
+    cmocka_unit_test(drivertest_mtdlog_case3),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
