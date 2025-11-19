@@ -48,7 +48,7 @@ struct sensor_gen_info_s
  * Private Data
  ****************************************************************************/
 
-static bool g_should_exit = false;
+static bool g_gen_should_exit = false;
 
 /****************************************************************************
  * Private Functions
@@ -77,7 +77,7 @@ x:0.1,y:9.7,z:0.81,temperature:22.15\n\n\
 \t\tsim - sensor_baro0:\n\
 \t\t  uorb_generator -n 100 -r 5 -s -t sensor_baro0 timestamp:23191100,\
 pressure:999.12,temperature:26.34\n\n\
-\t\tfies - sensor_accel1\n\
+\t\tfiles - sensor_accel1\n\
 \t\t  uorb_generator -f /data/uorb/20240823061723/sensor_accel0.csv\
  -t sensor_accel1\
 \t\t\n\
@@ -86,27 +86,43 @@ pressure:999.12,temperature:26.34\n\n\
 
 static void exit_handler(int signo)
 {
-  g_should_exit = true;
+  (void)signo;
+  g_gen_should_exit = true;
 }
 
 static int get_play_orb_id(FAR const char *filter,
                            FAR struct sensor_gen_info_s *info)
 {
   struct orb_object object;
+  int len;
+  int idx;
 
-  if (filter)
+  if (filter == NULL)
+    {
+      uorbinfo_raw("The entered built-in topic name is NULL.");
+      return ERROR;
+    }
+
+  len = strlen(filter);
+  if (len > 0)
     {
       object.meta = orb_get_meta(filter);
-      if (object.meta == NULL)
+      if (object.meta)
         {
-          uorbinfo_raw("Input error built-in name:[%s]", filter);
-          return ERROR;
+          object.instance = 0;
+          for (idx = 0; idx < len; idx++)
+            {
+              if (isdigit(filter[idx]))
+                {
+                  object.instance = filter[idx] - '0';
+                  break;
+                }
+            }
         }
-
-      object.instance = 0;
-      if (isdigit(filter[strlen(filter) - 1]))
+      else
         {
-          object.instance = filter[strlen(filter) - 1] - '0';
+          uorbinfo_raw("The entered built-in topic name is invalid.");
+          return ERROR;
         }
 
       info->obj = object;
@@ -133,7 +149,7 @@ static int get_play_orb_id(FAR const char *filter,
 static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
 {
   struct lib_meminstream_s meminstream;
-  bool is_frist = true;
+  bool is_first = true;
   uint64_t last_time;
   uint64_t tmp_time;
   FAR uint8_t *data;
@@ -143,7 +159,7 @@ static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
   int ret;
   int fd;
 
-  line = kmm_zalloc(GENERATOR_CACHE_BUFF);
+  line = zalloc(GENERATOR_CACHE_BUFF);
   if (line == NULL)
     {
       return -ENOMEM;
@@ -154,19 +170,22 @@ static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
       if (strstr(line, sensor_gen->obj.meta->o_name) == NULL)
         {
           uorbinfo_raw("Topic and file do not match!");
-          return -EINVAL;
+          ret = -EINVAL;
+          goto out_line;
         }
     }
   else
     {
       uorbinfo_raw("Playback file format error!");
-      return -EINVAL;
+      ret = -EINVAL;
+      goto out_line;
     }
 
-  data = kmm_zalloc(sensor_gen->obj.meta->o_size);
+  data = zalloc(sensor_gen->obj.meta->o_size);
   if (data == NULL)
     {
-      return -ENOMEM;
+      ret = -ENOMEM;
+      goto out_line;
     }
 
   fd = orb_advertise_multi_queue_persist(sensor_gen->obj.meta,
@@ -174,11 +193,12 @@ static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
   if (fd < 0)
     {
       uorbinfo_raw("Playback orb advertise failed[%d]!", fd);
-      kmm_free(data);
-      return fd;
+      ret = fd;
+      goto out_data;
     }
 
-  while (fgets(line, GENERATOR_CACHE_BUFF, sensor_gen->file) != NULL)
+  while (fgets(line, GENERATOR_CACHE_BUFF, sensor_gen->file) != NULL &&
+         !g_gen_should_exit)
     {
       lib_meminstream(&meminstream, line, GENERATOR_CACHE_BUFF);
       ret = lib_bscanf(&meminstream.common, &lastc,
@@ -186,10 +206,10 @@ static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
       if (ret >= 0)
         {
           tmp_time = *(uint64_t *)data;
-          if (is_frist)
+          if (is_first)
             {
               last_time = *(uint64_t *)data;
-              is_frist = false;
+              is_first = false;
             }
           else
             {
@@ -205,6 +225,7 @@ static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
           if (OK != orb_publish(sensor_gen->obj.meta, fd, data))
             {
               uorbinfo_raw("Topic publish error!");
+              ret = ERROR;
               break;
             }
         }
@@ -216,8 +237,12 @@ static int replay_worker(FAR struct sensor_gen_info_s *sensor_gen)
     }
 
   orb_unadvertise(fd);
-  kmm_free(data);
-  return 0;
+
+out_data:
+  free(data);
+out_line:
+  free(line);
+  return ret;
 }
 
 /****************************************************************************
@@ -251,7 +276,7 @@ static int fake_worker(FAR struct sensor_gen_info_s *sensor_gen,
       return -EINVAL;
     }
 
-  data = kmm_zalloc(sensor_gen->obj.meta->o_size);
+  data = malloc(sensor_gen->obj.meta->o_size);
   if (data == NULL)
     {
       return -ENOMEM;
@@ -275,23 +300,25 @@ static int fake_worker(FAR struct sensor_gen_info_s *sensor_gen,
 
   interval = topic_rate ? (1000000 / topic_rate) : 500000;
 
-  for (i = 0; i < nb_cycle; ++i)
+  for (i = 0; i < nb_cycle && !g_gen_should_exit; ++i)
     {
       *(uint64_t *)data = orb_absolute_time();
       if (OK != orb_publish(sensor_gen->obj.meta, fd, data))
         {
           uorbinfo_raw("Topic publish error!");
-          goto error;
+          goto error_fd;
         }
 
       nxsig_usleep(interval);
     }
 
-  kmm_free(data);
+  free(data);
   return 0;
 
+error_fd:
+  orb_unadvertise(fd);
 error:
-  kmm_free(data);
+  free(data);
   return -1;
 }
 
@@ -301,7 +328,7 @@ error:
 
 int main(int argc, FAR char *argv[])
 {
-  FAR struct sensor_gen_info_s sensor_tmp;
+  struct sensor_gen_info_s sensor_tmp;
   float topic_rate = 0.0f;
   FAR char *filter = NULL;
   FAR char *topic  = NULL;
@@ -311,7 +338,7 @@ int main(int argc, FAR char *argv[])
   int opt;
   int ret;
 
-  g_should_exit = false;
+  g_gen_should_exit = false;
   if (signal(SIGINT, exit_handler) == SIG_ERR)
     {
       return 1;
@@ -320,39 +347,39 @@ int main(int argc, FAR char *argv[])
   while ((opt = getopt(argc, argv, "f:t:r:n:sh")) != -1)
     {
       switch (opt)
-      {
-      case 'f':
-        path = optarg;
-        break;
+        {
+          case 'f':
+            path = optarg;
+            break;
 
-      case 't':
-        topic = optarg;
-        break;
+          case 't':
+            topic = optarg;
+            break;
 
-      case 'r':
-        topic_rate = atof(optarg);
-        if (topic_rate < 0)
-          {
+          case 'r':
+            topic_rate = atof(optarg);
+            if (topic_rate < 0)
+              {
+                goto error;
+              }
+            break;
+
+          case 'n':
+            nb_cycle = strtol(optarg, NULL, 0);
+            if (nb_cycle < 1)
+              {
+                goto error;
+              }
+            break;
+
+          case 's':
+            sim = true;
+            break;
+
+          case 'h':
+          default:
             goto error;
-          }
-        break;
-
-      case 'n':
-        nb_cycle = strtol(optarg, NULL, 0);
-        if (nb_cycle < 1)
-          {
-            goto error;
-          }
-        break;
-
-      case 's':
-        sim = true;
-        break;
-
-      case 'h':
-      default:
-        goto error;
-      }
+        }
     }
 
   if (optind < argc)
@@ -363,7 +390,7 @@ int main(int argc, FAR char *argv[])
   ret = get_play_orb_id(topic, &sensor_tmp);
   if (ret < 0)
     {
-      return -ERROR;
+      return ERROR;
     }
 
   if (sim)
@@ -376,7 +403,7 @@ int main(int argc, FAR char *argv[])
       if (sensor_tmp.file == NULL)
         {
           uorbinfo_raw("Failed to open file:[%s]!", path);
-          return -ERROR;
+          return ERROR;
         }
 
       ret = replay_worker(&sensor_tmp);
@@ -387,5 +414,5 @@ int main(int argc, FAR char *argv[])
 
 error:
   usage();
-  return -ERROR;
+  return ERROR;
 }
