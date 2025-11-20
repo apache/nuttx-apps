@@ -550,7 +550,7 @@ int cmd_timedatectl(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 }
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_WATCH
+#if !defined(CONFIG_NSH_DISABLE_WATCH) && !defined(CONFIG_DISABLE_SIGNALS)
 int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   int interval = 2;
