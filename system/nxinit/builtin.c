@@ -77,6 +77,11 @@ static int cmd_boot(FAR struct action_manager_s *am,
                     int argc, FAR char **argv);
 #endif
 
+#ifdef CONFIG_BOARDCTL_START_CPU
+static int cmd_start_cpu(FAR struct action_manager_s *am,
+                         int argc, FAR char **argv);
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -85,6 +90,9 @@ static const struct cmd_map_s g_builtin[] =
 {
 #ifdef CONFIG_BOARDCTL_BOOT_IMAGE
   {"boot", 1, 3, cmd_boot},
+#endif
+#ifdef CONFIG_BOARDCTL_START_CPU
+  {"start_cpu", 1, 3, cmd_start_cpu},
 #endif
   {"class_start", 2, 2, cmd_class_start},
   {"class_stop", 2, 2, cmd_class_stop},
@@ -125,6 +133,22 @@ static int cmd_boot(FAR struct action_manager_s *am,
   init_err("boot image '%s' %" PRIu32 "", info.path ? info.path : "",
            info.header_size);
   return -ENOENT;
+}
+#endif
+
+#ifdef CONFIG_BOARDCTL_START_CPU
+static int cmd_start_cpu(FAR struct action_manager_s *am,
+                         int argc, FAR char **argv)
+{
+  int cpuid = 0;
+
+  if (argc > 1)
+    {
+      cpuid = strtol(argv[1], NULL, 0);
+    }
+
+  init_info("start cpu %d", cpuid);
+  return boardctl(BOARDIOC_START_CPU, cpuid);
 }
 #endif
 
