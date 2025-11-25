@@ -41,9 +41,11 @@
  * Public Data
  ****************************************************************************/
 
+#ifdef CONFIG_NXBOOT_PROGRESS
 static bool g_progress_started = false;
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
 static bool g_progress_percent_started = false;
+#endif
 #endif
 
 /****************************************************************************
@@ -121,6 +123,7 @@ static const char *progress_msgs[] =
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NXBOOT_PROGRESS
 void nxboot_progress(enum progress_type_e type, ...)
 {
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS
@@ -242,6 +245,7 @@ void nxboot_progress(enum progress_type_e type, ...)
   va_end(arg);
 #endif /* CONFIG_NXBOOT_PRINTF_PROGRESS */
 }
+#endif
 
 /****************************************************************************
  * Name: nxboot_main

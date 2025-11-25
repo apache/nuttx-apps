@@ -168,7 +168,11 @@ enum progress_msg_e
  * Public Function Prototypes
  ****************************************************************************/
 
+#ifdef CONFIG_NXBOOT_PROGRESS
 void nxboot_progress(enum progress_type_e type, ...);
+#else
+#define nxboot_progress(type, ...) do {} while (0)
+#endif
 
 /****************************************************************************
  * Name: nxboot_get_state

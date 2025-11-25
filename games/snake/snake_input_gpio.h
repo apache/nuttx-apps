@@ -117,6 +117,25 @@ int dev_input_init(FAR struct input_state_s *dev)
 }
 
 /****************************************************************************
+ * Name: dev_input_deinit
+ *
+ * Description:
+ *   Deinitialize input method.
+ *
+ * Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   Zero (OK)
+ *
+ ****************************************************************************/
+
+int dev_input_deinit(void)
+{
+  return OK;
+}
+
+/****************************************************************************
  * Name: dev_read_input
  *
  * Description:

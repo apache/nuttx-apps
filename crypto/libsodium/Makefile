@@ -23,17 +23,17 @@
 include $(APPDIR)/Make.defs
 
 LIBSODIUM_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBSODIUM_VERSION)))
-LIBSODIUM_URL ?= "https://github.com/jedisct1/libsodium/archive"
+LIBSODIUM_URL ?= "https://github.com/jedisct1/libsodium/releases/download/$(LIBSODIUM_VERSION)-RELEASE"
 
-LIBSODIUM_ZIP = $(LIBSODIUM_VERSION).zip
+LIBSODIUM_TARGZ = "libsodium-$(LIBSODIUM_VERSION).tar.gz"
 
 LIBSODIUM_UNPACKNAME = libsodium
-UNPACK ?= unzip -q -o
+UNPACK ?= tar -xaf
 
 LIBSODIUM_UNPACKLIBDIR = $(LIBSODIUM_UNPACKNAME)$(DELIM)src$(DELIM)$(LIBSODIUM_UNPACKNAME)
 LIBSODIUM_UNPACKTESTDIR = $(LIBSODIUM_UNPACKNAME)$(DELIM)test$(DELIM)default
 
-CSRCS += $(shell find $(LIBSODIUM_UNPACKLIBDIR) -name "*.c")
+CSRCS += $(shell if [ -d "$(LIBSODIUM_UNPACKLIBDIR)" ]; then find "$(LIBSODIUM_UNPACKLIBDIR)" -name "*.c"; fi)
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/crypto/libsodium/libsodium/src/libsodium/include/sodium
 CFLAGS += -DDEV_MODE -DCONFIGURED=1
 CFLAGS += -Wno-unused-function -Wno-undef -Wno-unused-variable -Wno-deprecated-declarations \
@@ -48,13 +48,13 @@ PRIORITY = $(CONFIG_LIBSODIUM_TEST_PRIORITY)
 STACKSIZE = $(CONFIG_LIBSODIUM_TEST_STACKSIZE)
 endif
 
-$(LIBSODIUM_ZIP):
-	@echo "Downloading: $(LIBSODIUM_URL)/$(LIBSODIUM_ZIP)"
-	$(Q) $(call DOWNLOAD,$(LIBSODIUM_URL),$(LIBSODIUM_ZIP))
+$(LIBSODIUM_TARGZ):
+	@echo "Downloading: $(LIBSODIUM_URL)/$(LIBSODIUM_TARGZ)"
+	$(Q) $(call DOWNLOAD,$(LIBSODIUM_URL),$(LIBSODIUM_TARGZ))
 
-$(LIBSODIUM_UNPACKNAME): $(LIBSODIUM_ZIP)
-	@echo "Unpacking: $(LIBSODIUM_ZIP) -> $(LIBSODIUM_UNPACKNAME)"
-	$(Q) $(UNPACK) $(LIBSODIUM_ZIP)
+$(LIBSODIUM_UNPACKNAME): $(LIBSODIUM_TARGZ)
+	@echo "Unpacking: $(LIBSODIUM_TARGZ) -> $(LIBSODIUM_UNPACKNAME)"
+	$(Q) $(UNPACK) $(LIBSODIUM_TARGZ)
 	$(Q) mv $(LIBSODIUM_UNPACKNAME)-$(LIBSODIUM_VERSION) $(LIBSODIUM_UNPACKNAME)
 	$(Q) echo "Patching $(LIBSODIUM_UNPACKNAME)"
 	$(Q) patch -p1 -d $(LIBSODIUM_UNPACKNAME) < 0001-fix-multiple-definition-bug-in-libsodium-test.patch

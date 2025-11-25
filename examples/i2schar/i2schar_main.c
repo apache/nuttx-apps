@@ -34,6 +34,10 @@
 #include <pthread.h>
 #include <errno.h>
 #include <debug.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <nuttx/audio/audio.h>
+#include <nuttx/audio/i2s.h>
 
 #include "i2schar.h"
 
@@ -91,12 +95,18 @@ static void i2schar_help(FAR struct i2schar_state_s *i2schar)
   printf("Usage: i2schar [OPTIONS]\n");
   printf("\nArguments are \"sticky\".\n");
   printf("For example, once the I2C character device is\n");
-  printf("specified, that device will be re-used until it is changed.\n");
+  printf("specified, that device will be reused until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-p devpath] selects the I2C character device path.  "
          "Default: %s Current: %s\n",
          CONFIG_EXAMPLES_I2SCHAR_DEVPATH,
          g_i2schar.devpath ? g_i2schar.devpath : "NONE");
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+  printf("  [-l [0|1]] enables/disables loopback mode "
+         "(0=disable, 1=enable, no value=enable).  "
+         "Default: disabled Current: %s\n",
+         g_i2schar.loopback ? "enabled" : "disabled");
+#endif
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
   printf("  [-t count] selects the number of audio buffers to send.  "
          "Default: %d Current: %d\n",
@@ -175,8 +185,81 @@ static void parse_args(FAR struct i2schar_state_s *i2schar,
             index += nargs;
             break;
 
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+          case 'l':
+
+            /* Check if a value is provided */
+
+            if (ptr[2] == '\0' && index + 1 < argc &&
+                argv[index + 1][0] != '-')
+              {
+                /* Value provided as next argument */
+
+                long loopback = strtol(argv[index + 1], NULL, 10);
+
+                if (loopback == 0)
+                  {
+                    i2schar->loopback = false;
+                  }
+                else if (loopback == 1)
+                  {
+                    i2schar->loopback = true;
+                  }
+                else
+                  {
+                    printf("Invalid loopback value: %ld (must be 0 or 1)\n",
+                           loopback);
+                    exit(1);
+                  }
+
+                index += 2;
+              }
+            else if (ptr[2] == '\0')
+              {
+                /* No value provided, default to enable */
+
+                i2schar->loopback = true;
+                index += 1;
+              }
+
+            else
+              {
+                /* Value provided as part of the same argument */
+
+                long loopback = strtol(&ptr[2], NULL, 10);
+
+                if (loopback == 0)
+                  {
+                    i2schar->loopback = false;
+                  }
+                else if (loopback == 1)
+                  {
+                    i2schar->loopback = true;
+                  }
+                else
+                  {
+                    printf("Invalid loopback value: %ld (must be 0 or 1)\n",
+                           loopback);
+                    exit(1);
+                  }
+
+                index += 1;
+              }
+            break;
+#endif
+
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
           case 'r':
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+            if (i2schar->loopback)
+              {
+                printf("i2schar_main: Warning: -r argument "
+                       "ignored in loopback mode\n");
+                index += 1;
+                break;
+              }
+#endif
+
             nargs = arg_decimal(&argv[index], &value);
             if (value < 0)
               {
@@ -191,6 +274,16 @@ static void parse_args(FAR struct i2schar_state_s *i2schar,
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
           case 't':
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+            if (i2schar->loopback)
+              {
+                printf("i2schar_main: Warning: -t argument "
+                       "ignored in loopback mode\n");
+                index += 1;
+                break;
+              }
+#endif
+
             nargs = arg_decimal(&argv[index], &value);
             if (value < 0)
               {
@@ -215,6 +308,107 @@ static void parse_args(FAR struct i2schar_state_s *i2schar,
     }
 }
 
+#ifdef CONFIG_EXAMPLES_I2SCHAR_TX
+
+/****************************************************************************
+ * Name: i2schar_prepare_tx_buffer
+ ****************************************************************************/
+
+static struct ap_buffer_s *i2schar_prepare_tx_buffer(uint32_t data_width)
+{
+  FAR struct ap_buffer_s *apb;
+  struct audio_buf_desc_s desc;
+  int ret;
+  int j;
+  uint32_t crap = 0;
+
+  /* Allocate an audio buffer of the configured size */
+
+  desc.numbytes   = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
+  desc.u.pbuffer = &apb;
+
+  ret = apb_alloc(&desc);
+  if (ret < 0)
+    {
+      printf("i2schar_prepare_tx_buffer: ERROR: failed to "
+             "allocate buffer: %d\n", ret);
+      return NULL;
+    }
+
+  /* Fill the audio buffer with sequential data based on data width */
+
+  if (data_width == 8)
+    {
+      uint8_t *ptr8 = (uint8_t *)apb->samp;
+
+      /* 8-bit data: fill with sequential bytes */
+
+      for (j = 0; j < CONFIG_EXAMPLES_I2SCHAR_BUFSIZE; j++)
+        {
+          *ptr8++ = crap++;
+        }
+    }
+  else if (data_width == 16)
+    {
+      /* 16-bit data: fill with sequential 16-bit values */
+
+      uint16_t *ptr16 = (uint16_t *)apb->samp;
+      int samples_16bit = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE / 2;
+      for (j = 0; j < samples_16bit; j++)
+        {
+          *ptr16++ = crap++;
+        }
+    }
+  else if (data_width == 24)
+    {
+      /* 24-bit data: fill with sequential 24-bit values (3 bytes each) */
+
+      uint8_t *ptr8 = apb->samp;
+      int samples_24bit = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE / 3;
+      for (j = 0; j < samples_24bit; j++)
+        {
+          /* Store 24-bit value in little-endian format */
+
+          *ptr8++ = crap & 0xff;
+          *ptr8++ = (crap >> 8) & 0xff;
+          *ptr8++ = (crap >> 16) & 0xff;
+          crap++;
+        }
+    }
+  else if (data_width == 32)
+    {
+      /* 32-bit data: fill with sequential 32-bit values */
+
+      uint32_t *ptr32 = (uint32_t *)apb->samp;
+      int samples_32bit = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE / 4;
+      for (j = 0; j < samples_32bit; j++)
+        {
+          *ptr32++ = crap++;
+        }
+    }
+  else
+    {
+      uint8_t *ptr = (uint8_t *)apb->samp;
+
+      /* Unknown data width, fall back to byte-by-byte */
+
+      printf("i2schar_prepare_tx_buffer: Unknown data width %"PRIu32", "
+             "using byte mode\n", data_width);
+      for (j = 0, ptr = apb->samp; j < CONFIG_EXAMPLES_I2SCHAR_BUFSIZE; j++)
+        {
+          *ptr++ = crap++;
+        }
+    }
+
+  apb->nbytes = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
+
+  printf("i2schar_prepare_tx_buffer: Prepared transmitter buffer "
+         "with %"PRIu32"-bit data\n", data_width);
+
+  return apb;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -229,6 +423,7 @@ int main(int argc, FAR char *argv[])
   pthread_addr_t result;
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
   pthread_t transmitter;
+  int fd;
 #endif
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
   pthread_t receiver;
@@ -236,6 +431,8 @@ int main(int argc, FAR char *argv[])
 #if defined(CONFIG_EXAMPLES_I2SCHAR_RX) & defined(CONFIG_EXAMPLES_I2SCHAR_TX)
   struct sched_param param;
 #endif
+  FAR struct ap_buffer_s *transmitter_apb = NULL;
+  uint32_t data_width = 16; /* Default data width */
   int ret;
 
   UNUSED(ret);
@@ -269,12 +466,76 @@ int main(int argc, FAR char *argv[])
       g_i2schar.rxcount = CONFIG_EXAMPLES_I2SCHAR_RXBUFFERS;
 #endif
 
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+      g_i2schar.loopback = false;  /* Default to disabled */
+#endif
+
       g_i2schar.initialized = true;
     }
 
   /* Parse the command line */
 
   parse_args(&g_i2schar, argc, argv);
+
+#ifdef CONFIG_EXAMPLES_I2SCHAR_TX
+
+  /* Get I2S configuration parameters to set data width */
+
+  fd = open(g_i2schar.devpath, O_RDONLY);
+  if (fd >= 0)
+    {
+      ret = ioctl(fd, I2SIOC_GTXDATAWIDTH, (unsigned long)&data_width);
+      if (ret >= 0)
+        {
+          printf("i2schar_main: TX data width: %" PRIu32 " bits\n",
+                 data_width);
+        }
+      else
+        {
+          printf("i2schar_main: Failed to get TX data width: %d\n", ret);
+          printf("i2schar_main: Using default data width: %" PRIu32 " "
+                 "bits\n", data_width);
+        }
+
+      close(fd);
+    }
+  else
+    {
+      printf("i2schar_main: Failed to open device for data width query: "
+             "%d\n", errno);
+      printf("i2schar_main: Using default data width: %" PRIu32 " bits\n",
+             data_width);
+    }
+
+  /* Always prepare the transmitter buffer when transmitter is enabled */
+
+  transmitter_apb = i2schar_prepare_tx_buffer(data_width);
+
+  if (transmitter_apb == NULL)
+    {
+      printf("i2schar_main: ERROR: failed to prepare transmitter buffer\n");
+      return EXIT_FAILURE;
+    }
+#endif
+
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+
+  /* Handle loopback mode */
+
+  if (g_i2schar.loopback)
+    {
+      printf("i2schar_main: Loopback mode enabled\n");
+
+      /* In loopback mode, we only send/receive one buffer each */
+
+      g_i2schar.txcount = 1;
+      g_i2schar.rxcount = 1;
+    }
+  else
+    {
+      printf("i2schar_main: Loopback mode disabled\n");
+    }
+#endif
 
   sched_lock();
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
@@ -301,7 +562,9 @@ int main(int argc, FAR char *argv[])
 
   /* Start the receiver */
 
-  ret = pthread_create(&receiver, &attr, i2schar_receiver, NULL);
+  ret = pthread_create(&receiver, &attr, i2schar_receiver,
+                       g_i2schar.loopback ? \
+                       (pthread_addr_t)transmitter_apb : NULL);
   if (ret != OK)
     {
       sched_unlock();
@@ -325,7 +588,8 @@ int main(int argc, FAR char *argv[])
 
   /* Start the transmitter */
 
-  ret = pthread_create(&transmitter, &attr, i2schar_transmitter, NULL);
+  ret = pthread_create(&transmitter, &attr, i2schar_transmitter,
+                       (pthread_addr_t)transmitter_apb);
   if (ret != OK)
     {
       sched_unlock();
@@ -349,6 +613,13 @@ int main(int argc, FAR char *argv[])
     {
       printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
     }
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+  else if (g_i2schar.loopback && result != NULL)
+    {
+      printf("i2schar_main: ERROR: Loopback verification failed\n");
+      ret = EXIT_FAILURE;
+    }
+#endif
 #endif
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
@@ -358,7 +629,23 @@ int main(int argc, FAR char *argv[])
     {
       printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
     }
+#if defined(CONFIG_EXAMPLES_I2SCHAR_TX) && defined(CONFIG_EXAMPLES_I2SCHAR_RX)
+  else if (g_i2schar.loopback && result != NULL)
+    {
+      printf("i2schar_main: ERROR: Loopback verification failed\n");
+      ret = EXIT_FAILURE;
+    }
+#endif
 #endif
 
-  return EXIT_SUCCESS;
+#ifdef CONFIG_EXAMPLES_I2SCHAR_TX
+  /* Clean up transmitter buffer if it was allocated */
+
+  if (transmitter_apb != NULL)
+    {
+      apb_free(transmitter_apb);
+    }
+#endif
+
+  return ret;
 }

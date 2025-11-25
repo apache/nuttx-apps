@@ -788,6 +788,31 @@ config MBEDTLS_APP_SELFTEST_STACKSIZE
 
 endif # MBEDTLS_APP_SELFTEST
 
+config MBEDTLS_APP_SSL_CLIENT2
+	bool "Mbed TLS ssl_client2 sample program"
+	default n
+	---help---
+		Enable the Mbed TLS ssl_client2
+
+if MBEDTLS_APP_SSL_CLIENT2
+
+config MBEDTLS_APP_SSL_CLIENT2_PROGNAME
+	string "Program name"
+	default "ssl_client2"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config MBEDTLS_APP_SSL_CLIENT2_PRIORITY
+	int "ssl_client2 task priority"
+	default 100
+
+config MBEDTLS_APP_SSL_CLIENT2_STACKSIZE
+	int "ssl_client2 stack size"
+	default MBEDTLS_DEFAULT_TASK_STACKSIZE
+
+endif # MBEDTLS_APP_SSL_CLIENT2
+
 endif # MBEDTLS_APPS
 
 endif # CRYPTO_MBEDTLS

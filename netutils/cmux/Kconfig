@@ -1,0 +1,18 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_CMUX
+	bool "Cmux tool"
+	default n
+	---help---
+		Enable the CMUX (GSM 07.10) multiplexing protocol utility.
+		CMUX allows multiplexing multiple virtual serial connections
+		over a single physical serial link, commonly used with GSM/LTE
+		modems to simultaneously handle AT commands, data connections,
+		and other communication channels.
+
+if NETUTILS_CMUX
+
+endif # NETUTILS_CMUX

@@ -43,4 +43,42 @@ config NETUTILS_DHCPC_BOOTP_FLAGS
 		being fully configured, e.g. with forward enabled. Then we need
 		to enable the broadcast flag under these situations.
 
+config NETUTILS_DHCPC_RELEASE_RETRIES
+	int "DHCP Release send retries"
+	default 3
+	---help---
+		Number of times to retry sending DHCPRELEASE message if sendto() fails.
+		Default is 3 attempts.
+
+config NETUTILS_DHCPC_RELEASE_TRANSMISSION_DELAY_MS
+	int "DHCP Release transmission delay (milliseconds)"
+	default 10
+	---help---
+		Delay in milliseconds used for:
+		1. Between DHCPRELEASE retry attempts when sendto() fails
+		2. To ensure packet transmission before socket closure (if IP clearing enabled)
+		Since UDP is connectionless, this delay gives the network stack
+		time to actually send the packet. Set to 0 to disable delays
+		(not recommended). Default is 10ms.
+
+config NETUTILS_DHCPC_RELEASE_ENSURE_TRANSMISSION
+	bool "Ensure DHCP Release message transmission"
+	default y
+	---help---
+		Add a delay after successfully sending DHCPRELEASE message to ensure
+		the packet is actually transmitted before the function returns.
+		Since DHCP RELEASE has no ACK response from server, this delay helps
+		ensure the release message reaches the server before closing the socket.
+		Uses the same delay value as CONFIG_NETUTILS_DHCPC_RELEASE_TRANSMISSION_DELAY_MS.
+
+config NETUTILS_DHCPC_RELEASE_CLEAR_IP
+	bool "Clear IP address after DHCP release"
+	default n
+	---help---
+		Clear all network configuration from the interface after sending
+		DHCPRELEASE message. This includes IP address, subnet mask, default
+		gateway. RFC 2131 doesn't mandate immediate clearing, so this is
+		disabled by default to maintain connectivity.
+		Enable this for scenarios where complete network reset is required.
+
 endif

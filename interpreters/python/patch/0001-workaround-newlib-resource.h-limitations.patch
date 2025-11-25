@@ -1,7 +1,7 @@
-From 3917fd37644948096c6bebf53e701b59fa527cf5 Mon Sep 17 00:00:00 2001
+From b96f875c54e2d888413a701eb9727d704b995ce0 Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Tue, 22 Oct 2024 23:58:17 +0200
-Subject: [PATCH 01/11] workaround newlib resource.h limitations
+Subject: [PATCH 01/14] workaround newlib resource.h limitations
 
 configure script checks if resource.h is available but doesn't check
 if it defines all the necessary functions.
@@ -27,5 +27,5 @@ index b62362f2777..327d883f94e 100644
  
      /* Disable creation of core dump */
 -- 
-2.46.1
+2.50.0
 

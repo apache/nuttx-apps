@@ -1,7 +1,7 @@
-From dcc6b2b6aa396f96e7c9efe3e793d96c7004ef4f Mon Sep 17 00:00:00 2001
+From 41728277acd7eba4e500d0b4ddd02198b92cf6ac Mon Sep 17 00:00:00 2001
 From: Ivan Grokhotkov <ivan@espressif.com>
 Date: Wed, 23 Oct 2024 16:54:39 +0200
-Subject: [PATCH 03/11] reuse wasm_assets.py for generating an archive of
+Subject: [PATCH 03/14] reuse wasm_assets.py for generating an archive of
  python lib dir
 
 wasm_assets.py is a useful script to prepare the smallest possible
@@ -39,5 +39,5 @@ index ffa5e303412..381d4819c39 100755
      args.wasm_stdlib = args.wasm_root / WASM_STDLIB
      args.wasm_dynload = args.wasm_root / WASM_DYNLOAD
 -- 
-2.46.1
+2.50.0
 

@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MCUBOOT_LOCAL_AGENT
+	tristate "MCUBoot Local Update Agent"
+	default n
+	depends on BOOT_MCUBOOT
+	select BOARDCTL
+	select BOARDCTL_RESET
+	---help---
+		Enable the MCUBoot Local Update Agent example.
+		This application reads a firmware binary from local storage
+		and copies it to the MCUBoot secondary flash slot for update.
+
+if EXAMPLES_MCUBOOT_LOCAL_AGENT
+
+config EXAMPLES_MCUBOOT_LOCAL_AGENT_PROGNAME
+	string "Program name"
+	default "mcuboot_local_agent"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_MCUBOOT_LOCAL_AGENT_PRIORITY
+	int "MCUBoot Local Agent task priority"
+	default 100
+
+config EXAMPLES_MCUBOOT_LOCAL_AGENT_STACKSIZE
+	int "MCUBoot Local Agent stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_MCUBOOT_LOCAL_AGENT_DEFAULT_PATH
+	string "Default firmware file path"
+	default "/mnt/sdcard/firmware.bin"
+	---help---
+		Default path to the firmware binary file on local storage.
+		This can be overridden by passing a path as a command line argument.
+
+endif # EXAMPLES_MCUBOOT_LOCAL_AGENT 

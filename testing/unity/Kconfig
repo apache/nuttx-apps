@@ -29,6 +29,12 @@ config TESTING_UNITY_OUTPUT_COLOR
 	bool "Output color"
 	default n
 	---help---
-		Select this if your want to add some colors to your tests
+		Select this if you want to add some colors to your tests
+
+config TESTING_UNITY_PRINT_FORMATTED
+	bool "Unity printf"
+	default y
+	---help---
+		Select this if you you want to use the Unity TEST_PRINTF macro.
 
 endif # TESTING_UNITY

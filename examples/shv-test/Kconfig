@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_SHV_TEST
+	bool "Silicon Heaven Protocol showcase"
+	depends on NETUTILS_LIBSHVC
+	default n
+	---help---
+		Enable the shv-test application, to show off the capabilities of the SHV protocol.
+
+if EXAMPLES_SHV_TEST
+
+config EXAMPLES_SHV_TEST_PROGNAME
+	string "shv-test App Name"
+	default "shv_test"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SHV_TEST_PRIORITY
+	int "shv-test task priority"
+	default 100
+
+config EXAMPLES_SHV_TEST_STACKSIZE
+	int "shv-test task stack size"
+	default 4096
+
+endif # EXAMPLES_NX_SHV_FWUPDATER
