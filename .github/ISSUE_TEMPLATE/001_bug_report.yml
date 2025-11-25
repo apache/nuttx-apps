@@ -119,7 +119,7 @@ body:
         - "[Area: Games]"
         - "[Area: Graphics]"
         - "[Area: Industry]"
-        - "[Area: Intertial]"
+        - "[Area: Inertial]"
         - "[Area: Interpreters]"
         - "[Area: Logging]"
         - "[Area: LTE]"
@@ -139,6 +139,13 @@ body:
         - "[Area: Posix]"
     validations:
       required: true
+
+  - type: textarea
+    attributes:
+      label: "Host information"
+      description: "What is the output of `make host_info` command while your buggy configuration selected and if possible device connected to your system?"
+    validations:
+      required: false
 
   - type: markdown
     attributes:

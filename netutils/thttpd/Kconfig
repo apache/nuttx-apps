@@ -16,7 +16,10 @@ config THTTPD_NFILE_DESCRIPTORS
 	int "the maximum number of file descriptors for thttpd webserver"
 	default 16
 	---help---
-		The maximum number of file descriptors for thttpd webserver
+		The maximum number of file descriptors for thttpd webserver. This is
+		used during CGI application execution to close all file descriptors
+		after stdin, stdout and stderr up to and including this value (with
+		the exception of file descriptor for the open network socket).
 
 config THTTPD_PORT
 	int "THTTPD port number"
@@ -106,6 +109,13 @@ config THTTPD_CGI_TIMELIMIT
 		How many seconds to allow CGI programs to run before killing them.
 		Default: 0 (no time limit)
 
+config THTTPD_CGIDUMP
+	bool "Output Interposed CGI strings to stderr"
+	default n
+	---help---
+		Enabling this will copy sent to and received from CGI tasks
+		to the stderr device.
+
 config THTTPD_CHARSET
 	string "Default character set"
 	default "iso-8859-1"
@@ -137,7 +147,7 @@ config THTTPD_MAXREALLOC
 	---help---
 		Maximum string reallocation size.  Default: 4096
 
-config THTTPD_CGIINBUFFERSIZ
+config THTTPD_CGIINBUFFERSIZE
 	int "CGI interpose input buffer size"
 	default 512
 	---help---
@@ -236,7 +246,7 @@ choice
 		the name of a subdirectory off of the user's actual home dir,
 		something like "public_html".
 
-		3) Niether.  You can also leave both options undefined, and thttpd
+		3) Neither.  You can also leave both options undefined, and thttpd
 		will not do anything special about tildes. Enabling both options
 		is an error.
 

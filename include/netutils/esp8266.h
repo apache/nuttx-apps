@@ -37,8 +37,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define lespSSID_SIZE 32 /* Number of character max of SSID (null char not included) */
-#define lespBSSID_SIZE 6
+#define LESP_SSID_SIZE 32 /* Number of character max of SSID (null char not included) */
+#define LESP_BSSID_SIZE 6
 
 #define lespIP(x1,x2,x3,x4) ((x1) << 24 | (x2) << 16 | (x3) << 8 | (x4) << 0)
 
@@ -48,26 +48,26 @@
 
 typedef enum
 {
-  lesp_eMODE_AP       = 0,
-  lesp_eMODE_STATION  = 1,
-  lesp_eMODE_BOTH     = 2
+  LESP_MODE_AP       = 0,
+  LESP_MODE_STATION  = 1,
+  LESP_MODE_BOTH     = 2
 } lesp_mode_t;
 
 typedef enum
 {
-  lesp_eSECURITY_NONE = 0,
-  lesp_eSECURITY_WEP,
-  lesp_eSECURITY_WPA_PSK,
-  lesp_eSECURITY_WPA2_PSK,
-  lesp_eSECURITY_WPA_WPA2_PSK,
-  lesp_eSECURITY_NBR
+  LESP_SECURITY_NONE = 0,
+  LESP_SECURITY_WEP,
+  LESP_SECURITY_WPA_PSK,
+  LESP_SECURITY_WPA2_PSK,
+  LESP_SECURITY_WPA_WPA2_PSK,
+  LESP_SECURITY_NBR
 } lesp_security_t;
 
 typedef struct
 {
   lesp_security_t security;
-  char ssid[lespSSID_SIZE + 1];     /* +1 for null char */
-  uint8_t bssid[lespBSSID_SIZE];
+  char ssid[LESP_SSID_SIZE + 1];    /* +1 for null char */
+  uint8_t bssid[LESP_BSSID_SIZE];
   int rssi;
   int channel;
 } lesp_ap_t;
@@ -77,6 +77,7 @@ typedef struct
  ****************************************************************************/
 
 int lesp_initialize(void);
+int lesp_finalize(void);
 int lesp_soft_reset(void);
 
 const char *lesp_security_to_str(lesp_security_t security);

@@ -72,10 +72,10 @@ if [ -z "$varlist" ]; then
   if [ ! -z "$execlist" ]; then
 
 # Get all undefined symbol names
-    varlist=`nm $execlist 2>/dev/null | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
+    varlist=`nm $execlist 2>/dev/null | grep -F ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
 
 # Get all defined symbol names
-    deflist=`nm $execlist 2>/dev/null | fgrep -v -e ' U ' -e ':' | sed -e "s/^[0-9a-z]* //g" | cut -d' ' -f2 | sort | uniq`
+    deflist=`nm $execlist 2>/dev/null | grep -F -v -e ' U ' -e ':' | sed -e "s/^[0-9a-z]* //g" | cut -d' ' -f2 | sort | uniq`
 
 # Remove the intersection between them, and the remaining symbols are found in the main image
     common=`echo "$varlist" | tr ' ' '\n' | grep -Fxf <(echo "$deflist" | tr ' ' '\n') | tr '\n' ' '`

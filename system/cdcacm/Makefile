@@ -24,7 +24,7 @@ include $(APPDIR)/Make.defs
 
 # USB CDC/ACM serial mass storage add-on
 
-MAINSRC = cdcacm_main.c
+MAINSRC = sercon_main.c serdis_main.c
 
 PROGNAME = sercon serdis
 PRIORITY = SCHED_PRIORITY_DEFAULT

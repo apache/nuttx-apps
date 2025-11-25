@@ -1,0 +1,44 @@
+From e908a9a52806768b7546f6a5808eeba1a7862238 Mon Sep 17 00:00:00 2001
+From: Tiago Medicci <tiago.medicci@espressif.com>
+Date: Mon, 21 Jul 2025 12:04:04 -0300
+Subject: [PATCH 14/14] insert prefix to list_length to avoid symbol collision
+ on NuttX
+
+---
+ Objects/listobject.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Objects/listobject.c b/Objects/listobject.c
+index dc9df3c3614..3e5bb33068b 100644
+--- a/Objects/listobject.c
++++ b/Objects/listobject.c
+@@ -627,7 +627,7 @@ list_repr(PyObject *self)
+ }
+ 
+ static Py_ssize_t
+-list_length(PyObject *a)
++py_list_length(PyObject *a)
+ {
+     return PyList_GET_SIZE(a);
+ }
+@@ -3502,7 +3502,7 @@ static PyMethodDef list_methods[] = {
+ };
+ 
+ static PySequenceMethods list_as_sequence = {
+-    list_length,                                /* sq_length */
++    py_list_length,                             /* sq_length */
+     list_concat,                                /* sq_concat */
+     list_repeat,                                /* sq_repeat */
+     list_item,                                  /* sq_item */
+@@ -3768,7 +3768,7 @@ list_ass_subscript(PyObject* _self, PyObject* item, PyObject* value)
+ }
+ 
+ static PyMappingMethods list_as_mapping = {
+-    list_length,
++    py_list_length,
+     list_subscript,
+     list_ass_subscript
+ };
+-- 
+2.50.0
+

@@ -512,12 +512,12 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    *
    * 1. Load a file from file system if possible.  An external command on a
    *    file system with the provided name (and on the defined PATH) takes
-   *    precendence over any other source of a command by that name.  This
+   *    precedence over any other source of a command by that name.  This
    *    allows the user to replace a built-in command with a command on a`
    *    file system
    *
    * 2. If not, run a built-in application of that name if possible.  A
-   *    built-in application will take precendence over any NSH command.
+   *    built-in application will take precedence over any NSH command.
    *
    * 3. If not, run an NSH command line command if possible.
    *
@@ -540,7 +540,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    * Note the priority is not effected by nice-ness.
    */
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
+#if defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_NSH_BUILTIN_AS_COMMAND)
   ret = nsh_builtin(vtbl, argv[0], argv, param);
   if (ret >= 0)
     {
@@ -637,7 +637,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
       sh_argv[3] = NULL;
 
       /* np.np_bg still there, try use nsh_builtin or nsh_fileapp to
-       * dispatch the backgroud by sh -c ""
+       * dispatch the background by sh -c ""
        */
 
       ret = nsh_execute(vtbl, 4, sh_argv, param);
@@ -2936,7 +2936,11 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           /* Parse this command */
 
           ret = nsh_parse_command(vtbl, start);
-          if (ret != OK)
+          if (ret != OK
+#ifndef CONFIG_NSH_DISABLESCRIPT
+              && !(vtbl->np.np_flags & NSH_PFLAG_IGNORE)
+#endif
+             )
             {
               /* nsh_parse_command may return (1) -1 (ERROR) meaning that the
                * command failed or we failed to start the command application

@@ -67,12 +67,13 @@
 #define SNAKE_HEAD  2
 #define FOOD        3
 #define BLINK       4
+#define HIGH_SCORE  5
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-/* Game item struct to repesent in board */
+/* Game item struct to represent in board */
 
 struct game_item
 {
@@ -80,7 +81,7 @@ struct game_item
   int pos_y;
 };
 
-/* Snake item struct to repesent in board */
+/* Snake item struct to represent in board */
 
 struct snake_item
 {
@@ -112,15 +113,49 @@ uint32_t board[BOARDX_SIZE][BOARDY_SIZE] =
   0
 };
 
+/* Reached highest score */
+
+uint32_t high_score = 0;
+
 /* Colors used in the game plus Black */
 
-static const uint32_t pallete[] =
+static const uint32_t palette[] =
 {
   RGB24_BLACK,
   RGB24_BLUE,
   RGB24_CYAN,
   RGB24_RED,
   RGB24_WHITE,
+  RGB24_GREENYELLOW,
+};
+
+/* Second block of score value to print (.e.g 1x) */
+
+const uint64_t second_score_block[] =
+{
+  0x0007050505070000,
+  0x0004040404040000,
+  0x0007010704070000,
+  0x0007040704070000,
+  0x0004040705050000,
+  0x0007040701070000,
+  0x0007050701070000
+};
+
+/* First block of score value to print (.e.g x1) */
+
+const uint64_t first_score_block[] =
+{
+  0x0070505050700000,
+  0x0040404040400000,
+  0x0070107040700000,
+  0x0070407040700000,
+  0x0040407050500000,
+  0x0070407010700000,
+  0x0070507010700000,
+  0x0040404040700000,
+  0x0070507050700000,
+  0x0070407050700000
 };
 
 /****************************************************************************
@@ -189,7 +224,7 @@ static void draw_board(int fd)
     {
       for (y = 0; y < BOARDY_SIZE; y++)
         {
-          rgb_val = pallete[board[x][y]];
+          rgb_val = palette[board[x][y]];
           tmp = dim_color(rgb_val, 0.15);
           *bp++ = ws2812_gamma_correct(tmp);
         }
@@ -351,20 +386,81 @@ static void move_snake(int dir)
 }
 
 /****************************************************************************
- * Name: clear_board
+ * Name: fill_board_with_score
  *
  * Description:
- *   Clears the board
+ *   Fills board with score value to print
  *
  * Parameters:
- *   None
+ *   val - Value that includes with tiles should light up
  *
  * Returned Value:
  *   None.
  *
  ****************************************************************************/
 
-static void clear_board(void)
+static void fill_board_with_score(uint64_t val)
+{
+  int i = 0;
+  int j = 0;
+  for (i = 0; i < BOARDX_SIZE; i++)
+    {
+      for (j = 0; j < BOARDX_SIZE; j++)
+        {
+          if (val % 2 == 0)
+            {
+              board[i][j] = BLANK_PLACE;
+            }
+          else
+            {
+              board[i][j] = FOOD;
+            }
+
+            val = val >> 1;
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: print_score
+ *
+ * Description:
+ *   Prints score to the screen
+ *
+ * Parameters:
+ *   score - Score that reached in game
+ *   fd    - File descriptor for screen
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
+static void print_score(int score, int fd)
+{
+  int second_idx = (int) score / 10;
+  int first_idx = score % 10;
+  uint64_t val = second_score_block[second_idx] |
+    first_score_block[first_idx];
+  fill_board_with_score(val);
+  draw_board(fd);
+}
+
+/****************************************************************************
+ * Name: fill_board
+ *
+ * Description:
+ *   Fill board with given value
+ *
+ * Parameters:
+ *   val - Value to fill the board
+ *
+ * Returned Value:
+ *   None.
+ *
+ ****************************************************************************/
+
+static void fill_board(int val)
 {
   int i;
   int j;
@@ -373,7 +469,7 @@ static void clear_board(void)
     {
       for (j = 0; j < BOARDY_SIZE; j++)
         {
-          board[i][j] = 0;
+          board[i][j] = val;
         }
     }
 }
@@ -399,7 +495,7 @@ static void init_game(void)
   snake.tail[0].pos_y = BOARDY_SIZE / 2;
   food.pos_x = rand() % BOARDX_SIZE;
   food.pos_y = rand() % BOARDY_SIZE;
-  clear_board();
+  fill_board(BLANK_PLACE);
 
   board[BOARDX_SIZE / 2][BOARDY_SIZE / 2] = SNAKE_HEAD;
 }
@@ -607,10 +703,27 @@ restart:
       usleep(85000);
     }
 
-  printf("Game Over! Score: %d", (snake.tail_len * 10));
+  printf("Game Over! Score: %d\n", snake.tail_len);
+  if (high_score < snake.tail_len)
+    {
+      printf("Congrats! New High Score\n");
+      high_score = snake.tail_len;
+      for (i = 0; i < 3; i++)
+        {
+          fill_board(HIGH_SCORE);
+          draw_board(board_fd);
+          usleep(200000);
+
+          fill_board(BLANK_PLACE);
+          draw_board(board_fd);
+          usleep(200000);
+        }
+    }
+
+  print_score(snake.tail_len, board_fd);
 
   printf("Please press left key to exit or other keys to restart\n");
-  usleep(1000000);
+  usleep(2000000);
 
   input_st.dir = DIR_NONE;
   ret = ERROR;
@@ -624,5 +737,6 @@ restart:
       goto restart;
     }
 
+  dev_input_deinit();
   return 0;
 }

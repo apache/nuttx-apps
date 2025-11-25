@@ -141,8 +141,8 @@ int main(int argc, FAR char *argv[])
       else
         {
           printf("Sample  :\n");
-          printf("   code : %d\n",   sample.code);
-          printf("   type : %d\n",   sample.type);
+          printf("   code : %" PRIu32 "\n",   sample.code);
+          printf("   type : %" PRIu32 "\n",   sample.type);
         }
 
       if (nsamples && --nsamples <= 0)

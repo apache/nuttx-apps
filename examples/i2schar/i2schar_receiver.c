@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <debug.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <nuttx/audio/audio.h>
 
@@ -79,12 +80,15 @@
 pthread_addr_t i2schar_receiver(pthread_addr_t arg)
 {
   FAR struct ap_buffer_s *apb;
+  FAR struct ap_buffer_s *transmitter_apb = (FAR struct ap_buffer_s *)arg;
   struct audio_buf_desc_s desc;
   int bufsize;
   int nread;
   int ret;
   int fd;
   int i;
+  int j;
+  bool loopback = (transmitter_apb != NULL);
 
   /* Open the I2C character device */
 
@@ -101,7 +105,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
 
   for (i = 0; i < g_i2schar.rxcount; i++)
     {
-      /* Allocate an audio buffer of the configured size */
+      /* Allocate an audio buffer of the configured size for receiving data */
 
       desc.numbytes   = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
       desc.u.pbuffer = &apb;
@@ -118,7 +122,13 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
 
       bufsize = sizeof(struct ap_buffer_s) + CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
 
-      /* Then receifve into the buffer */
+      if (loopback)
+        {
+          printf("i2schar_receiver: Using allocated buffer for "
+                 "loopback verification\n");
+        }
+
+      /* Then receive into the buffer */
 
       do
         {
@@ -137,6 +147,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
                   printf("i2schar_receiver: ERROR: read failed: %d\n",
                           errcode);
                   close(fd);
+                  apb_free(apb);
                   pthread_exit(NULL);
                 }
             }
@@ -145,6 +156,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
               printf("i2schar_receiver: ERROR: partial read: %d\n",
                       nread);
               close(fd);
+              apb_free(apb);
               pthread_exit(NULL);
             }
           else
@@ -153,6 +165,51 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
             }
         }
       while (nread != bufsize);
+
+      /* Print received buffer data (first 16 bytes) regardless of mode */
+
+      printf("i2schar_receiver: Received data (first 16 bytes): ");
+      for (j = 0; j < 16 && j < CONFIG_EXAMPLES_I2SCHAR_BUFSIZE; j++)
+        {
+          printf("0x%02x ", ((uint8_t *)apb->samp)[j]);
+        }
+
+      printf("\n");
+
+      /* Verify the received data in loopback mode */
+
+      if (loopback)
+        {
+          /* Compare the received data with the expected transmitter buffer */
+
+          if (memcmp(apb->samp, transmitter_apb->samp,
+                     CONFIG_EXAMPLES_I2SCHAR_BUFSIZE) == 0)
+            {
+              printf("i2schar_receiver: Loopback verification PASSED - "
+                     "data matches expected\n");
+            }
+          else
+            {
+              printf("i2schar_receiver: Loopback verification FAILED - "
+                     "data mismatch!\n");
+              printf("i2schar_receiver: Expected data (first 16 bytes): ");
+              for (j = 0;
+                   j < 16 && j < CONFIG_EXAMPLES_I2SCHAR_BUFSIZE; j++)
+                {
+                  printf("0x%02x ",
+                         ((uint8_t *)transmitter_apb->samp)[j]);
+                }
+
+              printf("\n");
+              close(fd);
+              apb_free(apb);
+              pthread_exit((pthread_addr_t)1); /* Return error */
+            }
+        }
+
+      /* Free the buffer after use */
+
+      apb_free(apb);
 
       /* Make sure that the transmitter thread has a chance to run */
 

@@ -1589,9 +1589,7 @@ static void ls_child(int argc, char **argv)
   FAR httpd_conn *hc = (FAR httpd_conn *)strtoul(argv[1], NULL, 16);
   DIR *dirp;
   struct dirent *de;
-  int namlen;
   static int maxnames = 0;
-  int oldmax;
   int nnames;
   static char *names;
   static char **nameptrs;
@@ -1614,6 +1612,18 @@ static void ls_child(int argc, char **argv)
   time_t now;
   char *timestr;
   int i;
+
+  /* Compiler was warning that dirp was not initialised and it wasn't.
+   * But whether this is correct or not I am not sure.
+   */
+
+  dirp = opendir(hc->expnfilename);
+  if (dirp == NULL)
+    {
+      nerr("ERROR: opendir %s: %d\n", hc->expnfilename, errno);
+      httpd_send_err(hc, 404, err404title, "", err404form, hc->encodedurl);
+      return;
+    }
 
   httpd_unlisten(hc->hs);
   send_mime(hc, 200, ok200title, "", "", "text/html; charset=%s",
@@ -1639,11 +1649,11 @@ static void ls_child(int argc, char **argv)
 
   fputs(html_html, fp);
   fputs(html_hdtitle, fp);
-  fprintf(fp, "Index of %s", hc->encodedurl, hc->encodedurl);
+  fprintf(fp, "Index of %s", hc->encodedurl);
   fputs(html_titlehd, fp);
   fputs(html_body, fp);
   fputs(html_hdr2, fp);
-  fprintf(fp, "Index of %s", hc->encodedurl, hc->encodedurl);
+  fprintf(fp, "Index of %s", hc->encodedurl);
   fputs(html_endhdr2, fp);
   fputs(html_crlf, fp);
   fputs("<PRE>\r\nmode  links  bytes  last-changed  name\r\n<HR>", fp);
@@ -1663,7 +1673,6 @@ static void ls_child(int argc, char **argv)
             }
           else
             {
-              oldmax    = maxnames;
               maxnames *= 2;
               names     = RENEW(names, char, oldmax * PATH_MAX,
                                 maxnames * PATH_MAX);
@@ -1833,7 +1842,7 @@ static void ls_child(int argc, char **argv)
       /* And print. */
 
       fprintf(fp,
-              "%s %3ld  %10lld  %s  <A HREF=\"/%.500s%s\">%s</A>%s%s%s\n",
+              "%s %3d  %10d  %s  <A HREF=\"/%.500s%s\">%s</A>%s%s%s\n",
               modestr, 0, (int16_t)sb.st_size, timestr, encrname,
               S_ISDIR(sb.st_mode) ? "/" : "", nameptrs[i], linkprefix,
               link, fileclass);
@@ -1890,7 +1899,8 @@ static int ls(httpd_conn *hc)
       argv[0] = arg;
 
       child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
-                          CONFIG_THTTPD_CGI_STACKSIZE, ls_child, argv);
+                          CONFIG_THTTPD_CGI_STACKSIZE, (main_t)ls_child,
+                          argv);
       if (child < 0)
         {
           nerr("ERROR: task_create: %d\n", errno);
@@ -2354,8 +2364,8 @@ int httpd_get_conn(httpd_server *hs, int listen_fd, httpd_conn *hc)
 
   ninfo("accept() new connection on listen_fd %d\n", listen_fd);
   sz = sizeof(sa);
-  hc->conn_fd = accept4(listen_fd, (struct sockaddr *)&sa, &sz,
-                        SOCK_CLOEXEC);
+  hc->conn_fd = accept4(listen_fd, (struct sockaddr *)&sa, &sz, 0);
+
   if (hc->conn_fd < 0)
     {
       if (errno == EWOULDBLOCK)

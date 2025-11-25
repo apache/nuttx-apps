@@ -81,13 +81,23 @@ static int dhcp_setup_result(FAR const char *ifname,
     }
 
 #ifdef CONFIG_NETDB_DNSCLIENT
-  if (ds->dnsaddr.s_addr != 0)
+  /* Set all received DNS server addresses */
+
+  if (ds->num_dnsaddr > 0)
     {
-      ret = netlib_set_ipv4dnsaddr(&ds->dnsaddr);
-      if (ret < 0)
+      uint8_t i;
+      for (i = 0; i < ds->num_dnsaddr; i++)
         {
-          nerr("ERROR: set the DNS server address failed: %d\n", ret);
-          return ret;
+          if (ds->dnsaddr[i].s_addr != 0)
+            {
+              ret = netlib_set_ipv4dnsaddr(&ds->dnsaddr[i]);
+              if (ret < 0)
+                {
+                  nerr("ERROR: set DNS server %d address failed: %d\n",
+                        i, ret);
+                  return ret;
+                }
+            }
         }
     }
 #endif

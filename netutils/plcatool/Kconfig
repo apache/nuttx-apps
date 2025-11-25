@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_PLCATOOL
+	bool "plcatool support"
+	default n
+	---help---
+		Build in support for the plcatool command. This command allows configuring
+                the PLCA access method in 10BASE-T1S network adapters supporting PLCA.
+                Syntax of the plcatool is inspired by the corresponding syntax used by the ethtool.

@@ -111,10 +111,10 @@ void test_nuttx_fs_fstatfs01(FAR void **state);
 void test_nuttx_fs_fsync01(FAR void **state);
 void test_nuttx_fs_fsync02(FAR void **state);
 
-/* cases/fs_getfilep_test.c
+/* cases/fs_file_get_test.c
  * ************************************************/
 
-void test_nuttx_fs_getfilep01(FAR void **state);
+void test_nuttx_fs_file_get01(FAR void **state);
 
 /* cases/fs_mkdir_test.c
  * ************************************************/

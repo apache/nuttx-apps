@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_XEDGE_DEMO
+	tristate "Xedge IoT Toolkit Demo"
+	depends on NETUTILS_XEDGE && ALLOW_GPL_COMPONENTS
+	default n
+	---help---
+		Simple demonstration of the Xedge IoT Toolkit library.
+		
+		This example shows how to integrate and use the Xedge library
+		in your NuttX application. Xedge provides a high-level development
+		environment for creating IoT and industrial device applications
+		using Lua scripting with access to HTTP(S), WebSockets, MQTT,
+		file system, and device I/O.
+
+		Note: This example requires the NETUTILS_XEDGE library to be enabled.
+
+if EXAMPLES_XEDGE_DEMO
+
+config EXAMPLES_XEDGE_DEMO_PROGNAME
+	string "Program name"
+	default "xedge_demo"
+	---help---
+		This is the name of the ELF executable for the Xedge demo application in NSH.
+
+config EXAMPLES_XEDGE_DEMO_PRIORITY
+	int "Xedge demo task priority"
+	default 100
+	---help---
+		Set the task priority for the Xedge demo application.
+
+config EXAMPLES_XEDGE_DEMO_STACKSIZE
+	int "Xedge demo stack size"
+	default 20000
+	---help---
+		Set the stack size for the Xedge demo application.
+
+endif

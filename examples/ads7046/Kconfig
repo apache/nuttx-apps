@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ADS7046
+	tristate "ADS7046 ADC example"
+	default n
+	depends on ADC_ADS7046
+	---help---
+		Enable the ADS7046 example
+
+if EXAMPLES_ADS7046
+
+config EXAMPLES_ADS7046_PROGNAME
+	string "Program name"
+	default "ads7046"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_ADS7046_PRIORITY
+	int "ADS7046 task priority"
+	default 100
+
+config EXAMPLES_ADS7046_STACKSIZE
+	int "ADS7046 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_ADS7046_DEVPATH
+	string "ADS7046 device path"
+	default "/dev/adc0"
+	---help---
+		The default path to the ADS7046 ADC device
+
+endif

@@ -509,6 +509,26 @@ int cmd_md5(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           return ret;
         }
     }
+  else if (argc == 1)
+    {
+      MD5_CTX ctx;
+
+      md5_init(&ctx);
+
+      while (1)
+        {
+          ret = nsh_read(vtbl, digest, sizeof(digest));
+          if (ret <= 0)
+            {
+              ret = ret < 0 ? -errno : 0;
+              break;
+            }
+
+          md5_update(&ctx, digest, ret);
+        }
+
+      md5_final(digest, &ctx);
+    }
   else
     {
       md5_sum((FAR unsigned char *)argv[1], strlen(argv[1]), digest);

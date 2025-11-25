@@ -51,6 +51,22 @@ if(CONFIG_UORB)
       uorb)
   endif()
 
+  if(CONFIG_UORB_GENERATOR)
+    nuttx_add_application(
+      NAME
+      uorb_generator
+      PRIORITY
+      ${CONFIG_UORB_PRIORITY}
+      STACKSIZE
+      ${CONFIG_UORB_STACKSIZE}
+      MODULE
+      ${CONFIG_UORB}
+      SRCS
+      generator.c
+      DEPENDS
+      uorb)
+  endif()
+
   if(CONFIG_UORB_TEST)
     nuttx_add_application(
       NAME

@@ -21,7 +21,6 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_CDCACM)
-  nuttx_add_application(NAME sercon SRCS cdcacm_main.c)
-
-  nuttx_add_application(NAME serdis)
+  nuttx_add_application(NAME sercon SRCS sercon_main.c)
+  nuttx_add_application(NAME serdis SRCS serdis_main.c)
 endif()

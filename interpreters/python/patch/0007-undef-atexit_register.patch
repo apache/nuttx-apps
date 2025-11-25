@@ -1,7 +1,7 @@
-From 7eab2315d75d5e78e67e0b049ebb2fc71914b7ea Mon Sep 17 00:00:00 2001
+From 6ebe2333a7862532aa50e7286db9ea8b9df895c4 Mon Sep 17 00:00:00 2001
 From: Tiago Medicci <tiago.medicci@espressif.com>
 Date: Wed, 13 Nov 2024 14:22:04 -0300
-Subject: [PATCH 07/11] undef atexit_register
+Subject: [PATCH 07/14] undef atexit_register
 
 Even if not built, nuttx/include/nuttx/atexit.h defines it and this
 causes conflicts.
@@ -27,5 +27,5 @@ index 297a8d74ba3..1fea72fbc99 100644
  atexit_register(PyObject *module, PyObject *args, PyObject *kwargs)
  {
 -- 
-2.46.1
+2.50.0
 

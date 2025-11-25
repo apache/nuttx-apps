@@ -162,9 +162,9 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
     }
 
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
-  total_size = remain * 100;
+  total_size = remain;
 #endif
-  blocksize = MAX(info_from.blocksize, info_where.blocksize);
+  blocksize = info_where.blocksize;
 
   buf = malloc(blocksize);
   if (!buf)
@@ -227,7 +227,7 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
         {
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
           nxboot_progress(nxboot_progress_percent,
-                          ((total_size - remain) * 100) / total_size);
+                          100 - ((100 * remain) / total_size));
 #else
           nxboot_progress(nxboot_progress_dot);
 #endif
@@ -313,6 +313,8 @@ static enum nxboot_update_type
           nxboot_progress(nxboot_progress_end);
           return NXBOOT_UPDATE_TYPE_UPDATE;
         }
+
+        flash_partition_erase_first_sector(update);
     }
 
   nxboot_progress(nxboot_progress_end);
@@ -643,12 +645,14 @@ int nxboot_get_state(struct nxboot_state *state)
   else if (IS_INTERNAL_MAGIC(primary_header.magic))
     {
       recovery_pointer = primary_header.magic & NXBOOT_RECOVERY_PTR_MASK;
-      if (recovery_pointer == NXBOOT_SECONDARY_SLOT_NUM)
+      if (recovery_pointer == NXBOOT_SECONDARY_SLOT_NUM &&
+          IS_INTERNAL_MAGIC(secondary_header.magic))
         {
           state->primary_confirmed =
             primary_header.crc == secondary_header.crc;
         }
-      else if (recovery_pointer == NXBOOT_TERTIARY_SLOT_NUM)
+      else if (recovery_pointer == NXBOOT_TERTIARY_SLOT_NUM &&
+               IS_INTERNAL_MAGIC(tertiary_header.magic))
         {
           state->primary_confirmed =
             primary_header.crc == tertiary_header.crc;

@@ -1,0 +1,61 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GRAPHICS_INPUT_GENERATOR
+	bool
+	default n
+	---help---
+		This is a simple input generator library that can be used to
+		generate input events for testing graphics applications.
+
+menuconfig GRAPHICS_INPUT_MONKEY
+	tristate "Monkey test"
+	select UINPUT_TOUCH
+	select UINPUT_BUTTONS
+	select GRAPHICS_INPUT_GENERATOR
+	select LIBC_PRINT_EXTENSION
+	default n
+
+if GRAPHICS_INPUT_MONKEY
+
+config GRAPHICS_INPUT_MONKEY_PRIORITY
+	int "Task priority"
+	default 110
+
+config GRAPHICS_INPUT_MONKEY_STACKSIZE
+	int "Stack size"
+	default 4096
+
+config GRAPHICS_INPUT_MONKEY_REC_DIR_PATH
+	string "Recorder directory path"
+	default "/data/monkey"
+
+endif
+
+menuconfig GRAPHICS_INPUT_TOOL
+	tristate "Enable input tool"
+	default n
+	select UINPUT_TOUCH
+	select UINPUT_BUTTONS
+	select UINPUT_MOUSE
+	select GRAPHICS_INPUT_GENERATOR
+	---help---
+		Enable support for a command line input tool.
+
+if GRAPHICS_INPUT_TOOL
+
+config GRAPHICS_INPUT_TOOL_STACKSIZE
+	int "input stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The size of stack allocated for the input task.
+
+config GRAPHICS_INPUT_TOOL_PRIORITY
+	int "input priority"
+	default 110
+	---help---
+		The priority of the input task.
+
+endif # GRAPHICS_INPUT_TOOL

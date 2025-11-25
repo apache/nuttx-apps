@@ -47,7 +47,7 @@ CSRCS += netlib_getarptab.c
 endif
 endif
 ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
-CSRCS += netlib_setipv4dnsaddr.c
+CSRCS += netlib_setipv4dnsaddr.c netlib_delipv4dnsaddr.c
 endif
 ifeq ($(CONFIG_NET_ROUTE),y)
 CSRCS += netlib_ipv4route.c netlib_ipv4router.c
@@ -71,7 +71,7 @@ CSRCS += netlib_autoconfig.c
 CSRCS += netlib_obtainipv6addr.c
 endif
 ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
-CSRCS += netlib_setipv6dnsaddr.c
+CSRCS += netlib_setipv6dnsaddr.c netlib_delipv6dnsaddr.c
 endif
 ifeq ($(CONFIG_NET_ROUTE),y)
 CSRCS += netlib_ipv6route.c netlib_ipv6router.c

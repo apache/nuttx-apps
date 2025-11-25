@@ -1,0 +1,109 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_ADCSCOPE
+	bool "NxScope ADC stream app"
+	default n
+	depends on ADC && LOGGING_NXSCOPE
+
+if SYSTEM_ADCSCOPE
+
+config SYSTEM_ADCSCOPE_PROGNAME
+	string "Program name"
+	default "adcscope"
+
+config SYSTEM_ADCSCOPE_PRIORITY
+	int "adcscope task priority"
+	default 100
+
+config SYSTEM_ADCSCOPE_STACKSIZE
+	int "adcscope stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_ADCSCOPE_SERIAL_PATH
+	string "adcscope serial device path"
+	default "/dev/ttyUSB0"
+
+config SYSTEM_ADCSCOPE_SERIAL_BAUD
+	int "adcscope serial baud"
+	default 115200
+	---help---
+		Ignored if set to 0 (for example for RTT interface)
+
+config SYSTEM_ADCSCOPE_CDCACM
+	bool "adcscope CDCACM device support"
+	depends on CDCACM
+	default n
+
+config SYSTEM_ADCSCOPE_FORCE_ENABLE
+	bool "adcscope force enable"
+	default n
+
+config SYSTEM_ADCSCOPE_STREAMBUF_LEN
+	int "adcscope stream buffer length"
+	default 512
+
+config SYSTEM_ADCSCOPE_RXBUF_LEN
+	int "adcscope RX buffer length"
+	default 32
+
+config SYSTEM_ADCSCOPE_RX_PADDING
+	int "adcscope RX padding"
+	default 0
+	---help---
+		This value is returned by NxScope protocol to the client and can
+		be used to optimize RX transfers when the target supports DMA transfers.
+		In this case this value should be equal to the DMA RX buffer length.
+
+config SYSTEM_ADCSCOPE_MAIN_INTERVAL
+	int "adcscope main interval (microseconds)"
+	default 100000
+	---help---
+		This value is responsible for the frequency at which stream
+		frames will be sent and incoming frames will be received.
+
+config SYSTEM_ADCSCOPE_FETCH_INTERVAL
+	int "adcscope fetch interval (microseconds)"
+	default 1000
+	---help---
+		This value is responsible for the frequency at which the ADC
+		samples are read. If set to 0, then samples are read at maximum rate.
+
+config SYSTEM_ADCSCOPE_ADC_PATH
+	string "adcscope ADC device path"
+	default "/dev/adc0"
+
+config SYSTEM_ADCSCOPE_ADCBUF_LEN
+	int "adcscope buffer length"
+	default ADC_FIFOSIZE
+	---help---
+		The number of samples in the buffer used to read from the ADC device.
+		This is the maximum number of samples that can be read from the ADC
+		device during one read() operation.
+
+config SYSTEM_ADCSCOPE_SWTRIG
+	bool "adcscope uses software trigger"
+	default n
+	---help---
+		When this option is set, all read() operations on the ADC device will
+		be preceded by an ioctl(ANIOC_TRIGGER) call.
+
+choice
+	prompt "adcscope data type"
+	default SYSTEM_ADCSCOPE_INT16
+
+config SYSTEM_ADCSCOPE_INT16
+	bool "pack ADC data as int16_t"
+	---help---
+		NxScope send ADC samples as int16_t data.
+
+config SYSTEM_ADCSCOPE_INT32
+	bool "pack ADC data as int32_t"
+	---help---
+		NxScope send ADC samples as int32_t data.
+
+endchoice # "adcscope data type"
+
+endif # SYSTEM_ADCSCOPE
