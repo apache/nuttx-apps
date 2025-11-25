@@ -34,14 +34,13 @@ MAINSRC = module_main.c
 SYMTABSRC = mod_symtab.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
-
+MODLUE_NAME = chardev
 ifneq ($(CONFIG_BUILD_FLAT),y)
   PASS1_SYMTAB = $(TOPDIR)/pass1/mod_symtab.c
-  MODLUE_NAME = chardev
 endif
 
 $(SYMTABSRC):
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) g_mod >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR)$(DELIM)$(MODLUE_NAME) g_mod >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 

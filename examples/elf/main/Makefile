@@ -30,8 +30,34 @@ MAINSRC = elf_main.c
 SYMTABSRC = test_symtab.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
+ELFNAME_BASE = errno hello
+ifneq ($(CONFIG_DISABLE_SIGNALS),y)
+  ELFNAME_BASE += signal
+endif
+
+ifeq ($(CONFIG_HAVE_CXX),y)
+  ELFNAME_BASE += hello++1 hello++2
+  ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
+    ELFNAME_BASE += hello++3
+  endif
+  ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
+    ELFNAME_BASE += hello++4 hello++5
+  endif
+endif
+ifeq ($(CONFIG_EXAMPLES_ELF_LONGJMP),y)
+  ELFNAME_BASE += longjmp
+endif
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+  ELFNAME_BASE += pthread mutex
+endif
+ifneq ($(CONFIG_ARCH_ADDRENV),y)
+  ELFNAME_BASE += task
+endif
+
+ELFNAME = $(addprefix $(BINDIR)$(DELIM),$(ELFNAME_BASE))
+
 $(SYMTABSRC):
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR) g_elf >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(ELFNAME) g_elf >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 
