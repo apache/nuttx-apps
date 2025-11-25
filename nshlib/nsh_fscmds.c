@@ -2233,7 +2233,10 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       if (recursive)
         {
-          ret = unlink_recursive(fullpath, &stat);
+          FAR char *buf = lib_get_pathbuffer();
+          strlcpy(buf, fullpath, PATH_MAX);
+          ret = unlink_recursive(buf, &stat);
+          lib_put_pathbuffer(buf);
         }
       else
         {
