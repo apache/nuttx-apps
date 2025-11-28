@@ -1,16 +1,12 @@
 ############################################################################
-# apps/examples/module/main/Makefile
-#
-# SPDX-License-Identifier: Apache-2.0
+# apps/examples/elf/main/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.  The
 # ASF licenses this file to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance with the
-# License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
+# License.  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -24,34 +20,54 @@ include $(APPDIR)/Make.defs
 
 # Module example built-in application info
 
-PROGNAME = module
+PROGNAME = elf
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE = $(CONFIG_EXAMPLES_MODULE)
+MODULE = $(CONFIG_EXAMPLES_ELF)
 
-MAINSRC = module_main.c
+MAINSRC = elf_main.c
 
-SYMTABSRC = mod_symtab.c
+SYMTABSRC = test_symtab.c
 SYMTABOBJ = $(SYMTABSRC:.c=$(OBJEXT))
 
-MODLUE_NAME = chardev
-ifneq ($(CONFIG_BUILD_FLAT),y)
-  PASS1_SYMTAB = $(TOPDIR)/pass1/mod_symtab.c
+ELFNAME_BASE = errno hello
+ifneq ($(CONFIG_DISABLE_SIGNALS),y)
+  ELFNAME_BASE += signal
 endif
 
+ifeq ($(CONFIG_HAVE_CXX),y)
+  ELFNAME_BASE += hello++1 hello++2
+  ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
+    ELFNAME_BASE += hello++3
+  endif
+  ifeq ($(CONFIG_EXAMPLES_ELF_CXX),y)
+    ELFNAME_BASE += hello++4 hello++5
+  endif
+endif
+ifeq ($(CONFIG_EXAMPLES_ELF_LONGJMP),y)
+  ELFNAME_BASE += longjmp
+endif
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+  ELFNAME_BASE += pthread mutex
+endif
+ifneq ($(CONFIG_ARCH_ADDRENV),y)
+  ELFNAME_BASE += task
+endif
+
+ELFNAME = $(addprefix $(BINDIR)$(DELIM),$(ELFNAME_BASE))
+
 $(SYMTABSRC):
-	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(BINDIR)$(DELIM)$(MODLUE_NAME) g_mod >$@.tmp
+	$(Q) $(APPDIR)$(DELIM)tools$(DELIM)mksymtab.sh $(ELFNAME) g_elf >$@.tmp
 	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
 
 
 $(SYMTABOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@, -fno-lto -fno-builtin)
 
-ifeq ($(CONFIG_EXAMPLES_MODULE_BUILTINFS),y)
-ifeq ($(CONFIG_EXAMPLES_MODULE_ROMFS),y)
+ifeq ($(CONFIG_EXAMPLES_ELF_ROMFS),y)
 
-ROMFSIMG = chardev_romfs.img
-ROMFSSRC = chardev_romfs.c
+ROMFSIMG = elf_romfs.img
+ROMFSSRC = elf_romfs.c
 ROMFSOBJ = $(ROMFSSRC:.c=$(OBJEXT))
 
 $(ROMFSIMG):
@@ -64,7 +80,7 @@ $(ROMFSSRC): $(ROMFSIMG)
 $(ROMFSOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@, -fno-lto -fno-builtin)
 
-else ifeq ($(CONFIG_EXAMPLES_MODULE_CROMFS),y)
+else ifeq ($(CONFIG_EXAMPLES_ELF_CROMFS),y)
   NXTOOLDIR = $(TOPDIR)/tools
   GENCROMFSSRC = gencromfs.c
   GENCROMFSEXE = gencromfs$(HOSTEXEEXT)
@@ -86,17 +102,7 @@ $(FSIMG_OBJ): %$(OBJEXT): %.c
 
 endif
 
-endif
-
-# Copy the symbol table into the kernel pass1/ build directory
-
-ifneq ($(CONFIG_BUILD_FLAT),y)
-$(PASS1_SYMTAB): $(SYMTABSRC)
-	$(Q) install -m 0644 $(SYMTABSRC) $(PASS1_SYMTAB)
-	$(Q) mv $(BINDIR)$(DELIM)$(MODLUE_NAME) .
-endif
-
-postinstall:: $(ROMFSOBJ) $(SYMTABOBJ) $(FSIMG_OBJ) $(PASS1_SYMTAB)
+postinstall:: $(ROMFSOBJ) $(SYMTABOBJ) $(FSIMG_OBJ)
 	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
 
 distclean::
