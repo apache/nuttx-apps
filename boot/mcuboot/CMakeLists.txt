@@ -45,6 +45,9 @@ if(CONFIG_BOOT_MCUBOOT)
 
   set(SRCS
       mcuboot/boot/bootutil/src/boot_record.c
+      mcuboot/boot/bootutil/src/bootutil_area.c
+      mcuboot/boot/bootutil/src/bootutil_img_hash.c
+      mcuboot/boot/bootutil/src/bootutil_loader.c
       mcuboot/boot/bootutil/src/bootutil_misc.c
       mcuboot/boot/bootutil/src/bootutil_public.c
       mcuboot/boot/bootutil/src/caps.c
