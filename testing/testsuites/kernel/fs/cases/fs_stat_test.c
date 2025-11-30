@@ -88,18 +88,9 @@ void test_nuttx_fs_stat01(FAR void **state)
 
   struct tm *tm_1 = NULL;
   struct tm *tm_2 = NULL;
-  int year1;
-  int year2;
-  int month1;
-  int month2;
-  int day1;
-  int day2;
-  int hour1;
-  int hour2;
-  int min1;
-  int min2;
   time_t t_1;
   time_t t_2;
+  time_t t_diff;
   struct fs_testsuites_state_s *test_state;
 
   test_state = (struct fs_testsuites_state_s *)*state;
@@ -127,14 +118,6 @@ void test_nuttx_fs_stat01(FAR void **state)
   tm_1 = gmtime(&t_1);
   assert_non_null(tm_1);
 
-  /* set time */
-
-  year1 = tm_1->tm_year;
-  month1 = tm_1->tm_mon;
-  day1 = tm_1->tm_mday;
-  hour1 = tm_1->tm_hour;
-  min1 = tm_1->tm_min;
-
   /* get file info */
 
   ret = stat(TEST_FILE, &file_s);
@@ -144,23 +127,17 @@ void test_nuttx_fs_stat01(FAR void **state)
 
   t_2 = file_s.st_mtime;
   tm_2 = gmtime(&t_2);
-
   assert_non_null(tm_2);
 
-  /* set time */
+  /* compare time */
 
-  year2 = tm_2->tm_year;
-  month2 = tm_2->tm_mon;
-  day2 = tm_2->tm_mday;
-  hour2 = tm_2->tm_hour;
-  min2 = tm_2->tm_min;
+  t_diff = t_2 - t_1;
 
-  /* compare time and size */
+  /* tolerance for 30s for worst case */
 
-  assert_int_equal(year1, year2);
-  assert_int_equal(month1, month2);
-  assert_int_equal(day1, day2);
-  assert_int_equal(hour1, hour2);
-  assert_int_equal(min1, min2);
+  assert_int_in_range(t_diff, -30, 30);
+
+  /* compare size */
+
   assert_int_equal(file_s.st_size, BUF_SIZE);
 }
