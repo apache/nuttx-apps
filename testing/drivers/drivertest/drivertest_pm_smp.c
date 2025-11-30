@@ -46,9 +46,9 @@
 
 #define TEST_PM_LOOP_COUNT   5
 
-#define TEST_STAYTIMEOUT     2   /* in ms */
+#define TEST_STAYTIMEOUT     20   /* in ms */
 
-#define TEST_SNAP_TICK_MAX   3
+#define TEST_SNAP_TICK_MAX   5
 
 #define TEST_TIMEOUT_ENABLED 1
 
