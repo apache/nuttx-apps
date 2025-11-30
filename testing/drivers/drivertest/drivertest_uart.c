@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <cmocka.h>
@@ -70,6 +71,7 @@ struct test_confs_s
 struct test_state_s
 {
   FAR const char *dev_path;
+  struct termios devtio; /* Original serial port setting */
   FAR char *buffer;
   int fd;
 };
@@ -170,6 +172,8 @@ static int setup(FAR void **state)
 {
   FAR struct test_confs_s *confs = (FAR struct test_confs_s *)*state;
   FAR struct test_state_s *test_state = malloc(sizeof(struct test_state_s));
+  struct termios ti;
+  int ret = 0;
   assert_true(test_state != NULL);
 
   test_state->dev_path = confs->dev_path;
@@ -179,6 +183,16 @@ static int setup(FAR void **state)
 
   test_state->fd = open(test_state->dev_path, O_RDWR);
   assert_true(test_state->fd > 0);
+
+  ret = tcgetattr(test_state->fd, &ti);
+  assert_int_equal(ret, OK);
+
+  /* Backup and enable data to be processed as raw input */
+
+  memcpy(&test_state->devtio, &ti, sizeof(struct termios));
+  cfmakeraw(&ti);
+  ret = tcsetattr(test_state->fd, TCSANOW, &ti);
+  assert_int_equal(ret, OK);
 
   *state = test_state;
   return 0;
@@ -191,6 +205,12 @@ static int setup(FAR void **state)
 static int teardown(FAR void **state)
 {
   FAR struct test_state_s *test_state = (FAR struct test_state_s *)*state;
+  int ret = 0;
+
+  /* Retrieve termios updated flags */
+
+  ret = tcsetattr(test_state->fd, TCSANOW, &test_state->devtio);
+  assert_int_equal(ret, OK);
 
   free(test_state->buffer);
   assert_int_equal(close(test_state->fd), 0);
