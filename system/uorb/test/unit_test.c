@@ -492,10 +492,13 @@ out_with_sfd:
 
 static int test_multi(int *afds, int *sfds)
 {
-  struct orb_test_s sample;
   struct orb_test_s sub_sample;
   int instance0 = 0;
   int instance1 = 1;
+  struct orb_test_s sample =
+    {
+      0
+    };
 
   /* this routine tests the multi-topic support */
 
@@ -565,11 +568,14 @@ static int test_multi(int *afds, int *sfds)
 
 static int test_multi_reversed(int *afds, int *sfds)
 {
-  struct orb_test_s sample;
   struct orb_test_s sub_sample;
   int instance2 = 2;
   int instance3 = 3;
   int ret = ERROR;
+  struct orb_test_s sample =
+    {
+      0
+    };
 
   test_note("try multi-topic support subscribing before publishing");
 
@@ -829,7 +835,6 @@ int test_queue(void)
 {
   const int queue_size  = 16;
   const int overflow_by = 3;
-  struct orb_test_medium_s sample;
   struct orb_test_medium_s sub_sample;
   bool updated;
   int instance = 0;
@@ -837,6 +842,10 @@ int test_queue(void)
   int sfd;
   int ret = ERROR;
   int i;
+  struct orb_test_medium_s sample =
+    {
+      0
+    };
 
   test_note("Testing orb queuing");
 
