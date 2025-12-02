@@ -223,6 +223,83 @@ static int event_callback(FAR struct action_manager_s *am,
   return event->pending;
 }
 
+static FAR char *parse_operator(FAR char *pos,
+                                FAR enum action_cmd_op_e *op)
+{
+  bool in_quotes = false;
+
+  for (; *pos != '\0'; pos++)
+    {
+      if (*pos == '"')
+        {
+          in_quotes = !in_quotes;
+          continue;
+        }
+
+      if (in_quotes)
+        {
+          continue;
+        }
+
+      if (*pos == '&' && *(pos + 1) == '&')
+        {
+          *op = CMD_OP_AND;
+          *pos = '\0';
+          return pos + 2;
+        }
+
+      if (*pos == '|' && *(pos + 1) == '|')
+        {
+          *op = CMD_OP_OR;
+          *pos = '\0';
+          return pos + 2;
+        }
+    }
+
+  *op = CMD_OP_NONE;
+  return pos;
+}
+
+static int parse_command(FAR char *pos,
+                         FAR struct list_node *cmds)
+{
+  FAR enum action_cmd_op_e op = CMD_OP_NONE;
+  FAR enum action_cmd_op_e next_op;
+  FAR struct action_cmd_s *cmd;
+  FAR char *next_pos;
+
+  while (*pos)
+    {
+      next_pos = parse_operator(pos, &next_op);
+
+      cmd = calloc(1, sizeof(*cmd));
+      if (cmd == NULL)
+        {
+          return -errno;
+        }
+
+      cmd->argc = init_parse_arguments(pos, true,
+                                       nitems(cmd->argv) - 1,
+                                       cmd->argv);
+      if (cmd->argc < 1)
+        {
+          free(cmd);
+          init_err("invalid argument");
+          return -EINVAL;
+        }
+
+      cmd->op = op;
+      list_add_tail(cmds, &cmd->node);
+      init_debug("add command %p(%s) to list %p", cmd, cmd->argv[0], cmds);
+      init_dump_args(cmd->argc, cmd->argv);
+
+      op = next_op;
+      pos = next_pos;
+    }
+
+  return 0;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -315,6 +392,15 @@ int init_action_run_command(FAR struct action_manager_s *am)
                                         struct action_cmd_s, node);
     }
 
+  if ((am->running->op == CMD_OP_AND && ready->prev_ret != 0) ||
+      (am->running->op == CMD_OP_OR && ready->prev_ret == 0))
+    {
+      init_debug("Skipping command due to op (prev_ret %d)",
+                 ready->prev_ret);
+      init_action_reap_command(am, ready->prev_ret);
+      return 0;
+    }
+
 #if defined(CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW) && \
     CONFIG_SYSTEM_NXINIT_ACTION_WARN_SLOW > 0
   clock_gettime(CLOCK_MONOTONIC, &am->time_run);
@@ -326,13 +412,13 @@ int init_action_run_command(FAR struct action_manager_s *am)
     }
   else
     {
-      init_action_reap_command(am);
+      init_action_reap_command(am, ret);
     }
 
   return 0;
 }
 
-void init_action_reap_command(FAR struct action_manager_s *am)
+void init_action_reap_command(FAR struct action_manager_s *am, int ret)
 {
   FAR struct action_s *ready = list_peek_head_type(&am->ready_actions,
                                                    struct action_s,
@@ -361,6 +447,7 @@ void init_action_reap_command(FAR struct action_manager_s *am)
 #endif
 
   am->pid_running = -1;
+  ready->prev_ret = ret;
   if (list_is_tail(&ready->cmds, &am->running->node))
     {
       am->running = NULL;
@@ -377,7 +464,6 @@ int init_action_parse(FAR const struct parser_s *parser,
 {
   FAR struct action_manager_s *am = parser->priv;
   FAR char *argv[2 * CONFIG_SYSTEM_NXINIT_ACTION_EVENTS_MAX];
-  FAR struct action_cmd_s *cmd;
   FAR struct action_s *a;
   int ret;
 
@@ -435,26 +521,15 @@ int init_action_parse(FAR const struct parser_s *parser,
     }
   else
     {
-      cmd = calloc(1, sizeof(*cmd));
-      if (cmd == NULL)
-        {
-          init_err("Alloc action command");
-          return -errno;
-        }
-
-      cmd->argc = init_parse_arguments(buf, true, nitems(cmd->argv) - 1,
-                                       cmd->argv);
-      if (cmd->argc < 1)
-        {
-          free(cmd);
-          init_err("Invalid command argument");
-          return -EINVAL;
-        }
-
       a = list_last_entry(&am->actions, struct action_s, node);
-      list_add_tail(&a->cmds, &cmd->node);
-      init_debug("Add command %p(%s) to action %p", cmd, cmd->argv[0], a);
-      init_dump_args(cmd->argc, cmd->argv);
+      ret = parse_command(buf, &a->cmds);
+      if (ret < 0)
+        {
+          init_err("failed to parse command line: %s", buf);
+          return ret;
+        }
+
+      init_debug("add command line to action %p", a);
     }
 
   return 0;
