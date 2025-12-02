@@ -32,10 +32,115 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/param.h>
 #include <unistd.h>
 
 #include "init.h"
 #include "parser.h"
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static int init_parse_config_lines(FAR const struct parser_s *parser,
+                                   FAR const struct parser_s **cur,
+                                   FAR size_t *line,
+                                   FAR char *buf, FAR size_t *len)
+{
+  bool create = false;
+  FAR char *nl;
+  int ret;
+
+  while ((nl = memchr(buf, '\n', *len)))
+    {
+      *(nl++) = '\0';
+      *len -= nl - buf;
+      init_debug("Line %-3zu '%s'", ++*line, buf);
+      if (*buf == '\0')
+        {
+          continue;
+        }
+
+      /* Skip empty lines and lines containing only whitespace */
+
+      for (ret = 0; buf[ret] && isblank(buf[ret]); ret++);
+
+      if (buf[ret] == '\0')
+        {
+          memmove(buf, nl, *len);
+          continue;
+        }
+
+      for (ret = 0; parser[ret].key; ret++)
+        {
+          if (!strncmp(parser[ret].key, buf, strlen(parser[ret].key)))
+            {
+              create = true;
+              *cur = &parser[ret];
+              init_debug("New section (%s)", parser[ret].key);
+              break;
+            }
+        }
+
+      if (*cur == NULL)
+        {
+          return -EINVAL;
+        }
+
+      ret = (*cur)->parse(*cur, create, buf);
+      create = false;
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      memmove(buf, nl, *len);
+    }
+
+  return 0;
+}
+
+static int init_parse_config_buffer(FAR const struct parser_s *parser,
+                                    FAR const char *buf, size_t len)
+{
+  char tmp[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
+  FAR const struct parser_s *cur = NULL;
+  size_t line = 0;
+  size_t off = 0;
+  size_t n = 0;
+  size_t r;
+  int ret;
+
+  for (; ; )
+    {
+      r = MIN(len - off, sizeof(tmp));
+      memcpy(&tmp[n], &buf[off], r);
+      if (r == 0)
+        {
+          if (n == 0)
+            {
+              break;
+            }
+
+          tmp[n++] = '\n';
+        }
+
+      n += r;
+      off += r;
+      ret = init_parse_config_lines(parser, &cur, &line, tmp, &n);
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      if (n == sizeof(tmp))
+        {
+          return -E2BIG;
+        }
+    }
+
+  return 0;
+}
 
 /****************************************************************************
  * Public Functions
@@ -139,14 +244,10 @@ int init_parse_config_file(FAR const struct parser_s *parser,
 {
   char buf[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
   FAR const struct parser_s *cur = NULL;
-  bool create = false;
-  FAR char *nl;
+  size_t line = 0;
   size_t n = 0;
   int ret = 0;
   int fd;
-#ifdef CONFIG_SYSTEM_NXINIT_DEBUG
-  int line = 0;
-#endif
 
   init_debug("Parsing %s", file);
 
@@ -181,51 +282,10 @@ int init_parse_config_file(FAR const struct parser_s *parser,
         }
 
       n += r;
-      while ((nl = memchr(buf, '\n', n)))
+      ret = init_parse_config_lines(parser, &cur, &line, buf, &n);
+      if (ret < 0)
         {
-          *(nl++) = '\0';
-          n -= nl - buf;
-          init_debug("Line %3d: '%s'", ++line, buf);
-          if (*buf == '\0')
-            {
-              continue;
-            }
-
-          /* Skip empty lines and lines containing only whitespace */
-
-          for (ret = 0; buf[ret] && isblank(buf[ret]); ret++);
-
-          if (buf[ret] == '\0')
-            {
-              memmove(buf, nl, n);
-              continue;
-            }
-
-          for (ret = 0; parser[ret].key; ret++)
-            {
-              if (!strncmp(parser[ret].key, buf, strlen(parser[ret].key)))
-                {
-                  create = true;
-                  cur = &parser[ret];
-                  init_debug("New section (%s)", parser[ret].key);
-                  break;
-                }
-            }
-
-          if (cur == NULL)
-            {
-              ret = -EINVAL;
-              goto out;
-            }
-
-          ret = cur->parse(cur, create, buf);
-          create = false;
-          if (ret < 0)
-            {
-              goto out;
-            }
-
-          memmove(buf, nl, n);
+          goto out;
         }
 
       if (n == sizeof(buf))
