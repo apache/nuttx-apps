@@ -37,11 +37,19 @@
  * Public Types
  ****************************************************************************/
 
+enum action_cmd_op_e
+{
+  CMD_OP_NONE,
+  CMD_OP_AND,
+  CMD_OP_OR,
+};
+
 struct action_cmd_s
 {
   struct list_node node;          /* Command list node */
   int argc;
   FAR char *argv[CONFIG_SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX];
+  enum action_cmd_op_e op;
 };
 
 struct action_event_s
@@ -58,6 +66,7 @@ struct action_s
   struct list_node ready_node;    /* Ready list node */
   struct action_event_s events[CONFIG_SYSTEM_NXINIT_ACTION_EVENTS_MAX];
   struct list_node cmds;          /* Command header, struct action_cmd_s */
+  int prev_ret;
 };
 
 struct action_manager_s
@@ -102,7 +111,7 @@ typedef CODE int (*init_action_event_cb)(FAR struct action_manager_s *,
 int  init_action_add_event(FAR struct action_manager_s *am,
                            FAR const char *name);
 int  init_action_run_command(FAR struct action_manager_s *am);
-void init_action_reap_command(FAR struct action_manager_s *am);
+void init_action_reap_command(FAR struct action_manager_s *am, int ret);
 int  init_action_parse(FAR const struct parser_s *parser,
                        bool create, FAR char *buf);
 int  init_action_foreach_event(FAR struct action_manager_s *am,

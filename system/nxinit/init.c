@@ -91,7 +91,7 @@ static void reap_process(FAR struct service_manager_s *sm,
       if (pid == am->pid_running)
         {
           name = am->running->argv[0];
-          init_action_reap_command(am);
+          init_action_reap_command(am, ret);
         }
 
       service = init_service_find_by_pid(sm, pid);
