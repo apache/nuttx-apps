@@ -46,7 +46,7 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
   bool new = true;
   int i = 0;
 
-  while (*buf != '\0')
+  for (; ; )
     {
       while (isblank(*buf))
         {
@@ -89,6 +89,11 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
               new = true;
               buf++;
             }
+        }
+
+      if (*buf == '\0')
+        {
+          break;
         }
 
       if (new)
