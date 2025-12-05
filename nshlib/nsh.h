@@ -1176,16 +1176,16 @@ int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
   int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_KILL
+#if !defined(CONFIG_NSH_DISABLE_KILL) && !defined(CONFIG_DISABLE_SIGNALS)
   int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 #if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PKILL)
   int cmd_pkill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
-#ifndef CONFIG_NSH_DISABLE_SLEEP
+#if !defined(CONFIG_NSH_DISABLE_SLEEP) && !defined(CONFIG_DISABLE_SIGNALS)
   int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
-#ifndef CONFIG_NSH_DISABLE_USLEEP
+#if !defined(CONFIG_NSH_DISABLE_USLEEP) && !defined(CONFIG_DISABLE_SIGNALS)
   int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
@@ -1224,7 +1224,7 @@ int cmd_alias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 int cmd_unalias(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_WATCH
+#if !defined(CONFIG_NSH_DISABLE_WATCH) && !defined(CONFIG_DISABLE_SIGNALS)
 int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
