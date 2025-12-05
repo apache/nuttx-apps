@@ -30,7 +30,7 @@ if(CONFIG_UTILS_MEMTESTER)
 
     FetchContent_Declare(
       memtester_fetch
-      URL ${CONFIG_MEMTESTER_URL}SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/memtester
+      URL ${CONFIG_MEMTESTER_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/memtester
           BINARY_DIR ${CMAKE_BINARY_DIR}/apps/testing/memtester/memtester
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
