@@ -91,6 +91,7 @@ static volatile bool g_exiting;
  * Private Functions
  ****************************************************************************/
 
+#ifndef CONFIG_DISABLE_SIGNALS
 /****************************************************************************
  * Name: sigexit
  ****************************************************************************/
@@ -99,6 +100,7 @@ static void sigexit(int signo)
 {
   g_exiting = true;
 }
+#endif
 
 /****************************************************************************
  * Name: ping_newid
@@ -199,7 +201,9 @@ void icmp_ping(FAR const struct ping_info_s *info)
   int i;
 
   g_exiting = false;
+#ifndef CONFIG_DISABLE_SIGNALS
   signal(SIGINT, sigexit);
+#endif
 
   /* Initialize result structure */
 

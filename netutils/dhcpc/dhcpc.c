@@ -533,8 +533,16 @@ static void *dhcpc_run(void *args)
   struct dhcpc_state result;
   int ret;
 
+#ifdef CONFIG_DISABLE_SIGNALS
+  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+#endif
+
   while (1)
     {
+#ifdef CONFIG_DISABLE_SIGNALS
+      pthread_testcancel();
+#endif
       ret = dhcpc_request(pdhcpc, &result);
       if (ret == OK)
         {
@@ -701,7 +709,9 @@ void dhcpc_close(FAR void *handle)
 void dhcpc_cancel(FAR void *handle)
 {
   struct dhcpc_state_s *pdhcpc = (struct dhcpc_state_s *)handle;
+#ifndef CONFIG_DISABLE_SIGNALS
   sighandler_t old;
+#endif
   int ret;
 
   if (pdhcpc)
@@ -710,6 +720,9 @@ void dhcpc_cancel(FAR void *handle)
 
       if (pdhcpc->thread)
         {
+#ifdef CONFIG_DISABLE_SIGNALS
+          pthread_cancel(pdhcpc->thread);
+#else
           old = signal(SIGQUIT, SIG_IGN);
 
           /* Signal the dhcpc_run */
@@ -719,6 +732,7 @@ void dhcpc_cancel(FAR void *handle)
             {
               nerr("ERROR: pthread_kill DHCPC thread\n");
             }
+#endif
 
           /* Wait for the end of dhcpc_run */
 
@@ -729,7 +743,9 @@ void dhcpc_cancel(FAR void *handle)
             }
 
           pdhcpc->thread = 0;
+#ifndef CONFIG_DISABLE_SIGNALS
           signal(SIGQUIT, old);
+#endif
         }
     }
 }

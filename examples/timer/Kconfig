@@ -6,7 +6,7 @@
 config EXAMPLES_TIMER
 	tristate "Timer example"
 	default n
-	depends on TIMER
+	depends on TIMER && !DISABLE_SIGNALS
 	---help---
 		Enable the timer example
 
