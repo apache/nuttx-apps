@@ -161,6 +161,7 @@ int main(int argc, char *argv[])
           test_nuttx_syscall_getpeername01,
           test_nuttx_syscall_test_group_setup,
           test_nuttx_syscall_test_group_teardown),
+#  ifdef CONFIG_NET_IPv4
       cmocka_unit_test_setup_teardown(
           test_nuttx_syscall_getsockopt01,
           test_nuttx_syscall_test_group_setup,
@@ -175,6 +176,7 @@ int main(int argc, char *argv[])
           test_nuttx_syscall_setsockopt01,
           test_nuttx_syscall_test_group_setup,
           test_nuttx_syscall_test_group_teardown),
+#  endif
       cmocka_unit_test_setup_teardown(
           test_nuttx_syscall_listen01,
           test_nuttx_syscall_test_group_setup,
