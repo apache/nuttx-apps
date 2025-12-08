@@ -97,7 +97,7 @@ endif
 ifeq ($(CONFIG_BINFMT_ELF_RELOCATABLE),y)
   LDELFFLAGS += -r
 endif
-LDELFFLAGS += -e __start -Bstatic
+LDELFFLAGS += -e _start -Bstatic
 
 # Remove other ld scripts, just use import ld scripts
 #
