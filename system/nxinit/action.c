@@ -167,6 +167,7 @@ static int parse_event(FAR char *buf, FAR struct action_event_s *events,
 
       events[i].key = strdup(key);
       events[i].value = strdup(value);
+      events[i].pending = false;
 
       if (events[i].key && events[i].value)
         {
@@ -203,21 +204,19 @@ static int event_callback(FAR struct action_manager_s *am,
 {
   struct event_arg_s *arg = argument;
 
-  if (strcmp(arg->key, event->key))
+  if (!strcmp(arg->key, event->key))
     {
-      return 0;
-    }
-
-  if (event->invert != fnmatch(event->value, arg->value, 0))
-    {
-      event->pending = false;
-    }
-  else if (!event->pending)
-    {
-      event->pending = true;
-      init_debug("Trigger %s%s%s", event->key,
-                 event->invert ? "!=" : "==",
-                 event->value);
+      if (event->invert != fnmatch(event->value, arg->value, 0))
+        {
+          event->pending = false;
+        }
+      else if (!event->pending)
+        {
+          event->pending = true;
+          init_debug("Trigger %s%s%s", event->key,
+                     event->invert ? "!=" : "==",
+                     event->value);
+        }
     }
 
   return event->pending;
@@ -233,11 +232,12 @@ int init_action_foreach_event(FAR struct action_manager_s *am,
 {
   FAR struct action_s *a;
   size_t i;
+  size_t m;
   int ret = 0;
 
   list_for_every_entry(&am->actions, a, struct action_s, node)
     {
-      for (i = 0; i < nitems(a->events) && a->events[i].key; i++)
+      for (i = 0, m = 0; i < nitems(a->events) && a->events[i].key; i++)
         {
           ret = cb(am, a, &a->events[i], arg);
           if (ret < 0)
@@ -246,8 +246,13 @@ int init_action_foreach_event(FAR struct action_manager_s *am,
             }
           else if (ret > 0)
             {
-              add_ready(am, a);
+              m++;
             }
+        }
+
+      if (i > 0 && i == m)
+        {
+          add_ready(am, a);
         }
     }
 
