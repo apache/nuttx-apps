@@ -397,15 +397,16 @@ int init_action_parse(FAR const struct parser_s *parser,
 
       while (--ret > 0)
         {
+          int n;
+
           if (!strncmp(argv[ret], ACTION_SECTION_PROP_PREFIX,
                        strlen(ACTION_SECTION_PROP_PREFIX)))
             {
-              ret = parse_event(argv[ret], a->events,
-                                nitems(a->events));
-              if (ret < 0)
+              n = parse_event(argv[ret], a->events, nitems(a->events));
+              if (n < 0)
                 {
                   free(a);
-                  return ret;
+                  return n;
                 }
             }
           else if (strncmp(argv[ret], ACTION_SECTION_AND_PREFIX,
@@ -414,12 +415,11 @@ int init_action_parse(FAR const struct parser_s *parser,
               char tmp[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
 
               sprintf(tmp, ":%s=%s", ACTION_PROP_KEY_DEFAULT, argv[ret]);
-              ret = parse_event(tmp, a->events,
-                                nitems(a->events));
-              if (ret < 0)
+              n = parse_event(tmp, a->events, nitems(a->events));
+              if (n < 0)
                 {
                   free(a);
-                  return ret;
+                  return n;
                 }
 
               break;
