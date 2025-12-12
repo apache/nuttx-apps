@@ -1,5 +1,6 @@
-pyshv==0.8.0
+pyshv==0.10.1
 PyQt6
 argparse
 asyncio
 logging
+rich
