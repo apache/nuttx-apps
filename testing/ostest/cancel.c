@@ -79,9 +79,9 @@ static FAR void *sem_waiter(FAR void *parameter)
   status = pthread_mutex_lock(&mutex);
   if (status != 0)
     {
-       printf("sem_waiter: ERROR pthread_mutex_lock failed, status=%d\n",
-               status);
-       ASSERT(false);
+      printf("sem_waiter: ERROR pthread_mutex_lock failed, status=%d\n",
+             status);
+      ASSERT(false);
     }
 
   sem_post(&sem_thread_started);
@@ -95,10 +95,10 @@ static FAR void *sem_waiter(FAR void *parameter)
       status = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
       if (status != 0)
         {
-           printf("sem_waiter: "
-                  "ERROR pthread_setcancelstate failed, status=%d\n",
-                   status);
-           ASSERT(false);
+          printf("sem_waiter: "
+                 "ERROR pthread_setcancelstate failed, status=%d\n",
+                 status);
+          ASSERT(false);
         }
     }
 
@@ -269,10 +269,10 @@ static FAR void *asynch_waiter(FAR void *parameter)
   status = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
   if (status != 0)
     {
-       printf("asynch_waiter: "
-              "ERROR pthread_setcancelstate failed, status=%d\n",
-               status);
-       ASSERT(false);
+      printf("asynch_waiter: "
+             "ERROR pthread_setcancelstate failed, status=%d\n",
+             status);
+      ASSERT(false);
     }
 
   /* Set the asynchronous cancellation type */
@@ -281,14 +281,14 @@ static FAR void *asynch_waiter(FAR void *parameter)
   status = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
   if (status != 0)
     {
-       printf("asynch_waiter: "
-              "ERROR pthread_setcanceltype failed, status=%d\n",
-               status);
-       ASSERT(false);
+      printf("asynch_waiter: "
+             "ERROR pthread_setcanceltype failed, status=%d\n",
+             status);
+      ASSERT(false);
     }
 
-  /* Then wait a bit.  We should be canceled aynchronously while waiting, but
-   * the cancellation should pend because we are non-cancellable.
+  /* Then wait a bit.  We should be canceled asynchronously while waiting,
+   * but the cancellation should pend because we are non-cancellable.
    */
 
   usleep(250 * 1000);
@@ -387,6 +387,20 @@ static void restart_thread(FAR void *(*entry)(FAR void *), pthread_t *waiter,
                            int cancelable)
 {
   int status;
+
+  /* Broadcast the condition variable before destruction.
+   * This ensures that no threads are waiting on the condition variable
+   * before attempting to destroy it.
+   */
+
+  printf("restart_thread: Broadcasting cond to clear waiters\n");
+  status = pthread_cond_broadcast(&cond);
+  if (status != 0)
+    {
+      printf("restart_thread: "
+             "ERROR pthread_cond_broadcast failed, status=%d\n", status);
+      ASSERT(false);
+    }
 
   /* Destroy the condition variable */
 
