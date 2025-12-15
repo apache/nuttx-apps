@@ -153,6 +153,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS nxevent.c)
   endif()
 
+  if(CONFIG_HRTIMER AND CONFIG_BUILD_FLAT)
+    list(APPEND SRCS hrtimer.c)
+  endif()
+
   if(CONFIG_BUILD_FLAT)
     list(APPEND SRCS wdog.c)
   endif()

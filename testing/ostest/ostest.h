@@ -304,4 +304,8 @@ int sem_nfreeholders(void);
 void nxevent_test(void);
 #endif
 
+#if defined(CONFIG_SCHED_EVENTS) && defined(CONFIG_BUILD_FLAT)
+void hrtimer_test(void);
+#endif
+
 #endif /* __APPS_TESTING_OSTEST_OSTEST_H */

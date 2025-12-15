@@ -625,6 +625,14 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#if defined(CONFIG_HRTIMER) && defined(CONFIG_BUILD_FLAT)
+      /* Verify hrtimer */
+
+      printf("\nuser_main: hrtimer test\n");
+      hrtimer_test();
+      check_test_memory_usage();
+#endif
+
       /* Compare memory usage at time ostest_main started until
        * user_main exits.  These should not be identical, but should
        * be similar enough that we can detect any serious OS memory
@@ -705,7 +713,7 @@ int main(int argc, FAR char **argv)
   stdio_test();
 
 #ifdef SDCC
-  /* I am not yet certain why SDCC does not like the following initilizers.
+  /* I am not yet certain why SDCC does not like the following initializers.
    * It involves some issues with 2- vs 3-byte pointer types.
    */
 
