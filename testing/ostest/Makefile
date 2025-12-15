@@ -150,6 +150,12 @@ CSRCS += nxevent.c
 endif
 endif
 
+ifeq ($(CONFIG_HRTIMER),y)
+ifeq ($(CONFIG_BUILD_FLAT),y)
+CSRCS += hrtimer.c
+endif
+endif
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 CSRCS += wdog.c
 endif
