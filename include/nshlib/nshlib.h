@@ -69,21 +69,24 @@
 
 struct nsh_param_s
 {
-  /* Redirect input/output through `fd` OR `path_name`
+  /* Redirect input/output/error through `fd` OR `path_name`
    *
    * Select one:
-   * 1. Using fd_in/fd_out as oldfd for dup2() if greater than -1.
-   * 2. Using file_in/file_out as full path to the file if it is
-   *    not NULL, and oflags_in/oflags_out as flags for open().
+   * 1. Using fd_in/fd_out/fd_err as oldfd for dup2() if greater than -1.
+   * 2. Using file_in/file_out/file_err as full path to the file if it is
+   *    not NULL, and oflags_in/oflags_out/oflags_err as flags for open().
    */
 
   int fd_in;
   int fd_out;
+  int fd_err;
 
   int oflags_in;
   int oflags_out;
+  int oflags_err;
   FAR const char *file_in;
   FAR const char *file_out;
+  FAR const char *file_err;
 };
 
 /****************************************************************************
