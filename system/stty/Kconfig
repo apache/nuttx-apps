@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_STTY
+	tristate "stty - set terminal options"
+	default n
+	depends on SERIAL_TERMIOS
+	---help---
+		Enable the stty command to configure terminal (TTY) settings.
+		This command allows you to view and change terminal attributes
+		such as echo, canonical mode, and line endings.
+
+if SYSTEM_STTY
+
+config SYSTEM_STTY_PRIORITY
+	int "stty task priority"
+	default 100
+
+config SYSTEM_STTY_STACKSIZE
+	int "stty stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # SYSTEM_STTY
+
