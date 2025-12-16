@@ -655,6 +655,7 @@ struct nsh_parser_s
 #endif
   bool     np_redir_out; /* true: Output from the last command was re-directed */
   bool     np_redir_in;  /* true: Input from the last command was re-directed */
+  bool     np_redir_err; /* true: Error from the last command was re-directed */
   bool     np_fail;      /* true: The last command failed */
   pid_t    np_lastpid;   /* Pid of the last command executed */
 #ifdef NSH_HAVE_VARS

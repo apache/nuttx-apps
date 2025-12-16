@@ -43,15 +43,15 @@
 
 /* Method access macros */
 
-#define nsh_clone(v)            (v)->clone(v)
-#define nsh_release(v)          (v)->release(v)
-#define nsh_write(v,b,n)        (v)->write(v,b,n)
-#define nsh_read(v,b,n)         (v)->read(v,b,n)
-#define nsh_ioctl(v,c,a)        (v)->ioctl(v,c,a)
-#define nsh_linebuffer(v)       (v)->linebuffer(v)
-#define nsh_redirect(v,fi,fo,s) (v)->redirect(v,fi,fo,s)
-#define nsh_undirect(v,s)       (v)->undirect(v,s)
-#define nsh_exit(v,s)           (v)->exit(v,s)
+#define nsh_clone(v)               (v)->clone(v)
+#define nsh_release(v)             (v)->release(v)
+#define nsh_write(v,b,n)           (v)->write(v,b,n)
+#define nsh_read(v,b,n)            (v)->read(v,b,n)
+#define nsh_ioctl(v,c,a)           (v)->ioctl(v,c,a)
+#define nsh_linebuffer(v)          (v)->linebuffer(v)
+#define nsh_redirect(v,fi,fo,fe,s) (v)->redirect(v,fi,fo,fe,s)
+#define nsh_undirect(v,s)          (v)->undirect(v,s)
+#define nsh_exit(v,s)              (v)->exit(v,s)
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  define nsh_error(v, ...)     (v)->error(v, ##__VA_ARGS__)
@@ -127,7 +127,7 @@ struct nsh_vtbl_s
       printf_like(2, 3);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
   void (*redirect)(FAR struct nsh_vtbl_s *vtbl, int fd_in, int fd_out,
-                   FAR uint8_t *save);
+                   int fd_err, FAR uint8_t *save);
   void (*undirect)(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save);
   void (*exit)(FAR struct nsh_vtbl_s *vtbl, int status) noreturn_function;
 
