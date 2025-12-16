@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_PTHREAD_MUTEX_PERF
+	bool "Pthread Mutex Performance (pmutexp) testing"
+	default n
+	---help---
+		Pthread Mutex Performance (pmp) helps to analyze the pthread
+                mutex performance, by calling the function many times.
+
+if TESTING_PTHREAD_MUTEX_PERF
+
+config TESTING_PTHREAD_MUTEX_PERF_PROGNAME
+	string "Program name"
+	default "pmutexp"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_PTHREAD_MUTEX_PERF_PRIORITY
+	int "Priority of pmutexp process"
+	default 100
+
+config TESTING_PTHREAD_MUTEX_PERF_STACKSIZE
+	int "Stack size of pmutexp process"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
