@@ -1083,7 +1083,7 @@ static int test_queue_poll_notify(void)
   g_thread_should_exit = false;
 
   pthread_attr_init(&attr);
-  param.sched_priority = sched_get_priority_min(0) + 5;
+  param.sched_priority = CONFIG_UORB_PRIORITY + 1;
   pthread_attr_setschedparam(&attr, &param);
 
   if (pthread_create(&pubsub_task, &attr, pub_test_queue_entry, NULL) < 0)
