@@ -62,7 +62,7 @@ struct listen_object_s
   SLIST_ENTRY(listen_object_s) node; /* Node of object info list */
 
   struct orb_object object; /* Object id */
-  orb_abstime timestamp;    /* Time of lastest generation */
+  orb_abstime timestamp;    /* Time of last generation */
   unsigned long generation; /* Latest generation */
   FAR FILE *file;
 };
@@ -252,7 +252,7 @@ static int listener_add_object(FAR struct listen_list_s *objlist,
  * Name: listener_update
  *
  * Description:
- *   Update object list, print imformation if given object has new data.
+ *   Update object list, print information if given object has new data.
  *
  * Input Parameters:
  *   object     Object to check state.
@@ -269,7 +269,7 @@ static int listener_update(FAR struct listen_list_s *objlist,
   FAR struct listen_object_s *tmp;
   int ret;
 
-  /* Check wether object already exist in old list */
+  /* Check whether object already exist in old list */
 
   SLIST_FOREACH(tmp, objlist, node)
     {
@@ -485,7 +485,7 @@ static int listener_generate_object_list(FAR struct listen_list_s *objlist,
           continue;
         }
 
-      /* Update object infomation to list. */
+      /* Update object information to list. */
 
       if (listener_update(objlist, &object) < 0)
         {
@@ -568,7 +568,7 @@ static int listener_record(FAR const struct orb_metadata *meta, int fd,
  * Name: listener_monitor
  *
  * Description:
- *   Moniter objects by subscribe and print data.
+ *   Monitor objects by subscribe and print data.
  *
  * Input Parameters:
  *   objlist        List of objects to subscribe.
@@ -670,7 +670,7 @@ static void listener_monitor(FAR struct listen_list_s *objlist,
         }
     }
 
-  /* Loop poll and print recieved messages */
+  /* Loop poll and print received messages */
 
   while ((!nb_msgs || nb_recv_msgs < nb_msgs) && !g_should_exit)
     {
@@ -734,7 +734,7 @@ static void listener_monitor(FAR struct listen_list_s *objlist,
             }
 
           orb_unsubscribe(fds[i].fd);
-          uorbinfo_raw("Object name:%s%d, recieved:%d",
+          uorbinfo_raw("Object name:%s%d, received:%d",
                        tmp->object.meta->o_name, tmp->object.instance,
                        recv_msgs[i]);
         }
