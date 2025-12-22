@@ -321,9 +321,8 @@ static void fpu_test(void)
   waitpid(task2, &statloc, 0);
 
 #else
-  TEST_FAIL_MESSAGE("The FPU test is not properly configured.");
-#endif
   TEST_IGNORE_MESSAGE("System does not HAVE_FPU.");
+#endif
 }
 
 /****************************************************************************
