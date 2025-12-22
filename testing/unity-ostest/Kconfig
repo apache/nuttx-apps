@@ -1,0 +1,16 @@
+config TESTING_UNITY_OSTEST
+	tristate "Unity OS test"
+	default n
+	select TESTING_UNITY
+	---help---
+		Enable the Unity implementation of OS test
+
+if TESTING_UNITY_OSTEST
+
+config TESTING_UNITY_OSTEST_STACKSIZE
+	int "Unity OS test stack size"
+	default 8192
+	---help---
+		Size of the stack.
+
+endif # TESTING_UNITY_OSTEST
