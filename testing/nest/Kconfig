@@ -1,0 +1,108 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_NEST
+	tristate "NuttX test collection"
+	depends on TESTING_UNITY
+	default n
+	---help---
+		Enable the NuttX test collection, based on the Unity test framework.
+
+if TESTING_NEST
+
+comment "Program options"
+
+config TESTING_NEST_PROGNAME
+	string "Program name"
+	default "nest"
+	---help---
+		The name of the program.
+
+config TESTING_NEST_STACKSIZE
+	int "Stack size"
+	default 1024
+	---help---
+		Size of the stack used to create the task.
+
+comment "Test Suites"
+
+comment "Collections"
+
+config TESTING_NEST_COLLECTIONS
+	bool "Collections tests"
+	default n
+	---help---
+		Enable test suites for collections.
+
+if TESTING_NEST_COLLECTIONS
+
+config TESTING_NEST_COLLECTIONS_LIST
+	bool "List testing"
+	default y
+	---help---
+		Enable list test cases.
+
+config TESTING_NEST_COLLECTIONS_CBUF
+	bool "Circular buffer testing"
+	default y
+	---help---
+		Enable circular buffer test cases.
+
+config TESTING_NEST_COLLECTIONS_HMAP
+	bool "Hashmap testing"
+	default y
+	---help---
+		Enable hash map test cases.
+
+endif # TESTING_NEST_COLLECTIONS
+
+comment "Devices"
+
+config TESTING_NEST_DEVICES
+	bool "Device tests"
+	default n
+	---help---
+		Enable test suites for devices.
+
+if TESTING_NEST_DEVICES
+
+config TESTING_NEST_DEVICES_DEVNULL
+	bool "/dev/null test"
+	depends on DEV_NULL
+	default y
+	---help---
+		Enable test cases for /dev/null device.
+
+config TESTING_NEST_DEVICES_DEVZERO
+	bool "/dev/zero test"
+	depends on DEV_ZERO
+	default y
+	---help---
+		Enable test cases for /dev/zero device.
+
+config TESTING_NEST_DEVICES_DEVASCII
+	bool "/dev/ascii test"
+	depends on DEV_ASCII
+	default y
+	---help---
+		Enable test cases for /dev/ascii device.
+
+config TESTING_NEST_DEVICES_DEVCONSOLE
+	bool "/dev/console test"
+	depends on DEV_CONSOLE
+	default y
+	---help---
+		Enable test cases for /dev/console device.
+
+config TESTING_NEST_DEVICES_DEVURANDOM
+	bool "/dev/urandom test"
+	depends on DEV_URANDOM
+	default y
+	---help---
+		Enable test cases for /dev/urandom device.
+
+endif # TESTING_NEST_DEVICES
+
+endif # TESTING_NEST
