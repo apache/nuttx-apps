@@ -78,6 +78,11 @@ static void reap_process(FAR struct service_manager_s *sm,
   int ret;
   int pid;
 
+  /* prevent unused warning */
+
+  UNUSED(name);
+  UNUSED(status);
+
   for (; ; )
     {
       pid = waitpid(-1, &wstatus, WNOHANG);
