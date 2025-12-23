@@ -74,20 +74,22 @@ if(CONFIG_TESTING_CMOCKA)
   target_include_directories(cmocka PRIVATE ${INCDIR})
   target_compile_options(cmocka PRIVATE ${CFLAGS})
 
-  nuttx_add_application(
-    NAME
-    ${CONFIG_TESTING_CMOCKA_PROGNAME}
-    PRIORITY
-    ${CONFIG_TESTING_CMOCKA_PRIORITY}
-    STACKSIZE
-    ${CONFIG_TESTING_CMOCKA_STACKSIZE}
-    MODULE
-    ${CONFIG_TESTING_CMOCKA}
-    INCLUDE_DIRECTORIES
-    ${INCDIR}
-    SRCS
-    cmocka_main.c
-    DEPENDS
-    cmocka)
+  if(CONFIG_TESTING_CMOCKA_PROG)
+    nuttx_add_application(
+      NAME
+      ${CONFIG_TESTING_CMOCKA_PROGNAME}
+      PRIORITY
+      ${CONFIG_TESTING_CMOCKA_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CMOCKA_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CMOCKA}
+      INCLUDE_DIRECTORIES
+      ${INCDIR}
+      SRCS
+      cmocka_main.c
+      DEPENDS
+      cmocka)
+  endif()
 
 endif()
