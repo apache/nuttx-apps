@@ -4,13 +4,22 @@
 #
 
 config TESTING_CMOCKA
-	tristate "Enable libcmocka"
+	bool "Enable libcmocka"
 	depends on LIBC_REGEX
 	default n
 	---help---
 		Enable libcmocka and run all testcases
 
 if TESTING_CMOCKA
+
+config TESTING_CMOCKA_PROG
+	tristate "Compile cmocka binary"
+	default n
+	---help---
+		Instead of just compiling cmocka as a library, the 'cmocka' binary is
+		also included.
+
+if TESTING_CMOCKA_PROG
 
 config TESTING_CMOCKA_PROGNAME
 	string "Program name"
@@ -27,8 +36,13 @@ config TESTING_CMOCKA_STACKSIZE
 	int "cmocka test stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+endif # TESTING_CMOCKA_PROG
+
 config TESTING_CMOCKA_LEAKDETECT
-	bool "Memory leaks can be checked using cmocka, please use in local environment"
+	bool "Detect leaks"
 	default n
+	---help---
+		Memory leaks can be checked using cmocka, please use in a local
+		environment.
 
 endif
