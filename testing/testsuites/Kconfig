@@ -29,33 +29,33 @@ config CM_FS_TEST
 	default n
 
 config CM_SCHED_TEST
-	bool "enbale schedule test"
+	bool "enable schedule test"
 	default n
 
 config CM_MM_TEST
-	bool "enbale MM test"
+	bool "enable MM test"
 	default n
 
 config CM_TIME_TEST
-	bool "enbale time test"
+	bool "enable time test"
 	depends on !DISABLE_POSIX_TIMERS && SIG_EVTHREAD
 	default n
 
 config CM_PTHREAD_TEST
-	bool "enbale pthread test"
+	bool "enable pthread test"
 	default n
 
 config CM_SOCKET_TEST
-	bool "enbale socket test"
+	bool "enable socket test"
 	depends on NET
 	default n
 
 config CM_SYSCALL_TEST
-	bool "enbale syscall test"
+	bool "enable syscall test"
 	default n
 
 config CM_MUTEX_TEST
-	bool "enbale mutex test"
+	bool "enable mutex test"
 	default n
 
 endif # TESTS_TESTSUITES
