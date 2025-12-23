@@ -278,7 +278,8 @@ static int user_main(int argc, char *argv[])
    * verify that status is retained correctly.
    */
 
-#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS)
+#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS) && \
+    defined(CONFIG_ENABLE_ALL_SIGNALS)
     {
       struct sigaction sa;
       int ret;
@@ -511,6 +512,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
       /* Verify that we can modify the signal mask */
 
       printf("\nuser_main: sigprocmask test\n");
@@ -534,6 +536,8 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#endif /* CONFIG_DISABLE_ALL_SIGNALS */
+
 #ifdef CONFIG_BUILD_FLAT
       printf("\nuser_main: wdog test\n");
       wdog_test();
@@ -541,11 +545,13 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #ifndef CONFIG_DISABLE_POSIX_TIMERS
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
       /* Verify posix timers (with SIGEV_SIGNAL) */
 
       printf("\nuser_main: POSIX timer test\n");
       timer_test();
       check_test_memory_usage();
+#endif
 
 #ifdef CONFIG_SIG_EVTHREAD
       /* Verify posix timers (with SIGEV_THREAD) */
