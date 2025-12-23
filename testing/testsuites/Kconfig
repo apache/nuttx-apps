@@ -38,7 +38,7 @@ config CM_MM_TEST
 
 config CM_TIME_TEST
 	bool "enbale time test"
-	depends on !DISABLE_POSIX_TIMERS
+	depends on !DISABLE_POSIX_TIMERS && SIG_EVTHREAD
 	default n
 
 config CM_PTHREAD_TEST
@@ -47,6 +47,7 @@ config CM_PTHREAD_TEST
 
 config CM_SOCKET_TEST
 	bool "enbale socket test"
+	depends on NET
 	default n
 
 config CM_SYSCALL_TEST
