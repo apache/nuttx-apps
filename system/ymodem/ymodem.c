@@ -98,7 +98,7 @@ static int ymodem_send_buffer(FAR struct ymodem_ctx_s *ctx,
   ymodem_debug("send buffer data, write size is %zu\n", size);
   while (i < size)
     {
-      ssize_t ret = write(ctx->sendfd, buf, size);
+      ssize_t ret = write(ctx->sendfd, buf + i, size - i);
       if (ret >= 0)
         {
           ymodem_debug("send buffer data, size %zd\n", ret);
