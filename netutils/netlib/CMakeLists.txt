@@ -83,6 +83,12 @@ if(CONFIG_NETUTILS_NETLIB)
     endif()
   endif()
 
+  # DNS client support
+
+  if(CONFIG_NETDB_DNSCLIENT)
+    list(APPEND SRCS netlib_cleardnsaddr.c)
+  endif()
+
   # Device support
 
   if(CONFIG_NETLINK_ROUTE)
