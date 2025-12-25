@@ -27,6 +27,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/compiler.h>
+
 #include <stdint.h>
 
 /****************************************************************************
@@ -67,7 +69,7 @@
 
 /* Common header for all message types */
 
-struct ptp_header_s
+begin_packed_struct struct ptp_header_s
 {
   uint8_t messagetype;
   uint8_t version;
@@ -82,11 +84,11 @@ struct ptp_header_s
   uint8_t sequenceid[2];
   uint8_t controlfield;
   uint8_t logmessageinterval;
-};
+} end_packed_struct;
 
 /* Announce a master clock */
 
-struct ptp_announce_s
+begin_packed_struct struct ptp_announce_s
 {
   struct ptp_header_s header;
   uint8_t origintimestamp[10];
@@ -98,40 +100,40 @@ struct ptp_announce_s
   uint8_t gm_identity[8];
   uint8_t stepsremoved[2];
   uint8_t timesource;
-};
+} end_packed_struct;
 
 /* Sync: transmit timestamp from master clock */
 
-struct ptp_sync_s
+begin_packed_struct struct ptp_sync_s
 {
   struct ptp_header_s header;
   uint8_t origintimestamp[10];
-};
+} end_packed_struct;
 
 /* FollowUp: actual timestamp of when sync message was sent */
 
-struct ptp_follow_up_s
+begin_packed_struct struct ptp_follow_up_s
 {
   struct ptp_header_s header;
   uint8_t origintimestamp[10];
-};
+} end_packed_struct;
 
 /* DelayReq: request delay measurement */
 
-struct ptp_delay_req_s
+begin_packed_struct struct ptp_delay_req_s
 {
   struct ptp_header_s header;
   uint8_t origintimestamp[10];
-};
+} end_packed_struct;
 
 /* DelayResp: response to DelayReq */
 
-struct ptp_delay_resp_s
+begin_packed_struct struct ptp_delay_resp_s
 {
   struct ptp_header_s header;
   uint8_t receivetimestamp[10];
   uint8_t reqidentity[8];
   uint8_t reqportindex[2];
-};
+} end_packed_struct;
 
 #endif /* __APPS_NETUTILS_PTPD_PTPV2_H */
