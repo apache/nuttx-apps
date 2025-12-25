@@ -427,6 +427,8 @@ void init_service_reap(FAR struct service_s *service, int status)
 
 int init_service_start(FAR struct service_s *service)
 {
+  posix_spawnattr_t attr;
+  sigset_t mask;
   int ret;
   int pid;
 
@@ -439,8 +441,33 @@ int init_service_start(FAR struct service_s *service)
       return service->pid;
     }
 
-  ret = posix_spawnp(&pid, service->argv[2], NULL, NULL, &service->argv[2],
+  ret = posix_spawnattr_init(&attr);
+  if (ret != 0)
+    {
+      init_err("posix_spawnattr_init %d", ret);
+      return -ret;
+    }
+
+  ret = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSIGMASK);
+  if (ret != 0)
+    {
+      init_err("posix_spawnattr_setflags %d", ret);
+      posix_spawnattr_destroy(&attr);
+      return -ret;
+    }
+
+  sigemptyset(&mask);
+  ret = posix_spawnattr_setsigmask(&attr, &mask);
+  if (ret != 0)
+    {
+      init_err("posix_spawnattr_setsigmask %d", ret);
+      posix_spawnattr_destroy(&attr);
+      return -ret;
+    }
+
+  ret = posix_spawnp(&pid, service->argv[2], NULL, &attr, &service->argv[2],
                      environ);
+  posix_spawnattr_destroy(&attr);
   if (ret != 0)
     {
       init_err("Starting service '%s': %d", service->argv[1], ret);

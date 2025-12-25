@@ -183,6 +183,10 @@ static int cmd_exec(FAR struct action_manager_s *am,
 int init_builtin_run(FAR struct action_manager_s *am,
                      int argc, FAR char **argv)
 {
+  char cmd[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
+  posix_spawnattr_t attr;
+  FAR char *args[4];
+  sigset_t mask;
   pid_t pid;
   size_t i;
   int ret;
@@ -203,35 +207,65 @@ int init_builtin_run(FAR struct action_manager_s *am,
         }
     }
 
-  ret = posix_spawnp(&pid, argv[0], NULL, NULL, argv, NULL);
+  ret = posix_spawnattr_init(&attr);
   if (ret != 0)
     {
-#ifdef CONFIG_SYSTEM_SYSTEM
-      char cmd[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
-
-      for (i = 0, cmd[i] = '\0'; i < argc; i++)
-        {
-          strlcat(cmd, argv[i], sizeof(cmd));
-          if (i < argc - 1)
-            {
-              strcat(cmd, " ");
-            }
-        }
-
-      init_debug("Executing nsh command '%s'", cmd);
-      ret = system(cmd);
-      if (WIFEXITED(ret))
-        {
-          init_debug("NSH command '%s' exited %d", cmd, WEXITSTATUS(ret));
-          return -WEXITSTATUS(ret);
-        }
-#endif
-
-      init_err("Executing command '%s': %d", argv[0], ret);
-      init_dump_args(argc, argv);
+      init_err("posix_spawnattr_init %d", ret);
       return -ret;
     }
 
-  init_debug("Executed command '%s' pid %d", argv[0], pid);
+  ret = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSIGMASK);
+  if (ret != 0)
+    {
+      init_err("posix_spawnattr_setflags %d", ret);
+      posix_spawnattr_destroy(&attr);
+      return -ret;
+    }
+
+  sigemptyset(&mask);
+  ret = posix_spawnattr_setsigmask(&attr, &mask);
+  if (ret != 0)
+    {
+      init_err("posix_spawnattr_setsigmask %d", ret);
+      posix_spawnattr_destroy(&attr);
+      return -ret;
+    }
+
+  for (i = 0, cmd[i] = '\0'; i < argc; i++)
+    {
+      strlcat(cmd, argv[i], sizeof(cmd));
+      if (i < argc - 1)
+        {
+          strcat(cmd, " ");
+        }
+    }
+
+  for (; ; )
+    {
+      ret = posix_spawnp(&pid, argv[0], NULL, &attr, argv, NULL);
+      if (ret == 0)
+        {
+          init_debug("executed command '%s' pid %d", cmd, pid);
+          break;
+        }
+
+      if (!strcmp("sh", argv[0]))
+        {
+          init_err("executing command '%s': %d", cmd, ret);
+          init_dump_args(argc, argv);
+          pid = -ret;
+          break;
+        }
+
+      init_debug("command '%s': %d", argv[0], ret);
+      args[0] = "sh";
+      args[1] = "-c";
+      args[2] = cmd;
+      args[3] = NULL;
+      argc = nitems(args) - 1;
+      argv = args;
+    }
+
+  posix_spawnattr_destroy(&attr);
   return pid;
 }
