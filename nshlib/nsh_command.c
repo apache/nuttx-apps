@@ -300,11 +300,11 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("irqinfo",  cmd_irqinfo,  1, 1, NULL),
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_KILL
+#if !defined(CONFIG_NSH_DISABLE_KILL) && !defined(CONFIG_DISABLE_SIGNALS)
   CMD_MAP("kill",     cmd_kill,     2, 3, "[-<signal>] <pid>"),
 #endif
 
-#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PKILL)
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_PKILL) && !defined(CONFIG_DISABLE_SIGNALS)
   CMD_MAP("pkill",     cmd_pkill,     2, 3, "[-<signal>] <name>"),
 #endif
 
@@ -571,7 +571,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_SLEEP
+#if !defined(CONFIG_NSH_DISABLE_SLEEP) && !defined(CONFIG_DISABLE_SIGNALS)
   CMD_MAP("sleep",    cmd_sleep,    2, 2, "<sec>"),
 #endif
 
@@ -652,12 +652,11 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("userdel",  cmd_userdel,  2, 2, "<username>"),
 #  endif
 #endif
-
-#ifndef CONFIG_NSH_DISABLE_USLEEP
+#if !defined(CONFIG_NSH_DISABLE_USLEEP) && !defined(CONFIG_DISABLE_SIGNALS)
   CMD_MAP("usleep",   cmd_usleep,   2, 2, "<usec>"),
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_WATCH
+#if !defined(CONFIG_NSH_DISABLE_WATCH) && !defined(CONFIG_DISABLE_SIGNALS)
   CMD_MAP("watch",     cmd_watch,
           2, 6, "[-n] interval [-c] count <command>"),
 #endif
