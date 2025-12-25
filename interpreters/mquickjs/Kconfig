@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_MQJS
+	tristate "MicroQuickJS JavaScript interpreter"
+	default n
+
+if INTERPRETERS_MQJS
+
+config INTERPRETERS_MQJS_PRIORITY
+	int "MicroQuickJS interpreter priority"
+	default 100
+	---help---
+		Task priority of the MicroQuickJS interpreter.
+
+ config INTERPRETERS_MQJS_STACKSIZE
+ 	int "MicroQuickJS interpreter stack size"
+ 	default 8192
+ 	---help---
+ 		Size of the stack allocated for MicroQuickJS interpreter.
+
+ endif # INTERPRETERS_MQJS
