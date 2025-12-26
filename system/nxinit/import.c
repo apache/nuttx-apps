@@ -42,7 +42,13 @@ int init_import_parse(FAR const struct parser_s *parser,
 
   if (create)
     {
-      init_parse_arguments(buf, false, nitems(argv), argv);
+      ret = init_parse_arguments(buf, false, nitems(argv), argv);
+      if (ret < 2)
+        {
+          init_err("parse import: %s", buf);
+          return -EINVAL;
+        }
+
       ret = init_parse_config_file(parser, argv[1]);
       if (ret < 0)
         {
