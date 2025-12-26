@@ -39,12 +39,21 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
 #include <stdint.h>
 #include <netinet/in.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* Provide a default value for CONFIG_NETDB_DNSSERVER_NAMESERVERS if
+ * CONFIG_NETDB_DNSCLIENT is not enabled.
+ */
+
+#if !defined(CONFIG_NETDB_DNSSERVER_NAMESERVERS)
+#  define CONFIG_NETDB_DNSSERVER_NAMESERVERS 1
+#endif
 
 /****************************************************************************
  * Public Types
