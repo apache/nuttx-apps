@@ -176,7 +176,7 @@ static int parse_event(FAR char *buf, FAR struct action_event_s *events,
           return 0;
         }
 
-      for (; i >= 0; i--)
+      while (i-- > 0)
         {
           if (events[i].key)
             {
