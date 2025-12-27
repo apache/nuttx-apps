@@ -1,0 +1,104 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_NUTS
+	tristate "NuttX Unit Test Selection (NUTS)"
+	depends on TESTING_CMOCKA
+	default n
+	---help---
+		Enable the NuttX unit test selection, based on the cmocka test framework.
+
+if TESTING_NUTS
+
+comment "Program options"
+
+config TESTING_NUTS_PROGNAME
+	string "Program name"
+	default "nuts"
+	---help---
+		The name of the program.
+
+config TESTING_NUTS_STACKSIZE
+	int "Stack size"
+	default 1024
+	---help---
+		Size of the stack used to create the task.
+
+menu "Test suites"
+
+comment "Data structures"
+
+config TESTING_NUTS_DSTRUCTS
+	bool "Collections tests"
+	default n
+	---help---
+		Enable test suites for collections.
+
+if TESTING_NUTS_DSTRUCTS
+
+config TESTING_NUTS_DSTRUCTS_LIST
+	bool "List testing"
+	default y
+	---help---
+		Enable list test cases.
+
+config TESTING_NUTS_DSTRUCTS_CBUF
+	bool "Circular buffer testing"
+	default y
+	---help---
+		Enable circular buffer test cases.
+
+endif # TESTING_NUTS_DSTRUCTS
+
+comment "Devices"
+
+config TESTING_NUTS_DEVICES
+	bool "Device tests"
+	default n
+	---help---
+		Enable test suites for devices.
+
+if TESTING_NUTS_DEVICES
+
+config TESTING_NUTS_DEVICES_DEVNULL
+	bool "/dev/null test"
+	depends on DEV_NULL
+	default y
+	---help---
+		Enable test cases for /dev/null device.
+
+config TESTING_NUTS_DEVICES_DEVZERO
+	bool "/dev/zero test"
+	depends on DEV_ZERO
+	default y
+	---help---
+		Enable test cases for /dev/zero device.
+
+config TESTING_NUTS_DEVICES_DEVASCII
+	bool "/dev/ascii test"
+	depends on DEV_ASCII
+	default y
+	---help---
+		Enable test cases for /dev/ascii device.
+
+config TESTING_NUTS_DEVICES_DEVCONSOLE
+	bool "/dev/console test"
+	depends on DEV_CONSOLE
+	default y
+	---help---
+		Enable test cases for /dev/console device.
+
+config TESTING_NUTS_DEVICES_DEVURANDOM
+	bool "/dev/urandom test"
+	depends on DEV_URANDOM
+	default y
+	---help---
+		Enable test cases for /dev/urandom device.
+
+endif # TESTING_NUTS_DEVICES
+
+endmenu # Test suites
+
+endif # TESTING_NUTS
