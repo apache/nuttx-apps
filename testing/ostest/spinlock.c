@@ -215,13 +215,20 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
       total_ns += param[i].delta;
     }
 
-  printf("%s: Test Results:\n", lock_type);
-  printf("%s: Final counter: %" PRIu32 "\n", lock_type, pub.counter);
-  assert(pub.counter == thread_num * LOOP_TIMES);
-  printf("%s: Average throughput : %" PRIu64 " op/s\n", lock_type,
-         (uint64_t)NSEC_PER_SEC * LOOP_TIMES * thread_num / total_ns);
-  printf("%s: Total execution time: %" PRIu64 " ns\n \n",
-         lock_type, calc_diff(&stime, &etime));
+  if (total_ns != 0)
+    {
+      printf("%s: Test Results:\n", lock_type);
+      printf("%s: Final counter: %" PRIu32 "\n", lock_type, pub.counter);
+      assert(pub.counter == thread_num * LOOP_TIMES);
+      printf("%s: Average throughput : %" PRIu64 " op/s\n", lock_type,
+            (uint64_t)NSEC_PER_SEC * LOOP_TIMES * thread_num / total_ns);
+      printf("%s: Total execution time: %" PRIu64 " ns\n \n",
+            lock_type, calc_diff(&stime, &etime));
+    }
+  else
+    {
+      printf("spinlock_test: ERROR: total_ns is 0\n");
+    }
 }
 
 /****************************************************************************
@@ -258,7 +265,7 @@ void spinlock_test(void)
 {
   unsigned tnr;
 
-  for (tnr = 1; tnr < MAX_THREAD_NUM; tnr++)
+  for (tnr = 1; tnr <= MAX_THREAD_NUM; tnr++)
     {
       spinlock_test_thread_num(tnr);
     }
