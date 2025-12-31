@@ -518,24 +518,39 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
       if ((lsflags & LSFLAGS_SIZE) != 0)
         {
-#ifdef CONFIG_HAVE_FLOAT
           if (lsflags & LSFLAGS_HUMANREADBLE && buf.st_size >= KB)
             {
+              uint32_t integer_part;
+              uint32_t decimal_part;
+              uint32_t unit;
+              char suffix;
+
+              /* Determine the appropriate unit and suffix */
+
               if (buf.st_size >= GB)
                 {
-                  nsh_output(vtbl, "%11.1fG", (float)buf.st_size / GB);
+                  unit = GB;
+                  suffix = 'G';
                 }
               else if (buf.st_size >= MB)
                 {
-                  nsh_output(vtbl, "%11.1fM", (float)buf.st_size / MB);
+                  unit = MB;
+                  suffix = 'M';
                 }
               else
                 {
-                  nsh_output(vtbl, "%11.1fK", (float)buf.st_size / KB);
+                  unit = KB;
+                  suffix = 'K';
                 }
+
+              /* Use integer arithmetic to avoid floating point */
+
+              integer_part = buf.st_size / unit;
+              decimal_part = ((buf.st_size % unit) * 10) / unit;
+              nsh_output(vtbl, "%10" PRIu32 ".%" PRIu32 "%c",
+                         integer_part, decimal_part, suffix);
             }
           else
-#endif
             {
               nsh_output(vtbl, "%12" PRIdOFF, buf.st_size);
             }
@@ -1549,11 +1564,10 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
             lsflags |= LSFLAGS_SIZE;
             break;
 
-#ifdef CONFIG_HAVE_FLOAT
           case 'h':
             lsflags |= LSFLAGS_HUMANREADBLE;
             break;
-#endif
+
           case '?':
           default:
             nsh_error(vtbl, g_fmtarginvalid, argv[0]);
