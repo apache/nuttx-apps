@@ -1,0 +1,75 @@
+diff --git a/libarchive/archive_string.c b/libarchive/archive_string.c
+index abf7ad66..ddbd1e38 100644
+--- a/libarchive/archive_string.c
++++ b/libarchive/archive_string.c
+@@ -2801,6 +2801,7 @@ archive_string_append_unicode(struct archive_string *as, const void *_p,
+ #define HC_NCOUNT	(HC_VCOUNT * HC_TCOUNT)
+ #define HC_SCOUNT	(HC_LCOUNT * HC_NCOUNT)
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ static uint32_t
+ get_nfc(uint32_t uc, uint32_t uc2)
+ {
+@@ -2823,6 +2824,7 @@ get_nfc(uint32_t uc, uint32_t uc2)
+ 	}
+ 	return (0);
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ #define FDC_MAX 10	/* The maximum number of Following Decomposable
+ 			 * Characters. */
+@@ -2924,6 +2926,7 @@ static int
+ archive_string_normalize_C(struct archive_string *as, const void *_p,
+     size_t len, struct archive_string_conv *sc)
+ {
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 	const char *s = (const char *)_p;
+ 	char *p, *endp;
+ 	uint32_t uc, uc2;
+@@ -3177,8 +3180,16 @@ archive_string_normalize_C(struct archive_string *as, const void *_p,
+ 	if (ts == 2)
+ 		as->s[as->length+1] = '\0';
+ 	return (ret);
++#else
++	(void)as; /* UNUSED */
++	(void)_p; /* UNUSED */
++	(void)len; /* UNUSED */
++	(void)sc; /* UNUSED */
++	return (0); /* Normalization disabled */
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ }
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ static int
+ get_nfd(uint32_t *cp1, uint32_t *cp2, uint32_t uc)
+ {
+@@ -3218,6 +3229,7 @@ get_nfd(uint32_t *cp1, uint32_t *cp2, uint32_t uc)
+ 	}
+ 	return (0);
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ #define REPLACE_UC_WITH(cp) do {		\
+ 	uc = cp;				\
+@@ -3231,6 +3243,7 @@ static int
+ archive_string_normalize_D(struct archive_string *as, const void *_p,
+     size_t len, struct archive_string_conv *sc)
+ {
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 	const char *s = (const char *)_p;
+ 	char *p, *endp;
+ 	uint32_t uc, uc2;
+@@ -3392,6 +3405,13 @@ check_first_code:
+ 	if (ts == 2)
+ 		as->s[as->length+1] = '\0';
+ 	return (ret);
++#else
++	(void)as; /* UNUSED */
++	(void)_p; /* UNUSED */
++	(void)len; /* UNUSED */
++	(void)sc; /* UNUSED */
++	return (0); /* Normalization disabled */
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ }
+ 
+ /*
