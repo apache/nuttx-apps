@@ -506,7 +506,7 @@ int main(int argc, FAR char *argv[])
   else
 #endif
 #ifdef CONFIG_NET_NAT
-  if (strcmp(args.table, TABLE_NAME_NAT) == 0)
+  if (args.table != NULL && strcmp(args.table, TABLE_NAME_NAT) == 0)
     {
       ret = iptables_apply(&args, iptables_nat_command);
       if (ret < 0)
