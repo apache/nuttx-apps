@@ -35,6 +35,7 @@
 
 #include <arpa/inet.h>
 #include <nuttx/net/ip.h>
+#include <nuttx/net/dns.h>
 
 #include "netutils/icmp_ping.h"
 #include "netutils/netlib.h"
@@ -50,6 +51,31 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static int dns_ping_callback(FAR void *arg, FAR struct sockaddr *addr,
+                             socklen_t addrlen)
+{
+  FAR struct ping_info_s *info = (FAR struct ping_info_s *)arg;
+  char ip_str[INET_ADDRSTRLEN];
+  int count;
+
+  if (addr->sa_family == AF_INET)
+    {
+      inet_ntop(AF_INET, &((FAR struct sockaddr_in *)addr)->sin_addr,
+                ip_str, INET_ADDRSTRLEN);
+      info->hostname = ip_str;
+      ninfo("ping ipaddr test %s \n", info->hostname);
+      icmp_ping(info);
+
+      count = *(FAR int *)info->priv;
+      if (count > 0)
+        {
+          return 1;
+        }
+    }
+
+  return OK;
+}
 
 /****************************************************************************
  * Name: ping_ipaddr_callback
@@ -95,10 +121,6 @@ static void ping_ipaddr_callback(FAR const struct ping_result_s *result)
 int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry)
 {
   int replies = 0;
-#ifdef CONFIG_NETDB_DNSSERVER_IPv4ADDR
-  char ip_str[INET_ADDRSTRLEN];
-  struct in_addr addr;
-#endif
   struct ping_info_s info;
 
   info.count    = retry;
@@ -115,22 +137,14 @@ int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry)
 
   if (ip == NULL)
     {
-#ifdef CONFIG_NETDB_DNSSERVER_IPv4ADDR
-      addr.s_addr = HTONL(CONFIG_NETDB_DNSSERVER_IPv4ADDR);
-      inet_ntop(AF_INET, &addr, ip_str, INET_ADDRSTRLEN);
-      info.hostname = ip_str;
-#else
-      nerr("ERROR: IP is NULL and no DNS server configured\n");
-      return -EINVAL;
-#endif
+      dns_foreach_nameserver(dns_ping_callback, &info);
     }
   else
     {
       info.hostname = ip;
+      ninfo("ping ipaddr test %s \n", info.hostname);
+      icmp_ping(&info);
     }
-
-  ninfo("ping ipaddr test %s \n", info.hostname);
-  icmp_ping(&info);
 
   return replies;
 }
