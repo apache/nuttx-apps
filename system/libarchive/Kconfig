@@ -5,10 +5,17 @@
 
 config UTILS_LIBARCHIVE
 	tristate "libarchive"
-	depends on LIBC_LOCALE
 	default n
 
 if UTILS_LIBARCHIVE
+
+config UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+	bool "Enable Unicode normalization support"
+	default n
+	---help---
+		Enable Unicode NFC/NFD normalization for filename handling.
+		This feature is primarily needed for macOS HFS+ filesystem
+		compatibility and cross-platform filename comparison.
 
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
