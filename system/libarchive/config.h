@@ -672,10 +672,12 @@ typedef uint64_t uintmax_t;
 #define HAVE_GRP_H 1
 
 /* Define to 1 if you have the `iconv' function. */
+#ifdef CONFIG_LIBC_LOCALE
 #define HAVE_ICONV 1
 
 /* Define to 1 if you have the <iconv.h> header file. */
 #define HAVE_ICONV_H 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -684,7 +686,9 @@ typedef uint64_t uintmax_t;
 /* #undef HAVE_IO_H */
 
 /* Define to 1 if you have the <langinfo.h> header file. */
+#ifdef CONFIG_LIBC_LOCALE
 #define HAVE_LANGINFO_H 1
+#endif
 
 /* Define to 1 if you have the `lchflags' function. */
 /* #undef HAVE_LCHFLAGS */
@@ -927,7 +931,9 @@ typedef uint64_t uintmax_t;
 /* #undef HAVE_NETTLE_SHA_H */
 
 /* Define to 1 if you have the `nl_langinfo' function. */
+#ifdef CONFIG_LIBC_LOCALE
 #define HAVE_NL_LANGINFO 1
+#endif
 
 /* Define to 1 if you have the `openat' function. */
 #define HAVE_OPENAT 1
