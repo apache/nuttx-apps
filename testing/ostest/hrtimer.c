@@ -120,18 +120,22 @@ static void hrtimer_test_init(FAR struct hrtimer_test_s *hrtimer_test,
  *
  * Input Parameters:
  *   hrtimer - Pointer to the expired HRTimer instance
+ *   expired - The expired value of hrtimer
  *
  * Returned Value:
  *   Timer period in nanoseconds (NSEC_PER_50MS)
  *
  ****************************************************************************/
 
-static uint32_t test_hrtimer_callback(FAR hrtimer_t *hrtimer)
+static uint64_t
+test_hrtimer_callback(FAR hrtimer_t *hrtimer, uint64_t expired)
 {
   struct timespec ts;
   uint32_t diff;
   uint64_t now;
   int ret;
+
+  UNUSED(expired);
 
   FAR struct hrtimer_test_s *test =
     (FAR struct hrtimer_test_s *)hrtimer;
@@ -207,9 +211,7 @@ void hrtimer_test(void)
 
   /* Initialize the high-resolution timer */
 
-  hrtimer_init(&hrtimer_test.timer,
-               test_hrtimer_callback,
-               NULL);
+  hrtimer_init(&hrtimer_test.timer, test_hrtimer_callback);
 
   /* Start the timer with 500ms relative timeout */
 
