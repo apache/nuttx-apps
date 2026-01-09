@@ -25,6 +25,13 @@ config UTILS_LIBARCHIVE_ERROR_STRINGS
 		When disabled, only error codes will be set without
 		descriptive messages.
 
+config UTILS_LIBARCHIVE_PPMD
+	bool "Enable PPMd compression support"
+	default n
+	---help---
+		Enable PPMd compression method support in ZIP and 7zip formats.
+		PPMd is extremely rare in real-world archives.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
