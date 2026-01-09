@@ -17,6 +17,14 @@ config UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
 		This feature is primarily needed for macOS HFS+ filesystem
 		compatibility and cross-platform filename comparison.
 
+config UTILS_LIBARCHIVE_ERROR_STRINGS
+	bool "Enable detailed error messages"
+	default n
+	---help---
+		Enable detailed error messages with formatted strings.
+		When disabled, only error codes will be set without
+		descriptive messages.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
