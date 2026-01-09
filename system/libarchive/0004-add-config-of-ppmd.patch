@@ -1,0 +1,85 @@
+diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c
+index 3e62533b..848bd6e0 100644
+--- a/libarchive/archive_read_support_format_zip.c
++++ b/libarchive/archive_read_support_format_zip.c
+@@ -71,7 +71,9 @@
+ #include "archive_private.h"
+ #include "archive_rb.h"
+ #include "archive_read_private.h"
++#ifdef CONFIG_UTILS_LIBARCHIVE_PPMD
+ #include "archive_ppmd8_private.h"
++#endif
+ 
+ #ifndef HAVE_ZLIB_H
+ #include "archive_crc32.h"
+@@ -198,11 +200,13 @@ struct zip {
+ 	char            zstdstream_valid;
+ #endif
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_PPMD
+ 	IByteIn			zipx_ppmd_stream;
+ 	ssize_t			zipx_ppmd_read_compressed;
+ 	CPpmd8			ppmd8;
+ 	char			ppmd8_valid;
+ 	char			ppmd8_stream_failed;
++#endif
+ 
+ 	struct archive_string_conv *sconv;
+ 	struct archive_string_conv *sconv_default;
+@@ -269,6 +273,7 @@ zip_read_data_zipx_lzma_alone(struct archive_read *a, const void **buff,
+  * streams inside ZIP files. It has 2 purposes: one is to fetch the next
+  * compressed byte from the stream, second one is to increase the counter how
+  * many compressed bytes were read. */
++#ifdef CONFIG_UTILS_LIBARCHIVE_PPMD
+ static Byte
+ ppmd_read(void* p) {
+ 	/* Get the handle to current decompression context. */
+@@ -291,6 +296,7 @@ ppmd_read(void* p) {
+ 	/* Return the next compressed byte. */
+ 	return data[0];
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_PPMD */
+ 
+ /* ------------------------------------------------------------------------ */
+ 
+@@ -2088,6 +2094,7 @@ zip_read_data_zipx_lzma_alone(struct archive_read *a, const void **buff,
+ }
+ #endif /* HAVE_LZMA_H && HAVE_LIBLZMA */
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_PPMD
+ static int
+ zipx_ppmd8_init(struct archive_read *a, struct zip *zip)
+ {
+@@ -2256,6 +2263,7 @@ zip_read_data_zipx_ppmd(struct archive_read *a, const void **buff,
+ 
+ 	return ARCHIVE_OK;
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_PPMD */
+ 
+ #ifdef HAVE_BZLIB_H
+ static int
+@@ -3150,11 +3158,11 @@ archive_read_format_zip_read_data(struct archive_read *a,
+ 		r = zip_read_data_zipx_zstd(a, buff, size, offset);
+ 		break;
+ #endif
+-	/* PPMd support is built-in, so we don't need any #if guards. */
++#ifdef CONFIG_UTILS_LIBARCHIVE_PPMD
+ 	case 98: /* ZIPx PPMd compression. */
+ 		r = zip_read_data_zipx_ppmd(a, buff, size, offset);
+ 		break;
+-
++#endif
+ #ifdef HAVE_ZLIB_H
+ 	case 8: /* Deflate compression. */
+ 		r =  zip_read_data_deflate(a, buff, size, offset);
+@@ -3251,8 +3259,10 @@ archive_read_format_zip_cleanup(struct archive_read *a)
+ 
+ 	free(zip->uncompressed_buffer);
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_PPMD
+ 	if (zip->ppmd8_valid)
+ 		__archive_ppmd8_functions.Ppmd8_Free(&zip->ppmd8);
++#endif
+ 
+ 	if (zip->zip_entries) {
+ 		zip_entry = zip->zip_entries;
