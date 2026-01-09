@@ -1,0 +1,52 @@
+diff --git a/libarchive/archive.h b/libarchive/archive.h
+index 5b65475f..f0f403f0 100644
+--- a/libarchive/archive.h
++++ b/libarchive/archive.h
+@@ -1088,8 +1088,21 @@ __LA_DECL const char	*archive_error_string(struct archive *);
+ __LA_DECL const char	*archive_format_name(struct archive *);
+ __LA_DECL int		 archive_format(struct archive *);
+ __LA_DECL void		 archive_clear_error(struct archive *);
++
++#ifdef CONFIG_UTILS_LIBARCHIVE_ERROR_STRINGS
+ __LA_DECL void		 archive_set_error(struct archive *, int _err,
+ 			    const char *fmt, ...) __LA_PRINTF(3, 4);
++#else
++/* Helper function to set error number without accessing struct internals */
++__LA_DECL void		 archive_set_error_number(struct archive *, int _err);
++#define archive_set_error(a, err, fmt, ...) \
++    do { \
++        archive_set_error_number(a, err); \
++        break; \
++        snprintf(NULL, 0, fmt, ##__VA_ARGS__); \
++    } while (0)
++#endif
++
+ __LA_DECL void		 archive_copy_error(struct archive *dest,
+ 			    struct archive *src);
+ __LA_DECL int		 archive_file_count(struct archive *);
+diff --git a/libarchive/archive_util.c b/libarchive/archive_util.c
+index 3a8caad5..dafb0393 100644
+--- a/libarchive/archive_util.c
++++ b/libarchive/archive_util.c
+@@ -173,6 +173,7 @@ archive_clear_error(struct archive *a)
+ 	a->archive_error_number = 0;
+ }
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ERROR_STRINGS
+ void
+ archive_set_error(struct archive *a, int error_number, const char *fmt, ...)
+ {
+@@ -190,6 +191,13 @@ archive_set_error(struct archive *a, int error_number, const char *fmt, ...)
+ 	va_end(ap);
+ 	a->error = a->error_string.s;
+ }
++#else
++void
++archive_set_error_number(struct archive *a, int error_number)
++{
++	a->archive_error_number = error_number;
++}
++#endif
+ 
+ void
+ archive_copy_error(struct archive *dest, struct archive *src)
