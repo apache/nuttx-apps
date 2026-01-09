@@ -58,7 +58,7 @@ WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
 CONFIG_GRAPH_LVGL_URL ?= "https://github.com/lvgl/lvgl/archive/refs/tags"
 
-LVGL_VERSION = 9.2.1
+LVGL_VERSION = 9.4.0
 LVGL_TARBALL = v$(LVGL_VERSION).zip
 
 LVGL_UNPACKNAME = lvgl
