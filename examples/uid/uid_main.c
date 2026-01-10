@@ -51,10 +51,14 @@ static void show_usage(FAR const char *progname, FAR FILE *stream,
                        int exit_code)
 {
   fprintf(stream, "USAGE:\n");
-  fprintf(stream, "\t%s -uid <uid>    - Show user info by ID\n", progname);
-  fprintf(stream, "\t%s -uname <name> - Show user info by name\n", progname);
-  fprintf(stream, "\t%s -gid <gid>    - Show group info by ID\n", progname);
-  fprintf(stream, "\t%s -gname <name> - Show group info by name\n", progname);
+  fprintf(stream, "\t%s -uid <uid>    - Show user info by ID\n",
+          progname);
+  fprintf(stream, "\t%s -uname <name> - Show user info by name\n",
+          progname);
+  fprintf(stream, "\t%s -gid <gid>    - Show group info by ID\n",
+          progname);
+  fprintf(stream, "\t%s -gname <name> - Show group info by name\n",
+          progname);
   fprintf(stream, "\t%s -h            - Show this help info\n", progname);
   exit(exit_code);
 }

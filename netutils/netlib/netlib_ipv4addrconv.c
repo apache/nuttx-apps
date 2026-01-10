@@ -68,9 +68,9 @@ bool netlib_ipv4addrconv(FAR const char *addrstr, FAR uint8_t *ipaddr)
         {
           ch = *addrstr++;
           if (++j > 4)
-           {
-             return false;
-           }
+            {
+              return false;
+            }
 
           if (ch == '.' || ch == 0)
             {

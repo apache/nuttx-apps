@@ -54,7 +54,9 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-/* 'file' must be allocated by caller and will be filled in by the function. */
+/* 'file' must be allocated by caller and will be filled in by the
+ * function.
+ */
 
 #if defined(CONFIG_NETUTILS_HTTPD_SENDFILE)
 
