@@ -35,7 +35,7 @@
 
 const struct struct_dummy_s dummy_struct =
 {
-   DUMMY_SCALAR_VALUE3
+  DUMMY_SCALAR_VALUE3
 };
 
 int dummy_scalar = DUMMY_SCALAR_VALUE2;

@@ -45,7 +45,6 @@
  *                               buffering s not yet support for UDP)
  */
 
-
 #ifndef CONFIG_NET
 #  error Network socket support not enabled
 #endif

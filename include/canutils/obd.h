@@ -96,13 +96,13 @@ int obd_send_request(FAR struct obd_dev_s *dev, uint8_t opmode, uint8_t pid);
  *   Wait for a message from ECUs with requested PID that was sent using
  *   obd_send_request().
  *
- *   It will return an error case it doesn't receive the msg after the elapsed
- *   "timeout" time.
+ *   It will return an error case it doesn't receive the msg after the
+ *   elapsed "timeout" time.
  *
  ****************************************************************************/
 
-int obd_wait_response(FAR struct obd_dev_s *dev, uint8_t opmode, uint8_t pid,
-                      int timeout);
+int obd_wait_response(FAR struct obd_dev_s *dev, uint8_t opmode,
+                      uint8_t pid, int timeout);
 
 /****************************************************************************
  * Name: obd_decode_pid
@@ -116,4 +116,4 @@ int obd_wait_response(FAR struct obd_dev_s *dev, uint8_t opmode, uint8_t pid,
 
 FAR char *obd_decode_pid(FAR struct obd_dev_s *dev, uint8_t pid);
 
-#endif /*__APPS_INCLUDE_CANUTILS_OBD_H */
+#endif /* __APPS_INCLUDE_CANUTILS_OBD_H */

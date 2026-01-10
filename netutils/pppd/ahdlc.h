@@ -68,8 +68,8 @@ void ahdlc_rx_ready(FAR struct ppp_context_s *ctx);
 
 uint8_t ahdlc_rx(FAR struct ppp_context_s *ctx, uint8_t);
 uint8_t ahdlc_tx(FAR struct ppp_context_s *ctx, uint16_t protocol,
-                 FAR uint8_t *header, FAR uint8_t *buffer, uint16_t headerlen,
-                 uint16_t datalen);
+                 FAR uint8_t *header, FAR uint8_t *buffer,
+                 uint16_t headerlen, uint16_t datalen);
 
 #undef EXTERN
 #ifdef __cplusplus

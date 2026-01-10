@@ -104,7 +104,8 @@ uint8_t abnt_codi_checksum(FAR const uint8_t *data);
 
 /* Parse a specific ABNT CODI sequence. */
 
-bool abnt_codi_parse(FAR const uint8_t *data, FAR struct abnt_codi_proto_s *proto);
+bool abnt_codi_parse(FAR const uint8_t *data,
+                     FAR struct abnt_codi_proto_s *proto);
 
 #ifdef __cplusplus
 }
