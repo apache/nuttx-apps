@@ -42,13 +42,14 @@
  * Parameters:
  *   ifname - The name of the existing network device
  *   vlanid - The VLAN identifier to be added
+ *   prio   - The default VLAN priority (PCP)
  *
  * Return:
  *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
-int netlib_add_vlan(FAR const char *ifname, int vlanid)
+int netlib_add_vlan(FAR const char *ifname, int vlanid, int prio)
 {
   int ret = ERROR;
 
@@ -60,8 +61,9 @@ int netlib_add_vlan(FAR const char *ifname, int vlanid)
           struct vlan_ioctl_args ifv;
 
           strlcpy(ifv.device1, ifname, sizeof(ifv.device1));
-          ifv.u.VID = vlanid;
-          ifv.cmd = ADD_VLAN_CMD;
+          ifv.u.VID    = vlanid;
+          ifv.vlan_qos = prio;
+          ifv.cmd      = ADD_VLAN_CMD;
 
           ret = ioctl(sockfd, SIOCSIFVLAN, &ifv);
           close(sockfd);
