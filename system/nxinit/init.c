@@ -133,6 +133,7 @@ static int init_boot_reason(FAR struct action_manager_s *am)
   static FAR const char * const resetflag[] =
     {
       [BOARDIOC_SOFTRESETCAUSE_USER_REBOOT]             = "reboot",
+      [BOARDIOC_SOFTRESETCAUSE_ASSERT]                  = "assert",
       [BOARDIOC_SOFTRESETCAUSE_PANIC]                   = "kernel_panic",
       [BOARDIOC_SOFTRESETCAUSE_ENTER_BOOTLOADER]        = "bootloader",
       [BOARDIOC_SOFTRESETCAUSE_ENTER_RECOVERY]          = "recovery",
