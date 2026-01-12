@@ -1293,35 +1293,35 @@ static void test_nvs_gc_3sectors(struct mtdnvs_ctx_s *ctx)
   ret = write_content(max_id, max_writes, max_writes_2);
   if (ret < 0)
     {
-      printf("%s:2st GC write failed, ret=%d\n", __func__, ret);
+      printf("%s:2nd GC write failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = check_content(max_id);
   if (ret < 0)
     {
-      printf("%s:2st GC check failed, ret=%d\n", __func__, ret);
+      printf("%s:2nd GC check failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = mtdconfig_unregister();
   if (ret < 0)
     {
-      printf("%s:2st mtdconfig_unregister failed, ret=%d\n", __func__, ret);
+      printf("%s:2nd mtdconfig_unregister failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = setup(ctx);
   if (ret < 0)
     {
-      printf("%s:2st setup failed, ret=%d\n", __func__, ret);
+      printf("%s:2nd setup failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = check_content(max_id);
   if (ret < 0)
     {
-      printf("%s:2st GC check failed, ret=%d\n", __func__, ret);
+      printf("%s:2nd GC check failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
@@ -1330,35 +1330,35 @@ static void test_nvs_gc_3sectors(struct mtdnvs_ctx_s *ctx)
   ret = write_content(max_id, max_writes_2, max_writes_3);
   if (ret < 0)
     {
-      printf("%s:3st GC write failed, ret=%d\n", __func__, ret);
+      printf("%s:3rd GC write failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = check_content(max_id);
   if (ret < 0)
     {
-      printf("%s:3st GC check failed, ret=%d\n", __func__, ret);
+      printf("%s:3rd GC check failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = mtdconfig_unregister();
   if (ret < 0)
     {
-      printf("%s:3st mtdconfig_unregister failed, ret=%d\n", __func__, ret);
+      printf("%s:3rd mtdconfig_unregister failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = setup(ctx);
   if (ret < 0)
     {
-      printf("%s:3st setup failed, ret=%d\n", __func__, ret);
+      printf("%s:3rd setup failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
   ret = check_content(max_id);
   if (ret < 0)
     {
-      printf("%s:3st GC check failed, ret=%d\n", __func__, ret);
+      printf("%s:3rd GC check failed, ret=%d\n", __func__, ret);
       goto test_fail;
     }
 
@@ -2471,7 +2471,7 @@ static void test_nvs_gc_not_touched_expired_ate(struct mtdnvs_ctx_s *ctx)
       goto test_fail;
     }
 
-  /* Now udpate A again.
+  /* Now update A again.
    * We should trigger gc for once, and we won't need to search for
    * the old one again after gc.
    */
@@ -2576,7 +2576,7 @@ int main(int argc, FAR char *argv[])
   ctx = malloc(sizeof(struct mtdnvs_ctx_s));
   if (ctx == NULL)
     {
-      printf("malloc ctx feild,exit!\n");
+      printf("malloc ctx field, exit!\n");
       exit(1);
     }
 
