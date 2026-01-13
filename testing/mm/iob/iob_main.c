@@ -27,13 +27,14 @@
 #include <nuttx/config.h>
 #include <nuttx/sched.h>
 
+#include <pthread.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include <iob.h>
+#include <nuttx/mm/iob.h>
 
 /****************************************************************************
  * Pre-processor Definitions
