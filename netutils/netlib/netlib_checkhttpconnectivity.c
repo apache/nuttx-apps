@@ -224,7 +224,7 @@ int netlib_check_httpconnectivity(FAR const char *host,
   ret = connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
   if (ret < 0)
     {
-      perror("Connection failed");
+      nerr("Connection failed: %s", strerror(errno));
       goto exit_with_socket;
     }
 
@@ -235,13 +235,13 @@ int netlib_check_httpconnectivity(FAR const char *host,
   ret = send(sock, buf, strlen(buf), 0);
   if (ret < 0)
     {
-      perror("send failed");
+      nerr("send failed: %s", strerror(errno));
       goto exit_with_socket;
     }
 
   if ((ret = recv(sock, buf, sizeof(buf), 0)) < 0)
     {
-      perror("recv failed");
+      nerr("recv failed: %s", strerror(errno));
       goto exit_with_socket;
     }
 
