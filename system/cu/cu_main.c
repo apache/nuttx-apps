@@ -124,10 +124,12 @@ static FAR void *cu_listener(FAR void *parameter)
   return NULL;
 }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
 static void sigint(int sig)
 {
   g_cu.force_exit = true;
 }
+#endif
 
 #ifdef CONFIG_SERIAL_TERMIOS
 static int set_termios(FAR struct cu_globals_s *cu, int rate,
@@ -275,7 +277,9 @@ static int cu_cmd(FAR struct cu_globals_s *cu, char bcmd)
 int main(int argc, FAR char *argv[])
 {
   pthread_attr_t attr;
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
   struct sigaction sa;
+#endif
   FAR const char *devname = CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE;
   FAR struct cu_globals_s *cu = &g_cu;
 #ifdef CONFIG_SERIAL_TERMIOS
@@ -295,13 +299,13 @@ int main(int argc, FAR char *argv[])
 
   memset(cu, 0, sizeof(*cu));
   cu->escape = '~';
-
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
   /* Install signal handlers */
 
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = sigint;
   sigaction(SIGINT, &sa, NULL);
-
+#endif
   optind = 0;   /* Global that needs to be reset in FLAT mode */
   while ((option = getopt(argc, argv, "l:s:ceE:fho?")) != ERROR)
     {

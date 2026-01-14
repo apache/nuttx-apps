@@ -873,6 +873,7 @@ static int top_cmpcpuload(FAR const void *item1, FAR const void *item2)
     }
 }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
 /****************************************************************************
  * Name: top_exit
  ****************************************************************************/
@@ -881,6 +882,7 @@ static void top_exit(int signo, FAR siginfo_t *siginfo, FAR void *context)
 {
   *(FAR bool *)siginfo->si_user = true;
 }
+#endif /* CONFIG_ENABLE_ALL_SIGNALS */
 
 #endif
 
@@ -1357,7 +1359,9 @@ int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   FAR char *pidlist = NULL;
   size_t num = SIZE_MAX;
   size_t i;
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
   struct sigaction act;
+#endif
   bool quit = false;
   int delay = 3;
   int ret = 0;
@@ -1393,6 +1397,7 @@ int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         }
     }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
   act.sa_user = &quit;
   act.sa_sigaction = top_exit;
   sigemptyset(&act.sa_mask);
@@ -1402,6 +1407,7 @@ int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       nsh_error(vtbl, g_fmtcmdfailed, "top", "sigaction", NSH_ERRNO);
       return ERROR;
     }
+#endif
 
   if (vtbl->isctty)
     {

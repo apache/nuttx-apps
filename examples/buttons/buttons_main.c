@@ -219,9 +219,11 @@ static int button_daemon(int argc, char *argv[])
       goto errout_with_fd;
     }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
   /* Ignore the default signal action */
 
   signal(CONFIG_EXAMPLES_BUTTONS_SIGNO, SIG_IGN);
+#endif /* CONFIG_ENABLE_ALL_SIGNALS */
 #endif
 
   /* Now loop forever, waiting BUTTONs events */
