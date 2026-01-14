@@ -278,7 +278,8 @@ static int user_main(int argc, char *argv[])
    * verify that status is retained correctly.
    */
 
-#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS)
+#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS) && \
+    defined(CONFIG_ENABLE_ALL_SIGNALS)
     {
       struct sigaction sa;
       int ret;
@@ -511,12 +512,22 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifndef CONFIG_DISABLE_ALL_SIGNALS
       /* Verify that we can modify the signal mask */
 
       printf("\nuser_main: sigprocmask test\n");
       sigprocmask_test();
       check_test_memory_usage();
 
+#if defined(CONFIG_SIG_SIGSTOP_ACTION) && defined(CONFIG_SIG_SIGKILL_ACTION) && \
+    !defined(CONFIG_BUILD_KERNEL)
+      printf("\nuser_main: signal action test\n");
+      suspend_test();
+      check_test_memory_usage();
+#endif
+#endif /* !CONFIG_DISABLE_ALL_SIGNALS */
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
       /* Verify signal handlers */
 
       printf("\nuser_main: signal handler test\n");
@@ -527,11 +538,13 @@ static int user_main(int argc, char *argv[])
       signest_test();
       check_test_memory_usage();
 
-#if defined(CONFIG_SIG_SIGSTOP_ACTION) && defined(CONFIG_SIG_SIGKILL_ACTION) && \
-    !defined(CONFIG_BUILD_KERNEL)
-      printf("\nuser_main: signal action test\n");
-      suspend_test();
+#ifndef CONFIG_DISABLE_POSIX_TIMERS
+      /* Verify posix timers (with SIGEV_SIGNAL) */
+
+      printf("\nuser_main: POSIX timer test\n");
+      timer_test();
       check_test_memory_usage();
+#endif
 #endif
 
 #ifdef CONFIG_BUILD_FLAT
@@ -540,20 +553,13 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#ifndef CONFIG_DISABLE_POSIX_TIMERS
-      /* Verify posix timers (with SIGEV_SIGNAL) */
-
-      printf("\nuser_main: POSIX timer test\n");
-      timer_test();
-      check_test_memory_usage();
-
-#ifdef CONFIG_SIG_EVTHREAD
+#if !defined(CONFIG_DISABLE_POSIX_TIMERS) && \
+    defined(CONFIG_SIG_EVTHREAD)
       /* Verify posix timers (with SIGEV_THREAD) */
 
       printf("\nuser_main: SIGEV_THREAD timer test\n");
       sigev_thread_test();
       check_test_memory_usage();
-#endif
 #endif
 
 #if !defined(CONFIG_DISABLE_PTHREAD) && CONFIG_RR_INTERVAL > 0
