@@ -424,7 +424,7 @@ index 00000000..298bd2f8
 +    return 0;
 +  }
 +
-+  /* Make sure the memory is initiallized to zero using calloc() */
++  /* Make sure the memory is initialized to zero using calloc() */
 +  *addresses = uv__calloc(*count, sizeof(**addresses));
 +  if (*addresses == NULL) {
 +    freeifaddrs(addrs);
@@ -3972,3 +3972,15 @@ diff --color -ur libuv_back/src/unix/thread.c libuv/src/unix/thread.c
  # include <sched.h>
  # define uv__cpu_set_t cpu_set_t
  #elif defined(__FreeBSD__)
+diff --git a/src/unix/nuttx.c b/src/unix/nuttx.c
+index d0e110a..e1c962e 100644
+--- a/src/unix/nuttx.c
++++ b/src/unix/nuttx.c
+@@ -222,7 +222,7 @@ ssize_t recvmsg(int sockfd, struct msghdr *msg, int flags) {
+   return UV_ENOTSUP;
+ }
+ 
+-ssize_t sendmsg(int sockfd, struct msghdr *msg, int flags) {
++ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags) {
+   return UV_ENOTSUP;
+ }
