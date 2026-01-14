@@ -164,7 +164,7 @@ void sched_lock_test(void)
         {
           printf("sched_lock: ERROR sched_getparam failed\n");
           ASSERT(false);
-          sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
+          sparam.sched_priority = PRIORITY;
         }
 
       highprio = sparam.sched_priority - 2;

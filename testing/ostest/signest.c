@@ -300,7 +300,7 @@ void signest_test(void)
     {
       printf("signest_test: ERROR sched_getparam() failed\n");
       ASSERT(false);
-      param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
+      param.sched_priority = PRIORITY;
     }
 
   /* Start waiter thread  */

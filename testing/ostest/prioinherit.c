@@ -516,7 +516,7 @@ void priority_inheritance(void)
     {
       printf("priority_inheritance: ERROR sched_getparam failed\n");
       ASSERT(false);
-      sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
+      sparam.sched_priority = PRIORITY;
     }
 
   my_pri = sparam.sched_priority;

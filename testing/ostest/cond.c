@@ -216,10 +216,10 @@ static void *thread_signaler(void *parameter)
 
 #if defined(CONFIG_SMP) && (CONFIG_SMP_NCPUS > 1)
       /* Workaround for SMP:
-       * In multi-core environment, thread_signaler would be excecuted prior
+       * In multi-core environment, thread_signaler would be executed prior
        * to the thread_waiter, even though priority of thread_signaler is
        * lower than the thread_waiter. In this case, thread_signaler will
-       * aquire mutex before the thread_waiter aquires it and will show
+       * acquire mutex before the thread_waiter acquire it and will show
        * the error message such as "thread_signaler: ERROR waiter state...".
        * To avoid this situaltion, we add the following usleep()
        */
@@ -253,7 +253,6 @@ void cond_test(void)
   struct sched_param sparam;
   int prio_min;
   int prio_max;
-  int prio_mid;
   int status;
 
   sem_init(&sem_thread_started, 0, 0);
@@ -289,11 +288,9 @@ void cond_test(void)
       printf("cond_test: pthread_attr_init failed, status=%d\n", status);
     }
 
-  prio_min = sched_get_priority_min(SCHED_FIFO);
   prio_max = sched_get_priority_max(SCHED_FIFO);
-  prio_mid = (prio_min + prio_max) / 2;
-
-  sparam.sched_priority = prio_mid;
+  sparam.sched_priority = PRIORITY + 10 <= prio_max ?
+                          PRIORITY + 10 : prio_max;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
@@ -321,7 +318,9 @@ void cond_test(void)
       printf("cond_test: pthread_attr_init failed, status=%d\n", status);
     }
 
-  sparam.sched_priority = (prio_min + prio_mid) / 2;
+  prio_min = sched_get_priority_min(SCHED_FIFO);
+  sparam.sched_priority = PRIORITY - 10 >= prio_min ?
+                          PRIORITY - 10 : prio_min;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {

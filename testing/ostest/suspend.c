@@ -77,7 +77,7 @@ void suspend_test(void)
     {
       printf("suspend_test: ERROR sched_getparam() failed\n");
       ASSERT(false);
-      param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
+      param.sched_priority = PRIORITY;
     }
 
   victim = task_create("victim", param.sched_priority,
