@@ -1,0 +1,268 @@
+diff --git a/include/mbedtls/cipher.h b/include/mbedtls/cipher.h
+index 970a343802..6002668ac0 100644
+--- a/include/mbedtls/cipher.h
++++ b/include/mbedtls/cipher.h
+@@ -101,9 +101,19 @@ typedef enum {
+     MBEDTLS_CIPHER_AES_128_ECB,          /**< AES cipher with 128-bit ECB mode. */
+     MBEDTLS_CIPHER_AES_192_ECB,          /**< AES cipher with 192-bit ECB mode. */
+     MBEDTLS_CIPHER_AES_256_ECB,          /**< AES cipher with 256-bit ECB mode. */
++#if defined(MBEDTLS_AES_ALT)
++    MBEDTLS_CIPHER_AES_128_ECB_KEYID,    /**< AES cipher with 128-bit ECB mode in keyid type. */
++    MBEDTLS_CIPHER_AES_192_ECB_KEYID,    /**< AES cipher with 192-bit ECB mode in keyid type. */
++    MBEDTLS_CIPHER_AES_256_ECB_KEYID,    /**< AES cipher with 256-bit ECB mode in keyid type. */
++#endif
+     MBEDTLS_CIPHER_AES_128_CBC,          /**< AES cipher with 128-bit CBC mode. */
+     MBEDTLS_CIPHER_AES_192_CBC,          /**< AES cipher with 192-bit CBC mode. */
+     MBEDTLS_CIPHER_AES_256_CBC,          /**< AES cipher with 256-bit CBC mode. */
++#if defined(MBEDTLS_AES_ALT)
++    MBEDTLS_CIPHER_AES_128_CBC_KEYID,    /**< AES cipher with 128-bit CBC mode in keyid type. */
++    MBEDTLS_CIPHER_AES_192_CBC_KEYID,    /**< AES cipher with 192-bit CBC mode in keyid type. */
++    MBEDTLS_CIPHER_AES_256_CBC_KEYID,    /**< AES cipher with 256-bit CBC mode in keyid type. */
++#endif
+     MBEDTLS_CIPHER_AES_128_CFB128,       /**< AES cipher with 128-bit CFB128 mode. */
+     MBEDTLS_CIPHER_AES_192_CFB128,       /**< AES cipher with 192-bit CFB128 mode. */
+     MBEDTLS_CIPHER_AES_256_CFB128,       /**< AES cipher with 256-bit CFB128 mode. */
+diff --git a/library/cipher_wrap.c b/library/cipher_wrap.c
+index a05c66e9ec..5c8738501a 100644
+--- a/library/cipher_wrap.c
++++ b/library/cipher_wrap.c
+@@ -202,6 +202,44 @@ static int aes_setkey_enc_wrap(void *ctx, const unsigned char *key,
+     return mbedtls_aes_setkey_enc((mbedtls_aes_context *) ctx, key, key_bitlen);
+ }
+ 
++#if defined(MBEDTLS_AES_ALT)
++static int aes_set128key_dec_keyid_wrap(void *ctx, const unsigned char *key,
++                                        unsigned int key_bitlen)
++{
++    return mbedtls_aes_set128key_dec_keyid((mbedtls_aes_context *) ctx, key, key_bitlen);
++}
++
++static int aes_set192key_dec_keyid_wrap(void *ctx, const unsigned char *key,
++                                        unsigned int key_bitlen)
++{
++    return mbedtls_aes_set192key_dec_keyid((mbedtls_aes_context *) ctx, key, key_bitlen);
++}
++
++static int aes_set256key_dec_keyid_wrap(void *ctx, const unsigned char *key,
++                                        unsigned int key_bitlen)
++{
++    return mbedtls_aes_set256key_dec_keyid((mbedtls_aes_context *) ctx, key, key_bitlen);
++}
++
++static int aes_set128key_enc_keyid_wrap(void *ctx, const unsigned char *key,
++                                        unsigned int key_bitlen)
++{
++    return mbedtls_aes_set128key_enc_keyid((mbedtls_aes_context *) ctx, key, key_bitlen);
++}
++
++static int aes_set192key_enc_keyid_wrap(void *ctx, const unsigned char *key,
++                                        unsigned int key_bitlen)
++{
++    return mbedtls_aes_set256key_enc_keyid((mbedtls_aes_context *) ctx, key, key_bitlen);
++}
++
++static int aes_set256key_enc_keyid_wrap(void *ctx, const unsigned char *key,
++                                        unsigned int key_bitlen)
++{
++    return mbedtls_aes_set256key_enc_keyid((mbedtls_aes_context *) ctx, key, key_bitlen);
++}
++#endif
++
+ static void *aes_ctx_alloc(void)
+ {
+     mbedtls_aes_context *aes = mbedtls_calloc(1, sizeof(mbedtls_aes_context));
+@@ -248,6 +286,89 @@ static const mbedtls_cipher_base_t aes_info = {
+     aes_ctx_free
+ };
+ 
++#if defined(MBEDTLS_AES_ALT)
++static const mbedtls_cipher_base_t aes_128keyid_info = {
++    MBEDTLS_CIPHER_ID_AES,
++    aes_crypt_ecb_wrap,
++#if defined(MBEDTLS_CIPHER_MODE_CBC)
++    aes_crypt_cbc_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_CFB)
++    aes_crypt_cfb128_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_OFB)
++    aes_crypt_ofb_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_CTR)
++    aes_crypt_ctr_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_XTS)
++    NULL,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_STREAM)
++    NULL,
++#endif
++    aes_set128key_enc_keyid_wrap,
++    aes_set128key_dec_keyid_wrap,
++    aes_ctx_alloc,
++    aes_ctx_free
++};
++
++static const mbedtls_cipher_base_t aes_192keyid_info = {
++    MBEDTLS_CIPHER_ID_AES,
++    aes_crypt_ecb_wrap,
++#if defined(MBEDTLS_CIPHER_MODE_CBC)
++    aes_crypt_cbc_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_CFB)
++    aes_crypt_cfb128_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_OFB)
++    aes_crypt_ofb_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_CTR)
++    aes_crypt_ctr_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_XTS)
++    NULL,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_STREAM)
++    NULL,
++#endif
++    aes_set192key_enc_keyid_wrap,
++    aes_set192key_dec_keyid_wrap,
++    aes_ctx_alloc,
++    aes_ctx_free
++};
++
++static const mbedtls_cipher_base_t aes_256keyid_info = {
++    MBEDTLS_CIPHER_ID_AES,
++    aes_crypt_ecb_wrap,
++#if defined(MBEDTLS_CIPHER_MODE_CBC)
++    aes_crypt_cbc_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_CFB)
++    aes_crypt_cfb128_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_OFB)
++    aes_crypt_ofb_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_CTR)
++    aes_crypt_ctr_wrap,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_XTS)
++    NULL,
++#endif
++#if defined(MBEDTLS_CIPHER_MODE_STREAM)
++    NULL,
++#endif
++    aes_set256key_enc_keyid_wrap,
++    aes_set256key_dec_keyid_wrap,
++    aes_ctx_alloc,
++    aes_ctx_free
++};
++#endif
++
+ static const mbedtls_cipher_info_t aes_128_ecb_info = {
+     MBEDTLS_CIPHER_AES_128_ECB,
+     MBEDTLS_MODE_ECB,
+@@ -281,6 +402,41 @@ static const mbedtls_cipher_info_t aes_256_ecb_info = {
+     &aes_info
+ };
+ 
++#if defined(MBEDTLS_AES_ALT)
++static const mbedtls_cipher_info_t aes_128_ecb_keyid_info = {
++    MBEDTLS_CIPHER_AES_128_ECB,
++    MBEDTLS_MODE_ECB,
++    32,
++    "AES-128-ECB-KEYID",
++    0,
++    0,
++    16,
++    &aes_128keyid_info
++};
++
++static const mbedtls_cipher_info_t aes_192_ecb_keyid_info = {
++    MBEDTLS_CIPHER_AES_192_ECB,
++    MBEDTLS_MODE_ECB,
++    32,
++    "AES-192-ECB-KEYID",
++    0,
++    0,
++    16,
++    &aes_192keyid_info
++};
++
++static const mbedtls_cipher_info_t aes_256_ecb_keyid_info = {
++    MBEDTLS_CIPHER_AES_256_ECB,
++    MBEDTLS_MODE_ECB,
++    32,
++    "AES-256-ECB-KEYID",
++    0,
++    0,
++    16,
++    &aes_256keyid_info
++};
++#endif
++
+ #if defined(MBEDTLS_CIPHER_MODE_CBC)
+ static const mbedtls_cipher_info_t aes_128_cbc_info = {
+     MBEDTLS_CIPHER_AES_128_CBC,
+@@ -314,6 +470,41 @@ static const mbedtls_cipher_info_t aes_256_cbc_info = {
+     16,
+     &aes_info
+ };
++
++#if defined(MBEDTLS_AES_ALT)
++static const mbedtls_cipher_info_t aes_128_cbc_keyid_info = {
++    MBEDTLS_CIPHER_AES_128_CBC_KEYID,
++    MBEDTLS_MODE_CBC,
++    32,
++    "AES-128-CBC-KEYID",
++    16,
++    0,
++    16,
++    &aes_128keyid_info
++};
++
++static const mbedtls_cipher_info_t aes_192_cbc_keyid_info = {
++    MBEDTLS_CIPHER_AES_192_CBC_KEYID,
++    MBEDTLS_MODE_CBC,
++    32,
++    "AES-192-CBC-KEYID",
++    16,
++    0,
++    16,
++    &aes_192keyid_info
++};
++
++static const mbedtls_cipher_info_t aes_256_cbc_keyid_info = {
++    MBEDTLS_CIPHER_AES_256_CBC_KEYID,
++    MBEDTLS_MODE_CBC,
++    32,
++    "AES-256-CBC-KEYID",
++    16,
++    0,
++    16,
++    &aes_256keyid_info
++};
++#endif
+ #endif /* MBEDTLS_CIPHER_MODE_CBC */
+ 
+ #if defined(MBEDTLS_CIPHER_MODE_CFB)
+@@ -2358,10 +2549,20 @@ const mbedtls_cipher_definition_t mbedtls_cipher_definitions[] =
+     { MBEDTLS_CIPHER_AES_128_ECB,          &aes_128_ecb_info },
+     { MBEDTLS_CIPHER_AES_192_ECB,          &aes_192_ecb_info },
+     { MBEDTLS_CIPHER_AES_256_ECB,          &aes_256_ecb_info },
++#if defined(MBEDTLS_AES_ALT)
++    { MBEDTLS_CIPHER_AES_128_ECB_KEYID,    &aes_128_ecb_keyid_info },
++    { MBEDTLS_CIPHER_AES_192_ECB_KEYID,    &aes_192_ecb_keyid_info },
++    { MBEDTLS_CIPHER_AES_256_ECB_KEYID,    &aes_256_ecb_keyid_info },
++#endif
+ #if defined(MBEDTLS_CIPHER_MODE_CBC)
+     { MBEDTLS_CIPHER_AES_128_CBC,          &aes_128_cbc_info },
+     { MBEDTLS_CIPHER_AES_192_CBC,          &aes_192_cbc_info },
+     { MBEDTLS_CIPHER_AES_256_CBC,          &aes_256_cbc_info },
++#if defined(MBEDTLS_AES_ALT)
++    { MBEDTLS_CIPHER_AES_128_CBC_KEYID,    &aes_128_cbc_keyid_info },
++    { MBEDTLS_CIPHER_AES_192_CBC_KEYID,    &aes_192_cbc_keyid_info },
++    { MBEDTLS_CIPHER_AES_256_CBC_KEYID,    &aes_256_cbc_keyid_info },
++#endif
+ #endif
+ #if defined(MBEDTLS_CIPHER_MODE_CFB)
+     { MBEDTLS_CIPHER_AES_128_CFB128,       &aes_128_cfb128_info },

@@ -82,6 +82,7 @@ $(MBEDTLS_UNPACKNAME): $(MBEDTLS_ZIP)
 	$(Q) patch -p1 -d $(MBEDTLS_UNPACKNAME) < 0001-mbedtls-entropy_poll-use-getrandom-to-get-the-system.patch
 	$(Q) patch -p1 -d $(MBEDTLS_UNPACKNAME) < 0002-mbedtls-add-mbedtls-x509-crt-pool.patch
 	$(Q) patch -p1 -d $(MBEDTLS_UNPACKNAME) < 0003-Fix-MBEDTLS_SSL_DTLS_CONNECTION_ID_COMPAT-warning.patch
+	$(Q) patch -p1 -d $(MBEDTLS_UNPACKNAME) < 0004-mbedtls-cipher-wrap-support-aes-with-keyid.patch
 	$(Q) touch $(MBEDTLS_UNPACKNAME)
 
 $(MBEDTLS_FRAMEWORK_UNPACKNAME): $(MBEDTLS_FRAMEWORK_ZIP)

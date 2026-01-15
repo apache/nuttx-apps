@@ -42,6 +42,8 @@ if(CONFIG_CRYPTO_MBEDTLS)
         ${CMAKE_CURRENT_LIST_DIR}/0002-mbedtls-add-mbedtls-x509-crt-pool.patch
         && patch -p1 -d ${MBEDTLS_DIR} <
         ${CMAKE_CURRENT_LIST_DIR}/0003-Fix-MBEDTLS_SSL_DTLS_CONNECTION_ID_COMPAT-warning.patch
+        && patch -p1 -d ${MBEDTLS_DIR} <
+        ${CMAKE_CURRENT_LIST_DIR}/0004-mbedtls-cipher-wrap-support-aes-with-keyid.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
