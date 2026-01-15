@@ -532,7 +532,7 @@ errout_with_waiter:
   total_handled = g_odd_handled + g_even_handled;
   total_nested  = g_odd_nested + g_even_nested;
 
-  printf("signest_test: With intefering thread\n");
+  printf("signest_test: With interfering thread\n");
   printf("  Total signalled %-3d  Odd=%-3d Even=%-3d\n",
          total_signals, odd_signals, even_signals);
   printf("  Total handled   %-3d  Odd=%-3d Even=%-3d\n",

@@ -352,7 +352,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
       while (g_middlestate == NOTSTARTED &&
              nhighpri_waiting() < NHIGHPRI_THREADS)
         {
-          printf("lowpri_thread-%d: Waiting for the midle pri task to run\n",
+          printf("lowpri_thread-%d: Waiting for the mid pri task to run\n",
                  threadno);
           printf("    g_middlestate:  %d\n", (int)g_middlestate);
           for (i = 0; i < NHIGHPRI_THREADS; i++)
@@ -403,7 +403,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
            */
 
           printf("lowpri_thread-%d: %s the middle priority task has already"
-                 " exitted!\n",
+                 " exited!\n",
                  threadno, count >= 0 ? "SUCCESS" : "ERROR");
           ASSERT(count >= 0);
           printf("               g_middlestate:  %d sem count=%d\n",
@@ -657,7 +657,7 @@ void priority_inheritance(void)
       if (status != 0)
         {
           printf("priority_inheritance: "
-                 "ERRROR pthread_create failed, status=%d\n", status);
+                 "ERROR pthread_create failed, status=%d\n", status);
           ASSERT(false);
         }
     }

@@ -59,7 +59,7 @@ static int waitpid_main(int argc, char *argv[])
 
   printf("waitpid_main: PID %d Started\n", me);
   sleep(3);
-  printf("waitpid_main: PID %d exitting with result=%d\n",
+  printf("waitpid_main: PID %d exiting with result=%d\n",
           me, RETURN_STATUS);
   return RETURN_STATUS;
 }
