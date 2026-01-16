@@ -131,8 +131,9 @@ typedef unsigned int (*SSL_psk_client_cb_func)(SSL *ssl,
                                                unsigned char *psk,
                                                unsigned int max_psk_len);
 
-typedef void (*ossl_msg_cb)(int write_p, int version, int content_type,
-                            const void *buf, size_t len, SSL *ssl, void *arg);
+typedef void (*ossl_msg_cb)(
+              int write_p, int version, int content_type,
+              const void *buf, size_t len, SSL *ssl, void *arg);
 
 typedef enum
 {
@@ -426,12 +427,13 @@ void SSL_CTX_set_default_passwd_cb_userdata(SSL_CTX *ctx, void *u);
 
 int SSL_CTX_set_default_verify_paths(SSL_CTX *ctx);
 
-void SSL_CTX_set_psk_client_callback(SSL_CTX *ctx, SSL_psk_client_cb_func cb);
+void SSL_CTX_set_psk_client_callback(SSL_CTX *ctx,
+                                     SSL_psk_client_cb_func cb);
 
 long SSL_CTX_set_mode(SSL_CTX *ctx, long larg);
 
 void SSL_CTX_set_info_callback(SSL_CTX *ctx,
-                               void (*cb)(const SSL *ssl, int type, int val));
+                    void (*cb)(const SSL *ssl, int type, int val));
 
 void SSL_CTX_set_msg_callback(SSL_CTX *ctx,
                               void (*cb)(int write_p, int version,

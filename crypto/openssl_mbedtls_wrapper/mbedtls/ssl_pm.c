@@ -634,7 +634,7 @@ OSSL_HANDSHAKE_STATE ssl_pm_get_state(const SSL *ssl)
       case MBEDTLS_SSL_HANDSHAKE_OVER:
         state = TLS_ST_OK;
         break;
-      default :
+      default:
         state = TLS_ST_BEFORE;
         break;
     }
