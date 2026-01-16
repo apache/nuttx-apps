@@ -48,7 +48,7 @@
 
 struct x509_st
 {
-/* X509 certification platform private point */
+  /* X509 certification platform private point */
 
   void *x509_pm;
   const X509_METHOD *method;

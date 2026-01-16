@@ -120,12 +120,12 @@ struct ssl_session_st
 
 struct ssl_st
 {
-/* protocol version(one of SSL3.0, TLS1.0, etc.) */
+  /* protocol version(one of SSL3.0, TLS1.0, etc.) */
 
   int version;
   unsigned long options;
 
-/* shut things down(0x01 : sent, 0x02 : received) */
+  /* shut things down(0x01 : sent, 0x02 : received) */
 
   int shutdown;
   CERT *cert;
@@ -135,7 +135,7 @@ struct ssl_st
   const char **alpn_protos;
   RECORD_LAYER rlayer;
 
-/* where we are */
+  /* where we are */
 
   OSSL_STATEM statem;
   SSL_SESSION *session;
@@ -148,7 +148,7 @@ struct ssl_st
   int err;
   void (*info_callback) (const SSL *ssl, int type, int val);
 
-/* SSL low-level system arch point */
+  /* SSL low-level system arch point */
 
   void *ssl_pm;
   SSL_CIPHER *cipher_list;
