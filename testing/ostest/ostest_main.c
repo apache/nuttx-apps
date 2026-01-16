@@ -499,14 +499,6 @@ static int user_main(int argc, char *argv[])
 #if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_PTHREAD)
       /* Verify pthreads and message queues */
 
-      printf("\nuser_main: message queue test\n");
-      mqueue_test();
-      check_test_memory_usage();
-#endif
-
-#if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_PTHREAD)
-      /* Verify pthreads and message queues */
-
       printf("\nuser_main: timed message queue test\n");
       timedmqueue_test();
       check_test_memory_usage();
@@ -518,6 +510,14 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: sigprocmask test\n");
       sigprocmask_test();
       check_test_memory_usage();
+
+#if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_PTHREAD)
+      /* Verify pthreads and message queues */
+
+      printf("\nuser_main: message queue test\n");
+      mqueue_test();
+      check_test_memory_usage();
+#endif
 
 #if defined(CONFIG_SIG_SIGSTOP_ACTION) && defined(CONFIG_SIG_SIGKILL_ACTION) && \
     !defined(CONFIG_BUILD_KERNEL)

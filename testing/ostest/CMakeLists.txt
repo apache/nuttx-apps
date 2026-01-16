@@ -22,14 +22,15 @@
 
 if(CONFIG_TESTING_OSTEST)
 
-  set(SRCS
-      getopt.c
-      libc_memmem.c
-      restart.c
-      sigprocmask.c
-      sighand.c
-      signest.c
-      sighelper.c)
+  set(SRCS getopt.c libc_memmem.c restart.c sighelper.c)
+
+  if(CONFIG_ENABLE_ALL_SIGNALS)
+    list(APPEND SRCS sighand.c signest.c)
+  endif()
+
+  if(NOT CONFIG_DISABLE_ALL_SIGNALS)
+    list(APPEND SRCS sigprocmask.c)
+  endif()
 
   if(CONFIG_DEV_NULL)
     list(APPEND SRCS dev_null.c)
@@ -124,7 +125,10 @@ if(CONFIG_TESTING_OSTEST)
 
   if(NOT CONFIG_DISABLE_MQUEUE)
     if(NOT CONFIG_DISABLE_PTHREAD)
-      list(APPEND SRCS mqueue.c timedmqueue.c)
+      list(APPEND SRCS timedmqueue.c)
+      if(NOT CONFIG_DISABLE_ALL_SIGNALS)
+        list(APPEND SRCS mqueue.c)
+      endif()
     endif() # CONFIG_DISABLE_PTHREAD
   endif() # CONFIG_DISABLE_MQUEUE
 

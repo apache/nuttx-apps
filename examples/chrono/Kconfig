@@ -6,7 +6,7 @@
 config EXAMPLES_CHRONO
 	tristate "Chronometer example to use with STM32LDiscover"
 	default n
-	depends on SLCD
+	depends on SLCD && ENABLE_ALL_SIGNALS
 	---help---
 		Enable the Chronometer example
 

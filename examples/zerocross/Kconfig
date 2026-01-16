@@ -6,7 +6,7 @@
 config EXAMPLES_ZEROCROSS
 	tristate "Zero Cross Detection example"
 	default n
-	depends on SENSORS_ZEROCROSS
+	depends on SENSORS_ZEROCROSS && ENABLE_ALL_SIGNALS
 	---help---
 		Enable the zero cross detection example
 

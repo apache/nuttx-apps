@@ -31,8 +31,16 @@ MODULE = $(CONFIG_TESTING_OSTEST)
 
 # NuttX OS Test
 
-CSRCS   = getopt.c libc_memmem.c restart.c sigprocmask.c sighand.c \
+CSRCS   = getopt.c libc_memmem.c restart.c \
           signest.c sighelper.c
+
+ifeq ($(CONFIG_ENABLE_ALL_SIGNALS),y)
+CSRCS += sighand.c signest.c
+endif
+
+ifneq ($(CONFIG_DISABLE_ALL_SIGNALS),y)
+CSRCS += sigprocmask.c
+endif
 
 MAINSRC = ostest_main.c
 
@@ -119,7 +127,10 @@ endif # CONFIG_DISABLE_PTHREAD
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS += mqueue.c timedmqueue.c
+CSRCS += timedmqueue.c
+ifneq ($(CONFIG_DISABLE_ALL_SIGNALS),y)
+CSRCS += mqueue.c
+endif
 endif # CONFIG_DISABLE_PTHREAD
 endif # CONFIG_DISABLE_MQUEUE
 
