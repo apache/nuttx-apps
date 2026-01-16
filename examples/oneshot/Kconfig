@@ -6,7 +6,7 @@
 config EXAMPLES_ONESHOT
 	tristate "Oneshot timer example"
 	default n
-	depends on ONESHOT
+	depends on ONESHOT && ENABLE_ALL_SIGNALS
 	---help---
 		Enable the oneshot timer driver example
 

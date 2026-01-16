@@ -6,6 +6,6 @@
 config EXAMPLES_I2SLOOP
 	tristate "I2S loopback test"
 	default n
-	depends on I2S && AUDIO && DRIVERS_AUDIO && AUDIO_I2SCHAR
+	depends on I2S && AUDIO && DRIVERS_AUDIO && AUDIO_I2SCHAR && ENABLE_ALL_SIGNALS
 	---help---
 		Enable the I2S loopback test

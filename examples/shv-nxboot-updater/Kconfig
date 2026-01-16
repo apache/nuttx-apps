@@ -5,7 +5,7 @@
 
 menuconfig EXAMPLES_SHV_NXBOOT_UPDATER
 	bool "Silicon Heaven Firmware updates for NXBoot"
-	depends on NETUTILS_LIBSHVC
+	depends on NETUTILS_LIBSHVC && ENABLE_ALL_SIGNALS
 	default n
 	---help---
 		Enable the shv-nxboot-updater application.

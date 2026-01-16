@@ -68,6 +68,11 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
   FAR struct ieee802154_primitive_s *primitive = NULL;
   int ret = OK;
 
+#ifdef CONFIG_DISABLE_ALL_SIGNALS
+  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+#endif
+
   if (i8sak->mode == I8SAK_MODE_CHAR)
     {
       macarg.enable = true;
@@ -86,6 +91,9 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 
   while (i8sak->eventlistener_run)
     {
+#ifdef CONFIG_DISABLE_ALL_SIGNALS
+      pthread_testcancel();
+#endif
       if (i8sak->mode == I8SAK_MODE_CHAR)
         {
           ret = ioctl(i8sak->fd, MAC802154IOC_GET_EVENT,
@@ -256,7 +264,13 @@ int i8sak_eventlistener_stop(FAR struct i8sak_s *i8sak)
   FAR void *value;
 
   i8sak->eventlistener_run = false;
+
+#ifdef CONFIG_DISABLE_ALL_SIGNALS
+  pthread_cancel(i8sak->eventlistener_threadid);
+#else
   pthread_kill(i8sak->eventlistener_threadid, 2);
+#endif
+
   ret = pthread_join(i8sak->eventlistener_threadid, &value);
   if (ret != OK)
     {
