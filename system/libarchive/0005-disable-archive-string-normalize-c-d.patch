@@ -1,0 +1,141 @@
+diff --git a/libarchive/archive_string.c b/libarchive/archive_string.c
+index ddbd1e38..b481d153 100644
+--- a/libarchive/archive_string.c
++++ b/libarchive/archive_string.c
+@@ -192,10 +192,12 @@ static int strncat_from_utf8_libarchive2(struct archive_string *,
+     const void *, size_t, struct archive_string_conv *);
+ static int strncat_from_utf8_to_utf8(struct archive_string *, const void *,
+     size_t, struct archive_string_conv *);
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ static int archive_string_normalize_C(struct archive_string *, const void *,
+     size_t, struct archive_string_conv *);
+ static int archive_string_normalize_D(struct archive_string *, const void *,
+     size_t, struct archive_string_conv *);
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ static int archive_string_append_unicode(struct archive_string *,
+     const void *, size_t, struct archive_string_conv *);
+ 
+@@ -506,10 +508,14 @@ archive_wstring_append_from_mbs_in_codepage(struct archive_wstring *dest,
+ 		u16.s = (char *)dest->s;
+ 		u16.length = dest->length << 1;;
+ 		u16.buffer_length = dest->buffer_length;
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 		if (sc->flag & SCONV_NORMALIZATION_C)
+ 			ret = archive_string_normalize_C(&u16, s, count, sc);
+ 		else
+ 			ret = archive_string_normalize_D(&u16, s, count, sc);
++#else
++		ret = 0; /* Skip normalization when disabled */
++#endif
+ 		dest->s = (wchar_t *)u16.s;
+ 		dest->length = u16.length >> 1;
+ 		dest->buffer_length = u16.buffer_length;
+@@ -971,10 +977,12 @@ setup_converter(struct archive_string_conv *sc)
+ 		/*
+ 		 * At least we should normalize a UTF-16BE string.
+ 		 */
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 		if (sc->flag & SCONV_NORMALIZATION_D)
+ 			add_converter(sc,archive_string_normalize_D);
+ 		else if (sc->flag & SCONV_NORMALIZATION_C)
+ 			add_converter(sc, archive_string_normalize_C);
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ 		if (sc->flag & SCONV_TO_UTF8) {
+ 			/*
+@@ -1021,10 +1029,12 @@ setup_converter(struct archive_string_conv *sc)
+ 		/*
+ 		 * At least we should normalize a UTF-8 string.
+ 		 */
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 		if (sc->flag & SCONV_NORMALIZATION_D)
+ 			add_converter(sc,archive_string_normalize_D);
+ 		else if (sc->flag & SCONV_NORMALIZATION_C)
+ 			add_converter(sc, archive_string_normalize_C);
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ 		/*
+ 		 * Copy UTF-8 string with a check of CESU-8.
+@@ -1064,8 +1074,10 @@ setup_converter(struct archive_string_conv *sc)
+ 		 */
+ 		if ((sc->flag & SCONV_FROM_CHARSET) &&
+ 		    (sc->flag & SCONV_TO_UTF8)) {
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 			if (sc->flag & SCONV_NORMALIZATION_D)
+ 				add_converter(sc, archive_string_normalize_D);
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 		}
+ 		return;
+ 	}
+@@ -2268,6 +2280,7 @@ best_effort_strncat_in_locale(struct archive_string *as, const void *_p,
+ 			archive_strappend_char(as, *itp);
+ 		}
+ 		++itp;
++		--remaining;  /* Decrement remaining to prevent buffer overflow */
+ 	}
+ 	return (return_value);
+ }
+@@ -2916,6 +2929,7 @@ get_nfc(uint32_t uc, uint32_t uc2)
+ 		ucx_size = _i;			\
+ } while (0)
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ /*
+  * Normalize UTF-8/UTF-16BE characters to Form C and copy the result.
+  *
+@@ -2926,7 +2940,6 @@ static int
+ archive_string_normalize_C(struct archive_string *as, const void *_p,
+     size_t len, struct archive_string_conv *sc)
+ {
+-#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 	const char *s = (const char *)_p;
+ 	char *p, *endp;
+ 	uint32_t uc, uc2;
+@@ -3180,14 +3193,8 @@ archive_string_normalize_C(struct archive_string *as, const void *_p,
+ 	if (ts == 2)
+ 		as->s[as->length+1] = '\0';
+ 	return (ret);
+-#else
+-	(void)as; /* UNUSED */
+-	(void)_p; /* UNUSED */
+-	(void)len; /* UNUSED */
+-	(void)sc; /* UNUSED */
+-	return (0); /* Normalization disabled */
+-#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ #ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ static int
+@@ -3236,6 +3243,7 @@ get_nfd(uint32_t *cp1, uint32_t *cp2, uint32_t uc)
+ 	ucptr = NULL;				\
+ } while (0)
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ /*
+  * Normalize UTF-8 characters to Form D and copy the result.
+  */
+@@ -3243,7 +3251,6 @@ static int
+ archive_string_normalize_D(struct archive_string *as, const void *_p,
+     size_t len, struct archive_string_conv *sc)
+ {
+-#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 	const char *s = (const char *)_p;
+ 	char *p, *endp;
+ 	uint32_t uc, uc2;
+@@ -3405,14 +3412,8 @@ check_first_code:
+ 	if (ts == 2)
+ 		as->s[as->length+1] = '\0';
+ 	return (ret);
+-#else
+-	(void)as; /* UNUSED */
+-	(void)_p; /* UNUSED */
+-	(void)len; /* UNUSED */
+-	(void)sc; /* UNUSED */
+-	return (0); /* Normalization disabled */
+-#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ /*
+  * libarchive 2.x made incorrect UTF-8 strings in the wrong assumption
