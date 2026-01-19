@@ -1035,7 +1035,7 @@ static FAR void *pub_test_queue_entry(FAR void *arg)
         }
 
       message_counter += burst_counter;
-      usleep(20 * 1000); /* give subscriber a chance to catch up */
+      usleep(50 * 1000); /* give subscriber a chance to catch up */
     }
 
   g_num_messages_sent  = t.val;
