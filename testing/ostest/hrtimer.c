@@ -211,11 +211,12 @@ void hrtimer_test(void)
 
   /* Initialize the high-resolution timer */
 
-  hrtimer_init(&hrtimer_test.timer, test_hrtimer_callback);
+  hrtimer_init(&hrtimer_test.timer);
 
   /* Start the timer with 500ms relative timeout */
 
   ret = hrtimer_start(&hrtimer_test.timer,
+                      test_hrtimer_callback,
                       hrtimer_test.period,
                       HRTIMER_MODE_REL);
 
