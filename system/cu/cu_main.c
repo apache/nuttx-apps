@@ -53,6 +53,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <debug.h>
+#include <nuttx/sched.h>
 
 #include "system/readline.h"
 
@@ -125,6 +126,7 @@ static FAR void *cu_listener(FAR void *parameter)
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
 static void sigint(int sig)
 {
+  FAR siginfo_t *siginfo = nxsched_self()->sigunbinfo;
   FAR struct cu_globals_s *cu = siginfo->si_user;
   cu->force_exit = true;
 }
