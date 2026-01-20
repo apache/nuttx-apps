@@ -128,7 +128,7 @@ static void hrtimer_test_init(FAR struct hrtimer_test_s *hrtimer_test,
  ****************************************************************************/
 
 static uint64_t
-test_hrtimer_callback(FAR hrtimer_t *hrtimer, uint64_t expired)
+test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 {
   struct timespec ts;
   uint32_t diff;
@@ -167,15 +167,15 @@ test_hrtimer_callback(FAR hrtimer_t *hrtimer, uint64_t expired)
 
   /* Stop the test after 15 expirations */
 
-  if (test->count >= 15)
+  if (test->count < 15)
     {
-      ret = hrtimer_cancel(hrtimer);
-      HRTIMER_TEST(ret, 0);
-
-      test->active = false;
+      return test->period;
     }
-
-  return test->period;
+  else
+    {
+      test->active = false;
+      return 0;
+    }
 }
 
 /****************************************************************************
