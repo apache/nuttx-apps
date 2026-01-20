@@ -1,0 +1,36 @@
+diff --git a/libarchive/archive_string.c b/libarchive/archive_string.c
+index b481d153..04aa04b0 100644
+--- a/libarchive/archive_string.c
++++ b/libarchive/archive_string.c
+@@ -1233,6 +1233,7 @@ create_sconv_object(const char *fc, const char *tc,
+ 	 * comparing to find out the same filenames that we normalize
+ 	 * that to be NFD ourselves.
+ 	 */
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 	if ((flag & SCONV_FROM_CHARSET) &&
+ 	    (flag & (SCONV_FROM_UTF16 | SCONV_FROM_UTF8))) {
+ #if defined(__APPLE__)
+@@ -1265,6 +1266,7 @@ create_sconv_object(const char *fc, const char *tc,
+ 	    (flag & SCONV_TO_UTF8))
+ 		flag |= SCONV_NORMALIZATION_D;
+ #endif
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 
+ #if defined(HAVE_ICONV)
+ 	sc->cd_w = (iconv_t)-1;
+@@ -1883,6 +1885,7 @@ archive_string_conversion_set_opt(struct archive_string_conv *sc, int opt)
+ 		}
+ #endif
+ 		break;
++#ifdef CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION
+ 	case SCONV_SET_OPT_NORMALIZATION_C:
+ 		if ((sc->flag & SCONV_NORMALIZATION_C) == 0) {
+ 			sc->flag |= SCONV_NORMALIZATION_C;
+@@ -1909,6 +1912,7 @@ archive_string_conversion_set_opt(struct archive_string_conv *sc, int opt)
+ 			setup_converter(sc);
+ 		}
+ 		break;
++#endif /* CONFIG_UTILS_LIBARCHIVE_UNICODE_NORMALIZATION */
+ 	default:
+ 		break;
+ 	}
