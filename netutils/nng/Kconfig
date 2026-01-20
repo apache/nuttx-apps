@@ -11,6 +11,12 @@ config NETUTILS_NNG
 		offering a simple API to solve common recurring messaging problems,
 		such as publish/subscribe, RPC-style request/reply, or service discovery.
 
+		Consider the following configuration when enabling NNG:
+		- CONFIG_LIBC_NETDB=y
+		- CONFIG_DEV_URANDOM=y
+		- CONFIG_NET_LOCAL=y
+		- CONFIG_NET_LOCAL_STREAM=y
+
 if NETUTILS_NNG
 
 config NETUTILS_NNG_VERSION
