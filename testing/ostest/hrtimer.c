@@ -29,6 +29,8 @@
 
 #include <stdio.h>
 #include <sched.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include "ostest.h"
 
@@ -36,7 +38,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define NSEC_PER_50MS (50 * NSEC_PER_MSEC)
+/* Timer constants */
+
+#define NSEC_PER_50MS            (50 * NSEC_PER_MSEC)
+#define PERIOD_TEST_COUNT        15
+#define THREAD_LOOP_COUNT        50
+#define HRTIMER_TEST_THREAD_NR   (CONFIG_SMP_NCPUS * 5)
 
 /* Set a 1ms margin to allow hrtimertest to pass in QEMU.
  *
@@ -165,9 +172,9 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 
   test->previous = now;
 
-  /* Stop the test after 15 expirations */
+  /* Stop the test after PERIOD_TEST_COUNT expirations */
 
-  if (test->count < 15)
+  if (test->count < PERIOD_TEST_COUNT)
     {
       return test->period;
     }
@@ -176,6 +183,67 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
       test->active = false;
       return 0;
     }
+}
+
+/****************************************************************************
+ * Name: hrtimer_test_callback
+ *
+ * Description:
+ *   Simple HRTimer callback for threaded tests.
+ *
+ ****************************************************************************/
+
+static uint64_t
+hrtimer_test_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
+{
+  return 0;
+}
+
+/****************************************************************************
+ * Name: hrtimer_test_thread
+ *
+ * Description:
+ *   Thread function to repeatedly test HRTimer start/cancel behavior.
+ *
+ ****************************************************************************/
+
+static void * hrtimer_test_thread(void *arg)
+{
+  hrtimer_t timer;
+  int ret;
+  int i = 0;
+
+  hrtimer_init(&timer);
+
+  while (i < THREAD_LOOP_COUNT)
+    {
+      i++;
+      uint64_t delay = rand() % NSEC_PER_MSEC;
+
+      /* Cancel timer */
+
+      ret = hrtimer_cancel(&timer);
+      HRTIMER_TEST(ret, OK);
+
+      /* Start timer with fixed period */
+
+      ret = hrtimer_start(&timer, hrtimer_test_callback,
+                          10 * NSEC_PER_USEC, HRTIMER_MODE_REL);
+      HRTIMER_TEST(ret, OK);
+
+      /* Start timer with random delay */
+
+      ret = hrtimer_start(&timer, hrtimer_test_callback,
+                          delay, HRTIMER_MODE_REL);
+      HRTIMER_TEST(ret, OK);
+    }
+
+  /* Cancel the timer synchronously */
+
+  ret = hrtimer_cancel_sync(&timer);
+  HRTIMER_TEST(ret, OK);
+
+  return NULL;
 }
 
 /****************************************************************************
@@ -202,8 +270,12 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 
 void hrtimer_test(void)
 {
-  int ret;
+  struct sched_param sparam;
+  unsigned int thread_id;
+  pthread_attr_t attr;
+  pthread_t pthreads[HRTIMER_TEST_THREAD_NR];
   struct hrtimer_test_s hrtimer_test;
+  int ret;
 
   /* Initialize test structure */
 
@@ -228,4 +300,24 @@ void hrtimer_test(void)
     {
       usleep(USEC_PER_MSEC);
     }
+
+  pthread_attr_init(&attr);
+
+  sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
+  pthread_attr_setschedparam(&attr, &sparam);
+
+  for (thread_id = 0; thread_id < HRTIMER_TEST_THREAD_NR; thread_id++)
+    {
+      HRTIMER_TEST(pthread_create(&pthreads[thread_id], &attr,
+                                  hrtimer_test_thread, NULL), 0);
+    }
+
+  /* Wait for all threads to complete */
+
+  for (thread_id = 0; thread_id < HRTIMER_TEST_THREAD_NR; thread_id++)
+    {
+      pthread_join(pthreads[thread_id], NULL);
+    }
+
+  HRTIMER_TEST(pthread_attr_destroy(&attr), 0);
 }
