@@ -123,7 +123,7 @@ static FAR void *cu_listener(FAR void *parameter)
 }
 
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
-static void sigint(int sig)
+static void cu_exit(int signo, FAR siginfo_t *siginfo, FAR void *context)
 {
   FAR struct cu_globals_s *cu = siginfo->si_user;
   cu->force_exit = true;
@@ -302,8 +302,15 @@ int main(int argc, FAR char *argv[])
   /* Install signal handlers */
 
   memset(&sa, 0, sizeof(sa));
-  sa.sa_handler = sigint;
-  sigaction(SIGINT, &sa, NULL);
+  sa.sa_user = &cu;
+  sa.sa_sigaction = cu_exit;
+  sigemptyset(&sa.sa_mask);
+  if (sigaction(SIGINT, &sa, NULL) < 0)
+    {
+      cu_error("cu_main: ERROR during setup cu_exit sigaction(): %d\n",
+               errno);
+      return EXIT_FAILURE;
+    }
 #endif
   optind = 0;   /* Global that needs to be reset in FLAT mode */
   while ((option = getopt(argc, argv, "l:s:ceE:fho?")) != ERROR)
