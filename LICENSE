@@ -1282,7 +1282,7 @@ apps/system/telnet/telnet_client.c
    Copyright (C) 2017 Gregory Nutt. All rights reserved.
    Author: Gregory Nutt <gnutt@nuttx.org>
 
- The original authors of libtelnet are listed below.  Per their licesne,
+ The original authors of libtelnet are listed below.  Per their license,
  "The author or authors of this code dedicate any and all copyright
  interest in this code to the public domain. We make this dedication for
  the benefit of the public at large and to the detriment of our heirs and
