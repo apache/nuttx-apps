@@ -351,11 +351,11 @@ int main(int argc, FAR char *argv[])
 
       /* Get the frequency data using the ioctl */
 
-      ret = ioctl(fd, CAPIOC_FREQUENCE,
+      ret = ioctl(fd, CAPIOC_FREQUENCY,
                   (unsigned long)((uintptr_t)&frequency));
       if (ret < 0)
         {
-          printf("cap_main: ioctl(CAPIOC_FREQUENCE) failed: %d\n", errno);
+          printf("cap_main: ioctl(CAPIOC_FREQUENCY) failed: %d\n", errno);
           exitval = EXIT_FAILURE;
           goto errout_with_dev;
         }
