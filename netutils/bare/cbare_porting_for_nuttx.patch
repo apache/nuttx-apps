@@ -1,0 +1,28 @@
+diff --git i/src/cbare.c w/src/cbare.c
+index 208639f..a3081fb 100644
+--- i/src/cbare.c
++++ w/src/cbare.c
+@@ -4,7 +4,9 @@
+ #include "cbare.h"
+ #include "utf8.h"
+ 
++#ifndef UNUSED
+ #define UNUSED(x) (void)(x)
++#endif
+ 
+ enum {
+ 	U8SZ = 1,
+diff --git i/test/baretest.c w/test/baretest.c
+index 1561f4c..9df740f 100644
+--- i/test/baretest.c
++++ w/test/baretest.c
+@@ -10,7 +10,9 @@
+ #include "alloc.h"
+ #include "die.h"
+ 
++#ifndef UNUSED
+ #define UNUSED(x) (void)(x)
++#endif
+ 
+ #define ARRLEN(a) sizeof(a)/sizeof(a[0])
+ 

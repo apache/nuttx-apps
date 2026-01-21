@@ -1,0 +1,22 @@
+config NETUTILS_BARE
+	bool "Binary Application Record Encoding (BARE)"
+	default n
+	depends on ALLOW_MIT_COMPONENTS
+	---help---
+		BARE is a simple binary representation for structured
+		application data.
+
+		See https://baremessages.org/
+
+		cbare is an MIT-licensed I/O agnostic C implementation of the
+		BARE message encoding that is used when this option is enabled.
+
+if NETUTILS_BARE
+
+config NETUTILS_BARE_TEST
+	bool "Enable baretest"
+	default n
+	---help---
+		Enable baretest -- BARE test application.
+
+endif
