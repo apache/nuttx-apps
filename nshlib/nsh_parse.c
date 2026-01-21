@@ -726,6 +726,8 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
       if (vtbl->np.np_redir_out || vtbl->np.np_redir_in)
         {
           nsh_undirect(vtbl, save);
+          fd_out = -1;
+          fd_in = -1;
         }
     }
 
