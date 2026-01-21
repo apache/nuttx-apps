@@ -166,7 +166,7 @@ void timedwait_test(void)
   if (status != 0)
     {
       printf("timedwait_test: sched_getparam failed\n");
-      sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
+      sparam.sched_priority = PRIORITY;
     }
 
   sparam.sched_priority = (prio_max + sparam.sched_priority) / 2;

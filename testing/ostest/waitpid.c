@@ -44,14 +44,6 @@
 #if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define RETURN_STATUS 14
-#define NCHILDREN     3
-#define PRIORITY      100
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -67,7 +59,7 @@ static int waitpid_main(int argc, char *argv[])
 
   printf("waitpid_main: PID %d Started\n", me);
   sleep(3);
-  printf("waitpid_main: PID %d exitting with result=%d\n",
+  printf("waitpid_main: PID %d exiting with result=%d\n",
           me, RETURN_STATUS);
   return RETURN_STATUS;
 }

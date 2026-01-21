@@ -105,11 +105,10 @@ void semtimed_test(void)
   struct timespec abstime;
   struct timespec before;
   struct timespec after;
-  int prio_min;
-  int prio_max;
-  int prio_mid;
   int errcode;
   pthread_attr_t attr;
+  int prio_min;
+  int prio_max;
   int status;
 
   printf("semtimed_test: Initializing semaphore to 0\n");
@@ -174,11 +173,9 @@ void semtimed_test(void)
       ASSERT(false);
     }
 
-  prio_min = sched_get_priority_min(SCHED_FIFO);
   prio_max = sched_get_priority_max(SCHED_FIFO);
-  prio_mid = (prio_min + prio_max) / 2;
-
-  sparam.sched_priority = (prio_mid + prio_max) / 2;
+  sparam.sched_priority = PRIORITY + 10 <= prio_max ?
+                          PRIORITY + 10 : prio_max;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
@@ -201,7 +198,9 @@ void semtimed_test(void)
       ASSERT(false);
     }
 
-  sparam.sched_priority = (prio_min + prio_mid) / 2;
+  prio_min = sched_get_priority_min(SCHED_FIFO);
+  sparam.sched_priority = PRIORITY - 10 >= prio_min ?
+                          PRIORITY - 10 : prio_min;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {

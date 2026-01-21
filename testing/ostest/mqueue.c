@@ -273,7 +273,6 @@ void mqueue_test(void)
   FAR void *expected;
   int prio_min;
   int prio_max;
-  int prio_mid;
   int status;
 
   /* Reset globals for the beginning of the test */
@@ -301,11 +300,9 @@ void mqueue_test(void)
       ASSERT(false);
     }
 
-  prio_min = sched_get_priority_min(SCHED_FIFO);
   prio_max = sched_get_priority_max(SCHED_FIFO);
-  prio_mid = (prio_min + prio_max) / 2;
-
-  sparam.sched_priority = prio_mid;
+  sparam.sched_priority = PRIORITY + 10 <= prio_max ?
+                          PRIORITY + 10 : prio_max;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
@@ -348,7 +345,9 @@ void mqueue_test(void)
       ASSERT(false);
     }
 
-  sparam.sched_priority = (prio_min + prio_mid) / 2;
+  prio_min = sched_get_priority_min(SCHED_FIFO);
+  sparam.sched_priority = PRIORITY - 10 >= prio_min ?
+                          PRIORITY - 10 : prio_min;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {

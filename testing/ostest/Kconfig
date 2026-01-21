@@ -18,6 +18,10 @@ config TESTING_OSTEST_LOOPS
 		Used to control the number of executions of the test.  If undefined, the test
 		executes one time.  If defined to be zero, the test runs forever.
 
+config TESTING_OSTEST_PRIORITY
+	int "OS test task priority"
+	default 150
+
 config TESTING_OSTEST_STACKSIZE
 	int "OS test stack size"
 	default 8192
