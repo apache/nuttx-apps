@@ -35,6 +35,8 @@ VERSION=\"$(QUICKJS_VERSION)\"
 CFLAGS += -Dmp_add=qjs_mp_add -Dmp_sub=qjs_mp_sub -Dmp_mul=qjs_mp_mul
 CFLAGS += -DCONFIG_VERSION=$(VERSION) -Wno-shadow
 CFLAGS += -Wno-array-bounds -I$(QUICKJS_UNPACK)
+CFLAGS += -Wno-strict-prototypes -Wno-unused-variable
+CFLAGS += -Wno-unused-but-set-variable
 CFLAGS += -D__linux__ -include alloca.h
 CFLAGS += -Wno-incompatible-pointer-types
 CFLAGS += -Wno-implicit-function-declaration

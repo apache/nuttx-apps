@@ -31,6 +31,7 @@ CSRCS += zlib/contrib/minizip/zip.c
 
 CFLAGS += -Dunix -Wno-shadow -Wno-strict-prototypes -Wno-undef
 CFLAGS += ${INCDIR_PREFIX}zlib
+zlib/test/infcover.c_CFLAGS += -Wno-format
 
 ZLIB_ZIP = zlib13.zip
 ZLIB_SRC = zlib
