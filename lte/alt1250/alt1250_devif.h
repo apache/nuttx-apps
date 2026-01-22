@@ -20,7 +20,7 @@
  *
  ****************************************************************************/
 
-#ifndef __APSS_LTE_ALT1250_ALT1250_DEVIF_H
+#ifndef __APPS_LTE_ALT1250_ALT1250_DEVIF_H
 #define __APPS_LTE_ALT1250_ALT1250_DEVIF_H
 
 /****************************************************************************
@@ -48,7 +48,7 @@ int altdevice_send_command(FAR struct alt1250_s *dev, int fd,
 int altdevice_powercontrol(int fd, uint32_t cmd);
 int altdevice_seteventbuff(int fd, FAR struct alt_evtbuffer_s *buffers);
 int altdevice_getevent(int fd, FAR uint64_t *evtbitmap,
-                       FAR struct alt_container_s **replys);
+                       FAR struct alt_container_s **replies);
 void altdevice_reset(int fd);
 #ifdef CONFIG_LTE_ALT1250_ENABLE_HIBERNATION_MODE
 int altdevice_powerresponse(int fd, uint32_t cmd, int resp);

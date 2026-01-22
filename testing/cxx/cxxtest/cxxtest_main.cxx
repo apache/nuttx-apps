@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <cassert>
 #include <cstdio>

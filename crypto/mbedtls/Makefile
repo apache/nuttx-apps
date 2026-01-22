@@ -48,6 +48,7 @@ MBEDTLS_FRAMEWORK_UNPACKNAME = mbedtls-framework
 CFLAGS += ${DEFINE_PREFIX}unix
 
 mbedtls/library/bignum.c_CFLAGS += -fno-lto
+mbedtls/library/ctr_drbg.c_CFLAGS += -Wno-array-bounds
 
 # Build break on Assemble compiler if -fno-omit-frame-pointer and -O3 enabled at same time
 # {standard input}: Assembler messages:

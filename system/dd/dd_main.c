@@ -62,10 +62,18 @@
 #define CONFIG_SYSTEM_DD_PROGNAME "dd"
 #endif
 #if !defined(__NuttX__)
-#define FAR
-#define NSEC_PER_USEC 1000
-#define USEC_PER_SEC 1000000
-#define NSEC_PER_SEC 1000000000
+#  ifndef FAR
+#    define FAR
+#  endif
+#  ifndef NSEC_PER_USEC
+#    define NSEC_PER_USEC 1000
+#  endif
+#  ifndef USEC_PER_SEC
+#    define USEC_PER_SEC 1000000
+#  endif
+#  ifndef NSEC_PER_SEC
+#    define NSEC_PER_SEC 1000000000
+#  endif
 #endif
 
 #define g_dd CONFIG_SYSTEM_DD_PROGNAME
