@@ -102,7 +102,7 @@ void test_nuttx_fs_fsync02(FAR void **state)
   int ret;
   char *buf = NULL;
   int bufsize = 4096;
-  ssize_t writen = 0;
+  ssize_t written = 0;
   struct statfs statfsbuf;
   struct fs_testsuites_state_s *test_state;
   struct mallinfo mem_info;
@@ -154,8 +154,8 @@ void test_nuttx_fs_fsync02(FAR void **state)
 
   /* do write */
 
-  writen = write(fd, buf, bufsize);
-  assert_int_in_range(writen, 1, bufsize);
+  written = write(fd, buf, bufsize);
+  assert_int_in_range(written, 1, bufsize);
 
   /* refresh to storage */
 
