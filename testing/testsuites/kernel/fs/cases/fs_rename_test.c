@@ -67,7 +67,7 @@ void test_nuttx_fs_rename01(FAR void **state)
   ret = write(fd, buffer, 50);
   assert_int_in_range(ret, 1, 50);
 
-  /* close file befor rename */
+  /* close file before rename */
 
   close(fd);
 

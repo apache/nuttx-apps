@@ -130,7 +130,7 @@ void test_nuttx_fs_stream02(FAR void **state)
       pos = ftell(stream);
       if (pos != 0)
         {
-          syslog(LOG_ERR, "file pointer descrepancy 1, errno %d\n",
+          syslog(LOG_ERR, "file pointer discrepancy 1, errno %d\n",
                  errno);
           fclose(stream);
           assert_true(1 == 0);
@@ -148,7 +148,7 @@ void test_nuttx_fs_stream02(FAR void **state)
         {
           syslog(
               LOG_ERR,
-              "strlen(junk)=%zi: file pointer descrepancy 2 (pos=%li)",
+              "strlen(junk)=%zi: file pointer discrepancy 2 (pos=%li)",
               strlen(junk), pos);
           fclose(stream);
           assert_true(1 == 0);
@@ -161,7 +161,7 @@ void test_nuttx_fs_stream02(FAR void **state)
         {
           fclose(stream);
           syslog(LOG_ERR,
-                 "file pointer descrepancy 3 (pos=%li, wanted pos=0)",
+                 "file pointer discrepancy 3 (pos=%li, wanted pos=0)",
                  pos);
           assert_true(1 == 0);
         }
@@ -179,7 +179,7 @@ void test_nuttx_fs_stream02(FAR void **state)
           fclose(stream);
           syslog(
               LOG_ERR,
-              "strlen(junk)=%zi: file pointer descrepancy 4 (pos=%li)",
+              "strlen(junk)=%zi: file pointer discrepancy 4 (pos=%li)",
               strlen(junk), pos);
           assert_true(1 == 0);
         }
@@ -197,7 +197,7 @@ void test_nuttx_fs_stream02(FAR void **state)
           fclose(stream);
           syslog(
               LOG_ERR,
-              "strlen(junk)=%zi: file pointer descrepancy 5 (pos=%li)",
+              "strlen(junk)=%zi: file pointer discrepancy 5 (pos=%li)",
               strlen(junk), pos);
           assert_true(1 == 0);
         }
@@ -214,7 +214,7 @@ void test_nuttx_fs_stream02(FAR void **state)
         {
           fclose(stream);
           syslog(LOG_ERR,
-                 "file pointer descrepancy 6 (pos=%li, wanted pos=0)",
+                 "file pointer discrepancy 6 (pos=%li, wanted pos=0)",
                  pos);
           assert_true(1 == 0);
         }
@@ -226,7 +226,7 @@ void test_nuttx_fs_stream02(FAR void **state)
         {
           syslog(
               LOG_ERR,
-              "strlen(junk)=%zi: file pointer descrepancy 7 (pos=%li)",
+              "strlen(junk)=%zi: file pointer discrepancy 7 (pos=%li)",
               strlen(junk), pos);
           assert_true(1 == 0);
         }
