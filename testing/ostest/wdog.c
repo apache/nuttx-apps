@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <nuttx/arch.h>
 #include <nuttx/wdog.h>
+#include <nuttx/spinlock.h>
 
 #include <assert.h>
 #include <pthread.h>
