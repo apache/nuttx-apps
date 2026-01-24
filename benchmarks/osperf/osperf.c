@@ -39,6 +39,7 @@
 #include <sys/poll.h>
 
 #include <nuttx/sched.h>
+#include <nuttx/spinlock.h>
 
 /****************************************************************************
  * Private Types
@@ -129,7 +130,7 @@ static size_t performance_gettime(FAR struct performance_time_s *result)
 }
 
 /****************************************************************************
- * Pthread swtich performance
+ * Pthread switch performance
  ****************************************************************************/
 
 static FAR void *pthread_switch_task(FAR void *arg)
