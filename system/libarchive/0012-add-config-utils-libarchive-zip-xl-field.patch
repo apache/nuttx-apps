@@ -1,0 +1,20 @@
+diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c
+index f53223a9..57260084 100644
+--- a/libarchive/archive_read_support_format_zip.c
++++ b/libarchive/archive_read_support_format_zip.c
+@@ -695,6 +695,7 @@ process_extra(struct archive_read *a, struct archive_entry *entry,
+ 			}
+ 			break;
+ 		}
++#ifdef CONFIG_UTILS_LIBARCHIVE_ZIP_XL_FIELD
+ 		case 0x6c78:
+ 		{
+ 			/* Experimental 'xl' field */
+@@ -812,6 +813,7 @@ process_extra(struct archive_read *a, struct archive_entry *entry,
+ 			}
+ 			break;
+ 		}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ZIP_XL_FIELD */
+ 		case 0x7075:
+ 		{
+ 			/* Info-ZIP Unicode Path Extra Field. */
