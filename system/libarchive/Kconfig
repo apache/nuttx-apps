@@ -40,6 +40,15 @@ config UTILS_LIBARCHIVE_WINDOWS_PATH_SUPPORT
 		in ZIP archives. When disabled, only forward slash separators
 		are supported.
 
+config UTILS_LIBARCHIVE_MAC_EXTENSIONS
+	bool "Enable macOS ZIP extensions support"
+	default n
+	---help---
+		Enable support for macOS-specific ZIP features including:
+		- __MACOSX resource fork handling
+		- Apple metadata and extended attributes
+		- HFS+ filesystem compatibility
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
