@@ -49,6 +49,12 @@ config UTILS_LIBARCHIVE_MAC_EXTENSIONS
 		- Apple metadata and extended attributes
 		- HFS+ filesystem compatibility
 
+config UTILS_LIBARCHIVE_ENCRYPTION
+	bool "Enable encrypted zip support"
+	default n
+	---help---
+		Enable zip decryption support.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
