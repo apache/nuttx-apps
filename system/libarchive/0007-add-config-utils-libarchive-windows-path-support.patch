@@ -1,0 +1,20 @@
+diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c
+index 848bd6e0..9b49bf85 100644
+--- a/libarchive/archive_read_support_format_zip.c
++++ b/libarchive/archive_read_support_format_zip.c
+@@ -1059,6 +1059,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 		zip_entry->mode |= 0664;
+ 	}
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_WINDOWS_PATH_SUPPORT
+ 	/* Windows archivers sometimes use backslash as the directory
+ 	 * separator. Normalize to slash. */
+ 	if (zip_entry->system == 0 &&
+@@ -1076,6 +1077,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 			archive_wstring_free(&s);
+ 		}
+ 	}
++#endif
+ 
+ 	/* Make sure that entries with a trailing '/' are marked as directories
+ 	 * even if the External File Attributes contains bogus values.  If this
