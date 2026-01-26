@@ -1,0 +1,23 @@
+diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c
+index 8ec8e36f..280e1a0d 100644
+--- a/libarchive/archive_read_support_format_zip.c
++++ b/libarchive/archive_read_support_format_zip.c
+@@ -1201,6 +1201,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 	archive_entry_set_ctime(entry, zip_entry->ctime, 0);
+ 	archive_entry_set_atime(entry, zip_entry->atime, 0);
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_SYMLINK
+ 	if ((zip->entry->mode & AE_IFMT) == AE_IFLNK) {
+ 		size_t linkname_length;
+ 
+@@ -1307,7 +1308,9 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 			    "Read error skipping symlink target name");
+ 			return ARCHIVE_FATAL;
+ 		}
+-	} else if (0 == (zip_entry->zip_flags & ZIP_LENGTH_AT_END)
++	} else
++#endif /* CONFIG_UTILS_LIBARCHIVE_SYMLINK */
++	if (0 == (zip_entry->zip_flags & ZIP_LENGTH_AT_END)
+ 	   || (zip_entry->uncompressed_size > 0
+ 	       && zip_entry->uncompressed_size != 0xffffffff)) {
+ 		/* Set the size only if it's meaningful. */
