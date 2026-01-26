@@ -1,0 +1,395 @@
+diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c
+index aa3a7c9b..8ec8e36f 100644
+--- a/libarchive/archive_read_support_format_zip.c
++++ b/libarchive/archive_read_support_format_zip.c
+@@ -99,6 +99,7 @@ struct zip_entry {
+ 	unsigned char		flags; /* Our extra markers. */
+ 	unsigned char		decdat;/* Used for Decryption check */
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	/* WinZip AES encryption extra field should be available
+ 	 * when compression is 99. */
+ 	struct {
+@@ -112,11 +113,14 @@ struct zip_entry {
+ 		/* Actual compression method. */
+ 		unsigned char	compression;
+ 	}			aes_extra;
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ };
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ struct trad_enc_ctx {
+ 	uint32_t	keys[3];
+ };
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ /* Bits used in zip_flags. */
+ #define ZIP_ENCRYPTED	(1 << 0)
+@@ -131,6 +135,7 @@ struct trad_enc_ctx {
+ #define LA_USED_ZIP64	(1 << 0)
+ #define LA_FROM_CENTRAL_DIRECTORY (1 << 1)
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ /*
+  * See "WinZip - AES Encryption Information"
+  *     http://www.winzip.com/aes_info.htm
+@@ -141,6 +146,7 @@ struct trad_enc_ctx {
+ #define AUTH_CODE_SIZE	10
+ /**/
+ #define MAX_DERIVED_KEY_BUF_SIZE	(AES_MAX_KEY_SIZE * 2 + 2)
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ struct zip {
+ 	/* Structural information about the archive. */
+@@ -216,6 +222,7 @@ struct zip {
+ 	int			process_mac_extensions;
+ #endif
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	char			init_decryption;
+ 
+ 	/* Decryption buffer. */
+@@ -255,6 +262,7 @@ struct zip {
+ 	uint8_t			*iv;
+ 	uint8_t			*erd;
+ 	uint8_t			*v_data;
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ };
+ 
+ /* Many systems define min or MIN, but not all. */
+@@ -302,6 +310,7 @@ ppmd_read(void* p) {
+ 
+ /* ------------------------------------------------------------------------ */
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ /*
+   Traditional PKWARE Decryption functions.
+  */
+@@ -364,6 +373,7 @@ trad_enc_init(struct trad_enc_ctx *ctx, const char *pw, size_t pw_len,
+ 	*crcchk = header[11];
+ 	return 0;
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ #if 0
+ static void
+@@ -900,6 +910,7 @@ process_extra(struct archive_read *a, struct archive_entry *entry,
+ 			}
+ 			break;
+ 		}
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 		case 0x9901:
+ 			/* WinZip AES extra data field. */
+ 			if (datasize < 6) {
+@@ -919,6 +930,7 @@ process_extra(struct archive_read *a, struct archive_entry *entry,
+ 				    p[offset + 5];
+ 			}
+ 			break;
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 		default:
+ 			break;
+ 		}
+@@ -974,6 +986,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 	version = p[4];
+ 	zip_entry->system = p[5];
+ 	zip_entry->zip_flags = archive_le16dec(p + 6);
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	if (zip_entry->zip_flags & (ZIP_ENCRYPTED | ZIP_STRONG_ENCRYPTED)) {
+ 		zip->has_encrypted_entries = 1;
+ 		archive_entry_set_is_data_encrypted(entry, 1);
+@@ -985,6 +998,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 		}
+ 	}
+ 	zip->init_decryption = (zip_entry->zip_flags & ZIP_ENCRYPTED);
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 	zip_entry->compression = (char)archive_le16dec(p + 8);
+ 	zip_entry->mtime = zip_time(p + 10);
+ 	zip_entry->crc32 = archive_le32dec(p + 14);
+@@ -1316,6 +1330,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,
+ 	return (ret);
+ }
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ static int
+ check_authentication_code(struct archive_read *a, const void *_p)
+ {
+@@ -1352,6 +1367,7 @@ check_authentication_code(struct archive_read *a, const void *_p)
+ 	}
+ 	return (ARCHIVE_OK);
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ /*
+  * The Zip end-of-file marker is inherently ambiguous.  The specification
+@@ -1467,6 +1483,7 @@ consume_end_of_file_marker(struct archive_read *a, struct zip *zip)
+ 	crc32_ignored = zip->ignore_crc32;
+ 	crc32_may_be_zero = 0;
+ 	crc32_actual = zip->computed_crc32;
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	if (zip->hctx_valid) {
+ 	  switch (zip->entry->aes_extra.vendor) {
+ 	  case AES_VENDOR_AE_2:
+@@ -1478,6 +1495,7 @@ consume_end_of_file_marker(struct archive_read *a, struct zip *zip)
+ 	    break;
+ 	  }
+ 	}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ 	/* Values computed from the actual data in the archive. */
+ 	compressed_actual = (uint64_t)zip->entry_compressed_bytes_read;
+@@ -1627,12 +1645,18 @@ zip_read_data_none(struct archive_read *a, const void **_buff,
+ 	const char *buff;
+ 	ssize_t bytes_avail;
+ 	ssize_t trailing_extra;
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	int r;
++#endif
+ 
+ 	(void)offset; /* UNUSED */
+ 
+ 	zip = (struct zip *)(a->format->data);
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	trailing_extra = zip->hctx_valid ? AUTH_CODE_SIZE : 0;
++#else
++	trailing_extra = 0;
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ 	if (zip->entry->zip_flags & ZIP_LENGTH_AT_END) {
+ 		const char *p;
+@@ -1657,14 +1681,19 @@ zip_read_data_none(struct archive_read *a, const void **_buff,
+ 		    && p[2] == '\007' && p[3] == '\010'
+ 		    && (archive_le32dec(p + 4) == zip->computed_crc32
+ 			|| zip->ignore_crc32
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 			|| (zip->hctx_valid
+-			 && zip->entry->aes_extra.vendor == AES_VENDOR_AE_2))) {
++			 && zip->entry->aes_extra.vendor == AES_VENDOR_AE_2)
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
++			)) {
+ 			zip->end_of_entry = 1;
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 			if (zip->hctx_valid) {
+ 				r = check_authentication_code(a, buff);
+ 				if (r != ARCHIVE_OK)
+ 					return (r);
+ 			}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 			return (ARCHIVE_OK);
+ 		}
+ 		/* If not at EOF, ensure we consume at least one byte. */
+@@ -1688,11 +1717,13 @@ zip_read_data_none(struct archive_read *a, const void **_buff,
+ 	} else {
+ 		if (zip->entry_bytes_remaining == 0) {
+ 			zip->end_of_entry = 1;
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 			if (zip->hctx_valid) {
+ 				r = check_authentication_code(a, NULL);
+ 				if (r != ARCHIVE_OK)
+ 					return (r);
+ 			}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 			return (ARCHIVE_OK);
+ 		}
+ 		/* Grab a bunch of bytes. */
+@@ -1706,7 +1737,10 @@ zip_read_data_none(struct archive_read *a, const void **_buff,
+ 		if (bytes_avail > zip->entry_bytes_remaining)
+ 			bytes_avail = (ssize_t)zip->entry_bytes_remaining;
+ 	}
+-	if (zip->tctx_valid || zip->cctx_valid) {
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
++	if (zip->tctx_valid
++	    || zip->cctx_valid
++	    ) {
+ 		size_t dec_size = bytes_avail;
+ 
+ 		if (dec_size > zip->decrypted_buffer_size)
+@@ -1726,6 +1760,7 @@ zip_read_data_none(struct archive_read *a, const void **_buff,
+ 		bytes_avail = dec_size;
+ 		buff = (const char *)zip->decrypted_buffer;
+ 	}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 	zip->entry_bytes_remaining -= bytes_avail;
+ 	zip->entry_uncompressed_bytes_read += bytes_avail;
+ 	zip->entry_compressed_bytes_read += bytes_avail;
+@@ -2570,7 +2605,10 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ {
+ 	struct zip *zip;
+ 	ssize_t bytes_avail, to_consume = 0;
+-	const void *compressed_buff, *sp;
++	const void *compressed_buff;
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
++	const void *sp;
++#endif
+ 	int r;
+ 
+ 	(void)offset; /* UNUSED */
+@@ -2599,7 +2637,11 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ 	 * available bytes; asking for more than that forces the
+ 	 * decompressor to combine reads by copying data.
+ 	 */
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	compressed_buff = sp = __archive_read_ahead(a, 1, &bytes_avail);
++#else
++	compressed_buff = __archive_read_ahead(a, 1, &bytes_avail);
++#endif
+ 	if (0 == (zip->entry->zip_flags & ZIP_LENGTH_AT_END)
+ 	    && bytes_avail > zip->entry_bytes_remaining) {
+ 		bytes_avail = (ssize_t)zip->entry_bytes_remaining;
+@@ -2610,7 +2652,10 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ 		return (ARCHIVE_FATAL);
+ 	}
+ 
+-	if (zip->tctx_valid || zip->cctx_valid) {
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
++	if (zip->tctx_valid
++	    || zip->cctx_valid
++	    ) {
+ 		if (zip->decrypted_bytes_remaining < (size_t)bytes_avail) {
+ 			size_t buff_remaining =
+ 			    (zip->decrypted_buffer +
+@@ -2658,6 +2703,7 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ 		bytes_avail = zip->decrypted_bytes_remaining;
+ 		compressed_buff = (const char *)zip->decrypted_ptr;
+ 	}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ 	/*
+ 	 * A bug in zlib.h: stream.next_in should be marked 'const'
+@@ -2696,7 +2742,10 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ 	zip->entry_compressed_bytes_read += to_consume;
+ 	zip->entry_uncompressed_bytes_read += zip->stream.total_out;
+ 
+-	if (zip->tctx_valid || zip->cctx_valid) {
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
++	if (zip->tctx_valid
++	    || zip->cctx_valid
++	    ) {
+ 		zip->decrypted_bytes_remaining -= to_consume;
+ 		if (zip->decrypted_bytes_remaining == 0)
+ 			zip->decrypted_ptr = zip->decrypted_buffer;
+@@ -2714,6 +2763,7 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ 			}
+ 		}
+ 	}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ 	*size = zip->stream.total_out;
+ 	*buff = zip->uncompressed_buffer;
+@@ -2722,6 +2772,7 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,
+ }
+ #endif
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ static int
+ read_decryption_header(struct archive_read *a)
+ {
+@@ -3099,6 +3150,7 @@ corrupted:
+ 	    "Corrupted ZIP file data");
+ 	return (ARCHIVE_FATAL);
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ static int
+ archive_read_format_zip_read_data(struct archive_read *a,
+@@ -3127,6 +3179,7 @@ archive_read_format_zip_read_data(struct archive_read *a,
+ 	__archive_read_consume(a, zip->unconsumed);
+ 	zip->unconsumed = 0;
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	if (zip->init_decryption) {
+ 		zip->has_encrypted_entries = 1;
+ 		if (zip->entry->zip_flags & ZIP_STRONG_ENCRYPTED)
+@@ -3139,6 +3192,7 @@ archive_read_format_zip_read_data(struct archive_read *a,
+ 			return (r);
+ 		zip->init_decryption = 0;
+ 	}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ 	switch(zip->entry->compression) {
+ 	case 0:  /* No compression. */
+@@ -3194,8 +3248,11 @@ archive_read_format_zip_read_data(struct archive_read *a,
+ 		consume_end_of_file_marker(a, zip);
+ 
+ 		/* Check computed CRC against header */
+-		if ((!zip->hctx_valid ||
++		if (
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
++		    (!zip->hctx_valid ||
+ 		      zip->entry->aes_extra.vendor != AES_VENDOR_AE_2) &&
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 		   zip->entry->crc32 != zip->computed_crc32
+ 		    && !zip->ignore_crc32) {
+ 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
+@@ -3277,6 +3334,7 @@ archive_read_format_zip_cleanup(struct archive_read *a)
+ 			zip_entry = next_zip_entry;
+ 		}
+ 	}
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	free(zip->decrypted_buffer);
+ 	if (zip->cctx_valid)
+ 		archive_decrypto_aes_ctr_release(&zip->cctx);
+@@ -3285,6 +3343,7 @@ archive_read_format_zip_cleanup(struct archive_read *a)
+ 	free(zip->iv);
+ 	free(zip->erd);
+ 	free(zip->v_data);
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 	archive_string_free(&zip->format_name);
+ 	free(zip);
+ 	(a->format->data) = NULL;
+@@ -3450,11 +3509,13 @@ archive_read_format_zip_streamable_read_header(struct archive_read *a,
+ 	zip->entry = zip->zip_entries;
+ 	memset(zip->entry, 0, sizeof(struct zip_entry));
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	if (zip->cctx_valid)
+ 		archive_decrypto_aes_ctr_release(&zip->cctx);
+ 	if (zip->hctx_valid)
+ 		archive_hmac_sha1_cleanup(&zip->hctx);
+ 	zip->tctx_valid = zip->cctx_valid = zip->hctx_valid = 0;
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 	__archive_read_reset_passphrase(a);
+ 
+ 	/* Search ahead for the next local file header. */
+@@ -3536,6 +3597,7 @@ archive_read_format_zip_read_data_skip_streamable(struct archive_read *a)
+ 		return (ARCHIVE_OK);
+ 	}
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	if (zip->init_decryption) {
+ 		int r;
+ 
+@@ -3550,6 +3612,7 @@ archive_read_format_zip_read_data_skip_streamable(struct archive_read *a)
+ 			return (r);
+ 		zip->init_decryption = 0;
+ 	}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 
+ 	/* We're streaming and we don't know the length. */
+ 	/* If the body is compressed and we know the format, we can
+@@ -4004,10 +4067,12 @@ slurp_central_directory(struct archive_read *a, struct archive_entry* entry,
+ 		zip_entry->system = p[5];
+ 		/* version_required = archive_le16dec(p + 6); */
+ 		zip_entry->zip_flags = archive_le16dec(p + 8);
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 		if (zip_entry->zip_flags
+ 		      & (ZIP_ENCRYPTED | ZIP_STRONG_ENCRYPTED)){
+ 			zip->has_encrypted_entries = 1;
+ 		}
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 		zip_entry->compression = (char)archive_le16dec(p + 10);
+ 		zip_entry->mtime = zip_time(p + 12);
+ 		zip_entry->crc32 = archive_le32dec(p + 16);
+@@ -4364,11 +4429,13 @@ archive_read_format_zip_seekable_read_header(struct archive_read *a,
+ 	else
+ 		rsrc = NULL;
+ #endif
++#ifdef CONFIG_UTILS_LIBARCHIVE_ENCRYPTION
+ 	if (zip->cctx_valid)
+ 		archive_decrypto_aes_ctr_release(&zip->cctx);
+ 	if (zip->hctx_valid)
+ 		archive_hmac_sha1_cleanup(&zip->hctx);
+ 	zip->tctx_valid = zip->cctx_valid = zip->hctx_valid = 0;
++#endif /* CONFIG_UTILS_LIBARCHIVE_ENCRYPTION */
+ 	__archive_read_reset_passphrase(a);
+ 
+ 	/* File entries are sorted by the header offset, we should mostly
