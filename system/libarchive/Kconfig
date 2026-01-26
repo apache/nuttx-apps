@@ -67,6 +67,13 @@ config UTILS_LIBARCHIVE_ZIP64
 	---help---
 		Enable Zip64 extension for large files (>4GB) and archives with >65535 entries.
 
+config UTILS_LIBARCHIVE_ZIP_XL_FIELD
+	bool "Enable experimental 'xl' field support"
+	default n
+	---help---
+		Enable experimental 'xl' (0x6c78) extra field support for streaming extraction.
+		This field includes external file attributes in local file headers.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
