@@ -32,6 +32,14 @@ config UTILS_LIBARCHIVE_PPMD
 		Enable PPMd compression method support in ZIP and 7zip formats.
 		PPMd is extremely rare in real-world archives.
 
+config UTILS_LIBARCHIVE_WINDOWS_PATH_SUPPORT
+	bool "Enable Windows path separator handling"
+	default n
+	---help---
+		Enable handling of Windows-style backslash path separators
+		in ZIP archives. When disabled, only forward slash separators
+		are supported.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
