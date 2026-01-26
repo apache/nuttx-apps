@@ -61,6 +61,12 @@ config UTILS_LIBARCHIVE_SYMLINK
 	---help---
 		Enable reading symbolic links from ZIP archives.
 
+config UTILS_LIBARCHIVE_ZIP64
+	bool "Enable Zip64 extension support"
+	default n
+	---help---
+		Enable Zip64 extension for large files (>4GB) and archives with >65535 entries.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
