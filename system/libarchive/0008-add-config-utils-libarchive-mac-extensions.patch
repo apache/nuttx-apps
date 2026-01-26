@@ -1,0 +1,147 @@
+diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c
+index 9b49bf85..aa3a7c9b 100644
+--- a/libarchive/archive_read_support_format_zip.c
++++ b/libarchive/archive_read_support_format_zip.c
+@@ -212,7 +212,9 @@ struct zip {
+ 	struct archive_string_conv *sconv_default;
+ 	struct archive_string_conv *sconv_utf8;
+ 	int			init_default_conversion;
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 	int			process_mac_extensions;
++#endif
+ 
+ 	char			init_decryption;
+ 
+@@ -3339,9 +3341,11 @@ archive_read_format_zip_options(struct archive_read *a,
+ 			zip->ignore_crc32 = 1;
+ 		}
+ 		return (ARCHIVE_OK);
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 	} else if (strcmp(key, "mac-ext") == 0) {
+ 		zip->process_mac_extensions = (val != NULL && val[0] != 0);
+ 		return (ARCHIVE_OK);
++#endif
+ 	}
+ 
+ 	/* Note: The "warn" return is just to inform the options
+@@ -3615,7 +3619,9 @@ archive_read_support_format_zip_streamable(struct archive *_a)
+ 	}
+ 
+ 	/* Streamable reader doesn't support mac extensions. */
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 	zip->process_mac_extensions = 0;
++#endif
+ 
+ 	/*
+ 	 * Until enough data has been read, we cannot tell about
+@@ -3855,6 +3861,7 @@ static const struct archive_rb_tree_ops rb_rsrc_ops = {
+ 	&rsrc_cmp_node, &rsrc_cmp_key
+ };
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ static const char *
+ rsrc_basename(const char *name, size_t name_length)
+ {
+@@ -3896,6 +3903,7 @@ expose_parent_dirs(struct zip *zip, const char *name, size_t name_length)
+ 	}
+ 	archive_string_free(&str);
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS */
+ 
+ static int
+ slurp_central_directory(struct archive_read *a, struct archive_entry* entry,
+@@ -3964,7 +3972,9 @@ slurp_central_directory(struct archive_read *a, struct archive_entry* entry,
+ 		struct zip_entry *zip_entry;
+ 		size_t filename_length, extra_length, comment_length;
+ 		uint32_t external_attributes;
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 		const char *name, *r;
++#endif
+ 
+ 		if ((p = __archive_read_ahead(a, 4, NULL)) == NULL)
+ 			return ARCHIVE_FATAL;
+@@ -4059,10 +4069,13 @@ slurp_central_directory(struct archive_read *a, struct archive_entry* entry,
+ 		 * "__MACOSX/" directory, so we should check if
+ 		 * it is.
+ 		 */
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 		if (!zip->process_mac_extensions) {
++#endif
+ 			/* Treat every entry as a regular entry. */
+ 			__archive_rb_tree_insert_node(&zip->tree,
+ 			    &zip_entry->node);
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 		} else {
+ 			name = p;
+ 			r = rsrc_basename(name, filename_length);
+@@ -4115,6 +4128,7 @@ slurp_central_directory(struct archive_read *a, struct archive_entry* entry,
+ 				    &zip_entry->node);
+ 			}
+ 		}
++#endif /* CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS */
+ 
+ 		/* Skip the comment too ... */
+ 		__archive_read_consume(a,
+@@ -4124,6 +4138,7 @@ slurp_central_directory(struct archive_read *a, struct archive_entry* entry,
+ 	return ARCHIVE_OK;
+ }
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ static ssize_t
+ zip_get_local_file_header_size(struct archive_read *a, size_t extra)
+ {
+@@ -4297,13 +4312,16 @@ exit_mac_metadata:
+ 	free(metadata);
+ 	return (ret);
+ }
++#endif /* CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS */
+ 
+ static int
+ archive_read_format_zip_seekable_read_header(struct archive_read *a,
+ 	struct archive_entry *entry)
+ {
+ 	struct zip *zip = (struct zip *)a->format->data;
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 	struct zip_entry *rsrc;
++#endif
+ 	int64_t offset;
+ 	int r, ret = ARCHIVE_OK;
+ 
+@@ -4339,12 +4357,13 @@ archive_read_format_zip_seekable_read_header(struct archive_read *a,
+ 	if (zip->entry == NULL)
+ 		return ARCHIVE_EOF;
+ 
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 	if (zip->entry->rsrcname.s)
+ 		rsrc = (struct zip_entry *)__archive_rb_tree_find_node(
+ 		    &zip->tree_rsrc, zip->entry->rsrcname.s);
+ 	else
+ 		rsrc = NULL;
+-
++#endif
+ 	if (zip->cctx_valid)
+ 		archive_decrypto_aes_ctr_release(&zip->cctx);
+ 	if (zip->hctx_valid)
+@@ -4367,11 +4386,13 @@ archive_read_format_zip_seekable_read_header(struct archive_read *a,
+ 	r = zip_read_local_file_header(a, entry, zip);
+ 	if (r != ARCHIVE_OK)
+ 		return r;
++#ifdef CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS
+ 	if (rsrc) {
+ 		int ret2 = zip_read_mac_metadata(a, entry, rsrc);
+ 		if (ret2 < ret)
+ 			ret = ret2;
+ 	}
++#endif
+ 	return (ret);
+ }
+ 
+@@ -4406,7 +4427,7 @@ archive_read_support_format_zip_seekable(struct archive *_a)
+ 		return (ARCHIVE_FATAL);
+ 	}
+ 
+-#ifdef HAVE_COPYFILE_H
++#if defined(HAVE_COPYFILE_H) && defined(CONFIG_UTILS_LIBARCHIVE_MAC_EXTENSIONS)
+ 	/* Set this by default on Mac OS. */
+ 	zip->process_mac_extensions = 1;
+ #endif
