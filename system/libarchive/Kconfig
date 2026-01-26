@@ -55,6 +55,12 @@ config UTILS_LIBARCHIVE_ENCRYPTION
 	---help---
 		Enable zip decryption support.
 
+config UTILS_LIBARCHIVE_SYMLINK
+	bool "Enable symbolic link support in ZIP"
+	default n
+	---help---
+		Enable reading symbolic links from ZIP archives.
+
 config UTILS_LIBARCHIVE_BSDUNZIP
 	bool "Enable bsdunzip"
 	depends on LIB_ZLIB
