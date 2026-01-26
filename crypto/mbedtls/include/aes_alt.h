@@ -37,10 +37,35 @@
 typedef struct mbedtls_aes_context
 {
   cryptodev_context_t dev;
+  int mode;
   unsigned char key[MAX_KEY_SIZE];
 }
 mbedtls_aes_context;
 
 #define mbedtls_aes_xts_context mbedtls_aes_context
+
+int mbedtls_aes_set128key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits);
+
+int mbedtls_aes_set192key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits);
+
+int mbedtls_aes_set256key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits);
+
+int mbedtls_aes_set128key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits);
+
+int mbedtls_aes_set192key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits);
+
+int mbedtls_aes_set256key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits);
 
 #endif /* __APPS_CRYPTO_MBEDTLS_INCLUDE_AES_ALT_H */

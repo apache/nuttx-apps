@@ -78,6 +78,60 @@ int mbedtls_aes_setkey_dec(FAR mbedtls_aes_context *ctx,
   return mbedtls_aes_setkey_enc(ctx, key, keybits);
 }
 
+int mbedtls_aes_set128key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  memcpy(ctx->key, key, keybits / 8);
+  ctx->dev.session.key = (caddr_t)ctx->key;
+  ctx->dev.session.keylen = keybits / 8;
+  ctx->mode = CRYPTO_AES_CBC;
+  return 0;
+}
+
+int mbedtls_aes_set192key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  memcpy(ctx->key, key, keybits / 8);
+  ctx->dev.session.key = (caddr_t)ctx->key;
+  ctx->dev.session.keylen = keybits / 8;
+  ctx->mode = CRYPTO_AES_192_CBC;
+  return 0;
+}
+
+int mbedtls_aes_set256key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  memcpy(ctx->key, key, keybits / 8);
+  ctx->dev.session.key = (caddr_t)ctx->key;
+  ctx->dev.session.keylen = keybits / 8;
+  ctx->mode = CRYPTO_AES_256_CBC;
+  return 0;
+}
+
+int mbedtls_aes_set128key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return mbedtls_aes_set128key_enc_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set192key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return mbedtls_aes_set192key_enc_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set256key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return mbedtls_aes_set256key_enc_keyid(ctx, key, keybits);
+}
+
 /* AES-ECB block encryption/decryption */
 
 int mbedtls_aes_crypt_ecb(FAR mbedtls_aes_context *ctx,
@@ -93,7 +147,7 @@ int mbedtls_aes_crypt_ecb(FAR mbedtls_aes_context *ctx,
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
     }
 
-  ctx->dev.session.cipher = CRYPTO_AES_CBC;
+  ctx->dev.session.cipher = ctx->mode ? ctx->mode : CRYPTO_AES_CBC;
   ret = cryptodev_get_session(&ctx->dev);
   if (ret != 0)
     {
