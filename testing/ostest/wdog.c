@@ -147,7 +147,7 @@ static void wdtest_rand(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
   clock_t    wdset_tick;
   sclock_t   delay_tick;
   sclock_t   diff;
-  irqstate_t flags;
+  irqstate_t flags = 0;
 
   /* Perform multiple iterations with random delays. */
 
