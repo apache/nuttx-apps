@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_I3CTOOL
+	tristate "I3C tool"
+	default n
+	depends on I3C
+	select I3C_DRIVER
+	---help---
+		Enable support for the I3C tool.
+
+if SYSTEM_I3CTOOL
+
+config I3CTOOL_DEF_TARGETADDR
+	hex "Default I3C device target address"
+	default 0xffff
+	---help---
+		Default I3C device target address (default: 0xffff)
+
+config I3CTOOL_DEFBUS
+	int "Default I2C bus number"
+	default 0
+	---help---
+		Default I3C bus number (default: 0)
+
+endif
