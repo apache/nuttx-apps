@@ -31,7 +31,7 @@ MODULE = $(CONFIG_TESTING_OSTEST)
 
 # NuttX OS Test
 
-CSRCS  = getopt.c libc_memmem.c restart.c sighelper.c spinlock.c
+CSRCS  = getopt.c libc_memmem.c restart.c sighelper.c
 
 ifeq ($(CONFIG_ENABLE_ALL_SIGNALS),y)
 CSRCS += sighand.c signest.c
@@ -167,7 +167,7 @@ endif
 endif
 
 ifeq ($(CONFIG_BUILD_FLAT),y)
-CSRCS += wdog.c
+CSRCS += wdog.c spinlock.c
 endif
 
 include $(APPDIR)/Application.mk
