@@ -22,7 +22,7 @@
 
 if(CONFIG_TESTING_OSTEST)
 
-  set(SRCS getopt.c libc_memmem.c restart.c sighelper.c spinlock.c)
+  set(SRCS getopt.c libc_memmem.c restart.c sighelper.c)
 
   if(CONFIG_ENABLE_ALL_SIGNALS)
     list(APPEND SRCS sighand.c signest.c)
@@ -162,7 +162,7 @@ if(CONFIG_TESTING_OSTEST)
   endif()
 
   if(CONFIG_BUILD_FLAT)
-    list(APPEND SRCS wdog.c)
+    list(APPEND SRCS wdog.c spinlock.c)
   endif()
 
   set(OSTEST_SRCS ostest_main.c ${SRCS})
