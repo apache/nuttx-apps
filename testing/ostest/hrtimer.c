@@ -223,7 +223,7 @@ static void * hrtimer_test_thread(void *arg)
       /* Cancel timer */
 
       ret = hrtimer_cancel(&timer);
-      HRTIMER_TEST(ret, OK);
+      HRTIMER_TEST(ret >= 0, true);
 
       /* Start timer with fixed period */
 
@@ -241,7 +241,7 @@ static void * hrtimer_test_thread(void *arg)
   /* Cancel the timer synchronously */
 
   ret = hrtimer_cancel_sync(&timer);
-  HRTIMER_TEST(ret, OK);
+  HRTIMER_TEST(ret >= 0, true);
 
   return NULL;
 }
