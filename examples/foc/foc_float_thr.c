@@ -26,6 +26,8 @@
 
 #include <nuttx/config.h>
 
+#include <nuttx/spinlock.h>
+
 #include <assert.h>
 #include <dsp.h>
 #include <fcntl.h>
