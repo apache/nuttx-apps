@@ -82,6 +82,7 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
           if (quote)
             {
               quote = false;
+              buf++;
             }
           else
             {
