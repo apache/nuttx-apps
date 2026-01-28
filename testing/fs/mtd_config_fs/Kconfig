@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config TESTING_MTD_CONFIG_FAIL_SAFE
+config TESTING_MTD_CONFIG_NVS
 	tristate "MTD Config fail-safe storage test"
 	default n
 	depends on MTD_CONFIG_NVS
@@ -11,40 +11,40 @@ config TESTING_MTD_CONFIG_FAIL_SAFE
 	---help---
 		Enable the fail-safe storage test
 
-if TESTING_MTD_CONFIG_FAIL_SAFE
+if TESTING_MTD_CONFIG_NVS
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_PROGNAME
+config TESTING_MTD_CONFIG_PROGNAME
 	string "Program name"
 	default "mtdconfig_fs_test"
 	---help---
 		This is the name of the program that will be used when the NSH ELF
 		program is installed.
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME
+config TESTING_MTD_CONFIG_MOUNTPT_NAME
 	string "MTD driver mount pt"
 	default "/dev/mtdnvs_flash"
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_MAXNAME
+config TESTING_MTD_CONFIG_MOUNTPT_MAXNAME
 	int "MTD driver mount pt path len"
 	default 64
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+config TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
 	int "MTD flash section size"
 	default 4096
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_COUNT
+config TESTING_MTD_CONFIG_FLASH_SECTION_COUNT
 	int "MTD flash section count"
 	default 3
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_PRIORITY
+config TESTING_MTD_CONFIG_PRIORITY
 	int "MTD nvs test task priority"
 	default 100
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_STACKSIZE
+config TESTING_MTD_CONFIG_STACKSIZE
 	int "MTD nvs test stack size"
 	default 4096
 
-config TESTING_MTD_CONFIG_FAIL_SAFE_VERBOSE
+config TESTING_MTD_CONFIG_VERBOSE
 	bool "Verbose output"
 	default n
 
