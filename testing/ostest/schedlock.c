@@ -252,7 +252,7 @@ void sched_lock_test(void)
         }
 
       printf("sched_lock: Waiting...\n");
-      sleep(1);
+      usleep(10 * 1000);
 
       pthread_join(g_highpri, NULL);
       pthread_join(g_lowpri, NULL);

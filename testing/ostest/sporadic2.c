@@ -290,7 +290,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
   sem_post(&g_sporadic_sem);
   sem_post(&g_sporadic_sem);
 
-  sleep(100);
+  sleep(1);
 
   ret = pthread_cancel(sporadic_thread1);
   pthread_join(sporadic_thread1, &result);

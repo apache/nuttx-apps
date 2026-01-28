@@ -293,10 +293,18 @@ void sighand_test(void)
       printf("sighand_test: Started waiter_main pid=%d\n", waiterpid);
     }
 
-  /* Wait a bit */
+  /* Wait the child thread enter sem_wait() */
 
-  FFLUSH();
-  sleep(2);
+  while (1)
+    {
+      usleep(1000);
+
+      sem_getvalue(&sem1, &status);
+      if (status < 0)
+        {
+          break;
+        }
+    }
 
   /* Then signal the waiter thread. */
 
@@ -314,12 +322,7 @@ void sighand_test(void)
 
   /* Wait a bit */
 
-  FFLUSH();
-  status = sleep(2);
-  while (status)
-    {
-      status = sleep(status);
-    }
+  usleep(2000);
 
   /* Then check the result */
 

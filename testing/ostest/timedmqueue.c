@@ -135,7 +135,7 @@ static void *sender_thread(void *arg)
           ASSERT(false);
         }
 
-      ts.tv_sec += 5;
+      ts.tv_sec += 1;
 
       /* The first TEST_SEND_NMSGS-1 send should succeed.  The last
        * one should fail with errno == ETIMEDOUT
@@ -236,7 +236,7 @@ static void *receiver_thread(void *arg)
           ASSERT(false);
         }
 
-      ts.tv_sec += 5;
+      ts.tv_sec += 1;
 
       /* The first TEST_SEND_NMSGS-1 send should succeed.  The last
        * one should fail with errno == ETIMEDOUT

@@ -55,8 +55,8 @@ static void *poster_func(void *parameter)
 
   /* Wait for one second, then post the semaphore */
 
-  printf("poster_func: Waiting for 1 second\n");
-  sleep(1);
+  printf("poster_func: Waiting for 10 ms\n");
+  usleep(10 * 1000);
 
   printf("poster_func: Posting\n");
   status = sem_post(&sem);

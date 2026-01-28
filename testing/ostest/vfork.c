@@ -70,7 +70,7 @@ int vfork_test(void)
     }
   else
     {
-      sleep(1);
+      usleep(10 * 1000);
       if (g_vforkchild)
         {
           printf("vfork_test: Child %d ran successfully\n", pid);

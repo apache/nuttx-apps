@@ -122,7 +122,7 @@ static void test_cleanup(void)
       return;
     }
 
-  usleep(500 * 1000);
+  usleep(50 * 1000);
 
   status = pthread_cancel(thread1);
   if (status != 0)

@@ -107,7 +107,7 @@ static void *thread_func(FAR void *parameter)
       /* Release the lock and wait a bit in case the main thread wants it. */
 
       pthread_mutex_unlock(&g_mutex);
-      usleep(500 * 1000);
+      usleep(50 * 1000);
     }
 
   g_running = false;
