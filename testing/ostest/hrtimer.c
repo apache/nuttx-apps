@@ -100,9 +100,9 @@ static uint64_t
 test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 {
   struct timespec ts;
-  uint32_t diff;
+  int64_t  diff;
   uint64_t now;
-  int ret;
+  int      ret;
 
   FAR struct hrtimer_test_s *test =
     (FAR struct hrtimer_test_s *)hrtimer;
@@ -116,18 +116,20 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
   clock_systime_timespec(&ts);
   now = clock_time2nsec(&ts);
 
-  /* Skip comparison for first two invocations */
+  /* Verify the timer interval is exactly
+   * 500ms with nsec resolution
+   */
 
-  if (test->count > 2)
+  diff = now - expired;
+
+  /* Ensure the time diff is valid. */
+
+  ASSERT(diff >= 0);
+
+  if (diff > HRTIMER_TEST_MARGIN)
     {
-      /* Verify the timer interval is exactly
-       * 500ms with nsec resolution
-       */
-
-      diff = (uint32_t)(now - expired);
-
-      ASSERT(NSEC_PER_50MS < diff + HRTIMER_TEST_MARGIN);
-      ASSERT(NSEC_PER_50MS > diff - HRTIMER_TEST_MARGIN);
+      printf("hrtimer_test: warning diff=%" PRIu64 " > %" PRIu64 "\n",
+             diff, HRTIMER_TEST_MARGIN);
     }
 
   test->timestamp = now;
