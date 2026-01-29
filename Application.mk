@@ -400,3 +400,5 @@ distclean:: clean
 
 # Include Wasm specific definitions
 include $(APPDIR)/tools/Wasm.mk
+
+preconfig:
