@@ -121,7 +121,6 @@ int ssl_pm_new(SSL *ssl)
   size_t pers_len = sizeof(pers);
 
   int endpoint;
-  int version;
 
   const SSL_METHOD *method = ssl->method;
 
@@ -178,39 +177,13 @@ int ssl_pm_new(SSL *ssl)
       goto mbedtls_err2;
     }
 
-  if (TLS_ANY_VERSION != ssl->version)
-    {
-      if (TLS1_2_VERSION == ssl->version)
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_3;
-        }
-      else if (TLS1_1_VERSION == ssl->version)
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_2;
-        }
-      else if (TLS1_VERSION == ssl->version)
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_1;
-        }
-      else
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_0;
-        }
+  mbedtls_ssl_conf_min_version(&ssl_pm->conf,
+                               MBEDTLS_SSL_MAJOR_VERSION_3,
+                               MBEDTLS_SSL_MINOR_VERSION_3);
 
-      mbedtls_ssl_conf_max_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3, version);
-      mbedtls_ssl_conf_min_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3, version);
-    }
-  else
-    {
-      mbedtls_ssl_conf_max_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3,
-                                   MBEDTLS_SSL_MINOR_VERSION_3);
-      mbedtls_ssl_conf_min_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3,
-                                   MBEDTLS_SSL_MINOR_VERSION_0);
-    }
+  mbedtls_ssl_conf_max_version(&ssl_pm->conf,
+                               MBEDTLS_SSL_MAJOR_VERSION_3,
+                               MBEDTLS_SSL_MINOR_VERSION_3);
 
   mbedtls_ssl_conf_rng(&ssl_pm->conf,
                  mbedtls_ctr_drbg_random, &ssl_pm->ctr_drbg);
@@ -486,7 +459,7 @@ int ssl_pm_read(SSL *ssl, void *buffer, int len)
       SSL_DEBUG(SSL_PLATFORM_ERROR_LEVEL,
                 "mbedtls_ssl_read() return -0x%x", -ret);
       if (ret == MBEDTLS_ERR_NET_CONN_RESET ||
-          ret <= MBEDTLS_ERR_SSL_NO_USABLE_CIPHERSUITE) /* fatal errors */
+          ret <= MBEDTLS_ERR_SSL_HANDSHAKE_FAILURE) /* fatal errors */
         {
           ssl->err = SSL_ERROR_SYSCALL;
         }
@@ -628,9 +601,6 @@ OSSL_HANDSHAKE_STATE ssl_pm_get_state(const SSL *ssl)
         break;
       case MBEDTLS_SSL_SERVER_KEY_EXCHANGE:
         state = TLS_ST_SR_KEY_EXCH;
-        break;
-      case MBEDTLS_SSL_SERVER_NEW_SESSION_TICKET:
-        state = TLS_ST_SW_SESSION_TICKET;
         break;
       case MBEDTLS_SSL_SERVER_HELLO_VERIFY_REQUEST_SENT:
         state = TLS_ST_SW_CERT_REQ;

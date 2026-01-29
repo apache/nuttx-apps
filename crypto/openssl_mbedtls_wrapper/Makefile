@@ -22,4 +22,5 @@
 
 include $(APPDIR)/Make.defs
 CSRCS += $(wildcard $(APPDIR)/crypto/openssl_mbedtls_wrapper/mbedtls/*.c)
+CFLAGS += -DMBEDTLS_ALLOW_PRIVATE_ACCESS
 include $(APPDIR)/Application.mk
