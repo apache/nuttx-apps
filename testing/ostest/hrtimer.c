@@ -59,20 +59,6 @@
 
 #define HRTIMER_TEST_MARGIN    (NSEC_PER_MSEC)
 
-/* Simple assertion macro for HRTimer test cases */
-#define HRTIMER_TEST(expr, value)                                   \
-  do                                                                \
-    {                                                               \
-      ret = (expr);                                                 \
-      if (ret != (value))                                           \
-        {                                                           \
-          printf("ERROR: HRTimer test failed, line=%d ret=%d\n",   \
-                 __LINE__, ret);                                    \
-          ASSERT(false);                                            \
-        }                                                           \
-    }                                                               \
-  while (0)
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -167,8 +153,8 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 
       diff = (uint32_t)(now - test->previous);
 
-      HRTIMER_TEST(NSEC_PER_50MS < diff + HRTIMER_TEST_MARGIN, true);
-      HRTIMER_TEST(NSEC_PER_50MS > diff - HRTIMER_TEST_MARGIN, true);
+      ASSERT(NSEC_PER_50MS < diff + HRTIMER_TEST_MARGIN);
+      ASSERT(NSEC_PER_50MS > diff - HRTIMER_TEST_MARGIN);
     }
 
   test->previous = now;
@@ -224,25 +210,24 @@ static void * hrtimer_test_thread(void *arg)
       /* Cancel timer */
 
       ret = hrtimer_cancel(&timer);
-      HRTIMER_TEST(ret >= 0, true);
+      ASSERT(ret == OK);
 
       /* Start timer with fixed period */
 
       ret = hrtimer_start(&timer, hrtimer_test_callback,
                           10 * NSEC_PER_USEC, HRTIMER_MODE_REL);
-      HRTIMER_TEST(ret, OK);
+      ASSERT(ret == OK);
 
       /* Start timer with random delay */
 
       ret = hrtimer_start(&timer, hrtimer_test_callback,
                           delay, HRTIMER_MODE_REL);
-      HRTIMER_TEST(ret, OK);
+      ASSERT(ret == OK);
     }
 
   /* Cancel the timer synchronously */
 
-  ret = hrtimer_cancel_sync(&timer);
-  HRTIMER_TEST(ret >= 0, true);
+  ASSERT(hrtimer_cancel_sync(&timer) == OK);
 
   return NULL;
 }
@@ -293,7 +278,8 @@ void hrtimer_test(void)
                       hrtimer_test.period,
                       HRTIMER_MODE_REL);
 
-  HRTIMER_TEST(ret, OK);
+  ASSERT(ret == OK);
+
 
   /* Wait until the test completes */
 
@@ -309,8 +295,8 @@ void hrtimer_test(void)
 
   for (thread_id = 0; thread_id < HRTIMER_TEST_THREAD_NR; thread_id++)
     {
-      HRTIMER_TEST(pthread_create(&pthreads[thread_id], &attr,
-                                  hrtimer_test_thread, NULL), 0);
+      ASSERT(pthread_create(&pthreads[thread_id], &attr,
+                            hrtimer_test_thread, NULL) == 0);
     }
 
   /* Wait for all threads to complete */
@@ -320,5 +306,5 @@ void hrtimer_test(void)
       pthread_join(pthreads[thread_id], NULL);
     }
 
-  HRTIMER_TEST(pthread_attr_destroy(&attr), 0);
+  ASSERT(pthread_attr_destroy(&attr) == 0);
 }
