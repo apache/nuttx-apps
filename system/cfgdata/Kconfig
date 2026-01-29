@@ -6,7 +6,7 @@
 config SYSTEM_CFGDATA
 	tristate "Cfgdata Command"
 	default n
-	depends on MTD_CONFIG
+	depends on !MTD_CONFIG_NONE
 	---help---
 		Enable support for the CFGDATA tool.
 

@@ -322,7 +322,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 #  if defined(CONFIG_MTD_LOOP) && !defined(CONFIG_NSH_DISABLE_LOMTD)
-#    ifdef CONFIG_MTD_CONFIG
+#    ifndef CONFIG_MTD_CONFIG_NONE
   CMD_MAP("lomtd",    cmd_lomtd,    3, 10,
     "[-d <dev-path>] | [[-o <offset>] [-e <erase-size>] "
     "[-b <sect-size>] [-c <configdata>] <dev-path> <file-path>]]"),

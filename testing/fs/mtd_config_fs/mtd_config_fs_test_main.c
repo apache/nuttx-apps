@@ -81,7 +81,7 @@ begin_packed_struct struct nvs_ate
 
 struct mtdnvs_ctx_s
 {
-  char mountdir[CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_MAXNAME];
+  char mountdir[CONFIG_TESTING_MTD_CONFIG_MOUNTPT_MAXNAME];
   struct mallinfo mmbefore;
   struct mallinfo mmprevious;
   struct mallinfo mmafter;
@@ -351,7 +351,7 @@ static void show_useage(void)
   printf("Usage : mtdconfig_fs_test [OPTION [ARG]] ...\n");
   printf("-h    show this help statement\n");
   printf("-m    mount point to be tested e.g. [%s]\n",
-          CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME);
+          CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME);
 }
 
 /****************************************************************************
@@ -402,12 +402,12 @@ static int setup(struct mtdnvs_ctx_s *ctx)
   int ret;
   FAR struct inode *sys_node;
 
-  ret = find_mtddriver(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME,
+  ret = find_mtddriver(CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME,
     &sys_node);
   if (ret < 0)
     {
       printf("ERROR: open %s failed: %d\n",
-        CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, ret);
+        CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME, ret);
       return -errno;
     }
 
@@ -608,7 +608,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
 
   printf("%s: test begin\n", __func__);
 
-  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, O_RDWR);
+  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME, O_RDWR);
   if (mtd_fd < 0)
     {
       printf("%s:mtdnvs_register failed, ret=%d\n", __func__, mtd_fd);
@@ -662,7 +662,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
   /* set unused flash to 0xff */
 
   for (i = 2 * (strlen(TEST_KEY1) + strlen(TEST_DATA1) + 2) + padding_size;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 4 * ate_size; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -699,7 +699,7 @@ static void test_nvs_corrupt_expire(struct mtdnvs_ctx_s *ctx)
   /* write close ate, mark section 0 as closed */
 
   ret = write_close_ate(mtd_fd, ctx,
-    CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+    CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
     - 4 * ate_size);
   if (ret < 0)
     {
@@ -798,7 +798,7 @@ static void test_nvs_corrupted_write(struct mtdnvs_ctx_s *ctx)
 
   printf("%s: test begin\n", __func__);
 
-  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, O_RDWR);
+  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME, O_RDWR);
   if (mtd_fd < 0)
     {
       printf("%s:mtdnvs_register failed, ret=%d\n", __func__, mtd_fd);
@@ -854,7 +854,7 @@ static void test_nvs_corrupted_write(struct mtdnvs_ctx_s *ctx)
   /* set unused flash to 0xff */
 
   for (i = 2 * (sizeof(key1) + sizeof(wr_buf_1)) + padding_size;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 3 * nvs_ate_size(ctx); i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -966,7 +966,7 @@ static void test_nvs_gc(struct mtdnvs_ctx_s *ctx)
 
   size_t kv_size = nvs_align_up(ctx, 44 + 4) + ate_size;
   size_t block_max_write_size =
-    CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE - ate_size;
+    CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE - ate_size;
   uint16_t block_max_write_nums = block_max_write_size / kv_size;
 
   const uint16_t max_writes = block_max_write_nums + 1;
@@ -1235,9 +1235,9 @@ static void test_nvs_gc_3sectors(struct mtdnvs_ctx_s *ctx)
 
   size_t kv_size = nvs_align_up(ctx, 44 + 4) + ate_size;
   uint16_t max_id =
-    CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE / kv_size;
+    CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE / kv_size;
   const uint16_t max_writes =
-    CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE * 2 / kv_size + 1;
+    CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE * 2 / kv_size + 1;
   const uint16_t max_writes_2 = max_writes + max_id;
   const uint16_t max_writes_3 = max_writes_2 + max_id;
   const uint16_t max_writes_4 = max_writes_3 + max_id;
@@ -1435,7 +1435,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
 
   printf("%s: test begin\n", __func__);
 
-  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, O_RDWR);
+  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME, O_RDWR);
   if (mtd_fd < 0)
     {
       printf("%s:mtdnvs_register failed, ret=%d\n", __func__, mtd_fd);
@@ -1446,7 +1446,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
 
   for (loop_section = 0;
     loop_section <
-      CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_COUNT - 1;
+      CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_COUNT - 1;
     loop_section++)
     {
       /* write valid data */
@@ -1474,7 +1474,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
       /* set unused flash to 0xff */
 
       for (i = 2 * (sizeof(key1) + sizeof(wr_buf));
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 4 * ate_size; i++)
         {
           ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -1490,7 +1490,7 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
       ret = write_ate(mtd_fd, ctx, key1, sizeof(wr_buf),
         sizeof(wr_buf) + sizeof(key1),
         (loop_section ==
-        CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_COUNT - 2)
+        CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_COUNT - 2)
         ? false : true);
       if (ret < 0)
         {
@@ -1512,14 +1512,14 @@ static void test_nvs_corrupted_sector_close(struct mtdnvs_ctx_s *ctx)
         }
 
       if (loop_section ==
-        CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_COUNT - 2)
+        CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_COUNT - 2)
         {
           ret  = write_corrupted_close_ate(mtd_fd, ctx);
         }
       else
         {
           ret = write_close_ate(mtd_fd, ctx,
-            CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+            CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
             - 4 * ate_size);
         }
 
@@ -1787,7 +1787,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   printf("%s: test begin\n", __func__);
 
-  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, O_RDWR);
+  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME, O_RDWR);
   if (mtd_fd < 0)
     {
       printf("%s:mtdnvs_register failed, ret=%d\n", __func__, mtd_fd);
@@ -1813,7 +1813,7 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
   /* set unused flash to 0xff */
 
   for (i = strlen(TEST_KEY1) + strlen(TEST_DATA1) + 2;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 6 * ate_size; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -1834,9 +1834,9 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   /* set unused flash to 0xff */
 
-  for (i = CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+  for (i = CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 5 * ate_size;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 2 * ate_size; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -1865,8 +1865,8 @@ static void test_nvs_gc_corrupt_close_ate(struct mtdnvs_ctx_s *ctx)
 
   /* set unused flash to 0xff in section 1 */
 
-  for (i = CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+  for (i = CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE;
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - ate_size; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -1964,7 +1964,7 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
 
   printf("%s: test begin\n", __func__);
 
-  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME, O_RDWR);
+  mtd_fd = open(CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME, O_RDWR);
   if (mtd_fd < 0)
     {
       printf("%s:mtdnvs_register failed, ret=%d\n", __func__, mtd_fd);
@@ -1974,7 +1974,7 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
   /* set unused flash to 0xff */
 
   for (i = 0 ;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE / 2; i++)
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE / 2; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
       if (ret != sizeof(erase_value))
@@ -1992,9 +1992,9 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
       goto test_fail;
     }
 
-  for (i = CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE / 2
+  for (i = CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE / 2
         + ate_size;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - 2 * ate_size; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -2016,7 +2016,7 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
   /* write close ate, mark section 0 as closed */
 
   ret = write_close_ate(mtd_fd, ctx,
-    CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE / 2);
+    CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE / 2);
   if (ret < 0)
     {
       printf("%s:write gc_done ate failed, ret=%d\n", __func__, ret);
@@ -2025,8 +2025,8 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
 
   /* set unused flash to 0xff in section 1 */
 
-  for (i = CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE;
-        i < CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE
+  for (i = CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE;
+        i < CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE
         - ate_size; i++)
     {
       ret = write(mtd_fd, &erase_value, sizeof(erase_value));
@@ -2040,7 +2040,7 @@ static void test_nvs_gc_corrupt_ate(struct mtdnvs_ctx_s *ctx)
   /* write close ate, mark section 1 as closed */
 
   ret = write_close_ate(mtd_fd, ctx,
-    CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_FLASH_SECTION_SIZE / 2);
+    CONFIG_TESTING_MTD_CONFIG_FLASH_SECTION_SIZE / 2);
   if (ret < 0)
     {
       printf("%s:write gc_done ate failed, ret=%d\n", __func__, ret);
@@ -2582,7 +2582,7 @@ int main(int argc, FAR char *argv[])
 
   memset(ctx, 0, sizeof(struct mtdnvs_ctx_s));
 
-  strlcpy(ctx->mountdir, CONFIG_TESTING_MTD_CONFIG_FAIL_SAFE_MOUNTPT_NAME,
+  strlcpy(ctx->mountdir, CONFIG_TESTING_MTD_CONFIG_MOUNTPT_NAME,
     sizeof(ctx->mountdir));
 
   /* Opt Parse */
