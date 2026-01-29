@@ -555,6 +555,14 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: wdog test\n");
       wdog_test();
       check_test_memory_usage();
+
+      /* Verify hrtimer */
+
+#  ifdef CONFIG_HRTIMER
+      printf("\nuser_main: hrtimer test\n");
+      hrtimer_test();
+      check_test_memory_usage();
+#  endif
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS) && \
@@ -640,14 +648,6 @@ static int user_main(int argc, char *argv[])
 
       printf("\nuser_main: performance event time counter test\n");
       perf_gettime_test();
-      check_test_memory_usage();
-#endif
-
-#if defined(CONFIG_HRTIMER) && defined(CONFIG_BUILD_FLAT)
-      /* Verify hrtimer */
-
-      printf("\nuser_main: hrtimer test\n");
-      hrtimer_test();
       check_test_memory_usage();
 #endif
 

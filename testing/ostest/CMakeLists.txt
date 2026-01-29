@@ -157,16 +157,15 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS nxevent.c)
   endif()
 
-  if(CONFIG_HRTIMER AND CONFIG_BUILD_FLAT)
-    list(APPEND SRCS hrtimer.c)
-  endif()
-
   if(CONFIG_ARCH_HAVE_PERF_EVENTS)
     list(APPEND SRCS perf_gettime.c)
   endif()
 
   if(CONFIG_BUILD_FLAT)
     list(APPEND SRCS wdog.c spinlock.c)
+    if(CONFIG_HRTIMER)
+      list(APPEND SRCS hrtimer.c)
+    endif()
   endif()
 
   set(OSTEST_SRCS ostest_main.c ${SRCS})

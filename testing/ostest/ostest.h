@@ -215,6 +215,12 @@ void suspend_test(void);
 
 void wdog_test(void);
 
+/* hrtimer.c ****************************************************************/
+
+#ifdef CONFIG_HRTIMER
+void hrtimer_test(void);
+#endif
+
 /* posixtimers.c ************************************************************/
 
 void timer_test(void);
@@ -312,10 +318,6 @@ int sem_nfreeholders(void);
 
 #if defined(CONFIG_SCHED_EVENTS) && defined(CONFIG_BUILD_FLAT)
 void nxevent_test(void);
-#endif
-
-#if defined(CONFIG_HRTIMER) && defined(CONFIG_BUILD_FLAT)
-void hrtimer_test(void);
 #endif
 
 #endif /* __APPS_TESTING_OSTEST_OSTEST_H */

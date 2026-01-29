@@ -160,18 +160,16 @@ CSRCS += nxevent.c
 endif
 endif
 
-ifeq ($(CONFIG_HRTIMER),y)
-ifeq ($(CONFIG_BUILD_FLAT),y)
-CSRCS += hrtimer.c
-endif
-endif
-
 ifeq ($(CONFIG_ARCH_HAVE_PERF_EVENTS),y)
 CSRCS += perf_gettime.c
 endif
 
 ifeq ($(CONFIG_BUILD_FLAT),y)
 CSRCS += wdog.c spinlock.c
+
+ifeq ($(CONFIG_HRTIMER),y)
+CSRCS += hrtimer.c
+endif
 endif
 
 include $(APPDIR)/Application.mk
