@@ -65,42 +65,17 @@
 
 /* Structure for HRTimer test tracking */
 
-struct hrtimer_test_s
+typedef struct hrtimer_test_s
 {
-  hrtimer_t timer;    /* HRTimer instance */
-  uint64_t  previous; /* Previous timestamp in nanoseconds */
-  uint32_t  count;    /* Number of timer expirations */
-  uint32_t  period;   /* Expected period between expirations */
-  bool      active;   /* True while the test is still running */
-};
+  struct hrtimer_s  timer;     /* HRTimer instance */
+  volatile uint64_t timestamp; /* Previous timestamp in nanoseconds */
+  volatile uint64_t count;     /* Number of timer expirations */
+  uint64_t          period;    /* Expected period between expirations */
+} hrtimer_test_t;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: hrtimer_test_init
- *
- * Description:
- *   Initialize a hrtimer_test_s structure for a new test.
- *
- * Input Parameters:
- *   hrtimer_test - Pointer to the test structure to initialize
- *   period       - Expected timer period in nanoseconds
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-
-static void hrtimer_test_init(FAR struct hrtimer_test_s *hrtimer_test,
-                              uint32_t period)
-{
-  hrtimer_test->previous = 0;
-  hrtimer_test->count = 0;
-  hrtimer_test->active = true;
-  hrtimer_test->period = period;
-}
 
 /****************************************************************************
  * Name: test_hrtimer_callback
@@ -129,8 +104,6 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
   uint64_t now;
   int ret;
 
-  UNUSED(expired);
-
   FAR struct hrtimer_test_s *test =
     (FAR struct hrtimer_test_s *)hrtimer;
 
@@ -151,13 +124,13 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
        * 500ms with nsec resolution
        */
 
-      diff = (uint32_t)(now - test->previous);
+      diff = (uint32_t)(now - expired);
 
       ASSERT(NSEC_PER_50MS < diff + HRTIMER_TEST_MARGIN);
       ASSERT(NSEC_PER_50MS > diff - HRTIMER_TEST_MARGIN);
     }
 
-  test->previous = now;
+  test->timestamp = now;
 
   /* Stop the test after PERIOD_TEST_COUNT expirations */
 
@@ -196,11 +169,28 @@ hrtimer_test_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 
 static void * hrtimer_test_thread(void *arg)
 {
-  hrtimer_t timer;
-  int ret;
-  int i = 0;
+  hrtimer_test_t test;
+  int             ret;
+  uint64_t      stamp;
+  int               i = 0;
+  hrtimer_t    *timer = &test.timer;
 
-  hrtimer_init(&timer);
+  /* Initialize the high-resolution timer */
+
+  hrtimer_init(timer);
+
+  /* Start the timer with 500ms relative timeout */
+
+  stamp = test.timestamp;
+  ASSERT(hrtimer_start(timer, test_hrtimer_callback,
+                       NSEC_PER_50MS, HRTIMER_MODE_REL) == OK);
+
+  /* Wait until the test completes */
+
+  while (test.timestamp != stamp)
+    {
+      usleep(USEC_PER_MSEC);
+    }
 
   while (i < THREAD_LOOP_COUNT)
     {
@@ -260,33 +250,7 @@ void hrtimer_test(void)
   unsigned int thread_id;
   pthread_attr_t attr;
   pthread_t pthreads[HRTIMER_TEST_THREAD_NR];
-  struct hrtimer_test_s hrtimer_test;
   int ret;
-
-  /* Initialize test structure */
-
-  hrtimer_test_init(&hrtimer_test, NSEC_PER_50MS);
-
-  /* Initialize the high-resolution timer */
-
-  hrtimer_init(&hrtimer_test.timer);
-
-  /* Start the timer with 500ms relative timeout */
-
-  ret = hrtimer_start(&hrtimer_test.timer,
-                      test_hrtimer_callback,
-                      hrtimer_test.period,
-                      HRTIMER_MODE_REL);
-
-  ASSERT(ret == OK);
-
-
-  /* Wait until the test completes */
-
-  while (hrtimer_test.active)
-    {
-      usleep(USEC_PER_MSEC);
-    }
 
   pthread_attr_init(&attr);
 
