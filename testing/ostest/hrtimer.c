@@ -41,23 +41,22 @@
 
 /* Timer constants */
 
-#define NSEC_PER_50MS            (50 * NSEC_PER_MSEC)
-#define PERIOD_TEST_COUNT        15
-#define THREAD_LOOP_COUNT        50
-#define HRTIMER_TEST_THREAD_NR   (CONFIG_SMP_NCPUS * 5)
+#define HRTIMER_PERIOD_TEST_NR 15
+#define HRTIMER_THREAD_LOOP_NR 50
+#define HRTIMER_TEST_THREAD_NR (CONFIG_SMP_NCPUS * 5)
 
-/* Set a 1ms margin to allow hrtimertest to pass in QEMU.
+/* Set a 1ms latency to allow hrtimertest to pass in QEMU.
  *
  * QEMU is a virtual platform, and its timer resolution and scheduling
  * latency may be less precise than on real hardware. Using a larger
- * margin ensures that tests do not fail due to timing inaccuracies.
+ * latency ensures that tests do not fail due to timing inaccuracies.
  *
  * On real hardware (verified on the a2g-tc397-5v-tft board), this
- * margin can be reduced to less than 5 ns because timers are precise
+ * latency can be reduced to less than 5 ns because timers are precise
  * and deterministic.
  */
 
-#define HRTIMER_TEST_MARGIN    (NSEC_PER_MSEC)
+#define HRTIMER_TEST_TOLERENT_LATENCY (NSEC_PER_MSEC)
 
 /****************************************************************************
  * Private Types
@@ -126,17 +125,17 @@ test_hrtimer_callback(FAR const hrtimer_t *hrtimer, uint64_t expired)
 
   ASSERT(diff >= 0);
 
-  if (diff > HRTIMER_TEST_MARGIN)
+  if (diff > HRTIMER_TEST_TOLERENT_LATENCY)
     {
       printf("hrtimer_test: warning diff=%" PRIu64 " > %" PRIu64 "\n",
-             diff, HRTIMER_TEST_MARGIN);
+             diff, HRTIMER_TEST_TOLERENT_LATENCY);
     }
 
   test->timestamp = now;
 
-  /* Stop the test after PERIOD_TEST_COUNT expirations */
+  /* Stop the test after HRTIMER_PERIOD_TEST_NR expirations */
 
-  if (test->count < PERIOD_TEST_COUNT)
+  if (test->count < HRTIMER_PERIOD_TEST_NR)
     {
       return test->period;
     }
@@ -174,7 +173,7 @@ static void * hrtimer_test_thread(void *arg)
   hrtimer_test_t test;
   int             ret;
   uint64_t      stamp;
-  int               i = 0;
+  int        loop_cnt = 0;
   hrtimer_t    *timer = &test.timer;
 
   /* Initialize the high-resolution timer */
@@ -185,7 +184,7 @@ static void * hrtimer_test_thread(void *arg)
 
   stamp = test.timestamp;
   ASSERT(hrtimer_start(timer, test_hrtimer_callback,
-                       NSEC_PER_50MS, HRTIMER_MODE_REL) == OK);
+                       50 * NSEC_PER_MSEC, HRTIMER_MODE_REL) == OK);
 
   /* Wait until the test completes */
 
@@ -194,9 +193,8 @@ static void * hrtimer_test_thread(void *arg)
       usleep(USEC_PER_MSEC);
     }
 
-  while (i < THREAD_LOOP_COUNT)
+  while (loop_cnt++ < HRTIMER_THREAD_LOOP_NR)
     {
-      i++;
       uint64_t delay = rand() % NSEC_PER_MSEC;
 
       /* Cancel timer */
@@ -249,15 +247,16 @@ static void * hrtimer_test_thread(void *arg)
 void hrtimer_test(void)
 {
   struct sched_param sparam;
-  unsigned int thread_id;
-  pthread_attr_t attr;
-  pthread_t pthreads[HRTIMER_TEST_THREAD_NR];
-  int ret;
+  unsigned int    thread_id;
+  pthread_attr_t       attr;
+  pthread_t        pthreads[HRTIMER_TEST_THREAD_NR];
 
-  pthread_attr_init(&attr);
+  printf("hrtimer_test start...\n");
+
+  ASSERT(pthread_attr_init(&attr) == 0);
 
   sparam.sched_priority = PTHREAD_DEFAULT_PRIORITY;
-  pthread_attr_setschedparam(&attr, &sparam);
+  ASSERT(pthread_attr_setschedparam(&attr, &sparam) == 0);
 
   for (thread_id = 0; thread_id < HRTIMER_TEST_THREAD_NR; thread_id++)
     {
@@ -273,4 +272,6 @@ void hrtimer_test(void)
     }
 
   ASSERT(pthread_attr_destroy(&attr) == 0);
+
+  printf("hrtimer_test end...\n");
 }
