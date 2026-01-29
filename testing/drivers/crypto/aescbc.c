@@ -21,6 +21,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <err.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -45,7 +51,7 @@ struct tb
   FAR const char *cipher;
   uint32_t len;
 }
-static testcase [] =
+static const g_testcase [] =
 {
   {
     "\x06\xa9\x21\x40\x36\xb8\xa1\x5b\x51\x2e\x03\xd5\x34\x12\x00\x06",
@@ -112,6 +118,7 @@ static int syscrypt(FAR const char *key, size_t klen,
   memset(&session, 0, sizeof(session));
   session.cipher = CRYPTO_AES_CBC;
   session.key = (caddr_t) key;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   session.keylen = klen;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
@@ -125,6 +132,8 @@ static int syscrypt(FAR const char *key, size_t klen,
   cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = len;
+  cryp.ivlen = 16;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) tmp_iv;
@@ -133,6 +142,89 @@ static int syscrypt(FAR const char *key, size_t klen,
     {
       warn("CIOCCRYPT");
       goto err;
+    }
+
+  if (ioctl(cryptodev_fd, CIOCFSESSION, &session.ses) == -1)
+    {
+      warn("CIOCFSESSION");
+      goto err;
+    }
+
+  close(cryptodev_fd);
+  close(fd);
+  return (0);
+
+err:
+  if (cryptodev_fd != -1)
+    {
+      close(cryptodev_fd);
+    }
+
+  if (fd != -1)
+    {
+      close(fd);
+    }
+
+  return (-1);
+}
+
+static int syscrypt_stream(FAR const char *key, size_t klen,
+                           FAR const char *iv, FAR const char *in,
+                           FAR unsigned char *out, size_t len, int encrypt)
+{
+  struct session_op session;
+  struct crypt_op cryp;
+  size_t offset = 0;
+  int cryptodev_fd = -1;
+  int fd = -1;
+  char tmp_iv[16];
+
+  if ((fd = open("/dev/crypto", O_RDWR, 0)) < 0)
+    {
+      warn("/dev/crypto");
+      goto err;
+    }
+
+  if (ioctl(fd, CRIOGET, &cryptodev_fd) == -1)
+    {
+      warn("CRIOGET");
+      goto err;
+    }
+
+  memset(&session, 0, sizeof(session));
+  session.cipher = CRYPTO_AES_CBC;
+  session.key = (caddr_t) key;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
+  session.keylen = klen;
+  if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
+    {
+      warn("CIOCGSESSION");
+      goto err;
+    }
+
+  memset(&cryp, 0, sizeof(cryp));
+  memcpy(tmp_iv, iv, 16);
+  cryp.ses = session.ses;
+  cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
+  cryp.flags = 0;
+  cryp.mac = 0;
+  cryp.ivlen = RIJNDAEL128_BLOCK_LEN;
+  cryp.iv = (caddr_t)tmp_iv;
+  while (len >= RIJNDAEL128_BLOCK_LEN)
+    {
+      cryp.len = RIJNDAEL128_BLOCK_LEN;
+      cryp.olen = RIJNDAEL128_BLOCK_LEN;
+      cryp.src = (caddr_t) in + offset;
+      cryp.dst = (caddr_t) out + offset;
+      if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
+        {
+          warn("CIOCCRYPT");
+          goto err;
+        }
+
+      cryp.flags |= COP_FLAG_UPDATE;
+      len -= RIJNDAEL128_BLOCK_LEN;
+      offset += RIJNDAEL128_BLOCK_LEN;
     }
 
   if (ioctl(cryptodev_fd, CIOCFSESSION, &session.ses) == -1)
@@ -186,50 +278,52 @@ static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
   return -1;
 }
 
+static void test_aescbc(void **state)
+{
+  unsigned char out[64];
+
+  for (int i = 0; i < nitems(g_testcase); i++)
+    {
+      assert_int_equal(syscrypt(g_testcase[i].key, 16,
+                                g_testcase[i].iv, g_testcase[i].plain,
+                                out, g_testcase[i].len, 1), 0);
+
+      assert_int_equal(match(out, (FAR unsigned char *)g_testcase[i].cipher,
+                             g_testcase[i].len), 0);
+
+      assert_int_equal(syscrypt(g_testcase[i].key, 16,
+                                g_testcase[i].iv, g_testcase[i].cipher,
+                                out, g_testcase[i].len, 0), 0);
+
+      assert_int_equal(match(out, (FAR unsigned char *)g_testcase[i].plain,
+                             g_testcase[i].len), 0);
+
+      assert_int_equal(syscrypt_stream(g_testcase[i].key, 16,
+                                       g_testcase[i].iv, g_testcase[i].plain,
+                                       out, g_testcase[i].len, 1), 0);
+
+      assert_int_equal(match(out, (FAR unsigned char *)g_testcase[i].cipher,
+                             g_testcase[i].len), 0);
+
+      assert_int_equal(syscrypt_stream(g_testcase[i].key, 16,
+                                       g_testcase[i].iv,
+                                       g_testcase[i].cipher,
+                                       out, g_testcase[i].len, 0), 0);
+
+      assert_int_equal(match(out, (FAR unsigned char *)g_testcase[i].plain,
+                             g_testcase[i].len), 0);
+    }
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, char *argv[])
+int main(int argc, FAR char *argv[])
 {
-  int ret;
-  unsigned char out[64];
+  const struct CMUnitTest aescbc_tests[] = {
+      cmocka_unit_test(test_aescbc),
+  };
 
-  for (int i = 0; i < nitems(testcase); i++)
-    {
-      ret = syscrypt(testcase[i].key, 16, testcase[i].iv, testcase[i].plain,
-                     out, testcase[i].len, 1);
-      if (ret)
-        {
-          printf("aescbc encrypt field in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = match(out, (FAR unsigned char *)testcase[i].cipher,
-                  testcase[i].len);
-      if (ret)
-        {
-          printf("aescbc encrypt field in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = syscrypt(testcase[i].key, 16, testcase[i].iv, testcase[i].cipher,
-                     out, testcase[i].len, 0);
-      if (ret)
-        {
-          printf("aescbc decrypt field in testcase:%d\n", i);
-          return -1;
-        }
-
-      ret = match(out, (FAR unsigned char *)testcase[i].plain,
-                  testcase[i].len);
-      if (ret)
-        {
-          printf("aescbc decrypt field in testcase:%d\n", i);
-          return -1;
-        }
-    }
-
-  printf("aescbc test ok\n");
-  return 0;
+  return cmocka_run_group_tests(aescbc_tests, NULL, NULL);
 }

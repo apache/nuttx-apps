@@ -29,6 +29,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
@@ -41,7 +47,7 @@
 #include <unistd.h>
 
 static int syscrypt(FAR const unsigned char *key, size_t klen,
-                    FAR const unsigned char *iv,
+                    FAR const unsigned char *iv, size_t ivlen,
                     FAR const unsigned char *in, FAR unsigned char *out,
                     size_t len, int encrypt)
 {
@@ -66,6 +72,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   session.cipher = CRYPTO_3DES_CBC;
   session.key = (caddr_t) key;
   session.keylen = klen;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
       warn("CIOCGSESSION");
@@ -77,6 +84,8 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = len;
+  cryp.ivlen = ivlen;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
   cryp.iv = (caddr_t) iv;
@@ -138,15 +147,11 @@ static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
 }
 #define SZ 16
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static void test_3descbc(void **state)
 {
+  const unsigned char key[24] = "012345670123456701234567";
   unsigned char iv0[8];
   unsigned char iv[8];
-  unsigned char key[24] = "012345670123456701234567";
   unsigned char b1[SZ];
   unsigned char b2[SZ];
   int i;
@@ -180,14 +185,14 @@ int main(int argc, FAR char **argv)
   memset(b2, 0, sizeof(b2));
   memcpy(iv, iv0, sizeof(iv0));
 
-  if (syscrypt(key, sizeof(key), iv, b1, b2, sizeof(b1), 1) < 0)
+  if (syscrypt(key, sizeof(key), iv, sizeof(iv), b1, b2, sizeof(b1), 1) < 0)
     {
       warnx("encrypt with /dev/crypto failed");
       fail++;
     }
 
   memcpy(iv, iv0, sizeof(iv0));
-  if (syscrypt(key, sizeof(key), iv, b2, b2, sizeof(b1), 0) < 0)
+  if (syscrypt(key, sizeof(key), iv, sizeof(iv), b2, b2, sizeof(b1), 0) < 0)
     {
       warnx("decrypt with /dev/crypto failed");
       fail++;
@@ -202,5 +207,18 @@ int main(int argc, FAR char **argv)
       printf("ok, encrypt with /dev/crypto, decrypt with /dev/crypto\n");
     }
 
-  exit((fail > 0) ? 1 : 0);
+  assert_int_equal(fail, 0);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest descbc_tests[] = {
+      cmocka_unit_test(test_3descbc),
+  };
+
+  return cmocka_run_group_tests(descbc_tests, NULL, NULL);
 }

@@ -30,6 +30,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <setjmp.h>
+#include <cmocka.h>
+
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/param.h>
@@ -53,7 +59,7 @@ struct aes_xts_ctx
 
 struct aes_xts_tv
 {
-  u_int64_t seqno;
+  u_int8_t data_unit[16];
   u_int key_len;
   u_int8_t key[64];
   u_int text_len;
@@ -63,10 +69,13 @@ struct aes_xts_tv
 
 /* Test vectors from IEEE P1619/D16, Annex B. */
 
-struct aes_xts_tv aes_xts_test_vectors[] =
+static const struct aes_xts_tv g_aes_xts_test_vectors[] =
 {
   {
-    0x00000000ull,
+    {
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -89,7 +98,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x3333333333ull,
+    {
+      0x33, 0x33, 0x33, 0x33, 0x33, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
@@ -112,7 +124,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x3333333333ull,
+    {
+      0x33, 0x33, 0x33, 0x33, 0x33, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8,
@@ -135,7 +150,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x00000000ull,
+    {
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -278,7 +296,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x00000001ull,
+    {
+      0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -421,7 +442,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x00000002ull,
+    {
+      0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -564,7 +588,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x000000fdull,
+    {
+      0xfd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -707,7 +734,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x000000feull,
+    {
+      0xfe, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -850,7 +880,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x000000ffull,
+    {
+      0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     32,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -993,7 +1026,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x000000ffull,
+    {
+      0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     64,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -1140,7 +1176,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x0000ffffull,
+    {
+      0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     64,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -1287,7 +1326,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0x00ffffffull,
+    {
+      0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     64,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -1434,7 +1476,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0xffffffffull,
+    {
+      0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     64,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -1581,7 +1626,10 @@ struct aes_xts_tv aes_xts_test_vectors[] =
     },
   },
   {
-    0xffffffffffull,
+    {
+      0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    },
     64,
     {
       0x27, 0x18, 0x28, 0x18, 0x28, 0x45, 0x90, 0x45,
@@ -1729,7 +1777,8 @@ struct aes_xts_tv aes_xts_test_vectors[] =
   },
 };
 
-static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
+static int match(FAR unsigned char *a,
+                 FAR const unsigned char *b, size_t len)
 {
   size_t i;
 
@@ -1757,7 +1806,8 @@ static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
 }
 
 static int syscrypt(FAR const unsigned char *key, size_t klen,
-                    u_int64_t seqno, FAR const unsigned char *in,
+                    FAR const uint8_t *data_unit, size_t ivlen,
+                    FAR const unsigned char *in,
                     FAR unsigned char *out, size_t len, int encrypt)
 {
   struct session_op session;
@@ -1781,6 +1831,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   session.cipher = CRYPTO_AES_XTS;
   session.key = (caddr_t) key;
   session.keylen = klen;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
     {
       warn("CIOCGSESSION");
@@ -1792,9 +1843,11 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
   cryp.flags = 0;
   cryp.len = len;
+  cryp.olen = len;
+  cryp.ivlen = ivlen;
   cryp.src = (caddr_t) in;
   cryp.dst = (caddr_t) out;
-  cryp.iv = (caddr_t) &seqno;
+  cryp.iv = (caddr_t) data_unit;
   cryp.mac = 0;
   if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
     {
@@ -1826,24 +1879,104 @@ err:
   return (-1);
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int main(int argc, FAR char **argv)
+static int syscrypt_stream(FAR const unsigned char *key, size_t klen,
+                           FAR const uint8_t *data_unit, size_t ivlen,
+                           FAR const unsigned char *in,
+                           FAR unsigned char *out, size_t len, int encrypt)
 {
-  struct aes_xts_tv *tv;
+  struct session_op session;
+  struct crypt_op cryp;
+  uint32_t offset = 0;
+  int cryptodev_fd = -1;
+  int fd = -1;
+
+  if ((fd = open("/dev/crypto", O_RDWR, 0)) < 0)
+    {
+      warn("/dev/crypto");
+      goto err;
+    }
+
+  if (ioctl(fd, CRIOGET, &cryptodev_fd) == -1)
+    {
+      warn("CRIOGET");
+      goto err;
+    }
+
+  memset(&session, 0, sizeof(session));
+  session.cipher = CRYPTO_AES_XTS;
+  session.key = (caddr_t) key;
+  session.keylen = klen;
+  session.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
+  if (ioctl(cryptodev_fd, CIOCGSESSION, &session) == -1)
+    {
+      warn("CIOCGSESSION");
+      goto err;
+    }
+
+  memset(&cryp, 0, sizeof(cryp));
+  cryp.ses = session.ses;
+  cryp.op = encrypt ? COP_ENCRYPT : COP_DECRYPT;
+  cryp.flags = 0;
+  cryp.mac = 0;
+  cryp.ivlen = ivlen;
+  cryp.iv = (caddr_t)data_unit;
+  while (len >= RIJNDAEL128_BLOCK_LEN)
+    {
+      cryp.len = RIJNDAEL128_BLOCK_LEN;
+      cryp.olen = RIJNDAEL128_BLOCK_LEN;
+      cryp.src = (caddr_t)in + offset;
+      cryp.dst = (caddr_t)out + offset;
+      if (ioctl(cryptodev_fd, CIOCCRYPT, &cryp) == -1)
+        {
+          warn("CIOCCRYPT");
+          goto err;
+        }
+
+      cryp.ivlen = 0;
+      cryp.iv = (caddr_t)NULL;
+      cryp.flags |= COP_FLAG_UPDATE;
+      len -= RIJNDAEL128_BLOCK_LEN;
+      offset += RIJNDAEL128_BLOCK_LEN;
+    }
+
+  if (ioctl(cryptodev_fd, CIOCFSESSION, &session.ses) == -1)
+    {
+      warn("CIOCFSESSION");
+      goto err;
+    }
+
+  close(cryptodev_fd);
+  close(fd);
+  return (0);
+
+err:
+  if (cryptodev_fd != -1)
+    {
+      close(cryptodev_fd);
+    }
+
+  if (fd != -1)
+    {
+      close(fd);
+    }
+
+  return (-1);
+}
+
+static void test_aesxts(void **state)
+{
+  const struct aes_xts_tv *tv;
   u_int8_t result[512];
   int fail = 0;
   size_t i;
 
-  for (i = 0; i < nitems(aes_xts_test_vectors); i++)
+  for (i = 0; i < nitems(g_aes_xts_test_vectors); i++)
     {
-      tv = &aes_xts_test_vectors[i];
+      tv = &g_aes_xts_test_vectors[i];
 
       /* Encrypt test */
 
-      if (syscrypt(tv->key, tv->key_len, tv->seqno, tv->plaintext,
+      if (syscrypt(tv->key, tv->key_len, tv->data_unit, 16, tv->plaintext,
                       result, tv->text_len, 1) < 0)
         {
           printf("FAIL encrypt test vector %zu\n", i);
@@ -1859,9 +1992,25 @@ int main(int argc, FAR char **argv)
 
       printf("OK encrypt test vector %zu\n", i);
 
+      if (syscrypt_stream(tv->key, tv->key_len, tv->data_unit, 16,
+                          tv->plaintext, result, tv->text_len, 1) < 0)
+        {
+          printf("FAIL encrypt test vector %zu in stream mode\n", i);
+          fail++;
+          break;
+        }
+
+      if (!match(result, tv->ciphertext, tv->text_len))
+        {
+          fail++;
+          break;
+        }
+
+      printf("OK encrypt test vector %zu in stream mode\n", i);
+
       /* Decrypt test */
 
-      if (syscrypt(tv->key, tv->key_len, tv->seqno, tv->ciphertext,
+      if (syscrypt(tv->key, tv->key_len, tv->data_unit, 16, tv->ciphertext,
           result, tv->text_len, 0) < 0)
         {
           printf("FAIL decrypt test vector %zu\n", i);
@@ -1876,7 +2025,36 @@ int main(int argc, FAR char **argv)
         }
 
       printf("OK decrypt test vector %zu\n", i);
+
+      if (syscrypt_stream(tv->key, tv->key_len, tv->data_unit, 16,
+                          tv->ciphertext, result, tv->text_len, 0) < 0)
+        {
+          printf("FAIL decrypt test vector %zu in stream mode\n", i);
+          fail++;
+          break;
+        }
+
+      if (!match(result, tv->plaintext, tv->text_len))
+        {
+          fail++;
+          break;
+        }
+
+      printf("OK decrypt test vector %zu in stream mode\n", i);
     }
 
-  exit((fail > 0) ? 1 : 0);
+  assert_int_equal(fail, 0);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  const struct CMUnitTest aesxts_tests[] = {
+      cmocka_unit_test(test_aesxts),
+  };
+
+  return cmocka_run_group_tests(aesxts_tests, NULL, NULL);
 }
