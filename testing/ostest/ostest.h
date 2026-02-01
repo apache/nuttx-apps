@@ -290,6 +290,12 @@ void smp_call_test(void);
 
 void spinlock_test(void);
 
+/* perf_gettime.c ***********************************************************/
+
+#ifdef CONFIG_ARCH_HAVE_PERF_EVENTS
+void perf_gettime_test(void);
+#endif
+
 /* APIs exported (conditionally) by the OS specifically for testing of
  * priority inheritance
  */
