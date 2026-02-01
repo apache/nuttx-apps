@@ -166,6 +166,10 @@ CSRCS += hrtimer.c
 endif
 endif
 
+ifeq ($(CONFIG_ARCH_HAVE_PERF_EVENTS),y)
+CSRCS += perf_gettime.c
+endif
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 CSRCS += wdog.c spinlock.c
 endif
