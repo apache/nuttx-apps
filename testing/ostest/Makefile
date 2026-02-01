@@ -111,6 +111,8 @@ ifneq ($(CONFIG_RR_INTERVAL),0)
 CSRCS += roundrobin.c
 endif
 
+CSRCS += sched_params.c
+
 ifeq ($(CONFIG_SCHED_SPORADIC),y)
 CSRCS += sporadic.c sporadic2.c
 endif

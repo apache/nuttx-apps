@@ -224,6 +224,10 @@ void sigev_thread_test(void);
 
 void rr_test(void);
 
+/* sched_params.c ***********************************************************/
+
+void sched_params_test(void);
+
 /* sporadic.c ***************************************************************/
 
 void sporadic_test(void);

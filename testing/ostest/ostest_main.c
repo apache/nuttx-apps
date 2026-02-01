@@ -574,6 +574,14 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#if !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_BUILD_FLAT)
+      /* Verify scheduler parameter functions */
+
+      printf("\nuser_main: scheduler parameters test\n");
+      sched_params_test();
+      check_test_memory_usage();
+#endif
+
 #if !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_SCHED_SPORADIC)
       /* Verify sporadic scheduling */
 

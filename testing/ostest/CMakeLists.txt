@@ -110,6 +110,8 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS roundrobin.c)
     endif()
 
+    list(APPEND SRCS sched_params.c)
+
     if(CONFIG_SCHED_SPORADIC)
       list(APPEND SRCS sporadic.c sporadic2.c)
     endif()
