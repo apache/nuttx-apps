@@ -45,18 +45,22 @@
 #define HRTIMER_THREAD_LOOP_NR 50
 #define HRTIMER_TEST_THREAD_NR (CONFIG_SMP_NCPUS * 5)
 
-/* Set a 1ms latency to allow hrtimertest to pass in QEMU.
+/* Set the tolerent latency to 10ms to allow hrtimer_test to pass
+ * in QEMU.
  *
- * QEMU is a virtual platform, and its timer resolution and scheduling
- * latency may be less precise than on real hardware. Using a larger
- * latency ensures that tests do not fail due to timing inaccuracies.
+ * QEMU is a virtual platform, vCPUs can be preempted by any
+ * high priority thread. This can cause the timer to be triggered
+ * later than expected. This is especially true on QEMU because it
+ * has a lot of overhead. The timer resolution is also less precise
+ * than on real hardware. Using a larger latency ensures that tests
+ * do not fail due to timing inaccuracies.
  *
  * On real hardware (verified on the a2g-tc397-5v-tft board), this
  * latency can be reduced to less than 5 ns because timers are precise
  * and deterministic.
  */
 
-#define HRTIMER_TEST_TOLERENT_LATENCY (NSEC_PER_MSEC)
+#define HRTIMER_TEST_TOLERENT_LATENCY (10 * NSEC_PER_MSEC)
 
 /****************************************************************************
  * Private Types
