@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/note/noteram_driver.h>
+#include <nuttx/note/note_driver.h>
 
 #include <fcntl.h>
 #include <stdbool.h>
@@ -84,8 +84,8 @@ int trace_dump(FAR FILE *out, bool binary)
 
   if (binary)
     {
-      unsigned int mode = NOTERAM_MODE_READ_BINARY;
-      ret = ioctl(fd, NOTERAM_SETREADMODE, &mode);
+      unsigned int mode = NOTE_MODE_READ_BINARY;
+      ret = ioctl(fd, NOTE_SETREADMODE, &mode);
       if (ret < 0)
         {
           fprintf(stderr, "trace: cannot set read mode\n");
@@ -129,7 +129,7 @@ int trace_dump(FAR FILE *out, bool binary)
 
 void trace_dump_clear(void)
 {
-  note_ioctl(NOTERAM_CLEAR, 0);
+  note_ioctl(NOTE_CLEAR, 0);
 }
 
 /****************************************************************************
@@ -144,9 +144,9 @@ bool trace_dump_get_overwrite(void)
 {
   unsigned int mode = 0;
 
-  note_ioctl(NOTERAM_GETMODE, (unsigned long)&mode);
+  note_ioctl(NOTE_GETMODE, (unsigned long)&mode);
 
-  return mode == NOTERAM_MODE_OVERWRITE_ENABLE;
+  return mode == NOTE_MODE_OVERWRITE_ENABLE;
 }
 
 /****************************************************************************
@@ -161,8 +161,8 @@ void trace_dump_set_overwrite(bool enable)
 {
   unsigned int mode;
 
-  mode = enable ? NOTERAM_MODE_OVERWRITE_ENABLE :
-                  NOTERAM_MODE_OVERWRITE_DISABLE;
+  mode = enable ? NOTE_MODE_OVERWRITE_ENABLE :
+                  NOTE_MODE_OVERWRITE_DISABLE;
 
-  note_ioctl(NOTERAM_SETMODE, (unsigned long)&mode);
+  note_ioctl(NOTE_SETMODE, (unsigned long)&mode);
 }
