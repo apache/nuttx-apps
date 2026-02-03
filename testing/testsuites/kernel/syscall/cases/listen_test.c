@@ -68,10 +68,12 @@ void test_nuttx_syscall_listen01(FAR void **state)
 
   tdat[] =
     {
+    #ifndef CONFIG_FDCHECK
         {
           0, 0, 0, 0, -1, EBADF, "setup0", "cleanup0",
         "bad file descriptor"
         },
+    #endif
 
         {
           0, 0, 0, 0, -1, ENOTSOCK, "setup0", "cleanup0", "not a socket"

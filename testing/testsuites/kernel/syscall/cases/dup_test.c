@@ -78,7 +78,7 @@ void test_nuttx_syscall_dup01(FAR void **state)
 
 void test_nuttx_syscall_dup02(FAR void **state)
 {
-#ifndef CONFIG_FDSAN
+#if !defined(CONFIG_FDSAN) && !defined(CONFIG_FDCHECK)
   int fds[] =
   {
     -1, 1500
