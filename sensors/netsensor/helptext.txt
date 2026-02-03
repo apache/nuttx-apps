@@ -1,0 +1,15 @@
+USAGE:
+    netsensor [options] topic
+
+ARGUMENTS:
+    topic          The uORB this netsensor will publish.
+
+OPTIONS:
+    -h             Display this help message and quit.
+    -p <port>      Specify the UDP port to read from. Default: 5555
+    -d <devno>     Specify the device number that will be used for the new topic
+                   instance. Default: increment to next available.
+    -q <len>       Specify the queue length (buffer length) uORB will use to
+                   store published data. Default: 5
+    -t             If this flag is passed, timestamps will be overwritten by the
+                   time the data was received over UDP.

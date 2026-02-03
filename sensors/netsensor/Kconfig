@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SENSORS_NETSENSOR
+	tristate "Netsensor"
+	default n
+	depends on UORB
+	depends on USENSOR
+	depends on NET_UDP
+	---help---
+		Program for a networked sensor that publishes data received over UDP as
+		uORB topics.
+
+if SENSORS_NETSENSOR
+
+comment "Program options"
+
+config SENSORS_NETSENSOR_PRIORITY
+	int "Priority"
+	default 100
+	---help---
+		The task priority for the netsensor process.
+
+config SENSORS_NETSENSOR_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The stack size for the netsensor process.
+
+endif # SENSORS_NETSENSOR

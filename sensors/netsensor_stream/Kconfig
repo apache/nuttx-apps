@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SENSORS_NETSENSOR_STREAM
+	tristate "Netsensor stream"
+	default n
+	depends on UORB
+	depends on NET_UDP
+	---help---
+		Program to stream uORB data over UDP in a format which can be
+		interpreted by the netsensor.
+
+if SENSORS_NETSENSOR_STREAM
+
+comment "Program options"
+
+config SENSORS_NETSENSOR_STREAM_PRIORITY
+	int "Priority"
+	default 100
+	---help---
+		The task priority for the netsensor_stream process.
+
+config SENSORS_NETSENSOR_STREAM_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+	---help---
+		The stack size for the netsensor_stream process.
+
+endif # SENSORS_NETSENSOR_STREAM

@@ -1,0 +1,10 @@
+USAGE:
+    netsensor_stream [options] topic
+
+ARGUMENTS:
+    topic          The uORB topic to stream (including devno). Ex: sensor_baro0
+
+OPTIONS:
+    -h             Display this help message and quit.
+    -a <devno>     Specify the IP address to stream data to. Default: 127.0.0.1
+    -p <port>      Specify the UDP port to stream data to. Default: 5555
