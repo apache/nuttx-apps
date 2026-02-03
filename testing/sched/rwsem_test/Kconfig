@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_RWSEM_TEST
+	tristate "Reader-Writer Semaphore Comprehensive Test"
+	default n
+	---help---
+		Enable reader-writer semaphore optimization test suite.
+		This test validates the rwsem optimization that reduces
+		unnecessary context switches.
+
+		Test Coverage:
+		- Core Correctness Tests (6 tests)
+		- Performance Tests (3 tests)
+		- Basic Functionality Tests (1 test)
+
+if TESTING_RWSEM_TEST
+
+config TESTING_RWSEM_TEST_PRIORITY
+	int "RWSem test task priority"
+	default 100
+
+config TESTING_RWSEM_TEST_STACKSIZE
+	int "RWSem test stack size"
+	default 8192
+
+endif
