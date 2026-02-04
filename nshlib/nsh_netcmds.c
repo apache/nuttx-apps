@@ -63,6 +63,7 @@
 #include <nuttx/clock.h>
 #include <nuttx/net/net.h>
 #include <nuttx/net/netdev.h>
+#include <nuttx/net/netdev_lowerhalf.h>
 #include <nuttx/net/netstats.h>
 #include <nuttx/net/ip.h>
 #include <nuttx/net/icmp.h>
@@ -1129,19 +1130,36 @@ int cmd_vconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (!strcmp(argv[1], "add"))
     {
       int prio = 0;
+      uint8_t rx_type = NETDEV_RX_DEFAULT;
+      uint8_t rx_priority = 0;
 
-      if (argc != 4 && argc != 5)
+      /* "add <iface> <vid>" needs 4 arguments; pcp, rx-type and
+       * rx-priority are optional.
+       */
+
+      if (argc < 4 || argc > 7)
         {
           nsh_error(vtbl, g_fmtargrequired, argv[0]);
           return ERROR;
         }
 
-      if (argc == 5)
+      if (argc >= 5)
         {
           prio = atoi(argv[4]);
         }
 
-      if (netlib_add_vlan(argv[2], atoi(argv[3]), prio) < 0)
+      if (argc > 5)
+        {
+          rx_type = atoi(argv[5]);
+
+          if (argc == 7)
+            {
+              rx_priority = MIN(atoi(argv[6]), 255);
+            }
+        }
+
+      if (netlib_add_vlan(argv[2], atoi(argv[3]), prio, rx_type,
+                          rx_priority) < 0)
         {
           perror("Failed to add VLAN");
           return ERROR;

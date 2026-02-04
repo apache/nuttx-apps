@@ -305,8 +305,9 @@ static const struct cmdmap_s g_cmdmap[] =
     "[dns <dns-address>] [hw <hw-mac>] [up|down]"),
 #  endif
 #  if defined(CONFIG_NET_VLAN) && !defined(CONFIG_NSH_DISABLE_VCONFIG)
-  CMD_MAP("vconfig", cmd_vconfig, 3, 5,
-    "[add iface-name vlan-id [pcp]]|[rem vlan-name]"),
+  CMD_MAP("vconfig", cmd_vconfig, 3, 7,
+    "[add iface-name vlan-id [pcp [rx-type [rx-priority]]]]"
+    "|[rem vlan-name]"),
 #  endif
 #  ifndef CONFIG_NSH_DISABLE_IFUPDOWN
   CMD_MAP("ifdown",   cmd_ifdown,   2, 2, "<interface>"),
