@@ -49,21 +49,25 @@
  *
  ****************************************************************************/
 
-int netlib_add_vlan(FAR const char *ifname, int vlanid, int prio)
+int netlib_add_vlan(FAR const char *ifname, int vlanid, int prio,
+                    uint8_t rx_type, uint8_t rx_priority)
 {
   int ret = ERROR;
 
   if (ifname && vlanid > 0)
     {
       int sockfd = socket(NET_SOCK_FAMILY, NET_SOCK_TYPE, NET_SOCK_PROTOCOL);
+
       if (sockfd >= 0)
         {
           struct vlan_ioctl_args ifv;
 
           strlcpy(ifv.device1, ifname, sizeof(ifv.device1));
-          ifv.u.VID    = vlanid;
-          ifv.vlan_qos = prio;
-          ifv.cmd      = ADD_VLAN_CMD;
+          ifv.u.VID       = vlanid;
+          ifv.vlan_qos    = prio;
+          ifv.cmd         = ADD_VLAN_CMD;
+          ifv.rx_type     = rx_type;
+          ifv.rx_priority = rx_priority;
 
           ret = ioctl(sockfd, SIOCSIFVLAN, &ifv);
           close(sockfd);

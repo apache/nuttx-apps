@@ -374,7 +374,8 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid);
 #endif
 
 #ifdef CONFIG_NET_VLAN
-int netlib_add_vlan(FAR const char *ifname, int vlanid, int prio);
+int netlib_add_vlan(FAR const char *ifname, int vlanid, int prio,
+                    uint8_t rx_type, uint8_t rx_priority);
 int netlib_del_vlan(FAR const char *vlanif);
 #endif
 
