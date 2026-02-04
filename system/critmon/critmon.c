@@ -119,7 +119,9 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   FAR const char *tmpstr;
   FAR char *filepath;
   FAR char *maxpreemp;
-  FAR char *maxcrit;
+  FAR char *maxirqdis;
+  FAR char *maxbusywait;
+  FAR char *allbusywait;
   FAR char *maxrun;
   FAR char *runtime;
   FAR char *pos;
@@ -233,15 +235,34 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   maxpreemp = "None";
 #endif
 
-#if CONFIG_SCHED_CRITMONITOR_MAXTIME_CSECTION >= 0
-  maxcrit = pos;
-  pos = strchr(pos, ',');
-  if (pos != NULL)
+#if CONFIG_SCHED_CRITMONITOR_MAXTIME_IRQDISABLE >= 0
+  maxirqdis = pos;
+  pos = strchrnul(pos, ',');
+  if (*pos != '\0')
     {
       *pos++ = '\0';
     }
 #else
-  maxcrit = "None";
+  maxirqdis = "None";
+#endif
+
+#if CONFIG_SCHED_CRITMONITOR_MAXTIME_BUSYWAIT >= 0
+  maxbusywait = pos;
+  pos = strchr(pos, ',');
+  if (pos != NULL)
+    {
+      *pos++  = '\0';
+    }
+
+  allbusywait = pos;
+  pos = strchr(pos, ',');
+  if (pos != NULL)
+    {
+      *pos++  = '\0';
+    }
+#else
+  maxbusywait = "None";
+  allbusywait = "None";
 #endif
 
 #if CONFIG_SCHED_CRITMONITOR_MAXTIME_THREAD >= 0
@@ -266,11 +287,13 @@ static int critmon_process_directory(FAR struct dirent *entryp)
   /* Finally, output the stack info that we gleaned from the procfs */
 
 #if CONFIG_TASK_NAME_SIZE > 0
-  printf("%-29s %-29s %-16s %-16s %-5s %s\n",
-         maxpreemp, maxcrit, maxrun, runtime, entryp->d_name, name);
+  printf("%-29s %-29s %-29s %-29s %-16s %-16s %-5s %s\n",
+         maxpreemp, maxirqdis, maxbusywait, allbusywait,
+         maxrun, runtime, entryp->d_name, name);
 #else
-  printf("%-29s %-29s %16s %16s %5s\n",
-         maxpreemp, maxcrit, maxrun, runtime, entryp->d_name);
+  printf("%-29s %-29s %-29s %-29s %16s %16s %5s\n",
+         maxpreemp, maxirqdis, maxbusywait, allbusywait,
+         maxrun, runtime, entryp->d_name);
 #endif
 
   ret = OK;
@@ -324,7 +347,9 @@ static void critmon_global_crit(void)
   FAR char *filepath;
   FAR char *cpu;
   FAR char *maxpreemp;
-  FAR char *maxcrit;
+  FAR char *maxirqdis;
+  FAR char *maxbusywait;
+  FAR char *allbusywait;
   FAR char *pos;
   FILE *stream;
   int errcode;
@@ -381,22 +406,41 @@ static void critmon_global_crit(void)
       maxpreemp = "None";
 #endif
 
-#if CONFIG_SCHED_CRITMONITOR_MAXTIME_CSECTION >= 0
-      maxcrit = pos;
-      pos = strchr(pos, ',');
-      if (pos != NULL)
+#if CONFIG_SCHED_CRITMONITOR_MAXTIME_IRQDISABLE >= 0
+      maxirqdis = pos;
+      pos = strchrnul(pos, ',');
+      if (*pos != '\0')
         {
           *pos++ = '\0';
         }
 #else
-      maxcrit = "None";
+      maxirqdis = "None";
+#endif
+
+#if CONFIG_SCHED_CRITMONITOR_MAXTIME_BUSYWAIT >= 0
+      maxbusywait = pos;
+      pos = strchr(pos, ',');
+      if (pos != NULL)
+        {
+          *pos++  = '\0';
+        }
+
+      allbusywait = pos;
+      pos = strchr(pos, ',');
+      if (pos != NULL)
+        {
+          *pos++  = '\0';
+        }
+#else
+      maxbusywait = "None";
+      allbusywait = "None";
 #endif
 
       /* Finally, output the stack info that we gleaned from the procfs */
 
-      printf("%-29s %-29s ---------------- ---------------- ----  "
-             "CPU %s\n",
-              maxpreemp, maxcrit, cpu);
+      printf("%-29s %-29s %-29s %-29s ---------------- ---------------- ----"
+             "  CPU %s\n",
+              maxpreemp, maxirqdis, maxbusywait, allbusywait, cpu);
     }
 
   fclose(stream);
@@ -419,10 +463,12 @@ static int critmon_list_once(void)
   /* Output a Header */
 
 #if CONFIG_TASK_NAME_SIZE > 0
-  printf("PRE-EMPTION CALLER            CSECTION CALLER               "
+  printf("PRE-EMPTION CALLER            IRQ-DISABLE CALLER            "
+         "BUSYWAIT-MAX CALLER           BUSYWAIT-ALL RATE (%%)         "
          "RUN              TIME             PID   DESCRIPTION\n");
 #else
-  printf("PRE-EMPTION CALLER            CSECTION CALLER               "
+  printf("PRE-EMPTION CALLER            IRQ-DISABLE  CALLER            "
+         "BUSYWAIT-MAX CALLER           BUSYWAIT-ALL RATE (%%)         "
          "RUN              TIME             PID\n");
 #endif
 
