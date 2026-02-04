@@ -143,7 +143,7 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
   /* Set affinity to CPU0 */
 
 #ifdef CONFIG_SMP
-  if (OK != sched_setaffinity(getpid(), sizeof(cpu_set_t), &cpu_set))
+  if (OK != sched_setaffinity(0, sizeof(cpu_set_t), &cpu_set))
     {
       printf("spinlock_test: ERROR: nxsched_set_affinity failed");
       ASSERT(false);
@@ -159,6 +159,14 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
     {
       printf("spinlock_test: ERROR: "
              "pthread_attr_init failed, status=%d\n",  status);
+      ASSERT(false);
+    }
+
+  status = sched_getparam(getpid(), &sparam);
+  if (status != 0)
+    {
+      printf("spinlock_test: ERROR: "
+             "sched_getparam failed, status=%d\n",  status);
       ASSERT(false);
     }
 
@@ -227,7 +235,7 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
     {
       printf("%s: Test Results:\n", lock_type);
       printf("%s: Final counter: %" PRIu32 "\n", lock_type, pub.counter);
-      assert(pub.counter == thread_num * LOOP_TIMES);
+      ASSERT(pub.counter == thread_num * LOOP_TIMES);
       printf("%s: Average throughput : %" PRIu64 " op/s\n", lock_type,
             (uint64_t)NSEC_PER_SEC * LOOP_TIMES * thread_num / total_ns);
       printf("%s: Total execution time: %" PRIu64 " ns\n \n",
@@ -251,7 +259,6 @@ static void spinlock_test_thread_num(unsigned thread_num)
 {
   union spinlock_test_u lock;
 
-  printf("Start Lock test:\n");
   printf("Thread num: %u, Loop times: %d\n\n", thread_num, LOOP_TIMES);
 
   spin_lock_init(&lock.spinlock);
@@ -264,7 +271,7 @@ static void spinlock_test_thread_num(unsigned thread_num)
   run_test_thread(&lock, seqcount_t_test_thread, thread_num, "seqcount");
 }
 
-void spinlock_test(void)
+static void *spinlock_test_thread(void *arg)
 {
   unsigned tnr;
 
@@ -272,4 +279,26 @@ void spinlock_test(void)
     {
       spinlock_test_thread_num(tnr);
     }
+
+  return NULL;
+}
+
+void spinlock_test(void)
+{
+  pthread_t          tid;
+  pthread_attr_t     attr;
+  struct sched_param sparam;
+
+  ASSERT(0 == pthread_attr_init(&attr));
+
+  ASSERT(0 == sched_getparam(getpid(), &sparam));
+  sparam.sched_priority = SCHED_PRIORITY_MAX;
+  ASSERT(0 == pthread_attr_setschedparam(&attr, &sparam));
+
+  printf("spinlock_test: start......\n");
+
+  ASSERT(0 == pthread_create(&tid, &attr, spinlock_test_thread, NULL));
+  ASSERT(0 == pthread_join(tid, NULL));
+
+  printf("spinlock_test: end......\n");
 }
