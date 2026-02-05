@@ -80,13 +80,19 @@ static int32_t g_ms_cnt2[2] =
 
 static void my_mdelay(unsigned int milliseconds)
 {
-  volatile unsigned int i;
-  volatile unsigned int j;
+  struct timespec start;
+  struct timespec cur;
+  struct timespec diff;
 
-  for (i = 0; i < milliseconds; i++)
+  clock_gettime(CLOCK_MONOTONIC, &start);
+
+  for (; ; )
     {
-      for (j = 0; j < CONFIG_BOARD_LOOPSPERMSEC; j++)
+      clock_gettime(CLOCK_MONOTONIC, &cur);
+      clock_timespec_subtract(&cur, &start, &diff);
+      if (diff.tv_sec * 1000 + diff.tv_nsec / 1000000 > milliseconds)
         {
+          break;
         }
     }
 }
@@ -172,7 +178,7 @@ static void sporadic_test_case(int32_t budget_1_ns, int32_t budget_2_ns)
 
   sem_init(&g_sporadic_sem, 0, 0);
 
-  /* initilize global worker-thread millisecons-counters */
+  /* Initialize global worker-thread milliseconds-counters */
 
   g_ms_cnt1[PRIO_HI_NDX] = 0;
   g_ms_cnt1[PRIO_LO_NDX] = 0;
