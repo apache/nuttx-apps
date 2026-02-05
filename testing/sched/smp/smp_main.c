@@ -27,6 +27,7 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
@@ -87,13 +88,19 @@ static void show_cpu_conditional(FAR const char *caller, int threadno)
 
 static void hog_milliseconds(unsigned int milliseconds)
 {
-  volatile unsigned int i;
-  volatile unsigned int j;
+  struct timespec start;
+  struct timespec cur;
+  struct timespec diff;
 
-  for (i = 0; i < milliseconds; i++)
+  clock_gettime(CLOCK_MONOTONIC, &start);
+
+  for (; ; )
     {
-      for (j = 0; j < CONFIG_BOARD_LOOPSPERMSEC; j++)
+      clock_gettime(CLOCK_MONOTONIC, &cur);
+      clock_timespec_subtract(&cur, &start, &diff);
+      if (diff.tv_sec * 1000 + diff.tv_nsec / 1000000 > milliseconds)
         {
+          break;
         }
     }
 }
