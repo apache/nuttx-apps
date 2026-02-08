@@ -30,12 +30,13 @@ if(CONFIG_NETUTILS_CJSON)
     set(CONFIG_NETUTILS_CJSON_VERSION "1.7.10")
   endif()
 
+  # GitHub requires refs/tags/ in the archive URL for tag downloads
   if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/cJSON)
     FetchContent_Declare(
       cJSON
       DOWNLOAD_NAME "v${CONFIG_NETUTILS_CJSON_VERSION}.tar.gz"
       DOWNLOAD_DIR ${CMAKE_CURRENT_LIST_DIR}
-      URL "${CONFIG_NETUTILS_CJSON_URL}/v${CONFIG_NETUTILS_CJSON_VERSION}.tar.gz"
+      URL "${CONFIG_NETUTILS_CJSON_URL}/refs/tags/v${CONFIG_NETUTILS_CJSON_VERSION}.tar.gz"
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/cJSON
           BINARY_DIR

@@ -49,10 +49,12 @@ CSRCS = $(CJSON_SRCDIR)$(DELIM)cJSON.c
 CSRCS += $(CJSON_SRCDIR)$(DELIM)cJSON_Utils.c
 
 # Download and unpack tarball if no git repo found
+# GitHub requires refs/tags/ in the archive URL for tag downloads (see
+# https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives)
 ifeq ($(wildcard $(CJSON_UNPACKNAME)/.git),)
 $(CJSON_TARBALL):
 	@echo "Downloading: $(CJSON_TARBALL)"
-	$(Q) curl -O -L $(CONFIG_NETUTILS_CJSON_URL)/$(CJSON_TARBALL)
+	$(Q) curl -O -L $(CONFIG_NETUTILS_CJSON_URL)/refs/tags/$(CJSON_TARBALL)
 
 $(CJSON_UNPACKNAME): $(CJSON_TARBALL)
 	@echo "Unpacking: $(CJSON_TARBALL) -> $(CJSON_UNPACKNAME)"
