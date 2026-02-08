@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_STDBIT_TEST
+	tristate "stdbit test tool"
+	default n
+	---help---
+		Performs a basic operations with stdbit call.
+
+if TESTING_STDBIT_TEST
+endif
