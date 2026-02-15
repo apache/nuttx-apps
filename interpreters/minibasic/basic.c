@@ -22,7 +22,7 @@
 
 /****************************************************************************
  *
- * This file was taken from Mini Basic, versino 1.0 developed by Malcolm
+ * This file was taken from Mini Basic, version 1.0 developed by Malcolm
  * McLean, Leeds University.  Mini Basic version 1.0 was released the
  * Creative Commons Attribution license which, from my reading, appears to
  * be compatible with the NuttX license:
@@ -990,7 +990,7 @@ static int doif(void)
  * Name: dogoto
  *
  * Description:
- *   The GOTO satement
+ *   The GOTO statement
  *   Returns new line number
  *
  ****************************************************************************/
@@ -3804,7 +3804,7 @@ static int isstring(int tokenid)
  * Description:
  *   Get a numerical value from the parse string
  *   Params: str - the string to search
- *           len - return pinter for no chars read
+ *           len - return pointer for no chars read
  *   Returns: the value of the string.
  *
  ****************************************************************************/

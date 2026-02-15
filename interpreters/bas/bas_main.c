@@ -129,7 +129,7 @@ int main(int argc, FAR char *argv[])
       fputs(_("-u  Output all tokens in uppercase\n"),
             stdout);
       fputs(_("-h  Display this help and exit\n"), stdout);
-      fputs(_("-V  Ooutput version information and exit\n"),
+      fputs(_("-V  Output version information and exit\n"),
             stdout);
       exit(0);
     }
