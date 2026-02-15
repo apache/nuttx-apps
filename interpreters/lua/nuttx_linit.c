@@ -48,7 +48,7 @@
 
 static const luaL_Reg g_loadedlibs[] =
 {
-#ifdef CONFIG_INTERPRETER_LUA_CORELIBS
+#ifdef CONFIG_INTERPRETERS_LUA_CORELIBS
   {LUA_GNAME, luaopen_base},
 #endif
 #include "luamod_list.h"
