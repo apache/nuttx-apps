@@ -20,9 +20,9 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_INTERPRETER_CPYTHON),)
+ifneq ($(CONFIG_INTERPRETERS_CPYTHON),)
 
-CPYTHON_VERSION = $(patsubst "%",%,$(strip $(CONFIG_INTERPRETER_CPYTHON_VERSION)))
+CPYTHON_VERSION = $(patsubst "%",%,$(strip $(CONFIG_INTERPRETERS_CPYTHON_VERSION)))
 CPYTHON_VERSION_MINOR=$(basename $(CPYTHON_VERSION))
 
 EXTRA_LIBPATHS += -L$(APPDIR)/interpreters/python/install/target

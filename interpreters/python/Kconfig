@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config INTERPRETER_CPYTHON
+config INTERPRETERS_CPYTHON
 	tristate "CPython"
 	depends on LIB_ZLIB
 	depends on EXPERIMENTAL
@@ -13,25 +13,25 @@ config INTERPRETER_CPYTHON
 		interpreter to NuttX. Initially, it is tweaked to work with the
 		RISC-V QEMU virtual board (`rv-virt`).
 
-if INTERPRETER_CPYTHON
+if INTERPRETERS_CPYTHON
 
-config INTERPRETER_CPYTHON_VERSION
+config INTERPRETERS_CPYTHON_VERSION
 	string "Python Version"
 	default "3.13.0"
 
-config INTERPRETER_CPYTHON_STACKSIZE
+config INTERPRETERS_CPYTHON_STACKSIZE
 	int "CPython stack size"
 	default 307200
 	---help---
 		This is the stack size allocated when the CPython task runs.
 
-config INTERPRETER_CPYTHON_PRIORITY
+config INTERPRETERS_CPYTHON_PRIORITY
 	int "CPython task priority"
 	default 100
 	---help---
 		This is the priority of the CPython task.
 
-config INTERPRETER_CPYTHON_PROGNAME
+config INTERPRETERS_CPYTHON_PROGNAME
 	string "CPython name"
 	default "python"
 	---help---
