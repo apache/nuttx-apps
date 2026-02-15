@@ -33,25 +33,25 @@ config INTERPRETERS_MINIBASIC
 
 if INTERPRETERS_MINIBASIC
 
-config INTERPRETER_MINIBASIC_PRIORITY
+config INTERPRETERS_MINIBASIC_PRIORITY
 	int "Basic interpreter priority"
 	default 100
 	---help---
 		Task priority of the Basic interpreter main task
 
-config INTERPRETER_MINIBASIC_STACKSIZE
+config INTERPRETERS_MINIBASIC_STACKSIZE
 	int "Basic interpreter stack size"
 	default 4096
 	---help---
 		Size of the stack allocated for the Basic interpreter main task
 
-config INTERPRETER_MINIBASIC_IOBUFSIZE
+config INTERPRETERS_MINIBASIC_IOBUFSIZE
 	int "I/O buffer size"
 	default 1024
 	---help---
 		Size of the statically allocated I/O buffer.
 
-config INTERPRETER_MINIBASIC_TESTSCRIPT
+config INTERPRETERS_MINIBASIC_TESTSCRIPT
 	bool "Test script"
 	default n
 	---help---
