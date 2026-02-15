@@ -84,7 +84,7 @@ int main(int argc, FAR char *argv[])
           break;
 
         case 'V':
-          printf("bas %s\n", CONFIG_INTERPRETER_BAS_VERSION);
+          printf("bas %s\n", CONFIG_INTERPRETERS_BAS_VERSION);
           exit(0);
           break;
 

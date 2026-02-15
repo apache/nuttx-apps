@@ -270,7 +270,7 @@ static int edit(int chn, int nl)
         {
           if (f->inCapacity)
             {
-#ifdef CONFIG_INTERPRETER_BAS_VT100
+#ifdef CONFIG_INTERPRETERS_BAS_VT100
               /* Could use vt100_clrtoeol */
 #endif
               /* Is the previous char in buffer 2 char escape sequence? */
@@ -319,7 +319,7 @@ static int edit(int chn, int nl)
 
 static int cls(int chn)
 {
-#ifdef CONFIG_INTERPRETER_BAS_VT100
+#ifdef CONFIG_INTERPRETERS_BAS_VT100
   vt100_clrscreen(chn);
   vt100_cursorhome(chn);
   return 0;
@@ -331,7 +331,7 @@ static int cls(int chn)
 
 static int locate(int chn, int line, int column)
 {
-#ifdef CONFIG_INTERPRETER_BAS_VT100
+#ifdef CONFIG_INTERPRETERS_BAS_VT100
   vt100_setcursor(chn, line, column);
   return 0;
 #else
@@ -342,7 +342,7 @@ static int locate(int chn, int line, int column)
 
 static int colour(int chn, int foreground, int background)
 {
-#ifdef CONFIG_INTERPRETER_BAS_VT100
+#ifdef CONFIG_INTERPRETERS_BAS_VT100
   if (foreground >= 0)
     {
       vt100_foreground_color(chn, foreground);
@@ -362,7 +362,7 @@ static int colour(int chn, int foreground, int background)
 
 static int resetcolour(int chn)
 {
-#ifdef CONFIG_INTERPRETER_BAS_VT100
+#ifdef CONFIG_INTERPRETERS_BAS_VT100
   vt100_foreground_color(chn, VT100_DEFAULT);
   vt100_background_color(chn, VT100_DEFAULT);
 #endif
@@ -837,7 +837,7 @@ int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
 
 int FS_truncate(int chn)
 {
-#ifdef CONFIG_INTERPRETER_BAS_HAVE_FTRUNCATE
+#ifdef CONFIG_INTERPRETERS_BAS_HAVE_FTRUNCATE
   int fd;
   off_t o;
 
@@ -1411,7 +1411,7 @@ int FS_inkeyChar(int dev, int ms)
   struct FileStream *f;
   char c;
   ssize_t len;
-#ifdef CONFIG_INTERPRETER_BAS_USE_SELECT
+#ifdef CONFIG_INTERPRETERS_BAS_USE_SELECT
   fd_set just_infd;
   struct timeval timeout;
 #endif
@@ -1427,7 +1427,7 @@ int FS_inkeyChar(int dev, int ms)
       return f->inBuf[f->inSize++];
     }
 
-#ifdef CONFIG_INTERPRETER_BAS_USE_SELECT
+#ifdef CONFIG_INTERPRETERS_BAS_USE_SELECT
   FD_ZERO(&just_infd);
   FD_SET(f->infd, &just_infd);
   timeout.tv_sec = ms / 1000;

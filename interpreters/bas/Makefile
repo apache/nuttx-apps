@@ -27,7 +27,7 @@ include $(APPDIR)/Make.defs
 CSRCS  = bas.c bas_auto.c bas_fs.c bas_global.c bas_program.c
 CSRCS += bas_str.c bas_token.c bas_value.c bas_var.c
 
-ifeq ($(CONFIG_INTERPRETER_BAS_VT100),y)
+ifeq ($(CONFIG_INTERPRETERS_BAS_VT100),y)
 CSRCS += bas_vt100.c
 endif
 
@@ -36,8 +36,8 @@ MAINSRC = bas_main.c
 # BAS built-in application info
 
 PROGNAME  = bas
-PRIORITY  = $(CONFIG_INTERPRETER_BAS_PRIORITY)
-STACKSIZE = $(CONFIG_INTERPRETER_BAS_STACKSIZE)
+PRIORITY  = $(CONFIG_INTERPRETERS_BAS_PRIORITY)
+STACKSIZE = $(CONFIG_INTERPRETERS_BAS_STACKSIZE)
 MODULE    = $(CONFIG_INTERPRETERS_BAS)
 
 include $(APPDIR)/Application.mk

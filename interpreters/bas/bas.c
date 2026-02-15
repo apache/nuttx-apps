@@ -614,7 +614,7 @@ static struct Value *func(struct Value *value)
   return value;
 }
 
-#ifdef CONFIG_INTERPRETER_BAS_USE_LR0
+#ifdef CONFIG_INTERPRETERS_BAS_USE_LR0
 
 /* Grammar with LR(0) sets */
 
@@ -2368,7 +2368,7 @@ void bas_interpreter(void)
 {
   if (FS_istty(STDCHANNEL))
     {
-      FS_putChars(STDCHANNEL, "bas " CONFIG_INTERPRETER_BAS_VERSION "\n");
+      FS_putChars(STDCHANNEL, "bas " CONFIG_INTERPRETERS_BAS_VERSION "\n");
       FS_putChars(STDCHANNEL, "Copyright 1999-2014 Michael Haardt.\n");
       FS_putChars(STDCHANNEL,
                   "This is free software with ABSOLUTELY NO WARRANTY.\n");

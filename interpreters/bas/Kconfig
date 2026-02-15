@@ -33,37 +33,37 @@ config INTERPRETERS_BAS
 
 if INTERPRETERS_BAS
 
-config INTERPRETER_BAS_VERSION
+config INTERPRETERS_BAS_VERSION
 	string "Version number"
 	default "2.4"
 
-config INTERPRETER_BAS_PRIORITY
+config INTERPRETERS_BAS_PRIORITY
 	int "Basic interpreter priority"
 	default 100
 	---help---
 		Task priority of the Basic interpreter main task
 
-config INTERPRETER_BAS_STACKSIZE
+config INTERPRETERS_BAS_STACKSIZE
 	int "Basic interpreter stack size"
 	default 4096
 	---help---
 		Size of the stack allocated for the Basic interpreter main task
 
-config INTERPRETER_BAS_VT100
+config INTERPRETERS_BAS_VT100
 	bool "VT100 terminal support"
 	default y
 
-config INTERPRETER_BAS_USE_LR0
+config INTERPRETERS_BAS_USE_LR0
 	bool "LR0 parser"
 	default n
 	---help---
 		Select if you want LR0 parser.
 
-config INTERPRETER_BAS_USE_SELECT
+config INTERPRETERS_BAS_USE_SELECT
 	bool "Use select()"
 	default n
 
-config INTERPRETER_BAS_HAVE_FTRUNCATE
+config INTERPRETERS_BAS_HAVE_FTRUNCATE
 	bool
 	default n
 	---help---
