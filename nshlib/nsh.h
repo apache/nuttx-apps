@@ -807,13 +807,6 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
  * available:
  */
 
-/* Architecture-specific initialization depends on boardctl(BOARDIOC_INIT) */
-
-#if defined(CONFIG_NSH_ARCHINIT) && !defined(CONFIG_BOARDCTL)
-#  warning CONFIG_NSH_ARCHINIT is set, but CONFIG_BOARDCTL is not
-#  undef CONFIG_NSH_ARCHINIT
-#endif
-
 /* The mkrd command depends on boardctl(BOARDIOC_MKRD) */
 
 #if !defined(CONFIG_BOARDCTL) || !defined(CONFIG_BOARDCTL_MKRD)

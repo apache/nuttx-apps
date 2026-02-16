@@ -412,7 +412,7 @@ static int blecent_gap_event(FAR struct ble_gap_event *event, FAR void *arg)
             return 0;
           }
 
-        /* An advertisment report was received during GAP discovery. */
+        /* An advertisement report was received during GAP discovery. */
 
         print_adv_fields(&fields);
 
@@ -631,12 +631,6 @@ int main(int argc, FAR char **argv)
     {
       ble_hci_sock_set_device(atoi(argv[1]));
     }
-
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization */
-
-  boardctl(BOARDIOC_INIT, 0);
-#endif
 
 #ifndef CONFIG_NSH_NETINIT
   /* Bring up the network */

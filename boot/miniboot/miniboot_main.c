@@ -39,7 +39,7 @@
  * Name: miniboot_main
  *
  * Description:
- *   Minimal bootlaoder entry point.
+ *   Minimal bootloader entry point.
  *
  ****************************************************************************/
 
@@ -48,10 +48,6 @@ int main(int argc, FAR char *argv[])
   struct boardioc_boot_info_s info;
 
   syslog(LOG_INFO, "*** miniboot ***\n");
-
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
 
 #ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
