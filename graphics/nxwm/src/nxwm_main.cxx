@@ -485,16 +485,6 @@ static bool createMediaPlayer(void)
 
 int main(int argc, char *argv[])
 {
-#if defined(CONFIG_BOARDCTL) && !defined(CONFIG_BOARD_LATE_INITIALIZE)
-  // Should we perform board-specific initialization?  There are two ways
-  // that board initialization can occur:  1) automatically via
-  // board_late_initialize() during bootup if CONFIG_BOARD_LATE_INITIALIZE, or
-  // 2) here via a call to boardctl() if the interface is enabled
-  // (CONFIG_BOARDCTL=y).
-
-  boardctl(BOARDIOC_INIT, 0);
-#endif
-
 #ifdef CONFIG_NXWM_NXTERM
   // Initialize the NSH library
 

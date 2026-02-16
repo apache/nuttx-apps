@@ -476,16 +476,10 @@ int main(int argc, char *argv[])
       goto errout;
     }
 
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-
 #ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
-#endif
 #endif
 
   /* Set SMPS mode */

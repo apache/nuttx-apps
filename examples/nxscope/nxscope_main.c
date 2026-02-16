@@ -527,16 +527,10 @@ int main(int argc, FAR char *argv[])
   printf("stream interval = %d\n", env.interval);
   printf("main interval = %d\n", interval);
 
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-
-#  ifdef CONFIG_BOARDCTL_FINALINIT
+#ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
-#  endif
 #endif
 
 #ifdef CONFIG_EXAMPLES_NXSCOPE_CDCACM

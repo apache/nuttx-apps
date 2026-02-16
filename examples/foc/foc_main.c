@@ -142,7 +142,7 @@ struct args_s g_args =
   }
 };
 
-/* Start allowed at defaule */
+/* Start allowed at default */
 
 static bool            g_start_allowed      = true;
 static pthread_mutex_t g_start_allowed_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -294,16 +294,10 @@ int main(int argc, char *argv[])
       goto errout_no_nxscope;
     }
 
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-
-#  ifdef CONFIG_BOARDCTL_FINALINIT
+#ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
-#  endif
 #endif
 
   PRINTF("\nStart foc_main application!\n\n");

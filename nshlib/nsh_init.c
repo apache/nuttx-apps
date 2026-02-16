@@ -143,12 +143,6 @@ void nsh_initialize(void)
   boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 #endif
 
-#ifdef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-#endif
-
 #if defined(CONFIG_ETC_ROMFS) && !defined(CONFIG_NSH_DISABLESCRIPT)
   pstate = nsh_newconsole(false);
 
@@ -161,12 +155,6 @@ void nsh_initialize(void)
   /* Bring up the network */
 
   netinit_bringup();
-#endif
-
-#if defined(CONFIG_NSH_ARCHINIT) && defined(CONFIG_BOARDCTL_FINALINIT)
-  /* Perform architecture-specific final-initialization (if configured) */
-
-  boardctl(BOARDIOC_FINALINIT, 0);
 #endif
 
 #if defined(CONFIG_ETC_ROMFS) && !defined(CONFIG_NSH_DISABLESCRIPT)

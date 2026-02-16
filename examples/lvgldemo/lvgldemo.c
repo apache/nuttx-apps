@@ -38,23 +38,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Should we perform board-specific driver initialization? There are two
- * ways that board initialization can occur:  1) automatically via
- * board_late_initialize() during bootupif CONFIG_BOARD_LATE_INITIALIZE
- * or 2).
- * via a call to boardctl() if the interface is enabled
- * (CONFIG_BOARDCTL=y).
- * If this task is running as an NSH built-in application, then that
- * initialization has probably already been performed otherwise we do it
- * here.
- */
-
-#undef NEED_BOARDINIT
-
-#if defined(CONFIG_BOARDCTL) && !defined(CONFIG_NSH_ARCHINIT)
-#  define NEED_BOARDINIT 1
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -121,13 +104,6 @@ int main(int argc, FAR char *argv[])
       LV_LOG_ERROR("LVGL already initialized! aborting.");
       return -1;
     }
-
-#ifdef NEED_BOARDINIT
-  /* Perform board-specific driver initialization */
-
-  boardctl(BOARDIOC_INIT, 0);
-
-#endif
 
   lv_init();
 
