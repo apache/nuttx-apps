@@ -1,6 +1,8 @@
       mynewt-nimble/nimble/host/services/ans/src/ble_svc_ans.c
       mynewt-nimble/nimble/host/services/ans/include
+#include "services/ans/ble_svc_ans.h"
 #include "crypto/controlse/ccertificate.hxx"
+ * notifications for the ANS Unread Alert Status characteristic
               object = new Controlse::CCertificate(
           Controlse::CCertificate cert(se, settings->key_id);
       auto certificate = Controlse::CCertificate(
