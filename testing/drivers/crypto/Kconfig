@@ -36,6 +36,22 @@ config TESTING_CRYPTO_HASH_HUGE_BLOCK
 	bool "hash huge block crypto test"
 	default y
 
+config TESTING_CRYPTO_HASH_DISABLE_MD5
+	bool "disable md5 tests"
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_SHA1
+	bool "disable sha1 tests"
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_SHA256
+	bool "disable sha256 tests"
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_SHA512
+	bool "disable sha512 tests"
+	default n
+
 endif
 
 config TESTING_CRYPTO_CRC32
