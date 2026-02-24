@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_INA260
+	tristate "INA260 example"
+	default n
+	depends on SENSORS_INA260
+	---help---
+		Enable the INA260 example
+
+if EXAMPLES_INA260
+
+config EXAMPLES_INA260_PROGNAME
+	string "Program name"
+	default "ina260"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config INA260_DEVICE_PATH
+	string "INA260 device name"
+	default "/dev/ina260"
+	---help---
+		This is the device path for the INA260 sensor.
+
+config EXAMPLES_INA260_PRIORITY
+	int "INA260 task priority"
+	default 100
+
+config EXAMPLES_INA260_STACKSIZE
+	int "INA260 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
