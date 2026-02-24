@@ -38,6 +38,10 @@
 #include <debug.h>
 #include <sys/ioctl.h>
 
+#ifndef CONFIG_NSH_ARCHINIT
+#include <sys/boardctl.h>
+#endif
+
 #include <nuttx/fs/fs.h>
 
 #include <nuttx/power/powerled.h>
