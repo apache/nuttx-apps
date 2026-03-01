@@ -528,7 +528,7 @@ int main(int argc, FAR char *argv[])
                       NULL);
   if (mqtterr != MQTT_OK)
     {
-      printf("ERRPR! mqtt_init() failed.\n");
+      printf("ERROR! mqtt_init() failed.\n");
       goto err_with_conn;
     }
 
