@@ -9,7 +9,7 @@ config NSH_LIBRARY
 	bool "NSH Library"
 	default n
 	select NETUTILS_NETLIB if NET
-	select BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT) || NSH_ARCHINIT
+	select BOARDCTL if (!NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT)
 	select BOARDCTL_MKRD if !NSH_DISABLE_MKRD && !DISABLE_MOUNTPOINT
 	---help---
 		Build the NSH support library.  This is used, for example, by
@@ -1115,16 +1115,6 @@ config NSH_USBDEV_TRACEINTERRUPTS
 
 endif # NSH_USBDEV_TRACE
 endmenu # USB Device Trace Support
-
-config NSH_ARCHINIT
-	bool "Have architecture-specific initialization"
-	default n
-	select BOARDCTL
-	---help---
-		Set if your board provides architecture specific initialization
-		via the board-interface function boardctl().  The boardctl()
-		function will be called early in NSH initialization to allow
-		board logic to do such things as configure MMC/SD slots.
 
 menu "Networking Configuration"
 	depends on NET

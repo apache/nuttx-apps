@@ -58,7 +58,7 @@ struct nxsensor_info_s
   FAR const char *name;
   size_t          data_size;    /* Sensor read data size */
   size_t          data_offset;  /* Read data offset (no timestamp) */
-  size_t          dim;          /* Data vector dimenstion */
+  size_t          dim;          /* Data vector dimension */
   int             dtype;        /* Data vector type */
 };
 
@@ -313,7 +313,7 @@ static int nxscope_channels(FAR struct nxscope_thr_env_s *envp)
 
   list_initialize(&envp->objlist);
 
-  /* Open sensors direcotry */
+  /* Open sensors directory */
 
   dir = opendir(SENSOR_PATH);
   if (!dir)
@@ -411,16 +411,10 @@ int main(int argc, FAR char *argv[])
   pthread_t                   thread;
   int                         ret;
 
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-
-#  ifdef CONFIG_BOARDCTL_FINALINIT
+#ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
-#  endif
 #endif
 
 #ifdef CONFIG_SYSTEM_SENSORSCOPE_CDCACM
