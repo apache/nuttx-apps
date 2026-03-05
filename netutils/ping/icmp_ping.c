@@ -242,7 +242,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
   result.info = info;
   result.id = ping_newid();
   result.outsize = ICMP_IOBUFFER_SIZE(info->datalen);
-  if (ping_gethostip(info->hostname, &result.dest) < 0)
+  if (ping_gethostip(info->hostname, &result.dest.v4) < 0)
     {
       icmp_callback(&result, ICMP_E_HOSTIP, 0);
       return;
@@ -300,7 +300,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
   memset(&priv->destaddr, 0, sizeof(struct sockaddr_in));
   priv->destaddr.sin_family      = AF_INET;
   priv->destaddr.sin_port        = 0;
-  priv->destaddr.sin_addr.s_addr = result.dest.s_addr;
+  priv->destaddr.sin_addr.s_addr = result.dest.v4.s_addr;
 
   icmp_callback(&result, ICMP_I_BEGIN, 0);
 
