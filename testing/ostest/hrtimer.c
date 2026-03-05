@@ -656,7 +656,7 @@ static uint64_t hrtimer_test_callback_critdelay(FAR const hrtimer_t *timer,
 
   /* Return reschedule interval for periodic behavior */
 
-  return 300 * NSEC_PER_USEC;
+  return 10000 * NSEC_PER_USEC;
 }
 
 /****************************************************************************
@@ -734,7 +734,7 @@ static void hrtimer_test_cancel_periodic(FAR hrtimer_test_t *param)
 
       spin_unlock_irqrestore(lock, flags);
 
-      up_ndelay(10000);
+      hrtimer_test_ndelay(10000);
 
       flags = spin_lock_irqsave(lock);
 
@@ -745,7 +745,7 @@ static void hrtimer_test_cancel_periodic(FAR hrtimer_test_t *param)
 
       hrtimer_cancel(&param->timer);
 
-      up_ndelay(10000);
+      hrtimer_test_ndelay(10000);
 
       /* The hrtimer should not restart after cancellation */
 
