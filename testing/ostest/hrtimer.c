@@ -681,22 +681,17 @@ static void hrtimer_test_cancel_sync(FAR hrtimer_test_t *param)
 
   param->count = 0;
 
-  for (idx = 0; idx < HRTIMER_TEST_CSECTION; )
+  printf("hrtimer_test_cancel_sync: synchronous cancellation test\n");
+
+  for (idx = 0; idx < HRTIMER_TEST_CSECTION; idx++)
     {
       param->state = 0;
       hrtimer_start(&param->timer, hrtimer_test_callback_crita,
                     0, HRTIMER_MODE_REL);
-
       hrtimer_cancel_sync(&param->timer);
       param->state = 1;
       hrtimer_start(&param->timer, hrtimer_test_callback_critb,
                     0, HRTIMER_MODE_REL);
-
-      if (++idx % (HRTIMER_TEST_CSECTION / 4) == 0)
-        {
-          printf("hrtimer_test_cancel_sync: passed %u times\n", idx);
-        }
-
       hrtimer_cancel_sync(&param->timer);
     }
 }
@@ -724,6 +719,8 @@ static void hrtimer_test_cancel_periodic(FAR hrtimer_test_t *param)
   ASSERT(!param->timer.func);
 
   param->count = 0;
+
+  printf("hrtimer_test_cancel_periodic:periodic timer cancellation test\n");
 
   for (idx = 0; idx < HRTIMER_TEST_CSECTION; idx++)
     {
@@ -757,12 +754,6 @@ static void hrtimer_test_cancel_periodic(FAR hrtimer_test_t *param)
       hrtimer_test_ndelay(10000);
 
       ASSERT(count == param->count);
-
-      if (++idx % (HRTIMER_TEST_CSECTION / 4) == 0)
-        {
-          printf("hrtimer_test_cancel_periodic: passed %u times, count = %"
-                 PRIu64 "\n", idx, param->count);
-        }
     }
 
   hrtimer_cancel_sync(&param->timer);
