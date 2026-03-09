@@ -169,7 +169,7 @@ enum progress_msg_e
  ****************************************************************************/
 
 #ifdef CONFIG_NXBOOT_PROGRESS
-void nxboot_progress(enum progress_type_e type, ...);
+void nxboot_progress(int type, ...);
 #else
 #define nxboot_progress(type, ...) do {} while (0)
 #endif
