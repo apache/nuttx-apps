@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <string.h>
 #include <stddef.h>
 #include <fcntl.h>
@@ -137,14 +138,15 @@ int flash_partition_write(int fd, const void *buf, size_t count, off_t off)
   pos = lseek(fd, off, SEEK_SET);
   if (pos != off)
     {
-      syslog(LOG_ERR, "Could not seek to %ld: %s\n", off, strerror(errno));
+      syslog(LOG_ERR, "Could not seek to %" PRIdOFF ": %s\n",
+              off, strerror(errno));
       return ERROR;
     }
 
   nbytes = write(fd, buf, count);
   if (nbytes != count)
     {
-      syslog(LOG_ERR, "Write to offset %ld failed %s\n",
+      syslog(LOG_ERR, "Write to offset %" PRIdOFF " failed %s\n",
               off, strerror(errno));
       return ERROR;
     }
@@ -195,15 +197,16 @@ int flash_partition_read(int fd, void *buf, size_t count, off_t off)
   pos = lseek(fd, off, SEEK_SET);
   if (pos != off)
     {
-      syslog(LOG_ERR, "Could not seek to %ld: %s\n", off, strerror(errno));
+      syslog(LOG_ERR, "Could not seek to %" PRIdOFF ": %s\n",
+              off, strerror(errno));
       return ERROR;
     }
 
   nbytes = read(fd, buf, count);
   if (nbytes != count)
     {
-      syslog(LOG_ERR, "Read from offset %ld failed %s\n", off,
-                      strerror(errno));
+      syslog(LOG_ERR, "Read from offset %" PRIdOFF " failed %s\n",
+              off, strerror(errno));
       return ERROR;
     }
 

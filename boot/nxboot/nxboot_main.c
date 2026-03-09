@@ -124,7 +124,7 @@ static const char *progress_msgs[] =
  ****************************************************************************/
 
 #ifdef CONFIG_NXBOOT_PROGRESS
-void nxboot_progress(enum progress_type_e type, ...)
+void nxboot_progress(int type, ...)
 {
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS
   va_list arg;
