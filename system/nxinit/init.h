@@ -28,6 +28,7 @@
  ****************************************************************************/
 
 #include <poll.h>
+#include <stdio.h>
 #include <syslog.h>
 
 /****************************************************************************
@@ -36,8 +37,14 @@
 
 #define TIMESPEC2MS(t) (((t).tv_sec * 1000) + (t).tv_nsec / 1000000)
 
+#ifdef CONFIG_SYSTEM_NXINIT_STDOUT
+#define init_log_output(level, fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
+#else
+#define init_log_output(level, ...) syslog(level, ##__VA_ARGS__)
+#endif
+
 #ifdef CONFIG_SYSTEM_NXINIT_DEBUG
-#define init_debug(...) syslog(LOG_USER, ##__VA_ARGS__)
+#define init_debug(...) init_log_output(LOG_USER, ##__VA_ARGS__)
 #define init_dump_args(argc, argv) \
           { \
             int _i; \
@@ -52,19 +59,19 @@
 #endif
 
 #ifdef CONFIG_SYSTEM_NXINIT_INFO
-#define init_info(...) syslog(LOG_INFO, ##__VA_ARGS__)
+#define init_info(...) init_log_output(LOG_INFO, ##__VA_ARGS__)
 #else
 #define init_info(...)
 #endif
 
 #ifdef CONFIG_SYSTEM_NXINIT_WARN
-#define init_warn(...) syslog(LOG_WARNING, ##__VA_ARGS__)
+#define init_warn(...) init_log_output(LOG_WARNING, ##__VA_ARGS__)
 #else
 #define init_warn(...)
 #endif
 
 #ifdef CONFIG_SYSTEM_NXINIT_ERR
-#define init_err(f, ...) syslog(LOG_ERR, "Error " f, ##__VA_ARGS__)
+#define init_err(f, ...) init_log_output(LOG_ERR, "Error " f, ##__VA_ARGS__)
 #else
 #define init_err(...)
 #endif
