@@ -139,6 +139,18 @@ static int init_parse_config_buffer(FAR const struct parser_s *parser,
         }
     }
 
+  for (n = 0; parser[n].key; n++)
+    {
+      if (parser[n].check)
+        {
+          ret = parser[n].check(&parser[n]);
+          if (ret < 0)
+            {
+              return ret;
+            }
+        }
+    }
+
   return 0;
 }
 
