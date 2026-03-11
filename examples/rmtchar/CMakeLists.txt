@@ -29,8 +29,8 @@ if(CONFIG_EXAMPLES_RMTCHAR)
     MODULE
     ${CONFIG_EXAMPLES_RMTCHAR}
     SRCS
-    rmtchar_common.c
     rmtchar_main.c)
+  target_sources(apps PRIVATE rmtchar_common.c)
   if(CONFIG_EXAMPLES_RMTCHAR_TX)
     target_sources(apps PRIVATE rmtchar_transmitter.c)
   endif()
