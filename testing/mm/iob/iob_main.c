@@ -517,7 +517,6 @@ static int test_iob_queue_operations(void)
   FAR struct iob_s *removed;
   FAR struct iob_s *peeked;
   uint8_t data[32];
-  int ret;
   unsigned int size;
   unsigned int count;
 
@@ -569,30 +568,15 @@ static int test_iob_queue_operations(void)
 
   /* Test add_queue */
 
-  ret = iob_add_queue(iob1, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: iob_add_queue failed for iob1\n");
-      return -1;
-    }
+  iob_add_queue(iob1, &queue);
 
   printf("Added iob1 to queue\n");
 
-  ret = iob_add_queue(iob2, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: iob_add_queue failed for iob2\n");
-      return -1;
-    }
+  iob_add_queue(iob2, &queue);
 
   printf("Added iob2 to queue\n");
 
-  ret = iob_add_queue(iob3, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: iob_add_queue failed for iob3\n");
-      return -1;
-    }
+  iob_add_queue(iob3, &queue);
 
   printf("Added iob3 to queue\n");
 
@@ -610,6 +594,7 @@ static int test_iob_queue_operations(void)
   if (peeked == NULL)
     {
       printf("ERROR: iob_peek_queue returned NULL\n");
+      iob_free_queue(&queue);
       return -1;
     }
 
@@ -627,6 +612,7 @@ static int test_iob_queue_operations(void)
   if (removed == NULL)
     {
       printf("ERROR: iob_remove_queue returned NULL\n");
+      iob_free_queue(&queue);
       return -1;
     }
 
@@ -1048,7 +1034,6 @@ static int test_iob_queue_concat(void)
   unsigned int count1;
   unsigned int count2;
   unsigned int total_count;
-  int ret;
 
   printf("\n=== Test 8: IOB Queue Concatenation ===\n");
 
@@ -1100,12 +1085,7 @@ static int test_iob_queue_concat(void)
   /* Test concat_queue */
 
   printf("Concatenating queue2 to queue1...\n");
-  ret = iob_concat_queue(&queue1, &queue2);
-  if (ret < 0)
-    {
-      printf("ERROR: iob_concat_queue failed, ret=%d\n", ret);
-      return -1;
-    }
+  iob_concat_queue(&queue1, &queue2);
 
   total_count = iob_get_queue_entry_count(&queue1);
   printf("After concat, queue1 entry count: %u\n", total_count);
@@ -1195,7 +1175,6 @@ static int test_iob_pointer_flags(void)
   FAR struct iob_s *chain3;
   FAR struct iob_s *chain4;
   FAR struct iob_s *removed;
-  int ret;
 
   printf("\n=== Test 10: IOB Pointer Low-Bit Flags (Enhanced) ===\n");
   printf("This test verifies the key feature of commit 9a4364d3ce5b2fd:\n");
@@ -1262,42 +1241,22 @@ static int test_iob_pointer_flags(void)
 
   printf("\n--- Adding chains to queue ---\n");
 
-  ret = iob_add_queue(chain1, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: Failed to add chain1 to queue\n");
-      goto cleanup;
-    }
+  iob_add_queue(chain1, &queue);
 
   printf("Added chain1 (3 IOBs) to queue\n");
   print_iob_queue(&queue, "Queue after adding chain1");
 
-  ret = iob_add_queue(chain2, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: Failed to add chain2 to queue\n");
-      goto cleanup;
-    }
+  iob_add_queue(chain2, &queue);
 
   printf("Added chain2 (2 IOBs) to queue\n");
   print_iob_queue(&queue, "Queue after adding chain2");
 
-  ret = iob_add_queue(chain3, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: Failed to add chain3 to queue\n");
-      goto cleanup;
-    }
+  iob_add_queue(chain3, &queue);
 
   printf("Added chain3 (3 IOBs) to queue\n");
   print_iob_queue(&queue, "Queue after adding chain3");
 
-  ret = iob_add_queue(chain4, &queue);
-  if (ret < 0)
-    {
-      printf("ERROR: Failed to add chain4 to queue\n");
-      goto cleanup;
-    }
+  iob_add_queue(chain4, &queue);
 
   printf("Added chain4 (1 IOB) to queue\n");
   print_iob_queue(&queue, "Queue after adding all 4 chains");
