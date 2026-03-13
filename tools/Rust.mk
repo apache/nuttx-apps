@@ -47,10 +47,10 @@
 define RUST_TARGET_TRIPLE
 $(or \
   $(and $(filter x86_64,$(LLVM_ARCHTYPE)), \
-    x86_64-unknown-nuttx \
+    $(APPDIR)/tools/x86_64-unknown-nuttx.json \
   ), \
   $(and $(filter x86,$(LLVM_ARCHTYPE)), \
-    i686-unknown-nuttx \
+    $(APPDIR)/tools/i486-unknown-nuttx.json \
   ), \
   $(and $(filter thumb%,$(LLVM_ARCHTYPE)), \
     $(if $(filter thumbv8m%,$(LLVM_ARCHTYPE)), \
@@ -132,5 +132,7 @@ endef
 #   Path to the Rust binary (e.g. path/to/project/target/riscv32imac-unknown-nuttx-elf/release/libhello.a)
 
 define RUST_GET_BINDIR
-$(2)/$(1)/target/$(strip $(call RUST_TARGET_TRIPLE))/$(if $(CONFIG_DEBUG_FULLOPT),release,debug)/lib$(1).a
+$(2)/$(1)/target/$(strip $(if $(findstring .json,$(call RUST_TARGET_TRIPLE)), \
+	$(basename $(notdir $(call RUST_TARGET_TRIPLE))), \
+	$(call RUST_TARGET_TRIPLE)))/$(if $(CONFIG_DEBUG_FULLOPT),release,debug)/lib$(1).a
 endef

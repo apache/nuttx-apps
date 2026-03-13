@@ -48,9 +48,9 @@ include(nuttx_parse_function_args)
 
 function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
   if(ARCHTYPE STREQUAL "x86_64")
-    set(TARGET_TRIPLE "x86_64-unknown-nuttx")
+    set(TARGET_TRIPLE "${APPDIR}/tools/x86_64-unknown-nuttx.json")
   elseif(ARCHTYPE STREQUAL "x86")
-    set(TARGET_TRIPLE "i686-unknown-nuttx")
+    set(TARGET_TRIPLE "${APPDIR}/tools/i486-unknown-nuttx.json")
   elseif(ARCHTYPE MATCHES "thumb")
     if(ARCHTYPE MATCHES "thumbv8m")
       # Extract just the base architecture type (thumbv8m.main or thumbv8m.base)
@@ -138,10 +138,16 @@ function(nuttx_add_rust)
   nuttx_rust_target_triple(${LLVM_ARCHTYPE} ${LLVM_ABITYPE} ${LLVM_CPUTYPE}
                            RUST_TARGET)
 
-  # Set up build directory in current binary dir
-  set(RUST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CRATE_NAME})
-  set(RUST_LIB_PATH
-      ${RUST_BUILD_DIR}/${RUST_TARGET}/${RUST_PROFILE}/lib${CRATE_NAME}.a)
+  # Get binary directory path using target triple base name if it's a JSON file
+  if(RUST_TARGET MATCHES ".json$")
+    get_filename_component(TARGET_BASE ${RUST_TARGET} NAME_WE)
+  else()
+    set(TARGET_BASE ${RUST_TARGET})
+  endif()
+
+  set(RUST_BUILD_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/${CRATE_NAME}/target/${TARGET_BASE})
+  set(RUST_LIB_PATH ${RUST_BUILD_DIR}/${RUST_PROFILE}/lib${CRATE_NAME}.a)
 
   # Create build directory
   file(MAKE_DIRECTORY ${RUST_BUILD_DIR})
