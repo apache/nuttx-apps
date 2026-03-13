@@ -149,7 +149,7 @@ static int ping6_gethostip(FAR const char *hostname,
  * Name: icmp6_callback
  ****************************************************************************/
 
-static void icmp6_callback(FAR struct ping6_result_s *result,
+static void icmp6_callback(FAR struct ping_result_s *result,
                            int code, long extra)
 {
   result->code = code;
@@ -165,9 +165,9 @@ static void icmp6_callback(FAR struct ping6_result_s *result,
  * Name: icmp6_ping
  ****************************************************************************/
 
-void icmp6_ping(FAR const struct ping6_info_s *info)
+void icmp6_ping(FAR const struct ping_info_s *info)
 {
-  struct ping6_result_s result;
+  struct ping_result_s result;
   struct sockaddr_in6 destaddr;
   struct sockaddr_in6 fromaddr;
   struct icmp6_filter filter;
@@ -197,9 +197,9 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
   result.info = info;
   result.id = ping6_newid();
   result.outsize = ICMPv6_IOBUFFER_SIZE(info->datalen);
-  if (ping6_gethostip(info->hostname, &result.dest) < 0)
+  if (ping6_gethostip(info->hostname, &result.dest.v6) < 0)
     {
-      icmp6_callback(&result, ICMPv6_E_HOSTIP, 0);
+      icmp6_callback(&result, ICMP_E_HOSTIP, 0);
       return;
     }
 

@@ -38,6 +38,7 @@
 #include <arpa/inet.h>
 
 #include "netutils/icmpv6_ping.h"
+#include "netutils/ping_pub.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -50,19 +51,6 @@
 
 /****************************************************************************
  * Private Types
- ****************************************************************************/
-
-struct ping6_priv_s
-{
-  int code;                        /* Notice code ICMP_I/E/W_XXX */
-  long tmin;                       /* Minimum round trip time */
-  long tmax;                       /* Maximum round trip time */
-  long long tsum;                  /* Sum of all times, for doing average */
-  long long tsum2;                 /* Sum2 is the sum of the squares of sum ,for doing mean deviation */
-};
-
-/****************************************************************************
- * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -109,10 +97,11 @@ static void show_usage(FAR const char *progname, int exitcode)
  * Name: ping_result
  ****************************************************************************/
 
-static void ping6_result(FAR const struct ping6_result_s *result)
+void ping6_result(FAR const struct ping_result_s *result)
 {
-  FAR struct ping6_priv_s *priv = result->info->priv;
+  FAR struct ping_priv_s *priv = result->info->priv;
   char strbuffer[INET6_ADDRSTRLEN];
+  int warn_now = 1;
 
   if (result->code < 0)
     {
@@ -121,9 +110,17 @@ static void ping6_result(FAR const struct ping6_result_s *result)
 
   switch (result->code)
     {
-      case ICMPv6_E_HOSTIP:
-        fprintf(stderr, "ERROR: ping6_gethostip(%s) failed\n",
-                result->info->hostname);
+      case ICMP_E_HOSTIP:
+#ifdef CONFIG_SYSTEM_PING6
+        warn_now = result->info->flag & (1 << AF_INET6);
+#endif
+
+        if (warn_now)
+          {
+            fprintf(stderr, "ERROR: ping6_gethostip(%s) failed\n",
+                    result->info->hostname);
+          }
+
         break;
 
       case ICMPv6_E_MEMORY:
@@ -135,7 +132,7 @@ static void ping6_result(FAR const struct ping6_result_s *result)
         break;
 
       case ICMPv6_I_BEGIN:
-        inet_ntop(AF_INET6, result->dest.s6_addr16,
+        inet_ntop(AF_INET6, result->dest.v6.s6_addr16,
                   strbuffer, INET6_ADDRSTRLEN);
         printf("PING6 %s: %u bytes of data\n",
                strbuffer, result->info->datalen);
@@ -156,7 +153,7 @@ static void ping6_result(FAR const struct ping6_result_s *result)
         break;
 
       case ICMPv6_W_TIMEOUT:
-        inet_ntop(AF_INET6, result->dest.s6_addr16, strbuffer,
+        inet_ntop(AF_INET6, result->dest.v6.s6_addr16, strbuffer,
                   INET6_ADDRSTRLEN);
         printf("No response from %s: icmp_seq=%u time=%ld ms\n",
                strbuffer, result->seqno, result->extra);
@@ -207,7 +204,7 @@ static void ping6_result(FAR const struct ping6_result_s *result)
             priv->tmax = result->extra;
           }
 
-        inet_ntop(AF_INET6, result->dest.s6_addr16, strbuffer,
+        inet_ntop(AF_INET6, result->dest.v6.s6_addr16, strbuffer,
                   INET6_ADDRSTRLEN);
         printf("%u bytes from %s icmp_seq=%u time=%ld.%ld ms\n",
                result->info->datalen, strbuffer, result->seqno,
@@ -280,8 +277,8 @@ static void ping6_result(FAR const struct ping6_result_s *result)
 
 int main(int argc, FAR char *argv[])
 {
-  struct ping6_info_s info;
-  struct ping6_priv_s priv;
+  struct ping_info_s info;
+  struct ping_priv_s priv;
   FAR char *endptr;
   int exitcode;
   int option;
@@ -301,7 +298,6 @@ int main(int argc, FAR char *argv[])
   /* Parse command line options */
 
   exitcode = EXIT_FAILURE;
-
   while ((option = getopt(argc, argv, ":c:i:W:s:I:h")) != ERROR)
     {
       switch (option)
@@ -394,7 +390,20 @@ int main(int argc, FAR char *argv[])
     }
 
   info.hostname = argv[optind];
+#ifdef CONFIG_SYSTEM_PING
+  info.flag = (1 << AF_INET6);
+#endif
   icmp6_ping(&info);
+#ifdef CONFIG_SYSTEM_PING
+  if ((priv.code == ICMP_E_HOSTIP) &&
+      !(info.flag & (1 << AF_INET)))
+    {
+      info.callback = ping_result;
+      icmp_ping(&info);
+    }
+
+#endif
+
   return priv.code < 0 ? EXIT_FAILURE: EXIT_SUCCESS;
 
 errout_with_usage:
