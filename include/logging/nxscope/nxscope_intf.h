@@ -99,6 +99,16 @@ struct nxscope_ser_cfg_s
 };
 #endif
 
+#ifdef CONFIG_LOGGING_NXSCOPE_INTF_UDP
+/* Nxscope UDP interface configuration */
+
+struct nxscope_udp_cfg_s
+{
+  uint16_t  port;               /* Local UDP port */
+  bool      nonblock;           /* Nonblocking operation */
+};
+#endif
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -131,6 +141,21 @@ int nxscope_ser_init(FAR struct nxscope_intf_s *intf,
  ****************************************************************************/
 
 void nxscope_ser_deinit(FAR struct nxscope_intf_s *intf);
+#endif
+
+#ifdef CONFIG_LOGGING_NXSCOPE_INTF_UDP
+/****************************************************************************
+ * Name: nxscope_udp_init
+ ****************************************************************************/
+
+int nxscope_udp_init(FAR struct nxscope_intf_s *intf,
+                     FAR struct nxscope_udp_cfg_s *cfg);
+
+/****************************************************************************
+ * Name: nxscope_udp_deinit
+ ****************************************************************************/
+
+void nxscope_udp_deinit(FAR struct nxscope_intf_s *intf);
 #endif
 
 #undef EXTERN

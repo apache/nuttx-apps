@@ -34,6 +34,10 @@ ifeq ($(CONFIG_LOGGING_NXSCOPE_INTF_DUMMY),y)
 CSRCS += nxscope_idummy.c
 endif
 
+ifeq ($(CONFIG_LOGGING_NXSCOPE_INTF_UDP),y)
+CSRCS += nxscope_iudp.c
+endif
+
 ifeq ($(CONFIG_LOGGING_NXSCOPE_PROTO_SER),y)
 CSRCS += nxscope_pser.c
 endif

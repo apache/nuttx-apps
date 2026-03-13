@@ -27,6 +27,10 @@ if(CONFIG_LOGGING_NXSCOPE)
     list(APPEND CSRCS nxscope_iser.c)
   endif()
 
+  if(CONFIG_LOGGING_NXSCOPE_INTF_UDP)
+    list(APPEND CSRCS nxscope_iudp.c)
+  endif()
+
   if(CONFIG_LOGGING_NXSCOPE_INTF_DUMMY)
     list(APPEND CSRCS nxscope_idummy.c)
   endif()
