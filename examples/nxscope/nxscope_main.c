@@ -435,16 +435,10 @@ int main(int argc, FAR char *argv[])
   struct nxscope_dummy_cfg_s  nxs_dummy_cfg;
 #endif
 
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-
-#  ifdef CONFIG_BOARDCTL_FINALINIT
+#ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
-#  endif
 #endif
 
 #ifdef CONFIG_EXAMPLES_NXSCOPE_CDCACM
