@@ -15,6 +15,12 @@ config LOGGING_NXSCOPE_INTF_SERIAL
 	---help---
 		For details, see logging/nxscope/nxscope_iserial.c
 
+config LOGGING_NXSCOPE_INTF_UDP
+	bool "NxScope UDP interface support"
+	default n
+	---help---
+		For details, see logging/nxscope/nxscope_iudp.c
+
 config LOGGING_NXSCOPE_INTF_DUMMY
 	bool "NxScope dummy interface support"
 	default n
