@@ -431,6 +431,9 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_LOGGING_NXSCOPE_INTF_SERIAL
   struct nxscope_ser_cfg_s    nxs_ser_cfg;
 #endif
+#ifdef CONFIG_LOGGING_NXSCOPE_INTF_UDP
+  struct nxscope_udp_cfg_s    nxs_udp_cfg;
+#endif
 #ifdef CONFIG_LOGGING_NXSCOPE_INTF_DUMMY
   struct nxscope_dummy_cfg_s  nxs_dummy_cfg;
 #endif
@@ -480,6 +483,22 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       printf("ERROR: nxscope_ser_init failed %d\n", ret);
+      goto errout_nointf;
+    }
+#endif
+
+#ifdef CONFIG_LOGGING_NXSCOPE_INTF_UDP
+  /* Configuration */
+
+  nxs_udp_cfg.port     = CONFIG_EXAMPLES_NXSCOPE_UDP_PORT;
+  nxs_udp_cfg.nonblock = true;
+
+  /* Initialize UDP interface */
+
+  ret = nxscope_udp_init(&intf, &nxs_udp_cfg);
+  if (ret < 0)
+    {
+      printf("ERROR: nxscope_udp_init failed %d\n", ret);
       goto errout_nointf;
     }
 #endif
@@ -732,6 +751,9 @@ errout_nonxscope:
 
 #if defined(CONFIG_LOGGING_NXSCOPE_INTF_SERIAL)
   nxscope_ser_deinit(&intf);
+#endif
+#if defined(CONFIG_LOGGING_NXSCOPE_INTF_UDP)
+  nxscope_udp_deinit(&intf);
 #endif
 #if defined(CONFIG_LOGGING_NXSCOPE_INTF_DUMMY)
   nxscope_dummy_deinit(&intf);
