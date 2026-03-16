@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UVC_CAM
+	tristate "UVC Camera streaming example"
+	default n
+	depends on USBUVC && VIDEO
+	---help---
+		Captures frames from V4L2 camera and streams to USB host
+		via UVC gadget driver (/dev/uvc0).
+
+if EXAMPLES_UVC_CAM
+
+config EXAMPLES_UVC_CAM_PROGNAME
+	string "Program name"
+	default "uvc_cam"
+
+config EXAMPLES_UVC_CAM_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_UVC_CAM_STACKSIZE
+	int "Stack size"
+	default 4096
+
+config EXAMPLES_UVC_CAM_NFRAMES
+	int "Number of frames (0=infinite)"
+	default 0
+
+endif
