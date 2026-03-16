@@ -43,6 +43,15 @@ config EXAMPLES_NXSCOPE_CDCACM
 
 endif # LOGGING_NXSCOPE_INTF_SERIAL
 
+if LOGGING_NXSCOPE_INTF_UDP
+
+config EXAMPLES_NXSCOPE_UDP_PORT
+	int "nxscope UDP local port"
+	default 50000
+	range 1 65535
+
+endif # LOGGING_NXSCOPE_INTF_UDP
+
 config EXAMPLES_NXSCOPE_FORCE_ENABLE
 	bool "nxscope force enable"
 	default n
