@@ -29,15 +29,17 @@
 #include <sys/boardctl.h>
 
 #include <assert.h>
+#include <errno.h>
+#include <getopt.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
 
 #ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
 #  include <sys/ioctl.h>
 #  include <fcntl.h>
-#  include <stdlib.h>
 #  include <signal.h>
 #  include <nuttx/timers/timer.h>
 #endif
@@ -52,7 +54,8 @@
 #  error "math library must be selected for this example"
 #endif
 
-#define SIN_DT (0.01f)
+#define SIN_DT              (0.01f)
+#define STREAM_THREAD_USLEP 100
 
 /****************************************************************************
  * Private Types
@@ -61,6 +64,7 @@
 struct nxscope_thr_env_s
 {
   FAR struct nxscope_s *nxs;
+  int interval;
 };
 
 /****************************************************************************
@@ -93,12 +97,76 @@ static int nxscope_cb_start(FAR void *priv, bool start)
   return OK;
 }
 
+/****************************************************************************
+ * Name: nxscope_show_usage
+ ****************************************************************************/
+
+static void nxscope_show_usage(FAR const char *progname)
+{
+  printf("Usage: %s [-i <stream_interval_us>]\n", progname);
+  printf("          [-m <main_interval_us>]\n");
+}
+
+/****************************************************************************
+ * Name: nxscope_parse_args
+ ****************************************************************************/
+
+static int nxscope_parse_args(int argc, FAR char *argv[],
+                              FAR int *stream_interval,
+                              FAR int *main_interval)
+{
+  unsigned long value = 0;
+  int opt             = 0;
+
+  DEBUGASSERT(argv);
+  DEBUGASSERT(stream_interval);
+  DEBUGASSERT(main_interval);
+
+  while ((opt = getopt(argc, argv, "i:m:")) != -1)
+    {
+      switch (opt)
+        {
+          case 'i':
+            {
+              value = strtoul(optarg, NULL, 10);
+              if (value == 0)
+                {
+                  printf("ERROR: invalid interval: %s\n", optarg);
+                  return -EINVAL;
+                }
+
+              *stream_interval = (int)value;
+              break;
+            }
+
+          case 'm':
+            {
+              value = strtoul(optarg, NULL, 10);
+              if (value == 0)
+                {
+                  printf("ERROR: invalid interval: %s\n", optarg);
+                  return -EINVAL;
+                }
+
+              *main_interval = (int)value;
+              break;
+            }
+
+          default:
+            printf("ERROR: unsupported argument\n");
+            return -EINVAL;
+        }
+    }
+
+  return OK;
+}
+
 #ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
 /****************************************************************************
  * Name: nxscope_timer_init
  ****************************************************************************/
 
-static int nxscope_timer_init(void)
+static int nxscope_timer_init(int interval_us)
 {
   int                   fd = 0;
   int                   ret = 0;
@@ -116,8 +184,7 @@ static int nxscope_timer_init(void)
 
   /* Set the timer interval */
 
-  ret = ioctl(fd, TCIOC_SETTIMEOUT,
-              CONFIG_EXAMPLES_NXSCOPE_TIMER_INTERVAL);
+  ret = ioctl(fd, TCIOC_SETTIMEOUT, interval_us);
   if (ret < 0)
     {
       printf("ERROR: Failed to set the timer interval: %d\n", errno);
@@ -197,7 +264,7 @@ static FAR void *nxscope_samples_thr(FAR void *arg)
 #ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
   /* Initialize timer for periodic signal. */
 
-  ret = nxscope_timer_init();
+  ret = nxscope_timer_init(envp->interval);
   if (ret < 0)
     {
       printf("ERROR: nxscope_timer_init() failed: %d\n", errno);
@@ -307,7 +374,7 @@ static FAR void *nxscope_samples_thr(FAR void *arg)
           goto errout;
         }
 #else
-      usleep(100);
+      usleep(envp->interval);
 #endif
     }
 
@@ -421,6 +488,7 @@ int main(int argc, FAR char *argv[])
 {
   struct nxscope_s            nxs;
   int                         ret = OK;
+  int                         interval;
   pthread_t                   thread;
   struct nxscope_thr_env_s    env;
   struct nxscope_cfg_s        nxs_cfg;
@@ -437,6 +505,27 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_LOGGING_NXSCOPE_INTF_DUMMY
   struct nxscope_dummy_cfg_s  nxs_dummy_cfg;
 #endif
+
+  /* Default settings */
+
+  interval     = CONFIG_EXAMPLES_NXSCOPE_MAIN_INTERVAL;
+#ifdef CONFIG_EXAMPLES_NXSCOPE_TIMER
+  env.interval = CONFIG_EXAMPLES_NXSCOPE_TIMER_INTERVAL;
+#else
+  env.interval = STREAM_THREAD_USLEP;
+#endif
+
+  /* Parse args */
+
+  ret = nxscope_parse_args(argc, argv, &env.interval, &interval);
+  if (ret < 0)
+    {
+      nxscope_show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+
+  printf("stream interval = %d\n", env.interval);
+  printf("main interval = %d\n", interval);
 
 #ifndef CONFIG_NSH_ARCHINIT
   /* Perform architecture-specific initialization (if configured) */
@@ -736,7 +825,7 @@ int main(int argc, FAR char *argv[])
           printf("ERROR: nxscope_recv failed %d\n", ret);
         }
 
-      usleep(CONFIG_EXAMPLES_NXSCOPE_MAIN_INTERVAL);
+      usleep(interval);
     }
 
 errout:
