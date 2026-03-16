@@ -537,7 +537,7 @@ int main(int argc, FAR char *argv[])
    * And all allocated memorys are VIDIOC_QBUFed.
    */
 
-  if (capture_num != 0)
+  if (capture_num != 0 && capture_type == V4L2_BUF_TYPE_STILL_CAPTURE)
     {
       /* Determine image size from connected image sensor name,
        * because video driver does not support VIDIOC_ENUM_FRAMESIZES
