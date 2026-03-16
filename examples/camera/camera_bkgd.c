@@ -249,7 +249,7 @@ int nximage_initialize(void)
     }
 
   /* Start a separate thread to listen for server events.
-   * For simplicity, use defaul thread attribute.
+   * For simplicity, use default thread attribute.
    */
 
   ret = pthread_create(&thread, NULL, nximage_listener, NULL);

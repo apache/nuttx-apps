@@ -534,7 +534,7 @@ int main(int argc, FAR char *argv[])
    * Set FULLHD size in ISX012 case, QUADVGA size in ISX019 case or other
    * image sensors,
    * Number of frame buffers is defined as STILL_BUFNUM(1).
-   * And all allocated memorys are VIDIOC_QBUFed.
+   * And all allocated memories are VIDIOC_QBUFed.
    */
 
   if (capture_num != 0 && capture_type == V4L2_BUF_TYPE_STILL_CAPTURE)
@@ -580,9 +580,9 @@ int main(int argc, FAR char *argv[])
    * order from the captured frame buffer and a new camera image is
    * recaptured.
    *
-   * Allocate freame buffers for QVGA RGB565 size (320x240x2=150KB).
+   * Allocate frame buffers for QVGA RGB565 size (320x240x2=150KB).
    * Number of frame buffers is defined as VIDEO_BUFNUM(3).
-   * And all allocated memorys are VIDIOC_QBUFed.
+   * And all allocated memories are VIDIOC_QBUFed.
    */
 
   ret = camera_prepare(v_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE,
@@ -603,7 +603,7 @@ int main(int argc, FAR char *argv[])
    *
    * APP_STATE_UNDER_CAPTURE:
    *    This state will start taking picture and store the image into files.
-   *    Number of taking pictures is set capture_num valiable.
+   *    Number of taking pictures is set capture_num variable.
    *    It can be changed by command line argument.
    *    After finishing taking pictures, the state will be changed to
    *    APP_STATE_AFTER_CAPTURE.
