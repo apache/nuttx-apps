@@ -417,6 +417,7 @@ static int perform_update(struct nxboot_state *state, bool check_only)
           syslog(LOG_INFO, "Creating recovery image.\n");
           nxboot_progress(nxboot_progress_start, recovery_create);
           copy_partition(primary, recovery, state, false);
+          flash_partition_flush(recovery);
           nxboot_progress(nxboot_progress_end);
           nxboot_progress(nxboot_progress_start, validate_recovery);
           successful = validate_image(recovery);
@@ -444,6 +445,8 @@ static int perform_update(struct nxboot_state *state, bool check_only)
           nxboot_progress(nxboot_progress_start, update_from_update);
           if (copy_partition(update, primary, state, true) >= 0)
             {
+              flash_partition_flush(primary);
+
               /* Erase the first sector of update partition. This marks the
                * partition as updated so we don't end up in an update loop.
                * The sector is written back again during the image
@@ -919,8 +922,7 @@ int nxboot_perform_update(bool check_only)
       return ERROR;
     }
 
-  get_image_header(primary, &header);
-  if (!validate_image_header(&header))
+  if (!validate_image(primary))
     {
       ret = ERROR;
     }
