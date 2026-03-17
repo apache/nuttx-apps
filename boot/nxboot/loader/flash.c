@@ -77,6 +77,26 @@ int flash_partition_open(const char *path)
 }
 
 /****************************************************************************
+ * Name: flash_partition_flush
+ *
+ * Description:
+ *   Flushes any buffered writes to the underlying storage. This ensures
+ *   data is physically committed to flash before the caller proceeds.
+ *
+ * Input parameters:
+ *   fd: Valid file descriptor.
+ *
+ * Returned Value:
+ *   0 on success, -1 on failure.
+ *
+ ****************************************************************************/
+
+int flash_partition_flush(int fd)
+{
+  return fsync(fd);
+}
+
+/****************************************************************************
  * Name: flash_partition_close
  *
  * Description:

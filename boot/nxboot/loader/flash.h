@@ -80,6 +80,22 @@ int flash_partition_open(const char *path);
 int flash_partition_close(int fd);
 
 /****************************************************************************
+ * Name: flash_partition_flush
+ *
+ * Description:
+ *   Flushes any buffered writes to the underlying storage.
+ *
+ * Input parameters:
+ *   fd: Valid file descriptor.
+ *
+ * Returned Value:
+ *   0 on success, -1 on failure.
+ *
+ ****************************************************************************/
+
+int flash_partition_flush(int fd);
+
+/****************************************************************************
  * Name: flash_partition_write
  *
  * Description:
