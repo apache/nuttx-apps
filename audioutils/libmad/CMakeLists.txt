@@ -49,7 +49,10 @@ if(CONFIG_AUDIOUTILS_LIBMAD)
 
   file(GLOB LIBMAD_SRCS libmad/*.c)
   set(CSRCS ${LIBMAD_SRCS})
-  set(CFLAGS -Wno-shadow -Wno-stringop-overflow -DFPM_DEFAULT -DSIZEOF_INT=4)
+  set(CFLAGS -Wno-shadow -DFPM_DEFAULT -DSIZEOF_INT=4)
+  if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    list(APPEND CFLAGS -Wno-stringop-overflow)
+  endif()
   set(INCDIR ${CMAKE_CURRENT_LIST_DIR}/libmad
              ${CMAKE_CURRENT_LIST_DIR}/libmad/msvc++)
 
