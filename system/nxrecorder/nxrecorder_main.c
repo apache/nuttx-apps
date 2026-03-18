@@ -588,7 +588,7 @@ int main(int argc, FAR char *argv[])
 
               /* Remove leading spaces from arg */
 
-              while (*arg == ' ')
+              while (arg && *arg == ' ')
                 {
                   arg++;
                 }
