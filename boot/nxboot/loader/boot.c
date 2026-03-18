@@ -911,9 +911,9 @@ int nxboot_perform_update(bool check_only)
         }
     }
 
-  /* Check whether there is a valid image in the primary slot. This just
-   * checks whether the header is valid, but does not calculate the CRC
-   * of the image as this would prolong the boot process.
+  /* Check whether there is a valid image in the primary slot. Validates
+   * both the header and the full image CRC to ensure integrity before
+   * booting.
    */
 
   primary = flash_partition_open(CONFIG_NXBOOT_PRIMARY_SLOT_PATH);
