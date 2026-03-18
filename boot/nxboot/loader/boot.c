@@ -887,7 +887,6 @@ int nxboot_perform_update(bool check_only)
   int ret;
   int primary;
   struct nxboot_state state;
-  struct nxboot_img_header header;
 
   ret = nxboot_get_state(&state);
   if (ret < 0)
