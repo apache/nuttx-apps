@@ -26,12 +26,14 @@
 
 #include <nuttx/config.h>
 #include <nuttx/hrtimer.h>
+#include <nuttx/spinlock.h>
 
 #include <assert.h>
 #include <stdio.h>
 #include <sched.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "ostest.h"
 
