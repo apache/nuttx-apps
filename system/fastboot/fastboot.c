@@ -1295,8 +1295,9 @@ static int fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx)
   netinit_bringup();
 #endif
 
-  ctx->tran_fd[0] = socket(AF_INET, SOCK_STREAM,
-                           SOCK_CLOEXEC | SOCK_NONBLOCK);
+  ctx->tran_fd[0] = socket(AF_INET,
+                           SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK,
+                           0);
   if (ctx->tran_fd[0] < 0)
     {
       fb_err("create socket failed %d", errno);
