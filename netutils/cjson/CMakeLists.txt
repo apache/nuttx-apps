@@ -40,7 +40,7 @@ if(CONFIG_NETUTILS_CJSON)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/cJSON
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/netutils/cjson/cJSON
+          ${NUTTX_APPS_BINDIR}/netutils/cjson/cJSON
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -51,13 +51,13 @@ if(CONFIG_NETUTILS_CJSON)
     endif()
   endif()
 
-  if(NOT EXISTS ${CMAKE_BINARY_DIR}/apps/include/netutils/cJSON.h
-     OR NOT EXISTS ${CMAKE_BINARY_DIR}/apps/include/netutils/cJSON_Utils.h)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/apps/include/netutils)
+  if(NOT EXISTS ${NUTTX_APPS_BINDIR}/include/netutils/cJSON.h
+     OR NOT EXISTS ${NUTTX_APPS_BINDIR}/include/netutils/cJSON_Utils.h)
+    file(MAKE_DIRECTORY ${NUTTX_APPS_BINDIR}/include/netutils)
     file(CREATE_LINK ${CMAKE_CURRENT_LIST_DIR}/cJSON/cJSON.h
-         ${CMAKE_BINARY_DIR}/apps/include/netutils/cJSON.h SYMBOLIC)
+         ${NUTTX_APPS_BINDIR}/include/netutils/cJSON.h SYMBOLIC)
     file(CREATE_LINK ${CMAKE_CURRENT_LIST_DIR}/cJSON/cJSON_Utils.h
-         ${CMAKE_BINARY_DIR}/apps/include/netutils/cJSON_Utils.h SYMBOLIC)
+         ${NUTTX_APPS_BINDIR}/include/netutils/cJSON_Utils.h SYMBOLIC)
   endif()
 
   target_sources(apps PRIVATE cJSON/cJSON.c cJSON/cJSON_Utils.c)
