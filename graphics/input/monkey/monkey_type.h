@@ -28,6 +28,7 @@
  ****************************************************************************/
 
 #include <graphics/input_gen.h>
+#include <poll.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -118,6 +119,14 @@ struct monkey_config_s
   struct monkey_event_config_s event[MONKEY_EVENT_LAST];
 };
 
+enum monkey_poll_idx_e
+{
+  MONKEY_POLL_TIMER,
+  MONKEY_POLL_SIGNAL,
+  MONKEY_POLL_INPUT,
+  MONKEY_POLL_COUNT,
+};
+
 struct monkey_s
 {
   struct monkey_config_s config;
@@ -131,6 +140,13 @@ struct monkey_s
     struct monkey_dev_state_s state;
     uint32_t time_stamp;
   } playback_ctx;
+
+  struct pollfd pfds[MONKEY_POLL_COUNT];
+  struct
+  {
+    bool is_mouse;
+    uint32_t tick;
+  } exit_ctx;
 };
 
 #endif /* __APPS_GRAPHICS_INPUT_MONKEY_MONKEY_TYPE_H */
