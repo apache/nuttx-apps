@@ -26,10 +26,13 @@
 
 #include <nuttx/config.h>
 #include <nuttx/video/fb.h>
+#include <nuttx/input/touchscreen.h>
+#include <nuttx/input/mouse.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <inttypes.h>
+#include <poll.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -37,6 +40,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/signalfd.h>
+#include <sys/timerfd.h>
+#include <unistd.h>
 #include "monkey.h"
 #include "monkey_utils.h"
 #include "monkey_log.h"
@@ -93,6 +99,9 @@
 
 #define MONKEY_RUNNING_MINUTES_MAX (UINT32_MAX / 60 / 1000)
 
+#define MONKEY_EXIT_DEV_PATH_DEFAULT "/dev/input0"
+#define MONKEY_EXIT_LONGPRESS_MS     2500
+
 #define MONKEY_SCREEN_HOR_RES_DEFAULT 480
 #define MONKEY_SCREEN_VER_RES_DEFAULT 480
 
@@ -130,6 +139,7 @@ struct monkey_param_s
 {
   int dev_type_mask;
   FAR const char *file_path;
+  FAR const char *exit_dev_path;
   int x_offset;
   int y_offset;
   int hor_res;
@@ -140,14 +150,6 @@ struct monkey_param_s
   int log_level;
   struct monkey_event_config_s event[MONKEY_EVENT_LAST];
   uint32_t running_minutes;
-};
-
-enum monkey_wait_res_e
-{
-  MONKEY_WAIT_RES_AGAIN,
-  MONKEY_WAIT_RES_PAUSE,
-  MONKEY_WAIT_RES_STOP,
-  MONKEY_WAIT_RES_ERROR,
 };
 
 /****************************************************************************
@@ -166,7 +168,8 @@ static void show_usage(FAR const char *progname, int exitcode)
          " -p <string>"
          " -s <string>"
          " -b <decimal-value>"
-         " -l <decimal-value>\n"
+         " -l <decimal-value>"
+         " -e <string>\n"
          " --weight-click <decimal-value>"
          " --weight-longpress <decimal-value>"
          " --weight-drag <decimal-value>\n"
@@ -191,6 +194,8 @@ static void show_usage(FAR const char *progname, int exitcode)
          "<decimal-value hor_res>x<decimal-value ver_res>\n");
   printf("  -b <decimal-value> Button bit: 0 ~ 31\n");
   printf("  -l <decimal-value> Log level: 0 ~ 3\n");
+  printf("  -e <string> Exit device path for long-press detection"
+         " (default: %s).\n", MONKEY_EXIT_DEV_PATH_DEFAULT);
 
   printf("  --weight-click <decimal-value> Click event weight.\n");
   printf("  --weight-longpress <decimal-value> Long press event weight.\n");
@@ -251,6 +256,155 @@ static int monkey_get_screen_resolution(FAR int *hor_res, FAR int *ver_res)
   *ver_res = MONKEY_SCREEN_VER_RES_DEFAULT;
   return OK;
 #endif /* MONKEY_SCREEN_DEV */
+}
+
+/****************************************************************************
+ * Name: monkey_set_timer
+ ****************************************************************************/
+
+static void monkey_set_timer(int tfd, uint32_t ms)
+{
+  struct itimerspec its;
+
+  memset(&its, 0, sizeof(its));
+  its.it_value.tv_sec = ms / 1000;
+  its.it_value.tv_nsec = (ms % 1000) * 1000000;
+  timerfd_settime(tfd, 0, &its, NULL);
+}
+
+/****************************************************************************
+ * Name: monkey_check_longpress
+ ****************************************************************************/
+
+static bool monkey_check_longpress(int dev_fd,
+                                   FAR struct monkey_s *monkey)
+{
+  bool is_pressed = false;
+
+  /* Drain all buffered events, use the latest state */
+
+  if (monkey->exit_ctx.is_mouse)
+    {
+      struct mouse_report_s report;
+
+      while (read(dev_fd, &report, sizeof(report)) == sizeof(report))
+        {
+          is_pressed = (report.buttons & MOUSE_BUTTON_1) != 0;
+        }
+    }
+  else
+    {
+      struct touch_sample_s sample;
+
+      while (read(dev_fd, &sample, sizeof(sample)) == sizeof(sample))
+        {
+          is_pressed = (sample.point[0].flags
+                       & (TOUCH_DOWN | TOUCH_MOVE)) != 0;
+        }
+    }
+
+  if (is_pressed)
+    {
+      if (monkey->exit_ctx.tick == 0)
+        {
+          monkey->exit_ctx.tick = monkey_tick_get();
+        }
+
+      if (monkey_tick_elaps(monkey_tick_get(), monkey->exit_ctx.tick)
+          >= MONKEY_EXIT_LONGPRESS_MS)
+        {
+          MONKEY_LOG_WARN("long press detected, exiting");
+          return true;
+        }
+    }
+  else
+    {
+      monkey->exit_ctx.tick = 0;
+    }
+
+  return false;
+}
+
+/****************************************************************************
+ * Name: monkey_init_fds
+ ****************************************************************************/
+
+static void monkey_init_fds(
+    FAR struct monkey_s *monkey,
+    FAR const char *dev_path)
+{
+  FAR struct pollfd *pfds = monkey->pfds;
+  int grab_cmd = TSIOC_GRAB;
+  sigset_t mask;
+  int i;
+
+  monkey->exit_ctx.is_mouse = false;
+  monkey->exit_ctx.tick = 0;
+
+  for (i = 0; i < MONKEY_POLL_COUNT; i++)
+    {
+      pfds[i].fd = -1;
+      pfds[i].events = POLLIN;
+    }
+
+  /* Create timerfd for monkey_update interval */
+
+  pfds[MONKEY_POLL_TIMER].fd = timerfd_create(CLOCK_MONOTONIC, 0);
+  if (pfds[MONKEY_POLL_TIMER].fd < 0)
+    {
+      MONKEY_LOG_ERROR("timerfd_create failed: %d", errno);
+    }
+
+  /* Create signalfd for SIGTSTP/SIGCONT/SIGTERM */
+
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGTSTP);
+  sigaddset(&mask, SIGCONT);
+  sigaddset(&mask, SIGTERM);
+
+  /* Override default stop action before blocking, otherwise
+   * nxsig_stop_task will suspend the process on SIGTSTP.
+   */
+
+  signal(SIGTSTP, SIG_IGN);
+  signal(SIGCONT, SIG_IGN);
+  signal(SIGTERM, SIG_IGN);
+
+  sigprocmask(SIG_BLOCK, &mask, NULL);
+
+  pfds[MONKEY_POLL_SIGNAL].fd = signalfd(-1, &mask, 0);
+  if (pfds[MONKEY_POLL_SIGNAL].fd < 0)
+    {
+      MONKEY_LOG_WARN("signalfd failed: %d", errno);
+    }
+
+  /* Open input device for long press detection */
+
+  pfds[MONKEY_POLL_INPUT].fd = open(dev_path, O_RDONLY | O_NONBLOCK);
+  if (pfds[MONKEY_POLL_INPUT].fd < 0)
+    {
+      MONKEY_LOG_WARN("open %s failed: %d", dev_path, errno);
+      return;
+    }
+
+  if (strstr(dev_path, "mouse") != NULL)
+    {
+      monkey->exit_ctx.is_mouse = true;
+      grab_cmd = MSIOC_GRAB;
+    }
+
+  if (ioctl(pfds[MONKEY_POLL_INPUT].fd, grab_cmd, 1) < 0)
+    {
+      MONKEY_LOG_WARN("GRAB %s failed: %d", dev_path, errno);
+      close(pfds[MONKEY_POLL_INPUT].fd);
+      pfds[MONKEY_POLL_INPUT].fd = -1;
+      return;
+    }
+
+  MONKEY_LOG_NOTICE("exit monitor: dev=%s(%s), threshold=%dms",
+                    dev_path,
+                    monkey->exit_ctx.is_mouse ? "mouse" : "touch",
+                    MONKEY_EXIT_LONGPRESS_MS);
 }
 
 /****************************************************************************
@@ -339,6 +493,9 @@ static FAR struct monkey_s *monkey_init(
       monkey_set_period(monkey, config.period.min);
     }
 
+  monkey_init_fds(monkey, param->exit_dev_path);
+  monkey_set_timer(monkey->pfds[MONKEY_POLL_TIMER].fd, 1);
+
   return monkey;
 
 failed:
@@ -413,7 +570,7 @@ static void parse_commandline(int argc, FAR char **argv,
 {
   int ch;
   int longindex = 0;
-  FAR const char *optstring = "t:f:p:s:b:l:";
+  FAR const char *optstring = "t:f:p:s:b:l:e:";
   const struct option longopts[] =
     {
       {"weight-click",       required_argument, NULL, 0 },
@@ -433,6 +590,7 @@ static void parse_commandline(int argc, FAR char **argv,
   param->period_max = MONKEY_PERIOD_MAX_DEFAULT;
   param->btn_bit = MONKEY_BUTTON_BIT_DEFAULT;
   param->log_level = MONKEY_LOG_LEVEL_NOTICE;
+  param->exit_dev_path = MONKEY_EXIT_DEV_PATH_DEFAULT;
   MONKEY_EVENT_PARAM_INIT(CLICK);
   MONKEY_EVENT_PARAM_INIT(LONG_PRESS);
   MONKEY_EVENT_PARAM_INIT(DRAG);
@@ -474,91 +632,16 @@ static void parse_commandline(int argc, FAR char **argv,
                                          MONKEY_LOG_LEVEL_LAST - 1);
             break;
 
+          case 'e':
+            param->exit_dev_path = optarg;
+            break;
+
           case '?':
             MONKEY_LOG_WARN("Unknown option: %c", optopt);
             show_usage(argv[0], EXIT_FAILURE);
             break;
         }
     }
-}
-
-/****************************************************************************
- * Name: monkey_pause
- ****************************************************************************/
-
-static int monkey_pause(void)
-{
-  sigset_t set;
-
-  sigemptyset(&set);
-  sigaddset(&set, SIGCONT);
-
-  return sigwaitinfo(&set, NULL);
-}
-
-/****************************************************************************
- * Name: monkey_wait
- ****************************************************************************/
-
-static enum monkey_wait_res_e monkey_wait(uint32_t ms)
-{
-  sigset_t set;
-  struct timespec timeout;
-  int ret;
-
-  enum monkey_wait_res_e res = MONKEY_WAIT_RES_ERROR;
-
-  if (ms == 0)
-    {
-      return MONKEY_WAIT_RES_AGAIN;
-    }
-
-  timeout.tv_sec = ms / 1000;
-  timeout.tv_nsec = (ms % 1000) * 1000000;
-
-  sigemptyset(&set);
-  sigaddset(&set, SIGTSTP);
-  sigaddset(&set, SIGTERM);
-
-  ret = sigtimedwait(&set, NULL, &timeout);
-
-  if (ret < 0)
-    {
-      int errcode = errno;
-
-      if (errcode == EINTR)
-        {
-          res = MONKEY_WAIT_RES_STOP;
-        }
-      else if(errcode == EAGAIN)
-        {
-          res = MONKEY_WAIT_RES_AGAIN;
-        }
-      else
-        {
-          MONKEY_LOG_ERROR("Unknown error: %d", errcode);
-        }
-    }
-  else if (ret == SIGTSTP)
-    {
-      res = MONKEY_WAIT_RES_PAUSE;
-    }
-  else if (ret == SIGTERM)
-    {
-      MONKEY_LOG_WARN("Recv sig: SIGTERM");
-      res = MONKEY_WAIT_RES_STOP;
-    }
-
-  return res;
-}
-
-/****************************************************************************
- * Name: signal_handler
- ****************************************************************************/
-
-static void signal_handler(int sig)
-{
-  MONKEY_LOG_WARN("Recv sig: %d", sig);
 }
 
 /****************************************************************************
@@ -583,28 +666,13 @@ int main(int argc, FAR char *argv[])
   struct monkey_param_s param;
   FAR struct monkey_s *monkey;
   uint32_t start_tick;
-  sigset_t mask;
+  bool paused = false;
+  int sleep_ms = 0;
+  int i;
 
   parse_commandline(argc, argv, &param);
 
-  /* Block SIGTERM and let sigtimedwait() consume it: the signal mask
-   * and pending queue are per task, so sibling monkey instances stop
-   * independently, and a signal arriving outside the wait window stays
-   * pending instead of being swallowed by the handler.
-   */
-
-  sigemptyset(&mask);
-  sigaddset(&mask, SIGTERM);
-  sigprocmask(SIG_BLOCK, &mask, NULL);
-
-  /* Add signal handler to avoid system default handler */
-
-  signal(SIGTSTP, &signal_handler);
-  signal(SIGCONT, &signal_handler);
-  signal(SIGTERM, &signal_handler);
-
   monkey = monkey_init(&param);
-
   if (!monkey)
     {
       return ERROR;
@@ -612,56 +680,103 @@ int main(int argc, FAR char *argv[])
 
   start_tick = monkey_tick_get();
 
-  while (1)
+  for (; ; )
     {
-      enum monkey_wait_res_e res;
-      int sleep_ms;
-
-      if (param.running_minutes > 0)
+      if (poll(monkey->pfds, MONKEY_POLL_COUNT, 100) < 0)
         {
-          uint32_t elaps = monkey_tick_elaps(monkey_tick_get(), start_tick);
-
-          if (elaps > param.running_minutes * 60 * 1000)
-            {
-              MONKEY_LOG_WARN("Running time is over: %" PRIu32
-                              " minutes, exit...",
-                              param.running_minutes);
-              break;
-            }
-        }
-
-      sleep_ms = monkey_update(monkey);
-
-      if (sleep_ms < 0)
-        {
+          MONKEY_LOG_ERROR("poll error: %d", errno);
           break;
         }
 
-      res = monkey_wait(sleep_ms);
+      /* Check long press on every poll wakeup */
 
-      if (res == MONKEY_WAIT_RES_AGAIN)
+      if (monkey->exit_ctx.tick > 0
+          && monkey_tick_elaps(monkey_tick_get(), monkey->exit_ctx.tick)
+          >= MONKEY_EXIT_LONGPRESS_MS)
         {
-          continue;
+          MONKEY_LOG_WARN("long press detected, exiting");
+          break;
         }
-      else if (res == MONKEY_WAIT_RES_PAUSE)
+
+      /* Handle signal events */
+
+      if (monkey->pfds[MONKEY_POLL_SIGNAL].revents & POLLIN)
         {
-          MONKEY_LOG_NOTICE("pause");
-          if (monkey_pause() < 0)
+          struct signalfd_siginfo ssi;
+
+          read(monkey->pfds[MONKEY_POLL_SIGNAL].fd, &ssi, sizeof(ssi));
+
+          if (ssi.ssi_signo == SIGTERM)
+            {
+              break;
+            }
+          else if (ssi.ssi_signo == SIGTSTP)
+            {
+              MONKEY_LOG_NOTICE("pause");
+              paused = true;
+              monkey_set_timer(monkey->pfds[MONKEY_POLL_TIMER].fd, 0);
+            }
+          else if (ssi.ssi_signo == SIGCONT && paused)
+            {
+              MONKEY_LOG_NOTICE("continue...");
+              paused = false;
+              monkey_set_timer(monkey->pfds[MONKEY_POLL_TIMER].fd,
+                               sleep_ms == 0 ? 1 : sleep_ms);
+            }
+        }
+
+      /* Handle timer events - time to run monkey_update */
+
+      if (monkey->pfds[MONKEY_POLL_TIMER].revents & POLLIN)
+        {
+          uint64_t exp;
+
+          read(monkey->pfds[MONKEY_POLL_TIMER].fd, &exp, sizeof(exp));
+
+          if (param.running_minutes > 0)
+            {
+              uint32_t elaps = monkey_tick_elaps(monkey_tick_get(),
+                                                 start_tick);
+
+              if (elaps > param.running_minutes * 60 * 1000)
+                {
+                  MONKEY_LOG_WARN("Running time is over: %"
+                                  PRIu32 " minutes, exit...",
+                                  param.running_minutes);
+                  break;
+                }
+            }
+
+          sleep_ms = monkey_update(monkey);
+          if (sleep_ms < 0)
             {
               break;
             }
 
-          MONKEY_LOG_NOTICE("continue...");
+          monkey_set_timer(monkey->pfds[MONKEY_POLL_TIMER].fd,
+                           sleep_ms == 0 ? 1 : sleep_ms);
         }
-      else
-        {
-          /* STOP or ERROR */
 
-          break;
+      /* Handle input events - long press detection */
+
+      if (monkey->pfds[MONKEY_POLL_INPUT].revents & POLLIN)
+        {
+          if (monkey_check_longpress(monkey->pfds[MONKEY_POLL_INPUT].fd,
+                                     monkey))
+            {
+              break;
+            }
+        }
+    }
+
+  for (i = 0; i < MONKEY_POLL_COUNT; i++)
+    {
+      if (monkey->pfds[i].fd >= 0)
+        {
+          close(monkey->pfds[i].fd);
         }
     }
 
   monkey_delete(monkey);
-
   return OK;
 }
