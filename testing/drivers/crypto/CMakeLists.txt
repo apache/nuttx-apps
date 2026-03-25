@@ -175,4 +175,18 @@ if(CONFIG_TESTING_CRYPTO)
       rsa.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_PBKDF2)
+    nuttx_add_application(
+      NAME
+      pbkdf2
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      pbkdf2.c)
+  endif()
+
 endif()
