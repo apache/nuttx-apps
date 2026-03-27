@@ -230,7 +230,7 @@ jobs:
                 skip_build=1
               fi
   
-            # For "Arch / Board: xtensa": Build xtensa-01, xtensa-02
+            # For "Arch / Board: xtensa": Build xtensa-01, xtensa-02, xtensa-03
             elif [[ "$arch_contains_xtensa" == "1" || "$board_contains_xtensa" == "1" ]]; then
               if [[ "$board" != *"xtensa-"* ]]; then
                 skip_build=1
