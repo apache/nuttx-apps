@@ -264,16 +264,10 @@ int main(int argc, FAR char *argv[])
   FAR struct boardioc_reset_cause_s cause;
 #endif
 
-#if defined(CONFIG_BOARDCTL) && !defined(CONFIG_NSH_ARCHINIT)
-  /* Perform architecture-specific initialization (if configured) */
-
-  boardctl(BOARDIOC_INIT, 0);
-
 #ifdef CONFIG_BOARDCTL_FINALINIT
   /* Perform architecture-specific final-initialization (if configured) */
 
   boardctl(BOARDIOC_FINALINIT, 0);
-#endif
 #endif
 
   syslog(LOG_INFO, "*** nxboot ***\n");

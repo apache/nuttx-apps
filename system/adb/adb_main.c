@@ -32,8 +32,7 @@
 #include <syslog.h>
 #include <nuttx/streams.h>
 
-#if defined(CONFIG_ADBD_BOARD_INIT) || defined (CONFIG_BOARDCTL_RESET) || \
-    defined(CONFIG_ADBD_USB_BOARDCTL)
+#if defined (CONFIG_BOARDCTL_RESET) || defined(CONFIG_ADBD_USB_BOARDCTL)
 #  include <sys/boardctl.h>
 #endif
 
@@ -119,10 +118,6 @@ int main(int argc, FAR char **argv)
   FAR void *handle;
   int ret;
 #endif
-
-#ifdef CONFIG_ADBD_BOARD_INIT
-  boardctl(BOARDIOC_INIT, 0);
-#endif /* CONFIG_ADBD_BOARD_INIT */
 
 #ifdef CONFIG_ADBD_USB_BOARDCTL
 

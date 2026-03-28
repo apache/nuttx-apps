@@ -140,7 +140,7 @@ static void bleprph_advertise(void)
     BLE_HS_ADV_F_BREDR_UNSUP;
 
   /* Indicate that the TX power level field should be included; have the
-   * stack fill this value automatically.  This is done by assiging the
+   * stack fill this value automatically. This is done by assigning the
    * special value BLE_HS_ADV_TX_PWR_LVL_AUTO.
    */
 
@@ -371,12 +371,6 @@ int main(int argc, FAR char *argv[])
     {
       ble_hci_sock_set_device(atoi(argv[1]));
     }
-
-#ifndef CONFIG_NSH_ARCHINIT
-  /* Perform architecture-specific initialization */
-
-  boardctl(BOARDIOC_INIT, 0);
-#endif
 
 #ifndef CONFIG_NSH_NETINIT
   /* Bring up the network */
