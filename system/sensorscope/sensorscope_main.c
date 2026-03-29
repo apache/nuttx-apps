@@ -50,6 +50,12 @@
 #define SENSOR_PATH_MAX    62
 #define SENSOR_CHNAME_MAX  16
 
+#ifdef CONFIG_SENSORS_USE_B16
+#  define NXSCOPE_DATA_TYPE NXSCOPE_TYPE_B16
+#else
+#  define NXSCOPE_DATA_TYPE NXSCOPE_TYPE_FLOAT
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -98,23 +104,40 @@ struct nxscope_thr_env_s
 
 struct nxsensor_info_s g_nxsensor[] =
 {
-  {"accel", sizeof(struct sensor_accel), 0, 3, NXSCOPE_TYPE_FLOAT},
-  {"mag", sizeof(struct sensor_mag), 0, 3, NXSCOPE_TYPE_FLOAT},
-  {"gyro", sizeof(struct sensor_gyro), 0, 3, NXSCOPE_TYPE_FLOAT},
-  {"light", sizeof(struct sensor_light), 0, 2, NXSCOPE_TYPE_FLOAT},
-  {"baro", sizeof(struct sensor_baro), 0, 2, NXSCOPE_TYPE_FLOAT},
-  {"prox", sizeof(struct sensor_prox), 0, 1, NXSCOPE_TYPE_FLOAT},
-  {"humi", sizeof(struct sensor_humi), 0, 1, NXSCOPE_TYPE_FLOAT},
-  {"temp", sizeof(struct sensor_temp), 0, 1, NXSCOPE_TYPE_FLOAT},
-  {"rgb", sizeof(struct sensor_rgb), 0, 3, NXSCOPE_TYPE_FLOAT},
+  {"accel", sizeof(struct sensor_accel), 0, 3, NXSCOPE_DATA_TYPE},
+  {"mag", sizeof(struct sensor_mag), 0, 3, NXSCOPE_DATA_TYPE},
+  {"gyro", sizeof(struct sensor_gyro), 0, 3, NXSCOPE_DATA_TYPE},
+  {"light", sizeof(struct sensor_light), 0, 2, NXSCOPE_DATA_TYPE},
+  {"baro", sizeof(struct sensor_baro), 0, 2, NXSCOPE_DATA_TYPE},
+  {"prox", sizeof(struct sensor_prox), 0, 1, NXSCOPE_DATA_TYPE},
+  {"humi", sizeof(struct sensor_humi), 0, 1, NXSCOPE_DATA_TYPE},
+  {"temp", sizeof(struct sensor_temp), 0, 1, NXSCOPE_DATA_TYPE},
+  {"rgb", sizeof(struct sensor_rgb), 0, 3, NXSCOPE_DATA_TYPE},
   {"hall", sizeof(struct sensor_hall), 0, 1, NXSCOPE_TYPE_INT32},
-  {"ir", sizeof(struct sensor_ir), 0, 1, NXSCOPE_TYPE_FLOAT},
-  {"gas", sizeof(struct sensor_gas), 0, 1, NXSCOPE_TYPE_FLOAT},
+  {"ir", sizeof(struct sensor_ir), 0, 1, NXSCOPE_DATA_TYPE},
+  {"gas", sizeof(struct sensor_gas), 0, 1, NXSCOPE_DATA_TYPE},
 };
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: nxscope_samples_put
+ ****************************************************************************/
+
+static void nxscope_samples_put(FAR struct nxscope_thr_env_s *envp,
+                                FAR struct listen_object_s *tmp,
+                                size_t offset)
+{
+#ifdef CONFIG_SENSORS_USE_B16
+  FAR b16_t *data = (b16_t *)&tmp->data[offset];
+  nxscope_put_vb16(&envp->nxs, tmp->chanid, data, tmp->info->dim);
+#else
+  FAR float *data = (float *)&tmp->data[offset];
+  nxscope_put_vfloat(&envp->nxs, tmp->chanid, data, tmp->info->dim);
+#endif
+}
 
 /****************************************************************************
  * Name: nxscope_samples_thr
@@ -124,9 +147,7 @@ static FAR void *nxscope_samples_thr(FAR void *arg)
 {
   FAR struct nxscope_thr_env_s *envp   = arg;
   FAR struct listen_object_s   *tmp;
-  FAR float                    *data;
   int                           ret;
-  size_t                        offset;
 
   DEBUGASSERT(envp);
 
@@ -147,11 +168,9 @@ static FAR void *nxscope_samples_thr(FAR void *arg)
             {
               /* Get vector from a given offset */
 
-              offset = tmp->info->data_offset + sizeof(uint64_t);
-              data = (float *)&tmp->data[offset];
-
-              nxscope_put_vfloat(&envp->nxs, tmp->chanid, data,
-                                 tmp->info->dim);
+              nxscope_samples_put(envp, tmp,
+                                  tmp->info->data_offset +
+                                  sizeof(uint64_t));
             }
         }
 
@@ -363,7 +382,7 @@ static int nxscope_channels(FAR struct nxscope_thr_env_s *envp)
 
               /* Register nxscope channel */
 
-              u.s.dtype = NXSCOPE_TYPE_FLOAT;
+              u.s.dtype = NXSCOPE_DATA_TYPE;
               u.s._res  = 0;
               u.s.cri   = 0;
 
