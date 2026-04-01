@@ -33,7 +33,7 @@ if(CONFIG_NETUTILS_MQTTC)
     FetchContent_Declare(
       mqttc_fetch
       URL ${MQTTC_URL}/${CONFIG_NETUTILS_MQTTC_VERSION}.tar.gz SOURCE_DIR
-          ${MQTTC_DIR} BINARY_DIR ${CMAKE_BINARY_DIR}/apps/netutils/mqttc/MQTT-C
+          ${MQTTC_DIR} BINARY_DIR ${NUTTX_APPS_BINDIR}/netutils/mqttc/MQTT-C
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -44,9 +44,8 @@ if(CONFIG_NETUTILS_MQTTC)
     endif()
 
     execute_process(
-      COMMAND
-        sh -c
-        "cat 0001_add_connection_status.patch | patch -s -N -d $(MQTTC_DIR) -p1"
+      COMMAND patch -s -N -d ${MQTTC_DIR} -p1 -i
+              ${CMAKE_CURRENT_LIST_DIR}/0001_add_connection_status.patch
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   endif()
 
@@ -65,6 +64,10 @@ if(CONFIG_NETUTILS_MQTTC)
   target_sources(mqttc PRIVATE ${CSRCS})
   target_compile_options(mqttc PRIVATE ${CFLAGS})
 
+  if(CONFIG_NETUTILS_MQTTC_WITH_MBEDTLS AND CONFIG_CRYPTO_MBEDTLS)
+    nuttx_add_dependencies(TARGET mqttc DEPENDS mbedtls)
+  endif()
+
   if(CONFIG_NETUTILS_MQTTC_EXAMPLE)
     if(CONFIG_NETUTILS_MQTTC_WITH_MBEDTLS)
       nuttx_add_application(
@@ -79,7 +82,8 @@ if(CONFIG_NETUTILS_MQTTC)
         COMPILE_FLAGS
         ${CFLAGS}
         DEPENDS
-        mqttc)
+        mqttc
+        mbedtls)
     else()
       set(MQTT_PUB_CFLAGS
           ${CFLAGS}
