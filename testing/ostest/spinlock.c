@@ -251,7 +251,7 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
       ASSERT(false);
     }
 
-  sparam.sched_priority = SCHED_PRIORITY_MAX;
+  sparam.sched_priority = CONFIG_TESTING_OSTEST_SPINLOCK_PRIORITY;
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
@@ -438,7 +438,7 @@ void spinlock_test(void)
   /* Set thread priority to default - 1 */
 
   ASSERT(0 == sched_getparam(getpid(), &sparam));
-  sparam.sched_priority = SCHED_PRIORITY_MAX;
+  sparam.sched_priority = CONFIG_TESTING_OSTEST_SPINLOCK_PRIORITY;
   ASSERT(0 == pthread_attr_setschedparam(&attr, &sparam));
 
   printf("spinlock_test: start......\n");
