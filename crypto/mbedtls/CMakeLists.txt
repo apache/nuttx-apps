@@ -129,18 +129,16 @@ if(CONFIG_CRYPTO_MBEDTLS)
   # Library Configuration
   # ############################################################################
 
-  set_property(
-    TARGET nuttx
-    APPEND
-    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${INCDIR})
-  set_property(
-    TARGET nuttx
-    APPEND
-    PROPERTY NUTTX_CXX_INCLUDE_DIRECTORIES ${INCDIR})
-
   nuttx_add_library(mbedtls STATIC)
   target_sources(mbedtls PRIVATE ${CSRCS})
-  target_include_directories(mbedtls PRIVATE ${INCDIR})
+  target_include_directories(mbedtls PUBLIC ${INCDIR})
+  nuttx_export_header(TARGET mbedtls INCLUDE_DIRECTORIES ${MBEDTLS_DIR}/include)
+  # Overlay mbedtls_config.h cannot be in the same nuttx_export_header() as
+  # ${MBEDTLS_DIR}/include (duplicate path). Alt headers need no export; INCDIR
+  # supplies them for this library only.
+  nuttx_create_symlink(
+    ${CMAKE_CURRENT_LIST_DIR}/include/mbedtls/mbedtls_config.h
+    ${NUTTX_APPS_BINDIR}/include/mbedtls/mbedtls/mbedtls_config.h)
   target_compile_definitions(mbedtls PRIVATE unix)
 
   if(CONFIG_ARCH_SIM)
