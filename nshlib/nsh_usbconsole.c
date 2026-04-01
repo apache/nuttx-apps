@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #ifdef CONFIG_CDCACM
 #  include <nuttx/usb/cdcacm.h>

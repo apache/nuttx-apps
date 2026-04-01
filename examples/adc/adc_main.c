@@ -35,7 +35,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/analog/adc.h>
 #include <nuttx/analog/ioctl.h>
@@ -95,7 +95,7 @@ static void adc_help(FAR struct adc_state_s *adc)
   printf("Usage: adc [OPTIONS]\n");
   printf("\nArguments are \"sticky\".  "
          "For example, once the ADC device is\n");
-  printf("specified, that device will be re-used until it is changed.\n");
+  printf("specified, that device will be reused until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-p devpath] selects the ADC device.  "
          "Default: %s Current: %s\n",

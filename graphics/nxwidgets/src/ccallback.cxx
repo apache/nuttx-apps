@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <semaphore.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <cassert>
 #include <cerrno>
@@ -308,7 +308,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
  *   NXEVENT_SYCNCHED - Synchronization handshake
  *
  *     This completes the handshake started by nx_synch().  nx_synch()
- *     sends a syncrhonization messages to the NX server which responds
+ *     sends a synchronization message to the NX server which responds
  *     with this event.  The sleeping client is awakened and continues
  *     graphics processing, completing the handshake.
  *

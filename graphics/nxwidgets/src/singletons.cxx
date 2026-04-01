@@ -64,7 +64,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sched.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/nxwidgets/cnxserver.hxx"

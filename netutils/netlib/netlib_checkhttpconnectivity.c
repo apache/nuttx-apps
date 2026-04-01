@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #ifdef CONFIG_LIBC_NETDB
 #  include <netdb.h>

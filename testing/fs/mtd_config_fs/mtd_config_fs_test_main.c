@@ -42,7 +42,7 @@
 #include <string.h>
 #include <errno.h>
 #include <nuttx/crc8.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <assert.h>
 
 /****************************************************************************

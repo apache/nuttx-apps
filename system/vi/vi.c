@@ -39,7 +39,7 @@
 #include <ctype.h>
 #include <syslog.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <system/termcurses.h>
 #include <graphics/curses.h>

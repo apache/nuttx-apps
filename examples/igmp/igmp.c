@@ -29,7 +29,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <arpa/inet.h>
 #include <net/if.h>

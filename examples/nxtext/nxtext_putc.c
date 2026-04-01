@@ -32,7 +32,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
@@ -365,7 +365,7 @@ nxtext_getglyph(NXHANDLE hfont, FAR struct nxtext_state_s *st, uint8_t ch)
  *
  * Description:
  *   This is part of the nxtext_putc logic.  It creates and positions a
- *   the character and renders (or re-uses) a glyph for font.
+ *   the character and renders (or reuses) a glyph for font.
  *
  ****************************************************************************/
 

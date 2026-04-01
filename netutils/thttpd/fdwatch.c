@@ -39,7 +39,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/param.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <poll.h>
 
 #include "config.h"

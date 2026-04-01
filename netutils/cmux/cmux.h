@@ -29,7 +29,7 @@
 
 #include <sys/time.h>
 #include <stdbool.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 
 #define CMUX_BIT0 (0)

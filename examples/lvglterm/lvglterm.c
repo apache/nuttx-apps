@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <poll.h>
 #include <spawn.h>
 #include <lvgl/lvgl.h>

@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <unistd.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/usb/usbdev.h>
 #include <nuttx/usb/usbmsc.h>

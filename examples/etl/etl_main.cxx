@@ -27,7 +27,7 @@
 #include <nuttx/config.h>
 
 #include <cstdio>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <etl/vector.h>
 #include <etl/numeric.h>

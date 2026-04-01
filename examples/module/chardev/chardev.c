@@ -32,7 +32,7 @@
 #include <string.h>
 #include <errno.h>
 #include <syslog.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/module.h>
 #include <nuttx/lib/elf.h>

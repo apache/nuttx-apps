@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 
 #ifdef __NuttX__
-#include <debug.h>
+#include <nuttx/debug.h>
 #endif
 #include <inttypes.h>
 #include <stdint.h>

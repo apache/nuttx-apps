@@ -41,7 +41,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "tdate_parse.h"
 

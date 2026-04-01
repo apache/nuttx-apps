@@ -64,7 +64,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <cerrno>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/video/rgbcolors.h>

@@ -66,7 +66,7 @@
 #include <limits.h>
 
 #include <nuttx/nx/nxglib.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/nxwidgets/cnumericedit.hxx"
 #include "graphics/nxwidgets/cbutton.hxx"

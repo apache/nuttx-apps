@@ -30,7 +30,7 @@
 #include <sys/boardctl.h>
 
 #include <stdio.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/usb/usbdev.h>
 #include <nuttx/usb/cdcacm.h>

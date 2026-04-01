@@ -52,7 +52,7 @@
 #include <libgen.h>
 #include <assert.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/binfmt/binfmt.h>
 #include "netutils/thttpd.h"
@@ -766,7 +766,7 @@ static int cgi_child(int argc, char **argv)
   /* Close all file descriptors EXCEPT for stdin, stdout, stderr and
    * hc->conn_fd.  We'll keep stderr open for error reporting; stdin and
    * stdout will be closed later by dup2().  Keeping stdin and stdout open
-   * now prevents re-use of fd=0 and 1 by pipe().
+   * now prevents reuse of fd=0 and 1 by pipe().
    */
 
   ninfo("Closing descriptors\n");

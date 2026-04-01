@@ -37,7 +37,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/crc32.h>
 #include <nuttx/mtd/mtd.h>
@@ -598,7 +598,7 @@ static int nxffs_verifyfs(void)
               else
                 {
 #if CONFIG_TESTING_NXFFS_VERBOSE != 0
-                  printf("  Verifed file %s\n", file->name);
+                  printf("  Verified file %s\n", file->name);
 #endif
                 }
             }

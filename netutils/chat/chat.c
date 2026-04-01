@@ -45,7 +45,7 @@
 #include <sys/stat.h>
 
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 #include <poll.h>
 #include <stdio.h>

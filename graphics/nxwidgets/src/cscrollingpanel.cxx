@@ -62,7 +62,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 #include "graphics/nxwidgets/cscrollingpanel.hxx"

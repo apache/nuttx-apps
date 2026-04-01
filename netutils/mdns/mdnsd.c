@@ -32,7 +32,7 @@
 #include <syslog.h>
 #include <limits.h>
 #include <semaphore.h>
-#include <debug.h>                 /* For nerr, info */
+#include <nuttx/debug.h>                 /* For nerr, info */
 
 #include "netutils/netlib.h"
 #include "netutils/mdnsd.h"

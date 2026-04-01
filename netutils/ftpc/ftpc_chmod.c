@@ -26,7 +26,7 @@
 
 #include "ftpc_config.h"
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include "netutils/ftpc.h"
 
 #include "ftpc_internal.h"

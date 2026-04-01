@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 
 #include <nuttx/nx/nx.h>

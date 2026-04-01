@@ -31,7 +31,7 @@
 #include <cassert>
 
 #include <semaphore.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sched.h>
 #include <unistd.h>
 

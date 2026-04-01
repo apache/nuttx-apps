@@ -28,7 +28,7 @@
 
 #include <cerrno>
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <fcntl.h>
 
 #include "graphics/nxwm/nxwmconfig.hxx"

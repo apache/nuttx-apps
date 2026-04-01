@@ -31,7 +31,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <unistd.h>
 
 #include <nuttx/fs/fat.h>
@@ -206,7 +206,7 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
       /* The following fields are only valid for FAT12/16 */
 
-      /*  1@36: Drive number for MSDOS bootstrap -- left zero */
+      /*  1@36: Drive number for MS-DOS bootstrap -- left zero */
 
       /*  1@37: Reserved (zero) */
 
@@ -268,7 +268,7 @@ static inline void mkfatfs_initmbr(FAR struct fat_format_s *fmt,
 
       /* 12@52: Reserved (zero) */
 
-      /*  1@64: Drive number for MSDOS bootstrap -- left zero */
+      /*  1@64: Drive number for MS-DOS bootstrap -- left zero */
 
       /*  1@65: Reserved (zero) */
 

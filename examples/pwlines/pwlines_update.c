@@ -33,7 +33,7 @@
 #include <inttypes.h>
 #include <unistd.h>
 #include <string.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <fixedmath.h>
 
 #include <nuttx/nx/nx.h>

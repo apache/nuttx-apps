@@ -33,7 +33,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <nuttx/audio/audio.h>

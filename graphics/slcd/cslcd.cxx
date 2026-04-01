@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <fixedmath.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/nx/nx.h>
 

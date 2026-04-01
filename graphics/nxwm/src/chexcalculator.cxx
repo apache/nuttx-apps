@@ -27,7 +27,7 @@
 #include <nuttx/config.h>
 
 #include <cstdio>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/nxwidgets/cwidgetcontrol.hxx"
 

@@ -26,7 +26,7 @@
 
 #include <nuttx/config.h>
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
@@ -193,7 +193,7 @@ static void epoll01(FAR void **state)
   ret = timerfd_stop(args->fd[0]);
   assert_true(ret == 0);
 
-  /* 3rd wait should directly return 0, timer has stoped */
+  /* 3rd wait should directly return 0, timer has stopped */
 
   ret = epoll_wait(args->efd, &evs, 1, 0);
   TIME_ASSERT_RANGE(get_elapse(args->start), 1000);
@@ -274,7 +274,7 @@ static void epoll02(FAR void **state)
   struct epoll_event evs[2];
   int ret;
 
-  /* 1st wait, shoud return after 1000ms */
+  /* 1st wait, should return after 1000ms */
 
   ret = epoll_wait(args->efd, evs, 2, 1100);
   TIME_ASSERT_RANGE(get_elapse(args->start), 1000);
@@ -406,7 +406,7 @@ static void epoll03(FAR void **state)
 
   /* 1st wait should timeout, because server accept will trigger
    * EPOLLOUT event, but we do not set EPOLLOUT in ev.events.
-   * Even the server has writen the data, but to check the EPOLLIN event,
+   * Even the server has written the data, but to check the EPOLLIN event,
    * client need call epoll_wait again, because local socket internal state
    * changed, we need setup it again to get the EPOLLIN event.
    */
@@ -416,7 +416,7 @@ static void epoll03(FAR void **state)
   TIME_ASSERT_RANGE(get_elapse(args->start), 1000);
   assert_true(ret == 0);
 
-  /* 2nd wait shoud return immediately, because server has send
+  /* 2nd wait should return immediately, because server has sent
    * data to client.
    */
 

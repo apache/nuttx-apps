@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sched.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "tcpblaster.h"
 

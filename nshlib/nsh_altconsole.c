@@ -30,7 +30,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <string.h>
 
 #include "nsh.h"

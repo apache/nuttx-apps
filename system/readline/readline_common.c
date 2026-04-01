@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/ascii.h>
 #include <nuttx/vt100.h>

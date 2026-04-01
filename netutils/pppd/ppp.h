@@ -51,7 +51,7 @@
 
 #include "netutils/chat.h"
 
-#include "debug.h"
+#include <nuttx/debug.h>
 #include "ppp_conf.h"
 #include "ahdlc.h"
 #include "lcp.h"

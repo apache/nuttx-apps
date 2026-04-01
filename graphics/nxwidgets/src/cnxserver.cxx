@@ -37,7 +37,7 @@
 #include <cerrno>
 #include <sched.h>
 #include <pthread.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/board.h>
 

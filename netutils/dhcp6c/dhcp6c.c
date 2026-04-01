@@ -36,7 +36,7 @@
 #include <resolv.h>
 #include <string.h>
 #include <unistd.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>

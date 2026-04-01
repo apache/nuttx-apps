@@ -52,7 +52,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/time.h>

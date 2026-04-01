@@ -36,7 +36,7 @@
 #include <sys/types.h>
 
 #include <stdint.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <syslog.h>
 
 #include <nuttx/compiler.h>
@@ -206,7 +206,7 @@
 #define ZM_XFRDONE    1              /* Success - Transfer complete */
 
 /* The actual packet buffer size includes 5 bytes to hold the transfer type
- * and the maxmimum size 4-byte CRC.
+ * and the maximum size 4-byte CRC.
  */
 
 #define ZM_PKTBUFSIZE (CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE + 5)
@@ -332,7 +332,7 @@ struct zm_state_s
   uint16_t flags;            /* See ZM_FLAG_* definitions */
   uint16_t nerrors;          /* Number of data errors */
   timer_t  timer;            /* Watchdog timer */
-  int      remfd;            /* The R/W file descritor used for communication with remote */
+  int      remfd;            /* The R/W file descriptor used for communication with remote */
 
   /* Buffers.
    *

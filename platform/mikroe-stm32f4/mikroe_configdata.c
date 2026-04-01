@@ -30,7 +30,7 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -233,7 +233,7 @@ int platform_getconfig(enum config_data_e id, int instance,
       case CONFIGDATA_TSCALIBRATION:
 
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
-        /* Load config data fram a file on the filesystem.  Try to open
+        /* Load config data from a file on the filesystem.  Try to open
          * the file.
          */
 

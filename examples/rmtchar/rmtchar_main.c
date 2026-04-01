@@ -33,7 +33,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "rmtchar.h"
 
@@ -112,7 +112,7 @@ static void rmtchar_help(FAR struct rmtchar_state_s *rmtchar)
   printf("Usage: rmtchar [OPTIONS]\n");
   printf("\nArguments are \"sticky\".\n");
   printf("For example, once the RMT character device is\n");
-  printf("specified, that device will be re-used until it is changed.\n");
+  printf("specified, that device will be reused until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-i items] selects the number of words (items) to be transmitted"
          " or received by the RMT character device. "

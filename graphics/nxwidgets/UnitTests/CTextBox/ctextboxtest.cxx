@@ -30,7 +30,7 @@
 #include <cstdio>
 #include <cerrno>
 #include <unistd.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>

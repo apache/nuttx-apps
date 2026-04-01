@@ -31,7 +31,7 @@
 #include <cstring>
 #include <cerrno>
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sched.h>
 
 #include "graphics/nxwidgets/nxconfig.hxx"

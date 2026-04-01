@@ -32,7 +32,7 @@
 #include <nuttx/init.h>
 #include <cstdio>
 #include <semaphore.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sys/param.h>
 
 #include <nuttx/nx/nx.h>

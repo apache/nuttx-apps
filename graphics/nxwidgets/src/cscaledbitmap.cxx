@@ -29,7 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <cstring>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/nx/nxglib.h>
 
@@ -64,7 +64,7 @@ CScaledBitmap::CScaledBitmap(IBitmap *bitmap, struct nxgl_size_s &newSize)
   m_xScale = itob16((uint32_t)m_bitmap->getWidth()) / newSize.w;
 
   // Similarly, yScale will be used to convert a request Y position to a Y
-  // positionin the contained bitmap:
+  // position in the contained bitmap:
   //
   // yImage = yRequested * oldHeight / newHeight
   //        = yRequested * yScale

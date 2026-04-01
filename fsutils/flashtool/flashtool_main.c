@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <fcntl.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 #include <ctype.h>
 

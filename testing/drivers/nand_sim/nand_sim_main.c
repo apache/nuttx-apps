@@ -24,7 +24,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <stdio.h>
 
 #include <nuttx/drivers/drivers.h>
@@ -72,7 +72,7 @@ FAR struct nand_raw_s   *g_nand_mtd_raw;
  * Name: wrapper_init
  *
  * Description:
- *   Initializes the wrapper by allocating memory and assiging the methods.
+ *   Initializes the wrapper by allocating memory and assigning the methods.
  *
  * Returned Value:
  *   0: Successful
@@ -114,7 +114,7 @@ int wrapper_init(void)
  * Name: terminate
  *
  * Description:
- *   Handles the SIGTERM signal by exitting gracefully.
+ *   Handles the SIGTERM signal by exiting gracefully.
  *
  ****************************************************************************/
 
