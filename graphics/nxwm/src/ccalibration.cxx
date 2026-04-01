@@ -30,7 +30,7 @@
 #include <sched.h>
 #include <limits.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <unistd.h>
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA

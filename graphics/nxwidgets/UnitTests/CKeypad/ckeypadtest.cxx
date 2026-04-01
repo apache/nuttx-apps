@@ -29,7 +29,7 @@
 #include <nuttx/init.h>
 #include <cstdio>
 #include <cerrno>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>

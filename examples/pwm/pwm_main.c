@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -199,7 +199,7 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
   printf("Usage: pwm [OPTIONS]\n");
   printf("\nArguments are \"sticky\".  "
          "For example, once the PWM frequency is\n");
-  printf("specified, that frequency will be re-used until it is changed.\n");
+  printf("specified, that frequency will be reused until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-p devpath] selects the PWM device.  "
          "Default: %s Current: %s\n",

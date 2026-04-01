@@ -30,7 +30,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/tiff.h"
 
@@ -335,7 +335,7 @@ int tiff_putstring(int fd, FAR const char *string, int len)
  * Name: tiff_wordalign
  *
  * Description:
- *  Pad a file with zeros as necessary to achieve word alignament.
+ *  Pad a file with zeros as necessary to achieve word alignment.
  *
  * Input Parameters:
  *   fd - File descriptor to be used.

@@ -34,7 +34,7 @@
 #include <sys/boardctl.h>
 #include <semaphore.h>
 #include <fcntl.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <unistd.h>
 
 #include "nshlib/nshlib.h"

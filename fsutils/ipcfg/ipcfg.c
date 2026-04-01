@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "fsutils/ipcfg.h"
 #include "ipcfg.h"

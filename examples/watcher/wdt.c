@@ -32,7 +32,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 

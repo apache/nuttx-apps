@@ -52,7 +52,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <semaphore.h>

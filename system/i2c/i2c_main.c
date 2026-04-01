@@ -35,7 +35,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "i2ctool.h"
 
@@ -165,7 +165,7 @@ static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc,
                  "o Arguments are \"sticky\". For example, once "
                  "the I2C address is\n");
   i2ctool_printf(i2ctool,
-                 "  specified, that address will be re-used until "
+                 "  specified, that address will be reused until "
                  "it is changed.\n");
   i2ctool_printf(i2ctool, "\nWARNING:\n");
   i2ctool_printf(i2ctool,

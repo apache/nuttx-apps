@@ -35,7 +35,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/crc32.h>
 #include <nuttx/mtd/mtd.h>
@@ -450,7 +450,7 @@ static int configdata_verifyconfig(void)
                 {
                   g_nverified++;
 #if CONFIG_EXAMPLES_CONFIGDATA_VERBOSE != 0
-                  printf("  Verifed entry %04X, %d\n",
+                  printf("  Verified entry %04X, %d\n",
                          entry->id, entry->instance);
 #endif
                 }

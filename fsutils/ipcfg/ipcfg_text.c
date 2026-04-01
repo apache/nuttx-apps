@@ -31,7 +31,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <arpa/inet.h>
 
@@ -238,7 +238,7 @@ static int ipcfg_put_ipv6addr(FAR FILE *stream, FAR const char *variable,
  *
  * Input Parameters:
  *   stream  - Stream of the open file to write to
- *   ipv4cfg - The IPv4 configration to write
+ *   ipv4cfg - The IPv4 configuration to write
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -278,7 +278,7 @@ static int ipcfg_write_ipv4(FAR FILE *stream,
  *
  * Input Parameters:
  *   stream  - Stream of the open file to write to
- *   ipv6cfg - The IPv6 configration to write
+ *   ipv6cfg - The IPv6 configuration to write
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -322,7 +322,7 @@ static int ipcfg_write_ipv6(FAR FILE *stream,
  * Input Parameters:
  *   path    - The full path to the IP configuration file
  *   netdev  - Network device name string
- *   ipv4cfg - Location to read IPv4 configration to
+ *   ipv4cfg - Location to read IPv4 configuration to
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -473,7 +473,7 @@ int ipcfg_read_text_ipv4(FAR const char *path, FAR const char *netdev,
  * Input Parameters:
  *   path    - The full path to the IP configuration file
  *   netdev  - Network device name string
- *   ipv6cfg - Location to read IPv6 configration to
+ *   ipv6cfg - Location to read IPv6 configuration to
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -639,7 +639,7 @@ int ipcfg_read_text_ipv6(FAR const char *path, FAR const char *netdev,
  * Input Parameters:
  *   path    - The full path to the IP configuration file
  *   netdev  - Network device name string
- *   ipv4cfg - The IPv4 configration to write
+ *   ipv4cfg - The IPv4 configuration to write
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any
@@ -726,7 +726,7 @@ int ipcfg_write_text_ipv4(FAR const char *path, FAR const char *netdev,
  * Input Parameters:
  *   path    - The full path to the IP configuration file
  *   netdev  - Network device name string
- *   ipv6cfg - The IPv6 configration to write
+ *   ipv6cfg - The IPv6 configuration to write
  *
  * Returned Value:
  *   Zero is returned on success; a negated errno value is returned on any

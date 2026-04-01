@@ -26,7 +26,7 @@
 
 #include <nuttx/config.h>
 
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -77,7 +77,7 @@ static void help(FAR struct neo_config_s *conf)
 
   printf("\nArguments are \"sticky\".  "
          "For example, once the device path is\n");
-  printf("specified, that path will be re-used until it is changed.\n");
+  printf("specified, that path will be reused until it is changed.\n");
 
   printf("  [-p path] selects the ws2812 device.  "
          "Default: %s Current: %s\n",

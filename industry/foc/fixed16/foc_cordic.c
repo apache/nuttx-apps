@@ -30,7 +30,7 @@
 
 #include <assert.h>
 #include <fcntl.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 
 #include <nuttx/math/cordic.h>

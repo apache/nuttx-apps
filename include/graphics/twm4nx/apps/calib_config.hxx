@@ -28,7 +28,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <nuttx/config.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/nxwidgets/nxconfig.hxx"
 #include "graphics/twm4nx/twm4nx_config.hxx"

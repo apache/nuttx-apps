@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/power/battery_ioctl.h>
 #include <nuttx/power/battery_charger.h>
@@ -117,7 +117,7 @@ void health_report(int health)
 
       case BATTERY_HEALTH_GOOD:
         {
-          printf("Battery is in good condiction!\n");
+          printf("Battery is in good condition!\n");
         }
         break;
 

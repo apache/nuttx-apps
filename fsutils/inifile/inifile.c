@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "fsutils/inifile.h"
 

@@ -27,7 +27,7 @@
 #include <nuttx/config.h>
 
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <endian.h>
 #include <errno.h>
 #include <string.h>
@@ -274,7 +274,7 @@ int nxscope_proto_ser_init(FAR struct nxscope_proto_s *proto, FAR void *cfg)
 {
   DEBUGASSERT(proto);
 
-  /* cfg argument not used, but keept here for compatibility with
+  /* cfg argument not used, but kept here for compatibility with
    * future protocol implementations.
    */
 

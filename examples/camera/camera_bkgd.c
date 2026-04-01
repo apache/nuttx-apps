@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <semaphore.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sys/boardctl.h>
 
 #include <arch/board/board.h>

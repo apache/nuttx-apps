@@ -32,7 +32,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #ifdef CONFIG_GRAPHICS_FT80X
 

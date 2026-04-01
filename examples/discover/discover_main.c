@@ -29,7 +29,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <net/if.h>
 #include <netinet/in.h>

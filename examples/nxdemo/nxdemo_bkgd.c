@@ -34,7 +34,7 @@
 #include <semaphore.h>
 #include <sys/param.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <unistd.h>
 
 #include <nuttx/nx/nx.h>

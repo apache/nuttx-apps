@@ -36,7 +36,7 @@
 #endif
 
 #include <arpa/inet.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <pthread.h>

@@ -33,7 +33,7 @@
 #include <cerrno>
 #include <strings.h>
 #include <dirent.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "system/nxplayer.h"
 #include <nuttx/audio/audio.h>

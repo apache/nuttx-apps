@@ -32,7 +32,7 @@
 #include <time.h>
 #include <assert.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include "graphics/tiff.h"
 
@@ -68,7 +68,7 @@
  *          172    XResolution                 Hard-coded to 300/1
  *          180    YResolution                 Hard-coded to 300/1
  *          188    "NuttX"                     Length = 6 (including NUL terminator)
- *          194    "YYYY:MM:DD HH:MM:SS"       Length = 20 (ncluding NUL terminator)
+ *          194    "YYYY:MM:DD HH:MM:SS"       Length = 20 (including NUL terminator)
  *          214    [2 bytes padding]
  *          216    StripByteCounts             Beginning of strip byte counts
  *          xxx    StripOffsets                Beginning of strip offsets
@@ -121,7 +121,7 @@
  *          184    XResolution                 Hard-coded to 300/1
  *          192    YResolution                 Hard-coded to 300/1
  *          200    "NuttX"                     Length = 6 (including NUL terminator)
- *          206    "YYYY:MM:DD HH:MM:SS"       Length = 20 (ncluding NUL terminator)
+ *          206    "YYYY:MM:DD HH:MM:SS"       Length = 20 (including NUL terminator)
  *          226    [2 bytes padding]
  *          228    StripByteCounts             Beginning of strip byte counts
  *          xxx    StripOffsets                Beginning of strip offsets
@@ -170,7 +170,7 @@
  *          212    BitsPerSample               8, 8, 8
  *          218    [2 bytes padding]
  *          220    "NuttX"                     Length = 6 (including NUL terminator)
- *          226    "YYYY:MM:DD HH:MM:SS"       Length = 20 (ncluding NUL terminator)
+ *          226    "YYYY:MM:DD HH:MM:SS"       Length = 20 (including NUL terminator)
  *          246    [2 bytes padding]
  *          248    StripByteCounts             Beginning of strip byte counts
  *          xxx    StripOffsets                Beginning of strip offsets
@@ -410,7 +410,7 @@ static int tiff_datetime(FAR char *timbuf, unsigned int buflen)
 
   gmtime_r((FAR const time_t*)&ts.tv_sec, &tm);
 
-  /* Comvert the current time in the TIFF format */
+  /* Convert the current time to TIFF format */
 
   strftime(timbuf, buflen, TIFF_DATETIME_FORMAT, &tm);
   return OK;

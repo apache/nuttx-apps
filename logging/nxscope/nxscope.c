@@ -27,7 +27,7 @@
 #include <nuttx/config.h>
 
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -150,7 +150,7 @@ static int nxscope_chinfo_send(FAR struct nxscope_s *s, uint8_t ch)
   namelen = strnlen(s->chinfo[ch].name, CHAN_NAMELEN_MAX);
   memcpy(&data[tmp], s->chinfo[ch].name, namelen);
 
-  /* Treminate name wit a null-character */
+  /* Terminate name with a null character */
 
   txlen = tmp  + namelen + 1;
   data[txlen - 1] = '\0';

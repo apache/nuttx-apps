@@ -40,7 +40,7 @@
 #  define OK    (0)
 #else
 #  include <nuttx/config.h>          /* NuttX configuration */
-#  include <debug.h>                 /* For nerr, info */
+#  include <nuttx/debug.h>                 /* For nerr, info */
 #  include <nuttx/compiler.h>        /* For CONFIG_CPP_HAVE_WARNING */
 #  include "netutils/dhcpd.h"        /* Advertised DHCPD APIs */
 #endif

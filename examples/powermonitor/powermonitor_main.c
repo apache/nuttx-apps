@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <stdio.h>
 #include <fixedmath.h>
 #include <sys/types.h>

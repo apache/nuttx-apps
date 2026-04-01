@@ -64,7 +64,7 @@
 #include <stdbool.h>
 #include <cstring>
 #include <ctime>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <errno.h>
 
 #include <nuttx/clock.h>

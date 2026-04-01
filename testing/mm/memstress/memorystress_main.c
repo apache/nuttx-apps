@@ -26,7 +26,7 @@
 
 #include <nuttx/config.h>
 #include <stdlib.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>

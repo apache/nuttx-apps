@@ -31,7 +31,7 @@
 #include <nuttx/compiler.h>
 
 #include <stdio.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #ifdef CONFIG_EXAMPLES_FT80X
 

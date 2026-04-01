@@ -37,7 +37,7 @@
 #include <fcntl.h>
 #include <libgen.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #if defined(CONFIG_NSH_DISABLE_URLENCODE) && defined(CONFIG_NSH_DISABLE_URLDECODE)
 #  undef CONFIG_CODECS_URLCODE

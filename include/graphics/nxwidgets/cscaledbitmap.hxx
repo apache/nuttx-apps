@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <fixedmath.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <nuttx/video/rgbcolors.h>
 #include <nuttx/nx/nxglib.h>

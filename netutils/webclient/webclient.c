@@ -48,7 +48,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/compiler.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 
 #include <assert.h>
 #include <fcntl.h>
@@ -857,7 +857,7 @@ static inline int wget_parsechunkheader(struct webclient_context *ctx,
               if (semicolon != NULL)
                 {
                   found_extension = true;
-                  ninfo("Ignoring extentions in chunk header\n");
+                  ninfo("Ignoring extensions in chunk header\n");
                   *semicolon = 0;
                 }
             }

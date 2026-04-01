@@ -29,7 +29,7 @@
 
 #ifdef EXAMPLES_UDP_HOST
 #else
-#  include <debug.h>
+#  include <nuttx/debug.h>
 #endif
 
 #include <arpa/inet.h>

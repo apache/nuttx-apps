@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <sys/ioctl.h>
 #include <sys/boardctl.h>
 

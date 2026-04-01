@@ -32,7 +32,7 @@
 #include <sched.h>
 #include <pthread.h>
 #include <assert.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <unistd.h>
 
 #include "graphics/nxwm/nxwmconfig.hxx"
@@ -188,7 +188,7 @@ int CKeyboard::open(void)
 
               if (errcode == ENOENT || errcode == ENODEV)
                 {
-                  // REVIST: Can we inject a constant string here to let the
+                  // REVISIT: Can we inject a constant string here to let the
                   // user know that we are waiting for a USB keyboard to be
                   // connected?
 

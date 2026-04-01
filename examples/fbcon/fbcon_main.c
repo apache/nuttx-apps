@@ -42,7 +42,7 @@
 #include <nuttx/video/fb.h>
 #include <ctype.h>
 #include <spawn.h>
-#include <debug.h>
+#include <nuttx/debug.h>
 #include <poll.h>
 #include <nuttx/ascii.h>
 #include <nuttx/lib/builtin.h>
@@ -1913,7 +1913,7 @@ static void fbcon_write(FAR struct fbcon_state_s *st,
 
       do
         {
-          /* Is the character part of a VT100 escape sequnce? */
+          /* Is the character part of a VT100 escape sequence? */
 
           state = fbcon_vt100(st, ch);
           switch (state)
@@ -2652,4 +2652,3 @@ errout:
   fprintf(stderr, "FBCON exiting with error %d\n", exitcode);
   return exitcode;
 }
-
