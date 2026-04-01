@@ -127,6 +127,17 @@ config TESTING_OSTEST_SPINLOCK_THREADS
 	default 2
 	range 1 32
 
+config TESTING_OSTEST_SPINLOCK_PRIORITY
+	int "Priority of spinlock test threads"
+	default 255
+	range 1 255
+	---help---
+		Priority for spinlock test threads. Default is 255
+		(SCHED_PRIORITY_MAX). On systems with watchdog monitoring
+		(e.g., BMP with WdgM), using 255 may starve the watchdog
+		feeding task and trigger a system reset. Set this below
+		the watchdog task priority if needed.
+
 config TESTING_OSTEST_MULTIUSER
 	bool "Multi-user identity and permission tests"
 	default n
