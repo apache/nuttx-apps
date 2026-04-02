@@ -179,7 +179,7 @@ $(LELYCANOPEN_SRCNAME): $(LELYCANOPEN_TARBALL)
 	@echo "Unpacking: $(LELYCANOPEN_TARBALL) -> $(LELYCANOPEN_UNPACKNAME)"
 	$(Q) $(UNPACK) $(LELYCANOPEN_TARBALL)
 
-patch_src: $(LELYCANOPEN_SRCNAME)
+$(LELYCANOPEN_SRCNAME)/.patched : $(LELYCANOPEN_SRCNAME)
 	# Get the name of the directory created by the tar command
 	$(eval LELYCANOPEN_UNPACKNAME := $(shell ls -d lely-core-master*))
 	$(Q) mv $(LELYCANOPEN_UNPACKNAME) $(LELYCANOPEN_SRCNAME)
@@ -188,9 +188,10 @@ patch_src: $(LELYCANOPEN_SRCNAME)
 	$(Q) cat 0003-src-co-nmt.c-fix-compilation.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
 	$(Q) cat 0004-tools-coctl.c-add-missing-mutex-init.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
 	$(Q) cat 0005-add-NuttX-support.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
+	$(Q) touch $@
 	$(Q) echo "Patching $(LELYCANOPEN_SRCNAME)"
 
-context:: patch_src
+context:: $(LELYCANOPEN_SRCNAME)/.patched
 else
 context:: $(LELYCANOPEN_SRCNAME)
 endif
