@@ -182,10 +182,10 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
 
       /* Note:
        * VIDIOC_QBUF set buffer pointer.
-       * Buffer pointer must be 32bytes aligned.
+       * Buffer pointer must be 64bytes aligned for DMA with PSRAM.
        */
 
-      (*vbuf)[cnt].start = memalign(32, buffersize);
+      (*vbuf)[cnt].start = memalign(64, buffersize);
       if (!(*vbuf)[cnt].start)
         {
           printf("Out of memory for image buffer of %d/%d\n",
