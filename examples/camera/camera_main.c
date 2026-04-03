@@ -38,6 +38,7 @@
 
 #include <nuttx/video/video.h>
 #include <nuttx/video/v4l2_cap.h>
+#include <nuttx/cache.h>
 
 #include "camera_fileutil.h"
 #include "camera_bkgd.h"
@@ -85,7 +86,8 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
                           uint16_t hsize, uint16_t vsize,
                           FAR struct v_buffer **vbuf,
                           uint8_t buffernum, int buffersize,
-                          FAR uint32_t *memory);
+                          FAR uint32_t *memory,
+                          FAR uint32_t *actual_fmt);
 static void free_buffer(FAR struct v_buffer *buffers, uint8_t bufnum);
 static int parse_arguments(int argc, FAR char *argv[],
                            FAR int *capture_num,
@@ -121,7 +123,8 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
                           uint16_t hsize, uint16_t vsize,
                           FAR struct v_buffer **vbuf,
                           uint8_t buffernum, int buffersize,
-                          FAR uint32_t *memory)
+                          FAR uint32_t *memory,
+                          FAR uint32_t *actual_fmt)
 {
   int ret;
   int cnt;
@@ -149,10 +152,25 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
   fmt.fmt.pix.pixelformat = pixformat;
 
   ret = ioctl(fd, VIDIOC_S_FMT, (uintptr_t)&fmt);
+  if (ret < 0 && pixformat == V4L2_PIX_FMT_RGB565)
+    {
+      /* Some sensors on 8-bit DVP output big-endian RGB565 (RGB565X).
+       * Retry with RGB565X if RGB565 is not supported.
+       */
+
+      fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB565X;
+      ret = ioctl(fd, VIDIOC_S_FMT, (uintptr_t)&fmt);
+    }
+
   if (ret < 0)
     {
       printf("Failed to VIDIOC_S_FMT: errno = %d\n", errno);
       return ret;
+    }
+
+  if (actual_fmt)
+    {
+      *actual_fmt = fmt.fmt.pix.pixelformat;
     }
 
   /* VIDIOC_REQBUFS: try MMAP first (driver-managed DMA buffers).
@@ -518,6 +536,7 @@ int main(int argc, FAR char *argv[])
   FAR struct v_buffer *buffers_still = NULL;
   uint32_t video_memory = V4L2_MEMORY_USERPTR;
   uint32_t still_memory = V4L2_MEMORY_USERPTR;
+  uint32_t video_pixfmt = V4L2_PIX_FMT_RGB565;
 
   /* =====  Parse and Check arguments  ===== */
 
@@ -607,7 +626,7 @@ int main(int argc, FAR char *argv[])
                            V4L2_BUF_MODE_FIFO, V4L2_PIX_FMT_JPEG,
                            w, h,
                            &buffers_still, STILL_BUFNUM, IMAGE_JPG_SIZE,
-                           &still_memory);
+                           &still_memory, NULL);
       if (ret != OK)
         {
           goto exit_this_app;
@@ -632,7 +651,7 @@ int main(int argc, FAR char *argv[])
                        V4L2_BUF_MODE_RING, V4L2_PIX_FMT_RGB565,
                        VIDEO_HSIZE_QVGA, VIDEO_VSIZE_QVGA,
                        &buffers_video, VIDEO_BUFNUM, IMAGE_RGB_SIZE,
-                       &video_memory);
+                       &video_memory, &video_pixfmt);
   if (ret != OK)
     {
       goto exit_this_app;
@@ -704,13 +723,35 @@ int main(int argc, FAR char *argv[])
           case APP_STATE_BEFORE_CAPTURE:
           case APP_STATE_AFTER_CAPTURE:
             ret = get_camimage(v_fd, &v4l2_buf,
-                              V4L2_BUF_TYPE_VIDEO_CAPTURE, video_memory);
+                               V4L2_BUF_TYPE_VIDEO_CAPTURE, video_memory);
             if (ret != OK)
               {
                 goto exit_this_app;
               }
 
 #ifdef CONFIG_EXAMPLES_CAMERA_OUTPUT_LCD
+            /* If the sensor outputs RGB565X (big-endian), invalidate
+             * D-Cache so we read fresh DMA data from PSRAM, then
+             * byte-swap in place for display and swap back before
+             * returning the buffer to the driver.
+             */
+
+            if (video_pixfmt == V4L2_PIX_FMT_RGB565X)
+              {
+                FAR uint16_t *p = (FAR uint16_t *)v4l2_buf.m.userptr;
+                uint32_t npixels = v4l2_buf.bytesused / 2;
+                uint32_t i;
+
+                up_invalidate_dcache((uintptr_t)p,
+                                     (uintptr_t)p + v4l2_buf.bytesused);
+
+                for (i = 0; i < npixels; i++)
+                  {
+                    uint16_t v = p[i];
+                    p[i] = (v >> 8) | (v << 8);
+                  }
+              }
+
             nximage_draw((FAR void *)v4l2_buf.m.userptr,
                          VIDEO_HSIZE_QVGA, VIDEO_VSIZE_QVGA);
 #endif
