@@ -91,7 +91,8 @@ static int camera_prepare(int fd, enum v4l2_buf_type type,
 static void free_buffer(FAR struct v_buffer *buffers, uint8_t bufnum);
 static int parse_arguments(int argc, FAR char *argv[],
                            FAR int *capture_num,
-                           FAR enum v4l2_buf_type *type);
+                           FAR enum v4l2_buf_type *type,
+                           FAR bool *mirror);
 static int get_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf,
                         enum v4l2_buf_type buf_type, uint32_t memory);
 static int release_camimage(int fd, FAR struct v4l2_buffer *v4l2_buf);
@@ -330,57 +331,35 @@ static void free_buffer(FAR struct v_buffer *buffers, uint8_t bufnum)
 
 static int parse_arguments(int argc, FAR char *argv[],
                            FAR int *capture_num,
-                           FAR enum v4l2_buf_type *type)
+                           FAR enum v4l2_buf_type *type,
+                           FAR bool *mirror)
 {
-  if (argc == 1)
+  int i;
+
+  *capture_num = DEFAULT_CAPTURE_NUM;
+  *type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  *mirror = false;
+
+  for (i = 1; i < argc; i++)
     {
-      *capture_num = DEFAULT_CAPTURE_NUM;
-      *type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    }
-  else if (argc == 2)
-    {
-      if (strncmp(argv[1], "-jpg", 5) == 0)
+      if (strncmp(argv[i], "-jpg", 5) == 0)
         {
-          *capture_num = DEFAULT_CAPTURE_NUM;
           *type = V4L2_BUF_TYPE_STILL_CAPTURE;
+        }
+      else if (strncmp(argv[i], "-m", 3) == 0)
+        {
+          *mirror = true;
         }
       else
         {
-          *capture_num = atoi(argv[1]);
+          *capture_num = atoi(argv[i]);
           if (*capture_num < 0 || *capture_num > MAX_CAPTURE_NUM)
             {
               printf("Invalid capture num(%d). must be >=0 and <=%d\n",
                     *capture_num, MAX_CAPTURE_NUM);
               return ERROR;
             }
-
-          *type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         }
-    }
-  else if (argc == 3)
-    {
-      if (strncmp(argv[1], "-jpg", 5) == 0)
-        {
-          *capture_num = atoi(argv[2]);
-          if (*capture_num < 0 || *capture_num > MAX_CAPTURE_NUM)
-            {
-              printf("Invalid capture num(%d). must be >=0 and <=%d\n",
-                    *capture_num, MAX_CAPTURE_NUM);
-              return ERROR;
-            }
-
-          *type = V4L2_BUF_TYPE_STILL_CAPTURE;
-        }
-      else
-        {
-          printf("Invalid argument 1 : %s\n", argv[1]);
-          return ERROR;
-        }
-    }
-  else
-    {
-      printf("Too many arguments\n");
-      return ERROR;
     }
 
   return OK;
@@ -537,13 +516,14 @@ int main(int argc, FAR char *argv[])
   uint32_t video_memory = V4L2_MEMORY_USERPTR;
   uint32_t still_memory = V4L2_MEMORY_USERPTR;
   uint32_t video_pixfmt = V4L2_PIX_FMT_RGB565;
+  bool mirror = false;
 
   /* =====  Parse and Check arguments  ===== */
 
-  ret = parse_arguments(argc, argv, &capture_num, &capture_type);
+  ret = parse_arguments(argc, argv, &capture_num, &capture_type, &mirror);
   if (ret != OK)
     {
-      printf("usage: %s ([-jpg]) ([capture num])\n", argv[0]);
+      printf("usage: %s [-jpg] [-m] [capture num]\n", argv[0]);
       return ERROR;
     }
 
@@ -581,6 +561,21 @@ int main(int argc, FAR char *argv[])
       printf("ERROR: Failed to open video.errno = %d\n", errno);
       ret = ERROR;
       goto exit_without_cleaning_buffer;
+    }
+
+  /* Set horizontal mirror if requested */
+
+  if (mirror)
+    {
+      struct v4l2_control ctrl;
+
+      ctrl.id    = V4L2_CID_HFLIP;
+      ctrl.value = 1;
+      ret = ioctl(v_fd, VIDIOC_S_CTRL, (uintptr_t)&ctrl);
+      if (ret < 0)
+        {
+          printf("WARNING: VIDIOC_S_CTRL HFLIP failed: %d\n", errno);
+        }
     }
 
   /* Prepare for STILL_CAPTURE stream.
