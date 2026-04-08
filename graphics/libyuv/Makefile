@@ -29,7 +29,7 @@ CXXFLAGS += -Wno-shadow -Wno-undef
 CXXSRCS = $(wildcard $(SRCDIR)/source/*.cc)
 
 libyuv.tar.gz:
-	$(Q) curl -L https://chromium.googlesource.com/libyuv/libyuv/+archive/refs/heads/$(CONFIG_LIBYUV_BRANCH).tar.gz -o libyuv.tar.gz
+	$(Q) curl -L https://github.com/NuttX/nuttx/releases/download/libyuv/libyuv-refs_heads_$(CONFIG_LIBYUV_BRANCH).tar.gz -o libyuv.tar.gz
 	$(Q) mkdir -p $(SRCDIR)
 	$(Q) tar zxf libyuv.tar.gz --directory $(SRCDIR)
 ifeq ($(CONFIG_LIBYUV_BRANCH),"stable")
