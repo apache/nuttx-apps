@@ -44,8 +44,11 @@
 #include <libgen.h>
 #include <errno.h>
 #include <debug.h>
-
 #include "nsh.h"
+
+#ifdef CONFIG_ARCH_SIM
+#  include <time.h>
+#endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #  include <sys/mount.h>
@@ -364,7 +367,126 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
       memset(&buf, 0, sizeof(struct stat));
 
-      /* stat the file */
+      /* If entryp is provided, listing a directory and need to
+       * construct the full path to stat the file. Otherwise, dirpath
+       * is the target itself. (no separate file name as entryp)
+       */
+
+      if (entryp != NULL)
+        {
+          FAR char *fullpath = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
+          ret = stat(fullpath, &buf);
+          free(fullpath);
+        }
+      else
+        {
+          ret = stat(dirpath, &buf);
+        }
+
+#ifdef CONFIG_CLOCK_TIMEKEEPING
+      /* manual epoch time to date calculation to reduce extra memory
+       * by using includes For boards with minimal flash.
+       */
+
+#  ifdef CONFIG_ARCH_SIM
+      struct timespec ts;
+
+      /* This pulls the ACTUAL current time from your Linux Host */
+
+      /* Sometime defaults to 2008 */
+
+      if (clock_gettime(CLOCK_REALTIME, &ts) == 0)
+        {
+          clock_settime(CLOCK_REALTIME, &ts);
+        }
+#  endif
+
+      /* for referencing /data : if not mounted the reference will fail. */
+
+#  if defined(CONFIG_ARCH_SIM) && defined(CONFIG_FS_HOSTFS)
+      static bool g_time_synced = false;
+
+      if (!g_time_synced)
+        {
+          struct stat hstat;
+
+          /* Data section always maintains the current time value. */
+
+          if (stat("/data", &hstat) == 0)
+            {
+              struct timespec ts_sync;
+
+              ts_sync.tv_sec  = hstat.st_mtime;
+              ts_sync.tv_nsec = 0;
+
+              /* This is the magic line that sets the system clock */
+
+              if (clock_settime(CLOCK_REALTIME, &ts_sync) == 0)
+                {
+                  g_time_synced = true;
+                }
+            }
+        }
+#  endif
+
+      if (ret == 0 && buf.st_mtime > 0 && buf.st_mtime < 0x7fffffff)
+        {
+          uint32_t seconds = (uint32_t)buf.st_mtime;
+          uint32_t minutes = seconds / 60;
+          uint32_t hours   = minutes / 60;
+          uint32_t days    = hours / 24;
+          uint32_t y       = 1970;
+          uint32_t m       = 0;
+
+          while (1)
+            {
+              uint32_t diy = (y % 4 == 0 && (y % 100 != 0 ||
+                              y % 400 == 0)) ? 366 : 365;
+
+              if (days < diy)
+                {
+                  break;
+                }
+
+              days -= diy;
+              y++;
+            }
+
+          static const uint8_t dim[] =
+          {
+            31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+          };
+
+          for (m = 0; m < 12; m++)
+            {
+              uint32_t d_m = dim[m];
+
+              if (m == 1 && (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)))
+                {
+                  d_m = 29;
+                }
+
+              if (days < d_m)
+                {
+                  break;
+                }
+
+              days -= d_m;
+            }
+
+          nsh_output(vtbl, " %04u-%02u-%02u %02u:%02u:%02u",
+                     (unsigned int)y, (unsigned int)m + 1,
+                     (unsigned int)days + 1, (unsigned int)(hours % 24),
+                     (unsigned int)(minutes % 60),
+                     (unsigned int)(seconds % 60));
+        }
+      else
+        {
+          /* Incase valid time entry was not maintained in the stat struct. */
+
+          nsh_output(vtbl, " ----/--/-- --:--");
+        }
+#endif
 
       if (entryp != NULL)
         {
