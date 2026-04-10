@@ -4,7 +4,7 @@
 #
 
 config GRAPHICS_INPUT_GENERATOR
-	bool
+	bool "Input generator library"
 	default n
 	---help---
 		This is a simple input generator library that can be used to
@@ -12,12 +12,10 @@ config GRAPHICS_INPUT_GENERATOR
 
 menuconfig GRAPHICS_INPUT_MONKEY
 	tristate "Monkey test"
-	select UINPUT_TOUCH
-	select UINPUT_BUTTONS
-	select GRAPHICS_INPUT_GENERATOR
-	select LIBC_PRINT_EXTENSION
-	select SIGNAL_FD
-	select TIMER_FD
+	depends on UINPUT_TOUCH && UINPUT_BUTTONS
+	depends on GRAPHICS_INPUT_GENERATOR
+	depends on LIBC_PRINT_EXTENSION
+	depends on SIGNAL_FD && TIMER_FD
 	default n
 
 if GRAPHICS_INPUT_MONKEY
@@ -39,10 +37,8 @@ endif
 menuconfig GRAPHICS_INPUT_TOOL
 	tristate "Enable input tool"
 	default n
-	select UINPUT_TOUCH
-	select UINPUT_BUTTONS
-	select UINPUT_MOUSE
-	select GRAPHICS_INPUT_GENERATOR
+	depends on UINPUT_TOUCH && UINPUT_BUTTONS && UINPUT_MOUSE
+	depends on GRAPHICS_INPUT_GENERATOR
 	---help---
 		Enable support for a command line input tool.
 
