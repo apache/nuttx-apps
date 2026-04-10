@@ -57,6 +57,8 @@
 
 #include "pwfb_internal.h"
 
+#define ARROW1_CURSOR_IMAGE g_arrow1##Cursor
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -115,22 +117,22 @@ static bool pwfb_server_initialize(FAR struct pwfb_state_s *st)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, st->hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, st->hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("pwfb_server_initialize: ERROR: "
-                  "boardctl(BOARDIOC_VNC_START) failed: %d\n",
-                  ret);
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("pwfb_server_initialize: ERROR: "
+                 "boardctl(BOARDIOC_VNC_START) failed: %d\n",
+                 ret);
 
-           nx_disconnect(st->hnx);
-           g_exitcode = NXEXIT_FBINITIALIZE;
-           return ERROR;
-         }
+          nx_disconnect(st->hnx);
+          g_exitcode = NXEXIT_FBINITIALIZE;
+          return ERROR;
+        }
 #endif
     }
   else
@@ -168,10 +170,10 @@ static bool pwfb_listener_initialize(FAR struct pwfb_state_s *st)
   ret = pthread_create(&thread, &attr, pwfb_listener, st);
   if (ret != 0)
     {
-       printf("pwfb_listener_initialize: ERROR: "
-              "pthread_create failed: %d\n",
-              ret);
-       return false;
+      printf("pwfb_listener_initialize: ERROR: "
+             "pthread_create failed: %d\n",
+             ret);
+      return false;
     }
 
   /* Don't return until we are connected to the server */
@@ -340,8 +342,8 @@ static bool pwfb_putc(FAR struct pwfb_state_s *st,
   /* Render the glyph into the window */
 
   src = glyph->bitmap;
-  ret =  nxtk_bitmapwindow(wndo->hwnd, &bounds, &src,
-                           fpos, (unsigned int)glyph->stride);
+  ret = nxtk_bitmapwindow(wndo->hwnd, &bounds, &src,
+                          fpos, (unsigned int)glyph->stride);
   if (ret < 0)
     {
       printf("pwfb_putc: ERROR: "
@@ -510,8 +512,8 @@ static bool pwfb_configure_cursor(FAR struct pwfb_state_s *st,
   st->cursor.state     = PFWB_CURSOR_MOVING;
   st->cursor.countdown = CURSOR_MOVING_DELAY;
   st->cursor.blinktime = 0;
-  st->cursor.xmax      = itob16(st->xres - g_arrow1Cursor.size.w - 1);
-  st->cursor.ymax      = itob16(st->yres - g_arrow1Cursor.size.h - 1);
+  st->cursor.xmax      = itob16(st->xres - ARROW1_CURSOR_IMAGE.size.w - 1);
+  st->cursor.ymax      = itob16(st->yres - ARROW1_CURSOR_IMAGE.size.h - 1);
   st->cursor.xpos      = itob16(pos->x);
   st->cursor.ypos      = itob16(pos->y);
   st->cursor.deltax    = dtob16(deltax);
@@ -519,7 +521,7 @@ static bool pwfb_configure_cursor(FAR struct pwfb_state_s *st,
 
   /* Set the cursor image */
 
-  ret = nxcursor_setimage(st->hnx, &g_arrow1Cursor);
+  ret = nxcursor_setimage(st->hnx, &ARROW1_CURSOR_IMAGE);
   if (ret < 0)
     {
       printf("pwfb_configure_cursor: ERROR: "
@@ -651,7 +653,8 @@ int main(int argc, FAR char *argv[])
   pos.x  = wstate.xres / 8;
   pos.y  = wstate.yres / 8;
 
-  if (!pwfb_configure_window(&wstate, 0, &size, &pos, g_wndomsg1, 4.200, 4.285))
+  if (!pwfb_configure_window(&wstate, 0, &size, &pos, g_wndomsg1,
+                             4.200, 4.285))
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 1\n");
@@ -681,7 +684,8 @@ int main(int argc, FAR char *argv[])
   pos.x  = wstate.xres / 4;
   pos.y  = wstate.yres / 4;
 
-  if (!pwfb_configure_window(&wstate, 1, &size, &pos, g_wndomsg2, -3.317, 5.0))
+  if (!pwfb_configure_window(&wstate, 1, &size, &pos, g_wndomsg2,
+                             -3.317, 5.0))
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 2\n");
@@ -711,7 +715,8 @@ int main(int argc, FAR char *argv[])
   pos.x = (3 * wstate.xres) / 8;
   pos.y = (3 * wstate.yres) / 8;
 
-  if (!pwfb_configure_window(&wstate, 2, &size, &pos, g_wndomsg3, 4.600, -3.852))
+  if (!pwfb_configure_window(&wstate, 2, &size, &pos, g_wndomsg3,
+                             4.600, -3.852))
     {
       printf("pwfb_main: ERROR: "
              "pwfb_configure_window failed for window 2\n");
@@ -797,6 +802,7 @@ errout_with_hwnd1:
 #endif
 
 errout_with_fontcache:
+
   /* Release the font cache */
 
   nxf_cache_disconnect(wstate.wndo[0].fcache);
@@ -804,6 +810,7 @@ errout_with_fontcache:
   nxf_cache_disconnect(wstate.wndo[2].fcache);
 
 errout_with_nx:
+
   /* Disconnect from the server */
 
   printf("pwfb_main: Disconnect from the server\n");

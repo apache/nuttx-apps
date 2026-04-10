@@ -76,19 +76,21 @@
  ****************************************************************************/
 
 static void nxhello_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool morem, FAR void *arg);
-static void nxhello_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg);
+                           bool morem, FAR void *arg);
+static void nxhello_position(NXWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nxhello_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                         uint8_t buttons, FAR void *arg);
+static void nxhello_mousein(NXWINDOW hwnd,
+                            FAR const struct nxgl_point_s *pos,
+                            uint8_t buttons, FAR void *arg);
 #endif
 
 #ifdef CONFIG_NX_KBD
-static void nxhello_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
-                       FAR void *arg);
+static void nxhello_kbdin(NXWINDOW hwnd, uint8_t nch,
+                          FAR const uint8_t *ch, FAR void *arg);
 #endif
 
 /****************************************************************************
@@ -125,7 +127,7 @@ const struct nx_callback_s g_nxhellocb =
  ****************************************************************************/
 
 static void nxhello_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool more, FAR void *arg)
+                           bool more, FAR void *arg)
 {
   ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
@@ -136,10 +138,11 @@ static void nxhello_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxhello_position
  ****************************************************************************/
 
-static void nxhello_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg)
+static void nxhello_position(NXWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg)
 {
   /* Report the position */
 
@@ -171,8 +174,9 @@ static void nxhello_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_XYINPUT
-static void nxhello_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                         uint8_t buttons, FAR void *arg)
+static void nxhello_mousein(NXWINDOW hwnd,
+                            FAR const struct nxgl_point_s *pos,
+                            uint8_t buttons, FAR void *arg)
 {
   printf("nxhello_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
          hwnd,  pos->x, pos->y, buttons);
@@ -184,16 +188,16 @@ static void nxhello_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_KBD
-static void nxhello_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
-                       FAR void *arg)
+static void nxhello_kbdin(NXWINDOW hwnd, uint8_t nch,
+                          FAR const uint8_t *ch, FAR void *arg)
 {
   ginfo("hwnd=%p nch=%d\n", hwnd, nch);
 
-   /* In this example, there is no keyboard so a keyboard event is not
-    * expected.
-    */
+  /* In this example, there is no keyboard so a keyboard event is not
+   * expected.
+   */
 
-   printf("nxhello_kbdin: Unexpected keyboard callback\n");
+  printf("nxhello_kbdin: Unexpected keyboard callback\n");
 }
 #endif
 
@@ -212,7 +216,7 @@ static void nxhello_center(FAR struct nxgl_point_s *pos,
    * hello world message.
    */
 
-  for (ptr = (uint8_t*)g_hello, width = 0; *ptr; ptr++)
+  for (ptr = (uint8_t *)g_hello, width = 0; *ptr; ptr++)
     {
       /* Get the font bitmap for this character */
 
@@ -225,7 +229,7 @@ static void nxhello_center(FAR struct nxgl_point_s *pos,
         }
       else
         {
-           /* Use the width of a space */
+          /* Use the width of a space */
 
           width += fontset->spwidth;
         }
@@ -266,7 +270,7 @@ static void nxhello_initglyph(FAR uint8_t *glyph, uint8_t height,
   /* Pack 1-bit pixels into a 2-bits */
 
   pixel &= 0x01;
-  pixel  = (pixel) << 1 |pixel;
+  pixel  = (pixel) << 1 | pixel;
 
 #  endif
 #  if CONFIG_EXAMPLES_NXHELLO_BPP < 4
@@ -274,7 +278,7 @@ static void nxhello_initglyph(FAR uint8_t *glyph, uint8_t height,
   /* Pack 2-bit pixels into a nibble */
 
   pixel &= 0x03;
-  pixel  = (pixel) << 2 |pixel;
+  pixel  = (pixel) << 2 | pixel;
 
 #  endif
 
@@ -348,10 +352,10 @@ void nxhello_hello(NXWINDOW hwnd)
 
   mxstride  = (fontset->mxwidth * CONFIG_EXAMPLES_NXHELLO_BPP + 7) >> 3;
   glyphsize = (unsigned int)fontset->mxheight * mxstride;
-  glyph     = (FAR uint8_t*)malloc(glyphsize);
+  glyph     = (FAR uint8_t *)malloc(glyphsize);
 
-  /* NOTE: no check for failure to allocate the memory.  In a real application
-   * you would need to handle that event.
+  /* NOTE: no check for failure to allocate the memory.  In a real
+   * application you would need to handle that event.
    */
 
   /* Get a position so the "Hello, World!" string will be centered on the
@@ -389,7 +393,7 @@ void nxhello_hello(NXWINDOW hwnd)
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
-          RENDERER((FAR nxgl_mxpixel_t*)glyph, fheight, fwidth,
+          RENDERER((FAR nxgl_mxpixel_t *)glyph, fheight, fwidth,
                    fstride, fbm, CONFIG_EXAMPLES_NXHELLO_FONTCOLOR);
 
           /* Describe the destination of the font with a rectangle */
@@ -411,15 +415,15 @@ void nxhello_hello(NXWINDOW hwnd)
               printf("nxhello_write: nx_bitmapwindow failed: %d\n", errno);
             }
 
-           /* Skip to the right the width of the font */
+          /* Skip to the right the width of the font */
 
           pos.x += fwidth;
         }
       else
         {
-           /* No bitmap (probably because the font is a space).  Skip to the
-            * right the width of a space.
-            */
+          /* No bitmap (probably because the font is a space).  Skip to the
+           * right the width of a space.
+           */
 
           pos.x += fontset->spwidth;
         }

@@ -54,12 +54,14 @@
 
 static void nxtool_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                           bool morem, FAR void *arg);
-static void nxtool_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxtool_position(NXWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nxtool_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxtool_mousein(NXWINDOW hwnd,
+                           FAR const struct nxgl_point_s *pos,
                            uint8_t buttons, FAR void *arg);
 #endif
 
@@ -121,7 +123,8 @@ static void nxtool_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxtool_position
  ****************************************************************************/
 
-static void nxtool_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxtool_position(NXWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg)

@@ -52,25 +52,30 @@
 
 static void nxeg_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool morem, FAR void *arg);
-static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxeg_position(NXEGWINDOW hwnd,
+                          FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nxeg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxeg_mousein(NXEGWINDOW hwnd,
+                         FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg);
 #endif
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-static void nxeg_tbredraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+static void nxeg_tbredraw(NXEGWINDOW hwnd,
+                          FAR const struct nxgl_rect_s *rect,
                           bool morem, FAR void *arg);
-static void nxeg_tbposition(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxeg_tbposition(NXEGWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                            uint8_t buttons, FAR void *arg);
+static void nxeg_tbmousein(NXEGWINDOW hwnd,
+                           FAR const struct nxgl_point_s *pos,
+                           uint8_t buttons, FAR void *arg);
 #endif
 #endif
 
@@ -137,6 +142,7 @@ static inline void nxeg_fillwindow(NXEGWINDOW hwnd,
       printf("nxeg_fillwindow: nxtk_fillwindow failed: %d\n", errno);
     }
 #endif
+
 #ifdef CONFIG_NX_KBD
   nxeg_filltext(hwnd, rect, st);
 #endif
@@ -148,8 +154,8 @@ static inline void nxeg_fillwindow(NXEGWINDOW hwnd,
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
 static inline void nxeg_filltoolbar(NXTKWINDOW htb,
-                                   FAR const struct nxgl_rect_s *rect,
-                                   nxgl_mxpixel_t color[CONFIG_NX_NPLANES])
+                                    FAR const struct nxgl_rect_s *rect,
+                                    nxgl_mxpixel_t color[CONFIG_NX_NPLANES])
 {
   int ret;
 
@@ -181,7 +187,8 @@ static void nxeg_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxeg_position
  ****************************************************************************/
 
-static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxeg_position(NXEGWINDOW hwnd,
+                          FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg)
@@ -190,7 +197,8 @@ static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  printf("nxeg_position%d: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+  printf("nxeg_position%d: hwnd=%p size=(%d,%d) pos=(%d,%d) "
+         "bounds={(%d,%d),(%d,%d)}\n",
          st->wnum, hwnd, size->w, size->h, pos->x, pos->y,
          bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
@@ -198,7 +206,9 @@ static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   if (!b_haveresolution)
     {
-      /* Save the window limits (these should be the same for all places and all windows */
+      /* Save the window limits (these should be the same for all places
+       * and all windows.
+       */
 
       g_xres = bounds->pt2.x;
       g_yres = bounds->pt2.y;
@@ -228,7 +238,8 @@ static void nxeg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-static void nxeg_tbredraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+static void nxeg_tbredraw(NXEGWINDOW hwnd,
+                          FAR const struct nxgl_rect_s *rect,
                           bool more, FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
@@ -245,16 +256,18 @@ static void nxeg_tbredraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-static void nxeg_tbposition(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                           FAR const struct nxgl_point_s *pos,
-                           FAR const struct nxgl_rect_s *bounds,
-                           FAR void *arg)
+static void nxeg_tbposition(NXEGWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
+                            FAR const struct nxgl_point_s *pos,
+                            FAR const struct nxgl_rect_s *bounds,
+                            FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
 
   /* Report the position */
 
-  printf("nxeg_ptbosition%d: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+  printf("nxeg_ptbosition%d: hwnd=%p size=(%d,%d) pos=(%d,%d) "
+         "bounds={(%d,%d),(%d,%d)}\n",
          st->wnum, hwnd, size->w, size->h, pos->x, pos->y,
          bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 }
@@ -266,8 +279,9 @@ static void nxeg_tbposition(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
 #ifdef CONFIG_NX_XYINPUT
-static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                          uint8_t buttons, FAR void *arg)
+static void nxeg_tbmousein(NXEGWINDOW hwnd,
+                           FAR const struct nxgl_point_s *pos,
+                           uint8_t buttons, FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
 
@@ -291,7 +305,7 @@ FAR void *nx_listenerthread(FAR void *arg)
 
   /* Process events forever */
 
-  for (;;)
+  for (; ; )
     {
       /* Handle the next event.  If we were configured blocking, then
        * we will stay right here until the next event is received.  Since

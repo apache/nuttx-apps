@@ -90,7 +90,7 @@ static inline int nximage_initialize(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      printf("nximage_initialize: sched_setparam failed: %d\n" , ret);
+      printf("nximage_initialize: sched_setparam failed: %d\n", ret);
       return ERROR;
     }
 
@@ -99,7 +99,8 @@ static inline int nximage_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nximage_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nximage_initialize: Failed to start the NX server: %d\n",
+             errno);
       return ERROR;
     }
 
@@ -108,52 +109,53 @@ static inline int nximage_initialize(void)
   g_nximage.hnx = nx_connect();
   if (g_nximage.hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, g_nximage.hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, g_nximage.hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_nximage.hnx);
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_nximage.hnx);
+          return ERROR;
+        }
 #endif
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+      /* Start a separate thread to listen for server events.  This is
+       * probably the least efficient way to do this, but it makes this
+       * example flow more smoothly.
+       */
 
-       pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXIMAGE_LISTENERPRIO;
-       pthread_attr_setschedparam(&attr, &param);
-       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXIMAGE_LISTENER_STACKSIZE);
+      pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXIMAGE_LISTENERPRIO;
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr,
+                                CONFIG_EXAMPLES_NXIMAGE_LISTENER_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nximage_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nximage_initialize: pthread_create failed: %d\n", ret);
-            return ERROR;
-         }
+      ret = pthread_create(&thread, &attr, nximage_listener, NULL);
+      if (ret != 0)
+        {
+          printf("nximage_initialize: pthread_create failed: %d\n", ret);
+          return ERROR;
+        }
 
-       /* Don't return until we are connected to the server */
+      /* Don't return until we are connected to the server */
 
-       while (!g_nximage.connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      while (!g_nximage.connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
 
-           sem_wait(&g_nximage.eventsem);
-         }
+          sem_wait(&g_nximage.eventsem);
+        }
     }
   else
     {
@@ -194,7 +196,7 @@ int main(int argc, FAR char *argv[])
 
   /* Set the background to the configured background color */
 
-  color =  nximage_bgcolor();
+  color = nximage_bgcolor();
   printf("nximage_main: Set background color=%u\n", color);
 
   ret = nx_setbgcolor(g_nximage.hnx, &color);
@@ -222,7 +224,8 @@ int main(int argc, FAR char *argv[])
       sem_wait(&g_nximage.eventsem);
     }
 
-  printf("nximage_main: Screen resolution (%d,%d)\n", g_nximage.xres, g_nximage.yres);
+  printf("nximage_main: Screen resolution (%d,%d)\n",
+         g_nximage.xres, g_nximage.yres);
 
   /* Now, put up the NuttX logo and wait a bit so that it visible. */
 

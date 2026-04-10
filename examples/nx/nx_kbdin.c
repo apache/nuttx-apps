@@ -109,7 +109,8 @@ static void nxeg_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
       if (!nxgl_nullrect(&intersection))
         {
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-          ret = nxtk_bitmapwindow((NXTKWINDOW)hwnd, &intersection, (FAR const void **)&src,
+          ret = nxtk_bitmapwindow((NXTKWINDOW)hwnd, &intersection,
+                                  (FAR const void **)&src,
                                   &bm->bounds.pt1,
                                   (unsigned int)bm->glyph->stride);
           if (ret < 0)
@@ -165,7 +166,7 @@ nxeg_renderglyph(FAR struct nxeg_state_s *st,
       /* Allocate memory to hold the glyph with its offsets */
 
       glyph->stride = (glyph->width * CONFIG_EXAMPLES_NX_BPP + 7) / 8;
-      bmsize        =  glyph->stride * glyph->height;
+      bmsize        = glyph->stride * glyph->height;
       glyph->bitmap = (FAR uint8_t *)malloc(bmsize);
 
       if (glyph->bitmap)
@@ -178,13 +179,13 @@ nxeg_renderglyph(FAR struct nxeg_state_s *st,
           /* Pack 1-bit pixels into a 2-bits */
 
           pixel &= 0x01;
-          pixel  = (pixel) << 1 |pixel;
+          pixel  = (pixel) << 1 | pixel;
 #  endif
 #  if CONFIG_EXAMPLES_NX_BPP < 4
           /* Pack 2-bit pixels into a nibble */
 
           pixel &= 0x03;
-          pixel  = (pixel) << 2 |pixel;
+          pixel  = (pixel) << 2 | pixel;
 #  endif
 
           /* Pack 4-bit nibbles into a byte */
@@ -222,7 +223,7 @@ nxeg_renderglyph(FAR struct nxeg_state_s *st,
 
           /* Then render the glyph into the allocated memory */
 
-          ret = RENDERER((FAR nxgl_mxpixel_t*)glyph->bitmap,
+          ret = RENDERER((FAR nxgl_mxpixel_t *)glyph->bitmap,
                           glyph->height, glyph->width, glyph->stride,
                           bm, CONFIG_EXAMPLES_NX_FONTCOLOR);
           if (ret < 0)
@@ -236,9 +237,9 @@ nxeg_renderglyph(FAR struct nxeg_state_s *st,
             }
           else
             {
-               /* Make it permanent */
+              /* Make it permanent */
 
-               st->nglyphs++;
+              st->nglyphs++;
             }
         }
     }
@@ -269,6 +270,7 @@ nxeg_addspace(FAR struct nxeg_state_s *st, uint8_t ch)
 
       st->nglyphs++;
     }
+
   return glyph;
 }
 
@@ -283,13 +285,14 @@ nxeg_findglyph(FAR struct nxeg_state_s *st, uint8_t ch)
 
   /* First, try to find the glyph in the cache of pre-rendered glyphs */
 
-   for (i = 0; i < st->nglyphs; i++)
+  for (i = 0; i < st->nglyphs; i++)
     {
       if (st->glyph[i].code == ch)
         {
           return &st->glyph[i];
         }
     }
+
   return NULL;
 }
 
@@ -313,21 +316,22 @@ nxeg_getglyph(FAR struct nxeg_state_s *st, uint8_t ch)
       bm = nxf_getbitmap(g_fonthandle, ch);
       if (!bm)
         {
-          /* No, there is no glyph for this code.  Use space */
+          /* No, there is no glyph for this code.  Use space. */
 
           glyph = nxeg_findglyph(st, ' ');
           if (!glyph)
             {
-              /* There isn't fake glyph for ' ' yet... create one */
+              /* There isn't a fake glyph for ' ' yet... create one */
 
               glyph = nxeg_addspace(st, ' ');
             }
         }
       else
         {
-          glyph =  nxeg_renderglyph(st, bm, ch);
+          glyph = nxeg_renderglyph(st, bm, ch);
         }
     }
+
   return glyph;
 }
 
@@ -346,41 +350,42 @@ nxeg_addchar(FAR struct nxeg_state_s *st, uint8_t ch)
 
   if (st->nchars < NXTK_MAXKBDCHARS)
     {
-       /* Yes, setup the bitmap */
+      /* Yes, setup the bitmap */
 
-       bm = &st->bm[st->nchars];
+      bm = &st->bm[st->nchars];
 
-       /* Find the matching glyph */
+      /* Find the matching glyph */
 
-       bm->glyph = nxeg_getglyph(st, ch);
-       if (!bm->glyph)
-         {
-           return NULL;
-         }
+      bm->glyph = nxeg_getglyph(st, ch);
+      if (!bm->glyph)
+        {
+          return NULL;
+        }
 
-       /* Set up the bounds for the bitmap */
+      /* Set up the bounds for the bitmap */
 
-       if (st->nchars <= 0)
-         {
-            /* The first character is one space from the left */
+      if (st->nchars <= 0)
+        {
+          /* The first character is one space from the left */
 
-            leftx  = st->spwidth;
-         }
-       else
-         {
-            /* Otherwise, it is to the left of the preceding char */
+          leftx  = st->spwidth;
+        }
+      else
+        {
+          /* Otherwise, it is to the left of the preceding char */
 
-            bmleft = &st->bm[st->nchars-1];
-            leftx  = bmleft->bounds.pt2.x + 1;
-         }
+          bmleft = &st->bm[st->nchars - 1];
+          leftx  = bmleft->bounds.pt2.x + 1;
+        }
 
-       bm->bounds.pt1.x = leftx;
-       bm->bounds.pt1.y = 2;
-       bm->bounds.pt2.x = leftx + bm->glyph->width - 1;
-       bm->bounds.pt2.y = 2 + bm->glyph->height - 1;
+      bm->bounds.pt1.x = leftx;
+      bm->bounds.pt1.y = 2;
+      bm->bounds.pt2.x = leftx + bm->glyph->width - 1;
+      bm->bounds.pt2.y = 2 + bm->glyph->height - 1;
 
-       st->nchars++;
+      st->nchars++;
     }
+
   return bm;
 }
 
@@ -424,10 +429,12 @@ void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg)
+void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch,
+                  FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
-  printf("nxeg_tbkbdin: ERROR -- toolbar should not received keyboard input\n");
+  printf("nxeg_tbkbdin: ERROR -- toolbar should not received keyboard "
+         "input\n");
   printf("nxeg_tbkbdin%d: hwnd=%p nch=%d\n", st->wnum, hwnd, nch);
 }
 #endif

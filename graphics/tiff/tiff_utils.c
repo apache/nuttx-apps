@@ -93,10 +93,10 @@ void tiff_put32(FAR uint8_t *dest, uint32_t value)
 {
 #ifdef CONFIG_ENDIAN_BIG
   tiff_put16(dest,   (uint16_t)(value >> 16));
-  tiff_put16(dest+2, (uint16_t)(value & 0xffff));
+  tiff_put16(dest + 2, (uint16_t)(value & 0xffff));
 #else
   tiff_put16(dest,   (uint16_t)(value & 0xffff));
-  tiff_put16(dest+2, (uint16_t)(value >> 16));
+  tiff_put16(dest + 2, (uint16_t)(value >> 16));
 #endif
 }
 
@@ -112,11 +112,10 @@ uint16_t tiff_get16(FAR uint8_t *src)
 uint32_t tiff_get32(FAR uint8_t *src)
 {
 #ifdef CONFIG_ENDIAN_BIG
-  return (uint32_t)tiff_get16(src) << 16 | (uint32_t)tiff_get16(src+2);
+  return (uint32_t)tiff_get16(src) << 16 | (uint32_t)tiff_get16(src + 2);
 #else
-  return (uint32_t)tiff_get16(src+2) << 16 | (uint32_t)tiff_get16(src);
+  return (uint32_t)tiff_get16(src + 2) << 16 | (uint32_t)tiff_get16(src);
 #endif
-
 }
 
 /****************************************************************************
@@ -153,7 +152,7 @@ ssize_t tiff_read(int fd, FAR void *buffer, size_t count)
        * (ntotal).
        */
 
-      nbytes = read(fd, buffer, count-ntotal);
+      nbytes = read(fd, buffer, count - ntotal);
 
       /* Check for an error */
 
@@ -166,22 +165,26 @@ ssize_t tiff_read(int fd, FAR void *buffer, size_t count)
           errval = errno;
           if (errval != EINTR)
             {
-              /* Other errors are bad news and we will break out with an error */
+              /* Other errors are bad news and we will break out with an
+               * error.
+               */
 
               return -errval;
             }
         }
 
-      /* Zero is a special case and means that the end of file was encountered. */
+      /* Zero is a special case and means that the end of file was
+       * encountered.
+       */
 
       else if (nbytes == 0)
         {
           break;
         }
 
-      /* What if read returns some number of bytes other than the requested number?
-       * This probably means that the end-of-file will be encountered the next time
-       * that we call read().
+      /* What if read returns some number of bytes other than the requested
+       * number?  This probably means that the end-of-file will be
+       * encountered the next time that we call read().
        */
 
       else
@@ -236,13 +239,17 @@ int tiff_write(int fd, FAR const void *buffer, size_t count)
           errval = errno;
           if (errval != EINTR)
             {
-              /* Other errors are bad news and we will break out with an error */
+              /* Other errors are bad news and we will break out with an
+               * error.
+               */
 
               return -errval;
             }
         }
 
-      /* What if write returns some number of bytes other than the requested number? */
+      /* What if write returns some number of bytes other than the requested
+       * number?
+       */
 
       else
         {
@@ -326,7 +333,7 @@ int tiff_putstring(int fd, FAR const char *string, int len)
 #ifdef CONFIG_DEBUG_GRAPHICS
   int actual = strlen(string);
 
-  DEBUGASSERT(len = actual+1);
+  DEBUGASSERT(len == actual + 1);
 #endif
   return tiff_write(fd, string, len);
 }
@@ -362,7 +369,9 @@ ssize_t tiff_wordalign(int fd, size_t size)
         {
           return (ssize_t)ret;
         }
+
       size += nbytes;
     }
+
   return size;
 }
