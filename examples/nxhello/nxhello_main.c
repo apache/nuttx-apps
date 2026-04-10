@@ -95,7 +95,8 @@ static inline int nxhello_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxhello_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nxhello_initialize: Failed to start the NX server: %d\n",
+             errno);
       return ERROR;
     }
 
@@ -104,52 +105,53 @@ static inline int nxhello_initialize(void)
   g_nxhello.hnx = nx_connect();
   if (g_nxhello.hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, g_nxhello.hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, g_nxhello.hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_nxhello.hnx);
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_nxhello.hnx);
+          return ERROR;
+        }
 #endif
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+      /* Start a separate thread to listen for server events.  This is
+       * probably the least efficient way to do this, but it makes this
+       * example flow more smoothly.
+       */
 
-       pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXHELLO_LISTENERPRIO;
-       pthread_attr_setschedparam(&attr, &param);
-       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE);
+      pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXHELLO_LISTENERPRIO;
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr,
+                                CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nxhello_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nxhello_initialize: pthread_create failed: %d\n", ret);
-            return ERROR;
-         }
+      ret = pthread_create(&thread, &attr, nxhello_listener, NULL);
+      if (ret != 0)
+        {
+          printf("nxhello_initialize: pthread_create failed: %d\n", ret);
+          return ERROR;
+        }
 
-       /* Don't return until we are connected to the server */
+      /* Don't return until we are connected to the server */
 
-       while (!g_nxhello.connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      while (!g_nxhello.connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
 
-           sem_wait(&g_nxhello.eventsem);
-         }
+          sem_wait(&g_nxhello.eventsem);
+        }
     }
   else
     {
@@ -225,7 +227,8 @@ int main(int argc, FAR char *argv[])
       sem_wait(&g_nxhello.eventsem);
     }
 
-  printf("nxhello_main: Screen resolution (%d,%d)\n", g_nxhello.xres, g_nxhello.yres);
+  printf("nxhello_main: Screen resolution (%d,%d)\n",
+         g_nxhello.xres, g_nxhello.yres);
 
   /* Now, say hello and exit, sleeping a little before each. */
 

@@ -109,19 +109,21 @@ struct nximage_run_s
  ****************************************************************************/
 
 static void nximage_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool more, FAR void *arg);
-static void nximage_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg);
+                           bool more, FAR void *arg);
+static void nximage_position(NXWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nximage_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                         uint8_t buttons, FAR void *arg);
+static void nximage_mousein(NXWINDOW hwnd,
+                            FAR const struct nxgl_point_s *pos,
+                            uint8_t buttons, FAR void *arg);
 #endif
 
 #ifdef CONFIG_NX_KBD
-static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
-                       FAR void *arg);
+static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch,
+                          FAR const uint8_t *ch, FAR void *arg);
 #endif
 
 /****************************************************************************
@@ -164,7 +166,7 @@ const struct nx_callback_s g_nximagecb =
  ****************************************************************************/
 
 static void nximage_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                        bool more, FAR void *arg)
+                           bool more, FAR void *arg)
 {
   ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
@@ -179,10 +181,11 @@ static void nximage_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  *
  ****************************************************************************/
 
-static void nximage_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
-                          FAR const struct nxgl_point_s *pos,
-                          FAR const struct nxgl_rect_s *bounds,
-                          FAR void *arg)
+static void nximage_position(NXWINDOW hwnd,
+                             FAR const struct nxgl_size_s *size,
+                             FAR const struct nxgl_point_s *pos,
+                             FAR const struct nxgl_rect_s *bounds,
+                             FAR void *arg)
 {
   /* Report the position */
 
@@ -218,8 +221,9 @@ static void nximage_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_XYINPUT
-static void nximage_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
-                         uint8_t buttons, FAR void *arg)
+static void nximage_mousein(NXWINDOW hwnd,
+                            FAR const struct nxgl_point_s *pos,
+                            uint8_t buttons, FAR void *arg)
 {
   printf("nximage_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
          hwnd,  pos->x, pos->y, buttons);
@@ -235,16 +239,16 @@ static void nximage_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_KBD
-static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
-                       FAR void *arg)
+static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch,
+                          FAR const uint8_t *ch, FAR void *arg)
 {
   ginfo("hwnd=%p nch=%d\n", hwnd, nch);
 
-   /* In this example, there is no keyboard so a keyboard event is not
-    * expected.
-    */
+  /* In this example, there is no keyboard so a keyboard event is not
+   * expected.
+   */
 
-   printf("nximage_kbdin: Unexpected keyboard callback\n");
+  printf("nximage_kbdin: Unexpected keyboard callback\n");
 }
 #endif
 
@@ -288,9 +292,9 @@ void nximage_image(NXWINDOW hwnd)
     {
       /* Read input row(s) */
 
-     nximage_blitrow(g_runs[0].run, &state);
+      nximage_blitrow(g_runs[0].run, &state);
 #if NINPUT_ROWS > 1
-     nximage_blitrow(g_runs[1].run, &state);
+      nximage_blitrow(g_runs[1].run, &state);
 #endif
 
       /* Output rows before averaging */
@@ -306,7 +310,8 @@ void nximage_image(NXWINDOW hwnd)
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
-      ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos, SCALED_WIDTH*sizeof(nxgl_mxpixel_t));
+      ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos,
+                      SCALED_WIDTH * sizeof(nxgl_mxpixel_t));
       if (ret < 0)
         {
           printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);
@@ -348,7 +353,8 @@ void nximage_image(NXWINDOW hwnd)
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
-      ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos, SCALED_WIDTH*sizeof(nxgl_mxpixel_t));
+      ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos,
+                      SCALED_WIDTH * sizeof(nxgl_mxpixel_t));
       if (ret < 0)
         {
           printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);
@@ -369,7 +375,8 @@ void nximage_image(NXWINDOW hwnd)
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
-      ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos, SCALED_WIDTH*sizeof(nxgl_mxpixel_t));
+      ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos,
+                      SCALED_WIDTH * sizeof(nxgl_mxpixel_t));
       if (ret < 0)
         {
           printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);

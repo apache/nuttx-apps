@@ -51,6 +51,7 @@
  ****************************************************************************/
 
 /* Configuration ************************************************************/
+
 /* If not specified, assume that the hardware supports one video plane */
 
 #ifndef CONFIG_EXAMPLES_NXLINES_VPLANE
@@ -111,7 +112,7 @@ static inline int nxlines_initialize(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      printf("nxlines_initialize: sched_setparam failed: %d\n" , ret);
+      printf("nxlines_initialize: sched_setparam failed: %d\n", ret);
       return ERROR;
     }
 
@@ -120,7 +121,8 @@ static inline int nxlines_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxlines_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nxlines_initialize: Failed to start the NX server: %d\n",
+             errno);
       return ERROR;
     }
 
@@ -129,52 +131,53 @@ static inline int nxlines_initialize(void)
   g_nxlines.hnx = nx_connect();
   if (g_nxlines.hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, g_nxlines.hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, g_nxlines.hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_nxlines.hnx);
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_nxlines.hnx);
+          return ERROR;
+        }
 #endif
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+      /* Start a separate thread to listen for server events.  This is
+       * probably the least efficient way to do this, but it makes this
+       * example flow more smoothly.
+       */
 
-       pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXLINES_LISTENERPRIO;
-       pthread_attr_setschedparam(&attr, &param);
-       pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE);
+      pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXLINES_LISTENERPRIO;
+      pthread_attr_setschedparam(&attr, &param);
+      pthread_attr_setstacksize(&attr,
+                                CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nxlines_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nxlines_initialize: pthread_create failed: %d\n", ret);
-            return ERROR;
-         }
+      ret = pthread_create(&thread, &attr, nxlines_listener, NULL);
+      if (ret != 0)
+        {
+          printf("nxlines_initialize: pthread_create failed: %d\n", ret);
+          return ERROR;
+        }
 
-       /* Don't return until we are connected to the server */
+      /* Don't return until we are connected to the server */
 
-       while (!g_nxlines.connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      while (!g_nxlines.connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
 
-           sem_wait(&g_nxlines.eventsem);
-         }
+          sem_wait(&g_nxlines.eventsem);
+        }
     }
   else
     {
@@ -240,7 +243,8 @@ int main(int argc, FAR char *argv[])
       sem_wait(&g_nxlines.eventsem);
     }
 
-  printf("nxlines_main: Screen resolution (%d,%d)\n", g_nxlines.xres, g_nxlines.yres);
+  printf("nxlines_main: Screen resolution (%d,%d)\n",
+         g_nxlines.xres, g_nxlines.yres);
 
   /* Now, say perform the lines (these test does not return so the remaining
    * logic is cosmetic).

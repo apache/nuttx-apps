@@ -94,21 +94,21 @@ static bool pwlines_server_initialize(FAR struct pwlines_state_s *st)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, st->hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, st->hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("pwlines_server_initialize: ERROR: "
-                  "boardctl(BOARDIOC_VNC_START) failed: %d\n",
-                  ret);
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("pwlines_server_initialize: ERROR: "
+                 "boardctl(BOARDIOC_VNC_START) failed: %d\n",
+                 ret);
 
-           nx_disconnect(st->hnx);
-           return false;
-         }
+          nx_disconnect(st->hnx);
+          return false;
+        }
 #endif
     }
   else
@@ -141,15 +141,16 @@ static bool pwlines_listener_initialize(FAR struct pwlines_state_s *st)
   pthread_attr_init(&attr);
   param.sched_priority = CONFIG_EXAMPLES_PWLINES_LISTENER_PRIO;
   pthread_attr_setschedparam(&attr, &param);
-  pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_PWLINES_LISTENER_STACKSIZE);
+  pthread_attr_setstacksize(&attr,
+                            CONFIG_EXAMPLES_PWLINES_LISTENER_STACKSIZE);
 
   ret = pthread_create(&thread, &attr, pwlines_listener, st);
   if (ret != 0)
     {
-       printf("pwlines_listener_initialize: ERROR: "
-              "pthread_create failed: %d\n",
-              ret);
-       return false;
+      printf("pwlines_listener_initialize: ERROR: "
+             "pthread_create failed: %d\n",
+             ret);
+      return false;
     }
 
   /* Don't return until we are connected to the server */
@@ -193,7 +194,8 @@ static bool pwlines_state_initialize(FAR struct pwlines_state_s *st)
  * Name: pwlines_configure_window
  ****************************************************************************/
 
-static bool pwlines_configure_window(FAR struct pwlines_state_s *st, int wndx,
+static bool pwlines_configure_window(FAR struct pwlines_state_s *st,
+                                     int wndx,
                                      FAR struct nxgl_size_s *size,
                                      FAR struct nxgl_point_s *pos,
                                      double deltax, double deltay)
@@ -353,8 +355,9 @@ int main(int argc, FAR char *argv[])
 
   printf("pwlines_main: Open window 1\n");
 
-  wstate.wndo[0].hwnd = nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
-                                        &g_pwlines_wncb, (FAR void *)&wstate);
+  wstate.wndo[0].hwnd =
+    nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
+                    &g_pwlines_wncb, (FAR void *)&wstate);
   if (wstate.wndo[0].hwnd == NULL)
     {
       printf("pwlines_main: ERROR: "
@@ -386,7 +389,8 @@ int main(int argc, FAR char *argv[])
   pos.x  = wstate.xres / 8;
   pos.y  = wstate.yres / 8;
 
-  if (!pwlines_configure_window(&wstate, 0, &size, &pos, 4.200, 4.285))
+  if (!pwlines_configure_window(&wstate, 0, &size, &pos,
+                                4.200, 4.285))
     {
       printf("pwlines_main: ERROR: "
              "pwlines_configure_window failed for window 1\n");
@@ -397,8 +401,9 @@ int main(int argc, FAR char *argv[])
 
   printf("pwlines_main: Open window 2\n");
 
-  wstate.wndo[1].hwnd = nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
-                                        &g_pwlines_wncb, (FAR void *)&wstate);
+  wstate.wndo[1].hwnd =
+    nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
+                    &g_pwlines_wncb, (FAR void *)&wstate);
   if (wstate.wndo[1].hwnd == NULL)
     {
       printf("pwlines_main: ERROR: "
@@ -414,7 +419,8 @@ int main(int argc, FAR char *argv[])
   pos.x  = wstate.xres / 4;
   pos.y  = wstate.yres / 4;
 
-  if (!pwlines_configure_window(&wstate, 1, &size, &pos, -3.317, 5.0))
+  if (!pwlines_configure_window(&wstate, 1, &size, &pos,
+                                -3.317, 5.0))
     {
       printf("pwlines_main: ERROR: "
              "pwlines_configure_window failed for window 2\n");
@@ -425,8 +431,9 @@ int main(int argc, FAR char *argv[])
 
   printf("pwlines_main: Open window 3\n");
 
-  wstate.wndo[2].hwnd = nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
-                                        &g_pwlines_wncb, (FAR void *)&wstate);
+  wstate.wndo[2].hwnd =
+    nxtk_openwindow(wstate.hnx, NXBE_WINDOW_RAMBACKED,
+                    &g_pwlines_wncb, (FAR void *)&wstate);
   if (wstate.wndo[2].hwnd == NULL)
     {
       printf("pwlines_main: ERROR: "
@@ -442,7 +449,8 @@ int main(int argc, FAR char *argv[])
   pos.x = (3 * wstate.xres) / 8;
   pos.y = (3 * wstate.yres) / 8;
 
-  if (!pwlines_configure_window(&wstate, 2, &size, &pos, 4.600, -3.852))
+  if (!pwlines_configure_window(&wstate, 2, &size, &pos,
+                                4.600, -3.852))
     {
       printf("pwlines_main: ERROR: "
              "pwlines_configure_window failed for window 2\n");
@@ -512,6 +520,7 @@ errout_with_hwnd1:
     }
 
 errout_with_nx:
+
   /* Disconnect from the server */
 
   printf("pwlines_main: Disconnect from the server\n");

@@ -49,12 +49,14 @@
 
 static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                           bool morem, FAR void *arg);
-static void nxwndo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxwndo_position(NXWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg);
 #ifdef CONFIG_NX_XYINPUT
-static void nxwndo_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxwndo_mousein(NXWINDOW hwnd,
+                           FAR const struct nxgl_point_s *pos,
                            uint8_t buttons, FAR void *arg);
 #endif
 
@@ -119,7 +121,9 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
     }
   else
     {
-      /* If the driver has not been opened, then just redraw the window color */
+      /* If the driver has not been opened, then just redraw the window
+       * color.
+       */
 
       wcolor[0] = CONFIG_EXAMPLES_NXTERM_WCOLOR;
       nxtk_fillwindow(hwnd, rect, wcolor);
@@ -130,7 +134,8 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxwndo_position
  ****************************************************************************/
 
-static void nxwndo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxwndo_position(NXWINDOW hwnd,
+                            FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg)
@@ -163,7 +168,8 @@ static void nxwndo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
       g_nxterm_vars.haveres = true;
       sem_post(&g_nxterm_vars.eventsem);
-      ginfo("Have xres=%d yres=%d\n", g_nxterm_vars.xres, g_nxterm_vars.yres);
+      ginfo("Have xres=%d yres=%d\n",
+            g_nxterm_vars.xres, g_nxterm_vars.yres);
     }
 }
 

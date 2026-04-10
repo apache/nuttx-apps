@@ -60,6 +60,7 @@
  ****************************************************************************/
 
 /* Configuration ************************************************************/
+
 /* If not specified, assume that the hardware supports one video plane */
 
 #ifndef CONFIG_EXAMPLES_NXTEXT_VPLANE
@@ -138,7 +139,10 @@ nxgl_coord_t g_yres;
 
 bool b_haveresolution = false;
 bool g_connected = false;
-sem_t g_semevent = {0};
+sem_t g_semevent =
+{
+  0
+};
 
 int g_exitcode = NXEXIT_SUCCESS;
 
@@ -162,7 +166,7 @@ static int nxtext_initialize(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      printf("nxtext_initialize: sched_setparam failed: %d\n" , ret);
+      printf("nxtext_initialize: sched_setparam failed: %d\n", ret);
       g_exitcode = NXEXIT_SCHEDSETPARAM;
       return ERROR;
     }
@@ -173,7 +177,8 @@ static int nxtext_initialize(void)
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxtext_initialize: Failed to start the NX server: %d\n", errno);
+      printf("nxtext_initialize: Failed to start the NX server: %d\n",
+             errno);
       g_exitcode = NXEXIT_SERVERSTART;
       return ERROR;
     }
@@ -188,24 +193,24 @@ static int nxtext_initialize(void)
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */
 
-       struct boardioc_vncstart_s vnc =
-       {
-         0, g_hnx
-       };
+      struct boardioc_vncstart_s vnc =
+      {
+        0, g_hnx
+      };
 
-       ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
-       if (ret < 0)
-         {
-           printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
-           nx_disconnect(g_hnx);
-           g_exitcode = NXEXIT_FBINITIALIZE;
-           return ERROR;
-         }
+      ret = boardctl(BOARDIOC_VNC_START, (uintptr_t)&vnc);
+      if (ret < 0)
+        {
+          printf("boardctl(BOARDIOC_VNC_START) failed: %d\n", ret);
+          nx_disconnect(g_hnx);
+          g_exitcode = NXEXIT_FBINITIALIZE;
+          return ERROR;
+        }
 #endif
 
-      /* Start a separate thread to listen for server events.  This is probably
-       * the least efficient way to do this, but it makes this example flow more
-       * smoothly.
+      /* Start a separate thread to listen for server events.  This is
+       * probably the least efficient way to do this, but it makes this
+       * example flow more smoothly.
        */
 
       pthread_attr_init(&attr);
@@ -216,10 +221,10 @@ static int nxtext_initialize(void)
       ret = pthread_create(&thread, &attr, nxtext_listener, NULL);
       if (ret != 0)
         {
-           printf("nxtext_initialize: pthread_create failed: %d\n", ret);
+          printf("nxtext_initialize: pthread_create failed: %d\n", ret);
 
-           g_exitcode = NXEXIT_PTHREADCREATE;
-           return ERROR;
+          g_exitcode = NXEXIT_PTHREADCREATE;
+          return ERROR;
         }
 
       /* Don't return until we are connected to the server */
@@ -277,7 +282,8 @@ int main(int argc, FAR char *argv[])
   g_bghfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXTEXT_BGFONTID);
   if (!g_bghfont)
     {
-      printf("nxtext_main: Failed to get background font handle: %d\n", errno);
+      printf("nxtext_main: Failed to get background font handle: %d\n",
+             errno);
       g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
@@ -285,14 +291,16 @@ int main(int argc, FAR char *argv[])
   g_puhfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXTEXT_PUFONTID);
   if (!g_puhfont)
     {
-      printf("nxtext_main: Failed to get pop-up font handle: %d\n", errno);
+      printf("nxtext_main: Failed to get pop-up font handle: %d\n",
+             errno);
       g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  printf("nxtext_main: Set background color=%d\n", CONFIG_EXAMPLES_NXTEXT_BGCOLOR);
+  printf("nxtext_main: Set background color=%d\n",
+         CONFIG_EXAMPLES_NXTEXT_BGCOLOR);
   color = CONFIG_EXAMPLES_NXTEXT_BGCOLOR;
   ret = nx_setbgcolor(g_hnx, &color);
   if (ret < 0)
@@ -328,7 +336,7 @@ int main(int argc, FAR char *argv[])
 
   popcnt = 0;
   bkgndx = 0;
-  for (;;)
+  for (; ; )
     {
       /* Sleep for one second */
 
@@ -346,15 +354,18 @@ int main(int argc, FAR char *argv[])
           hwnd = nxpu_open();
 
 #ifdef CONFIG_NX_KBD
-          /* Give keyboard input to the top window (which should be the pop-up) */
+          /* Give keyboard input to the top window (which should be the
+           * pop-up).
+           */
 
           printf("nxtext_main: Send keyboard input: %s\n", g_pumsg);
-          ret = nx_kbdin(g_hnx, strlen((FAR const char *)g_pumsg), g_pumsg);
+          ret = nx_kbdin(g_hnx, strlen((FAR const char *)g_pumsg),
+                         g_pumsg);
           if (ret < 0)
-           {
-             printf("nxtext_main: nx_kbdin failed: %d\n", errno);
-             goto errout_with_hwnd;
-           }
+            {
+              printf("nxtext_main: nx_kbdin failed: %d\n", errno);
+              goto errout_with_hwnd;
+            }
 #endif
         }
       else if (popcnt == 5)
@@ -367,11 +378,12 @@ int main(int argc, FAR char *argv[])
         }
 
       /* Give another line of text to the background window.  Force this
-       * text to go the background by calling the background window interfaces
-       * directly.
+       * text to the background by calling the background window
+       * interfaces directly.
        */
 
-      nxbg_write(g_bgwnd, (FAR const uint8_t *)g_bgmsg[bkgndx], strlen(g_bgmsg[bkgndx]));
+      nxbg_write(g_bgwnd, (FAR const uint8_t *)g_bgmsg[bkgndx],
+                 strlen(g_bgmsg[bkgndx]));
       if (++bkgndx >= BGMSG_LINES)
         {
           bkgndx = 0;
@@ -386,13 +398,15 @@ errout_with_hwnd:
   if (popcnt >= 3)
     {
       printf("nxtext_main: Close pop-up\n");
-     nxpu_close(hwnd);
+      nxpu_close(hwnd);
     }
 
-//errout_with_bkgd:
+  /* errout_with_bkgd: */
+
   nx_releasebkgd(g_bgwnd);
 
 errout_with_nx:
+
   /* Disconnect from the server */
 
   printf("nxtext_main: Disconnect from the server\n");

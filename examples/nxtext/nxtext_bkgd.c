@@ -107,7 +107,8 @@ NXHANDLE g_bgwnd;
  * Name: nxbg_redrawrect
  ****************************************************************************/
 
-static void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
+static void nxbg_redrawrect(NXWINDOW hwnd,
+                            FAR const struct nxgl_rect_s *rect)
 {
   int ret;
   int i;
@@ -172,7 +173,9 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
       st->wsize.w = size->w;
       st->wsize.h = size->h;
 
-      /* Save the window limits (these should be the same for all places and all windows */
+      /* Save the window limits (these should be the same for all places
+       * and all windows.
+       */
 
       g_xres = bounds->pt2.x + 1;
       g_yres = bounds->pt2.y + 1;
@@ -219,7 +222,8 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  *   only.
  ****************************************************************************/
 
-static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
+static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom,
+                                    int lineheight)
 {
   FAR struct nxtext_bitmap_s *bm;
   struct nxgl_rect_s rect;
@@ -227,10 +231,10 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
   int ret;
   int i;
 
-  /* Move each row, one at a time.  They could all be moved at once (by calling
-   * nxbg_redrawrect), but the since the region is cleared, then re-written, the
-   * effect would not be good.  Below the region is also cleared and re-written,
-   * however, in much smaller chunks.
+  /* Move each row, one at a time.  They could all be moved at once (by
+   * calling nxbg_redrawrect), but since the region is cleared, then
+   * rewritten, the effect would not be good.  Below the region is also
+   * cleared and rewritten, however, in much smaller chunks.
    */
 
   rect.pt1.x = 0;
@@ -256,7 +260,8 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
       for (i = 0; i < g_bgstate.nchars; i++)
         {
           bm = &g_bgstate.bm[i];
-          if (bm->pos.y <= rect.pt2.y && bm->pos.y + g_bgstate.fheight >= rect.pt1.y)
+          if (bm->pos.y <= rect.pt2.y &&
+              bm->pos.y + g_bgstate.fheight >= rect.pt1.y)
             {
               nxtext_fillchar(hwnd, &rect, &g_bgstate, g_bghfont, bm);
             }
@@ -266,7 +271,7 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
   /* Finally, clear the bottom part of the display */
 
   rect.pt1.y = bottom;
-  rect.pt2.y = g_bgstate.wsize.h- 1;
+  rect.pt2.y = g_bgstate.wsize.h - 1;
 
   ret = nx_fill(hwnd, &rect, g_bgstate.wcolor);
   if (ret < 0)
@@ -296,13 +301,15 @@ static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
         {
           /* Yes... Delete the character by moving all of the data */
 
-          for (j = i; j < g_bgstate.nchars-1; j++)
+          for (j = i; j < g_bgstate.nchars - 1; j++)
             {
-              memcpy(&g_bgstate.bm[j], &g_bgstate.bm[j+1], sizeof(struct nxtext_bitmap_s));
+              memcpy(&g_bgstate.bm[j], &g_bgstate.bm[j + 1],
+                     sizeof(struct nxtext_bitmap_s));
             }
 
-          /* Decrement the number of cached characters ('i' is not incremented
-           * in this case because it already points to the next character)
+          /* Decrement the number of cached characters.  'i' is not
+           * incremented in this case because it already points to the next
+           * character.
            */
 
           g_bgstate.nchars--;
