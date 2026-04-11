@@ -57,6 +57,7 @@ CSRCS += netlib_iptables.c
 endif
 ifeq ($(CONFIG_NETUTILS_DHCPC),y)
 CSRCS += netlib_obtainipv4addr.c
+CSRCS += netlib_dhcp_ntp.c
 endif
 endif
 

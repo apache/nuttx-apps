@@ -203,6 +203,11 @@ struct url_s
 };
 #endif
 
+#ifdef CONFIG_NETUTILS_DHCPC
+typedef CODE void (*netlib_dhcp_ntp_callback_t)
+  (FAR const char *ntp_server_list, FAR void *arg);
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -246,6 +251,44 @@ ssize_t netlib_get_devices(FAR struct netlib_device_s *devlist,
 
 bool netlib_ipv4addrconv(FAR const char *addrstr, FAR uint8_t *addr);
 bool netlib_ethaddrconv(FAR const char *hwstr, FAR uint8_t *hw);
+
+#ifdef CONFIG_NETUTILS_DHCPC
+/****************************************************************************
+ * Name: netlib_set_ntp_servers_from_dhcp
+ *
+ * Description:
+ *   Update the currently active DHCP option 42 NTP server list. The list
+ *   contains semicolon-separated hostnames or addresses. Passing NULL or
+ *   an empty string clears the DHCP-provided list.
+ *
+ ****************************************************************************/
+
+int netlib_set_ntp_servers_from_dhcp(FAR const char *ntp_server_list);
+
+/****************************************************************************
+ * Name: netlib_register_dhcp_ntp_callback
+ *
+ * Description:
+ *   Register a callback to receive DHCP option 42 NTP server list updates.
+ *   The current list, if any, is replayed immediately after registration.
+ *   Only one callback may be registered at a time.
+ *
+ ****************************************************************************/
+
+int netlib_register_dhcp_ntp_callback(netlib_dhcp_ntp_callback_t callback,
+                                      FAR void *arg);
+
+/****************************************************************************
+ * Name: netlib_unregister_dhcp_ntp_callback
+ *
+ * Description:
+ *   Unregister a previously registered DHCP option 42 NTP update callback.
+ *
+ ****************************************************************************/
+
+int netlib_unregister_dhcp_ntp_callback(netlib_dhcp_ntp_callback_t callback,
+                                        FAR void *arg);
+#endif
 
 #ifdef CONFIG_NET_ETHERNET
 /* Get and set IP/MAC addresses (Ethernet L2 only) */

@@ -25,6 +25,10 @@
  ****************************************************************************/
 
 #include <nuttx/debug.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 
 #include "netutils/dhcpc.h"
@@ -105,6 +109,68 @@ static int dhcp_setup_result(FAR const char *ifname,
   return OK;
 }
 
+#ifdef CONFIG_NETUTILS_NTPCLIENT
+static int dhcp_set_ntp_servers(FAR const struct dhcpc_state *ds)
+{
+  char ntp_server_list[CONFIG_NETUTILS_DHCPC_NTP_SERVERS *
+                       (INET_ADDRSTRLEN + 1)];
+  size_t offset = 0;
+  uint8_t i;
+
+  /* Clear the DHCP-provided NTP server list,
+   * consider case: that device has joined another dhcp domain,
+   * it need refresh related settings.
+   */
+
+  if (ds->num_ntpaddr == 0)
+    {
+      return netlib_set_ntp_servers_from_dhcp(NULL);
+    }
+
+  ntp_server_list[0] = '\0';
+
+  for (i = 0; i < ds->num_ntpaddr; i++)
+    {
+      char addrbuf[INET_ADDRSTRLEN];
+      int ret;
+
+      /* Skip empty entries */
+
+      if (ds->ntpaddr[i].s_addr == 0)
+        {
+          continue;
+        }
+
+      if (inet_ntop(AF_INET, &ds->ntpaddr[i], addrbuf, sizeof(addrbuf)) ==
+          NULL)
+        {
+          return -EINVAL;
+        }
+
+      /* Append the server to the list */
+
+      ret = snprintf(ntp_server_list + offset,
+                     sizeof(ntp_server_list) - offset,
+                     "%s%s", offset == 0 ? "" : ";", addrbuf);
+      if (ret < 0 || (size_t)ret >= sizeof(ntp_server_list) - offset)
+        {
+          return -E2BIG;
+        }
+
+      offset += (size_t)ret;
+    }
+
+  /* Clear the list if all entries were empty */
+
+  if (offset == 0)
+    {
+      return netlib_set_ntp_servers_from_dhcp(NULL);
+    }
+
+  return netlib_set_ntp_servers_from_dhcp(ntp_server_list);
+}
+#endif
+
 /****************************************************************************
  * Name: dhcp_obtain_statefuladdr
  *
@@ -156,6 +222,18 @@ static int dhcp_obtain_statefuladdr(FAR const char *ifname)
   if (ret == OK)
     {
       ret = dhcp_setup_result(ifname, &ds);
+#ifdef CONFIG_NETUTILS_NTPCLIENT
+      if (ret == OK)
+        {
+          ret = dhcp_set_ntp_servers(&ds);
+          if (ret < 0)
+            {
+              nwarn("WARNING: failed to update DHCP NTP server list: %d\n",
+                    ret);
+              ret = OK;
+            }
+        }
+#endif
     }
   else
     {
