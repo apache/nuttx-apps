@@ -91,6 +91,7 @@
 #define DHCP_OPTION_ROUTER      3
 #define DHCP_OPTION_DNS_SERVER  6
 #define DHCP_OPTION_HOST_NAME   12
+#define DHCP_OPTION_NTP_SERVER  42
 #define DHCP_OPTION_REQ_IPADDR  50
 #define DHCP_OPTION_LEASE_TIME  51
 #define DHCP_OPTION_MSG_TYPE    53
@@ -210,10 +211,11 @@ static FAR uint8_t *dhcpc_addclientid(FAR uint8_t *clientid,
 static FAR uint8_t *dhcpc_addreqoptions(FAR uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_REQ_LIST;
-  *optptr++ = 3;
+  *optptr++ = 4;
   *optptr++ = DHCP_OPTION_SUBNET_MASK;
   *optptr++ = DHCP_OPTION_ROUTER;
   *optptr++ = DHCP_OPTION_DNS_SERVER;
+  *optptr++ = DHCP_OPTION_NTP_SERVER;
   return optptr;
 }
 
@@ -408,6 +410,39 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
             else
               {
                 nerr("Packet too short (DNS address missing)\n");
+              }
+            break;
+
+          case DHCP_OPTION_NTP_SERVER:
+
+            /* Get the NTP server addresses in network order.
+             * DHCP option 42 can contain multiple IPv4 addresses,
+             * each 4 bytes long.
+             */
+
+            if (optptr + 2 <= end)
+              {
+                uint8_t optlen = *(optptr + 1);
+                uint8_t num_ntp = optlen / 4;
+                uint8_t i;
+
+                if (num_ntp > CONFIG_NETUTILS_DHCPC_NTP_SERVERS)
+                  {
+                    num_ntp = CONFIG_NETUTILS_DHCPC_NTP_SERVERS;
+                  }
+
+                presult->num_ntpaddr = 0;
+                for (i = 0; i < num_ntp && (optptr + 2 + i * 4 + 4) <= end;
+                     i++)
+                  {
+                    memcpy(&presult->ntpaddr[i].s_addr, optptr + 2 + i * 4,
+                           4);
+                    presult->num_ntpaddr++;
+                  }
+              }
+            else
+              {
+                nerr("Packet too short (NTP address missing)\n");
               }
             break;
 
@@ -996,6 +1031,21 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                 ip4_addr2(presult->dnsaddr[i].s_addr),
                 ip4_addr3(presult->dnsaddr[i].s_addr),
                 ip4_addr4(presult->dnsaddr[i].s_addr));
+        }
+    }
+
+  /* Print all NTP servers received */
+
+  if (presult->num_ntpaddr > 0)
+    {
+      uint8_t i;
+      for (i = 0; i < presult->num_ntpaddr; i++)
+        {
+          ninfo("Got NTP server %d: %u.%u.%u.%u\n", i,
+                ip4_addr1(presult->ntpaddr[i].s_addr),
+                ip4_addr2(presult->ntpaddr[i].s_addr),
+                ip4_addr3(presult->ntpaddr[i].s_addr),
+                ip4_addr4(presult->ntpaddr[i].s_addr));
         }
     }
 
