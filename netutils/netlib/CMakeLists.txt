@@ -57,6 +57,7 @@ if(CONFIG_NETUTILS_NETLIB)
     endif()
     if(CONFIG_NETUTILS_DHCPC)
       list(APPEND SRCS netlib_obtainipv4addr.c)
+      list(APPEND SRCS netlib_dhcp_ntp.c)
     endif()
   endif()
 
