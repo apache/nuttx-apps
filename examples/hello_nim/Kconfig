@@ -4,10 +4,10 @@
 #
 
 config EXAMPLES_HELLO_NIM
-	tristate "\"Hello, World!\" example (Nim)"
+	tristate "\"Hello, Nim!\" example"
 	default n
 	---help---
-		Enable the \"Hello, World!\" example
+		Enable the \"Hello, Nim!\" example in Nim language
 
 if EXAMPLES_HELLO_NIM
 
