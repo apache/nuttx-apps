@@ -1,0 +1,245 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig INDUSTRY_NXMODBUS
+	bool "NxModbus - New Modbus Stack"
+	default n
+	---help---
+		NxModbus is a modern Modbus stack for NuttX with multi-instance
+		support, per-instance register callbacks, and pluggable transport
+		backends (RTU, ASCII, TCP, Raw ADU).
+
+		This implementation follows NuttX coding standards and is
+		designed for upstream contribution to nuttx-apps.
+
+if INDUSTRY_NXMODBUS
+
+config NXMODBUS_SERVER
+	bool "Server (slave) support"
+	default y
+	---help---
+		Enable Modbus server (slave) support. The server processes
+		incoming Modbus requests and calls registered register
+		callbacks.
+
+config NXMODBUS_CLIENT
+	bool "Client (master) support"
+	default n
+	---help---
+		Enable Modbus client (master) support. The client sends
+		Modbus requests to a server and receives responses.
+
+config NXMODBUS_RTU
+	bool "Modbus RTU mode"
+	default y
+	---help---
+		Enable Modbus RTU (Remote Terminal Unit) serial transmission
+		mode. Uses binary encoding with CRC16 error checking.
+
+config NXMODBUS_ASCII
+	bool "Modbus ASCII mode"
+	default n
+	---help---
+		Enable Modbus ASCII serial transmission mode. Uses
+		hex-encoded text with LRC error checking. Slower but
+		more human-readable than RTU.
+
+config NXMODBUS_TCP
+	bool "Modbus TCP mode"
+	default n
+	depends on NET_TCP
+	---help---
+		Enable Modbus TCP support. Modbus frames are encapsulated
+		in TCP/IP using the MBAP header format. Requires network
+		stack with TCP support.
+
+config NXMODBUS_RAW_ADU
+	bool "Raw ADU transport support"
+	default n
+	---help---
+		Enable raw ADU (Application Data Unit) transport mode.
+		The application provides callbacks for transmitting and
+		receiving raw Modbus frames. This enables custom transports
+		such as TLS, CAN, BLE, or MQTT.
+
+config NXMODBUS_MAX_INSTANCES
+	int "Maximum number of NxModbus instances"
+	default 1
+	range 1 16
+	---help---
+		Maximum number of simultaneous NxModbus instances. Each
+		instance can use a different transport (RTU, TCP, etc.)
+		and configuration. Instances are allocated from a static
+		pool at compile time.
+
+config NXMODBUS_ADU_DATA_MAX
+	int "ADU data buffer size in bytes"
+	default 252
+	range 4 252
+	---help---
+		Size of the data[] payload in struct nxmb_adu_s, in bytes.
+		This is the PDU body after the function code. The Modbus
+		specification allows up to 252 data bytes (1 fc + 252 data =
+		253-byte PDU max). Reduce this value to save RAM on
+		resource-constrained systems.
+
+config NXMODBUS_REP_SERVER_ID_BUF
+	int "Report Server ID buffer size"
+	default 32
+	range 4 253
+	---help---
+		Size of the buffer used by FC17 (Report Server ID).
+		This buffer holds the server ID byte, run indicator, and
+		optional additional data configured via nxmb_set_server_id().
+
+config NXMODBUS_ASCII_TIMEOUT_SEC
+	int "ASCII character timeout (seconds)"
+	default 1
+	range 1 60
+	depends on NXMODBUS_ASCII
+	---help---
+		Character timeout for Modbus ASCII mode in seconds. If no
+		character is received within this period, the current frame
+		is discarded. Default is 1 second per the Modbus specification.
+
+config NXMODBUS_CLIENT_TIMEOUT_MS
+	int "Client default response timeout (ms)"
+	default 1000
+	range 100 60000
+	depends on NXMODBUS_CLIENT
+	---help---
+		Default response timeout for client (master) mode in
+		milliseconds. If no response is received from the server
+		within this period, the request fails with ETIMEDOUT.
+		Can be overridden at runtime via nxmb_set_timeout().
+
+config NXMODBUS_TCP_MAX_CLIENTS
+	int "Maximum simultaneous TCP client connections"
+	default 1
+	range 1 8
+	depends on NXMODBUS_TCP
+	---help---
+		Maximum number of simultaneous TCP client connections
+		accepted by a Modbus TCP server instance. Each connection
+		uses one file descriptor. Set to 1 for minimal resource
+		usage.
+
+config NXMODBUS_TCP_TIMEOUT_SEC
+	int "TCP idle connection timeout (seconds)"
+	default 60
+	range 1 3600
+	depends on NXMODBUS_TCP
+	---help---
+		Idle timeout for TCP connections in seconds. If no data is
+		received on a client connection within this period, the
+		connection is closed. Set to a higher value for slow networks.
+
+config NXMODBUS_RTU_IDLE_TIMEOUT_MS
+	int "RTU inter-frame idle timeout (ms)"
+	default 50
+	range 1 1000
+	depends on NXMODBUS_RTU
+	---help---
+		Fallback idle timeout in milliseconds used by the RTU
+		transport when waiting for a new frame via select(). This
+		is the maximum time to block waiting for data when no
+		frame is in progress. The T3.5 character timing is still
+		used for frame delimiting within an active reception.
+
+menu "Function Code Selection"
+
+config NXMODBUS_FUNC_READ_COILS
+	bool "FC01 Read Coils"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC01 Read Coils function code handler.
+
+config NXMODBUS_FUNC_READ_DISCRETE
+	bool "FC02 Read Discrete Inputs"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC02 Read Discrete Inputs function code handler.
+
+config NXMODBUS_FUNC_READ_HOLDING
+	bool "FC03 Read Holding Registers"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC03 Read Holding Registers function code handler.
+
+config NXMODBUS_FUNC_READ_INPUT
+	bool "FC04 Read Input Registers"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC04 Read Input Registers function code handler.
+
+config NXMODBUS_FUNC_WRITE_COIL
+	bool "FC05 Write Single Coil"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC05 Write Single Coil function code handler.
+
+config NXMODBUS_FUNC_WRITE_HOLDING
+	bool "FC06 Write Single Holding Register"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC06 Write Single Holding Register function
+		code handler.
+
+config NXMODBUS_FUNC_DIAGNOSTICS
+	bool "FC08 Diagnostics"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC08 Diagnostics function code handler.
+		Only sub-function 0x0000 (Return Query Data) is supported.
+
+config NXMODBUS_FUNC_WRITE_COILS
+	bool "FC15 Write Multiple Coils"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC15 Write Multiple Coils function code handler.
+
+config NXMODBUS_FUNC_WRITE_HOLDINGS
+	bool "FC16 Write Multiple Holding Registers"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC16 Write Multiple Holding Registers function
+		code handler.
+
+config NXMODBUS_FUNC_REPORT_SERVER_ID
+	bool "FC17 Report Server ID"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC17 Report Server ID function code handler.
+
+config NXMODBUS_FUNC_READWRITE_HOLDINGS
+	bool "FC23 Read/Write Multiple Holding Registers"
+	default y
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC23 Read/Write Multiple Holding Registers
+		function code handler.
+
+endmenu # Function Code Selection
+
+config NXMODBUS_CUSTOM_FC
+	bool "Custom function code extension support"
+	default y
+	depends on NXMODBUS
+	---help---
+		Enable support for registering custom Modbus function
+		code handlers. Applications can extend the Modbus
+		function code set via nxmb_register_custom_fc().
+
+endif # INDUSTRY_NXMODBUS
