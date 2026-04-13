@@ -1,5 +1,5 @@
 ############################################################################
-# apps/modbus/nuttx/Make.defs
+# apps/modbus/freemodbus/ascii/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,16 +20,12 @@
 #
 ############################################################################
 
-CSRCS += portother.c
+ifeq ($(CONFIG_MB_ASCII_ENABLED),y)
 
-ifeq ($(CONFIG_MODBUS_SLAVE),y)
-CSRCS += portevent.c portserial.c porttimer.c
+CSRCS += mbascii.c
+
+DEPPATH += --dep-path ascii
+VPATH += :ascii
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/freemodbus/ascii
+
 endif
-
-ifeq ($(CONFIG_MB_RTU_MASTER),y)
-CSRCS += portother_m.c portserial_m.c porttimer_m.c portevent_m.c
-endif
-
-DEPPATH += --dep-path nuttx
-VPATH += :nuttx
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/nuttx

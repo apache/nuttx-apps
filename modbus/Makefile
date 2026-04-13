@@ -20,26 +20,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Make.defs
+MENUDESC = "Modbus"
 
-# FreeModBus Library
-
-ifeq ($(CONFIG_MODBUS),y)
-
-  ifeq ($(CONFIG_MODBUS_SLAVE),y)
-    CSRCS += mb.c
-  endif
-
-  ifeq ($(CONFIG_MB_RTU_MASTER),y)
-    CSRCS += mb_m.c
-  endif
-
-  include ascii/Make.defs
-  include functions/Make.defs
-  include nuttx/Make.defs
-  include rtu/Make.defs
-  include tcp/Make.defs
-
-endif
-
-include $(APPDIR)/Application.mk
+include $(APPDIR)/Directory.mk

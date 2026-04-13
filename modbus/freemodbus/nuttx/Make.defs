@@ -1,5 +1,5 @@
 ############################################################################
-# apps/modbus/tcp/Make.defs
+# apps/modbus/freemodbus/nuttx/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,12 +20,16 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_MB_TCP_ENABLED),y)
+CSRCS += portother.c
 
-CSRCS += mbtcp.c
-
-DEPPATH += --dep-path tcp
-VPATH += :tcp
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/tcp
-
+ifeq ($(CONFIG_MODBUS_SLAVE),y)
+CSRCS += portevent.c portserial.c porttimer.c
 endif
+
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+CSRCS += portother_m.c portserial_m.c porttimer_m.c portevent_m.c
+endif
+
+DEPPATH += --dep-path nuttx
+VPATH += :nuttx
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/freemodbus/nuttx
