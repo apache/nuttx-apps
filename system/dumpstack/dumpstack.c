@@ -28,25 +28,34 @@
 
 #include <sys/types.h>
 
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <syslog.h>
+#include <unistd.h>
 
 #include <execinfo.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define DUMP_DEPTH 16
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * hello_main
+ * main
  ****************************************************************************/
 
 int main(int argc, FAR char *argv[])
 {
+  FAR void *backtrace_buf[DUMP_DEPTH];
+  char fmt[BACKTRACE_BUFFER_SIZE(DUMP_DEPTH)];
   int spid = -1;
   int epid = -1;
   int tmp = -1;
+  int depth;
 
   if (argc == 2)
     {
@@ -72,7 +81,12 @@ int main(int argc, FAR char *argv[])
 
   do
     {
-      sched_dumpstack(spid);
+      depth = sched_backtrace(spid, backtrace_buf, DUMP_DEPTH, 0);
+      if (depth > 0)
+        {
+          backtrace_format(fmt, sizeof(fmt), backtrace_buf, depth);
+          printf("backtrace|%d: %s\n", spid, fmt);
+        }
     }
   while (spid++ != epid);
 
