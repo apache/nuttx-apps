@@ -1,5 +1,5 @@
 ############################################################################
-# apps/modbus/functions/Make.defs
+# apps/modbus/freemodbus/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,17 +20,26 @@
 #
 ############################################################################
 
-CSRCS += mbfunccoils.c mbfuncdiag.c mbfuncdisc.c mbfuncholding.c
-CSRCS += mbfuncinput.c mbfuncother.c mbutils.c
+include $(APPDIR)/Make.defs
 
-ifeq ($(CONFIG_MB_ASCII_MASTER),y)
-CSRCS += mbfunccoils_m.c mbfuncdisc_m.c mbfuncholding_m.c mbfuncinput_m.c
-else
-ifeq ($(CONFIG_MB_RTU_MASTER),y)
-CSRCS += mbfunccoils_m.c mbfuncdisc_m.c mbfuncholding_m.c mbfuncinput_m.c
-endif
+# FreeModBus Library
+
+ifeq ($(CONFIG_MODBUS),y)
+
+  ifeq ($(CONFIG_MODBUS_SLAVE),y)
+    CSRCS += mb.c
+  endif
+
+  ifeq ($(CONFIG_MB_RTU_MASTER),y)
+    CSRCS += mb_m.c
+  endif
+
+  include ascii/Make.defs
+  include functions/Make.defs
+  include nuttx/Make.defs
+  include rtu/Make.defs
+  include tcp/Make.defs
+
 endif
 
-DEPPATH += --dep-path functions
-VPATH += :functions
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/functions
+include $(APPDIR)/Application.mk

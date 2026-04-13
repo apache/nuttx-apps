@@ -1,5 +1,5 @@
 ############################################################################
-# apps/modbus/ascii/Make.defs
+# apps/modbus/freemodbus/rtu/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,12 +20,26 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_MB_ASCII_ENABLED),y)
+ifeq ($(CONFIG_MB_RTU_ENABLED),y)
+compile_rtu=yes
+endif
 
-CSRCS += mbascii.c
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+compile_rtu=yes
+endif
 
-DEPPATH += --dep-path ascii
-VPATH += :ascii
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/ascii
+ifdef compile_rtu
+CSRCS += mbcrc.c
+ifeq ($(CONFIG_MB_RTU_ENABLED),y)
+CSRCS +=  mbrtu.c
+endif
+
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+CSRCS += mbrtu_m.c
+endif
+
+DEPPATH += --dep-path rtu
+VPATH += :rtu
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/freemodbus/rtu
 
 endif

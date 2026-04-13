@@ -1,5 +1,5 @@
 ############################################################################
-# apps/modbus/Make.defs
+# apps/modbus/freemodbus/tcp/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,4 +20,12 @@
 #
 ############################################################################
 
-include $(wildcard $(APPDIR)/modbus/*/Make.defs)
+ifeq ($(CONFIG_MB_TCP_ENABLED),y)
+
+CSRCS += mbtcp.c
+
+DEPPATH += --dep-path tcp
+VPATH += :tcp
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/modbus/freemodbus/tcp
+
+endif
