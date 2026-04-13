@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXMBCLIENT
+	tristate "NxModbus Client Tool"
+	default n
+	depends on NXMODBUS_CLIENT
+	---help---
+		Enable the NxModbus client command-line tool. This utility allows
+		you to perform Modbus client operations from the command line,
+		supporting RTU, ASCII, and TCP transports.
+
+if SYSTEM_NXMBCLIENT
+
+config NXMBCLIENT_PROGNAME
+	string "Program name"
+	default "nxmbclient"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config NXMBCLIENT_PRIORITY
+	int "NxModbus client task priority"
+	default 100
+
+config NXMBCLIENT_STACKSIZE
+	int "NxModbus client stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # SYSTEM_NXMBCLIENT
