@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/industry/modbus/ascii/mbascii.c
+ * apps/industry/modbus/freemodbus/ascii/mbascii.c
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SPDX-FileCopyrightText: 2006 Christian Walter <wolti@sil.at>
