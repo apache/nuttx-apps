@@ -48,6 +48,7 @@ CFLAGS += -I$(LIBARCHIVE_SRC)/libarchive_fe
 CFLAGS += -DHAVE_CONFIG_H=1
 CFLAGS += -D__LIBARCHIVE_CONFIG_H_INCLUDED=1
 CFLAGS += -Wno-undef
+CFLAGS += -Wno-varargs
 CFLAGS += -UMAX_SIGNO
 
 CSRCS += $(wildcard $(LIBARCHIVE_SRC)/libarchive/*.c)
