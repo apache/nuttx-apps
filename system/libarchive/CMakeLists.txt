@@ -52,8 +52,8 @@ if(CONFIG_UTILS_LIBARCHIVE)
   # Flags
   # ############################################################################
 
-  set(CFLAGS -Wno-undef -DHAVE_CONFIG_H=1 -D__LIBARCHIVE_CONFIG_H_INCLUDED=1
-             -UMAX_SIGNO)
+  set(CFLAGS -Wno-undef -Wno-varargs -DHAVE_CONFIG_H=1
+             -D__LIBARCHIVE_CONFIG_H_INCLUDED=1 -UMAX_SIGNO)
 
   # ############################################################################
   # Sources
