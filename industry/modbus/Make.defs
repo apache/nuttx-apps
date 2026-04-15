@@ -20,4 +20,4 @@
 #
 ############################################################################
 
-include $(wildcard $(APPDIR)/modbus/*/Make.defs)
+include $(wildcard $(APPDIR)/industry/modbus/*/Make.defs)
