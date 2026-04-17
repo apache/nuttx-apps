@@ -265,6 +265,10 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl,
 
   tm.tm_year = (int)result - 1900;
 
+  /* Information about daylight saving not available -> let TZ handle it */
+
+  tm.tm_isdst = -1;
+
   /* Convert this to the right form, then set the timer */
 
   ts.tv_sec  = utc ? timegm(&tm): mktime(&tm);
