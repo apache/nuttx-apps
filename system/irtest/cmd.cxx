@@ -31,6 +31,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <unistd.h>
 
 #include "enum.hpp"
@@ -244,6 +245,17 @@ CMD1(write_data, size_t, index)
         }
 
       data[size] = tmp;
+    }
+
+  /* Avoid silently truncating long write_data commands. */
+
+  if (size == CONFIG_SYSTEM_IRTEST_MAX_SIRDATA)
+    {
+      tmp = get_next_arg < uint32_t > ();
+      if (tmp != 0)
+        {
+          return -E2BIG;
+        }
     }
 
   /* lirc require the odd length */
