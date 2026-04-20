@@ -50,6 +50,12 @@ if(CONFIG_LIBYUV)
   target_sources(libyuv PRIVATE ${SRCS})
   target_compile_options(libyuv PRIVATE -Wno-shadow -Wno-undef)
 
+  if(CONFIG_LIB_JPEG_TURBO)
+    target_compile_definitions(libyuv PRIVATE HAVE_JPEG)
+    target_include_directories(
+      libyuv PRIVATE ${NUTTX_APPS_DIR}/external/libjpeg-turbo/libjpeg-turbo)
+  endif()
+
   set_property(
     TARGET nuttx
     APPEND

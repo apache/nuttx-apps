@@ -28,6 +28,12 @@ CXXEXT := .cc
 CXXFLAGS += -Wno-shadow -Wno-undef
 CXXSRCS = $(wildcard $(SRCDIR)/source/*.cc)
 
+# Enable JPEG support when libjpeg or libjpeg-turbo is available
+ifeq ($(CONFIG_LIB_JPEG_TURBO),y)
+CXXFLAGS += -DHAVE_JPEG
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/external/libjpeg-turbo/libjpeg-turbo
+endif
+
 libyuv.tar.gz:
 	$(Q) curl -L https://github.com/NuttX/nuttx/releases/download/libyuv/libyuv-refs_heads_$(CONFIG_LIBYUV_BRANCH).tar.gz -o libyuv.tar.gz
 	$(Q) mkdir -p $(SRCDIR)
