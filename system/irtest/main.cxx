@@ -24,10 +24,16 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <stdio.h>
 
 #include "system/readline.h"
 #include "cmd.hpp"
+
+#ifndef CONFIG_LINE_MAX
+#  define CONFIG_LINE_MAX 512
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -48,7 +54,7 @@ extern "C"
 {
 int main(int argc, char *argv[])
 {
-  char cmdline[512];
+  char cmdline[CONFIG_LINE_MAX];
 
   init_device();
 
