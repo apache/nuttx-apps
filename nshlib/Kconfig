@@ -218,6 +218,7 @@ config NSH_NESTDEPTH
 config NSH_DISABLEBG
 	bool "Disable background commands"
 	default DEFAULT_SMALL
+	depends on !NSH_BUILTIN_AS_COMMAND
 	---help---
 		This can be set to 'y' to suppress support for background
 		commands.  This setting disables the 'nice' command prefix and
@@ -247,6 +248,7 @@ config NSH_PIPELINE
 	bool "Enable pipeline support"
 	default !DEFAULT_SMALL
 	depends on PIPES
+	depends on !NSH_DISABLEBG
 	---help---
 		Enable pipeline support for nsh.
 
@@ -268,7 +270,9 @@ config NSH_BUILTIN_AS_COMMAND
 	depends on BUILTIN
 	---help---
 		Enable to run builtin application directly without creating
-		a separate thread.
+		a separate thread.  This is incompatible with background
+		command execution (&) because builtin apps bypass the
+		nsh_fileapp/task_spawn path required for background jobs.
 
 config NSH_FILE_APPS
 	bool "Enable execution of program files"
