@@ -297,6 +297,7 @@ static void run_event_loop(FAR struct input_devices_ctx_s *ctx)
   sigemptyset(&sa.sa_mask);
   sa.sa_user = (FAR void *)&running;
   sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGTERM, &sa, NULL);
 
   for (dev = ctx->head; dev; dev = dev->next)
     {
