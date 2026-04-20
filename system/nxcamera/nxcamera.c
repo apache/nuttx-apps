@@ -52,15 +52,19 @@
 
 #ifdef CONFIG_LIBYUV
 #  include <libyuv.h>
-
-#  define CONVERT_TO_ARGB    ConvertToARGB
-#  define CONVERT_FROM_I420  ConvertFromI420
-#  define CONVERT_TO_I420    ConvertToI420
 #endif
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* Wrap libyuv mixed-case APIs for nxstyle compliance */
+
+#ifdef CONFIG_LIBYUV
+#  define CONVERT_TO_ARGB            ConvertToARGB
+#  define CONVERT_FROM_I420          ConvertFromI420
+#  define CONVERT_TO_I420            ConvertToI420
+#endif
 
 #define NXCAMERA_STATE_IDLE      0
 #define NXCAMERA_STATE_STREAMING 1
@@ -93,10 +97,17 @@ static void pan_display(int fb_device, FAR struct fb_planeinfo_s *plane_info)
 static int show_image(FAR struct nxcamera_s *pcam, FAR v4l2_buffer_t *buf)
 {
 #ifdef CONFIG_LIBYUV
+  /* Use bytesused for the actual payload size.  For compressed formats
+   * such as JPEG, bytesused is much smaller than the buffer capacity.
+   */
+
+  uint32_t sample_size = buf->bytesused > 0 ?
+                          buf->bytesused : pcam->buf_sizes[buf->index];
+
   if (pcam->display_vinfo.fmt == FB_FMT_RGB32)
     {
       return CONVERT_TO_ARGB(pcam->bufs[buf->index],
-                             pcam->buf_sizes[buf->index],
+                             sample_size,
                              pcam->display_pinfo.fbmem,
                              pcam->display_pinfo.stride,
                              0,
@@ -139,7 +150,7 @@ static int show_image(FAR struct nxcamera_s *pcam, FAR v4l2_buffer_t *buf)
             }
 
           ret = CONVERT_TO_I420(pcam->bufs[buf->index],
-                                pcam->buf_sizes[buf->index],
+                                sample_size,
                                 dst,
                                 pcam->fmt.fmt.pix.width,
                                 &dst[pcam->fmt.fmt.pix.width *
