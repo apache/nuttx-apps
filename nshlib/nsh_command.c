@@ -29,6 +29,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <termios.h>
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
 #  include <nuttx/lib/builtin.h>
@@ -1314,7 +1315,22 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
       builtin = builtin_for_index(index);
       if (builtin != NULL)
         {
-          return (builtin->main)(argc, (FAR char **)argv);
+          int tc = 0;
+          int ret;
+
+          if (vtbl->isctty)
+            {
+              tc = nsh_ioctl(vtbl, TIOCSCTTY, getpid());
+            }
+
+          ret = (builtin->main)(argc, (FAR char **)argv);
+
+          if (vtbl->isctty && tc == 0)
+            {
+              nsh_ioctl(vtbl, TIOCNOTTY, 0);
+            }
+
+          return ret;
         }
     }
 #endif
