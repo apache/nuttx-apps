@@ -32,7 +32,7 @@ config SYSTEM_IRTEST_MAX_NIRDEV
 	default 2
 
 config SYSTEM_IRTEST_MAX_SIRDATA
-	int "The Maximum size of sending data in unsigned int"
+	int "The Maximum size of sending data in nwords (4 bytes)"
 	default 64
 
 endif
