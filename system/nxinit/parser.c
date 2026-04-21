@@ -60,7 +60,8 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
           buf++;
         }
 
-      if (*buf == '-' && *(buf + 1) == '-')
+      if (*buf == '-' && *(buf + 1) == '-'
+          && (isblank(*(buf + 2)) || *(buf + 2) == '\0'))
         {
           argv[i++] = buf;
           if (i >= argc || *(buf += 2) == '\0')
