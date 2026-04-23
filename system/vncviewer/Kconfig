@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_VNCVIEWER
+	tristate "VNC Viewer"
+	default n
+	depends on NET_TCP && LCD
+	---help---
+		Enable the VNC Viewer example application.
+		Connects to a VNC server and displays the remote
+		framebuffer on a local LCD.
+
+if SYSTEM_VNCVIEWER
+
+config SYSTEM_VNCVIEWER_PROGNAME
+	string "Program name"
+	default "vncviewer"
+	---help---
+		This is the name of the program that will be used when the
+		NSH ELF program is installed.
+
+config SYSTEM_VNCVIEWER_PRIORITY
+	int "VNC Viewer task priority"
+	default 100
+
+config SYSTEM_VNCVIEWER_STACKSIZE
+	int "VNC Viewer stack size"
+	default 4096
+
+endif
