@@ -561,12 +561,49 @@ int netlib_getifstatistics(FAR const char *ifname,
 int netlib_check_ifconflict(FAR const char *ifname);
 #endif
 
-#ifdef CONFIG_NETUTILS_PING
+/****************************************************************************
+ * Name: netlib_check_ipconnectivity
+ *
+ * Description:
+ *   Check network connectivity by pinging a remote IP address.
+ *   If ip is NULL, ping the gateway of each network interface,
+ *   and optionally the routers from the routing table. If ping
+ *   is disabled, just check the status of the IP network card.
+ *
+ * Parameters:
+ *   ip       The ipv4 address to check, or NULL to ping gateways
+ *   timeout  The max timeout of each ping
+ *   retry    The retry times of ping
+ *
+ * Return:
+ *   nums of remote reply of ping; a negative or ZERO on failure
+ *
+ ****************************************************************************/
+
 int netlib_check_ipconnectivity(FAR const char *ip, int timeout, int retry);
+
+#ifdef CONFIG_NETUTILS_PING
+
+/****************************************************************************
+ * Name: netlib_check_ifconnectivity
+ *
+ * Description:
+ *   Check network connectivity by pinging the default gateway
+ *   of the specified network interface.
+ *
+ * Parameters:
+ *   ifname   The name of the interface to use
+ *   timeout  The timeout of ping
+ *   retry    The retry times of ping
+ *
+ * Return:
+ *   nums of gateway reply of ping; a negative on failure.
+ *
+ ****************************************************************************/
+
 int netlib_check_ifconnectivity(FAR const char *ifname,
                                 int timeout, int retry);
 #else
-#define netlib_check_ipconnectivity(i, t, r) 1
 #define netlib_check_ifconnectivity(i, t, r) 1
 #endif
 

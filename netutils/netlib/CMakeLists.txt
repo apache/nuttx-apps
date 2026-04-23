@@ -158,8 +158,10 @@ if(CONFIG_NETUTILS_NETLIB)
     list(APPEND SRCS netlib_getiobinfo.c)
   endif()
 
+  list(APPEND SRCS netlib_checkipconnectivity.c)
+
   if(CONFIG_NETUTILS_PING)
-    list(APPEND SRCS netlib_checkipconnectivity.c netlib_checkifconnectivity.c)
+    list(APPEND SRCS netlib_checkifconnectivity.c)
   endif()
 
   list(APPEND SRCS netlib_checkhttpconnectivity.c)
