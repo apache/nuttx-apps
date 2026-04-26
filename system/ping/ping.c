@@ -35,6 +35,15 @@
 #include <limits.h>
 #include <fixedmath.h>
 
+#if defined(CONFIG_SYSTEM_PING6) && defined(CONFIG_LIBC_EXECFUNCS)
+#define PING_ENABLE_PING6_FALLBACK
+#endif
+
+#ifdef PING_ENABLE_PING6_FALLBACK
+#include <spawn.h>
+#include <sys/wait.h>
+#endif
+
 #include <nuttx/net/ip.h>
 
 #include "netutils/icmp_ping.h"
@@ -121,8 +130,10 @@ static void ping_result(FAR const struct ping_result_s *result)
   switch (result->code)
     {
       case ICMP_E_HOSTIP:
+#ifndef PING_ENABLE_PING6_FALLBACK
         fprintf(stderr, "ERROR: ping_gethostip(%s) failed\n",
                 result->info->hostname);
+#endif
         break;
 
       case ICMP_E_MEMORY:
@@ -279,6 +290,49 @@ static void ping_result(FAR const struct ping_result_s *result)
     }
 }
 
+#ifdef PING_ENABLE_PING6_FALLBACK
+/****************************************************************************
+ * Name: ping6_fallback
+ ****************************************************************************/
+
+static int ping6_fallback(int argc, FAR char *argv[])
+{
+  pid_t pid;
+  int ret;
+  int status;
+
+  if (argc <= 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  argv[0] = CONFIG_SYSTEM_PING6_PROGNAME;
+
+  ret = posix_spawnp(&pid, CONFIG_SYSTEM_PING6_PROGNAME, NULL, NULL,
+                     argv, NULL);
+  if (ret != 0)
+    {
+      fprintf(stderr, "ERROR: posix_spawnp(%s) failed: %d\n",
+              CONFIG_SYSTEM_PING6_PROGNAME, ret);
+      return EXIT_FAILURE;
+    }
+
+  ret = waitpid(pid, &status, 0);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: waitpid() failed: %d\n", errno);
+      return EXIT_FAILURE;
+    }
+
+  if (WIFEXITED(status))
+    {
+      return WEXITSTATUS(status);
+    }
+
+  return EXIT_FAILURE;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -403,7 +457,15 @@ int main(int argc, FAR char *argv[])
 
   info.hostname = argv[optind];
   icmp_ping(&info);
-  return priv.code < 0 ? EXIT_FAILURE: EXIT_SUCCESS;
+
+#ifdef PING_ENABLE_PING6_FALLBACK
+  if (priv.code == ICMP_E_HOSTIP)
+    {
+      return ping6_fallback(argc, argv);
+    }
+#endif
+
+  return priv.code < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 
 errout_with_usage:
   optind = 0;
