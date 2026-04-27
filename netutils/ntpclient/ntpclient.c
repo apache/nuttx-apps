@@ -227,6 +227,7 @@ unsigned int g_last_nsamples = 0;
  ****************************************************************************/
 
 static int ntpc_daemon(int argc, FAR char **argv);
+#ifdef CONFIG_NETUTILS_DHCPC
 static int ntpc_set_servers_from_dhcp(FAR const char *ntp_server_list);
 
 static FAR char *ntpc_dup_server_list(FAR const char *ntp_server_list)
@@ -238,6 +239,7 @@ static FAR char *ntpc_dup_server_list(FAR const char *ntp_server_list)
 
   return strdup(ntp_server_list);
 }
+#endif
 
 static FAR const char *ntpc_select_server_list(FAR uint8_t *source)
 {
@@ -1687,6 +1689,7 @@ int ntpc_start(void)
   return ret;
 }
 
+#ifdef CONFIG_NETUTILS_DHCPC
 static int ntpc_set_servers_from_dhcp(FAR const char *ntp_server_list)
 {
   FAR char *new_servers;
@@ -1749,6 +1752,7 @@ static int ntpc_set_servers_from_dhcp(FAR const char *ntp_server_list)
 
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Name: ntpc_stop
