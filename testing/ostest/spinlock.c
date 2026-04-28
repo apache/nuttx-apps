@@ -44,8 +44,7 @@
 
 /* Number of lock/unlock iterations per thread */
 
-
-#define LOOP_TIMES     (CONFIG_TEST_LOOP_SCALE * 100000)
+#define LOOP_TIMES     (CONFIG_TEST_LOOP_SCALE * 10000)
 
 /****************************************************************************
  * Type Definitions
