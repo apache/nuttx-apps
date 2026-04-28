@@ -1,0 +1,16 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_POPEN
+	tristate "popen()/dpopen() test"
+	default n
+	depends on SYSTEM_POPEN
+	---help---
+		Test popen()/pclose() and dpopen()/dpclose() in both shell
+		and no-shell modes. The test binary doubles as its own
+		popen/dpopen target via --echo.
+
+if TESTING_POPEN
+endif
