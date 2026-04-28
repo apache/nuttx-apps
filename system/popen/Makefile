@@ -22,8 +22,8 @@
 
 include $(APPDIR)/Make.defs
 
-# popen()/pclose functions
+# dpopen()/dpclose() core and popen()/pclose() FILE wrappers
 
-CSRCS = popen.c
+CSRCS = dpopen.c popen.c
 
 include $(APPDIR)/Application.mk

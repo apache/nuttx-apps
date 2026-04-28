@@ -21,5 +21,5 @@
 # ##############################################################################
 
 if(CONFIG_SYSTEM_POPEN)
-  target_sources(apps PRIVATE popen.c)
+  target_sources(apps PRIVATE dpopen.c popen.c)
 endif()
