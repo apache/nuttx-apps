@@ -4,14 +4,25 @@
 #
 
 config SYSTEM_POPEN
-	bool "popen()/pclose() Functions"
+	bool "popen()/pclose()/dpopen()/dpclose() Functions"
 	default n
 	select SCHED_WAITPID
 	depends on NSH_LIBRARY && PIPES
 	---help---
-		Enable support for the popen() and pclose() interfaces.
-		This will support execution of NSH commands from C code with
-		pipe communications with the shell.
+		Enable support for the popen(), pclose(), dpopen(), and
+		dpclose() interfaces.
+
+		dpopen()/dpclose() are the descriptor-based counterparts
+		of popen()/pclose(), analogous to how dprintf() relates
+		to fprintf().  They return a raw file descriptor instead
+		of a FILE stream, avoiding the stdio.h dependency.
+
+		popen()/pclose() are thin wrappers around dpopen()/dpclose()
+		that additionally wrap the fd in a FILE stream.
+
+		Commands are executed through the NSH shell (sh -c command),
+		supporting full shell syntax including pipes, redirects,
+		and globbing.
 
 if SYSTEM_POPEN
 

@@ -26,20 +26,12 @@
 
 #include <nuttx/config.h>
 
-#include <sys/wait.h>
-#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <sched.h>
-#include <spawn.h>
-#include <assert.h>
-#include <nuttx/debug.h>
 #include <fcntl.h>
 #include <errno.h>
-
-#include "nshlib/nshlib.h"
 
 /****************************************************************************
  * Private Types
@@ -69,17 +61,9 @@ struct popen_file_s
  *   executed command, and will return a pointer to a stream that can be
  *   used to either read from or write to the pipe.
  *
- *   The environment of the executed command will be as if a child process
- *   were created within the popen() call using the fork() function, and the
- *   child invoked the sh utility using the call:
- *
- *     execl(shell path, "sh", "-c", command, NULL);
- *
- *   where shell path is an unspecified pathname for the sh utility.
- *
- *   The popen() function will ensure that any streams from previous popen()
- *   calls that remain open in the parent process are closed in the new child
- *   process.
+ *   This is a thin wrapper around dpopen() that wraps the returned file
+ *   descriptor in a FILE stream, analogous to how fprintf() relates to
+ *   dprintf().
  *
  *   The mode argument to popen() is a string that specifies I/O mode:
  *
@@ -95,18 +79,12 @@ struct popen_file_s
  *       the stream pointer returned by popen(), will be the writable end of
  *       the pipe.
  *
- *   If mode is any other value, the result is undefined.
- *
- *   After popen(), both the parent and the child process will be capable of
- *   executing independently before either terminates.
- *
- *   Pipe streams are byte-oriented.
- *
  * Input Parameters:
- *   command
+ *   command - The command string to execute
+ *   mode    - "r" or "w"
  *
  * Returned Value:
- *   A non-NULLFILE stream connected to the shell instance is returned on
+ *   A non-NULL FILE stream connected to the child process is returned on
  *   success.  NULL is returned on any failure with the errno variable set
  *   appropriately.
  *
@@ -115,244 +93,67 @@ struct popen_file_s
 FILE *popen(FAR const char *command, FAR const char *mode)
 {
   FAR struct popen_file_s *container;
-  struct sched_param param;
-  posix_spawnattr_t attr;
-  posix_spawn_file_actions_t file_actions;
-  FAR char *argv[4];
-  int fd[2];
-  int oldfd[2];
-  int newfd[2];
-  int retfd;
-  int errcode;
-  int result = 0;
-  bool rw = false;
+  int oflag;
+  int fd;
 
   /* Allocate a container for returned FILE stream */
 
   container = (FAR struct popen_file_s *)malloc(sizeof(struct popen_file_s));
   if (container == NULL)
     {
-      errcode = ENOMEM;
-      goto errout;
+      errno = ENOMEM;
+      return NULL;
     }
 
-  oldfd[1] = 0;
-  newfd[1] = 0;
+  /* Map mode string to open flags */
 
-  /* Create a pipe.  fd[0] refers to the read end of the pipe; fd[1] refers
-   * to the write end of the pipe.
-   * Is the pipe the input to the shell?  Or the output?
-   */
-
-  if (strcmp(mode, "r") == 0 &&
-      (result = pipe2(fd, O_CLOEXEC)) >= 0)
+  if (strstr(mode, "r+") || strstr(mode, "w+"))
     {
-      /* Pipe is the output from the shell */
-
-      oldfd[0] = 1;     /* Replace stdout with the write side of the pipe */
-      newfd[0] = fd[1];
-      retfd    = fd[0]; /* Use read side of the pipe to create the return stream */
+      oflag = O_RDWR;
     }
-  else if (strcmp(mode, "w") == 0 &&
-           (result = pipe2(fd, O_CLOEXEC)) >= 0)
+  else if (strstr(mode, "r"))
     {
-      /* Pipe is the input to the shell */
-
-      oldfd[0] = 0;     /* Replace stdin with the read side of the pipe */
-      newfd[0] = fd[0];
-      retfd    = fd[1]; /* Use write side of the pipe to create the return stream */
+      oflag = O_RDONLY;
     }
-
-  /* Create a socketpair. Using fd[0] as the input and output to the shell */
-
-#if defined(CONFIG_NET_LOCAL) && defined(CONFIG_NET_LOCAL_STREAM)
-  else if ((strcmp(mode, "r+") == 0 || strcmp(mode, "w+") == 0) &&
-           (result = socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC,
-                                0, fd)) >= 0)
+  else if (strstr(mode, "w"))
     {
-      /* Socketpair is the input/output to the shell */
-
-      rw = true;
-      oldfd[0] = 0;     /* Replace stdin with the one side of a socket pair */
-      newfd[0] = fd[0];
-      oldfd[1] = 1;     /* Replace stdout with the one side of a socket pair */
-      newfd[1] = fd[0];
-      retfd    = fd[1]; /* Use other side of the socket pair to create the return stream */
-    }
-#endif
-  else if (result < 0)
-    {
-      errcode = errno;
-      goto errout_with_container;
+      oflag = O_WRONLY;
     }
   else
     {
-      errcode = EINVAL;
-      goto errout_with_pipe;
+      free(container);
+      errno = EINVAL;
+      return NULL;
     }
 
-  /* Create the FILE stream return reference */
+  if (strchr(mode, 'e') != NULL)
+    {
+      oflag |= O_CLOEXEC;
+    }
 
-  container->original = fdopen(retfd, mode);
+  /* Use dpopen() to do the real work */
+
+  fd = dpopen(command, oflag, &container->shell);
+  if (fd < 0)
+    {
+      free(container);
+      return NULL;
+    }
+
+  /* Wrap the raw fd in a FILE stream */
+
+  container->original = fdopen(fd, mode);
   if (container->original == NULL)
     {
-      errcode = errno;
-      goto errout_with_pipe;
+      int errcode = errno;
+      dpclose(fd, container->shell);
+      free(container);
+      errno = errcode;
+      return NULL;
     }
-
-  /* Initialize attributes for task_spawn() (or posix_spawn()). */
-
-  errcode = posix_spawnattr_init(&attr);
-  if (errcode != 0)
-    {
-      goto errout_with_stream;
-    }
-
-  errcode = posix_spawn_file_actions_init(&file_actions);
-  if (errcode != 0)
-    {
-      goto errout_with_attrs;
-    }
-
-  /* Set the correct stack size and priority */
-
-  param.sched_priority = CONFIG_SYSTEM_POPEN_PRIORITY;
-  errcode = posix_spawnattr_setschedparam(&attr, &param);
-  if (errcode != 0)
-    {
-      goto errout_with_actions;
-    }
-
-#ifndef CONFIG_SYSTEM_POPEN_SHPATH
-  errcode = posix_spawnattr_setstacksize(&attr,
-                                         CONFIG_SYSTEM_POPEN_STACKSIZE);
-  if (errcode != 0)
-    {
-      goto errout_with_actions;
-    }
-#endif
-
-  /* If robin robin scheduling is enabled, then set the scheduling policy
-   * of the new task to SCHED_RR before it has a chance to run.
-   */
-
-#if CONFIG_RR_INTERVAL > 0
-  errcode = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
-  if (errcode != 0)
-    {
-      goto errout_with_actions;
-    }
-
-  errcode = posix_spawnattr_setflags(&attr,
-                                     POSIX_SPAWN_SETSCHEDPARAM |
-                                     POSIX_SPAWN_SETSCHEDULER);
-  if (errcode != 0)
-    {
-      goto errout_with_actions;
-    }
-
-#else
-  errcode = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
-  if (errcode != 0)
-    {
-      goto errout_with_actions;
-    }
-
-#endif
-
-  /* Redirect input or output as determined by the mode parameter */
-
-  errcode = posix_spawn_file_actions_adddup2(&file_actions,
-                                             newfd[0], oldfd[0]);
-  if (errcode != 0)
-    {
-      goto errout_with_actions;
-    }
-
-  if (rw)
-    {
-      errcode = posix_spawn_file_actions_adddup2(&file_actions,
-                                                 newfd[1], oldfd[1]);
-      if (errcode != 0)
-        {
-          goto errout_with_actions;
-        }
-    }
-
-  /* Call task_spawn() (or posix_spawn), re-directing stdin or stdout
-   * appropriately.
-   */
-
-  argv[1] = "-c";
-  argv[2] = (FAR char *)command;
-  argv[3] = NULL;
-
-#ifdef CONFIG_SYSTEM_POPEN_SHPATH
-  argv[0] = CONFIG_SYSTEM_POPEN_SHPATH;
-  errcode = posix_spawn(&container->shell, argv[0], &file_actions,
-                        &attr, argv, NULL);
-#else
-  container->shell = task_spawn("popen", nsh_system, &file_actions,
-                                &attr, argv + 1, NULL);
-  if (container->shell < 0)
-    {
-      errcode = -container->shell;
-    }
-#endif
-
-  if (errcode != 0)
-    {
-      serr("ERROR: Spawn failed: %d\n", errcode);
-      goto errout_with_actions;
-    }
-
-  /* We can close the 'newfd' now.  It is no longer useful on this side of
-   * the interface.
-   */
-
-  close(newfd[0]);
-
-  if (rw && newfd[0] != newfd[1])
-    {
-      close(newfd[1]);
-    }
-
-  /* Free attributes and file actions.  Ignoring return values in the case
-   * of an error.
-   */
-
-  posix_spawn_file_actions_destroy(&file_actions);
-  posix_spawnattr_destroy(&attr);
-
-  if (strchr(mode, 'e') == NULL)
-    {
-      ioctl(retfd, FIOCLEX, 0);
-    }
-
-  /* Finale and return input input/output stream */
 
   memcpy(&container->copy, container->original, sizeof(FILE));
   return &container->copy;
-
-errout_with_actions:
-  posix_spawn_file_actions_destroy(&file_actions);
-
-errout_with_attrs:
-  posix_spawnattr_destroy(&attr);
-
-errout_with_stream:
-  fclose(container->original);
-
-errout_with_pipe:
-  close(fd[0]);
-  close(fd[1]);
-
-errout_with_container:
-  free(container);
-
-errout:
-  errno = errcode;
-  return NULL;
 }
 
 /****************************************************************************
@@ -388,12 +189,12 @@ errout:
  *   If the argument stream to pclose() is not a pointer to a stream created
  *   by popen(), the result of pclose() is undefined.
  *
- * Description:
+ * Input Parameters:
  *   stream - The stream reference returned by a previous call to popen()
  *
  * Returned Value:
- *   Zero (OK) is returned on success; otherwise -1 (ERROR) is returned and
- *   the errno variable is set appropriately.
+ *   The child termination status on success, or -1 (ERROR) on failure
+ *   with errno set.
  *
  ****************************************************************************/
 
@@ -402,12 +203,7 @@ int pclose(FILE *stream)
   FAR struct popen_file_s *container = (FAR struct popen_file_s *)stream;
   FILE *original;
   pid_t shell;
-#ifdef CONFIG_SCHED_WAITPID
-  int status;
-  int result;
-#endif
 
-  DEBUGASSERT(container != NULL && container->original != NULL);
   original = container->original;
 
   /* Set the state of the original file descriptor to the state of the
@@ -417,7 +213,7 @@ int pclose(FILE *stream)
   memcpy(original, &container->copy, sizeof(FILE));
 
   /* Then close the original and free the container (saving the PID of the
-   * shell process)
+   * shell process).  Pass -1 to dpclose since fclose already closed the fd.
    */
 
   fclose(original);
@@ -425,19 +221,5 @@ int pclose(FILE *stream)
   shell = container->shell;
   free(container);
 
-#ifdef CONFIG_SCHED_WAITPID
-  /* Wait for the shell to exit, retrieving the return value if available. */
-
-  result = waitpid(shell, &status, 0);
-  if (result < 0)
-    {
-      /* The errno has already been set */
-
-      return ERROR;
-    }
-
-  return status;
-#else
-  return OK;
-#endif
+  return dpclose(-1, shell);
 }
