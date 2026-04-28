@@ -56,6 +56,16 @@ config GRAPHICS_INPUT_TOOL_PRIORITY
 	---help---
 		The priority of the input task.
 
+config GRAPHICS_INPUT_TOOL_SCROLL_THRESHOLD
+	int "Scroll activation threshold"
+	default 10
+	range 0 32766
+	depends on INPUT_MOUSE_WHEEL
+	---help---
+		The threshold value that must be exceeded to begin scrolling.
+		This should match the scroll activation threshold used by
+		the application receiving the generated events.
+
 endif # GRAPHICS_INPUT_TOOL
 
 menuconfig GRAPHICS_INPUT_GETEVENT

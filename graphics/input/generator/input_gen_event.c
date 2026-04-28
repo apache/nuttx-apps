@@ -492,7 +492,7 @@ out:
  * Name: input_gen_mouse_wheel
  *
  * Description:
- *   Perform a mouse wheel operation.
+ *   Perform a single mouse wheel write operation.
  *
  * Input Parameters:
  *   ctx   - The input generator context.
@@ -516,6 +516,80 @@ int input_gen_mouse_wheel(input_gen_ctx_t ctx, int16_t wheel)
     }
 
   return input_gen_umouse_write(dev->fd, wheel);
+}
+
+/****************************************************************************
+ * Name: input_gen_scroll
+ *
+ * Description:
+ *   Perform a scroll operation by splitting total value into multiple
+ *   writes with timing control.
+ *
+ * Input Parameters:
+ *   ctx         - The input generator context.
+ *   value       - Total scroll value (positive/negative for direction).
+ *                 Zero sends no reports.
+ *   step        - Positive number of units per write.
+ *                 If step >= |value|, writes once with full value.
+ *   interval_ms - Delay in milliseconds between each write.
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success.  On failure, a negated errno value is
+ *   returned.
+ *
+ ****************************************************************************/
+
+int input_gen_scroll(input_gen_ctx_t ctx, int16_t value,
+                     int16_t step, uint32_t interval_ms)
+{
+  FAR struct input_gen_dev_s *dev;
+  int16_t sign;
+  int32_t remaining;
+  int16_t chunk;
+  int     ret;
+
+  if (step <= 0)
+    {
+      return -EINVAL;
+    }
+
+  if (value == 0)
+    {
+      return 0;
+    }
+
+  dev = input_gen_search_dev(ctx, INPUT_GEN_DEV_UMOUSE);
+  if (dev == NULL)
+    {
+      return -ENODEV;
+    }
+
+  sign = value > 0 ? 1 : -1;
+  remaining = value > 0 ? (int32_t)value : -(int32_t)value;
+
+  input_gen_grab(dev);
+
+  while (remaining > 0)
+    {
+      chunk = remaining >= step ? step : (int16_t)remaining;
+      ret = input_gen_umouse_write(dev->fd, sign * chunk);
+      if (ret < 0)
+        {
+          goto out;
+        }
+
+      remaining -= chunk;
+      if (remaining > 0 && interval_ms > 0)
+        {
+          usleep(interval_ms * 1000);
+        }
+    }
+
+  ret = 0;
+
+out:
+  input_gen_ungrab(dev);
+  return ret;
 }
 #endif
 
