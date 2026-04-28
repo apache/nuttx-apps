@@ -7,7 +7,7 @@ config SYSTEM_POPEN
 	bool "popen()/pclose()/dpopen()/dpclose() Functions"
 	default n
 	select SCHED_WAITPID
-	depends on NSH_LIBRARY && PIPES
+	depends on PIPES
 	---help---
 		Enable support for the popen(), pclose(), dpopen(), and
 		dpclose() interfaces.
@@ -20,16 +20,20 @@ config SYSTEM_POPEN
 		popen()/pclose() are thin wrappers around dpopen()/dpclose()
 		that additionally wrap the fd in a FILE stream.
 
-		Commands are executed through the NSH shell (sh -c command),
-		supporting full shell syntax including pipes, redirects,
-		and globbing.
+		When NSH is available (NSH_LIBRARY), commands are executed
+		through the shell (sh -c command), supporting full shell
+		syntax including pipes, redirects, and globbing.
+
+		When NSH is not available, commands are executed directly
+		via posix_spawnp(). The command string must be a simple
+		"program arg1 arg2" form without shell syntax.
 
 if SYSTEM_POPEN
 
 config SYSTEM_POPEN_SHPATH
 	string "Path to shell command"
 	default "/bin/sh"
-	depends on SYSTEM_NSH=m || BUILD_KERNEL
+	depends on (SYSTEM_NSH=m || BUILD_KERNEL) && NSH_LIBRARY
 	---help---
 		This is the full path to the program in a mounted file system that
 		implements the system() command.  That is, a program that starts the
@@ -52,5 +56,18 @@ config SYSTEM_POPEN_PRIORITY
 	default 100
 	---help---
 		The priority of the shell.
+
+config SYSTEM_POPEN_MAXARGUMENTS
+	int "Maximum number of command arguments (no-shell mode)"
+	default 7
+	depends on !NSH_LIBRARY
+	---help---
+		When NSH is not available, dpopen()/popen() splits the command
+		string by whitespace into an argv array.  This sets the maximum
+		number of arguments (excluding the program name and the
+		terminating NULL).
+
+		This is analogous to CONFIG_NSH_MAXARGUMENTS but applies
+		only to the no-shell path.
 
 endif

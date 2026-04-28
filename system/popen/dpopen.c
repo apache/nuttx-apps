@@ -27,6 +27,7 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <string.h>
 #include <sched.h>
 #include <spawn.h>
 #include <debug.h>
@@ -37,7 +38,17 @@
 #  include <sys/socket.h>
 #endif
 
-#include "nshlib/nshlib.h"
+#ifdef CONFIG_NSH_LIBRARY
+#  include "nshlib/nshlib.h"
+#endif
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_LIBRARY
+#  define DPOPEN_MAX_ARGV (CONFIG_SYSTEM_POPEN_MAXARGUMENTS + 1)
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -58,6 +69,10 @@
  *   When NSH is available, commands are executed through the shell
  *   (sh -c command), supporting full shell syntax.
  *
+ *   When NSH is not available, the command is split by whitespace and
+ *   executed directly via posix_spawnp().  Shell syntax (pipes, redirects,
+ *   globbing) is not supported in this mode.
+ *
  * Input Parameters:
  *   command - The command string to execute
  *   oflag   - O_RDONLY to read child stdout, O_WRONLY to write child stdin,
@@ -74,7 +89,14 @@ int dpopen(FAR const char *command, int oflag, FAR pid_t *pid)
   struct sched_param param;
   posix_spawnattr_t attr;
   posix_spawn_file_actions_t file_actions;
+#ifdef CONFIG_NSH_LIBRARY
   FAR char *argv[4];
+#else
+  char cmdbuf[PATH_MAX];
+  FAR char *argv[DPOPEN_MAX_ARGV];
+  FAR char *saveptr;
+  int argc = 0;
+#endif
   int fd[2];
   int childfd;
   int parentfd;
@@ -224,21 +246,52 @@ int dpopen(FAR const char *command, int oflag, FAR pid_t *pid)
    * appropriately.
    */
 
+#ifdef CONFIG_NSH_LIBRARY
+  /* Shell mode: execute command through sh -c */
+
   argv[1] = "-c";
   argv[2] = (FAR char *)command;
   argv[3] = NULL;
 
-#ifdef CONFIG_SYSTEM_POPEN_SHPATH
+#  ifdef CONFIG_SYSTEM_POPEN_SHPATH
   argv[0] = CONFIG_SYSTEM_POPEN_SHPATH;
   errcode = posix_spawn(pid, argv[0], &file_actions,
                         &attr, argv, NULL);
-#else
+#  else
   *pid = task_spawn("dpopen", nsh_system, &file_actions,
                     &attr, argv + 1, NULL);
   if (*pid < 0)
     {
       errcode = -*pid;
     }
+#  endif
+#else
+  /* No-shell mode: split command and execute directly via posix_spawnp.
+   * The command must be in "program arg1 arg2" form -- no shell syntax.
+   */
+
+  if (strlcpy(cmdbuf, command, sizeof(cmdbuf)) >= sizeof(cmdbuf))
+    {
+      errcode = ENAMETOOLONG;
+      goto errout_with_actions;
+    }
+
+  do
+    {
+      argv[argc] = strtok_r(argc ? NULL : cmdbuf, " \t", &saveptr);
+    }
+  while (argv[argc] != NULL && ++argc < DPOPEN_MAX_ARGV - 1);
+
+  argv[argc] = NULL;
+
+  if (argc == 0)
+    {
+      errcode = EINVAL;
+      goto errout_with_actions;
+    }
+
+  errcode = posix_spawnp(pid, argv[0], &file_actions,
+                         &attr, argv, NULL);
 #endif
 
   if (errcode != 0)
