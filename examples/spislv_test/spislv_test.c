@@ -40,7 +40,7 @@
 /* Define buffer sizes */
 #define RX_BUFFER_SIZE 64
 #define TX_BUFFER_SIZE 64
-#define SOURCE_FILE "dev/spislv2" /* SPI device path */
+#define DEFAULT_SPI_PATH CONFIG_EXAMPLES_SPISLV_DEFAULT_PATH
 
 /* Enumeration for operation modes */
 
@@ -61,12 +61,40 @@ typedef struct
   operation_mode_t mode;
   int num_bytes;            /* Applicable for write mode */
   int timeout_seconds;      /* Applicable for all modes */
+  const char *spi_path;     /* SPI slave device path */
   unsigned char tx_buffer[TX_BUFFER_SIZE];
 } program_config_t;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static void print_usage(const char *progname)
+{
+  fprintf(stderr, "Usage:\n");
+  fprintf(stderr, "  %s -x <num_bytes> [-p <path>] [-t <sec>] <hex_bytes>\n",
+          progname);
+  fprintf(stderr, "  %s -l [-p <path>] [-t <sec>]\n", progname);
+  fprintf(stderr, "  %s -e [-p <path>] [-t <sec>]\n", progname);
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "  -p  SPI slave device path  [default: %s]\n",
+          DEFAULT_SPI_PATH);
+  fprintf(stderr,
+          "  -t  Timeout in seconds  [default: 10]\n");
+  fprintf(stderr,
+          "  -x  Number of bytes to queue <hex_bytes>\n");
+  fprintf(stderr,
+          "  -l  Only listen for data from the master\n");
+  fprintf(stderr,
+          "  -e  Echo received data back to the master\n");
+  fprintf(stderr, "\n");
+  fprintf(stderr, "Examples:\n");
+  fprintf(stderr, "  %s -x 2 abba\n", progname);
+  fprintf(stderr, "  %s -l -t 5\n", progname);
+  fprintf(stderr, "  %s -e -t 10\n", progname);
+  fprintf(stderr, "  %s -p /dev/spislv2 -l\n", progname);
+}
 
 /**
  * @brief Converts a single hexadecimal character to its byte value.
@@ -148,13 +176,25 @@ static int parse_arguments(int argc, char *argv[],
   config->mode           = MODE_INVALID;
   config->num_bytes      = 0;
   config->timeout_seconds = 10; /* Default timeout */
+  config->spi_path       = DEFAULT_SPI_PATH;
 
   /* Parse command-line options */
 
-  while ((opt = getopt(argc, argv, "x:t:le")) != -1)
+  while ((opt = getopt(argc, argv, "p:x:t:le")) != -1)
     {
       switch (opt)
         {
+          case 'p':
+            if (optarg[0] == '\0')
+              {
+                fprintf(stderr,
+                        "Error: SPI device path (-p) must not be empty.\n");
+                return -1;
+              }
+
+            config->spi_path = optarg;
+            break;
+
           case 'x':
             if (config->mode != MODE_INVALID)
               {
@@ -208,18 +248,7 @@ static int parse_arguments(int argc, char *argv[],
             break;
 
           default:
-            fprintf(stderr, "Usage:\n");
-            fprintf(stderr,
-        "  %s -x <num_bytes> [-t <timeout_seconds>] <hex_bytes>\n",
-                    argv[0]);
-            fprintf(stderr,
-                    "  %s -l [-t <timeout_seconds>]\n", argv[0]);
-            fprintf(stderr,
-                    "  %s -e [-t <timeout_seconds>]\n", argv[0]);
-            printf("Examples:\n");
-            printf("  spislv -x 2 abba\n");
-            printf("  spislv -l -t 5\n");
-            printf("  spislv -e -t 10\n\n");
+            print_usage(argv[0]);
             return -1;
         }
     }
@@ -232,9 +261,7 @@ static int parse_arguments(int argc, char *argv[],
         {
           fprintf(stderr,
                   "Error: Missing hexadecimal bytes to send.\n");
-          fprintf(stderr,
-        "Usage: %s -x <num_bytes> [-t <timeout_seconds>] <hex_bytes>\n",
-                  argv[0]);
+          print_usage(argv[0]);
           return -1;
         }
 
@@ -265,18 +292,7 @@ static int parse_arguments(int argc, char *argv[],
   else if (config->mode == MODE_INVALID)
     {
       fprintf(stderr, "Error: No operation mode specified.\n");
-      fprintf(stderr, "Usage:\n");
-      fprintf(stderr,
-        "  %s -x <num_bytes> [-t <timeout_seconds>] <hex_bytes>\n",
-              argv[0]);
-      fprintf(stderr,
-              "  %s -l [-t <timeout_seconds>]\n", argv[0]);
-      fprintf(stderr,
-              "  %s -e [-t <timeout_seconds>]\n", argv[0]);
-      printf("Examples:\n");
-      printf("  spislv -x 2 abba\n");
-      printf("  spislv -l -t 5\n");
-      printf("  spislv -e -t 10\n");
+      print_usage(argv[0]);
       return -1;
     }
 
@@ -320,7 +336,7 @@ static int write_mode(program_config_t *config, int fd)
   if (bytes_written < 0)
     {
       fprintf(stderr, "Error: Failed to write to %s: %s\n",
-              SOURCE_FILE, strerror(errno));
+              config->spi_path, strerror(errno));
       return -1;
     }
 
@@ -426,7 +442,7 @@ static int read_with_timeout(program_config_t *config, int fd)
           if (bytes_read < 0)
             {
               fprintf(stderr, "Error: Failed to read from %s: %s\n",
-                      SOURCE_FILE, strerror(errno));
+                      config->spi_path, strerror(errno));
               return -1;
             }
 
@@ -453,7 +469,7 @@ static int read_with_timeout(program_config_t *config, int fd)
                     {
                       fprintf(stderr,
                               "Error: Failed to write to %s: %s\n",
-                              SOURCE_FILE, strerror(errno));
+                              config->spi_path, strerror(errno));
                       return -1;
                     }
                   else if (bytes_written != bytes_read)
@@ -503,11 +519,11 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-  fd = open(SOURCE_FILE, O_RDWR);
+  fd = open(config.spi_path, O_RDWR);
   if (fd < 0)
     {
       fprintf(stderr, "Error: Failed to open %s: %s\n",
-              SOURCE_FILE, strerror(errno));
+              config.spi_path, strerror(errno));
       return -1;
     }
 
