@@ -27,7 +27,11 @@
 #include <nuttx/config.h>
 #include <nuttx/video/video.h>
 
+#include <inttypes.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/video_controls.h>
+#include <sys/videoio.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,6 +78,9 @@ static int nxcamera_cmd_stream(FAR struct nxcamera_s *pcam, FAR char *parg);
 static int nxcamera_cmd_input(FAR struct nxcamera_s *pcam, FAR char *parg);
 static int nxcamera_cmd_output(FAR struct nxcamera_s *pcam, FAR char *parg);
 static int nxcamera_cmd_stop(FAR struct nxcamera_s *pcam, FAR char *parg);
+static int nxcamera_cmd_set(FAR struct nxcamera_s *pcam, FAR char *parg);
+static int nxcamera_cmd_get(FAR struct nxcamera_s *pcam, FAR char *parg);
+static int nxcamera_cmd_query(FAR struct nxcamera_s *pcam, FAR char *parg);
 #ifdef CONFIG_NXCAMERA_INCLUDE_HELP
 static int nxcamera_cmd_help(FAR struct nxcamera_s *pcam, FAR char *parg);
 #endif
@@ -81,6 +88,31 @@ static int nxcamera_cmd_help(FAR struct nxcamera_s *pcam, FAR char *parg);
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+/* Control name to V4L2 CID mapping */
+
+struct nxcamera_ctrl_name_s
+{
+  FAR const char *name;
+  uint16_t        id;
+};
+
+static const struct nxcamera_ctrl_name_s g_ctrl_names[] =
+{
+  { "brightness",    V4L2_CID_BRIGHTNESS },
+  { "contrast",      V4L2_CID_CONTRAST },
+  { "saturation",    V4L2_CID_SATURATION },
+  { "hue",           V4L2_CID_HUE },
+  { "awb",           V4L2_CID_AUTO_WHITE_BALANCE },
+  { "gamma",         V4L2_CID_GAMMA },
+  { "sharpness",     V4L2_CID_SHARPNESS },
+  { "exposure_auto", V4L2_CID_EXPOSURE_AUTO },
+  { "exposure",      V4L2_CID_EXPOSURE_ABSOLUTE },
+  { "focus",         V4L2_CID_FOCUS_ABSOLUTE },
+  { "focus_auto",    V4L2_CID_FOCUS_AUTO },
+  { "zoom",          V4L2_CID_ZOOM_ABSOLUTE },
+  { NULL,            0 },
+};
 
 static const struct nxcamera_cmd_s g_nxcamera_cmds[] =
 {
@@ -95,6 +127,24 @@ static const struct nxcamera_cmd_s g_nxcamera_cmds[] =
     "fbdev|filename",
     nxcamera_cmd_output,
     NXCAMERA_HELP_TEXT("Specify a display device or filename")
+  },
+  {
+    "set",
+    "name value",
+    nxcamera_cmd_set,
+    NXCAMERA_HELP_TEXT("Set a camera control value")
+  },
+  {
+    "get",
+    "name",
+    nxcamera_cmd_get,
+    NXCAMERA_HELP_TEXT("Get a camera control value")
+  },
+  {
+    "query",
+    "name",
+    nxcamera_cmd_query,
+    NXCAMERA_HELP_TEXT("Query camera control range")
   },
 #ifdef CONFIG_NXCAMERA_INCLUDE_HELP
   {
@@ -311,6 +361,148 @@ static int nxcamera_cmd_output(FAR struct nxcamera_s *pcam, FAR char *parg)
     }
 
   /* Output device or file set successfully */
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxcamera_find_ctrl_id
+ *
+ *   Look up a V4L2 control ID by name.
+ *
+ ****************************************************************************/
+
+static int nxcamera_find_ctrl_id(FAR const char *name, FAR uint16_t *id)
+{
+  int i;
+
+  for (i = 0; g_ctrl_names[i].name != NULL; i++)
+    {
+      if (strcmp(name, g_ctrl_names[i].name) == 0)
+        {
+          *id = g_ctrl_names[i].id;
+          return OK;
+        }
+    }
+
+  return -EINVAL;
+}
+
+/****************************************************************************
+ * Name: nxcamera_cmd_set
+ *
+ *   nxcamera_cmd_set() sets a camera control value.
+ *   Usage: set <name> <value>
+ *
+ ****************************************************************************/
+
+static int nxcamera_cmd_set(FAR struct nxcamera_s *pcam, FAR char *parg)
+{
+  struct v4l2_control ctrl;
+  char                name[32];
+  int                 ret;
+
+  if (!parg || sscanf(parg, "%31s %" SCNd32, name, &ctrl.value) < 2)
+    {
+      printf("Usage: set <name> <value>\n");
+      return -EINVAL;
+    }
+
+  ret = nxcamera_find_ctrl_id(name, &ctrl.id);
+  if (ret < 0)
+    {
+      printf("Unknown control: %s\n", name);
+      return ret;
+    }
+
+  ret = nxcamera_ioctl(pcam, VIDIOC_S_CTRL, (unsigned long)&ctrl);
+  if (ret < 0)
+    {
+      printf("VIDIOC_S_CTRL failed: %d\n", -ret);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxcamera_cmd_get
+ *
+ *   nxcamera_cmd_get() gets a camera control value.
+ *   Usage: get <name>
+ *
+ ****************************************************************************/
+
+static int nxcamera_cmd_get(FAR struct nxcamera_s *pcam, FAR char *parg)
+{
+  struct v4l2_control ctrl;
+  char                name[32];
+  int                 ret;
+
+  if (!parg || sscanf(parg, "%31s", name) < 1)
+    {
+      printf("Usage: get <name>\n");
+      return -EINVAL;
+    }
+
+  ret = nxcamera_find_ctrl_id(name, &ctrl.id);
+  if (ret < 0)
+    {
+      printf("Unknown control: %s\n", name);
+      return ret;
+    }
+
+  ret = nxcamera_ioctl(pcam, VIDIOC_G_CTRL, (unsigned long)&ctrl);
+  if (ret < 0)
+    {
+      printf("VIDIOC_G_CTRL failed: %d\n", -ret);
+    }
+  else
+    {
+      printf("%s = %" PRId32 "\n", name, ctrl.value);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxcamera_cmd_query
+ *
+ *   nxcamera_cmd_query() queries camera control range info.
+ *   Usage: query <name>
+ *
+ ****************************************************************************/
+
+static int nxcamera_cmd_query(FAR struct nxcamera_s *pcam, FAR char *parg)
+{
+  struct v4l2_queryctrl qctrl;
+  char                  name[32];
+  int                   ret;
+
+  if (!parg || sscanf(parg, "%31s", name) < 1)
+    {
+      printf("Usage: query <name>\n");
+      return -EINVAL;
+    }
+
+  ret = nxcamera_find_ctrl_id(name, &qctrl.id);
+  if (ret < 0)
+    {
+      printf("Unknown control: %s\n", name);
+      return ret;
+    }
+
+  ret = nxcamera_ioctl(pcam, VIDIOC_QUERYCTRL, (unsigned long)&qctrl);
+  if (ret < 0)
+    {
+      printf("VIDIOC_QUERYCTRL failed: %d\n", -ret);
+    }
+  else
+    {
+      printf("%s: min=%" PRId32 " max=%" PRId32
+             " step=%" PRIu32 " default=%" PRId32 "\n",
+             name, qctrl.minimum, qctrl.maximum,
+             qctrl.step, qctrl.default_value);
+    }
 
   return ret;
 }

@@ -242,6 +242,24 @@ int nxcamera_setfb(FAR struct nxcamera_s *pcam, FAR const char *device);
 int nxcamera_setfile(FAR struct nxcamera_s *pcam, FAR const char *pfile,
                      bool isimage);
 
+/****************************************************************************
+ * Name: nxcamera_ioctl
+ *
+ *   Open the capture device, issue an ioctl, and close.
+ *
+ * Input Parameters:
+ *   pcam    - Pointer to the nxcamera context
+ *   request - ioctl request code
+ *   arg     - ioctl argument
+ *
+ * Returned Value:
+ *   OK on success, negated errno on failure.
+ *
+ ****************************************************************************/
+
+int nxcamera_ioctl(FAR struct nxcamera_s *pcam,
+                   int request, unsigned long arg);
+
 #ifdef __cplusplus
 }
 #endif
