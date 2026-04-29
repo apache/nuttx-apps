@@ -867,6 +867,46 @@ err_out:
 }
 
 /****************************************************************************
+ * Name: nxcamera_ioctl
+ *
+ *   Open the capture device, issue an ioctl, and close.
+ *
+ ****************************************************************************/
+
+int nxcamera_ioctl(FAR struct nxcamera_s *pcam,
+                   int request, unsigned long arg)
+{
+  bool opened = false;
+  int  ret;
+  int  fd;
+
+  fd = pcam->capture_fd;
+  if (fd < 0)
+    {
+      fd = open(pcam->capturedev, O_RDWR);
+      if (fd < 0)
+        {
+          return -errno;
+        }
+
+      opened = true;
+    }
+
+  ret = ioctl(fd, request, arg);
+  if (ret < 0)
+    {
+      ret = -errno;
+    }
+
+  if (opened)
+    {
+      close(fd);
+    }
+
+  return ret;
+}
+
+/****************************************************************************
  * Name: nxcamera_create
  *
  *   nxcamera_create() allocates and initializes a nxcamera context for
