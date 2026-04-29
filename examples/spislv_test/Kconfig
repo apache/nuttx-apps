@@ -12,6 +12,12 @@ config EXAMPLES_SPISLV
 
 if EXAMPLES_SPISLV
 
+config EXAMPLES_SPISLV_DEFAULT_PATH
+	string "Default SPI Slave device path"
+	default "/dev/spislv0"
+	---help---
+		Default path for SPI Slave device
+
 config EXAMPLES_SPISLV_PROGNAME
 	string "Program name"
 	default "spislv"
