@@ -203,11 +203,7 @@ endif
 endif
 
 ifeq ($(CONFIG_BUILD_FLAT),y)
-CSRCS += wdog.c spinlock.c
-
-ifeq ($(CONFIG_HRTIMER),y)
-CSRCS += hrtimer.c
-endif
+CSRCS += wdog.c spinlock.c hrtimer.c
 endif
 
 include $(APPDIR)/Application.mk
