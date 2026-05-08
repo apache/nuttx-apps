@@ -353,7 +353,7 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
 
 static void spinlock_test_thread_num(unsigned thread_num)
 {
-  aligned_data(64) union
+  union
     {
       spinlock_t  spinlock;
       rspinlock_t rspinlock;
