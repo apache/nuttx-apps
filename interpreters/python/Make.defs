@@ -27,6 +27,8 @@ CPYTHON_VERSION_MINOR=$(basename $(CPYTHON_VERSION))
 
 EXTRA_LIBPATHS += -L$(APPDIR)/interpreters/python/install/target
 EXTRA_LIBS += -lpython$(CPYTHON_VERSION_MINOR)
+EXTRA_LIBS += $(APPDIR)/interpreters/python/build/target/Modules/_hacl/libHacl_Hash_SHA2.a
+EXTRA_LIBS += $(APPDIR)/interpreters/python/build/target/Modules/expat/libexpat.a
 
 CONFIGURED_APPS += $(APPDIR)/interpreters/python
 endif

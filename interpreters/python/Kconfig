@@ -37,4 +37,21 @@ config INTERPRETERS_CPYTHON_PROGNAME
 	---help---
 		This is the name of the program that will be used from the nsh.
 
+config INTERPRETERS_CPYTHON_ENABLE_PIP
+	bool "Enable bundled pip"
+	default n
+	---help---
+		Enable bundling pip into the CPython module image. When enabled, the
+		build downloads the pip wheel and pre-installs it through a
+		site-packages .pth entry that points to ensurepip's bundled wheel.
+		Disable this to skip pip wheel download/integration entirely.
+
+
+config INTERPRETERS_CPYTHON_PYTHONPATH
+	string "CPython Python path"
+	default "/tmp"
+	---help---
+		This is the Python default search path for modules files. This is
+		required to be a writable path.
+
 endif
