@@ -71,7 +71,7 @@ struct spinlock_thread_args_s
   FAR struct spinlock_pub_args_s *pub; /* Pointer to shared arguments */
 };
 
-aligned_data(64) union spinlock_test_u
+union spinlock_test_u
 {
   spinlock_t  spinlock;
   rspinlock_t rspinlock;
