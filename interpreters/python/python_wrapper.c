@@ -198,5 +198,7 @@ int main(int argc, FAR char *argv[])
 
   setenv("PYTHON_BASIC_REPL", "1", 1);
 
+  setenv("PYTHONPATH", CONFIG_INTERPRETERS_CPYTHON_PYTHONPATH, 1);
+
   return py_bytesmain(argc, argv);
 }

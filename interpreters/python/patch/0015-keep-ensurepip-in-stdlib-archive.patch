@@ -1,0 +1,25 @@
+--- a/Tools/wasm/wasm_assets.py
++++ b/Tools/wasm/wasm_assets.py
+@@ -40,7 +40,6 @@ OMIT_FILES = (
+     # regression tests
+     "test/",
+     # package management
+-    "ensurepip/",
+     "venv/",
+     # other platforms
+     "_aix_support.py",
+@@ -148,6 +147,13 @@ def create_stdlib_zip(
+             if entry.name.endswith(".py") or entry.is_dir():
+                 # writepy() writes .pyc files (bytecode).
+                 pzf.writepy(entry, filterfunc=filterfunc)
++
++        # Preserve ensurepip wheel payloads so `python -m ensurepip` can
++        # bootstrap pip on targets that consume this stdlib zip archive.
++        bundled_wheels = args.srcdir_lib / "ensurepip" / "_bundled"
++        if bundled_wheels.is_dir():
++            for wheel in sorted(bundled_wheels.glob("*.whl")):
++                pzf.write(wheel, arcname=f"ensurepip/_bundled/{wheel.name}")
+ 
+ 
+ def detect_extension_modules(args: argparse.Namespace) -> Dict[str, bool]:
+
