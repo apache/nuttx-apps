@@ -31,32 +31,59 @@ if(CONFIG_GRAPHICS_LVGL)
       "${CONFIG_LVGL_VERSION_MAJOR}.${CONFIG_LVGL_VERSION_MINOR}.${CONFIG_LVGL_VERSION_PATCH}"
   )
 
-  if(NOT EXISTS ${LVGL_DIR})
-    set(LVGL_URL
-        "https://github.com/lvgl/lvgl/archive/refs/tags/v${LVGL_VERSION}.zip")
+  set(LVGL_STAMP ${LVGL_DIR}/.nuttx_patched-${LVGL_VERSION})
+  set(LVGL_FBDEV_PATCH
+      ${CMAKE_CURRENT_LIST_DIR}/0001-nuttx-fbdev-use-virtual-framebuffer-offset.patch
+  )
+
+  if(NOT EXISTS ${LVGL_DIR}/.git)
     if("${LVGL_VERSION}" STREQUAL "9.2.2")
-      set(LVGL_URL_HASH
-          URL_HASH
-          SHA256=b3d33f7aad1360f588762208d0f563574392debbc28d9187bda86012909f2203
-      )
+      set_property(
+        DIRECTORY
+        APPEND
+        PROPERTY CMAKE_CONFIGURE_DEPENDS ${LVGL_FBDEV_PATCH})
     endif()
-    FetchContent_Declare(
-      lvgl_fetch
-      URL ${LVGL_URL}
-          ${LVGL_URL_HASH}
-          DOWNLOAD_DIR
-          ${CMAKE_CURRENT_LIST_DIR}
-          SOURCE_DIR
-          ${CMAKE_CURRENT_LIST_DIR}/lvgl
-          BINARY_DIR
-          ${NUTTX_BINARY_DIR}/apps/graphics/lvgl/lvgl
-      DOWNLOAD_NO_PROGRESS true
-      TIMEOUT 120)
 
-    FetchContent_GetProperties(lvgl_fetch)
+    if(NOT EXISTS ${LVGL_STAMP}
+       OR ("${LVGL_VERSION}" STREQUAL "9.2.2" AND ${LVGL_FBDEV_PATCH}
+                                                  IS_NEWER_THAN ${LVGL_STAMP}))
+      # Reset download stamps so a failed patch retries from a fresh archive.
+      set(LVGL_SUBBUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/lvgl-subbuild)
+      file(REMOVE_RECURSE ${LVGL_SUBBUILD_DIR})
+      set(LVGL_URL
+          "https://github.com/lvgl/lvgl/archive/refs/tags/v${LVGL_VERSION}.zip")
+      set(LVGL_URL_HASH "")
+      set(LVGL_PATCH_COMMAND "")
+      if("${LVGL_VERSION}" STREQUAL "9.2.2")
+        set(LVGL_URL_HASH
+            URL_HASH
+            SHA256=b3d33f7aad1360f588762208d0f563574392debbc28d9187bda86012909f2203
+        )
+        set(LVGL_PATCH_COMMAND patch -s -N -p1 -d ${LVGL_DIR} -i
+                               ${LVGL_FBDEV_PATCH})
+      endif()
+      FetchContent_Declare(
+        lvgl_fetch
+        URL ${LVGL_URL}
+            ${LVGL_URL_HASH}
+            DOWNLOAD_DIR
+            ${CMAKE_CURRENT_LIST_DIR}
+            SOURCE_DIR
+            ${LVGL_DIR}
+            BINARY_DIR
+            ${NUTTX_BINARY_DIR}/apps/graphics/lvgl/lvgl
+            SUBBUILD_DIR
+            ${LVGL_SUBBUILD_DIR}
+        PATCH_COMMAND ${LVGL_PATCH_COMMAND}
+        DOWNLOAD_NO_PROGRESS true
+        TIMEOUT 120)
 
-    if(NOT lvgl_fetch_POPULATED)
-      FetchContent_Populate(lvgl_fetch)
+      FetchContent_GetProperties(lvgl_fetch)
+
+      if(NOT lvgl_fetch_POPULATED)
+        FetchContent_Populate(lvgl_fetch)
+      endif()
+      file(TOUCH ${LVGL_STAMP})
     endif()
   endif()
 
