@@ -124,9 +124,9 @@ static const struct nxcamera_cmd_s g_nxcamera_cmds[] =
   },
   {
     "output",
-    "fbdev|filename",
+    "fbdev|filename [nframes]",
     nxcamera_cmd_output,
-    NXCAMERA_HELP_TEXT("Specify a display device or filename")
+    NXCAMERA_HELP_TEXT("Specify output device or file (nframes=0 unlimited)")
   },
   {
     "set",
@@ -310,7 +310,13 @@ static int nxcamera_cmd_input(FAR struct nxcamera_s *pcam, FAR char *parg)
 /****************************************************************************
  * Name: nxcamera_cmd_output
  *
- *   nxcamera_cmd_device() sets the output device/file for display/save.
+ *   nxcamera_cmd_output() sets the output device/file for display/save.
+ *
+ *   Usage: output <path> [nframes]
+ *
+ *   - /dev/fbN          : display to framebuffer (default)
+ *   - file.jpg/.jpeg    : image mode, saves 1 frame (nframes ignored)
+ *   - file.mjpeg/.yuv/… : video mode, nframes (0/omitted=unlimited)
  *
  ****************************************************************************/
 
@@ -319,7 +325,18 @@ static int nxcamera_cmd_output(FAR struct nxcamera_s *pcam, FAR char *parg)
   int      ret;
   char     path[PATH_MAX];
   FAR char *ext;
+  FAR char *space;
   bool     isimage = false;
+
+  /* Parse optional frame count after the path */
+
+  pcam->max_frames = 0;
+  space = strchr(parg, ' ');
+  if (space)
+    {
+      *space = '\0';
+      pcam->max_frames = (uint32_t)atoi(space + 1);
+    }
 
   /* First try to open the device directly */
 
@@ -351,6 +368,13 @@ static int nxcamera_cmd_output(FAR struct nxcamera_s *pcam, FAR char *parg)
         }
 
       ret = nxcamera_setfile(pcam, parg, isimage);
+
+      /* Image files (.jpg/.jpeg) always save exactly 1 frame */
+
+      if (isimage)
+        {
+          pcam->max_frames = 1;
+        }
     }
 
   if (ret < 0)

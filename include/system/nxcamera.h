@@ -62,6 +62,7 @@ struct nxcamera_s
   struct fb_videoinfo_s display_vinfo;               /* Display video controller info */
   char                  videopath[CONFIG_NAME_MAX];  /* Output video file path */
   char                  imagepath[CONFIG_NAME_MAX];  /* Output image file path */
+  uint32_t              max_frames;                  /* Max frames to save (0=unlimited) */
   int                   crefs;                       /* Number of references */
   pthread_mutex_t       mutex;                       /* Thread sync mutex */
   char                  mqname[14];                  /* Name of display message queue */

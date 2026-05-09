@@ -272,7 +272,13 @@ static int nxcamera_opendevice(FAR struct nxcamera_s *pcam)
         }
       else
         {
-          /* TODO: Add file output */
+          /* File output mode: no display device needed */
+
+          if (pcam->videopath[0] != '\0' ||
+              pcam->imagepath[0] != '\0')
+            {
+              return OK;
+            }
 
           return -ENOTSUP;
         }
@@ -325,6 +331,7 @@ static void *nxcamera_loopthread(pthread_addr_t pvarg)
   ssize_t                 size;
   struct video_msg_s      msg;
   bool                    streaming = true;
+  int                     output_fd = -1;
   int                     i;
   int                     ret;
   struct v4l2_buffer      buf;
@@ -373,6 +380,22 @@ static void *nxcamera_loopthread(pthread_addr_t pvarg)
    *     VIDEO_MSG_DEQUEUE message.
    */
 
+  /* Open output file before the loop (video mode uses append) */
+
+  if (pcam->videopath[0] != '\0')
+    {
+      output_fd = open(pcam->videopath,
+                       O_WRONLY | O_CREAT | O_APPEND, 0644);
+    }
+  else if (pcam->imagepath[0] != '\0')
+    {
+      output_fd = open(pcam->imagepath,
+                       O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    }
+
+  vinfo("output_fd=%d videopath=%s imagepath=%s\n",
+        output_fd, pcam->videopath, pcam->imagepath);
+
   while (streaming)
     {
       size = mq_receive(pcam->mq, (FAR char *)&msg, sizeof(msg), &prio);
@@ -411,16 +434,55 @@ static void *nxcamera_loopthread(pthread_addr_t pvarg)
           goto err_out;
         }
 
-      ret = show_image(pcam, &buf);
-      if (ret < 0)
+      if (buf.index >= pcam->nbuffers)
         {
-          verr("Fail to show image %d\n", -ret);
+          verr("Invalid buf.index %d\n", buf.index);
           goto err_out;
         }
 
-      if (pcam->display_pinfo.yres_virtual > pcam->display_vinfo.yres)
+      /* Write frame to file if output file is configured */
+
+      if (output_fd >= 0)
         {
-          pan_display(pcam->display_fd, &pcam->display_pinfo);
+          uint32_t frame_size;
+
+          frame_size = buf.bytesused > 0 ?
+                       buf.bytesused : pcam->buf_sizes[buf.index];
+
+          ret = write(output_fd, pcam->bufs[buf.index], frame_size);
+          if (ret != frame_size)
+            {
+              verr("write failed: ret=%d frame_size=%" PRIu32
+                   " errno=%d\n", ret, frame_size, errno);
+            }
+
+          /* Stop after max_frames if specified (0=unlimited) */
+
+          if (pcam->max_frames > 0)
+            {
+              pcam->max_frames--;
+              if (pcam->max_frames == 0)
+                {
+                  streaming = false;
+                  continue;
+                }
+            }
+        }
+      else
+        {
+          ret = show_image(pcam, &buf);
+          if (ret < 0)
+            {
+              verr("Fail to show image %d\n", -ret);
+              goto err_out;
+            }
+
+          if (pcam->display_pinfo.yres_virtual >
+              pcam->display_vinfo.yres)
+            {
+              pan_display(pcam->display_fd,
+                          &pcam->display_pinfo);
+            }
         }
 
       ret = ioctl(pcam->capture_fd, VIDIOC_QBUF, (uintptr_t)&buf);
@@ -435,6 +497,13 @@ static void *nxcamera_loopthread(pthread_addr_t pvarg)
 
 err_out:
   vinfo("Clean-up and exit\n");
+
+  /* Close output file if open */
+
+  if (output_fd >= 0)
+    {
+      close(output_fd);
+    }
 
   /* Cleanup */
 
@@ -586,7 +655,7 @@ int nxcamera_setfile(FAR struct nxcamera_s *pcam, FAR const char *pfile,
 
   /* Try to open the file */
 
-  temp_fd = open(pfile, O_CREAT | O_RDWR, 0666);
+  temp_fd = open(pfile, O_CREAT | O_RDWR, 0644);
   if (temp_fd == -1)
     {
       /* Error opening the file */
