@@ -155,6 +155,7 @@ static void pan_display(FAR struct fb_state_s *state)
 {
   struct pollfd pfd;
   int ret;
+
   pfd.fd = state->fd;
   pfd.events = POLLOUT;
 
@@ -193,6 +194,7 @@ static int fbdev_get_pinfo(int fd, FAR struct fb_planeinfo_s *pinfo)
   if (ioctl(fd, FBIOGET_PLANEINFO, (unsigned long)((uintptr_t)pinfo)) < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
               errcode);
       return EXIT_FAILURE;
@@ -226,72 +228,51 @@ static int fbdev_get_pinfo(int fd, FAR struct fb_planeinfo_s *pinfo)
 
 static int fb_init_mem2(FAR struct fb_state_s *state)
 {
-  int ret;
-  uintptr_t buf_offset;
   struct fb_planeinfo_s pinfo;
-  FAR void *fbmem;
+  FAR void *mem2;
+  size_t framesize;
+  off_t offset;
+  int ret;
+
+  /* Get display[1] planeinfo */
 
   memset(&pinfo, 0, sizeof(pinfo));
   pinfo.display = state->pinfo.display + 1;
 
   if ((ret = fbdev_get_pinfo(state->fd, &pinfo)) < 0)
     {
-      return EXIT_FAILURE;
+      return ret;
     }
-
-  fbmem = mmap(NULL, pinfo.fblen, PROT_READ | PROT_WRITE,
-               MAP_SHARED | MAP_FILE, state->fd, 0);
-
-  if (fbmem == MAP_FAILED)
-    {
-      int errcode = errno;
-      fprintf(stderr, "ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n",
-              errcode);
-      return EXIT_FAILURE;
-    }
-
-  /* Check bpp */
 
   if (pinfo.bpp != state->pinfo.bpp)
     {
-      fprintf(stderr, "ERROR: fbmem2 is incorrect\n");
+      fprintf(stderr, "ERROR: fbmem2 bpp mismatch\n");
       return -EINVAL;
     }
 
-  /* Check the buffer address offset,
-   * It needs to be divisible by pinfo.stride
-   */
+  /* Use virtual offset = fblen = stride * yres */
 
-  buf_offset = fbmem - state->fbmem;
+  framesize = state->vinfo.yres * state->pinfo.stride;
+  offset = framesize;
+  state->mem2_yoffset = state->vinfo.yres;
 
-  if ((buf_offset % state->pinfo.stride) != 0)
+  mem2 = mmap(NULL, framesize,
+              PROT_READ | PROT_WRITE,
+              MAP_SHARED | MAP_FILE,
+              state->fd, offset);
+  if (mem2 == MAP_FAILED)
     {
-      fprintf(stderr, "ERROR: It is detected that buf_offset(%" PRIuPTR ") "
-              "and stride(%d) are not divisible, please ensure "
-              "that the driver handles the address offset by itself.\n",
-              buf_offset, state->pinfo.stride);
+      fprintf(stderr, "ERROR: mmap mem2 failed: %d\n", errno);
+      return -errno;
     }
 
-  /* Calculate the address and yoffset of fbmem2 */
-
-  if (buf_offset == 0)
-    {
-      /* Use consecutive fbmem2. */
-
-      state->mem2_yoffset = state->vinfo.yres;
-      state->fbmem2 = fbmem + state->mem2_yoffset * pinfo.stride;
-      printf("Use consecutive fbmem2 = %p, yoffset = %" PRIu32"\n",
-             state->fbmem2, state->mem2_yoffset);
-    }
-  else
-    {
-      /* Use non-consecutive fbmem2. */
-
-      state->mem2_yoffset = buf_offset / state->pinfo.stride;
-      state->fbmem2 = fbmem;
-      printf("Use non-consecutive fbmem2 = %p, yoffset = %" PRIu32"\n",
-             state->fbmem2, state->mem2_yoffset);
-    }
+  state->fbmem2 = mem2;
+  fprintf(stderr, "Mapped FB mem2: %p, yoffset: %" PRIu32
+          ", gap: %td (%s)\n",
+          state->fbmem2, state->mem2_yoffset,
+          (char *)mem2 - ((char *)state->fbmem + framesize),
+          ((char *)mem2 == (char *)state->fbmem + framesize) ?
+          "consecutive" : "non-consecutive");
 
   return 0;
 }
@@ -505,6 +486,7 @@ static void present_area(FAR struct fb_state_s *state,
 
   int yoffset = state->act_fbmem == state->fbmem ?
                 0 : state->mem2_yoffset;
+
   update.y += yoffset;
 
   ret = ioctl(state->fd, FBIO_UPDATE,
@@ -512,6 +494,7 @@ static void present_area(FAR struct fb_state_s *state,
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIO_UPDATE) failed: %d\n",
               errcode);
     }
@@ -587,10 +570,12 @@ int main(int argc, FAR char *argv[])
 
   /* Open the framebuffer driver */
 
+  memset(&state, 0, sizeof(state));
   state.fd = open(fbdev, O_RDWR);
   if (state.fd < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: Failed to open %s: %d\n", fbdev, errcode);
       return EXIT_FAILURE;
     }
@@ -602,6 +587,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIOGET_VIDEOINFO) failed: %d\n",
               errcode);
       close(state.fd);
@@ -623,6 +609,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIO_SELECT_OVERLAY) failed: %d\n",
               errcode);
       close(state.fd);
@@ -637,6 +624,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIOGET_OVERLAYINFO) failed: %d\n",
               errcode);
       close(state.fd);
@@ -665,6 +653,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIO_SELECT_OVERLAY) failed: %d\n",
               errcode);
       close(state.fd);
@@ -693,13 +682,14 @@ int main(int argc, FAR char *argv[])
   if (state.fbmem == MAP_FAILED)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: mmap() failed: %d\n",
               errcode);
       close(state.fd);
       return EXIT_FAILURE;
     }
 
-  printf("Mapped FB: %p\n", state.fbmem);
+  printf("Mapped FB mem: %p\n", state.fbmem);
 
   /* double buffer mode */
 
@@ -707,7 +697,9 @@ int main(int argc, FAR char *argv[])
     {
       if ((ret = fb_init_mem2(&state)) < 0)
         {
-          goto out;
+          munmap(state.fbmem, state.pinfo.fblen);
+          close(state.fd);
+          return ret;
         }
     }
 
@@ -774,8 +766,9 @@ int main(int argc, FAR char *argv[])
 
   printf("Test finished\n");
   ret = EXIT_SUCCESS;
-out:
+
   munmap(state.fbmem, state.pinfo.fblen);
+  munmap(state.fbmem2, state.pinfo.fblen);
   close(state.fd);
   return ret;
 
