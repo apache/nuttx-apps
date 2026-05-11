@@ -1,0 +1,21 @@
+config AUDIOUTILS_RTTTL_C
+	bool "RTTTL parsing library"
+	default n
+	---help---
+		Simple library for parsing Ring Tone Text Transfer Language (RTTTL)
+
+		Define how to make a sound:
+
+			void
+			play_tone(struct rtttl_tone tone)
+			{
+				/* TODO: Make a sound with
+				 * 	tone.frequency_100hz
+				 *	tone.period_us
+				 *	tone.duration_us
+				 */
+			}
+
+		and then play RTTTL string:
+
+			rtttl_play("...", play_tone);
