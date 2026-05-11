@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <sys/time.h>
 
@@ -149,8 +150,8 @@ int main(int argc, FAR char *argv[])
 
   parse_args(&delta, argc, argv);
 
-  printf("Delta time is %ld seconds and %ld micro seconds.\n",
-         (long)delta.tv_sec, delta.tv_usec);
+  printf("Delta time is %jd seconds and %ld micro seconds.\n",
+         (intmax_t)delta.tv_sec, delta.tv_usec);
 
   /* Call adjtime function. */
 
@@ -161,8 +162,8 @@ int main(int argc, FAR char *argv[])
     }
   else
     {
-      printf("Returned olddelta is %ld seconds and %ld micro seconds.\n",
-             (long)olddelta.tv_sec, olddelta.tv_usec);
+      printf("Returned olddelta is %jd seconds and %ld micro seconds.\n",
+             (intmax_t)olddelta.tv_sec, olddelta.tv_usec);
     }
 
   return ret;

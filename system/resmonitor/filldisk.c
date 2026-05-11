@@ -234,20 +234,20 @@ static void print_disk_info(struct statfs *diskinfo)
 {
   syslog(LOG_INFO, "\tfs block size : %zu\n", diskinfo->f_bsize);
   syslog(LOG_INFO,
-         "\tfs block nums : %" PRIu64 "\n",
-         (uint64_t)diskinfo->f_blocks);
+         "\tfs block nums : %ju\n",
+         (uintmax_t)diskinfo->f_blocks);
   syslog(LOG_INFO,
-         "\tfs free blocks : %" PRIu64 "\n",
-         (uint64_t)diskinfo->f_bfree);
+         "\tfs free blocks : %ju\n",
+         (uintmax_t)diskinfo->f_bfree);
   syslog(LOG_INFO,
-         "\tfs free blocks available : %" PRIu64 "\n",
-         (uint64_t)diskinfo->f_bavail);
+         "\tfs free blocks available : %ju\n",
+         (uintmax_t)diskinfo->f_bavail);
   syslog(LOG_INFO,
-         "\tfs total file nodes : %" PRIu64 "\n",
-         (uint64_t)diskinfo->f_files);
+         "\tfs total file nodes : %ju\n",
+         (uintmax_t)diskinfo->f_files);
   syslog(LOG_INFO,
-         "\tfs free file nodes : %" PRIu64 "\n",
-         (uint64_t)diskinfo->f_ffree);
+         "\tfs free file nodes : %ju\n",
+         (uintmax_t)diskinfo->f_ffree);
 }
 
 int main(int argc, FAR char *argv[])

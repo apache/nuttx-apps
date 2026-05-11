@@ -52,7 +52,7 @@ void test_nuttx_clock_test_smoke01(FAR void **state)
     0, 0
   };
 
-  struct timespec setts =
+  struct timespec tp =
   {
     0, 0
   };
@@ -79,30 +79,30 @@ void test_nuttx_clock_test_smoke01(FAR void **state)
 
   ret = clock_gettime(clk, &oldtp);
   syslog(LOG_INFO,
-         "the clock current time: %lld second, %ld nanosecond\n",
-         (long long)oldtp.tv_sec, oldtp.tv_nsec);
+         "the clock current time: %jd second, %ld nanosecond\n",
+         (intmax_t)oldtp.tv_sec, oldtp.tv_nsec);
   assert_int_equal(ret, 0);
 
   /* set clock realtime */
 
-  setts.tv_sec = oldtp.tv_sec + 1;
-  setts.tv_nsec = oldtp.tv_nsec;
+  tp.tv_sec = oldtp.tv_sec + 1;
+  tp.tv_nsec = oldtp.tv_nsec;
   syslog(LOG_INFO,
-         "the clock setting time: %lld second, %ld nanosecond\n",
-         (long long)setts.tv_sec, setts.tv_nsec);
-  ret = clock_settime(CLOCK_REALTIME, &setts);
+         "the clock setting time: %jd second, %ld nanosecond\n",
+         (intmax_t)tp.tv_sec, tp.tv_nsec);
+  ret = clock_settime(CLOCK_REALTIME, &tp);
   assert_int_equal(ret, 0);
 
   ret = clock_gettime(clk, &ts);
   syslog(LOG_INFO,
-         "obtaining the current time after setting: %lld second, %ld "
+         "obtaining the current time after setting: %jd second, %ld "
          "nanosecond\n",
-         (long long)ts.tv_sec, ts.tv_nsec);
+         (intmax_t)ts.tv_sec, ts.tv_nsec);
 
   passflag =
-      (ts.tv_sec >= setts.tv_sec) &&
+      (ts.tv_sec >= tp.tv_sec) &&
       (ts.tv_sec <=
-       setts.tv_sec + 1); /* 1, means obtaining time's errno is 1 second. */
+       tp.tv_sec + 1); /* 1, means obtaining time's errno is 1 second. */
   assert_int_equal(ret, 0);
   assert_int_equal(passflag, 1);
 }

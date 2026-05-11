@@ -308,8 +308,7 @@ int main(int argc, FAR char *argv[])
       /* Get current time to calculate the elapsed time */
 
       clock_gettime(CLOCK_REALTIME, &tnow);
-      current_time_ms = (uint64_t)((tnow.tv_sec * 1000)
-                                    + (tnow.tv_nsec / 1000000));
+      current_time_ms = (tnow.tv_sec * 1000) + (tnow.tv_nsec / 1000000);
     }
 
   /* Then stop pinging */
@@ -345,8 +344,7 @@ int main(int argc, FAR char *argv[])
       /* Get current time to calculate the elapsed time */
 
       clock_gettime(CLOCK_REALTIME, &tnow);
-      current_time_ms = (uint64_t)((tnow.tv_sec * 1000)
-                                    + (tnow.tv_nsec / 1000000));
+      current_time_ms = (tnow.tv_sec * 1000) + (tnow.tv_nsec / 1000000);
     }
 
   /* We should not get here */

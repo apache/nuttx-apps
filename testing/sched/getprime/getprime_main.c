@@ -217,8 +217,8 @@ int main(int argc, FAR char *argv[])
   get_prime_in_parallel(n);
   clock_gettime(CLOCK_REALTIME, &ts1);
 
-  elapsed  = (((uint64_t)ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec);
-  elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
+  elapsed  = (ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec;
+  elapsed -= (ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec;
   elapsed /= NSEC_PER_MSEC; /* msec */
 
   printf("%s took %" PRIu64 " msec\n", argv[0], elapsed);

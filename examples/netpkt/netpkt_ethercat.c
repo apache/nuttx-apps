@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -118,9 +119,9 @@ int main(int argc, FAR const char *argv[])
 
       len = recvfrom(sockfd, recvbuff, 100, 0, NULL, NULL);
       clock_gettime(CLOCK_REALTIME, &recv_time);
-      printf("Data recv: %d bytes, spent time %ld ns\n", len,
-              (recv_time.tv_sec - send_time.tv_sec) * NSEC_PER_SEC +
-              recv_time.tv_nsec - send_time.tv_nsec);
+      printf("Data recv: %d bytes, spent time %jd ns\n", len,
+             (intmax_t)(recv_time.tv_sec - send_time.tv_sec) *
+             NSEC_PER_SEC + recv_time.tv_nsec - send_time.tv_nsec);
       usleep(1000);
     }
 

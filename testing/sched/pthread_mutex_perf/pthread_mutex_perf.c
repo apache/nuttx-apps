@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <pthread.h>
 
@@ -63,7 +64,7 @@ static void timespec_add(struct timespec *total, const struct timespec *diff)
 static void timespec_avg(const struct timespec *total, int count,
                          struct timespec *avg)
 {
-  uint64_t total_ns = (uint64_t)total->tv_sec * 1000000000 + total->tv_nsec;
+  uint64_t total_ns = total->tv_sec * 1000000000 + total->tv_nsec;
   uint64_t avg_ns = total_ns / count;
 
   avg->tv_sec = avg_ns / 1000000000;
@@ -129,17 +130,17 @@ int main(int argc, char *argv[])
 
       timespec_avg(&total, j, &avg);
 
-      printf("%d: diff = %lu.%09lu s | avg = %lu.%09lu s\n", j,
-             (unsigned long)diff.tv_sec, (unsigned long)diff.tv_nsec,
-             (unsigned long)avg.tv_sec, (unsigned long)avg.tv_nsec);
+      printf("%d: diff = %jd.%09ld s | avg = %jd.%09ld s\n", j,
+             (intmax_t)diff.tv_sec, diff.tv_nsec,
+             (intmax_t)avg.tv_sec, avg.tv_nsec);
     }
 
   printf("\n===== result =====\n");
   printf("count: %d\n", loop_count);
-  printf("total: %lu.%09lu s\n", (unsigned long)total.tv_sec,
-         (unsigned long)total.tv_nsec);
-  printf("avg: %lu.%09lu s\n", (unsigned long)avg.tv_sec,
-         (unsigned long)avg.tv_nsec);
+  printf("total: %jd.%09ld s\n", (intmax_t)total.tv_sec,
+         total.tv_nsec);
+  printf("avg: %jd.%09ld s\n", (intmax_t)avg.tv_sec,
+         avg.tv_nsec);
 
   return 0;
 }

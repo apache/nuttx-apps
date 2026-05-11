@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,7 +121,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl,
 
   if (utc)
     {
-      if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+      if (gmtime_r(&ts.tv_sec, &tm) == NULL)
         {
           nsh_error(vtbl, g_fmtcmdfailed, name, "gmtime_r", NSH_ERRNO);
           return ERROR;
@@ -128,7 +129,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl,
     }
   else
     {
-      if (localtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+      if (localtime_r(&ts.tv_sec, &tm) == NULL)
         {
           nsh_error(vtbl, g_fmtcmdfailed, name, "localtime_r", NSH_ERRNO);
           return ERROR;
@@ -354,8 +355,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
             }
 
           diff.tv_nsec = end.tv_nsec - start.tv_nsec;
-          nsh_output(vtbl, "\n%lu.%04lu sec\n", (unsigned long)diff.tv_sec,
-                     (unsigned long)diff.tv_nsec / 100000);
+          nsh_output(vtbl, "\n%jd.%04ld sec\n", (intmax_t)diff.tv_sec,
+                     diff.tv_nsec / 100000);
         }
     }
 
@@ -489,7 +490,7 @@ int cmd_timedatectl(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           return ERROR;
         }
 
-      if (localtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+      if (localtime_r(&ts.tv_sec, &tm) == NULL)
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "localtime_r", NSH_ERRNO);
           return ERROR;
@@ -508,7 +509,7 @@ int cmd_timedatectl(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                  tm.tm_gmtoff);
       nsh_output(vtbl, "    Local time: %s %s\n", timbuf, tm.tm_zone);
 
-      if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) == NULL)
+      if (gmtime_r(&ts.tv_sec, &tm) == NULL)
         {
           nsh_error(vtbl, g_fmtcmdfailed, argv[0], "gmtime_r", NSH_ERRNO);
           return ERROR;

@@ -167,8 +167,8 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-  maxus = (uint64_t)ts.tv_sec * USEC_PER_SEC +
-          (uint64_t)ts.tv_nsec / NSEC_PER_USEC;
+  maxus = ts.tv_sec * USEC_PER_SEC +
+          ts.tv_nsec / NSEC_PER_USEC;
 
   printf("Maximum delay is %" PRIu64 "\n", maxus);
 
