@@ -146,7 +146,7 @@ static uint64_t get_timestamp(void)
   struct timespec ts;
   uint64_t ms;
   clock_gettime(CLOCK_MONOTONIC, &ts);
-  ms = (uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+  ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
   return ms;
 }
 

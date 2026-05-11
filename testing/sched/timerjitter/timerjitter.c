@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -213,8 +214,8 @@ static FAR void *timerjitter(FAR void *arg)
       diff = calc_diff(&now, &next);
       if (param->print)
         {
-          printf("diff %"PRId64", now %"PRId64".%09lu\n", diff, now.tv_sec,
-                  now.tv_nsec);
+          printf("diff %"PRId64", now %jd.%09ld\n", diff,
+                  (intmax_t)now.tv_sec, now.tv_nsec);
         }
 
       if (diff > param->max)

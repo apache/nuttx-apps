@@ -734,7 +734,7 @@ void CHexCalculator::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
               if (m_result)
                 {
-                  m_accum = (uint64_t)g_keyDesc[index].value;
+                  m_accum = g_keyDesc[index].value;
                 }
 
               // Otherwise, add the new value to the accumulator.  The way
@@ -743,12 +743,12 @@ void CHexCalculator::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               else if (m_hexMode)
                 {
                   m_accum <<= 4;
-                  m_accum |= (uint64_t)g_keyDesc[index].value;
+                  m_accum |= g_keyDesc[index].value;
                 }
               else
                 {
                   m_accum *= 10;
-                  m_accum += (uint64_t)g_keyDesc[index].value;
+                  m_accum += g_keyDesc[index].value;
                 }
               updateText();
             }

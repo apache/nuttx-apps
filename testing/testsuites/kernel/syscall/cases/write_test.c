@@ -79,8 +79,8 @@ void test_nuttx_syscall_write01(FAR void **state)
         {
           badcount++;
           syslog(LOG_INFO,
-                 "INFO, write() returned %" PRId64 ", expected %d\n",
-                 (int64_t)ret, i);
+                 "INFO, write() returned %zd, expected %d\n",
+                 ret, i);
         }
     }
 
@@ -160,8 +160,8 @@ void test_nuttx_syscall_write03(FAR void **state)
         {
           badcount++;
           syslog(LOG_INFO,
-                 "INFO, write() returned %" PRId64 ", expected %d\n",
-                 (int64_t)ret, i);
+                 "INFO, write() returned %zd, expected %d\n",
+                 ret, i);
         }
     }
 

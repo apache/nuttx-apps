@@ -231,8 +231,8 @@ int main(int argc, FAR char *argv[])
     }
 
   gettimeofday(&tv, NULL);
-  printf("%ju.%06ld: %d mV, %d mA\n",
-         (uintmax_t)tv.tv_sec, tv.tv_usec, voltage, current);
+  printf("%jd.%06ld: %d mV, %d mA\n",
+         (intmax_t)tv.tv_sec, tv.tv_usec, voltage, current);
 
   close(fd);
 

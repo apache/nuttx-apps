@@ -167,7 +167,7 @@ static void drivertest_oneshot(FAR void **state)
   ret = ioctl(fd, OSIOC_MAXDELAY, &ts);
   assert_return_code(ret, OK);
 
-  syslog(LOG_DEBUG, "maxdelay sec:%lld\n", (long long)ts.tv_sec);
+  syslog(LOG_DEBUG, "maxdelay sec:%jd\n", (intmax_t)ts.tv_sec);
   syslog(LOG_DEBUG, "maxdelay nsec:%ld\n", ts.tv_nsec);
 
   for (i = 0; i < ONESHOT_DEFAULT_NSAMPLES; i++)

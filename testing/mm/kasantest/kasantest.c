@@ -666,9 +666,9 @@ static int run_testcase(int argc, FAR char *argv[])
   clock_gettime(CLOCK_MONOTONIC, &end);
 
   timespec_sub(&result, &end, &start);
-  printf("%s spending %ld.%lds\n", run->testcase->name,
-                                   result.tv_sec,
-                                   result.tv_nsec);
+  printf("%s spending %jd.%09lds\n", run->testcase->name,
+                                     (intmax_t)result.tv_sec,
+                                     result.tv_nsec);
 
   return ret;
 }

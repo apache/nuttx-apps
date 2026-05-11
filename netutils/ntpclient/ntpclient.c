@@ -567,7 +567,7 @@ static int32_t ntp_nsecpart(int64_t time)
 {
   /* Get fraction part converted to nanoseconds. */
 
-  return (((int64_t)((uint64_t)time << 32) >> 32) * NSEC_PER_SEC) >> 32;
+  return (((time << 32) >> 32) * NSEC_PER_SEC) >> 32;
 }
 
 /****************************************************************************
@@ -589,7 +589,7 @@ static uint64_t timespec2ntp(FAR const struct timespec *ts)
 
   /* Set seconds part. */
 
-  ntp_time += (uint64_t)(ts->tv_sec) << 32;
+  ntp_time += ts->tv_sec << 32;
 
   return ntp_time;
 }
@@ -647,8 +647,8 @@ static void ntpc_calculate_offset(FAR int64_t *offset, FAR int64_t *delay,
    *      http://nicolas.aimon.fr/2014/12/05/timesync/
    */
 
-  *offset = (int64_t)((remote_recvtime / 2 - local_xmittime / 2) +
-                     (remote_xmittime / 2 - local_recvtime / 2));
+  *offset = (remote_recvtime / 2 - local_xmittime / 2) +
+            (remote_xmittime / 2 - local_recvtime / 2);
 
   /* Calculate roundtrip delay. */
 
@@ -707,13 +707,13 @@ static void ntpc_settime(int64_t offset, FAR struct timespec *start_realtime,
 
   diffms_real = curr_realtime.tv_sec - start_realtime->tv_sec;
   diffms_real *= 1000;
-  diffms_real += (int64_t)(curr_realtime.tv_nsec -
-                           start_realtime->tv_nsec) / (1000 * 1000);
+  diffms_real += (curr_realtime.tv_nsec -
+                  start_realtime->tv_nsec) / (1000 * 1000);
 
   diffms_mono = curr_monotonic.tv_sec - start_monotonic->tv_sec;
   diffms_mono *= 1000;
-  diffms_mono += (int64_t)(curr_monotonic.tv_nsec -
-                           start_monotonic->tv_nsec) / (1000 * 1000);
+  diffms_mono += (curr_monotonic.tv_nsec -
+                  start_monotonic->tv_nsec) / (1000 * 1000);
 
   /* Detect if real-time has been altered by other task. */
 
@@ -1489,14 +1489,14 @@ static int ntpc_daemon(int argc, FAR char **argv)
 
               if (offset1 > 0 && offset2 > 0)
                 {
-                  offset = ((uint64_t)offset1 + (uint64_t)offset2) / 2;
+                  offset = (offset1 + offset2) / 2;
                 }
               else if (offset1 < 0 && offset2 < 0)
                 {
                   offset1 = -offset1;
                   offset2 = -offset2;
 
-                  offset = ((uint64_t)offset1 + (uint64_t)offset2) / 2;
+                  offset = (offset1 + offset2) / 2;
 
                   offset = -offset;
                 }

@@ -61,8 +61,8 @@ void test_nuttx_clock_test_clock01(FAR void **state)
   /* get current real time */
 
   ret = clock_gettime(clk, &oldtp);
-  syslog(LOG_INFO, "The current real time: sec is %lld, nsec is %ld\n",
-         (long long)oldtp.tv_sec, oldtp.tv_nsec);
+  syslog(LOG_INFO, "The current real time: sec is %jd, nsec is %ld\n",
+         (intmax_t)oldtp.tv_sec, oldtp.tv_nsec);
   assert_int_equal(ret, 0);
 
   syslog(LOG_INFO, "sleep 2 seconds\n");
@@ -76,8 +76,8 @@ void test_nuttx_clock_test_clock01(FAR void **state)
   /* set real time */
 
   ret = clock_settime(clk, &tp);
-  syslog(LOG_INFO, "Setting time: sec is %lld, nsec is %ld\n",
-         (long long)tp.tv_sec, tp.tv_nsec);
+  syslog(LOG_INFO, "Setting time: sec is %jd, nsec is %ld\n",
+         (intmax_t)tp.tv_sec, tp.tv_nsec);
   assert_int_equal(ret, 0);
 
   syslog(LOG_INFO, "get real time clock again\n");
@@ -86,9 +86,9 @@ void test_nuttx_clock_test_clock01(FAR void **state)
 
   ret = clock_gettime(clk, &tp);
   syslog(LOG_INFO,
-         "Obtaining the current time after setting: sec = %lld, nsec = "
+         "Obtaining the current time after setting: sec = %jd, nsec = "
          "%ld\n",
-         (long long)tp.tv_sec, tp.tv_nsec);
+         (intmax_t)tp.tv_sec, tp.tv_nsec);
   passflag = (tp.tv_sec >= 2 + oldtp.tv_sec) &&
              (tp.tv_sec <=
               2 + oldtp.tv_sec + 1); /* 2, use for testing clock setting */

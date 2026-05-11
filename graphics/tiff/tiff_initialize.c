@@ -434,7 +434,7 @@ static int tiff_datetime(FAR char *timbuf, unsigned int buflen)
 
   /* Break the current time up into the format needed by strftime */
 
-  gmtime_r((FAR const time_t *)&ts.tv_sec, &tm);
+  gmtime_r(&ts.tv_sec, &tm);
 
   /* Convert the current time to TIFF format */
 

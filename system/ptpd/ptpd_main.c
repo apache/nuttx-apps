@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -97,7 +98,7 @@ static int do_ptpd_status(int pid)
   gmtime_r(&status.last_clock_update.tv_sec, &time_tm);
   strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &time_tm);
   printf("- last_clock_update: %s.%09ld\n",
-    buf, (long)status.last_clock_update.tv_nsec);
+    buf, status.last_clock_update.tv_nsec);
 
   printf("- last_delta_ns: %lld\n", (long long)status.last_delta_ns);
   printf("- last_adjtime_ns: %lld\n", (long long)status.last_adjtime_ns);
@@ -106,20 +107,20 @@ static int do_ptpd_status(int pid)
 
   clock_gettime(CLOCK_MONOTONIC, &time_now);
 
-  printf("- last_received_multicast: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_received_multicast.tv_sec));
-  printf("- last_received_announce: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_received_announce.tv_sec));
-  printf("- last_received_sync: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_received_sync.tv_sec));
-  printf("- last_transmitted_sync: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_transmitted_sync.tv_sec));
-  printf("- last_transmitted_announce: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_transmitted_announce.tv_sec));
-  printf("- last_transmitted_delayresp: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_transmitted_delayresp.tv_sec));
-  printf("- last_transmitted_delayreq: %d s ago\n",
-    (int)(time_now.tv_sec - status.last_transmitted_delayreq.tv_sec));
+  printf("- last_received_multicast: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_received_multicast.tv_sec));
+  printf("- last_received_announce: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_received_announce.tv_sec));
+  printf("- last_received_sync: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_received_sync.tv_sec));
+  printf("- last_transmitted_sync: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_transmitted_sync.tv_sec));
+  printf("- last_transmitted_announce: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_transmitted_announce.tv_sec));
+  printf("- last_transmitted_delayresp: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_transmitted_delayresp.tv_sec));
+  printf("- last_transmitted_delayreq: %jd s ago\n",
+    (intmax_t)(time_now.tv_sec - status.last_transmitted_delayreq.tv_sec));
 
   return EXIT_SUCCESS;
 }

@@ -508,8 +508,8 @@ int main(int argc, FAR char **argv)
 #ifdef CONFIG_SYSTEM_DD_STATS
   clock_gettime(CLOCK_MONOTONIC, &ts1);
 
-  elapsed  = (((uint64_t)ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec);
-  elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
+  elapsed  = (ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec;
+  elapsed -= (ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec;
   elapsed /= NSEC_PER_USEC; /* usec */
 
   fprintf(stderr, "%" PRIu64 " bytes (%" PRIu32 " blocks) copied, %u usec, ",

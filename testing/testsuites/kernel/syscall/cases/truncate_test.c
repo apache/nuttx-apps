@@ -140,8 +140,8 @@ void test_nuttx_syscall_truncate01(FAR void **state)
             {
               syslog(LOG_ERR,
                      "FAIL, %s: Incorrect file "
-                     "size %" PRId64 " , Expected %d\n",
-                     truncate01_fileneme, (int64_t)file_length,
+                     "size %jd, Expected %d\n",
+                     truncate01_fileneme, (intmax_t)file_length,
                      TRUNC_LEN);
               fail_msg("test fail !");
             }

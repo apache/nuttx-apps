@@ -29,6 +29,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
@@ -150,10 +151,10 @@ void semtimed_test(void)
         }
     }
 
-  printf("BEFORE: (%lu sec, %lu nsec)\n",
-          (unsigned long)before.tv_sec, (unsigned long)before.tv_nsec);
-  printf("AFTER:  (%lu sec, %lu nsec)\n",
-          (unsigned long)after.tv_sec, (unsigned long)after.tv_nsec);
+  printf("BEFORE: (%jd sec, %ld nsec)\n",
+          (intmax_t)before.tv_sec, before.tv_nsec);
+  printf("AFTER:  (%jd sec, %ld nsec)\n",
+          (intmax_t)after.tv_sec, after.tv_nsec);
 
   /* Now make sure that the time wait returns successfully if the semaphore
    * is posted
@@ -246,10 +247,10 @@ void semtimed_test(void)
       printf("semtimed_test: PASS: sem_timedwait succeeded\n");
     }
 
-  printf("BEFORE: (%lu sec, %lu nsec)\n",
-          (unsigned long)before.tv_sec, (unsigned long)before.tv_nsec);
-  printf("AFTER:  (%lu sec, %lu nsec)\n",
-          (unsigned long)after.tv_sec, (unsigned long)after.tv_nsec);
+  printf("BEFORE: (%jd sec, %ld nsec)\n",
+          (intmax_t)before.tv_sec, before.tv_nsec);
+  printf("AFTER:  (%jd sec, %ld nsec)\n",
+          (intmax_t)after.tv_sec, after.tv_nsec);
 
   /* Clean up detritus left by the pthread */
 

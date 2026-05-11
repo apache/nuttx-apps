@@ -224,8 +224,8 @@ void pread01_l_seek(int fdesc, off_t offset, int whence, off_t checkoff)
   if ((offloc = lseek(fdesc, offset, whence)) != checkoff)
     {
       syslog(LOG_WARNING,
-             "return = %" PRId64 " , expected %" PRId64 "\n",
-             (int64_t)offloc, (int64_t)checkoff);
+             "return = %jd, expected %jd\n",
+             (intmax_t)offloc, (intmax_t)checkoff);
       syslog(LOG_ERR, "lseek() on %s failed\n", pread01_filename);
     }
 }
@@ -234,7 +234,7 @@ void pread01_l_seek(int fdesc, off_t offset, int whence, off_t checkoff)
  * Name: pread01_compare_bufers
  ****************************************************************************/
 
-/* compare_bufers() - Compare the contents of read buffer aganist the
+/* compare_bufers() - Compare the contents of read buffer against the
  *                    write buffer contents.
  *
  *  The contents of the index of each buffer should be as follows:
@@ -259,7 +259,7 @@ int pread01_compare_bufers(void)
         }
     }
 
-  /* If no erros, Test successful */
+  /* If no errors, Test successful */
 
   if (!err_flg)
     {

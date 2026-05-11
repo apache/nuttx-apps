@@ -425,7 +425,7 @@ static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns,
       struct timeval delta;
 
       delta.tv_sec = delta_ns / NSEC_PER_SEC;
-      delta_ns -= (int64_t)delta.tv_sec * NSEC_PER_SEC;
+      delta_ns -= delta.tv_sec * NSEC_PER_SEC;
       delta.tv_usec = delta_ns / NSEC_PER_USEC;
       return adjtime(&delta, NULL);
     }
@@ -1030,11 +1030,11 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
   const int64_t adj_limit_ns = CONFIG_NETUTILS_PTPD_SETTIME_THRESHOLD_MS
                                * (int64_t)NSEC_PER_MSEC;
 
-  ptpinfo("Local time: %lld.%09ld, remote time %lld.%09ld\n",
-          (long long)local_timestamp->tv_sec,
-          (long)local_timestamp->tv_nsec,
-          (long long)remote_timestamp->tv_sec,
-          (long)remote_timestamp->tv_nsec);
+  ptpinfo("Local time: %jd.%09ld, remote time %jd.%09ld\n",
+          (intmax_t)local_timestamp->tv_sec,
+          local_timestamp->tv_nsec,
+          (intmax_t)remote_timestamp->tv_sec,
+          remote_timestamp->tv_nsec);
 
   delta_ns = timespec_delta_ns(remote_timestamp, local_timestamp);
   delta_ns += state->path_delay_ns;
@@ -1062,8 +1062,8 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
 
       if (ret == OK)
         {
-          ptpinfo("Jumped to timestamp %lld.%09ld s\n",
-                  (long long)new_time.tv_sec, (long)new_time.tv_nsec);
+          ptpinfo("Jumped to timestamp %jd.%09ld s\n",
+                  (intmax_t)new_time.tv_sec, new_time.tv_nsec);
         }
       else
         {
@@ -1241,7 +1241,7 @@ static void ptp_add_correction_time(FAR const uint8_t *correction,
                            | (((uint64_t)correction[4]) <<  8)
                            | (((uint64_t)correction[5]) <<  0);
 
-  ptpinfo("correction before: %lld.%09ld\n", (long long)ts->tv_sec,
+  ptpinfo("correction before: %jd.%09ld\n", (intmax_t)ts->tv_sec,
           ts->tv_nsec);
 
   ts->tv_sec  += correction_time / NSEC_PER_SEC;
@@ -1252,7 +1252,7 @@ static void ptp_add_correction_time(FAR const uint8_t *correction,
       ts->tv_sec  += 1;
     }
 
-  ptpinfo("correction after: %lld.%09ld\n", (long long)ts->tv_sec,
+  ptpinfo("correction after: %jd.%09ld\n", (intmax_t)ts->tv_sec,
           ts->tv_nsec);
 }
 
