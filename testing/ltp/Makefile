@@ -238,6 +238,7 @@ CFLAGS += -Wno-int-conversion -Wno-shadow
 
 # Should be removed if possible in the future
 CFLAGS += -Wno-incompatible-pointer-types -Wno-overflow -Wno-int-to-pointer-cast
+CFLAGS += -Wno-shift-count-overflow
 
 # Specific compilation errors ignored in MacOS platform
 ifneq ($(CONFIG_HOST_MACOS),)
