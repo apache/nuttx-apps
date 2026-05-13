@@ -47,6 +47,8 @@ include(nuttx_parse_function_args)
 # ~~~
 
 function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
+  get_filename_component(APPDIR "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/.."
+                         ABSOLUTE)
   if(ARCHTYPE STREQUAL "x86_64")
     set(TARGET_TRIPLE "${APPDIR}/tools/x86_64-unknown-nuttx.json")
   elseif(ARCHTYPE STREQUAL "x86")
@@ -127,9 +129,11 @@ function(nuttx_add_rust)
 
   # Determine build profile based on CONFIG_DEBUG_FULLOPT
   if(CONFIG_DEBUG_FULLOPT)
+    set(RUST_PROFILE_FLAG "--release")
     set(RUST_PROFILE "release")
     set(RUST_PANIC_FLAGS "-Zunstable-options -Cpanic=immediate-abort")
   else()
+    set(RUST_PROFILE_FLAG "")
     set(RUST_PROFILE "debug")
     set(RUST_PANIC_FLAGS "")
   endif()
@@ -145,9 +149,9 @@ function(nuttx_add_rust)
     set(TARGET_BASE ${RUST_TARGET})
   endif()
 
-  set(RUST_BUILD_DIR
-      ${CMAKE_CURRENT_BINARY_DIR}/${CRATE_NAME}/target/${TARGET_BASE})
-  set(RUST_LIB_PATH ${RUST_BUILD_DIR}/${RUST_PROFILE}/lib${CRATE_NAME}.a)
+  set(RUST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CRATE_NAME}/target)
+  set(RUST_LIB_PATH
+      ${RUST_BUILD_DIR}/${TARGET_BASE}/${RUST_PROFILE}/lib${CRATE_NAME}.a)
 
   # Create build directory
   file(MAKE_DIRECTORY ${RUST_BUILD_DIR})
@@ -158,9 +162,10 @@ function(nuttx_add_rust)
     COMMAND
       ${CMAKE_COMMAND} -E env
       NUTTX_INCLUDE_DIR=${PROJECT_SOURCE_DIR}/include:${CMAKE_BINARY_DIR}/include:${CMAKE_BINARY_DIR}/include/arch
-      RUSTFLAGS=${RUST_PANIC_FLAGS} cargo build --${RUST_PROFILE}
-      -Zbuild-std=std,panic_abort --manifest-path ${CRATE_PATH}/Cargo.toml
-      --target ${RUST_TARGET} --target-dir ${RUST_BUILD_DIR}
+      RUSTFLAGS=${RUST_PANIC_FLAGS} cargo build ${RUST_PROFILE_FLAG}
+      -Zbuild-std=std,panic_abort -Zjson-target-spec --manifest-path
+      ${CRATE_PATH}/Cargo.toml --target ${RUST_TARGET} --target-dir
+      ${RUST_BUILD_DIR}
     COMMENT "Building Rust crate ${CRATE_NAME}"
     VERBATIM)
 
