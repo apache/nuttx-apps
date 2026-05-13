@@ -168,6 +168,14 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("cd",       cmd_cd,       1, 2, "[<dir-path>|-|~|..]"),
 #endif
 
+#if defined(CONFIG_FS_PERMISSION) && !defined(CONFIG_NSH_DISABLE_CHMOD)
+  CMD_MAP("chmod",    cmd_chmod,    3, 3, "<octal-mode> <path>"),
+#endif
+
+#if defined(CONFIG_FS_PERMISSION) && !defined(CONFIG_NSH_DISABLE_CHOWN)
+  CMD_MAP("chown",    cmd_chown,    3, 3, "[<uid>][:<gid>] <path>"),
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_CP
   CMD_MAP("cp",       cmd_cp,       3, 4, "[-r] <source-path> <dest-path>"),
 #endif
