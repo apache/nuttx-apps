@@ -341,6 +341,16 @@ config NSH_DISABLE_CD
 	bool "Disable cd"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_CHMOD
+	bool "Disable chmod"
+	default DEFAULT_SMALL
+	depends on FS_PERMISSION
+
+config NSH_DISABLE_CHOWN
+	bool "Disable chown"
+	default DEFAULT_SMALL
+	depends on FS_PERMISSION
+
 config NSH_DISABLE_CP
 	bool "Disable cp"
 	default DEFAULT_SMALL
