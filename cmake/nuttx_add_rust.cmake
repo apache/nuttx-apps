@@ -35,6 +35,7 @@ include(nuttx_parse_function_args)
 #   - riscv64: riscv64imac/imafdc-unknown-nuttx-elf
 #   - x86: i686-unknown-nuttx
 #   - x86_64: x86_64-unknown-nuttx
+#   - aarch64: aarch64-apple-darwin
 #
 # Inputs:
 #   ARCHTYPE - Architecture type (e.g. thumbv7m, riscv32)
@@ -53,6 +54,12 @@ function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
     set(TARGET_TRIPLE "${APPDIR}/tools/x86_64-unknown-nuttx.json")
   elseif(ARCHTYPE STREQUAL "x86")
     set(TARGET_TRIPLE "${APPDIR}/tools/i486-unknown-nuttx.json")
+  elseif(ARCHTYPE STREQUAL "aarch64")
+    if(APPLE)
+      set(TARGET_TRIPLE "aarch64-apple-darwin")
+    elseif(UNIX)
+      set(TARGET_TRIPLE "aarch64-unknown-linux-gnu")
+    endif()
   elseif(ARCHTYPE MATCHES "thumb")
     if(ARCHTYPE MATCHES "thumbv8m")
       # Extract just the base architecture type (thumbv8m.main or thumbv8m.base)
@@ -91,6 +98,13 @@ function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
     else()
       set(TARGET_TRIPLE "riscv64imac-unknown-nuttx-elf")
     endif()
+  endif()
+
+  if(NOT TARGET_TRIPLE)
+    message(
+      FATAL_ERROR
+        "Unsupported Rust target: LLVM_ARCHTYPE=${ARCHTYPE}, LLVM_ABITYPE=${ABITYPE}, LLVM_CPUTYPE=${CPUTYPE}"
+    )
   endif()
   set(${OUTPUT}
       ${TARGET_TRIPLE}
@@ -138,6 +152,11 @@ function(nuttx_add_rust)
     set(RUST_PANIC_FLAGS "")
   endif()
 
+  string(APPEND RUST_PANIC_FLAGS " --check-cfg=cfg(nuttx_arch_sim)")
+  if(CONFIG_ARCH_SIM)
+    string(APPEND RUST_PANIC_FLAGS " --cfg nuttx_arch_sim")
+  endif()
+
   # Get the Rust target triple
   nuttx_rust_target_triple(${LLVM_ARCHTYPE} ${LLVM_ABITYPE} ${LLVM_CPUTYPE}
                            RUST_TARGET)
@@ -153,6 +172,8 @@ function(nuttx_add_rust)
   set(RUST_LIB_PATH
       ${RUST_BUILD_DIR}/${TARGET_BASE}/${RUST_PROFILE}/lib${CRATE_NAME}.a)
 
+  file(GLOB_RECURSE RUST_SOURCES CONFIGURE_DEPENDS ${CRATE_PATH}/src/*.rs)
+
   # Create build directory
   file(MAKE_DIRECTORY ${RUST_BUILD_DIR})
 
@@ -166,6 +187,7 @@ function(nuttx_add_rust)
       -Zbuild-std=std,panic_abort -Zjson-target-spec --manifest-path
       ${CRATE_PATH}/Cargo.toml --target ${RUST_TARGET} --target-dir
       ${RUST_BUILD_DIR}
+    DEPENDS ${CRATE_PATH}/Cargo.toml ${RUST_SOURCES}
     COMMENT "Building Rust crate ${CRATE_NAME}"
     VERBATIM)
 
