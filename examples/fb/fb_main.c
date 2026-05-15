@@ -252,7 +252,7 @@ static int fb_init_mem2(FAR struct fb_state_s *state)
 
   /* Use virtual offset = fblen = stride * yres */
 
-  framesize = state->vinfo.yres * state->pinfo.stride;
+  framesize = (size_t)state->vinfo.yres * state->pinfo.stride;
   offset = framesize;
   state->mem2_yoffset = state->vinfo.yres;
 
