@@ -35,6 +35,7 @@ include(nuttx_parse_function_args)
 #   - riscv64: riscv64imac/imafdc-unknown-nuttx-elf
 #   - x86: i686-unknown-nuttx
 #   - x86_64: x86_64-unknown-nuttx
+#   - aarch64: aarch64-apple-darwin
 #
 # Inputs:
 #   ARCHTYPE - Architecture type (e.g. thumbv7m, riscv32)
@@ -53,6 +54,10 @@ function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
     set(TARGET_TRIPLE "${APPDIR}/tools/x86_64-unknown-nuttx.json")
   elseif(ARCHTYPE STREQUAL "x86")
     set(TARGET_TRIPLE "${APPDIR}/tools/i486-unknown-nuttx.json")
+  elseif(ARCHTYPE STREQUAL "aarch64")
+    if(APPLE)
+      set(TARGET_TRIPLE "aarch64-apple-darwin")
+    endif()
   elseif(ARCHTYPE MATCHES "thumb")
     if(ARCHTYPE MATCHES "thumbv8m")
       # Extract just the base architecture type (thumbv8m.main or thumbv8m.base)
@@ -91,6 +96,13 @@ function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
     else()
       set(TARGET_TRIPLE "riscv64imac-unknown-nuttx-elf")
     endif()
+  endif()
+
+  if(NOT TARGET_TRIPLE)
+    message(
+      FATAL_ERROR
+        "Unsupported Rust target: LLVM_ARCHTYPE=${ARCHTYPE}, LLVM_ABITYPE=${ABITYPE}, LLVM_CPUTYPE=${CPUTYPE}"
+    )
   endif()
   set(${OUTPUT}
       ${TARGET_TRIPLE}
