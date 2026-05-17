@@ -156,6 +156,18 @@ function(nuttx_add_rust)
   # Create build directory
   file(MAKE_DIRECTORY ${RUST_BUILD_DIR})
 
+  # Collect Rust source files and manifests as dependencies so that changes in
+  # the crate trigger a rebuild via CMake/Ninja.
+  file(
+    GLOB_RECURSE
+    RUST_CRATE_SOURCES
+    CONFIGURE_DEPENDS
+    "${CRATE_PATH}/Cargo.toml"
+    "${CRATE_PATH}/Cargo.lock"
+    "${CRATE_PATH}/build.rs"
+    "${CRATE_PATH}/src/*.rs"
+    "${CRATE_PATH}/src/**/*.rs")
+
   # Add a custom command to build the Rust crate
   add_custom_command(
     OUTPUT ${RUST_LIB_PATH}
@@ -166,6 +178,7 @@ function(nuttx_add_rust)
       -Zbuild-std=std,panic_abort -Zjson-target-spec --manifest-path
       ${CRATE_PATH}/Cargo.toml --target ${RUST_TARGET} --target-dir
       ${RUST_BUILD_DIR}
+    DEPENDS ${RUST_CRATE_SOURCES}
     COMMENT "Building Rust crate ${CRATE_NAME}"
     VERBATIM)
 
