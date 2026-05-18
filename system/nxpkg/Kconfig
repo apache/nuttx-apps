@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXPKG
+	bool "'nxpkg' lifecycle helper"
+	default n
+	select CRYPTO
+	select NETUTILS_CJSON
+	---help---
+		Enable the thin package lifecycle helper proposed for the
+		Dynamic ELF distribution work.
+
+if SYSTEM_NXPKG
+
+config SYSTEM_NXPKG_PROGNAME
+	string "Program name"
+	default "nxpkg"
+	---help---
+		This is the name of the program that will be used when the
+		nxpkg tool is installed.
+
+config SYSTEM_NXPKG_PRIORITY
+	int "'nxpkg' task priority"
+	default 100
+
+config SYSTEM_NXPKG_STACKSIZE
+	int "'nxpkg' stack size"
+	default 16384
+
+endif
