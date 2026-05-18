@@ -1164,7 +1164,7 @@ config NSH_LOGIN
 
 config NSH_CONSOLE_LOGIN
 	bool "Console Login"
-	default n
+	default y
 	select NSH_LOGIN
 	---help---
 		If defined, then the console user will be required to provide a
