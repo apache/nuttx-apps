@@ -306,7 +306,7 @@ void test_nuttx_syscall_fcntl06(FAR void **state)
 
   sprintf(fname, "fcntl06_%d", gettid());
 
-  fd = open(fname, O_RDWR | O_CREAT);
+  fd = open(fname, O_RDWR | O_CREAT, 0700);
   assert_true(fd > 0);
 
   for (lc = 0; lc < 10; lc++)

@@ -115,7 +115,7 @@ int settings_main(int argc, FAR char *argv[])
   if (ret == -ENOENT)
     {
       printf("No existing binary storage file found. Creating it.\n");
-      fd = open(bin_path, O_CREAT);
+      fd = open(bin_path, O_CREAT, 0666);
       if (fd < 0)
         {
           printf("Failed to create settings file\n");
@@ -138,7 +138,7 @@ int settings_main(int argc, FAR char *argv[])
   if (ret == -ENOENT)
     {
       printf("No existing text storage file found. Creating it.\n");
-      fd = open(text_path, O_CREAT);
+      fd = open(text_path, O_CREAT, 0666);
       if (fd < 0)
         {
           printf("Failed to create settings file\n");

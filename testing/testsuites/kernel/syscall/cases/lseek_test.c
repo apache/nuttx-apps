@@ -91,7 +91,7 @@ void test_nuttx_syscall_lseek01(FAR void **state)
 
   snprintf(filename, sizeof(filename), "%s_file", __func__);
 
-  fd = open(filename, O_RDWR | O_CREAT);
+  fd = open(filename, O_RDWR | O_CREAT, 0644);
 
   if (fd > 0)
     {

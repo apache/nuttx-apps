@@ -55,7 +55,7 @@ void test_nuttx_syscall_unlink01(FAR void **state)
 
   sprintf(fname, "%s_file", __func__);
 
-  fd = open(fname, O_RDWR | O_CREAT);
+  fd = open(fname, O_RDWR | O_CREAT, 0700);
   if (fd > 0)
     {
       close(fd);

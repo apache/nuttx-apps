@@ -393,7 +393,7 @@ static int smart_circular_log_test(char *filename)
 
   /* Open the circular log file */
 
-  fd = open(filename, O_RDWR | O_CREAT);
+  fd = open(filename, O_RDWR | O_CREAT, 0666);
   if (fd == -1)
     {
       printf("Unable to create file %s\n", filename);

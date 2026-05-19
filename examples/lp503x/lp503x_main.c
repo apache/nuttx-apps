@@ -632,7 +632,7 @@ int main(int argc, FAR char *argv[])
   int len;
   int x;
 
-  fd = open(CONFIG_EXAMPLES_LP503X_DEVPATH, O_CREAT);
+  fd = open(CONFIG_EXAMPLES_LP503X_DEVPATH, O_RDONLY);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
