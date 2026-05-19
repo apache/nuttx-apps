@@ -228,8 +228,14 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                                  NSH_ERRNO_OF(errcode));
                     }
 
+                  /* Jump straight to cleanup.  On a broken stdout (e.g.
+                   * closed PTY master) we must not keep reading: the
+                   * outer loop would otherwise drain /dev/log forever
+                   * when cat is dumping it on dmesg.
+                   */
+
                   ret = ERROR;
-                  break;
+                  goto errout;
                 }
               else
                 {
@@ -255,6 +261,7 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
   /* Close the input file and return the result */
 
+errout:
   close(fd);
   free(buffer);
   return ret;
