@@ -299,7 +299,7 @@ void aio_test(void)
   /* Case 1: Poll for transfer complete */
 
   printf("AIO test case 1: Poll for transfer complete\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
@@ -336,7 +336,7 @@ void aio_test(void)
   usleep(500 * 1000);
 
   printf("AIO test case 2: Use LIO_WAIT for transfer complete\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
@@ -374,7 +374,7 @@ void aio_test(void)
   usleep(500 * 1000);
 
   printf("AIO test case 3: Use aio_suspend for transfer complete\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
@@ -442,7 +442,7 @@ void aio_test(void)
   usleep(500 * 1000);
 
   printf("AIO test case 4: Use individual signals for transfer complete\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
@@ -506,7 +506,7 @@ void aio_test(void)
 
   printf("AIO test case 5:"
          " Use list complete signal for transfer complete\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
@@ -569,7 +569,7 @@ void aio_test(void)
   usleep(500 * 1000);
 
   printf("AIO test case 6: Cancel I/O by AIO control block\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
@@ -616,7 +616,7 @@ void aio_test(void)
   usleep(500 * 1000);
 
   printf("AIO test case 7:Cancel I/O by file descriptor\n");
-  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC);
+  g_fildes = open(AIO_FILEPATH, O_RDWR | O_CREAT | O_TRUNC, 0666);
   if (g_fildes < 0)
     {
       printf("aio_test: ERROR: Failed to open %s: %d\n",
