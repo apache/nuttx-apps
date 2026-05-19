@@ -61,7 +61,8 @@ static int nsh_script_redirect(FAR struct nsh_vtbl_s *vtbl,
 
   if (CONFIG_NSH_SCRIPT_REDIRECT_PATH[0])
     {
-      fd = open(CONFIG_NSH_SCRIPT_REDIRECT_PATH, 0666);
+      fd = open(CONFIG_NSH_SCRIPT_REDIRECT_PATH,
+                O_WRONLY | O_CREAT | O_TRUNC, 0666);
       if (fd > 0)
         {
           nsh_redirect(vtbl, 0, fd, fd, save);
