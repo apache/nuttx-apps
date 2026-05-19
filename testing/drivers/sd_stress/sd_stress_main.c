@@ -160,7 +160,7 @@ static bool create_files(const char *dir, const char *name,
           bytes[j] = (bytes[j] + i) & 0xff;
         }
 
-      int fd = open(path, O_CREAT | O_RDWR);
+      int fd = open(path, O_CREAT | O_RDWR, 0666);
 
       if (fd < 0)
         {

@@ -575,7 +575,7 @@ int nxcamera_setfile(FAR struct nxcamera_s *pcam, FAR const char *pfile,
 
   /* Try to open the file */
 
-  temp_fd = open(pfile, O_CREAT | O_RDWR);
+  temp_fd = open(pfile, O_CREAT | O_RDWR, 0666);
   if (temp_fd == -1)
     {
       /* Error opening the file */

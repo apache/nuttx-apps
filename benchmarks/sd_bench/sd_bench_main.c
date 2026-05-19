@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
 
   cfg.run_duration *= 1000;
   bench_fd = open(BENCHMARK_FILE,
-                  O_CREAT | (verify ? O_RDWR : O_WRONLY) | O_TRUNC);
+                  O_CREAT | (verify ? O_RDWR : O_WRONLY) | O_TRUNC, 0666);
 
   if (bench_fd < 0)
     {

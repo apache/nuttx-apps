@@ -103,7 +103,7 @@ void test_nuttx_syscall_rmdir02(FAR void **state)
   assert_int_equal(ret, 0);
   ret = mkdir("Rmdir02_testdir/test1", (S_IRWXU | S_IRWXG | S_IRWXO));
   assert_int_equal(ret, 0);
-  fd = open("Rmdir02_testfile2", O_CREAT | O_RDWR);
+  fd = open("Rmdir02_testfile2", O_CREAT | O_RDWR, 0700);
 
   if (fd > 0)
     close(fd);
