@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PULSECOUNT
+	tristate "pulsecount example"
+	default n
+	depends on PULSECOUNT
+	---help---
+		Enable the finite pulsecount example
+
+if EXAMPLES_PULSECOUNT
+
+config EXAMPLES_PULSECOUNT_DEVPATH
+	string "pulsecount device path"
+	default "/dev/pulsecount0"
+	---help---
+		The path to the pulsecount device.  Default: /dev/pulsecount0
+
+config EXAMPLES_PULSECOUNT_HIGH_NS
+	int "Default pulsecount high time"
+	default 5000000
+	---help---
+		The default pulsecount high time in nanoseconds.
+		Default: 5000000 ns
+
+config EXAMPLES_PULSECOUNT_LOW_NS
+	int "Default pulsecount low time"
+	default 5000000
+	---help---
+		The default pulsecount low time in nanoseconds.
+		Default: 5000000 ns
+
+config EXAMPLES_PULSECOUNT_COUNT
+	int "Default pulsecount count"
+	default 100
+	range 1 2147483647
+	---help---
+		The default number of pulses to generate.
+
+endif
