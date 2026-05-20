@@ -134,7 +134,7 @@ static bool create_files(const char *dir, const char *name,
 
   if (!read_bytes)
     {
-      printf("malloc failed for read bytes bufffer\n");
+      printf("malloc failed for read bytes buffer\n");
       return false;
     }
 

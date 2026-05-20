@@ -113,7 +113,7 @@ void test_nuttx_syscall_fcntl01(FAR void **state)
   flags = fcntl(fd[2], F_GETFL, 0);
   assert_false((flags & (O_NDELAY | O_APPEND | O_WRONLY)) == 0);
 
-  /* Check that flags are not cummulative */
+  /* Check that flags are not cumulative */
 
   assert_false(fcntl(fd[2], F_SETFL, 0) == -1);
 
