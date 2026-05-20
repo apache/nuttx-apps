@@ -98,9 +98,6 @@ struct pwm_state_s
   int8_t    channels[CONFIG_PWM_NCHANNELS];
   uint8_t   duties[CONFIG_PWM_NCHANNELS];
   uint32_t  freq;
-#ifdef CONFIG_PWM_PULSECOUNT
-  uint32_t  count;
-#endif
   int       duration;
 };
 
@@ -230,11 +227,6 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
     }
 
   printf("\n");
-#ifdef CONFIG_PWM_PULSECOUNT
-  printf("  [-n count] selects the pulse count.  "
-         "Default: %d Current: %" PRIx32 "\n",
-         CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
-#endif
   printf("  [-t duration] is the duration of the pulse train in seconds.  "
          "Default: %d Current: %d\n",
          CONFIG_EXAMPLES_PWM_DURATION, pwm->duration);
@@ -361,20 +353,6 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc,
             index += nargs;
             break;
 
-#ifdef CONFIG_PWM_PULSECOUNT
-          case 'n':
-            nargs = arg_decimal(&argv[index], &value);
-            if (value < 0)
-              {
-                printf("Count must be non-negative: %ld\n", value);
-                exit(1);
-              }
-
-            pwm->count = (uint32_t)value;
-            index += nargs;
-            break;
-#endif
-
           case 'p':
             nargs = arg_string(&argv[index], &str);
             pwm_devpath(pwm, str);
@@ -449,9 +427,6 @@ int main(int argc, FAR char *argv[])
 #endif
       g_pwmstate.freq        = CONFIG_EXAMPLES_PWM_FREQUENCY;
       g_pwmstate.duration    = CONFIG_EXAMPLES_PWM_DURATION;
-#ifdef CONFIG_PWM_PULSECOUNT
-      g_pwmstate.count       = CONFIG_EXAMPLES_PWM_PULSECOUNT;
-#endif
       g_pwmstate.initialized = true;
     }
 
@@ -511,10 +486,6 @@ int main(int argc, FAR char *argv[])
         info.channels[i].channel, info.channels[i].duty);
     }
 
-#ifdef CONFIG_PWM_PULSECOUNT
-  info.channels[0].count = g_pwmstate.count;
-  printf(" count: %" PRIx32, info.channels[0].count);
-#endif
   printf("\n");
 
   ret = ioctl(fd, PWMIOC_SETCHARACTERISTICS,
@@ -526,9 +497,7 @@ int main(int argc, FAR char *argv[])
       goto errout_with_dev;
     }
 
-  /* Then start the pulse train.  Since the driver was opened in blocking
-   * mode, this call will block if the count value is greater than zero.
-   */
+  /* Then start the pulse train. */
 
   ret = ioctl(fd, PWMIOC_START, 0);
   if (ret < 0)
@@ -537,28 +506,19 @@ int main(int argc, FAR char *argv[])
       goto errout_with_dev;
     }
 
-  /* It a non-zero count was not specified, then wait for the selected
-   * duration, then stop the PWM output.
-   */
+  /* Wait for the specified duration, then stop the PWM output. */
 
-#ifdef CONFIG_PWM_PULSECOUNT
-  if (info.channels[0].count == 0)
-#endif
+  sleep(g_pwmstate.duration);
+
+  /* Then stop the pulse train */
+
+  printf("pwm_main: stopping output\n");
+
+  ret = ioctl(fd, PWMIOC_STOP, 0);
+  if (ret < 0)
     {
-      /* Wait for the specified duration */
-
-      sleep(g_pwmstate.duration);
-
-      /* Then stop the pulse train */
-
-      printf("pwm_main: stopping output\n");
-
-      ret = ioctl(fd, PWMIOC_STOP, 0);
-      if (ret < 0)
-        {
-          printf("pwm_main: ioctl(PWMIOC_STOP) failed: %d\n", errno);
-          goto errout_with_dev;
-        }
+      printf("pwm_main: ioctl(PWMIOC_STOP) failed: %d\n", errno);
+      goto errout_with_dev;
     }
 
   close(fd);
