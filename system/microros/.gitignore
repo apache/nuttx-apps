@@ -1,0 +1,13 @@
+# Build artifacts
+/build/
+/install/
+/micro_ros_dev/
+/micro_ros_src/
+
+# Generated files
+/libmicroros.a
+/toolchain.cmake
+/colcon.meta
+
+# Archives
+*.tar.gz
