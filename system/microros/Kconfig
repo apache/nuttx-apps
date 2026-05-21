@@ -1,0 +1,102 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_MICROROS
+	bool "micro-ROS Integration"
+	default n
+	depends on NET_UDP || SERIAL_TERMIOS
+	---help---
+		Enable micro-ROS integration for NuttX RTOS. Provides a ROS 2
+		client library for embedded and real-time systems.
+
+if SYSTEM_MICROROS
+
+config MICROROS_DISTRO
+	string "ROS 2 Distribution"
+	default "jazzy"
+	---help---
+		Specifies the ROS 2 distribution branch (e.g., humble, jazzy, kilted).
+		This determines which versions of micro-ROS packages are fetched.
+
+choice
+	prompt "Transport Method"
+	default MICROROS_TRANSPORT_UDP
+
+config MICROROS_TRANSPORT_UDP
+	bool "UDP Transport"
+	---help---
+		Use UDP socket for communication with micro-ROS agent.
+
+config MICROROS_TRANSPORT_SERIAL
+	bool "Serial Transport"
+	depends on SERIAL_TERMIOS
+	---help---
+		Use serial (UART/USB-CDC) for communication with micro-ROS agent.
+
+endchoice
+
+if MICROROS_TRANSPORT_UDP
+
+config MICROROS_AGENT_IP
+	string "Agent IP Address"
+	default "10.42.0.214"
+	---help---
+		IP address of the micro-ROS agent.
+
+config MICROROS_AGENT_PORT
+	int "Agent Port"
+	default 8888
+	---help---
+		UDP port of the micro-ROS agent.
+
+endif
+
+if MICROROS_TRANSPORT_SERIAL
+
+config MICROROS_SERIAL_DEVICE
+	string "Serial Device Path"
+	default "/dev/ttyS0"
+	---help---
+		Serial device to use for transport (e.g., /dev/ttyS0, /dev/ttyACM0).
+
+config MICROROS_SERIAL_BAUD
+	int "Serial Baud Rate"
+	default 115200
+	---help---
+		Baud rate for serial communication.
+
+endif
+
+config MICROROS_MAX_NODES
+	int "Maximum Nodes"
+	default 1
+	---help---
+		Maximum number of ROS nodes that can be created.
+
+config MICROROS_MAX_PUBLISHERS
+	int "Maximum Publishers"
+	default 5
+	---help---
+		Maximum number of publishers per node.
+
+config MICROROS_MAX_SUBSCRIPTIONS
+	int "Maximum Subscriptions"
+	default 5
+	---help---
+		Maximum number of subscriptions per node.
+
+config MICROROS_MAX_SERVICES
+	int "Maximum Services"
+	default 1
+	---help---
+		Maximum number of services per node.
+
+config MICROROS_MAX_CLIENTS
+	int "Maximum Clients"
+	default 1
+	---help---
+		Maximum number of service clients per node.
+
+endif
