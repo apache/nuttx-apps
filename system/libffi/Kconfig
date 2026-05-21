@@ -1,0 +1,24 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIB_LIBFFI
+	bool "libffi"
+	default n
+	---help---
+		Enable the libffi Foreign Function Interface library. libffi
+		provides a portable way to call C functions with arguments
+		determined at runtime. It is required by CPython's _ctypes module.
+
+if LIB_LIBFFI
+
+config LIB_LIBFFI_VERSION
+	string "libffi commit hash"
+	default "9760868682cc9a33008761f158d86481d56738aa"
+	---help---
+		Git commit hash of the libffi repository to download and build.
+		The source is fetched from https://github.com/libffi/libffi at
+		the specified commit.
+
+endif # LIB_LIBFFI
