@@ -1,0 +1,17 @@
+--- a/Modules/_ctypes/callproc.c
++++ b/Modules/_ctypes/callproc.c
+@@ -91,6 +91,14 @@
+ #include <alloca.h>
+ #endif
+ 
++/* NuttX errno.h defines get_errno() and set_errno(e) as macros.
++   Undef them so that CPython's static functions of the same name
++   in this file compile without conflict. */
++#ifdef __NuttX__
++#undef get_errno
++#undef set_errno
++#endif
++
+ #ifdef _Py_MEMORY_SANITIZER
+ #include <sanitizer/msan_interface.h>
+ #endif

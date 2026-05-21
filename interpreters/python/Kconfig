@@ -6,6 +6,7 @@
 config INTERPRETERS_CPYTHON
 	tristate "CPython"
 	depends on LIB_ZLIB
+	depends on !LIBC_DLFCN || LIB_LIBFFI
 	depends on EXPERIMENTAL
 	default n
 	---help---

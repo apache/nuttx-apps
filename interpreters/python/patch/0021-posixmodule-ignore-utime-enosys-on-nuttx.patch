@@ -1,0 +1,16 @@
+--- a/Modules/posixmodule.c
++++ b/Modules/posixmodule.c
+@@ -6666,6 +6666,13 @@
+     }
+ #endif
+ 
++#if defined(__NuttX__)
++    if (result == -1 && errno == ENOSYS) {
++        /* SmartFS and other NuttX fs do not implement chstat. */
++        Py_RETURN_NONE;
++    }
++#endif
++
+     if (result < 0) {
+         path_error(path);
+         return NULL;
