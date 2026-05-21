@@ -21,6 +21,12 @@
 # ##############################################################################
 
 if(CONFIG_BUILTIN)
+  # Out-of-tree builds generate these headers in the binary directory. Remove
+  # stale in-source copies to avoid accidental inclusion.
+  if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
+    file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/builtin_list.h
+         ${CMAKE_CURRENT_SOURCE_DIR}/builtin_proto.h)
+  endif()
 
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
