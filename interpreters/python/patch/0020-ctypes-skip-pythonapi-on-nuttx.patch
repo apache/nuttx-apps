@@ -1,0 +1,11 @@
+--- a/Lib/ctypes/__init__.py
++++ b/Lib/ctypes/__init__.py
+@@ -481,6 +481,8 @@
+     pythonapi = PyDLL("libpython%d.%d.so" % _sys.version_info[:2])
+ elif _sys.platform == "cygwin":
+     pythonapi = PyDLL("libpython%d.%d.dll" % _sys.version_info[:2])
++elif _sys.platform == "nuttx":
++    pythonapi = None
+ else:
+     pythonapi = PyDLL(None)
+ 

@@ -88,6 +88,9 @@ $(CPYTHON_UNPACKNAME): $(CPYTHON_ZIP)
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0016-fix-timezone-offset-check-when-time-t-is-unsigned.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0017-stdlib-zip-keep-pydecimal-and-trim-tooling-extras.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0018-ignore-chmod-on-nuttx-like-wasi.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0019-undef-get_errno-set_errno-to-avoid-nuttx-macro-coll.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0020-ctypes-skip-pythonapi-on-nuttx.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0021-posixmodule-ignore-utime-enosys-on-nuttx.patch
 
 $(HOSTPYTHON):
 	mkdir -p $(HOSTBUILD)
@@ -127,6 +130,9 @@ $(SETUP_LOCAL):
 	$(Q) ( cp $(SETUP_LOCAL).in $(SETUP_LOCAL))
 ifneq ($(CONFIG_ARCH_HAVE_FORK),y)
 	@echo "_posixsubprocess" >> $@
+endif
+ifneq ($(CONFIG_LIBC_DLFCN),y)
+	@echo "_ctypes" >> $@
 endif
 
 # For the Python's `configure` script, please consider the following
