@@ -1,0 +1,29 @@
+include(CMakeForceCompiler)
+
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR @CMAKE_SYSTEM_PROCESSOR@)
+set(CMAKE_CROSSCOMPILING 1)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+set(PLATFORM_NAME "nuttx")
+
+set(CMAKE_C_COMPILER @CMAKE_C_COMPILER@)
+set(CMAKE_CXX_COMPILER @CMAKE_CXX_COMPILER@)
+
+set(CMAKE_C_FLAGS_INIT "-std=c11 @ARCH_C_FLAGS@ -D'__attribute__(x)='" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_INIT "-std=c++14 @ARCH_CPP_FLAGS@ -fno-rtti -D'__attribute__(x)='" CACHE STRING "" FORCE)
+
+set(NUTTX_TOPDIR @NUTTX_TOPDIR@)
+set(NUTTX_APPDIR @NUTTX_APPDIR@)
+set(INCLUDE_OVR_DIR @INCLUDE_OVR_DIR@)
+
+include_directories(SYSTEM
+	${NUTTX_TOPDIR}/include
+	${NUTTX_TOPDIR}/include/cxx
+	${NUTTX_APPDIR}/include
+)
+
+include_directories(AFTER SYSTEM
+	${INCLUDE_OVR_DIR}/include_override
+)
+
+set(__BIG_ENDIAN__ 0)
