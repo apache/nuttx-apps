@@ -1555,6 +1555,12 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (localfile == NULL)
     {
       allocfile = strdup(url);
+      if (allocfile == NULL)
+        {
+          fmt = g_fmtcmdoutofmemory;
+          goto errout;
+        }
+
       localfile = basename(allocfile);
     }
 

@@ -257,6 +257,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
   FAR char *tmpfname;
   bool iscurrdir;
   unsigned int nnames;
+  unsigned int i;
   int allocsize;
   int ret;
 
@@ -365,6 +366,17 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
 
       ftpc_nlstparse(filestream, ftpc_addname, dirlist);
       DEBUGASSERT(nnames == dirlist->nnames);
+
+      for (i = 0; i < dirlist->nnames; i++)
+        {
+          if (dirlist->name[i] == NULL)
+            {
+              nerr("ERROR: Failed to allocate directory name\n");
+              ftpc_dirfree(dirlist);
+              dirlist = NULL;
+              break;
+            }
+        }
     }
 
 errout:

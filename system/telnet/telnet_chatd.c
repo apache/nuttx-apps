@@ -40,7 +40,7 @@
 /* Leveraged from libtelnet, https://github.com/seanmiddleditch/libtelnet.
  * Modified and re-released under the BSD license.
  *
- * The original authors of libtelnet are listed below.  Per their licesne,
+ * The original authors of libtelnet are listed below.  Per their license,
  * "The author or authors of this code dedicate any and all copyright
  * interest in this code to the public domain. We make this dedication for
  * the benefit of the public at large and to the detriment of our heirs and
@@ -52,6 +52,7 @@
  *   (Also listed in the AUTHORS file are Jack Kelly <endgame.dos@gmail.com>
  *   and Katherine Flavel <kate@elide.org>)
  */
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
@@ -254,6 +255,12 @@ static void _online(const char *line, int overflow, void *ud)
       /* Keep name */
 
       user->name = strdup(line);
+      if (user->name == NULL)
+        {
+          telnet_printf(user->telnet, "Out of memory.\nEnter name: ");
+          return;
+        }
+
       telnet_printf(user->telnet, "Welcome, %s!\n", line);
       return;
     }

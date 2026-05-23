@@ -217,6 +217,13 @@ static void show_directories(const char *path, int indent)
           snprintf(g_namebuffer, sizeof(g_namebuffer),
                    "%s/%s", path, direntry->d_name);
           subdir = strdup(g_namebuffer);
+          if (subdir == NULL)
+            {
+              printf("show_directories: ERROR out of memory\n");
+              g_nerrors++;
+              continue;
+            }
+
           show_directories(subdir, indent + 1);
           free(subdir);
         }
