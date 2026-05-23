@@ -2163,13 +2163,14 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
 #else
   hs->hostname = httpd_strdup(httpd_ntoa(sa));
 #endif
-  ninfo("hostname: %s\n", hs->hostname);
-
   if (!hs->hostname)
     {
       nerr("ERROR: out of memory copying hostname\n");
+      free_httpd_server(hs);
       return NULL;
     }
+
+  ninfo("hostname: %s\n", hs->hostname);
 
   hs->cgi_count = 0;
 
