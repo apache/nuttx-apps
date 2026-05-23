@@ -1,0 +1,31 @@
+From: micro-ROS NuttX Port <noreply@nuttx.apache.org>
+Subject: [PATCH] rcutils: guard bare DIR typedef to avoid conflict with NuttX dirent.h
+
+NuttX defines DIR as a struct type in dirent.h.  The bare
+  typedef int DIR;
+in rcutils/src/filesystem.c causes a redefinition error when the
+NuttX system headers are on the include path.  Guard it so it is
+only emitted when DIR has not already been defined.
+
+--- a/rcutils/src/filesystem.c
++++ b/rcutils/src/filesystem.c
+@@ -1,6 +1,8 @@
+ // Copyright 2017 Open Source Robotics Foundation, Inc.
+ //
+ // Licensed under the Apache License, Version 2.0 (the "License");
+ // you may not use this file except in compliance with the License.
+ // You may obtain a copy of the License at
+ //
+ //     http://www.apache.org/licenses/LICENSE-2.0
+ //
+ // Unless required by applicable law or agreed to in writing, software
+ // distributed under the License is distributed on an "AS IS" BASIS,
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
+
+ #if !defined _WIN32 && !defined __QNXTO__
++#ifndef DIR
+ typedef int DIR;
++#endif
+ #endif
