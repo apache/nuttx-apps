@@ -19,3 +19,12 @@
 # under the License.
 #
 ############################################################################
+
+ifneq ($(CONFIG_SYSTEM_MICROROS),)
+CONFIGURED_APPS += $(APPDIR)/system/microros
+
+CFLAGS   += ${INCDIR_PREFIX}$(APPDIR)/system/microros/include
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/system/microros/include
+
+LDLIBS   += $(APPDIR)/system/microros/libmicroros.a
+endif
