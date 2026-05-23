@@ -1,0 +1,52 @@
+{
+  "names": {
+    "microxrcedds_client": {
+      "cmake-args": [
+        "-DUCLIENT_PIC=OFF",
+        "-DUCLIENT_PROFILE_DISCOVERY=OFF",
+        "-DUCLIENT_PROFILE_UDP=OFF",
+        "-DUCLIENT_PROFILE_TCP=OFF",
+        "-DUCLIENT_PROFILE_SERIAL=OFF",
+        "-DUCLIENT_PROFILE_CUSTOM_TRANSPORT=ON",
+        "-DUCLIENT_PROFILE_STREAM_FRAMING=ON",
+        "-DUCLIENT_EXTERNAL_SERIAL=ON"
+      ]
+    },
+    "rmw_microxrcedds": {
+      "cmake-args": [
+        "-DRMW_UXRCE_TRANSPORT=custom",
+        "-DRMW_UXRCE_MAX_NODES=@MAX_NODES@",
+        "-DRMW_UXRCE_MAX_PUBLISHERS=@MAX_PUBLISHERS@",
+        "-DRMW_UXRCE_MAX_SUBSCRIPTIONS=@MAX_SUBSCRIPTIONS@",
+        "-DRMW_UXRCE_MAX_SERVICES=@MAX_SERVICES@",
+        "-DRMW_UXRCE_MAX_CLIENTS=@MAX_CLIENTS@",
+        "-DRMW_UXRCE_MAX_HISTORY=4"
+      ]
+    },
+    "rcl": {
+      "cmake-args": [
+        "-DRCL_MICROROS=ON"
+      ]
+    },
+    "rcutils": {
+      "cmake-args": [
+        "-DRCUTILS_NO_FILESYSTEM=OFF",
+        "-DRCUTILS_NO_THREAD_SUPPORT=ON",
+        "-DRCUTILS_NO_64_ATOMIC=ON",
+        "-DRCUTILS_AVOID_DYNAMIC_ALLOCATION=ON",
+        "-DENABLE_TESTING=OFF"
+      ]
+    },
+    "rosidl_typesupport": {
+      "cmake-args": [
+        "-DROSIDL_TYPESUPPORT_SINGLE_TYPESUPPORT=ON"
+      ]
+    },
+    "tracetools": {
+      "cmake-args": [
+        "-DTRACETOOLS_DISABLED=ON",
+        "-DTRACETOOLS_STATUS_CHECKING_TOOL=OFF"
+      ]
+    }
+  }
+}
