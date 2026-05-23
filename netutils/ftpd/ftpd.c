@@ -627,6 +627,11 @@ static bool ftpd_account_login(FAR struct ftpd_session_s *session,
       if (account->home != NULL)
         {
           home = strdup(account->home);
+          if (home == NULL)
+            {
+              ftpd_account_free(account);
+              return false;
+            }
         }
 
       flags = account->flags;
@@ -645,6 +650,11 @@ static bool ftpd_account_login(FAR struct ftpd_session_s *session,
         {
           home = strdup(home);
         }
+
+      if (home == NULL)
+        {
+          return false;
+        }
     }
 
   if ((flags & FTPD_ACCOUNTFLAG_ADMIN) != 0)
@@ -652,6 +662,12 @@ static bool ftpd_account_login(FAR struct ftpd_session_s *session,
       /* admin user */
 
       session->home = strdup("/");
+      if (session->home == NULL)
+        {
+          free(home);
+          return false;
+        }
+
       session->work = home;
     }
   else
@@ -660,6 +676,12 @@ static bool ftpd_account_login(FAR struct ftpd_session_s *session,
 
       session->home = home;
       session->work = strdup("/");
+      if (session->work == NULL)
+        {
+          free(home);
+          session->home = NULL;
+          return false;
+        }
     }
 
   return true;
@@ -2517,6 +2539,17 @@ static int ftpd_command_user(FAR struct ftpd_session_s *session)
       session->loggedin = false;
       session->home     = strdup(home == NULL ? "/" : home);
       session->work     = strdup("/");
+      if (session->home == NULL || session->work == NULL)
+        {
+          free(session->home);
+          free(session->work);
+          session->home = NULL;
+          session->work = NULL;
+
+          return ftpd_response(session->cmd.sd, session->txtimeout,
+                               g_respfmt1, 451, ' ',
+                               "Memory exhausted !");
+        }
 
       return ftpd_response(session->cmd.sd, session->txtimeout,
                            g_respfmt1, 230, ' ', "Login successful.");

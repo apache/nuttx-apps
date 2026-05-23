@@ -196,7 +196,11 @@ ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
         }
 
       ret = asprintf(&path, "%s/%s", file->path, dent->d_name);
-      ASSERT(ret > 0 && path);
+      if (ret < 0 || path == NULL)
+        {
+          nerr("ERROR: asprintf failed\n");
+          break;
+        }
 
       /* call stat() to obtain modified time and size */
 

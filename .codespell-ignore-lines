@@ -6,3 +6,5 @@
               object = new Controlse::CCertificate(
           Controlse::CCertificate cert(se, settings->key_id);
       auto certificate = Controlse::CCertificate(
+ *  |---------- [-rw-r--r--        15]  afile.txt
+  g_afile.name                 = "afile.txt";
