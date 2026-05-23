@@ -1,0 +1,19 @@
+From: micro-ROS NuttX Port <noreply@nuttx.apache.org>
+Subject: [PATCH] rcutils: include <strings.h> for strcasecmp on NuttX
+
+POSIX specifies strcasecmp/strncasecmp in <strings.h>, not <string.h>.
+NuttX follows the standard strictly so omitting this header causes an
+"implicit declaration" error.  Guard the include with __NuttX__ so it
+only applies where needed and does not affect Linux or other platforms
+that already expose strcasecmp through <string.h>.
+
+--- a/rcutils/src/strcasecmp.c
++++ b/rcutils/src/strcasecmp.c
+@@ -17,6 +17,9 @@ extern "C"
+ #include <errno.h>
+ #include <string.h>
++#ifdef __NuttX__
++#include <strings.h>
++#endif
+
+ #include "rcutils/strcasecmp.h"
