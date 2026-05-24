@@ -233,6 +233,7 @@ static bool create_files(const char *dir, const char *name,
   if (path_len + 5 >= MAX_PATH_LEN)
     {
       printf("path name too long\n");
+      free(read_bytes);
       return false;
     }
 
@@ -267,7 +268,7 @@ static bool create_files(const char *dir, const char *name,
           printf("write %s failed, ret: %d, errno %d -> %s\n",
                  path, ret, errno, strerror(errno));
           passed = false;
-          break;
+          goto close_file;
         }
 
       ret = lseek(fd, 0, SEEK_SET);
@@ -277,7 +278,7 @@ static bool create_files(const char *dir, const char *name,
           printf("lseek %s failed, ret: %d, errno %d -> %s\n",
                  path, ret, errno, strerror(errno));
           passed = false;
-          break;
+          goto close_file;
         }
 
       ret = read(fd, read_bytes, num_bytes);
@@ -287,16 +288,17 @@ static bool create_files(const char *dir, const char *name,
           printf("read %s failed, ret: %d, errno %d -> %s\n",
                  path, ret, errno, strerror(errno));
           passed = false;
-          break;
+          goto close_file;
         }
 
       if (memcmp(read_bytes, bytes, num_bytes) != 0)
         {
           printf("read and write buffers are not the same\n");
           passed = false;
-          break;
+          goto close_file;
         }
 
+close_file:
       ret = close(fd);
 
       if (ret < 0)
@@ -304,6 +306,11 @@ static bool create_files(const char *dir, const char *name,
           printf("close %s failed, ret: %d, errno %d -> %s\n",
                  path, ret, errno, strerror(errno));
           passed = false;
+          break;
+        }
+
+      if (!passed)
+        {
           break;
         }
     }
