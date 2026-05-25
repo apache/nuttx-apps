@@ -82,7 +82,10 @@ static int      set_ip(FAR setting_t *setting, FAR struct in_addr *ip);
 static int      load(void);
 static void     save(void);
 static void     signotify(void);
+static void     dump_cache_locked(FAR bool *wrpend);
+#ifdef CONFIG_SYSTEM_SETTINGS_CACHED_SAVES
 static void     dump_cache(union sigval ptr);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -623,12 +626,7 @@ static void save(void)
 #ifdef CONFIG_SYSTEM_SETTINGS_CACHED_SAVES
   timer_settime(g_settings.timerid, 0, &g_settings.trigger, NULL);
 #else
-  union sigval value =
-  {
-    .sival_ptr = &g_settings.wrpend,
-  };
-
-  dump_cache(value);
+  dump_cache_locked(&g_settings.wrpend);
 #endif
 }
 
@@ -662,6 +660,38 @@ static void signotify(void)
 }
 
 /****************************************************************************
+ * Name: dump_cache_locked
+ *
+ * Description:
+ *    Writes out the cached data to the appropriate storage.  The caller
+ *    must hold g_settings.mtx.
+ *
+ * Input Parameters:
+ *    wrpend           - pending write flag to clear after dumping
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static void dump_cache_locked(FAR bool *wrpend)
+{
+  int i;
+
+  for (i = 0; i < CONFIG_SYSTEM_SETTINGS_MAX_STORAGES; i++)
+    {
+      if ((g_settings.store[i].file[0] != '\0') &&
+           g_settings.store[i].save_fn)
+        {
+          (void)g_settings.store[i].save_fn(g_settings.store[i].file);
+        }
+    }
+
+  *wrpend = false;
+}
+
+#ifdef CONFIG_SYSTEM_SETTINGS_CACHED_SAVES
+/****************************************************************************
  * Name: dump_cache
  *
  * Description:
@@ -677,36 +707,16 @@ static void signotify(void)
 
 static void dump_cache(union sigval ptr)
 {
-  int ret = OK;
-  FAR bool *wrpend = (bool *)ptr.sival_ptr;
-
-  int i;
+  FAR bool *wrpend = (FAR bool *)ptr.sival_ptr;
+  int ret;
 
   ret = pthread_mutex_lock(&g_settings.mtx);
   assert(ret >= 0);
 
-  for (i = 0; i < CONFIG_SYSTEM_SETTINGS_MAX_STORAGES; i++)
-    {
-      if ((g_settings.store[i].file[0] != '\0') &&
-           g_settings.store[i].save_fn)
-        {
-          ret = g_settings.store[i].save_fn(g_settings.store[i].file);
-#if 0
-          if (ret < 0)
-            {
-              /* What to do? We can't return anything from a void function.
-               *
-               * MIGHT BE A FUTURE REVISIT NEEDED
-               */
-            }
-#endif
-        }
-    }
-
-  *wrpend = false;
-
+  dump_cache_locked(wrpend);
   pthread_mutex_unlock(&g_settings.mtx);
 }
+#endif
 
 /****************************************************************************
  * Name: sanity_check
