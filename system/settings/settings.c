@@ -772,9 +772,9 @@ void settings_init(void)
   pthread_mutexattr_t attr;
 
   pthread_mutexattr_init(&attr);
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
   pthread_mutex_init(&g_settings.mtx, &attr);
+  pthread_mutexattr_destroy(&attr);
 
   memset(map, 0, sizeof(map));
   memset(g_settings.store, 0, sizeof(g_settings.store));
