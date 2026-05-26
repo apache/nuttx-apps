@@ -52,6 +52,9 @@ $(or \
   $(and $(filter x86,$(LLVM_ARCHTYPE)), \
     $(APPDIR)/tools/i486-unknown-nuttx.json \
   ), \
+  $(and $(filter aarch64,$(LLVM_ARCHTYPE)), \
+    $(if $(filter y,$(CONFIG_HOST_MACOS)),aarch64-apple-darwin) \
+  ), \
   $(and $(filter thumb%,$(LLVM_ARCHTYPE)), \
     $(if $(filter thumbv8m%,$(LLVM_ARCHTYPE)), \
       $(if $(filter cortex-m23,$(LLVM_CPUTYPE)),thumbv8m.base,thumbv8m.main)-nuttx-$(LLVM_ABITYPE), \
@@ -91,7 +94,7 @@ ifeq ($(CONFIG_DEBUG_FULLOPT),y)
 define RUST_CARGO_BUILD
 	NUTTX_INCLUDE_DIR=$(TOPDIR)/include:$(TOPDIR)/include/arch \
     RUSTFLAGS="-Zunstable-options -Cpanic=immediate-abort" \
-    cargo build --release -Zbuild-std=std,panic_abort \
+    cargo build --release -Zbuild-std=std,panic_abort -Zjson-target-spec \
 		--manifest-path $(2)/$(1)/Cargo.toml \
 		--target $(call RUST_TARGET_TRIPLE)
 endef
@@ -99,7 +102,7 @@ else
 define RUST_CARGO_BUILD
 	@echo "Building Rust code with cargo..."
 	NUTTX_INCLUDE_DIR=$(TOPDIR)/include:$(TOPDIR)/include/arch \
-    cargo build -Zbuild-std=std,panic_abort \
+    cargo build -Zbuild-std=std,panic_abort -Zjson-target-spec \
 		--manifest-path $(2)/$(1)/Cargo.toml \
 		--target $(call RUST_TARGET_TRIPLE)
 endef
