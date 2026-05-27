@@ -66,6 +66,8 @@
 
 #define SVC_REMOVE      (1 << 31)
 
+#define MAX_NXINIT_SERVICE_NAME 32
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -73,7 +75,7 @@
 struct service_class_s
 {
   struct list_node node;     /* Service class list node */
-  FAR char name[0];
+  FAR char name[MAX_NXINIT_SERVICE_NAME];
 };
 
 struct service_s
