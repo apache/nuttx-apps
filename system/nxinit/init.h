@@ -36,7 +36,7 @@
 #define TIMESPEC2MS(t) (((t).tv_sec * 1000) + (t).tv_nsec / 1000000)
 
 #ifdef CONFIG_SYSTEM_NXINIT_DEBUG
-#define init_debug(...) syslog(LOG_DEBUG, ##__VA_ARGS__)
+#define init_debug(...) syslog(LOG_USER, ##__VA_ARGS__)
 #define init_dump_args(argc, argv) \
           { \
             int _i; \
