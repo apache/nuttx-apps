@@ -111,7 +111,7 @@ static int option_reboot_on_failure(FAR struct service_manager_s *sm,
 
 static const struct cmd_map_s g_option[] =
 {
-  {"class", 2, 99, option_class},
+  {"class", 2, NXINIT_ACTION_CMD_ARGS_MAX, option_class},
   {"gentle_kill", 1, 1, option_gentle_kill},
   {"restart_period", 2, 2, option_restart_period},
   {"override", 1, 1, option_override},
