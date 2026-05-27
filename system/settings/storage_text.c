@@ -97,9 +97,11 @@ extern setting_t map[CONFIG_SYSTEM_SETTINGS_MAP_SIZE];
 FAR setting_t *getsetting(char *key)
 {
   int i;
+  size_t keylen;
   FAR setting_t *setting;
 
-  if (strlen(key) >= CONFIG_SYSTEM_SETTINGS_KEY_SIZE)
+  keylen = strnlen(key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
+  if (keylen >= CONFIG_SYSTEM_SETTINGS_KEY_SIZE)
     {
       return NULL;
     }
@@ -108,15 +110,14 @@ FAR setting_t *getsetting(char *key)
     {
       setting = &map[i];
 
-      if (strcmp(key, setting->key) == 0)
+      if (strncmp(key, setting->key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE) == 0)
         {
           return setting;
         }
 
       if (setting->type == SETTING_EMPTY)
         {
-          strncpy(setting->key, key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
-          setting->key[CONFIG_SYSTEM_SETTINGS_KEY_SIZE - 1] = '\0';
+          strlcpy(setting->key, key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
           return setting;
         }
     }
@@ -152,21 +153,27 @@ int load_text(FAR char *file)
   FAR char      *backup_file;
   FAR char      *buffer;
   FAR setting_t *setting;
+  size_t        filelen;
 
   /* Check that the file exists */
+
+  filelen = strnlen(file, CONFIG_SYSTEM_SETTINGS_MAX_FILENAME);
+  if (filelen >= CONFIG_SYSTEM_SETTINGS_MAX_FILENAME)
+    {
+      return -EINVAL;
+    }
 
   if (access(file, F_OK) != 0)
     {
       /* If not, try the backup file */
 
-      backup_file = malloc(strlen(file) + 2);
+      backup_file = malloc(filelen + 2);
       if (backup_file == NULL)
         {
           return -ENODEV;
         }
 
-      strcpy(backup_file, file);
-      strcat(backup_file, "~");
+      snprintf(backup_file, filelen + 2, "%s~", file);
 
       if (access(backup_file, F_OK) == 0)
         {
@@ -196,10 +203,12 @@ int load_text(FAR char *file)
   while (fgets(buffer, BUFFER_SIZE, f))
     {
       int  i;
+      size_t linelen;
 
       /* Remove any line terminators */
 
-      for (i = ((int)strlen(buffer) - 1); i > 0; i--)
+      linelen = strnlen(buffer, BUFFER_SIZE);
+      for (i = ((int)linelen - 1); i > 0; i--)
         {
           if (buffer[i] == ';' || buffer[i] == '\n' || buffer[i] == '\r')
             {
@@ -260,15 +269,15 @@ int load_text(FAR char *file)
             {
               /* It's a string */
 
-              if (strlen(val) >= CONFIG_SYSTEM_SETTINGS_VALUE_SIZE)
+              if (strnlen(val, CONFIG_SYSTEM_SETTINGS_VALUE_SIZE) >=
+                  CONFIG_SYSTEM_SETTINGS_VALUE_SIZE)
                 {
                   continue;
                 }
 
               setting->type = SETTING_STRING;
-              strncpy(setting->val.s, val,
+              strlcpy(setting->val.s, val,
                       CONFIG_SYSTEM_SETTINGS_VALUE_SIZE);
-              setting->val.s[CONFIG_SYSTEM_SETTINGS_VALUE_SIZE - 1] = '\0';
             }
         }
       else
@@ -343,17 +352,24 @@ abort:
 int save_text(FAR char *file)
 {
   int      ret = OK;
-  FAR char *backup_file = malloc(strlen(file) + 2);
+  FAR char *backup_file;
   FAR FILE *f;
+  size_t   filelen;
   int      i;
 
+  filelen = strnlen(file, CONFIG_SYSTEM_SETTINGS_MAX_FILENAME);
+  if (filelen >= CONFIG_SYSTEM_SETTINGS_MAX_FILENAME)
+    {
+      return -EINVAL;
+    }
+
+  backup_file = malloc(filelen + 2);
   if (backup_file == NULL)
     {
       return -ENODEV;
     }
 
-  strcpy(backup_file, file);
-  strcat(backup_file, "~");
+  snprintf(backup_file, filelen + 2, "%s~", file);
 
   f = fopen(backup_file, "w");
   if (f == NULL)

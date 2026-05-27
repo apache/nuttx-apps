@@ -96,12 +96,19 @@ extern setting_t map[CONFIG_SYSTEM_SETTINGS_MAP_SIZE];
 FAR setting_t *getsetting(FAR char *key)
 {
   int i;
+  size_t keylen;
+
+  keylen = strnlen(key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
+  if (keylen >= CONFIG_SYSTEM_SETTINGS_KEY_SIZE)
+    {
+      return NULL;
+    }
 
   for (i = 0; i < CONFIG_SYSTEM_SETTINGS_MAP_SIZE; i++)
     {
       FAR setting_t *setting = &map[i];
 
-      if (strcmp(key, setting->key) == 0)
+      if (strncmp(key, setting->key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE) == 0)
         {
           return setting;
         }
@@ -186,6 +193,13 @@ int load_bin(FAR char *file)
 
       slot = getsetting(setting.key);
       if (slot == NULL)
+        {
+          continue;
+        }
+
+      if (setting.type == SETTING_STRING &&
+          strnlen(setting.val.s, CONFIG_SYSTEM_SETTINGS_VALUE_SIZE) >=
+          CONFIG_SYSTEM_SETTINGS_VALUE_SIZE)
         {
           continue;
         }
