@@ -31,6 +31,12 @@ config SYSTEM_NXINIT_PROGNAME
 
 comment "NXInit Run Control(RC)"
 
+config SYSTEM_NXINIT_RC_FILE_PATH
+	string "Path to RC file"
+	default "/etc/init.d/init.rc"
+	---help---
+		Path to the init.rc file to use for NXInit's boot logic.
+
 config SYSTEM_NXINIT_RC_LINE_MAX
 	int "Max line length of RC file"
 	default 128

@@ -180,7 +180,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
-  r = init_parse_config_file(parser, "/etc/init.d/init.rc");
+  r = init_parse_config_file(parser, CONFIG_SYSTEM_NXINIT_RC_FILE_PATH);
   if (r < 0)
     {
       goto out;
