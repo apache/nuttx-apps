@@ -224,6 +224,7 @@ static int option_class(FAR struct service_manager_s *sm,
       return -errno;
     }
 
+  len = (len >= MAX_NXINIT_SERVICE_NAME) ? MAX_NXINIT_SERVICE_NAME : len;
   memcpy(c->name, argv[1], len);
   list_add_tail(&s->classes, &c->node);
   return 0;
