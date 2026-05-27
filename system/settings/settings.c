@@ -152,6 +152,13 @@ static int get_setting(FAR char *key, FAR setting_t **setting)
 
   assert(*setting == NULL);
 
+  if (strnlen(key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE) >=
+      CONFIG_SYSTEM_SETTINGS_KEY_SIZE)
+    {
+      ret = -EINVAL;
+      goto exit;
+    }
+
   for (i = 0; i < CONFIG_SYSTEM_SETTINGS_MAP_SIZE; i++)
     {
       if (map[i].type == SETTING_EMPTY)
@@ -160,7 +167,7 @@ static int get_setting(FAR char *key, FAR setting_t **setting)
           goto exit;
         }
 
-      if (strcmp(map[i].key, key) == 0)
+      if (strncmp(map[i].key, key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE) == 0)
         {
           *setting = &map[i];
           goto exit;
@@ -201,16 +208,16 @@ static size_t get_string(FAR setting_t *setting, FAR char *buffer,
   if (setting->type == SETTING_STRING)
     {
       FAR const char *s = setting->val.s;
-      size_t len = strlen(s);
+      size_t len = strnlen(s, CONFIG_SYSTEM_SETTINGS_VALUE_SIZE);
 
+      assert(len < CONFIG_SYSTEM_SETTINGS_VALUE_SIZE);
       assert(len < size);
-      if (len >= size)
+      if (len >= CONFIG_SYSTEM_SETTINGS_VALUE_SIZE || len >= size)
         {
           return 0;
         }
 
-      strncpy(buffer, s, size);
-      buffer[size - 1] = '\0';
+      strlcpy(buffer, s, size);
 
       return len;
     }
@@ -221,7 +228,7 @@ static size_t get_string(FAR setting_t *setting, FAR char *buffer,
       inet_ntop(AF_INET, &setting->val.ip, buffer, size);
       buffer[size - 1] = '\0';
 
-      return strlen(buffer);
+      return strnlen(buffer, size);
     }
 
   return 0;
@@ -244,6 +251,8 @@ static size_t get_string(FAR setting_t *setting, FAR char *buffer,
 
 static int set_string(FAR setting_t *setting, FAR char *str)
 {
+  size_t len;
+
   assert(setting);
 
   if ((setting->type != SETTING_STRING) &&
@@ -252,19 +261,19 @@ static int set_string(FAR setting_t *setting, FAR char *str)
       return -EACCES;
     }
 
-  if (strlen(str) >= CONFIG_SYSTEM_SETTINGS_VALUE_SIZE)
+  len = strnlen(str, CONFIG_SYSTEM_SETTINGS_VALUE_SIZE);
+  if (len >= CONFIG_SYSTEM_SETTINGS_VALUE_SIZE)
     {
       return -EINVAL;
     }
 
-  if (strlen(str) && (sanity_check(str) < 0))
+  if (len > 0 && (sanity_check(str) < 0))
     {
       return -EINVAL;
     }
 
   setting->type = SETTING_STRING;
-  strncpy(setting->val.s, str, CONFIG_SYSTEM_SETTINGS_VALUE_SIZE);
-  setting->val.s[CONFIG_SYSTEM_SETTINGS_VALUE_SIZE - 1] = '\0';
+  strlcpy(setting->val.s, str, CONFIG_SYSTEM_SETTINGS_VALUE_SIZE);
 
   return OK;
 }
@@ -825,6 +834,7 @@ int settings_setstorage(FAR char *file, enum storage_type_e type)
   int ret = OK;
   int idx = 0;
   uint32_t h;
+  size_t filelen;
 
   assert(g_settings.initialized);
 
@@ -847,16 +857,16 @@ int settings_setstorage(FAR char *file, enum storage_type_e type)
       goto errout;
     }
 
-  assert(strlen(file) < CONFIG_SYSTEM_SETTINGS_MAX_FILENAME);
-  if (strlen(file) >= CONFIG_SYSTEM_SETTINGS_MAX_FILENAME)
+  filelen = strnlen(file, CONFIG_SYSTEM_SETTINGS_MAX_FILENAME);
+  assert(filelen < CONFIG_SYSTEM_SETTINGS_MAX_FILENAME);
+  if (filelen >= CONFIG_SYSTEM_SETTINGS_MAX_FILENAME)
     {
       ret = -EINVAL;
       goto errout;
     }
 
   storage = &g_settings.store[idx];
-  strncpy(storage->file, file, sizeof(storage->file));
-  storage->file[sizeof(storage->file) - 1] = '\0';
+  strlcpy(storage->file, file, sizeof(storage->file));
 
   switch (type)
   {
@@ -1114,6 +1124,7 @@ int settings_create(FAR char *key, enum settings_type_e type, ...)
 {
   int ret = OK;
   FAR setting_t *setting = NULL;
+  size_t keylen;
   int j;
 
   assert(g_settings.initialized);
@@ -1123,7 +1134,8 @@ int settings_create(FAR char *key, enum settings_type_e type, ...)
       return -EINVAL;
     }
 
-  if (strlen(key) == 0 || strlen(key) >= CONFIG_SYSTEM_SETTINGS_KEY_SIZE)
+  keylen = strnlen(key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
+  if (keylen == 0 || keylen >= CONFIG_SYSTEM_SETTINGS_KEY_SIZE)
     {
       return -EINVAL;
     }
@@ -1141,7 +1153,7 @@ int settings_create(FAR char *key, enum settings_type_e type, ...)
 
   for (j = 0; j < CONFIG_SYSTEM_SETTINGS_MAP_SIZE; j++)
     {
-      if (strcmp(key, map[j].key) == 0)
+      if (strncmp(key, map[j].key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE) == 0)
         {
           setting = &map[j];
 
@@ -1153,8 +1165,7 @@ int settings_create(FAR char *key, enum settings_type_e type, ...)
       if (map[j].type == SETTING_EMPTY)
         {
           setting = &map[j];
-          strncpy(setting->key, key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
-          setting->key[CONFIG_SYSTEM_SETTINGS_KEY_SIZE - 1] = '\0';
+          strlcpy(setting->key, key, CONFIG_SYSTEM_SETTINGS_KEY_SIZE);
 
           /* This setting is empty/unused - we can use it */
 
