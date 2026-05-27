@@ -77,7 +77,7 @@ config SYSTEM_NXINIT_ACTION_MANAGER_EVENT_MAX
 config SYSTEM_NXINIT_FINALINIT
 	bool "Enable NXInit final event"
 	default n
-	--help--
+	---help---
 		Enable support to run the "final" event. Currently only "boot",
 		and "init" event are enabled by default, where "netinit" and
 		"final" are optional.
