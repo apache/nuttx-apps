@@ -206,8 +206,11 @@ static int option_class(FAR struct service_manager_s *sm,
 {
   FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
                                             node);
-  size_t len = strlen(argv[1]) + 1;
+  size_t len;
   FAR struct service_class_s *c;
+
+  len = strlen(argv[1]) + 1;
+  len = (len >= NXINIT_SERVICE_NAME_MAX) ? NXINIT_SERVICE_NAME_MAX : len;
 
   list_for_every_entry(&s->classes, c, struct service_class_s, node)
     {
@@ -217,15 +220,15 @@ static int option_class(FAR struct service_manager_s *sm,
         }
     }
 
-  c = malloc(sizeof(*c) + len);
+  c = malloc(sizeof(*c));
   if (c == NULL)
     {
       init_err("Alloc class");
       return -errno;
     }
 
-  len = (len >= MAX_NXINIT_SERVICE_NAME) ? MAX_NXINIT_SERVICE_NAME : len;
   memcpy(c->name, argv[1], len);
+  c->name[len] = '\0'; /* Always ensure null termination */
   list_add_tail(&s->classes, &c->node);
   return 0;
 }
