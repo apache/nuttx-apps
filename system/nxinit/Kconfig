@@ -14,9 +14,7 @@ config SYSTEM_NXINIT
 
 if SYSTEM_NXINIT
 
-#
-# Basic
-#
+comment "NXInit Basic"
 
 config SYSTEM_NXINIT_PRIORITY
 	int "Thread priority"
@@ -30,9 +28,7 @@ config SYSTEM_NXINIT_PROGNAME
 	string "Program name"
 	default "init"
 
-#
-# RC
-#
+comment "NXInit Run Control(RC)"
 
 config SYSTEM_NXINIT_RC_LINE_MAX
 	int "Max line length of RC file"
@@ -41,9 +37,7 @@ config SYSTEM_NXINIT_RC_LINE_MAX
 		Maximum line length of RC file.
 		More details: https://android.googlesource.com/platform/system/core/+/master/init/README.md
 
-#
-# Action
-#
+comment "NXInit Action"
 
 config SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX
 	int "Max number of command arguments"
@@ -60,7 +54,7 @@ config SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX
 		```
 
 config SYSTEM_NXINIT_ACTION_WARN_SLOW
-	int "Warn if command takes too long"
+	int "Slow command warning timeout"
 	default 50
 	depends on SYSTEM_NXINIT_WARN
 	---help---
@@ -80,9 +74,7 @@ config SYSTEM_NXINIT_ACTION_MANAGER_EVENT_MAX
 		};
 		```
 
-#
-# Service
-#
+comment "NXInit Service"
 
 config SYSTEM_NXINIT_SERVICE_ARGS_MAX
 	int "Max number of service arguments"
@@ -102,9 +94,7 @@ config SYSTEM_NXINIT_SERVICE_RESTART_PERIOD
 	int "Service restart period in ms"
 	default 5000
 
-#
-# Log level
-#
+comment "NXInit Log level"
 
 config SYSTEM_NXINIT_ERR
 	bool "Enable error log"
