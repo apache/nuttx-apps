@@ -80,13 +80,7 @@ static void reap_process(FAR struct service_manager_s *sm,
 
   for (; ; )
     {
-      pid = waitpid(-1,
-#ifdef CONFIG_SYSTEM_NXINIT_DEBUG
-                    &wstatus,
-#else
-                    NULL,
-#endif
-                    WNOHANG);
+      pid = waitpid(-1, &wstatus, WNOHANG);
       if (pid <= 0)
         {
           break;
