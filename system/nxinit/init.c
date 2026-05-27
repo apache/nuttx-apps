@@ -191,7 +191,6 @@ int main(int argc, FAR char *argv[])
 
   init_action_add_event(&am, "boot");
 
-  boardctl(BOARDIOC_INIT, 0);
   init_action_add_event(&am, "init");
 
 #ifdef CONFIG_NETUTILS_NETINIT
