@@ -198,8 +198,7 @@ int main(int argc, FAR char *argv[])
   init_action_add_event(&am, "netinit");
 #endif
 
-#ifdef CONFIG_BOARDCTL_FINALINIT
-  boardctl(BOARDIOC_FINALINIT, 0);
+#ifdef CONFIG_SYSTEM_NXINIT_FINALINIT
   init_action_add_event(&am, "finalinit");
 #endif
 
