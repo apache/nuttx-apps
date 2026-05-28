@@ -409,13 +409,13 @@ int nettest_destroy_tcp_lo_server(pthread_t server_tid)
       ret = connect(sockfd, (FAR struct sockaddr *)&myaddr, addrlen);
       if (ret < 0)
         {
-          goto err_destory;
+          goto err_destroy;
         }
 
       ret = send(sockfd, EXIT_MSG, strlen(EXIT_MSG), 0);
       if (ret < 0)
         {
-          goto err_destory;
+          goto err_destroy;
         }
 
       pthread_join(server_tid, NULL);
@@ -424,7 +424,7 @@ int nettest_destroy_tcp_lo_server(pthread_t server_tid)
 
   return 0;
 
-err_destory:
+err_destroy:
   close(sockfd);
   return -errno;
 }
