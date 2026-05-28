@@ -8,7 +8,7 @@ config SYSTEM_LZF
 	default n
 	depends on LIBC_LZF
 	---help---
-		Enable theLZF compression tool
+		Enable the LZF compression tool
 
 if SYSTEM_LZF
 
