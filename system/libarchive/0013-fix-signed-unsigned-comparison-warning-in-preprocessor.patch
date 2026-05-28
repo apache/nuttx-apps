@@ -1,0 +1,13 @@
+diff --git a/libarchive/archive_write_disk_posix.c b/libarchive/archive_write_disk_posix.c
+index d9619fe2..e76a608d 100644
+--- a/libarchive/archive_write_disk_posix.c
++++ b/libarchive/archive_write_disk_posix.c
+@@ -156,7 +156,7 @@
+ 
+ /* Ignore non-int O_NOFOLLOW constant. */
+ /* gnulib's fcntl.h does this on AIX, but it seems practical everywhere */
+-#if defined O_NOFOLLOW && !(INT_MIN <= O_NOFOLLOW && O_NOFOLLOW <= INT_MAX)
++#if defined O_NOFOLLOW && O_NOFOLLOW > INT_MAX
+ #undef O_NOFOLLOW
+ #endif
+ 
