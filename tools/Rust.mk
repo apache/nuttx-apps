@@ -37,6 +37,8 @@
 #   - thumbv8m.base: thumbv8m.base-nuttx-eabi, thumbv8m.base-nuttx-eabihf
 #   - riscv32: riscv32imc/imac/imafc-unknown-nuttx-elf
 #   - riscv64: riscv64imac/imafdc-unknown-nuttx-elf
+#   - aarch64: aarch64-unknown-nuttx-macho for sim on macOS,
+#              aarch64-unknown-nuttx otherwise
 #
 # Usage:   $(call RUST_TARGET_TRIPLE)
 #
@@ -47,13 +49,16 @@
 define RUST_TARGET_TRIPLE
 $(or \
   $(and $(filter x86_64,$(LLVM_ARCHTYPE)), \
-    $(APPDIR)/tools/x86_64-unknown-nuttx.json \
+    $(TOPDIR)/tools/x86_64-unknown-nuttx.json \
   ), \
   $(and $(filter x86,$(LLVM_ARCHTYPE)), \
-    $(APPDIR)/tools/i486-unknown-nuttx.json \
+    $(TOPDIR)/tools/i486-unknown-nuttx.json \
   ), \
   $(and $(filter aarch64,$(LLVM_ARCHTYPE)), \
-    $(if $(filter y,$(CONFIG_HOST_MACOS)),aarch64-apple-darwin) \
+    $(if $(and $(filter sim,$(CONFIG_ARCH)),$(filter y,$(CONFIG_HOST_MACOS))), \
+      $(TOPDIR)/tools/aarch64-unknown-nuttx-macho.json, \
+      $(TOPDIR)/tools/aarch64-unknown-nuttx.json \
+    ) \
   ), \
   $(and $(filter thumb%,$(LLVM_ARCHTYPE)), \
     $(if $(filter thumbv8m%,$(LLVM_ARCHTYPE)), \
