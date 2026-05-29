@@ -144,3 +144,18 @@ $(2)/$(1)/target/$(strip $(if $(findstring .json,$(call RUST_TARGET_TRIPLE)), \
 	$(basename $(notdir $(call RUST_TARGET_TRIPLE))), \
 	$(call RUST_TARGET_TRIPLE)))/$(if $(CONFIG_DEBUG_FULLOPT),release,debug)/lib$(1).a
 endef
+
+# Collect crate input files for a crate
+#
+# Usage:   $(call RUST_CARGO_SRCS,cratename,prefix)
+#
+# Inputs:
+#   cratename - Name of the Rust crate (e.g. hello)
+#   prefix    - Path prefix to the crate (e.g. path/to/project)
+#
+# Output:
+#   List of crate input files (excluding the cargo target directory)
+
+define RUST_CARGO_SRCS
+$(shell find $(2)/$(1) -type f -not -path '$(2)/$(1)/target/*' 2>/dev/null)
+endef
