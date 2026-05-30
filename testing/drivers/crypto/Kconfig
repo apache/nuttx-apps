@@ -44,6 +44,10 @@ config TESTING_CRYPTO_HASH_DISABLE_SHA1
 	bool "disable sha1 tests"
 	default n
 
+config TESTING_CRYPTO_HASH_DISABLE_SHA224
+	bool "disable sha224 tests"
+	default n
+
 config TESTING_CRYPTO_HASH_DISABLE_SHA256
 	bool "disable sha256 tests"
 	default n
