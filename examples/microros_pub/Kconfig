@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MICROROS_PUB
+	tristate "micro-ROS int32 publisher example"
+	default n
+	depends on SYSTEM_MICROROS
+	---help---
+		Minimal micro-ROS publisher that creates a node and publishes
+		an std_msgs/Int32 every second on the topic /nuttx_pub.  Used
+		to validate the NuttX-native transport layer end-to-end with
+		a micro-ROS agent.
+
+if EXAMPLES_MICROROS_PUB
+
+config EXAMPLES_MICROROS_PUB_PROGNAME
+	string "Program name"
+	default "microros_pub"
+
+config EXAMPLES_MICROROS_PUB_PRIORITY
+	int "micro-ROS pub task priority"
+	default 100
+
+config EXAMPLES_MICROROS_PUB_STACKSIZE
+	int "micro-ROS pub stack size"
+	default 8192
+
+endif
