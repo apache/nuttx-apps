@@ -44,4 +44,24 @@ if(CONFIG_SYSTEM_MICROROS)
     microros PROPERTIES IMPORTED_LOCATION ${MICROROS_DIR}/libmicroros.a
                         INTERFACE_INCLUDE_DIRECTORIES ${MICROROS_DIR}/include)
   add_dependencies(microros microros_build)
+
+  # Transport glue compiled into the apps tree
+  set(MICROROS_TRANSPORT_SRCS ${MICROROS_DIR}/transport/microros_transport.c)
+
+  if(CONFIG_MICROROS_TRANSPORT_UDP)
+    list(APPEND MICROROS_TRANSPORT_SRCS
+         ${MICROROS_DIR}/transport/microros_transport_udp.c)
+  endif()
+
+  if(CONFIG_MICROROS_TRANSPORT_SERIAL)
+    list(APPEND MICROROS_TRANSPORT_SRCS
+         ${MICROROS_DIR}/transport/microros_transport_serial.c)
+  endif()
+
+  nuttx_add_library(microros_transport STATIC)
+  target_sources(microros_transport PRIVATE ${MICROROS_TRANSPORT_SRCS})
+  target_include_directories(microros_transport
+                             PRIVATE ${MICROROS_DIR}/transport)
+  target_include_directories(microros_transport PUBLIC ${MICROROS_DIR}/include)
+  add_dependencies(microros_transport microros_build)
 endif()
