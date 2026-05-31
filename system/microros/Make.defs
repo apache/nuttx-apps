@@ -23,8 +23,10 @@
 ifneq ($(CONFIG_SYSTEM_MICROROS),)
 CONFIGURED_APPS += $(APPDIR)/system/microros
 
-CFLAGS   += ${INCDIR_PREFIX}$(APPDIR)/system/microros/include
-CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/system/microros/include
+MICROROS_INC_DIRS := $(APPDIR)/system/microros/include \
+                     $(wildcard $(APPDIR)/system/microros/include/*)
+CFLAGS   += $(foreach d,$(MICROROS_INC_DIRS),${INCDIR_PREFIX}$(d))
+CXXFLAGS += $(foreach d,$(MICROROS_INC_DIRS),${INCDIR_PREFIX}$(d))
 
-LDLIBS   += $(APPDIR)/system/microros/libmicroros.a
+EXTRA_LIBS += $(APPDIR)/system/microros/libmicroros.a
 endif
