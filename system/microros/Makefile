@@ -25,7 +25,7 @@ include $(APPDIR)/Make.defs
 MICROROS_DIR     := $(APPDIR)/system/microros
 MICROROS_LIB_DIR := $(MICROROS_DIR)/micro_ros_lib
 MICROROS_DISTRO  := $(patsubst "%",%,$(CONFIG_MICROROS_DISTRO))
-MICROROS_AR      := $(CROSSDEV)ar
+MICROROS_AR      := $(firstword $(AR))
 
 MAX_NODES   := $(CONFIG_MICROROS_MAX_NODES)
 MAX_PUB     := $(CONFIG_MICROROS_MAX_PUBLISHERS)
@@ -43,6 +43,18 @@ ESCAPED_CFLAGS   := $(subst /,\/,$(subst ",,$(CFLAGS)))
 ESCAPED_CXXFLAGS := $(subst /,\/,$(subst ",,$(CXXFLAGS)))
 
 MENUDESC = "micro-ROS Library"
+
+# Transport sources compiled into the user-side app library
+
+CSRCS += transport/microros_transport.c
+
+ifeq ($(CONFIG_MICROROS_TRANSPORT_UDP),y)
+CSRCS += transport/microros_transport_udp.c
+endif
+
+ifeq ($(CONFIG_MICROROS_TRANSPORT_SERIAL),y)
+CSRCS += transport/microros_transport_serial.c
+endif
 
 # Architecture for CMake toolchain
 ifeq ($(CONFIG_ARCH_ARM),y)
