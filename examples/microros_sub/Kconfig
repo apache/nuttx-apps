@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MICROROS_SUB
+	tristate "micro-ROS int32 subscriber example"
+	default n
+	depends on SYSTEM_MICROROS
+	---help---
+		Minimal micro-ROS subscriber that creates a node, subscribes to
+		the topic /nuttx_sub with std_msgs/Int32, and prints each
+		received value.  Drives an rclc_executor spin loop and is used
+		together with microros_pub (or any external publisher) to
+		validate the NuttX-native transport in the receive direction.
+
+if EXAMPLES_MICROROS_SUB
+
+config EXAMPLES_MICROROS_SUB_PROGNAME
+	string "Program name"
+	default "microros_sub"
+
+config EXAMPLES_MICROROS_SUB_PRIORITY
+	int "micro-ROS sub task priority"
+	default 100
+
+config EXAMPLES_MICROROS_SUB_STACKSIZE
+	int "micro-ROS sub stack size"
+	default 8192
+
+endif
