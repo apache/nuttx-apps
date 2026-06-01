@@ -27,7 +27,8 @@
 #
 # Supported architectures and their target triples:
 #   - x86: i686-unknown-nuttx
-#   - x86_64: x86_64-unknown-nuttx
+#   - x86_64: x86_64-unknown-nuttx-macho for sim on macOS,
+#              x86_64-unknown-nuttx otherwise
 #   - armv7a: armv7a-nuttx-eabi, armv7a-nuttx-eabihf
 #   - thumbv6m: thumbv6m-nuttx-eabi
 #   - thumbv7a: thumbv7a-nuttx-eabi, thumbv7a-nuttx-eabihf
@@ -49,13 +50,16 @@
 define RUST_TARGET_TRIPLE
 $(or \
   $(and $(filter x86_64,$(LLVM_ARCHTYPE)), \
-    $(TOPDIR)/tools/x86_64-unknown-nuttx.json \
+    $(if $(and $(filter y,$(CONFIG_ARCH_SIM)),$(filter y,$(CONFIG_HOST_MACOS))), \
+      $(TOPDIR)/tools/x86_64-unknown-nuttx-macho.json, \
+      $(TOPDIR)/tools/x86_64-unknown-nuttx.json \
+    ) \
   ), \
   $(and $(filter x86,$(LLVM_ARCHTYPE)), \
     $(TOPDIR)/tools/i486-unknown-nuttx.json \
   ), \
   $(and $(filter aarch64,$(LLVM_ARCHTYPE)), \
-    $(if $(and $(filter sim,$(CONFIG_ARCH)),$(filter y,$(CONFIG_HOST_MACOS))), \
+    $(if $(and $(filter y,$(CONFIG_ARCH_SIM)),$(filter y,$(CONFIG_HOST_MACOS))), \
       $(TOPDIR)/tools/aarch64-unknown-nuttx-macho.json, \
       $(TOPDIR)/tools/aarch64-unknown-nuttx.json \
     ) \

@@ -34,7 +34,8 @@ include(nuttx_parse_function_args)
 #   - riscv32: riscv32imc/imac/imafc-unknown-nuttx-elf
 #   - riscv64: riscv64imac/imafdc-unknown-nuttx-elf
 #   - x86: i686-unknown-nuttx
-#   - x86_64: x86_64-unknown-nuttx
+#   - x86_64: x86_64-unknown-nuttx-macho for sim on macOS,
+#              x86_64-unknown-nuttx otherwise
 #   - aarch64: aarch64-unknown-nuttx-macho for sim on macOS,
 #              aarch64-unknown-nuttx otherwise
 #
@@ -50,7 +51,12 @@ include(nuttx_parse_function_args)
 
 function(nuttx_rust_target_triple ARCHTYPE ABITYPE CPUTYPE OUTPUT)
   if(ARCHTYPE STREQUAL "x86_64")
-    set(TARGET_TRIPLE "${PROJECT_SOURCE_DIR}/tools/x86_64-unknown-nuttx.json")
+    if(CONFIG_ARCH_SIM AND CONFIG_HOST_MACOS)
+      set(TARGET_TRIPLE
+          "${PROJECT_SOURCE_DIR}/tools/x86_64-unknown-nuttx-macho.json")
+    else()
+      set(TARGET_TRIPLE "${PROJECT_SOURCE_DIR}/tools/x86_64-unknown-nuttx.json")
+    endif()
   elseif(ARCHTYPE STREQUAL "x86")
     set(TARGET_TRIPLE "${PROJECT_SOURCE_DIR}/tools/i486-unknown-nuttx.json")
   elseif(ARCHTYPE STREQUAL "aarch64")
