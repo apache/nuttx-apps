@@ -36,6 +36,10 @@ config TESTING_CRYPTO_HASH_HUGE_BLOCK
 	bool "hash huge block crypto test"
 	default y
 
+config TESTING_CRYPTO_HASH_UNALIGNED_BUFFER_SIZE
+	bool "hash unaligned buffer size test"
+	default y
+
 config TESTING_CRYPTO_HASH_DISABLE_MD5
 	bool "disable md5 tests"
 	default n
@@ -54,6 +58,31 @@ config TESTING_CRYPTO_HASH_DISABLE_SHA256
 
 config TESTING_CRYPTO_HASH_DISABLE_SHA512
 	bool "disable sha512 tests"
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_MD5
+	bool "disable unaligned md5 tests"
+        depends on !TESTING_CRYPTO_HASH_DISABLE_MD5
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA1
+	bool "disable unaligned sha1 tests"
+        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA1
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA224
+	bool "disable unaligned sha224 tests"
+        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA224
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA256
+	bool "disable unaligned sha256 tests"
+        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA256
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA512
+	bool "disable unaligned sha512 tests"
+        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA512
 	default n
 
 endif
