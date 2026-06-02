@@ -260,7 +260,7 @@ static const unsigned char sha1_huge_block_result[20] =
 };
 #  endif
 
-#  ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA256
+#  ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA224
 static const unsigned char sha224_huge_block_result[28] =
 {
   0xff, 0x42, 0x9e, 0x92, 0x94, 0xce, 0x0a, 0x31,
