@@ -458,9 +458,9 @@ static int coredump_now(int pid, FAR char *filename)
 
   setlogmask(logmask);
 #  ifdef CONFIG_BOARD_COREDUMP_COMPRESSION
-  printf("Finish coredump (Compression Enabled).\n");
+  printf("Coredump finish (Compression Enabled).\n");
 #  else
-  printf("Finish coredump.\n");
+  printf("Coredump finish.\n");
 #  endif
 
   free(hstream);
