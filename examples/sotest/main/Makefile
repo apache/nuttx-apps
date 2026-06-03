@@ -50,8 +50,20 @@ ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
 ROMFSIMG = sotest_romfs.img
 ROMFSSRC = sotest_romfs.c
 ROMFSOBJ = $(ROMFSSRC:.c=$(OBJEXT))
+ifdef CONFIG_SYSTEM_NXPKG
+PKGSHAREDINDEX = $(BINDIR)/shared-index.json
+PKGSHAREDTEST = $(BINDIR)/pkgsotest.nsh
+PKG_FIXTURE_GEN = $(APPDIR)/examples/sotest/main/mk_pkg_fixture_shared.py
+PKG_FIXTURE_OUTPUTS = $(PKGSHAREDINDEX) $(PKGSHAREDTEST)
 
-$(ROMFSIMG):
+$(PKG_FIXTURE_OUTPUTS) &: $(BINDIR)/modprint $(BINDIR)/sotest $(PKG_FIXTURE_GEN)
+	$(Q) python3 $(PKG_FIXTURE_GEN) \
+		$(BINDIR)/modprint $(BINDIR)/sotest \
+		$(PKGSHAREDINDEX) $(PKGSHAREDTEST) \
+		$(CONFIG_ARCH) $(CONFIG_ARCH_BOARD)
+endif
+
+$(ROMFSIMG): $(PKG_FIXTURE_OUTPUTS)
 	$(Q) genromfs -d $(BINDIR) -f $@
 
 $(ROMFSSRC): $(ROMFSIMG)
