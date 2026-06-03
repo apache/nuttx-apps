@@ -189,7 +189,7 @@ config EMBEDLOG_LOG_MAX
 	int "Max length of log message"
 	default 128
 	---help---
-		Maximum length of single log message. This defines length of finall
+		Maximum length of single log message. This defines length of final
 		message, so message "foo() returned %s" may consume for example
 		200 bytes since '%s' may be a long string. Metadata like timestamp
 		or file info uses this space too. Output log will be truncated if
@@ -205,7 +205,7 @@ config EMBEDLOG_MEM_LINE_SIZE
 		for more information about this.
 
 config EMBEDLOG_DEMO_PROGRAMS
-	bool "Compile demo programs"
+	tristate "Compile demo programs"
 	default n
 	---help---
 		Compile demo programs that visualise how embedlog works. Also good

@@ -168,10 +168,11 @@ CFLAGS += -DENABLE_OUT_NET=0
 # nuttx does not implement clock() function
 CFLAGS += -DENABLE_CLOCK=0
 
-ifeq ($(CONFIG_EMBEDLOG_DEMO_PROGRAMS),y)
+ifneq ($(CONFIG_EMBEDLOG_DEMO_PROGRAMS),)
 	# build demo programs as library instead of standalone programs
 	CFLAGS += -DEMBEDLOG_DEMO_LIBRARY
 
+	MODULE     = $(CONFIG_EMBEDLOG_DEMO_PROGRAMS)
 	PROGNAME   = el_demo_print_memory
 	PRIORITY   = $(CONFIG_EMBEDLOG_DEMO_PROGRAMS_PRIORITY)
 	STACKSIZE  = $(CONFIG_EMBEDLOG_DEMO_PROGRAMS_STACKSIZE)

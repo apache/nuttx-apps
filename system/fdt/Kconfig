@@ -12,7 +12,7 @@ config SYSTEM_FDT
 if LIBC_FDT
 
 config SYSTEM_FDTDUMP
-	bool "system fdtdump command"
+	tristate "system fdtdump command"
 	default n
 	select SYSTEM_FDT
 	---help---
@@ -35,7 +35,7 @@ config SYSTEM_FDTDUMP_PRIORITY
 endif # SYSTEM_FDTDUMP
 
 config SYSTEM_FDTGET
-	bool "system fdtget command"
+	tristate "system fdtget command"
 	default n
 	select SYSTEM_FDT
 	---help---
@@ -58,7 +58,7 @@ config SYSTEM_FDTGET_PRIORITY
 endif # SYSTEM_FDTGET
 
 config SYSTEM_FDTPUT
-	bool "system fdtput command"
+	tristate "system fdtput command"
 	default n
 	select SYSTEM_FDT
 	---help---
@@ -81,7 +81,7 @@ config SYSTEM_FDTPUT_PRIORITY
 endif # SYSTEM_FDTPUT
 
 config SYSTEM_FDTOVERLAY
-	bool "system fdtoverlay command"
+	tristate "system fdtoverlay command"
 	default n
 	select SYSTEM_FDT
 	---help---
