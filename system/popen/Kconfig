@@ -7,7 +7,7 @@ config SYSTEM_POPEN
 	bool "popen()/pclose()/dpopen()/dpclose() Functions"
 	default n
 	select SCHED_WAITPID
-	depends on PIPES
+	select PIPES
 	---help---
 		Enable support for the popen(), pclose(), dpopen(), and
 		dpclose() interfaces.
