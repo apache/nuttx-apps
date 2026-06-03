@@ -37,16 +37,64 @@
  * Private Types
  ****************************************************************************/
 
-/* struct popen_file_s is a cast compatible version of FILE that contains
- * the additional PID of the shell processes needed by pclose().
- */
-
 struct popen_file_s
 {
-  FILE copy;
-  FILE *original;
+  int fd;
   pid_t shell;
 };
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: popen_file_read
+ ****************************************************************************/
+
+static ssize_t popen_file_read(FAR void *cookie, FAR char *buf,
+                               size_t size)
+{
+  FAR struct popen_file_s *filep = (FAR struct popen_file_s *)cookie;
+
+  return read(filep->fd, buf, size);
+}
+
+/****************************************************************************
+ * Name: popen_file_write
+ ****************************************************************************/
+
+static ssize_t popen_file_write(FAR void *cookie, FAR const char *buf,
+                                size_t size)
+{
+  FAR struct popen_file_s *filep = (FAR struct popen_file_s *)cookie;
+
+  return write(filep->fd, buf, size);
+}
+
+/****************************************************************************
+ * Name: popen_file_seek
+ ****************************************************************************/
+
+static off_t popen_file_seek(FAR void *cookie, FAR off_t *offset,
+                             int whence)
+{
+  set_errno(ESPIPE);
+  return ERROR;
+}
+
+/****************************************************************************
+ * Name: popen_file_close
+ ****************************************************************************/
+
+static int popen_file_close(FAR void *cookie)
+{
+  FAR struct popen_file_s *filep = (FAR struct popen_file_s *)cookie;
+  int ret;
+
+  ret = dpclose(filep->fd, filep->shell);
+  free(filep);
+  return ret < 0 ? ERROR : OK;
+}
 
 /****************************************************************************
  * Public Functions
@@ -93,6 +141,15 @@ struct popen_file_s
 FILE *popen(FAR const char *command, FAR const char *mode)
 {
   FAR struct popen_file_s *container;
+  FAR FILE *stream;
+  cookie_io_functions_t popen_io =
+    {
+      .read  = popen_file_read,
+      .write = popen_file_write,
+      .seek  = popen_file_seek,
+      .close = popen_file_close
+    };
+
   int oflag;
   int fd;
 
@@ -142,8 +199,9 @@ FILE *popen(FAR const char *command, FAR const char *mode)
 
   /* Wrap the raw fd in a FILE stream */
 
-  container->original = fdopen(fd, mode);
-  if (container->original == NULL)
+  container->fd = fd;
+  stream = fopencookie(container, mode, popen_io);
+  if (stream == NULL)
     {
       int errcode = errno;
       dpclose(fd, container->shell);
@@ -152,8 +210,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
       return NULL;
     }
 
-  memcpy(&container->copy, container->original, sizeof(FILE));
-  return &container->copy;
+  return stream;
 }
 
 /****************************************************************************
@@ -193,33 +250,12 @@ FILE *popen(FAR const char *command, FAR const char *mode)
  *   stream - The stream reference returned by a previous call to popen()
  *
  * Returned Value:
- *   The child termination status on success, or -1 (ERROR) on failure
- *   with errno set.
+ *   Zero (OK) is returned on success; otherwise -1 (ERROR) is returned and
+ *   errno is set appropriately.
  *
  ****************************************************************************/
 
 int pclose(FILE *stream)
 {
-  FAR struct popen_file_s *container = (FAR struct popen_file_s *)stream;
-  FILE *original;
-  pid_t shell;
-
-  original = container->original;
-
-  /* Set the state of the original file descriptor to the state of the
-   * working copy
-   */
-
-  memcpy(original, &container->copy, sizeof(FILE));
-
-  /* Then close the original and free the container (saving the PID of the
-   * shell process).  Pass -1 to dpclose since fclose already closed the fd.
-   */
-
-  fclose(original);
-
-  shell = container->shell;
-  free(container);
-
-  return dpclose(-1, shell);
+  return fclose(stream);
 }
