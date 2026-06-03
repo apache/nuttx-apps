@@ -239,7 +239,7 @@ $(OBJASM_G): $(PREFIX)%.$(ASMEXT)$(NASUFFIX)$(OBJEXT): %.$(ASMEXT)
 	$(Q) $(AS) $(ASFLAGS) $< -o $@
 
 ifneq ($(CONFIG_UTILS_X264),)
-  MODULE    += CONFIG_UTILS_X264
+  MODULE    += $(CONFIG_UTILS_X264)
   PROGNAME  += x264
   PRIORITY  += $(CONFIG_UTILS_X264_PRIORITY)
   STACKSIZE += $(CONFIG_UTILS_X264_STACKSIZE)
@@ -282,4 +282,3 @@ distclean::
 endif
 
 include $(APPDIR)/Application.mk
-
