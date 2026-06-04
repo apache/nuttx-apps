@@ -179,6 +179,16 @@ int init_parse_config_file(FAR const struct parser_s *parser,
           n -= nl - buf;
           init_debug("Line %3d: '%s'", ++line, buf);
 
+          /* Skip empty lines and lines containing only whitespace */
+
+          for (ret = 0; buf[ret] && isblank(buf[ret]); ret++);
+
+          if (buf[ret] == '\0')
+            {
+              memmove(buf, nl, n);
+              continue;
+            }
+
           for (ret = 0; parser[ret].key; ret++)
             {
               if (!strncmp(parser[ret].key, buf, strlen(parser[ret].key)))
