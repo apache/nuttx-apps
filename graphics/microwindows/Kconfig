@@ -1,0 +1,10 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig GRAPHICS_MICROWINDOWS
+	bool "Microwindows or the Nano-X Window System"
+	default n
+	---help---
+		Enable Microwindows or the Nano-X Window System
