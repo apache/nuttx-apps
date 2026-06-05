@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_pm10_format[] = "timestamp:%" PRIu64 ",pm10:%hf";
 #endif
 

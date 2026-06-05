@@ -57,7 +57,7 @@ struct orb_metadata
 {
   FAR const char   *o_name;     /* Unique object name */
   uint16_t          o_size;     /* Object size */
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
   FAR const char   *o_format;   /* Format string used for structure input and
                                  * output.
                                  */
@@ -165,7 +165,7 @@ struct orb_loop_s
 #  define uorbinfo             uorbnone
 #endif
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 #  define uorbdebug(fmt, ...)  syslog(LOG_INFO, fmt "\n", ##__VA_ARGS__)
 #else
 #  define uorbdebug            uorbnone
@@ -207,7 +207,7 @@ struct orb_loop_s
  * struct  The structure the topic provides.
  * cb      The function pointer of output topic message.
  */
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 #define ORB_DEFINE(name, structure, format) \
   const struct orb_metadata g_orb_##name = \
   { \
@@ -898,7 +898,7 @@ int orb_group_count(FAR const struct orb_metadata *meta);
 
 FAR const struct orb_metadata *orb_get_meta(FAR const char *name);
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 /****************************************************************************
  * Name: orb_scanf
  *
