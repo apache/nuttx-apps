@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 #define UORB_DEBUG_FORMAT_SENSOR_GNSS     \
   "timestamp:%" PRIu64                    \
   ",time_utc:%" PRIu64                    \

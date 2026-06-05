@@ -28,7 +28,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_eng_format[] =
   "timestamp:%" PRIu64 ",eng0:%hf,eng1:%hf,eng2:%hf,eng3:%hf,"
   "status:0x%" PRIx32 "";

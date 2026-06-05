@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_cap_format[] =
   "timestamp:%" PRIu64 ",status:%" PRIu32 ",rawdata0:%" PRIu32 ","
   "rawdata1:%" PRIu32 ",rawdata2:%" PRIu32 ",rawdata3:%" PRIu32 "";

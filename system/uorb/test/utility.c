@@ -33,7 +33,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char orb_test_format[] =
   "timestamp:%" PRIu64 ",val:%" PRId32 "";
 #endif

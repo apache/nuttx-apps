@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_gyro_format[] =
   "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,temperature:%hf";
 #endif
