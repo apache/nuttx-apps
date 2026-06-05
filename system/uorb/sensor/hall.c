@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_hall_format[] =
   "timestamp:%" PRIu64 ",hall:%" PRIi32 "";
 #endif

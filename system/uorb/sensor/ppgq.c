@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_ppgq_format[] =
   "timestamp:%" PRIu64 ",ppg0:%" PRIu32 ",ppg1:%" PRIu32 ",ppg2:%" PRIu32 ","
   "ppg3:%" PRIu32 ",current:%" PRIu32 ",gain0:%hu,gain1:%hu,gain2:%hu,"

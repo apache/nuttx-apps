@@ -30,7 +30,7 @@
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
 static const char sensor_pose_6dof_format[] =
   "timestamp:%" PRIu64 ",x:%hf,y:%hf,z:%hf,w:%hf,tx:%hf,ty:%hf,tz:%hf,"
   "dx:%hf,dy:%hf,dz:%hf,dw:%hf,dtx:%hf,dty:%hf,dtz:%hf,number:%" PRIu64 "";

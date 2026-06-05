@@ -49,7 +49,7 @@
 #define ORB_TOP_WAIT_TIME  1000
 #define ORB_DATA_DIR       "/data/uorb/"
 
-#if defined(CONFIG_DEBUG_UORB) && !defined(CONFIG_LIBC_FLOATINGPOINT)
+#if defined(CONFIG_UORB_FORMAT) && !defined(CONFIG_LIBC_FLOATINGPOINT)
 #error "Enable CONFIG_LIBC_FLOATINGPOINT, required to see debug output"
 #endif
 
@@ -551,7 +551,7 @@ static int listener_print(FAR const struct orb_metadata *meta, int fd)
   int ret;
 
   ret = orb_copy(meta, fd, buffer);
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
   if (ret == OK && meta->o_format != NULL)
     {
       orb_info(meta->o_format, meta->o_name, buffer);
@@ -774,7 +774,7 @@ static int listener_record(FAR const struct orb_metadata *meta, int fd,
   int ret;
 
   ret = orb_copy(meta, fd, buffer);
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
   if (ret == OK && meta->o_format != NULL)
     {
       ret = orb_fprintf(file, meta->o_format, buffer);
@@ -876,7 +876,7 @@ static void listener_monitor(FAR struct listen_list_s *objlist,
           tmp->file = fopen(path, "w");
           if (tmp->file != NULL)
             {
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
               fprintf(tmp->file, "%s,%d,%d,%s\n", tmp->object.meta->o_format,
                       tmp->object.meta->o_size, tmp->object.instance,
                       tmp->object.meta->o_name);
@@ -1129,7 +1129,7 @@ int main(int argc, FAR char *argv[])
             }
           break;
 
-#ifdef CONFIG_DEBUG_UORB
+#ifdef CONFIG_UORB_FORMAT
         case 's':
           record = true;
           break;
