@@ -102,6 +102,7 @@ static inline void lapi_unlock(FAR sem_t *lock)
  * Name: is_daemon_running
  ****************************************************************************/
 
+#ifdef CONFIG_MODEM_ALT1250
 static bool is_daemon_running(void)
 {
   int sock;
@@ -127,6 +128,7 @@ static bool is_daemon_running(void)
 
   return is_run;
 }
+#endif /* CONFIG_MODEM_ALT1250 */
 
 /****************************************************************************
  * Public Functions
@@ -140,6 +142,15 @@ int lte_initialize(void)
 {
   int ret = 0;
 
+#ifndef CONFIG_MODEM_ALT1250
+  /* The modem backend can be kernel-resident (e.g. a built-in modem
+   * served by kernel side usrsock handler, such as the nRF91). LTE
+   * commands reach the modem directly via the SIOCLTECMD socket ioctl.
+   */
+
+  UNUSED(ret);
+  return OK;
+#else
   lapi_lock(&g_lock);
 
   if (!is_daemon_running())
@@ -178,6 +189,7 @@ int lte_initialize(void)
   lapi_unlock(&g_lock);
 
   return ret;
+#endif
 }
 
 /****************************************************************************
