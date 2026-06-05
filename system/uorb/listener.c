@@ -330,24 +330,25 @@ static int listener_update(FAR struct listen_list_s *objlist,
 
       delta_time       = now_time - old->timestamp;
       delta_generation = state.generation - old->generation;
+
+      unsigned long frequency = 0;
       if (delta_generation && delta_time)
         {
-          unsigned long frequency;
-
           frequency = (state.max_frequency ? state.max_frequency : 1000000)
                       * delta_generation / delta_time;
-          uorbinfo_raw("\033[K" "%-*s %2u %4" PRIu32 " %4lu "
-                       "%2" PRIu32 " %4u",
-                       ORB_MAX_PRINT_NAME,
-                       object->meta->o_name,
-                       object->instance,
-                       state.nsubscribers,
-                       frequency,
-                       state.queue_size,
-                       object->meta->o_size);
-          old->generation = state.generation;
-          old->timestamp  = now_time;
         }
+
+      uorbinfo_raw("\033[K" "%-*s %2u %4" PRIu32 " %4lu "
+                   "%2" PRIu32 " %4u",
+                   ORB_MAX_PRINT_NAME,
+                   object->meta->o_name,
+                   object->instance,
+                   state.nsubscribers,
+                   frequency,
+                   state.queue_size,
+                   object->meta->o_size);
+      old->generation = state.generation;
+      old->timestamp  = now_time;
     }
   else
     {
