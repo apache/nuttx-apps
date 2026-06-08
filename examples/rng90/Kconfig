@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RNG90
+	tristate "Microchip RNG90 TRNG example"
+	default n
+	depends on DEV_RNG90
+	---help---
+		Enable the RNG90 example.  It opens the RNG90 character device,
+		runs the built-in self-test and reads random bytes from it.
+
+if EXAMPLES_RNG90
+
+config EXAMPLES_RNG90_PROGNAME
+	string "Program name"
+	default "rng90"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_RNG90_DEVPATH
+	string "RNG90 device path"
+	default "/dev/rng0"
+	---help---
+		The default path of the RNG90 character device.
+
+config EXAMPLES_RNG90_PRIORITY
+	int "RNG90 task priority"
+	default 100
+
+config EXAMPLES_RNG90_STACKSIZE
+	int "RNG90 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
