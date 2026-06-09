@@ -102,10 +102,10 @@ int main(int argc, FAR char *argv[])
   /* Report the device structure */
 
   printf("FLASH device parameters:\n");
-  printf("   Sector size:  %10d\n", info.sectorsize);
-  printf("   Sector count: %10d\n", info.numsectors);
-  printf("   Erase block:  %10" PRIx32 "\n", geo.erasesize);
-  printf("   Total size:   %10d\n", info.sectorsize * info.numsectors);
+  printf("   Sector size:      %10d\n", info.sectorsize);
+  printf("   Sector count:     %10d\n", info.numsectors);
+  printf("   Erase block size: %10" PRIu32 "\n", geo.erasesize);
+  printf("   Total size:       %10d\n", info.sectorsize * info.numsectors);
 
   if (info.sectorsize != geo.erasesize)
     {
@@ -124,7 +124,7 @@ int main(int argc, FAR char *argv[])
       goto errout_with_driver;
     }
 
-  /* Fill the buffer with known data and print it in hex format */
+  /* Fill the buffer with known data */
 
   for (int i = 0; i < info.sectorsize; i++)
     {
