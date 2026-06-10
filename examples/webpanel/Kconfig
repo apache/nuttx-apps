@@ -1,0 +1,109 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_WEBPANEL
+	tristate "Web Panel for device management"
+	default n
+	depends on NET_TCP
+	depends on NETUTILS_THTTPD
+	depends on NETUTILS_LIBWEBSOCKETS
+	depends on NETUTILS_LIBWEBSOCKETS_SERVER
+	depends on FS_BINFS
+	depends on FS_UNIONFS
+	depends on PSEUDOTERM
+	depends on PSEUDOTERM_SUSV1
+	---help---
+		Enable the Web Panel application, a Tasmota-inspired web
+		interface for NuttX devices. Provides a landing page served
+		via THTTPD from ROMFS, CGI handlers for system info, file
+		management, and a WebSocket-based NSH terminal (powered
+		by libwebsockets).
+
+if EXAMPLES_WEBPANEL
+
+config EXAMPLES_WEBPANEL_PROGNAME
+	string "Program name"
+	default "webpanel"
+
+config EXAMPLES_WEBPANEL_PRIORITY
+	int "Web Panel task priority"
+	default 100
+
+config EXAMPLES_WEBPANEL_STACKSIZE
+	int "Web Panel stack size"
+	default 4096
+
+config EXAMPLES_WEBPANEL_NETIF
+	string "Network interface name"
+	default "eth0"
+	---help---
+		Name of the network interface used by the web panel for
+		system info queries and DHCP renew (e.g. eth0, wlan0).
+
+config EXAMPLES_WEBPANEL_CGI_SYSINFO_PROGNAME
+	string "CGI sysinfo program name"
+	default "sysinfo"
+
+config EXAMPLES_WEBPANEL_CGI_SYSINFO_PRIORITY
+	int "CGI sysinfo task priority"
+	default 100
+
+config EXAMPLES_WEBPANEL_CGI_SYSINFO_STACKSIZE
+	int "CGI sysinfo stack size"
+	default 4096
+
+config EXAMPLES_WEBPANEL_CGI_FILES_PROGNAME
+	string "CGI files program name"
+	default "files"
+
+config EXAMPLES_WEBPANEL_CGI_FILES_PRIORITY
+	int "CGI files task priority"
+	default 100
+
+config EXAMPLES_WEBPANEL_CGI_FILES_STACKSIZE
+	int "CGI files stack size"
+	default 4096
+
+config EXAMPLES_WEBPANEL_CGI_UPLOAD_PROGNAME
+	string "CGI upload program name"
+	default "upload"
+
+config EXAMPLES_WEBPANEL_CGI_UPLOAD_PRIORITY
+	int "CGI upload task priority"
+	default 100
+
+config EXAMPLES_WEBPANEL_CGI_UPLOAD_STACKSIZE
+	int "CGI upload stack size"
+	default 8192
+
+config EXAMPLES_WEBPANEL_CGI_RENEW_PROGNAME
+	string "CGI DHCP renew program name"
+	default "dhcprenew"
+
+config EXAMPLES_WEBPANEL_CGI_RENEW_PRIORITY
+	int "CGI DHCP renew task priority"
+	default 100
+
+config EXAMPLES_WEBPANEL_CGI_RENEW_STACKSIZE
+	int "CGI DHCP renew stack size"
+	default 4096
+
+config EXAMPLES_WEBPANEL_WS_PORT
+	int "WebSocket terminal TCP port"
+	default 8080
+
+config EXAMPLES_WEBPANEL_WS_PRIORITY
+	int "WebSocket server task priority"
+	default 100
+
+config EXAMPLES_WEBPANEL_WS_STACKSIZE
+	int "WebSocket daemon stack size"
+	default 8192
+
+config EXAMPLES_WEBPANEL_WS_NSH_STACKSIZE
+	int "WebSocket NSH session stack size"
+	default 4096
+
+endif
