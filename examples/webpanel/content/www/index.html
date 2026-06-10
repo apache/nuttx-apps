@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NuttX Web Panel</title>
+<link rel="stylesheet" href="/xterm.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:#1a1a2e;color:#e0e0e0;min-height:100vh}
+a{color:#5dade2;text-decoration:none}
+a:hover{text-decoration:underline}
+
+.hdr{background:#16213e;padding:12px 20px;border-bottom:2px solid #0f3460;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.hdr h1{font-size:18px;color:#e94560;display:flex;align-items:center;gap:8px}
+.hdr .chip{font-size:11px;background:#0f3460;color:#7ec8e3;padding:2px 8px;
+  border-radius:10px}
+.hdr .uptime{font-size:11px;color:#8899aa}
+
+nav{background:#0f1b33;display:flex;gap:0;overflow-x:auto}
+nav a{padding:10px 18px;font-size:13px;color:#8899aa;border-bottom:2px solid transparent;
+  white-space:nowrap;transition:all .2s}
+nav a:hover,nav a.act{color:#e94560;border-bottom-color:#e94560;text-decoration:none;
+  background:rgba(233,69,96,.06)}
+
+.page{display:none;padding:16px 20px;max-width:1200px;margin:0 auto}
+.page.vis{display:block}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:16px;
+  transition:border-color .2s}
+.card:hover{border-color:#e94560}
+.card h3{font-size:14px;color:#e94560;margin-bottom:10px;display:flex;
+  align-items:center;gap:6px}
+.card .ico{font-size:18px}
+.row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;
+  border-bottom:1px solid rgba(255,255,255,.04)}
+.row .lbl{color:#8899aa}
+.row .val{color:#c0d0e0;font-family:monospace}
+
+.badge{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;
+  font-weight:600}
+.badge-ok{background:#1e4d2b;color:#4ade80}
+.badge-warn{background:#4d3e1e;color:#fbbf24}
+
+.term-wrap{background:#0d1117;border:1px solid #0f3460;border-radius:8px;
+  padding:8px;height:360px;overflow:hidden;position:relative}
+.term-placeholder{display:flex;align-items:center;justify-content:center;
+  height:100%;color:#556;font-size:13px;flex-direction:column;gap:8px}
+
+.fm-toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fm-path{background:#0d1117;border:1px solid #0f3460;border-radius:4px;padding:6px 10px;
+  color:#c0d0e0;font-family:monospace;font-size:12px;flex:1;min-width:120px}
+.btn{background:#e94560;color:#fff;border:none;padding:7px 16px;border-radius:4px;
+  cursor:pointer;font-size:12px;font-weight:600;transition:background .2s}
+.btn:hover{background:#c73852}
+.btn-sec{background:#0f3460;color:#7ec8e3}
+.btn-sec:hover{background:#1a4a80}
+
+.fm-list{background:#0d1117;border:1px solid #0f3460;border-radius:8px;overflow:hidden}
+.fm-item{display:flex;align-items:center;padding:8px 12px;font-size:12px;
+  border-bottom:1px solid rgba(255,255,255,.04);gap:10px}
+.fm-item:hover{background:rgba(233,69,96,.04)}
+.fm-item .name{flex:1;font-family:monospace;color:#c0d0e0}
+.fm-item .sz{color:#667;min-width:60px;text-align:right}
+.fm-item .acts{display:flex;gap:6px}
+.fm-item .acts button{background:none;border:1px solid #0f3460;color:#8899aa;
+  padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px}
+.fm-item .acts button:hover{border-color:#e94560;color:#e94560}
+.fm-empty{padding:24px;text-align:center;color:#556;font-size:13px}
+
+.upload-zone{border:2px dashed #0f3460;border-radius:8px;padding:24px;text-align:center;
+  color:#556;font-size:13px;cursor:pointer;transition:border-color .2s;margin-top:12px}
+.upload-zone:hover,.upload-zone.drag{border-color:#e94560;color:#8899aa}
+.upload-zone input{display:none}
+
+.net-if{margin-bottom:12px}
+.net-if h4{font-size:12px;color:#7ec8e3;margin-bottom:6px}
+
+.toast{position:fixed;bottom:20px;right:20px;background:#16213e;border:1px solid #0f3460;
+  border-radius:8px;padding:10px 16px;font-size:12px;color:#c0d0e0;
+  transform:translateY(80px);opacity:0;transition:all .3s;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{border-color:#e94560}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>NuttX Web Panel <span class="chip" id="chip">--</span></h1>
+  <span class="uptime" id="uptime">Uptime: --</span>
+</div>
+
+<nav id="nav">
+  <a href="#home" class="act" data-p="home">Home</a>
+  <a href="#terminal" data-p="terminal">Terminal</a>
+  <a href="#files" data-p="files">Files</a>
+  <a href="#network" data-p="network">Network</a>
+</nav>
+
+<!-- HOME -->
+<div class="page vis" id="p-home">
+  <div class="grid">
+    <div class="card">
+      <h3><span class="ico">&#9881;</span> System</h3>
+      <div class="row"><span class="lbl">Board</span><span class="val" id="si-board">--</span></div>
+      <div class="row"><span class="lbl">OS</span><span class="val" id="si-os">NuttX</span></div>
+      <div class="row"><span class="lbl">Version</span><span class="val" id="si-ver">--</span></div>
+      <div class="row"><span class="lbl">Build</span><span class="val" id="si-build">--</span></div>
+      <div class="row"><span class="lbl">Arch</span><span class="val" id="si-arch">--</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">&#128268;</span> Network</h3>
+      <div class="row"><span class="lbl">Interface</span><span class="val" id="si-ifname">--</span></div>
+      <div class="row"><span class="lbl">IP</span><span class="val" id="si-ip">--</span></div>
+      <div class="row"><span class="lbl">Mask</span><span class="val" id="si-mask">--</span></div>
+      <div class="row"><span class="lbl">Gateway</span><span class="val" id="si-gw">--</span></div>
+      <div class="row"><span class="lbl">MAC</span><span class="val" id="si-mac">--</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">&#128190;</span> Storage</h3>
+      <div class="row"><span class="lbl">SmartFS</span><span class="val">/mnt</span></div>
+      <div class="row"><span class="lbl">Web Root</span><span class="val">/data/www (ROMFS)</span></div>
+      <div class="row"><span class="lbl">Files</span><span class="val" id="si-files">--</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">&#9889;</span> Quick Actions</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+        <button class="btn" onclick="showPage('terminal')">Open Terminal</button>
+        <button class="btn btn-sec" onclick="showPage('files')">Manage Files</button>
+        <button class="btn btn-sec" onclick="fetchSysInfo()">Refresh Info</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMINAL -->
+<div class="page" id="p-terminal">
+  <div class="card" style="padding:12px">
+    <h3><span class="ico">&#9000;</span> NSH Terminal</h3>
+    <div class="fm-toolbar" style="margin-bottom:8px">
+      <button class="btn btn-sec" id="term-connect" onclick="connectTerminal()">Connect</button>
+      <button class="btn btn-sec" id="term-disc" onclick="disconnectTerminal()" style="display:none">Disconnect</button>
+      <span id="term-status" style="font-size:11px;color:#8899aa;margin-left:8px">Disconnected</span>
+    </div>
+    <div class="term-wrap" id="term-container"></div>
+  </div>
+</div>
+
+<!-- FILES -->
+<div class="page" id="p-files">
+  <div class="card" style="padding:12px">
+    <h3><span class="ico">&#128193;</span> File Manager &mdash; /mnt</h3>
+    <div class="fm-toolbar">
+      <span class="fm-path">/mnt</span>
+      <button class="btn btn-sec" onclick="fetchFiles()">Refresh</button>
+    </div>
+    <div class="fm-list" id="fm-list">
+      <div class="fm-empty">Loading file list&hellip;</div>
+    </div>
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-in').click()">
+      <input type="file" id="file-in" onchange="uploadFile(this.files[0])">
+      Drop file here or click to upload to /mnt
+    </div>
+  </div>
+</div>
+
+<!-- NETWORK -->
+<div class="page" id="p-network">
+  <div class="grid">
+    <div class="card">
+      <h3><span class="ico">&#128268;</span> <span id="net-ifname">--</span></h3>
+      <div class="net-if">
+        <div class="row"><span class="lbl">Status</span><span class="val"><span class="badge badge-ok">RUNNING</span></span></div>
+        <div class="row"><span class="lbl">IP Address</span><span class="val" id="net-ip">--</span></div>
+        <div class="row"><span class="lbl">Netmask</span><span class="val" id="net-mask">--</span></div>
+        <div class="row"><span class="lbl">Gateway</span><span class="val" id="net-gw">--</span></div>
+        <div class="row"><span class="lbl">MAC</span><span class="val" id="net-mac">--</span></div>
+        <div class="row"><span class="lbl">MTU</span><span class="val" id="net-mtu">1500</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ico">&#128220;</span> DHCP</h3>
+      <div class="row"><span class="lbl">Mode</span><span class="val">Client (auto)</span></div>
+      <div class="row"><span class="lbl">Last Renew</span><span class="val" id="net-lease">--</span></div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+        <button class="btn btn-sec" id="renew-btn" onclick="renewDhcp()">Renew Lease</button>
+        <span id="renew-status" style="font-size:11px;color:#8899aa"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/xterm.min.js"></script>
+<script>
+var term=null, termWs=null, termReady=false, termQueue=[], termDataSub=null;
+var uptimeSec=0, uptimeRef=0;
+function $(id){return document.getElementById(id)}
+function showPage(p){
+  document.querySelectorAll('.page').forEach(function(e){e.classList.remove('vis')});
+  document.querySelectorAll('nav a').forEach(function(e){e.classList.remove('act')});
+  $('p-'+p).classList.add('vis');
+  document.querySelector('nav a[data-p="'+p+'"]').classList.add('act');
+  if(p==='terminal')initTerminal();
+}
+document.querySelectorAll('nav a').forEach(function(a){
+  a.addEventListener('click',function(e){
+    e.preventDefault();showPage(this.dataset.p);
+  });
+});
+
+function toast(msg,err){
+  var t=$('toast');t.textContent=msg;
+  t.className='toast'+(err?' err':'')+' show';
+  setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+function fmtUptime(s){
+  var d=Math.floor(s/86400);
+  var h=Math.floor((s%86400)/3600);
+  var m=Math.floor((s%3600)/60);
+  var sec=s%60;
+  var hh=('0'+h).slice(-2),mm=('0'+m).slice(-2),ss=('0'+sec).slice(-2);
+  return d>0?(d+'d '+hh+':'+mm+':'+ss):(hh+':'+mm+':'+ss);
+}
+
+setInterval(function(){
+  if(!uptimeRef)return;
+  var s=uptimeSec+Math.floor((Date.now()-uptimeRef)/1000);
+  $('uptime').textContent='Uptime: '+fmtUptime(s);
+},1000);
+
+function fetchSysInfo(){
+  var x=new XMLHttpRequest();
+  x.open('GET','/cgi-bin/sysinfo');
+  x.onload=function(){
+    if(x.status===200){
+      try{
+        var d=JSON.parse(x.responseText);
+        if(d.version)$('si-ver').textContent=d.version;
+        if(d.build)$('si-build').textContent=d.build;
+        if(d.chip)$('chip').textContent=d.chip;
+        if(d.board)$('si-board').textContent=d.board;
+        if(d.ifname){
+          $('si-ifname').textContent=d.ifname;
+          $('net-ifname').textContent=d.ifname;
+        }
+        if(d.arch)$('si-arch').textContent=d.arch;
+        if(d.ip){$('si-ip').textContent=d.ip;$('net-ip').textContent=d.ip;}
+        if(d.mask){$('si-mask').textContent=d.mask;$('net-mask').textContent=d.mask;}
+        if(d.gw){$('si-gw').textContent=d.gw;$('net-gw').textContent=d.gw;}
+        if(d.mac){$('si-mac').textContent=d.mac;$('net-mac').textContent=d.mac;}
+        if(d.uptime_sec!==undefined){
+          uptimeSec=d.uptime_sec;
+          uptimeRef=Date.now();
+          $('uptime').textContent='Uptime: '+fmtUptime(d.uptime_sec);
+        } else if(d.uptime){
+          $('uptime').textContent='Uptime: '+d.uptime;
+        }
+        if(d.files!==undefined)$('si-files').textContent=d.files;
+        toast('System info updated');
+      }catch(e){toast('Parse error','err');}
+    }
+  };
+  x.onerror=function(){};
+  x.send();
+}
+
+function fetchFiles(){
+  var x=new XMLHttpRequest();
+  x.open('GET','/cgi-bin/files');
+  x.onload=function(){
+    if(x.status===200){
+      try{
+        var d=JSON.parse(x.responseText);
+        renderFiles(d.files||[]);
+      }catch(e){renderFiles([]);}
+    }
+  };
+  x.onerror=function(){
+    $('fm-list').innerHTML='<div class="fm-empty">Could not load files (CGI not ready)</div>';
+  };
+  x.send();
+}
+
+function renderFiles(files){
+  var el=$('fm-list');
+  if(!files.length){el.innerHTML='<div class="fm-empty">No files in /mnt</div>';return;}
+  var h='';
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    h+='<div class="fm-item">'
+      +'<span class="name">'+esc(f.name)+'</span>'
+      +'<span class="sz">'+(f.size||'--')+'</span>'
+      +'<span class="acts">';
+    if(f.name.match(/\.py$/i))
+      h+='<button onclick="runScript(\''+esc(f.name)+'\')">Run</button>';
+    h+='<button onclick="deleteFile(\''+esc(f.name)+'\')">Del</button>'
+      +'</span></div>';
+  }
+  el.innerHTML=h;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+function uploadFile(file){
+  if(!file)return;
+  toast('Uploading '+file.name+'...');
+  var form=new FormData();
+  form.append('file',file);
+  var x=new XMLHttpRequest();
+  x.open('POST','/cgi-bin/upload');
+  x.onload=function(){
+    if(x.status===200){toast('Uploaded '+file.name);fetchFiles();}
+    else toast('Upload failed: '+x.status,true);
+  };
+  x.onerror=function(){toast('Upload failed (CGI not ready)',true);};
+  x.send(form);
+}
+
+function deleteFile(name){
+  if(!confirm('Delete '+name+'?'))return;
+  var x=new XMLHttpRequest();
+  x.open('POST','/cgi-bin/files?action=delete&name='+encodeURIComponent(name));
+  x.onload=function(){
+    if(x.status===200){toast('Deleted '+name);fetchFiles();}
+    else toast('Delete failed',true);
+  };
+  x.send();
+}
+
+function initTerminal(){
+  if(term)return;
+  term=new Terminal({cursorBlink:true,fontSize:13,theme:{background:'#0d1117',foreground:'#c0d0e0'}});
+  term.open($('term-container'));
+  term.writeln('NuttX Web Terminal - click Connect to start NSH session');
+  termDataSub=term.onData(function(data){
+    if(termWs&&termWs.readyState===WebSocket.OPEN)termWs.send(data);
+    else termQueue.push(data);
+  });
+}
+
+function setTermStatus(s,ok){
+  $('term-status').textContent=s;
+  $('term-status').style.color=ok?'#4ade80':'#8899aa';
+}
+
+function connectTerminal(){
+  initTerminal();
+  if(termWs&&termWs.readyState===WebSocket.OPEN)return;
+  var host=window.location.hostname||'127.0.0.1';
+  var url='ws://'+host+':8080';
+  setTermStatus('Connecting...',false);
+  termWs=new WebSocket(url);
+  termWs.onopen=function(){
+    termReady=true;
+    setTermStatus('Connected',true);
+    $('term-connect').style.display='none';
+    $('term-disc').style.display='';
+    while(termQueue.length)termWs.send(termQueue.shift());
+  };
+  termWs.onmessage=function(ev){term.write(ev.data);};
+  termWs.onclose=function(){
+    termReady=false;
+    setTermStatus('Disconnected',false);
+    $('term-connect').style.display='';
+    $('term-disc').style.display='none';
+    termWs=null;
+  };
+  termWs.onerror=function(){
+    toast('WebSocket connection failed',true);
+    setTermStatus('Error',false);
+  };
+}
+
+function disconnectTerminal(){
+  if(termWs)termWs.close();
+}
+
+function sendTerminalCmd(cmd){
+  showPage('terminal');
+  if(!term)initTerminal();
+  if(!termWs||termWs.readyState!==WebSocket.OPEN){
+    connectTerminal();
+    setTimeout(function(){sendTerminalCmd(cmd);},800);
+    return;
+  }
+  termWs.send(cmd);
+}
+
+function runScript(name){
+  var cmd='python /mnt/'+name;
+  sendTerminalCmd(cmd+'\r');
+  toast('Running: '+cmd);
+}
+
+function renewDhcp(){
+  var btn=$('renew-btn'), st=$('renew-status');
+  btn.disabled=true;
+  st.textContent='Renewing...';
+  st.style.color='#fbbf24';
+  var x=new XMLHttpRequest();
+  x.open('GET','/cgi-bin/dhcprenew');
+  x.timeout=30000;
+  x.onload=function(){
+    btn.disabled=false;
+    try{
+      var d=JSON.parse(x.responseText);
+      if(d.status==='ok'){
+        var now=new Date();
+        var ts=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+        $('net-lease').textContent='Renewed at '+ts;
+        st.textContent='OK';
+        st.style.color='#4ade80';
+        toast('DHCP lease renewed');
+        setTimeout(fetchSysInfo,1000);
+      } else {
+        st.textContent='Failed (code '+d.code+')';
+        st.style.color='#e94560';
+        toast('DHCP renew failed',true);
+      }
+    }catch(e){
+      st.textContent='Error';
+      st.style.color='#e94560';
+      toast('DHCP renew error',true);
+    }
+    setTimeout(function(){st.textContent='';},5000);
+  };
+  x.onerror=x.ontimeout=function(){
+    btn.disabled=false;
+    st.textContent='Timeout';
+    st.style.color='#e94560';
+    toast('DHCP renew timed out',true);
+  };
+  x.send();
+}
+
+var uz=$('upload-zone');
+uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('drag');});
+uz.addEventListener('dragleave',function(){uz.classList.remove('drag');});
+uz.addEventListener('drop',function(e){
+  e.preventDefault();uz.classList.remove('drag');
+  if(e.dataTransfer.files.length)uploadFile(e.dataTransfer.files[0]);
+});
+
+fetchSysInfo();
+fetchFiles();
+</script>
+</body>
+</html>
