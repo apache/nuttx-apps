@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 #
-# Repack a wheel in-place: compile pip/*.py to legacy sibling *.pyc (compileall
-# -b: required for zipimport, which does not read PEP 3147 __pycache__/ names),
-# remove the .py sources, and rewrite *.dist-info/RECORD.
+# Repack a wheel in-place: compile package/*.py to legacy sibling *.pyc
+# (compileall -b: required for zipimport, which does not read PEP 3147
+# __pycache__/ names), remove the .py sources, and rewrite *.dist-info/RECORD.
 
 from __future__ import annotations
 
@@ -23,25 +23,27 @@ def wheel_record_hash(data: bytes) -> str:
     return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
 
 
-def wheel_has_pip_py_sources(zf: zipfile.ZipFile) -> bool:
-    return any(n.startswith("pip/") and n.endswith(".py") for n in zf.namelist())
+def wheel_has_py_sources(zf: zipfile.ZipFile, package: str) -> bool:
+    prefix = f"{package}/"
+    return any(n.startswith(prefix) and n.endswith(".py") for n in zf.namelist())
 
 
-def wheel_has_legacy_pip_bytecode(zf: zipfile.ZipFile) -> bool:
-    return "pip/__init__.pyc" in zf.namelist()
+def wheel_has_legacy_bytecode(zf: zipfile.ZipFile, package: str) -> bool:
+    return f"{package}/__init__.pyc" in zf.namelist()
 
 
-def strip_pip_py_sources(pip_dir: Path) -> int:
-    """Remove pip/**/*.py after sibling legacy *.pyc exists (compileall -b output)."""
+def strip_py_sources(pkg_dir: Path, package: str) -> int:
+    """Remove package/**/*.py after sibling legacy *.pyc exists (compileall -b output)."""
     removed = 0
-    for path in sorted(pip_dir.rglob("*.py")):
+    for path in sorted(pkg_dir.rglob("*.py")):
         if not path.is_file():
             continue
         pyc = path.with_suffix(".pyc")
         if not pyc.is_file():
-            rel = path.relative_to(pip_dir)
+            rel = path.relative_to(pkg_dir)
             raise SystemExit(
-                f"missing legacy .pyc for pip/{rel.as_posix()}, refusing to delete source"
+                f"missing legacy .pyc for {package}/{rel.as_posix()}, "
+                "refusing to delete source"
             )
         path.unlink()
         removed += 1
@@ -70,41 +72,43 @@ def rebuild_record(root: Path) -> None:
     record_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def repack(whl_path: Path, *, force: bool) -> None:
+def repack(whl_path: Path, *, package: str, force: bool) -> None:
     whl_path = whl_path.resolve()
     if not whl_path.is_file():
         raise SystemExit(f"missing wheel: {whl_path}")
 
     with zipfile.ZipFile(whl_path) as zf:
-        has_py = wheel_has_pip_py_sources(zf)
+        has_py = wheel_has_py_sources(zf, package)
         if not has_py:
-            if not wheel_has_legacy_pip_bytecode(zf):
+            if not wheel_has_legacy_bytecode(zf, package):
                 raise SystemExit(
-                    "repack_wheel_add_pyc: wheel has no pip/*.py and no pip/__init__.pyc "
-                    "(corrupt or old tool output). Delete the bundled pip-*.whl and rebuild."
+                    f"repack_wheel_add_pyc: wheel has no {package}/*.py and no "
+                    f"{package}/__init__.pyc (corrupt or old tool output). "
+                    f"Delete the bundled wheel and rebuild."
                 )
             if not force:
                 print(
-                    f"repack_wheel_add_pyc: skip (pip already bytecode-only): {whl_path.name}"
+                    f"repack_wheel_add_pyc: skip ({package} already bytecode-only): "
+                    f"{whl_path.name}"
                 )
                 return
 
-    tmpdir = tempfile.mkdtemp(prefix="pip-whl-pyc-")
+    tmpdir = tempfile.mkdtemp(prefix=f"{package}-whl-pyc-")
     try:
         root = Path(tmpdir)
         with zipfile.ZipFile(whl_path) as zf:
             zf.extractall(root)
 
-        pip_dir = root / "pip"
-        if not pip_dir.is_dir():
-            raise SystemExit("wheel has no pip/ top-level package")
+        pkg_dir = root / package
+        if not pkg_dir.is_dir():
+            raise SystemExit(f"wheel has no {package}/ top-level package")
 
         subprocess.run(
-            [sys.executable, "-m", "compileall", "-q", "-f", "-b", str(pip_dir)],
+            [sys.executable, "-m", "compileall", "-q", "-f", "-b", str(pkg_dir)],
             cwd=str(root),
             check=True,
         )
-        n_py = strip_pip_py_sources(pip_dir)
+        n_py = strip_py_sources(pkg_dir, package)
         rebuild_record(root)
 
         out_path = whl_path.with_suffix(whl_path.suffix + ".tmp")
@@ -116,7 +120,8 @@ def repack(whl_path: Path, *, force: bool) -> None:
 
         out_path.replace(whl_path)
         print(
-            f"repack_wheel_add_pyc: bytecode-only pip ({n_py} .py removed) -> {whl_path.name}"
+            f"repack_wheel_add_pyc: bytecode-only {package} ({n_py} .py removed) -> "
+            f"{whl_path.name}"
         )
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
@@ -126,13 +131,19 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("wheel", type=Path, help="path to .whl (updated in place)")
     ap.add_argument(
+        "-p",
+        "--package",
+        default="pip",
+        help="top-level package directory inside the wheel (default: pip)",
+    )
+    ap.add_argument(
         "-f",
         "--force",
         action="store_true",
-        help="repack even if pip is already .pyc-only",
+        help="repack even if the package is already .pyc-only",
     )
     args = ap.parse_args()
-    repack(args.wheel, force=args.force)
+    repack(args.wheel, package=args.package, force=args.force)
 
 
 if __name__ == "__main__":
