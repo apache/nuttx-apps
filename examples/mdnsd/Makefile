@@ -26,11 +26,11 @@ include $(APPDIR)/Make.defs
 
 CSRCS = mdnsd_daemon.c
 
-MAINSRC = mdnsd_start.c mdnsd_stop.c
+MAINSRC = mdnsd_start.c mdnsd_stop.c mdnsd_event.c
 
 # MDNSD built-in application info
 
-PROGNAME = mdnsd_start mdnsd_stop
+PROGNAME = mdnsd_start mdnsd_stop mdnsd_event
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_MDNSD)
