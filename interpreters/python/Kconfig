@@ -47,6 +47,13 @@ config INTERPRETERS_CPYTHON_ENABLE_PIP
 		site-packages .pth entry that points to ensurepip's bundled wheel.
 		Disable this to skip pip wheel download/integration entirely.
 
+config INTERPRETERS_CPYTHON_INSTALL_NUTTX_PACKAGE
+	bool "Install NuttX Python package"
+	default y
+	---help---
+		Installs the nuttx-periphery Python package into the CPython module image.
+		This allows importing the nuttx-periphery package into the CPython interpreter,
+		which provides a Python interface to the NuttX's peripheral drivers.
 
 config INTERPRETERS_CPYTHON_PYTHONPATH
 	string "CPython Python path"
