@@ -1,0 +1,25 @@
+config EXAMPLES_MICROWINDOWS
+	tristate "Microwindows example"
+	default n
+	depends on GRAPHICS_MICROWINDOWS
+	---help---
+		Enable the Microwindows example application
+
+if EXAMPLES_MICROWINDOWS
+
+config EXAMPLES_MICROWINDOWS_PROGNAME
+	string "Program name"
+	default "mwexample"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_MICROWINDOWS_PRIORITY
+	int "Microwindows task priority"
+	default 100
+
+config EXAMPLES_MICROWINDOWS_STACKSIZE
+	int "Microwindows stack size"
+	default 32768
+
+endif

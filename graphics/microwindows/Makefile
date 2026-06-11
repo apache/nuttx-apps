@@ -71,12 +71,14 @@ CFLAGS += -Wno-undef
 CFLAGS += -Wno-shadow
 
 MW_DIR_OBJ = $(WD)/$(MICROWINDOWS_DIR_NAME)/src
+MW_LOCAL_DIR := mwin-local
 
 -include microwindows/src/engine/Objects.rules
 -include microwindows/src/drivers/Objects.rules
 -include microwindows/src/fonts/Objects.rules
 
 CSRCS += $(MW_CORE_OBJS:%.o=%.c)
+CSRCS += $(MW_LOCAL_DIR)/scr_nuttx.c
 
 #$(error EXTOBJS=$(EXTOBJS))
 

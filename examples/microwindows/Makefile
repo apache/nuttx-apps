@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/microwindows/Make.defs
+# apps/examples/microwindows/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,29 +20,15 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_GRAPHICS_MICROWINDOWS),)
-CONFIGURED_APPS += $(APPDIR)/graphics/microwindows
+include $(APPDIR)/Make.defs
 
-# It allows `microwindows/src/include` import.
+PROGNAME  = $(CONFIG_EXAMPLES_MICROWINDOWS_PROGNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_MICROWINDOWS_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_MICROWINDOWS_STACKSIZE)
+MODULE    = y
 
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
-CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/drivers
+MAINSRC = mwexample.c
 
-ifeq ($(CONFIG_VIDEO_FB),)
-$(error Microwindows requires CONFIG_VIDEO_FB=y)
-endif   
+CFLAGS += -Wno-undef
 
-CFLAGS += -DHAVE_FNT_SUPPORT=1
-CFLAGS += -DUNIX=1
-
-CFLAGS += -DSCREEN_PIXTYPE=MWPF_TRUECOLORARGB
-CFLAGS += -DSCREEN_DEPTH=8
-
-KEYBOARD = NOKBD
-MOUSE = NOMOUSE
-
-CFLAGS += -DKEYBOARD=NOKBD
-CFLAGS += -DMOUSE=NOMOUSE
-
-endif
+include $(APPDIR)/Application.mk

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/microwindows/Make.defs
+# apps/examples/hello/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,29 +20,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_GRAPHICS_MICROWINDOWS),)
-CONFIGURED_APPS += $(APPDIR)/graphics/microwindows
-
-# It allows `microwindows/src/include` import.
-
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
-CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/drivers
-
-ifeq ($(CONFIG_VIDEO_FB),)
-$(error Microwindows requires CONFIG_VIDEO_FB=y)
-endif   
-
-CFLAGS += -DHAVE_FNT_SUPPORT=1
-CFLAGS += -DUNIX=1
-
-CFLAGS += -DSCREEN_PIXTYPE=MWPF_TRUECOLORARGB
-CFLAGS += -DSCREEN_DEPTH=8
-
-KEYBOARD = NOKBD
-MOUSE = NOMOUSE
-
-CFLAGS += -DKEYBOARD=NOKBD
-CFLAGS += -DMOUSE=NOMOUSE
-
+ifneq ($(CONFIG_EXAMPLES_MICROWINDOWS),)
+CONFIGURED_APPS += $(APPDIR)/examples/microwindows
 endif
