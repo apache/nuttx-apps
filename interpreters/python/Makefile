@@ -163,7 +163,7 @@ $(TARGETBUILD)/Makefile: $(HOSTPYTHON) $(CONFIG_SITE) $(SETUP_LOCAL)
 			AR="$(AR)" \
 			ARFLAGS=" " \
 			MACHDEP="$(MACHDEP)" \
-			OPT="-O3" \
+			OPT="-Os" \
 			CONFIG_SITE="$(CONFIG_SITE)" \
 			$(CPYTHON_PATH)/configure \
 			 --prefix=${TARGETINSTALL} \
