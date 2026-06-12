@@ -16,6 +16,13 @@ config NETUTILS_LIBWEBSOCKETS_VERSION
 	string "Version number"
 	default "4.3.1"
 
+config NETUTILS_LIBWEBSOCKETS_SERVER
+	bool "Enable server support"
+	default n
+	---help---
+		Enable WebSocket/HTTP server support in libwebsockets.
+		When disabled, only client-side code is built.
+
 config NETUTILS_LIBWEBSOCKETS_TLS
 	bool "Enable TLS support"
 	default y
