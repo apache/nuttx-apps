@@ -79,6 +79,8 @@ MW_LOCAL_DIR := mwin-local
 
 CSRCS += $(MW_CORE_OBJS:%.o=%.c)
 CSRCS += $(MW_LOCAL_DIR)/scr_nuttx.c
+CSRCS += $(MW_LOCAL_DIR)/mou_nuttx.c
+CSRCS += $(MW_LOCAL_DIR)/kbd_nuttx.c
 
 #$(error EXTOBJS=$(EXTOBJS))
 
