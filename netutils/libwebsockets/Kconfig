@@ -6,7 +6,7 @@
 config NETUTILS_LIBWEBSOCKETS
 	bool "libwebsockets library (current version)"
 	default n
-	depends on NET && OPENSSL_MBEDTLS_WRAPPER
+	depends on NET
 	---help---
 		Enables the libwebsockets library.
 
@@ -15,5 +15,14 @@ if NETUTILS_LIBWEBSOCKETS
 config NETUTILS_LIBWEBSOCKETS_VERSION
 	string "Version number"
 	default "4.3.1"
+
+config NETUTILS_LIBWEBSOCKETS_TLS
+	bool "Enable TLS support"
+	default y
+	depends on OPENSSL_MBEDTLS_WRAPPER
+	---help---
+		Enable TLS in libwebsockets via the OpenSSL-mbedTLS
+		wrapper. Requires CONFIG_OPENSSL_MBEDTLS_WRAPPER.
+		When disabled, only plain ws:// connections are supported.
 
 endif

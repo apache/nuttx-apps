@@ -21,7 +21,7 @@
 if(CONFIG_NETUTILS_LIBWEBSOCKETS)
 
   # ############################################################################
-  # Config and Fetch MbedTLS lib
+  # Config and Fetch libwebsockets
   # ############################################################################
 
   set(LIBWEBSOCKETS_DIR ${CMAKE_CURRENT_LIST_DIR}/libwebsockets)
@@ -66,7 +66,7 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       -Wno-shadow)
 
   set(INCDIR
-      .
+      ${CMAKE_CURRENT_LIST_DIR}
       ${LIBWEBSOCKETS_DIR}/lib/core
       ${LIBWEBSOCKETS_DIR}/lib/plat/unix
       ${LIBWEBSOCKETS_DIR}/lib/event-libs
@@ -78,9 +78,7 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       ${LIBWEBSOCKETS_DIR}/lib/roles/h1
       ${LIBWEBSOCKETS_DIR}/lib/roles/h2
       ${LIBWEBSOCKETS_DIR}/lib/roles/ws
-      ${LIBWEBSOCKETS_DIR}/lib/tls
-      ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/wrapper/include
-      ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/wrapper/include/internal)
+      ${LIBWEBSOCKETS_DIR}/lib/tls)
 
   set(CSRCS
       ${LIBWEBSOCKETS_DIR}/lib/plat/unix/unix-caps.c
@@ -146,7 +144,14 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       ${LIBWEBSOCKETS_DIR}/lib/roles/raw-skt/ops-raw-skt.c
       ${LIBWEBSOCKETS_DIR}/lib/roles/raw-file/ops-raw-file.c
       ${LIBWEBSOCKETS_DIR}/lib/roles/http/client/client-http.c
-      ${LIBWEBSOCKETS_DIR}/lib/event-libs/poll/poll.c
+      ${LIBWEBSOCKETS_DIR}/lib/event-libs/poll/poll.c)
+
+  if(CONFIG_NETUTILS_LIBWEBSOCKETS_TLS)
+    list(APPEND INCDIR ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/wrapper/include
+         ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/wrapper/include/internal)
+    list(
+      APPEND
+      CSRCS
       ${LIBWEBSOCKETS_DIR}/lib/tls/tls.c
       ${LIBWEBSOCKETS_DIR}/lib/tls/tls-network.c
       ${LIBWEBSOCKETS_DIR}/lib/tls/tls-sessions.c
@@ -157,6 +162,7 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/mbedtls-ssl.c
       ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/mbedtls-session.c
       ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/mbedtls-client.c)
+  endif()
 
   if(CONFIG_NETUTILS_MQTTC)
     list(APPEND INCDIR ${LIBWEBSOCKETS_DIR}/lib/roles/mqtt)
@@ -178,7 +184,8 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
   set_property(
     TARGET nuttx
     APPEND
-    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${LIBWEBSOCKETS_DIR}/include)
+    PROPERTY NUTTX_INCLUDE_DIRECTORIES ${LIBWEBSOCKETS_DIR}/include
+             ${CMAKE_CURRENT_LIST_DIR})
 
   nuttx_add_library(libwebsockets STATIC)
   target_sources(libwebsockets PRIVATE ${CSRCS})
