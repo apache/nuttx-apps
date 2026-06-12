@@ -118,6 +118,7 @@ CSRCS += \
 	$(LIBWEBSOCKETS_UNPACK)/lib/roles/http/client/client-http.c \
 	$(LIBWEBSOCKETS_UNPACK)/lib/event-libs/poll/poll.c
 
+ifneq ($(CONFIG_NETUTILS_LIBWEBSOCKETS_TLS),)
 CSRCS += \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/tls.c \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/tls-network.c \
@@ -128,7 +129,8 @@ CSRCS += \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-x509.c \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-ssl.c \
 	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-session.c \
-	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-client.c \
+	$(LIBWEBSOCKETS_UNPACK)/lib/tls/mbedtls/mbedtls-client.c
+endif
 
 ifneq ($(CONFIG_NETUTILS_MQTTC),)
 	CFLAGS += -I$(LIBWEBSOCKETS_UNPACK)/lib/roles/mqtt

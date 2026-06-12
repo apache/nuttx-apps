@@ -25,7 +25,9 @@ CONFIGURED_APPS += $(APPDIR)/netutils/libwebsockets
 
 # Allows `<libwebsockets/<>.h>` import.
 
-CFLAGS +=  ${INCDIR_PREFIX}$(APPDIR)/netutils/libwebsockets/libwebsockets/include
-CXXFLAGS +=  ${INCDIR_PREFIX}$(APPDIR)/netutils/libwebsockets/libwebsockets/include
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/libwebsockets
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/libwebsockets/libwebsockets/include
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/libwebsockets
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/netutils/libwebsockets/libwebsockets/include
 
 endif
