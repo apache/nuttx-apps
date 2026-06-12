@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LWS_ECHO
+	tristate "libwebsockets WebSocket echo server"
+	default n
+	depends on NETUTILS_LIBWEBSOCKETS && NETUTILS_LIBWEBSOCKETS_SERVER
+	---help---
+		Simple WebSocket echo server using libwebsockets without TLS.
+
+if EXAMPLES_LWS_ECHO
+
+config EXAMPLES_LWS_ECHO_PROGNAME
+	string "Program name"
+	default "lws_echo"
+
+config EXAMPLES_LWS_ECHO_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_LWS_ECHO_STACKSIZE
+	int "Stack size"
+	default 16384
+
+config EXAMPLES_LWS_ECHO_PORT
+	int "WebSocket server TCP port"
+	default 9000
+
+endif
