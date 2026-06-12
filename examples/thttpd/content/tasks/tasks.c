@@ -26,48 +26,36 @@
 
 #include <nuttx/config.h>
 
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <sched.h>
-
-#include <nuttx/sched.h>
 
 /****************************************************************************
- * Private Data
+ * Pre-processor Definitions
  ****************************************************************************/
 
-static const char *g_statenames[] =
-{
-  "INVALID ",
-  "PENDING ",
-  "READY   ",
-  "RUNNING ",
-  "INACTIVE",
-  "WAITSEM ",
-#ifndef CONFIG_DISABLE_MQUEUE
-  "WAITSIG ",
+#ifndef THTTPD_PROCFS_MOUNTPOINT
+#  define THTTPD_PROCFS_MOUNTPOINT "/proc"
 #endif
-#ifndef CONFIG_DISABLE_MQUEUE
-  "MQNEMPTY",
-  "MQNFULL "
-#endif
-};
 
-static const char *g_ttypenames[4] =
-{
-  "TASK   ",
-  "PTHREAD",
-  "KTHREAD",
-  "--?--  "
-};
+#define THTTPD_STATUS_SIZE 512
 
-static FAR const char *g_policynames[4] =
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct thttpd_task_status_s
 {
-  "FIFO",
-  "RR  ",
-  "SPOR",
-  "OTHR"
+  FAR const char *name;
+  FAR const char *type;
+  FAR const char *state;
+  FAR const char *priority;
+  FAR const char *policy;
 };
 
 /****************************************************************************
@@ -78,38 +66,210 @@ static FAR const char *g_policynames[4] =
  * Private Functions
  ****************************************************************************/
 
-/* NOTEs:
- *
- * 1. One limitation in the use of NXFLAT is that functions that are
- *    referenced as a pointer-to-a-function must have global scope.
- *    Otherwise ARM GCC will generate some bad logic.
- * 2. In general, when called back, there is no guarantee to that PIC
- *    registers will be valid and, unless you take special precautions, it
- *    could be dangerous to reference global variables in the callback
- *    function.
- */
+/****************************************************************************
+ * Name: tasks_trim_value
+ ****************************************************************************/
 
-void show_task(FAR struct tcb_s *tcb, FAR void *arg)
+static FAR char *tasks_trim_value(FAR char *line)
 {
-  FAR const char *policy;
+  FAR char *end;
 
-  /* Show task/thread status */
+  while (isblank((unsigned char)*line) && *line != '\0')
+    {
+      line++;
+    }
 
-  policy = g_policynames[(tcb->flags & TCB_FLAG_POLICY_MASK) >>
-                         TCB_FLAG_POLICY_SHIFT];
-#if CONFIG_TASK_NAME_SIZE > 0
-  printf("%5d %3d %4s %7s %8s %s\n",
-#else
-  printf("%5d %3d %4s %7s %8s\n",
-#endif
-         tcb->pid, tcb->sched_priority, policy,
-         g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >>
-                      TCB_FLAG_TTYPE_SHIFT],
-         g_statenames[tcb->task_state]
-#if CONFIG_TASK_NAME_SIZE > 0
-         , tcb->name
-#endif
-         );
+  end = line + strlen(line);
+  while (end > line &&
+         (*(end - 1) == '\n' || *(end - 1) == '\r' ||
+          isblank((unsigned char)*(end - 1))))
+    {
+      end--;
+    }
+
+  *end = '\0';
+  return line;
+}
+
+/****************************************************************************
+ * Name: tasks_is_pid_dir
+ ****************************************************************************/
+
+static bool tasks_is_pid_dir(FAR const struct dirent *entryp)
+{
+  FAR const char *name = entryp->d_name;
+
+  if (!DIRENT_ISDIRECTORY(entryp->d_type) || *name == '\0')
+    {
+      return false;
+    }
+
+  for (; *name != '\0'; name++)
+    {
+      if (!isdigit((unsigned char)*name))
+        {
+          return false;
+        }
+    }
+
+  return true;
+}
+
+/****************************************************************************
+ * Name: tasks_parse_status_line
+ ****************************************************************************/
+
+static void tasks_parse_status_line(FAR char *line,
+                                    FAR struct thttpd_task_status_s *status)
+{
+  if (strncmp(line, "Name:", 5) == 0)
+    {
+      status->name = tasks_trim_value(&line[5]);
+    }
+  else if (strncmp(line, "Type:", 5) == 0)
+    {
+      status->type = tasks_trim_value(&line[5]);
+    }
+  else if (strncmp(line, "State:", 6) == 0)
+    {
+      status->state = tasks_trim_value(&line[6]);
+    }
+  else if (strncmp(line, "Priority:", 9) == 0)
+    {
+      status->priority = tasks_trim_value(&line[9]);
+    }
+  else if (strncmp(line, "Scheduler:", 10) == 0)
+    {
+      status->policy = tasks_trim_value(&line[10]);
+    }
+}
+
+/****************************************************************************
+ * Name: tasks_parse_status
+ ****************************************************************************/
+
+static void tasks_parse_status(FAR char *buffer,
+                               FAR struct thttpd_task_status_s *status)
+{
+  FAR char *line = buffer;
+
+  while (line != NULL && *line != '\0')
+    {
+      FAR char *next = strchr(line, '\n');
+      if (next != NULL)
+        {
+          *next++ = '\0';
+        }
+
+      tasks_parse_status_line(line, status);
+      line = next;
+    }
+}
+
+/****************************************************************************
+ * Name: tasks_read_status
+ ****************************************************************************/
+
+static int tasks_read_status(FAR const char *pid, FAR char *buffer,
+                             size_t buflen,
+                             FAR struct thttpd_task_status_s *status)
+{
+  char filepath[sizeof(THTTPD_PROCFS_MOUNTPOINT) + NAME_MAX +
+                sizeof("/status") + 1];
+  ssize_t nread;
+  size_t total = 0;
+  int ret;
+  int fd;
+
+  ret = snprintf(filepath, sizeof(filepath), "%s/%s/status",
+                 THTTPD_PROCFS_MOUNTPOINT, pid);
+  if (ret < 0 || ret >= sizeof(filepath))
+    {
+      return -ENAMETOOLONG;
+    }
+
+  fd = open(filepath, O_RDONLY);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  while (total < buflen - 1)
+    {
+      nread = read(fd, &buffer[total], buflen - 1 - total);
+      if (nread < 0)
+        {
+          ret = -errno;
+          close(fd);
+          return ret;
+        }
+      else if (nread == 0)
+        {
+          break;
+        }
+
+      total += nread;
+    }
+
+  close(fd);
+  buffer[total] = '\0';
+  tasks_parse_status(buffer, status);
+  return OK;
+}
+
+/****************************************************************************
+ * Name: show_task
+ ****************************************************************************/
+
+static void show_task(FAR const char *pid,
+                      FAR const struct thttpd_task_status_s *status)
+{
+  printf("%5s %-12s %-14s %-7s %-18s %s\n",
+         pid, status->priority, status->policy, status->type,
+         status->state, status->name);
+}
+
+/****************************************************************************
+ * Name: show_tasks
+ ****************************************************************************/
+
+static int show_tasks(void)
+{
+  FAR struct dirent *entryp;
+  DIR *dirp;
+
+  dirp = opendir(THTTPD_PROCFS_MOUNTPOINT);
+  if (dirp == NULL)
+    {
+      printf("Unable to open %s (is procfs mounted?): %d\n",
+             THTTPD_PROCFS_MOUNTPOINT, errno);
+      return -errno;
+    }
+
+  while ((entryp = readdir(dirp)) != NULL)
+    {
+      char buffer[THTTPD_STATUS_SIZE];
+      struct thttpd_task_status_s status =
+      {
+        "", "", "", "", ""
+      };
+
+      if (!tasks_is_pid_dir(entryp))
+        {
+          continue;
+        }
+
+      if (tasks_read_status(entryp->d_name, buffer, sizeof(buffer),
+                            &status) < 0)
+        {
+          continue;
+        }
+
+      show_task(entryp->d_name, &status);
+    }
+
+  closedir(dirp);
+  return OK;
 }
 
 /****************************************************************************
@@ -139,10 +299,12 @@ int main(int argc, char *argv[])
     "<br>\r\n"
     "</div>\r\n"
     "<div class=\"contentblock\">\r\n"
-    "<pre>\r\n"
-    "PID   PRI SCHD TYPE   NP STATE    NAME\r\n");
+    "<pre>\r\n");
 
-  nxsched_foreach(show_task, NULL);
+  printf("%5s %-12s %-14s %-7s %-18s %s\n",
+         "PID", "PRI", "SCHEDULER", "TYPE", "STATE", "NAME");
+
+  show_tasks();
 
   puts(
     "</pre>\r\n"
