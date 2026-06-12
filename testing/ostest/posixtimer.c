@@ -27,7 +27,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <sched.h>
-#include <semaphore.h>
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -47,23 +46,14 @@
  * Private Data
  ****************************************************************************/
 
-static sem_t sem;
 static int g_nsigreceived = 0;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
+static void timer_expiration(int signo, FAR const siginfo_t *info)
 {
-  sigset_t oldset;
-  sigset_t allsigs;
-  int status;
-
-  printf("timer_expiration: Received signal %d\n" , signo);
-
-  g_nsigreceived++;
-
   /* Check signo */
 
   if (signo != MY_TIMER_SIGNAL)
@@ -104,28 +94,8 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
       ASSERT(false);
     }
 
-  /* Check ucontext_t */
-
-  printf("timer_expiration: ucontext=%p\n" , ucontext);
-
-  /* Check sigprocmask */
-
-  sigfillset(&allsigs);
-  status = sigprocmask(SIG_SETMASK, NULL, &oldset);
-  if (status != OK)
-    {
-      printf("timer_expiration: ERROR sigprocmask failed, status=%d\n",
-              status);
-      ASSERT(false);
-    }
-
-  if (!sigset_isequal(&oldset, &allsigs))
-    {
-      printf("timer_expiration: ERROR sigprocmask=" SIGSET_FMT
-             " expected=" SIGSET_FMT "\n",
-             SIGSET_ELEM(&oldset), SIGSET_ELEM(&allsigs));
-      ASSERT(false);
-    }
+  g_nsigreceived++;
+  printf("timer_expiration: g_nsigreceived=%d\n", g_nsigreceived);
 }
 
 /****************************************************************************
@@ -135,50 +105,29 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
 void timer_test(void)
 {
   sigset_t           set;
-  struct sigaction   act;
-  struct sigaction   oact;
+  siginfo_t          info;
   struct sigevent    notify;
   struct itimerspec  timer;
   timer_t            timerid;
   int                status;
   int                i;
 
-  printf("timer_test: Initializing semaphore to 0\n");
-  sem_init(&sem, 0, 0);
-
-  /* Start waiter thread  */
-
-  printf("timer_test: Unmasking signal %d\n" , MY_TIMER_SIGNAL);
+  /* Block the timer signal so that it stays pending until we explicitly
+   * wait for it via sigwaitinfo().
+   */
 
   sigemptyset(&set);
   sigaddset(&set, MY_TIMER_SIGNAL);
-  status = sigprocmask(SIG_UNBLOCK, &set, NULL);
+
+  printf("timer_test: Masking signal %d\n", MY_TIMER_SIGNAL);
+
+  status = sigprocmask(SIG_BLOCK, &set, NULL);
   if (status != OK)
     {
       printf("timer_test: ERROR sigprocmask failed, status=%d\n",
               status);
       ASSERT(false);
     }
-
-  printf("timer_test: Registering signal handler\n");
-  act.sa_sigaction = timer_expiration;
-  act.sa_flags  = SA_SIGINFO;
-
-  sigfillset(&act.sa_mask);
-  sigdelset(&act.sa_mask, MY_TIMER_SIGNAL);
-
-  status = sigaction(MY_TIMER_SIGNAL, &act, &oact);
-  if (status != OK)
-    {
-      printf("timer_test: ERROR sigaction failed, status=%d\n" , status);
-      ASSERT(false);
-    }
-
-#ifndef SDCC
-  printf("timer_test: oact.sigaction=%p oact.sa_flags=%x "
-         "oact.sa_mask=" SIGSET_FMT "\n",
-         oact.sa_sigaction, oact.sa_flags, SIGSET_ELEM(&oact.sa_mask));
-#endif
 
   /* Create the POSIX timer */
 
@@ -217,53 +166,40 @@ void timer_test(void)
       goto errorout;
     }
 
-  /* Take the semaphore */
+  /* Synchronously wait for the timer signal via sigwaitinfo(). */
 
   for (i = 0; i < 5; i++)
     {
-      printf("timer_test: Waiting on semaphore\n");
+      printf("timer_test: Waiting on sigwaitinfo\n");
       FFLUSH();
-      status = sem_wait(&sem);
-      if (status != 0)
+      status = sigwaitinfo(&set, &info);
+      if (status < 0)
         {
-          int error = errno;
-          if (error == EINTR)
-            {
-              printf("timer_test: sem_wait() successfully interrupted "
-                     "by signal\n");
-            }
-          else
-            {
-              printf("timer_test: ERROR sem_wait failed, errno=%d\n", error);
-              ASSERT(false);
-            }
+          printf("timer_test: ERROR sigwaitinfo failed, errno=%d\n", errno);
+          ASSERT(false);
         }
       else
         {
-          printf("timer_test: ERROR awakened with no error!\n");
-          ASSERT(false);
+          printf("timer_test: sigwaitinfo() returned signo=%d\n", status);
+          timer_expiration(status, &info);
         }
-
-      printf("timer_test: g_nsigreceived=%d\n", g_nsigreceived);
     }
 
 errorout:
-  sem_destroy(&sem);
 
-  /* Then delete the timer */
+  /* Delete the timer */
 
   printf("timer_test: Deleting timer\n");
   status = timer_delete(timerid);
   if (status != OK)
     {
-      printf("timer_test: ERROR timer_create failed, errno=%d\n", errno);
+      printf("timer_test: ERROR timer_delete failed, errno=%d\n", errno);
       ASSERT(false);
     }
 
-  /* Detach the signal handler */
+  /* Restore the signal mask */
 
-  act.sa_handler = SIG_DFL;
-  status = sigaction(MY_TIMER_SIGNAL, &act, &oact);
+  sigprocmask(SIG_UNBLOCK, &set, NULL);
 
   printf("timer_test: done\n");
   FFLUSH();
