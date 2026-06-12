@@ -106,7 +106,7 @@
 #define LWS_HAVE_MALLOC_H
 /* #define LWS_HAVE_MALLOC_TRIM */
 #define LWS_HAVE_MALLOC_USABLE_SIZE
-#ifdef CONFIG_CRYPTO_MBEDTLS
+#ifdef CONFIG_NETUTILS_LIBWEBSOCKETS_TLS
 #define LWS_HAVE_mbedtls_md_setup
 #define LWS_HAVE_mbedtls_net_init
 #define LWS_HAVE_mbedtls_rsa_complete
@@ -187,8 +187,10 @@
 
 /* #undef LWS_NO_CLIENT */
 #define LWS_NO_DAEMONIZE
+#ifdef CONFIG_NETUTILS_LIBWEBSOCKETS_TLS
 #define LWS_OPENSSL_CLIENT_CERTS "/etc/ssl/certs"
 #define LWS_OPENSSL_SUPPORT
+#endif
 /* #undef LWS_PLAT_OPTEE */
 #define LWS_PLAT_UNIX
 /* #undef LWS_PLAT_FREERTOS */
@@ -281,7 +283,7 @@
 /* #undef LWS_WITH_SDEVENT */
 #define LWS_WITH_LWSAC
 #define LWS_LOGS_TIMESTAMP
-#ifdef CONFIG_CRYPTO_MBEDTLS
+#ifdef CONFIG_NETUTILS_LIBWEBSOCKETS_TLS
 #define LWS_WITH_MBEDTLS
 #endif
 /* #undef LWS_WITH_MINIZ */
@@ -355,7 +357,7 @@
 /* #undef LWS_WITH_SYS_NTPCLIENT */
 #define LWS_WITH_SYS_STATE
 /* #undef LWS_WITH_THREADPOOL */
-#ifdef CONFIG_CRYPTO_MBEDTLS
+#ifdef CONFIG_NETUTILS_LIBWEBSOCKETS_TLS
 #define LWS_WITH_TLS
 /* #undef LWS_WITH_TLS_JIT_TRUST */
 #define LWS_WITH_TLS_SESSIONS
