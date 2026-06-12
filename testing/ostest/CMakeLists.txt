@@ -133,7 +133,9 @@ if(CONFIG_TESTING_OSTEST)
   endif() # CONFIG_DISABLE_MQUEUE
 
   if(NOT CONFIG_DISABLE_POSIX_TIMERS)
-    list(APPEND SRCS posixtimer.c)
+    if(NOT CONFIG_DISABLE_ALL_SIGNALS)
+      list(APPEND SRCS posixtimer.c)
+    endif()
     if(CONFIG_SIG_EVTHREAD)
       list(APPEND SRCS sigev_thread.c)
     endif()
