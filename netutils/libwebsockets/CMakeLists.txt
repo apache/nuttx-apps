@@ -63,7 +63,8 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       -DLWS_LIBRARY_VERSION_PATCH=${VERSION_PATCH}
       -DLWS_LIBRARY_VERSION_PATCH_ELABORATED=${VERSION_PATCH}-unknown
       -DLWS_LIBRARY_VERSION="${CONFIG_NETUTILS_LIBWEBSOCKETS_VERSION}-unknown"
-      -Wno-shadow)
+      -Wno-shadow
+      -Wno-format)
 
   set(INCDIR
       ${CMAKE_CURRENT_LIST_DIR}
@@ -145,6 +146,13 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       ${LIBWEBSOCKETS_DIR}/lib/roles/raw-file/ops-raw-file.c
       ${LIBWEBSOCKETS_DIR}/lib/roles/http/client/client-http.c
       ${LIBWEBSOCKETS_DIR}/lib/event-libs/poll/poll.c)
+
+  if(CONFIG_NETUTILS_LIBWEBSOCKETS_SERVER)
+    list(APPEND INCDIR ${LIBWEBSOCKETS_DIR}/lib/roles/http/server)
+    list(APPEND CSRCS ${LIBWEBSOCKETS_DIR}/lib/roles/ws/server-ws.c
+         ${LIBWEBSOCKETS_DIR}/lib/roles/http/server/server.c
+         ${LIBWEBSOCKETS_DIR}/lib/roles/listen/ops-listen.c)
+  endif()
 
   if(CONFIG_NETUTILS_LIBWEBSOCKETS_TLS)
     list(APPEND INCDIR ${LIBWEBSOCKETS_DIR}/lib/tls/mbedtls/wrapper/include
