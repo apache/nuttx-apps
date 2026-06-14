@@ -33,7 +33,7 @@ MICROWINDOWS_DIR_NAME = microwindows
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-MICROWINDOWS_COMMIT_HASH := 8809effdd0dfe6c2ac8fd0f455a31407e8495a93
+MICROWINDOWS_COMMIT_HASH := 1e71398cc6f650687f406547230c33788eeaf9c7
 
 #CONFIG_GRAPH_MICROWINDOWS_URL ?= "https://codeload.github.com/ghaerr/microwindows/zip/refs/heads/master"
 CONFIG_GRAPH_MICROWINDOWS_URL ?= https://codeload.github.com/ghaerr/microwindows/zip/$(MICROWINDOWS_COMMIT_HASH)
@@ -81,6 +81,43 @@ CSRCS += $(MW_CORE_OBJS:%.o=%.c)
 CSRCS += $(MW_LOCAL_DIR)/scr_nuttx.c
 CSRCS += $(MW_LOCAL_DIR)/mou_nuttx.c
 CSRCS += $(MW_LOCAL_DIR)/kbd_nuttx.c
+
+ifneq ($(CONFIG_EXAMPLES_MICROWINDOWS),)
+
+# Win32 API used by mwdemo.c
+MWIN_CORE_SRCS  = microwindows/src/mwin/winmain.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winuser.c
+MWIN_CORE_SRCS += microwindows/src/mwin/wingdi.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winexpos.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winclip.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winevent.c
+MWIN_CORE_SRCS += microwindows/src/mwin/windefw.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winrgn.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winfont.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winsbar.c
+MWIN_CORE_SRCS += microwindows/src/mwin/winres.c
+
+# mwin winlib
+WINLIB_SRCS  = microwindows/src/mwin/winlib/draw3d.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/fastfill.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/windlg.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/graph3d.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/caret.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/static.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/button.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/newedit.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/newlistbox.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/combobox.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/progbar.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/scrlbar.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/medit.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/ptinsid.c
+WINLIB_SRCS += microwindows/src/mwin/winlib/insetr.c
+
+CSRCS += $(MWIN_CORE_SRCS) $(WINLIB_SRCS)
+CFLAGS += -DNOGDI
+
+endif
 
 #$(error EXTOBJS=$(EXTOBJS))
 

@@ -27,8 +27,28 @@ PRIORITY  = $(CONFIG_EXAMPLES_MICROWINDOWS_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_MICROWINDOWS_STACKSIZE)
 MODULE    = y
 
-MAINSRC = mwexample.c
+MAINSRC = mwdemo_main.c
+CSRCS += mwdemo.c
+CSRCS += images/microwin.c
 
-CFLAGS += -Wno-undef
+# Generate microwin.c from microwin.bmp
+MW_SRC = $(APPDIR)/graphics/microwindows/microwindows/src
+MW_IMGDIR = images
+MW_CONVBMP = convbmp$(HOSTEXEEXT)
+
+$(MW_CONVBMP): $(MW_SRC)/images/tools/convbmp.c
+	$(HOSTCC) $(HOSTCFLAGS) -I$(MW_SRC)/include $< -o $@
+
+$(MW_IMGDIR)/microwin.c: $(MW_SRC)/images/demos/mwin/microwin.bmp $(MW_CONVBMP)
+	mkdir -p $(MW_IMGDIR)
+	$(CURDIR)/$(MW_CONVBMP) -o $@ $<
+
+clean::
+	$(call DELFILE, $(MW_IMGDIR)/microwin.c)
+	$(Q) rmdir $(MW_IMGDIR) 2>/dev/null || true
+	$(call DELFILE, $(MW_CONVBMP))
+
+CFLAGS += -Wno-undef 
+CFLAGS += -DNOGDI
 
 include $(APPDIR)/Application.mk
