@@ -30,8 +30,12 @@ MODULE    = $(CONFIG_EXAMPLES_HELLO_RUST_CARGO)
 RUST_LIB  := $(call RUST_GET_BINDIR,hello,$(APPDIR)/examples/rust)
 RUST_SRCS := $(call RUST_CARGO_SRCS,hello,$(APPDIR)/examples/rust)
 
+ifeq ($(CONFIG_ARCH_SIM),y)
+HELLO_RUST_FEATURES := sim
+endif
+
 $(RUST_LIB): $(RUST_SRCS)
-	$(call RUST_CARGO_BUILD,hello,$(APPDIR)/examples/rust)
+	$(call RUST_CARGO_BUILD,hello,$(APPDIR)/examples/rust,$(HELLO_RUST_FEATURES))
 
 context:: $(RUST_LIB)
 

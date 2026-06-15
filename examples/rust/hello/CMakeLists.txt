@@ -21,7 +21,12 @@
 if(CONFIG_EXAMPLES_HELLO_RUST_CARGO)
 
   # Build the Rust crate using nuttx_add_rust
-  nuttx_add_rust(CRATE_NAME hello CRATE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+  if(CONFIG_ARCH_SIM)
+    nuttx_add_rust(CRATE_NAME hello CRATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+                   FEATURES sim)
+  else()
+    nuttx_add_rust(CRATE_NAME hello CRATE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
 
   nuttx_add_application(
     NAME ${CONFIG_EXAMPLES_HELLO_RUST_CARGO_PROGNAME} STACKSIZE

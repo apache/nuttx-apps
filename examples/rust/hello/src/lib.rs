@@ -1,6 +1,7 @@
 extern crate serde;
 extern crate serde_json;
 
+use core::ffi::{c_char, c_int};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -11,7 +12,7 @@ struct Person {
 
 // Function hello_rust_cargo without manglng
 #[no_mangle]
-pub extern "C" fn hello_rust_cargo_main() {
+pub extern "C" fn hello_rust_cargo_main(_argc: c_int, _argv: *mut *mut c_char) -> c_int {
     // Print hello world to stdout
 
     let john = Person {
@@ -50,7 +51,11 @@ pub extern "C" fn hello_rust_cargo_main() {
             println!("Hello world from tokio!");
         });
 
+    #[cfg(not(feature = "sim"))]
     loop {
         // Do nothing
     }
+
+    #[cfg(feature = "sim")]
+    0
 }

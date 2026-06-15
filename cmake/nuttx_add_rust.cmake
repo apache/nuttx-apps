@@ -130,6 +130,8 @@ endfunction()
 #    hello
 #    CRATE_PATH
 #    ${CMAKE_CURRENT_SOURCE_DIR}/hello
+#    FEATURES
+#    sim
 #  )
 # ~~~
 
@@ -142,6 +144,8 @@ function(nuttx_add_rust)
     ONE_VALUE
     CRATE_NAME
     CRATE_PATH
+    MULTI_VALUE
+    FEATURES
     REQUIRED
     CRATE_NAME
     CRATE_PATH
@@ -158,6 +162,10 @@ function(nuttx_add_rust)
     set(RUST_PROFILE "debug")
     set(RUST_PANIC_FLAGS "")
   endif()
+
+  foreach(feature ${FEATURES})
+    list(APPEND RUST_FEATURE_FLAGS --features ${feature})
+  endforeach()
 
   # Get the Rust target triple
   nuttx_rust_target_triple(${LLVM_ARCHTYPE} ${LLVM_ABITYPE} ${LLVM_CPUTYPE}
@@ -198,7 +206,7 @@ function(nuttx_add_rust)
       RUSTFLAGS=${RUST_PANIC_FLAGS} cargo build ${RUST_PROFILE_FLAG}
       -Zbuild-std=std,panic_abort -Zjson-target-spec --manifest-path
       ${CRATE_PATH}/Cargo.toml --target ${RUST_TARGET} --target-dir
-      ${RUST_BUILD_DIR}
+      ${RUST_BUILD_DIR} ${RUST_FEATURE_FLAGS}
     DEPENDS ${RUST_CRATE_SOURCES}
     COMMENT "Building Rust crate ${CRATE_NAME}"
     VERBATIM)
