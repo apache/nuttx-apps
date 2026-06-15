@@ -99,21 +99,21 @@ int main(int argc, FAR char *argv[])
 
               if (minmea_parse_rmc(&frame, line))
                 {
-                  printf("Fixed-point Latitude...........: %" PRIdLEAST32
-                         "\n",
+                  printf("Fixed-point Latitude (NMEA * 1000)..: %"
+                         PRIdLEAST32 "\n",
                          minmea_rescale(&frame.latitude, 1000));
-                  printf("Fixed-point Longitude..........: %" PRIdLEAST32
-                         "\n",
+                  printf("Fixed-point Longitude (NMEA * 1000).: %"
+                         PRIdLEAST32 "\n",
                          minmea_rescale(&frame.longitude, 1000));
-                  printf("Fixed-point Speed..............: %" PRIdLEAST32
-                         "\n",
+                  printf("Fixed-point Speed (knots * 1000)....: %"
+                         PRIdLEAST32 "\n",
                          minmea_rescale(&frame.speed, 1000));
-                  printf("Floating point degree latitude.: %2.6f\n",
+                  printf("Floating point Latitude (degrees)...: %2.6f\n",
                          minmea_tocoord(&frame.latitude));
-                  printf("Floating point degree longitude: %2.6f\n",
+                  printf("Floating point Longitude (degrees)..: %2.6f\n",
                          minmea_tocoord(&frame.longitude));
-                  printf("Floating point speed...........: %2.6f\n",
-                         minmea_tocoord(&frame.speed));
+                  printf("Floating point Speed (knots)........: %2.6f\n",
+                         minmea_tofloat(&frame.speed));
                 }
               else
                 {
@@ -130,9 +130,9 @@ int main(int argc, FAR char *argv[])
                 {
                   printf("Fix quality....................: %d\n",
                          frame.fix_quality);
-                  printf("Altitude.......................: %" PRIdLEAST32
-                         "\n",
-                         frame.altitude.value);
+                  printf("Altitude (%c)...................: %2.6f\n",
+                         frame.altitude_units ? frame.altitude_units : '?',
+                         minmea_tofloat(&frame.altitude));
                   printf("Tracked satellites.............: %d\n",
                          frame.satellites_tracked);
                 }
