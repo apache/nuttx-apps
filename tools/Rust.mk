@@ -90,11 +90,12 @@ endef
 
 # Build Rust project using cargo
 #
-# Usage:   $(call RUST_CARGO_BUILD,cratename,prefix)
+# Usage:   $(call RUST_CARGO_BUILD,cratename,prefix[,features])
 #
 # Inputs:
 #   cratename - Name of the Rust crate (e.g. hello)
 #   prefix    - Path prefix to the crate (e.g. path/to/project)
+#   features  - Optional Cargo features to enable
 #
 # Output:
 #   None, builds the Rust project
@@ -105,7 +106,8 @@ define RUST_CARGO_BUILD
     RUSTFLAGS="-Zunstable-options -Cpanic=immediate-abort" \
     cargo build --release -Zbuild-std=std,panic_abort -Zjson-target-spec \
 		--manifest-path $(2)/$(1)/Cargo.toml \
-		--target $(call RUST_TARGET_TRIPLE)
+		--target $(call RUST_TARGET_TRIPLE) \
+		$(if $(strip $(3)),--features $(3),)
 endef
 else
 define RUST_CARGO_BUILD
@@ -113,7 +115,8 @@ define RUST_CARGO_BUILD
 	NUTTX_INCLUDE_DIR=$(TOPDIR)/include:$(TOPDIR)/include/arch \
     cargo build -Zbuild-std=std,panic_abort -Zjson-target-spec \
 		--manifest-path $(2)/$(1)/Cargo.toml \
-		--target $(call RUST_TARGET_TRIPLE)
+		--target $(call RUST_TARGET_TRIPLE) \
+		$(if $(strip $(3)),--features $(3),)
 endef
 endif
 
