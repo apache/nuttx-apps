@@ -316,6 +316,7 @@ const char g_userprompt[]        = "login: ";
 const char g_passwordprompt[]    = "password: ";
 const char g_loginsuccess[]      = "\nUser Logged-in!\n";
 const char g_badcredentials[]    = "\nInvalid username or password\n";
+const char g_badidentity[]       = "\nUnknown user identity\n";
 const char g_loginfailure[]      = "Login failed!\n";
 #endif
 

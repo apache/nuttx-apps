@@ -750,6 +750,7 @@ extern const char g_userprompt[];
 extern const char g_passwordprompt[];
 extern const char g_loginsuccess[];
 extern const char g_badcredentials[];
+extern const char g_badidentity[];
 extern const char g_loginfailure[];
 #endif
 extern const char g_fmtsyntax[];
@@ -968,6 +969,18 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 #if defined(CONFIG_FS_PERMISSION) && !defined(CONFIG_NSH_DISABLE_CHOWN)
   int cmd_chown(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+#ifdef CONFIG_SCHED_USER_IDENTITY
+  int nsh_setuser_identity(FAR const char *username);
+#  ifndef CONFIG_NSH_DISABLE_SU
+  int cmd_su(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_ID
+  int cmd_id(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_WHOAMI
+  int cmd_whoami(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#  endif
 #endif
 #ifndef CONFIG_NSH_DISABLE_CP
   int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
