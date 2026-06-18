@@ -60,6 +60,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS aio.c)
   endif()
 
+  if(CONFIG_TESTING_OSTEST_MULTIUSER)
+    list(APPEND SRCS multiuser.c)
+  endif()
+
   if(CONFIG_SCHED_WAITPID)
     list(APPEND SRCS waitpid.c)
   endif()
@@ -133,9 +137,7 @@ if(CONFIG_TESTING_OSTEST)
   endif() # CONFIG_DISABLE_MQUEUE
 
   if(NOT CONFIG_DISABLE_POSIX_TIMERS)
-    if(NOT CONFIG_DISABLE_ALL_SIGNALS)
-      list(APPEND SRCS posixtimer.c)
-    endif()
+    list(APPEND SRCS posixtimer.c)
     if(CONFIG_SIG_EVTHREAD)
       list(APPEND SRCS sigev_thread.c)
     endif()

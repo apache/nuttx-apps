@@ -75,6 +75,10 @@ ifeq ($(CONFIG_TESTING_OSTEST_AIO),y)
 CSRCS += aio.c
 endif
 
+ifeq ($(CONFIG_TESTING_OSTEST_MULTIUSER),y)
+CSRCS += multiuser.c
+endif
+
 ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += waitpid.c
 endif
@@ -134,9 +138,7 @@ endif # CONFIG_DISABLE_PTHREAD
 endif # CONFIG_DISABLE_MQUEUE
 
 ifneq ($(CONFIG_DISABLE_POSIX_TIMERS),y)
-ifneq ($(CONFIG_DISABLE_ALL_SIGNALS),y)
 CSRCS += posixtimer.c
-endif
 ifeq ($(CONFIG_SIG_EVTHREAD),y)
 CSRCS += sigev_thread.c
 endif
