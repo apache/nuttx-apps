@@ -30,6 +30,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifdef CONFIG_SCHED_USER_IDENTITY
+#  include <unistd.h>
+#endif
+
 #include "nsh.h"
 
 /****************************************************************************
@@ -58,6 +62,10 @@ static char g_nshprompt[CONFIG_NSH_PROMPT_MAX] = CONFIG_NSH_PROMPT_STRING;
  *   - non-empty NSH_PROMPT_ENV variable and suffix
  *   - non-empty NSH_PROMPT_STRING
  *   - non-empty HOSTNAME and suffix
+ *
+ *   When SCHED_USER_IDENTITY is enabled and NSH_PROMPT_STRING_ROOT or
+ *   NSH_PROMPT_STRING_USER are non-empty, the prompt for the current
+ *   effective UID replaces the value from the sources above.
  *
  * Note that suffix has higher priority when used to help clearly separate
  * prompts from command line inputs.
@@ -90,6 +98,22 @@ void nsh_update_prompt(void)
       gethostname(g_nshprompt, NSH_PROMPT_SIZE);
       strcat(g_nshprompt, CONFIG_NSH_PROMPT_SUFFIX);
     }
+
+#ifdef CONFIG_SCHED_USER_IDENTITY
+  if (geteuid() == 0)
+    {
+      if (CONFIG_NSH_PROMPT_STRING_ROOT[0] != '\0')
+        {
+          strlcpy(g_nshprompt, CONFIG_NSH_PROMPT_STRING_ROOT,
+                  CONFIG_NSH_PROMPT_MAX);
+        }
+    }
+  else if (CONFIG_NSH_PROMPT_STRING_USER[0] != '\0')
+    {
+      strlcpy(g_nshprompt, CONFIG_NSH_PROMPT_STRING_USER,
+              CONFIG_NSH_PROMPT_MAX);
+    }
+#endif
 }
 
 /****************************************************************************

@@ -30,6 +30,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <termios.h>
+#include <errno.h>
 
 #include "fsutils/passwd.h"
 #ifdef CONFIG_NSH_CLE
@@ -250,6 +251,16 @@ int nsh_login(FAR struct console_stdio_s *pstate)
 #endif
             {
               write(OUTFD(pstate), g_loginsuccess, strlen(g_loginsuccess));
+
+#if defined(CONFIG_NSH_LOGIN_SETUID) && defined(CONFIG_SCHED_USER_IDENTITY)
+              if (nsh_setuser_identity(username) < 0)
+                {
+                  write(OUTFD(pstate), g_badidentity, strlen(g_badidentity));
+                  return -1;
+                }
+
+              nsh_update_prompt();
+#endif
               return OK;
             }
           else
