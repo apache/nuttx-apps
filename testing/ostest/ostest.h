@@ -109,6 +109,12 @@ int setvbuf_test(void);
 int dev_null_test(void);
 #endif
 
+/* multiuser.c **************************************************************/
+
+#if defined(CONFIG_TESTING_OSTEST_MULTIUSER) && defined(CONFIG_SCHED_USER_IDENTITY)
+int multiuser_test(void);
+#endif
+
 /* fpu.c ********************************************************************/
 
 void fpu_test(void);

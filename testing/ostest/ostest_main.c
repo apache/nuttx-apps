@@ -381,6 +381,19 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#if defined(CONFIG_TESTING_OSTEST_MULTIUSER) && defined(CONFIG_SCHED_USER_IDENTITY)
+      /* Multi-user identity and file permission regression tests */
+
+      printf("\nuser_main: multi-user test\n");
+      if (multiuser_test() != 0)
+        {
+          printf("user_main: ERROR multi-user test failed\n");
+          ASSERT(false);
+        }
+
+      check_test_memory_usage();
+#endif
+
 #if !defined(CONFIG_DISABLE_PTHREAD) && defined(CONFIG_BUILD_FLAT) && \
     defined(CONFIG_SCHED_WORKQUEUE)
       /* Check work queues */
@@ -525,14 +538,6 @@ static int user_main(int argc, char *argv[])
       suspend_test();
       check_test_memory_usage();
 #endif
-
-#ifndef CONFIG_DISABLE_POSIX_TIMERS
-      /* Verify POSIX timers (SIGEV_SIGNAL delivered via sigwaitinfo()) */
-
-      printf("\nuser_main: POSIX timer test\n");
-      timer_test();
-      check_test_memory_usage();
-#endif
 #endif /* !CONFIG_DISABLE_ALL_SIGNALS */
 
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
@@ -545,6 +550,14 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: nested signal handler test\n");
       signest_test();
       check_test_memory_usage();
+
+#ifndef CONFIG_DISABLE_POSIX_TIMERS
+      /* Verify posix timers (with SIGEV_SIGNAL) */
+
+      printf("\nuser_main: POSIX timer test\n");
+      timer_test();
+      check_test_memory_usage();
+#endif
 #endif
 
 #ifdef CONFIG_BUILD_FLAT
