@@ -6,6 +6,7 @@
 config UTILS_LIBARCHIVE
 	tristate "libarchive"
 	default n
+	depends on FILE_STREAM
 
 if UTILS_LIBARCHIVE
 
