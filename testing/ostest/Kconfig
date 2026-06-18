@@ -120,6 +120,16 @@ config TESTING_OSTEST_SPINLOCK_THREADS
 	default 2
 	range 1 32
 
+config TESTING_OSTEST_MULTIUSER
+	bool "Multi-user identity and permission tests"
+	default n
+	depends on SCHED_USER_IDENTITY
+	---help---
+		Enable regression tests for UID/GID identity switching and file
+		permission enforcement.  Individual sub-tests run only when the
+		corresponding kernel options are enabled (for example pseudoFS
+		permission checks require FS_PERMISSION and PSEUDOFS_FILE).
+
 config TEST_LOOP_SCALE
 	int "Loop scale of spinlock test (N x 10,000)"
 	default 100
