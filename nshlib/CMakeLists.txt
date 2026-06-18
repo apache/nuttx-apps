@@ -42,6 +42,10 @@ if(CONFIG_NSH_LIBRARY)
     nsh_syscmds.c
     nsh_dbgcmds.c)
 
+  if(CONFIG_SCHED_USER_IDENTITY)
+    list(APPEND CSRCS nsh_identity.c)
+  endif()
+
   list(APPEND CSRCS nsh_session.c)
 
   if(CONFIG_NSH_CONSOLE_LOGIN)
