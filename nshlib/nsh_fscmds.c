@@ -45,6 +45,13 @@
 #include <errno.h>
 #include <nuttx/debug.h>
 
+#ifdef CONFIG_LIBC_PASSWD_FILE
+#  include <pwd.h>
+#endif
+#ifdef CONFIG_LIBC_GROUP_FILE
+#  include <grp.h>
+#endif
+
 #include "nsh.h"
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
@@ -340,6 +347,44 @@ static inline int ls_specialdir(FAR const char *dir)
 
   return (strcmp(dir, ".")  == 0 || strcmp(dir, "..") == 0);
 }
+
+#ifdef CONFIG_SCHED_USER_IDENTITY
+/****************************************************************************
+ * Name: nsh_ls_printowner
+ ****************************************************************************/
+
+static void nsh_ls_printowner(FAR struct nsh_vtbl_s *vtbl, uid_t uid,
+                              gid_t gid)
+{
+#ifdef CONFIG_LIBC_PASSWD_FILE
+  FAR struct passwd *pwd;
+
+  pwd = getpwuid(uid);
+  if (pwd != NULL && pwd->pw_name != NULL)
+    {
+      nsh_output(vtbl, "%8s", pwd->pw_name);
+    }
+  else
+#endif
+    {
+      nsh_output(vtbl, "%8d", (int)uid);
+    }
+
+#ifdef CONFIG_LIBC_GROUP_FILE
+  FAR struct group *grp;
+
+  grp = getgrgid(gid);
+  if (grp != NULL && grp->gr_name != NULL)
+    {
+      nsh_output(vtbl, "%8s", grp->gr_name);
+    }
+  else
+#endif
+    {
+      nsh_output(vtbl, "%8d", (int)gid);
+    }
+}
+#endif /* CONFIG_SCHED_USER_IDENTITY */
 #endif
 
 /****************************************************************************
@@ -511,8 +556,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 #ifdef CONFIG_SCHED_USER_IDENTITY
       if ((lsflags & LSFLAGS_UID_GID) != 0)
         {
-          nsh_output(vtbl, "%8d", buf.st_uid);
-          nsh_output(vtbl, "%8d", buf.st_gid);
+          nsh_ls_printowner(vtbl, buf.st_uid, buf.st_gid);
         }
 #endif
 

@@ -69,6 +69,24 @@ config NSH_PROMPT_STRING
 		Provide the shell prompt string with size limit NSH_PROMPT_MAX.
 		default is "nsh> ".
 
+config NSH_PROMPT_STRING_ROOT
+	string "Prompt string for effective root (euid=0)"
+	default ""
+	depends on SCHED_USER_IDENTITY
+	---help---
+		If non-empty, NSH uses this prompt when the effective UID is zero.
+		If empty, the prompt from NSH_PROMPT_STRING (or ENV/HOSTNAME) is used.
+		Set explicitly for multi-user shells (for example, "nsh# ").
+
+config NSH_PROMPT_STRING_USER
+	string "Prompt string for non-root effective UID"
+	default ""
+	depends on SCHED_USER_IDENTITY
+	---help---
+		If non-empty, NSH uses this prompt when the effective UID is non-zero.
+		If empty, the prompt from NSH_PROMPT_STRING (or ENV/HOSTNAME) is used.
+		Set explicitly for multi-user shells (for example, "nsh$ ").
+
 config NSH_PROMPT_MAX
 	int "Maximum Size of Prompt String"
 	default NAME_MAX
@@ -350,6 +368,21 @@ config NSH_DISABLE_CHOWN
 	bool "Disable chown"
 	default DEFAULT_SMALL
 	depends on FS_PERMISSION
+
+config NSH_DISABLE_SU
+	bool "Disable su"
+	default DEFAULT_SMALL
+	depends on SCHED_USER_IDENTITY
+
+config NSH_DISABLE_ID
+	bool "Disable id"
+	default DEFAULT_SMALL
+	depends on SCHED_USER_IDENTITY
+
+config NSH_DISABLE_WHOAMI
+	bool "Disable whoami"
+	default DEFAULT_SMALL
+	depends on SCHED_USER_IDENTITY
 
 config NSH_DISABLE_CP
 	bool "Disable cp"
@@ -1258,6 +1291,19 @@ config NSH_LOGIN_FAILCOUNT
 	default 3
 	---help---
 		Number of login retry attempts.
+
+config NSH_LOGIN_SETUID
+	bool "Set user identity after successful login"
+	default y
+	depends on SCHED_USER_IDENTITY
+	---help---
+		After a successful NSH login, look up the authenticated user name
+		in the passwd database and call setuid()/setgid() so that the shell
+		session runs with that user's credentials.
+
+		When CONFIG_LIBC_PASSWD_FILE is enabled, any user listed in the
+		passwd file may be selected.  Otherwise only the built-in "root"
+		account is supported.
 
 config NSH_PLATFORM_CHALLENGE
 	bool "Platform challenge"
