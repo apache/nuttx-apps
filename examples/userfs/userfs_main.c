@@ -142,19 +142,28 @@ static char g_file3_data[UFSTEST_FILE3_MXSIZE] = "This is file 3";
 static struct ufstest_file_s g_rootdir[UFSTEST_NFILES] =
 {
     {
-      { DTYPE_FILE, "File1" },
+      {
+        .d_type = DTYPE_FILE,
+        .d_name = "File1"
+      },
       UFSTEST_INIT_FILE1_SIZE,
       UFSTEST_FILE1_MXSIZE,
       g_file1_data
     },
     {
-      { DTYPE_FILE, "File2" },
+      {
+        .d_type = DTYPE_FILE,
+        .d_name = "File2"
+      },
       UFSTEST_INIT_FILE2_SIZE,
       UFSTEST_FILE2_MXSIZE,
       g_file2_data
     },
     {
-      { DTYPE_FILE, "File3" },
+      {
+        .d_type = DTYPE_FILE,
+        .d_name = "File3"
+      },
       UFSTEST_INIT_FILE3_SIZE,
       UFSTEST_FILE3_MXSIZE,
       g_file3_data
@@ -247,7 +256,7 @@ static int ufstest_open(FAR void *volinfo, FAR const char *relpath,
 
       opriv->file = file;
 
-      /* Initiallly, there is one reference count on the open data.  This may
+      /* Initially, there is one reference count on the open data.  This may
        * be incremented in the event that the file is dup'ed.
        */
 
