@@ -21,27 +21,60 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SOTEST)
+  set(SOTEST_SYMTAB ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c)
+  set(SOTEST_ROMFS_IMG ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.img)
+  set(SOTEST_ROMFS_SRC ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
+  set(SOTEST_MODPRINT_ELF ${CMAKE_BINARY_DIR}/bin/modprint)
+  set(SOTEST_SHARED_ELF ${CMAKE_BINARY_DIR}/bin/sotest)
 
-  # FIXME: fix all empty a after the kernel build is implemented
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c
+    OUTPUT ${SOTEST_SYMTAB}
     COMMAND
-      ${NUTTX_APPS_DIR}/tools/mksymtab.sh ${CMAKE_CURRENT_BINARY_DIR}/empty
-      g_sot > ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c)
+      sh -c
+      "\"${NUTTX_APPS_DIR}/tools/mksymtab.sh\" \"${SOTEST_MODPRINT_ELF}\" \"${SOTEST_SHARED_ELF}\" g_sot > \"${SOTEST_SYMTAB}\""
+    DEPENDS modprint sotest
+    VERBATIM)
 
-  add_custom_target(
-    sotest_romfs
-    COMMAND genromfs -f sotest_romfs.img -d empty
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  set(SOTEST_SRCS sotest_main.c ${SOTEST_SYMTAB})
 
-  add_custom_command(
-    OUTPUT sotest_romfs.c
-    COMMAND xxd -i sotest_romfs.img > sotest_romfs.c
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS sotest_romfs)
+  if(CONFIG_EXAMPLES_SOTEST_BUILTINFS)
+    set(SOTEST_ROMFS_DEPS modprint sotest)
 
-  nuttx_add_application(
-    NAME sotest SRCS sotest_main.c ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c
-    ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
+    if(CONFIG_SYSTEM_NXPKG)
+      set(SOTEST_SHARED_INDEX ${CMAKE_BINARY_DIR}/bin/shared-index.json)
+      set(SOTEST_SHARED_SCRIPT ${CMAKE_BINARY_DIR}/bin/pkgsotest.nsh)
 
+      add_custom_command(
+        OUTPUT ${SOTEST_SHARED_INDEX} ${SOTEST_SHARED_SCRIPT}
+        COMMAND
+          ${Python3_EXECUTABLE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/mk_pkg_fixture_shared.py
+          ${SOTEST_MODPRINT_ELF} ${SOTEST_SHARED_ELF} ${SOTEST_SHARED_INDEX}
+          ${SOTEST_SHARED_SCRIPT} ${CONFIG_ARCH} ${CONFIG_ARCH_BOARD}
+        DEPENDS modprint sotest
+                ${CMAKE_CURRENT_SOURCE_DIR}/mk_pkg_fixture_shared.py
+        VERBATIM)
+
+      list(APPEND SOTEST_ROMFS_DEPS ${SOTEST_SHARED_INDEX}
+           ${SOTEST_SHARED_SCRIPT})
+    endif()
+
+    add_custom_command(
+      OUTPUT ${SOTEST_ROMFS_IMG}
+      COMMAND genromfs -f ${SOTEST_ROMFS_IMG} -d ${CMAKE_BINARY_DIR}/bin
+      DEPENDS ${SOTEST_ROMFS_DEPS}
+      VERBATIM)
+
+    add_custom_command(
+      OUTPUT ${SOTEST_ROMFS_SRC}
+      COMMAND
+        sh -c
+        "echo '#include <nuttx/compiler.h>' > \"${SOTEST_ROMFS_SRC}\" && xxd -i \"${SOTEST_ROMFS_IMG}\" | sed -e 's/^unsigned char/const unsigned char aligned_data(4)/g' >> \"${SOTEST_ROMFS_SRC}\""
+      DEPENDS ${SOTEST_ROMFS_IMG}
+      VERBATIM)
+
+    list(APPEND SOTEST_SRCS ${SOTEST_ROMFS_SRC})
+  endif()
+
+  nuttx_add_application(NAME sotest SRCS ${SOTEST_SRCS})
 endif()
