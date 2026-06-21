@@ -1,0 +1,10 @@
+############################################################################
+# apps/testing/sig_sp_test/Make.defs
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+############################################################################
+
+ifneq ($(CONFIG_TESTING_SIG_SP_TEST),)
+CONFIGURED_APPS += $(APPDIR)/testing/sig_sp_test
+endif
