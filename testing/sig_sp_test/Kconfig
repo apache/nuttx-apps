@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_SIG_SP_TEST
+	tristate "Signal SP restore test"
+	default n
+	depends on BUILD_FLAT && ARCH_ARM
+	---help---
+		Test that modifying SP (REG_R13) in saved register context
+		during a signal handler is honored on exception return.
+
+		This verifies the SP context relocation in arm_sigdeliver.
+		Only available for flat builds on ARM.
+
+if TESTING_SIG_SP_TEST
+
+config TESTING_SIG_SP_TEST_PROGNAME
+	string "Program name"
+	default "sig_sp_test"
+
+config TESTING_SIG_SP_TEST_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_SIG_SP_TEST_STACKSIZE
+	int "Stack size"
+	default 4096
+
+endif
