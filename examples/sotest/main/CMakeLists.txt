@@ -26,6 +26,8 @@ if(CONFIG_EXAMPLES_SOTEST)
   set(SOTEST_ROMFS_SRC ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
   set(SOTEST_MODPRINT_ELF ${CMAKE_BINARY_DIR}/bin/modprint)
   set(SOTEST_SHARED_ELF ${CMAKE_BINARY_DIR}/bin/sotest)
+  set(SOTEST_GEN_SYMTAB ${CMAKE_CURRENT_SOURCE_DIR}/gen_symtab.py)
+  set(SOTEST_GEN_ROMFS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/gen_romfs_source.py)
 
   # Dynamic applications are wrapped in ELF_* helper targets when the build uses
   # the non-ELF-capable compiler path.
@@ -39,10 +41,10 @@ if(CONFIG_EXAMPLES_SOTEST)
 
   add_custom_command(
     OUTPUT ${SOTEST_SYMTAB}
-    COMMAND
-      sh -c
-      "\"${NUTTX_APPS_DIR}/tools/mksymtab.sh\" \"${SOTEST_MODPRINT_ELF}\" \"${SOTEST_SHARED_ELF}\" g_sot > \"${SOTEST_SYMTAB}\""
+    COMMAND ${Python3_EXECUTABLE} ${SOTEST_GEN_SYMTAB} ${SOTEST_MODPRINT_ELF}
+            ${SOTEST_SHARED_ELF} g_sot ${SOTEST_SYMTAB}
     DEPENDS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET}
+            ${SOTEST_GEN_SYMTAB}
     VERBATIM)
 
   set_source_files_properties(${SOTEST_SYMTAB} PROPERTIES GENERATED TRUE)
@@ -80,10 +82,9 @@ if(CONFIG_EXAMPLES_SOTEST)
 
     add_custom_command(
       OUTPUT ${SOTEST_ROMFS_SRC}
-      COMMAND
-        sh -c
-        "echo '#include <nuttx/compiler.h>' > \"${SOTEST_ROMFS_SRC}\" && xxd -i \"${SOTEST_ROMFS_IMG}\" | sed -e 's/^unsigned char/const unsigned char aligned_data(4)/g' >> \"${SOTEST_ROMFS_SRC}\""
-      DEPENDS ${SOTEST_ROMFS_IMG}
+      COMMAND ${Python3_EXECUTABLE} ${SOTEST_GEN_ROMFS_SRC} ${SOTEST_ROMFS_IMG}
+              ${SOTEST_ROMFS_SRC}
+      DEPENDS ${SOTEST_ROMFS_IMG} ${SOTEST_GEN_ROMFS_SRC}
       VERBATIM)
 
     set_source_files_properties(${SOTEST_ROMFS_SRC} PROPERTIES GENERATED TRUE)
