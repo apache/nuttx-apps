@@ -27,18 +27,31 @@ if(CONFIG_EXAMPLES_SOTEST)
   set(SOTEST_MODPRINT_ELF ${CMAKE_BINARY_DIR}/bin/modprint)
   set(SOTEST_SHARED_ELF ${CMAKE_BINARY_DIR}/bin/sotest)
 
+  # Dynamic applications are wrapped in ELF_* helper targets when the build uses
+  # the non-ELF-capable compiler path.
+  if(CMAKE_C_ELF_COMPILER)
+    set(SOTEST_MODPRINT_TARGET modprint)
+    set(SOTEST_SHARED_TARGET sotest)
+  else()
+    set(SOTEST_MODPRINT_TARGET ELF_modprint)
+    set(SOTEST_SHARED_TARGET ELF_sotest)
+  endif()
+
   add_custom_command(
     OUTPUT ${SOTEST_SYMTAB}
     COMMAND
       sh -c
       "\"${NUTTX_APPS_DIR}/tools/mksymtab.sh\" \"${SOTEST_MODPRINT_ELF}\" \"${SOTEST_SHARED_ELF}\" g_sot > \"${SOTEST_SYMTAB}\""
-    DEPENDS modprint sotest
+    DEPENDS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET}
     VERBATIM)
 
+  set_source_files_properties(${SOTEST_SYMTAB} PROPERTIES GENERATED TRUE)
+
+  set(SOTEST_GENERATED_OUTPUTS ${SOTEST_SYMTAB})
   set(SOTEST_SRCS sotest_main.c ${SOTEST_SYMTAB})
 
   if(CONFIG_EXAMPLES_SOTEST_BUILTINFS)
-    set(SOTEST_ROMFS_DEPS modprint sotest)
+    set(SOTEST_ROMFS_DEPS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET})
 
     if(CONFIG_SYSTEM_NXPKG)
       set(SOTEST_SHARED_INDEX ${CMAKE_BINARY_DIR}/bin/shared-index.json)
@@ -51,7 +64,7 @@ if(CONFIG_EXAMPLES_SOTEST)
           ${CMAKE_CURRENT_SOURCE_DIR}/mk_pkg_fixture_shared.py
           ${SOTEST_MODPRINT_ELF} ${SOTEST_SHARED_ELF} ${SOTEST_SHARED_INDEX}
           ${SOTEST_SHARED_SCRIPT} ${CONFIG_ARCH} ${CONFIG_ARCH_BOARD}
-        DEPENDS modprint sotest
+        DEPENDS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET}
                 ${CMAKE_CURRENT_SOURCE_DIR}/mk_pkg_fixture_shared.py
         VERBATIM)
 
@@ -73,8 +86,14 @@ if(CONFIG_EXAMPLES_SOTEST)
       DEPENDS ${SOTEST_ROMFS_IMG}
       VERBATIM)
 
+    set_source_files_properties(${SOTEST_ROMFS_SRC} PROPERTIES GENERATED TRUE)
+
+    list(APPEND SOTEST_GENERATED_OUTPUTS ${SOTEST_ROMFS_SRC})
     list(APPEND SOTEST_SRCS ${SOTEST_ROMFS_SRC})
   endif()
 
-  nuttx_add_application(NAME sotest SRCS ${SOTEST_SRCS})
+  add_custom_target(sotest_artifacts DEPENDS ${SOTEST_GENERATED_OUTPUTS})
+
+  nuttx_add_application(NAME sotest SRCS ${SOTEST_SRCS} DEPENDS
+                        sotest_artifacts)
 endif()
