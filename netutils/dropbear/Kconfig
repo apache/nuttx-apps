@@ -1,0 +1,120 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig NETUTILS_DROPBEAR
+	tristate "Dropbear SSH server"
+	default n
+	depends on NET && NET_TCP
+	depends on !DISABLE_PSEUDOFS_OPERATIONS
+	depends on !DISABLE_PTHREAD
+	depends on SCHED_WAITPID
+	depends on NSH_LIBRARY
+	depends on FSUTILS_PASSWD
+	depends on PSEUDOTERM
+	depends on SERIAL
+	depends on ARCH_HAVE_RNG
+	depends on DEV_RANDOM
+	depends on DEV_URANDOM
+	depends on LIBC_NETDB
+	depends on LIBC_GAISTRERROR
+	select CRYPTO
+	select CRYPTO_RANDOM_POOL
+	---help---
+		Enable a minimal Dropbear SSH server port for NuttX.  This initial
+		port is based on the ESP-IDF MCU test port and provides a single
+		foreground SSH server process with SSH sessions backed by NSH.
+
+if NETUTILS_DROPBEAR
+
+config NETUTILS_DROPBEAR_STACKSIZE
+	int "Dropbear main stack size"
+	default 65536
+	---help---
+		Stack size for the Dropbear server built-in.
+		This is architecture-specific, so adjust it according to your setup.
+
+config NETUTILS_DROPBEAR_PRIORITY
+	int "Dropbear main priority"
+	default 100
+
+config NETUTILS_DROPBEAR_SHELL_PRIORITY
+	int "Dropbear NSH session priority"
+	default 100
+
+config NETUTILS_DROPBEAR_PROGNAME
+	string "Dropbear program name"
+	default "dropbear"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config NETUTILS_DROPBEAR_LISTEN_RETRIES
+	int "Dropbear listen retries"
+	default 0
+	---help---
+		Number of times to retry listen setup when no listen socket could
+		be opened.  Zero means to retry forever.
+
+config NETUTILS_DROPBEAR_LISTEN_RETRY_MAX
+	int "Dropbear maximum listen retry interval"
+	default 120
+	range 1 3600
+	---help---
+		Maximum number of seconds to wait between listen setup retries.
+		The retry delay starts at one second and doubles until it reaches
+		this value.
+
+config NETUTILS_DROPBEAR_SHELL_STACKSIZE
+	int "Dropbear NSH session task stack size"
+	default 8192
+
+config NETUTILS_DROPBEAR_PORT
+	int "Dropbear listen port"
+	default 2222
+
+config NETUTILS_DROPBEAR_HOSTKEY_PATH
+	string "Dropbear ECDSA P-256 host key path"
+	default "/etc/dropbear/dropbear_ecdsa_host_key"
+	---help---
+		Path to the persistent ECDSA P-256 host key used by the Dropbear
+		server.  The file is stored in Dropbear's native host key format.
+
+config NETUTILS_DROPBEAR_GENERATE_HOSTKEY
+	bool "Generate host key if missing"
+	default y
+	---help---
+		Pass -R so Dropbear generates an ECDSA P-256 host key on demand and
+		persists it at NETUTILS_DROPBEAR_HOSTKEY_PATH when it does not exist.
+		Product builds can disable this and provision the host key
+		externally (loaded with -r).
+
+config NETUTILS_DROPBEAR_COMPRESSION
+	bool "Enable SSH compression (zlib)"
+	default n
+	depends on LIB_ZLIB
+	---help---
+		Enable zlib compression for SSH sessions.  Requires the zlib
+		library (LIB_ZLIB).  When disabled, Dropbear is built with
+		DISABLE_ZLIB and negotiates no compression.
+
+		WARNING: each session allocates a zlib deflate state of about
+		256 KiB (DROPBEAR_ZLIB_WINDOW_BITS=15, DROPBEAR_ZLIB_MEM_LEVEL=8),
+		and the state is allocated even for the delayed zlib@openssh.com
+		method, right after key exchange.
+
+config NETUTILS_DROPBEAR_SYSLOG
+	bool "Log via syslog"
+	default n
+	---help---
+		Route Dropbear log messages through syslog().  When disabled,
+		Dropbear is built with DISABLE_SYSLOG.
+
+config NETUTILS_DROPBEAR_COMMIT
+	string "Dropbear upstream commit"
+	default "54ef47adf8c99b422be6a8f694f2866e62f88b9e"
+	---help---
+		Upstream Dropbear (mkj/dropbear) commit to download and build.
+
+endif

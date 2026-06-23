@@ -86,6 +86,10 @@ CSRCS += nsh_telnetlogin.c
 endif
 endif
 
+ifeq ($(CONFIG_NSH_DROPBEAR),y)
+CSRCS += nsh_dropbear.c
+endif
+
 ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
 CSRCS += nsh_test.c
 endif

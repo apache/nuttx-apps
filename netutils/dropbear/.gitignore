@@ -1,0 +1,6 @@
+/dropbear
+/*.zip
+*.o
+.built
+.depend
+Make.dep
