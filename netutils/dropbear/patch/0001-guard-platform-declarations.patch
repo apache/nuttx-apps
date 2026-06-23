@@ -1,0 +1,26 @@
+--- a/src/dbutil.c
++++ b/src/dbutil.c
+@@ -66,6 +66,10 @@
+ #include "session.h"
+ #include "atomicio.h"
+
++#ifdef DROPBEAR_NUTTX
++int execv(const char *path, char * const argv[]);
++#endif
++
+ #define MAX_FMT 100
+
+ static void generic_dropbear_exit(int exitcode, const char* format,
+--- a/src/signkey.h
++++ b/src/signkey.h
+@@ -150,9 +150,9 @@
+ void buf_put_sign(buffer* buf, sign_key *key, enum signature_type sigtype, const buffer *data_buf);
+ #if DROPBEAR_SIGNKEY_VERIFY
+ int buf_verify(buffer * buf, sign_key *key, enum signature_type expect_sigtype, const buffer *data_buf);
+ int sk_buf_verify(buffer * buf, sign_key *key, enum signature_type expect_sigtype, const buffer *data_buf, char* app, unsigned int applen);
+-char * sign_key_fingerprint(const unsigned char* keyblob, unsigned int keybloblen);
+ #endif
++char * sign_key_fingerprint(const unsigned char* keyblob, unsigned int keybloblen);
+ int cmp_base64_key(const unsigned char* keyblob, unsigned int keybloblen,
+ 					const unsigned char* algoname, unsigned int algolen,
+ 					const buffer * line, char ** fingerprint);

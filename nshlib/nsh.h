@@ -844,6 +844,10 @@ int nsh_login(FAR struct console_stdio_s *pstate);
 int nsh_telnetlogin(FAR struct console_stdio_s *pstate);
 #endif
 
+#if defined(CONFIG_NSH_DROPBEAR) && !defined(CONFIG_NSH_DISABLE_DROPBEARSTART)
+int nsh_dropbearstart(void);
+#endif
+
 /* Application interface */
 
 int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[]);

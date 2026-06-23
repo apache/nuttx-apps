@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/fsutils/passwd/passwd_append.c
+ * apps/nshlib/nsh_dropbear.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,80 +24,53 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdio.h>
-#include <assert.h>
-#include <errno.h>
+#include <nuttx/config.h>
 
-#include "passwd.h"
+#include <assert.h>
+#include <debug.h>
+
+#include "nsh.h"
+#include "nsh_console.h"
+
+#ifdef CONFIG_NSH_DROPBEAR
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: passwd_append
+ * Name: nsh_dropbearstart
  *
  * Description:
- *  Append a new record to the end of the /etc/passwd file
+ *   nsh_dropbearstart() starts the Dropbear SSH server.  This function
+ *   returns immediately after the daemon has been started.
  *
- * Input Parameters:
- *
- * Returned Value:
- *   Zero (OK) is returned on success; a negated errno value is returned on
- *   failure.
+ * Returned Values:
+ *   Zero is returned if Dropbear was started.  A negated errno value will be
+ *   returned on failure.
  *
  ****************************************************************************/
 
-int passwd_append(FAR const char *username, FAR const char *password)
+#ifndef CONFIG_NSH_DISABLE_DROPBEARSTART
+int nsh_dropbearstart(void)
 {
-  char encrypted[MAX_ENCRYPTED + 1];
-  FILE *stream;
+  FAR struct console_stdio_s *pstate = nsh_newconsole(false);
+  char cmdline[] = CONFIG_NETUTILS_DROPBEAR_PROGNAME " &";
   int ret;
 
-  /* Encrypt the raw password */
+  DEBUGASSERT(pstate != NULL);
 
-  ret = passwd_encrypt(password, encrypted);
+  ninfo("Starting the Dropbear SSH server\n");
+
+  ret = nsh_parse(&pstate->cn_vtbl, cmdline);
   if (ret < 0)
     {
-      return ret;
+      nerr("ERROR: Failed to start Dropbear: %d\n", ret);
     }
 
-  /* Append the new user record to the end of the password file */
-
-  stream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "a");
-  if (stream == NULL)
-    {
-      int errcode = errno;
-      DEBUGASSERT(errcode > 0);
-      return -errcode;
-    }
-
-  /* The format of the password file is:
-   *
-   *   user:x:uid:gid:home
-   *
-   * Where:
-   *   user:  User name
-   *   x:     Encrypted password
-   *   uid:   User ID (0 for now)
-   *   gid:   Group ID (0 for now)
-   *   home:  Login directory (/ for now)
-   */
-
-  ret = fprintf(stream, "%s:%s:0:0:/\n", username, encrypted);
-  if (ret < 0)
-    {
-      int errcode = errno;
-      DEBUGASSERT(errcode > 0);
-      ret = -errcode;
-      goto errout_with_stream;
-    }
-
-  /* Return success */
-
-  ret = OK;
-
-errout_with_stream:
-  fclose(stream);
+  nsh_release(&pstate->cn_vtbl);
   return ret;
 }
+#endif
+
+#endif /* CONFIG_NSH_DROPBEAR */

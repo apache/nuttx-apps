@@ -1201,6 +1201,28 @@ config NSH_DISABLE_TELNETSTART
 
 endmenu # Telnet Configuration
 
+menu "Dropbear Configuration"
+
+config NSH_DROPBEAR
+	bool "Start Dropbear SSH server"
+	default n
+	depends on NETUTILS_DROPBEAR
+	depends on NSH_BUILTIN_APPS
+	depends on !NSH_DISABLEBG
+	select NSH_LOGIN
+	---help---
+		If NSH_DROPBEAR is set to 'y', then NSH starts the Dropbear SSH
+		server automatically.
+
+config NSH_DISABLE_DROPBEARSTART
+	bool "Disable to start Dropbear"
+	default n
+	depends on NSH_DROPBEAR
+	---help---
+		Determines if NSH starts Dropbear automatically.
+
+endmenu # Dropbear Configuration
+
 config NSH_LOGIN
 	bool
 	default n
