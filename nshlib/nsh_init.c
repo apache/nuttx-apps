@@ -175,4 +175,16 @@ void nsh_initialize(void)
 
   nsh_telnetstart(AF_UNSPEC);
 #endif
+
+#if defined(CONFIG_NSH_DROPBEAR) && \
+    !defined(CONFIG_NSH_DISABLE_DROPBEARSTART) && \
+    !defined(CONFIG_NETINIT_NETLOCAL)
+  /* If Dropbear is selected as an SSH front-end, then start the daemon
+   * UNLESS network initialization is deferred via CONFIG_NETINIT_NETLOCAL.
+   * In that case, Dropbear must be started manually with the dropbear
+   * command after the network has been initialized.
+   */
+
+  nsh_dropbearstart();
+#endif
 }

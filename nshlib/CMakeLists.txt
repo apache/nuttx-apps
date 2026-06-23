@@ -101,6 +101,10 @@ if(CONFIG_NSH_LIBRARY)
     endif()
   endif()
 
+  if(CONFIG_NSH_DROPBEAR)
+    list(APPEND CSRCS nsh_dropbear.c)
+  endif()
+
   if(NOT CONFIG_NSH_DISABLESCRIPT)
     list(APPEND CSRCS nsh_test.c)
   endif()
