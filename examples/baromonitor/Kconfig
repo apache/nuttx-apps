@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BAROMONITOR
+	tristate "Barometer monitoring dashboard example"
+	default n
+	depends on UORB
+	depends on LIBC_FLOATINGPOINT
+	depends on GRAPHICS_LVGL
+	depends on LV_USE_NUTTX
+	depends on LV_FONT_MONTSERRAT_24
+	depends on LV_FONT_MONTSERRAT_32
+	---help---
+		Enable the barometer monitoring dashboard.
+
+if EXAMPLES_BAROMONITOR
+
+config EXAMPLES_BAROMONITOR_PROGNAME
+	string "Program name"
+	default "baromonitor"
+
+config EXAMPLES_BAROMONITOR_PRIORITY
+	int "Barometer monitor task priority"
+	default 100
+
+config EXAMPLES_BAROMONITOR_STACKSIZE
+	int "Baromonitor stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_BAROMONITOR_SAMPLERATE
+	int "Sample rate (ms)"
+	default	50
+	---help---
+		Sample rate in milliseconds of barometer data.
+
+endif # EXAMPLES_BARO_DASHBOARD
