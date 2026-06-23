@@ -1,0 +1,202 @@
+--- a/src/compat.c
++++ b/src/compat.c
+@@ -89,6 +89,6 @@
+ #ifndef HAVE_GETUSERSHELL
+ static char **curshell, **shells, *strings;
+-static char **initshells();
++static char **initshells(void);
+ #endif
+
+ #ifndef HAVE_STRLCPY
+@@ -234,7 +234,7 @@
+ 	curshell = initshells();
+ }
+
+-static char **initshells() {
++static char **initshells(void) {
+ 	static const char *okshells[] = { COMPAT_USER_SHELLS, NULL };
+ 	register char **sp, *cp;
+ 	register FILE *fp;
+--- a/src/common-algo.c
++++ b/src/common-algo.c
+@@ -39,16 +39,25 @@
+ /* This file (algo.c) organises the ciphers which can be used, and is used to
+  * decide which ciphers/hashes/compression/signing to use during key exchange*/
+
+-static int void_cipher(const unsigned char* in, unsigned char* out,
+-		unsigned long len, void* UNUSED(cipher_state)) {
++static int void_cipher(const unsigned char* in, unsigned char* out,
++		unsigned long len, void* cipher_state) {
++	UNUSED(cipher_state);
++
+ 	if (in != out) {
+ 		memmove(out, in, len);
+ 	}
+ 	return CRYPT_OK;
+ }
+
+-static int void_start(int UNUSED(cipher), const unsigned char* UNUSED(IV),
+-			const unsigned char* UNUSED(key),
+-			int UNUSED(keylen), int UNUSED(num_rounds), void* UNUSED(cipher_state)) {
++static int void_start(int cipher, const unsigned char* IV,
++			const unsigned char* key,
++			int keylen, int num_rounds, void* cipher_state) {
++	UNUSED(cipher);
++	UNUSED(IV);
++	UNUSED(key);
++	UNUSED(keylen);
++	UNUSED(num_rounds);
++	UNUSED(cipher_state);
++
+ 	return CRYPT_OK;
+ }
+
+--- a/src/common-channel.c
++++ b/src/common-channel.c
+@@ -410,7 +410,9 @@
+
+ #ifndef HAVE_WRITEV
+ static int writechannel_fallback(struct Channel* channel, int fd, circbuffer *cbuf,
+-	const unsigned char *UNUSED(moredata), unsigned int *morelen) {
++	const unsigned char *moredata, unsigned int *morelen) {
++	UNUSED(moredata);
++
+
+ 	unsigned char *circ_p1, *circ_p2;
+ 	unsigned int circ_len1, circ_len2;
+--- a/src/dbutil.c
++++ b/src/dbutil.c
+@@ -138,7 +138,9 @@
+ }
+
+-static void generic_dropbear_log(int UNUSED(priority), const char* format,
++static void generic_dropbear_log(int priority, const char* format,
+ 		va_list param) {
++	UNUSED(priority);
++
+
+ 	char printbuf[1024];
+
+--- a/src/netio.c
++++ b/src/netio.c
+@@ -47,7 +47,10 @@
+ 	}
+ }
+
+-static void cancel_callback(int result, int sock, void* UNUSED(data), const char* UNUSED(errstring)) {
++static void cancel_callback(int result, int sock, void* data, const char* errstring) {
++	UNUSED(data);
++	UNUSED(errstring);
++
+ 	if (result == DROPBEAR_SUCCESS)
+ 	{
+ 		m_close(sock);
+--- a/src/ltc_prng.c
++++ b/src/ltc_prng.c
+@@ -32,8 +32,10 @@
+   @param prng     [out] The PRNG state to initialize
+   @return CRYPT_OK if successful
+ */  
+-int dropbear_prng_start(prng_state* UNUSED(prng))
++int dropbear_prng_start(prng_state* prng)
+ {
++   UNUSED(prng);
++
+    return CRYPT_OK;  
+ }
+ 
+@@ -44,8 +46,12 @@
+   @param prng     PRNG state to update
+   @return CRYPT_OK if successful
+ */  
+-int dropbear_prng_add_entropy(const unsigned char* UNUSED(in), unsigned long UNUSED(inlen), prng_state* UNUSED(prng))
++int dropbear_prng_add_entropy(const unsigned char* in, unsigned long inlen, prng_state* prng)
+ {
++   UNUSED(in);
++   UNUSED(inlen);
++   UNUSED(prng);
++
+    return CRYPT_OK;
+ }
+ 
+@@ -54,8 +60,10 @@
+   @param prng   The PRNG to make active
+   @return CRYPT_OK if successful
+ */  
+-int dropbear_prng_ready(prng_state* UNUSED(prng))
++int dropbear_prng_ready(prng_state* prng)
+ {
++   UNUSED(prng);
++
+    return CRYPT_OK;
+ }
+ 
+@@ -66,8 +74,10 @@
+   @param prng     The active PRNG to read from
+   @return Number of octets read
+ */  
+-unsigned long dropbear_prng_read(unsigned char* out, unsigned long outlen, prng_state* UNUSED(prng))
++unsigned long dropbear_prng_read(unsigned char* out, unsigned long outlen, prng_state* prng)
+ {
++   UNUSED(prng);
++
+    LTC_ARGCHK(out != NULL);
+    genrandom(out, outlen);
+    return outlen;
+@@ -78,8 +88,10 @@
+   @param prng   The PRNG to terminate
+   @return CRYPT_OK if successful
+ */  
+-int dropbear_prng_done(prng_state* UNUSED(prng))
++int dropbear_prng_done(prng_state* prng)
+ {
++   UNUSED(prng);
++
+    return CRYPT_OK;
+ }
+ 
+@@ -90,8 +102,11 @@
+   @param prng      The PRNG to export
+   @return CRYPT_OK if successful
+ */  
+-int dropbear_prng_export(unsigned char* UNUSED(out), unsigned long* outlen, prng_state* UNUSED(prng))
++int dropbear_prng_export(unsigned char* out, unsigned long* outlen, prng_state* prng)
+ {
++   UNUSED(out);
++   UNUSED(prng);
++
+    LTC_ARGCHK(outlen != NULL);
+ 
+    *outlen = 0;
+@@ -105,8 +120,12 @@
+   @param prng     The PRNG to import
+   @return CRYPT_OK if successful
+ */  
+-int dropbear_prng_import(const unsigned char* UNUSED(in), unsigned long UNUSED(inlen), prng_state* UNUSED(prng))
++int dropbear_prng_import(const unsigned char* in, unsigned long inlen, prng_state* prng)
+ {
++   UNUSED(in);
++   UNUSED(inlen);
++   UNUSED(prng);
++
+    return CRYPT_OK;
+ }
+ 
+--- a/src/chachapoly.c
++++ b/src/chachapoly.c
+@@ -43,9 +43,13 @@
+ const struct dropbear_cipher dropbear_chachapoly =
+ 	{&dummy, CHACHA20_KEY_LEN*2, CHACHA20_BLOCKSIZE};
+ 
+-static int dropbear_chachapoly_start(int UNUSED(cipher), const unsigned char* UNUSED(IV),
++static int dropbear_chachapoly_start(int cipher, const unsigned char* IV,
+ 			const unsigned char *key, int keylen,
+-			int UNUSED(num_rounds), dropbear_chachapoly_state *state) {
++			int num_rounds, dropbear_chachapoly_state *state) {
++	UNUSED(cipher);
++	UNUSED(IV);
++	UNUSED(num_rounds);
++
+ 	int err;
+ 
+ 	TRACE2(("enter dropbear_chachapoly_start"))
