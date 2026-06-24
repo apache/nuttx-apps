@@ -86,7 +86,7 @@ int platform_setconfig(enum config_data_e id, int instance,
 
   /* Try to open the /dev/config device file */
 
-  if ((fd = open("/dev/config", O_RDOK)) == -1)
+  if ((fd = open("/dev/config", O_RDONLY)) == -1)
     {
       /* Error opening the config device */
 
@@ -209,7 +209,7 @@ int platform_getconfig(enum config_data_e id, int instance,
 
   /* Try to open the /dev/config device file */
 
-  if ((fd = open("/dev/config", O_RDOK)) == -1)
+  if ((fd = open("/dev/config", O_RDONLY)) == -1)
     {
       /* Error opening the config device */
 
