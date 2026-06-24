@@ -664,7 +664,7 @@ int main(int argc, FAR char *argv[])
 
   /* Open the /dev/config device */
 
-  g_fd = open("/dev/config", O_RDOK);
+  g_fd = open("/dev/config", O_RDONLY);
   if (g_fd == -1)
     {
       printf("ERROR: Failed to open /dev/config %d\n", -errno);
