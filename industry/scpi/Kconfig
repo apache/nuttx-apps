@@ -7,10 +7,71 @@ config SCPI_PARSER
 	tristate "SCPI instrument side parser"
 	default n
 
+if SCPI_PARSER
+
+menu "SCPI parser unit support"
+
+config SCPI_PARSER_UNITS_IMPERIAL
+	bool "Imperial units"
+	default n
+
+config SCPI_PARSER_UNITS_ANGLE
+	bool "Angle units"
+	default n
+
+config SCPI_PARSER_UNITS_PARTICLES
+	bool "Particle units"
+	default n
+
+config SCPI_PARSER_UNITS_DISTANCE
+	bool "Distance units"
+	default n
+
+config SCPI_PARSER_UNITS_MAGNETIC
+	bool "Magnetic units"
+	default n
+
+config SCPI_PARSER_UNITS_LIGHT
+	bool "Light units"
+	default n
+
+config SCPI_PARSER_UNITS_ENERGY_FORCE_MASS
+	bool "Energy, force, and mass units"
+	default n
+
+config SCPI_PARSER_UNITS_TIME
+	bool "Time units"
+	default n
+
+config SCPI_PARSER_UNITS_TEMPERATURE
+	bool "Temperature units"
+	default n
+
+config SCPI_PARSER_UNITS_RATIO
+	bool "Ratio units"
+	default n
+
+config SCPI_PARSER_UNITS_POWER
+	bool "Power units"
+	default y
+
+config SCPI_PARSER_UNITS_FREQUENCY
+	bool "Frequency units"
+	default y
+
+config SCPI_PARSER_UNITS_ELECTRIC
+	bool "Electric units"
+	default y
+
+config SCPI_PARSER_UNITS_ELECTRIC_CHARGE_CONDUCTANCE
+	bool "Electric charge and conductance units"
+	default n
+
+endmenu
+
 config SCPI_PARSER_DEMO
 	bool "Enable the SCPI parser library demo"
 	default n
-	depends on SCPI_PARSER
 
 if SCPI_PARSER_DEMO
 
@@ -21,5 +82,7 @@ config SCPI_PARSER_DEMO_PRIORITY
 config SCPI_PARSER_DEMO_STACKSIZE
 	int "SCPI demo program stack size"
 	default DEFAULT_TASK_STACKSIZE
+
+endif
 
 endif
