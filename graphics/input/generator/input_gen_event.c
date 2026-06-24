@@ -28,6 +28,7 @@
 
 #include <nuttx/debug.h>
 #include <stdint.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "input_gen_internal.h"
@@ -559,10 +560,18 @@ int input_gen_mouse_wheel(input_gen_ctx_t ctx, int16_t wheel)
 void input_gen_fill_point(FAR struct touch_point_s *point,
                           int16_t x, int16_t y, uint8_t flags)
 {
+  struct timespec ts;
+
   point->x = x;
   point->y = y;
   point->h = 1;
   point->w = 1;
+  point->timestamp = 0;
+
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) == OK)
+    {
+      point->timestamp = (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+    }
 
   if (flags & TOUCH_UP)
     {
