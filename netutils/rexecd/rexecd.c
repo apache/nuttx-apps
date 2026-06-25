@@ -25,9 +25,11 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <pthread.h>
 #include <netpacket/rpmsg.h>
+#include <sys/socket.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -84,7 +86,7 @@ static FAR void *doit(pthread_addr_t pvarg)
 {
   char buf[REXECD_BUFSIZE];
   struct pollfd fds[2];
-  FAR FILE *fp;
+  pid_t pid;
   int sock = (long)pvarg;
   int ret;
 
@@ -97,17 +99,17 @@ static FAR void *doit(pthread_addr_t pvarg)
   /* we need to read command */
 
   getstr(sock, buf);
-  fp = popen(buf, "r+");
-  if (!fp)
-    {
-      goto errout;
-    }
 
   memset(fds, 0, sizeof(fds));
-  fds[0].fd = fileno(fp);
   fds[0].events = POLLIN;
   fds[1].fd = sock;
   fds[1].events = POLLIN;
+
+  fds[0].fd = dpopen(buf, O_RDWR, &pid);
+  if (fds[0].fd < 0)
+    {
+      goto errout;
+    }
 
   while (1)
     {
@@ -119,7 +121,7 @@ static FAR void *doit(pthread_addr_t pvarg)
 
       if (fds[0].revents & POLLIN)
         {
-          ret = read(fileno(fp), buf, REXECD_BUFSIZE);
+          ret = read(fds[0].fd, buf, REXECD_BUFSIZE);
           if (ret <= 0)
             {
               break;
@@ -140,7 +142,7 @@ static FAR void *doit(pthread_addr_t pvarg)
               break;
             }
 
-          ret = write(fileno(fp), buf, ret);
+          ret = write(fds[0].fd, buf, ret);
           if (ret < 0)
             {
               break;
@@ -154,7 +156,7 @@ static FAR void *doit(pthread_addr_t pvarg)
         }
     }
 
-  pclose(fp);
+  dpclose(fds[0].fd, pid);
 errout:
   close(sock);
   return NULL;
