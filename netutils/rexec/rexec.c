@@ -87,7 +87,7 @@ static int do_rexec(FAR struct rexec_arg_s *arg)
   char buffer[REXEC_BUFSIZE];
   struct pollfd fds[2];
   int sock;
-  int ret;
+  int ret = 0;
 
   sock = rexec_af(&arg->host, htons(arg->port), arg->user,
                   arg->password, arg->command,
