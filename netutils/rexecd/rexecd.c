@@ -30,6 +30,7 @@
 #include <pthread.h>
 #include <netpacket/rpmsg.h>
 #include <sys/socket.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -164,11 +165,13 @@ errout:
 
 static void usage(FAR const char *progname)
 {
-  fprintf(stderr, "Usage: %s [-4|-6|-r]\n", progname);
+  fprintf(stderr, "Usage: %s [-4|-6|-r] [-t]\n", progname);
   fprintf(stderr, "Remote Execution Daemon:\n"
                   " -4, Specify address family to AF_INET(default)\n"
                   " -6, Specify address family to AF_INET6\n"
-                  " -r, Specify address family to AF_RPMSG\n");
+                  " -r, Specify address family to AF_RPMSG\n"
+                  " -t, Serve each connection inline without spawning a"
+                  " per-connection thread (saves heap, no concurrency)\n");
   exit(EXIT_FAILURE);
 }
 
@@ -177,6 +180,7 @@ int main(int argc, FAR char **argv)
   struct sockaddr_storage addr;
   pthread_attr_t attr;
   pthread_t tid;
+  bool threadless = false;
   int family;
   int option;
   int serv;
@@ -184,7 +188,7 @@ int main(int argc, FAR char **argv)
   int ret;
 
   family = AF_INET;
-  while ((option = getopt(argc, argv, "46r")) != ERROR)
+  while ((option = getopt(argc, argv, "46rt")) != ERROR)
     {
       switch (option)
         {
@@ -196,6 +200,9 @@ int main(int argc, FAR char **argv)
             break;
           case 'r':
             family = AF_RPMSG;
+            break;
+          case 't':
+            threadless = true;
             break;
           default:
             usage(argv[0]);
@@ -241,22 +248,26 @@ int main(int argc, FAR char **argv)
       goto err_out;
     }
 
-  ret = pthread_attr_init(&attr);
-  if (ret != 0)
+  if (!threadless)
     {
-      goto err_out;
-    }
+      ret = pthread_attr_init(&attr);
+      if (ret != 0)
+        {
+          goto err_out;
+        }
 
-  ret = pthread_attr_setstacksize(&attr, CONFIG_NETUTILS_REXECD_STACKSIZE);
-  if (ret != 0)
-    {
-      goto attr_out;
-    }
+      ret = pthread_attr_setstacksize(&attr,
+                                      CONFIG_NETUTILS_REXECD_STACKSIZE);
+      if (ret != 0)
+        {
+          goto attr_out;
+        }
 
-  ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  if (ret != 0)
-    {
-      goto attr_out;
+      ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+      if (ret != 0)
+        {
+          goto attr_out;
+        }
     }
 
   while (1)
@@ -275,15 +286,27 @@ int main(int argc, FAR char **argv)
             }
         }
 
-      ret = pthread_create(&tid, &attr, doit, (pthread_addr_t)sock);
-      if (ret < 0)
+      if (threadless)
         {
-          close(sock);
+          doit((pthread_addr_t)(long)sock);
+        }
+      else
+        {
+          ret = pthread_create(&tid, &attr, doit,
+                               (pthread_addr_t)(long)sock);
+          if (ret < 0)
+            {
+              close(sock);
+            }
         }
     }
 
 attr_out:
-  pthread_attr_destroy(&attr);
+  if (!threadless)
+    {
+      pthread_attr_destroy(&attr);
+    }
+
 err_out:
   syslog(LOG_ERR, "rexecd failed ret:%d errno:%d\n", ret, errno);
   close(serv);
