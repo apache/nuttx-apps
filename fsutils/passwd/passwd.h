@@ -36,17 +36,18 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define MAX_ENCRYPTED 48         /* Maximum size of a password (encrypted, ASCII) */
-#define MAX_USERNAME  48         /* Maximum size of a username */
-#define MAX_RECORD    (MAX_USERNAME + MAX_ENCRYPTED + 1)
+/* MCF format: $pbkdf2-sha256$<iter>$<salt>$<hash> */
 
-/* The TEA incryption algorithm generates 8 bytes of encrypted data per
- * 8 bytes of unencrypted data.  The encrypted presentation is base64 which
- * is 8-bits of ASCII for each 6 bits of data.  That is a 3-to-4 expansion
- * ratio.  MAX_ENCRYPTED must be a multiple of 8 bytes.
- */
+#define PASSWD_MCF_PREFIX           "$pbkdf2-sha256$"
+#define PASSWD_SALT_BYTES           16
+#define PASSWD_HASH_BYTES           32
 
-#define MAX_PASSWORD  (3 * MAX_ENCRYPTED / 4)
+/* 15 + 6 + 1 + 22 + 1 + 43 = 88 bytes for default parameters */
+
+#define MAX_ENCRYPTED               96
+#define MAX_USERNAME                48
+#define MAX_RECORD                  (MAX_USERNAME + MAX_ENCRYPTED + 1)
+#define MAX_PASSWORD                256
 
 /****************************************************************************
  * Public Types
@@ -55,7 +56,7 @@
 struct passwd_s
 {
   off_t offset;                      /* File offset (start of record) */
-  char encrypted[MAX_ENCRYPTED + 1]; /* Encrtyped password in file */
+  char encrypted[MAX_ENCRYPTED + 1]; /* Password hash in file */
 };
 
 /****************************************************************************
@@ -94,10 +95,11 @@ void passwd_unlock(FAR sem_t *sem);
  * Name: passwd_encrypt
  *
  * Description:
- *   Encrypt a password.  Currently uses the Tiny Encryption Algorithm.
+ *   Hash a password with PBKDF2-HMAC-SHA256 and encode the result in modular
+ *   crypt format for storage in /etc/passwd.
  *
  * Input Parameters:
- *   password -- The password string to be encrypted
+ *   password -- The password string to be hashed
  *
  * Returned Value:
  *   Zero (OK) is returned on success; a negated errno value is returned on

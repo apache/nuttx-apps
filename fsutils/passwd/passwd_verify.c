@@ -24,11 +24,105 @@
  * Included Files
  ****************************************************************************/
 
-#include <string.h>
-#include <semaphore.h>
+#include <nuttx/config.h>
 
-#include "fsutils/passwd.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <netutils/base64.h>
+#include <fsutils/passwd.h>
+
 #include "passwd.h"
+#include "passwd_pbkdf2.h"
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: passwd_verify_hash
+ *
+ * Description:
+ *   Verify a password against a stored PBKDF2-SHA256 modular crypt hash.
+ *   Rejects any hash not in $pbkdf2-sha256$ format.
+ *
+ * Returned Value:
+ *   0 on match, -1 on mismatch or parse error.
+ *
+ ****************************************************************************/
+
+static int passwd_verify_hash(FAR const char *stored,
+                              FAR const char *password)
+{
+  FAR const char *p;
+  FAR const char *salt_b64;
+  FAR const char *hash_b64;
+  char *endptr;
+  uint8_t salt[PASSWD_SALT_BYTES];
+  uint8_t expected[PASSWD_HASH_BYTES];
+  uint8_t actual[PASSWD_HASH_BYTES];
+  size_t saltlen;
+  size_t hashlen;
+  size_t passlen;
+  unsigned long iterations;
+  int ret;
+
+  if (strncmp(stored, PASSWD_MCF_PREFIX, strlen(PASSWD_MCF_PREFIX)) != 0)
+    {
+      return -1;
+    }
+
+  p = stored + strlen(PASSWD_MCF_PREFIX);
+  iterations = strtoul(p, &endptr, 10);
+  if (endptr == p || *endptr != '$' || iterations < 1 ||
+      iterations > 200000)
+    {
+      return -1;
+    }
+
+  salt_b64 = endptr + 1;
+  hash_b64 = strchr(salt_b64, '$');
+  if (hash_b64 == NULL)
+    {
+      return -1;
+    }
+
+  ret = base64url_decode(salt_b64, salt, sizeof(salt), &saltlen);
+  if (ret < 0 || saltlen == 0)
+    {
+      return -1;
+    }
+
+  ret = base64url_decode(hash_b64 + 1, expected, sizeof(expected),
+                                &hashlen);
+  if (ret < 0 || hashlen != PASSWD_HASH_BYTES)
+    {
+      return -1;
+    }
+
+  passlen = strlen(password);
+  if (passlen == 0 || passlen > MAX_PASSWORD)
+    {
+      return -1;
+    }
+
+  ret = passwd_pbkdf2_hmac_sha256((FAR const uint8_t *)password, passlen,
+                                  salt, saltlen, (uint32_t)iterations,
+                                  actual, sizeof(actual));
+  if (ret < 0)
+    {
+      return -1;
+    }
+
+  if (timingsafe_bcmp(actual, expected, sizeof(expected)) != 0)
+    {
+      return -1;
+    }
+
+  return 0;
+}
 
 /****************************************************************************
  * Public Functions
@@ -39,25 +133,19 @@
  *
  * Description:
  *   Return true if the username exists in the /etc/passwd file and if the
- *   password matches the user password in that failed.
- *
- * Input Parameters:
+ *   password matches the user password in that file.
  *
  * Returned Value:
- *   One (1) is returned on success match, Zero (OK) is returned on an
- *   unsuccessful match; a negated errno value is returned on any other
- *   failure.
+ *   Zero (0) is returned on a successful match, -1 on mismatch or invalid
+ *   hash format; a negated errno value is returned on other failures.
  *
  ****************************************************************************/
 
 int passwd_verify(FAR const char *username, FAR const char *password)
 {
   struct passwd_s passwd;
-  char encrypted[MAX_ENCRYPTED + 1];
   PASSWD_SEM_DECL(sem);
   int ret;
-
-  /* Get exclusive access to the /etc/passwd file */
 
   ret = passwd_lock(&sem);
   if (ret < 0)
@@ -65,27 +153,13 @@ int passwd_verify(FAR const char *username, FAR const char *password)
       return ret;
     }
 
-  /* Verify that the username exists in the /etc/passwd file */
-
   ret = passwd_find(username, &passwd);
   if (ret < 0)
     {
-      /* The username does not exist in the /etc/passwd file */
-
       goto errout_with_lock;
     }
 
-  /* Encrypt the provided password */
-
-  ret = passwd_encrypt(password, encrypted);
-  if (ret < 0)
-    {
-      goto errout_with_lock;
-    }
-
-  /* Compare the encrypted passwords */
-
-  ret = (strcmp(passwd.encrypted, encrypted) == 0) ? 1 : 0;
+  ret = passwd_verify_hash(passwd.encrypted, password);
 
 errout_with_lock:
   passwd_unlock(sem);
