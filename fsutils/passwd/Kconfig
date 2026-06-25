@@ -6,8 +6,15 @@
 config FSUTILS_PASSWD
 	bool "Password file support"
 	default n
+	select CRYPTO
+	select ALLOW_BSD_COMPONENTS
+	select CRYPTO_CRYPTODEV
 	---help---
-		Enables support for /etc/passwd file access routines
+		Enables support for /etc/passwd file access routines.
+
+		NOTE: Password hashes use PBKDF2-HMAC-SHA256 (modular crypt format).
+		Existing TEA-encrypted /etc/passwd entries are NOT compatible and
+		must be regenerated.
 
 if FSUTILS_PASSWD
 
@@ -23,20 +30,14 @@ config FSUTILS_PASSWD_IOBUFFER_SIZE
 	int "Allocated I/O buffer size"
 	default 512
 
-config FSUTILS_PASSWD_KEY1
-	hex "Encryption key value 1"
-	default 0x12345678
-
-config FSUTILS_PASSWD_KEY2
-	hex "Encryption key value 2"
-	default 0x9abcdef0
-
-config FSUTILS_PASSWD_KEY3
-	hex "Encryption key value 3"
-	default 0x12345678
-
-config FSUTILS_PASSWD_KEY4
-	hex "Encryption key value 4"
-	default 0x9abcdef0
+	config FSUTILS_PASSWD_PBKDF2_ITERATIONS
+	int "Default PBKDF2 iteration count for new passwords"
+	default 10000
+	range 1000 200000
+	---help---
+		Number of PBKDF2-HMAC-SHA256 iterations applied when setting a new
+		password.  Higher values slow brute-force attacks but also increase
+		login latency on low-MHz MCUs.  The iteration count is stored in each
+		hash string, so changing this option only affects newly-set passwords.
 
 endif # FSUTILS_PASSWD

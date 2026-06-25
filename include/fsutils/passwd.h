@@ -36,9 +36,9 @@
 
 /* passwd_verify() return value tests */
 
-#define PASSWORD_VERIFY_MATCH(ret)   (ret == 1)
-#define PASSWORD_VERIFY_NOMATCH(ret) (ret == 0)
-#define PASSWORD_VERIFY_ERROR(ret)   (ret < 0)
+#define PASSWORD_VERIFY_MATCH(ret)   ((ret) == 0)
+#define PASSWORD_VERIFY_NOMATCH(ret) ((ret) == -1)
+#define PASSWORD_VERIFY_ERROR(ret)   ((ret) < -1)
 
 /****************************************************************************
  * Public Function Prototypes
@@ -115,9 +115,8 @@ int passwd_update(FAR const char *username, FAR const char *password);
  *   password - The password to be verified
  *
  * Returned Value:
- *   One (1) is returned on success match, Zero (OK) is returned on an
- *   unsuccessful match; a negated errno value is returned on any other
- *   failure.
+ *   Zero (0) is returned on a successful match, -1 on mismatch or invalid
+ *   hash format; a negated errno value is returned on other failures.
  *
  ****************************************************************************/
 
