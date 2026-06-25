@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_PBKDF2
+	tristate "PBKDF2 and passwd hash test"
+	default n
+	depends on FSUTILS_PASSWD
+	---help---
+		Enable the PBKDF2-HMAC-SHA256 unit test
+		(apps/testing/crypto/passwd).  Always runs RFC 6070 SHA-256
+		vectors.  The passwd_encrypt / passwd_verify round-trip runs only
+		when FSUTILS_PASSWD_READONLY is disabled and DEV_URANDOM is
+		enabled; otherwise it is skipped with an explanatory message.
+
+if TESTING_PBKDF2
+
+config TESTING_PBKDF2_PRIORITY
+	int "pbkdf2_test task priority"
+	default 100
+
+config TESTING_PBKDF2_STACKSIZE
+	int "pbkdf2_test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_PBKDF2_SLOW_VECTOR
+	bool "Run RFC 6070 vector with 16777216 iterations"
+	default n
+	---help---
+		Include RFC 6070 test vector #4 (16,777,216 iterations).  This
+		takes a long time on embedded targets; enable only for manual runs.
+
+endif
