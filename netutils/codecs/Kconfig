@@ -16,7 +16,8 @@ config CODECS_BASE64
 	default n
 	---help---
 		Enables support for the following interfaces: base64_encode(),
-		base64_decode(), base64w_encode(), and base64w_decode(),
+		base64_decode(), base64w_encode(), base64w_decode(),
+		base64url_encode(), and base64url_decode(),
 
 		Contributed NuttX by Darcy Gong.
 

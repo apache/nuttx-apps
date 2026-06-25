@@ -1,5 +1,5 @@
 ############################################################################
-# apps/fsutils/passwd/Makefile
+# apps/testing/crypto/passwd/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -15,22 +15,20 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-# License for the specific language governing permissions and limitations
-# under the License.
+# License for the specific language governing permissions and limitations under
+# the License.
 #
 ############################################################################
 
 include $(APPDIR)/Make.defs
 
-# Password file access library
+PRIORITY  = $(CONFIG_TESTING_PBKDF2_PRIORITY)
+STACKSIZE = $(CONFIG_TESTING_PBKDF2_STACKSIZE)
+MODULE    = $(CONFIG_TESTING_PBKDF2)
 
-ifeq ($(CONFIG_FSUTILS_PASSWD),y)
-CSRCS += passwd_verify.c passwd_find.c passwd_encrypt.c
-CSRCS += passwd_pbkdf2.c
-ifneq ($(CONFIG_FSUTILS_PASSWD_READONLY),y)
-CSRCS += passwd_adduser.c passwd_deluser.c passwd_update.c passwd_append.c
-CSRCS += passwd_delete.c passwd_lock.c
-endif
-endif
+MAINSRC   = pbkdf2_test.c
+PROGNAME  = pbkdf2_test
+
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/fsutils/passwd
 
 include $(APPDIR)/Application.mk

@@ -55,6 +55,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
 #include <string.h>
 
 #include "netutils/base64.h"
@@ -315,6 +316,152 @@ FAR void *base64w_decode(FAR const void *src, size_t len, FAR void *dst,
                          FAR size_t *out_len)
 {
   return _base64_decode(src, len, dst, out_len, true);
+}
+
+/****************************************************************************
+ * Name: base64url_val
+ ****************************************************************************/
+
+static int base64url_val(char c)
+{
+  if (c >= 'A' && c <= 'Z')
+    {
+      return c - 'A';
+    }
+
+  if (c >= 'a' && c <= 'z')
+    {
+      return c - 'a' + 26;
+    }
+
+  if (c >= '0' && c <= '9')
+    {
+      return c - '0' + 52;
+    }
+
+  if (c == '-')
+    {
+      return 62;
+    }
+
+  if (c == '_')
+    {
+      return 63;
+    }
+
+  return -1;
+}
+
+/****************************************************************************
+ * Name: base64url_encode
+ *
+ * Description:
+ *   Encode binary data as unpadded base64url (RFC 4648 section 5).
+ *
+ ****************************************************************************/
+
+int base64url_encode(FAR const void *src, size_t len, FAR char *dst,
+                     size_t dstlen)
+{
+  FAR const uint8_t *in = src;
+  uint32_t acc = 0;
+  size_t i;
+  size_t o = 0;
+  int bits = 0;
+
+  static const char g_base64url[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+  for (i = 0; i < len; i++)
+    {
+      acc = (acc << 8) | in[i];
+      bits += 8;
+
+      while (bits >= 6)
+        {
+          if (o + 1 >= dstlen)
+            {
+              return -E2BIG;
+            }
+
+          bits -= 6;
+          dst[o++] = g_base64url[(acc >> bits) & 0x3f];
+        }
+    }
+
+  if (bits > 0)
+    {
+      if (o + 1 >= dstlen)
+        {
+          return -E2BIG;
+        }
+
+      dst[o++] = g_base64url[(acc << (6 - bits)) & 0x3f];
+    }
+
+  if (o >= dstlen)
+    {
+      return -E2BIG;
+    }
+
+  dst[o] = '\0';
+  return 0;
+}
+
+/****************************************************************************
+ * Name: base64url_decode
+ *
+ * Description:
+ *   Decode unpadded base64url (RFC 4648 section 5).
+ *
+ ****************************************************************************/
+
+int base64url_decode(FAR const char *src, FAR void *dst, size_t dstmax,
+                     FAR size_t *out_len)
+{
+  FAR uint8_t *out = dst;
+  uint32_t acc = 0;
+  size_t o = 0;
+  int bits = 0;
+  int v;
+
+  *out_len = 0;
+
+  while (*src != '\0')
+    {
+      if (*src == '$' || *src == ':')
+        {
+          break;
+        }
+
+      v = base64url_val(*src++);
+      if (v < 0)
+        {
+          return -EINVAL;
+        }
+
+      acc = (acc << 6) | (uint32_t)v;
+      bits += 6;
+
+      if (bits >= 8)
+        {
+          bits -= 8;
+          if (o >= dstmax)
+            {
+              return -E2BIG;
+            }
+
+          out[o++] = (uint8_t)((acc >> bits) & 0xff);
+        }
+    }
+
+  if (bits >= 6)
+    {
+      return -EINVAL;
+    }
+
+  *out_len = o;
+  return 0;
 }
 
 #endif /* CONFIG_CODECS_BASE64 */
