@@ -1287,17 +1287,20 @@ endchoice # Verification method
 
 config NSH_LOGIN_USERNAME
 	string "Login username"
-	default "admin"
+	default "root"
 	depends on !NSH_LOGIN_PASSWD
 	---help---
-		Login user name.  Default: "admin"
+		Login user name.  Default: "root"
 
 config NSH_LOGIN_PASSWORD
 	string "Login password"
-	default "Administrator"
-	depends on !NSH_LOGIN_PASSWD
+	depends on NSH_LOGIN_FIXED
 	---help---
-		Login password:  Default: "Administrator"
+		The plaintext login password used when fixed username/password
+		verification is selected (CONFIG_NSH_LOGIN_FIXED).  There is no
+		default; set CONFIG_NSH_LOGIN_PASSWORD in the board defconfig,
+		via menuconfig, or enter it when prompted during an interactive
+		build.
 
 config NSH_LOGIN_FAILDELAY
 	int "Login failure delay"

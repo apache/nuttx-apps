@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/fsutils/passwd/CMakeLists.txt
+# apps/testing/crypto/passwd/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,25 +20,18 @@
 #
 # ##############################################################################
 
-if(CONFIG_FSUTILS_PASSWD)
-  set(CSRCS)
-
-  list(APPEND CSRCS passwd_verify.c passwd_find.c passwd_encrypt.c
-       passwd_pbkdf2.c)
-
-  if(NOT CONFIG_FSUTILS_PASSWD_READONLY)
-    list(
-      APPEND
-      CSRCS
-      passwd_adduser.c
-      passwd_deluser.c
-      passwd_update.c
-      passwd_append.c
-      passwd_delete.c
-      passwd_lock.c)
-  endif()
-
-  set_property(GLOBAL APPEND PROPERTY NUTTX_APPS_LIBRARIES ${TARGET})
-  target_sources(apps PRIVATE ${CSRCS})
-
+if(CONFIG_TESTING_PBKDF2)
+  nuttx_add_application(
+    NAME
+    pbkdf2_test
+    PRIORITY
+    ${CONFIG_TESTING_PBKDF2_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_PBKDF2_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_PBKDF2}
+    SRCS
+    pbkdf2_test.c
+    INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_LIST_DIR}/../../../fsutils/passwd)
 endif()

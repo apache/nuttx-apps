@@ -19,8 +19,8 @@ menuconfig NETUTILS_DROPBEAR
 	depends on DEV_URANDOM
 	depends on LIBC_NETDB
 	depends on LIBC_GAISTRERROR
-	select CRYPTO
-	select CRYPTO_RANDOM_POOL
+	depends on CRYPTO
+	depends on CRYPTO_RANDOM_POOL
 	---help---
 		Enable a minimal Dropbear SSH server port for NuttX.  This initial
 		port is based on the ESP-IDF MCU test port and provides a single

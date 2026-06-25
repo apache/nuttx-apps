@@ -25,85 +25,145 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/debug.h>
 
-#include <stdint.h>
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
+#include <sys/random.h>
+#include <unistd.h>
 
-#include <nuttx/crypto/tea.h>
+#include <netutils/base64.h>
 
 #include "passwd.h"
+#include "passwd_pbkdf2.h"
 
 /****************************************************************************
- * Private Data
+ * Pre-processor Definitions
  ****************************************************************************/
 
-/* This should be better protected */
+#ifndef CONFIG_FSUTILS_PASSWD_PBKDF2_ITERATIONS
+#  define CONFIG_FSUTILS_PASSWD_PBKDF2_ITERATIONS 10000
+#endif
 
-static uint32_t g_tea_key[4] =
-{
-  CONFIG_FSUTILS_PASSWD_KEY1,
-  CONFIG_FSUTILS_PASSWD_KEY2,
-  CONFIG_FSUTILS_PASSWD_KEY3,
-  CONFIG_FSUTILS_PASSWD_KEY4
-};
+#define PASSWD_MIN_LENGTH  8
+
+static const char g_password_specials[] =
+  "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
+static int validate_password_complexity(FAR const char *password)
+{
+  FAR const char *p;
+  size_t passlen;
+  int has_upper   = 0;
+  int has_lower   = 0;
+  int has_digit   = 0;
+  int has_special = 0;
+
+  passlen = strlen(password);
+  if (passlen < PASSWD_MIN_LENGTH)
+    {
+      _err("ERROR: password must be at least %d characters\n",
+           PASSWD_MIN_LENGTH);
+      return -EINVAL;
+    }
+
+  if (passlen > MAX_PASSWORD)
+    {
+      _err("ERROR: password must be at most %d characters\n", MAX_PASSWORD);
+      return -EINVAL;
+    }
+
+  for (p = password; *p != '\0'; p++)
+    {
+      if (isupper((unsigned char)*p))
+        {
+          has_upper = 1;
+        }
+      else if (islower((unsigned char)*p))
+        {
+          has_lower = 1;
+        }
+      else if (isdigit((unsigned char)*p))
+        {
+          has_digit = 1;
+        }
+      else if (strchr(g_password_specials, *p) != NULL)
+        {
+          has_special = 1;
+        }
+    }
+
+  if (!has_upper)
+    {
+      _err("ERROR: password must contain at least one uppercase "
+           "letter (A-Z)\n");
+      return -EINVAL;
+    }
+
+  if (!has_lower)
+    {
+      _err("ERROR: password must contain at least one lowercase "
+           "letter (a-z)\n");
+      return -EINVAL;
+    }
+
+  if (!has_digit)
+    {
+      _err("ERROR: password must contain at least one digit (0-9)\n");
+      return -EINVAL;
+    }
+
+  if (!has_special)
+    {
+      _err("ERROR: password must contain at least one special "
+           "character (!@#$%%^&*()_+-=[]{}|;:,.<>?)\n");
+      return -EINVAL;
+    }
+
+  return OK;
+}
+
 /****************************************************************************
- * Name: passwd_base64
+ * Name: passwd_fill_random
  *
  * Description:
- *   Encode a 5 bit value as a base64 character.
- *
- * Input Parameters:
- *   binary - 5 bit value
- *
- * Returned Value:
- *   The ASCII base64 character.  Must not return the field delimiter ':'
+ *   Fill a buffer with random bytes using getrandom() or /dev/urandom.
  *
  ****************************************************************************/
 
-static char passwd_base64(uint8_t binary)
+static int passwd_fill_random(FAR uint8_t *buf, size_t len)
 {
-  /* 0-26 -> 'A'-'Z' */
+  ssize_t nread;
+  int fd;
 
-  binary &= 63;
-  if (binary < 26)
+  nread = getrandom(buf, len, 0);
+  if (nread == (ssize_t)len)
     {
-      return 'A' + binary;
+      return OK;
     }
 
-  /* 26-51 -> 'a'-'z' */
-
-  binary -= 26;
-  if (binary < 26)
+  fd = open("/dev/urandom", O_RDONLY);
+  if (fd < 0)
     {
-      return 'a' + binary;
+      return -errno;
     }
 
-  /* 52->61 -> '0'-'9' */
+  nread = read(fd, buf, len);
+  close(fd);
 
-  binary -= 26;
-  if (binary < 10)
+  if (nread != (ssize_t)len)
     {
-      return '0' + binary;
+      return nread < 0 ? -errno : -EIO;
     }
 
-  /* 62 -> '+' */
-
-  binary -= 10;
-  if (binary == 0)
-    {
-      return '+';
-    }
-
-  /* 63 -> '/' */
-
-  return '/';
+  return OK;
 }
 
 /****************************************************************************
@@ -114,108 +174,65 @@ static char passwd_base64(uint8_t binary)
  * Name: passwd_encrypt
  *
  * Description:
- *   Encrypt a password.  Currently uses the Tiny Encryption Algorithm.
- *
- * Input Parameters:
- *   password -- The password string to be encrypted
- *
- * Returned Value:
- *   Zero (OK) is returned on success; a negated errno value is returned on
- *   failure.
+ *   Hash a password with PBKDF2-HMAC-SHA256 and encode as modular crypt
+ *   format: $pbkdf2-sha256$<iter>$<base64url-salt>$<base64url-hash>
  *
  ****************************************************************************/
 
 int passwd_encrypt(FAR const char *password,
                    char encrypted[MAX_ENCRYPTED + 1])
 {
-  union
-  {
-    char     b[8];
-    uint16_t h[4];
-    uint32_t l[2];
-  } value;
+  uint8_t salt[PASSWD_SALT_BYTES];
+  uint8_t hash[PASSWD_HASH_BYTES];
+  char salt_b64[32];
+  char hash_b64[48];
+  size_t passlen;
+  int ret;
 
-  FAR const char *src;
-  FAR char *bptr;
-  FAR char *dest;
-  uint32_t tmp;
-  uint8_t remainder;
-  int remaining;
-  int gulpsize;
-  int nbits;
-  int i;
+  ret = validate_password_complexity(password);
+  if (ret < 0)
+    {
+      return ret;
+    }
 
-  /* How long is the password? */
+  passlen = strlen(password);
 
-  remaining = strlen(password);
-  if (remaining > MAX_PASSWORD)
+  ret = passwd_fill_random(salt, sizeof(salt));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  ret = passwd_pbkdf2_hmac_sha256((FAR const uint8_t *)password, passlen,
+                                  salt, sizeof(salt),
+                                  CONFIG_FSUTILS_PASSWD_PBKDF2_ITERATIONS,
+                                  hash, sizeof(hash));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  ret = base64url_encode(salt, sizeof(salt), salt_b64,
+                                sizeof(salt_b64));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  ret = base64url_encode(hash, sizeof(hash), hash_b64,
+                                sizeof(hash_b64));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  ret = snprintf(encrypted, MAX_ENCRYPTED + 1,
+                 PASSWD_MCF_PREFIX "%u$%s$%s",
+                 CONFIG_FSUTILS_PASSWD_PBKDF2_ITERATIONS,
+                 salt_b64, hash_b64);
+  if (ret < 0 || (size_t)ret > MAX_ENCRYPTED)
     {
       return -E2BIG;
-    }
-
-  /* Convert the password in 8-byte TEA cycles */
-
-  src        = password;
-  dest       = encrypted;
-  *dest      = '\0';
-
-  remainder  = 0;
-  nbits      = 0;
-
-  for (; remaining > 0; remaining -= gulpsize)
-    {
-      /* Copy bytes */
-
-      gulpsize = sizeof(value.b);
-      if (gulpsize > remaining)
-        {
-          gulpsize = remaining;
-        }
-
-      bptr = value.b;
-      for (i = 0; i < gulpsize; i++)
-        {
-          *bptr++ = *src++;
-        }
-
-      /* Pad with spaces if necessary */
-
-      for (; i < sizeof(value.b); i++)
-        {
-          *bptr++ = ' ';
-        }
-
-      /* Perform the conversion for this cycle */
-
-      tea_encrypt(value.l, g_tea_key);
-
-      /* Generate the base64 output string from this cycle */
-
-      tmp = remainder;
-
-      for (i = 0; i < 4; i++)
-        {
-          tmp    = (uint32_t)value.h[i] << nbits | tmp;
-          nbits += 16;
-
-          while (nbits >= 6)
-            {
-              *dest++ = passwd_base64((uint8_t)(tmp & 0x3f));
-              tmp   >>= 6;
-              nbits  -= 6;
-            }
-        }
-
-      remainder = (uint8_t)tmp;
-      *dest     = '\0';
-    }
-
-  /* Handle any remainder */
-
-  if (nbits > 0)
-    {
-      *dest++ = passwd_base64(remainder);
-      *dest   = '\0';
     }
 
   return OK;
