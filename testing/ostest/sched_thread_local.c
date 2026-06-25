@@ -114,6 +114,23 @@ static void *thread_func(void *parameter)
       ASSERT(false);
     }
 
+  printf("thread_func[%d]: TLS addr=%p\n", id, &g_tls_int);
+
+  /* In a broken system, all threads might point to the same static address */
+
+  static void *g_first_thread_addr = NULL;
+  if (id == 0)
+    {
+      g_first_thread_addr = (void *)&g_tls_int;
+    }
+  else if (g_first_thread_addr == (void *)&g_tls_int)
+    {
+      printf("ERROR: Thread %d shares address with Thread 0\n", id);
+      ASSERT(false);
+
+      /* Checking 0 and other addresses */
+    }
+
   printf("thread_func[%d]: setting value_short (at 0x%p) to %d\n",
          id, &g_tls_short, value_short + id);
 
@@ -159,6 +176,9 @@ void sched_thread_local_test(void)
     {
       printf("sched_thread_local_test: pthread_barrier_init failed, "
              "status=%d\n", status);
+      ASSERT(false);
+
+      /* the threads will call pthread_barrier_wait on an invalid object */
     }
 
   for (i = 0; i < TEST_THREADS; i++)
@@ -227,6 +247,16 @@ void sched_thread_local_test(void)
       printf("sched_thread_local_test: pthread_barrier_destroy failed, "
              "status=%d\n", status);
     }
+
+  /* Confirm main thread still have initial values */
+
+  if (g_tls_int != INIT_VALUE)
+    {
+      printf("sched_thread_local_test: ERROR: Main thread TLS corrupted!\n");
+      ASSERT(false);
+    }
+
+  printf("sched_thread_local_test: Main thread isolation confirmed.\n");
 }
 
 #endif /* CONFIG_SCHED_THREAD_LOCAL */
