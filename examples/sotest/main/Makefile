@@ -57,10 +57,10 @@ PKG_FIXTURE_GEN = $(APPDIR)/examples/sotest/main/mk_pkg_fixture_shared.py
 PKG_FIXTURE_OUTPUTS = $(PKGSHAREDINDEX) $(PKGSHAREDTEST)
 
 $(PKG_FIXTURE_OUTPUTS) &: $(BINDIR)/modprint $(BINDIR)/sotest $(PKG_FIXTURE_GEN)
-	$(Q) python3 $(PKG_FIXTURE_GEN) \
-		$(BINDIR)/modprint $(BINDIR)/sotest \
-		$(PKGSHAREDINDEX) $(PKGSHAREDTEST) \
-		$(CONFIG_ARCH) $(CONFIG_ARCH_BOARD)
+	$(Q) sh -c 'python3 "$$1" "$$2" "$$3" "$$4" "$$5" "$$6" "$$7"' sh \
+		$(PKG_FIXTURE_GEN) $(BINDIR)/modprint $(BINDIR)/sotest \
+		$(PKGSHAREDINDEX) $(PKGSHAREDTEST) $(CONFIG_ARCH) \
+		$(CONFIG_ARCH_BOARD)
 endif
 
 $(ROMFSIMG): $(PKG_FIXTURE_OUTPUTS)
