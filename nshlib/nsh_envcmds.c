@@ -390,19 +390,18 @@ do_echo:
           str_escape(argv[0]);
         }
 
-      nsh_output(vtbl, "%s", argv[0]);
+      if (argc > 1)
+        {
+          nsh_output(vtbl, "%s ", argv[0]);
+        }
+      else
+        {
+          nsh_output(vtbl, newline ? "%s\n" : "%s", argv[0]);
+          break;
+        }
 
       --argc;
       ++argv;
-      if (argc > 0)
-        {
-          nsh_output(vtbl, " ");
-        }
-    }
-
-  if (newline)
-    {
-      nsh_output(vtbl, "\n");
     }
 
   return OK;
