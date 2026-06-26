@@ -1,0 +1,43 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_BERRY
+	tristate "Berry scripting language"
+	default n
+	depends on ARCH_SETJMP_H
+	depends on LIBC_FLOATINGPOINT
+	depends on SYSTEM_SYSTEM
+	---help---
+		Enable the Berry embedded scripting language as an NSH built-in
+		command.  Berry provides a small ANSI C99 compiler, register-based
+		virtual machine, garbage collector, file I/O, bytecode loading and
+		saving, and built-in modules.
+
+		The default NuttX configuration keeps Berry shared-library loading
+		disabled so boards do not need CONFIG_LIBC_DLFCN.  The math module
+		is enabled, so select a NuttX math library or provide one from the
+		toolchain.
+
+if INTERPRETERS_BERRY
+
+config INTERPRETERS_BERRY_PROGNAME
+	string "Berry program name"
+	default "berry"
+	---help---
+		The command name used to start the Berry interpreter.
+
+config INTERPRETERS_BERRY_PRIORITY
+	int "Berry interpreter priority"
+	default 100
+	---help---
+		Task priority of the Berry interpreter main task.
+
+config INTERPRETERS_BERRY_STACKSIZE
+	int "Berry interpreter stack size"
+	default 12288
+	---help---
+		Size of the stack allocated for the Berry interpreter main task.
+
+endif # INTERPRETERS_BERRY

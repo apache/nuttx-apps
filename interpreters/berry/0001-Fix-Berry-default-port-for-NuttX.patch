@@ -1,0 +1,27 @@
+diff --git a/default/berry.c b/default/berry.c
+index d6ea5d1..bb95fc7 100644
+--- a/default/berry.c
++++ b/default/berry.c
+@@ -22 +22,3 @@
+-#if defined(__linux)
++#if defined(__NuttX__)
++    #define OS_NAME   "NuttX"
++#elif defined(__linux)
+@@ -103 +105 @@
+-    const char *optarg;
++    const char *optvalue;
+@@ -148 +150 @@
+-                opt->optarg = argv[opt->idx++]; /* save the argument */
++                opt->optvalue = argv[opt->idx++]; /* save the argument */
+@@ -151 +153 @@
+-            opt->optarg = NULL;
++            opt->optvalue = NULL;
+@@ -272 +274 @@
+-            opt->modulepath = opt->optarg;
++            opt->modulepath = opt->optvalue;
+@@ -277 +279 @@
+-            opt->src = opt->optarg;
++            opt->src = opt->optvalue;
+@@ -281 +283 @@
+-            opt->dst = opt->optarg;
++            opt->dst = opt->optvalue;
