@@ -112,7 +112,7 @@ int dpopen(FAR const char *command, int oflag, FAR pid_t *pid)
    * pipe; fd[1] refers to the write end of the pipe.
    */
 
-  if ((oflag & O_RDWR) == O_RDWR)
+  if ((oflag & O_ACCMODE) == O_RDWR)
     {
 #if defined(CONFIG_NET_LOCAL) && defined(CONFIG_NET_LOCAL_STREAM)
       /* Create a socketpair for bidirectional communication */
@@ -215,7 +215,7 @@ int dpopen(FAR const char *command, int oflag, FAR pid_t *pid)
 
   /* Redirect child's stdin or stdout to the pipe */
 
-  if ((oflag & O_RDWR) == O_RDWR)
+  if ((oflag & O_ACCMODE) == O_RDWR)
     {
       errcode = posix_spawn_file_actions_adddup2(&file_actions, childfd,
                                                  STDIN_FILENO);

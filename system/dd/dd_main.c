@@ -356,7 +356,7 @@ int main(int argc, FAR char **argv)
         }
       else if (strncmp(argv[i], "verify", 6) == 0)
         {
-          dd.oflags |= O_RDONLY;
+          dd.oflags = (dd.oflags & ~O_ACCMODE) | O_RDWR;
         }
       else if (strncmp(argv[i], "conv=", 5) == 0)
         {
@@ -409,7 +409,8 @@ int main(int argc, FAR char **argv)
 
   /* If verify enabled, infile and outfile are mandatory */
 
-  if ((dd.oflags & O_RDONLY) && (infile == NULL || outfile == NULL))
+  if ((dd.oflags & O_ACCMODE) == O_RDWR &&
+      (infile == NULL || outfile == NULL))
     {
       fprintf(stderr, "%s: invalid parameters: %s\n", g_dd,
           strerror(EINVAL));
@@ -519,7 +520,7 @@ int main(int argc, FAR char **argv)
          / ((double)elapsed / USEC_PER_SEC)));
 #endif
 
-  if (ret == 0 && (dd.oflags & O_RDONLY) != 0)
+  if (ret == 0 && (dd.oflags & O_ACCMODE) == O_RDWR)
     {
       ret = dd_verify(&dd);
     }

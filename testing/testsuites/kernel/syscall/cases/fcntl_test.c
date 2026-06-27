@@ -90,35 +90,36 @@ void test_nuttx_syscall_fcntl01(FAR void **state)
   /* //block1: */
 
   flags = fcntl(fd[2], F_GETFL, 0);
-  assert_false((flags & O_WRONLY) == 0);
+  assert_false((flags & O_ACCMODE) == O_RDONLY);
 
   /* Check setting of no_delay flag */
 
   assert_false(fcntl(fd[2], F_SETFL, O_NDELAY) == -1);
 
   flags = fcntl(fd[2], F_GETFL, 0);
-  assert_false((flags & (O_NDELAY | O_WRONLY)) == 0);
+  assert_false((flags & O_NDELAY) == 0 && (flags & O_ACCMODE) == O_RDONLY);
 
   /* Check of setting append flag */
 
   assert_false(fcntl(fd[2], F_SETFL, O_APPEND) == -1);
 
   flags = fcntl(fd[2], F_GETFL, 0);
-  assert_false((flags & (O_APPEND | O_WRONLY)) == 0);
+  assert_false((flags & O_APPEND) == 0 && (flags & O_ACCMODE) == O_RDONLY);
 
   /* Check setting flags together */
 
   assert_false(fcntl(fd[2], F_SETFL, O_NDELAY | O_APPEND) < 0);
 
   flags = fcntl(fd[2], F_GETFL, 0);
-  assert_false((flags & (O_NDELAY | O_APPEND | O_WRONLY)) == 0);
+  assert_false((flags & (O_NDELAY | O_APPEND)) == 0 &&
+               (flags & O_ACCMODE) == O_RDONLY);
 
   /* Check that flags are not cumulative */
 
   assert_false(fcntl(fd[2], F_SETFL, 0) == -1);
 
   flags = fcntl(fd[2], F_GETFL, 0);
-  assert_false((flags & O_WRONLY) == 0);
+  assert_false((flags & O_ACCMODE) == O_RDONLY);
   assert_false((flags = fcntl(fd[2], F_GETFD, 0)) < 0);
   assert_false(flags != 0);
   assert_false((flags = fcntl(fd[2], F_SETFD, 1)) == -1);
