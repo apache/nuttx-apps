@@ -120,13 +120,13 @@ TEST(no_block_connect, instant_connect)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Do connect, should succeed instantly. */
@@ -188,13 +188,13 @@ TEST(no_block_connect, delayed_connect)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempt, daemon delays actual connection until
@@ -290,13 +290,13 @@ TEST(no_block_connect, close_not_connected)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempt, daemon delays actual connection until
@@ -363,13 +363,13 @@ TEST(no_block_connect, early_drop)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempt, daemon delays actual connection until
@@ -443,24 +443,24 @@ TEST(no_block_connect, multiple)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   flags = fcntl(sd2, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd2, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd2, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempts, daemon delays actual connection until
@@ -552,24 +552,24 @@ TEST(no_block_connect, multiple)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   flags = fcntl(sd2, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd2, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd2, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempts, daemon delays actual connection until
@@ -637,24 +637,24 @@ TEST(no_block_connect, multiple)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   flags = fcntl(sd2, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd2, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd2, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempt, daemon delays actual connection until
@@ -758,13 +758,13 @@ TEST(no_block_connect, basic_daemon_dup2)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* Launch connect attempt, daemon delays actual connection until

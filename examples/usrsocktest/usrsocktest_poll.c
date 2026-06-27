@@ -115,13 +115,13 @@ static void connectreceive(struct usrsocktest_daemon_conf_s *dconf)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* poll for input (instant timeout). */
@@ -321,13 +321,13 @@ static void connectsend(struct usrsocktest_daemon_conf_s *dconf)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* poll for input (instant timeout). */
@@ -454,13 +454,13 @@ static void daemonabort(struct usrsocktest_daemon_conf_s *dconf)
 
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(0, flags & O_NONBLOCK);
   ret = fcntl(sd, F_SETFL, flags | O_NONBLOCK);
   TEST_ASSERT_EQUAL(0, ret);
   flags = fcntl(sd, F_GETFL, 0);
   TEST_ASSERT_TRUE(flags >= 0);
-  TEST_ASSERT_EQUAL(O_RDWR, flags & O_RDWR);
+  TEST_ASSERT_EQUAL(O_RDWR, flags & O_ACCMODE);
   TEST_ASSERT_EQUAL(O_NONBLOCK, flags & O_NONBLOCK);
 
   /* poll for input (instant timeout). */
