@@ -1,27 +1,57 @@
 diff --git a/default/berry.c b/default/berry.c
-index d6ea5d1..bb95fc7 100644
+index 203773f..0df2a99 100644
 --- a/default/berry.c
 +++ b/default/berry.c
-@@ -22 +22,3 @@
+@@ -19,7 +19,9 @@
+ #endif
+ 
+ /* detect operating system name */
 -#if defined(__linux)
 +#if defined(__NuttX__)
 +    #define OS_NAME   "NuttX"
 +#elif defined(__linux)
-@@ -103 +105 @@
+     #define OS_NAME   "Linux"
+ #elif defined(__unix)
+     #define OS_NAME   "Unix"
+@@ -98,7 +100,7 @@
+ struct arg_opts {
+     int idx;
+     const char *pattern;
 -    const char *optarg;
 +    const char *optvalue;
-@@ -148 +150 @@
+     const char *errarg;
+     const char *src;
+     const char *dst;
+@@ -143,10 +145,10 @@ static int arg_getopt(struct arg_opts *opt, int argc, char *argv[])
+             /* the '?' indicates an optional argument after the option */
+             if (++opt->idx < argc && res != NULL
+                 && res[1] == '?' && *argv[opt->idx] != '-') {
 -                opt->optarg = argv[opt->idx++]; /* save the argument */
 +                opt->optvalue = argv[opt->idx++]; /* save the argument */
-@@ -151 +153 @@
+                 return *res;
+             }
 -            opt->optarg = NULL;
 +            opt->optvalue = NULL;
-@@ -272 +274 @@
+             opt->errarg = arg;
+             return res != NULL ? *res : '?';
+         }
+@@ -267,16 +269,16 @@ static int parse_arg(struct arg_opts *opt, int argc, char *argv[])
+         case 's': args |= arg_s; break;
+         case 'm':
+             args |= arg_m;
 -            opt->modulepath = opt->optarg;
 +            opt->modulepath = opt->optvalue;
-@@ -277 +279 @@
+             break;
+         case '?': return args | arg_err;
+         case 'c':
+             args |= arg_c;
 -            opt->src = opt->optarg;
 +            opt->src = opt->optvalue;
-@@ -281 +283 @@
+             break;
+         case 'o':
+             args |= arg_o;
 -            opt->dst = opt->optarg;
 +            opt->dst = opt->optvalue;
+             break;
+         default:
+             break;
