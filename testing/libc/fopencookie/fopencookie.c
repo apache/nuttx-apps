@@ -171,7 +171,7 @@ static int fopencookie_write_test(FILE *stream)
     }
 
   printf("fopencookie_write_test: written buffer: %.*s\n", n, correctbuf);
-  printf("fopencookie_write_test: succesfull\n");
+  printf("fopencookie_write_test: successful\n");
   return 0;
 }
 
@@ -202,7 +202,7 @@ static int fopencookie_read_test(FILE *stream)
     }
 
   printf("fopencookie_read_test: read buffer: %.*s\n", n, correctbuf);
-  printf("fopencookie_read_test: succesfull\n");
+  printf("fopencookie_read_test: successful\n");
   return 0;
 }
 
@@ -240,7 +240,7 @@ static int fopencookie_seek_test(FILE *stream)
       printf("fopencookie_seek_test: pos %d, char %c\n", i, buf[i]);
     }
 
-  printf("fopencookie_seek_test: succesfull\n");
+  printf("fopencookie_seek_test: successful\n");
 
   fseek(stream, 0, SEEK_SET);
   return 0;
@@ -301,7 +301,7 @@ int main(int argc, FAR char *argv[])
       goto fopencookie_ret;
     }
 
-  printf("fopencokie tests were succesfull.\n");
+  printf("fopencokie tests were successful.\n");
 
 fopencookie_ret:
   fclose(stream);
