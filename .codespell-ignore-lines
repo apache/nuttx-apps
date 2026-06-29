@@ -8,3 +8,8 @@
       auto certificate = Controlse::CCertificate(
  *  |---------- [-rw-r--r--        15]  afile.txt
   g_afile.name                 = "afile.txt";
+                            "*.deh", "*.hhe", "*.seh", NULL);
+  MUSIC("introa"), MUSIC("runnin"), MUSIC("stalks"), MUSIC("countd"),
+  MUSIC("betwee"), MUSIC("doom"),   MUSIC("the_da"), MUSIC("shawn"),
+  MUSIC("messag"), MUSIC("count2"), MUSIC("ddtbl3"), MUSIC("ampie"),
+  MUSIC("tense"),  MUSIC("shawn3"), MUSIC("openin"), MUSIC("evil"),
