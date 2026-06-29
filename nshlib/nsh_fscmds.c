@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -598,6 +599,19 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
             {
               nsh_output(vtbl, "%12" PRIdOFF, buf.st_size);
             }
+        }
+
+      /* Display modification time in long format */
+
+      if ((lsflags & LSFLAGS_LONG) != 0 && buf.st_mtime != 0)
+        {
+          struct tm tm;
+          char timebuf[20];
+          time_t mtime = (time_t)buf.st_mtime;
+
+          gmtime_r(&mtime, &tm);
+          strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M", &tm);
+          nsh_output(vtbl, " %s", timebuf);
         }
     }
 
