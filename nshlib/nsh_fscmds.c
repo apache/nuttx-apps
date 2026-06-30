@@ -753,13 +753,14 @@ static int fdinfo_callback(FAR struct nsh_vtbl_s *vtbl,
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, "fdinfo", "asprintf", NSH_ERRNO);
+      return ret;
     }
 
   nsh_output(vtbl, "\npid:%s", entryp->d_name);
   ret = nsh_catfile(vtbl, "fdinfo", filepath);
   if (ret < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, "fdinfo", "nsh_catfaile", NSH_ERRNO);
+      nsh_error(vtbl, g_fmtcmdfailed, "fdinfo", "nsh_catfile", NSH_ERRNO);
     }
 
   free(filepath);
@@ -871,6 +872,10 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (argc == 1)
     {
       char *buf = malloc(BUFSIZ);
+      if (buf == NULL)
+        {
+          return -ENOMEM;
+        }
 
       /* Dump from input */
 
