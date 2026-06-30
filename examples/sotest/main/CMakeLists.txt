@@ -21,27 +21,80 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SOTEST)
+  set(SOTEST_SYMTAB ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c)
+  set(SOTEST_ROMFS_IMG ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.img)
+  set(SOTEST_ROMFS_SRC ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
+  set(SOTEST_MODPRINT_ELF ${CMAKE_BINARY_DIR}/bin/modprint)
+  set(SOTEST_SHARED_ELF ${CMAKE_BINARY_DIR}/bin/sotest)
+  set(SOTEST_GEN_SYMTAB ${CMAKE_CURRENT_SOURCE_DIR}/gen_symtab.py)
+  set(SOTEST_GEN_ROMFS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/gen_romfs_source.py)
 
-  # FIXME: fix all empty a after the kernel build is implemented
+  # Dynamic applications are wrapped in ELF_* helper targets when the build uses
+  # the non-ELF-capable compiler path.
+  if(CMAKE_C_ELF_COMPILER)
+    set(SOTEST_MODPRINT_TARGET modprint)
+    set(SOTEST_SHARED_TARGET sotest)
+  else()
+    set(SOTEST_MODPRINT_TARGET ELF_modprint)
+    set(SOTEST_SHARED_TARGET ELF_sotest)
+  endif()
+
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c
-    COMMAND
-      ${NUTTX_APPS_DIR}/tools/mksymtab.sh ${CMAKE_CURRENT_BINARY_DIR}/empty
-      g_sot > ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c)
+    OUTPUT ${SOTEST_SYMTAB}
+    COMMAND ${Python3_EXECUTABLE} ${SOTEST_GEN_SYMTAB} ${SOTEST_MODPRINT_ELF}
+            ${SOTEST_SHARED_ELF} g_sot ${SOTEST_SYMTAB}
+    DEPENDS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET}
+            ${SOTEST_GEN_SYMTAB}
+    VERBATIM)
 
-  add_custom_target(
-    sotest_romfs
-    COMMAND genromfs -f sotest_romfs.img -d empty
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  set_source_files_properties(${SOTEST_SYMTAB} PROPERTIES GENERATED TRUE)
 
-  add_custom_command(
-    OUTPUT sotest_romfs.c
-    COMMAND xxd -i sotest_romfs.img > sotest_romfs.c
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS sotest_romfs)
+  set(SOTEST_GENERATED_OUTPUTS ${SOTEST_SYMTAB})
+  set(SOTEST_SRCS sotest_main.c ${SOTEST_SYMTAB})
 
-  nuttx_add_application(
-    NAME sotest SRCS sotest_main.c ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c
-    ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
+  if(CONFIG_EXAMPLES_SOTEST_BUILTINFS)
+    set(SOTEST_ROMFS_DEPS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET})
 
+    if(CONFIG_SYSTEM_NXPKG)
+      set(SOTEST_SHARED_INDEX ${CMAKE_BINARY_DIR}/bin/shared-index.json)
+      set(SOTEST_SHARED_SCRIPT ${CMAKE_BINARY_DIR}/bin/pkgsotest.nsh)
+
+      add_custom_command(
+        OUTPUT ${SOTEST_SHARED_INDEX} ${SOTEST_SHARED_SCRIPT}
+        COMMAND
+          ${Python3_EXECUTABLE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/mk_pkg_fixture_shared.py
+          ${SOTEST_MODPRINT_ELF} ${SOTEST_SHARED_ELF} ${SOTEST_SHARED_INDEX}
+          ${SOTEST_SHARED_SCRIPT} ${CONFIG_ARCH} ${CONFIG_ARCH_BOARD}
+        DEPENDS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET}
+                ${CMAKE_CURRENT_SOURCE_DIR}/mk_pkg_fixture_shared.py
+        VERBATIM)
+
+      list(APPEND SOTEST_ROMFS_DEPS ${SOTEST_SHARED_INDEX}
+           ${SOTEST_SHARED_SCRIPT})
+    endif()
+
+    add_custom_command(
+      OUTPUT ${SOTEST_ROMFS_IMG}
+      COMMAND genromfs -f ${SOTEST_ROMFS_IMG} -d ${CMAKE_BINARY_DIR}/bin
+      DEPENDS ${SOTEST_ROMFS_DEPS}
+      VERBATIM)
+
+    add_custom_command(
+      OUTPUT ${SOTEST_ROMFS_SRC}
+      COMMAND ${Python3_EXECUTABLE} ${SOTEST_GEN_ROMFS_SRC} ${SOTEST_ROMFS_IMG}
+              ${SOTEST_ROMFS_SRC}
+      DEPENDS ${SOTEST_ROMFS_IMG} ${SOTEST_GEN_ROMFS_SRC}
+      VERBATIM)
+
+    set_source_files_properties(${SOTEST_ROMFS_SRC} PROPERTIES GENERATED TRUE)
+
+    list(APPEND SOTEST_GENERATED_OUTPUTS ${SOTEST_ROMFS_SRC})
+    list(APPEND SOTEST_SRCS ${SOTEST_ROMFS_SRC})
+  endif()
+
+  add_custom_target(sotest_artifacts DEPENDS ${SOTEST_GENERATED_OUTPUTS})
+
+  nuttx_add_application(NAME sotest SRCS ${SOTEST_SRCS} DEPENDS
+                        sotest_artifacts)
 endif()
