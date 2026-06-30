@@ -1,45 +1,56 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//     Definitions for use in networking code.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/net_packet.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *     Definitions for use in networking code.
+ *
+ ****************************************************************************/
 
 #ifndef NET_PACKET_H
 #define NET_PACKET_H
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include "net_defs.h"
 
-net_packet_t *NET_NewPacket(int initial_size);
-net_packet_t *NET_PacketDup(net_packet_t *packet);
-void NET_FreePacket(net_packet_t *packet);
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-boolean NET_ReadInt8(net_packet_t *packet, unsigned int *data);
-boolean NET_ReadInt16(net_packet_t *packet, unsigned int *data);
-boolean NET_ReadInt32(net_packet_t *packet, unsigned int *data);
+net_packet_t *net_new_packet(int initial_size);
+net_packet_t *net_packet_dup(net_packet_t *packet);
+void net_free_packet(net_packet_t *packet);
 
-boolean NET_ReadSInt8(net_packet_t *packet, signed int *data);
-boolean NET_ReadSInt16(net_packet_t *packet, signed int *data);
-boolean NET_ReadSInt32(net_packet_t *packet, signed int *data);
+boolean net_read_int8(net_packet_t *packet, unsigned int *data);
+boolean net_read_int16(net_packet_t *packet, unsigned int *data);
+boolean net_read_int32(net_packet_t *packet, unsigned int *data);
 
-char *NET_ReadString(net_packet_t *packet);
-char *NET_ReadSafeString(net_packet_t *packet);
+boolean net_read_sint8(net_packet_t *packet, signed int *data);
+boolean net_read_sint16(net_packet_t *packet, signed int *data);
 
-void NET_WriteInt8(net_packet_t *packet, unsigned int i);
-void NET_WriteInt16(net_packet_t *packet, unsigned int i);
-void NET_WriteInt32(net_packet_t *packet, unsigned int i);
+char *net_read_string(net_packet_t *packet);
+char *net_read_safe_string(net_packet_t *packet);
 
-void NET_WriteString(net_packet_t *packet, const char *string);
+void net_write_int8(net_packet_t *packet, unsigned int i);
+void net_write_int16(net_packet_t *packet, unsigned int i);
+void net_write_int32(net_packet_t *packet, unsigned int i);
 
-#endif /* #ifndef NET_PACKET_H */
+void net_write_string(net_packet_t *packet, const char *string);
 
+#endif /* NET_PACKET_H */

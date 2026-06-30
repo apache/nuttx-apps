@@ -1,65 +1,61 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//	Rendering of moving objects, sprites.
-//
-
+/****************************************************************************
+ * apps/games/NXDoom/src/doom/r_things.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  Rendering of moving objects, sprites.
+ *
+ ****************************************************************************/
 
 #ifndef __R_THINGS__
 #define __R_THINGS__
 
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
+extern vissprite_t vissprites[CONFIG_GAMES_NXDOOM_MAXVISSPRITES];
+extern vissprite_t *vissprite_p;
+extern vissprite_t vsprsortedhead;
 
-#define MAXVISSPRITES  	128
+/* Constant arrays used for psprite clipping and initializing clipping. */
 
-extern vissprite_t	vissprites[MAXVISSPRITES];
-extern vissprite_t*	vissprite_p;
-extern vissprite_t	vsprsortedhead;
+extern short negonearray[SCREENWIDTH];
+extern short screenheightarray[SCREENWIDTH];
 
-// Constant arrays used for psprite clipping
-//  and initializing clipping.
-extern short		negonearray[SCREENWIDTH];
-extern short		screenheightarray[SCREENWIDTH];
+/* vars for r_draw_masked_column */
 
-// vars for R_DrawMaskedColumn
-extern short*		mfloorclip;
-extern short*		mceilingclip;
-extern fixed_t		spryscale;
-extern fixed_t		sprtopscreen;
+extern short *mfloorclip;
+extern short *mceilingclip;
+extern fixed_t spryscale;
+extern fixed_t sprtopscreen;
 
-extern fixed_t		pspritescale;
-extern fixed_t		pspriteiscale;
+extern fixed_t pspritescale;
+extern fixed_t pspriteiscale;
 
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-void R_DrawMaskedColumn (column_t* column);
+void r_draw_masked_column(column_t *column);
 
+void r_add_sprites(sector_t *sec);
+void r_init_sprites(const char **namelist);
+void r_clear_sprites(void);
+void r_draw_masked(void);
 
-void R_SortVisSprites (void);
-
-void R_AddSprites (sector_t* sec);
-void R_AddPSprites (void);
-void R_DrawSprites (void);
-void R_InitSprites(const char **namelist);
-void R_ClearSprites (void);
-void R_DrawMasked (void);
-
-void
-R_ClipVisSprite
-( vissprite_t*		vis,
-  int			xl,
-  int			xh );
-
-
-#endif
+#endif /* __R_THINGS__ */

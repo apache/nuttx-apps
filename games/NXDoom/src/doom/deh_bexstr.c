@@ -1,20 +1,28 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-// Copyright(C) 2014 Fabian Greffrath
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// Parses [STRINGS] sections in BEX files
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/doom/deh_bexstr.c
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ * Copyright(C) 2014 Fabian Greffrath
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * Parses [STRINGS] sections in BEX files
+ *
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <string.h>
@@ -25,15 +33,33 @@
 
 #include "dstrings.h"
 
-typedef struct {
-    const char *macro;
-    const char *string;
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+typedef struct
+{
+  const char *macro;
+  const char *string;
 } bex_string_t;
 
-// mnemonic keys table
-static const bex_string_t bex_stringtable[] = {
-    // part 1 - general initialization and prompts
-    {"D_DEVSTR", D_DEVSTR},
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static void *deh_bex_str_start(deh_context_t *context, char *line);
+static void deh_bex_str_parse_line(deh_context_t *context, char *line,
+                                   void *tag);
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/* mnemonic keys table */
+
+static const bex_string_t g_bex_stringtable[] =
+{
+    {"D_DEVSTR", D_DEVSTR}, /* part 1 - general initialization and prompts */
     {"D_CDROM", D_CDROM},
     {"QUITMSG", QUITMSG},
     {"LOADNET", LOADNET},
@@ -59,8 +85,8 @@ static const bex_string_t bex_stringtable[] = {
     {"EMPTYSTRING", EMPTYSTRING},
     {"GGSAVED", GGSAVED},
     {"SAVEGAMENAME", SAVEGAMENAME},
-    // part 2 - messages when the player gets things
-    {"GOTARMOR", GOTARMOR},
+    {"GOTARMOR",
+     GOTARMOR}, /* part 2 - messages when the player gets things */
     {"GOTMEGA", GOTMEGA},
     {"GOTHTHBONUS", GOTHTHBONUS},
     {"GOTARMBONUS", GOTARMBONUS},
@@ -97,15 +123,13 @@ static const bex_string_t bex_stringtable[] = {
     {"GOTPLASMA", GOTPLASMA},
     {"GOTSHOTGUN", GOTSHOTGUN},
     {"GOTSHOTGUN2", GOTSHOTGUN2},
-    // part 3 - messages when keys are needed
-    {"PD_BLUEO", PD_BLUEO},
+    {"PD_BLUEO", PD_BLUEO}, /* part 3 - messages when keys are needed */
     {"PD_REDO", PD_REDO},
     {"PD_YELLOWO", PD_YELLOWO},
     {"PD_BLUEK", PD_BLUEK},
     {"PD_REDK", PD_REDK},
     {"PD_YELLOWK", PD_YELLOWK},
-    // part 4 - multiplayer messaging
-    {"HUSTR_MSGU", HUSTR_MSGU},
+    {"HUSTR_MSGU", HUSTR_MSGU}, /* part 4 - multiplayer messaging */
     {"HUSTR_MESSAGESENT", HUSTR_MESSAGESENT},
     {"HUSTR_CHATMACRO0", HUSTR_CHATMACRO0},
     {"HUSTR_CHATMACRO1", HUSTR_CHATMACRO1},
@@ -126,8 +150,7 @@ static const bex_string_t bex_stringtable[] = {
     {"HUSTR_PLRINDIGO", HUSTR_PLRINDIGO},
     {"HUSTR_PLRBROWN", HUSTR_PLRBROWN},
     {"HUSTR_PLRRED", HUSTR_PLRRED},
-    // part 5 - level names in the automap
-    {"HUSTR_E1M1", HUSTR_E1M1},
+    {"HUSTR_E1M1", HUSTR_E1M1}, /* part 5 - level names in the automap */
     {"HUSTR_E1M2", HUSTR_E1M2},
     {"HUSTR_E1M3", HUSTR_E1M3},
     {"HUSTR_E1M4", HUSTR_E1M4},
@@ -259,8 +282,8 @@ static const bex_string_t bex_stringtable[] = {
     {"THUSTR_30", THUSTR_30},
     {"THUSTR_31", THUSTR_31},
     {"THUSTR_32", THUSTR_32},
-    // part 6 - messages as a result of toggling states
-    {"AMSTR_FOLLOWON", AMSTR_FOLLOWON},
+    {"AMSTR_FOLLOWON",
+     AMSTR_FOLLOWON}, /* part 6 - messages as a result of toggling states */
     {"AMSTR_FOLLOWOFF", AMSTR_FOLLOWOFF},
     {"AMSTR_GRIDON", AMSTR_GRIDON},
     {"AMSTR_GRIDOFF", AMSTR_GRIDOFF},
@@ -278,8 +301,7 @@ static const bex_string_t bex_stringtable[] = {
     {"STSTR_BEHOLDX", STSTR_BEHOLDX},
     {"STSTR_CHOPPERS", STSTR_CHOPPERS},
     {"STSTR_CLEV", STSTR_CLEV},
-    // part 7 - episode intermission texts
-    {"E1TEXT", E1TEXT},
+    {"E1TEXT", E1TEXT}, /* part 7 - episode intermission texts */
     {"E2TEXT", E2TEXT},
     {"E3TEXT", E3TEXT},
     {"E4TEXT", E4TEXT},
@@ -301,8 +323,7 @@ static const bex_string_t bex_stringtable[] = {
     {"T4TEXT", T4TEXT},
     {"T5TEXT", T5TEXT},
     {"T6TEXT", T6TEXT},
-    // part 8 - creature names for the finale
-    {"CC_ZOMBIE", CC_ZOMBIE},
+    {"CC_ZOMBIE", CC_ZOMBIE}, /* part 8 - creature names for the finale */
     {"CC_SHOTGUN", CC_SHOTGUN},
     {"CC_HEAVY", CC_HEAVY},
     {"CC_IMP", CC_IMP},
@@ -319,8 +340,7 @@ static const bex_string_t bex_stringtable[] = {
     {"CC_SPIDER", CC_SPIDER},
     {"CC_CYBER", CC_CYBER},
     {"CC_HERO", CC_HERO},
-    // part 9 - intermission tiled backgrounds
-    {"BGFLATE1", "FLOOR4_8"},
+    {"BGFLATE1", "FLOOR4_8"}, /* part 9 - intermission tiled backgrounds */
     {"BGFLATE2", "SFLR6_1"},
     {"BGFLATE3", "MFLR8_4"},
     {"BGFLATE4", "MFLR8_3"},
@@ -333,44 +353,54 @@ static const bex_string_t bex_stringtable[] = {
     {"BGCASTCALL", "BOSSBACK"},
 };
 
-static void *DEH_BEXStrStart(deh_context_t *context, char *line)
-{
-    char s[10];
-
-    if (sscanf(line, "%9s", s) == 0 || strncmp("[STRINGS]", s, sizeof(s)))
-    {
-	DEH_Warning(context, "Parse error on section start");
-    }
-
-    return NULL;
-}
-
-static void DEH_BEXStrParseLine(deh_context_t *context, char *line, void *tag)
-{
-    char *variable_name, *value;
-    int i;
-
-    if (!DEH_ParseAssignment(line, &variable_name, &value))
-    {
-	DEH_Warning(context, "Failed to parse assignment");
-	return;
-    }
-
-    for (i = 0; i < arrlen(bex_stringtable); i++)
-    {
-	if (!strcmp(bex_stringtable[i].macro, variable_name))
-	{
-	    DEH_AddStringReplacement(bex_stringtable[i].string, value);
-	}
-    }
-}
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 deh_section_t deh_section_bexstr =
 {
-    "[STRINGS]",
-    NULL,
-    DEH_BEXStrStart,
-    DEH_BEXStrParseLine,
-    NULL,
-    NULL,
+  "[STRINGS]",
+  NULL,
+  deh_bex_str_start,
+  deh_bex_str_parse_line,
+  NULL,
+  NULL,
 };
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void *deh_bex_str_start(deh_context_t *context, char *line)
+{
+  char s[10];
+
+  if (sscanf(line, "%9s", s) == 0 || strncmp("[STRINGS]", s, sizeof(s)))
+    {
+      deh_warning(context, "Parse error on section start");
+    }
+
+  return NULL;
+}
+
+static void deh_bex_str_parse_line(deh_context_t *context, char *line,
+                                   void *tag)
+{
+  char *variable_name;
+  char *value;
+  int i;
+
+  if (!deh_parse_assignment(line, &variable_name, &value))
+    {
+      deh_warning(context, "Failed to parse assignment");
+      return;
+    }
+
+  for (i = 0; i < arrlen(g_bex_stringtable); i++)
+    {
+      if (!strcmp(g_bex_stringtable[i].macro, variable_name))
+        {
+          deh_add_string_replacement(g_bex_stringtable[i].string, value);
+        }
+    }
+}

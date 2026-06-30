@@ -1,20 +1,29 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//	WAD I/O functions.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/w_file.c
+ *
+ * SPDX-License-Identifier: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  WAD I/O functions.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include <stdio.h>
 
@@ -25,60 +34,59 @@
 
 #include "w_file.h"
 
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
 
-static wad_file_class_t *wad_file_classes[] = 
+static wad_file_class_t *wad_file_classes[] =
 {
-#ifdef _WIN32
-    &win32_wad_file,
-#endif
-#ifdef HAVE_MMAP
-    &posix_wad_file,
-#endif
-    &stdc_wad_file,
+  &stdc_wad_file,
 };
 
-wad_file_t *W_OpenFile(const char *path)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+wad_file_t *w_open_file(const char *path)
 {
-    wad_file_t *result;
-    int i;
+  wad_file_t *result;
+  int i;
 
-    //!
-    // @category obscure
-    //
-    // Use the OS's virtual memory subsystem to map WAD files
-    // directly into memory.
-    //
+  /* @category obscure
+   *
+   * Use the OS's virtual memory subsystem to map WAD files
+   * directly into memory.
+   */
 
-    if (!M_CheckParm("-mmap"))
+  if (!m_check_parm("-mmap"))
     {
-        return stdc_wad_file.OpenFile(path);
+      return stdc_wad_file.open_file(path);
     }
 
-    // Try all classes in order until we find one that works
+  /* Try all classes in order until we find one that works */
 
-    result = NULL;
+  result = NULL;
 
-    for (i=0; i<arrlen(wad_file_classes); ++i)
+  for (i = 0; i < arrlen(wad_file_classes); ++i)
     {
-        result = wad_file_classes[i]->OpenFile(path);
+      result = wad_file_classes[i]->open_file(path);
 
-        if (result != NULL)
+      if (result != NULL)
         {
-            break;
+          break;
         }
     }
 
-    return result;
+  return result;
 }
 
-void W_CloseFile(wad_file_t *wad)
+void w_close_file(wad_file_t *wad)
 {
-    wad->file_class->CloseFile(wad);
+  wad->file_class->close_file(wad);
 }
 
-size_t W_Read(wad_file_t *wad, unsigned int offset,
-              void *buffer, size_t buffer_len)
+size_t w_read(wad_file_t *wad, unsigned int offset, void *buffer,
+              size_t buffer_len)
 {
-    return wad->file_class->Read(wad, offset, buffer, buffer_len);
+  return wad->file_class->read(wad, offset, buffer, buffer_len);
 }
-

@@ -1,28 +1,36 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_checkbox.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_CHECKBOX_H
 #define TXT_CHECKBOX_H
 
-/**
- * @file txt_checkbox.h
- *
- * Checkbox widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Checkbox widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Checkbox widget.
  *
  * A checkbox is used to control boolean values that may be either on
  * or off.  The widget has a label that is displayed to the right of
@@ -34,17 +42,17 @@
  * When a checkbox is changed, it emits the "changed" signal.
  */
 
-typedef struct txt_checkbox_s txt_checkbox_t;
-
-#include "txt_widget.h"
-
 struct txt_checkbox_s
 {
-    txt_widget_t widget;
-    char *label;
-    int *variable;
-    int inverted;
+  txt_widget_t widget;
+  char *label;
+  int *variable;
+  int inverted;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new checkbox.
@@ -55,7 +63,7 @@ struct txt_checkbox_s
  * @return              Pointer to the new checkbox.
  */
 
-txt_checkbox_t *TXT_NewCheckBox(const char *label, int *variable);
+txt_checkbox_t *txt_new_check_box(const char *label, int *variable);
 
 /**
  * Create a new inverted checkbox.
@@ -69,8 +77,6 @@ txt_checkbox_t *TXT_NewCheckBox(const char *label, int *variable);
  * @return              Pointer to the new checkbox.
  */
 
-txt_checkbox_t *TXT_NewInvertedCheckBox(const char *label, int *variable);
+txt_checkbox_t *txt_new_inverted_checkbox(const char *label, int *variable);
 
-#endif /* #ifndef TXT_CHECKBOX_H */
-
-
+#endif /* TXT_CHECKBOX_H */

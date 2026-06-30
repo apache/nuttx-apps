@@ -1,13 +1,12 @@
 CMDLINE
 INSTALL
-Makefile
 Makefile.in
+Make.dep
 TAGS
 aclocal.m4
 autom4te.cache
 autotools
 bin
-config.h
 config.hin
 config.log
 config.status
@@ -36,7 +35,11 @@ STRIFE*.pcx
 /out
 
 # These are the default patterns globally ignored by Subversion:
+.depend
+.built
 *.o
+*.gcno
+*.gcda
 *.lo
 *.la
 *.al
