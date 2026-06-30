@@ -1,108 +1,181 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//	Gamma correction LUT.
-//	Functions to draw patches (by post) directly to screen.
-//	Functions to blit a block to the screen.
-//
-
+/****************************************************************************
+ * apps/games/NXDoom/src/v_video.h
+ *
+ * SPDX-License-Identifier: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  Gamma correction LUT.
+ *  Functions to draw patches (by post) directly to screen.
+ *  Functions to blit a block to the screen.
+ *
+ ****************************************************************************/
 
 #ifndef __V_VIDEO__
 #define __V_VIDEO__
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include "doomtype.h"
 
-// Needed because we are refering to patches.
+/* Needed because we are referring to patches. */
+
 #include "v_patch.h"
 
-//
-// VIDEO
-//
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
-#define CENTERY			(SCREENHEIGHT/2)
+#define CENTERY (SCREENHEIGHT / 2)
 
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 extern int dirtybox[4];
 
 extern byte *tinttable;
 
-// haleyjd 08/28/10: implemented for Strife support
-// haleyjd 08/28/10: Patch clipping callback, implemented to support Choco
-// Strife.
+/* haleyjd 08/28/10: implemented for Strife support
+ * haleyjd 08/28/10: Patch clipping callback, implemented to support Choco
+ * Strife.
+ */
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
 typedef boolean (*vpatchclipfunc_t)(patch_t *, int, int);
-void V_SetPatchClipCallback(vpatchclipfunc_t func);
 
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-// Allocates buffer screens, call before R_Init.
-void V_Init (void);
+void v_set_patch_clip_callback(vpatchclipfunc_t func);
 
-// Draw a block from the specified source screen to the screen.
+/****************************************************************************
+ * Name: v_init
+ *
+ * Description:
+ *  Allocates buffer screens, call before r_init.
+ *
+ ****************************************************************************/
 
-void V_CopyRect(int srcx, int srcy, pixel_t *source,
-                int width, int height,
-                int destx, int desty);
+void v_init(void);
 
-void V_DrawPatch(int x, int y, patch_t *patch);
-void V_DrawPatchFlipped(int x, int y, patch_t *patch);
-void V_DrawTLPatch(int x, int y, patch_t *patch);
-void V_DrawAltTLPatch(int x, int y, patch_t * patch);
-void V_DrawShadowedPatch(int x, int y, patch_t *patch);
-void V_DrawXlaPatch(int x, int y, patch_t * patch);     // villsa [STRIFE]
-void V_DrawPatchDirect(int x, int y, patch_t *patch);
+/****************************************************************************
+ * Name: v_copy_rect
+ *
+ * Description:
+ *  Draw a block from the specified source screen to the screen.
+ *
+ ****************************************************************************/
 
-// Draw a linear block of pixels into the view buffer.
+void v_copy_rect(int srcx, int srcy, pixel_t *source, int width, int height,
+                 int destx, int desty);
 
-void V_DrawBlock(int x, int y, int width, int height, pixel_t *src);
+void v_draw_patch(int x, int y, patch_t *patch);
+void v_draw_patch_flipped(int x, int y, patch_t *patch);
+void v_draw_tl_patch(int x, int y, patch_t *patch);
+void v_draw_alt_tl_patch(int x, int y, patch_t *patch);
+void v_draw_shadowed_patch(int x, int y, patch_t *patch);
+void v_draw_xla_patch(int x, int y, patch_t *patch); /* villsa [STRIFE] */
+void v_draw_patch_direct(int x, int y, patch_t *patch);
 
-void V_MarkRect(int x, int y, int width, int height);
+/****************************************************************************
+ * Name: v_draw_block
+ *
+ * Description:
+ *  Draw a linear block of pixels into the view buffer.
+ *
+ ****************************************************************************/
 
-void V_DrawFilledBox(int x, int y, int w, int h, int c);
-void V_DrawHorizLine(int x, int y, int w, int c);
-void V_DrawVertLine(int x, int y, int h, int c);
-void V_DrawBox(int x, int y, int w, int h, int c);
+void v_draw_block(int x, int y, int width, int height, pixel_t *src);
 
-// Draw a raw screen lump
+void v_mark_rect(int x, int y, int width, int height);
 
-void V_DrawRawScreen(pixel_t *raw);
+void v_draw_filled_box(int x, int y, int w, int h, int c);
+void v_draw_horiz_line(int x, int y, int w, int c);
+void v_draw_vert_line(int x, int y, int h, int c);
+void v_draw_box(int x, int y, int w, int h, int c);
 
-// Temporarily switch to using a different buffer to draw graphics, etc.
+/****************************************************************************
+ * Name: v_draw_raw_screen
+ *
+ * Description:
+ *  Draw a raw screen lump
+ *
+ ****************************************************************************/
 
-void V_UseBuffer(pixel_t *buffer);
+void v_draw_raw_screen(pixel_t *raw);
 
-// Return to using the normal screen buffer to draw graphics.
+/****************************************************************************
+ * Name: v_use_buffer
+ *
+ * Description:
+ *  Temporarily switch to using a different buffer to draw graphics, etc.
+ *
+ ****************************************************************************/
 
-void V_RestoreBuffer(void);
+void v_use_buffer(pixel_t *buffer);
 
-// Save a screenshot of the current screen to a file, named in the 
-// format described in the string passed to the function, eg.
-// "DOOM%02i.pcx"
+/****************************************************************************
+ * Name: v_restore_buffer
+ *
+ * Description:
+ *  Return to using the normal screen buffer to draw graphics.
+ *
+ ****************************************************************************/
 
-void V_ScreenShot(const char *format);
+void v_restore_buffer(void);
 
-// Load the lookup table for translucency calculations from the TINTTAB
-// lump.
+/****************************************************************************
+ * Name: v_screenshot
+ *
+ * Description:
+ *  Save a screenshot of the current screen to a file, named in the format
+ *  described in the string passed to the function, eg. "DOOM%02i.pcx"
+ *
+ ****************************************************************************/
 
-void V_LoadTintTable(void);
+void v_screenshot(const char *format);
 
-// villsa [STRIFE]
-// Load the lookup table for translucency calculations from the XLATAB
-// lump.
+/****************************************************************************
+ * Name: v_load_tint_table
+ *
+ * Description:
+ *  Load the lookup table for translucency calculations from the TINTTAB
+ *  lump.
+ *
+ ****************************************************************************/
 
-void V_LoadXlaTable(void);
+void v_load_tint_table(void);
 
-void V_DrawMouseSpeedBox(int speed);
+/****************************************************************************
+ * Name: v_load_xla_table
+ *
+ * Description:
+ *  villsa [STRIFE]
+ *  Load the lookup table for translucency calculations from the XLATAB lump.
+ *
+ ****************************************************************************/
+
+void v_load_xla_table(void);
+
+void v_draw_mouse_speed_box(int speed);
 
 #endif
-

@@ -1,44 +1,52 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_strut.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_STRUT_H
 #define TXT_STRUT_H
 
-/**
- * @file txt_strut.h
- *
- * Strut widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Strut widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Strut widget.
  *
  * A strut is a widget that takes up a fixed amount of space.  It can
  * be visualised as a transparent box.  Struts are used to provide
  * spacing between widgets.
  */
 
-typedef struct txt_strut_s txt_strut_t;
-
-#include "txt_widget.h"
-
 struct txt_strut_s
 {
-    txt_widget_t widget;
-    int width;
-    int height;
+  txt_widget_t widget;
+  int width;
+  int height;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new strut.
@@ -47,8 +55,6 @@ struct txt_strut_s
  * @param height     Height of the strut, in characters.
  */
 
-txt_strut_t *TXT_NewStrut(int width, int height);
+txt_strut_t *txt_new_strut(int width, int height);
 
-#endif /* #ifndef TXT_STRUT_H */
-
-
+#endif /* TXT_STRUT_H */

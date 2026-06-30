@@ -1,44 +1,56 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-// Handles merging of PWADs, similar to deutex's -merge option
-//
-// Ideally this should work exactly the same as in deutex, but trying to
-// read the deutex source code made my brain hurt.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/w_merge.h
+ *
+ * SPDX-License-Identifier: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ * Handles merging of PWADs, similar to deutex's -merge option
+ *
+ * Ideally this should work exactly the same as in deutex, but trying to
+ * read the deutex source code made my brain hurt.
+ *
+ ****************************************************************************/
 
 #ifndef W_MERGE_H
 #define W_MERGE_H
 
-#define W_NWT_MERGE_SPRITES   0x1
-#define W_NWT_MERGE_FLATS     0x2
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
-// Add a new WAD and merge it into the main directory
+#define W_NWT_MERGE_SPRITES 0x1
+#define W_NWT_MERGE_FLATS 0x2
 
-void W_MergeFile(const char *filename);
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-// NWT-style merging
+/* Add a new WAD and merge it into the main directory */
 
-void W_NWTMergeFile(const char *filename, int flags);
+void w_merge_file(const char *filename);
 
-// Acts the same as NWT's "-merge" option.
+/* NWT-style merging */
 
-void W_NWTDashMerge(const char *filename);
+void w_nwt_merge_file(const char *filename, int flags);
 
-// Debug function that prints the WAD directory.
+/* Acts the same as NWT's "-merge" option. */
 
-void W_PrintDirectory(void);
+void w_nwt_dash_merge(const char *filename);
 
-#endif /* #ifndef W_MERGE_H */
+/* Debug function that prints the WAD directory. */
 
+void w_print_directory(void);
+
+#endif /* W_MERGE_H */

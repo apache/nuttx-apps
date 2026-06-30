@@ -1,209 +1,187 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-// 	The status bar widget code.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/doom/st_lib.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  The status bar widget code.
+ *
+ ****************************************************************************/
 
 #ifndef __STLIB__
 #define __STLIB__
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-// We are referring to patches.
+/* We are referring to patches. */
+
 #include "r_defs.h"
 
-//
-// Typedefs of widgets
-//
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
-// Number widget
+/* Typedefs of widgets */
+
+/* Number widget */
 
 typedef struct
 {
-    // upper right-hand corner
-    //  of the number (right-justified)
-    int		x;
-    int		y;
+  /* upper right-hand corner of the number (right-justified)
+   */
 
-    // max # of digits in number
-    int width;    
+  int x;
+  int y;
 
-    // last number value
-    int		oldnum;
-    
-    // pointer to current value
-    int*	num;
+  /* max # of digits in number */
 
-    // pointer to boolean stating
-    //  whether to update number
-    boolean*	on;
+  int width;
 
-    // list of patches for 0-9
-    patch_t**	p;
+  /* last number value */
 
-    // user data
-    int data;
-    
+  int oldnum;
+
+  /* pointer to current value */
+
+  int *num;
+
+  /* pointer to boolean stating whether to update number */
+
+  boolean *on;
+
+  /* list of patches for 0-9 */
+
+  patch_t **p;
+
+  /* user data */
+
+  int data;
 } st_number_t;
 
+/* Percent widget ("child" of number widget, or, more precisely, contains a
+ * number widget.)
+ */
 
-
-// Percent widget ("child" of number widget,
-//  or, more precisely, contains a number widget.)
 typedef struct
 {
-    // number information
-    st_number_t		n;
+  /* number information */
 
-    // percent sign graphic
-    patch_t*		p;
-    
+  st_number_t n;
+
+  /* percent sign graphic */
+
+  patch_t *p;
 } st_percent_t;
 
+/* Multiple Icon widget */
 
-
-// Multiple Icon widget
 typedef struct
 {
-     // center-justified location of icons
-    int			x;
-    int			y;
+  /* center-justified location of icons */
 
-    // last icon number
-    int			oldinum;
+  int x;
+  int y;
 
-    // pointer to current icon
-    int*		inum;
+  /* last icon number */
 
-    // pointer to boolean stating
-    //  whether to update icon
-    boolean*		on;
+  int oldinum;
 
-    // list of icons
-    patch_t**		p;
-    
-    // user data
-    int			data;
-    
+  /* pointer to current icon */
+
+  int *inum;
+
+  /* pointer to boolean stating whether to update icon */
+
+  boolean *on;
+
+  /* list of icons */
+
+  patch_t **p;
+
+  /* user data */
+
+  int data;
 } st_multicon_t;
 
-
-
-
-// Binary Icon widget
+/* Binary Icon widget */
 
 typedef struct
 {
-    // center-justified location of icon
-    int			x;
-    int			y;
+  /* center-justified location of icon */
 
-    // last icon value
-    boolean		oldval;
+  int x;
+  int y;
 
-    // pointer to current icon status
-    boolean*		val;
+  /* last icon value */
 
-    // pointer to boolean
-    //  stating whether to update icon
-    boolean*		on;  
+  boolean oldval;
 
+  /* pointer to current icon status */
 
-    patch_t*		p;	// icon
-    int			data;   // user data
-    
+  boolean *val;
+
+  /* pointer to boolean stating whether to update icon */
+
+  boolean *on;
+
+  patch_t *p; /* icon */
+  int data;   /* user data */
 } st_binicon_t;
 
+/* Widget creation, access, and update routines */
 
+/* Initializes widget library.
+ * More precisely, initialize STMINUS,
+ *  everything else is done somewhere else.
+ */
 
-//
-// Widget creation, access, and update routines
-//
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-// Initializes widget library.
-// More precisely, initialize STMINUS,
-//  everything else is done somewhere else.
-//
-void STlib_init(void);
+void stlib_init(void);
 
+/* Number widget routines */
 
+void stlib_init_num(st_number_t *n, int x, int y, patch_t **pl, int *num,
+                    boolean *on, int width);
 
-// Number widget routines
-void
-STlib_initNum
-( st_number_t*		n,
-  int			x,
-  int			y,
-  patch_t**		pl,
-  int*			num,
-  boolean*		on,
-  int			width );
+void stlib_update_num(st_number_t *n, boolean refresh);
 
-void
-STlib_updateNum
-( st_number_t*		n,
-  boolean		refresh );
+/* Percent widget routines */
 
+void stlib_init_percent(st_percent_t *p, int x, int y, patch_t **pl,
+        int *num, boolean *on, patch_t *percent);
 
-// Percent widget routines
-void
-STlib_initPercent
-( st_percent_t*		p,
-  int			x,
-  int			y,
-  patch_t**		pl,
-  int*			num,
-  boolean*		on,
-  patch_t*		percent );
+void stlib_update_percent(st_percent_t *per, int refresh);
 
+/* Multiple Icon widget routines */
 
-void
-STlib_updatePercent
-( st_percent_t*		per,
-  int			refresh );
+void stlib_init_mutl_icon(st_multicon_t *mi, int x, int y, patch_t **il,
+                          int *inum, boolean *on);
 
+void stlib_update_mult_icon(st_multicon_t *mi, boolean refresh);
 
-// Multiple Icon widget routines
-void
-STlib_initMultIcon
-( st_multicon_t*	mi,
-  int			x,
-  int			y,
-  patch_t**		il,
-  int*			inum,
-  boolean*		on );
+/* Binary Icon widget routines */
 
+void stlib_init_bin_icon(st_binicon_t *b, int x, int y, patch_t *i,
+                         boolean *val, boolean *on);
 
-void
-STlib_updateMultIcon
-( st_multicon_t*	mi,
-  boolean		refresh );
+void stlib_update_bin_icon(st_binicon_t *bi, boolean refresh);
 
-// Binary Icon widget routines
-
-void
-STlib_initBinIcon
-( st_binicon_t*		b,
-  int			x,
-  int			y,
-  patch_t*		i,
-  boolean*		val,
-  boolean*		on );
-
-void
-STlib_updateBinIcon
-( st_binicon_t*		bi,
-  boolean		refresh );
-
-#endif
+#endif /* __STLIB__ */

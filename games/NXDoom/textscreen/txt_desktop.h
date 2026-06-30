@@ -1,37 +1,48 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_desktop.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_DESKTOP_H
 #define TXT_DESKTOP_H
 
-/**
- * @file txt_desktop.h
- *
- * Textscreen desktop.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include "txt_window.h"
 
-typedef void (*TxtIdleCallback)(void *user_data);
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
-void TXT_AddDesktopWindow(txt_window_t *win);
-void TXT_RemoveDesktopWindow(txt_window_t *win);
-void TXT_DrawDesktop(void);
-void TXT_DispatchEvents(void);
-void TXT_DrawWindow(txt_window_t *window);
-void TXT_SetWindowFocus(txt_window_t *window, int focused);
-int TXT_WindowKeyPress(txt_window_t *window, int c);
+typedef void (*txt_idle_callback_f)(void *user_data);
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+void txt_add_desktop_window(txt_window_t *win);
+void txt_remove_desktop_window(txt_window_t *win);
+void txt_draw_desktop(void);
+void txt_dispatch_events(void);
+void txt_draw_window(txt_window_t *window);
+void txt_set_window_focus(txt_window_t *window, int focused);
+int txt_window_keypress(txt_window_t *window, int c);
 
 /**
  * Set the title displayed at the top of the screen.
@@ -39,14 +50,7 @@ int TXT_WindowKeyPress(txt_window_t *window, int c);
  * @param title         The title to display (UTF-8 format).
  */
 
-void TXT_SetDesktopTitle(const char *title);
-
-/**
- * Exit the currently-running main loop and return from the
- * @ref TXT_GUIMainLoop function.
- */
-
-void TXT_ExitMainLoop(void);
+void txt_set_desktop_title(const char *title);
 
 /**
  * Start the main event loop.  At least one window must have been
@@ -57,7 +61,7 @@ void TXT_ExitMainLoop(void);
  * @ref TXT_ExitMainLoop function.
  */
 
-void TXT_GUIMainLoop(void);
+void txt_gui_mainloop(void);
 
 /**
  * Get the top window on the desktop that is currently receiving
@@ -66,7 +70,7 @@ void TXT_GUIMainLoop(void);
  * @return    The active window, or NULL if no windows are present.
  */
 
-txt_window_t *TXT_GetActiveWindow(void);
+txt_window_t *txt_get_active_window(void);
 
 /**
  * Set a callback function to be invoked periodically by the main
@@ -80,20 +84,8 @@ txt_window_t *TXT_GetActiveWindow(void);
  *                      to be invoked at least once every 200ms.
  */
 
-void TXT_SetPeriodicCallback(TxtIdleCallback callback,
-                             void *user_data,
+void txt_set_periodic_callback(txt_idle_callback_f callback, void *user_data,
                              unsigned int period);
-
-/**
- * Raise the z-position of the given window relative to other windows.
- *
- * @param window        The window to raise.
- * @return              Non-zero if the window was raised successfully,
- *                      or zero if the window could not be raised further.
- */
-
-int TXT_RaiseWindow(txt_window_t *window);
-
 /**
  * Lower the z-position of the given window relative to other windows.
  *
@@ -102,7 +94,6 @@ int TXT_RaiseWindow(txt_window_t *window);
  *                      or zero if the window could not be lowered further.
  */
 
-int TXT_LowerWindow(txt_window_t *window);
+int txt_lower_window(txt_window_t *window);
 
-#endif /* #ifndef TXT_DESKTOP_H */
-
+#endif /* TXT_DESKTOP_H */

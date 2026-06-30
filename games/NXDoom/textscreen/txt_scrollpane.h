@@ -1,46 +1,58 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_scrollpane.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *
+ ****************************************************************************/
 
 #ifndef TXT_SCROLLPANE_H
 #define TXT_SCROLLPANE_H
 
-/**
- * @file txt_scrollpane.h
- *
- * Scrollable pane widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Scrollable pane widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Scrollable pane widget.
  *
  * A scrollable pane widget is a widget that contains another widget
  * that is larger than it.  Scroll bars appear on the side to allow
  * different areas of the contained widget to be seen.
  */
 
-typedef struct txt_scrollpane_s txt_scrollpane_t;
-
-#include "txt_widget.h"
-
 struct txt_scrollpane_s
 {
-    txt_widget_t widget;
-    int w, h;
-    int x, y;
-    int expand_w, expand_h;
-    txt_widget_t *child;
+  txt_widget_t widget;
+  int w;
+  int h;
+  int x;
+  int y;
+  int expand_w;
+  int expand_h;
+  txt_widget_t *child;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new scroll pane widget.
@@ -52,8 +64,6 @@ struct txt_scrollpane_s
  * @return                Pointer to the new scroll pane widget.
  */
 
-txt_scrollpane_t *TXT_NewScrollPane(int w, int h, TXT_UNCAST_ARG(target));
+txt_scrollpane_t *txt_new_scrollpane(int w, int h, TXT_UNCAST_ARG(target));
 
-#endif /* #ifndef TXT_SCROLLPANE_H */
-
-
+#endif /* TXT_SCROLLPANE_H */

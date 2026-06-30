@@ -1,85 +1,120 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// Definitions for use in the dehacked code
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/deh_defs.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * Definitions for use in the dehacked code
+ *
+ ****************************************************************************/
 
 #ifndef DEH_DEFS_H
 #define DEH_DEFS_H
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include "sha1.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 typedef struct deh_context_s deh_context_t;
 typedef struct deh_section_s deh_section_t;
 typedef void (*deh_section_init_t)(void);
 typedef void *(*deh_section_start_t)(deh_context_t *context, char *line);
 typedef void (*deh_section_end_t)(deh_context_t *context, void *tag);
-typedef void (*deh_line_parser_t)(deh_context_t *context, char *line, void *tag);
-typedef void (*deh_sha1_hash_t)(sha1_context_t *context);
+typedef void (*deh_line_parser_t)(deh_context_t *context, char *line,
+                                  void *tag);
+typedef void (*deh_sha1_hash_t)(SHA1_CTX *context);
 
 struct deh_section_s
 {
-    const char *name;
+  const char *name;
 
-    // Called on startup to initialize code
+  /* Called on startup to initialize code */
 
-    deh_section_init_t init;
-    
-    // This is called when a new section is started.  The pointer
-    // returned is used as a tag for the following calls.
+  deh_section_init_t init;
 
-    deh_section_start_t start;
+  /* This is called when a new section is started.  The pointer
+   * returned is used as a tag for the following calls.
+   */
 
-    // This is called for each line in the section
+  deh_section_start_t start;
 
-    deh_line_parser_t line_parser;
+  /* This is called for each line in the section */
 
-    // This is called at the end of the section for any cleanup
+  deh_line_parser_t line_parser;
 
-    deh_section_end_t end;
+  /* This is called at the end of the section for any cleanup */
 
-    // Called when generating an SHA1 sum of the dehacked state
+  deh_section_end_t end;
 
-    deh_sha1_hash_t sha1_hash;
+  /* Called when generating an SHA1 sum of the dehacked state */
+
+  deh_sha1_hash_t sha1_hash;
 };
 
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 extern deh_section_t *deh_section_types[];
 extern const char *deh_signatures[];
 
-// deh_ammo.c:
+/* deh_ammo.c: */
+
 extern deh_section_t deh_section_ammo;
-// deh_cheat.c:
+
+/* deh_cheat.c: */
+
 extern deh_section_t deh_section_cheat;
-// deh_frame.c:
+
+/* deh_frame.c: */
+
 extern deh_section_t deh_section_frame;
-// deh_misc.c:
+
+/* deh_misc.c: */
+
 extern deh_section_t deh_section_misc;
-// deh_ptr.c:
+
+/* deh_ptr.c: */
+
 extern deh_section_t deh_section_pointer;
-// deh_sound.c
+
+/* deh_sound.c */
+
+#ifdef CONFIG_GAMES_NXDOOM_SOUND
 extern deh_section_t deh_section_sound;
-// deh_text.c:
+#endif
+
+/* deh_text.c: */
+
 extern deh_section_t deh_section_text;
-// deh_thing.c:
+
+/* deh_thing.c: */
+
 extern deh_section_t deh_section_thing;
-// deh_weapon.c:
+
+/* deh_weapon.c: */
+
 extern deh_section_t deh_section_weapon;
-// deh_bexstr.c:
+
+/* deh_bexstr.c: */
+
 extern deh_section_t deh_section_bexstr;
 
-
-#endif /* #ifndef DEH_DEFS_H */
-
-
+#endif /* DEH_DEFS_H */

@@ -1,0 +1,3 @@
+ifneq ($(CONFIG_GAMES_NXDOOM),)
+CONFIGURED_APPS += $(APPDIR)/games/NXDoom
+endif
