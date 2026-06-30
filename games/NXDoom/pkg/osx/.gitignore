@@ -1,0 +1,10 @@
+Info.plist
+app.iconset
+app.icns
+wadfile.iconset
+wadfile.icns
+launcher
+*.o
+*.d
+*.dmg
+staging
