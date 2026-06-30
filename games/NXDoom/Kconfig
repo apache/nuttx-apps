@@ -1,0 +1,187 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config GAMES_NXDOOM
+	bool "NXDoom"
+	default n
+	depends on ALLOW_GPL_COMPONENTS
+	depends on VIDEO_FB
+	depends on CRYPTO
+	---help---
+		Play DOOM on NuttX!
+
+if GAMES_NXDOOM
+
+comment "Program options"
+
+config GAMES_NXDOOM_PRIORITY
+	int "Priority"
+	default 100
+	---help---
+		The task priority for the NXDoom application.
+
+config GAMES_NXDOOM_STACKSIZE
+	int "Stack size"
+	default 4096
+	---help---
+		The stack size for the NXDoom application.
+
+comment "General game options"
+
+choice # Language
+	prompt "Game language"
+	default GAMES_NXDOOM_LANG_EN
+
+	config GAMES_NXDOOM_LANG_EN
+		bool "English"
+		---help---
+			English language support (original).
+
+	config GAMES_NXDOOM_LANG_FR
+		bool "French"
+		---help---
+			French language support.
+endchoice # Language
+
+config GAMES_NXDOOM_PREFDIR
+	string "DOOM data directory"
+	default "/data"
+	---help---
+		Directory where DOOM WAD files are stored.
+
+config GAMES_NXDOOM_ENDOOM
+	bool "Show ENDOOM"
+	default n
+	---help---
+		Show the ENDOOM screen (https://www.doomwiki.org/wiki/ENDOOM).
+
+comment "Networking options"
+
+config GAMES_NXDOOM_NET
+	bool "Enable network features"
+	default n
+	---help---
+		Not ported! Will not work.
+
+if GAMES_NXDOOM_NET
+
+config GAMES_NXDOOM_NET_LOGS
+	bool "Enable network logging"
+	default n
+	---help---
+		Enables log information from the network features.
+
+config GAMES_NXDOOM_NET_MAXPLAYERS
+	int "Maximum number of players"
+	default 6
+	---help---
+        The maximum number of players, multiplayer/networking.
+		This is the maximum supported by the networking code; individual games
+		have their own values for MAXPLAYERS that can be smaller.
+		ChocolateDOOM default was 8.
+
+config GAMES_NXDOOM_NET_BACKUPTICS
+	int "Maximum number of backup tics"
+	default 32
+	---help---
+		The maximum number of backup tics to store locally during a net game.
+		ChocalateDOOM default was 128.
+
+config GAMES_NXDOOM_NET_MAXPLAYERNAME
+	int "Maximum player name length"
+	default 16
+	---help---
+		The maximum number of characters in a player name for netgames.
+		ChocalateDOOM default was 30.
+
+endif # GAMES_NXDOOM_NET
+
+comment "Sound options"
+
+config GAMES_NXDOOM_SOUND
+	bool "Enable sound features"
+	default n
+	---help---
+		Not ported! Will not work.
+
+comment "Graphics options"
+
+config GAMES_NXDOOM_FBPATH
+	string "Framebuffer path"
+	default "/dev/fb0"
+	---help---
+		Path to the framebuffer character driver to use for rendering.
+
+comment "Input options"
+
+choice # Input method
+	prompt "NXDoom input method"
+	default GAMES_NXDOOM_KEYBOARD
+
+	config GAMES_NXDOOM_KEYBOARD
+		bool "Keyboard"
+		---help---
+			Use a NuttX keyboard character driver.
+
+endchoice # Input method
+
+if GAMES_NXDOOM_KEYBOARD
+
+config GAMES_NXDOOM_KBDPATH
+	string "Keyboard device path"
+	default "/dev/kbd0"
+	---help---
+		Path to the keyboard device to use as input.
+
+endif # GAMES_NXDOOM_KEYBOARD
+
+comment "Optimizations"
+
+config GAMES_NXDOOM_MAXVISPLANES
+	int "Maximum number of visplanes"
+	default 96
+	---help---
+		DOOM allocates a static number of 'visplanes' to use for gameplay. The
+		original ChocolateDOOM source uses 128 of these. They take a significant
+		amount of memory, so you may reduce the number. However, too few planes
+		may cause 'visplane overflow' errors, which is more common in complex
+		levels.
+
+config GAMES_NXDOOM_MAXOPENINGS
+	int "Maximum number of openings"
+	default 32
+	---help---
+		DOOM allocates a static number of 'openings' to use for gameplay. These
+		are defined as multiples of the SCREENWIDTH (320). The original
+		ChocolateDOOM source uses 64 as the multiplier. They take a significant
+		amount of memory, so you may reduce the number. However, too few
+		openings will cause 'opening overflow' errors.
+
+config GAMES_NXDOOM_MAXVISSPRITES
+	int "Maximum number of visible sprites"
+	default 96
+	---help---
+		DOOM allocates a static number of 'vissprites' to use for gameplay. The
+		original ChocolateDOOM source uses 128. They take a significant amount
+		of memory, so you may reduce the number. However, too few will cause
+		overflow errors.
+
+config GAMES_NXDOOM_MAXDRAWSEGS
+	int "Maximum number of drawsegs"
+	default 192
+	---help---
+		DOOM allocates a static number of 'drawsegs' to use for gameplay. The
+		original ChocolateDOOM source uses 256. They take a significant amount of
+		memory, so you may reduce the number. However, too few will cause
+		rendering issues (overflow is checked to avoid crashes).
+
+config GAMES_NXDOOM_RANGECHECK
+	bool "Perform range checks"
+	default y
+	---help---
+		The ChocolateDOOM source includes the ability to optionally exclude
+		range checking on some array operations.
+
+endif # GAMES_NXDOOM

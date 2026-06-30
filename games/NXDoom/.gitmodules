@@ -1,3 +1,0 @@
-[submodule "quickcheck"]
-	path = quickcheck
-	url = https://github.com/chocolate-doom/quickcheck.git

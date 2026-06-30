@@ -1,104 +1,107 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//	System specific interface stuff.
-//
-
+/****************************************************************************
+ * apps/games/NXDoom/src/doom/r_draw.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  System specific interface stuff.
+ *
+ ****************************************************************************/
 
 #ifndef __R_DRAW__
 #define __R_DRAW__
 
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
+extern lighttable_t *dc_colormap;
+extern int dc_x;
+extern int dc_yl;
+extern int dc_yh;
+extern fixed_t dc_iscale;
+extern fixed_t dc_texturemid;
 
+/* first pixel in a column */
 
-extern lighttable_t*	dc_colormap;
-extern int		dc_x;
-extern int		dc_yl;
-extern int		dc_yh;
-extern fixed_t		dc_iscale;
-extern fixed_t		dc_texturemid;
+extern byte *dc_source;
 
-// first pixel in a column
-extern byte*		dc_source;		
+extern int ds_y;
+extern int ds_x1;
+extern int ds_x2;
 
+extern lighttable_t *ds_colormap;
 
-// The span blitting interface.
-// Hook in assembler or system specific BLT
-//  here.
-void 	R_DrawColumn (void);
-void 	R_DrawColumnLow (void);
+extern fixed_t ds_xfrac;
+extern fixed_t ds_yfrac;
+extern fixed_t ds_xstep;
+extern fixed_t ds_ystep;
 
-// The Spectre/Invisibility effect.
-void 	R_DrawFuzzColumn (void);
-void 	R_DrawFuzzColumnLow (void);
+/* start of a 64*64 tile image */
 
-// Draw with color translation tables,
-//  for player sprite rendering,
-//  Green/Red/Blue/Indigo shirts.
-void	R_DrawTranslatedColumn (void);
-void	R_DrawTranslatedColumnLow (void);
+extern byte *ds_source;
 
-void
-R_VideoErase
-( unsigned	ofs,
-  int		count );
+extern byte *translationtables;
+extern byte *dc_translation;
 
-extern int		ds_y;
-extern int		ds_x1;
-extern int		ds_x2;
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-extern lighttable_t*	ds_colormap;
+/* Span blitting for rows, floor/ceiling. No Spectre effect needed. */
 
-extern fixed_t		ds_xfrac;
-extern fixed_t		ds_yfrac;
-extern fixed_t		ds_xstep;
-extern fixed_t		ds_ystep;
+void r_draw_span(void);
 
-// start of a 64*64 tile image
-extern byte*		ds_source;		
+/* Low resolution mode, 160x200? */
 
-extern byte*		translationtables;
-extern byte*		dc_translation;
+void r_draw_span_low(void);
 
+void r_init_buffer(int width, int height);
 
-// Span blitting for rows, floor/ceiling.
-// No Sepctre effect needed.
-void 	R_DrawSpan (void);
+/* Initialize color translation tables, for player rendering etc. */
 
-// Low resolution mode, 160x200?
-void 	R_DrawSpanLow (void);
+void r_init_translation_table(void);
 
+/* Rendering function. */
 
-void
-R_InitBuffer
-( int		width,
-  int		height );
+void r_fill_back_screen(void);
 
+/* If the view size is not full screen, draws a border around it. */
 
-// Initialize color translation tables,
-//  for player rendering etc.
-void	R_InitTranslationTables (void);
+void r_draw_view_border(void);
 
+/* The span blitting interface.
+ * Hook in assembler or system specific BLT here.
+ */
 
+void r_draw_column(void);
+void r_draw_column_low(void);
 
-// Rendering function.
-void R_FillBackScreen (void);
+/* The Spectre/Invisibility effect. */
 
-// If the view size is not full screen, draws a border around it.
-void R_DrawViewBorder (void);
+void r_draw_fuzz_column(void);
+void r_draw_fuzz_column_low(void);
 
+/* Draw with color translation tables, for player sprite rendering,
+ * Green/Red/Blue/Indigo shirts.
+ */
 
+void r_draw_translated_column(void);
+void r_draw_translated_column_low(void);
 
-#endif
+void r_video_erase(unsigned ofs, int count);
+
+#endif /* __R_DRAW__ */

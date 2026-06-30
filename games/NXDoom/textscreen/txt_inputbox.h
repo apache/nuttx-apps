@@ -1,28 +1,36 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_inputbox.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_INPUTBOX_H
 #define TXT_INPUTBOX_H
 
-/**
- * @file txt_inputbox.h
- *
- * Input box widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Input box widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Input box widget.
  *
  * An input box is a widget that displays a value, which can be
  * selected to enter a new value.
@@ -30,19 +38,19 @@
  * Input box widgets can be of an integer or string type.
  */
 
-typedef struct txt_inputbox_s txt_inputbox_t;
-
-#include "txt_widget.h"
-
 struct txt_inputbox_s
 {
-    txt_widget_t widget;
-    char *buffer;
-    size_t buffer_len;
-    unsigned int size;
-    int editing;
-    void *value;
+  txt_widget_t widget;
+  char *buffer;
+  size_t buffer_len;
+  unsigned int size;
+  int editing;
+  void *value;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new input box widget for controlling a string value.
@@ -58,7 +66,7 @@ struct txt_inputbox_s
  * @return              Pointer to the new input box widget.
  */
 
-txt_inputbox_t *TXT_NewInputBox(char **value, int size);
+txt_inputbox_t *txt_new_input_box(char **value, int size);
 
 /**
  * Create a new input box widget for controlling an integer value.
@@ -69,8 +77,6 @@ txt_inputbox_t *TXT_NewInputBox(char **value, int size);
  * @return              Pointer to the new input box widget.
  */
 
-txt_inputbox_t *TXT_NewIntInputBox(int *value, int size);
+txt_inputbox_t *txt_new_int_input_box(int *value, int size);
 
-#endif /* #ifndef TXT_INPUTBOX_H */
-
-
+#endif /* TXT_INPUTBOX_H */

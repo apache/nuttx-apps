@@ -1,42 +1,50 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_button.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_BUTTON_H
 #define TXT_BUTTON_H
 
-/**
- * @file txt_button.h
- *
- * Button widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Button widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Button widget.
  *
  * A button is a widget that can be selected to perform some action.
  * When a button is pressed, it emits the "pressed" signal.
  */
 
-typedef struct txt_button_s txt_button_t;
-
-#include "txt_widget.h"
-
 struct txt_button_s
 {
-    txt_widget_t widget;
-    char *label;
+  txt_widget_t widget;
+  char *label;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new button widget.
@@ -45,7 +53,7 @@ struct txt_button_s
  * @return             Pointer to the new button widget.
  */
 
-txt_button_t *TXT_NewButton(const char *label);
+txt_button_t *txt_new_button(const char *label);
 
 /**
  * Create a new button widget, binding the "pressed" signal to a
@@ -57,8 +65,8 @@ txt_button_t *TXT_NewButton(const char *label);
  * @return             Pointer to the new button widget.
  */
 
-txt_button_t *TXT_NewButton2(const char *label, TxtWidgetSignalFunc func,
-                             void *user_data);
+txt_button_t *txt_new_button2(const char *label, txt_widget_signal_f func,
+                              void *user_data);
 
 /**
  * Change the label used on a button.
@@ -67,8 +75,6 @@ txt_button_t *TXT_NewButton2(const char *label, TxtWidgetSignalFunc func,
  * @param label        The new label (UTF-8 format).
  */
 
-void TXT_SetButtonLabel(txt_button_t *button, const char *label);
+void txt_set_button_label(txt_button_t *button, const char *label);
 
-#endif /* #ifndef TXT_BUTTON_H */
-
-
+#endif /* TXT_BUTTON_H */

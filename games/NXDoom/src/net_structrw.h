@@ -1,55 +1,80 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/net_structrw.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef NET_STRUCTRW_H
 #define NET_STRUCTRW_H
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include "aes_prng.h"
-#include "sha1.h"
 #include "net_defs.h"
 #include "net_packet.h"
+#include "sha1.h"
 
-void NET_WriteConnectData(net_packet_t *packet, net_connect_data_t *data);
-boolean NET_ReadConnectData(net_packet_t *packet, net_connect_data_t *data);
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-extern void NET_WriteSettings(net_packet_t *packet, net_gamesettings_t *settings);
-extern boolean NET_ReadSettings(net_packet_t *packet, net_gamesettings_t *settings);
+void net_write_connect_data(net_packet_t *packet, net_connect_data_t *data);
+boolean net_read_connect_data(net_packet_t *packet,
+        net_connect_data_t *data);
 
-extern void NET_WriteQueryData(net_packet_t *packet, net_querydata_t *querydata);
-extern boolean NET_ReadQueryData(net_packet_t *packet, net_querydata_t *querydata);
+extern void net_write_settings(net_packet_t *packet,
+                              net_gamesettings_t *settings);
+extern boolean net_read_settings(net_packet_t *packet,
+                                net_gamesettings_t *settings);
 
-extern void NET_WriteTiccmdDiff(net_packet_t *packet, net_ticdiff_t *diff, boolean lowres_turn);
-extern boolean NET_ReadTiccmdDiff(net_packet_t *packet, net_ticdiff_t *diff, boolean lowres_turn);
-extern void NET_TiccmdDiff(ticcmd_t *tic1, ticcmd_t *tic2, net_ticdiff_t *diff);
-extern void NET_TiccmdPatch(ticcmd_t *src, net_ticdiff_t *diff, ticcmd_t *dest);
+extern void net_write_query_data(net_packet_t *packet,
+                               net_querydata_t *querydata);
+extern boolean net_read_query_data(net_packet_t *packet,
+                                 net_querydata_t *querydata);
 
-boolean NET_ReadFullTiccmd(net_packet_t *packet, net_full_ticcmd_t *cmd, boolean lowres_turn);
-void NET_WriteFullTiccmd(net_packet_t *packet, net_full_ticcmd_t *cmd, boolean lowres_turn);
+extern void net_write_ticcmd_diff(net_packet_t *packet, net_ticdiff_t *diff,
+                                boolean lowres_turn);
+extern boolean net_read_ticcmd_diff(net_packet_t *packet,
+        net_ticdiff_t *diff, boolean lowres_turn);
+extern void net_ticcmd_diff(ticcmd_t *tic1, ticcmd_t *tic2,
+                           net_ticdiff_t *diff);
+extern void net_ticcmd_patch(ticcmd_t *src, net_ticdiff_t *diff,
+                            ticcmd_t *dest);
 
-boolean NET_ReadSHA1Sum(net_packet_t *packet, sha1_digest_t digest);
-void NET_WriteSHA1Sum(net_packet_t *packet, sha1_digest_t digest);
+boolean net_read_full_ticcmd(net_packet_t *packet, net_full_ticcmd_t *cmd,
+                           boolean lowres_turn);
+void net_write_full_ticcmd(net_packet_t *packet, net_full_ticcmd_t *cmd,
+                         boolean lowres_turn);
 
-void NET_WriteWaitData(net_packet_t *packet, net_waitdata_t *data);
-boolean NET_ReadWaitData(net_packet_t *packet, net_waitdata_t *data);
+boolean net_read_sha1_sum(net_packet_t *packet, sha1_digest_t digest);
+void net_write_sha1_sum(net_packet_t *packet, sha1_digest_t digest);
 
-boolean NET_ReadPRNGSeed(net_packet_t *packet, prng_seed_t seed);
-void NET_WritePRNGSeed(net_packet_t *packet, prng_seed_t seed);
+void net_write_wait_data(net_packet_t *packet, net_waitdata_t *data);
+boolean net_read_wait_data(net_packet_t *packet, net_waitdata_t *data);
 
-// Protocol list exchange.
-net_protocol_t NET_ReadProtocol(net_packet_t *packet);
-void NET_WriteProtocol(net_packet_t *packet, net_protocol_t protocol);
-net_protocol_t NET_ReadProtocolList(net_packet_t *packet);
-void NET_WriteProtocolList(net_packet_t *packet);
+boolean net_read_prng_seed(net_packet_t *packet, prng_seed_t seed);
+void net_write_prng_seed(net_packet_t *packet, prng_seed_t seed);
 
-#endif /* #ifndef NET_STRUCTRW_H */
+/* Protocol list exchange. */
+
+net_protocol_t net_read_protocol(net_packet_t *packet);
+void net_write_protocol(net_packet_t *packet, net_protocol_t protocol);
+net_protocol_t net_read_protocol_list(net_packet_t *packet);
+void net_write_protocol_list(net_packet_t *packet);
+
+#endif /* NET_STRUCTRW_H */

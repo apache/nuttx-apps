@@ -1,22 +1,31 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 1993-2008 Raven Software
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/m_controls.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 1993-2008 Raven Software
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef __M_CONTROLS_H__
 #define __M_CONTROLS_H__
- 
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
 extern int key_right;
 extern int key_left;
 
@@ -30,7 +39,7 @@ extern int key_strafe;
 extern int key_speed;
 
 extern int key_jump;
- 
+
 extern int key_flyup;
 extern int key_flydown;
 extern int key_flycenter;
@@ -41,7 +50,8 @@ extern int key_invleft;
 extern int key_invright;
 extern int key_useartifact;
 
-// villsa [STRIFE] strife keys
+/* villsa [STRIFE] strife keys */
+
 extern int key_usehealth;
 extern int key_invquery;
 extern int key_mission;
@@ -105,7 +115,7 @@ extern int key_map_grid;
 extern int key_map_mark;
 extern int key_map_clearmark;
 
-// menu keys:
+/* menu keys: */
 
 extern int key_menu_activate;
 extern int key_menu_up;
@@ -179,16 +189,19 @@ extern int joybflycenter;
 
 extern int dclick_use;
 
-void M_BindBaseControls(void);
-void M_BindHereticControls(void);
-void M_BindHexenControls(void);
-void M_BindStrifeControls(void);
-void M_BindWeaponControls(void);
-void M_BindMapControls(void);
-void M_BindMenuControls(void);
-void M_BindChatControls(unsigned int num_players);
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-void M_ApplyPlatformDefaults(void);
+void m_bind_base_controls(void);
+void m_bind_heretic_controls(void);
+void m_bind_hexen_controls(void);
+void m_bind_strife_controls(void);
+void m_bind_weapon_controls(void);
+void m_bind_map_controls(void);
+void m_bind_menu_controls(void);
+void m_bind_chat_controls(unsigned int num_players);
 
-#endif /* #ifndef __M_CONTROLS_H__ */
+void m_apply_platform_defaults(void);
 
+#endif /* __M_CONTROLS_H__ */
