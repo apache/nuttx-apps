@@ -1,28 +1,36 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_dropdown.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_DROPDOWN_H
 #define TXT_DROPDOWN_H
 
-/**
- * @file txt_dropdown.h
- *
- * Dropdown list widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Dropdown list widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Dropdown list widget.
  *
  * A dropdown list allows the user to select from a list of values,
  * which appears when the list is selected.
@@ -31,21 +39,17 @@
  * is emitted.
  */
 
-typedef struct txt_dropdown_list_s txt_dropdown_list_t;
-
-#include "txt_widget.h"
-
-//
-// Drop-down list box.
-// 
-
 struct txt_dropdown_list_s
 {
-    txt_widget_t widget;
-    int *variable;
-    const char **values;
-    int num_values;
+  txt_widget_t widget;
+  int *variable;
+  const char **values;
+  int num_values;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new dropdown list widget.
@@ -61,9 +65,7 @@ struct txt_dropdown_list_s
  * @param num_values      The number of variables in the list.
  */
 
-txt_dropdown_list_t *TXT_NewDropdownList(int *variable, 
-                                         const char **values, int num_values);
+txt_dropdown_list_t *txt_new_dropdown_list(int *variable,
+        const char **values, int num_values);
 
-#endif /* #ifndef TXT_DROPDOWN_H */
-
-
+#endif /* TXT_DROPDOWN_H */

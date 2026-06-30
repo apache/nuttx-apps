@@ -1,25 +1,35 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_label.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_LABEL_H
 #define TXT_LABEL_H
 
-/**
- * @file txt_label.h
- *
- * Text label widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include "txt_main.h"
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 /**
  * Label widget.
@@ -29,18 +39,20 @@
 
 typedef struct txt_label_s txt_label_t;
 
-#include "txt_main.h"
-#include "txt_widget.h"
-
 struct txt_label_s
 {
-    txt_widget_t widget;
-    char *label;
-    char **lines;
-    unsigned int w, h;
-    int fgcolor;
-    int bgcolor;
+  txt_widget_t widget;
+  char *label;
+  char **lines;
+  unsigned int w;
+  unsigned int h;
+  int fgcolor;
+  int bgcolor;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new label widget.
@@ -49,7 +61,7 @@ struct txt_label_s
  * @return              Pointer to the new label widget.
  */
 
-txt_label_t *TXT_NewLabel(const char *label);
+txt_label_t *txt_new_label(const char *label);
 
 /**
  * Set the string displayed in a label widget.
@@ -58,16 +70,7 @@ txt_label_t *TXT_NewLabel(const char *label);
  * @param value         The string to display (UTF-8 format).
  */
 
-void TXT_SetLabel(txt_label_t *label, const char *value);
-
-/**
- * Set the background color of a label widget.
- *
- * @param label         The widget.
- * @param color         The background color to use.
- */
-
-void TXT_SetBGColor(txt_label_t *label, txt_color_t color);
+void txt_set_label(txt_label_t *label, const char *value);
 
 /**
  * Set the foreground color of a label widget.
@@ -76,8 +79,6 @@ void TXT_SetBGColor(txt_label_t *label, txt_color_t color);
  * @param color         The foreground color to use.
  */
 
-void TXT_SetFGColor(txt_label_t *label, txt_color_t color);
+void txt_set_fg_colour(txt_label_t *label, txt_color_t color);
 
-#endif /* #ifndef TXT_LABEL_H */
-
-
+#endif /* TXT_LABEL_H */

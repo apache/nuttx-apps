@@ -1,26 +1,35 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// Graphical stuff related to the networking code:
-//
-//  * The client waiting screen when we are waiting for the server to
-//    start the game.
-//   
+/****************************************************************************
+ * apps/games/NXDoom/src/net_gui.c
+ *
+ * SPDX-License-Identifier: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * Graphical stuff related to the networking code:
+ *
+ *  * The client waiting screen when we are waiting for the server to
+ *    start the game.
+ *
+ ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "config.h"
 #include "doomkeys.h"
@@ -38,397 +47,423 @@
 
 #include "textscreen.h"
 
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
 static txt_window_t *window;
 static int old_max_players;
-static txt_label_t *player_labels[NET_MAXPLAYERS];
-static txt_label_t *ip_labels[NET_MAXPLAYERS];
+static txt_label_t *player_labels[CONFIG_GAMES_NXDOOM_NET_MAXPLAYERS];
+static txt_label_t *ip_labels[CONFIG_GAMES_NXDOOM_NET_MAXPLAYERS];
 static txt_label_t *drone_label;
 static txt_label_t *master_msg_label;
 static boolean had_warning;
 
-// Number of players we expect to be in the game. When the number is
-// reached, we auto-start the game (if we're the controller). If
-// zero, do not autostart.
+/* Number of players we expect to be in the game. When the number is
+ * reached, we auto-start the game (if we're the controller). If
+ * zero, do not autostart.
+ */
+
 static int expected_nodes;
 
-static void EscapePressed(TXT_UNCAST_ARG(widget), void *unused)
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void escape_pressed(TXT_UNCAST_ARG(widget), void *unused)
 {
-    TXT_Shutdown();
-    I_Quit();
+  txt_shutdown();
+  i_quit();
 }
 
-static void StartGame(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
+static void start_game(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 {
-    NET_CL_LaunchGame();
+  net_cl_launch_game();
 }
 
-static void OpenWaitDialog(void)
+static void open_wait_dialog(void)
 {
-    txt_window_action_t *cancel;
+  txt_window_action_t *cancel;
 
-    TXT_SetDesktopTitle(PACKAGE_STRING);
+  txt_set_desktop_title(PACKAGE_STRING);
 
-    window = TXT_NewWindow("Waiting for game start...");
+  window = txt_new_window("Waiting for game start...");
 
-    TXT_AddWidget(window, TXT_NewLabel("\nPlease wait...\n\n"));
+  txt_add_widget(window, txt_new_label("\nPlease wait...\n\n"));
 
-    cancel = TXT_NewWindowAction(KEY_ESCAPE, "Cancel");
-    TXT_SignalConnect(cancel, "pressed", EscapePressed, NULL);
+  cancel = txt_new_window_action(KEY_ESCAPE, "Cancel");
+  txt_signal_connect(cancel, "pressed", escape_pressed, NULL);
 
-    TXT_SetWindowAction(window, TXT_HORIZ_LEFT, cancel);
-    TXT_SetWindowPosition(window, TXT_HORIZ_CENTER, TXT_VERT_BOTTOM,
-                                  TXT_SCREEN_W / 2, TXT_SCREEN_H - 9);
+  txt_set_window_action(window, TXT_HORIZ_LEFT, cancel);
+  txt_set_window_position(window, TXT_HORIZ_CENTER, TXT_VERT_BOTTOM,
+                          TXT_SCREEN_W / 2, TXT_SCREEN_H - 9);
 
-    old_max_players = 0;
+  old_max_players = 0;
 }
 
-static void BuildWindow(void)
+static void build_window(void)
 {
-    char buf[50];
-    txt_table_t *table;
-    int i;
+  char buf[50];
+  txt_table_t *table;
+  int i;
 
-    TXT_ClearTable(window);
-    table = TXT_NewTable(3);
-    TXT_AddWidget(window, table);
+  txt_clear_table(window);
+  table = txt_new_table(3);
+  txt_add_widget(window, table);
 
-    // Add spacers
+  /* Add spacers */
 
-    TXT_AddWidget(table, NULL);
-    TXT_AddWidget(table, TXT_NewStrut(25, 1));
-    TXT_AddWidget(table, TXT_NewStrut(17, 1));
+  txt_add_widget(table, NULL);
+  txt_add_widget(table, txt_new_strut(25, 1));
+  txt_add_widget(table, txt_new_strut(17, 1));
 
-    // Player labels
+  /* Player labels */
 
-    for (i = 0; i < net_client_wait_data.max_players; ++i)
+  for (i = 0; i < net_client_wait_data.max_players; ++i)
     {
-        M_snprintf(buf, sizeof(buf), " %i. ", i + 1);
-        TXT_AddWidget(table, TXT_NewLabel(buf));
-        player_labels[i] = TXT_NewLabel("");
-        ip_labels[i] = TXT_NewLabel("");
-        TXT_AddWidget(table, player_labels[i]);
-        TXT_AddWidget(table, ip_labels[i]);
+      snprintf(buf, sizeof(buf), " %i. ", i + 1);
+      txt_add_widget(table, txt_new_label(buf));
+      player_labels[i] = txt_new_label("");
+      ip_labels[i] = txt_new_label("");
+      txt_add_widget(table, player_labels[i]);
+      txt_add_widget(table, ip_labels[i]);
     }
 
-    drone_label = TXT_NewLabel("");
+  drone_label = txt_new_label("");
 
-    TXT_AddWidget(window, drone_label);
+  txt_add_widget(window, drone_label);
 }
 
-static void UpdateGUI(void)
+static void update_gui(void)
 {
-    txt_window_action_t *startgame;
-    char buf[50];
-    unsigned int i;
+  txt_window_action_t *startgame;
+  char buf[50];
+  unsigned int i;
 
-    // If the value of max_players changes, we must rebuild the
-    // contents of the window. This includes when the first
-    // waiting data packet is received.
+  /* If the value of max_players changes, we must rebuild the
+   * contents of the window. This includes when the first
+   * waiting data packet is received.
+   */
 
-    if (net_client_received_wait_data)
+  if (net_client_received_wait_data)
     {
-        if (net_client_wait_data.max_players != old_max_players)
+      if (net_client_wait_data.max_players != old_max_players)
         {
-            BuildWindow();
+          build_window();
         }
     }
-    else
+  else
     {
-        return;
+      return;
     }
 
-    for (i = 0; i < net_client_wait_data.max_players; ++i)
+  for (i = 0; i < net_client_wait_data.max_players; ++i)
     {
-        txt_color_t color = TXT_COLOR_BRIGHT_WHITE;
+      txt_color_t color = TXT_COLOR_BRIGHT_WHITE;
 
-        if ((signed) i == net_client_wait_data.consoleplayer)
+      if ((signed)i == net_client_wait_data.consoleplayer)
         {
-            color = TXT_COLOR_YELLOW;
+          color = TXT_COLOR_YELLOW;
         }
 
-        TXT_SetFGColor(player_labels[i], color);
-        TXT_SetFGColor(ip_labels[i], color);
+      txt_set_fg_colour(player_labels[i], color);
+      txt_set_fg_colour(ip_labels[i], color);
 
-        if (i < net_client_wait_data.num_players)
+      if (i < net_client_wait_data.num_players)
         {
-            TXT_SetLabel(player_labels[i],
-                         net_client_wait_data.player_names[i]);
-            TXT_SetLabel(ip_labels[i],
-                         net_client_wait_data.player_addrs[i]);
+          txt_set_label(player_labels[i],
+                       net_client_wait_data.player_names[i]);
+          txt_set_label(ip_labels[i], net_client_wait_data.player_addrs[i]);
         }
-        else
+      else
         {
-            TXT_SetLabel(player_labels[i], "");
-            TXT_SetLabel(ip_labels[i], "");
-        }
-    }
-
-    if (net_client_wait_data.num_drones > 0)
-    {
-        M_snprintf(buf, sizeof(buf), " (+%i observer clients)",
-                   net_client_wait_data.num_drones);
-        TXT_SetLabel(drone_label, buf);
-    }
-    else
-    {
-        TXT_SetLabel(drone_label, "");
-    }
-
-    if (net_client_wait_data.is_controller)
-    {
-        startgame = TXT_NewWindowAction(' ', "Start game");
-        TXT_SignalConnect(startgame, "pressed", StartGame, NULL);
-    }
-    else
-    {
-        startgame = NULL;
-    }
-
-    TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, startgame);
-}
-
-static void BuildMasterStatusWindow(void)
-{
-    txt_window_t *master_window;
-
-    master_window = TXT_NewWindow(NULL);
-    master_msg_label = TXT_NewLabel("");
-    TXT_AddWidget(master_window, master_msg_label);
-
-    // This window is here purely for information, so it should be
-    // in the background.
-
-    TXT_LowerWindow(master_window);
-    TXT_SetWindowPosition(master_window, TXT_HORIZ_CENTER, TXT_VERT_CENTER,
-                                         TXT_SCREEN_W / 2, TXT_SCREEN_H - 4);
-    TXT_SetWindowAction(master_window, TXT_HORIZ_LEFT, NULL);
-    TXT_SetWindowAction(master_window, TXT_HORIZ_CENTER, NULL);
-    TXT_SetWindowAction(master_window, TXT_HORIZ_RIGHT, NULL);
-}
-
-static void CheckMasterStatus(void)
-{
-    boolean added;
-
-    if (!NET_Query_CheckAddedToMaster(&added))
-    {
-        return;
-    }
-
-    if (master_msg_label == NULL)
-    {
-        BuildMasterStatusWindow();
-    }
-
-    if (added)
-    {
-        TXT_SetLabel(master_msg_label,
-            "Your server is now registered with the global master server.\n"
-            "Other players can find your server online.");
-    }
-    else
-    {
-        TXT_SetLabel(master_msg_label,
-            "Failed to register with the master server. Your server is not\n"
-            "publicly accessible. You may need to reconfigure your Internet\n"
-            "router to add a port forward for UDP port 2342. Look up\n"
-            "information on port forwarding online.");
-    }
-}
-
-static void PrintSHA1Digest(const char *s, const byte *digest)
-{
-    unsigned int i;
-
-    printf("%s: ", s);
-
-    for (i=0; i<sizeof(sha1_digest_t); ++i)
-    {
-        printf("%02x", digest[i]);
-    }
-
-    printf("\n");
-}
-
-static void CloseWindow(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(window))
-{
-    TXT_CAST_ARG(txt_window_t, window);
-
-    TXT_CloseWindow(window);
-}
-
-static void CheckSHA1Sums(void)
-{
-    boolean correct_wad, correct_deh;
-    boolean same_freedoom;
-    txt_window_t *window;
-    txt_window_action_t *cont_button;
-
-    if (!net_client_received_wait_data || had_warning)
-    {
-        return;
-    }
-
-    correct_wad = memcmp(net_local_wad_sha1sum,
-                         net_client_wait_data.wad_sha1sum, 
-                         sizeof(sha1_digest_t)) == 0;
-    correct_deh = memcmp(net_local_deh_sha1sum,
-                         net_client_wait_data.deh_sha1sum, 
-                         sizeof(sha1_digest_t)) == 0;
-    same_freedoom = net_client_wait_data.is_freedoom == net_local_is_freedoom;
-
-    if (correct_wad && correct_deh && same_freedoom)
-    {
-        return;
-    }
-
-    if (!correct_wad)
-    {
-        printf("Warning: WAD SHA1 does not match server:\n");
-        PrintSHA1Digest("Local", net_local_wad_sha1sum);
-        PrintSHA1Digest("Server", net_client_wait_data.wad_sha1sum);
-    }
-
-    if (!same_freedoom)
-    {
-        printf("Warning: Mixing Freedoom with non-Freedoom\n");
-        printf("Local: %u  Server: %i\n",
-               net_local_is_freedoom, 
-               net_client_wait_data.is_freedoom);
-    }
-
-    if (!correct_deh)
-    {
-        printf("Warning: Dehacked SHA1 does not match server:\n");
-        PrintSHA1Digest("Local", net_local_deh_sha1sum);
-        PrintSHA1Digest("Server", net_client_wait_data.deh_sha1sum);
-    }
-
-    window = TXT_NewWindow("WARNING!");
-
-    cont_button = TXT_NewWindowAction(KEY_ENTER, "Continue");
-    TXT_SignalConnect(cont_button, "pressed", CloseWindow, window);
-
-    TXT_SetWindowAction(window, TXT_HORIZ_LEFT, NULL);
-    TXT_SetWindowAction(window, TXT_HORIZ_CENTER, cont_button);
-    TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, NULL);
-
-    if (!same_freedoom)
-    {
-        // If Freedoom and Doom IWADs are mixed, the WAD directory
-        // will be wrong, but this is not neccessarily a problem.
-        // Display a different message to the WAD directory message.
-
-        if (net_local_is_freedoom)
-        {
-            TXT_AddWidget(window, TXT_NewLabel
-            ("You are using the Freedoom IWAD to play with players\n"
-             "using an official Doom IWAD.  Make sure that you are\n"
-             "playing the same levels as other players.\n"));
-        }
-        else
-        {
-            TXT_AddWidget(window, TXT_NewLabel
-            ("You are using an official IWAD to play with players\n"
-             "using the Freedoom IWAD.  Make sure that you are\n"
-             "playing the same levels as other players.\n"));
+          txt_set_label(player_labels[i], "");
+          txt_set_label(ip_labels[i], "");
         }
     }
-    else if (!correct_wad)
+
+  if (net_client_wait_data.num_drones > 0)
     {
-        TXT_AddWidget(window, TXT_NewLabel
-            ("Your WAD directory does not match other players in the game.\n"
-             "Check that you have loaded the exact same WAD files as other\n"
-             "players.\n"));
+      snprintf(buf, sizeof(buf), " (+%i observer clients)",
+               net_client_wait_data.num_drones);
+      txt_set_label(drone_label, buf);
+    }
+  else
+    {
+      txt_set_label(drone_label, "");
     }
 
-    if (!correct_deh)
+  if (net_client_wait_data.is_controller)
     {
-        TXT_AddWidget(window, TXT_NewLabel
-            ("Your dehacked signature does not match other players in the\n"
-             "game.  Check that you have loaded the same dehacked patches\n"
-             "as other players.\n"));
+      startgame = txt_new_window_action(' ', "Start game");
+      txt_signal_connect(startgame, "pressed", start_game, NULL);
+    }
+  else
+    {
+      startgame = NULL;
     }
 
-    TXT_AddWidget(window, TXT_NewLabel
-            ("If you continue, this may cause your game to desync."));
-
-    had_warning = true;
+  txt_set_window_action(window, TXT_HORIZ_RIGHT, startgame);
 }
 
-static void ParseCommandLineArgs(void)
+static void build_master_status_window(void)
 {
-    int i;
+  txt_window_t *master_window;
 
-    //!
-    // @arg <n>
-    // @category net
-    //
-    // Autostart the netgame when n nodes (clients) have joined the server.
-    //
+  master_window = txt_new_window(NULL);
+  master_msg_label = txt_new_label("");
+  txt_add_widget(master_window, master_msg_label);
 
-    i = M_CheckParmWithArgs("-nodes", 1);
-    if (i > 0)
+  /* This window is here purely for information, so it should be
+   * in the background.
+   */
+
+  txt_lower_window(master_window);
+  txt_set_window_position(master_window, TXT_HORIZ_CENTER, TXT_VERT_CENTER,
+                          TXT_SCREEN_W / 2, TXT_SCREEN_H - 4);
+  txt_set_window_action(master_window, TXT_HORIZ_LEFT, NULL);
+  txt_set_window_action(master_window, TXT_HORIZ_CENTER, NULL);
+  txt_set_window_action(master_window, TXT_HORIZ_RIGHT, NULL);
+}
+
+static void check_master_status(void)
+{
+  boolean added;
+
+  if (!net_query_check_added_to_master(&added))
     {
-        expected_nodes = atoi(myargv[i + 1]);
+      return;
+    }
+
+  if (master_msg_label == NULL)
+    {
+      build_master_status_window();
+    }
+
+  if (added)
+    {
+      txt_set_label(
+          master_msg_label,
+          "Your server is now registered with the global master server.\n"
+          "Other players can find your server online.");
+    }
+  else
+    {
+      txt_set_label(
+          master_msg_label,
+          "Failed to register with the master server. Your server is not\n"
+          "publicly accessible. You may need to reconfigure your Internet\n"
+          "router to add a port forward for UDP port 2342. Look up\n"
+          "information on port forwarding online.");
     }
 }
 
-static void CheckAutoLaunch(void)
+static void print_sha1_digest(const char *s, const byte *digest)
 {
-    int nodes;
+  unsigned int i;
 
-    if (net_client_received_wait_data
-     && net_client_wait_data.is_controller
-     && expected_nodes > 0)
+  printf("%s: ", s);
+
+  for (i = 0; i < sizeof(sha1_digest_t); ++i)
     {
-        nodes = net_client_wait_data.num_players
-              + net_client_wait_data.num_drones;
+      printf("%02x", digest[i]);
+    }
 
-        if (nodes >= expected_nodes)
+  printf("\n");
+}
+
+static void close_window(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(p_window))
+{
+  TXT_CAST_ARG(txt_window_t, p_window);
+
+  txt_close_window(p_window);
+}
+
+static void check_sha1_sums(void)
+{
+  boolean correct_wad;
+  boolean correct_deh;
+  boolean same_freedoom;
+  txt_window_t *l_window;
+  txt_window_action_t *cont_button;
+
+  if (!net_client_received_wait_data || had_warning)
+    {
+      return;
+    }
+
+  correct_wad =
+      memcmp(net_local_wad_sha1sum, net_client_wait_data.wad_sha1sum,
+             sizeof(sha1_digest_t)) == 0;
+  correct_deh =
+      memcmp(net_local_deh_sha1sum, net_client_wait_data.deh_sha1sum,
+             sizeof(sha1_digest_t)) == 0;
+  same_freedoom = net_client_wait_data.is_freedoom == net_local_is_freedoom;
+
+  if (correct_wad && correct_deh && same_freedoom)
+    {
+      return;
+    }
+
+  if (!correct_wad)
+    {
+      printf("Warning: WAD SHA1 does not match server:\n");
+      print_sha1_digest("Local", net_local_wad_sha1sum);
+      print_sha1_digest("Server", net_client_wait_data.wad_sha1sum);
+    }
+
+  if (!same_freedoom)
+    {
+      printf("Warning: Mixing Freedoom with non-Freedoom\n");
+      printf("Local: %u  Server: %i\n", net_local_is_freedoom,
+             net_client_wait_data.is_freedoom);
+    }
+
+  if (!correct_deh)
+    {
+      printf("Warning: Dehacked SHA1 does not match server:\n");
+      print_sha1_digest("Local", net_local_deh_sha1sum);
+      print_sha1_digest("Server", net_client_wait_data.deh_sha1sum);
+    }
+
+  l_window = txt_new_window("WARNING!");
+
+  cont_button = txt_new_window_action(KEY_ENTER, "Continue");
+  txt_signal_connect(cont_button, "pressed", close_window, l_window);
+
+  txt_set_window_action(l_window, TXT_HORIZ_LEFT, NULL);
+  txt_set_window_action(l_window, TXT_HORIZ_CENTER, cont_button);
+  txt_set_window_action(l_window, TXT_HORIZ_RIGHT, NULL);
+
+  if (!same_freedoom)
+    {
+      /* If Freedoom and Doom IWADs are mixed, the WAD directory
+       * will be wrong, but this is not necessarily a problem.
+       * Display a different message to the WAD directory message.
+       */
+
+      if (net_local_is_freedoom)
         {
-            StartGame(NULL, NULL);
-            expected_nodes = 0;
+          txt_add_widget(
+              l_window,
+              txt_new_label(
+                  "You are using the Freedoom IWAD to play with players\n"
+                  "using an official Doom IWAD.  Make sure that you are\n"
+                  "playing the same levels as other players.\n"));
+        }
+      else
+        {
+          txt_add_widget(
+              l_window,
+              txt_new_label(
+                  "You are using an official IWAD to play with players\n"
+                  "using the Freedoom IWAD.  Make sure that you are\n"
+                  "playing the same levels as other players.\n"));
+        }
+    }
+  else if (!correct_wad)
+    {
+      txt_add_widget(
+        l_window,
+        txt_new_label(
+        "Your WAD directory does not match other players in the game.\n"
+        "Check that you have loaded the exact same WAD files as other\n"
+        "players.\n")
+      );
+    }
+
+  if (!correct_deh)
+    {
+      txt_add_widget(
+          l_window,
+          txt_new_label(
+              "Your dehacked signature does not match other players in the\n"
+              "game.  Check that you have loaded the same dehacked patches\n"
+              "as other players.\n"));
+    }
+
+  txt_add_widget(
+      l_window,
+      txt_new_label("If you continue, this may cause your game to desync."));
+
+  had_warning = true;
+}
+
+static void parse_command_line_args(void)
+{
+  int i;
+
+  /* @arg <n>
+   * @category net
+   *
+   * Autostart the netgame when n nodes (clients) have joined the server.
+   */
+
+  i = m_check_parm_with_args("-nodes", 1);
+  if (i > 0)
+    {
+      expected_nodes = atoi(myargv[i + 1]);
+    }
+}
+
+static void check_auto_latch(void)
+{
+  int nodes;
+
+  if (net_client_received_wait_data && net_client_wait_data.is_controller &&
+      expected_nodes > 0)
+    {
+      nodes =
+          net_client_wait_data.num_players + net_client_wait_data.num_drones;
+
+      if (nodes >= expected_nodes)
+        {
+          start_game(NULL, NULL);
+          expected_nodes = 0;
         }
     }
 }
 
-void NET_WaitForLaunch(void)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void net_wait_for_launch(void)
 {
-    if (!TXT_Init())
+  if (!txt_init())
     {
-        fprintf(stderr, "Failed to initialize GUI\n");
-        exit(-1);
+      fprintf(stderr, "Failed to initialize GUI\n");
+      exit(-1);
     }
 
-    TXT_SetColor(TXT_COLOR_BLUE, 0x04, 0x14, 0x40); // Romero's "funky blue" color
-    
-    I_InitWindowIcon();
+  /* Romero's "funky blue" color */
 
-    ParseCommandLineArgs();
-    OpenWaitDialog();
-    had_warning = false;
+  txt_set_colour(TXT_COLOR_BLUE, 0x04, 0x14, 0x40);
 
-    while (net_waiting_for_launch)
+  parse_command_line_args();
+  open_wait_dialog();
+  had_warning = false;
+
+  while (net_waiting_for_launch)
     {
-        UpdateGUI();
-        CheckAutoLaunch();
-        CheckSHA1Sums();
-        CheckMasterStatus();
+      update_gui();
+      check_auto_latch();
+      check_sha1_sums();
+      check_master_status();
 
-        TXT_DispatchEvents();
-        TXT_DrawDesktop();
+      txt_dispatch_events();
+      txt_draw_desktop();
 
-        NET_CL_Run();
-        NET_SV_Run();
+      net_cl_run();
+      net_sv_run();
 
-        if (!net_client_connected)
+      if (!net_client_connected)
         {
-            I_Error("Lost connection to server");
+          i_error("Lost connection to server");
         }
 
-        TXT_Sleep(100);
+      txt_sleep(100);
     }
 
-    TXT_Shutdown();
+  txt_shutdown();
 }

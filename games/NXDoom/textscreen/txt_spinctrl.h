@@ -1,53 +1,70 @@
-//
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_spinctrl.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_SPINCONTROL_H
 #define TXT_SPINCONTROL_H
 
-/**
- * @file txt_spinctrl.h
- *
- * Spin control widget.
- */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-/**
- * Spin control widget.
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+typedef enum
+{
+  TXT_SPINCONTROL_INT,
+  TXT_SPINCONTROL_FLOAT,
+} txt_spincontrol_type_t;
+
+union _float_n_int
+{
+  float f;
+  int i;
+};
+
+/* Spin control widget.
  *
  * A spin control widget works as an input box that can be used to
  * set numeric values, but also has buttons that allow its value
  * to be increased or decreased.
  */
 
-typedef struct txt_spincontrol_s txt_spincontrol_t;
-
-typedef enum
-{
-    TXT_SPINCONTROL_INT,
-    TXT_SPINCONTROL_FLOAT,
-} txt_spincontrol_type_t;
-
-#include "txt_widget.h"
-
 struct txt_spincontrol_s
 {
-    txt_widget_t widget;
-    txt_spincontrol_type_t type;
-    union { float f; int i; } min, max, *value, step; 
-    int editing;
-    char *buffer;
-    size_t buffer_len;
+  txt_widget_t widget;
+  txt_spincontrol_type_t type;
+  union _float_n_int min;
+  union _float_n_int max;
+  union _float_n_int *value;
+  union _float_n_int step;
+  int editing;
+  char *buffer;
+  size_t buffer_len;
 };
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new spin control widget tracking an integer value.
@@ -59,7 +76,7 @@ struct txt_spincontrol_s
  * @return             Pointer to the new spin control widget.
  */
 
-txt_spincontrol_t *TXT_NewSpinControl(int *value, int min, int max);
+txt_spincontrol_t *txt_newspin_control(int *value, int min, int max);
 
 /**
  * Create a new spin control widget tracking a float value.
@@ -71,8 +88,7 @@ txt_spincontrol_t *TXT_NewSpinControl(int *value, int min, int max);
  * @return             Pointer to the new spin control widget.
  */
 
-txt_spincontrol_t *TXT_NewFloatSpinControl(float *value, float min, float max);
+txt_spincontrol_t *txt_new_float_spincontrol(float *value, float min,
+                                           float max);
 
-#endif /* #ifndef TXT_SPINCONTROL_H */
-
-
+#endif /* TXT_SPINCONTROL_H */

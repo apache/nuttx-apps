@@ -1,86 +1,107 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//	System specific interface stuff.
-//
-
+/****************************************************************************
+ * apps/games/NXDoom/src/i_system.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  System specific interface stuff.
+ *
+ ****************************************************************************/
 
 #ifndef __I_SYSTEM__
 #define __I_SYSTEM__
 
-#include "d_ticcmd.h"
-#include "d_event.h"
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
+#include "d_event.h"
+#include "d_ticcmd.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 typedef void (*atexit_func_t)(void);
 
-// Called by DoomMain.
-void I_Init (void);
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-// Called by startup code
-// to get the ammount of memory to malloc
-// for the zone management.
-byte*	I_ZoneBase (int *size);
+/* Called by DoomMain. */
 
-boolean I_ConsoleStdout(void);
+void i_init(void);
 
+/* Called by startup code to get the amount of memory to malloc for the zone
+ * management.
+ */
 
-// Asynchronous interrupt functions should maintain private queues
-// that are read by the synchronous functions
-// to be converted into events.
+byte *i_zone_base(int *size);
 
-// Either returns a null ticcmd,
-// or calls a loadable driver to build it.
-// This ticcmd will then be modified by the gameloop
-// for normal input.
-ticcmd_t* I_BaseTiccmd (void);
+boolean i_console_stdout(void);
 
+/* Asynchronous interrupt functions should maintain private queues
+ * that are read by the synchronous functions
+ * to be converted into events.
+ */
 
-// Called by M_Responder when quit is selected.
-// Clean exit, displays sell blurb.
-void I_Quit (void) NORETURN;
+#if 0 /* Unused */
 
-void I_Error (const char *error, ...) NORETURN PRINTF_ATTR(1, 2);
+/* Either returns a null ticcmd, or calls a loadable driver to build it.
+ * This ticcmd will then be modified by the gameloop for normal input.
+ */
 
-void I_Tactile (int on, int off, int total);
-
-void *I_Realloc(void *ptr, size_t size);
-
-boolean I_GetMemoryValue(unsigned int offset, void *value, int size);
-
-// Schedule a function to be called when the program exits.
-// If run_if_error is true, the function is called if the exit
-// is due to an error (I_Error)
-
-void I_AtExit(atexit_func_t func, boolean run_if_error);
-
-// Add all system-specific config file variable bindings.
-
-void I_BindVariables(void);
-
-// Print startup banner copyright message.
-
-void I_PrintStartupBanner(const char *gamedescription);
-
-// Print a centered text banner displaying the given string.
-
-void I_PrintBanner(const char *text);
-
-// Print a dividing line for startup banners.
-
-void I_PrintDivider(void);
-
+ticcmd_t *i_base_ticcmd(void);
 #endif
 
+/* Called by m_responder when quit is selected.
+ * Clean exit, displays sell blurb.
+ */
+
+void i_quit(void) NORETURN;
+
+void i_error(const char *error, ...) NORETURN PRINTF_ATTR(1, 2);
+
+void i_tactile(int on, int off, int total);
+
+void *i_realloc(void *ptr, size_t size);
+
+boolean i_get_memory_value(unsigned int offset, void *value, int size);
+
+/* Schedule a function to be called when the program exits.
+ * If run_if_error is true, the function is called if the exit
+ * is due to an error (i_error)
+ */
+
+void i_at_exit(atexit_func_t func, boolean run_if_error);
+
+/* Add all system-specific config file variable bindings. */
+
+void i_bind_variables(void);
+
+/* Print startup banner copyright message. */
+
+void i_print_startup_banner(const char *gamedescription);
+
+/* Print a centered text banner displaying the given string. */
+
+void i_print_banner(const char *text);
+
+/* Print a dividing line for startup banners. */
+
+void i_print_divider(void);
+
+#endif /* __I_SYSTEM__ */

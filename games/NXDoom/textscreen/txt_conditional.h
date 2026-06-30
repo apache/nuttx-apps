@@ -1,25 +1,40 @@
-//
-// Copyright(C) 2016 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
+/****************************************************************************
+ * apps/games/NXDoom/textscreen/txt_conditional.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 2016 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ ****************************************************************************/
 
 #ifndef TXT_CONDITIONAL_H
 #define TXT_CONDITIONAL_H
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 /**
  * @file txt_conditional.h
  *
  * Conditional widget.
  */
+
+#include "txt_widget.h"
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 /**
  * Conditional widget.
@@ -30,19 +45,22 @@
 
 typedef struct txt_conditional_s txt_conditional_t;
 
-#include "txt_widget.h"
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /**
  * Create a new conditional widget.
  *
  * @param var             The variable to check.
- * @param expected_value  If the variable has this value, the widget is shown.
+ * @param expected_value  If the variable has this value, the widget is
+ *                        shown.
  * @param child           The inner widget to show or hide.
  * @return                Pointer to the new conditional widget.
  */
 
-txt_conditional_t *TXT_NewConditional(int *var, int expected_value,
-                                      TXT_UNCAST_ARG(child));
+txt_conditional_t *txt_new_conidtional(int *var, int expected_value,
+                                       TXT_UNCAST_ARG(child));
 
 /**
  * Return the given child widget if the given boolean condition is true.
@@ -56,8 +74,6 @@ txt_conditional_t *TXT_NewConditional(int *var, int expected_value,
  *                         widget.
  */
 
-txt_widget_t *TXT_If(int condition, TXT_UNCAST_ARG(child));
+txt_widget_t *txt_if(int condition, TXT_UNCAST_ARG(child));
 
 #endif /* #ifndef TXT_CONDITIONAL_H */
-
-

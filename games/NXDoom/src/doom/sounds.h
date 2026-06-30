@@ -1,227 +1,241 @@
-//
-// Copyright(C) 1993-1996 Id Software, Inc.
-// Copyright(C) 2005-2014 Simon Howard
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// DESCRIPTION:
-//	Created by the sound utility written by Dave Taylor.
-//	Kept as a sample, DOOM2  sounds. Frozen.
-//
+/****************************************************************************
+ * apps/games/NXDoom/src/doom/sounds.h
+ *
+ * SPDX-License-Identifer: GPLv2
+ *
+ * Copyright(C) 1993-1996 Id Software, Inc.
+ * Copyright(C) 2005-2014 Simon Howard
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * DESCRIPTION:
+ *  Created by the sound utility written by Dave Taylor.
+ *  Kept as a sample, DOOM2  sounds. Frozen.
+ *
+ ****************************************************************************/
 
 #ifndef __SOUNDS__
 #define __SOUNDS__
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include "i_sound.h"
 
-// the complete set of sound effects
-extern sfxinfo_t	S_sfx[];
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
-// the complete set of music
-extern musicinfo_t	S_music[];
-
-//
-// Identifiers for all music in game.
-//
+/* Identifiers for all music in game. */
 
 typedef enum
 {
-    mus_None,
-    mus_e1m1,
-    mus_e1m2,
-    mus_e1m3,
-    mus_e1m4,
-    mus_e1m5,
-    mus_e1m6,
-    mus_e1m7,
-    mus_e1m8,
-    mus_e1m9,
-    mus_e2m1,
-    mus_e2m2,
-    mus_e2m3,
-    mus_e2m4,
-    mus_e2m5,
-    mus_e2m6,
-    mus_e2m7,
-    mus_e2m8,
-    mus_e2m9,
-    mus_e3m1,
-    mus_e3m2,
-    mus_e3m3,
-    mus_e3m4,
-    mus_e3m5,
-    mus_e3m6,
-    mus_e3m7,
-    mus_e3m8,
-    mus_e3m9,
-    mus_inter,
-    mus_intro,
-    mus_bunny,
-    mus_victor,
-    mus_introa,
-    mus_runnin,
-    mus_stalks,
-    mus_countd,
-    mus_betwee,
-    mus_doom,
-    mus_the_da,
-    mus_shawn,
-    mus_ddtblu,
-    mus_in_cit,
-    mus_dead,
-    mus_stlks2,
-    mus_theda2,
-    mus_doom2,
-    mus_ddtbl2,
-    mus_runni2,
-    mus_dead2,
-    mus_stlks3,
-    mus_romero,
-    mus_shawn2,
-    mus_messag,
-    mus_count2,
-    mus_ddtbl3,
-    mus_ampie,
-    mus_theda3,
-    mus_adrian,
-    mus_messg2,
-    mus_romer2,
-    mus_tense,
-    mus_shawn3,
-    mus_openin,
-    mus_evil,
-    mus_ultima,
-    mus_read_m,
-    mus_dm2ttl,
-    mus_dm2int,
-    NUMMUSIC
+  MUS_NONE,
+  MUS_E1M1,
+  MUS_E1M2,
+  MUS_E1M3,
+  MUS_E1M4,
+  MUS_E1M5,
+  MUS_E1M6,
+  MUS_E1M7,
+  MUS_E1M8,
+  MUS_E1M9,
+  MUS_E2M1,
+  MUS_E2M2,
+  MUS_E2M3,
+  MUS_E2M4,
+  MUS_E2M5,
+  MUS_E2M6,
+  MUS_E2M7,
+  MUS_E2M8,
+  MUS_E2M9,
+  MUS_E3M1,
+  MUS_E3M2,
+  MUS_E3M3,
+  MUS_E3M4,
+  MUS_E3M5,
+  MUS_E3M6,
+  MUS_E3M7,
+  MUS_E3M8,
+  MUS_E3M9,
+  MUS_INTER,
+  MUS_INTRO,
+  MUS_BUNNY,
+  MUS_VICTOR,
+  MUS_INTROA,
+  MUS_RUNNIN,
+  MUS_STALKS,
+  MUS_COUNTD,
+  MUS_BETWEE,
+  MUS_DOOM,
+  MUS_THE_DA,
+  MUS_SHAWN,
+  MUS_DDTBLU,
+  MUS_IN_CIT,
+  MUS_DEAD,
+  MUS_STLKS2,
+  MUS_THEDA2,
+  MUS_DOOM2,
+  MUS_DDTBL2,
+  MUS_RUNNI2,
+  MUS_DEAD2,
+  MUS_STLKS3,
+  MUS_ROMERO,
+  MUS_SHAWN2,
+  MUS_MESSAG,
+  MUS_COUNT2,
+  MUS_DDTBL3,
+  MUS_AMPIE,
+  MUS_THEDA3,
+  MUS_ADRIAN,
+  MUS_MESSG2,
+  MUS_ROMER2,
+  MUS_TENSE,
+  MUS_SHAWN3,
+  MUS_OPENIN,
+  MUS_EVIL,
+  MUS_ULTIMA,
+  MUS_READ_M,
+  MUS_DM2TTL,
+  MUS_DM2INT,
+  MUS_NUMMUSIC
 } musicenum_t;
 
-
-//
-// Identifiers for all sfx in game.
-//
+/* Identifiers for all sfx in game. */
 
 typedef enum
 {
-    sfx_None,
-    sfx_pistol,
-    sfx_shotgn,
-    sfx_sgcock,
-    sfx_dshtgn,
-    sfx_dbopn,
-    sfx_dbcls,
-    sfx_dbload,
-    sfx_plasma,
-    sfx_bfg,
-    sfx_sawup,
-    sfx_sawidl,
-    sfx_sawful,
-    sfx_sawhit,
-    sfx_rlaunc,
-    sfx_rxplod,
-    sfx_firsht,
-    sfx_firxpl,
-    sfx_pstart,
-    sfx_pstop,
-    sfx_doropn,
-    sfx_dorcls,
-    sfx_stnmov,
-    sfx_swtchn,
-    sfx_swtchx,
-    sfx_plpain,
-    sfx_dmpain,
-    sfx_popain,
-    sfx_vipain,
-    sfx_mnpain,
-    sfx_pepain,
-    sfx_slop,
-    sfx_itemup,
-    sfx_wpnup,
-    sfx_oof,
-    sfx_telept,
-    sfx_posit1,
-    sfx_posit2,
-    sfx_posit3,
-    sfx_bgsit1,
-    sfx_bgsit2,
-    sfx_sgtsit,
-    sfx_cacsit,
-    sfx_brssit,
-    sfx_cybsit,
-    sfx_spisit,
-    sfx_bspsit,
-    sfx_kntsit,
-    sfx_vilsit,
-    sfx_mansit,
-    sfx_pesit,
-    sfx_sklatk,
-    sfx_sgtatk,
-    sfx_skepch,
-    sfx_vilatk,
-    sfx_claw,
-    sfx_skeswg,
-    sfx_pldeth,
-    sfx_pdiehi,
-    sfx_podth1,
-    sfx_podth2,
-    sfx_podth3,
-    sfx_bgdth1,
-    sfx_bgdth2,
-    sfx_sgtdth,
-    sfx_cacdth,
-    sfx_skldth,
-    sfx_brsdth,
-    sfx_cybdth,
-    sfx_spidth,
-    sfx_bspdth,
-    sfx_vildth,
-    sfx_kntdth,
-    sfx_pedth,
-    sfx_skedth,
-    sfx_posact,
-    sfx_bgact,
-    sfx_dmact,
-    sfx_bspact,
-    sfx_bspwlk,
-    sfx_vilact,
-    sfx_noway,
-    sfx_barexp,
-    sfx_punch,
-    sfx_hoof,
-    sfx_metal,
-    sfx_chgun,
-    sfx_tink,
-    sfx_bdopn,
-    sfx_bdcls,
-    sfx_itmbk,
-    sfx_flame,
-    sfx_flamst,
-    sfx_getpow,
-    sfx_bospit,
-    sfx_boscub,
-    sfx_bossit,
-    sfx_bospn,
-    sfx_bosdth,
-    sfx_manatk,
-    sfx_mandth,
-    sfx_sssit,
-    sfx_ssdth,
-    sfx_keenpn,
-    sfx_keendt,
-    sfx_skeact,
-    sfx_skesit,
-    sfx_skeatk,
-    sfx_radio,
-    NUMSFX
+  SFX_NONE,
+  SFX_PISTOL,
+  SFX_SHOTGN,
+  SFX_SGCOCK,
+  SFX_DSHTGN,
+  SFX_DBOPN,
+  SFX_DBCLS,
+  SFX_DBLOAD,
+  SFX_PLASMA,
+  SFX_BFG,
+  SFX_SAWUP,
+  SFX_SAWIDL,
+  SFX_SAWFUL,
+  SFX_SAWHIT,
+  SFX_RLAUNC,
+  SFX_RXPLOD,
+  SFX_FIRSHT,
+  SFX_FIRXPL,
+  SFX_PSTART,
+  SFX_PSTOP,
+  SFX_DOROPN,
+  SFX_DORCLS,
+  SFX_STNMOV,
+  SFX_SWTCHN,
+  SFX_SWTCHX,
+  SFX_PLPAIN,
+  SFX_DMPAIN,
+  SFX_POPAIN,
+  SFX_VIPAIN,
+  SFX_MNPAIN,
+  SFX_PEPAIN,
+  SFX_SLOP,
+  SFX_ITEMUP,
+  SFX_WPNUP,
+  SFX_OOF,
+  SFX_TELEPT,
+  SFX_POSIT1,
+  SFX_POSIT2,
+  SFX_POSIT3,
+  SFX_BGSIT1,
+  SFX_BGSIT2,
+  SFX_SGTSIT,
+  SFX_CACSIT,
+  SFX_BRSSIT,
+  SFX_CYBSIT,
+  SFX_SPISIT,
+  SFX_BSPSIT,
+  SFX_KNTSIT,
+  SFX_VILSIT,
+  SFX_MANSIT,
+  SFX_PESIT,
+  SFX_SKLATK,
+  SFX_SGTATK,
+  SFX_SKEPCH,
+  SFX_VILATK,
+  SFX_CLAW,
+  SFX_SKESWG,
+  SFX_PLDETH,
+  SFX_PDIEHI,
+  SFX_PODTH1,
+  SFX_PODTH2,
+  SFX_PODTH3,
+  SFX_BGDTH1,
+  SFX_BGDTH2,
+  SFX_SGTDTH,
+  SFX_CACDTH,
+  SFX_SKLDTH,
+  SFX_BRSDTH,
+  SFX_CYBDTH,
+  SFX_SPIDTH,
+  SFX_BSPDTH,
+  SFX_VILDTH,
+  SFX_KNTDTH,
+  SFX_PEDTH,
+  SFX_SKEDTH,
+  SFX_POSACT,
+  SFX_BGACT,
+  SFX_DMACT,
+  SFX_BSPACT,
+  SFX_BSPWLK,
+  SFX_VILACT,
+  SFX_NOWAY,
+  SFX_BAREXP,
+  SFX_PUNCH,
+  SFX_HOOF,
+  SFX_METAL,
+  SFX_CHGUN,
+  SFX_TINK,
+  SFX_BDOPN,
+  SFX_BDCLS,
+  SFX_ITMBK,
+  SFX_FLAME,
+  SFX_FLAMST,
+  SFX_GETPOW,
+  SFX_BOSPIT,
+  SFX_BOSCUB,
+  SFX_BOSSIT,
+  SFX_BOSPN,
+  SFX_BOSDTH,
+  SFX_MANATK,
+  SFX_MANDTH,
+  SFX_SSSIT,
+  SFX_SSDTH,
+  SFX_KEENPN,
+  SFX_KEENDT,
+  SFX_SKEACT,
+  SFX_SKESIT,
+  SFX_SKEATK,
+  SFX_RADIO,
+  SFX_NUMSFX
 } sfxenum_t;
 
-#endif
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* the complete set of sound effects */
+
+extern sfxinfo_t s_sfx[];
+
+/* the complete set of music */
+
+extern musicinfo_t s_music[];
+
+#endif /* __SOUNDS__ */
