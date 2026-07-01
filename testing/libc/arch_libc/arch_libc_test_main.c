@@ -34,12 +34,13 @@
 #include <errno.h>
 #include <nuttx/debug.h>
 #include <assert.h>
+#include <sys/param.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define TEST_BUF_SIZE  256
+#define TEST_BUF_SIZE  512
 #define TEST_REPEAT    100
 #define MAX_ALIGN      16
 
@@ -50,6 +51,18 @@
 static char g_buf1[TEST_BUF_SIZE + MAX_ALIGN];
 static char g_buf2[TEST_BUF_SIZE + MAX_ALIGN];
 static volatile uintptr_t g_sink;
+
+/* Boundary sizes that exercise 8-byte and 16-byte chunk edges and sub-word
+ * tails, so that vectorized (NEON/MVE) and word-at-a-time paths are stressed
+ * at their alignment and size boundaries.  Unused if every test that sweeps
+ * these sizes is disabled.
+ */
+
+static const int unused_data g_boundary_sizes[] =
+{
+  0, 1, 7, 8, 9, 15, 16, 17, 31, 32, 33,
+  63, 64, 65, 127, 128, 129, 255, 256, 257
+};
 
 /****************************************************************************
  * Private Functions
@@ -121,36 +134,77 @@ static void speed_memcpy(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_MEMMOVE
 static int test_memmove(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
 
   printf("Testing memmove...\n");
 
-  /* Test overlapping forward */
+  /* Sweep alignment 0..7 and boundary sizes, across four overlap layouts:
+   *  forward  : dst = src + 8        (dst > src, backward copy internally)
+   *  backward : dst = src - 8        (dst < src, forward copy internally)
+   *  contained: dst = src + size/2   (full overlap region)
+   *  adjacent : dst = src + size     (no overlap, tail-to-tail)
+   */
 
-  for (size = 1; size <= 64; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size + 16);
-      memcpy(g_buf2, g_buf1, size + 16);
-      memmove(g_buf1 + 8, g_buf1, size);
-      if (memcmp(g_buf1 + 8, g_buf2, size) != 0)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL forward: size=%d\n", size);
-          fail++;
-        }
-    }
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
 
-  /* Test overlapping backward */
+          /* Forward overlap: dst = src + 8 */
 
-  for (size = 1; size <= 64; size++)
-    {
-      fill_pattern(g_buf1 + 8, size);
-      memcpy(g_buf2, g_buf1 + 8, size);
-      memmove(g_buf1, g_buf1 + 8, size);
-      if (memcmp(g_buf1, g_buf2, size) != 0)
-        {
-          printf("  FAIL backward: size=%d\n", size);
-          fail++;
+          fill_pattern(g_buf1 + align + 8, size);
+          memcpy(g_buf2 + align + 8, g_buf1 + align + 8, size);
+          memmove(g_buf1 + align + 16, g_buf1 + align + 8, size);
+          if (memcmp(g_buf1 + align + 16, g_buf2 + align + 8, size) != 0)
+            {
+              printf("  FAIL forward: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Backward overlap: dst = src - 8 */
+
+          fill_pattern(g_buf1 + align + 16, size);
+          memcpy(g_buf2 + align + 16, g_buf1 + align + 16, size);
+          memmove(g_buf1 + align + 8, g_buf1 + align + 16, size);
+          if (memcmp(g_buf1 + align + 8, g_buf2 + align + 16, size) != 0)
+            {
+              printf("  FAIL backward: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Contained overlap: dst = src + size/2 */
+
+          fill_pattern(g_buf1 + align + 32, size);
+          memcpy(g_buf2 + align + 32, g_buf1 + align + 32, size);
+          memmove(g_buf1 + align + 32 + size / 2,
+                  g_buf1 + align + 32, size);
+          if (memcmp(g_buf1 + align + 32 + size / 2,
+                     g_buf2 + align + 32, size) != 0)
+            {
+              printf("  FAIL contained: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Adjacent (no overlap): dst = src + size */
+
+          fill_pattern(g_buf1 + align + 64, size);
+          memcpy(g_buf2 + align + 64, g_buf1 + align + 64, size);
+          memmove(g_buf1 + align + 64 + size,
+                  g_buf1 + align + 64, size);
+          if (memcmp(g_buf1 + align + 64 + size,
+                     g_buf2 + align + 64, size) != 0)
+            {
+              printf("  FAIL adjacent: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -238,32 +292,59 @@ static void speed_memset(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_MEMCMP
 static int test_memcmp(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
 
   printf("Testing memcmp...\n");
-  for (size = 1; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      fill_pattern(g_buf2, size);
-      if (memcmp(g_buf1, g_buf2, size) != 0)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL equal: size=%d\n", size);
-          fail++;
-        }
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
 
-      g_buf2[size - 1] = '~';
-      if (memcmp(g_buf1, g_buf2, size) >= 0)
-        {
-          printf("  FAIL less: size=%d\n", size);
-          fail++;
-        }
+          fill_pattern(g_buf1 + align, size);
+          fill_pattern(g_buf2 + align, size);
 
-      g_buf2[size - 1] = 0;
-      if (memcmp(g_buf1, g_buf2, size) <= 0)
-        {
-          printf("  FAIL greater: size=%d\n", size);
-          fail++;
+          /* Equal */
+
+          if (memcmp(g_buf1 + align, g_buf2 + align, size) != 0)
+            {
+              printf("  FAIL equal: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Last byte less */
+
+          g_buf2[align + size - 1] = '~';
+          if (memcmp(g_buf1 + align, g_buf2 + align, size) >= 0)
+            {
+              printf("  FAIL less: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Last byte greater */
+
+          g_buf2[align + size - 1] = 0;
+          if (memcmp(g_buf1 + align, g_buf2 + align, size) <= 0)
+            {
+              printf("  FAIL greater: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* First byte differs */
+
+          g_buf2[align] = g_buf1[align] + 1;
+          if (memcmp(g_buf1 + align, g_buf2 + align, size) >= 0)
+            {
+              printf("  FAIL first: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -298,31 +379,68 @@ static void speed_memcmp(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_MEMCHR
 static int test_memchr(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
   FAR void *p;
 
   printf("Testing memchr...\n");
-  for (size = 1; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-
-      /* Find last char */
-
-      p = memchr(g_buf1, g_buf1[size - 1], size);
-      if (p == NULL)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL found: size=%d\n", size);
-          fail++;
-        }
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
 
-      /* Not found */
+          fill_pattern(g_buf1 + align, size);
 
-      p = memchr(g_buf1, 0xff, size);
-      if (p != NULL)
-        {
-          printf("  FAIL notfound: size=%d\n", size);
-          fail++;
+          /* Find first char (pattern starts with 'A' at align) */
+
+          p = memchr(g_buf1 + align, g_buf1[align], size);
+          if (p != g_buf1 + align)
+            {
+              printf("  FAIL first: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Find a unique marker placed at the last position */
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size - 1] = 0x7e;
+          p = memchr(g_buf1 + align, 0x7e, size);
+          if (p != g_buf1 + align + size - 1)
+            {
+              printf("  FAIL last: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Find a unique marker placed in the middle */
+
+          if (size > 2)
+            {
+              fill_pattern(g_buf1 + align, size);
+              g_buf1[align + size / 2] = 0x7e;
+              p = memchr(g_buf1 + align, 0x7e, size);
+              if (p != g_buf1 + align + size / 2)
+                {
+                  printf("  FAIL mid: align=%d size=%d\n", align, size);
+                  fail++;
+                }
+            }
+
+          /* Not found (full scan) */
+
+          fill_pattern(g_buf1 + align, size);
+          p = memchr(g_buf1 + align, 0xff, size);
+          if (p != NULL)
+            {
+              printf("  FAIL notfound: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -356,18 +474,25 @@ static void speed_memchr(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRLEN
 static int test_strlen(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
 
   printf("Testing strlen...\n");
-  for (size = 0; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      g_buf1[size] = '\0';
-      if ((int)strlen(g_buf1) != size)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL: size=%d got=%d\n", size, (int)strlen(g_buf1));
-          fail++;
+          size = g_boundary_sizes[si];
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          if ((int)strlen(g_buf1 + align) != size)
+            {
+              printf("  FAIL: align=%d size=%d got=%d\n", align, size,
+                     (int)strlen(g_buf1 + align));
+              fail++;
+            }
         }
     }
 
@@ -402,28 +527,54 @@ static void speed_strlen(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCMP
 static int test_strcmp(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
 
   printf("Testing strcmp...\n");
-  for (size = 1; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      g_buf1[size] = '\0';
-      fill_pattern(g_buf2, size);
-      g_buf2[size] = '\0';
-      if (strcmp(g_buf1, g_buf2) != 0)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL equal: size=%d\n", size);
-          fail++;
-        }
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
 
-      g_buf2[size - 1] = '~';
-      g_buf2[size] = '\0';
-      if (strcmp(g_buf1, g_buf2) >= 0)
-        {
-          printf("  FAIL less: size=%d\n", size);
-          fail++;
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          fill_pattern(g_buf2 + align, size);
+          g_buf2[align + size] = '\0';
+
+          /* Equal */
+
+          if (strcmp(g_buf1 + align, g_buf2 + align) != 0)
+            {
+              printf("  FAIL equal: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Last byte less */
+
+          g_buf2[align + size - 1] = '~';
+          if (strcmp(g_buf1 + align, g_buf2 + align) >= 0)
+            {
+              printf("  FAIL less: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* First byte differs */
+
+          fill_pattern(g_buf2 + align, size);
+          g_buf2[align + size] = '\0';
+          g_buf2[align] = g_buf1[align] + 1;
+          if (strcmp(g_buf1 + align, g_buf2 + align) >= 0)
+            {
+              printf("  FAIL first: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -512,41 +663,66 @@ static void speed_strcpy(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCHR
 static int test_strchr(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
   FAR char *p;
 
   printf("Testing strchr...\n");
-  for (size = 1; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      g_buf1[size] = '\0';
-
-      /* Find first char */
-
-      p = strchr(g_buf1, g_buf1[0]);
-      if (p != g_buf1)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL first: size=%d\n", size);
-          fail++;
-        }
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
 
-      /* Find NUL */
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
 
-      p = strchr(g_buf1, '\0');
-      if (p != g_buf1 + size)
-        {
-          printf("  FAIL nul: size=%d\n", size);
-          fail++;
-        }
+          /* Find first char (pattern starts with 'A' at align) */
 
-      /* Not found */
+          p = strchr(g_buf1 + align, g_buf1[align]);
+          if (p != g_buf1 + align)
+            {
+              printf("  FAIL first: align=%d size=%d\n", align, size);
+              fail++;
+            }
 
-      p = strchr(g_buf1, 0x01);
-      if (p != NULL)
-        {
-          printf("  FAIL notfound: size=%d\n", size);
-          fail++;
+          /* Find a unique marker placed at the last position */
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          g_buf1[align + size - 1] = 0x7e;
+          p = strchr(g_buf1 + align, 0x7e);
+          if (p != g_buf1 + align + size - 1)
+            {
+              printf("  FAIL last: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Find NUL terminator */
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          p = strchr(g_buf1 + align, '\0');
+          if (p != g_buf1 + align + size)
+            {
+              printf("  FAIL nul: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Not found (full scan) */
+
+          p = strchr(g_buf1 + align, 0x01);
+          if (p != NULL)
+            {
+              printf("  FAIL notfound: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -581,51 +757,72 @@ static void speed_strchr(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRNCMP
 static int test_strncmp(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
 
   printf("Testing strncmp...\n");
-  for (size = 1; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      g_buf1[size] = '\0';
-      fill_pattern(g_buf2, size);
-      g_buf2[size] = '\0';
-
-      /* Equal within n */
-
-      if (strncmp(g_buf1, g_buf2, size) != 0)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL equal: size=%d\n", size);
-          fail++;
-        }
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
 
-      /* Differ at last position */
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          fill_pattern(g_buf2 + align, size);
+          g_buf2[align + size] = '\0';
 
-      g_buf2[size - 1] = '~';
-      if (strncmp(g_buf1, g_buf2, size) >= 0)
-        {
-          printf("  FAIL less: size=%d\n", size);
-          fail++;
-        }
+          /* Equal within n */
 
-      /* Equal when n is smaller */
+          if (strncmp(g_buf1 + align, g_buf2 + align, size) != 0)
+            {
+              printf("  FAIL equal: align=%d size=%d\n", align, size);
+              fail++;
+            }
 
-      fill_pattern(g_buf2, size);
-      g_buf2[size] = '\0';
-      g_buf2[size - 1] = '~';
-      if (size > 1 && strncmp(g_buf1, g_buf2, size - 1) != 0)
-        {
-          printf("  FAIL partial: size=%d\n", size);
-          fail++;
-        }
+          /* Differ at last position */
 
-      /* Zero count */
+          g_buf2[align + size - 1] = '~';
+          if (strncmp(g_buf1 + align, g_buf2 + align, size) >= 0)
+            {
+              printf("  FAIL less: align=%d size=%d\n", align, size);
+              fail++;
+            }
 
-      if (strncmp(g_buf1, g_buf2, 0) != 0)
-        {
-          printf("  FAIL zero: size=%d\n", size);
-          fail++;
+          /* Equal when n is smaller than the difference */
+
+          fill_pattern(g_buf2 + align, size);
+          g_buf2[align + size] = '\0';
+          g_buf2[align + size - 1] = '~';
+          if (size > 1 &&
+              strncmp(g_buf1 + align, g_buf2 + align, size - 1) != 0)
+            {
+              printf("  FAIL partial: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* n boundary: 0 and 1 (reset buf2 to match buf1 first) */
+
+          fill_pattern(g_buf2 + align, size);
+          g_buf2[align + size] = '\0';
+
+          if (strncmp(g_buf1 + align, g_buf2 + align, 0) != 0)
+            {
+              printf("  FAIL zero: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          if (strncmp(g_buf1 + align, g_buf2 + align, 1) != 0)
+            {
+              printf("  FAIL one: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -662,37 +859,52 @@ static void speed_strncmp(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRNLEN
 static int test_strnlen(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
 
   printf("Testing strnlen...\n");
-  for (size = 0; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      g_buf1[size] = '\0';
-
-      /* maxlen >= actual length */
-
-      if ((int)strnlen(g_buf1, size + 10) != size)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL full: size=%d\n", size);
-          fail++;
-        }
+          size = g_boundary_sizes[si];
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
 
-      /* maxlen < actual length */
+          /* maxlen >= actual length */
 
-      if (size > 0 && (int)strnlen(g_buf1, size - 1) != size - 1)
-        {
-          printf("  FAIL trunc: size=%d\n", size);
-          fail++;
-        }
+          if ((int)strnlen(g_buf1 + align, size + 10) != size)
+            {
+              printf("  FAIL full: align=%d size=%d\n", align, size);
+              fail++;
+            }
 
-      /* maxlen == 0 */
+          /* maxlen == actual length */
 
-      if (strnlen(g_buf1, 0) != 0)
-        {
-          printf("  FAIL zero: size=%d\n", size);
-          fail++;
+          if ((int)strnlen(g_buf1 + align, size) != size)
+            {
+              printf("  FAIL exact: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* maxlen < actual length */
+
+          if (size > 0 &&
+              (int)strnlen(g_buf1 + align, size - 1) != size - 1)
+            {
+              printf("  FAIL trunc: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* maxlen == 0 */
+
+          if (strnlen(g_buf1 + align, 0) != 0)
+            {
+              printf("  FAIL zero: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -955,53 +1167,65 @@ static void speed_strcat(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRRCHR
 static int test_strrchr(void)
 {
+  int align;
+  int si;
   int size;
   int fail = 0;
   FAR char *p;
 
   printf("Testing strrchr...\n");
-  for (size = 1; size <= 128; size++)
+  for (align = 0; align < 8; align++)
     {
-      fill_pattern(g_buf1, size);
-      g_buf1[size] = '\0';
-
-      /* Find last occurrence of first char (repeats every 26) */
-
-      p = strrchr(g_buf1, 'A');
-      if (p == NULL)
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
         {
-          printf("  FAIL found: size=%d\n", size);
-          fail++;
-        }
-      else
-        {
-          /* 'A' appears at 0, 26, 52, ... — last one <= size-1 */
-
-          int expected = ((size - 1) / 26) * 26;
-          if (p != g_buf1 + expected)
+          size = g_boundary_sizes[si];
+          if (size < 1)
             {
-              printf("  FAIL pos: size=%d expected=%d got=%d\n",
-                     size, expected, (int)(p - g_buf1));
+              continue;
+            }
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+
+          /* Find last occurrence of first char (repeats every 26) */
+
+          p = strrchr(g_buf1 + align, 'A');
+          if (p == NULL)
+            {
+              printf("  FAIL found: align=%d size=%d\n", align, size);
               fail++;
             }
-        }
+          else
+            {
+              /* 'A' appears at 0, 26, 52, ... — last one <= size-1 */
 
-      /* Find NUL */
+              int expected = ((size - 1) / 26) * 26;
+              if (p != g_buf1 + align + expected)
+                {
+                  printf("  FAIL pos: align=%d size=%d expected=%d"
+                         " got=%d\n", align, size, expected,
+                         (int)(p - (g_buf1 + align)));
+                  fail++;
+                }
+            }
 
-      p = strrchr(g_buf1, '\0');
-      if (p != g_buf1 + size)
-        {
-          printf("  FAIL nul: size=%d\n", size);
-          fail++;
-        }
+          /* Find NUL */
 
-      /* Not found */
+          p = strrchr(g_buf1 + align, '\0');
+          if (p != g_buf1 + align + size)
+            {
+              printf("  FAIL nul: align=%d size=%d\n", align, size);
+              fail++;
+            }
 
-      p = strrchr(g_buf1, 0x01);
-      if (p != NULL)
-        {
-          printf("  FAIL notfound: size=%d\n", size);
-          fail++;
+          /* Not found (full scan) */
+
+          p = strrchr(g_buf1 + align, 0x01);
+          if (p != NULL)
+            {
+              printf("  FAIL notfound: align=%d size=%d\n", align, size);
+              fail++;
+            }
         }
     }
 
@@ -1025,6 +1249,100 @@ static void speed_strrchr(void)
 
   end = perf_gettime();
   printf("strrchr(128) avg cycles: %ju\n",
+         (uintmax_t)(end - start) / TEST_REPEAT);
+}
+#endif
+
+/****************************************************************************
+ * Name: test_strchrnul
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_ARCH_LIBC_STRCHRNUL
+static int test_strchrnul(void)
+{
+  int align;
+  int si;
+  int size;
+  int fail = 0;
+  FAR char *p;
+
+  printf("Testing strchrnul...\n");
+  for (align = 0; align < 8; align++)
+    {
+      for (si = 0; si < nitems(g_boundary_sizes); si++)
+        {
+          size = g_boundary_sizes[si];
+          if (size < 1)
+            {
+              continue;
+            }
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+
+          /* Find first char (pattern starts with 'A' at align) */
+
+          p = strchrnul(g_buf1 + align, g_buf1[align]);
+          if (p != g_buf1 + align)
+            {
+              printf("  FAIL first: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Find a unique marker placed at the last position */
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          g_buf1[align + size - 1] = 0x7e;
+          p = strchrnul(g_buf1 + align, 0x7e);
+          if (p != g_buf1 + align + size - 1)
+            {
+              printf("  FAIL last: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Find NUL terminator (always succeeds) */
+
+          fill_pattern(g_buf1 + align, size);
+          g_buf1[align + size] = '\0';
+          p = strchrnul(g_buf1 + align, '\0');
+          if (p != g_buf1 + align + size)
+            {
+              printf("  FAIL nul: align=%d size=%d\n", align, size);
+              fail++;
+            }
+
+          /* Not found: must return pointer to the NUL terminator */
+
+          p = strchrnul(g_buf1 + align, 0x01);
+          if (p != g_buf1 + align + size)
+            {
+              printf("  FAIL notfound: align=%d size=%d\n", align, size);
+              fail++;
+            }
+        }
+    }
+
+  printf("strchrnul: %s\n", fail ? "FAILED" : "PASSED");
+  return fail;
+}
+
+static void speed_strchrnul(void)
+{
+  clock_t start;
+  clock_t end;
+  int i;
+
+  fill_pattern(g_buf1, 128);
+  g_buf1[128] = '\0';
+  start = perf_gettime();
+  for (i = 0; i < TEST_REPEAT; i++)
+    {
+      g_sink = (uintptr_t)strchrnul(g_buf1, g_buf1[127]);
+    }
+
+  end = perf_gettime();
+  printf("strchrnul(128) avg cycles: %ju\n",
          (uintmax_t)(end - start) / TEST_REPEAT);
 }
 #endif
@@ -1101,8 +1419,11 @@ int main(int argc, FAR char *argv[])
   fail += test_strrchr();
   speed_strrchr();
 #endif
+#ifdef CONFIG_TESTING_ARCH_LIBC_STRCHRNUL
+  fail += test_strchrnul();
+  speed_strchrnul();
+#endif
 
   printf("arch_libc_test %s\n", fail ? "Failed" : "Passed");
   return fail ? EXIT_FAILURE : EXIT_SUCCESS;
 }
-
