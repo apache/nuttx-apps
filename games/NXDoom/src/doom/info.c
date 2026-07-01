@@ -63,7 +63,7 @@
       .sprite = (s),                                                         \
       .frame = (f),                                                          \
       .tics = (t),                                                           \
-      .action = {(a)},                                                       \
+      .action = {(void *)(a)},                                                       \
       .nextstate = (ns),                                                     \
   }
 #endif
@@ -98,80 +98,80 @@ const char *sprnames[] =
 
 /* Doesn't work with g++, needs actionf_p1 */
 
-void a_light0();
-void a_weapon_ready();
-void a_lower();
-void a_raise();
-void a_punch();
-void a_refire();
-void a_fire_pistol();
-void a_light1();
-void a_fire_shotgun();
-void a_light2();
-void a_fire_shotgun2();
-void a_check_reload();
-void a_open_shotgun2();
-void a_load_shotgun2();
-void a_close_shotgun2();
-void a_fire_cgun();
-void a_gun_flash();
-void a_fire_missile();
-void a_saw();
-void a_fire_plasma();
-void a_bfg_sound();
-void a_fire_bfg();
-void a_bfg_spray();
-void a_explode();
-void a_pain();
-void a_player_screm();
-void a_fall();
-void a_xscream();
-void a_look();
-void a_chase();
-void a_face_target();
-void a_pos_attack();
-void a_scream();
-void a_s_pos_attack();
-void a_vile_chase();
-void a_vile_start();
-void a_vile_target();
-void a_vile_attack();
-void a_start_fire();
-void a_fire();
-void a_fire_crackle();
-void a_tracer();
-void a_skel_woosh();
-void a_skel_fist();
-void a_skel_missile();
-void a_fat_raise();
-void a_fat_attack1();
-void a_fat_attack2();
-void a_fat_attack3();
-void a_boss_death();
-void a_c_pos_attack();
-void a_c_pos_refire();
-void a_troop_attack();
-void a_sarg_attack();
-void a_head_attack();
-void a_bruis_attack();
-void a_skull_attack();
-void a_metal();
-void a_spid_refire();
-void a_baby_metal();
-void a_bspi_attack();
-void a_hoof();
-void a_cyber_attack();
-void a_pain_attack();
-void a_pain_die();
-void a_keen_die();
-void a_brain_pain();
-void a_brain_scream();
-void a_brain_die();
-void a_brain_awake();
-void a_brain_split();
-void a_spawn_sound();
-void a_spawn_fly();
-void a_brain_explode();
+void a_light0(void *, void *);
+void a_weapon_ready(void *, void *);
+void a_lower(void *, void *);
+void a_raise(void *, void *);
+void a_punch(void *, void *);
+void a_refire(void *, void *);
+void a_fire_pistol(void *, void *);
+void a_light1(void *, void *);
+void a_fire_shotgun(void *, void *);
+void a_light2(void *, void *);
+void a_fire_shotgun2(void *, void *);
+void a_check_reload(void *, void *);
+void a_open_shotgun2(void *, void *);
+void a_load_shotgun2(void *, void *);
+void a_close_shotgun2(void *, void *);
+void a_fire_cgun(void *, void *);
+void a_gun_flash(void *, void *);
+void a_fire_missile(void *, void *);
+void a_saw(void *, void *);
+void a_fire_plasma(void *, void *);
+void a_bfg_sound(void *, void *);
+void a_fire_bfg(void *, void *);
+void a_bfg_spray(void *);
+void a_explode(void *);
+void a_pain(void *);
+void a_player_screm(void *);
+void a_fall(void *);
+void a_xscream(void *);
+void a_look(void *);
+void a_chase(void *);
+void a_face_target(void *);
+void a_pos_attack(void *);
+void a_scream(void *);
+void a_s_pos_attack(void *);
+void a_vile_chase(void *);
+void a_vile_start(void *);
+void a_vile_target(void *);
+void a_vile_attack(void *);
+void a_start_fire(void *);
+void a_fire(void *);
+void a_fire_crackle(void *);
+void a_tracer(void *);
+void a_skel_woosh(void *);
+void a_skel_fist(void *);
+void a_skel_missile(void *);
+void a_fat_raise(void *);
+void a_fat_attack1(void *);
+void a_fat_attack2(void *);
+void a_fat_attack3(void *);
+void a_boss_death(void *);
+void a_c_pos_attack(void *);
+void a_c_pos_refire(void *);
+void a_troop_attack(void *);
+void a_sarg_attack(void *);
+void a_head_attack(void *);
+void a_bruis_attack(void *);
+void a_skull_attack(void *);
+void a_metal(void *);
+void a_spid_refire(void *);
+void a_baby_metal(void *);
+void a_bspi_attack(void *);
+void a_hoof(void *);
+void a_cyber_attack(void *);
+void a_pain_attack(void *);
+void a_pain_die(void *);
+void a_keen_die(void *);
+void a_brain_pain(void *);
+void a_brain_scream(void *);
+void a_brain_die(void *);
+void a_brain_awake(void *);
+void a_brain_split(void *);
+void a_spawn_sound(void *);
+void a_spawn_fly(void *);
+void a_brain_explode(void *);
 
 /****************************************************************************
  * Public Data

@@ -63,6 +63,7 @@ static void txt_exit_mainloop(void)
   g_main_loop_running = 0;
 }
 
+#if 0 /* UNUSED */
 static int txt_raise_window(txt_window_t *window)
 {
   int i;
@@ -88,6 +89,7 @@ static int txt_raise_window(txt_window_t *window)
 
   return 0;
 }
+#endif
 
 static void draw_desktop_background(const char *title)
 {
@@ -201,6 +203,7 @@ static void desktop_input_event(int c)
     }
 }
 
+#if 0 /* UNUSED */
 static void txt_draw_ascii_table(void)
 {
   unsigned char *screendata;
@@ -232,6 +235,7 @@ static void txt_draw_ascii_table(void)
 
   txt_update_screen();
 }
+#endif
 
 /****************************************************************************
  * Public Functions

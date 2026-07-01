@@ -958,6 +958,7 @@ static void st_load_data(void)
   st_load_graphics();
 }
 
+#if 0 /* UNUSED */
 static void st_unload_callback(const char *lumpname, patch_t **variable)
 {
   w_release_lump_name(lumpname);
@@ -968,6 +969,7 @@ static void st_unload_graphics(void)
 {
   st_load_unload_graphics(st_unload_callback);
 }
+#endif
 
 static void st_init_data(void)
 {

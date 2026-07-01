@@ -223,11 +223,9 @@ static void m_quit_doom(int choice);
 
 static void m_change_messages(int choice);
 static void m_change_sensitivity(int choice);
-static void m_sfx_vol(int choice);
-static void m_music_vol(int choice);
+static void m_sound(int choice);
 static void m_change_detail(int choice);
 static void m_size_display(int choice);
-static void m_sound(int choice);
 
 static void m_finish_read_this(int choice);
 static void m_load_select(int choice);
@@ -242,7 +240,6 @@ static void m_draw_read_this2(void);
 static void m_draw_new_game(void);
 static void m_draw_episode(void);
 static void m_draw_options(void);
-static void m_draw_sound(void);
 static void m_draw_load(void);
 static void m_draw_save(void);
 
@@ -255,6 +252,12 @@ static int m_string_height(const char *string);
 static void m_start_message(const char *string,
         void *routine, boolean input);
 static void m_clear_menus(void);
+
+#ifdef CONFIG_GAMES_NXDOOM_SOUND
+static void m_sfx_vol(int choice);
+static void m_music_vol(int choice);
+static void m_draw_sound(void);
+#endif
 
 /****************************************************************************
  * Public Data
@@ -282,8 +285,6 @@ boolean inhelpscreens;
 
 /* message x & y */
 
-static int g_messx;
-static int g_messy;
 static int g_message_last_menu_active;
 
 /* timed message = no input from user */
@@ -915,7 +916,7 @@ void m_quick_save(void)
   m_start_message(g_tempstring, m_quick_save_response, true);
 }
 
-void m_quick_load(void)
+static void m_quick_load(void)
 {
   if (netgame)
     {
@@ -938,7 +939,7 @@ void m_quick_load(void)
  * Had a "quick hack to fix romero bug"
  */
 
-void m_draw_read_this1(void)
+static void m_draw_read_this1(void)
 {
   inhelpscreens = true;
 
@@ -947,7 +948,7 @@ void m_draw_read_this1(void)
 
 /* Read This Menus - optional second page. */
 
-void m_draw_read_this2(void)
+static void m_draw_read_this2(void)
 {
   inhelpscreens = true;
 
@@ -960,11 +961,11 @@ void m_draw_read_this2(void)
 
 /* Change Sfx & Music volumes */
 
-void m_draw_sound(void)
+#ifdef CONFIG_GAMES_NXDOOM_SOUND
+static void m_draw_sound(void)
 {
   v_draw_patch_direct(60, 38, w_cache_lump_name(("M_SVOL"), PU_CACHE));
 
-#ifdef CONFIG_GAMES_NXDOOM_SOUND
   m_draw_thermo(g_sound_def.x,
                 g_sound_def.y + LINEHEIGHT * (SOUND_SFXVOL + 1), 16,
                 g_sfx_volume);
@@ -972,19 +973,19 @@ void m_draw_sound(void)
   m_draw_thermo(g_sound_def.x,
                 g_sound_def.y + LINEHEIGHT * (SOUND_MUSICVOL + 1), 16,
                 g_music_volume);
-#endif
 }
+#endif
 
-void m_sound(int choice)
+static void m_sound(int choice)
 {
 #ifdef CONFIG_GAMES_NXDOOM_SOUND
   m_setup_next_menu(&g_sound_def);
 #endif
 }
 
-void m_sfx_vol(int choice)
-{
 #ifdef CONFIG_GAMES_NXDOOM_SOUND
+static void m_sfx_vol(int choice)
+{
   switch (choice)
     {
     case 0:
@@ -996,12 +997,12 @@ void m_sfx_vol(int choice)
     }
 
   s_set_sfx_volume(g_sfx_volume * 8);
-#endif
 }
+#endif
 
-void m_music_vol(int choice)
-{
 #ifdef CONFIG_GAMES_NXDOOM_SOUND
+static void m_music_vol(int choice)
+{
   switch (choice)
     {
     case 0:
@@ -1013,8 +1014,8 @@ void m_music_vol(int choice)
     }
 
   s_set_music_volume(g_music_volume * 8);
-#endif
 }
+#endif
 
 void m_drawmain_menu(void)
 {
