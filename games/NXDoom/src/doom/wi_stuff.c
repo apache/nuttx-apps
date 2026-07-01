@@ -479,7 +479,7 @@ static void wi_load_unload_data(load_callback_t callback)
 {
   int8_t i;
   int8_t j;
-  char name[9];
+  char name[23];
   anim_t *a;
 
   if (gamemode == commercial)

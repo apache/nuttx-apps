@@ -73,6 +73,7 @@ static const short g_code_page_to_unicode[] = CODE_PAGE_TO_UNICODE;
  * blinking characters.
  */
 
+#if 0 /* UNUSED */
 static int txt_has_blinking_chars(void)
 {
   int x;
@@ -111,6 +112,7 @@ static void txt_string_concat(char *dest, const char *src, size_t dest_len)
 
   txt_string_copy(dest + offset, src, dest_len - offset);
 }
+#endif
 
 /****************************************************************************
  * Public Functions

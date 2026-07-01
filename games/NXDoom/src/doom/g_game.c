@@ -394,6 +394,7 @@ static int g_next_weapon(int direction)
   return weapon_order_table[i].weapon_num;
 }
 
+#if 0 /* UNUSED */
 static int g_cmd_checksum(ticcmd_t *cmd)
 {
   size_t i;
@@ -404,6 +405,7 @@ static int g_cmd_checksum(ticcmd_t *cmd)
 
   return sum;
 }
+#endif
 
 static void g_do_load_level(void)
 {
@@ -815,7 +817,7 @@ static void g_do_save_game(void)
 
 static const char *demo_version_description(int version)
 {
-  static char resultbuf[16];
+  static char resultbuf[24];
 
   switch (version)
     {
@@ -1281,12 +1283,14 @@ static void g_write_demo_ticcmd(ticcmd_t *cmd)
  * Called by the game initialization functions.
  */
 
+#if 0 /* UNUSED */
 static void g_init_player(int player)
 {
   /* clear everything else to defaults */
 
   g_player_reborn(player);
 }
+#endif
 
 /****************************************************************************
  * Public Functions
