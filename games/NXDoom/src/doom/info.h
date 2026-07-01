@@ -1154,9 +1154,7 @@ typedef enum
   NUMSTATES
 } statenum_t;
 
-/* Tightly packed to save space! */
-
-begin_packed_struct struct state_t
+struct state_t
 {
   actionf_t action; /* void (*action) (); */
   spritenum_t sprite;
@@ -1179,7 +1177,7 @@ begin_packed_struct struct state_t
   int misc1;
   int misc2;
 #endif
-} end_packed_struct;
+};
 
 typedef struct state_t state_t;
 
