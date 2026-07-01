@@ -118,6 +118,7 @@ static void p_set_psprite(player_t *player, int position, statenum_t stnum)
   /* an initial state of 0 could cycle through */
 }
 
+#if 0 /* UNUSED */
 static void p_calc_swing(player_t *player)
 {
   fixed_t swing;
@@ -135,6 +136,7 @@ static void p_calc_swing(player_t *player)
   angle = (FINEANGLES / 70 * leveltime + FINEANGLES / 2) & FINEMASK;
   swingy = -fixed_mul(swingx, finesine[angle]);
 }
+#endif
 
 /* p_bringup_weapon
  * Starts bringing the pending weapon up from the bottom of the screen. Uses

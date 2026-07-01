@@ -104,6 +104,7 @@ txt_widget_class_t txt_fileselect_class =
  * Private Functions
  ****************************************************************************/
 
+#if 0 /* UNUSED */
 static char *exec_read_output(char **argv)
 {
   char *result;
@@ -261,6 +262,7 @@ static char *txt_select_file(const char *window_title,
 {
   return NULL;
 }
+#endif
 
 static void txt_file_select_size_calc(TXT_UNCAST_ARG(fileselect))
 {

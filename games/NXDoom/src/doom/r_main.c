@@ -139,6 +139,7 @@ int setdetail;
  *
  ****************************************************************************/
 
+#if 0 /* UNUSED */
 static void r_add_point_to_box(int x, int y, fixed_t *box)
 {
   if (x < box[BOXLEFT]) box[BOXLEFT] = x;
@@ -146,6 +147,7 @@ static void r_add_point_to_box(int x, int y, fixed_t *box)
   if (y < box[BOXBOTTOM]) box[BOXBOTTOM] = y;
   if (y > box[BOXTOP]) box[BOXTOP] = y;
 }
+#endif
 
 /****************************************************************************
  * Name: r_setup_frame

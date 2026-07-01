@@ -607,6 +607,7 @@ static boolean stopped = true;
  *
  ****************************************************************************/
 
+#if 0 /* UNUSED */
 static void am_get_i_slope(mline_t *ml, islope_t *is)
 {
   int dx;
@@ -623,6 +624,7 @@ static void am_get_i_slope(mline_t *ml, islope_t *is)
   else
     is->slp = fixed_div(dy, dx);
 }
+#endif
 
 /****************************************************************************
  * Name: am_activate_new_scale
@@ -1004,6 +1006,7 @@ static void am_do_follow_player(void)
  * Name: am_update_light_lev
  ****************************************************************************/
 
+#if 0 /* UNUSED */
 static void am_update_light_lev(void)
 {
   static int nexttic = 0;
@@ -1026,6 +1029,7 @@ static void am_update_light_lev(void)
       nexttic = amclock + 6 - (amclock % 6);
     }
 }
+#endif
 
 /****************************************************************************
  * Name: am_clear_fb
