@@ -72,6 +72,10 @@ config TESTING_ARCH_LIBC_STRRCHR
 	bool "test strrchr"
 	default y
 
+config TESTING_ARCH_LIBC_STRCHRNUL
+	bool "test strchrnul"
+	default y
+
 config TESTING_ARCH_LIBC_PROGNAME
 	string "Program name"
 	default "arch_libctest"
