@@ -27,8 +27,15 @@ PRIORITY = $(CONFIG_EXAMPLES_LVGLTERM_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_LVGLTERM_STACKSIZE)
 MODULE = $(CONFIG_EXAMPLES_LVGLTERM)
 
-# LVGL Terminal
+# LVGL Terminal.  lvglterm.c holds the shared core; the input source is
+# selected at build time (on-screen keyboard for touch, /dev/kbdN otherwise).
 
 MAINSRC = lvglterm.c
+
+ifeq ($(CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD),y)
+CSRCS = lvglterm_kbd.c
+else
+CSRCS = lvglterm_touch.c
+endif
 
 include $(APPDIR)/Application.mk
