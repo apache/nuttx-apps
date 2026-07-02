@@ -12,6 +12,56 @@ menuconfig EXAMPLES_LVGLTERM
 
 if EXAMPLES_LVGLTERM
 
+choice
+	prompt "LVGL Terminal input source"
+	default EXAMPLES_LVGLTERM_INPUT_TOUCH
+	---help---
+		Select how the terminal receives keystrokes.  Only one input source
+		is built at a time.
+
+config EXAMPLES_LVGLTERM_INPUT_TOUCH
+	bool "On-screen keyboard (touch)"
+	---help---
+		Input comes from an on-screen LVGL keyboard operated by touch; a
+		command line is typed and submitted with Enter.  This is the default
+		and matches the original behaviour.
+
+config EXAMPLES_LVGLTERM_INPUT_KBD
+	bool "Physical keyboard (/dev/kbdN)"
+	depends on INPUT_KEYBOARD
+	---help---
+		Input comes from a physical keyboard registered as a /dev/kbdN
+		device; keystrokes are streamed to the shell and the output fills
+		the whole screen.
+
+endchoice
+
+config EXAMPLES_LVGLTERM_KBD_DEV
+	string "Keyboard device path"
+	default "/dev/kbd0"
+	depends on EXAMPLES_LVGLTERM_INPUT_KBD
+	---help---
+		Keyboard device the terminal reads key events from.  Can also be
+		overridden at run time by passing the path as the first command-line
+		argument (useful when more than one keyboard is present).
+
+choice
+	prompt "LVGL Terminal font"
+	default EXAMPLES_LVGLTERM_FONT_UNSCII_16
+	---help---
+		Monospaced font used to render the terminal.  Use the smaller UNSCII 8
+		on low-resolution displays where UNSCII 16 shows too few columns.
+
+config EXAMPLES_LVGLTERM_FONT_UNSCII_8
+	bool "UNSCII 8 (small)"
+	select LV_FONT_UNSCII_8
+
+config EXAMPLES_LVGLTERM_FONT_UNSCII_16
+	bool "UNSCII 16"
+	select LV_FONT_UNSCII_16
+
+endchoice
+
 config EXAMPLES_LVGLTERM_PRIORITY
 	int "lvglterm task priority"
 	default 100

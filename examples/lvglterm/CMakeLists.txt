@@ -21,6 +21,12 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_LVGLTERM)
+  if(CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD)
+    set(lvglterm_input lvglterm_kbd.c)
+  else()
+    set(lvglterm_input lvglterm_touch.c)
+  endif()
+
   nuttx_add_application(
     NAME
     lvglterm
@@ -31,5 +37,6 @@ if(CONFIG_EXAMPLES_LVGLTERM)
     MODULE
     ${CONFIG_EXAMPLES_LVGLTERM}
     SRCS
-    lvglterm.c)
+    lvglterm.c
+    ${lvglterm_input})
 endif()
