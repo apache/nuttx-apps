@@ -43,6 +43,7 @@ struct dropbear_nshsession_s
   pthread_t waiter;
   bool waiter_started;
   bool have_winsize;
+  bool has_pty;
   struct winsize win;
 };
 
@@ -80,16 +81,7 @@ static const struct dropbear_signal_name_s g_dropbear_signals[] =
 static int dropbear_nsh_main(int argc, FAR char *argv[])
 {
   FAR struct console_stdio_s *pstate;
-  FAR char *nsh_argv[] =
-  {
-    "nsh",
-    NULL
-  };
-
   int ret;
-
-  (void)argc;
-  (void)argv;
 
   pstate = nsh_newconsole(true);
   if (pstate == NULL)
@@ -98,7 +90,7 @@ static int dropbear_nsh_main(int argc, FAR char *argv[])
       return -ENOMEM;
     }
 
-  ret = nsh_session(pstate, NSH_LOGIN_NONE, 1, nsh_argv);
+  ret = nsh_session(pstate, NSH_LOGIN_NONE, argc, argv);
   dropbear_log(LOG_INFO, "NSH session exited: %d", ret);
 
   nsh_exit(&pstate->cn_vtbl, ret);
@@ -208,6 +200,29 @@ dropbear_setup_spawn_stdio(FAR posix_spawn_file_actions_t *actions,
   return 0;
 }
 
+#ifdef CONFIG_NETUTILS_DROPBEAR_SCP
+static int
+dropbear_setup_spawn_stdio3(FAR posix_spawn_file_actions_t *actions,
+                            int stdinfd, int stdoutfd, int stderrfd)
+{
+  int rc;
+
+  rc = posix_spawn_file_actions_adddup2(actions, stdinfd, STDIN_FILENO);
+  if (rc != 0)
+    {
+      return rc;
+    }
+
+  rc = posix_spawn_file_actions_adddup2(actions, stdoutfd, STDOUT_FILENO);
+  if (rc != 0)
+    {
+      return rc;
+    }
+
+  return posix_spawn_file_actions_adddup2(actions, stderrfd, STDERR_FILENO);
+}
+#endif /* CONFIG_NETUTILS_DROPBEAR_SCP */
+
 static int
 dropbear_setup_spawn_close(FAR posix_spawn_file_actions_t *actions,
                            int fd)
@@ -220,18 +235,21 @@ dropbear_setup_spawn_close(FAR posix_spawn_file_actions_t *actions,
   return posix_spawn_file_actions_addclose(actions, fd);
 }
 
+static void dropbear_close_fd(FAR int *fd)
+{
+  if (*fd >= 0)
+    {
+      close(*fd);
+      *fd = -1;
+    }
+}
+
 static int dropbear_start_nsh(FAR struct dropbear_channel *channel,
                               FAR struct dropbear_nshsession_s *sess)
 {
   posix_spawn_file_actions_t actions;
   posix_spawnattr_t attr;
   FAR const char *errmsg;
-  FAR char * const argv[] =
-  {
-    "nsh",
-    NULL
-  };
-
   int masterfd;
   int slavefd;
   int writefd;
@@ -318,7 +336,7 @@ static int dropbear_start_nsh(FAR struct dropbear_channel *channel,
     }
 
   sess->nsh_pid = task_spawn("dropbear nsh", dropbear_nsh_main, &actions,
-                             &attr, argv, NULL);
+                             &attr, NULL, NULL);
   if (sess->nsh_pid < 0)
     {
       dropbear_log(LOG_WARNING, "failed to create NSH task: %s",
@@ -345,6 +363,7 @@ static int dropbear_start_nsh(FAR struct dropbear_channel *channel,
     }
 
   sess->waiter_started = true;
+  sess->has_pty = true;
   sess->pty_readfd = masterfd;
   sess->pty_writefd = writefd;
 
@@ -387,6 +406,201 @@ err_with_actions:
   sess->nsh_pid = -1;
   return DROPBEAR_FAILURE;
 }
+
+#ifdef CONFIG_NETUTILS_DROPBEAR_SCP
+static int dropbear_start_exec(FAR struct dropbear_channel *channel,
+                               FAR struct dropbear_nshsession_s *sess,
+                               FAR char *cmd)
+{
+  posix_spawn_file_actions_t actions;
+  posix_spawnattr_t attr;
+  FAR const char *errmsg;
+  FAR char * const argv[] =
+  {
+    "-c",
+    cmd,
+    NULL
+  };
+
+  int inpipe[2] =
+  {
+    -1,
+    -1
+  };
+
+  int outpipe[2] =
+  {
+    -1,
+    -1
+  };
+
+  int errpipe[2] =
+  {
+    -1,
+    -1
+  };
+
+  int rc;
+
+  if (sess->nsh_pid >= 0)
+    {
+      dropbear_log(LOG_WARNING, "NSH exec already running");
+      return DROPBEAR_FAILURE;
+    }
+
+  if (pipe(inpipe) < 0 || pipe(outpipe) < 0 || pipe(errpipe) < 0)
+    {
+      dropbear_log(LOG_WARNING, "exec pipe setup failed: %s",
+                   strerror(errno));
+      goto err_with_pipes;
+    }
+
+  rc = posix_spawn_file_actions_init(&actions);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn actions init failed: %s",
+                   strerror(rc));
+      goto err_with_pipes;
+    }
+
+  rc = posix_spawnattr_init(&attr);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn attr init failed: %s", strerror(rc));
+      goto err_with_actions;
+    }
+
+  rc = dropbear_setup_spawn_attrs(&attr, &errmsg);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "%s failed: %s", errmsg, strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_stdio3(&actions, inpipe[0], outpipe[1],
+                                   errpipe[1]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stdio setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_close(&actions, inpipe[0]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stdin close setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_close(&actions, inpipe[1]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stdin writer close setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_close(&actions, outpipe[0]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stdout reader close setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_close(&actions, outpipe[1]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stdout close setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_close(&actions, errpipe[0]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stderr reader close setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  rc = dropbear_setup_spawn_close(&actions, errpipe[1]);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "spawn stderr close setup failed: %s",
+                   strerror(rc));
+      goto err_with_attr;
+    }
+
+  sess->nsh_pid = task_spawn("dropbear exec", dropbear_nsh_main, &actions,
+                             &attr, argv, NULL);
+  if (sess->nsh_pid < 0)
+    {
+      dropbear_log(LOG_WARNING, "failed to create NSH exec task: %s",
+                   strerror(-sess->nsh_pid));
+      goto err_with_attr;
+    }
+
+  dropbear_close_fd(&inpipe[0]);
+  dropbear_close_fd(&outpipe[1]);
+  dropbear_close_fd(&errpipe[1]);
+
+  rc = pthread_create(&sess->waiter, NULL, dropbear_nsh_waiter, sess);
+  if (rc != 0)
+    {
+      dropbear_log(LOG_WARNING, "failed to create NSH exec waiter: %s",
+                   strerror(rc));
+      dropbear_close_fd(&inpipe[1]);
+      dropbear_close_fd(&outpipe[0]);
+      dropbear_close_fd(&errpipe[0]);
+      kill(sess->nsh_pid, SIGTERM);
+      waitpid(sess->nsh_pid, NULL, 0);
+      sess->nsh_pid = -1;
+      goto err_with_attr;
+    }
+
+  sess->waiter_started = true;
+  sess->has_pty = false;
+  sess->pty_readfd = -1;
+  sess->pty_writefd = -1;
+
+  channel->readfd = outpipe[0];
+  channel->writefd = inpipe[1];
+  channel->errfd = errpipe[0];
+  channel->bidir_fd = 0;
+
+  setnonblocking(channel->readfd);
+  setnonblocking(channel->writefd);
+  setnonblocking(channel->errfd);
+  ses.maxfd = MAX(ses.maxfd, channel->readfd);
+  ses.maxfd = MAX(ses.maxfd, channel->writefd);
+  ses.maxfd = MAX(ses.maxfd, channel->errfd);
+
+  posix_spawnattr_destroy(&attr);
+  posix_spawn_file_actions_destroy(&actions);
+
+  dropbear_log(LOG_INFO, "NSH exec started: %s", cmd);
+  return DROPBEAR_SUCCESS;
+
+err_with_attr:
+  posix_spawnattr_destroy(&attr);
+
+err_with_actions:
+  posix_spawn_file_actions_destroy(&actions);
+
+err_with_pipes:
+  dropbear_close_fd(&inpipe[0]);
+  dropbear_close_fd(&inpipe[1]);
+  dropbear_close_fd(&outpipe[0]);
+  dropbear_close_fd(&outpipe[1]);
+  dropbear_close_fd(&errpipe[0]);
+  dropbear_close_fd(&errpipe[1]);
+  sess->nsh_pid = -1;
+  return DROPBEAR_FAILURE;
+}
+#endif /* CONFIG_NETUTILS_DROPBEAR_SCP */
 
 static void dropbear_parse_winsize(FAR struct dropbear_nshsession_s *sess)
 {
@@ -445,7 +659,7 @@ static int dropbear_write_terminal_signal(
   unsigned char ch;
   ssize_t nwritten;
 
-  if (signo == SIGINT && sess->pty_writefd >= 0)
+  if (signo == SIGINT && sess->has_pty && sess->pty_writefd >= 0)
     {
       ch = CONFIG_TTY_SIGINT_CHAR;
       nwritten = write(sess->pty_writefd, &ch, sizeof(ch));
@@ -528,7 +742,16 @@ static void dropbear_chansessionrequest(FAR struct dropbear_channel *channel)
     }
   else if (strcmp(type, "exec") == 0)
     {
+#ifdef CONFIG_NETUTILS_DROPBEAR_SCP
+      unsigned int cmdlen;
+      FAR char *cmd;
+
+      cmd = buf_getstring(ses.payload, &cmdlen);
+      ret = dropbear_start_exec(channel, sess, cmd);
+      m_free(cmd);
+#else
       dropbear_log(LOG_WARNING, "SSH exec requests are not supported");
+#endif
     }
   else if (strcmp(type, "window-change") == 0)
     {
