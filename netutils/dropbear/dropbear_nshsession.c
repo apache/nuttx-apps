@@ -47,33 +47,6 @@ struct dropbear_nshsession_s
   struct winsize win;
 };
 
-struct dropbear_signal_name_s
-{
-  FAR const char *name;
-  int signo;
-};
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-static const struct dropbear_signal_name_s g_dropbear_signals[] =
-{
-  { "ABRT", SIGABRT },
-  { "ALRM", SIGALRM },
-  { "FPE",  SIGFPE },
-  { "HUP",  SIGHUP },
-  { "ILL",  SIGILL },
-  { "INT",  SIGINT },
-  { "KILL", SIGKILL },
-  { "PIPE", SIGPIPE },
-  { "QUIT", SIGQUIT },
-  { "SEGV", SIGSEGV },
-  { "TERM", SIGTERM },
-  { "USR1", SIGUSR1 },
-  { "USR2", SIGUSR2 },
-};
-
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -640,11 +613,11 @@ static int dropbear_signal_from_name(FAR const char *name)
 {
   int i;
 
-  for (i = 0; i < nitems(g_dropbear_signals); i++)
+  for (i = 0; signames[i].name != NULL; i++)
     {
-      if (strcmp(name, g_dropbear_signals[i].name) == 0)
+      if (strcmp(name, signames[i].name) == 0)
         {
-          return g_dropbear_signals[i].signo;
+          return signames[i].signal;
         }
     }
 
