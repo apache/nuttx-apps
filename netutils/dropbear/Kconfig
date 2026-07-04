@@ -70,6 +70,26 @@ config NETUTILS_DROPBEAR_SHELL_STACKSIZE
 	int "Dropbear NSH session task stack size"
 	default 8192
 
+config NETUTILS_DROPBEAR_SCP
+	bool "Enable scp remote copy helper"
+	default y
+	depends on PIPES
+	---help---
+		Build Dropbear's scp program and allow SSH exec requests so a host
+		scp client can copy files to and from NuttX using the legacy scp
+		protocol.  This does not build a full SSH client for initiating scp
+		transfers from the target.
+
+config NETUTILS_DROPBEAR_SCP_STACKSIZE
+	int "Dropbear scp stack size"
+	default 32768
+	depends on NETUTILS_DROPBEAR_SCP
+
+config NETUTILS_DROPBEAR_SCP_PRIORITY
+	int "Dropbear scp priority"
+	default 100
+	depends on NETUTILS_DROPBEAR_SCP
+
 config NETUTILS_DROPBEAR_PORT
 	int "Dropbear listen port"
 	default 2222
