@@ -40,6 +40,12 @@ PROGNAME = $(CONFIG_NETUTILS_DROPBEAR_PROGNAME)
 PRIORITY = $(CONFIG_NETUTILS_DROPBEAR_PRIORITY)
 STACKSIZE = $(CONFIG_NETUTILS_DROPBEAR_STACKSIZE)
 
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_SCP),)
+PROGNAME += scp
+PRIORITY += $(CONFIG_NETUTILS_DROPBEAR_SCP_PRIORITY)
+STACKSIZE += $(CONFIG_NETUTILS_DROPBEAR_SCP_STACKSIZE)
+endif
+
 CFLAGS += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)netutils$(DELIM)dropbear"
 CFLAGS += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)port"
 CFLAGS += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)dropbear"
@@ -116,10 +122,30 @@ TOMCRYPT_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" ]; then
 CSRCS += $(TOMMATH_SRCS)
 CSRCS += $(TOMCRYPT_SRCS)
 
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_SCP),)
+CSRCS += dropbear/src/scpmisc.c
+CSRCS += port/nuttx_scp.c
+endif
+
 # Match the ESP-IDF port behavior: LTC_SOURCE is only for libtomcrypt sources.
 $(foreach src,$(TOMCRYPT_SRCS),$(eval $(src)_CFLAGS += ${DEFINE_PREFIX}LTC_SOURCE=1))
 
 MAINSRC = dropbear_main.c
+
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_SCP),)
+MAINSRC += dropbear/src/scp.c
+
+dropbear/src/scp.c_CFLAGS += ${DEFINE_PREFIX}xmalloc=dropbear_scp_xmalloc
+dropbear/src/scp.c_CFLAGS += ${DEFINE_PREFIX}xrealloc=dropbear_scp_xrealloc
+dropbear/src/scp.c_CFLAGS += ${DEFINE_PREFIX}xfree=dropbear_scp_xfree
+dropbear/src/scp.c_CFLAGS += ${DEFINE_PREFIX}execvp=dropbear_scp_execvp
+dropbear/src/scp.c_CFLAGS += -include port/nuttx_scp.h
+dropbear/src/scp.c_CFLAGS += -Wno-strict-prototypes
+
+dropbear/src/scpmisc.c_CFLAGS += ${DEFINE_PREFIX}xmalloc=dropbear_scp_xmalloc
+dropbear/src/scpmisc.c_CFLAGS += ${DEFINE_PREFIX}xrealloc=dropbear_scp_xrealloc
+dropbear/src/scpmisc.c_CFLAGS += ${DEFINE_PREFIX}xfree=dropbear_scp_xfree
+endif
 
 $(DROPBEAR_ZIP):
 	@echo "Downloading: $(DROPBEAR_ZIP)"

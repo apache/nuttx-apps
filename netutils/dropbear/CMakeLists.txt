@@ -137,6 +137,10 @@ if(CONFIG_NETUTILS_DROPBEAR)
   list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/prngs/sober128tab\\.c$")
   list(APPEND DROPBEAR_SRCS ${LIBTOMCRYPT_SRCS})
 
+  if(CONFIG_NETUTILS_DROPBEAR_SCP)
+    list(APPEND DROPBEAR_SRCS dropbear/src/scpmisc.c port/nuttx_scp.c)
+  endif()
+
   nuttx_add_application(
     NAME
     ${PROGNAME}
@@ -150,6 +154,20 @@ if(CONFIG_NETUTILS_DROPBEAR)
     DEPENDS
     ${DROPBEAR_UNPACKNAME})
 
+  if(CONFIG_NETUTILS_DROPBEAR_SCP)
+    nuttx_add_application(
+      NAME
+      scp
+      SRCS
+      dropbear/src/scp.c
+      STACKSIZE
+      ${CONFIG_NETUTILS_DROPBEAR_SCP_STACKSIZE}
+      PRIORITY
+      ${CONFIG_NETUTILS_DROPBEAR_SCP_PRIORITY}
+      DEPENDS
+      ${DROPBEAR_UNPACKNAME})
+  endif()
+
   target_include_directories(
     ${PROGNAME}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
@@ -160,6 +178,14 @@ if(CONFIG_NETUTILS_DROPBEAR)
             ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/libtommath
             ${CMAKE_CURRENT_SOURCE_DIR}/../../nshlib)
 
+  if(CONFIG_NETUTILS_DROPBEAR_SCP)
+    target_include_directories(
+      scp
+      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/port
+              ${CMAKE_CURRENT_SOURCE_DIR}/dropbear
+              ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/src)
+  endif()
+
   if(CONFIG_NETUTILS_DROPBEAR_COMPRESSION)
     target_include_directories(
       ${PROGNAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../system/zlib/zlib)
@@ -169,16 +195,45 @@ if(CONFIG_NETUTILS_DROPBEAR)
     ${PROGNAME} PRIVATE LOCALOPTIONS_H_EXISTS=1 DROPBEAR_NUTTX=1
                         DROPBEAR_NUTTX_PASSWD=1)
 
+  if(CONFIG_NETUTILS_DROPBEAR_SCP)
+    target_compile_definitions(
+      scp PRIVATE LOCALOPTIONS_H_EXISTS=1 DROPBEAR_NUTTX=1
+                  DROPBEAR_NUTTX_PASSWD=1)
+  endif()
+
   set_source_files_properties(
     dropbear_nshsession.c
     PROPERTIES COMPILE_DEFINITIONS
                "Channel=dropbear_channel;ChanType=dropbear_chantype")
+
+  if(CONFIG_NETUTILS_DROPBEAR_SCP)
+    set_source_files_properties(
+      dropbear/src/scp.c
+      PROPERTIES
+        COMPILE_DEFINITIONS
+        "xmalloc=dropbear_scp_xmalloc;xrealloc=dropbear_scp_xrealloc;xfree=dropbear_scp_xfree;execvp=dropbear_scp_execvp"
+    )
+    set_source_files_properties(
+      dropbear/src/scpmisc.c
+      PROPERTIES
+        COMPILE_DEFINITIONS
+        "xmalloc=dropbear_scp_xmalloc;xrealloc=dropbear_scp_xrealloc;xfree=dropbear_scp_xfree"
+    )
+  endif()
 
   # LTC_SOURCE must be set only for libtomcrypt sources.
   set_source_files_properties(${LIBTOMCRYPT_SRCS} PROPERTIES COMPILE_DEFINITIONS
                                                              LTC_SOURCE=1)
 
   target_compile_options(${PROGNAME} PRIVATE -Wno-pointer-sign -Wno-format)
+
+  if(CONFIG_NETUTILS_DROPBEAR_SCP)
+    target_compile_options(
+      scp
+      PRIVATE -Wno-pointer-sign -Wno-format -include
+              ${CMAKE_CURRENT_SOURCE_DIR}/port/nuttx_scp.h
+              -Wno-strict-prototypes)
+  endif()
 
   target_sources(apps PRIVATE ${DROPBEAR_SRCS})
 
