@@ -88,10 +88,9 @@ int main(int argc, FAR char *argv[])
 
   myaddr.sun_family = AF_LOCAL;
   strlcpy(myaddr.sun_path, CONFIG_EXAMPLES_USTREAM_ADDR, addrlen);
-  myaddr.sun_path[addrlen] = '\0';
 
   printf("client: Connecting to %s...\n", CONFIG_EXAMPLES_USTREAM_ADDR);
-  addrlen += sizeof(sa_family_t) + 1;
+  addrlen += sizeof(sa_family_t);
   ret = connect(sockfd, (struct sockaddr *)&myaddr, addrlen);
   if (ret < 0)
     {

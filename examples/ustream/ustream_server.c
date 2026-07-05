@@ -88,9 +88,8 @@ int main(int argc, char *argv[])
 
   myaddr.sun_family = AF_LOCAL;
   strlcpy(myaddr.sun_path, CONFIG_EXAMPLES_USTREAM_ADDR, addrlen);
-  myaddr.sun_path[addrlen] = '\0';
 
-  addrlen += sizeof(sa_family_t) + 1;
+  addrlen += sizeof(sa_family_t);
   ret = bind(listensd, (struct sockaddr *)&myaddr, addrlen);
   if (ret < 0)
     {
