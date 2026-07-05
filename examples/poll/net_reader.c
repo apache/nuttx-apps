@@ -121,7 +121,7 @@ static void net_configure(void)
 static void net_receive(int sd)
 {
   struct timeval timeout;
-  char buffer[IOBUFFER_SIZE];
+  char buffer[IOBUFFER_SIZE + 1];
   char *ptr;
   fd_set readset;
   int nbytes;

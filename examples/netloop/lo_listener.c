@@ -64,7 +64,7 @@ struct net_listener_s
   struct sockaddr_in addr;
   fd_set          master;
   fd_set          working;
-  char            buffer[IOBUFFER_SIZE];
+  char            buffer[IOBUFFER_SIZE + 1];
   int             listensd;
   int             mxsd;
 };

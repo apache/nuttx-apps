@@ -63,7 +63,7 @@ static int lo_client(void)
 {
   struct sockaddr_in myaddr;
   char outbuf[IOBUFFER_SIZE];
-  char inbuf[IOBUFFER_SIZE];
+  char inbuf[IOBUFFER_SIZE + 1];
   int sockfd;
   int len;
   int nbytessent;
