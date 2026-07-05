@@ -25,18 +25,21 @@ config FSUTILS_PASSWD_IOBUFFER_SIZE
 
 config FSUTILS_PASSWD_KEY1
 	hex "Encryption key value 1"
-	default 0x12345678
+	default 0
+	---help---
+		Leave at 0 if random key generation is enabled under Board
+		Selection. Otherwise set all four keys to unique non-zero values.
 
 config FSUTILS_PASSWD_KEY2
 	hex "Encryption key value 2"
-	default 0x9abcdef0
+	default 0
 
 config FSUTILS_PASSWD_KEY3
 	hex "Encryption key value 3"
-	default 0x12345678
+	default 0
 
 config FSUTILS_PASSWD_KEY4
 	hex "Encryption key value 4"
-	default 0x9abcdef0
+	default 0
 
 endif # FSUTILS_PASSWD
