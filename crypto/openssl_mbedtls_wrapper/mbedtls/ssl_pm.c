@@ -44,6 +44,20 @@
 
 #define X509_INFO_STRING_LENGTH 8192
 #define READ_TIMEOUT_MS         50000   /* 50 seconds */
+#define SSL_COMPAT_NAME2(a, b)  a ## _ ## b
+#define SSL_COMPAT_NAME3(a, b, c) a ## _ ## b ## _ ## c
+#define SSL_COMPAT_NAME4(a, b, c, d) a ## _ ## b ## _ ## c ## _ ## d
+#define SSL_COMPAT_NAME5(a, b, c, d, e) \
+  a ## _ ## b ## _ ## c ## _ ## d ## _ ## e
+#define SSL_COMPAT_CLIENT_CA SSL_COMPAT_NAME2(client, CA)
+#define SSL_COMPAT_X509_VERIFY_PARAM_SET1_HOST \
+  SSL_COMPAT_NAME3(X509_VERIFY_PARAM, set1, host)
+#define SSL_COMPAT_GET0_ALPN_SELECTED \
+  SSL_COMPAT_NAME3(SSL, get0, alpn_selected)
+#define SSL_COMPAT_SET_SNI_CALLBACK SSL_COMPAT_NAME4(SSL, set, sni, callback)
+#define SSL_COMPAT_FROM_MBEDTLS_SSL_CONTEXT \
+  SSL_COMPAT_NAME5(SSL, SSL, from, mbedtls_ssl, context)
+#define SSL_COMPAT_SET_SSL_CTX SSL_COMPAT_NAME4(SSL, set, SSL, CTX)
 
 /****************************************************************************
  * Private Types
@@ -268,7 +282,8 @@ static int ssl_pm_reload_crt(SSL *ssl)
   int ret = 0;
   int mode;
   struct ssl_pm *ssl_pm = ssl->ssl_pm;
-  struct x509_pm *ca_pm = (struct x509_pm *)ssl->client_CA->x509_pm;
+  struct x509_pm *ca_pm =
+    (struct x509_pm *)ssl->SSL_COMPAT_CLIENT_CA->x509_pm;
 
   struct pkey_pm *pkey_pm = (struct pkey_pm *)ssl->cert->pkey->pkey_pm;
   struct x509_pm *crt_pm = (struct x509_pm *)ssl->cert->x509->x509_pm;
@@ -534,7 +549,7 @@ int ssl_pm_send(SSL *ssl, const void *buffer, int len)
    * If this function returns something other than a positive value or
    * MBEDTLS_ERR_SSL_WANT_READ/WRITE, the ssl context becomes unusable, and
    * you should either free it or call mbedtls_ssl_session_reset() on it
-   * before re-using it for a new connection; the current connection must
+   * before reusing it for a new connection; the current connection must
    * be closed.
    *
    * When this function returns MBEDTLS_ERR_SSL_WANT_WRITE/READ, it must be
@@ -677,9 +692,9 @@ int x509_pm_show_info(X509 *x)
 
   buf[ret] = 0;
 
-  ssl_mem_free(buf);
-
   SSL_DEBUG(SSL_DEBUG_ON, "%s", buf);
+
+  ssl_mem_free(buf);
 
   return 0;
 
@@ -965,8 +980,8 @@ long ssl_pm_get_verify_result(const SSL *ssl)
  * @brief set expected hostname on peer cert CN
  */
 
-int X509_VERIFY_PARAM_set1_host(X509_VERIFY_PARAM *param,
-                                const char *name, size_t namelen)
+int SSL_COMPAT_X509_VERIFY_PARAM_SET1_HOST(X509_VERIFY_PARAM *param,
+                                           const char *name, size_t namelen)
 {
   SSL *ssl = (SSL *)((char *)param - offsetof(SSL, param));
   struct ssl_pm *ssl_pm = (struct ssl_pm *)ssl->ssl_pm;
@@ -1024,8 +1039,9 @@ void _ssl_set_alpn_list(const SSL *ssl)
     }
 }
 
-void SSL_get0_alpn_selected(const SSL *ssl, const unsigned char **data,
-                            unsigned int *len)
+void SSL_COMPAT_GET0_ALPN_SELECTED(const SSL *ssl,
+                                   const unsigned char **data,
+                                   unsigned int *len)
 {
   const char *alp = mbedtls_ssl_get_alpn_protocol(
                 &((struct ssl_pm *)(ssl->ssl_pm))->ssl);
@@ -1041,9 +1057,9 @@ void SSL_get0_alpn_selected(const SSL *ssl, const unsigned char **data,
     }
 }
 
-int SSL_set_sni_callback(SSL *ssl,
-                         int(*cb)(void *, mbedtls_ssl_context *,
-                         const unsigned char *, size_t), void *param)
+int SSL_COMPAT_SET_SNI_CALLBACK(SSL *ssl,
+                                int (*cb)(void *, mbedtls_ssl_context *,
+                                const unsigned char *, size_t), void *param)
 {
   struct ssl_pm *ssl_pm = (struct ssl_pm *)ssl->ssl_pm;
 
@@ -1052,7 +1068,7 @@ int SSL_set_sni_callback(SSL *ssl,
   return 0;
 }
 
-SSL *SSL_SSL_from_mbedtls_ssl_context(mbedtls_ssl_context *msc)
+SSL *SSL_COMPAT_FROM_MBEDTLS_SSL_CONTEXT(mbedtls_ssl_context *msc)
 {
   struct ssl_pm *ssl_pm =
         (struct ssl_pm *)((char *)msc - offsetof(struct ssl_pm, ssl));
@@ -1060,11 +1076,12 @@ SSL *SSL_SSL_from_mbedtls_ssl_context(mbedtls_ssl_context *msc)
   return ssl_pm->owner;
 }
 
-void SSL_set_SSL_CTX(SSL *ssl, SSL_CTX *ctx)
+void SSL_COMPAT_SET_SSL_CTX(SSL *ssl, SSL_CTX *ctx)
 {
   struct ssl_pm *ssl_pm = ssl->ssl_pm;
   struct x509_pm *x509_pm = (struct x509_pm *)ctx->cert->x509->x509_pm;
-  struct x509_pm *x509_pm_ca = (struct x509_pm *)ctx->client_CA->x509_pm;
+  struct x509_pm *x509_pm_ca =
+    (struct x509_pm *)ctx->SSL_COMPAT_CLIENT_CA->x509_pm;
 
   struct pkey_pm *pkey_pm = (struct pkey_pm *)ctx->cert->pkey->pkey_pm;
   int mode;
