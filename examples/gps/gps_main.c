@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <wchar.h>
@@ -52,9 +53,11 @@ int main(int argc, FAR char *argv[])
 {
   int fd;
   int cnt;
+  ssize_t nread;
   char ch;
   char line[MINMEA_MAX_LENGTH];
   char *port = "/dev/ttyS1";
+  bool truncated;
 
   /* Get the GPS serial port argument. If none specified, default to ttyS1 */
 
@@ -79,17 +82,37 @@ int main(int argc, FAR char *argv[])
       /* Read until we complete a line */
 
       cnt = 0;
-      do
+      truncated = false;
+
+      for (; ; )
         {
-          read(fd, &ch, 1);
-          if (ch != '\r' && ch != '\n')
+          nread = read(fd, &ch, 1);
+          if (nread <= 0)
+            {
+              continue;
+            }
+
+          if (ch == '\r' || ch == '\n')
+            {
+              break;
+            }
+
+          if (cnt < MINMEA_MAX_LENGTH - 1)
             {
               line[cnt++] = ch;
             }
+          else
+            {
+              truncated = true;
+            }
         }
-      while (ch != '\r' && ch != '\n');
 
       line[cnt] = '\0';
+
+      if (truncated)
+        {
+          continue;
+        }
 
       switch (minmea_sentence_id(line, false))
         {
