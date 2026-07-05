@@ -131,11 +131,16 @@ static void get_cpu(int pid, char *buf)
       return;
     }
 
-  fgets(buf, 8, fp);
+  if (fgets(buf, 8, fp) == NULL)
+    {
+      snprintf(buf, 8, "%.1f%%", 0.0);
+      fclose(fp);
+      return;
+    }
 
   /* sscanf(buf, "%f", &cpu); */
 
-  buf[strlen(buf) - 1] = '\0';
+  buf[strcspn(buf, "\n")] = '\0';
   fclose(fp);
 }
 
