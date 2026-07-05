@@ -134,6 +134,11 @@ static int xmlrpc_getheader(FAR char *buffer, FAR char *header,
   FAR char *temp;
   int i = 0;
 
+  if (size <= 0)
+    {
+      return -1;
+    }
+
   temp = strstr(buffer, header);
   if (temp)
     {
@@ -150,7 +155,7 @@ static int xmlrpc_getheader(FAR char *buffer, FAR char *header,
 
       /* Copy the rest to the value parameter */
 
-      while ((*temp != ' ') && (*temp != '\n') && (i < size))
+      while ((*temp != ' ') && (*temp != '\n') && (i < size - 1))
         {
           value[i++] = *temp++;
         }
@@ -213,7 +218,7 @@ static void xmlrpc_handler(int fd)
                   buffer[max] = 0;
 
                   ret = xmlrpc_getheader(buffer, "Content-Length:", value,
-                                         CONFIG_EXAMPLES_XMLRPC_BUFFERSIZE);
+                                         sizeof(value));
                   if (ret > 0)
                     loadlen = atoi(value);
                 }
