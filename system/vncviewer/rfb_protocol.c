@@ -411,6 +411,36 @@ static int rfb_recv_exact(int sockfd, void *buf, size_t len)
 }
 
 /****************************************************************************
+ * Name: rfb_discard_exact
+ *
+ * Description:
+ *   Receive and discard exactly 'len' bytes from socket.
+ *
+ ****************************************************************************/
+
+static int rfb_discard_exact(int sockfd, size_t len)
+{
+  uint8_t buf[256];
+  size_t chunk;
+  int ret;
+
+  while (len > 0)
+    {
+      chunk = len > sizeof(buf) ? sizeof(buf) : len;
+
+      ret = rfb_recv_exact(sockfd, buf, chunk);
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      len -= chunk;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
  * Name: rfb_send_exact
  *
  * Description:
@@ -621,6 +651,7 @@ static int rfb_client_init(int sockfd, struct rfb_conn_s *conn)
   uint8_t shared = 1;  /* shared session */
   uint8_t buf[24];
   uint32_t name_len;
+  uint32_t copy_len;
   int ret;
 
   /* Send ClientInit */
@@ -645,21 +676,31 @@ static int rfb_client_init(int sockfd, struct rfb_conn_s *conn)
   /* bytes 4..19 = server pixel format (we'll override it) */
 
   name_len = ntohl(*(uint32_t *)&buf[20]);
-  if (name_len > sizeof(conn->name) - 1)
+  copy_len = name_len;
+  if (copy_len > sizeof(conn->name) - 1)
     {
-      name_len = sizeof(conn->name) - 1;
+      copy_len = sizeof(conn->name) - 1;
     }
 
-  if (name_len > 0)
+  if (copy_len > 0)
     {
-      ret = rfb_recv_exact(sockfd, conn->name, name_len);
+      ret = rfb_recv_exact(sockfd, conn->name, copy_len);
       if (ret < 0)
         {
           return ret;
         }
     }
 
-  conn->name[name_len] = '\0';
+  conn->name[copy_len] = '\0';
+
+  if (name_len > copy_len)
+    {
+      ret = rfb_discard_exact(sockfd, name_len - copy_len);
+      if (ret < 0)
+        {
+          return ret;
+        }
+    }
 
   printf("vncviewer: server desktop: \"%s\" %ux%u\n",
          conn->name, conn->fb_width, conn->fb_height);
@@ -987,19 +1028,10 @@ int rfb_recv_update(struct rfb_conn_s *conn, rfb_rect_cb_t rect_cb,
 
           /* Skip color entries: num_colors * 6 bytes (R+G+B each 2B) */
 
-          uint32_t skip = num_colors * 6;
-          uint8_t tmp[256];
-
-          while (skip > 0)
+          ret = rfb_discard_exact(conn->sockfd, (uint32_t)num_colors * 6);
+          if (ret < 0)
             {
-              uint32_t chunk = skip > sizeof(tmp) ? sizeof(tmp) : skip;
-              ret = rfb_recv_exact(conn->sockfd, tmp, chunk);
-              if (ret < 0)
-                {
-                  return ret;
-                }
-
-              skip -= chunk;
+              return ret;
             }
         }
         break;
@@ -1025,19 +1057,10 @@ int rfb_recv_update(struct rfb_conn_s *conn, rfb_rect_cb_t rect_cb,
 
           /* Skip text content */
 
-          uint8_t tmp[256];
-
-          while (text_len > 0)
+          ret = rfb_discard_exact(conn->sockfd, text_len);
+          if (ret < 0)
             {
-              uint32_t chunk = text_len > sizeof(tmp)
-                               ? sizeof(tmp) : text_len;
-              ret = rfb_recv_exact(conn->sockfd, tmp, chunk);
-              if (ret < 0)
-                {
-                  return ret;
-                }
-
-              text_len -= chunk;
+              return ret;
             }
         }
         break;
