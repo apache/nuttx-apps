@@ -51,6 +51,7 @@ config CANUTILS_LELYCANOPEN_OBJUPLOAD
 config CANUTILS_LELYCANOPEN_SDEV
 	bool "Lely CANopen enable static device description support"
 	default n
+	depends on CANUTILS_LELYCANOPEN_OBJNAME
 
 config CANUTILS_LELYCANOPEN_CSDO
 	bool "Lely CANopen enable Client-SDO support"
@@ -67,6 +68,7 @@ config CANUTILS_LELYCANOPEN_TPDO
 config CANUTILS_LELYCANOPEN_MPDO
 	bool "Lely CANopen enable Multiplex PDO support"
 	default n
+	depends on CANUTILS_LELYCANOPEN_TPDO
 
 config CANUTILS_LELYCANOPEN_SYNC
 	bool "Lely CANopen enable SYNC support"
@@ -95,14 +97,17 @@ config CANUTILS_LELYCANOPEN_MASTER
 config CANUTILS_LELYCANOPEN_NG
 	bool "Lely CANopen enable node guardian support"
 	default n
+	depends on CANUTILS_LELYCANOPEN_EMCY
 
 config CANUTILS_LELYCANOPEN_NMTBOOT
 	bool "Lely CANopen enable NMT boot slave support"
 	default n
+	depends on CANUTILS_LELYCANOPEN_MASTER && CANUTILS_LELYCANOPEN_CSDO
 
 config CANUTILS_LELYCANOPEN_NMTCFG
 	bool "Lely CANopen enable NMT configuration request support"
 	default n
+	depends on CANUTILS_LELYCANOPEN_MASTER && CANUTILS_LELYCANOPEN_CSDO
 
 config CANUTILS_LELYCANOPEN_GW
 	bool "Lely CANopen enable gateway support"
