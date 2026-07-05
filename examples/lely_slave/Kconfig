@@ -1,0 +1,49 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LELYSLAVE
+	tristate "Lely CANopen slave example"
+	default n
+	depends on CANUTILS_LELYCANOPEN && CANUTILS_LELYCANOPEN_SDEV
+	depends on CANUTILS_LELYCANOPEN_TIME && CANUTILS_LELYCANOPEN_OBJUPLOAD
+	---help---
+		Enable the Lely CANopen slave (coslave) example application.
+
+if EXAMPLES_LELYSLAVE
+
+choice
+	prompt "CAN backend"
+	default EXAMPLES_LELYSLAVE_CHARDEV
+
+config EXAMPLES_LELYSLAVE_CHARDEV
+	bool "CAN character driver"
+	depends on CAN
+
+config EXAMPLES_LELYSLAVE_SOCKET
+	bool "SocketCAN"
+	depends on NET_CAN
+	select NETUTILS_NETLIB
+
+endchoice
+
+config EXAMPLES_LELYSLAVE_DEVPATH
+	string "CAN character device path"
+	default "/dev/can0"
+	depends on EXAMPLES_LELYSLAVE_CHARDEV
+
+config EXAMPLES_LELYSLAVE_INTF
+	string "SocketCAN interface"
+	default "can0"
+	depends on EXAMPLES_LELYSLAVE_SOCKET
+
+config EXAMPLES_LELYSLAVE_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_LELYSLAVE_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
