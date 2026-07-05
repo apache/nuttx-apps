@@ -120,7 +120,7 @@ if __name__ == '__main__':
   import os.path
 
   if len(sys.argv) != 3:
-    print "Usage: bitmap_converter.py source.png output.cxx"
+    print("Usage: bitmap_converter.py source.png output.cxx")
     sys.exit(1)
 
   img = Image.open(sys.argv[1]).convert("RGB")
