@@ -47,7 +47,7 @@ struct nettest_listener_s
 {
   fd_set master;
   fd_set working;
-  char   buffer[TEST_BUFFER_SIZE];
+  char   buffer[TEST_BUFFER_SIZE + 1];
   int    listensdv4;
   int    listensdv6;
   int    mxsd;
