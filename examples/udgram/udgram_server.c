@@ -102,7 +102,7 @@ int main(int argc, FAR char *argv[])
   server.sun_family = AF_LOCAL;
   strlcpy(server.sun_path, CONFIG_EXAMPLES_UDGRAM_ADDR, addrlen);
 
-  addrlen += sizeof(sa_family_t) + 1;
+  addrlen += sizeof(sa_family_t);
 
   if (bind(sockfd, (struct sockaddr *)&server, addrlen) < 0)
     {
