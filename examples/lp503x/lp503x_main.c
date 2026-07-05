@@ -119,9 +119,9 @@ static struct lp503x_cmd_s g_lp503x_cmds[] =
   },
   {
     "c",
-    "hex",
+    "[hex]",
     lp503x_cmd_setcolour,
-    LP503X_HELP_TEXT("Hex RGB colour required")
+    LP503X_HELP_TEXT("show or set current RGB colour")
   },
   {
     "l",
@@ -350,7 +350,7 @@ static int lp503x_cmd_set_individual_mode(FAR char *parg)
 
 static int lp503x_cmd_set_banka_colour(FAR char *parg)
 {
-  uint8_t requested_colour;
+  int requested_colour;
 
   requested_colour = atoi(parg);
 
@@ -369,7 +369,7 @@ static int lp503x_cmd_set_banka_colour(FAR char *parg)
 
 static int lp503x_cmd_set_bankb_colour(FAR char *parg)
 {
-  uint8_t requested_colour;
+  int requested_colour;
 
   requested_colour = atoi(parg);
 
@@ -388,7 +388,7 @@ static int lp503x_cmd_set_bankb_colour(FAR char *parg)
 
 static int lp503x_cmd_set_bankc_colour(FAR char *parg)
 {
-  uint8_t requested_colour;
+  int requested_colour;
 
   requested_colour = atoi(parg);
 
@@ -417,8 +417,9 @@ static int lp503x_cmd_brightness(FAR char *parg)
   int lednum;
   int requested_brightness;
 
-  requested_brightness = ((int)strtol(parg, NULL, 0)) & 0xff;
-  if ((requested_brightness > 255) || (requested_brightness < 0))
+  requested_brightness = (int)strtol(parg, NULL, 0);
+  if ((requested_brightness > MAX_BRIGHTNESS) ||
+      (requested_brightness < 0))
     {
       printf("ERROR: brightness must be in range 0..255\n");
       ret = -EINVAL;
@@ -516,7 +517,7 @@ static int lp503x_cmd_pattern(FAR char *parg)
 static int lp503x_cmd_set_bank_brightness(FAR char *parg)
 {
   int bank_brightness;
-  if (parg != NULL || *parg != '\0')
+  if (parg != NULL && *parg != '\0')
     {
       bank_brightness = atoi(parg);
 
@@ -540,13 +541,14 @@ static int lp503x_cmd_set_bank_brightness(FAR char *parg)
 /****************************************************************************
  * Name:lp503x_setcolour
  *
+ *   shows the current RGB colour when no argument is provided, otherwise
  *   sets the current RGB colour to be used
  ****************************************************************************/
 
 static int lp503x_cmd_setcolour(FAR char *parg)
 {
   int colour;
-  if (parg == NULL || *parg != '\0')
+  if (parg == NULL || *parg == '\0')
     {
       printf("current colour is: 0x%06x\n", current_colour);
     }
@@ -650,9 +652,9 @@ int main(int argc, FAR char *argv[])
 
       len = readline_stream(buffer, sizeof(buffer),
                             stdin, stdout);
-      buffer[len] = '\0';
       if (len > 0)
         {
+          buffer[len] = '\0';
           if (strncmp(buffer, "!", 1) != 0)
             {
               /* a command */
