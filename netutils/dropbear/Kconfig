@@ -90,6 +90,16 @@ config NETUTILS_DROPBEAR_SCP_PRIORITY
 	default 100
 	depends on NETUTILS_DROPBEAR_SCP
 
+config NETUTILS_DROPBEAR_NUTTX_CRYPTO
+	bool "Use NuttX kernel crypto primitives"
+	default y
+	depends on BUILD_FLAT
+	---help---
+		Back Dropbear's SHA-256 and HMAC-SHA256 primitives with the NuttX
+		kernel crypto implementation instead of the bundled libtomcrypt
+		modules, reducing flash usage.  This requires a flat build because
+		Dropbear calls the kernel crypto functions directly.
+
 config NETUTILS_DROPBEAR_PORT
 	int "Dropbear listen port"
 	default 2222

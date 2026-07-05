@@ -1,0 +1,45 @@
+--- a/libtomcrypt/src/headers/tomcrypt_hash.h
++++ b/libtomcrypt/src/headers/tomcrypt_hash.h
+@@ -30,11 +30,18 @@ struct sha512_state {
+ #endif
+ 
+ #ifdef LTC_SHA256
++#ifdef DROPBEAR_NUTTX_SHA256
++#include <crypto/sha2.h>
++struct sha256_state {
++    SHA2_CTX ctx;
++};
++#else
+ struct sha256_state {
+     ulong64 length;
+     ulong32 state[8], curlen;
+     unsigned char buf[64];
+ };
++#endif
+ #endif
+ 
+ #ifdef LTC_SHA1
+--- a/libtomcrypt/src/headers/tomcrypt_mac.h
++++ b/libtomcrypt/src/headers/tomcrypt_mac.h
+@@ -7,6 +7,13 @@
+  */
+ 
+ #ifdef LTC_HMAC
++#ifdef DROPBEAR_NUTTX_HMAC_SHA256
++#include <crypto/hmac.h>
++typedef struct Hmac_state {
++     HMAC_SHA256_CTX ctx;
++     int             hash;
++} hmac_state;
++#else
+ typedef struct Hmac_state {
+      hash_state     md;
+      int            hash;
+@@ -14,6 +21,7 @@ typedef struct Hmac_state {
+      unsigned char  *key;
+ } hmac_state;
+ 
++#endif
+ int hmac_init(hmac_state *hmac, int hash, const unsigned char *key, unsigned long keylen);
+ int hmac_process(hmac_state *hmac, const unsigned char *in, unsigned long inlen);
+ int hmac_done(hmac_state *hmac, unsigned char *out, unsigned long *outlen);
