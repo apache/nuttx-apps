@@ -63,6 +63,11 @@ if(CONFIG_NETUTILS_DROPBEAR)
           patch -s -N -l -p1 -d "${DROPBEAR_UNPACKNAME}" -i
           "${CMAKE_CURRENT_SOURCE_DIR}/patch/0004-use-nuttx-unused-macro.patch"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+      execute_process(
+        COMMAND
+          patch -s -N -l -p1 -d "${DROPBEAR_UNPACKNAME}" -i
+          "${CMAKE_CURRENT_SOURCE_DIR}/patch/0005-use-nuttx-sha256-hmac.patch"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
       message(STATUS "Generating default_options_guard.h")
       execute_process(
         COMMAND
@@ -135,6 +140,17 @@ if(CONFIG_NETUTILS_DROPBEAR)
   file(GLOB_RECURSE LIBTOMCRYPT_SRCS CONFIGURE_DEPENDS
        "${CMAKE_CURRENT_SOURCE_DIR}/dropbear/libtomcrypt/src/*.c")
   list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/prngs/sober128tab\\.c$")
+
+  if(CONFIG_NETUTILS_DROPBEAR_NUTTX_CRYPTO)
+    # Drop the bundled libtomcrypt modules replaced by the NuttX adapters.
+    list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/hashes/sha2/sha256\\.c$")
+    list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_init\\.c$")
+    list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_process\\.c$")
+    list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_done\\.c$")
+    list(APPEND DROPBEAR_SRCS port/dropbear_ltc_sha256.c
+         port/dropbear_ltc_hmac_sha256.c)
+  endif()
+
   list(APPEND DROPBEAR_SRCS ${LIBTOMCRYPT_SRCS})
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
@@ -194,6 +210,11 @@ if(CONFIG_NETUTILS_DROPBEAR)
   target_compile_definitions(
     ${PROGNAME} PRIVATE LOCALOPTIONS_H_EXISTS=1 DROPBEAR_NUTTX=1
                         DROPBEAR_NUTTX_PASSWD=1)
+
+  if(CONFIG_NETUTILS_DROPBEAR_NUTTX_CRYPTO)
+    target_compile_definitions(${PROGNAME} PRIVATE DROPBEAR_NUTTX_SHA256=1
+                                                   DROPBEAR_NUTTX_HMAC_SHA256=1)
+  endif()
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
     target_compile_definitions(

@@ -63,6 +63,11 @@ CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX=1
 CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX_PASSWD=1
 CFLAGS += -Wno-pointer-sign -Wno-format
 
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_NUTTX_CRYPTO),)
+CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX_SHA256=1
+CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX_HMAC_SHA256=1
+endif
+
 dropbear_nshsession.c_CFLAGS += ${DEFINE_PREFIX}Channel=dropbear_channel
 dropbear_nshsession.c_CFLAGS += ${DEFINE_PREFIX}ChanType=dropbear_chantype
 
@@ -119,6 +124,20 @@ CSRCS += \
 TOMMATH_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtommath" ]; then find "$(DROPBEAR_UNPACKNAME)/libtommath" -name "*.c"; fi)
 TOMCRYPT_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" ]; then find "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" -name "*.c" ! -name "sober128tab.c"; fi)
 
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_NUTTX_CRYPTO),)
+# Drop the bundled libtomcrypt modules replaced by the NuttX adapters.
+
+TOMCRYPT_SRCS := $(filter-out \
+	%/hashes/sha2/sha256.c \
+	%/mac/hmac/hmac_init.c \
+	%/mac/hmac/hmac_process.c \
+	%/mac/hmac/hmac_done.c, \
+	$(TOMCRYPT_SRCS))
+
+CSRCS += port/dropbear_ltc_sha256.c
+CSRCS += port/dropbear_ltc_hmac_sha256.c
+endif
+
 CSRCS += $(TOMMATH_SRCS)
 CSRCS += $(TOMCRYPT_SRCS)
 
@@ -161,6 +180,7 @@ $(DROPBEAR_UNPACKNAME): $(DROPBEAR_ZIP)
 	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0002-use-nuttx-passwd-auth.patch; true
 	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0003-allow-localoptions-to-override-tracking-malloc.patch; true
 	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0004-use-nuttx-unused-macro.patch; true
+	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0005-use-nuttx-sha256-hmac.patch; true
 	@echo "Generating default_options_guard.h"
 	$(Q) sh $(DROPBEAR_UNPACKNAME)$(DELIM)src$(DELIM)ifndef_wrapper.sh \
 		< $(DROPBEAR_UNPACKNAME)$(DELIM)src$(DELIM)default_options.h \
