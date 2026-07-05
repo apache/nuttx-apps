@@ -97,8 +97,11 @@ static float get_cpu(int pid)
     }
 
   char buf[8];
-  fgets(buf, 8, fp);
-  sscanf(buf, "%f", &cpu);
+  if (fgets(buf, 8, fp) != NULL)
+    {
+      sscanf(buf, "%f", &cpu);
+    }
+
   fclose(fp);
   return cpu;
 }
