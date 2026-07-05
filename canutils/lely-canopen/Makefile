@@ -31,10 +31,15 @@ WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 LELYCANOPEN_VERSION = $(patsubst "%",%,$(strip $(CONFIG_CANUTILS_LELYCANOPEN_VERSION)))
 
 LELYCANOPEN_TARBALL = lely-core-$(LELYCANOPEN_VERSION).tar.gz
-LELYCANOPEN_UNPACKNAME = lely-core-master-$(LELYCANOPEN_VERSION)
 LELYCANOPEN_SRCNAME = lely-core
 UNPACK ?= tar -zxf
 LELYCANOPEN_SRCDIR = $(WD)/$(LELYCANOPEN_SRCNAME)
+
+# The GitLab "archive/master" tarball unpacks to a directory named
+# lely-core-master-<sha>, where <sha> is the current tip of master
+
+LELYCANOPEN_UNPACKGLOB = lely-core-master-*
+LELYCANOPEN_PATCHES = $(sort $(wildcard *.patch))
 
 # CAN network object
 
@@ -169,38 +174,34 @@ STACKSIZE  = $(CONFIG_CANUTILS_LELYCANOPEN_TOOLS_COCTL_STACKSIZE)
 MAINSRC    = $(LELYCANOPEN_SRCDIR)/tools/coctl.c
 endif
 
-# Download and unpack tarball if no git repo found
+# Download, unpack and patch the Lely CANopen sources.
+
 ifeq ($(wildcard $(LELYCANOPEN_SRCNAME)/.git),)
+
 $(LELYCANOPEN_TARBALL):
 	@echo "Downloading: $(LELYCANOPEN_TARBALL)"
-	$(Q) curl -L -O $(CONFIG_CANUTILS_LELYCANOPEN_URL)/$(LELYCANOPEN_TARBALL)
+	$(Q) curl -fL -o $@.tmp $(CONFIG_CANUTILS_LELYCANOPEN_URL)/$(LELYCANOPEN_TARBALL)
+	$(Q) mv $@.tmp $@
 
-$(LELYCANOPEN_SRCNAME): $(LELYCANOPEN_TARBALL)
-	@echo "Unpacking: $(LELYCANOPEN_TARBALL) -> $(LELYCANOPEN_UNPACKNAME)"
+$(LELYCANOPEN_SRCNAME)/.patched: $(LELYCANOPEN_TARBALL) $(LELYCANOPEN_PATCHES)
+	@echo "Unpacking: $(LELYCANOPEN_TARBALL) -> $(LELYCANOPEN_SRCNAME)"
+	$(Q) rm -rf $(LELYCANOPEN_SRCNAME) $(LELYCANOPEN_UNPACKGLOB)
 	$(Q) $(UNPACK) $(LELYCANOPEN_TARBALL)
-
-$(LELYCANOPEN_SRCNAME)/.patched : $(LELYCANOPEN_SRCNAME)
-	# Get the name of the directory created by the tar command
-	$(eval LELYCANOPEN_UNPACKNAME := $(shell ls -d lely-core-master*))
-	$(Q) mv $(LELYCANOPEN_UNPACKNAME) $(LELYCANOPEN_SRCNAME)
-	$(Q) cat 0001-tools-eliminate-multiple-definitions-of-poll-compile.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
-	$(Q) cat 0002-tools-coctl.c-fix-printf-issues.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
-	$(Q) cat 0003-src-co-nmt.c-fix-compilation.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
-	$(Q) cat 0004-tools-coctl.c-add-missing-mutex-init.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
-	$(Q) cat 0005-add-NuttX-support.patch | patch -s -N -d $(LELYCANOPEN_SRCNAME) -p1
+	$(Q) mv $(LELYCANOPEN_UNPACKGLOB) $(LELYCANOPEN_SRCNAME)
+	$(Q) for patch in $(LELYCANOPEN_PATCHES); do \
+	       echo "Patching: $$patch"; \
+	       patch -s -N -p1 -d $(LELYCANOPEN_SRCNAME) < $$patch || exit 1; \
+	     done
 	$(Q) touch $@
-	$(Q) echo "Patching $(LELYCANOPEN_SRCNAME)"
 
 context:: $(LELYCANOPEN_SRCNAME)/.patched
-else
-context:: $(LELYCANOPEN_SRCNAME)
-endif
-
 
 distclean::
-ifeq ($(wildcard $(LELYCANOPEN_SRCNAME)/.git),)
-	$(call DELDIR, $(LELYCANOPEN_SRCNAME))
+	$(Q) rm -rf $(LELYCANOPEN_SRCNAME) $(LELYCANOPEN_UNPACKGLOB)
 	$(call DELFILE, $(LELYCANOPEN_TARBALL))
+
+else
+context:: $(LELYCANOPEN_SRCNAME)
 endif
 
 include $(APPDIR)/Application.mk
