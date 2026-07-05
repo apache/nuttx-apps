@@ -221,7 +221,7 @@ int read_pkt(int wl_fd)
   int ret;
   uint32_t pipeno;
 
-  ret = read(wl_fd, buff, sizeof(buff));
+  ret = read(wl_fd, buff, sizeof(buff) - 1);
   if (ret < 0)
     {
       perror("Error reading packet\n");
