@@ -110,9 +110,14 @@ static int wgetjson_callback(FAR char **buffer, int offset, int datend,
       return 0;
     }
 
-  if (!g_json_buff)
+  if (g_json_buff == NULL)
     {
       g_json_buff = malloc(len + 1);
+      if (g_json_buff == NULL)
+        {
+          return -ENOMEM;
+        }
+
       memcpy(g_json_buff, &((*buffer)[offset]), len);
       g_json_buff[len] = 0;
       g_json_bufflen = len;
@@ -253,6 +258,11 @@ static void wgetjson_json_item_scan(cJSON *item, const char *prefix)
       const char *string = item->string ? item->string : "(null)";
       size_t len = strlen(prefix) + strlen(string) + 2;
       newprefix = malloc(len);
+      if (newprefix == NULL)
+        {
+          return;
+        }
+
       snprintf(newprefix, len, "%s/%s", prefix, string);
 
       dorecurse = wgetjson_json_item_callback(newprefix, item->type, item);
@@ -370,6 +380,11 @@ int main(int argc, FAR char *argv[])
     }
 
   buffer = malloc(buffer_len);
+  if (buffer == NULL)
+    {
+      return -ENOMEM;
+    }
+
   wgetjson_json_release();
 
   struct webclient_context ctx;
@@ -388,6 +403,12 @@ int main(int argc, FAR char *argv[])
                                            post_multi_values,
                                            MULTI_POST_NDATA);
           post_buff = malloc(post_buff_len);
+          if (post_buff == NULL)
+            {
+              ret = -ENOMEM;
+              goto out;
+            }
+
           web_posts_str(post_buff, &post_buff_len, post_multi_names,
                         post_multi_values, MULTI_POST_NDATA);
         }
@@ -396,21 +417,24 @@ int main(int argc, FAR char *argv[])
           post_buff_len = web_post_strlen(post_single_name,
                                           post_single_value);
           post_buff = malloc(post_buff_len);
+          if (post_buff == NULL)
+            {
+              ret = -ENOMEM;
+              goto out;
+            }
+
           web_post_str(post_buff, &post_buff_len, post_single_name,
                        post_single_value);
         }
 
-      if (post_buff)
-        {
-          const char *header = "Content-Type: "
-                               "application/x-www-form-urlencoded";
-          ctx.method = "POST";
-          ctx.url = url;
-          ctx.headers = &header;
-          ctx.nheaders = 1;
-          webclient_set_static_body(&ctx, post_buff, strlen(post_buff));
-          ret = webclient_perform(&ctx);
-        }
+      const char *header = "Content-Type: "
+                           "application/x-www-form-urlencoded";
+      ctx.method = "POST";
+      ctx.url = url;
+      ctx.headers = &header;
+      ctx.nheaders = 1;
+      webclient_set_static_body(&ctx, post_buff, strlen(post_buff));
+      ret = webclient_perform(&ctx);
     }
   else
     {
@@ -439,6 +463,7 @@ int main(int argc, FAR char *argv[])
       g_has_json = false;
     }
 
+out:
   wgetjson_json_release();
   free(buffer);
   if (post_buff)
@@ -446,5 +471,5 @@ int main(int argc, FAR char *argv[])
       free(post_buff);
     }
 
-  return 0;
+  return ret < 0 ? ret : 0;
 }
