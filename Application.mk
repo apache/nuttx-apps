@@ -393,6 +393,7 @@ clean::
 	$(call CLEANAROBJS)
 	$(call CLEAN)
 distclean:: clean
+	$(call DELFILE, .kconfig)
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 

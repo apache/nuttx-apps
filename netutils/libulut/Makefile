@@ -82,7 +82,7 @@ ifeq ($(wildcard $(ULUTDIR)/.git),)
 $(eval $(call RUN_OMK_MAKE, context, default-config include-pass))
 
 distclean::
-	make -C $(ULUTDIR) distclean
+	if [ -d $(ULUTDIR) ]; then make -C $(ULUTDIR) distclean; fi
 	$(call DELDIR, $(ULUTDIR))
 	$(call DELFILE, $(ULUT_TARGZ))
 endif

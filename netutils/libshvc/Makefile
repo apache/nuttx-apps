@@ -82,7 +82,7 @@ ifeq ($(wildcard $(SHVDIR)/.git),)
 $(eval $(call RUN_OMK_MAKE, context, default-config include-pass))
 
 distclean::
-	make -C $(SHVDIR) distclean
+	if [ -d $(SHVDIR) ]; then make -C $(SHVDIR) distclean; fi
 	$(call DELDIR, $(SHVDIR))
 	$(call DELFILE, $(SHV_LIBS4C_TARGZ))
 endif

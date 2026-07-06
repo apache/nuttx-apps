@@ -168,7 +168,7 @@ distclean::
 	$(call DELDIR, $(WOLFSSL_UNPACKNAME))
 	$(call DELDIR, $(WOLFSSL_EXAMPLESNAME))
 else
-distclean:
+distclean::
 	$(call DELDIR, $(WOLFSSL_UNPACKNAME))
 endif
 
