@@ -193,14 +193,21 @@ static int test_memmove(void)
               fail++;
             }
 
-          /* Adjacent (no overlap): dst = src + size */
+          /* Adjacent (no overlap): dst = src + size.
+           * The destination tail reaches align + 2*size, so the base
+           * offset must satisfy align + 2*size <= sizeof(g_buf1); a
+           * fixed +64 base overflows g_buf1 for the larger boundary
+           * sizes (e.g. size=255, align=0 writes 45 bytes past the
+           * end), which AddressSanitizer flags as a global-buffer-
+           * overflow.  Start from g_buf1 + align instead.
+           */
 
-          fill_pattern(g_buf1 + align + 64, size);
-          memcpy(g_buf2 + align + 64, g_buf1 + align + 64, size);
-          memmove(g_buf1 + align + 64 + size,
-                  g_buf1 + align + 64, size);
-          if (memcmp(g_buf1 + align + 64 + size,
-                     g_buf2 + align + 64, size) != 0)
+          fill_pattern(g_buf1 + align, size);
+          memcpy(g_buf2 + align, g_buf1 + align, size);
+          memmove(g_buf1 + align + size,
+                  g_buf1 + align, size);
+          if (memcmp(g_buf1 + align + size,
+                     g_buf2 + align, size) != 0)
             {
               printf("  FAIL adjacent: align=%d size=%d\n", align, size);
               fail++;
