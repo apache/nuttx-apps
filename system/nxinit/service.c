@@ -677,7 +677,7 @@ void init_dump_service(FAR struct service_s *s)
 
   init_debug("  pid: %d", s->pid);
   init_debug("  arguments:");
-  for (i = 0; s->argv[i] && i < nitems(s->argv); i++)
+  for (i = 0; i < nitems(s->argv) && s->argv[i]; i++)
     {
       init_debug("      [%d] '%s'", i, s->argv[i]);
     }
