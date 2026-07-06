@@ -304,7 +304,7 @@ static int create_terminal(int argc, FAR char *argv[])
   if (pipe(g_nsh_stdin) < 0 || pipe(g_nsh_stdout) < 0 ||
       pipe(g_nsh_stderr) < 0)
     {
-      _err("pipe failed: %d\n", errno);
+      fprintf(stderr, "pipe failed: %d\n", errno);
       return ERROR;
     }
 
@@ -324,7 +324,7 @@ static int create_terminal(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
-      _err("posix_spawn failed: %d\n", errcode);
+      fprintf(stderr, "posix_spawn failed: %d\n", errcode);
       return -errcode;
     }
 

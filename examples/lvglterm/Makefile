@@ -32,7 +32,7 @@ MODULE = $(CONFIG_EXAMPLES_LVGLTERM)
 
 MAINSRC = lvglterm.c
 
-ifeq ($(CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD),y)
+ifneq ($(CONFIG_EXAMPLES_LVGLTERM_INPUT_TOUCH),y)
 CSRCS = lvglterm_kbd.c
 else
 CSRCS = lvglterm_touch.c
