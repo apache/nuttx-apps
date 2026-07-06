@@ -21,10 +21,10 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_LVGLTERM)
-  if(CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD)
-    set(lvglterm_input lvglterm_kbd.c)
-  else()
+  if(CONFIG_EXAMPLES_LVGLTERM_INPUT_TOUCH)
     set(lvglterm_input lvglterm_touch.c)
+  else()
+    set(lvglterm_input lvglterm_kbd.c)
   endif()
 
   nuttx_add_application(

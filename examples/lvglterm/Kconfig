@@ -17,7 +17,9 @@ choice
 	default EXAMPLES_LVGLTERM_INPUT_TOUCH
 	---help---
 		Select how the terminal receives keystrokes.  Only one input source
-		is built at a time.
+		is built at a time.  The physical-keyboard options differ in the data
+		the keyboard device delivers on read(), so pick the one that matches
+		the hardware.
 
 config EXAMPLES_LVGLTERM_INPUT_TOUCH
 	bool "On-screen keyboard (touch)"
@@ -26,24 +28,36 @@ config EXAMPLES_LVGLTERM_INPUT_TOUCH
 		command line is typed and submitted with Enter.  This is the default
 		and matches the original behaviour.
 
-config EXAMPLES_LVGLTERM_INPUT_KBD
-	bool "Physical keyboard (/dev/kbdN)"
+config EXAMPLES_LVGLTERM_INPUT_KBD_MATRIX
+	bool "Matrix / upper-half keyboard (keyboard events)"
 	depends on INPUT_KEYBOARD
 	---help---
-		Input comes from a physical keyboard registered as a /dev/kbdN
-		device; keystrokes are streamed to the shell and the output fills
-		the whole screen.
+		Physical keyboard registered through the INPUT_KEYBOARD upper half,
+		whose read() returns struct keyboard_event_s events (for example the
+		M5Stack Cardputer matrix keyboard on /dev/kbd0).  Fn Up/Down scroll
+		the terminal.
+
+config EXAMPLES_LVGLTERM_INPUT_KBD_USB
+	bool "USB HID keyboard (byte stream)"
+	depends on USBHOST_HIDKBD
+	select LIBC_KBDCODEC
+	---help---
+		USB HID keyboard (for example on /dev/kbda with CONFIG_USBHOST_HIDKBD).
+		read() returns a byte stream that is decoded with the keyboard codec:
+		normal keys go to the shell and, when the driver is built with
+		CONFIG_HIDKBD_ENCODED, the Up/Down cursor keys scroll the terminal.
 
 endchoice
 
 config EXAMPLES_LVGLTERM_KBD_DEV
 	string "Keyboard device path"
+	default "/dev/kbda" if EXAMPLES_LVGLTERM_INPUT_KBD_USB
 	default "/dev/kbd0"
-	depends on EXAMPLES_LVGLTERM_INPUT_KBD
+	depends on EXAMPLES_LVGLTERM_INPUT_KBD_MATRIX || EXAMPLES_LVGLTERM_INPUT_KBD_USB
 	---help---
-		Keyboard device the terminal reads key events from.  Can also be
-		overridden at run time by passing the path as the first command-line
-		argument (useful when more than one keyboard is present).
+		Keyboard device the terminal reads from.  Can also be overridden at
+		run time by passing the path as the first command-line argument
+		(useful when more than one keyboard is present).
 
 choice
 	prompt "LVGL Terminal font"

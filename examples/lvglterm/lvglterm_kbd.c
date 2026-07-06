@@ -20,11 +20,21 @@
  *
  ****************************************************************************/
 
-/* Physical-keyboard input variant of the LVGL terminal: a task reads key
- * events from a /dev/kbdN keyboard device and streams them to NSH; the shell
- * output fills the whole screen.  Works on any board with a keyboard driver;
- * the device defaults to CONFIG_EXAMPLES_LVGLTERM_KBD_DEV and can be
- * overridden by the first command-line argument.
+/* Physical-keyboard input variant of the LVGL terminal: the keyboard device
+ * is polled (non-blocking) from the LVGL thread and key presses are streamed
+ * to NSH; the shell output fills the whole screen.  Works on any board with
+ * a keyboard driver; the device defaults to CONFIG_EXAMPLES_LVGLTERM_KBD_DEV
+ * and can be overridden by the first command-line argument.
+ *
+ * Two device flavours are supported, selected at build time:
+ *
+ *   - Upper-half keyboards (INPUT_KEYBOARD, e.g. the M5Stack Cardputer
+ *     matrix on /dev/kbd0) deliver struct keyboard_event_s events; the Fn
+ *     Up/Down keys are handled locally as scroll requests.
+ *   - USB HID keyboards (EXAMPLES_LVGLTERM_INPUT_KBD_USB, e.g. /dev/kbda)
+ *     deliver a byte stream decoded with the NuttX keyboard codec: normal
+ *     keys are forwarded to the shell and, when the driver is built with
+ *     CONFIG_HIDKBD_ENCODED, the Up/Down cursor keys scroll the terminal.
  */
 
 /****************************************************************************
@@ -34,13 +44,20 @@
 #include <nuttx/config.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sched.h>
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/input/keyboard.h>
+#ifdef CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD_MATRIX
+#  include <nuttx/input/keyboard.h>
+#endif
+
+#ifdef CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD_USB
+#  include <nuttx/streams.h>
+#  include <nuttx/input/kbd_codec.h>
+#endif
 
 #include <lvgl/lvgl.h>
 
@@ -67,8 +84,7 @@
  * Private Data
  ****************************************************************************/
 
-static int g_echo[2];              /* Keyboard task -> screen (local echo) */
-static volatile int g_scroll;      /* Pending scroll (lines), applied by LVGL */
+static int g_kfd = -1;             /* Keyboard device fd (opened O_NONBLOCK) */
 static FAR const char *g_kbddev;   /* Keyboard device path (/dev/kbdN) */
 
 /****************************************************************************
@@ -76,87 +92,46 @@ static FAR const char *g_kbddev;   /* Keyboard device path (/dev/kbdN) */
  ****************************************************************************/
 
 /****************************************************************************
- * Name: kbd_task
+ * Name: feed_char
  *
  * Description:
- *   Read key presses from the keyboard device and forward them to NSH stdin
- *   (and to the echo pipe so the user sees what is typed).  The Fn Up/Down
- *   keys are handled locally as scroll requests.
+ *   Forward one character to NSH stdin and, for printable characters and
+ *   newline, echo it on screen.  Control keys such as backspace are echoed
+ *   by the shell's own line editor (via its stdout) to avoid handling them
+ *   twice.  Carriage return is normalised to newline.  Runs in the LVGL
+ *   thread, so it may touch the LVGL widgets directly.
  *
  ****************************************************************************/
 
-static int kbd_task(int argc, FAR char *argv[])
+static void feed_char(char ch)
 {
-  struct keyboard_event_s evt;
-  ssize_t nread;
-  int  kfd;
-  char ch;
-
-  kfd = open(g_kbddev, O_RDONLY);
-  if (kfd < 0)
+  if (ch == '\r')
     {
-      gerr("ERROR: open %s failed: %d\n", g_kbddev, errno);
-      return EXIT_FAILURE;
+      ch = '\n';
     }
 
-  for (; ; )
+  write(g_nsh_stdin[WRITE_PIPE], &ch, 1);
+
+  if (ch == '\n' || ((uint8_t)ch >= 0x20 && (uint8_t)ch < 0x7f))
     {
-      nread = read(kfd, &evt, sizeof(evt));
-      if (nread != (ssize_t)sizeof(evt))
-        {
-          if (nread <= 0)
-            {
-              usleep(10000);
-            }
-
-          continue;
-        }
-
-      if (evt.type != KEYBOARD_PRESS)
-        {
-          continue;
-        }
-
-      /* Fn navigation keys are handled locally: Up/Down scroll the terminal
-       * (applied by the LVGL thread) and are not sent to the shell.
-       * Left/Right are reserved and simply swallowed for now.
-       */
-
-      if (evt.code >= KEY_UP && evt.code <= KEY_RIGHT)
-        {
-          if (evt.code == KEY_UP)
-            {
-              g_scroll -= 1;
-            }
-          else if (evt.code == KEY_DOWN)
-            {
-              g_scroll += 1;
-            }
-
-          continue;
-        }
-
-      ch = (char)evt.code;
-      if (ch == '\r')
-        {
-          ch = '\n';
-        }
-
-      /* Always feed the shell.  Echo only printable characters and newline
-       * locally; control keys such as backspace are echoed by the shell's
-       * own line editor (via its stdout) to avoid handling them twice.
-       */
-
-      write(g_nsh_stdin[WRITE_PIPE], &ch, 1);
-
-      if (ch == '\n' || ((uint8_t)ch >= 0x20 && (uint8_t)ch < 0x7f))
-        {
-          write(g_echo[WRITE_PIPE], &ch, 1);
-        }
+      lvglterm_add_output(&ch, 1);
     }
+}
 
-  close(kfd);
-  return EXIT_SUCCESS;
+/****************************************************************************
+ * Name: scroll_terminal
+ *
+ * Description:
+ *   Scroll the output text area up (older output) or down by one step.  Runs
+ *   in the LVGL thread.
+ *
+ ****************************************************************************/
+
+static void scroll_terminal(bool up)
+{
+  int32_t dy = up ? SCROLL_STEP : -SCROLL_STEP;
+
+  lv_obj_scroll_by(g_output, 0, dy, LV_ANIM_OFF);
 }
 
 /****************************************************************************
@@ -168,7 +143,8 @@ static int kbd_task(int argc, FAR char *argv[])
  *
  * Description:
  *   Resolve the keyboard device (first command-line argument, else the
- *   configured default) and start the task that streams key presses to NSH.
+ *   configured default) and open it non-blocking so that it can be polled
+ *   from the LVGL thread.
  *
  ****************************************************************************/
 
@@ -176,53 +152,109 @@ void lvglterm_input_create(int argc, FAR char *argv[])
 {
   g_kbddev = (argc > 1) ? argv[1] : CONFIG_EXAMPLES_LVGLTERM_KBD_DEV;
 
-  if (pipe(g_echo) < 0)
+  g_kfd = open(g_kbddev, O_RDONLY | O_NONBLOCK);
+  if (g_kfd < 0)
     {
-      gerr("ERROR: echo pipe failed: %d\n", errno);
-      return;
+      gerr("ERROR: open %s failed: %d\n", g_kbddev, errno);
     }
-
-  /* The read end is polled by the LVGL timer and must not block */
-
-  fcntl(g_echo[READ_PIPE], F_SETFL,
-        fcntl(g_echo[READ_PIPE], F_GETFL) | O_NONBLOCK);
-
-  task_create("lvgltermkbd", SCHED_PRIORITY_DEFAULT, 2048, kbd_task, NULL);
 }
 
 /****************************************************************************
  * Name: lvglterm_input_poll
  *
  * Description:
- *   Apply any pending scroll and drain the local echo pipe onto the screen.
- *   Runs in the LVGL thread.
+ *   Drain any pending key presses from the keyboard device and forward them
+ *   to NSH (echoing what is typed on screen).  Runs in the LVGL thread from
+ *   the terminal's periodic timer, so the read must not block.
  *
  ****************************************************************************/
 
 void lvglterm_input_poll(void)
 {
-  char buf[64];
-  int  n;
-  int  s;
+  if (g_kfd < 0)
+    {
+      return;
+    }
 
-  /* Apply any pending scroll requested by the keyboard task (Up/Down).
-   * A negative value scrolls up (towards older output), positive scrolls
-   * down.  Consume only what we read so concurrent keypresses are not lost.
+#ifdef CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD_USB
+  /* USB HID keyboard: read() returns a byte stream that is decoded with the
+   * keyboard codec.  Normal keys are fed to the shell; the Up/Down cursor
+   * keys (only emitted when the driver is built with CONFIG_HIDKBD_ENCODED)
+   * scroll the terminal.  On a plain-ASCII stream every byte simply decodes
+   * to a normal key press, so this also works without encoding.
    */
 
-  s = g_scroll;
-  if (s != 0)
+  struct lib_meminstream_s stream;
+  struct kbd_getstate_s state;
+  char buf[64];
+  ssize_t nread;
+  uint8_t ch;
+  int ret;
+
+  nread = read(g_kfd, buf, sizeof(buf));
+  if (nread <= 0)
     {
-      g_scroll -= s;
-      lv_obj_scroll_by(g_output, 0, -s * SCROLL_STEP, LV_ANIM_OFF);
+      return;
     }
 
-  if (lvglterm_has_input(g_echo[READ_PIPE]))
+  memset(&state, 0, sizeof(state));
+  lib_meminstream(&stream, buf, nread);
+
+  for (; ; )
     {
-      n = read(g_echo[READ_PIPE], buf, sizeof(buf));
-      if (n > 0)
+      ret = kbd_decode((FAR struct lib_instream_s *)&stream, &state, &ch);
+      if (ret == KBD_ERROR)
         {
-          lvglterm_add_output(buf, n);
+          break;
+        }
+
+      if (ret == KBD_PRESS)
+        {
+          feed_char((char)ch);
+        }
+      else if (ret == KBD_SPECPRESS)
+        {
+          if (ch == KEYCODE_UP)
+            {
+              scroll_terminal(true);
+            }
+          else if (ch == KEYCODE_DOWN)
+            {
+              scroll_terminal(false);
+            }
         }
     }
+#else
+  /* Upper-half keyboard: read() returns keyboard_event_s events */
+
+  struct keyboard_event_s evt;
+
+  while (read(g_kfd, &evt, sizeof(evt)) == (ssize_t)sizeof(evt))
+    {
+      if (evt.type != KEYBOARD_PRESS)
+        {
+          continue;
+        }
+
+      /* Fn navigation keys are handled locally: Up/Down scroll the terminal;
+       * Left/Right are reserved and simply swallowed for now.
+       */
+
+      if (evt.code >= KEY_UP && evt.code <= KEY_RIGHT)
+        {
+          if (evt.code == KEY_UP)
+            {
+              scroll_terminal(true);
+            }
+          else if (evt.code == KEY_DOWN)
+            {
+              scroll_terminal(false);
+            }
+
+          continue;
+        }
+
+      feed_char((char)evt.code);
+    }
+#endif
 }
