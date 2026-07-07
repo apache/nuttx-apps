@@ -286,6 +286,8 @@ int main(int argc, FAR char *argv[])
   int exitcode;
   int option;
 
+  memset(&info, 0, sizeof(info));
+
   info.count     = ICMPv6_NPINGS;
   info.datalen   = ICMPv6_PING6_DATALEN;
   info.delay     = ICMPv6_POLL_DELAY;

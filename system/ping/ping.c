@@ -345,6 +345,8 @@ int main(int argc, FAR char *argv[])
   int exitcode;
   int option;
 
+  memset(&info, 0, sizeof(info));
+
   info.count     = ICMP_NPINGS;
   info.datalen   = ICMP_PING_DATALEN;
   info.delay     = ICMP_POLL_DELAY;
