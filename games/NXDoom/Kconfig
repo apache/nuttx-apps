@@ -9,6 +9,7 @@ config GAMES_NXDOOM
 	depends on ALLOW_GPL_COMPONENTS
 	depends on VIDEO_FB
 	depends on CRYPTO
+	depends on LIBC_LOCALE
 	---help---
 		Play DOOM on NuttX!
 
