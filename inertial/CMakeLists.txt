@@ -1,7 +1,7 @@
 # ##############################################################################
 # apps/inertial/CMakeLists.txt
 #
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -19,5 +19,7 @@
 # the License.
 #
 # ##############################################################################
+
+nuttx_add_subdirectory()
 
 nuttx_generate_kconfig(MENUDESC "Inertial Libraries Support")
