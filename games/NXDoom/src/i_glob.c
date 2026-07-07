@@ -33,15 +33,10 @@
 #include "i_glob.h"
 #include "m_misc.h"
 
-#if defined(HAVE_DIRENT_H)
+#include <dirent.h>
+
 #include <dirent.h>
 #include <sys/stat.h>
-#elif defined(__WATCOMC__)
-/* Watcom has the same API in a different header. */
-#include <direct.h>
-#else
-#define NO_DIRENT_IMPLEMENTATION
-#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -72,8 +67,6 @@ struct glob_s
  * Private Functions
  ****************************************************************************/
 
-#ifndef NO_DIRENT_IMPLEMENTATION
-
 /* Only the fields d_name and (as an XSI extension) d_ino are specified
  * in POSIX.1.  Other than Linux, the d_type field is available mainly
  * only on BSD systems.  The remaining fields are available on many, but
@@ -95,7 +88,7 @@ static boolean is_directory(char *dir, struct dirent *de)
       int result;
 
       filename = m_string_join(dir, DIR_SEPARATOR_S, de->d_name, NULL);
-      result = m_stat(filename, &sb);
+      result = stat(filename, &sb);
       free(filename);
 
       if (result != 0)
@@ -402,30 +395,3 @@ const char *i_next_glob(glob_t *glob)
   ++glob->next_index;
   return result;
 }
-
-#else /* #ifdef NO_DIRENT_IMPLEMENTATION */
-
-#warning "No native implementation of file globbing."
-
-glob_t *i_start_glob(const char *directory, const char *glob, int flags)
-{
-  return NULL;
-}
-
-void i_end_glob(glob_t *glob)
-{
-  return;
-}
-
-const char *i_next_glob(glob_t *glob)
-{
-  return "";
-}
-
-glob_t *i_start_multi_glob(const char *directory, int flags,
-        const char *glob, ...)
-{
-  return NULL;
-}
-
-#endif /* NO_DIRENT_IMPLEMENTATION */
