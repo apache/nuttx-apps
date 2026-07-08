@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/mqttc/mqttc_pub.c
+ * apps/examples/mqttc/mqttc_sub.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,15 +24,17 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/compiler.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #include <errno.h>
 #include <mqtt.h>
+#include <netutils/netlib.h>
 
 #ifdef MQTT_USE_MBEDTLS
 #  include <inttypes.h>
@@ -43,7 +45,7 @@
 #  include <mbedtls/net_sockets.h>
 #  include <mbedtls/ssl.h>
 
-#include "cert.inc"
+#  include "cert.inc"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -53,6 +55,21 @@
 #else
 #  define EXTRA_OPT ""
 #endif
+
+/* Seconds to wait between failed connection attempts in the reconnect
+ * callback.
+ */
+
+#define MQTTC_RECONNECT_DELAY_S 2
+
+/* Network interface to wait on before the first connection attempt, and the
+ * polling parameters for that wait.  Change MQTTC_NETIF to match the board's
+ * network device (e.g. "eth0" for wired Ethernet).
+ */
+
+#define MQTTC_NETIF             "wlan0"
+#define MQTTC_NET_POLL_MS       200
+#define MQTTC_NET_WAIT_MS       30000
 
 /****************************************************************************
  * Private Types
@@ -67,9 +84,9 @@ struct mqttc_cfg_s
   FAR const char *id;
   FAR const char *user;
   FAR const char *pass;
-#ifdef MQTT_USE_MBEDTLS
-  FAR const char *ca_file;
-#endif
+  #ifdef MQTT_USE_MBEDTLS
+    FAR const char *ca_file;
+  #endif
   uint32_t tmo;
   uint8_t flags;
   uint8_t qos;
@@ -78,16 +95,26 @@ struct mqttc_cfg_s
 struct mqtt_conn_context_s
 {
   struct mqtt_client client;
-#ifdef MQTT_USE_MBEDTLS
-  mbedtls_net_context net_ctx;
-  mbedtls_ssl_context ssl_ctx;
-  mbedtls_ssl_config ssl_conf;
-  mbedtls_x509_crt ca_crt;
-  mbedtls_entropy_context entropy;
-  mbedtls_ctr_drbg_context ctr_drbg;
-#endif
+  #ifdef MQTT_USE_MBEDTLS
+    mbedtls_net_context net_ctx;
+    mbedtls_ssl_context ssl_ctx;
+    mbedtls_ssl_config ssl_conf;
+    mbedtls_x509_crt ca_crt;
+    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+  #endif
   uint8_t sendbuf[CONFIG_EXAMPLES_MQTTC_TXSIZE];
   uint8_t recvbuf[CONFIG_EXAMPLES_MQTTC_RXSIZE];
+};
+
+/* State handed to the reconnect callback so it can rebuild the transport
+ * connection and reconfigure the MQTT session from scratch.
+ */
+
+struct mqttc_reconnect_s
+{
+  FAR const struct mqttc_cfg_s *cfg;
+  FAR struct mqtt_conn_context_s *conn;
 };
 
 /****************************************************************************
@@ -95,16 +122,96 @@ struct mqtt_conn_context_s
  ****************************************************************************/
 
 static FAR void *client_refresher(FAR void *data);
-static void parsearg(int argc, FAR char *argv[], FAR struct mqttc_cfg_s *cfg,
-                     FAR int *n);
+static void parsearg(int argc, FAR char *argv[],
+                    FAR struct mqttc_cfg_s *cfg);
 static int init_conn(FAR const struct mqttc_cfg_s *cfg,
                      FAR struct mqtt_conn_context_s *ctx,
                      FAR mqtt_pal_socket_handle *handle);
 static void close_conn(FAR struct mqtt_conn_context_s *ctx);
+static void reconnect_client(FAR struct mqtt_client *client,
+                             FAR void **state);
+static void wait_for_network(void);
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef MQTT_USE_MBEDTLS
+
+/****************************************************************************
+ * Name: mqttc_net_recv
+ *
+ * Description:
+ *   mbedTLS BIO receive callback for non-blocking sockets.  The stock
+ *   mbedtls_net_recv() relies on fcntl(F_GETFL) reporting O_NONBLOCK to
+ *   classify EAGAIN as "would block".  On NuttX, F_SETFL applies the
+ *   non-blocking mode via FIONBIO but does not retain O_NONBLOCK in the
+ *   file status flags, so F_GETFL never reports it.  The stock callback
+ *   therefore turns a benign EAGAIN into MBEDTLS_ERR_NET_RECV_FAILED.  This
+ *   wrapper inspects errno directly and returns MBEDTLS_ERR_SSL_WANT_READ
+ *   so callers (e.g. MQTT-C's mqtt_sync) keep retrying instead of aborting.
+ *
+ ****************************************************************************/
+
+static int mqttc_net_recv(FAR void *ctx, FAR unsigned char *buf, size_t len)
+{
+  int fd = ((FAR mbedtls_net_context *)ctx)->fd;
+  int ret;
+
+  ret = recv(fd, buf, len, 0);
+  if (ret < 0)
+    {
+      if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+        {
+          return MBEDTLS_ERR_SSL_WANT_READ;
+        }
+
+      if (errno == EPIPE || errno == ECONNRESET)
+        {
+          return MBEDTLS_ERR_NET_CONN_RESET;
+        }
+
+      return MBEDTLS_ERR_NET_RECV_FAILED;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: mqttc_net_send
+ *
+ * Description:
+ *   mbedTLS BIO send callback, mirroring mqttc_net_recv() for the same
+ *   non-blocking/EAGAIN reason on the transmit side.
+ *
+ ****************************************************************************/
+
+static int mqttc_net_send(FAR void *ctx, FAR const unsigned char *buf,
+                          size_t len)
+{
+  int fd = ((FAR mbedtls_net_context *)ctx)->fd;
+  int ret;
+
+  ret = send(fd, buf, len, 0);
+  if (ret < 0)
+    {
+      if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+        {
+          return MBEDTLS_ERR_SSL_WANT_WRITE;
+        }
+
+      if (errno == EPIPE || errno == ECONNRESET)
+        {
+          return MBEDTLS_ERR_NET_CONN_RESET;
+        }
+
+      return MBEDTLS_ERR_NET_SEND_FAILED;
+    }
+
+  return ret;
+}
+
+#endif /* MQTT_USE_MBEDTLS */
 
 /****************************************************************************
  * Name: client_refresher
@@ -127,6 +234,34 @@ static FAR void *client_refresher(FAR void *data)
 }
 
 /****************************************************************************
+ * Name: publish_callback
+ *
+ * Description:
+ *   Print received publish message.
+ *
+ ****************************************************************************/
+
+void publish_callback(void** unused, struct mqtt_response_publish *published)
+{
+  /* this is a byte stream, we have to convert it to C string */
+
+  char message[CONFIG_EXAMPLES_MQTTC_RXSIZE];
+
+  /* convert to C string (null terminated) */
+
+  size_t message_size = published->application_message_size;
+  if (message_size >= CONFIG_EXAMPLES_MQTTC_RXSIZE)
+    {
+      message_size = CONFIG_EXAMPLES_MQTTC_RXSIZE - 1;
+    }
+
+  memcpy(message, published->application_message, message_size);
+  message[message_size] = '\0';
+
+  printf("Received: %s\n", message);
+}
+
+/****************************************************************************
  * Name: parsearg
  *
  * Description:
@@ -135,11 +270,11 @@ static FAR void *client_refresher(FAR void *data)
  ****************************************************************************/
 
 static void parsearg(int argc, FAR char *argv[],
-                     FAR struct mqttc_cfg_s *cfg, FAR int *n)
+                     FAR struct mqttc_cfg_s *cfg)
 {
   int opt;
 
-  while ((opt = getopt(argc, argv, "h:p:m:t:n:q:" EXTRA_OPT)) != ERROR)
+  while ((opt = getopt(argc, argv, "h:p:t:q:" EXTRA_OPT)) != ERROR)
     {
       switch (opt)
         {
@@ -151,40 +286,31 @@ static void parsearg(int argc, FAR char *argv[],
             cfg->port = optarg;
             break;
 
-          case 'm':
-            cfg->msg = optarg;
-            break;
-
           case 't':
             cfg->topic = optarg;
-            break;
-
-          case 'n':
-            *n = strtol(optarg, NULL, 10);
             break;
 
           case 'q':
             switch (strtol(optarg, NULL, 10))
               {
                 case 0L:
-                  cfg->qos = MQTT_PUBLISH_QOS_0;
+                  cfg->qos = 0;
                   break;
                 case 1L:
-                  cfg->qos = MQTT_PUBLISH_QOS_1;
+                  cfg->qos = 1;
                   break;
                 case 2L:
-                  cfg->qos = MQTT_PUBLISH_QOS_2;
+                  cfg->qos = 2;
                   break;
                 }
             break;
-
 #ifdef MQTT_USE_MBEDTLS
-          case 'c':
+            case 'c':
             cfg->ca_file = optarg;
             break;
 #endif
 
-          default:
+            default:
             fprintf(stderr, "ERROR: Unrecognized option\n");
             break;
         }
@@ -243,8 +369,8 @@ static int init_conn(FAR const struct mqttc_cfg_s *cfg,
   else
     {
       ret = mbedtls_x509_crt_parse(ca_crt,
-                (FAR const unsigned char *)TEST_CA_CRT_RSA_SHA256_PEM,
-                sizeof(TEST_CA_CRT_RSA_SHA256_PEM));
+        (FAR const unsigned char *)TEST_CA_CRT_RSA_SHA256_PEM,
+        sizeof(TEST_CA_CRT_RSA_SHA256_PEM));
     }
 
   if (ret != 0)
@@ -299,7 +425,7 @@ static int init_conn(FAR const struct mqttc_cfg_s *cfg,
     }
 
   mbedtls_ssl_set_bio(ssl_ctx, net_ctx,
-                      mbedtls_net_send, mbedtls_net_recv, NULL);
+                      mqttc_net_send, mqttc_net_recv, NULL);
 
   for (; ; )
     {
@@ -459,76 +585,170 @@ static void close_conn(FAR struct mqtt_conn_context_s *conn)
 }
 
 /****************************************************************************
- * Public Functions
+ * Name: wait_for_network
+ *
+ * Description:
+ *   Block until the network interface has a usable IPv4 address (i.e. the
+ *   link is up and DHCP has completed) or a timeout elapses.  This avoids
+ *   the spurious first-attempt connect() failure that happens when the
+ *   example starts before Wi-Fi association/DHCP have finished.
+ *
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+static void wait_for_network(void)
 {
-  struct mqtt_conn_context_s mqtt_conn;
+  struct in_addr addr;
+  int waited = 0;
+
+  for (; ; )
+    {
+      if (netlib_get_ipv4addr(MQTTC_NETIF, &addr) == 0 &&
+          addr.s_addr != INADDR_ANY &&
+          addr.s_addr != htonl(INADDR_LOOPBACK))
+        {
+          return;
+        }
+
+      if (waited >= MQTTC_NET_WAIT_MS)
+        {
+          return;
+        }
+
+      usleep(MQTTC_NET_POLL_MS * 1000);
+      waited += MQTTC_NET_POLL_MS;
+    }
+}
+
+/****************************************************************************
+ * Name: reconnect_client
+ *
+ * Description:
+ *   Reconnect callback registered with mqtt_init_reconnect().  MQTT-C calls
+ *   this whenever the client enters an error state, and once at start-up
+ *   (with client->error == MQTT_ERROR_INITIAL_RECONNECT) to set up the
+ *   initial session.  It tears down the previous connection, re-establishes
+ *   the transport (TCP + optional TLS), reinitializes the client and then
+ *   reconfigures the session (CONNECT + SUBSCRIBE).
+ *
+ ****************************************************************************/
+
+static void reconnect_client(FAR struct mqtt_client *client,
+                             FAR void **state)
+{
+  FAR struct mqttc_reconnect_s *rc =
+    *((FAR struct mqttc_reconnect_s **)state);
+  FAR const struct mqttc_cfg_s *cfg = rc->cfg;
+  FAR struct mqtt_conn_context_s *conn = rc->conn;
   mqtt_pal_socket_handle socketfd;
+  enum MQTTErrors mqtterr;
+
+  /* Tear down the previous connection, unless this is the initial set-up
+   * call (in which case there is nothing to clean up yet).
+   */
+
+  if (client->error != MQTT_ERROR_INITIAL_RECONNECT)
+    {
+      printf("reconnect_client: reconnecting after error \"%s\"\n",
+             mqtt_error_str(client->error));
+      close_conn(conn);
+    }
+
+  /* (Re)establish the transport connection.
+   *
+   * mqtt_sync() unconditionally proceeds to recv/send on client->socketfd
+   * after this callback returns.  Until mqtt_reinit() runs, socketfd is the
+   * sentinel value -1 set by mqtt_init_reconnect(); in the mbedTLS build
+   * that is a pointer (0xffffffff) that mbedtls_ssl_read() would dereference
+   * and crash on.  We must therefore not return until a connection has
+   * actually been established, so retry with a short back-off on failure.
+   */
+
+  while (init_conn(cfg, conn, &socketfd) < 0)
+    {
+      printf("ERROR! init_conn() failed; retrying in %d s\n",
+             MQTTC_RECONNECT_DELAY_S);
+      sleep(MQTTC_RECONNECT_DELAY_S);
+    }
+
+  printf("Success: Connected to broker!\n");
+
+  /* Reinitialize the client with the fresh socket/SSL handle. */
+
+  mqtt_reinit(client, socketfd,
+              conn->sendbuf, sizeof(conn->sendbuf),
+              conn->recvbuf, sizeof(conn->recvbuf));
+
+  /* Send the connection request to the broker. */
+
+  mqtterr = mqtt_connect(client, cfg->id, NULL, NULL, 0, NULL, NULL,
+                         cfg->flags, cfg->tmo);
+  if (mqtterr != MQTT_OK)
+    {
+      printf("ERROR! mqtt_connect() failed: %s\n", mqtt_error_str(mqtterr));
+      return;
+    }
+
+  /* (Re)subscribe to the configured topic. */
+
+  mqtterr = mqtt_subscribe(client, cfg->topic, cfg->qos);
+  if (mqtterr != MQTT_OK)
+    {
+      printf("ERROR! mqtt_subscribe() failed: %s\n",
+             mqtt_error_str(mqtterr));
+    }
+}
+
+int main(int argc, FAR char * argv[])
+{
+  struct mqtt_conn_context_s mqtt_conn =
+    {
+      0
+    };
+
+  struct mqttc_reconnect_s reconnect_state;
   int timeout = 100;
   enum MQTTErrors mqtterr;
   pthread_attr_t attr;
   pthread_t thrdid;
-  int n = 1;
   struct mqttc_cfg_s mqtt_cfg =
     {
-      .host = "broker.hivemq.com",
-#ifndef MQTT_USE_MBEDTLS
-      .port = "1883",
-#else
-      .port = "8883",
-#endif
-      .topic = "test",
-      .msg = "test",
-      .flags = MQTT_CONNECT_CLEAN_SESSION,
-      .tmo = 400,
-      .id = NULL,
-      .user = NULL,
-      .pass = NULL,
-      .qos = MQTT_PUBLISH_QOS_0
+        .host = "broker.hivemq.com",
+    #ifndef MQTT_USE_MBEDTLS
+        .port = "1883",
+    #else
+        .port = "8883",
+    #endif
+        .topic = "test",
+        .msg = "NULL",
+        .flags = MQTT_CONNECT_CLEAN_SESSION,
+        .tmo = 400,
+        .id = NULL,
+        .user = NULL,
+        .pass = NULL,
+        .qos = MQTT_PUBLISH_QOS_0
     };
 
-  parsearg(argc, argv, &mqtt_cfg, &n);
+  parsearg(argc, argv, &mqtt_cfg);
 
-  if (init_conn(&mqtt_cfg, &mqtt_conn, &socketfd) < 0)
-    {
-      return -1;
-    }
+  /* Wait for the network to come up so the first connection attempt does not
+   * fail with ENETUNREACH
+   */
 
-  mqtterr = mqtt_init(&mqtt_conn.client, socketfd,
-                      mqtt_conn.sendbuf, sizeof(mqtt_conn.sendbuf),
-                      mqtt_conn.recvbuf, sizeof(mqtt_conn.recvbuf),
-                      NULL);
-  if (mqtterr != MQTT_OK)
-    {
-      printf("ERROR! mqtt_init() failed.\n");
-      goto err_with_conn;
-    }
+  wait_for_network();
 
-  mqtterr = mqtt_connect(&mqtt_conn.client, mqtt_cfg.id,
-                         NULL,          /* Will topic */
-                         NULL,          /* Will message */
-                         0,             /* Will message size */
-                         mqtt_cfg.user, /* User name */
-                         mqtt_cfg.pass, /* Password */
-                         mqtt_cfg.flags, mqtt_cfg.tmo);
+  /* Bundle the configuration and connection context for the reconnect
+   * callback.  mqtt_init_reconnect() leaves the client in the
+   * MQTT_ERROR_INITIAL_RECONNECT state; the first mqtt_sync() (driven by the
+   * refresher thread) invokes reconnect_client(), which establishes the
+   * transport, calls mqtt_reinit() and then mqtt_connect()/mqtt_subscribe().
+   */
 
-  if (mqtterr != MQTT_OK)
-    {
-      printf("ERROR! mqtt_connect() failed\n");
-      goto err_with_conn;
-    }
+  reconnect_state.cfg = &mqtt_cfg;
+  reconnect_state.conn = &mqtt_conn;
 
-  if (mqtt_conn.client.error != MQTT_OK)
-    {
-      printf("error: %s\n", mqtt_error_str(mqtt_conn.client.error));
-      goto err_with_conn;
-    }
-  else
-    {
-      printf("Success: Connected to broker!\n");
-    }
+  mqtt_init_reconnect(&mqtt_conn.client,
+                      reconnect_client, &reconnect_state,
+                      publish_callback);
 
   /* Start a thread to refresh the client (handle egress and ingress client
    * traffic)
@@ -548,7 +768,10 @@ int main(int argc, FAR char *argv[])
       goto err_with_conn;
     }
 
-  /* Wait for MQTT ACK or time-out */
+  /* Wait for the initial MQTT connection to be acknowledged or time-out.
+   * On time-out we keep going anyway: the reconnect callback will continue
+   * retrying in the background.
+   */
 
   while (!mqtt_conn.client.event_connect && --timeout > 0)
     {
@@ -557,32 +780,21 @@ int main(int argc, FAR char *argv[])
 
   if (timeout == 0)
     {
-      goto err_with_thrd;
+      printf("WARNING! Initial connection timed out; "
+             "reconnect will keep retrying.\n");
     }
-
-  while (n--)
+  else
     {
-      mqtterr = mqtt_publish(&mqtt_conn.client, mqtt_cfg.topic,
-                             mqtt_cfg.msg, strlen(mqtt_cfg.msg),
-                             mqtt_cfg.qos);
-      if (mqtterr != MQTT_OK)
-        {
-          printf("ERROR! mqtt_publish() failed\n");
-          goto err_with_thrd;
-        }
-
-      if (mqtt_conn.client.error != MQTT_OK)
-        {
-          printf("error: %s\n", mqtt_error_str(mqtt_conn.client.error));
-          goto err_with_thrd;
-        }
-      else
-        {
-          printf("Success: Published to broker!\n");
-        }
-
-      sleep(5);
+      printf("Success: Connected to broker!\n");
     }
+
+  printf("Listening for %s.\nType q to exit.\n\n", mqtt_cfg.topic);
+
+  /* Wait for messages */
+
+  while (fgetc(stdin) != 'q');
+
+  /* Disconnect */
 
   printf("\nDisconnecting from %s\n\n", mqtt_cfg.host);
   mqtterr = mqtt_disconnect(&mqtt_conn.client);
@@ -599,7 +811,6 @@ int main(int argc, FAR char *argv[])
 
   mqtt_sync(&mqtt_conn.client);
 
-err_with_thrd:
   pthread_cancel(thrdid);
 
 err_with_conn:
@@ -607,4 +818,3 @@ err_with_conn:
 
   return 0;
 }
-
