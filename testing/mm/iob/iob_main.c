@@ -1106,6 +1106,202 @@ static int test_iob_queue_concat(void)
 }
 
 /****************************************************************************
+ * Name: count_chain_iobs
+ *
+ * Description:
+ *   Count the number of IOBs belonging to a single chain, walking up to and
+ *   including the IOB that carries the IOB_CHAIN_END flag.  A correct chain
+ *   is always terminated by IOB_CHAIN_END; if the flag has been lost the
+ *   walk falls back to the raw end of the singly linked list.
+ *
+ ****************************************************************************/
+
+static int count_chain_iobs(FAR struct iob_s *chain)
+{
+  FAR struct iob_s *iob = chain;
+  int count = 0;
+
+  while (iob != NULL)
+    {
+      count++;
+
+      if (IOB_FLAG_TEST(iob, IOB_CHAIN_END))
+        {
+          break;
+        }
+
+      iob = IOB_LINK_GET(iob);
+    }
+
+  return count;
+}
+
+/****************************************************************************
+ * Name: test_iob_queue_extend_tail
+ *
+ * Description:
+ *   Regression test for 69c67a58493 ("mm/iob: fix stale qh_tail corrupting
+ *   enqueued multi-IOB chains").
+ *
+ *   iob_add_queue()/iob_concat_queue() used to link a newly enqueued chain
+ *   directly onto iobq->qh_tail.  But a chain may be extended (e.g. via
+ *   iob_copyin(), as the UDP/TCP read-ahead buffering path does) AFTER it
+ *   has been enqueued: iob_copyin() carries the IOB_CHAIN_END flag onto the
+ *   freshly allocated last IOB while qh_tail still points at the original,
+ *   now mid-chain, IOB.  Linking the next chain onto that stale tail
+ *   overwrote the extended chain's internal io_flink, truncating it and
+ *   planting a false chain boundary.
+ *
+ *   Reproduction sequence:
+ *     1. Enqueue a small single-IOB chain (chain1).  qh_tail -> chain1.
+ *     2. iob_copyin() enough data into chain1 to force allocation of a
+ *        second IOB.  IOB_CHAIN_END moves to the new tail, but qh_tail is
+ *        unchanged (still the original IOB).
+ *     3. Enqueue a second chain (chain2).
+ *
+ *   With the bug, step 3 overwrites chain1's internal link: chain1 is
+ *   truncated to a single IOB and the queue byte/entry accounting is
+ *   corrupted.  After the fix the queue holds exactly two chains with all
+ *   bytes and both of chain1's IOBs intact.
+ *
+ ****************************************************************************/
+
+static int test_iob_queue_extend_tail(void)
+{
+  struct iob_queue_s queue;
+  FAR struct iob_s *chain1;
+  FAR struct iob_s *chain2;
+  FAR struct iob_s *removed;
+  unsigned int bufsize;
+  unsigned int biglen;
+  unsigned int chain1_pktlen;
+  unsigned int chain2_pktlen;
+  int ret;
+
+  printf("\n=== Test 12: IOB Queue Extend Enqueued Tail Chain ===\n");
+
+  IOB_QINIT(&queue);
+
+  /* chain1: a single IOB carrying a few bytes. */
+
+  chain1 = iob_alloc(false);
+  if (chain1 == NULL)
+    {
+      printf("ERROR: Failed to allocate chain1\n");
+      return -1;
+    }
+
+  bufsize = IOB_BUFSIZE(chain1);
+
+  iob_copyin(chain1, (FAR const uint8_t *)"hello", 5, 0, false);
+
+  /* Enqueue chain1 while it is still a single IOB.  qh_tail now points at
+   * this IOB and it carries the IOB_CHAIN_END flag.
+   */
+
+  iob_add_queue(chain1, &queue);
+  DEBUGASSERT(iob_get_queue_entry_count(&queue) == 1);
+
+  /* Extend chain1 past a single IOB's capacity so iob_copyin() must
+   * allocate a second IOB, moving IOB_CHAIN_END to it and leaving qh_tail
+   * stale.  Append after the existing "hello" (offset 5).
+   */
+
+  biglen = bufsize + (bufsize / 2) + 1;
+  memset(g_buffer1, 0xa5, biglen);
+
+  ret = iob_copyin(chain1, g_buffer1, biglen, 5, false);
+  if (ret != (int)biglen)
+    {
+      printf("ERROR: iob_copyin extend failed, ret=%d\n", ret);
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  chain1_pktlen = chain1->io_pktlen;
+  DEBUGASSERT(chain1_pktlen == 5 + biglen);
+
+  /* chain1 must now span more than one IOB. */
+
+  if (count_chain_iobs(chain1) < 2)
+    {
+      printf("ERROR: chain1 did not extend to a second IOB\n");
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  /* chain2: another independent single-IOB chain. */
+
+  chain2 = iob_alloc(false);
+  if (chain2 == NULL)
+    {
+      printf("ERROR: Failed to allocate chain2\n");
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  iob_copyin(chain2, (FAR const uint8_t *)"world", 5, 0, false);
+  chain2_pktlen = chain2->io_pktlen;
+
+  /* The operation that used to corrupt the extended tail chain. */
+
+  iob_add_queue(chain2, &queue);
+
+  /* The queue must now report exactly two chains, and the total buffered
+   * bytes must equal the sum of both chains' packet lengths: nothing was
+   * lost to truncation.  Both helpers traverse the queue via IOB_CHAIN_END,
+   * so a corrupted boundary shows up here.
+   */
+
+  if (iob_get_queue_entry_count(&queue) != 2)
+    {
+      printf("ERROR: expected 2 queue entries, got %u\n",
+             iob_get_queue_entry_count(&queue));
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  if (iob_get_queue_size(&queue) != chain1_pktlen + chain2_pktlen)
+    {
+      printf("ERROR: queue size %u != expected %u (chain truncated)\n",
+             iob_get_queue_size(&queue), chain1_pktlen + chain2_pktlen);
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  /* Dequeue the first chain and confirm it still contains all of its IOBs
+   * and bytes (i.e. it was not truncated at the stale tail).
+   */
+
+  removed = iob_remove_queue(&queue);
+  if (removed != chain1 || count_chain_iobs(removed) < 2 ||
+      removed->io_pktlen != chain1_pktlen)
+    {
+      printf("ERROR: chain1 corrupted after dequeue\n");
+      iob_free_chain(removed);
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  iob_free_chain(removed);
+
+  removed = iob_remove_queue(&queue);
+  if (removed != chain2 || removed->io_pktlen != chain2_pktlen)
+    {
+      printf("ERROR: chain2 corrupted after dequeue\n");
+      iob_free_chain(removed);
+      iob_free_queue(&queue);
+      return -1;
+    }
+
+  iob_free_chain(removed);
+
+  DEBUGASSERT(IOB_QEMPTY(&queue));
+  printf("Test 12 PASSED\n");
+  return 0;
+}
+
+/****************************************************************************
  * Name: test_iob_tailroom
  *
  * Description:
@@ -1694,6 +1890,14 @@ int main(int argc, FAR char *argv[])
   if (ret != 0)
     {
       printf("\n*** Test 11 (test_iob_thread) FAILED!"
+             "Stopping execution. ***\n");
+      goto test_failed;
+    }
+
+  ret = test_iob_queue_extend_tail();
+  if (ret != 0)
+    {
+      printf("\n*** Test 12 (test_iob_queue_extend_tail) FAILED!"
              "Stopping execution. ***\n");
       goto test_failed;
     }
