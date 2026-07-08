@@ -16,6 +16,17 @@ config EXAMPLES_MQTTC_PROGNAME
 	string "Program name"
 	default "mqttc_pub"
 
+config EXAMPLES_MQTTC_SUB
+	bool "Enable MQTT-C Subscriber Client"
+	default n
+	---help---
+		Enable a simple MQTT-C subscriber example alongside publisher
+
+config EXAMPLES_MQTTC_SUB_PROGNAME
+	string "Subscriber program name"
+	default "mqttc_sub"
+	depends on EXAMPLES_MQTTC_SUB
+
 config EXAMPLES_MQTTC_STACKSIZE
 	int "Task's stack size"
 	default 8192
@@ -27,6 +38,19 @@ config EXAMPLES_MQTTC_TXSIZE
 config EXAMPLES_MQTTC_RXSIZE
 	int "RX Buffer size"
 	default 256
+
+config MQTT_USE_MBEDTLS
+	bool
+	default n
+
+config EXAMPLES_MQTTC_MBEDTLS
+	bool "Enable MQTT over TLS (mbedTLS)"
+	default n
+	depends on NETUTILS_MQTTC_WITH_MBEDTLS
+	select MQTT_USE_MBEDTLS
+	---help---
+		Enable TLS/SSL support for MQTT connections using mbedTLS.
+		Requires NETUTILS_MQTTC_WITH_MBEDTLS to be enabled.
 
 config EXAMPLES_MQTTC_ALLOW_UNVERIFIED_TLS
 	bool "Allow unverified TLS"
