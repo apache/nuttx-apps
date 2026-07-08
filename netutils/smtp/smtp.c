@@ -3,7 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SPDX-FileCopyrightText: 2015, 2020 Gregory Nutt. All rights reserved.
- * SPDX-FileCopyrightText: 2007, 2009, 2011, Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2007, 2009, Gregory Nutt. All rights reserved.
+ * SPDX-FileCopyrightText: 2011, Gregory Nutt. All rights reserved.
  * SPDX-FileCopyrightText: 2004, Adam Dunkels. All rights reserved.
  * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  * SPDX-FileContributor: Adam Dunkels <adam@dunkels.com>
@@ -116,7 +117,7 @@ static const char g_smtpto[]             = "To: ";
 
 static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
 {
-  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
     {
       return ERROR;
     }
@@ -133,7 +134,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
     {
       return ERROR;
     }
@@ -150,7 +151,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
     {
       return ERROR;
     }
@@ -167,7 +168,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
     {
       return ERROR;
     }
@@ -186,7 +187,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
           return ERROR;
         }
 
-      if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+      if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
         {
           return ERROR;
         }
@@ -202,7 +203,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
     {
       return ERROR;
     }
@@ -254,7 +255,7 @@ static inline int smtp_send_message(int sockfd, struct smtp_state *psmtp)
       return ERROR;
     }
 
-  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) < 0)
+  if (recv(sockfd, psmtp->buffer, SMTP_INPUT_BUFFER_SIZE, 0) <= 0)
     {
       return ERROR;
     }
