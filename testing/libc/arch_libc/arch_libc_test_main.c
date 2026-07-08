@@ -618,22 +618,32 @@ static void speed_strcmp(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCPY
 static int test_strcpy(void)
 {
-  int align;
   int size;
   int fail = 0;
+  int ai;
 
   printf("Testing strcpy...\n");
-  for (align = 0; align < 8; align++)
+
+  /* ai encodes da*8+sa: sa==da keeps src/dst in the same 4-byte congruence
+   * (aligned word-copy path), sa!=da forces different congruence and
+   * exercises the shift-merge path; any nonzero da also hits the dst byte
+   * prologue.
+   */
+
+  for (ai = 0; ai < 64; ai++)
     {
+      int da = ai / 8;
+      int sa = ai % 8;
+
       for (size = 1; size <= 64; size++)
         {
-          fill_pattern(g_buf1 + align, size);
-          g_buf1[align + size] = '\0';
+          fill_pattern(g_buf1 + sa, size);
+          g_buf1[sa + size] = '\0';
           memset(g_buf2, 0, sizeof(g_buf2));
-          strcpy(g_buf2 + align, g_buf1 + align);
-          if (strcmp(g_buf2 + align, g_buf1 + align) != 0)
+          strcpy(g_buf2 + da, g_buf1 + sa);
+          if (strcmp(g_buf2 + da, g_buf1 + sa) != 0)
             {
-              printf("  FAIL: align=%d size=%d\n", align, size);
+              printf("  FAIL: sa=%d da=%d size=%d\n", sa, da, size);
               fail++;
             }
         }
@@ -946,26 +956,34 @@ static void speed_strnlen(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRNCPY
 static int test_strncpy(void)
 {
-  int align;
   int size;
   int i;
   int fail = 0;
+  int ai;
 
   printf("Testing strncpy...\n");
-  for (align = 0; align < 8; align++)
+
+  /* ai encodes da*8+sa so src/dst offsets vary independently: sa!=da forces
+   * different congruence and exercises the shift-merge path.
+   */
+
+  for (ai = 0; ai < 64; ai++)
     {
+      int da = ai / 8;
+      int sa = ai % 8;
+
       for (size = 1; size <= 64; size++)
         {
-          fill_pattern(g_buf1 + align, size);
-          g_buf1[align + size] = '\0';
+          fill_pattern(g_buf1 + sa, size);
+          g_buf1[sa + size] = '\0';
 
           /* n > strlen: should copy and zero-fill */
 
           memset(g_buf2, 0xaa, sizeof(g_buf2));
-          strncpy(g_buf2 + align, g_buf1 + align, size + 4);
-          if (strcmp(g_buf2 + align, g_buf1 + align) != 0)
+          strncpy(g_buf2 + da, g_buf1 + sa, size + 4);
+          if (strcmp(g_buf2 + da, g_buf1 + sa) != 0)
             {
-              printf("  FAIL copy: align=%d size=%d\n", align, size);
+              printf("  FAIL copy: sa=%d da=%d size=%d\n", sa, da, size);
               fail++;
             }
 
@@ -973,9 +991,10 @@ static int test_strncpy(void)
 
           for (i = 0; i < 4; i++)
             {
-              if (g_buf2[align + size + i] != '\0')
+              if (g_buf2[da + size + i] != '\0')
                 {
-                  printf("  FAIL zfill: align=%d size=%d\n", align, size);
+                  printf("  FAIL zfill: sa=%d da=%d size=%d\n",
+                         sa, da, size);
                   fail++;
                   break;
                 }
@@ -986,10 +1005,11 @@ static int test_strncpy(void)
           if (size > 1)
             {
               memset(g_buf2, 0xaa, sizeof(g_buf2));
-              strncpy(g_buf2 + align, g_buf1 + align, size - 1);
-              if (memcmp(g_buf2 + align, g_buf1 + align, size - 1) != 0)
+              strncpy(g_buf2 + da, g_buf1 + sa, size - 1);
+              if (memcmp(g_buf2 + da, g_buf1 + sa, size - 1) != 0)
                 {
-                  printf("  FAIL trunc: align=%d size=%d\n", align, size);
+                  printf("  FAIL trunc: sa=%d da=%d size=%d\n",
+                         sa, da, size);
                   fail++;
                 }
             }
@@ -1027,40 +1047,48 @@ static void speed_strncpy(void)
 #ifdef CONFIG_TESTING_ARCH_LIBC_STPCPY
 static int test_stpcpy(void)
 {
-  int align;
   int size;
   int fail = 0;
+  int ai;
   FAR char *p;
 
   printf("Testing stpcpy...\n");
-  for (align = 0; align < 8; align++)
+
+  /* ai encodes da*8+sa so src/dst offsets vary independently: sa!=da forces
+   * different congruence and exercises the shift-merge path.
+   */
+
+  for (ai = 0; ai < 64; ai++)
     {
+      int da = ai / 8;
+      int sa = ai % 8;
+
       for (size = 1; size <= 64; size++)
         {
-          fill_pattern(g_buf1 + align, size);
-          g_buf1[align + size] = '\0';
+          fill_pattern(g_buf1 + sa, size);
+          g_buf1[sa + size] = '\0';
           memset(g_buf2, 0, sizeof(g_buf2));
-          p = stpcpy(g_buf2 + align, g_buf1 + align);
+          p = stpcpy(g_buf2 + da, g_buf1 + sa);
 
           /* Check content */
 
-          if (strcmp(g_buf2 + align, g_buf1 + align) != 0)
+          if (strcmp(g_buf2 + da, g_buf1 + sa) != 0)
             {
-              printf("  FAIL copy: align=%d size=%d\n", align, size);
+              printf("  FAIL copy: sa=%d da=%d size=%d\n", sa, da, size);
               fail++;
             }
 
           /* Check return value points to NUL */
 
-          if (p != g_buf2 + align + size)
+          if (p != g_buf2 + da + size)
             {
-              printf("  FAIL retval: align=%d size=%d\n", align, size);
+              printf("  FAIL retval: sa=%d da=%d size=%d\n", sa, da, size);
               fail++;
             }
 
           if (*p != '\0')
             {
-              printf("  FAIL nul: align=%d size=%d\n", align, size);
+              printf("  FAIL nul: sa=%d da=%d size=%d\n", sa, da, size);
               fail++;
             }
         }
