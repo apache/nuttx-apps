@@ -95,7 +95,7 @@ int lte_m2m_connection(int cmd)
       return -EINVAL;
     }
 
-  return lapi_req(LTE_CMDID_LWM2M_CONNECT, (FAR void **)cmd,
+  return lapi_req(LTE_CMDID_LWM2M_CONNECT, (FAR void **)(uintptr_t)cmd,
                   1, NULL, 0, NULL);
 }
 
@@ -107,7 +107,8 @@ int lte_m2m_readresponse(int seq_no, FAR struct lwm2mstub_instance_s *inst,
                          int resp, FAR char *readvalue, int len)
 {
   FAR void *inarg[5] = {
-    (FAR void *)seq_no, (FAR void *)resp, inst, readvalue, (FAR void *)len
+    (FAR void *)(uintptr_t)seq_no, (FAR void *)(uintptr_t)resp, inst,
+    readvalue, (FAR void *)(uintptr_t)len
   };
 
   if (!inst || !readvalue || len <= 0 || check_instance(inst) != OK)
@@ -127,7 +128,7 @@ int lte_m2m_writeresponse(int seq_no, FAR struct lwm2mstub_instance_s *inst,
                           int resp)
 {
   FAR void *inarg[3] = {
-    (FAR void *)seq_no, (FAR void *)resp, inst
+    (FAR void *)(uintptr_t)seq_no, (FAR void *)(uintptr_t)resp, inst
   };
 
   if (!inst || check_instance(inst) != OK)
@@ -147,7 +148,7 @@ int lte_m2m_executeresp(int seq_no, FAR struct lwm2mstub_instance_s *inst,
                         int resp)
 {
   FAR void *inarg[3] = {
-    (FAR void *)seq_no, (FAR void *)resp, inst
+    (FAR void *)(uintptr_t)seq_no, (FAR void *)(uintptr_t)resp, inst
   };
 
   if (!inst || check_instance(inst) != OK)
@@ -166,7 +167,7 @@ int lte_m2m_executeresp(int seq_no, FAR struct lwm2mstub_instance_s *inst,
 int lte_m2m_observeresp(int seq_no, int resp)
 {
   FAR void *inarg[2] = {
-    (FAR void *)seq_no, (FAR void *)resp
+    (FAR void *)(uintptr_t)seq_no, (FAR void *)(uintptr_t)resp
   };
 
   return lapi_req(LTE_CMDID_LWM2M_OBSERVERESP,
@@ -182,7 +183,7 @@ int lte_m2m_observeupdate(FAR char *token,
                           FAR char *value, int len)
 {
   FAR void *inarg[4] = {
-    token, inst, value, (FAR void *)len
+    token, inst, value, (FAR void *)(uintptr_t)len
   };
 
   if (!token || !inst || !value || len <= 0)
@@ -211,7 +212,7 @@ int lte_setm2m_endpointname(FAR char *name)
 int lte_getm2m_endpointname(FAR char *name, int len)
 {
   FAR void *outarg[2] = {
-    name, (FAR void *)len
+    name, (FAR void *)(uintptr_t)len
   };
 
   if (!name || len <= 0)
@@ -241,7 +242,7 @@ int lte_getm2m_servernum(void)
 int lte_setm2m_serverinfo(FAR struct lwm2mstub_serverinfo_s *info, int id)
 {
   FAR void *inarg[2] = {
-    info, (FAR void *)id
+    info, (FAR void *)(uintptr_t)id
   };
 
   if (!info)
@@ -259,7 +260,7 @@ int lte_setm2m_serverinfo(FAR struct lwm2mstub_serverinfo_s *info, int id)
 int lte_getm2m_serverinfo(FAR struct lwm2mstub_serverinfo_s *info, int id)
 {
   FAR void *outarg[2] = {
-    info, (FAR void *)id
+    info, (FAR void *)(uintptr_t)id
   };
 
   if (!info)
@@ -288,7 +289,7 @@ int lte_getm2m_enabled_objectnum(void)
 int lte_getm2m_enabled_objects(FAR uint16_t *objids, int objnum)
 {
   FAR void *outarg[2] = {
-    objids, (FAR void *)objnum
+    objids, (FAR void *)(uintptr_t)objnum
   };
 
   if (!objids || objnum <= 0)
@@ -306,7 +307,7 @@ int lte_getm2m_enabled_objects(FAR uint16_t *objids, int objnum)
 int lte_enablem2m_objects(FAR uint16_t *objids, int objnum)
 {
   FAR void *inarg[2] = {
-    objids, (FAR void *)objnum
+    objids, (FAR void *)(uintptr_t)objnum
   };
 
   if (!objids || objnum <= 0)
@@ -338,7 +339,7 @@ int lte_getm2m_objresourceinfo(uint16_t objid, int res_num,
                                FAR struct lwm2mstub_resource_s *reses)
 {
   FAR void *outarg[2] = {
-    reses, (FAR void *)res_num
+    reses, (FAR void *)(uintptr_t)res_num
   };
 
   if (!reses || res_num <= 0)
@@ -391,7 +392,7 @@ int lte_setm2m_objectdefinition(uint16_t objids, int res_num,
                                 FAR struct lwm2mstub_resource_s *resucs)
 {
   FAR void *inarg[3] = {
-    (FAR void *)(uint32_t)objids, (FAR void *)res_num, resucs
+    (FAR void *)(uintptr_t)objids, (FAR void *)(uintptr_t)res_num, resucs
   };
 
   return lapi_req(LTE_CMDID_LWM2M_SETOBJRESOURCE, inarg, 3, NULL, 0, NULL);
@@ -487,5 +488,5 @@ bool lte_getm2m_qmode(void)
 int lte_setm2m_qmode(bool en)
 {
   return lapi_req(LTE_CMDID_LWM2M_SETQMODE,
-                  (FAR void **)(en ? 1 : 0), 1, NULL, 0, NULL);
+                  (FAR void **)(uintptr_t)(en ? 1 : 0), 1, NULL, 0, NULL);
 }
