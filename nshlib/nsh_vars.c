@@ -257,6 +257,11 @@ int nsh_setvar(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
 
   if (pstate->varp != NULL)
     {
+      if (varlen > INT_MAX - pstate->varsz)
+        {
+          return -ENOMEM;
+        }
+
       newsize = pstate->varsz + varlen;
       newvarp = (FAR char *)realloc(pstate->varp, newsize);
       if (newvarp == NULL)
