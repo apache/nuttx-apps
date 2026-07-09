@@ -258,15 +258,15 @@ int main(void)
 
   /* testcase 8: test segmented computing capabilities in crc32 mode */
 
+  ret = syscrc32_start(&crc32_ctx, &startval);
+  if (ret != 0)
+    {
+      printf("syscrc32 start failed\n");
+      goto err;
+    }
+
   for (i = 0; i < 8; i++)
     {
-      ret = syscrc32_start(&crc32_ctx, &startval);
-      if (ret != 0)
-        {
-          printf("syscrc32 start failed\n");
-          goto err;
-        }
-
       ret = syscrc32_update(&crc32_ctx, g_crc32_testcase[7].data,
                             g_crc32_testcase[7].datalen);
       if (ret)
@@ -274,13 +274,13 @@ int main(void)
           printf("syscrc32 update failed\n");
           goto err;
         }
+    }
 
-      ret = syscrc32_finish(&crc32_ctx, &startval);
-      if (ret)
-        {
-          printf("syscrc32 finish failed\n");
-          goto err;
-        }
+  ret = syscrc32_finish(&crc32_ctx, &startval);
+  if (ret)
+    {
+      printf("syscrc32 finish failed\n");
+      goto err;
     }
 
   ret = match(g_crc32_testcase[7].result, startval);
