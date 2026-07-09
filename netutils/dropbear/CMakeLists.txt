@@ -68,6 +68,11 @@ if(CONFIG_NETUTILS_DROPBEAR)
           patch -s -N -l -p1 -d "${DROPBEAR_UNPACKNAME}" -i
           "${CMAKE_CURRENT_SOURCE_DIR}/patch/0005-use-nuttx-sha256-hmac.patch"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+      execute_process(
+        COMMAND
+          patch -s -N -l -p1 -d "${DROPBEAR_UNPACKNAME}" -i
+          "${CMAKE_CURRENT_SOURCE_DIR}/patch/0006-use-nuttx-chachapoly-cryptodev.patch"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
       message(STATUS "Generating default_options_guard.h")
       execute_process(
         COMMAND
@@ -151,6 +156,12 @@ if(CONFIG_NETUTILS_DROPBEAR)
          port/dropbear_ltc_hmac_sha256.c)
   endif()
 
+  if(CONFIG_NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY)
+    # Replace the bundled chacha20-poly1305 with the /dev/crypto adapter.
+    list(REMOVE_ITEM DROPBEAR_SRCS dropbear/src/chachapoly.c)
+    list(APPEND DROPBEAR_SRCS port/dropbear_chachapoly.c)
+  endif()
+
   list(APPEND DROPBEAR_SRCS ${LIBTOMCRYPT_SRCS})
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
@@ -216,6 +227,10 @@ if(CONFIG_NETUTILS_DROPBEAR)
                                                    DROPBEAR_NUTTX_HMAC_SHA256=1)
   endif()
 
+  if(CONFIG_NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY)
+    target_compile_definitions(${PROGNAME} PRIVATE DROPBEAR_NUTTX_CHACHAPOLY=1)
+  endif()
+
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
     target_compile_definitions(
       scp PRIVATE LOCALOPTIONS_H_EXISTS=1 DROPBEAR_NUTTX=1
@@ -245,6 +260,17 @@ if(CONFIG_NETUTILS_DROPBEAR)
   # LTC_SOURCE must be set only for libtomcrypt sources.
   set_source_files_properties(${LIBTOMCRYPT_SRCS} PROPERTIES COMPILE_DEFINITIONS
                                                              LTC_SOURCE=1)
+
+  if(CONFIG_NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY)
+    # The NuttX crypto backend pulled in by /dev/crypto also exports
+    # ecc_make_key.  Dropbear only uses libtomcrypt's ecc_make_key_ex, so rename
+    # the unused plain wrapper to avoid a multiple definition.  Append so the
+    # LTC_SOURCE define set above is preserved.
+    set_property(
+      SOURCE dropbear/libtomcrypt/src/pk/ecc/ecc_make_key.c
+      APPEND
+      PROPERTY COMPILE_DEFINITIONS ecc_make_key=dropbear_ltc_ecc_make_key)
+  endif()
 
   target_compile_options(${PROGNAME} PRIVATE -Wno-pointer-sign -Wno-format)
 

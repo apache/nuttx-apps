@@ -100,6 +100,19 @@ config NETUTILS_DROPBEAR_NUTTX_CRYPTO
 		modules, reducing flash usage.  This requires a flat build because
 		Dropbear calls the kernel crypto functions directly.
 
+config NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY
+	bool "Use NuttX /dev/crypto for chacha20-poly1305"
+	default y
+	depends on NETUTILS_DROPBEAR_NUTTX_CRYPTO
+	select CRYPTO_CRYPTODEV
+	select CRYPTO_SW_AES
+	select CRYPTO_CRYPTODEV_SOFTWARE_CRYPTO
+	---help---
+		Implement the chacha20-poly1305@openssh.com cipher through the NuttX
+		crypto device (/dev/crypto) using the CRYPTO_CHACHA20 and
+		CRYPTO_POLY1305 algorithms instead of the bundled libtomcrypt
+		implementation.
+
 config NETUTILS_DROPBEAR_PORT
 	int "Dropbear listen port"
 	default 2222

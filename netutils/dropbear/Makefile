@@ -68,6 +68,10 @@ CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX_SHA256=1
 CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX_HMAC_SHA256=1
 endif
 
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY),)
+CFLAGS += ${DEFINE_PREFIX}DROPBEAR_NUTTX_CHACHAPOLY=1
+endif
+
 dropbear_nshsession.c_CFLAGS += ${DEFINE_PREFIX}Channel=dropbear_channel
 dropbear_nshsession.c_CFLAGS += ${DEFINE_PREFIX}ChanType=dropbear_chantype
 
@@ -138,6 +142,13 @@ CSRCS += port/dropbear_ltc_sha256.c
 CSRCS += port/dropbear_ltc_hmac_sha256.c
 endif
 
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY),)
+# Replace the bundled chacha20-poly1305 with the /dev/crypto adapter.
+
+CSRCS := $(filter-out dropbear/src/chachapoly.c,$(CSRCS))
+CSRCS += port/dropbear_chachapoly.c
+endif
+
 CSRCS += $(TOMMATH_SRCS)
 CSRCS += $(TOMCRYPT_SRCS)
 
@@ -148,6 +159,13 @@ endif
 
 # Match the ESP-IDF port behavior: LTC_SOURCE is only for libtomcrypt sources.
 $(foreach src,$(TOMCRYPT_SRCS),$(eval $(src)_CFLAGS += ${DEFINE_PREFIX}LTC_SOURCE=1))
+
+ifneq ($(CONFIG_NETUTILS_DROPBEAR_NUTTX_CHACHAPOLY),)
+# The NuttX crypto backend pulled in by /dev/crypto also exports ecc_make_key.
+# Dropbear only uses libtomcrypt's ecc_make_key_ex, so rename the unused plain
+# wrapper to avoid a link-time multiple definition.
+dropbear/libtomcrypt/src/pk/ecc/ecc_make_key.c_CFLAGS += ${DEFINE_PREFIX}ecc_make_key=dropbear_ltc_ecc_make_key
+endif
 
 MAINSRC = dropbear_main.c
 
@@ -181,6 +199,7 @@ $(DROPBEAR_UNPACKNAME): $(DROPBEAR_ZIP)
 	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0003-allow-localoptions-to-override-tracking-malloc.patch; true
 	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0004-use-nuttx-unused-macro.patch; true
 	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0005-use-nuttx-sha256-hmac.patch; true
+	$(Q) $(PATCH) -s -N -l -p1 -d $(DROPBEAR_UNPACKNAME) -i $(APPDIR)$(DELIM)netutils$(DELIM)dropbear$(DELIM)patch$(DELIM)0006-use-nuttx-chachapoly-cryptodev.patch; true
 	@echo "Generating default_options_guard.h"
 	$(Q) sh $(DROPBEAR_UNPACKNAME)$(DELIM)src$(DELIM)ifndef_wrapper.sh \
 		< $(DROPBEAR_UNPACKNAME)$(DELIM)src$(DELIM)default_options.h \

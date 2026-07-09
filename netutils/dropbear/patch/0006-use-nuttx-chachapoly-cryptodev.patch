@@ -1,0 +1,20 @@
+--- a/src/chachapoly.h
++++ b/src/chachapoly.h
+@@ -31,10 +31,17 @@
+
+ #if DROPBEAR_CHACHA20POLY1305
+
++#ifdef DROPBEAR_NUTTX_CHACHAPOLY
++typedef struct {
++	unsigned char key_main[32];
++	unsigned char key_header[32];
++} dropbear_chachapoly_state;
++#else
+ typedef struct {
+ 	chacha_state chacha;
+ 	chacha_state header;
+ } dropbear_chachapoly_state;
++#endif
+
+ extern const struct dropbear_cipher dropbear_chachapoly;
+ extern const struct dropbear_cipher_mode dropbear_mode_chachapoly;
