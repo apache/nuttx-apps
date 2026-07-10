@@ -1,0 +1,132 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig ZBUS
+	bool "ZBus message bus library"
+	default n
+	depends on !DISABLE_MQUEUE
+	---help---
+		Enable the zbus message bus library (port of the Zephyr zbus).
+		Channels and observers are defined statically with the
+		ZBUS_CHAN_DEFINE/ZBUS_LISTENER_DEFINE/ZBUS_SUBSCRIBER_DEFINE
+		macros and collected in linker iterable sections.  The board
+		linker script must include <nuttx/linker/common-rom.ld> (inside
+		.text) and <nuttx/linker/common-ram.ld> (inside .data).
+
+		For protection against priority inversion during the
+		notification process, enable CONFIG_PRIORITY_INHERITANCE.
+
+if ZBUS
+
+config ZBUS_CHANNEL_NAME
+	bool "Channel name field"
+	default n
+	---help---
+		Store the channel name string and enable zbus_chan_name() and
+		zbus_chan_from_name().
+
+config ZBUS_CHANNEL_ID
+	bool "Channel identifier field"
+	default n
+	---help---
+		Store a unique numeric channel identifier and enable
+		zbus_chan_from_id().  Use ZBUS_CHAN_DEFINE_WITH_ID.
+
+config ZBUS_OBSERVER_NAME
+	bool "Observer name field"
+	default n
+	---help---
+		Store the observer name string and enable zbus_obs_name().
+
+config ZBUS_CHANNEL_PUBLISH_STATS
+	bool "Channel publishing statistics (timestamp and count)"
+	default n
+
+config ZBUS_MSG_SUBSCRIBER
+	bool "Message subscribers (receive message copies in sequence)"
+	default n
+	---help---
+		Enable ZBUS_MSG_SUBSCRIBER_DEFINE and zbus_sub_wait_msg().
+		Message subscribers receive a copy of every published message
+		through a POSIX message queue.
+
+if ZBUS_MSG_SUBSCRIBER
+
+config ZBUS_MSG_SUBSCRIBER_MAX_MSG_SIZE
+	int "Size of the biggest message used with zbus (bytes)"
+	default 64
+	---help---
+		Messages larger than this cannot be delivered to message
+		subscribers.  Defines the message queue slot size.
+
+		NOTE: CONFIG_MQ_MAXMSGSIZE must be at least this value plus
+		the size of a pointer, otherwise the message subscriber
+		queues fail to open with -EINVAL.
+
+config ZBUS_MSG_SUBSCRIBER_QUEUE_SIZE
+	int "Message subscriber queue depth"
+	default 4
+
+endif # ZBUS_MSG_SUBSCRIBER
+
+config ZBUS_ASYNC_LISTENER
+	bool "Async listeners"
+	default n
+	depends on ZBUS_MSG_SUBSCRIBER
+	depends on SCHED_LPWORK
+	---help---
+		Async listeners execute their callback on the low priority work
+		queue with a copy of the published message, instead of running
+		synchronously in the publisher context.  Enable with
+		ZBUS_ASYNC_LISTENER_DEFINE.
+
+config ZBUS_ISR_PUBLISHER
+	bool "Deferred publisher for interrupt handlers"
+	default n
+	depends on SCHED_HPWORK || SCHED_LPWORK
+	---help---
+		Provide ZBUS_ISR_PUBLISHER_DEFINE and zbus_isr_pub(): an
+		ISR-safe helper that snapshots the message and performs the
+		actual publication from a work queue (HPWORK when available,
+		LPWORK otherwise).  Semantics are last-value-wins under
+		interrupt bursts.  Costs one work item plus two message-sized
+		buffers of static RAM per publisher.
+
+config ZBUS_RUNTIME_OBSERVERS
+	bool "Runtime observers support"
+	default n
+	---help---
+		Enable zbus_chan_add_obs()/zbus_chan_rm_obs().  Observer nodes
+		are allocated from the heap.
+
+config ZBUS_LINKER_INSERT
+	bool "Provide zbus linker sections via supplementary INSERT script"
+	default n
+	---help---
+		Zero-touch mode: the zbus iterable sections are appended to the
+		link through the supplementary script <nuttx/linker/zbus.ld>
+		(added to ARCHSCRIPT, INSERT AFTER .text), so the board linker
+		script needs no modification.
+
+		Leave disabled for boards whose linker script already includes
+		<nuttx/linker/common-rom.ld>.
+
+		Constraints: requires GNU ld, a board script with an output
+		section named ".text", and a MEMORY layout where the ROM/flash
+		region is the first region compatible with read-only sections
+		(GNU ld assigns INSERTed sections to a region by attribute
+		matching, in declaration order).  Boards declaring a generic
+		rwx region at a lower address first (e.g. ITCM at 0x0, as the
+		linum-stm32h753bi does) must use the common-rom.ld include
+		instead.
+
+config ZBUS_ASSERT_MOCK
+	bool "Assert mock for test purposes"
+	default n
+	---help---
+		Invalid parameters make the API return -EFAULT instead of
+		asserting.
+
+endif # ZBUS
