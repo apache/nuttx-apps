@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/sched.h>
+#include <nuttx/vt100.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <signal.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
 #include <sys/param.h>
@@ -884,6 +886,107 @@ static void top_exit(int signo, FAR siginfo_t *siginfo, FAR void *context)
 }
 #endif /* CONFIG_ENABLE_ALL_SIGNALS */
 
+/****************************************************************************
+ * Name: top_state_is_running
+ ****************************************************************************/
+
+static bool top_state_is_running(FAR const char *state)
+{
+  return strncmp(state, "Running", 7) == 0 ||
+         strncmp(state, "Ready", 5) == 0 ||
+         strncmp(state, "Pending", 7) == 0;
+}
+
+/****************************************************************************
+ * Name: top_summary
+ *
+ * Description:
+ *   Print a Linux-top-like summary header: uptime, task counts, CPU
+ *   busy/idle and memory usage.  Lines end with an erase-to-eol so the
+ *   screen can be refreshed in place.
+ *
+ ****************************************************************************/
+
+static void top_summary(FAR struct nsh_vtbl_s *vtbl,
+                        FAR struct nsh_topstatus_s *topstatus)
+{
+  struct sysinfo info;
+  unsigned long uptime;
+  unsigned long busy;
+  size_t running = 0;
+  size_t i;
+
+  for (i = 0; i < topstatus->index; i++)
+    {
+      if (top_state_is_running(topstatus->status[i]->td_state))
+        {
+          running++;
+        }
+    }
+
+  sysinfo(&info);
+  uptime = info.uptime;
+
+  if (uptime >= 86400)
+    {
+      nsh_output(vtbl, VT100_STR_CLEAREOL
+                 "top - up %lud %02lu:%02lu:%02lu\n",
+                 uptime / 86400, (uptime % 86400) / 3600,
+                 (uptime % 3600) / 60, uptime % 60);
+    }
+  else
+    {
+      nsh_output(vtbl, VT100_STR_CLEAREOL "top - up %02lu:%02lu:%02lu\n",
+                 uptime / 3600, (uptime % 3600) / 60, uptime % 60);
+    }
+
+  nsh_output(vtbl, VT100_STR_CLEAREOL
+             "Tasks: %zu total, %zu running, %zu sleeping\n",
+             topstatus->index, running, topstatus->index - running);
+
+  busy = (info.loads[0] * 1000) >> SI_LOAD_SHIFT;
+  nsh_output(vtbl, VT100_STR_CLEAREOL
+             "%%Cpu(s): %2lu.%lu busy, %2lu.%lu idle\n",
+             busy / 10, busy % 10,
+             (1000 - busy) / 10, (1000 - busy) % 10);
+
+  nsh_output(vtbl, VT100_STR_CLEAREOL
+             "Mem : %8lu total, %8lu used, %8lu free\n",
+             info.totalram, info.totalram - info.freeram, info.freeram);
+
+  nsh_output(vtbl, VT100_STR_CLEAREOL "\n");
+}
+
+/****************************************************************************
+ * Name: top_wait_key
+ *
+ * Description:
+ *   Sleep for the update interval, returning true if the user asked to
+ *   quit (q, ESC or Ctrl-C read from stdin).
+ *
+ ****************************************************************************/
+
+static bool top_wait_key(int delay)
+{
+  struct pollfd fds;
+
+  fds.fd = STDIN_FILENO;
+  fds.events = POLLIN;
+
+  if (poll(&fds, 1, delay * 1000) > 0)
+    {
+      char c;
+
+      if (read(STDIN_FILENO, &c, 1) == 1 &&
+          (c == 'q' || c == 0x1b || c == 0x03))
+        {
+          return true;
+        }
+    }
+
+  return false;
+}
+
 #endif
 
 /****************************************************************************
@@ -1417,11 +1520,12 @@ int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       tc = nsh_ioctl(vtbl, TIOCSCTTY, getpid());
     }
 
+  nsh_output(vtbl, VT100_STR_CLEARSCREEN);
+
   while (!quit)
     {
       topstatus.index = 0;
-      nsh_output(vtbl, "\033[2J\033[1;1H");
-      ps_title(vtbl, topstatus.heap);
+      nsh_output(vtbl, VT100_STR_CURSORHOME);
 
       if (pidlist)
         {
@@ -1455,17 +1559,29 @@ int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       qsort(topstatus.status, topstatus.index,
             sizeof(topstatus.status[0]), top_cmpcpuload);
 
+      top_summary(vtbl, &topstatus);
+
+      nsh_output(vtbl, VT100_STR_CLEAREOL VT100_STR_BOLD);
+      ps_title(vtbl, topstatus.heap);
+      nsh_output(vtbl, VT100_STR_MODESOFF);
+
       for (i = 0; i < MIN(topstatus.index, num); i++)
         {
+          nsh_output(vtbl, VT100_STR_CLEAREOL);
           ps_output(vtbl, topstatus.heap, topstatus.status[i]);
         }
 
       if (vtbl->isctty && tc == 0)
         {
-          nsh_output(vtbl, "use Ctrl+c' to quit\n");
+          nsh_output(vtbl, VT100_STR_CLEAREOL "use 'q' or Ctrl+c to quit\n");
         }
 
-      sleep(delay);
+      nsh_output(vtbl, VT100_STR_CLEAREOS);
+
+      if (top_wait_key(delay))
+        {
+          break;
+        }
     }
 
   if (topstatus.status != NULL)
