@@ -135,6 +135,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
+      # Documented sim/login CI test credential (not a production secret).
+      # Used when CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE=y and defconfig omits
+      # the password.  See nuttx tools/update_romfs_password.sh.
+      NUTTX_ROMFS_PASSWD_PASSWORD: NuttXSimLogin1
 
     strategy:
       max-parallel: 12
@@ -179,8 +183,10 @@ jobs:
         uses: ./sources/nuttx/.github/actions/ci-container
         env:
           BLOBDIR: /tools/blobs
+          NUTTX_ROMFS_PASSWD_PASSWORD: NuttXSimLogin1
         with:
           run: |
+            export NUTTX_ROMFS_PASSWD_PASSWORD=NuttXSimLogin1
             export ARTIFACTDIR=`pwd`/buildartifacts
 
             for i in 1 2 3; do
@@ -295,6 +301,8 @@ jobs:
     runs-on: macos-15-intel
     needs: macOS-Arch
     if: ${{ needs.macOS-Arch.outputs.skip_all_builds != '1' }}
+    env:
+      NUTTX_ROMFS_PASSWD_PASSWORD: NuttXSimLogin1
     strategy:
       max-parallel: 2
       matrix:
@@ -329,6 +337,7 @@ jobs:
       - name: Run Builds
         run: |
           echo "::add-matcher::sources/nuttx/.github/gcc.json"
+          export NUTTX_ROMFS_PASSWD_PASSWORD=NuttXSimLogin1
           export ARTIFACTDIR=`pwd`/buildartifacts
           cd sources/nuttx/tools/ci
           ./cibuild.sh -i -c -A -R testlist/${{matrix.boards}}.dat
