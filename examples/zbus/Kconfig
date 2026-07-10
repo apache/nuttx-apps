@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_ZBUS
+	tristate "ZBus example"
+	default n
+	depends on ZBUS
+	---help---
+		Enable the zbus message bus example.
+
+if EXAMPLES_ZBUS
+
+config EXAMPLES_ZBUS_PROGNAME
+	string "Program name"
+	default "zbus"
+
+config EXAMPLES_ZBUS_PRIORITY
+	int "ZBus example task priority"
+	default 100
+
+config EXAMPLES_ZBUS_STACKSIZE
+	int "ZBus example stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
