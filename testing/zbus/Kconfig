@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_ZBUS
+	tristate "cmocka zbus test"
+	default n
+	depends on ZBUS && TESTING_CMOCKA
+	---help---
+		Enable the cmocka zbus message bus test suite.  Covers channel
+		publish/read, listeners, subscribers, message subscribers,
+		validators, notification masks, observer enable/disable,
+		runtime observers, claim/finish, timeouts and iteration.
+
+if TESTING_ZBUS
+
+config TESTING_ZBUS_PRIORITY
+	int "zbus test task priority"
+	default 100
+
+config TESTING_ZBUS_STACKSIZE
+	int "zbus test stack size"
+	default 8192
+
+endif # TESTING_ZBUS
