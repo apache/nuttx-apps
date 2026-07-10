@@ -317,10 +317,21 @@ static int nxplayer_cmd_playraw(FAR struct nxplayer_s *pplayer, char *parg)
   int bpsamp = 0;
   int samprate = 0;
   int chmap = 0;
-  char filename[128];
+  size_t len;
+  char filename[PATH_MAX];
 
-  sscanf(parg, "%s %d %d %d %d", filename, &channels, &bpsamp,
-                                 &samprate, &chmap);
+  parg += strspn(parg, " \t\r\n");
+  len = strcspn(parg, " \t\r\n");
+  if (len >= sizeof(filename))
+    {
+      len = sizeof(filename) - 1;
+    }
+
+  memcpy(filename, parg, len);
+  filename[len] = '\0';
+
+  sscanf(parg + len, "%d %d %d %d", &channels, &bpsamp,
+         &samprate, &chmap);
 
   /* Try to play the file specified */
 
