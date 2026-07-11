@@ -51,11 +51,11 @@ config NETUTILS_MDNS_PRIORITY
 
 config NETUTILS_MDNS_STACKSIZE
 	int "mDNS stack size"
-	default DEFAULT_TASK_STACKSIZE
+	default 8192
 	---help---
-		The default (4KiB) is adequate for simple networks but this will
-		most likely need to be increased if there are many network devices
-		attached that could send queries.
+		Stack size for the mDNS responder task.  8KiB is adequate for
+		typical networks; increase it if many network devices send
+		queries.
 
 config NETUTILS_MDNS_VERBOSE
 	bool "Enable verbose printf output from built-in mdns demo"
