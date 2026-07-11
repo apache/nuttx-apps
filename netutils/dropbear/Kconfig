@@ -14,8 +14,6 @@ menuconfig NETUTILS_DROPBEAR
 	depends on FSUTILS_PASSWD
 	depends on PSEUDOTERM
 	depends on SERIAL
-	depends on ARCH_HAVE_RNG
-	depends on DEV_RANDOM
 	depends on DEV_URANDOM
 	depends on LIBC_NETDB
 	depends on LIBC_GAISTRERROR
