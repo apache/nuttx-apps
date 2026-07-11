@@ -119,6 +119,11 @@ CSRCS += \
 TOMMATH_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtommath" ]; then find "$(DROPBEAR_UNPACKNAME)/libtommath" -name "*.c"; fi)
 TOMCRYPT_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" ]; then find "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" -name "*.c" ! -name "sober128tab.c"; fi)
 
+# Replace the bundled chacha20-poly1305 with the /dev/crypto adapter.
+
+CSRCS := $(filter-out dropbear/src/chachapoly.c,$(CSRCS))
+CSRCS += port/dropbear_chachapoly.c
+
 CSRCS += $(TOMMATH_SRCS)
 CSRCS += $(TOMCRYPT_SRCS)
 

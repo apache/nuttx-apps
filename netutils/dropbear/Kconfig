@@ -19,12 +19,20 @@ menuconfig NETUTILS_DROPBEAR
 	depends on DEV_URANDOM
 	depends on LIBC_NETDB
 	depends on LIBC_GAISTRERROR
-	select CRYPTO
+	depends on ALLOW_BSD_COMPONENTS
+	depends on CRYPTO_CRYPTODEV
+	depends on CRYPTO_CRYPTODEV_SOFTWARE_CRYPTO
 	select CRYPTO_RANDOM_POOL
 	---help---
 		Enable a minimal Dropbear SSH server port for NuttX.  This initial
 		port is based on the ESP-IDF MCU test port and provides a single
 		foreground SSH server process with SSH sessions backed by NSH.
+
+		The port implements the chacha20-poly1305@openssh.com cipher
+		through the NuttX crypto device (/dev/crypto), using the
+		CRYPTO_CHACHA20_DJB and CRYPTO_POLY1305 algorithms instead of
+		the bundled libtomcrypt implementation, which is dropped from
+		the build.
 
 if NETUTILS_DROPBEAR
 

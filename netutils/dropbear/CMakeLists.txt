@@ -135,6 +135,11 @@ if(CONFIG_NETUTILS_DROPBEAR)
   file(GLOB_RECURSE LIBTOMCRYPT_SRCS CONFIGURE_DEPENDS
        "${CMAKE_CURRENT_SOURCE_DIR}/dropbear/libtomcrypt/src/*.c")
   list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/prngs/sober128tab\\.c$")
+
+  # Replace the bundled chacha20-poly1305 with the /dev/crypto adapter.
+  list(REMOVE_ITEM DROPBEAR_SRCS dropbear/src/chachapoly.c)
+  list(APPEND DROPBEAR_SRCS port/dropbear_chachapoly.c)
+
   list(APPEND DROPBEAR_SRCS ${LIBTOMCRYPT_SRCS})
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
