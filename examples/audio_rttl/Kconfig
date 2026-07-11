@@ -5,9 +5,11 @@
 
 config EXAMPLES_AUDIO_SOUND
 	bool "Audio tone generator example (RTTL player)"
+	depends on AUDIO
+	depends on AUDIOUTILS_RTTTL_C
 	default n
 	---help---
-		Enable the audio RTTL player example
+		Enable the audio RTTL player example.
 
 if EXAMPLES_AUDIO_SOUND
 
@@ -22,5 +24,13 @@ config EXAMPLES_AUDIO_SOUND_PRIORITY
 config EXAMPLES_AUDIO_SOUND_STACKSIZE
 	int "Audio sound stack size"
 	default DEFAULT_TASK_STACKSIZE
+
+comment "Program options"
+
+config EXAMPLES_AUDIO_SOUND_MAXLEN
+	int "Maximum RTTL string length"
+	default 256
+	---help---
+		The maximum length of an RTTL string that can be read from a file.
 
 endif

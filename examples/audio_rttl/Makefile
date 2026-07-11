@@ -30,6 +30,6 @@ STACKSIZE = $(CONFIG_EXAMPLES_AUDIO_SOUND_STACKSIZE)
 
 # Audio Example
 
-MAINSRC = audio_rttl.cxx
+MAINSRC = audio_rttl_main.c
 
 include $(APPDIR)/Application.mk

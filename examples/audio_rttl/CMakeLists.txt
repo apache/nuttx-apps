@@ -29,5 +29,5 @@ if(CONFIG_EXAMPLES_AUDIO_SOUND)
     STACKSIZE
     ${CONFIG_EXAMPLES_AUDIO_SOUND_STACKSIZE}
     SRCS
-    audio_rttl.cxx)
+    audio_rttl_main.c)
 endif()
