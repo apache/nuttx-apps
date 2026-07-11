@@ -1,0 +1,134 @@
+diff --git a/default/be_port.c b/default/be_port.c
+index be19394..7d52aeb 100644
+--- a/default/be_port.c
++++ b/default/be_port.c
+@@ -13,0 +14,7 @@
++#if defined(USE_NUTTX_CONSOLE)
++#include <errno.h>
++#include <poll.h>
++#include <termios.h>
++#include <unistd.h>
++#endif
++
+@@ -17,0 +25,20 @@
++#if defined(USE_NUTTX_CONSOLE)
++static pid_t console_pid = -1;
++static int skip_lf_after_cr;
++
++static void console_write(const char *buffer, size_t length)
++{
++    while (length > 0) {
++        ssize_t result = write(STDOUT_FILENO, buffer, length);
++        if (result > 0) {
++            buffer += result;
++            length -= (size_t)result;
++        } else if (result < 0 && errno == EINTR) {
++            continue;
++        } else {
++            break;
++        }
++    }
++}
++#endif
++
+@@ -24,0 +52,98 @@ BERRY_API char* be_readstring(char *buffer, size_t size)
++#if defined(USE_NUTTX_CONSOLE)
++    struct termios attr = { 0 };
++    size_t length = 0;
++    int echo = 0;
++    int map_newline = 0;
++    int pending = -1;
++    int tty = 0;
++
++    if (size > 0) {
++        buffer[0] = '\0';
++    }
++    if (size < 2) {
++        return NULL;
++    }
++    if (tcgetattr(STDIN_FILENO, &attr) == 0) {
++        tty = 1;
++        echo = (attr.c_lflag & ECHO) == 0;
++        map_newline = (attr.c_oflag & (OPOST | ONLCR)) ==
++            (OPOST | ONLCR);
++    }
++    be_fflush(stdout);
++    if (console_pid != getpid()) {
++        console_pid = getpid();
++        skip_lf_after_cr = 0;
++        if (tty) {
++            struct pollfd pfd = { STDIN_FILENO, POLLIN, 0 };
++            if (poll(&pfd, 1, 0) > 0 && (pfd.revents & POLLIN) != 0) {
++                char ch;
++                if (read(STDIN_FILENO, &ch, 1) == 1 && ch != '\n') {
++                    pending = (unsigned char)ch;
++                }
++            }
++        }
++    }
++    while (length + 1 < size) {
++        char ch;
++        ssize_t result;
++        if (pending >= 0) {
++            ch = (char)pending;
++            pending = -1;
++            result = 1;
++        } else {
++            result = read(STDIN_FILENO, &ch, 1);
++        }
++        if (result == 0) {
++            skip_lf_after_cr = 0;
++            if (length > 0) {
++                buffer[length] = '\0';
++                return buffer;
++            }
++            return NULL;
++        }
++        if (result < 0) {
++            skip_lf_after_cr = 0;
++            return NULL;
++        }
++        if (skip_lf_after_cr) {
++            skip_lf_after_cr = 0;
++            if (ch == '\n') {
++                continue;
++            }
++        }
++        if (ch == '\x03') {
++            skip_lf_after_cr = 0;
++            if (echo) {
++                console_write("^C", 2);
++                console_write(map_newline ? "\n" : "\r\n",
++                    map_newline ? 1 : 2);
++            }
++            return NULL;
++        }
++        if (ch == '\r' || ch == '\n') {
++            skip_lf_after_cr = ch == '\r';
++            buffer[length++] = '\n';
++            buffer[length] = '\0';
++            if (echo) {
++                console_write(map_newline ? "\n" : "\r\n",
++                    map_newline ? 1 : 2);
++            }
++            return buffer;
++        }
++        if (ch == '\b' || ch == '\x7f') {
++            if (length > 0) {
++                --length;
++                if (echo) {
++                    console_write("\b \b", 3);
++                }
++            }
++            continue;
++        }
++        buffer[length++] = ch;
++        if (echo) {
++            console_write(&ch, 1);
++        }
++    }
++    buffer[length] = '\0';
++    return buffer;
++#else
+@@ -25,0 +151 @@ BERRY_API char* be_readstring(char *buffer, size_t size)
++#endif

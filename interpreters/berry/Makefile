@@ -57,6 +57,7 @@ CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)interpreters$(DELIM)berry$(DELIM)$(BE
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)$(DELIM)interpreters$(DELIM)berry$(DELIM)$(BERRY_UNPACK)$(DELIM)default
 CFLAGS += -Wno-unused-but-set-variable
 CFLAGS += -Wno-shadow
+CFLAGS += -DUSE_NUTTX_CONSOLE
 
 PROGNAME  = $(CONFIG_INTERPRETERS_BERRY_PROGNAME)
 PRIORITY  = $(CONFIG_INTERPRETERS_BERRY_PRIORITY)
@@ -73,6 +74,7 @@ $(BERRY_UNPACK): $(BERRY_ARCHIVE)
 	$(call DELDIR, $(BERRY_UNPACK))
 	$(Q) mv berry-$(BERRY_COMMIT_ID) $(BERRY_UNPACK)
 	$(Q) patch -l -d $(BERRY_UNPACK) -p1 < 0001-Fix-Berry-default-port-for-NuttX.patch
+	$(Q) patch -l -d $(BERRY_UNPACK) -p1 < 0002-Use-NuttX-console-reader.patch
 
 $(BERRY_GEN_STAMP): $(BERRY_UNPACK) $(BERRY_CONFIG)
 	$(Q) echo "Generating Berry constant objects"

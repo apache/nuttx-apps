@@ -35,6 +35,8 @@ if(CONFIG_INTERPRETERS_BERRY)
       PATCH_COMMAND
         patch -l -p1 -d ${CMAKE_CURRENT_LIST_DIR}/berry -i
         ${CMAKE_CURRENT_LIST_DIR}/0001-Fix-Berry-default-port-for-NuttX.patch
+        COMMAND patch -l -p1 -d ${CMAKE_CURRENT_LIST_DIR}/berry -i
+        ${CMAKE_CURRENT_LIST_DIR}/0002-Use-NuttX-console-reader.patch
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -54,7 +56,7 @@ if(CONFIG_INTERPRETERS_BERRY)
   set(BERRY_CONFIG ${BERRY_CONFIG_DIR}/berry_conf.h)
   set(BERRY_GENERATE ${BERRY_DIR}/generate)
   set(BERRY_GEN_STAMP ${BERRY_GENERATE}/.generated)
-  set(BERRY_FLAGS -Wno-unused-but-set-variable -Wno-shadow)
+  set(BERRY_FLAGS -Wno-unused-but-set-variable -Wno-shadow -DUSE_NUTTX_CONSOLE)
   set(BERRY_INCDIR ${BERRY_CONFIG_DIR} ${BERRY_DIR}/src ${BERRY_DIR}/default)
 
   set(BERRY_CSRCS
