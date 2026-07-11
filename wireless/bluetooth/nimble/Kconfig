@@ -219,6 +219,18 @@ config NIMBLE_MSYS_2_BLOCK_SIZE
 	int "NimBLE MSYS_2 block size"
 	default 0
 
+config NIMBLE_TRANSPORT_ACL_FROM_LL_COUNT
+	int "NimBLE transport ACL buffer count (controller to host)"
+	default 10
+	---help---
+		Number of ACL buffers in the transport pool.
+
+config NIMBLE_TRANSPORT_ACL_FROM_HS_COUNT
+	int "NimBLE transport ACL buffer count (host to controller)"
+	default 10
+	---help---
+		Number of ACL buffers in the transport pool.
+
 endmenu # "NimBLE memory configuration"
 
 config NIMBLE_PORTING_EXAMPLE
