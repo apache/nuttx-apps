@@ -195,8 +195,10 @@ static FAR void *timerjitter(FAR void *arg)
   param->max = 0;
   param->min = (unsigned long)-1;
 
-  while (param->cur_cnt++ < param->max_cnt)
+  while (param->cur_cnt < param->max_cnt)
     {
+      param->cur_cnt++;
+
       /* Wait for SIGALRM */
 
       if (sigwait(&sigset, &sigs) < 0)
