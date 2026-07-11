@@ -79,7 +79,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   pid_t pid;
   int rc = 0;
   int ret;
-#ifdef CONFIG_BUILTIN
+#ifdef CONFIG_APP_REGISTRY
   FAR char *appname;
   int index;
 #endif
@@ -212,7 +212,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         }
     }
 
-#ifdef CONFIG_BUILTIN
+#ifdef CONFIG_APP_REGISTRY
   /* Check if a builtin application with this name exists */
 
   appname = basename((FAR char *)cmd);

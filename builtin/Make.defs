@@ -20,6 +20,6 @@
 #
 ############################################################################
 
-ifneq ($(CONFIG_BUILTIN),)
+ifneq ($(CONFIG_APP_REGISTRY),)
 CONFIGURED_APPS += $(APPDIR)/builtin
 endif
