@@ -135,6 +135,13 @@ if(CONFIG_NETUTILS_DROPBEAR)
   file(GLOB_RECURSE LIBTOMCRYPT_SRCS CONFIGURE_DEPENDS
        "${CMAKE_CURRENT_SOURCE_DIR}/dropbear/libtomcrypt/src/*.c")
   list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/prngs/sober128tab\\.c$")
+
+  # Drop the bundled libtomcrypt HMAC modules replaced by the NuttX adapter.
+  list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_init\\.c$")
+  list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_process\\.c$")
+  list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_done\\.c$")
+  list(APPEND DROPBEAR_SRCS port/dropbear_ltc_hmac_sha256.c)
+
   list(APPEND DROPBEAR_SRCS ${LIBTOMCRYPT_SRCS})
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
