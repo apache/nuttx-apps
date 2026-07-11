@@ -20,7 +20,7 @@
 #
 # ##############################################################################
 
-if(CONFIG_BUILTIN)
+if(CONFIG_APP_REGISTRY)
 
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -54,8 +54,11 @@ if(CONFIG_BUILTIN)
 
   set(CSRCS)
 
-  list(APPEND CSRCS builtin_list.c exec_builtin.c builtin_list.h
-       builtin_proto.h)
+  list(APPEND CSRCS builtin_list.c builtin_list.h builtin_proto.h)
+
+  if(CONFIG_BUILTIN)
+    list(APPEND CSRCS exec_builtin.c)
+  endif()
 
   # target_sources(apps PRIVATE ${CSRCS})
   nuttx_add_library(apps_builtin ${CSRCS})
