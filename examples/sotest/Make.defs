@@ -20,4 +20,11 @@
 #
 ############################################################################
 
-include $(wildcard $(APPDIR)/examples/sotest/*/Make.defs)
+ifeq ($(CONFIG_EXAMPLES_SOTEST),y)
+include $(APPDIR)/examples/sotest/main/Make.defs
+endif
+
+ifneq ($(CONFIG_EXAMPLES_SOTEST),n)
+include $(APPDIR)/examples/sotest/modprint/Make.defs
+include $(APPDIR)/examples/sotest/sotest/Make.defs
+endif

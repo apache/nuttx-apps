@@ -83,6 +83,21 @@
 #define SOTEST_DEVPATH_FMT "/dev/ram%d"
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void sotest_show_usage(FAR const char *progname)
+{
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
+  fprintf(stderr,
+          "Usage: %s [--mount] [<modprint-path> <sotest-path>]\n",
+          progname);
+#else
+  fprintf(stderr, "Usage: %s [--mount] [<sotest-path>]\n", progname);
+#endif
+}
+
+/****************************************************************************
  * Symbols from Auto-Generated Code
  ****************************************************************************/
 
@@ -104,7 +119,11 @@ extern const int g_sot_nexports;
 
 int main(int argc, FAR char *argv[])
 {
+  FAR const char *modprint_path = NULL;
+  FAR const char *sotest_path = NULL;
+  bool mount_only = false;
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+  bool mounted_builtinfs = false;
   char devname[32];
 #endif
 #if CONFIG_LIBC_ELF_MAXDEPEND > 0
@@ -117,6 +136,38 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
   struct boardioc_romdisk_s desc;
 #endif
+
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
+  if (argc == 2 && strcmp(argv[1], "--mount") == 0)
+    {
+      mount_only = true;
+    }
+  else if (argc == 3)
+    {
+      modprint_path = argv[1];
+      sotest_path = argv[2];
+    }
+  else if (argc != 1)
+    {
+      sotest_show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+#else
+  if (argc == 2 && strcmp(argv[1], "--mount") == 0)
+    {
+      mount_only = true;
+    }
+  else if (argc == 2)
+    {
+      sotest_path = argv[1];
+    }
+  else if (argc != 1)
+    {
+      sotest_show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+#endif
+
   /* Set the shared library symbol table */
 
   ret = dlsymtab((FAR struct symtab_s *)g_sot_exports, g_sot_nexports);
@@ -127,6 +178,8 @@ int main(int argc, FAR char *argv[])
     }
 
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+  if (sotest_path == NULL || mount_only)
+    {
   /* Create a ROM disk for the ROMFS filesystem */
 
   desc.minor    = 0;                                   /* Minor device number of the ROM disk. */
@@ -168,7 +221,27 @@ int main(int argc, FAR char *argv[])
               devname, BINDIR, strerror(errno));
       exit(EXIT_FAILURE);
     }
+
+      mounted_builtinfs = true;
+    }
 #endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
+
+  if (mount_only)
+    {
+      return EXIT_SUCCESS;
+    }
+
+#if CONFIG_LIBC_ELF_MAXDEPEND > 0
+  if (modprint_path == NULL)
+    {
+      modprint_path = BINDIR "/modprint";
+    }
+#endif
+
+  if (sotest_path == NULL)
+    {
+      sotest_path = BINDIR "/sotest";
+    }
 
 #if CONFIG_LIBC_ELF_MAXDEPEND > 0
   /* Install the first test shared library.  The first shared library only
@@ -176,20 +249,20 @@ int main(int argc, FAR char *argv[])
    * resolve undefined symbols in a second shared library.
    */
 
-  handle1 = dlopen(BINDIR "/modprint", RTLD_NOW | RTLD_LOCAL);
+  handle1 = dlopen(modprint_path, RTLD_NOW | RTLD_LOCAL);
   if (handle1 == NULL)
     {
-      fprintf(stderr, "ERROR: dlopen(%s/modprint) failed\n", BINDIR);
+      fprintf(stderr, "ERROR: dlopen(%s) failed\n", modprint_path);
       exit(EXIT_FAILURE);
     }
 #endif
 
   /* Install the second test shared library  */
 
-  handle2 = dlopen(BINDIR "/sotest", RTLD_NOW | RTLD_LOCAL);
+  handle2 = dlopen(sotest_path, RTLD_NOW | RTLD_LOCAL);
   if (handle2 == NULL)
     {
-      fprintf(stderr, "ERROR: dlopen(%s/sotest) failed\n", BINDIR);
+      fprintf(stderr, "ERROR: dlopen(%s) failed\n", sotest_path);
       exit(EXIT_FAILURE);
     }
 
@@ -288,15 +361,18 @@ int main(int argc, FAR char *argv[])
 #endif
 
 #ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
-  ret = umount(BINDIR);
-  if (ret < 0)
+  if (mounted_builtinfs)
     {
-      fprintf(stderr, "ERROR: umount(%s) failed: %d\n",
-              BINDIR, errno);
-      exit(EXIT_FAILURE);
-    }
+      ret = umount(BINDIR);
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: umount(%s) failed: %d\n",
+                  BINDIR, errno);
+          exit(EXIT_FAILURE);
+        }
 
-  unlink(devname);
+      unlink(devname);
+    }
 #endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
 
   return EXIT_SUCCESS;
