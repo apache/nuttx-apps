@@ -32,6 +32,7 @@ import argparse
 import hashlib
 import json
 import shutil
+import struct
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
@@ -40,6 +41,21 @@ VALID_TYPES = {"elf", "shared-lib"}
 PACKAGE_SPEC_HELP = (
     "package must look like " "<name>:<version>:<elf|shared-lib>:<source>"
 )
+
+# Fixed square icon size nxstore renders app-list icons at (see
+# nxstore_load_icon() in system/nxstore/nxstore_main.c) - small enough to
+# stay a quick download over the board's WiFi, large enough to read as
+# actual artwork rather than a favicon.
+ICON_SIZE = 48
+
+# Matches lv_image_header_t's own bit layout (LVGL v9, see
+# graphics/lvgl/lvgl/src/draw/lv_image_dsc.h): magic/cf/flags packed into
+# the first 4 bytes, then w/h, then stride/reserved - all little-endian,
+# 12 bytes total, immediately followed by raw pixel data.  This is
+# deliberately the simplest format LVGL can render directly with no
+# decoder, since the board has no PNG/JPEG decode capability wired up.
+LV_IMAGE_HEADER_MAGIC = 0x19
+LV_COLOR_FORMAT_RGB565 = 0x12
 
 
 @dataclass
@@ -88,12 +104,71 @@ def parse_package_spec(value: str) -> PackageSpec:
     )
 
 
+def parse_name_value(value: str) -> tuple:
+    parts = value.split("=", 1)
+    if len(parts) != 2 or not parts[0] or not parts[1]:
+        raise argparse.ArgumentTypeError("value must look like <name>=<text>")
+
+    return parts[0], parts[1]
+
+
+def parse_icon_spec(value: str) -> tuple:
+    name, source = parse_name_value(value)
+    source_path = Path(source).expanduser().resolve()
+    if not source_path.is_file():
+        msg = f"icon source does not exist: {source_path}"
+        raise argparse.ArgumentTypeError(msg)
+
+    return name, source_path
+
+
 def artifact_relpath(arch: str, chip: str, compat: str,
                      spec: PackageSpec) -> Path:  # fmt: skip
     filename = spec.source.name
     path = Path("artifacts") / arch / chip / compat
     path = path / spec.name / spec.version / filename
     return path
+
+
+def icon_relpath(arch: str, chip: str, compat: str, name: str) -> Path:
+    # Keep one repository object per package. nxstore keys its local cache
+    # by package name and version, so a new catalog version fetches this
+    # object again without requiring versioned repository duplication.
+    return Path("icons") / arch / chip / compat / f"{name}.bin"
+
+
+def encode_icon_rgb565(source: Path, size: int = ICON_SIZE) -> bytes:
+    """Convert an arbitrary source image into nxstore's raw icon format:
+    a 12-byte lv_image_header_t-compatible header (see the module
+    docstring comment above) followed by size*size RGB565 pixel data.
+    """
+
+    from PIL import Image
+
+    with Image.open(source) as img:
+        img = img.convert("RGB").resize((size, size), Image.Resampling.LANCZOS)
+        pixels = list(img.getdata())
+
+    stride = size * 2
+    header = struct.pack(
+        "<BBHHHHH",
+        LV_IMAGE_HEADER_MAGIC,
+        LV_COLOR_FORMAT_RGB565,
+        0,  # flags
+        size,  # w
+        size,  # h
+        stride,
+        0,  # reserved_2
+    )
+
+    body = bytearray(stride * size)
+    offset = 0
+    for r, g, b in pixels:
+        rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
+        struct.pack_into("<H", body, offset, rgb565)
+        offset += 2
+
+    return header + bytes(body)
 
 
 def package_identity(package: Dict[str, str]) -> tuple:
@@ -171,6 +246,30 @@ def main() -> int:
         type=parse_package_spec,
         help=PACKAGE_SPEC_HELP,
     )
+    parser.add_argument(
+        "--package-description",
+        action="append",
+        default=[],
+        type=parse_name_value,
+        metavar="NAME=TEXT",
+        help="Optional package description, keyed by package name",
+    )
+    parser.add_argument(
+        "--package-category",
+        action="append",
+        default=[],
+        type=parse_name_value,
+        metavar="NAME=TEXT",
+        help="Optional package category, keyed by package name",
+    )
+    parser.add_argument(
+        "--package-icon",
+        action="append",
+        default=[],
+        type=parse_icon_spec,
+        metavar="NAME=PATH",
+        help="Optional source image for a package icon",
+    )
     args = parser.parse_args()
 
     repo_dir = args.repo_dir.expanduser().resolve()
@@ -181,6 +280,9 @@ def main() -> int:
     for package in packages:
         packages_by_id[package_identity(package)] = package
     prefix = args.artifact_prefix.rstrip("/")
+    descriptions = dict(args.package_description)
+    categories = dict(args.package_category)
+    icons = dict(args.package_icon)
 
     for spec in args.package:
         relpath = artifact_relpath(args.arch, args.chip, args.compat, spec)
@@ -201,6 +303,26 @@ def main() -> int:
             "sha256": sha256_file(destination),
             "type": spec.payload_type,
         }
+
+        if spec.name in descriptions:
+            package["description"] = descriptions[spec.name]
+
+        if spec.name in categories:
+            package["category"] = categories[spec.name]
+
+        if spec.name in icons:
+            icon_bytes = encode_icon_rgb565(icons[spec.name])
+            icon_dest = repo_dir / icon_relpath(
+                args.arch, args.chip, args.compat, spec.name
+            )
+            icon_dest.parent.mkdir(parents=True, exist_ok=True)
+            icon_dest.write_bytes(icon_bytes)
+
+            icon_rel = icon_relpath(
+                args.arch, args.chip, args.compat, spec.name
+            ).as_posix()
+            package["icon"] = f"{prefix}/{icon_rel}" if prefix else icon_rel
+
         packages_by_id[package_identity(package)] = package
 
     packages = sorted(
