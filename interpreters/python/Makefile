@@ -119,6 +119,13 @@ ifeq ($(CONFIG_SYSTEM_SYSTEM),y)
 else
 	@echo "export ac_cv_func_system=\"no\"" >> $@
 endif
+ifeq ($(CONFIG_NET),y)
+	@echo "export ac_cv_func_getaddrinfo=\"yes\"" >> $@
+	@echo "export ac_cv_func_getnameinfo=\"yes\"" >> $@
+else
+	@echo "export ac_cv_func_getaddrinfo=\"no\"" >> $@
+	@echo "export ac_cv_func_getnameinfo=\"no\"" >> $@
+endif
 
 # The `Setup.local` file enables or disables Python modules.
 # Depending on the features enabled on NuttX, this file may need to be
@@ -134,6 +141,9 @@ endif
 ifneq ($(CONFIG_LIBC_DLFCN),y)
 	@echo "_ctypes" >> $@
 endif
+ifneq ($(CONFIG_NET),y)
+	@echo "_socket" >> $@
+endif
 
 # For the Python's `configure` script, please consider the following
 # when building for NuttX:
@@ -145,6 +155,12 @@ endif
 # Also, use -O0 for OPT because -Os is causing problems in
 # Python/Modules/getpath.c (issue will be filed soon to track this
 # problem).
+
+ifneq ($(CONFIG_NET),y)
+PYTHON_CONFIGURE_EXTRAS = --disable-ipv6
+else
+PYTHON_CONFIGURE_EXTRAS =
+endif
 
 $(TARGETBUILD)/Makefile: $(HOSTPYTHON) $(CONFIG_SITE) $(SETUP_LOCAL)
 	$(Q) mkdir -p $(TARGETBUILD)/Modules
@@ -175,6 +191,7 @@ $(TARGETBUILD)/Makefile: $(HOSTPYTHON) $(CONFIG_SITE) $(SETUP_LOCAL)
 			 --without-pymalloc \
 			 --disable-test-modules \
 			 --with-ensurepip=no \
+			 $(PYTHON_CONFIGURE_EXTRAS) \
 		)
 	$(Q) sed -i 's/^#define HAVE_LIBB2 1/\/* #undef HAVE_LIBB2 *\//' $(TARGETBUILD)/pyconfig.h
 	$(Q) sed -i 's/-lb2//g' $(TARGETBUILD)/Makefile
