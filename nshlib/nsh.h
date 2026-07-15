@@ -267,8 +267,6 @@
  * options may be specified:
  *
  * CONFIG_NSH_LOGIN_USERNAME - Login user name.  Default: "root"
- * CONFIG_NSH_LOGIN_PASSWORD - Login password (required when using fixed
- *   credentials; no default is provided).
  * CONFIG_NSH_LOGIN_FAILCOUNT - Number of login retry attempts.
  *   Default 3.
  */

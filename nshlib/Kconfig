@@ -1230,32 +1230,30 @@ config NSH_LOGIN
 config NSH_CONSOLE_LOGIN
 	bool "Console Login"
 	default n
+	depends on FSUTILS_PASSWD
 	select NSH_LOGIN
 	---help---
 		If defined, then the console user will be required to provide a
-		username and password to start the NSH shell.
+		username and password to start the NSH shell.  Requires
+		CONFIG_FSUTILS_PASSWD so credentials are verified against the
+		encrypted password file (for example ROMFS /etc/passwd).
 
 config NSH_TELNET_LOGIN
 	bool "Telnet Login"
 	default n
-	depends on NSH_TELNET
+	depends on NSH_TELNET && FSUTILS_PASSWD
 	select NSH_LOGIN
 	---help---
 		If defined, then the Telnet user will be required to provide a
-		username and password to start the NSH shell.
+		username and password to start the NSH shell.  Requires
+		CONFIG_FSUTILS_PASSWD so credentials are verified against the
+		encrypted password file (for example ROMFS /etc/passwd).
 
 if NSH_LOGIN
 
 choice
 	prompt "Verification method"
-	default NSH_LOGIN_PASSWD if FSUTILS_PASSWD
-	default NSH_LOGIN_FIXED if !FSUTILS_PASSWD
-
-config NSH_LOGIN_FIXED
-	bool "Fixed username/password"
-	---help---
-		Verify user credentials by matching to fixed username and password
-		strings
+	default NSH_LOGIN_PASSWD
 
 config NSH_LOGIN_PLATFORM
 	bool "Platform username/password"
@@ -1291,16 +1289,6 @@ config NSH_LOGIN_USERNAME
 	depends on !NSH_LOGIN_PASSWD
 	---help---
 		Login user name.  Default: "root"
-
-config NSH_LOGIN_PASSWORD
-	string "Login password"
-	depends on NSH_LOGIN_FIXED
-	---help---
-		The plaintext login password used when fixed username/password
-		verification is selected (CONFIG_NSH_LOGIN_FIXED).  There is no
-		default; set CONFIG_NSH_LOGIN_PASSWORD in the board defconfig,
-		via menuconfig, or enter it when prompted during an interactive
-		build.
 
 config NSH_LOGIN_FAILDELAY
 	int "Login failure delay"

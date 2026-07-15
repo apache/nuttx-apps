@@ -165,9 +165,6 @@ static bool nsh_verify_credentials(FAR const char *username,
   return PASSWORD_VERIFY_MATCH(passwd_verify(username, password));
 #elif defined(CONFIG_NSH_LOGIN_PLATFORM)
   return PASSWORD_VERIFY_MATCH(platform_user_verify(username, password));
-#elif defined(CONFIG_NSH_LOGIN_FIXED)
-  return strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
-         strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0;
 #else
   UNUSED(username);
   UNUSED(password);

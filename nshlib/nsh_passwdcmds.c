@@ -53,8 +53,19 @@ int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   ret = passwd_adduser(argv[1], argv[2]);
   if (ret < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_adduser",
-                NSH_ERRNO_OF(-ret));
+      if (ret == -EINVAL)
+        {
+          nsh_error(vtbl,
+                    "%s: password does not meet security policy "
+                    "(min 8 chars, upper, lower, digit, special)\n",
+                    argv[0]);
+        }
+      else
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_adduser",
+                    NSH_ERRNO_OF(-ret));
+        }
+
       return ERROR;
     }
 
@@ -99,8 +110,19 @@ int cmd_passwd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   ret = passwd_update(argv[1], argv[2]);
   if (ret < 0)
     {
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_update",
-                 NSH_ERRNO_OF(-ret));
+      if (ret == -EINVAL)
+        {
+          nsh_error(vtbl,
+                    "%s: password does not meet security policy "
+                    "(min 8 chars, upper, lower, digit, special)\n",
+                    argv[0]);
+        }
+      else
+        {
+          nsh_error(vtbl, g_fmtcmdfailed, argv[0], "passwd_update",
+                    NSH_ERRNO_OF(-ret));
+        }
+
       return ERROR;
     }
 
