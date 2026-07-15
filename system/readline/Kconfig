@@ -54,6 +54,25 @@ config READLINE_MAX_EXTCMDS
 
 endif # READLINE_TABCOMPLETION
 
+config READLINE_EDIT
+	bool "Command line editing"
+	default y if !DEFAULT_SMALL
+	---help---
+		Build in support for full command-line editing using cursor keys,
+		Home/End, Delete. Requires a VT100/ANSI-compatible terminal.
+
+if READLINE_EDIT
+
+config READLINE_EDIT_EMACS
+	bool "Emacs-style control keys"
+	default n
+	---help---
+		Enable emacs-style control key bindings:
+		Ctrl+A Home, Ctrl+E End, Ctrl+K kill-to-end,
+		Ctrl+U kill-to-start, Ctrl+Left/Right word movement.
+
+endif # READLINE_EDIT
+
 config READLINE_CMD_HISTORY
 	bool "Command line history"
 	default n
@@ -95,6 +114,17 @@ config READLINE_CMD_HISTORY_LEN
 		memory array.  The total memory usage for the command line array
 		will be READLINE_CMD_HISTORY_LINELEN x READLINE_CMD_HISTORY_LEN.
 		Default: 16
+
+config READLINE_EDIT_EMACS_REVERSE_SEARCH
+	bool "Reverse incremental search (Ctrl+R)"
+	default y
+	depends on READLINE_EDIT_EMACS
+	---help---
+		Enable bash-style Ctrl+R reverse incremental search through the
+		command history.  Typing narrows the search to the most recent
+		matching command; Ctrl+R again searches further back; Enter
+		submits the match; Ctrl+G/Ctrl+C cancels back to the line being
+		edited before Ctrl+R was pressed.
 
 endif # READLINE_CMD_HISTORY
 endif # READLINE_ECHO
