@@ -134,7 +134,32 @@ ifneq ($(strip $(PROGNAME)),)
         $(if $(word $i,$(GID)),$(word $i,$(GID)),$(lastword $(GID)))) \
     $(eval MODE_$(word $i,$(REGLIST)) := \
         $(if $(word $i,$(MODE)),$(word $i,$(MODE)),$(lastword $(MODE)))) \
+    $(eval STACKSIZE_$(word $i,$(PROGLIST)) := $(STACKSIZE_$(word $i,$(REGLIST)))) \
+    $(eval PRIORITY_$(word $i,$(PROGLIST)) := $(PRIORITY_$(word $i,$(REGLIST)))) \
+    $(eval UID_$(word $i,$(PROGLIST)) := $(UID_$(word $i,$(REGLIST)))) \
+    $(eval GID_$(word $i,$(PROGLIST)) := $(GID_$(word $i,$(REGLIST)))) \
+    $(eval MODE_$(word $i,$(PROGLIST)) := $(MODE_$(word $i,$(REGLIST)))) \
   )
+
+  # Emit the application's configured attributes as absolute ELF symbols
+  # (nx_stacksize, nx_priority, and nx_uid/nx_gid/nx_mode under
+  # CONFIG_SCHED_USER_IDENTITY) so the binary loader can recover them.
+  # Per-target so each PROGLIST entry picks up its own STACKSIZE_/PRIORITY_.
+
+  $(PROGLIST): SYM_PRIORITY = $(if $(filter SCHED_PRIORITY_DEFAULT,$(PRIORITY_$@)),0,$(PRIORITY_$@))
+  $(PROGLIST): MODLDFLAGS += \
+    $(if $(STACKSIZE_$@),--defsym nx_stacksize=$(STACKSIZE_$@)) \
+    $(if $(PRIORITY_$@),--defsym nx_priority=$(SYM_PRIORITY))
+ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
+  $(PROGLIST): MODLDFLAGS += \
+    $(if $(UID_$@),--defsym nx_uid=$(UID_$@)) \
+    $(if $(GID_$@),--defsym nx_gid=$(GID_$@)) \
+    $(if $(MODE_$@),--defsym nx_mode=$(MODE_$@))
+endif
+
+  # Keep the attribute symbols through --strip-unneeded so the binary loader
+  # can still read them from the stripped runtime image in bin/.
+  $(PROGLIST): NX_KEEP = $(if $(STACKSIZE_$@),-K nx_stacksize) $(if $(PRIORITY_$@),-K nx_priority) $(if $(UID_$@),-K nx_uid) $(if $(GID_$@),-K nx_gid) $(if $(MODE_$@),-K nx_mode)
 endif
 
 # Condition flags
@@ -149,7 +174,7 @@ ifeq ($(WASM_BUILD),y)
   DO_REGISTRATION = n
 endif
 
-ifeq ($(DYNLIB),y)
+ifeq ($(BUILD_MODULE),y)
   DO_REGISTRATION = n
 endif
 
@@ -311,7 +336,7 @@ $(PROGLIST): $(MAINCOBJ) $(MAINCXXOBJ) $(MAINRUSTOBJ) $(MAINZIGOBJ) $(MAINDOBJ) 
 ifneq ($(CONFIG_DEBUG_SYMBOLS),)
 	$(Q) mkdir -p $(BINDIR_DEBUG)
 	$(Q) cp $@ $(BINDIR_DEBUG)
-	$(Q) $(MODULESTRIP) $@
+	$(Q) $(MODULESTRIP) $(NX_KEEP) $@
 endif
 
 install:: $(PROGLIST)
