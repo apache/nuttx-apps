@@ -243,9 +243,6 @@ int nsh_login(FAR struct console_stdio_s *pstate)
 #endif
           if (PASSWORD_VERIFY_MATCH(ret))
 
-#elif defined(CONFIG_NSH_LOGIN_FIXED)
-          if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
-              strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
 #else
 #  error No user verification method selected
 #endif
