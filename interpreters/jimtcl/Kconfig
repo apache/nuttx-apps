@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INTERPRETERS_JIMTCL
+	bool "The Jim (TCL) Interpreter"
+	default n
+	---help---
+		Enable support for The Jim interpreter.
+		Jim is an opensource small-footprint implementation of the
+		Tcl programming language.

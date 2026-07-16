@@ -1,0 +1,3 @@
+ifneq ($(CONFIG_INTERPRETERS_JIMTCL),)
+CONFIGURED_APPS += $(APPDIR)/interpreters/jimtcl
+endif
