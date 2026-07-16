@@ -39,7 +39,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define MAX_CAPTURES 32
+#define MAX_CAPTURES CONFIG_GAMES_NXDOOM_STATDUMP_MAX_CAPTURES
 
 /****************************************************************************
  * Private Data

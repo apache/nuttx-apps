@@ -685,6 +685,24 @@ fixed_t r_scale_from_global_angle(angle_t visangle)
 
 void r_set_view_size(int blocks, int detail)
 {
+  /* screenblocks is only ever meant to hold 3..11 (set that way by the
+   * options menu and by the config default of 9).  The renderer's view
+   * geometry math divides by values derived from it - notably
+   * pspriteiscale = FRACUNIT * SCREENWIDTH / viewwidth in
+   * r_execute_set_view_size() - so a 0 or otherwise out-of-range value
+   * turns into a divide-by-zero hardware exception (EXCCAUSE=6), which on
+   * this flat-memory build takes the whole board down rather than just
+   * this task.  Clamp defensively so a bad/missing config value degrades
+   * to the default screen size instead of a system crash.
+   */
+
+  if (blocks < 3 || blocks > 11)
+    {
+      printf("r_set_view_size: screenblocks=%d out of range, using 10\n",
+            blocks);
+      blocks = 10;
+    }
+
   setsizeneeded = true;
   setblocks = blocks;
   setdetail = detail;

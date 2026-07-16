@@ -271,6 +271,16 @@ static void buld_iwad_dir_list(void)
 
   add_iwad_dir(m_dir_name(myargv[0]));
 
+  /* Add the board's configured DOOM data directory.  Kconfig documents
+   * CONFIG_GAMES_NXDOOM_PREFDIR as "Directory where DOOM WAD files are
+   * stored", but until now it was only used for the config/save file
+   * location -- nothing actually searched it for IWADs, forcing every
+   * launch to rely on the current directory or DOOMWADDIR/DOOMWADPATH
+   * being set by hand first.
+   */
+
+  add_iwad_dir(CONFIG_GAMES_NXDOOM_PREFDIR);
+
   /* Add DOOMWADDIR if it is in the environment */
 
   env = getenv("DOOMWADDIR");
