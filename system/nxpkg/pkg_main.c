@@ -29,7 +29,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <netutils/cJSON.h>
+
 #include "pkg.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define PKG_USAGE \
+  "Usage: %s <install|update|remove|rollback|list|available|sync|help> " \
+  "[args]\n"
 
 /****************************************************************************
  * Public Functions
@@ -38,12 +48,15 @@
 int main(int argc, FAR char *argv[])
 {
   FAR const char *cmd;
+  cJSON_Hooks hooks;
+
+  hooks.malloc_fn = malloc;
+  hooks.free_fn = free;
+  cJSON_InitHooks(&hooks);
 
   if (argc < 2)
     {
-      fprintf(stderr,
-              "Usage: %s <install|update|list|rollback|help> [args]\n",
-              argv[0]);
+      fprintf(stderr, PKG_USAGE, argv[0]);
       return EXIT_FAILURE;
     }
 
@@ -52,9 +65,7 @@ int main(int argc, FAR char *argv[])
   if (strcmp(cmd, "help") == 0 || strcmp(cmd, "--help") == 0 ||
       strcmp(cmd, "-h") == 0)
     {
-      fprintf(stdout,
-              "Usage: %s <install|update|list|rollback|help> [args]\n",
-              argv[0]);
+      fprintf(stdout, PKG_USAGE, argv[0]);
       return EXIT_SUCCESS;
     }
 
@@ -63,19 +74,59 @@ int main(int argc, FAR char *argv[])
       if (argc != 3)
         {
           pkg_error("install expects exactly one package name");
-          fprintf(stderr,
-                  "Usage: %s <install|update|list|rollback|help> [args]\n",
-                  argv[0]);
+          fprintf(stderr, PKG_USAGE, argv[0]);
           return EXIT_FAILURE;
         }
 
-      return pkg_install(argv[2]);
+      /* pkg_install() returns a real negative errno on the meaningful
+       * pipeline failures (nxstore uses that directly), not just
+       * EXIT_SUCCESS/EXIT_FAILURE - normalize to a plain 0/1 shell exit
+       * status here.
+       */
+
+      return pkg_install(argv[2]) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
     }
+
+  /* "update" is a package name resolving to whatever version is latest
+   * in the local index - pkg_install() already handles the "already
+   * installed at a different version" transition transparently via
+   * pkg_install_update_installed(), so no separate code path is needed.
+   */
 
   if (strcmp(cmd, "update") == 0)
     {
-      pkg_error("'update' is not implemented yet in the current unit");
-      return EXIT_FAILURE;
+      if (argc != 3)
+        {
+          pkg_error("update expects exactly one package name");
+          fprintf(stderr, PKG_USAGE, argv[0]);
+          return EXIT_FAILURE;
+        }
+
+      return pkg_install(argv[2]) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
+  if (strcmp(cmd, "remove") == 0 || strcmp(cmd, "uninstall") == 0)
+    {
+      if (argc != 3)
+        {
+          pkg_error("remove expects exactly one package name");
+          fprintf(stderr, PKG_USAGE, argv[0]);
+          return EXIT_FAILURE;
+        }
+
+      return pkg_uninstall(argv[2]);
+    }
+
+  if (strcmp(cmd, "rollback") == 0)
+    {
+      if (argc != 3)
+        {
+          pkg_error("rollback expects exactly one package name");
+          fprintf(stderr, PKG_USAGE, argv[0]);
+          return EXIT_FAILURE;
+        }
+
+      return pkg_rollback(argv[2]);
     }
 
   if (strcmp(cmd, "list") == 0)
@@ -83,24 +134,38 @@ int main(int argc, FAR char *argv[])
       if (argc != 2)
         {
           pkg_error("list does not take additional arguments");
-          fprintf(stderr,
-                  "Usage: %s <install|update|list|rollback|help> [args]\n",
-                  argv[0]);
+          fprintf(stderr, PKG_USAGE, argv[0]);
           return EXIT_FAILURE;
         }
 
       return pkg_list(stdout);
     }
 
-  if (strcmp(cmd, "rollback") == 0)
+  if (strcmp(cmd, "available") == 0)
     {
-      pkg_error("'rollback' is not implemented yet in the current unit");
-      return EXIT_FAILURE;
+      if (argc != 2)
+        {
+          pkg_error("available does not take additional arguments");
+          fprintf(stderr, PKG_USAGE, argv[0]);
+          return EXIT_FAILURE;
+        }
+
+      return pkg_available(stdout);
+    }
+
+  if (strcmp(cmd, "sync") == 0)
+    {
+      if (argc != 3)
+        {
+          pkg_error("sync expects exactly one index source");
+          fprintf(stderr, PKG_USAGE, argv[0]);
+          return EXIT_FAILURE;
+        }
+
+      return pkg_sync(argv[2]);
     }
 
   fprintf(stderr, "ERROR: Unknown subcommand '%s'\n", cmd);
-  fprintf(stderr,
-          "Usage: %s <install|update|list|rollback|help> [args]\n",
-          argv[0]);
+  fprintf(stderr, PKG_USAGE, argv[0]);
   return EXIT_FAILURE;
 }

@@ -24,6 +24,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -228,6 +229,11 @@ int pkg_store_format_index_path(FAR char *buffer, size_t size)
   return pkg_store_format(buffer, size, "%s", PKG_REPO_INDEX, "");
 }
 
+int pkg_store_format_repo_source_path(FAR char *buffer, size_t size)
+{
+  return pkg_store_format(buffer, size, "%s", PKG_REPO_SOURCE, "");
+}
+
 int pkg_store_format_installed_path(FAR char *buffer, size_t size)
 {
   return pkg_store_format(buffer, size, "%s", PKG_REPO_INSTALLED, "");
@@ -266,21 +272,52 @@ int pkg_store_format_previous_path(FAR char *buffer, size_t size,
 int pkg_store_format_txn_path(FAR char *buffer, size_t size,
                               FAR const char *name)
 {
-  return pkg_store_format(buffer, size, PKG_STORE_DIR "/%s/.txn", name, "");
+  return pkg_store_format(buffer, size, PKG_STORE_DIR "/%s/txn.tx", name,
+                          "");
 }
 
 int pkg_store_format_lock_path(FAR char *buffer, size_t size,
                                FAR const char *name)
 {
-  return pkg_store_format(buffer, size, PKG_STORE_DIR "/%s/.lock", name, "");
+  return pkg_store_format(buffer, size, PKG_STORE_DIR "/%s/lock.lk", name,
+                          "");
 }
 
 int pkg_store_format_download_path(FAR char *buffer, size_t size,
                                    FAR const char *name,
                                    FAR const char *version)
 {
-  return pkg_store_format(buffer, size, PKG_TMP_PKG_DIR "/%s-%s.npkg", name,
-                          version);
+  int ret;
+
+  UNUSED(name);
+  UNUSED(version);
+
+  /* This used to be "PKG_TMP_PKG_DIR/name-version.pkg", which breaks on
+   * this SD card's short-name-only FAT mount as soon as name+version
+   * exceeds the 8.3 8-character base-name limit - e.g. "nxdoom-1" (8
+   * chars) fits and installs fine, but "nxdoom-10" or "nxdoom-9.1" (9+
+   * chars) fails the open(O_CREAT) in pkg_repo_fetch_url() with
+   * -EINVAL, surfacing as "acquire source failed: -22" for any
+   * multi-character version - independent of name/version length here,
+   * unlike pkg_store_make_tmp_path()'s already-FAT-safe scheme.  The
+   * pid is small, bounded, and unique per concurrently running install
+   * (each `nxpkg install` is its own process with its own per-name
+   * lock), so it can't collide the way a single fixed name would if
+   * two different packages were being installed at once.
+   */
+
+  ret = snprintf(buffer, size, PKG_TMP_PKG_DIR "/dl%d.pkg", (int)getpid());
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  if ((size_t)ret >= size)
+    {
+      return -ENAMETOOLONG;
+    }
+
+  return 0;
 }
 
 int pkg_store_format_payload_path(FAR char *buffer, size_t size,
@@ -311,16 +348,18 @@ int pkg_store_format_manifest_path(FAR char *buffer, size_t size,
                                    FAR const char *name,
                                    FAR const char *version)
 {
-  return pkg_store_format(buffer, size, PKG_STORE_DIR "/%s/%s/manifest.json",
+  return pkg_store_format(buffer, size, PKG_STORE_DIR "/%s/%s/manifest.jsn",
                           name, version);
 }
 
 int pkg_store_read_text(FAR const char *path, FAR char **buffer)
 {
-  FAR FILE *stream;
   FAR char *data;
-  long length;
+  struct stat st;
+  size_t length;
   size_t nread;
+  size_t total;
+  int fd;
 
   if (buffer == NULL)
     {
@@ -329,70 +368,167 @@ int pkg_store_read_text(FAR const char *path, FAR char **buffer)
 
   *buffer = NULL;
 
-  stream = fopen(path, "rb");
-  if (stream == NULL)
+  fd = open(path, O_RDONLY);
+  if (fd < 0)
     {
       return errno == ENOENT ? -ENOENT : -errno;
     }
 
-  if (fseek(stream, 0, SEEK_END) < 0)
+  if (fstat(fd, &st) < 0)
     {
-      fclose(stream);
+      close(fd);
       return -errno;
     }
 
-  length = ftell(stream);
-  if (length < 0)
+  if (!S_ISREG(st.st_mode))
     {
-      fclose(stream);
-      return -errno;
+      close(fd);
+      return -EINVAL;
     }
 
-  if (fseek(stream, 0, SEEK_SET) < 0)
+  /* Reject anything unreasonably large before the size is trusted for an
+   * allocation: guards both against a malicious/oversized text file (this
+   * path is used for the network-fetched index.jsn) and against
+   * "length + 1" wrapping if st_size were ever attacker-influenced up to
+   * SIZE_MAX.
+   */
+
+  if (st.st_size < 0 || st.st_size > (off_t)PKG_TEXT_MAX_SIZE)
     {
-      fclose(stream);
-      return -errno;
+      close(fd);
+      return -EFBIG;
     }
 
-  data = malloc((size_t)length + 1);
+  length = (size_t)st.st_size;
+  data = pkg_malloc((size_t)length + 1);
   if (data == NULL)
     {
-      fclose(stream);
+      close(fd);
       return -ENOMEM;
     }
 
-  nread = fread(data, 1, (size_t)length, stream);
-  if (nread != (size_t)length)
+  total = 0;
+  while (total < length)
     {
-      int err = ferror(stream);
+      ssize_t ret;
 
-      fclose(stream);
-      free(data);
-      return err ? -EIO : -EINVAL;
+      ret = read(fd, data + total, length - total);
+      if (ret < 0)
+        {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
+          close(fd);
+          pkg_free(data);
+          return -errno;
+        }
+
+      if (ret == 0)
+        {
+          break;
+        }
+
+      total += (size_t)ret;
     }
 
-  fclose(stream);
+  nread = total;
+  close(fd);
+
+  if (nread != length)
+    {
+      pkg_free(data);
+      return -EINVAL;
+    }
 
   data[length] = '\0';
   *buffer = data;
   return 0;
 }
 
-int pkg_store_write_text_atomic(FAR const char *path, FAR const char *text)
+#ifndef CONFIG_PSEUDOFS_FILE
+/****************************************************************************
+ * Name: pkg_store_make_tmp_path
+ *
+ * Description:
+ *   Derive a staging path for an atomic write/copy to "path", under a
+ *   short-name-compatible extension instead of appending ".tmp" (which
+ *   would produce a second '.' in the final path component and break on
+ *   FAT filesystems without long file name support).
+ *
+ ****************************************************************************/
+
+static int pkg_store_make_tmp_path(FAR char *tmp, size_t size,
+                                   FAR const char *path)
 {
-  char tmp[PATH_MAX];
-  int fd;
+  FAR char *dot;
+  FAR char *slash;
   int ret;
 
-  ret = snprintf(tmp, sizeof(tmp), "%s.tmp", path);
+  ret = snprintf(tmp, size, "%s", path);
   if (ret < 0)
     {
       return ret;
     }
 
-  if ((size_t)ret >= sizeof(tmp))
+  if ((size_t)ret >= size)
     {
       return -ENAMETOOLONG;
+    }
+
+  slash = strrchr(tmp, '/');
+  dot = strrchr(slash != NULL ? slash : tmp, '.');
+  if (dot != NULL)
+    {
+      *dot = '\0';
+    }
+
+  if (strlcat(tmp, ".tm", size) >= size)
+    {
+      return -ENAMETOOLONG;
+    }
+
+  return 0;
+}
+#endif
+
+int pkg_store_write_text_atomic(FAR const char *path, FAR const char *text)
+{
+#ifdef CONFIG_PSEUDOFS_FILE
+  int fd;
+  int ret;
+
+  fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  ret = pkg_store_write_all(fd, text, strlen(text));
+  if (ret < 0)
+    {
+      close(fd);
+      unlink(path);
+      return ret;
+    }
+
+  if (close(fd) < 0)
+    {
+      unlink(path);
+      return -errno;
+    }
+
+  return 0;
+#else
+  char tmp[PATH_MAX];
+  int fd;
+  int ret;
+
+  ret = pkg_store_make_tmp_path(tmp, sizeof(tmp), path);
+  if (ret < 0)
+    {
+      return ret;
     }
 
   fd = open(tmp, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -409,6 +545,22 @@ int pkg_store_write_text_atomic(FAR const char *path, FAR const char *text)
       return ret;
     }
 
+  /* Force the write through to disk before renaming.  nxpkg writes
+   * several small, unrelated files back-to-back during install (per-
+   * package txn state, then the shared installed-packages database);
+   * without an explicit sync here, the FAT driver's single shared
+   * sector cache can still hold a not-yet-committed buffer for this
+   * file when the very next atomic write starts touching a different
+   * file, corrupting one or both.
+   */
+
+  if (fsync(fd) < 0)
+    {
+      close(fd);
+      unlink(tmp);
+      return -errno;
+    }
+
   if (close(fd) < 0)
     {
       unlink(tmp);
@@ -422,6 +574,7 @@ int pkg_store_write_text_atomic(FAR const char *path, FAR const char *text)
     }
 
   return 0;
+#endif
 }
 
 int pkg_store_copy_file(FAR const char *src, FAR const char *dest)
@@ -430,6 +583,20 @@ int pkg_store_copy_file(FAR const char *src, FAR const char *dest)
   int outfd;
   int ret;
   char buffer[512];
+#ifndef CONFIG_PSEUDOFS_FILE
+  char tmp[PATH_MAX];
+  FAR const char *outpath;
+
+  ret = pkg_store_make_tmp_path(tmp, sizeof(tmp), dest);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  outpath = tmp;
+#else
+  FAR const char *outpath = dest;
+#endif
 
   infd = open(src, O_RDONLY);
   if (infd < 0)
@@ -437,7 +604,7 @@ int pkg_store_copy_file(FAR const char *src, FAR const char *dest)
       return -errno;
     }
 
-  outfd = open(dest, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  outfd = open(outpath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (outfd < 0)
     {
       ret = -errno;
@@ -475,24 +642,105 @@ int pkg_store_copy_file(FAR const char *src, FAR const char *dest)
 
   close(infd);
 
+#ifndef CONFIG_PSEUDOFS_FILE
+  /* Force the payload through to disk before renaming - this is the
+   * largest write in the whole install pipeline (WAD/game-ELF-sized
+   * payloads), so a hard power-loss here is the scenario the atomic
+   * temp+rename is specifically protecting against.
+   */
+
+  if (fsync(outfd) < 0)
+    {
+      ret = -errno;
+      close(outfd);
+      unlink(outpath);
+      return ret;
+    }
+#endif
+
   if (close(outfd) < 0)
     {
-      unlink(dest);
+      unlink(outpath);
       return -errno;
     }
+
+#ifndef CONFIG_PSEUDOFS_FILE
+  if (rename(outpath, dest) < 0)
+    {
+      ret = -errno;
+      unlink(outpath);
+      return ret;
+    }
+#endif
 
   return 0;
 
 errout:
   close(infd);
   close(outfd);
-  unlink(dest);
+  unlink(outpath);
   return ret;
 }
 
 int pkg_store_remove_file(FAR const char *path)
 {
   if (unlink(path) < 0)
+    {
+      return errno == ENOENT ? 0 : -errno;
+    }
+
+  return 0;
+}
+
+int pkg_store_remove_version_dir(FAR const char *name,
+                                 FAR const char *version)
+{
+  char path[PATH_MAX];
+  char entry_path[PATH_MAX];
+  FAR DIR *dir;
+  FAR struct dirent *ent;
+  int ret;
+
+  /* Generic directory-content removal (rather than unlinking the payload
+   * and manifest.jsn by their known names) so this same helper works both
+   * to reclaim a partially staged version directory after a failed
+   * install (pkg_install.c) and to prune/remove a fully-installed
+   * version, without needing to already know that version's artifact
+   * filename.  Best-effort throughout: this runs from error/cleanup
+   * paths where a still-failing removal shouldn't itself abort the
+   * caller.
+   */
+
+  ret = pkg_store_format_version_path(path, sizeof(path), name, version);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  dir = opendir(path);
+  if (dir == NULL)
+    {
+      return errno == ENOENT ? 0 : -errno;
+    }
+
+  while ((ent = readdir(dir)) != NULL)
+    {
+      if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+        {
+          continue;
+        }
+
+      ret = snprintf(entry_path, sizeof(entry_path), "%s/%s", path,
+                     ent->d_name);
+      if (ret > 0 && (size_t)ret < sizeof(entry_path))
+        {
+          unlink(entry_path);
+        }
+    }
+
+  closedir(dir);
+
+  if (rmdir(path) < 0)
     {
       return errno == ENOENT ? 0 : -errno;
     }

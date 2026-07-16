@@ -100,6 +100,54 @@ static FAR cJSON *pkg_metadata_packages_array(FAR cJSON *root)
   return cJSON_GetObjectItemCaseSensitive(root, "packages");
 }
 
+static int pkg_metadata_parse_launch_args(
+              FAR cJSON *item, FAR struct pkg_manifest_s *manifest)
+{
+  FAR cJSON *field;
+  FAR cJSON *arg;
+  size_t argc = 0;
+  FAR const char *value;
+  int ret;
+
+  field = cJSON_GetObjectItemCaseSensitive(item, "launch_args");
+  if (field == NULL)
+    {
+      manifest->launch_argc = 0;
+      return 0;
+    }
+
+  if (!cJSON_IsArray(field))
+    {
+      return -EINVAL;
+    }
+
+  cJSON_ArrayForEach(arg, field)
+    {
+      if (argc >= PKG_LAUNCH_ARGS_MAX)
+        {
+          return -E2BIG;
+        }
+
+      value = cJSON_GetStringValue(arg);
+      if (value == NULL)
+        {
+          return -EINVAL;
+        }
+
+      ret = pkg_copy_string(manifest->launch_args[argc],
+                            sizeof(manifest->launch_args[argc]), value);
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      argc++;
+    }
+
+  manifest->launch_argc = argc;
+  return 0;
+}
+
 static int pkg_metadata_parse_manifest(FAR cJSON *item,
                                        FAR struct pkg_manifest_s *manifest)
 {
@@ -168,6 +216,39 @@ static int pkg_metadata_parse_manifest(FAR cJSON *item,
   if (pkg_manifest_parse_type(value, &manifest->type) < 0)
     {
       return -EINVAL;
+    }
+
+  /* description/category/icon are optional and purely for UI display;
+   * missing fields just leave the manifest's copy empty.
+   */
+
+  field = cJSON_GetObjectItemCaseSensitive(item, "description");
+  value = cJSON_GetStringValue(field);
+  if (value != NULL)
+    {
+      pkg_copy_string(manifest->description, sizeof(manifest->description),
+                      value);
+    }
+
+  field = cJSON_GetObjectItemCaseSensitive(item, "category");
+  value = cJSON_GetStringValue(field);
+  if (value != NULL)
+    {
+      pkg_copy_string(manifest->category, sizeof(manifest->category),
+                      value);
+    }
+
+  field = cJSON_GetObjectItemCaseSensitive(item, "icon");
+  value = cJSON_GetStringValue(field);
+  if (value != NULL)
+    {
+      pkg_copy_string(manifest->icon, sizeof(manifest->icon), value);
+    }
+
+  ret = pkg_metadata_parse_launch_args(item, manifest);
+  if (ret < 0)
+    {
+      return ret;
     }
 
   return pkg_manifest_validate(manifest);
@@ -395,6 +476,8 @@ static FAR cJSON *pkg_metadata_manifest_to_json(
                      FAR const struct pkg_manifest_s *manifest)
 {
   FAR cJSON *root;
+  FAR cJSON *launch_args;
+  size_t i;
 
   root = cJSON_CreateObject();
   if (root == NULL)
@@ -410,51 +493,55 @@ static FAR cJSON *pkg_metadata_manifest_to_json(
   cJSON_AddStringToObject(root, "sha256", manifest->sha256);
   cJSON_AddStringToObject(root, "type",
                           pkg_manifest_type_str(manifest->type));
+
+  if (manifest->description[0] != '\0')
+    {
+      cJSON_AddStringToObject(root, "description", manifest->description);
+    }
+
+  if (manifest->category[0] != '\0')
+    {
+      cJSON_AddStringToObject(root, "category", manifest->category);
+    }
+
+  if (manifest->launch_argc > 0)
+    {
+      launch_args = cJSON_AddArrayToObject(root, "launch_args");
+      if (launch_args == NULL)
+        {
+          cJSON_Delete(root);
+          return NULL;
+        }
+
+      for (i = 0; i < manifest->launch_argc; i++)
+        {
+          FAR cJSON *arg;
+
+          arg = cJSON_CreateString(manifest->launch_args[i]);
+          if (arg == NULL)
+            {
+              cJSON_Delete(root);
+              return NULL;
+            }
+
+          cJSON_AddItemToArray(launch_args, arg);
+        }
+    }
+
   return root;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int pkg_metadata_load_index(FAR struct pkg_index_s *index)
+static int pkg_metadata_parse_index_text(FAR const char *text,
+                                         FAR struct pkg_index_s *index)
 {
   FAR cJSON *root;
   FAR cJSON *packages;
   FAR cJSON *item;
-  FAR char *text;
-  char path[PATH_MAX];
   size_t count = 0;
-  size_t textlen;
   int ret;
-
-  if (index == NULL)
-    {
-      return -EINVAL;
-    }
-
-  memset(index, 0, sizeof(*index));
-
-  ret = pkg_store_format_index_path(path, sizeof(path));
-  if (ret < 0)
-    {
-      return ret;
-    }
-
-  pkg_info("loading index from %s", path);
-
-  ret = pkg_store_read_text(path, &text);
-  if (ret < 0)
-    {
-      return ret;
-    }
-
-  textlen = strlen(text);
-  pkg_info("index read complete (%zu bytes)", textlen);
 
   root = cJSON_Parse(text);
   pkg_info("cJSON_Parse returned %s", root != NULL ? "success" : "failure");
-  free(text);
   if (root == NULL)
     {
       return -EINVAL;
@@ -471,15 +558,27 @@ int pkg_metadata_load_index(FAR struct pkg_index_s *index)
     {
       if (count >= PKG_INDEX_MAX)
         {
-          cJSON_Delete(root);
-          return -E2BIG;
+          /* Keep what's already parsed rather than discarding the whole
+           * index: a catalog that's grown past PKG_INDEX_MAX shouldn't
+           * make every other package unavailable too.
+           */
+
+          pkg_error("index has more than %d packages, truncating",
+                    PKG_INDEX_MAX);
+          break;
         }
 
       ret = pkg_metadata_parse_manifest(item, &index->manifests[count]);
       if (ret < 0)
         {
-          cJSON_Delete(root);
-          return ret;
+          /* Skip a malformed entry instead of discarding the entire
+           * index: one bad/malicious package definition shouldn't make
+           * every other, otherwise-valid package unavailable too.
+           */
+
+          pkg_error("skipping malformed package entry %zu: %d", count,
+                    ret);
+          continue;
         }
 
       pkg_info("parsed manifest %s %s",
@@ -491,6 +590,54 @@ int pkg_metadata_load_index(FAR struct pkg_index_s *index)
   index->count = count;
   cJSON_Delete(root);
   return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int pkg_metadata_load_index_path(FAR const char *path,
+                                 FAR struct pkg_index_s *index)
+{
+  FAR char *text;
+  size_t textlen;
+  int ret;
+
+  if (path == NULL || index == NULL)
+    {
+      return -EINVAL;
+    }
+
+  memset(index, 0, sizeof(*index));
+
+  pkg_info("loading index from %s", path);
+
+  ret = pkg_store_read_text(path, &text);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  textlen = strlen(text);
+  pkg_info("index read complete (%zu bytes)", textlen);
+
+  ret = pkg_metadata_parse_index_text(text, index);
+  pkg_free(text);
+  return ret;
+}
+
+int pkg_metadata_load_index(FAR struct pkg_index_s *index)
+{
+  char path[PATH_MAX];
+  int ret;
+
+  ret = pkg_store_format_index_path(path, sizeof(path));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  return pkg_metadata_load_index_path(path, index);
 }
 
 FAR const struct pkg_manifest_s *
@@ -573,7 +720,7 @@ int pkg_metadata_load_installed(FAR struct pkg_installed_db_s *db)
     }
 
   root = cJSON_Parse(text);
-  free(text);
+  pkg_free(text);
   if (root == NULL)
     {
       return -EINVAL;
@@ -590,15 +737,23 @@ int pkg_metadata_load_installed(FAR struct pkg_installed_db_s *db)
     {
       if (count >= PKG_INSTALLED_MAX)
         {
-          cJSON_Delete(root);
-          return -E2BIG;
+          pkg_error("installed db has more than %d entries, truncating",
+                    PKG_INSTALLED_MAX);
+          break;
         }
 
       ret = pkg_metadata_parse_installed_entry(item, &db->entries[count]);
       if (ret < 0)
         {
-          cJSON_Delete(root);
-          return ret;
+          /* A single corrupted entry (plausible after a crash mid-write,
+           * despite the atomic-write mechanism) must not make every
+           * other installed package look uninstalled - that would drive
+           * needless reinstalls for everything else.
+           */
+
+          pkg_error("skipping malformed installed entry %zu: %d", count,
+                    ret);
+          continue;
         }
 
       count++;

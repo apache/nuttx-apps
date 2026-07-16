@@ -29,4 +29,13 @@ config SYSTEM_NXPKG_STACKSIZE
 	int "'nxpkg' stack size"
 	default 16384
 
+config SYSTEM_NXPKG_ROOT
+	string "'nxpkg' storage root"
+	default "/tmp/nxpkg"
+	---help---
+		Base directory used by nxpkg for its local index, installed
+		metadata, temporary downloads, and package payload storage.
+		Boards with external storage can point this to a persistent
+		location such as /mnt/sdcard/nxpkg.
+
 endif

@@ -75,6 +75,49 @@ static bool pkg_validate_hex(FAR const char *value)
 }
 
 /****************************************************************************
+ * Name: pkg_validate_path_component
+ *
+ * Description:
+ *   Reject any value that could escape the intended directory when spliced
+ *   into a filesystem path (pkg_store.c's PKG_STORE_DIR "/%s/%s/..."
+ *   formatters). This is required for "name" and "version" specifically,
+ *   since both come straight from an untrusted, network-fetched
+ *   index.json and are used unsanitized to build install paths - a
+ *   version of "../../evil" would otherwise let a malicious index write
+ *   or delete files outside the package store entirely.
+ *
+ ****************************************************************************/
+
+static bool pkg_validate_path_component(FAR const char *value)
+{
+  FAR const char *p;
+
+  if (pkg_validate_required(value) < 0)
+    {
+      return false;
+    }
+
+  /* Reject a leading '.' outright: blocks ".", "..", and any
+   * "../"-prefixed traversal in one check.
+   */
+
+  if (value[0] == '.')
+    {
+      return false;
+    }
+
+  for (p = value; *p != '\0'; p++)
+    {
+      if (*p == '/' || *p == '\\')
+        {
+          return false;
+        }
+    }
+
+  return true;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -95,6 +138,8 @@ const char *pkg_manifest_type_str(enum pkg_payload_type_e type)
 
 int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest)
 {
+  size_t i;
+
   if (manifest == NULL)
     {
       return -EINVAL;
@@ -106,6 +151,19 @@ int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest)
       pkg_validate_required(manifest->compat) < 0 ||
       pkg_validate_required(manifest->artifact) < 0 ||
       pkg_validate_required(manifest->sha256) < 0)
+    {
+      return -EINVAL;
+    }
+
+  /* "name" and "version" get spliced unsanitized into on-disk paths
+   * (pkg_store.c) - they must not contain path separators or traversal
+   * sequences.  "artifact" is validated separately in pkg_repo.c, where
+   * it's legitimately allowed to be a relative repo path (just not an
+   * absolute one or one that escapes the repo root).
+   */
+
+  if (!pkg_validate_path_component(manifest->name) ||
+      !pkg_validate_path_component(manifest->version))
     {
       return -EINVAL;
     }
@@ -124,6 +182,19 @@ int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest)
       manifest->type != PKG_PAYLOAD_SHARED_LIB)
     {
       return -EINVAL;
+    }
+
+  if (manifest->launch_argc > PKG_LAUNCH_ARGS_MAX)
+    {
+      return -EINVAL;
+    }
+
+  for (i = 0; i < manifest->launch_argc; i++)
+    {
+      if (pkg_validate_required(manifest->launch_args[i]) < 0)
+        {
+          return -EINVAL;
+        }
     }
 
   return 0;
