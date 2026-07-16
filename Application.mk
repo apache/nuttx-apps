@@ -122,6 +122,7 @@ ifneq ($(strip $(PROGNAME)),)
   NLIST := $(shell seq 1 $(words $(PROGNAME)))
   $(foreach i, $(NLIST), \
     $(eval PROGNAME_$(word $i,$(PROGOBJ)) := $(word $i,$(PROGNAME))) \
+    $(eval PROGSYM_$(word $i,$(PROGOBJ)) := $(subst -,_,$(word $i,$(PROGNAME)))) \
     $(eval PROGOBJ_$(word $i,$(PROGLIST)) := $(word $i,$(PROGOBJ))) \
     $(eval PRIORITY_$(word $i,$(REGLIST)) := \
         $(if $(word $i,$(PRIORITY)),$(word $i,$(PRIORITY)),$(lastword $(PRIORITY)))) \
@@ -223,7 +224,7 @@ endef
 # rename "main()" in $1 to "xxx_main()" and save to $2
 define RENAMEMAIN
 	$(ECHO_BEGIN)"Rename main() in $1 and save to $2"
-	$(Q) ${shell cat $1 | sed -e "s/fn[ ]\+main/fn $(addsuffix _main,$(PROGNAME_$@))/" > $2}
+	$(Q) ${shell cat $1 | sed -e "s/fn[ ]\+main/fn $(addsuffix _main,$(PROGSYM_$@))/" > $2}
 	$(ECHO_END)
 endef
 
@@ -319,14 +320,14 @@ install:: $(PROGLIST)
 else
 
 $(MAINCXXOBJ): $(PREFIX)%$(CXXEXT)$(SUFFIX)$(OBJEXT): %$(CXXEXT)
-	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(addsuffix _main,$(PROGNAME_$@))})
-	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(addsuffix _main,$(PROGNAME_$@))})
+	$(eval $<_CXXFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(addsuffix _main,$(PROGSYM_$@))})
+	$(eval $<_CXXELFFLAGS += ${shell $(DEFINE) "$(CXX)" main=$(addsuffix _main,$(PROGSYM_$@))})
 	$(if $(and $(CONFIG_MODULES),$(MODCXXFLAGS)), \
 		$(call ELFCOMPILEXX, $<, $@), $(call COMPILEXX, $<, $@))
 
 $(MAINCOBJ): $(PREFIX)%.c$(SUFFIX)$(OBJEXT): %.c
-	$(eval $<_CFLAGS += ${DEFINE_PREFIX}main=$(addsuffix _main,$(PROGNAME_$@)))
-	$(eval $<_CELFFLAGS += ${DEFINE_PREFIX}main=$(addsuffix _main,$(PROGNAME_$@)))
+	$(eval $<_CFLAGS += ${DEFINE_PREFIX}main=$(addsuffix _main,$(PROGSYM_$@)))
+	$(eval $<_CELFFLAGS += ${DEFINE_PREFIX}main=$(addsuffix _main,$(PROGSYM_$@)))
 	$(if $(and $(CONFIG_MODULES),$(MODCFLAGS)), \
 		$(call ELFCOMPILE, $<, $@), $(call COMPILE, $<, $@))
 
@@ -362,10 +363,11 @@ ifeq ($(DO_REGISTRATION),y)
 
 $(REGLIST): $(DEPCONFIG) Makefile
 	$(eval PROGNAME_$@ := $(basename $(notdir $@)))
+	$(eval PROGSYM_$@ := $(subst -,_,$(PROGNAME_$@)))
 ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
-	$(call REGISTER,$(PROGNAME_$@),$(PRIORITY_$@),$(STACKSIZE_$@),$(if $(BUILD_MODULE),,$(PROGNAME_$@)_main),$(UID_$@),$(GID_$@),$(MODE_$@))
+	$(call REGISTER,$(PROGNAME_$@),$(PRIORITY_$@),$(STACKSIZE_$@),$(if $(BUILD_MODULE),,$(PROGSYM_$@)_main),$(UID_$@),$(GID_$@),$(MODE_$@))
 else
-	$(call REGISTER,$(PROGNAME_$@),$(PRIORITY_$@),$(STACKSIZE_$@),$(if $(BUILD_MODULE),,$(PROGNAME_$@)_main))
+	$(call REGISTER,$(PROGNAME_$@),$(PRIORITY_$@),$(STACKSIZE_$@),$(if $(BUILD_MODULE),,$(PROGSYM_$@)_main))
 endif
 
 register:: $(REGLIST)
