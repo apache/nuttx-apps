@@ -2098,7 +2098,9 @@ static void load_default_collection(default_collection_t *collection)
 
   while (!feof(f))
     {
-      if (fscanf(f, "%79s %99[^\n]\n", defname, strparm) != 2)
+      strparm[0] = '\0';
+
+      if (fscanf(f, "%79s %99[^\n]\n", defname, strparm) < 1)
         {
           /* This line doesn't match */
 
@@ -2134,6 +2136,19 @@ static void load_default_collection(default_collection_t *collection)
         {
           strparm[strlen(strparm) - 1] = '\0';
           memmove(strparm, strparm + 1, sizeof(strparm) - 1);
+        }
+
+      /* A line with a name but no (or an unparsable) value - e.g. a
+       * config file left truncated by an unclean shutdown mid-write -
+       * must not silently override this variable's compiled-in default
+       * with a bogus zero/empty value.  This is what let a corrupted
+       * "screenblocks" line (empty value) through as screenblocks=0,
+       * which fed a divide-by-zero straight into the renderer.
+       */
+
+      if (strparm[0] == '\0')
+        {
+          continue;
         }
 
       set_variable(def, strparm);

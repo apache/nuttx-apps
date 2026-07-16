@@ -92,6 +92,13 @@ struct graphics_state_s
 
   uint8_t scale;
 
+  /* Pixel offset to center the scaled game viewport within the frame
+   * buffer when the buffer is larger than SCREENWIDTH/HEIGHT * scale.
+   */
+
+  int xoffset;
+  int yoffset;
+
   bool inited; /* Track initialization */
 };
 
@@ -262,13 +269,25 @@ static void blit_screen(void)
   uint8_t p_idx;
   void *fbptr;
 
-  /* TODO: It would be best to do this more efficiently/with less memory.
-   * It also would be good if we could handle the palette translation here
-   * such that DOOM can be played on frame buffers with differing bit depths
-   * and pixel formats.
-   */
+  /* TODO: It would be best to do this more efficiently/with less memory. */
 
-  fbptr = g_graphics_state.fbmem;
+  if (g_graphics_state.pinfo.bpp != 16 && g_graphics_state.pinfo.bpp != 32)
+    {
+      /* The xoffset/stride math below assumes one of those two pixel
+       * sizes, so continuing would read/write past the intended pixel
+       * bounds on the very first frame.  Fail loudly instead of
+       * silently corrupting framebuffer memory.
+       */
+
+      i_error("Unsupported framebuffer depth: %u bpp",
+              g_graphics_state.pinfo.bpp);
+    }
+
+  fbptr = g_graphics_state.fbmem +
+          g_graphics_state.yoffset * g_graphics_state.pinfo.stride +
+          g_graphics_state.xoffset *
+              (g_graphics_state.pinfo.bpp == 16 ? 2 : 4);
+
   for (unsigned y = 0; y < SCREENHEIGHT * g_graphics_state.scale; y++)
     {
       for (unsigned x = 0; x < SCREENWIDTH * g_graphics_state.scale; x++)
@@ -277,9 +296,18 @@ static void blit_screen(void)
                       .scrnbuf[(y / g_graphics_state.scale) * SCREENWIDTH +
                                (x / g_graphics_state.scale)];
 
-          ((uint32_t *)(fbptr))[x] =
-              ARGBTO32(g_palette[p_idx].a, g_palette[p_idx].r,
-                       g_palette[p_idx].g, g_palette[p_idx].b);
+          if (g_graphics_state.pinfo.bpp == 16)
+            {
+              ((uint16_t *)(fbptr))[x] =
+                  RGBTO16(g_palette[p_idx].r, g_palette[p_idx].g,
+                          g_palette[p_idx].b);
+            }
+          else
+            {
+              ((uint32_t *)(fbptr))[x] =
+                  ARGBTO32(g_palette[p_idx].a, g_palette[p_idx].r,
+                           g_palette[p_idx].g, g_palette[p_idx].b);
+            }
         }
 
       fbptr += g_graphics_state.pinfo.stride;
@@ -723,6 +751,18 @@ void i_init_graphics(void)
   xscale = g_graphics_state.vinfo.xres / SCREENWIDTH;
   yscale = g_graphics_state.vinfo.yres / SCREENHEIGHT;
   g_graphics_state.scale = xscale > yscale ? yscale : xscale;
+
+  /* Center the scaled viewport within the frame buffer rather than
+   * pinning it to the top-left corner, since the buffer is typically
+   * larger than SCREENWIDTH/HEIGHT * scale.
+   */
+
+  g_graphics_state.xoffset =
+      (g_graphics_state.vinfo.xres -
+       SCREENWIDTH * g_graphics_state.scale) / 2;
+  g_graphics_state.yoffset =
+      (g_graphics_state.vinfo.yres -
+       SCREENHEIGHT * g_graphics_state.scale) / 2;
 
   /* Get frame buffer plane info */
 

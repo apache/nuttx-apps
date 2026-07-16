@@ -57,12 +57,17 @@ planefunction_t ceilingfunc;
 
 /* Here comes the obnoxious "visplane". */
 
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+visplane_t *visplanes;
+short *openings;
+#else
 visplane_t visplanes[CONFIG_GAMES_NXDOOM_MAXVISPLANES];
+short openings[MAXOPENINGS];
+#endif
 visplane_t *lastvisplane;
 visplane_t *floorplane;
 visplane_t *ceilingplane;
 
-short openings[MAXOPENINGS];
 short *lastopening;
 
 /* Clip values are the solid pixel bounding the range. floorclip starts out
@@ -114,12 +119,34 @@ static void r_map_plane(int y, int x1, int x2)
   fixed_t length;
   unsigned index;
 
-#ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
-  if (x2 < x1 || x1 < 0 || x2 >= viewwidth || y > viewheight)
+  /* y indexes cachedheight[]/cacheddistance[]/cachedxstep[]/cachedystep[]
+   * below, all sized SCREENHEIGHT - a y outside that range (observed on
+   * this port: y=255 against a 200-entry array, well past even
+   * viewheight) is an out-of-bounds array write, not just a "debug
+   * assertion".  This used to be gated behind CONFIG_GAMES_NXDOOM_
+   * RANGECHECK and fatal (i_error(), which tears down the whole process
+   * on what vanilla Doom would just render as one glitched span) - both
+   * wrong: the memory-safety check must not be optional, and killing the
+   * entire game over one bad plane span is worse than just not drawing
+   * it.  Clamp y into range instead of touching memory outside the
+   * buffers' real bounds - this still renders the span (as one glitched
+   * row, the same "wrong but visible" failure mode vanilla DOOM has) so
+   * a bad plane doesn't leave a blank gap on screen either.
+   */
+
+  if (x2 < x1 || x1 < 0 || x2 >= viewwidth)
     {
-      i_error("R_MapPlane: %i, %i at %i", x1, x2, y);
+      return;
     }
-#endif
+
+  if (y < 0)
+    {
+      y = 0;
+    }
+  else if (y >= SCREENHEIGHT)
+    {
+      y = SCREENHEIGHT - 1;
+    }
 
   if (planeheight != cachedheight[y])
     {
@@ -195,7 +222,55 @@ static void r_make_spans(int x, int t1, int b1, int t2, int b2)
 
 void r_init_planes(void)
 {
-  /* Doh! */
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+  /* These renderer scratch buffers are sized for a comfortable margin
+   * above vanilla DOOM's original limits and, on a DRAM-constrained
+   * target, blow the internal DRAM budget as static arrays - opt-in
+   * heap allocation instead (comes out of the PSRAM-backed user heap
+   * on this target) via CONFIG_GAMES_NXDOOM_HEAP_BUFFERS.
+   */
+
+  visplanes = malloc(sizeof(visplane_t) * CONFIG_GAMES_NXDOOM_MAXVISPLANES);
+  openings = malloc(sizeof(short) * MAXOPENINGS);
+  drawsegs = malloc(sizeof(drawseg_t) * CONFIG_GAMES_NXDOOM_MAXDRAWSEGS);
+  vissprites = malloc(sizeof(vissprite_t) *
+                       CONFIG_GAMES_NXDOOM_MAXVISSPRITES);
+
+  if (visplanes == NULL || openings == NULL || drawsegs == NULL ||
+      vissprites == NULL)
+    {
+      i_error("r_init_planes: failed to allocate renderer buffers");
+    }
+
+  /* i_quit() can be followed by another r_init_planes() call within the
+   * same boot (relaunching the game via nxpkg on this flat, single
+   * address-space build), so these heap buffers must be freed on exit
+   * or every relaunch leaks the previous allocation permanently.
+   */
+
+  i_at_exit(r_shutdown_planes, true);
+#endif
+}
+
+/* r_shutdown_planes
+ * Frees the renderer scratch buffers allocated by r_init_planes.  Only
+ * registered as an exit handler when CONFIG_GAMES_NXDOOM_HEAP_BUFFERS is
+ * set - the static-array buffers have nothing to free.
+ */
+
+void r_shutdown_planes(void)
+{
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+  free(visplanes);
+  free(openings);
+  free(drawsegs);
+  free(vissprites);
+
+  visplanes = NULL;
+  openings = NULL;
+  drawsegs = NULL;
+  vissprites = NULL;
+#endif
 }
 
 /* r_clear_planes
