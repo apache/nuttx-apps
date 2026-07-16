@@ -124,19 +124,18 @@ static int nuttxmouse_Read(MWCOORD *dx, MWCOORD *dy, MWCOORD *dz, int *bp)
       if (n <= 0)
         return MOUSE_NODATA;
 
-      *dx = sample.point[0].x;
-      *dy = sample.point[0].y;
       *dz = 0;
 
       uint8_t flags = sample.point[0].flags;
-      if (flags & (TOUCH_DOWN | TOUCH_MOVE))
+      *bp = (flags & (TOUCH_DOWN | TOUCH_MOVE)) ? MWBUTTON_L : 0;
+
+      if (flags & TOUCH_POS_VALID)
         {
-          *bp = MWBUTTON_L;
+          *dx = sample.point[0].x;
+          *dy = sample.point[0].y;
+          return MOUSE_ABSPOS;
         }
-      else
-        {
-          *bp = 0;
-        }
-      return MOUSE_ABSPOS;
+
+      return MOUSE_NOMOVE;
     }
 }
