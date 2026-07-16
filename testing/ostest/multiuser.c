@@ -37,6 +37,18 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#if !defined(CONFIG_DISABLE_MQUEUE)
+#  include <mqueue.h>
+#endif
+
+#if defined(CONFIG_FS_NAMED_SEMAPHORES)
+#  include <semaphore.h>
+#endif
+
+#if defined(CONFIG_FS_SHMFS)
+#  include <sys/mman.h>
+#endif
+
 #include "ostest.h"
 
 /****************************************************************************
@@ -239,6 +251,26 @@ static int mu_verify_owner(FAR struct mu_ctx_s *ctx, FAR const char *path,
   return 0;
 }
 
+static void mu_verify_mode(FAR struct mu_ctx_s *ctx, FAR const char *path,
+                           mode_t mode)
+{
+  struct stat st;
+
+  if (stat(path, &st) != 0)
+    {
+      mu_fail(ctx, "stat(%s) after create errno=%d", path, errno);
+    }
+  else if ((st.st_mode & 0777) != mode)
+    {
+      mu_fail(ctx, "%s mode expected %04o got %04o", path,
+              (unsigned int)mode, (unsigned int)(st.st_mode & 0777));
+    }
+  else
+    {
+      mu_pass("%s mode %04o", path, (unsigned int)mode);
+    }
+}
+
 #if defined(CONFIG_SCHED_USER_IDENTITY)
 
 static int multiuser_effective_test(FAR struct mu_ctx_s *ctx)
@@ -291,7 +323,179 @@ static int multiuser_effective_test(FAR struct mu_ctx_s *ctx)
   return ctx->failures;
 }
 
+static int multiuser_resuid_test(FAR struct mu_ctx_s *ctx)
+{
+  uid_t ruid;
+  uid_t euid;
+  uid_t suid;
+  gid_t rgid;
+  gid_t egid;
+  gid_t sgid;
+  int ret;
+
+  printf("multiuser: getresuid/getresgid and setreuid/setregid\n");
+
+  ret = getresuid(&ruid, &euid, &suid);
+  if (mu_expect_ok(ctx, "getresuid(initial)", ret) != 0)
+    {
+      return ctx->failures;
+    }
+
+  mu_check_eq(ctx, "initial real uid", ruid, 0);
+  mu_check_eq(ctx, "initial eff uid", euid, 0);
+  mu_check_eq(ctx, "initial saved uid", suid, 0);
+
+  ret = getresgid(&rgid, &egid, &sgid);
+  if (mu_expect_ok(ctx, "getresgid(initial)", ret) != 0)
+    {
+      return ctx->failures;
+    }
+
+  mu_check_eq(ctx, "initial real gid", rgid, 0);
+  mu_check_eq(ctx, "initial eff gid", egid, 0);
+  mu_check_eq(ctx, "initial saved gid", sgid, 0);
+
+  ret = setreuid((uid_t)-1, MU_UID1);
+  if (mu_expect_ok(ctx, "root setreuid(-1,1000)", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = getresuid(&ruid, &euid, &suid);
+  mu_check_eq(ctx, "real uid after setreuid(-1,1000)", ruid, 0);
+  mu_check_eq(ctx, "eff uid after setreuid(-1,1000)", euid, MU_UID1);
+  mu_check_eq(ctx, "saved uid after setreuid(-1,1000)", suid, MU_UID1);
+
+  ret = setreuid(MU_UID2, (uid_t)-1);
+  mu_expect_denied(ctx, "non-root setreuid(2000,-1)", ret);
+
+  ret = setreuid((uid_t)-1, 0);
+  if (mu_expect_ok(ctx, "setreuid(-1,0) drop effective", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = setreuid(0, (uid_t)-1);
+  if (mu_expect_ok(ctx, "root setreuid(0,-1) restore", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = getresuid(&ruid, &euid, &suid);
+  mu_check_eq(ctx, "real uid restored", ruid, 0);
+  mu_check_eq(ctx, "eff uid restored", euid, 0);
+  mu_check_eq(ctx, "saved uid restored", suid, 0);
+
+  ret = setregid((gid_t)-1, MU_GID1);
+  if (mu_expect_ok(ctx, "root setregid(-1,1000)", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = getresgid(&rgid, &egid, &sgid);
+  mu_check_eq(ctx, "real gid after setregid(-1,1000)", rgid, 0);
+  mu_check_eq(ctx, "eff gid after setregid(-1,1000)", egid, MU_GID1);
+  mu_check_eq(ctx, "saved gid after setregid(-1,1000)", sgid, MU_GID1);
+
+  ret = setregid(MU_GID2, (gid_t)-1);
+  mu_expect_denied(ctx, "non-root setregid(2000,-1)", ret);
+
+  ret = setregid((gid_t)-1, 0);
+  if (mu_expect_ok(ctx, "setregid(-1,0) drop effective", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = setregid(0, (gid_t)-1);
+  mu_expect_ok(ctx, "root setregid(0,-1) restore", ret);
+
+  mu_restore_root(ctx);
+  return ctx->failures;
+}
+
 #if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
+
+static int mu_run_child(FAR struct mu_ctx_s *ctx, FAR const char *name,
+                        main_t entry)
+{
+  pid_t pid;
+  int status;
+
+  pid = task_create(name, MU_CHILD_PRIORITY, STACKSIZE, entry, NULL);
+  if (pid < 0)
+    {
+      mu_fail(ctx, "task_create(%s) failed", name);
+      return ctx->failures;
+    }
+
+  if (waitpid(pid, &status, 0) != pid)
+    {
+      mu_fail(ctx, "waitpid(%s) failed errno=%d", name, errno);
+      return ctx->failures;
+    }
+
+  if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+    {
+      mu_fail(ctx, "%s child exited with status=%d", name, status);
+    }
+  else
+    {
+      mu_pass("%s child completed successfully", name);
+    }
+
+  return ctx->failures;
+}
+
+static int multiuser_resuid_child(int argc, FAR char *argv[])
+{
+  struct mu_ctx_s ctx =
+  {
+    0
+  };
+
+  uid_t ruid;
+  uid_t euid;
+  uid_t suid;
+  int ret;
+
+  (void)argc;
+  (void)argv;
+
+  ret = setreuid(MU_UID1, MU_UID1);
+  if (mu_expect_ok(&ctx, "root setreuid(1000,1000)", ret) != 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  ret = getresuid(&ruid, &euid, &suid);
+  if (mu_expect_ok(&ctx, "getresuid(after setreuid)", ret) != 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  mu_check_eq(&ctx, "real uid after setreuid", ruid, MU_UID1);
+  mu_check_eq(&ctx, "eff uid after setreuid", euid, MU_UID1);
+  mu_check_eq(&ctx, "saved uid after setreuid", suid, MU_UID1);
+
+  printf("multiuser_resuid_child: %d failure(s)\n", ctx.failures);
+  return ctx.failures == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int multiuser_resuid_child_test(FAR struct mu_ctx_s *ctx)
+{
+  printf("multiuser: setreuid(1000,1000) full assignment (child task)\n");
+
+  mu_run_child(ctx, "mu_resuid", multiuser_resuid_child);
+  mu_check_eq(ctx, "parent euid after resuid child", geteuid(), 0);
+  mu_check_eq(ctx, "parent egid after resuid child", getegid(), 0);
+
+  return ctx->failures;
+}
 
 static int multiuser_suid_child(int argc, FAR char *argv[])
 {
@@ -347,34 +551,9 @@ static int multiuser_suid_child(int argc, FAR char *argv[])
 
 static int multiuser_suid_test(FAR struct mu_ctx_s *ctx)
 {
-  pid_t pid;
-  int status;
-
   printf("multiuser: saved set-UID/GID semantics (child task)\n");
 
-  pid = task_create("mu_suid", MU_CHILD_PRIORITY, STACKSIZE,
-                    multiuser_suid_child, NULL);
-  if (pid < 0)
-    {
-      mu_fail(ctx, "task_create(mu_suid) failed");
-      return ctx->failures;
-    }
-
-  if (waitpid(pid, &status, 0) != pid)
-    {
-      mu_fail(ctx, "waitpid(mu_suid) failed errno=%d", errno);
-      return ctx->failures;
-    }
-
-  if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
-    {
-      mu_fail(ctx, "mu_suid child exited with status=%d", status);
-    }
-  else
-    {
-      mu_pass("mu_suid child completed successfully");
-    }
-
+  mu_run_child(ctx, "mu_suid", multiuser_suid_child);
   mu_check_eq(ctx, "parent euid after child", geteuid(), 0);
   mu_check_eq(ctx, "parent egid after child", getegid(), 0);
 
@@ -383,8 +562,7 @@ static int multiuser_suid_test(FAR struct mu_ctx_s *ctx)
 
 #endif /* CONFIG_SCHED_WAITPID && !CONFIG_BUILD_KERNEL */
 
-#if defined(CONFIG_FS_PERMISSION) && defined(CONFIG_PSEUDOFS_ATTRIBUTES) && \
-    defined(CONFIG_PSEUDOFS_FILE)
+#if defined(CONFIG_FS_PERMISSION)
 
 static int multiuser_open_secret(FAR struct mu_ctx_s *ctx,
                                  FAR const char *path, int expect_ok)
@@ -422,6 +600,11 @@ static int multiuser_open_secret(FAR struct mu_ctx_s *ctx,
   mu_pass("open(%s) denied with EACCES", path);
   return 0;
 }
+
+#endif /* CONFIG_FS_PERMISSION */
+
+#if defined(CONFIG_FS_PERMISSION) && defined(CONFIG_PSEUDOFS_ATTRIBUTES) && \
+    defined(CONFIG_PSEUDOFS_FILE)
 
 static int multiuser_pseudofs_test(FAR struct mu_ctx_s *ctx)
 {
@@ -581,6 +764,286 @@ out:
 
 #endif /* CONFIG_FS_PERMISSION && CONFIG_FS_TMPFS */
 
+#if defined(CONFIG_FS_PERMISSION) && defined(CONFIG_PSEUDOFS_ATTRIBUTES)
+
+#if !defined(CONFIG_DISABLE_MQUEUE)
+#  define MU_MQ_NAME   "ostest_mu_mq"
+#  define MU_MQ_PATH   CONFIG_FS_MQUEUE_VFS_PATH "/" MU_MQ_NAME
+#endif
+
+#if defined(CONFIG_FS_NAMED_SEMAPHORES)
+#  define MU_SEM_NAME  "ostest_mu_sem"
+#  define MU_SEM_PATH  CONFIG_FS_NAMED_SEMAPHORES_VFS_PATH "/" MU_SEM_NAME
+#endif
+
+#if defined(CONFIG_FS_SHMFS)
+#  define MU_SHM_NAME  "ostest_mu_shm"
+#  define MU_SHM_PATH  CONFIG_FS_SHMFS_VFS_PATH "/" MU_SHM_NAME
+#endif
+
+#if defined(CONFIG_PIPES)
+#  define MU_FIFO_PATH "/ostest_mu_fifo"
+#endif
+
+#if !defined(CONFIG_DISABLE_MQUEUE)
+
+static int multiuser_mqueue_test(FAR struct mu_ctx_s *ctx)
+{
+  mqd_t mq;
+  struct mq_attr attr;
+
+  printf("multiuser: message queue ownership and permissions\n");
+
+  mu_restore_root(ctx);
+  mq_unlink(MU_MQ_NAME);
+
+  memset(&attr, 0, sizeof(attr));
+  attr.mq_maxmsg  = 4;
+  attr.mq_msgsize = 64;
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  mq = mq_open(MU_MQ_NAME, O_CREAT | O_RDWR | O_EXCL, 0600, &attr);
+  if (mq == (mqd_t)-1)
+    {
+      mu_fail(ctx, "mq_open(create) errno=%d", errno);
+      goto out;
+    }
+
+  mq_close(mq);
+  mu_verify_owner(ctx, MU_MQ_PATH, MU_UID1, MU_GID1);
+  mu_verify_mode(ctx, MU_MQ_PATH, 0600);
+
+  if (mu_set_effective(ctx, MU_UID2, MU_GID2) != 0)
+    {
+      goto out;
+    }
+
+  mq = mq_open(MU_MQ_NAME, O_RDWR);
+  mu_expect_denied(ctx, "mq_open(other user)", mq == (mqd_t)-1 ? -1 : 0);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  mq = mq_open(MU_MQ_NAME, O_RDWR);
+  if (mq == (mqd_t)-1)
+    {
+      mu_fail(ctx, "mq_open(owner) errno=%d", errno);
+    }
+  else
+    {
+      mu_pass("mq_open(owner)");
+      mq_close(mq);
+    }
+
+out:
+  mu_restore_root(ctx);
+  mq_unlink(MU_MQ_NAME);
+  return ctx->failures;
+}
+
+#endif /* !CONFIG_DISABLE_MQUEUE */
+
+#if defined(CONFIG_FS_NAMED_SEMAPHORES)
+
+static int multiuser_sem_test(FAR struct mu_ctx_s *ctx)
+{
+  sem_t *sem;
+
+  printf("multiuser: named semaphore ownership and permissions\n");
+
+  mu_restore_root(ctx);
+  sem_unlink(MU_SEM_NAME);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  sem = sem_open(MU_SEM_NAME, O_CREAT | O_EXCL, 0600, 1);
+  if (sem == SEM_FAILED)
+    {
+      mu_fail(ctx, "sem_open(create) errno=%d", errno);
+      goto out;
+    }
+
+  sem_close(sem);
+  mu_verify_owner(ctx, MU_SEM_PATH, MU_UID1, MU_GID1);
+
+  if (mu_set_effective(ctx, MU_UID2, MU_GID2) != 0)
+    {
+      goto out;
+    }
+
+  sem = sem_open(MU_SEM_NAME, 0);
+  mu_expect_denied(ctx, "sem_open(other user)", sem == SEM_FAILED ? -1 : 0);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  sem = sem_open(MU_SEM_NAME, 0);
+  if (sem == SEM_FAILED)
+    {
+      mu_fail(ctx, "sem_open(owner) errno=%d", errno);
+    }
+  else
+    {
+      mu_pass("sem_open(owner)");
+      sem_close(sem);
+    }
+
+out:
+  mu_restore_root(ctx);
+  sem_unlink(MU_SEM_NAME);
+  return ctx->failures;
+}
+
+#endif /* CONFIG_FS_NAMED_SEMAPHORES */
+
+#if defined(CONFIG_FS_SHMFS)
+
+static int multiuser_shm_test(FAR struct mu_ctx_s *ctx)
+{
+  int fd;
+
+  printf("multiuser: shared memory ownership and permissions\n");
+
+  mu_restore_root(ctx);
+  shm_unlink(MU_SHM_NAME);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  fd = shm_open(MU_SHM_NAME, O_CREAT | O_EXCL | O_RDWR, 0600);
+  if (fd < 0)
+    {
+      mu_fail(ctx, "shm_open(create) errno=%d", errno);
+      goto out;
+    }
+
+  close(fd);
+  mu_verify_owner(ctx, MU_SHM_PATH, MU_UID1, MU_GID1);
+
+  if (mu_set_effective(ctx, MU_UID2, MU_GID2) != 0)
+    {
+      goto out;
+    }
+
+  fd = shm_open(MU_SHM_NAME, O_RDWR, 0);
+  mu_expect_denied(ctx, "shm_open(other user)", fd < 0 ? -1 : 0);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  fd = shm_open(MU_SHM_NAME, O_RDWR, 0);
+  if (fd < 0)
+    {
+      mu_fail(ctx, "shm_open(owner) errno=%d", errno);
+    }
+  else
+    {
+      mu_pass("shm_open(owner)");
+      close(fd);
+    }
+
+out:
+  mu_restore_root(ctx);
+  shm_unlink(MU_SHM_NAME);
+  return ctx->failures;
+}
+
+#endif /* CONFIG_FS_SHMFS */
+
+#if defined(CONFIG_PIPES)
+
+static int multiuser_fifo_test(FAR struct mu_ctx_s *ctx)
+{
+  int fd;
+
+  printf("multiuser: FIFO ownership and permissions\n");
+
+  mu_restore_root(ctx);
+  unlink(MU_FIFO_PATH);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  if (mkfifo(MU_FIFO_PATH, 0600) != 0)
+    {
+      mu_fail(ctx, "mkfifo errno=%d", errno);
+      goto out;
+    }
+
+  mu_verify_owner(ctx, MU_FIFO_PATH, MU_UID1, MU_GID1);
+
+  if (mu_set_effective(ctx, MU_UID2, MU_GID2) != 0)
+    {
+      goto out;
+    }
+
+  fd = open(MU_FIFO_PATH, O_RDONLY | O_NONBLOCK);
+  mu_expect_denied(ctx, "open fifo (other user)", fd < 0 ? -1 : 0);
+
+  if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
+    {
+      goto out;
+    }
+
+  fd = open(MU_FIFO_PATH, O_RDONLY | O_NONBLOCK);
+  if (fd < 0)
+    {
+      mu_fail(ctx, "open fifo (owner) errno=%d", errno);
+    }
+  else
+    {
+      mu_pass("open fifo (owner)");
+      close(fd);
+    }
+
+out:
+  mu_restore_root(ctx);
+  unlink(MU_FIFO_PATH);
+  return ctx->failures;
+}
+
+#endif /* CONFIG_PIPES */
+
+static int multiuser_ipc_test(FAR struct mu_ctx_s *ctx)
+{
+#if !defined(CONFIG_DISABLE_MQUEUE)
+  multiuser_mqueue_test(ctx);
+#endif
+
+#if defined(CONFIG_FS_NAMED_SEMAPHORES)
+  multiuser_sem_test(ctx);
+#endif
+
+#if defined(CONFIG_FS_SHMFS)
+  multiuser_shm_test(ctx);
+#endif
+
+#if defined(CONFIG_PIPES)
+  multiuser_fifo_test(ctx);
+#endif
+
+  return ctx->failures;
+}
+
+#endif /* CONFIG_FS_PERMISSION && CONFIG_PSEUDOFS_ATTRIBUTES */
+
 #if defined(CONFIG_LIBC_PASSWD_FILE)
 
 static int multiuser_passwd_test(FAR struct mu_ctx_s *ctx)
@@ -644,8 +1107,10 @@ int multiuser_test(void)
   printf("multiuser_test: start\n");
 
   multiuser_effective_test(&ctx);
+  multiuser_resuid_test(&ctx);
 
 #if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
+  multiuser_resuid_child_test(&ctx);
   multiuser_suid_test(&ctx);
 #else
   printf("multiuser: skipping saved set-UID/GID child test "
@@ -665,6 +1130,13 @@ int multiuser_test(void)
 #else
   printf("multiuser: skipping tmpfs permission tests "
          "(need FS_PERMISSION and FS_TMPFS)\n");
+#endif
+
+#if defined(CONFIG_FS_PERMISSION) && defined(CONFIG_PSEUDOFS_ATTRIBUTES)
+  multiuser_ipc_test(&ctx);
+#else
+  printf("multiuser: skipping IPC/FIFO permission tests "
+         "(need FS_PERMISSION and PSEUDOFS_ATTRIBUTES)\n");
 #endif
 
 #if defined(CONFIG_LIBC_PASSWD_FILE)
