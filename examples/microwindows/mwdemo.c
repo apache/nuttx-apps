@@ -1,13 +1,14 @@
-
-/*
+/****************************************************************************
+ * apps/examples/microwindows/mwdemo.c
+ *
  * Copyright (c) 1999, 2000, 2001, 2010 Greg Haerr <greg@censoft.com>
  * Portions Copyright (c) 2002 by Koninklijke Philips Electronics N.V.
  *
  * Demo program for Microwindows
  *
- *  GB: 10-14-2004: Modified to store degrees data on each window, 
+ *  GB: 10-14-2004: Modified to store degrees data on each window,
  *                  for new Timers features.
- */
+ ****************************************************************************/
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,22 +21,22 @@
 unsigned _stklen = 4096;
 #endif
 
-/* define either GRAPH3D demo or CHILD control demo*/
+/* define either GRAPH3D demo or CHILD control demo */
 #define GRAPH3D		1       /* 3d graphics demo (requires floating point) */
 #define CONTROLS	0       /* win32 controls demo */
 
-/* add clipping to GRAPH3D demo*/
+/* add clipping to GRAPH3D demo */
 #define CLIPDEMO	0       /* set for region clipping demo */
 
-/* CONTROLS demo options*/
+/* CONTROLS demo options */
 #define ARCDEMO		1       /* add arc drawing to CONTROLS demo */
 #define USEBLIT		1       /* use blit rather than DrawDIB() */
 #define IMAGE		0       /* add 256 color image to CONTROLS demo */
 
-/* test timer system with either demo*/
+/* test timer system with either demo */
 #define TIMERDEMO	1       /* set for WM_TIMER demo */
 
-/* not used*/
+/* not used */
 #define CLIENT3D	0       /* old client draw test */
 
 #if RTEMS
@@ -76,7 +77,7 @@ PMWIMAGEHDR image2 = &image_zion208;
 #define APPCLASS	"test"
 #define APPCHILD	"test2"
 
-/* forward decls*/
+/* forward decls */
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp);
 LRESULT CALLBACK ChildWndProc(HWND hwnd, UINT uMsg, WPARAM wp, LPARAM lp);
 
