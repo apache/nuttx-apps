@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 
 #include <errno.h>
+#include <grp.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -381,28 +382,228 @@ int cmd_su(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 }
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_ID
+
+/****************************************************************************
+ * Name: nsh_id_format_uid
+ *
+ * Description:
+ *   Format a UID token in Linux id(1) style, e.g. "uid=0(root)".
+ *
+ ****************************************************************************/
+
+static void nsh_id_format_uid(FAR char *buf, size_t buflen,
+                              FAR const char *tag, uid_t uid)
+{
+#ifdef CONFIG_LIBC_PASSWD_FILE
+  FAR struct passwd *pwd = getpwuid(uid);
+
+  if (pwd != NULL && pwd->pw_name != NULL)
+    {
+      snprintf(buf, buflen, "%s=%d(%s)", tag, uid, pwd->pw_name);
+      return;
+    }
+#endif
+
+  if (uid == 0)
+    {
+      snprintf(buf, buflen, "%s=%d(root)", tag, uid);
+    }
+  else
+    {
+      snprintf(buf, buflen, "%s=%d", tag, uid);
+    }
+}
+
+/****************************************************************************
+ * Name: nsh_id_format_gid
+ *
+ * Description:
+ *   Format a GID token in Linux id(1) style, e.g. "gid=0(root)".
+ *
+ ****************************************************************************/
+
+static void nsh_id_format_gid(FAR char *buf, size_t buflen,
+                              FAR const char *tag, gid_t gid)
+{
+#ifdef CONFIG_LIBC_GROUP_FILE
+  FAR struct group *grp = getgrgid(gid);
+
+  if (grp != NULL && grp->gr_name != NULL)
+    {
+      snprintf(buf, buflen, "%s=%d(%s)", tag, gid, grp->gr_name);
+      return;
+    }
+#endif
+
+  if (gid == 0)
+    {
+      snprintf(buf, buflen, "%s=%d(root)", tag, gid);
+    }
+  else
+    {
+      snprintf(buf, buflen, "%s=%d", tag, gid);
+    }
+}
+
+static void nsh_id_append(FAR char *line, size_t linelen,
+                          FAR const char *token)
+{
+  size_t len = strlen(line);
+
+  if (len > 0)
+    {
+      strlcat(line, " ", linelen);
+    }
+
+  strlcat(line, token, linelen);
+}
+
+#ifdef CONFIG_LIBC_PASSWD_FILE
+/****************************************************************************
+ * Name: nsh_id_format_group_value
+ *
+ * Description:
+ *   Format a bare group value for a groups= list, e.g. "0(root)".
+ *
+ ****************************************************************************/
+
+static void nsh_id_format_group_value(FAR char *buf, size_t buflen,
+                                      gid_t gid)
+{
+#ifdef CONFIG_LIBC_GROUP_FILE
+  FAR struct group *grp = getgrgid(gid);
+
+  if (grp != NULL && grp->gr_name != NULL)
+    {
+      snprintf(buf, buflen, "%d(%s)", gid, grp->gr_name);
+      return;
+    }
+#endif
+
+  if (gid == 0)
+    {
+      snprintf(buf, buflen, "0(root)");
+    }
+  else
+    {
+      snprintf(buf, buflen, "%d", gid);
+    }
+}
+
+/****************************************************************************
+ * Name: nsh_id_append_groups
+ *
+ * Description:
+ *   Append a Linux-style groups= list to the id output line.
+ *
+ ****************************************************************************/
+
+static void nsh_id_append_groups(FAR char *line, size_t linelen)
+{
+  gid_t grouplist[8];
+  char token[48];
+  int ngroups;
+  int i;
+
+  ngroups = getgroups(sizeof(grouplist) / sizeof(grouplist[0]), grouplist);
+  if (ngroups <= 0)
+    {
+      return;
+    }
+
+  strlcat(line, " groups=", linelen);
+
+  for (i = 0; i < ngroups; i++)
+    {
+      if (i > 0)
+        {
+          strlcat(line, ",", linelen);
+        }
+
+      nsh_id_format_group_value(token, sizeof(token), grouplist[i]);
+      strlcat(line, token, linelen);
+    }
+}
+#endif /* CONFIG_LIBC_PASSWD_FILE */
+
 /****************************************************************************
  * Name: cmd_id
  *
  * Description:
- *   Print real and effective UID/GID for the current session.
+ *   Print real, effective, and saved-set UID/GID for the current session in
+ *   Linux id(1) style with optional user and group names.
  *
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_DISABLE_ID
 int cmd_id(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
+  uid_t ruid;
+  uid_t euid;
+  uid_t suid;
+  gid_t rgid;
+  gid_t egid;
+  gid_t sgid;
+  char line[256];
+  char token[48];
+
   if (argc != 1)
     {
       nsh_error(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR;
     }
 
-  nsh_output(vtbl, "uid=%d euid=%d gid=%d egid=%d\n",
-             getuid(), geteuid(), getgid(), getegid());
+  if (getresuid(&ruid, &euid, &suid) != 0)
+    {
+      nsh_error(vtbl, "id: getresuid() failed: %d\n", errno);
+      return ERROR;
+    }
+
+  if (getresgid(&rgid, &egid, &sgid) != 0)
+    {
+      nsh_error(vtbl, "id: getresgid() failed: %d\n", errno);
+      return ERROR;
+    }
+
+  line[0] = '\0';
+
+  nsh_id_format_uid(token, sizeof(token), "uid", ruid);
+  nsh_id_append(line, sizeof(line), token);
+
+  if (euid != ruid)
+    {
+      nsh_id_format_uid(token, sizeof(token), "euid", euid);
+      nsh_id_append(line, sizeof(line), token);
+    }
+
+  if (suid != ruid && suid != euid)
+    {
+      nsh_id_format_uid(token, sizeof(token), "suid", suid);
+      nsh_id_append(line, sizeof(line), token);
+    }
+
+  nsh_id_format_gid(token, sizeof(token), "gid", rgid);
+  nsh_id_append(line, sizeof(line), token);
+
+  if (egid != rgid)
+    {
+      nsh_id_format_gid(token, sizeof(token), "egid", egid);
+      nsh_id_append(line, sizeof(line), token);
+    }
+
+  if (sgid != rgid && sgid != egid)
+    {
+      nsh_id_format_gid(token, sizeof(token), "sgid", sgid);
+      nsh_id_append(line, sizeof(line), token);
+    }
+
+#ifdef CONFIG_LIBC_PASSWD_FILE
+  nsh_id_append_groups(line, sizeof(line));
+#endif
+  nsh_output(vtbl, "%s\n", line);
   return OK;
 }
-#endif
+#endif /* CONFIG_NSH_DISABLE_ID */
 
 /****************************************************************************
  * Name: cmd_whoami
@@ -442,7 +643,7 @@ int cmd_whoami(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
   else
     {
-      nsh_output(vtbl, "%d\n", (int)euid);
+      nsh_output(vtbl, "%d\n", euid);
     }
 
   return OK;
