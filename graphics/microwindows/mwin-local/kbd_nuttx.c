@@ -2,7 +2,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <nuttx/config.h>
-#include <nuttx/streams.h>
+#ifdef CONFIG_LIBC_KBDCODEC
+#  include <nuttx/streams.h>
+#endif
 #include <nuttx/input/keyboard.h>
 #include <nuttx/input/kbd_codec.h>
 #include "device.h"
@@ -22,13 +24,15 @@ static MWKEYMOD modifiers = 0;
 static bool g_pending_release = false;
 static uint8_t g_last_raw_key = 0;
 
+#ifdef CONFIG_LIBC_KBDCODEC
 /* Raw mode: byte buffer and kbd_codec decoder state */
 
-#define RAW_BUF_SIZE 64
+#  define RAW_BUF_SIZE 64
 static uint8_t raw_buf[RAW_BUF_SIZE];
 static int raw_buf_len = 0;
 static int raw_buf_pos = 0;
 static struct kbd_getstate_s g_kbd_state;
+#endif
 
 /* Standard keyboard_event_s paths, eg. sim */
 static const char *g_kbd_event_paths[] = {
@@ -184,12 +188,16 @@ static void update_modifiers(MWKEY key, int press)
     }
 }
 
+#ifdef CONFIG_LIBC_KBDCODEC
 static void raw_reset(void)
 {
   raw_buf_len = 0;
   raw_buf_pos = 0;
   memset(&g_kbd_state, 0, sizeof(g_kbd_state));
 }
+#else
+#  define raw_reset() ((void)0)
+#endif
 
 static MWKEY raw_byte_to_mwkey(uint8_t ch)
 {
@@ -309,6 +317,7 @@ static int nuttxkbd_Read(MWKEY *kbuf, MWKEYMOD *mods, MWSCANCODE *scancode)
     }
   else
     {
+#ifdef CONFIG_LIBC_KBDCODEC
       uint8_t ch;
       int n;
       int ret;
@@ -337,8 +346,8 @@ static int nuttxkbd_Read(MWKEY *kbuf, MWKEYMOD *mods, MWSCANCODE *scancode)
         }
 
       /* Feed remaining bytes through the kbd_codec decoder so that encoded
-       * special keys (arrows, function keys, etc.) are parsed as single events 
-       * * rather than individual raw bytes. */
+       * special keys (arrows, function keys, etc.) are parsed as single
+       * events rather than individual raw bytes. */
 
       lib_meminstream(&memstream,
                       (FAR const char *)(raw_buf + raw_buf_pos),
@@ -352,7 +361,6 @@ static int nuttxkbd_Read(MWKEY *kbuf, MWKEYMOD *mods, MWSCANCODE *scancode)
       switch (ret)
         {
         case KBD_ERROR:
-          /* End-of-stream or error; force refill on next call */
           raw_buf_pos = raw_buf_len;
           return KBD_NODATA;
 
@@ -402,5 +410,38 @@ static int nuttxkbd_Read(MWKEY *kbuf, MWKEYMOD *mods, MWSCANCODE *scancode)
         default:
           return KBD_NODATA;
         }
+#else
+      uint8_t ch;
+      int n;
+
+      if (g_pending_release)
+        {
+          g_pending_release = false;
+          *kbuf = (MWKEY) g_last_raw_key;
+          *mods = modifiers;
+          *scancode = 0;
+          return KBD_KEYRELEASE;
+        }
+
+      n = read(kbd_fd, &ch, 1);
+      if (n < 1)
+        {
+          return KBD_NODATA;
+        }
+
+      MWKEY key = raw_byte_to_mwkey(ch);
+      if (key == MWKEY_UNKNOWN)
+        {
+          return KBD_NODATA;
+        }
+
+      g_pending_release = true;
+      g_last_raw_key = ch;
+
+      *kbuf = key;
+      *mods = modifiers;
+      *scancode = 0;
+      return KBD_KEYPRESS;
+#endif
     }
 }
