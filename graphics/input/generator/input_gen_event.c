@@ -44,6 +44,13 @@
 
 #define INPUT_GEN_DEFAULT_CLICK_DURATION 100 /* ms */
 
+/* Virtual-clock step between interpolated motion frames (ms). Matches the
+ * previous ~8ms emission cadence; the durations passed to input_gen_* are
+ * expressed in ms, so the number of frames is duration / this step.
+ */
+
+#define INPUT_GEN_MOTION_STEP_MS         8
+
 #define INPUT_GEN_MAX_FINGERS            2
 
 /****************************************************************************
@@ -68,60 +75,6 @@ struct input_gen_single_finger_s
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: input_gen_tick_get
- *
- * Description:
- *   Get the current tick count in milliseconds.
- *
- * Returned Value:
- *   The current tick count in milliseconds.
- *
- ****************************************************************************/
-
-static uint32_t input_gen_tick_get(void)
-{
-  struct timespec ts;
-  uint32_t        ms;
-
-  clock_gettime(CLOCK_MONOTONIC, &ts);
-  ms = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
-
-  return ms;
-}
-
-/****************************************************************************
- * Name: input_gen_tick_elapsed
- *
- * Description:
- *   Calculate the elapsed time in milliseconds since the last tick.
- *
- * Input Parameters:
- *   act_time   - The current tick count.
- *   prev_tick  - The previous tick count.
- *
- * Returned Value:
- *   The elapsed time in milliseconds.
- *
- ****************************************************************************/
-
-static uint32_t input_gen_tick_elapsed(uint32_t act_time, uint32_t prev_tick)
-{
-  /* If there is no overflow in sys_time simple subtract */
-
-  if (act_time >= prev_tick)
-    {
-      prev_tick = act_time - prev_tick;
-    }
-  else
-    {
-      prev_tick  = UINT32_MAX - prev_tick + 1;
-      prev_tick += act_time;
-    }
-
-  return prev_tick;
-}
 
 /****************************************************************************
  * Name: input_gen_single_finger
@@ -273,7 +226,7 @@ static int input_gen_motion(input_gen_ctx_t ctx,
                          size_t nfingers)
 {
   FAR struct input_gen_dev_s *dev;
-  uint32_t start;
+  uint32_t vclock;
   int ret;
 
   dev = input_gen_search_dev(ctx, INPUT_GEN_DEV_UTOUCH);
@@ -288,17 +241,39 @@ static int input_gen_motion(input_gen_ctx_t ctx,
       return ret;
     }
 
-  start = input_gen_tick_get();
+  /* Virtual-clock (step-based) interpolation.
+   *
+   * Deriving the interpolated position from wall-clock elapsed time is
+   * unsafe: if this task is preempted for longer than the gesture duration,
+   * the next iteration sees elapsed >= move_duration and jumps straight to
+   * the release frame, collapsing the swipe into DOWN + UP and dropping
+   * every MOVE in between (downstream reads it as a tap, not a scroll).
+   *
+   * Advance a fixed-step virtual clock per emitted frame instead. A stall
+   * then only stretches the gesture's wall-clock duration; it never drops
+   * frames, so the position sequence stays complete and monotonic.
+   */
+
+  vclock = 0;
 
   do
     {
-      uint32_t elapsed = input_gen_tick_elapsed(input_gen_tick_get(), start);
-      ret = input_gen_write_motion(dev->fd, fingers, nfingers, elapsed);
-      if (ret == -EAGAIN && usleep(8 * 1000) < 0)
+      ret = input_gen_write_motion(dev->fd, fingers, nfingers, vclock);
+
+      /* -EAGAIN means the gesture is not finished yet: pace the next frame
+       * and advance the virtual clock by the same step.
+       */
+
+      if (ret == -EAGAIN)
         {
-          nwarn("WARNING: Maybe interrupted by signal\n");
-          input_gen_ungrab(dev);
-          return -errno;
+          if (usleep(INPUT_GEN_MOTION_STEP_MS * 1000) < 0)
+            {
+              nwarn("WARNING: Maybe interrupted by signal\n");
+              input_gen_ungrab(dev);
+              return -errno;
+            }
+
+          vclock += INPUT_GEN_MOTION_STEP_MS;
         }
     }
   while (ret == -EAGAIN);
