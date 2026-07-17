@@ -479,7 +479,10 @@ static void thread_init(FAR struct memorystress_thread_context_s *context,
 FAR void *memorystress_thread(FAR void *arg)
 {
   FAR struct memorystress_global_s *global;
-  struct memorystress_thread_context_s context;
+  struct memorystress_thread_context_s context =
+    {
+      0
+    };
 
   global = (FAR struct memorystress_global_s *)arg;
   thread_init(&context, global);
