@@ -130,6 +130,13 @@ endif
 # Match the ESP-IDF port behavior: LTC_SOURCE is only for libtomcrypt sources.
 $(foreach src,$(TOMCRYPT_SRCS),$(eval $(src)_CFLAGS += ${DEFINE_PREFIX}LTC_SOURCE=1))
 
+# Avoid duplicate symbols when NuttX/apps also provide these APIs.
+# Apply to all dropbear sources so libtomcrypt definitions and dropbear
+# callers (e.g. signkey.c) use the same renamed symbols.
+CFLAGS += ${DEFINE_PREFIX}base64_encode=dropbear_ltc_base64_encode
+CFLAGS += ${DEFINE_PREFIX}base64_decode=dropbear_ltc_base64_decode
+CFLAGS += ${DEFINE_PREFIX}ecc_make_key=dropbear_ltc_ecc_make_key
+
 MAINSRC = dropbear_main.c
 
 ifneq ($(CONFIG_NETUTILS_DROPBEAR_SCP),)
