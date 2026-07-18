@@ -192,8 +192,13 @@ if(CONFIG_NETUTILS_DROPBEAR)
   endif()
 
   target_compile_definitions(
-    ${PROGNAME} PRIVATE LOCALOPTIONS_H_EXISTS=1 DROPBEAR_NUTTX=1
-                        DROPBEAR_NUTTX_PASSWD=1)
+    ${PROGNAME}
+    PRIVATE LOCALOPTIONS_H_EXISTS=1
+            DROPBEAR_NUTTX=1
+            DROPBEAR_NUTTX_PASSWD=1
+            base64_encode=dropbear_ltc_base64_encode
+            base64_decode=dropbear_ltc_base64_decode
+            ecc_make_key=dropbear_ltc_ecc_make_key)
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
     target_compile_definitions(
