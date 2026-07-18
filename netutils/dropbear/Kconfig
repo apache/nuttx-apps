@@ -10,6 +10,8 @@ menuconfig NETUTILS_DROPBEAR
 	depends on !DISABLE_PSEUDOFS_OPERATIONS
 	depends on !DISABLE_PTHREAD
 	depends on SCHED_WAITPID
+	depends on SCHED_HAVE_PARENT
+	depends on SCHED_CHILD_STATUS
 	depends on NSH_LIBRARY
 	depends on FSUTILS_PASSWD
 	depends on PSEUDOTERM
