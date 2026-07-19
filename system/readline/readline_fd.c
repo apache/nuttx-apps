@@ -157,7 +157,21 @@ static void readline_write(FAR struct rl_common_s *vtbl,
                            FAR const char *buffer, size_t buflen)
 {
   FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
-  DEBUGASSERT(priv && buffer && buflen > 0);
+  DEBUGASSERT(priv && buffer);
+
+  /* Several full-line-redraw paths in readline_common.c (Home, End,
+   * Ctrl+A, Ctrl+U, Ctrl+Left/Right, ...) call RL_WRITE(vtbl, buf, nch)
+   * unconditionally after repositioning the cursor, and 'nch' -- the
+   * number of characters currently in the line -- can legitimately be
+   * 0 (e.g. pressing Home on an empty prompt, or Ctrl+U clearing the
+   * line back to empty).  Writing zero bytes is a valid no-op; it must
+   * not be treated as a caller error.
+   */
+
+  if (buflen == 0)
+    {
+      return;
+    }
 
   /* If outfd is a invalid fd, return directly. */
 
