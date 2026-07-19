@@ -1,0 +1,42 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_CURL
+	tristate "curl HTTP command"
+	default n
+	depends on NETUTILS_WEBCLIENT
+	---help---
+		Enable the "curl" command: a small command-line HTTP client
+		supporting GET and POST (and other methods via -X), custom
+		headers (-H), a raw request body (-d, including -d @file) and
+		multipart/form-data file uploads (-F name=@file), built on top
+		of the netutils webclient library. HTTP only (no HTTPS).
+
+if SYSTEM_CURL
+
+config SYSTEM_CURL_PROGNAME
+	string "Program name"
+	default "curl"
+	---help---
+		This is the name of the program that will be used when the
+		NSH ELF program is installed.
+
+config SYSTEM_CURL_PRIORITY
+	int "curl task priority"
+	default 100
+
+config SYSTEM_CURL_STACKSIZE
+	int "curl stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_CURL_BUFFERSIZE
+	int "curl transfer buffer size"
+	default 512
+	---help---
+		Size of the buffer used to hold the request/response headers and
+		to stream body data. It must be large enough to hold the whole
+		request header line and the whole response header.
+
+endif
