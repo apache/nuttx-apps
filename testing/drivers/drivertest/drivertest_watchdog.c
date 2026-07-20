@@ -43,8 +43,11 @@
 #include <stdint.h>
 #include <cmocka.h>
 #include <time.h>
+#include <pthread.h>
 
 #include <nuttx/arch.h>
+#include <nuttx/notifier.h>
+#include <nuttx/nuttx.h>
 #include <nuttx/timers/watchdog.h>
 
 /****************************************************************************
@@ -88,17 +91,54 @@ struct wdg_state_s
   uint32_t deviation;
   int test_case;
   bool test_getstatus;
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
+  sem_t semaphore;
+#endif
+#ifdef CONFIG_WATCHDOG_TIMEOUT_NOTIFIER
+  unsigned int notifier_calls;
+  unsigned long notifier_action[8];
+  FAR void *notifier_data[8];
+  int notifier_id[8];
+#endif
 };
 
-static sem_t g_semaphore;
+#ifdef CONFIG_WATCHDOG_TIMEOUT_NOTIFIER
+
+struct watchdog_notifier_test_nb_s
+{
+  struct notifier_block nb;
+  FAR struct wdg_state_s *state;
+  int                   id;
+};
+
+struct watchdog_notifier_race_s
+{
+  struct notifier_block nb;
+  volatile bool stop;
+  volatile unsigned int callbacks;
+};
+
+#endif
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
+
+/* WDIOC_CAPTURE does not accept a caller-provided callback argument.  Keep
+ * the active test state while the capture handler is installed.
+ */
+
+static FAR struct wdg_state_s *g_capture_test_state;
+
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
 
 /****************************************************************************
  * Name: get_timestamp
@@ -162,6 +202,8 @@ static int wdg_init(FAR struct wdg_state_s *state)
 
   return dev_fd;
 }
+
+#endif /* CONFIG_BOARDCTL_RESET_CAUSE */
 
 /****************************************************************************
  * Name: show_usage
@@ -281,15 +323,205 @@ static void parse_commandline(FAR struct wdg_state_s *wdg_state, int argc,
     }
 }
 
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
+
 /****************************************************************************
  * Name: capture_callback
  ****************************************************************************/
 
 static int capture_callback(int irq, FAR void *context, FAR void *arg)
 {
-  sem_post(&g_semaphore);
+  DEBUGASSERT(g_capture_test_state != NULL);
+  sem_post(&g_capture_test_state->semaphore);
   return OK;
 }
+
+#endif /* CONFIG_BOARDCTL_RESET_CAUSE */
+
+#ifdef CONFIG_WATCHDOG_TIMEOUT_NOTIFIER
+
+static int watchdog_notifier_test_callback(FAR struct notifier_block *nb,
+                                            unsigned long action,
+                                            FAR void *data)
+{
+  FAR struct watchdog_notifier_test_nb_s *test_nb;
+  unsigned int index;
+
+  test_nb = container_of(nb, struct watchdog_notifier_test_nb_s, nb);
+  index = test_nb->state->notifier_calls;
+  if (index < 8)
+    {
+      test_nb->state->notifier_action[index] = action;
+      test_nb->state->notifier_data[index] = data;
+      test_nb->state->notifier_id[index] = test_nb->id;
+    }
+
+  test_nb->state->notifier_calls++;
+  return OK;
+}
+
+static unsigned long watchdog_notifier_test_expected_action(void)
+{
+#if defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_ONESHOT)
+  return WATCHDOG_KEEPALIVE_BY_ONESHOT;
+#elif defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_TIMER)
+  return WATCHDOG_KEEPALIVE_BY_TIMER;
+#elif defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_WDOG)
+  return WATCHDOG_KEEPALIVE_BY_WDOG;
+#elif defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_WORKER)
+  return WATCHDOG_KEEPALIVE_BY_WORKER;
+#elif defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_CAPTURE)
+  return WATCHDOG_KEEPALIVE_BY_CAPTURE;
+#elif defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_IDLE)
+  return WATCHDOG_KEEPALIVE_BY_IDLE;
+#else
+#  error "An automonitor source must be selected"
+#endif
+}
+
+static void drivertest_watchdog_notifier(FAR void **state)
+{
+  FAR struct wdg_state_s *wdg_state = *state;
+
+  struct watchdog_notifier_test_nb_s low =
+  {
+    .nb =
+      {
+        .notifier_call = watchdog_notifier_test_callback,
+        .priority = 10
+      },
+    .state = wdg_state,
+    .id = 1
+  };
+
+  struct watchdog_notifier_test_nb_s high =
+  {
+    .nb =
+      {
+        .notifier_call = watchdog_notifier_test_callback,
+        .priority = 20
+      },
+    .state = wdg_state,
+    .id = 2
+  };
+
+  unsigned long expected_action;
+
+  expected_action = watchdog_notifier_test_expected_action();
+  wdg_state->notifier_calls = 0;
+
+  /* Registration is priority ordered, and duplicate registration of the
+   * same notifier must not result in a duplicate callback.
+   */
+
+  watchdog_notifier_chain_register(&low.nb);
+  watchdog_notifier_chain_register(&low.nb);
+  watchdog_notifier_chain_register(&high.nb);
+
+  watchdog_automonitor_timeout();
+
+  assert_int_equal(wdg_state->notifier_calls, 2);
+  assert_int_equal(wdg_state->notifier_id[0], high.id);
+  assert_int_equal(wdg_state->notifier_id[1], low.id);
+  assert_int_equal(wdg_state->notifier_action[0], expected_action);
+  assert_int_equal(wdg_state->notifier_action[1], expected_action);
+  assert_null(wdg_state->notifier_data[0]);
+  assert_null(wdg_state->notifier_data[1]);
+
+  /* Every timeout notification is delivered to all currently registered
+   * callbacks.
+   */
+
+  watchdog_automonitor_timeout();
+  assert_int_equal(wdg_state->notifier_calls, 4);
+  assert_int_equal(wdg_state->notifier_id[2], high.id);
+  assert_int_equal(wdg_state->notifier_id[3], low.id);
+
+  /* Unregistering one callback removes only that callback. */
+
+  watchdog_notifier_chain_unregister(&high.nb);
+  watchdog_automonitor_timeout();
+  assert_int_equal(wdg_state->notifier_calls, 5);
+  assert_int_equal(wdg_state->notifier_id[4], low.id);
+
+  watchdog_notifier_chain_unregister(&low.nb);
+  watchdog_automonitor_timeout();
+  assert_int_equal(wdg_state->notifier_calls, 5);
+}
+
+static int watchdog_notifier_race_callback(FAR struct notifier_block *nb,
+                                            unsigned long action,
+                                            FAR void *data)
+{
+  FAR struct watchdog_notifier_race_s *race;
+
+  race = container_of(nb, struct watchdog_notifier_race_s, nb);
+  UNUSED(action);
+  UNUSED(data);
+  race->callbacks++;
+  return OK;
+}
+
+static FAR void *watchdog_notifier_race_worker(FAR void *arg)
+{
+  FAR struct watchdog_notifier_race_s *race = arg;
+  unsigned int count;
+
+  for (count = 0; count < 2000 && !race->stop; count++)
+    {
+      watchdog_notifier_chain_register(&race->nb);
+      watchdog_automonitor_timeout();
+      watchdog_notifier_chain_unregister(&race->nb);
+    }
+
+  return NULL;
+}
+
+static void drivertest_watchdog_notifier_race(FAR void **state)
+{
+  struct watchdog_notifier_race_s race =
+    {
+      .nb =
+        {
+          .notifier_call = watchdog_notifier_race_callback,
+          .priority = 10
+        }
+    };
+
+  pthread_t thread;
+  unsigned int count;
+  int ret;
+
+  UNUSED(state);
+  watchdog_notifier_chain_register(&race.nb);
+  ret = pthread_create(&thread, NULL, watchdog_notifier_race_worker, &race);
+  assert_int_equal(ret, 0);
+  usleep(1000);
+
+  /* Interleave timeout delivery with registration and unregistration from
+   * another task.  The test is successful if the notifier chain remains
+   * usable and continues to invoke the callback.
+   */
+
+  for (count = 0; count < 2000; count++)
+    {
+      watchdog_automonitor_timeout();
+      if ((count & 0x3f) == 0)
+        {
+          usleep(1000);
+        }
+    }
+
+  race.stop = true;
+  ret = pthread_join(thread, NULL);
+  assert_int_equal(ret, 0);
+  watchdog_notifier_chain_unregister(&race.nb);
+  assert_true(race.callbacks > 0);
+}
+
+#endif /* CONFIG_WATCHDOG_TIMEOUT_NOTIFIER */
+
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
 
 /****************************************************************************
  * Name: drivertest_watchdog_feeding
@@ -493,9 +725,10 @@ static void drivertest_watchdog_api(FAR void **state)
 
   /* Test capture. */
 
-  ret = sem_init(&g_semaphore, 0, 0);
+  ret = sem_init(&wdg_state->semaphore, 0, 0);
   assert_return_code(ret, OK);
 
+  g_capture_test_state = wdg_state;
   watchdog_capture.newhandler = capture_callback;
   ret = ioctl(dev_fd, WDIOC_CAPTURE, &watchdog_capture);
   assert_return_code(ret, OK);
@@ -504,12 +737,14 @@ static void drivertest_watchdog_api(FAR void **state)
 
   up_udelay(2 * wdg_state->timeout * 1000);
 
-  sem_wait(&g_semaphore);
-  sem_destroy(&g_semaphore);
+  sem_wait(&wdg_state->semaphore);
 
   watchdog_capture.newhandler = watchdog_capture.oldhandler;
   ret = ioctl(dev_fd, WDIOC_CAPTURE, &watchdog_capture);
   assert_return_code(ret, OK);
+  g_capture_test_state = NULL;
+
+  sem_destroy(&wdg_state->semaphore);
 
   /* Then stop pinging */
 
@@ -519,6 +754,8 @@ static void drivertest_watchdog_api(FAR void **state)
   ret = close(dev_fd);
   assert_return_code(ret, OK);
 }
+
+#endif /* CONFIG_BOARDCTL_RESET_CAUSE */
 
 /****************************************************************************
  * Public Functions
@@ -545,11 +782,18 @@ int main(int argc, FAR char *argv[])
 
   const struct CMUnitTest tests[] =
   {
+#ifdef CONFIG_BOARDCTL_RESET_CAUSE
     cmocka_unit_test_prestate(drivertest_watchdog_feeding, &wdg_state),
     cmocka_unit_test_prestate(drivertest_watchdog_interrupts, &wdg_state),
     cmocka_unit_test_prestate(drivertest_watchdog_loop, &wdg_state),
 #if !defined(CONFIG_ARCH_ARMV7A) || !defined(CONFIG_ARCH_HAVE_TRUSTZONE)
-    cmocka_unit_test_prestate(drivertest_watchdog_api, &wdg_state)
+    cmocka_unit_test_prestate(drivertest_watchdog_api, &wdg_state),
+#endif
+#endif
+
+#ifdef CONFIG_WATCHDOG_TIMEOUT_NOTIFIER
+    cmocka_unit_test_prestate(drivertest_watchdog_notifier, &wdg_state),
+    cmocka_unit_test_prestate(drivertest_watchdog_notifier_race, &wdg_state)
 #endif
   };
 
