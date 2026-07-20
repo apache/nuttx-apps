@@ -62,7 +62,7 @@ endif
 endif
 
 ifneq ($(CONFIG_WATCHDOG),)
-ifneq ($(CONFIG_BOARDCTL_RESET_CAUSE),)
+ifneq ($(CONFIG_BOARDCTL_RESET_CAUSE)$(CONFIG_WATCHDOG_TIMEOUT_NOTIFIER),)
 MAINSRC  += drivertest_watchdog.c
 PROGNAME += cmocka_driver_watchdog
 endif

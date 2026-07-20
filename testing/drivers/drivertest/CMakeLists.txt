@@ -119,7 +119,8 @@ if(CONFIG_TESTING_DRIVER_TEST)
       drivertest_posix_timer.c)
   endif()
 
-  if(CONFIG_WATCHDOG AND CONFIG_BOARDCTL_RESET_CAUSE)
+  if(CONFIG_WATCHDOG AND (CONFIG_BOARDCTL_RESET_CAUSE
+                          OR CONFIG_WATCHDOG_TIMEOUT_NOTIFIER))
     nuttx_add_application(
       NAME
       cmocka_driver_watchdog
