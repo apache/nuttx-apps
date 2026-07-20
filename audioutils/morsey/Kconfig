@@ -1,0 +1,6 @@
+config AUDIOUTILS_MORSEY
+	bool "Morse code playing library"
+	default n
+	---help---
+		Simple library for parsing ASCII text into playable Morse code. Not
+		necessarily restricted to audio.
