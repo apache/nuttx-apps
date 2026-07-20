@@ -21,5 +21,13 @@
 # ##############################################################################
 
 if(CONFIG_NETUTILS_REXECD)
-  nuttx_add_application(NAME rexecd SRCS rexecd.c)
+  nuttx_add_application(
+    NAME
+    rexecd
+    SRCS
+    rexecd.c
+    STACKSIZE
+    ${CONFIG_NETUTILS_REXECD_STACKSIZE}
+    PRIORITY
+    ${CONFIG_NETUTILS_REXECD_PRIORITY})
 endif()
