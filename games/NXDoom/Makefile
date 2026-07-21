@@ -198,6 +198,12 @@ CSRCS += $(DOOMSRCDIR)/s_sound.c
 CSRCS += $(DOOMSRCDIR)/deh_sound.c
 endif
 
+# If we have chosen RTTTL music, then add that source
+
+ifeq ($(CONFIG_GAMES_NXDOOM_RTTTL_MUSIC),y)
+CSRCS += $(COMMONSRCDIR)/i_rtttl_music.c
+endif
+
 MAINSRC  = $(COMMONSRCDIR)/i_main.c
 
 include $(APPDIR)/Application.mk

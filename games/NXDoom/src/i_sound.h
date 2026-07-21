@@ -266,11 +266,13 @@ extern int snd_pitchshift;
 extern int use_libsamplerate;
 extern float libsamplerate_scale;
 
-extern const sound_module_t sound_sdl_module;
 extern const sound_module_t sound_pcsound_module;
-extern const music_module_t music_sdl_module;
+
 extern const music_module_t music_pack_module;
-extern const music_module_t music_fl_module;
+
+#ifdef CONFIG_GAMES_NXDOOM_RTTTL_MUSIC
+extern const music_module_t g_rtttl_music_module;
+#endif
 
 /* For native music module: */
 
