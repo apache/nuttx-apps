@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TXMORSE
+	tristate "txmorse (Morse code transmitter)"
+	default n
+	depends on AUDIOUTILS_MORSEY
+	---help---
+		Enable the Morse code transmission example.
+
+if EXAMPLES_TXMORSE
+
+config EXAMPLES_TXMORSE_PROGNAME
+	string "Program name"
+	default "txmorse"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_TXMORSE_PRIORITY
+	int "txmorse task priority"
+	default 100
+
+config EXAMPLES_TXMORSE_STACKSIZE
+	int "txmorse stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
