@@ -118,10 +118,13 @@ static const sound_module_t *sound_modules[] =
 
 /* Compiled-in music modules: */
 
-static const music_module_t *music_modules[] =
+static const music_module_t *g_music_modules[] =
 {
 #if 0
     &music_opl_module,
+#endif
+#ifdef CONFIG_GAMES_NXDOOM_RTTTL_MUSIC
+    &g_rtttl_music_module,
 #endif
     NULL,
 };
@@ -186,21 +189,21 @@ static void init_music_module(void)
 
   music_module = NULL;
 
-  for (i = 0; music_modules[i] != NULL; ++i)
+  for (i = 0; g_music_modules[i] != NULL; ++i)
     {
       /* Is the music device in the list of devices supported
        * by this module?
        */
 
       if (snd_device_in_list(snd_musicdevice,
-                             music_modules[i]->sound_devices,
-                             music_modules[i]->num_sound_devices))
+                             g_music_modules[i]->sound_devices,
+                             g_music_modules[i]->num_sound_devices))
         {
           /* initialize the module */
 
-          if (music_modules[i]->init())
+          if (g_music_modules[i]->init())
             {
-              music_module = music_modules[i];
+              music_module = g_music_modules[i];
               return;
             }
         }
@@ -239,7 +242,10 @@ static void check_volume_separation(int *vol, int *sep)
 
 void i_init_sound(gamemission_t mission)
 {
-  boolean nosound, nosfx, nomusic, nomusicpacks;
+  boolean nosound;
+  boolean nosfx;
+  boolean nomusic;
+  boolean nomusicpacks;
 
   /* @vanilla
    *
@@ -401,6 +407,7 @@ void i_precache_sounds(sfxinfo_t *sounds, int num_sounds)
 
 void i_init_music(void)
 {
+    printf("i_init_music: Music initialized\n");
 }
 
 void i_shutdown_music(void)
@@ -479,6 +486,7 @@ void i_unregister_song(void *handle)
 
 void i_play_song(void *handle, boolean looping)
 {
+    printf("i_play_song: Playing on %p\n", active_music_module);
   if (active_music_module != NULL)
     {
       active_music_module->play_song(handle, looping);

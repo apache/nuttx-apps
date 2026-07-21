@@ -107,6 +107,25 @@ config GAMES_NXDOOM_SOUND
 	---help---
 		Not ported! Will not work.
 
+if GAMES_NXDOOM_SOUND
+
+config GAMES_NXDOOM_RTTTL_MUSIC
+	bool "RTTTL music"
+	default n
+	depends on AUDIOUTILS_RTTTL_C
+	depends on !DISABLE_PTHREAD
+	---help---
+		Play music using RTTTL.
+
+config GAMES_NXDOOM_RTTTL_DEVICE
+	string "RTTTL device"
+	default "/dev/pwm0"
+	depends on GAMES_NXDOOM_RTTTL_MUSIC
+	---help---
+		Device for RTTTL output (only PWM currently supported).
+
+endif # GAMES_NXDOOM_SOUND
+
 comment "Graphics options"
 
 config GAMES_NXDOOM_FBPATH
