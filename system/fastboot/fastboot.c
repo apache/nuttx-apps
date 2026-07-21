@@ -1362,7 +1362,7 @@ static ssize_t fastboot_read_all(int fd, FAR void *buf, size_t len)
   size_t total = 0;
   ssize_t nread;
 
-  while (total < len)
+  while (len > 0)
     {
       nread = fastboot_read(fd, buf, len);
       if (nread <= 0)
@@ -1375,6 +1375,8 @@ static ssize_t fastboot_read_all(int fd, FAR void *buf, size_t len)
           break;
         }
 
+      buf = (FAR char *)buf + nread;
+      len -= nread;
       total += nread;
     }
 
