@@ -33,10 +33,10 @@ MICROWINDOWS_DIR_NAME = microwindows
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-MICROWINDOWS_COMMIT_HASH := 7a2ff57052d8663cbca4863709a8ee75bf9fa0c2
+MICROWINDOWS_COMMIT_HASH := e30d29befae5ae418d64c5b409dad87b3e77d7ba
 
 #CONFIG_GRAPH_MICROWINDOWS_URL ?= "https://codeload.github.com/ghaerr/microwindows/zip/refs/heads/master"
-CONFIG_GRAPH_MICROWINDOWS_URL ?= https://codeload.github.com/ghaerr/microwindows/zip/$(MICROWINDOWS_COMMIT_HASH)
+CONFIG_GRAPH_MICROWINDOWS_URL ?= https://codeload.github.com/acfboy/microwindows/zip/$(MICROWINDOWS_COMMIT_HASH)
 
 MICROWINDOWS_TARBALL := microwindows-$(MICROWINDOWS_COMMIT_HASH).zip
 
@@ -71,16 +71,27 @@ CFLAGS += -Wno-undef
 CFLAGS += -Wno-shadow
 
 MW_DIR_OBJ = $(WD)/$(MICROWINDOWS_DIR_NAME)/src
-MW_LOCAL_DIR := mwin-local
+
+# Select NuttX drivers via Microwindows Objects.rules
+ARCH = NUTTX
+
+ifeq ($(CONFIG_MICROWINDOWS_KBD_EVENT),y)
+KEYBOARD = NUTTXKBD
+else ifeq ($(CONFIG_MICROWINDOWS_KBD_RAW),y)
+KEYBOARD = NUTTXRAWKBD
+endif
+
+ifeq ($(CONFIG_MICROWINDOWS_MOUSE_RELATIVE),y)
+MOUSE = NUTTXMOUSE
+else ifeq ($(CONFIG_MICROWINDOWS_MOUSE_TS),y)
+MOUSE = NUTTXTOUCH
+endif
 
 -include microwindows/src/engine/Objects.rules
 -include microwindows/src/drivers/Objects.rules
 -include microwindows/src/fonts/Objects.rules
 
 CSRCS += $(MW_CORE_OBJS:%.o=%.c)
-CSRCS += $(MW_LOCAL_DIR)/scr_nuttx.c
-CSRCS += $(MW_LOCAL_DIR)/mou_nuttx.c
-CSRCS += $(MW_LOCAL_DIR)/kbd_nuttx.c
 
 ifneq ($(CONFIG_EXAMPLES_MICROWINDOWS),)
 

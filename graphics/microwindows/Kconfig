@@ -8,3 +8,84 @@ menuconfig GRAPHICS_MICROWINDOWS
 	default n
 	---help---
 		Enable Microwindows or the Nano-X Window System
+
+if GRAPHICS_MICROWINDOWS
+
+config MICROWINDOWS_FB_PATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+	---help---
+		Path to the NuttX framebuffer device.
+
+choice
+	prompt "Keyboard driver"
+	default MICROWINDOWS_KBD_EVENT
+	---help---
+		Select the keyboard input driver for Microwindows.
+
+config MICROWINDOWS_KBD_EVENT
+	bool "Event-mode keyboard driver"
+	---help---
+		Reads keyboard_event_s events from a NuttX keyboard device
+		(e.g., /dev/kbd).  Supports key press/release tracking and
+		modifier keys (Shift, Ctrl, Alt).
+
+config MICROWINDOWS_KBD_RAW
+	bool "Raw-mode keyboard driver"
+	depends on LIBC_KBDCODEC
+	---help---
+		Reads raw byte stream from a character device (e.g., /dev/kbda)
+		and decodes escape sequences via the kbd_codec library.  Suitable
+		for USB HID keyboards on QEMU.
+
+endchoice
+
+config MICROWINDOWS_KBD_EVENT_PATH
+	string "Event keyboard device path"
+	default "/dev/kbd"
+	depends on MICROWINDOWS_KBD_EVENT
+	---help---
+		Device path for the event-mode keyboard driver.
+
+config MICROWINDOWS_KBD_RAW_PATH
+	string "Raw keyboard device path"
+	default "/dev/kbda"
+	depends on MICROWINDOWS_KBD_RAW
+	---help---
+		Device path for the raw-mode keyboard driver.
+
+choice
+	prompt "Mouse/touchscreen driver"
+	default MICROWINDOWS_MOUSE_RELATIVE
+	---help---
+		Select the pointing device driver for Microwindows.
+
+config MICROWINDOWS_MOUSE_RELATIVE
+	bool "Relative mouse driver"
+	---help---
+		Reads mouse_report_s events from a NuttX mouse device
+		(e.g., /dev/mouse0).  Supports three buttons and scroll wheel.
+
+config MICROWINDOWS_MOUSE_TS
+	bool "Touchscreen driver"
+	---help---
+		Reads touch_sample_s events from a NuttX touchscreen device
+		(e.g., /dev/input0).  Supports absolute positioning.
+
+endchoice
+
+config MICROWINDOWS_MOUSE_PATH
+	string "Mouse device path"
+	default "/dev/mouse0"
+	depends on MICROWINDOWS_MOUSE_RELATIVE
+	---help---
+		Device path for the relative mouse driver.
+
+config MICROWINDOWS_TS_PATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	depends on MICROWINDOWS_MOUSE_TS
+	---help---
+		Device path for the touchscreen driver.
+
+endif # GRAPHICS_MICROWINDOWS
