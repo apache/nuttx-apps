@@ -302,6 +302,9 @@ static int pkg_metadata_parse_installed_entry(
 {
   FAR cJSON *field;
   FAR const char *value;
+  bool current_found = false;
+  bool previous_found = false;
+  size_t i;
   int ret;
 
   memset(entry, 0, sizeof(*entry));
@@ -364,6 +367,31 @@ static int pkg_metadata_parse_installed_entry(
   if (ret < 0)
     {
       return ret;
+    }
+
+  if (!pkg_validate_path_component(entry->name) ||
+      !pkg_validate_path_component(entry->current) ||
+      (entry->previous[0] != '\0' &&
+       !pkg_validate_path_component(entry->previous)))
+    {
+      return -EINVAL;
+    }
+
+  for (i = 0; i < entry->version_count; i++)
+    {
+      if (!pkg_validate_path_component(entry->versions[i]))
+        {
+          return -EINVAL;
+        }
+
+      current_found |= strcmp(entry->versions[i], entry->current) == 0;
+      previous_found |= strcmp(entry->versions[i], entry->previous) == 0;
+    }
+
+  if (!current_found ||
+      (entry->previous[0] != '\0' && !previous_found))
+    {
+      return -EINVAL;
     }
 
   return 0;
@@ -638,6 +666,36 @@ int pkg_metadata_load_index(FAR struct pkg_index_s *index)
     }
 
   return pkg_metadata_load_index_path(path, index);
+}
+
+int pkg_metadata_load_manifest_path(FAR const char *path,
+                                    FAR struct pkg_manifest_s *manifest)
+{
+  FAR cJSON *root;
+  FAR char *text;
+  int ret;
+
+  if (path == NULL || manifest == NULL)
+    {
+      return -EINVAL;
+    }
+
+  ret = pkg_store_read_text(path, &text);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  root = cJSON_Parse(text);
+  pkg_free(text);
+  if (root == NULL)
+    {
+      return -EINVAL;
+    }
+
+  ret = pkg_metadata_parse_manifest(root, manifest);
+  cJSON_Delete(root);
+  return ret;
 }
 
 FAR const struct pkg_manifest_s *

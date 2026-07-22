@@ -35,8 +35,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <nuttx/kmalloc.h>
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -58,14 +56,9 @@
 #define PKG_CATEGORY_MAX      31
 #define PKG_HASH_HEX_LEN      64
 /* Each manifest slot is ~1.7KB (dominated by PKG_LAUNCH_ARGS_MAX slots).
- * This used to be 6 to fit inside a static internal-DRAM array, but the
- * catalog outgrew that once it held every real GSoC package (calc, the
- * four games, NXDoom, and the original examples) - system/nxstore/
- * nxstore_main.c now heap-allocates its struct pkg_index_s g_index via
- * pkg_zalloc(), which draws from the PSRAM-backed user heap on this board
- * (CONFIG_ESP32S3_SPIRAM_USER_HEAP) instead of internal DRAM, so this can
- * grow without the same pressure.  Still not unbounded: keep it sized for
- * "a real catalog", not arbitrary attacker-controlled growth.
+ * Keep the catalog bounded so repository-provided metadata cannot cause
+ * unbounded memory use.  Callers should allocate struct pkg_index_s from
+ * the application heap rather than placing it on a small task stack.
  */
 
 #define PKG_INDEX_MAX         16
@@ -99,72 +92,22 @@
 
 static inline void *pkg_malloc(size_t size)
 {
-  void *ptr = malloc(size);
-
-  if (ptr == NULL)
-    {
-      ptr = kmm_malloc(size);
-    }
-
-  return ptr;
+  return malloc(size);
 }
 
 static inline void *pkg_zalloc(size_t size)
 {
-  void *ptr = calloc(1, size);
-
-  if (ptr == NULL)
-    {
-      ptr = kmm_zalloc(size);
-    }
-
-  return ptr;
+  return calloc(1, size);
 }
 
 static inline void *pkg_realloc(void *ptr, size_t size)
 {
-  if (ptr == NULL)
-    {
-      return pkg_malloc(size);
-    }
-
-  if (size == 0)
-    {
-      if (kmm_heapmember(ptr))
-        {
-          kmm_free(ptr);
-        }
-      else
-        {
-          free(ptr);
-        }
-
-      return NULL;
-    }
-
-  if (kmm_heapmember(ptr))
-    {
-      return kmm_realloc(ptr, size);
-    }
-
   return realloc(ptr, size);
 }
 
 static inline void pkg_free(void *ptr)
 {
-  if (ptr == NULL)
-    {
-      return;
-    }
-
-  if (kmm_heapmember(ptr))
-    {
-      kmm_free(ptr);
-    }
-  else
-    {
-      free(ptr);
-    }
+  free(ptr);
 }
 
 static inline FAR char *pkg_path_alloc(void)
@@ -241,6 +184,7 @@ struct pkg_installed_db_s
 
 const char *pkg_manifest_type_str(enum pkg_payload_type_e type);
 int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest);
+bool pkg_validate_path_component(FAR const char *value);
 int pkg_manifest_parse_type(FAR const char *value,
                             FAR enum pkg_payload_type_e *type);
 
@@ -291,6 +235,8 @@ int pkg_hash_file_sha256(FAR const char *path,
 int pkg_metadata_load_index_path(FAR const char *path,
                                  FAR struct pkg_index_s *index);
 int pkg_metadata_load_index(FAR struct pkg_index_s *index);
+int pkg_metadata_load_manifest_path(FAR const char *path,
+                                    FAR struct pkg_manifest_s *manifest);
 FAR const struct pkg_manifest_s *
 pkg_metadata_find_latest(FAR const struct pkg_index_s *index,
                          FAR const char *name);

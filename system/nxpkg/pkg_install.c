@@ -561,14 +561,35 @@ int pkg_install(FAR const char *name)
       goto errout;
     }
 
+  ret = pkg_store_format_version_path(payload, PATH_MAX, manifest->name,
+                                      manifest->version);
+  if (ret < 0)
+    {
+      pkg_error("version path format failed: %d", ret);
+      goto errout;
+    }
+
+  if (access(payload, F_OK) == 0)
+    {
+      version_dir_created = false;
+    }
+  else if (errno == ENOENT)
+    {
+      version_dir_created = true;
+    }
+  else
+    {
+      ret = -errno;
+      pkg_error("unable to inspect version directory: %d", ret);
+      goto errout;
+    }
+
   ret = pkg_store_ensure_version_dir(manifest->name, manifest->version);
   if (ret < 0)
     {
       pkg_error("ensure version dir failed: %d", ret);
       goto errout;
     }
-
-  version_dir_created = true;
 
   ret = pkg_store_format_payload_path(payload, PATH_MAX,
                                       manifest->name, manifest->version,
@@ -653,18 +674,22 @@ int pkg_install(FAR const char *name)
       goto errout;
     }
 
-  ret = pkg_install_write_pointers(installed, manifest->name);
-  if (ret < 0)
-    {
-      pkg_error("write current/previous pointers failed: %d", ret);
-      goto errout;
-    }
-
   ret = pkg_metadata_save_installed(installed);
   if (ret < 0)
     {
       pkg_error("save installed metadata failed: %d", ret);
       goto errout;
+    }
+
+  ret = pkg_install_write_pointers(installed, manifest->name);
+  if (ret < 0)
+    {
+      /* The installed database is authoritative.  The pointer files are
+       * convenience mirrors and can be reconstructed from it, so failure
+       * to refresh one must not roll back a durably committed install.
+       */
+
+      pkg_error("unable to refresh current/previous pointers: %d", ret);
     }
 
   pkg_store_remove_file(installed_lock);
@@ -673,8 +698,13 @@ int pkg_install(FAR const char *name)
   ret = pkg_txn_write_state(name, PKG_TXN_ACTIVATED);
   if (ret < 0)
     {
+      /* The installed database has already been committed.  Do not enter
+       * the failure cleanup path here: it could remove a payload referenced
+       * by that database.  Transaction state is recovery bookkeeping and
+       * can be cleared below.
+       */
+
       pkg_error("txn state activated failed: %d", ret);
-      goto errout;
     }
 
   pkg_txn_write_state(name, PKG_TXN_CLEANUP);
@@ -811,15 +841,17 @@ int pkg_uninstall(FAR const char *name)
 {
   FAR struct pkg_installed_db_s *db;
   FAR struct pkg_installed_entry_s *entry;
+  struct pkg_installed_entry_s removed;
   char path[PATH_MAX];
+  char package_lock[PATH_MAX];
   char installed_lock[PATH_MAX];
   size_t index;
   size_t i;
   int ret;
 
-  if (name == NULL || name[0] == '\0')
+  if (!pkg_validate_path_component(name))
     {
-      pkg_error("remove requires a package name");
+      pkg_error("remove requires a valid package name");
       return EXIT_FAILURE;
     }
 
@@ -838,10 +870,19 @@ int pkg_uninstall(FAR const char *name)
       return EXIT_FAILURE;
     }
 
+  ret = pkg_install_acquire_lock(name, package_lock, sizeof(package_lock));
+  if (ret < 0)
+    {
+      pkg_free(db);
+      pkg_error("unable to acquire package lock for '%s': %d", name, ret);
+      return EXIT_FAILURE;
+    }
+
   ret = pkg_install_acquire_installed_lock(installed_lock,
                                            sizeof(installed_lock));
   if (ret < 0)
     {
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to acquire installed-db lock: %d", ret);
       return EXIT_FAILURE;
@@ -851,6 +892,7 @@ int pkg_uninstall(FAR const char *name)
   if (ret < 0)
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to load installed metadata: %d", ret);
       return EXIT_FAILURE;
@@ -860,34 +902,18 @@ int pkg_uninstall(FAR const char *name)
   if (entry == NULL)
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("package '%s' is not installed", name);
       return EXIT_FAILURE;
     }
 
-  if (pkg_store_format_lock_path(path, sizeof(path), name) == 0 &&
-      access(path, F_OK) == 0)
-    {
-      pkg_store_remove_file(installed_lock);
-      pkg_free(db);
-      pkg_error("package '%s' has an install/update in progress", name);
-      return EXIT_FAILURE;
-    }
-
-  for (i = 0; i < entry->version_count; i++)
-    {
-      pkg_store_remove_version_dir(name, entry->versions[i]);
-    }
-
-  if (pkg_store_format_txn_path(path, sizeof(path), name) == 0)
-    {
-      pkg_store_remove_file(path);
-    }
-
-  /* Drop this entry from the in-memory db (shift the tail down over it)
-   * and persist before touching any more of the on-disk layout.
+  /* Drop this entry from the authoritative database before removing its
+   * payloads.  A power loss can then leave reclaimable orphan files, but
+   * never a database entry that points at a payload already deleted.
    */
 
+  removed = *entry;
   index = (size_t)(entry - db->entries);
   for (i = index; i + 1 < db->count; i++)
     {
@@ -900,9 +926,20 @@ int pkg_uninstall(FAR const char *name)
   pkg_store_remove_file(installed_lock);
   if (ret < 0)
     {
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to save installed metadata: %d", ret);
       return EXIT_FAILURE;
+    }
+
+  for (i = 0; i < removed.version_count; i++)
+    {
+      pkg_store_remove_version_dir(name, removed.versions[i]);
+    }
+
+  if (pkg_store_format_txn_path(path, sizeof(path), name) == 0)
+    {
+      pkg_store_remove_file(path);
     }
 
   if (pkg_store_format_current_path(path, sizeof(path), name) == 0)
@@ -914,6 +951,8 @@ int pkg_uninstall(FAR const char *name)
     {
       pkg_store_remove_file(path);
     }
+
+  pkg_store_remove_file(package_lock);
 
   if (pkg_store_format_package_root(path, sizeof(path), name) == 0)
     {
@@ -942,15 +981,15 @@ int pkg_rollback(FAR const char *name)
   FAR struct pkg_installed_db_s *db;
   FAR struct pkg_installed_entry_s *entry;
   char version_path[PATH_MAX];
-  char lock_path[PATH_MAX];
+  char package_lock[PATH_MAX];
   char installed_lock[PATH_MAX];
   char swap[PKG_VERSION_MAX + 1];
   struct stat st;
   int ret;
 
-  if (name == NULL || name[0] == '\0')
+  if (!pkg_validate_path_component(name))
     {
-      pkg_error("rollback requires a package name");
+      pkg_error("rollback requires a valid package name");
       return EXIT_FAILURE;
     }
 
@@ -969,10 +1008,19 @@ int pkg_rollback(FAR const char *name)
       return EXIT_FAILURE;
     }
 
+  ret = pkg_install_acquire_lock(name, package_lock, sizeof(package_lock));
+  if (ret < 0)
+    {
+      pkg_free(db);
+      pkg_error("unable to acquire package lock for '%s': %d", name, ret);
+      return EXIT_FAILURE;
+    }
+
   ret = pkg_install_acquire_installed_lock(installed_lock,
                                            sizeof(installed_lock));
   if (ret < 0)
     {
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to acquire installed-db lock: %d", ret);
       return EXIT_FAILURE;
@@ -982,6 +1030,7 @@ int pkg_rollback(FAR const char *name)
   if (ret < 0)
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to load installed metadata: %d", ret);
       return EXIT_FAILURE;
@@ -991,6 +1040,7 @@ int pkg_rollback(FAR const char *name)
   if (entry == NULL)
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("package '%s' is not installed", name);
       return EXIT_FAILURE;
@@ -999,18 +1049,10 @@ int pkg_rollback(FAR const char *name)
   if (entry->previous[0] == '\0')
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("package '%s' has no previous version to roll back to",
                 name);
-      return EXIT_FAILURE;
-    }
-
-  if (pkg_store_format_lock_path(lock_path, sizeof(lock_path), name) == 0 &&
-      access(lock_path, F_OK) == 0)
-    {
-      pkg_store_remove_file(installed_lock);
-      pkg_free(db);
-      pkg_error("package '%s' has an install/update in progress", name);
       return EXIT_FAILURE;
     }
 
@@ -1019,6 +1061,7 @@ int pkg_rollback(FAR const char *name)
   if (ret < 0 || stat(version_path, &st) < 0)
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("rollback target version '%s' is missing on disk",
                 entry->previous);
@@ -1029,6 +1072,7 @@ int pkg_rollback(FAR const char *name)
   if (ret < 0 || (size_t)ret >= sizeof(swap))
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("current version string too long to swap");
       return EXIT_FAILURE;
@@ -1039,6 +1083,7 @@ int pkg_rollback(FAR const char *name)
   if (ret < 0 || (size_t)ret >= sizeof(entry->current))
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to update current version");
       return EXIT_FAILURE;
@@ -1048,33 +1093,33 @@ int pkg_rollback(FAR const char *name)
   if (ret < 0 || (size_t)ret >= sizeof(entry->previous))
     {
       pkg_store_remove_file(installed_lock);
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to update previous version");
       return EXIT_FAILURE;
     }
 
-  /* Persist the pointer-file swap and the db entry together, in that
-   * order, before releasing anything - a crash between these two writes
-   * still leaves "current" resolving to the (now rolled-back-to) version
-   * that's actually on disk, which is the side that must win.
+  /* The installed database is authoritative, so commit it first.  Refresh
+   * the current/previous pointer files afterwards as convenience mirrors;
+   * they can be reconstructed from the database if either write fails.
    */
 
-  ret = pkg_install_write_pointers(db, name);
+  ret = pkg_metadata_save_installed(db);
   if (ret < 0)
     {
       pkg_store_remove_file(installed_lock);
-      pkg_free(db);
-      pkg_error("unable to write current/previous pointers: %d", ret);
-      return EXIT_FAILURE;
-    }
-
-  ret = pkg_metadata_save_installed(db);
-  pkg_store_remove_file(installed_lock);
-  if (ret < 0)
-    {
+      pkg_store_remove_file(package_lock);
       pkg_free(db);
       pkg_error("unable to save installed metadata: %d", ret);
       return EXIT_FAILURE;
+    }
+
+  ret = pkg_install_write_pointers(db, name);
+  pkg_store_remove_file(installed_lock);
+  pkg_store_remove_file(package_lock);
+  if (ret < 0)
+    {
+      pkg_error("unable to refresh current/previous pointers: %d", ret);
     }
 
   pkg_info("rolled back %s to version %s", name, entry->current);

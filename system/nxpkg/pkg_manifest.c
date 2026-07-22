@@ -75,6 +75,10 @@ static bool pkg_validate_hex(FAR const char *value)
 }
 
 /****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
  * Name: pkg_validate_path_component
  *
  * Description:
@@ -88,7 +92,7 @@ static bool pkg_validate_hex(FAR const char *value)
  *
  ****************************************************************************/
 
-static bool pkg_validate_path_component(FAR const char *value)
+bool pkg_validate_path_component(FAR const char *value)
 {
   FAR const char *p;
 
@@ -116,10 +120,6 @@ static bool pkg_validate_path_component(FAR const char *value)
 
   return true;
 }
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
 
 const char *pkg_manifest_type_str(enum pkg_payload_type_e type)
 {

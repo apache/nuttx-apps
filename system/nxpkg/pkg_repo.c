@@ -229,6 +229,11 @@ static int pkg_repo_sink(FAR char **buffer, int offset, int datend,
           return -errno;
         }
 
+      if (nwritten == 0)
+        {
+          return -EIO;
+        }
+
       cursor += nwritten;
       remaining -= (size_t)nwritten;
     }
@@ -404,7 +409,7 @@ int pkg_sync(FAR const char *source)
   if (source == NULL || source[0] == '\0')
     {
       pkg_error("sync requires a non-empty index source");
-      return EXIT_FAILURE;
+      return -EINVAL;
     }
 
   index = pkg_zalloc(sizeof(*index));
@@ -419,7 +424,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to allocate index metadata buffer");
-      return EXIT_FAILURE;
+      return -ENOMEM;
     }
 
   ret = pkg_store_prepare_layout();
@@ -430,10 +435,16 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return EXIT_FAILURE;
+      return ret;
     }
 
-  ret = snprintf(tmp, PATH_MAX, "%s/idxsync.jsn", PKG_TMP_DIR);
+  /* Each CLI invocation has its own PID.  Use it in the staging name so a
+   * manual sync cannot truncate the file being validated by nxstore (or a
+   * second shell).  Keep the leaf short for short-name-only FAT mounts.
+   */
+
+  ret = snprintf(tmp, PATH_MAX, "%s/s%u.jsn", PKG_TMP_DIR,
+                 (unsigned int)getpid());
   if (ret < 0 || (size_t)ret >= PATH_MAX)
     {
       pkg_error("temporary sync path is too long");
@@ -441,7 +452,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return EXIT_FAILURE;
+      return -ENAMETOOLONG;
     }
 
   ret = pkg_acquire_source(source, tmp);
@@ -452,7 +463,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   ret = pkg_metadata_load_index_path(tmp, index);
@@ -464,7 +475,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   ret = pkg_store_read_text(tmp, &text);
@@ -476,7 +487,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   ret = pkg_store_format_index_path(index_path, PATH_MAX);
@@ -489,7 +500,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to resolve local index path: %d", ret);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   ret = pkg_store_write_text_atomic(index_path, text);
@@ -502,7 +513,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to write local index: %d", ret);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   ret = pkg_store_format_repo_source_path(source_path, PATH_MAX);
@@ -515,7 +526,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to resolve repository source path: %d", ret);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   ret = pkg_store_write_text_atomic(source_path, source);
@@ -528,7 +539,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to save repository source: %d", ret);
-      return EXIT_FAILURE;
+      return ret;
     }
 
   pkg_store_remove_file(tmp);
@@ -538,7 +549,7 @@ int pkg_sync(FAR const char *source)
   pkg_free(index_path);
   pkg_free(source_path);
   pkg_info("synced package index from %s", source);
-  return EXIT_SUCCESS;
+  return 0;
 }
 
 int pkg_available(FAR FILE *stream)

@@ -31,11 +31,13 @@ config SYSTEM_NXPKG_STACKSIZE
 
 config SYSTEM_NXPKG_ROOT
 	string "'nxpkg' storage root"
-	default "/tmp/nxpkg"
+	default "/var/lib/nxpkg"
 	---help---
 		Base directory used by nxpkg for its local index, installed
 		metadata, temporary downloads, and package payload storage.
-		Boards with external storage can point this to a persistent
-		location such as /mnt/sdcard/nxpkg.
+		The default follows the conventional persistent application-data
+		location.  A board must mount persistent storage at /var or set
+		this to another persistent location, such as /mnt/sdcard/nxpkg,
+		if packages need to survive a reset.
 
 endif

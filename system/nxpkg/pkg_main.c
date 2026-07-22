@@ -162,7 +162,7 @@ int main(int argc, FAR char *argv[])
           return EXIT_FAILURE;
         }
 
-      return pkg_sync(argv[2]);
+      return pkg_sync(argv[2]) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
   fprintf(stderr, "ERROR: Unknown subcommand '%s'\n", cmd);

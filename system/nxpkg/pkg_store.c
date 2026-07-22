@@ -146,6 +146,11 @@ static int pkg_store_write_all(int fd, FAR const char *buffer, size_t length)
           return -errno;
         }
 
+      if (ret == 0)
+        {
+          return -EIO;
+        }
+
       offset += (size_t)ret;
     }
 
