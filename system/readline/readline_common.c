@@ -73,8 +73,15 @@ struct cmdhist_s
 static const char g_erasetoeol[] = VT100_CLEAREOL;
 #endif
 #ifdef CONFIG_READLINE_EDIT
-static const char g_curleft[]  = {ASCII_ESC, '[', 'D'};
-static const char g_curright[] = {ASCII_ESC, '[', 'C'};
+static const char g_curleft[]  =
+                                  {
+                                    ASCII_ESC, '[', 'D'
+                                  };
+
+static const char g_curright[] =
+                                  {
+                                    ASCII_ESC, '[', 'C'
+                                  };
 #endif
 
 #ifdef CONFIG_READLINE_EDIT_EMACS
@@ -94,15 +101,20 @@ static const char g_curright[] = {ASCII_ESC, '[', 'C'};
 #  endif
 #endif
 
-#ifdef CONFIG_READLINE_TABCOMPLETION
-/* Prompt string to present at the beginning of the line */
+#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
+/* Prompt string to present at the beginning of the line.  Needed by tab
+ * completion (to reprint the prompt after listing multiple matches) and
+ * by line editing's full-line redraws (Home, End, history recall, ...),
+ * so this is available whenever either feature is enabled, not just
+ * when both are.
+ */
 
 static FAR const char *g_readline_prompt = NULL;
+#endif
 
-#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
 static FAR const struct extmatch_vtable_s *g_extmatch_vtbl = NULL;
 #endif
-#endif /* CONFIG_READLINE_TABCOMPLETION */
 
 #ifdef CONFIG_READLINE_CMD_HISTORY
 static struct cmdhist_s g_cmdhist;
@@ -559,7 +571,6 @@ static void redraw_line(FAR struct rl_common_s *vtbl, FAR const char *buf,
   RL_PUTC(vtbl, '\r');
   RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
 
-#ifdef CONFIG_READLINE_TABCOMPLETION
   if (g_readline_prompt != NULL)
     {
       for (i = 0; g_readline_prompt[i] != '\0'; i++)
@@ -567,7 +578,6 @@ static void redraw_line(FAR struct rl_common_s *vtbl, FAR const char *buf,
           RL_PUTC(vtbl, g_readline_prompt[i]);
         }
     }
-#endif
 
   if (nch > 0)
     {
@@ -731,8 +741,9 @@ static ssize_t submit_line(FAR char *buf, int nch)
  *
  *   If a prompt string is used by the application, then the application
  *   must provide the prompt string to readline() by calling this function.
- *   This is needed only for tab completion in cases where is it necessary
- *   to reprint the prompt string.
+ *   This is needed for tab completion, and for line editing's full-line
+ *   redraws (Home, End, history recall, ...), in cases where it is
+ *   necessary to reprint the prompt string.
  *
  * Input Parameters:
  *   prompt    - The prompt string. This function may then be
@@ -751,7 +762,7 @@ static ssize_t submit_line(FAR char *buf, int nch)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_READLINE_TABCOMPLETION
+#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
 FAR const char *readline_prompt(FAR const char *prompt)
 {
   FAR const char *ret = g_readline_prompt;
@@ -1188,7 +1199,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 #ifdef CONFIG_READLINE_ECHO
                   RL_PUTC(vtbl, '\r');
                   RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-#ifdef CONFIG_READLINE_TABCOMPLETION
+#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
                   if (g_readline_prompt != NULL)
                     {
                       int k;
