@@ -158,6 +158,36 @@ static int count_builtin_matches(FAR char *buf, FAR int *matches,
 }
 #endif
 
+#if defined(CONFIG_READLINE_TABCOMPLETION) && \
+    (defined(CONFIG_BUILTIN) || defined(CONFIG_READLINE_HAVE_EXTMATCH))
+static void tab_print_match(FAR struct rl_common_s *vtbl,
+                             FAR const char *name, FAR char *tmp_name,
+                             size_t tmp_size)
+{
+  size_t j;
+
+  if (tmp_name[0] == '\0')
+    {
+      strlcpy(tmp_name, name, tmp_size);
+    }
+
+  RL_PUTC(vtbl, ' ');
+  RL_PUTC(vtbl, ' ');
+
+  for (j = 0; j < strlen(name); j++)
+    {
+      if (j < tmp_size && name[j] != tmp_name[j])
+        {
+          tmp_name[j] = '\0';
+        }
+
+      RL_PUTC(vtbl, name[j]);
+    }
+
+  RL_PUTC(vtbl, '\n');
+}
+#endif
+
 /****************************************************************************
  * Name: tab_completion
  *
@@ -303,32 +333,7 @@ static bool tab_completion(FAR struct rl_common_s *vtbl, char *buf,
           for (i = 0; i < nr_ext_matches; i++)
             {
               name = g_extmatch_vtbl->getname(ext_matches[i]);
-
-              /* Initialize temp */
-
-              if (tmp_name[0] == '\0')
-                {
-                  strlcpy(tmp_name, name, sizeof(tmp_name));
-                }
-
-              RL_PUTC(vtbl, ' ');
-              RL_PUTC(vtbl, ' ');
-
-              for (j = 0; j < (int)strlen(name); j++)
-                {
-                  /* Removing characters that aren't common to all the
-                   * matches.
-                   */
-
-                  if (j < (int)sizeof(tmp_name) && name[j] != tmp_name[j])
-                    {
-                      tmp_name[j] = '\0';
-                    }
-
-                  RL_PUTC(vtbl, name[j]);
-                }
-
-              RL_PUTC(vtbl, '\n');
+              tab_print_match(vtbl, name, tmp_name, sizeof(tmp_name));
             }
 #endif
 
@@ -338,32 +343,7 @@ static bool tab_completion(FAR struct rl_common_s *vtbl, char *buf,
           for (i = 0; i < nr_builtin_matches; i++)
             {
               name = builtin_getname(builtin_matches[i]);
-
-              /* Initialize temp */
-
-              if (tmp_name[0] == '\0')
-                {
-                  strlcpy(tmp_name, name, sizeof(tmp_name));
-                }
-
-              RL_PUTC(vtbl, ' ');
-              RL_PUTC(vtbl, ' ');
-
-              for (j = 0; j < strlen(name); j++)
-                {
-                  /* Removing characters that aren't common to all the
-                   * matches.
-                   */
-
-                  if (j < sizeof(tmp_name) && name[j] != tmp_name[j])
-                    {
-                      tmp_name[j] = '\0';
-                    }
-
-                  RL_PUTC(vtbl, name[j]);
-                }
-
-              RL_PUTC(vtbl, '\n');
+              tab_print_match(vtbl, name, tmp_name, sizeof(tmp_name));
             }
 
 #endif
@@ -515,6 +495,41 @@ static bool isearch_find(FAR const char *search, int searchlen,
 }
 #endif
 
+#ifdef CONFIG_READLINE_EDIT
+/****************************************************************************
+ * Name: word_skip
+ *
+ * Description:
+ *   Used by Ctrl+Left/Ctrl+Right.  Starting from 'cursor', skip over any
+ *   run of spaces then the following word (or, going backward, the
+ *   preceding word then any run of spaces before it), stopping at
+ *   'bound' (0 going backward, 'nch' going forward).  Returns the new
+ *   cursor position.
+ *
+ ****************************************************************************/
+
+static int word_skip(FAR const char *buf, int cursor, int bound,
+                      bool forward)
+{
+  if (forward)
+    {
+      while (cursor < bound && buf[cursor] != ' ')
+        cursor++;
+      while (cursor < bound && buf[cursor] == ' ')
+        cursor++;
+    }
+  else
+    {
+      while (cursor > bound && buf[cursor - 1] == ' ')
+        cursor--;
+      while (cursor > bound && buf[cursor - 1] != ' ')
+        cursor--;
+    }
+
+  return cursor;
+}
+#endif
+
 #ifdef CONFIG_READLINE_ECHO
 #ifdef CONFIG_READLINE_EDIT
 /****************************************************************************
@@ -562,6 +577,38 @@ static void redraw_line(FAR struct rl_common_s *vtbl, FAR const char *buf,
   for (i = nch; i > cursor; i--)
     {
       RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
+    }
+}
+
+/****************************************************************************
+ * Name: redraw_tail
+ *
+ * Description:
+ *   Redraw just the tail of the line, from 'cursor' to 'nch': erase to
+ *   the end of line, rewrite whatever remains after the cursor (if
+ *   any), then move the cursor back left to where it started.  This is
+ *   the shared tail end of every edit that only changes content at or
+ *   after the cursor without moving it (Delete, Backspace, Ctrl+D,
+ *   Ctrl+W, inserting a character) -- unlike redraw_line(), it does
+ *   not touch the prompt or anything before the cursor, since none of
+ *   those callers need to.
+ *
+ ****************************************************************************/
+
+static void redraw_tail(FAR struct rl_common_s *vtbl, FAR const char *buf,
+                         int nch, int cursor)
+{
+  int j;
+
+  RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
+
+  if (cursor < nch)
+    {
+      RL_WRITE(vtbl, buf + cursor, nch - cursor);
+      for (j = nch; j > cursor; j--)
+        {
+          RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
+        }
     }
 }
 #endif /* CONFIG_READLINE_EDIT */
@@ -994,13 +1041,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                   /* Back up 1 — terminal echo of '~' advanced cursor */
 
                   RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-                  RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-                  if (cursor < nch)
-                    {
-                      RL_WRITE(vtbl, buf + cursor, nch - cursor);
-                      for (k = nch; k > cursor; k--)
-                        RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-                    }
+                  redraw_tail(vtbl, buf, nch, cursor);
 #  endif
                 }
               continue;
@@ -1052,20 +1093,12 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
               if (ch == 'D')        /* Ctrl+Left */
                 {
-                  while (cursor > 0 && buf[cursor - 1] == ' ')
-                    cursor--;
-                  while (cursor > 0 && buf[cursor - 1] != ' ')
-                    cursor--;
-
+                  cursor = word_skip(buf, cursor, 0, false);
                   redraw_line(vtbl, buf, nch, cursor);
                 }
               else if (ch == 'C')   /* Ctrl+Right */
                 {
-                  while (cursor < nch && buf[cursor] != ' ')
-                    cursor++;
-                  while (cursor < nch && buf[cursor] == ' ')
-                    cursor++;
-
+                  cursor = word_skip(buf, cursor, nch, true);
                   redraw_line(vtbl, buf, nch, cursor);
                 }
 
@@ -1312,13 +1345,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               /* Redraw: backspace, clear EOL, redraw tail, restore cursor */
 
               RL_PUTC(vtbl, ASCII_BS);
-              RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-              if (cursor < nch)
-                {
-                  RL_WRITE(vtbl, buf + cursor, nch - cursor);
-                  for (k = nch; k > cursor; k--)
-                    RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-                }
+              redraw_tail(vtbl, buf, nch, cursor);
 #  endif
             }
 #else
@@ -1377,13 +1404,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               for (k = cursor + 1; k < nch; k++)
                 buf[k - 1] = buf[k];
               nch--;
-              RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-              if (cursor < nch)
-                {
-                  RL_WRITE(vtbl, buf + cursor, nch - cursor);
-                  for (k = nch; k > cursor; k--)
-                    RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-                }
+              redraw_tail(vtbl, buf, nch, cursor);
             }
         }
       else if (ch == CTRL_E)            /* Ctrl+E = End */
@@ -1421,23 +1442,13 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
       else if (ch == CTRL_W)           /* Ctrl+W = Kill word backward (FIXME) */
         {
           int start, k;
-          start = cursor;
-          while (start > 0 && buf[start - 1] == ' ')
-            start--;
-          while (start > 0 && buf[start - 1] != ' ')
-            start--;
+          start = word_skip(buf, cursor, 0, false);
           for (k = start; k < nch; k++)
             buf[k - (cursor - start)] = buf[k];
           nch -= (cursor - start);
           cursor = start;
           buf[nch] = '\0';
-          RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-          if (cursor < nch)
-            {
-              RL_WRITE(vtbl, buf + cursor, nch - cursor);
-              for (k = nch; k > cursor; k--)
-                RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-            }
+          redraw_tail(vtbl, buf, nch, cursor);
         }
 
 #ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
@@ -1507,13 +1518,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               for (j = nch; j > cursor; j--) buf[j] = buf[j - 1];
               buf[cursor] = (char)ch; nch++; cursor++;
 #  ifdef CONFIG_READLINE_ECHO
-              if (cursor < nch)
-                {
-                  RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-                  RL_WRITE(vtbl, buf + cursor, nch - cursor);
-                  for (j = nch; j > cursor; j--)
-                    RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-                }
+              redraw_tail(vtbl, buf, nch, cursor);
 #  endif
             }
 #else
