@@ -57,6 +57,15 @@ void d_doom_main(void);
 
 int main(int argc, char **argv)
 {
+  /* Lets nxstore (or any other supervisor) ask this process to exit
+   * cleanly via SIGTERM instead of the only other option being a forced
+   * task_delete() from outside - see i_system.h/i_system.c for why that
+   * matters on this board (a forced kill mid framebuffer/heap access was
+   * observed to hang the whole system, not just this task).
+   */
+
+  i_install_quit_signal();
+
   /* save arguments */
 
   myargc = argc;
