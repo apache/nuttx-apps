@@ -1818,7 +1818,7 @@ static void build_app_store_ui(FAR const char *repo_url)
    * screen - it was previously locked down entirely (matching scr
    * above) because a noisy touch driver could turn a tap into an
    * accidental scroll drag.  That protection actually lives at the
-   * indev level (lv_indev_set_scroll_limit(255)/scroll_throw(0) in
+   * indev level (lv_indev_set_scroll_limit(20)/scroll_throw(0) in
    * main() - a real drag has to travel much further than any touch
    * jitter before a scroll starts at all), so it's safe to leave this
    * SCROLLABLE and still get that protection; only vertical dragging is
