@@ -544,7 +544,6 @@ int pkg_acquire_source(FAR const char *source, FAR const char *dest,
 
 static int pkg_repo_acquire_sync_lock(FAR char *path, size_t size)
 {
-  int fd;
   int ret;
   int tries;
 
@@ -561,16 +560,15 @@ static int pkg_repo_acquire_sync_lock(FAR char *path, size_t size)
 
   for (tries = 0; tries < 100; tries++)
     {
-      fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
-      if (fd >= 0)
+      ret = pkg_lock_create(path);
+      if (ret == 0)
         {
-          close(fd);
           return 0;
         }
 
-      if (errno != EEXIST)
+      if (ret != -EEXIST)
         {
-          return -errno;
+          return ret;
         }
 
       pkg_reclaim_stale_lock(path);

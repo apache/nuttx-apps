@@ -27,6 +27,10 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
+#include <pthread.h>
+#include <signal.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -37,8 +41,82 @@
 #include "pkg.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define PKG_LOCK_RECORD_MAGIC "NXPKG1"
+#define PKG_LOCK_RECORD_SIZE  64
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static pthread_once_t g_pkg_lock_boot_once = PTHREAD_ONCE_INIT;
+static uint64_t g_pkg_lock_boot_id;
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static void pkg_lock_init_boot_id(void)
+{
+  arc4random_buf(&g_pkg_lock_boot_id, sizeof(g_pkg_lock_boot_id));
+  if (g_pkg_lock_boot_id == 0)
+    {
+      g_pkg_lock_boot_id = 1;
+    }
+}
+
+static uint64_t pkg_lock_get_boot_id(void)
+{
+  if (pthread_once(&g_pkg_lock_boot_once, pkg_lock_init_boot_id) != 0)
+    {
+      return 1;
+    }
+
+  return g_pkg_lock_boot_id;
+}
+
+static int pkg_lock_read_owner(FAR const char *path,
+                               FAR uint64_t *boot_id,
+                               FAR pid_t *owner)
+{
+  char record[PKG_LOCK_RECORD_SIZE];
+  unsigned long long parsed_boot;
+  long parsed_owner;
+  ssize_t nread;
+  int fd;
+  int ret;
+
+  fd = open(path, O_RDONLY);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  nread = read(fd, record, sizeof(record) - 1);
+  if (nread < 0)
+    {
+      ret = -errno;
+      close(fd);
+      return ret;
+    }
+
+  close(fd);
+  record[nread] = '\0';
+
+  ret = sscanf(record, PKG_LOCK_RECORD_MAGIC " %llx %ld",
+               &parsed_boot, &parsed_owner);
+  if (ret != 2 || parsed_owner <= 0 ||
+      (long)(pid_t)parsed_owner != parsed_owner)
+    {
+      return -EINVAL;
+    }
+
+  *boot_id = (uint64_t)parsed_boot;
+  *owner = (pid_t)parsed_owner;
+  return 0;
+}
 
 static int pkg_store_format(FAR char *buffer, size_t size,
                             FAR const char *fmt,
@@ -192,6 +270,119 @@ int pkg_store_prepare_layout(void)
     }
 
   return pkg_store_mkdirs(PKG_TMP_PKG_DIR);
+}
+
+int pkg_lock_create(FAR const char *path)
+{
+  char record[PKG_LOCK_RECORD_SIZE];
+  int fd;
+  int ret;
+
+  fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  ret = snprintf(record, sizeof(record), PKG_LOCK_RECORD_MAGIC
+                 " %016" PRIx64 " %ld\n",
+                 pkg_lock_get_boot_id(), (long)getpid());
+  if (ret < 0 || (size_t)ret >= sizeof(record))
+    {
+      ret = ret < 0 ? ret : -ENAMETOOLONG;
+      goto errout;
+    }
+
+  ret = pkg_store_write_all(fd, record, (size_t)ret);
+  if (ret < 0)
+    {
+      goto errout;
+    }
+
+  if (fsync(fd) < 0)
+    {
+      ret = -errno;
+      goto errout;
+    }
+
+  if (close(fd) < 0)
+    {
+      ret = -errno;
+      unlink(path);
+      return ret;
+    }
+
+  return 0;
+
+errout:
+  close(fd);
+  unlink(path);
+  return ret;
+}
+
+void pkg_reclaim_stale_lock(FAR const char *path)
+{
+  struct stat st;
+  uint64_t boot_id;
+  pid_t owner;
+  time_t now;
+  int ret;
+
+  ret = pkg_lock_read_owner(path, &boot_id, &owner);
+  if (ret == -EINVAL)
+    {
+      /* A creator may have completed open(O_EXCL) but not its first write.
+       * Give that very small window time to close before treating the file
+       * as a legacy timestamp-only lock.
+       */
+
+      usleep(20 * 1000);
+      ret = pkg_lock_read_owner(path, &boot_id, &owner);
+    }
+
+  if (ret == 0)
+    {
+      if (boot_id != pkg_lock_get_boot_id())
+        {
+          pkg_error("reclaiming lock from an earlier boot '%s'", path);
+          unlink(path);
+          return;
+        }
+
+      if (kill(owner, 0) == 0 || errno == EPERM)
+        {
+          return;
+        }
+
+      if (errno == ESRCH)
+        {
+          pkg_error("reclaiming lock from exited task %ld '%s'",
+                    (long)owner, path);
+          unlink(path);
+        }
+
+      return;
+    }
+
+  /* Compatibility for empty lock files created by older nxpkg images.
+   * Their only ownership information is the filesystem timestamp.
+   */
+
+  if (stat(path, &st) < 0)
+    {
+      return;
+    }
+
+  now = time(NULL);
+  if (now < st.st_mtime ||
+      (now - st.st_mtime) < PKG_LOCK_STALE_SECONDS)
+    {
+      return;
+    }
+
+  pkg_error("reclaiming legacy stale lock '%s' (age %ld s)",
+            path, (long)(now - st.st_mtime));
+  unlink(path);
 }
 
 int pkg_store_ensure_package_root(FAR const char *name)

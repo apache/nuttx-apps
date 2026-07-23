@@ -25,13 +25,11 @@
  ****************************************************************************/
 
 #include <errno.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <time.h>
 #include <unistd.h>
 
 #include "pkg.h"
@@ -43,7 +41,6 @@
 static int pkg_install_acquire_lock(FAR const char *name, FAR char *path,
                                     size_t size)
 {
-  int fd;
   int ret;
 
   ret = pkg_store_ensure_package_root(name);
@@ -58,20 +55,14 @@ static int pkg_install_acquire_lock(FAR const char *name, FAR char *path,
       return ret;
     }
 
-  fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
-  if (fd < 0 && errno == EEXIST)
+  ret = pkg_lock_create(path);
+  if (ret == -EEXIST)
     {
       pkg_reclaim_stale_lock(path);
-      fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
+      ret = pkg_lock_create(path);
     }
 
-  if (fd < 0)
-    {
-      return errno == EEXIST ? -EBUSY : -errno;
-    }
-
-  close(fd);
-  return 0;
+  return ret == -EEXIST ? -EBUSY : ret;
 }
 
 /****************************************************************************
@@ -85,7 +76,6 @@ static int pkg_install_acquire_lock(FAR const char *name, FAR char *path,
 
 static int pkg_install_acquire_installed_lock(FAR char *path, size_t size)
 {
-  int fd;
   int ret;
   int tries;
 
@@ -102,16 +92,15 @@ static int pkg_install_acquire_installed_lock(FAR char *path, size_t size)
 
   for (tries = 0; tries < 100; tries++)
     {
-      fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
-      if (fd >= 0)
+      ret = pkg_lock_create(path);
+      if (ret == 0)
         {
-          close(fd);
           return 0;
         }
 
-      if (errno != EEXIST)
+      if (ret != -EEXIST)
         {
-          return -errno;
+          return ret;
         }
 
       pkg_reclaim_stale_lock(path);
@@ -336,42 +325,6 @@ out:
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: pkg_reclaim_stale_lock
- *
- * Description:
- *   Remove "path" if it is old enough that it cannot belong to a still-
- *   running holder (see PKG_LOCK_STALE_SECONDS).  Best-effort: any
- *   stat()/unlink() failure just falls through to the normal -EBUSY
- *   result, since a lock we can't inspect should be treated as held.
- *   Generic across every lock file this package uses (per-package
- *   install locks, the shared installed-db lock, pkg_repo.c's sync
- *   lock) - not install-specific despite living in this file.
- *
- ****************************************************************************/
-
-void pkg_reclaim_stale_lock(FAR const char *path)
-{
-  struct stat st;
-  time_t now;
-
-  if (stat(path, &st) < 0)
-    {
-      return;
-    }
-
-  now = time(NULL);
-  if (now < st.st_mtime ||
-      (now - st.st_mtime) < PKG_LOCK_STALE_SECONDS)
-    {
-      return;
-    }
-
-  pkg_error("reclaiming stale lock '%s' (age %ld s)",
-            path, (long)(now - st.st_mtime));
-  unlink(path);
-}
 
 int pkg_install(FAR const char *name)
 {
