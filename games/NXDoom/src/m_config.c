@@ -2082,6 +2082,7 @@ static void load_default_collection(default_collection_t *collection)
   default_t *def;
   char defname[80];
   char strparm[100];
+  char line[256];
 
   /* read the file in, overriding any set defaults */
 
@@ -2096,51 +2097,28 @@ static void load_default_collection(default_collection_t *collection)
       return;
     }
 
-  for (; ; )
+  while (fgets(line, sizeof(line), f) != NULL)
     {
-      int nmatched;
-      long before;
-
       strparm[0] = '\0';
 
-      /* Checking feof() to decide whether to keep looping (rather than
-       * acting on fscanf()'s own return value) is the classic C bug: on
-       * a config file whose bytes don't line up with "%s %[^\n]\n" at
-       * all - e.g. leftover binary/corrupted content from a previous
-       * write - fscanf() can fail a conversion without the stream ever
-       * reaching EOF, and feof() has no way to know that.  That left
-       * this loop spinning forever parsing nothing, which is exactly
-       * what made a corrupted default.cfg hang the whole game at
-       * startup instead of just skipping the bad file.
-       *
-       * Terminating off EOF/error from fscanf() itself closes the
-       * common case, but a failed conversion is only guaranteed to
-       * consume nothing - it is not guaranteed to have advanced the
-       * stream either, so a byte sequence that never matches "%s" but
-       * also never reports EOF/error could still spin without making
-       * progress.  Track the file position directly and force one
-       * byte of forward progress (or bail out) if a scan attempt
-       * didn't move it, so corrupt/binary content can only ever cost
-       * one pass over the file, never an infinite loop.
+      /* Parse one physical line at a time.  fscanf() with whitespace in
+       * its format can consume the next line as a missing value.
        */
 
-      before = ftell(f);
-      nmatched = fscanf(f, "%79s %99[^\n]\n", defname, strparm);
-
-      if (nmatched == EOF)
+      if (strchr(line, '\n') == NULL &&
+          strlen(line) == sizeof(line) - 1)
         {
-          break;
-        }
+          int ch;
 
-      if (nmatched < 1)
-        {
-          if (ftell(f) == before && fgetc(f) == EOF)
+          while ((ch = fgetc(f)) != '\n' && ch != EOF)
             {
-              break;
             }
 
-          /* This line doesn't match */
+          continue;
+        }
 
+      if (sscanf(line, "%79s %99[^\n]", defname, strparm) != 2)
+        {
           continue;
         }
 
@@ -2174,14 +2152,6 @@ static void load_default_collection(default_collection_t *collection)
           strparm[strlen(strparm) - 1] = '\0';
           memmove(strparm, strparm + 1, sizeof(strparm) - 1);
         }
-
-      /* A line with a name but no (or an unparsable) value - e.g. a
-       * config file left truncated by an unclean shutdown mid-write -
-       * must not silently override this variable's compiled-in default
-       * with a bogus zero/empty value.  This is what let a corrupted
-       * "screenblocks" line (empty value) through as screenblocks=0,
-       * which fed a divide-by-zero straight into the renderer.
-       */
 
       if (strparm[0] == '\0')
         {
