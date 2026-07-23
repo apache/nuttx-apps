@@ -451,12 +451,14 @@ visplane_t *r_check_plane(visplane_t *pl, int start, int stop)
 
   /* make a new visplane */
 
+  if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
+    {
+      i_error("r_check_plane: no more visplanes");
+    }
+
   lastvisplane->height = pl->height;
   lastvisplane->picnum = pl->picnum;
   lastvisplane->lightlevel = pl->lightlevel;
-
-  if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
-    i_error("r_check_plane: no more visplanes");
 
   pl = lastvisplane++;
   pl->minx = start;
