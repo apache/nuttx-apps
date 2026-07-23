@@ -125,6 +125,28 @@ int telnetd_daemon(FAR const struct telnetd_config_s *config)
       goto errout;
     }
 
+  /* If the daemon was started without standard streams (e.g. spawned by
+   * nsh_telnetstart() before a USB console device exists), socket() may
+   * have returned a descriptor in 0..2.  The "go silent"
+   * close(0)..close(2) at the top of the accept loop below would then
+   * destroy the listen socket: every subsequent accept4() fails and the
+   * daemon serves nothing.  Move the descriptor above the
+   * standard-stream range.
+   */
+
+  if (listensd <= 2)
+    {
+      int highsd = fcntl(listensd, F_DUPFD_CLOEXEC, 3);
+      if (highsd < 0)
+        {
+          nerr("ERROR: F_DUPFD_CLOEXEC failed: %d\n", errno);
+          goto errout_with_socket;
+        }
+
+      close(listensd);
+      listensd = highsd;
+    }
+
 #ifdef CONFIG_NET_SOCKOPTS
   /* Set socket to reuse address */
 
