@@ -772,6 +772,22 @@ void i_init_graphics(void)
       i_error("ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno);
     }
 
+  /* Depth alone is not enough: several incompatible pixel layouts use 16
+   * or 32 bits.  The conversion in blit_screen() emits RGB565 or RGB32.
+   */
+
+  if ((g_graphics_state.pinfo.bpp == 16 &&
+       g_graphics_state.vinfo.fmt != FB_FMT_RGB16_565) ||
+      (g_graphics_state.pinfo.bpp == 32 &&
+       g_graphics_state.vinfo.fmt != FB_FMT_RGB32) ||
+      (g_graphics_state.pinfo.bpp != 16 &&
+       g_graphics_state.pinfo.bpp != 32))
+    {
+      i_error("Unsupported framebuffer format: fmt=%u, bpp=%u",
+              g_graphics_state.vinfo.fmt,
+              g_graphics_state.pinfo.bpp);
+    }
+
   /* Initialize frame buffer memory for actual rendering */
 
   g_graphics_state.fbmem =
