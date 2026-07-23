@@ -1856,6 +1856,239 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
 
 /****************************************************************************
+ * Name: du_print
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_DU
+#define DU_FLAG_HUMANREADABLE (1 << 0)  /* -h: human readable sizes */
+#define DU_FLAG_ALL           (1 << 1)  /* -a: list all files, not only dirs */
+
+static void du_print(FAR struct nsh_vtbl_s *vtbl, FAR const char *path,
+                     off_t bytes, unsigned int flags)
+{
+  off_t kblocks = (bytes + 1023) / 1024;
+
+  if ((flags & DU_FLAG_HUMANREADABLE) != 0)
+    {
+      off_t unit;
+      char suffix;
+
+      if (bytes >= GB)
+        {
+          unit = GB;
+          suffix = 'G';
+        }
+      else if (bytes >= MB)
+        {
+          unit = MB;
+          suffix = 'M';
+        }
+      else if (bytes >= KB)
+        {
+          unit = KB;
+          suffix = 'K';
+        }
+      else
+        {
+          nsh_output(vtbl, "%" PRIdOFF "B\t%s\n", bytes, path);
+          return;
+        }
+
+      /* Use integer arithmetic to avoid floating point */
+
+      nsh_output(vtbl, "%" PRIdOFF ".%" PRIdOFF "%c\t%s\n",
+                 bytes / unit, (bytes % unit) * 10 / unit, suffix, path);
+    }
+  else
+    {
+      nsh_output(vtbl, "%" PRIdOFF "\t%s\n", kblocks, path);
+    }
+}
+
+static off_t du_recursive(FAR struct nsh_vtbl_s *vtbl, FAR const char *path,
+                          unsigned int flags, int printlimit, int depth)
+{
+  FAR struct dirent *entry;
+  FAR char *child;
+  struct stat st;
+  off_t total;
+  DIR *dp;
+
+  if (lstat(path, &st) < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "du", "stat", NSH_ERRNO);
+      return 0;
+    }
+
+  /* st_size not st_blocks: units differ (NuttX FS=st_blksize, hostfs=512) */
+
+  total = st.st_size;
+
+  /* A file argument (depth 0) is always shown; nested files need -a. */
+
+  if (!S_ISDIR(st.st_mode))
+    {
+      if (depth == 0 ||
+          ((flags & DU_FLAG_ALL) != 0 && depth <= printlimit))
+        {
+          du_print(vtbl, path, total, flags);
+        }
+
+      return total;
+    }
+
+  dp = opendir(path);
+  if (dp == NULL)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, "du", "opendir", NSH_ERRNO);
+    }
+  else
+    {
+      while ((entry = readdir(dp)) != NULL)
+        {
+          if (strcmp(entry->d_name, ".") == 0 ||
+              strcmp(entry->d_name, "..") == 0)
+            {
+              continue;
+            }
+
+          child = nsh_getdirpath(vtbl, path, entry->d_name);
+          if (child == NULL)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, "du", "nsh_getdirpath",
+                        NSH_ERRNO);
+              continue;
+            }
+
+          total += du_recursive(vtbl, child, flags, printlimit, depth + 1);
+          free(child);
+        }
+
+      closedir(dp);
+    }
+
+  /* Print this directory's cumulative total unless suppressed by -s/-d. */
+
+  if (depth <= printlimit)
+    {
+      du_print(vtbl, path, total, flags);
+    }
+
+  return total;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_du
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_DU
+int cmd_du(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  unsigned int flags = 0;
+  int printlimit = INT_MAX;
+  bool summary = false;
+  bool badarg = false;
+  int option;
+  int i;
+  int ret = OK;
+
+  /* Get the du options */
+
+  while ((option = getopt(argc, argv, "hsad:")) != ERROR)
+    {
+      switch (option)
+        {
+          case 'h':
+            flags |= DU_FLAG_HUMANREADABLE;
+            break;
+
+          case 's':
+            summary = true;
+            break;
+
+          case 'a':
+            flags |= DU_FLAG_ALL;
+            break;
+
+          case 'd':
+            printlimit = atoi(optarg);
+            break;
+
+          case '?':
+          default:
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
+        }
+    }
+
+  /* If a bad argument was encountered,
+   * then return without processing the command
+   */
+
+  if (badarg)
+    {
+      return ERROR;
+    }
+
+  /* -s reports only each argument's own total (depth 0); -d N overrides -s
+   * when both are given. -s also suppresses the -a file listing.
+   */
+
+  if (summary)
+    {
+      if (printlimit == INT_MAX)
+        {
+          printlimit = 0;
+        }
+
+      flags &= ~DU_FLAG_ALL;
+    }
+
+  /* Walk each path argument (default: current directory). */
+
+  if (optind >= argc)
+    {
+#ifndef CONFIG_DISABLE_ENVIRON
+      FAR char *fullpath = nsh_getfullpath(vtbl, nsh_getcwd(vtbl));
+
+      if (fullpath == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
+          return ERROR;
+        }
+
+      du_recursive(vtbl, fullpath, flags, printlimit, 0);
+      nsh_freefullpath(fullpath);
+#else
+      nsh_error(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+#endif
+    }
+  else
+    {
+      for (i = optind; i < argc; i++)
+        {
+          FAR char *fullpath = nsh_getfullpath(vtbl, argv[i]);
+
+          if (fullpath == NULL)
+            {
+              nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
+              ret = ERROR;
+              continue;
+            }
+
+          du_recursive(vtbl, fullpath, flags, printlimit, 0);
+          nsh_freefullpath(fullpath);
+        }
+    }
+
+  return ret;
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_mkdir
  ****************************************************************************/
 
