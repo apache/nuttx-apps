@@ -1982,16 +1982,14 @@ static void save_default_collection(default_collection_t *collection)
  *
  ****************************************************************************/
 
-static int parse_int_parameter(const char *strparm)
+static int parse_int_parameter(const char *strparm, int *param)
 {
-  int param;
-
   if (strparm[0] == '0' && strparm[1] == 'x')
-    sscanf(strparm + 2, "%x", (unsigned int *)&param);
-  else
-    sscanf(strparm, "%i", &param);
+    {
+      return sscanf(strparm + 2, "%x", (unsigned int *)param) == 1;
+    }
 
-  return param;
+  return sscanf(strparm, "%i", param) == 1;
 }
 
 static void set_variable(default_t *def, const char *value)
@@ -2008,7 +2006,11 @@ static void set_variable(default_t *def, const char *value)
 
     case DEFAULT_INT:
     case DEFAULT_INT_HEX:
-      *def->location.i = parse_int_parameter(value);
+      if (parse_int_parameter(value, &intparm))
+        {
+          *def->location.i = intparm;
+        }
+
       break;
 
     case DEFAULT_KEY:
@@ -2017,7 +2019,11 @@ static void set_variable(default_t *def, const char *value)
        * file (save the old value in untranslated)
        */
 
-      intparm = parse_int_parameter(value);
+      if (!parse_int_parameter(value, &intparm))
+        {
+          break;
+        }
+
       def->untranslated = intparm;
       if (intparm >= 0 && intparm < 128)
         {
