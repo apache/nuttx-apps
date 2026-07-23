@@ -8,6 +8,9 @@ config SYSTEM_NXSTORE
 	default n
 	depends on GRAPHICS_LVGL && SYSTEM_NXPKG
 	select NETUTILS_CJSON
+	select SCHED_WAITPID
+	select LV_FONT_MONTSERRAT_12
+	select LV_FONT_MONTSERRAT_20
 	---help---
 		Enable the Nxstore LVGL graphical application store frontend.
 		Lists packages from the local nxpkg repository, installs the
@@ -26,5 +29,13 @@ config SYSTEM_NXSTORE_PRIORITY
 config SYSTEM_NXSTORE_STACKSIZE
 	int "nxstore stack size"
 	default 8192
+
+config SYSTEM_NXSTORE_FBDEVPATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+
+config SYSTEM_NXSTORE_INPUT_DEVPATH
+	string "Input device path"
+	default "/dev/input0"
 
 endif

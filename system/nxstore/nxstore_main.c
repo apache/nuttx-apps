@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <signal.h>
 #include <spawn.h>
@@ -34,12 +35,15 @@
 #include <stdatomic.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
 
 #include <lvgl/lvgl.h>
+
+#include <system/nxstore_chrome.h>
 
 #include "../nxpkg/pkg.h"
 
@@ -79,6 +83,14 @@
 #define NXSTORE_COLOR_SUCCESS     0x34c77b  /* Installed / launch */
 #define NXSTORE_COLOR_WARNING     0xf5a623  /* In progress / slow */
 #define NXSTORE_COLOR_ERROR       0xf0554c  /* Failed */
+
+/* Sanity bound on a package icon's declared width/height (see
+ * nxstore_load_icon()) - purely a defense against a garbage or
+ * malicious icon file driving an oversized allocation/render, not a
+ * real design constraint (icons are shown well under this size).
+ */
+
+#define NXSTORE_ICON_MAX_DIM      128
 
 /****************************************************************************
  * Private Types
@@ -144,7 +156,16 @@ struct running_app_s
  ****************************************************************************/
 
 static lv_obj_t *g_list;
-static struct pkg_index_s g_index;
+
+/* Heap-allocated (nxstore_main()'s first-run allocation in
+ * build_app_store_ui()) rather than a plain static struct - each manifest
+ * slot is ~1.7KB and PKG_INDEX_MAX has grown past what's comfortable to
+ * carve out of internal DRAM as a fixed BSS array (see the comment on
+ * PKG_INDEX_MAX in pkg.h).  calloc()/pkg_zalloc() on this board's tasks
+ * draws from the PSRAM-backed user heap instead.
+ */
+
+static FAR struct pkg_index_s *g_index;
 static struct install_ctx_s g_active;
 
 /* g_main_scr is the normal app-list screen (built once in
@@ -164,7 +185,7 @@ static struct running_app_s g_running;
 static void nxstore_toast(bool is_error, FAR const char *fmt, ...);
 static lv_obj_t *nxstore_progress_bar_start(lv_obj_t *card);
 static void nxstore_progress_bar_stop(lv_obj_t *bar);
-static void nxstore_enter_running_screen(FAR const char *name, pid_t pid);
+static void nxstore_enter_running_screen(FAR const char *name);
 static void close_running_app_event_cb(lv_event_t *e);
 static void nxstore_poll_running_app(void);
 static void build_run_screen(void);
@@ -344,21 +365,36 @@ static void nxstore_progress_bar_stop(lv_obj_t *bar)
  * Name: nxstore_enter_running_screen
  *
  * Description:
- *   Switches to the supervisor screen and records the spawned child so
- *   nxstore_poll_running_app()/close_running_app_event_cb() can reap or
- *   force-close it.  Must only be called from the LVGL/main thread -
- *   lv_screen_load() is not thread-safe.
+ *   Switches to the supervisor screen and forces that switch to actually
+ *   reach the physical framebuffer before returning.  Deliberately does
+ *   NOT record a pid or set g_running.active - callers that can control
+ *   spawn order (the direct-launch path in install_btn_event_cb()) must
+ *   call this *before* nxstore_launch(), then set g_running.pid/active
+ *   themselves only once the spawn actually succeeds.  Getting this
+ *   backwards (spawn first, switch screens after) leaves a real window,
+ *   observed on hardware, where the newly-spawned app starts drawing
+ *   into the framebuffer immediately while this task's own pending
+ *   screen switch only reaches the display whenever its LVGL loop next
+ *   happens to run - which could be starved indefinitely by a busy-looping
+ *   child, leaving the old app-list screen visibly stuck underneath/around
+ *   whatever the child draws for as long as it keeps running.
+ *
+ *   The async install-then-launch path (nxstore_poll_active_install(),
+ *   reacting to a background thread that already called nxstore_launch()
+ *   itself) can't avoid that ordering - LVGL calls aren't safe off the
+ *   main thread, so the screen switch can only happen after the worker
+ *   reports done - but forcing the flush here still shrinks that window
+ *   to one polling tick instead of leaving it open indefinitely.
  *
  ****************************************************************************/
 
-static void nxstore_enter_running_screen(FAR const char *name, pid_t pid)
+static void nxstore_enter_running_screen(FAR const char *name)
 {
-  g_running.pid = pid;
-  g_running.active = true;
   snprintf(g_running.name, sizeof(g_running.name), "%s", name);
 
   lv_label_set_text(g_run_label, g_running.name);
   lv_screen_load(g_run_scr);
+  lv_refr_now(NULL);
 }
 
 /****************************************************************************
@@ -552,7 +588,7 @@ static void build_run_screen(void)
   lv_obj_clear_flag(g_run_scr, LV_OBJ_FLAG_SCROLLABLE);
 
   bar = lv_obj_create(g_run_scr);
-  lv_obj_set_size(bar, lv_pct(100), 36);
+  lv_obj_set_size(bar, lv_pct(100), NXSTORE_BAR_HEIGHT);
   lv_obj_align(bar, LV_ALIGN_TOP_MID, 0, 0);
   lv_obj_set_style_bg_color(bar, lv_color_hex(NXSTORE_COLOR_HEADER_BG), 0);
   lv_obj_set_style_radius(bar, 0, 0);
@@ -718,6 +754,45 @@ static bool nxstore_is_installed(FAR const struct pkg_manifest_s *manifest)
 }
 
 /****************************************************************************
+ * Name: nxstore_is_up_to_date
+ *
+ * Description:
+ *   nxstore_is_installed() only checks the package *name*, not which
+ *   version is actually on disk.  If an older version is installed and
+ *   the catalog's latest manifest for that name is newer, that made a
+ *   card read as plain "Installed" with no way to tell the two apart -
+ *   tapping it launched whatever old version was actually on disk, with
+ *   no update indication or action at all.  Returns true only when the
+ *   installed version string exactly matches manifest->version.
+ *
+ ****************************************************************************/
+
+static bool nxstore_is_up_to_date(FAR const struct pkg_manifest_s *manifest)
+{
+  FAR struct pkg_installed_db_s *db;
+  FAR struct pkg_installed_entry_s *entry;
+  bool up_to_date;
+
+  db = pkg_zalloc(sizeof(*db));
+  if (db == NULL)
+    {
+      return false;
+    }
+
+  if (pkg_metadata_load_installed(db) < 0)
+    {
+      pkg_free(db);
+      return false;
+    }
+
+  entry = pkg_metadata_find_installed(db, manifest->name);
+  up_to_date = entry != NULL &&
+              strcmp(entry->current, manifest->version) == 0;
+  pkg_free(db);
+  return up_to_date;
+}
+
+/****************************************************************************
  * Name: install_worker
  *
  * Description:
@@ -870,25 +945,22 @@ static void nxstore_poll_active_install(void)
     }
 
   /* A fresh successful install started out with the "not installed"
-   * blue/download icon (set at populate_app_list() time) - flip it to
-   * the green/play "installed" affordance now that it's true, instead
-   * of leaving a stale icon until the next reboot repopulates the list.
+   * blue status bar (set at populate_app_list() time) - flip it to the
+   * green "installed" affordance now that it's true, instead of leaving
+   * it stale until the next reboot repopulates the list.  The icon
+   * itself (child 0) is never state-colored - see populate_app_list()'s
+   * own comment on why a real app icon can't double as that indicator -
+   * status_bar (child 1) is the only thing that needs flipping here.
    */
 
   if (g_active.state == INSTALL_STATE_DONE_OK && g_active.btn != NULL)
     {
-      lv_obj_t *icon = lv_obj_get_child(g_active.btn, 0);
-      lv_obj_t *icon_label = icon != NULL ? lv_obj_get_child(icon, 0) : NULL;
+      lv_obj_t *status_bar = lv_obj_get_child(g_active.btn, 1);
 
-      if (icon != NULL)
+      if (status_bar != NULL)
         {
-          lv_obj_set_style_bg_color(icon,
+          lv_obj_set_style_bg_color(status_bar,
                                     lv_color_hex(NXSTORE_COLOR_SUCCESS), 0);
-        }
-
-      if (icon_label != NULL)
-        {
-          lv_label_set_text(icon_label, LV_SYMBOL_PLAY);
         }
     }
 
@@ -907,8 +979,9 @@ static void nxstore_poll_active_install(void)
          * about to be hidden and never actually seen.
          */
 
-        nxstore_enter_running_screen(g_active.manifest->name,
-                                     g_active.launched_pid);
+        g_running.pid = g_active.launched_pid;
+        g_running.active = true;
+        nxstore_enter_running_screen(g_active.manifest->name);
         break;
 
       case INSTALL_STATE_INSTALL_FAILED:
@@ -969,6 +1042,21 @@ static void uninstall_btn_event_cb(lv_event_t *e)
       return;
     }
 
+  /* LV_EVENT_LONG_PRESSED can fire for a touch that is actually driving
+   * a scroll of the enclosing list: if the drag starts slowly enough
+   * that the long-press timer (400ms) elapses before the finger has
+   * moved past the scroll-lock distance, LVGL hasn't committed the
+   * gesture to scrolling yet and still delivers the long-press event.
+   * This is what reads to a user as "it just happens when scrolling",
+   * not a deliberate long-press.  Ignore the event if this input
+   * device is currently attributed to scrolling any object.
+   */
+
+  if (lv_indev_get_scroll_obj(lv_indev_active()) != NULL)
+    {
+      return;
+    }
+
   card = lv_event_get_target(e);
 
   /* Reuses the same LV_STATE_DISABLED reentrancy guard as
@@ -995,28 +1083,23 @@ static void uninstall_btn_event_cb(lv_event_t *e)
     {
       if (ret == EXIT_SUCCESS)
         {
-          lv_obj_t *icon;
-          lv_obj_t *icon_label;
+          lv_obj_t *status_bar;
 
           snprintf(text, sizeof(text), "Removed - tap to reinstall");
 
-          /* Icon reverts to the "not installed" affordance now that
-           * it genuinely isn't.
+          /* status_bar (child 1) reverts to the "not installed"
+           * affordance now that it genuinely isn't - the icon itself
+           * (child 0) is never state-colored, same reasoning as the
+           * install success path above.
            */
 
-          icon = lv_obj_get_child(card, 0);
-          icon_label = icon != NULL ? lv_obj_get_child(icon, 0) : NULL;
+          status_bar = lv_obj_get_child(card, 1);
 
-          if (icon != NULL)
+          if (status_bar != NULL)
             {
-              lv_obj_set_style_bg_color(icon,
+              lv_obj_set_style_bg_color(status_bar,
                                         lv_color_hex(NXSTORE_COLOR_ACCENT),
                                         0);
-            }
-
-          if (icon_label != NULL)
-            {
-              lv_label_set_text(icon_label, LV_SYMBOL_DOWNLOAD);
             }
         }
       else
@@ -1038,10 +1121,13 @@ static void uninstall_btn_event_cb(lv_event_t *e)
  * Name: install_btn_event_cb
  *
  * Description:
- *   Tapped list entry: launch directly if already installed, otherwise
- *   kick off an async install+launch and show a progress bar while it
- *   runs.  Long-press (uninstall_btn_event_cb) removes an installed
- *   entry.
+ *   Tapped list entry: launch directly if already installed *and*
+ *   up-to-date, otherwise kick off an async install+launch (this
+ *   fetches whatever version the catalog currently advertises and
+ *   launches it once done, which for an already-installed-but-outdated
+ *   package is exactly the "update" action) and show a progress bar
+ *   while it runs.  Long-press (uninstall_btn_event_cb) removes an
+ *   installed entry.
  *
  ****************************************************************************/
 
@@ -1061,20 +1147,36 @@ static void install_btn_event_cb(lv_event_t *e)
   card = lv_event_get_target(e);
   subtitle = nxstore_card_subtitle(card);
 
-  if (nxstore_is_installed(manifest))
+  if (nxstore_is_installed(manifest) && nxstore_is_up_to_date(manifest))
     {
       char orig[192];
       char text[256];
       pid_t pid = 0;
       int ret;
 
-      /* This doesn't touch g_active (the single install-worker slot) at
-       * all, so it's safe to run even while an unrelated install is in
-       * progress elsewhere in the list.  What it does need is its own
-       * reentrancy guard: a rapid double-tap on this exact button, while
-       * the first tap's blocking nxstore_launch() call is still
-       * resolving, must not spawn the target process twice.
+      /* This board's display is a single shared framebuffer that only
+       * one app can own at a time, and g_running is nxstore's only
+       * record of who that is.  A rapid double-tap on this exact button
+       * is guarded below, but that alone isn't enough: this path used
+       * to run unconditionally even while another app was already
+       * running (g_running.active), or while an unrelated install
+       * elsewhere in the list was about to auto-launch its own package
+       * once done (install_worker() -> nxstore_launch() runs on its own
+       * thread and g_active.manifest stays non-NULL for the whole
+       * install+launch+settle window - see nxstore_poll_active_install()
+       * - so checking it here closes the same race as checking
+       * g_running.active, without needing to know which state the
+       * install is currently in).  Letting either through overwrote
+       * g_running with whichever launch finished last, leaving the
+       * other process alive, unsupervised, and drawing into the same
+       * framebuffer with no way to close it from this UI again.
        */
+
+      if (g_running.active || g_active.manifest != NULL)
+        {
+          nxstore_toast(true, "Close the running app first");
+          return;
+        }
 
       if (lv_obj_has_state(card, LV_STATE_DISABLED))
         {
@@ -1091,6 +1193,14 @@ static void install_btn_event_cb(lv_event_t *e)
           lv_timer_handler();
         }
 
+      /* Switch to (and force-flush) the running screen *before* spawning
+       * - see nxstore_enter_running_screen()'s own comment for why doing
+       * it the other way around left the old app-list screen visibly
+       * stuck under/around whatever the newly-launched app draws.
+       */
+
+      nxstore_enter_running_screen(manifest->name);
+
       ret = nxstore_launch(manifest, &pid);
       if (subtitle != NULL)
         {
@@ -1101,14 +1211,15 @@ static void install_btn_event_cb(lv_event_t *e)
 
       if (ret == 0)
         {
-          /* No "launched" toast here, same reasoning as the install
-           * path - the screen switch itself is the confirmation.
-           */
-
-          nxstore_enter_running_screen(manifest->name, pid);
+          g_running.pid = pid;
+          g_running.active = true;
         }
       else
         {
+          g_running.active = false;
+          lv_screen_load(g_main_scr);
+          lv_refr_now(NULL);
+
           if (subtitle != NULL)
             {
               snprintf(text, sizeof(text),
@@ -1124,10 +1235,20 @@ static void install_btn_event_cb(lv_event_t *e)
 
   if (g_active.manifest != NULL)
     {
-      /* Only one *install* can run at a time (single worker slot);
-       * launching an already-installed app above isn't gated by this.
+      /* Only one *install* can run at a time (single worker slot). */
+
+      return;
+    }
+
+  if (g_running.active)
+    {
+      /* This install will auto-launch its package once done (see
+       * install_worker()) - starting it while another app already owns
+       * the framebuffer would just reproduce the dual-launch race
+       * guarded against above, once this install finishes.
        */
 
+      nxstore_toast(true, "Close the running app first");
       return;
     }
 
@@ -1180,6 +1301,127 @@ static void install_btn_event_cb(lv_event_t *e)
 }
 
 /****************************************************************************
+ * Name: nxstore_load_icon
+ *
+ * Description:
+ *   Best-effort load of a package's optional icon (manifest->icon) into
+ *   an lv_image_dsc_t, downloading and caching it under PKG_ROOT_DIR
+ *   first if it isn't already cached.  The icon file format is a raw,
+ *   uncompressed image matching lv_image_header_t's own 12-byte layout
+ *   (magic/cf/flags, then w/h, then stride/reserved, all little-endian)
+ *   followed immediately by RGB565 pixel data - deliberately the
+ *   simplest thing LVGL can render directly with no decoder, since this
+ *   board has no PNG/JPEG decode capability wired up.  tools/
+ *   export_pkg_repo.py's --icon option writes this exact format.
+ *
+ *   Every failure mode (no icon set, download failed, corrupt/oversized
+ *   file) just returns NULL - callers fall back to the plain colored
+ *   circle + symbol glyph, so a bad icon never blocks the app from being
+ *   listed or installed.
+ *
+ *   On success, both the returned descriptor and its data pointer are
+ *   heap-allocated and intentionally never freed - the descriptor is
+ *   handed straight to a permanent lv_image row widget (which keeps a
+ *   pointer to it, not a copy) that lives for nxstore's whole runtime,
+ *   so there's no point it's ever safe to free at.  Must be heap, not a
+ *   caller's stack local: it has to outlive the populate_app_list() loop
+ *   iteration that creates it.
+ *
+ ****************************************************************************/
+
+static FAR lv_image_dsc_t *
+nxstore_load_icon(FAR const struct pkg_manifest_s *manifest)
+{
+  char cache_path[PATH_MAX];
+  char source[PATH_MAX];
+  FAR lv_image_dsc_t *dsc;
+  FAR uint8_t *buf;
+  struct stat st;
+  int fd;
+  ssize_t nread;
+  uint16_t w;
+  uint16_t h;
+  uint16_t stride;
+
+  if (manifest->icon[0] == '\0')
+    {
+      return NULL;
+    }
+
+  snprintf(cache_path, sizeof(cache_path), PKG_ROOT_DIR "/icons/%s.bin",
+          manifest->name);
+
+  if (stat(cache_path, &st) < 0)
+    {
+      mkdir(PKG_ROOT_DIR "/icons", 0755);
+
+      if (pkg_resolve_icon_source(source, sizeof(source), manifest) < 0 ||
+          pkg_acquire_source(source, cache_path, NULL) < 0 ||
+          stat(cache_path, &st) < 0)
+        {
+          return NULL;
+        }
+    }
+
+  if (st.st_size <= 12 || st.st_size > 64 * 1024)
+    {
+      return NULL;
+    }
+
+  buf = pkg_malloc((size_t)st.st_size);
+  if (buf == NULL)
+    {
+      return NULL;
+    }
+
+  fd = open(cache_path, O_RDONLY);
+  if (fd < 0)
+    {
+      pkg_free(buf);
+      return NULL;
+    }
+
+  nread = read(fd, buf, (size_t)st.st_size);
+  close(fd);
+
+  if (nread != st.st_size || buf[0] != LV_IMAGE_HEADER_MAGIC)
+    {
+      pkg_free(buf);
+      return NULL;
+    }
+
+  w = (uint16_t)(buf[4] | (buf[5] << 8));
+  h = (uint16_t)(buf[6] | (buf[7] << 8));
+  stride = (uint16_t)(buf[8] | (buf[9] << 8));
+
+  if (w == 0 || h == 0 || w > NXSTORE_ICON_MAX_DIM ||
+      h > NXSTORE_ICON_MAX_DIM || stride != w * 2 ||
+      12 + (size_t)stride * h > (size_t)nread)
+    {
+      pkg_free(buf);
+      return NULL;
+    }
+
+  dsc = pkg_zalloc(sizeof(*dsc));
+  if (dsc == NULL)
+    {
+      pkg_free(buf);
+      return NULL;
+    }
+
+  dsc->header.magic = buf[0];
+  dsc->header.cf = buf[1];
+  dsc->header.flags = (uint16_t)(buf[2] | (buf[3] << 8));
+  dsc->header.w = w;
+  dsc->header.h = h;
+  dsc->header.stride = stride;
+  dsc->data_size = (uint32_t)stride * h;
+  dsc->data = buf + 12;
+
+  return dsc;
+}
+
+/****************************************************************************
  * Name: populate_app_list
  *
  * Description:
@@ -1193,20 +1435,23 @@ static void populate_app_list(void)
   size_t seen_count = 0;
   size_t i;
 
-  for (i = 0; i < g_index.count; i++)
+  for (i = 0; i < g_index->count; i++)
     {
       FAR const struct pkg_manifest_s *manifest;
       bool installed;
+      bool up_to_date;
       bool dup = false;
       size_t j;
       lv_obj_t *card;
       lv_obj_t *icon;
       lv_obj_t *icon_label;
+      lv_obj_t *status_bar;
       lv_obj_t *text_col;
       lv_obj_t *title_label;
       lv_obj_t *subtitle_label;
       lv_obj_t *chevron;
-      char title_text[96];
+      FAR lv_image_dsc_t *icon_dsc;
+      char title_text[PKG_NAME_MAX + PKG_VERSION_MAX + 5];
       char subtitle_text[192];
 
       /* The index can list multiple versions of the same package as
@@ -1221,7 +1466,7 @@ static void populate_app_list(void)
 
       for (j = 0; j < seen_count; j++)
         {
-          if (strcmp(seen_names[j], g_index.manifests[i].name) == 0)
+          if (strcmp(seen_names[j], g_index->manifests[i].name) == 0)
             {
               dup = true;
               break;
@@ -1234,17 +1479,19 @@ static void populate_app_list(void)
         }
 
       snprintf(seen_names[seen_count], sizeof(seen_names[seen_count]), "%s",
-              g_index.manifests[i].name);
+              g_index->manifests[i].name);
       seen_count++;
 
-      manifest = pkg_metadata_find_latest(&g_index,
-                                          g_index.manifests[i].name);
+      manifest = pkg_metadata_find_latest(g_index,
+                                          g_index->manifests[i].name);
       if (manifest == NULL)
         {
           continue;
         }
 
       installed = nxstore_is_installed(manifest);
+      up_to_date = !installed || nxstore_is_up_to_date(manifest);
+      icon_dsc = nxstore_load_icon(manifest);
 
       /* Card: one flex row [icon circle][title+subtitle column][chevron],
        * styled as a distinct surface (rounded corners, subtle border)
@@ -1284,27 +1531,68 @@ static void populate_app_list(void)
                             LV_FLEX_ALIGN_CENTER);
       lv_obj_clear_flag(card, LV_OBJ_FLAG_SCROLLABLE);
 
-      /* Icon circle: color + symbol double as the installed/not-installed
-       * indicator, so status is legible at a glance without reading text.
+      /* Icon circle: always shows the package's own art (icon_dsc) when
+       * available, on a neutral background - install state used to be
+       * conveyed by coloring this same circle, but that only worked for
+       * the plain-glyph fallback; a real (opaque, same-size) icon image
+       * just covered the ring color entirely, silently losing the only
+       * install-state indicator in the row.  status_bar below is a
+       * dedicated indicator instead, so state stays legible regardless
+       * of whether a row has real art or just the fallback glyph.
        */
 
       icon = lv_obj_create(card);
       lv_obj_set_size(icon, 44, 44);
       lv_obj_set_style_radius(icon, LV_RADIUS_CIRCLE, 0);
       lv_obj_set_style_bg_color(icon,
-                                lv_color_hex(installed
-                                            ? NXSTORE_COLOR_SUCCESS
-                                            : NXSTORE_COLOR_ACCENT), 0);
+                                lv_color_hex(NXSTORE_COLOR_CARD_BORDER), 0);
       lv_obj_set_style_border_width(icon, 0, 0);
       lv_obj_set_style_pad_all(icon, 0, 0);
+      lv_obj_set_style_clip_corner(icon, true, 0);
       lv_obj_clear_flag(icon, LV_OBJ_FLAG_SCROLLABLE);
       lv_obj_clear_flag(icon, LV_OBJ_FLAG_CLICKABLE);
 
-      icon_label = lv_label_create(icon);
-      lv_label_set_text(icon_label,
-                        installed ? LV_SYMBOL_PLAY : LV_SYMBOL_DOWNLOAD);
-      lv_obj_set_style_text_color(icon_label, lv_color_hex(0xffffff), 0);
-      lv_obj_center(icon_label);
+      if (icon_dsc != NULL)
+        {
+          lv_obj_t *icon_img = lv_image_create(icon);
+
+          lv_image_set_src(icon_img, icon_dsc);
+          lv_image_set_scale(icon_img, 200);
+          lv_obj_center(icon_img);
+        }
+      else
+        {
+          icon_label = lv_label_create(icon);
+          lv_label_set_text(icon_label, LV_SYMBOL_FILE);
+          lv_obj_set_style_text_color(icon_label,
+                                      lv_color_hex(NXSTORE_COLOR_TEXT_MUTED),
+                                      0);
+          lv_obj_center(icon_label);
+        }
+
+      /* Status bar: a small vertical stripe next to the icon, the only
+       * thing that carries installed/not-installed state now - legible
+       * at a glance without depending on the icon itself ever being
+       * colorable (a real app icon's artwork is whatever it is).  A
+       * third color distinguishes "installed, but an older version than
+       * the catalog's latest" from a fully up-to-date install - without
+       * it, an outdated install looked identical to a current one and
+       * gave no hint that tapping would still launch the old payload.
+       */
+
+      status_bar = lv_obj_create(card);
+      lv_obj_set_size(status_bar, 6, 36);
+      lv_obj_set_style_radius(status_bar, 3, 0);
+      lv_obj_set_style_bg_color(status_bar,
+                                lv_color_hex(!installed
+                                            ? NXSTORE_COLOR_ACCENT
+                                            : up_to_date
+                                            ? NXSTORE_COLOR_SUCCESS
+                                            : NXSTORE_COLOR_WARNING), 0);
+      lv_obj_set_style_border_width(status_bar, 0, 0);
+      lv_obj_set_style_pad_all(status_bar, 0, 0);
+      lv_obj_clear_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
+      lv_obj_clear_flag(status_bar, LV_OBJ_FLAG_CLICKABLE);
 
       /* Text column: title never gets overwritten by install/launch
        * status (unlike the previous single-label design) - only the
@@ -1332,7 +1620,17 @@ static void populate_app_list(void)
                                   lv_color_hex(NXSTORE_COLOR_TEXT), 0);
 
       subtitle_label = lv_label_create(text_col);
-      if (manifest->description[0] != '\0')
+      if (installed && !up_to_date)
+        {
+          /* Takes priority over the static description - an available
+           * update is actionable state the user needs to see, and a
+           * fixed description text would never convey it.
+           */
+
+          snprintf(subtitle_text, sizeof(subtitle_text),
+                  "Update available - tap to update");
+        }
+      else if (manifest->description[0] != '\0')
         {
           snprintf(subtitle_text, sizeof(subtitle_text), "%s",
                   manifest->description);
@@ -1385,6 +1683,19 @@ static void build_app_store_ui(FAR const char *repo_url)
 
   g_main_scr = scr;
   lv_obj_set_style_bg_color(scr, lv_color_hex(NXSTORE_COLOR_BG), 0);
+
+  g_index = pkg_zalloc(sizeof(*g_index));
+  if (g_index == NULL)
+    {
+      status = lv_label_create(scr);
+      lv_obj_add_flag(status, LV_OBJ_FLAG_IGNORE_LAYOUT);
+      lv_label_set_text(status, "Out of memory building catalog.");
+      lv_obj_set_style_text_align(status, LV_TEXT_ALIGN_CENTER, 0);
+      lv_obj_center(status);
+      lv_obj_set_style_text_color(status, lv_color_hex(NXSTORE_COLOR_ERROR),
+                                  0);
+      return;
+    }
 
   /* The indev-level scroll_limit/scroll_throw settings in main() only
    * raise the bar for a scroll gesture to *start* - they don't stop one
@@ -1572,7 +1883,7 @@ static void build_app_store_ui(FAR const char *repo_url)
         }
     }
 
-  ret = pkg_metadata_load_index(&g_index);
+  ret = pkg_metadata_load_index(g_index);
   if (ret < 0)
     {
       status = lv_label_create(scr);
@@ -1587,7 +1898,7 @@ static void build_app_store_ui(FAR const char *repo_url)
       return;
     }
 
-  if (g_index.count == 0)
+  if (g_index->count == 0)
     {
       /* The index parsed fine but has zero usable entries (empty
        * catalog, or every entry was for a different arch/board and got
@@ -1646,18 +1957,26 @@ int main(int argc, FAR char *argv[])
       return 1;
     }
 
-  /* Same touch-drift mitigation as examples/lvgldemo/lvgldemo.c: require
-   * a large drag before scroll starts and kill momentum, so this board's
-   * noisy touch driver can't turn a tap into an accidental scroll.  The
-   * list itself already clears LV_OBJ_FLAG_SCROLLABLE, but that's a
-   * single-widget workaround - this covers the indev (and therefore the
-   * whole screen, including anything added outside the list) the same
-   * way the reference app does.
+  /* Touch-drift mitigation: require a modest drag before scroll starts,
+   * so this board's noisy touch driver can't turn a tap into an
+   * accidental scroll.  examples/lvgldemo/lvgldemo.c uses 255 for this
+   * same setting, which this file originally copied verbatim - but
+   * unlike that demo, this screen's list is something a user actually
+   * scrolls constantly, and requiring a drag that large before anything
+   * visibly responds reads as broken/laggy scrolling, not drift
+   * protection.  20px is enough to reject typical touch-driver jitter
+   * (single-digit pixels) while still recognizing a real scroll gesture
+   * almost immediately.  Momentum stays off (scroll_throw 0) - see
+   * nxstore_enter_running_screen()'s and populate_app_list()'s own
+   * comments on why a coasting scroll misaligning row positions caused
+   * real "tapped one entry, a different one installed" reports; that
+   * risk is about *momentum* continuing after release, not about the
+   * gesture-start threshold, so it's independent of this value.
    */
 
   if (result.indev != NULL)
     {
-      lv_indev_set_scroll_limit(result.indev, 255);
+      lv_indev_set_scroll_limit(result.indev, 20);
       lv_indev_set_scroll_throw(result.indev, 0);
     }
 
