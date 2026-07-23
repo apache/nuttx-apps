@@ -354,6 +354,11 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("ls",       cmd_ls,       1, 5, "[-lRsh] <dir-path>"),
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_DU
+  CMD_MAP("du",       cmd_du,       1, 7,
+    "[-h] [-s] [-a] [-d N] <path>..."),
+#endif
+
 #if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
 #  if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MODULE)
   CMD_MAP("lsmod",    cmd_lsmod,    1, 1,  NULL),
