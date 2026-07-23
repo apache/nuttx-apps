@@ -2096,12 +2096,49 @@ static void load_default_collection(default_collection_t *collection)
       return;
     }
 
-  while (!feof(f))
+  for (; ; )
     {
+      int nmatched;
+      long before;
+
       strparm[0] = '\0';
 
-      if (fscanf(f, "%79s %99[^\n]\n", defname, strparm) < 1)
+      /* Checking feof() to decide whether to keep looping (rather than
+       * acting on fscanf()'s own return value) is the classic C bug: on
+       * a config file whose bytes don't line up with "%s %[^\n]\n" at
+       * all - e.g. leftover binary/corrupted content from a previous
+       * write - fscanf() can fail a conversion without the stream ever
+       * reaching EOF, and feof() has no way to know that.  That left
+       * this loop spinning forever parsing nothing, which is exactly
+       * what made a corrupted default.cfg hang the whole game at
+       * startup instead of just skipping the bad file.
+       *
+       * Terminating off EOF/error from fscanf() itself closes the
+       * common case, but a failed conversion is only guaranteed to
+       * consume nothing - it is not guaranteed to have advanced the
+       * stream either, so a byte sequence that never matches "%s" but
+       * also never reports EOF/error could still spin without making
+       * progress.  Track the file position directly and force one
+       * byte of forward progress (or bail out) if a scan attempt
+       * didn't move it, so corrupt/binary content can only ever cost
+       * one pass over the file, never an infinite loop.
+       */
+
+      before = ftell(f);
+      nmatched = fscanf(f, "%79s %99[^\n]\n", defname, strparm);
+
+      if (nmatched == EOF)
         {
+          break;
+        }
+
+      if (nmatched < 1)
+        {
+          if (ftell(f) == before && fgetc(f) == EOF)
+            {
+              break;
+            }
+
           /* This line doesn't match */
 
           continue;
