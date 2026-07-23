@@ -518,10 +518,12 @@ int pkg_store_write_text_atomic(FAR const char *path, FAR const char *text)
       return ret;
     }
 
-  if (close(fd) < 0)
+  ret = close(fd);
+  if (ret < 0)
     {
+      ret = -errno;
       unlink(path);
-      return -errno;
+      return ret;
     }
 
   return 0;
@@ -559,23 +561,29 @@ int pkg_store_write_text_atomic(FAR const char *path, FAR const char *text)
    * file, corrupting one or both.
    */
 
-  if (fsync(fd) < 0)
+  ret = fsync(fd);
+  if (ret < 0)
     {
+      ret = -errno;
       close(fd);
       unlink(tmp);
-      return -errno;
+      return ret;
     }
 
-  if (close(fd) < 0)
+  ret = close(fd);
+  if (ret < 0)
     {
+      ret = -errno;
       unlink(tmp);
-      return -errno;
+      return ret;
     }
 
-  if (rename(tmp, path) < 0)
+  ret = rename(tmp, path);
+  if (ret < 0)
     {
+      ret = -errno;
       unlink(tmp);
-      return -errno;
+      return ret;
     }
 
   return 0;
@@ -663,10 +671,12 @@ int pkg_store_copy_file(FAR const char *src, FAR const char *dest)
     }
 #endif
 
-  if (close(outfd) < 0)
+  ret = close(outfd);
+  if (ret < 0)
     {
+      ret = -errno;
       unlink(outpath);
-      return -errno;
+      return ret;
     }
 
 #ifndef CONFIG_PSEUDOFS_FILE

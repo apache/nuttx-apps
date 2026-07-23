@@ -37,6 +37,8 @@
 
 #include <nuttx/config.h>
 
+#include <netutils/cJSON.h>
+
 #ifdef CONFIG_NETUTILS_WEBCLIENT
 #  include "netutils/webclient.h"
 #endif
@@ -59,6 +61,9 @@
  */
 
 #define PKG_REPO_FETCH_BUFFER_SIZE 4096
+#define PKG_REPO_HTTP              "http://"
+#define PKG_REPO_HTTPS             "https://"
+#define PKG_REPO_SOURCE_KEY        "_nxpkg_source"
 
 /****************************************************************************
  * Private Types
@@ -108,7 +113,7 @@ static int pkg_repo_source_base(FAR char *buffer, size_t size,
   slash = strrchr(source, '/');
   if (slash == NULL)
     {
-      return -EINVAL;
+      return pkg_repo_copy_string(buffer, size, ".");
     }
 
   length = (size_t)(slash - source);
@@ -168,12 +173,14 @@ static bool pkg_validate_artifact_relative(FAR const char *value)
 
 static int pkg_repo_read_source(FAR char *buffer, size_t size)
 {
+  FAR cJSON *root;
+  FAR cJSON *source;
+  FAR char *text = NULL;
   char path[PATH_MAX];
-  FAR char *text;
   size_t length;
   int ret;
 
-  ret = pkg_store_format_repo_source_path(path, sizeof(path));
+  ret = pkg_store_format_index_path(path, sizeof(path));
   if (ret < 0)
     {
       return ret;
@@ -185,15 +192,111 @@ static int pkg_repo_read_source(FAR char *buffer, size_t size)
       return ret;
     }
 
-  length = strlen(text);
-  while (length > 0 && isspace((unsigned char)text[length - 1]))
+  root = cJSON_Parse(text);
+  pkg_free(text);
+  if (root == NULL)
     {
-      text[--length] = '\0';
+      return -EINVAL;
     }
 
-  ret = pkg_repo_copy_string(buffer, size, text);
-  pkg_free(text);
+  source = cJSON_GetObjectItemCaseSensitive(root, PKG_REPO_SOURCE_KEY);
+  if (!cJSON_IsString(source) || source->valuestring == NULL)
+    {
+      cJSON_Delete(root);
+
+      /* Read the sidecar written by older nxpkg versions once, so an
+       * existing cached catalog remains usable until the next sync.
+       */
+
+      ret = pkg_store_format_repo_source_path(path, sizeof(path));
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      ret = pkg_store_read_text(path, &text);
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      length = strlen(text);
+      while (length > 0 && isspace((unsigned char)text[length - 1]))
+        {
+          text[--length] = '\0';
+        }
+
+      ret = pkg_repo_copy_string(buffer, size, text);
+      pkg_free(text);
+      return ret;
+    }
+
+  ret = pkg_repo_copy_string(buffer, size, source->valuestring);
+  cJSON_Delete(root);
   return ret;
+}
+
+static int pkg_repo_attach_source(FAR char **text,
+                                  FAR const char *source_value)
+{
+  FAR cJSON *root;
+  FAR cJSON *wrapper;
+  FAR char *updated;
+
+  root = cJSON_Parse(*text);
+  if (root == NULL)
+    {
+      return -EINVAL;
+    }
+
+  if (cJSON_IsArray(root))
+    {
+      wrapper = cJSON_CreateObject();
+      if (wrapper == NULL)
+        {
+          cJSON_Delete(root);
+          return -ENOMEM;
+        }
+
+      cJSON_AddItemToObject(wrapper, "packages", root);
+      if (cJSON_GetObjectItemCaseSensitive(wrapper, "packages") != root)
+        {
+          cJSON_Delete(root);
+          cJSON_Delete(wrapper);
+          return -ENOMEM;
+        }
+
+      root = wrapper;
+    }
+  else if (!cJSON_IsObject(root))
+    {
+      cJSON_Delete(root);
+      return -EINVAL;
+    }
+
+  while (cJSON_GetObjectItemCaseSensitive(root,
+                                          PKG_REPO_SOURCE_KEY) != NULL)
+    {
+      cJSON_DeleteItemFromObjectCaseSensitive(root, PKG_REPO_SOURCE_KEY);
+    }
+
+  if (cJSON_AddStringToObject(root, PKG_REPO_SOURCE_KEY,
+                             source_value) == NULL)
+    {
+      cJSON_Delete(root);
+      return -ENOMEM;
+    }
+
+  updated = cJSON_PrintUnformatted(root);
+  cJSON_Delete(root);
+  if (updated == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  pkg_free(*text);
+  *text = updated;
+  return 0;
 }
 
 #ifdef CONFIG_NETUTILS_WEBCLIENT
@@ -312,10 +415,12 @@ static int pkg_repo_fetch_url(FAR const char *url, FAR const char *dest,
       return -EPROTO;
     }
 
-  if (close(fetch.fd) < 0)
+  ret = close(fetch.fd);
+  if (ret < 0)
     {
+      ret = -errno;
       unlink(dest);
-      return -errno;
+      return ret;
     }
 
   return 0;
@@ -382,8 +487,8 @@ bool pkg_source_is_url(FAR const char *source)
       return false;
     }
 
-  return strncasecmp(source, "http://", 7) == 0 ||
-         strncasecmp(source, "https://", 8) == 0;
+  return strncasecmp(source, PKG_REPO_HTTP, strlen(PKG_REPO_HTTP)) == 0 ||
+         strncasecmp(source, PKG_REPO_HTTPS, strlen(PKG_REPO_HTTPS)) == 0;
 }
 
 int pkg_resolve_artifact_source(FAR char *buffer, size_t size,
@@ -432,19 +537,8 @@ int pkg_acquire_source(FAR const char *source, FAR const char *dest,
  * Name: pkg_repo_acquire_sync_lock
  *
  * Description:
- *   pkg_sync() below updates index.jsn and repo.url as two separate
- *   atomic writes with nothing serializing the pair against a second,
- *   concurrent pkg_sync() call (e.g. two different sources, or a manual
- *   sync racing nxstore's own retry loop).  Each individual write stays
- *   internally consistent, but the *pair* doesn't: one sync's index.jsn
- *   can end up on disk next to a different sync's repo.url, and the two
- *   syncs' temp/staging files (already PID-qualified against each
- *   other) can still be committed out of order relative to one another.
- *   A single lock file around the whole read-fetch-write sequence
- *   closes that, mirroring pkg_install.c's installed-db lock: blocking
- *   with a bounded retry rather than instant -EBUSY, since this
- *   critical section already includes the network fetch and a slow
- *   sync should make a second one wait rather than fail outright.
+ *   Serialize catalog synchronization so concurrent downloads cannot
+ *   commit out of order.
  *
  ****************************************************************************/
 
@@ -488,13 +582,12 @@ static int pkg_repo_acquire_sync_lock(FAR char *path, size_t size)
 
 int pkg_sync(FAR const char *source)
 {
-  FAR struct pkg_index_s *index;
+  FAR struct pkg_index_s *index = NULL;
   FAR char *text = NULL;
-  FAR char *tmp;
-  FAR char *index_path;
-  FAR char *source_path;
+  FAR char *tmp = NULL;
+  FAR char *index_path = NULL;
   FAR char *lock;
-  bool lock_held = false;
+  bool remove_tmp = false;
   int ret;
 
   if (source == NULL || source[0] == '\0')
@@ -518,19 +611,11 @@ int pkg_sync(FAR const char *source)
       return ret;
     }
 
-  lock_held = true;
-
   index = pkg_zalloc(sizeof(*index));
   tmp = pkg_path_alloc();
   index_path = pkg_path_alloc();
-  source_path = pkg_path_alloc();
-  if (index == NULL || tmp == NULL || index_path == NULL ||
-      source_path == NULL)
+  if (index == NULL || tmp == NULL || index_path == NULL)
     {
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       pkg_error("unable to allocate index metadata buffer");
       ret = -ENOMEM;
       goto out;
@@ -540,10 +625,6 @@ int pkg_sync(FAR const char *source)
   if (ret < 0)
     {
       pkg_error("unable to prepare package layout: %d", ret);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       goto out;
     }
 
@@ -557,10 +638,6 @@ int pkg_sync(FAR const char *source)
   if (ret < 0 || (size_t)ret >= PATH_MAX)
     {
       pkg_error("temporary sync path is too long");
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       ret = -ENAMETOOLONG;
       goto out;
     }
@@ -569,46 +646,36 @@ int pkg_sync(FAR const char *source)
   if (ret < 0)
     {
       pkg_error("unable to fetch index source '%s': %d", source, ret);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       goto out;
     }
 
+  remove_tmp = true;
   ret = pkg_metadata_load_index_path(tmp, index);
   if (ret < 0)
     {
-      pkg_store_remove_file(tmp);
       pkg_error("downloaded index is invalid: %d", ret);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       goto out;
     }
 
   ret = pkg_store_read_text(tmp, &text);
   if (ret < 0)
     {
-      pkg_store_remove_file(tmp);
       pkg_error("unable to read fetched index: %d", ret);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
+      goto out;
+    }
+
+  /* Commit the catalog and its source in one atomic file replacement. */
+
+  ret = pkg_repo_attach_source(&text, source);
+  if (ret < 0)
+    {
+      pkg_error("unable to record repository source: %d", ret);
       goto out;
     }
 
   ret = pkg_store_format_index_path(index_path, PATH_MAX);
   if (ret < 0)
     {
-      pkg_store_remove_file(tmp);
-      pkg_free(text);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       pkg_error("unable to resolve local index path: %d", ret);
       goto out;
     }
@@ -616,57 +683,24 @@ int pkg_sync(FAR const char *source)
   ret = pkg_store_write_text_atomic(index_path, text);
   if (ret < 0)
     {
-      pkg_store_remove_file(tmp);
-      pkg_free(text);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
       pkg_error("unable to write local index: %d", ret);
       goto out;
     }
 
-  ret = pkg_store_format_repo_source_path(source_path, PATH_MAX);
-  if (ret < 0)
-    {
-      pkg_store_remove_file(tmp);
-      pkg_free(text);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
-      pkg_error("unable to resolve repository source path: %d", ret);
-      goto out;
-    }
-
-  ret = pkg_store_write_text_atomic(source_path, source);
-  if (ret < 0)
-    {
-      pkg_store_remove_file(tmp);
-      pkg_free(text);
-      pkg_free(index);
-      pkg_free(tmp);
-      pkg_free(index_path);
-      pkg_free(source_path);
-      pkg_error("unable to save repository source: %d", ret);
-      goto out;
-    }
-
-  pkg_store_remove_file(tmp);
-  pkg_free(text);
-  pkg_free(index);
-  pkg_free(tmp);
-  pkg_free(index_path);
-  pkg_free(source_path);
   pkg_info("synced package index from %s", source);
   ret = 0;
 
 out:
-  if (lock_held)
+  if (remove_tmp)
     {
-      unlink(lock);
+      pkg_store_remove_file(tmp);
     }
 
+  pkg_free(text);
+  pkg_free(index);
+  pkg_free(tmp);
+  pkg_free(index_path);
+  unlink(lock);
   pkg_free(lock);
   return ret;
 }

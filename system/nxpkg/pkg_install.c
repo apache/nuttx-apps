@@ -78,37 +78,8 @@ static int pkg_install_acquire_lock(FAR const char *name, FAR char *path,
  * Name: pkg_install_acquire_installed_lock
  *
  * Description:
- *   The per-package lock above (pkg_install_acquire_lock()) only ever
- *   protects one package's own version directory/manifest - it says
- *   nothing about the single shared installed-packages database
- *   (instpkg.jsn) that every install/uninstall/rollback reads, modifies
- *   in memory, and writes back as a whole.  Two of those operations for
- *   *different* packages (their own per-package locks don't conflict)
- *   can each load a snapshot of that shared file, add/change their own
- *   entry, and save - and whichever one saves last wins, silently
- *   discarding whatever the other one had just added.  This is exactly
- *   what "a previously-installed package vanishes from `nxpkg list`
- *   with no error" looks like, without needing any corrupted file or
- *   non-atomic write at all: the write path is already atomic
- *   (pkg_store_write_text_atomic() writes to a temp file, fsyncs, then
- *   renames), so the *file* is always internally consistent - it just
- *   might be a consistent snapshot that's missing an entry a concurrent
- *   operation already believed it had durably saved.
- *
- *   A separate, single global lock file (independent of any specific
- *   package's own lock) closes that window: acquire it right before
- *   pkg_metadata_load_installed() and hold it until immediately after
- *   pkg_metadata_save_installed(), so that whole read-modify-write
- *   sequence is atomic with respect to every other caller of this
- *   function, regardless of which package(s) they're touching.
- *
- *   Blocking (bounded retry loop) rather than instant-EBUSY like the
- *   per-package lock: the critical section this protects is a handful
- *   of local SD-card JSON operations with no network I/O in it, so a
- *   real holder releases it within milliseconds - a caller should wait
- *   that out rather than fail an otherwise-healthy install/uninstall/
- *   rollback just because another one's shared-db update was in
- *   flight at the same instant.
+ *   Acquire the global installed-database lock.  This serializes the
+ *   read-modify-write sequence used by install, uninstall, and rollback.
  *
  ****************************************************************************/
 

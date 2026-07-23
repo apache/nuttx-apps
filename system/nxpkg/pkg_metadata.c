@@ -24,6 +24,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -400,41 +401,63 @@ static int pkg_metadata_parse_installed_entry(
 static int pkg_metadata_version_token_cmp(FAR const char *lhs,
                                           FAR const char *rhs)
 {
-  long leftnum;
-  long rightnum;
-  FAR char *leftend;
-  FAR char *rightend;
   FAR const char *cmpleft;
   FAR const char *cmpright;
+  FAR const char *leftdigits;
+  FAR const char *rightdigits;
+  size_t leftlen;
+  size_t rightlen;
   int ret;
 
-  leftnum = strtol(lhs, &leftend, 10);
-  rightnum = strtol(rhs, &rightend, 10);
-
-  if (leftend != lhs && rightend != rhs)
+  leftdigits = lhs;
+  rightdigits = rhs;
+  while (isdigit((unsigned char)*leftdigits))
     {
-      if (leftnum < rightnum)
+      leftdigits++;
+    }
+
+  while (isdigit((unsigned char)*rightdigits))
+    {
+      rightdigits++;
+    }
+
+  if (leftdigits != lhs && rightdigits != rhs)
+    {
+      while (*lhs == '0' && lhs + 1 < leftdigits)
+        {
+          lhs++;
+        }
+
+      while (*rhs == '0' && rhs + 1 < rightdigits)
+        {
+          rhs++;
+        }
+
+      leftlen = (size_t)(leftdigits - lhs);
+      rightlen = (size_t)(rightdigits - rhs);
+      if (leftlen < rightlen)
         {
           return -1;
         }
 
-      if (leftnum > rightnum)
+      if (leftlen > rightlen)
         {
           return 1;
         }
 
-      /* Equal numeric prefixes don't make the tokens equal if what
-       * follows the number differs - e.g. "1a" and "1b" both parse as
-       * 1, but are documented to compare lexically by their non-numeric
-       * component.  Falling through to "equal" here (as this used to)
-       * silently treated any such pair as the same version, which is
-       * exactly backwards for tokens whose whole point is to be
-       * distinguishable.  Compare what's left after the numeric prefix
-       * - leftend/rightend - lexically instead of falling through.
-       */
+      ret = memcmp(lhs, rhs, leftlen);
+      if (ret < 0)
+        {
+          return -1;
+        }
 
-      cmpleft = leftend;
-      cmpright = rightend;
+      if (ret > 0)
+        {
+          return 1;
+        }
+
+      cmpleft = leftdigits;
+      cmpright = rightdigits;
     }
   else
     {
