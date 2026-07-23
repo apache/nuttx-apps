@@ -543,7 +543,7 @@ static int word_skip(FAR const char *buf, int cursor, int bound,
 #endif
 
 #ifdef CONFIG_READLINE_ECHO
-#ifdef CONFIG_READLINE_EDIT
+#  ifdef CONFIG_READLINE_EDIT
 /****************************************************************************
  * Name: redraw_line
  *
@@ -621,9 +621,9 @@ static void redraw_tail(FAR struct rl_common_s *vtbl, FAR const char *buf,
         }
     }
 }
-#endif /* CONFIG_READLINE_EDIT */
+#  endif /* CONFIG_READLINE_EDIT */
 
-#ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
+#  ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
 /****************************************************************************
  * Name: isearch_redraw
  *
@@ -669,7 +669,7 @@ static void isearch_redraw(FAR struct rl_common_s *vtbl,
       RL_WRITE(vtbl, buf, nch);
     }
 }
-#endif /* CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH */
+#  endif /* CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH */
 #endif /* CONFIG_READLINE_ECHO */
 
 /****************************************************************************
@@ -799,13 +799,13 @@ FAR const char *readline_prompt(FAR const char *prompt)
 FAR const struct extmatch_vtable_s *
   readline_extmatch(FAR const struct extmatch_vtable_s *vtbl)
 {
-#if (CONFIG_READLINE_MAX_EXTCMDS > 0)
+#  if (CONFIG_READLINE_MAX_EXTCMDS > 0)
   FAR const struct extmatch_vtable_s *ret = g_extmatch_vtbl;
   g_extmatch_vtbl = vtbl;
   return ret;
-#else
+#  else
   return NULL;
-#endif
+#  endif
 }
 #endif
 
@@ -934,9 +934,9 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
               bool found = isearch_find(search, searchlen, searchoffset,
                                          &searchoffset, buf, buflen, &nch);
-#ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_ECHO
               isearch_redraw(vtbl, search, searchlen, buf, nch, !found);
-#endif
+#  endif
             }
           else if (ch == ASCII_BS || ch == ASCII_DEL)
             {
@@ -956,10 +956,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                     }
                 }
 
-#ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_ECHO
               isearch_redraw(vtbl, search, searchlen, buf, nch,
                               searchlen > 0 && nch == 0);
-#endif
+#  endif
             }
           else if (ch == CTRL_G || ch == ASCII_ETX)  /* ^G or ^C: cancel */
             {
@@ -978,9 +978,9 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
               buf[nch] = '\0';
 
-#ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_ECHO
               redraw_line(vtbl, buf, nch, cursor);
-#endif
+#  endif
             }
           else if (ch == '\n')
             {
@@ -1009,9 +1009,9 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
               bool found = isearch_find(search, searchlen, searchoffset,
                                          &searchoffset, buf, buflen, &nch);
-#ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_ECHO
               isearch_redraw(vtbl, search, searchlen, buf, nch, !found);
-#endif
+#  endif
             }
           else
             {
@@ -1023,14 +1023,14 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               insearch = false;
               cursor   = nch;
 
-#ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_ECHO
               redraw_line(vtbl, buf, nch, cursor);
-#endif
+#  endif
             }
 
           continue;
         }
-#endif
+#endif /* CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH */
 
       /* Are we processing a VT100 escape sequence */
 
@@ -1042,19 +1042,44 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           if (escape == 3)
             {
               escape = 0;
-              if (ch == '~' && cursor < nch)
+              if (ch == '~')
                 {
-                  int k;
-                  for (k = cursor + 1; k < nch; k++)
-                    buf[k - 1] = buf[k];
-                  nch--;
-#  ifdef CONFIG_READLINE_ECHO
-                  /* Back up 1 — terminal echo of '~' advanced cursor */
+                  if (cursor < nch)
+                    {
+                      int k;
+                      for (k = cursor + 1; k < nch; k++)
+                        buf[k - 1] = buf[k];
+                      nch--;
+                    }
 
-                  RL_WRITE(vtbl, g_curleft, sizeof(g_curleft));
-                  redraw_tail(vtbl, buf, nch, cursor);
+#  ifdef CONFIG_READLINE_ECHO
+                  /* Delete arrives as the 4-byte sequence "ESC [ 3 ~".
+                   * Some serial drivers only know how to suppress
+                   * local echo for fixed 3-byte "ESC [ x" sequences
+                   * and leak the trailing '~' as a literal character,
+                   * silently advancing the terminal's real cursor by
+                   * one column.  redraw_line() is immune to this (and
+                   * to any other such drift) because it always
+                   * returns to column 0 with '\r' first, rather than
+                   * assuming where the cursor currently is -- unlike
+                   * a plain erase-and-rewrite-the-tail redraw, which
+                   * only works relative to the cursor's last known
+                   * position and has no way to recover if that
+                   * assumption turns out to be wrong.
+                   *
+                   * This redraw is unconditional -- even when there
+                   * was nothing to delete (cursor already at the true
+                   * end, including an empty line) -- specifically so
+                   * it also cleans up a leaked '~' in that case; only
+                   * skipping the redraw when there is "nothing to do"
+                   * is exactly what left a stray '~' visible on
+                   * screen with an unpatched driver.
+                   */
+
+                  redraw_line(vtbl, buf, nch, cursor);
 #  endif
                 }
+
               continue;
             }
 
@@ -1116,6 +1141,35 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               continue;
             }
 #endif /* CONFIG_READLINE_EDIT */
+
+          if (escape == 10)    /* Unrecognized CSI -- consume to final byte */
+            {
+              if (ch >= 0x20 && ch <= 0x3f)
+                {
+                  continue;    /* still a parameter/intermediate byte */
+                }
+
+              /* ch is the final byte (0x40-0x7e), or something
+               * malformed -- either way the sequence is over now and
+               * is discarded; nothing was ever inserted into the
+               * buffer.  Still issue a corrective redraw: some serial
+               * drivers only know how to suppress local echo for
+               * fixed 3-byte "ESC [ x" sequences and leak bytes from
+               * any longer, unrecognized sequence as literal
+               * characters, the same class of issue Delete has for
+               * its own "ESC [ 3 ~".  redraw_line() cleans up any
+               * such leaked characters even though the buffer itself
+               * was never affected by them.
+               */
+
+              escape = 0;
+#  ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_EDIT
+              redraw_line(vtbl, buf, nch, cursor);
+#  endif
+#  endif
+              continue;
+            }
 
           /* Some terminals (e.g. xterm) use the SS3 introducer "ESC O"
            * rather than CSI "ESC [" for Home/End (and, in application
@@ -1196,10 +1250,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
                   nch = 0;
 
-#ifdef CONFIG_READLINE_ECHO
+#  ifdef CONFIG_READLINE_ECHO
                   RL_PUTC(vtbl, '\r');
                   RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
-#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
+#    if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
                   if (g_readline_prompt != NULL)
                     {
                       int k;
@@ -1208,8 +1262,8 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                           RL_PUTC(vtbl, g_readline_prompt[k]);
                         }
                     }
-#endif
-#endif
+#    endif
+#  endif
 
                   if (g_cmdhist.offset != 1)
                     {
@@ -1244,9 +1298,9 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                    * using a stale, out-of-range cursor value.
                    */
 
-#ifdef CONFIG_READLINE_EDIT
+#  ifdef CONFIG_READLINE_EDIT
                   cursor = nch;
-#endif
+#  endif
                 }
 #endif /* CONFIG_READLINE_CMD_HISTORY */
 
@@ -1314,6 +1368,22 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                   continue;
                 }
 #endif
+
+              /* Not one of the specific sequences recognized above.  If
+               * this still looks like a CSI parameter or intermediate
+               * byte (0x20-0x3f: digits, ';', and similar), this is
+               * some other CSI sequence this code doesn't specifically
+               * know about -- keep consuming bytes until the real final
+               * byte (0x40-0x7e) ends it, rather than treating this
+               * byte as the end of the sequence and leaking whatever
+               * comes after it as literal input.
+               */
+
+              if (ch >= 0x20 && ch <= 0x3f)
+                {
+                  escape = 10;
+                  continue;
+                }
 
               escape = 0;
               ch = 'a';
@@ -1450,19 +1520,34 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           buf[nch] = '\0';
           redraw_line(vtbl, buf, nch, cursor);
         }
-      else if (ch == CTRL_W)           /* Ctrl+W = Kill word backward (FIXME) */
+      else if (ch == CTRL_W)           /* Ctrl+W = Kill word backward */
         {
           int start, k;
           start = word_skip(buf, cursor, 0, false);
-          for (k = start; k < nch; k++)
+          for (k = cursor; k < nch; k++)
             buf[k - (cursor - start)] = buf[k];
           nch -= (cursor - start);
           cursor = start;
           buf[nch] = '\0';
-          redraw_tail(vtbl, buf, nch, cursor);
+
+          /* Unlike Ctrl+K (which never moves the cursor, so erasing
+           * from wherever it already is is correct) and Backspace
+           * (which moves it by exactly one column and compensates
+           * with a single explicit backspace byte), Ctrl+W can move
+           * the cursor back by any number of columns depending on how
+           * long the killed word was.  redraw_tail() has no way to
+           * express "also move left by N first"; it just erases from
+           * wherever the terminal's cursor already happens to be.
+           * Using redraw_line() instead sidesteps the whole problem
+           * the same way it does for Delete: it returns to column 0
+           * with '\r' first, so it is correct regardless of how far
+           * the cursor moved.
+           */
+
+          redraw_line(vtbl, buf, nch, cursor);
         }
 
-#ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
+#  ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
       else if (ch == CTRL_R && g_cmdhist.len > 0)
         {
           /* Ctrl+R = start a reverse incremental search through the
@@ -1489,11 +1574,11 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           savedcursor = cursor;
           nch         = 0;
 
-#ifdef CONFIG_READLINE_ECHO
+#    ifdef CONFIG_READLINE_ECHO
           isearch_redraw(vtbl, search, searchlen, buf, nch, false);
-#endif
+#    endif
         }
-#endif /* CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH */
+#  endif /* CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH */
 #endif /* CONFIG_READLINE_EDIT_EMACS */
 
       /* Otherwise, put the character in the line buffer if the
@@ -1526,7 +1611,11 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           if (nch + 1 < buflen)
             {
               int j;
-              for (j = nch; j > cursor; j--) buf[j] = buf[j - 1];
+              for (j = nch; j > cursor; j--)
+                {
+                  buf[j] = buf[j - 1];
+                }
+
               buf[cursor] = (char)ch; nch++; cursor++;
 #  ifdef CONFIG_READLINE_ECHO
               redraw_tail(vtbl, buf, nch, cursor);
@@ -1534,7 +1623,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
             }
 #else
           buf[nch++] = ch;
-#endif
+#endif  /* CONFIG_READLINE_EDIT */
 
           /* Check if there is room for another character and the line's
            * null terminator.  If not then we have to end the line now.
@@ -1569,14 +1658,14 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
            * only in the opposite direction.
            */
 
-#ifdef CONFIG_READLINE_EDIT
+#  ifdef CONFIG_READLINE_EDIT
           if (tab_completion(vtbl, buf, buflen, &nch))
             {
               cursor = nch;
             }
-#else
+#  else
           tab_completion(vtbl, buf, buflen, &nch);
-#endif
+#  endif
         }
 #endif
     }

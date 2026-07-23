@@ -61,17 +61,14 @@ config READLINE_EDIT
 		Build in support for full command-line editing using cursor keys,
 		Home/End, Delete. Requires a VT100/ANSI-compatible terminal.
 
-if READLINE_EDIT
-
 config READLINE_EDIT_EMACS
 	bool "Emacs-style control keys"
 	default n
+	depends on READLINE_EDIT
 	---help---
 		Enable emacs-style control key bindings:
 		Ctrl+A Home, Ctrl+E End, Ctrl+K kill-to-end,
 		Ctrl+U kill-to-start, Ctrl+Left/Right word movement.
-
-endif # READLINE_EDIT
 
 config READLINE_CMD_HISTORY
 	bool "Command line history"
