@@ -1797,10 +1797,7 @@ static void build_app_store_ui(FAR const char *repo_url)
   if (repo_url != NULL && repo_url[0] != '\0')
     {
       lv_obj_t *spinner;
-      int wait_ticks;
-#ifdef CONFIG_ESPRESSIF_WIFI
-      extern volatile int g_wifi_dhcp_ret;
-#endif
+      time_t retry_deadline;
 
       status = lv_label_create(scr);
       lv_obj_add_flag(status, LV_OBJ_FLAG_IGNORE_LAYOUT);
@@ -1816,47 +1813,6 @@ static void build_app_store_ui(FAR const char *repo_url)
       lv_obj_set_style_arc_color(spinner, lv_color_hex(NXSTORE_COLOR_ACCENT),
                                  LV_PART_INDICATOR);
 
-      /* nxstore starts as soon as LCD/touchscreen bring-up finishes,
-       * but Wi-Fi association + DHCP run on their own background task
-       * (see wapi_board_autoconnect_task) that can easily still be in
-       * progress at this point.  Without this wait, the very first
-       * sync attempt on a cold boot would race the network coming up
-       * and fail every time, even though the board ends up connected
-       * moments later - the exact "Server download failed" report
-       * that motivated adding this.  Bounded (15s) rather than
-       * indefinite so a genuinely offline board still falls through
-       * to the cached-listing path instead of hanging here forever.
-       */
-
-#ifdef CONFIG_ESPRESSIF_WIFI
-      /* IFF_RUNNING alone only means L2 association completed - DHCP
-       * (a separate step afterward in wapi_board_autoconnect_task)
-       * can still be in flight, and an HTTP fetch attempted before it
-       * finishes fails with -ENETUNREACH (no route yet) even though
-       * the link itself is up.  g_wifi_dhcp_ret is set exactly once,
-       * the moment DHCP finishes (success or failure) - wait for that
-       * rather than inferring readiness from interface flags/IP,
-       * which can be ambiguous (e.g. a non-DHCP placeholder address).
-       */
-
-      for (wait_ticks = 0; wait_ticks < 250; wait_ticks++)
-        {
-          /* -424242 must match WIFI_DIAG_NOT_ATTEMPTED in
-           * esp32s3_bringup.c - a #define there, not a linkable
-           * symbol, so it can't be shared directly across this
-           * flat build's separate compilation units.
-           */
-
-          if (g_wifi_dhcp_ret != -424242)
-            {
-              break;
-            }
-
-          lv_timer_handler();
-          usleep(100 * 1000);
-        }
-#endif
-
       lv_label_set_text(status, "Downloading listing from server...");
 
       /* Yield once so the "Downloading..." label and spinner are painted
@@ -1865,7 +1821,27 @@ static void build_app_store_ui(FAR const char *repo_url)
 
       lv_timer_handler();
 
-      ret = pkg_sync(repo_url);
+      /* A cold boot can reach nxstore before DHCP has installed a route.
+       * Retry only readiness failures for up to 15 seconds.  Checking the
+       * operation's result keeps nxstore independent of board-specific
+       * Wi-Fi state and works for Ethernet or other network interfaces too.
+       */
+
+      retry_deadline = time(NULL) + 15;
+      do
+        {
+          ret = pkg_sync(repo_url);
+          if (ret != -ENETUNREACH && ret != -ENETDOWN &&
+              ret != -EHOSTUNREACH)
+            {
+              break;
+            }
+
+          lv_timer_handler();
+          usleep(250 * 1000);
+        }
+      while (time(NULL) < retry_deadline);
+
       lv_obj_del(spinner);
       if (ret != 0)
         {
