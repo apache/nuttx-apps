@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <poll.h>
 #include <getopt.h>
 #include <errno.h>
@@ -46,7 +47,7 @@
  * Private Data
  ****************************************************************************/
 
-static const char g_short_options[] = "d:s:hf:i:o:";
+static const char g_short_options[] = "d:s:hf:i:o:t:";
 
 static const struct option g_long_options[] =
 {
@@ -56,6 +57,7 @@ static const struct option g_long_options[] =
   { "format",  required_argument, NULL, 'f' },
   { "infile",  required_argument, NULL, 'i' },
   { "outfile", required_argument, NULL, 'o' },
+  { "timeout", required_argument, NULL, 't' },
   { NULL,      0,                 NULL, 0   }
 };
 
@@ -67,7 +69,7 @@ static void usage(FAR const char *progname)
 {
   printf("NxCodec Version: "NXCODEC_VER"\n"
          "Usage: %s -d devname -s [wxh] -f [informt] "
-         "-i infile -f [outformat] -o outfile\n"
+         "-i infile -f [outformat] -o outfile [-t timeout_ms]\n"
          "Default settings for decoder parameters\n\n"
          "Options:\n"
          "-d | --device  Video device name\n"
@@ -75,10 +77,39 @@ static void usage(FAR const char *progname)
          "-h | --help    Print this message\n"
          "-f | --format  Format of stream\n"
          "-i | --infile  Input filename for M2M devices\n"
-         "-o | --outfile Outputs stream to filename\n",
+         "-o | --outfile Outputs stream to filename\n"
+         "-t | --timeout Decode timeout in ms (default: infinite)\n",
          progname);
 
   exit(EXIT_SUCCESS);
+}
+
+static inline bool nxcodec_is_jpeg(FAR nxcodec_t *codec)
+{
+  uint32_t fmt = codec->output.format.fmt.pix.pixelformat;
+
+  return fmt == V4L2_PIX_FMT_JPEG || fmt == V4L2_PIX_FMT_MJPEG;
+}
+
+static int nxcodec_jpeg_wait_decode(FAR nxcodec_t *codec, int timeout_ms)
+{
+  struct pollfd cpfd =
+  {
+    .events = POLLIN,
+    .fd = codec->fd,
+  };
+
+  /* Wait for the final decoded frame.  A timeout guards against the
+   * decoder hanging on a single-frame JPEG when the lower layer fails.
+   */
+
+  poll(&cpfd, 1, timeout_ms);
+  if (cpfd.revents & POLLIN)
+    {
+      return nxcodec_context_dequeue_frame(&codec->capture);
+    }
+
+  return -ETIMEDOUT;
 }
 
 /****************************************************************************
@@ -92,6 +123,7 @@ static void usage(FAR const char *progname)
 int main(int argc, FAR char **argv)
 {
   nxcodec_t codec;
+  int timeout_ms = -1;
   int ret;
   char cc[5] =
     {
@@ -193,6 +225,10 @@ int main(int argc, FAR char **argv)
 
             break;
 
+          case 't':
+            timeout_ms = atoi(optarg);
+            break;
+
           default:
             usage(argv[0]);
             break;
@@ -229,18 +265,42 @@ int main(int argc, FAR char **argv)
 
       if (pfd.revents & POLLIN)
         {
-          if (nxcodec_context_dequeue_frame(&codec.capture) < 0)
+          ret = nxcodec_context_dequeue_frame(&codec.capture);
+          if (ret < 0 && ret != -EAGAIN)
             {
               printf("nxcodec dequeue frame failed: %s\n", strerror(errno));
+              break;
+            }
+
+          /* For single-frame formats (JPEG/MJPEG), one decoded frame
+           * is all we need.  Exit the loop after successfully
+           * dequeuing the output.
+           */
+
+          if (ret == 0 && nxcodec_is_jpeg(&codec))
+            {
               break;
             }
         }
 
       if (pfd.revents & POLLOUT)
         {
-          if (nxcodec_context_enqueue_frame(&codec.output) < 0)
+          ret = nxcodec_context_enqueue_frame(&codec.output);
+          if (ret < 0 && ret != -EAGAIN)
             {
-              printf("nxcodec enqueue frame failed: %s\n", strerror(errno));
+              /* For JPEG, reaching EOF after the first frame is
+               * expected.  Don't treat it as a fatal error — just
+               * stop feeding and wait for the decoder to finish.
+               */
+
+              if (nxcodec_is_jpeg(&codec))
+                {
+                  nxcodec_jpeg_wait_decode(&codec, timeout_ms);
+                  break;
+                }
+
+              printf("nxcodec enqueue frame failed: %s\n",
+                     strerror(errno));
               break;
             }
         }
