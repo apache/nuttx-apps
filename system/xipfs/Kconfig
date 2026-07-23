@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_XIPFS
+	tristate "xipfs defragmentation command"
+	default n
+	depends on FS_XIPFS
+	---help---
+		Enable the 'xipfs' command, which compacts a xipfs volume and
+		reports how its erase blocks are laid out.  With -n it only
+		reports -- block usage, a map of the volume, and how much of the
+		free space a single allocation can reach -- and moves nothing.
+
+if SYSTEM_XIPFS
+
+config SYSTEM_XIPFS_PROGNAME
+	string "Program name"
+	default "xipfs"
+	---help---
+		The name of the command as it appears in NSH.
+
+config SYSTEM_XIPFS_MOUNTPOINT
+	string "Default mountpoint"
+	default "/mnt/xipfs"
+	---help---
+		The volume operated on when none is given on the command line.
+
+config SYSTEM_XIPFS_PRIORITY
+	int "Task priority"
+	default 100
+
+config SYSTEM_XIPFS_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif # SYSTEM_XIPFS
