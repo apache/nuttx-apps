@@ -662,9 +662,11 @@ static int nxstore_launch(FAR const struct pkg_manifest_s *manifest,
 {
   FAR struct pkg_installed_db_s *db;
   FAR struct pkg_installed_entry_s *entry;
+  FAR struct pkg_manifest_s *installed;
   posix_spawnattr_t attr;
   char path[PATH_MAX];
-  FAR char *argv[2];
+  FAR char *argv[PKG_LAUNCH_ARGS_MAX + 2];
+  size_t i;
   pid_t pid;
   int ret;
 
@@ -681,10 +683,18 @@ static int nxstore_launch(FAR const struct pkg_manifest_s *manifest,
       return -ENOMEM;
     }
 
+  installed = pkg_zalloc(sizeof(*installed));
+  if (installed == NULL)
+    {
+      pkg_free(db);
+      return -ENOMEM;
+    }
+
   ret = pkg_metadata_load_installed(db);
   if (ret < 0)
     {
       pkg_error("nxstore: failed to load installed db: %d", ret);
+      pkg_free(installed);
       pkg_free(db);
       return ret;
     }
@@ -693,26 +703,63 @@ static int nxstore_launch(FAR const struct pkg_manifest_s *manifest,
   if (entry == NULL)
     {
       pkg_error("nxstore: %s not found in installed db", manifest->name);
+      pkg_free(installed);
       pkg_free(db);
       return -ENOENT;
     }
 
-  ret = pkg_store_format_payload_path(path, sizeof(path), manifest->name,
-                                      entry->current, manifest->artifact);
+  ret = pkg_store_format_manifest_path(path, sizeof(path), manifest->name,
+                                       entry->current);
+  if (ret >= 0)
+    {
+      ret = pkg_metadata_load_manifest_path(path, installed);
+    }
+
+  if (ret >= 0 &&
+      (strcmp(installed->name, manifest->name) != 0 ||
+       strcmp(installed->version, entry->current) != 0))
+    {
+      ret = -EINVAL;
+    }
+
+  if (ret >= 0)
+    {
+      ret = pkg_store_format_payload_path(path, sizeof(path),
+                                          installed->name,
+                                          installed->version,
+                                          installed->artifact);
+    }
+
   pkg_free(db);
   if (ret < 0)
     {
+      pkg_free(installed);
       return ret;
     }
 
   argv[0] = path;
-  argv[1] = NULL;
+  for (i = 0; i < installed->launch_argc; i++)
+    {
+      argv[i + 1] = installed->launch_args[i];
+    }
 
-  posix_spawnattr_init(&attr);
-  posix_spawnattr_setstacksize(&attr, NXSTORE_LAUNCH_STACKSIZE);
+  argv[i + 1] = NULL;
 
-  ret = posix_spawn(&pid, path, NULL, &attr, argv, NULL);
+  ret = posix_spawnattr_init(&attr);
+  if (ret != 0)
+    {
+      pkg_free(installed);
+      return -ret;
+    }
+
+  ret = posix_spawnattr_setstacksize(&attr, NXSTORE_LAUNCH_STACKSIZE);
+  if (ret == 0)
+    {
+      ret = posix_spawn(&pid, path, NULL, &attr, argv, NULL);
+    }
+
   posix_spawnattr_destroy(&attr);
+  pkg_free(installed);
   if (ret != 0)
     {
       pkg_error("nxstore: posix_spawn(%s) failed: %d", path, ret);
@@ -1923,8 +1970,8 @@ int main(int argc, FAR char *argv[])
   lv_init();
 
   lv_nuttx_dsc_init(&info);
-  info.fb_path = CONFIG_EXAMPLES_LVGLDEMO_FBDEVPATH;
-  info.input_path = CONFIG_EXAMPLES_LVGLDEMO_INPUT_DEVPATH;
+  info.fb_path = CONFIG_SYSTEM_NXSTORE_FBDEVPATH;
+  info.input_path = CONFIG_SYSTEM_NXSTORE_INPUT_DEVPATH;
   lv_nuttx_init(&info, &result);
 
   if (result.disp == NULL)
