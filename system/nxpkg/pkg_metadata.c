@@ -404,6 +404,9 @@ static int pkg_metadata_version_token_cmp(FAR const char *lhs,
   long rightnum;
   FAR char *leftend;
   FAR char *rightend;
+  FAR const char *cmpleft;
+  FAR const char *cmpright;
+  int ret;
 
   leftnum = strtol(lhs, &leftend, 10);
   rightnum = strtol(rhs, &rightend, 10);
@@ -419,22 +422,36 @@ static int pkg_metadata_version_token_cmp(FAR const char *lhs,
         {
           return 1;
         }
+
+      /* Equal numeric prefixes don't make the tokens equal if what
+       * follows the number differs - e.g. "1a" and "1b" both parse as
+       * 1, but are documented to compare lexically by their non-numeric
+       * component.  Falling through to "equal" here (as this used to)
+       * silently treated any such pair as the same version, which is
+       * exactly backwards for tokens whose whole point is to be
+       * distinguishable.  Compare what's left after the numeric prefix
+       * - leftend/rightend - lexically instead of falling through.
+       */
+
+      cmpleft = leftend;
+      cmpright = rightend;
     }
   else
     {
-      int ret;
+      cmpleft = lhs;
+      cmpright = rhs;
+    }
 
-      ret = pkg_string_cmp(lhs, PKG_VERSION_MAX + 1,
-                           rhs, PKG_VERSION_MAX + 1);
-      if (ret < 0)
-        {
-          return -1;
-        }
+  ret = pkg_string_cmp(cmpleft, PKG_VERSION_MAX + 1,
+                       cmpright, PKG_VERSION_MAX + 1);
+  if (ret < 0)
+    {
+      return -1;
+    }
 
-      if (ret > 0)
-        {
-          return 1;
-        }
+  if (ret > 0)
+    {
+      return 1;
     }
 
   return 0;

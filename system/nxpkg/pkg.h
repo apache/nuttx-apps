@@ -259,7 +259,9 @@ int pkg_resolve_artifact_source(FAR char *buffer, size_t size,
                                 FAR const struct pkg_manifest_s *manifest);
 int pkg_resolve_icon_source(FAR char *buffer, size_t size,
                             FAR const struct pkg_manifest_s *manifest);
-int pkg_acquire_source(FAR const char *source, FAR const char *dest);
+int pkg_acquire_source(FAR const char *source, FAR const char *dest,
+                       FAR const char *renew_lock_path);
+void pkg_reclaim_stale_lock(FAR const char *path);
 int pkg_sync(FAR const char *source);
 int pkg_install(FAR const char *name);
 int pkg_uninstall(FAR const char *name);

@@ -32,6 +32,8 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <utime.h>
+#include <sys/stat.h>
 
 #include <nuttx/config.h>
 
@@ -67,6 +69,15 @@ struct pkg_fetch_context_s
 {
   int fd;
   size_t total;
+
+  /* Optional path to a lock file whose mtime should be refreshed as data
+   * arrives - see pkg_repo_sink()'s comment on why a lock acquired once
+   * up front isn't enough for a download that can run past the stale-
+   * lock timeout on its own.  NULL if there's nothing to renew (e.g. a
+   * plain local-file copy, which is fast enough not to need it).
+   */
+
+  FAR const char *renew_lock_path;
 };
 #endif
 
@@ -238,10 +249,28 @@ static int pkg_repo_sink(FAR char **buffer, int offset, int datend,
       remaining -= (size_t)nwritten;
     }
 
+  /* The lock this download is running under was only ever stamped once,
+   * at acquire time - PKG_LOCK_STALE_SECONDS then measures from that
+   * single timestamp regardless of how long the download actually
+   * takes, so a large-enough file over a slow-enough link can still be
+   * genuinely mid-transfer when another install for the same package
+   * decides the lock looks stale and reclaims it out from under this
+   * one.  Touching it here means its age reflects time since the last
+   * byte actually arrived instead of total operation time - best-
+   * effort: a failed touch just means this one chunk didn't renew it,
+   * not that the download itself should fail.
+   */
+
+  if (ctx->renew_lock_path != NULL)
+    {
+      utime(ctx->renew_lock_path, NULL);
+    }
+
   return 0;
 }
 
-static int pkg_repo_fetch_url(FAR const char *url, FAR const char *dest)
+static int pkg_repo_fetch_url(FAR const char *url, FAR const char *dest,
+                              FAR const char *renew_lock_path)
 {
   struct pkg_fetch_context_s fetch;
   struct webclient_context client;
@@ -256,6 +285,7 @@ static int pkg_repo_fetch_url(FAR const char *url, FAR const char *dest)
     }
 
   fetch.total = 0;
+  fetch.renew_lock_path = renew_lock_path;
 
   webclient_set_defaults(&client);
   client.method = "GET";
@@ -378,7 +408,8 @@ int pkg_resolve_icon_source(FAR char *buffer, size_t size,
   return pkg_resolve_relative_source(buffer, size, manifest->icon);
 }
 
-int pkg_acquire_source(FAR const char *source, FAR const char *dest)
+int pkg_acquire_source(FAR const char *source, FAR const char *dest,
+                       FAR const char *renew_lock_path)
 {
   if (source == NULL || dest == NULL)
     {
@@ -388,13 +419,71 @@ int pkg_acquire_source(FAR const char *source, FAR const char *dest)
   if (pkg_source_is_url(source))
     {
 #ifdef CONFIG_NETUTILS_WEBCLIENT
-      return pkg_repo_fetch_url(source, dest);
+      return pkg_repo_fetch_url(source, dest, renew_lock_path);
 #else
       return -ENOSYS;
 #endif
     }
 
   return pkg_store_copy_file(source, dest);
+}
+
+/****************************************************************************
+ * Name: pkg_repo_acquire_sync_lock
+ *
+ * Description:
+ *   pkg_sync() below updates index.jsn and repo.url as two separate
+ *   atomic writes with nothing serializing the pair against a second,
+ *   concurrent pkg_sync() call (e.g. two different sources, or a manual
+ *   sync racing nxstore's own retry loop).  Each individual write stays
+ *   internally consistent, but the *pair* doesn't: one sync's index.jsn
+ *   can end up on disk next to a different sync's repo.url, and the two
+ *   syncs' temp/staging files (already PID-qualified against each
+ *   other) can still be committed out of order relative to one another.
+ *   A single lock file around the whole read-fetch-write sequence
+ *   closes that, mirroring pkg_install.c's installed-db lock: blocking
+ *   with a bounded retry rather than instant -EBUSY, since this
+ *   critical section already includes the network fetch and a slow
+ *   sync should make a second one wait rather than fail outright.
+ *
+ ****************************************************************************/
+
+static int pkg_repo_acquire_sync_lock(FAR char *path, size_t size)
+{
+  int fd;
+  int ret;
+  int tries;
+
+  ret = snprintf(path, size, PKG_ROOT_DIR "/sync.lk");
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  if ((size_t)ret >= size)
+    {
+      return -ENAMETOOLONG;
+    }
+
+  for (tries = 0; tries < 100; tries++)
+    {
+      fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
+      if (fd >= 0)
+        {
+          close(fd);
+          return 0;
+        }
+
+      if (errno != EEXIST)
+        {
+          return -errno;
+        }
+
+      pkg_reclaim_stale_lock(path);
+      usleep(20 * 1000);
+    }
+
+  return -EBUSY;
 }
 
 int pkg_sync(FAR const char *source)
@@ -404,6 +493,8 @@ int pkg_sync(FAR const char *source)
   FAR char *tmp;
   FAR char *index_path;
   FAR char *source_path;
+  FAR char *lock;
+  bool lock_held = false;
   int ret;
 
   if (source == NULL || source[0] == '\0')
@@ -411,6 +502,23 @@ int pkg_sync(FAR const char *source)
       pkg_error("sync requires a non-empty index source");
       return -EINVAL;
     }
+
+  lock = pkg_path_alloc();
+  if (lock == NULL)
+    {
+      pkg_error("unable to allocate sync lock path buffer");
+      return -ENOMEM;
+    }
+
+  ret = pkg_repo_acquire_sync_lock(lock, PATH_MAX);
+  if (ret < 0)
+    {
+      pkg_error("unable to acquire sync lock: %d", ret);
+      pkg_free(lock);
+      return ret;
+    }
+
+  lock_held = true;
 
   index = pkg_zalloc(sizeof(*index));
   tmp = pkg_path_alloc();
@@ -424,7 +532,8 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to allocate index metadata buffer");
-      return -ENOMEM;
+      ret = -ENOMEM;
+      goto out;
     }
 
   ret = pkg_store_prepare_layout();
@@ -435,7 +544,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return ret;
+      goto out;
     }
 
   /* Each CLI invocation has its own PID.  Use it in the staging name so a
@@ -452,10 +561,11 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return -ENAMETOOLONG;
+      ret = -ENAMETOOLONG;
+      goto out;
     }
 
-  ret = pkg_acquire_source(source, tmp);
+  ret = pkg_acquire_source(source, tmp, lock);
   if (ret < 0)
     {
       pkg_error("unable to fetch index source '%s': %d", source, ret);
@@ -463,7 +573,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return ret;
+      goto out;
     }
 
   ret = pkg_metadata_load_index_path(tmp, index);
@@ -475,7 +585,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return ret;
+      goto out;
     }
 
   ret = pkg_store_read_text(tmp, &text);
@@ -487,7 +597,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(tmp);
       pkg_free(index_path);
       pkg_free(source_path);
-      return ret;
+      goto out;
     }
 
   ret = pkg_store_format_index_path(index_path, PATH_MAX);
@@ -500,7 +610,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to resolve local index path: %d", ret);
-      return ret;
+      goto out;
     }
 
   ret = pkg_store_write_text_atomic(index_path, text);
@@ -513,7 +623,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to write local index: %d", ret);
-      return ret;
+      goto out;
     }
 
   ret = pkg_store_format_repo_source_path(source_path, PATH_MAX);
@@ -526,7 +636,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to resolve repository source path: %d", ret);
-      return ret;
+      goto out;
     }
 
   ret = pkg_store_write_text_atomic(source_path, source);
@@ -539,7 +649,7 @@ int pkg_sync(FAR const char *source)
       pkg_free(index_path);
       pkg_free(source_path);
       pkg_error("unable to save repository source: %d", ret);
-      return ret;
+      goto out;
     }
 
   pkg_store_remove_file(tmp);
@@ -549,7 +659,16 @@ int pkg_sync(FAR const char *source)
   pkg_free(index_path);
   pkg_free(source_path);
   pkg_info("synced package index from %s", source);
-  return 0;
+  ret = 0;
+
+out:
+  if (lock_held)
+    {
+      unlink(lock);
+    }
+
+  pkg_free(lock);
+  return ret;
 }
 
 int pkg_available(FAR FILE *stream)

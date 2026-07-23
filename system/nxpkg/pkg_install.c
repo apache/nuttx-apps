@@ -40,39 +40,6 @@
  * Private Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: pkg_install_reclaim_stale_lock
- *
- * Description:
- *   Remove "path" if it is old enough that it cannot belong to a
- *   still-running install (see PKG_LOCK_STALE_SECONDS).  Best-effort: any
- *   stat()/unlink() failure just falls through to the normal -EBUSY
- *   result, since a lock we can't inspect should be treated as held.
- *
- ****************************************************************************/
-
-static void pkg_install_reclaim_stale_lock(FAR const char *path)
-{
-  struct stat st;
-  time_t now;
-
-  if (stat(path, &st) < 0)
-    {
-      return;
-    }
-
-  now = time(NULL);
-  if (now < st.st_mtime ||
-      (now - st.st_mtime) < PKG_LOCK_STALE_SECONDS)
-    {
-      return;
-    }
-
-  pkg_error("reclaiming stale lock '%s' (age %ld s)",
-            path, (long)(now - st.st_mtime));
-  unlink(path);
-}
-
 static int pkg_install_acquire_lock(FAR const char *name, FAR char *path,
                                     size_t size)
 {
@@ -94,7 +61,7 @@ static int pkg_install_acquire_lock(FAR const char *name, FAR char *path,
   fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
   if (fd < 0 && errno == EEXIST)
     {
-      pkg_install_reclaim_stale_lock(path);
+      pkg_reclaim_stale_lock(path);
       fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
     }
 
@@ -176,7 +143,7 @@ static int pkg_install_acquire_installed_lock(FAR char *path, size_t size)
           return -errno;
         }
 
-      pkg_install_reclaim_stale_lock(path);
+      pkg_reclaim_stale_lock(path);
       usleep(20 * 1000);
     }
 
@@ -201,7 +168,8 @@ static bool pkg_install_has_version(
 }
 
 static int pkg_install_prune_oldest_version(
-              FAR struct pkg_installed_entry_s *entry)
+              FAR struct pkg_installed_entry_s *entry,
+              FAR char *pruned_version, size_t pruned_version_size)
 {
   size_t victim = entry->version_count;
   size_t i;
@@ -228,7 +196,19 @@ static int pkg_install_prune_oldest_version(
       return -E2BIG;
     }
 
-  pkg_store_remove_version_dir(entry->name, entry->versions[victim]);
+  /* Deleting the pruned version's on-disk directory here, before this
+   * in-memory db update is even durably saved, left a real inconsistency
+   * window: if pkg_metadata_save_installed() subsequently failed (full
+   * SD card, I/O error), the payload was already gone but the last
+   * successfully-saved instpkg.jsn could still list that version as
+   * installed.  Hand the victim's version string back to the caller
+   * instead, so it can defer the actual directory removal until after
+   * the save succeeds - mirroring how this file already treats the
+   * installed db as authoritative everywhere else.
+   */
+
+  snprintf(pruned_version, pruned_version_size, "%s",
+          entry->versions[victim]);
 
   for (i = victim; i + 1 < entry->version_count; i++)
     {
@@ -241,7 +221,9 @@ static int pkg_install_prune_oldest_version(
 }
 
 static int pkg_install_add_version(FAR struct pkg_installed_entry_s *entry,
-                                   FAR const char *version)
+                                   FAR const char *version,
+                                   FAR char *pruned_version,
+                                   size_t pruned_version_size)
 {
   int ret;
 
@@ -252,7 +234,8 @@ static int pkg_install_add_version(FAR struct pkg_installed_entry_s *entry,
 
   if (entry->version_count >= PKG_INSTALLED_VERSIONS_MAX)
     {
-      ret = pkg_install_prune_oldest_version(entry);
+      ret = pkg_install_prune_oldest_version(entry, pruned_version,
+                                             pruned_version_size);
       if (ret < 0)
         {
           return ret;
@@ -278,7 +261,9 @@ static int pkg_install_add_version(FAR struct pkg_installed_entry_s *entry,
 
 static int pkg_install_update_installed(FAR struct pkg_installed_db_s *db,
                                         FAR const struct pkg_manifest_s
-                                          *manifest)
+                                          *manifest,
+                                        FAR char *pruned_version,
+                                        size_t pruned_version_size)
 {
   FAR struct pkg_installed_entry_s *entry;
   int ret;
@@ -332,7 +317,8 @@ static int pkg_install_update_installed(FAR struct pkg_installed_db_s *db,
     }
 
   entry->type = manifest->type;
-  return pkg_install_add_version(entry, manifest->version);
+  return pkg_install_add_version(entry, manifest->version, pruned_version,
+                                 pruned_version_size);
 }
 
 static int pkg_install_write_pointers(
@@ -380,6 +366,42 @@ out:
  * Public Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: pkg_reclaim_stale_lock
+ *
+ * Description:
+ *   Remove "path" if it is old enough that it cannot belong to a still-
+ *   running holder (see PKG_LOCK_STALE_SECONDS).  Best-effort: any
+ *   stat()/unlink() failure just falls through to the normal -EBUSY
+ *   result, since a lock we can't inspect should be treated as held.
+ *   Generic across every lock file this package uses (per-package
+ *   install locks, the shared installed-db lock, pkg_repo.c's sync
+ *   lock) - not install-specific despite living in this file.
+ *
+ ****************************************************************************/
+
+void pkg_reclaim_stale_lock(FAR const char *path)
+{
+  struct stat st;
+  time_t now;
+
+  if (stat(path, &st) < 0)
+    {
+      return;
+    }
+
+  now = time(NULL);
+  if (now < st.st_mtime ||
+      (now - st.st_mtime) < PKG_LOCK_STALE_SECONDS)
+    {
+      return;
+    }
+
+  pkg_error("reclaiming stale lock '%s' (age %ld s)",
+            path, (long)(now - st.st_mtime));
+  unlink(path);
+}
+
 int pkg_install(FAR const char *name)
 {
   FAR struct pkg_index_s *index;
@@ -393,10 +415,13 @@ int pkg_install(FAR const char *name)
   FAR char *installed_lock;
   FAR const char *artifact;
   char digest[PKG_HASH_HEX_LEN + 1];
+  char pruned_version[PKG_VERSION_MAX + 1];
   bool staged_to_tmp;
   bool version_dir_created;
   bool installed_lock_held;
   int ret;
+
+  pruned_version[0] = '\0';
 
   index = pkg_zalloc(sizeof(*index));
   installed = pkg_zalloc(sizeof(*installed));
@@ -525,7 +550,7 @@ int pkg_install(FAR const char *name)
           goto errout;
         }
 
-      ret = pkg_acquire_source(source, tmp);
+      ret = pkg_acquire_source(source, tmp, lock);
       if (ret < 0)
         {
           pkg_error("acquire source failed: %d", ret);
@@ -667,7 +692,8 @@ int pkg_install(FAR const char *name)
       goto errout;
     }
 
-  ret = pkg_install_update_installed(installed, manifest);
+  ret = pkg_install_update_installed(installed, manifest, pruned_version,
+                                     sizeof(pruned_version));
   if (ret < 0)
     {
       pkg_error("update installed metadata failed: %d", ret);
@@ -679,6 +705,18 @@ int pkg_install(FAR const char *name)
     {
       pkg_error("save installed metadata failed: %d", ret);
       goto errout;
+    }
+
+  /* Only remove the pruned version's payload directory now that the db
+   * update naming it gone is durably saved - see
+   * pkg_install_prune_oldest_version()'s comment for why doing this
+   * before the save could leave a saved db entry pointing at an
+   * already-deleted version if the save had failed instead.
+   */
+
+  if (pruned_version[0] != '\0')
+    {
+      pkg_store_remove_version_dir(manifest->name, pruned_version);
     }
 
   ret = pkg_install_write_pointers(installed, manifest->name);
