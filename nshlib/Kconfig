@@ -413,6 +413,10 @@ config NSH_DISABLE_DMESG
 	bool "Disable dmesg"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_DU
+	bool "Disable du"
+	default DEFAULT_SMALL
+
 config NSH_DISABLE_ECHO
 	bool "Disable echo"
 	default DEFAULT_SMALL
