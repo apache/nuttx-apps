@@ -1366,6 +1366,10 @@ static void install_btn_event_cb(lv_event_t *e)
  *   circle + symbol glyph, so a bad icon never blocks the app from being
  *   listed or installed.
  *
+ *   Cache files include the package version so an updated package does not
+ *   silently retain an older icon. Corrupt cache files are removed so a
+ *   later launch can fetch them again.
+ *
  *   On success, both the returned descriptor and its data pointer are
  *   heap-allocated and intentionally never freed - the descriptor is
  *   handed straight to a permanent lv_image row widget (which keeps a
@@ -1386,6 +1390,7 @@ nxstore_load_icon(FAR const struct pkg_manifest_s *manifest)
   struct stat st;
   int fd;
   ssize_t nread;
+  size_t offset;
   uint16_t w;
   uint16_t h;
   uint16_t stride;
@@ -1395,8 +1400,9 @@ nxstore_load_icon(FAR const struct pkg_manifest_s *manifest)
       return NULL;
     }
 
-  snprintf(cache_path, sizeof(cache_path), PKG_ROOT_DIR "/icons/%s.bin",
-          manifest->name);
+  snprintf(cache_path, sizeof(cache_path),
+           PKG_ROOT_DIR "/icons/%s-%s.bin",
+           manifest->name, manifest->version);
 
   if (stat(cache_path, &st) < 0)
     {
@@ -1428,12 +1434,36 @@ nxstore_load_icon(FAR const struct pkg_manifest_s *manifest)
       return NULL;
     }
 
-  nread = read(fd, buf, (size_t)st.st_size);
+  offset = 0;
+  while (offset < (size_t)st.st_size)
+    {
+      nread = read(fd, buf + offset, (size_t)st.st_size - offset);
+      if (nread < 0)
+        {
+          if (errno == EINTR)
+            {
+              continue;
+            }
+
+          break;
+        }
+
+      if (nread == 0)
+        {
+          break;
+        }
+
+      offset += nread;
+    }
+
   close(fd);
 
-  if (nread != st.st_size || buf[0] != LV_IMAGE_HEADER_MAGIC)
+  if (offset != (size_t)st.st_size ||
+      buf[0] != LV_IMAGE_HEADER_MAGIC ||
+      buf[1] != LV_COLOR_FORMAT_RGB565)
     {
       pkg_free(buf);
+      unlink(cache_path);
       return NULL;
     }
 
@@ -1443,9 +1473,10 @@ nxstore_load_icon(FAR const struct pkg_manifest_s *manifest)
 
   if (w == 0 || h == 0 || w > NXSTORE_ICON_MAX_DIM ||
       h > NXSTORE_ICON_MAX_DIM || stride != w * 2 ||
-      12 + (size_t)stride * h > (size_t)nread)
+      12 + (size_t)stride * h != (size_t)st.st_size)
     {
       pkg_free(buf);
+      unlink(cache_path);
       return NULL;
     }
 
