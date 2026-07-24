@@ -21,10 +21,21 @@ menuconfig NETUTILS_DROPBEAR
 	depends on LIBC_GAISTRERROR
 	depends on CRYPTO
 	depends on CRYPTO_RANDOM_POOL
+	depends on ALLOW_BSD_COMPONENTS
+	depends on CRYPTO_CRYPTODEV
+	depends on CRYPTO_CRYPTODEV_SOFTWARE_CRYPTO
 	---help---
 		Enable a minimal Dropbear SSH server port for NuttX.  This initial
 		port is based on the ESP-IDF MCU test port and provides a single
 		foreground SSH server process with SSH sessions backed by NSH.
+
+		The port computes the hmac-sha2-256 packet MAC through the NuttX
+		crypto device (/dev/crypto, CRYPTO_SHA2_256_HMAC) instead of the
+		bundled libtomcrypt implementation, which is dropped from the
+		build.  The SHA-256 hash descriptor itself stays in the
+		application: Dropbear's key derivation clones partially-updated
+		hash states (hashkeys() in common-kex.c), which cannot be
+		represented by a kernel crypto session.
 
 if NETUTILS_DROPBEAR
 

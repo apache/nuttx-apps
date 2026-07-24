@@ -119,6 +119,16 @@ CSRCS += \
 TOMMATH_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtommath" ]; then find "$(DROPBEAR_UNPACKNAME)/libtommath" -name "*.c"; fi)
 TOMCRYPT_SRCS = $(shell if [ -d "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" ]; then find "$(DROPBEAR_UNPACKNAME)/libtomcrypt/src" -name "*.c" ! -name "sober128tab.c"; fi)
 
+# Drop the bundled libtomcrypt HMAC modules replaced by the NuttX adapter.
+
+TOMCRYPT_SRCS := $(filter-out \
+	%/mac/hmac/hmac_init.c \
+	%/mac/hmac/hmac_process.c \
+	%/mac/hmac/hmac_done.c, \
+	$(TOMCRYPT_SRCS))
+
+CSRCS += port/dropbear_ltc_hmac_sha256.c
+
 CSRCS += $(TOMMATH_SRCS)
 CSRCS += $(TOMCRYPT_SRCS)
 
