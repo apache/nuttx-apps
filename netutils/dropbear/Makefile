@@ -129,6 +129,11 @@ TOMCRYPT_SRCS := $(filter-out \
 
 CSRCS += port/dropbear_ltc_hmac_sha256.c
 
+# Replace the bundled chacha20-poly1305 with the /dev/crypto adapter.
+
+CSRCS := $(filter-out dropbear/src/chachapoly.c,$(CSRCS))
+CSRCS += port/dropbear_chachapoly.c
+
 CSRCS += $(TOMMATH_SRCS)
 CSRCS += $(TOMCRYPT_SRCS)
 
