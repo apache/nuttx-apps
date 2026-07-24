@@ -4,7 +4,7 @@
 #
 
 config GAMES_NXDOOM
-	bool "NXDoom"
+	tristate "NXDoom"
 	default n
 	depends on ALLOW_GPL_COMPONENTS
 	depends on VIDEO_FB
@@ -177,6 +177,27 @@ config GAMES_NXDOOM_MAXDRAWSEGS
 		original ChocolateDOOM source uses 256. They take a significant amount of
 		memory, so you may reduce the number. However, too few will cause
 		rendering issues (overflow is checked to avoid crashes).
+
+config GAMES_NXDOOM_HEAP_BUFFERS
+	bool "Allocate renderer scratch buffers on the heap"
+	default n
+	---help---
+		The visplanes/openings/drawsegs/vissprites renderer scratch buffers
+		(sized by the options above) are static arrays by default, matching
+		vanilla DOOM. On a target where their combined size threatens the
+		internal DRAM budget once linked into a full application image,
+		enable this to allocate them from the heap instead (this target's
+		heap may be backed by external RAM/PSRAM). Static allocation is
+		preferred where DRAM budget is not a concern.
+
+config GAMES_NXDOOM_STATDUMP_MAX_CAPTURES
+	int "Maximum statdump capture buffer entries"
+	default 32
+	range 1 1024
+	---help---
+		Number of playtime-statistics capture slots statdump.c reserves.
+		This is diagnostic/debug capture storage, not required for normal
+		gameplay - reduce it on a DRAM-constrained target.
 
 config GAMES_NXDOOM_RANGECHECK
 	bool "Perform range checks"

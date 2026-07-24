@@ -1982,16 +1982,14 @@ static void save_default_collection(default_collection_t *collection)
  *
  ****************************************************************************/
 
-static int parse_int_parameter(const char *strparm)
+static int parse_int_parameter(const char *strparm, int *param)
 {
-  int param;
-
   if (strparm[0] == '0' && strparm[1] == 'x')
-    sscanf(strparm + 2, "%x", (unsigned int *)&param);
-  else
-    sscanf(strparm, "%i", &param);
+    {
+      return sscanf(strparm + 2, "%x", (unsigned int *)param) == 1;
+    }
 
-  return param;
+  return sscanf(strparm, "%i", param) == 1;
 }
 
 static void set_variable(default_t *def, const char *value)
@@ -2008,7 +2006,11 @@ static void set_variable(default_t *def, const char *value)
 
     case DEFAULT_INT:
     case DEFAULT_INT_HEX:
-      *def->location.i = parse_int_parameter(value);
+      if (parse_int_parameter(value, &intparm))
+        {
+          *def->location.i = intparm;
+        }
+
       break;
 
     case DEFAULT_KEY:
@@ -2017,7 +2019,11 @@ static void set_variable(default_t *def, const char *value)
        * file (save the old value in untranslated)
        */
 
-      intparm = parse_int_parameter(value);
+      if (!parse_int_parameter(value, &intparm))
+        {
+          break;
+        }
+
       def->untranslated = intparm;
       if (intparm >= 0 && intparm < 128)
         {
@@ -2082,6 +2088,7 @@ static void load_default_collection(default_collection_t *collection)
   default_t *def;
   char defname[80];
   char strparm[100];
+  char line[256];
 
   /* read the file in, overriding any set defaults */
 
@@ -2096,12 +2103,28 @@ static void load_default_collection(default_collection_t *collection)
       return;
     }
 
-  while (!feof(f))
+  while (fgets(line, sizeof(line), f) != NULL)
     {
-      if (fscanf(f, "%79s %99[^\n]\n", defname, strparm) != 2)
-        {
-          /* This line doesn't match */
+      strparm[0] = '\0';
 
+      /* Parse one physical line at a time.  fscanf() with whitespace in
+       * its format can consume the next line as a missing value.
+       */
+
+      if (strchr(line, '\n') == NULL &&
+          strlen(line) == sizeof(line) - 1)
+        {
+          int ch;
+
+          while ((ch = fgetc(f)) != '\n' && ch != EOF)
+            {
+            }
+
+          continue;
+        }
+
+      if (sscanf(line, "%79s %99[^\n]", defname, strparm) != 2)
+        {
           continue;
         }
 
@@ -2134,6 +2157,11 @@ static void load_default_collection(default_collection_t *collection)
         {
           strparm[strlen(strparm) - 1] = '\0';
           memmove(strparm, strparm + 1, sizeof(strparm) - 1);
+        }
+
+      if (strparm[0] == '\0')
+        {
+          continue;
         }
 
       set_variable(def, strparm);

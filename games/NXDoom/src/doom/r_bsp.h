@@ -52,7 +52,11 @@ extern boolean markceiling;
 
 extern boolean skymap;
 
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+extern drawseg_t *drawsegs;
+#else
 extern drawseg_t drawsegs[CONFIG_GAMES_NXDOOM_MAXDRAWSEGS];
+#endif
 extern drawseg_t *ds_p;
 
 extern lighttable_t **hscalelight;

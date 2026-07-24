@@ -597,7 +597,7 @@ void r_draw_span(void)
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH ||
-      (unsigned)ds_y > SCREENHEIGHT)
+      ds_y < 0 || ds_y >= viewheight)
     {
       i_error("r_draw_span: %i to %i at %i", ds_x1, ds_x2, ds_y);
     }
@@ -724,7 +724,7 @@ void r_draw_span_low(void)
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH ||
-      (unsigned)ds_y > SCREENHEIGHT)
+      ds_y < 0 || ds_y >= viewheight)
     {
       i_error("r_draw_span: %i to %i at %i", ds_x1, ds_x2, ds_y);
     }
