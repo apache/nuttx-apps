@@ -38,6 +38,7 @@ if(CONFIG_SYSTEM_NXPKG)
     pkg_log.c
     pkg_manifest.c
     pkg_metadata.c
+    pkg_repo.c
     pkg_store.c
     pkg_txn.c)
 endif()

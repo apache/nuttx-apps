@@ -26,6 +26,8 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
+#include <syslog.h>
 
 #include "pkg.h"
 
@@ -33,13 +35,19 @@
  * Private Functions
  ****************************************************************************/
 
-static void pkg_vlog(FAR FILE *stream, FAR const char *level,
-                     FAR const char *fmt, va_list ap)
+static void pkg_vlog(FAR const char *level, FAR const char *fmt, va_list ap)
 {
-  fprintf(stream, "nxpkg: %s: ", level);
-  vfprintf(stream, fmt, ap);
-  fputc('\n', stream);
-  fflush(stream);
+  char message[256];
+  int ret;
+
+  ret = vsnprintf(message, sizeof(message), fmt, ap);
+  if (ret < 0)
+    {
+      return;
+    }
+
+  syslog(strcmp(level, "error") == 0 ? LOG_ERR : LOG_INFO,
+         "nxpkg: %s: %s", level, message);
 }
 
 /****************************************************************************
@@ -51,7 +59,7 @@ void pkg_error(FAR const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  pkg_vlog(stderr, "error", fmt, ap);
+  pkg_vlog("error", fmt, ap);
   va_end(ap);
 }
 
@@ -60,6 +68,6 @@ void pkg_info(FAR const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  pkg_vlog(stdout, "info", fmt, ap);
+  pkg_vlog("info", fmt, ap);
   va_end(ap);
 }
