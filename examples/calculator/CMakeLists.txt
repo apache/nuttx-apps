@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/system/nxpkg/CMakeLists.txt
+# apps/examples/calculator/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,25 +20,18 @@
 #
 # ##############################################################################
 
-if(CONFIG_SYSTEM_NXPKG)
+if(CONFIG_EXAMPLES_CALCULATOR)
   nuttx_add_application(
-    MODULE
-    ${CONFIG_SYSTEM_NXPKG}
     NAME
-    ${CONFIG_SYSTEM_NXPKG_PROGNAME}
-    STACKSIZE
-    ${CONFIG_SYSTEM_NXPKG_STACKSIZE}
+    calc
     PRIORITY
-    ${CONFIG_SYSTEM_NXPKG_PRIORITY}
+    ${CONFIG_EXAMPLES_CALCULATOR_PRIORITY}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_CALCULATOR_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_CALCULATOR}
+    DEPENDS
+    lvgl
     SRCS
-    pkg_main.c
-    pkg_compat.c
-    pkg_hash.c
-    pkg_install.c
-    pkg_log.c
-    pkg_manifest.c
-    pkg_metadata.c
-    pkg_repo.c
-    pkg_store.c
-    pkg_txn.c)
+    calculator_main.c)
 endif()

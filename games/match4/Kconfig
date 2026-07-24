@@ -4,7 +4,7 @@
 #
 
 config GAMES_MATCH4
-	bool "Match 4 Game"
+	tristate "Match 4 Game"
 	default n
 	---help---
 		Enable Match 4 game.
