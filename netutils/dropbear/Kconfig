@@ -37,6 +37,12 @@ menuconfig NETUTILS_DROPBEAR
 		hash states (hashkeys() in common-kex.c), which cannot be
 		represented by a kernel crypto session.
 
+		The port also implements the chacha20-poly1305@openssh.com cipher
+		through the NuttX crypto device (/dev/crypto), using the
+		CRYPTO_CHACHA20_DJB and CRYPTO_POLY1305 algorithms instead of
+		the bundled libtomcrypt implementation, which is dropped from
+		the build.
+
 if NETUTILS_DROPBEAR
 
 config NETUTILS_DROPBEAR_STACKSIZE

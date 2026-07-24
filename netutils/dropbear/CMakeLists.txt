@@ -142,6 +142,10 @@ if(CONFIG_NETUTILS_DROPBEAR)
   list(FILTER LIBTOMCRYPT_SRCS EXCLUDE REGEX ".*/mac/hmac/hmac_done\\.c$")
   list(APPEND DROPBEAR_SRCS port/dropbear_ltc_hmac_sha256.c)
 
+  # Replace the bundled chacha20-poly1305 with the /dev/crypto adapter.
+  list(REMOVE_ITEM DROPBEAR_SRCS dropbear/src/chachapoly.c)
+  list(APPEND DROPBEAR_SRCS port/dropbear_chachapoly.c)
+
   list(APPEND DROPBEAR_SRCS ${LIBTOMCRYPT_SRCS})
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
