@@ -64,6 +64,9 @@ struct input_state_s
 #ifdef CONFIG_GAMES_BRICKMATCH_USE_GPIO
   int fd_gpio;
 #endif
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_TOUCHSCREEN
+  int fd_touch;
+#endif
 
   int dir;      /* Direction to move the blocks */
 };

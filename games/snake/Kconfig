@@ -4,7 +4,7 @@
 #
 
 config GAMES_SNAKE
-	bool "Snake Game"
+	tristate "Snake Game"
 	default n
 	---help---
 		Enable Snake game.
