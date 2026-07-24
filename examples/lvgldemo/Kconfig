@@ -27,4 +27,20 @@ config EXAMPLES_LVGLDEMO_INPUT_DEVPATH
 	---help---
 		The path to the touchscreen device. Default: "/dev/input0"
 
+config EXAMPLES_LVGLDEMO_FBDEVPATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+	depends on !LV_USE_NUTTX_LCD
+	---help---
+		The path to the framebuffer device. Default: "/dev/fb0"
+
+config EXAMPLES_LVGLDEMO_TOUCH_DIAGNOSTIC
+	bool "Show touchscreen diagnostic"
+	default n
+	depends on INPUT_TOUCHSCREEN
+	---help---
+		Show touchscreen open status, press state, and coordinates instead
+		of an LVGL demo. This can distinguish an unavailable touchscreen
+		device from incorrect coordinate mapping without a serial console.
+
 endif # EXAMPLES_LVGLDEMO
