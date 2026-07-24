@@ -43,6 +43,20 @@
 #define TIMER_FREQ 1193181 /* Hz */
 
 /****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static int i_pcs_start_sound(sfxinfo_t *sfxinfo, int channel, int vol,
+                             int sep, int pitch);
+static void i_pcs_stop_sound(int handle);
+static int i_pcs_get_sfx_lumpnum(sfxinfo_t *sfx);
+static boolean i_pcs_sound_is_playing(int handle);
+static boolean i_pcs_init_sound(gamemission_t mission);
+static void i_pcs_shutdown_sound(void);
+static void i_pcs_update_sound(void);
+static void i_pcs_update_sound_params(int channel, int vol, int sep);
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -51,9 +65,12 @@ static boolean g_pcs_initialized = false;
 static gamemission_t g_gamemission;
 
 static uint8_t *g_current_sound_lump = NULL;
+#if 0  /* UNUSED */
 static uint8_t *g_current_sound_pos = NULL;
+#endif
 static unsigned int g_current_sound_remaining = 0;
 static int g_current_sound_handle = 0;
+#if 0  /* UNUSED */
 static int g_current_sound_lump_num = -1;
 
 static const uint16_t g_divisors[] =
@@ -70,6 +87,7 @@ static const uint16_t g_divisors[] =
   310,  302,  293,  285,  276,  269,  261,  253,  246,  239,  232,  226,
   219,  213,  207,  201,  195,  190,  184,  179,
 };
+#endif
 
 static const snddevice_t g_sound_pcsound_devices[] =
 {
@@ -82,24 +100,23 @@ static const snddevice_t g_sound_pcsound_devices[] =
 
 const sound_module_t sound_pcsound_module =
 {
-  g_sound_pcsound_devices,
-  arrlen(g_sound_pcsound_devices),
-#if 0
-  i_pcs_init_sound,
-  i_pcs_shutdown_sound,
-  i_pcs_get_sfx_lumpnum,
-  i_pcs_update_sound,
-  i_pcs_update_sound_params,
-  i_pcs_start_sound,
-  i_pcs_stop_sound,
-  i_pcs_sound_is_playing,
-#endif
+  .sound_devices = g_sound_pcsound_devices,
+  .num_sound_devices = arrlen(g_sound_pcsound_devices),
+  .init = i_pcs_init_sound,
+  .shutdown = i_pcs_shutdown_sound,
+  .get_sfx_lumpnum = i_pcs_get_sfx_lumpnum,
+  .update = i_pcs_update_sound,
+  .update_sound_params = i_pcs_update_sound_params,
+  .start_sound = i_pcs_start_sound,
+  .stop_sound = i_pcs_stop_sound,
+  .sound_is_playing = i_pcs_sound_is_playing,
 };
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
+#if 0  /* UNUSED */
 static void pcs_callback_func(int *duration, int *freq)
 {
 }
@@ -167,10 +184,12 @@ static boolean is_disabled_sound(sfxinfo_t *sfxinfo)
 
   return false;
 }
+#endif /* UNUSED */
 
 static int i_pcs_start_sound(sfxinfo_t *sfxinfo, int channel, int vol,
                              int sep, int pitch)
 {
+  return 0;
 }
 
 static void i_pcs_stop_sound(int handle)
@@ -181,7 +200,7 @@ static void i_pcs_stop_sound(int handle)
 
 static int i_pcs_get_sfx_lumpnum(sfxinfo_t *sfx)
 {
-  char namebuf[9];
+  char namebuf[16];
 
   if (g_gamemission == doom || g_gamemission == strife)
     {
@@ -219,6 +238,7 @@ static boolean i_pcs_sound_is_playing(int handle)
 
 static boolean i_pcs_init_sound(gamemission_t mission)
 {
+  return false;
 }
 
 static void i_pcs_shutdown_sound(void)
