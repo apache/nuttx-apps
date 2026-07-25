@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FS_XIPFS
+	tristate "XIPFS file system test"
+	depends on FS_XIPFS
+	default n
+	---help---
+		Exercise the XIPFS filesystem: the routine VFS paths, the
+		write-once rules, the in-place mmap and its strict variant, and
+		then the corners that actually carry risk -- power loss atomicity
+		of the metadata commit, and release of XIP pins when a task dies
+		without unmapping.
+
+		Takes an optional section name to run just one part, since the
+		power loss sweeps take minutes and everything else takes seconds:
+
+		  xipfs_test          everything
+		  xipfs_test xip      just the execute-in-place mapping tests
+
+		Sections: basic writeonce strict xip multimap crosstask teardown
+		dirs defrag powerloss powertorn unlink dirloss defraglos
+
+		The power loss sections need CONFIG_FS_XIPFS_FAULT_INJECT.
+
+if TESTING_FS_XIPFS
+
+config TESTING_FS_XIPFS_MOUNTPT
+	string "XIPFS mountpoint"
+	default "/mnt/xipfs"
+
+config TESTING_FS_XIPFS_MTD
+	string "MTD device backing the filesystem"
+	default "/dev/rammtd"
+
+endif # TESTING_FS_XIPFS
