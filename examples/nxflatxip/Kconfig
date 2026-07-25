@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NXFLATXIP
+	tristate "NXFLAT execute-in-place from xipfs demo"
+	depends on FS_XIPFS && NXFLAT && LIBC_EXECFUNCS
+	default n
+	---help---
+		Write an NXFLAT module into xipfs at run time, the way a download
+		would, then run two instances of it concurrently.  The module's
+		text is executed directly out of flash and shared between the
+		instances, while each instance gets its own data.
+
+		Subcommands:
+
+		  bench   XIP read throughput before and after a flash write
+		  defrag  fragment the volume, compact it, with a block map
+
+		Building the module needs the mknxflat and ldnxflat host tools
+		from the NuttX toolchain, and the board's Make.defs must name
+		them, exactly as apps/examples/nxflat requires.
+
+if EXAMPLES_NXFLATXIP
+
+config EXAMPLES_NXFLATXIP_MOUNTPT
+	string "xipfs mountpoint"
+	default "/mnt/xipfs"
+
+config EXAMPLES_NXFLATXIP_MTD
+	string "MTD device backing the volume"
+	default "/dev/rpflash"
+	---help---
+		Used only by the defrag subcommand, which remounts the volume to
+		show that what it did survives.
+
+endif # EXAMPLES_NXFLATXIP
