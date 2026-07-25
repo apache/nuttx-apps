@@ -1,0 +1,2034 @@
+/****************************************************************************
+ * apps/testing/fs/xipfs/xipfs_main.c
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.  The
+ * ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <nuttx/config.h>
+
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/mount.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <malloc.h>
+#include <sched.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <nuttx/fs/ioctl.h>
+#include <nuttx/fs/xipfs.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define MOUNTPT   CONFIG_TESTING_FS_XIPFS_MOUNTPT
+#define MTDDEV    CONFIG_TESTING_FS_XIPFS_MTD
+
+#define PATH(name) MOUNTPT "/" name
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static int g_passed;
+static int g_failed;
+static FAR uint8_t *g_buffer;
+static size_t g_bufsize = 16384;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void report(FAR const char *name, bool ok, FAR const char *detail)
+{
+  if (ok)
+    {
+      g_passed++;
+      printf("  PASS  %s\n", name);
+    }
+  else
+    {
+      g_failed++;
+      printf("  FAIL  %s: %s\n", name, detail ? detail : "");
+    }
+}
+
+#define CHECK(name, cond, detail) report((name), (cond), (detail))
+
+/****************************************************************************
+ * Name: remount
+ *
+ * Description:
+ *   Discard every scrap of in-RAM filesystem state and mount again from the
+ *   medium.  Because the rammtd buffer survives, this is exactly what a
+ *   reboot looks like to the filesystem, which is what makes the power loss
+ *   sweep below meaningful without restarting the simulator.
+ *
+ ****************************************************************************/
+
+static int remount(void)
+{
+  int ret;
+
+  ret = umount(MOUNTPT);
+  if (ret < 0 && errno != ENOENT && errno != EINVAL)
+    {
+      printf("    umount failed: %d\n", errno);
+      return -errno;
+    }
+
+  ret = mount(MTDDEV, MOUNTPT, "xipfs", 0, NULL);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  return 0;
+}
+
+/****************************************************************************
+ * Name: fill_pattern
+ ****************************************************************************/
+
+static void fill_pattern(FAR uint8_t *buf, size_t len, uint8_t seed)
+{
+  size_t i;
+
+  for (i = 0; i < len; i++)
+    {
+      buf[i] = (uint8_t)(seed + (i * 7));
+    }
+}
+
+/****************************************************************************
+ * Name: create_file
+ *
+ * Description:
+ *   Create a file of a known size.  ftruncate is how the exact size is
+ *   declared up front, which is what lets the filesystem reserve the exact
+ *   contiguous extent rather than over-reserving and trimming.
+ *
+ ****************************************************************************/
+
+static int create_file(FAR const char *path, size_t len, uint8_t seed)
+{
+  ssize_t nwritten;
+  int fd;
+  int ret = 0;
+
+  fd = open(path, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  if (ftruncate(fd, len) < 0)
+    {
+      ret = -errno;
+      goto out;
+    }
+
+  fill_pattern(g_buffer, len, seed);
+
+  nwritten = write(fd, g_buffer, len);
+  if (nwritten != (ssize_t)len)
+    {
+      ret = nwritten < 0 ? -errno : -EIO;
+    }
+
+out:
+  if (close(fd) < 0 && ret == 0)
+    {
+      ret = -errno;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: verify_file
+ ****************************************************************************/
+
+static bool verify_file(FAR const char *path, size_t len, uint8_t seed)
+{
+  FAR uint8_t *expect;
+  ssize_t nread;
+  bool ok = false;
+  int fd;
+
+  expect = malloc(len);
+  if (expect == NULL)
+    {
+      return false;
+    }
+
+  fill_pattern(expect, len, seed);
+
+  fd = open(path, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      free(expect);
+      return false;
+    }
+
+  nread = read(fd, g_buffer, len + 1);
+  if (nread == (ssize_t)len && memcmp(g_buffer, expect, len) == 0)
+    {
+      ok = true;
+    }
+
+  close(fd);
+  free(expect);
+  return ok;
+}
+
+/****************************************************************************
+ * Name: extent_info
+ ****************************************************************************/
+
+static int extent_info(FAR const char *path,
+                       FAR struct xipfs_extent_info_s *info)
+{
+  int fd;
+  int ret;
+
+  fd = open(path, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  ret = ioctl(fd, XIPFSIOC_EXTENTINFO, (unsigned long)(uintptr_t)info);
+  if (ret < 0)
+    {
+      ret = -errno;
+    }
+
+  close(fd);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: run_defrag
+ ****************************************************************************/
+
+/* Defragmentation acts on the volume, so it is issued on a descriptor for
+ * the mountpoint directory rather than for a file inside it.  That matters
+ * beyond tidiness: a descriptor for a file inside the volume would hold
+ * that file open, and an open extent cannot be relocated, so the pass would
+ * be obstructed by the very act of asking for it.
+ */
+
+static int run_defrag(uint32_t max_ms,
+                      FAR struct xipfs_defrag_result_s *result)
+{
+  struct xipfs_defrag_arg_s arg;
+  int fd;
+  int ret;
+
+  memset(&arg, 0, sizeof(arg));
+  arg.max_ms = max_ms;
+
+  fd = open(MOUNTPT, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  ret = ioctl(fd, XIPFSIOC_DEFRAG, (unsigned long)(uintptr_t)&arg);
+  if (ret < 0)
+    {
+      ret = -errno;
+    }
+  else
+    {
+      *result = arg.result;
+    }
+
+  close(fd);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: arm_injector
+ *
+ * Description:
+ *   Arm the fault injector to fail the n'th flash write or erase from now
+ *   on, and every one after it.  'mode' chooses whether the failing
+ *   operation leaves the medium untouched (XIPFS_FAULT_CLEAN) or half-done,
+ *   the way a real cut does (XIPFS_FAULT_TORN).  It is a volume command, so
+ *   it goes through the mountpoint directory like run_defrag, which also
+ *   means it can be armed on a volume with no files in it.
+ *
+ ****************************************************************************/
+
+static int arm_injector(int countdown, uint8_t mode)
+{
+  struct xipfs_fault_s fault;
+  int fd;
+  int ret;
+
+  fault.count = countdown;
+  fault.mode  = mode;
+
+  fd = open(MOUNTPT, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  ret = ioctl(fd, XIPFSIOC_FAULTINJECT, (unsigned long)(uintptr_t)&fault);
+  if (ret < 0)
+    {
+      ret = -errno;
+    }
+
+  close(fd);
+  return ret;
+}
+
+/****************************************************************************
+ * Test: basic VFS operations and the contiguity invariant
+ ****************************************************************************/
+
+static void test_basic(void)
+{
+  struct xipfs_extent_info_s info;
+  struct stat st;
+  FAR DIR *dirp;
+  FAR struct dirent *de;
+  int found = 0;
+  int ret;
+
+  printf("\n-- basic VFS --\n");
+
+  ret = create_file(PATH("basic1.bin"), 100, 0x11);
+  CHECK("create small file", ret == 0, strerror(-ret));
+
+  ret = create_file(PATH("basic2.bin"), 9000, 0x22);
+  CHECK("create multi-block file", ret == 0, strerror(-ret));
+
+  CHECK("read back small", verify_file(PATH("basic1.bin"), 100, 0x11), "");
+  CHECK("read back multi-block",
+        verify_file(PATH("basic2.bin"), 9000, 0x22), "");
+
+  ret = stat(PATH("basic2.bin"), &st);
+  CHECK("stat size", ret == 0 && st.st_size == 9000, "wrong size");
+
+  /* The core invariant: one contiguous, erase-block aligned extent whose
+   * block count is exactly what the file size requires.
+   */
+
+  ret = extent_info(PATH("basic2.bin"), &info);
+  CHECK("extent is contiguous and exactly sized",
+        ret == 0 && info.nblocks ==
+        (info.size + info.erasesize - 1) / info.erasesize,
+        "extent size mismatch");
+
+  dirp = opendir(MOUNTPT);
+  if (dirp != NULL)
+    {
+      while ((de = readdir(dirp)) != NULL)
+        {
+          if (strcmp(de->d_name, "basic1.bin") == 0 ||
+              strcmp(de->d_name, "basic2.bin") == 0)
+            {
+              found++;
+            }
+        }
+
+      closedir(dirp);
+    }
+
+  CHECK("readdir lists both files", found == 2, "missing entries");
+
+  ret = unlink(PATH("basic1.bin"));
+  CHECK("unlink", ret == 0, strerror(errno));
+  CHECK("unlinked file is gone", stat(PATH("basic1.bin"), &st) < 0, "");
+
+  /* Survives a remount: the directory is on the medium, not in RAM */
+
+  ret = remount();
+  CHECK("remount", ret == 0, strerror(-ret));
+  CHECK("data survives remount",
+        verify_file(PATH("basic2.bin"), 9000, 0x22), "");
+  CHECK("delete survives remount",
+        stat(PATH("basic1.bin"), &st) < 0, "");
+
+  unlink(PATH("basic2.bin"));
+}
+
+/****************************************************************************
+ * Test: execute-in-place mapping
+ *
+ * This is the test that proves the entire premise.  A mapping must land
+ * inside the flash window and must not cost RAM proportional to the file.
+ ****************************************************************************/
+
+static void test_xip(void)
+{
+  struct xipfs_extent_info_s info;
+  struct mallinfo before;
+  struct mallinfo after;
+  const size_t len = 12288;
+  FAR void *addr;
+  FAR uint8_t *expect;
+  int fd;
+  int ret;
+
+  printf("\n-- XIP mapping --\n");
+
+  ret = create_file(PATH("xip.bin"), len, 0x33);
+  CHECK("create module image", ret == 0, strerror(-ret));
+
+  ret = extent_info(PATH("xip.bin"), &info);
+  CHECK("media is memory mapped", ret == 0 && info.xipaddr != 0,
+        "no XIP base");
+
+  if (info.xipaddr == 0)
+    {
+      return;
+    }
+
+  fd = open(PATH("xip.bin"), O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      CHECK("open for mapping", false, strerror(errno));
+      return;
+    }
+
+  before = mallinfo();
+  addr = mmap(NULL, len, PROT_READ | PROT_EXEC,
+              MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+  after = mallinfo();
+
+  CHECK("strict XIP mmap succeeds", addr != MAP_FAILED, strerror(errno));
+
+  if (addr != MAP_FAILED)
+    {
+      /* The returned pointer must BE the flash address, not a copy of it */
+
+      CHECK("mapping points into flash",
+            (uintptr_t)addr == info.xipaddr, "not the extent address");
+
+      expect = malloc(len);
+      if (expect != NULL)
+        {
+          fill_pattern(expect, len, 0x33);
+          CHECK("mapped bytes match file contents",
+                memcmp(addr, expect, len) == 0, "content mismatch");
+          free(expect);
+        }
+
+      /* A RAM copy would have cost at least the file size.  Allow slack
+       * for the mapping bookkeeping itself.
+       */
+
+      CHECK("mapping does not cost RAM proportional to the file",
+            (after.uordblks - before.uordblks) < (int)(len / 2),
+            "RAM grew by about the file size");
+
+      ret = extent_info(PATH("xip.bin"), &info);
+      CHECK("mapping takes a pin", ret == 0 && info.pincount == 1,
+            "pin not taken");
+
+      ret = munmap(addr, len);
+      CHECK("munmap", ret == 0, strerror(errno));
+
+      ret = extent_info(PATH("xip.bin"), &info);
+      CHECK("munmap drops the pin", ret == 0 && info.pincount == 0,
+            "pin not released");
+    }
+
+  close(fd);
+  unlink(PATH("xip.bin"));
+}
+
+/****************************************************************************
+ * Test: multiple concurrent mappings share one pin count
+ ****************************************************************************/
+
+static void test_multimap(void)
+{
+  struct xipfs_extent_info_s info;
+  const size_t len = 8192;
+  FAR void *addr[3];
+  int fd[3];
+  int i;
+  int ret;
+
+  printf("\n-- concurrent mappings --\n");
+
+  ret = create_file(PATH("multi.bin"), len, 0x44);
+  CHECK("create", ret == 0, strerror(-ret));
+
+  for (i = 0; i < 3; i++)
+    {
+      fd[i] = open(PATH("multi.bin"), O_RDONLY | O_CLOEXEC);
+      addr[i] = mmap(NULL, len, PROT_READ, MAP_SHARED | MAP_XIP_STRICT,
+                     fd[i], 0);
+    }
+
+  ret = extent_info(PATH("multi.bin"), &info);
+  CHECK("three mappings give a pin count of three",
+        ret == 0 && info.pincount == 3, "wrong pin count");
+
+  /* All three must resolve to the same flash address: they alias the same
+   * extent rather than each getting a private copy.
+   */
+
+  CHECK("mappings alias the same flash address",
+        addr[0] == addr[1] && addr[1] == addr[2], "addresses differ");
+
+  /* Within one task, all three mappings share an address, so a single
+   * munmap of that address releases all of them.  That is munmap's range
+   * semantics -- the VFS unmaps every mapping the range covers -- and it
+   * only arises because true XIP makes the addresses identical.  It is not
+   * the multi-instance case: separate module instances are separate tasks
+   * with separate mapping lists, which test_crosstask_pins covers.
+   */
+
+  munmap(addr[0], len);
+  ret = extent_info(PATH("multi.bin"), &info);
+  CHECK("unmapping an aliased address releases that task's mappings",
+        ret == 0 && info.pincount == 0, "pin leaked");
+
+  for (i = 0; i < 3; i++)
+    {
+      close(fd[i]);
+    }
+
+  unlink(PATH("multi.bin"));
+}
+
+/****************************************************************************
+ * Test: pins are refcounted across tasks
+ *
+ * This is the multi-instance case that matters: two tasks each holding a
+ * live XIP mapping of one module.  One of them dying must not release the
+ * other's pin, or the surviving instance would be executing out of blocks
+ * the defragmenter now considers movable.
+ ****************************************************************************/
+
+static int holder_task(int argc, FAR char *argv[])
+{
+  const size_t len = 8192;
+  FAR void *addr;
+  int fd;
+
+  fd = open(PATH("shared.bin"), O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  addr = mmap(NULL, len, PROT_READ, MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+  close(fd);
+
+  if (addr == MAP_FAILED)
+    {
+      return EXIT_FAILURE;
+    }
+
+  /* Exit holding the mapping */
+
+  return EXIT_SUCCESS;
+}
+
+static void test_crosstask_pins(void)
+{
+  struct xipfs_extent_info_s info;
+  const size_t len = 8192;
+  FAR void *addr;
+  int status;
+  pid_t pid;
+  int fd;
+  int ret;
+
+  printf("\n-- cross-task pin refcounting --\n");
+
+  ret = create_file(PATH("shared.bin"), len, 0xaa);
+  CHECK("create", ret == 0, strerror(-ret));
+
+  fd = open(PATH("shared.bin"), O_RDONLY | O_CLOEXEC);
+  addr = mmap(NULL, len, PROT_READ, MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+  CHECK("parent maps", addr != MAP_FAILED, strerror(errno));
+
+  pid = task_create("holder", SCHED_PRIORITY_DEFAULT, 4096, holder_task,
+                    NULL);
+  if (pid > 0)
+    {
+      waitpid(pid, &status, 0);
+      usleep(100000);
+
+      /* The child's teardown must have dropped exactly its own pin */
+
+      ret = extent_info(PATH("shared.bin"), &info);
+      CHECK("a dying task does not release another task's pin",
+            ret == 0 && info.pincount == 1, "wrong pin count");
+    }
+
+  if (addr != MAP_FAILED)
+    {
+      munmap(addr, len);
+    }
+
+  ret = extent_info(PATH("shared.bin"), &info);
+  CHECK("last holder releases the extent",
+        ret == 0 && info.pincount == 0, "pin leaked");
+
+  close(fd);
+  unlink(PATH("shared.bin"));
+}
+
+/****************************************************************************
+ * Test: a task that dies without unmapping must still release its pin
+ ****************************************************************************/
+
+static int leaky_mapper(int argc, FAR char *argv[])
+{
+  const size_t len = 8192;
+  FAR void *addr;
+  int fd;
+
+  fd = open(PATH("leak.bin"), O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  addr = mmap(NULL, len, PROT_READ, MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+  if (addr == MAP_FAILED)
+    {
+      close(fd);
+      return EXIT_FAILURE;
+    }
+
+  /* Deliberately exit with the mapping still live and no munmap call.  A
+   * module that faults or is killed does exactly this, and the pin has to
+   * come back anyway or the extent is immovable forever.
+   */
+
+  close(fd);
+  return EXIT_SUCCESS;
+}
+
+static void test_teardown_release(void)
+{
+  struct xipfs_extent_info_s info;
+  int status;
+  pid_t pid;
+  int ret;
+
+  printf("\n-- pin release on task exit --\n");
+
+  ret = create_file(PATH("leak.bin"), 8192, 0x55);
+  CHECK("create", ret == 0, strerror(-ret));
+
+  pid = task_create("leaky", SCHED_PRIORITY_DEFAULT, 4096, leaky_mapper,
+                    NULL);
+  CHECK("spawn mapper task", pid > 0, strerror(errno));
+
+  if (pid > 0)
+    {
+      waitpid(pid, &status, 0);
+
+      /* Give the exiting task's group teardown a chance to run */
+
+      usleep(100000);
+
+      ret = extent_info(PATH("leak.bin"), &info);
+      CHECK("pin released although the task never called munmap",
+            ret == 0 && info.pincount == 0, "pin leaked on task exit");
+    }
+
+  unlink(PATH("leak.bin"));
+}
+
+/****************************************************************************
+ * Test: directories
+ *
+ * Directories are records in the metadata generation, not names with
+ * separators in them, so what is checked is that they behave like a real
+ * tree: they can be empty, they survive a remount empty, rmdir refuses a
+ * directory that still holds something, and a path through a file or a
+ * missing directory fails the way POSIX says rather than springing into
+ * existence.
+ ****************************************************************************/
+
+static void test_dirs(void)
+{
+  struct stat st;
+  FAR struct dirent *de;
+  FAR DIR *dirp;
+  int binseen = 0;
+  int etcseen = 0;
+  bool sawtop = false;
+  bool sawhello = false;
+  bool sawworld = false;
+  bool badentry = false;
+  int fd;
+  int ret;
+
+  printf("\n-- directories --\n");
+
+  ret = mkdir(PATH("bin"), 0755);
+  CHECK("mkdir", ret == 0, strerror(errno));
+
+  ret = mkdir(PATH("bin"), 0755);
+  CHECK("mkdir of an existing directory is refused",
+        ret < 0 && errno == EEXIST, strerror(errno));
+
+  /* An empty directory is a real thing here, and it has to survive a
+   * remount with nothing inside it.  This is the whole difference from
+   * synthesising directories out of file names.
+   */
+
+  ret = stat(PATH("bin"), &st);
+  CHECK("an empty directory exists", ret == 0 && S_ISDIR(st.st_mode),
+        strerror(errno));
+
+  ret = remount();
+  CHECK("remount", ret == 0, strerror(-ret));
+
+  ret = stat(PATH("bin"), &st);
+  CHECK("an empty directory survives a remount",
+        ret == 0 && S_ISDIR(st.st_mode), strerror(errno));
+
+  /* Files below it, and a directory two levels down */
+
+  ret = create_file(PATH("bin/hello"), 100, 1);
+  CHECK("create a file in a directory", ret == 0, strerror(-ret));
+
+  ret = create_file(PATH("bin/world"), 100, 2);
+  CHECK("create a second one beside it", ret == 0, strerror(-ret));
+
+  ret = mkdir(PATH("etc"), 0755);
+  ret |= mkdir(PATH("etc/conf"), 0755);
+  CHECK("mkdir two levels down", ret == 0, strerror(errno));
+
+  ret = create_file(PATH("etc/conf/net"), 100, 3);
+  CHECK("create a file two levels down", ret == 0, strerror(-ret));
+
+  ret = create_file(PATH("top.bin"), 100, 4);
+  CHECK("create one at the root", ret == 0, strerror(-ret));
+
+  /* A path through a directory that does not exist is an error, not an
+   * invitation to create it.
+   */
+
+  fd = open(PATH("nodir/x"), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+  CHECK("a path through a missing directory fails",
+        fd < 0 && errno == ENOENT, strerror(errno));
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  fd = open(PATH("top.bin/deeper"),
+            O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+  CHECK("a path through a file fails", fd < 0 && errno == ENOTDIR,
+        strerror(errno));
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  /* Listing: the root holds two directories and a file, once each */
+
+  dirp = opendir(MOUNTPT);
+  while (dirp != NULL && (de = readdir(dirp)) != NULL)
+    {
+      if (strcmp(de->d_name, "bin") == 0 && de->d_type == DTYPE_DIRECTORY)
+        {
+          binseen++;
+        }
+      else if (strcmp(de->d_name, "etc") == 0 &&
+               de->d_type == DTYPE_DIRECTORY)
+        {
+          etcseen++;
+        }
+      else if (strcmp(de->d_name, "top.bin") == 0 &&
+               de->d_type == DTYPE_FILE)
+        {
+          sawtop = true;
+        }
+    }
+
+  if (dirp != NULL)
+    {
+      closedir(dirp);
+    }
+
+  CHECK("the root lists its directories and its files",
+        binseen == 1 && etcseen == 1 && sawtop, "missing entry");
+
+  dirp = opendir(PATH("bin"));
+  CHECK("opendir on a subdirectory", dirp != NULL, strerror(errno));
+
+  while (dirp != NULL && (de = readdir(dirp)) != NULL)
+    {
+      if (strchr(de->d_name, '/') != NULL || de->d_type != DTYPE_FILE)
+        {
+          badentry = true;
+        }
+      else if (strcmp(de->d_name, "hello") == 0)
+        {
+          sawhello = true;
+        }
+      else if (strcmp(de->d_name, "world") == 0)
+        {
+          sawworld = true;
+        }
+    }
+
+  if (dirp != NULL)
+    {
+      closedir(dirp);
+    }
+
+  CHECK("it lists its own entries, by name",
+        sawhello && sawworld && !badentry, "unexpected entries");
+
+  ret = stat(PATH("bin/hello"), &st);
+  CHECK("stat of a file in a directory",
+        ret == 0 && S_ISREG(st.st_mode) && st.st_size == 100,
+        strerror(errno));
+
+  /* The VFS passes a trailing separator through, and it names the same
+   * directory.
+   */
+
+  dirp = opendir(PATH("etc/conf/"));
+  ret = stat(PATH("etc/conf/"), &st);
+  CHECK("a trailing separator names the same directory",
+        dirp != NULL && ret == 0 && S_ISDIR(st.st_mode), strerror(errno));
+
+  if (dirp != NULL)
+    {
+      closedir(dirp);
+    }
+
+  /* "." and ".." are refused rather than interpreted, because an entry by
+   * either name could never be reached again.
+   */
+
+  ret = mkdir(PATH("etc/.."), 0755);
+  CHECK("a dot-dot component is refused", ret < 0 && errno == EINVAL,
+        strerror(errno));
+
+  /* The type rules, in both directions */
+
+  /* A read-only open of a directory is not an error: the VFS turns the
+   * EISDIR the file system answers into a directory descriptor, which is
+   * what makes fdopendir and the volume ioctls work.  Opening one for
+   * writing has nowhere to go, so that is where EISDIR surfaces.
+   */
+
+  fd = open(PATH("bin"), O_RDONLY | O_CLOEXEC);
+  ret = fd >= 0 ? fstat(fd, &st) : -1;
+  CHECK("a read-only open of a directory yields a directory",
+        fd >= 0 && ret == 0 && S_ISDIR(st.st_mode), strerror(errno));
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  fd = open(PATH("bin"), O_WRONLY | O_CREAT | O_CLOEXEC, 0644);
+  CHECK("opening a directory for writing is refused",
+        fd < 0 && errno == EISDIR, strerror(errno));
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  ret = unlink(PATH("bin"));
+  CHECK("unlinking a directory is refused", ret < 0 && errno == EISDIR,
+        strerror(errno));
+
+  ret = rmdir(PATH("top.bin"));
+  CHECK("rmdir of a file is refused", ret < 0 && errno == ENOTDIR,
+        strerror(errno));
+
+  ret = rmdir(PATH("bin"));
+  CHECK("rmdir of a directory with contents is refused",
+        ret < 0 && errno == ENOTEMPTY, strerror(errno));
+
+  /* Emptying it makes it removable, and removing it takes nothing else */
+
+  unlink(PATH("bin/hello"));
+  unlink(PATH("bin/world"));
+
+  ret = rmdir(PATH("bin"));
+  CHECK("rmdir of an emptied directory", ret == 0, strerror(errno));
+
+  ret = stat(PATH("bin"), &st);
+  CHECK("it is gone", ret < 0 && errno == ENOENT, strerror(errno));
+
+  ret = stat(PATH("etc/conf/net"), &st);
+  CHECK("removing one directory leaves the others alone",
+        ret == 0 && S_ISREG(st.st_mode), strerror(errno));
+
+  /* And the whole tree is durable */
+
+  ret = remount();
+  CHECK("remount after all of it", ret == 0, strerror(-ret));
+
+  ret = stat(PATH("etc/conf"), &st);
+  CHECK("the tree is the same after a remount",
+        ret == 0 && S_ISDIR(st.st_mode) &&
+        verify_file(PATH("etc/conf/net"), 100, 3), "tree changed");
+
+  unlink(PATH("etc/conf/net"));
+  rmdir(PATH("etc/conf"));
+  rmdir(PATH("etc"));
+  unlink(PATH("top.bin"));
+}
+
+/****************************************************************************
+ * Test: defragmentation
+ ****************************************************************************/
+
+static void test_defrag(void)
+{
+  struct xipfs_defrag_result_s result;
+  struct xipfs_extent_info_s info;
+  const size_t small = 4096;
+  size_t largest_before;
+  FAR void *addr;
+  int fd;
+  int ret;
+  int i;
+  char path[64];
+
+  printf("\n-- defragmentation --\n");
+
+  /* Lay down an alternating pattern, then punch out every other file.  The
+   * result is free space that is plentiful in total but useless in any
+   * single run, which is precisely the situation defrag exists for.
+   */
+
+  for (i = 0; i < 10; i++)
+    {
+      snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+      if (create_file(path, small, (uint8_t)i) < 0)
+        {
+          break;
+        }
+    }
+
+  for (i = 0; i < 10; i += 2)
+    {
+      snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+      unlink(path);
+    }
+
+  ret = run_defrag(0, &result);
+  CHECK("defrag runs", ret == 0, strerror(-ret));
+  largest_before = result.largest_free_run;
+
+  /* Nothing is open, because the pass was asked for through the mountpoint
+   * directory, so it should have run to completion rather than reporting an
+   * obstruction.
+   */
+
+  CHECK("defrag through the mountpoint directory completes",
+        result.reason == XIPFS_DEFRAG_DONE, "unexpected reason");
+
+  /* Surviving files must be byte-identical after being physically moved */
+
+  for (i = 1; i < 10; i += 2)
+    {
+      snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+      if (!verify_file(path, small, (uint8_t)i))
+        {
+          break;
+        }
+    }
+
+  CHECK("relocated files keep their contents", i >= 10, "content changed");
+
+  /* Everything must still be there after a remount: each relocation
+   * committed a new generation naming the new location.
+   */
+
+  ret = remount();
+  CHECK("remount after defrag", ret == 0, strerror(-ret));
+
+  for (i = 1; i < 10; i += 2)
+    {
+      snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+      if (!verify_file(path, small, (uint8_t)i))
+        {
+          break;
+        }
+    }
+
+  CHECK("relocations survive remount", i >= 10, "content lost");
+
+  /* An open file is still an obstruction, and must be reported as one.
+   * The pass only stops on it when the open extent is the only candidate
+   * for the hole it is trying to fill, because otherwise it just moves
+   * something else instead.  So arrange exactly that: punch out the
+   * second-highest file and hold open the highest, which is then the only
+   * extent above the hole.
+   */
+
+    {
+      uint32_t beststart = 0;
+      uint32_t nextstart = 0;
+      char lastpath[64];
+      char holepath[64];
+
+      lastpath[0] = '\0';
+      holepath[0] = '\0';
+
+      for (i = 1; i < 10; i += 2)
+        {
+          snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+          if (extent_info(path, &info) < 0)
+            {
+              continue;
+            }
+
+          if (lastpath[0] == '\0' || info.start_block > beststart)
+            {
+              nextstart = beststart;
+              strlcpy(holepath, lastpath, sizeof(holepath));
+              beststart = info.start_block;
+              strlcpy(lastpath, path, sizeof(lastpath));
+            }
+          else if (holepath[0] == '\0' || info.start_block > nextstart)
+            {
+              nextstart = info.start_block;
+              strlcpy(holepath, path, sizeof(holepath));
+            }
+        }
+
+      if (lastpath[0] != '\0' && holepath[0] != '\0')
+        {
+          unlink(holepath);
+
+          fd = open(lastpath, O_RDONLY | O_CLOEXEC);
+          if (fd >= 0)
+            {
+              ret = run_defrag(0, &result);
+              CHECK("an open file is reported as blocking, not as done",
+                    ret == 0 &&
+                    result.reason == XIPFS_DEFRAG_BLOCKED_OPEN,
+                    "unexpected reason");
+              close(fd);
+            }
+
+          /* Put it back so the pinned test below has the same layout to
+           * work with as before.
+           */
+
+          create_file(holepath, small, 1);
+        }
+    }
+
+  /* A pinned extent must be skipped, and defrag must say so rather than
+   * silently reporting success.
+   */
+
+  snprintf(path, sizeof(path), PATH("frag1.bin"));
+  fd = open(path, O_RDONLY | O_CLOEXEC);
+  addr = mmap(NULL, small, PROT_READ, MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+
+  if (addr != MAP_FAILED)
+    {
+      ret = extent_info(path, &info);
+
+      /* Fragment again below the pinned extent so defrag has a reason to
+       * want to move it.
+       */
+
+      for (i = 3; i < 10; i += 2)
+        {
+          snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+          unlink(path);
+        }
+
+      ret = run_defrag(0, &result);
+      CHECK("defrag with a pinned extent still returns cleanly", ret == 0,
+            strerror(-ret));
+
+      snprintf(path, sizeof(path), PATH("frag1.bin"));
+      ret = extent_info(path, &info);
+      CHECK("pinned extent was not relocated",
+            ret == 0 && (uintptr_t)addr == info.xipaddr,
+            "pinned extent moved under a live mapping");
+
+      munmap(addr, small);
+      close(fd);
+    }
+
+  /* After releasing the pin, a further pass should be able to do at least
+   * as well as before.
+   */
+
+  ret = run_defrag(0, &result);
+  CHECK("defrag after unpinning",
+        ret == 0 && result.largest_free_run >= largest_before,
+        "free space did not recover");
+
+  for (i = 0; i < 10; i++)
+    {
+      snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+      unlink(path);
+    }
+}
+
+/****************************************************************************
+ * Test: power loss at every step of a create
+ *
+ * The medium survives; only the filesystem's RAM state is discarded, which
+ * is exactly what a reboot does.  For every flash operation in turn, fail
+ * at that operation and assert that what comes back is a consistent
+ * filesystem -- never a torn directory and never a half written file.
+ *
+ * The sweep runs twice.  In XIPFS_FAULT_CLEAN the failing operation leaves
+ * the medium untouched.  In XIPFS_FAULT_TORN it leaves it half done -- half
+ * a page programmed, half a sector erased -- which is what a real cut leaves
+ * and what makes the mount-time CRC actually have to reject a half-formed
+ * generation rather than an obviously blank one.  Both must yield the same
+ * two invariants, because the commit writes the directory body before the
+ * header that validates it: a torn body is never reachable behind a written
+ * header.
+ ****************************************************************************/
+
+static void powerloss_create(uint8_t mode, FAR const char *modename)
+{
+  const int max_ops = 16;
+  struct stat st;
+  bool all_ok = true;
+  bool saw_failure = false;
+  char detail[80];
+  char name[80];
+  int ret;
+  int n;
+
+  printf("\n-- power loss during create (%s) --\n", modename);
+
+  for (n = 0; n < max_ops; n++)
+    {
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "remount failed before injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      /* A file that must survive every injected failure untouched */
+
+      unlink(PATH("keep.bin"));
+      unlink(PATH("victim.bin"));
+
+      if (create_file(PATH("keep.bin"), 2048, 0x66) < 0)
+        {
+          snprintf(detail, sizeof(detail), "baseline create failed at %d",
+                   n);
+          all_ok = false;
+          break;
+        }
+
+      /* Arm the injector: fail the n'th flash write or erase from now on */
+
+      if (arm_injector(n, mode) < 0)
+        {
+          all_ok = false;
+          strlcpy(detail, "cannot open to arm injector", sizeof(detail));
+          break;
+        }
+
+      /* This create will be cut short at some arbitrary point */
+
+      ret = create_file(PATH("victim.bin"), 5000, 0x77);
+      if (ret < 0)
+        {
+          saw_failure = true;
+        }
+
+      /* Now "reboot" */
+
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "mount failed after injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      /* Invariant 1: the pre-existing file is untouched.  A commit that
+       * tore would most likely take the whole directory with it.
+       */
+
+      if (!verify_file(PATH("keep.bin"), 2048, 0x66))
+        {
+          snprintf(detail, sizeof(detail),
+                   "pre-existing file corrupted by injection %d", n);
+          all_ok = false;
+          break;
+        }
+
+      /* Invariant 2: the interrupted file is either absent or complete.
+       * There is no valid state in between.
+       */
+
+      if (stat(PATH("victim.bin"), &st) == 0)
+        {
+          if (st.st_size != 5000 ||
+              !verify_file(PATH("victim.bin"), 5000, 0x77))
+            {
+              snprintf(detail, sizeof(detail),
+                       "partially written file visible after injection %d",
+                       n);
+              all_ok = false;
+              break;
+            }
+        }
+    }
+
+  snprintf(name, sizeof(name),
+           "filesystem stays consistent across every injection point (%s)",
+           modename);
+  CHECK(name, all_ok, detail);
+
+  snprintf(name, sizeof(name),
+           "injection actually interrupted some operations (%s)", modename);
+  CHECK(name, saw_failure,
+        "no operation was ever cut short; the sweep proved nothing");
+
+  remount();
+  unlink(PATH("keep.bin"));
+  unlink(PATH("victim.bin"));
+}
+
+static void test_powerloss(void)
+{
+  powerloss_create(XIPFS_FAULT_CLEAN, "clean");
+}
+
+static void test_powerloss_torn(void)
+{
+  powerloss_create(XIPFS_FAULT_TORN, "torn");
+}
+
+/****************************************************************************
+ * Test: power loss at every step of an unlink
+ *
+ * An unlink is a single metadata commit followed by returning the blocks to
+ * the allocator, so the file is either still there in full or entirely gone.
+ * What makes it worth sweeping is not the file being deleted but the two
+ * files either side of it: if a torn commit were to leave the directory
+ * naming an extent whose blocks the allocator has already handed back, the
+ * next create would be given live blocks and would quietly overwrite a
+ * neighbour.  That is why each iteration ends by allocating again and then
+ * re-checking the survivors.
+ ****************************************************************************/
+
+static void test_powerloss_unlink(void)
+{
+  const int max_ops = 16;
+  const size_t len = 3000;
+  struct stat st;
+  bool all_ok = true;
+  bool saw_failure = false;
+  bool saw_survival = false;
+  bool saw_deletion = false;
+  bool exhausted = false;
+  char detail[80];
+  int quiet = 0;
+  int ret;
+  int n;
+
+  printf("\n-- power loss during unlink --\n");
+  detail[0] = '\0';
+
+  for (n = 0; n < max_ops; n++)
+    {
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "remount failed before injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      unlink(PATH("ul_a.bin"));
+      unlink(PATH("ul_b.bin"));
+      unlink(PATH("ul_c.bin"));
+      unlink(PATH("ul_new.bin"));
+
+      if (create_file(PATH("ul_a.bin"), len, 0xa1) < 0 ||
+          create_file(PATH("ul_b.bin"), len, 0xb2) < 0 ||
+          create_file(PATH("ul_c.bin"), len, 0xc3) < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "baseline create failed at %d", n);
+          all_ok = false;
+          break;
+        }
+
+      if (arm_injector(n, XIPFS_FAULT_CLEAN) < 0)
+        {
+          strlcpy(detail, "cannot arm injector", sizeof(detail));
+          all_ok = false;
+          break;
+        }
+
+      /* Delete the middle file.  This is the operation being cut short. */
+
+      if (unlink(PATH("ul_b.bin")) < 0)
+        {
+          saw_failure = true;
+          quiet = 0;
+        }
+      else
+        {
+          /* The injector was armed further out than this operation reaches.
+           * Two of those in a row means the sweep has walked off the end of
+           * the unlink and later points would only be testing the creates
+           * that follow it.
+           */
+
+          if (++quiet >= 2)
+            {
+              exhausted = true;
+            }
+        }
+
+      /* Reboot */
+
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "mount failed after injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      /* Invariant 1: the neighbours are untouched.  They were never part of
+       * the operation, so nothing about a torn unlink may reach them.
+       */
+
+      if (!verify_file(PATH("ul_a.bin"), len, 0xa1) ||
+          !verify_file(PATH("ul_c.bin"), len, 0xc3))
+        {
+          snprintf(detail, sizeof(detail),
+                   "neighbour corrupted by injection %d", n);
+          all_ok = false;
+          break;
+        }
+
+      /* Invariant 2: the target is either wholly gone or wholly intact.
+       * A directory entry surviving with unreadable or truncated contents
+       * would mean the commit and the free happened in the wrong order.
+       */
+
+      if (stat(PATH("ul_b.bin"), &st) == 0)
+        {
+          saw_survival = true;
+
+          if (st.st_size != (off_t)len ||
+              !verify_file(PATH("ul_b.bin"), len, 0xb2))
+            {
+              snprintf(detail, sizeof(detail),
+                       "unlink left a damaged file at injection %d", n);
+              all_ok = false;
+              break;
+            }
+        }
+      else
+        {
+          saw_deletion = true;
+        }
+
+      /* Invariant 3: the recovered allocator agrees with the recovered
+       * directory.  Filling the volume and re-checking the survivors is what
+       * would catch blocks that were freed while still referenced -- the new
+       * file would be placed on top of a live extent.
+       */
+
+      if (create_file(PATH("ul_new.bin"), len, 0x5e) == 0 &&
+          !verify_file(PATH("ul_new.bin"), len, 0x5e))
+        {
+          snprintf(detail, sizeof(detail),
+                   "new file unreadable after injection %d", n);
+          all_ok = false;
+          break;
+        }
+
+      if (!verify_file(PATH("ul_a.bin"), len, 0xa1) ||
+          !verify_file(PATH("ul_c.bin"), len, 0xc3))
+        {
+          snprintf(detail, sizeof(detail),
+                   "allocator reissued live blocks after injection %d", n);
+          all_ok = false;
+          break;
+        }
+
+      if (stat(PATH("ul_b.bin"), &st) == 0 &&
+          !verify_file(PATH("ul_b.bin"), len, 0xb2))
+        {
+          snprintf(detail, sizeof(detail),
+                   "surviving target clobbered after injection %d", n);
+          all_ok = false;
+          break;
+        }
+
+      if (exhausted)
+        {
+          break;
+        }
+    }
+
+  CHECK("unlink stays consistent across every injection point", all_ok,
+        detail);
+  CHECK("unlink injection actually interrupted some operations", saw_failure,
+        "no unlink was ever cut short; the sweep proved nothing");
+
+  /* Both outcomes must be reachable.  If the sweep only ever saw one of
+   * them the commit point is not where it is documented to be, and the
+   * other half of the invariant went untested.
+   */
+
+  CHECK("both unlink outcomes observed across the sweep",
+        saw_survival && saw_deletion,
+        saw_survival ? "no injection ever completed the delete"
+                     : "no injection ever preserved the file");
+
+  /* Say plainly whether the sweep covered the whole operation or merely the
+   * first max_ops of it, so a green result is not mistaken for coverage it
+   * does not have on a medium with a different geometry.
+   */
+
+  printf("    swept %d injection points, %s\n", n,
+         exhausted ? "covering the whole unlink"
+                   : "stopping at the cap before the unlink ran out of ops");
+
+  remount();
+  unlink(PATH("ul_a.bin"));
+  unlink(PATH("ul_b.bin"));
+  unlink(PATH("ul_c.bin"));
+  unlink(PATH("ul_new.bin"));
+}
+
+/****************************************************************************
+ * Test: power loss at every step of a defragmentation pass
+ *
+ * This is the sweep that matters most, because defrag is the only operation
+ * that moves data a user already owns.  Everywhere else an interrupted
+ * operation can at worst discard something that was never complete; here a
+ * relocation that tore could destroy a file that was safe before the pass
+ * began.
+ *
+ * So the invariant is absolute rather than two-sided: defrag never creates
+ * or removes a file, so after a power loss at any point during it, every
+ * file must still be present and byte-identical.  There is no acceptable
+ * "or absent" case.
+ ****************************************************************************/
+
+static void test_powerloss_defrag(void)
+{
+  /* Each relocation is an erase of the destination, a page-at-a-time copy,
+   * a metadata commit and an erase of the vacated blocks.  How many flash
+   * operations that comes to depends entirely on the medium's page and
+   * erase geometry, so rather than guess, the sweep walks injection points
+   * until two in a row fail to reach the injector at all -- meaning it has
+   * walked off the end of the pass -- and reports whether it got that far
+   * before the cap.  On rammtd the whole pass is about fifty operations;
+   * a medium with smaller pages will take more, and the cap is what keeps
+   * the suite's runtime bounded there.
+   */
+
+  const int max_ops = 128;
+  const int nfiles = 10;
+  const size_t small = 4096;
+  struct xipfs_defrag_result_s result;
+  bool all_ok = true;
+  bool saw_failure = false;
+  bool saw_progress = false;
+  bool exhausted = false;
+  char detail[80];
+  char path[64];
+  int quiet = 0;
+  int ret;
+  int n;
+  int i;
+
+  printf("\n-- power loss during defrag --\n");
+  detail[0] = '\0';
+
+  for (n = 0; n < max_ops && all_ok; n++)
+    {
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "remount failed before injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      /* Rebuild the same fragmented layout every iteration so that a given
+       * injection point means the same thing each time round.
+       */
+
+      for (i = 0; i < nfiles; i++)
+        {
+          snprintf(path, sizeof(path), PATH("pd%d.bin"), i);
+          unlink(path);
+        }
+
+      for (i = 0; i < nfiles; i++)
+        {
+          snprintf(path, sizeof(path), PATH("pd%d.bin"), i);
+          if (create_file(path, small, (uint8_t)(0x40 + i)) < 0)
+            {
+              snprintf(detail, sizeof(detail),
+                       "baseline create %d failed at injection %d", i, n);
+              all_ok = false;
+              break;
+            }
+        }
+
+      if (!all_ok)
+        {
+          break;
+        }
+
+      /* Punch out every other file: plenty of free space in total, none of
+       * it in a single run.  This is what gives defrag work to do.
+       */
+
+      for (i = 0; i < nfiles; i += 2)
+        {
+          snprintf(path, sizeof(path), PATH("pd%d.bin"), i);
+          unlink(path);
+        }
+
+      if (arm_injector(n, XIPFS_FAULT_CLEAN) < 0)
+        {
+          strlcpy(detail, "cannot arm injector", sizeof(detail));
+          all_ok = false;
+          break;
+        }
+
+      /* Cut power partway through the pass.  Note that defrag reports a
+       * clean stop rather than an error when a relocation fails, so the
+       * media error surfaces in the reason code, not the return value.
+       */
+
+      ret = run_defrag(0, &result);
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "defrag returned an error at injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      if (result.reason == XIPFS_DEFRAG_ERROR)
+        {
+          saw_failure = true;
+          quiet = 0;
+        }
+      else if (++quiet >= 2)
+        {
+          /* The pass ran to completion without ever tripping the injector,
+           * twice over: every operation in it has now been swept.
+           */
+
+          exhausted = true;
+        }
+
+      if (result.extents_moved > 0)
+        {
+          saw_progress = true;
+        }
+
+      /* Rebuilding a ten file layout against real flash takes a couple of
+       * seconds per injection point, and the sweep is over a hundred of
+       * them.  Without a heartbeat the suite looks wedged for minutes on
+       * hardware, so a silent run cannot be told from a hung one.
+       */
+
+      putchar('.');
+      fflush(stdout);
+
+      /* Reboot */
+
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "mount failed after injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      /* The invariant: every survivor is still there, still whole.  Whether
+       * it was relocated, half relocated or never touched must be
+       * indistinguishable from the outside.
+       */
+
+      for (i = 1; i < nfiles; i += 2)
+        {
+          snprintf(path, sizeof(path), PATH("pd%d.bin"), i);
+          if (!verify_file(path, small, (uint8_t)(0x40 + i)))
+            {
+              snprintf(detail, sizeof(detail),
+                       "file %d lost or corrupted by injection %d", i, n);
+              all_ok = false;
+              break;
+            }
+        }
+
+      if (!all_ok)
+        {
+          break;
+        }
+
+      /* And the recovered allocator must not believe the blocks under a
+       * survivor are free.  A relocation that committed but was interrupted
+       * before erasing its source leaves stale copies behind; those blocks
+       * are unreferenced and reusable, but the blocks under the new location
+       * are not, and a mount that confused the two would hand them out here.
+       */
+
+      unlink(PATH("pd_new.bin"));
+      if (create_file(PATH("pd_new.bin"), small, 0x5f) == 0)
+        {
+          if (!verify_file(PATH("pd_new.bin"), small, 0x5f))
+            {
+              snprintf(detail, sizeof(detail),
+                       "new file unreadable after injection %d", n);
+              all_ok = false;
+              break;
+            }
+
+          for (i = 1; i < nfiles; i += 2)
+            {
+              snprintf(path, sizeof(path), PATH("pd%d.bin"), i);
+              if (!verify_file(path, small, (uint8_t)(0x40 + i)))
+                {
+                  snprintf(detail, sizeof(detail),
+                           "allocator reissued live blocks after "
+                           "injection %d", n);
+                  all_ok = false;
+                  break;
+                }
+            }
+        }
+
+      if (exhausted)
+        {
+          break;
+        }
+    }
+
+  putchar('\n');
+
+  CHECK("no file is ever lost to a power loss during defrag", all_ok,
+        detail);
+  CHECK("defrag injection actually interrupted some relocations",
+        saw_failure, "no relocation was ever cut short; the sweep "
+                     "proved nothing");
+  CHECK("defrag made real progress at some injection points", saw_progress,
+        "no extent was ever relocated; the sweep never reached a move");
+
+  printf("    swept %d injection points, %s\n", n,
+         exhausted ? "covering every operation of the whole pass"
+                   : "stopping at the cap partway through the pass");
+
+  remount();
+  for (i = 0; i < nfiles; i++)
+    {
+      snprintf(path, sizeof(path), PATH("pd%d.bin"), i);
+      unlink(path);
+    }
+
+  unlink(PATH("pd_new.bin"));
+}
+
+/****************************************************************************
+ * Test: strict versus permissive mapping
+ ****************************************************************************/
+
+static void test_strict(void)
+{
+  const size_t len = 4096;
+  FAR void *addr;
+  int fd;
+  int ret;
+
+  printf("\n-- strict mapping semantics --\n");
+
+  ret = create_file(PATH("strict.bin"), len, 0x88);
+  CHECK("create", ret == 0, strerror(-ret));
+
+  fd = open(PATH("strict.bin"), O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      CHECK("open", false, strerror(errno));
+      return;
+    }
+
+  /* Beyond the end of the file: strict must refuse rather than quietly
+   * hand back something that is not what was asked for.
+   */
+
+  addr = mmap(NULL, len * 4, PROT_READ, MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+  CHECK("strict mapping past end of file is refused", addr == MAP_FAILED,
+        "oversized mapping accepted");
+
+  addr = mmap(NULL, len, PROT_READ, MAP_SHARED | MAP_XIP_STRICT, fd, 0);
+  CHECK("strict mapping of a valid range succeeds", addr != MAP_FAILED,
+        strerror(errno));
+
+  if (addr != MAP_FAILED)
+    {
+      munmap(addr, len);
+    }
+
+  close(fd);
+  unlink(PATH("strict.bin"));
+}
+
+/****************************************************************************
+ * Test: the write-once model is enforced rather than half-implemented
+ ****************************************************************************/
+
+static void test_writeonce(void)
+{
+  const size_t len = 1024;
+  ssize_t nwritten;
+  int fd;
+  int ret;
+
+  printf("\n-- write-once enforcement --\n");
+
+  ret = create_file(PATH("once.bin"), len, 0x99);
+  CHECK("create", ret == 0, strerror(-ret));
+
+  fd = open(PATH("once.bin"), O_WRONLY | O_CLOEXEC);
+  CHECK("reopening a closed file for writing is refused", fd < 0,
+        "file was writable after close");
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  fd = open(PATH("once.bin"), O_WRONLY | O_APPEND | O_CLOEXEC);
+  CHECK("append is refused", fd < 0, "file was appendable");
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  /* A seek away from the append point during a create would leave a hole,
+   * which an exactly sized extent cannot represent.
+   */
+
+  fd = open(PATH("hole.bin"),
+            O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+  if (fd >= 0)
+    {
+      ftruncate(fd, len);
+      ret = lseek(fd, 512, SEEK_SET);
+      CHECK("seeking while creating is refused", ret < 0, "seek allowed");
+
+      nwritten = write(fd, g_buffer, 16);
+      CHECK("sequential write after a rejected seek still works",
+            nwritten == 16, "write failed");
+      close(fd);
+    }
+
+  unlink(PATH("once.bin"));
+  unlink(PATH("hole.bin"));
+}
+
+/****************************************************************************
+ * Test: power loss during mkdir and rmdir
+ *
+ * A directory is a record in the metadata generation, so creating or
+ * removing one is the same single-generation commit that create and unlink
+ * are.  That is the claim; this sweeps it.  For every flash operation in
+ * turn, fail at that one and assert the volume comes back as a tree with the
+ * directory either wholly there or wholly absent -- never a record whose
+ * parent has gone, which is what a partially applied change would look like
+ * and what mount would then have to reject.
+ ****************************************************************************/
+
+static void test_powerloss_dirs(void)
+{
+  const int max_ops = 12;
+  const size_t len = 2000;
+  struct stat st;
+  bool all_ok = true;
+  bool saw_failure = false;
+  bool saw_created = false;
+  bool saw_absent = false;
+  char detail[80];
+  int quiet = 0;
+  int ret;
+  int n;
+
+  printf("\n-- power loss during mkdir and rmdir --\n");
+  detail[0] = '\0';
+
+  for (n = 0; n < max_ops; n++)
+    {
+      /* Baseline: a directory holding a file, plus a file beside it, so a
+       * torn commit has neighbours to damage and a child to orphan.
+       */
+
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "remount failed before injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      unlink(PATH("d_keep/inner.bin"));
+      rmdir(PATH("d_keep"));
+      rmdir(PATH("d_new"));
+      unlink(PATH("d_file.bin"));
+
+      if (mkdir(PATH("d_keep"), 0755) < 0 ||
+          create_file(PATH("d_keep/inner.bin"), len, 0xd1) < 0 ||
+          create_file(PATH("d_file.bin"), len, 0xd2) < 0)
+        {
+          snprintf(detail, sizeof(detail), "baseline failed at %d", n);
+          all_ok = false;
+          break;
+        }
+
+      if (arm_injector(n, XIPFS_FAULT_TORN) < 0)
+        {
+          strlcpy(detail, "cannot arm injector", sizeof(detail));
+          all_ok = false;
+          break;
+        }
+
+      /* The operation being cut short */
+
+      if (mkdir(PATH("d_new"), 0755) < 0)
+        {
+          saw_failure = true;
+          quiet = 0;
+        }
+      else if (++quiet >= 2)
+        {
+          break;    /* Walked off the end of the mkdir */
+        }
+
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "mount failed after injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      /* The new directory is either there or not, and either way the tree
+       * that was already committed is untouched and still walkable.
+       */
+
+      if (stat(PATH("d_new"), &st) == 0)
+        {
+          saw_created = true;
+
+          if (!S_ISDIR(st.st_mode))
+            {
+              snprintf(detail, sizeof(detail),
+                       "mkdir left a non-directory at injection %d", n);
+              all_ok = false;
+              break;
+            }
+        }
+      else
+        {
+          saw_absent = true;
+        }
+
+      if (stat(PATH("d_keep"), &st) != 0 || !S_ISDIR(st.st_mode) ||
+          !verify_file(PATH("d_keep/inner.bin"), len, 0xd1) ||
+          !verify_file(PATH("d_file.bin"), len, 0xd2))
+        {
+          snprintf(detail, sizeof(detail),
+                   "committed tree damaged by injection %d", n);
+          all_ok = false;
+          break;
+        }
+
+      /* And the same for a removal cut short.  The directory must not come
+       * back empty-but-present while its child is gone, nor vice versa.
+       */
+
+      if (arm_injector(n, XIPFS_FAULT_TORN) < 0)
+        {
+          strlcpy(detail, "cannot arm injector", sizeof(detail));
+          all_ok = false;
+          break;
+        }
+
+      rmdir(PATH("d_new"));
+
+      ret = remount();
+      if (ret < 0)
+        {
+          snprintf(detail, sizeof(detail),
+                   "mount failed after rmdir injection %d: %d", n, ret);
+          all_ok = false;
+          break;
+        }
+
+      if (stat(PATH("d_keep"), &st) != 0 ||
+          !verify_file(PATH("d_keep/inner.bin"), len, 0xd1))
+        {
+          snprintf(detail, sizeof(detail),
+                   "rmdir injection %d damaged another directory", n);
+          all_ok = false;
+          break;
+        }
+    }
+
+  arm_injector(-1, XIPFS_FAULT_CLEAN);
+
+  CHECK("mkdir and rmdir stay consistent across every injection point",
+        all_ok, detail);
+  CHECK("injection actually interrupted some directory operations",
+        saw_failure, "nothing was ever cut short");
+  CHECK("both outcomes observed across the sweep",
+        saw_created && saw_absent, "only one outcome seen");
+
+  unlink(PATH("d_keep/inner.bin"));
+  rmdir(PATH("d_keep"));
+  rmdir(PATH("d_new"));
+  unlink(PATH("d_file.bin"));
+}
+
+/****************************************************************************
+ * Name: want
+ *
+ * Description:
+ *   Whether a named section should run.  With no argument everything does.
+ *
+ *   The selector exists because the power loss sweeps dominate the runtime
+ *   -- they are minutes, everything else is seconds -- so iterating on any
+ *   other section means waiting for work that is not being changed.
+ *
+ ****************************************************************************/
+
+static bool want(FAR const char *name, int argc, FAR char *argv[])
+{
+  return argc < 2 || strcmp(argv[1], name) == 0;
+}
+
+#define SECTION(name, fn)             \
+  do                                  \
+    {                                 \
+      if (want((name), argc, argv))   \
+        {                             \
+          fn();                       \
+        }                             \
+    }                                 \
+  while (0)
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  printf("XIPFS test suite on %s (%s)\n", MOUNTPT, MTDDEV);
+
+  /* In a flat build the counters keep their values from the previous run,
+   * so a second invocation would report the first one's results too.
+   */
+
+  g_passed = 0;
+  g_failed = 0;
+
+  g_buffer = malloc(g_bufsize);
+  if (g_buffer == NULL)
+    {
+      printf("ERROR: out of memory\n");
+      return EXIT_FAILURE;
+    }
+
+  if (remount() < 0)
+    {
+      printf("ERROR: cannot mount %s; is the board bringup configured?\n",
+             MOUNTPT);
+      free(g_buffer);
+      return EXIT_FAILURE;
+    }
+
+  SECTION("basic",     test_basic);
+  SECTION("writeonce", test_writeonce);
+  SECTION("strict",    test_strict);
+  SECTION("xip",       test_xip);
+  SECTION("multimap",  test_multimap);
+  SECTION("crosstask", test_crosstask_pins);
+  SECTION("teardown",  test_teardown_release);
+  SECTION("dirs",      test_dirs);
+  SECTION("defrag",    test_defrag);
+  SECTION("powerloss", test_powerloss);
+  SECTION("powertorn", test_powerloss_torn);
+  SECTION("unlink",    test_powerloss_unlink);
+  SECTION("dirloss",   test_powerloss_dirs);
+  SECTION("defraglos", test_powerloss_defrag);
+
+  if (g_passed == 0 && g_failed == 0)
+    {
+      printf("\nno section matched '%s'\n", argv[1]);
+      free(g_buffer);
+      return EXIT_FAILURE;
+    }
+
+  printf("\n==== %d passed, %d failed ====\n", g_passed, g_failed);
+
+  free(g_buffer);
+  return g_failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+}
