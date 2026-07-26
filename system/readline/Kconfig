@@ -56,7 +56,7 @@ endif # READLINE_TABCOMPLETION
 
 config READLINE_EDIT
 	bool "Command line editing"
-	default y if !DEFAULT_SMALL
+	default !DEFAULT_SMALL
 	---help---
 		Build in support for full command-line editing using cursor keys,
 		Home/End, Delete. Requires a VT100/ANSI-compatible terminal.

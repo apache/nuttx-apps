@@ -49,6 +49,23 @@
 #  define RL_CMDHIST_LINELEN    CONFIG_READLINE_CMD_HISTORY_LINELEN
 #endif
 
+#ifdef CONFIG_READLINE_EDIT_EMACS
+/* Emacs-style control key codes */
+
+#  define CTRL_A  1   /* ^A - Home */
+#  define CTRL_B  2   /* ^B - Left */
+#  define CTRL_D  4   /* ^D - Delete at cursor */
+#  define CTRL_E  5   /* ^E - End */
+#  define CTRL_F  6   /* ^F - Right */
+#  define CTRL_K  11  /* ^K - Kill to end of line */
+#  define CTRL_U  21  /* ^U - Kill to beginning of line */
+#  define CTRL_W  23  /* ^W - Kill word backward */
+#  ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
+#    define CTRL_G  7   /* ^G - Cancel incremental search */
+#    define CTRL_R  18  /* ^R - Reverse incremental search */
+#  endif
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -82,23 +99,6 @@ static const char g_curright[] =
                                   {
                                     ASCII_ESC, '[', 'C'
                                   };
-#endif
-
-#ifdef CONFIG_READLINE_EDIT_EMACS
-/* Emacs-style control key codes */
-
-#  define CTRL_A  1   /* ^A - Home */
-#  define CTRL_B  2   /* ^B - Left */
-#  define CTRL_D  4   /* ^D - Delete at cursor */
-#  define CTRL_E  5   /* ^E - End */
-#  define CTRL_F  6   /* ^F - Right */
-#  define CTRL_K  11  /* ^K - Kill to end of line */
-#  define CTRL_U  21  /* ^U - Kill to beginning of line */
-#  define CTRL_W  23  /* ^W - Kill word backward */
-#  ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
-#    define CTRL_G  7   /* ^G - Cancel incremental search */
-#    define CTRL_R  18  /* ^R - Reverse incremental search */
-#  endif
 #endif
 
 #if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
@@ -526,16 +526,26 @@ static int word_skip(FAR const char *buf, int cursor, int bound,
   if (forward)
     {
       while (cursor < bound && buf[cursor] != ' ')
-        cursor++;
+        {
+          cursor++;
+        }
+
       while (cursor < bound && buf[cursor] == ' ')
-        cursor++;
+        {
+          cursor++;
+        }
     }
   else
     {
       while (cursor > bound && buf[cursor - 1] == ' ')
-        cursor--;
+        {
+          cursor--;
+        }
+
       while (cursor > bound && buf[cursor - 1] != ' ')
-        cursor--;
+        {
+          cursor--;
+        }
     }
 
   return cursor;
@@ -637,8 +647,8 @@ static void redraw_tail(FAR struct rl_common_s *vtbl, FAR const char *buf,
  ****************************************************************************/
 
 static void isearch_redraw(FAR struct rl_common_s *vtbl,
-                            FAR const char *search, int searchlen,
-                            FAR const char *buf, int nch, bool failed)
+                           FAR const char *search, int searchlen,
+                           FAR const char *buf, int nch, bool failed)
 {
   static const char matchlabel[] = "(reverse-i-search)`";
   static const char faillabel[]  = "(failed reverse-i-search)`";
@@ -847,7 +857,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
   int i;
 #endif
 #ifdef CONFIG_READLINE_EDIT
-  volatile int cursor;
+  int cursor;
 #endif
 #ifdef CONFIG_READLINE_EDIT_EMACS_REVERSE_SEARCH
   bool insearch;
@@ -933,7 +943,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                */
 
               bool found = isearch_find(search, searchlen, searchoffset,
-                                         &searchoffset, buf, buflen, &nch);
+                                        &searchoffset, buf, buflen, &nch);
 #  ifdef CONFIG_READLINE_ECHO
               isearch_redraw(vtbl, search, searchlen, buf, nch, !found);
 #  endif
@@ -948,7 +958,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                   if (searchlen > 0)
                     {
                       isearch_find(search, searchlen, searchoffset,
-                                    &searchoffset, buf, buflen, &nch);
+                                   &searchoffset, buf, buflen, &nch);
                     }
                   else
                     {
@@ -958,7 +968,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
 #  ifdef CONFIG_READLINE_ECHO
               isearch_redraw(vtbl, search, searchlen, buf, nch,
-                              searchlen > 0 && nch == 0);
+                             searchlen > 0 && nch == 0);
 #  endif
             }
           else if (ch == CTRL_G || ch == ASCII_ETX)  /* ^G or ^C: cancel */
@@ -1008,7 +1018,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               searchoffset = 1;
 
               bool found = isearch_find(search, searchlen, searchoffset,
-                                         &searchoffset, buf, buflen, &nch);
+                                        &searchoffset, buf, buflen, &nch);
 #  ifdef CONFIG_READLINE_ECHO
               isearch_redraw(vtbl, search, searchlen, buf, nch, !found);
 #  endif
@@ -1053,27 +1063,11 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                     }
 
 #  ifdef CONFIG_READLINE_ECHO
-                  /* Delete arrives as the 4-byte sequence "ESC [ 3 ~".
-                   * Some serial drivers only know how to suppress
-                   * local echo for fixed 3-byte "ESC [ x" sequences
-                   * and leak the trailing '~' as a literal character,
-                   * silently advancing the terminal's real cursor by
-                   * one column.  redraw_line() is immune to this (and
-                   * to any other such drift) because it always
-                   * returns to column 0 with '\r' first, rather than
-                   * assuming where the cursor currently is -- unlike
-                   * a plain erase-and-rewrite-the-tail redraw, which
-                   * only works relative to the cursor's last known
-                   * position and has no way to recover if that
-                   * assumption turns out to be wrong.
-                   *
-                   * This redraw is unconditional -- even when there
-                   * was nothing to delete (cursor already at the true
-                   * end, including an empty line) -- specifically so
-                   * it also cleans up a leaked '~' in that case; only
-                   * skipping the redraw when there is "nothing to do"
-                   * is exactly what left a stray '~' visible on
-                   * screen with an unpatched driver.
+                  /* Delete ("ESC [ 3 ~") may leave a stray '~' on
+                   * terminals that do not fully suppress local echo.
+                   * Always use redraw_line(), even if nothing was
+                   * deleted, to resync the cursor and clear any leaked
+                   * characters.
                    */
 
                   redraw_line(vtbl, buf, nch, cursor);
@@ -1171,18 +1165,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
               continue;
             }
 
-          /* Some terminals (e.g. xterm) use the SS3 introducer "ESC O"
-           * rather than CSI "ESC [" for Home/End (and, in application
-           * cursor key mode, for the arrow keys too).  Recognize the
-           * "ESC O" prefix here and fall into exactly the same
-           * "terminator character" handling used for "ESC [ <x>" below,
-           * by advancing to a dedicated state (6) that is treated the
-           * same way state 2 (saw "ESC [") is treated once the final
-           * byte arrives.  Without this, the 'O' is silently dropped
-           * (falling through the unrecognized-sequence path below) and
-           * the *next* byte (e.g. 'F' for End, 'H' for Home) is left to
-           * be reprocessed as an ordinary printable character, which is
-           * what produced the stray inserted "OF"/"OH" text.
+          /* Recognize SS3 ("ESC O") escape sequences used by some
+           * terminals (e.g. xterm) for Home/End and application cursor
+           * keys, handling them the same as CSI ("ESC [") to avoid
+           * inserting stray "OH"/"OF" characters into the input.
            */
 
           if (escape == 1 && ch == ASCII_O)
@@ -1231,21 +1217,11 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
                         }
                     }
 
-                  /* Clear out current command from the prompt.
-                   *
-                   * This cannot assume the terminal's cursor is
-                   * sitting at the end of the currently displayed
-                   * text (i.e. at column 'nch') and simply backspace
-                   * 'nch' times -- the cursor can be anywhere in the
-                   * line (e.g. the user pressed Left one or more
-                   * times before pressing Up/Down again), and
-                   * backspacing more times than the cursor's actual
-                   * distance from the end of the prompt walks back
-                   * into and erases part of the prompt itself.
-                   * Instead, return to the true start of the
-                   * terminal line and erase to the end of line, then
-                   * reprint the prompt -- this does not depend on
-                   * where the cursor happened to be.
+                  /* Clear the current command safely regardless of the
+                   * cursor position. Move to the start of the line,
+                   * erase to end-of-line, and redraw the prompt,
+                   * avoiding accidental deletion of prompt characters
+                   * when the cursor is not at the command end.
                    */
 
                   nch = 0;
@@ -1418,7 +1394,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
             {
               int k;
               for (k = cursor; k < nch; k++)
-                buf[k - 1] = buf[k];
+                {
+                  buf[k - 1] = buf[k];
+                }
+
               cursor--;
               nch--;
 
@@ -1483,7 +1462,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
             {
               int k;
               for (k = cursor + 1; k < nch; k++)
-                buf[k - 1] = buf[k];
+                {
+                  buf[k - 1] = buf[k];
+                }
+
               nch--;
               redraw_tail(vtbl, buf, nch, cursor);
             }
@@ -1514,7 +1496,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
         {
           int j;
           for (j = cursor; j < nch; j++)
-            buf[j - cursor] = buf[j];
+            {
+              buf[j - cursor] = buf[j];
+            }
+
           nch -= cursor;
           cursor = 0;
           buf[nch] = '\0';
@@ -1525,23 +1510,18 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
           int start, k;
           start = word_skip(buf, cursor, 0, false);
           for (k = cursor; k < nch; k++)
-            buf[k - (cursor - start)] = buf[k];
+            {
+              buf[k - (cursor - start)] = buf[k];
+            }
+
           nch -= (cursor - start);
           cursor = start;
           buf[nch] = '\0';
 
-          /* Unlike Ctrl+K (which never moves the cursor, so erasing
-           * from wherever it already is is correct) and Backspace
-           * (which moves it by exactly one column and compensates
-           * with a single explicit backspace byte), Ctrl+W can move
-           * the cursor back by any number of columns depending on how
-           * long the killed word was.  redraw_tail() has no way to
-           * express "also move left by N first"; it just erases from
-           * wherever the terminal's cursor already happens to be.
-           * Using redraw_line() instead sidesteps the whole problem
-           * the same way it does for Delete: it returns to column 0
-           * with '\r' first, so it is correct regardless of how far
-           * the cursor moved.
+          /* Unlike Ctrl+K, Ctrl+W moves the cursor back by a variable
+           * number of columns. Use redraw_line() instead of
+           * redraw_tail() so the line is redrawn correctly regardless
+           * of the cursor position, matching Delete handling.
            */
 
           redraw_line(vtbl, buf, nch, cursor);
@@ -1638,34 +1618,20 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 #ifdef CONFIG_READLINE_TABCOMPLETION
       else if (ch == '\t') /* TAB character */
         {
-          /* When tab_completion() finds a match (or lists several), it
-           * always leaves the terminal's real cursor at the end of the
-           * (possibly completed) line -- either by echoing the
-           * appended characters one at a time, or, when it lists
-           * multiple matches, by reprinting the prompt and the whole
-           * buffer from scratch.  'cursor' has to be resynced to
-           * match in that case, or the very next Left/Right/Home/End
-           * keypress will move the terminal's cursor from column
-           * 'nch' while still believing it is moving from wherever
-           * 'cursor' was left (typically the length of the word
-           * before completion) -- the two then stay out of sync for
-           * the rest of the line.
-           *
-           * But if there was no match at all, tab_completion() does
-           * not touch the terminal or the buffer, and 'cursor' must
-           * be left exactly where it was -- unconditionally resyncing
-           * it here would be just as wrong as never resyncing it,
-           * only in the opposite direction.
+          /* tab_completion() leaves the terminal cursor at the end of
+           * the line whenever it modifies or redraws the input, so
+           * resync 'cursor' in that case. If no completion occurred,
+           * leave 'cursor' unchanged to preserve its current position.
            */
 
-#  ifdef CONFIG_READLINE_EDIT
           if (tab_completion(vtbl, buf, buflen, &nch))
+#  ifdef CONFIG_READLINE_EDIT
             {
               cursor = nch;
             }
-#  else
-          tab_completion(vtbl, buf, buflen, &nch);
+
 #  endif
+        ; /* keep this ';' to close the if() if no CONFIG_READLINE_EDIT */
         }
 #endif
     }
