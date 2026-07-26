@@ -75,7 +75,6 @@ if(CONFIG_AUDIOUTILS_LAME)
       "${SRC_PATH}/libmp3lame/newmdct.c"
       "${SRC_PATH}/libmp3lame/psymodel.c"
       "${SRC_PATH}/libmp3lame/quantize.c"
-      "${SRC_PATH}/libmp3lame/vector/xmm_quantize_sub.c"
       "${SRC_PATH}/libmp3lame/quantize_pvt.c"
       "${SRC_PATH}/libmp3lame/set_get.c"
       "${SRC_PATH}/libmp3lame/vbrquantize.c"
@@ -86,6 +85,18 @@ if(CONFIG_AUDIOUTILS_LAME)
       "${SRC_PATH}/libmp3lame/VbrTag.c"
       "${SRC_PATH}/libmp3lame/version.c"
       "${SRC_PATH}/libmp3lame/presets.c")
+
+  if(CONFIG_HOST_X86 OR CONFIG_HOST_X86_64)
+    list(
+      APPEND
+      CSRCS
+      "${SRC_PATH}/libmp3lame/vector/xmm_quantize_sub.c"
+      "${SRC_PATH}/libmp3lame/vector/xmm_choose_table.c"
+      "${SRC_PATH}/libmp3lame/vector/xmm_quantize_lines.c"
+      "${SRC_PATH}/libmp3lame/vector/xmm_calc_sfb_noise.c"
+      "${SRC_PATH}/libmp3lame/vector/avx2_choose_table.c"
+      "${SRC_PATH}/libmp3lame/vector/avx2_quantize_lines.c")
+  endif()
 
   # Add custom target to generate config_h
   set(CONFIG_H_FILE "${CMAKE_CURRENT_SOURCE_DIR}/lame/configure")
