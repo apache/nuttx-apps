@@ -146,10 +146,9 @@ ifneq ($(strip $(PROGNAME)),)
   # CONFIG_SCHED_USER_IDENTITY) so the binary loader can recover them.
   # Per-target so each PROGLIST entry picks up its own STACKSIZE_/PRIORITY_.
 
-  $(PROGLIST): SYM_PRIORITY = $(if $(filter SCHED_PRIORITY_DEFAULT,$(PRIORITY_$@)),0,$(PRIORITY_$@))
   $(PROGLIST): MODLDFLAGS += \
     $(if $(STACKSIZE_$@),--defsym nx_stacksize=$(STACKSIZE_$@)) \
-    $(if $(PRIORITY_$@),--defsym nx_priority=$(SYM_PRIORITY))
+    $(if $(filter-out SCHED_PRIORITY_DEFAULT,$(PRIORITY_$@)),--defsym nx_priority=$(PRIORITY_$@))
 ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
   $(PROGLIST): MODLDFLAGS += \
     $(if $(UID_$@),--defsym nx_uid=$(UID_$@)) \
@@ -159,7 +158,7 @@ endif
 
   # Keep the attribute symbols through --strip-unneeded so the binary loader
   # can still read them from the stripped runtime image in bin/.
-  $(PROGLIST): NX_KEEP = $(if $(STACKSIZE_$@),-K nx_stacksize) $(if $(PRIORITY_$@),-K nx_priority) $(if $(UID_$@),-K nx_uid) $(if $(GID_$@),-K nx_gid) $(if $(MODE_$@),-K nx_mode)
+  $(PROGLIST): NX_KEEP = $(if $(STACKSIZE_$@),-K nx_stacksize) $(if $(filter-out SCHED_PRIORITY_DEFAULT,$(PRIORITY_$@)),-K nx_priority) $(if $(UID_$@),-K nx_uid) $(if $(GID_$@),-K nx_gid) $(if $(MODE_$@),-K nx_mode)
 endif
 
 # Condition flags
