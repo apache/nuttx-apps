@@ -1,0 +1,33 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SANDBOX
+	tristate "Protected-build sandbox containment test"
+	default n
+	---help---
+		A test that deliberately tries to escape the kernel/user boundary of
+		a protected or kernel build, and checks that the attempt is contained:
+		the offending task is terminated and everything else keeps running.
+
+		The address it touches is derived from CONFIG_NUTTX_USERSPACE rather
+		than hard-coded, so the test is architecture-neutral.  In a flat build
+		there is no boundary to escape from and the test says so instead of
+		reporting a pass.
+
+if EXAMPLES_SANDBOX
+
+config EXAMPLES_SANDBOX_PROGNAME
+	string "Program name"
+	default "sandbox"
+
+config EXAMPLES_SANDBOX_PRIORITY
+	int "sandbox task priority"
+	default 100
+
+config EXAMPLES_SANDBOX_STACKSIZE
+	int "sandbox stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
