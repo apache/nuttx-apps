@@ -1,0 +1,131 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig GRAPHICS_MICROWINDOWS
+	bool "Microwindows or the Nano-X Window System"
+	default n
+	depends on VIDEO_FB
+	---help---
+		Enable Microwindows or the Nano-X Window System
+
+if GRAPHICS_MICROWINDOWS
+
+config MICROWINDOWS_FB_PATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+	---help---
+		Path to the NuttX framebuffer device.
+
+choice
+	prompt "Keyboard driver"
+	default MICROWINDOWS_KBD_EVENT
+	---help---
+		Select the keyboard input driver for Microwindows.
+
+config MICROWINDOWS_KBD_EVENT
+	bool "Event-mode keyboard driver"
+	---help---
+		Reads keyboard_event_s events from a NuttX keyboard device
+		(e.g., /dev/kbd).  Supports key press/release tracking and
+		modifier keys (Shift, Ctrl, Alt).
+
+config MICROWINDOWS_KBD_RAW
+	bool "Raw-mode keyboard driver"
+	depends on LIBC_KBDCODEC
+	---help---
+		Reads raw byte stream from a character device (e.g., /dev/kbda)
+		and decodes escape sequences via the kbd_codec library.  Suitable
+		for USB HID keyboards on QEMU.
+
+config MICROWINDOWS_KBD_NONE
+	bool "No keyboard driver"
+	---help---
+		No keyboard driver is compiled.  Microwindows will use a null
+		keyboard driver that never produces input.  Suitable for
+		display-only applications.
+
+config MICROWINDOWS_KBD_CUSTOM
+	bool "Custom keyboard driver"
+	---help---
+		No built-in keyboard driver is compiled.  The application or BSP
+		must provide its own kbddev symbol and KBDDEVICE implementation,
+		and add the source file to the build (e.g., via CSRCS in its
+		Makefile).  See the Microwindows documentation for details.
+
+endchoice
+
+config MICROWINDOWS_KBD_EVENT_PATH
+	string "Event keyboard device path"
+	default "/dev/kbd"
+	depends on MICROWINDOWS_KBD_EVENT
+	---help---
+		Device path for the event-mode keyboard driver.
+
+config MICROWINDOWS_KBD_RAW_PATH
+	string "Raw keyboard device path"
+	default "/dev/kbda"
+	depends on MICROWINDOWS_KBD_RAW
+	---help---
+		Device path for the raw-mode keyboard driver.
+
+choice
+	prompt "Mouse/touchscreen driver"
+	default MICROWINDOWS_MOUSE_RELATIVE
+	---help---
+		Select the pointing device driver for Microwindows.
+
+config MICROWINDOWS_MOUSE_RELATIVE
+	bool "Relative mouse driver"
+	---help---
+		Reads mouse_report_s events from a NuttX mouse device
+		(e.g., /dev/mouse0).  Supports three buttons and scroll wheel.
+
+config MICROWINDOWS_MOUSE_TS
+	bool "Touchscreen driver"
+	---help---
+		Reads touch_sample_s events from a NuttX touchscreen device
+		(e.g., /dev/input0).  Supports absolute positioning.
+
+config MICROWINDOWS_MOUSE_NONE
+	bool "No mouse/touchscreen driver"
+	---help---
+		No pointing device driver is compiled.  Microwindows will use a
+		null mouse driver that never produces input and hides the cursor.
+		Suitable for display-only applications.
+
+config MICROWINDOWS_MOUSE_CUSTOM
+	bool "Custom mouse/touchscreen driver"
+	---help---
+		No built-in pointing device driver is compiled.  The application
+		or BSP must provide its own mousedev symbol and MOUSEDEVICE
+		implementation, and add the source file to the build (e.g., via
+		CSRCS in its Makefile).  See the Microwindows documentation for
+		details.
+
+endchoice
+
+config MICROWINDOWS_MOUSE_PATH
+	string "Mouse device path"
+	default "/dev/mouse0"
+	depends on MICROWINDOWS_MOUSE_RELATIVE
+	---help---
+		Device path for the relative mouse driver.
+
+config MICROWINDOWS_TS_PATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	depends on MICROWINDOWS_MOUSE_TS
+	---help---
+		Device path for the touchscreen driver.
+
+config MICROWINDOWS_MWIN
+	bool "Win32 API (mwin) support"
+	default n
+	---help---
+		Build the Microwindows Win32 (mwin) API library.  This provides
+		a high-level windowing API similar to the Microsoft Windows API
+		with window management, controls, and standard dialogs.
+
+endif # GRAPHICS_MICROWINDOWS
