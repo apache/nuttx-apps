@@ -64,6 +64,7 @@
 #  define CONVERT_TO_ARGB            ConvertToARGB
 #  define CONVERT_FROM_I420          ConvertFromI420
 #  define CONVERT_TO_I420            ConvertToI420
+#  define CONVERT_ARGB_TO_RGB24      ARGBToRGB24
 #endif
 
 #define NXCAMERA_STATE_IDLE      0
@@ -194,6 +195,56 @@ err:
           free(dst);
           return ret;
         }
+    }
+  else if (pcam->display_vinfo.fmt == FB_FMT_RGB24)
+    {
+      int ret;
+      uint32_t dst_w = pcam->display_vinfo.xres;
+      uint32_t dst_h = pcam->display_vinfo.yres;
+      uint32_t src_w = pcam->fmt.fmt.pix.width;
+      uint32_t src_h = pcam->fmt.fmt.pix.height;
+      int crop_x = (src_w > dst_w) ? (src_w - dst_w) / 2 : 0;
+      int crop_y = (src_h > dst_h) ? (src_h - dst_h) / 2 : 0;
+      size_t need = dst_w * dst_h * 4;
+
+      /* Lazy-allocate conversion buffer, reused across frames */
+
+      if (pcam->conv_buf_size < need)
+        {
+          free(pcam->conv_buf);
+          pcam->conv_buf = malloc(need);
+          if (pcam->conv_buf == NULL)
+            {
+              pcam->conv_buf_size = 0;
+              return -ENOMEM;
+            }
+
+          pcam->conv_buf_size = need;
+        }
+
+      ret = CONVERT_TO_ARGB(pcam->bufs[buf->index],
+                           sample_size,
+                           pcam->conv_buf,
+                           dst_w * 4,
+                           crop_x,
+                           crop_y,
+                           src_w,
+                           src_h,
+                           dst_w,
+                           dst_h,
+                           0,
+                           pcam->fmt.fmt.pix.pixelformat);
+      if (ret < 0)
+        {
+          return ret;
+        }
+
+      return CONVERT_ARGB_TO_RGB24(pcam->conv_buf,
+                                   dst_w * 4,
+                                   pcam->display_pinfo.fbmem,
+                                   pcam->display_pinfo.stride,
+                                   dst_w,
+                                   dst_h);
     }
 
   return 0;
@@ -1063,6 +1114,9 @@ void nxcamera_release(FAR struct nxcamera_s *pcam)
 
   if (refcount == 1)
     {
+#ifdef CONFIG_LIBYUV
+      free(pcam->conv_buf);
+#endif
       pthread_mutex_destroy(&pcam->mutex);
       free(pcam);
     }

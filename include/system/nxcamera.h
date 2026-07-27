@@ -73,6 +73,10 @@ struct nxcamera_s
   size_t                nbuffers;                    /* Number of buffers */
   FAR size_t            *buf_sizes;                  /* Buffer lengths */
   FAR uint8_t           **bufs;                      /* Buffer pointers */
+#ifdef CONFIG_LIBYUV
+  FAR uint8_t           *conv_buf;                   /* Preallocated ARGB conv buffer */
+  size_t                conv_buf_size;               /* Size of conv buffer in bytes */
+#endif
 };
 
 struct video_msg_s
