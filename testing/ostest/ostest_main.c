@@ -656,7 +656,8 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#if defined(CONFIG_ARCH_PERF_EVENTS) && !defined(CONFIG_ARCH_PERF_EVENTS_USER_ACCESS)
+#if defined(CONFIG_ARCH_PERF_EVENTS) && \
+    !defined(CONFIG_ARCH_PERF_EVENTS_USER_ACCESS) && defined(CONFIG_BUILD_FLAT)
       /* Verify performance event time counter */
 
       printf("\nuser_main: performance event time counter test\n");
