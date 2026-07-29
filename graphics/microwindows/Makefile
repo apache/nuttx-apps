@@ -108,6 +108,8 @@ else ifeq ($(CONFIG_MICROWINDOWS_MOUSE_CUSTOM),y)
 MOUSE = CUSTOM
 endif
 
+HAVE_FNT_SUPPORT = Y
+
 -include microwindows/src/engine/Objects.rules
 -include microwindows/src/drivers/Objects.rules
 -include microwindows/src/fonts/Objects.rules
