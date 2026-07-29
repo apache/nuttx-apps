@@ -7,14 +7,17 @@ config FSUTILS_PASSWD
 	bool "Password file support"
 	default n
 	depends on CRYPTO_CRYPTODEV
+	depends on CRYPTO_CRYPTODEV_SOFTWARE_CRYPTO || CRYPTO_CRYPTODEV_HARDWARE
 	depends on NETUTILS_CODECS
 	depends on CODECS_BASE64
 	---help---
 		Enables support for /etc/passwd file access routines.
 
 		Requires CONFIG_CRYPTO=y, CRYPTO_CRYPTODEV (and
-		ALLOW_BSD_COMPONENTS), plus NETUTILS_CODECS/CODECS_BASE64 for
-		base64url hash encoding.
+		ALLOW_BSD_COMPONENTS), a cryptodev backend
+		(CONFIG_CRYPTO_CRYPTODEV_SOFTWARE_CRYPTO or
+		CONFIG_CRYPTO_CRYPTODEV_HARDWARE), plus NETUTILS_CODECS/CODECS_BASE64
+		for base64url hash encoding.
 
 		NOTE: Password hashes use PBKDF2-HMAC-SHA256 (modular crypt format).
 		Existing TEA-encrypted /etc/passwd entries are NOT compatible and

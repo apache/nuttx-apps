@@ -1235,23 +1235,35 @@ config NSH_CONSOLE_LOGIN
 	bool "Console Login"
 	default n
 	depends on FSUTILS_PASSWD
+	depends on !ETC_ROMFS || BOARD_ETC_ROMFS_PASSWD_ENABLE
 	select NSH_LOGIN
 	---help---
 		If defined, then the console user will be required to provide a
 		username and password to start the NSH shell.  Requires
-		CONFIG_FSUTILS_PASSWD so credentials are verified against the
-		encrypted password file (for example ROMFS /etc/passwd).
+		CONFIG_FSUTILS_PASSWD (PBKDF2-HMAC-SHA256) so credentials are
+		verified against the encrypted password file.
+
+		When CONFIG_ETC_ROMFS is enabled, also enable
+		CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE so /etc/passwd is generated
+		at build time (or provide the passwd file by other means and leave
+		ETC_ROMFS disabled).
 
 config NSH_TELNET_LOGIN
 	bool "Telnet Login"
 	default n
 	depends on NSH_TELNET && FSUTILS_PASSWD
+	depends on !ETC_ROMFS || BOARD_ETC_ROMFS_PASSWD_ENABLE
 	select NSH_LOGIN
 	---help---
 		If defined, then the Telnet user will be required to provide a
 		username and password to start the NSH shell.  Requires
-		CONFIG_FSUTILS_PASSWD so credentials are verified against the
-		encrypted password file (for example ROMFS /etc/passwd).
+		CONFIG_FSUTILS_PASSWD (PBKDF2-HMAC-SHA256) so credentials are
+		verified against the encrypted password file.
+
+		When CONFIG_ETC_ROMFS is enabled, also enable
+		CONFIG_BOARD_ETC_ROMFS_PASSWD_ENABLE so /etc/passwd is generated
+		at build time (or provide the passwd file by other means and leave
+		ETC_ROMFS disabled).
 
 if NSH_LOGIN
 
