@@ -170,17 +170,17 @@ static int mu_set_effective(FAR struct mu_ctx_s *ctx, uid_t uid, gid_t gid)
 
   if (seteuid(uid) != 0)
     {
-      mu_fail(ctx, "seteuid(%u) errno=%d", (unsigned int)uid, errno);
+      mu_fail(ctx, "seteuid(%u) errno=%d", uid, errno);
       return -1;
     }
 
   if (setegid(gid) != 0)
     {
-      mu_fail(ctx, "setegid(%u) errno=%d", (unsigned int)gid, errno);
+      mu_fail(ctx, "setegid(%u) errno=%d", gid, errno);
       return -1;
     }
 
-  if (geteuid() != (int)uid || getegid() != (int)gid)
+  if (geteuid() != uid || getegid() != gid)
     {
       mu_fail(ctx, "effective credential switch failed "
               "(have euid=%d egid=%d)", geteuid(), getegid());
@@ -242,12 +242,11 @@ static int mu_verify_owner(FAR struct mu_ctx_s *ctx, FAR const char *path,
   if (st.st_uid != uid || st.st_gid != gid)
     {
       mu_fail(ctx, "%s owner expected %u:%u got %u:%u",
-              path, (unsigned int)uid, (unsigned int)gid,
-              (unsigned int)st.st_uid, (unsigned int)st.st_gid);
+              path, uid, gid, st.st_uid, st.st_gid);
       return -1;
     }
 
-  mu_pass("%s owner %u:%u", path, (unsigned int)uid, (unsigned int)gid);
+  mu_pass("%s owner %u:%u", path, uid, gid);
   return 0;
 }
 
@@ -263,11 +262,11 @@ static void mu_verify_mode(FAR struct mu_ctx_s *ctx, FAR const char *path,
   else if ((st.st_mode & 0777) != mode)
     {
       mu_fail(ctx, "%s mode expected %04o got %04o", path,
-              (unsigned int)mode, (unsigned int)(st.st_mode & 0777));
+              mode, st.st_mode & 0777);
     }
   else
     {
-      mu_pass("%s mode %04o", path, (unsigned int)mode);
+      mu_pass("%s mode %04o", path, mode);
     }
 }
 
@@ -1044,7 +1043,40 @@ static int multiuser_ipc_test(FAR struct mu_ctx_s *ctx)
 
 #endif /* CONFIG_FS_PERMISSION && CONFIG_PSEUDOFS_ATTRIBUTES */
 
-#if defined(CONFIG_LIBC_PASSWD_FILE)
+#if defined(CONFIG_LIBC_PASSWD_FILE) && defined(CONFIG_TESTING_OSTEST_MULTIUSER)
+
+static int multiuser_passwd_install(FAR struct mu_ctx_s *ctx)
+{
+  int fd;
+  ssize_t nwritten;
+  static const char content[] =
+    "root:x:0:0:/\n"
+    "testuser:x:1000:1000:/home/testuser\n";
+
+  fd = open(CONFIG_LIBC_PASSWD_FILEPATH, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  if (fd < 0)
+    {
+      mu_fail(ctx, "create %s errno=%d", CONFIG_LIBC_PASSWD_FILEPATH, errno);
+      return -1;
+    }
+
+  nwritten = write(fd, content, sizeof(content) - 1);
+  close(fd);
+  if (nwritten != (ssize_t)(sizeof(content) - 1))
+    {
+      mu_fail(ctx, "write %s errno=%d", CONFIG_LIBC_PASSWD_FILEPATH, errno);
+      unlink(CONFIG_LIBC_PASSWD_FILEPATH);
+      return -1;
+    }
+
+  mu_pass("installed %s", CONFIG_LIBC_PASSWD_FILEPATH);
+  return 0;
+}
+
+static void multiuser_passwd_remove(void)
+{
+  unlink(CONFIG_LIBC_PASSWD_FILEPATH);
+}
 
 static int multiuser_passwd_test(FAR struct mu_ctx_s *ctx)
 {
@@ -1052,8 +1084,14 @@ static int multiuser_passwd_test(FAR struct mu_ctx_s *ctx)
 
   printf("multiuser: passwd lookup after credential drop\n");
 
+  if (multiuser_passwd_install(ctx) != 0)
+    {
+      return ctx->failures;
+    }
+
   if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
     {
+      multiuser_passwd_remove();
       return ctx->failures;
     }
 
@@ -1065,7 +1103,7 @@ static int multiuser_passwd_test(FAR struct mu_ctx_s *ctx)
     }
   else
     {
-      mu_pass("getpwnam(root) uid=%u", (unsigned int)pwd->pw_uid);
+      mu_pass("getpwnam(root) uid=%u", pwd->pw_uid);
     }
 
   pwd = getpwnam("testuser");
@@ -1076,18 +1114,19 @@ static int multiuser_passwd_test(FAR struct mu_ctx_s *ctx)
   else if (pwd->pw_uid != MU_UID1)
     {
       mu_fail(ctx, "getpwnam(testuser) uid=%u (expected %u)",
-              (unsigned int)pwd->pw_uid, (unsigned int)MU_UID1);
+              pwd->pw_uid, MU_UID1);
     }
   else
     {
-      mu_pass("getpwnam(testuser) uid=%u", (unsigned int)pwd->pw_uid);
+      mu_pass("getpwnam(testuser) uid=%u", pwd->pw_uid);
     }
 
   mu_restore_root(ctx);
+  multiuser_passwd_remove();
   return ctx->failures;
 }
 
-#endif /* CONFIG_LIBC_PASSWD_FILE */
+#endif /* CONFIG_LIBC_PASSWD_FILE && CONFIG_TESTING_OSTEST_MULTIUSER */
 
 #endif /* CONFIG_SCHED_USER_IDENTITY */
 
@@ -1139,11 +1178,11 @@ int multiuser_test(void)
          "(need FS_PERMISSION and PSEUDOFS_ATTRIBUTES)\n");
 #endif
 
-#if defined(CONFIG_LIBC_PASSWD_FILE)
+#if defined(CONFIG_LIBC_PASSWD_FILE) && defined(CONFIG_TESTING_OSTEST_MULTIUSER)
   multiuser_passwd_test(&ctx);
 #else
   printf("multiuser: skipping passwd lookup test "
-         "(need LIBC_PASSWD_FILE)\n");
+         "(need LIBC_PASSWD_FILE and TESTING_OSTEST_MULTIUSER)\n");
 #endif
 
   mu_restore_root(&ctx);
