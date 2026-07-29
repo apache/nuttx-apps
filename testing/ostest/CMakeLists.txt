@@ -161,7 +161,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS nxevent.c)
   endif()
 
-  if(CONFIG_ARCH_HAVE_PERF_EVENTS)
+  # perf_gettime() and perf_getfreq() live in the kernel and are not system
+  # calls, so only a flat build can reach them from here.
+
+  if(CONFIG_ARCH_HAVE_PERF_EVENTS AND CONFIG_BUILD_FLAT)
     list(APPEND SRCS perf_gettime.c)
   endif()
 
