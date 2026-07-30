@@ -365,6 +365,7 @@ int main(int argc, FAR char *argv[])
         ret = check_bad_block(fd, &geo);
         break;
       default:
+        break;
     }
 
 oops:
