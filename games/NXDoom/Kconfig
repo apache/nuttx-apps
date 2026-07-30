@@ -157,6 +157,61 @@ config GAMES_NXDOOM_KBDPATH
 
 endif # GAMES_NXDOOM_KEYBOARD
 
+config GAMES_NXDOOM_FB_CMAP
+	bool "Draw through the frame buffer colour map"
+	default n
+	---help---
+		DOOM draws into an 8-bit palettised buffer and normally converts
+		every pixel to the pixel format of the frame buffer as it blits.
+		A frame buffer that has a colour map of its own can do that
+		conversion in hardware while it scans the display out, so enable
+		this to load the DOOM palette into the colour map and blit the
+		palette indices unconverted.
+
+		This needs a frame buffer that is 8 bits per pixel and supports
+		FBIOPUT_CMAP, such as an STM32 LTDC layer configured for L8.  It
+		both removes the conversion and halves the amount of data written
+		per frame, which matters most when the frame buffer is external
+		memory.
+
+config GAMES_NXDOOM_FILLSCREEN
+	bool "Stretch the image to the whole display"
+	default n
+	---help---
+		By default the 320x200 image is scaled by the largest whole number
+		that fits, which leaves a border on a display whose size is not an
+		exact multiple of it.  Enable this to stretch the image over the
+		entire frame buffer instead, which fills the display at the cost of
+		a scale factor that is not uniform across the image.
+
+config GAMES_NXDOOM_ROWSTAGE
+	bool "Build each output row in a staging buffer"
+	default n
+	---help---
+		Expand each row into a staging buffer and copy it to the frame
+		buffer, rather than writing the frame buffer a pixel at a time.
+		Every frame buffer access then becomes a burst-friendly copy, which
+		is worth a lot when the frame buffer is external memory and the
+		data cache is in write-through mode, and little otherwise.
+
+		Costs a few kilobytes of .bss for the buffer.  A row that does not
+		fit is written directly, as if this were disabled.
+
+config GAMES_NXDOOM_STATIC_SCRNBUF
+	bool "Place the render target in .bss"
+	default n
+	---help---
+		DOOM renders into a 320x200 buffer that is normally taken from the
+		heap.  On a board whose heap is mostly slow external memory the
+		allocation lands there, which is close to the worst case:  the
+		renderer draws in vertical columns, so consecutive writes are one
+		screen width apart and none of them coalesce.
+
+		Enable this to make the buffer a static object instead, so the
+		linker places it in internal RAM along with the rest of .bss.  It
+		costs 64000 bytes of RAM whether DOOM runs or not, so it is only
+		worth it when internal RAM is plentiful and the heap is not.
+
 comment "Optimizations"
 
 config GAMES_NXDOOM_MAXVISPLANES

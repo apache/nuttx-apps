@@ -92,6 +92,26 @@ struct graphics_state_s
 
   uint8_t scale;
 
+  /* Byte offset into the frame buffer of the top left corner of the scaled
+   * image, so that it is centred on displays it does not fill.
+   */
+
+  size_t origin;
+
+  /* Size of the scaled image in pixels.  This is an integer multiple of the
+   * DOOM resolution unless the image is stretched to fill the display.
+   */
+
+  unsigned outw;
+  unsigned outh;
+
+  /* Maps an output column onto the source column it is drawn from, so that
+   * the inner loop needs neither a division nor a separate case for
+   * fractional scaling.
+   */
+
+  FAR uint16_t *colmap;
+
   bool inited; /* Track initialization */
 };
 
@@ -106,6 +126,27 @@ static struct graphics_state_s g_graphics_state =
   0
 };
 
+#ifdef CONFIG_GAMES_NXDOOM_STATIC_SCRNBUF
+/* The buffer DOOM renders into.  Keeping it in .bss rather than on the heap
+ * puts it in internal RAM on boards whose heap is mostly external memory.
+ */
+
+static pixel_t g_scrnbuf[SCREENWIDTH * SCREENHEIGHT];
+#endif
+
+#ifdef CONFIG_GAMES_NXDOOM_ROWSTAGE
+/* Staging area for one output row.  Expanding a row here and then copying it
+ * out keeps the per-pixel writes in internal RAM and turns every frame
+ * buffer access into a burst-friendly copy, which is what an external frame
+ * buffer wants.  Declared as uint32_t for alignment; it holds one row at the
+ * largest scale and pixel size it can serve.
+ */
+
+#define BLIT_MAX_STAGED_SCALE 4
+
+static uint32_t g_rowbuf[SCREENWIDTH * BLIT_MAX_STAGED_SCALE];
+#endif
+
 /* Window title */
 
 static const char *g_window_title = "";
@@ -113,6 +154,13 @@ static const char *g_window_title = "";
 /* Colour palette map from 8-bit colour to 32-bit */
 
 static struct argbcolor_s g_palette[256];
+
+/* The same palette, pre-converted to the pixel format of the frame buffer.
+ * Doing the conversion once per palette change instead of once per pixel
+ * keeps blit_screen() down to a lookup and a store.
+ */
+
+static uint32_t g_palette_native[256];
 
 static boolean palette_to_set;
 
@@ -249,40 +297,195 @@ unsigned int joywait = 0;
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: update_native_palette
+ *
+ * Description:
+ *   Convert the ARGB palette into the pixel format of the frame buffer so
+ *   that blitting is a plain table lookup.
+ *
+ ****************************************************************************/
+
+static void update_native_palette(void)
+{
+  int i;
+
+#ifdef CONFIG_GAMES_NXDOOM_FB_CMAP
+  uint8_t red[256];
+  uint8_t green[256];
+  uint8_t blue[256];
+#ifdef CONFIG_FB_TRANSPARENCY
+  uint8_t transp[256];
+#endif
+  struct fb_cmap_s cmap;
+
+  /* Hand the palette to the display and leave the lookup an identity, so
+   * that blitting writes the palette index and the hardware converts it
+   * while it scans the display out.
+   */
+
+  for (i = 0; i < 256; i++)
+    {
+      red[i]              = g_palette[i].r;
+      green[i]            = g_palette[i].g;
+      blue[i]             = g_palette[i].b;
+#ifdef CONFIG_FB_TRANSPARENCY
+      transp[i]           = 0xff;
+#endif
+      g_palette_native[i] = i;
+    }
+
+  cmap.first = 0;
+  cmap.len   = 256;
+  cmap.red   = red;
+  cmap.green = green;
+  cmap.blue  = blue;
+#ifdef CONFIG_FB_TRANSPARENCY
+  cmap.transp = transp;
+#endif
+
+  if (ioctl(g_graphics_state.fd, FBIOPUT_CMAP,
+            (unsigned long)((uintptr_t)&cmap)) < 0)
+    {
+      i_error("ioctl(FBIOPUT_CMAP) failed: %d\n", errno);
+    }
+#else
+  for (i = 0; i < 256; i++)
+    {
+      switch (g_graphics_state.pinfo.bpp)
+        {
+          case 8:
+            g_palette_native[i] = RGBTO8(g_palette[i].r, g_palette[i].g,
+                                         g_palette[i].b);
+            break;
+
+          case 16:
+            g_palette_native[i] = RGBTO16(g_palette[i].r, g_palette[i].g,
+                                          g_palette[i].b);
+            break;
+
+          case 24:
+            g_palette_native[i] = RGBTO24(g_palette[i].r, g_palette[i].g,
+                                          g_palette[i].b);
+            break;
+
+          default:
+            g_palette_native[i] = ARGBTO32(g_palette[i].a, g_palette[i].r,
+                                           g_palette[i].g, g_palette[i].b);
+            break;
+        }
+    }
+#endif
+}
+
+/****************************************************************************
  * Name: blit_screen
  *
  * Description:
- *   Blit the 8-bit depth buffer that DOOM renders to onto the frame buffer
- *   in a higher colour depth.
+ *   Blit the 8-bit depth buffer that DOOM renders to onto the frame buffer,
+ *   converting to the pixel format of the frame buffer and scaling up by an
+ *   integer factor.
  *
  ****************************************************************************/
 
 static void blit_screen(void)
 {
-  uint8_t p_idx;
-  void *fbptr;
+  FAR uint8_t *fbbase = (FAR uint8_t *)g_graphics_state.fbmem +
+                        g_graphics_state.origin;
+  FAR const uint16_t *colmap = g_graphics_state.colmap;
+  unsigned stride = g_graphics_state.pinfo.stride;
+  unsigned pixlen = g_graphics_state.pinfo.bpp >> 3;
+  unsigned outw = g_graphics_state.outw;
+  unsigned outh = g_graphics_state.outh;
+  unsigned rowbytes = outw * pixlen;
+#ifdef CONFIG_GAMES_NXDOOM_ROWSTAGE
+  bool staged = rowbytes <= sizeof(g_rowbuf);
+#else
+  const bool staged = false;
+#endif
+  FAR uint8_t *prevrow = NULL;
+  unsigned prevsy = SCREENHEIGHT;
+  unsigned x;
+  unsigned oy;
+  unsigned sy;
 
-  /* TODO: It would be best to do this more efficiently/with less memory.
-   * It also would be good if we could handle the palette translation here
-   * such that DOOM can be played on frame buffers with differing bit depths
-   * and pixel formats.
-   */
-
-  fbptr = g_graphics_state.fbmem;
-  for (unsigned y = 0; y < SCREENHEIGHT * g_graphics_state.scale; y++)
+  for (oy = 0; oy < outh; oy++)
     {
-      for (unsigned x = 0; x < SCREENWIDTH * g_graphics_state.scale; x++)
-        {
-          p_idx = g_graphics_state
-                      .scrnbuf[(y / g_graphics_state.scale) * SCREENWIDTH +
-                               (x / g_graphics_state.scale)];
+      FAR uint8_t *dst = fbbase + oy * stride;
+#ifdef CONFIG_GAMES_NXDOOM_ROWSTAGE
+      FAR uint8_t *out = staged ? (FAR uint8_t *)g_rowbuf : dst;
+#else
+      FAR uint8_t *out = dst;
+#endif
+      FAR const pixel_t *src;
+      FAR uint8_t *dest8 = out;
+      FAR uint16_t *dest16 = (FAR uint16_t *)out;
+      FAR uint32_t *dest32 = (FAR uint32_t *)out;
+      uint32_t pixel;
 
-          ((uint32_t *)(fbptr))[x] =
-              ARGBTO32(g_palette[p_idx].a, g_palette[p_idx].r,
-                       g_palette[p_idx].g, g_palette[p_idx].b);
+      /* Which source row this output row comes from.  Several output rows
+       * map to the same source row whenever the image is scaled up.
+       */
+
+      sy = oy * SCREENHEIGHT / outh;
+      if (sy == prevsy)
+        {
+          /* Identical to the row just built, so copy it rather than
+           * converting the same pixels again.
+           */
+
+          memcpy(dst, prevrow, rowbytes);
+          continue;
         }
 
-      fbptr += g_graphics_state.pinfo.stride;
+      /* Expand one source row.  The column map turns this into a lookup per
+       * output pixel, with no division and no special case for a scale
+       * factor that is not a whole number.
+       */
+
+      src = &g_graphics_state.scrnbuf[sy * SCREENWIDTH];
+
+      switch (g_graphics_state.pinfo.bpp)
+        {
+          case 8:
+            for (x = 0; x < outw; x++)
+              {
+                *dest8++ = g_palette_native[src[colmap[x]]];
+              }
+            break;
+
+          case 16:
+            for (x = 0; x < outw; x++)
+              {
+                *dest16++ = g_palette_native[src[colmap[x]]];
+              }
+            break;
+
+          case 24:
+            for (x = 0; x < outw; x++)
+              {
+                pixel = g_palette_native[src[colmap[x]]];
+
+                *dest8++ = pixel;
+                *dest8++ = pixel >> 8;
+                *dest8++ = pixel >> 16;
+              }
+            break;
+
+          default:
+            for (x = 0; x < outw; x++)
+              {
+                *dest32++ = g_palette_native[src[colmap[x]]];
+              }
+            break;
+        }
+
+      if (staged)
+        {
+          memcpy(dst, out, rowbytes);
+        }
+
+      prevsy = sy;
+      prevrow = out;
     }
 }
 
@@ -344,7 +547,10 @@ void i_shutdown_graphics(void)
 
   close(g_graphics_state.fd);
   munmap(g_graphics_state.fbmem, g_graphics_state.pinfo.fblen);
+#ifndef CONFIG_GAMES_NXDOOM_STATIC_SCRNBUF
   free(g_graphics_state.scrnbuf);
+#endif
+  free(g_graphics_state.colmap);
   g_graphics_state.inited = false;
 }
 
@@ -414,6 +620,7 @@ void i_finish_update(void)
   if (palette_to_set)
     {
       palette_to_set = false;
+      update_native_palette();
     }
 
   blit_screen();
@@ -680,12 +887,13 @@ void i_init_graphics(void)
 {
   uint8_t xscale;
   uint8_t yscale;
+  unsigned i;
   int err;
   byte *doompal;
 
   /* Open frame buffer */
 
-  g_graphics_state.fd = open(CONFIG_GAMES_NXDOOM_FBPATH, O_RDWR);
+  g_graphics_state.fd = open(CONFIG_GAMES_NXDOOM_FBPATH, O_RDWR | O_CLOEXEC);
   if (g_graphics_state.fd < 0)
     {
       i_error("Failed to open frame buffer: %d", errno);
@@ -724,6 +932,39 @@ void i_init_graphics(void)
   yscale = g_graphics_state.vinfo.yres / SCREENHEIGHT;
   g_graphics_state.scale = xscale > yscale ? yscale : xscale;
 
+#ifdef CONFIG_GAMES_NXDOOM_FILLSCREEN
+  /* Stretch to the whole display.  The scale factor is then generally not an
+   * integer, which the column map below takes care of.
+   */
+
+  g_graphics_state.outw = g_graphics_state.vinfo.xres;
+  g_graphics_state.outh = g_graphics_state.vinfo.yres;
+#else
+  g_graphics_state.outw = SCREENWIDTH * g_graphics_state.scale;
+  g_graphics_state.outh = SCREENHEIGHT * g_graphics_state.scale;
+#endif
+
+  /* Centre the scaled image in the frame buffer */
+
+  g_graphics_state.origin =
+      (g_graphics_state.vinfo.yres - g_graphics_state.outh) / 2 *
+      g_graphics_state.pinfo.stride +
+      (g_graphics_state.vinfo.xres - g_graphics_state.outw) / 2 *
+      (g_graphics_state.pinfo.bpp >> 3);
+
+  /* Build the output column to source column map once */
+
+  g_graphics_state.colmap = malloc(g_graphics_state.outw * sizeof(uint16_t));
+  if (g_graphics_state.colmap == NULL)
+    {
+      i_error("Couldn't allocate column map: %d\n", errno);
+    }
+
+  for (i = 0; i < g_graphics_state.outw; i++)
+    {
+      g_graphics_state.colmap[i] = i * SCREENWIDTH / g_graphics_state.outw;
+    }
+
   /* Get frame buffer plane info */
 
   if (ioctl(g_graphics_state.fd, FBIOGET_PLANEINFO,
@@ -744,7 +985,11 @@ void i_init_graphics(void)
 
   /* Create an 8-bit depth screen buffer for DOOM to render to */
 
+#ifdef CONFIG_GAMES_NXDOOM_STATIC_SCRNBUF
+  g_graphics_state.scrnbuf = g_scrnbuf;
+#else
   g_graphics_state.scrnbuf = malloc(SCREENWIDTH * SCREENHEIGHT);
+#endif
   if (g_graphics_state.scrnbuf == NULL)
     {
       i_error("Couldn't allocate screen buffer: %d\n", errno);
