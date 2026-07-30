@@ -193,6 +193,38 @@ static int init_kbd_dev(struct keyboard_dev *dev)
 
 static int translate_key(uint32_t keycode)
 {
+  /* A keyboard driver reports Enter as the character that it produces, so
+   * it never arrives as KEYCODE_ENTER.  The game binds the menu to
+   * KEY_ENTER, which is the carriage return, so the line feed that a
+   * driver actually sends has to be folded onto it.
+   */
+
+  if (keycode == '\n')
+    {
+      return KEY_ENTER;
+    }
+
+  return keycode;
+}
+
+/****************************************************************************
+ * Name: translate_speckey
+ *
+ * Description:
+ *   Translates a value from enum kbd_keycode_e into one from doomkeys.h.
+ *
+ *   A special key arrives with a KEYBOARD_SPECPRESS or KEYBOARD_SPECREL
+ *   event rather than as a character:  the keycodes overlap the character
+ *   range, so the event type is what tells an arrow key from the character
+ *   that shares its value.
+ *
+ * Return:
+ *   The translated key code, or zero if the key has no meaning to the game.
+ *
+ ****************************************************************************/
+
+static int translate_speckey(uint32_t keycode)
+{
   switch (keycode)
     {
     case KEYCODE_LEFT:
@@ -203,10 +235,76 @@ static int translate_key(uint32_t keycode)
       return KEY_UPARROW;
     case KEYCODE_DOWN:
       return KEY_DOWNARROW;
+
+    /* Drivers disagree on Enter:  a USB HID keyboard reports the line feed
+     * that the key produces, while the simulator reports KEYCODE_ENTER.
+     * Both have to land on KEY_ENTER, so both are handled, here and in
+     * translate_key().
+     */
+
     case KEYCODE_ENTER:
       return KEY_ENTER;
+
+    case KEYCODE_BACKDEL:
+      return KEY_BACKSPACE;
+    case KEYCODE_FWDDEL:
+      return KEY_DEL;
+    case KEYCODE_INSERT:
+      return KEY_INS;
+    case KEYCODE_HOME:
+      return KEY_HOME;
+    case KEYCODE_END:
+      return KEY_END;
+    case KEYCODE_PAGEUP:
+      return KEY_PGUP;
+    case KEYCODE_PAGEDOWN:
+      return KEY_PGDN;
+    case KEYCODE_PAUSE:
+      return KEY_PAUSE;
+    case KEYCODE_CAPSLOCK:
+      return KEY_CAPSLOCK;
+
+    /* Fire, run and strafe.  The game binds these by default, so a
+     * keyboard that does not report its modifiers cannot play it.
+     */
+
+    case KEYCODE_LCTRL:
+    case KEYCODE_RCTRL:
+      return KEY_RCTRL;
+    case KEYCODE_LSHIFT:
+    case KEYCODE_RSHIFT:
+      return KEY_RSHIFT;
+    case KEYCODE_LALT:
+    case KEYCODE_RALT:
+      return KEY_RALT;
+
+    case KEYCODE_F1:
+      return KEY_F1;
+    case KEYCODE_F2:
+      return KEY_F2;
+    case KEYCODE_F3:
+      return KEY_F3;
+    case KEYCODE_F4:
+      return KEY_F4;
+    case KEYCODE_F5:
+      return KEY_F5;
+    case KEYCODE_F6:
+      return KEY_F6;
+    case KEYCODE_F7:
+      return KEY_F7;
+    case KEYCODE_F8:
+      return KEY_F8;
+    case KEYCODE_F9:
+      return KEY_F9;
+    case KEYCODE_F10:
+      return KEY_F10;
+    case KEYCODE_F11:
+      return KEY_F11;
+    case KEYCODE_F12:
+      return KEY_F12;
+
     default:
-      return keycode;
+      return 0;
     }
 }
 
@@ -319,24 +417,53 @@ void i_handle_keyboard_event(struct keyboard_event_s *kevent)
    */
 
   event_t event;
+  bool press;
 
   switch (kevent->type)
     {
     case KEYBOARD_PRESS:
-      event.type = ev_keydown;
+    case KEYBOARD_RELEASE:
+      press = (kevent->type == KEYBOARD_PRESS);
       event.data1 = translate_key(kevent->code);
-      event.data2 = get_localized_key(kevent->code);
-      event.data3 = get_typed_char(kevent->code);
-
-      if (event.data1 != 0)
-        {
-          d_post_event(&event);
-        }
       break;
 
-    case KEYBOARD_RELEASE:
+    case KEYBOARD_SPECPRESS:
+    case KEYBOARD_SPECREL:
+      press = (kevent->type == KEYBOARD_SPECPRESS);
+      event.data1 = translate_speckey(kevent->code);
+      break;
+
+    default:
+      return;
+    }
+
+  if (event.data1 == 0)
+    {
+      return;
+    }
+
+  if (press)
+    {
+      event.type = ev_keydown;
+
+      /* A special key has no printable character, so it contributes
+       * nothing to data2 and data3.
+       */
+
+      if (kevent->type == KEYBOARD_PRESS)
+        {
+          event.data2 = get_localized_key(kevent->code);
+          event.data3 = get_typed_char(kevent->code);
+        }
+      else
+        {
+          event.data2 = 0;
+          event.data3 = 0;
+        }
+    }
+  else
+    {
       event.type = ev_keyup;
-      event.data1 = translate_key(kevent->code);
 
       /* data2/data3 are initialized to zero for ev_keyup.
        * For ev_keydown it's the shifted Unicode character
@@ -347,16 +474,9 @@ void i_handle_keyboard_event(struct keyboard_event_s *kevent)
 
       event.data2 = 0;
       event.data3 = 0;
-
-      if (event.data1 != 0)
-        {
-          d_post_event(&event);
-        }
-      break;
-
-    default:
-      break;
     }
+
+  d_post_event(&event);
 }
 
 void i_start_text_input(int x1, int y1, int x2, int y2)

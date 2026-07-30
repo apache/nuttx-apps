@@ -505,19 +505,11 @@ static void i_get_event(void)
 
   while ((err = get_kbd_event(&kbdevent)) == 0)
     {
-      switch (kbdevent.type)
-        {
-        case KEYBOARD_PRESS:
+      /* All four event types are handled:  dropping the special ones here
+       * would silently lose the arrow keys.
+       */
 
-          /* deliberate fall-though */
-
-        case KEYBOARD_RELEASE:
-          i_handle_keyboard_event(&kbdevent);
-          break;
-
-        default:
-          break;
-        }
+      i_handle_keyboard_event(&kbdevent);
     }
 #endif
 }
