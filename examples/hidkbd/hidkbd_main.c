@@ -35,6 +35,8 @@
 #include <nuttx/usb/usbhost.h>
 
 #ifdef CONFIG_EXAMPLES_HIDKBD_ENCODED
+#  include <ctype.h>
+
 #  include <nuttx/streams.h>
 #  include <nuttx/input/kbd_codec.h>
 #endif
@@ -55,7 +57,8 @@
 #  define CONFIG_EXAMPLES_HIDKBD_DEVNAME "/dev/kbda"
 #endif
 
-#if !defined(CONFIG_HIDKBD_ENCODED) || !defined(CONFIG_LIBC_KBDCODEC)
+#if !defined(CONFIG_INPUT_KEYBOARD_BYTESTREAM) || \
+    !defined(CONFIG_LIBC_KBDCODEC)
 #  undef CONFIG_EXAMPLES_HIDKBD_ENCODED
 #endif
 
