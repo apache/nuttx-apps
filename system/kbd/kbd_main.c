@@ -31,6 +31,13 @@
  * built with INPUT_KEYBOARD_BYTESTREAM, in which case it delivers the byte
  * stream that the keyboard codec defines.  This follows that setting rather
  * than having a switch of its own.
+ *
+ * With -i it goes the other way and injects into a uinput keyboard, either
+ * what it reads from its own stdin or every key of another keyboard.  So an
+ * application can be driven from a serial console with no keyboard hardware
+ * at all, and a real keyboard and an injected one can drive it at the same
+ * time, which neither can do on its own since an application opens a single
+ * device.
  */
 
 /****************************************************************************
@@ -45,6 +52,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -179,6 +187,157 @@ static size_t kbd_dump(FAR char *buffer, size_t nbytes)
 #endif
 
 /****************************************************************************
+ * Name: kbd_inject
+ *
+ * Description:
+ *   Turn each byte read from stdin into a key press and release on the
+ *   given device.  The device has to be a uinput keyboard:  a real one has
+ *   nothing to inject into.
+ *
+ *   Note that this always writes struct keyboard_event_s.  Injection goes
+ *   through the lower half write method, which is not affected by
+ *   INPUT_KEYBOARD_BYTESTREAM.
+ *
+ * Returned Value:
+ *   The number of keys injected.
+ *
+ ****************************************************************************/
+
+static bool kbd_emit(int fd, uint32_t code, uint32_t type)
+{
+  struct keyboard_event_s key;
+
+  key.code = code;
+  key.type = type;
+
+  if (write(fd, &key, sizeof(key)) != (ssize_t)sizeof(key))
+    {
+      fprintf(stderr, "kbd: inject failed: %d\n", errno);
+      return false;
+    }
+
+  return true;
+}
+
+static size_t kbd_inject(int fd)
+{
+  unsigned char buf[KBD_READ_SIZE];
+  uint32_t code;
+  ssize_t nread;
+  ssize_t i;
+  size_t nkeys = 0;
+
+  for (; ; )
+    {
+      nread = read(STDIN_FILENO, buf, sizeof(buf));
+      if (nread <= 0)
+        {
+          break;
+        }
+
+      for (i = 0; i < nread; i++)
+        {
+          /* A terminal sends a carriage return where a keyboard would
+           * send a line feed.
+           */
+
+          code = (buf[i] == '\r') ? '\n' : buf[i];
+
+          if (!kbd_emit(fd, code, KEYBOARD_PRESS))
+            {
+              return nkeys;
+            }
+
+          kbd_emit(fd, code, KEYBOARD_RELEASE);
+          nkeys++;
+        }
+    }
+
+  return nkeys;
+}
+
+/****************************************************************************
+ * Name: kbd_forward
+ *
+ * Description:
+ *   Copy every key from one keyboard onto another.  Pointing an
+ *   application at the destination lets a real keyboard and an injected one
+ *   drive it at the same time, which neither can do on its own since an
+ *   application opens a single device.
+ *
+ * Returned Value:
+ *   The number of keys forwarded.
+ *
+ ****************************************************************************/
+
+static size_t kbd_forward(int fd, int srcfd)
+{
+  char buf[KBD_READ_SIZE];
+  ssize_t nread;
+  size_t nkeys = 0;
+#ifdef CONFIG_INPUT_KEYBOARD_BYTESTREAM
+  struct lib_meminstream_s stream;
+  struct kbd_getstate_s state;
+  uint8_t ch;
+  int ret;
+#else
+  FAR struct keyboard_event_s *key;
+#endif
+
+  for (; ; )
+    {
+      nread = read(srcfd, buf, sizeof(buf));
+      if (nread <= 0)
+        {
+          break;
+        }
+
+#ifdef CONFIG_INPUT_KEYBOARD_BYTESTREAM
+
+      /* The source speaks the byte stream and the destination only takes
+       * events, so this decodes rather than copies.  The decoder returns
+       * the event type directly.
+       */
+
+      memset(&state, 0, sizeof(state));
+      lib_meminstream(&stream, buf, nread);
+
+      for (; ; )
+        {
+          ret = kbd_decode(&stream.common, &state, &ch);
+          if (ret == KBD_ERROR)
+            {
+              break;
+            }
+
+          if (!kbd_emit(fd, ch, ret))
+            {
+              return nkeys;
+            }
+
+          nkeys++;
+        }
+#else
+      key = (FAR struct keyboard_event_s *)buf;
+
+      while (nread >= (ssize_t)sizeof(struct keyboard_event_s))
+        {
+          if (!kbd_emit(fd, key->code, key->type))
+            {
+              return nkeys;
+            }
+
+          nread -= sizeof(struct keyboard_event_s);
+          key++;
+          nkeys++;
+        }
+#endif
+    }
+
+  return nkeys;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -189,20 +348,41 @@ static size_t kbd_dump(FAR char *buffer, size_t nbytes)
 int main(int argc, FAR char *argv[])
 {
   FAR const char *devpath = CONFIG_SYSTEM_KBD_DEVPATH;
+  FAR const char *srcpath = NULL;
   char buffer[KBD_READ_SIZE];
+  bool inject = false;
   size_t nkeys = 0;
   size_t limit = 0;
   ssize_t nbytes;
+  int argi = 1;
+  int srcfd;
   int fd;
 
-  if (argc > 1)
+  if (argi < argc && strcmp(argv[argi], "-i") == 0)
     {
-      devpath = argv[1];
+      inject = true;
+      argi++;
     }
 
-  if (argc > 2)
+  if (argi < argc)
     {
-      limit = strtoul(argv[2], NULL, 10);
+      devpath = argv[argi++];
+    }
+
+  if (argi < argc)
+    {
+      /* When injecting, the extra argument is the keyboard to forward from
+       * rather than a count:  there is nothing to count.
+       */
+
+      if (inject)
+        {
+          srcpath = argv[argi];
+        }
+      else
+        {
+          limit = strtoul(argv[argi], NULL, 10);
+        }
     }
 
   /* Wait for the device.  A USB keyboard appears when it is plugged in, so
@@ -211,7 +391,7 @@ int main(int argc, FAR char *argv[])
 
   for (; ; )
     {
-      fd = open(devpath, O_RDONLY);
+      fd = open(devpath, (inject ? O_WRONLY : O_RDONLY) | O_CLOEXEC);
       if (fd >= 0)
         {
           break;
@@ -220,6 +400,36 @@ int main(int argc, FAR char *argv[])
       printf("kbd: waiting for %s: %d\n", devpath, errno);
       fflush(stdout);
       sleep(3);
+    }
+
+  if (inject)
+    {
+      if (srcpath == NULL)
+        {
+          printf("kbd: injecting into %s, type to send, Ctrl-D to stop\n",
+                 devpath);
+          fflush(stdout);
+
+          nkeys = kbd_inject(fd);
+        }
+      else
+        {
+          srcfd = open(srcpath, O_RDONLY | O_CLOEXEC);
+          if (srcfd < 0)
+            {
+              fprintf(stderr, "kbd: open %s failed: %d\n", srcpath, errno);
+              close(fd);
+              return EXIT_FAILURE;
+            }
+
+          printf("kbd: forwarding %s into %s\n", srcpath, devpath);
+          fflush(stdout);
+
+          nkeys = kbd_forward(fd, srcfd);
+          close(srcfd);
+        }
+
+      goto done;
     }
 
   printf("kbd: reading %s, %s\n", devpath,
@@ -259,6 +469,7 @@ int main(int argc, FAR char *argv[])
         }
     }
 
+done:
   close(fd);
   printf("kbd: %zu keys\n", nkeys);
   return EXIT_SUCCESS;
