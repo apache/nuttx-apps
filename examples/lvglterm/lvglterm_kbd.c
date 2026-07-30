@@ -26,15 +26,13 @@
  * a keyboard driver; the device defaults to CONFIG_EXAMPLES_LVGLTERM_KBD_DEV
  * and can be overridden by the first command-line argument.
  *
- * Two device flavours are supported, selected at build time:
+ * Any keyboard registered with keyboard_register() works:  USB HID, a
+ * matrix, the simulator, virtio.  Which one it is makes no difference here.
  *
- *   - Upper-half keyboards (INPUT_KEYBOARD, e.g. the M5Stack Cardputer
- *     matrix on /dev/kbd0) deliver struct keyboard_event_s events; the Fn
- *     Up/Down keys are handled locally as scroll requests.
- *   - USB HID keyboards (EXAMPLES_LVGLTERM_INPUT_KBD_USB, e.g. /dev/kbda)
- *     deliver a byte stream decoded with the NuttX keyboard codec: normal
- *     keys are forwarded to the shell and, when the driver is built with
- *     CONFIG_HIDKBD_ENCODED, the Up/Down cursor keys scroll the terminal.
+ * The device delivers struct keyboard_event_s events unless the kernel was
+ * built with INPUT_KEYBOARD_BYTESTREAM, in which case it delivers the byte
+ * stream that the keyboard codec defines.  That is a property of the build
+ * rather than of the hardware, so it is what selects the reader below.
  */
 
 /****************************************************************************
@@ -50,11 +48,9 @@
 #include <errno.h>
 #include <debug.h>
 
-#ifdef CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD_MATRIX
-#  include <nuttx/input/keyboard.h>
-#endif
+#include <nuttx/input/keyboard.h>
 
-#ifdef CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD_USB
+#ifdef CONFIG_INPUT_KEYBOARD_BYTESTREAM
 #  include <nuttx/streams.h>
 #  include <nuttx/input/kbd_codec.h>
 #endif
@@ -66,17 +62,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-/* Out-of-band key codes for the Fn + navigation cluster (cursor keys),
- * reported by keyboard drivers that follow this convention (for example the
- * M5Stack Cardputer).  Up/Down scroll the terminal instead of going to the
- * shell; drivers that do not emit these codes keep normal behaviour.
- */
-
-#define KEY_UP         0x80
-#define KEY_DOWN       0x81
-#define KEY_LEFT       0x82
-#define KEY_RIGHT      0x83
 
 #define SCROLL_STEP    24          /* Pixels scrolled per Up/Down keypress */
 
@@ -135,6 +120,41 @@ static void scroll_terminal(bool up)
 }
 
 /****************************************************************************
+ * Name: handle_key
+ *
+ * Description:
+ *   Act on one key press.  Cursor Up and Down scroll the terminal, anything
+ *   else goes to the shell.
+ *
+ * Input Parameters:
+ *   code    - The character, or a value from enum kbd_keycode_e
+ *   special - True if the code is a keycode rather than a character.  The
+ *             two ranges overlap, so this is what tells them apart.
+ *
+ ****************************************************************************/
+
+static void handle_key(uint32_t code, bool special)
+{
+  if (special)
+    {
+      if (code == KEYCODE_UP)
+        {
+          scroll_terminal(true);
+        }
+      else if (code == KEYCODE_DOWN)
+        {
+          scroll_terminal(false);
+        }
+
+      /* Any other special key has no meaning to a terminal */
+
+      return;
+    }
+
+  feed_char(code);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -171,25 +191,21 @@ void lvglterm_input_create(int argc, FAR char *argv[])
 
 void lvglterm_input_poll(void)
 {
+  char buf[64];
+  ssize_t nread;
+#ifdef CONFIG_INPUT_KEYBOARD_BYTESTREAM
+  struct lib_meminstream_s stream;
+  struct kbd_getstate_s state;
+  uint8_t ch;
+  int ret;
+#else
+  FAR struct keyboard_event_s *evt;
+#endif
+
   if (g_kfd < 0)
     {
       return;
     }
-
-#ifdef CONFIG_EXAMPLES_LVGLTERM_INPUT_KBD_USB
-  /* USB HID keyboard: read() returns a byte stream that is decoded with the
-   * keyboard codec.  Normal keys are fed to the shell; the Up/Down cursor
-   * keys (only emitted when the driver is built with CONFIG_HIDKBD_ENCODED)
-   * scroll the terminal.  On a plain-ASCII stream every byte simply decodes
-   * to a normal key press, so this also works without encoding.
-   */
-
-  struct lib_meminstream_s stream;
-  struct kbd_getstate_s state;
-  char buf[64];
-  ssize_t nread;
-  uint8_t ch;
-  int ret;
 
   nread = read(g_kfd, buf, sizeof(buf));
   if (nread <= 0)
@@ -197,12 +213,13 @@ void lvglterm_input_poll(void)
       return;
     }
 
+#ifdef CONFIG_INPUT_KEYBOARD_BYTESTREAM
   memset(&state, 0, sizeof(state));
   lib_meminstream(&stream, buf, nread);
 
   for (; ; )
     {
-      ret = kbd_decode((FAR struct lib_instream_s *)&stream, &state, &ch);
+      ret = kbd_decode(&stream.common, &state, &ch);
       if (ret == KBD_ERROR)
         {
           break;
@@ -210,51 +227,29 @@ void lvglterm_input_poll(void)
 
       if (ret == KBD_PRESS)
         {
-          feed_char((char)ch);
+          handle_key(ch, false);
         }
       else if (ret == KBD_SPECPRESS)
         {
-          if (ch == KEYCODE_UP)
-            {
-              scroll_terminal(true);
-            }
-          else if (ch == KEYCODE_DOWN)
-            {
-              scroll_terminal(false);
-            }
+          handle_key(ch, true);
         }
     }
 #else
-  /* Upper-half keyboard: read() returns keyboard_event_s events */
+  evt = (FAR struct keyboard_event_s *)buf;
 
-  struct keyboard_event_s evt;
-
-  while (read(g_kfd, &evt, sizeof(evt)) == (ssize_t)sizeof(evt))
+  while (nread >= (ssize_t)sizeof(struct keyboard_event_s))
     {
-      if (evt.type != KEYBOARD_PRESS)
+      if (evt->type == KEYBOARD_PRESS)
         {
-          continue;
+          handle_key(evt->code, false);
+        }
+      else if (evt->type == KEYBOARD_SPECPRESS)
+        {
+          handle_key(evt->code, true);
         }
 
-      /* Fn navigation keys are handled locally: Up/Down scroll the terminal;
-       * Left/Right are reserved and simply swallowed for now.
-       */
-
-      if (evt.code >= KEY_UP && evt.code <= KEY_RIGHT)
-        {
-          if (evt.code == KEY_UP)
-            {
-              scroll_terminal(true);
-            }
-          else if (evt.code == KEY_DOWN)
-            {
-              scroll_terminal(false);
-            }
-
-          continue;
-        }
-
-      feed_char((char)evt.code);
+      nread -= sizeof(struct keyboard_event_s);
+      evt++;
     }
 #endif
 }
