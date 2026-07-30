@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FDPICXIP
+	tristate "FDPIC modules executed in place from xipfs demo"
+	depends on FS_XIPFS && FDPIC && LIBC_EXECFUNCS
+	default n
+	---help---
+		Write FDPIC modules into xipfs at run time, the way a download
+		would, then run them.  Their text is executed directly out of
+		flash and shared between concurrent instances, while each
+		instance gets its own data.
+
+		Subcommands:
+
+		  qsort   one self-contained module, two instances
+		  solib   a shared library across two instances
+		  cxx     the same in C++, checking global constructors ran
+		  jmprel  a module whose imports are all in DT_JMPREL
+
+		With no subcommand, qsort runs.
+
+		The modules are embedded in the image as C headers.  Their
+		sources are in modules/, which rebuilds the headers on an
+		explicit 'make regen': linking one needs arm-uclinuxfdpiceabi
+		binutils, which this build does not.
+
+		This demonstrates; it does not assert.  For the assertions see
+		the fdpic and reject sections of CONFIG_TESTING_FS_XIPFS.
+
+if EXAMPLES_FDPICXIP
+
+config EXAMPLES_FDPICXIP_MOUNTPT
+	string "xipfs mountpoint"
+	default "/mnt/xipfs"
+
+endif # EXAMPLES_FDPICXIP
