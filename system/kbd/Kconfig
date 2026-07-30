@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_KBD
+	tristate "Keyboard dump"
+	default n
+	depends on INPUT_KEYBOARD
+	---help---
+		Dump what a keyboard reports.  This reads any keyboard registered
+		with keyboard_register(), whatever the hardware behind it is, so it
+		is the tool to reach for when bringing up a new keyboard.
+
+		Replaces the hidkbd and keyboard examples, which did the same thing
+		for one kind of keyboard each.
+
+if SYSTEM_KBD
+
+config SYSTEM_KBD_PROGNAME
+	string "Program name"
+	default "kbd"
+
+config SYSTEM_KBD_PRIORITY
+	int "Task priority"
+	default 100
+
+config SYSTEM_KBD_STACKSIZE
+	int "Task stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_KBD_DEVPATH
+	string "Keyboard device path"
+	default "/dev/kbd0"
+	---help---
+		The keyboard to read when none is named on the command line.
+
+endif
