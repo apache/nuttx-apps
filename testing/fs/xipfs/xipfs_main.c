@@ -46,6 +46,21 @@
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/fs/xipfs.h>
 
+#ifdef CONFIG_FDPIC
+#  include <elf.h>
+#  include <spawn.h>
+
+#  include "libshape_bin.h"
+#  include "cxxuser_bin.h"
+#  include "funcdesc_bin.h"
+#  include "lazymod_bin.h"
+#  include "libcounter_bin.h"
+#  include "counteruser_bin.h"
+#  include "callback_bin.h"
+#  include "missingsym_bin.h"
+#  include "manyneeded_bin.h"
+#endif
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -1948,6 +1963,701 @@ static void test_powerloss_dirs(void)
   unlink(PATH("d_file.bin"));
 }
 
+#ifdef CONFIG_FDPIC
+
+/****************************************************************************
+ * Test: FDPIC modules loaded out of the filesystem
+ *
+ * These are here rather than in the demo because the properties they check
+ * are the ones that fail *quietly*.  A loader that skips DT_INIT_ARRAY runs
+ * a C++ module perfectly happily with every global left as zero; one that
+ * skips DT_JMPREL loads a module that hard-faults only once it calls out;
+ * one that mis-sizes the descriptor pool corrupts the heap. None of those
+ * announce themselves, so they need something that asserts.
+ *
+ * The module exit status is the channel: each module checks its own
+ * invariants, and the C++ one returns a bitmask so that all four of its
+ * properties are evaluated on every run instead of the first failure hiding
+ * the rest.
+ ****************************************************************************/
+
+/* Kept in step with ../../../examples/fdpicxip/modules/cxxuser.cpp */
+
+#define USER_FAIL_OWN_CTOR  0x01
+#define USER_FAIL_LIB_CTOR  0x02
+#define USER_FAIL_ORDER     0x04
+#define USER_FAIL_PRIVATE   0x08
+
+/* Kept in step with ../../../examples/fdpicxip/modules/callback.c */
+
+#define CB_FAIL_QSORT       0x01
+#define CB_FAIL_PTHREAD     0x02
+#define CB_FAIL_SIGNAL      0x04
+#define CB_FAIL_TASK        0x08
+#define CB_FAIL_ONCE        0x10
+#define CB_FAIL_SPAWN       0x20
+#define CB_FAIL_SCANDIR     0x40
+#define CB_FAIL_SIGACTION   0x80
+
+/* The mq checks run as a second invocation ("callback mq") and report in
+ * their own byte, because waitpid only preserves the low eight bits of an
+ * exit status and the checks above already fill them.
+ */
+
+#define CB_FAIL_MQ_THREAD    0x01
+#define CB_FAIL_MQ_SIGNAL    0x02
+#define CB_FAIL_TIMER_THREAD 0x04
+
+static int stage_blob(FAR const char *path, FAR const unsigned char *data,
+                      unsigned int len)
+{
+  ssize_t nwritten;
+  int fd;
+
+  unlink(path);
+
+  fd = open(path, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  /* Declare the size up front so the extent is reserved exactly */
+
+  if (ftruncate(fd, len) < 0)
+    {
+      close(fd);
+      return -errno;
+    }
+
+  nwritten = write(fd, data, len);
+  close(fd);
+
+  return (nwritten == (ssize_t)len) ? 0 : -EIO;
+}
+
+/****************************************************************************
+ * Name: run_module
+ *
+ * Description:
+ *   Spawn a module and return its exit status, or a negative errno if it
+ *   never got as far as exiting.
+ *
+ *   Note that binfmt reports a loader failure as -ENOENT, because at the
+ *   dispatch layer "the loader refused it" and "not my format" are the same
+ *   answer.  A spawn failure here therefore says nothing about *why*; the
+ *   reason only reaches the syslog.
+ *
+ ****************************************************************************/
+
+static int run_module(FAR const char *path, FAR char *const argv[])
+{
+  int status;
+  pid_t pid;
+  int ret;
+
+  ret = posix_spawn(&pid, path, NULL, NULL, argv, NULL);
+  if (ret != 0)
+    {
+      return -ret;
+    }
+
+  if (waitpid(pid, &status, 0) < 0)
+    {
+      return -errno;
+    }
+
+  if (!WIFEXITED(status))
+    {
+      return -ECHILD;
+    }
+
+  return WEXITSTATUS(status);
+}
+
+/****************************************************************************
+ * Name: read_marker
+ *
+ * Description:
+ *   Read back the integer a module's destructor left behind, or -1.
+ *
+ ****************************************************************************/
+
+static int read_marker(FAR const char *path)
+{
+  char buf[16];
+  ssize_t nread;
+  int fd;
+
+  fd = open(path, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      return -1;
+    }
+
+  nread = read(fd, buf, sizeof(buf) - 1);
+  close(fd);
+
+  if (nread <= 0)
+    {
+      return -1;
+    }
+
+  buf[nread] = '\0';
+  return atoi(buf);
+}
+
+static void test_fdpic(void)
+{
+  struct xipfs_extent_info_s info;
+  FAR unsigned char *corrupt;
+  char marker[2][64];
+  char result[2][64];
+  char seed[2][8];
+  FAR char *args[5];
+  pid_t pid[2];
+  int fails;
+  bool ok;
+  int ret;
+  int i;
+
+  printf("\n-- FDPIC modules --\n");
+
+  /* A module whose imported function pointers are R_ARM_FUNCDESC: the
+   * loader has to manufacture a descriptor for each out of the pool behind
+   * the writable segment.  Nothing else in the tree emits one.  It calls
+   * through every one of them, because a descriptor with the wrong entry or
+   * the wrong GOT half is invisible until it is branched through.
+   */
+
+  ret = stage_blob(PATH("funcdesc"), g_funcdesc, g_funcdesc_len);
+  CHECK("stage the FUNCDESC module", ret == 0, strerror(-ret));
+
+  args[0] = (FAR char *)"funcdesc";
+  args[1] = (FAR char *)"7";
+  args[2] = NULL;
+
+  ret = run_module(PATH("funcdesc"), args);
+  CHECK("descriptors manufactured by the loader are callable",
+        ret == 0, ret < 0 ? strerror(-ret) : "module reported failure");
+
+  unlink(PATH("funcdesc"));
+
+  /* A module linked without -z now, so every import is in DT_JMPREL and
+   * there is no DT_REL at all.  Before the loader walked that table this
+   * loaded cleanly and then hard-faulted on its first call out.
+   */
+
+  ret = stage_blob(PATH("lazymod"), g_lazymod, g_lazymod_len);
+  CHECK("stage the DT_JMPREL module", ret == 0, strerror(-ret));
+
+  args[0] = (FAR char *)"lazymod";
+  args[1] = (FAR char *)"42";
+  args[2] = NULL;
+
+  ret = run_module(PATH("lazymod"), args);
+  CHECK("a module bound entirely through DT_JMPREL runs",
+        ret == 0, ret < 0 ? strerror(-ret) : "module reported failure");
+
+  unlink(PATH("lazymod"));
+
+  /* Function pointers handed the other way: from the module into firmware
+   * that will branch to them later.
+   *
+   * In FDPIC such a pointer is the address of a descriptor sitting in the
+   * module's writable segment, so firmware that treats it as a code address
+   * jumps into RAM data.  Only entry points that resolve the descriptor can
+   * accept one.  qsort and bsearch always did; pthread_create, signal and
+   * task_create looked usable and took the board down instead.
+   *
+   * The module reports a bitmask, so all four are evaluated per run.
+   */
+
+  ret = stage_blob(PATH("callback"), g_callback, g_callback_len);
+  CHECK("stage the callback module", ret == 0, strerror(-ret));
+
+  args[0] = (FAR char *)"callback";
+  args[1] = NULL;
+
+  fails = run_module(PATH("callback"), args);
+
+  CHECK("the callback module runs at all", fails >= 0,
+        fails < 0 ? strerror(-fails) : "");
+
+  if (fails < 0)
+    {
+      fails = CB_FAIL_QSORT | CB_FAIL_PTHREAD | CB_FAIL_SIGNAL |
+              CB_FAIL_TASK | CB_FAIL_ONCE | CB_FAIL_SPAWN |
+              CB_FAIL_SCANDIR | CB_FAIL_SIGACTION;
+    }
+
+  CHECK("qsort() calls back into a module comparison function",
+        (fails & CB_FAIL_QSORT) == 0, "callback did not run");
+  CHECK("pthread_create() accepts a module start routine",
+        (fails & CB_FAIL_PTHREAD) == 0, "thread did not reach module code");
+  CHECK("signal() accepts a module handler",
+        (fails & CB_FAIL_SIGNAL) == 0, "handler did not run");
+  CHECK("task_create() accepts a module entry point",
+        (fails & CB_FAIL_TASK) == 0, "task did not reach module code");
+  CHECK("sigaction() accepts a module handler",
+        (fails & CB_FAIL_SIGACTION) == 0, "handler did not run");
+  CHECK("pthread_once() accepts a module init routine",
+        (fails & CB_FAIL_ONCE) == 0, "init routine did not run");
+  CHECK("task_spawn() accepts a module entry point",
+        (fails & CB_FAIL_SPAWN) == 0, "task did not reach module code");
+
+  /* scandir passes its comparison function on to qsort, which resolves it
+   * too.  Exercising filter and comparison together is what would catch the
+   * comparison function being resolved twice.
+   */
+
+  CHECK("scandir() accepts a module filter and comparison function",
+        (fails & CB_FAIL_SCANDIR) == 0, "filter did not run");
+
+  /* mq_notify runs as a second invocation: its two outcomes report in their
+   * own byte, since the checks above already fill the eight bits waitpid
+   * preserves.  Both SIGEV_THREAD callbacks run on a work-queue worker with
+   * the module's data base installed around the call, so they reach the
+   * module's own globals; SIGEV_SIGNAL is caught by a sigaction handler.
+   */
+
+  args[1] = (FAR char *)"mq";
+  args[2] = NULL;
+  fails = run_module(PATH("callback"), args);
+
+  if (fails < 0)
+    {
+      fails = CB_FAIL_MQ_THREAD | CB_FAIL_MQ_SIGNAL | CB_FAIL_TIMER_THREAD;
+    }
+
+  CHECK("mq_notify(SIGEV_THREAD) reaches a module callback on the worker",
+        (fails & CB_FAIL_MQ_THREAD) == 0, "callback did not reach module");
+  CHECK("mq_notify(SIGEV_SIGNAL) reaches a module sigaction handler",
+        (fails & CB_FAIL_MQ_SIGNAL) == 0, "handler did not run");
+  CHECK("timer_create(SIGEV_THREAD) reaches a module callback on the worker",
+        (fails & CB_FAIL_TIMER_THREAD) == 0, "callback did not reach");
+
+  unlink(PATH("callback"));
+
+  /* A module the loader must refuse.
+   *
+   * The OS/ABI byte is the FDPIC marker, and it is the only thing that
+   * distinguishes a module from any other ELF shared object.  Clearing it
+   * should make the loader decline rather than march on and try to relocate
+   * something that is not a module -- and a loader that accepts anything is
+   * a loader whose acceptance means nothing, so this is worth asserting.
+   *
+   * Built by corrupting a module that is known to load, so nothing but the
+   * marker differs.
+   */
+
+  corrupt = malloc(g_funcdesc_len);
+  if (corrupt != NULL)
+    {
+      /* xipfs is write-once, so the edit happens on the way in.  EI_OSABI
+       * is byte 7; clearing it to ELFOSABI_NONE leaves a file that is a
+       * perfectly valid ELF shared object and simply not a module.
+       */
+
+      memcpy(corrupt, g_funcdesc, g_funcdesc_len);
+      corrupt[EI_OSABI] = ELFOSABI_NONE;
+
+      ret = stage_blob(PATH("corrupt"), corrupt, g_funcdesc_len);
+      free(corrupt);
+    }
+  else
+    {
+      ret = -ENOMEM;
+    }
+
+  CHECK("stage a module with the FDPIC marker cleared", ret == 0,
+        strerror(-ret));
+
+  if (ret == 0)
+    {
+      args[0] = (FAR char *)"corrupt";
+      args[1] = NULL;
+
+      CHECK("a module without the FDPIC marker is refused",
+            run_module(PATH("corrupt"), args) < 0, "it loaded anyway");
+    }
+
+  unlink(PATH("corrupt"));
+
+  /* A leaf library -- one that calls nothing outside itself.
+   *
+   * With no external calls there is no PLT and so no DT_PLTGOT, and the
+   * loader has to fall back to PT_DYNAMIC vaddr + memsz to find the GOT.
+   * That fallback is inferred from the linker's layout rather than from the
+   * ABI document, which makes it the least certain thing in the loader.
+   * libshape below does not exercise it -- it calls syslog, so it has a
+   * PLT.  If the fallback were wrong the library could not reach its own
+   * globals, and the total would come back wrong.
+   */
+
+  ret = stage_blob(PATH("libcounter.so"), g_libcounter, g_libcounter_len);
+  CHECK("stage the leaf library", ret == 0, strerror(-ret));
+
+  ret = stage_blob(PATH("counteruser"), g_counteruser, g_counteruser_len);
+  CHECK("stage its consumer", ret == 0, strerror(-ret));
+
+  args[0] = (FAR char *)"counteruser";
+  args[1] = (FAR char *)"2";
+  args[2] = NULL;
+
+  ret = run_module(PATH("counteruser"), args);
+  CHECK("a leaf library with no DT_PLTGOT reaches its own data",
+        ret == 0, ret < 0 ? strerror(-ret) : "wrong total");
+
+  unlink(PATH("counteruser"));
+  unlink(PATH("libcounter.so"));
+
+  /* C++: a shared library and a module, both with global objects.  Two
+   * instances run concurrently, because private-per-instance library state
+   * is only observable while they overlap.
+   */
+
+  ret = stage_blob(PATH("libshape.so"), g_libshape, g_libshape_len);
+  CHECK("stage the C++ shared library", ret == 0, strerror(-ret));
+
+  ret = stage_blob(PATH("cxxuser"), g_cxxuser, g_cxxuser_len);
+  CHECK("stage the C++ module", ret == 0, strerror(-ret));
+
+  for (i = 0; i < 2; i++)
+    {
+      snprintf(seed[i], sizeof(seed[i]), "%d", i + 1);
+      snprintf(marker[i], sizeof(marker[i]), PATH("dtor%d"), i + 1);
+      snprintf(result[i], sizeof(result[i]), PATH("res%d"), i + 1);
+      unlink(marker[i]);
+      unlink(result[i]);
+
+      args[0] = (FAR char *)"cxxuser";
+      args[1] = seed[i];
+      args[2] = marker[i];
+      args[3] = result[i];
+      args[4] = NULL;
+
+      if (posix_spawn(&pid[i], PATH("cxxuser"), NULL, NULL, args, NULL) != 0)
+        {
+          pid[i] = -1;
+        }
+    }
+
+  CHECK("two C++ instances spawn", pid[0] > 0 && pid[1] > 0,
+        "posix_spawn failed");
+
+  usleep(150000);
+
+  ret = extent_info(PATH("libshape.so"), &info);
+  CHECK("one flash copy of the library, pinned once per instance",
+        ret == 0 && info.pincount == 2, "wrong pin count");
+
+  /* Wait for both, but do not read the exit status from waitpid().
+   *
+   * waitpid() only keeps the status of an already-exited child when
+   * CONFIG_SCHED_CHILD_STATUS is set, which needs CONFIG_SCHED_HAVE_PARENT
+   * -- neither of which this test should require.  Both instances run for
+   * the same 300ms, so the second has always exited by the time the first
+   * waitpid() returns, and its status is simply gone.  Each instance
+   * therefore records its own result in a file, which survives both the
+   * task and the unload.  waitpid() here is only a barrier, and may fail.
+   */
+
+  for (i = 0; i < 2; i++)
+    {
+      int status;
+
+      if (pid[i] > 0)
+        {
+          waitpid(pid[i], &status, 0);
+        }
+    }
+
+  fails = 0;
+  ok    = true;
+
+  for (i = 0; i < 2; i++)
+    {
+      ret = read_marker(result[i]);
+      if (ret < 0)
+        {
+          ok = false;
+        }
+      else
+        {
+          fails |= ret;
+        }
+    }
+
+  CHECK("both C++ instances ran to completion", ok,
+        "an instance left no result");
+
+  CHECK("the module's own global constructor ran",
+        (fails & USER_FAIL_OWN_CTOR) == 0, "global left as .bss");
+  CHECK("the library's global constructor ran",
+        (fails & USER_FAIL_LIB_CTOR) == 0, "global left as .bss");
+  CHECK("the library was constructed before the module needing it",
+        (fails & USER_FAIL_ORDER) == 0, "wrong DT_NEEDED order");
+  CHECK("each instance has its own copy of the library's data",
+        (fails & USER_FAIL_PRIVATE) == 0, "library state was shared");
+
+  /* Destructors run on unload, which happens as each task is reaped --
+   * after waitpid() has already returned.
+   */
+
+  usleep(200000);
+
+  ok = true;
+  for (i = 0; i < 2; i++)
+    {
+      if (read_marker(marker[i]) != (i + 1) * 3)
+        {
+          ok = false;
+        }
+    }
+
+  CHECK("destructors ran on unload, each with its instance's own state",
+        ok, "marker missing or wrong");
+
+  ret = extent_info(PATH("libshape.so"), &info);
+  CHECK("the library's pins return to zero once both instances are gone",
+        ret == 0 && info.pincount == 0, "pin leaked");
+
+  for (i = 0; i < 2; i++)
+    {
+      unlink(marker[i]);
+      unlink(result[i]);
+    }
+
+  unlink(PATH("cxxuser"));
+  unlink(PATH("libshape.so"));
+}
+
+/****************************************************************************
+ * Name: dup_blob
+ *
+ * Description:
+ *   A private, writable copy of an embedded module image, for mutating into
+ *   a malformed one.  The original is const .rodata and must not be touched.
+ *
+ ****************************************************************************/
+
+static FAR unsigned char *dup_blob(FAR const unsigned char *src,
+                                   unsigned int len)
+{
+  FAR unsigned char *copy = malloc(len);
+
+  if (copy != NULL)
+    {
+      memcpy(copy, src, len);
+    }
+
+  return copy;
+}
+
+/****************************************************************************
+ * Name: corrupt_dyn
+ *
+ * Description:
+ *   Rewrite the value of one PT_DYNAMIC tag in place.  Returns true if the
+ *   tag was present.  This reaches the dynamic array straight through the
+ *   program header's file offset, so it needs no vaddr-to-file mapping.
+ *
+ ****************************************************************************/
+
+static bool corrupt_dyn(FAR unsigned char *buf, unsigned int len,
+                        int32_t tag, uint32_t newval)
+{
+  FAR const Elf32_Ehdr *eh = (FAR const Elf32_Ehdr *)buf;
+  FAR const Elf32_Phdr *ph;
+  unsigned int i;
+
+  if (len < sizeof(Elf32_Ehdr) ||
+      eh->e_phoff + (uint32_t)eh->e_phnum * sizeof(Elf32_Phdr) > len)
+    {
+      return false;
+    }
+
+  ph = (FAR const Elf32_Phdr *)(buf + eh->e_phoff);
+  for (i = 0; i < eh->e_phnum; i++)
+    {
+      if (ph[i].p_type == PT_DYNAMIC &&
+          ph[i].p_offset + ph[i].p_filesz <= len)
+        {
+          FAR Elf32_Dyn *dyn = (FAR Elf32_Dyn *)(buf + ph[i].p_offset);
+          unsigned int n = ph[i].p_filesz / sizeof(Elf32_Dyn);
+          unsigned int j;
+
+          for (j = 0; j < n && dyn[j].d_tag != DT_NULL; j++)
+            {
+              if (dyn[j].d_tag == tag)
+                {
+                  dyn[j].d_un.d_val = newval;
+                  return true;
+                }
+            }
+        }
+    }
+
+  return false;
+}
+
+/****************************************************************************
+ * Name: expect_refused
+ *
+ * Description:
+ *   Stage an image and assert the loader declines it.  A refusal is any
+ *   negative return: binfmt collapses "the loader rejected it" and "not my
+ *   format" into one answer (see run_module), which is all this needs to
+ *   know -- the point is that a malformed image never loads and runs.
+ *
+ ****************************************************************************/
+
+static void expect_refused(FAR const char *what,
+                           FAR const unsigned char *img, unsigned int len)
+{
+  FAR char *args[2];
+  int ret;
+
+  ret = stage_blob(PATH("reject"), img, len);
+  if (ret < 0)
+    {
+      CHECK(what, false, "could not stage the mutant");
+      return;
+    }
+
+  args[0] = (FAR char *)"reject";
+  args[1] = NULL;
+
+  CHECK(what, run_module(PATH("reject"), args) < 0, "it loaded anyway");
+  unlink(PATH("reject"));
+}
+
+/****************************************************************************
+ * Test: the loader refuses malformed modules
+ *
+ * A loader that accepts anything is a loader whose acceptance means nothing.
+ * The paths above are what the loader does when it succeeds; these are its
+ * rejections.  Each is synthesised by mutating a module that is known to
+ * load, so nothing but the defect under test differs, and each must come
+ * back *refused* rather than loaded-and-then-faulting -- the latter is the
+ * failure mode that takes the board down instead of printing FAIL.
+ ****************************************************************************/
+
+static void test_fdpic_reject(void)
+{
+  FAR unsigned char *img;
+  int ret;
+
+  printf("\n-- FDPIC loader rejections --\n");
+
+  /* A 64-bit class byte: the loader is 32-bit only. */
+
+  img = dup_blob(g_funcdesc, g_funcdesc_len);
+  if (img != NULL)
+    {
+      img[EI_CLASS] = ELFCLASS64;
+      expect_refused("a non-32-bit ELF class is refused", img,
+                     g_funcdesc_len);
+      free(img);
+    }
+
+  /* Not a shared object.  An FDPIC module is ET_DYN; anything else is not a
+   * module even with the FDPIC marker set.
+   */
+
+  img = dup_blob(g_funcdesc, g_funcdesc_len);
+  if (img != NULL)
+    {
+      ((FAR Elf32_Ehdr *)img)->e_type = ET_EXEC;
+      expect_refused("a non-ET_DYN object is refused", img, g_funcdesc_len);
+      free(img);
+    }
+
+  /* Wrong machine.  A module built for another architecture must be turned
+   * away before any of its relocations are applied.
+   */
+
+  img = dup_blob(g_funcdesc, g_funcdesc_len);
+  if (img != NULL)
+    {
+      ((FAR Elf32_Ehdr *)img)->e_machine = EM_X86_64;
+      expect_refused("a module for the wrong machine is refused", img,
+                     g_funcdesc_len);
+      free(img);
+    }
+
+  /* RELA PLT relocations.  Nothing in the loader reads RELA; an object
+   * claiming that layout for its PLT must be refused, not walked as REL --
+   * the entries are 12 bytes rather than 8, so misreading them would apply
+   * garbage.  lazymod carries its imports in DT_JMPREL, so it has the
+   * DT_PLTREL tag to flip.
+   */
+
+  img = dup_blob(g_lazymod, g_lazymod_len);
+  if (img != NULL)
+    {
+      if (corrupt_dyn(img, g_lazymod_len, DT_PLTREL, DT_RELA))
+        {
+          expect_refused("a module with RELA PLT relocations is refused",
+                         img, g_lazymod_len);
+        }
+      else
+        {
+          CHECK("a module with RELA PLT relocations is refused", false,
+                "lazymod has no DT_PLTREL to corrupt");
+        }
+
+      free(img);
+    }
+
+  /* A named dependency that is not there.  counteruser needs libcounter.so;
+   * with the library absent the loader must fail the whole load rather than
+   * leave the module's imports dangling.
+   */
+
+  ret = stage_blob(PATH("counteruser"), g_counteruser, g_counteruser_len);
+  if (ret == 0)
+    {
+      FAR char *args[3];
+
+      unlink(PATH("libcounter.so"));
+
+      args[0] = (FAR char *)"counteruser";
+      args[1] = (FAR char *)"2";
+      args[2] = NULL;
+
+      CHECK("a module whose needed library is absent is refused",
+            run_module(PATH("counteruser"), args) < 0, "it loaded anyway");
+
+      unlink(PATH("counteruser"));
+    }
+  else
+    {
+      CHECK("a module whose needed library is absent is refused", false,
+            "could not stage counteruser");
+    }
+
+  /* An import the firmware does not export.  The module links cleanly -- the
+   * symbol is just an undefined import -- so the loader is the only thing
+   * that can catch it, when resolution fails rather than at link time.  This
+   * is a different path from the absent-library case above: the dependency
+   * resolves, the symbol inside it does not.
+   */
+
+  expect_refused("a module importing an unexported symbol is refused",
+                 g_missingsym, g_missingsym_len);
+
+  /* More than FDPIC_MAX_NEEDED (8) DT_NEEDED entries.  The module is refused
+   * while its dynamic section is parsed, before any dependency is loaded, so
+   * the nine libraries it was linked against need not be present.
+   */
+
+  expect_refused("a module with too many DT_NEEDED entries is refused",
+                 g_manyneeded, g_manyneeded_len);
+}
+#endif /* CONFIG_FDPIC */
+
 /****************************************************************************
  * Name: want
  *
@@ -2012,6 +2722,10 @@ int main(int argc, FAR char *argv[])
   SECTION("multimap",  test_multimap);
   SECTION("crosstask", test_crosstask_pins);
   SECTION("teardown",  test_teardown_release);
+#ifdef CONFIG_FDPIC
+  SECTION("fdpic",     test_fdpic);
+  SECTION("reject",    test_fdpic_reject);
+#endif
   SECTION("dirs",      test_dirs);
   SECTION("defrag",    test_defrag);
   SECTION("powerloss", test_powerloss);

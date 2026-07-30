@@ -14,14 +14,21 @@ config TESTING_FS_XIPFS
 		of the metadata commit, and release of XIP pins when a task dies
 		without unmapping.
 
+		With CONFIG_FDPIC it also loads modules out of the filesystem and
+		checks the loader properties that otherwise fail silently: global
+		constructors running in dependency order, per-instance data, and
+		the relocation paths nothing else reaches.
+
 		Takes an optional section name to run just one part, since the
 		power loss sweeps take minutes and everything else takes seconds:
 
 		  xipfs_test          everything
 		  xipfs_test xip      just the execute-in-place mapping tests
+		  xipfs_test fdpic    just the module loading tests
 
 		Sections: basic writeonce strict xip multimap crosstask teardown
-		dirs defrag powerloss powertorn unlink dirloss defraglos
+		fdpic reject dirs defrag powerloss powertorn unlink dirloss
+		defraglos
 
 		The power loss sections need CONFIG_FS_XIPFS_FAULT_INJECT.
 
