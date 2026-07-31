@@ -1090,6 +1090,7 @@ config NSH_USBKBD
 	bool "Use USB keyboard input"
 	default n
 	depends on NSH_CONSOLE && USBHOST_HIDKBD && !NSH_USBCONSOLE
+	depends on INPUT_KEYBOARD_BYTESTREAM
 	---help---
 		Normally NSH uses the same device for stdin, stdout, and stderr.  By
 		default, that device is /dev/console.  If this option is selected,
@@ -1097,6 +1098,9 @@ config NSH_USBKBD
 		keyboard is connected directly to the target (via a USB host
 		interface) and the data from the keyboard will drive NSH.  NSH
 		output (stdout and stderr) will still go to /dev/console.
+
+		NSH reads the keyboard as a stream of characters, which is what
+		INPUT_KEYBOARD_BYTESTREAM makes a keyboard device deliver.
 
 if NSH_USBKBD
 
