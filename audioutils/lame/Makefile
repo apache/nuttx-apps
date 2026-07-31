@@ -20,10 +20,19 @@
 #
 ############################################################################
 
+# The revision to check out.  lame's trunk grows vector tiers over time --
+# SSE2, then AVX2, then AVX-512 -- and each one adds sources that this file
+# and CMakeLists.txt have to name, so an unpinned checkout stops linking on
+# the day upstream adds the next one.  Raise this deliberately, together with
+# the vector source list below.
+
+LAME_VERSION ?= 6720
+
 # Download lame if no lame/configure found
 lame-svn:
 	$(Q) echo "svn checkout lame ..."
-	$(Q) svn checkout https://svn.code.sf.net/p/lame/svn/trunk/lame lame
+	$(Q) svn checkout -r $(LAME_VERSION) \
+		https://svn.code.sf.net/p/lame/svn/trunk/lame lame
 
 ifeq ($(wildcard lame/configure),)
 context:: lame-svn
@@ -72,7 +81,6 @@ CSRCS += $(SRC_PATH)/libmp3lame/bitstream.c \
          $(SRC_PATH)/libmp3lame/newmdct.c \
          $(SRC_PATH)/libmp3lame/psymodel.c \
          $(SRC_PATH)/libmp3lame/quantize.c \
-         $(SRC_PATH)/libmp3lame/vector/xmm_quantize_sub.c \
          $(SRC_PATH)/libmp3lame/quantize_pvt.c \
          $(SRC_PATH)/libmp3lame/set_get.c \
          $(SRC_PATH)/libmp3lame/vbrquantize.c \
@@ -83,6 +91,23 @@ CSRCS += $(SRC_PATH)/libmp3lame/bitstream.c \
          $(SRC_PATH)/libmp3lame/VbrTag.c \
          $(SRC_PATH)/libmp3lame/version.c \
          $(SRC_PATH)/libmp3lame/presets.c
+
+# lame's configure enables the SSE2, AVX2 and AVX-512 dispatch paths whenever
+# the host compiler accepts their per-function target attributes, and the
+# scalar code then calls into them, so the whole group has to be built on an
+# x86 host.  Other hosts keep lame's scalar implementation.
+
+ifneq ($(CONFIG_HOST_X86)$(CONFIG_HOST_X86_64),)
+CSRCS += $(SRC_PATH)/libmp3lame/vector/xmm_quantize_sub.c \
+         $(SRC_PATH)/libmp3lame/vector/xmm_choose_table.c \
+         $(SRC_PATH)/libmp3lame/vector/xmm_quantize_lines.c \
+         $(SRC_PATH)/libmp3lame/vector/xmm_calc_sfb_noise.c \
+         $(SRC_PATH)/libmp3lame/vector/avx2_choose_table.c \
+         $(SRC_PATH)/libmp3lame/vector/avx2_quantize_lines.c \
+         $(SRC_PATH)/libmp3lame/vector/avx512_choose_table.c \
+         $(SRC_PATH)/libmp3lame/vector/avx512_quantize_lines.c \
+         $(SRC_PATH)/libmp3lame/vector/avx512_calc_sfb_noise.c
+endif
 
 LAME_CONFIG_SCRIPT := $(CURDIR)$(DELIM)lame$(DELIM)configure
 
