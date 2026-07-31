@@ -200,15 +200,31 @@ static int listener_create_dir(FAR char *dir, size_t size)
 static int listener_subscribe(FAR struct listen_object_s *tmp,
                               bool nonwakeup)
 {
+  int flags;
+  int fd;
+
   if (nonwakeup)
     {
-      return orb_subscribe_multi_nonwakeup(tmp->object.meta,
-                                           tmp->object.instance);
+      fd = orb_subscribe_multi_nonwakeup(tmp->object.meta,
+                                         tmp->object.instance);
     }
   else
     {
-      return orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
+      fd = orb_subscribe_multi(tmp->object.meta, tmp->object.instance);
     }
+
+  if (fd < 0)
+    {
+      return fd;
+    }
+
+  flags = fcntl(fd, F_GETFL, 0);
+  if (flags >= 0)
+    {
+      fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    }
+
+  return fd;
 }
 
 /****************************************************************************
