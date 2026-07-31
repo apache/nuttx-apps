@@ -33,7 +33,7 @@ config MICROWINDOWS_KBD_EVENT
 
 config MICROWINDOWS_KBD_RAW
 	bool "Raw-mode keyboard driver"
-	depends on LIBC_KBDCODEC
+	depends on INPUT_KEYBOARD_BYTESTREAM
 	---help---
 		Reads raw byte stream from a character device (e.g., /dev/kbda)
 		and decodes escape sequences via the kbd_codec library.  Suitable
