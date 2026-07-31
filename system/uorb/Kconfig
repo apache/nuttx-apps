@@ -16,7 +16,11 @@ config UORB_PRIORITY
 
 config UORB_STACKSIZE
 	int "stack size"
+	default 4096 if UORB_FORMAT
 	default DEFAULT_TASK_STACKSIZE
+	---help---
+		UORB_FORMAT needs around 2.2KB of stack for the listener, which
+		does not fit in a DEFAULT_TASK_STACKSIZE of 2048.
 
 config UORB_FORMAT
 	bool
