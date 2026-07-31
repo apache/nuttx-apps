@@ -20,6 +20,7 @@ config UORB_STACKSIZE
 
 config UORB_FORMAT
 	bool
+	select LIBC_PRINT_EXTENSION
 	default n
 
 config UORB_LISTENER
