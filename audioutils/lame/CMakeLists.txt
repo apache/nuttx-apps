@@ -36,11 +36,20 @@ if(CONFIG_AUDIOUTILS_LAME)
     list(APPEND CFG_CMDS "--cross-prefix=${CROSSDEV}")
   endif()
 
+  # The revision to check out.  See the comment in Makefile: an unpinned
+  # checkout stops linking on the day lame's trunk grows its next vector tier.
+  # Raise this deliberately, together with the vector source list below.
+
+  if(NOT DEFINED LAME_VERSION)
+    set(LAME_VERSION 6720)
+  endif()
+
   # # Download lame if no lame/configure found
   if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lame/configure")
     execute_process(
-      COMMAND "svn" "checkout" "https://svn.code.sf.net/p/lame/svn/trunk/lame"
-              "lame" WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+      COMMAND "svn" "checkout" "-r" "${LAME_VERSION}"
+              "https://svn.code.sf.net/p/lame/svn/trunk/lame" "lame"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
   # Set source path
@@ -95,7 +104,10 @@ if(CONFIG_AUDIOUTILS_LAME)
       "${SRC_PATH}/libmp3lame/vector/xmm_quantize_lines.c"
       "${SRC_PATH}/libmp3lame/vector/xmm_calc_sfb_noise.c"
       "${SRC_PATH}/libmp3lame/vector/avx2_choose_table.c"
-      "${SRC_PATH}/libmp3lame/vector/avx2_quantize_lines.c")
+      "${SRC_PATH}/libmp3lame/vector/avx2_quantize_lines.c"
+      "${SRC_PATH}/libmp3lame/vector/avx512_choose_table.c"
+      "${SRC_PATH}/libmp3lame/vector/avx512_quantize_lines.c"
+      "${SRC_PATH}/libmp3lame/vector/avx512_calc_sfb_noise.c")
   endif()
 
   # Add custom target to generate config_h
