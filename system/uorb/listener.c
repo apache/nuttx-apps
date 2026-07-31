@@ -913,6 +913,8 @@ static void listener_monitor(FAR struct listen_list_s *objlist,
 
   while ((!nb_msgs || nb_recv_msgs < nb_msgs) && !g_should_exit)
     {
+      orb_abstime start = orb_absolute_time();
+
       if (poll(&fds[0], nb_objects, timeout * 1000) > 0)
         {
           i = 0;
@@ -954,6 +956,16 @@ static void listener_monitor(FAR struct listen_list_s *objlist,
           uorbinfo_raw("Waited for %d seconds without a message. "
                        "Giving up. err:%d", timeout, errno);
           break;
+        }
+
+      if (interval != 0)
+        {
+          orb_abstime elapsed = orb_absolute_time() - start;
+
+          if (elapsed < (orb_abstime)interval)
+            {
+              usleep((unsigned)((orb_abstime)interval - elapsed));
+            }
         }
     }
 
