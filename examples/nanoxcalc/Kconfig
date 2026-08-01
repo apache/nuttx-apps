@@ -1,0 +1,28 @@
+config EXAMPLES_NANOXCALC
+	tristate "Nano-X calculator example"
+	default n
+	depends on MICROWINDOWS_NANOX && LIBC_FLOATINGPOINT
+	---help---
+		Enable the Nano-X calculator example application.  It is a
+		port of the nxcalc demo from Microwindows which connects to
+		the Nano-X server started by examples/nanoxterm and shows
+		a calculator keypad operated by the mouse or keyboard.
+
+if EXAMPLES_NANOXCALC
+
+config EXAMPLES_NANOXCALC_PROGNAME
+	string "Program name"
+	default "nanoxcalc"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NANOXCALC_PRIORITY
+	int "Nano-X calculator task priority"
+	default 100
+
+config EXAMPLES_NANOXCALC_STACKSIZE
+	int "Nano-X calculator stack size"
+	default 16384
+
+endif
