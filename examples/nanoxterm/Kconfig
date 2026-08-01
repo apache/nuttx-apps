@@ -1,0 +1,29 @@
+config EXAMPLES_NANOXTERM
+	tristate "Nano-X terminal emulator example"
+	default n
+	depends on MICROWINDOWS_NANOX && PSEUDOTERM && LIBC_EXECFUNCS
+	---help---
+		Enable the Nano-X terminal emulator example application.  It is
+		a port of the nxterm demo from Microwindows.  It starts the
+		Nano-X server, connects to it and creates a
+		terminal window that runs an NSH shell instance on a pseudo
+		terminal.
+
+if EXAMPLES_NANOXTERM
+
+config EXAMPLES_NANOXTERM_PROGNAME
+	string "Program name"
+	default "nanoxterm"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NANOXTERM_PRIORITY
+	int "Nano-X terminal emulator task priority"
+	default 100
+
+config EXAMPLES_NANOXTERM_STACKSIZE
+	int "Nano-X terminal emulator stack size"
+	default 16384
+
+endif
