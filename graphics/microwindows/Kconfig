@@ -128,4 +128,22 @@ config MICROWINDOWS_MWIN
 		a high-level windowing API similar to the Microsoft Windows API
 		with window management, controls, and standard dialogs.
 
+config MICROWINDOWS_NANOX
+	bool "Nano-X (X11 API) client/server support"
+	default n
+	depends on NET_LOCAL && NET_LOCAL_STREAM
+	---help---
+		Build the Nano-X server core and the Nano-X client library.
+		The Nano-X server runs as a separate task and provides the
+		X11-like API (GrXXX calls) to client applications which
+		connect to it through a local stream socket.
+
+config MICROWINDOWS_NANOX_NANOWM
+	bool "Built-in Nano-X window manager"
+	default n
+	depends on MICROWINDOWS_NANOX
+	---help---
+		Link the built-in window manager (wm*.c, nxdraw.c) into the
+		Nano-X server, providing window decorations (title bar, 3D
+		frame), cascaded placement, move/resize and focus handling.
 endif # GRAPHICS_MICROWINDOWS
