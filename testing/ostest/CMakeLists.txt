@@ -22,7 +22,7 @@
 
 if(CONFIG_TESTING_OSTEST)
 
-  set(SRCS getopt.c libc_memmem.c restart.c sighelper.c)
+  set(SRCS getopt.c libc_memmem.c libc_strto.c restart.c sighelper.c)
 
   if(CONFIG_ENABLE_ALL_SIGNALS)
     list(APPEND SRCS sighand.c signest.c)
