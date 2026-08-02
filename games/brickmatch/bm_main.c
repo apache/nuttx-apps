@@ -28,6 +28,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -56,6 +57,10 @@
 
 #ifdef CONFIG_GAMES_BRICKMATCH_USE_GPIO
 #include "bm_input_gpio.h"
+#endif
+
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_TOUCHSCREEN
+#include "bm_input_touch.h"
 #endif
 
 /****************************************************************************
@@ -93,6 +98,17 @@ struct screen_state_s
   struct fb_overlayinfo_s oinfo;
 #endif
   FAR void *fbmem;
+
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
+  /* Absolute placement of the game_screen_s board within the physical
+   * framebuffer.  draw_rect() and update_screen() add these to every
+   * board-relative area, so the rest of the coordinate math stays in
+   * board-local coordinates that start at (0, 0).
+   */
+
+  int abs_xoff;
+  int abs_yoff;
+#endif
 };
 
 struct game_screen_s
@@ -111,6 +127,19 @@ struct game_screen_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+/* Set only by quit_signal_handler(), an async-signal-safe flag.  Actual
+ * shutdown happens from the main loop so a launcher can ask either a
+ * built-in application or loadable module to stop cooperatively.
+ */
+
+static volatile sig_atomic_t g_quit_requested;
+
+static void quit_signal_handler(int signo)
+{
+  (void)signo;
+  g_quit_requested = 1;
+}
 
 #ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
 static const char g_default_fbdev[] = "/dev/fb0";
@@ -133,7 +162,7 @@ int prev_board[ROW][COL] =
 
 /* Colors used in the game plus Black */
 
-static const uint16_t pallete[NCOLORS + 1] =
+static const uint16_t palette[NCOLORS + 1] =
 {
   RGB16_BLACK,
   RGB16_BLUE,
@@ -173,13 +202,14 @@ static void draw_rect(FAR struct screen_state_s *state,
   int x;
   int y;
 
-  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * area->y;
+  row = (FAR uint8_t *)state->fbmem +
+        state->pinfo.stride * (area->y + state->abs_yoff);
   for (y = 0; y < area->h; y++)
     {
-      dest = ((FAR uint16_t *)row) + area->x;
+      dest = ((FAR uint16_t *)row) + area->x + state->abs_xoff;
       for (x = 0; x < area->w; x++)
         {
-          *dest++ = pallete[color];
+          *dest++ = palette[color];
         }
 
       row += state->pinfo.stride;
@@ -204,11 +234,17 @@ static void draw_rect(FAR struct screen_state_s *state,
 void update_screen(FAR struct screen_state_s *state,
                    FAR struct fb_area_s *area)
 {
+#ifdef CONFIG_FB_UPDATE
+  struct fb_area_s abs_area;
   int ret;
 
-#ifdef CONFIG_FB_UPDATE
+  abs_area.x = area->x + state->abs_xoff;
+  abs_area.y = area->y + state->abs_yoff;
+  abs_area.w = area->w;
+  abs_area.h = area->h;
+
   ret = ioctl(state->fd_fb, FBIO_UPDATE,
-              (unsigned long)((uintptr_t)area));
+              (unsigned long)((uintptr_t)&abs_area));
   if (ret < 0)
     {
       int errcode = errno;
@@ -410,7 +446,7 @@ void draw_board(FAR struct screen_state_s *state,
     {
       for (y = 1; y <= BOARDY_SIZE; y++)
         {
-          rgb_val = RGB16TO24(pallete[board[x][y]]);
+          rgb_val = RGB16TO24(palette[board[x][y]]);
           tmp = dim_color(rgb_val, 0.15);
           *bp++ = ws2812_gamma_correct(tmp);
         }
@@ -990,7 +1026,23 @@ int main(int argc, FAR char *argv[])
   struct input_state_s input;
   struct screen_state_s state;
   struct fb_area_s area;
+  struct sigaction sa;
   int ret;
+  int status = EXIT_SUCCESS;
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
+  int usable_yres;
+#endif
+
+  g_quit_requested = 0;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = quit_signal_handler;
+  sigemptyset(&sa.sa_mask);
+  if (sigaction(SIGTERM, &sa, NULL) < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to install SIGTERM handler: %d\n",
+              errno);
+      return EXIT_FAILURE;
+    }
 
   init_board();
 
@@ -1024,18 +1076,32 @@ int main(int argc, FAR char *argv[])
   printf("     yres: %u\n", state.vinfo.yres);
   printf("  nplanes: %u\n", state.vinfo.nplanes);
 
-  /* Setup the screen information */
+  /* Setup the screen information.  The board is square and sized to the
+   * smaller display dimension after the configured top rows are reserved.
+   * Place that square below the reserved rows and horizontally center it.
+   */
 
-  screen.xres = state.vinfo.xres > state.vinfo.yres ?
-                state.vinfo.yres : state.vinfo.xres;
-  screen.yres = state.vinfo.yres > state.vinfo.xres ?
-                state.vinfo.xres : state.vinfo.yres;
+  if (state.vinfo.yres <= CONFIG_GAMES_BRICKMATCH_YOFFSET)
+    {
+      fprintf(stderr, "ERROR: Framebuffer is shorter than the y offset\n");
+      close(state.fd_fb);
+      return EXIT_FAILURE;
+    }
+
+  usable_yres = state.vinfo.yres - CONFIG_GAMES_BRICKMATCH_YOFFSET;
+  screen.xres = state.vinfo.xres > usable_yres ?
+                usable_yres : state.vinfo.xres;
+  screen.yres = screen.xres;
+
   screen.xoff = (screen.xres % NCOLORS) / 2;
   screen.yoff = (screen.yres % NCOLORS) / 2;
   screen.steps = 2;
   screen.stepinc = 1;
   screen.blklen = (screen.xres / NCOLORS);
   screen.ncolors = NCOLORS;
+
+  state.abs_xoff = (state.vinfo.xres - screen.xres) / 2;
+  state.abs_yoff = CONFIG_GAMES_BRICKMATCH_YOFFSET;
 
   /* Get the display planeinfo */
 
@@ -1056,6 +1122,14 @@ int main(int argc, FAR char *argv[])
   printf("   stride: %u\n", state.pinfo.stride);
   printf("  display: %u\n", state.pinfo.display);
   printf("      bpp: %u\n", state.pinfo.bpp);
+
+  if (state.pinfo.xres_virtual < state.abs_xoff + screen.xres ||
+      state.pinfo.yres_virtual < state.abs_yoff + screen.yres)
+    {
+      fprintf(stderr, "ERROR: Virtual framebuffer is too small\n");
+      close(state.fd_fb);
+      return EXIT_FAILURE;
+    }
 
   state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ | PROT_WRITE,
                      MAP_SHARED | MAP_FILE, state.fd_fb, 0);
@@ -1088,15 +1162,37 @@ int main(int argc, FAR char *argv[])
 
   draw_board(&state, &area, &screen);
 
-  dev_input_init(&input);
+  ret = dev_input_init(&input);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to initialize input: %d\n", ret);
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
+      munmap(state.fbmem, state.pinfo.fblen);
+#else
+      free(state.fbmem);
+#endif
+      close(state.fd_fb);
+      return EXIT_FAILURE;
+    }
 
   input.dir = DIR_NONE;
 
-  while (1)
+  while (!g_quit_requested)
     {
-      while (input.dir == DIR_NONE)
+      while (input.dir == DIR_NONE && !g_quit_requested)
         {
           ret = dev_read_input(&input);
+          if (ret < 0)
+            {
+              fprintf(stderr, "ERROR: Failed to read input: %d\n", ret);
+              status = EXIT_FAILURE;
+              g_quit_requested = 1;
+            }
+        }
+
+      if (g_quit_requested)
+        {
+          break;
         }
 
       screen.dir = input.dir;
@@ -1168,5 +1264,16 @@ int main(int argc, FAR char *argv[])
       fill_edge();
     }
 
-  return 0;
+#ifndef CONFIG_GAMES_BRICKMATCH_USE_LED_MATRIX
+  munmap(state.fbmem, state.pinfo.fblen);
+#else
+  free(state.fbmem);
+#endif
+
+#ifdef CONFIG_GAMES_BRICKMATCH_USE_TOUCHSCREEN
+  close(input.fd_touch);
+#endif
+  close(state.fd_fb);
+
+  return status;
 }
