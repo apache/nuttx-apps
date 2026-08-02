@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/debug.h>
+#include <sched.h>
 #include <stdio.h>
 
 #include <nuttx/drivers/drivers.h>
@@ -128,26 +129,17 @@ void terminate(int sig)
 }
 
 /****************************************************************************
- * Name: nand_sim_main
+ * Name: nand_sim_daemon
  *
  * Description:
- *   Entry point of the device emulator.
+ *   Body of the device emulator.  Registers the simulated MTD device and
+ *   then sleeps forever; all events are handled by signals.
  *
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+static int nand_sim_daemon(int argc, FAR char *argv[])
 {
-  int   ret;
-  pid_t pid;
-
-  /* Daemon */
-
-  pid = fork();
-
-  if (pid > 0)
-    {
-      return OK;
-    }
+  int ret;
 
   if (daemon(0, 1) == -1)
     {
@@ -222,4 +214,27 @@ errout_with_logs:
 
 errout:
   return ret;
+}
+
+/****************************************************************************
+ * Name: nand_sim_main
+ *
+ * Description:
+ *   Entry point of the device emulator.  Starts the emulator as an
+ *   independent task so that the caller gets its shell back.
+ *
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  int ret;
+
+  ret = task_create(NAND_SIM_NAME, SCHED_PRIORITY_DEFAULT,
+                    CONFIG_TESTING_NAND_SIM_STACK, nand_sim_daemon, NULL);
+  if (ret < 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  return OK;
 }
