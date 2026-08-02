@@ -4,7 +4,7 @@
 #
 
 config GAMES_BRICKMATCH
-	bool "Brickmatch Game"
+	tristate "Brickmatch Game"
 	default n
 	---help---
 		Enable Brickmatch games. Brickmatch is like a mix
@@ -88,6 +88,10 @@ config GAMES_BRICKMATCH_USE_GESTURE
 
 config GAMES_BRICKMATCH_USE_GPIO
 	bool "GPIO pins as Input"
+
+config GAMES_BRICKMATCH_USE_TOUCHSCREEN
+	bool "Touchscreen swipe as input"
+	depends on INPUT_TOUCHSCREEN
 endchoice
 
 if GAMES_BRICKMATCH_USE_GPIO
@@ -117,5 +121,35 @@ config GAMES_BRICKMATCH_RIGHT_KEY_PATH
 		Path of the right key to read
 
 endif #GAMES_BRICKMATCH_USE_GPIO
+
+if GAMES_BRICKMATCH_USE_TOUCHSCREEN
+
+config GAMES_BRICKMATCH_TOUCH_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	---help---
+		Path of the touchscreen device to read swipe gestures from.
+
+config GAMES_BRICKMATCH_TOUCH_THRESHOLD
+	int "Minimum swipe distance"
+	range 1 32767
+	default 24
+	---help---
+		Minimum movement in calibrated touchscreen coordinate units before
+		a drag is reported as a direction.
+
+endif #GAMES_BRICKMATCH_USE_TOUCHSCREEN
+
+if !GAMES_BRICKMATCH_USE_LED_MATRIX
+
+config GAMES_BRICKMATCH_YOFFSET
+	int "Top framebuffer rows to reserve"
+	range 0 500000
+	default 0
+	---help---
+		Leave this many rows at the top of the framebuffer unchanged. This
+		allows a launcher or supervisor to reserve a status or control bar.
+
+endif # !GAMES_BRICKMATCH_USE_LED_MATRIX
 
 endif

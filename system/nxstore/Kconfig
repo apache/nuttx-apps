@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_NXSTORE
+	tristate "Nxstore LVGL App Store"
+	default n
+	depends on GRAPHICS_LVGL && SYSTEM_NXPKG
+	select NETUTILS_CJSON
+	select SCHED_WAITPID
+	select LV_FONT_MONTSERRAT_12
+	select LV_FONT_MONTSERRAT_20
+	---help---
+		Enable the Nxstore LVGL graphical application store frontend.
+		Lists packages from the local nxpkg repository, installs the
+		selected one via nxpkg, and launches it.
+
+if SYSTEM_NXSTORE
+
+config SYSTEM_NXSTORE_PROGNAME
+	string "Program name"
+	default "nxstore"
+
+config SYSTEM_NXSTORE_PRIORITY
+	int "nxstore task priority"
+	default 100
+
+config SYSTEM_NXSTORE_STACKSIZE
+	int "nxstore stack size"
+	default 8192
+
+config SYSTEM_NXSTORE_FBDEVPATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+
+config SYSTEM_NXSTORE_INPUT_DEVPATH
+	string "Input device path"
+	default "/dev/input0"
+
+endif
