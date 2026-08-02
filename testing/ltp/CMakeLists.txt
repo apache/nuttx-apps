@@ -86,6 +86,12 @@ if(CONFIG_TESTING_LTP)
       list(APPEND BLACKWORDS "pthread_spin_init" "pthread_spin_destroy"
            "pthread_spin_trylock")
     endif()
+
+    # See testing/ltp/Makefile.
+
+    if(NOT CONFIG_ARCH_HAVE_FORK)
+      list(APPEND BLACKWORDS "[^v_]fork(")
+    endif()
     list(
       APPEND
       BLACKWORDS
