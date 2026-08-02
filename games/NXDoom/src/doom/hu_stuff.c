@@ -381,9 +381,6 @@ void hu_start(void)
       s = HU_TITLE_CHEX;
     }
 
-  /* dehacked substitution to get modified level name */
-
-  s = (s);
   while (*s)
     {
       hu_lib_add_char_to_text_line(&w_title, *(s++));

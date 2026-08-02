@@ -442,8 +442,6 @@ static void g_do_load_level(void)
           skytexturename = "SKY3";
         }
 
-      skytexturename = (skytexturename);
-
       skytexture = r_texture_num_for_name(skytexturename);
     }
 
@@ -2285,7 +2283,6 @@ void g_init_new(skill_t skill, int episode, int map)
           break;
         }
 
-      skytexturename = (skytexturename);
       skytexture = r_texture_num_for_name(skytexturename);
     }
 

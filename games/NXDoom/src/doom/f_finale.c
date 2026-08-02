@@ -634,8 +634,6 @@ static void f_art_screen_drawer(void)
           return;
         }
 
-      lumpname = (lumpname);
-
       v_draw_patch(0, 0, w_cache_lump_name(lumpname, PU_CACHE));
     }
 }
@@ -687,11 +685,6 @@ void f_start_finale(void)
           finaleflat = screen->background;
         }
     }
-
-  /* Do dehacked substitutions of strings */
-
-  finaletext = (finaletext);
-  finaleflat = (finaleflat);
 
   finalestage = F_STAGE_TEXT;
   finalecount = 0;
