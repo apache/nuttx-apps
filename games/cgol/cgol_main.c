@@ -82,6 +82,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <math.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -174,6 +175,14 @@ struct fb_state_s
   struct fb_videoinfo_s vinfo;
   struct fb_planeinfo_s pinfo;
   unsigned int scale;
+
+  /* Rows [0, abs_yoff) are reserved for a launcher or supervisor and are
+   * never cleared or drawn to.
+   */
+
+  unsigned int abs_yoff;
+  unsigned int usable_yres;
+
   int fd;
   void *fb; /* Real frame buffer */
 #ifdef CONFIG_GAMES_CGOL_DBLBUF
@@ -190,9 +199,26 @@ typedef void (*cell_render_f)(const struct fb_state_s *, uint32_t x,
  * Private Data
  ****************************************************************************/
 
+/* Set only by quit_signal_handler(), an async-signal-safe flag - the
+ * actual shutdown happens from the main render loop, a known-safe
+ * point, rather than from the handler itself.  cgol has no natural
+ * exit condition of its own (it renders forever), so without this, an
+ * external supervisor (nxstore) has no way to ask this process to
+ * stop - see games/NXDoom's i_install_quit_signal()/
+ * i_poll_quit_signal() for the same pattern.
+ */
+
+static volatile sig_atomic_t g_quit_requested;
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static void quit_signal_handler(int signo)
+{
+  (void)signo;
+  g_quit_requested = 1;
+}
 
 /****************************************************************************
  * Name: cgol_init
@@ -515,28 +541,35 @@ static void cgol_advance(unsigned int *map)
 static void cgol_render_update(const struct fb_state_s *state)
 {
 #ifdef CONFIG_FB_UPDATE
-  struct fb_area_s *full_screen;
+  struct fb_area_s playfield;
+  int err;
 
-  /* Create an area with the dimensions of the full screen for updating the
-   * frame buffer after render operations are complete.
+  /* Only the area below the configured offset is cleared or drawn to.
+   * Restrict the update area to match.
    */
 
-  full_screen.x = 0;
-  full_screen.y = 0;
-  full_screen.w = fb_state.vinfo.xres;
-  full_screen.h = fb_state.vinfo.yres;
+  playfield.x = 0;
+  playfield.y = state->abs_yoff;
+  playfield.w = state->vinfo.xres;
+  playfield.h = state->usable_yres;
 #endif
 
-  /* If double buffering, copy the RAM buffer to the frame buffer */
+  /* If double buffering, copy the RAM buffer to the frame buffer.  Skip
+   * reserved rows at the top of both buffers because rambuf never clears
+   * or draws into them.
+   */
 
 #ifdef CONFIG_GAMES_CGOL_DBLBUF
-  memcpy(state->fb, state->rambuf, state->pinfo.fblen);
+  memcpy((FAR uint8_t *)state->fb + state->pinfo.stride * state->abs_yoff,
+         (FAR uint8_t *)state->rambuf +
+             state->pinfo.stride * state->abs_yoff,
+         state->pinfo.stride * state->usable_yres);
 #endif
 
   /* If the frame buffer on this device needs explicit updates, do that */
 
 #ifdef CONFIG_FB_UPDATE
-  err = ioctl(fb_state.fd, FBIO_UPDATE, (uintptr_t)&full_screen);
+  err = ioctl(state->fd, FBIO_UPDATE, (uintptr_t)&playfield);
   if (err < 0)
     {
       fprintf(stderr, "Couldn't update screen: %d\n", errno);
@@ -562,14 +595,18 @@ static void cgol_render_clear(const struct fb_state_s *state)
 {
   /*  TODO: we can do this more efficiently if we just blot out the pixels
    * used for live cells last frame.
+   *
+   * Rows [0, abs_yoff) are reserved.  Every case below starts at abs_yoff
+   * and only clears usable_yres rows.
    */
 
   switch (state->pinfo.bpp)
     {
     case 32:
-      for (uint32_t y = 0; y < state->pinfo.yres_virtual; y++)
+      for (uint32_t y = 0; y < state->usable_yres; y++)
         {
-          uint8_t *row = render_buf(state) + state->pinfo.stride * y;
+          uint8_t *row = render_buf(state) +
+                         state->pinfo.stride * (y + state->abs_yoff);
           for (uint32_t x = 0; x < state->pinfo.xres_virtual; x++)
             {
               ((uint32_t *)(row))[x] = BG32;
@@ -578,9 +615,10 @@ static void cgol_render_clear(const struct fb_state_s *state)
       break;
 
     case 24:
-      for (uint32_t y = 0; y < state->pinfo.yres_virtual; y++)
+      for (uint32_t y = 0; y < state->usable_yres; y++)
         {
-          uint8_t *row = render_buf(state) + state->pinfo.stride * y;
+          uint8_t *row = render_buf(state) +
+                         state->pinfo.stride * (y + state->abs_yoff);
           for (uint32_t x = 0; x < state->pinfo.xres_virtual; x++)
             {
               *row++ = RGB24BLUE(BG24);
@@ -592,9 +630,10 @@ static void cgol_render_clear(const struct fb_state_s *state)
 
     case 16:
       {
-        for (uint32_t y = 0; y < state->pinfo.yres_virtual; y++)
+        for (uint32_t y = 0; y < state->usable_yres; y++)
           {
-            uint8_t *row = render_buf(state) + state->pinfo.stride * y;
+            uint8_t *row = render_buf(state) +
+                           state->pinfo.stride * (y + state->abs_yoff);
             for (uint32_t x = 0; x < state->pinfo.xres_virtual; x++)
               {
                 ((uint16_t *)(row))[x] = BG16;
@@ -604,7 +643,12 @@ static void cgol_render_clear(const struct fb_state_s *state)
       break;
 
     case 8:
-      memset(render_buf(state), BG8, state->pinfo.fblen);
+      for (uint32_t y = 0; y < state->usable_yres; y++)
+        {
+          uint8_t *row = render_buf(state) +
+                         state->pinfo.stride * (y + state->abs_yoff);
+          memset(row, BG8, state->pinfo.xres_virtual);
+        }
       break;
     }
 }
@@ -632,6 +676,10 @@ static void cgol_render_cell8(const struct fb_state_s *state, uint32_t x,
 
   x *= state->scale;
   y *= state->scale;
+
+  /* Shift down past the reserved rows */
+
+  y += state->abs_yoff;
 
   /* Starting at the (x, y) pair, we draw `scale` cells in each direction */
 
@@ -671,6 +719,10 @@ static void cgol_render_cell16(const struct fb_state_s *state, uint32_t x,
   x *= state->scale;
   y *= state->scale;
 
+  /* Shift down past the reserved rows */
+
+  y += state->abs_yoff;
+
   /* Starting at the (x, y) pair, we draw `scale` cells in each direction */
 
   for (uint8_t yy = 0; yy < state->scale; yy++)
@@ -708,6 +760,10 @@ static void cgol_render_cell24(const struct fb_state_s *state, uint32_t x,
 
   x *= state->scale;
   y *= state->scale;
+
+  /* Shift down past the reserved rows */
+
+  y += state->abs_yoff;
 
   /* Starting at the (x, y) pair, we draw `scale` cells in each direction */
 
@@ -748,6 +804,10 @@ static void cgol_render_cell32(const struct fb_state_s *state, uint32_t x,
 
   x *= state->scale;
   y *= state->scale;
+
+  /* Shift down past the reserved rows */
+
+  y += state->abs_yoff;
 
   /* Starting at the (x, y) pair, we draw `scale` cells in each direction */
 
@@ -914,6 +974,17 @@ int main(int argc, FAR char *argv[])
   unsigned int map[WORD_COUNT];
   unsigned int yscale;
   unsigned int xscale;
+  struct sigaction sa;
+
+  g_quit_requested = 0;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = quit_signal_handler;
+  sigemptyset(&sa.sa_mask);
+  if (sigaction(SIGTERM, &sa, NULL) < 0)
+    {
+      fprintf(stderr, "Failed to install SIGTERM handler: %d\n", errno);
+      return EXIT_FAILURE;
+    }
 
   if (argc == 2)
     {
@@ -949,16 +1020,27 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
+  /* Leave the configured top rows untouched and fold that into the minimum
+   * resolution check below.
+   */
+
+  fb_state.abs_yoff = CONFIG_GAMES_CGOL_YOFFSET;
+
   /* If the frame buffer resolution is too small to support our game at its
    * lowest resolution (one pixel per cell), we can't play :(
    */
 
   if (fb_state.vinfo.xres < CONFIG_GAMES_CGOL_MAPWIDTH ||
-      fb_state.vinfo.yres < CONFIG_GAMES_CGOL_MAPHEIGHT)
+      fb_state.vinfo.yres <
+          CONFIG_GAMES_CGOL_MAPHEIGHT + fb_state.abs_yoff ||
+      fb_state.pinfo.xres_virtual < CONFIG_GAMES_CGOL_MAPWIDTH ||
+      fb_state.pinfo.yres_virtual <
+          CONFIG_GAMES_CGOL_MAPHEIGHT + fb_state.abs_yoff)
     {
       fprintf(stderr,
-              "Needed at least %u x %u px resolution, but got %u x %u",
-              CONFIG_GAMES_CGOL_MAPWIDTH, CONFIG_GAMES_CGOL_MAPHEIGHT,
+              "Needed at least %u x %u px resolution, but got %u x %u\n",
+              CONFIG_GAMES_CGOL_MAPWIDTH,
+              CONFIG_GAMES_CGOL_MAPHEIGHT + fb_state.abs_yoff,
               fb_state.vinfo.xres, fb_state.vinfo.yres);
       close(fb_state.fd);
       return EXIT_FAILURE;
@@ -1001,6 +1083,7 @@ int main(int argc, FAR char *argv[])
   if (fb_state.rambuf == NULL)
     {
       fprintf(stderr, "Couldn't allocate double buffer: %d\n", errno);
+      munmap(fb_state.fb, fb_state.pinfo.fblen);
       close(fb_state.fd);
       return EXIT_FAILURE;
     }
@@ -1012,8 +1095,10 @@ int main(int argc, FAR char *argv[])
    * This is selected by picking the minimum of the scale options.
    */
 
+  fb_state.usable_yres = fb_state.pinfo.yres_virtual - fb_state.abs_yoff;
+
   xscale = fb_state.pinfo.xres_virtual / CONFIG_GAMES_CGOL_MAPWIDTH;
-  yscale = fb_state.pinfo.yres_virtual / CONFIG_GAMES_CGOL_MAPHEIGHT;
+  yscale = fb_state.usable_yres / CONFIG_GAMES_CGOL_MAPHEIGHT;
   fb_state.scale = xscale < yscale ? xscale : yscale;
 
   /* Now we can seed the game with some random starting cells */
@@ -1024,9 +1109,9 @@ int main(int argc, FAR char *argv[])
 
   cgol_render_clear(&fb_state);
 
-  /* Loop the game forever */
+  /* Loop the game until asked to quit */
 
-  for (; ; )
+  while (!g_quit_requested)
     {
       /* Render the freshly calculated cells */
 
@@ -1052,6 +1137,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_GAMES_CGOL_DBLBUF
   free(fb_state.rambuf);
 #endif
+  munmap(fb_state.fb, fb_state.pinfo.fblen);
   close(fb_state.fd);
   return EXIT_SUCCESS;
 }
