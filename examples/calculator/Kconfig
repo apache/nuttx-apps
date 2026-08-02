@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_CALCULATOR
+	tristate "Calculator"
+	default n
+	depends on GRAPHICS_LVGL && INPUT_TOUCHSCREEN
+	---help---
+		Enable the simple LVGL touchscreen calculator example.
+
+if EXAMPLES_CALCULATOR
+
+config EXAMPLES_CALCULATOR_PRIORITY
+	int "calculator task priority"
+	default 100
+
+config EXAMPLES_CALCULATOR_STACKSIZE
+	int "calculator stack size"
+	default 16384
+
+config EXAMPLES_CALCULATOR_INPUT_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	---help---
+		The path to the touchscreen device. Default: "/dev/input0"
+
+config EXAMPLES_CALCULATOR_FBDEVPATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+	---help---
+		The path to the framebuffer device. Default: "/dev/fb0"
+
+endif # EXAMPLES_CALCULATOR
