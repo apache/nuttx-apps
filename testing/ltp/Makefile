@@ -44,6 +44,13 @@ BLACKWORDS  += "pthread_spin_destroy"
 BLACKWORDS  += "pthread_spin_trylock"
 endif
 
+# Where NuttX does not declare fork(), a test that calls it cannot be built.
+# The pattern spares vfork() and task_fork(), which remain available.
+
+ifeq ($(CONFIG_ARCH_HAVE_FORK),)
+BLACKWORDS  += "[^v_]fork("
+endif
+
 BLACKWORDS  += "CHILD_MAX"
 BLACKWORDS  += "setpgid("
 BLACKWORDS  += "PTHREAD_SCOPE_PROCESS"

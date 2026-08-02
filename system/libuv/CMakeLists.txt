@@ -171,6 +171,13 @@ if(CONFIG_LIBUV)
         ${LIBUV_TEST_DIR}/run-tests.c ${LIBUV_TEST_DIR}/runner.c
         ${LIBUV_TEST_DIR}/runner-unix.c ${LIBUV_TEST_DIR}/echo-server.c)
     file(GLOB TEST_CSRCS ${LIBUV_TEST_DIR}/test-*.c)
+
+    # See system/libuv/Makefile.
+
+    if(NOT CONFIG_ARCH_HAVE_FORK)
+      list(REMOVE_ITEM TEST_CSRCS ${LIBUV_TEST_DIR}/test-fork.c
+           ${LIBUV_TEST_DIR}/test-pipe-close-stdout-read-stdin.c)
+    endif()
     list(APPEND LIBUV_UTILS_TEST_SRCS ${TEST_CSRCS})
     nuttx_add_application(
       NAME
