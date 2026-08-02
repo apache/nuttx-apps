@@ -21,5 +21,12 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_SOTEST)
-  nuttx_add_application(NAME sotest SRCS sotest.c DYNLIB y)
+  nuttx_add_application(
+    NAME
+    sotest
+    SRCS
+    sotest.c
+    sotest_messages.c
+    DYNLIB
+    y)
 endif()

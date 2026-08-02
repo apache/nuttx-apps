@@ -68,6 +68,21 @@ LIBPATH ?= $(TOPDIR)$(DELIM)staging
 BINDIR ?= $(APPDIR)$(DELIM)bin
 BINDIR_DEBUG ?= $(APPDIR)$(DELIM)bin_debug
 
+# Android.mk-style shared library build primitive
+
+BUILD_SHARED_LIBRARY ?= $(APPDIR)$(DELIM)Library.mk
+
+# Locate the compiler runtime used by loadable modules.  GCC and Clang
+# support these queries; other compilers may need an equivalent lookup.
+
+define FIND_COMPILER_RT_LIB
+$(or $(wildcard $(shell $(CC) $(ARCHCPUFLAGS) \
+	--print-libgcc-file-name)), \
+	$(wildcard $(shell $(CC) $(ARCHCPUFLAGS) --print-file-name \
+	$(notdir $(shell $(CC) $(ARCHCPUFLAGS) \
+	--print-libgcc-file-name)))))
+endef
+
 # The final build target
 
 BIN  ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)

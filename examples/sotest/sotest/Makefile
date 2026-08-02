@@ -22,9 +22,8 @@
 
 include $(APPDIR)/Make.defs
 
-PROGNAME = sotest
-DYNLIB = y
+LOCAL_PATH := $(CURDIR)
+LOCAL_MODULE := sotest
+LOCAL_SRC_FILES := sotest.c sotest_messages.c
 
-MAINSRC = sotest.c
-
-include $(APPDIR)/Application.mk
+include $(BUILD_SHARED_LIBRARY)
