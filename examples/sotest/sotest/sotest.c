@@ -47,14 +47,6 @@ void modprint(FAR const char *fmt, ...) printf_like(1, 2);
  ****************************************************************************/
 
 /****************************************************************************
- * Private Data
- ****************************************************************************/
-
-visibility_default const char g_msg1[] = "Hello to you too!";
-visibility_default const char g_msg2[] = "Not so bad so far.";
-visibility_default const char g_msg3[] = "Yes, don't be a stranger!";
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 

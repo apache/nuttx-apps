@@ -62,14 +62,7 @@ LDLIBS += $(call CONVERT_PATH,$(BIN))
 # This should be linked after libapps. Consider that mbedtls in libapps
 # uses __udivdi3.
 ifeq ($(BUILD_MODULE),y)
-  # Revisit: This only works for gcc and clang.
-  # Do other compilers have similar?
-  COMPILER_RT_LIB = $(shell $(CC) $(ARCHCPUFLAGS) --print-libgcc-file-name)
-  ifeq ($(wildcard $(COMPILER_RT_LIB)),)
-    # if "--print-libgcc-file-name" unable to find the correct libgcc PATH
-    # then go ahead and try "--print-file-name"
-    COMPILER_RT_LIB := $(wildcard $(shell $(CC) $(ARCHCPUFLAGS) --print-file-name $(notdir $(COMPILER_RT_LIB))))
-  endif
+  COMPILER_RT_LIB := $(call FIND_COMPILER_RT_LIB)
   LDLIBS += $(COMPILER_RT_LIB)
 endif
 

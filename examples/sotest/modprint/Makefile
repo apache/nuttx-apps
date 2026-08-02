@@ -22,9 +22,8 @@
 
 include $(APPDIR)/Make.defs
 
-PROGNAME = modprint
-DYNLIB = y
+LOCAL_PATH := $(CURDIR)
+LOCAL_MODULE := modprint
+LOCAL_SRC_FILES := modprint.c
 
-MAINSRC = modprint.c
-
-include $(APPDIR)/Application.mk
+include $(BUILD_SHARED_LIBRARY)
