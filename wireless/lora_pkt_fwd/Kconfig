@@ -1,0 +1,92 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config WIRELESS_LORA_PKT_FWD
+	tristate "LoRaWAN Semtech UDP packet forwarder"
+	default n
+	depends on LPWAN_LORA_GW && NET_UDP && NETUTILS_NETLIB
+	select NETUTILS_CODECS
+	select CODECS_BASE64
+	select LIBC_STRERROR if DEBUG_FEATURES
+	---help---
+		Forwards the packets received by a LoRa concentrator to a LoRaWAN
+		network server using the Semtech UDP protocol version 2, and turns
+		the downlink requests of the server into transmissions.
+
+		Also provides the "lora" command, the equivalent of the AT command
+		set of the vendor gateway firmwares.
+
+if WIRELESS_LORA_PKT_FWD
+
+config LORA_PKT_FWD_PROGNAME
+	string "Program name"
+	default "lora"
+
+config LORA_PKT_FWD_PRIORITY
+	int "Daemon task priority"
+	default 100
+
+config LORA_PKT_FWD_STACKSIZE
+	int "Daemon stack size"
+	default 8192
+
+config LORA_PKT_FWD_VERSION
+	string "Version reported by \"lora ver\""
+	default "1.0.0"
+
+config LORA_PKT_FWD_DEVPATH
+	string "Concentrator device"
+	default "/dev/lora0"
+
+config LORA_PKT_FWD_SERVER
+	string "Network server host name or address"
+	default "192.168.15.100"
+	---help---
+		Host name or address of the LoRaWAN network server.  A name is
+		resolved with getaddrinfo(), which needs NETDB_DNSCLIENT.
+
+		The Things Network uses the regional cluster names, for example
+		au1.cloud.thethings.network for AU915.
+
+config LORA_PKT_FWD_PORT_UP
+	int "Uplink UDP port"
+	default 1700
+
+config LORA_PKT_FWD_PORT_DOWN
+	int "Downlink UDP port"
+	default 1700
+
+config LORA_PKT_FWD_EUI
+	string "Gateway identifier"
+	default "080027FFFF0C2338"
+	---help---
+		The 64 bit gateway identifier, as sixteen hexadecimal digits.  It has
+		to match the gateway registered in the network server.
+
+config LORA_PKT_FWD_EUI_FROM_MAC
+	bool "Derive the gateway identifier from the Ethernet address"
+	default n
+	---help---
+		Build the identifier out of the Ethernet address of eth0 instead of
+		using the configured one, inserting FFFE in the middle as usual for
+		an EUI-64.
+
+config LORA_PKT_FWD_TXPOWER
+	int "Transmit power of \"lora tx\" in dBm"
+	default 14
+	---help---
+		Antenna power requested for the packet sent by the "lora tx"
+		command.  The concentrator picks the closest entry of its gain
+		table.
+
+config LORA_PKT_FWD_KEEPALIVE
+	int "PULL_DATA keepalive interval in seconds"
+	default 5
+
+config LORA_PKT_FWD_STATINTERVAL
+	int "Status push interval in seconds"
+	default 30
+
+endif # WIRELESS_LORA_PKT_FWD
