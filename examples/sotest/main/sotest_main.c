@@ -130,6 +130,7 @@ int main(int argc, FAR char *argv[])
   FAR void *handle1;
 #endif
   FAR void *handle2;
+  FAR void *handle3;
   CODE void (*testfunc)(FAR const char *msg);
   FAR const char *msg;
   int ret;
@@ -323,6 +324,42 @@ int main(int argc, FAR char *argv[])
     }
 
   /* Execute testfunc3 */
+
+  testfunc(msg);
+
+  /* Open the same library again.  dlopen() must return the object that is
+   * already loaded, and closing one of the two handles must leave the
+   * other usable.
+   */
+
+  handle3 = dlopen(sotest_path, RTLD_NOW | RTLD_LOCAL);
+  if (handle3 == NULL)
+    {
+      fprintf(stderr, "ERROR: dlopen(%s) failed on an already loaded "
+                      "library\n", sotest_path);
+      exit(EXIT_FAILURE);
+    }
+
+  if (handle3 != handle2)
+    {
+      fprintf(stderr, "ERROR: dlopen() returned %p for a library already "
+                      "loaded at %p\n", handle3, handle2);
+      exit(EXIT_FAILURE);
+    }
+
+  ret = dlclose(handle3);
+  if (ret != 0)
+    {
+      fprintf(stderr, "ERROR: dlclose(handle3) failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+
+  testfunc = (CODE void (*)(FAR const char *))dlsym(handle2, "testfunc1");
+  if (testfunc == NULL)
+    {
+      fprintf(stderr, "ERROR: closing one handle unloaded the library\n");
+      exit(EXIT_FAILURE);
+    }
 
   testfunc(msg);
 
