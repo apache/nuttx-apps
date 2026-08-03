@@ -105,6 +105,14 @@ struct graphics_state_s
   unsigned outw;
   unsigned outh;
 
+  /* Position of the top left corner of the scaled image in pixels, which is
+   * what origin above addresses in bytes.  Kept separately because the
+   * update ioctl works in pixels.
+   */
+
+  unsigned outx;
+  unsigned outy;
+
   /* Maps an output column onto the source column it is drawn from, so that
    * the inner loop needs neither a division nor a separate case for
    * fractional scaling.
@@ -936,13 +944,15 @@ void i_init_graphics(void)
   g_graphics_state.outh = SCREENHEIGHT * g_graphics_state.scale;
 #endif
 
-  /* Centre the scaled image in the frame buffer */
+  /* Centre the scaled image in the frame buffer.  The byte offset needs the
+   * stride and pixel size, so it is computed once the plane info has been
+   * read below.
+   */
 
-  g_graphics_state.origin =
-      (g_graphics_state.vinfo.yres - g_graphics_state.outh) / 2 *
-      g_graphics_state.pinfo.stride +
-      (g_graphics_state.vinfo.xres - g_graphics_state.outw) / 2 *
-      (g_graphics_state.pinfo.bpp >> 3);
+  g_graphics_state.outx =
+      (g_graphics_state.vinfo.xres - g_graphics_state.outw) / 2;
+  g_graphics_state.outy =
+      (g_graphics_state.vinfo.yres - g_graphics_state.outh) / 2;
 
   /* Build the output column to source column map once */
 
@@ -964,6 +974,10 @@ void i_init_graphics(void)
     {
       i_error("ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno);
     }
+
+  g_graphics_state.origin =
+      g_graphics_state.outy * g_graphics_state.pinfo.stride +
+      g_graphics_state.outx * (g_graphics_state.pinfo.bpp >> 3);
 
   /* Initialize frame buffer memory for actual rendering */
 
