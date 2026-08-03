@@ -495,6 +495,28 @@ static void blit_screen(void)
       prevsy = sy;
       prevrow = out;
     }
+
+#ifdef CONFIG_FB_UPDATE
+  /* Hand the touched region back to the driver.  Frame buffers that live
+   * behind a cache, or in memory the display controller reads by DMA, only
+   * become visible once the driver has been told the pixels changed.
+   */
+
+    {
+      struct fb_area_s area;
+
+      area.x = g_graphics_state.outx;
+      area.y = g_graphics_state.outy;
+      area.w = outw;
+      area.h = outh;
+
+      if (ioctl(g_graphics_state.fd, FBIO_UPDATE,
+                (unsigned long)((uintptr_t)&area)) < 0)
+        {
+          i_error("ioctl(FBIO_UPDATE) failed: %d\n", errno);
+        }
+    }
+#endif
 }
 
 static void update_grab(void)
