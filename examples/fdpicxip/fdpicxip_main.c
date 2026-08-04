@@ -111,9 +111,10 @@ static int extent_info_path(FAR const char *path,
  *
  * Stages a library and a module that needs it, then runs two instances.
  * Both share one mapped copy of each object's code, executed in place from
- * flash, while each instance gets private copies of both the module's data
- * and the library's.  If the library's state were shared, the two totals
- * would interleave instead of each reaching seed*3.
+ * flash.  Each instance gets its own copy of the module's data, because
+ * exec() loads the module afresh; the library is opened with dlopen() and
+ * so there is one of it, data included.  The totals therefore interleave,
+ * and each instance checks only that its own adds all landed.
  ****************************************************************************/
 
 static int stage_blob(FAR const char *path, FAR const unsigned char *data,

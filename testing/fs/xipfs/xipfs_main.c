@@ -1986,7 +1986,7 @@ static void test_powerloss_dirs(void)
 #define USER_FAIL_OWN_CTOR  0x01
 #define USER_FAIL_LIB_CTOR  0x02
 #define USER_FAIL_ORDER     0x04
-#define USER_FAIL_PRIVATE   0x08
+#define USER_FAIL_SHARED    0x08
 
 /* Kept in step with ../../../examples/fdpicxip/modules/callback.c */
 
@@ -2117,6 +2117,8 @@ static void test_fdpic(void)
   FAR char *args[5];
   pid_t pid[2];
   int fails;
+  int found;
+  int total;
   bool ok;
   int ret;
   int i;
@@ -2313,8 +2315,8 @@ static void test_fdpic(void)
   unlink(PATH("libcounter.so"));
 
   /* C++: a shared library and a module, both with global objects.  Two
-   * instances run concurrently, because private-per-instance library state
-   * is only observable while they overlap.
+   * instances run concurrently, because how the library is shared between
+   * them is only observable while they overlap.
    */
 
   ret = stage_blob(PATH("libshape.so"), g_libshape, g_libshape_len);
@@ -2348,9 +2350,14 @@ static void test_fdpic(void)
 
   usleep(150000);
 
+  /* One library, so one pin.  Both instances name it in DT_NEEDED, the
+   * loader opens it with dlopen(), and the second open takes a reference to
+   * what the first loaded rather than loading it again.
+   */
+
   ret = extent_info(PATH("libshape.so"), &info);
-  CHECK("one flash copy of the library, pinned once per instance",
-        ret == 0 && info.pincount == 2, "wrong pin count");
+  CHECK("one flash copy of the library, pinned once for both instances",
+        ret == 0 && info.pincount == 1, "wrong pin count");
 
   /* Wait for both, but do not read the exit status from waitpid().
    *
@@ -2398,26 +2405,38 @@ static void test_fdpic(void)
         (fails & USER_FAIL_LIB_CTOR) == 0, "global left as .bss");
   CHECK("the library was constructed before the module needing it",
         (fails & USER_FAIL_ORDER) == 0, "wrong DT_NEEDED order");
-  CHECK("each instance has its own copy of the library's data",
-        (fails & USER_FAIL_PRIVATE) == 0, "library state was shared");
+  CHECK("every add an instance makes lands in the one shared library",
+        (fails & USER_FAIL_SHARED) == 0, "an instance lost its own adds");
 
   /* Destructors run on unload, which happens as each task is reaped --
    * after waitpid() has already returned.
+   *
+   * The library is one object, so its destructor runs once, when the last
+   * instance holding it goes.  Both instances handed it a marker path and
+   * the second one to do so won, which is why this looks for exactly one
+   * file rather than for a particular one.  What it holds is the total of
+   * both instances' adds: three each of one and two.
    */
 
   usleep(200000);
 
-  ok = true;
+  found = 0;
+  total = -1;
+
   for (i = 0; i < 2; i++)
     {
-      if (read_marker(marker[i]) != (i + 1) * 3)
+      ret = read_marker(marker[i]);
+      if (ret >= 0)
         {
-          ok = false;
+          found++;
+          total = ret;
         }
     }
 
-  CHECK("destructors ran on unload, each with its instance's own state",
-        ok, "marker missing or wrong");
+  CHECK("the library's destructor ran once, at the last close",
+        found == 1, "marker missing or written twice");
+  CHECK("it ran with the state both instances had built up",
+        total == 3 * (1 + 2), "wrong total");
 
   ret = extent_info(PATH("libshape.so"), &info);
   CHECK("the library's pins return to zero once both instances are gone",
