@@ -46,10 +46,10 @@ CPU ?= cortex-m3
 
 FDPICDIR  = $(NUTTX_DIR)/tools/fdpic
 MODULE_MK = $(FDPICDIR)/nuttx-fdpic.mk
-EMBED     = $(FDPICDIR)/fdpic-embed
+EMBED     = $(FDPICDIR)/fdpic-embed.py
 
 # Where each generated header goes, and its path from the repository root --
-# fdpic-embed puts that on line 2, which is what nxstyle wants.
+# fdpic-embed.py puts that on line 2, which is what nxstyle wants.
 
 DEMODIR = ..
 DEMOREL = apps/examples/fdpicxip
@@ -127,7 +127,7 @@ lazymod.fdpic: lazymod.c
 	$(BUILD) MODULE=lazymod SRCS=lazymod.c BINDNOW=
 
 # missingsym is linked with the bare .fdpic target rather than the default
-# 'verify' one, because it is exactly what fdpic-verify is meant to catch.
+# 'verify' one, because it is exactly what fdpic-verify.sh is meant to catch.
 
 missingsym.fdpic: missingsym.c
 	$(BUILD) MODULE=missingsym SRCS=missingsym.c missingsym.fdpic
