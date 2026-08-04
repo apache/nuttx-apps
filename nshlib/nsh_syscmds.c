@@ -422,7 +422,7 @@ int cmd_boot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         /* Go through */
 
       case 1:
-        fullpath = nsh_getfullpath(vtbl, argv[1]);
+        fullpath = argv[1] ? nsh_getfullpath(vtbl, argv[1]) : NULL;
         info.path = fullpath;
 
         /* Go through */
