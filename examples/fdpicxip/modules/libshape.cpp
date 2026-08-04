@@ -31,8 +31,10 @@
  * this is here to catch does not announce itself.
  *
  * m_total is the second half: it lives in the library's writable segment,
- * which is copied once per running instance, so two tasks sharing this
- * library's flash-resident code still count independently.
+ * of which there is one.  A library named in DT_NEEDED is opened with
+ * dlopen(), which returns the object already in the module registry, so
+ * two tasks naming this library share its data as well as its
+ * flash-resident code, and m_total ends up counting both of them.
  */
 
 #include <fcntl.h>

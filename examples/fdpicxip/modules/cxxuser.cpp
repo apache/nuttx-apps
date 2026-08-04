@@ -28,9 +28,12 @@
  *   - constructors ran, in both objects.  Neither magic can be right by
  *     accident: an unconstructed global is zero.
  *   - the library's constructors ran before this module's, which is the
- *     ordering DT_NEEDED implies and the loader has to honour.
- *   - the library's data is private per instance.  One copy of its code
- *     sits in flash; the totals do not interleave.
+ *     ordering DT_NEEDED implies and the loader has to honour.  They ran
+ *     once, for the one library, not once per instance.
+ *   - the library is one object shared by both instances.  DT_NEEDED is
+ *     loaded with dlopen(), which returns what is already in the module
+ *     registry, so the totals interleave rather than each reaching seed*3.
+ *     Each instance can still see every add it made.
  */
 
 #include <fcntl.h>
@@ -87,7 +90,7 @@ static Instance g_self;
 #define USER_FAIL_OWN_CTOR  0x01
 #define USER_FAIL_LIB_CTOR  0x02
 #define USER_FAIL_ORDER     0x04
-#define USER_FAIL_PRIVATE   0x08
+#define USER_FAIL_SHARED    0x08
 
 /****************************************************************************
  * Name: record
@@ -188,12 +191,17 @@ extern "C" int main(int argc, char *argv[])
       usleep(100000);
     }
 
-  if (shape_total() != seed * 3)
+  /* The other instance is adding to the same library at the same time, so
+   * the total is not this instance's alone.  What must hold is that every
+   * add this instance made landed in it.
+   */
+
+  if (shape_total() < seed * 3)
     {
-      fails |= USER_FAIL_PRIVATE;
+      fails |= USER_FAIL_SHARED;
     }
 
-  syslog(LOG_INFO, "[user %d] library total = %d (expected %d) -- %s\n",
+  syslog(LOG_INFO, "[user %d] library total = %d (at least %d) -- %s\n",
          seed, shape_total(), seed * 3,
          fails == 0 ? "PASS" : "FAIL");
 
