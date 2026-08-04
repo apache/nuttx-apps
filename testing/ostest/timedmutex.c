@@ -42,6 +42,13 @@
  * Private Data
  ****************************************************************************/
 
+struct timedwait_arg_s
+{
+  FAR pthread_mutex_t *mutex;
+  unsigned int timeout_ms;
+  int result;
+};
+
 static pthread_mutex_t g_mutex;
 static bool g_running;
 static int g_result;
@@ -49,6 +56,36 @@ static int g_result;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static void *timedwait_thread(FAR void *parameter)
+{
+  FAR struct timedwait_arg_s *arg = parameter;
+  struct timespec abstime;
+
+  clock_gettime(CLOCK_REALTIME, &abstime);
+  abstime.tv_sec += arg->timeout_ms / 1000;
+  abstime.tv_nsec += (arg->timeout_ms % 1000) * 1000000;
+  if (abstime.tv_nsec >= 1000000000)
+    {
+      abstime.tv_sec++;
+      abstime.tv_nsec -= 1000000000;
+    }
+
+  arg->result = pthread_mutex_timedlock(arg->mutex, &abstime);
+  if (arg->result == 0)
+    {
+      pthread_mutex_unlock(arg->mutex);
+    }
+
+  return NULL;
+}
+
+static void create_timedwaiter(FAR pthread_t *thread,
+                               FAR struct timedwait_arg_s *arg)
+{
+  int status = pthread_create(thread, NULL, timedwait_thread, arg);
+  ASSERT(status == 0);
+}
 
 static void *thread_func(FAR void *parameter)
 {
@@ -112,6 +149,90 @@ static void *thread_func(FAR void *parameter)
 
   g_running = false;
   return NULL;
+}
+
+static void timedmutex_timeout_regression_test(void)
+{
+  struct timedwait_arg_s short_wait;
+  struct timedwait_arg_s long_wait;
+  pthread_mutex_t mutex;
+  pthread_t short_thread;
+  pthread_t long_thread;
+  int status;
+
+  /* A mutex must remain usable after its only waiter times out.  This
+   * verifies that the mutex blocking bit is cleared with the empty wait
+   * queue.
+   */
+
+  status = pthread_mutex_init(&mutex, NULL);
+  ASSERT(status == 0);
+  status = pthread_mutex_lock(&mutex);
+  ASSERT(status == 0);
+
+  short_wait.mutex = &mutex;
+  short_wait.timeout_ms = 200;
+  short_wait.result = -1;
+  create_timedwaiter(&short_thread, &short_wait);
+
+  status = pthread_join(short_thread, NULL);
+  ASSERT(status == 0);
+  ASSERT(short_wait.result == ETIMEDOUT);
+
+  status = pthread_mutex_unlock(&mutex);
+  ASSERT(status == 0);
+  status = pthread_mutex_trylock(&mutex);
+  ASSERT(status == 0);
+  if (status == 0)
+    {
+      pthread_mutex_unlock(&mutex);
+    }
+
+  status = pthread_mutex_destroy(&mutex);
+  ASSERT(status == 0);
+
+  /* If one of two waiters times out, the blocking bit must remain set for
+   * the other waiter.  Unlocking the mutex must then transfer ownership to
+   * that remaining waiter.
+   */
+
+  status = pthread_mutex_init(&mutex, NULL);
+  ASSERT(status == 0);
+  status = pthread_mutex_lock(&mutex);
+  ASSERT(status == 0);
+
+  short_wait.mutex = &mutex;
+  short_wait.timeout_ms = 200;
+  short_wait.result = -1;
+  long_wait.mutex = &mutex;
+  long_wait.timeout_ms = 2000;
+  long_wait.result = -1;
+
+  create_timedwaiter(&short_thread, &short_wait);
+  create_timedwaiter(&long_thread, &long_wait);
+
+  status = pthread_join(short_thread, NULL);
+  ASSERT(status == 0);
+  ASSERT(short_wait.result == ETIMEDOUT);
+
+  status = pthread_mutex_unlock(&mutex);
+  ASSERT(status == 0);
+
+  status = pthread_join(long_thread, NULL);
+  ASSERT(status == 0);
+  ASSERT(long_wait.result == 0);
+
+  status = pthread_mutex_trylock(&mutex);
+  ASSERT(status == 0);
+  if (status == 0)
+    {
+      pthread_mutex_unlock(&mutex);
+    }
+
+  status = pthread_mutex_destroy(&mutex);
+  ASSERT(status == 0);
+
+  printf("timedmutex regression test: PASSED\n");
 }
 
 /****************************************************************************
@@ -222,4 +343,6 @@ errout_with_lock:
   pthread_mutex_unlock(&g_mutex);
 errout_with_mutex:
   pthread_mutex_destroy(&g_mutex);
+
+  timedmutex_timeout_regression_test();
 }
