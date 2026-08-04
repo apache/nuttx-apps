@@ -176,6 +176,7 @@ if(CONFIG_TESTING_OSTEST)
   endif()
 
   set(OSTEST_SRCS ostest_main.c ${SRCS})
-  nuttx_add_application(NAME ostest SRCS ${OSTEST_SRCS})
+  nuttx_add_application(NAME ostest SRCS ${OSTEST_SRCS} STACKSIZE
+                        ${CONFIG_DEFAULT_TASK_STACKSIZE})
 
 endif()
