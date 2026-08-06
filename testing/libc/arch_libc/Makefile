@@ -33,4 +33,8 @@ MODULE = $(CONFIG_TESTING_ARCH_LIBC)
 
 MAINSRC = arch_libc_test_main.c
 
+ifeq ($(CONFIG_TESTING_ARCH_LIBC_STRING),y)
+CSRCS += arch_libc_string.c
+endif
+
 include $(APPDIR)/Application.mk
