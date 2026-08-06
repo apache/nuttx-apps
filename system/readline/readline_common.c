@@ -1598,7 +1598,10 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
 
               buf[cursor] = (char)ch; nch++; cursor++;
 #  ifdef CONFIG_READLINE_ECHO
-              redraw_tail(vtbl, buf, nch, cursor);
+              if (cursor < nch)
+                {
+                  redraw_tail(vtbl, buf, nch, cursor);
+                }
 #  endif
             }
 #else
