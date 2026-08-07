@@ -45,7 +45,7 @@ BLACKWORDS  += "pthread_spin_trylock"
 endif
 
 # Where NuttX does not declare fork(), a test that calls it cannot be built.
-# The pattern spares vfork() and task_fork(), which remain available.
+# The pattern spares vfork(), and any identifier that ends in _fork().
 
 ifeq ($(CONFIG_ARCH_HAVE_FORK),)
 BLACKWORDS  += "[^v_]fork("
