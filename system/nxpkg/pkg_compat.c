@@ -40,7 +40,16 @@ const char *pkg_runtime_arch(void)
 
 const char *pkg_runtime_compat(void)
 {
+#ifdef CONFIG_ARCH_BOARD
   return CONFIG_ARCH_BOARD;
+#elif defined(CONFIG_ARCH_BOARD_CUSTOM_NAME)
+  if (CONFIG_ARCH_BOARD_CUSTOM_NAME[0] != '\0')
+    {
+      return CONFIG_ARCH_BOARD_CUSTOM_NAME;
+    }
+#endif
+
+  return "";
 }
 
 int pkg_compat_check(FAR const struct pkg_manifest_s *manifest)
