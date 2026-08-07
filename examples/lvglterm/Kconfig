@@ -75,3 +75,13 @@ config EXAMPLES_LVGLTERM_STACKSIZE
 	default 16384
 
 endif # EXAMPLES_LVGLTERM
+
+config EXAMPLES_LVGLTERM_SHELL
+	string "Shell to run in the terminal"
+	default "nsh"
+	depends on EXAMPLES_LVGLTERM
+	---help---
+		The program the terminal spawns.  A bare name is looked up on
+		PATH; a path is taken as given, which is what a configuration
+		installing NSH under another name needs -- "/system/bin/init",
+		for instance, where NSH is the system's init.
