@@ -2379,7 +2379,9 @@ int main(int argc, FAR char *argv[])
   pid_t                       pid;
   posix_spawn_file_actions_t  actions;
   posix_spawnattr_t           attr;
+#ifdef CONFIG_BUILTIN
   FAR const struct builtin_s *builtin;
+#endif
   int                         exitcode = FBCON_EXIT_SUCCESS;
   FAR const char             *fbdev   = CONFIG_EXAMPLES_FBCON_DEF_FB;
 
@@ -2583,6 +2585,7 @@ int main(int argc, FAR char *argv[])
 
 #endif /* CONFIG_EXAMPLES_FBCON_PIPE_STDIN */
 
+#ifdef CONFIG_BUILTIN
   index = builtin_isavail(SPAWN_TASK);
   if (index < 0)
     {
@@ -2600,6 +2603,7 @@ int main(int argc, FAR char *argv[])
       exitcode = FBCON_EXIT_APP_INDEX_UNAVAILABLE;
       goto errout;
     }
+#endif
 
   /* Set up for app/task spawn */
 
@@ -2612,8 +2616,19 @@ int main(int argc, FAR char *argv[])
       goto errout;
     }
 
+#ifdef CONFIG_BUILTIN
   attr.stacksize = builtin->stacksize;
   attr.priority  = builtin->priority;
+#else
+  /* No registry of built-in applications to ask: a kernel build spawns
+   * programs from the filesystem, and posix_spawn() below finds this one
+   * on PATH.  Its stack and priority come from this example's own
+   * configuration instead.
+   */
+
+  attr.stacksize = CONFIG_EXAMPLES_FBCON_STACKSIZE;
+  attr.priority  = CONFIG_EXAMPLES_FBCON_PRIORITY;
+#endif
 
   /* Spawn required application                                             */
 
