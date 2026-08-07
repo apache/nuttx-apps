@@ -68,6 +68,14 @@ LDLIBPATH = $(addprefix -L,$(call CONVERT_PATH,$(TOPDIR)$(DELIM)libs))
 # Link with user libraries
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
+  # Before libc, since the graphics library calls into it.  Without it
+  # every graphics application in a kernel build fails to find the font
+  # and geometry routines.
+
+  ifeq ($(CONFIG_NX),y)
+    LDLIBS += -lnx
+  endif
+
   LDLIBS += -lmm -lc -lproxies
   ifeq ($(CONFIG_HAVE_CXX),y)
     LDLIBS += -lxx
