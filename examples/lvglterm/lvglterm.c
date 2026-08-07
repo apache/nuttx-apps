@@ -93,7 +93,16 @@
 
 /* NSH Task to be started */
 
-#define NSH_TASK "nsh"
+/* The shell to run.  A name is looked up on PATH, a path is taken as
+ * given, which matters where the shell is installed under another name,
+ * as it is when NSH is built as the system's init.
+ */
+
+#ifdef CONFIG_EXAMPLES_LVGLTERM_SHELL
+#  define NSH_TASK CONFIG_EXAMPLES_LVGLTERM_SHELL
+#else
+#  define NSH_TASK "nsh"
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
