@@ -96,6 +96,7 @@ static void test_case_overflow(void **state)
   assert_int_equal(open_count, close_count);
 }
 
+#ifdef CONFIG_ARCH_HAVE_VFORK
 static void test_case_vfork(void **state)
 {
   int fd = open("/dev/null", O_RDONLY);
@@ -112,6 +113,7 @@ static void test_case_vfork(void **state)
 
   android_fdsan_close_with_tag(fd, 0xbadc0de);
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -129,7 +131,9 @@ int main(int argc, FAR char *argv[])
     cmocka_unit_test(test_case_unowned_tagged_close),
     cmocka_unit_test(test_case_owned_tagged_close),
     cmocka_unit_test(test_case_overflow),
+#ifdef CONFIG_ARCH_HAVE_VFORK
     cmocka_unit_test(test_case_vfork),
+#endif
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
