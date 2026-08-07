@@ -16,6 +16,22 @@ config TESTING_ARCH_LIBC_STRCPY
 	bool "test strcpy"
 	default y
 
+config TESTING_ARCH_LIBC_STRING
+	bool "string and memory function suite"
+	default y
+	---help---
+		Correctness across alignments, sizes, overlaps and terminator
+		placement for the string and memory functions a machine
+		directory may override, plus a speed report for each.
+
+config TESTING_ARCH_LIBC_STRING_BUFSIZE
+	int "string suite buffer size"
+	default 262144
+	depends on TESTING_ARCH_LIBC_STRING
+	---help---
+		Each of the two test buffers, in bytes.  The large-block
+		speed scenarios use a quarter of this.
+
 config TESTING_ARCH_LIBC_PROGNAME
 	string "Program name"
 	default "arch_libctest"

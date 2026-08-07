@@ -31,5 +31,6 @@ if(CONFIG_TESTING_ARCH_LIBC)
     MODULE
     ${CONFIG_TESTING_ARCH_LIBC}
     SRCS
-    arch_libc_test_main.c)
+    arch_libc_test_main.c
+    arch_libc_string.c)
 endif()

@@ -233,6 +233,14 @@ int arch_libc_strcpy_speed(void)
 #endif
 
 /****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_ARCH_LIBC_STRING
+int arch_libc_test_string(void);
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -242,11 +250,17 @@ int arch_libc_strcpy_speed(void)
 
 int main(int argc, FAR char *argv[])
 {
+  int ret = 0;
+
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCPY
   arch_libc_test_strcpy();
   arch_libc_strcpy_speed();
 #endif
 
-  return 0;
+#ifdef CONFIG_TESTING_ARCH_LIBC_STRING
+  ret = arch_libc_test_string();
+#endif
+
+  return ret;
 }
 
