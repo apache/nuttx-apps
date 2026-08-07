@@ -224,6 +224,28 @@ static int user_main(int argc, char *argv[])
   g_mmbefore = mallinfo();
   g_mmprevious = g_mmbefore;
 
+  /* Run the two fork primitives first.  They exercise the lowest-level
+   * machinery in the suite, so a fault takes the process down rather than
+   * reporting a failure -- better to learn that in seconds.
+   */
+
+/* The simulator advertises vfork() but takes the process down when the test
+ * runs it.  Excluded since apps ee7642793, "temporary remove vfork test on
+ * arch/sim".
+ */
+
+#if defined(CONFIG_ARCH_HAVE_VFORK) && !defined(CONFIG_ARCH_SIM)
+  printf("\nuser_main: vfork() test\n");
+  vfork_test();
+  check_test_memory_usage();
+#endif
+
+#ifdef CONFIG_ARCH_HAVE_FORK
+  printf("\nuser_main: fork() test\n");
+  fork_test();
+  check_test_memory_usage();
+#endif
+
   printf("\nuser_main: Begin argument test\n");
   printf("user_main: Started with argc=%d\n", argc);
 
@@ -635,12 +657,6 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: scheduler lock test\n");
       sched_lock_test();
       check_test_memory_usage();
-#endif
-
-#if defined(CONFIG_ARCH_HAVE_FORK) && defined(CONFIG_SCHED_WAITPID) && \
-   !defined(CONFIG_ARCH_SIM)
-      printf("\nuser_main: vfork() test\n");
-      vfork_test();
 #endif
 
 #if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
