@@ -331,26 +331,23 @@ ssize_t ps_readprocfs(FAR struct nsh_vtbl_s *vtbl, FAR const char *basepath,
                       FAR const struct dirent *entryp,
                       FAR struct nsh_taskstatus_s *status)
 {
-  FAR char *filepath = NULL;
+  char filepath[PATH_MAX];
   int ret;
 
-  ret = asprintf(&filepath, "%s/%s/%s", dirpath, entryp->d_name, basepath);
-  if (ret < 0 || filepath == NULL)
+  ret = snprintf(filepath, sizeof(filepath), "%s/%s/%s",
+                 dirpath, entryp->d_name, basepath);
+  if (ret < 0 || ret >= sizeof(filepath))
     {
-      nsh_error(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
-      status->td_buf[status->td_bufpos] = '\0';
+      nsh_error(vtbl, g_fmtcmdfailed, "ps", "snprintf", NSH_ERRNO);
+      return -ENAMETOOLONG;
     }
-  else
-    {
-      ret = nsh_readfile(vtbl, "ps", filepath,
-                         status->td_buf + status->td_bufpos,
-                         status->td_bufsize - status->td_bufpos);
-      if (ret >= 0)
-        {
-          ret = strlen(status->td_buf + status->td_bufpos) + 1;
-        }
 
-      free(filepath);
+  ret = nsh_readfile(vtbl, "ps", filepath,
+                     status->td_buf + status->td_bufpos,
+                     status->td_bufsize - status->td_bufpos);
+  if (ret >= 0)
+    {
+      ret = strlen(status->td_buf + status->td_bufpos) + 1;
     }
 
   return ret;
