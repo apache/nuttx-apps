@@ -144,10 +144,14 @@ CSRCS += sigev_thread.c
 endif
 endif
 
-ifeq ($(CONFIG_ARCH_HAVE_FORK),y)
-ifeq ($(CONFIG_SCHED_WAITPID),y)
+# Each test is built where the primitive it tests exists.
+
+ifeq ($(CONFIG_ARCH_HAVE_VFORK),y)
 CSRCS += vfork.c
 endif
+
+ifeq ($(CONFIG_ARCH_HAVE_FORK),y)
+CSRCS += fork.c
 endif
 
 ifeq ($(CONFIG_ARCH_SETJMP_H),y)
