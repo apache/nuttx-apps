@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/system/nxpkg/CMakeLists.txt
+# apps/system/nxstore/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,25 +20,16 @@
 #
 # ##############################################################################
 
-if(CONFIG_SYSTEM_NXPKG)
+if(CONFIG_SYSTEM_NXSTORE)
   nuttx_add_application(
-    MODULE
-    ${CONFIG_SYSTEM_NXPKG}
     NAME
-    ${CONFIG_SYSTEM_NXPKG_PROGNAME}
-    STACKSIZE
-    ${CONFIG_SYSTEM_NXPKG_STACKSIZE}
+    ${CONFIG_SYSTEM_NXSTORE_PROGNAME}
     PRIORITY
-    ${CONFIG_SYSTEM_NXPKG_PRIORITY}
+    ${CONFIG_SYSTEM_NXSTORE_PRIORITY}
+    STACKSIZE
+    ${CONFIG_SYSTEM_NXSTORE_STACKSIZE}
+    MODULE
+    ${CONFIG_SYSTEM_NXSTORE}
     SRCS
-    pkg_main.c
-    pkg_compat.c
-    pkg_hash.c
-    pkg_install.c
-    pkg_log.c
-    pkg_manifest.c
-    pkg_metadata.c
-    pkg_repo.c
-    pkg_store.c
-    pkg_txn.c)
+    nxstore_main.c)
 endif()

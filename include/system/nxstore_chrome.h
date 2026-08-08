@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/nxpkg/pkg_log.c
+ * apps/include/system/nxstore_chrome.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,54 +20,18 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
-
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <syslog.h>
-
-#include "pkg.h"
+#ifndef __APPS_INCLUDE_SYSTEM_NXSTORE_CHROME_H
+#define __APPS_INCLUDE_SYSTEM_NXSTORE_CHROME_H
 
 /****************************************************************************
- * Private Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-static void pkg_vlog(FAR const char *level, FAR const char *fmt, va_list ap)
-{
-  char message[256];
-  int ret;
+/* Full-screen applications launched by nxstore share the framebuffer with
+ * its supervisor bar.  They must leave this top strip untouched so the
+ * Close control remains visible and usable.
+ */
 
-  ret = vsnprintf(message, sizeof(message), fmt, ap);
-  if (ret < 0)
-    {
-      return;
-    }
+#define NXSTORE_BAR_HEIGHT 36
 
-  syslog(strcmp(level, "error") == 0 ? LOG_ERR : LOG_INFO,
-         "nxpkg: %s: %s", level, message);
-}
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-void pkg_error(FAR const char *fmt, ...)
-{
-  va_list ap;
-
-  va_start(ap, fmt);
-  pkg_vlog("error", fmt, ap);
-  va_end(ap);
-}
-
-void pkg_info(FAR const char *fmt, ...)
-{
-  va_list ap;
-
-  va_start(ap, fmt);
-  pkg_vlog("info", fmt, ap);
-  va_end(ap);
-}
+#endif /* __APPS_INCLUDE_SYSTEM_NXSTORE_CHROME_H */
