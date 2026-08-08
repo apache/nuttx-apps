@@ -31,6 +31,7 @@
 
 #include "d_loop.h"
 #include "doomdef.h"
+#include "i_system.h"
 
 #include "m_bbox.h"
 #include "m_menu.h"
@@ -685,6 +686,16 @@ fixed_t r_scale_from_global_angle(angle_t visangle)
 
 void r_set_view_size(int blocks, int detail)
 {
+  /* The view geometry divides by values derived from blocks, so a value
+   * outside 3..11 produces a division by zero.  The options menu cannot
+   * produce one; a malformed configuration file can.
+   */
+
+  if (blocks < 3 || blocks > 11)
+    {
+      i_error("r_set_view_size: screenblocks=%d out of range", blocks);
+    }
+
   setsizeneeded = true;
   setblocks = blocks;
   setdetail = detail;

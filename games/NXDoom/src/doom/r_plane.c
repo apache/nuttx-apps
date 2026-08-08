@@ -57,12 +57,17 @@ planefunction_t ceilingfunc;
 
 /* Here comes the obnoxious "visplane". */
 
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+visplane_t *visplanes;
+short *openings;
+#else
 visplane_t visplanes[CONFIG_GAMES_NXDOOM_MAXVISPLANES];
+short openings[MAXOPENINGS];
+#endif
 visplane_t *lastvisplane;
 visplane_t *floorplane;
 visplane_t *ceilingplane;
 
-short openings[MAXOPENINGS];
 short *lastopening;
 
 /* Clip values are the solid pixel bounding the range. floorclip starts out
@@ -114,12 +119,24 @@ static void r_map_plane(int y, int x1, int x2)
   fixed_t length;
   unsigned index;
 
-#ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
-  if (x2 < x1 || x1 < 0 || x2 >= viewwidth || y > viewheight)
+  /* Ensure array indices are in range before access.  The bound is
+   * viewheight rather than SCREENHEIGHT because r_init_buffer() only
+   * populates ylookup[] for [0, viewheight).
+   */
+
+  if (x2 < x1 || x1 < 0 || x2 >= viewwidth)
     {
-      i_error("R_MapPlane: %i, %i at %i", x1, x2, y);
+      return;
     }
-#endif
+
+  if (y < 0)
+    {
+      y = 0;
+    }
+  else if (y >= viewheight)
+    {
+      y = viewheight - 1;
+    }
 
   if (planeheight != cachedheight[y])
     {
@@ -160,27 +177,42 @@ static void r_map_plane(int y, int x1, int x2)
   spanfunc();
 }
 
+static inline boolean r_row_in_range(int row)
+{
+  return row >= 0 && row < SCREENHEIGHT;
+}
+
 static void r_make_spans(int x, int t1, int b1, int t2, int b2)
 {
+  /* Check that row is in range before indexing arrays. */
+
   while (t1 < t2 && t1 <= b1)
     {
-      r_map_plane(t1, spanstart[t1], x - 1);
+      r_map_plane(t1, r_row_in_range(t1) ? spanstart[t1] : 0, x - 1);
       t1++;
     }
   while (b1 > b2 && b1 >= t1)
     {
-      r_map_plane(b1, spanstart[b1], x - 1);
+      r_map_plane(b1, r_row_in_range(b1) ? spanstart[b1] : 0, x - 1);
       b1--;
     }
 
   while (t2 < t1 && t2 <= b2)
     {
-      spanstart[t2] = x;
+      if (r_row_in_range(t2))
+        {
+          spanstart[t2] = x;
+        }
+
       t2++;
     }
   while (b2 > b1 && b2 >= t2)
     {
-      spanstart[b2] = x;
+      if (r_row_in_range(b2))
+        {
+          spanstart[b2] = x;
+        }
+
       b2--;
     }
 }
@@ -195,7 +227,60 @@ static void r_make_spans(int x, int t1, int b1, int t2, int b2)
 
 void r_init_planes(void)
 {
-  /* Doh! */
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+  visplanes = malloc(sizeof(visplane_t) * CONFIG_GAMES_NXDOOM_MAXVISPLANES);
+  openings = malloc(sizeof(short) * MAXOPENINGS);
+  drawsegs = malloc(sizeof(drawseg_t) * CONFIG_GAMES_NXDOOM_MAXDRAWSEGS);
+  vissprites = malloc(sizeof(vissprite_t) *
+                       CONFIG_GAMES_NXDOOM_MAXVISSPRITES);
+
+  if (visplanes == NULL || openings == NULL || drawsegs == NULL ||
+      vissprites == NULL)
+    {
+      r_shutdown_planes();
+
+      i_error("r_init_planes: failed to allocate renderer buffers");
+    }
+
+  /* Free these on exit; the game can be started again in this process. */
+
+  i_at_exit(r_shutdown_planes, true);
+#endif
+}
+
+/* r_shutdown_planes
+ * Frees the renderer scratch buffers allocated by r_init_planes.  Only
+ * registered as an exit handler when CONFIG_GAMES_NXDOOM_HEAP_BUFFERS is
+ * set - the static-array buffers have nothing to free.
+ */
+
+void r_shutdown_planes(void)
+{
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+  if (visplanes != NULL)
+    {
+      free(visplanes);
+      visplanes = NULL;
+    }
+
+  if (openings != NULL)
+    {
+      free(openings);
+      openings = NULL;
+    }
+
+  if (drawsegs != NULL)
+    {
+      free(drawsegs);
+      drawsegs = NULL;
+    }
+
+  if (vissprites != NULL)
+    {
+      free(vissprites);
+      vissprites = NULL;
+    }
+#endif
 }
 
 /* r_clear_planes
@@ -314,12 +399,14 @@ visplane_t *r_check_plane(visplane_t *pl, int start, int stop)
 
   /* make a new visplane */
 
+  if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
+    {
+      i_error("r_check_plane: no more visplanes");
+    }
+
   lastvisplane->height = pl->height;
   lastvisplane->picnum = pl->picnum;
   lastvisplane->lightlevel = pl->lightlevel;
-
-  if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
-    i_error("r_check_plane: no more visplanes");
 
   pl = lastvisplane++;
   pl->minx = start;

@@ -73,6 +73,18 @@ ticcmd_t *i_base_ticcmd(void);
 
 void i_quit(void) NORETURN;
 
+/* Installs the SIGTERM handler used to request a clean exit.  The handler
+ * only records the request; i_poll_quit_signal() performs the exit.
+ */
+
+void i_install_quit_signal(void);
+
+/* Exits if a quit was requested.  Call only from the main loop, where the
+ * cleanup i_quit() performs is safe to run.
+ */
+
+void i_poll_quit_signal(void);
+
 void i_error(const char *error, ...) NORETURN PRINTF_ATTR(1, 2);
 
 void i_tactile(int on, int off, int total);
