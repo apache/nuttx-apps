@@ -32,7 +32,7 @@ if(CONFIG_BOOT_MCUBOOT)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/mcuboot
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/boot/mcuboot/mcuboot
+          ${NUTTX_BINARY_DIR}/apps/boot/mcuboot/mcuboot
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

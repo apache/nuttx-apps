@@ -31,7 +31,7 @@ if(CONFIG_LIBTEEC)
       optee_client_fetch
       URL ${OPTEE_CLIENT_URL}/${OPTEE_CLIENT_VER}.zip SOURCE_DIR
           ${OPTEE_CLIENT_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/tee/optee_client/optee_client
+          ${NUTTX_BINARY_DIR}/tee/optee_client/optee_client
       PATCH_COMMAND
         patch -p1 -d ${OPTEE_CLIENT_DIR} <
         ${CMAKE_CURRENT_LIST_DIR}/0001-libteec-NuttX.patch && patch -p1 -d

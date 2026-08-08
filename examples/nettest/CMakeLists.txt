@@ -49,7 +49,7 @@ if(CONFIG_EXAMPLES_NETTEST)
     SRCS
     nettest_target1.c
     INCLUDE_DIRECTORIES
-    ${CMAKE_BINARY_DIR}/include/nuttx
+    ${NUTTX_BINARY_DIR}/include/nuttx
     STACKSIZE
     ${CONFIG_EXAMPLES_NETTEST_STACKSIZE1}
     PRIORITY
@@ -73,7 +73,7 @@ if(CONFIG_EXAMPLES_NETTEST)
       SRCS
       nettest_target2.c
       INCLUDE_DIRECTORIES
-      ${CMAKE_BINARY_DIR}/include/nuttx
+      ${NUTTX_BINARY_DIR}/include/nuttx
       STACKSIZE
       ${CONFIG_EXAMPLES_NETTEST_STACKSIZE2}
       PRIORITY
@@ -81,7 +81,7 @@ if(CONFIG_EXAMPLES_NETTEST)
 
   endif()
 
-  target_include_directories(apps PRIVATE ${CMAKE_BINARY_DIR}/include/nuttx)
+  target_include_directories(apps PRIVATE ${NUTTX_BINARY_DIR}/include/nuttx)
   target_sources(apps PRIVATE ${SRCS})
 
   # Host
@@ -91,10 +91,10 @@ if(CONFIG_EXAMPLES_NETTEST)
     ExternalProject_Add(
       nettest
       SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/host
-      INSTALL_DIR ${CMAKE_BINARY_DIR}/apps/examples/nettest/host
+      INSTALL_DIR ${NUTTX_BINARY_DIR}/apps/examples/nettest/host
       CMAKE_ARGS
-        -DNUTTX_DIR=${NUTTX_DIR} -DNUTTX_BINARY_DIR=${CMAKE_BINARY_DIR}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/apps/examples/nettest/host
+        -DNUTTX_DIR=${NUTTX_DIR} -DNUTTX_BINARY_DIR=${NUTTX_BINARY_DIR}
+        -DCMAKE_INSTALL_PREFIX=${NUTTX_BINARY_DIR}/apps/examples/nettest/host
       USES_TERMINAL_CONFIGURE true
       USES_TERMINAL_BUILD true
       USES_TERMINAL_INSTALL true)

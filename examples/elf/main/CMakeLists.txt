@@ -28,7 +28,7 @@ if(CONFIG_EXAMPLES_ELF)
   set(ELF_BINARY_FILES)
   set(ELF_BINARY_TARGETS)
   foreach(ELFNAME IN LISTS ELFNAME_BASE)
-    list(APPEND ELF_BINARY_FILES ${CMAKE_BINARY_DIR}/bin/${ELFNAME})
+    list(APPEND ELF_BINARY_FILES ${NUTTX_BINARY_DIR}/bin/${ELFNAME})
 
     if(CMAKE_C_ELF_COMPILER)
       list(APPEND ELF_BINARY_TARGETS ${ELFNAME})
@@ -52,11 +52,11 @@ if(CONFIG_EXAMPLES_ELF)
     set(ELF_ROMFS_DEPS ${ELF_BINARY_TARGETS})
 
     if(CONFIG_SYSTEM_NXPKG)
-      set(ELF_INDEX_JSON ${CMAKE_BINARY_DIR}/bin/index.json)
-      set(ELF_BAD_INDEX_JSON ${CMAKE_BINARY_DIR}/bin/bad-index.json)
-      set(ELF_PKGTEST ${CMAKE_BINARY_DIR}/bin/pkgtest.nsh)
-      set(ELF_PKGFAIL ${CMAKE_BINARY_DIR}/bin/pkgfail.nsh)
-      set(ELF_HELLO_BIN ${CMAKE_BINARY_DIR}/bin/hello)
+      set(ELF_INDEX_JSON ${NUTTX_BINARY_DIR}/bin/index.json)
+      set(ELF_BAD_INDEX_JSON ${NUTTX_BINARY_DIR}/bin/bad-index.json)
+      set(ELF_PKGTEST ${NUTTX_BINARY_DIR}/bin/pkgtest.nsh)
+      set(ELF_PKGFAIL ${NUTTX_BINARY_DIR}/bin/pkgfail.nsh)
+      set(ELF_HELLO_BIN ${NUTTX_BINARY_DIR}/bin/hello)
       set(ELF_FIXTURE_HOST_DIR ${CMAKE_CURRENT_BINARY_DIR}/host)
       set(ELF_FIXTURE_HOST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/host/CMakeLists.txt)
       set(ELF_FIXTURE_TOOL
@@ -99,7 +99,7 @@ if(CONFIG_EXAMPLES_ELF)
 
     add_custom_command(
       OUTPUT ${ELF_ROMFS_IMG}
-      COMMAND genromfs -f ${ELF_ROMFS_IMG} -d ${CMAKE_BINARY_DIR}/bin
+      COMMAND genromfs -f ${ELF_ROMFS_IMG} -d ${NUTTX_BINARY_DIR}/bin
       DEPENDS ${ELF_ROMFS_DEPS}
       VERBATIM)
 

@@ -43,7 +43,7 @@ if(CONFIG_INTERPRETERS_JIMTCL)
                   "/^void Jim_SetEnviron/,/^/{s/\$/ *\\//}" jim.c
     CONFIGURE_COMMAND
       ./configure --host=${CMAKE_C_COMPILER_TARGET}
-      "CFLAGS=$<JOIN:$<TARGET_PROPERTY:apps_jimsh,COMPILE_OPTIONS>, > -D$<JOIN:$<TARGET_PROPERTY:apps_jimsh,COMPILE_DEFINITIONS>, -D> -I$<JOIN:$<TARGET_PROPERTY:apps_jimsh,INCLUDE_DIRECTORIES>, -I> -isystem ${CMAKE_SOURCE_DIR}/include -isystem ${CMAKE_BINARY_DIR}/include"
+      "CFLAGS=$<JOIN:$<TARGET_PROPERTY:apps_jimsh,COMPILE_OPTIONS>, > -D$<JOIN:$<TARGET_PROPERTY:apps_jimsh,COMPILE_DEFINITIONS>, -D> -I$<JOIN:$<TARGET_PROPERTY:apps_jimsh,INCLUDE_DIRECTORIES>, -I> -isystem ${NUTTX_DIR}/include -isystem ${NUTTX_BINARY_DIR}/include"
     BUILD_COMMAND make libjim.a initjimsh.o
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE TRUE

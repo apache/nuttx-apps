@@ -35,7 +35,7 @@ if(CONFIG_MLEARNING_CMSIS_NN)
     FetchContent_Declare(
       cmsis_nn_fetch
       URL ${CMSIS_NN_URL} SOURCE_DIR ${CMSIS_NN_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/mlearning/cmsis-nn/cmsis-nn
+          ${NUTTX_BINARY_DIR}/apps/mlearning/cmsis-nn/cmsis-nn
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

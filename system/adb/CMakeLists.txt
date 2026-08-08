@@ -36,7 +36,7 @@ if(CONFIG_SYSTEM_ADBD)
       microADB
       URL "${ADBD_URL}/${ADBD_VERSION}.zip" SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/microADB BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/system/microADB/microADB
+          ${NUTTX_BINARY_DIR}/apps/system/microADB/microADB
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

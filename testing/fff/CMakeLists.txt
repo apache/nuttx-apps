@@ -30,7 +30,7 @@ if(CONFIG_TESTING_FFF)
     FetchContent_Declare(
       fff_fetch
       URL ${FFF_URL} SOURCE_DIR ${FFF_UNPACK} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/testing/fff/fff
+          ${NUTTX_BINARY_DIR}/apps/testing/fff/fff
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

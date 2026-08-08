@@ -34,7 +34,7 @@ if(CONFIG_SYSTEM_FLATBUFFERS)
     FetchContent_Declare(
       flatbuffers_fetch
       URL ${FLATBUFFERS_URL} SOURCE_DIR ${FLATBUFFERS_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/math/flatbuffers/flatbuffers
+          ${NUTTX_BINARY_DIR}/apps/math/flatbuffers/flatbuffers
       PATCH_COMMAND patch -d ${FLATBUFFERS_DIR} -p1 <
                     ${CMAKE_CURRENT_LIST_DIR}/flatbuffers.patch
       DOWNLOAD_NO_PROGRESS true

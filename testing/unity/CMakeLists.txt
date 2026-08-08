@@ -30,7 +30,7 @@ if(CONFIG_TESTING_UNITY)
       DOWNLOAD_DIR ${CMAKE_CURRENT_LIST_DIR}
       URL "${CONFIG_TESTING_UNITY_URL}/v${CONFIG_TESTING_UNITY_VERSION}.tar.gz"
           SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/Unity BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/testing/unity/unity
+          ${NUTTX_BINARY_DIR}/apps/testing/unity/unity
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -50,7 +50,7 @@ if(CONFIG_TESTING_UNITY)
   # allow use of <testing/unity.h> like for make build
   file(COPY ${CMAKE_CURRENT_LIST_DIR}/Unity/src/unity.h
             ${CMAKE_CURRENT_LIST_DIR}/Unity/src/unity_internals.h
-       DESTINATION ${CMAKE_BINARY_DIR}/include/testing/)
+       DESTINATION ${NUTTX_BINARY_DIR}/include/testing/)
 
   target_sources(unity PRIVATE ${SRCS})
 

@@ -36,7 +36,7 @@ if(CONFIG_INTERPRETERS_WAMR)
       wamr_fetch
       URL ${WAMR_URL_BASE}/${CONFIG_INTERPRETERS_WAMR_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/wamr BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/interpreters/wamr/wamr
+          ${NUTTX_BINARY_DIR}/apps/interpreters/wamr/wamr
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
@@ -87,9 +87,9 @@ if(CONFIG_INTERPRETERS_WAMR)
     target_sources(wamr PRIVATE wamr_custom_init.c)
   endif()
 
-  # Add ${CMAKE_BINARY_DIR}/wamrmod to the include directories
+  # Add ${NUTTX_BINARY_DIR}/wamrmod to the include directories
   if(CONFIG_INTERPRETERS_WAMR_EXTERNAL_MODULE_REGISTRY)
-    target_include_directories(wamr PRIVATE ${CMAKE_BINARY_DIR}/wamrmod)
+    target_include_directories(wamr PRIVATE ${NUTTX_BINARY_DIR}/wamrmod)
   endif()
 
 endif()

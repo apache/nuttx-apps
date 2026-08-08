@@ -55,7 +55,7 @@ if(CONFIG_EXAMPLES_TCPBLASTER)
     MODULE
     ${CONFIG_EXAMPLES_TCPBLASTER}
     INCLUDE_DIRECTORIES
-    ${CMAKE_BINARY_DIR}/include/nuttx
+    ${NUTTX_BINARY_DIR}/include/nuttx
     SRCS
     tcpblaster_target1.c
     ${CSRCS})
@@ -78,7 +78,7 @@ if(CONFIG_EXAMPLES_TCPBLASTER)
       MODULE
       ${CONFIG_EXAMPLES_TCPBLASTER}
       INCLUDE_DIRECTORIES
-      ${CMAKE_BINARY_DIR}/include/nuttx
+      ${NUTTX_BINARY_DIR}/include/nuttx
       SRCS
       tcpblaster_target2.c
       ${CSRCS})

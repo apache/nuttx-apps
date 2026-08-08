@@ -31,7 +31,7 @@ endif()
 
 message(STATUS "NuttX apps examples tcpblaster host")
 
-include_directories(${CMAKE_BINARY_DIR}/include/nuttx)
+include_directories(${NUTTX_BINARY_DIR}/include/nuttx)
 
 add_compile_definitions(TCPBLASTER_HOST=1)
 

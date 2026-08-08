@@ -31,7 +31,7 @@ if(CONFIG_TESTING_CMOCKA)
       cmocka_fetch
       URL ${CONFIG_CMOCKA_URL}/1.1.5.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/cmocka BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/testing/cmocka/cmocka
+          ${NUTTX_BINARY_DIR}/apps/testing/cmocka/cmocka
       PATCH_COMMAND
         patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/cmocka <
         ${CMAKE_CURRENT_LIST_DIR}/0001-cmocka.c-Reduce-the-call-stack-consumption-of-printf.patch

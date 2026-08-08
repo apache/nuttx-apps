@@ -31,7 +31,7 @@ if(CONFIG_NETUTILS_WAKAAMA)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/wakaama
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/netutils/wakaama/wakaama
+          ${NUTTX_BINARY_DIR}/apps/netutils/wakaama/wakaama
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

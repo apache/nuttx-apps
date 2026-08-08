@@ -31,7 +31,7 @@ if(CONFIG_BENCHMARK_SUPERPI)
     FetchContent_Declare(
       superpi_fetch
       URL ${SUPERPI_URL}/${SUPERPI_ZIP} SOURCE_DIR ${SUPERPI_UNPACK} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/benchmarks/superpi/superpi
+          ${NUTTX_BINARY_DIR}/apps/benchmarks/superpi/superpi
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

@@ -29,7 +29,7 @@ if(CONFIG_BENCHMARK_FIO)
       fio_fetch
       URL https://github.com/ldorau/fio/archive/refs/heads/master.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/fio BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/benchmarks/fio/fio
+          ${NUTTX_BINARY_DIR}/apps/benchmarks/fio/fio
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30
       PATCH_COMMAND

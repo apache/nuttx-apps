@@ -31,7 +31,7 @@ if(CONFIG_BENCHMARK_DHRYSTONE)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/dhrystone
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/benchmarks/coremark/dhrystone
+          ${NUTTX_BINARY_DIR}/apps/benchmarks/coremark/dhrystone
       PATCH_COMMAND
         patch -p0 -d ${CMAKE_CURRENT_LIST_DIR} <
         ${CMAKE_CURRENT_LIST_DIR}/0001-dry2.2-Fix-malloc-type-mismatch.patch &&

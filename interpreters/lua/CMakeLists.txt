@@ -34,7 +34,7 @@ if(CONFIG_INTERPRETERS_LUA)
       lua_fetch
       URL ${LUA_URL}/v${CONFIG_INTERPRETERS_LUA_VERSION}.tar.gz SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/lua BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/interpreters/lua/lua
+          ${NUTTX_BINARY_DIR}/apps/interpreters/lua/lua
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

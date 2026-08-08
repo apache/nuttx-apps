@@ -32,7 +32,7 @@ if(CONFIG_NIMBLE)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/mynewt-nimble
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/wireless/bluetooth/nimble/mynewt-nimble
+          ${NUTTX_BINARY_DIR}/apps/wireless/bluetooth/nimble/mynewt-nimble
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

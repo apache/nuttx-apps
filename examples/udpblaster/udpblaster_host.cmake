@@ -31,7 +31,7 @@ endif()
 
 message(STATUS "NuttX apps examples udpblaster host")
 
-include_directories(${CMAKE_BINARY_DIR}/include/nuttx)
+include_directories(${NUTTX_BINARY_DIR}/include/nuttx)
 
 add_compile_definitions(UDPBLASTER_HOST=1)
 add_library(udpblaster)

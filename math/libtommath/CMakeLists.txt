@@ -34,7 +34,7 @@ if(CONFIG_MATH_LIBTOMMATH)
       libtommath_fetch
       URL ${CONFIG_LIBTOMMATH_URL}/v${CONFIG_LIBTOMMATH_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/libtommath BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/math/libtommath/libtommath
+          ${NUTTX_BINARY_DIR}/apps/math/libtommath/libtommath
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

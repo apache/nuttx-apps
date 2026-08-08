@@ -202,7 +202,7 @@ function(nuttx_add_rust)
     OUTPUT ${RUST_LIB_PATH}
     COMMAND
       ${CMAKE_COMMAND} -E env
-      NUTTX_INCLUDE_DIR=${PROJECT_SOURCE_DIR}/include:${CMAKE_BINARY_DIR}/include:${CMAKE_BINARY_DIR}/include/arch
+      NUTTX_INCLUDE_DIR=${PROJECT_SOURCE_DIR}/include:${NUTTX_BINARY_DIR}/include:${NUTTX_BINARY_DIR}/include/arch
       RUSTFLAGS=${RUST_PANIC_FLAGS} cargo build ${RUST_PROFILE_FLAG}
       -Zbuild-std=std,panic_abort -Zjson-target-spec --manifest-path
       ${CRATE_PATH}/Cargo.toml --target ${RUST_TARGET} --target-dir

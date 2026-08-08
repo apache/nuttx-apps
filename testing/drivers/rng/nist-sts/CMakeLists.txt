@@ -33,7 +33,7 @@ if(CONFIG_TESTING_NIST_STS)
       nist-sts_fetch
       URL ${CONFIG_NIST_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/nist-sts
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/testing/drivers/rng/nist-sts/nist-sts
+          ${NUTTX_BINARY_DIR}/apps/testing/drivers/rng/nist-sts/nist-sts
       PATCH_COMMAND
         patch -p0 -d ${CMAKE_CURRENT_LIST_DIR}/nist-sts <
         ${CMAKE_CURRENT_LIST_DIR}/0001-Solve-the-memory-out-of-bounds-problem-in-sts.patch

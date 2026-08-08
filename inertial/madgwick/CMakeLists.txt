@@ -33,7 +33,7 @@ if(CONFIG_LIB_MADGWICK)
           SOURCE_DIR
           ${MADGWICK_DIR}
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/inertial/madgwick/fusion
+          ${NUTTX_BINARY_DIR}/apps/inertial/madgwick/fusion
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
