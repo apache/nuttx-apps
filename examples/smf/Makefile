@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hsm_psicc2/Makefile
+# apps/examples/smf/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #

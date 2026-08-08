@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/tee/libteec/CMakeLists.txt
+# apps/tee/optee_client/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
