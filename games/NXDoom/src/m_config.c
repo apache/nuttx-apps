@@ -2109,6 +2109,9 @@ static void load_default_collection(default_collection_t *collection)
 
       /* Parse one physical line at a time.  fscanf() with whitespace in
        * its format can consume the next line as a missing value.
+       *
+       * A line too long for the buffer cannot be a valid setting, so
+       * discard the remainder of it and move on.
        */
 
       if (strchr(line, '\n') == NULL &&
@@ -2158,6 +2161,10 @@ static void load_default_collection(default_collection_t *collection)
           strparm[strlen(strparm) - 1] = '\0';
           memmove(strparm, strparm + 1, sizeof(strparm) - 1);
         }
+
+      /* Stripping above removes everything when the value held only
+       * non-printable characters.
+       */
 
       if (strparm[0] == '\0')
         {

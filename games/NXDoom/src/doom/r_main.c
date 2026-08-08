@@ -31,6 +31,7 @@
 
 #include "d_loop.h"
 #include "doomdef.h"
+#include "i_system.h"
 
 #include "m_bbox.h"
 #include "m_menu.h"
@@ -685,22 +686,14 @@ fixed_t r_scale_from_global_angle(angle_t visangle)
 
 void r_set_view_size(int blocks, int detail)
 {
-  /* screenblocks is only ever meant to hold 3..11 (set that way by the
-   * options menu and by the config default of 9).  The renderer's view
-   * geometry math divides by values derived from it - notably
-   * pspriteiscale = FRACUNIT * SCREENWIDTH / viewwidth in
-   * r_execute_set_view_size() - so a 0 or otherwise out-of-range value
-   * turns into a divide-by-zero hardware exception (EXCCAUSE=6), which on
-   * this flat-memory build takes the whole board down rather than just
-   * this task.  Clamp defensively so a bad/missing config value degrades
-   * to the default screen size instead of a system crash.
+  /* The view geometry divides by values derived from blocks, so a value
+   * outside 3..11 produces a division by zero.  The options menu cannot
+   * produce one; a malformed configuration file can.
    */
 
   if (blocks < 3 || blocks > 11)
     {
-      printf("r_set_view_size: screenblocks=%d out of range, using 10\n",
-            blocks);
-      blocks = 10;
+      i_error("r_set_view_size: screenblocks=%d out of range", blocks);
     }
 
   setsizeneeded = true;

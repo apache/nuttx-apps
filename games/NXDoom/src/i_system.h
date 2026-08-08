@@ -73,19 +73,14 @@ ticcmd_t *i_base_ticcmd(void);
 
 void i_quit(void) NORETURN;
 
-/* Installs a SIGTERM handler that only sets a flag (async-signal-safe) -
- * the actual i_quit() cleanup (unmapping the framebuffer, closing fds)
- * runs later from i_poll_quit_signal(), called once per tic from a known
- * safe point in the main loop rather than from the signal handler itself,
- * so a supervisor process (nxstore) requesting an exit can never land in
- * the middle of a frame's worth of direct framebuffer/heap access.
+/* Installs the SIGTERM handler used to request a clean exit.  The handler
+ * only records the request; i_poll_quit_signal() performs the exit.
  */
 
 void i_install_quit_signal(void);
 
-/* Checks the flag set by the SIGTERM handler and calls i_quit() if it's
- * set.  Must only be called from a safe point in the main loop - see
- * i_install_quit_signal().
+/* Exits if a quit was requested.  Call only from the main loop, where the
+ * cleanup i_quit() performs is safe to run.
  */
 
 void i_poll_quit_signal(void);

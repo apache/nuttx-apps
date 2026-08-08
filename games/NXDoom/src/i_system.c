@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <syslog.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -332,19 +331,14 @@ void i_quit(void)
   exit(0);
 }
 
-/* i_quit_signal_handler
+/****************************************************************************
+ * Name: i_quit_signal_handler
  *
- * A supervisor process (nxstore) has no reachable in-game quit path to
- * drive (no keyboard/touch input is wired up here) - it can only ask
- * from the outside, via SIGTERM.  This handler does the one thing a
- * signal handler is safe to do: set a flag.  It must NOT call i_quit()
- * (or anything it does - munmap, fclose, exit()'s atexit chain) directly,
- * because a signal can land at literally any point in this process's own
- * execution, including mid-malloc()/mid-blit - exactly the same "unsafe
- * mid-operation teardown" risk as being force-killed from outside, just
- * moved from another task's context into this one.  i_poll_quit_signal()
- * defers the real work to a known-safe boundary instead.
- */
+ * Description:
+ *   Records that a quit was requested.  The work is deferred to
+ *   i_poll_quit_signal() so that no cleanup runs from signal context.
+ *
+ ****************************************************************************/
 
 static void i_quit_signal_handler(int signo)
 {
@@ -352,21 +346,20 @@ static void i_quit_signal_handler(int signo)
   quit_requested = 1;
 }
 
+/****************************************************************************
+ * Name: i_install_quit_signal
+ *
+ * Description:
+ *   Installs the SIGTERM handler used to request a clean exit.
+ *
+ ****************************************************************************/
+
 void i_install_quit_signal(void)
 {
   struct sigaction sa;
 
-  /* This board's flat, single address-space build can relaunch NXDoom
-   * (via nxpkg) as a fresh loadable ELF module - a proper posix_spawn of
-   * a new module load, which gets its own zeroed .bss/re-initialized
-   * .data - but GAMES_NXDOOM is a tristate Kconfig symbol and can also
-   * be built in as a true built-in (MODULE=n) sharing this process's
-   * address space across "launches" with no fresh .bss at all.  Reset
-   * both pieces of state a stale second invocation could see: a leaked
-   * quit_requested flag would call i_quit() again before the game even
-   * starts, and a leaked exit_funcs chain would run every previous
-   * invocation's exit handlers a second time (double free()s, etc.) in
-   * addition to this invocation's own.
+  /* Built in rather than loaded as a module, this state survives a
+   * previous run and must be reset before the handler is armed.
    */
 
   quit_requested = 0;
@@ -377,22 +370,27 @@ void i_install_quit_signal(void)
 
   if (sigaction(SIGTERM, &sa, NULL) < 0)
     {
-      /* Not fatal - the game still runs, it just can't be asked to
-       * close cleanly from the outside (nxstore's close button will
-       * have nothing to signal into).  Surface it rather than silently
-       * leaving close non-functional with no trace of why.
-       */
+      /* Not fatal: the game runs, it just cannot be asked to exit. */
 
-      syslog(LOG_WARNING,
-            "nxdoom: failed to install SIGTERM handler: %d\n", errno);
+      printf("nxdoom: failed to install SIGTERM handler: %d\n",
+             errno);
     }
 }
+
+/****************************************************************************
+ * Name: i_poll_quit_signal
+ *
+ * Description:
+ *   Exits if a quit was requested.  Called from the main loop, where the
+ *   cleanup i_quit() performs is safe to run.
+ *
+ ****************************************************************************/
 
 void i_poll_quit_signal(void)
 {
   if (quit_requested)
     {
-      syslog(LOG_WARNING, "nxdoom: quit signal seen, calling i_quit\n");
+      printf("nxdoom: quit signal seen, calling i_quit\n");
       i_quit();
     }
 }

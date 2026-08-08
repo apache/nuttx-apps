@@ -1294,11 +1294,6 @@ void d_doomloop(void)
 
   while (1)
     {
-      /* Safe point (outside any framebuffer/heap access) for nxstore's
-       * SIGTERM-driven close request to actually take effect - see
-       * i_install_quit_signal() in i_system.h.
-       */
-
       i_poll_quit_signal();
       d_run_frame();
     }
