@@ -153,4 +153,43 @@ CFLAGS += -DNOGDI
 
 endif
 
+ifneq ($(CONFIG_MICROWINDOWS_NANOX),)
+
+MW_NANOX_CLIENT_SRCS  = microwindows/src/nanox/nxdraw.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxutil.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxtransform.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/client.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/clientfb.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxproto.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/drivers/osdep.c
+
+MW_NANOX_WM_SRCS  = microwindows/src/nanox/wmaction.c
+MW_NANOX_WM_SRCS += microwindows/src/nanox/wmclients.c
+MW_NANOX_WM_SRCS += microwindows/src/nanox/wmevents.c
+MW_NANOX_WM_SRCS += microwindows/src/nanox/wmutil.c
+
+MW_NANOX_SERVER_SRCS  = microwindows/src/nanox/srvmain.c
+MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvfunc.c
+MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvutil.c
+MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvevent.c
+MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvclip.c
+MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvnet.c
+
+# The server main() is renamed to nanox_server_main() and invoked from
+# the nanoxterm example, which starts the server as a separate task.
+microwindows/src/nanox/srvmain.c_CFLAGS += -Dmain=nanox_server_main
+
+# Rename the server-side GrXXX symbols to SVR_GrXXX.
+CFLAGS += -DNUTTX=1
+ifneq ($(CONFIG_MICROWINDOWS_NANOX_NANOWM),)
+CFLAGS += -DNANOWM=1
+$(foreach src,$(MW_NANOX_WM_SRCS),$(eval $(src)_CFLAGS += -include microwindows/src/nanox/serv.h))
+microwindows/src/nanox/nxdraw.c_CFLAGS += -include microwindows/src/nanox/serv.h
+CSRCS += $(MW_NANOX_WM_SRCS)
+endif
+
+CSRCS += $(MW_NANOX_CLIENT_SRCS) $(MW_NANOX_SERVER_SRCS)
+
+endif
+
 include $(APPDIR)/Application.mk
