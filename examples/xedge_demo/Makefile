@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/xedge_demo/CMakeLists.txt
+# apps/examples/xedge_demo/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
