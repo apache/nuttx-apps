@@ -32,7 +32,7 @@ if(CONFIG_CANUTILS_LIBOPENCYPHAL)
       libcanard_fetch
       URL ${CONFIG_LIBOPENCYPHAL_URL}/${CONFIG_LIBOPENCYPHAL_VERSION}.zip
           SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/libcanard BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/canutils/libopencyphal/libcanard
+          ${NUTTX_BINARY_DIR}/apps/canutils/libopencyphal/libcanard
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
     FetchContent_GetProperties(libcanard_fetch)
@@ -47,7 +47,7 @@ if(CONFIG_CANUTILS_LIBOPENCYPHAL)
       o1heap_fetch
       URL ${CONFIG_O1HEAP_URL}/${CONFIG_O1HEAP_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/o1heap BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/canutils/libopencyphal/o1heap
+          ${NUTTX_BINARY_DIR}/apps/canutils/libopencyphal/o1heap
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
     FetchContent_GetProperties(o1heap_fetch)

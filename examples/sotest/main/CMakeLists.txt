@@ -24,8 +24,8 @@ if(CONFIG_EXAMPLES_SOTEST)
   set(SOTEST_SYMTAB ${CMAKE_CURRENT_BINARY_DIR}/sotest_symtab.c)
   set(SOTEST_ROMFS_IMG ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.img)
   set(SOTEST_ROMFS_SRC ${CMAKE_CURRENT_BINARY_DIR}/sotest_romfs.c)
-  set(SOTEST_MODPRINT_ELF ${CMAKE_BINARY_DIR}/bin/modprint)
-  set(SOTEST_SHARED_ELF ${CMAKE_BINARY_DIR}/bin/sotest)
+  set(SOTEST_MODPRINT_ELF ${NUTTX_BINARY_DIR}/bin/modprint)
+  set(SOTEST_SHARED_ELF ${NUTTX_BINARY_DIR}/bin/sotest)
 
   # Dynamic applications are wrapped in ELF_* helper targets when the build uses
   # the non-ELF-capable compiler path.
@@ -52,8 +52,8 @@ if(CONFIG_EXAMPLES_SOTEST)
     set(SOTEST_ROMFS_DEPS ${SOTEST_MODPRINT_TARGET} ${SOTEST_SHARED_TARGET})
 
     if(CONFIG_SYSTEM_NXPKG)
-      set(SOTEST_SHARED_INDEX ${CMAKE_BINARY_DIR}/bin/shared-index.json)
-      set(SOTEST_SHARED_SCRIPT ${CMAKE_BINARY_DIR}/bin/pkgsotest.nsh)
+      set(SOTEST_SHARED_INDEX ${NUTTX_BINARY_DIR}/bin/shared-index.json)
+      set(SOTEST_SHARED_SCRIPT ${NUTTX_BINARY_DIR}/bin/pkgsotest.nsh)
       set(SOTEST_FIXTURE_HOST_DIR ${CMAKE_CURRENT_BINARY_DIR}/host)
       set(SOTEST_FIXTURE_HOST_SRC
           ${CMAKE_CURRENT_SOURCE_DIR}/host/CMakeLists.txt)
@@ -93,7 +93,7 @@ if(CONFIG_EXAMPLES_SOTEST)
 
     add_custom_command(
       OUTPUT ${SOTEST_ROMFS_IMG}
-      COMMAND genromfs -f ${SOTEST_ROMFS_IMG} -d ${CMAKE_BINARY_DIR}/bin
+      COMMAND genromfs -f ${SOTEST_ROMFS_IMG} -d ${NUTTX_BINARY_DIR}/bin
       DEPENDS ${SOTEST_ROMFS_DEPS}
       VERBATIM)
 

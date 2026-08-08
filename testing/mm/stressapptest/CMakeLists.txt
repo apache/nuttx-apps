@@ -36,7 +36,7 @@ if(CONFIG_TESTING_STRESSAPPTEST)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/stressapptest
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/stressapptest
+          ${NUTTX_BINARY_DIR}/stressapptest
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

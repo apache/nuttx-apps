@@ -30,7 +30,7 @@ if(CONFIG_NETUTILS_JSONCPP)
     FetchContent_Declare(
       jsoncpp_fetch
       URL ${JSONCPP_URL}/${JSONCPP_VERSION}.zip SOURCE_DIR ${JSONCPP_DIR}
-          BINARY_DIR ${CMAKE_BINARY_DIR}/apps/netutils/jsoncpp
+          BINARY_DIR ${NUTTX_BINARY_DIR}/apps/netutils/jsoncpp
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

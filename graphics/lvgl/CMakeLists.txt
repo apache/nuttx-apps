@@ -42,7 +42,7 @@ if(CONFIG_GRAPHICS_LVGL)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/lvgl
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/graphics/lvgl/lvgl
+          ${NUTTX_BINARY_DIR}/apps/graphics/lvgl/lvgl
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 120)
 

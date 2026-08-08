@@ -29,7 +29,7 @@ if(CONFIG_NETUTILS_LIBCOAP)
     FetchContent_Declare(
       libcoap_fetch
       URL ${LIBCOAP_URL}/v${LIBCOAP_VERSION} SOURCE_DIR ${LIBCOAP_DIR}
-          BINARY_DIR ${CMAKE_BINARY_DIR}/apps/netutils/libcoap
+          BINARY_DIR ${NUTTX_BINARY_DIR}/apps/netutils/libcoap
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

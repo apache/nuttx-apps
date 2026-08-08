@@ -38,13 +38,13 @@ function(wasm_add_application)
 
   if(APP_INSTALL_NAME)
     add_custom_command(
-      OUTPUT ${CMAKE_BINARY_DIR}/wasm/${APP_INSTALL_NAME}
+      OUTPUT ${NUTTX_BINARY_DIR}/wasm/${APP_INSTALL_NAME}
       COMMAND ${CMAKE_COMMAND} -E touch_nocreate
-              ${CMAKE_BINARY_DIR}/wasm/${APP_INSTALL_NAME}
+              ${NUTTX_BINARY_DIR}/wasm/${APP_INSTALL_NAME}
       DEPENDS apps)
     add_custom_target(wasm_gen_${APP_NAME}
-                      DEPENDS ${CMAKE_BINARY_DIR}/wasm/${APP_INSTALL_NAME})
-    add_dynamic_rcraws(RAWS ${CMAKE_BINARY_DIR}/wasm/${APP_INSTALL_NAME}
+                      DEPENDS ${NUTTX_BINARY_DIR}/wasm/${APP_INSTALL_NAME})
+    add_dynamic_rcraws(RAWS ${NUTTX_BINARY_DIR}/wasm/${APP_INSTALL_NAME}
                        DEPENDS wasm_gen_${APP_NAME})
   endif()
 

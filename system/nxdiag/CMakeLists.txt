@@ -73,7 +73,7 @@ if(CONFIG_SYSTEM_NXDIAG)
   add_custom_command(
     OUTPUT ${NXDIAG_SYSINFO}
     COMMAND ${PYTHON3} ${NXDIAG_PY_FLAGS} ${NXDIAG_TOOLSDIR}/host_info_dump.py
-            ${NXDIAG_FLAGS} -b ${CMAKE_BINARY_DIR} > ${NXDIAG_SYSINFO}
+            ${NXDIAG_FLAGS} -b ${NUTTX_BINARY_DIR} > ${NXDIAG_SYSINFO}
     DEPENDS ${NXDIAG_TOOLSDIR}/host_info_dump.py
     COMMENT "Generating nxdiag sysinfo.h"
     VERBATIM)
@@ -95,7 +95,7 @@ if(CONFIG_SYSTEM_NXDIAG)
     nxdiag_sysinfo_gen)
 
   set_property(
-    DIRECTORY ${CMAKE_SOURCE_DIR}
+    DIRECTORY ${NUTTX_DIR}
     APPEND
     PROPERTY ADDITIONAL_CLEAN_FILES ${NXDIAG_SYSINFO})
 

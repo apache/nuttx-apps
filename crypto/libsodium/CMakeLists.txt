@@ -34,7 +34,7 @@ if(CONFIG_LIBSODIUM)
       libsodium_fetch
       URL ${LIBSODIUM_URL}/${CONFIG_LIBSODIUM_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/libsodium BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/crypto/libsodium/libsodium
+          ${NUTTX_BINARY_DIR}/apps/crypto/libsodium/libsodium
       PATCH_COMMAND
         patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/libsodium <
         ${CMAKE_CURRENT_LIST_DIR}/0001-fix-multiple-definition-bug-in-libsodium-test.patch

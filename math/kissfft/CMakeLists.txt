@@ -34,7 +34,7 @@ if(CONFIG_MATH_KISSFFT)
     FetchContent_Declare(
       kissfft_fetch
       URL ${KISSFFT_URL} SOURCE_DIR ${KISSFFT_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/math/kissfft/kissfft
+          ${NUTTX_BINARY_DIR}/apps/math/kissfft/kissfft
       PATCH_COMMAND patch -d ${KISSFFT_DIR} -p1 <
                     ${CMAKE_CURRENT_LIST_DIR}/kissfft.patch
       DOWNLOAD_NO_PROGRESS true

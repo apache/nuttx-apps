@@ -34,7 +34,7 @@ if(CONFIG_LIB_ZLIB)
     FetchContent_Declare(
       zlib_fetch
       URL ${ZLIB_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/zlib BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/system/zlib/zlib
+          ${NUTTX_BINARY_DIR}/apps/system/zlib/zlib
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

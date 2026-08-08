@@ -33,7 +33,7 @@ if(CONFIG_LIBUV)
     FetchContent_Declare(
       libuv_fetch
       URL ${LIBUV_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/libuv BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/system/libuv/libuv
+          ${NUTTX_BINARY_DIR}/apps/system/libuv/libuv
       PATCH_COMMAND patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/libuv <
                     ${CMAKE_CURRENT_LIST_DIR}/0001-libuv-port-for-nuttx.patch
       DOWNLOAD_NO_PROGRESS true

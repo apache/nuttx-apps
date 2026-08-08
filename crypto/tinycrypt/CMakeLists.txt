@@ -36,7 +36,7 @@ if(CONFIG_TINYCRYPT)
     FetchContent_Declare(
       tinycrypt_fetch
       URL ${TINYCRYPT_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/tinycrypt
-          BINARY_DIR ${CMAKE_BINARY_DIR}/apps/crypto/tinycrypt/tinycrypt
+          BINARY_DIR ${NUTTX_BINARY_DIR}/apps/crypto/tinycrypt/tinycrypt
       PATCH_COMMAND
         patch -p0 -d ${CMAKE_CURRENT_LIST_DIR}/tinycrypt <
         ${CMAKE_CURRENT_LIST_DIR}/0001-TinyCrypt-test-resolve-compile-error.patch

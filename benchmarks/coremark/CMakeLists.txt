@@ -33,7 +33,7 @@ if(CONFIG_BENCHMARK_COREMARK)
       coremark_fetch
       URL https://github.com/eembc/coremark/archive/main.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/coremark BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/benchmarks/coremark/coremark
+          ${NUTTX_BINARY_DIR}/apps/benchmarks/coremark/coremark
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

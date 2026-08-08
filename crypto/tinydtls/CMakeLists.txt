@@ -31,7 +31,7 @@ if(CONFIG_CRYPTO_TINYDTLS)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/tinydtls
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/crypto/tinydtls/tinydtls
+          ${NUTTX_BINARY_DIR}/apps/crypto/tinydtls/tinydtls
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

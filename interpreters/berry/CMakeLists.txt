@@ -31,7 +31,7 @@ if(CONFIG_INTERPRETERS_BERRY)
       berry_fetch
       URL ${BERRY_URL_BASE}/${BERRY_COMMIT_ID}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/berry BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/interpreters/berry/berry
+          ${NUTTX_BINARY_DIR}/apps/interpreters/berry/berry
       PATCH_COMMAND
         patch -l -p1 -d ${CMAKE_CURRENT_LIST_DIR}/berry -i
         ${CMAKE_CURRENT_LIST_DIR}/0001-Fix-Berry-default-port-for-NuttX.patch

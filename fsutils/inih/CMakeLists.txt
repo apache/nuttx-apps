@@ -32,7 +32,7 @@ if(CONFIG_FSUTILS_INIH)
     FetchContent_Declare(
       inih_fetch
       URL ${INIH_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/inih-r42 BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/fsutils/inih/inih-r42
+          ${NUTTX_BINARY_DIR}/apps/fsutils/inih/inih-r42
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

@@ -36,7 +36,7 @@ if(CONFIG_TESTING_LTP)
       DOWNLOAD_DIR ${CMAKE_CURRENT_LIST_DIR}
       URL "${LTP_DOWNLOAD_URL}${LTPS_VERSION}.zip" SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/ltp BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/testing/ltp/ltp
+          ${NUTTX_BINARY_DIR}/apps/testing/ltp/ltp
       PATCH_COMMAND
         patch -p1 -d ${LTP_UNPACK} <
         ${CMAKE_CURRENT_LIST_DIR}/0001-pthread_rwlock_unlock-follow-linux.patch

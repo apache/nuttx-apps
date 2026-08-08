@@ -25,11 +25,11 @@ if(CONFIG_TOOLS_WASM_BUILD OR CONFIG_INTERPRETERS_WAMR_BUILD_MODULES_FOR_NUTTX)
   include(ExternalProject)
 
   set(TOPDIR
-      ${CMAKE_SOURCE_DIR}
+      ${NUTTX_DIR}
       CACHE INTERNAL "")
 
   set(KCONFIG_FILE_PATH
-      ${CMAKE_BINARY_DIR}/.config
+      ${NUTTX_BINARY_DIR}/.config
       CACHE INTERNAL "")
 
   # Get parent dir of CMAKE_CURRENT_SOURCE_DIR
@@ -47,13 +47,13 @@ if(CONFIG_TOOLS_WASM_BUILD OR CONFIG_INTERPRETERS_WAMR_BUILD_MODULES_FOR_NUTTX)
   add_custom_target(
     configure_wasm_build
     COMMAND
-      ${CMAKE_COMMAND} -B${CMAKE_BINARY_DIR}/Wasm
+      ${CMAKE_COMMAND} -B${NUTTX_BINARY_DIR}/Wasm
       ${CMAKE_CURRENT_SOURCE_DIR}/Wasm -DAPPDIR=${APPDIR} -DTOPDIR=${TOPDIR}
-      -DTOPBINDIR=${CMAKE_BINARY_DIR} -DKCONFIG_FILE_PATH=${KCONFIG_FILE_PATH}
+      -DTOPBINDIR=${NUTTX_BINARY_DIR} -DKCONFIG_FILE_PATH=${KCONFIG_FILE_PATH}
       -DWASI_SDK_PATH=$ENV{WASI_SDK_PATH} -DWASM_DIRS="${WASM_DIRS}")
 
   add_custom_target(wasm_build COMMAND ${CMAKE_COMMAND} --build
-                                       ${CMAKE_BINARY_DIR}/Wasm)
+                                       ${NUTTX_BINARY_DIR}/Wasm)
 
   add_dependencies(wasm_build configure_wasm_build)
 

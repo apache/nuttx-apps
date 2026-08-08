@@ -33,7 +33,7 @@ if(CONFIG_CANUTILS_LIBDRONECAN)
       libdronecan_fetch
       URL ${CONFIG_LIBDRONECAN_URL}/${CONFIG_LIBDRONECAN_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/libcanard BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/canutils/libdronecan/libcanard
+          ${NUTTX_BINARY_DIR}/apps/canutils/libdronecan/libcanard
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

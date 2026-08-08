@@ -22,7 +22,7 @@
 
 if(CONFIG_CRYPTO_CONTROLSE)
 
-  set(MBEDTLS_DIR ${CMAKE_BINARY_DIR}/apps/include/mbedtls)
+  set(MBEDTLS_DIR ${NUTTX_BINARY_DIR}/apps/include/mbedtls)
 
   nuttx_add_application(
     NAME

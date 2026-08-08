@@ -30,7 +30,7 @@ if(CONFIG_INTERPRETERS_QUICKJS)
       quickjs_fetch
       URL ${QUICKJS_URL_BASE}/6e2e68fd0896957f92eb6c242a2e048c1ef3cae0.zip
           SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/quickjs BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/interpreters/quickjs/quickjs
+          ${NUTTX_BINARY_DIR}/apps/interpreters/quickjs/quickjs
       PATCH_COMMAND
         patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/quickjs <
         ${CMAKE_CURRENT_LIST_DIR}/0001-Disabled-unsupported-feature-on-NuttX.patch

@@ -35,7 +35,7 @@ if(CONFIG_MATH_RUY)
     FetchContent_Declare(
       ruy_fetch
       URL ${RUY_URL} SOURCE_DIR ${RUY_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/math/ruy/ruy
+          ${NUTTX_BINARY_DIR}/apps/math/ruy/ruy
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

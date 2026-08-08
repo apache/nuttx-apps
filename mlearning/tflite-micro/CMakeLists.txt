@@ -35,7 +35,7 @@ if(CONFIG_TFLITEMICRO)
     FetchContent_Declare(
       tflite_micro_fetch
       URL ${TFLITE_MICRO_URL} SOURCE_DIR ${TFLITE_MICRO_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
+          ${NUTTX_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
       PATCH_COMMAND
         patch -d ${TFLITE_MICRO_DIR} -p1 <
         ${CMAKE_CURRENT_LIST_DIR}/tflite-micro.patch && patch -d
@@ -182,7 +182,7 @@ if(CONFIG_TFLITEMICRO)
 
   function(tflite_generate_data in out declare)
     set(tflm_data_out
-        ${CMAKE_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro/${out})
+        ${NUTTX_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro/${out})
     if(NOT EXISTS ${tflm_data_out})
       get_filename_component(TFLM_OUT ${tflm_data_out} DIRECTORY)
       if(NOT EXISTS ${TFLM_OUT})
@@ -244,7 +244,7 @@ if(CONFIG_TFLITEMICRO)
       ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
       INCLUDE_DIRECTORIES
       ${INCDIR}
-      ${CMAKE_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
+      ${NUTTX_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
       COMPILE_FLAGS
       ${COMMON_FLAGS})
   endif()

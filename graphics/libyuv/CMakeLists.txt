@@ -31,7 +31,7 @@ if(CONFIG_LIBYUV)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/libyuv
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/graphics/libyuv/libyuv
+          ${NUTTX_BINARY_DIR}/apps/graphics/libyuv/libyuv
       PATCH_COMMAND
         patch -p0 -d ${CMAKE_CURRENT_LIST_DIR} <
         ${CMAKE_CURRENT_LIST_DIR}/0001-include-libyuv-fix-strict-prototype-warning.patch

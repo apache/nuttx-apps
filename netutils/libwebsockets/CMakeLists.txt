@@ -39,7 +39,7 @@ if(CONFIG_NETUTILS_LIBWEBSOCKETS)
       libwebsockets_fetch
       URL ${LIBWEBSOCKETS_URL}/v${LWS_VERSION}.zip SOURCE_DIR
           ${LIBWEBSOCKETS_DIR} BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/netutils/libwebsockets/libwebsockets
+          ${NUTTX_BINARY_DIR}/apps/netutils/libwebsockets/libwebsockets
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

@@ -78,7 +78,7 @@ if(CONFIG_MATTER)
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/connectedhomeip
     BINARY_DIR
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
     90
     PATCH_LIST
@@ -92,7 +92,7 @@ if(CONFIG_MATTER)
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/pigweed
     BINARY_DIR
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
     90)
 
@@ -104,7 +104,7 @@ if(CONFIG_MATTER)
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/nlio
     BINARY_DIR
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
     30)
 
@@ -116,7 +116,7 @@ if(CONFIG_MATTER)
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/nlassert
     BINARY_DIR
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
     30)
 
@@ -128,7 +128,7 @@ if(CONFIG_MATTER)
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/nlunit-test
     BINARY_DIR
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
     30)
 
@@ -140,7 +140,7 @@ if(CONFIG_MATTER)
     SOURCE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/inipp
     BINARY_DIR
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip
     TIMEOUT
     30)
 
@@ -158,12 +158,12 @@ if(CONFIG_MATTER)
     list(APPEND nuttx_include_dirs ${include_dirs})
   endif()
   list(APPEND nuttx_include_dirs ${NUTTX_DIR}/include
-       ${CMAKE_BINARY_DIR}/include)
+       ${NUTTX_BINARY_DIR}/include)
   list(APPEND nuttx_include_dirs ${NUTTX_APPS_BINDIR}/include/mbedtls)
 
   set(MATTER_INCDIR
       ${nuttx_include_dirs}
-      ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip/gen/include
+      ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip/gen/include
       ${NUTTX_APPS_DIR}/include
       ${NUTTX_APPS_DIR}/netutils/jsoncpp/jsoncpp/include
       inipp
@@ -353,15 +353,15 @@ if(CONFIG_MATTER)
     100)
 
   add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip/lib/libchipnuttx.a
+    OUTPUT ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip/lib/libchipnuttx.a
     COMMAND echo generate libchipnuttx.a)
   add_custom_target(
     libchipnuttx ALL
-    DEPENDS ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip/lib/libchipnuttx.a
+    DEPENDS ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip/lib/libchipnuttx.a
   )
   add_dependencies(libchipnuttx chip-gn)
 
   nuttx_add_extra_library(
-    ${CMAKE_BINARY_DIR}/apps/netutils/connectedhomeip/lib/libchipnuttx.a)
+    ${NUTTX_BINARY_DIR}/apps/netutils/connectedhomeip/lib/libchipnuttx.a)
 
 endif()

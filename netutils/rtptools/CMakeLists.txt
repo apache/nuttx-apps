@@ -34,7 +34,7 @@ if(CONFIG_NETUTILS_RTPTOOLS)
       rtptools_fetch
       URL ${RTPTOOLS_URL}/${CONFIG_NETUTILS_RTPTOOLS_VERSION}.tar.gz SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/rtptools BINARY_DIR
-          ${CMAKE_BINARY_DIR}/netutils/rtptools/rtptools
+          ${NUTTX_BINARY_DIR}/netutils/rtptools/rtptools
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

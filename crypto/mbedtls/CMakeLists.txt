@@ -34,7 +34,7 @@ if(CONFIG_CRYPTO_MBEDTLS)
       mbedtls_fetch
       URL ${MBEDTLS_URL}/v${CONFIG_MBEDTLS_VERSION}.zip SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/mbedtls BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/crypto/mbedtls/mbedtls
+          ${NUTTX_BINARY_DIR}/apps/crypto/mbedtls/mbedtls
       PATCH_COMMAND
         patch -p1 -d ${MBEDTLS_DIR} <
         ${CMAKE_CURRENT_LIST_DIR}/0001-mbedtls-entropy_poll-use-getrandom-to-get-the-system.patch

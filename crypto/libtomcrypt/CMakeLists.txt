@@ -34,7 +34,7 @@ if(CONFIG_CRYPTO_LIBTOMCRYPT)
       libtomcrypt_fetch
       URL ${CONFIG_LIBTOMCRYPT_URL}/v${CONFIG_LIBTOMCRYPT_VERSION}.zip
           SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/libtomcrypt BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/crypto/libtomcrypt/libtomcrypt
+          ${NUTTX_BINARY_DIR}/apps/crypto/libtomcrypt/libtomcrypt
       PATCH_COMMAND
         patch -p0 -d ${CMAKE_CURRENT_LIST_DIR} <
         ${CMAKE_CURRENT_LIST_DIR}/digit-bit.patch && patch -p0 -d

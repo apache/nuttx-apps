@@ -35,7 +35,7 @@ if(CONFIG_MATH_GEMMLOWP)
     FetchContent_Declare(
       gemmlowp_fetch
       URL ${GEMMLOWP_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/gemmlowp
-          BINARY_DIR ${CMAKE_BINARY_DIR}/apps/math/gemmlowp/gemmlowp
+          BINARY_DIR ${NUTTX_BINARY_DIR}/apps/math/gemmlowp/gemmlowp
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

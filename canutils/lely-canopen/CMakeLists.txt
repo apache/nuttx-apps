@@ -35,7 +35,7 @@ if(CONFIG_CANUTILS_LELYCANOPEN)
           SOURCE_DIR
           ${CMAKE_CURRENT_LIST_DIR}/lely-core
           BINARY_DIR
-          ${CMAKE_BINARY_DIR}/apps/canutils/lely-canopen/lely-core
+          ${NUTTX_BINARY_DIR}/apps/canutils/lely-canopen/lely-core
       PATCH_COMMAND
         patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/lely-core <
         ${CMAKE_CURRENT_LIST_DIR}/0001-tools-eliminate-multiple-definitions-of-poll-compile.patch

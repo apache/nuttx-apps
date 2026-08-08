@@ -38,7 +38,7 @@ if(CONFIG_LIB_MQTT5)
     FetchContent_Declare(
       paho_mqtt_fetch
       URL ${PAHO_MQTT_URL}/v${PAHO_MQTT_VERSION}.zip SOURCE_DIR ${PAHO_MQTT_DIR}
-          BINARY_DIR ${CMAKE_BINARY_DIR}/apps/netutils/paho_mqtt/paho_mqtt
+          BINARY_DIR ${NUTTX_BINARY_DIR}/apps/netutils/paho_mqtt/paho_mqtt
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 
