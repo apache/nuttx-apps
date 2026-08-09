@@ -33,5 +33,9 @@ MODULE    = $(CONFIG_EXAMPLES_NANOXTERM)
 MAINSRC = nxterm.c
 CFLAGS += -Wno-undef
 
+ifneq ($(CONFIG_MICROWINDOWS_NANOX_NONETWORK),)
+CFLAGS += -DNONETWORK=1
+endif
+
 
 include $(APPDIR)/Application.mk

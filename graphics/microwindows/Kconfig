@@ -131,12 +131,24 @@ config MICROWINDOWS_MWIN
 config MICROWINDOWS_NANOX
 	bool "Nano-X (X11 API) client/server support"
 	default n
-	depends on NET_LOCAL && NET_LOCAL_STREAM
+	depends on MICROWINDOWS_NANOX_NONETWORK || (NET_LOCAL && NET_LOCAL_STREAM)
 	---help---
 		Build the Nano-X server core and the Nano-X client library.
 		The Nano-X server runs as a separate task and provides the
 		X11-like API (GrXXX calls) to client applications which
-		connect to it through a local stream socket.
+		connect to it through a local stream socket.  Alternatively,
+		with MICROWINDOWS_NANOX_NONETWORK, the client applications
+		are linked directly with the server and run in the same task.
+
+config MICROWINDOWS_NANOX_NONETWORK
+	bool "Link Nano-X applications directly with the server"
+	default n
+	---help---
+		Build the Nano-X client library and server in the linked-in
+		(NONETWORK) mode: client applications are linked directly
+		with the server, so no network stack or socket is required
+		and the memory footprint is minimal.  Only a single client
+		application can be active at a time.
 
 config MICROWINDOWS_NANOX_NANOWM
 	bool "Built-in Nano-X window manager"
