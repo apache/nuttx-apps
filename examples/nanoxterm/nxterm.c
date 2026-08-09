@@ -2400,7 +2400,9 @@ static void sigquit(int sig)
   kill(-pid, SIGHUP);
 }
 
+#ifndef NONETWORK
 extern int nanox_server_main(int argc, char *argv[]);
+#endif
 
 int main(int argc, char **argv)
 {
@@ -2408,11 +2410,13 @@ int main(int argc, char **argv)
   GR_BITMAP bitmap1fg[7];
   GR_BITMAP bitmap1bg[7];
 
+#ifndef NONETWORK
   /* Start the Nano-X server as a separate task; GrOpen() below retries
    * the connection while the server comes up.
    */
 
   task_create("nanoxserver", 100, 65536, nanox_server_main, NULL);
+#endif
 
   argv++;
   while (*argv && **argv == '-')

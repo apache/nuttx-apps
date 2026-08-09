@@ -155,14 +155,10 @@ endif
 
 ifneq ($(CONFIG_MICROWINDOWS_NANOX),)
 
-MW_NANOX_CLIENT_SRCS  = microwindows/src/nanox/nxdraw.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxutil.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxtransform.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxpaintnc.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/client.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/clientfb.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxproto.c
-MW_NANOX_CLIENT_SRCS += microwindows/src/drivers/osdep.c
+MW_NANOX_DRAW_SRCS  = microwindows/src/nanox/nxdraw.c
+MW_NANOX_DRAW_SRCS += microwindows/src/nanox/nxutil.c
+MW_NANOX_DRAW_SRCS += microwindows/src/nanox/nxtransform.c
+MW_NANOX_DRAW_SRCS += microwindows/src/nanox/nxpaintnc.c
 
 MW_NANOX_WM_SRCS  = microwindows/src/nanox/wmaction.c
 MW_NANOX_WM_SRCS += microwindows/src/nanox/wmclients.c
@@ -174,20 +170,54 @@ MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvfunc.c
 MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvutil.c
 MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvevent.c
 MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvclip.c
+
+ifeq ($(CONFIG_MICROWINDOWS_NANOX_NONETWORK),y)
+
+# NONETWORK mode: the client application is linked directly with the
+# server and runs in the same task, without a network socket.  Only a
+# single client can be active at a time.
+CFLAGS += -DNONETWORK=1
+
+ifneq ($(CONFIG_MICROWINDOWS_NANOX_NANOWM),)
+CFLAGS += -DNANOWM=1
+CSRCS += $(MW_NANOX_WM_SRCS)
+endif
+
+CSRCS += $(MW_NANOX_DRAW_SRCS) $(MW_NANOX_SERVER_SRCS)
+CSRCS += microwindows/src/nanox/srvnonet.c
+
+else
+
+# Network client/server mode: each client connects to the server
+# through a local stream socket.  NX_PER_CLIENT_DATA enables the
+# per-task client data (POSIX per-thread key) so that several client
+# tasks can run at the same time in the flat build.
+
+MW_NANOX_CLIENT_SRCS  = $(MW_NANOX_DRAW_SRCS)
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/client.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/clientfb.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/nanox/nxproto.c
+MW_NANOX_CLIENT_SRCS += microwindows/src/drivers/osdep.c
+
 MW_NANOX_SERVER_SRCS += microwindows/src/nanox/srvnet.c
 
 # The server main() is renamed to nanox_server_main() and invoked from
 # the nanoxterm example, which starts the server as a separate task.
 microwindows/src/nanox/srvmain.c_CFLAGS += -Dmain=nanox_server_main
 
-CFLAGS += -DMULTITHREAD_SERVER=1
+CFLAGS += -DNX_PER_CLIENT_DATA=1
 ifneq ($(CONFIG_MICROWINDOWS_NANOX_NANOWM),)
 CFLAGS += -DNANOWM=1
+
+# Rename the server-side GrXXX symbols to SVR_GrXXX, since the server
+# and the client code are linked into a single image.
 $(foreach src,$(MW_NANOX_WM_SRCS),$(eval $(src)_CFLAGS += -include microwindows/src/nanox/serv.h))
 CSRCS += $(MW_NANOX_WM_SRCS)
 endif
 
 CSRCS += $(MW_NANOX_CLIENT_SRCS) $(MW_NANOX_SERVER_SRCS)
+
+endif
 
 endif
 
