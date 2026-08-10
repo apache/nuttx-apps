@@ -216,6 +216,7 @@ static int event_callback(FAR struct action_manager_s *am,
           init_debug("Trigger %s%s%s", event->key,
                      event->invert ? "!=" : "==",
                      event->value);
+          return EVENT_STATE_TRIGGERED;
         }
     }
 
@@ -237,20 +238,18 @@ int init_action_foreach_event(FAR struct action_manager_s *am,
 
   list_for_every_entry(&am->actions, a, struct action_s, node)
     {
-      for (i = 0, m = 0; i < nitems(a->events) && a->events[i].key; i++)
+      for (i = 0, m = 1; i < nitems(a->events) && a->events[i].key; i++)
         {
           ret = cb(am, a, &a->events[i], arg);
           if (ret < 0)
             {
               break;
             }
-          else if (ret > 0)
-            {
-              m++;
-            }
+
+          m = MIN(m * ret, EVENT_STATE_TRIGGERED);
         }
 
-      if (i > 0 && i == m)
+      if (m == EVENT_STATE_TRIGGERED)
         {
           add_ready(am, a);
         }
