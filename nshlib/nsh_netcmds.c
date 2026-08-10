@@ -623,163 +623,160 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
    *    ifconfig ifname [ip_address] [named options]
    */
 
-  if (argc > 2)
+  for (i = 1; i < argc; i++)
     {
-      for (i = 1; i < argc; i++)
+      if (i == 1)
         {
-          if (i == 1)
+          ifname = argv[i];
+          missingarg = false;
+        }
+      else
+        {
+          tmp = argv[i];
+
+          if (!strcmp(tmp, "dr") || !strcmp(tmp, "gw") ||
+              !strcmp(tmp, "gateway"))
             {
-              ifname = argv[i];
-              missingarg = false;
-            }
-          else
-            {
-              tmp = argv[i];
-
-              if (!strcmp(tmp, "dr") || !strcmp(tmp, "gw") ||
-                  !strcmp(tmp, "gateway"))
+              if (argc - 1 >= i + 1)
                 {
-                  if (argc - 1 >= i + 1)
-                    {
-                      gwip = argv[i + 1];
-                      i++;
-                    }
-                  else
-                    {
-                      badarg = true;
-                    }
-                }
-              else if (!strcmp(tmp, "netmask"))
-                {
-                  if (argc - 1 >= i + 1)
-                    {
-                      mask = argv[i + 1];
-                      i++;
-                    }
-                  else
-                    {
-                      badarg = true;
-                    }
-                }
-              else if (!strcmp(tmp, "inet"))
-                {
-#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
-                  inet6 = false;
-#elif !defined(CONFIG_NET_IPv4)
-                  badarg = true;
-#endif
-                }
-              else if (!strcmp(tmp, "inet6"))
-                {
-#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
-                  inet6 = true;
-#elif !defined(CONFIG_NET_IPv6)
-                  badarg = true;
-#endif
-                }
-
-#ifdef CONFIG_NET_IPv6
-              else if (!strcmp(tmp, "prefixlen"))
-                {
-                  if (argc - 1 >= i + 1)
-                    {
-                      preflen = argv[i + 1];
-                      i++;
-                    }
-                  else
-                    {
-                      badarg = true;
-                    }
-                }
-#endif
-
-#ifdef HAVE_HWADDR
-              /* REVISIT: How will we handle Ethernet and SLIP together? */
-
-              else if (!strcmp(tmp, "hw"))
-                {
-                  if (argc - 1 >= i + 1)
-                    {
-                      hw = argv[i + 1];
-                      i++;
-
-                      badarg = nsh_addrconv(hw, &macaddr);
-                    }
-                  else
-                    {
-                      badarg = true;
-                    }
-                }
-#endif
-
-#ifdef CONFIG_NETDB_DNSCLIENT
-              else if (!strcmp(tmp, "dns"))
-                {
-                  if (argc - 1 >= i + 1)
-                    {
-                      dns = argv[i + 1];
-                      i++;
-                    }
-                  else
-                    {
-                      badarg = true;
-                    }
-                }
-#endif
-              else if (!strcmp(tmp, "add"))
-                {
-#if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETDEV_MULTIPLE_IPv6)
-                  remove = false;
-                  continue;
-                }
-              else if (!strcmp(tmp, "del"))
-                {
-                  remove = true;
-#endif
-                  continue;
-                }
-              else if (!strcmp(tmp, "mtu"))
-                {
-                  if (argc - 1 >= i + 1)
-                    {
-                      mtu = atoi(argv[i + 1]);
-                      i++;
-                      if (mtu < 1280)
-                        {
-                          mtu = 1280;
-                        }
-                    }
-                  else
-                    {
-                      badarg = true;
-                    }
-                }
-#ifdef CONFIG_NET_ARP
-              else if (!strcmp(tmp, "arp"))
-                {
-                  /* Enable arp function on interface */
-
-                  arpflag = ARP_ENABLE;
-                }
-              else if (!strcmp(tmp, "-arp"))
-                {
-                  /* Disable arp function on interface */
-
-                  arpflag = ARP_DISABLE;
-                }
-#endif
-              else if (hostip == NULL && i <= 4)
-                {
-                  /* Let first non-option be host ip, to support inet/inet6
-                   * options before address.
-                   */
-
-                  hostip = tmp;
+                  gwip = argv[i + 1];
+                  i++;
                 }
               else
                 {
                   badarg = true;
                 }
+            }
+          else if (!strcmp(tmp, "netmask"))
+            {
+              if (argc - 1 >= i + 1)
+                {
+                  mask = argv[i + 1];
+                  i++;
+                }
+              else
+                {
+                  badarg = true;
+                }
+            }
+          else if (!strcmp(tmp, "inet"))
+            {
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+              inet6 = false;
+#elif !defined(CONFIG_NET_IPv4)
+              badarg = true;
+#endif
+            }
+          else if (!strcmp(tmp, "inet6"))
+            {
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+              inet6 = true;
+#elif !defined(CONFIG_NET_IPv6)
+              badarg = true;
+#endif
+            }
+
+#ifdef CONFIG_NET_IPv6
+          else if (!strcmp(tmp, "prefixlen"))
+            {
+              if (argc - 1 >= i + 1)
+                {
+                  preflen = argv[i + 1];
+                  i++;
+                }
+              else
+                {
+                  badarg = true;
+                }
+            }
+#endif
+
+#ifdef HAVE_HWADDR
+          /* REVISIT: How will we handle Ethernet and SLIP together? */
+
+          else if (!strcmp(tmp, "hw"))
+            {
+              if (argc - 1 >= i + 1)
+                {
+                  hw = argv[i + 1];
+                  i++;
+
+                  badarg = nsh_addrconv(hw, &macaddr);
+                }
+              else
+                {
+                  badarg = true;
+                }
+            }
+#endif
+
+#ifdef CONFIG_NETDB_DNSCLIENT
+          else if (!strcmp(tmp, "dns"))
+            {
+              if (argc - 1 >= i + 1)
+                {
+                  dns = argv[i + 1];
+                  i++;
+                }
+              else
+                {
+                  badarg = true;
+                }
+            }
+#endif
+          else if (!strcmp(tmp, "add"))
+            {
+#if defined(CONFIG_NET_IPv6) && defined(CONFIG_NETDEV_MULTIPLE_IPv6)
+              remove = false;
+              continue;
+            }
+          else if (!strcmp(tmp, "del"))
+            {
+              remove = true;
+#endif
+              continue;
+            }
+          else if (!strcmp(tmp, "mtu"))
+            {
+              if (argc - 1 >= i + 1)
+                {
+                  mtu = atoi(argv[i + 1]);
+                  i++;
+                  if (mtu < 1280)
+                    {
+                      mtu = 1280;
+                    }
+                }
+              else
+                {
+                  badarg = true;
+                }
+            }
+#ifdef CONFIG_NET_ARP
+          else if (!strcmp(tmp, "arp"))
+            {
+              /* Enable arp function on interface */
+
+              arpflag = ARP_ENABLE;
+            }
+          else if (!strcmp(tmp, "-arp"))
+            {
+              /* Disable arp function on interface */
+
+              arpflag = ARP_DISABLE;
+            }
+#endif
+          else if (hostip == NULL && i <= 4)
+            {
+              /* Let first non-option be host ip, to support inet/inet6
+               * options before address.
+               */
+
+              hostip = tmp;
+            }
+          else
+            {
+              badarg = true;
             }
         }
     }
