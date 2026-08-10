@@ -296,7 +296,7 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("ifconfig", cmd_ifconfig, 1, 12,
     "[interface [mtu <len>]|[address_family] [[add|del] <ip-address>|dhcp]]"
     "[dr|gw|gateway <dr-address>] [netmask <net-mask>|prefixlen <len>] "
-    "[dns <dns-address>] [hw <hw-mac>]"),
+    "[dns <dns-address>] [hw <hw-mac>] [up|down]"),
 #  endif
 #  if defined(CONFIG_NET_VLAN) && !defined(CONFIG_NSH_DISABLE_VCONFIG)
   CMD_MAP("vconfig", cmd_vconfig, 3, 5,

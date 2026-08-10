@@ -584,6 +584,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #endif
   bool missingarg = true;
   bool badarg = false;
+  bool ifup = false;
+  bool ifdown = false;
 #ifdef CONFIG_NET_ARP
   arp_cfg_e arpflag = ARP_DEFAULT;
 #endif
@@ -766,6 +768,14 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
               arpflag = ARP_DISABLE;
             }
 #endif
+          else if (!strcmp(tmp, "up"))
+            {
+              ifup = true;
+            }
+          else if (!strcmp(tmp, "down"))
+            {
+              ifdown = true;
+            }
           else if (hostip == NULL && i <= 4)
             {
               /* Let first non-option be host ip, to support inet/inet6
@@ -1078,6 +1088,17 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       netlib_ifnoarp(ifname);
     }
 #endif
+
+  /* Bring the interface up or down once everything else is in place. */
+
+  if (ifup)
+    {
+      netlib_ifup(ifname);
+    }
+  else if (ifdown)
+    {
+      netlib_ifdown(ifname);
+    }
 
 #if !defined(CONFIG_NET_IPv4) && !defined(CONFIG_NET_IPv6)
   UNUSED(hostip);
