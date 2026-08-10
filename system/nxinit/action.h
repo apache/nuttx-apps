@@ -78,6 +78,18 @@ struct action_manager_s
   FAR struct init_poller_s *prop;
 };
 
+/* Event evaluation result reported by init_action_event_cb.
+ * TRIGGERED means the event is satisfied and its key is the one that just
+ * changed, SATISFIED means it stays satisfied from an earlier change.
+ */
+
+enum action_event_state_e
+{
+  EVENT_STATE_UNSATISFIED = 0,
+  EVENT_STATE_SATISFIED,
+  EVENT_STATE_TRIGGERED,
+};
+
 typedef CODE int (*init_action_event_cb)(FAR struct action_manager_s *,
                                          FAR struct action_s *,
                                          FAR struct action_event_s *,
