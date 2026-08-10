@@ -176,11 +176,14 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
 #ifdef CONFIG_LOGGING_NXSCOPE_DIVIDER
   /* Handle sample rate divider */
 
-  s->cntr[ch] += 1;
-  if (s->cntr[ch] % (s->chinfo[ch].div + 1) != 0)
+  if (s->chinfo[ch].div != 0)
     {
-      ret = -EAGAIN;
-      goto errout;
+      s->cntr[ch] += 1;
+      if (s->cntr[ch] % (s->chinfo[ch].div + 1) != 0)
+        {
+          ret = -EAGAIN;
+          goto errout;
+        }
     }
 #endif
 
