@@ -9,12 +9,16 @@ config EXAMPLES_SANDBOX
 	---help---
 		A test that deliberately tries to escape the kernel/user boundary of
 		a protected or kernel build, and checks that the attempt is contained:
-		the offending task is terminated and everything else keeps running.
+		the offending process is terminated and everything else keeps running.
 
-		The address it touches is derived from CONFIG_NUTTX_USERSPACE rather
-		than hard-coded, so the test is architecture-neutral.  In a flat build
-		there is no boundary to escape from and the test says so instead of
-		reporting a pass.
+		Each target carries the outcome it expects, so the test fails a build
+		that refuses everything as well as one that permits everything.  The
+		"self" target is the control: it touches memory the process owns and
+		must be allowed.
+
+		A protected build derives the kernel target from CONFIG_NUTTX_USERSPACE.
+		A kernel build has no such address, because every process is loaded
+		into its own address environment, so the addresses below supply it.
 
 if EXAMPLES_SANDBOX
 
@@ -29,5 +33,53 @@ config EXAMPLES_SANDBOX_PRIORITY
 config EXAMPLES_SANDBOX_STACKSIZE
 	int "sandbox stack size"
 	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_SANDBOX_ALLOC
+	int "Bytes the offender holds when it dies"
+	default 65536
+	---help---
+		The offending process allocates this much, writes to all of it so the
+		pages are really committed, and opens a file, before it makes the bad
+		access.  It still holds both when it is killed.
+
+		A process that dies owning nothing proves nothing about whether the
+		kill leaks.  Compare "free" before and after a run: the kernel heap
+		and the page pool both have to come back to where they started.
+
+config EXAMPLES_SANDBOX_KERNEL_ADDR
+	hex "Address of kernel memory"
+	default 0x0
+	---help---
+		An address that is mapped and belongs to the kernel.  Reading it from
+		a user process must fault.
+
+		It has to be mapped.  An unmapped address tests the absence of a
+		mapping instead of the permission on one, which is a different thing;
+		use the unmapped target for that.
+
+		Zero means the target is unavailable, and the test reports it as such.
+		A protected build may leave this at zero, because CONFIG_NUTTX_USERSPACE
+		gives the boundary.
+
+config EXAMPLES_SANDBOX_PERIPH_ADDR
+	hex "Address of a peripheral register"
+	default 0x0
+	---help---
+		A peripheral register that a user process must not reach, such as the
+		registers that control the memory mapping itself.
+
+		An MMU keeps processes apart but does not stop one from reaching a
+		peripheral, so this target exercises a different mechanism from the
+		kernel target.  Zero means the target is unavailable.
+
+config EXAMPLES_SANDBOX_UNMAPPED_ADDR
+	hex "Address with no mapping"
+	default 0x0
+	---help---
+		An address in no mapping at all.  Touching it must be reported.
+
+		Hardware that answers an unmapped access quietly, with zero for a read
+		and no fault, hides errors that a fault would show.  Zero means the
+		target is unavailable.
 
 endif

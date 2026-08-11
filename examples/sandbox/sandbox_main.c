@@ -29,7 +29,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <sched.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <spawn.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -42,333 +45,685 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Where to poke.
+/* Named targets.
  *
- * The point of this test is to be architecture-neutral, so the address is
- * derived rather than hard-coded.  In every BUILD_PROTECTED configuration in
- * the tree the kernel blob is placed *below* the user blob, and the boundary
- * between them is exactly CONFIG_NUTTX_USERSPACE:
+ * A bare address says nothing about what should happen when it is touched,
+ * so every target carries the outcome it expects.  A build that refuses
+ * everything is as broken as one that permits everything, and only the
+ * "self" case can tell the two apart.
  *
- *   qemu-armv7a:pnsh       0x00200000     mps2-an521:knsh     0x10200000
- *   qemu-armv8a:pnsh       0x41000000     pimoroni-pico-2-plus:pnsh
- *   rv-virt:pnsh[64]       0x80040000                         0x10100000
- *
- * so the word just below it belongs to the kernel in all of them.  Whether
- * that address holds kernel code, kernel data, or nothing mapped at all does
- * not matter:  either way an unprivileged task must not be able to read it.
- *
- * A BUILD_FLAT configuration has no such boundary and no CONFIG_NUTTX_USERSPACE
- * at all; there the test reports that there is nothing to contain rather than
- * pretending to pass.
+ * The addresses come from Kconfig because a user process cannot see kernel
+ * symbols;  that is the boundary under test.  A board supplies them in its
+ * defconfig.  A target with no address is reported as unavailable rather
+ * than silently skipped.
  */
 
-#ifdef CONFIG_NUTTX_USERSPACE
-#  define SANDBOX_HAVE_TARGET   1
-#  define SANDBOX_TARGET        ((uintptr_t)CONFIG_NUTTX_USERSPACE - 16)
-#else
-#  define SANDBOX_HAVE_TARGET   0
-#  define SANDBOX_TARGET        ((uintptr_t)0)
+#define SANDBOX_KERNEL_ADDR    CONFIG_EXAMPLES_SANDBOX_KERNEL_ADDR
+#define SANDBOX_PERIPH_ADDR    CONFIG_EXAMPLES_SANDBOX_PERIPH_ADDR
+#define SANDBOX_UNMAPPED_ADDR  CONFIG_EXAMPLES_SANDBOX_UNMAPPED_ADDR
+
+/* A protected build knows where the kernel ends without being told:  the
+ * kernel blob is placed below the user blob and the boundary is exactly
+ * CONFIG_NUTTX_USERSPACE.  A kernel build has no such address -- each
+ * process is loaded into its own address environment -- so there the
+ * Kconfig value is the only source.
+ */
+
+#if SANDBOX_KERNEL_ADDR == 0 && defined(CONFIG_NUTTX_USERSPACE)
+#  undef  SANDBOX_KERNEL_ADDR
+#  define SANDBOX_KERNEL_ADDR  ((uintptr_t)CONFIG_NUTTX_USERSPACE - 16)
 #endif
 
-#define CANARY_PRIORITY         (CONFIG_EXAMPLES_SANDBOX_PRIORITY - 1)
-#define CANARY_STACKSIZE        2048
-#define ESCAPE_STACKSIZE        CONFIG_EXAMPLES_SANDBOX_STACKSIZE
+#define CANARY_INTERVAL_US     10000
+#define SETTLE_US              200000
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+enum sandbox_expect_e
+{
+  EXPECT_FAULT = 0,   /* The access must be refused */
+  EXPECT_OK           /* The access must be allowed */
+};
+
+struct sandbox_target_s
+{
+  FAR const char        *name;
+  uintptr_t              addr;
+  enum sandbox_expect_e  expect;
+  FAR const char        *what;
+};
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-/* Bumped continuously by the canary task.  It is the evidence that the rest
- * of the system kept running while the offender was being killed:  a system
- * that panicked or reset stops printing entirely, and one that merely wedged
- * leaves this stuck.
+/* Touched by the "self" target.  It belongs to this process, so refusing it
+ * means the boundary is drawn in the wrong place.
+ */
+
+static volatile uint32_t g_own_word = 0x600df00d;
+
+/* Bumped by the canary thread.  It is the evidence that the system kept
+ * running while the offender was killed:  a kernel that panicked stops
+ * printing, and one that merely wedged leaves this standing still.
  */
 
 static volatile unsigned long g_canary;
 static volatile bool          g_canary_stop;
 
+/* Sampled by the canary thread while the offender is alive.  Taking these
+ * here lets waitpid() stay blocking, so the exit status is the real one.
+ */
+
+static volatile pid_t         g_watch_pid;
+static volatile unsigned long g_peak_mem;
+static volatile int           g_peak_fds;
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static int canary_task(int argc, FAR char *argv[])
+/****************************************************************************
+ * Name: pool_used
+ *
+ * Description:
+ *   The bytes in use, read from /proc/meminfo.  The page pool is reported
+ *   when there is one, because that is where the memory of a process comes
+ *   from;  otherwise the kernel heap is.
+ *
+ *   This is what makes the leak check mean something.  A count that does not
+ *   move while the offender is alive would measure nothing, and "the same
+ *   before and after" would say nothing about whether the memory came back.
+ *
+ * Returned Value:
+ *   The bytes in use, or 0 if /proc/meminfo cannot be read.
+ *
+ ****************************************************************************/
+
+static unsigned long pool_used(void)
+{
+  char buf[512];
+  FAR char *line;
+  FAR char *save;
+  unsigned long kmem = 0;
+  unsigned long page = 0;
+  int fd;
+  int n;
+
+  fd = open("/proc/meminfo", O_RDONLY);
+  if (fd < 0)
+    {
+      return 0;
+    }
+
+  n = read(fd, buf, sizeof(buf) - 1);
+  close(fd);
+
+  if (n <= 0)
+    {
+      return 0;
+    }
+
+  buf[n] = '\0';
+
+  for (line = strtok_r(buf, "\n", &save); line != NULL;
+       line = strtok_r(NULL, "\n", &save))
+    {
+      FAR char *p = line;
+      FAR char *end;
+      unsigned long used;
+
+      /* Every line is "<total> <used> <free> ... <name>".  Read the two
+       * numbers with strtoul() rather than a scanset, which is not in every
+       * sscanf().
+       */
+
+      while (*p == ' ')
+        {
+          p++;
+        }
+
+      strtoul(p, &end, 10);
+      if (end == p)
+        {
+          continue;                     /* The header line. */
+        }
+
+      p = end;
+      while (*p == ' ')
+        {
+          p++;
+        }
+
+      used = strtoul(p, &end, 10);
+      if (end == p)
+        {
+          continue;
+        }
+
+      if (strstr(line, "Page") != NULL)
+        {
+          page = used;
+        }
+      else if (strstr(line, "Kmem") != NULL || strstr(line, "Umem") != NULL)
+        {
+          kmem = used;
+        }
+    }
+
+  return page != 0 ? page : kmem;
+}
+
+/****************************************************************************
+ * Name: count_fds
+ *
+ * Description:
+ *   The descriptors a process holds, read from /proc/<pid>/group/fd.  The
+ *   first line of that file is a header and is not counted.
+ *
+ * Returned Value:
+ *   The number of open descriptors, or -1 when the process is gone, which is
+ *   the evidence that its group was destroyed and not merely emptied.
+ *
+ ****************************************************************************/
+
+static int count_fds(pid_t pid)
+{
+  char  path[32];
+  char  buf[512];
+  int   count = 0;
+  int   fd;
+  int   n;
+  int   i;
+
+  snprintf(path, sizeof(path), "/proc/%d/group/fd", (int)pid);
+
+  fd = open(path, O_RDONLY);
+  if (fd < 0)
+    {
+      return -1;
+    }
+
+  n = read(fd, buf, sizeof(buf) - 1);
+  close(fd);
+
+  if (n <= 0)
+    {
+      return 0;
+    }
+
+  buf[n] = '\0';
+
+  /* Count the lines that start with a digit, which are the descriptors.  The
+   * header starts with "FD".
+   */
+
+  for (i = 0; i < n; i++)
+    {
+      if ((i == 0 || buf[i - 1] == '\n') && buf[i] >= '0' && buf[i] <= '9')
+        {
+          count++;
+        }
+    }
+
+  return count;
+}
+
+static FAR void *canary_thread(FAR void *arg)
 {
   while (!g_canary_stop)
     {
       g_canary++;
-      usleep(10000);
+
+      if (g_watch_pid > 0)
+        {
+          unsigned long mem = pool_used();
+          int           fds = count_fds(g_watch_pid);
+
+          if (mem > g_peak_mem)
+            {
+              g_peak_mem = mem;
+            }
+
+          if (fds > g_peak_fds)
+            {
+              g_peak_fds = fds;
+            }
+        }
+
+      usleep(CANARY_INTERVAL_US);
     }
 
-  return 0;
+  return NULL;
 }
 
 /****************************************************************************
- * Name: escape
+ * Name: resolve
  *
  * Description:
- *   Make the access that must not be allowed.  This runs in whatever task
- *   calls it, and in a correctly isolated build it does not return.
+ *   Turn a target name, or a literal address, into an address and the
+ *   outcome that address must produce.
+ *
+ * Returned Value:
+ *   OK on success, ERROR if the name is unknown or has no address on this
+ *   configuration.
  *
  ****************************************************************************/
 
-static void escape(uintptr_t addr, bool store)
+static int resolve(FAR const char *name, FAR struct sandbox_target_s *t)
+{
+  t->name = name;
+
+  if (strcmp(name, "self") == 0)
+    {
+      t->addr   = (uintptr_t)&g_own_word;
+      t->expect = EXPECT_OK;
+      t->what   = "this process's own data";
+      return OK;
+    }
+
+  if (strcmp(name, "kernel") == 0)
+    {
+      t->addr   = SANDBOX_KERNEL_ADDR;
+      t->expect = EXPECT_FAULT;
+      t->what   = "kernel memory";
+    }
+  else if (strcmp(name, "periph") == 0)
+    {
+      t->addr   = SANDBOX_PERIPH_ADDR;
+      t->expect = EXPECT_FAULT;
+      t->what   = "a peripheral register";
+    }
+  else if (strcmp(name, "unmapped") == 0)
+    {
+      t->addr   = SANDBOX_UNMAPPED_ADDR;
+      t->expect = EXPECT_FAULT;
+      t->what   = "an address with no mapping";
+    }
+  else if (name[0] == '0' && (name[1] == 'x' || name[1] == 'X'))
+    {
+      t->addr   = (uintptr_t)strtoul(name, NULL, 0);
+      t->expect = EXPECT_FAULT;
+      t->what   = "a literal address";
+    }
+  else
+    {
+      printf("sandbox: unknown target \"%s\"\n", name);
+      return ERROR;
+    }
+
+  if (t->addr == 0)
+    {
+      printf("sandbox: target \"%s\" has no address here.\n", name);
+      printf("sandbox: set CONFIG_EXAMPLES_SANDBOX_%s_ADDR, or pass an "
+             "address.\n",
+             strcmp(name, "kernel") == 0   ? "KERNEL" :
+             strcmp(name, "periph") == 0   ? "PERIPH" : "UNMAPPED");
+      return ERROR;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: touch
+ *
+ * Description:
+ *   Make the access.  Where it is refused this does not return.
+ *
+ ****************************************************************************/
+
+static void touch(uintptr_t addr, bool store)
 {
   FAR volatile uint32_t *p = (FAR volatile uint32_t *)addr;
 
-  printf("sandbox:   attempting %s of %p\n", store ? "WRITE" : "read",
+  printf("sandbox:   attempting %s of %p\n", store ? "write" : "read",
          (FAR void *)addr);
   fflush(stdout);
 
   if (store)
     {
-      /* A write is the more dangerous direction and is not the default:  if
-       * the hardware does *not* contain it, this corrupts whatever it lands
-       * on.  It is offered because a read-only mapping would let a read
-       * through while still refusing the write.
-       */
-
       *p = 0xdeadbeef;
     }
   else
     {
       uint32_t v = *p;
 
-      /* Consume the value so the load cannot be optimised away. */
-
-      printf("sandbox:   NOT CONTAINED -- read %08lx\n", (unsigned long)v);
+      printf("sandbox:   the read completed and returned %08lx\n",
+             (unsigned long)v);
       fflush(stdout);
       return;
     }
 
-  printf("sandbox:   NOT CONTAINED -- the access completed\n");
+  printf("sandbox:   the write completed\n");
   fflush(stdout);
-}
-
-static int escape_task(int argc, FAR char *argv[])
-{
-  bool      store = (argc > 1 && argv[1][0] == 'w');
-  uintptr_t addr  = SANDBOX_TARGET;
-
-  if (argc > 2)
-    {
-      addr = (uintptr_t)strtoul(argv[2], NULL, 0);
-    }
-
-  escape(addr, store);
-
-  /* Reaching here means the access was allowed. */
-
-  return 1;
 }
 
 /****************************************************************************
- * Name: selfcheck
+ * Name: run_case
  *
  * Description:
- *   Spawn the offender as a separate task and watch what happens to it, and
- *   to everything else.  Three things have to be true for a pass:  the
- *   offending task must die, this task must still be running afterwards, and
- *   the canary must still be advancing.
+ *   Spawn this program again as a separate process, in "escape" mode, and
+ *   watch what happens to it and to everything else.
+ *
+ *   The offender has to be a process and not a task.  A kernel build does
+ *   not give user code task_create();  making a process is the only way a
+ *   user program can put the bad access somewhere it can be killed.
  *
  ****************************************************************************/
 
-static int selfcheck(bool store, uintptr_t addr)
+static int run_case(FAR const char *progname,
+                    FAR const struct sandbox_target_s *t, bool store)
 {
-  FAR char *argv[3];
+  FAR char *argv[5];
   char      addrbuf[24];
-  unsigned long before;
-  unsigned long after;
-  pid_t     canary;
+  unsigned long canary_before;
+  unsigned long canary_after;
+  unsigned long mem_before;
+  unsigned long mem_during = 0;
+  unsigned long mem_after;
+  int       fd_during = -1;
+  pthread_t canary;
   pid_t     pid;
   int       status = 0;
+  int       fails  = 0;
   int       ret;
-  int       fails = 0;
 
-  printf("sandbox: target %p (%s)\n", (FAR void *)addr,
-         store ? "write" : "read");
-#if SANDBOX_HAVE_TARGET
-  printf("sandbox: derived from CONFIG_NUTTX_USERSPACE = %p\n",
-         (FAR void *)(uintptr_t)CONFIG_NUTTX_USERSPACE);
-#endif
-
-  /* Start the canary before anything else, so it is already running when the
-   * offender faults.
-   */
+  printf("\nsandbox: target %s -- %s at %p, expecting %s\n",
+         t->name, t->what, (FAR void *)t->addr,
+         t->expect == EXPECT_OK ? "success" : "a fault");
 
   g_canary      = 0;
   g_canary_stop = false;
+  g_watch_pid   = 0;
+  g_peak_mem    = 0;
+  g_peak_fds    = -1;
 
-  canary = task_create("sandbox_canary", CANARY_PRIORITY, CANARY_STACKSIZE,
-                       canary_task, NULL);
-  if (canary < 0)
+  if (pthread_create(&canary, NULL, canary_thread, NULL) != 0)
     {
-      printf("sandbox: FAIL - could not start the canary task\n");
+      printf("sandbox: FAIL - could not start the canary\n");
       return 1;
     }
 
-  usleep(100000);
-  before = g_canary;
+  usleep(SETTLE_US / 2);
+  canary_before = g_canary;
+  mem_before    = pool_used();
 
-  snprintf(addrbuf, sizeof(addrbuf), "0x%lx", (unsigned long)addr);
-  argv[0] = store ? (FAR char *)"w" : (FAR char *)"r";
-  argv[1] = addrbuf;
-  argv[2] = NULL;
+  snprintf(addrbuf, sizeof(addrbuf), "0x%lx", (unsigned long)t->addr);
+  argv[0] = (FAR char *)progname;
+  argv[1] = (FAR char *)"escape";
+  argv[2] = store ? (FAR char *)"w" : (FAR char *)"r";
+  argv[3] = addrbuf;
+  argv[4] = NULL;
 
-  printf("sandbox: starting the offending task\n");
-  fflush(stdout);
-
-  pid = task_create("sandbox_escape", CONFIG_EXAMPLES_SANDBOX_PRIORITY,
-                    ESCAPE_STACKSIZE, escape_task, argv);
-  if (pid < 0)
+  ret = posix_spawn(&pid, progname, NULL, NULL, argv, NULL);
+  if (ret != 0)
     {
-      printf("sandbox: FAIL - could not start the offending task\n");
+      printf("sandbox: FAIL - could not spawn the offender (%d)\n", ret);
       g_canary_stop = true;
+      pthread_join(canary, NULL);
       return 1;
     }
 
-  /* Wait for the offender to be reaped.  If the system contains the fault by
-   * killing just that task, this returns.  If it panics or resets, nothing
-   * below ever prints -- which is itself the result, visible on the console.
+  /* Watch while the offender lives.  The count has to be seen to rise here,
+   * or "the same before and after" says nothing at all.  If the system
+   * panics instead of containing the fault, nothing below prints, which is
+   * itself the result.
    */
 
-#ifdef CONFIG_SCHED_WAITPID
-  ret = waitpid(pid, &status, 0);
-  if (ret < 0)
-    {
-      /* ECHILD here means the task was already reaped, which is still
-       * containment -- it died and the system moved on.
-       */
+  g_watch_pid = pid;
 
-      printf("sandbox: waitpid() returned %d (task already reaped)\n", ret);
-    }
-  else
+  if (waitpid(pid, &status, 0) < 0)
     {
-      printf("sandbox: offender reaped, status %d\n", status);
-    }
-#else
-  /* No waitpid:  poll until the pid is gone. */
-
-  for (ret = 0; ret < 100; ret++)
-    {
-      if (kill(pid, 0) < 0)
-        {
-          break;
-        }
-
-      usleep(50000);
+      printf("sandbox: FAIL - could not wait for the offender\n");
+      fails++;
     }
 
-  printf("sandbox: offender gone after %d polls\n", ret);
-#endif
+  g_watch_pid = 0;
+  mem_during  = g_peak_mem;
+  fd_during   = g_peak_fds;
 
-  usleep(200000);
-  after = g_canary;
+  printf("sandbox: the offender exited with status %d\n", status);
+
+  usleep(SETTLE_US);
+  canary_after = g_canary;
+  mem_after    = pool_used();
   g_canary_stop = true;
+  pthread_join(canary, NULL);
 
-  /* Now the three things that make this a pass. */
+  printf("sandbox: --- %s ---\n", t->name);
 
-  printf("\n");
-  printf("sandbox: --- results ---\n");
-
-  if (kill(pid, 0) == 0)
+  if (t->expect == EXPECT_OK)
     {
-      printf("sandbox: FAIL - the offending task is still alive\n");
+      if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        {
+          printf("sandbox: PASS - the allowed access completed\n");
+        }
+      else
+        {
+          printf("sandbox: FAIL - an owned access was refused\n");
+          fails++;
+        }
+    }
+  else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+    {
+      printf("sandbox: FAIL - NOT CONTAINED, the access was permitted\n");
       fails++;
     }
   else
     {
-      printf("sandbox: PASS - the offending task was terminated\n");
+      printf("sandbox: PASS - the offending process was terminated\n");
     }
 
-  printf("sandbox: PASS - this task survived and is still running\n");
+  printf("sandbox: PASS - this process survived\n");
 
-  if (after > before)
+  if (canary_after > canary_before)
     {
-      printf("sandbox: PASS - unrelated task kept running (%lu -> %lu)\n",
-             before, after);
+      printf("sandbox: PASS - another thread ran (%lu -> %lu)\n",
+             canary_before, canary_after);
     }
   else
     {
-      printf("sandbox: FAIL - unrelated task stopped (%lu -> %lu)\n",
-             before, after);
+      printf("sandbox: FAIL - another thread stopped (%lu -> %lu)\n",
+             canary_before, canary_after);
       fails++;
     }
 
-  usleep(100000);
+  /* Memory: before, during, after. */
 
-  printf("\n");
-  if (fails == 0)
+  printf("sandbox: memory %lu -> %lu -> %lu\n",
+         mem_before, mem_during, mem_after);
+
+  if (mem_during <= mem_before)
     {
-      printf("sandbox: CONTAINED - the sandbox held\n");
+      printf("sandbox: FAIL - the memory of the offender was never seen\n");
+      fails++;
+    }
+  else if (mem_after > mem_before)
+    {
+      printf("sandbox: FAIL - %lu bytes were not given back\n",
+             mem_after - mem_before);
+      fails++;
     }
   else
     {
-      printf("sandbox: NOT CONTAINED - %d check(s) failed\n", fails);
+      printf("sandbox: PASS - %lu bytes taken and given back\n",
+             mem_during - mem_before);
+    }
+
+  /* Descriptors: open while it lived, and the group gone after. */
+
+  if (fd_during <= 0)
+    {
+      printf("sandbox: FAIL - the descriptors of the offender were never "
+             "seen\n");
+      fails++;
+    }
+  else if (count_fds(pid) >= 0)
+    {
+      printf("sandbox: FAIL - %d descriptor(s) are still open\n",
+             count_fds(pid));
+      fails++;
+    }
+  else
+    {
+      printf("sandbox: PASS - %d descriptor(s) open, none after\n",
+             fd_during);
     }
 
   return fails;
+}
+
+static void usage(FAR const char *progname)
+{
+  printf("Usage: %s [r|w] [target ...]\n", progname);
+  printf("       %s escape <r|w> <addr>\n", progname);
+  printf("\n");
+  printf("Targets:\n");
+  printf("  self      this process's own data      must succeed\n");
+  printf("  kernel    kernel memory                must fault\n");
+  printf("  periph    a peripheral register        must fault\n");
+  printf("  unmapped  an address with no mapping   must fault\n");
+  printf("  0x...     a literal address            must fault\n");
+  printf("\n");
+  printf("With no target, self, kernel, periph and unmapped are all run.\n");
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-static void usage(void)
-{
-  printf("Usage: sandbox [escape [r|w] [addr]]\n"
-         "  (no args)         spawn an offending task and check it is\n"
-         "                    contained while everything else survives\n"
-         "  escape [r|w] [a]  make the bad access in *this* task; in a\n"
-         "                    contained build this task does not return\n");
-}
-
 int main(int argc, FAR char *argv[])
 {
-  bool      store = false;
-  uintptr_t addr  = SANDBOX_TARGET;
-  int       argbase = 1;
+  FAR const char *defaults[] =
+  {
+    "self", "kernel", "periph", "unmapped"
+  };
+
+  struct sandbox_target_s t;
+  FAR const char *progname = argv[0];
+  char  raw[256];
+  int   rawfd;
+  int   rawn;
+  bool  store = false;
+  int   fails = 0;
+  int   ran   = 0;
+  int   i;
 
   if (argc > 1 && strcmp(argv[1], "-h") == 0)
     {
-      usage();
+      usage(progname);
       return 0;
     }
 
-#if !SANDBOX_HAVE_TARGET
-  printf("sandbox: this is a flat build -- there is no kernel/user boundary\n"
-         "sandbox: to escape from, so there is nothing to contain.  Build a\n"
-         "sandbox: protected or kernel configuration to run this test.\n");
-  if (argc <= 1)
+  /* "escape" is how this program re-enters itself as the offender.  It makes
+   * the access in this process and, where the access is refused, never gets
+   * to the line below.
+   */
+
+  if (argc > 3 && strcmp(argv[1], "escape") == 0)
     {
+      /* Take resources the kernel has to reclaim, and hold them across the
+       * access.  A process that dies owning nothing says nothing about
+       * whether killing it leaks:  the heap block is touched so its pages
+       * are really committed, and the descriptor is left open on purpose.
+       */
+
+      FAR void *mem = malloc(CONFIG_EXAMPLES_SANDBOX_ALLOC);
+      int fd = open("/system/bin/sandbox", O_RDONLY);
+
+      if (mem != NULL)
+        {
+          memset(mem, 0xa5, CONFIG_EXAMPLES_SANDBOX_ALLOC);
+        }
+
+      printf("sandbox:   holding %d bytes at %p and fd %d\n",
+             CONFIG_EXAMPLES_SANDBOX_ALLOC, mem, fd);
+      fflush(stdout);
+
+      touch((uintptr_t)strtoul(argv[3], NULL, 0), argv[2][0] == 'w');
+
+      /* Only an allowed access arrives here.  Leave both outstanding, so
+       * that the normal exit path is measured the same way as the kill.
+       */
+
       return 0;
     }
-#endif
 
-  if (argc > 1 && strcmp(argv[1], "escape") == 0)
+  /* Show where the numbers below come from. */
+
+  rawfd = open("/proc/meminfo", O_RDONLY);
+  if (rawfd < 0)
     {
-      argbase = 2;
+      printf("sandbox: /proc/meminfo cannot be opened (%d)\n", errno);
+    }
+  else
+    {
+      rawn = read(rawfd, raw, sizeof(raw) - 1);
+      close(rawfd);
+
+      if (rawn > 0)
+        {
+          raw[rawn] = '\0';
+          printf("sandbox: /proc/meminfo reads\n%s", raw);
+        }
+      else
+        {
+          printf("sandbox: /proc/meminfo read gave %d\n", rawn);
+        }
     }
 
-  if (argc > argbase && (argv[argbase][0] == 'w' || argv[argbase][0] == 'r'))
+  i = 1;
+  if (argc > 1 && (argv[1][0] == 'r' || argv[1][0] == 'w') &&
+      argv[1][1] == '\0')
     {
-      store = (argv[argbase][0] == 'w');
-      argbase++;
+      store = (argv[1][0] == 'w');
+      i++;
     }
 
-  if (argc > argbase)
+  if (i >= argc)
     {
-      addr = (uintptr_t)strtoul(argv[argbase], NULL, 0);
+      int n;
+
+      for (n = 0; n < (int)(sizeof(defaults) / sizeof(defaults[0])); n++)
+        {
+          if (resolve(defaults[n], &t) == OK)
+            {
+              fails += run_case(progname, &t, store);
+              ran++;
+            }
+        }
+    }
+  else
+    {
+      for (; i < argc; i++)
+        {
+          if (resolve(argv[i], &t) == OK)
+            {
+              fails += run_case(progname, &t, store);
+              ran++;
+            }
+        }
     }
 
-  if (argc > 1 && strcmp(argv[1], "escape") == 0)
+  printf("\n");
+  if (ran == 0)
     {
-      /* One-shot mode:  fault in this task, deliberately. */
-
-      printf("sandbox: escaping from this task -- expect it to die\n");
-      escape(addr, store);
-      printf("sandbox: NOT CONTAINED - returned from the bad access\n");
+      printf("sandbox: no target could be resolved, nothing was tested\n");
       return 1;
     }
 
-  return selfcheck(store, addr);
+  if (fails == 0)
+    {
+      printf("sandbox: CONTAINED - %d target(s), every check passed\n", ran);
+    }
+  else
+    {
+      printf("sandbox: NOT CONTAINED - %d of %d target(s) failed\n",
+             fails, ran);
+    }
+
+  return fails;
 }
