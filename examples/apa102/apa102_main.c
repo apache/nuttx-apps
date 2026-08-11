@@ -168,7 +168,7 @@ int main(int argc, FAR char *argv[])
       ret = write(fd, ledstrip, 4 * NUM_LEDS);
       if (ret < 0)
         {
-          _err("ERROR: write LED Strip failed: %d\n", errno);
+          fprintf(stderr, "ERROR: write LED Strip failed: %d\n", errno);
         }
 
       usleep(US_DELAY);
