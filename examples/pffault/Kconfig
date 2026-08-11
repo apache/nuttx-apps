@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PFFAULT
+	tristate "Page-fault / PMS isolation test"
+	default n
+	---help---
+		A user-space task that deliberately touches a kernel-space address to
+		exercise the ESP32-S3 PMS isolation boundary and the kernel's
+		recoverable-fault dispatcher.
+
+if EXAMPLES_PFFAULT
+
+config EXAMPLES_PFFAULT_PROGNAME
+	string "Program name"
+	default "pffault"
+
+config EXAMPLES_PFFAULT_PRIORITY
+	int "pffault task priority"
+	default 100
+
+config EXAMPLES_PFFAULT_STACKSIZE
+	int "pffault stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

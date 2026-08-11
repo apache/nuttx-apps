@@ -114,6 +114,11 @@ ifeq ($(CONFIG_ARCH_HAVE_FORK),y)
 else
 	@echo "export ac_cv_func_fork=\"no\"" >> $@
 endif
+ifneq ($(CONFIG_ARCH_HAVE_VFORK),)
+	@echo "export ac_cv_func_vfork=\"yes\"" >> $@
+else
+	@echo "export ac_cv_func_vfork=\"no\"" >> $@
+endif
 ifeq ($(CONFIG_SYSTEM_SYSTEM),y)
 	@echo "export ac_cv_func_system=\"yes\"" >> $@
 else
@@ -135,7 +140,10 @@ endif
 
 $(SETUP_LOCAL):
 	$(Q) ( cp $(SETUP_LOCAL).in $(SETUP_LOCAL))
-ifneq ($(CONFIG_ARCH_HAVE_FORK),y)
+# _posixsubprocess is the fork-then-exec path, so vfork() is enough for it;
+# os.fork() itself needs a real fork() and is governed by ac_cv_func_fork
+# above.
+ifeq ($(CONFIG_ARCH_HAVE_FORK)$(CONFIG_ARCH_HAVE_VFORK),)
 	@echo "_posixsubprocess" >> $@
 endif
 ifneq ($(CONFIG_LIBC_DLFCN),y)
