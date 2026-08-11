@@ -1,3 +1,8 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
 config TESTING_CRYPTO
 	tristate "crypto test"
 	default n
@@ -62,30 +67,30 @@ config TESTING_CRYPTO_HASH_DISABLE_SHA512
 
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_MD5
 	bool "disable unaligned md5 tests"
-        depends on !TESTING_CRYPTO_HASH_DISABLE_MD5
+	depends on !TESTING_CRYPTO_HASH_DISABLE_MD5
 	default n
 
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA1
 	bool "disable unaligned sha1 tests"
-        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA1
+	depends on !TESTING_CRYPTO_HASH_DISABLE_SHA1
 	default n
 
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA224
 	bool "disable unaligned sha224 tests"
-        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA224
+	depends on !TESTING_CRYPTO_HASH_DISABLE_SHA224
 	default n
 
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA256
 	bool "disable unaligned sha256 tests"
-        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA256
+	depends on !TESTING_CRYPTO_HASH_DISABLE_SHA256
 	default n
 
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA512
 	bool "disable unaligned sha512 tests"
-        depends on !TESTING_CRYPTO_HASH_DISABLE_SHA512
+	depends on !TESTING_CRYPTO_HASH_DISABLE_SHA512
 	default n
 
-endif
+endif # TESTING_CRYPTO_HASH
 
 config TESTING_CRYPTO_CRC32
 	bool "crc32 crypto test"
@@ -119,4 +124,4 @@ config TESTING_CRYPTO_STACKSIZE
 	int "crypto test stack size"
 	default DEFAULT_TASK_STACKSIZE
 
-endif
+endif # TESTING_CRYPTO
