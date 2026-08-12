@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 16:30:00 +0000
+Subject: [PATCH 7/7] time: only report rusage fields NuttX actually tracks
+
+NuttX's struct rusage only has ru_utime/ru_stime/ru_maxrss -- no page
+fault, I/O block or context switch counters, unlike Linux. Those only
+feed "time -v"'s extra verbose output (the default real/user/sys
+timing already only used ru_utime/ru_stime, which NuttX has); report
+just Max RSS there instead of the full Linux field set.
+
+diff --git a/toys/posix/time.c b/toys/posix/time.c
+index 078aca5..01609af 100644
+--- a/toys/posix/time.c
++++ b/toys/posix/time.c
+@@ -48,12 +48,19 @@ void time_main(void)
+     idx += sprintf(toybuf+idx, "%s%s%c%lld.%0*d\n", label[ii],
+                    FLAG(v) ? " time (s):" : "", tab, sec[ii],
+                    6>>!toys.optflags, nano[ii]);
++  // NuttX's struct rusage only tracks ru_utime/ru_stime/ru_maxrss -- no
++  // page fault, I/O block or context switch counters -- so -v only reports
++  // what's actually available there instead of the full Linux field set.
++#ifdef __NuttX__
++  if (FLAG(v)) idx += sprintf(toybuf+idx, "Max RSS (KiB): %ld\n", ru.ru_maxrss);
++#else
+   if (FLAG(v)) idx += sprintf(toybuf+idx,
+     "Max RSS (KiB): %ld\nMajor faults: %ld\n"
+     "Minor faults: %ld\nFile system inputs: %ld\nFile system outputs: %ld\n"
+     "Voluntary context switches: %ld\nInvoluntary context switches: %ld\n",
+     ru.ru_maxrss, ru.ru_majflt, ru.ru_minflt, ru.ru_inblock,
+     ru.ru_oublock, ru.ru_nvcsw, ru.ru_nivcsw);
++#endif
+   writeall(2, toybuf, idx);
+ 
+   toys.exitval = WIFEXITED(stat) ? WEXITSTATUS(stat) : WTERMSIG(stat);

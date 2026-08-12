@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Mon, 27 Jul 2026 22:49:38 -0300
+Subject: [PATCH 2/7] main, make.sh: rename toybox_main() to
+ toybox_dispatcher(), skip main() on NuttX
+
+NuttX's apps/system/toybox/Makefile builds its own NuttX task entry
+point (toybox_entry.c) as MAINSRC, and Application.mk renames that
+file's main() to toybox_main() to register it as the PROGNAME=toybox
+builtin. That collides two ways with this file's own multiplexer:
+
+- toy_list[]'s own self-entry (name "toybox") token-pastes to a
+  function called toybox_main via NEWTOY's name##_main convention
+  (scripts/make.sh emits that entry unconditionally, it isn't config-
+  gated). Renaming just the definition doesn't fix this: the mere
+  *declaration* toys.h emits for it (from generated/newtoys.h, in
+  every Toybox source file) already conflicts with NuttX's own
+  sys/types.h forward declaration of toybox_main(int, char**), which
+  appears everywhere once CONFIG_INIT_ENTRYPOINT="toybox_main" is
+  set. So make.sh now renames that one generated entry (gated on
+  $NUTTX_TOYBOX_MULTIPLEX_NAME, a no-op for anyone else running it) to
+  toybox_multiplex, and main.c grows a toybox_multiplex_main() that
+  just redispatches -- toy_list[0] stays the sentinel other code
+  depends on existing, just spelled differently.
+- the real multiplexer *function* (the one toybox_entry.c actually
+  wants to call) is renamed toybox_dispatcher() -- the name
+  toybox_entry.c already expects -- and upstream's own process-per-
+  command main() is guarded out on NuttX, where it would be dead code.
+
+diff --git a/main.c b/main.c
+index aa6a52c..da1a301 100644
+--- a/main.c
++++ b/main.c
+@@ -300,7 +300,11 @@ void toy_exec(char *argv[])
+ 
+ // Multiplexer command, first argument is command to run, rest are args to that.
+ // If first argument starts with - output list of command install paths.
+-void toybox_main(void)
++//
++// Named toybox_dispatcher() rather than toybox_main() because NuttX's
++// Application.mk builds our NuttX task entry point (toybox_entry.c's
++// main()) into a function literally called toybox_main().
++void toybox_dispatcher(void)
+ {
+   char *toy_paths[] = {"usr/", "bin/", "sbin/", 0}, *s = toys.argv[1];
+   int i, len = 0;
+@@ -341,6 +345,23 @@ void toybox_main(void)
+   xputc('\n');
+ }
+ 
++// toy_list[0]'s underlying function, per scripts/make.sh's NuttX-specific
++// rename of that entry (see the comment there). Only reachable if
++// something explicitly looks up and runs the multiplexer's own self-entry
++// (toy_find() prefix-matching a name against toy_list[0].name); redispatch
++// same as a fresh invocation would.
++void toybox_multiplex_main(void)
++{
++  toybox_dispatcher();
++}
++
++// On NuttX this multi-call binary is entered through toybox_entry.c's
++// main(), which dispatches into toy_exec_which()/toybox_dispatcher()
++// directly for each command instead of going through a fork/exec'd
++// process per invocation. Upstream's own process-per-command main() would
++// still link and work, but is dead code in that model, so it's compiled
++// out to avoid a duplicate/unreachable entry point.
++#ifndef __NuttX__
+ int main(int argc, char *argv[])
+ {
+   // don't segfault if our environment is crazy
+@@ -359,7 +380,7 @@ int main(int argc, char *argv[])
+   if (CFG_TOYBOX) {
+     // Call the multiplexer with argv[] as its arguments so it can toy_find()
+     toys.argv = argv-1;
+-    toybox_main();
++    toybox_dispatcher();
+   } else {
+     // single command built standalone with no multiplexer is first list entry
+     toy_singleinit(toy_list, argv);
+@@ -368,3 +389,4 @@ int main(int argc, char *argv[])
+ 
+   xexit();
+ }
++#endif /* !__NuttX__ */
+diff --git a/scripts/make.sh b/scripts/make.sh
+index 59dabb8..19e4e77 100755
+--- a/scripts/make.sh
++++ b/scripts/make.sh
+@@ -122,6 +122,22 @@ COMPFLAGS="$(compflags)" && eval "$COMPFLAGS" &&
+     | sort -s -k 1,1 | $SED 's/[^ ]* //'
+ } > "$GENDIR"/newtoys.h || exit 1
+ 
++# NuttX: the multiplexer's own toy_list self-entry (name "toybox") token-
++# pastes to a function called toybox_main via the NEWTOY(name,...) ->
++# name##_main convention. NuttX's apps/system/toybox/Makefile also needs a
++# real toybox_main(int argc, char **argv) as its PROGNAME=toybox task entry
++# point (toybox_entry.c), and NuttX's sys/types.h forward-declares that
++# exact name/signature everywhere CONFIG_INIT_ENTRYPOINT="toybox_main" is
++# set. Two incompatible declarations of the same symbol name don't compile.
++# Rename just this one entry's underlying name/function token so it stops
++# colliding; toy_list[0] stays the multiplexer sentinel other code depends
++# on existing, just spelled differently (nothing user-visible depends on
++# self-referential "toybox"-named symlink resolution, which is what that
++# name would otherwise be used for).
++[ -n "$NUTTX_TOYBOX_MULTIPLEX_NAME" ] &&
++  $SED -i "s/^USE_TOYBOX(NEWTOY(toybox,/USE_TOYBOX(NEWTOY($NUTTX_TOYBOX_MULTIPLEX_NAME,/" \
++    "$GENDIR"/newtoys.h
++
+ # Rebuild config.h from .config
+ $SED -En $KCONFIG_CONFIG > "$GENDIR"/config.h \
+   -e 's/^# CONFIG_(.*) is not set.*/#define CFG_\1 0\n#define USE_\1(...)\n#define SKIP_\1(...) __VA_ARGS__/p;t' \

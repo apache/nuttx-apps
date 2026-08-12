@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:25:00 +0000
+Subject: [PATCH 21/23] cpio: avoid UB shifting by width of 32-bit off_t
+
+"st.st_size >> 32" assumes off_t is 64 bits, true on Linux/Android but
+not universally true on NuttX: without CONFIG_FS_LARGEFILE, off_t is a
+32-bit int32_t there, and shifting a 32-bit value by 32 is undefined
+behavior (shift count equal to the operand's width). A file can never
+exceed 2G in the first place when off_t is 32 bits, so the sizeof()
+check makes the shift unreachable there instead of relying on the
+compiler's specific (and unspecified-by-the-standard) handling of the
+UB case to still come out false.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ toys/posix/cpio.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/toys/posix/cpio.c b/toys/posix/cpio.c
+index 321bbfd..d9a57cc 100644
+--- a/toys/posix/cpio.c
++++ b/toys/posix/cpio.c
+@@ -281,7 +281,13 @@ void cpio_main(void)
+       if (Rgid>=0) st.st_gid = Rgid;
+       if (FLAG(no_preserve_owner)) st.st_uid = st.st_gid = 0;
+       if (!S_ISREG(st.st_mode) && !S_ISLNK(st.st_mode)) st.st_size = 0;
+-      if (st.st_size >> 32) perror_msg("skipping >2G file '%s'", name);
++      // Plain ">> 32" is undefined behavior when off_t is 32 bits (e.g. NuttX
++      // without CONFIG_FS_LARGEFILE): shifting by the full width of the
++      // (int-promoted) operand. The sizeof() check makes the shift
++      // unreachable/dead-code-eliminated there instead, where a file can
++      // never exceed 2G in the first place.
++      if ((sizeof(st.st_size)>4) && ((uint64_t)st.st_size>>32))
++        perror_msg("skipping >2G file '%s'", name);
+       else {
+         if (FLAG(renumber_inodes)) st.st_ino = ++inode;
+         if (FLAG(ignore_devno)) st.st_rdev = 0;
+--
+2.43.0

@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 16:00:00 +0000
+Subject: [PATCH 6/6] taskset: use NuttX's native sched_setaffinity()/
+ sched_getaffinity()
+
+NuttX has no Linux-style __NR_sched_setaffinity/__NR_sched_getaffinity
+syscall numbers to build the raw syscall() wrappers this file
+otherwise uses, but it does provide real sched_setaffinity()/
+sched_getaffinity() (sched.h) with the exact same signature -- these
+are needed unconditionally since nproc_main() (same file, same config
+group) calls sched_getaffinity() too, not just taskset's own code.
+
+Also drop the (void *) casts at both call sites: on non-SMP NuttX (no
+CONFIG_SMP), sched_getaffinity()/sched_setaffinity() are macros that
+dereference this argument directly, which doesn't compile through
+void * -- unsigned long * converts to cpu_set_t * either way, so the
+cast was only ever needed for the raw syscall() path this replaces.
+
+diff --git a/toys/other/taskset.c b/toys/other/taskset.c
+index e45b100..e8bb7b0 100644
+--- a/toys/other/taskset.c
++++ b/toys/other/taskset.c
+@@ -38,10 +38,16 @@ config TASKSET
+ #include "toys.h"
+ 
+ // mask is array of long which makes layout a bit weird on big endian systems
++//
++// NuttX has no Linux-style __NR_* syscall numbers to build these from, but
++// it does provide real sched_setaffinity()/sched_getaffinity() (see
++// sched.h) with the same signature these wrap, so just use those directly.
++#ifndef __NuttX__
+ #define sched_setaffinity(pid, size, cpuset) \
+   syscall(__NR_sched_setaffinity, (pid_t)pid, (size_t)size, (void *)cpuset)
+ #define sched_getaffinity(pid, size, cpuset) \
+   syscall(__NR_sched_getaffinity, (pid_t)pid, (size_t)size, (void *)cpuset)
++#endif
+ 
+ #define TOYBUF_BITS (8*sizeof(toybuf))
+ 
+@@ -62,7 +68,10 @@ static void do_taskset(pid_t pid)
+   // loop through twice to display before/after affinity masks
+   for (i=0; ; i++) {
+     if (FLAG(p) || !toys.optc) {
+-      if (-1 == sched_getaffinity(pid, sizeof(toybuf), (void *)mask))
++      // No (void *) cast: on non-SMP NuttX, sched_getaffinity() is a macro
++      // that dereferences this argument, which doesn't compile through
++      // void *; unsigned long * converts to cpu_set_t * either way.
++      if (-1 == sched_getaffinity(pid, sizeof(toybuf), mask))
+         perror_exit(failed, "get", pid);
+ 
+       if (toys.optc)
+@@ -165,7 +174,7 @@ static void do_taskset(pid_t pid)
+       }
+     }
+ 
+-    if (-1 == sched_setaffinity(pid, sizeof(toybuf), (void *)mask))
++    if (-1 == sched_setaffinity(pid, sizeof(toybuf), mask))
+       perror_exit(failed, "set", pid);
+   }
+ }

@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 29 Jul 2026 17:54:00 +0000
+Subject: [PATCH 14/14] make.sh: drop toys/pending banner
+
+Our command selection deliberately includes three toys/pending applets
+that have no toys/posix equivalent in this Toybox release -- diff,
+expr, tr (see Kconfig.commands: CONFIG_SYSTEM_TOYBOX_CMD_{DIFF,EXPR,TR}).
+All three build and run fine here; upstream's "pending" label just
+means they haven't been promoted out of toys/pending yet, not that
+anything is broken for us. Since this is a fixed, known, intentional
+part of our command set rather than something menuconfig toggles
+around, the every-build red warning banner is just noise -- drop it.
+
+diff --git a/scripts/make.sh b/scripts/make.sh
+index a4c8f19..b6d2e57 100755
+--- a/scripts/make.sh
++++ b/scripts/make.sh
+@@ -100,11 +100,6 @@ TOYFILES="$($SED -n 's/^CONFIG_\([^=]*\)=.*/\1/p' "$KCONFIG_CONFIG" | xargs | t
+ TOYFILES="main.c $(egrep -l "^USE_($TOYFILES)[(]...TOY[(]" toys/*/*.c | xargs)"
+
+-if [ "${TOYFILES/pending//}" != "$TOYFILES" ]
+-then
+-  echo -e "\n\033[1;31mwarning: using unfinished code from toys/pending\033[0m"
+-fi
+-
+ # Write build variables (and set them locally), then append build invocation.
+ COMPFLAGS="$(compflags)" && eval "$COMPFLAGS" &&
+ {

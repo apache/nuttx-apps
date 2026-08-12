@@ -1,0 +1,202 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Mon, 27 Jul 2026 22:41:49 -0300
+Subject: [PATCH 4/7] add toybox_entry.c: NuttX task entry point (one-shot +
+ REPL)
+
+See the file's own header comment for the design. In short: dispatches
+into the real multiplexer (toybox_dispatcher(), see main.c) either
+once per task invocation ("toybox ls" from NSH or a script) or in a
+loop reading one line at a time from stdin (interactive use /
+CONFIG_INIT_ENTRYPOINT="toybox_main"), trapping the xexit() at the end
+of each command via the same toys.rebound sigsetjmp/siglongjmp
+mechanism toys/pending/sh.c uses to run builtins in-process.
+
+diff --git a/toybox_entry.c b/toybox_entry.c
+new file mode 100644
+index 0000000..f6df9d6
+--- /dev/null
++++ b/toybox_entry.c
+@@ -0,0 +1,182 @@
++/* toybox_entry.c - NuttX task entry point for the Toybox multi-call binary.
++ *
++ * Upstream Toybox is a process-per-command model: each applet invocation is
++ * its own fork/exec'd process, and "the multiplexer" (toybox_dispatcher(),
++ * see main.c) is just the argv[0]=="toybox" case of that same model. NuttX
++ * builds this as a single task instead (PROGNAME=toybox in ../Makefile), so
++ * this file provides two entry paths into that one task:
++ *
++ *   - "toybox <cmd> <args...>": argc>=2, forwarded straight into
++ *     toybox_dispatcher() exactly as upstream's own main() would, so one
++ *     invocation runs one command and exits -- this is the path used when
++ *     something else (NSH, a script) runs "toybox ls" as a builtin.
++ *
++ *   - "toybox" with no arguments: an interactive prompt that reads one line
++ *     at a time and dispatches each as its own toybox_dispatcher() call, so
++ *     the task survives from one command to the next. This is the path used
++ *     when CONFIG_INIT_ENTRYPOINT="toybox_main" makes Toybox the system's
++ *     only shell (see boards/sim/sim/sim/configs/toybox/defconfig).
++ *
++ * Running each line through toybox_dispatcher() rather than reaching for
++ * toy_find()/toy_main() by hand reuses upstream's own command lookup,
++ * symlink handling and "no such command" reporting instead of duplicating
++ * it, and gets the bare "toybox" applet listing for free.
++ *
++ * Each dispatched command can end in xexit(), which upstream expects to
++ * terminate the process. Since here it must instead return control to this
++ * loop, every dispatch is wrapped in the same toys.rebound sigsetjmp/
++ * siglongjmp trap toybox's own (pending) shell implementation
++ * (toys/pending/sh.c) uses to run builtins in-process -- see xexit() and
++ * _xexit() in lib/xwrap.c.
++ */
++
++#include <nuttx/config.h>
++
++#include <stdio.h>
++#include <string.h>
++
++#include "toys.h"
++
++#ifdef CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE
++/* nuttx_bridge.c: run a NuttX builtin application by name when the typed
++ * command isn't a Toybox applet. Returns 0 if it found and ran (regardless
++ * of that command's own exit status) and a negative errno-style value if no
++ * such builtin exists.
++ */
++int nuttx_builtin_exec(int argc, char *argv[]);
++#endif
++
++#define MAX_LINE_ARGS 32
++
++/* Bytes of "struct toy_context" that precede the "rebound" field -- the
++ * portion toy_init()/toy_singleinit() reset per-command. Mirrors the
++ * save/restore trick in toys/pending/sh.c's run_command().
++ */
++#define TOYS_SAVE_SIZE offsetof(struct toy_context, rebound)
++
++/* Run one already-tokenized command line through the real multiplexer,
++ * trapping the xexit() at the end so it returns here instead of ending the
++ * task. Returns the command's exit value.
++ */
++static int dispatch(int argc, char *argv[])
++{
++  char saved[TOYS_SAVE_SIZE];
++  sigjmp_buf rebound, *prebound = toys.rebound;
++  char *dispatch_argv[MAX_LINE_ARGS + 2];
++  int i, exitval;
++
++  dispatch_argv[0] = "toybox";
++  for (i = 0; i < argc && i < MAX_LINE_ARGS; i++) dispatch_argv[i + 1] = argv[i];
++  dispatch_argv[i + 1] = NULL;
++
++  memcpy(saved, &toys, TOYS_SAVE_SIZE);
++  memset(&toys, 0, TOYS_SAVE_SIZE);
++
++  /* Also reset GLOBALS()-declared per-applet state ("this", see
++   * generated/globals.h): normally fresh BSS on Linux/Android's
++   * process-per-command model, but this task dispatches many
++   * commands in place, so a stale nonzero value left by an earlier
++   * applet at the same union offset (e.g. cp_main()'s
++   * "if (!TT.callback) TT.callback = cp_node") would otherwise
++   * silently survive into the next command.
++   */
++  memset(&this, 0, sizeof(this));
++
++  if (!sigsetjmp(rebound, 1))
++    {
++      toys.rebound = &rebound;
++      toys.argv = dispatch_argv;
++      toybox_dispatcher();
++
++      /* toybox_dispatcher() always ends in xexit(), which siglongjmp()s
++       * back into the branch below because toys.rebound is set above --
++       * this point should be unreachable.
++       */
++      xexit();
++    }
++
++  exitval = toys.exitval;
++  toys.rebound = prebound;
++  clearerr(stdout);
++  memcpy(&toys, saved, TOYS_SAVE_SIZE);
++
++  return exitval;
++}
++
++/* Split a line on whitespace in place. No quoting support -- this is a
++ * bare-bones command prompt, not toysh. argv[] is left NULL-terminated
++ * (room for one more slot beyond the returned argc) since
++ * nuttx_builtin_exec()'s exec_builtin()/posix_spawn() need that.
++ */
++static int tokenize(char *line, char *argv[], int max)
++{
++  int argc = 0;
++  char *tok = strtok(line, " \t");
++
++  while (tok && argc < max - 1)
++    {
++      argv[argc++] = tok;
++      tok = strtok(NULL, " \t");
++    }
++
++  argv[argc] = NULL;
++
++  return argc;
++}
++
++static int run_line(char *line)
++{
++  char *argv[MAX_LINE_ARGS];
++  int argc = tokenize(line, argv, MAX_LINE_ARGS);
++
++  if (argc == 0) return 0;
++
++  /* Bare "help"/"?" (no arguments of their own): list every Toybox applet,
++   * same as running "toybox" with no arguments would. A "help <command>"
++   * still reaches Toybox's own CONFIG_HELP applet, if enabled, via the
++   * normal dispatch path below.
++   */
++  if (argc == 1 && (!strcmp(argv[0], "help") || !strcmp(argv[0], "?")))
++    return dispatch(0, argv);
++
++#ifdef CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE
++  /* Toybox applets always take precedence over a same-named NuttX builtin. */
++  if (!toy_find(argv[0]) && nuttx_builtin_exec(argc, argv) == 0) return 0;
++#endif
++
++  return dispatch(argc, argv);
++}
++
++int main(int argc, FAR char *argv[])
++{
++  /* "toybox <cmd> <args...>": one-shot, behaves like upstream's own main(). */
++  if (argc >= 2)
++    {
++      toys.argv = argv;
++      toys.optc = argc;
++      toybox_dispatcher();
++      return toys.exitval;
++    }
++
++  /* No arguments: interactive prompt. */
++  printf("\nToybox " TOYBOX_VERSION " for NuttX -- 'help' lists commands, "
++         "'exit' leaves the prompt.\n");
++
++  for (; ; )
++    {
++      char line[256];
++
++      printf("toybox> ");
++      fflush(stdout);
++
++      if (!fgets(line, sizeof(line), stdin)) break;
++      line[strcspn(line, "\r\n")] = '\0';
++
++      if (!strcmp(line, "exit") || !strcmp(line, "quit")) break;
++
++      run_line(line);
++    }
++
++  printf("\n");
++  return 0;
++}

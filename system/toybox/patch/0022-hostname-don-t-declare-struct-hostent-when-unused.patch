@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:30:00 +0000
+Subject: [PATCH 22/23] hostname: don't declare struct hostent when unused
+
+Patch 0009 stubbed out -d/-f's gethostbyname() lookup on NuttX (no
+resolver without CONFIG_NET), but left the "struct hostent *h" it read
+the result into declared unconditionally, unused on NuttX now that
+nothing assigns to it there.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ toys/lsb/hostname.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/toys/lsb/hostname.c b/toys/lsb/hostname.c
+index 4a07fb9..c56788e 100644
+--- a/toys/lsb/hostname.c
++++ b/toys/lsb/hostname.c
+@@ -41,7 +41,9 @@ GLOBALS(
+ void hostname_main(void)
+ {
+   char *hostname = toybuf, *dot;
++#ifndef __NuttX__
+   struct hostent *h;
++#endif
+
+   gethostname(toybuf, sizeof(toybuf)-1);
+   if (TT.F && (hostname = xreadfile(TT.F, 0, 0))) {
+--
+2.43.0

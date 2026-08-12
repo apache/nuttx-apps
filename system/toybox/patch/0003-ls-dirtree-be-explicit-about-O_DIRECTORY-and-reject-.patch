@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 15:22:14 +0000
+Subject: [PATCH 3/10] ls, dirtree: be explicit about O_DIRECTORY and reject
+ negative dirfd
+
+Four related fixes, all the same root cause: NuttX's VFS open() needs
+an explicit O_DIRECTORY hint to correctly open a directory path -- a
+bare O_RDONLY/0 (or no access-mode flag at all) isn't enough and
+fails with ENXIO -- unlike Linux, which is happy either way, so these
+are safe (and arguably more correct, since they cross-check against
+the directory-ness already known at each call site) on both:
+
+- lib/dirtree.c's dirtree_handle_callback(): the openat() that opens
+  each directory found during a DIRTREE_RECURSE walk (dirtree_read()
+  with recursion -- e.g. "find") was missing O_DIRECTORY entirely.
+- toys/posix/ls.c has *two* separate directory-recursion paths (its
+  own listfiles() loop for the general case, plus a single-
+  subdirectory fast path) -- both were missing O_DIRECTORY, breaking
+  "ls -R" specifically (the fast path only kicks in without -R).
+- lib/dirtree.c's dirtree_recurse() also gets a dirfd>=0 guard (not
+  just != -1) before calling fdopendir(xdup(node->dirfd)), since a
+  failed upstream open() can hand back other negative fds here.
+
+diff --git a/lib/dirtree.c b/lib/dirtree.c
+index 5634759..89ab3a1 100644
+--- a/lib/dirtree.c
++++ b/lib/dirtree.c
+@@ -126,7 +126,12 @@ static struct dirtree *dirtree_handle_callback(struct dirtree *new,
+ 
+   if (S_ISDIR(new->st.st_mode) && (flags & df)) {
+     // TODO: check openat returned fd for errors... and do what about it?
+-    if (*new->name) fd = openat(dirtree_parentfd(new), new->name, O_CLOEXEC);
++    // O_DIRECTORY: we already know (S_ISDIR above) this should be a
++    // directory; NuttX's VFS open() needs the explicit hint to route a
++    // directory path correctly (see toys/posix/ls.c's other O_DIRECTORY
++    // open for the same reason), and it's a no-op cross-check elsewhere.
++    if (*new->name)
++      fd = openat(dirtree_parentfd(new), new->name, O_CLOEXEC|O_DIRECTORY);
+     if (flags&DIRTREE_BREADTH) {
+       new->again |= DIRTREE_BREADTH;
+       if ((DIRTREE_ABORT & dirtree_recurse(new, 0, fd, flags)) ||
+@@ -157,8 +162,10 @@ int dirtree_recurse(struct dirtree *node,
+   DIR *dir = 0;
+ 
+   // fdopendir() doesn't support AT_FDCWD, closedir() closes fd from opendir()
++  // node->dirfd >= 0 (not just != -1): a failed open() upstream can leave
++  // negative fds other than -1 flowing through here on NuttX.
+   if (AT_FDCWD == (node->dirfd = dirfd)) dir = opendir(".");
+-  else if (node->dirfd != -1) dir = fdopendir(xdup(node->dirfd));
++  else if (node->dirfd >= 0) dir = fdopendir(xdup(node->dirfd));
+ 
+   if (!dir) {
+     if (!(flags & DIRTREE_SHUTUP)) {
+diff --git a/toys/posix/ls.c b/toys/posix/ls.c
+index 7a8dfd2..a94ab30 100644
+--- a/toys/posix/ls.c
++++ b/toys/posix/ls.c
+@@ -364,7 +364,9 @@ static void listfiles(int dirfd, struct dirtree *indir)
+     // In this case only show dirname/total header when given -R.
+     dt = indir->child;
+     if (dt && S_ISDIR(dt->st.st_mode) && !dt->next && !(FLAG(d)||FLAG(R))) {
+-      listfiles(open(dt->name, 0), TT.singledir = dt);
++      // Explicit O_DIRECTORY: some VFS implementations (e.g. NuttX) don't
++      // accept a plain O_RDONLY open() of a directory path here.
++      listfiles(open(dt->name, O_RDONLY|O_DIRECTORY), TT.singledir = dt);
+ 
+       return;
+     }
+@@ -572,8 +574,9 @@ static void listfiles(int dirfd, struct dirtree *indir)
+     if (FLAG(d) || !S_ISDIR(sort[ul]->st.st_mode)) continue;
+ 
+     // Recurse into dirs if at top of the tree or given -R
++    // (O_DIRECTORY: see the other openat()/open() calls in this file.)
+     if (!indir->parent || (FLAG(R) && dirtree_notdotdot(sort[ul])))
+-      listfiles(openat(dirfd, sort[ul]->name, 0), sort[ul]);
++      listfiles(openat(dirfd, sort[ul]->name, O_DIRECTORY), sort[ul]);
+     free((void *)sort[ul]->extra);
+   }
+   free(sort);

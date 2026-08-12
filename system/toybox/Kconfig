@@ -1,0 +1,81 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_TOYBOX
+	bool "Toybox command suite"
+	default n
+	depends on SCHED_WAITPID
+	depends on SCHED_HAVE_PARENT
+	depends on !DISABLE_PSEUDOFS_OPERATIONS
+	---help---
+		Download, patch and build Toybox (https://landley.net/toybox/), a
+		0BSD-licensed multi-call binary providing a POSIX/LSB command suite
+		and a small interactive shell.  Toybox is built as a single NuttX
+		builtin application (PROGNAME=toybox) that can be run directly
+		("toybox ls", "toybox cat file") or, with no arguments, as an
+		interactive command prompt suitable for use as the system's
+		CONFIG_INIT_ENTRYPOINT -- see boards/sim/sim/sim/configs/toybox for
+		an example. Toybox runs standalone (no NSH required) while still
+		being able to run whatever other NuttX builtin apps happen to be
+		enabled, NSH included if the user also enables it. See
+		Documentation/applications/system/toybox/ for details.
+
+		Only the commands enabled below (see "Toybox commands") are
+		compiled in.
+
+if SYSTEM_TOYBOX
+
+config SYSTEM_TOYBOX_VERSION
+	string "Toybox version to download"
+	default "0.8.14"
+	---help---
+		Upstream Toybox release tag to download and build against. The
+		patches in apps/system/toybox/patch/ are written against this
+		version; bumping it may require refreshing those patches.
+
+config SYSTEM_TOYBOX_URL
+	string "Toybox download URL"
+	default "https://github.com/landley/toybox/archive/refs/tags"
+	---help---
+		Base URL Toybox release tarballs are downloaded from.
+
+config SYSTEM_TOYBOX_PRIORITY
+	int "Toybox task priority"
+	default 100
+
+config SYSTEM_TOYBOX_STACKSIZE
+	int "Toybox stack size"
+	default 8192
+
+config SYSTEM_TOYBOX_BUILTIN_BRIDGE
+	bool "Run other NuttX builtin apps from the Toybox prompt"
+	default y
+	select BUILTIN
+	---help---
+		When a command typed at the Toybox prompt isn't a Toybox applet,
+		look it up in NuttX's registered builtin application table and run
+		it if found. This is what lets "hello", "nsh" (if the user also
+		enables CONFIG_SYSTEM_NSH) and any other app registered as a
+		builtin (MODULE=y) run from the Toybox prompt without Toybox
+		needing to know about them individually -- useful when
+		CONFIG_INIT_ENTRYPOINT is
+		"toybox_main" and Toybox is the only shell running. Selects
+		CONFIG_BUILTIN (off by default in NuttX); nothing else is
+		required -- NSH is not a dependency of Toybox in any direction.
+
+		Toybox applets always take precedence over a same-named builtin.
+
+menu "Toybox commands"
+
+comment "Each option here is one Toybox applet. ../Makefile translates"
+comment "whichever are enabled into the CONFIG_<CMD>=y file it feeds"
+comment "to Toybox's own scripts/genconfig.sh at build time -- toggling"
+comment "a command here is the whole mechanism, nothing else to sync."
+
+source "$APPSDIR/system/toybox/Kconfig.commands"
+
+endmenu # Toybox commands
+
+endif # SYSTEM_TOYBOX

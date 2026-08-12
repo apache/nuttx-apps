@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:10:00 +0000
+Subject: [PATCH 18/23] portability: drop dead syscall(2) copy_file_range
+ fast path on NuttX
+
+sendfile_len()'s fast path calls the raw copy_file_range syscall by
+number via syscall(2) when check_copy_file_range() finds
+__NR_copy_file_range defined. NuttX never defines that (no
+copy_file_range support), so check_copy_file_range() already always
+returns 0 there and the fast path is permanently dead code -- but
+syscall() itself isn't something NuttX provides at all (no generic
+syscall-number trampoline the way Linux has one), so the call was left
+as an implicit (int-returning, wrong for this long long-returning
+call) declaration instead of a link error only because nothing
+currently reaches it at runtime. Skip declaring/calling it outright
+for a platform that can never take this path, instead of relying on
+that.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ lib/portability.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/lib/portability.c b/lib/portability.c
+index 8f4bd38..8721f4c 100644
+--- a/lib/portability.c
++++ b/lib/portability.c
+@@ -708,6 +708,7 @@ static int android_api_level(void)
+ }
+ #endif
+
++#ifndef __NuttX__
+ static int check_copy_file_range(void)
+ {
+ #if defined(__ANDROID__)
+@@ -721,13 +722,21 @@ static int check_copy_file_range(void)
+   return 0;
+ #endif
+ }
++#endif
+
+ // Return bytes copied from in to out. If bytes <0 copy all of in to out.
+ // If consumed isn't null, amount read saved there (return is written or error)
+ long long sendfile_len(int in, int out, long long bytes, long long *consumed)
+ {
+   long long total = 0, len, ww;
++  // check_copy_file_range() already always returns 0 here (no
++  // __NR_copy_file_range on NuttX), so the syscall(2)-based fast path below
++  // is permanently dead code on this platform -- and syscall() itself isn't
++  // a thing NuttX provides (no generic syscall-number trampoline), so skip
++  // declaring/calling it entirely instead of just never taking the branch.
++#ifndef __NuttX__
+   int try_cfr = check_copy_file_range();
++#endif
+
+   if (consumed) *consumed = 0;
+   if (in>=0) while (bytes != total) {
+@@ -735,6 +744,7 @@ long long sendfile_len(int in, int out, long long bytes, long long *consumed)
+     len = bytes-total;
+
+     errno = 0;
++#ifndef __NuttX__
+     if (try_cfr) {
+       if (bytes<0 || len>(1<<30)) len = (1<<30);
+       len = syscall(try_cfr, in, 0, out, 0, len, 0);
+@@ -743,7 +753,9 @@ long long sendfile_len(int in, int out, long long bytes, long long *consumed)
+
+         continue;
+       }
+-    } else {
++    } else
++#endif
++    {
+       if (bytes<0 || len>sizeof(libbuf)) len = sizeof(libbuf);
+       ww = len = read(in, libbuf, len);
+     }
+--
+2.43.0

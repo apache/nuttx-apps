@@ -1,0 +1,7 @@
+/toybox
+/*.tar.gz
+/.toybox_allconfig
+*.o
+.built
+.depend
+Make.dep

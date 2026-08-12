@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:15:00 +0000
+Subject: [PATCH 19/23] xwrap: xchroot() has no NuttX equivalent
+
+NuttX has no per-process filesystem root, so no chroot() syscall to
+wrap -- it was left as an implicit (and therefore always wrong, since
+chroot() returns int but nothing declared that) declaration instead of
+an undefined reference only because nothing built by this port
+currently calls xchroot() (tftpd's -r option, in toys/pending, isn't
+enabled). Fail cleanly with error_exit() on NuttX instead of relying
+on that.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ lib/xwrap.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/lib/xwrap.c b/lib/xwrap.c
+index fb608d5..589c2d8 100644
+--- a/lib/xwrap.c
++++ b/lib/xwrap.c
+@@ -707,7 +707,12 @@ void xchdir(char *path)
+
+ void xchroot(char *path)
+ {
++  // NuttX has no per-process filesystem root, so no chroot() to call.
++#ifdef __NuttX__
++  error_exit("chroot: not available");
++#else
+   if (chroot(path)) error_exit("chroot '%s'", path);
++#endif
+   xchdir("/");
+ }
+
+--
+2.43.0
