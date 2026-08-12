@@ -103,6 +103,13 @@ int nsh_session(FAR struct console_stdio_s *pstate,
     }
 #endif /* CONFIG_NSH_TELNET_LOGIN */
 
+#ifdef CONFIG_SCHED_USER_IDENTITY
+  if (login != NSH_LOGIN_NONE)
+    {
+      nsh_update_prompt_after_login();
+    }
+#endif
+
   if (login != NSH_LOGIN_NONE)
     {
       /* Present a greeting and possibly a Message of the Day (MOTD) */

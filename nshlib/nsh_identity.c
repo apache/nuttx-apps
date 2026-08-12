@@ -377,7 +377,7 @@ int cmd_su(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       return ERROR;
     }
 
-  nsh_update_prompt();
+  nsh_update_prompt_after_login();
   return OK;
 }
 #endif
