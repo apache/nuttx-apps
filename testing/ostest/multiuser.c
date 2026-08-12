@@ -29,7 +29,10 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <grp.h>
 #include <pwd.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -148,9 +151,9 @@ static int mu_restore_root(FAR struct mu_ctx_s *ctx)
 
 static int mu_set_effective(FAR struct mu_ctx_s *ctx, uid_t uid, gid_t gid)
 {
-  /* NuttX grants arbitrary seteuid/setegid only while the effective ID
-   * is 0.  With real UID 0 (flat NSH), restore effective root before
-   * switching user, matching nsh_switch_credentials().
+  /* seteuid/setegid allow arbitrary IDs only while euid is 0.  With
+   * real UID 0, restore euid 0 before switching, matching
+   * nsh_switch_credentials().
    */
 
   if (getuid() == 0 && (geteuid() != 0 || getegid() != 0))
@@ -319,6 +322,200 @@ static int multiuser_effective_test(FAR struct mu_ctx_s *ctx)
 
   mu_check_eq(ctx, "egid restored to 0", getegid(), 0);
 
+  return ctx->failures;
+}
+
+#if CONFIG_SCHED_NGROUPS > 0
+static int multiuser_groups_test(FAR struct mu_ctx_s *ctx)
+{
+  gid_t list[NGROUPS_MAX];
+  gid_t got[NGROUPS_MAX];
+  int n;
+  int ret;
+
+  printf("multiuser: setgroups/getgroups supplementary IDs\n");
+
+  list[0] = MU_GID2;
+  list[1] = (gid_t)(MU_GID2 + 1);
+
+  ret = setgroups(2, list);
+  if (mu_expect_ok(ctx, "setgroups(2)", ret) != 0)
+    {
+      return ctx->failures;
+    }
+
+  n = getgroups(0, NULL);
+  mu_check_eq(ctx, "getgroups(0) count", n, 2);
+
+  n = getgroups(NGROUPS_MAX, got);
+  mu_check_eq(ctx, "getgroups() count", n, 2);
+  if (n >= 2)
+    {
+      mu_check_eq(ctx, "getgroups()[0]", got[0], list[0]);
+      mu_check_eq(ctx, "getgroups()[1]", got[1], list[1]);
+    }
+
+  ret = setgroups(0, NULL);
+  if (mu_expect_ok(ctx, "setgroups(0) clear", ret) != 0)
+    {
+      return ctx->failures;
+    }
+
+  n = getgroups(0, NULL);
+  mu_check_eq(ctx, "getgroups after clear", n, 0);
+
+  /* setgroups rejects size > NGROUPS_MAX (no silent truncate). */
+
+  ret = setgroups(NGROUPS_MAX + 1, list);
+  if (ret != 0 && errno == EINVAL)
+    {
+      mu_pass("setgroups(NGROUPS_MAX+1) rejected errno=EINVAL");
+    }
+  else
+    {
+      mu_fail(ctx, "setgroups(NGROUPS_MAX+1): ret=%d errno=%d "
+              "(expected EINVAL)", ret, errno);
+    }
+
+#if defined(CONFIG_LIBC_GROUP_FILE)
+  /* getgrouplist/initgroups fail (do not truncate) when membership >
+   * NGROUPS_MAX.  Temporarily replace the group file for this check.
+   */
+
+    {
+      char bak[128];
+      FILE *fp;
+      int i;
+      int need;
+      gid_t gbuf[NGROUPS_MAX];
+      int ng;
+      int saved_errno;
+
+      snprintf(bak, sizeof(bak), "%s.bak", CONFIG_LIBC_GROUP_FILEPATH);
+      unlink(bak);
+      rename(CONFIG_LIBC_GROUP_FILEPATH, bak);
+
+      fp = fopen(CONFIG_LIBC_GROUP_FILEPATH, "w");
+      if (fp == NULL)
+        {
+          mu_fail(ctx, "fopen(%s) for overflow test",
+                  CONFIG_LIBC_GROUP_FILEPATH);
+          rename(bak, CONFIG_LIBC_GROUP_FILEPATH);
+          return ctx->failures;
+        }
+
+      /* Primary MU_GID1 plus NGROUPS_MAX distinct supplementary gids. */
+
+      for (i = 0; i < NGROUPS_MAX; i++)
+        {
+          fprintf(fp, "g%d:*:%d:mu_overflow\n", i, (int)(MU_GID2 + i));
+        }
+
+      fclose(fp);
+
+      ng = NGROUPS_MAX;
+      need = getgrouplist("mu_overflow", MU_GID1, gbuf, &ng);
+      mu_check_eq(ctx, "getgrouplist overflow returns -1", need, -1);
+      mu_check_eq(ctx, "getgrouplist reports required size", ng,
+                  NGROUPS_MAX + 1);
+
+      saved_errno = 0;
+      ret = initgroups("mu_overflow", MU_GID1);
+      if (ret == 0)
+        {
+          mu_fail(ctx, "initgroups should fail when groups > NGROUPS_MAX");
+        }
+      else
+        {
+          saved_errno = errno;
+          mu_pass("initgroups fails when groups > NGROUPS_MAX (errno=%d)",
+                  saved_errno);
+        }
+
+      unlink(CONFIG_LIBC_GROUP_FILEPATH);
+      rename(bak, CONFIG_LIBC_GROUP_FILEPATH);
+    }
+#endif /* CONFIG_LIBC_GROUP_FILE */
+
+  return ctx->failures;
+}
+#endif /* CONFIG_SCHED_NGROUPS > 0 */
+
+/****************************************************************************
+ * Name: multiuser_setres_order_test
+ *
+ * Description:
+ *   Regression: setresgid requires euid==0.  Dropping uid before gid fails;
+ *   gid-then-uid succeeds (NSH assume_identity order).
+ *
+ ****************************************************************************/
+
+static int multiuser_setres_order_test(FAR struct mu_ctx_s *ctx)
+{
+  uid_t ruid;
+  uid_t euid;
+  uid_t suid;
+  gid_t rgid;
+  gid_t egid;
+  gid_t sgid;
+  int ret;
+
+  printf("multiuser: setresuid/setresgid drop ordering\n");
+
+  mu_restore_root(ctx);
+
+  /* uid-first must fail once euid is no longer 0. */
+
+  ret = setresuid(MU_UID1, MU_UID1, 0);
+  if (mu_expect_ok(ctx, "setresuid(1000,1000,0) first", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = setresgid(MU_GID1, MU_GID1, 0);
+  mu_expect_denied(ctx, "setresgid after uid drop (wrong order)", ret);
+
+  ret = seteuid(0);
+  if (mu_expect_ok(ctx, "seteuid(0) via suid after bad order", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = setresuid(0, 0, 0);
+  mu_expect_ok(ctx, "setresuid(0,0,0) reset", ret);
+  ret = setresgid(0, 0, 0);
+  mu_expect_ok(ctx, "setresgid(0,0,0) reset", ret);
+
+  /* gid-then-uid (correct order) must succeed. */
+
+  ret = setresgid(MU_GID1, MU_GID1, 0);
+  if (mu_expect_ok(ctx, "setresgid(1000,1000,0) first", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  ret = setresuid(MU_UID1, MU_UID1, 0);
+  if (mu_expect_ok(ctx, "setresuid(1000,1000,0) second", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  getresuid(&ruid, &euid, &suid);
+  getresgid(&rgid, &egid, &sgid);
+  mu_check_eq(ctx, "ruid after gid-then-uid", ruid, MU_UID1);
+  mu_check_eq(ctx, "euid after gid-then-uid", euid, MU_UID1);
+  mu_check_eq(ctx, "suid after gid-then-uid", suid, 0);
+  mu_check_eq(ctx, "rgid after gid-then-uid", rgid, MU_GID1);
+  mu_check_eq(ctx, "egid after gid-then-uid", egid, MU_GID1);
+  mu_check_eq(ctx, "sgid after gid-then-uid", sgid, 0);
+
+  mu_restore_root(ctx);
+  setresuid(0, 0, 0);
+  setresgid(0, 0, 0);
   return ctx->failures;
 }
 
@@ -798,7 +995,7 @@ static int multiuser_mqueue_test(FAR struct mu_ctx_s *ctx)
 
   memset(&attr, 0, sizeof(attr));
   attr.mq_maxmsg  = 4;
-  attr.mq_msgsize = 64;
+  attr.mq_msgsize = CONFIG_MQ_MAXMSGSIZE;
 
   if (mu_set_effective(ctx, MU_UID1, MU_GID1) != 0)
     {
@@ -1146,6 +1343,13 @@ int multiuser_test(void)
   printf("multiuser_test: start\n");
 
   multiuser_effective_test(&ctx);
+#if CONFIG_SCHED_NGROUPS > 0
+  multiuser_groups_test(&ctx);
+#else
+  printf("multiuser: skipping supplementary groups test "
+         "(need CONFIG_SCHED_NGROUPS > 0)\n");
+#endif
+  multiuser_setres_order_test(&ctx);
   multiuser_resuid_test(&ctx);
 
 #if defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
