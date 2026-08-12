@@ -256,7 +256,7 @@ int nsh_login(FAR struct console_stdio_s *pstate)
                   return -1;
                 }
 
-              nsh_update_prompt();
+              nsh_update_prompt_after_login();
 #endif
               return OK;
             }

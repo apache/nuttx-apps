@@ -74,18 +74,20 @@ config NSH_PROMPT_STRING_ROOT
 	default ""
 	depends on SCHED_USER_IDENTITY
 	---help---
-		If non-empty, NSH uses this prompt when the effective UID is zero.
-		If empty, the prompt from NSH_PROMPT_STRING (or ENV/HOSTNAME) is used.
-		Set explicitly for multi-user shells (for example, "nsh# ").
+		Optional full prompt override when the effective UID is zero.
+		If empty, NSH keeps NSH_PROMPT_STRING until login; after login the
+		last '>' in the base prompt becomes '#' (for example, "nsh> "
+		becomes "nsh# "), or '#' is appended when the prompt has no '>'.
 
 config NSH_PROMPT_STRING_USER
 	string "Prompt string for non-root effective UID"
 	default ""
 	depends on SCHED_USER_IDENTITY
 	---help---
-		If non-empty, NSH uses this prompt when the effective UID is non-zero.
-		If empty, the prompt from NSH_PROMPT_STRING (or ENV/HOSTNAME) is used.
-		Set explicitly for multi-user shells (for example, "nsh$ ").
+		Optional full prompt override when the effective UID is non-zero.
+		If empty, NSH keeps NSH_PROMPT_STRING until login; after login the
+		last '>' in the base prompt becomes '$' (for example, "nsh> "
+		becomes "nsh$ "), or '$' is appended when the prompt has no '>'.
 
 config NSH_PROMPT_MAX
 	int "Maximum Size of Prompt String"

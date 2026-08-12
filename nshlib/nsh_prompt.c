@@ -31,6 +31,7 @@
 #include <assert.h>
 
 #ifdef CONFIG_SCHED_USER_IDENTITY
+#  include <stdbool.h>
 #  include <unistd.h>
 #endif
 
@@ -49,6 +50,70 @@
 
 static char g_nshprompt[CONFIG_NSH_PROMPT_MAX] = CONFIG_NSH_PROMPT_STRING;
 
+#ifdef CONFIG_SCHED_USER_IDENTITY
+static bool g_nsh_privilege_prompt;
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_SCHED_USER_IDENTITY
+
+/****************************************************************************
+ * Name: nsh_apply_privilege_marker
+ *
+ * Description:
+ *   Replace the last '>' in the prompt with the privilege marker ('#' or
+ *   '$').  When no '>' is present, append the marker instead.
+ *
+ ****************************************************************************/
+
+static void nsh_apply_privilege_marker(FAR char *prompt, char marker)
+{
+  size_t len;
+  FAR char *p;
+
+  len = strlen(prompt);
+  for (p = prompt + len; p > prompt; p--)
+    {
+      if (*(p - 1) == '>')
+        {
+          *(p - 1) = marker;
+          return;
+        }
+    }
+
+  if (len + 1 < CONFIG_NSH_PROMPT_MAX)
+    {
+      prompt[len]     = marker;
+      prompt[len + 1] = '\0';
+    }
+}
+
+/****************************************************************************
+ * Name: nsh_ensure_trailing_space
+ *
+ * Description:
+ *   Ensure the prompt ends with a separating space before command input.
+ *
+ ****************************************************************************/
+
+static void nsh_ensure_trailing_space(FAR char *prompt)
+{
+  size_t len;
+
+  len = strlen(prompt);
+  if (len > 0 && prompt[len - 1] != ' ' &&
+      len + 1 < CONFIG_NSH_PROMPT_MAX)
+    {
+      prompt[len]     = ' ';
+      prompt[len + 1] = '\0';
+    }
+}
+
+#endif /* CONFIG_SCHED_USER_IDENTITY */
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -63,9 +128,12 @@ static char g_nshprompt[CONFIG_NSH_PROMPT_MAX] = CONFIG_NSH_PROMPT_STRING;
  *   - non-empty NSH_PROMPT_STRING
  *   - non-empty HOSTNAME and suffix
  *
- *   When SCHED_USER_IDENTITY is enabled and NSH_PROMPT_STRING_ROOT or
- *   NSH_PROMPT_STRING_USER are non-empty, the prompt for the current
- *   effective UID replaces the value from the sources above.
+ *   When SCHED_USER_IDENTITY is enabled, NSH_PROMPT_STRING_ROOT or
+ *   NSH_PROMPT_STRING_USER replace the prompt when non-empty.
+ *
+ *   After login (see nsh_update_prompt_after_login()), when those overrides
+ *   are empty, the last '>' in the prompt is replaced with '#' (euid 0) or
+ *   '$' (non-zero euid), or the marker is appended when no '>' is present.
  *
  * Note that suffix has higher priority when used to help clearly separate
  * prompts from command line inputs.
@@ -102,18 +170,66 @@ void nsh_update_prompt(void)
 #ifdef CONFIG_SCHED_USER_IDENTITY
   if (geteuid() == 0)
     {
+      bool applied = false;
+
+#ifdef CONFIG_NSH_PROMPT_STRING_ROOT
       if (CONFIG_NSH_PROMPT_STRING_ROOT[0] != '\0')
         {
           strlcpy(g_nshprompt, CONFIG_NSH_PROMPT_STRING_ROOT,
                   CONFIG_NSH_PROMPT_MAX);
+          applied = true;
+        }
+
+#endif
+
+      if (!applied && g_nsh_privilege_prompt)
+        {
+          nsh_apply_privilege_marker(g_nshprompt, '#');
         }
     }
-  else if (CONFIG_NSH_PROMPT_STRING_USER[0] != '\0')
+  else
     {
-      strlcpy(g_nshprompt, CONFIG_NSH_PROMPT_STRING_USER,
-              CONFIG_NSH_PROMPT_MAX);
+      bool applied = false;
+
+#ifdef CONFIG_NSH_PROMPT_STRING_USER
+      if (CONFIG_NSH_PROMPT_STRING_USER[0] != '\0')
+        {
+          strlcpy(g_nshprompt, CONFIG_NSH_PROMPT_STRING_USER,
+                  CONFIG_NSH_PROMPT_MAX);
+          applied = true;
+        }
+
+#endif
+
+      if (!applied && g_nsh_privilege_prompt)
+        {
+          nsh_apply_privilege_marker(g_nshprompt, '$');
+        }
+    }
+
+  if (g_nsh_privilege_prompt)
+    {
+      nsh_ensure_trailing_space(g_nshprompt);
     }
 #endif
+}
+
+/****************************************************************************
+ * Name: nsh_update_prompt_after_login
+ *
+ * Description:
+ *   Enable privilege markers in the prompt and refresh it.  Boot and
+ *   no-login sessions keep NSH_PROMPT_STRING (for example, "nsh> ").
+ *
+ ****************************************************************************/
+
+void nsh_update_prompt_after_login(void)
+{
+#ifdef CONFIG_SCHED_USER_IDENTITY
+  g_nsh_privilege_prompt = true;
+#endif
+
+  nsh_update_prompt();
 }
 
 /****************************************************************************

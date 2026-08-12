@@ -822,6 +822,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
 
 FAR const char *nsh_prompt(void);
 void nsh_update_prompt(void);
+void nsh_update_prompt_after_login(void);
 
 /****************************************************************************
  * Name: nsh_login
