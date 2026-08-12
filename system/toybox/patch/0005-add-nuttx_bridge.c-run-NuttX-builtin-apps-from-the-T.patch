@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Mon, 27 Jul 2026 22:41:49 -0300
+Subject: [PATCH 5/7] add nuttx_bridge.c: run NuttX builtin apps from the
+ Toybox prompt
+
+Lets commands that aren't Toybox applets (nsh, ps, hello, ...) run
+from the Toybox prompt via NuttX's apps/builtin exec_builtin()/
+builtin_isavail(), gated by CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE. Only
+needed in this direction: NSH already runs "toybox <cmd>" as a
+builtin via its own CONFIG_NSH_BUILTIN_APPS, no code needed here for
+that.
+
+diff --git a/nuttx_bridge.c b/nuttx_bridge.c
+new file mode 100644
+index 0000000..eb59d83
+--- /dev/null
++++ b/nuttx_bridge.c
+@@ -0,0 +1,38 @@
++/* nuttx_bridge.c - run NuttX builtin applications from the Toybox prompt.
++ *
++ * When CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE is set, toybox_entry.c falls
++ * back to nuttx_builtin_exec() for any command that isn't a Toybox applet.
++ * This is what lets "nsh", "ps", "hello" and other NuttX builtin
++ * applications (apps/builtin) run from the Toybox prompt when Toybox is the
++ * system's only shell (CONFIG_INIT_ENTRYPOINT="toybox_main").
++ *
++ * The reverse direction (running "toybox ls" from NSH) needs no code here:
++ * once Toybox itself is a registered NuttX builtin (MODULE=CONFIG_SYSTEM_
++ * TOYBOX in ../Makefile), CONFIG_NSH_BUILTIN_APPS already covers it.
++ */
++
++#include <nuttx/config.h>
++
++#include <sys/wait.h>
++#include <stdio.h>
++
++#include "builtin/builtin.h"
++
++int nuttx_builtin_exec(int argc, char *argv[])
++{
++  pid_t pid;
++  int status;
++
++  if (builtin_isavail(argv[0]) < 0) return -1;
++
++  pid = exec_builtin(argv[0], argv, NULL);
++  if (pid < 0)
++    {
++      perror(argv[0]);
++      return 0;
++    }
++
++  waitpid(pid, &status, 0);
++
++  return 0;
++}

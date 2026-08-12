@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 17:15:00 +0000
+Subject: [PATCH 9/9] hostname: skip DNS lookup path on NuttX (no resolver)
+
+NuttX has no gethostbyname()/h_errno without CONFIG_NET wired up with
+a resolver, which "hostname -d"/"-f" need to turn the local hostname
+into a fully-qualified domain name. Everything else this command does
+(read/set the hostname, -s, -b) doesn't touch DNS at all, so only
+guard out the -d/-f lookup path instead of the whole command.
+
+diff --git a/toys/lsb/hostname.c b/toys/lsb/hostname.c
+index 3c15b86..4a07fb9 100644
+--- a/toys/lsb/hostname.c
++++ b/toys/lsb/hostname.c
+@@ -60,11 +60,17 @@ void hostname_main(void)
+   }
+ 
+   // We only do the DNS lookup for -d and -f.
++#ifdef __NuttX__
++  // NuttX has no gethostbyname()/h_errno (no resolver without CONFIG_NET
++  // wired up); -s/-b/set/plain "hostname" don't need DNS at all, only this.
++  if (FLAG(d) || FLAG(f)) error_exit("-d/-f need a resolver, not available");
++#else
+   if (FLAG(d) || FLAG(f)) {
+     if (!(h = gethostbyname(toybuf)))
+       error_exit("gethostbyname: %s", hstrerror(h_errno));
+     snprintf(toybuf, sizeof(toybuf), "%s", h->h_name);
+   }
++#endif
+   dot = toybuf+strcspn(toybuf, ".");
+   if (FLAG(s)) *dot = 0;
+   xputs(FLAG(d) ? dot+1 : toybuf);

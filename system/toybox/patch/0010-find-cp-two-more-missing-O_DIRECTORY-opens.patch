@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 17:45:00 +0000
+Subject: [PATCH 10/10] find, cp: two more missing O_DIRECTORY opens
+
+Same root cause as patch 0003 (NuttX's open() needs an explicit
+O_DIRECTORY hint for directory paths):
+
+- find.c's "-empty" test opens the candidate directory to check
+  whether readdir() finds anything past "." and "..".
+- cp.c's recursive copy (-r/-a/-p) opens the just-created destination
+  directory back up to verify it really is one before recursing into
+  it (see the comment already there about the mkdir()/open() race).
+
+diff --git a/toys/posix/cp.c b/toys/posix/cp.c
+index 1f1816e..7a66f6c 100644
+--- a/toys/posix/cp.c
++++ b/toys/posix/cp.c
+@@ -234,7 +234,8 @@ static int cp_node(struct dirtree *try)
+         // that what we open _is_ a directory rather than something else.
+ 
+         if (!mkdirat(cfd, catch, try->st.st_mode | 0200) || errno == EEXIST)
+-          if (-1 != (try->extra = openat(cfd, catch, O_NOFOLLOW)))
++          // O_DIRECTORY: see the openat()/open() calls in toys/posix/ls.c.
++          if (-1 != (try->extra = openat(cfd, catch, O_NOFOLLOW|O_DIRECTORY)))
+             if (!fstat(try->extra, &st2) && S_ISDIR(st2.st_mode))
+               return DIRTREE_COMEAGAIN | DIRTREE_SYMFOLLOW*FLAG(L);
+ 
+diff --git a/toys/posix/find.c b/toys/posix/find.c
+index ac14881..a99095b 100644
+--- a/toys/posix/find.c
++++ b/toys/posix/find.c
+@@ -334,7 +334,9 @@ static int do_find(struct dirtree *new)
+       if (check) {
+         // Alas neither st_size nor st_blocks reliably show an empty directory
+         if (S_ISDIR(new->st.st_mode)) {
+-          int fd = openat(dirtree_parentfd(new), new->name, O_RDONLY);
++          // O_DIRECTORY: see the openat()/open() calls in toys/posix/ls.c.
++          int fd = openat(dirtree_parentfd(new), new->name,
++            O_RDONLY|O_DIRECTORY);
+           DIR *dfd = fdopendir(fd);
+           struct dirent *de = (void *)1;
+           if (dfd) {

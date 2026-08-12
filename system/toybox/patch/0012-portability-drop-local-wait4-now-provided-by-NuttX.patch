@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 29 Jul 2026 17:35:00 +0000
+Subject: [PATCH 12/13] portability: drop local wait4(), now provided by
+ NuttX
+
+wait4() is now a real NuttX libc function (libs/libc/unistd/lib_wait4.c),
+built the same way this shim was (waitpid() + getrusage()), but visible
+from any program instead of duplicated per-app. Keeping this local copy
+would make both definitions link into the final image and fail with
+"multiple definition of wait4".
+
+diff --git a/lib/portability.c b/lib/portability.c
+index 3a1f9c2..7e2b881 100644
+--- a/lib/portability.c
++++ b/lib/portability.c
+@@ -855,19 +855,4 @@ int prlimit(pid_t pid, int resource, const struct rlimit *new_limit,
+
+   return 0;
+ }
+-
+-// wait4(2) (used by toys/posix/time.c) is waitpid() plus the reaped
+-// child's struct rusage in one call; NuttX has waitpid() and getrusage()
+-// separately but not the combined BSD/Linux call. NuttX's getrusage()
+-// only supports RUSAGE_SELF/RUSAGE_CHILDREN (not a specific pid), so this
+-// is only exact when the caller has a single outstanding child -- true
+-// for "time cmd", the only caller in this tree.
+-pid_t wait4(pid_t pid, int *status, int options, struct rusage *rusage)
+-{
+-  pid_t ret = waitpid(pid, status, options);
+-
+-  if (ret > 0 && rusage) getrusage(RUSAGE_CHILDREN, rusage);
+-
+-  return ret;
+-}
+ #endif

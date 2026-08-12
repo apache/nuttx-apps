@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 18:00:00 +0000
+Subject: [PATCH 11/11] uname: NuttX's struct utsname isn't laid out like
+ glibc's
+
+uname_main() finds each field by computing "toybuf + sizeof(sysname)
+* i", which assumes struct utsname is 6 same-size char[] fields
+(sysname/nodename/release/version/machine/domainname) back to back --
+true for glibc, not for NuttX, whose struct utsname has only 5 fields
+(no domainname) of three different sizes (SYS_NAMELEN, HOST_NAME_MAX,
+VERSION_NAMELEN). The offset arithmetic silently read garbage/wrong
+data across field boundaries instead of failing to build. Index the
+real fields by name on NuttX instead of relying on the memory layout.
+
+diff --git a/toys/posix/uname.c b/toys/posix/uname.c
+index dfa5762..bf86773 100644
+--- a/toys/posix/uname.c
++++ b/toys/posix/uname.c
+@@ -37,6 +37,36 @@ config UNAME
+ #define FORCE_FLAGS
+ #include "toys.h"
+ 
++#ifdef __NuttX__
++void uname_main(void)
++{
++  // NuttX's struct utsname has 5 fields, not Linux's 6 (no domainname),
++  // and they're not all the same size (nodename is HOST_NAME_MAX, version
++  // is VERSION_NAMELEN, the rest are SYS_NAMELEN) -- the "toybuf + uniform
++  // field size * i" trick the non-NuttX version below uses only works for
++  // glibc/Linux's actual (uniform, 6-field) layout, so index the real
++  // fields directly here instead.
++  struct utsname un;
++  char *field[5], *c;
++  int i, needspace = 0;
++
++  uname(&un);
++  field[0] = un.sysname;
++  field[1] = un.nodename;
++  field[2] = un.release;
++  field[3] = un.version;
++  field[4] = un.machine;
++
++  if (!toys.optflags) toys.optflags = FLAG_s;
++  for (i=0; i<6; i++) if (toys.optflags & ((1<<i)|FLAG_a)) {
++    c = (i==5) ? " Toybox"+!needspace : field[i];
++    if (i<5 && needspace++) xputc(' ');
++    xputsn(c);
++  }
++  if (FLAG(p)) xputsn(" unknown"+!needspace);
++  xputc('\n');
++}
++#else
+ void uname_main(void)
+ {
+   int i, needspace = 0;
+@@ -55,6 +85,7 @@ void uname_main(void)
+   if (FLAG(p)) xputsn(" unknown"+!needspace);
+   xputc('\n');
+ }
++#endif
+ 
+ void arch_main(void)
+ {

@@ -1,0 +1,433 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Sat, 18 Jul 2026 12:39:01 +0000
+Subject: [PATCH 1/7] portability: NuttX statfs/utmpx/RLIMIT_*/syscall/
+ mount-list/swap.h fixes
+
+NuttX's struct statfs has no f_frsize member (fragment size == block
+size there, same as the existing __APPLE__/__FreeBSD__/__OpenBSD__
+case, but block size comes from f_bsize instead of f_iosize).
+
+__has_include(<utmpx.h>) sees the host's glibc utmpx.h on the sim
+target (nothing stops it being found on the host include path), but
+including it fails without __pid_t already being typedef'd by an
+internal glibc header NuttX's own sys/types.h never pulls in. NuttX
+doesn't implement the utmp/utmpx accounting APIs at all, so always
+take the stub branch instead. Same story for <mntent.h> (used to
+enumerate mounted filesystems): it resolves to the host's glibc
+header, whose own nested includes conflict with NuttX's FILE type.
+NuttX has no /etc/mtab or mntent(3) to read anyway -- it exposes
+mount info to NSH's df/mount commands through a procfs file in its
+own format instead (see apps/nshlib/nsh_mntcmds.c) -- so give NuttX
+its own xgetmountlist() that reports no mounted filesystems for now;
+teaching it to parse that procfs file is future work.
+
+IUTF8 (Linux tty flag for UTF-8 input mode) was only given a fallback
+definition on the *BSD branch of an unrelated #ifdef (which include
+of <pty.h> vs <termios.h> to use); NuttX takes the <pty.h> branch (it
+has its own, unlike *BSD) but still doesn't define IUTF8. Move the
+fallback out to apply regardless of which branch was taken.
+
+NuttX's sys/resource.h implements most RLIMIT_* resources (used by
+toys/posix/ulimit.c) but leaves a few slots in its 0..RLIM_NLIMITS-1
+range reserved/unused where Linux has resources it doesn't track
+per-process (RSS, SIGPENDING, MSGQUEUE, NPROC). Fill those slots the
+same way this file already does for RLIMIT_RTTIME on old build
+environments, rather than leaving them undeclared.
+
+NuttX's sim target pulls in enough of glibc's headers to define
+__GLIBC__ (and __linux__, which our own build sets explicitly -- see
+../Makefile), but has neither Linux's raw SYS_timer_create/
+SYS_timer_settime/SYS_renameat2 syscall numbers nor the BLKGETSIZE64
+ioctl. It does have real timer_create()/timer_settime() natively
+(just not the RENAME_EXCHANGE rename or block-device-size-by-ioctl
+behavior), so exclude __NuttX__ from those Linux/glibc branches:
+timer_create()/timer_settime() then resolve to NuttX's own straight,
+and rename_exchange()/get_block_device_size() fall through to their
+existing "unsupported" returns (ENOSYS / 0) other unsupported
+platforms already use.
+
+NuttX has no swap subsystem at all, on any target -- sys/swap.h isn't
+part of its own include tree. That went unnoticed on the sim target
+specifically: nothing here calls into it, but the header still
+resolved and parsed fine because sim builds with the host's own
+compiler, which finds the host's real glibc sys/swap.h on its system
+include path. A real cross-compiled target (arm-none-eabi-gcc, no
+host headers to fall back on) has no such header at all, so guard
+this one include specifically rather than assuming __linux__ implies
+every Linux-only header exists.
+
+Two more of the same kind, both only caught by cross-compiling for a
+real target (arm-none-eabi-gcc / stm32f4discovery) instead of building
+sim against the host's own headers: sys/personality.h doesn't exist on
+NuttX either, so take the same stub personality()/PER_LINUX32 path
+already used for non-Linux platforms; and NuttX has no extended-
+attribute support at all (no getxattr/setxattr/listxattr family, no
+sys/xattr.h), so xattr_get()/xattr_set()/etc get a NuttX stub branch
+that fails with ENOSYS, which their only caller (cp_xattr() in
+toys/posix/cp.c) already treats as "nothing to copy, skip".
+
+toys.h itself unconditionally includes <sys/ttydefaults.h>, which
+NuttX doesn't have either. Of what it provides, only the CTRL() macro
+is actually used anywhere in this tree (toys/net/microcom.c), so
+define that one directly for NuttX instead of the whole header.
+
+_PATH_DEFPATH (glibc's <paths.h>, also pulled in unconditionally by
+toys.h) is the safe default $PATH lib/env.c's reset_env() sets for
+su/login. NuttX has no <paths.h>; fall back to CONFIG_PATH_INITIAL
+(the one directory NuttX's own boot code puts on PATH) when set, or
+plain "/bin" otherwise, rather than requiring a config option this
+file has no other reason to depend on.
+
+toys/posix/ulimit.c declares and calls prlimit(2) directly, expecting
+the OS to provide it the way glibc does (a Linux syscall since
+2.6.36). NuttX has no equivalent and no notion of inspecting or
+changing a *different* task's rlimits at all -- add a NuttX prlimit()
+that forwards to getrlimit()/setrlimit() for pid 0 or the caller's own
+pid, and fails with ESRCH otherwise (same as querying a nonexistent
+process would on Linux).
+
+toys/posix/time.c calls wait4(2) (waitpid() plus the reaped child's
+rusage in one call), another BSD/Linux syscall NuttX doesn't have --
+add one that calls waitpid() then getrusage(RUSAGE_CHILDREN, ...),
+exact for a single outstanding child (the only case anything in this
+tree needs, since NuttX's getrusage() can't target a specific pid).
+
+diff --git a/lib/portability.c b/lib/portability.c
+index 6acb0ec..5a3dcfd 100644
+--- a/lib/portability.c
++++ b/lib/portability.c
+@@ -93,6 +93,19 @@ struct mtab_list *xgetmountlist(char *path)
+   return mtlist;
+ }
+ 
++#elif defined(__NuttX__)
++
++// NuttX has no /etc/mtab or glibc mntent(3) API to read it with. NuttX
++// itself exposes mounted-filesystem info to NSH's own df/mount commands
++// through a procfs file (CONFIG_NSH_PROC_MOUNTPOINT "/fs/mount", see
++// apps/nshlib/nsh_mntcmds.c) in a NuttX-specific format; teaching this to
++// parse that is future work -- for now report no mounted filesystems
++// rather than fail to build.
++struct mtab_list *xgetmountlist(char *path)
++{
++  return 0;
++}
++
+ #else
+ 
+ #include <mntent.h>
+@@ -313,6 +326,71 @@ ssize_t xattr_fset(int fd, const char* name,
+   return fsetxattr(fd, name, value, size, 0, flags);
+ }
+ 
++#elif defined(__NuttX__)
++
++// NuttX has no extended-attribute support: no getxattr/setxattr/listxattr
++// family, no <sys/xattr.h>. Every caller here (cp_xattr() in toys/posix/
++// cp.c, tar.c) already treats a negative return as "nothing to copy" and
++// moves on, so stub out to that rather than declaring the feature absent
++// at the call site.
++
++ssize_t xattr_get(const char *path, const char *name, void *value, size_t size)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_lget(const char *path, const char *name, void *value, size_t size)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_fget(int fd, const char *name, void *value, size_t size)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_list(const char *path, char *list, size_t size)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_llist(const char *path, char *list, size_t size)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_flist(int fd, char *list, size_t size)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_set(const char* path, const char* name,
++                  const void* value, size_t size, int flags)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_lset(const char* path, const char* name,
++                   const void* value, size_t size, int flags)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
++ssize_t xattr_fset(int fd, const char* name,
++                   const void* value, size_t size, int flags)
++{
++  errno = ENOSYS;
++  return -1;
++}
++
+ #elif !defined(__FreeBSD__) && !defined(__OpenBSD__)
+ 
+ ssize_t xattr_get(const char *path, const char *name, void *value, size_t size)
+@@ -597,7 +675,7 @@ int get_block_device_size(int fd, unsigned long long* size)
+   }
+   return 0;
+ }
+-#elif defined(__linux__)
++#elif defined(__linux__) && !defined(__NuttX__)
+ int get_block_device_size(int fd, unsigned long long* size)
+ {
+   return (ioctl(fd, BLKGETSIZE64, size) >= 0);
+@@ -705,7 +783,9 @@ int timer_settime(timer_t t, int flags, struct itimerspec *new, void *old)
+ // glibc requires -lrt for linux syscalls, which pulls in libgcc_eh.a for
+ // static linking, and gcc 9.3 leaks pthread calls from that breaking the build
+ // These are both just linux syscalls: wrap them ourselves
+-#elif defined(__GLIBC__)
++//
++// (see the matching #elif in portability.h for why __NuttX__ is excluded)
++#elif defined(__GLIBC__) && !defined(__NuttX__)
+ int timer_create_wrap(clockid_t c, struct sigevent *se, timer_t *t)
+ {
+   // convert overengineered structure to what kernel actually uses
+@@ -736,10 +816,58 @@ int timer_settime_wrap(timer_t t, int flags, struct itimerspec *val,
+ // Atomically swap two files
+ int rename_exchange(char *file1, char *file2)
+ {
+-#if defined(__linux__)
++// NuttX has no Linux SYS_renameat2/RENAME_EXCHANGE equivalent.
++#if defined(__linux__) && !defined(__NuttX__)
+   // 2 is RENAME_EXCHANGE
+   return syscall(SYS_renameat2, AT_FDCWD, file1, AT_FDCWD, file2, 2);
+ #else
+   return ENOSYS;
+ #endif
+ }
++
++#ifdef __NuttX__
++// prlimit(2) is a Linux syscall (2.6.36+) for getting/setting another
++// process's rlimits; toys/posix/ulimit.c declares and calls it directly,
++// expecting the OS to provide it the way glibc does. NuttX has no
++// equivalent -- it has no notion of inspecting or changing a *different*
++// task's rlimits at all, only getrlimit()/setrlimit() for the caller's
++// own. Forward to those for pid 0 (the getrlimit/setrlimit convention for
++// "caller") or the caller's own pid; anything else fails with ESRCH,
++// same as it would against a nonexistent process on Linux.
++int prlimit(pid_t pid, int resource, const struct rlimit *new_limit,
++            struct rlimit *old_limit)
++{
++  if (pid != 0 && pid != getpid())
++    {
++      errno = ESRCH;
++      return -1;
++    }
++
++  if (old_limit && getrlimit(resource, old_limit))
++    {
++      return -1;
++    }
++
++  if (new_limit && setrlimit(resource, new_limit))
++    {
++      return -1;
++    }
++
++  return 0;
++}
++
++// wait4(2) (used by toys/posix/time.c) is waitpid() plus the reaped
++// child's struct rusage in one call; NuttX has waitpid() and getrusage()
++// separately but not the combined BSD/Linux call. NuttX's getrusage()
++// only supports RUSAGE_SELF/RUSAGE_CHILDREN (not a specific pid), so this
++// is only exact when the caller has a single outstanding child -- true
++// for "time cmd", the only caller in this tree.
++pid_t wait4(pid_t pid, int *status, int options, struct rusage *rusage)
++{
++  pid_t ret = waitpid(pid, status, options);
++
++  if (ret > 0 && rusage) getrusage(RUSAGE_CHILDREN, rusage);
++
++  return ret;
++}
++#endif
+diff --git a/lib/portability.h b/lib/portability.h
+index e87b919..9d3ce42 100644
+--- a/lib/portability.h
++++ b/lib/portability.h
+@@ -77,6 +77,40 @@
+ #define RLIMIT_RTTIME 15
+ #endif
+ 
++// glibc's <paths.h> (pulled in unconditionally by toys.h) defines
++// _PATH_DEFPATH, the safe default $PATH lib/env.c's reset_env() sets for
++// e.g. su/login. NuttX has no <paths.h> at all -- the closest equivalent
++// it has is CONFIG_PATH_INITIAL, the single directory its own boot code
++// puts on PATH (see boards/*/configs/*/defconfig), but that's only
++// defined when CONFIG_LIBC_ENVPATH is set, so fall back to "/bin" (what
++// every current board's defconfig actually uses for it) rather than
++// depending on a config option this file has no other reason to require.
++#if defined(__NuttX__) && !defined(_PATH_DEFPATH)
++#ifdef CONFIG_PATH_INITIAL
++#define _PATH_DEFPATH CONFIG_PATH_INITIAL
++#else
++#define _PATH_DEFPATH "/bin"
++#endif
++#endif
++
++// NuttX's sys/resource.h implements most RLIMIT_* resources but leaves a
++// few reserved/unused slots in its 0..RLIM_NLIMITS-1 range where Linux has
++// resources it doesn't track per-process. Filling those slots (rather than
++// picking numbers outside NuttX's range) keeps getrlimit()/setrlimit()
++// calls for them safe no-ops instead of out-of-bounds accesses.
++#ifndef RLIMIT_RSS
++#define RLIMIT_RSS 9
++#endif
++#ifndef RLIMIT_MSGQUEUE
++#define RLIMIT_MSGQUEUE 12
++#endif
++#ifndef RLIMIT_NPROC
++#define RLIMIT_NPROC 13
++#endif
++#ifndef RLIMIT_SIGPENDING
++#define RLIMIT_SIGPENDING 11
++#endif
++
+ // Introduced in Linux 3.1 (Commit 982d816581eee 2011)
+ #ifndef SEEK_DATA
+ #define SEEK_DATA 3
+@@ -171,8 +205,16 @@ void *memmem(const void *haystack, size_t haystack_length,
+ #include <sys/mount.h>
+ #ifdef __linux__
+ #include <sys/statfs.h>
+-#include <sys/swap.h>
+ #include <sys/sysinfo.h>
++// NuttX has no swap subsystem at all -- sys/swap.h doesn't exist in its own
++// include tree. On the "sim" target this went unnoticed: it built against
++// the host's own glibc headers, which happen to provide a real sys/swap.h
++// nothing here actually calls. A real cross-compiled target has no such
++// fallback, so guard this one specifically instead of assuming __linux__
++// means every Linux-only header is present.
++#ifndef __NuttX__
++#include <sys/swap.h>
++#endif
+ #endif
+ 
+ #ifdef __APPLE__
+@@ -181,22 +223,34 @@ void *memmem(const void *haystack, size_t haystack_length,
+ #include <pty.h>
+ #else
+ #include <termios.h>
++#endif
++
++// IUTF8 (Linux tty flag for UTF-8 input mode) is missing not just on
++// *BSD but also NuttX, which has its own <pty.h> without it -- keep this
++// check unconditional rather than only reachable from the *BSD branch.
+ #ifndef IUTF8
+ #define IUTF8 0
+ #endif
+-#endif
+ 
+-#ifdef __linux__
++// NuttX has no personality(2) syscall or sys/personality.h -- take the
++// same stub path as every other non-Linux port instead (only toys/other/
++// linux32.c calls this, which isn't part of NuttX's curated applet set).
++#if defined(__linux__) && !defined(__NuttX__)
+ #include <sys/personality.h>
+ #else
+ #define PER_LINUX32 0
+ int personality(int);
+ #endif
+ 
+-#if defined(__APPLE__) || defined(__linux__)
++#if defined(__APPLE__) || defined(__linux__) || defined(__NuttX__)
+ // Linux and macOS has both have getxattr and friends in <sys/xattr.h>, but
+-// they aren't compatible.
++// they aren't compatible. NuttX has neither the header nor any extended-
++// attribute support at all -- xattr_*() below stub out to ENOSYS for it
++// instead (see lib/portability.c), which cp_xattr() (toys/posix/cp.c)
++// already treats as "nothing to copy, skip".
++#ifndef __NuttX__
+ #include <sys/xattr.h>
++#endif
+ ssize_t xattr_get(const char *, const char *, void *, size_t);
+ ssize_t xattr_lget(const char *, const char *, void *, size_t);
+ ssize_t xattr_fget(int fd, const char *, void *, size_t);
+@@ -220,6 +274,10 @@ int posix_fallocate(int, off_t, off_t);
+ #if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+ static inline long statfs_bsize(struct statfs *sf) { return sf->f_iosize; }
+ static inline long statfs_frsize(struct statfs *sf) { return sf->f_bsize; }
++#elif defined(__NuttX__)
++// NuttX's struct statfs has no f_frsize (fragment size == block size there).
++static inline long statfs_bsize(struct statfs *sf) { return sf->f_bsize; }
++static inline long statfs_frsize(struct statfs *sf) { return sf->f_bsize; }
+ #else
+ static inline long statfs_bsize(struct statfs *sf) { return sf->f_bsize; }
+ static inline long statfs_frsize(struct statfs *sf) { return sf->f_frsize; }
+@@ -231,7 +289,13 @@ static inline long statfs_frsize(struct statfs *sf) { return sf->f_frsize; }
+ #if __has_include(<shadow.h>)
+ #include <shadow.h>
+ #endif
+-#if __has_include(<utmpx.h>)
++// On the NuttX "sim" target, __has_include() sees the *host's* glibc
++// utmpx.h (nothing stops it being found on the host include path), but
++// including it fails: glibc's utmpx.h expects __pid_t to already be
++// typedef'd by an internal header NuttX's own (different) sys/types.h
++// never pulls in. NuttX doesn't implement the utmp/utmpx accounting APIs
++// at all, so always take the stub branch below instead.
++#if !defined(__NuttX__) && __has_include(<utmpx.h>)
+ #include <utmpx.h>
+ #else
+ struct utmpx {int ut_type;};
+@@ -377,7 +441,12 @@ struct itimerspec {
+ };
+ int timer_create(clock_t c, struct sigevent *se, timer_t *t);
+ int timer_settime(timer_t t, int flags, struct itimerspec *new, void *old);
+-#elif defined(__GLIBC__)
++// NuttX's sim target pulls in enough of glibc's headers to define
++// __GLIBC__, but doesn't have the raw Linux SYS_timer_create/
++// SYS_timer_settime syscall numbers this branch needs -- it does have its
++// own real timer_create()/timer_settime(), so skip the wrapper and let
++// those declarations (from NuttX's own <time.h>) apply directly instead.
++#elif defined(__GLIBC__) && !defined(__NuttX__)
+ // Work around a glibc bug that interacts badly with a gcc bug.
+ #include <syscall.h>
+ #include <signal.h>
+diff --git a/toys.h b/toys.h
+index f7de91b..4f144d6 100644
+--- a/toys.h
++++ b/toys.h
+@@ -66,7 +66,15 @@
+ // Non-posix headers
+ #include <sys/ioctl.h>
+ #include <sys/syscall.h>
++// NuttX has no <sys/ttydefaults.h> at all. Of everything it normally
++// provides, only CTRL() is actually used anywhere in this tree (by
++// toys/net/microcom.c) -- define that one directly instead, rather than
++// pulling in a header NuttX doesn't have for macros nothing here needs.
++#ifdef __NuttX__
++#define CTRL(x) ((x) & 037)
++#else
+ #include <sys/ttydefaults.h>
++#endif
+ 
+ #include "lib/lib.h"
+ #include "lib/lsm.h"

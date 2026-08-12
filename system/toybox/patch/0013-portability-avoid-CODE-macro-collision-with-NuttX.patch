@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 29 Jul 2026 17:36:00 +0000
+Subject: [PATCH 13/13] portability: avoid CODE macro collision with NuttX
+
+NuttX's <nuttx/compiler.h> (pulled in transitively by <sys/types.h>,
+included above this point) #defines the bare identifier CODE as a
+memory-space qualifier used pervasively across NuttX's own headers
+(mirroring FAR/DATA). That collides with this typedef's name, silently
+macro-expanding it away and leaving "extern CODE prioritynames[]..." as
+an implicit-int declaration instead of a compile error, since CODE is
+object-like and expands to nothing on most archs.
+
+toys/pending/syslogd.c is the only user of prioritynames/facilitynames/
+CODE in this tree, and it isn't built here, so skip the declaration
+entirely on NuttX rather than renaming around a macro nothing needs.
+
+diff --git a/lib/portability.h b/lib/portability.h
+index 9c4d271..1f8a3e0 100644
+--- a/lib/portability.h
++++ b/lib/portability.h
+@@ -385,7 +385,15 @@ extern CODE prioritynames[], facilitynames[];
+
+ #endif
+
+-#ifndef SYSLOG_NAMES
++// NuttX's <nuttx/compiler.h> (pulled in transitively by <sys/types.h>,
++// included above) #defines the bare identifier CODE as a memory-space
++// qualifier used pervasively across NuttX's own headers (mirroring FAR/
++// DATA). That collides with this typedef's name, silently macro-expanding
++// it away and leaving "extern CODE prioritynames[]..." as an implicit-int
++// declaration instead of an error, since CODE is object-like and expands
++// to nothing on most archs. toys/pending/syslogd.c is the only user of
++// prioritynames/facilitynames/CODE in this tree, and it isn't built here.
++#if !defined(SYSLOG_NAMES) && !defined(__NuttX__)
+ typedef struct {char *c_name; int c_val;} CODE;
+ extern CODE prioritynames[], facilitynames[];
+ #endif

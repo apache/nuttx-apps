@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 29 Jul 2026 17:58:00 +0000
+Subject: [PATCH 15/15] toybox_entry: add "cd" REPL builtin
+
+"cd" has no Toybox applet of its own -- upstream only implements it as
+a shell builtin (toys/pending/sh.c, not built here), because changing
+directory only means anything if it happens in the caller's own
+process. Our REPL already special-cases "help"/"?" the same way for a
+similar reason; add "cd" alongside them instead of falling through to
+"Unknown command cd".
+
+diff --git a/toybox_entry.c b/toybox_entry.c
+index 2f6a7c1..8d914bb 100644
+--- a/toybox_entry.c
++++ b/toybox_entry.c
+@@ -121,6 +121,22 @@ static int run_line(char *line)
+
+   if (argc == 0) return 0;
+
++  /* "cd" has no Toybox applet of its own -- upstream only implements it as
++   * a shell builtin (toys/pending/sh.c, not built here) because changing
++   * directory only means anything done in-process; running it through
++   * dispatch() like any other command would still be in-process (see
++   * dispatch()'s comment), but there is no toys/.../cd.c for toy_find()
++   * to locate in the first place. Handle it directly at the REPL level
++   * instead, same as "help"/"?" below.
++   */
++  if (!strcmp(argv[0], "cd"))
++    {
++      const char *dir = (argc >= 2) ? argv[1] : "/";
++
++      if (chdir(dir)) perror("cd");
++      return 0;
++    }
++
+   /* Bare "help"/"?" (no arguments of their own): list every Toybox applet,
+    * same as running "toybox" with no arguments would. A "help <command>"
+    * still reaches Toybox's own CONFIG_HELP applet, if enabled, via the

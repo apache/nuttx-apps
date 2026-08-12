@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:35:00 +0000
+Subject: [PATCH 23/23] hash: fix %x format vs uint32_t type mismatch
+
+hash->state.i32[] is "unsigned" (unsigned int), matching "%08x", but
+the ternary that conditionally byteswaps it doesn't: bswap_32() returns
+uint32_t, which some NuttX arm builds typedef to "unsigned long" rather
+than "unsigned int" (arch/arm/include/types.h's __UINT32_TYPE__
+fallback). The usual arithmetic conversions then give the whole ?:
+expression that wider-looking type even though both branches are the
+same 32 bits, so it stops matching "%x" on those targets. An explicit
+(unsigned) cast on the result sidesteps whatever uint32_t happens to
+alias to.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ lib/hash.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/lib/hash.c b/lib/hash.c
+index 2ba4014..2aa33ca 100644
+--- a/lib/hash.c
++++ b/lib/hash.c
+@@ -383,8 +383,13 @@ void hash_by_name(int fd, char *name, char *result)
+   if (method>=4) for (i=0; i<digestlen/8; i++)
+     result += sprintf(result, "%016llx", hash->state.i64[i]);
+   else for (i=0; i<digestlen/4; i++)
+-    result += sprintf(result, "%08x",
+-            !method ? bswap_32(hash->state.i32[i]) : hash->state.i32[i]);
++    // The (unsigned) cast matters on targets (some NuttX/arm builds) where
++    // uint32_t is "unsigned long" rather than "unsigned int": bswap_32()
++    // returns uint32_t, so without it the ?: here has type unsigned long
++    // (usual arithmetic conversions promote to the wider-looking type even
++    // though both are 32 bits), which doesn't match "%x"'s unsigned int.
++    result += sprintf(result, "%08x", (unsigned)
++            (!method ? bswap_32(hash->state.i32[i]) : hash->state.i32[i]));
+   // Wipe variables. Cryptographer paranoia. Avoid "optimizing" out memset
+   // by looping on a volatile pointer.
+   for (pp = (void *)hash; pp-(unsigned *)hash<sizeof(*hash)/4; pp++) *pp = 0;
+--
+2.43.0

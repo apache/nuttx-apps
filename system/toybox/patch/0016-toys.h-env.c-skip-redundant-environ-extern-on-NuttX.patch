@@ -1,0 +1,60 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:00:00 +0000
+Subject: [PATCH 16/23] toys.h, env.c: skip redundant environ extern on NuttX
+
+NuttX's <stdlib.h> #defines environ to get_environ_ptr() (a real,
+fully-prototyped function -- there's no plain "char **environ" global
+to point at). Toybox's "extern char **environ" then macro-expands to
+"extern char **get_environ_ptr()" -- a K&R-style redeclaration ("()"
+isn't "(void)") of a function already declared properly elsewhere,
+which is exactly what -Wstrict-prototypes warns about. Skip the
+redundant redeclaration on NuttX in both spots that had one; nothing
+else changes; every ordinary use of "environ" still resolves through
+the same macro either way.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ lib/env.c | 4 ++++
+ toys.h    | 10 +++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/lib/env.c b/lib/env.c
+index e281820..2cd491a 100644
+--- a/lib/env.c
++++ b/lib/env.c
+@@ -3,7 +3,11 @@
+ #include "toys.h"
+
+ // In libc, populated by start code, used by getenv() and exec() and friends.
++// See toys.h's own environ declaration for why NuttX skips this: it's a
++// get_environ_ptr() macro there, already declared with a full prototype.
++#ifndef __NuttX__
+ extern char **environ;
++#endif
+
+ // Returns the number of bytes taken by the environment variables. For use
+ // when calculating the maximum bytes of environment+argument data that can
+diff --git a/toys.h b/toys.h
+index 4f144d6..8673d8f 100644
+--- a/toys.h
++++ b/toys.h
+@@ -137,7 +137,15 @@ extern struct toy_context {
+
+ // Two big temporary buffers: one for use by commands, one for library functions
+
+-extern char **environ, *toybox_version, toybuf[4096], libbuf[4096];
++// NuttX doesn't expose environ as a plain global -- <stdlib.h> #defines it to
++// get_environ_ptr(), already declared there with a full prototype. Redeclaring
++// it here the usual "extern char **environ" way would instead redeclare that
++// function without one (a K&R-style "()" isn't "(void)"), which just warns
++// since the two declarations still agree once macro-expanded.
++#ifndef __NuttX__
++extern char **environ;
++#endif
++extern char *toybox_version, toybuf[4096], libbuf[4096];
+
+ #define FLAG(x) (!!(toys.optflags&FLAG_##x))  // Return 1 if flag set, 0 if not
+
+--
+2.43.0

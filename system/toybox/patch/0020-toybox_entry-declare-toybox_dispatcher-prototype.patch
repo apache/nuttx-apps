@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Alan C. Assis" <acassis@gmail.com>
+Date: Wed, 12 Aug 2026 15:20:00 +0000
+Subject: [PATCH 20/23] toybox_entry: declare toybox_dispatcher() prototype
+
+toybox_dispatcher() (main.c, renamed from toybox_main() by patch 0002)
+is only ever called from within main.c itself upstream, so it never
+needed a prototype in a shared header -- until this file's dispatch()
+became a second, cross-file caller. Give it one here rather than rely
+on an implicit declaration matching by accident.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+---
+ toybox_entry.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/toybox_entry.c b/toybox_entry.c
+index 009dacd..3ed8f92 100644
+--- a/toybox_entry.c
++++ b/toybox_entry.c
+@@ -37,6 +37,12 @@
+
+ #include "toys.h"
+
++/* main.c: the real multiplexer (renamed from toybox_main(), see patch
++ * 0002) -- only ever called from within main.c itself upstream, so it has
++ * no prototype in a shared header for this file's cross-file call to see.
++ */
++void toybox_dispatcher(void);
++
+ #ifdef CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE
+ /* nuttx_bridge.c: run a NuttX builtin application by name when the typed
+  * command isn't a Toybox applet. Returns 0 if it found and ran (regardless
+--
+2.43.0
