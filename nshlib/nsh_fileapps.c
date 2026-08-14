@@ -253,6 +253,14 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    */
 
   ret = posix_spawnp(&pid, cmd, &file_actions, &attr, argv, environ);
+  if (ret == EACCES)
+    {
+      nsh_error(vtbl, "nsh: %s: Permission denied\n", cmd);
+      rc = 1;
+      ret = OK;
+      goto errout_with_actions;
+    }
+
   if (ret == OK)
     {
       /* The application was successfully started with pre-emption disabled.

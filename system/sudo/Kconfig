@@ -1,0 +1,47 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SUDO
+	tristate "sudo (setuid privilege helper)"
+	default n
+	depends on SCHED_USER_IDENTITY
+	depends on LIBC_PASSWD_FILE
+	depends on FSUTILS_PASSWD
+	depends on LIBC_EXECFUNCS
+	---help---
+		Install a Linux-style setuid-root ``sudo`` program.  The kernel
+		raises the effective UID to zero when the ELF is loaded (see
+		``nx_uid`` / ``nx_mode`` in Application.mk).  ``sudo`` verifies
+		the invoking user's password with ``passwd_verify()``, becomes
+		fully root via ``setresuid()`` / ``setresgid()``, then
+		``execvp()``s the requested command.
+
+		Requires ``CONFIG_LIBC_EXECFUNCS`` so NSH (or ``posix_spawn``)
+		loads the application ELF instead of calling its entry point
+		directly from the builtin registry.
+
+		Non-root callers must appear in the sudoers file
+		(``SYSTEM_SUDO_SUDOERS_PATH``) or in
+		``SYSTEM_SUDO_ALLOWED_USERS``.  Real UID 0 is always allowed.
+
+if SYSTEM_SUDO
+
+config SYSTEM_SUDO_SUDOERS_PATH
+	string "Path to sudoers allowlist"
+	default "/etc/sudoers"
+	---help---
+		Simple allowlist, one username per line.  Lines starting with
+		``#`` are comments.  A Linux-style first field is also accepted
+		(``user ALL=(ALL) ALL``).  Generate this file in ROMFS with
+		``CONFIG_BOARD_ETC_ROMFS_PASSWD_EXTRA_ENABLE``.
+
+config SYSTEM_SUDO_ALLOWED_USERS
+	string "Compile-time sudoers usernames"
+	default ""
+	---help---
+		Optional comma-separated extra allowlist compiled into sudo.
+		Use this when /etc/sudoers is not present.  Example: ``user``.
+
+endif # SYSTEM_SUDO

@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/hello/CMakeLists.txt
+# apps/system/sudo/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,32 +20,22 @@
 #
 # ##############################################################################
 
-if(CONFIG_EXAMPLES_HELLO)
-  if(CONFIG_EXAMPLES_HELLO_RESTRICTED)
-    nuttx_add_application(
-      NAME
-      ${CONFIG_EXAMPLES_HELLO_PROGNAME}
-      SRCS
-      hello_main.c
-      STACKSIZE
-      ${CONFIG_EXAMPLES_HELLO_STACKSIZE}
-      PRIORITY
-      ${CONFIG_EXAMPLES_HELLO_PRIORITY}
-      UID
-      0
-      GID
-      0
-      MODE
-      484)
-  else()
-    nuttx_add_application(
-      NAME
-      ${CONFIG_EXAMPLES_HELLO_PROGNAME}
-      SRCS
-      hello_main.c
-      STACKSIZE
-      ${CONFIG_EXAMPLES_HELLO_STACKSIZE}
-      PRIORITY
-      ${CONFIG_EXAMPLES_HELLO_PRIORITY})
-  endif()
+if(CONFIG_SYSTEM_SUDO)
+  nuttx_add_application(
+    NAME
+    sudo
+    PRIORITY
+    100
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_SYSTEM_SUDO}
+    UID
+    0
+    GID
+    0
+    MODE
+    35309
+    SRCS
+    sudo_main.c)
 endif()

@@ -40,6 +40,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_SYSTEM_SUDO)
+#  include <spawn.h>
+#endif
+
 #if !defined(CONFIG_DISABLE_MQUEUE)
 #  include <mqueue.h>
 #endif
@@ -1325,6 +1329,69 @@ static int multiuser_passwd_test(FAR struct mu_ctx_s *ctx)
 
 #endif /* CONFIG_LIBC_PASSWD_FILE && CONFIG_TESTING_OSTEST_MULTIUSER */
 
+#if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_SYSTEM_SUDO) && \
+    defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
+
+static int multiuser_sudo_setuid_test(FAR struct mu_ctx_s *ctx)
+{
+  posix_spawnattr_t attr;
+  FAR char * const spawn_argv[] =
+    {
+      (FAR char *)"sudo", (FAR char *)"--probe", NULL
+    };
+
+  pid_t pid;
+  int status;
+  int ret;
+
+  printf("multiuser: setuid sudo exec after hard credential drop\n");
+
+  mu_restore_root(ctx);
+  ret = setuid(MU_UID1);
+  if (mu_expect_ok(ctx, "setuid(1000) before sudo exec", ret) != 0)
+    {
+      return ctx->failures;
+    }
+
+  mu_check_eq(ctx, "parent euid before sudo", geteuid(), MU_UID1);
+
+  ret = posix_spawnattr_init(&attr);
+  if (mu_expect_ok(ctx, "posix_spawnattr_init", ret) != 0)
+    {
+      return ctx->failures;
+    }
+
+  ret = posix_spawn(&pid, "sudo", NULL, &attr, spawn_argv, NULL);
+  posix_spawnattr_destroy(&attr);
+  if (mu_expect_ok(ctx, "posix_spawn(sudo --probe)", ret) != 0)
+    {
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  if (waitpid(pid, &status, 0) != pid)
+    {
+      mu_fail(ctx, "waitpid(sudo) errno=%d", errno);
+      mu_restore_root(ctx);
+      return ctx->failures;
+    }
+
+  if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+    {
+      mu_fail(ctx, "sudo --probe status=%d", status);
+    }
+  else
+    {
+      mu_pass("sudo --probe after hard drop");
+    }
+
+  mu_check_eq(ctx, "parent euid after sudo", geteuid(), MU_UID1);
+  mu_restore_root(ctx);
+  return ctx->failures;
+}
+
+#endif /* CONFIG_LIBC_EXECFUNCS && CONFIG_SYSTEM_SUDO && CONFIG_SCHED_WAITPID */
+
 #endif /* CONFIG_SCHED_USER_IDENTITY */
 
 /****************************************************************************
@@ -1387,6 +1454,14 @@ int multiuser_test(void)
 #else
   printf("multiuser: skipping passwd lookup test "
          "(need LIBC_PASSWD_FILE and TESTING_OSTEST_MULTIUSER)\n");
+#endif
+
+#if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_SYSTEM_SUDO) && \
+    defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_BUILD_KERNEL)
+  multiuser_sudo_setuid_test(&ctx);
+#else
+  printf("multiuser: skipping setuid sudo exec test "
+         "(need LIBC_EXECFUNCS, SYSTEM_SUDO, SCHED_WAITPID)\n");
 #endif
 
   mu_restore_root(&ctx);
