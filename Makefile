@@ -206,6 +206,13 @@ ifneq ($(BUILTIN_REGISTRY),)
 	done
 endif
 endif
+	$(Q) for inc in $(EXPORTED_INCLUDES) ; do \
+		inc=$${inc#"$(INCDIR_PREFIX)"}; \
+		if [ -d "$${inc}" ]; then \
+			mkdir -p "${EXPORTDIR}"$(DELIM)include || exit 1; \
+			cp -Rf "$${inc}"$(DELIM). "${EXPORTDIR}"$(DELIM)include || exit 1; \
+		fi \
+	done
 endif
 
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
