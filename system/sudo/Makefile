@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello/Makefile
+# apps/system/sudo/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -22,21 +22,17 @@
 
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+PROGNAME  = sudo
+PRIORITY  = 100
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE    = $(CONFIG_SYSTEM_SUDO)
 
-PROGNAME  = $(CONFIG_EXAMPLES_HELLO_PROGNAME)
-PRIORITY  = $(CONFIG_EXAMPLES_HELLO_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_HELLO_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_HELLO)
+MAINSRC = sudo_main.c
 
-ifeq ($(CONFIG_EXAMPLES_HELLO_RESTRICTED),y)
+# Set-user-ID root executable (Linux-style sudo): S_IFREG | S_ISUID |
+# S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH
 UID  = 0
 GID  = 0
-MODE = 0744
-endif
-
-# Hello, World! Example
-
-MAINSRC = hello_main.c
+MODE = 35309
 
 include $(APPDIR)/Application.mk

@@ -178,10 +178,14 @@ static bool nsh_verify_credentials(FAR const char *username,
  * Name: nsh_switch_credentials
  *
  * Description:
- *   Switch the session to the given UID/GID.  NSH starts with real UID/GID
- *   zero; file permission checks use the effective identity.  When the real
- *   UID is still zero, only the effective UID/GID are changed so that a
- *   later 'su' can regain root via seteuid(0) after password verification.
+ *   Switch the session to the given UID/GID.
+ *
+ *   When the real UID is still zero and the target is not root, set the
+ *   real and effective IDs to the target and keep saved-root (suid/sgid
+ *   0).  File DAC then uses the unprivileged effective ID, while setuid
+ *   helpers such as sudo still see the real UID of the invoking user
+ *   after S_ISUID raises the effective UID to 0.  A later ``su root``
+ *   can restore root from the saved IDs after password verification.
  *
  ****************************************************************************/
 
@@ -189,15 +193,25 @@ static int nsh_switch_credentials(uid_t uid, gid_t gid)
 {
   if (getuid() == 0)
     {
-      if (geteuid() != 0 || getegid() != 0)
+      if (geteuid() != 0)
         {
-          if (seteuid(0) != 0 || setegid(0) != 0)
+          if (seteuid(0) != 0)
             {
               return -errno;
             }
         }
 
-      if (seteuid(uid) != 0 || setegid(gid) != 0)
+      if (uid == 0)
+        {
+          if (setresgid(0, 0, 0) != 0 || setresuid(0, 0, 0) != 0)
+            {
+              return -errno;
+            }
+
+          return OK;
+        }
+
+      if (setresgid(gid, gid, 0) != 0 || setresuid(uid, uid, 0) != 0)
         {
           return -errno;
         }
@@ -205,7 +219,7 @@ static int nsh_switch_credentials(uid_t uid, gid_t gid)
       return OK;
     }
 
-  if (setuid(uid) != 0 || setgid(gid) != 0)
+  if (setresgid(gid, gid, gid) != 0 || setresuid(uid, uid, uid) != 0)
     {
       return -errno;
     }
@@ -222,8 +236,9 @@ static int nsh_switch_credentials(uid_t uid, gid_t gid)
  *
  * Description:
  *   Look up 'username' in the passwd database and set the calling task's
- *   session identity.  When NSH still has real UID zero, only the effective
- *   UID/GID are updated so that 'su' can switch users later.
+ *   session identity.  When switching from real UID zero to a non-root
+ *   user, real and effective IDs become that user and saved-root is kept
+ *   so ``su root`` can restore privileges after authentication.
  *
  * Input Parameters:
  *   username - Login name to assume

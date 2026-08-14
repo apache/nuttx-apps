@@ -26,4 +26,14 @@ config EXAMPLES_HELLO_STACKSIZE
 	int "Hello stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config EXAMPLES_HELLO_RESTRICTED
+	bool "Install hello as owner-execute only (0744)"
+	default n
+	depends on SCHED_USER_IDENTITY
+	---help---
+		Set the installed mode to ``-rwxr--r--`` owned by root so a
+		non-root user cannot exec ``/bin/hello``.  Used with
+		``CONFIG_SYSTEM_SUDO`` to show ``sudo /bin/hello`` restoring
+		access.
+
 endif
