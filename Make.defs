@@ -145,6 +145,18 @@ endif
 CFLAGS   += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)include"
 CXXFLAGS += ${INCDIR_PREFIX}"$(APPDIR)$(DELIM)include"
 
+# EXPORTED_INCLUDES lists include directories that must be available to
+# applications built out of tree from the NuttX export package.  Each
+# entry is prefixed with ${INCDIR_PREFIX} (i.e. -I<dir>) and is added
+# to CFLAGS/CXXFLAGS so that it takes effect in the in-tree build as
+# well.  The content of the listed directories is copied to the include
+# directory of the export package by the export target in apps/Makefile.
+# Components should append their public include directories in their
+# Make.defs.
+
+CFLAGS   += $(EXPORTED_INCLUDES)
+CXXFLAGS += $(EXPORTED_INCLUDES)
+
 NUTTXLIB ?= $(call CONVERT_PATH,$(TOPDIR)$(DELIM)staging)
 
 # SPLITVARIABLE - Split long variables into specified batches
