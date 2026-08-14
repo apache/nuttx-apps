@@ -25,8 +25,7 @@ CONFIGURED_APPS += $(APPDIR)/graphics/microwindows
 
 # It allows `microwindows/src/include` import.
 
-CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
-CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
+EXPORTED_INCLUDES += ${INCDIR_PREFIX}$(APPDIR)/graphics/microwindows/microwindows/src/include
 
 CFLAGS += -DMWCONFIG_FILE='"mwconfig.nuttx"'
 
