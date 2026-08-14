@@ -218,8 +218,11 @@ void nsh_update_prompt(void)
  * Name: nsh_update_prompt_after_login
  *
  * Description:
- *   Enable privilege markers in the prompt and refresh it.  Boot and
- *   no-login sessions keep NSH_PROMPT_STRING (for example, "nsh> ").
+ *   Enable privilege markers in the prompt and refresh it.  Call this
+ *   after a successful console/telnet login or su.  nsh_consolemain
+ *   always passes NSH_LOGIN_LOCAL, so this must not run merely because
+ *   the session type is local.  Boot and no-login sessions keep
+ *   NSH_PROMPT_STRING (for example, "nsh> ").
  *
  ****************************************************************************/
 
