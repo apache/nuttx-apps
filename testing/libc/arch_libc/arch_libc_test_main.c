@@ -793,6 +793,183 @@ static void speed_strlcpy(void)
 #endif
 
 /****************************************************************************
+ * Name: test_memccpy
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_ARCH_LIBC_MEMCCPY
+static int test_memccpy(void)
+{
+  int size;
+  int fail = 0;
+  int ai;
+  int i;
+
+  printf("Testing memccpy...\n");
+
+  for (ai = 0; ai < 64; ai++)
+    {
+      int da = ai / 8;
+      int sa = ai % 8;
+
+      for (size = 1; size <= 64; size++)
+        {
+          FAR char *p;
+          int at = size / 2;
+
+          fill_pattern(g_buf1 + sa, size);
+          g_buf1[sa + at] = '#';
+          memset(g_buf2, 0x5a, sizeof(g_buf2));
+
+          /* The character is present, so the copy stops just past it */
+
+          p = memccpy(g_buf2 + da, g_buf1 + sa, '#', size);
+          if (p != g_buf2 + da + at + 1 ||
+              memcmp(g_buf2 + da, g_buf1 + sa, at + 1) != 0 ||
+              (unsigned char)g_buf2[da + at + 1] != 0x5a)
+            {
+              printf("  FAIL found: sa=%d da=%d size=%d\n", sa, da, size);
+              fail++;
+            }
+
+          /* The character is absent, so the whole length is copied */
+
+          for (i = 0; i < size; i++)
+            {
+              g_buf1[sa + i] = 'A' + (i % 26);
+            }
+
+          memset(g_buf2, 0x5a, sizeof(g_buf2));
+          p = memccpy(g_buf2 + da, g_buf1 + sa, '#', size);
+          if (p != NULL || memcmp(g_buf2 + da, g_buf1 + sa, size) != 0 ||
+              (unsigned char)g_buf2[da + size] != 0x5a)
+            {
+              printf("  FAIL absent: sa=%d da=%d size=%d\n", sa, da, size);
+              fail++;
+            }
+        }
+    }
+
+  printf("memccpy: %s\n", fail ? "FAILED" : "PASSED");
+  return fail;
+}
+
+#ifdef ARCH_LIBC_HAVE_PERF
+static void speed_memccpy(void)
+{
+  clock_t start;
+  clock_t end;
+  int i;
+
+  fill_pattern(g_buf1, 128);
+  start = perf_gettime();
+  for (i = 0; i < TEST_REPEAT; i++)
+    {
+      g_sink = (uintptr_t)memccpy(g_buf2, g_buf1, '#', 128);
+    }
+
+  end = perf_gettime();
+  printf("memccpy(128) avg cycles: %ju\n",
+         (uintmax_t)(end - start) / TEST_REPEAT);
+}
+#endif
+#endif
+
+/****************************************************************************
+ * Name: test_stpncpy
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_ARCH_LIBC_STPNCPY
+static int test_stpncpy(void)
+{
+  int size;
+  int fail = 0;
+  int ai;
+  int cap;
+  int i;
+
+  printf("Testing stpncpy...\n");
+
+  for (ai = 0; ai < 64; ai++)
+    {
+      int da = ai / 8;
+      int sa = ai % 8;
+
+      for (size = 1; size <= 48; size++)
+        {
+          fill_pattern(g_buf1 + sa, size);
+          g_buf1[sa + size] = '\0';
+
+          for (cap = 0; cap <= size + 4; cap++)
+            {
+              FAR char *p;
+              FAR char *want;
+
+              memset(g_buf2, 0x5a, sizeof(g_buf2));
+              p = stpncpy(g_buf2 + da, g_buf1 + sa, cap);
+
+              /* Up to the terminator is copied, the rest is padded, and
+               * the result points at the terminator or one past the end.
+               */
+
+              want = size < cap ? g_buf2 + da + size : g_buf2 + da + cap;
+              if (p != want)
+                {
+                  printf("  FAIL ret: sa=%d da=%d size=%d cap=%d\n",
+                         sa, da, size, cap);
+                  fail++;
+                  continue;
+                }
+
+              for (i = 0; i < cap; i++)
+                {
+                  char expect = i < size ? g_buf1[sa + i] : '\0';
+
+                  if (g_buf2[da + i] != expect)
+                    {
+                      printf("  FAIL content: sa=%d da=%d size=%d cap=%d\n",
+                             sa, da, size, cap);
+                      fail++;
+                      break;
+                    }
+                }
+
+              if ((unsigned char)g_buf2[da + cap] != 0x5a)
+                {
+                  printf("  FAIL overrun: sa=%d da=%d size=%d cap=%d\n",
+                         sa, da, size, cap);
+                  fail++;
+                }
+            }
+        }
+    }
+
+  printf("stpncpy: %s\n", fail ? "FAILED" : "PASSED");
+  return fail;
+}
+
+#ifdef ARCH_LIBC_HAVE_PERF
+static void speed_stpncpy(void)
+{
+  clock_t start;
+  clock_t end;
+  int i;
+
+  fill_pattern(g_buf1, 128);
+  g_buf1[128] = '\0';
+  start = perf_gettime();
+  for (i = 0; i < TEST_REPEAT; i++)
+    {
+      g_sink = (uintptr_t)stpncpy(g_buf2, g_buf1, 128);
+    }
+
+  end = perf_gettime();
+  printf("stpncpy(128) avg cycles: %ju\n",
+         (uintmax_t)(end - start) / TEST_REPEAT);
+}
+#endif
+#endif
+
+/****************************************************************************
  * Name: test_strchr
  ****************************************************************************/
 
@@ -1544,6 +1721,18 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCPY
   fail += test_strcpy();
   speed_strcpy();
+#endif
+#ifdef CONFIG_TESTING_ARCH_LIBC_MEMCCPY
+  fail += test_memccpy();
+#  ifdef ARCH_LIBC_HAVE_PERF
+  speed_memccpy();
+#  endif
+#endif
+#ifdef CONFIG_TESTING_ARCH_LIBC_STPNCPY
+  fail += test_stpncpy();
+#  ifdef ARCH_LIBC_HAVE_PERF
+  speed_stpncpy();
+#  endif
 #endif
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRLCPY
   fail += test_strlcpy();
