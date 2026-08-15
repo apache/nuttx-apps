@@ -45,6 +45,14 @@
 #define MAX_ALIGN      16
 
 /****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_ARCH_LIBC_BENCH
+int arch_libc_bench(void);
+#endif
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -1457,6 +1465,9 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCHRNUL
   fail += test_strchrnul();
   speed_strchrnul();
+#endif
+#ifdef CONFIG_TESTING_ARCH_LIBC_BENCH
+  fail += arch_libc_bench();
 #endif
 
   printf("arch_libc_test %s\n", fail ? "Failed" : "Passed");

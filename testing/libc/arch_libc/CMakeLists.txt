@@ -21,6 +21,10 @@
 # ##############################################################################
 
 if(CONFIG_TESTING_ARCH_LIBC)
+  if(CONFIG_TESTING_ARCH_LIBC_BENCH)
+    set(bench_srcs arch_libc_bench.c)
+  endif()
+
   nuttx_add_application(
     NAME
     ${CONFIG_TESTING_ARCH_LIBC_PROGNAME}
@@ -31,5 +35,6 @@ if(CONFIG_TESTING_ARCH_LIBC)
     MODULE
     ${CONFIG_TESTING_ARCH_LIBC}
     SRCS
-    arch_libc_test_main.c)
+    arch_libc_test_main.c
+    ${bench_srcs})
 endif()

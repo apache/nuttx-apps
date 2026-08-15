@@ -75,6 +75,32 @@ config TESTING_ARCH_LIBC_STRCHRNUL
 	bool "test strchrnul"
 	default y
 
+config TESTING_ARCH_LIBC_BENCH
+	bool "throughput benchmark"
+	default n
+	---help---
+		Measure each function across a size sweep and every source and
+		destination alignment pair, reporting MB/s and cycles per byte.
+		An implementation usually takes its wide path only when the
+		pointers meet some alignment condition, so an aligned measurement
+		alone does not show what the rest of the input space costs.
+
+if TESTING_ARCH_LIBC_BENCH
+
+config TESTING_ARCH_LIBC_BENCH_BUFSIZE
+	int "benchmark buffer size"
+	default 262144
+	---help---
+		Size of each of the two buffers the benchmark allocates.
+
+config TESTING_ARCH_LIBC_BENCH_MINMS
+	int "minimum milliseconds per measurement"
+	default 250
+	---help---
+		Each measurement repeats until it has run for at least this long.
+
+endif
+
 config TESTING_ARCH_LIBC_PROGNAME
 	string "Program name"
 	default "arch_libctest"
