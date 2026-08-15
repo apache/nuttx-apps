@@ -682,6 +682,117 @@ static void speed_strcpy(void)
 #endif
 
 /****************************************************************************
+ * Name: test_strlcpy
+ ****************************************************************************/
+
+#ifdef CONFIG_TESTING_ARCH_LIBC_STRLCPY
+static int test_strlcpy(void)
+{
+  int size;
+  int fail = 0;
+  int ai;
+  size_t cap;
+  size_t ret;
+  size_t want;
+
+  printf("Testing strlcpy...\n");
+
+  /* sa != da is the case that matters.  An implementation that walks only
+   * one of the two pointers to a boundary and then copies a register at a
+   * time still passes every sa == da case.
+   */
+
+  for (ai = 0; ai < 64; ai++)
+    {
+      int da = ai / 8;
+      int sa = ai % 8;
+
+      for (size = 1; size <= 64; size++)
+        {
+          fill_pattern(g_buf1 + sa, size);
+          g_buf1[sa + size] = '\0';
+
+          for (cap = 0; cap <= (size_t)size + 1; cap++)
+            {
+              memset(g_buf2, 0x5a, sizeof(g_buf2));
+              ret = strlcpy(g_buf2 + da, g_buf1 + sa, cap);
+
+              if (ret != (size_t)size)
+                {
+                  printf("  FAIL ret: sa=%d da=%d size=%d cap=%zu got=%zu\n",
+                         sa, da, size, cap, ret);
+                  fail++;
+                  continue;
+                }
+
+              if (cap == 0)
+                {
+                  /* Nothing may be written when there is no room */
+
+                  if ((unsigned char)g_buf2[da] != 0x5a)
+                    {
+                      printf("  FAIL cap0 wrote: sa=%d da=%d\n", sa, da);
+                      fail++;
+                    }
+
+                  continue;
+                }
+
+              want = (size_t)size < cap - 1 ? (size_t)size : cap - 1;
+
+              if (strlen(g_buf2 + da) != want ||
+                  memcmp(g_buf2 + da, g_buf1 + sa, want) != 0)
+                {
+                  printf("  FAIL content: sa=%d da=%d size=%d cap=%zu\n",
+                         sa, da, size, cap);
+                  fail++;
+                }
+              else if ((unsigned char)g_buf2[da + want + 1] != 0x5a)
+                {
+                  printf("  FAIL overrun: sa=%d da=%d size=%d cap=%zu\n",
+                         sa, da, size, cap);
+                  fail++;
+                }
+            }
+        }
+    }
+
+  printf("strlcpy: %s\n", fail ? "FAILED" : "PASSED");
+  return fail;
+}
+
+/* perf_gettime() reaches an application only where the C library builds its
+ * own copy, or where the application and the kernel are one image.
+ */
+
+#if defined(CONFIG_ARCH_HAVE_PERF_EVENTS_USER_ACCESS) || \
+    defined(CONFIG_BUILD_FLAT)
+#  define ARCH_LIBC_HAVE_PERF 1
+#endif
+
+#ifdef ARCH_LIBC_HAVE_PERF
+static void speed_strlcpy(void)
+{
+  clock_t start;
+  clock_t end;
+  int i;
+
+  fill_pattern(g_buf1, 128);
+  g_buf1[128] = '\0';
+  start = perf_gettime();
+  for (i = 0; i < TEST_REPEAT; i++)
+    {
+      g_sink = strlcpy(g_buf2, g_buf1, sizeof(g_buf2));
+    }
+
+  end = perf_gettime();
+  printf("strlcpy(128) avg cycles: %ju\n",
+         (uintmax_t)(end - start) / TEST_REPEAT);
+}
+#endif
+#endif
+
+/****************************************************************************
  * Name: test_strchr
  ****************************************************************************/
 
@@ -1433,6 +1544,12 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCPY
   fail += test_strcpy();
   speed_strcpy();
+#endif
+#ifdef CONFIG_TESTING_ARCH_LIBC_STRLCPY
+  fail += test_strlcpy();
+#  ifdef ARCH_LIBC_HAVE_PERF
+  speed_strlcpy();
+#  endif
 #endif
 #ifdef CONFIG_TESTING_ARCH_LIBC_STRCHR
   fail += test_strchr();
