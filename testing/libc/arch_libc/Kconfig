@@ -43,6 +43,10 @@ config TESTING_ARCH_LIBC_STRCPY
 	bool "test strcpy"
 	default y
 
+config TESTING_ARCH_LIBC_STRLCPY
+	bool "test strlcpy"
+	default y
+
 config TESTING_ARCH_LIBC_STRLEN
 	bool "test strlen"
 	default y
