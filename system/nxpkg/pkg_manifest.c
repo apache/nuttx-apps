@@ -78,6 +78,41 @@ static bool pkg_validate_hex(FAR const char *value)
  * Public Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: pkg_validate_path_component
+ *
+ * Description:
+ *   Check that a value is safe as one path component.
+ *
+ ****************************************************************************/
+
+bool pkg_validate_path_component(FAR const char *value)
+{
+  FAR const char *p;
+
+  if (pkg_validate_required(value) < 0)
+    {
+      return false;
+    }
+
+  /* Reject dot names and parent traversal. */
+
+  if (value[0] == '.')
+    {
+      return false;
+    }
+
+  for (p = value; *p != '\0'; p++)
+    {
+      if (*p == '/' || *p == '\\')
+        {
+          return false;
+        }
+    }
+
+  return true;
+}
+
 const char *pkg_manifest_type_str(enum pkg_payload_type_e type)
 {
   switch (type)
@@ -95,6 +130,8 @@ const char *pkg_manifest_type_str(enum pkg_payload_type_e type)
 
 int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest)
 {
+  size_t i;
+
   if (manifest == NULL)
     {
       return -EINVAL;
@@ -106,6 +143,14 @@ int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest)
       pkg_validate_required(manifest->compat) < 0 ||
       pkg_validate_required(manifest->artifact) < 0 ||
       pkg_validate_required(manifest->sha256) < 0)
+    {
+      return -EINVAL;
+    }
+
+  /* Names and versions become package-store path components. */
+
+  if (!pkg_validate_path_component(manifest->name) ||
+      !pkg_validate_path_component(manifest->version))
     {
       return -EINVAL;
     }
@@ -124,6 +169,19 @@ int pkg_manifest_validate(FAR const struct pkg_manifest_s *manifest)
       manifest->type != PKG_PAYLOAD_SHARED_LIB)
     {
       return -EINVAL;
+    }
+
+  if (manifest->launch_argc > PKG_LAUNCH_ARGS_MAX)
+    {
+      return -EINVAL;
+    }
+
+  for (i = 0; i < manifest->launch_argc; i++)
+    {
+      if (pkg_validate_required(manifest->launch_args[i]) < 0)
+        {
+          return -EINVAL;
+        }
     }
 
   return 0;
