@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_LVGLTOUCH
+	tristate "LVGL touchscreen diagnostic"
+	default n
+	depends on GRAPHICS_LVGL && INPUT_TOUCHSCREEN
+	---help---
+		Show the touchscreen state and coordinates on the display.
+
+if EXAMPLES_LVGLTOUCH
+
+config EXAMPLES_LVGLTOUCH_PROGNAME
+	string "Program name"
+	default "lvgltouch"
+
+config EXAMPLES_LVGLTOUCH_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_LVGLTOUCH_STACKSIZE
+	int "Stack size"
+	default 8192
+
+config EXAMPLES_LVGLTOUCH_INPUT_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+
+config EXAMPLES_LVGLTOUCH_FB_DEVPATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+	depends on !LV_USE_NUTTX_LCD
+
+endif
