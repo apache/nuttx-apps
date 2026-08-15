@@ -31,6 +31,10 @@ MODULE = $(CONFIG_TESTING_ARCH_LIBC)
 
 # arch libc test
 
+ifneq ($(CONFIG_TESTING_ARCH_LIBC_BENCH),)
+CSRCS += arch_libc_bench.c
+endif
+
 MAINSRC = arch_libc_test_main.c
 
 include $(APPDIR)/Application.mk
