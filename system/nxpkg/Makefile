@@ -28,7 +28,7 @@ STACKSIZE = $(CONFIG_SYSTEM_NXPKG_STACKSIZE)
 MODULE    = $(CONFIG_SYSTEM_NXPKG)
 
 CSRCS = pkg_compat.c pkg_hash.c pkg_install.c pkg_log.c pkg_manifest.c
-CSRCS += pkg_metadata.c pkg_store.c pkg_txn.c
+CSRCS += pkg_metadata.c pkg_repo.c pkg_store.c pkg_txn.c
 MAINSRC = pkg_main.c
 
 include $(APPDIR)/Application.mk
