@@ -116,6 +116,7 @@ struct bench_op_s
 static FAR char *g_src;
 static FAR char *g_dst;
 static volatile unsigned long g_sink;
+static clockid_t g_clock = CLOCK_MONOTONIC;
 
 static const struct bench_op_s g_ops[] =
 {
@@ -182,8 +183,55 @@ static double bench_now(void)
 {
   struct timespec t;
 
-  clock_gettime(CLOCK_MONOTONIC, &t);
+  clock_gettime(g_clock, &t);
   return t.tv_sec + t.tv_nsec / 1e9;
+}
+
+/****************************************************************************
+ * Name: bench_pick_clock
+ *
+ * Description:
+ *   Settle on a clock that runs.  Every measurement below repeats until a
+ *   stated interval has passed, so a clock that reads the same value twice
+ *   would spin forever rather than report anything.  CLOCK_MONOTONIC is
+ *   preferred and does not advance on every target.
+ *
+ ****************************************************************************/
+
+static bool bench_pick_clock(void)
+{
+  static const clockid_t tries[] =
+  {
+    CLOCK_MONOTONIC, CLOCK_REALTIME
+  };
+
+  struct timespec a;
+  struct timespec b;
+  volatile int i;
+  size_t k;
+
+  for (k = 0; k < sizeof(tries) / sizeof(tries[0]); k++)
+    {
+      if (clock_gettime(tries[k], &a) < 0)
+        {
+          continue;
+        }
+
+      for (i = 0; i < 1000000; i++);
+
+      if (clock_gettime(tries[k], &b) < 0)
+        {
+          continue;
+        }
+
+      if (b.tv_sec != a.tv_sec || b.tv_nsec != a.tv_nsec)
+        {
+          g_clock = tries[k];
+          return true;
+        }
+    }
+
+  return false;
 }
 
 /****************************************************************************
@@ -384,6 +432,12 @@ int arch_libc_bench(void)
   size_t oi;
   size_t si;
   size_t ai;
+
+  if (!bench_pick_clock())
+    {
+      printf("arch_libc bench: no clock advances, cannot time anything\n");
+      return 1;
+    }
 
   g_src = malloc(BENCH_BUF);
   g_dst = malloc(BENCH_BUF);
