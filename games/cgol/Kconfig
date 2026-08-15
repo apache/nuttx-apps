@@ -4,7 +4,7 @@
 #
 
 config GAMES_CGOL
-	bool "Conway's Game of Life"
+	tristate "Conway's Game of Life"
 	depends on VIDEO_FB
 	default n
 	---help---
@@ -25,7 +25,7 @@ config GAMES_CGOL_PRIORITY
 
 config GAMES_CGOL_STACKSIZE
 	int "CGOL stack size"
-	default DEFAULT_TASK_STACKSIZE
+	default 4096
 
 config GAMES_CGOL_FBDEV
 	string "CGOL frame buffer device path"
@@ -33,6 +33,14 @@ config GAMES_CGOL_FBDEV
 	---help---
 		The frame buffer device path that will be used by default for rendering.
 		Device path can still be selected from first command line argument.
+
+config GAMES_CGOL_YOFFSET
+	int "Top framebuffer rows to reserve"
+	range 0 500000
+	default 0
+	---help---
+		Leave this many rows at the top of the framebuffer unchanged. This
+		allows a launcher or supervisor to reserve a status or control bar.
 
 config GAMES_CGOL_DBLBUF
 	bool "CGOL double buffered"
