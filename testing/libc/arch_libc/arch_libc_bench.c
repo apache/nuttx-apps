@@ -92,6 +92,8 @@
 #define OP_STPCPY    14
 #define OP_STRNCPY   15
 #define OP_STRCAT    16
+#define OP_MEMCCPY   17
+#define OP_STPNCPY   18
 
 /****************************************************************************
  * Private Types
@@ -134,6 +136,8 @@ static const struct bench_op_s g_ops[] =
   {"stpcpy",  OP_STPCPY,  true,  true},
   {"strncpy", OP_STRNCPY, true,  true},
   {"strcat",  OP_STRCAT,  true,  true},
+  {"memccpy", OP_MEMCCPY, true,  false},
+  {"stpncpy", OP_STPNCPY, true,  true},
 };
 
 static const size_t g_sizes[] =
@@ -323,6 +327,12 @@ static void bench_one(FAR const struct bench_op_s *o, size_t n,
                 break;
               case OP_STRNCPY:
                 strncpy(d, s, n);
+                break;
+              case OP_MEMCCPY:
+                g_sink += (uintptr_t)memccpy(d, s, '~', n);
+                break;
+              case OP_STPNCPY:
+                g_sink += (uintptr_t)stpncpy(d, s, n);
                 break;
               case OP_STRCAT:
 
