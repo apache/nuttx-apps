@@ -55,7 +55,7 @@
  *       These functions manipulate a window that contain Soft Label Keys
  *       (SLK). To use the SLK functions, a call to slk_init() must be
  *       made BEFORE initscr() or newterm(). slk_init() removes 1 or 2
- *       lines from the useable screen, depending on the format selected.
+ *       lines from the usable screen, depending on the format selected.
  *
  *       The line(s) removed from the screen are used as a separate
  *       window, in which SLKs are displayed.
@@ -362,7 +362,7 @@ char *slk_label(int labnum)
 #ifdef CONFIG_PDCURSES_WIDE
   wchar_t *wtemp = slk_wlabel(labnum);
 
-  PDC_wcstombs(temp, wtemp, 32);
+  PDC_wcstombs(slk_temp2, wtemp, 32);
 #else
   chtype *p;
   int i;
