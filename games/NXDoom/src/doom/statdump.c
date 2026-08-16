@@ -39,7 +39,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define MAX_CAPTURES 32
+#define MAX_CAPTURES CONFIG_GAMES_NXDOOM_STATDUMP_MAX_CAPTURES
 
 /****************************************************************************
  * Private Data
@@ -276,17 +276,25 @@ static void print_level_name(FILE *stream, int episode, int level)
 
   switch (discovered_gamemission)
     {
-    case doom:
-      fprintf(stream, "E%iM%i\n", episode + 1, level + 1);
-      break;
-    case doom2:
-      fprintf(stream, "MAP%02i\n", level + 1);
-      break;
-    default:
-    case none:
-      fprintf(stream, "E%iM%i / MAP%02i\n", episode + 1, level + 1,
-              level + 1);
-      break;
+      case doom:
+        {
+          fprintf(stream, "E%iM%i\n", episode + 1, level + 1);
+          break;
+        }
+
+      case doom2:
+        {
+          fprintf(stream, "MAP%02i\n", level + 1);
+          break;
+        }
+
+      default:
+      case none:
+        {
+          fprintf(stream, "E%iM%i / MAP%02i\n", episode + 1, level + 1,
+            level + 1);
+          break;
+        }
     }
 
   print_banner(stream);
