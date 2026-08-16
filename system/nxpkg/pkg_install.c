@@ -433,7 +433,7 @@ int pkg_install(FAR const char *name)
   pkg_txn_clear_state(name);
   if (lock[0] != '\0')
     {
-      pkg_store_remove_file(lock);
+      pkg_lock_remove(lock);
     }
 
   pkg_info("installed %s version %s", manifest->name, manifest->version);
@@ -451,7 +451,7 @@ errout:
   pkg_txn_clear_state(name);
   if (lock[0] != '\0')
     {
-      pkg_store_remove_file(lock);
+      pkg_lock_remove(lock);
     }
 
   free(index);
