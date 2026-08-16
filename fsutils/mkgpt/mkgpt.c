@@ -342,12 +342,12 @@ static void update_crc32(FAR struct efi_ptable_s *ptbl)
 
   n = crc32part((FAR const uint8_t *)ptbl->entry,
                 sizeof(ptbl->entry[0]) *
-                ptbl->header.entries_count, ~0l) ^ ~0l;
+                ptbl->header.entries_count, ~0u) ^ ~0u;
   ptbl->header.entries_crc32 = n;
 
   ptbl->header.crc32 = 0;
   n = crc32part((FAR const uint8_t *)&ptbl->header,
-                sizeof(ptbl->header), ~0l) ^ ~0l;
+                sizeof(ptbl->header), ~0u) ^ ~0u;
   ptbl->header.crc32 = n;
 }
 
@@ -373,7 +373,7 @@ static int verify_gpt_pratition(FAR struct efi_ptable_s *ptbl)
   orgcrc = hdr->crc32;
   hdr->crc32 = 0;
   if (orgcrc != (crc32part((FAR const uint8_t *)hdr,
-      sizeof(*hdr), ~0l) ^ ~0l))
+      sizeof(*hdr), ~0u) ^ ~0u))
     {
       fprintf(stderr, "GPT: Header CRC is wrong\n");
       return -1;
@@ -387,7 +387,7 @@ static int verify_gpt_pratition(FAR struct efi_ptable_s *ptbl)
     }
 
   if (hdr->entries_crc32 != (crc32part((FAR const uint8_t *)ptbl->entry,
-      sizeof(ptbl->entry[0]) * ptbl->header.entries_count, ~0l) ^ ~0l))
+      sizeof(ptbl->entry[0]) * ptbl->header.entries_count, ~0u) ^ ~0u))
     {
       fprintf(stderr, "GPT: Header entry signature is wrong\n");
       return -1;
