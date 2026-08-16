@@ -134,7 +134,7 @@ static FAR void *get_primes_thread(FAR void *parameter)
   for (i = 0; i < CONFIG_TESTING_OSTEST_RR_RUNS; i++)
     {
       get_primes(&count, &last);
-      g_rr_values[atomic_fetch_add(&g_rr_value_index, 1)] = id;
+      g_rr_values[atomic_add(&g_rr_value_index, 1)] = id;
     }
 
   printf("get_primes_thread id=%d finished, found %d primes, "
