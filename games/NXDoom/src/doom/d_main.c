@@ -1294,6 +1294,7 @@ void d_doomloop(void)
 
   while (1)
     {
+      i_poll_quit_signal();
       d_run_frame();
     }
 }

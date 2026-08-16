@@ -28,7 +28,11 @@
  * Public Data
  ****************************************************************************/
 
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+extern vissprite_t *vissprites;
+#else
 extern vissprite_t vissprites[CONFIG_GAMES_NXDOOM_MAXVISSPRITES];
+#endif
 extern vissprite_t *vissprite_p;
 extern vissprite_t vsprsortedhead;
 
