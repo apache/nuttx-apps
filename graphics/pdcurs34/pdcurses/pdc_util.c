@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/util.c
+ * apps/graphics/pdcurs34/pdcurses/pdc_util.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -114,7 +114,10 @@ char *unctrl(chtype c)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #else
-  static char strbuf[3] = { 0, 0, 0 };
+  static char strbuf[3] =
+  {
+    0, 0, 0
+  };
 #endif
 
   chtype ic;
@@ -210,7 +213,10 @@ wchar_t *wunctrl(cchar_t *wc)
 #ifdef CONFIG_PDCURSES_MULTITHREAD
   FAR struct pdc_context_s *ctx = PDC_ctx();
 #else
-  static wchar_t strbuf2[3] = { 0, 0, 0 };
+  static wchar_t strbuf2[3] =
+  {
+    0, 0, 0
+  };
 #endif
 
   cchar_t ic;
@@ -223,7 +229,7 @@ wchar_t *wunctrl(cchar_t *wc)
     {
       strbuf2[0] = (wchar_t) ic;
       strbuf2[1] = L'\0';
-      return strbuf;
+      return strbuf2;
     }
 
   strbuf2[0] = '^';              /* '^' prefix */

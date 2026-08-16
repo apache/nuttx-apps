@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/pdc_getstr.c
+ * apps/graphics/pdcurs34/pdcurses/pdc_getstr.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -273,7 +273,6 @@ int wgetnstr(WINDOW *win, char *str, int n)
             }
 
           break;
-
         }
 
       wrefresh(win);
@@ -378,7 +377,7 @@ int wgetn_wstr(WINDOW *win, wint_t *wstr, int n)
   int num;
   int x;
   int chars;
-  char *p;
+  wint_t *p;
   bool stop;
   bool oldecho;
   bool oldcbreak;

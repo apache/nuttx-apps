@@ -61,7 +61,7 @@
  * Private Data
  ****************************************************************************/
 
-static const char *key_name[] =
+static const char *names[] =
 {
   "KEY_BREAK", "KEY_DOWN", "KEY_UP", "KEY_LEFT", "KEY_RIGHT",
   "KEY_HOME", "KEY_BACKSPACE", "KEY_F0", "KEY_F(1)", "KEY_F(2)",
@@ -138,7 +138,7 @@ const char *keyname(int key)
       return unctrl((chtype) key);
     }
 
-  return has_key(key) ? key_name[key - KEY_MIN] : "UNKNOWN KEY";
+  return has_key(key) ? names[key - KEY_MIN] : "UNKNOWN KEY";
 }
 
 bool has_key(int key)
