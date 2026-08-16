@@ -58,11 +58,11 @@ planefunction_t ceilingfunc;
 /* Here comes the obnoxious "visplane". */
 
 visplane_t visplanes[CONFIG_GAMES_NXDOOM_MAXVISPLANES];
+short openings[MAXOPENINGS];
 visplane_t *lastvisplane;
 visplane_t *floorplane;
 visplane_t *ceilingplane;
 
-short openings[MAXOPENINGS];
 short *lastopening;
 
 /* Clip values are the solid pixel bounding the range. floorclip starts out
@@ -114,12 +114,21 @@ static void r_map_plane(int y, int x1, int x2)
   fixed_t length;
   unsigned index;
 
-#ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
-  if (x2 < x1 || x1 < 0 || x2 >= viewwidth || y > viewheight)
+  /* Ensure array indices are in range before access. */
+
+  if (x2 < x1 || x1 < 0 || x2 >= viewwidth)
     {
-      i_error("R_MapPlane: %i, %i at %i", x1, x2, y);
+      return;
     }
-#endif
+
+  if (y < 0)
+    {
+      y = 0;
+    }
+  else if (y >= viewheight)
+    {
+      y = viewheight - 1;
+    }
 
   if (planeheight != cachedheight[y])
     {
@@ -141,12 +150,17 @@ static void r_map_plane(int y, int x1, int x2)
   ds_yfrac = -viewy - fixed_mul(finesine[angle], length);
 
   if (fixedcolormap)
-    ds_colormap = fixedcolormap;
+    {
+      ds_colormap = fixedcolormap;
+    }
   else
     {
       index = distance >> LIGHTZSHIFT;
 
-      if (index >= MAXLIGHTZ) index = MAXLIGHTZ - 1;
+      if (index >= MAXLIGHTZ)
+        {
+          index = MAXLIGHTZ - 1;
+        }
 
       ds_colormap = planezlight[index];
     }
@@ -160,27 +174,42 @@ static void r_map_plane(int y, int x1, int x2)
   spanfunc();
 }
 
+static inline boolean r_row_in_range(int row)
+{
+  return row >= 0 && row < SCREENHEIGHT;
+}
+
 static void r_make_spans(int x, int t1, int b1, int t2, int b2)
 {
+  /* Check that row is in range before indexing arrays. */
+
   while (t1 < t2 && t1 <= b1)
     {
-      r_map_plane(t1, spanstart[t1], x - 1);
+      r_map_plane(t1, r_row_in_range(t1) ? spanstart[t1] : 0, x - 1);
       t1++;
     }
   while (b1 > b2 && b1 >= t1)
     {
-      r_map_plane(b1, spanstart[b1], x - 1);
+      r_map_plane(b1, r_row_in_range(b1) ? spanstart[b1] : 0, x - 1);
       b1--;
     }
 
   while (t2 < t1 && t2 <= b2)
     {
-      spanstart[t2] = x;
+      if (r_row_in_range(t2))
+        {
+          spanstart[t2] = x;
+        }
+
       t2++;
     }
   while (b2 > b1 && b2 >= t2)
     {
-      spanstart[b2] = x;
+      if (r_row_in_range(b2))
+        {
+          spanstart[b2] = x;
+        }
+
       b2--;
     }
 }
@@ -251,10 +280,15 @@ visplane_t *r_find_plane(fixed_t height, int picnum, int lightlevel)
         }
     }
 
-  if (check < lastvisplane) return check;
+  if (check < lastvisplane)
+    {
+      return check;
+    }
 
   if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
-    i_error("r_find_plane: no more visplanes");
+    {
+      i_error("r_find_plane: no more visplanes");
+    }
 
   lastvisplane++;
 
@@ -301,7 +335,10 @@ visplane_t *r_check_plane(visplane_t *pl, int start, int stop)
 
   for (x = intrl; x <= intrh; x++)
     {
-      if (pl->top[x] != 0xff) break;
+      if (pl->top[x] != 0xff)
+        {
+          break;
+        }
     }
 
   if (x > intrh)
@@ -314,12 +351,14 @@ visplane_t *r_check_plane(visplane_t *pl, int start, int stop)
 
   /* make a new visplane */
 
+  if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
+    {
+      i_error("r_check_plane: no more visplanes");
+    }
+
   lastvisplane->height = pl->height;
   lastvisplane->picnum = pl->picnum;
   lastvisplane->lightlevel = pl->lightlevel;
-
-  if (lastvisplane - visplanes == CONFIG_GAMES_NXDOOM_MAXVISPLANES)
-    i_error("r_check_plane: no more visplanes");
 
   pl = lastvisplane++;
   pl->minx = start;
@@ -343,19 +382,29 @@ void r_draw_planes(void)
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if (ds_p - drawsegs > CONFIG_GAMES_NXDOOM_MAXDRAWSEGS)
-    i_error("r_draw_planes: drawsegs overflow (%td)", ds_p - drawsegs);
+    {
+      i_error("r_draw_planes: drawsegs overflow (%td)", ds_p - drawsegs);
+    }
 
   if (lastvisplane - visplanes > CONFIG_GAMES_NXDOOM_MAXVISPLANES)
-    i_error("r_draw_planes: visplane overflow (%td)",
-            lastvisplane - visplanes);
+    {
+      i_error("r_draw_planes: visplane overflow (%td)",
+        lastvisplane - visplanes);
+    }
 
   if (lastopening - openings > MAXOPENINGS)
-    i_error("r_draw_planes: opening overflow (%td)", lastopening - openings);
+    {
+      i_error("r_draw_planes: opening overflow (%td)",
+        lastopening - openings);
+    }
 #endif
 
   for (pl = visplanes; pl < lastvisplane; pl++)
     {
-      if (pl->minx > pl->maxx) continue;
+      if (pl->minx > pl->maxx)
+        {
+          continue;
+        }
 
       /* sky flat */
 
@@ -395,9 +444,15 @@ void r_draw_planes(void)
       planeheight = abs(pl->height - viewz);
       light = (pl->lightlevel >> LIGHTSEGSHIFT) + extralight;
 
-      if (light >= LIGHTLEVELS) light = LIGHTLEVELS - 1;
+      if (light >= LIGHTLEVELS)
+        {
+          light = LIGHTLEVELS - 1;
+        }
 
-      if (light < 0) light = 0;
+      if (light < 0)
+        {
+          light = 0;
+        }
 
       planezlight = zlight[light];
 

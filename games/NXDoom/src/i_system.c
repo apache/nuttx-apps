@@ -22,6 +22,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <errno.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,6 +76,10 @@ struct atexit_listentry_s
 static atexit_listentry_t *exit_funcs = NULL;
 
 static boolean already_quitting = false;
+
+/* Set by the signal handler and polled from the main loop. */
+
+static volatile sig_atomic_t quit_requested = 0;
 
 /* Read Access Violation emulation.
  *
@@ -238,7 +244,9 @@ void i_print_banner(const char *msg)
   int spaces = 35 - (strlen(msg) / 2);
 
   for (i = 0; i < spaces; ++i)
-    putchar(' ');
+    {
+      putchar(' ');
+    }
 
   puts(msg);
 }
@@ -318,6 +326,69 @@ void i_quit(void)
     }
 
   exit(0);
+}
+
+/****************************************************************************
+ * Name: i_quit_signal_handler
+ *
+ * Description:
+ *   Records that a quit was requested.  The work is deferred to
+ *   i_poll_quit_signal() so that no cleanup runs from signal context.
+ *
+ ****************************************************************************/
+
+static void i_quit_signal_handler(int signo)
+{
+  (void)signo;
+  quit_requested = 1;
+}
+
+/****************************************************************************
+ * Name: i_install_quit_signal
+ *
+ * Description:
+ *   Installs the SIGTERM handler used to request a clean exit.
+ *
+ ****************************************************************************/
+
+void i_install_quit_signal(void)
+{
+  struct sigaction sa;
+
+  /* Reset state left by an earlier built-in run. */
+
+  quit_requested = 0;
+  exit_funcs = NULL;
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = i_quit_signal_handler;
+  sigemptyset(&sa.sa_mask);
+
+  if (sigaction(SIGTERM, &sa, NULL) < 0)
+    {
+      /* Not fatal: the game runs, it just cannot be asked to exit. */
+
+      printf("nxdoom: failed to install SIGTERM handler: %d\n",
+             errno);
+    }
+}
+
+/****************************************************************************
+ * Name: i_poll_quit_signal
+ *
+ * Description:
+ *   Exits if a quit was requested.  Called from the main loop, where the
+ *   cleanup i_quit() performs is safe to run.
+ *
+ ****************************************************************************/
+
+void i_poll_quit_signal(void)
+{
+  if (quit_requested)
+    {
+      printf("nxdoom: quit signal seen, calling i_quit\n");
+      i_quit();
+    }
 }
 
 void i_error(const char *error, ...)
@@ -463,19 +534,27 @@ boolean i_get_memory_value(unsigned int offset, void *value, int size)
 
   switch (size)
     {
-    case 1:
-      *((unsigned char *)value) = dos_mem_dump[offset];
-      return true;
-    case 2:
-      *((unsigned short *)value) =
-          dos_mem_dump[offset] | (dos_mem_dump[offset + 1] << 8);
-      return true;
-    case 4:
-      *((unsigned int *)value) =
-          dos_mem_dump[offset] | (dos_mem_dump[offset + 1] << 8) |
-          (dos_mem_dump[offset + 2] << 16) |
-          (dos_mem_dump[offset + 3] << 24);
-      return true;
+      case 1:
+        {
+          *((unsigned char *)value) = dos_mem_dump[offset];
+          return true;
+        }
+
+      case 2:
+        {
+          *((unsigned short *)value) = dos_mem_dump[offset] |
+                                       (dos_mem_dump[offset + 1] << 8);
+          return true;
+        }
+
+      case 4:
+        {
+          *((unsigned int *)value) = dos_mem_dump[offset] |
+                                    (dos_mem_dump[offset + 1] << 8) |
+                                    (dos_mem_dump[offset + 2] << 16) |
+                                    (dos_mem_dump[offset + 3] << 24);
+          return true;
+        }
     }
 
   return false;

@@ -73,6 +73,26 @@ ticcmd_t *i_base_ticcmd(void);
 
 void i_quit(void) NORETURN;
 
+/****************************************************************************
+ * Name: i_install_quit_signal
+ *
+ * Description:
+ *   Install the SIGTERM handler used to request a clean exit.
+ *
+ ****************************************************************************/
+
+void i_install_quit_signal(void);
+
+/****************************************************************************
+ * Name: i_poll_quit_signal
+ *
+ * Description:
+ *   Exit if SIGTERM requested a clean shutdown.
+ *
+ ****************************************************************************/
+
+void i_poll_quit_signal(void);
+
 void i_error(const char *error, ...) NORETURN PRINTF_ATTR(1, 2);
 
 void i_tactile(int on, int off, int total);
