@@ -86,7 +86,7 @@ FAR static void * lock_type##_test_thread(FAR void *arg) \
   uint32_t i; \
   FAR struct spinlock_pub_args_s *pub = param->pub; \
   FAR lock_type *l = (FAR lock_type *)pub->lock; \
-  atomic_fetch_add(&pub->barrier, 1); \
+  atomic_add(&pub->barrier, 1); \
   while (atomic_read(&pub->barrier) != pub->thread_num) \
     { \
       sched_yield(); \
