@@ -1274,7 +1274,7 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
 
   index = builtin_isavail(cmd);
 
-  if (index > 0)
+  if (index >= 0)
     {
       /* Get the builtin structure by index */
 
