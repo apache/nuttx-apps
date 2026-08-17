@@ -288,6 +288,7 @@ static int user_main(int argc, char *argv[])
 
   printf("\nuser_main: libc tests\n");
   memmem_test();
+  strto_test();
   check_test_memory_usage();
 
   /* If retention of child status is enable, then suppress it for this task.
