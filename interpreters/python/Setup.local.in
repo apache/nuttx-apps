@@ -11,8 +11,13 @@ _codecs_iso2022
 _codecs_jp
 _codecs_kr
 _codecs_tw
+_curses
+_curses_panel
+_dbm
 _decimal
 _elementtree
+_gdbm
+_hashlib
 _heapq
 _interpchannels
 _interpqueues
@@ -29,6 +34,7 @@ _testclinic_limited
 _testexternalinspection
 _testinternalcapi
 _testlimitedcapi
+_tkinter
 _uuid
 _xxtestfuzz
 _zoneinfo

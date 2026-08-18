@@ -35,3 +35,9 @@ export ac_cv_func_ffi_prep_cif_var="yes"
 export ac_cv_func_ffi_prep_closure_loc="yes"
 export ac_cv_func_ffi_closure_alloc="yes"
 export ac_cv_func_utimes="no"
+# NuttX provides neither header; without the overrides a native toolchain
+# (x86_64) resolves them against the host /usr/include, dragging host
+# ioctl macros into posixmodule and enabling xattr support that cannot
+# link.
+export ac_cv_header_linux_random_h="no"
+export ac_cv_header_sys_xattr_h="no"
