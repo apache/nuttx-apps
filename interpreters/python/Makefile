@@ -140,10 +140,10 @@ endif
 
 $(SETUP_LOCAL):
 	$(Q) ( cp $(SETUP_LOCAL).in $(SETUP_LOCAL))
-# _posixsubprocess is the fork-then-exec path, so vfork() is enough for it;
-# os.fork() itself needs a real fork() and is governed by ac_cv_func_fork
-# above.
-ifeq ($(CONFIG_ARCH_HAVE_FORK)$(CONFIG_ARCH_HAVE_VFORK),)
+# _posixsubprocess needs a real fork(): its vfork() support is only an
+# optimization and the fork() fallback path is compiled unconditionally
+# (PyOS_BeforeFork/PyOS_AfterFork_* are declared only under HAVE_FORK).
+ifneq ($(CONFIG_ARCH_HAVE_FORK),y)
 	@echo "_posixsubprocess" >> $@
 endif
 ifneq ($(CONFIG_LIBC_DLFCN),y)
@@ -163,6 +163,10 @@ endif
 # Also, use -O0 for OPT because -Os is causing problems in
 # Python/Modules/getpath.c (issue will be filed soon to track this
 # problem).
+#
+# CPPFLAGS carries the -D/-U macro flags from CFLAGS so preprocessor-only
+# probes (Misc/platform_triplet.c) do not see the build host's __linux__
+# when NuttX is built with the native gcc (x86_64).
 
 ifneq ($(CONFIG_NET),y)
 PYTHON_CONFIGURE_EXTRAS = --disable-ipv6
@@ -182,6 +186,7 @@ $(TARGETBUILD)/Makefile: $(HOSTPYTHON) $(CONFIG_SITE) $(SETUP_LOCAL)
 			ARCH="$${ARCH//-/}"; \
 			ARCH_CHIP="$${ARCH_CHIP//-/}"; \
 			CFLAGS="$$(echo "$${CFLAGS}" | sed 's/-Os //')" \
+			CPPFLAGS="$$(echo "$${CFLAGS}" | tr ' ' '\n' | grep -E '^-[DU]' | tr '\n' ' ')" \
 			CC="$(CC)" \
 			CXX="$(CXX)" \
 			AR="$(AR)" \
