@@ -672,11 +672,13 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_DRIVERS_VIRTIO) && !defined(CONFIG_NSH_DISABLE_VIRTIO)
-  CMD_MAP("virtio",   cmd_virtio,   2, 3, "dump [type]"),
+  CMD_MAP("virtio",   cmd_virtio,   2, 6,
+          "dump [type] | ping <name> <times> <len> <period(ms)>"),
 #endif
 
 #if defined(CONFIG_DRIVERS_VHOST) && !defined(CONFIG_NSH_DISABLE_VHOST)
-  CMD_MAP("vhost",    cmd_vhost,    2, 3, "dump [type]"),
+  CMD_MAP("vhost",    cmd_vhost,    2, 6,
+          "dump [type] | ping <name> <times> <len> <period(ms)>"),
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)

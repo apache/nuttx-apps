@@ -1139,14 +1139,28 @@ static int cmd_virtio_common_usage(FAR struct nsh_vtbl_s *vtbl,
   nsh_output(vtbl, "Description:\n");
   nsh_output(vtbl, "  Display information about registered %s\n", argv[0]);
   nsh_output(vtbl, "  devices. Output is sent to syslog.\n");
+  nsh_output(vtbl, "  %s ping <name> <times> <len> "
+                   "<period(ms)>\n\n", argv[0]);
+  nsh_output(vtbl, "<name>       Instance name, as printed by "
+                   "'%s dump', or 'all'.\n", argv[0]);
+  nsh_output(vtbl, "<times>      Number of ping operations.\n");
+  nsh_output(vtbl, "<len>        Request length in bytes, header "
+                   "included.\n");
+  nsh_output(vtbl, "<period(ms)> Sleep interval between two "
+                   "operations.\n\n");
+  nsh_output(vtbl, "Results are printed to syslog. Use '%s dump all' to "
+                   "list devices\n", argv[0]);
+  nsh_output(vtbl, "(ping shows up as 'unknown' with id=63, it is not in "
+                   "the openamp name table).\n");
   return OK;
 }
 
 static int cmd_virtio_common(FAR struct nsh_vtbl_s *vtbl, int argc,
-                             FAR char **argv, FAR const char *devpath,
-                             int ioc_cmd)
+                             FAR char **argv, FAR const char *devpath)
 {
-  FAR const char *dev_name = NULL;
+  struct virtio_ping_s ping;
+  unsigned long arg = 0;
+  int cmd;
   int fd;
   int ret;
 
@@ -1159,17 +1173,41 @@ static int cmd_virtio_common(FAR struct nsh_vtbl_s *vtbl, int argc,
     {
       return cmd_virtio_common_usage(vtbl, argv);
     }
-  else if (strcmp(argv[1], "dump") != 0)
+  else if (strcmp(argv[1], "dump") == 0)
+    {
+      /* Get optional type argument, pass directly to kernel, which will
+       * parse it.
+       */
+
+      cmd = VIRTIOIOC_DUMP;
+      if (argc >= 3)
+        {
+          arg = (unsigned long)argv[2];
+        }
+    }
+  else if (strcmp(argv[1], "ping") == 0)
+    {
+      /* <cmd> ping <name> <times> <len> <period> */
+
+      if (argc < 6)
+        {
+          nsh_error(vtbl, g_fmtargrequired, argv[0]);
+          return ERROR;
+        }
+
+      memset(&ping, 0, sizeof(ping));
+      strlcpy(ping.name, argv[2], VIRTIO_PING_NAMELEN);
+      ping.times = atoi(argv[3]);
+      ping.len   = atoi(argv[4]);
+      ping.sleep = atoi(argv[5]);
+
+      cmd = VIRTIOIOC_PING;
+      arg = (unsigned long)(uintptr_t)&ping;
+    }
+  else
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[1]);
       return ERROR;
-    }
-
-  /* Get optional type argument, pass directly to kernel */
-
-  if (argc >= 3)
-    {
-      dev_name = argv[2];
     }
 
   fd = open(devpath, O_CLOEXEC);
@@ -1179,9 +1217,7 @@ static int cmd_virtio_common(FAR struct nsh_vtbl_s *vtbl, int argc,
       return ERROR;
     }
 
-  /* Pass type name string to kernel, kernel will parse it */
-
-  ret = ioctl(fd, ioc_cmd, (unsigned long)dev_name);
+  ret = ioctl(fd, cmd, arg);
   close(fd);
 
   if (ret < 0)
@@ -1201,7 +1237,7 @@ static int cmd_virtio_common(FAR struct nsh_vtbl_s *vtbl, int argc,
 #if defined(CONFIG_DRIVERS_VIRTIO) && !defined(CONFIG_NSH_DISABLE_VIRTIO)
 int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  return cmd_virtio_common(vtbl, argc, argv, "/dev/virtio", VIRTIOIOC_DUMP);
+  return cmd_virtio_common(vtbl, argc, argv, "/dev/virtio");
 }
 #endif
 
@@ -1212,6 +1248,6 @@ int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #if defined(CONFIG_DRIVERS_VHOST) && !defined(CONFIG_NSH_DISABLE_VHOST)
 int cmd_vhost(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  return cmd_virtio_common(vtbl, argc, argv, "/dev/vhost", VHOSTIOC_DUMP);
+  return cmd_virtio_common(vtbl, argc, argv, "/dev/vhost");
 }
 #endif
