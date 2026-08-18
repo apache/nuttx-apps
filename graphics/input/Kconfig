@@ -48,7 +48,7 @@ if GRAPHICS_INPUT_TOOL
 
 config GRAPHICS_INPUT_TOOL_STACKSIZE
 	int "input stack size"
-	default DEFAULT_TASK_STACKSIZE
+	default 4096
 	---help---
 		The size of stack allocated for the input task.
 
