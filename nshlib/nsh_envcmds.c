@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include <libgen.h>
 #include <errno.h>
 
@@ -325,6 +326,40 @@ errout:
 #endif
 
 /****************************************************************************
+ * Name: nsh_chroot_closefds
+ *
+ * Description:
+ *   Close descriptors above stderr that are not already O_CLOEXEC so a
+ *   jailed execvp() child cannot inherit host file descriptors.
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_CHROOT) && !defined(CONFIG_NSH_DISABLE_CHROOT) && \
+    defined(CONFIG_LIBC_EXECFUNCS)
+static void nsh_chroot_closefds(void)
+{
+  int fdmax;
+  int fd;
+  int flags;
+
+  fdmax = sysconf(_SC_OPEN_MAX);
+  if (fdmax <= STDERR_FILENO)
+    {
+      return;
+    }
+
+  for (fd = STDERR_FILENO + 1; fd < fdmax; fd++)
+    {
+      flags = fcntl(fd, F_GETFD);
+      if (flags >= 0 && (flags & FD_CLOEXEC) == 0)
+        {
+          close(fd);
+        }
+    }
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_chroot
  ****************************************************************************/
 
@@ -366,6 +401,7 @@ int cmd_chroot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifdef CONFIG_LIBC_EXECFUNCS
   if (argc > 2)
     {
+      nsh_chroot_closefds();
       execvp(argv[2], &argv[2]);
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "execvp", NSH_ERRNO);
       return ERROR;
