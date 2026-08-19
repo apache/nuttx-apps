@@ -83,6 +83,14 @@ ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += waitpid.c
 endif
 
+ifeq ($(CONFIG_FS_CHROOT),y)
+ifeq ($(CONFIG_SCHED_WAITPID),y)
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+CSRCS += chroot.c
+endif
+endif
+endif
+
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += cancel.c cond.c mutex.c timedmutex.c sem.c semtimed.c barrier.c
 CSRCS += timedwait.c pthread_rwlock.c pthread_rwlock_cancel.c schedlock.c

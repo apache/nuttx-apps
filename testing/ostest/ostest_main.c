@@ -403,6 +403,20 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#if defined(CONFIG_FS_CHROOT) && defined(CONFIG_SCHED_WAITPID) && \
+    !defined(CONFIG_BUILD_KERNEL)
+      /* Check chroot() filesystem jail */
+
+      printf("\nuser_main: chroot test\n");
+      if (chroot_test() != 0)
+        {
+          printf("user_main: ERROR chroot test failed\n");
+          ASSERT(false);
+        }
+
+      check_test_memory_usage();
+#endif
+
 #if defined(CONFIG_TESTING_OSTEST_MULTIUSER) && defined(CONFIG_SCHED_USER_IDENTITY)
       /* Multi-user identity and file permission regression tests */
 
