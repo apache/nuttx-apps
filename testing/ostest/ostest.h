@@ -137,6 +137,13 @@ void restart_test(void);
 int waitpid_test(void);
 #endif
 
+/* chroot.c *****************************************************************/
+
+#if defined(CONFIG_FS_CHROOT) && defined(CONFIG_SCHED_WAITPID) && \
+    !defined(CONFIG_BUILD_KERNEL)
+int chroot_test(void);
+#endif
+
 /* wqueue.c *****************************************************************/
 
 #if defined(CONFIG_SCHED_LPWORK) || defined(CONFIG_SCHED_HPWORK)

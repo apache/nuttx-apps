@@ -68,6 +68,14 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS waitpid.c)
   endif()
 
+  if(CONFIG_FS_CHROOT)
+    if(CONFIG_SCHED_WAITPID)
+      if(NOT CONFIG_BUILD_KERNEL)
+        list(APPEND SRCS chroot.c)
+      endif()
+    endif()
+  endif()
+
   if(NOT CONFIG_DISABLE_PTHREAD)
     list(
       APPEND
