@@ -331,10 +331,33 @@ out:
 
 int init_parse_configs(FAR const struct parser_s *parser)
 {
+  static const char preset[] =
+    "on boot\n"
+    "   trigger init\n"
+#if defined(CONFIG_NETUTILS_NETINIT) || defined(CONFIG_SYSTEM_NXINIT_FINALINIT)
+    "on init\n"
+#ifdef CONFIG_NETUTILS_NETINIT
+    "   trigger netinit\n"
+#endif
+#ifdef CONFIG_SYSTEM_NXINIT_FINALINIT
+    "   trigger finalinit\n"
+#endif
+#endif
+#ifdef CONFIG_NETUTILS_NETINIT
+    "on netinit\n"
+    "   netinit\n"
+#endif
+    ;
   FAR const char *path = CONFIG_SYSTEM_NXINIT_RC_FILE_PATH;
   FAR const char *ext;
   char file[PATH_MAX];
   int ret;
+
+  ret = init_parse_config_buffer(parser, preset, sizeof(preset));
+  if (ret < 0)
+    {
+      return ret;
+    }
 
   ret = init_parse_config_file(parser, path);
   if (ret < 0)
