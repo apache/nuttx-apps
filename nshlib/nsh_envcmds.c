@@ -325,6 +325,64 @@ errout:
 #endif
 
 /****************************************************************************
+ * Name: cmd_chroot
+ ****************************************************************************/
+
+#if defined(CONFIG_FS_CHROOT) && !defined(CONFIG_NSH_DISABLE_CHROOT)
+int cmd_chroot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  FAR char *fullpath;
+  int ret;
+
+  fullpath = nsh_getfullpath(vtbl, argv[1]);
+  if (fullpath == NULL)
+    {
+      nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
+      return ERROR;
+    }
+
+  ret = chdir(fullpath);
+  nsh_freefullpath(fullpath);
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
+      return ERROR;
+    }
+
+  ret = chroot(".");
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chroot", NSH_ERRNO);
+      return ERROR;
+    }
+
+  ret = chdir("/");
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
+      return ERROR;
+    }
+
+#ifdef CONFIG_LIBC_EXECFUNCS
+  if (argc > 2)
+    {
+      execvp(argv[2], &argv[2]);
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "execvp", NSH_ERRNO);
+      return ERROR;
+    }
+#else
+  if (argc > 2)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "execvp", NSH_ERRNO);
+      return ERROR;
+    }
+#endif
+
+  return OK;
+}
+#endif /* CONFIG_FS_CHROOT && !CONFIG_NSH_DISABLE_CHROOT */
+
+/****************************************************************************
  * Name: cmd_echo
  ****************************************************************************/
 

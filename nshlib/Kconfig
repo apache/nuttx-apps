@@ -361,6 +361,11 @@ config NSH_DISABLE_CD
 	bool "Disable cd"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_CHROOT
+	bool "Disable chroot"
+	default DEFAULT_SMALL
+	depends on FS_CHROOT
+
 config NSH_DISABLE_CHMOD
 	bool "Disable chmod"
 	default DEFAULT_SMALL
