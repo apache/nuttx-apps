@@ -33,6 +33,8 @@
 #include <sys/param.h>
 #include <sys/wait.h>
 
+#include <netutils/netinit.h>
+
 #include "builtin.h"
 #include "init.h"
 #include "property.h"
@@ -81,6 +83,10 @@ static int cmd_boot(FAR struct action_manager_s *am,
 static int cmd_start_cpu(FAR struct action_manager_s *am,
                          int argc, FAR char **argv);
 #endif
+#ifdef CONFIG_NETUTILS_NETINIT
+static int cmd_netinit(FAR struct action_manager_s *am,
+                       int argc, FAR char **argv);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -93,6 +99,9 @@ static const struct cmd_map_s g_builtin[] =
 #endif
 #ifdef CONFIG_BOARDCTL_START_CPU
   {"start_cpu", 1, 3, cmd_start_cpu},
+#endif
+#ifdef CONFIG_NETUTILS_NETINIT
+  {"netinit", 1, 1, cmd_netinit},
 #endif
   {"class_start", 2, 2, cmd_class_start},
   {"class_stop", 2, 2, cmd_class_stop},
@@ -149,6 +158,15 @@ static int cmd_start_cpu(FAR struct action_manager_s *am,
 
   init_info("start cpu %d", cpuid);
   return boardctl(BOARDIOC_START_CPU, cpuid);
+}
+#endif
+
+#ifdef CONFIG_NETUTILS_NETINIT
+static int cmd_netinit(FAR struct action_manager_s *am,
+                       int argc, FAR char **argv)
+{
+  UNUSED(am);
+  return netinit_bringup();
 }
 #endif
 

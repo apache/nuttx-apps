@@ -29,10 +29,7 @@
 #include <errno.h>
 #include <poll.h>
 #include <sys/param.h>
-#include <sys/boardctl.h>
 #include <sys/wait.h>
-
-#include <netutils/netinit.h>
 
 #include "action.h"
 #include "builtin.h"
@@ -189,17 +186,6 @@ int main(int argc, FAR char *argv[])
   init_dump_services(&sm.services);
 
   init_action_add_event(&am, "boot");
-
-  init_action_add_event(&am, "init");
-
-#ifdef CONFIG_NETUTILS_NETINIT
-  netinit_bringup();
-  init_action_add_event(&am, "netinit");
-#endif
-
-#ifdef CONFIG_SYSTEM_NXINIT_FINALINIT
-  init_action_add_event(&am, "finalinit");
-#endif
 
   for (; ; )
     {
