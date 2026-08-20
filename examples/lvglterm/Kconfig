@@ -7,8 +7,14 @@ menuconfig EXAMPLES_LVGLTERM
 	tristate "LVGL Terminal"
 	default n
 	depends on GRAPHICS_LVGL
+	select PSEUDOTERM
 	---help---
 		Enable LVGL Terminal
+
+		The shell runs on a pseudo-terminal so that it, and the programs
+		it starts, see a console on their standard streams:  isatty() is
+		what tells an interactive program to prompt, echo and flush its
+		output line by line.
 
 if EXAMPLES_LVGLTERM
 

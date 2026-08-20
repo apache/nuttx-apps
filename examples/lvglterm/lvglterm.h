@@ -32,24 +32,14 @@
 #include <lvgl/lvgl.h>
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* Read and Write ends of the NSH pipes */
-
-#define READ_PIPE  0
-#define WRITE_PIPE 1
-
-/****************************************************************************
  * Public Data
  ****************************************************************************/
 
-/* Shared state owned by the core (lvglterm.c).  The input variant writes the
- * shell input to g_nsh_stdin, adds its widgets under g_col (styled with
- * g_terminal_style) and may render into g_output.
+/* Shared state owned by the core (lvglterm.c).  The input variant adds its
+ * widgets under g_col (styled with g_terminal_style) and may render into
+ * g_output.
  */
 
-extern int g_nsh_stdin[2];          /* Input variant -> NSH stdin */
 extern lv_obj_t *g_col;             /* Column container (widget parent) */
 extern lv_obj_t *g_output;          /* NSH output text area */
 extern lv_style_t g_terminal_style; /* Monospaced font style */
@@ -58,15 +48,18 @@ extern lv_style_t g_terminal_style; /* Monospaced font style */
  * Public Function Prototypes
  ****************************************************************************/
 
-/* Shared helpers provided by the core */
+/* Shared helpers provided by the core.  Note that the terminal echoes the
+ * keystrokes back as the shell reads them, so an input variant must not echo
+ * what it sends a second time.
+ */
 
-bool lvglterm_has_input(int fd);
+void lvglterm_send_input(FAR const char *buf, int len);
 void lvglterm_add_output(FAR const char *buf, int len);
 
 /* Provided by the selected input variant (lvglterm_touch.c or
  * lvglterm_kbd.c).  lvglterm_input_create() sets up the input source under
- * g_col and wires it to g_nsh_stdin.  lvglterm_input_poll() runs on every
- * LVGL timer tick (LVGL thread) for periodic work; it may be a no-op.
+ * g_col.  lvglterm_input_poll() runs on every LVGL timer tick (LVGL thread)
+ * for periodic work; it may be a no-op.
  */
 
 void lvglterm_input_create(int argc, FAR char *argv[]);

@@ -67,7 +67,6 @@ static lv_obj_t *g_kb;
 
 static void input_callback(lv_event_t *e)
 {
-  int ret;
   const lv_event_code_t code = lv_event_get_code(e);
 
   if (code == LV_EVENT_VALUE_CHANGED)
@@ -94,20 +93,20 @@ static void input_callback(lv_event_t *e)
               return;
             }
 
-          /* Echo the command on the output so the prompt line reads
-           * "nsh> <command>", then send it to the shell.
+          /* Send the command to the shell.  The terminal echoes it back as
+           * the shell reads it, which is what puts it on the prompt line as
+           * "nsh> <command>", so nothing is echoed here.
            */
 
           len = strlen(cmd);
-          lvglterm_add_output(cmd, len);
+          lvglterm_send_input(cmd, len);
+
+          /* The shell acts on the line only once it is terminated */
+
           if (cmd[len - 1] != '\n')
             {
-              lvglterm_add_output("\n", 1);
+              lvglterm_send_input("\n", 1);
             }
-
-          DEBUGASSERT(g_nsh_stdin[WRITE_PIPE] != 0);
-          ret = write(g_nsh_stdin[WRITE_PIPE], cmd, len);
-          DEBUGASSERT(ret == len);
 
           lv_textarea_set_text(g_input, "");
         }
