@@ -115,6 +115,18 @@ int main(int argc, FAR char *argv[])
 
 #ifdef CONFIG_INPUT_TOUCHSCREEN
   info.input_path = CONFIG_EXAMPLES_LVGLDEMO_INPUT_DEVPATH;
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_UTOUCH_DEVPATH
+  /* A second pointer device -- a VNC server's remote pointer, say --
+   * alongside the physical touchscreen rather than instead of it.  An
+   * empty string means none:  a string option always exists, only its
+   * content says whether it was configured.
+   */
+
+  if (CONFIG_EXAMPLES_LVGLDEMO_UTOUCH_DEVPATH[0] != '\0')
+    {
+      info.utouch_path = CONFIG_EXAMPLES_LVGLDEMO_UTOUCH_DEVPATH;
+    }
+#endif
 #endif
 
   lv_nuttx_init(&info, &result);
