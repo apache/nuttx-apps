@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_GREP
+	tristate "system 'grep' command"
+	default n
+	depends on LIBC_REGEX
+	---help---
+		Enable support for the system 'grep' command (regex-based search).
+
+if SYSTEM_GREP
+
+config SYSTEM_GREP_PROGNAME
+	string "grep program name"
+	default "grep"
+	---help---
+		This is the name of the program that will be used when the grep
+		program is installed.
+
+config SYSTEM_GREP_PRIORITY
+	int "grep task priority"
+	default 100
+
+config SYSTEM_GREP_STACKSIZE
+	int "grep stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
