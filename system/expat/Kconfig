@@ -1,0 +1,43 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config LIB_EXPAT
+	tristate "Expat XML parser"
+	default n
+	depends on ALLOW_MIT_COMPONENTS
+	---help---
+		Enable the Expat stream-oriented XML parser.  The selected version is
+		downloaded when the applications tree is configured.
+
+if LIB_EXPAT
+
+config LIB_EXPAT_VERSION
+	string "Expat version"
+	default "2.8.2"
+
+config LIB_EXPAT_CONTEXT_BYTES
+	int "Input context bytes"
+	default 1024
+	range 0 65536
+	---help---
+		Number of input bytes retained around the current parse point.  Set
+		this to zero to disable XML_GetInputContext().
+
+config LIB_EXPAT_GENERAL_ENTITIES
+	bool "General entity support"
+	default n
+	---help---
+		Enable expansion of general entities.  Keep this disabled when XML
+		inputs are not fully trusted.
+
+config LIB_EXPAT_DTD
+	bool "DTD support"
+	default n
+	select LIB_EXPAT_GENERAL_ENTITIES
+	---help---
+		Enable DTD and parameter entity parsing support.  This also enables
+		general entities.
+
+endif # LIB_EXPAT
