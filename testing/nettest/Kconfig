@@ -35,6 +35,11 @@ config TESTING_NET_TCP_PORT
 
 endif
 
+config TESTING_NET_LOCAL
+	bool "Enable cmocka net local test"
+	depends on NET_LOCAL && NET_LOCAL_SCM
+	default y
+
 config TESTING_NET_OTHERS
 	bool "Enable cmocka net other test"
 	default y
