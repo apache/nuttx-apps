@@ -16,6 +16,15 @@ config LIB_MQTT5_THREAD_STACKSIZE
 	---help---
 		Stack size used by threads created by the Paho MQTT library.
 
+config LIB_MQTT5_HIGH_PERFORMANCE
+	bool "Enable Paho high-performance mode"
+	default y
+	depends on LIB_MQTT5
+	---help---
+		Disable Paho heap-allocation tracking and function call-stack
+		tracing to reduce runtime and memory overhead. Disable this option
+		when debugging the Paho MQTT library.
+
 config UTILS_MQTT5
 	tristate "Enable mqtt5 tool"
 	depends on LIB_MQTT5

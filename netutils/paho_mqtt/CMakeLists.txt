@@ -117,6 +117,11 @@ if(CONFIG_LIB_MQTT5)
 
   target_compile_options(mqtt5 PRIVATE ${MQTT5_FLAGS})
 
+  if(CONFIG_LIB_MQTT5_HIGH_PERFORMANCE)
+    target_compile_definitions(mqtt5 PRIVATE HIGH_PERFORMANCE=1)
+    target_compile_options(mqtt5 PRIVATE -Wno-unused-but-set-variable)
+  endif()
+
   if(CONFIG_UTILS_MQTT5)
 
     set(MQTT_PUB_FLAGS
