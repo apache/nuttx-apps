@@ -93,7 +93,11 @@ spriteframe_t sprtemp[29];
 int maxframe;
 const char *spritename;
 
+#ifdef CONFIG_GAMES_NXDOOM_HEAP_BUFFERS
+vissprite_t *vissprites;
+#else
 vissprite_t vissprites[CONFIG_GAMES_NXDOOM_MAXVISSPRITES];
+#endif
 vissprite_t *vissprite_p;
 int newvissprite;
 

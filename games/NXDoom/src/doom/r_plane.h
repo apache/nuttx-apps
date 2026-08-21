@@ -58,6 +58,7 @@ extern fixed_t distscale[SCREENWIDTH];
  ****************************************************************************/
 
 void r_init_planes(void);
+void r_shutdown_planes(void);
 void r_clear_planes(void);
 
 void r_draw_planes(void);
