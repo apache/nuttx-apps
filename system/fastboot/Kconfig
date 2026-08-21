@@ -6,12 +6,13 @@
 menuconfig SYSTEM_FASTBOOTD
 	bool "fastbootd"
 	default n
-	depends on USBFASTBOOT || (NET_TCP && NET_TCPBACKLOG)
+	depends on USBFASTBOOT || (NET_TCP && NET_TCPBACKLOG) || SERIAL
 	---help---
 		Fastboot daemon supporting multiple transports concurrently.
-		Enable at least one transport (USB, TCP).
+		Enable at least one transport (USB, TCP, Serial).
 		The USB transport depends on USBFASTBOOT.
 		The TCP network transport depends on NET_TCP and NET_TCPBACKLOG.
+		The Serial transport depends on SERIAL.
 		Each transport can be individually disabled via
 		SYSTEM_FASTBOOTD_USB / SYSTEM_FASTBOOTD_TCP below.
 
@@ -70,5 +71,19 @@ config SYSTEM_FASTBOOTD_NET_INIT
 	select NETUTILS_NETINIT
 	---help---
 		This option enables/disables all network initialization in fastboot server.
+
+config SYSTEM_FASTBOOTD_SERIAL
+	bool "Fastboot serial transport"
+	default n
+	depends on SERIAL
+	---help---
+		Enable serial (UART) transport for fastboot daemon.
+		Reuses TCP v1 wire framing (FB01 handshake + 8-byte length prefix).
+		The host side can use socat to bridge the UART to a TCP socket.
+
+config SYSTEM_FASTBOOTD_SERIAL_PORT
+	string "Serial device path"
+	default "/dev/ttyS1"
+	depends on SYSTEM_FASTBOOTD_SERIAL
 
 endif # SYSTEM_FASTBOOTD
