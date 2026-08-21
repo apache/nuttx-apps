@@ -43,25 +43,25 @@ if ((value) != (expected))                                  \
     atomic_##type object = init;                            \
     atomic_##type expected = 2;                             \
                                                             \
-    atomic_##type old_value = atomic_fetch_add(&object, 1); \
+    atomic_##type old_value = atomic_add(&object, 1); \
     ATOMIC_CHECK(old_value, 1);                             \
     ATOMIC_CHECK(object, 2);                                \
                                                             \
-    atomic_store(&object, 1);                               \
+    atomic_set(&object, 1);                               \
     ATOMIC_CHECK(object, 1);                                \
                                                             \
-    old_value = atomic_load(&object);                       \
+    old_value = atomic_read(&object);                       \
     ATOMIC_CHECK(object, 1)                                 \
                                                             \
-    old_value = atomic_fetch_or(&object, 4);                \
+    old_value = atomic_or(&object, 4);                \
     ATOMIC_CHECK(old_value, 1);                             \
     ATOMIC_CHECK(object, 5);                                \
                                                             \
-    old_value = atomic_fetch_xor(&object, 7);               \
+    old_value = atomic_xor(&object, 7);               \
     ATOMIC_CHECK(old_value, 5);                             \
     ATOMIC_CHECK(object, 2);                                \
                                                             \
-    old_value = atomic_fetch_and(&object, 3);               \
+    old_value = atomic_and(&object, 3);               \
     ATOMIC_CHECK(old_value, 2);                             \
     ATOMIC_CHECK(object, 2);                                \
                                                             \
@@ -69,7 +69,7 @@ if ((value) != (expected))                                  \
     ATOMIC_CHECK(old_value, 2);                             \
     ATOMIC_CHECK(object, 5);                                \
                                                             \
-    old_value = atomic_fetch_sub(&object, 3);               \
+    old_value = atomic_sub(&object, 3);               \
     ATOMIC_CHECK(old_value, 5);                             \
     ATOMIC_CHECK(object, 2);                                \
                                                             \
