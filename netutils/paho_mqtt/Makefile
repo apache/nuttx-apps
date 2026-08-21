@@ -38,6 +38,11 @@ CFLAGS += $(INCDIR_PREFIX)$(SRCDIR)
 
 ifeq ($(CONFIG_LIB_MQTT5), y)
 
+ifeq ($(CONFIG_LIB_MQTT5_HIGH_PERFORMANCE),y)
+CFLAGS += -DHIGH_PERFORMANCE=1
+CFLAGS += -Wno-unused-but-set-variable
+endif
+
 # Check if paho_mqtt directory exists, if not download and extract
 ifeq ($(wildcard $(PAHO_MQTT_UNPACK)/src),)
 $(PAHO_MQTT_ZIP):
