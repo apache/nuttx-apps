@@ -81,8 +81,8 @@ if(CONFIG_LIB_MQTT5)
       execute_process(
         COMMAND
           sh -c
-          "patch -p1 --forward --ignore-whitespace < ${CMAKE_CURRENT_LIST_DIR}/paho_mqtt_01.patch || true"
-        WORKING_DIRECTORY ${PAHO_MQTT_DIR})
+          "patch -p1 --forward --ignore-whitespace < ${CMAKE_CURRENT_LIST_DIR}/paho_mqtt_01.patch"
+        WORKING_DIRECTORY ${PAHO_MQTT_DIR} COMMAND_ERROR_IS_FATAL ANY)
       message("paho_mqtt_01 patching done")
     endif()
 
