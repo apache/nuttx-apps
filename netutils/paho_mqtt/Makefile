@@ -34,6 +34,8 @@ PAHO_MQTT_UNPACK  = paho_mqtt
 
 SRCDIR = $(APPDIR)/netutils/paho_mqtt/$(PAHO_MQTT_UNPACK)/src
 
+CFLAGS += $(INCDIR_PREFIX)$(SRCDIR)
+
 ifeq ($(CONFIG_LIB_MQTT5), y)
 
 # Check if paho_mqtt directory exists, if not download and extract
@@ -49,15 +51,10 @@ $(PAHO_MQTT_UNPACK): $(PAHO_MQTT_ZIP)
 	$(Q) rm -f $(PAHO_MQTT_ZIP)
 	$(Q) if [ -f paho_mqtt_01.patch ]; then \
 		echo "Applying paho_mqtt_01 patch to $(PAHO_MQTT_UNPACK)"; \
-		cd $(PAHO_MQTT_UNPACK) && patch -p1 --forward --ignore-whitespace < ../paho_mqtt_01.patch || true; \
+		cd $(PAHO_MQTT_UNPACK) && patch -p1 --forward --ignore-whitespace < ../paho_mqtt_01.patch; \
 	fi
 	$(Q) touch $(PAHO_MQTT_UNPACK)
 
-context:: $(PAHO_MQTT_UNPACK)
-
-distclean::
-	$(call DELFILE, $(PAHO_MQTT_ZIP))
-	$(call DELDIR, $(PAHO_MQTT_UNPACK))
 endif
 
 ifeq ($(CONFIG_OPENSSL_MBEDTLS_WRAPPER), y)
@@ -80,8 +77,8 @@ MQTT5_VERSION = $(SRCDIR)/VersionInfo.h
 
 SED_COMMANDS = $(foreach var,$(VARS),-e 's/@$(var)@/$($(var))/g')
 
-$(MQTT5_VERSION): $(SRCDIR)/VersionInfo.h.in
-	sed $(SED_COMMANDS) $< > $@
+$(MQTT5_VERSION): $(PAHO_MQTT_UNPACK)
+	sed $(SED_COMMANDS) $(SRCDIR)/VersionInfo.h.in > $@
 
 context:: $(MQTT5_VERSION)
 
@@ -106,6 +103,12 @@ $(SRCDIR)/samples/paho_c_pub.c_CFLAGS += -Dcfinish=mqtt_pub_cfinish
 $(SRCDIR)/samples/paho_c_pub.c_CFLAGS += -Dtrace_callback=mqtt_pub_trace_callback
 endif
 
+endif
+
+ifeq ($(wildcard $(PAHO_MQTT_UNPACK)/.git),)
+distclean::
+	$(call DELFILE, $(wildcard v*.zip))
+	$(call DELDIR, $(PAHO_MQTT_UNPACK))
 endif
 
 include $(APPDIR)/Application.mk

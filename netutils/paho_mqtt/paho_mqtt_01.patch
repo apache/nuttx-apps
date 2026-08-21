@@ -6,7 +6,6 @@ Subject: [PATCH] paho_mqtt: Fix mqtt compile warning
 Signed-off-by: zhangshuai39 <zhangshuai39@xiaomi.com>
 ---
  src/MQTTAsync.c          |  2 +-
- src/MQTTPacket.h         |  2 ++
  src/SHA1.c               |  2 +-
  src/Socket.c             | 16 +++++++++++++++-
  src/Socket.h             |  1 +
@@ -16,7 +15,7 @@ Signed-off-by: zhangshuai39 <zhangshuai39@xiaomi.com>
  src/WebSocket.h          |  2 +-
  src/samples/paho_c_pub.c | 29 ++++++++++++++++++-----------
  src/samples/paho_c_sub.c |  4 +++-
- 11 files changed, 45 insertions(+), 18 deletions(-)
+ 10 files changed, 43 insertions(+), 18 deletions(-)
 
 diff --git a/src/MQTTAsync.c b/src/MQTTAsync.c
 index c548ae3..2487d69 100644
@@ -31,20 +30,6 @@ index c548ae3..2487d69 100644
  {
  	thread_id_type thread_id = Paho_thread_getid();
  	return thread_id == sendThread_id || thread_id == receiveThread_id;
-diff --git a/src/MQTTPacket.h b/src/MQTTPacket.h
-index fd384ae..c833d0c 100644
---- a/src/MQTTPacket.h
-+++ b/src/MQTTPacket.h
-@@ -28,7 +28,9 @@
- #include "LinkedList.h"
- #include "Clients.h"
- 
-+#ifndef bool
- typedef unsigned int bool;
-+#endif
- typedef void* (*pf)(int, unsigned char, char*, size_t);
- 
- #include "MQTTProperties.h"
 diff --git a/src/SHA1.c b/src/SHA1.c
 index a1b2c3d..e4f5g6h 100644
 --- a/src/SHA1.c
@@ -311,4 +296,3 @@ index 85875c9..1fe18ce 100644
  	return EXIT_SUCCESS;
 -- 
 2.34.1
-
