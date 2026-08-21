@@ -122,7 +122,7 @@ index f4d43fb..52f810a 100644
  #else
  	pthread_attr_init(&attr);
  	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-+	pthread_attr_setstacksize(&attr, CONFIG_UTILS_MQTT5_STACKSIZE);
++	pthread_attr_setstacksize(&attr, CONFIG_LIB_MQTT5_THREAD_STACKSIZE);
  	if (pthread_create(&thread, &attr, fn, parameter) != 0)
  		thread = 0;
  	pthread_attr_destroy(&attr);
