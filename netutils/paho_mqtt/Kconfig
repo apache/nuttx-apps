@@ -9,6 +9,13 @@ config LIB_MQTT5
 	---help---
 		A library for accessing mqtt5 client services through C libraries calls in a simple manner.
 
+config LIB_MQTT5_THREAD_STACKSIZE
+	int "MQTT library thread stack size"
+	default 16384
+	depends on LIB_MQTT5
+	---help---
+		Stack size used by threads created by the Paho MQTT library.
+
 config UTILS_MQTT5
 	tristate "Enable mqtt5 tool"
 	depends on LIB_MQTT5
