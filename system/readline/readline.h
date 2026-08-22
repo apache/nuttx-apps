@@ -84,6 +84,6 @@ struct rl_common_s
  ****************************************************************************/
 
 ssize_t readline_common(FAR struct rl_common_s *vtbl,
-                        FAR char *buf, int buflen);
+                        FAR char *buf, int buflen, unsigned int options);
 
 #endif /* __APPS_SYSTEM_READLINE_READLINE_H */
