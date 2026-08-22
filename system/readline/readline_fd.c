@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <assert.h>
+#include <stdbool.h>
 #include <termios.h>
 
 #include "system/readline.h"
@@ -223,16 +224,19 @@ ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 
   struct readline_s vtbl;
   struct termios cfg;
+  struct termios newcfg;
+  bool restore_termios = false;
   ssize_t ret;
 
-  if (isatty(infd))
+  if (isatty(infd) && tcgetattr(infd, &cfg) == 0 &&
+      (cfg.c_lflag & ICANON) != 0)
     {
-      tcgetattr(infd, &cfg);
-      if (cfg.c_lflag & ICANON)
+      newcfg = cfg;
+      newcfg.c_lflag &= ~ICANON;
+
+      if (tcsetattr(infd, TCSANOW, &newcfg) == 0)
         {
-          cfg.c_lflag &= ~ICANON;
-          tcsetattr(infd, TCSANOW, &cfg);
-          cfg.c_lflag |= ICANON;
+          restore_termios = true;
         }
     }
 
@@ -251,7 +255,7 @@ ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 
   ret = readline_common(&vtbl.vtbl, buf, buflen);
 
-  if (isatty(infd) && (cfg.c_lflag & ICANON))
+  if (restore_termios)
     {
       tcsetattr(infd, TCSANOW, &cfg);
     }
