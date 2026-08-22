@@ -64,6 +64,25 @@ config EXAMPLES_NXTERM_FULLSCREEN
 		Size the NXTerm window to cover the complete display instead of
 		centering it at three quarters of the display size.
 
+config EXAMPLES_NXTERM_PTYCONSOLE
+	bool "PTY-backed keyboard console"
+	default n
+	depends on PSEUDOTERM && INPUT_KEYBOARD
+	depends on !INPUT_KEYBOARD_BYTESTREAM
+	depends on !NSH_ALTCONDEV && !NSH_USBKBD
+	---help---
+		Route NSH through a pseudo-terminal and bridge an event-mode keyboard
+		to the terminal master.  This gives NXTerm a real TTY, translates
+		NuttX keyboard special-key codes to VT100 input, and permits terminal
+		generated signals such as Ctrl-C and Ctrl-Z.
+
+config EXAMPLES_NXTERM_KBDDEV
+	string "Keyboard device"
+	default "/dev/kbda"
+	depends on EXAMPLES_NXTERM_PTYCONSOLE
+	---help---
+		Path of the keyboard event device bridged to the pseudo-terminal.
+
 config EXAMPLES_NXTERM_TOOLBAR_HEIGHT
 	int "Toolbar height"
 	default 16
