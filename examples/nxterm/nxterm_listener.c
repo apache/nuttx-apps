@@ -48,7 +48,7 @@ FAR void *nxterm_listener(FAR void *arg)
 
   /* Process events forever */
 
-  for (;;)
+  for (; ; )
     {
       /* Handle the next event.  If we were configured blocking, then
        * we will stay right here until the next event is received.  Since
@@ -66,7 +66,13 @@ FAR void *nxterm_listener(FAR void *arg)
            */
 
           printf("nxterm_listener: Lost server connection: %d\n", errno);
+#ifdef CONFIG_EXAMPLES_NXTERM_NSH_FALLBACK
+          g_nxterm_vars.servererr = true;
+          sem_post(&g_nxterm_vars.eventsem);
+          return NULL;
+#else
           exit(EXIT_FAILURE);
+#endif
         }
 
       /* If we received a message, we must be connected */
