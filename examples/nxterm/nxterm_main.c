@@ -376,12 +376,22 @@ int main(int argc, FAR char *argv[])
   fflush(stdout);
   fflush(stderr);
 
+#ifdef CONFIG_EXAMPLES_NXTERM_PTYCONSOLE
+  ret = nxterm_pty_redirect(fd);
+  if (ret < 0)
+    {
+      printf("nxterm_main: PTY console setup failed: %d\n", -ret);
+      close(fd);
+      goto errout_with_driver;
+    }
+#else
   dup2(fd, 1);
   dup2(fd, 2);
 
   /* And we can close our original driver file descriptor */
 
   close(fd);
+#endif
 
   /* And start the console task.  It will inherit stdin, stdout, and stderr
    * from this task.

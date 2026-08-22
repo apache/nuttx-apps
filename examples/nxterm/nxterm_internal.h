@@ -254,4 +254,8 @@ extern const struct nx_callback_s g_nxtoolcb;
 
 FAR void *nxterm_listener(FAR void *arg);
 
+#ifdef CONFIG_EXAMPLES_NXTERM_PTYCONSOLE
+int nxterm_pty_redirect(int nxtermfd);
+#endif
+
 #endif /* __APPS_EXAMPLES_NXTERM_NXTERM_INTERNAL_H */

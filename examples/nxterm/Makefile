@@ -25,6 +25,11 @@ include $(APPDIR)/Make.defs
 # NuttX NX Console Example.
 
 CSRCS = nxterm_toolbar.c nxterm_wndo.c nxterm_listener.c
+
+ifeq ($(CONFIG_EXAMPLES_NXTERM_PTYCONSOLE),y)
+CSRCS += nxterm_pty.c
+endif
+
 MAINSRC = nxterm_main.c
 
 # NX built-in application info

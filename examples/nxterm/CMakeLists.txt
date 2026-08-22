@@ -33,4 +33,7 @@ if(CONFIG_EXAMPLES_NXTERM)
     SRCS
     nxterm_main.c)
   target_sources(apps PRIVATE nxterm_toolbar.c nxterm_wndo.c nxterm_listener.c)
+  if(CONFIG_EXAMPLES_NXTERM_PTYCONSOLE)
+    target_sources(apps PRIVATE nxterm_pty.c)
+  endif()
 endif()
