@@ -80,11 +80,10 @@ static FAR const char *g_kbddev;   /* Keyboard device path (/dev/kbdN) */
  * Name: feed_char
  *
  * Description:
- *   Forward one character to NSH stdin and, for printable characters and
- *   newline, echo it on screen.  Control keys such as backspace are echoed
- *   by the shell's own line editor (via its stdout) to avoid handling them
- *   twice.  Carriage return is normalised to newline.  Runs in the LVGL
- *   thread, so it may touch the LVGL widgets directly.
+ *   Forward one character to the shell.  Nothing is echoed here:  the
+ *   terminal echoes the printable characters as the shell reads them and the
+ *   shell's own line editor deals with the control keys, so echoing again
+ *   would show everything twice.  Carriage return is normalised to newline.
  *
  ****************************************************************************/
 
@@ -95,12 +94,7 @@ static void feed_char(char ch)
       ch = '\n';
     }
 
-  write(g_nsh_stdin[WRITE_PIPE], &ch, 1);
-
-  if (ch == '\n' || ((uint8_t)ch >= 0x20 && (uint8_t)ch < 0x7f))
-    {
-      lvglterm_add_output(&ch, 1);
-    }
+  lvglterm_send_input(&ch, 1);
 }
 
 /****************************************************************************
@@ -184,8 +178,8 @@ void lvglterm_input_create(int argc, FAR char *argv[])
  *
  * Description:
  *   Drain any pending key presses from the keyboard device and forward them
- *   to NSH (echoing what is typed on screen).  Runs in the LVGL thread from
- *   the terminal's periodic timer, so the read must not block.
+ *   to the shell.  Runs in the LVGL thread from the terminal's periodic
+ *   timer, so the read must not block.
  *
  ****************************************************************************/
 

@@ -24,11 +24,10 @@
  * "NuttX RTOS for PinePhone: LVGL Terminal for NSH Shell"
  * https://lupyuen.github.io/articles/terminal
  *
- * Code shared by both input variants: it starts the NSH shell with its
- * standard streams redirected through pipes, renders the shell output in an
- * LVGL text area, and delegates the input source to the selected variant
- * (on-screen keyboard in lvglterm_touch.c, physical keyboard in
- * lvglterm_kbd.c).
+ * Code shared by both input variants: it starts the NSH shell on a
+ * pseudo-terminal, renders the shell output in an LVGL text area, and
+ * delegates the input source to the selected variant (on-screen keyboard in
+ * lvglterm_touch.c, physical keyboard in lvglterm_kbd.c).
  */
 
 /****************************************************************************
@@ -37,14 +36,17 @@
 
 #include <nuttx/config.h>
 #include <sys/boardctl.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 #include <nuttx/debug.h>
 #include <poll.h>
+#include <pty.h>
 #include <spawn.h>
 #include <lvgl/lvgl.h>
 
@@ -56,10 +58,15 @@
 #  error posix_spawn() should be enabled in the configuration
 #endif
 
-/* NSH Redirection requires Pipes */
+/* The shell runs on a pseudo-terminal rather than on plain pipes because
+ * that is what makes its standard streams look like a console.  Interactive
+ * programs decide from isatty() whether to echo, to prompt and to
+ * line-buffer their output and the terminal driver is what echoes back what
+ * the user types.
+ */
 
-#ifndef CONFIG_DEV_PIPE_SIZE
-#  error FIFO and Named Pipe Drivers should be enabled in the configuration
+#ifndef CONFIG_PSEUDOTERM
+#  error Pseudo-Terminal (PTY) support should be enabled in the configuration
 #endif
 
 /* NSH Output requires a Monospaced Font.  The size is selectable so that
@@ -86,6 +93,16 @@
 
 #define TIMER_PERIOD_MS 20
 
+/* How many reads the output poll may perform on a single timer tick */
+
+#define MAX_READS_PER_TICK 16
+
+/* How many keystrokes may wait for the shell to consume them.  A shell line
+ * is shorter than this, and the shell truncates the over-long ones anyway.
+ */
+
+#define INPUT_QUEUE_SIZE 256
+
 /* Trim the output text area once it grows past this many characters */
 
 #define TERM_MAXCHARS  4096
@@ -108,16 +125,14 @@
  * Private Function Prototypes
  ****************************************************************************/
 
+static bool has_output(void);
+static void flush_input(void);
 static int create_widgets(void);
 static void timer_callback(lv_timer_t *timer);
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
-
-/* Pipe to NSH stdin, written by the selected input variant */
-
-int g_nsh_stdin[2];
 
 /* LVGL Column Container and NSH Output Text Area (shared with the variant) */
 
@@ -132,10 +147,16 @@ lv_style_t g_terminal_style;
  * Private Data
  ****************************************************************************/
 
-/* Pipes for NSH stdout and stderr */
+/* PTY master:  the terminal's end of the shell's console.  Keystrokes are
+ * written to it and the shell output is read from it.
+ */
 
-static int g_nsh_stdout[2];
-static int g_nsh_stderr[2];
+static int g_nsh_fd = -1;
+
+/* Keystrokes waiting for room in the terminal (see lvglterm_send_input) */
+
+static char g_input_queue[INPUT_QUEUE_SIZE];
+static int g_input_queued;
 
 /* LVGL Timer for polling NSH Output */
 
@@ -149,24 +170,102 @@ static char * const g_nsh_argv[] =
 };
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: has_output
+ *
+ * Description:
+ *   Return true if the shell has produced output that can be read without
+ *   blocking.
+ *
+ ****************************************************************************/
+
+static bool has_output(void)
+{
+  struct pollfd fdp;
+
+  fdp.fd     = g_nsh_fd;
+  fdp.events = POLLIN;
+  return poll(&fdp, 1, 0) > 0 && (fdp.revents & POLLIN) != 0;
+}
+
+/****************************************************************************
+ * Name: flush_input
+ *
+ * Description:
+ *   Hand the queued keystrokes to the terminal, but no more of them than it
+ *   can take right now:  a write that has to wait for room blocks the LVGL
+ *   thread, and that deadlocks the terminal, since the shell stops reading
+ *   as soon as the echo it produces has filled the output buffer that only
+ *   this thread drains.  Runs in the LVGL thread.
+ *
+ ****************************************************************************/
+
+static void flush_input(void)
+{
+  int nwritten;
+  int space;
+
+  if (g_input_queued == 0)
+    {
+      return;
+    }
+
+  if (ioctl(g_nsh_fd, FIONSPACE, &space) < 0 || space <= 0)
+    {
+      return;
+    }
+
+  if (space > g_input_queued)
+    {
+      space = g_input_queued;
+    }
+
+  nwritten = write(g_nsh_fd, g_input_queue, space);
+  if (nwritten <= 0)
+    {
+      return;
+    }
+
+  g_input_queued -= nwritten;
+  memmove(g_input_queue, g_input_queue + nwritten, g_input_queued);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: lvglterm_has_input
+ * Name: lvglterm_send_input
  *
  * Description:
- *   Return true if the file descriptor has data to be read.
+ *   Send keystrokes to the shell.  Whatever the terminal cannot take yet is
+ *   queued and handed over by the terminal's periodic timer.  Must run in
+ *   the LVGL thread.
  *
  ****************************************************************************/
 
-bool lvglterm_has_input(int fd)
+void lvglterm_send_input(FAR const char *buf, int len)
 {
-  struct pollfd fdp;
+  int room = INPUT_QUEUE_SIZE - g_input_queued;
 
-  fdp.fd     = fd;
-  fdp.events = POLLIN;
-  return poll(&fdp, 1, 0) > 0 && (fdp.revents & POLLIN) != 0;
+  if (len > room)
+    {
+      /* The queue drains no faster than the shell reads.  Dropping what does
+       * not fit keeps the terminal responsive, and a line that long would be
+       * truncated by the shell in any case.
+       */
+
+      gwarn("WARNING: dropping %d input bytes\n", len - room);
+      len = room;
+    }
+
+  memcpy(g_input_queue + g_input_queued, buf, len);
+  g_input_queued += len;
+
+  flush_input();
 }
 
 /****************************************************************************
@@ -297,9 +396,8 @@ static int create_widgets(void)
  * Name: create_terminal
  *
  * Description:
- *   Start the NSH shell with its streams redirected to pipes, create the
- *   shared widgets and the output-polling timer, and set up the input
- *   variant.
+ *   Start the NSH shell on a pseudo-terminal, create the shared widgets and
+ *   the output-polling timer, and set up the input variant.
  *
  ****************************************************************************/
 
@@ -307,25 +405,31 @@ static int create_terminal(int argc, FAR char *argv[])
 {
   int ret;
   pid_t pid;
+  int slave;
 
-  /* Create the pipes for NSH Shell: stdin, stdout and stderr */
+  /* Create the pseudo-terminal.  The slave keeps the driver defaults, ECHO
+   * and the \n -> \r\n output translation among them, which is what a
+   * console provides and what the shell's line editor expects.
+   */
 
-  if (pipe(g_nsh_stdin) < 0 || pipe(g_nsh_stdout) < 0 ||
-      pipe(g_nsh_stderr) < 0)
+  if (openpty(&g_nsh_fd, &slave, NULL, NULL, NULL) < 0)
     {
-      fprintf(stderr, "pipe failed: %d\n", errno);
+      fprintf(stderr, "openpty failed: %d\n", errno);
       return ERROR;
     }
 
-  /* Close default stdin, stdout and stderr and assign the new pipes */
+  /* Close default stdin, stdout and stderr and assign the terminal slave,
+   * which is the shell's console once it is spawned below.
+   */
 
   close(0);
   close(1);
   close(2);
 
-  dup2(g_nsh_stdin[READ_PIPE], 0);
-  dup2(g_nsh_stdout[WRITE_PIPE], 1);
-  dup2(g_nsh_stderr[WRITE_PIPE], 2);
+  dup2(slave, 0);
+  dup2(slave, 1);
+  dup2(slave, 2);
+  close(slave);
 
   /* Start the NSH Shell and inherit stdin, stdout and stderr */
 
@@ -358,7 +462,7 @@ static int create_terminal(int argc, FAR char *argv[])
  * Name: timer_callback
  *
  * Description:
- *   Poll NSH stdout and stderr for output and render it, then let the input
+ *   Poll the terminal for shell output and render it, then let the input
  *   variant perform its periodic work.  Runs in the LVGL thread.
  *
  ****************************************************************************/
@@ -366,30 +470,37 @@ static int create_terminal(int argc, FAR char *argv[])
 static void timer_callback(lv_timer_t *timer)
 {
   static char buf[64];
+  int reads;
   int ret;
 
-  /* Drain the input variant first (local echo, scroll) so that what the user
-   * typed is rendered before the resulting shell output.
+  /* Collect the keystrokes and hand them over first, so that what the user
+   * typed is rendered (the terminal echoes it back to us) before the
+   * resulting shell output.
    */
 
   lvglterm_input_poll();
+  flush_input();
 
-  if (lvglterm_has_input(g_nsh_stdout[READ_PIPE]))
-    {
-      ret = read(g_nsh_stdout[READ_PIPE], buf, sizeof(buf));
-      if (ret > 0)
-        {
-          lvglterm_add_output(buf, ret);
-        }
-    }
+  /* Drain what the shell has produced.  A writer blocks once it has filled
+   * the terminal buffer, so read as long as there is something to read, but
+   * keep a cap:  a program producing output faster than the screen can take
+   * it must not keep the LVGL thread out of lv_timer_handler().
+   */
 
-  if (lvglterm_has_input(g_nsh_stderr[READ_PIPE]))
+  for (reads = 0; reads < MAX_READS_PER_TICK; reads++)
     {
-      ret = read(g_nsh_stderr[READ_PIPE], buf, sizeof(buf));
-      if (ret > 0)
+      if (!has_output())
         {
-          lvglterm_add_output(buf, ret);
+          break;
         }
+
+      ret = read(g_nsh_fd, buf, sizeof(buf));
+      if (ret <= 0)
+        {
+          break;
+        }
+
+      lvglterm_add_output(buf, ret);
     }
 }
 
