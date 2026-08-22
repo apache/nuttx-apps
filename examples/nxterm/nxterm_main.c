@@ -268,6 +268,13 @@ int main(int argc, FAR char *argv[])
 
   /* Determine the size and position of the window */
 
+#ifdef CONFIG_EXAMPLES_NXTERM_FULLSCREEN
+  g_nxterm_vars.wndo.wsize.w = g_nxterm_vars.xres;
+  g_nxterm_vars.wndo.wsize.h = g_nxterm_vars.yres;
+
+  g_nxterm_vars.wpos.x       = 0;
+  g_nxterm_vars.wpos.y       = 0;
+#else
   g_nxterm_vars.wndo.wsize.w = g_nxterm_vars.xres / 2 +
                                g_nxterm_vars.xres / 4;
   g_nxterm_vars.wndo.wsize.h = g_nxterm_vars.yres / 2 +
@@ -275,6 +282,7 @@ int main(int argc, FAR char *argv[])
 
   g_nxterm_vars.wpos.x       = g_nxterm_vars.xres / 8;
   g_nxterm_vars.wpos.y       = g_nxterm_vars.yres / 8;
+#endif
 
   /* Set the window position */
 

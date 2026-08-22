@@ -57,6 +57,13 @@ config EXAMPLES_NXTERM_WCOLOR
 	hex "Window color"
 	default 0xcf1f
 
+config EXAMPLES_NXTERM_FULLSCREEN
+	bool "Full-screen window"
+	default n
+	---help---
+		Size the NXTerm window to cover the complete display instead of
+		centering it at three quarters of the display size.
+
 config EXAMPLES_NXTERM_TOOLBAR_HEIGHT
 	int "Toolbar height"
 	default 16
