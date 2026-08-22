@@ -45,6 +45,12 @@ endif
 
 endif
 
+ifeq ($(CONFIG_TESTING_NET_LOCAL),y)
+MAINSRC  += local/test_local.c
+PROGNAME += cmocka_net_local
+CSRCS    += local/test_local_common.c local/test_local_scm_rights.c
+endif
+
 ifeq ($(CONFIG_TESTING_NET_OTHERS),y)
 MAINSRC  += others/test_others.c
 PROGNAME += cmocka_net_others
