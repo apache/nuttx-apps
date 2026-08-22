@@ -45,6 +45,10 @@
 
 #include <nuttx/drivers/ramdisk.h>
 
+#ifdef CONFIG_SYSTEM_READLINE
+#  include <system/readline.h>
+#endif
+
 #include "romfs_cpython_modules.h"
 
 #include "Python.h"
@@ -80,6 +84,17 @@
 #define MKMOUNT_DEVNAME(m) "/dev/ram" STR_RAMDEVNO(m)
 #define MOUNT_DEVNAME      MKMOUNT_DEVNAME(CONFIG_CPYTHON_ROMFS_RAMDEVNO)
 
+#ifdef CONFIG_SYSTEM_READLINE
+#  if CONFIG_LINE_MAX > 2
+#    define PYTHON_READLINE_BUFSIZE CONFIG_LINE_MAX
+#  else
+#    define PYTHON_READLINE_BUFSIZE 2
+#  endif
+
+#  define PYTHON_READLINE_OPTIONS \
+     (READLINE_CTRL_D_EOF | READLINE_RETURN_ON_EINTR)
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -91,6 +106,103 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_READLINE
+/****************************************************************************
+ * Name: python_readline
+ *
+ * Description:
+ *   Read an interactive line with the NuttX line editor.  CPython calls
+ *   this hook only for a TTY attached to the main interpreter, leaving its
+ *   standard fgets-based reader in place for redirected input and
+ *   subinterpreters.
+ *
+ ****************************************************************************/
+
+static char *python_readline(FILE *sys_stdin, FILE *sys_stdout,
+                             const char *prompt)
+{
+#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
+  FAR const char *oldprompt;
+#endif
+  FAR char *line;
+  FAR char *tmp;
+  size_t linesize;
+  size_t used;
+  ssize_t nread;
+
+  fflush(sys_stdout);
+
+  if (prompt != NULL)
+    {
+      fputs(prompt, stderr);
+    }
+
+  fflush(stderr);
+
+  linesize = PYTHON_READLINE_BUFSIZE;
+  line = PyMem_RawMalloc(linesize);
+  if (line == NULL)
+    {
+      return NULL;
+    }
+
+  used = 0;
+
+#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
+  oldprompt = readline_prompt(prompt);
+#endif
+
+  for (; ; )
+    {
+      nread = readline_fd_ex(line + used, PYTHON_READLINE_BUFSIZE,
+                             fileno(sys_stdin), fileno(sys_stdout),
+                             PYTHON_READLINE_OPTIONS);
+      if (nread == -EINTR)
+        {
+          PyMem_RawFree(line);
+          line = NULL;
+          break;
+        }
+
+      if (nread == EOF)
+        {
+          line[used] = '\0';
+          break;
+        }
+
+      used += nread;
+      if (used > 0 && line[used - 1] == '\n')
+        {
+          break;
+        }
+
+      if (used > SIZE_MAX - PYTHON_READLINE_BUFSIZE)
+        {
+          PyMem_RawFree(line);
+          line = NULL;
+          break;
+        }
+
+      linesize = used + PYTHON_READLINE_BUFSIZE;
+      tmp = PyMem_RawRealloc(line, linesize);
+      if (tmp == NULL)
+        {
+          PyMem_RawFree(line);
+          line = NULL;
+          break;
+        }
+
+      line = tmp;
+    }
+
+#if defined(CONFIG_READLINE_TABCOMPLETION) || defined(CONFIG_READLINE_EDIT)
+  readline_prompt(oldprompt);
+#endif
+
+  return line;
+}
+#endif
 
 /****************************************************************************
  * Name: check_and_mount_romfs
@@ -193,6 +305,10 @@ int main(int argc, FAR char *argv[])
     }
 
   _pyruntime_early_init();
+
+#ifdef CONFIG_SYSTEM_READLINE
+  PyOS_ReadlineFunctionPointer = python_readline;
+#endif
 
   setenv("PYTHONHOME", "/usr/local", 1);
 

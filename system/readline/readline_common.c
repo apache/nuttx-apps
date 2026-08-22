@@ -49,12 +49,13 @@
 #  define RL_CMDHIST_LINELEN    CONFIG_READLINE_CMD_HISTORY_LINELEN
 #endif
 
+#define CTRL_D  4   /* ^D - EOF or delete at cursor */
+
 #ifdef CONFIG_READLINE_EDIT_EMACS
-/* Emacs-style control key codes */
+/* Additional Emacs-style control key codes */
 
 #  define CTRL_A  1   /* ^A - Home */
 #  define CTRL_B  2   /* ^B - Left */
-#  define CTRL_D  4   /* ^D - Delete at cursor */
 #  define CTRL_E  5   /* ^E - End */
 #  define CTRL_F  6   /* ^F - Right */
 #  define CTRL_K  11  /* ^K - Kill to end of line */
@@ -849,7 +850,7 @@ FAR const struct extmatch_vtable_s *
  ****************************************************************************/
 
 ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
-                        int buflen)
+                        int buflen, unsigned int options)
 {
   int escape;
   int nch;
@@ -1438,6 +1439,14 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf,
       else if (ch == '\n')
         {
           return submit_line(buf, nch);
+        }
+
+      /* Some callers use the conventional empty-line Ctrl-D as EOF. */
+
+      else if (ch == CTRL_D && (options & READLINE_CTRL_D_EOF) != 0 &&
+               nch == 0)
+        {
+          return EOF;
         }
 
       /* Emacs-style control keys */

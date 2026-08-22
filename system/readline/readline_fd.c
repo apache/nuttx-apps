@@ -43,9 +43,11 @@
 struct readline_s
 {
   struct rl_common_s vtbl;
-  int infd;
+  unsigned int       options;
+  int                infd;
+  int                errcode;
 #ifdef CONFIG_READLINE_ECHO
-  int outfd;
+  int                outfd;
 #endif
 };
 
@@ -93,7 +95,13 @@ static int readline_getc(FAR struct rl_common_s *vtbl)
            */
 
           int errcode = errno;
-          if (errcode != EINTR)
+          if (errcode == EINTR &&
+              (priv->options & READLINE_RETURN_ON_EINTR) != 0)
+            {
+              priv->errcode = errcode;
+              return EOF;
+            }
+          else if (errcode != EINTR)
             {
               /* Return EOF on any errors that we cannot handle */
 
@@ -220,6 +228,16 @@ static void readline_write(FAR struct rl_common_s *vtbl,
 
 ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 {
+  return readline_fd_ex(buf, buflen, infd, outfd, 0);
+}
+
+/****************************************************************************
+ * Name: readline_fd_ex
+ ****************************************************************************/
+
+ssize_t readline_fd_ex(FAR char *buf, int buflen, int infd, int outfd,
+                       unsigned int options)
+{
   UNUSED(outfd);
 
   struct readline_s vtbl;
@@ -244,6 +262,8 @@ ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 
   vtbl.vtbl.rl_getc  = readline_getc;
   vtbl.infd          = infd;
+  vtbl.options       = options;
+  vtbl.errcode       = 0;
 
 #ifdef CONFIG_READLINE_ECHO
   vtbl.vtbl.rl_putc  = readline_putc;
@@ -253,11 +273,16 @@ ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd)
 
   /* The let the common readline logic do the work */
 
-  ret = readline_common(&vtbl.vtbl, buf, buflen);
+  ret = readline_common(&vtbl.vtbl, buf, buflen, options);
 
   if (restore_termios)
     {
       tcsetattr(infd, TCSANOW, &cfg);
+    }
+
+  if (vtbl.errcode != 0)
+    {
+      ret = -vtbl.errcode;
     }
 
   return ret;

@@ -42,6 +42,11 @@
 #  undef CONFIG_READLINE_TABCOMPLETION
 #endif
 
+/* readline_fd_ex() options */
+
+#define READLINE_CTRL_D_EOF      (1 << 0)
+#define READLINE_RETURN_ON_EINTR (1 << 1)
+
 /* Make sure that the are valid values for all tab-completion settings */
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
@@ -175,6 +180,19 @@ FAR const struct extmatch_vtable_s *
  ****************************************************************************/
 
 ssize_t readline_fd(FAR char *buf, int buflen, int infd, int outfd);
+
+/****************************************************************************
+ * Name: readline_fd_ex
+ *
+ *   readline_fd_ex() extends readline_fd() with caller-selected options.
+ *   READLINE_CTRL_D_EOF makes Ctrl-D return EOF when the line is empty.
+ *   READLINE_RETURN_ON_EINTR makes an interrupted input read return -EINTR
+ *   instead of being retried.
+ *
+ ****************************************************************************/
+
+ssize_t readline_fd_ex(FAR char *buf, int buflen, int infd, int outfd,
+                       unsigned int options);
 
 /****************************************************************************
  * Name: readline_stream
