@@ -56,10 +56,6 @@ static int init_parse_config_lines(FAR const struct parser_s *parser,
       *(nl++) = '\0';
       *len -= nl - buf;
       init_debug("Line %-3zu '%s'", ++*line, buf);
-      if (*buf == '\0')
-        {
-          continue;
-        }
 
       /* Skip empty lines and lines containing only whitespace */
 
