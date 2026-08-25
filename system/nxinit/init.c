@@ -116,7 +116,7 @@ static int init_boot_reason(FAR struct action_manager_s *am)
 {
   static FAR const char *const resetcause[] =
     {
-      [BOARDIOC_RESETCAUSE_NONE]        = "unkown",
+      [BOARDIOC_RESETCAUSE_NONE]        = "unknown",
       [BOARDIOC_RESETCAUSE_SYS_CHIPPOR] = "cold",
       [BOARDIOC_RESETCAUSE_SYS_RWDT]    = "watchdog",
       [BOARDIOC_RESETCAUSE_SYS_BOR]     = "undervoltage",
@@ -127,7 +127,7 @@ static int init_boot_reason(FAR struct action_manager_s *am)
       [BOARDIOC_RESETCAUSE_CPU_RWDT]    = "watchdog",
       [BOARDIOC_RESETCAUSE_PIN]         = "powerkey",
       [BOARDIOC_RESETCAUSE_LOWPOWER]    = "lowpower",
-      [BOARDIOC_RESETCAUSE_UNKOWN]      = "unkown",
+      [BOARDIOC_RESETCAUSE_UNKOWN]      = "unknown",
     };
 
   static FAR const char * const resetflag[] =
