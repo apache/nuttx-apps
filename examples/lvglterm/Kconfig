@@ -7,7 +7,7 @@ menuconfig EXAMPLES_LVGLTERM
 	tristate "LVGL Terminal"
 	default n
 	depends on GRAPHICS_LVGL
-	select PSEUDOTERM
+	depends on PSEUDOTERM
 	---help---
 		Enable LVGL Terminal
 
