@@ -992,7 +992,7 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #ifndef CONFIG_NSH_DISABLE_HEXDUMP
   int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
-#if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+#if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_FS_LINKS)
   int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 #ifndef CONFIG_NSH_DISABLE_LS
@@ -1004,7 +1004,7 @@ int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #if defined(CONFIG_SYSLOG_DEVPATH) && !defined(CONFIG_NSH_DISABLE_DMESG)
   int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
-#if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+#if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_FS_LINKS)
   int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_SOURCE)

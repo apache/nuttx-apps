@@ -351,7 +351,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+#if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_FS_LINKS)
   CMD_MAP("ln",       cmd_ln,       3, 4, "[-s] <target> <link>"),
 #endif
 
@@ -508,7 +508,7 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("pwd",      cmd_pwd,      1, 1, NULL),
 #endif
 
-#if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+#if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_FS_LINKS)
   CMD_MAP("readlink", cmd_readlink, 2, 2, "<link>"),
 #endif
 

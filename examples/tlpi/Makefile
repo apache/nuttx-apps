@@ -124,7 +124,7 @@ MAINSRC += $(TLPIDIR)/dirs_links/file_type_stats.c \
            $(TLPIDIR)/dirs_links/nftw_dir_tree.c \
            $(TLPIDIR)/dirs_links/t_unlink.c \
            $(TLPIDIR)/dirs_links/t_dirbasename.c
-ifneq ($(CONFIG_PSEUDOFS_SOFTLINKS),)
+ifneq ($(CONFIG_FS_LINKS),)
 MAINSRC += $(TLPIDIR)/dirs_links/bad_symlink.c \
            $(TLPIDIR)/dirs_links/view_symlink.c
 endif
