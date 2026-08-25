@@ -126,7 +126,7 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS sporadic.c sporadic2.c)
     endif()
 
-    if(CONFIG_SCHED_WORKQUEUE)
+    if(CONFIG_TESTING_OSTEST_WQUEUE)
       list(APPEND SRCS wqueue.c)
     endif()
 

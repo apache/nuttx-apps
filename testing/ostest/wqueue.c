@@ -27,15 +27,21 @@
 #include <nuttx/config.h>
 
 #include <assert.h>
+#include <errno.h>
 #include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include <time.h>
 #include <unistd.h>
 
+#include <nuttx/clock.h>
 #include <nuttx/wqueue.h>
 
-#ifdef CONFIG_SCHED_WORKQUEUE
+#include "ostest.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -44,18 +50,86 @@
 #define SLEEP_TIME   (100 * 1000)
 #define TEST_COUNT   (100)
 #define VERIFY_COUNT (100)
+#define WQUEUE_TEST_TIMEOUT_SEC 2
 
-#ifdef CONFIG_SCHED_LPWORK
-#  define TEST_QUEUE           LPWORK
-#  define TEST_QUEUE_PRIORITY  CONFIG_SCHED_LPWORKPRIORITY
-#else
-#  define TEST_QUEUE           HPWORK
-#  define TEST_QUEUE_PRIORITY  CONFIG_SCHED_HPWORKPRIORITY
-#endif
+#define MULTI_QUEUE_COUNT    4
+#define MULTI_QUEUE_LOOPS    4
+#define MULTI_WORK_PER_QUEUE 8
+#define CUSTOM_PRIORITY      100
+#define CUSTOM_STACKSIZE     2048
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+typedef FAR void *(*test_thread_entry_t)(FAR void *arg);
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static int wait_sem(FAR sem_t *sem)
+{
+#ifdef __KERNEL__
+  return nxsem_tickwait_uninterruptible(
+           sem, SEC2TICK(WQUEUE_TEST_TIMEOUT_SEC));
+#else
+  struct timespec abstime;
+  int ret;
+
+  ret = clock_gettime(CLOCK_REALTIME, &abstime);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  abstime.tv_sec += WQUEUE_TEST_TIMEOUT_SEC;
+
+  do
+    {
+      ret = sem_timedwait(sem, &abstime);
+    }
+  while (ret < 0 && errno == EINTR);
+
+  return ret < 0 ? -errno : OK;
+#endif
+}
+
+static void run_test_thread(test_thread_entry_t entry, FAR void *arg,
+                            int priority, int stacksize)
+{
+  pthread_t thread;
+  pthread_attr_t attr;
+  struct sched_param sparam;
+  int status;
+
+  status = pthread_attr_init(&attr);
+  ASSERT(status == OK);
+
+  status = pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
+  ASSERT(status == OK);
+
+  memset(&sparam, 0, sizeof(sparam));
+  sparam.sched_priority = priority;
+  status = pthread_attr_setschedparam(&attr, &sparam);
+  ASSERT(status == OK);
+
+  status = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  ASSERT(status == OK);
+
+  if (stacksize > 0)
+    {
+      status = pthread_attr_setstacksize(&attr, stacksize);
+      ASSERT(status == OK);
+    }
+
+  status = pthread_create(&thread, &attr, entry, arg);
+  ASSERT(status == OK);
+  status = pthread_join(thread, NULL);
+  ASSERT(status == OK);
+  status = pthread_attr_destroy(&attr);
+  ASSERT(status == OK);
+}
 
 static void empty_worker(FAR void *arg)
 {
@@ -64,6 +138,7 @@ static void empty_worker(FAR void *arg)
 static void sleep_worker(FAR void *arg)
 {
   FAR sem_t *sem = arg;
+
   usleep(SLEEP_TIME);
   sem_post(sem);
 }
@@ -71,7 +146,345 @@ static void sleep_worker(FAR void *arg)
 static void count_worker(FAR void *arg)
 {
   FAR sem_t *sem = arg;
+
   sem_post(sem);
+}
+
+struct sync_cancel_s
+{
+  sem_t started;
+  sem_t finished;
+};
+
+struct requeue_s
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  FAR struct work_s *work;
+  sem_t started;
+  int next_result;
+  int queue_result;
+};
+
+struct self_free_s
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  sem_t done;
+  int result;
+};
+
+struct periodic_s
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  struct work_s work;
+  sem_t done;
+  int calls;
+  int result;
+};
+
+struct replace_s
+{
+  sem_t done;
+  int total;
+};
+
+struct replace_arg_s
+{
+  FAR struct replace_s *test;
+  int value;
+};
+
+struct parallel_cancel_s;
+
+struct parallel_worker_s
+{
+  FAR struct parallel_cancel_s *test;
+  sem_t started;
+  sem_t release;
+  bool short_delay;
+};
+
+struct parallel_cancel_s
+{
+  struct parallel_worker_s worker[2];
+  sem_t finished;
+};
+
+static void sync_worker(FAR void *arg)
+{
+  FAR struct sync_cancel_s *sync = arg;
+
+  sem_post(&sync->started);
+  usleep(SLEEP_TIME);
+  sem_post(&sync->finished);
+}
+
+static void requeue_worker(FAR void *arg)
+{
+  FAR struct requeue_s *requeue = arg;
+
+  sem_post(&requeue->started);
+  usleep(SLEEP_TIME);
+  requeue->next_result = work_queue_next_wq(requeue->wqueue,
+                                             requeue->work,
+                                             empty_worker, NULL, 1);
+  requeue->queue_result = work_queue_wq(requeue->wqueue, requeue->work,
+                                         empty_worker, NULL, 0);
+}
+
+static void self_free_worker(FAR void *arg)
+{
+  FAR struct self_free_s *self_free = arg;
+
+  self_free->result = work_queue_free(self_free->wqueue);
+  sem_post(&self_free->done);
+}
+
+static void periodic_worker(FAR void *arg)
+{
+  FAR struct periodic_s *periodic = arg;
+
+  periodic->calls++;
+
+  if (periodic->calls < 3)
+    {
+      periodic->result = work_queue_next_wq(periodic->wqueue,
+                                             &periodic->work,
+                                             periodic_worker,
+                                             periodic, 1);
+
+      if (periodic->result < 0)
+        {
+          sem_post(&periodic->done);
+        }
+    }
+  else
+    {
+      sem_post(&periodic->done);
+    }
+}
+
+static void replace_worker(FAR void *arg)
+{
+  FAR struct replace_arg_s *replace = arg;
+
+  replace->test->total += replace->value;
+  sem_post(&replace->test->done);
+}
+
+static void parallel_worker(FAR void *arg)
+{
+  FAR struct parallel_worker_s *worker = arg;
+
+  sem_post(&worker->started);
+  ASSERT(wait_sem(&worker->release) == OK);
+
+  if (worker->short_delay)
+    {
+      usleep(SLEEP_TIME / 10);
+    }
+  else
+    {
+      usleep(SLEEP_TIME);
+    }
+
+  sem_post(&worker->test->finished);
+}
+
+static FAR void *release_thread(FAR void *arg)
+{
+  FAR struct parallel_cancel_s *test = arg;
+
+  usleep(SLEEP_TIME / 10);
+  sem_post(&test->worker[0].release);
+  sem_post(&test->worker[1].release);
+  return NULL;
+}
+
+static void sync_cancel_test(FAR void *wq)
+{
+  struct sync_cancel_s sync;
+  struct work_s work;
+  int count;
+  int ret;
+
+  ASSERT(sem_init(&sync.started, 0, 0) == OK);
+  ASSERT(sem_init(&sync.finished, 0, 0) == OK);
+  memset(&work, 0, sizeof(work));
+
+  ret = work_queue_wq(wq, &work, sync_worker, &sync, 0);
+  ASSERT(ret == OK);
+
+  ASSERT(wait_sem(&sync.started) == OK);
+  ret = work_cancel_sync_wq(wq, &work);
+  ASSERT(ret == OK);
+
+  sem_getvalue(&sync.finished, &count);
+  printf("wqueue_test: sync cancel finished = %d, expect = 1\n", count);
+  ASSERT(count == 1);
+
+  ASSERT(sem_destroy(&sync.finished) == OK);
+  ASSERT(sem_destroy(&sync.started) == OK);
+}
+
+static void parallel_cancel_test(FAR void *wq)
+{
+  struct parallel_cancel_s test;
+  struct work_s work;
+  pthread_t releaser;
+  int count;
+  int ret;
+
+  printf("wqueue_test: parallel sync cancel\n");
+  memset(&test, 0, sizeof(test));
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&test.finished, 0, 0) == OK);
+
+  test.worker[0].test = &test;
+  test.worker[1].test = &test;
+  test.worker[0].short_delay = true;
+  ASSERT(sem_init(&test.worker[0].started, 0, 0) == OK);
+  ASSERT(sem_init(&test.worker[0].release, 0, 0) == OK);
+  ASSERT(sem_init(&test.worker[1].started, 0, 0) == OK);
+  ASSERT(sem_init(&test.worker[1].release, 0, 0) == OK);
+
+  ret = work_queue_wq(wq, &work, parallel_worker, &test.worker[0], 0);
+  ASSERT(ret == OK);
+  ASSERT(wait_sem(&test.worker[0].started) == OK);
+
+  ret = work_queue_wq(wq, &work, parallel_worker, &test.worker[1], 0);
+  ASSERT(ret == OK);
+  ASSERT(wait_sem(&test.worker[1].started) == OK);
+
+  ret = pthread_create(&releaser, NULL, release_thread, &test);
+  ASSERT(ret == OK);
+  ret = work_cancel_sync_wq(wq, &work);
+  ASSERT(ret == OK);
+  ASSERT(pthread_join(releaser, NULL) == OK);
+
+  ASSERT(sem_getvalue(&test.finished, &count) == OK);
+  printf("wqueue_test: parallel callbacks = %d, expect = 2\n", count);
+  ASSERT(count == 2);
+  ASSERT(work_available(&work));
+
+  ASSERT(sem_destroy(&test.worker[1].release) == OK);
+  ASSERT(sem_destroy(&test.worker[1].started) == OK);
+  ASSERT(sem_destroy(&test.worker[0].release) == OK);
+  ASSERT(sem_destroy(&test.worker[0].started) == OK);
+  ASSERT(sem_destroy(&test.finished) == OK);
+}
+
+static void self_free_test(void)
+{
+  struct self_free_s self_free;
+  struct work_s work;
+  int ret;
+
+  printf("wqueue_test: self free\n");
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&self_free.done, 0, 0) == OK);
+  self_free.wqueue = work_queue_create("test", CUSTOM_PRIORITY, NULL,
+                                       CUSTOM_STACKSIZE, 1);
+  ASSERT(self_free.wqueue != NULL);
+  self_free.result = OK;
+
+  ret = work_queue_wq(self_free.wqueue, &work, self_free_worker,
+                      &self_free, 0);
+  ASSERT(ret == OK);
+  ASSERT(wait_sem(&self_free.done) == OK);
+  printf("wqueue_test: self free result = %d, expect = %d\n",
+         self_free.result, -EDEADLK);
+  ASSERT(self_free.result == -EDEADLK);
+  ASSERT(work_queue_free(self_free.wqueue) == OK);
+  ASSERT(work_available(&work));
+  ASSERT(sem_destroy(&self_free.done) == OK);
+}
+
+static void api_validation_test(FAR struct kwork_wqueue_s *wqueue)
+{
+  struct work_s work;
+  clock_t excessive_delay = WDOG_MAX_DELAY + 1;
+
+  printf("wqueue_test: API validation\n");
+  memset(&work, 0, sizeof(work));
+
+  ASSERT(work_queue_wq(NULL, &work, empty_worker, NULL, 0) == -EINVAL);
+  ASSERT(work_queue_wq(wqueue, NULL, empty_worker, NULL, 0) == -EINVAL);
+  ASSERT(work_queue_wq(wqueue, &work, NULL, NULL, 0) == -EINVAL);
+  ASSERT(work_queue_wq(wqueue, &work, empty_worker, NULL, -1) == -EINVAL);
+  ASSERT(work_queue_wq(wqueue, &work, empty_worker, NULL,
+                       excessive_delay) == -EINVAL);
+  ASSERT(work_queue_next_wq(wqueue, &work, empty_worker, NULL, -1) ==
+         -EINVAL);
+  ASSERT(work_queue_next_wq(wqueue, &work, empty_worker, NULL,
+                            excessive_delay) == -EINVAL);
+  ASSERT(work_queue(-1, &work, empty_worker, NULL, 0) == -EINVAL);
+  ASSERT(work_queue_next(-1, &work, empty_worker, NULL, 0) == -EINVAL);
+  ASSERT(work_cancel(-1, &work) == -EINVAL);
+  ASSERT(work_cancel_sync(-1, &work) == -EINVAL);
+  ASSERT(work_cancel_wq(NULL, &work) == -EINVAL);
+  ASSERT(work_cancel_wq(wqueue, NULL) == -EINVAL);
+  ASSERT(work_cancel_sync_wq(NULL, &work) == -EINVAL);
+  ASSERT(work_cancel_sync_wq(wqueue, NULL) == -EINVAL);
+  ASSERT(work_queue_priority_wq(NULL) == -EINVAL);
+
+  /* Cancelling idle work is intentionally idempotent. */
+
+  ASSERT(work_cancel_wq(wqueue, &work) == OK);
+  ASSERT(work_cancel_sync_wq(wqueue, &work) == OK);
+  ASSERT(work_available(&work));
+  printf("wqueue_test: API validation done\n");
+}
+
+static void periodic_test(FAR struct kwork_wqueue_s *wqueue)
+{
+  struct periodic_s periodic;
+
+  printf("wqueue_test: periodic requeue\n");
+  memset(&periodic, 0, sizeof(periodic));
+  periodic.wqueue = wqueue;
+  periodic.result = OK;
+  ASSERT(sem_init(&periodic.done, 0, 0) == OK);
+  ASSERT(work_queue_wq(wqueue, &periodic.work, periodic_worker,
+                       &periodic, 1) == OK);
+  ASSERT(wait_sem(&periodic.done) == OK);
+  ASSERT(periodic.result == OK);
+  ASSERT(periodic.calls == 3);
+  ASSERT(work_available(&periodic.work));
+  ASSERT(sem_destroy(&periodic.done) == OK);
+  printf("wqueue_test: periodic calls = %d, expect = 3\n",
+         periodic.calls);
+}
+
+static void pending_replace_test(FAR struct kwork_wqueue_s *wqueue)
+{
+  struct replace_arg_s first;
+  struct replace_arg_s second;
+  struct replace_s replace;
+  struct work_s work;
+  int count;
+
+  printf("wqueue_test: pending replacement\n");
+  memset(&replace, 0, sizeof(replace));
+  memset(&work, 0, sizeof(work));
+  first.test = &replace;
+  first.value = 1;
+  second.test = &replace;
+  second.value = 2;
+  ASSERT(sem_init(&replace.done, 0, 0) == OK);
+
+  ASSERT(work_queue_wq(wqueue, &work, replace_worker, &first,
+                       MSEC2TICK(200)) == OK);
+  ASSERT(work_queue_next_wq(wqueue, &work, replace_worker,
+                            &second, 1) == OK);
+  ASSERT(wait_sem(&replace.done) == OK);
+  usleep(300 * 1000);
+  ASSERT(sem_getvalue(&replace.done, &count) == OK);
+  ASSERT(count == 0);
+  ASSERT(replace.total == 2);
+  ASSERT(work_available(&work));
+  ASSERT(sem_destroy(&replace.done) == OK);
+  printf("wqueue_test: replacement total = %d, expect = 2\n",
+         replace.total);
 }
 
 static FAR void *tester(FAR void *arg)
@@ -79,19 +492,25 @@ static FAR void *tester(FAR void *arg)
   FAR void **val = arg;
   struct work_s work;
   int i;
+  int ret;
 
   memset(&work, 0, sizeof(work));
   for (i = 0; i < TEST_COUNT; i++)
     {
       if (val[1] != NULL)
         {
-          work_queue_wq(val[1], &work, empty_worker, NULL, 0);
-          work_cancel_wq(val[1], &work);
+          ret = work_queue_wq(val[1], &work, empty_worker, NULL, 0);
+          ASSERT(ret == OK);
+          ret = work_cancel_wq(val[1], &work);
+          ASSERT(ret == OK);
         }
       else
         {
-          work_queue((int)(uintptr_t)val[0], &work, empty_worker, NULL, 0);
-          work_cancel((int)(uintptr_t)val[0], &work);
+          ret = work_queue((int)(uintptr_t)val[0], &work,
+                           empty_worker, NULL, 0);
+          ASSERT(ret == OK);
+          ret = work_cancel((int)(uintptr_t)val[0], &work);
+          ASSERT(ret == OK);
         }
 
       usleep((int)(uintptr_t)val[2]);
@@ -107,23 +526,28 @@ static FAR void *verifier(FAR void *arg)
   sem_t sem;
   sem_t call_sem;
   int call_count;
+  int extra_count;
   int i;
+  int ret;
   struct work_s work[VERIFY_COUNT + 1];
 
-  sem_init(&sem, 0, 0);
-  sem_init(&call_sem, 0, 0);
+  ASSERT(sem_init(&sem, 0, 0) == OK);
+  ASSERT(sem_init(&call_sem, 0, 0) == OK);
   memset(&work, 0, sizeof(work));
 
   /* Queue sleep worker. */
 
   if (val[1] != NULL)
     {
-      work_queue_wq(val[1], &work[0], sleep_worker, &sem, 0);
+      ret = work_queue_wq(val[1], &work[0], sleep_worker, &sem, 0);
     }
   else
     {
-      work_queue((int)(uintptr_t)val[0], &work[0], sleep_worker, &sem, 0);
+      ret = work_queue((int)(uintptr_t)val[0], &work[0],
+                       sleep_worker, &sem, 0);
     }
+
+  ASSERT(ret == OK);
 
   /* Queue count workers when qid is busy. */
 
@@ -131,117 +555,63 @@ static FAR void *verifier(FAR void *arg)
     {
       if (val[1] != NULL)
         {
-          work_queue_wq(val[1], &work[i], count_worker, &call_sem, 0);
+          ret = work_queue_wq(val[1], &work[i], count_worker,
+                              &call_sem, 0);
         }
       else
         {
-          work_queue((int)(uintptr_t)val[0], &work[i],
-                     count_worker, &call_sem, 0);
+          ret = work_queue((int)(uintptr_t)val[0], &work[i],
+                           count_worker, &call_sem, 0);
         }
+
+      ASSERT(ret == OK);
     }
 
   /* Wait for sleep worker to run. */
 
-  sem_wait(&sem);
+  ASSERT(wait_sem(&sem) == OK);
 
   /* Wait for count workers to run. */
 
-  do
+  for (call_count = 0; call_count < VERIFY_COUNT; call_count++)
     {
-      usleep(SLEEP_TIME);
-      sem_getvalue(&call_sem, &call_count);
+      ASSERT(wait_sem(&call_sem) == OK);
     }
-  while (call_count != VERIFY_COUNT);
 
-  sem_getvalue(&call_sem, &call_count);
+  usleep(SLEEP_TIME);
+  ASSERT(sem_getvalue(&call_sem, &extra_count) == OK);
+  ASSERT(extra_count == 0);
+
   printf("wqueue_test: call = %d, expect = %d\n", call_count, VERIFY_COUNT);
 
-  for (i = 0; i < VERIFY_COUNT; i++)
+  for (i = 0; i <= VERIFY_COUNT; i++)
     {
       ASSERT(work[i].worker == NULL);
     }
 
   ASSERT(call_count == VERIFY_COUNT);
+  ASSERT(sem_destroy(&call_sem) == OK);
+  ASSERT(sem_destroy(&sem) == OK);
   return NULL;
 }
 
 static void run_once(int qid, FAR void *wq, int interval,
                      int priority_test, int priority_verify)
 {
-  pthread_t thread;
-  pthread_attr_t attr;
-  struct sched_param sparam;
-  int status;
   FAR void *val[3];
 
-  status = pthread_attr_init(&attr);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_attr_init failed, status=%d\n", status);
-    }
-
-  memset(&sparam, 0, sizeof(sparam));
-
   /* Tester: try race conditions. */
-
-  sparam.sched_priority = priority_test;
-  status = pthread_attr_setschedparam(&attr, &sparam);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_attr_setschedparam failed for tester, "
-             "status=%d\n", status);
-    }
 
   val[0] = (FAR void *)(uintptr_t)qid;
   val[1] = wq;
   val[2] = (FAR void *)(uintptr_t)interval;
-  status = pthread_create(&thread, &attr, tester, val);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_create failed for tester, "
-             "status=%d\n", status);
-    }
-
-  status = pthread_join(thread, NULL);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_join failed for tester, "
-             "status=%d\n", status);
-    }
+  run_test_thread(tester, val, priority_test, CONFIG_PTHREAD_STACK_DEFAULT);
 
   /* Verifier: make sure queue is still working properly. */
 
-  sparam.sched_priority = priority_verify;
-  status = pthread_attr_setschedparam(&attr, &sparam);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_attr_setschedparam failed for verifier, "
-             "status=%d\n", status);
-    }
-
-  status = pthread_attr_setstacksize(&attr,
-        VERIFY_COUNT * sizeof(struct work_s) + CONFIG_PTHREAD_STACK_DEFAULT);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_attr_setstacksize failed for verifier, "
-             "status=%d\n", status);
-    }
-
-  val[0] = (FAR void *)(uintptr_t)qid;
-  val[1] = wq;
-  status = pthread_create(&thread, &attr, verifier, val);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_create failed for verifier, "
-             "status=%d\n", status);
-    }
-
-  status = pthread_join(thread, NULL);
-  if (status != 0)
-    {
-      printf("wqueue_test: pthread_join failed for verifier, "
-             "status=%d\n", status);
-    }
+  run_test_thread(verifier, val, priority_verify,
+                  VERIFY_COUNT * sizeof(struct work_s) +
+                  CONFIG_PTHREAD_STACK_DEFAULT);
 }
 
 void wqueue_priority_test(int qid, FAR void *wq, int prio)
@@ -266,15 +636,166 @@ void wqueue_priority_test(int qid, FAR void *wq, int prio)
     }
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+static void multiple_queue_test(void)
+{
+  FAR void *wqueue[MULTI_QUEUE_COUNT];
+  struct work_s work[MULTI_QUEUE_COUNT][MULTI_WORK_PER_QUEUE];
+  char name[MULTI_QUEUE_COUNT][16];
+  sem_t finished;
+  int loop;
+  int q;
+  int w;
+  int ret;
 
-void wqueue_test(void)
+  printf("wqueue_test: multiple custom queues\n");
+  ASSERT(work_queue_create(NULL, CUSTOM_PRIORITY, NULL,
+                           CUSTOM_STACKSIZE, 1) == NULL);
+  ASSERT(work_queue_create("test", CUSTOM_PRIORITY, NULL, 0, 1) == NULL);
+  ASSERT(work_queue_create("test", CUSTOM_PRIORITY, NULL,
+                           CUSTOM_STACKSIZE, 0) == NULL);
+  ASSERT(work_queue_free(NULL) < 0);
+  ASSERT(sem_init(&finished, 0, 0) == OK);
+
+  for (loop = 0; loop < MULTI_QUEUE_LOOPS; loop++)
+    {
+      memset(work, 0, sizeof(work));
+
+      for (q = 0; q < MULTI_QUEUE_COUNT; q++)
+        {
+          snprintf(name[q], sizeof(name[q]), "ostest-wq%d", q);
+          wqueue[q] = work_queue_create(name[q], CUSTOM_PRIORITY + q,
+                                        NULL, CUSTOM_STACKSIZE, q + 1);
+          ASSERT(wqueue[q] != NULL);
+          ASSERT(work_queue_priority_wq(wqueue[q]) ==
+                 CUSTOM_PRIORITY + q);
+        }
+
+      for (q = 0; q < MULTI_QUEUE_COUNT; q++)
+        {
+          for (w = 0; w < MULTI_WORK_PER_QUEUE; w++)
+            {
+              ret = work_queue_wq(wqueue[q], &work[q][w], count_worker,
+                                  &finished, (w & 1) != 0 ? 1 : 0);
+              ASSERT(ret == OK);
+            }
+        }
+
+      for (q = 0; q < MULTI_QUEUE_COUNT * MULTI_WORK_PER_QUEUE; q++)
+        {
+          ASSERT(wait_sem(&finished) == OK);
+        }
+
+      for (q = 0; q < MULTI_QUEUE_COUNT; q++)
+        {
+          for (w = 0; w < MULTI_WORK_PER_QUEUE; w++)
+            {
+              ASSERT(work_available(&work[q][w]));
+            }
+        }
+
+      for (q = MULTI_QUEUE_COUNT - 1; q >= 0; q--)
+        {
+          ASSERT(work_queue_free(wqueue[q]) == OK);
+        }
+
+      printf("wqueue_test: multiple queues loop %d/%d done\n",
+             loop + 1, MULTI_QUEUE_LOOPS);
+    }
+
+  ASSERT(sem_destroy(&finished) == OK);
+  printf("wqueue_test: multiple custom queues done\n");
+}
+
+static void teardown_test(void)
+{
+  FAR void *wqueue;
+  struct requeue_s requeue;
+  struct sync_cancel_s sync;
+  struct work_s work;
+  sem_t called;
+  int count;
+  int ret;
+
+  printf("wqueue_test: teardown\n");
+
+  /* Free a queue while delayed work is still pending. */
+
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&called, 0, 0) == OK);
+  wqueue = work_queue_create("test", CUSTOM_PRIORITY, NULL,
+                             CUSTOM_STACKSIZE, 1);
+  ASSERT(wqueue != NULL);
+  ret = work_queue_wq(wqueue, &work, count_worker, &called,
+                      MSEC2TICK(500));
+  ASSERT(ret == OK);
+  ASSERT(work_queue_free(wqueue) == OK);
+  ASSERT(work_available(&work));
+  usleep(SLEEP_TIME);
+  ASSERT(sem_getvalue(&called, &count) == OK);
+  printf("wqueue_test: pending callback = %d, expect = 0\n", count);
+  ASSERT(count == 0);
+  ASSERT(sem_destroy(&called) == OK);
+
+  /* Free a queue while a callback is running. */
+
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&sync.started, 0, 0) == OK);
+  ASSERT(sem_init(&sync.finished, 0, 0) == OK);
+  wqueue = work_queue_create("test", CUSTOM_PRIORITY, NULL,
+                             CUSTOM_STACKSIZE, 1);
+  ASSERT(wqueue != NULL);
+  ret = work_queue_wq(wqueue, &work, sync_worker, &sync, 0);
+  ASSERT(ret == OK);
+  ASSERT(wait_sem(&sync.started) == OK);
+  ASSERT(work_queue_free(wqueue) == OK);
+  ASSERT(work_available(&work));
+  ASSERT(sem_getvalue(&sync.finished, &count) == OK);
+  printf("wqueue_test: running callback = %d, expect = 1\n", count);
+  ASSERT(count == 1);
+  ASSERT(sem_destroy(&sync.finished) == OK);
+  ASSERT(sem_destroy(&sync.started) == OK);
+
+  /* Reject attempts by a running callback to requeue work after teardown
+   * starts.
+   */
+
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&requeue.started, 0, 0) == OK);
+  wqueue = work_queue_create("test", CUSTOM_PRIORITY, NULL,
+                             CUSTOM_STACKSIZE, 1);
+  ASSERT(wqueue != NULL);
+  requeue.wqueue = wqueue;
+  requeue.work = &work;
+  requeue.next_result = OK;
+  requeue.queue_result = OK;
+  ret = work_queue_wq(wqueue, &work, requeue_worker, &requeue, 0);
+  ASSERT(ret == OK);
+  ASSERT(wait_sem(&requeue.started) == OK);
+  ASSERT(work_queue_free(wqueue) == OK);
+  ASSERT(requeue.next_result == -ESHUTDOWN);
+  ASSERT(requeue.queue_result == -ESHUTDOWN);
+  ASSERT(work_available(&work));
+  printf("wqueue_test: teardown requeue rejected\n");
+  ASSERT(sem_destroy(&requeue.started) == OK);
+
+  printf("wqueue_test: teardown done\n");
+}
+
+static FAR void *wqueue_test_entry(FAR void *arg)
 {
   FAR void *wq;
+  int priority;
   int i;
 
+  UNUSED(arg);
+
+#ifdef CONFIG_BUILD_FLAT
+  printf("wqueue_test: backend = flat\n");
+#else
+  printf("wqueue_test: backend = libc user\n");
+#endif
+
+#ifdef CONFIG_BUILD_FLAT
 #ifdef CONFIG_SCHED_HPWORK
   printf("wqueue_test: HPWORK\n");
   wqueue_priority_test(HPWORK, NULL, CONFIG_SCHED_HPWORKPRIORITY);
@@ -284,18 +805,53 @@ void wqueue_test(void)
 #ifdef CONFIG_SCHED_LPWORK
   printf("wqueue_test: LPWORK\n");
   wqueue_priority_test(LPWORK, NULL, CONFIG_SCHED_LPWORKPRIORITY);
-  printf("wqueue_test: HPWORK done\n");
+  printf("wqueue_test: LPWORK done\n");
+#endif
 #endif
 
   for (i = 1; i < 3; i++)
     {
-      printf("wqueue_test: test %d\n", i);
-      wq = work_queue_create("test", 100, NULL, 2048, i);
-      DEBUGASSERT(wq != NULL);
-      wqueue_priority_test(0, wq, 100);
-      work_queue_free(wq);
-      printf("wqueue_test: test %d done\n", i);
+      printf("wqueue_test: custom queue, threads = %d\n", i);
+      wq = work_queue_create("test", CUSTOM_PRIORITY, NULL,
+                             CUSTOM_STACKSIZE, i);
+      ASSERT(wq != NULL);
+
+      priority = work_queue_priority_wq(wq);
+      printf("wqueue_test: priority = %d, expect = %d\n",
+             priority, CUSTOM_PRIORITY);
+      ASSERT(priority == CUSTOM_PRIORITY);
+
+      if (i == 1)
+        {
+          api_validation_test(wq);
+          periodic_test(wq);
+          pending_replace_test(wq);
+        }
+
+      sync_cancel_test(wq);
+
+      if (i == 2)
+        {
+          parallel_cancel_test(wq);
+        }
+
+      wqueue_priority_test(0, wq, CUSTOM_PRIORITY);
+      ASSERT(work_queue_free(wq) == OK);
+      printf("wqueue_test: custom queue, threads = %d done\n", i);
     }
+
+  multiple_queue_test();
+  self_free_test();
+  teardown_test();
+
+  return NULL;
 }
 
-#endif /* CONFIG_SCHED_WORKQUEUE */
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void wqueue_test(void)
+{
+  run_test_thread(wqueue_test_entry, NULL, CUSTOM_PRIORITY, STACKSIZE);
+}

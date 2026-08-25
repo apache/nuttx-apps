@@ -127,7 +127,7 @@ ifeq ($(CONFIG_SCHED_SPORADIC),y)
 CSRCS += sporadic.c sporadic2.c
 endif
 
-ifeq ($(CONFIG_SCHED_WORKQUEUE),y)
+ifeq ($(CONFIG_TESTING_OSTEST_WQUEUE),y)
 CSRCS += wqueue.c
 endif
 
