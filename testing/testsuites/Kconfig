@@ -29,7 +29,7 @@ config TESTS_TESTSUITES_STACKSIZE
 config CM_FS_TEST
 	bool "enable fs test"
 	default n
-	depends on PSEUDOFS_SOFTLINKS
+	depends on FS_LINKS
 
 config CM_SCHED_TEST
 	bool "enable schedule test"
@@ -56,7 +56,7 @@ config CM_SOCKET_TEST
 config CM_SYSCALL_TEST
 	bool "enable syscall test"
 	default n
-	depends on PIPES && SCHED_HAVE_PARENT && FS_TMPFS && ARCH_SETJMP_H && PSEUDOFS_SOFTLINKS
+	depends on PIPES && SCHED_HAVE_PARENT && FS_TMPFS && ARCH_SETJMP_H && FS_LINKS
 
 config CM_MUTEX_TEST
 	bool "enable mutex test"

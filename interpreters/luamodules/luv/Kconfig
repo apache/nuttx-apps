@@ -14,7 +14,7 @@ config LUA_LUV_MODULE
 	depends on NET_SOCKOPTS
 	depends on NET_TCP
 	depends on NET_UDP
-	depends on PSEUDOFS_SOFTLINKS
+	depends on FS_LINKS
 	depends on SCHED_HAVE_PARENT
 	---help---
 		Bare libuv bindings for Lua

@@ -509,7 +509,7 @@ config NSH_DISABLE_LOMTD
 config NSH_DISABLE_LN
 	bool "Disable ln"
 	default DEFAULT_SMALL
-	depends on PSEUDOFS_SOFTLINKS
+	depends on FS_LINKS
 
 config NSH_DISABLE_LS
 	bool "Disable ls"
@@ -636,7 +636,7 @@ config NSH_DISABLE_PWD
 config NSH_DISABLE_READLINK
 	bool "Disable readlink"
 	default DEFAULT_SMALL
-	depends on PSEUDOFS_SOFTLINKS
+	depends on FS_LINKS
 
 config NSH_DISABLE_SWITCHBOOT
 	bool "Switch boot partition"

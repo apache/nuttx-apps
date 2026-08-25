@@ -164,8 +164,8 @@ config ADBD_FILE_SERVICE
 config ADBD_FILE_SYMLINK
 	bool "File service symlink support"
 	depends on ADBD_FILE_SERVICE
-	depends on PSEUDOFS_SOFTLINKS
-	default PSEUDOFS_SOFTLINKS
+	depends on FS_LINKS
+	default FS_LINKS
 	---help---
 		Enable fs symlink support.
 
