@@ -269,6 +269,7 @@ int init_parse_config_file(FAR const struct parser_s *parser,
   for (; ; )
     {
       ssize_t r = read(fd, &buf[n], sizeof(buf) - n);
+
       if (r < 0)
         {
           if (errno == EINTR)
