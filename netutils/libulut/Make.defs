@@ -23,10 +23,9 @@
 ifeq ($(CONFIG_NETUTILS_LIBULUT),y)
 CONFIGURED_APPS += $(APPDIR)/netutils/libulut
 
-ULUTDIT = ulut
-REL_PATH_TO_INC = $(ULUTDIT)/_compiled/include
+ULUTDIR = ulut
+ULUT_REL_PATH_TO_INC = $(ULUTDIR)/_compiled/include
 
-CFLAGS   +=  $(INCDIR_PREFIX)$(APPDIR)/netutils/libulut/$(REL_PATH_TO_INC)
-CXXFLAGS +=  $(INCDIR_PREFIX)$(APPDIR)/netutils/libulut/$(REL_PATH_TO_INC)
+EXPORTED_INCLUDES += ${INCDIR_PREFIX}$(APPDIR)/netutils/libulut/$(ULUT_REL_PATH_TO_INC)
 
 endif
