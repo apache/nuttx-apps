@@ -415,6 +415,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
       if (entryp != NULL)
         {
           FAR char *fullpath = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
+
           ret = stat(fullpath, &buf);
           free(fullpath);
         }
@@ -688,6 +689,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
       /* Yes.. */
 
       FAR char *newpath;
+
       newpath = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
 
       /* List the directory contents */
@@ -872,6 +874,7 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (argc == 1)
     {
       char *buf = malloc(BUFSIZ);
+
       if (buf == NULL)
         {
           return -ENOMEM;
@@ -989,6 +992,7 @@ int cmd_chown(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (*endptr == ':')
     {
       FAR const char *gidstr = endptr + 1;
+
       if (*gidstr != '\0')
         {
           value = strtol(gidstr, &endptr, 10);
@@ -1043,29 +1047,29 @@ int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (argc > 1 && (option = getopt(argc, argv, "cC:")) != ERROR)
     {
       switch (option)
-      {
-        case 'c':
-          ret = nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
+        {
+          case 'c':
+            ret = nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
 
-          /* Go through */
+            /* Go through */
 
-        case 'C':
-          fd = open(CONFIG_SYSLOG_DEVPATH, O_RDONLY);
-          if (fd < 0)
-            {
-              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
-              return fd;
-            }
+          case 'C':
+            fd = open(CONFIG_SYSLOG_DEVPATH, O_RDONLY);
+            if (fd < 0)
+              {
+                nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+                return fd;
+              }
 
-          ret = ioctl(fd, BIOC_FLUSH, 0);
-          if (ret < 0)
-            {
-              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
-            }
+            ret = ioctl(fd, BIOC_FLUSH, 0);
+            if (ret < 0)
+              {
+                nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+              }
 
-          close(fd);
-          break;
-      }
+            close(fd);
+            break;
+        }
     }
   else
     {
@@ -1180,28 +1184,28 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       switch (option)
         {
-        case 'd':
-          loopdev  = nsh_getfullpath(vtbl, optarg);
-          teardown = true;
-          break;
+          case 'd':
+            loopdev  = nsh_getfullpath(vtbl, optarg);
+            teardown = true;
+            break;
 
-        case 'o':
-          offset = atoi(optarg);
-          break;
+          case 'o':
+            offset = atoi(optarg);
+            break;
 
-        case 'r':
-          readonly = true;
-          break;
+          case 'r':
+            readonly = true;
+            break;
 
-        case 'b':
-          sectsize = atoi(optarg);
-          break;
+          case 'b':
+            sectsize = atoi(optarg);
+            break;
 
-        case '?':
-        default:
-          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-          badarg = true;
-          break;
+          case '?':
+          default:
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
         }
     }
 
@@ -1343,36 +1347,36 @@ int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       switch (option)
         {
-        case 'd':
-          loopdev  = nsh_getfullpath(vtbl, optarg);
-          teardown = true;
-          break;
+          case 'd':
+            loopdev  = nsh_getfullpath(vtbl, optarg);
+            teardown = true;
+            break;
 
-        case 'e':
-          erasesize = atoi(optarg);
-          break;
+          case 'e':
+            erasesize = atoi(optarg);
+            break;
 
-        case 'm':
-          minor = atoi(optarg);
-          break;
+          case 'm':
+            minor = atoi(optarg);
+            break;
 
-        case 'o':
-          offset = atoi(optarg);
-          break;
+          case 'o':
+            offset = atoi(optarg);
+            break;
 
-        case 'r':
-          readonly = true;
-          break;
+          case 'r':
+            readonly = true;
+            break;
 
-        case 's':
-          sectsize = atoi(optarg);
-          break;
+          case 's':
+            sectsize = atoi(optarg);
+            break;
 
-        case '?':
-        default:
-          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-          badarg = true;
-          break;
+          case '?':
+          default:
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
         }
     }
 
@@ -1518,34 +1522,34 @@ int cmd_lomtd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       switch (option)
         {
-        case 'd':
-          loopdev  = nsh_getfullpath(vtbl, optarg);
-          teardown = true;
-          break;
+          case 'd':
+            loopdev  = nsh_getfullpath(vtbl, optarg);
+            teardown = true;
+            break;
 
-        case 'e':
-          erasesize = atoi(optarg);
-          break;
+          case 'e':
+            erasesize = atoi(optarg);
+            break;
 
-        case 'o':
-          offset = atoi(optarg);
-          break;
+          case 'o':
+            offset = atoi(optarg);
+            break;
 
-        case 'b':
-          sectsize = atoi(optarg);
-          break;
+          case 'b':
+            sectsize = atoi(optarg);
+            break;
 
 #  ifndef CONFIG_MTD_CONFIG_NONE
-        case 'c':
-          configdata = atoi(optarg);
-          break;
+          case 'c':
+            configdata = atoi(optarg);
+            break;
 #  endif
 
-        case '?':
-        default:
-          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
-          badarg = true;
-          break;
+          case '?':
+          default:
+            nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
         }
     }
 
@@ -1746,6 +1750,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Get the ls options */
 
   int option;
+
   while ((option = getopt(argc, argv, "lRsh")) != ERROR)
     {
       switch (option)
@@ -2144,7 +2149,7 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
             {
               break;
             }
-         }
+        }
 
       nsh_freefullpath(fullpath);
     }
@@ -2185,7 +2190,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
               }
             break;
 
-         case 'r':
+          case 'r':
             rootdirentries = atoi(optarg);
             if (rootdirentries >= 0)
               {
@@ -2198,7 +2203,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
               }
             break;
 
-         case ':':
+          case ':':
             nsh_error(vtbl, g_fmtargrequired, argv[0]);
             badarg = true;
             break;
@@ -2301,6 +2306,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   /* Get the mkrd options */
 
   int option;
+
   while ((option = getopt(argc, argv, ":m:s:")) != ERROR)
     {
       switch (option)
@@ -2323,7 +2329,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
               }
             break;
 
-         case ':':
+          case ':':
             nsh_error(vtbl, g_fmtargrequired, argv[0]);
             badarg = true;
             break;
@@ -2670,6 +2676,7 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (recursive)
         {
           FAR char *buf = lib_get_pathbuffer();
+
           strlcpy(buf, fullpath, PATH_MAX);
           ret = unlink_recursive(buf, &stat);
           lib_put_pathbuffer(buf);
@@ -2899,6 +2906,7 @@ int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       if (errval == ENOENT)
         {
           int fd = creat(fullpath, 0666);
+
           if (fd < 0)
             {
               nsh_error(vtbl, g_fmtcmdfailed, argv[0], "stat", NSH_ERRNO);

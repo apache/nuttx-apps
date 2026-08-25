@@ -158,7 +158,7 @@ config INTERPRETERS_WAMR_STACK_GUARD_SIZE
 
 		The default value here (1024) was chosen to match the default value on
 		the majority of other platforms, including Linux. It also matches
-		the expections in the WAMR AoT compiler.
+		the exceptions in the WAMR AoT compiler.
 		On the other hand, it might be a bit larger than what's strictly
 		necessary, especially for typical NuttX targets.
 
@@ -241,7 +241,7 @@ config INTERPRETERS_WAMR_GLOBAL_HEAP_POOL_SIZE
 endif # INTERPRETERS_WAMR_GLOBAL_HEAP_POOL
 
 config INTERPRETERS_WAMR_CONFIGUABLE_BOUNDS_CHECKS
-	bool "Configuable bounds checks"
+	bool "Configurable bounds checks"
 	default n
 	---help---
 		Bounds checks enabled by default. With this option, you can
