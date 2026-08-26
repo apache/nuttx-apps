@@ -189,4 +189,32 @@ if(CONFIG_TESTING_CRYPTO)
       pbkdf2.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_CHACHA20)
+    nuttx_add_application(
+      NAME
+      chacha20
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      chacha20.c)
+  endif()
+
+  if(CONFIG_TESTING_CRYPTO_CHACHA20_POLY1305)
+    nuttx_add_application(
+      NAME
+      chachapoly
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      chachapoly.c)
+  endif()
+
 endif()
