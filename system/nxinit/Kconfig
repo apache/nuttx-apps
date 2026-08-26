@@ -94,7 +94,7 @@ comment "NXInit Service"
 
 config SYSTEM_NXINIT_SERVICE_ARGS_MAX
 	int "Max number of service arguments"
-	default 8
+	default 16
 	range 3 64
 	---help---
 		Maximum number of service arguments,
