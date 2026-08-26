@@ -64,6 +64,10 @@ static int cmd_start(FAR struct action_manager_s *am,
                      int argc, FAR char **argv);
 static int cmd_stop(FAR struct action_manager_s *am,
                     int argc, FAR char **argv);
+#ifndef CONFIG_DISABLE_ENVIRON
+static int cmd_set(FAR struct action_manager_s *am,
+                   int argc, FAR char **argv);
+#endif
 #if CONFIG_SYSTEM_NXINIT_ACTION_EVENTS_MAX > 1
 static int cmd_setprop(FAR struct action_manager_s *am,
                        int argc, FAR char **argv);
@@ -107,6 +111,9 @@ static const struct cmd_map_s g_builtin[] =
   {"class_stop", 2, 2, cmd_class_stop},
   {"exec", 3, 99, cmd_exec},
   {"exec_start", 2, 2, cmd_exec_start},
+#ifndef CONFIG_DISABLE_ENVIRON
+  {"set", 3, 3, cmd_set},
+#endif
 #if CONFIG_SYSTEM_NXINIT_ACTION_EVENTS_MAX > 1
   {"setprop", 3, 3, cmd_setprop},
 #endif
@@ -220,6 +227,16 @@ static int cmd_stop(FAR struct action_manager_s *am,
 
   return init_service_stop(service);
 }
+
+#ifndef CONFIG_DISABLE_ENVIRON
+static int cmd_set(FAR struct action_manager_s *am,
+                   int argc, FAR char **argv)
+{
+  UNUSED(am);
+  init_info("setenv '%s' '%s'", argv[1], argv[2]);
+  return setenv(argv[1], argv[2], 1);
+}
+#endif
 
 #if CONFIG_SYSTEM_NXINIT_ACTION_EVENTS_MAX > 1
 static int cmd_setprop(FAR struct action_manager_s *am, int argc,
