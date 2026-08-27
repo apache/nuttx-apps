@@ -1383,63 +1383,55 @@ static ssize_t fastboot_read_all(int fd, FAR void *buf, size_t len)
   return total;
 }
 
-static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
-                                 FAR void *buf, size_t len)
+static ssize_t fastboot_framed_read(FAR struct fastboot_ctx_s *ctx,
+                                    int fd, FAR void *buf, size_t len,
+                                    bool detect_handshake)
 {
-  char handshake[FASTBOOT_TCP_HANDSHAKE_LEN];
-  uint64_t data_size;
+  union
+    {
+      char handshake[FASTBOOT_TCP_HANDSHAKE_LEN];
+      uint64_t data_size;
+    } u;
+
   ssize_t nread;
 
-  if (ctx->tran_fd[1] == -1)
+  while (ctx->left == 0)
     {
-      while (1)
+      if (detect_handshake)
         {
-          /* Accept a connection, not care the address of the peer socket */
-
-          ctx->tran_fd[1] = accept(ctx->tran_fd[0], NULL, 0);
-          if (ctx->tran_fd[1] < 0)
+          nread = fastboot_read_all(fd, &u, FASTBOOT_TCP_HANDSHAKE_LEN);
+          if (nread != FASTBOOT_TCP_HANDSHAKE_LEN)
             {
+              return nread < 0 ? nread : -EIO;
+            }
+
+          if (memcmp(u.handshake, FASTBOOT_TCP_HANDSHAKE,
+                     FASTBOOT_TCP_HANDSHAKE_LEN) == 0)
+            {
+              fastboot_write(fd, FASTBOOT_TCP_HANDSHAKE,
+                             FASTBOOT_TCP_HANDSHAKE_LEN);
               continue;
             }
 
-          /* Handshake */
-
-          memset(handshake, 0, sizeof(handshake));
-          if (fastboot_read_all(ctx->tran_fd[1], handshake,
-                                sizeof(handshake)) != sizeof(handshake) ||
-              strncmp(handshake, FASTBOOT_TCP_HANDSHAKE,
-                      sizeof(handshake)) != 0 ||
-              fastboot_write(ctx->tran_fd[1], handshake,
-                             sizeof(handshake)) < 0)
+          nread = fastboot_read_all(fd,
+                      (FAR char *)&u + FASTBOOT_TCP_HANDSHAKE_LEN,
+                      sizeof(u.data_size) - FASTBOOT_TCP_HANDSHAKE_LEN);
+          if (nread != (ssize_t)(sizeof(u.data_size) -
+                                 FASTBOOT_TCP_HANDSHAKE_LEN))
             {
-              fb_err("%s err handshake %d 0x%" PRIx32, __func__, errno,
-                     *(FAR uint32_t *)handshake);
-              fastboot_tcp_disconn(ctx);
-              continue;
+              return nread < 0 ? nread : -EIO;
             }
-
-          break;
         }
-    }
-
-  if (ctx->left == 0)
-    {
-      nread =
-          fastboot_read_all(ctx->tran_fd[1], &data_size, sizeof(data_size));
-      if (nread != sizeof(data_size))
+      else
         {
-          /* As normal, end of file if client has closed the connection */
-
-          if (nread != 0)
+          nread = fastboot_read_all(fd, &u.data_size, sizeof(u.data_size));
+          if (nread != (ssize_t)sizeof(u.data_size))
             {
-              fb_err("%s err read data_size %zd %d", __func__, nread, errno);
+              return nread < 0 ? nread : -EIO;
             }
-
-          fastboot_tcp_disconn(ctx);
-          return nread;
         }
 
-      ctx->left = be64toh(data_size);
+      ctx->left = be64toh(u.data_size);
     }
 
   if (len > ctx->left)
@@ -1447,15 +1439,37 @@ static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
       len = ctx->left;
     }
 
-  nread = fastboot_read(ctx->tran_fd[1], buf, len);
+  nread = fastboot_read(fd, buf, len);
+  if (nread <= 0)
+    {
+      ctx->left = 0;
+      return nread;
+    }
+
+  ctx->left -= nread;
+  return nread;
+}
+
+static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
+                                 FAR void *buf, size_t len)
+{
+  ssize_t nread;
+
+  if (ctx->tran_fd[1] == -1)
+    {
+      ctx->tran_fd[1] = accept(ctx->tran_fd[0], NULL, 0);
+      if (ctx->tran_fd[1] < 0)
+        {
+          return -errno;
+        }
+
+      return fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, true);
+    }
+
+  nread = fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, false);
   if (nread <= 0)
     {
       fastboot_tcp_disconn(ctx);
-      ctx->left = 0;
-    }
-  else
-    {
-      ctx->left -= nread;
     }
 
   return nread;
