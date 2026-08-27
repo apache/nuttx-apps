@@ -233,7 +233,7 @@ static void fastboot_switchboot(FAR struct fastboot_ctx_s *context,
 
 /* USB transport */
 
-#ifdef CONFIG_USBFASTBOOT
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB
 static int     fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx);
 static void    fastboot_usbdev_deinit(FAR struct fastboot_ctx_s *ctx);
 static ssize_t fastboot_usbdev_read(FAR struct fastboot_ctx_s *ctx,
@@ -244,7 +244,7 @@ static int     fastboot_usbdev_write(FAR struct fastboot_ctx_s *ctx,
 
 /* TCP transport */
 
-#ifdef CONFIG_NET_TCP
+#ifdef CONFIG_SYSTEM_FASTBOOTD_TCP
 static int     fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx);
 static void    fastboot_tcp_deinit(FAR struct fastboot_ctx_s *ctx);
 static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
@@ -290,7 +290,7 @@ static const struct memory_region_s g_memory_region[] =
 
 static const struct fastboot_transport_ops_s g_tran_ops[] =
 {
-#ifdef CONFIG_USBFASTBOOT
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB
   {
     .init    = fastboot_usbdev_initialize,
     .deinit  = fastboot_usbdev_deinit,
@@ -298,7 +298,7 @@ static const struct fastboot_transport_ops_s g_tran_ops[] =
     .write   = fastboot_usbdev_write,
   },
 #endif
-#ifdef CONFIG_NET_TCP
+#ifdef CONFIG_SYSTEM_FASTBOOTD_TCP
   {
     .init    = fastboot_tcp_initialize,
     .deinit  = fastboot_tcp_deinit,
@@ -1170,7 +1170,7 @@ static void fastboot_free_publish(FAR struct fastboot_ctx_s *ctx,
     }
 }
 
-#ifdef CONFIG_USBFASTBOOT
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB
 static int fastboot_open_usb(int index, int flags)
 {
   int try = FASTBOOT_EP_RETRY_TIMES;
@@ -1301,7 +1301,7 @@ static int fastboot_usbdev_write(FAR struct fastboot_ctx_s *ctx,
 }
 #endif
 
-#ifdef CONFIG_NET_TCP
+#ifdef CONFIG_SYSTEM_FASTBOOTD_TCP
 static int fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx)
 {
   struct sockaddr_in addr;
