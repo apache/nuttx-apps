@@ -8,32 +8,50 @@ menuconfig SYSTEM_FASTBOOTD
 	default n
 	depends on USBFASTBOOT || (NET_TCP && NET_TCPBACKLOG)
 	---help---
-		Enable Fastboot daemon.
+		Fastboot daemon supporting multiple transports concurrently.
+		Enable at least one transport (USB, TCP).
 		The USB transport depends on USBFASTBOOT.
 		The TCP network transport depends on NET_TCP and NET_TCPBACKLOG.
+		Each transport can be individually disabled via
+		SYSTEM_FASTBOOTD_USB / SYSTEM_FASTBOOTD_TCP below.
 
 if SYSTEM_FASTBOOTD
 
 config SYSTEM_FASTBOOTD_PRIORITY
-	int "USB-fastboot task priority"
+	int "fastboot task priority"
 	default 100
 
 config SYSTEM_FASTBOOTD_STACKSIZE
-	int "USB-fastboot stack size"
+	int "fastboot stack size"
 	default DEFAULT_TASK_STACKSIZE
 
 config SYSTEM_FASTBOOTD_DOWNLOAD_MAX
-	int "USB-fastboot download buffer size"
+	int "fastboot download buffer size"
 	default 40960
+
+config SYSTEM_FASTBOOTD_USB
+	bool "Fastboot USB transport"
+	default y
+	depends on USBFASTBOOT
+	---help---
+		Enable USB transport for fastboot daemon.
 
 config SYSTEM_FASTBOOTD_USB_BOARDCTL
 	bool "USB Board Control"
 	default n
 	depends on BOARDCTL
 	depends on BOARDCTL_USBDEVCTRL
-	depends on USBFASTBOOT
+	depends on SYSTEM_FASTBOOTD_USB
 	---help---
 		Connect usbdev before running fastboot daemon.
+
+config SYSTEM_FASTBOOTD_TCP
+	bool "Fastboot TCP transport"
+	default y
+	depends on NET_TCP
+	depends on NET_TCPBACKLOG
+	---help---
+		Enable TCP network transport for fastboot daemon.
 
 config SYSTEM_FASTBOOTD_SHELL
 	bool "Execute custom commands"
@@ -48,6 +66,7 @@ config SYSTEM_FASTBOOTD_SHELL
 config SYSTEM_FASTBOOTD_NET_INIT
 	bool "Network initialization"
 	default n
+	depends on SYSTEM_FASTBOOTD_TCP
 	select NETUTILS_NETINIT
 	---help---
 		This option enables/disables all network initialization in fastboot server.
