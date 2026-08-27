@@ -40,6 +40,7 @@ config SYSTEM_NXINIT_RC_FILE_PATH
 config SYSTEM_NXINIT_RC_LINE_MAX
 	int "Max line length of RC file"
 	default 128
+	range 64 4096
 	---help---
 		Maximum line length of RC file.
 		More details: https://android.googlesource.com/platform/system/core/+/master/init/README.md
