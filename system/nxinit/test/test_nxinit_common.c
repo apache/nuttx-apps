@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/nxinit/parser.h
+ * apps/system/nxinit/test/test_nxinit_common.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,44 +20,30 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_NXINIT_PARSER_H
-#define __APPS_SYSTEM_NXINIT_PARSER_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdbool.h>
-#include <stddef.h>
+#include "test_nxinit.h"
 
 /****************************************************************************
- * Public Types
+ * Public Functions
  ****************************************************************************/
 
-struct parser_s
+/****************************************************************************
+ * Name: test_nxinit_group_setup
+ ****************************************************************************/
+
+int test_nxinit_group_setup(FAR void **state)
 {
-  FAR const char *key;
-
-  CODE int (*parse)(FAR const struct parser_s *, bool, FAR char *);
-  CODE int (*check)(FAR const struct parser_s *);
-
-  /* Type
-   *  a. struct action_manager_s
-   *  b. struct service_manager_s
-   */
-
-  FAR void *priv;
-};
+  return 0;
+}
 
 /****************************************************************************
- * Public Function Prototypes
+ * Name: test_nxinit_group_teardown
  ****************************************************************************/
 
-int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv);
-int init_parse_configs(FAR const struct parser_s *parser);
-int init_parse_config_file(FAR const struct parser_s *parser,
-                           FAR const char *file);
-int init_parse_config_buffer(FAR const struct parser_s *parser,
-                             FAR const char *buf, size_t len);
-
-#endif
+int test_nxinit_group_teardown(FAR void **state)
+{
+  return 0;
+}

@@ -24,7 +24,7 @@ include $(APPDIR)/Make.defs
 
 # NuttX Init
 
-MAINSRC = init.c
+MAINSRC += init.c
 CSRCS += builtin.c
 CSRCS += parser.c
 CSRCS += action.c
@@ -32,9 +32,24 @@ CSRCS += service.c
 CSRCS += import.c
 CSRCS += property_simple.c
 
-PROGNAME = $(CONFIG_SYSTEM_NXINIT_PROGNAME)
-PRIORITY = $(CONFIG_SYSTEM_NXINIT_PRIORITY)
-STACKSIZE = $(CONFIG_SYSTEM_NXINIT_STACKSIZE)
+PROGNAME += $(CONFIG_SYSTEM_NXINIT_PROGNAME)
+PRIORITY += $(CONFIG_SYSTEM_NXINIT_PRIORITY)
+STACKSIZE += $(CONFIG_SYSTEM_NXINIT_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_NXINIT)
+
+# NxInit unit tests (cmocka), reusing the same parser/action/service CSRCS
+# built above.
+
+ifneq ($(CONFIG_SYSTEM_NXINIT_TEST),)
+CSRCS += test/test_nxinit_common.c
+CSRCS += test/test_nxinit_parser.c
+CSRCS += test/test_nxinit_action.c
+CSRCS += test/test_nxinit_service.c
+MAINSRC += test/test_nxinit.c
+
+PROGNAME += nxinit_unit_test
+PRIORITY += $(CONFIG_SYSTEM_NXINIT_TEST_PRIORITY)
+STACKSIZE += $(CONFIG_SYSTEM_NXINIT_TEST_STACKSIZE)
+endif
 
 include $(APPDIR)/Application.mk
