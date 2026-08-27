@@ -70,7 +70,7 @@ config SYSTEM_NXINIT_ACTION_WARN_SLOW
 
 config SYSTEM_NXINIT_ACTION_EVENTS_MAX
 	int "Max number of events"
-	default 1
+	default 2
 	range 1 64
 	---help---
 		Maximum number of event and action events.
@@ -110,6 +110,45 @@ config SYSTEM_NXINIT_SERVICE_ARGS_MAX
 config SYSTEM_NXINIT_SERVICE_RESTART_PERIOD
 	int "Service restart period in ms"
 	default 5000
+
+comment "NXInit Testing"
+
+config SYSTEM_NXINIT_TEST
+	bool "NxInit unit tests"
+	default n
+	depends on TESTING_CMOCKA
+	---help---
+		Enable cmocka-based unit tests covering NxInit's argument/config
+		parser, action event matching, and service conflict detection.
+		Builds a separate "nxinit_unit_test" program. Under the CMake
+		build the test sources compile into a dedicated target and the
+		"init" program is unaffected; under the Make build the test
+		sources are appended to the shared CSRCS list, so they are also
+		linked into "init", enlarging it and pulling in the cmocka
+		dependency. Keep this disabled for production Make builds.
+
+if SYSTEM_NXINIT_TEST
+
+config SYSTEM_NXINIT_TEST_PRIORITY
+	int "Test task priority"
+	default 100
+
+config SYSTEM_NXINIT_TEST_STACKSIZE
+	int "Test task stack size"
+	default 8192
+	---help---
+		Several of the parser test cases build multi-hundred-byte
+		buffers on the stack (e.g. lines several times
+		CONFIG_SYSTEM_NXINIT_RC_LINE_MAX long) on top of cmocka's own
+		framework overhead. On at least one real embedded target this
+		overflowed the default DEFAULT_TASK_STACKSIZE (2048) silently
+		(no crash dump, no watchdog reset, the test task just stopped
+		producing output), which is far harder to diagnose than an
+		outright test failure. 8192 has been verified to run all test
+		cases cleanly on that target; lower it back down only if you
+		have confirmed your target's stack usage stays within bounds.
+
+endif # SYSTEM_NXINIT_TEST
 
 comment "NXInit Log level"
 

@@ -96,8 +96,8 @@ static int init_parse_config_lines(FAR const struct parser_s *parser,
   return 0;
 }
 
-static int init_parse_config_buffer(FAR const struct parser_s *parser,
-                                    FAR const char *buf, size_t len)
+int init_parse_config_buffer(FAR const struct parser_s *parser,
+                             FAR const char *buf, size_t len)
 {
   char tmp[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
   FAR const struct parser_s *cur = NULL;

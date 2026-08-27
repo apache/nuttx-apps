@@ -38,4 +38,38 @@ if(CONFIG_SYSTEM_NXINIT)
     SRCS
     ${CSRCS})
 
+  if(CONFIG_SYSTEM_NXINIT_TEST)
+
+    # NxInit unit tests (cmocka). Unlike the Makefile build (which folds the
+    # test sources into the same CSRCS used by the "init" program above, so
+    # parser/action/service are compiled once and shared), CMake compiles
+    # action.c/parser.c/service.c a second time into this separate
+    # nxinit_unit_test target.
+
+    set(TEST_SRCS
+        test/test_nxinit.c
+        action.c
+        parser.c
+        service.c
+        test/test_nxinit_common.c
+        test/test_nxinit_parser.c
+        test/test_nxinit_action.c
+        test/test_nxinit_service.c)
+
+    nuttx_add_application(
+      NAME
+      nxinit_unit_test
+      PRIORITY
+      ${CONFIG_SYSTEM_NXINIT_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_SYSTEM_NXINIT_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_SYSTEM_NXINIT}
+      DEPENDS
+      cmocka
+      SRCS
+      ${TEST_SRCS})
+
+  endif()
+
 endif()
