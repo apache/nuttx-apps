@@ -109,7 +109,7 @@ static int init_parse_config_buffer(FAR const struct parser_s *parser,
 
   for (; ; )
     {
-      r = MIN(len - off, sizeof(tmp));
+      r = MIN(len - off, sizeof(tmp) - n);
       memcpy(&tmp[n], &buf[off], r);
       if (r == 0)
         {
