@@ -347,6 +347,7 @@ static FAR void *fastboot_memset32(FAR void *m, uint32_t val, size_t count)
 static ssize_t fastboot_read(int fd, FAR void *buf, size_t len)
 {
   ssize_t r = read(fd, buf, len);
+
   return r < 0 ? -errno : r;
 }
 
@@ -357,6 +358,7 @@ static int fastboot_write(int fd, FAR const void *buf, size_t len)
   while (len > 0)
     {
       ssize_t r = write(fd, data, len);
+
       if (r < 0)
         {
           return -errno;
@@ -404,6 +406,7 @@ static void fastboot_okay(FAR struct fastboot_ctx_s *ctx,
 static int fastboot_flash_open(FAR const char *name)
 {
   int fd = open(name, O_RDWR | O_CLOEXEC);
+
   if (fd < 0)
     {
       fb_err("Open %s error\n", name);
@@ -529,6 +532,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
           case FASTBOOT_CHUNK_RAW:
             {
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
+
               ret = fastboot_flash_write(fd, ctx->download_offset,
                                          chunk_ptr, chunk_size);
               if (ret < 0)
@@ -544,6 +548,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
             {
               uint32_t fill_data = be32toh(*(FAR uint32_t *)chunk_ptr);
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
+
               ret = ffastboot_flash_fill(fd, ctx->download_offset, fill_data,
                                          sparse->blk_sz, chunk->chunk_sz);
               if (ret < 0)
@@ -693,6 +698,7 @@ static void fastboot_download(FAR struct fastboot_ctx_s *ctx,
   while (len > 0)
     {
       ssize_t r = ctx->ops->read(ctx, download, len);
+
       if (r < 0)
         {
           if (errno == EAGAIN)
@@ -851,6 +857,7 @@ static int fastboot_filedump_upload(FAR struct fastboot_ctx_s *ctx)
     {
       ssize_t nread = fastboot_read(fd, ctx->download_buffer,
                                     MIN(size, ctx->download_max));
+
       if (nread == 0)
         {
           break;
@@ -1036,6 +1043,7 @@ static void fastboot_oem(FAR struct fastboot_ctx_s *ctx, FAR const char *arg)
   for (index = 0; index < ncmds; index++)
     {
       size_t len = strlen(g_oem_cmd[index].prefix);
+
       if (memcmp(arg, g_oem_cmd[index].prefix, len) == 0)
         {
           arg += len;
@@ -1105,6 +1113,7 @@ static int fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
         {
           c = (FAR struct fastboot_ctx_s *)ev[n].data.ptr;
           ssize_t r = c->ops->read(c, buffer, FASTBOOT_MSG_LEN);
+
           if (r <= 0)
             {
               n--;
@@ -1115,6 +1124,7 @@ static int fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
           for (index = 0; index < ncmds; index++)
             {
               size_t len = strlen(g_fast_cmd[index].prefix);
+
               if (memcmp(buffer, g_fast_cmd[index].prefix, len) == 0)
                 {
                   g_fast_cmd[index].handle(c, buffer + len);
@@ -1221,9 +1231,9 @@ static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
 #ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
   struct boardioc_usbdev_ctrl_s ctrl;
 #  ifdef CONFIG_USBDEV_COMPOSITE
-    uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
+  uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
 #  else
-    uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
+  uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
 #  endif
   int ret;
 
