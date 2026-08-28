@@ -323,7 +323,7 @@ static int cmd_rptun(FAR struct action_manager_s *am,
     }
 
   close(fd);
-  return ret;
+  return ret < 0 ? ret : 0;
 }
 #endif
 
