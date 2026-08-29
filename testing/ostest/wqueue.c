@@ -28,7 +28,9 @@
 
 #include <assert.h>
 #include <errno.h>
+#ifndef CONFIG_DISABLE_PTHREAD
 #include <pthread.h>
+#endif
 #include <sched.h>
 #include <semaphore.h>
 #include <stdbool.h>
@@ -42,6 +44,405 @@
 #include <nuttx/wqueue.h>
 
 #include "ostest.h"
+
+#ifdef CONFIG_DISABLE_PTHREAD
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define WQUEUE_TEST_TIMEOUT_SEC 2
+#define WQUEUE_TEST_DELAY_USEC  (50 * 1000)
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct periodic_test_s
+{
+  struct work_s work;
+  sem_t done;
+  int calls;
+  int result;
+};
+
+struct replace_test_s
+{
+  sem_t done;
+  int total;
+};
+
+struct replace_arg_s
+{
+  FAR struct replace_test_s *test;
+  int value;
+};
+
+struct sync_test_s
+{
+  sem_t started;
+  sem_t finished;
+};
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static int g_wqueue_errors;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void check_result(FAR const char *name, int actual, int expected)
+{
+  if (actual != expected)
+    {
+      printf("wqueue_test: ERROR %s: got %d, expected %d\n",
+             name, actual, expected);
+      g_wqueue_errors++;
+    }
+}
+
+static void check_true(FAR const char *name, bool result)
+{
+  if (!result)
+    {
+      printf("wqueue_test: ERROR %s\n", name);
+      g_wqueue_errors++;
+    }
+}
+
+static int wait_sem(FAR sem_t *sem)
+{
+  struct timespec abstime;
+  int ret;
+
+  ret = clock_gettime(CLOCK_REALTIME, &abstime);
+  if (ret < 0)
+    {
+      return -errno;
+    }
+
+  abstime.tv_sec += WQUEUE_TEST_TIMEOUT_SEC;
+
+  do
+    {
+      ret = sem_timedwait(sem, &abstime);
+    }
+  while (ret < 0 && errno == EINTR);
+
+  return ret < 0 ? -errno : OK;
+}
+
+static void empty_worker(FAR void *arg)
+{
+  UNUSED(arg);
+}
+
+static void count_worker(FAR void *arg)
+{
+  FAR sem_t *sem = arg;
+
+  sem_post(sem);
+}
+
+static void replace_worker(FAR void *arg)
+{
+  FAR struct replace_arg_s *replace = arg;
+
+  replace->test->total += replace->value;
+  sem_post(&replace->test->done);
+}
+
+static void sync_worker(FAR void *arg)
+{
+  FAR struct sync_test_s *test = arg;
+
+  sem_post(&test->started);
+  usleep(WQUEUE_TEST_DELAY_USEC);
+  sem_post(&test->finished);
+}
+
+static void periodic_worker(FAR void *arg)
+{
+  FAR struct periodic_test_s *test = arg;
+
+  test->calls++;
+  if (test->calls < 3)
+    {
+      test->result = work_queue_next(USRWORK, &test->work,
+                                     periodic_worker, test, 1);
+      if (test->result < 0)
+        {
+          sem_post(&test->done);
+        }
+    }
+  else
+    {
+      sem_post(&test->done);
+    }
+}
+
+static void api_validation_test(void)
+{
+  struct work_s work;
+  clock_t excessive_delay = WDOG_MAX_DELAY + 1;
+
+  printf("wqueue_test: API validation\n");
+  memset(&work, 0, sizeof(work));
+
+  check_result("null work",
+               work_queue(USRWORK, NULL, empty_worker, NULL, 0), -EINVAL);
+  check_result("null worker",
+               work_queue(USRWORK, &work, NULL, NULL, 0), -EINVAL);
+  check_result("negative delay",
+               work_queue(USRWORK, &work, empty_worker, NULL, -1), -EINVAL);
+  check_result("excessive delay",
+               work_queue(USRWORK, &work, empty_worker, NULL,
+                          excessive_delay), -EINVAL);
+  check_result("negative periodic delay",
+               work_queue_next(USRWORK, &work, empty_worker, NULL, -1),
+               -EINVAL);
+  check_result("excessive periodic delay",
+               work_queue_next(USRWORK, &work, empty_worker, NULL,
+                               excessive_delay), -EINVAL);
+  check_result("invalid queue",
+               work_queue(-1, &work, empty_worker, NULL, 0), -EINVAL);
+  check_result("invalid periodic queue",
+               work_queue_next(-1, &work, empty_worker, NULL, 0), -EINVAL);
+  check_result("invalid cancel", work_cancel(-1, &work), -EINVAL);
+  check_result("invalid sync cancel", work_cancel_sync(-1, &work),
+               -EINVAL);
+  check_result("null cancel", work_cancel(USRWORK, NULL), -EINVAL);
+  check_result("null sync cancel", work_cancel_sync(USRWORK, NULL),
+               -EINVAL);
+  check_result("idle cancel", work_cancel(USRWORK, &work), OK);
+  check_result("idle sync cancel", work_cancel_sync(USRWORK, &work), OK);
+  check_true("idle work available", work_available(&work));
+  printf("wqueue_test: API validation done\n");
+}
+
+static void priority_test(void)
+{
+  int priority;
+
+  priority = work_queue_priority(USRWORK);
+  printf("wqueue_test: priority = %d, expect = %d\n",
+         priority, CONFIG_LIBC_USRWORKPRIORITY);
+  check_result("USRWORK priority", priority,
+               CONFIG_LIBC_USRWORKPRIORITY);
+}
+
+static void queue_test(clock_t delay)
+{
+  struct work_s work;
+  sem_t called;
+  int ret;
+
+  memset(&work, 0, sizeof(work));
+  ret = sem_init(&called, 0, 0);
+  check_result(delay == 0 ? "immediate sem init" : "delayed sem init",
+               ret, OK);
+  if (ret < 0)
+    {
+      return;
+    }
+
+  ret = work_queue(USRWORK, &work, count_worker, &called, delay);
+  check_result(delay == 0 ? "immediate queue" : "delayed queue", ret, OK);
+  if (ret == OK)
+    {
+      ret = wait_sem(&called);
+      check_result(delay == 0 ? "immediate callback" : "delayed callback",
+                   ret, OK);
+    }
+
+  check_result("queue cleanup", work_cancel_sync(USRWORK, &work), OK);
+  check_true("queued work available", work_available(&work));
+  check_result("queue sem destroy", sem_destroy(&called), OK);
+}
+
+static void pending_replace_test(void)
+{
+  struct replace_arg_s first;
+  struct replace_arg_s second;
+  struct replace_test_s test;
+  struct work_s work;
+  int ret;
+
+  printf("wqueue_test: pending replacement\n");
+  memset(&test, 0, sizeof(test));
+  memset(&work, 0, sizeof(work));
+  first.test = &test;
+  first.value = 1;
+  second.test = &test;
+  second.value = 2;
+
+  ret = sem_init(&test.done, 0, 0);
+  check_result("replacement sem init", ret, OK);
+  if (ret < 0)
+    {
+      return;
+    }
+
+  ret = work_queue(USRWORK, &work, replace_worker, &first,
+                   MSEC2TICK(100));
+  check_result("replacement first queue", ret, OK);
+  if (ret == OK)
+    {
+      ret = work_queue(USRWORK, &work, replace_worker, &second, 1);
+      check_result("replacement second queue", ret, OK);
+      if (ret == OK)
+        {
+          check_result("replacement callback", wait_sem(&test.done), OK);
+        }
+    }
+
+  check_result("replacement cleanup", work_cancel_sync(USRWORK, &work), OK);
+  check_result("replacement total", test.total, 2);
+  check_true("replacement work available", work_available(&work));
+  check_result("replacement sem destroy", sem_destroy(&test.done), OK);
+}
+
+static void pending_cancel_test(void)
+{
+  struct work_s work;
+  sem_t called;
+  int count = -1;
+  int ret;
+
+  printf("wqueue_test: pending cancel\n");
+  memset(&work, 0, sizeof(work));
+  ret = sem_init(&called, 0, 0);
+  check_result("pending sem init", ret, OK);
+  if (ret < 0)
+    {
+      return;
+    }
+
+  ret = work_queue(USRWORK, &work, count_worker, &called,
+                   MSEC2TICK(100));
+  check_result("pending queue", ret, OK);
+  if (ret == OK)
+    {
+      check_result("pending cancel", work_cancel(USRWORK, &work), OK);
+      usleep(150 * 1000);
+      check_result("pending sem value", sem_getvalue(&called, &count), OK);
+      check_result("pending callback count", count, 0);
+    }
+
+  check_result("pending cleanup", work_cancel_sync(USRWORK, &work), OK);
+  check_true("pending work available", work_available(&work));
+  check_result("pending sem destroy", sem_destroy(&called), OK);
+}
+
+static void sync_cancel_test(void)
+{
+  struct sync_test_s test;
+  struct work_s work;
+  int count = -1;
+  int ret;
+
+  printf("wqueue_test: synchronous cancel\n");
+  memset(&work, 0, sizeof(work));
+  ret = sem_init(&test.started, 0, 0);
+  check_result("sync started sem init", ret, OK);
+  if (ret < 0)
+    {
+      return;
+    }
+
+  ret = sem_init(&test.finished, 0, 0);
+  check_result("sync finished sem init", ret, OK);
+  if (ret < 0)
+    {
+      sem_destroy(&test.started);
+      return;
+    }
+
+  ret = work_queue(USRWORK, &work, sync_worker, &test, 0);
+  check_result("sync queue", ret, OK);
+  if (ret == OK)
+    {
+      ret = wait_sem(&test.started);
+      check_result("sync callback start", ret, OK);
+      if (ret == OK)
+        {
+          check_result("sync cancel", work_cancel_sync(USRWORK, &work), OK);
+          check_result("sync finished value",
+                       sem_getvalue(&test.finished, &count), OK);
+          check_result("sync finished count", count, 1);
+        }
+    }
+
+  check_result("sync cleanup", work_cancel_sync(USRWORK, &work), OK);
+  check_true("sync work available", work_available(&work));
+  check_result("sync finished sem destroy", sem_destroy(&test.finished),
+               OK);
+  check_result("sync started sem destroy", sem_destroy(&test.started), OK);
+}
+
+static void periodic_test(void)
+{
+  struct periodic_test_s test;
+  int ret;
+
+  printf("wqueue_test: periodic requeue\n");
+  memset(&test, 0, sizeof(test));
+  ret = sem_init(&test.done, 0, 0);
+  check_result("periodic sem init", ret, OK);
+  if (ret < 0)
+    {
+      return;
+    }
+
+  test.result = work_queue(USRWORK, &test.work, periodic_worker, &test, 1);
+  check_result("periodic queue", test.result, OK);
+  if (test.result == OK)
+    {
+      check_result("periodic callback", wait_sem(&test.done), OK);
+    }
+
+  check_result("periodic cleanup", work_cancel_sync(USRWORK, &test.work),
+               OK);
+  check_result("periodic result", test.result, OK);
+  check_result("periodic calls", test.calls, 3);
+  check_true("periodic work available", work_available(&test.work));
+  check_result("periodic sem destroy", sem_destroy(&test.done), OK);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void wqueue_test(void)
+{
+  g_wqueue_errors = 0;
+
+  printf("wqueue_test: backend = predefined USRWORK (pthread disabled)\n");
+  api_validation_test();
+  priority_test();
+  queue_test(0);
+  queue_test(MSEC2TICK(20));
+  pending_replace_test();
+  pending_cancel_test();
+  sync_cancel_test();
+  periodic_test();
+
+  if (g_wqueue_errors == 0)
+    {
+      printf("wqueue_test: PASS\n");
+    }
+  else
+    {
+      printf("wqueue_test: FAIL (%d errors)\n", g_wqueue_errors);
+    }
+
+  ASSERT(g_wqueue_errors == 0);
+}
+
+#else /* CONFIG_DISABLE_PTHREAD */
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -70,10 +471,6 @@ typedef FAR void *(*test_thread_entry_t)(FAR void *arg);
 
 static int wait_sem(FAR sem_t *sem)
 {
-#ifdef __KERNEL__
-  return nxsem_tickwait_uninterruptible(
-           sem, SEC2TICK(WQUEUE_TEST_TIMEOUT_SEC));
-#else
   struct timespec abstime;
   int ret;
 
@@ -92,7 +489,6 @@ static int wait_sem(FAR sem_t *sem)
   while (ret < 0 && errno == EINTR);
 
   return ret < 0 ? -errno : OK;
-#endif
 }
 
 static void run_test_thread(test_thread_entry_t entry, FAR void *arg,
@@ -855,3 +1251,5 @@ void wqueue_test(void)
 {
   run_test_thread(wqueue_test_entry, NULL, CUSTOM_PRIORITY, STACKSIZE);
 }
+
+#endif /* CONFIG_DISABLE_PTHREAD */

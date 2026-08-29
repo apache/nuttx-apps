@@ -126,14 +126,14 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS sporadic.c sporadic2.c)
     endif()
 
-    if(CONFIG_TESTING_OSTEST_WQUEUE)
-      list(APPEND SRCS wqueue.c)
-    endif()
-
     if(CONFIG_PRIORITY_INHERITANCE)
       list(APPEND SRCS prioinherit.c)
     endif() # CONFIG_PRIORITY_INHERITANCE
   endif() # CONFIG_DISABLE_PTHREAD
+
+  if(CONFIG_TESTING_OSTEST_WQUEUE)
+    list(APPEND SRCS wqueue.c)
+  endif()
 
   if(NOT CONFIG_DISABLE_MQUEUE)
     if(NOT CONFIG_DISABLE_PTHREAD)
