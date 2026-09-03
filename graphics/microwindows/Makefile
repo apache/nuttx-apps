@@ -31,7 +31,7 @@ MICROWINDOWS_DIR_NAME = microwindows
 
 WD := ${shell echo $(CURDIR) | sed -e 's/ /\\ /g'}
 
-MICROWINDOWS_COMMIT_HASH := 19d1890f67f7e099c17b2fd4529c5160327eedba
+MICROWINDOWS_COMMIT_HASH := ac1063aec73d341db04d5f08aa8eb601215a69bc
 
 CONFIG_GRAPH_MICROWINDOWS_URL ?= https://codeload.github.com/ghaerr/microwindows/zip/$(MICROWINDOWS_COMMIT_HASH)
 

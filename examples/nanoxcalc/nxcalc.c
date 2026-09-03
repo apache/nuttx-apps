@@ -176,6 +176,7 @@ int main(int argc, char **argv)
         {
           int x = grid_x + c * cell_w;
           int y = grid_y + r * cell_h;
+
           btn_rects[r][c].x = x;
           btn_rects[r][c].y = y;
           btn_rects[r][c].width = cell_w - 6;
@@ -204,11 +205,13 @@ int main(int argc, char **argv)
               int mx = event.button.x;
               int my = event.button.y;
               int found = 0;
+
               for (r = 0; r < ROWS && !found; r++)
                 {
                   for (c = 0; c < COLS && !found; c++)
                     {
                       GR_RECT *rc = &btn_rects[r][c];
+
                       if (mx >= rc->x && mx <= rc->x + rc->width &&
                           my >= rc->y && my <= rc->y + rc->height)
                         {
@@ -226,11 +229,13 @@ int main(int argc, char **argv)
               int mx = event.button.x;
               int my = event.button.y;
               int found = 0;
+
               for (r = 0; r < ROWS && !found; r++)
                 {
                   for (c = 0; c < COLS && !found; c++)
                     {
                       GR_RECT *rc = &btn_rects[r][c];
+
                       if (mx >= rc->x && mx <= rc->x + rc->width &&
                           my >= rc->y && my <= rc->y + rc->height)
                         {
@@ -239,6 +244,7 @@ int main(int argc, char **argv)
                                              (int)(sizeof(btn_labels) /
                                                    sizeof(btn_labels[0]))?
                                              btn_labels[idx] : NULL);
+
                           if (lbl)
                             {
                               press_button(lbl);
@@ -287,13 +293,14 @@ static void redraw(void)
                    &th, &tb);
 
   int x = WIN_W - 12 - tw;
+
   if (x < 10)
     {
       x = 10;
     }
 
-    GrText(win, gc_text, x, 5 + (DISP_H / 2) - 10, display, strlen(display),
-      GR_TFTOP);
+  GrText(win, gc_text, x, 5 + (DISP_H / 2) - 10, display, strlen(display),
+          GR_TFTOP);
 
   /* draw buttons */
 
@@ -332,7 +339,6 @@ static void redraw(void)
 
 static void press_button(const char *label)
 {
-  char tmp[128];
   double val;
 
   if (strcmp(label, "C") == 0)
@@ -349,6 +355,7 @@ static void press_button(const char *label)
   if (strcmp(label, "<-") == 0)
     {
       int l = strlen(display);
+
       if (l > 0)
         {
           if (display[l - 1] == '.')
@@ -375,13 +382,21 @@ static void press_button(const char *label)
         }
       else
         {
-          if (strlen(display) == 0 || strcmp(display, "0") == 0)
+          int len = strlen(display);
+
+          if (len == 0 || strcmp(display, "0") == 0)
             {
               return;
             }
 
-          snprintf(tmp, sizeof(tmp), "-%s", display);
-          strncpy(display, tmp, sizeof(display) - 1);
+          if (len > sizeof(display) - 2)
+            {
+              len = sizeof(display) - 2;
+              display[len] = '\0';
+            }
+
+          memmove(display + 1, display, len + 1);
+          display[0] = '-';
         }
 
       return;
