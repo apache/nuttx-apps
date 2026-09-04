@@ -35,6 +35,8 @@
 
 #include <nuttx/wqueue.h>
 
+#include "ostest.h"
+
 #ifdef CONFIG_SCHED_WORKQUEUE
 
 /****************************************************************************
@@ -64,6 +66,7 @@ static void empty_worker(FAR void *arg)
 static void sleep_worker(FAR void *arg)
 {
   FAR sem_t *sem = arg;
+
   usleep(SLEEP_TIME);
   sem_post(sem);
 }
@@ -71,6 +74,7 @@ static void sleep_worker(FAR void *arg)
 static void count_worker(FAR void *arg)
 {
   FAR sem_t *sem = arg;
+
   sem_post(sem);
 }
 
@@ -290,7 +294,7 @@ void wqueue_test(void)
   for (i = 1; i < 3; i++)
     {
       printf("wqueue_test: test %d\n", i);
-      wq = work_queue_create("test", 100, NULL, 2048, i);
+      wq = work_queue_create("test", 100, NULL, STACKSIZE, i);
       DEBUGASSERT(wq != NULL);
       wqueue_priority_test(0, wq, 100);
       work_queue_free(wq);
