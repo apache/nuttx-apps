@@ -39,6 +39,7 @@ int main(int argc, FAR char *argv[])
   const struct CMUnitTest others_tests[] =
     {
       cmocka_unit_test(test_others_bufpool),
+      cmocka_unit_test(test_others_chksum),
     };
 
   return cmocka_run_group_tests(others_tests, test_others_group_setup,
