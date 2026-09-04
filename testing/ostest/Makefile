@@ -127,14 +127,14 @@ ifeq ($(CONFIG_SCHED_SPORADIC),y)
 CSRCS += sporadic.c sporadic2.c
 endif
 
-ifeq ($(CONFIG_SCHED_WORKQUEUE),y)
-CSRCS += wqueue.c
-endif
-
 ifeq ($(CONFIG_PRIORITY_INHERITANCE),y)
 CSRCS += prioinherit.c
 endif
 endif # CONFIG_DISABLE_PTHREAD
+
+ifeq ($(CONFIG_TESTING_OSTEST_WQUEUE),y)
+CSRCS += wqueue.c
+endif
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
