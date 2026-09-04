@@ -1,0 +1,160 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig NETUTILS_FBVNC
+	bool "VNC server (RFB 3.7) streaming a caller-owned framebuffer"
+	default n
+	depends on NET_TCP
+	---help---
+		A VNC Remote Frame Buffer server that streams a framebuffer the
+		application owns, supplied through a snapshot callback.
+
+		This is deliberately not the same thing as the VNC server in
+		drivers/video/vnc:  that one allocates a framebuffer of its own
+		and registers it as another /dev/fbN, so it is a second, virtual
+		display.  This one has no framebuffer at all and streams whatever
+		the caller points it at, which is what lets it mirror the display
+		the LCD is already showing without a duplicate copy.
+
+if NETUTILS_FBVNC
+
+config NETUTILS_FBVNC_PORT
+	int "TCP port"
+	default 5900
+	---help---
+		The port clients connect to.  Display N in a VNC client's
+		address is port 5900 + N.
+
+config NETUTILS_FBVNC_STACKSIZE
+	int "Sender thread stack size"
+	default 8192
+	---help---
+		Sizes the thread that writes frames out.  The protocol loop
+		runs in the caller's thread, so its stack is the caller's.
+
+config NETUTILS_FBVNC_PRIORITY
+	int "Server thread priority"
+	default 100
+	---help---
+		Keep this below the priority of the thread that renders the UI.
+		The remote display is worth less than the local one:  if the two
+		compete, the local display should win.
+
+		Note the inverted convention if you are porting a configuration
+		from Zephyr, where a smaller number means a higher priority.
+
+config NETUTILS_FBVNC_NAME
+	string "Desktop name advertised to clients"
+	default "NuttX"
+
+config NETUTILS_FBVNC_FB_WIDTH
+	int "Framebuffer width (pixels)"
+	default 1024
+
+config NETUTILS_FBVNC_FB_HEIGHT
+	int "Framebuffer height (rows)"
+	default 600
+
+config NETUTILS_FBVNC_FB_BYTESPP
+	int "Framebuffer bytes per pixel"
+	default 2
+	range 2 2
+	---help---
+		Only 2 (RGB565) is implemented so far.
+
+		The wire format deliberately matches the framebuffer rather than
+		being promoted to 32bpp RGBA.  Promoting doubles the bytes per
+		frame, and at this resolution that is the difference between
+		1.2 MiB and 2.4 MiB per full redraw -- enough to exhaust the
+		Ethernet driver's buffer pool during sustained navigation.
+
+config NETUTILS_FBVNC_MAX_DIRTY
+	int "Maximum dirty rectangles per update"
+	default 32
+	---help---
+		How many rectangles the snapshot callback may report.  When the
+		application has more changed regions than this it should collapse
+		them into one full-screen rectangle rather than dropping any.
+
+config NETUTILS_FBVNC_SEND_CHUNK
+	int "Maximum bytes per send() call"
+	default 8192
+
+config NETUTILS_FBVNC_ENCODING_HEXTILE
+	bool "Hextile encoding (RFB 7.7.4)"
+	default y
+	---help---
+		Tile-based encoding, 16x16 tiles, each described as a fill, as
+		runs of a foreground colour over a background, or as raw pixels.
+
+		On a user interface most tiles are a single colour, and a solid
+		tile costs three bytes against 512 raw.  That is the difference
+		between a first frame that arrives and one that does not: a
+		1024x600 screen is 1.2 MiB raw, and this link cannot carry that
+		while the display is being redrawn.
+
+		All of the codec is here -- no zlib, no jpeg.  ZRLE and Tight
+		compress better but need both, and a per-session deflate
+		context besides.
+
+		Falls back to Raw when the client does not ask for Hextile, or
+		when it has negotiated a pixel format other than the
+		framebuffer's own.
+
+config NETUTILS_FBVNC_MIN_UPDATE_MS
+	int "Minimum time between framebuffer updates (ms)"
+	default 100
+	---help---
+		A floor on the time between two consecutive answers to a client
+		asking for a framebuffer update, no matter how fast it asks.
+		100 ms is a ceiling of 10 updates per second.
+
+		Clients ask again the instant they have finished parsing the
+		last answer, which while a list is being dragged means a full
+		screen is in flight permanently and the display never catches
+		up.  Delaying the answer is not a protocol violation; the
+		client is already waiting for one.
+
+		Set to 0 to answer as fast as the client asks.
+
+config NETUTILS_FBVNC_SEND_TIMEOUT
+	int "Send timeout (seconds)"
+	default 30
+	---help---
+		Disconnect the client if a send blocks for longer than this.  On
+		a wedged connection this is what gets the server back to
+		accepting new clients.
+
+endif # NETUTILS_FBVNC
+
+config NETUTILS_FBVNC_TRACE
+	bool "Log what every update cost"
+	default n
+	---help---
+		Report, for each update sent, how many rectangles it carried,
+		how many bytes they cover, and how long the snapshot and the
+		sending each took.
+
+		This is how one tells a slow link from a slow application:  a
+		large send time is the network, a large snapshot time is
+		whatever produced the pixels.  It is a line of output per
+		update, which is far too much to leave on, so it is asked for
+		rather than assumed.
+
+config NETUTILS_FBVNC_ENCODING_TRLE
+	bool "TRLE encoding (RFB 7.7.5)"
+	default y
+	---help---
+		Send a tile of few colours as a palette and an index per pixel
+		rather than as a list of sub-rectangles.
+
+		A widget toolkit draws flat panels and text, so most tiles have
+		one or two colours;  two colours cost one bit per pixel here,
+		against a sub-rectangle each in Hextile.  Offered to clients
+		that ask for it, and preferred over Hextile when both are
+		offered.
+
+		Only the native pixel format is served this way.  A client that
+		negotiates another gets Raw, converted.
