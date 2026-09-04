@@ -168,4 +168,12 @@ config SYSTEM_NXINIT_DEBUG
 	bool "Enable debug log"
 	depends on SYSTEM_NXINIT_INFO
 
+config SYSTEM_NXINIT_STDOUT
+	bool "Output log to stdout (printf)"
+	default n
+	---help---
+		Debug option: redirect all init logs to stdout via printf
+		instead of syslog. Useful when syslog is not available or
+		serial console has no output during early boot.
+
 endif
