@@ -31,6 +31,7 @@
 
 #include "d_loop.h"
 #include "doomdef.h"
+#include "i_system.h"
 
 #include "m_bbox.h"
 #include "m_menu.h"
@@ -142,10 +143,25 @@ int setdetail;
 #if 0 /* UNUSED */
 static void r_add_point_to_box(int x, int y, fixed_t *box)
 {
-  if (x < box[BOXLEFT]) box[BOXLEFT] = x;
-  if (x > box[BOXRIGHT]) box[BOXRIGHT] = x;
-  if (y < box[BOXBOTTOM]) box[BOXBOTTOM] = y;
-  if (y > box[BOXTOP]) box[BOXTOP] = y;
+  if (x < box[BOXLEFT])
+    {
+      box[BOXLEFT] = x;
+    }
+
+  if (x > box[BOXRIGHT])
+    {
+      box[BOXRIGHT] = x;
+    }
+
+  if (y < box[BOXBOTTOM])
+    {
+      box[BOXBOTTOM] = y;
+    }
+
+  if (y > box[BOXTOP])
+    {
+      box[BOXTOP] = y;
+    }
 }
 #endif
 
@@ -177,10 +193,14 @@ static void r_setup_frame(player_t *player)
       walllights = scalelightfixed;
 
       for (i = 0; i < MAXLIGHTSCALE; i++)
-        scalelightfixed[i] = fixedcolormap;
+        {
+          scalelightfixed[i] = fixedcolormap;
+        }
     }
   else
-    fixedcolormap = 0;
+    {
+      fixedcolormap = 0;
+    }
 
   framecount++;
   validcount++;
@@ -216,9 +236,15 @@ static void r_init_light_tables(void)
           scale >>= LIGHTSCALESHIFT;
           level = startmap - scale / DISTMAP;
 
-          if (level < 0) level = 0;
+          if (level < 0)
+            {
+              level = 0;
+            }
 
-          if (level >= NUMCOLORMAPS) level = NUMCOLORMAPS - 1;
+          if (level >= NUMCOLORMAPS)
+            {
+              level = NUMCOLORMAPS - 1;
+            }
 
           zlight[i][j] = colormaps + level * 256;
         }
@@ -307,18 +333,26 @@ static void r_init_texture_mapping(void)
   for (i = 0; i < FINEANGLES / 2; i++)
     {
       if (finetangent[i] > FRACUNIT * 2)
-        t = -1;
+        {
+          t = -1;
+        }
       else if (finetangent[i] < -FRACUNIT * 2)
-        t = viewwidth + 1;
+        {
+          t = viewwidth + 1;
+        }
       else
         {
           t = fixed_mul(finetangent[i], focallength);
           t = (centerxfrac - t + FRACUNIT - 1) >> FRACBITS;
 
           if (t < -1)
-            t = -1;
+            {
+              t = -1;
+            }
           else if (t > viewwidth + 1)
-            t = viewwidth + 1;
+            {
+              t = viewwidth + 1;
+            }
         }
 
       viewangletox[i] = t;
@@ -333,7 +367,10 @@ static void r_init_texture_mapping(void)
     {
       i = 0;
       while (viewangletox[i] > x)
-        i++;
+        {
+          i++;
+        }
+
       xtoviewangle[x] = (i << ANGLETOFINESHIFT) - ANG90;
     }
 
@@ -345,9 +382,13 @@ static void r_init_texture_mapping(void)
       t = centerx - t;
 
       if (viewangletox[i] == -1)
-        viewangletox[i] = 0;
+        {
+          viewangletox[i] = 0;
+        }
       else if (viewangletox[i] == viewwidth + 1)
-        viewangletox[i] = viewwidth;
+        {
+          viewangletox[i] = viewwidth;
+        }
     }
 
   clipangle = xtoviewangle[0];
@@ -376,14 +417,20 @@ int r_point_on_side(fixed_t x, fixed_t y, node_t *node)
 
   if (!node->dx)
     {
-      if (x <= node->x) return node->dy > 0;
+      if (x <= node->x)
+        {
+          return node->dy > 0;
+        }
 
       return node->dy < 0;
     }
 
   if (!node->dy)
     {
-      if (y <= node->y) return node->dx < 0;
+      if (y <= node->y)
+        {
+          return node->dx < 0;
+        }
 
       return node->dx > 0;
     }
@@ -437,14 +484,20 @@ int r_point_on_seg_side(fixed_t x, fixed_t y, seg_t *line)
 
   if (!ldx)
     {
-      if (x <= lx) return ldy > 0;
+      if (x <= lx)
+        {
+          return ldy > 0;
+        }
 
       return ldy < 0;
     }
 
   if (!ldy)
     {
-      if (y <= ly) return ldx < 0;
+      if (y <= ly)
+        {
+          return ldx < 0;
+        }
 
       return ldx > 0;
     }
@@ -491,7 +544,10 @@ angle_t r_point_to_angle(fixed_t x, fixed_t y)
   x -= viewx;
   y -= viewy;
 
-  if ((!x) && (!y)) return 0;
+  if ((!x) && (!y))
+    {
+      return 0;
+    }
 
   if (x >= 0)
     {
@@ -664,12 +720,18 @@ fixed_t r_scale_from_global_angle(angle_t visangle)
       scale = fixed_div(num, den);
 
       if (scale > 64 * FRACUNIT)
-        scale = 64 * FRACUNIT;
+        {
+          scale = 64 * FRACUNIT;
+        }
       else if (scale < 256)
-        scale = 256;
+        {
+          scale = 256;
+        }
     }
   else
-    scale = 64 * FRACUNIT;
+    {
+      scale = 64 * FRACUNIT;
+    }
 
   return scale;
 }
@@ -685,6 +747,13 @@ fixed_t r_scale_from_global_angle(angle_t visangle)
 
 void r_set_view_size(int blocks, int detail)
 {
+  /* Reject invalid screen sizes before calculating view geometry. */
+
+  if (blocks < 3 || blocks > 11)
+    {
+      i_error("r_set_view_size: screenblocks=%d out of range", blocks);
+    }
+
   setsizeneeded = true;
   setblocks = blocks;
   setdetail = detail;
@@ -752,7 +821,9 @@ void r_execute_set_view_size(void)
   /* thing clipping */
 
   for (i = 0; i < viewwidth; i++)
-    screenheightarray[i] = viewheight;
+    {
+      screenheightarray[i] = viewheight;
+    }
 
   /* planes */
 
@@ -779,9 +850,15 @@ void r_execute_set_view_size(void)
           level = startmap -
                   j * SCREENWIDTH / (viewwidth << detailshift) / DISTMAP;
 
-          if (level < 0) level = 0;
+          if (level < 0)
+            {
+              level = 0;
+            }
 
-          if (level >= NUMCOLORMAPS) level = NUMCOLORMAPS - 1;
+          if (level >= NUMCOLORMAPS)
+            {
+              level = NUMCOLORMAPS - 1;
+            }
 
           scalelight[i][j] = colormaps + level * 256;
         }
@@ -828,7 +905,10 @@ subsector_t *r_point_in_subsector(fixed_t x, fixed_t y)
 
   /* single subsector is a special case */
 
-  if (!numnodes) return subsectors;
+  if (!numnodes)
+    {
+      return subsectors;
+    }
 
   nodenum = numnodes - 1;
 

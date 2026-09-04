@@ -168,11 +168,16 @@ void r_draw_column(void)
 
   /* Zero length, column does not exceed a pixel. */
 
-  if (count < 0) return;
+  if (count < 0)
+    {
+      return;
+    }
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if ((unsigned)dc_x >= SCREENWIDTH || dc_yl < 0 || dc_yh >= SCREENHEIGHT)
-    i_error("r_draw_column: %i to %i at %i", dc_yl, dc_yh, dc_x);
+    {
+      i_error("r_draw_column: %i to %i at %i", dc_yl, dc_yh, dc_x);
+    }
 #endif
 
   /* Framebuffer destination address.
@@ -277,7 +282,10 @@ void r_draw_column_low(void)
 
   /* Zero length. */
 
-  if (count < 0) return;
+  if (count < 0)
+    {
+      return;
+    }
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if ((unsigned)dc_x >= SCREENWIDTH || dc_yl < 0 || dc_yh >= SCREENHEIGHT)
@@ -324,17 +332,26 @@ void r_draw_fuzz_column(void)
 
   /* Adjust borders. Low... */
 
-  if (!dc_yl) dc_yl = 1;
+  if (!dc_yl)
+    {
+      dc_yl = 1;
+    }
 
   /* .. and high. */
 
-  if (dc_yh == viewheight - 1) dc_yh = viewheight - 2;
+  if (dc_yh == viewheight - 1)
+    {
+      dc_yh = viewheight - 2;
+    }
 
   count = dc_yh - dc_yl;
 
   /* Zero length. */
 
-  if (count < 0) return;
+  if (count < 0)
+    {
+      return;
+    }
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if ((unsigned)dc_x >= SCREENWIDTH || dc_yl < 0 || dc_yh >= SCREENHEIGHT)
@@ -360,7 +377,10 @@ void r_draw_fuzz_column(void)
 
       /* Clamp table lookup index. */
 
-      if (++fuzzpos == FUZZTABLE) fuzzpos = 0;
+      if (++fuzzpos == FUZZTABLE)
+        {
+          fuzzpos = 0;
+        }
 
       dest += SCREENWIDTH;
     }
@@ -378,17 +398,26 @@ void r_draw_fuzz_column_low(void)
 
   /* Adjust borders. Low... */
 
-  if (!dc_yl) dc_yl = 1;
+  if (!dc_yl)
+    {
+      dc_yl = 1;
+    }
 
   /* .. and high. */
 
-  if (dc_yh == viewheight - 1) dc_yh = viewheight - 2;
+  if (dc_yh == viewheight - 1)
+    {
+      dc_yh = viewheight - 2;
+    }
 
   count = dc_yh - dc_yl;
 
   /* Zero length. */
 
-  if (count < 0) return;
+  if (count < 0)
+    {
+      return;
+    }
 
   /* low detail mode, need to multiply by 2 */
 
@@ -419,7 +448,10 @@ void r_draw_fuzz_column_low(void)
 
       /* Clamp table lookup index. */
 
-      if (++fuzzpos == FUZZTABLE) fuzzpos = 0;
+      if (++fuzzpos == FUZZTABLE)
+        {
+          fuzzpos = 0;
+        }
 
       dest += SCREENWIDTH;
       dest2 += SCREENWIDTH;
@@ -444,7 +476,10 @@ void r_draw_translated_column(void)
   fixed_t fracstep;
 
   count = dc_yh - dc_yl;
-  if (count < 0) return;
+  if (count < 0)
+    {
+      return;
+    }
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if ((unsigned)dc_x >= SCREENWIDTH || dc_yl < 0 || dc_yh >= SCREENHEIGHT)
@@ -490,7 +525,10 @@ void r_draw_translated_column_low(void)
   int x;
 
   count = dc_yh - dc_yl;
-  if (count < 0) return;
+  if (count < 0)
+    {
+      return;
+    }
 
   /* low detail, need to scale by 2 */
 
@@ -597,7 +635,7 @@ void r_draw_span(void)
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH ||
-      (unsigned)ds_y > SCREENHEIGHT)
+      ds_y < 0 || ds_y >= viewheight)
     {
       i_error("r_draw_span: %i to %i at %i", ds_x1, ds_x2, ds_y);
     }
@@ -724,7 +762,7 @@ void r_draw_span_low(void)
 
 #ifdef CONFIG_GAMES_NXDOOM_RANGECHECK
   if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH ||
-      (unsigned)ds_y > SCREENHEIGHT)
+      ds_y < 0 || ds_y >= viewheight)
     {
       i_error("r_draw_span: %i to %i at %i", ds_x1, ds_x2, ds_y);
     }
@@ -783,19 +821,27 @@ void r_init_buffer(int width, int height)
   /* Column offset. For windows. */
 
   for (i = 0; i < width; i++)
-    columnofs[i] = viewwindowx + i;
+    {
+      columnofs[i] = viewwindowx + i;
+    }
 
   /* Samw with base row offset. */
 
   if (width == SCREENWIDTH)
-    viewwindowy = 0;
+    {
+      viewwindowy = 0;
+    }
   else
-    viewwindowy = (SCREENHEIGHT - SBARHEIGHT - height) >> 1;
+    {
+      viewwindowy = (SCREENHEIGHT - SBARHEIGHT - height) >> 1;
+    }
 
   /* Preclaculate all row offsets. */
 
   for (i = 0; i < height; i++)
-    ylookup[i] = i_video_buffer + (i + viewwindowy) * SCREENWIDTH;
+    {
+      ylookup[i] = i_video_buffer + (i + viewwindowy) * SCREENWIDTH;
+    }
 }
 
 /* r_fill_back_screen
@@ -847,9 +893,13 @@ void r_fill_back_screen(void)
     }
 
   if (gamemode == commercial)
-    name = name2;
+    {
+      name = name2;
+    }
   else
-    name = name1;
+    {
+      name = name1;
+    }
 
   src = w_cache_lump_name(name, PU_CACHE);
   dest = background_buffer;
@@ -876,19 +926,30 @@ void r_fill_back_screen(void)
   patch = w_cache_lump_name(("brdr_t"), PU_CACHE);
 
   for (x = 0; x < scaledviewwidth; x += 8)
-    v_draw_patch(viewwindowx + x, viewwindowy - 8, patch);
+    {
+      v_draw_patch(viewwindowx + x, viewwindowy - 8, patch);
+    }
+
   patch = w_cache_lump_name(("brdr_b"), PU_CACHE);
 
   for (x = 0; x < scaledviewwidth; x += 8)
-    v_draw_patch(viewwindowx + x, viewwindowy + viewheight, patch);
+    {
+      v_draw_patch(viewwindowx + x, viewwindowy + viewheight, patch);
+    }
+
   patch = w_cache_lump_name(("brdr_l"), PU_CACHE);
 
   for (y = 0; y < viewheight; y += 8)
-    v_draw_patch(viewwindowx - 8, viewwindowy + y, patch);
+    {
+      v_draw_patch(viewwindowx - 8, viewwindowy + y, patch);
+    }
+
   patch = w_cache_lump_name(("brdr_r"), PU_CACHE);
 
   for (y = 0; y < viewheight; y += 8)
-    v_draw_patch(viewwindowx + scaledviewwidth, viewwindowy + y, patch);
+    {
+      v_draw_patch(viewwindowx + scaledviewwidth, viewwindowy + y, patch);
+    }
 
   /* Draw beveled edge. */
 
@@ -934,7 +995,10 @@ void r_draw_view_border(void)
   int ofs;
   int i;
 
-  if (scaledviewwidth == SCREENWIDTH) return;
+  if (scaledviewwidth == SCREENWIDTH)
+    {
+      return;
+    }
 
   top = ((SCREENHEIGHT - SBARHEIGHT) - viewheight) / 2;
   side = (SCREENWIDTH - scaledviewwidth) / 2;
