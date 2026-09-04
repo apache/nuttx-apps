@@ -54,7 +54,8 @@ endif
 ifeq ($(CONFIG_TESTING_NET_OTHERS),y)
 MAINSRC  += others/test_others.c
 PROGNAME += cmocka_net_others
-CSRCS    += others/test_others_common.c others/test_others_bufpool.c
+CSRCS    += others/test_others_common.c others/test_others_bufpool.c \
+            others/test_others_chksum.c
 endif
 
 endif
