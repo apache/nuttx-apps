@@ -96,6 +96,8 @@ static int option_gentle_kill(FAR struct service_manager_s *sm,
                               int argc, FAR char **argv);
 static int option_restart_period(FAR struct service_manager_s *sm,
                                  int argc, FAR char **argv);
+static int option_fallback(FAR struct service_manager_s *sm,
+                           int argc, FAR char **argv);
 static int option_override(FAR struct service_manager_s *sm,
                            int argc, FAR char **argv);
 static int option_oneshot(FAR struct service_manager_s *sm,
@@ -114,6 +116,7 @@ static const struct cmd_map_s g_option[] =
   {"class", 2, NXINIT_ACTION_CMD_ARGS_MAX, option_class},
   {"gentle_kill", 1, 1, option_gentle_kill},
   {"restart_period", 2, 2, option_restart_period},
+  {"fallback", 1, 1, option_fallback},
   {"override", 1, 1, option_override},
   {"oneshot", 1, 1, option_oneshot},
 #ifdef CONFIG_BOARDCTL_RESET
@@ -131,6 +134,7 @@ static const struct flag_str_s g_flag_str[] =
   {SVC_GENTLE_KILL, "gentle_kill"},
   {SVC_REMOVE, "remove"},
   {SVC_SIGKILL, "sigkill"},
+  {SVC_FALLBACK, "fallback"},
   {SVC_OVERRIDE, "override"},
 };
 #endif
@@ -253,6 +257,16 @@ static int option_restart_period(FAR struct service_manager_s *sm,
   return 0;
 }
 
+static int option_fallback(FAR struct service_manager_s *sm,
+                           int argc, FAR char **argv)
+{
+  FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
+                                            node);
+
+  add_flags(s, SVC_FALLBACK);
+  return 0;
+}
+
 static int option_override(FAR struct service_manager_s *sm,
                            int argc, FAR char **argv)
 {
@@ -279,6 +293,7 @@ static int option_reboot_on_failure(FAR struct service_manager_s *sm,
 {
   FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
                                             node);
+
   s->reset_reason = atoi(argv[1]);
   return 0;
 }
@@ -649,17 +664,31 @@ int init_service_check(FAR const struct parser_s *parser)
         {
           if (!strcmp(s->argv[1], tmp->argv[1]))
             {
-              if (!check_flags(tmp, SVC_OVERRIDE))
+              if (check_flags(tmp, SVC_OVERRIDE))
+                {
+                  init_info("override: remove old service '%s'",
+                            s->argv[1]);
+                  add_flags(s, SVC_DISABLED | SVC_REMOVE);
+                }
+              else if (check_flags(tmp, SVC_FALLBACK))
+                {
+                  init_info("fallback: ignore new service '%s'",
+                            tmp->argv[1]);
+                  add_flags(tmp, SVC_DISABLED | SVC_REMOVE);
+                }
+              else if (check_flags(s, SVC_FALLBACK))
+                {
+                  init_info("fallback: replace old service '%s'",
+                            s->argv[1]);
+                  add_flags(s, SVC_DISABLED | SVC_REMOVE);
+                }
+              else
                 {
                   init_err("Redefined service '%s'", tmp->argv[1]);
                   init_dump_service(s);
                   init_dump_service(tmp);
                   return -EEXIST;
                 }
-
-              init_info("Remove duplicate definition of service '%s'",
-                        tmp->argv[1]);
-              add_flags(s, SVC_DISABLED | SVC_REMOVE);
             }
         }
     }

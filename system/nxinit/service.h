@@ -54,6 +54,10 @@
 /* Flags below are new added.
  */
 
+/* Fallback: silently ignored if a service with the same name exists */
+
+#define SVC_FALLBACK    (1 << 28)
+
 /* Override the previous definition for a service with the same name */
 
 #define SVC_OVERRIDE    (1 << 29)
