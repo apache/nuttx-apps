@@ -74,6 +74,7 @@ CSRCS   +=$(SRC)/iseg_layer.c
 CFLAGS += -Wno-shadow -Wno-strict-prototypes -Wno-unknown-pragmas
 
 MODULE = $(CONFIG_DARKNET_YOLO)
+DARKNET_YOLO_VER = $(patsubst "%",%,$(strip $(CONFIG_DARKNET_YOLO_VER)))
 
 darknet.zip:
 	$(Q) curl -L https://github.com/pjreddie/darknet/archive/refs/heads/$(DARKNET_YOLO_VER).zip -o darknet.zip

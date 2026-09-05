@@ -24,6 +24,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include <cstdint>
@@ -44,7 +46,7 @@ static void usage(void)
     "[ -C       ] Compile tflite model into c++ codes.\n"
     "[ -E       ] Do once evaluation (for profiling).\n"
     "[ -i <str> ] Readable model file path.\n"
-    "[ -o <str> ] Writable c++ file path.\n"
+    "[ -o <str> ] Writable c++ file path (required with -C).\n"
     "[ -p <str> ] Prefix of compiled code.\n"
     "[ -a <int> ] Arena size (mempool).\n"
     "[ -h       ] Print this message.\n");
@@ -93,13 +95,19 @@ extern "C" int main(int argc, FAR char* argv[])
         }
     }
 
-  if (!modelFileName || !codeFileName)
+  if (!modelFileName || (need_compile && !codeFileName))
     {
       usage();
       return -1;
     }
 
   std::ifstream ifs(modelFileName, std::ios::binary);
+  if (!ifs)
+    {
+      printf("Failed to open model file: %s\n", modelFileName);
+      return -1;
+    }
+
   ifs.seekg(0, std::ios::end);
   size_t modelSize = ifs.tellg();
   std::unique_ptr<uint8_t[]> pModel(new uint8_t[modelSize]);
@@ -108,17 +116,15 @@ extern "C" int main(int argc, FAR char* argv[])
   ifs.read(reinterpret_cast<char*>(pModel.get()), modelSize);
   ifs.close();
 
-  /* HACK: can change operators here. */
-
   tflite::MicroMutableOpResolver<8> resolver;
-  resolver.AddConv2D(tflite::Register_CONV_2D_INT8());
-  resolver.AddMaxPool2D(tflite::Register_MAX_POOL_2D_INT8());
-  resolver.AddQuantize(tflite::Register_QUANTIZE_FLOAT32_INT8());
-  resolver.AddDequantize(tflite::Register_DEQUANTIZE_INT8());
-  resolver.AddMean(tflite::Register_MEAN_INT8());
+  resolver.AddConv2D();
+  resolver.AddMaxPool2D();
+  resolver.AddQuantize();
+  resolver.AddDequantize();
+  resolver.AddMean();
   resolver.AddReshape();
-  resolver.AddFullyConnected(tflite::Register_FULLY_CONNECTED_INT8());
-  resolver.AddSoftmax(tflite::Register_SOFTMAX_INT8());
+  resolver.AddFullyConnected();
+  resolver.AddSoftmax();
 
   std::unique_ptr<uint8_t[]> pArena(new uint8_t[arenaSize]);
 
@@ -127,11 +133,22 @@ extern "C" int main(int argc, FAR char* argv[])
     resolver, pArena.get(), arenaSize, nullptr,
     reinterpret_cast<tflite::MicroProfilerInterface*>(&profiler));
 
-  /* HACK: can add testcases here. */
+  TfLiteStatus status = interpreter.AllocateTensors();
+  if (status != kTfLiteOk)
+    {
+      printf("AllocateTensors failed: %d\n", status);
+      return -1;
+    }
 
   if (need_invoke)
     {
-      interpreter.Invoke();
+      status = interpreter.Invoke();
+      if (status != kTfLiteOk)
+        {
+          printf("Invoke failed: %d\n", status);
+          return -1;
+        }
+
       profiler.LogCsv();
       profiler.LogTicksPerTagCsv();
     }
