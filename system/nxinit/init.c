@@ -37,6 +37,10 @@
 
 #include <nuttx/usb/usbdev_trace.h>
 
+#if defined(CONFIG_BUILD_PROTECTED) && defined(CONFIG_BUILTIN)
+#  include <nuttx/lib/builtin.h>
+#endif
+
 #include "action.h"
 #include "builtin.h"
 #include "init.h"
@@ -205,6 +209,14 @@ int main(int argc, FAR char *argv[])
       .sm = &sm,
     };
 
+#if defined(CONFIG_BUILD_PROTECTED) && defined(CONFIG_BUILTIN)
+  const struct boardioc_builtin_s builtins =
+    {
+      .builtins = g_builtins,
+      .count    = g_builtin_count,
+    };
+#endif
+
   const struct parser_s parser[] =
     {
       {"import", init_import_parse, NULL, NULL},
@@ -235,6 +247,15 @@ int main(int argc, FAR char *argv[])
       init_err("sigprocmask failed %d", errno);
       return r;
     }
+
+#if defined(CONFIG_BUILD_PROTECTED) && defined(CONFIG_BUILTIN)
+  r = boardctl(BOARDIOC_BUILTINS, (uintptr_t)&builtins);
+  if (r < 0)
+    {
+      init_err("boardctl BOARDIOC_BUILTINS failed: %d", r);
+      return r;
+    }
+#endif
 
 #ifdef CONFIG_USBDEV_TRACE
   usbtrace_enable(TRACE_DEVERROR_BIT | TRACE_CLSERROR_BIT);
