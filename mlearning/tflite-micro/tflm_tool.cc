@@ -110,8 +110,9 @@ extern "C" int main(int argc, FAR char* argv[])
 
   /* HACK: can change operators here. */
 
-  tflite::MicroMutableOpResolver<8> resolver;
+  tflite::MicroMutableOpResolver<9> resolver;
   resolver.AddConv2D(tflite::Register_CONV_2D_INT8());
+  resolver.AddDepthwiseConv2D(tflite::Register_DEPTHWISE_CONV_2D_INT8());
   resolver.AddMaxPool2D(tflite::Register_MAX_POOL_2D_INT8());
   resolver.AddQuantize(tflite::Register_QUANTIZE_FLOAT32_INT8());
   resolver.AddDequantize(tflite::Register_DEQUANTIZE_INT8());
