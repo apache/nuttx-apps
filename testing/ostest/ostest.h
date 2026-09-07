@@ -146,7 +146,7 @@ int chroot_test(void);
 
 /* wqueue.c *****************************************************************/
 
-#if defined(CONFIG_SCHED_LPWORK) || defined(CONFIG_SCHED_HPWORK)
+#ifdef CONFIG_TESTING_OSTEST_WQUEUE
 void wqueue_test(void);
 #endif
 
