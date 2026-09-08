@@ -24,6 +24,8 @@ if(CONFIG_TESTING_FS_XIPFS)
   nuttx_add_application(
     NAME
     xipfs_test
+    PRIORITY
+    SCHED_PRIORITY_DEFAULT
     STACKSIZE
     ${CONFIG_DEFAULT_TASK_STACKSIZE}
     MODULE
