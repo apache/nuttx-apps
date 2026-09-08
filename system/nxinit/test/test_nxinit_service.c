@@ -80,6 +80,7 @@ static void service_manager_free_all(FAR struct service_manager_s *sm)
           free(s->argv[i]);
         }
 
+      free(s->console);
       list_delete(&s->node);
       free(s);
     }
@@ -248,4 +249,66 @@ void test_nxinit_service_args_max_boundary(FAR void **state)
 #endif
 
 #undef NARGS_AT_LIMIT
+}
+
+/****************************************************************************
+ * Name: test_nxinit_service_console_option
+ *
+ * Description:
+ *   The "console" option flags the service with SVC_CONSOLE.  Without an
+ *   argument the default console device is used (console == NULL); with an
+ *   argument the device name is duplicated into the service, since the
+ *   parser reuses its line buffer for the next line.
+ ****************************************************************************/
+
+void test_nxinit_service_console_option(FAR void **state)
+{
+  struct service_manager_s sm;
+  struct parser_s parser =
+    {
+      "service", init_service_parse, init_service_check, &sm
+    };
+
+  char decl1[] = "service console1 /bin/sh";
+  char opt_default[] = "  console";
+  char decl2[] = "service console2 /bin/sh";
+  char opt_device[] = "  console /dev/ttyACM0";
+  char decl3[] = "service plain /bin/sh";
+  FAR struct service_s *s;
+
+  service_manager_init(&sm);
+
+  /* "console" without an argument: flagged, default device. */
+
+  assert_int_equal(init_service_parse(&parser, true, decl1), 0);
+  assert_int_equal(init_service_parse(&parser, false, opt_default), 0);
+
+  s = list_last_entry(&sm.services, struct service_s, node);
+  assert_int_equal(s->flags & SVC_CONSOLE, SVC_CONSOLE);
+  assert_null(s->console);
+
+  /* "console <device>": flagged, device duplicated (not aliased into the
+   * caller's line buffer, which is reused for the next line).
+   */
+
+  assert_int_equal(init_service_parse(&parser, true, decl2), 0);
+  assert_int_equal(init_service_parse(&parser, false, opt_device), 0);
+
+  s = list_last_entry(&sm.services, struct service_s, node);
+  assert_int_equal(s->flags & SVC_CONSOLE, SVC_CONSOLE);
+  assert_non_null(s->console);
+  assert_string_equal(s->console, "/dev/ttyACM0");
+  assert_ptr_not_equal(s->console, opt_device + 10);
+
+  /* A service without the option keeps its stdio untouched. */
+
+  assert_int_equal(init_service_parse(&parser, true, decl3), 0);
+
+  s = list_last_entry(&sm.services, struct service_s, node);
+  assert_int_equal(s->flags & SVC_CONSOLE, 0);
+  assert_null(s->console);
+
+  assert_int_equal(init_service_check(&parser), 0);
+
+  service_manager_free_all(&sm);
 }
