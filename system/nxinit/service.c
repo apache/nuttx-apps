@@ -279,6 +279,7 @@ static int option_reboot_on_failure(FAR struct service_manager_s *sm,
 {
   FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
                                             node);
+
   s->reset_reason = atoi(argv[1]);
   return 0;
 }
