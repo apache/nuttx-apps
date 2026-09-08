@@ -27,7 +27,7 @@
 # asked for: the *_bin.h headers are committed, so both apps build with a
 # plain toolchain and CI covers them, while the link needs
 # arm-uclinuxfdpiceabi binutils, which the tree does not require.  See
-# nuttx/tools/fdpic/README.md and Documentation/components/fdpic.rst.
+# Documentation/components/fdpic.rst.
 #
 # To rebuild the headers from these sources:
 #
@@ -44,19 +44,70 @@
 
 CPU ?= cortex-m3
 
-FDPICDIR  = $(NUTTX_DIR)/tools/fdpic
-MODULE_MK = $(FDPICDIR)/nuttx-fdpic.mk
-EMBED     = $(FDPICDIR)/fdpic-embed.py
+# make has built-in defaults for CC and CXX, so ?= never fires for them and
+# the host compiler silently gets the job.  Test the origin instead.
 
-# Where each generated header goes, and its path from the repository root --
-# fdpic-embed.py puts that on line 2, which is what nxstyle wants.
+ifeq ($(origin CC),default)
+  CC := arm-none-eabi-gcc
+endif
+
+ifeq ($(origin CXX),default)
+  CXX := arm-none-eabi-g++
+endif
+
+ifeq ($(origin LD),default)
+  LD := arm-uclinuxfdpiceabi-ld
+endif
+
+# -mfdpic -fPIC is the whole of what makes an FDPIC object; the rest is what
+# a module needs anywhere.  -fno-use-cxa-atexit puts a static object's
+# destructor in .fini_array, which is where the loader looks for it.
+
+MODCFLAGS   = -mcpu=$(CPU) -mthumb -mfdpic -fPIC -Os -fno-builtin -Wall \
+              -Wa,--noexecstack -D__STDC_NO_ATOMICS__ -D__NuttX__ \
+              -I$(NUTTX_DIR)/include
+MODCXXFLAGS = $(MODCFLAGS) -fno-exceptions -fno-rtti -fno-use-cxa-atexit \
+              -I$(NUTTX_DIR)/include/cxx
+
+# The crt0 and the linker script are the tree's own, the ones the in-tree
+# module build uses.  crt0 is compiled here rather than taken built, because
+# these are built for a different CPU from the firmware.
+
+MODLDFLAGS  = -m armelf_linux_fdpiceabi -shared -z now \
+              -T $(NUTTX_DIR)/libs/libc/elf/gnu-elf.ld
 
 DEMODIR = ..
 DEMOREL = apps/examples/fdpicxip
 TESTDIR = ../../../testing/fs/xipfs
 TESTREL = apps/testing/fs/xipfs
 
-BUILD = $(MAKE) -f $(MODULE_MK) NUTTX_DIR=$(NUTTX_DIR) CPU=$(CPU)
+%.o: %.c
+	$(CC) $(MODCFLAGS) -c $< -o $@
+
+%.o: %.cpp
+	$(CXX) $(MODCXXFLAGS) -c $< -o $@
+
+crt0.o: $(NUTTX_DIR)/arch/arm/src/common/crt0.c
+	$(CC) $(MODCFLAGS) -c $< -o $@
+
+# A module is entered at _start and carries crt0.  A library is never
+# entered, so it has neither, and it is named by its SONAME, which is what a
+# consumer records in DT_NEEDED and the loader searches for.
+
+LINKMOD = $(LD) $(MODLDFLAGS) -e _start -o $@ crt0.o
+LINKLIB = $(LD) $(MODLDFLAGS) -e 0 -soname $(@F) -o $@
+
+# EMBED turns a built module into the committed header that carries it: $1
+# the artifact, $2 the symbol, $3 the header's path from the repository root,
+# which nxstyle wants on line 2.
+
+define EMBED
+	{ sed -e "s|@PATH@|$3|" header.template; \
+	  echo "static const unsigned char $2[] ="; echo "{"; \
+	  xxd -i < $1 | sed -e 's/^  /  /'; echo "};"; echo; \
+	  echo "static const unsigned int $2_len = $$(wc -c < $1 | tr -d ' ');"; \
+	} > $@
+endef
 
 # manyneeded needs one library per DT_NEEDED entry, one more than the loader
 # will follow.  They exist only to make the linker record nine entries; the
@@ -93,50 +144,45 @@ endif
 # which is what a consumer records in DT_NEEDED and what the loader searches
 # for at run time.
 
-qsorter.fdpic: qsorter.c
-	$(BUILD) MODULE=qsorter SRCS=qsorter.c
+qsorter.fdpic: qsorter.o crt0.o
+	$(LINKMOD) qsorter.o
 
-callback.fdpic: callback.c
-	$(BUILD) MODULE=callback SRCS=callback.c
+callback.fdpic: callback.o crt0.o
+	$(LINKMOD) callback.o
 
-funcdesc.fdpic: funcdesc.c
-	$(BUILD) MODULE=funcdesc SRCS=funcdesc.c
+funcdesc.fdpic: funcdesc.o crt0.o
+	$(LINKMOD) funcdesc.o
 
-libcounter.so: libcounter.c
-	$(BUILD) MODULE=libcounter SRCS=libcounter.c ENTRY=0 \
-	    EXTRA_LDFLAGS="-soname libcounter.so"
-	mv libcounter.fdpic libcounter.so
+libcounter.so: libcounter.o
+	$(LINKLIB) libcounter.o
 
-user.fdpic: user.c libcounter.so
-	$(BUILD) MODULE=user SRCS=user.c LIBS=libcounter.so
+user.fdpic: user.o crt0.o libcounter.so
+	$(LINKMOD) user.o libcounter.so
 
 # C++ compiles with the stock arm-none-eabi-g++; only the link is FDPIC.
 
-libshape.so: libshape.cpp
-	$(BUILD) MODULE=libshape CXXSRCS=libshape.cpp ENTRY=0 \
-	    EXTRA_LDFLAGS="-soname libshape.so"
-	mv libshape.fdpic libshape.so
+libshape.so: libshape.o
+	$(LINKLIB) libshape.o
 
-cxxuser.fdpic: cxxuser.cpp libshape.so
-	$(BUILD) MODULE=cxxuser CXXSRCS=cxxuser.cpp LIBS=libshape.so
+cxxuser.fdpic: cxxuser.o crt0.o libshape.so
+	$(LINKMOD) cxxuser.o libshape.so
 
 # BINDNOW is emptied so the imported descriptors stay in the lazy binding
 # table, which is the case this module exists to cover.
 
-lazymod.fdpic: lazymod.c
-	$(BUILD) MODULE=lazymod SRCS=lazymod.c BINDNOW=
+lazymod.fdpic: lazymod.o crt0.o
+	$(LD) $(filter-out -z now,$(MODLDFLAGS)) -e _start -o $@ crt0.o lazymod.o
 
 # missingsym is linked with the bare .fdpic target rather than the default
 # 'verify' one, because it is exactly what fdpic-verify.sh is meant to catch.
 
-missingsym.fdpic: missingsym.c
-	$(BUILD) MODULE=missingsym SRCS=missingsym.c missingsym.fdpic
+missingsym.fdpic: missingsym.o crt0.o
+	$(LINKMOD) missingsym.o
 
 need%.so:
 	echo "int need_leaf_$*(void){return $*;}" > need$*.c
-	$(BUILD) MODULE=need$* SRCS=need$*.c ENTRY=0 \
-	    EXTRA_LDFLAGS="-soname need$*.so"
-	mv need$*.fdpic need$*.so
+	$(CC) $(MODCFLAGS) -c need$*.c -o need$*.o
+	$(LINKLIB) need$*.o
 
 manyneeded.c: $(NEEDLIBS)
 	{ for n in 0 1 2 3 4 5 6 7 8; do \
@@ -147,57 +193,56 @@ manyneeded.c: $(NEEDLIBS)
 	  echo "         need_leaf_6() + need_leaf_7() + need_leaf_8();"; \
 	  echo "}"; } > manyneeded.c
 
-manyneeded.fdpic: manyneeded.c $(NEEDLIBS)
-	$(BUILD) MODULE=manyneeded SRCS=manyneeded.c LIBS="$(NEEDLIBS)" \
-	    manyneeded.fdpic
+manyneeded.fdpic: manyneeded.o crt0.o $(NEEDLIBS)
+	$(LINKMOD) manyneeded.o $(NEEDLIBS)
 
 # The headers.  One artifact can be embedded under more than one name: the
 # demo's user_bin.h and the suite's counteruser_bin.h are the same module.
 
 $(DEMODIR)/qsorter_bin.h: qsorter.fdpic
-	$(EMBED) $< g_qsorter_nxf $(DEMOREL)/$(@F) > $@
+	$(call EMBED,$<,g_qsorter_nxf,$(DEMOREL)/$(@F))
 
 $(DEMODIR)/libcounter_bin.h: libcounter.so
-	$(EMBED) $< g_libcounter $(DEMOREL)/$(@F) > $@
+	$(call EMBED,$<,g_libcounter,$(DEMOREL)/$(@F))
 
 $(DEMODIR)/user_bin.h: user.fdpic
-	$(EMBED) $< g_user $(DEMOREL)/$(@F) > $@
+	$(call EMBED,$<,g_user,$(DEMOREL)/$(@F))
 
 $(DEMODIR)/libshape_bin.h: libshape.so
-	$(EMBED) $< g_libshape $(DEMOREL)/$(@F) > $@
+	$(call EMBED,$<,g_libshape,$(DEMOREL)/$(@F))
 
 $(DEMODIR)/cxxuser_bin.h: cxxuser.fdpic
-	$(EMBED) $< g_cxxuser $(DEMOREL)/$(@F) > $@
+	$(call EMBED,$<,g_cxxuser,$(DEMOREL)/$(@F))
 
 $(DEMODIR)/lazymod_bin.h: lazymod.fdpic
-	$(EMBED) $< g_lazymod $(DEMOREL)/$(@F) > $@
+	$(call EMBED,$<,g_lazymod,$(DEMOREL)/$(@F))
 
 $(TESTDIR)/callback_bin.h: callback.fdpic
-	$(EMBED) $< g_callback $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_callback,$(TESTREL)/$(@F))
 
 $(TESTDIR)/counteruser_bin.h: user.fdpic
-	$(EMBED) $< g_counteruser $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_counteruser,$(TESTREL)/$(@F))
 
 $(TESTDIR)/cxxuser_bin.h: cxxuser.fdpic
-	$(EMBED) $< g_cxxuser $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_cxxuser,$(TESTREL)/$(@F))
 
 $(TESTDIR)/funcdesc_bin.h: funcdesc.fdpic
-	$(EMBED) $< g_funcdesc $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_funcdesc,$(TESTREL)/$(@F))
 
 $(TESTDIR)/lazymod_bin.h: lazymod.fdpic
-	$(EMBED) $< g_lazymod $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_lazymod,$(TESTREL)/$(@F))
 
 $(TESTDIR)/libcounter_bin.h: libcounter.so
-	$(EMBED) $< g_libcounter $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_libcounter,$(TESTREL)/$(@F))
 
 $(TESTDIR)/libshape_bin.h: libshape.so
-	$(EMBED) $< g_libshape $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_libshape,$(TESTREL)/$(@F))
 
 $(TESTDIR)/manyneeded_bin.h: manyneeded.fdpic
-	$(EMBED) $< g_manyneeded $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_manyneeded,$(TESTREL)/$(@F))
 
 $(TESTDIR)/missingsym_bin.h: missingsym.fdpic
-	$(EMBED) $< g_missingsym $(TESTREL)/$(@F) > $@
+	$(call EMBED,$<,g_missingsym,$(TESTREL)/$(@F))
 
 # No NUTTX_DIR needed to clean.
 
