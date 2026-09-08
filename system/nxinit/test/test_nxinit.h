@@ -77,5 +77,6 @@ void test_nxinit_action_event_and_semantics(FAR void **state);
 void test_nxinit_service_duplicate_conflict(FAR void **state);
 void test_nxinit_service_override_replaces_duplicate(FAR void **state);
 void test_nxinit_service_args_max_boundary(FAR void **state);
+void test_nxinit_service_console_option(FAR void **state);
 
 #endif /* __APPS_SYSTEM_NXINIT_TEST_TEST_NXINIT_H */
