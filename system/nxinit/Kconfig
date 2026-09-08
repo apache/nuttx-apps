@@ -111,6 +111,20 @@ config SYSTEM_NXINIT_SERVICE_RESTART_PERIOD
 	int "Service restart period in ms"
 	default 5000
 
+config SYSTEM_NXINIT_CONSOLE_DEV
+	string "Default console device of a service"
+	default "/dev/console"
+	---help---
+		The device used as stdin/stdout/stderr of a service declared with the
+		option "console" and no explicit device, i.e. "console" rather than
+		"console <device>".
+
+		This is needed by services which expect a controlling terminal but do
+		not open one themselves (e.g. plain "sh"), and is the only way to get
+		a console when the console device is not available at the time the
+		file descriptors of the idle task are set up, as is the case for a USB
+		gadget console.
+
 comment "NXInit Testing"
 
 config SYSTEM_NXINIT_TEST
