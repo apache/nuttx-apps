@@ -323,7 +323,11 @@ int init_service_refresh(FAR struct service_manager_s *sm)
           ms = TIMESPEC2MS(diff);
           if (ms >= service->restart_period)
             {
-              init_service_start(service);
+              if (init_service_start(service) < 0)
+                {
+                  min = MIN(min, service->restart_period);
+                }
+
               continue;
             }
 
@@ -466,6 +470,8 @@ int init_service_start(FAR struct service_s *service)
       return -ret;
     }
 
+  clock_gettime(CLOCK_MONOTONIC, &service->time_started);
+
   ret = posix_spawnp(&pid, service->argv[2], NULL, &attr, &service->argv[2],
                      environ);
   posix_spawnattr_destroy(&attr);
@@ -477,7 +483,6 @@ int init_service_start(FAR struct service_s *service)
     }
 
   service->pid = pid;
-  clock_gettime(CLOCK_MONOTONIC, &service->time_started);
   add_flags(service, SVC_RUNNING);
   remove_flags(service, SVC_RESTARTING);
   remove_flags(service, SVC_DISABLED);
