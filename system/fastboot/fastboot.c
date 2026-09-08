@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <syslog.h>
+#include <termios.h>
 #include <unistd.h>
 
 #include <netinet/in.h>
@@ -155,10 +156,10 @@ struct fastboot_ctx_s
 {
   /* Transport file descriptors
    *
-   * | idx |    USB   |      TCP      | poll |
-   * |-----|----------|---------------|------|
-   * |   0 |usbdev in |TCP socket     |  Y   |
-   * |   1 |usbdev out|accepted socket|  N   |
+   * | idx |    USB   |      TCP      |  Serial  | poll |
+   * |-----|----------|---------------|----------|------|
+   * |   0 |usbdev in |TCP socket     |serial fd |  Y   |
+   * |   1 |usbdev out|accepted socket|serial fd |  N   |
    */
 
   int tran_fd[2];
@@ -233,7 +234,7 @@ static void fastboot_switchboot(FAR struct fastboot_ctx_s *context,
 
 /* USB transport */
 
-#ifdef CONFIG_USBFASTBOOT
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB
 static int     fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx);
 static void    fastboot_usbdev_deinit(FAR struct fastboot_ctx_s *ctx);
 static ssize_t fastboot_usbdev_read(FAR struct fastboot_ctx_s *ctx,
@@ -244,13 +245,24 @@ static int     fastboot_usbdev_write(FAR struct fastboot_ctx_s *ctx,
 
 /* TCP transport */
 
-#ifdef CONFIG_NET_TCP
+#ifdef CONFIG_SYSTEM_FASTBOOTD_TCP
 static int     fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx);
 static void    fastboot_tcp_deinit(FAR struct fastboot_ctx_s *ctx);
 static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
                                  FAR void *buf, size_t len);
 static int     fastboot_tcp_write(FAR struct fastboot_ctx_s *ctx,
                                   FAR const void *buf, size_t len);
+#endif
+
+/* Serial transport */
+
+#ifdef CONFIG_SYSTEM_FASTBOOTD_SERIAL
+static int     fastboot_serial_initialize(FAR struct fastboot_ctx_s *ctx);
+static void    fastboot_serial_deinit(FAR struct fastboot_ctx_s *ctx);
+static ssize_t fastboot_serial_read(FAR struct fastboot_ctx_s *ctx,
+                                    FAR void *buf, size_t len);
+static int     fastboot_serial_write(FAR struct fastboot_ctx_s *ctx,
+                                     FAR const void *buf, size_t len);
 #endif
 
 /****************************************************************************
@@ -290,7 +302,7 @@ static const struct memory_region_s g_memory_region[] =
 
 static const struct fastboot_transport_ops_s g_tran_ops[] =
 {
-#ifdef CONFIG_USBFASTBOOT
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB
   {
     .init    = fastboot_usbdev_initialize,
     .deinit  = fastboot_usbdev_deinit,
@@ -298,12 +310,20 @@ static const struct fastboot_transport_ops_s g_tran_ops[] =
     .write   = fastboot_usbdev_write,
   },
 #endif
-#ifdef CONFIG_NET_TCP
+#ifdef CONFIG_SYSTEM_FASTBOOTD_TCP
   {
     .init    = fastboot_tcp_initialize,
     .deinit  = fastboot_tcp_deinit,
     .read    = fastboot_tcp_read,
     .write   = fastboot_tcp_write,
+  },
+#endif
+#ifdef CONFIG_SYSTEM_FASTBOOTD_SERIAL
+  {
+    .init    = fastboot_serial_initialize,
+    .deinit  = fastboot_serial_deinit,
+    .read    = fastboot_serial_read,
+    .write   = fastboot_serial_write,
   },
 #endif
 };
@@ -327,6 +347,7 @@ static FAR void *fastboot_memset32(FAR void *m, uint32_t val, size_t count)
 static ssize_t fastboot_read(int fd, FAR void *buf, size_t len)
 {
   ssize_t r = read(fd, buf, len);
+
   return r < 0 ? -errno : r;
 }
 
@@ -337,6 +358,7 @@ static int fastboot_write(int fd, FAR const void *buf, size_t len)
   while (len > 0)
     {
       ssize_t r = write(fd, data, len);
+
       if (r < 0)
         {
           return -errno;
@@ -384,6 +406,7 @@ static void fastboot_okay(FAR struct fastboot_ctx_s *ctx,
 static int fastboot_flash_open(FAR const char *name)
 {
   int fd = open(name, O_RDWR | O_CLOEXEC);
+
   if (fd < 0)
     {
       fb_err("Open %s error\n", name);
@@ -509,6 +532,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
           case FASTBOOT_CHUNK_RAW:
             {
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
+
               ret = fastboot_flash_write(fd, ctx->download_offset,
                                          chunk_ptr, chunk_size);
               if (ret < 0)
@@ -524,6 +548,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
             {
               uint32_t fill_data = be32toh(*(FAR uint32_t *)chunk_ptr);
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
+
               ret = ffastboot_flash_fill(fd, ctx->download_offset, fill_data,
                                          sparse->blk_sz, chunk->chunk_sz);
               if (ret < 0)
@@ -673,6 +698,7 @@ static void fastboot_download(FAR struct fastboot_ctx_s *ctx,
   while (len > 0)
     {
       ssize_t r = ctx->ops->read(ctx, download, len);
+
       if (r < 0)
         {
           if (errno == EAGAIN)
@@ -831,6 +857,7 @@ static int fastboot_filedump_upload(FAR struct fastboot_ctx_s *ctx)
     {
       ssize_t nread = fastboot_read(fd, ctx->download_buffer,
                                     MIN(size, ctx->download_max));
+
       if (nread == 0)
         {
           break;
@@ -1016,6 +1043,7 @@ static void fastboot_oem(FAR struct fastboot_ctx_s *ctx, FAR const char *arg)
   for (index = 0; index < ncmds; index++)
     {
       size_t len = strlen(g_oem_cmd[index].prefix);
+
       if (memcmp(arg, g_oem_cmd[index].prefix, len) == 0)
         {
           arg += len;
@@ -1085,6 +1113,7 @@ static int fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
         {
           c = (FAR struct fastboot_ctx_s *)ev[n].data.ptr;
           ssize_t r = c->ops->read(c, buffer, FASTBOOT_MSG_LEN);
+
           if (r <= 0)
             {
               n--;
@@ -1095,6 +1124,7 @@ static int fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
           for (index = 0; index < ncmds; index++)
             {
               size_t len = strlen(g_fast_cmd[index].prefix);
+
               if (memcmp(buffer, g_fast_cmd[index].prefix, len) == 0)
                 {
                   g_fast_cmd[index].handle(c, buffer + len);
@@ -1170,7 +1200,7 @@ static void fastboot_free_publish(FAR struct fastboot_ctx_s *ctx,
     }
 }
 
-#ifdef CONFIG_USBFASTBOOT
+#ifdef CONFIG_SYSTEM_FASTBOOTD_USB
 static int fastboot_open_usb(int index, int flags)
 {
   int try = FASTBOOT_EP_RETRY_TIMES;
@@ -1201,9 +1231,9 @@ static int fastboot_usbdev_initialize(FAR struct fastboot_ctx_s *ctx)
 #ifdef CONFIG_SYSTEM_FASTBOOTD_USB_BOARDCTL
   struct boardioc_usbdev_ctrl_s ctrl;
 #  ifdef CONFIG_USBDEV_COMPOSITE
-    uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
+  uint8_t dev = BOARDIOC_USBDEV_COMPOSITE;
 #  else
-    uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
+  uint8_t dev = BOARDIOC_USBDEV_FASTBOOT;
 #  endif
   int ret;
 
@@ -1301,7 +1331,102 @@ static int fastboot_usbdev_write(FAR struct fastboot_ctx_s *ctx,
 }
 #endif
 
-#ifdef CONFIG_NET_TCP
+#if defined(CONFIG_SYSTEM_FASTBOOTD_TCP) || defined(CONFIG_SYSTEM_FASTBOOTD_SERIAL)
+static ssize_t fastboot_read_all(int fd, FAR void *buf, size_t len)
+{
+  size_t total = 0;
+  ssize_t nread;
+
+  while (len > 0)
+    {
+      nread = fastboot_read(fd, buf, len);
+      if (nread <= 0)
+        {
+          if (total == 0)
+            {
+              return nread;
+            }
+
+          break;
+        }
+
+      buf = (FAR char *)buf + nread;
+      len -= nread;
+      total += nread;
+    }
+
+  return total;
+}
+
+static ssize_t fastboot_framed_read(FAR struct fastboot_ctx_s *ctx,
+                                    int fd, FAR void *buf, size_t len,
+                                    bool detect_handshake)
+{
+  union
+    {
+      char handshake[FASTBOOT_TCP_HANDSHAKE_LEN];
+      uint64_t data_size;
+    } u;
+
+  ssize_t nread;
+
+  while (ctx->left == 0)
+    {
+      if (detect_handshake)
+        {
+          nread = fastboot_read_all(fd, &u, FASTBOOT_TCP_HANDSHAKE_LEN);
+          if (nread != FASTBOOT_TCP_HANDSHAKE_LEN)
+            {
+              return nread < 0 ? nread : -EIO;
+            }
+
+          if (memcmp(u.handshake, FASTBOOT_TCP_HANDSHAKE,
+                     FASTBOOT_TCP_HANDSHAKE_LEN) == 0)
+            {
+              fastboot_write(fd, FASTBOOT_TCP_HANDSHAKE,
+                             FASTBOOT_TCP_HANDSHAKE_LEN);
+              continue;
+            }
+
+          nread = fastboot_read_all(fd,
+                      (FAR char *)&u + FASTBOOT_TCP_HANDSHAKE_LEN,
+                      sizeof(u.data_size) - FASTBOOT_TCP_HANDSHAKE_LEN);
+          if (nread != (ssize_t)(sizeof(u.data_size) -
+                                 FASTBOOT_TCP_HANDSHAKE_LEN))
+            {
+              return nread < 0 ? nread : -EIO;
+            }
+        }
+      else
+        {
+          nread = fastboot_read_all(fd, &u.data_size, sizeof(u.data_size));
+          if (nread != (ssize_t)sizeof(u.data_size))
+            {
+              return nread < 0 ? nread : -EIO;
+            }
+        }
+
+      ctx->left = be64toh(u.data_size);
+    }
+
+  if (len > ctx->left)
+    {
+      len = ctx->left;
+    }
+
+  nread = fastboot_read(fd, buf, len);
+  if (nread <= 0)
+    {
+      ctx->left = 0;
+      return nread;
+    }
+
+  ctx->left -= nread;
+  return nread;
+}
+#endif
+
+#ifdef CONFIG_SYSTEM_FASTBOOTD_TCP
 static int fastboot_tcp_initialize(FAR struct fastboot_ctx_s *ctx)
 {
   struct sockaddr_in addr;
@@ -1357,103 +1482,26 @@ static void fastboot_tcp_deinit(FAR struct fastboot_ctx_s *ctx)
   ctx->tran_fd[0] = -1;
 }
 
-static ssize_t fastboot_read_all(int fd, FAR void *buf, size_t len)
-{
-  size_t total = 0;
-  ssize_t nread;
-
-  while (total < len)
-    {
-      nread = fastboot_read(fd, buf, len);
-      if (nread <= 0)
-        {
-          if (total == 0)
-            {
-              return nread;
-            }
-
-          break;
-        }
-
-      total += nread;
-    }
-
-  return total;
-}
-
 static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
                                  FAR void *buf, size_t len)
 {
-  char handshake[FASTBOOT_TCP_HANDSHAKE_LEN];
-  uint64_t data_size;
   ssize_t nread;
 
   if (ctx->tran_fd[1] == -1)
     {
-      while (1)
+      ctx->tran_fd[1] = accept(ctx->tran_fd[0], NULL, 0);
+      if (ctx->tran_fd[1] < 0)
         {
-          /* Accept a connection, not care the address of the peer socket */
-
-          ctx->tran_fd[1] = accept(ctx->tran_fd[0], NULL, 0);
-          if (ctx->tran_fd[1] < 0)
-            {
-              continue;
-            }
-
-          /* Handshake */
-
-          memset(handshake, 0, sizeof(handshake));
-          if (fastboot_read_all(ctx->tran_fd[1], handshake,
-                                sizeof(handshake)) != sizeof(handshake) ||
-              strncmp(handshake, FASTBOOT_TCP_HANDSHAKE,
-                      sizeof(handshake)) != 0 ||
-              fastboot_write(ctx->tran_fd[1], handshake,
-                             sizeof(handshake)) < 0)
-            {
-              fb_err("%s err handshake %d 0x%" PRIx32, __func__, errno,
-                     *(FAR uint32_t *)handshake);
-              fastboot_tcp_disconn(ctx);
-              continue;
-            }
-
-          break;
-        }
-    }
-
-  if (ctx->left == 0)
-    {
-      nread =
-          fastboot_read_all(ctx->tran_fd[1], &data_size, sizeof(data_size));
-      if (nread != sizeof(data_size))
-        {
-          /* As normal, end of file if client has closed the connection */
-
-          if (nread != 0)
-            {
-              fb_err("%s err read data_size %zd %d", __func__, nread, errno);
-            }
-
-          fastboot_tcp_disconn(ctx);
-          return nread;
+          return -errno;
         }
 
-      ctx->left = be64toh(data_size);
+      return fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, true);
     }
 
-  if (len > ctx->left)
-    {
-      len = ctx->left;
-    }
-
-  nread = fastboot_read(ctx->tran_fd[1], buf, len);
+  nread = fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, false);
   if (nread <= 0)
     {
       fastboot_tcp_disconn(ctx);
-      ctx->left = 0;
-    }
-  else
-    {
-      ctx->left -= nread;
     }
 
   return nread;
@@ -1472,6 +1520,68 @@ static int fastboot_tcp_write(FAR struct fastboot_ctx_s *ctx,
     }
 
   return fastboot_write(ctx->tran_fd[1], buf, len);
+}
+#endif
+
+#ifdef CONFIG_SYSTEM_FASTBOOTD_SERIAL
+static int fastboot_serial_initialize(FAR struct fastboot_ctx_s *ctx)
+{
+  int fd;
+
+  fd = open(CONFIG_SYSTEM_FASTBOOTD_SERIAL_PORT,
+            O_RDWR | O_CLOEXEC | O_NONBLOCK);
+  if (fd < 0)
+    {
+      fb_err("serial: open %s failed %d\n",
+             CONFIG_SYSTEM_FASTBOOTD_SERIAL_PORT, errno);
+      return -errno;
+    }
+
+#ifdef CONFIG_SERIAL_TERMIOS
+  struct termios tio;
+
+  if (tcgetattr(fd, &tio) == 0)
+    {
+      cfmakeraw(&tio);
+      tcsetattr(fd, TCSANOW, &tio);
+    }
+#endif
+
+  ctx->tran_fd[0] = fd;
+  ctx->tran_fd[1] = fd;
+  fb_info("serial: opened %s\n", CONFIG_SYSTEM_FASTBOOTD_SERIAL_PORT);
+  return 0;
+}
+
+static void fastboot_serial_deinit(FAR struct fastboot_ctx_s *ctx)
+{
+  if (ctx->tran_fd[0] >= 0)
+    {
+      close(ctx->tran_fd[0]);
+      ctx->tran_fd[0] = -1;
+      ctx->tran_fd[1] = -1;
+    }
+}
+
+static ssize_t fastboot_serial_read(FAR struct fastboot_ctx_s *ctx,
+                                    FAR void *buf, size_t len)
+{
+  return fastboot_framed_read(ctx, ctx->tran_fd[0], buf, len, true);
+}
+
+static int fastboot_serial_write(FAR struct fastboot_ctx_s *ctx,
+                                 FAR const void *buf, size_t len)
+{
+  uint64_t data_size = htobe64(len);
+  int ret;
+
+  ret = fastboot_write(ctx->tran_fd[0], &data_size, sizeof(data_size));
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  return fastboot_write(ctx->tran_fd[0], buf, len);
 }
 #endif
 
