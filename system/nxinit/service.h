@@ -44,6 +44,7 @@
 #define SVC_ONESHOT     (1 << 1)  /* do not restart on exit */
 #define SVC_RUNNING     (1 << 2)  /* currently active */
 #define SVC_RESTARTING  (1 << 3)  /* waiting to restart */
+#define SVC_CONSOLE     (1 << 4)  /* requires a console as its stdio */
 
 /* This service should be stopped with SIGTERM instead of SIGKILL.
  * Will still be SIGKILLed after timeout period of 200 ms.
@@ -104,6 +105,12 @@ struct service_s
   struct timespec time_kill;
   int restart_period;
   pid_t pid;
+
+  /* The device given by the service option "console".  NULL means that the
+   * default console device is used.  Only meaningful with SVC_CONSOLE.
+   */
+
+  FAR char *console;
 
   /* The "target" of service option "reboot_on_failure" */
 
