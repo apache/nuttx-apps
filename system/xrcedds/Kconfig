@@ -1,0 +1,50 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_XRCEDDS
+	bool "eProsima Micro XRCE-DDS"
+	default n
+	---help---
+		Enable a lightweight build of Micro XRCE-DDS Client 3.0.1 and
+		Micro-CDR 2.0.2.  Only the core client and the built-in UDP
+		transport are built; ROS 2, micro-ROS, discovery, and other
+		transports are not included.
+
+if SYSTEM_XRCEDDS
+
+config SYSTEM_XRCEDDS_STREAM_FRAMING
+	bool "Byte-stream transport framing"
+	default n
+	---help---
+		Enable HDLC framing for byte-stream transports such as UART.
+		The built-in UDP transport preserves packet boundaries, so this
+		is not needed for the UDP publisher demo.
+
+config SYSTEM_XRCEDDS_MTU
+	int "UDP transport MTU"
+	range 64 65535
+	default 512
+
+config SYSTEM_XRCEDDS_MAX_OUTPUT_BEST_EFFORT_STREAMS
+	int "Maximum output best-effort streams"
+	range 1 127
+	default 1
+
+config SYSTEM_XRCEDDS_MAX_OUTPUT_RELIABLE_STREAMS
+	int "Maximum output reliable streams"
+	range 1 127
+	default 1
+
+config SYSTEM_XRCEDDS_MAX_INPUT_BEST_EFFORT_STREAMS
+	int "Maximum input best-effort streams"
+	range 1 127
+	default 1
+
+config SYSTEM_XRCEDDS_MAX_INPUT_RELIABLE_STREAMS
+	int "Maximum input reliable streams"
+	range 1 127
+	default 1
+
+endif
