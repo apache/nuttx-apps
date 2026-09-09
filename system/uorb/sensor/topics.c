@@ -36,6 +36,7 @@
 #include <sensor/baro.h>
 #include <sensor/cap.h>
 #include <sensor/co2.h>
+#include <sensor/current.h>
 #include <sensor/dust.h>
 #include <sensor/ecg.h>
 #include <sensor/eng.h>
@@ -61,6 +62,7 @@
 #include <sensor/pm1p0.h>
 #include <sensor/pm10.h>
 #include <sensor/pose_6dof.h>
+#include <sensor/power.h>
 #include <sensor/ppgd.h>
 #include <sensor/ppgq.h>
 #include <sensor/prox.h>
@@ -71,6 +73,7 @@
 #include <sensor/tvoc.h>
 #include <sensor/uv.h>
 #include <sensor/velocity.h>
+#include <sensor/voltage.h>
 
 #include <uORB/uORB.h>
 
@@ -87,6 +90,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
   ORB_ID(sensor_baro),
   ORB_ID(sensor_cap),
   ORB_ID(sensor_co2),
+  ORB_ID(sensor_current),
   ORB_ID(sensor_device_orientation),
   ORB_ID(sensor_dust),
   ORB_ID(sensor_ecg),
@@ -128,6 +132,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
   ORB_ID(sensor_pm1p0),
   ORB_ID(sensor_pm25),
   ORB_ID(sensor_pose_6dof),
+  ORB_ID(sensor_power),
   ORB_ID(sensor_ppgd),
   ORB_ID(sensor_ppgq),
   ORB_ID(sensor_prox),
@@ -142,6 +147,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
   ORB_ID(sensor_tvoc),
   ORB_ID(sensor_uv),
   ORB_ID(sensor_velocity),
+  ORB_ID(sensor_voltage),
   ORB_ID(sensor_wake_gesture),
   ORB_ID(sensor_wake_gesture_uncal),
   ORB_ID(sensor_wrist_tilt),
