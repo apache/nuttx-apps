@@ -40,3 +40,4 @@ static const char sensor_temp_format[] =
  ****************************************************************************/
 
 ORB_DEFINE(sensor_temp, struct sensor_temp, sensor_temp_format);
+ORB_DEFINE(sensor_ambient_temp, struct sensor_temp, sensor_temp_format);

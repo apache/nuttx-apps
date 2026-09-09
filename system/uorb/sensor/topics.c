@@ -70,6 +70,7 @@
 #include <sensor/temp.h>
 #include <sensor/tvoc.h>
 #include <sensor/uv.h>
+#include <sensor/velocity.h>
 
 #include <uORB/uORB.h>
 
@@ -81,6 +82,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
 {
   ORB_ID(sensor_accel),
   ORB_ID(sensor_accel_uncal),
+  ORB_ID(sensor_ambient_temp),
   ORB_ID(sensor_hinge_angle),
   ORB_ID(sensor_baro),
   ORB_ID(sensor_cap),
@@ -139,6 +141,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
   ORB_ID(sensor_tilt_detector_uncal),
   ORB_ID(sensor_tvoc),
   ORB_ID(sensor_uv),
+  ORB_ID(sensor_velocity),
   ORB_ID(sensor_wake_gesture),
   ORB_ID(sensor_wake_gesture_uncal),
   ORB_ID(sensor_wrist_tilt),
