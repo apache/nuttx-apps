@@ -38,6 +38,7 @@ tflite-micro.zip:
 	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0001-dequantize-int8.patch
 	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0002-quantize-int8.patch
 	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0003-mean-int8.patch
+	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0004-tflite-add-extern-C-to-main-function-to-avoid-c-mang.patch
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(TFLM_UNPACK)/.git),)
@@ -60,7 +61,9 @@ COMMON_FLAGS += -DTF_LITE_DISABLE_X86_NEON
 ifneq ($(CONFIG_TFLITEMICRO_DEBUG),)
 COMMON_FLAGS += -DTF_LITE_SHOW_MEMORY_USE
 COMMON_FLAGS += -DTF_LITE_USE_CTIME
-else
+endif
+
+ifeq ($(CONFIG_TFLITEMICRO_DEBUG)$(CONFIG_TFLITEMICRO_SYSLOG),)
 COMMON_FLAGS += -DTF_LITE_STRIP_ERROR_STRINGS
 endif
 
@@ -106,11 +109,42 @@ endif
 # extra hardware support.
 -include $(TFLM_DIR)/tensorflow/lite/micro/nuttx/Makefile
 
+PROGNAME  :=
+PRIORITY  :=
+STACKSIZE :=
+MAINSRC   :=
+
 ifneq ($(CONFIG_TFLITEMICRO_TOOL),)
-MAINSRC   = tflm_tool.cc
-PROGNAME  = tflm
-PRIORITY  = $(CONFIG_TFLITEMICRO_TOOL_PRIORITY)
-STACKSIZE = $(CONFIG_TFLITEMICRO_TOOL_STACKSIZE)
+PROGNAME  += tflm
+PRIORITY  += $(CONFIG_TFLITEMICRO_TOOL_PRIORITY)
+STACKSIZE += $(CONFIG_TFLITEMICRO_TOOL_STACKSIZE)
+MAINSRC   += tflm_tool.cc
+endif
+
+ifneq ($(CONFIG_TFLITEMICRO_HELLOWORLD),)
+TFLM_HW_DIR    := $(TFLM_UNPACK)/tensorflow/lite/micro/examples/hello_world
+TFLM_HW_MODELS := $(TFLM_HW_DIR)/models
+
+ifeq ($(wildcard $(TFLM_UNPACK)/.git),)
+$(TFLM_HW_MODELS)/hello_world_float_model_data.h \
+$(TFLM_HW_MODELS)/hello_world_int8_model_data.h: tflite-micro.zip
+endif
+
+$(TFLM_HW_MODELS)/hello_world_float_model_data.h:
+	$(Q) ( cd $(TFLM_HW_MODELS) && xxd -i hello_world_float.tflite ) | \
+		sed -e 's/hello_world_float_tflite/g_hello_world_float_model_data/g' > $@
+
+$(TFLM_HW_MODELS)/hello_world_int8_model_data.h:
+	$(Q) ( cd $(TFLM_HW_MODELS) && xxd -i hello_world_int8.tflite ) | \
+		sed -e 's/hello_world_int8_tflite/g_hello_world_int8_model_data/g' > $@
+
+context:: $(TFLM_HW_MODELS)/hello_world_float_model_data.h
+context:: $(TFLM_HW_MODELS)/hello_world_int8_model_data.h
+
+PROGNAME  += tflm_hello
+PRIORITY  += $(CONFIG_TFLITEMICRO_HELLOWORLD_PRIORITY)
+STACKSIZE += $(CONFIG_TFLITEMICRO_HELLOWORLD_STACKSIZE)
+MAINSRC   += $(TFLM_HW_DIR)/hello_world_test.cc
 endif
 
 CFLAGS   += ${COMMON_FLAGS}
