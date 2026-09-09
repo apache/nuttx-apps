@@ -24,12 +24,20 @@ if(CONFIG_TESTING_KASAN)
   set(CFLAGS
       -fno-builtin
       -Wno-error
-      -Wno-use-after-free
       -Wno-array-bounds
       -Wno-unused-value
       -Wno-unused-variable
       -Wno-free-nonheap-object
-      -Wno-stringop-overflow
       "-O0")
+
+  # -Wuse-after-free and -Wstringop-overflow exist only in GCC; clang rejects
+  # the -Wno- forms with -Wunknown-warning-option.  Passing
+  # -Wno-unknown-warning-option instead is not a fix either, because GCC does
+  # not know that flag and warns about it in turn.
+
+  if(CONFIG_ARCH_TOOLCHAIN_GCC)
+    list(APPEND CFLAGS -Wno-use-after-free -Wno-stringop-overflow)
+  endif()
+
   nuttx_add_application(NAME kasantest COMPILE_FLAGS ${CFLAGS} SRCS kasantest.c)
 endif()
