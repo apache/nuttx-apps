@@ -1,7 +1,5 @@
 /****************************************************************************
- * apps/system/uorb/sensor/temp.h
- *
- * SPDX-License-Identifier: Apache-2.0
+ * apps/system/uorb/sensor/velocity.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_UORB_SENSOR_TEMP_H
-#define __APPS_SYSTEM_UORB_SENSOR_TEMP_H
+#ifndef __APPS_SYSTEM_UORB_SENSOR_VELOCITY_H
+#define __APPS_SYSTEM_UORB_SENSOR_VELOCITY_H
 
 /****************************************************************************
  * Included Files
@@ -35,7 +33,6 @@
 
 /* register this as object request broker structure */
 
-ORB_DECLARE(sensor_temp);
-ORB_DECLARE(sensor_ambient_temp);
+ORB_DECLARE(sensor_velocity);
 
 #endif
