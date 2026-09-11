@@ -1360,15 +1360,20 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   uint16_t sequence;
   int interval;
   int64_t max_path_delay;
+  bool source_match;
+  bool request_match;
 
-  if (!state->selected_source_valid ||
-      memcmp(msg->header.sourceidentity,
-             state->selected_source.header.sourceidentity,
-             sizeof(msg->header.sourceidentity)) != 0 ||
-      memcmp(msg->reqidentity,
-             state->own_identity.header.sourceidentity,
-             sizeof(msg->reqidentity)) != 0)
+  source_match = memcmp(msg->header.sourceidentity,
+                        state->selected_source.header.sourceidentity,
+                        sizeof(msg->header.sourceidentity)) == 0;
+  request_match = memcmp(msg->reqidentity,
+                         state->own_identity.header.sourceidentity,
+                         sizeof(msg->reqidentity)) == 0;
+
+  if (!state->selected_source_valid || !source_match || !request_match)
     {
+      ptpwarn("Delay_Resp ignored: valid=%d, src_match=%d, req_match=%d\n",
+              state->selected_source_valid, source_match, request_match);
       return OK; /* This packet wasn't for us */
     }
 
@@ -1454,6 +1459,8 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
 
       if (htons(header->h_proto) != ETHERTYPE_PTP)
         {
+          ptpwarn("RX dropped: non-PTP proto 0x%04x (expected 0x%04x)\n",
+                  ntohs(header->h_proto), ETHERTYPE_PTP);
           return -EINVAL;
         }
 
@@ -1468,8 +1475,20 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
       return OK;
     }
 
+  ptpinfo("RX PTP: type=0x%02x (masked: 0x%02x), ver=0x%02x, domain=%d, "
+          "seq=%d, len=%zd\n",
+          state->rxbuf.header.messagetype,
+          state->rxbuf.header.messagetype & PTP_MSGTYPE_MASK,
+          state->rxbuf.header.version,
+          state->rxbuf.header.domain,
+          ptp_get_sequence(&state->rxbuf.header),
+          length);
+
   if (state->rxbuf.header.domain != CONFIG_NETUTILS_PTPD_DOMAIN)
     {
+      ptpwarn("RX dropped: domain mismatch %d != %d\n",
+              state->rxbuf.header.domain, CONFIG_NETUTILS_PTPD_DOMAIN);
+
       /* Part of different clock domain, ignore */
 
       return OK;
@@ -1479,35 +1498,37 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
 
   switch (state->rxbuf.header.messagetype & PTP_MSGTYPE_MASK)
     {
-    case PTP_MSGTYPE_ANNOUNCE:
-      ptpinfo("Got announce packet, seq %ld\n",
-              (long)ptp_get_sequence(&state->rxbuf.header));
-      return ptp_process_announce(state, &state->rxbuf.announce);
+      case PTP_MSGTYPE_ANNOUNCE:
+        ptpinfo("Got announce packet, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_announce(state, &state->rxbuf.announce);
 
-    case PTP_MSGTYPE_SYNC:
-      ptpinfo("Got sync packet, seq %ld\n",
-              (long)ptp_get_sequence(&state->rxbuf.header));
-      return ptp_process_sync(state, &state->rxbuf.sync);
+      case PTP_MSGTYPE_SYNC:
+        ptpinfo("Got sync packet, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_sync(state, &state->rxbuf.sync);
 
-    case PTP_MSGTYPE_FOLLOW_UP:
-      ptpinfo("Got follow-up packet, seq %ld\n",
-              (long)ptp_get_sequence(&state->rxbuf.header));
-      return ptp_process_followup(state, &state->rxbuf.follow_up);
+      case PTP_MSGTYPE_FOLLOW_UP:
+        ptpinfo("Got follow-up packet, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_followup(state, &state->rxbuf.follow_up);
 
-    case PTP_MSGTYPE_DELAY_RESP:
-      ptpinfo("Got delay-resp, seq %ld\n",
-              (long)ptp_get_sequence(&state->rxbuf.header));
-      return ptp_process_delay_resp(state, &state->rxbuf.delay_resp);
+      case PTP_MSGTYPE_DELAY_RESP:
+        ptpinfo("Got delay-resp, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_delay_resp(state, &state->rxbuf.delay_resp);
 
-    case PTP_MSGTYPE_DELAY_REQ:
-      ptpinfo("Got delay req, seq %ld\n",
-              (long)ptp_get_sequence(&state->rxbuf.header));
-      return ptp_process_delay_req(state, &state->rxbuf.delay_req);
+      case PTP_MSGTYPE_DELAY_REQ:
+        ptpinfo("Got delay req, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_delay_req(state, &state->rxbuf.delay_req);
 
-    default:
-      ptpinfo("Ignoring unknown PTP packet type: 0x%02x\n",
-              state->rxbuf.header.messagetype);
-      return OK;
+      default:
+        ptpwarn("Ignoring unknown PTP packet type: 0x%02x "
+                "(masked: 0x%02x)\n",
+                state->rxbuf.header.messagetype,
+                state->rxbuf.header.messagetype & PTP_MSGTYPE_MASK);
+        return OK;
     }
 }
 
