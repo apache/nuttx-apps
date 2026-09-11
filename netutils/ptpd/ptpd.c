@@ -998,7 +998,7 @@ static int ptp_process_announce(FAR struct ptp_state_s *state,
 {
   clock_gettime(CLOCK_MONOTONIC, &state->last_received_announce);
 
-  if (state->conifg->bmca && is_better_clock(msg, &state->n_identity))
+  if (state->config->bmca && is_better_clock(msg, &state->own_identity))
     {
       if (!state->selected_source_valid ||
           is_better_clock(msg, &state->selected_source))
