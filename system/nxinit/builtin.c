@@ -25,15 +25,22 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <fcntl.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <spawn.h>
+#include <unistd.h>
 #include <sys/boardctl.h>
+#include <sys/ioctl.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 
 #include <netutils/netinit.h>
+
+#ifdef CONFIG_RPTUN
+#include <nuttx/rptun/rptun.h>
+#endif
 
 #include "builtin.h"
 #include "init.h"
@@ -91,6 +98,12 @@ static int cmd_start_cpu(FAR struct action_manager_s *am,
 static int cmd_netinit(FAR struct action_manager_s *am,
                        int argc, FAR char **argv);
 #endif
+#ifdef CONFIG_RPTUN
+static int cmd_rptun(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv);
+#endif
+static int cmd_unlink(FAR struct action_manager_s *am,
+                      int argc, FAR char **argv);
 
 /****************************************************************************
  * Private Data
@@ -120,6 +133,10 @@ static const struct cmd_map_s g_builtin[] =
   {"start", 2, 2, cmd_start},
   {"stop", 2, 2, cmd_stop},
   {"trigger", 2, 2, cmd_trigger},
+#ifdef CONFIG_RPTUN
+  {"rptun", 3, 3, cmd_rptun},
+#endif
+  {"unlink", 2, 2, cmd_unlink},
 };
 
 /****************************************************************************
@@ -267,6 +284,63 @@ static int cmd_exec(FAR struct action_manager_s *am,
     }
 
   return -EINVAL;
+}
+
+#ifdef CONFIG_RPTUN
+static int cmd_rptun(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv)
+{
+  int fd;
+  int ret;
+
+  UNUSED(am);
+
+  fd = open(argv[2], O_WRONLY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      init_err("rptun %s: open '%s' failed: %d",
+               argv[1], argv[2], errno);
+      return -errno;
+    }
+
+  if (!strcmp(argv[1], "start"))
+    {
+      ret = ioctl(fd, RPTUNIOC_START, 0);
+    }
+  else if (!strcmp(argv[1], "stop"))
+    {
+      ret = ioctl(fd, RPTUNIOC_STOP, 0);
+    }
+  else
+    {
+      init_err("rptun: unknown command '%s'", argv[1]);
+      ret = -EINVAL;
+    }
+
+  if (ret < 0)
+    {
+      init_err("rptun %s: failed: %d", argv[1], errno);
+    }
+
+  close(fd);
+  return ret < 0 ? ret : 0;
+}
+#endif
+
+static int cmd_unlink(FAR struct action_manager_s *am,
+                      int argc, FAR char **argv)
+{
+  int ret;
+
+  UNUSED(am);
+
+  ret = unlink(argv[1]);
+  if (ret < 0)
+    {
+      init_err("unlink '%s' failed: %d", argv[1], errno);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
