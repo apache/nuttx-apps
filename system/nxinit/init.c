@@ -35,6 +35,8 @@
 #include <sys/param.h>
 #include <sys/wait.h>
 
+#include <nuttx/usb/usbdev_trace.h>
+
 #include "action.h"
 #include "builtin.h"
 #include "init.h"
@@ -235,7 +237,7 @@ int main(int argc, FAR char *argv[])
     }
 
 #ifdef CONFIG_USBDEV_TRACE
-  usbtrace_enable(TRACE_BITSET);
+  usbtrace_enable(TRACE_DEVERROR_BIT | TRACE_CLSERROR_BIT);
 #endif
 
   for (i = 0; i < nitems(poller); i++)
