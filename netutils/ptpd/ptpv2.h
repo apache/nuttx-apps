@@ -46,6 +46,12 @@
 
 #define PTP_MULTICAST_ADDR ((in_addr_t)0xE0000181)
 
+/* PTP over Ethernet (IEEE 802.3 / Layer 2) EtherType */
+
+#ifndef ETHERTYPE_PTP
+#  define ETHERTYPE_PTP 0x88f7
+#endif
+
 /* Message types */
 
 #define PTP_MSGTYPE_MASK       0x0F
