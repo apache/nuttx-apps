@@ -115,6 +115,7 @@ struct ptp_state_s
   int64_t last_adjtime_ns;
   long drift_avg_total_ms;
   long drift_ppb;
+  bool has_last_delta;
 
   /* Identity of currently selected clock source,
    * from the latest announcement message.
@@ -1047,6 +1048,7 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
        */
 
       struct timespec new_time;
+
       ptp_gettime(state, &new_time);
       clock_timespec_subtract(&new_time, local_timestamp, &new_time);
       clock_timespec_add(&new_time, remote_timestamp, &new_time);
@@ -1059,6 +1061,7 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       state->last_adjtime_ns = 0;
       state->drift_avg_total_ms = 0;
       state->drift_ppb = 0;
+      state->has_last_delta = false;
 
       if (ret == OK)
         {
@@ -1076,86 +1079,91 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
        * the adjustment that was made previously.
        */
 
-      int64_t drift_ppb;
+      int64_t drift_ppb = 0;
       struct timespec interval;
-      int interval_ms;
+      int interval_ms = 0;
       int max_avg_period_ms;
       int64_t adjustment_ns;
+      const int64_t max_adjust_ns =
+        (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM *
+        CONFIG_CLOCK_ADJTIME_PERIOD_MS;
+      const int64_t slew_limit_ppb =
+        (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000;
 
-      clock_timespec_subtract(local_timestamp,
-                              &state->last_delta_timestamp,
-                              &interval);
-      interval_ms = timespec_to_ms(&interval);
-
-      if (interval_ms > 0 && interval_ms < CONFIG_NETUTILS_PTPD_TIMEOUT_MS)
+      if (!state->has_last_delta)
         {
-          drift_ppb = (delta_ns - state->last_delta_ns) * MSEC_PER_SEC
-                      / interval_ms;
+          /* First measurement after jump or startup: no previous
+           * delta available to compute frequency drift rate.
+           */
+
+          adjustment_ns = delta_ns;
         }
       else
         {
-          ptpwarn("Measurement interval out of range: %d ms\n", interval_ms);
-          drift_ppb = 0;
-          interval_ms = 1;
-        }
+          clock_timespec_subtract(local_timestamp,
+                                  &state->last_delta_timestamp,
+                                  &interval);
+          interval_ms = timespec_to_ms(&interval);
 
-      /* Account for the adjustment previously made */
+          if (interval_ms > 0 &&
+              interval_ms < CONFIG_NETUTILS_PTPD_TIMEOUT_MS)
+            {
+              /* Natural change in delta over the interval, accounting for
+               * the adjustment applied during that same interval.
+               */
 
-      drift_ppb += state->last_adjtime_ns * MSEC_PER_SEC
-                  / CONFIG_CLOCK_ADJTIME_PERIOD_MS;
+              drift_ppb = (delta_ns - state->last_delta_ns +
+                           state->last_adjtime_ns) * MSEC_PER_SEC
+                          / interval_ms;
+            }
+          else
+            {
+              ptpwarn("Measurement interval out of range: %d ms\n",
+                      interval_ms);
+              drift_ppb = state->drift_ppb;
+              interval_ms = 1;
+            }
 
-      if (drift_ppb > CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000 ||
-          drift_ppb < -CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000)
-        {
-          ptpwarn("Drift estimate out of range: %lld\n",
-                  (long long)drift_ppb);
-          drift_ppb = state->drift_ppb;
-        }
+          if (drift_ppb > slew_limit_ppb || drift_ppb < -slew_limit_ppb)
+            {
+              ptpwarn("Drift estimate out of range: %lld\n",
+                      (long long)drift_ppb);
+              drift_ppb = state->drift_ppb;
+            }
 
-      /* Take direct average of drift estimate for first measurements,
-       * after that update the exponential sliding average.
-       * Measurements are weighted according to the interval, because
-       * drift estimate is more accurate over longer timespan.
-       */
+          /* Update the exponential sliding average */
 
-      state->drift_avg_total_ms += interval_ms;
-      max_avg_period_ms = CONFIG_NETUTILS_PTPD_DRIFT_AVERAGE_S
-                          * MSEC_PER_SEC;
-      if (state->drift_avg_total_ms > max_avg_period_ms)
-        {
-          state->drift_avg_total_ms = max_avg_period_ms;
-        }
+          state->drift_avg_total_ms += interval_ms;
+          max_avg_period_ms = CONFIG_NETUTILS_PTPD_DRIFT_AVERAGE_S
+                              * MSEC_PER_SEC;
+          if (state->drift_avg_total_ms > max_avg_period_ms)
+            {
+              state->drift_avg_total_ms = max_avg_period_ms;
+            }
 
-      state->drift_ppb += (drift_ppb - state->drift_ppb) * interval_ms
-                        / state->drift_avg_total_ms;
+          state->drift_ppb += (drift_ppb - state->drift_ppb) * interval_ms
+                            / state->drift_avg_total_ms;
 
-      /* Compute the value we need to give to adjtime() to match the
-       * drift rate.
-       */
+          /* Compute the adjustment to compensate frequency drift plus
+           * current phase error.
+           */
 
-      adjustment_ns = state->drift_ppb * CONFIG_CLOCK_ADJTIME_PERIOD_MS
-                      / MSEC_PER_SEC;
-
-      /* Drift estimation ensures local clock runs at same rate as remote.
-       *
-       * Adding the current clock offset to adjustment brings the clocks
-       * to match. To avoid individual outliers from causing jitter, we
-       * take the larger signed value of two previous deltas. This is based
-       * on the logic that packets can get delayed in transit, but do not
-       * travel backwards in time.
-       *
-       * Clock offset is applied over ADJTIME_PERIOD. If there is significant
-       * noise in measurements, increasing ADJTIME_PERIOD will reduce its
-       * effect on the local clock run rate.
-       */
-
-      if (state->last_delta_ns > delta_ns)
-        {
-          adjustment_ns += state->last_delta_ns;
-        }
-      else
-        {
+          adjustment_ns = state->drift_ppb * CONFIG_CLOCK_ADJTIME_PERIOD_MS
+                          / MSEC_PER_SEC;
           adjustment_ns += delta_ns;
+        }
+
+      /* Clamp adjustment to the hardware slew limit so that last_adjtime_ns
+       * accurately reflects what adjtime() will actually perform.
+       */
+
+      if (adjustment_ns > max_adjust_ns)
+        {
+          adjustment_ns = max_adjust_ns;
+        }
+      else if (adjustment_ns < -max_adjust_ns)
+        {
+          adjustment_ns = -max_adjust_ns;
         }
 
       /* Apply adjustment and store information for next time */
@@ -1163,32 +1171,26 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       state->last_delta_ns = delta_ns;
       state->last_delta_timestamp = *local_timestamp;
       state->last_adjtime_ns = adjustment_ns;
+      state->has_last_delta = true;
 
       ptpinfo("Delta: %+lld ns, adjustment %+lld ns, drift rate %+lld ppb\n",
               (long long)delta_ns,
               (long long)state->last_adjtime_ns,
               (long long)state->drift_ppb);
 
-      if (absdelta_ns > CONFIG_NETUTILS_PTPD_ADJTIME_THRESHOLD_NS)
-        {
-          ret = ptp_adjtime(state, delta_ns, drift_ppb);
-        }
-      else
-        {
-          ret = ptp_adjtime(state, adjustment_ns, state->drift_ppb);
-        }
+      ret = ptp_adjtime(state, adjustment_ns,
+                         absdelta_ns >
+                         CONFIG_NETUTILS_PTPD_ADJTIME_THRESHOLD_NS ?
+                         drift_ppb : state->drift_ppb);
 
       if (ret != OK)
         {
           ptperr("ptp_adjtime() failed: %d\n", errno);
         }
 
-      /* Check if clock is stable enough for sending delay requests */
+      /* Clock is tracking the master, allow sending delay requests */
 
-      if (absdelta_ns < CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS)
-        {
-          state->can_send_delayreq = true;
-        }
+      state->can_send_delayreq = true;
     }
 
   return ret;
@@ -1348,6 +1350,7 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   struct timespec remote_rxtime;
   uint16_t sequence;
   int interval;
+  int64_t max_path_delay;
 
   if (!state->selected_source_valid ||
       memcmp(msg->header.sourceidentity,
@@ -1379,7 +1382,19 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   sync_delay = state->path_delay_ns - state->last_delta_ns;
   path_delay = (path_delay + sync_delay) / 2;
 
-  if (path_delay >= 0 && path_delay < CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS)
+  max_path_delay = CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS;
+
+  if (!state->config->hardware_ts &&
+      max_path_delay < 10 * (int64_t)NSEC_PER_MSEC)
+    {
+      /* Software timestamping includes network stack and OS latency,
+       * allow up to 10 ms.
+       */
+
+      max_path_delay = 10 * (int64_t)NSEC_PER_MSEC;
+    }
+
+  if (path_delay >= 0 && path_delay < max_path_delay)
     {
       if (state->path_delay_avgcount <
           CONFIG_NETUTILS_PTPD_DELAYREQ_AVGCOUNT)
@@ -1616,6 +1631,7 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
   struct iovec rxiov;
   int timeout;
   int idx = 1;
+  int status = OK;
   int ret;
 
   memset(&rxhdr, 0, sizeof(rxhdr));
@@ -1628,7 +1644,8 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
     }
 
   state->config = config;
-  if (ptp_initialize_state(state) != OK)
+  status = ptp_initialize_state(state);
+  if (status != OK)
     {
       ptperr("Failed to initialize PTP state, exiting\n");
       goto errout;
@@ -1715,7 +1732,7 @@ errout:
   ptp_destroy_state(state);
   free(state);
 
-  return 0;
+  return status;
 }
 
 /****************************************************************************

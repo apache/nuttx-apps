@@ -43,11 +43,13 @@ static int do_ptpd_start(FAR const struct ptpd_config_s *config)
   int ret;
 
   ret = ptpd_start(config);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: ptpd_start() failed: %d\n", ret);
+      return EXIT_FAILURE;
+    }
 
-  /* Should never happen */
-
-  fprintf(stderr, "ERROR: ptpd_start() failed:%d\n", ret);
-  return EXIT_FAILURE;
+  return EXIT_SUCCESS;
 }
 
 static int do_ptpd_status(int pid)
