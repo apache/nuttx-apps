@@ -65,6 +65,15 @@
 
 #define PTP_FLAGS0_TWOSTEP        (1 << 1)
 
+/* Special logMessageInterval values (IEEE 1588-2008 Table 23) */
+
+#define PTP_LOG_INTERVAL_DELAY_REQ 0x7f
+
+/* PTP versions (IEEE 1588-2008 / IEEE 1588-2019 Table 18) */
+
+#define PTP_VERSION_2_0           0x02
+#define PTP_VERSION_2_1           0x12
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/

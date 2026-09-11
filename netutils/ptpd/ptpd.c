@@ -666,7 +666,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
       goto errout;
     }
 
-  state->own_identity.header.version = 2;
+  state->own_identity.header.version = PTP_VERSION_2_1;
   state->own_identity.header.domain = CONFIG_NETUTILS_PTPD_DOMAIN;
   state->own_identity.header.sourceidentity[0] = req.ifr_hwaddr.sa_data[0];
   state->own_identity.header.sourceidentity[1] = req.ifr_hwaddr.sa_data[1];
@@ -689,6 +689,7 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
          sizeof(state->own_identity.gm_identity));
   state->own_identity.timesource = CONFIG_NETUTILS_PTPD_CLOCKSOURCE;
 
+  state->delayreq_interval = 1;
   clock_gettime(CLOCK_MONOTONIC, &state->last_received_multicast);
 
   return OK;
@@ -745,11 +746,11 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
 
   if (state->config->af == AF_PACKET)
     {
-      /* IEE802.1AS Multicast address for gptp */
+      /* IEEE 1588-2008 Annex F primary multicast MAC address */
 
       const uint8_t ptp_multicast_mac[ETHER_ADDR_LEN] =
       {
-        0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e
+        0x01, 0x1b, 0x19, 0x00, 0x00, 0x00
       };
 
       char raw[sizeof(struct ether_header) + sizeof(struct ptp_announce_s)];
@@ -762,15 +763,19 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
       header = (FAR struct ether_header *)&raw;
       memcpy(header->ether_dhost, ptp_multicast_mac, ETHER_ADDR_LEN);
       netlib_getmacaddr(state->config->interface, header->ether_shost);
-      header->ether_type = ETHERTYPE_PTP;
+      header->ether_type = htons(ETHERTYPE_PTP);
       memcpy(&raw[sizeof(*header)], buf, buflen);
       buflen += sizeof(*header);
 
       iov.iov_base = raw;
       iov.iov_len = buflen;
 
-      msg.msg_name = (FAR void *)addr;
-      msg.msg_namelen = addrlen;
+      /* For AF_PACKET SOCK_RAW, msg_name must be NULL as destination
+       * is specified in the Ethernet frame header.
+       */
+
+      msg.msg_name = NULL;
+      msg.msg_namelen = 0;
       msg.msg_iov = &iov;
       msg.msg_iovlen = 1;
       msg.msg_flags = 0;
@@ -920,6 +925,7 @@ static int ptp_send_delay_req(FAR struct ptp_state_s *state)
   req.header = state->own_identity.header;
   req.header.messagetype = PTP_MSGTYPE_DELAY_REQ;
   req.header.messagelength[1] = sizeof(req);
+  req.header.logmessageinterval = PTP_LOG_INTERVAL_DELAY_REQ;
   ptp_increment_sequence(&state->delay_req_seq, &req.header);
 
   ptp_gettime(state, &state->delayreq_time);
@@ -983,7 +989,10 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
       clock_timespec_subtract(&time_now,
                               &state->last_transmitted_delayreq, &delta);
 
-      if (timespec_to_ms(&delta) > state->delayreq_interval * MSEC_PER_SEC)
+      long interval_s = (state->delayreq_interval > 0) ?
+                        state->delayreq_interval : 1;
+
+      if (timespec_to_ms(&delta) >= interval_s * MSEC_PER_SEC)
         {
           ptp_send_delay_req(state);
         }
