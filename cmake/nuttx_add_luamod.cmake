@@ -22,7 +22,7 @@
 
 set(LUAMOD_DIR ${NUTTX_BINARY_DIR}/luamod)
 
-if(NOT EXISTS {LUAMOD_DIR})
+if(NOT EXISTS ${LUAMOD_DIR})
   file(MAKE_DIRECTORY ${LUAMOD_DIR})
 endif()
 
