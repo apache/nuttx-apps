@@ -57,6 +57,8 @@ void d_doom_main(void);
 
 int main(int argc, char **argv)
 {
+  i_install_quit_signal();
+
   /* save arguments */
 
   myargc = argc;

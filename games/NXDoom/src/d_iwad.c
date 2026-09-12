@@ -194,7 +194,10 @@ static gamemission_t identify_iwad_by_name(const char *name, int mask)
        * Only use supported missions:
        */
 
-      if (((1 << g_iwads[i].mission) & mask) == 0) continue;
+      if (((1 << g_iwads[i].mission) & mask) == 0)
+        {
+          continue;
+        }
 
       /* Check if it ends in this IWAD name. */
 
@@ -270,6 +273,10 @@ static void buld_iwad_dir_list(void)
    */
 
   add_iwad_dir(m_dir_name(myargv[0]));
+
+  /* Add the configured DOOM data directory */
+
+  add_iwad_dir(CONFIG_GAMES_NXDOOM_PREFDIR);
 
   /* Add DOOMWADDIR if it is in the environment */
 

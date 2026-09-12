@@ -598,43 +598,50 @@ static boolean d_display(void)
 
   switch (gamestate)
     {
-    case GS_LEVEL:
-
-      if (!gametic)
+      case GS_LEVEL:
         {
+          if (!gametic)
+            {
+              break;
+            }
+
+          if (automapactive)
+            {
+              am_drawer();
+            }
+
+          if (wipe || (viewheight != SCREENHEIGHT && d_fullscreen))
+            {
+              redrawsbar = true;
+            }
+
+          if (inhelpscreensstate && !inhelpscreens)
+            {
+              redrawsbar = true; /* just put away the help screen */
+            }
+
+          st_drawer(viewheight == SCREENHEIGHT, redrawsbar);
+          d_fullscreen = viewheight == SCREENHEIGHT;
           break;
         }
 
-      if (automapactive)
+      case GS_INTERMISSION:
         {
-          am_drawer();
+          wi_drawer();
+          break;
         }
 
-      if (wipe || (viewheight != SCREENHEIGHT && d_fullscreen))
+      case GS_FINALE:
         {
-          redrawsbar = true;
+          f_drawer();
+          break;
         }
 
-      if (inhelpscreensstate && !inhelpscreens)
+      case GS_DEMOSCREEN:
         {
-          redrawsbar = true; /* just put away the help screen */
+          d_page_drawer();
+          break;
         }
-
-      st_drawer(viewheight == SCREENHEIGHT, redrawsbar);
-      d_fullscreen = viewheight == SCREENHEIGHT;
-      break;
-
-    case GS_INTERMISSION:
-      wi_drawer();
-      break;
-
-    case GS_FINALE:
-      f_drawer();
-      break;
-
-    case GS_DEMOSCREEN:
-      d_page_drawer();
-      break;
     }
 
   /* draw buffered stuff to screen */
@@ -656,7 +663,9 @@ static boolean d_display(void)
   /* clean up border stuff */
 
   if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-    i_set_palette(w_cache_lump_name(("PLAYPAL"), PU_CACHE));
+    {
+      i_set_palette(w_cache_lump_name(("PLAYPAL"), PU_CACHE));
+    }
 
   /* see if the border needs to be initially drawn */
 
@@ -672,7 +681,10 @@ static boolean d_display(void)
       scaledviewwidth != SCREENWIDTH)
     {
       if (g_menuactive || g_menuactivestate || !viewactivestate)
-        borderdrawcount = 3;
+        {
+          borderdrawcount = 3;
+        }
+
       if (borderdrawcount)
         {
           r_draw_view_border(); /* erase old menu stuff */
@@ -697,11 +709,16 @@ static boolean d_display(void)
   if (paused)
     {
       if (automapactive)
-        y = 4;
+        {
+          y = 4;
+        }
       else
-        y = viewwindowy + 4;
+        {
+          y = viewwindowy + 4;
+        }
+
       v_draw_patch_direct(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                          w_cache_lump_name(("M_PAUSE"), PU_CACHE));
+        w_cache_lump_name(("M_PAUSE"), PU_CACHE));
     }
 
   /* menus go directly to the screen */
@@ -725,12 +742,18 @@ static boolean d_grab_mouse_callback(void)
   /* Drone players don't need mouse focus */
 
 #ifdef CONFIG_GAMES_NXDOOM_NET
-  if (drone) return false;
+  if (drone)
+    {
+      return false;
+    }
 #endif
 
   /* when menu is active or game is paused, release the mouse */
 
-  if (g_menuactive || paused) return false;
+  if (g_menuactive || paused)
+    {
+      return false;
+    }
 
   /* only grab mouse when playing levels (but not demos) */
 
@@ -1144,28 +1167,45 @@ static void init_game_version(void)
                   status = true;
                   switch (demoversion)
                     {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                      gameversion = exe_doom_1_2;
-                      break;
-                    case 106:
-                      gameversion = exe_doom_1_666;
-                      break;
-                    case 107:
-                      gameversion = exe_doom_1_7;
-                      break;
-                    case 108:
-                      gameversion = exe_doom_1_8;
-                      break;
-                    case 109:
-                      gameversion = exe_doom_1_9;
-                      break;
-                    default:
-                      status = false;
-                      break;
+                      case 0:
+                      case 1:
+                      case 2:
+                      case 3:
+                      case 4:
+                        {
+                          gameversion = exe_doom_1_2;
+                          break;
+                        }
+
+                      case 106:
+                        {
+                          gameversion = exe_doom_1_666;
+                          break;
+                        }
+
+                      case 107:
+                        {
+                          gameversion = exe_doom_1_7;
+                          break;
+                        }
+
+                      case 108:
+                        {
+                          gameversion = exe_doom_1_8;
+                          break;
+                        }
+
+                      case 109:
+                        {
+                          gameversion = exe_doom_1_9;
+                          break;
+                        }
+
+                      default:
+                        {
+                          status = false;
+                          break;
+                        }
                     }
 
                   if (status)
@@ -1245,11 +1285,18 @@ void d_process_events(void)
 
   /* IF STORE DEMO, DO NOT ACCEPT INPUT */
 
-  if (storedemo) return;
+  if (storedemo)
+    {
+      return;
+    }
 
   while ((ev = d_pop_event()) != NULL)
     {
-      if (m_responder(ev)) continue; /* menu ate the event */
+      if (m_responder(ev))
+        {
+          continue;                  /* menu ate the event */
+        }
+
       g_responder(ev);
     }
 }
@@ -1294,6 +1341,7 @@ void d_doomloop(void)
 
   while (1)
     {
+      i_poll_quit_signal();
       d_run_frame();
     }
 }
@@ -1304,7 +1352,10 @@ void d_doomloop(void)
 
 void d_page_ticker(void)
 {
-  if (--pagetic < 0) d_advance_demo();
+  if (--pagetic < 0)
+    {
+      d_advance_demo();
+    }
 }
 
 /****************************************************************************
@@ -1357,72 +1408,104 @@ void d_do_advance_demo(void)
    */
 
   if (gameversion == exe_ultimate || gameversion == exe_final)
-    demosequence = (demosequence + 1) % 7;
+    {
+      demosequence = (demosequence + 1) % 7;
+    }
   else
-    demosequence = (demosequence + 1) % 6;
+    {
+      demosequence = (demosequence + 1) % 6;
+    }
 
   switch (demosequence)
     {
-    case 0:
-      if (gamemode == commercial)
-        pagetic = TICRATE * 11;
-      else
-        pagetic = 170;
-      gamestate = GS_DEMOSCREEN;
-      pagename = ("TITLEPIC");
+      case 0:
+        {
+          if (gamemode == commercial)
+            {
+              pagetic = TICRATE * 11;
+            }
+          else
+            {
+              pagetic = 170;
+            }
 
-#ifdef CONFIG_GAMES_NXDOOM_SOUND
-      if (gamemode == commercial)
-        {
-          s_start_music(MUS_DM2TTL);
-        }
-      else
-        {
-          s_start_music(MUS_INTRO);
-        }
-#endif
-
-      break;
-    case 1:
-      g_defered_play_demo(("demo1"));
-      break;
-    case 2:
-      pagetic = 200;
-      gamestate = GS_DEMOSCREEN;
-      pagename = ("CREDIT");
-      break;
-    case 3:
-      g_defered_play_demo(("demo2"));
-      break;
-    case 4:
-      gamestate = GS_DEMOSCREEN;
-      if (gamemode == commercial)
-        {
-          pagetic = TICRATE * 11;
+          gamestate = GS_DEMOSCREEN;
           pagename = ("TITLEPIC");
+
 #ifdef CONFIG_GAMES_NXDOOM_SOUND
-          s_start_music(MUS_DM2TTL);
+          if (gamemode == commercial)
+            {
+              s_start_music(MUS_DM2TTL);
+            }
+          else
+            {
+              s_start_music(MUS_INTRO);
+            }
 #endif
+
+          break;
         }
-      else
+
+      case 1:
+        {
+          g_defered_play_demo(("demo1"));
+          break;
+        }
+
+      case 2:
         {
           pagetic = 200;
-
-          if (gameversion >= exe_ultimate)
-            pagename = ("CREDIT");
-          else
-            pagename = ("HELP2");
+          gamestate = GS_DEMOSCREEN;
+          pagename = ("CREDIT");
+          break;
         }
-      break;
-    case 5:
-      g_defered_play_demo(("demo3"));
-      break;
+
+      case 3:
+        {
+          g_defered_play_demo(("demo2"));
+          break;
+        }
+
+      case 4:
+        {
+          gamestate = GS_DEMOSCREEN;
+          if (gamemode == commercial)
+            {
+              pagetic = TICRATE * 11;
+              pagename = ("TITLEPIC");
+#ifdef CONFIG_GAMES_NXDOOM_SOUND
+              s_start_music(MUS_DM2TTL);
+#endif
+            }
+          else
+            {
+              pagetic = 200;
+
+              if (gameversion >= exe_ultimate)
+                {
+                  pagename = ("CREDIT");
+                }
+              else
+                {
+                  pagename = ("HELP2");
+                }
+            }
+          break;
+        }
+
+      case 5:
+        {
+          g_defered_play_demo(("demo3"));
+          break;
+        }
 
       /* THE DEFINITIVE DOOM Special Edition demo */
 
-    case 6:
-      g_defered_play_demo(("demo4"));
-      break;
+      case 6:
+        {
+          g_defered_play_demo(("demo4"));
+          break;
+        }
     }
 
   /* The Doom 3: BFG Edition version of doom2.wad does not have a
@@ -1565,7 +1648,10 @@ void d_doom_main(void)
    *
    */
 
-  if (m_check_parm("-deathmatch")) deathmatch = 1;
+  if (m_check_parm("-deathmatch"))
+    {
+      deathmatch = 1;
+    }
 
   /* @category net
    * @vanilla
@@ -1575,7 +1661,10 @@ void d_doom_main(void)
    *
    */
 
-  if (m_check_parm("-altdeath")) deathmatch = 2;
+  if (m_check_parm("-altdeath"))
+    {
+      deathmatch = 2;
+    }
 
   if (devparm)
     {
@@ -1601,9 +1690,21 @@ void d_doom_main(void)
     {
       int scale = 200;
 
-      if (p < myargc - 1) scale = atoi(myargv[p + 1]);
-      if (scale < 10) scale = 10;
-      if (scale > 400) scale = 400;
+      if (p < myargc - 1)
+        {
+          scale = atoi(myargv[p + 1]);
+        }
+
+      if (scale < 10)
+        {
+          scale = 10;
+        }
+
+      if (scale > 400)
+        {
+          scale = 400;
+        }
+
       printf("turbo scale: %i%%\n", scale);
       forwardmove[0] = forwardmove[0] * scale / 100;
       forwardmove[1] = forwardmove[1] * scale / 100;
@@ -1815,6 +1916,7 @@ void d_doom_main(void)
   if (p)
     {
       char *uc_filename = strdup(myargv[p + 1]);
+
       m_force_uppercase(uc_filename);
 
       /* With Vanilla you have to specify the file without extension,
@@ -1906,8 +2008,10 @@ void d_doom_main(void)
       int i;
 
       if (gamemode == shareware)
-        i_error(("\nYou cannot -file with the shareware "
-                 "version. Register!"));
+        {
+          i_error(("\nYou cannot -file with the shareware "
+                   "version. Register!"));
+        }
 
       /* Check for fake IWAD with right name,
        * but w/o all the lumps of the registered version.
@@ -2041,7 +2145,9 @@ void d_doom_main(void)
   if (p)
     {
       if (gamemode == commercial)
-        startmap = atoi(myargv[p + 1]);
+        {
+          startmap = atoi(myargv[p + 1]);
+        }
       else
         {
           startepisode = myargv[p + 1][0] - '0';
@@ -2128,7 +2234,9 @@ void d_doom_main(void)
    */
 
   if (gamemode == commercial && w_check_num_for_name("map01") < 0)
-    storedemo = true;
+    {
+      storedemo = true;
+    }
 
   if (m_check_parm_with_args("-statdump", 1))
     {
@@ -2175,9 +2283,13 @@ void d_doom_main(void)
   if (gameaction != ga_loadgame)
     {
       if (autostart || netgame)
-        g_init_new(startskill, startepisode, startmap);
+        {
+          g_init_new(startskill, startepisode, startmap);
+        }
       else
-        d_start_title(); /* start up intro loop */
+        {
+          d_start_title(); /* start up intro loop */
+        }
     }
 
   d_doomloop(); /* never returns */

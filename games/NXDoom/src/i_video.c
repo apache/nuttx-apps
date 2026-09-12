@@ -105,6 +105,11 @@ struct graphics_state_s
   unsigned outw;
   unsigned outh;
 
+  /* Scaled image origin in pixels; origin is the byte offset. */
+
+  unsigned outx;
+  unsigned outy;
+
   /* Maps an output column onto the source column it is drawn from, so that
    * the inner loop needs neither a division nor a separate case for
    * fractional scaling.
@@ -487,6 +492,25 @@ static void blit_screen(void)
       prevsy = sy;
       prevrow = out;
     }
+
+#ifdef CONFIG_FB_UPDATE
+  /* Notify cached or DMA-backed frame buffers after drawing. */
+
+  {
+    struct fb_area_s area;
+
+    area.x = g_graphics_state.outx;
+    area.y = g_graphics_state.outy;
+    area.w = outw;
+    area.h = outh;
+
+    if (ioctl(g_graphics_state.fd, FBIO_UPDATE,
+      (unsigned long)((uintptr_t)&area)) < 0)
+      {
+        i_error("ioctl(FBIO_UPDATE) failed: %d\n", errno);
+      }
+  }
+#endif
 }
 
 static void update_grab(void)
@@ -586,9 +610,15 @@ void i_finish_update(void)
   int tics;
   int i;
 
-  if (!g_graphics_state.inited) return;
+  if (!g_graphics_state.inited)
+    {
+      return;
+    }
 
-  if (noblit) return;
+  if (noblit)
+    {
+      return;
+    }
 
   /* draws little dots on the bottom of the screen */
 
@@ -597,12 +627,20 @@ void i_finish_update(void)
       i = i_get_time();
       tics = i - lasttic;
       lasttic = i;
-      if (tics > 20) tics = 20;
+      if (tics > 20)
+        {
+          tics = 20;
+        }
 
       for (i = 0; i < tics * 4; i += 4)
-        i_video_buffer[(SCREENHEIGHT - 1) * SCREENWIDTH + i] = 0xff;
+        {
+          i_video_buffer[(SCREENHEIGHT - 1) * SCREENWIDTH + i] = 0xff;
+        }
+
       for (; i < 20 * 4; i += 4)
-        i_video_buffer[(SCREENHEIGHT - 1) * SCREENWIDTH + i] = 0x0;
+        {
+          i_video_buffer[(SCREENHEIGHT - 1) * SCREENWIDTH + i] = 0x0;
+        }
     }
 
   /* Draw disk icon before blit, if necessary. */
@@ -830,6 +868,7 @@ void i_graphics_check_commandline(void)
   if (i > 0)
     {
       int display = atoi(myargv[i + 1]);
+
       if (display >= 0)
         {
           video_display = display;
@@ -936,13 +975,12 @@ void i_init_graphics(void)
   g_graphics_state.outh = SCREENHEIGHT * g_graphics_state.scale;
 #endif
 
-  /* Centre the scaled image in the frame buffer */
+  /* Center after the plane stride and pixel size are known. */
 
-  g_graphics_state.origin =
-      (g_graphics_state.vinfo.yres - g_graphics_state.outh) / 2 *
-      g_graphics_state.pinfo.stride +
-      (g_graphics_state.vinfo.xres - g_graphics_state.outw) / 2 *
-      (g_graphics_state.pinfo.bpp >> 3);
+  g_graphics_state.outx =
+      (g_graphics_state.vinfo.xres - g_graphics_state.outw) / 2;
+  g_graphics_state.outy =
+      (g_graphics_state.vinfo.yres - g_graphics_state.outh) / 2;
 
   /* Build the output column to source column map once */
 
@@ -964,6 +1002,10 @@ void i_init_graphics(void)
     {
       i_error("ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno);
     }
+
+  g_graphics_state.origin =
+      g_graphics_state.outy * g_graphics_state.pinfo.stride +
+      g_graphics_state.outx * (g_graphics_state.pinfo.bpp >> 3);
 
   /* Initialize frame buffer memory for actual rendering */
 
