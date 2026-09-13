@@ -46,6 +46,12 @@
 
 #define PTP_MULTICAST_ADDR ((in_addr_t)0xE0000181)
 
+/* PTP over Ethernet (IEEE 802.3 / Layer 2) EtherType */
+
+#ifndef ETHERTYPE_PTP
+#  define ETHERTYPE_PTP 0x88f7
+#endif
+
 /* Message types */
 
 #define PTP_MSGTYPE_MASK       0x0F
@@ -58,6 +64,15 @@
 /* Message flags */
 
 #define PTP_FLAGS0_TWOSTEP        (1 << 1)
+
+/* Special logMessageInterval values (IEEE 1588-2008 Table 23) */
+
+#define PTP_LOG_INTERVAL_DELAY_REQ 0x7f
+
+/* PTP versions (IEEE 1588-2008 / IEEE 1588-2019 Table 18) */
+
+#define PTP_VERSION_2_0           0x02
+#define PTP_VERSION_2_1           0x12
 
 /****************************************************************************
  * Public Types
