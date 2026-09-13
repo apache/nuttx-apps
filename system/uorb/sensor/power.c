@@ -1,7 +1,5 @@
 /****************************************************************************
- * apps/system/uorb/sensor/temp.h
- *
- * SPDX-License-Identifier: Apache-2.0
+ * apps/system/uorb/sensor/power.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,22 +18,24 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_UORB_SENSOR_TEMP_H
-#define __APPS_SYSTEM_UORB_SENSOR_TEMP_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <uORB/uORB.h>
+#include <sensor/power.h>
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_DEBUG_UORB
+static const char sensor_power_format[] =
+  "timestamp:%" PRIu64 ",power:%hf";
+#endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-/* register this as object request broker structure */
-
-ORB_DECLARE(sensor_temp);
-ORB_DECLARE(sensor_ambient_temp);
-
-#endif
+ORB_DEFINE(sensor_power, struct sensor_power,
+           sensor_power_format);
