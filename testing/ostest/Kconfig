@@ -51,6 +51,16 @@ config TESTING_OSTEST_AIOPATH
 
 endif
 
+config TESTING_OSTEST_WQUEUE
+	bool "Work queue tests"
+	default y
+	depends on (BUILD_FLAT && !DISABLE_PTHREAD && SCHED_WORKQUEUE) || LIBC_USRWORK
+	---help---
+		Enables the work queue tests.  In non-flat builds, the tests run in
+		user space and require the libc user work queue implementation.  If
+		pthread support is disabled, only the predefined USRWORK queue is
+		tested because dynamically allocated queues require pthread support.
+
 config TESTING_OSTEST_RR_RANGE
 	int "Round-robin test - end of search range"
 	default 30000
