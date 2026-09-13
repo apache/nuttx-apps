@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -100,6 +101,7 @@ struct ptp_state_s
   uint16_t announce_seq;
   uint16_t sync_seq;
   uint16_t delay_req_seq;
+  uint16_t pdelay_req_seq;
 
   /* Previous measurement and estimated clock drift rate */
 
@@ -131,6 +133,7 @@ struct ptp_state_s
   struct timespec last_transmitted_announce;
   struct timespec last_transmitted_delayresp;
   struct timespec last_transmitted_delayreq;
+  struct timespec last_transmitted_pdelayreq;
 
   /* Timestamps related to path delay calculation (CLOCK_REALTIME) */
 
@@ -142,18 +145,28 @@ struct ptp_state_s
   int64_t sync_diff_ns;
   bool sync_diff_valid;
 
+  /* Timestamps related to P2P peer delay calculation (CLOCK_REALTIME) */
+
+  struct timespec pdelayreq_tx_time;  /* t1 */
+  struct timespec pdelayreq_rx_time;  /* t2 */
+  struct timespec pdelayresp_rx_time; /* t4 */
+  bool pdelay_waiting_followup;
+
   /* Latest received packet and its timestamp (CLOCK_REALTIME) */
 
   struct timespec rxtime;
   union
   {
-    struct ptp_header_s     header;
-    struct ptp_announce_s   announce;
-    struct ptp_sync_s       sync;
-    struct ptp_follow_up_s  follow_up;
-    struct ptp_delay_req_s  delay_req;
-    struct ptp_delay_resp_s delay_resp;
-    uint8_t                 raw[128];
+    struct ptp_header_s                header;
+    struct ptp_announce_s              announce;
+    struct ptp_sync_s                  sync;
+    struct ptp_follow_up_s             follow_up;
+    struct ptp_delay_req_s             delay_req;
+    struct ptp_delay_resp_s            delay_resp;
+    struct ptp_pdelay_req_s            pdelay_req;
+    struct ptp_pdelay_resp_s           pdelay_resp;
+    struct ptp_pdelay_resp_follow_up_s pdelay_resp_fup;
+    uint8_t                            raw[128];
   } rxbuf;
 
   uint8_t rxcmsg[CMSG_LEN(sizeof(struct timespec))];
@@ -481,9 +494,19 @@ static int ptp_destroy_state(FAR struct ptp_state_s *state)
 
   ptp_close(state->clockid);
 
-  mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
-  ipmsfilter(&state->interface_addr.sin_addr,
-             &mcast_addr, MCAST_EXCLUDE);
+  if (state->config->af == AF_INET)
+    {
+      mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
+      ipmsfilter(&state->interface_addr.sin_addr,
+                 &mcast_addr, MCAST_EXCLUDE);
+
+      if (state->config->delay_mechanism == PTP_DELAY_P2P)
+        {
+          mcast_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+          ipmsfilter(&state->interface_addr.sin_addr,
+                     &mcast_addr, MCAST_EXCLUDE);
+        }
+    }
 
   if (state->tx_socket > 0)
     {
@@ -656,6 +679,19 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
           ptperr("Failed to join multicast group: %d\n", errno);
           goto errout;
         }
+
+      if (state->config->delay_mechanism == PTP_DELAY_P2P)
+        {
+          mcast_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+          ret = ipmsfilter(&state->interface_addr.sin_addr,
+                           &mcast_addr, MCAST_INCLUDE);
+          if (ret < 0)
+            {
+              ptperr("Failed to join peer delay multicast group: %d\n",
+                     errno);
+              goto errout;
+            }
+        }
     }
 
   /* Get hardware address to initialize the identity field in header.
@@ -669,8 +705,9 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
       goto errout;
     }
 
-  state->own_identity.header.version = PTP_VERSION_2_1;
+  state->own_identity.header.version = PTP_VERSION_2_0;
   state->own_identity.header.domain = CONFIG_NETUTILS_PTPD_DOMAIN;
+  state->own_identity.header.controlfield = 0x05;
   state->own_identity.header.sourceidentity[0] = req.ifr_hwaddr.sa_data[0];
   state->own_identity.header.sourceidentity[1] = req.ifr_hwaddr.sa_data[1];
   state->own_identity.header.sourceidentity[2] = req.ifr_hwaddr.sa_data[2];
@@ -713,6 +750,12 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
   struct in_addr mcast_addr;
   struct timespec time_now;
   struct timespec delta;
+  int ret;
+
+  if (state->config->af != AF_INET)
+    {
+      return OK;
+    }
 
   clock_gettime(CLOCK_MONOTONIC, &time_now);
   clock_timespec_subtract(&time_now, &state->last_received_multicast,
@@ -729,9 +772,23 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
                  &mcast_addr,
                  MCAST_EXCLUDE);
 
-      return ipmsfilter(&state->interface_addr.sin_addr,
-                        &mcast_addr,
-                        MCAST_INCLUDE);
+      ret = ipmsfilter(&state->interface_addr.sin_addr,
+                       &mcast_addr,
+                       MCAST_INCLUDE);
+
+      if (state->config->delay_mechanism == PTP_DELAY_P2P)
+        {
+          mcast_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+          ipmsfilter(&state->interface_addr.sin_addr,
+                     &mcast_addr,
+                     MCAST_EXCLUDE);
+
+          ret = ipmsfilter(&state->interface_addr.sin_addr,
+                           &mcast_addr,
+                           MCAST_INCLUDE);
+        }
+
+      return ret;
     }
 
 #else
@@ -749,22 +806,36 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
 
   if (state->config->af == AF_PACKET)
     {
-      /* IEEE 1588-2008 Annex F primary multicast MAC address */
+      /* IEEE 1588-2008 Annex F multicast MAC addresses */
 
       const uint8_t ptp_multicast_mac[ETHER_ADDR_LEN] =
-      {
-        0x01, 0x1b, 0x19, 0x00, 0x00, 0x00
-      };
-
+        PTP_MULTICAST_MAC;
+      const uint8_t ptp_pdelay_multicast_mac[ETHER_ADDR_LEN] =
+        PTP_PDELAY_MULTICAST_MAC;
+      FAR const struct ptp_header_s *hdr = buf;
+      FAR const uint8_t *dst_mac;
       char raw[sizeof(struct ether_header) + sizeof(struct ptp_announce_s)];
       FAR struct ether_header *header;
       struct msghdr msg;
       struct iovec iov;
+      uint8_t msgtype;
 
       DEBUGASSERT(sizeof(struct ptp_announce_s) >= buflen);
 
+      msgtype = hdr->messagetype & PTP_MSGTYPE_MASK;
+      if (msgtype == PTP_MSGTYPE_PDELAY_REQ ||
+          msgtype == PTP_MSGTYPE_PDELAY_RESP ||
+          msgtype == PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP)
+        {
+          dst_mac = ptp_pdelay_multicast_mac;
+        }
+      else
+        {
+          dst_mac = ptp_multicast_mac;
+        }
+
       header = (FAR struct ether_header *)&raw;
-      memcpy(header->ether_dhost, ptp_multicast_mac, ETHER_ADDR_LEN);
+      memcpy(header->ether_dhost, dst_mac, ETHER_ADDR_LEN);
       netlib_getmacaddr(state->config->interface, header->ether_shost);
       header->ether_type = htons(ETHERTYPE_PTP);
       memcpy(&raw[sizeof(*header)], buf, buflen);
@@ -937,6 +1008,58 @@ static int ptp_send_delay_req(FAR struct ptp_state_s *state)
   return ret;
 }
 
+/* Send peer delay request packet (P2P) */
+
+static int ptp_send_pdelay_req(FAR struct ptp_state_s *state)
+{
+  struct ptp_pdelay_req_s req;
+  struct sockaddr_in addr;
+  int ret;
+
+  addr.sin_family      = AF_INET;
+  addr.sin_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+  addr.sin_port        = HTONS(PTP_UDP_PORT_EVENT);
+
+  memset(&req, 0, sizeof(req));
+  req.header = state->own_identity.header;
+  req.header.messagetype = PTP_MSGTYPE_PDELAY_REQ;
+  req.header.version = PTP_VERSION_2_0;
+  req.header.messagelength[1] = sizeof(req);
+  req.header.controlfield = 0x05;
+  req.header.logmessageinterval = PTP_LOG_INTERVAL_DELAY_REQ;
+  ptp_increment_sequence(&state->pdelay_req_seq, &req.header);
+
+  /* Starting a new request cycle invalidates any Pdelay_Resp we might
+   * still be waiting a Follow_Up for from the previous one (e.g. its
+   * Resp was lost and only its Follow_Up shows up later, after this
+   * new cycle has already updated pdelay_req_seq). Without this, that
+   * orphaned Follow_Up would still pass the sequence check below (it
+   * now matches the new cycle) and get paired with pdelayreq_rx_time
+   * (t2) captured for the OLD cycle - producing a path delay that is
+   * off by roughly one full request interval.
+   */
+
+  state->pdelay_waiting_followup = false;
+
+  ptp_gettime(state, &state->pdelayreq_tx_time);
+  timespec_to_ptp_format(&state->pdelayreq_tx_time, req.origintimestamp);
+
+  ret = ptp_sendmsg(state, &req, sizeof(req),
+                    &addr, sizeof(addr), &state->pdelayreq_tx_time);
+  if (ret < 0)
+    {
+      ptperr("ptp sendmsg failed: %d\n", errno);
+    }
+  else
+    {
+      clock_gettime(CLOCK_MONOTONIC, &state->last_transmitted_pdelayreq);
+      ptpinfo("Sent Pdelay_Req, seq %d\n",
+              ptp_get_sequence(&req.header));
+    }
+
+  return ret;
+}
+
 /* Check if we need to send packets */
 
 static int ptp_periodic_send(FAR struct ptp_state_s *state)
@@ -969,22 +1092,42 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
         }
     }
 
-  if (state->config->delay_e2e && state->selected_source_valid &&
-      state->can_send_delayreq)
+  if (state->config->delay_mechanism == PTP_DELAY_E2E &&
+      state->selected_source_valid && state->can_send_delayreq)
     {
       struct timespec time_now;
       struct timespec delta;
+      long interval_s;
 
       clock_gettime(CLOCK_MONOTONIC, &time_now);
       clock_timespec_subtract(&time_now,
                               &state->last_transmitted_delayreq, &delta);
 
-      long interval_s = (state->delayreq_interval > 0) ?
-                        state->delayreq_interval : 1;
+      interval_s = (state->delayreq_interval > 0) ?
+                    state->delayreq_interval : 1;
 
       if (timespec_to_ms(&delta) >= interval_s * MSEC_PER_SEC)
         {
           ptp_send_delay_req(state);
+        }
+    }
+
+  if (state->config->delay_mechanism == PTP_DELAY_P2P)
+    {
+      struct timespec time_now;
+      struct timespec delta;
+      long interval_s;
+
+      clock_gettime(CLOCK_MONOTONIC, &time_now);
+      clock_timespec_subtract(&time_now,
+                              &state->last_transmitted_pdelayreq, &delta);
+
+      interval_s = (state->delayreq_interval > 0) ?
+                    state->delayreq_interval : 1;
+
+      if (timespec_to_ms(&delta) >= interval_s * MSEC_PER_SEC)
+        {
+          ptp_send_pdelay_req(state);
         }
     }
 
@@ -1007,9 +1150,12 @@ static int ptp_process_announce(FAR struct ptp_state_s *state,
 
           state->selected_source = *msg;
           state->last_received_sync = state->last_received_announce;
-          state->path_delay_avgcount = 0;
-          state->path_delay_ns = 0;
-          state->delayreq_time.tv_sec = 0;
+          if (state->config->delay_mechanism == PTP_DELAY_E2E)
+            {
+              state->path_delay_avgcount = 0;
+              state->path_delay_ns = 0;
+              state->delayreq_time.tv_sec = 0;
+            }
         }
     }
 
@@ -1350,6 +1496,45 @@ static int ptp_process_delay_req(FAR struct ptp_state_s *state,
   return ret;
 }
 
+/* Record and filter measured path delay (used by both E2E and P2P) */
+
+static void ptp_record_path_delay(FAR struct ptp_state_s *state,
+                                  int64_t path_delay)
+{
+  int64_t max_path_delay;
+
+  max_path_delay = CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS;
+
+  if (max_path_delay < 10 * NSEC_PER_MSEC)
+    {
+      /* Software TX latency on delay measurement transmission can add up
+       * to several milliseconds. Allow up to 10 ms until hardware TX
+       * timestamping is available.
+       */
+
+      max_path_delay = 10 * NSEC_PER_MSEC;
+    }
+
+  if (path_delay >= 0 && path_delay < max_path_delay)
+    {
+      if (state->path_delay_avgcount <
+          CONFIG_NETUTILS_PTPD_DELAYREQ_AVGCOUNT)
+        {
+          state->path_delay_avgcount++;
+        }
+
+      state->path_delay_ns += (path_delay - state->path_delay_ns)
+                              / state->path_delay_avgcount;
+
+      ptpinfo("Path delay: %" PRId64 " ns (avg: %ld ns)\n",
+              path_delay, state->path_delay_ns);
+    }
+  else
+    {
+      ptpwarn("Path delay out of range: %" PRId64 " ns\n", path_delay);
+    }
+}
+
 static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
                                   FAR struct ptp_delay_resp_s *msg)
 {
@@ -1357,7 +1542,6 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   struct timespec remote_rxtime;
   uint16_t sequence;
   int interval;
-  int64_t max_path_delay;
   bool source_match;
   bool request_match;
 
@@ -1396,37 +1580,7 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   path_delay = timespec_delta_ns(&remote_rxtime, &state->delayreq_time);
   path_delay = (state->sync_diff_ns + path_delay) / 2;
 
-  max_path_delay = CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS;
-
-  if (max_path_delay < 10 * (int64_t)NSEC_PER_MSEC)
-    {
-      /* Software TX latency on Delay_Req transmission can add up to
-       * several milliseconds. Allow up to 10 ms until hardware TX
-       * timestamping is available.
-       */
-
-      max_path_delay = 10 * (int64_t)NSEC_PER_MSEC;
-    }
-
-  if (path_delay >= 0 && path_delay < max_path_delay)
-    {
-      if (state->path_delay_avgcount <
-          CONFIG_NETUTILS_PTPD_DELAYREQ_AVGCOUNT)
-        {
-          state->path_delay_avgcount++;
-        }
-
-      state->path_delay_ns += (path_delay - state->path_delay_ns)
-                              / state->path_delay_avgcount;
-
-      ptpinfo("Path delay: %ld ns (avg: %ld ns)\n",
-        (long)path_delay, (long)state->path_delay_ns);
-    }
-  else
-    {
-      ptpwarn("Path delay out of range: %lld ns\n",
-              (long long)path_delay);
-    }
+  ptp_record_path_delay(state, path_delay);
 
   /* Calculate interval until next packet */
 
@@ -1442,6 +1596,206 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   /* Randomize up to 2x nominal delay) */
 
   state->delayreq_interval = interval + (random() % interval);
+
+  return OK;
+}
+
+/* Process received peer delay request (responder role) */
+
+static int ptp_process_pdelay_req(FAR struct ptp_state_s *state,
+                                  FAR struct ptp_pdelay_req_s *msg)
+{
+  struct ptp_pdelay_resp_s resp;
+  struct ptp_pdelay_resp_follow_up_s fup;
+  struct sockaddr_in addr;
+  struct timespec t3;
+  int ret;
+
+  if (state->config->delay_mechanism != PTP_DELAY_P2P)
+    {
+      return OK;
+    }
+
+  addr.sin_family      = AF_INET;
+  addr.sin_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+  addr.sin_port        = HTONS(PTP_UDP_PORT_EVENT);
+
+  memset(&resp, 0, sizeof(resp));
+  resp.header = state->own_identity.header;
+  resp.header.messagetype = PTP_MSGTYPE_PDELAY_RESP;
+  resp.header.version = PTP_VERSION_2_0;
+  resp.header.messagelength[1] = sizeof(resp);
+  resp.header.flags[0] = PTP_FLAGS0_TWOSTEP;
+  resp.header.controlfield = 0x05;
+  memcpy(resp.header.sequenceid, msg->header.sequenceid,
+         sizeof(resp.header.sequenceid));
+  resp.header.logmessageinterval = 0x7f;
+
+  timespec_to_ptp_format(&state->rxtime, resp.requestreceipttimestamp);
+  memcpy(resp.reqidentity, msg->header.sourceidentity,
+         sizeof(resp.reqidentity));
+  memcpy(resp.reqportindex, msg->header.sourceportindex,
+         sizeof(resp.reqportindex));
+
+  ret = ptp_sendmsg(state, &resp, sizeof(resp), &addr, sizeof(addr), &t3);
+  if (ret < 0)
+    {
+      ptperr("ptp sendmsg failed for Pdelay_Resp: %d\n", errno);
+      return ret;
+    }
+
+  clock_gettime(CLOCK_MONOTONIC, &state->last_transmitted_delayresp);
+  ptpinfo("Sent Pdelay_Resp, seq %d\n",
+          ptp_get_sequence(&resp.header));
+
+  /* Send Pdelay_Resp_Follow_Up with transmit timestamp t3 */
+
+  addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
+
+  memset(&fup, 0, sizeof(fup));
+  fup.header = state->own_identity.header;
+  fup.header.messagetype = PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP;
+  fup.header.version = PTP_VERSION_2_0;
+  fup.header.messagelength[1] = sizeof(fup);
+  fup.header.controlfield = 0x05;
+  memcpy(fup.header.sequenceid, msg->header.sequenceid,
+         sizeof(fup.header.sequenceid));
+  fup.header.logmessageinterval = 0x7f;
+
+  timespec_to_ptp_format(&t3, fup.responseorigintimestamp);
+  memcpy(fup.reqidentity, msg->header.sourceidentity,
+         sizeof(fup.reqidentity));
+  memcpy(fup.reqportindex, msg->header.sourceportindex,
+         sizeof(fup.reqportindex));
+
+  ret = ptp_sendmsg(state, &fup, sizeof(fup), &addr, sizeof(addr), NULL);
+  if (ret < 0)
+    {
+      ptperr("ptp sendmsg failed for Pdelay_Resp_Follow_Up: %d\n", errno);
+      return ret;
+    }
+
+  ptpinfo("Sent Pdelay_Resp_Follow_Up, seq %d\n",
+          ptp_get_sequence(&fup.header));
+
+  return OK;
+}
+
+/* Process received peer delay response (requester role) */
+
+static int ptp_process_pdelay_resp(FAR struct ptp_state_s *state,
+                                   FAR struct ptp_pdelay_resp_s *msg)
+{
+  uint16_t sequence;
+
+  if (state->config->delay_mechanism != PTP_DELAY_P2P)
+    {
+      return OK;
+    }
+
+  if (memcmp(msg->reqidentity, state->own_identity.header.sourceidentity,
+             sizeof(msg->reqidentity)) != 0)
+    {
+      return OK; /* Not for us */
+    }
+
+  sequence = ptp_get_sequence(&msg->header);
+  if (sequence != state->pdelay_req_seq)
+    {
+      ptpwarn("Ignoring out-of-sequence Pdelay_Resp (%d vs. expected %d)\n",
+              sequence, state->pdelay_req_seq);
+      return OK;
+    }
+
+  /* Store t4 (local receive timestamp) and t2 (receipt timestamp
+   * from peer).
+   */
+
+  state->pdelayresp_rx_time = state->rxtime;
+  ptp_format_to_timespec(msg->requestreceipttimestamp,
+                         &state->pdelayreq_rx_time);
+  ptp_add_correction_time(msg->header.correction,
+                          &state->pdelayreq_rx_time);
+
+  if (msg->header.flags[0] & PTP_FLAGS0_TWOSTEP)
+    {
+      state->pdelay_waiting_followup = true;
+      ptpinfo("Waiting for Pdelay_Resp_Follow_Up, seq %d\n",
+              sequence);
+    }
+  else
+    {
+      /* One-step: turnaround time (t3 - t2) is carried in correctionField */
+
+      int64_t t4_t1_ns;
+      int64_t t3_t2_ns;
+      int64_t path_delay;
+      uint64_t correction_time;
+
+      correction_time = (((uint64_t)msg->header.correction[0]) << 40)
+                      | (((uint64_t)msg->header.correction[1]) << 32)
+                      | (((uint64_t)msg->header.correction[2]) << 24)
+                      | (((uint64_t)msg->header.correction[3]) << 16)
+                      | (((uint64_t)msg->header.correction[4]) <<  8)
+                      | msg->header.correction[5];
+
+      t4_t1_ns = timespec_delta_ns(&state->pdelayresp_rx_time,
+                                   &state->pdelayreq_tx_time);
+      t3_t2_ns = correction_time;
+      path_delay = (t4_t1_ns - t3_t2_ns) / 2;
+
+      ptp_record_path_delay(state, path_delay);
+    }
+
+  return OK;
+}
+
+/* Process received peer delay response follow-up (requester role) */
+
+static int ptp_process_pdelay_resp_followup(
+             FAR struct ptp_state_s *state,
+             FAR struct ptp_pdelay_resp_follow_up_s *msg)
+{
+  struct timespec t3;
+  int64_t t4_t1_ns;
+  int64_t t3_t2_ns;
+  int64_t path_delay;
+  uint16_t sequence;
+
+  if (state->config->delay_mechanism != PTP_DELAY_P2P ||
+      !state->pdelay_waiting_followup)
+    {
+      return OK;
+    }
+
+  if (memcmp(msg->reqidentity, state->own_identity.header.sourceidentity,
+             sizeof(msg->reqidentity)) != 0)
+    {
+      return OK;
+    }
+
+  sequence = ptp_get_sequence(&msg->header);
+  if (sequence != state->pdelay_req_seq)
+    {
+      ptpwarn("Ignoring out-of-sequence Pdelay_Resp_Follow_Up "
+              "(%d vs. expected %d)\n",
+              sequence, state->pdelay_req_seq);
+      return OK;
+    }
+
+  state->pdelay_waiting_followup = false;
+
+  ptp_format_to_timespec(msg->responseorigintimestamp, &t3);
+  ptp_add_correction_time(msg->header.correction, &t3);
+
+  /* IEEE 1588-2008 §11.4.3: meanPathDelay = ((t4 - t1) - (t3 - t2)) / 2 */
+
+  t4_t1_ns = timespec_delta_ns(&state->pdelayresp_rx_time,
+                               &state->pdelayreq_tx_time);
+  t3_t2_ns = timespec_delta_ns(&t3, &state->pdelayreq_rx_time);
+  path_delay = (t4_t1_ns - t3_t2_ns) / 2;
+
+  ptp_record_path_delay(state, path_delay);
 
   return OK;
 }
@@ -1522,6 +1876,22 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
         ptpinfo("Got delay req, seq %d\n",
                 ptp_get_sequence(&state->rxbuf.header));
         return ptp_process_delay_req(state, &state->rxbuf.delay_req);
+
+      case PTP_MSGTYPE_PDELAY_REQ:
+        ptpinfo("Got pdelay req, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_pdelay_req(state, &state->rxbuf.pdelay_req);
+
+      case PTP_MSGTYPE_PDELAY_RESP:
+        ptpinfo("Got pdelay resp, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_pdelay_resp(state, &state->rxbuf.pdelay_resp);
+
+      case PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP:
+        ptpinfo("Got pdelay resp follow-up, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_pdelay_resp_followup(
+                 state, &state->rxbuf.pdelay_resp_fup);
 
       default:
         ptpwarn("Ignoring unknown PTP packet type: 0x%02x "
@@ -1622,6 +1992,8 @@ static void ptp_dump_status_file(FAR struct ptp_state_s *state)
   status.last_transmitted_announce  = state->last_transmitted_announce;
   status.last_transmitted_delayresp = state->last_transmitted_delayresp;
   status.last_transmitted_delayreq  = state->last_transmitted_delayreq;
+
+  status.last_transmitted_pdelayreq = state->last_transmitted_pdelayreq;
 
   snprintf(tmppath, sizeof(tmppath), "%s.tmp",
            CONFIG_NETUTILS_PTPD_STATUSFILE);
