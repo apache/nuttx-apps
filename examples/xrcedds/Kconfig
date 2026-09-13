@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_XRCEDDS_PUB
+	tristate "XRCEDDS publisher demo"
+	default n
+	depends on SYSTEM_XRCEDDS && NET_UDP && NET_IPv4
+	---help---
+		Build the PublishHelloWorldClient command.  It connects to a
+		Micro XRCE-DDS Agent through the built-in UDP transport and
+		publishes HelloWorld samples.
+
+if EXAMPLES_XRCEDDS_PUB
+
+config EXAMPLES_XRCEDDS_PUB_PROGNAME
+	string "Publisher command name"
+	default "PublishHelloWorldClient"
+
+config EXAMPLES_XRCEDDS_PUB_PRIORITY
+	int "Publisher task priority"
+	default 100
+
+config EXAMPLES_XRCEDDS_PUB_STACKSIZE
+	int "Publisher task stack size"
+	default 4096
+
+endif
