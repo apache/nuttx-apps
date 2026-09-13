@@ -139,6 +139,8 @@ struct ptp_state_s
   int path_delay_avgcount;
   long path_delay_ns;
   long delayreq_interval;
+  int64_t sync_diff_ns;
+  bool sync_diff_valid;
 
   /* Latest received packet and its timestamp (CLOCK_REALTIME) */
 
@@ -788,26 +790,13 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
         {
           return ERROR;
         }
-
-      if (state->config->hardware_ts && sendts != NULL)
-        {
-          uint8_t rxcmsg[CMSG_LEN(sizeof(struct timespec))];
-
-          msg.msg_control = &rxcmsg;
-          msg.msg_controllen = CMSG_LEN(sizeof(struct timespec));
-          ret = recvmsg(state->tx_socket, &msg, 0);
-          if (ret >= 0)
-            {
-              ptp_getrxtime(state, &msg, sendts);
-            }
-        }
     }
   else
     {
       ret = sendto(state->tx_socket, buf, buflen, 0, addr, addrlen);
     }
 
-  if (!state->config->hardware_ts && sendts != NULL)
+  if (sendts != NULL)
     {
       ptp_gettime(state, sendts);
     }
@@ -1206,6 +1195,31 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
   return ret;
 }
 
+static void ptp_add_correction_time(FAR const uint8_t *correction,
+                                    FAR struct timespec *ts)
+{
+  uint64_t correction_time = (((uint64_t)correction[0]) << 40)
+                           | (((uint64_t)correction[1]) << 32)
+                           | (((uint64_t)correction[2]) << 24)
+                           | (((uint64_t)correction[3]) << 16)
+                           | (((uint64_t)correction[4]) <<  8)
+                           | (((uint64_t)correction[5]) <<  0);
+
+  ptpinfo("correction before: %jd.%09ld\n", (intmax_t)ts->tv_sec,
+          ts->tv_nsec);
+
+  ts->tv_sec  += correction_time / NSEC_PER_SEC;
+  ts->tv_nsec += correction_time % NSEC_PER_SEC;
+  if (ts->tv_nsec >= NSEC_PER_SEC)
+    {
+      ts->tv_nsec -= NSEC_PER_SEC;
+      ts->tv_sec  += 1;
+    }
+
+  ptpinfo("correction after: %jd.%09ld\n", (intmax_t)ts->tv_sec,
+          ts->tv_nsec);
+}
+
 /* Process received PTP sync packet */
 
 static int ptp_process_sync(FAR struct ptp_state_s *state,
@@ -1240,32 +1254,10 @@ static int ptp_process_sync(FAR struct ptp_state_s *state,
   /* Update local clock */
 
   ptp_format_to_timespec(msg->origintimestamp, &remote_time);
+  ptp_add_correction_time(msg->header.correction, &remote_time);
+  state->sync_diff_ns = timespec_delta_ns(&state->rxtime, &remote_time);
+  state->sync_diff_valid = true;
   return ptp_update_local_clock(state, &remote_time, &state->rxtime);
-}
-
-static void ptp_add_correction_time(FAR const uint8_t *correction,
-                                    FAR struct timespec *ts)
-{
-  uint64_t correction_time = (((uint64_t)correction[0]) << 40)
-                           | (((uint64_t)correction[1]) << 32)
-                           | (((uint64_t)correction[2]) << 24)
-                           | (((uint64_t)correction[3]) << 16)
-                           | (((uint64_t)correction[4]) <<  8)
-                           | (((uint64_t)correction[5]) <<  0);
-
-  ptpinfo("correction before: %jd.%09ld\n", (intmax_t)ts->tv_sec,
-          ts->tv_nsec);
-
-  ts->tv_sec  += correction_time / NSEC_PER_SEC;
-  ts->tv_nsec += correction_time % NSEC_PER_SEC;
-  if (ts->tv_nsec >= NSEC_PER_SEC)
-    {
-      ts->tv_nsec -= NSEC_PER_SEC;
-      ts->tv_sec  += 1;
-    }
-
-  ptpinfo("correction after: %jd.%09ld\n", (intmax_t)ts->tv_sec,
-          ts->tv_nsec);
 }
 
 static int ptp_process_followup(FAR struct ptp_state_s *state,
@@ -1300,6 +1292,12 @@ static int ptp_process_followup(FAR struct ptp_state_s *state,
   /* add correction time */
 
   ptp_add_correction_time(msg->header.correction, &remote_time);
+
+  /* Store (t2 - t1) for canonical IEEE 1588-2008 §11.3 path delay */
+
+  state->sync_diff_ns = timespec_delta_ns(&state->twostep_rxtime,
+                                          &remote_time);
+  state->sync_diff_valid = true;
 
   /* done */
 
@@ -1356,7 +1354,6 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
                                   FAR struct ptp_delay_resp_s *msg)
 {
   int64_t path_delay;
-  int64_t sync_delay;
   struct timespec remote_rxtime;
   uint16_t sequence;
   int interval;
@@ -1371,10 +1368,13 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
                          state->own_identity.header.sourceidentity,
                          sizeof(msg->reqidentity)) == 0;
 
-  if (!state->selected_source_valid || !source_match || !request_match)
+  if (!state->selected_source_valid || !state->sync_diff_valid ||
+      !source_match || !request_match)
     {
-      ptpwarn("Delay_Resp ignored: valid=%d, src_match=%d, req_match=%d\n",
-              state->selected_source_valid, source_match, request_match);
+      ptpwarn("Delay_Resp ignored: valid=%d, sync_valid=%d, src_match=%d, "
+              "req_match=%d\n",
+              state->selected_source_valid, state->sync_diff_valid,
+              source_match, request_match);
       return OK; /* This packet wasn't for us */
     }
 
@@ -1388,22 +1388,21 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
     }
 
   /* Path delay is calculated as the average between delta for sync
-   * message and delta for delay req message.
+   * message (t2 - t1) and delta for delay req message (t4 - t3).
    * (IEEE-1588 section 11.3: Delay request-response mechanism)
    */
 
   ptp_format_to_timespec(msg->receivetimestamp, &remote_rxtime);
   path_delay = timespec_delta_ns(&remote_rxtime, &state->delayreq_time);
-  sync_delay = state->path_delay_ns - state->last_delta_ns;
-  path_delay = (path_delay + sync_delay) / 2;
+  path_delay = (state->sync_diff_ns + path_delay) / 2;
 
   max_path_delay = CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS;
 
-  if (!state->config->hardware_ts &&
-      max_path_delay < 10 * (int64_t)NSEC_PER_MSEC)
+  if (max_path_delay < 10 * (int64_t)NSEC_PER_MSEC)
     {
-      /* Software timestamping includes network stack and OS latency,
-       * allow up to 10 ms.
+      /* Software TX latency on Delay_Req transmission can add up to
+       * several milliseconds. Allow up to 10 ms until hardware TX
+       * timestamping is available.
        */
 
       max_path_delay = 10 * (int64_t)NSEC_PER_MSEC;
