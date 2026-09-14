@@ -516,6 +516,7 @@ static enum monkey_wait_res_e monkey_wait(uint32_t ms)
 
   sigemptyset(&set);
   sigaddset(&set, SIGTSTP);
+  sigaddset(&set, SIGTERM);
 
   ret = sigtimedwait(&set, NULL, &timeout);
 
@@ -539,8 +540,22 @@ static enum monkey_wait_res_e monkey_wait(uint32_t ms)
     {
       res = MONKEY_WAIT_RES_PAUSE;
     }
+  else if (ret == SIGTERM)
+    {
+      MONKEY_LOG_WARN("Recv sig: SIGTERM");
+      res = MONKEY_WAIT_RES_STOP;
+    }
 
   return res;
+}
+
+/****************************************************************************
+ * Name: signal_handler
+ ****************************************************************************/
+
+static void signal_handler(int sig)
+{
+  MONKEY_LOG_WARN("Recv sig: %d", sig);
 }
 
 /****************************************************************************
@@ -565,7 +580,25 @@ int main(int argc, FAR char *argv[])
   struct monkey_param_s param;
   FAR struct monkey_s *monkey;
   uint32_t start_tick;
+  sigset_t mask;
+
   parse_commandline(argc, argv, &param);
+
+  /* Block SIGTERM and let sigtimedwait() consume it: the signal mask
+   * and pending queue are per task, so sibling monkey instances stop
+   * independently, and a signal arriving outside the wait window stays
+   * pending instead of being swallowed by the handler.
+   */
+
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGTERM);
+  sigprocmask(SIG_BLOCK, &mask, NULL);
+
+  /* Add signal handler to avoid system default handler */
+
+  signal(SIGTSTP, &signal_handler);
+  signal(SIGCONT, &signal_handler);
+  signal(SIGTERM, &signal_handler);
 
   monkey = monkey_init(&param);
 
