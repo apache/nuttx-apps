@@ -1,0 +1,43 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_COMP
+	tristate "Comparator tool"
+	default n
+	depends on COMP
+	---help---
+		Enable support for the comparator tool.
+
+if EXAMPLES_COMP
+
+config EXAMPLES_COMP_PROGNAME
+	string "Program name"
+	default "comp"
+	---help---
+		This is the name of the program that will be used in the shell
+
+config EXAMPLES_COMP_PRIORITY
+	int "Comparator tool task priority"
+	default 100
+
+config EXAMPLES_COMP_STACKSIZE
+	int "Comparator tool stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_COMP_DEVPATH
+	string "Comparator device path"
+	default "/dev/comp0"
+	---help---
+		The default path to the comparator device. Default: /dev/comp0
+
+config EXAMPLES_COMP_DACPATH
+	string "DAC device path for ramp test"
+	default "/dev/dac5" if ARCH_CHIP_STM32G4
+	default "/dev/dac0"
+	depends on DAC
+	---help---
+		The default path to the DAC device for generating a voltage ramp.
+
+endif
