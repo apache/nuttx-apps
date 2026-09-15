@@ -220,6 +220,7 @@ static int monkey_get_screen_resolution(FAR int *hor_res, FAR int *ver_res)
   int fd;
   int ret;
   FAR const char *dev_path = MONKEY_SCREEN_DEV;
+
   *hor_res = MONKEY_SCREEN_HOR_RES_DEFAULT;
   *ver_res = MONKEY_SCREEN_VER_RES_DEFAULT;
   fd = open(dev_path, 0);
@@ -360,6 +361,7 @@ static void parse_long_commandline(int argc, FAR char **argv,
                                    FAR struct monkey_param_s *param)
 {
   int event_index;
+
   switch (longindex)
     {
       case 0:
@@ -523,6 +525,7 @@ static enum monkey_wait_res_e monkey_wait(uint32_t ms)
   if (ret < 0)
     {
       int errcode = errno;
+
       if (errcode == EINTR)
         {
           res = MONKEY_WAIT_RES_STOP;
