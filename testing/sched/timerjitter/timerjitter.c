@@ -24,11 +24,12 @@
  * Included Files
  ****************************************************************************/
 
+#include <inttypes.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <time.h>
 
 /****************************************************************************
@@ -36,8 +37,8 @@
  ****************************************************************************/
 
 #define DEFAULT_CLOCKID   CLOCK_REALTIME
-#define DEFAULT_INTERVAL  (1000 * USEC_PER_TICK)
-#define DEFAULT_ITERATION (USEC_PER_SEC / DEFAULT_INTERVAL)
+#define DEFAULT_INTERVAL  (USEC_PER_TICK > 1000 ? USEC_PER_TICK : 1000)
+#define DEFAULT_ITERATION ((USEC_PER_SEC - 1) / DEFAULT_INTERVAL + 1)
 
 /* Fix compilation error for Non-NuttX OS */
 #ifndef FAR
@@ -63,8 +64,8 @@ struct timerjitter_param_s
   unsigned long max_cnt;
   unsigned long cur_cnt;
   double        avg;
-  unsigned long max;
-  unsigned long min;
+  int64_t       max;
+  int64_t       min;
   int           print;
   unsigned int  missed;
 };
@@ -193,7 +194,7 @@ static FAR void *timerjitter(FAR void *arg)
 
   param->avg = 0;
   param->max = 0;
-  param->min = (unsigned long)-1;
+  param->min = 0;
 
   while (param->cur_cnt < param->max_cnt)
     {
@@ -220,12 +221,12 @@ static FAR void *timerjitter(FAR void *arg)
                   (intmax_t)now.tv_sec, now.tv_nsec);
         }
 
-      if (diff > param->max)
+      if (param->cur_cnt == 1 || diff > param->max)
         {
           param->max = diff;
         }
 
-      if (diff < param->min)
+      if (param->cur_cnt == 1 || diff < param->min)
         {
           param->min = diff;
         }
@@ -241,7 +242,7 @@ static FAR void *timerjitter(FAR void *arg)
       while (ts_greater(&now, &next))
         {
           calc_next(&next, &intv);
-          printf("time frame missed %u\n", ++param->missed);
+          param->missed++;
         }
     }
 
@@ -330,11 +331,22 @@ int main(int argc, FAR char *argv[])
       if (argc > 1)
         {
           param.interval = get_num(argv[1]);
+          if (param.interval < USEC_PER_TICK)
+            {
+              printf("interval must be at least %lu us\n",
+                     (unsigned long)USEC_PER_TICK);
+              return EXIT_FAILURE;
+            }
         }
 
       if (argc > 2)
         {
           param.max_cnt = get_num(argv[2]);
+          if (param.max_cnt == 0)
+            {
+              printf("iteration must be greater than 0\n");
+              return EXIT_FAILURE;
+            }
         }
     }
 
@@ -358,8 +370,13 @@ int main(int argc, FAR char *argv[])
       printf("pthread_attr_destroy failed %d\n", ret);
     }
 
+  if (param.missed > 0)
+    {
+      printf("time frames missed: %u\n", param.missed);
+    }
+
   printf("timer jitter in %lu run:\n", param.max_cnt);
-  printf("(latency/us) min: %lu, avg: %.0lf, max %lu\n",
+  printf("(latency/us) min: %" PRId64 ", avg: %.0lf, max %" PRId64 "\n",
          param.min, param.avg, param.max);
 
   return 0;
