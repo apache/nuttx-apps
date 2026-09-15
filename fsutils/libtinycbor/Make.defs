@@ -23,4 +23,9 @@
 ifneq ($(CONFIG_FSUTILS_TINYCBOR_LIB),)
 CONFIGURED_APPS += $(APPDIR)/fsutils/libtinycbor
 CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/fsutils/libtinycbor
+
+# cbortojson.c's "#include <memory.h>" means TinyCBOR's own, not the
+# toolchain's; without this on the path picolibc/newlib's wins instead.
+
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/fsutils/libtinycbor/tinycbor
 endif
