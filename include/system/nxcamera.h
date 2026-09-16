@@ -76,6 +76,8 @@ struct nxcamera_s
 #ifdef CONFIG_LIBYUV
   FAR uint8_t           *conv_buf;                   /* Preallocated ARGB conv buffer */
   size_t                conv_buf_size;               /* Size of conv buffer in bytes */
+  FAR uint8_t           *scale_buf;                  /* Preallocated scaled ARGB buffer */
+  size_t                scale_buf_size;              /* Size of scale buffer in bytes */
 #endif
 };
 
