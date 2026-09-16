@@ -14,8 +14,8 @@ menuconfig GRAPHICS_INPUT_MONKEY
 	tristate "Monkey test"
 	depends on UINPUT_TOUCH && UINPUT_BUTTONS
 	depends on GRAPHICS_INPUT_GENERATOR
-	depends on LIBC_PRINT_EXTENSION
 	depends on SIGNAL_FD && TIMER_FD
+	select LIBC_PRINT_EXTENSION
 	default n
 
 if GRAPHICS_INPUT_MONKEY
