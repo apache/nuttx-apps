@@ -342,11 +342,11 @@ static int configdata_fillconfig(void)
             }
 
 #if CONFIG_EXAMPLES_CONFIGDATA_VERBOSE != 0
-         printf("  Created entry %04X, %d  Len=%d\n",
-                entry->id, entry->instance, entry->len);
+          printf("  Created entry %04X, %d  Len=%d\n",
+                 entry->id, entry->instance, entry->len);
 #endif
-         g_nentries++;
-         g_ntotalalloc++;
+          g_nentries++;
+          g_ntotalalloc++;
         }
     }
 
@@ -477,6 +477,7 @@ static int configdata_delentries(void)
   /* Are there any files to be deleted? */
 
   int nentries = g_nentries - g_ndeleted;
+
   if (nentries < 1)
     {
       return 0;
@@ -607,6 +608,80 @@ static void configdata_cleardeleted(void)
 
   g_nentries -= g_ndeleted;
   g_ndeleted = 0;
+}
+
+/****************************************************************************
+ * Name: configdata_testunregister
+ *
+ * Description:
+ *   Exercise the /dev/config register/unregister lifetime.  Unregister
+ *   the device, verify that it can no longer be opened, then register
+ *   it again and verify that it is usable.  This is a regression test:
+ *   freeing the private device structure before the temporary file used
+ *   during unregister is closed corrupts the heap and crashes the open
+ *   below.
+ *
+ * Input Parameters:
+ *   mtd - Pointer to the MTD device bound to the /dev/config device
+ *
+ ****************************************************************************/
+
+static void configdata_testunregister(FAR struct mtd_dev_s *mtd)
+{
+  int fd;
+  int ret;
+
+  close(g_fd);
+  g_fd = -1;
+
+  ret = mtdconfig_unregister();
+  if (ret < 0)
+    {
+      printf("ERROR: /dev/config unregistration failed: %d\n", ret);
+      fflush(stdout);
+      exit(3);
+    }
+
+  fd = open("/dev/config", O_RDONLY);
+  if (fd >= 0 || errno != ENOENT)
+    {
+      printf("ERROR: /dev/config still accessible after unregister: "
+             "fd=%d errno=%d\n", fd, errno);
+      fflush(stdout);
+
+      if (fd >= 0)
+        {
+          close(fd);
+        }
+
+      exit(3);
+    }
+
+  ret = mtdconfig_register(mtd);
+  if (ret < 0)
+    {
+      printf("ERROR: /dev/config re-registration failed: %d\n", ret);
+      fflush(stdout);
+      exit(3);
+    }
+
+  fd = open("/dev/config", O_RDONLY);
+  if (fd < 0)
+    {
+      printf("ERROR: Failed to re-open /dev/config %d\n", errno);
+      fflush(stdout);
+      exit(3);
+    }
+
+  close(fd);
+
+  ret = mtdconfig_unregister();
+  if (ret < 0)
+    {
+      printf("ERROR: /dev/config final unregistration failed: %d\n", ret);
+      fflush(stdout);
+      exit(3);
+    }
 }
 
 /****************************************************************************
@@ -785,6 +860,8 @@ int main(int argc, FAR char *argv[])
 
   configdata_delallfiles();
 #endif
+
+  configdata_testunregister(mtd);
 
   configdata_endmemusage();
   fflush(stdout);
