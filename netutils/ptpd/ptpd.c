@@ -1232,8 +1232,6 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       const int64_t max_adjust_ns =
         (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM *
         CONFIG_CLOCK_ADJTIME_PERIOD_MS;
-      const int64_t slew_limit_ppb =
-        (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000;
 
       if (!state->has_last_delta)
         {
@@ -1269,8 +1267,19 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
               interval_ms = 1;
             }
 
-          if (drift_ppb > slew_limit_ppb || drift_ppb < -slew_limit_ppb)
+          if (drift_ppb > CONFIG_NETUTILS_PTPD_MAX_DRIFT_PPB ||
+              drift_ppb < -CONFIG_NETUTILS_PTPD_MAX_DRIFT_PPB)
             {
+              /* Physically implausible for a real crystal oscillator -
+               * almost always the result of an abnormally short interval
+               * between samples (e.g. a burst of packets right after a
+               * clock source outage/reconnect) rather than actual drift.
+               * Discard it instead of letting it corrupt the long-term
+               * average; CLOCK_ADJTIME_SLEWLIMIT_PPM is a much looser
+               * hardware safety bound and would let this through
+               * unchanged.
+               */
+
               ptpwarn("Drift estimate out of range: %lld\n",
                       (long long)drift_ppb);
               drift_ppb = state->drift_ppb;

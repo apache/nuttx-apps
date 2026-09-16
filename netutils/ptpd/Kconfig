@@ -175,6 +175,26 @@ config NETUTILS_PTPD_DRIFT_AVERAGE_S
 		gives more stable estimate but reacts slower to crystal oscillator speed
 		changes (such as caused by temperature changes).
 
+config NETUTILS_PTPD_MAX_DRIFT_PPB
+	int "PTP client maximum plausible clock drift rate (ppb)"
+	default 500000
+	range 1000 20000000
+	---help---
+		A single drift-rate sample computed between two consecutive sync
+		updates is discarded (the previous averaged drift_ppb is kept
+		unchanged) if its magnitude exceeds this bound. Real crystal
+		oscillators drift by at most a few hundred ppm (hundreds of
+		thousands of ppb), so this catches bogus samples caused by an
+		abnormally short or long measurement interval - e.g. right after
+		a clock source outage/reconnect, or a burst of closely spaced
+		sync packets following packet loss - before they corrupt the
+		long-term drift_ppb average and get applied to the hardware.
+
+		This is intentionally much tighter than
+		CLOCK_ADJTIME_SLEWLIMIT_PPM, which bounds how fast a correction
+		may be applied rather than how large a real drift measurement
+		can plausibly be.
+
 config NETUTILS_PTPD_MAX_PATH_DELAY_NS
 	int "PTP client maximum path delay (ns)"
 	default 100000
