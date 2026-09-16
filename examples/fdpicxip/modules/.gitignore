@@ -1,5 +1,13 @@
-/*.fdpic
+/*.o
 /*.so
 /.nuttx-exports
 /manyneeded.c
 /need*.c
+/callback
+/cxxuser
+/funcdesc
+/lazymod
+/manyneeded
+/missingsym
+/qsorter
+/user
