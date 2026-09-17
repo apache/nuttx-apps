@@ -30,9 +30,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/timex.h>
+#include <sys/types.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -441,9 +442,31 @@ static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns,
   else
     {
       struct timex buf;
+      int64_t hw_ppb;
+      const int64_t slew_limit_ppb =
+        CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000;
+
+      /* delta_ns passed here is adjustment_ns, which already
+       * combines frequency drift and current phase error clamped
+       * to max_adjust_ns. Converting it to ppb over
+       * CONFIG_CLOCK_ADJTIME_PERIOD_MS produces the rate needed to
+       * pull the hardware counter into phase lock.
+       */
+
+      hw_ppb = delta_ns * MSEC_PER_SEC /
+               CONFIG_CLOCK_ADJTIME_PERIOD_MS;
+
+      if (hw_ppb > slew_limit_ppb)
+        {
+          hw_ppb = slew_limit_ppb;
+        }
+      else if (hw_ppb < -slew_limit_ppb)
+        {
+          hw_ppb = -slew_limit_ppb;
+        }
 
       memset(&buf, 0, sizeof(buf));
-      buf.freq = (long)(-ppb * 65536 / 1000);
+      buf.freq = hw_ppb * 65536 / 1000;
       buf.modes = ADJ_FREQUENCY;
 
       return clock_adjtime(state->clockid, &buf);
