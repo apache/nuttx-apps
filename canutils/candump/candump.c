@@ -79,9 +79,15 @@
 #endif
 
 /* from #include <linux/net_tstamp.h> - since Linux 2.6.30 */
+#ifndef SOF_TIMESTAMPING_SOFTWARE
 #define SOF_TIMESTAMPING_SOFTWARE (1<<4)
+#endif
+#ifndef SOF_TIMESTAMPING_RX_SOFTWARE
 #define SOF_TIMESTAMPING_RX_SOFTWARE (1<<3)
+#endif
+#ifndef SOF_TIMESTAMPING_RAW_HARDWARE
 #define SOF_TIMESTAMPING_RAW_HARDWARE (1<<6)
+#endif
 
 #define MAXSOCK 16    /* max. number of CAN interfaces given on the cmdline */
 #define MAXIFNAMES 30 /* size of receive name index to omit ioctls */
