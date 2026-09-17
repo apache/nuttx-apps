@@ -189,4 +189,14 @@ config NETUTILS_PTPD_DELAYREQ_AVGCOUNT
 	---help---
 		Measured path delay is averaged over this many samples.
 
+config NETUTILS_PTPD_STATUSFILE
+	string "PTP daemon status file path"
+	default "/tmp/ptpd.status"
+	---help---
+		Path where the PTP daemon writes its binary status file
+		when signaled with SIGUSR1. The ptpd_status() API reads
+		this file to retrieve daemon state without requiring shared
+		memory, making it work across all build modes (Flat,
+		Protected, Kernel). Written atomically via temp + rename.
+
 endif # NETUTILS_PTPD
