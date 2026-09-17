@@ -768,10 +768,10 @@ static void api_validation_test(FAR struct kwork_wqueue_s *wqueue)
   ASSERT(work_cancel_sync_wq(wqueue, NULL) == -EINVAL);
   ASSERT(work_queue_priority_wq(NULL) == -EINVAL);
 
-  /* Cancelling idle work is intentionally idempotent. */
+  /* Cancelling idle work reports -ENOENT. */
 
-  ASSERT(work_cancel_wq(wqueue, &work) == OK);
-  ASSERT(work_cancel_sync_wq(wqueue, &work) == OK);
+  ASSERT(work_cancel_wq(wqueue, &work) == -ENOENT);
+  ASSERT(work_cancel_sync_wq(wqueue, &work) == -ENOENT);
   ASSERT(work_available(&work));
   printf("wqueue_test: API validation done\n");
 }
@@ -843,7 +843,7 @@ static FAR void *tester(FAR void *arg)
           ret = work_queue_wq(val[1], &work, empty_worker, NULL, 0);
           ASSERT(ret == OK);
           ret = work_cancel_wq(val[1], &work);
-          ASSERT(ret == OK);
+          ASSERT(ret == OK || ret == -ENOENT);
         }
       else
         {
@@ -851,7 +851,7 @@ static FAR void *tester(FAR void *arg)
                            empty_worker, NULL, 0);
           ASSERT(ret == OK);
           ret = work_cancel((int)(uintptr_t)val[0], &work);
-          ASSERT(ret == OK);
+          ASSERT(ret == OK || ret == -ENOENT);
         }
 
       usleep((int)(uintptr_t)val[2]);
