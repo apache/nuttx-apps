@@ -578,21 +578,10 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
           goto errout;
         }
 
-      /* Subscribe to PTP multicast address */
+      /* Bind socket for events to PTP multicast address */
 
       bind_addr.sin_family = AF_INET;
       bind_addr.sin_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
-
-      ret = ipmsfilter(&state->interface_addr.sin_addr,
-                       &bind_addr.sin_addr, MCAST_INCLUDE);
-      if (ret < 0)
-        {
-          ptperr("Failed to bind multicast address: %d\n", errno);
-          goto errout;
-        }
-
-      /* Bind socket for events */
-
       bind_addr.sin_port = HTONS(PTP_UDP_PORT_EVENT);
       ret = bind(state->event_socket, (FAR struct sockaddr *)&bind_addr,
                  sizeof(bind_addr));
@@ -654,6 +643,25 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
     }
 
   state->interface_addr = *(FAR struct sockaddr_in *)&req.ifr_ifru.ifru_addr;
+
+  /* Subscribe to PTP multicast address (AF_INET only).
+   * Must be done after interface_addr is populated so the IGMP join
+   * can locate the correct network device.
+   */
+
+  if (state->config->af == AF_INET)
+    {
+      struct in_addr mcast_addr;
+
+      mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
+      ret = ipmsfilter(&state->interface_addr.sin_addr,
+                       &mcast_addr, MCAST_INCLUDE);
+      if (ret < 0)
+        {
+          ptperr("Failed to join multicast group: %d\n", errno);
+          goto errout;
+        }
+    }
 
   /* Get hardware address to initialize the identity field in header.
    * Clock identity is EUI-64, which we make from EUI-48.
