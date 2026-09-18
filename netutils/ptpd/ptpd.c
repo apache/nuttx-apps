@@ -42,6 +42,9 @@
 #include <sched.h>
 #include <assert.h>
 #include <errno.h>
+#ifdef CONFIG_BUILD_FLAT
+#include <semaphore.h>
+#endif
 #include <nuttx/debug.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -67,6 +70,16 @@
  * Private Types
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_FLAT
+/* Carrier structure for querying PTPD status in flat build mode */
+
+struct ptpd_statusreq_s
+{
+  FAR sem_t *done;
+  FAR struct ptpd_status_s *dest;
+};
+#endif
+
 /* Main PTPD state storage */
 
 struct ptp_state_s
@@ -75,6 +88,9 @@ struct ptp_state_s
 
   bool stop;
   bool dump;                     /* Set by SIGUSR1, checked in main loop */
+#ifdef CONFIG_BUILD_FLAT
+  struct ptpd_statusreq_s status_req;
+#endif
 
   /* Address of network interface we are operating on */
 
@@ -1966,6 +1982,14 @@ static void ptp_signal_handler(int signo, FAR siginfo_t *siginfo,
     {
       state->stop = true;
     }
+#ifdef CONFIG_BUILD_FLAT
+  else if (signo == SIGUSR1 && siginfo != NULL &&
+           siginfo->si_value.sival_ptr != NULL)
+    {
+      state->status_req =
+        *(FAR struct ptpd_statusreq_s *)siginfo->si_value.sival_ptr;
+    }
+#endif
   else if (signo == SIGUSR1)
     {
       state->dump = true;
@@ -1985,6 +2009,80 @@ static void ptp_setup_sighandlers(FAR struct ptp_state_s *state)
   sigaction(SIGUSR1, &act, NULL);
 }
 
+/* Populate status information structure from current state */
+
+static void ptp_populate_status(FAR struct ptp_state_s *state,
+                                FAR struct ptpd_status_s *status)
+{
+  memset(status, 0, sizeof(*status));
+  status->clock_source_valid = state->selected_source_valid;
+
+  if (status->clock_source_valid)
+    {
+      FAR struct ptp_announce_s *s = &state->selected_source;
+
+      memcpy(status->clock_source_info.id,
+             s->header.sourceidentity,
+             sizeof(status->clock_source_info.id));
+
+      status->clock_source_info.utcoffset =
+          (int16_t)(((uint16_t)s->utcoffset[0] << 8) | s->utcoffset[1]);
+      status->clock_source_info.priority1 = s->gm_priority1;
+      status->clock_source_info.clockclass = s->gm_quality[0];
+      status->clock_source_info.accuracy = s->gm_quality[1];
+      status->clock_source_info.priority2 = s->gm_priority2;
+      status->clock_source_info.variance =
+          ((uint16_t)s->gm_quality[2] << 8) | s->gm_quality[3];
+
+      memcpy(status->clock_source_info.gm_id,
+             s->gm_identity,
+             sizeof(status->clock_source_info.gm_id));
+
+      status->clock_source_info.stepsremoved =
+          ((uint16_t)s->stepsremoved[0] << 8) | s->stepsremoved[1];
+      status->clock_source_info.timesource = s->timesource;
+    }
+
+  status->last_clock_update = state->last_delta_timestamp;
+  status->last_delta_ns     = state->last_delta_ns;
+  status->last_adjtime_ns   = state->last_adjtime_ns;
+  status->drift_ppb         = state->drift_ppb;
+  status->path_delay_ns     = state->path_delay_ns;
+
+  status->last_received_multicast    = state->last_received_multicast;
+  status->last_received_announce     = state->last_received_announce;
+  status->last_received_sync         = state->last_received_sync;
+  status->last_transmitted_sync      = state->last_transmitted_sync;
+  status->last_transmitted_announce  = state->last_transmitted_announce;
+  status->last_transmitted_delayresp = state->last_transmitted_delayresp;
+  status->last_transmitted_delayreq  = state->last_transmitted_delayreq;
+  status->last_transmitted_pdelayreq = state->last_transmitted_pdelayreq;
+}
+
+#ifdef CONFIG_BUILD_FLAT
+/* Process status information request in flat build mode */
+
+static void ptp_process_statusreq(FAR struct ptp_state_s *state)
+{
+  if (!state->status_req.dest)
+    {
+      return; /* No active request */
+    }
+
+  ptp_populate_status(state, state->status_req.dest);
+
+  /* Post semaphore to inform that we are done */
+
+  if (state->status_req.done)
+    {
+      sem_post(state->status_req.done);
+    }
+
+  state->status_req.done = NULL;
+  state->status_req.dest = NULL;
+}
+#endif
+
 /* Dump status to file when requested via signal.
  * Write atomically: temp file + rename.
  */
@@ -2003,50 +2101,7 @@ static void ptp_dump_status_file(FAR struct ptp_state_s *state)
 
   state->dump = false;
 
-  memset(&status, 0, sizeof(status));
-  status.clock_source_valid = state->selected_source_valid;
-
-  if (status.clock_source_valid)
-    {
-      FAR struct ptp_announce_s *s = &state->selected_source;
-
-      memcpy(status.clock_source_info.id,
-             s->header.sourceidentity,
-             sizeof(status.clock_source_info.id));
-
-      status.clock_source_info.utcoffset =
-          (int16_t)(((uint16_t)s->utcoffset[0] << 8) | s->utcoffset[1]);
-      status.clock_source_info.priority1 = s->gm_priority1;
-      status.clock_source_info.clockclass = s->gm_quality[0];
-      status.clock_source_info.accuracy = s->gm_quality[1];
-      status.clock_source_info.priority2 = s->gm_priority2;
-      status.clock_source_info.variance =
-          ((uint16_t)s->gm_quality[2] << 8) | s->gm_quality[3];
-
-      memcpy(status.clock_source_info.gm_id,
-             s->gm_identity,
-             sizeof(status.clock_source_info.gm_id));
-
-      status.clock_source_info.stepsremoved =
-          ((uint16_t)s->stepsremoved[0] << 8) | s->stepsremoved[1];
-      status.clock_source_info.timesource = s->timesource;
-    }
-
-  status.last_clock_update = state->last_delta_timestamp;
-  status.last_delta_ns     = state->last_delta_ns;
-  status.last_adjtime_ns   = state->last_adjtime_ns;
-  status.drift_ppb         = state->drift_ppb;
-  status.path_delay_ns     = state->path_delay_ns;
-
-  status.last_received_multicast    = state->last_received_multicast;
-  status.last_received_announce     = state->last_received_announce;
-  status.last_received_sync         = state->last_received_sync;
-  status.last_transmitted_sync      = state->last_transmitted_sync;
-  status.last_transmitted_announce  = state->last_transmitted_announce;
-  status.last_transmitted_delayresp = state->last_transmitted_delayresp;
-  status.last_transmitted_delayreq  = state->last_transmitted_delayreq;
-
-  status.last_transmitted_pdelayreq = state->last_transmitted_pdelayreq;
+  ptp_populate_status(state, &status);
 
   snprintf(tmppath, sizeof(tmppath), "%s.tmp",
            CONFIG_NETUTILS_PTPD_STATUSFILE);
@@ -2191,6 +2246,9 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
       ptp_periodic_send(state);
 
       state->selected_source_valid = is_selected_source_valid(state);
+#ifdef CONFIG_BUILD_FLAT
+      ptp_process_statusreq(state);
+#endif
       ptp_dump_status_file(state);
     }
 
@@ -2224,6 +2282,38 @@ errout:
 
 int ptpd_status(int pid, FAR struct ptpd_status_s *status)
 {
+#ifdef CONFIG_BUILD_FLAT
+  int ret = OK;
+  sem_t donesem;
+  struct ptpd_statusreq_s req;
+  union sigval val;
+  struct timespec timeout;
+
+  /* Fill in the status request */
+
+  memset(status, 0, sizeof(struct ptpd_status_s));
+  sem_init(&donesem, 0, 0);
+  req.done = &donesem;
+  req.dest = status;
+  val.sival_ptr = &req;
+
+  if (sigqueue(pid, SIGUSR1, val) != OK)
+    {
+      return -errno;
+    }
+
+  /* Wait for status request to be handled */
+
+  clock_gettime(CLOCK_MONOTONIC, &timeout);
+  timeout.tv_sec += 1;
+  if (sem_clockwait(&donesem, CLOCK_MONOTONIC, &timeout) != 0)
+    {
+      ret = -errno;
+    }
+
+  sem_destroy(&donesem);
+  return ret;
+#else
   int fd;
   int ret;
   int elapsed;
@@ -2270,6 +2360,7 @@ int ptpd_status(int pid, FAR struct ptpd_status_s *status)
     }
 
   return OK;
+#endif
 }
 
 /****************************************************************************
