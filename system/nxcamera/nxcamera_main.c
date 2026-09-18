@@ -94,7 +94,7 @@ static int nxcamera_cmd_help(FAR struct nxcamera_s *pcam, FAR char *parg);
 struct nxcamera_ctrl_name_s
 {
   FAR const char *name;
-  uint16_t        id;
+  uint32_t        id;
 };
 
 static const struct nxcamera_ctrl_name_s g_ctrl_names[] =
@@ -396,7 +396,7 @@ static int nxcamera_cmd_output(FAR struct nxcamera_s *pcam, FAR char *parg)
  *
  ****************************************************************************/
 
-static int nxcamera_find_ctrl_id(FAR const char *name, FAR uint16_t *id)
+static int nxcamera_find_ctrl_id(FAR const char *name, FAR uint32_t *id)
 {
   int i;
 
@@ -424,6 +424,7 @@ static int nxcamera_cmd_set(FAR struct nxcamera_s *pcam, FAR char *parg)
 {
   struct v4l2_control ctrl;
   char                name[32];
+  uint32_t            id;
   int                 ret;
 
   if (!parg || sscanf(parg, "%31s %" SCNd32, name, &ctrl.value) < 2)
@@ -432,13 +433,14 @@ static int nxcamera_cmd_set(FAR struct nxcamera_s *pcam, FAR char *parg)
       return -EINVAL;
     }
 
-  ret = nxcamera_find_ctrl_id(name, &ctrl.id);
+  ret = nxcamera_find_ctrl_id(name, &id);
   if (ret < 0)
     {
       printf("Unknown control: %s\n", name);
       return ret;
     }
 
+  ctrl.id = id;
   ret = nxcamera_ioctl(pcam, VIDIOC_S_CTRL, (unsigned long)&ctrl);
   if (ret < 0)
     {
@@ -460,6 +462,7 @@ static int nxcamera_cmd_get(FAR struct nxcamera_s *pcam, FAR char *parg)
 {
   struct v4l2_control ctrl;
   char                name[32];
+  uint32_t            id;
   int                 ret;
 
   if (!parg || sscanf(parg, "%31s", name) < 1)
@@ -468,13 +471,14 @@ static int nxcamera_cmd_get(FAR struct nxcamera_s *pcam, FAR char *parg)
       return -EINVAL;
     }
 
-  ret = nxcamera_find_ctrl_id(name, &ctrl.id);
+  ret = nxcamera_find_ctrl_id(name, &id);
   if (ret < 0)
     {
       printf("Unknown control: %s\n", name);
       return ret;
     }
 
+  ctrl.id = id;
   ret = nxcamera_ioctl(pcam, VIDIOC_G_CTRL, (unsigned long)&ctrl);
   if (ret < 0)
     {
@@ -500,6 +504,7 @@ static int nxcamera_cmd_query(FAR struct nxcamera_s *pcam, FAR char *parg)
 {
   struct v4l2_queryctrl qctrl;
   char                  name[32];
+  uint32_t              id;
   int                   ret;
 
   if (!parg || sscanf(parg, "%31s", name) < 1)
@@ -508,13 +513,14 @@ static int nxcamera_cmd_query(FAR struct nxcamera_s *pcam, FAR char *parg)
       return -EINVAL;
     }
 
-  ret = nxcamera_find_ctrl_id(name, &qctrl.id);
+  ret = nxcamera_find_ctrl_id(name, &id);
   if (ret < 0)
     {
       printf("Unknown control: %s\n", name);
       return ret;
     }
 
+  qctrl.id = id;
   ret = nxcamera_ioctl(pcam, VIDIOC_QUERYCTRL, (unsigned long)&qctrl);
   if (ret < 0)
     {
