@@ -16,6 +16,7 @@ config UORB_PRIORITY
 
 config UORB_STACKSIZE
 	int "stack size"
+	default 4096 if LIBC_PRINT_EXTENSION
 	default DEFAULT_TASK_STACKSIZE
 
 config UORB_FORMAT
