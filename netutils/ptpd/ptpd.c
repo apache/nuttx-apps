@@ -314,6 +314,22 @@ static int64_t timespec_to_ms(FAR const struct timespec *ts)
   return ts->tv_sec * MSEC_PER_SEC + (ts->tv_nsec / NSEC_PER_MSEC);
 }
 
+/* Add a positive or negative number of nanoseconds to a timespec value. */
+
+static void timespec_add_ns(FAR struct timespec *ts, int64_t ns)
+{
+  int64_t total = ts->tv_sec * NSEC_PER_SEC + ts->tv_nsec + ns;
+
+  ts->tv_sec  = total / NSEC_PER_SEC;
+  ts->tv_nsec = total % NSEC_PER_SEC;
+
+  if (ts->tv_nsec < 0)
+    {
+      ts->tv_sec--;
+      ts->tv_nsec += NSEC_PER_SEC;
+    }
+}
+
 /* Get positive or negative delta between two timespec values.
  * If value would exceed int64 limit (292 years), return INT64_MAX/MIN.
  */
@@ -500,6 +516,11 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
 
           if (ts->tv_sec > 0 || ts->tv_nsec > 0)
             {
+              /* The MAC latches the timestamp later than the frame
+               * reaches the wire: compensate the ingress latency.
+               */
+
+              timespec_add_ns(ts, -state->config->ingress_latency_ns);
               return OK;
             }
         }

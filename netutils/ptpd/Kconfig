@@ -219,4 +219,24 @@ config NETUTILS_PTPD_STATUSFILE
 		memory, making it work across all build modes (Flat,
 		Protected, Kernel). Written atomically via temp + rename.
 
+config NETUTILS_PTPD_INGRESS_LATENCY_NS
+	int "PTP hardware receive timestamp latency (ns)"
+	default 0
+	range -1000000 1000000
+	---help---
+		Fixed delay, in nanoseconds, between a frame reaching the wire
+		reference plane and the moment the MAC latches its hardware
+		receive timestamp. This is the ingressLatency port parameter of
+		IEEE 1588: the PHY and the MAC clock-domain crossing make the
+		timestamp point lag the true arrival of the frame.
+
+		The latency is subtracted from every hardware receive timestamp,
+		so a positive value moves the timestamps earlier. It has no
+		effect with software timestamping. It can be overridden at
+		run time with the -I option.
+
+		The value depends on the PHY and board and has to be measured,
+		for example by comparing a physical PPS output against a
+		reference. The default of 0 applies no compensation.
+
 endif # NETUTILS_PTPD
