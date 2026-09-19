@@ -67,6 +67,22 @@
 #include "ptpv2.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+/* Outlier rejection of the measured phase error: number of recent samples
+ * the median is taken over, the least number of samples needed before
+ * anything is rejected, and how many samples in a row can be rejected
+ * before they are taken as a real change of the phase.
+ */
+
+#  define PTP_OUTLIER_HISTORY         5
+#  define PTP_OUTLIER_MIN_HISTORY     3
+#  define PTP_OUTLIER_MAX_CONSECUTIVE 8
+#endif
+
+/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -128,6 +144,12 @@ struct ptp_state_s
   long drift_avg_total_ms;
   long drift_ppb;
   bool has_last_delta;
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+  int64_t delta_hist[PTP_OUTLIER_HISTORY];
+  unsigned int delta_hist_count;
+  unsigned int delta_hist_next;
+  unsigned int outlier_count;
+#endif
 
   /* Identity of currently selected clock source,
    * from the latest announcement message.
@@ -1222,6 +1244,69 @@ static int ptp_process_announce(FAR struct ptp_state_s *state,
   return OK;
 }
 
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+/* Tell whether a phase error measurement is an outlier, i.e. it differs from
+ * the median of the latest accepted ones by more than the threshold. A
+ * measurement that is disturbed on its own (a late receive timestamp, for
+ * example) would otherwise move the frequency and phase corrections.
+ *
+ * A change that lasts is not an outlier: after a few rejections in a row
+ * the measurement is accepted and the history starts over.
+ */
+
+static bool ptp_is_outlier(FAR struct ptp_state_s *state, int64_t delta_ns)
+{
+  int64_t sorted[PTP_OUTLIER_HISTORY];
+  int64_t deviation;
+  unsigned int count = state->delta_hist_count;
+  unsigned int i;
+  unsigned int j;
+
+  if (count >= PTP_OUTLIER_MIN_HISTORY)
+    {
+      for (i = 0; i < count; i++)
+        {
+          int64_t value = state->delta_hist[i];
+
+          for (j = i; j > 0 && sorted[j - 1] > value; j--)
+            {
+              sorted[j] = sorted[j - 1];
+            }
+
+          sorted[j] = value;
+        }
+
+      deviation = delta_ns - sorted[count / 2];
+      if (deviation < 0)
+        {
+          deviation = -deviation;
+        }
+
+      if (deviation > CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS)
+        {
+          if (++state->outlier_count < PTP_OUTLIER_MAX_CONSECUTIVE)
+            {
+              return true;
+            }
+
+          state->delta_hist_count = 0;
+          state->delta_hist_next  = 0;
+        }
+    }
+
+  state->outlier_count = 0;
+  state->delta_hist[state->delta_hist_next] = delta_ns;
+  state->delta_hist_next = (state->delta_hist_next + 1) %
+                           PTP_OUTLIER_HISTORY;
+  if (state->delta_hist_count < PTP_OUTLIER_HISTORY)
+    {
+      state->delta_hist_count++;
+    }
+
+  return false;
+}
+#endif
+
 /* Update local clock either by smooth adjustment or by jumping.
  * Remote time was remote_timestamp at local_timestamp.
  */
@@ -1267,6 +1352,11 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       state->drift_avg_total_ms = 0;
       state->drift_ppb = 0;
       state->has_last_delta = false;
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+      state->delta_hist_count = 0;
+      state->delta_hist_next  = 0;
+      state->outlier_count    = 0;
+#endif
 
       if (ret == OK)
         {
@@ -1292,6 +1382,15 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       const int64_t max_adjust_ns =
         (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM *
         CONFIG_CLOCK_ADJTIME_PERIOD_MS;
+
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+      if (ptp_is_outlier(state, delta_ns))
+        {
+          ptpwarn("Discarding outlier sample: delta %" PRId64 " ns\n",
+                  delta_ns);
+          return OK;
+        }
+#endif
 
       if (!state->has_last_delta)
         {

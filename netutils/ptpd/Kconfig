@@ -209,6 +209,26 @@ config NETUTILS_PTPD_DELAYREQ_AVGCOUNT
 	---help---
 		Measured path delay is averaged over this many samples.
 
+config NETUTILS_PTPD_OUTLIER_THRESHOLD_NS
+	int "PTP outlier rejection threshold (ns)"
+	default 0
+	range 0 1000000000
+	---help---
+		A phase error measurement that differs from the median of the
+		latest accepted ones by more than this many nanoseconds is
+		discarded instead of being used to correct the clock. It protects
+		the frequency estimate and the phase correction from a single
+		disturbed sample, for example a receive timestamp taken late by
+		the scheduler with software timestamping.
+
+		A change that lasts is accepted after several discarded samples in
+		a row, so the daemon still follows a real step of the master, and
+		a short burst of disturbed samples is still ridden out.
+
+		Choose a value well above the normal spread of the measurement:
+		a few microseconds are typical with hardware timestamping and
+		hundreds with software timestamping. 0 disables the rejection.
+
 config NETUTILS_PTPD_STATUSFILE
 	string "PTP daemon status file path"
 	default "/tmp/ptpd.status"
