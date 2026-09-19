@@ -259,4 +259,25 @@ config NETUTILS_PTPD_INGRESS_LATENCY_NS
 		for example by comparing a physical PPS output against a
 		reference. The default of 0 applies no compensation.
 
+config NETUTILS_PTPD_EGRESS_LATENCY_NS
+	int "PTP hardware transmit timestamp latency (ns)"
+	default 0
+	range -1000000 1000000
+	depends on NET_TIMESTAMP
+	---help---
+		Fixed delay, in nanoseconds, between the MAC latching a hardware
+		transmit timestamp and the frame reaching the wire reference
+		plane. This is the egressLatency port parameter of IEEE 1588: the
+		clock domain crossing and the PHY make the frame leave later than
+		the timestamp point.
+
+		The latency is added to every hardware transmit timestamp, so a
+		positive value moves the timestamps later. It has no effect with
+		software timestamping or when the driver does not provide
+		hardware transmit timestamps. It can be overridden at run time
+		with the -O option.
+
+		The value depends on the PHY and board and has to be measured.
+		The default of 0 applies no compensation.
+
 endif # NETUTILS_PTPD

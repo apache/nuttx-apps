@@ -1128,6 +1128,12 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
           if (ptp_get_tx_timestamp(state, sendts) == OK)
             {
               state->hwts_tx_failures = 0;
+
+              /* The frame reaches the wire later than the MAC latches the
+               * timestamp: compensate the egress latency.
+               */
+
+              timespec_add_ns(sendts, state->config->egress_latency_ns);
             }
           else
             {
