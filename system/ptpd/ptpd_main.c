@@ -165,6 +165,7 @@ static void usage(FAR const char *progname)
                   " -i [dev] interface device to use, for example 'eth0'\n"
                   " -p [dev] clock device to use\n"
                   " -I [ns]  hardware RX timestamp latency to compensate\n"
+                  " -O [ns]  hardware TX timestamp latency to compensate\n"
                   " -t [pid] look the status of ptp daemon\n"
                   " -d [pid] stop ptp daemon\n",
                   progname);
@@ -197,8 +198,13 @@ int main(int argc, FAR char *argv[])
   config.bmca = false;
   config.af = AF_INET;
   config.ingress_latency_ns = CONFIG_NETUTILS_PTPD_INGRESS_LATENCY_NS;
+#ifdef CONFIG_NET_TIMESTAMP
+  config.egress_latency_ns = CONFIG_NETUTILS_PTPD_EGRESS_LATENCY_NS;
+#else
+  config.egress_latency_ns = 0;
+#endif
 
-  while ((option = getopt(argc, argv, "p:i:t:d:I:rs246BEHSP")) != ERROR)
+  while ((option = getopt(argc, argv, "p:i:t:d:I:O:rs246BEHSP")) != ERROR)
     {
       switch (option)
         {
@@ -255,6 +261,9 @@ int main(int argc, FAR char *argv[])
             break;
           case 'I':
             config.ingress_latency_ns = atoi(optarg);
+            break;
+          case 'O':
+            config.egress_latency_ns = atoi(optarg);
             break;
           case 'r':
             config.clock = "realtime";

@@ -54,6 +54,7 @@ struct ptpd_config_s
   bool bmca;
   sa_family_t af;
   int32_t ingress_latency_ns; /* Hardware RX timestamp latency (ns) */
+  int32_t egress_latency_ns;  /* Hardware TX timestamp latency (ns) */
 };
 
 /* PTPD status information structure */
