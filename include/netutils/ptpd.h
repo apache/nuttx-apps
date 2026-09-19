@@ -53,6 +53,7 @@ struct ptpd_config_s
   enum ptp_delay_mechanism_e delay_mechanism;
   bool bmca;
   sa_family_t af;
+  int32_t ingress_latency_ns; /* Hardware RX timestamp latency (ns) */
 };
 
 /* PTPD status information structure */

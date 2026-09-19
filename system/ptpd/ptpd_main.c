@@ -164,6 +164,7 @@ static void usage(FAR const char *progname)
                   " -P       P2P, support peer delay request-response\n"
                   " -i [dev] interface device to use, for example 'eth0'\n"
                   " -p [dev] clock device to use\n"
+                  " -I [ns]  hardware RX timestamp latency to compensate\n"
                   " -t [pid] look the status of ptp daemon\n"
                   " -d [pid] stop ptp daemon\n",
                   progname);
@@ -195,8 +196,9 @@ int main(int argc, FAR char *argv[])
 #endif
   config.bmca = false;
   config.af = AF_INET;
+  config.ingress_latency_ns = CONFIG_NETUTILS_PTPD_INGRESS_LATENCY_NS;
 
-  while ((option = getopt(argc, argv, "p:i:t:d:rs246BEHSP")) != ERROR)
+  while ((option = getopt(argc, argv, "p:i:t:d:I:rs246BEHSP")) != ERROR)
     {
       switch (option)
         {
@@ -250,6 +252,9 @@ int main(int argc, FAR char *argv[])
             break;
           case 'p':
             config.clock = optarg;
+            break;
+          case 'I':
+            config.ingress_latency_ns = atoi(optarg);
             break;
           case 'r':
             config.clock = "realtime";
