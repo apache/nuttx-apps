@@ -69,6 +69,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Number of consecutive missing hardware TX timestamps after which the
+ * driver is assumed not to provide them and software timestamps are used.
+ */
+
+#define PTP_HWTS_TX_MAX_FAILURES 3
+
 #if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
 /* Outlier rejection of the measured phase error: number of recent samples
  * the median is taken over, the least number of samples needed before
@@ -115,6 +121,13 @@ struct ptp_state_s
   /* Socket bound to interface for transmission */
 
   int tx_socket;
+
+  /* Hardware TX timestamp retrieval: consecutive failures, and whether it
+   * was given up on because the driver does not provide the timestamps.
+   */
+
+  unsigned int hwts_tx_failures;
+  bool hwts_tx_disabled;
 
   /* Sockets for PTP event and information ports */
 
@@ -658,9 +671,6 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
           goto errout;
         }
 
-      state->event_socket = dup(state->tx_socket);
-      state->info_socket = -1;
-
       addr.sll_family = AF_PACKET;
       addr.sll_ifindex = if_nametoindex(state->config->interface);
       addr.sll_protocol = htons(ETHERTYPE_PTP);
@@ -671,6 +681,15 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
           ptperr("ERROR: binding socket failed: %d\n", errno);
           goto errout;
         }
+
+      state->event_socket = dup(state->tx_socket);
+      if (state->event_socket < 0)
+        {
+          ptperr("Failed to dup event socket: %d\n", errno);
+          goto errout;
+        }
+
+      state->info_socket = -1;
     }
   else if (state->config->af == AF_INET)
     {
@@ -899,11 +918,103 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
   return OK;
 }
 
+#ifdef CONFIG_NET_TIMESTAMP
+/****************************************************************************
+ * Name: ptp_get_tx_timestamp
+ *
+ * Description:
+ *   Retrieve the hardware TX timestamp delivered via MSG_ERRQUEUE on the
+ *   socket after transmission.
+ *
+ * Input Parameters:
+ *   state - Pointer to PTP daemon state
+ *   tx_ts - Location to return the hardware timestamp
+ *
+ * Returned Value:
+ *   OK on success; ERROR on failure or timeout.
+ *
+ ****************************************************************************/
+
+static int ptp_get_tx_timestamp(FAR struct ptp_state_s *state,
+                                FAR struct timespec *tx_ts)
+{
+  struct pollfd pfd;
+  int ret;
+
+  pfd.fd = state->tx_socket;
+  pfd.events = POLLPRI;
+  pfd.revents = 0;
+
+  ret = poll(&pfd, 1, 500);
+  if (ret > 0 && (pfd.revents & (POLLPRI | POLLERR)) != 0)
+    {
+      char errbuf[128];
+      char cmsgbuf[128];
+      struct msghdr msg;
+      struct iovec iov;
+      FAR struct cmsghdr *cmsg;
+      ssize_t n;
+
+      memset(&msg, 0, sizeof(msg));
+      iov.iov_base = errbuf;
+      iov.iov_len = sizeof(errbuf);
+      msg.msg_iov = &iov;
+      msg.msg_iovlen = 1;
+      msg.msg_control = cmsgbuf;
+      msg.msg_controllen = sizeof(cmsgbuf);
+
+      n = recvmsg(state->tx_socket, &msg, MSG_ERRQUEUE);
+      if (n >= 0)
+        {
+          for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL;
+               cmsg = CMSG_NXTHDR(&msg, cmsg))
+            {
+              if (cmsg->cmsg_level == SOL_SOCKET &&
+                  cmsg->cmsg_type == SO_TIMESTAMPING)
+                {
+                  FAR struct timespec *ts =
+                    (FAR struct timespec *)CMSG_DATA(cmsg);
+
+                  *tx_ts = ts[2];
+                  return OK;
+                }
+            }
+
+          ptpwarn("PTP TX HWTS: recvmsg %zd B without SO_TIMESTAMPING\n",
+                  n);
+        }
+      else
+        {
+          ptpwarn("PTP TX HWTS: recvmsg MSG_ERRQUEUE failed errno=%d\n",
+                  errno);
+        }
+    }
+  else
+    {
+      ptpwarn("PTP TX HWTS: poll ret=%d revents=0x%04x errno=%d\n",
+              ret, pfd.revents, errno);
+    }
+
+  return ERROR;
+}
+#endif
+
 static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
                        size_t buflen, FAR const void *addr,
                        socklen_t addrlen, FAR struct timespec *sendts)
 {
   int ret;
+  struct timespec sw_ts;
+#ifdef CONFIG_NET_TIMESTAMP
+  bool do_hwts = (sendts != NULL && state->config->hardware_ts &&
+                  !state->hwts_tx_disabled &&
+                  state->config->af == AF_PACKET);
+#endif
+
+  if (sendts != NULL)
+    {
+      ptp_gettime(state, &sw_ts);
+    }
 
   if (state->config->af == AF_PACKET)
     {
@@ -957,9 +1068,48 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
       msg.msg_control = NULL;
       msg.msg_controllen = 0;
 
+#ifdef CONFIG_NET_TIMESTAMP
+      if (do_hwts)
+        {
+          char drainbuf[128];
+          char draincmsg[128];
+          struct msghdr drainmsg;
+          struct iovec drainiov;
+          int val;
+
+          memset(&drainmsg, 0, sizeof(drainmsg));
+          drainiov.iov_base = drainbuf;
+          drainiov.iov_len = sizeof(drainbuf);
+          drainmsg.msg_iov = &drainiov;
+          drainmsg.msg_iovlen = 1;
+          drainmsg.msg_control = draincmsg;
+          drainmsg.msg_controllen = sizeof(draincmsg);
+
+          while (recvmsg(state->tx_socket, &drainmsg,
+                         MSG_ERRQUEUE | MSG_DONTWAIT) > 0)
+            {
+            }
+
+          val = SOF_TIMESTAMPING_TX_HARDWARE |
+                SOF_TIMESTAMPING_RAW_HARDWARE;
+          setsockopt(state->tx_socket, SOL_SOCKET, SO_TIMESTAMPING,
+                     &val, sizeof(val));
+        }
+#endif
+
       ret = sendmsg(state->tx_socket, &msg, 0);
       if (ret < 0)
         {
+#ifdef CONFIG_NET_TIMESTAMP
+          if (do_hwts)
+            {
+              int val = 0;
+
+              setsockopt(state->tx_socket, SOL_SOCKET, SO_TIMESTAMPING,
+                         &val, sizeof(val));
+            }
+
+#endif
           return ERROR;
         }
     }
@@ -970,7 +1120,38 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
 
   if (sendts != NULL)
     {
-      ptp_gettime(state, sendts);
+#ifdef CONFIG_NET_TIMESTAMP
+      if (do_hwts)
+        {
+          int val = 0;
+
+          if (ptp_get_tx_timestamp(state, sendts) == OK)
+            {
+              state->hwts_tx_failures = 0;
+            }
+          else
+            {
+              ptpwarn("PTP TX HWTS timeout, fallback to SW ts: "
+                      "%jd.%09ld s\n",
+                      (intmax_t)sw_ts.tv_sec, sw_ts.tv_nsec);
+              *sendts = sw_ts;
+
+              if (++state->hwts_tx_failures >= PTP_HWTS_TX_MAX_FAILURES)
+                {
+                  state->hwts_tx_disabled = true;
+                  ptpwarn("Hardware TX timestamps unavailable, "
+                          "using software timestamps\n");
+                }
+            }
+
+          setsockopt(state->tx_socket, SOL_SOCKET, SO_TIMESTAMPING,
+                     &val, sizeof(val));
+        }
+      else
+#endif
+        {
+          *sendts = sw_ts;
+        }
     }
 
   return ret;
@@ -1702,8 +1883,13 @@ static void ptp_record_path_delay(FAR struct ptp_state_s *state,
       max_path_delay = 10 * NSEC_PER_MSEC;
     }
 
-  if (path_delay >= 0 && path_delay < max_path_delay)
+  if (path_delay >= -100000 && path_delay < max_path_delay)
     {
+      if (path_delay < 0)
+        {
+          path_delay = 0;
+        }
+
       if (state->path_delay_avgcount <
           CONFIG_NETUTILS_PTPD_DELAYREQ_AVGCOUNT)
         {
@@ -2326,15 +2512,47 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
 
       if (pollfds[0].revents)
         {
-          /* Receive time-critical packet, potentially with cmsg
-           * indicating the timestamp.
+#ifdef CONFIG_NET_TIMESTAMP
+          if ((pollfds[0].revents & POLLERR) != 0)
+            {
+              char errbuf[128];
+              char cmsgbuf[128];
+              struct msghdr errhdr;
+              struct iovec erriov;
+
+              memset(&errhdr, 0, sizeof(errhdr));
+              erriov.iov_base = errbuf;
+              erriov.iov_len = sizeof(errbuf);
+              errhdr.msg_iov = &erriov;
+              errhdr.msg_iovlen = 1;
+              errhdr.msg_control = cmsgbuf;
+              errhdr.msg_controllen = sizeof(cmsgbuf);
+
+              while (recvmsg(state->event_socket, &errhdr,
+                             MSG_ERRQUEUE | MSG_DONTWAIT) > 0)
+                {
+                }
+            }
+#endif
+
+          /* Receive time-critical packet if POLLIN or POLLRDNORM
+           * is signaled.
            */
 
-          ret = recvmsg(state->event_socket, &rxhdr, MSG_DONTWAIT);
-          if (ret > 0)
+          if ((pollfds[0].revents & (POLLIN | POLLRDNORM)) != 0)
             {
-              ptp_getrxtime(state, &rxhdr, &state->rxtime);
-              ptp_process_rx_packet(state, ret);
+              while ((ret = recvmsg(state->event_socket, &rxhdr,
+                                    MSG_DONTWAIT)) > 0)
+                {
+                  ptp_getrxtime(state, &rxhdr, &state->rxtime);
+                  ptp_process_rx_packet(state, ret);
+
+                  rxhdr.msg_namelen    = 0;
+                  rxhdr.msg_iovlen     = 1;
+                  rxhdr.msg_controllen = sizeof(state->rxcmsg);
+                  rxhdr.msg_flags      = 0;
+                  rxiov.iov_len        = sizeof(state->rxbuf);
+                }
             }
         }
 
