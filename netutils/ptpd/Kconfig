@@ -175,6 +175,26 @@ config NETUTILS_PTPD_DRIFT_AVERAGE_S
 		gives more stable estimate but reacts slower to crystal oscillator speed
 		changes (such as caused by temperature changes).
 
+config NETUTILS_PTPD_MAX_DRIFT_PPB
+	int "PTP client maximum plausible clock drift rate (ppb)"
+	default 500000
+	range 1000 20000000
+	---help---
+		A single drift-rate sample computed between two consecutive sync
+		updates is discarded (the previous averaged drift_ppb is kept
+		unchanged) if its magnitude exceeds this bound. Real crystal
+		oscillators drift by at most a few hundred ppm (hundreds of
+		thousands of ppb), so this catches bogus samples caused by an
+		abnormally short or long measurement interval - e.g. right after
+		a clock source outage/reconnect, or a burst of closely spaced
+		sync packets following packet loss - before they corrupt the
+		long-term drift_ppb average and get applied to the hardware.
+
+		This is intentionally much tighter than
+		CLOCK_ADJTIME_SLEWLIMIT_PPM, which bounds how fast a correction
+		may be applied rather than how large a real drift measurement
+		can plausibly be.
+
 config NETUTILS_PTPD_MAX_PATH_DELAY_NS
 	int "PTP client maximum path delay (ns)"
 	default 100000
@@ -189,6 +209,26 @@ config NETUTILS_PTPD_DELAYREQ_AVGCOUNT
 	---help---
 		Measured path delay is averaged over this many samples.
 
+config NETUTILS_PTPD_OUTLIER_THRESHOLD_NS
+	int "PTP outlier rejection threshold (ns)"
+	default 0
+	range 0 1000000000
+	---help---
+		A phase error measurement that differs from the median of the
+		latest accepted ones by more than this many nanoseconds is
+		discarded instead of being used to correct the clock. It protects
+		the frequency estimate and the phase correction from a single
+		disturbed sample, for example a receive timestamp taken late by
+		the scheduler with software timestamping.
+
+		A change that lasts is accepted after several discarded samples in
+		a row, so the daemon still follows a real step of the master, and
+		a short burst of disturbed samples is still ridden out.
+
+		Choose a value well above the normal spread of the measurement:
+		a few microseconds are typical with hardware timestamping and
+		hundreds with software timestamping. 0 disables the rejection.
+
 config NETUTILS_PTPD_STATUSFILE
 	string "PTP daemon status file path"
 	default "/tmp/ptpd.status"
@@ -198,5 +238,25 @@ config NETUTILS_PTPD_STATUSFILE
 		this file to retrieve daemon state without requiring shared
 		memory, making it work across all build modes (Flat,
 		Protected, Kernel). Written atomically via temp + rename.
+
+config NETUTILS_PTPD_INGRESS_LATENCY_NS
+	int "PTP hardware receive timestamp latency (ns)"
+	default 0
+	range -1000000 1000000
+	---help---
+		Fixed delay, in nanoseconds, between a frame reaching the wire
+		reference plane and the moment the MAC latches its hardware
+		receive timestamp. This is the ingressLatency port parameter of
+		IEEE 1588: the PHY and the MAC clock-domain crossing make the
+		timestamp point lag the true arrival of the frame.
+
+		The latency is subtracted from every hardware receive timestamp,
+		so a positive value moves the timestamps earlier. It has no
+		effect with software timestamping. It can be overridden at
+		run time with the -I option.
+
+		The value depends on the PHY and board and has to be measured,
+		for example by comparing a physical PPS output against a
+		reference. The default of 0 applies no compensation.
 
 endif # NETUTILS_PTPD

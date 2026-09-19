@@ -42,9 +42,17 @@
 #define PTP_UDP_PORT_EVENT 319
 #define PTP_UDP_PORT_INFO  320
 
-/* Multicast address to send to: 224.0.1.129 */
+/* Multicast addresses to send to: 224.0.1.129 (primary) and
+ * 224.0.0.107 (peer delay).
+ */
 
-#define PTP_MULTICAST_ADDR ((in_addr_t)0xE0000181)
+#define PTP_MULTICAST_ADDR        ((in_addr_t)0xE0000181)
+#define PTP_PDELAY_MULTICAST_ADDR ((in_addr_t)0xE000006B)
+
+/* IEEE 1588-2008 Annex F Multicast MAC Addresses */
+
+#define PTP_MULTICAST_MAC        { 0x01, 0x1b, 0x19, 0x00, 0x00, 0x00 }
+#define PTP_PDELAY_MULTICAST_MAC { 0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e }
 
 /* PTP over Ethernet (IEEE 802.3 / Layer 2) EtherType */
 
@@ -54,12 +62,15 @@
 
 /* Message types */
 
-#define PTP_MSGTYPE_MASK       0x0F
-#define PTP_MSGTYPE_SYNC          0
-#define PTP_MSGTYPE_DELAY_REQ     1
-#define PTP_MSGTYPE_FOLLOW_UP     8
-#define PTP_MSGTYPE_DELAY_RESP    9
-#define PTP_MSGTYPE_ANNOUNCE     11
+#define PTP_MSGTYPE_MASK                  0x0F
+#define PTP_MSGTYPE_SYNC                  0
+#define PTP_MSGTYPE_DELAY_REQ             1
+#define PTP_MSGTYPE_PDELAY_REQ            2
+#define PTP_MSGTYPE_PDELAY_RESP           3
+#define PTP_MSGTYPE_FOLLOW_UP             8
+#define PTP_MSGTYPE_DELAY_RESP            9
+#define PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP 0x0A
+#define PTP_MSGTYPE_ANNOUNCE              11
 
 /* Message flags */
 
@@ -147,6 +158,35 @@ begin_packed_struct struct ptp_delay_resp_s
 {
   struct ptp_header_s header;
   uint8_t receivetimestamp[10];
+  uint8_t reqidentity[8];
+  uint8_t reqportindex[2];
+} end_packed_struct;
+
+/* PdelayReq: request peer delay measurement */
+
+begin_packed_struct struct ptp_pdelay_req_s
+{
+  struct ptp_header_s header;
+  uint8_t origintimestamp[10];
+  uint8_t reserved[10];
+} end_packed_struct;
+
+/* PdelayResp: response to PdelayReq */
+
+begin_packed_struct struct ptp_pdelay_resp_s
+{
+  struct ptp_header_s header;
+  uint8_t requestreceipttimestamp[10];
+  uint8_t reqidentity[8];
+  uint8_t reqportindex[2];
+} end_packed_struct;
+
+/* PdelayRespFollowUp: actual transmit timestamp of PdelayResp */
+
+begin_packed_struct struct ptp_pdelay_resp_follow_up_s
+{
+  struct ptp_header_s header;
+  uint8_t responseorigintimestamp[10];
   uint8_t reqidentity[8];
   uint8_t reqportindex[2];
 } end_packed_struct;

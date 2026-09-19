@@ -26,12 +26,14 @@
 
 #include <nuttx/config.h>
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/timex.h>
+#include <sys/types.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +42,9 @@
 #include <sched.h>
 #include <assert.h>
 #include <errno.h>
+#ifdef CONFIG_BUILD_FLAT
+#include <semaphore.h>
+#endif
 #include <nuttx/debug.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -62,8 +67,34 @@
 #include "ptpv2.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+/* Outlier rejection of the measured phase error: number of recent samples
+ * the median is taken over, the least number of samples needed before
+ * anything is rejected, and how many samples in a row can be rejected
+ * before they are taken as a real change of the phase.
+ */
+
+#  define PTP_OUTLIER_HISTORY         5
+#  define PTP_OUTLIER_MIN_HISTORY     3
+#  define PTP_OUTLIER_MAX_CONSECUTIVE 8
+#endif
+
+/****************************************************************************
  * Private Types
  ****************************************************************************/
+
+#ifdef CONFIG_BUILD_FLAT
+/* Carrier structure for querying PTPD status in flat build mode */
+
+struct ptpd_statusreq_s
+{
+  FAR sem_t *done;
+  FAR struct ptpd_status_s *dest;
+};
+#endif
 
 /* Main PTPD state storage */
 
@@ -73,6 +104,9 @@ struct ptp_state_s
 
   bool stop;
   bool dump;                     /* Set by SIGUSR1, checked in main loop */
+#ifdef CONFIG_BUILD_FLAT
+  struct ptpd_statusreq_s status_req;
+#endif
 
   /* Address of network interface we are operating on */
 
@@ -100,6 +134,7 @@ struct ptp_state_s
   uint16_t announce_seq;
   uint16_t sync_seq;
   uint16_t delay_req_seq;
+  uint16_t pdelay_req_seq;
 
   /* Previous measurement and estimated clock drift rate */
 
@@ -109,6 +144,12 @@ struct ptp_state_s
   long drift_avg_total_ms;
   long drift_ppb;
   bool has_last_delta;
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+  int64_t delta_hist[PTP_OUTLIER_HISTORY];
+  unsigned int delta_hist_count;
+  unsigned int delta_hist_next;
+  unsigned int outlier_count;
+#endif
 
   /* Identity of currently selected clock source,
    * from the latest announcement message.
@@ -131,6 +172,7 @@ struct ptp_state_s
   struct timespec last_transmitted_announce;
   struct timespec last_transmitted_delayresp;
   struct timespec last_transmitted_delayreq;
+  struct timespec last_transmitted_pdelayreq;
 
   /* Timestamps related to path delay calculation (CLOCK_REALTIME) */
 
@@ -139,19 +181,31 @@ struct ptp_state_s
   int path_delay_avgcount;
   long path_delay_ns;
   long delayreq_interval;
+  int64_t sync_diff_ns;
+  bool sync_diff_valid;
+
+  /* Timestamps related to P2P peer delay calculation (CLOCK_REALTIME) */
+
+  struct timespec pdelayreq_tx_time;  /* t1 */
+  struct timespec pdelayreq_rx_time;  /* t2 */
+  struct timespec pdelayresp_rx_time; /* t4 */
+  bool pdelay_waiting_followup;
 
   /* Latest received packet and its timestamp (CLOCK_REALTIME) */
 
   struct timespec rxtime;
   union
   {
-    struct ptp_header_s     header;
-    struct ptp_announce_s   announce;
-    struct ptp_sync_s       sync;
-    struct ptp_follow_up_s  follow_up;
-    struct ptp_delay_req_s  delay_req;
-    struct ptp_delay_resp_s delay_resp;
-    uint8_t                 raw[128];
+    struct ptp_header_s                header;
+    struct ptp_announce_s              announce;
+    struct ptp_sync_s                  sync;
+    struct ptp_follow_up_s             follow_up;
+    struct ptp_delay_req_s             delay_req;
+    struct ptp_delay_resp_s            delay_resp;
+    struct ptp_pdelay_req_s            pdelay_req;
+    struct ptp_pdelay_resp_s           pdelay_resp;
+    struct ptp_pdelay_resp_follow_up_s pdelay_resp_fup;
+    uint8_t                            raw[128];
   } rxbuf;
 
   uint8_t rxcmsg[CMSG_LEN(sizeof(struct timespec))];
@@ -298,6 +352,22 @@ static int64_t timespec_to_ms(FAR const struct timespec *ts)
   return ts->tv_sec * MSEC_PER_SEC + (ts->tv_nsec / NSEC_PER_MSEC);
 }
 
+/* Add a positive or negative number of nanoseconds to a timespec value. */
+
+static void timespec_add_ns(FAR struct timespec *ts, int64_t ns)
+{
+  int64_t total = ts->tv_sec * NSEC_PER_SEC + ts->tv_nsec + ns;
+
+  ts->tv_sec  = total / NSEC_PER_SEC;
+  ts->tv_nsec = total % NSEC_PER_SEC;
+
+  if (ts->tv_nsec < 0)
+    {
+      ts->tv_sec--;
+      ts->tv_nsec += NSEC_PER_SEC;
+    }
+}
+
 /* Get positive or negative delta between two timespec values.
  * If value would exceed int64 limit (292 years), return INT64_MAX/MIN.
  */
@@ -426,9 +496,31 @@ static int ptp_adjtime(FAR struct ptp_state_s *state, int64_t delta_ns,
   else
     {
       struct timex buf;
+      int64_t hw_ppb;
+      const int64_t slew_limit_ppb =
+        CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000;
+
+      /* delta_ns passed here is adjustment_ns, which already
+       * combines frequency drift and current phase error clamped
+       * to max_adjust_ns. Converting it to ppb over
+       * CONFIG_CLOCK_ADJTIME_PERIOD_MS produces the rate needed to
+       * pull the hardware counter into phase lock.
+       */
+
+      hw_ppb = delta_ns * MSEC_PER_SEC /
+               CONFIG_CLOCK_ADJTIME_PERIOD_MS;
+
+      if (hw_ppb > slew_limit_ppb)
+        {
+          hw_ppb = slew_limit_ppb;
+        }
+      else if (hw_ppb < -slew_limit_ppb)
+        {
+          hw_ppb = -slew_limit_ppb;
+        }
 
       memset(&buf, 0, sizeof(buf));
-      buf.freq = (long)(-ppb * 65536 / 1000);
+      buf.freq = hw_ppb * 65536 / 1000;
       buf.modes = ADJ_FREQUENCY;
 
       return clock_adjtime(state->clockid, &buf);
@@ -462,6 +554,11 @@ static int ptp_getrxtime(FAR struct ptp_state_s *state,
 
           if (ts->tv_sec > 0 || ts->tv_nsec > 0)
             {
+              /* The MAC latches the timestamp later than the frame
+               * reaches the wire: compensate the ingress latency.
+               */
+
+              timespec_add_ns(ts, -state->config->ingress_latency_ns);
               return OK;
             }
         }
@@ -479,9 +576,19 @@ static int ptp_destroy_state(FAR struct ptp_state_s *state)
 
   ptp_close(state->clockid);
 
-  mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
-  ipmsfilter(&state->interface_addr.sin_addr,
-             &mcast_addr, MCAST_EXCLUDE);
+  if (state->config->af == AF_INET)
+    {
+      mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
+      ipmsfilter(&state->interface_addr.sin_addr,
+                 &mcast_addr, MCAST_EXCLUDE);
+
+      if (state->config->delay_mechanism == PTP_DELAY_P2P)
+        {
+          mcast_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+          ipmsfilter(&state->interface_addr.sin_addr,
+                     &mcast_addr, MCAST_EXCLUDE);
+        }
+    }
 
   if (state->tx_socket > 0)
     {
@@ -654,6 +761,19 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
           ptperr("Failed to join multicast group: %d\n", errno);
           goto errout;
         }
+
+      if (state->config->delay_mechanism == PTP_DELAY_P2P)
+        {
+          mcast_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+          ret = ipmsfilter(&state->interface_addr.sin_addr,
+                           &mcast_addr, MCAST_INCLUDE);
+          if (ret < 0)
+            {
+              ptperr("Failed to join peer delay multicast group: %d\n",
+                     errno);
+              goto errout;
+            }
+        }
     }
 
   /* Get hardware address to initialize the identity field in header.
@@ -667,8 +787,9 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
       goto errout;
     }
 
-  state->own_identity.header.version = PTP_VERSION_2_1;
+  state->own_identity.header.version = PTP_VERSION_2_0;
   state->own_identity.header.domain = CONFIG_NETUTILS_PTPD_DOMAIN;
+  state->own_identity.header.controlfield = 0x05;
   state->own_identity.header.sourceidentity[0] = req.ifr_hwaddr.sa_data[0];
   state->own_identity.header.sourceidentity[1] = req.ifr_hwaddr.sa_data[1];
   state->own_identity.header.sourceidentity[2] = req.ifr_hwaddr.sa_data[2];
@@ -711,6 +832,12 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
   struct in_addr mcast_addr;
   struct timespec time_now;
   struct timespec delta;
+  int ret;
+
+  if (state->config->af != AF_INET)
+    {
+      return OK;
+    }
 
   clock_gettime(CLOCK_MONOTONIC, &time_now);
   clock_timespec_subtract(&time_now, &state->last_received_multicast,
@@ -727,9 +854,23 @@ static int ptp_check_multicast_status(FAR struct ptp_state_s *state)
                  &mcast_addr,
                  MCAST_EXCLUDE);
 
-      return ipmsfilter(&state->interface_addr.sin_addr,
-                        &mcast_addr,
-                        MCAST_INCLUDE);
+      ret = ipmsfilter(&state->interface_addr.sin_addr,
+                       &mcast_addr,
+                       MCAST_INCLUDE);
+
+      if (state->config->delay_mechanism == PTP_DELAY_P2P)
+        {
+          mcast_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+          ipmsfilter(&state->interface_addr.sin_addr,
+                     &mcast_addr,
+                     MCAST_EXCLUDE);
+
+          ret = ipmsfilter(&state->interface_addr.sin_addr,
+                           &mcast_addr,
+                           MCAST_INCLUDE);
+        }
+
+      return ret;
     }
 
 #else
@@ -747,22 +888,36 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
 
   if (state->config->af == AF_PACKET)
     {
-      /* IEEE 1588-2008 Annex F primary multicast MAC address */
+      /* IEEE 1588-2008 Annex F multicast MAC addresses */
 
       const uint8_t ptp_multicast_mac[ETHER_ADDR_LEN] =
-      {
-        0x01, 0x1b, 0x19, 0x00, 0x00, 0x00
-      };
-
+        PTP_MULTICAST_MAC;
+      const uint8_t ptp_pdelay_multicast_mac[ETHER_ADDR_LEN] =
+        PTP_PDELAY_MULTICAST_MAC;
+      FAR const struct ptp_header_s *hdr = buf;
+      FAR const uint8_t *dst_mac;
       char raw[sizeof(struct ether_header) + sizeof(struct ptp_announce_s)];
       FAR struct ether_header *header;
       struct msghdr msg;
       struct iovec iov;
+      uint8_t msgtype;
 
       DEBUGASSERT(sizeof(struct ptp_announce_s) >= buflen);
 
+      msgtype = hdr->messagetype & PTP_MSGTYPE_MASK;
+      if (msgtype == PTP_MSGTYPE_PDELAY_REQ ||
+          msgtype == PTP_MSGTYPE_PDELAY_RESP ||
+          msgtype == PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP)
+        {
+          dst_mac = ptp_pdelay_multicast_mac;
+        }
+      else
+        {
+          dst_mac = ptp_multicast_mac;
+        }
+
       header = (FAR struct ether_header *)&raw;
-      memcpy(header->ether_dhost, ptp_multicast_mac, ETHER_ADDR_LEN);
+      memcpy(header->ether_dhost, dst_mac, ETHER_ADDR_LEN);
       netlib_getmacaddr(state->config->interface, header->ether_shost);
       header->ether_type = htons(ETHERTYPE_PTP);
       memcpy(&raw[sizeof(*header)], buf, buflen);
@@ -788,26 +943,13 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
         {
           return ERROR;
         }
-
-      if (state->config->hardware_ts && sendts != NULL)
-        {
-          uint8_t rxcmsg[CMSG_LEN(sizeof(struct timespec))];
-
-          msg.msg_control = &rxcmsg;
-          msg.msg_controllen = CMSG_LEN(sizeof(struct timespec));
-          ret = recvmsg(state->tx_socket, &msg, 0);
-          if (ret >= 0)
-            {
-              ptp_getrxtime(state, &msg, sendts);
-            }
-        }
     }
   else
     {
       ret = sendto(state->tx_socket, buf, buflen, 0, addr, addrlen);
     }
 
-  if (!state->config->hardware_ts && sendts != NULL)
+  if (sendts != NULL)
     {
       ptp_gettime(state, sendts);
     }
@@ -948,6 +1090,58 @@ static int ptp_send_delay_req(FAR struct ptp_state_s *state)
   return ret;
 }
 
+/* Send peer delay request packet (P2P) */
+
+static int ptp_send_pdelay_req(FAR struct ptp_state_s *state)
+{
+  struct ptp_pdelay_req_s req;
+  struct sockaddr_in addr;
+  int ret;
+
+  addr.sin_family      = AF_INET;
+  addr.sin_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+  addr.sin_port        = HTONS(PTP_UDP_PORT_EVENT);
+
+  memset(&req, 0, sizeof(req));
+  req.header = state->own_identity.header;
+  req.header.messagetype = PTP_MSGTYPE_PDELAY_REQ;
+  req.header.version = PTP_VERSION_2_0;
+  req.header.messagelength[1] = sizeof(req);
+  req.header.controlfield = 0x05;
+  req.header.logmessageinterval = PTP_LOG_INTERVAL_DELAY_REQ;
+  ptp_increment_sequence(&state->pdelay_req_seq, &req.header);
+
+  /* Starting a new request cycle invalidates any Pdelay_Resp we might
+   * still be waiting a Follow_Up for from the previous one (e.g. its
+   * Resp was lost and only its Follow_Up shows up later, after this
+   * new cycle has already updated pdelay_req_seq). Without this, that
+   * orphaned Follow_Up would still pass the sequence check below (it
+   * now matches the new cycle) and get paired with pdelayreq_rx_time
+   * (t2) captured for the OLD cycle - producing a path delay that is
+   * off by roughly one full request interval.
+   */
+
+  state->pdelay_waiting_followup = false;
+
+  ptp_gettime(state, &state->pdelayreq_tx_time);
+  timespec_to_ptp_format(&state->pdelayreq_tx_time, req.origintimestamp);
+
+  ret = ptp_sendmsg(state, &req, sizeof(req),
+                    &addr, sizeof(addr), &state->pdelayreq_tx_time);
+  if (ret < 0)
+    {
+      ptperr("ptp sendmsg failed: %d\n", errno);
+    }
+  else
+    {
+      clock_gettime(CLOCK_MONOTONIC, &state->last_transmitted_pdelayreq);
+      ptpinfo("Sent Pdelay_Req, seq %d\n",
+              ptp_get_sequence(&req.header));
+    }
+
+  return ret;
+}
+
 /* Check if we need to send packets */
 
 static int ptp_periodic_send(FAR struct ptp_state_s *state)
@@ -980,22 +1174,42 @@ static int ptp_periodic_send(FAR struct ptp_state_s *state)
         }
     }
 
-  if (state->config->delay_e2e && state->selected_source_valid &&
-      state->can_send_delayreq)
+  if (state->config->delay_mechanism == PTP_DELAY_E2E &&
+      state->selected_source_valid && state->can_send_delayreq)
     {
       struct timespec time_now;
       struct timespec delta;
+      long interval_s;
 
       clock_gettime(CLOCK_MONOTONIC, &time_now);
       clock_timespec_subtract(&time_now,
                               &state->last_transmitted_delayreq, &delta);
 
-      long interval_s = (state->delayreq_interval > 0) ?
-                        state->delayreq_interval : 1;
+      interval_s = (state->delayreq_interval > 0) ?
+                    state->delayreq_interval : 1;
 
       if (timespec_to_ms(&delta) >= interval_s * MSEC_PER_SEC)
         {
           ptp_send_delay_req(state);
+        }
+    }
+
+  if (state->config->delay_mechanism == PTP_DELAY_P2P)
+    {
+      struct timespec time_now;
+      struct timespec delta;
+      long interval_s;
+
+      clock_gettime(CLOCK_MONOTONIC, &time_now);
+      clock_timespec_subtract(&time_now,
+                              &state->last_transmitted_pdelayreq, &delta);
+
+      interval_s = (state->delayreq_interval > 0) ?
+                    state->delayreq_interval : 1;
+
+      if (timespec_to_ms(&delta) >= interval_s * MSEC_PER_SEC)
+        {
+          ptp_send_pdelay_req(state);
         }
     }
 
@@ -1018,14 +1232,80 @@ static int ptp_process_announce(FAR struct ptp_state_s *state,
 
           state->selected_source = *msg;
           state->last_received_sync = state->last_received_announce;
-          state->path_delay_avgcount = 0;
-          state->path_delay_ns = 0;
-          state->delayreq_time.tv_sec = 0;
+          if (state->config->delay_mechanism == PTP_DELAY_E2E)
+            {
+              state->path_delay_avgcount = 0;
+              state->path_delay_ns = 0;
+              state->delayreq_time.tv_sec = 0;
+            }
         }
     }
 
   return OK;
 }
+
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+/* Tell whether a phase error measurement is an outlier, i.e. it differs from
+ * the median of the latest accepted ones by more than the threshold. A
+ * measurement that is disturbed on its own (a late receive timestamp, for
+ * example) would otherwise move the frequency and phase corrections.
+ *
+ * A change that lasts is not an outlier: after a few rejections in a row
+ * the measurement is accepted and the history starts over.
+ */
+
+static bool ptp_is_outlier(FAR struct ptp_state_s *state, int64_t delta_ns)
+{
+  int64_t sorted[PTP_OUTLIER_HISTORY];
+  int64_t deviation;
+  unsigned int count = state->delta_hist_count;
+  unsigned int i;
+  unsigned int j;
+
+  if (count >= PTP_OUTLIER_MIN_HISTORY)
+    {
+      for (i = 0; i < count; i++)
+        {
+          int64_t value = state->delta_hist[i];
+
+          for (j = i; j > 0 && sorted[j - 1] > value; j--)
+            {
+              sorted[j] = sorted[j - 1];
+            }
+
+          sorted[j] = value;
+        }
+
+      deviation = delta_ns - sorted[count / 2];
+      if (deviation < 0)
+        {
+          deviation = -deviation;
+        }
+
+      if (deviation > CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS)
+        {
+          if (++state->outlier_count < PTP_OUTLIER_MAX_CONSECUTIVE)
+            {
+              return true;
+            }
+
+          state->delta_hist_count = 0;
+          state->delta_hist_next  = 0;
+        }
+    }
+
+  state->outlier_count = 0;
+  state->delta_hist[state->delta_hist_next] = delta_ns;
+  state->delta_hist_next = (state->delta_hist_next + 1) %
+                           PTP_OUTLIER_HISTORY;
+  if (state->delta_hist_count < PTP_OUTLIER_HISTORY)
+    {
+      state->delta_hist_count++;
+    }
+
+  return false;
+}
+#endif
 
 /* Update local clock either by smooth adjustment or by jumping.
  * Remote time was remote_timestamp at local_timestamp.
@@ -1072,6 +1352,11 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       state->drift_avg_total_ms = 0;
       state->drift_ppb = 0;
       state->has_last_delta = false;
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+      state->delta_hist_count = 0;
+      state->delta_hist_next  = 0;
+      state->outlier_count    = 0;
+#endif
 
       if (ret == OK)
         {
@@ -1097,8 +1382,15 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
       const int64_t max_adjust_ns =
         (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM *
         CONFIG_CLOCK_ADJTIME_PERIOD_MS;
-      const int64_t slew_limit_ppb =
-        (int64_t)CONFIG_CLOCK_ADJTIME_SLEWLIMIT_PPM * 1000;
+
+#if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
+      if (ptp_is_outlier(state, delta_ns))
+        {
+          ptpwarn("Discarding outlier sample: delta %" PRId64 " ns\n",
+                  delta_ns);
+          return OK;
+        }
+#endif
 
       if (!state->has_last_delta)
         {
@@ -1134,8 +1426,19 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
               interval_ms = 1;
             }
 
-          if (drift_ppb > slew_limit_ppb || drift_ppb < -slew_limit_ppb)
+          if (drift_ppb > CONFIG_NETUTILS_PTPD_MAX_DRIFT_PPB ||
+              drift_ppb < -CONFIG_NETUTILS_PTPD_MAX_DRIFT_PPB)
             {
+              /* Physically implausible for a real crystal oscillator -
+               * almost always the result of an abnormally short interval
+               * between samples (e.g. a burst of packets right after a
+               * clock source outage/reconnect) rather than actual drift.
+               * Discard it instead of letting it corrupt the long-term
+               * average; CLOCK_ADJTIME_SLEWLIMIT_PPM is a much looser
+               * hardware safety bound and would let this through
+               * unchanged.
+               */
+
               ptpwarn("Drift estimate out of range: %lld\n",
                       (long long)drift_ppb);
               drift_ppb = state->drift_ppb;
@@ -1206,6 +1509,31 @@ static int ptp_update_local_clock(FAR struct ptp_state_s *state,
   return ret;
 }
 
+static void ptp_add_correction_time(FAR const uint8_t *correction,
+                                    FAR struct timespec *ts)
+{
+  uint64_t correction_time = (((uint64_t)correction[0]) << 40)
+                           | (((uint64_t)correction[1]) << 32)
+                           | (((uint64_t)correction[2]) << 24)
+                           | (((uint64_t)correction[3]) << 16)
+                           | (((uint64_t)correction[4]) <<  8)
+                           | (((uint64_t)correction[5]) <<  0);
+
+  ptpinfo("correction before: %jd.%09ld\n", (intmax_t)ts->tv_sec,
+          ts->tv_nsec);
+
+  ts->tv_sec  += correction_time / NSEC_PER_SEC;
+  ts->tv_nsec += correction_time % NSEC_PER_SEC;
+  if (ts->tv_nsec >= NSEC_PER_SEC)
+    {
+      ts->tv_nsec -= NSEC_PER_SEC;
+      ts->tv_sec  += 1;
+    }
+
+  ptpinfo("correction after: %jd.%09ld\n", (intmax_t)ts->tv_sec,
+          ts->tv_nsec);
+}
+
 /* Process received PTP sync packet */
 
 static int ptp_process_sync(FAR struct ptp_state_s *state,
@@ -1240,32 +1568,10 @@ static int ptp_process_sync(FAR struct ptp_state_s *state,
   /* Update local clock */
 
   ptp_format_to_timespec(msg->origintimestamp, &remote_time);
+  ptp_add_correction_time(msg->header.correction, &remote_time);
+  state->sync_diff_ns = timespec_delta_ns(&state->rxtime, &remote_time);
+  state->sync_diff_valid = true;
   return ptp_update_local_clock(state, &remote_time, &state->rxtime);
-}
-
-static void ptp_add_correction_time(FAR const uint8_t *correction,
-                                    FAR struct timespec *ts)
-{
-  uint64_t correction_time = (((uint64_t)correction[0]) << 40)
-                           | (((uint64_t)correction[1]) << 32)
-                           | (((uint64_t)correction[2]) << 24)
-                           | (((uint64_t)correction[3]) << 16)
-                           | (((uint64_t)correction[4]) <<  8)
-                           | (((uint64_t)correction[5]) <<  0);
-
-  ptpinfo("correction before: %jd.%09ld\n", (intmax_t)ts->tv_sec,
-          ts->tv_nsec);
-
-  ts->tv_sec  += correction_time / NSEC_PER_SEC;
-  ts->tv_nsec += correction_time % NSEC_PER_SEC;
-  if (ts->tv_nsec >= NSEC_PER_SEC)
-    {
-      ts->tv_nsec -= NSEC_PER_SEC;
-      ts->tv_sec  += 1;
-    }
-
-  ptpinfo("correction after: %jd.%09ld\n", (intmax_t)ts->tv_sec,
-          ts->tv_nsec);
 }
 
 static int ptp_process_followup(FAR struct ptp_state_s *state,
@@ -1300,6 +1606,12 @@ static int ptp_process_followup(FAR struct ptp_state_s *state,
   /* add correction time */
 
   ptp_add_correction_time(msg->header.correction, &remote_time);
+
+  /* Store (t2 - t1) for canonical IEEE 1588-2008 §11.3 path delay */
+
+  state->sync_diff_ns = timespec_delta_ns(&state->twostep_rxtime,
+                                          &remote_time);
+  state->sync_diff_valid = true;
 
   /* done */
 
@@ -1352,61 +1664,23 @@ static int ptp_process_delay_req(FAR struct ptp_state_s *state,
   return ret;
 }
 
-static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
-                                  FAR struct ptp_delay_resp_s *msg)
+/* Record and filter measured path delay (used by both E2E and P2P) */
+
+static void ptp_record_path_delay(FAR struct ptp_state_s *state,
+                                  int64_t path_delay)
 {
-  int64_t path_delay;
-  int64_t sync_delay;
-  struct timespec remote_rxtime;
-  uint16_t sequence;
-  int interval;
   int64_t max_path_delay;
-  bool source_match;
-  bool request_match;
-
-  source_match = memcmp(msg->header.sourceidentity,
-                        state->selected_source.header.sourceidentity,
-                        sizeof(msg->header.sourceidentity)) == 0;
-  request_match = memcmp(msg->reqidentity,
-                         state->own_identity.header.sourceidentity,
-                         sizeof(msg->reqidentity)) == 0;
-
-  if (!state->selected_source_valid || !source_match || !request_match)
-    {
-      ptpwarn("Delay_Resp ignored: valid=%d, src_match=%d, req_match=%d\n",
-              state->selected_source_valid, source_match, request_match);
-      return OK; /* This packet wasn't for us */
-    }
-
-  sequence = ptp_get_sequence(&msg->header);
-
-  if (sequence != state->delay_req_seq)
-    {
-      ptpwarn("Ignoring out-of-sequence delay resp (%d vs. expected %d)\n",
-              (int)sequence, (int)state->delay_req_seq);
-      return OK;
-    }
-
-  /* Path delay is calculated as the average between delta for sync
-   * message and delta for delay req message.
-   * (IEEE-1588 section 11.3: Delay request-response mechanism)
-   */
-
-  ptp_format_to_timespec(msg->receivetimestamp, &remote_rxtime);
-  path_delay = timespec_delta_ns(&remote_rxtime, &state->delayreq_time);
-  sync_delay = state->path_delay_ns - state->last_delta_ns;
-  path_delay = (path_delay + sync_delay) / 2;
 
   max_path_delay = CONFIG_NETUTILS_PTPD_MAX_PATH_DELAY_NS;
 
-  if (!state->config->hardware_ts &&
-      max_path_delay < 10 * (int64_t)NSEC_PER_MSEC)
+  if (max_path_delay < 10 * NSEC_PER_MSEC)
     {
-      /* Software timestamping includes network stack and OS latency,
-       * allow up to 10 ms.
+      /* Software TX latency on delay measurement transmission can add up
+       * to several milliseconds. Allow up to 10 ms until hardware TX
+       * timestamping is available.
        */
 
-      max_path_delay = 10 * (int64_t)NSEC_PER_MSEC;
+      max_path_delay = 10 * NSEC_PER_MSEC;
     }
 
   if (path_delay >= 0 && path_delay < max_path_delay)
@@ -1420,14 +1694,61 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
       state->path_delay_ns += (path_delay - state->path_delay_ns)
                               / state->path_delay_avgcount;
 
-      ptpinfo("Path delay: %ld ns (avg: %ld ns)\n",
-        (long)path_delay, (long)state->path_delay_ns);
+      ptpinfo("Path delay: %" PRId64 " ns (avg: %ld ns)\n",
+              path_delay, state->path_delay_ns);
     }
   else
     {
-      ptpwarn("Path delay out of range: %lld ns\n",
-              (long long)path_delay);
+      ptpwarn("Path delay out of range: %" PRId64 " ns\n", path_delay);
     }
+}
+
+static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
+                                  FAR struct ptp_delay_resp_s *msg)
+{
+  int64_t path_delay;
+  struct timespec remote_rxtime;
+  uint16_t sequence;
+  int interval;
+  bool source_match;
+  bool request_match;
+
+  source_match = memcmp(msg->header.sourceidentity,
+                        state->selected_source.header.sourceidentity,
+                        sizeof(msg->header.sourceidentity)) == 0;
+  request_match = memcmp(msg->reqidentity,
+                         state->own_identity.header.sourceidentity,
+                         sizeof(msg->reqidentity)) == 0;
+
+  if (!state->selected_source_valid || !state->sync_diff_valid ||
+      !source_match || !request_match)
+    {
+      ptpwarn("Delay_Resp ignored: valid=%d, sync_valid=%d, src_match=%d, "
+              "req_match=%d\n",
+              state->selected_source_valid, state->sync_diff_valid,
+              source_match, request_match);
+      return OK; /* This packet wasn't for us */
+    }
+
+  sequence = ptp_get_sequence(&msg->header);
+
+  if (sequence != state->delay_req_seq)
+    {
+      ptpwarn("Ignoring out-of-sequence delay resp (%d vs. expected %d)\n",
+              (int)sequence, (int)state->delay_req_seq);
+      return OK;
+    }
+
+  /* Path delay is calculated as the average between delta for sync
+   * message (t2 - t1) and delta for delay req message (t4 - t3).
+   * (IEEE-1588 section 11.3: Delay request-response mechanism)
+   */
+
+  ptp_format_to_timespec(msg->receivetimestamp, &remote_rxtime);
+  path_delay = timespec_delta_ns(&remote_rxtime, &state->delayreq_time);
+  path_delay = (state->sync_diff_ns + path_delay) / 2;
+
+  ptp_record_path_delay(state, path_delay);
 
   /* Calculate interval until next packet */
 
@@ -1443,6 +1764,206 @@ static int ptp_process_delay_resp(FAR struct ptp_state_s *state,
   /* Randomize up to 2x nominal delay) */
 
   state->delayreq_interval = interval + (random() % interval);
+
+  return OK;
+}
+
+/* Process received peer delay request (responder role) */
+
+static int ptp_process_pdelay_req(FAR struct ptp_state_s *state,
+                                  FAR struct ptp_pdelay_req_s *msg)
+{
+  struct ptp_pdelay_resp_s resp;
+  struct ptp_pdelay_resp_follow_up_s fup;
+  struct sockaddr_in addr;
+  struct timespec t3;
+  int ret;
+
+  if (state->config->delay_mechanism != PTP_DELAY_P2P)
+    {
+      return OK;
+    }
+
+  addr.sin_family      = AF_INET;
+  addr.sin_addr.s_addr = HTONL(PTP_PDELAY_MULTICAST_ADDR);
+  addr.sin_port        = HTONS(PTP_UDP_PORT_EVENT);
+
+  memset(&resp, 0, sizeof(resp));
+  resp.header = state->own_identity.header;
+  resp.header.messagetype = PTP_MSGTYPE_PDELAY_RESP;
+  resp.header.version = PTP_VERSION_2_0;
+  resp.header.messagelength[1] = sizeof(resp);
+  resp.header.flags[0] = PTP_FLAGS0_TWOSTEP;
+  resp.header.controlfield = 0x05;
+  memcpy(resp.header.sequenceid, msg->header.sequenceid,
+         sizeof(resp.header.sequenceid));
+  resp.header.logmessageinterval = 0x7f;
+
+  timespec_to_ptp_format(&state->rxtime, resp.requestreceipttimestamp);
+  memcpy(resp.reqidentity, msg->header.sourceidentity,
+         sizeof(resp.reqidentity));
+  memcpy(resp.reqportindex, msg->header.sourceportindex,
+         sizeof(resp.reqportindex));
+
+  ret = ptp_sendmsg(state, &resp, sizeof(resp), &addr, sizeof(addr), &t3);
+  if (ret < 0)
+    {
+      ptperr("ptp sendmsg failed for Pdelay_Resp: %d\n", errno);
+      return ret;
+    }
+
+  clock_gettime(CLOCK_MONOTONIC, &state->last_transmitted_delayresp);
+  ptpinfo("Sent Pdelay_Resp, seq %d\n",
+          ptp_get_sequence(&resp.header));
+
+  /* Send Pdelay_Resp_Follow_Up with transmit timestamp t3 */
+
+  addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
+
+  memset(&fup, 0, sizeof(fup));
+  fup.header = state->own_identity.header;
+  fup.header.messagetype = PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP;
+  fup.header.version = PTP_VERSION_2_0;
+  fup.header.messagelength[1] = sizeof(fup);
+  fup.header.controlfield = 0x05;
+  memcpy(fup.header.sequenceid, msg->header.sequenceid,
+         sizeof(fup.header.sequenceid));
+  fup.header.logmessageinterval = 0x7f;
+
+  timespec_to_ptp_format(&t3, fup.responseorigintimestamp);
+  memcpy(fup.reqidentity, msg->header.sourceidentity,
+         sizeof(fup.reqidentity));
+  memcpy(fup.reqportindex, msg->header.sourceportindex,
+         sizeof(fup.reqportindex));
+
+  ret = ptp_sendmsg(state, &fup, sizeof(fup), &addr, sizeof(addr), NULL);
+  if (ret < 0)
+    {
+      ptperr("ptp sendmsg failed for Pdelay_Resp_Follow_Up: %d\n", errno);
+      return ret;
+    }
+
+  ptpinfo("Sent Pdelay_Resp_Follow_Up, seq %d\n",
+          ptp_get_sequence(&fup.header));
+
+  return OK;
+}
+
+/* Process received peer delay response (requester role) */
+
+static int ptp_process_pdelay_resp(FAR struct ptp_state_s *state,
+                                   FAR struct ptp_pdelay_resp_s *msg)
+{
+  uint16_t sequence;
+
+  if (state->config->delay_mechanism != PTP_DELAY_P2P)
+    {
+      return OK;
+    }
+
+  if (memcmp(msg->reqidentity, state->own_identity.header.sourceidentity,
+             sizeof(msg->reqidentity)) != 0)
+    {
+      return OK; /* Not for us */
+    }
+
+  sequence = ptp_get_sequence(&msg->header);
+  if (sequence != state->pdelay_req_seq)
+    {
+      ptpwarn("Ignoring out-of-sequence Pdelay_Resp (%d vs. expected %d)\n",
+              sequence, state->pdelay_req_seq);
+      return OK;
+    }
+
+  /* Store t4 (local receive timestamp) and t2 (receipt timestamp
+   * from peer).
+   */
+
+  state->pdelayresp_rx_time = state->rxtime;
+  ptp_format_to_timespec(msg->requestreceipttimestamp,
+                         &state->pdelayreq_rx_time);
+  ptp_add_correction_time(msg->header.correction,
+                          &state->pdelayreq_rx_time);
+
+  if (msg->header.flags[0] & PTP_FLAGS0_TWOSTEP)
+    {
+      state->pdelay_waiting_followup = true;
+      ptpinfo("Waiting for Pdelay_Resp_Follow_Up, seq %d\n",
+              sequence);
+    }
+  else
+    {
+      /* One-step: turnaround time (t3 - t2) is carried in correctionField */
+
+      int64_t t4_t1_ns;
+      int64_t t3_t2_ns;
+      int64_t path_delay;
+      uint64_t correction_time;
+
+      correction_time = (((uint64_t)msg->header.correction[0]) << 40)
+                      | (((uint64_t)msg->header.correction[1]) << 32)
+                      | (((uint64_t)msg->header.correction[2]) << 24)
+                      | (((uint64_t)msg->header.correction[3]) << 16)
+                      | (((uint64_t)msg->header.correction[4]) <<  8)
+                      | msg->header.correction[5];
+
+      t4_t1_ns = timespec_delta_ns(&state->pdelayresp_rx_time,
+                                   &state->pdelayreq_tx_time);
+      t3_t2_ns = correction_time;
+      path_delay = (t4_t1_ns - t3_t2_ns) / 2;
+
+      ptp_record_path_delay(state, path_delay);
+    }
+
+  return OK;
+}
+
+/* Process received peer delay response follow-up (requester role) */
+
+static int ptp_process_pdelay_resp_followup(
+             FAR struct ptp_state_s *state,
+             FAR struct ptp_pdelay_resp_follow_up_s *msg)
+{
+  struct timespec t3;
+  int64_t t4_t1_ns;
+  int64_t t3_t2_ns;
+  int64_t path_delay;
+  uint16_t sequence;
+
+  if (state->config->delay_mechanism != PTP_DELAY_P2P ||
+      !state->pdelay_waiting_followup)
+    {
+      return OK;
+    }
+
+  if (memcmp(msg->reqidentity, state->own_identity.header.sourceidentity,
+             sizeof(msg->reqidentity)) != 0)
+    {
+      return OK;
+    }
+
+  sequence = ptp_get_sequence(&msg->header);
+  if (sequence != state->pdelay_req_seq)
+    {
+      ptpwarn("Ignoring out-of-sequence Pdelay_Resp_Follow_Up "
+              "(%d vs. expected %d)\n",
+              sequence, state->pdelay_req_seq);
+      return OK;
+    }
+
+  state->pdelay_waiting_followup = false;
+
+  ptp_format_to_timespec(msg->responseorigintimestamp, &t3);
+  ptp_add_correction_time(msg->header.correction, &t3);
+
+  /* IEEE 1588-2008 §11.4.3: meanPathDelay = ((t4 - t1) - (t3 - t2)) / 2 */
+
+  t4_t1_ns = timespec_delta_ns(&state->pdelayresp_rx_time,
+                               &state->pdelayreq_tx_time);
+  t3_t2_ns = timespec_delta_ns(&t3, &state->pdelayreq_rx_time);
+  path_delay = (t4_t1_ns - t3_t2_ns) / 2;
+
+  ptp_record_path_delay(state, path_delay);
 
   return OK;
 }
@@ -1524,6 +2045,22 @@ static int ptp_process_rx_packet(FAR struct ptp_state_s *state,
                 ptp_get_sequence(&state->rxbuf.header));
         return ptp_process_delay_req(state, &state->rxbuf.delay_req);
 
+      case PTP_MSGTYPE_PDELAY_REQ:
+        ptpinfo("Got pdelay req, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_pdelay_req(state, &state->rxbuf.pdelay_req);
+
+      case PTP_MSGTYPE_PDELAY_RESP:
+        ptpinfo("Got pdelay resp, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_pdelay_resp(state, &state->rxbuf.pdelay_resp);
+
+      case PTP_MSGTYPE_PDELAY_RESP_FOLLOW_UP:
+        ptpinfo("Got pdelay resp follow-up, seq %d\n",
+                ptp_get_sequence(&state->rxbuf.header));
+        return ptp_process_pdelay_resp_followup(
+                 state, &state->rxbuf.pdelay_resp_fup);
+
       default:
         ptpwarn("Ignoring unknown PTP packet type: 0x%02x "
                 "(masked: 0x%02x)\n",
@@ -1544,6 +2081,14 @@ static void ptp_signal_handler(int signo, FAR siginfo_t *siginfo,
     {
       state->stop = true;
     }
+#ifdef CONFIG_BUILD_FLAT
+  else if (signo == SIGUSR1 && siginfo != NULL &&
+           siginfo->si_value.sival_ptr != NULL)
+    {
+      state->status_req =
+        *(FAR struct ptpd_statusreq_s *)siginfo->si_value.sival_ptr;
+    }
+#endif
   else if (signo == SIGUSR1)
     {
       state->dump = true;
@@ -1563,6 +2108,80 @@ static void ptp_setup_sighandlers(FAR struct ptp_state_s *state)
   sigaction(SIGUSR1, &act, NULL);
 }
 
+/* Populate status information structure from current state */
+
+static void ptp_populate_status(FAR struct ptp_state_s *state,
+                                FAR struct ptpd_status_s *status)
+{
+  memset(status, 0, sizeof(*status));
+  status->clock_source_valid = state->selected_source_valid;
+
+  if (status->clock_source_valid)
+    {
+      FAR struct ptp_announce_s *s = &state->selected_source;
+
+      memcpy(status->clock_source_info.id,
+             s->header.sourceidentity,
+             sizeof(status->clock_source_info.id));
+
+      status->clock_source_info.utcoffset =
+          (int16_t)(((uint16_t)s->utcoffset[0] << 8) | s->utcoffset[1]);
+      status->clock_source_info.priority1 = s->gm_priority1;
+      status->clock_source_info.clockclass = s->gm_quality[0];
+      status->clock_source_info.accuracy = s->gm_quality[1];
+      status->clock_source_info.priority2 = s->gm_priority2;
+      status->clock_source_info.variance =
+          ((uint16_t)s->gm_quality[2] << 8) | s->gm_quality[3];
+
+      memcpy(status->clock_source_info.gm_id,
+             s->gm_identity,
+             sizeof(status->clock_source_info.gm_id));
+
+      status->clock_source_info.stepsremoved =
+          ((uint16_t)s->stepsremoved[0] << 8) | s->stepsremoved[1];
+      status->clock_source_info.timesource = s->timesource;
+    }
+
+  status->last_clock_update = state->last_delta_timestamp;
+  status->last_delta_ns     = state->last_delta_ns;
+  status->last_adjtime_ns   = state->last_adjtime_ns;
+  status->drift_ppb         = state->drift_ppb;
+  status->path_delay_ns     = state->path_delay_ns;
+
+  status->last_received_multicast    = state->last_received_multicast;
+  status->last_received_announce     = state->last_received_announce;
+  status->last_received_sync         = state->last_received_sync;
+  status->last_transmitted_sync      = state->last_transmitted_sync;
+  status->last_transmitted_announce  = state->last_transmitted_announce;
+  status->last_transmitted_delayresp = state->last_transmitted_delayresp;
+  status->last_transmitted_delayreq  = state->last_transmitted_delayreq;
+  status->last_transmitted_pdelayreq = state->last_transmitted_pdelayreq;
+}
+
+#ifdef CONFIG_BUILD_FLAT
+/* Process status information request in flat build mode */
+
+static void ptp_process_statusreq(FAR struct ptp_state_s *state)
+{
+  if (!state->status_req.dest)
+    {
+      return; /* No active request */
+    }
+
+  ptp_populate_status(state, state->status_req.dest);
+
+  /* Post semaphore to inform that we are done */
+
+  if (state->status_req.done)
+    {
+      sem_post(state->status_req.done);
+    }
+
+  state->status_req.done = NULL;
+  state->status_req.dest = NULL;
+}
+#endif
+
 /* Dump status to file when requested via signal.
  * Write atomically: temp file + rename.
  */
@@ -1581,48 +2200,7 @@ static void ptp_dump_status_file(FAR struct ptp_state_s *state)
 
   state->dump = false;
 
-  memset(&status, 0, sizeof(status));
-  status.clock_source_valid = state->selected_source_valid;
-
-  if (status.clock_source_valid)
-    {
-      FAR struct ptp_announce_s *s = &state->selected_source;
-
-      memcpy(status.clock_source_info.id,
-             s->header.sourceidentity,
-             sizeof(status.clock_source_info.id));
-
-      status.clock_source_info.utcoffset =
-          (int16_t)(((uint16_t)s->utcoffset[0] << 8) | s->utcoffset[1]);
-      status.clock_source_info.priority1 = s->gm_priority1;
-      status.clock_source_info.clockclass = s->gm_quality[0];
-      status.clock_source_info.accuracy = s->gm_quality[1];
-      status.clock_source_info.priority2 = s->gm_priority2;
-      status.clock_source_info.variance =
-          ((uint16_t)s->gm_quality[2] << 8) | s->gm_quality[3];
-
-      memcpy(status.clock_source_info.gm_id,
-             s->gm_identity,
-             sizeof(status.clock_source_info.gm_id));
-
-      status.clock_source_info.stepsremoved =
-          ((uint16_t)s->stepsremoved[0] << 8) | s->stepsremoved[1];
-      status.clock_source_info.timesource = s->timesource;
-    }
-
-  status.last_clock_update = state->last_delta_timestamp;
-  status.last_delta_ns     = state->last_delta_ns;
-  status.last_adjtime_ns   = state->last_adjtime_ns;
-  status.drift_ppb         = state->drift_ppb;
-  status.path_delay_ns     = state->path_delay_ns;
-
-  status.last_received_multicast    = state->last_received_multicast;
-  status.last_received_announce     = state->last_received_announce;
-  status.last_received_sync         = state->last_received_sync;
-  status.last_transmitted_sync      = state->last_transmitted_sync;
-  status.last_transmitted_announce  = state->last_transmitted_announce;
-  status.last_transmitted_delayresp = state->last_transmitted_delayresp;
-  status.last_transmitted_delayreq  = state->last_transmitted_delayreq;
+  ptp_populate_status(state, &status);
 
   snprintf(tmppath, sizeof(tmppath), "%s.tmp",
            CONFIG_NETUTILS_PTPD_STATUSFILE);
@@ -1767,6 +2345,9 @@ int ptpd_start(FAR const struct ptpd_config_s *config)
       ptp_periodic_send(state);
 
       state->selected_source_valid = is_selected_source_valid(state);
+#ifdef CONFIG_BUILD_FLAT
+      ptp_process_statusreq(state);
+#endif
       ptp_dump_status_file(state);
     }
 
@@ -1800,6 +2381,38 @@ errout:
 
 int ptpd_status(int pid, FAR struct ptpd_status_s *status)
 {
+#ifdef CONFIG_BUILD_FLAT
+  int ret = OK;
+  sem_t donesem;
+  struct ptpd_statusreq_s req;
+  union sigval val;
+  struct timespec timeout;
+
+  /* Fill in the status request */
+
+  memset(status, 0, sizeof(struct ptpd_status_s));
+  sem_init(&donesem, 0, 0);
+  req.done = &donesem;
+  req.dest = status;
+  val.sival_ptr = &req;
+
+  if (sigqueue(pid, SIGUSR1, val) != OK)
+    {
+      return -errno;
+    }
+
+  /* Wait for status request to be handled */
+
+  clock_gettime(CLOCK_MONOTONIC, &timeout);
+  timeout.tv_sec += 1;
+  if (sem_clockwait(&donesem, CLOCK_MONOTONIC, &timeout) != 0)
+    {
+      ret = -errno;
+    }
+
+  sem_destroy(&donesem);
+  return ret;
+#else
   int fd;
   int ret;
   int elapsed;
@@ -1846,6 +2459,7 @@ int ptpd_status(int pid, FAR struct ptpd_status_s *status)
     }
 
   return OK;
+#endif
 }
 
 /****************************************************************************

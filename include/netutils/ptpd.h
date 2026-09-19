@@ -37,15 +37,23 @@
  * Public Types
  ****************************************************************************/
 
+enum ptp_delay_mechanism_e
+{
+  PTP_DELAY_NONE = 0,
+  PTP_DELAY_E2E,
+  PTP_DELAY_P2P
+};
+
 struct ptpd_config_s
 {
   FAR const char *interface;
   FAR const char *clock;
   bool client_only;
   bool hardware_ts;
-  bool delay_e2e;
+  enum ptp_delay_mechanism_e delay_mechanism;
   bool bmca;
   sa_family_t af;
+  int32_t ingress_latency_ns; /* Hardware RX timestamp latency (ns) */
 };
 
 /* PTPD status information structure */
@@ -106,6 +114,7 @@ struct ptpd_status_s
   struct timespec last_transmitted_announce;
   struct timespec last_transmitted_delayresp;
   struct timespec last_transmitted_delayreq;
+  struct timespec last_transmitted_pdelayreq;
 };
 
 /****************************************************************************
