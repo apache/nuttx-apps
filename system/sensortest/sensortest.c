@@ -135,6 +135,7 @@ static const struct sensor_info g_sensor_info[] =
 static void print_vec3(const char *buffer, const char *name)
 {
   FAR struct sensor_accel *event = (FAR struct sensor_accel *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " x:%.2f y:%.2f z:%.2f, "
          "temperature:%.2f\n",
          name, event->timestamp, event->x, event->y,
@@ -144,6 +145,7 @@ static void print_vec3(const char *buffer, const char *name)
 static void print_valb(const char *buffer, const char *name)
 {
   FAR struct sensor_hall *event = (FAR struct sensor_hall *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " value:%" PRIi32 "\n",
          name, event->timestamp, event->hall);
 }
@@ -151,6 +153,7 @@ static void print_valb(const char *buffer, const char *name)
 static void print_vali2(const char *buffer, const char *name)
 {
   FAR struct sensor_ots *event = (FAR struct sensor_ots *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " value1:% " PRIi32 " value2:% " PRIi32
          "\n", name, event->timestamp, event->x, event->y);
 }
@@ -158,6 +161,7 @@ static void print_vali2(const char *buffer, const char *name)
 static void print_valf(const char *buffer, const char *name)
 {
   FAR struct sensor_prox *event = (FAR struct sensor_prox *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " value:%.2f\n",
          name, event->timestamp, event->proximity);
 }
@@ -165,6 +169,7 @@ static void print_valf(const char *buffer, const char *name)
 static void print_valf2(const char *buffer, const char *name)
 {
   FAR struct sensor_baro *event = (FAR struct sensor_baro *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " value1:%.2f value2:%.2f\n",
          name, event->timestamp, event->pressure, event->temperature);
 }
@@ -172,6 +177,7 @@ static void print_valf2(const char *buffer, const char *name)
 static void print_valf3(const char *buffer, const char *name)
 {
   FAR struct sensor_rgb *event = (FAR struct sensor_rgb *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " value1:%.2f value2:%.2f, value3:%.2f\n",
          name, event->timestamp, event->r, event->g, event->b);
 }
@@ -179,6 +185,7 @@ static void print_valf3(const char *buffer, const char *name)
 static void print_ecg(const char *buffer, const char *name)
 {
   struct sensor_ecg *event = (struct sensor_ecg *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " ecg:%.4f status:%" PRIu32,
          name, event->timestamp, event->ecg, event->status);
 }
@@ -194,6 +201,7 @@ static void print_force(const char *buffer, const char *name)
 static void print_ppgd(const char *buffer, const char *name)
 {
   FAR struct sensor_ppgd *event = (FAR struct sensor_ppgd *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " ppg1:%" PRIu32 " ppg2:%" PRIu32 " "
          "current:%" PRIu32 " gain1:%" PRIu16 " gain2:%" PRIu16 "\n",
          name, event->timestamp, event->ppg[0], event->ppg[1],
@@ -203,6 +211,7 @@ static void print_ppgd(const char *buffer, const char *name)
 static void print_ppgq(const char *buffer, const char *name)
 {
   FAR struct sensor_ppgq *event = (FAR struct sensor_ppgq *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " ppg1:%" PRIu32 " ppg2:%" PRIu32 " "
          "ppg3:%" PRIu32 " ppg4:%" PRIu32 " current:%" PRIu32 " "
          "gain1:%" PRIu16 " gain2:%" PRIu16 " gain3:%" PRIu16 " "
@@ -215,6 +224,7 @@ static void print_ppgq(const char *buffer, const char *name)
 static void print_cap(FAR const char *buffer, FAR const char *name)
 {
   FAR struct sensor_cap *event = (FAR struct sensor_cap *)buffer;
+
   printf("%s: timestamp:%" PRIu64 " status:%" PRIu32 " "
          "rawdata0:%" PRIu32 " rawdata1:%" PRIu32 " rawdata2:%" PRIu32 " "
          "rawdata3:%" PRIu32 "\n",
