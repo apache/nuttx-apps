@@ -90,6 +90,8 @@ static const struct sensor_info g_sensor_info[] =
   {print_valf2, sizeof(struct sensor_baro),  "baro"},
   {print_cap,   sizeof(struct sensor_cap),   "cap"},
   {print_valf,  sizeof(struct sensor_co2),   "co2"},
+  {print_valf,  sizeof(struct sensor_current),
+                                             "current"},
   {print_valf,  sizeof(struct sensor_dust),  "dust"},
   {print_ecg,   sizeof(struct sensor_ecg),   "ecg"},
   {print_force, sizeof(struct sensor_force), "force"},
@@ -112,6 +114,7 @@ static const struct sensor_info g_sensor_info[] =
   {print_valf,  sizeof(struct sensor_pm10),  "pm10"},
   {print_valf,  sizeof(struct sensor_pm1p0), "pm1p0"},
   {print_valf,  sizeof(struct sensor_pm25),  "pm25"},
+  {print_valf,  sizeof(struct sensor_power), "power"},
   {print_ppgd,  sizeof(struct sensor_ppgd),  "ppgd"},
   {print_ppgq,  sizeof(struct sensor_ppgq),  "ppgq"},
   {print_valf,  sizeof(struct sensor_prox),  "prox"},
@@ -120,7 +123,9 @@ static const struct sensor_info g_sensor_info[] =
              sizeof(struct sensor_velocity), "velocity"},
   {print_valf,  sizeof(struct sensor_temp),  "temp"},
   {print_valf,  sizeof(struct sensor_tvoc),  "tvoc"},
-  {print_valf,  sizeof(struct sensor_uv),    "uv"}
+  {print_valf,  sizeof(struct sensor_uv),    "uv"},
+  {print_valf,  sizeof(struct sensor_voltage),
+                                             "voltage"}
 };
 
 /****************************************************************************
