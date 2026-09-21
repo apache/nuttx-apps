@@ -245,4 +245,59 @@ config NIMBLE_PORTING_EXAMPLE_STACKSIZE
 
 endif # NIMBLE_PORTING_EXAMPLE
 
+comment "NimBLE included services"
+
+menu "NimBLE DIS service options"
+
+config NIMBLE_DIS_FIRMWARE_REVISION_READ_PERM
+	int "Firmware revision read permission"
+	default -1
+	---help---
+		A value >= 0 enables the firmware revision characteristic and acts as
+		the permission flags.
+
+config NIMBLE_DIS_HARDWARE_REVISION_READ_PERM
+	int "Hardware revision read permission"
+	default -1
+	---help---
+		A value >= 0 enables the hardware revision characteristic and acts as
+		the permission flags.
+
+config NIMBLE_DIS_MANUFACTURER_NAME_READ_PERM
+	int "Manufacturer name read permission"
+	default -1
+	---help---
+		A value >= 0 enables the manufacturer name characteristic and acts as
+		the permission flags.
+
+config NIMBLE_DIS_MODEL_NUMBER_READ_PERM
+	int "Model number read permission"
+	default 0
+	---help---
+		A value >= 0 enables the model number characteristic and acts as the
+		permission flags.
+
+config NIMBLE_DIS_SERIAL_NUMBER_READ_PERM
+	int "Serial number read permission"
+	default -1
+	---help---
+		A value >= 0 enables the serial number characteristic and acts as the
+		permission flags.
+
+config NIMBLE_DIS_SOFTWARE_REVISION_READ_PERM
+	int "Software revision read permission"
+	default -1
+	---help---
+		A value >= 0 enables the software revision characteristic and acts as
+		the permission flags.
+
+config NIMBLE_DIS_SYSTEM_ID_READ_PERM
+	int "System ID read permission"
+	default -1
+	---help---
+		A value >= 0 enables the system ID characteristic and acts as the
+		permission flags.
+
+endmenu # NimBLE DIS service options
+
 endif # NIMBLE
