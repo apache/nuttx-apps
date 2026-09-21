@@ -73,9 +73,6 @@ void ble_hci_sock_set_device(int dev);
  * Private Functions Prototypes
  ****************************************************************************/
 
-static void put_ad(uint8_t ad_type, uint8_t ad_len, FAR const void *ad,
-                   FAR uint8_t *buf, FAR uint8_t *len);
-static void update_ad(void);
 static void start_advertise(void);
 static int gap_event_cb(FAR struct ble_gap_event *event, FAR void *arg);
 static void app_ble_sync_cb(void);
@@ -95,53 +92,38 @@ static uint8_t g_own_addr_type;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: put_ad
- ****************************************************************************/
-
-static void put_ad(uint8_t ad_type, uint8_t ad_len, FAR const void *ad,
-                   FAR uint8_t *buf, FAR uint8_t *len)
-{
-  buf[(*len)++] = ad_len + 1;
-  buf[(*len)++] = ad_type;
-
-  memcpy(&buf[*len], ad, ad_len);
-
-  *len += ad_len;
-}
-
-/****************************************************************************
- * Name: update_ad
- ****************************************************************************/
-
-static void update_ad(void)
-{
-  uint8_t ad_flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
-  uint8_t ad_len   = 0;
-  uint8_t ad[BLE_HS_ADV_MAX_SZ];
-
-  put_ad(BLE_HS_ADV_TYPE_FLAGS, 1, &ad_flags, ad, &ad_len);
-  put_ad(BLE_HS_ADV_TYPE_COMP_NAME, sizeof(g_gap_name), g_gap_name,
-         ad, &ad_len);
-
-  ble_gap_adv_set_data(ad, ad_len);
-}
-
-/****************************************************************************
  * Name: start_advertise
  ****************************************************************************/
 
 static void start_advertise(void)
 {
   struct ble_gap_adv_params advp;
+  struct ble_hs_adv_fields  adv_fields;
   int                       rc;
 
   printf("advertise\n");
 
-  update_ad();
+  /* Set advertisement parameters */
 
   memset(&advp, 0, sizeof advp);
   advp.conn_mode = BLE_GAP_CONN_MODE_UND;
   advp.disc_mode = BLE_GAP_DISC_MODE_GEN;
+
+  /* Populate fields for advertising data */
+
+  memset(&adv_fields, 0, sizeof(adv_fields));
+  adv_fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP,
+
+  adv_fields.name = (uint8_t *)g_gap_name;
+  adv_fields.name_len = strlen(g_gap_name);
+  adv_fields.name_is_complete = 1;
+
+  adv_fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
+  adv_fields.tx_pwr_lvl_is_present = 1;
+
+  rc = ble_gap_adv_set_fields(&adv_fields);
+  assert(rc == 0);
+
   rc = ble_gap_adv_start(g_own_addr_type, NULL, BLE_HS_FOREVER,
                          &advp, gap_event_cb, NULL);
   assert(rc == 0);
