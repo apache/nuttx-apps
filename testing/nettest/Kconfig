@@ -44,4 +44,9 @@ config TESTING_NET_OTHERS
 	bool "Enable cmocka net other test"
 	default y
 
+config TESTING_NET_TIMESTAMP
+	bool "Enable cmocka net timestamp test"
+	depends on NET_TIMESTAMP && NET_PKT
+	default n
+
 endif

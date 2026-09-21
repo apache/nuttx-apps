@@ -58,5 +58,11 @@ CSRCS    += others/test_others_common.c others/test_others_bufpool.c \
             others/test_others_chksum.c
 endif
 
+ifeq ($(CONFIG_TESTING_NET_TIMESTAMP),y)
+MAINSRC  += timestamp/test_timestamp.c
+PROGNAME += cmocka_net_timestamp
+CSRCS    += timestamp/test_timestamp_common.c
+endif
+
 endif
 include $(APPDIR)/Application.mk
