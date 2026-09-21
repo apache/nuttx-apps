@@ -62,16 +62,12 @@ if(CONFIG_TFLITEMICRO)
 
   set(COMMON_FLAGS
       -DTF_LITE_STATIC_MEMORY
+      -DTFLITE_EMULATE_FLOAT
       -DTF_LITE_DISABLE_X86_NEON
-      -Wno-sign-compare
-      -Wno-unused-variable
-      -Wno-undef
       -Wno-shadow
-      -O3)
-
-  if(CONFIG_MLEARNING_CMSIS_NN)
-    list(APPEND COMMON_FLAGS -DCMSIS_NN)
-  endif()
+      -Wno-sign-compare
+      -Wno-undef
+      -Wno-unused-variable)
 
   if(CONFIG_TFLITEMICRO_DEBUG)
     list(APPEND COMMON_FLAGS -DTF_LITE_SHOW_MEMORY_USE)
@@ -132,7 +128,7 @@ if(CONFIG_TFLITEMICRO)
       endif()
     endforeach()
 
-    # 添加CMSIS_NN文件
+    # Add CMSIS-NN kernel sources
     list(APPEND NEW_TFLITE_MICRO_SRCS ${CMSIS_NN_SRCS})
     set(TFLITE_MICRO_SRCS ${NEW_TFLITE_MICRO_SRCS})
 
@@ -153,9 +149,8 @@ if(CONFIG_TFLITEMICRO)
 
   set(INCDIR
       ${NUTTX_APPS_DIR}/math/gemmlowp/gemmlowp
+      ${NUTTX_APPS_DIR}/math/kissfft/kissfft
       ${NUTTX_APPS_DIR}/math/ruy/ruy
-      ${NUTTX_APPS_DIR}/math/kissfft/kissfft
-      ${NUTTX_APPS_DIR}/math/kissfft/kissfft
       ${NUTTX_APPS_DIR}/mlearning/tflite-micro/tflite-micro
       ${NUTTX_APPS_DIR}/system/flatbuffers/flatbuffers/include)
 
