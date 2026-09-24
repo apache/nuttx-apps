@@ -59,6 +59,7 @@
 #include <sys/poll.h>
 #include <sys/stat.h>
 #include <nuttx/clock.h>
+#include <nuttx/ethtool.h>
 #include <nuttx/net/netconfig.h>
 #include <netutils/ptpd.h>
 
@@ -68,12 +69,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-/* Number of consecutive missing hardware TX timestamps after which the
- * driver is assumed not to provide them and software timestamps are used.
- */
-
-#define PTP_HWTS_TX_MAX_FAILURES 3
 
 #if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
 /* Outlier rejection of the measured phase error: number of recent samples
@@ -122,12 +117,10 @@ struct ptp_state_s
 
   int tx_socket;
 
-  /* Hardware TX timestamp retrieval: consecutive failures, and whether it
-   * was given up on because the driver does not provide the timestamps.
-   */
+  /* Hardware TX timestamp support and health tracking */
 
-  unsigned int hwts_tx_failures;
-  bool hwts_tx_disabled;
+  bool hwts_tx;
+  bool hwts_tx_failed;
 
   /* Sockets for PTP event and information ports */
 
@@ -766,6 +759,41 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
         }
     }
 
+  /* Query timestamping capabilities */
+
+  state->hwts_tx = false;
+  state->hwts_tx_failed = false;
+#ifdef CONFIG_NET_TIMESTAMP
+  if (state->config->hardware_ts)
+    {
+      struct ethtool_ts_info info;
+
+      memset(&info, 0, sizeof(info));
+      info.cmd = ETHTOOL_GET_TS_INFO;
+
+      memset(&req, 0, sizeof(req));
+      strlcpy(req.ifr_name, state->config->interface, sizeof(req.ifr_name));
+      req.ifr_data = &info;
+
+      ret = ioctl(state->event_socket, SIOCETHTOOL, (unsigned long)&req);
+      if (ret < 0)
+        {
+          ptperr("ETHTOOL_GET_TS_INFO failed for %s: %d\n",
+                 state->config->interface, errno);
+          return ERROR;
+        }
+      else if ((info.so_timestamping & SOF_TIMESTAMPING_TX_HARDWARE) == 0)
+        {
+          ptpwarn("Interface %s does not support hardware TX timestamping\n",
+                  state->config->interface);
+        }
+      else
+        {
+          state->hwts_tx = true;
+        }
+    }
+#endif
+
   /* Get address information of the specified interface for binding socket
    * Only supports IPv4 currently.
    */
@@ -1006,8 +1034,7 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
   int ret;
   struct timespec sw_ts;
 #ifdef CONFIG_NET_TIMESTAMP
-  bool do_hwts = (sendts != NULL && state->config->hardware_ts &&
-                  !state->hwts_tx_disabled &&
+  bool do_hwts = (sendts != NULL && state->hwts_tx &&
                   state->config->af == AF_PACKET);
 #endif
 
@@ -1127,7 +1154,7 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
 
           if (ptp_get_tx_timestamp(state, sendts) == OK)
             {
-              state->hwts_tx_failures = 0;
+              state->hwts_tx_failed = false;
 
               /* The frame reaches the wire later than the MAC latches the
                * timestamp: compensate the egress latency.
@@ -1137,17 +1164,11 @@ static int ptp_sendmsg(FAR struct ptp_state_s *state, FAR const void *buf,
             }
           else
             {
-              ptpwarn("PTP TX HWTS timeout, fallback to SW ts: "
-                      "%jd.%09ld s\n",
-                      (intmax_t)sw_ts.tv_sec, sw_ts.tv_nsec);
+              state->hwts_tx_failed = true;
+              ptperr("ERROR: PTP TX HWTS timeout, fallback to SW ts: "
+                     "%jd.%09ld s\n",
+                     (intmax_t)sw_ts.tv_sec, sw_ts.tv_nsec);
               *sendts = sw_ts;
-
-              if (++state->hwts_tx_failures >= PTP_HWTS_TX_MAX_FAILURES)
-                {
-                  state->hwts_tx_disabled = true;
-                  ptpwarn("Hardware TX timestamps unavailable, "
-                          "using software timestamps\n");
-                }
             }
 
           setsockopt(state->tx_socket, SOL_SOCKET, SO_TIMESTAMPING,
@@ -2321,7 +2342,8 @@ static void ptp_populate_status(FAR struct ptp_state_s *state,
                                 FAR struct ptpd_status_s *status)
 {
   memset(status, 0, sizeof(*status));
-  status->clock_source_valid = state->selected_source_valid;
+  status->clock_source_valid = state->selected_source_valid &&
+                               !state->hwts_tx_failed;
 
   if (status->clock_source_valid)
     {
