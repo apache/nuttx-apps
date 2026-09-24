@@ -70,6 +70,15 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Timestamping capabilities (ETHTOOL_GET_TS_INFO) the interface must
+ * report for hardware timestamping on the IEEE 802.3 transport, the same
+ * set linuxptp/ptp4l requires for 'time_stamping hardware'.
+ */
+
+#define PTP_HWTS_REQUIRED (SOF_TIMESTAMPING_TX_HARDWARE | \
+                           SOF_TIMESTAMPING_RX_HARDWARE | \
+                           SOF_TIMESTAMPING_RAW_HARDWARE)
+
 #if CONFIG_NETUTILS_PTPD_OUTLIER_THRESHOLD_NS > 0
 /* Outlier rejection of the measured phase error: number of recent samples
  * the median is taken over, the least number of samples needed before
@@ -759,12 +768,15 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
         }
     }
 
-  /* Query timestamping capabilities */
+  /* Query timestamping capabilities.  Hardware TX timestamps are only
+   * retrieved on the IEEE 802.3 transport (see ptp_sendmsg()), so the
+   * UDP transports do not depend on the driver providing them.
+   */
 
   state->hwts_tx = false;
   state->hwts_tx_failed = false;
 #ifdef CONFIG_NET_TIMESTAMP
-  if (state->config->hardware_ts)
+  if (state->config->hardware_ts && state->config->af == AF_PACKET)
     {
       struct ethtool_ts_info info;
 
@@ -782,10 +794,24 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
                  state->config->interface, errno);
           return ERROR;
         }
-      else if ((info.so_timestamping & SOF_TIMESTAMPING_TX_HARDWARE) == 0)
+      else if ((info.so_timestamping & PTP_HWTS_REQUIRED) !=
+               PTP_HWTS_REQUIRED)
         {
-          ptpwarn("Interface %s does not support hardware TX timestamping\n",
-                  state->config->interface);
+          /* -H was requested but the driver does not report hardware RX
+           * and TX timestamp support: refuse to start rather than
+           * silently run in software, the same way linuxptp/ptp4l refuses
+           * to start when 'time_stamping hardware' is configured on an
+           * interface whose ETHTOOL_GET_TS_INFO does not report them.
+           */
+
+          ptperr("Interface %s does not support hardware%s%s "
+                 "timestamping, use -S for software timestamps\n",
+                 state->config->interface,
+                 (info.so_timestamping & SOF_TIMESTAMPING_RX_HARDWARE) == 0 ?
+                 " RX" : "",
+                 (info.so_timestamping & SOF_TIMESTAMPING_TX_HARDWARE) == 0 ?
+                 " TX" : "");
+          return ERROR;
         }
       else
         {
@@ -1019,8 +1045,8 @@ static int ptp_get_tx_timestamp(FAR struct ptp_state_s *state,
     }
   else
     {
-      ptpwarn("PTP TX HWTS: poll ret=%d revents=0x%04x errno=%d\n",
-              ret, pfd.revents, errno);
+      ptpwarn("PTP TX HWTS: poll ret=%d revents=0x%04" PRIx32
+              " errno=%d\n", ret, pfd.revents, errno);
     }
 
   return ERROR;

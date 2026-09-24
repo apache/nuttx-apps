@@ -157,6 +157,8 @@ static void usage(FAR const char *progname)
                   " -6       UDP IPV6\n"
                   " Time Stamping:\n"
                   " -H       HARDWARE (default) depends on NET_TIMESTAMP\n"
+                  "          with -2, requires hardware RX and TX\n"
+                  "          timestamp support from the interface\n"
                   " -S       SOFTWARE\n"
                   " -B       The best master clock algorithm is used\n"
                   " -r       synchronize system (realtime) clock\n"
