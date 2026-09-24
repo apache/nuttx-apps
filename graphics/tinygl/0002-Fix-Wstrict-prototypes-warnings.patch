@@ -1,0 +1,131 @@
+From 24b54cc5e89984a6e100fed0312fe7b386a0d975 Mon Sep 17 00:00:00 2001
+From: Alan Carvalho de Assis <acassis@gmail.com>
+Date: Thu, 24 Sep 2026 09:47:19 -0300
+Subject: [PATCH 2/2] Fix -Wstrict-prototypes warnings
+
+Declare functions that take no arguments as (void) instead of ().  In
+C, () means "unspecified arguments", which newer compilers warn about
+and which C23 changes meaning of.  The public glGetError() declaration
+in <GL/gl.h> is included by every application, so the warning showed
+up in all users of the library too.
+---
+ include/GL/gl.h | 2 +-
+ src/init.c      | 2 +-
+ src/matrix.c    | 2 +-
+ src/memory.c    | 2 +-
+ src/misc.c      | 4 ++--
+ src/texture.c   | 2 +-
+ src/zgl.h       | 6 +++---
+ 7 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/include/GL/gl.h b/include/GL/gl.h
+index da16f81..ab4a10b 100644
+--- a/include/GL/gl.h
++++ b/include/GL/gl.h
+@@ -932,7 +932,7 @@ void glHint(GLint target,GLint mode);
+ void glGetIntegerv(GLint pname,GLint *params);
+ void glGetFloatv(GLint pname, GLfloat *v);
+ const GLubyte* glGetString(GLenum name);
+-GLenum glGetError();
++GLenum glGetError(void);
+ void glFrontFace(GLint mode);
+ 
+ /* opengl 1.2 arrays */
+diff --git a/src/init.c b/src/init.c
+index a394759..9220904 100644
+--- a/src/init.c
++++ b/src/init.c
+@@ -69,7 +69,7 @@ static void endSharedState(GLContext* c) {
+ #if TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST == 1
+ 
+ #define TGL_FLOAT_ERR(a, b) ((a - b) / b)
+-static int TinyGLRuntimeCompatibilityTest() {
++static int TinyGLRuntimeCompatibilityTest(void) {
+ 	GLfloat t = -0, tf2;
+ 	GLint t2 = 1 << 31;
+ 	memcpy(&tf2, &t2, 4);
+diff --git a/src/matrix.c b/src/matrix.c
+index 6234352..2bba0c6 100644
+--- a/src/matrix.c
++++ b/src/matrix.c
+@@ -8,7 +8,7 @@ void gl_print_matrix(const GLfloat* m) {
+ 	}
+ }
+ 
+-static void gl_matrix_update() {
++static void gl_matrix_update(void) {
+ 	GLContext* c = gl_get_context();
+ 	c->matrix_model_projection_updated = (c->matrix_mode <= 1);
+ }
+diff --git a/src/memory.c b/src/memory.c
+index 7cf44c5..5d9ae8a 100644
+--- a/src/memory.c
++++ b/src/memory.c
+@@ -2,7 +2,7 @@
+  * Memory allocator for TinyGL
+  */
+ 
+-static inline void required_for_compilation_(){
++static inline void required_for_compilation_(void){
+ 	return;
+ }
+ 
+diff --git a/src/misc.c b/src/misc.c
+index c7f1bb7..1b48fa2 100644
+--- a/src/misc.c
++++ b/src/misc.c
+@@ -192,7 +192,7 @@ void glopPolygonOffset(GLParam* p) {
+ 	c->offset_units = p[2].f;
+ }
+ 
+-GLenum glGetError() {
++GLenum glGetError(void) {
+ #if TGL_FEATURE_ERROR_CHECK == 1
+ 	GLContext* c = gl_get_context();
+ 	GLenum eflag = c->error_flag;
+@@ -256,4 +256,4 @@ void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format
+ 	/* TODO: implement read pixels.*/
+ }
+ 
+-void glFinish() { return; }
++void glFinish(void) { return; }
+diff --git a/src/texture.c b/src/texture.c
+index c2e5364..470a621 100644
+--- a/src/texture.c
++++ b/src/texture.c
+@@ -109,7 +109,7 @@ GLTexture* alloc_texture(GLint h) {
+ 	return t;
+ }
+ 
+-void glInitTextures() {
++void glInitTextures(void) {
+ 	/* textures */
+ 	GLContext* c = gl_get_context();
+ 	c->texture_2d_enabled = 0;
+diff --git a/src/zgl.h b/src/zgl.h
+index aa1ea70..cd82c00 100644
+--- a/src/zgl.h
++++ b/src/zgl.h
+@@ -429,8 +429,8 @@ void glopTranslate(GLParam *p);*/
+ void gl_enable_disable_light(GLint light, GLint v);
+ void gl_shade_vertex(GLVertex* v);
+ 
+-void glInitTextures();
+-void glEndTextures();
++void glInitTextures(void);
++void glEndTextures(void);
+ GLTexture* alloc_texture(GLint h);
+ 
+ /* image_util.c */
+@@ -456,7 +456,7 @@ GLSpecBuf* specbuf_get_buffer(const GLint shininess_i, const GLfloat shininess);
+ /* this clip epsilon is needed to avoid some rounding errors after
+    several clipping stages */
+ 
+-static void gl_eval_viewport() {
++static void gl_eval_viewport(void) {
+ 	GLContext* c = gl_get_context();
+ 	GLViewport* v;
+ 	GLfloat zsize = (1 << (ZB_Z_BITS + ZB_POINT_Z_FRAC_BITS));
+-- 
+2.43.0
+

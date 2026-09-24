@@ -1,0 +1,108 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig GRAPHICS_TINYGL
+	bool "TinyGL software OpenGL 1.1 subset"
+	default n
+	---help---
+		Enable TinyGL, a small software-only implementation of a subset of
+		OpenGL 1.1 originally written by Fabrice Bellard and maintained by
+		C-Chads (https://github.com/C-Chads/tinygl).
+
+		TinyGL renders into a memory buffer (struct ZBuffer).  The result
+		can be copied to a NuttX framebuffer device (/dev/fbN) with
+		ZB_copyFrameBuffer(), or TinyGL can render directly into the
+		mmap()ed framebuffer memory.
+
+		The sources are downloaded from GitHub at build time and patched
+		for NuttX (see the patches in apps/graphics/tinygl).
+
+if GRAPHICS_TINYGL
+
+config TINYGL_URL
+	string "TinyGL download URL"
+	default "https://github.com/C-Chads/tinygl/archive"
+	---help---
+		Base URL of the TinyGL source archives.  The file
+		<TINYGL_VERSION>.tar.gz is downloaded from here.
+
+config TINYGL_VERSION
+	string "TinyGL git revision"
+	default "36a7987e7bebfda19615ea33341b1cc0ff9c3b13"
+	---help---
+		Git commit of C-Chads/tinygl to download.  The NuttX patches are
+		made against this revision.
+
+choice
+	prompt "TinyGL pixel format"
+	default TINYGL_RENDER_BITS_32
+
+config TINYGL_RENDER_BITS_32
+	bool "32 bits per pixel (XRGB8888)"
+
+config TINYGL_RENDER_BITS_16
+	bool "16 bits per pixel (RGB565)"
+
+endchoice # TinyGL pixel format
+
+config TINYGL_TEXTURE_POW2
+	int "Texture size (log2)"
+	default 8
+	range 4 10
+	---help---
+		TinyGL uses a single, fixed texture size set at compile time.  All
+		textures are resized to (1 << TINYGL_TEXTURE_POW2) pixels square.
+		The default of 8 means 256x256 textures, which use 256KiB each in
+		32-bit mode.
+
+config TINYGL_SELECT
+	bool "Support GL_SELECT and GL_FEEDBACK render modes"
+	default n
+	---help---
+		Enable glRenderMode(GL_SELECT) (object picking with
+		glSelectBuffer()/glLoadName()) and GL_FEEDBACK.  Enabling this makes
+		all rendering slightly slower.
+
+config TINYGL_GL_POLYGON
+	bool "Support GL_POLYGON and GL_LINE_LOOP"
+	default y
+	---help---
+		Enable rendering of general polygons (up to
+		TINYGL_POLYGON_MAX_VERTEX vertices) and line loops.
+
+config TINYGL_POLYGON_MAX_VERTEX
+	int "Maximum number of vertices in a GL_POLYGON"
+	default 16
+	depends on TINYGL_GL_POLYGON
+
+config TINYGL_BLEND
+	bool "Support blending (glBlendFunc)"
+	default y
+
+config TINYGL_BLEND_DRAW_PIXELS
+	bool "Apply blending to glDrawPixels()"
+	default n
+	depends on TINYGL_BLEND
+
+config TINYGL_POLYGON_STIPPLE
+	bool "Support polygon stipple (glPolygonStipple)"
+	default y
+
+config TINYGL_NO_DRAW_COLOR
+	bool "Skip texels with the no-draw color (0xff00ff)"
+	default y
+	---help---
+		When enabled, texture mapped pixels whose color is exactly
+		magenta (0xff00ff) are not drawn, which gives cheap cut-out
+		textures.
+
+config TINYGL_ERROR_CHECK
+	bool "Enable glGetError() error checking"
+	default n
+	---help---
+		Set GL error flags on invalid calls so that they can be read with
+		glGetError().  Useful for debugging, slightly slower.
+
+endif # GRAPHICS_TINYGL

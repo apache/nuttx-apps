@@ -1,0 +1,43 @@
+From cb43569fb11bb988335056622f6f8db4ac2c7a14 Mon Sep 17 00:00:00 2001
+From: Alan Carvalho de Assis <acassis@gmail.com>
+Date: Thu, 24 Sep 2026 09:47:54 -0300
+Subject: [PATCH] zbuffer: do not over-read the source in
+ ZB_copyFrameBuffer()
+
+ZB_copyBuffer() copied `linesize` bytes per line, where linesize is the
+pitch of the destination buffer.  When the destination is wider than
+the TinyGL buffer (e.g. a hardware framebuffer whose lines are padded),
+this read past the end of every source line and, on the last line, past
+the end of the TinyGL pixel buffer.
+
+Copy zb->linesize bytes, the size of a TinyGL line, and keep using the
+destination pitch only to step through the destination.
+---
+ src/zbuffer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/zbuffer.c b/src/zbuffer.c
+index 6321340..e3e822c 100644
+--- a/src/zbuffer.c
++++ b/src/zbuffer.c
+@@ -131,7 +131,7 @@ static void ZB_copyBuffer(ZBuffer* zb, void* buf, GLint linesize) {
+ 				*(((PIXEL*)p1) + i) = *(q + i);
+ 		}
+ #else
+-		memcpy(p1, q, linesize);
++		memcpy(p1, q, zb->linesize);
+ #endif
+ 
+ 
+@@ -148,7 +148,7 @@ static void ZB_copyBuffer(ZBuffer* zb, void* buf, GLint linesize) {
+ 				*(((PIXEL*)p1) + i) = *(q + i);
+ 		}
+ #else
+-		memcpy(p1, q, linesize);
++		memcpy(p1, q, zb->linesize);
+ #endif
+ 	}
+ #endif
+-- 
+2.43.0
+

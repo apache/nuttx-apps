@@ -1,0 +1,182 @@
+From 202a4eba444f29055174ee33394a608607c4d35a Mon Sep 17 00:00:00 2001
+From: Alan Carvalho de Assis <acassis@gmail.com>
+Date: Sat, 26 Sep 2026 13:51:30 -0300
+Subject: [PATCH] Declare the input array parameters const, as OpenGL does
+
+glMaterialfv(), glLightfv(), glLightModelfv(), the glVertex*v(),
+glColor*v(), glNormal*v(), glTexCoord*v() and glRasterPos*v() families
+only read the array they are passed, and OpenGL declares that parameter
+const.  Do the same, so that callers can pass constant data, for
+example "static const GLfloat red[4]", without casts or warnings.
+---
+ include/GL/gl.h | 28 ++++++++++++++--------------
+ src/api.c       | 16 ++++++++--------
+ src/zraster.c   |  6 +++---
+ 3 files changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/include/GL/gl.h b/include/GL/gl.h
+index ab4a10b..1f651fc 100644
+--- a/include/GL/gl.h
++++ b/include/GL/gl.h
+@@ -804,26 +804,26 @@ void glPlotPixel(GLint x, GLint y, GLuint pixel);
+ #define PROTO_GL1(name)				\
+ void gl ## name ## 1f(GLfloat);	\
+ void gl ## name ## 1d(GLdouble);	\
+-void gl ## name ## 1fv(GLfloat *);		\
+-void gl ## name ## 1dv(GLdouble *);
++void gl ## name ## 1fv(const GLfloat *);		\
++void gl ## name ## 1dv(const GLdouble *);
+ 
+ #define PROTO_GL2(name)				\
+ void gl ## name ## 2f(GLfloat ,GLfloat);	\
+ void gl ## name ## 2d(GLdouble ,GLdouble);	\
+-void gl ## name ## 2fv(GLfloat *);		\
+-void gl ## name ## 2dv(GLdouble *);
++void gl ## name ## 2fv(const GLfloat *);		\
++void gl ## name ## 2dv(const GLdouble *);
+ 
+ #define PROTO_GL3(name)				\
+ void gl ## name ## 3f(GLfloat ,GLfloat ,GLfloat);	\
+ void gl ## name ## 3d(GLdouble ,GLdouble ,GLdouble);	\
+-void gl ## name ## 3fv(GLfloat *);		\
+-void gl ## name ## 3dv(GLdouble *);
++void gl ## name ## 3fv(const GLfloat *);		\
++void gl ## name ## 3dv(const GLdouble *);
+ 
+ #define PROTO_GL4(name)				\
+ void gl ## name ## 4f(GLfloat ,GLfloat ,GLfloat, GLfloat );	\
+ void gl ## name ## 4d(GLdouble ,GLdouble ,GLdouble, GLdouble );	\
+-void gl ## name ## 4fv(GLfloat *);		\
+-void gl ## name ## 4dv(GLdouble *);
++void gl ## name ## 4fv(const GLfloat *);		\
++void gl ## name ## 4dv(const GLdouble *);
+ 
+ PROTO_GL2(Vertex)
+ PROTO_GL3(Vertex)
+@@ -915,14 +915,14 @@ GLboolean glAreTexturesResident(	GLsizei n,
+ GLboolean glIsTexture(	GLuint texture);
+ /* lighting */
+ 
+-void glMaterialfv(GLint mode,GLint type,GLfloat *v);
++void glMaterialfv(GLint mode,GLint type,const GLfloat *v);
+ void glMaterialf(GLint mode,GLint type,GLfloat v);
+ void glColorMaterial(GLint mode,GLint type);
+ 
+-void glLightfv(GLint light,GLint type,GLfloat *v);
++void glLightfv(GLint light,GLint type,const GLfloat *v);
+ void glLightf(GLint light,GLint type,GLfloat v);
+ void glLightModeli(GLint pname,GLint param);
+-void glLightModelfv(GLint pname,GLfloat *param);
++void glLightModelfv(GLint pname,const GLfloat *param);
+ 
+ /* misc */
+ 
+@@ -978,9 +978,9 @@ void glRasterPos2f(GLfloat, GLfloat);
+ void glRasterPos3f(GLfloat, GLfloat, GLfloat);
+ void glRasterPos4f(GLfloat, GLfloat, GLfloat, GLfloat);
+ 
+-void glRasterPos2fv(GLfloat* v);
+-void glRasterPos3fv(GLfloat* v);
+-void glRasterPos4fv(GLfloat* v);
++void glRasterPos2fv(const GLfloat* v);
++void glRasterPos3fv(const GLfloat* v);
++void glRasterPos4fv(const GLfloat* v);
+ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, void* data);
+ void glPixelZoom(GLfloat x, GLfloat y);
+ 
+diff --git a/src/api.c b/src/api.c
+index e310a1b..3f082b5 100644
+--- a/src/api.c
++++ b/src/api.c
+@@ -17,7 +17,7 @@ void glVertex2f(GLfloat x, GLfloat y) { glVertex4f(x, y, 0, 1); }
+ 
+ void glVertex3f(GLfloat x, GLfloat y, GLfloat z) { glVertex4f(x, y, z, 1); }
+ 
+-void glVertex3fv(GLfloat* v) { glVertex4f(v[0], v[1], v[2], 1); }
++void glVertex3fv(const GLfloat* v) { glVertex4f(v[0], v[1], v[2], 1); }
+ 
+ /* glNormal */
+ 
+@@ -40,7 +40,7 @@ void glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
+ 	glEnd();
+ }
+ 
+-void glNormal3fv(GLfloat* v) { glNormal3f(v[0], v[1], v[2]); }
++void glNormal3fv(const GLfloat* v) { glNormal3f(v[0], v[1], v[2]); }
+ 
+ /* glColor */
+ 
+@@ -58,7 +58,7 @@ void glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+ 	gl_add_op(p);
+ }
+ 
+-void glColor4fv(GLfloat* v) {
++void glColor4fv(const GLfloat* v) {
+ 	GLParam p[8];
+ #include "error_check_no_context.h"
+ 	p[0].op = OP_Color;
+@@ -75,7 +75,7 @@ void glColor4fv(GLfloat* v) {
+ 
+ void glColor3f(GLfloat x, GLfloat y, GLfloat z) { glColor4f(x, y, z, 1); }
+ 
+-void glColor3fv(GLfloat* v) { glColor4f(v[0], v[1], v[2], 1); }
++void glColor3fv(const GLfloat* v) { glColor4f(v[0], v[1], v[2], 1); }
+ 
+ /* TexCoord */
+ 
+@@ -93,7 +93,7 @@ void glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q) {
+ 
+ void glTexCoord2f(GLfloat s, GLfloat t) { glTexCoord4f(s, t, 0, 1); }
+ 
+-void glTexCoord2fv(GLfloat* v) { glTexCoord4f(v[0], v[1], 0, 1); }
++void glTexCoord2fv(const GLfloat* v) { glTexCoord4f(v[0], v[1], 0, 1); }
+ 
+ void glEdgeFlag(GLint flag) {
+ 	GLParam p[2];
+@@ -360,7 +360,7 @@ void glFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLd
+ 
+ /* lightening */
+ 
+-void glMaterialfv(GLint mode, GLint type, GLfloat* v) {
++void glMaterialfv(GLint mode, GLint type, const GLfloat* v) {
+ 	GLParam p[7];
+ 	GLint i, n;
+ #define NEED_CONTEXT
+@@ -410,7 +410,7 @@ void glColorMaterial(GLint mode, GLint type) {
+ 	gl_add_op(p);
+ }
+ 
+-void glLightfv(GLint light, GLint type, GLfloat* v) {
++void glLightfv(GLint light, GLint type, const GLfloat* v) {
+ 	GLParam p[7];
+ 	GLint i;
+ #include "error_check_no_context.h"
+@@ -450,7 +450,7 @@ void glLightModeli(GLint pname, GLint param) {
+ 	gl_add_op(p);
+ }
+ 
+-void glLightModelfv(GLint pname, GLfloat* param) {
++void glLightModelfv(GLint pname, const GLfloat* param) {
+ 	GLParam p[6];
+ 	GLint i;
+ #include "error_check_no_context.h"
+diff --git a/src/zraster.c b/src/zraster.c
+index d19cfb2..334e317 100644
+--- a/src/zraster.c
++++ b/src/zraster.c
+@@ -67,9 +67,9 @@ void glopRasterPos(GLParam* p) {
+ void glRasterPos2f(GLfloat x, GLfloat y) { glRasterPos4f(x, y, 0, 1); }
+ void glRasterPos3f(GLfloat x, GLfloat y, GLfloat z) { glRasterPos4f(x, y, z, 1); }
+ 
+-void glRasterPos2fv(GLfloat* v) { glRasterPos2f(v[0], v[1]); }
+-void glRasterPos3fv(GLfloat* v) { glRasterPos3f(v[0], v[1], v[2]); }
+-void glRasterPos4fv(GLfloat* v) { glRasterPos4f(v[0], v[1], v[2], v[3]); }
++void glRasterPos2fv(const GLfloat* v) { glRasterPos2f(v[0], v[1]); }
++void glRasterPos3fv(const GLfloat* v) { glRasterPos3f(v[0], v[1], v[2]); }
++void glRasterPos4fv(const GLfloat* v) { glRasterPos4f(v[0], v[1], v[2], v[3]); }
+ 
+ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, void* data) {
+ 	/* TODO: Come up with a clever scheme for storing the data to avoid pointer dependency. */
+-- 
+2.43.0
+
