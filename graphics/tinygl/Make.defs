@@ -1,0 +1,55 @@
+############################################################################
+# apps/graphics/tinygl/Make.defs
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+ifneq ($(CONFIG_GRAPHICS_TINYGL),)
+CONFIGURED_APPS += $(APPDIR)/graphics/tinygl
+
+# TinyGL public headers: <GL/gl.h>, <zbuffer.h> and <zfeatures.h>
+
+CFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/tinygl/tinygl/include
+CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/graphics/tinygl/tinygl/include
+
+# The TinyGL feature switches change the layout of public structures (for
+# example struct ZBuffer and the PIXEL type), so they must be seen by both
+# the library and every application that includes the TinyGL headers.
+
+tgl_bool = $(if $(filter y,$(1)),1,0)
+
+TINYGL_DEFINES  = -DTGL_FEATURE_32_BITS=$(call tgl_bool,$(CONFIG_TINYGL_RENDER_BITS_32))
+TINYGL_DEFINES += -DTGL_FEATURE_16_BITS=$(call tgl_bool,$(CONFIG_TINYGL_RENDER_BITS_16))
+TINYGL_DEFINES += -DTGL_FEATURE_TEXTURE_POW2=$(CONFIG_TINYGL_TEXTURE_POW2)
+TINYGL_DEFINES += -DTGL_FEATURE_ALT_RENDERMODES=$(call tgl_bool,$(CONFIG_TINYGL_SELECT))
+TINYGL_DEFINES += -DTGL_FEATURE_GL_POLYGON=$(call tgl_bool,$(CONFIG_TINYGL_GL_POLYGON))
+TINYGL_DEFINES += -DTGL_FEATURE_BLEND=$(call tgl_bool,$(CONFIG_TINYGL_BLEND))
+TINYGL_DEFINES += -DTGL_FEATURE_BLEND_DRAW_PIXELS=$(call tgl_bool,$(CONFIG_TINYGL_BLEND_DRAW_PIXELS))
+TINYGL_DEFINES += -DTGL_FEATURE_POLYGON_STIPPLE=$(call tgl_bool,$(CONFIG_TINYGL_POLYGON_STIPPLE))
+TINYGL_DEFINES += -DTGL_FEATURE_NO_DRAW_COLOR=$(call tgl_bool,$(CONFIG_TINYGL_NO_DRAW_COLOR))
+TINYGL_DEFINES += -DTGL_FEATURE_ERROR_CHECK=$(call tgl_bool,$(CONFIG_TINYGL_ERROR_CHECK))
+
+ifneq ($(CONFIG_TINYGL_POLYGON_MAX_VERTEX),)
+TINYGL_DEFINES += -DPOLYGON_MAX_VERTEX=$(CONFIG_TINYGL_POLYGON_MAX_VERTEX)
+endif
+
+CFLAGS += $(TINYGL_DEFINES)
+CXXFLAGS += $(TINYGL_DEFINES)
+
+endif

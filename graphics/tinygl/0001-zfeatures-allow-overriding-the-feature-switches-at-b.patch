@@ -1,0 +1,228 @@
+From 7b0dd7f5ccc8826f8c49977b1d26f640fd959738 Mon Sep 17 00:00:00 2001
+From: Alan Carvalho de Assis <acassis@gmail.com>
+Date: Thu, 24 Sep 2026 09:45:18 -0300
+Subject: [PATCH 1/2] zfeatures: allow overriding the feature switches at build
+ time
+
+Wrap every tunable TGL_FEATURE_* (and related) definition in
+include/zfeatures.h, and POLYGON_MAX_VERTEX in src/zgl.h, with #ifndef
+so that a build system can select the features with -D compiler flags
+instead of editing the header.
+
+NuttX uses this to drive the TinyGL features from Kconfig
+(CONFIG_TINYGL_*).  The defaults are unchanged.
+---
+ include/zfeatures.h | 66 +++++++++++++++++++++++++++++++++++++++++++++
+ src/zgl.h           |  2 ++
+ 2 files changed, 68 insertions(+)
+
+diff --git a/include/zfeatures.h b/include/zfeatures.h
+index aa7a14c..a67249e 100644
+--- a/include/zfeatures.h
++++ b/include/zfeatures.h
+@@ -6,80 +6,134 @@
+ Enables setting the error flags when there's an error, so you can check it with glGetError
+ Disabling this has slight performance gains.
+ */
++#ifndef TGL_FEATURE_ERROR_CHECK
+ #define TGL_FEATURE_ERROR_CHECK 0
++#endif
+ /*
+ Strict out-of-memory checking. All OpenGL function calls are invalidated (ALL OF THEM) if a GL_OUT_OF_MEMORY error occurs.
+ This means that TinyGL has to constantly check all gl_malloc() attempts for errors and the state of the error state variable.
+ The checks slow down the renderer so it is not recommended , but
+ it's in the GL spec that this should occur.
+ */
++#ifndef TGL_FEATURE_STRICT_OOM_CHECKS
+ #define TGL_FEATURE_STRICT_OOM_CHECKS 0
++#endif
+ 
+ /*
+ Swap between using the inline'd malloc(), calloc(), and free() in zbuffer.h, or
+ a replacement gl_malloc(), gl_zalloc(), and gl_free() in memory.c
+ */
++#ifndef TGL_FEATURE_CUSTOM_MALLOC
+ #define TGL_FEATURE_CUSTOM_MALLOC 0
++#endif
+ 
+ /*
+ Use Fast Inverse Square Root. Toggleable because it's actually slower on some platforms,
+ And because some systems may have float types which are incompatible with it.
+ */
++#ifndef TGL_FEATURE_FISR
+ #define TGL_FEATURE_FISR 0
++#endif
+ 
++#ifndef TGL_FEATURE_ARRAYS
+ #define TGL_FEATURE_ARRAYS         1
++#endif
+ 
++#ifndef TGL_FEATURE_DISPLAYLISTS
+ #define TGL_FEATURE_DISPLAYLISTS   1
++#endif
+ 
++#ifndef TGL_FEATURE_LIT_TEXTURES
+ #define TGL_FEATURE_LIT_TEXTURES   1
++#endif
+ /*Enable the patternized "discard"-ing of pixels.*/
++#ifndef TGL_FEATURE_POLYGON_STIPPLE
+ #define TGL_FEATURE_POLYGON_STIPPLE 1
++#endif
+ /*Enable the use of GL_SELECT and GL_FEEDBACK*/
++#ifndef TGL_FEATURE_ALT_RENDERMODES
+ #define TGL_FEATURE_ALT_RENDERMODES 0
++#endif
+ /*
+ Enable the rendering of large polygons (in terms of vertex count)
+ Also enabled the rendering of line loops.
+ the maximum number of vertices in a polygon is defined in zgl.h
+ */
++#ifndef TGL_FEATURE_GL_POLYGON
+ #define TGL_FEATURE_GL_POLYGON      0
++#endif
+ 
++#ifndef TGL_FEATURE_BLEND
+ #define TGL_FEATURE_BLEND 			1
++#endif
+ 
++#ifndef TGL_FEATURE_BLEND_DRAW_PIXELS
+ #define TGL_FEATURE_BLEND_DRAW_PIXELS 0
++#endif
+ /*The width of textures as a power of 2. The default is 8, or 256x256 textures.*/
++#ifndef TGL_FEATURE_TEXTURE_POW2
+ #define TGL_FEATURE_TEXTURE_POW2	8
++#endif
+ #define TGL_FEATURE_TEXTURE_DIM		(1<<TGL_FEATURE_TEXTURE_POW2)
+ 
+ /*A stipple pattern is 128 bytes in size.*/
++#ifndef TGL_POLYGON_STIPPLE_BYTES
+ #define TGL_POLYGON_STIPPLE_BYTES 128
++#endif
+ /*A stipple pattern is 2^5 (32) bits wide.*/
++#ifndef TGL_POLYGON_STIPPLE_POW2_WIDTH
+ #define TGL_POLYGON_STIPPLE_POW2_WIDTH 5
++#endif
++#ifndef TGL_POLYGON_STIPPLE_MASK_X
+ #define TGL_POLYGON_STIPPLE_MASK_X 31
++#endif
++#ifndef TGL_POLYGON_STIPPLE_MASK_Y
+ #define TGL_POLYGON_STIPPLE_MASK_Y 31
++#endif
+ 
+ /*Use lookup tables for calculating specular light.*/
++#ifndef TGL_FEATURE_SPECULAR_BUFFERS
+ #define TGL_FEATURE_SPECULAR_BUFFERS 0
++#endif
+ 
+ /*Prevent ZB_copyFrameBuffer from copying certain colors.*/
++#ifndef TGL_FEATURE_NO_COPY_COLOR
+ #define TGL_FEATURE_NO_COPY_COLOR 0
++#endif
+ /*Don't draw (texture mapped) pixels whose color is the NO_DRAW_COLOR*/
++#ifndef TGL_FEATURE_NO_DRAW_COLOR
+ #define TGL_FEATURE_NO_DRAW_COLOR 1
++#endif
+ /*Regardless of the current clear color, always clear using the NO_COPY_COLOR*/
++#ifndef TGL_FEATURE_FORCE_CLEAR_NO_COPY_COLOR
+ #define TGL_FEATURE_FORCE_CLEAR_NO_COPY_COLOR 0
++#endif
++#ifndef TGL_NO_COPY_COLOR
+ #define TGL_NO_COPY_COLOR 0xff00ff
++#endif
++#ifndef TGL_NO_DRAW_COLOR
+ #define TGL_NO_DRAW_COLOR 0xff00ff
++#endif
+ /* solid debug pink.*/
++#ifndef TGL_COLOR_MASK
+ #define TGL_COLOR_MASK 0x00ffffff
++#endif
+ /* mask to check for while drawing/copying.*/
+ 
+ 
+ 
+ 
++#ifndef TGL_FEATURE_MULTITHREADED_DRAWPIXELS
+ #define TGL_FEATURE_MULTITHREADED_DRAWPIXELS	1
++#endif
+ 
++#ifndef TGL_FEATURE_MULTITHREADED_COPY_TEXIMAGE_2D
+ #define TGL_FEATURE_MULTITHREADED_COPY_TEXIMAGE_2D 1
++#endif
+ 
++#ifndef TGL_FEATURE_MULTITHREADED_ZB_COPYBUFFER
+ #define TGL_FEATURE_MULTITHREADED_ZB_COPYBUFFER 0
++#endif
+ 
+ /*
+ !!!!!WARNING!!!!!
+@@ -89,14 +143,18 @@ Disabled by default for compatibility- you should only enable this if you KNOW t
+ returns 16-byte aligned pointers.
+ */
+ 
++#ifndef TGL_FEATURE_ALIGNAS
+ #define TGL_FEATURE_ALIGNAS 0
++#endif
+ /*
+ Optimization hint- cost of branching.
+ 0- branching has zero cost, avoid extraneous code.
+ 1- Branching has some cost, allow some extraneous code
+ 2- Branching has extreme cost, allow a lot of extraneous code. Modern processors work best on this setting.
+ */
++#ifndef TGL_OPTIMIZATION_HINT_BRANCH_COST
+ #define TGL_OPTIMIZATION_HINT_BRANCH_COST 2
++#endif
+ 
+ 
+ #ifdef __TINYC__
+@@ -113,8 +171,12 @@ Optimization hint- cost of branching.
+ #endif
+ 
+ 
++#ifndef TGL_FEATURE_16_BITS
+ #define TGL_FEATURE_16_BITS        0
++#endif
++#ifndef TGL_FEATURE_32_BITS
+ #define TGL_FEATURE_32_BITS        1
++#endif
+ 
+ #if TGL_FEATURE_32_BITS == 1
+ #define TGL_FEATURE_RENDER_BITS    32
+@@ -128,11 +190,15 @@ Optimization hint- cost of branching.
+ #endif
+ 
+ /*The fraction bits in the fixed point values used for S and T in interpolatiion.*/
++#ifndef ZB_POINT_S_FRAC_BITS
+ #define ZB_POINT_S_FRAC_BITS 10
++#endif
+ #define ZB_POINT_T_FRAC_BITS (ZB_POINT_S_FRAC_BITS + TGL_FEATURE_TEXTURE_POW2)
+ 
+ /*Test the compatibility of the target platform at glInit() time.*/
++#ifndef TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST
+ #define TGL_FEATURE_TINYGL_RUNTIME_COMPAT_TEST 1
++#endif
+ 
+ #define TINYGL_VERSION 1.0
+ 
+diff --git a/src/zgl.h b/src/zgl.h
+index 77cc70a..aa1ea70 100644
+--- a/src/zgl.h
++++ b/src/zgl.h
+@@ -25,6 +25,7 @@ enum {
+ };
+ 
+ 
++#ifndef POLYGON_MAX_VERTEX
+ #if TGL_FEATURE_GL_POLYGON == 1
+ 
+ #define POLYGON_MAX_VERTEX 16
+@@ -32,6 +33,7 @@ enum {
+ 
+ #define POLYGON_MAX_VERTEX 4
+ #endif
++#endif
+ /* Max # of specular light pow buffers */
+ #define MAX_SPECULAR_BUFFERS 32
+ 
+-- 
+2.43.0
+
