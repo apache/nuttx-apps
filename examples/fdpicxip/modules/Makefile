@@ -46,8 +46,11 @@
 CPU ?= cortex-m3
 
 # The tools and the flags are the configured tree's own, so a fixture is
-# built the way CONFIG_FDPIC builds any module: same compiler, same
-# arm-uclinuxfdpiceabi linker, same linker script, same crt0 source.
+# built the way CONFIG_FDPIC builds any module or library: same compiler,
+# same arm-uclinuxfdpiceabi linker, same linker script, same crt0 source.
+# CMODULEFLAGS, CXXMODULEFLAGS and LDMODULEFLAGS are the module and library
+# variables, which carry neither an entry point nor a crt0, so a fixture
+# adds what it needs and nothing has to be filtered back out.
 
 TOPDIR := $(NUTTX_DIR)
 include $(NUTTX_DIR)/Make.defs
@@ -60,9 +63,8 @@ include $(NUTTX_DIR)/Make.defs
 # crt0 is compiled here rather than taken built, for the CPU reason.
 
 DROPFLAGS   = -march=% -mtune=% -mcpu=% -mfpu=% -mfloat-abi=%
-MODCFLAGS   = $(filter-out $(DROPFLAGS),$(CELFFLAGS)) -mcpu=$(CPU) -g0
-MODCXXFLAGS = $(filter-out $(DROPFLAGS),$(CXXELFFLAGS)) -mcpu=$(CPU) -g0
-MODLDFLAGS  = $(filter-out %crt0.o -e _start,$(LDELFFLAGS))
+MODCFLAGS   = $(filter-out $(DROPFLAGS),$(CMODULEFLAGS)) -mcpu=$(CPU) -g0
+MODCXXFLAGS = $(filter-out $(DROPFLAGS),$(CXXMODULEFLAGS)) -mcpu=$(CPU) -g0
 
 DEMODIR = ..
 DEMOREL = apps/examples/fdpicxip
@@ -82,8 +84,8 @@ crt0.o: $(NUTTX_DIR)/arch/arm/src/common/crt0.c
 # entered, so it has neither, and it is named by its SONAME, which is what a
 # consumer records in DT_NEEDED and the loader searches for.
 
-LINKMOD = $(MODULELD) $(MODLDFLAGS) -e _start -o $@ crt0.o
-LINKLIB = $(MODULELD) $(MODLDFLAGS) -e 0 -soname $(@F) -o $@
+LINKMOD = $(MODULELD) $(LDMODULEFLAGS) -e _start -o $@ crt0.o
+LINKLIB = $(MODULELD) $(LDMODULEFLAGS) -soname $(@F) -o $@
 
 # EMBED turns a built module into the committed header that carries it: $1
 # the artifact, $2 the symbol, $3 the header's path from the repository root,
@@ -159,8 +161,8 @@ cxxuser: cxxuser.o crt0.o libshape.so
 # table, which is the case this module exists to cover.
 
 lazymod: lazymod.o crt0.o
-	$(MODULELD) $(filter-out -z now,$(MODLDFLAGS)) -e _start -o $@ crt0.o \
-	    lazymod.o
+	$(MODULELD) $(filter-out -z now,$(LDMODULEFLAGS)) -e _start -o $@ \
+	    crt0.o lazymod.o
 
 # missingsym is linked with the bare module target rather than the
 # default 'verify' one: it is exactly what fdpic-verify.sh is to catch.
