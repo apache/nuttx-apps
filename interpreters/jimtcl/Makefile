@@ -35,28 +35,23 @@ JIMTCL_SRC      = $(JIMTCL_UNPACK)
 
 MAINSRC = $(JIMTCL_SRC)$(DELIM)jimsh.c
 
-# Obtain object list from jimtcl Makefile
-JIMTCL_OBJS := $(shell test -f $(JIMTCL_SRC)$(DELIM)Makefile		\
-                       && ( cat $(JIMTCL_SRC)$(DELIM)Makefile;		\
-                            printf 'print-%%:\n\techo $$($$*)' )	\
-                       | $(MAKE) -f - -s print-OBJS) initjimsh.o
-
-EXTOBJS = $(addprefix $(JIMTCL_SRC)$(DELIM), $(JIMTCL_OBJS))
+EXTOBJS = $(JIMTCL_SRC)$(DELIM)initjimsh.o
+EXTLIBS = $(JIMTCL_SRC)$(DELIM)libjim.a
 
 CFLAGS += -I$(JIMTCL_SRC)
 
-$(JIMTCL_SRC)$(DELIM)%.o: $(JIMTCL_SRC)$(DELIM)Makefile
-	$(Q) $(MAKE) -C $(JIMTCL_SRC) $*.o
+$(JIMTCL_SRC)$(DELIM)initjimsh.o: $(JIMTCL_SRC)$(DELIM)Makefile
+	$(MAKE) -C $(dir $@) $(notdir $@)
 
-$(JIMTCL_SRC)$(DELIM)jimsh.c: $(JIMTCL_SRC)$(DELIM)Makefile
-
-$(JIMTCL_SRC)$(DELIM)_initjimsh.c: $(JIMTCL_SRC)$(DELIM)Makefile
-	$(Q) $(MAKE) -C $(JIMTCL_SRC) $(notdir $@)
+$(JIMTCL_SRC)$(DELIM)libjim.a: $(JIMTCL_SRC)$(DELIM)Makefile
+	$(MAKE) -C $(dir $@) $(notdir $@)
 
 $(JIMTCL_SRC)$(DELIM)Makefile:
 	$(Q) cd $(dir $@)					\
 	  && ./configure --host=$(patsubst %-,%,$(CROSSDEV))	\
-	                 CFLAGS="$(CFLAGS)"
+	                 CFLAGS="$(CFLAGS)"			\
+	                 LDFLAGS="-nostdlib -Wl,--gc-sections --entry=main -L$(call CONVERT_PATH,$(TOPDIR)$(DELIM)staging) -L$(call CONVERT_PATH,$(TOPDIR)$(DELIM)arch$(DELIM)$(CONFIG_ARCH)$(DELIM)src$(DELIM)board) -L$(HOME)/staging" \
+	                 LIBS="-Wl,--start-group -lsched -ldrivers -lboards -lc -lmm -larch -lxx -lapps -lfs -lbinfmt -lboard $(EXTRA_LIBS) -Wl,--end-group"
 
 # Get the source code and apply a small patch because environ is
 # not settable in Nuttx. This is not required for basic jimtcl
@@ -69,6 +64,9 @@ $(JIMTCL_TARBALL):
 	$(Q) mv jimtcl-$(JIMTCL_VERSION) $(JIMTCL_UNPACK)
 	$(Q) sed -i '/^void Jim_SetEnviron/,/^}/{s/^/\/* /;s/$$/ *\//}'	\
 	  $(JIMTCL_SRC)$(DELIM)jim.c
+	$(Q) patch -p0 < socket.patch
+	$(Q) touch $(JIMTCL_SRC)$(DELIM)jim-config.h
+	$(Q) touch $(JIMTCL_SRC)$(DELIM)jimautoconf.h
 
 # Download and unpack tarball if no git repo found
 ifeq ($(wildcard $(JIMTCL_UNPACK)/.git),)
