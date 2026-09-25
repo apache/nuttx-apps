@@ -189,6 +189,16 @@ define ARLOCK
 	flock $1.lock $(call ARCHIVE, $1, $(2))
 endef
 
+define ARJOIN
+	mkdir $(notdir $1).dir;
+	cd $(notdir $1).dir;
+	$(CROSSDEV)ar x ..$(DELIM)$1;
+	for i in *; do mv $$i `echo $$i | sed s/[.]o$$/$(SUFFIX).o/`; done;
+	cd ..;
+	$(call ARLOCK,$2,$(notdir $1).dir$(DELIM)*);
+	rm -rf $(notdir $1).dir
+endef
+
 # dynamic AR target
 
 define AROBJSRULES

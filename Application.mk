@@ -290,13 +290,15 @@ $(foreach BATCH, $(OBJS_SPILT_TOTAL), \
 )
 endif
 
-$(PREFIX).built: $(AROBJS)
+$(PREFIX).built: $(AROBJS) $(EXTLIBS)
 	$(call SPLITVARIABLE,ALL_OBJS,$(AROBJS),100)
 	$(foreach BATCH, $(ALL_OBJS_TOTAL), \
 		$(if $(strip $(ALL_OBJS_$(BATCH))), \
 			$(shell $(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $(ALL_OBJS_$(BATCH)))) \
 		) \
 	)
+	$(foreach LIB, $(EXTLIBS), \
+		$(shell $(call ARJOIN,$(LIB),$(call CONVERT_PATH,$(BIN)))))
 	$(Q) touch $@
 
 ifeq ($(BUILD_MODULE),y)
