@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_TINYGL
+	tristate "TinyGL gears demo"
+	default n
+	depends on GRAPHICS_TINYGL && VIDEO_FB
+	---help---
+		Render the classic OpenGL "gears" demo with TinyGL on a framebuffer
+		device.  The framebuffer must use the same pixel format as TinyGL
+		(RGB32 or RGB565, see CONFIG_TINYGL_RENDER_BITS_*).
+
+		Usage: tinygl [frames] [fbdev]
+
+if EXAMPLES_TINYGL
+
+config EXAMPLES_TINYGL_DEFAULTFB
+	string "Default framebuffer driver"
+	default "/dev/fb0"
+
+config EXAMPLES_TINYGL_PROGNAME
+	string "Program name"
+	default "tinygl"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_TINYGL_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_TINYGL_STACKSIZE
+	int "Stack size"
+	default 16384
+
+endif
