@@ -57,7 +57,8 @@ $(BIN): $(BIN).r2
 	$(Q) $(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
 $(ROMFS_DIR)/$(BIN): $(BIN)
-	$(Q) install -D $(BIN) $(ROMFS_DIR)/$(BIN)
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) install -m 0755 $(BIN) $(ROMFS_DIR)/$(BIN)
 
 install: $(ROMFS_DIR)/$(BIN)
 
