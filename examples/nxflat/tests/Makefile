@@ -22,16 +22,24 @@
 
 include $(APPDIR)/Make.defs
 
-# Most of these do no build yet
-#SUBDIRS	= errno hello hello++ longjmp mutex pthread signal task struct
-SUBDIRS		= errno hello struct
+# hello++ is left out: two of its four modules convert, the third needs
+# R_ARM_TARGET1 from the converter and the fourth needs an iostream.
+
+SUBDIRS		= errno hello signal struct
+
+# longjmp imports setjmp() and longjmp(), which the symbol table exports only
+# where NuttX supplies them itself.
+
+ifeq ($(CONFIG_ARCH_SETJMP_H),y)
+SUBDIRS		+= longjmp
+endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-BUILD_SUBDIRS += mutex pthread
+SUBDIRS		+= mutex pthread
 endif
 
 ifneq ($(CONFIG_ARCH_ADDRENV),y)
-BUILD_SUBDIRS += task
+SUBDIRS		+= task
 endif
 
 NXFLAT_DIR	= $(APPDIR)/examples/nxflat
