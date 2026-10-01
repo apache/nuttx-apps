@@ -20,6 +20,14 @@ config EXAMPLES_LVGLDEMO_STACKSIZE
 	int "lvgldemo stack size"
 	default 16384
 
+config EXAMPLES_LVGLDEMO_UTOUCH_DEVPATH
+	string "Second pointer device path"
+	depends on INPUT_TOUCHSCREEN
+	---help---
+		Optional second pointer device, opened alongside the primary
+		touchscreen:  both drive the same UI.  A VNC server's remote
+		pointer device is the usual tenant.  Leave empty for none.
+
 config EXAMPLES_LVGLDEMO_INPUT_DEVPATH
 	string "Touchscreen device path"
 	default "/dev/input0"
