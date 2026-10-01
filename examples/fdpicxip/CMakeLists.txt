@@ -21,5 +21,15 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_FDPICXIP)
-  nuttx_add_application(NAME fdpicxip SRCS fdpicxip_main.c)
+  nuttx_add_application(
+    NAME
+    fdpicxip
+    PRIORITY
+    SCHED_PRIORITY_DEFAULT
+    STACKSIZE
+    ${CONFIG_DEFAULT_TASK_STACKSIZE}
+    MODULE
+    ${CONFIG_EXAMPLES_FDPICXIP}
+    SRCS
+    fdpicxip_main.c)
 endif()
