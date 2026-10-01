@@ -103,33 +103,31 @@ static void nxscope_stream_overflow(FAR struct nxscope_s *s)
 }
 
 /****************************************************************************
- * Name: nxscope_ch_validate
+ * Name: nxscope_ch_check
+ *
+ * Description:
+ *   Check that the stream is started, the channel is enabled and (with
+ *   CONFIG_DEBUG_FEATURES) that the sample matches the channel config
+ *
  ****************************************************************************/
 
-static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
-                               uint8_t type, uint8_t d, uint8_t mlen)
+static int nxscope_ch_check(FAR struct nxscope_s *s, uint8_t ch,
+                            uint8_t type, uint8_t d, uint8_t mlen)
 {
-  union nxscope_chinfo_type_u utype;
-  size_t                      next_i    = 0;
-  int                         ret       = OK;
-  size_t                      type_size = 0;
-
   DEBUGASSERT(s);
 
   /* Do nothing if stream not started */
 
   if (!s->start)
     {
-      ret = -EAGAIN;
-      goto errout;
+      return -EAGAIN;
     }
 
   /* Do nothing if channel not enabled */
 
   if (s->chinfo[ch].enable != 1)
     {
-      ret = -EAGAIN;
-      goto errout;
+      return -EAGAIN;
     }
 
   /* Some additional checks if debug features enabled */
@@ -140,8 +138,7 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
   if (ch > s->cmninfo.chmax)
     {
       _err("ERROR: invalid channel %d\n", ch);
-      ret = -EINVAL;
-      goto errout;
+      return -EINVAL;
     }
 
   /* Validate channel type */
@@ -150,8 +147,7 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
     {
       _err("ERROR: invalid channel type %d != %d\n",
            s->chinfo[ch].type.u8, type);
-      ret = -EINVAL;
-      goto errout;
+      return -EINVAL;
     }
 
   /* Validate channel vdim */
@@ -159,8 +155,7 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
   if (s->chinfo[ch].vdim != d)
     {
       _err("ERROR: invalid channel dim %d\n", d);
-      ret = -EINVAL;
-      goto errout;
+      return -EINVAL;
     }
 
   /* Validate channel metadata size */
@@ -168,24 +163,52 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
   if (s->chinfo[ch].mlen != mlen)
     {
       _err("ERROR: invalid channel mlen %d\n", mlen);
-      ret = -EINVAL;
-      goto errout;
+      return -EINVAL;
     }
 #endif
 
-#ifdef CONFIG_LOGGING_NXSCOPE_DIVIDER
-  /* Handle sample rate divider */
+  return OK;
+}
 
+/****************************************************************************
+ * Name: nxscope_ch_div
+ *
+ * Description:
+ *   Return true if the sample rate divider keeps this channel sample
+ *
+ ****************************************************************************/
+
+static bool nxscope_ch_div(FAR struct nxscope_s *s, uint8_t ch)
+{
+#ifdef CONFIG_LOGGING_NXSCOPE_DIVIDER
   if (s->chinfo[ch].div != 0)
     {
       s->cntr[ch] += 1;
       if (s->cntr[ch] % (s->chinfo[ch].div + 1) != 0)
         {
-          ret = -EAGAIN;
-          goto errout;
+          return false;
         }
     }
 #endif
+
+  return true;
+}
+
+/****************************************************************************
+ * Name: nxscope_ch_space
+ *
+ * Description:
+ *   Check that the target buffer has room for one sample, flag a stream
+ *   overflow if not
+ *
+ ****************************************************************************/
+
+static int nxscope_ch_space(FAR struct nxscope_s *s, uint8_t type,
+                            uint8_t d, uint8_t mlen)
+{
+  union nxscope_chinfo_type_u utype;
+  size_t                      next_i    = 0;
+  size_t                      type_size = 0;
 
   /* Get utype */
 
@@ -217,17 +240,13 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
         {
           _err("ERROR: no space in cribuf %zu < %zu\n", s->cribuf_len,
                next_i);
-          ret = -ENOBUFS;
-          goto errout;
+          return -ENOBUFS;
         }
-      else
 #  endif
-        {
-          /* No more checks needed for critical channel */
 
-          ret = OK;
-          goto errout;
-        }
+      /* No more checks needed for critical channel */
+
+      return OK;
     }
 #endif
 
@@ -238,12 +257,33 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
     {
       _err("ERROR: no space for data %zu\n", s->stream_i);
       nxscope_stream_overflow(s);
-      ret = -ENOBUFS;
-      goto errout;
+      return -ENOBUFS;
     }
 
-errout:
-  return ret;
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nxscope_ch_validate
+ ****************************************************************************/
+
+static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
+                               uint8_t type, uint8_t d, uint8_t mlen)
+{
+  int ret;
+
+  ret = nxscope_ch_check(s, ch, type, d, mlen);
+  if (ret != OK)
+    {
+      return ret;
+    }
+
+  if (!nxscope_ch_div(s, ch))
+    {
+      return -EAGAIN;
+    }
+
+  return nxscope_ch_space(s, type, d, mlen);
 }
 
 /****************************************************************************
@@ -443,12 +483,20 @@ static void nxscope_put_sample(FAR uint8_t *buff, FAR size_t *buff_i,
 }
 
 /****************************************************************************
- * Name: nxscope_put_common_m
+ * Name: nxscope_put_buffer
+ *
+ * Description:
+ *   Put one sample on the stream buffer, or send it at once for a critical
+ *   channel
+ *
+ * NOTE: This function assumes that we have exclusive access to the nxscope
+ *       stream buffer and that the sample was validated
+ *
  ****************************************************************************/
 
-static int nxscope_put_common_m(FAR struct nxscope_s *s, uint8_t type,
-                                uint8_t ch, FAR void *val, uint8_t d,
-                                FAR uint8_t *meta, uint8_t mlen)
+static int nxscope_put_buffer(FAR struct nxscope_s *s, uint8_t type,
+                              uint8_t ch, FAR void *val, uint8_t d,
+                              FAR uint8_t *meta, uint8_t mlen)
 {
   FAR uint8_t                 *buff   = NULL;
   FAR size_t                  *buff_i = NULL;
@@ -457,20 +505,6 @@ static int nxscope_put_common_m(FAR struct nxscope_s *s, uint8_t type,
   size_t                       tmp    = 0;
   union nxscope_chinfo_type_u  utype;
 #endif
-
-  DEBUGASSERT(s);
-
-#ifndef CONFIG_LOGGING_NXSCOPE_DISABLE_PUTLOCK
-  nxscope_lock(s);
-#endif
-
-  /* Validate data */
-
-  ret = nxscope_ch_validate(s, ch, type, d, mlen);
-  if (ret != OK)
-    {
-      goto errout;
-    }
 
   /* Get buffer to send */
 
@@ -505,12 +539,37 @@ static int nxscope_put_common_m(FAR struct nxscope_s *s, uint8_t type,
       if (ret < 0)
         {
           _err("ERROR: nxscope_stream_send failed %d\n", ret);
-          goto errout;
         }
     }
 #endif
 
-errout:
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nxscope_put_common_m
+ ****************************************************************************/
+
+static int nxscope_put_common_m(FAR struct nxscope_s *s, uint8_t type,
+                                uint8_t ch, FAR void *val, uint8_t d,
+                                FAR uint8_t *meta, uint8_t mlen)
+{
+  int ret = OK;
+
+  DEBUGASSERT(s);
+
+#ifndef CONFIG_LOGGING_NXSCOPE_DISABLE_PUTLOCK
+  nxscope_lock(s);
+#endif
+
+  /* Validate data */
+
+  ret = nxscope_ch_validate(s, ch, type, d, mlen);
+  if (ret == OK)
+    {
+      ret = nxscope_put_buffer(s, type, ch, val, d, meta, mlen);
+    }
+
 #ifndef CONFIG_LOGGING_NXSCOPE_DISABLE_PUTLOCK
   nxscope_unlock(s);
 #endif
@@ -963,6 +1022,50 @@ int nxscope_put_vuint16(FAR struct nxscope_s *s, uint8_t ch,
                         FAR uint16_t *val, uint8_t d)
 {
   return nxscope_put_vuint16_m(s, ch, val, d, NULL, 0);
+}
+
+/****************************************************************************
+ * Name: nxscope_put_samples
+ ****************************************************************************/
+
+int nxscope_put_samples(FAR struct nxscope_s *s, uint8_t type, uint8_t ch,
+                        FAR void *val, uint8_t d, size_t n, size_t stride)
+{
+  FAR uint8_t *src = val;
+  size_t       i   = 0;
+  int          ret = OK;
+
+  DEBUGASSERT(s);
+  DEBUGASSERT(val);
+
+#ifndef CONFIG_LOGGING_NXSCOPE_DISABLE_PUTLOCK
+  nxscope_lock(s);
+#endif
+
+  /* The same checks as per-sample puts, but once for the whole block */
+
+  ret = nxscope_ch_check(s, ch, type, d, 0);
+
+  for (i = 0; i < n && ret == OK; i++)
+    {
+      if (!nxscope_ch_div(s, ch))
+        {
+          continue;
+        }
+
+      ret = nxscope_ch_space(s, type, d, 0);
+      if (ret == OK)
+        {
+          ret = nxscope_put_buffer(s, type, ch, &src[i * stride], d,
+                                   NULL, 0);
+        }
+    }
+
+#ifndef CONFIG_LOGGING_NXSCOPE_DISABLE_PUTLOCK
+  nxscope_unlock(s);
+#endif
+
+  return ret;
 }
 
 /****************************************************************************

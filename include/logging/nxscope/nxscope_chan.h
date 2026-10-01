@@ -286,6 +286,28 @@ int nxscope_put_vchar(FAR struct nxscope_s *s, uint8_t ch,
                       FAR char *val, uint8_t d);
 
 /****************************************************************************
+ * Name: nxscope_put_samples
+ *
+ * Description:
+ *   Put a block of vector samples of one channel without metadata on the
+ *   stream buffer.  Equivalent to n nxscope_put_vXXXX() calls, including
+ *   the sample rate divider, under one lock and one channel check.
+ *
+ * Input Parameters:
+ *   s      - a pointer to a nxscope instance
+ *   type   - a channel data type
+ *   ch     - a channel id
+ *   val    - a pointer to the first sample data vector
+ *   d      - a dimmention of sample data vector
+ *   n      - a number of samples
+ *   stride - a distance in bytes between consecutive samples
+ *
+ ****************************************************************************/
+
+int nxscope_put_samples(FAR struct nxscope_s *s, uint8_t type, uint8_t ch,
+                        FAR void *val, uint8_t d, size_t n, size_t stride);
+
+/****************************************************************************
  * Name: nxscope_put_XXXX_m
  *
  * Description:
