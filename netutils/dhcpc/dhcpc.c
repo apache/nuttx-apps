@@ -165,6 +165,7 @@ static FAR uint8_t *dhcpc_addhostname(FAR const char *hostname,
                                       FAR uint8_t *optptr)
 {
   int len = strlen(hostname);
+
   *optptr++ = DHCP_OPTION_HOST_NAME;
   *optptr++ = len;
   memcpy(optptr, hostname, len);
@@ -476,7 +477,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_LEASE_TIME:
 
-              /* Get lease time (in seconds) in host order */
+            /* Get lease time (in seconds) in host order */
 
             if (optptr + 6 <= end)
               {
@@ -492,7 +493,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_T1_TIME:
 
-              /* Get renewal (T1) time (in seconds) in host order */
+            /* Get renewal (T1) time (in seconds) in host order */
 
             if (optptr + 6 <= end)
               {
@@ -508,7 +509,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_T2_TIME:
 
-              /* Get rebinding (T2) time (in seconds) in host order */
+            /* Get rebinding (T2) time (in seconds) in host order */
 
             if (optptr + 6 <= end)
               {
@@ -866,13 +867,6 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                         (uint32_t)ntohl(presult->serverid.s_addr));
                   pdhcpc->ipaddr.s_addr   = presult->ipaddr.s_addr;
                   pdhcpc->serverid.s_addr = presult->serverid.s_addr;
-
-                  /* Temporarily use the address offered by the server
-                   * and break out of the loop.
-                   */
-
-                  netlib_set_ipv4addr(pdhcpc->interface,
-                                      &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -916,8 +910,12 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
         }
 
       /* Send the REQUEST message to obtain the lease that was offered to
-       * us.
+       * us.  The offered address must not be used before the server has
+       * acknowledged it, so the REQUEST is sent from the address we had
+       * before (0.0.0.0 when unconfigured), as RFC 2131 requires.
        */
+
+      netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
 
       ninfo("Send REQUEST\n");
       if (dhcpc_sendmsg(pdhcpc, presult, DHCPREQUEST) < 0)
@@ -925,6 +923,12 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
           return ERROR;
         }
 
+      /* Temporarily use the offered address so that a unicast ACK can be
+       * received.  Without UDP write buffers sendto() has returned only
+       * after the REQUEST was sent with the old source address.
+       */
+
+      netlib_set_ipv4addr(pdhcpc->interface, &pdhcpc->ipaddr);
       retries++;
 
       /* Get the ACK/NAK response to the REQUEST (or timeout) */
@@ -1001,10 +1005,13 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   while (state == STATE_HAVE_OFFER &&
          retries < CONFIG_NETUTILS_DHCPC_RETRIES);
 
-  /* If no DHCPLEASE received here, error out */
+  /* If no DHCPLEASE received here, drop the offered address and error
+   * out.
+   */
 
   if (state != STATE_HAVE_LEASE)
     {
+      netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
       return ERROR;
     }
 
@@ -1024,6 +1031,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   if (presult->num_dnsaddr > 0)
     {
       uint8_t i;
+
       for (i = 0; i < presult->num_dnsaddr; i++)
         {
           ninfo("Got DNS server %d: %u.%u.%u.%u\n", i,
@@ -1039,6 +1047,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   if (presult->num_ntpaddr > 0)
     {
       uint8_t i;
+
       for (i = 0; i < presult->num_ntpaddr; i++)
         {
           ninfo("Got NTP server %d: %u.%u.%u.%u\n", i,
