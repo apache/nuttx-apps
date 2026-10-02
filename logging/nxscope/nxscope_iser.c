@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 
 #include <nuttx/debug.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,6 +77,8 @@ static int nxscope_ser_send(FAR struct nxscope_intf_s *intf,
                             FAR uint8_t *buff, int len)
 {
   FAR struct nxscope_intf_ser_s *priv = NULL;
+  int                            i    = 0;
+  int                            ret  = OK;
 
   DEBUGASSERT(intf);
   DEBUGASSERT(intf->priv);
@@ -84,9 +87,29 @@ static int nxscope_ser_send(FAR struct nxscope_intf_s *intf,
 
   priv = (FAR struct nxscope_intf_ser_s *)intf->priv;
 
-  /* Write data */
+  /* Write as much of the frame as the port takes now.  A partial send is
+   * reported, the stream retry completes the frame later.
+   */
 
-  return write(priv->fd, buff, len);
+  while (i < len)
+    {
+      ret = write(priv->fd, &buff[i], len - i);
+      if (ret > 0)
+        {
+          i += ret;
+        }
+      else if (ret < 0 && errno == EINTR)
+        {
+          continue;
+        }
+      else
+        {
+          ret = (ret < 0) ? -errno : OK;
+          break;
+        }
+    }
+
+  return (i == 0 && ret < 0) ? ret : i;
 }
 
 /****************************************************************************
