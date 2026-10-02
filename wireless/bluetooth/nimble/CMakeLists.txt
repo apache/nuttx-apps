@@ -156,11 +156,10 @@ if(CONFIG_NIMBLE)
       mynewt-nimble/ext/tinycrypt/src/sha256.c
       mynewt-nimble/ext/tinycrypt/src/utils.c)
     target_include_directories(nimble
-                               PRIVATE mynewt-nimble/ext/tinycrypt/include)
+                               PUBLIC mynewt-nimble/ext/tinycrypt/include)
   endif()
 
   if(CONFIG_NIMBLE_MESH)
-    # TODO
     list(
       APPEND
       SRCS
@@ -169,7 +168,37 @@ if(CONFIG_NIMBLE)
       mynewt-nimble/nimble/host/mesh/src/adv_ext.c
       mynewt-nimble/nimble/host/mesh/src/adv_legacy.c
       mynewt-nimble/nimble/host/mesh/src/aes-ccm.c
-      mynewt-nimble/nimble/host/mesh/src/app_keys.c)
+      mynewt-nimble/nimble/host/mesh/src/app_keys.c
+      mynewt-nimble/nimble/host/mesh/src/beacon.c
+      mynewt-nimble/nimble/host/mesh/src/cdb.c
+      mynewt-nimble/nimble/host/mesh/src/cfg.c
+      mynewt-nimble/nimble/host/mesh/src/cfg_cli.c
+      mynewt-nimble/nimble/host/mesh/src/cfg_srv.c
+      mynewt-nimble/nimble/host/mesh/src/crypto.c
+      mynewt-nimble/nimble/host/mesh/src/friend.c
+      mynewt-nimble/nimble/host/mesh/src/glue.c
+      mynewt-nimble/nimble/host/mesh/src/health_cli.c
+      mynewt-nimble/nimble/host/mesh/src/health_srv.c
+      mynewt-nimble/nimble/host/mesh/src/heartbeat.c
+      mynewt-nimble/nimble/host/mesh/src/light_model.c
+      mynewt-nimble/nimble/host/mesh/src/lpn.c
+      mynewt-nimble/nimble/host/mesh/src/mesh.c
+      mynewt-nimble/nimble/host/mesh/src/model_cli.c
+      mynewt-nimble/nimble/host/mesh/src/model_srv.c
+      mynewt-nimble/nimble/host/mesh/src/msg.c
+      mynewt-nimble/nimble/host/mesh/src/net.c
+      mynewt-nimble/nimble/host/mesh/src/pb_adv.c
+      mynewt-nimble/nimble/host/mesh/src/pb_gatt.c
+      mynewt-nimble/nimble/host/mesh/src/pb_gatt_srv.c
+      mynewt-nimble/nimble/host/mesh/src/prov.c
+      mynewt-nimble/nimble/host/mesh/src/prov_device.c
+      mynewt-nimble/nimble/host/mesh/src/provisioner.c
+      mynewt-nimble/nimble/host/mesh/src/proxy_msg.c
+      mynewt-nimble/nimble/host/mesh/src/proxy_srv.c
+      mynewt-nimble/nimble/host/mesh/src/rpl.c
+      mynewt-nimble/nimble/host/mesh/src/settings.c
+      mynewt-nimble/nimble/host/mesh/src/subnet.c
+      mynewt-nimble/nimble/host/mesh/src/transport.c)
     target_include_directories(nimble
                                PUBLIC mynewt-nimble/nimble/host/mesh/include)
   endif()
