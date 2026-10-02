@@ -81,6 +81,11 @@ endif
 
 ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += waitpid.c
+ifeq ($(CONFIG_SCHED_CAPABILITIES),y)
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+CSRCS += caps.c
+endif
+endif
 endif
 
 ifeq ($(CONFIG_FS_CHROOT),y)
