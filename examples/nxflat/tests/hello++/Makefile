@@ -149,16 +149,20 @@ $(BIN3): $(BIN3).r2
 #	$(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
 $(ROMFS_DIR)/$(BIN1): $(BIN1)
-	$(Q) install -D $(BIN1) $(ROMFS_DIR)/$(BIN1)
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) install -m 0755 $(BIN1) $(ROMFS_DIR)/$(BIN1)
 
 $(ROMFS_DIR)/$(BIN2): $(BIN2)
-	$(Q) install -D $(BIN2) $(ROMFS_DIR)/$(BIN2)
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) install -m 0755 $(BIN2) $(ROMFS_DIR)/$(BIN2)
 
 $(ROMFS_DIR)/$(BIN3): $(BIN3)
-	$(Q) install -D $(BIN3) $(ROMFS_DIR)/$(BIN3)
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) install -m 0755 $(BIN3) $(ROMFS_DIR)/$(BIN3)
 
 #$(ROMFS_DIR)/$(BIN4): $(BIN4)
-#	$(Q) install -D $(BIN4) $(ROMFS_DIR)/$(BIN4)
+#	$(Q) mkdir -p $(ROMFS_DIR)
+#	$(Q) install -m 0755 $(BIN4) $(ROMFS_DIR)/$(BIN4)
 
 install: $(ROMFS_DIR)/$(BIN1) $(ROMFS_DIR)/$(BIN2) $(ROMFS_DIR)/$(BIN3)
 
