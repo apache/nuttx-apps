@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NIMBLE_MESH_VENDOR
+	tristate "NimBLE Mesh vendor model node example"
+	default n
+	depends on NIMBLE_MESH
+	---help---
+		Provisionable NimBLE Mesh node with a simple vendor model.
+
+if EXAMPLES_NIMBLE_MESH_VENDOR
+
+config EXAMPLES_NIMBLE_MESH_VENDOR_PROGNAME
+	string "Program name"
+	default "nimble_mesh_vendor"
+
+config EXAMPLES_NIMBLE_MESH_VENDOR_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_NIMBLE_MESH_VENDOR_STACKSIZE
+	int "Stack size"
+	default 4096
+
+endif
