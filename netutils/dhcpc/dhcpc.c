@@ -165,6 +165,7 @@ static FAR uint8_t *dhcpc_addhostname(FAR const char *hostname,
                                       FAR uint8_t *optptr)
 {
   int len = strlen(hostname);
+
   *optptr++ = DHCP_OPTION_HOST_NAME;
   *optptr++ = len;
   memcpy(optptr, hostname, len);
@@ -476,7 +477,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_LEASE_TIME:
 
-              /* Get lease time (in seconds) in host order */
+            /* Get lease time (in seconds) in host order */
 
             if (optptr + 6 <= end)
               {
@@ -492,7 +493,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_T1_TIME:
 
-              /* Get renewal (T1) time (in seconds) in host order */
+            /* Get renewal (T1) time (in seconds) in host order */
 
             if (optptr + 6 <= end)
               {
@@ -508,7 +509,7 @@ static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
 
           case DHCP_OPTION_T2_TIME:
 
-              /* Get rebinding (T2) time (in seconds) in host order */
+            /* Get rebinding (T2) time (in seconds) in host order */
 
             if (optptr + 6 <= end)
               {
@@ -1030,6 +1031,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   if (presult->num_dnsaddr > 0)
     {
       uint8_t i;
+
       for (i = 0; i < presult->num_dnsaddr; i++)
         {
           ninfo("Got DNS server %d: %u.%u.%u.%u\n", i,
@@ -1045,6 +1047,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   if (presult->num_ntpaddr > 0)
     {
       uint8_t i;
+
       for (i = 0; i < presult->num_ntpaddr; i++)
         {
           ninfo("Got NTP server %d: %u.%u.%u.%u\n", i,
