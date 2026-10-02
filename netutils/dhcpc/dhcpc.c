@@ -866,13 +866,6 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
                         (uint32_t)ntohl(presult->serverid.s_addr));
                   pdhcpc->ipaddr.s_addr   = presult->ipaddr.s_addr;
                   pdhcpc->serverid.s_addr = presult->serverid.s_addr;
-
-                  /* Temporarily use the address offered by the server
-                   * and break out of the loop.
-                   */
-
-                  netlib_set_ipv4addr(pdhcpc->interface,
-                                      &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -916,8 +909,12 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
         }
 
       /* Send the REQUEST message to obtain the lease that was offered to
-       * us.
+       * us.  The offered address must not be used before the server has
+       * acknowledged it, so the REQUEST is sent from the address we had
+       * before (0.0.0.0 when unconfigured), as RFC 2131 requires.
        */
+
+      netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
 
       ninfo("Send REQUEST\n");
       if (dhcpc_sendmsg(pdhcpc, presult, DHCPREQUEST) < 0)
@@ -925,6 +922,12 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
           return ERROR;
         }
 
+      /* Temporarily use the offered address so that a unicast ACK can be
+       * received.  Without UDP write buffers sendto() has returned only
+       * after the REQUEST was sent with the old source address.
+       */
+
+      netlib_set_ipv4addr(pdhcpc->interface, &pdhcpc->ipaddr);
       retries++;
 
       /* Get the ACK/NAK response to the REQUEST (or timeout) */
@@ -1001,10 +1004,13 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
   while (state == STATE_HAVE_OFFER &&
          retries < CONFIG_NETUTILS_DHCPC_RETRIES);
 
-  /* If no DHCPLEASE received here, error out */
+  /* If no DHCPLEASE received here, drop the offered address and error
+   * out.
+   */
 
   if (state != STATE_HAVE_LEASE)
     {
+      netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
       return ERROR;
     }
 
