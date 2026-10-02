@@ -212,8 +212,8 @@ static bool nxscope_ch_div(FAR struct nxscope_s *s, uint8_t ch)
  *
  ****************************************************************************/
 
-static int nxscope_ch_space(FAR struct nxscope_s *s, uint8_t type,
-                            uint8_t d, uint8_t mlen)
+static int nxscope_ch_space(FAR struct nxscope_s *s, uint8_t ch,
+                            uint8_t type, uint8_t d, uint8_t mlen)
 {
   union nxscope_chinfo_type_u utype;
   size_t                      next_i    = 0;
@@ -237,10 +237,12 @@ static int nxscope_ch_space(FAR struct nxscope_s *s, uint8_t type,
     }
 
 #ifdef CONFIG_LOGGING_NXSCOPE_CRICHANNELS
-  if (utype.s.cri)
+  if (s->chinfo[ch].type.s.cri)
     {
 #  ifdef CONFIG_DEBUG_FEATURES
-      next_i = (s->proto_stream->hdrlen + 1 + type_size * d + mlen +
+      /* Header, flags, channel id, data, metadata and footer */
+
+      next_i = (s->proto_stream->hdrlen + 2 + type_size * d + mlen +
                 s->proto_stream->footlen);
 
       /* Verify the size of the critical channels buffer  */
@@ -300,7 +302,7 @@ static int nxscope_ch_validate(FAR struct nxscope_s *s, uint8_t ch,
       return -EAGAIN;
     }
 
-  return nxscope_ch_space(s, type, d, mlen);
+  return nxscope_ch_space(s, ch, type, d, mlen);
 }
 
 /****************************************************************************
@@ -520,19 +522,23 @@ static int nxscope_put_buffer(FAR struct nxscope_s *s, uint8_t type,
   int                          ret    = OK;
 #ifdef CONFIG_LOGGING_NXSCOPE_CRICHANNELS
   size_t                       tmp    = 0;
-  union nxscope_chinfo_type_u  utype;
+  bool                         cri    = s->chinfo[ch].type.s.cri;
 #endif
 
   /* Get buffer to send */
 
 #ifdef CONFIG_LOGGING_NXSCOPE_CRICHANNELS
-  utype.u8 = type;
-  if (utype.s.cri)
+  if (cri)
     {
-      /* Dedicated critical channels buffer */
+      /* Dedicated critical channels buffer, laid out as a stream frame:
+       * header, flags, then the sample
+       */
 
       buff   = s->cribuf;
+      tmp    = s->proto_stream->hdrlen + 1;
       buff_i = &tmp;
+
+      buff[s->proto_stream->hdrlen] = 0;
     }
   else
 #endif
@@ -548,7 +554,7 @@ static int nxscope_put_buffer(FAR struct nxscope_s *s, uint8_t type,
   nxscope_put_sample(buff, buff_i, type, ch, val, d, meta, mlen);
 
 #ifdef CONFIG_LOGGING_NXSCOPE_CRICHANNELS
-  if (utype.s.cri)
+  if (cri)
     {
       /* Send data without buffering */
 
@@ -556,6 +562,12 @@ static int nxscope_put_buffer(FAR struct nxscope_s *s, uint8_t type,
       if (ret < 0)
         {
           _err("ERROR: nxscope_stream_send failed %d\n", ret);
+        }
+      else
+        {
+          /* The send returns a byte count, a put returns OK */
+
+          ret = OK;
         }
     }
 #endif
@@ -1070,7 +1082,7 @@ int nxscope_put_samples(FAR struct nxscope_s *s, uint8_t type, uint8_t ch,
           continue;
         }
 
-      ret = nxscope_ch_space(s, type, d, 0);
+      ret = nxscope_ch_space(s, ch, type, d, 0);
       if (ret == OK)
         {
           ret = nxscope_put_buffer(s, type, ch, &src[i * stride], d,

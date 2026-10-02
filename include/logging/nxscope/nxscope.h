@@ -309,7 +309,7 @@ struct nxscope_cfg_s
    * It's the user's responsibility to correctly choose this value.
    * The minimal buffer size for critical channels can be calculate
    * with this formula:
-   *    buff_size = max(proto_stream->hdrlen + 1 + type_size * vdim +
+   *    buff_size = max(proto_stream->hdrlen + 2 + type_size * vdim +
    *                    meta_len + proto_stream->footlen)
    *
    *    where max() means the maximum value from all initialized critical
