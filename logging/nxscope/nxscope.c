@@ -472,9 +472,11 @@ static void nxscope_stream_reset(FAR struct nxscope_s *s)
 
   s->stream_i = s->proto_stream->hdrlen + 1;
 
-  /* Reset flags */
+  /* Reset flags, keep an overflow from a frame that waited for retry */
 
-  s->streambuf[s->proto_stream->hdrlen] = 0;
+  s->streambuf[s->proto_stream->hdrlen] =
+    s->stream_ovf ? NXSCOPE_STREAM_FLAGS_OVERFLOW : 0;
+  s->stream_ovf = false;
 }
 
 /****************************************************************************

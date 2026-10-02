@@ -99,7 +99,16 @@ static void nxscope_stream_overflow(FAR struct nxscope_s *s)
 {
   DEBUGASSERT(s);
 
-  s->streambuf[s->proto_stream->hdrlen] |= NXSCOPE_STREAM_FLAGS_OVERFLOW;
+  /* A frame waiting for retry is final: flag the next one */
+
+  if (s->stream_retry)
+    {
+      s->stream_ovf = true;
+    }
+  else
+    {
+      s->streambuf[s->proto_stream->hdrlen] |= NXSCOPE_STREAM_FLAGS_OVERFLOW;
+    }
 }
 
 /****************************************************************************
@@ -249,6 +258,14 @@ static int nxscope_ch_space(FAR struct nxscope_s *s, uint8_t type,
       return OK;
     }
 #endif
+
+  /* The frame in the buffer waits for its retry */
+
+  if (s->stream_retry)
+    {
+      nxscope_stream_overflow(s);
+      return -ENOBUFS;
+    }
 
   next_i = (s->stream_i + 1 + type_size * d + mlen +
             s->proto_stream->footlen);

@@ -371,6 +371,8 @@ struct nxscope_s
   size_t                       streambuf_len;
   size_t                       stream_i;
   bool                         stream_retry;
+  bool                         stream_ovf;
+  size_t                       stream_sent;
 
 #ifdef CONFIG_LOGGING_NXSCOPE_CRICHANNELS
   /* Critical buffer data */

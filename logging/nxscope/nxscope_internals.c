@@ -55,15 +55,17 @@
 int nxscope_stream_send(FAR struct nxscope_s *s, FAR uint8_t *buff,
                         FAR size_t *buff_i)
 {
-  int ret = OK;
+  bool   stream = (buff == s->streambuf);
+  size_t sent   = 0;
+  int    ret    = OK;
 
   DEBUGASSERT(s);
   DEBUGASSERT(buff);
   DEBUGASSERT(buff_i);
 
-  /* Finalize stream frame */
+  /* Finalize stream frame, unless it is a stream frame waiting for retry */
 
-  if (!s->stream_retry)
+  if (!stream || !s->stream_retry)
     {
       ret = PROTO_FRAME_FINAL(s, s->proto_stream,
                               NXSCOPE_HDRID_STREAM, buff, buff_i);
@@ -74,17 +76,35 @@ int nxscope_stream_send(FAR struct nxscope_s *s, FAR uint8_t *buff,
         }
     }
 
-  /* Send stream data */
+  /* Send stream data, a retry continues where the previous send stopped */
 
-  ret = INTF_SEND(s, s->intf_stream, buff, *buff_i);
-  if (ret < 0)
+  if (stream && s->stream_retry)
+    {
+      sent = s->stream_sent;
+    }
+
+  ret = INTF_SEND(s, s->intf_stream, &buff[sent], *buff_i - sent);
+  if (ret >= 0 && (size_t)ret < *buff_i - sent)
+    {
+      /* Partially sent */
+
+      sent += ret;
+      ret   = -EAGAIN;
+    }
+
+  /* A partial send or a full port is backpressure, not an error */
+
+  if (ret < 0 && ret != -EAGAIN)
     {
       _err("ERROR: INTF_SEND failed %d\n", ret);
-      s->stream_retry = true;
     }
-  else
+
+  /* Only the stream buffer keeps its frame for a retry */
+
+  if (stream)
     {
-      s->stream_retry = false;
+      s->stream_retry = (ret < 0);
+      s->stream_sent  = (ret < 0) ? sent : 0;
     }
 
 errout:
