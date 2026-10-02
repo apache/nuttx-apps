@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NIMBLE_MESH_NODE
+	tristate "NimBLE Mesh Generic OnOff node example"
+	default n
+	depends on NIMBLE_MESH
+	---help---
+		Provisionable NimBLE Mesh node with a Generic OnOff Server.
+
+if EXAMPLES_NIMBLE_MESH_NODE
+
+config EXAMPLES_NIMBLE_MESH_NODE_PROGNAME
+	string "Program name"
+	default "nimble_mesh_node"
+
+config EXAMPLES_NIMBLE_MESH_NODE_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_NIMBLE_MESH_NODE_STACKSIZE
+	int "Stack size"
+	default 4096
+
+endif
