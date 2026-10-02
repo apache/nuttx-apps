@@ -66,7 +66,75 @@ config NIMBLE_TINYCRYPT
 config NIMBLE_MESH
 	bool "Apache NimBLE mesh support"
 	default n
-	depends on EXPERIMENTAL
+
+if NIMBLE_MESH
+
+config NIMBLE_MESH_DEVICE_NAME
+	string "NimBLE Mesh device name"
+	default "nimble-mesh-node"
+	---help---
+		Device name sent in the PB-GATT and GATT Proxy scan response.
+
+config NIMBLE_MESH_PB_ADV
+	bool "NimBLE Mesh PB-ADV provisioning bearer"
+	default y
+	depends on NIMBLE_ROLE_BROADCASTER && NIMBLE_ROLE_OBSERVER
+
+config NIMBLE_MESH_PB_GATT
+	bool "NimBLE Mesh PB-GATT provisioning bearer"
+	default y
+	depends on NIMBLE_ROLE_PERIPHERAL
+
+config NIMBLE_MESH_RELAY
+	bool "NimBLE Mesh relay support"
+	default n
+
+config NIMBLE_MESH_GATT_PROXY
+	bool "NimBLE Mesh GATT Proxy support"
+	default y if NIMBLE_MESH_PB_GATT
+	depends on NIMBLE_ROLE_PERIPHERAL
+
+config NIMBLE_MESH_FRIEND
+	bool "NimBLE Mesh Friend support"
+	default n
+
+config NIMBLE_MESH_LOW_POWER
+	bool "NimBLE Mesh Low Power Node support"
+	default n
+
+config NIMBLE_MESH_PROVISIONER
+	bool "NimBLE Mesh provisioner support"
+	default n
+
+config NIMBLE_MESH_MODEL_KEY_COUNT
+	int "NimBLE Mesh model key slots"
+	default 2
+
+config NIMBLE_MESH_MODEL_GROUP_COUNT
+	int "NimBLE Mesh model group slots"
+	default 4
+
+config NIMBLE_MESH_SUBNET_COUNT
+	int "NimBLE Mesh subnet count"
+	default 2
+
+config NIMBLE_MESH_APP_KEY_COUNT
+	int "NimBLE Mesh application key count"
+	default 2
+
+config NIMBLE_MESH_ADV_BUF_COUNT
+	int "NimBLE Mesh advertising buffer count"
+	default 8
+
+config NIMBLE_MESH_TX_SEG_MAX
+	int "NimBLE Mesh maximum outbound segments"
+	default 4
+
+config NIMBLE_MESH_RX_SEG_MAX
+	int "NimBLE Mesh maximum inbound segments"
+	default 4
+
+endif # NIMBLE_MESH
 
 menu "NimBLE role configuration"
 
