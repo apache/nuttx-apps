@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -115,7 +116,7 @@ void test_nuttx_syscall_setsockopt01(FAR void **state)
   addr.sin_family = AF_INET;
   addr.sin_port = 0;
   addr.sin_addr.s_addr = INADDR_ANY;
-  for (int n = 0; n < sizeof(testcase_list) / sizeof(testcase_list[0]);
+  for (int n = 0; n < nitems(testcase_list);
        n++)
     {
       int ret;

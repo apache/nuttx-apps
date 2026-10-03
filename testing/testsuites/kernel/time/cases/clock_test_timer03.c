@@ -25,6 +25,7 @@
  ****************************************************************************/
 #include <nuttx/config.h>
 #include <stdio.h>
+#include <sys/param.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -95,7 +96,7 @@ void test_nuttx_clock_test_timer03(FAR void **state)
         0, 0
       };
 
-  for (int i = 0; i < sizeof(testcases) / sizeof(testcases[0]); ++i)
+  for (int i = 0; i < nitems(testcases); ++i)
     {
       struct timespec start;
       struct timespec end;
