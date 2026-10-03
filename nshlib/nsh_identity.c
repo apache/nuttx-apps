@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
@@ -521,7 +522,7 @@ static void nsh_id_append_groups(FAR char *line, size_t linelen)
   int ngroups;
   int i;
 
-  ngroups = getgroups(sizeof(grouplist) / sizeof(grouplist[0]), grouplist);
+  ngroups = getgroups(nitems(grouplist), grouplist);
   if (ngroups <= 0)
     {
       return;

@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -139,7 +140,7 @@ void test_nuttx_syscall_getsockopt01(FAR void **state)
   int ret;
   int flag = 1;
   setup();
-  for (testno = 0; testno < sizeof(tdat) / sizeof(tdat[0]); ++testno)
+  for (testno = 0; testno < nitems(tdat); ++testno)
     {
       tdat[testno].setup();
       if (s < 0)

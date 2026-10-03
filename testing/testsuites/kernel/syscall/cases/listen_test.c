@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <syslog.h>
 #include <stdio.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -90,7 +91,7 @@ void test_nuttx_syscall_listen01(FAR void **state)
   const char set[] = "setup0";
   const char clean[] = "cleanup0";
 
-  for (testno = 0; testno < sizeof(tdat) / sizeof(tdat[0]); ++testno)
+  for (testno = 0; testno < nitems(tdat); ++testno)
     {
       /* setup0(void) */
 
