@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <syslog.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdarg.h>
@@ -409,7 +410,7 @@ void test_nuttx_syscall_recvfromtest01(FAR void **state)
   int flag = 1;
   setup();
 
-  for (testno = 0; testno < sizeof(tdat) / sizeof(tdat[0]); ++testno)
+  for (testno = 0; testno < nitems(tdat); ++testno)
     {
       usleep(100000);
       if (tdat[testno].setup() < 0)

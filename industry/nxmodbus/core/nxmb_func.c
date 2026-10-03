@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <nuttx/compiler.h>
 
 #include <errno.h>
@@ -103,7 +104,7 @@ static const struct nxmb_fc_entry_s g_nxmb_fc_table[] =
 };
 
 #define NXMB_FC_TABLE_SIZE                                                     \
-  (sizeof(g_nxmb_fc_table) / sizeof(g_nxmb_fc_table[0]))
+  (nitems(g_nxmb_fc_table))
 
 /****************************************************************************
  * Private Functions

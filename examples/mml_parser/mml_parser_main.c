@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 
+#include <sys/param.h>
 #ifndef CONFIG_AUDIOUTILS_MMLPARSER_LIB
 #error "This example needs to enable config of AUDIOUTILS_MMLPARSER_LIB," \
        " please enable it"
@@ -86,7 +87,7 @@ static const char *test_scores[] =
   SIMPLE_SCORE, TEST_SCORE, FLOH_WALZER_RIGHT, FLOH_WALZER_LEFT,
 };
 
-#define TEST_SCORES_NUM (sizeof(test_scores)/sizeof(test_scores[0]))
+#define TEST_SCORES_NUM (nitems(test_scores))
 
 /****************************************************************************
  * Private Functions

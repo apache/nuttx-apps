@@ -1374,7 +1374,7 @@ int main(int argc, FAR char *argv[])
 
   tests_ok = tests_err = 0;
 
-  for (i = 0; i < sizeof(g_entry_list) / sizeof(g_entry_list[0]); i++)
+  for (i = 0; i < nitems(g_entry_list); i++)
     {
       item = &g_entry_list[i];
       ret = item->entry();

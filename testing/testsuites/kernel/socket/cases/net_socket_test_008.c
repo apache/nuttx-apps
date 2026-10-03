@@ -24,6 +24,7 @@
  * Included Files
  ****************************************************************************/
 #include <nuttx/config.h>
+#include <sys/param.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -226,7 +227,7 @@ static void *clientsthread(void *param)
     "see u next time, ", "Bye!"
   };
 
-  for (int i = 0; i < sizeof(msg) / sizeof(msg[0]); ++i)
+  for (int i = 0; i < nitems(msg); ++i)
     {
       if (send(fd, msg[i], strlen(msg[i]), 0) < 0)
         {

@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 #include <stdio.h>
+#include <sys/param.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -122,7 +123,7 @@ static struct key_convert_s key_convert[] =
   { OCTAVE(5, MUSIC_SCALE_E),  ';', "O5E"  },
 };
 
-#define MAX_KEYCONVERT  (sizeof(key_convert)/sizeof(key_convert[0]))
+#define MAX_KEYCONVERT  (nitems(key_convert))
 
 /****************************************************************************
  * Private functions
