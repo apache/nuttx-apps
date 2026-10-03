@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -110,7 +111,7 @@ void test_nuttx_syscall_socketpair01(FAR void **state)
         }
     };
 
-  for (int n = 0; n < sizeof(tdat) / sizeof(tdat[0]); n++)
+  for (int n = 0; n < nitems(tdat); n++)
     {
       struct test_case_t *tc = &tdat[n];
       ret = socketpair(tc->domain, tc->type, tc->proto, tc->sv);
@@ -172,7 +173,7 @@ void test_nuttx_syscall_socketpair02(FAR void **state)
         }
     };
 
-  for (int n = 0; n < sizeof(tcases) / sizeof(tcases[0]); n++)
+  for (int n = 0; n < nitems(tcases); n++)
     {
       int res;
       struct tcase *tc = &tcases[n];

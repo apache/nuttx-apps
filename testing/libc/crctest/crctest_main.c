@@ -24,6 +24,7 @@
 
 #include <nuttx/config.h>
 #include <inttypes.h>
+#include <sys/param.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -136,7 +137,7 @@ static void test_case_crc8h1d(void **state)
   uint8_t crc8_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc8_value = crc8h1d(crc_test_data[index].data,
@@ -162,7 +163,7 @@ static void test_case_crc8h2f(void **state)
   uint8_t crc8_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc8_value = crc8h2f(crc_test_data[index].data,
@@ -188,7 +189,7 @@ static void test_case_crc16h1021(void **state)
   uint16_t crc16_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc16_value = crc16h1021(crc_test_data[index].data,
@@ -214,7 +215,7 @@ static void test_case_crc16h8005(void **state)
   uint16_t crc16_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc16_value = crc16h8005(crc_test_data[index].data,
@@ -240,7 +241,7 @@ static void test_case_crc32h04c11db7(void **state)
   uint32_t crc32_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc32_value = crc32h04c11db7(crc_test_data[index].data,
@@ -266,7 +267,7 @@ static void test_case_crc32hf4acfb13(void **state)
   uint32_t crc32_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc32_value = crc32hf4acfb13(crc_test_data[index].data,
@@ -292,7 +293,7 @@ static void test_case_crc64emac(void **state)
   uint64_t crc64_value;
 
   for (index = 0;
-       index < sizeof(crc_test_data) / sizeof(crc_test_data[0]);
+       index < nitems(crc_test_data);
        index++)
     {
       crc64_value = crc64emac(crc_test_data[index].data,

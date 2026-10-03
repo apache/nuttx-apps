@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <syslog.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <sys/socket.h>
@@ -124,7 +125,7 @@ test_cases[] =
 void test_nuttx_syscall_getpeername01(FAR void **state)
 {
 #ifdef CONFIG_NET_TCP
-  int total = sizeof(test_cases) / sizeof(test_cases[0]);
+  int total = nitems(test_cases);
   int ret;
   setup();
   for (int i = 0; i < total; ++i)
