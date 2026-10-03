@@ -39,6 +39,7 @@
 #include <string.h>
 #include <strings.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -1102,7 +1103,7 @@ int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
       goto err_out_nodev;
     }
 
-  for (index = 0; index < sizeof(g_enc_ops) / sizeof(g_enc_ops[0]); index++)
+  for (index = 0; index < nitems(g_enc_ops); index++)
     {
       if (g_enc_ops[index].format == filefmt)
         {

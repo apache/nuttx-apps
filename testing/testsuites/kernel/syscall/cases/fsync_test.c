@@ -28,6 +28,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/param.h>
 #include <sys/statvfs.h>
 #include <sys/resource.h>
 #include <time.h>
@@ -150,7 +151,7 @@ void test_nuttx_syscall_fsync02(FAR void **state)
 
   close(pipe_fd[0]);
 
-  for (int i = 0; i < sizeof(tcases) / sizeof(tcases[0]); i++)
+  for (int i = 0; i < nitems(tcases); i++)
     {
       ret = fsync(*(tcases[i].fd));
       if (ret != -1)

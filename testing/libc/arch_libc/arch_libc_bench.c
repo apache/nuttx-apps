@@ -43,6 +43,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -167,9 +168,9 @@ static const uint8_t g_aligns[][2] =
   }
 };
 
-#define NOPS    (sizeof(g_ops) / sizeof(g_ops[0]))
-#define NSIZES  (sizeof(g_sizes) / sizeof(g_sizes[0]))
-#define NALIGNS (sizeof(g_aligns) / sizeof(g_aligns[0]))
+#define NOPS    (nitems(g_ops))
+#define NSIZES  (nitems(g_sizes))
+#define NALIGNS (nitems(g_aligns))
 
 /****************************************************************************
  * Private Functions
@@ -210,7 +211,7 @@ static bool bench_pick_clock(void)
   volatile int i;
   size_t k;
 
-  for (k = 0; k < sizeof(tries) / sizeof(tries[0]); k++)
+  for (k = 0; k < nitems(tries); k++)
     {
       if (clock_gettime(tries[k], &a) < 0)
         {

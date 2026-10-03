@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -159,7 +160,7 @@ static int test_pbkdf2_vectors(void)
   int i;
   int ret;
 
-  for (i = 0; i < (int)(sizeof(g_vectors) / sizeof(g_vectors[0])); i++)
+  for (i = 0; i < (int)(nitems(g_vectors)); i++)
     {
       vec = &g_vectors[i];
 
