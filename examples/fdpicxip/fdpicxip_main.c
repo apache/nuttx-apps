@@ -62,18 +62,30 @@
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/fs/xipfs.h>
 
-#include "qsorter_bin.h"
-#include "libcounter_bin.h"
-#include "user_bin.h"
-#include "libshape_bin.h"
-#include "cxxuser_bin.h"
-#include "lazymod_bin.h"
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 #define MOUNTPT  CONFIG_EXAMPLES_FDPICXIP_MOUNTPT
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* The modules in modules/, which mkblobs.sh embeds after they are linked */
+
+extern const unsigned char g_fdpicxip_qsorter[];
+extern const unsigned int g_fdpicxip_qsorter_len;
+extern const unsigned char g_fdpicxip_libcounter_so[];
+extern const unsigned int g_fdpicxip_libcounter_so_len;
+extern const unsigned char g_fdpicxip_user[];
+extern const unsigned int g_fdpicxip_user_len;
+extern const unsigned char g_fdpicxip_libshape_so[];
+extern const unsigned int g_fdpicxip_libshape_so_len;
+extern const unsigned char g_fdpicxip_cxxuser[];
+extern const unsigned int g_fdpicxip_cxxuser_len;
+extern const unsigned char g_fdpicxip_lazymod[];
+extern const unsigned int g_fdpicxip_lazymod_len;
 
 /****************************************************************************
  * Private Functions
@@ -174,14 +186,15 @@ static int qsorter_main(void)
   syslog(LOG_INFO,
          "\n=== FDPIC module executed in place from xipfs ===\n\n");
 
-  ret = stage_blob(MOUNTPT "/qsorter", g_qsorter_nxf, g_qsorter_nxf_len);
+  ret = stage_blob(MOUNTPT "/qsorter", g_fdpicxip_qsorter,
+                   g_fdpicxip_qsorter_len);
   if (ret < 0)
     {
       syslog(LOG_INFO, "staging the module failed: %d\n", ret);
       return EXIT_FAILURE;
     }
 
-  syslog(LOG_INFO, "staged qsorter (%u bytes)\n", g_qsorter_nxf_len);
+  syslog(LOG_INFO, "staged qsorter (%u bytes)\n", g_fdpicxip_qsorter_len);
 
   if (extent_info_path(MOUNTPT "/qsorter", &info) == 0)
     {
@@ -254,14 +267,15 @@ static int solib_main(void)
 
   syslog(LOG_INFO, "\n=== FDPIC shared library, executed in place ===\n\n");
 
-  ret = stage_blob(MOUNTPT "/libcounter.so", g_libcounter, g_libcounter_len);
+  ret = stage_blob(MOUNTPT "/libcounter.so", g_fdpicxip_libcounter_so,
+                   g_fdpicxip_libcounter_so_len);
   if (ret < 0)
     {
       syslog(LOG_INFO, "staging the library failed: %d\n", ret);
       return EXIT_FAILURE;
     }
 
-  ret = stage_blob(MOUNTPT "/user", g_user, g_user_len);
+  ret = stage_blob(MOUNTPT "/user", g_fdpicxip_user, g_fdpicxip_user_len);
   if (ret < 0)
     {
       syslog(LOG_INFO, "staging the module failed: %d\n", ret);
@@ -269,7 +283,7 @@ static int solib_main(void)
     }
 
   syslog(LOG_INFO, "staged libcounter.so (%u bytes) and user (%u bytes)\n",
-         g_libcounter_len, g_user_len);
+         g_fdpicxip_libcounter_so_len, g_fdpicxip_user_len);
 
   if (extent_info_path(MOUNTPT "/libcounter.so", &li) == 0 &&
       extent_info_path(MOUNTPT "/user", &ui) == 0)
@@ -359,14 +373,16 @@ static int cxx_main(void)
   syslog(LOG_INFO, "\n=== C++ module and shared library, executed in"
          " place ===\n\n");
 
-  ret = stage_blob(MOUNTPT "/libshape.so", g_libshape, g_libshape_len);
+  ret = stage_blob(MOUNTPT "/libshape.so", g_fdpicxip_libshape_so,
+                   g_fdpicxip_libshape_so_len);
   if (ret < 0)
     {
       syslog(LOG_INFO, "staging the library failed: %d\n", ret);
       return EXIT_FAILURE;
     }
 
-  ret = stage_blob(MOUNTPT "/cxxuser", g_cxxuser, g_cxxuser_len);
+  ret = stage_blob(MOUNTPT "/cxxuser", g_fdpicxip_cxxuser,
+                   g_fdpicxip_cxxuser_len);
   if (ret < 0)
     {
       syslog(LOG_INFO, "staging the module failed: %d\n", ret);
@@ -374,7 +390,7 @@ static int cxx_main(void)
     }
 
   syslog(LOG_INFO, "staged libshape.so (%u bytes) and cxxuser (%u bytes)\n",
-         g_libshape_len, g_cxxuser_len);
+         g_fdpicxip_libshape_so_len, g_fdpicxip_cxxuser_len);
 
   if (extent_info_path(MOUNTPT "/libshape.so", &li) == 0 &&
       extent_info_path(MOUNTPT "/cxxuser", &ui) == 0)
@@ -474,7 +490,8 @@ static int jmprel_main(void)
 
   syslog(LOG_INFO, "\n=== FDPIC module bound through DT_JMPREL ===\n\n");
 
-  ret = stage_blob(MOUNTPT "/lazymod", g_lazymod, g_lazymod_len);
+  ret = stage_blob(MOUNTPT "/lazymod", g_fdpicxip_lazymod,
+                   g_fdpicxip_lazymod_len);
   if (ret < 0)
     {
       syslog(LOG_INFO, "staging the module failed: %d\n", ret);
@@ -482,7 +499,7 @@ static int jmprel_main(void)
     }
 
   syslog(LOG_INFO, "staged lazymod (%u bytes), all imports in DT_JMPREL\n\n",
-         g_lazymod_len);
+         g_fdpicxip_lazymod_len);
 
   args[0] = (FAR char *)"lazymod";
   args[1] = (FAR char *)"42";

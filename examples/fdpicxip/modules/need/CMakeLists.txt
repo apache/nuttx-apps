@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/fdpicxip/CMakeLists.txt
+# apps/examples/fdpicxip/modules/need/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,40 +20,17 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+# A stub library for each name that ../manyneeded needs
 
-if(CONFIG_EXAMPLES_FDPICXIP)
-
-  # The modules are built in modules/, and embedded here after they are linked
-
-  set(BLOBSRC ${CMAKE_CURRENT_BINARY_DIR}/fdpicxip_blobs.c)
-  set(BLOBFILES)
-  set(BLOBTARGETS)
-
-  foreach(blob qsorter libcounter.so user libshape.so cxxuser lazymod)
-    list(APPEND BLOBFILES ${NUTTX_BINARY_DIR}/bin/${blob})
-
-    if(CMAKE_C_ELF_COMPILER)
-      list(APPEND BLOBTARGETS ${blob})
-    else()
-      list(APPEND BLOBTARGETS ELF_${blob})
-    endif()
-  endforeach()
-
-  add_custom_command(
-    OUTPUT ${BLOBSRC}
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/modules/mkblobs.sh g_fdpicxip
-            ${BLOBFILES} > ${BLOBSRC}
-    DEPENDS ${BLOBTARGETS})
-
-  add_custom_target(fdpicxip_blobs DEPENDS ${BLOBSRC})
-
+foreach(n RANGE ${CONFIG_LIBC_ELF_MAXDEPEND})
   nuttx_add_application(
     NAME
-    fdpicxip
+    need${n}.so
     SRCS
-    fdpicxip_main.c
-    ${BLOBSRC}
-    DEPENDS
-    fdpicxip_blobs)
-endif()
+    need.c
+    DYNLIB
+    y
+    LINK_FLAGS
+    -soname
+    need${n}.so)
+endforeach()

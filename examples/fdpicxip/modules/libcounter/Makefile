@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/fdpicxip/Makefile
+# apps/examples/fdpicxip/modules/libcounter/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -22,35 +22,11 @@
 
 include $(APPDIR)/Make.defs
 
-# FDPIC modules executed in place from xipfs.  The modules are built in
-# modules/, and embedded here after they are linked.
+# A library, named by its SONAME.  ../user builds it.
 
-MAINSRC   = fdpicxip_main.c
+LOCAL_MODULE := libcounter
+LOCAL_MODULE_FILENAME := libcounter.so
+LOCAL_SRC_FILES := libcounter.c
+LOCAL_LDFLAGS := -soname libcounter.so
 
-PROGNAME  = fdpicxip
-PRIORITY  = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_FDPICXIP)
-
-BLOBS   = qsorter libcounter.so user libshape.so cxxuser lazymod
-BLOBSRC = fdpicxip_blobs.c
-BLOBOBJ = $(BLOBSRC:.c=$(OBJEXT))
-
-$(BLOBSRC): $(addprefix $(BINDIR)$(DELIM),$(BLOBS))
-	$(Q) modules$(DELIM)mkblobs.sh g_fdpicxip $^ > $@.tmp
-	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
-
-$(BLOBOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-postinstall:: $(BLOBOBJ)
-	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
-
-clean::
-	$(Q) $(MAKE) -C modules clean APPDIR="$(APPDIR)" TOPDIR="$(TOPDIR)"
-
-distclean::
-	$(Q) $(MAKE) -C modules distclean APPDIR="$(APPDIR)" TOPDIR="$(TOPDIR)"
-	$(call DELFILE, $(BLOBSRC) $(BLOBOBJ))
-
-include $(APPDIR)/Application.mk
+include $(BUILD_SHARED_LIBRARY)

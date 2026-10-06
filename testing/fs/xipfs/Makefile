@@ -31,4 +31,29 @@ MODULE = $(CONFIG_TESTING_FS_XIPFS)
 
 MAINSRC = xipfs_main.c
 
+# With CONFIG_FDPIC the test also loads modules.  They are built in
+# examples/fdpicxip/modules, and embedded here after they are linked.
+
+ifeq ($(CONFIG_FDPIC),y)
+BLOBS   = callback cxxuser funcdesc lazymod libcounter.so libshape.so \
+          manyneeded missingsym user
+BLOBDIR = $(APPDIR)$(DELIM)examples$(DELIM)fdpicxip$(DELIM)modules
+BLOBSH  = $(BLOBDIR)$(DELIM)mkblobs.sh
+BLOBSRC = xipfs_blobs.c
+BLOBOBJ = $(BLOBSRC:.c=$(OBJEXT))
+
+$(BLOBSRC): $(addprefix $(BINDIR)$(DELIM),$(BLOBS))
+	$(Q) $(BLOBSH) g_xipfs $^ > $@.tmp
+	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
+
+$(BLOBOBJ): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+postinstall:: $(BLOBOBJ)
+	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
+
+distclean::
+	$(call DELFILE, $(BLOBSRC) $(BLOBOBJ))
+endif
+
 include $(APPDIR)/Application.mk

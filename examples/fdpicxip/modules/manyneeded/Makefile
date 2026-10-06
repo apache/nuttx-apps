@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/fdpicxip/Makefile
+# apps/examples/fdpicxip/modules/manyneeded/Makefile
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -22,35 +22,32 @@
 
 include $(APPDIR)/Make.defs
 
-# FDPIC modules executed in place from xipfs.  The modules are built in
-# modules/, and embedded here after they are linked.
+# Names one library more in DT_NEEDED than CONFIG_LIBC_ELF_MAXDEPEND allows.
+# The libraries are stubs from ../need, and only their names matter.
 
-MAINSRC   = fdpicxip_main.c
+PROGNAME = manyneeded
+MODULE   = m
+MAINSRC  = manyneeded.c
 
-PROGNAME  = fdpicxip
-PRIORITY  = SCHED_PRIORITY_DEFAULT
-STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
-MODULE    = $(CONFIG_EXAMPLES_FDPICXIP)
+NEEDDIR = ..$(DELIM)need
+NEEDARGS = APPDIR="$(APPDIR)" TOPDIR="$(TOPDIR)"
+NEEDNUMS = $(shell seq 0 $(CONFIG_LIBC_ELF_MAXDEPEND))
+NEEDLIBS = $(foreach n,$(NEEDNUMS),$(BINDIR)$(DELIM)need$(n).so)
 
-BLOBS   = qsorter libcounter.so user libshape.so cxxuser lazymod
-BLOBSRC = fdpicxip_blobs.c
-BLOBOBJ = $(BLOBSRC:.c=$(OBJEXT))
+$(BINDIR)$(DELIM)manyneeded: LDLIBS += --no-as-needed $(NEEDLIBS)
+$(BINDIR)$(DELIM)manyneeded: need
 
-$(BLOBSRC): $(addprefix $(BINDIR)$(DELIM),$(BLOBS))
-	$(Q) modules$(DELIM)mkblobs.sh g_fdpicxip $^ > $@.tmp
-	$(Q) $(call TESTANDREPLACEFILE, $@.tmp, $@)
+.PHONY: need
 
-$(BLOBOBJ): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-postinstall:: $(BLOBOBJ)
-	$(call ARLOCK, $(call CONVERT_PATH,$(BIN)), $^)
+need:
+	$(Q) for n in $(NEEDNUMS); do \
+	       $(MAKE) -C $(NEEDDIR) install NEED=$$n $(NEEDARGS) || exit 1; \
+	     done
 
 clean::
-	$(Q) $(MAKE) -C modules clean APPDIR="$(APPDIR)" TOPDIR="$(TOPDIR)"
+	$(Q) $(MAKE) -C $(NEEDDIR) clean $(NEEDARGS)
 
 distclean::
-	$(Q) $(MAKE) -C modules distclean APPDIR="$(APPDIR)" TOPDIR="$(TOPDIR)"
-	$(call DELFILE, $(BLOBSRC) $(BLOBOBJ))
+	$(Q) $(MAKE) -C $(NEEDDIR) distclean $(NEEDARGS)
 
 include $(APPDIR)/Application.mk
