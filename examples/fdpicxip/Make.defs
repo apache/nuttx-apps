@@ -23,3 +23,5 @@
 ifneq ($(CONFIG_EXAMPLES_FDPICXIP),)
 CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip
 endif
+
+include $(APPDIR)/examples/fdpicxip/modules/Make.defs

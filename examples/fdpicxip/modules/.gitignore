@@ -1,5 +1,0 @@
-/*.fdpic
-/*.so
-/.nuttx-exports
-/manyneeded.c
-/need*.c

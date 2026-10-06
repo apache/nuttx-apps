@@ -22,10 +22,9 @@ config EXAMPLES_FDPICXIP
 
 		With no subcommand, qsort runs.
 
-		The modules are embedded in the image as C headers.  Their
-		sources are in modules/, which rebuilds the headers on an
-		explicit 'make regen': linking one needs arm-uclinuxfdpiceabi
-		binutils, which this build does not.
+		The modules are built from modules/ with the module flags of the
+		tree, and embedded in the image.  Linking them needs the
+		arm-uclinuxfdpiceabi linker that CONFIG_FDPIC needs.
 
 		This demonstrates; it does not assert.  For the assertions see
 		the fdpic and reject sections of CONFIG_TESTING_FS_XIPFS.

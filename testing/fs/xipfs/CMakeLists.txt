@@ -21,6 +21,48 @@
 # ##############################################################################
 
 if(CONFIG_TESTING_FS_XIPFS)
+  set(SRCS xipfs_main.c)
+  set(BLOBTARGETS)
+
+  # With CONFIG_FDPIC the test also loads modules.  They are built in
+  # examples/fdpicxip/modules, and embedded here after they are linked.
+
+  if(CONFIG_FDPIC)
+    set(BLOBSRC ${CMAKE_CURRENT_BINARY_DIR}/xipfs_blobs.c)
+    set(BLOBFILES)
+
+    foreach(
+      blob
+      callback
+      cxxuser
+      funcdesc
+      lazymod
+      libcounter.so
+      libshape.so
+      manyneeded
+      missingsym
+      user)
+      list(APPEND BLOBFILES ${NUTTX_BINARY_DIR}/bin/${blob})
+
+      if(CMAKE_C_ELF_COMPILER)
+        list(APPEND BLOBTARGETS ${blob})
+      else()
+        list(APPEND BLOBTARGETS ELF_${blob})
+      endif()
+    endforeach()
+
+    add_custom_command(
+      OUTPUT ${BLOBSRC}
+      COMMAND ${NUTTX_APPS_DIR}/examples/fdpicxip/modules/mkblobs.sh g_xipfs
+              ${BLOBFILES} > ${BLOBSRC}
+      DEPENDS ${BLOBTARGETS})
+
+    add_custom_target(xipfs_blobs DEPENDS ${BLOBSRC})
+
+    list(APPEND SRCS ${BLOBSRC})
+    set(BLOBTARGETS xipfs_blobs)
+  endif()
+
   nuttx_add_application(
     NAME
     xipfs_test
@@ -29,5 +71,7 @@ if(CONFIG_TESTING_FS_XIPFS)
     MODULE
     ${CONFIG_TESTING_FS_XIPFS}
     SRCS
-    xipfs_main.c)
+    ${SRCS}
+    DEPENDS
+    ${BLOBTARGETS})
 endif()

@@ -1,5 +1,5 @@
 # ##############################################################################
-# apps/examples/fdpicxip/CMakeLists.txt
+# apps/examples/fdpicxip/modules/manyneeded/CMakeLists.txt
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,40 +20,31 @@
 #
 # ##############################################################################
 
-nuttx_add_subdirectory()
+# Names one library more in DT_NEEDED than CONFIG_LIBC_ELF_MAXDEPEND allows. The
+# libraries are stubs from ../need, and only their names matter.
 
-if(CONFIG_EXAMPLES_FDPICXIP)
+set(NEEDLIBS)
+set(NEEDTARGETS)
 
-  # The modules are built in modules/, and embedded here after they are linked
+foreach(n RANGE ${CONFIG_LIBC_ELF_MAXDEPEND})
+  list(APPEND NEEDLIBS ${NUTTX_BINARY_DIR}/bin/need${n}.so)
 
-  set(BLOBSRC ${CMAKE_CURRENT_BINARY_DIR}/fdpicxip_blobs.c)
-  set(BLOBFILES)
-  set(BLOBTARGETS)
+  if(CMAKE_C_ELF_COMPILER)
+    list(APPEND NEEDTARGETS need${n}.so)
+  else()
+    list(APPEND NEEDTARGETS ELF_need${n}.so)
+  endif()
+endforeach()
 
-  foreach(blob qsorter libcounter.so user libshape.so cxxuser lazymod)
-    list(APPEND BLOBFILES ${NUTTX_BINARY_DIR}/bin/${blob})
-
-    if(CMAKE_C_ELF_COMPILER)
-      list(APPEND BLOBTARGETS ${blob})
-    else()
-      list(APPEND BLOBTARGETS ELF_${blob})
-    endif()
-  endforeach()
-
-  add_custom_command(
-    OUTPUT ${BLOBSRC}
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/modules/mkblobs.sh g_fdpicxip
-            ${BLOBFILES} > ${BLOBSRC}
-    DEPENDS ${BLOBTARGETS})
-
-  add_custom_target(fdpicxip_blobs DEPENDS ${BLOBSRC})
-
-  nuttx_add_application(
-    NAME
-    fdpicxip
-    SRCS
-    fdpicxip_main.c
-    ${BLOBSRC}
-    DEPENDS
-    fdpicxip_blobs)
-endif()
+nuttx_add_application(
+  NAME
+  manyneeded
+  SRCS
+  manyneeded.c
+  MODULE
+  m
+  LINK_FLAGS
+  --no-as-needed
+  ${NEEDLIBS}
+  DEPENDS
+  ${NEEDTARGETS})

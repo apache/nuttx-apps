@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/fdpicxip/modules/Makefile
+# apps/examples/fdpicxip/modules/Make.defs
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -20,4 +20,19 @@
 #
 ############################################################################
 
-include $(APPDIR)/Directory.mk
+# The FDPIC modules that examples/fdpicxip and testing/fs/xipfs embed.  A
+# library is built by the module that links against it, so it is not listed
+# here.
+
+ifeq ($(CONFIG_FDPIC),y)
+ifneq ($(CONFIG_EXAMPLES_FDPICXIP)$(CONFIG_TESTING_FS_XIPFS),)
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/callback
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/cxxuser
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/funcdesc
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/lazymod
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/manyneeded
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/missingsym
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/qsorter
+CONFIGURED_APPS += $(APPDIR)/examples/fdpicxip/modules/user
+endif
+endif
