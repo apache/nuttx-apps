@@ -1018,59 +1018,59 @@ static void test_defrag(void)
    * extent above the hole.
    */
 
-    {
-      uint32_t beststart = 0;
-      uint32_t nextstart = 0;
-      char lastpath[64];
-      char holepath[64];
+  {
+    uint32_t beststart = 0;
+    uint32_t nextstart = 0;
+    char lastpath[64];
+    char holepath[64];
 
-      lastpath[0] = '\0';
-      holepath[0] = '\0';
+    lastpath[0] = '\0';
+    holepath[0] = '\0';
 
-      for (i = 1; i < 10; i += 2)
-        {
-          snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
-          if (extent_info(path, &info) < 0)
-            {
-              continue;
-            }
+    for (i = 1; i < 10; i += 2)
+      {
+        snprintf(path, sizeof(path), PATH("frag%d.bin"), i);
+        if (extent_info(path, &info) < 0)
+          {
+            continue;
+          }
 
-          if (lastpath[0] == '\0' || info.start_block > beststart)
-            {
-              nextstart = beststart;
-              strlcpy(holepath, lastpath, sizeof(holepath));
-              beststart = info.start_block;
-              strlcpy(lastpath, path, sizeof(lastpath));
-            }
-          else if (holepath[0] == '\0' || info.start_block > nextstart)
-            {
-              nextstart = info.start_block;
-              strlcpy(holepath, path, sizeof(holepath));
-            }
-        }
+        if (lastpath[0] == '\0' || info.start_block > beststart)
+          {
+            nextstart = beststart;
+            strlcpy(holepath, lastpath, sizeof(holepath));
+            beststart = info.start_block;
+            strlcpy(lastpath, path, sizeof(lastpath));
+          }
+        else if (holepath[0] == '\0' || info.start_block > nextstart)
+          {
+            nextstart = info.start_block;
+            strlcpy(holepath, path, sizeof(holepath));
+          }
+      }
 
-      if (lastpath[0] != '\0' && holepath[0] != '\0')
-        {
-          unlink(holepath);
+    if (lastpath[0] != '\0' && holepath[0] != '\0')
+      {
+        unlink(holepath);
 
-          fd = open(lastpath, O_RDONLY | O_CLOEXEC);
-          if (fd >= 0)
-            {
-              ret = run_defrag(0, &result);
-              CHECK("an open file is reported as blocking, not as done",
-                    ret == 0 &&
-                    result.reason == XIPFS_DEFRAG_BLOCKED_OPEN,
-                    "unexpected reason");
-              close(fd);
-            }
+        fd = open(lastpath, O_RDONLY | O_CLOEXEC);
+        if (fd >= 0)
+          {
+            ret = run_defrag(0, &result);
+            CHECK("an open file is reported as blocking, not as done",
+                  ret == 0 &&
+                  result.reason == XIPFS_DEFRAG_BLOCKED_OPEN,
+                  "unexpected reason");
+            close(fd);
+          }
 
-          /* Put it back so the pinned test below has the same layout to
-           * work with as before.
-           */
+        /* Put it back so the pinned test below has the same layout to
+         * work with as before.
+         */
 
-          create_file(holepath, small, 1);
-        }
-    }
+        create_file(holepath, small, 1);
+      }
+  }
 
   /* A pinned extent must be skipped, and defrag must say so rather than
    * silently reporting success.
