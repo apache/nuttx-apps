@@ -41,10 +41,6 @@ static char child_name[] = "child";
 static char child_arg[] = "Hello from your parent!";
 static sem_t g_sem;
 
-#if CONFIG_TASK_NAME_SIZE == 0
-static char no_name[] = "<noname>";
-#endif
-
 /****************************************************************************
  * Privite Functions
  ****************************************************************************/
@@ -68,21 +64,14 @@ int child_task(int argc, char **argv)
     }
   printf("Child: argv[0]=\"%s\"\n", argv[0]);
 
-#if CONFIG_TASK_NAME_SIZE == 0
-  if (strcmp(argv[0], no_name) != 0)
-    {
-      printf("Child: expected argv[0] to be \"%s\"\n", no_name);
-      printf("Child: Exit-ting with status=3\n");
-      exit(3);
-    }
-#else
-  if (strncmp(argv[0], child_name, CONFIG_TASK_NAME_SIZE) != 0)
+  /* argv[0] is the name given to task_create(), whatever the TCB keeps */
+
+  if (strcmp(argv[0], child_name) != 0)
     {
       printf("Child: expected argv[0] to be \"%s\"\n", child_name);
       printf("Child: Exit-ting with status=3\n");
       exit(3);
     }
-#endif
 
   printf("Child: argv[1]=\"%s\"\n", argv[1]);
 
@@ -116,7 +105,10 @@ int main(int argc, char **argv)
 
   child_argv[0] = child_arg;
   child_argv[1] = 0;
-  child_pid = task_create(child_name, 50, 512,
+
+  /* printf() alone overflows a 512 byte stack and overwrites argv */
+
+  child_pid = task_create(child_name, 50, CONFIG_DEFAULT_TASK_STACKSIZE,
                           child_task, (FAR char * const *)child_argv);
   if (child_pid < 0)
     {
