@@ -79,12 +79,12 @@ void siguser_action(int signo, siginfo_t *siginfo, void *arg)
   if (signo == SIGUSR1)
     {
       printf("  SIGUSR1 received\n");
-      sigusr2_rcvd = 1;
+      sigusr1_rcvd = 1;
     }
   else if (signo == SIGUSR2)
     {
       printf("  SIGUSR2 received\n");
-      sigusr1_rcvd = 2;
+      sigusr2_rcvd = 1;
     }
   else
     {
@@ -206,22 +206,20 @@ int main(int argc, char **argv)
 
   sigusr2_rcvd = 0;
 
-  /* Remove the siguser_action handler and replace the SIGUSR2
-   * handler with sigusr2_sighandler.
-   */
+  /* Remove the siguser_action handler and restore the old SIGUSR2 action */
 
   printf("Resetting SIGUSR2 signal handler from pid=%d\n", mypid);
 
   status = sigaction(SIGUSR2, &oact2, &act);
   if (status != 0)
     {
-      fprintf(stderr, "Failed to install SIGUSR1 handler, errno=%d\n",
+      fprintf(stderr, "Failed to install SIGUSR2 handler, errno=%d\n",
               errno);
       exit(2);
     }
 
-  printf("Old SIGUSR1 sighandler at %p\n", act.sa_handler);
-  printf("New SIGUSR1 sighandler at %p\n", oact1.sa_handler);
+  printf("Old SIGUSR2 sighandler at %p\n", act.sa_handler);
+  printf("New SIGUSR2 sighandler at %p\n", oact2.sa_handler);
 
   /* Verify that the handler that was removed was siguser_action */
 
@@ -248,15 +246,14 @@ int main(int argc, char **argv)
   usleep(SHORT_DELAY);
   printf("SIGUSR2 killed from pid=%d\n", mypid);
 
-  /* Verify that SIGUSR2 was received */
+  /* Verify that the removed handler did not run */
 
-  if (sigusr2_rcvd == 0)
+  if (sigusr2_rcvd != 0)
     {
-      fprintf(stderr, "SIGUSR2 not received\n");
+      fprintf(stderr, "SIGUSR2 received by a removed handler\n");
       exit(10);
     }
 
-  sigusr2_rcvd = 0;
-
+  printf("Signal test PASSED\n");
   return 0;
 }
