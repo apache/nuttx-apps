@@ -1459,7 +1459,8 @@ static int ntpc_daemon(int argc, FAR char **argv)
         {
           /* Collect samples. */
 
-          for (i = 0; i < CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES; i++)
+          for (i = 0; i < CONFIG_NETUTILS_NTPCLIENT_NUM_SAMPLES &&
+                      g_ntpc_daemon.state != NTP_STOP_REQUESTED; i++)
             {
               /* Get next sample. */
 
@@ -1576,9 +1577,11 @@ static int ntpc_daemon(int argc, FAR char **argv)
           break;
         }
 
-      /* Is this error a signal? If not, sleep before retry. */
+      /* Is this error a signal or a stop request? If not, sleep before
+       * retry.
+       */
 
-      if (errval != EINTR)
+      if (errval != EINTR && g_ntpc_daemon.state == NTP_RUNNING)
         {
           ninfo("Retry %d in %d seconds...\n", retries, retry_delay);
           sleep(retry_delay);
