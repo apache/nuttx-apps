@@ -115,7 +115,8 @@ int tftp_mkdatapacket(off_t offset, FAR uint8_t *packet, uint16_t blockno,
  *   packet   - buffer to use for the transfers
  *   server  - The address of the server
  *   port    - The port number of the server (0 if not yet known)
- *   blockno - Location to return block number in the received ACK
+ *   blockno - Location to return block number in the received ACK, or
+ *             NULL if the caller does not need it
  *
  * Returned Value:
  *   OK:success and blockno valid, ERROR:failure.
@@ -232,7 +233,11 @@ static int tftp_rcvack(int sd, FAR uint8_t *packet,
               /* Success! */
 
               ninfo("Received ACK for block %d\n", rblockno);
-              *blockno = rblockno;
+              if (blockno != NULL)
+                {
+                  *blockno = rblockno;
+                }
+
               return OK;
             }
         }
