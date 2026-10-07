@@ -316,6 +316,7 @@ static int ntpc_start_selected(FAR const char *ntp_server_list,
   if (g_ntpc_daemon.pid < 0)
     {
       int errval = errno;
+
       DEBUGASSERT(errval > 0);
 
       g_ntpc_daemon.state = NTP_STOPPED;
@@ -406,44 +407,66 @@ static time_t ntpc_get_compile_timestamp(void)
   unknown = false;
   switch (pmonth[0])
     {
-    default:
-      unknown = true;
-      break;
-    case 'J':
-      if (pmonth[1] == 'a') /* Jan */
-        month = 1;
-      else if (pmonth[2] == 'n') /* Jun */
-        month = 6;
-      else /* Jul */
-        month = 7;
-      break;
-    case 'F': /* Feb */
-      month = 2;
-      break;
-    case 'M':
-      if (pmonth[2] == 'r') /* Mar */
-        month = 3;
-      else /* May */
-        month = 5;
-      break;
-    case 'A':
-      if (pmonth[1] == 'p') /* Apr */
-        month = 4;
-      else /* Aug */
-        month = 8;
-      break;
-    case 'S': /* Sep */
-      month = 9;
-      break;
-    case 'O': /* Oct */
-      month = 10;
-      break;
-    case 'N': /* Nov */
-      month = 11;
-      break;
-    case 'D': /* Dec */
-      month = 12;
-      break;
+      default:
+        unknown = true;
+        break;
+
+      case 'J':
+        if (pmonth[1] == 'a') /* Jan */
+          {
+            month = 1;
+          }
+        else if (pmonth[2] == 'n') /* Jun */
+          {
+            month = 6;
+          }
+        else /* Jul */
+          {
+            month = 7;
+          }
+        break;
+
+      case 'F': /* Feb */
+        month = 2;
+        break;
+
+      case 'M':
+        if (pmonth[2] == 'r') /* Mar */
+          {
+            month = 3;
+          }
+        else /* May */
+          {
+            month = 5;
+          }
+        break;
+
+      case 'A':
+        if (pmonth[1] == 'p') /* Apr */
+          {
+            month = 4;
+          }
+        else /* Aug */
+          {
+            month = 8;
+          }
+        break;
+
+      case 'S': /* Sep */
+        month = 9;
+        break;
+
+      case 'O': /* Oct */
+        month = 10;
+        break;
+
+      case 'N': /* Nov */
+        month = 11;
+        break;
+
+      case 'D': /* Dec */
+        month = 12;
+        break;
     }
 #endif
 
@@ -1169,7 +1192,8 @@ static int ntpc_get_ntp_sample(FAR struct ntp_servers_s *srvs,
                                int curr_idx)
 {
   FAR struct ntp_sample_s *sample = &samples[curr_idx];
-  uint64_t xmit_time, recv_time;
+  uint64_t xmit_time;
+  uint64_t recv_time;
   union ntp_addr_u server;
   union ntp_addr_u recvaddr;
   struct ntp_datagram_s xmit;
