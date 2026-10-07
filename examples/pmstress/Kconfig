@@ -1,0 +1,52 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PMSTRESS
+	tristate "Power management current staircase"
+	default n
+	depends on PM
+	---help---
+		Walk the power management states in a fixed, timed sequence, so
+		that a logging supply can record the current of each state with
+		nothing attached to the board.  The deepest state comes last and
+		is held until the board is powered off.
+
+		On the rp23xx, "pmstress suspend <seconds>" suspends to RAM until
+		an RTC alarm (RP23XX_PM_SUSPEND, BOARDCTL_IOCTL, RTC_DRIVER and
+		RTC_ALARM).
+
+if EXAMPLES_PMSTRESS
+
+config EXAMPLES_PMSTRESS_PROGNAME
+	string "Program name"
+	default "pmstress"
+
+config EXAMPLES_PMSTRESS_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_PMSTRESS_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_PMSTRESS_STEP_SECS
+	int "Seconds to hold each state"
+	default 30
+
+config EXAMPLES_PMSTRESS_DISCONNECT_SECS
+	int "Seconds to wait before starting"
+	default 30
+	---help---
+		Time to unplug the debugger and the console before the run.  A
+		debugger keeps power domains on.
+
+config EXAMPLES_PMSTRESS_LEDPATH
+	string "User LED device"
+	default "/dev/userleds"
+	depends on USERLED_LOWER
+	---help---
+		Device used to turn the LEDs off.
+
+endif
