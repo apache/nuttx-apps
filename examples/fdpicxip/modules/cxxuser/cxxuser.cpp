@@ -28,12 +28,10 @@
  *   - constructors ran, in both objects.  Neither magic can be right by
  *     accident: an unconstructed global is zero.
  *   - the library's constructors ran before this module's, which is the
- *     ordering DT_NEEDED implies and the loader has to honour.  They ran
- *     once, for the one library, not once per instance.
- *   - the library is one object shared by both instances.  DT_NEEDED is
- *     loaded with dlopen(), which returns what is already in the module
- *     registry, so the totals interleave rather than each reaching seed*3.
- *     Each instance can still see every add it made.
+ *     ordering DT_NEEDED implies and the loader has to honour.
+ *   - each instance has its own library data.  A DT_NEEDED library belongs
+ *     to the task group that loads it, so each total reaches seed*3.  Only
+ *     the library text is shared.
  */
 
 #include <fcntl.h>
@@ -191,10 +189,7 @@ extern "C" int main(int argc, char *argv[])
       usleep(100000);
     }
 
-  /* The other instance is adding to the same library at the same time, so
-   * the total is not this instance's alone.  What must hold is that every
-   * add this instance made landed in it.
-   */
+  /* Every add this instance made must be in the total */
 
   if (shape_total() < seed * 3)
     {
