@@ -35,6 +35,10 @@ include_directories(${NUTTX_BINARY_DIR}/include/nuttx)
 
 add_compile_definitions(TCPBLASTER_HOST=1)
 
+# accept4() is a GNU extension in the host C library
+
+add_compile_definitions(_GNU_SOURCE)
+
 if(CONFIG_EXAMPLES_TCPBLASTER_SERVER)
   add_compile_definitions(CONFIG_EXAMPLES_TCPBLASTER_SERVER=1)
   add_compile_definitions(
