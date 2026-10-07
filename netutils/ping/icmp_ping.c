@@ -284,7 +284,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
 
 #ifdef CONFIG_NET_SOCKOPTS
   filter = ICMP_SET_FILTER(ICMP_ECHO_REPLY);
-  ret = setsockopt(priv->sockfd, IPPROTO_ICMP, ICMP_FILTER,
+  ret = setsockopt(priv->sockfd, SOL_RAW, ICMP_FILTER,
                    &filter, sizeof(filter));
   if (ret < 0)
     {
