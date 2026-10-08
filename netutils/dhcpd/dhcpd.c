@@ -517,10 +517,10 @@ static in_addr_t dhcpd_allocipaddr(void)
       lease = dhcpd_findbyipaddr(ipaddr);
       if ((!lease || dhcpd_leaseexpired(lease)))
         {
-#ifdef CONFIG_CPP_HAVE_WARNING
-#  warning "FIXME: Should check if anything responds to an ARP request or ping"
-#  warning "       to verify that there is no other user of this IP address"
-#endif
+          /* FIXME: Should check if anything responds to an ARP request or
+           * ping to verify that there is no other user of this IP address.
+           */
+
           memset(g_state.ds_leases[ipaddr - startaddr].mac,
           0, DHCP_HLEN_ETHERNET);
           g_state.ds_leases[ipaddr - startaddr].allocated = true;
