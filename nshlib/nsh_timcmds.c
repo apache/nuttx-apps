@@ -39,6 +39,7 @@
 #include <sys/types.h>
 
 #include <nuttx/timers/rtc.h>
+#include <nuttx/lib/lib.h>
 
 #include "nsh.h"
 #include "nsh_console.h"

@@ -32,6 +32,7 @@
 #include <malloc.h>
 #include <sched.h>
 #include <signal.h>
+#include <spawn.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

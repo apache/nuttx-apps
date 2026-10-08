@@ -41,6 +41,7 @@
 
 #include <nuttx/version.h>
 #include <nuttx/sched_note.h>
+#include <nuttx/lib/lib.h>
 
 #include "nsh.h"
 #include "nsh_console.h"

@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include <nuttx/atomic.h>
+
 #include "ostest.h"
 
 #if CONFIG_RR_INTERVAL > 0
