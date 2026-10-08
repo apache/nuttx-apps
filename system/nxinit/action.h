@@ -28,6 +28,7 @@
  ****************************************************************************/
 
 #include <nuttx/list.h>
+#include <signal.h>
 
 #include <time.h>
 
@@ -85,6 +86,8 @@ struct action_manager_s
   FAR struct service_manager_s *sm;
 
   FAR struct init_poller_s *prop;
+
+  sigset_t sigmask;               /* Signal mask before init blocked all */
 };
 
 /* Event evaluation result reported by init_action_event_cb.

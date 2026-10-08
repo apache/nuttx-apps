@@ -370,6 +370,8 @@ int init_builtin_run(FAR struct action_manager_s *am,
   char cmd[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
   posix_spawnattr_t attr;
   FAR char *args[4];
+  sigset_t blocked;
+  sigset_t builtin;
   sigset_t mask;
   pid_t pid;
   size_t i;
@@ -387,7 +389,20 @@ int init_builtin_run(FAR struct action_manager_s *am,
             }
 
           init_info("Executing command '%s'", argv[0]);
-          return g_builtin[i].func(am, argc, argv);
+
+          /* Init blocks all signals.  Run the builtin command with the
+           * original mask, as tasks and threads it creates (e.g. the NTP
+           * client and the network monitor started by netinit) inherit
+           * the mask of this task.  Keep SIGCHLD blocked so that a child
+           * exiting meanwhile still wakes up ppoll() in init.
+           */
+
+          builtin = am->sigmask;
+          sigaddset(&builtin, SIGCHLD);
+          sigprocmask(SIG_SETMASK, &builtin, &blocked);
+          ret = g_builtin[i].func(am, argc, argv);
+          sigprocmask(SIG_SETMASK, &blocked, NULL);
+          return ret;
         }
     }
 
