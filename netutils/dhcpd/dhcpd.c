@@ -429,11 +429,11 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac,
 
   if (ndx >= 0 && ndx < CONFIG_NETUTILS_DHCPD_MAXLEASES)
     {
-       ret = &g_state.ds_leases[ndx];
-       memcpy(ret->mac, mac, DHCP_HLEN_ETHERNET);
-       ret->allocated = true;
+      ret = &g_state.ds_leases[ndx];
+      memcpy(ret->mac, mac, DHCP_HLEN_ETHERNET);
+      ret->allocated = true;
 #ifdef HAVE_LEASE_TIME
-       ret->expiry = dhcpd_time() + expiry;
+      ret->expiry = dhcpd_time() + expiry;
 #endif
     }
 
@@ -482,6 +482,7 @@ static FAR struct lease_s *dhcpd_findbyipaddr(in_addr_t ipaddr)
     {
       FAR struct lease_s *lease =
         &g_state.ds_leases[ipaddr - g_dhcpd_config.ds_startip];
+
       if (lease->allocated > 0)
         {
           return lease;
@@ -498,7 +499,8 @@ static FAR struct lease_s *dhcpd_findbyipaddr(in_addr_t ipaddr)
 static in_addr_t dhcpd_allocipaddr(void)
 {
   struct lease_s *lease = NULL;
-  in_addr_t ipaddr, startaddr;
+  in_addr_t ipaddr;
+  in_addr_t startaddr;
 
   ipaddr = startaddr = g_dhcpd_config.ds_startip;
   for (; ipaddr <= g_dhcpd_config.ds_endip; ipaddr++)
@@ -657,7 +659,7 @@ static inline bool dhcpd_parseoptions(void)
             break;
 
           case DHCP_OPTION_LEASE_TIME: /* IP address lease time */
-             optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
+            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
             if (optlen >= 6 && optlen < remaining)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
@@ -665,7 +667,7 @@ static inline bool dhcpd_parseoptions(void)
               }
             break;
 
-         case DHCP_OPTION_MSG_TYPE: /* DHCP message type */
+          case DHCP_OPTION_MSG_TYPE: /* DHCP message type */
             optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
             if (optlen >= 3 && optlen < remaining)
               {
@@ -785,7 +787,7 @@ static int dhcpd_addoption(uint8_t *option)
 
           memcpy(g_state.ds_optend, option, len);
           g_state.ds_optend += len;
-         *g_state.ds_optend  = DHCP_OPTION_END;
+          *g_state.ds_optend  = DHCP_OPTION_END;
         }
     }
 
@@ -1046,6 +1048,7 @@ static inline int dhcpd_sendoffer(int sockfd, in_addr_t ipaddr,
   in_addr_t netaddr;
 #ifdef HAVE_DNSIP
   uint32_t dnsaddr;
+
   dnsaddr = htonl(g_dhcpd_config.ds_dnsip);
 #endif
   /* IP address is in host order */
@@ -1108,6 +1111,7 @@ int dhcpd_sendack(int sockfd, in_addr_t ipaddr)
   in_addr_t netaddr;
 #ifdef HAVE_DNSIP
   uint32_t dnsaddr;
+
   dnsaddr = htonl(g_dhcpd_config.ds_dnsip);
 #endif
 
@@ -1310,6 +1314,7 @@ static inline int dhcpd_request(int sockfd)
            */
 
           uint32_t tmp = htonl(ipaddr);
+
           if (memcmp(&tmp, g_state.ds_inpacket.ciaddr, 4) == 0)
             {
               response = DHCPACK;
@@ -1627,8 +1632,8 @@ int dhcpd_run(FAR const char *interface)
           sockfd = dhcpd_openlistener(interface);
           if (sockfd < 0)
             {
-                nerr("ERROR: Failed to create socket\n");
-                break;
+              nerr("ERROR: Failed to create socket\n");
+              break;
             }
         }
 
