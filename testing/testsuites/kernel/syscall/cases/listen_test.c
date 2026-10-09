@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <syslog.h>
 #include <stdio.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -67,40 +68,44 @@ void test_nuttx_syscall_listen01(FAR void **state)
   }
 
   tdat[] =
-    {
+  {
     #ifndef CONFIG_FDCHECK
-        {
-          0, 0, 0, 0, -1, EBADF, "setup0", "cleanup0",
-        "bad file descriptor"
-        },
+    {
+      0, 0, 0, 0, -1, EBADF, "setup0", "cleanup0",
+      "bad file descriptor"
+    },
     #endif
 
-        {
-          0, 0, 0, 0, -1, ENOTSOCK, "setup0", "cleanup0", "not a socket"
-        },
+    {
+      0, 0, 0, 0, -1, ENOTSOCK, "setup0", "cleanup0", "not a socket"
+    },
 
 #  ifdef CONFIG_NET_UDP
-        {
-          PF_INET, SOCK_DGRAM, 0, 0, -1, EOPNOTSUPP, "setup1", "cleanup1",
-        "UDP listen"
-        },
+    {
+      PF_INET, SOCK_DGRAM, 0, 0, -1, EOPNOTSUPP, "setup1", "cleanup1",
+      "UDP listen"
+    },
 #  endif
-    };
+  };
 
   const char set[] = "setup0";
   const char clean[] = "cleanup0";
 
-  for (testno = 0; testno < sizeof(tdat) / sizeof(tdat[0]); ++testno)
+  for (testno = 0; testno < nitems(tdat); ++testno)
     {
       /* setup0(void) */
 
       if (!strcmp(tdat[testno].setup, set))
         {
           if (tdat[testno].experrno == EBADF)
-            s = -400; /* anything not an open file */
+            {
+              s = -400; /* anything not an open file */
+            }
           else if ((s = open("/dev/null", O_WRONLY)) == -1)
-            syslog(LOG_ERR, "error opening /dev/null - errno: %s\n",
-                   strerror(errno));
+            {
+              syslog(LOG_ERR, "error opening /dev/null - errno: %s\n",
+                     strerror(errno));
+            }
         }
 
       else

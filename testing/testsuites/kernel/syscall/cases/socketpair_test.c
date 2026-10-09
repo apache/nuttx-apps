@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -67,52 +68,53 @@ void test_nuttx_syscall_socketpair01(FAR void **state)
   }
 
   tdat[] =
+  {
     {
-        {
-          0, SOCK_STREAM, 0, fds, -1, EAFNOSUPPORT, "invalid domain"
-        },
+      0, SOCK_STREAM, 0, fds, -1, EAFNOSUPPORT, "invalid domain"
+    },
 
-        {
-          PF_INET, 75, 0, fds, -1, EINVAL, "invalid type"
-        },
+    {
+      PF_INET, 75, 0, fds, -1, EINVAL, "invalid type"
+    },
 
-        {
-          PF_UNIX, SOCK_DGRAM, 0, fds, 0, 0, "UNIX domain dgram"
-        },
+    {
+      PF_UNIX, SOCK_DGRAM, 0, fds, 0, 0, "UNIX domain dgram"
+    },
 
-        {
-          PF_INET, SOCK_RAW, 0, fds, -1, EPROTONOSUPPORT,
-        "raw open as non-root"
-        },
+    {
+      PF_INET, SOCK_RAW, 0, fds, -1, EPROTONOSUPPORT,
+      "raw open as non-root"
+    },
 
   #ifndef UCLINUX
-        {
-          PF_UNIX, SOCK_STREAM, 0, 0, -1, EFAULT, "bad aligned pointer"
-        },
+    {
+      PF_UNIX, SOCK_STREAM, 0, 0, -1, EFAULT, "bad aligned pointer"
+    },
 
-        {
-          PF_UNIX, SOCK_STREAM, 0, (int *)7, -1, EFAULT,
-        "bad unaligned pointer"
-        },
+    {
+      PF_UNIX, SOCK_STREAM, 0, (int *)7, -1, EFAULT,
+      "bad unaligned pointer"
+    },
 
   #endif
-      /* {PF_INET, SOCK_DGRAM, 17, fds, -1, EOPNOTSUPP, "UDP socket"}, */
+    /* {PF_INET, SOCK_DGRAM, 17, fds, -1, EOPNOTSUPP, "UDP socket"}, */
 
-        {
-          PF_INET, SOCK_DGRAM, 6, fds, -1, EPROTONOSUPPORT, "TCP dgram"
-        },
+    {
+      PF_INET, SOCK_DGRAM, 6, fds, -1, EPROTONOSUPPORT, "TCP dgram"
+    },
 
-      /* {PF_INET, SOCK_STREAM, 6, fds, -1, EOPNOTSUPP, "TCP socket"}, */
+    /* {PF_INET, SOCK_STREAM, 6, fds, -1, EOPNOTSUPP, "TCP socket"}, */
 
-        {
-          PF_INET, SOCK_STREAM, 1, fds, -1, EPROTONOSUPPORT,
-        "ICMP stream"
-        }
-    };
+    {
+      PF_INET, SOCK_STREAM, 1, fds, -1, EPROTONOSUPPORT,
+      "ICMP stream"
+    }
+  };
 
-  for (int n = 0; n < sizeof(tdat) / sizeof(tdat[0]); n++)
+  for (int n = 0; n < nitems(tdat); n++)
     {
       struct test_case_t *tc = &tdat[n];
+
       ret = socketpair(tc->domain, tc->type, tc->proto, tc->sv);
       if (ret == 0)
         {
@@ -153,29 +155,30 @@ void test_nuttx_syscall_socketpair02(FAR void **state)
   }
 
   tcases[] =
+  {
     {
-        {
-          SOCK_STREAM, 0, F_GETFD, "no close-on-exec"
-        },
+      SOCK_STREAM, 0, F_GETFD, "no close-on-exec"
+    },
 
-        {
-          SOCK_STREAM | SOCK_CLOEXEC, FD_CLOEXEC, F_GETFD, "close-on-exec"
-        },
+    {
+      SOCK_STREAM | SOCK_CLOEXEC, FD_CLOEXEC, F_GETFD, "close-on-exec"
+    },
 
-        {
-          SOCK_STREAM, 0, F_GETFL, "no non-blocking"
-        },
+    {
+      SOCK_STREAM, 0, F_GETFL, "no non-blocking"
+    },
 
-        {
-          SOCK_STREAM | SOCK_NONBLOCK, O_NONBLOCK, F_GETFL,
-        "non-blocking"
-        }
-    };
+    {
+      SOCK_STREAM | SOCK_NONBLOCK, O_NONBLOCK, F_GETFL,
+      "non-blocking"
+    }
+  };
 
-  for (int n = 0; n < sizeof(tcases) / sizeof(tcases[0]); n++)
+  for (int n = 0; n < nitems(tcases); n++)
     {
       int res;
       struct tcase *tc = &tcases[n];
+
       ret = socketpair(PF_UNIX, tc->type, 0, fds);
       if (ret == -1)
         {

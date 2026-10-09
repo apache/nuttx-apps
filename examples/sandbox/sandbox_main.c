@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -687,7 +688,7 @@ int main(int argc, FAR char *argv[])
     {
       int n;
 
-      for (n = 0; n < (int)(sizeof(defaults) / sizeof(defaults[0])); n++)
+      for (n = 0; n < (int)(nitems(defaults)); n++)
         {
           if (resolve(defaults[n], &t) == OK)
             {

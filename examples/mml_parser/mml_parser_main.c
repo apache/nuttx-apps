@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 
+#include <sys/param.h>
 #ifndef CONFIG_AUDIOUTILS_MMLPARSER_LIB
 #error "This example needs to enable config of AUDIOUTILS_MMLPARSER_LIB," \
        " please enable it"
@@ -86,7 +87,7 @@ static const char *test_scores[] =
   SIMPLE_SCORE, TEST_SCORE, FLOH_WALZER_RIGHT, FLOH_WALZER_LEFT,
 };
 
-#define TEST_SCORES_NUM (sizeof(test_scores)/sizeof(test_scores[0]))
+#define TEST_SCORES_NUM (nitems(test_scores))
 
 /****************************************************************************
  * Private Functions
@@ -135,6 +136,7 @@ int print_parse_result(int ret_code, FAR struct mml_result_s *result)
         printf("         : Notes ");
         {
           int i;
+
           for (i = 0; i < result->chord_notes; i++)
             {
               printf("%d ", result->note_idx[i]);
@@ -185,7 +187,7 @@ int main(void)
       if (ret < 0)
         {
           printf("\nret = %d\n", ret);
-          printf("Error was occured below:\n");
+          printf("Error occurred below:\n");
           printf("%s\n", score);
           break;
         }

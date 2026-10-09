@@ -27,6 +27,7 @@
 #include <syslog.h>
 #include <dirent.h>
 #include <inttypes.h>
+#include <sys/param.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -60,19 +61,19 @@ void test_nuttx_syscall_sched01(FAR void **state)
   }
 
   TC[] =
+  {
+    /* set scheduling policy to SCHED_RR */
+
     {
-      /* set scheduling policy to SCHED_RR */
+      1, SCHED_RR
+    },
 
-        {
-          1, SCHED_RR
-        },
+    /* set scheduling policy to SCHED_FIFO */
 
-      /* set scheduling policy to SCHED_FIFO */
-
-        {
-          1, SCHED_FIFO
-        }
-    };
+    {
+      1, SCHED_FIFO
+    }
+  };
 
   int i;
   int rec;
@@ -171,13 +172,13 @@ void test_nuttx_syscall_sched04(FAR void **state)
   }
 
   test_cases[] =
+  {
     {
-        {
-          &inval_pid, &tp, EINVAL
-        }
-    };
+      &inval_pid, &tp, EINVAL
+    }
+  };
 
-  int TST_TOTAL = sizeof(test_cases) / sizeof(test_cases[0]);
+  int TST_TOTAL = nitems(test_cases);
 
 #if CONFIG_RR_INTERVAL > 0
   struct sched_param p =
