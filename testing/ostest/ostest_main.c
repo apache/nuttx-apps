@@ -419,6 +419,20 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#if defined(CONFIG_SCHED_CAPABILITIES) && defined(CONFIG_SCHED_WAITPID) && \
+    !defined(CONFIG_BUILD_KERNEL)
+      /* Check process capabilities */
+
+      printf("\nuser_main: caps test\n");
+      if (caps_test() != 0)
+        {
+          printf("user_main: ERROR caps test failed\n");
+          ASSERT(false);
+        }
+
+      check_test_memory_usage();
+#endif
+
 #if defined(CONFIG_TESTING_OSTEST_MULTIUSER) && defined(CONFIG_SCHED_USER_IDENTITY)
       /* Multi-user identity and file permission regression tests */
 
