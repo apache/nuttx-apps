@@ -136,6 +136,7 @@ int print_parse_result(int ret_code, FAR struct mml_result_s *result)
         printf("         : Notes ");
         {
           int i;
+
           for (i = 0; i < result->chord_notes; i++)
             {
               printf("%d ", result->note_idx[i]);
