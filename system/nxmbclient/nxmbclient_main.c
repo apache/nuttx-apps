@@ -436,6 +436,7 @@ static int cmd_write_coils(nxmb_handle_t handle, uint8_t unit_id,
   FAR uint8_t *values;
   uint16_t addr;
   uint16_t count;
+  uint16_t nbytes;
   int ret;
   int i;
 
@@ -445,18 +446,26 @@ static int cmd_write_coils(nxmb_handle_t handle, uint8_t unit_id,
       return -EINVAL;
     }
 
-  addr  = (uint16_t)strtoul(argv[0], NULL, 0);
-  count = argc - 1;
+  addr   = (uint16_t)strtoul(argv[0], NULL, 0);
+  count  = argc - 1;
+  nbytes = (count + 7) / 8;
 
-  values = malloc(count);
+  values = malloc(nbytes);
   if (values == NULL)
     {
       return -ENOMEM;
     }
 
+  memset(values, 0, nbytes);
+
+  /* nxmb_write_coils() takes the coils packed, one bit per coil */
+
   for (i = 0; i < count; i++)
     {
-      values[i] = (uint8_t)strtoul(argv[i + 1], NULL, 0);
+      if (strtoul(argv[i + 1], NULL, 0) != 0)
+        {
+          values[i / 8] |= 1 << (i % 8);
+        }
     }
 
   ret = nxmb_write_coils(handle, unit_id, addr, count, values);
