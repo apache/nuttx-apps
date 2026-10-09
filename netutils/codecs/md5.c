@@ -94,6 +94,7 @@
 static void byte_reverse(FAR unsigned char *buf, unsigned longs)
 {
   uint32_t t;
+
   do
     {
       t = ((uint32_t)buf[3] << 24) |
