@@ -39,6 +39,7 @@
 #include <sys/types.h>
 
 #include <nuttx/timers/rtc.h>
+#include <nuttx/lib/lib.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -341,9 +342,9 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       ret = clock_gettime(CLOCK_MONOTONIC, &end);
       if (ret < 0)
         {
-           nsh_error(vtbl, g_fmtcmdfailed,
-                     argv[0], "clock_gettime", NSH_ERRNO);
-           ret = ERROR;
+          nsh_error(vtbl, g_fmtcmdfailed,
+                    argv[0], "clock_gettime", NSH_ERRNO);
+          ret = ERROR;
         }
       else
         {
@@ -601,6 +602,7 @@ int cmd_watch(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   for (i = 0; i < count; i++)
     {
       FAR char *buffer = lib_get_tempbuffer(LINE_MAX);
+
       if (buffer == NULL)
         {
           return ERROR;

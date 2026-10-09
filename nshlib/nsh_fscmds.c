@@ -45,6 +45,7 @@
 #include <libgen.h>
 #include <errno.h>
 #include <nuttx/debug.h>
+#include <nuttx/lib/lib.h>
 
 #ifdef CONFIG_LIBC_PASSWD_FILE
 #  include <pwd.h>

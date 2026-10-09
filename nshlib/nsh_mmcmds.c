@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <nuttx/lib/lib.h>
+
 #include "nsh.h"
 #include "nsh_console.h"
 

@@ -41,6 +41,7 @@
 
 #include <nuttx/version.h>
 #include <nuttx/sched_note.h>
+#include <nuttx/lib/lib.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -356,6 +357,7 @@ static void nsh_memlist_add(FAR struct nsh_memlist_s *memlist,
   if (memlist && allocation)
     {
       int index = memlist->nallocs;
+
       if (index < CONFIG_NSH_MAXALLOCS)
         {
           memlist->allocations[index] = allocation;
@@ -398,6 +400,7 @@ static void nsh_alist_add(FAR struct nsh_alist_s *alist,
   if (alist && alias)
     {
       int index = alist->nallocs;
+
       if (index < CONFIG_NSH_ALIAS_MAX_AMOUNT)
         {
           alias->exp = 1;
@@ -1558,6 +1561,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl,
       /* Verify that the final character is also a back-quote */
 
       FAR char *rptr = nsh_strchr(cmdline + 1, '`');
+
       if (!rptr || rptr[1] != '\0')
         {
           nsh_error(vtbl, g_fmtnomatching, "`", "`");
@@ -1736,6 +1740,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl,
               /* Yes, find the terminator and continue from there */
 
               FAR char *qend = nsh_strchr(pend + 1, *pend);
+
               if (!qend)
                 {
                   /* No terminator found, get out */
