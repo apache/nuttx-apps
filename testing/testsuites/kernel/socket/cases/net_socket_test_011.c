@@ -119,6 +119,7 @@ static int handlerecv(int fd)
 {
   char buf[128];
   int ret = recv(fd, buf, sizeof(buf) - 1, 0);
+
   if (ret < 0)
     {
       syslog(LOG_INFO, "[%d]Error: %s", fd, strerror(errno));
@@ -147,6 +148,7 @@ static int handlerecv(int fd)
 static int handlereadfds(fd_set *fds, int lsfd)
 {
   int ret = 0;
+
   for (int i = 0; i < FD_SETSIZE; ++i)
     {
       if (gfds[i] == INVALID_SOCKET || !FD_ISSET(gfds[i], fds))
@@ -174,6 +176,7 @@ static void *clientsthread(void *param)
     }
 
   struct sockaddr_in sa;
+
   sa.sin_family = AF_INET;
   sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   sa.sin_port = htons(SERVER_PORT);
@@ -223,6 +226,7 @@ static int startclients(pthread_t *cli, int clinum)
   };
 
   int policy;
+
   ret = pthread_getschedparam(pthread_self(), &policy, &param);
   assert_int_equal(ret, 0);
 

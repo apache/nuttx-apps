@@ -120,6 +120,7 @@ static int handlerecv(int fd)
 {
   char buf[256];
   int ret = recv(fd, buf, sizeof(buf) - 1, 0);
+
   if (ret < 0)
     {
       syslog(LOG_INFO, "[%d]Error: %s", fd, strerror(errno));
@@ -151,6 +152,7 @@ static int handleaccept(int lsfd)
   struct sockaddr_in sa;
   int salen = sizeof(sa);
   int fd = accept(lsfd, (struct sockaddr *)&sa, (socklen_t *)&salen);
+
   if (fd == INVALID_SOCKET)
     {
       perror("accept");
@@ -173,6 +175,7 @@ static int handleaccept(int lsfd)
 static int handlereadfds(struct pollfd *fds, int nfds, int lsfd)
 {
   int ret = 0;
+
   for (int i = 0; i < nfds; ++i)
     {
       if (fds[i].revents == 0)
@@ -210,6 +213,7 @@ static void *clientsthread(void *param)
     }
 
   struct sockaddr_in sa;
+
   sa.sin_family = AF_INET;
   sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   sa.sin_port = htons(SERVER_PORT);

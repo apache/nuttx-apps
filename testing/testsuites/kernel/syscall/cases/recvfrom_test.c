@@ -158,6 +158,7 @@ tdat[] =
 __attribute__((unused)) static int setup(void)
 {
   int r = pthread_create(&thread, NULL, start_server, (void *)&sin1);
+
   if (r < 0)
     {
       syslog(LOG_ERR, "pthread_create fail, errno %d\n", errno);
@@ -353,15 +354,18 @@ __attribute__((unused)) static void do_child(void)
   while (1)
     {
       socklen_t fromlen_s;
+
       memcpy(&rfds, &afds, sizeof(rfds));
 
       if (select(nfds, &rfds, NULL, NULL, NULL) < 0)
+        {
           if (errno != EINTR)
             {
               syslog(LOG_ERR, "select exit fail\n");
               fail_msg("test fail !");
               return;
             }
+        }
 
       if (FD_ISSET(sfd, &rfds))
         {
@@ -381,6 +385,7 @@ __attribute__((unused)) static void do_child(void)
         }
 
       for (fd = 0; fd < nfds; ++fd)
+        {
           if (fd != sfd && FD_ISSET(fd, &rfds))
             {
               cc = read(fd, buf, sizeof(buf));
@@ -390,6 +395,7 @@ __attribute__((unused)) static void do_child(void)
                   FD_CLR(fd, &afds);
                 }
             }
+        }
 
       pthread_testcancel();
     }
@@ -408,6 +414,7 @@ void test_nuttx_syscall_recvfromtest01(FAR void **state)
 #ifdef CONFIG_NET_TCP
   int ret;
   int flag = 1;
+
   setup();
 
   for (testno = 0; testno < nitems(tdat); ++testno)

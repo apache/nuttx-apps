@@ -189,6 +189,7 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder,
       if (precorder->dev_fd == -1)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: Failed to open %s: %d\n",
@@ -288,7 +289,7 @@ static int nxrecorder_opendevice(FAR struct nxrecorder_s *precorder,
                 }
             }
 
-            close(precorder->dev_fd);
+          close(precorder->dev_fd);
         }
     }
 
@@ -468,6 +469,7 @@ static int nxrecorder_enqueuebuffer(FAR struct nxrecorder_s *precorder,
   if (ret < 0)
     {
       int errcode = errno;
+
       DEBUGASSERT(errcode > 0);
 
       auderr("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
@@ -608,9 +610,9 @@ static FAR void *nxrecorder_recordthread(pthread_addr_t pvarg)
            * message after all queued buffers have been returned.
            */
 
-           streaming = false;
-           failed = true;
-           break;
+          streaming = false;
+          failed = true;
+          break;
         }
 #ifdef CONFIG_DEBUG_FEATURES
       else
@@ -816,7 +818,7 @@ err_out:
       if (pbuffers[x] != NULL)
         {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-         buf_desc.session = precorder->session;
+          buf_desc.session = precorder->session;
 #endif
           buf_desc.u.buffer = pbuffers[x];
           ioctl(precorder->dev_fd, AUDIOIOC_FREEBUFFER,
