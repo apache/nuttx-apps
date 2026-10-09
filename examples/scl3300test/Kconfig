@@ -1,0 +1,33 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_SCL3300TEST
+	tristate "SCL3300 inclinometer test program"
+	default n
+	depends on SENSORS_SCL3300
+	---help---
+		Enable the Murata SCL3300 test program. It checks WHOAMI and the
+		self-test, prints the device info, measures the noise in every
+		operation mode, cycles the power-down policy and resets the
+		device, using the driver's uORB topics and ioctls.
+
+if EXAMPLES_SCL3300TEST
+
+config EXAMPLES_SCL3300TEST_PROGNAME
+	string "Program name"
+	default "scl3300test"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_SCL3300TEST_PRIORITY
+	int "scl3300test task priority"
+	default 100
+
+config EXAMPLES_SCL3300TEST_STACKSIZE
+	int "scl3300test stack size"
+	default 4096
+
+endif
