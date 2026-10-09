@@ -228,7 +228,7 @@ int main(int argc, FAR char *argv[])
   int r;
 
   sigfillset(&mask);
-  r = sigprocmask(SIG_BLOCK, &mask, NULL);
+  r = sigprocmask(SIG_BLOCK, &mask, &am.sigmask);
   sigemptyset(&mask);
   if (r < 0)
     {
