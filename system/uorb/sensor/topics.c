@@ -54,6 +54,7 @@
 #include <sensor/hrate.h>
 #include <sensor/humi.h>
 #include <sensor/impd.h>
+#include <sensor/inclinometer.h>
 #include <sensor/ir.h>
 #include <sensor/light.h>
 #include <sensor/mag.h>
@@ -119,6 +120,7 @@ static FAR const struct orb_metadata *g_sensor_list[] =
   ORB_ID(sensor_humi),
   ORB_ID(sensor_hrate),
   ORB_ID(sensor_impd),
+  ORB_ID(sensor_inclinometer),
   ORB_ID(sensor_ir),
   ORB_ID(sensor_light),
   ORB_ID(sensor_light_uncal),

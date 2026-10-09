@@ -105,6 +105,8 @@ static const struct sensor_info g_sensor_info[] =
   {print_valf,  sizeof(struct sensor_hrate), "hrate"},
   {print_valf,  sizeof(struct sensor_humi),  "humi"},
   {print_valf2, sizeof(struct sensor_impd),  "impd"},
+  {print_vec3,  sizeof(struct sensor_inclinometer),
+                                             "inclinometer"},
   {print_valf,  sizeof(struct sensor_ir),    "ir"},
   {print_valf,  sizeof(struct sensor_light), "light"},
   {print_vec3,  sizeof(struct sensor_mag),   "mag"},
