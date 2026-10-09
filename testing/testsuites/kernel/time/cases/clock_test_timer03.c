@@ -101,7 +101,8 @@ void test_nuttx_clock_test_timer03(FAR void **state)
       struct timespec start;
       struct timespec end;
       struct itimerspec its;
-      int64_t expected, escaped;
+      int64_t expected;
+      int64_t escaped;
 
       its.it_interval = zero;
       its.it_value = testcases[i];

@@ -139,12 +139,16 @@ void test_nuttx_syscall_getsockopt01(FAR void **state)
 #if defined(CONFIG_NET) && defined(CONFIG_NET_SOCKOPTS)
   int ret;
   int flag = 1;
+
   setup();
   for (testno = 0; testno < nitems(tdat); ++testno)
     {
       tdat[testno].setup();
       if (s < 0)
-        continue;
+        {
+          continue;
+        }
+
       ret = getsockopt(s, tdat[testno].level, tdat[testno].optname,
                        tdat[testno].optval, tdat[testno].optlen);
       if (ret != tdat[testno].retval || errno != tdat[testno].experrno)
@@ -177,7 +181,9 @@ __attribute__((unused)) static void setup(void)
 __attribute__((unused)) static void setup0(void)
 {
   if (tdat[testno].experrno == EBADF)
-    s = -400; /* anything not an open file */
+    {
+      s = -400; /* anything not an open file */
+    }
   else if ((s = open("/dev/null", O_WRONLY)) == -1)
     {
       syslog(LOG_ERR,
@@ -191,7 +197,10 @@ __attribute__((unused)) static void setup0(void)
 __attribute__((unused)) static void cleanup0(void)
 {
   if (tdat[testno].experrno != EBADF && s > 0)
-    (void)close(s);
+    {
+      (void)close(s);
+    }
+
   s = -1;
 }
 
@@ -200,8 +209,12 @@ __attribute__((unused)) static void setup1(void)
   s = safe_socket(tdat[testno].domain, tdat[testno].type,
                   tdat[testno].proto);
   if (s < 0)
-    fail_msg("setup1 fail");
+    {
+      fail_msg("setup1 fail");
+    }
+
   int ret = safe_bind(s, (struct sockaddr *)&sin0, sizeof(sin0));
+
   assert_int_not_equal(ret, -1);
   sinlen = sizeof(fsin1);
   optlen = sizeof(optval);

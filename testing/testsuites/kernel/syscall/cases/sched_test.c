@@ -61,19 +61,19 @@ void test_nuttx_syscall_sched01(FAR void **state)
   }
 
   TC[] =
+  {
+    /* set scheduling policy to SCHED_RR */
+
     {
-      /* set scheduling policy to SCHED_RR */
+      1, SCHED_RR
+    },
 
-        {
-          1, SCHED_RR
-        },
+    /* set scheduling policy to SCHED_FIFO */
 
-      /* set scheduling policy to SCHED_FIFO */
-
-        {
-          1, SCHED_FIFO
-        }
-    };
+    {
+      1, SCHED_FIFO
+    }
+  };
 
   int i;
   int rec;
@@ -172,11 +172,11 @@ void test_nuttx_syscall_sched04(FAR void **state)
   }
 
   test_cases[] =
+  {
     {
-        {
-          &inval_pid, &tp, EINVAL
-        }
-    };
+      &inval_pid, &tp, EINVAL
+    }
+  };
 
   int TST_TOTAL = nitems(test_cases);
 
