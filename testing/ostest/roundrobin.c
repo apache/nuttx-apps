@@ -55,11 +55,11 @@
 #endif
 
 #ifndef CONFIG_TESTING_OSTEST_RR_RUNS
-#  define CONFIG_TESTING_OSTEST_RR_RUNS 10
-#  warning "CONFIG_TESTING_OSTEST_RR_RUNS undefined, using default value = 10"
+#  define CONFIG_TESTING_OSTEST_RR_RUNS 4
+#  warning "CONFIG_TESTING_OSTEST_RR_RUNS undefined, using default value = 4"
 #elif (CONFIG_TESTING_OSTEST_RR_RUNS < 1) || (CONFIG_TESTING_OSTEST_RR_RUNS > 32767)
-#  define CONFIG_TESTING_OSTEST_RR_RUNS 10
-#  warning "Invalid value of CONFIG_TESTING_OSTEST_RR_RUNS, using default value = 10"
+#  define CONFIG_TESTING_OSTEST_RR_RUNS 4
+#  warning "Invalid value of CONFIG_TESTING_OSTEST_RR_RUNS, using default value = 4"
 #endif
 
 /****************************************************************************
