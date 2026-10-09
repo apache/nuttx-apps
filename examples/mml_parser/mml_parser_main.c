@@ -187,7 +187,7 @@ int main(void)
       if (ret < 0)
         {
           printf("\nret = %d\n", ret);
-          printf("Error was occured below:\n");
+          printf("Error occurred below:\n");
           printf("%s\n", score);
           break;
         }
