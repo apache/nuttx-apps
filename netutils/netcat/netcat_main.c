@@ -325,6 +325,7 @@ out:
 int main(int argc, FAR char *argv[])
 {
   int status = EXIT_SUCCESS;
+
   if (2 > argc)
     {
       fprintf(stderr,
