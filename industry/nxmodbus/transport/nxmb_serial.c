@@ -48,7 +48,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define NXMB_RTU_MIN_FRAME_SIZE 5
+/* Minimum wire frame: unit_id + fc + 2 CRC bytes (e.g. FC17 request) */
+
+#define NXMB_RTU_MIN_FRAME_SIZE 4
 
 /* Wire frame: unit_id + fc + data + 2 CRC bytes */
 
