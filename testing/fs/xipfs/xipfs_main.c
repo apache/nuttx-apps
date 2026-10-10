@@ -2371,14 +2371,13 @@ static void test_fdpic(void)
 
   usleep(150000);
 
-  /* One library, so one pin.  Both instances name it in DT_NEEDED, the
-   * loader opens it with dlopen(), and the second open takes a reference to
-   * what the first loaded rather than loading it again.
+  /* Each instance is a task group with its own registry, so each loads
+   * the library: one pin per instance on the one flash copy.
    */
 
   ret = extent_info(PATH("libshape.so"), &info);
-  CHECK("one flash copy of the library, pinned once for both instances",
-        ret == 0 && info.pincount == 1, "wrong pin count");
+  CHECK("one flash copy of the library, pinned once per instance",
+        ret == 0 && info.pincount == 2, "wrong pin count");
 
   /* Wait for both, but do not read the exit status from waitpid().
    *
@@ -2426,23 +2425,20 @@ static void test_fdpic(void)
         (fails & USER_FAIL_LIB_CTOR) == 0, "global left as .bss");
   CHECK("the library was constructed before the module needing it",
         (fails & USER_FAIL_ORDER) == 0, "wrong DT_NEEDED order");
-  CHECK("every add an instance makes lands in the one shared library",
+  CHECK("every add an instance makes lands in its library",
         (fails & USER_FAIL_SHARED) == 0, "an instance lost its own adds");
 
   /* Destructors run on unload, which happens as each task is reaped --
    * after waitpid() has already returned.
    *
-   * The library is one object, so its destructor runs once, when the last
-   * instance holding it goes.  Both instances handed it a marker path and
-   * the second one to do so won, which is why this looks for exactly one
-   * file rather than for a particular one.  What it holds is the total of
-   * both instances' adds: three each of one and two.
+   * Each instance has its own copy of the library data, so each destructor
+   * writes its own marker with only its own adds: three of its seed.
    */
 
   usleep(200000);
 
   found = 0;
-  total = -1;
+  total = 0;
 
   for (i = 0; i < 2; i++)
     {
@@ -2450,14 +2446,18 @@ static void test_fdpic(void)
       if (ret >= 0)
         {
           found++;
-          total = ret;
+        }
+
+      if (ret == 3 * (i + 1))
+        {
+          total++;
         }
     }
 
-  CHECK("the library's destructor ran once, at the last close",
-        found == 1, "marker missing or written twice");
-  CHECK("it ran with the state both instances had built up",
-        total == 3 * (1 + 2), "wrong total");
+  CHECK("the library's destructor ran once per instance",
+        found == 2, "marker missing");
+  CHECK("each ran with the state of its own instance only",
+        total == 2, "wrong total");
 
   ret = extent_info(PATH("libshape.so"), &info);
   CHECK("the library's pins return to zero once both instances are gone",

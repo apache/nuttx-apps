@@ -30,11 +30,9 @@
  * demo checks for a magic rather than just printing a total: the failure
  * this is here to catch does not announce itself.
  *
- * m_total is the second half: it lives in the library's writable segment,
- * of which there is one.  A library named in DT_NEEDED is opened with
- * dlopen(), which returns the object already in the module registry, so
- * two tasks naming this library share its data as well as its
- * flash-resident code, and m_total ends up counting both of them.
+ * m_total is the second half: it lives in the library's writable segment.
+ * Each task group that names this library loads its own instance, so each
+ * has its own m_total.  Only the flash-resident code is shared.
  */
 
 #include <nuttx/compiler.h>

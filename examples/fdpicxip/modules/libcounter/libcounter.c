@@ -23,11 +23,9 @@
 /* A shared library with its own state.
  *
  * g_calls is the interesting part: it lives in the library's writable
- * segment, and there is one of it.  A library named in DT_NEEDED is opened
- * with dlopen(), which hands back the instance already in the module
- * registry, so every task that names this library counts into the same
- * g_calls.  The library's code, meanwhile, is mapped once and executed in
- * place.
+ * segment.  Each task group that names this library in DT_NEEDED loads its
+ * own instance, so each has its own g_calls.  The library's code is mapped
+ * once and executed in place.
  */
 
 /****************************************************************************

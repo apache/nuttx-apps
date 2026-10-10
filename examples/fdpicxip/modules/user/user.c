@@ -20,12 +20,9 @@
  *
  ****************************************************************************/
 
-/* Uses libcounter.so.  Two instances run concurrently, and there is one
- * library between them: DT_NEEDED is loaded with dlopen(), which returns
- * the object already in the registry rather than a second copy of it, so
- * the totals interleave and the final one counts both instances' bumps.
- * What each instance can assert on its own is that every bump it made
- * landed somewhere it can still see.
+/* Uses libcounter.so.  Two instances run concurrently.  Each instance is a
+ * task group with its own copy of the library data, so its total counts
+ * its own bumps.  The library text is shared.
  *
  * libcounter is also a *leaf* library -- it calls nothing outside itself,
  * so it has no PLT and therefore no DT_PLTGOT.  The loader has to fall back
