@@ -2450,11 +2450,16 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   argv[argc] = NULL;
 
-  /* Check if the maximum number of arguments was exceeded */
+  /* Check if the maximum number of arguments was exceeded.  Do not run
+   * the command then: words past MAX_ARGV_ENTRIES were not parsed, so its
+   * argument list may be truncated.
+   */
 
   if (argc > CONFIG_NSH_MAXARGUMENTS)
     {
       nsh_error(vtbl, g_fmttoomanyargs, cmd);
+      ret = nsh_saveresult(vtbl, true);
+      goto exit;
     }
 
   /* Then execute the command */
@@ -2904,11 +2909,16 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
   argv[argc] = NULL;
 
-  /* Check if the maximum number of arguments was exceeded */
+  /* Check if the maximum number of arguments was exceeded.  Do not run
+   * the command then: words past MAX_ARGV_ENTRIES were not parsed, so its
+   * argument list may be truncated.
+   */
 
   if (argc > CONFIG_NSH_MAXARGUMENTS)
     {
       nsh_error(vtbl, g_fmttoomanyargs, cmd);
+      ret = nsh_saveresult(vtbl, true);
+      goto dynlist_free;
     }
 
   /* Then execute the command */
