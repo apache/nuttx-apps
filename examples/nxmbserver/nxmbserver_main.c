@@ -439,8 +439,11 @@ int main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-  /* Connect signals */
+  /* Connect signals. g_running is not re-initialized between runs of a
+   * builtin, so set it here.
+   */
 
+  g_running = true;
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
 
