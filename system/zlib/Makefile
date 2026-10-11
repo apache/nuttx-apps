@@ -35,16 +35,23 @@ zlib/test/infcover.c_CFLAGS += -Wno-format
 
 ZLIB_ZIP = zlib13.zip
 ZLIB_SRC = zlib
+ZLIB_TARBALL_SHA256 ?= c561d09347f674f0d72692e7c75d9898919326c532aab7f8c07bb43b07efeb38
 
 ifeq ($(wildcard zlib/.git),)
 $(ZLIB_ZIP):
 	@echo "Downloading: $(ZLIB_ZIP)"
 	$(Q) curl -O -L https://github.com/madler/zlib/releases/download/v1.3/zlib13.zip
+ifneq ($(ZLIB_TARBALL_SHA256),)
+	$(Q) $(CHECKHASH) sha256 $(ZLIB_TARBALL_SHA256) $(ZLIB_ZIP)
+endif
 
 # Make zconf.h include unistd.h, as zlib's configure does on Unix:
 # gzlib.c, gzread.c and gzwrite.c use lseek(), read() and write().
 
 $(ZLIB_SRC) : $(ZLIB_ZIP)
+ifneq ($(ZLIB_TARBALL_SHA256),)
+	$(Q) $(CHECKHASH) sha256 $(ZLIB_TARBALL_SHA256) $(ZLIB_ZIP)
+endif
 	unzip -o $(ZLIB_ZIP)
 	mv zlib-1.3 $(ZLIB_SRC)
 	sed -i.orig "/^#ifdef HAVE_UNISTD_H.* may be/s/def HAVE_UNISTD_H\(.*\) may be/ 1\1 was/" $(ZLIB_SRC)/zconf.h

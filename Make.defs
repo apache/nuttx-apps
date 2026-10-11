@@ -95,6 +95,7 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 else
   MKKCONFIG ?= $(APPDIR)$(DELIM)tools$(DELIM)mkkconfig.sh
 endif
+CHECKHASH ?= $(APPDIR)$(DELIM)tools$(DELIM)check-hash.sh
 
 # Builtin Registration
 
