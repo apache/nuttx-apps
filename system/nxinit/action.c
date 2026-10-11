@@ -112,6 +112,13 @@ static void add_ready(FAR struct action_manager_s *am,
     }
 #endif
 
+  /* An "on" section can end up without any command */
+
+  if (list_is_empty(&a->cmds))
+    {
+      return;
+    }
+
   list_for_every_entry(&am->ready_actions, ready, struct action_s,
                        ready_node)
     {
