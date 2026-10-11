@@ -28,6 +28,7 @@
 #include <nuttx/list.h>
 
 #include <setjmp.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -259,4 +260,35 @@ void test_nxinit_action_event_and_semantics(FAR void **state)
 
   skip();
 #endif
+}
+
+/****************************************************************************
+ * Name: test_nxinit_action_empty_skipped
+ *
+ * Description:
+ *   An "on" section that holds no command must never reach the ready
+ *   queue. init_action_run_command() takes the head of the ready
+ *   action's command list, which list_peek_head_type() reports as NULL
+ *   for an empty list, and then dereferences it.
+ ****************************************************************************/
+
+void test_nxinit_action_empty_skipped(FAR void **state)
+{
+  struct action_manager_s am;
+  struct parser_s parser =
+    {
+      "on", init_action_parse, NULL, &am
+    };
+
+  char section[] = "on property:sys.boot.reason=bootloader";
+
+  action_manager_init(&am);
+
+  assert_int_equal(init_action_parse(&parser, true, section), 0);
+
+  init_action_trigger_event(&am, "sys.boot.reason", "bootloader");
+  assert_false(action_manager_has_ready(&am));
+  assert_int_equal(init_action_run_command(&am), INT_MAX);
+
+  action_manager_free_all(&am);
 }
