@@ -31,10 +31,13 @@ if(CONFIG_LIB_ZLIB)
   if(NOT EXISTS ${ZLIB_DIR})
     set(ZLIB_URL
         https://github.com/madler/zlib/releases/download/v1.3/zlib13.zip)
+    set(ZLIB_URL_HASH
+        URL_HASH
+        SHA256=c561d09347f674f0d72692e7c75d9898919326c532aab7f8c07bb43b07efeb38)
     FetchContent_Declare(
       zlib_fetch
-      URL ${ZLIB_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/zlib BINARY_DIR
-          ${NUTTX_BINARY_DIR}/apps/system/zlib/zlib
+      URL ${ZLIB_URL} ${ZLIB_URL_HASH} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/zlib
+          BINARY_DIR ${NUTTX_BINARY_DIR}/apps/system/zlib/zlib
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30)
 

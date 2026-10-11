@@ -34,9 +34,16 @@ if(CONFIG_GRAPHICS_LVGL)
   if(NOT EXISTS ${LVGL_DIR})
     set(LVGL_URL
         "https://github.com/lvgl/lvgl/archive/refs/tags/v${LVGL_VERSION}.zip")
+    if("${LVGL_VERSION}" STREQUAL "9.2.2")
+      set(LVGL_URL_HASH
+          URL_HASH
+          SHA256=b3d33f7aad1360f588762208d0f563574392debbc28d9187bda86012909f2203
+      )
+    endif()
     FetchContent_Declare(
       lvgl_fetch
       URL ${LVGL_URL}
+          ${LVGL_URL_HASH}
           DOWNLOAD_DIR
           ${CMAKE_CURRENT_LIST_DIR}
           SOURCE_DIR
