@@ -55,6 +55,7 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test(test_nxinit_action_event_match_invert),
       cmocka_unit_test(test_nxinit_action_event_match_fnmatch),
       cmocka_unit_test(test_nxinit_action_event_and_semantics),
+      cmocka_unit_test(test_nxinit_action_empty_skipped),
       cmocka_unit_test(test_nxinit_service_duplicate_conflict),
       cmocka_unit_test(test_nxinit_service_override_replaces_duplicate),
       cmocka_unit_test(test_nxinit_service_args_max_boundary),
