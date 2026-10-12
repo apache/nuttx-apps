@@ -89,6 +89,7 @@ int watched_read_watcher_info(struct watched_info_s *info)
       if (fp == NULL)
         {
           int errcode = errno;
+
           fprintf(stderr, "ERROR: Failed to open %s: %d\n",
                   g_watcher_info.info_file_name, errcode);
           ret = errcode;
@@ -132,6 +133,7 @@ int watched_subscribe(struct watched_info_s *info)
   if (ret == ERROR)
     {
       int errcode = errno;
+
       fprintf(stderr, "subscribe: error %d\n", errcode);
       ret = errcode;
     }
@@ -151,6 +153,7 @@ int watched_unsubscribe(struct watched_info_s *info)
   if (ret == ERROR)
     {
       int errcode = errno;
+
       fprintf(stderr, "unsubscribe: error %d\n", errcode);
       ret = errcode;
     }
@@ -170,6 +173,7 @@ int watched_feed_dog(struct watched_info_s *info)
   if (ret == ERROR)
     {
       int errcode = errno;
+
       fprintf(stderr, "watched_feed_dog: error %d\n", errcode);
       ret = errcode;
     }

@@ -123,6 +123,7 @@ static void plcatool_usage(bool err);
 static int get_num(FAR const char *str, FAR int *result)
 {
   FAR char *endptr;
+
   *result = (int)strtol(str, &endptr, 0);
 
   if (*endptr != '\0')
@@ -447,6 +448,7 @@ static int verify_support(FAR struct plcatool_cfg_s *cfg,
                           FAR bool *supported)
 {
   uint16_t reg;
+
   if (read_plca_mmd(cfg->ifname, cfg->phy, OA_TC14_IDVER_ADDR, &reg))
     {
       return ERROR;
@@ -487,6 +489,7 @@ static int plcatool_set(FAR struct plcatool_cfg_s *cfg)
       if (cfg->node_cnt)
         {
           int val = PLCATOOL_CFG_VAL(cfg, node_cnt);
+
           reg &= ~OA_TC14_CTRL1_NCNT_MASK;
           reg |= oa_tc14_field(val, CTRL1_NCNT);
         }
@@ -494,6 +497,7 @@ static int plcatool_set(FAR struct plcatool_cfg_s *cfg)
       if (cfg->node_id)
         {
           int val = PLCATOOL_CFG_VAL(cfg, node_id);
+
           reg &= ~OA_TC14_CTRL1_ID_MASK;
           reg |= oa_tc14_field(val, CTRL1_ID);
         }
@@ -509,6 +513,7 @@ static int plcatool_set(FAR struct plcatool_cfg_s *cfg)
   if (cfg->to_tmr)
     {
       int val = PLCATOOL_CFG_VAL(cfg, to_tmr);
+
       reg = oa_tc14_field(val, TOTMR_TOT);
 
       if (write_plca_mmd(cfg->ifname, cfg->phy, OA_TC14_TOTMR_ADDR, reg))
@@ -529,6 +534,7 @@ static int plcatool_set(FAR struct plcatool_cfg_s *cfg)
       if (cfg->burst_cnt)
         {
           int val = PLCATOOL_CFG_VAL(cfg, burst_cnt);
+
           reg &= ~OA_TC14_BURST_MAXBC_MASK;
           reg |= oa_tc14_field(val, BURST_MAXBC);
         }
@@ -536,6 +542,7 @@ static int plcatool_set(FAR struct plcatool_cfg_s *cfg)
       if (cfg->burst_tmr)
         {
           int val = PLCATOOL_CFG_VAL(cfg, burst_tmr);
+
           reg &= ~OA_TC14_BURST_BTMR_MASK;
           reg |= oa_tc14_field(val, BURST_BTMR);
         }
@@ -551,6 +558,7 @@ static int plcatool_set(FAR struct plcatool_cfg_s *cfg)
   if (cfg->enable)
     {
       int val;
+
       if (read_plca_mmd(cfg->ifname, cfg->phy, OA_TC14_CTRL0_ADDR, &reg))
         {
           return EIO;
@@ -684,9 +692,11 @@ static void plcatool_usage(bool err)
 int main(int argc, FAR char *argv[])
 {
   struct plcatool_cfg_s cfg;
+
   memset(&cfg, 0, sizeof(cfg));
 
   int err = parse_args(argc, argv, &cfg);
+
   if (err)
     {
       plcatool_usage(err);
@@ -696,17 +706,17 @@ int main(int argc, FAR char *argv[])
   switch (cfg.cmd)
     {
       case PLCA_CMD_SET:
-          return plcatool_set(&cfg);
+        return plcatool_set(&cfg);
 
       case PLCA_CMD_GET:
-          return plcatool_get(&cfg);
+        return plcatool_get(&cfg);
 
       case PLCA_CMD_STATUS:
-          return plcatool_status(&cfg);
+        return plcatool_status(&cfg);
 
       case PLCA_CMD_HELP:
-          plcatool_usage(false);
-          break;
+        plcatool_usage(false);
+        break;
     }
 
   return OK;

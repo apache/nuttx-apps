@@ -170,6 +170,7 @@ static void cachetest_teardown(FAR struct cachetest_s *info)
 static inline char cachetest_randchar(void)
 {
   int value = random() % 63;
+
   if (value == 0)
     {
       return '0';
@@ -198,6 +199,7 @@ static void cachetest_randcontext(uint32_t size, FAR void *input)
 
   int i;
   FAR char *tmp;
+
   tmp = input;
   for (i = 0; i < size - 1; i++)
     {

@@ -108,7 +108,7 @@ static int nxterm_initialize(void)
   g_nxterm_vars.hnx = nx_connect();
   if (g_nxterm_vars.hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
       /* Setup the VNC server to support keyboard/mouse inputs */

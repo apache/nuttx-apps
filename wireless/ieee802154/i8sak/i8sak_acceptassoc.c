@@ -162,7 +162,7 @@ static void acceptassoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
 
   printf("i8sak: a device is trying to associate\n");
 
-  /* Send a ASSOC.resp primtive to the MAC. Copy the association
+  /* Send a ASSOC.resp primitive to the MAC. Copy the association
    * indication address into the association response primitive
    */
 

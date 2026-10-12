@@ -80,21 +80,22 @@ static int parse_arguments(int argc, FAR char *argv[],
   int result = 0;
   int opt;
   FAR char *prg = basename(argv[0]);
+
   while (((opt = getopt(argc, argv, "b:h")) != -1) && (result == 0))
     {
       switch (opt)
         {
-        case 'b':
-          settings->base_id = (uint32_t)strtoul(optarg, NULL, 0);
-          break;
-        case 'h':
-          print_usage(stdout, prg);
-          settings->skip_process = TRUE;
-          break;
-        default:
-          print_usage(stderr, prg);
-          result = -EINVAL;
-          break;
+          case 'b':
+            settings->base_id = (uint32_t)strtoul(optarg, NULL, 0);
+            break;
+          case 'h':
+            print_usage(stdout, prg);
+            settings->skip_process = TRUE;
+            break;
+          default:
+            print_usage(stderr, prg);
+            result = -EINVAL;
+            break;
         }
     }
 
@@ -138,6 +139,7 @@ static int invert_result(int result)
 static int run_tests(int fd, FAR struct settings_t *settings)
 {
   int result = 0;
+
   puts("Setup");
   for (uint32_t id = get_se05x_id(settings, 1);
        id < get_se05x_id(settings, 5); id++)
@@ -164,6 +166,7 @@ static int run_tests(int fd, FAR struct settings_t *settings)
 
   uint8_t public_key[300];
   size_t public_key_size;
+
   if (result == 0)
     {
       puts("Read from pub #1");
@@ -207,6 +210,7 @@ static int run_tests(int fd, FAR struct settings_t *settings)
 
   uint8_t signature[300];
   size_t signature_content_size;
+
   if (result == 0)
     {
       puts("Create signature with priv #1");
@@ -263,6 +267,7 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     }
 
   uint8_t symm_key_a[32];
+
   if (result == 0)
     {
       puts("Derive symm key #a from priv #1 and pub #2");
@@ -280,6 +285,7 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     }
 
   uint8_t symm_key_b[32];
+
   if (result == 0)
     {
       puts("Derive symm key #b from priv #2 and pub #1");
@@ -297,6 +303,7 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     }
 
   uint8_t symm_key_c[32];
+
   if (result == 0)
     {
       puts("Derive symm key #c from priv #1 and pub #3");
@@ -350,6 +357,7 @@ int main(int argc, FAR char *argv[])
   int result = parse_arguments(argc, argv, &settings);
 
   int fd;
+
   if ((result == 0) && (!settings.skip_process))
     {
       fd = open(settings.se05x_dev, O_RDONLY);

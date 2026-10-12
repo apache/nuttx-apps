@@ -747,6 +747,7 @@ FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
       case 0:
         {
           FAR struct ipt_filter_entry_s *entry = zalloc(sizeof(*entry));
+
           if (entry == NULL)
             {
               return NULL;
@@ -760,6 +761,7 @@ FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
       case IPPROTO_TCP:
         {
           FAR struct ipt_filter_tcp_entry_s *entry = zalloc(sizeof(*entry));
+
           if (entry == NULL)
             {
               return NULL;
@@ -774,6 +776,7 @@ FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
       case IPPROTO_UDP:
         {
           FAR struct ipt_filter_udp_entry_s *entry = zalloc(sizeof(*entry));
+
           if (entry == NULL)
             {
               return NULL;
@@ -788,6 +791,7 @@ FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
       case IPPROTO_ICMP:
         {
           FAR struct ipt_filter_icmp_entry_s *entry = zalloc(sizeof(*entry));
+
           if (entry == NULL)
             {
               return NULL;

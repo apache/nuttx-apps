@@ -55,6 +55,7 @@
 static inline void get_image_header(int fd, struct nxboot_img_header *header)
 {
   int ret;
+
   ret = flash_partition_read(fd, header, sizeof *header, 0);
   if (ret < 0)
     {
@@ -257,6 +258,7 @@ static bool compare_versions(struct nxboot_img_version *v1,
 {
 #ifndef CONFIG_NXBOOT_PREVENT_DOWNGRADE
   int i;
+
   if (v1->major != v2->major ||
       v1->minor != v2->minor ||
       v1->patch != v2->patch)
@@ -301,6 +303,7 @@ static enum nxboot_update_type
 {
   nxboot_progress(nxboot_progress_start, validate_primary);
   bool primary_valid = validate_image(primary);
+
   nxboot_progress(nxboot_progress_end);
 
   nxboot_progress(nxboot_progress_start, validate_update);
@@ -314,7 +317,7 @@ static enum nxboot_update_type
           return NXBOOT_UPDATE_TYPE_UPDATE;
         }
 
-        flash_partition_erase_first_sector(update);
+      flash_partition_erase_first_sector(update);
     }
 
   nxboot_progress(nxboot_progress_end);

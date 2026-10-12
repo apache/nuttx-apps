@@ -117,6 +117,7 @@ static int test_pm_fake_driver_init(void)
   for (int i = 0; i < CONFIG_SMP_NCPUS; i++)
     {
       struct test_pm_entry_s *entry = &g_test_pm_smp.entry[i];
+
       entry->cpu                    = i;
       CPU_ZERO(&entry->cpuset);
       CPU_SET(i, &entry->cpuset);
@@ -127,6 +128,7 @@ static int test_pm_fake_driver_init(void)
       for (int state = 0; state < PM_COUNT; state++)
         {
           char name[32];
+
           snprintf(name, sizeof(name), "cpu%d-%s", i, test_pm_name[state]);
           pm_wakelock_init(
               &entry->wakelock[state], name, entry->domain, state);
@@ -141,6 +143,7 @@ static int test_pm_callback_prepare(FAR struct pm_callback_s *cb,
                                     enum pm_state_e pmstate)
 {
   struct test_pm_entry_s *entry;
+
   entry = container_of(cb, struct test_pm_entry_s, cb);
   if (entry->fail_request)
     {
@@ -155,6 +158,7 @@ static void test_pm_callback_notify(FAR struct pm_callback_s *cb,
                                     enum pm_state_e pmstate)
 {
   struct test_pm_entry_s *entry;
+
   entry = container_of(cb, struct test_pm_entry_s, cb);
   switch (pmstate)
     {
@@ -187,6 +191,7 @@ static void test_pm_smp_yield(void)
 static void test_pm_smp_naps(void)
 {
   int r = random() % (TEST_SNAP_TICK_MAX * USEC_PER_TICK);
+
   usleep(r + USEC_PER_TICK * 2);
 }
 
@@ -438,6 +443,7 @@ static void drivertest_pm_smp(FAR void **argv)
     {
       struct test_pm_entry_s *entry = &g_test_pm_smp.entry[i];
       pthread_attr_t attr;
+
       pthread_attr_init(&attr);
       pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &entry->cpuset);
       attr.priority = CONFIG_SCHED_HPWORKPRIORITY + 1;
@@ -449,6 +455,7 @@ static void drivertest_pm_smp(FAR void **argv)
       struct test_pm_entry_s *entry = &g_test_pm_smp.entry[i];
       pthread_addr_t pthread_ret;
       int ret;
+
       pthread_join(entry->tid, &pthread_ret);
       ret = (uintptr_t)pthread_ret;
       assert_int_equal(ret, 0);

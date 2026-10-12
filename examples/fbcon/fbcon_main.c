@@ -828,7 +828,7 @@ static void fbcon_freeglyph(FAR struct fbcon_glyph_s *glyph)
       free(glyph->bitmap);
     }
 
-    memset(glyph, 0, sizeof(struct fbcon_glyph_s));
+  memset(glyph, 0, sizeof(struct fbcon_glyph_s));
 }
 
 /****************************************************************************
@@ -937,13 +937,14 @@ static FAR struct fbcon_glyph_s *
   for (i = 0; i < st->maxglyphs; i++)
     {
       FAR struct fbcon_glyph_s *glyph = &st->glyph[i];
+
       if (glyph->usecnt > 0 && glyph->code == ch)
         {
           /* Increment the use count (unless it is already at the max) */
 
           if (glyph->usecnt < MAX_USECNT)
             {
-               glyph->usecnt++;
+              glyph->usecnt++;
             }
 
           /* And return the glyph that we found */
@@ -1929,56 +1930,56 @@ static void fbcon_write(FAR struct fbcon_state_s *st,
 
                   fbcon_putc(st, (uint8_t)ch);
                 }
-              break;
+                break;
 
-            /* The full VT100 escape sequence was processed (and the new
-             * character was consumed)
-             */
+              /* The full VT100 escape sequence was processed (and the new
+               * character was consumed)
+               */
 
-            case VT100_PROCESSED:
+              case VT100_PROCESSED:
 
-            /* Character was consumed as part of the VT100 escape processing
-             * (but the escape sequence is still incomplete.
-             */
+              /* Character was consumed as part of the VT100 escape
+               * processing (but the escape sequence is still incomplete.
+               */
 
-            case VT100_CONSUMED:
-              {
-                /* Do nothing... the VT100 logic owns the character */
-              }
-              break;
+              case VT100_CONSUMED:
+                {
+                  /* Do nothing... the VT100 logic owns the character */
+                }
+                break;
 
-            /* Invalid/unsupported character in escape sequence */
+              /* Invalid/unsupported character in escape sequence */
 
-            case VT100_ABORT:
-              {
-                int i;
+              case VT100_ABORT:
+                {
+                  int i;
 
-                /* Add the first unhandled character to the window */
+                  /* Add the first unhandled character to the window */
 
-                fbcon_putc(st, (uint8_t)st->seq[0]);
+                  fbcon_putc(st, (uint8_t)st->seq[0]);
 
-                /* Move all buffer characters down one */
+                  /* Move all buffer characters down one */
 
-                for (i = 1; i < st->nseq; i++)
-                  {
-                    st->seq[i - 1] = st->seq[i];
-                  }
+                  for (i = 1; i < st->nseq; i++)
+                    {
+                      st->seq[i - 1] = st->seq[i];
+                    }
 
-                st->nseq--;
+                  st->nseq--;
 
-                /* Then loop again and check if what remains is part of a
-                 * VT100 escape sequence.  We could speed this up by
-                 * checking if st->seq[0] == ASCII_ESC.
-                 */
-              }
-              break;
+                  /* Then loop again and check if what remains is part of a
+                   * VT100 escape sequence.  We could speed this up by
+                   * checking if st->seq[0] == ASCII_ESC.
+                   */
+                }
+                break;
             }
         }
       while (state == VT100_ABORT);
 #else
-    /* Just output the character */
+      /* Just output the character */
 
-    fbcon_putc(st, ch);
+      fbcon_putc(st, ch);
 #endif /* CONFIG_EXAMPLES_FBCON_VT100_DECODE */
     }
 
@@ -2006,6 +2007,7 @@ static int fbdev_get_pinfo(int fd, FAR struct fb_planeinfo_s *pinfo)
   if (ioctl(fd, FBIOGET_PLANEINFO, (unsigned long)((uintptr_t)pinfo)) < 0)
     {
       int errcode = errno;
+
       gerr("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errcode);
       return EXIT_FAILURE;
     }
@@ -2223,6 +2225,7 @@ static bool has_input(int fd)
   /* Poll the File Descriptor for input */
 
   struct pollfd fdp;
+
   fdp.fd = fd;
   fdp.events = POLLIN;
   ret = poll(&fdp,  /* File Descriptors                                     */
@@ -2330,6 +2333,7 @@ static void poll_std_streams(FAR struct fbcon_state_s *st)
 
       ssize_t num = 0;
       char ch;
+
       num_ch = read(STDIN_FILENO, &ch, 1);
 
       if (num_ch != 1)
@@ -2427,6 +2431,7 @@ int main(int argc, FAR char *argv[])
   if (st->fd_fb < 0)
     {
       int errcode = errno;
+
       gerr("ERROR: Failed to open %s: %d\n", fbdev, errcode);
       return FBCON_EXIT_FD;
     }
@@ -2438,6 +2443,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: ioctl(FBIOGET_VIDEOINFO) failed: %d\n",
                        errcode);
       exitcode = FBCON_EXIT_GETVINFO;
@@ -2453,6 +2459,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       gerr("ERROR: ioctl(FBIO_SELECT_OVERLAY) failed: %d\n", errcode);
       ret = FBCON_EXIT_FBIO_SELECT_OVERLAY
       goto errout;
@@ -2466,6 +2473,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       gerr("ERROR: ioctl(FBIOGET_OVERLAYINFO) failed: %d\n", errcode);
       ret = FBCON_EXIT_FBIO_OVERLAY_INFO
       goto errout;
@@ -2477,6 +2485,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       gerr("ERROR: ioctl(FBIO_SELECT_OVERLAY) failed: %d\n", errcode);
       ret = FBCON_EXIT_FBIO_SELECT_OVERLAY
       goto errout;
@@ -2641,6 +2650,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       gerr("ERROR: posix_spawn failed: %d\n", errcode);
       exitcode = FBCON_EXIT_POSIX_SPAWN_FAILED;
     }
