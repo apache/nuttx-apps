@@ -39,6 +39,7 @@ $(COAP_UNPACKNAME): $(COAP_ZIP)
 	$(Q) $(UNPACK) $(COAP_ZIP)
 	@echo "Unpacking: $(COAP_ZIP) -> $(COAP_UNPACKNAME)"
 	$(Q) mv libcoap-$(LIBCOAP_VERSION) $(COAP_UNPACKNAME)
+	$(Q) patch -p1 -d $(COAP_UNPACKNAME) < 0001-examples-reset-globals.patch
 	$(Q) touch $(COAP_UNPACKNAME)
 
 context:: $(COAP_UNPACKNAME)/include/coap3/coap.h

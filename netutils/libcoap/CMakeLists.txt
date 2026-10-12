@@ -31,7 +31,9 @@ if(CONFIG_NETUTILS_LIBCOAP)
       URL ${LIBCOAP_URL}/v${LIBCOAP_VERSION} SOURCE_DIR ${LIBCOAP_DIR}
           BINARY_DIR ${NUTTX_BINARY_DIR}/apps/netutils/libcoap
       DOWNLOAD_NO_PROGRESS true
-      TIMEOUT 30)
+      TIMEOUT 30
+      PATCH_COMMAND patch -p1 -d ${LIBCOAP_DIR} <
+                    ${CMAKE_CURRENT_LIST_DIR}/0001-examples-reset-globals.patch)
 
     FetchContent_GetProperties(libcoap_fetch)
 
