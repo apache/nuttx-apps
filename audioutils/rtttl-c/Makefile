@@ -24,14 +24,24 @@ include $(APPDIR)/Make.defs
 
 CSRCS = $(RTTTL_C_DIR)/rtttl.c
 
+RTTTL_C_URL = https://git.sr.ht/~qeef/rtttl-c/archive
 RTTTL_C_DIR = rtttl-c
 RTTTL_C_VERSION = v0.1.0
+RTTTL_C_TARBALL = $(RTTTL_C_VERSION).tar.gz
 RTTTL_C_RTTTL_H_SHA256 = 6331174ae34a419ad427d9755f8ba9d3b6a92c09ecc4f36bbe07ec5e4d0cc007
 RTTTL_C_RTTTL_C_SHA256 = f0db64ef0b68136bac24616a3d62508bcc54ccdd68265d6447d99b264653b7b9
 
-$(RTTTL_C_DIR):
-	$(Q) echo "Cloning rtttl-c repo..."
-	$(Q) git clone --depth=1 --branch=$(RTTTL_C_VERSION) https://git.sr.ht/~qeef/rtttl-c
+$(RTTTL_C_TARBALL):
+	$(Q) echo "Downloading rtttl-c $(RTTTL_C_VERSION)..."
+	$(Q) curl -L --connect-timeout 15 --retry 3 --retry-delay 5 \
+		-o $@ $(RTTTL_C_URL)/$@
+
+$(RTTTL_C_DIR): $(RTTTL_C_TARBALL)
+	$(Q) echo "Unpacking $< -> $@"
+	$(call DELDIR, $(RTTTL_C_DIR)-$(RTTTL_C_VERSION))
+	$(call DELDIR, $@)
+	$(Q) tar -xzf $<
+	$(Q) mv $(RTTTL_C_DIR)-$(RTTTL_C_VERSION) $@
 	$(Q) touch $(RTTTL_C_DIR)
 	$(Q) echo "Checking rtttl-c hashes..."
 	$(Q) $(APPDIR)/tools/check-hash.sh sha256 $(RTTTL_C_RTTTL_H_SHA256) $@/rtttl.h
@@ -45,6 +55,7 @@ context:: $(RTTTL_C_DIR)
 
 distclean::
 	$(call DELFILE, $(APPDIR)/include/audioutils/rtttl.h)
-	$(call DELDIR, rtttl-c)
+	$(call DELDIR, $(RTTTL_C_DIR))
+	$(call DELFILE, $(RTTTL_C_TARBALL))
 
 include $(APPDIR)/Application.mk
