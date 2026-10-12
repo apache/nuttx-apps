@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
@@ -112,16 +113,18 @@ int comaster_candev_send(FAR const struct can_msg *msg)
   ssize_t          nwritten;
   int              i;
 
+  /* Lely CANopen sends classic CAN frames only.  Clear the whole header,
+   * so that all other fields (e.g. the CAN FD flags) are zero.
+   */
+
+  memset(&txmsg.cm_hdr, 0, sizeof(txmsg.cm_hdr));
+
   txmsg.cm_hdr.ch_id    = msg->id;
   txmsg.cm_hdr.ch_rtr   = (msg->flags & CAN_FLAG_RTR) != 0;
   txmsg.cm_hdr.ch_dlc   = msg->len;
 #ifdef CONFIG_CAN_EXTID
   txmsg.cm_hdr.ch_extid = (msg->flags & CAN_FLAG_IDE) != 0;
 #endif
-#ifdef CONFIG_CAN_ERRORS
-  txmsg.cm_hdr.ch_error = 0;
-#endif
-  txmsg.cm_hdr.ch_tcf   = 0;
 
   for (i = 0; i < msg->len; i++)
     {
