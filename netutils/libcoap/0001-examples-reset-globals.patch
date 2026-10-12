@@ -1,0 +1,209 @@
+From e4c6455b4e10672d169d74c5b2a917c08001899c Mon Sep 17 00:00:00 2001
+From: raiden00pl <raiden00@railab.me>
+Date: Mon, 12 Oct 2026 14:52:43 +0200
+Subject: [PATCH] examples: Reset the globals of coap-client and coap-server on
+ NuttX.
+
+NuttX builtin apps share one image: .data and .bss are initialized
+once at boot, not at every run. A second coap-client run then sees
+the state left by the first one (repeat_count wraps around and the
+request is repeated forever, the freed optlist and output FILE are
+used again), and a second coap-server run exits at once because quit
+is still set.
+
+Restore the initial values of the globals at the start of main().
+---
+ examples/coap-client.c | 74 ++++++++++++++++++++++++++++++++++++++++
+ examples/coap-server.c | 77 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 151 insertions(+)
+
+diff --git a/examples/coap-client.c b/examples/coap-client.c
+index 18b6777..8389dd3 100644
+--- a/examples/coap-client.c
++++ b/examples/coap-client.c
+@@ -1575,6 +1575,76 @@ get_session(coap_context_t *ctx,
+   return session;
+ }
+ 
++#ifdef __NuttX__
++/*
++ * NuttX builtin apps share one image: .data and .bss are initialized
++ * once at boot, not at every run. Restore the initial values of the
++ * globals, so that a run does not see the state of the previous one.
++ */
++static void
++reset_globals(void) {
++  flags = 0;
++  the_token.length = 0;
++  the_token.s = _token_data;
++  tracked_tokens = NULL;
++  tracked_tokens_count = 0;
++  optlist = NULL;
++  memset(&uri, 0, sizeof(uri));
++  memset(&proxy, 0, sizeof(proxy));
++  proxy_scheme_option = 0;
++  uri_host_option = 0;
++  ping_seconds = 0;
++  repeat_count = 1;
++  ready = 0;
++  doing_getting_block = 0;
++  single_block_requested = 0;
++  block_mode = COAP_BLOCK_USE_LIBCOAP;
++  output_file.length = 0;
++  output_file.s = NULL;
++  file = NULL;
++  payload.length = 0;
++  payload.s = NULL;
++  reliable = 0;
++  add_nl = 0;
++  is_mcast = 0;
++  csm_max_message_size = 0;
++  msgtype = COAP_MESSAGE_CON;
++  cert_file = NULL;
++  key_file = NULL;
++  pkcs11_pin = NULL;
++  ca_file = NULL;
++  root_ca_file = NULL;
++  is_rpk_not_cert = 0;
++  cert_mem = NULL;
++  key_mem = NULL;
++  ca_mem = NULL;
++  cert_mem_len = 0;
++  key_mem_len = 0;
++  ca_mem_len = 0;
++  verify_peer_cert = 1;
++  valid_ihs.count = 0;
++  valid_ihs.ih_list = NULL;
++  method = 1;
++  block.num = 0;
++  block.m = 0;
++  block.szx = 6;
++  last_block1_mid = 0;
++  wait_seconds = DEFAULT_WAIT_TIME;
++  wait_ms = 0;
++  obs_started = 0;
++  obs_seconds = 30;
++  obs_ms = 0;
++  obs_ms_reset = 0;
++  doing_observe = 0;
++  oscore_conf = NULL;
++  doing_oscore = 0;
++  quit = 0;
++  oscore_seq_num_fp = NULL;
++  oscore_conf_file = NULL;
++  oscore_seq_save_file = NULL;
++}
++#endif /* __NuttX__ */
++
+ int
+ main(int argc, char **argv) {
+   coap_context_t  *ctx = NULL;
+@@ -1606,6 +1676,10 @@ main(int argc, char **argv) {
+   struct sigaction sa;
+ #endif
+ 
++#ifdef __NuttX__
++  reset_globals();
++#endif /* __NuttX__ */
++
+   /* Initialize libcoap library */
+   coap_startup();
+ 
+diff --git a/examples/coap-server.c b/examples/coap-server.c
+index f4e1351..aeeb754 100644
+--- a/examples/coap-server.c
++++ b/examples/coap-server.c
+@@ -2704,6 +2704,79 @@ cmdline_read_extended_token_size(char *arg) {
+   return 1;
+ }
+ 
++#ifdef __NuttX__
++/*
++ * NuttX builtin apps share one image: .data and .bss are initialized
++ * once at boot, not at every run. Restore the initial values of the
++ * globals, so that a run does not see the state of the previous one.
++ */
++static void
++reset_globals(void) {
++  oscore_conf = NULL;
++  doing_oscore = 0;
++  quit = 0;
++  keep_persist = 0;
++  clock_offset = 0;
++  my_clock_base = 0;
++  time_resource = NULL;
++  resource_flags = COAP_RESOURCE_FLAGS_NOTIFY_CON;
++  track_observes = 0;
++  cert_file = NULL;
++  key_file = NULL;
++  pkcs11_pin = NULL;
++  ca_file = NULL;
++  root_ca_file = NULL;
++  use_pem_buf = 0;
++  is_rpk_not_cert = 0;
++  cert_mem_base = NULL;
++  key_mem_base = NULL;
++  ca_mem_base = NULL;
++  cert_mem = NULL;
++  key_mem = NULL;
++  ca_mem = NULL;
++  cert_mem_len = 0;
++  key_mem_len = 0;
++  ca_mem_len = 0;
++  verify_peer_cert = 1;
++  key = NULL;
++  key_length = 0;
++  key_defined = 0;
++  hint = "CoAP";
++  support_dynamic = 0;
++  block_mode = COAP_BLOCK_USE_LIBCOAP;
++  echo_back = 0;
++  csm_max_message_size = 0;
++  extended_token_size = COAP_TOKEN_DEFAULT_MAX;
++  use_unix_proto = COAP_PROTO_NONE;
++  enable_ws = 0;
++  ws_port = 80;
++  wss_port = 443;
++  valid_psk_snis.count = 0;
++  valid_psk_snis.psk_sni_list = NULL;
++  valid_ids.count = 0;
++  valid_ids.id_list = NULL;
++  valid_pki_snis.count = 0;
++  valid_pki_snis.pki_sni_list = NULL;
++  example_data_value = NULL;
++  example_data_media_type = COAP_MEDIATYPE_TEXT_PLAIN;
++#if SERVER_CAN_PROXY
++  user = NULL;
++  user_length = -1;
++  memset(&proxy, 0, sizeof(proxy));
++  proxy_host_name_count = 0;
++  proxy_host_name_list = NULL;
++  proxy_list = NULL;
++  proxy_list_count = 0;
++  proxy_resource = NULL;
++#endif /* SERVER_CAN_PROXY */
++  dynamic_count = 0;
++  dynamic_entry = NULL;
++  oscore_seq_num_fp = NULL;
++  oscore_conf_file = NULL;
++  oscore_seq_save_file = NULL;
++}
++#endif /* __NuttX__ */
++
+ int
+ main(int argc, char **argv) {
+   coap_context_t *ctx = NULL;
+@@ -2734,6 +2807,10 @@ main(int argc, char **argv) {
+   struct sigaction sa;
+ #endif
+ 
++#ifdef __NuttX__
++  reset_globals();
++#endif /* __NuttX__ */
++
+   /* Initialize libcoap library */
+   coap_startup();
+ 
+-- 
+2.55.0
+
