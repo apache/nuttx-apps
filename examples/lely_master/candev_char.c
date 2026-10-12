@@ -55,6 +55,7 @@ static int g_candev_fd;
 int comaster_candev_init(void)
 {
   struct canioc_bittiming_s bt;
+  unsigned int msgalign;
   int ret;
 
   /* Non-blocking so the main loop keeps servicing the CANopen timers */
@@ -66,6 +67,21 @@ int comaster_candev_init(void)
       ret = -errno;
       printf("ERROR: open %s failed %d\n",
              CONFIG_EXAMPLES_LELYMASTER_DEVPATH, errno);
+      return ret;
+    }
+
+  /* read() returns all queued messages that fit into the buffer by
+   * default.  Get exactly one message per read() instead, so that no
+   * message is lost.
+   */
+
+  msgalign = 0;
+  ret = ioctl(g_candev_fd, CANIOC_SET_MSGALIGN, &msgalign);
+  if (ret < 0)
+    {
+      ret = -errno;
+      printf("ERROR: CANIOC_SET_MSGALIGN failed %d\n", errno);
+      close(g_candev_fd);
       return ret;
     }
 
