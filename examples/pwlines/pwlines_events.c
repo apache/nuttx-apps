@@ -33,6 +33,7 @@
 #include <semaphore.h>
 #include <nuttx/debug.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxtk.h>

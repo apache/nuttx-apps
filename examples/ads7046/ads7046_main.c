@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <nuttx/analog/ioctl.h>
 #include <nuttx/analog/ads7046.h>

@@ -43,6 +43,14 @@ if(CONFIG_LIB_ZLIB)
     if(NOT zlib_fetch_POPULATED)
       FetchContent_Populate(zlib_fetch)
     endif()
+
+    # Make zconf.h include unistd.h, as zlib's configure does on Unix: gzlib.c,
+    # gzread.c and gzwrite.c use lseek(), read() and write().
+
+    file(READ ${ZLIB_DIR}/zconf.h ZCONF)
+    string(REPLACE "#ifdef HAVE_UNISTD_H    /* may be set to #if 1 by"
+                   "#if 1    /* was set to #if 1 by" ZCONF "${ZCONF}")
+    file(WRITE ${ZLIB_DIR}/zconf.h "${ZCONF}")
   endif()
 
   # ############################################################################

@@ -28,6 +28,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <pthread.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>

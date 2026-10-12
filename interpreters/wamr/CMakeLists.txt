@@ -58,6 +58,11 @@ if(CONFIG_INTERPRETERS_WAMR)
   include(${WAMR_DIR}/product-mini/platforms/nuttx/CMakeLists.txt)
   target_sources(wamr PRIVATE ${WAMR_SOURCES})
   target_compile_options(wamr PRIVATE ${WAMR_CFLAGS})
+
+  # The NuttX platform of older WAMR versions uses the pthread types without
+  # including pthread.h.
+
+  target_compile_options(wamr PRIVATE -include pthread.h)
   # the WAMR_INCDIRS and WAMR_DEFINITIONS already exist in the directory domain
   nuttx_add_application(
     MODULE

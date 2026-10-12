@@ -38,6 +38,7 @@
 #include <nuttx/sensors/bmi160.h>
 
 #include <cmocka.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Pre-processor Definitions

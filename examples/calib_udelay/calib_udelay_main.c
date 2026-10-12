@@ -32,6 +32,7 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include <sched.h>
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -37,6 +37,8 @@
 #include <signal.h>
 #include <semaphore.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Private Function Prototypes

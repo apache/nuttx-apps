@@ -44,6 +44,7 @@
 #include <spawn.h>
 #include <nuttx/debug.h>
 #include <poll.h>
+#include <unistd.h>
 #include <nuttx/ascii.h>
 #include <nuttx/lib/builtin.h>
 

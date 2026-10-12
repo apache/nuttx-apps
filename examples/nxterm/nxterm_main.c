@@ -39,6 +39,7 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <pthread.h>
 #include <nuttx/debug.h>
 
 #ifdef CONFIG_NX_LCDDRIVER

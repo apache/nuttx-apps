@@ -36,6 +36,7 @@
 #include "sysinfo.h"
 #ifdef CONFIG_SYSTEM_NXDIAG_ESPRESSIF_CHIP_WO_TOOL
 #include <fcntl.h>
+#include <stdlib.h>
 #endif
 
 /****************************************************************************

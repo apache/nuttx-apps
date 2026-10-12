@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 
 #include <fcntl.h>
+#include <stdlib.h>
 #include <arpa/inet.h>
 
 #include <nuttx/net/netfilter/ip_tables.h>

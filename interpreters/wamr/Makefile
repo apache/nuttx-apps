@@ -31,6 +31,11 @@ WAMR_URL      = $(WAMR_URL_BASE)/$(WAMR_TARBALL)
 
 -include $(WAMR_UNPACK)/product-mini/platforms/nuttx/wamr.mk
 
+# The NuttX platform of older WAMR versions uses the pthread types without
+# including pthread.h.
+
+CFLAGS += -include pthread.h
+
 VPATH += $(WAMR_UNPACK)/product-mini/platforms/nuttx
 DEPPATH += --dep-path $(WAMR_UNPACK)/product-mini/platforms/nuttx
 

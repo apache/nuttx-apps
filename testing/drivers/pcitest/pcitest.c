@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
 
 #include <nuttx/pci/pci_ep_test.h>

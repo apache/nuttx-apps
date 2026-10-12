@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <cmocka.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Private Data

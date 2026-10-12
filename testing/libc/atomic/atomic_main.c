@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <stdatomic.h>
+#include <nuttx/atomic.h>
 
 /****************************************************************************
  * Pre-processor Definitions

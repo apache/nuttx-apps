@@ -37,6 +37,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <libgen.h>
+#include <stdlib.h>
 
 #include <nuttx/sensors/sensor.h>
 

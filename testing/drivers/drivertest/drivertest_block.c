@@ -44,6 +44,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <cmocka.h>
+#include <unistd.h>
+#include <nuttx/kmalloc.h>
 
 #include "inode/inode.h"
 #include "driver/driver.h"

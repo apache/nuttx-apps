@@ -40,6 +40,8 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <cmocka.h>
+#include <pthread.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Pre-processor Definitions

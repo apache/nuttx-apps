@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "host/ble_hs.h"
 #include "host/ble_uuid.h"
 #include "services/ans/ble_svc_ans.h"

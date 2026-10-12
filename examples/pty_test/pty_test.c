@@ -35,6 +35,7 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <pthread.h>
 #include <sys/ioctl.h>
 
 #include <nuttx/serial/pty.h>

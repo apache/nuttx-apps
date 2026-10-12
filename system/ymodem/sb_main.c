@@ -26,6 +26,7 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <getopt.h>
 #include <libgen.h>
 #include <pthread.h>
