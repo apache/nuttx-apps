@@ -33,6 +33,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <mqtt.h>
+#include <pthread.h>
 
 #ifdef MQTT_USE_MBEDTLS
 #  include <inttypes.h>

@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 #include <pthread.h>
+#include <sched.h>
 #include "sensors.h"
 
 extern void setup_ble(void);

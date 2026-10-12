@@ -57,6 +57,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include <net/if.h>
 #include <netinet/in.h>

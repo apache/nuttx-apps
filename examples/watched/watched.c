@@ -32,6 +32,7 @@
 #include <errno.h>
 #include "watched.h"
 #include <signal.h>
+#include <unistd.h>
 
 /****************************************************************************
  * Private Definitions

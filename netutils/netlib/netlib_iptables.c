@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <stdlib.h>
 
 #include <sys/socket.h>
 

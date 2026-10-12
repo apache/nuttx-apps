@@ -34,6 +34,8 @@
 
 #include <nuttx/crc32.h>
 #include <nxboot.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "flash.h"
 

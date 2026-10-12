@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 #include "host/ble_hs.h"
 #include "blecent.h"
 

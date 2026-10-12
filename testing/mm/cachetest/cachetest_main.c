@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <syslog.h>
+#include <stdlib.h>
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -29,6 +29,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include <net/if.h>
 #include <netinet/if_ether.h>
