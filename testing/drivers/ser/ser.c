@@ -78,7 +78,7 @@ int main(int argc, FAR char *argv[])
 
       if (rcount.brk > scount.brk)
         {
-           printf("ERROR: break %d\n", rcount.brk - scount.brk);
+          printf("ERROR: break %d\n", rcount.brk - scount.brk);
         }
 
       if (rcount.buf_overrun > scount.buf_overrun)

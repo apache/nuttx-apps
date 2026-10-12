@@ -100,9 +100,11 @@ static void test_case_overflow(void **state)
 static void test_case_vfork(void **state)
 {
   int fd = open("/dev/null", O_RDONLY);
+
   android_fdsan_exchange_owner_tag(fd, 0, 0xbadc0de);
 
   pid_t rc = vfork();
+
   assert_int_not_equal(-1, rc);
 
   if (rc == 0)

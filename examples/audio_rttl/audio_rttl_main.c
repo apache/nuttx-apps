@@ -171,6 +171,7 @@ static void play_pwm(struct rtttl_tone sound)
 static void teardown_pwm(void)
 {
   int fd = *((int *)g_player.arg);
+
   close(fd);
 }
 #endif /* CONFIG_PWM */
@@ -215,19 +216,19 @@ int main(int argc, FAR char *argv[])
     {
       switch (c)
         {
-        case 'h':
-          print_usage(stdout);
-          break;
-        case 's':
-          song = optarg;
-          break;
-        case 'f':
-          file = optarg;
-          break;
-        case '?':
-          fprintf(stderr, "Unknown option -%c\n", optopt);
-          print_usage(stderr);
-          return EXIT_FAILURE;
+          case 'h':
+            print_usage(stdout);
+            break;
+          case 's':
+            song = optarg;
+            break;
+          case 'f':
+            file = optarg;
+            break;
+          case '?':
+            fprintf(stderr, "Unknown option -%c\n", optopt);
+            print_usage(stderr);
+            return EXIT_FAILURE;
         }
     }
 

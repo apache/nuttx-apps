@@ -132,9 +132,11 @@ static void nxscope_samples_put(FAR struct nxscope_thr_env_s *envp,
 {
 #ifdef CONFIG_SENSORS_USE_B16
   FAR b16_t *data = (b16_t *)&tmp->data[offset];
+
   nxscope_put_vb16(&envp->nxs, tmp->chanid, data, tmp->info->dim);
 #else
   FAR float *data = (float *)&tmp->data[offset];
+
   nxscope_put_vfloat(&envp->nxs, tmp->chanid, data, tmp->info->dim);
 #endif
 }

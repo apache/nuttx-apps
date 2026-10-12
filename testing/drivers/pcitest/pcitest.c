@@ -286,93 +286,94 @@ int main(int argc, FAR char *argv[])
 
   while ((c = getopt(argc, argv, "D:b:m:x:i:deIlhrwcs:")) != EOF)
     {
-    switch (c)
-      {
-        case 'D':
-          test->device = optarg;
-          continue;
-        case 'b':
-          test->barnum = atoi(optarg);
-          if (test->barnum < 0 || test->barnum > 5)
-            {
-              goto usage;
-            }
+      switch (c)
+        {
+          case 'D':
+            test->device = optarg;
+            continue;
+          case 'b':
+            test->barnum = atoi(optarg);
+            if (test->barnum < 0 || test->barnum > 5)
+              {
+                goto usage;
+              }
 
-          continue;
-        case 'l':
-          test->legacyirq = true;
-          continue;
-        case 'm':
-          test->msinum = atoi(optarg);
-          if (test->msinum < 1 || test->msinum > 32)
-            {
-              goto usage;
-            }
+            continue;
+          case 'l':
+            test->legacyirq = true;
+            continue;
+          case 'm':
+            test->msinum = atoi(optarg);
+            if (test->msinum < 1 || test->msinum > 32)
+              {
+                goto usage;
+              }
 
-          continue;
-        case 'x':
-          test->msixnum = atoi(optarg);
-          if (test->msixnum < 1 || test->msixnum > 2048)
-            {
-              goto usage;
-            }
+            continue;
+          case 'x':
+            test->msixnum = atoi(optarg);
+            if (test->msixnum < 1 || test->msixnum > 2048)
+              {
+                goto usage;
+              }
 
-          continue;
-        case 'i':
-          test->irqtype = atoi(optarg);
-          if (test->irqtype < 0 || test->irqtype > 2)
-            {
-              goto usage;
-            }
+            continue;
+          case 'i':
+            test->irqtype = atoi(optarg);
+            if (test->irqtype < 0 || test->irqtype > 2)
+              {
+                goto usage;
+              }
 
-          test->set_irqtype = true;
-          continue;
-        case 'I':
-          test->get_irqtype = true;
-          continue;
-        case 'r':
-          test->read = true;
-          continue;
-        case 'w':
-          test->write = true;
-          continue;
-        case 'c':
-          test->copy = true;
-          continue;
-        case 'e':
-          test->clear_irq = true;
-          continue;
-        case 's':
-          test->size = strtoul(optarg, NULL, 0);
-          continue;
-        case 'd':
-          test->use_dma = true;
-          continue;
-        case 'h':
-        default:
+            test->set_irqtype = true;
+            continue;
+          case 'I':
+            test->get_irqtype = true;
+            continue;
+          case 'r':
+            test->read = true;
+            continue;
+          case 'w':
+            test->write = true;
+            continue;
+          case 'c':
+            test->copy = true;
+            continue;
+          case 'e':
+            test->clear_irq = true;
+            continue;
+          case 's':
+            test->size = strtoul(optarg, NULL, 0);
+            continue;
+          case 'd':
+            test->use_dma = true;
+            continue;
+          case 'h':
+          default:
 usage:
-          fprintf(stderr,
-            "usage: %s [options]\n"
-            "Options:\n"
-            "\t-D <dev> \n"
-            "\t    PCI e test device {default: /dev/pci-ep-test.0}\n"
-            "\t-b <bar num>     BAR test (bar number between 0..5)\n"
-            "\t-m <msi num>     MSI test (msi number between 1..32)\n"
-            "\t-x <msix num>    \tMSI-X test (msix number between 1..2048)\n"
-            "\t-i <irq type>  \n"
-            "\t    Set IRQ type (0 - Legacy, 1 - MSI, 2 - MSI-X)\n"
-            "\t-e           Clear IRQ\n"
-            "\t-I           Get current IRQ type configured\n"
-            "\t-d           Use DMA\n"
-            "\t-l           Legacy IRQ test\n"
-            "\t-r           Read buffer test\n"
-            "\t-w           Write buffer test\n"
-            "\t-c           Copy buffer test\n"
-            "\t-s <size>        Size of buffer {default: 100KB}\n"
-            "\t-h           Print this help message\n",
-            argv[0]);
+            fprintf(stderr,
+              "usage: %s [options]\n"
+              "Options:\n"
+              "\t-D <dev> \n"
+              "\t    PCI e test device {default: /dev/pci-ep-test.0}\n"
+              "\t-b <bar num>     BAR test (bar number between 0..5)\n"
+              "\t-m <msi num>     MSI test (msi number between 1..32)\n"
+              "\t-x <msix num>    \tMSI-X test "
+              "(msix number between 1..2048)\n"
+              "\t-i <irq type>  \n"
+              "\t    Set IRQ type (0 - Legacy, 1 - MSI, 2 - MSI-X)\n"
+              "\t-e           Clear IRQ\n"
+              "\t-I           Get current IRQ type configured\n"
+              "\t-d           Use DMA\n"
+              "\t-l           Legacy IRQ test\n"
+              "\t-r           Read buffer test\n"
+              "\t-w           Write buffer test\n"
+              "\t-c           Copy buffer test\n"
+              "\t-s <size>        Size of buffer {default: 100KB}\n"
+              "\t-h           Print this help message\n",
+              argv[0]);
             return -EINVAL;
-      }
+        }
     }
 
   return run_test(test);

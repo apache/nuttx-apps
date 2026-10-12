@@ -163,6 +163,7 @@ static ssize_t read_safe(int fd, FAR uint8_t *buff, size_t size)
   while (i < size)
     {
       ssize_t ret = read(fd, buff + i, size - i);
+
       if (ret < 0)
         {
           return -errno;
@@ -181,6 +182,7 @@ static ssize_t write_safe(int fd, FAR uint8_t *buff, size_t size)
   while (i < size)
     {
       ssize_t ret = write(fd, buff + i, size - i);
+
       if (ret < 0)
         {
           return -errno;

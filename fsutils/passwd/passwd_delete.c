@@ -98,6 +98,7 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
                   /* Read error */
 
                   int errcode = errno;
+
                   DEBUGASSERT(errcode > 0);
 
                   if (errcode != EINTR)
@@ -109,10 +110,10 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
                 {
                   /* End of file encountered.
                    *
-                   * This occurs normally when copying to the end-of-the file.
-                   * In that case, the caller just sticks a huge number in for
-                   * copysize and lets the end-of-file indication terminate the
-                   * copy.
+                   * This occurs normally when copying to the end-of-the
+                   * file.  In that case, the caller just sticks a huge
+                   * number in for copysize and lets the end-of-file
+                   * indication terminate the copy.
                    */
 
                   eof = true;
@@ -154,6 +155,7 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
               /* Write error */
 
               int errcode = errno;
+
               DEBUGASSERT(errcode > 0);
 
               if (errcode != EINTR)
@@ -257,6 +259,7 @@ int passwd_delete(off_t offset)
   for (; ; )
     {
       int ch = fgetc(instream);
+
       if (ch == EOF)
         {
           if (feof(instream))

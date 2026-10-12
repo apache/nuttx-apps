@@ -57,9 +57,11 @@ static FAR char *ip6tables_addr2str(net_ipv6addr_t addr, net_ipv6addr_t msk,
                                     FAR char *buf, size_t bufflen)
 {
   unsigned int preflen = netlib_ipv6netmask2prefix(msk);
+
   if (preflen != 0)
     {
       char ipbuf[INET6_ADDRSTRLEN];
+
       inet_ntop(AF_INET6, addr, ipbuf, INET6_ADDRSTRLEN);
       snprintf(buf, bufflen, "%s/%d", ipbuf, preflen);
     }

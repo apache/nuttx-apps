@@ -127,6 +127,7 @@ static void parse_commandline(int argc, FAR char **argv,
 static inline char blktest_randchar(void)
 {
   int value = rand() % 63;
+
   if (value == 0)
     {
       return '0';
@@ -155,6 +156,7 @@ static void blktest_randcontext(uint32_t size, FAR void *input)
 
   int i;
   FAR char *tmp;
+
   tmp = input;
   for (i = 0; i < size - 1; i++)
     {

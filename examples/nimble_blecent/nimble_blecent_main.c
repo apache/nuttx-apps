@@ -511,9 +511,11 @@ static int blecent_gap_event(FAR struct ble_gap_event *event, FAR void *arg)
                OS_MBUF_PKTLEN(event->notify_rx.om));
 
         uint8_t notif_data[100]; /* Size depending on the actual size of the
-                                    notification data you have */
+                                  * notification data you have
+                                  */
         uint16_t notif_len;
         int offset = 0;
+
         notif_len  = OS_MBUF_PKTLEN(event->notify_rx.om);
         os_mbuf_copydata(event->notify_rx.om, offset, notif_len, notif_data);
 

@@ -14,3 +14,4 @@
   MUSIC("messag"), MUSIC("count2"), MUSIC("ddtbl3"), MUSIC("ampie"),
   MUSIC("tense"),  MUSIC("shawn3"), MUSIC("openin"), MUSIC("evil"),
 /* ANS service */
+ * apps/testing/drivers/ser/ser.c

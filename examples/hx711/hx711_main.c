@@ -74,7 +74,7 @@ static void hx711_print_help(const char *progname)
          "\t         If you set value per unit, precision is in units, "
          "otherwise it's raw values.\n"
          "\t         If units are used, float can be passed like 0.1\n"
-         "\t-v<val>  value read that coresponds to one unit. This value "
+         "\t-v<val>  value read that corresponds to one unit. This value "
          "has to be\n"
          "\t         calibrated first before it's known\n"
          "\t-s       reverse sign, if values decreses when mass increases, "
@@ -113,49 +113,49 @@ static int hx711_parse_args(int argc, FAR char *argv[])
     {
       switch (opt)
         {
-        case 'h':
-          hx711_print_help(argv[0]);
-          return 1;
+          case 'h':
+            hx711_print_help(argv[0]);
+            return 1;
 
-        case 'd':
-          strcpy(g_hx711_config.dev, optarg);
-          break;
+          case 'd':
+            strcpy(g_hx711_config.dev, optarg);
+            break;
 
-        case 't':
-          g_hx711_config.precision = atof(optarg);
-          break;
+          case 't':
+            g_hx711_config.precision = atof(optarg);
+            break;
 
-        case 'D':
-          g_hx711_config.dump = 1;
-          break;
+          case 'D':
+            g_hx711_config.dump = 1;
+            break;
 
-        case 'a':
-          g_hx711_config.average = atoi(optarg);
-          break;
+          case 'a':
+            g_hx711_config.average = atoi(optarg);
+            break;
 
-        case 'c':
-          g_hx711_config.channel = optarg[0];
-          break;
+          case 'c':
+            g_hx711_config.channel = optarg[0];
+            break;
 
-        case 'g':
-          g_hx711_config.gain = atoi(optarg);
-          break;
+          case 'g':
+            g_hx711_config.gain = atoi(optarg);
+            break;
 
-        case 'r':
-          g_hx711_config.loops = atoi(optarg);
-          break;
+          case 'r':
+            g_hx711_config.loops = atoi(optarg);
+            break;
 
-        case 's':
-          g_hx711_config.sign = -1;
-          break;
+          case 's':
+            g_hx711_config.sign = -1;
+            break;
 
-        case 'v':
-          g_hx711_config.val_per_unit = atoi(optarg);
-          break;
+          case 'v':
+            g_hx711_config.val_per_unit = atoi(optarg);
+            break;
 
-        default:
-          fprintf(stderr, "Invalid option, run with -h for help\n");
-          return 1;
+          default:
+            fprintf(stderr, "Invalid option, run with -h for help\n");
+            return 1;
         }
     }
 
@@ -230,7 +230,7 @@ int hx711_set_options(int fd)
         }
     }
 
-  /* Set what value coresponds to 1 unit */
+  /* Set what value corresponds to 1 unit */
 
   if (g_hx711_config.val_per_unit > 0)
     {
