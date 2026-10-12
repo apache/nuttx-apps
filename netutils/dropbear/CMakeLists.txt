@@ -156,8 +156,8 @@ if(CONFIG_NETUTILS_DROPBEAR)
     NAME
     ${PROGNAME}
     SRCS
-    ${DROPBEAR_SRCS}
     dropbear_main.c
+    ${DROPBEAR_SRCS}
     STACKSIZE
     ${CONFIG_NETUTILS_DROPBEAR_STACKSIZE}
     PRIORITY
@@ -180,7 +180,7 @@ if(CONFIG_NETUTILS_DROPBEAR)
   endif()
 
   target_include_directories(
-    ${PROGNAME}
+    apps_${PROGNAME}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
             ${CMAKE_CURRENT_SOURCE_DIR}/port
             ${CMAKE_CURRENT_SOURCE_DIR}/dropbear
@@ -191,19 +191,23 @@ if(CONFIG_NETUTILS_DROPBEAR)
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
     target_include_directories(
-      scp
-      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/port
+      apps_scp
+      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+              ${CMAKE_CURRENT_SOURCE_DIR}/port
               ${CMAKE_CURRENT_SOURCE_DIR}/dropbear
-              ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/src)
+              ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/src
+              ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/libtomcrypt/src/headers
+              ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/libtommath)
   endif()
 
   if(CONFIG_NETUTILS_DROPBEAR_COMPRESSION)
     target_include_directories(
-      ${PROGNAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../system/zlib/zlib)
+      apps_${PROGNAME}
+      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../system/zlib/zlib)
   endif()
 
   target_compile_definitions(
-    ${PROGNAME}
+    apps_${PROGNAME}
     PRIVATE LOCALOPTIONS_H_EXISTS=1
             DROPBEAR_NUTTX=1
             DROPBEAR_NUTTX_PASSWD=1
@@ -213,8 +217,13 @@ if(CONFIG_NETUTILS_DROPBEAR)
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
     target_compile_definitions(
-      scp PRIVATE LOCALOPTIONS_H_EXISTS=1 DROPBEAR_NUTTX=1
-                  DROPBEAR_NUTTX_PASSWD=1)
+      apps_scp
+      PRIVATE LOCALOPTIONS_H_EXISTS=1
+              DROPBEAR_NUTTX=1
+              DROPBEAR_NUTTX_PASSWD=1
+              base64_encode=dropbear_ltc_base64_encode
+              base64_decode=dropbear_ltc_base64_decode
+              ecc_make_key=dropbear_ltc_ecc_make_key)
   endif()
 
   set_source_files_properties(
@@ -223,9 +232,10 @@ if(CONFIG_NETUTILS_DROPBEAR)
                "Channel=dropbear_channel;ChanType=dropbear_chantype")
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
-    set_source_files_properties(
-      dropbear/src/scp.c
-      PROPERTIES
+    set_property(
+      SOURCE dropbear/src/scp.c
+      APPEND
+      PROPERTY
         COMPILE_DEFINITIONS
         "xmalloc=dropbear_scp_xmalloc;xrealloc=dropbear_scp_xrealloc;xfree=dropbear_scp_xfree;execvp=dropbear_scp_execvp"
     )
@@ -241,16 +251,14 @@ if(CONFIG_NETUTILS_DROPBEAR)
   set_source_files_properties(${LIBTOMCRYPT_SRCS} PROPERTIES COMPILE_DEFINITIONS
                                                              LTC_SOURCE=1)
 
-  target_compile_options(${PROGNAME} PRIVATE -Wno-pointer-sign -Wno-format)
+  target_compile_options(apps_${PROGNAME} PRIVATE -Wno-pointer-sign -Wno-format)
 
   if(CONFIG_NETUTILS_DROPBEAR_SCP)
     target_compile_options(
-      scp
+      apps_scp
       PRIVATE -Wno-pointer-sign -Wno-format -include
               ${CMAKE_CURRENT_SOURCE_DIR}/port/nuttx_scp.h
               -Wno-strict-prototypes)
   endif()
-
-  target_sources(apps PRIVATE ${DROPBEAR_SRCS})
 
 endif()
