@@ -18,6 +18,12 @@
 #define _GNU_SOURCE
 #endif
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <nuttx/config.h>
+
 /* Define to 1 if you have <ws2tcpip.h> header file. */
 
 /* #undef HAVE_WS2TCPIP_H */
@@ -109,8 +115,10 @@
 
 /* #undef COAP_WITH_LIBTINYDTLS */
 
+#ifdef CONFIG_CRYPTO_MBEDTLS
 /* Define to 1 if the system has libmbedtls */
 #define COAP_WITH_LIBMBEDTLS 1
+#endif
 
 /* Define to 1 if you have the <limits.h> header file. */
 #define HAVE_LIMITS_H 1
