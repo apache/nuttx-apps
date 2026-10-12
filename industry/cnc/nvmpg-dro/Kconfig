@@ -1,0 +1,59 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config INDUSTRY_CNC_NVMPG_DRO
+	tristate "Digital Dream NVMPG pendant DRO"
+	default n
+	depends on LCD_DEV && DEV_GPIO && !DISABLE_PTHREAD
+	---help---
+		Digital readout firmware for the Digital Dream NVMPG pendant used
+		with the NVUM/NVEM/EC300/EC500 CNC motion controllers.  It shows
+		the axis positions, overrides and MPG step that the controller
+		sends over the serial link, and reports the pendant keys back to
+		it using the same protocol as the original firmware.
+
+if INDUSTRY_CNC_NVMPG_DRO
+
+config INDUSTRY_CNC_NVMPG_DRO_PROGNAME
+	string "Program name"
+	default "nvmpg_dro"
+
+config INDUSTRY_CNC_NVMPG_DRO_PRIORITY
+	int "DRO task priority"
+	default 100
+
+config INDUSTRY_CNC_NVMPG_DRO_STACKSIZE
+	int "DRO stack size"
+	default 2048
+
+config INDUSTRY_CNC_NVMPG_DRO_TTY
+	string "Serial port connected to the controller"
+	default "/dev/ttyS0"
+
+config INDUSTRY_CNC_NVMPG_DRO_LCD
+	string "LCD character device"
+	default "/dev/lcd0"
+
+config INDUSTRY_CNC_NVMPG_DRO_NKEYS
+	int "Number of keys (/dev/gpio0 .. /dev/gpioN-1)"
+	default 10
+
+config INDUSTRY_CNC_NVMPG_DRO_SPLASH
+	bool "Show the NuttX logo at startup"
+	default y
+
+config INDUSTRY_CNC_NVMPG_DRO_SPLASH_MS
+	int "Splash duration (ms)"
+	default 1000
+	depends on INDUSTRY_CNC_NVMPG_DRO_SPLASH
+
+config INDUSTRY_CNC_NVMPG_DRO_LINK_TIMEOUT
+	int "Link timeout (ms)"
+	default 1000
+	---help---
+		Positions are drawn greyed out when no frame was received from
+		the controller for this long.
+
+endif
