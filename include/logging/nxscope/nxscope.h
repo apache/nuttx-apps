@@ -94,7 +94,7 @@ enum nxscope_hdr_id_e
   NXSCOPE_HDRID_DIV     = 7,             /* Channels divider */
 
   /* User defined frames.
-   * Must be alway the last element.
+   * Must be always the last element.
    */
 
   NXSCOPE_HDRID_USER   = 8
@@ -162,7 +162,7 @@ enum nxscope_set_frame_req_s
 {
   NXSCOPE_SET_REQ_SINGLE = 0,   /* Single channel request */
   NXSCOPE_SET_REQ_BULK   = 1,   /* Set different values for all channels */
-  NXSCOPE_SET_REQ_ALL    = 2    /* Set one value for all channles  */
+  NXSCOPE_SET_REQ_ALL    = 2    /* Set one value for all channels  */
 };
 
 /* Set frame common data */
@@ -174,16 +174,16 @@ begin_packed_struct struct nxscope_set_frame_s
   uint8_t data[1];              /* n bytes data - depends on the request type */
 } end_packed_struct;
 
-/* Chanel type */
+/* Channel type */
 
 begin_packed_struct struct nxscope_chinfo_type_s
 {
   uint8_t dtype:5;                       /* Data type */
   uint8_t _res:2;                        /* Reserved for future use */
-  uint8_t cri:1;                         /* Criticial channel - no buffering */
+  uint8_t cri:1;                         /* Critical channel - no buffering */
 } end_packed_struct;
 
-/* Chanel type union */
+/* Channel type union */
 
 union nxscope_chinfo_type_u
 {
@@ -197,10 +197,10 @@ begin_packed_struct struct nxscope_chinfo_s
 {
   uint8_t                     enable;    /* Enable flag */
   union nxscope_chinfo_type_u type;      /* Channel data type */
-  uint8_t                     vdim;      /* Vector dimention */
+  uint8_t                     vdim;      /* Vector dimension */
   uint8_t                     div;       /* Divider - starts from 0 */
   uint8_t                     mlen;      /* Metadata size */
-  FAR char                   *name;      /* Chanel name */
+  FAR char                   *name;      /* Channel name */
 } end_packed_struct;
 
 /* Nxscope info common */
@@ -291,7 +291,7 @@ struct nxscope_cfg_s
 
   FAR struct nxscope_callbacks_s *callbacks;
 
-  /* Number of suppoted channels */
+  /* Number of supported channels */
 
   uint8_t channels;
 
