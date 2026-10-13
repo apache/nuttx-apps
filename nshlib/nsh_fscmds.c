@@ -452,6 +452,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                 {
                   FAR char *fullpath = nsh_getdirpath(vtbl, dirpath,
                                                       entryp->d_name);
+
                   ret = stat(fullpath, &target_buf);
                   free(fullpath);
                 }
