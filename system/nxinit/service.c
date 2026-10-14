@@ -106,6 +106,12 @@ static int option_oneshot(FAR struct service_manager_s *sm,
                           int argc, FAR char **argv);
 static int option_console(FAR struct service_manager_s *sm,
                           int argc, FAR char **argv);
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+static int option_stdout(FAR struct service_manager_s *sm,
+                         int argc, FAR char **argv);
+static int option_stderr(FAR struct service_manager_s *sm,
+                         int argc, FAR char **argv);
+#endif
 #ifdef CONFIG_BOARDCTL_RESET
 static int option_reboot_on_failure(FAR struct service_manager_s *sm,
                                     int argc, FAR char **argv);
@@ -124,6 +130,10 @@ static const struct cmd_map_s g_option[] =
   {"override", 1, 1, option_override},
   {"oneshot", 1, 1, option_oneshot},
   {"console", 1, 2, option_console},
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+  {"stdout", 2, 2, option_stdout},
+  {"stderr", 2, 2, option_stderr},
+#endif
 #ifdef CONFIG_BOARDCTL_RESET
   {"reboot_on_failure", 2, 2, option_reboot_on_failure},
 #endif
@@ -208,6 +218,10 @@ static void remove_service(FAR struct service_s *service)
     }
 
   free(service->console);
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+  free(service->stdout_path);
+  free(service->stderr_path);
+#endif
   list_delete(&service->node);
   free(service);
 }
@@ -295,6 +309,32 @@ static int option_oneshot(FAR struct service_manager_s *sm,
 }
 
 /****************************************************************************
+ * Name: service_strdup
+ *
+ * Description:
+ *   Duplicate 'src' into *dst, replacing any previous value.  Option
+ *   strings point into the parser line buffer, which is reused for the
+ *   next line, so they must be duplicated here.  On allocation failure
+ *   the previous value is kept.
+ *
+ ****************************************************************************/
+
+static int service_strdup(FAR char **dst, FAR const char *src)
+{
+  FAR char *dup = strdup(src);
+
+  if (dup == NULL)
+    {
+      init_err("Alloc '%s'", src);
+      return -ENOMEM;
+    }
+
+  free(*dst);
+  *dst = dup;
+  return 0;
+}
+
+/****************************************************************************
  * Name: option_console
  *
  * Description:
@@ -315,21 +355,31 @@ static int option_console(FAR struct service_manager_s *sm,
 
   if (argc > 1)
     {
-      /* 'argv' points into the parser line buffer, which is reused for the
-       * next line, so the device name must be duplicated here.
-       */
-
-      free(s->console);
-      s->console = strdup(argv[1]);
-      if (s->console == NULL)
-        {
-          init_err("Alloc console device");
-          return -ENOMEM;
-        }
+      return service_strdup(&s->console, argv[1]);
     }
 
   return 0;
 }
+
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+static int option_stdout(FAR struct service_manager_s *sm,
+                         int argc, FAR char **argv)
+{
+  FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
+                                            node);
+
+  return service_strdup(&s->stdout_path, argv[1]);
+}
+
+static int option_stderr(FAR struct service_manager_s *sm,
+                         int argc, FAR char **argv)
+{
+  FAR struct service_s *s = list_last_entry(&sm->services, struct service_s,
+                                            node);
+
+  return service_strdup(&s->stderr_path, argv[1]);
+}
+#endif
 
 #ifdef CONFIG_BOARDCTL_RESET
 static int option_reboot_on_failure(FAR struct service_manager_s *sm,
@@ -342,6 +392,102 @@ static int option_reboot_on_failure(FAR struct service_manager_s *sm,
   return 0;
 }
 #endif
+
+/****************************************************************************
+ * Name: service_file_actions
+ *
+ * Description:
+ *   Build the spawn file actions which redirect the stdio of a service:
+ *   its console device when flagged SVC_CONSOLE and, with
+ *   CONFIG_SYSTEM_NXINIT_SERVICE_REDIR, its stdout/stderr files.  The
+ *   actions are performed in the context of the new task, so the stdio of
+ *   NxInit itself is left untouched.  On error the actions are destroyed
+ *   and a negative errno is returned.
+ *
+ ****************************************************************************/
+
+static int service_file_actions(FAR posix_spawn_file_actions_t *actions,
+                               FAR struct service_s *service)
+{
+  int ret;
+
+  ret = posix_spawn_file_actions_init(actions);
+  if (ret != 0)
+    {
+      init_err("posix_spawn_file_actions_init %d", ret);
+      return -ret;
+    }
+
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+  /* Without the redirection options the caller has already checked
+   * SVC_CONSOLE, so only check it again when redirection can add
+   * file actions of its own.
+   */
+
+  if (check_flags(service, SVC_CONSOLE))
+#endif
+    {
+      FAR const char *dev = service->console ?
+                            service->console :
+                            CONFIG_SYSTEM_NXINIT_CONSOLE_DEV;
+
+      ret = posix_spawn_file_actions_addopen(actions, STDIN_FILENO, dev,
+                                            O_RDWR, 0);
+      if (ret == 0)
+        {
+          ret = posix_spawn_file_actions_adddup2(actions, STDIN_FILENO,
+                                                 STDOUT_FILENO);
+        }
+
+      if (ret == 0)
+        {
+          ret = posix_spawn_file_actions_adddup2(actions, STDIN_FILENO,
+                                                 STDERR_FILENO);
+        }
+
+      if (ret != 0)
+        {
+          init_err("Add console '%s' file action %d", dev, ret);
+          goto errout;
+        }
+    }
+
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+  if (service->stdout_path != NULL)
+    {
+      ret = posix_spawn_file_actions_addopen(actions, STDOUT_FILENO,
+                                            service->stdout_path,
+                                            O_WRONLY | O_CREAT | O_TRUNC,
+                                            0666);
+      if (ret != 0)
+        {
+          init_err("Add stdout '%s' file action %d", service->stdout_path,
+                   ret);
+          goto errout;
+        }
+    }
+
+  if (service->stderr_path != NULL)
+    {
+      ret = posix_spawn_file_actions_addopen(actions, STDERR_FILENO,
+                                            service->stderr_path,
+                                            O_WRONLY | O_CREAT | O_TRUNC,
+                                            0666);
+      if (ret != 0)
+        {
+          init_err("Add stderr '%s' file action %d", service->stderr_path,
+                   ret);
+          goto errout;
+        }
+    }
+#endif
+
+  return 0;
+
+errout:
+  posix_spawn_file_actions_destroy(actions);
+  return -ret;
+}
 
 /****************************************************************************
  * Public Functions
@@ -488,55 +634,6 @@ void init_service_reap(FAR struct service_s *service, int status)
     }
 }
 
-/****************************************************************************
- * Name: console_file_actions
- *
- * Description:
- *   Build the spawn file actions which redirect the stdio of a service
- *   flagged SVC_CONSOLE to its console device.  The actions are performed
- *   in the context of the new task, so the stdio of NxInit itself is left
- *   untouched.
- *
- ****************************************************************************/
-
-static int console_file_actions(FAR posix_spawn_file_actions_t *actions,
-                               FAR struct service_s *service)
-{
-  FAR const char *dev = service->console ?
-                        service->console : CONFIG_SYSTEM_NXINIT_CONSOLE_DEV;
-  int ret;
-
-  ret = posix_spawn_file_actions_init(actions);
-  if (ret != 0)
-    {
-      init_err("posix_spawn_file_actions_init %d", ret);
-      return -ret;
-    }
-
-  ret = posix_spawn_file_actions_addopen(actions, STDIN_FILENO, dev,
-                                        O_RDWR, 0);
-  if (ret == 0)
-    {
-      ret = posix_spawn_file_actions_adddup2(actions, STDIN_FILENO,
-                                             STDOUT_FILENO);
-    }
-
-  if (ret == 0)
-    {
-      ret = posix_spawn_file_actions_adddup2(actions, STDIN_FILENO,
-                                             STDERR_FILENO);
-    }
-
-  if (ret != 0)
-    {
-      init_err("Add console '%s' file action %d", dev, ret);
-      posix_spawn_file_actions_destroy(actions);
-      return -ret;
-    }
-
-  return 0;
-}
-
 int init_service_start(FAR struct service_s *service)
 {
   FAR posix_spawn_file_actions_t *pactions = NULL;
@@ -581,9 +678,13 @@ int init_service_start(FAR struct service_s *service)
 
   clock_gettime(CLOCK_MONOTONIC, &service->time_started);
 
-  if (check_flags(service, SVC_CONSOLE))
+  if (check_flags(service, SVC_CONSOLE)
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+      || service->stdout_path != NULL || service->stderr_path != NULL
+#endif
+     )
     {
-      ret = console_file_actions(&actions, service);
+      ret = service_file_actions(&actions, service);
       if (ret < 0)
         {
           posix_spawnattr_destroy(&attr);
@@ -836,6 +937,18 @@ void init_dump_service(FAR struct service_s *s)
     }
 
   init_debug("  restart_period: %d", s->restart_period);
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+  if (s->stdout_path != NULL)
+    {
+      init_debug("  stdout: '%s'", s->stdout_path);
+    }
+
+  if (s->stderr_path != NULL)
+    {
+      init_debug("  stderr: '%s'", s->stderr_path);
+    }
+
+#endif
 #ifdef CONFIG_BOARDCTL_RESET
   init_debug("  reboot_on_failure: %d", s->reset_reason);
 #endif

@@ -116,6 +116,11 @@ struct service_s
 
   FAR char *console;
 
+#ifdef CONFIG_SYSTEM_NXINIT_SERVICE_REDIR
+  FAR char *stdout_path;
+  FAR char *stderr_path;
+#endif
+
   /* The "target" of service option "reboot_on_failure" */
 
 #ifdef CONFIG_BOARDCTL_RESET
