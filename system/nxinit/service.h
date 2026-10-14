@@ -40,36 +40,36 @@
  * URL: https://android.googlesource.com/platform/system/core/+/
  *      android16-release/init/service.h#42
  */
-#define SVC_DISABLED    (1 << 0)  /* do not autostart with class */
-#define SVC_ONESHOT     (1 << 1)  /* do not restart on exit */
-#define SVC_RUNNING     (1 << 2)  /* currently active */
-#define SVC_RESTARTING  (1 << 3)  /* waiting to restart */
-#define SVC_CONSOLE     (1 << 4)  /* requires a console as its stdio */
+#define SVC_DISABLED    (1U << 0)  /* do not autostart with class */
+#define SVC_ONESHOT     (1U << 1)  /* do not restart on exit */
+#define SVC_RUNNING     (1U << 2)  /* currently active */
+#define SVC_RESTARTING  (1U << 3)  /* waiting to restart */
+#define SVC_CONSOLE     (1U << 4)  /* requires a console as its stdio */
 
 /* This service should be stopped with SIGTERM instead of SIGKILL.
  * Will still be SIGKILLed after timeout period of 200 ms.
  */
 
-#define SVC_GENTLE_KILL (1 << 13)
+#define SVC_GENTLE_KILL (1U << 13)
 
 /* Flags below are new added.
  */
 
 /* Fallback: silently ignored if a service with the same name exists */
 
-#define SVC_FALLBACK    (1 << 28)
+#define SVC_FALLBACK    (1U << 28)
 
 /* Override the previous definition for a service with the same name */
 
-#define SVC_OVERRIDE    (1 << 29)
+#define SVC_OVERRIDE    (1U << 29)
 
 /* Already sent SIGKILL, and should not send again. */
 
-#define SVC_SIGKILL     (1 << 30)
+#define SVC_SIGKILL     (1U << 30)
 
 /* Should be removed immediately after stopped */
 
-#define SVC_REMOVE      (1 << 31)
+#define SVC_REMOVE      (1U << 31)
 
 #define NXINIT_SERVICE_NAME_MAX    32
 
