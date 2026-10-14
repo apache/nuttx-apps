@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <poll.h>
+#include <sched.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/boardctl.h>
@@ -226,6 +227,11 @@ int main(int argc, FAR char *argv[])
   sigset_t mask;
   size_t i;
   int r;
+
+#ifdef CONFIG_BMP
+  snprintf(ACTION_TRIGGER_KEY(&am), sizeof(ACTION_TRIGGER_KEY(&am)),
+           ACTION_PROP_KEY_TRIGGER ".core%d", sched_getcpu());
+#endif
 
   sigfillset(&mask);
   r = sigprocmask(SIG_BLOCK, &mask, &am.sigmask);

@@ -35,6 +35,21 @@
 #include "parser.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define ACTION_PROP_KEY_TRIGGER "init.trigger"
+
+#ifdef CONFIG_BMP
+#  define ACTION_TRIGGER_KEY(am) ((am)->trigger_key)
+#elif defined(CONFIG_RPMSG_LOCAL_CPUNAME)
+#  define ACTION_TRIGGER_KEY(am) \
+     ACTION_PROP_KEY_TRIGGER "." CONFIG_RPMSG_LOCAL_CPUNAME
+#else
+#  define ACTION_TRIGGER_KEY(am) ACTION_PROP_KEY_TRIGGER
+#endif
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
@@ -88,6 +103,9 @@ struct action_manager_s
   FAR struct init_poller_s *prop;
 
   sigset_t sigmask;               /* Signal mask before init blocked all */
+#ifdef CONFIG_BMP
+  char trigger_key[64];
+#endif
 };
 
 /* Event evaluation result reported by init_action_event_cb.
