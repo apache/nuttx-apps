@@ -127,6 +127,17 @@ config SYSTEM_NXINIT_CONSOLE_DEV
 
 comment "NXInit Testing"
 
+config SYSTEM_NXINIT_SERVICE_REDIR
+	bool "Service stdout/stderr redirection options (not recommended)"
+	default n
+	---help---
+		Enable the "stdout <path>" and "stderr <path>" service options,
+		which redirect a service's stdout/stderr to a file like nsh
+		"cmd > file".  They are not Android init service options and
+		are not recommended: a service should log through its log
+		interface instead.  Only meant to keep rcS redirections when
+		moving a board from nsh to init.
+
 config SYSTEM_NXINIT_TEST
 	bool "NxInit unit tests"
 	default n
