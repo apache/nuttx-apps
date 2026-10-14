@@ -29,6 +29,13 @@ config NIMBLE_CALLOUT_THREAD_STACKSIZE
 	int "Stack size of NimBLE NPL callout thread"
 	default DEFAULT_TASK_STACKSIZE
 
+config NIMBLE_EVENTQ_SIZE
+	int "NimBLE NPL event queue size"
+	default 32 if NIMBLE_MESH
+	default 16
+	---help---
+		Maximum number of events pending in a NimBLE event queue.
+
 if DEBUG_FEATURES
 
 config NIMBLE_DEBUG_ERROR
