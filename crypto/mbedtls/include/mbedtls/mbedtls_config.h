@@ -161,7 +161,9 @@
  *       regardless of the setting of MBEDTLS_HAVE_TIME, unless
  *       MBEDTLS_TIMING_ALT is used. See timing.c for more information.
  */
+#ifdef CONFIG_MBEDTLS_HAVE_TIME
 #define MBEDTLS_HAVE_TIME
+#endif
 
 /**
  * \def MBEDTLS_HAVE_TIME_DATE
@@ -686,7 +688,9 @@
  *
  */
 
-/* #define MBEDTLS_AES_FEWER_TABLES */
+#ifdef CONFIG_MBEDTLS_AES_FEWER_TABLES
+#define MBEDTLS_AES_FEWER_TABLES
+#endif
 
 /**
  * \def MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH
@@ -704,7 +708,9 @@
  * Requires: MBEDTLS_AES_C
  */
 
-/* #define MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH */
+#ifdef CONFIG_MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH
+#define MBEDTLS_AES_ONLY_128_BIT_KEY_LENGTH
+#endif
 
 /**
  * \def MBEDTLS_AES_USE_HARDWARE_ONLY
@@ -762,7 +768,9 @@
  *
  * Enable Cipher Block Chaining mode (CBC) for symmetric ciphers.
  */
+#ifdef CONFIG_MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_CIPHER_MODE_CBC
+#endif
 
 /**
  * \def MBEDTLS_CIPHER_MODE_CFB
@@ -1163,7 +1171,9 @@
  *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256
  *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
  */
+#ifdef CONFIG_MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
 #define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
+#endif
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED
@@ -1396,7 +1406,9 @@
  *
  * Enable functions that use the filesystem.
  */
+#ifdef CONFIG_MBEDTLS_FS_IO
 #define MBEDTLS_FS_IO
+#endif
 
 /**
  * \def MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
@@ -1533,7 +1545,9 @@
  *
  * This enables support for PKCS#1 v1.5 operations.
  */
+#ifdef CONFIG_MBEDTLS_PKCS1_V15
 #define MBEDTLS_PKCS1_V15
+#endif
 
 /**
  * \def MBEDTLS_PKCS1_V21
@@ -1809,7 +1823,9 @@
  *
  * Enable sending of all alert messages
  */
+#ifdef CONFIG_MBEDTLS_SSL_ALL_ALERT_MESSAGES
 #define MBEDTLS_SSL_ALL_ALERT_MESSAGES
+#endif
 
 /**
  * \def MBEDTLS_SSL_DTLS_CONNECTION_ID
@@ -2748,7 +2764,9 @@
  *
  * This module is required for PEM support (required by X.509).
  */
+#ifdef CONFIG_MBEDTLS_BASE64_C
 #define MBEDTLS_BASE64_C
+#endif
 
 /**
  * \def MBEDTLS_BLOCK_CIPHER_NO_DECRYPT
@@ -2772,7 +2790,9 @@
  *          library/cipher.c
  */
 
-/* #define MBEDTLS_BLOCK_CIPHER_NO_DECRYPT */
+#ifdef CONFIG_MBEDTLS_BLOCK_CIPHER_NO_DECRYPT
+#define MBEDTLS_BLOCK_CIPHER_NO_DECRYPT
+#endif
 
 /**
  * \def MBEDTLS_BIGNUM_C
@@ -3033,7 +3053,9 @@
  *
  * This module provides the CTR_DRBG AES random number generator.
  */
+#ifdef CONFIG_MBEDTLS_CTR_DRBG_C
 #define MBEDTLS_CTR_DRBG_C
+#endif
 
 /**
  * \def MBEDTLS_DEBUG_C
@@ -3067,7 +3089,9 @@
  *            a security risk. We recommend considering stronger ciphers
  *instead.
  */
+#ifdef CONFIG_MBEDTLS_DES_C
 #define MBEDTLS_DES_C
+#endif
 
 /**
  * \def MBEDTLS_DHM_C
@@ -3184,7 +3208,9 @@
  *
  * This module provides a generic entropy pool
  */
+#ifdef CONFIG_MBEDTLS_ENTROPY_C
 #define MBEDTLS_ENTROPY_C
+#endif
 
 /**
  * \def MBEDTLS_ERROR_C
@@ -3474,7 +3500,9 @@
  *
  * This modules adds support for decoding / parsing PEM files.
  */
+#ifdef CONFIG_MBEDTLS_PEM_PARSE_C
 #define MBEDTLS_PEM_PARSE_C
+#endif
 
 /**
  * \def MBEDTLS_PEM_WRITE_C
@@ -4040,7 +4068,9 @@
  *
  * This module is required for SSL/TLS client support.
  */
+#ifdef CONFIG_MBEDTLS_SSL_CLI_C
 #define MBEDTLS_SSL_CLI_C
+#endif
 
 /**
  * \def MBEDTLS_SSL_SRV_C
@@ -4072,7 +4102,9 @@
  *
  * This module is required for SSL/TLS.
  */
+#ifdef CONFIG_MBEDTLS_SSL_TLS_C
 #define MBEDTLS_SSL_TLS_C
+#endif
 
 /**
  * \def MBEDTLS_THREADING_C
