@@ -26,6 +26,8 @@ NIMBLE_ROOT = $(APPDIR)/wireless/bluetooth/nimble/mynewt-nimble
 
 ifneq ($(CONFIG_NIMBLE_TINYCRYPT),)
 NIMBLE_CFG_TINYCRYPT = 1
+else
+NIMBLE_CFG_MBEDTLS = 1
 endif
 
 ifneq ($(CONFIG_NIMBLE_MESH),)

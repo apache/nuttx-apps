@@ -17,6 +17,7 @@ config MBEDTLS_VERSION
 
 config MBEDTLS_MINIMAL
 	bool "Minimal configuration"
+	default y if NIMBLE && !NIMBLE_TINYCRYPT
 	default n
 	---help---
 		Disable optional modules and features by default. Only options

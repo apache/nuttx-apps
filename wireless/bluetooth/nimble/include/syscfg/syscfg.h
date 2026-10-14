@@ -40,7 +40,11 @@
 
 /* NimBLE NuttX specific configuration **************************************/
 
-#define MYNEWT_VAL_BLE_SOCK_USE_NUTTX        (1)
+#ifdef CONFIG_NIMBLE_TINYCRYPT
+#  define MYNEWT_VAL_BLE_SOCK_USE_NUTTX      (1)
+#else
+#  define MYNEWT_VAL_BLE_SOCK_TYPE__nuttx    (1)
+#endif
 #define MYNEWT_VAL_NEWT_FEATURE_LOGCFG       (1)
 
 /* NimBLE user specific configuration ***************************************/
