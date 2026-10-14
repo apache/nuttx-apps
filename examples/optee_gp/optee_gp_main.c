@@ -26,6 +26,8 @@
 
 #include <nuttx/config.h>
 #include <nuttx/tee.h>
+#include <stdlib.h>
+#include <string.h>
 #include <tee_client_api.h>
 #include <teec_trace.h>
 #include <uuid.h>
