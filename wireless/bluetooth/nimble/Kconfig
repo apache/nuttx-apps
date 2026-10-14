@@ -6,6 +6,12 @@
 config NIMBLE
 	bool "Apache NimBLE (BLE host-layer)"
 	default n
+	select CRYPTO_MBEDTLS if !NIMBLE_TINYCRYPT
+	select MBEDTLS_AES_C if !NIMBLE_TINYCRYPT
+	select MBEDTLS_CMAC_C if !NIMBLE_TINYCRYPT
+	select MBEDTLS_ECP_C if !NIMBLE_TINYCRYPT
+	select MBEDTLS_ECDH_C if !NIMBLE_TINYCRYPT
+	select MBEDTLS_ECP_DP_SECP256R1_ENABLED if !NIMBLE_TINYCRYPT
 	depends on !WIRELESS_BLUETOOTH_HOST
 	---help---
 		Enable Apache NimBLE Bluetooth Low Energy
@@ -15,7 +21,7 @@ if NIMBLE
 
 config NIMBLE_REF
 	string "Version"
-	default "b6831813cfe6da9b25c8be7136b40ce060bf9710"
+	default "e00b85ccfc49abbaf1731bb3eddaa6340d07ab52"
 	---help---
 		Git ref name to use when downloading from NimBLE repo
 
@@ -43,8 +49,12 @@ config NIMBLE_DEBUG_INFO
 endif # DEBUG_FEATURES
 
 config NIMBLE_TINYCRYPT
-	bool "Apache NimBLE tinycrypt support"
-	default y
+	bool "Apache NimBLE tinycrypt support (legacy)"
+	default n
+	---help---
+		Build with the TinyCrypt bundled in NimBLE versions before the
+		switch to Mbed TLS. Set NIMBLE_REF to such a version. Kept only
+		for migration and will be removed.
 
 config NIMBLE_MESH
 	bool "Apache NimBLE mesh support"

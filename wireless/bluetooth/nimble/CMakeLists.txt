@@ -87,8 +87,10 @@ if(CONFIG_NIMBLE)
       mynewt-nimble/nimble/host/src/ble_att_clt.c
       mynewt-nimble/nimble/host/src/ble_att_cmd.c
       mynewt-nimble/nimble/host/src/ble_att_svr.c
+      mynewt-nimble/nimble/host/src/ble_cs.c
       mynewt-nimble/nimble/host/src/ble_dtm.c
       mynewt-nimble/nimble/host/src/ble_eddystone.c
+      mynewt-nimble/nimble/host/src/ble_eatt.c
       mynewt-nimble/nimble/host/src/ble_gap.c
       mynewt-nimble/nimble/host/src/ble_gattc.c
       mynewt-nimble/nimble/host/src/ble_gatts.c
@@ -114,6 +116,7 @@ if(CONFIG_NIMBLE)
       mynewt-nimble/nimble/host/src/ble_hs_startup.c
       mynewt-nimble/nimble/host/src/ble_hs_stop.c
       mynewt-nimble/nimble/host/src/ble_ibeacon.c
+      mynewt-nimble/nimble/host/src/ble_iso.c
       mynewt-nimble/nimble/host/src/ble_l2cap.c
       mynewt-nimble/nimble/host/src/ble_l2cap_coc.c
       mynewt-nimble/nimble/host/src/ble_l2cap_sig.c
@@ -127,7 +130,8 @@ if(CONFIG_NIMBLE)
       mynewt-nimble/nimble/host/src/ble_store_util.c
       mynewt-nimble/nimble/host/src/ble_uuid.c
       mynewt-nimble/nimble/host/util/src/addr.c
-      mynewt-nimble/nimble/host/store/ram/src/ble_store_ram.c)
+      mynewt-nimble/nimble/host/store/config/src/ble_store_config.c
+      mynewt-nimble/nimble/host/store/config/src/ble_store_config_conf.c)
 
   set(SRCS ${SRCS_PORTING} ${SRCS_NPL} ${SRCS_TRANSPORT} ${SRCS_SERVICES}
            ${SRCS_HOST})
@@ -183,7 +187,7 @@ if(CONFIG_NIMBLE)
       mynewt-nimble/nimble/host/services/ipss/include
       mynewt-nimble/nimble/host/services/lls/include
       mynewt-nimble/nimble/host/services/tps/include
-      mynewt-nimble/nimble/host/store/ram/include
+      mynewt-nimble/nimble/host/store/config/include
       mynewt-nimble/nimble/transport/include
       mynewt-nimble/porting/nimble/include)
 
@@ -192,6 +196,9 @@ if(CONFIG_NIMBLE)
                   mynewt-nimble/nimble/transport/socket/include)
 
   target_include_directories(nimble PUBLIC include ${INCLUDES})
+  if(NOT CONFIG_NIMBLE_TINYCRYPT)
+    target_link_libraries(nimble PRIVATE mbedtls)
+  endif()
 
   target_compile_options(nimble PUBLIC -Wno-undef -Wno-format
                                        -Wno-unused-but-set-variable)
