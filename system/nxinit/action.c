@@ -47,8 +47,6 @@
 #define ACTION_SECTION_PROP_PREFIX "property:"
 #define ACTION_SECTION_AND_PREFIX  "&&"
 
-#define ACTION_PROP_KEY_DEFAULT    "default"
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -356,7 +354,7 @@ void init_action_trigger_event(FAR struct action_manager_s *am,
 int init_action_add_event(FAR struct action_manager_s *am,
                           FAR const char *event)
 {
-  return init_property_set(am->prop, ACTION_PROP_KEY_DEFAULT, event);
+  return init_property_set(am->prop, ACTION_TRIGGER_KEY(am), event);
 }
 
 /****************************************************************************
@@ -511,7 +509,7 @@ int init_action_parse(FAR const struct parser_s *parser,
             {
               char tmp[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
 
-              sprintf(tmp, ":%s=%s", ACTION_PROP_KEY_DEFAULT, argv[ret]);
+              sprintf(tmp, ":%s=%s", ACTION_TRIGGER_KEY(am), argv[ret]);
               n = parse_event(tmp, a->events, nitems(a->events));
               if (n < 0)
                 {
