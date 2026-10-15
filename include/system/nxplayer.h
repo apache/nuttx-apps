@@ -31,6 +31,7 @@
 
 #include <mqueue.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -97,6 +98,10 @@ struct nxplayer_s
 
   FAR const struct nxplayer_dec_ops_s *ops;
   struct nxplayer_tone_s tone;
+  uint32_t        wav_data_remaining;
+  uint8_t         wav_block_align;
+  int             wav_error;
+  bool            wav_playback;
 };
 
 typedef int (*nxplayer_func)(FAR struct nxplayer_s *pplayer, char *pargs);
@@ -601,6 +606,14 @@ int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
 
 int nxplayer_fill_common(FAR struct nxplayer_s *pplayer, int fd,
                          FAR struct ap_buffer_s *apb);
+
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+extern const struct nxplayer_dec_ops_s g_wav_dec_ops;
+
+bool nxplayer_is_wav_file(FAR const char *pfilename);
+uint32_t nxplayer_wav_rate_cap(uint32_t rate);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus
