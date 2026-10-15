@@ -1,0 +1,41 @@
+From 944fe2eb78fe931cffca8cb6a942bcaa541ad8fc Mon Sep 17 00:00:00 2001
+From: Alan Carvalho de Assis <acassis@gmail.com>
+Date: Wed, 16 Sep 2026 15:15:47 -0300
+Subject: [PATCH 1/2] internal.h: allow the framebuffer size to be set by the
+ build system
+
+XRES_FRAMEBUFFER and YRES_FRAMEBUFFER were hardcoded per platform, so
+a port whose display is not 256x267 had to edit internal.h. Only use
+the built-in defaults when the build system does not provide both
+values (e.g. -DXRES_FRAMEBUFFER=320 -DYRES_FRAMEBUFFER=240).
+
+Signed-off-by: Alan C. Assis <acassis@gmail.com>
+---
+ include/internal.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/include/internal.h b/include/internal.h
+index 175215f..7ffa2a0 100644
+--- a/include/internal.h
++++ b/include/internal.h
+@@ -13,6 +13,12 @@
+ 
+ typedef void ( *KeyCallback )(int charkey);
+ 
++/* The framebuffer size can be provided by the build system, e.g.:
++ * -DXRES_FRAMEBUFFER=320 -DYRES_FRAMEBUFFER=240
++ */
++#if !defined(XRES_FRAMEBUFFER) || !defined(YRES_FRAMEBUFFER)
++#undef XRES_FRAMEBUFFER
++#undef YRES_FRAMEBUFFER
+ #ifdef DOS
+ #define XRES_FRAMEBUFFER 320
+ #define YRES_FRAMEBUFFER 200
+@@ -30,6 +36,7 @@ typedef void ( *KeyCallback )(int charkey);
+ #endif
+ #endif
+ #endif
++#endif
+ 
+ #ifdef BPP24
+ typedef uint32_t FramebufferPixelFormat;
