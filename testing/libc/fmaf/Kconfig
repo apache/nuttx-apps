@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FMAF
+	tristate "fmaf() test"
+	default n
+	---help---
+		Compare the NuttX fmaf() implementation with the configured libm over
+		boundary, double-rounding, and randomized inputs in all four rounding
+		modes. Requires binary64 double precision.
