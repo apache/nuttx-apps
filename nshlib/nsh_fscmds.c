@@ -1729,7 +1729,7 @@ int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     {
       /* For symlink, just use the original content */
 
-      tgtpath = strdup(argv[ndx]);
+      tgtpath = argv[ndx];
     }
 
   if (tgtpath == NULL)
@@ -1761,11 +1761,19 @@ int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
 
   nsh_freefullpath(linkpath);
-  nsh_freefullpath(tgtpath);
+  if (ndx == 1)
+    {
+      nsh_freefullpath(tgtpath);
+    }
+
   return ret;
 
 errout_with_tgtpath:
-  nsh_freefullpath(tgtpath);
+  if (ndx == 1)
+    {
+      nsh_freefullpath(tgtpath);
+    }
+
 errout_with_nomemory:
   nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
   return ERROR;
