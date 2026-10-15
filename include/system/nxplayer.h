@@ -40,12 +40,17 @@
  * Public Type Declarations
  ****************************************************************************/
 
+struct nxplayer_s;
+
 struct nxplayer_dec_ops_s
 {
   int format;
-  CODE int (*pre_parse)(int fd, FAR uint32_t *samplerate,
-                        FAR uint8_t *chans, FAR uint8_t *bps);
-  CODE int (*fill_data)(int fd, FAR struct ap_buffer_s *apb);
+  CODE int (*pre_parse)(FAR struct nxplayer_s *pplayer, int fd,
+                        FAR uint32_t *samplerate,
+                        FAR uint8_t *chans, FAR uint8_t *bps,
+                        FAR int *subfmt);
+  CODE int (*fill_data)(FAR struct nxplayer_s *pplayer, int fd,
+                        FAR struct ap_buffer_s *apb);
 };
 
 struct nxplayer_tone_s
@@ -542,8 +547,10 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer);
  *
  ****************************************************************************/
 
-int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
-                       FAR uint8_t *chans, FAR uint8_t *bps);
+int nxplayer_parse_mp3(FAR struct nxplayer_s *pplayer, int fd,
+                       FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps,
+                       FAR int *subfmt);
 
 /****************************************************************************
  * Name: nxplayer_parse_sbc
@@ -559,8 +566,10 @@ int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
  *
  ****************************************************************************/
 
-int nxplayer_parse_sbc(int fd, FAR uint32_t *samplerate,
-                       FAR uint8_t *chans, FAR uint8_t *bps);
+int nxplayer_parse_sbc(FAR struct nxplayer_s *pplayer, int fd,
+                       FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps,
+                       FAR int *subfmt);
 
 /****************************************************************************
  * Name: nxplayer_fill_mp3
@@ -590,7 +599,8 @@ int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
  *
  ****************************************************************************/
 
-int nxplayer_fill_common(int fd, FAR struct ap_buffer_s *apb);
+int nxplayer_fill_common(FAR struct nxplayer_s *pplayer, int fd,
+                         FAR struct ap_buffer_s *apb);
 
 #undef EXTERN
 #ifdef __cplusplus

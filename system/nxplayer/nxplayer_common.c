@@ -48,8 +48,10 @@
  *
  ****************************************************************************/
 
-int nxplayer_fill_common(int fd, FAR struct ap_buffer_s *apb)
+int nxplayer_fill_common(FAR struct nxplayer_s *pplayer, int fd,
+                         FAR struct ap_buffer_s *apb)
 {
+  (void)pplayer;
   /* Read data into the buffer. */
 
   apb->nbytes  = read(fd, apb->samp, apb->nmaxbytes);

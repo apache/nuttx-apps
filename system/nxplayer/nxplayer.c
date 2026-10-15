@@ -723,7 +723,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pplayer,
       return -ENODATA;
     }
 
-  ret = pplayer->ops->fill_data(pplayer->fd, apb);
+  ret = pplayer->ops->fill_data(pplayer, pplayer->fd, apb);
   if (ret < 0)
     {
       /* End of file or read error.. We are finished with this file in any
@@ -2174,8 +2174,8 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
 
   if (pplayer->ops->pre_parse)
     {
-      ret = pplayer->ops->pre_parse(pplayer->fd, &samprate,
-                                    &nchannels, &bpsamp);
+      ret = pplayer->ops->pre_parse(pplayer, pplayer->fd, &samprate,
+                                    &nchannels, &bpsamp, &subfmt);
       if (ret < 0)
         {
           goto err_out;
