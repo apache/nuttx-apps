@@ -48,7 +48,8 @@ jobs:
           source .venv/bin/activate
           pip install codespell cmake-format black isort flake8 cvt2utf
           cd apps
-          commits="${{ github.event.pull_request.base.sha }}..HEAD"
+          git fetch origin ${{ github.base_ref }}
+          commits="$(git merge-base origin/${{ github.base_ref }} HEAD)..HEAD"
           git log --oneline $commits
           echo "../nuttx/tools/checkpatch.sh -c -u -m -g $commits"
           ../nuttx/tools/checkpatch.sh -c -u -m -g $commits
