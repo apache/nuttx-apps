@@ -31,6 +31,7 @@
 
 #include <mqueue.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -40,12 +41,17 @@
  * Public Type Declarations
  ****************************************************************************/
 
+struct nxplayer_s;
+
 struct nxplayer_dec_ops_s
 {
   int format;
-  CODE int (*pre_parse)(int fd, FAR uint32_t *samplerate,
-                        FAR uint8_t *chans, FAR uint8_t *bps);
-  CODE int (*fill_data)(int fd, FAR struct ap_buffer_s *apb);
+  CODE int (*pre_parse)(FAR struct nxplayer_s *pplayer, int fd,
+                        FAR uint32_t *samplerate,
+                        FAR uint8_t *chans, FAR uint8_t *bps,
+                        FAR int *subfmt);
+  CODE int (*fill_data)(FAR struct nxplayer_s *pplayer, int fd,
+                        FAR struct ap_buffer_s *apb);
 };
 
 struct nxplayer_tone_s
@@ -92,6 +98,10 @@ struct nxplayer_s
 
   FAR const struct nxplayer_dec_ops_s *ops;
   struct nxplayer_tone_s tone;
+  uint32_t        wav_data_remaining;
+  uint8_t         wav_block_align;
+  int             wav_error;
+  bool            wav_playback;
 };
 
 typedef int (*nxplayer_func)(FAR struct nxplayer_s *pplayer, char *pargs);
@@ -542,8 +552,10 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pplayer);
  *
  ****************************************************************************/
 
-int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
-                       FAR uint8_t *chans, FAR uint8_t *bps);
+int nxplayer_parse_mp3(FAR struct nxplayer_s *pplayer, int fd,
+                       FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps,
+                       FAR int *subfmt);
 
 /****************************************************************************
  * Name: nxplayer_parse_sbc
@@ -559,8 +571,10 @@ int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
  *
  ****************************************************************************/
 
-int nxplayer_parse_sbc(int fd, FAR uint32_t *samplerate,
-                       FAR uint8_t *chans, FAR uint8_t *bps);
+int nxplayer_parse_sbc(FAR struct nxplayer_s *pplayer, int fd,
+                       FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps,
+                       FAR int *subfmt);
 
 /****************************************************************************
  * Name: nxplayer_fill_mp3
@@ -590,7 +604,16 @@ int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
  *
  ****************************************************************************/
 
-int nxplayer_fill_common(int fd, FAR struct ap_buffer_s *apb);
+int nxplayer_fill_common(FAR struct nxplayer_s *pplayer, int fd,
+                         FAR struct ap_buffer_s *apb);
+
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+extern const struct nxplayer_dec_ops_s g_wav_dec_ops;
+
+bool nxplayer_is_wav_file(FAR const char *pfilename);
+uint32_t nxplayer_wav_rate_cap(uint32_t rate);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus
