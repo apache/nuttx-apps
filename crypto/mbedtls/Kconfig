@@ -766,10 +766,6 @@ config MBEDTLS_CTR_DRBG_C
 	bool "Enable the CTR_DRBG AES-based random generator."
 	default !MBEDTLS_MINIMAL
 
-config MBEDTLS_DES_C
-	bool "Enable the DES block cipher."
-	default !MBEDTLS_MINIMAL
-
 config MBEDTLS_ENTROPY_C
 	bool "Enable the platform-specific entropy code."
 	default !MBEDTLS_MINIMAL
