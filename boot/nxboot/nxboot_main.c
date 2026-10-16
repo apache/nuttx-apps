@@ -54,7 +54,7 @@ static bool g_progress_percent_started = false;
 
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS
 
-#  ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT  
+#  ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
 static const char backtab[] =
 {
   ASCII_BS, ASCII_BS, ASCII_BS, ASCII_BS, '\0',
@@ -136,6 +136,7 @@ void nxboot_progress(int type, ...)
       case nxboot_info:
         {
           int idx = va_arg(arg, int);
+
           assert(progress_msgs[idx]);
           if (strlen(progress_msgs[idx]) == 0)
             {
@@ -145,10 +146,11 @@ void nxboot_progress(int type, ...)
 
           dprintf(STDOUT_FILENO, "%s\n", progress_msgs[idx]);
         }
-      break;
+        break;
       case nxboot_error:
         {
           int idx = va_arg(arg, int);
+
           assert(progress_msgs[idx]);
           if (strlen(progress_msgs[idx]) == 0)
             {
@@ -158,10 +160,11 @@ void nxboot_progress(int type, ...)
 
           dprintf(STDOUT_FILENO, "ERROR: %s\n", progress_msgs[idx]);
         }
-      break;
+        break;
       case nxboot_progress_start:
         {
           int idx = va_arg(arg, int);
+
           assert(progress_msgs[idx]);
           if (strlen(progress_msgs[idx]) == 0)
             {
@@ -172,7 +175,7 @@ void nxboot_progress(int type, ...)
           dprintf(STDOUT_FILENO, "%s", progress_msgs[idx]);
           g_progress_started = true;
         }
-      break;
+        break;
       case nxboot_progress_dot:
         {
           assert(g_progress_started);
@@ -186,8 +189,8 @@ void nxboot_progress(int type, ...)
               dprintf(STDOUT_FILENO, ".");
             }
         }
-      break;
-#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT      
+        break;
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
       case nxboot_progress_percent:
         {
           assert(g_progress_started);
@@ -199,6 +202,7 @@ void nxboot_progress(int type, ...)
           else
             {
               int percent = va_arg(arg, int);
+
               if (!g_progress_percent_started)
                 {
                   g_progress_percent_started = true;
@@ -212,7 +216,7 @@ void nxboot_progress(int type, ...)
               dprintf(STDOUT_FILENO, "%3d%%", MIN(percent, 100));
             }
         }
-      break;
+        break;
 #endif
       case nxboot_progress_end:
         {
@@ -228,18 +232,18 @@ void nxboot_progress(int type, ...)
             }
 
           g_progress_started = false;
-#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT   
+#ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
           g_progress_percent_started = false;
 #endif
         }
-      break;
+        break;
       default:
         {
           assert(false);
           syslog(LOG_ERR, "Invalid progress message type: %d\n", type);
           dprintf(STDOUT_FILENO, "progress: unknown type!\n");
         }
-      break;
+        break;
     }
 
   va_end(arg);
