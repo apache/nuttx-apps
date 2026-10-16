@@ -3089,7 +3089,7 @@
  *            a security risk. We recommend considering stronger ciphers
  *instead.
  */
-#ifdef CONFIG_MBEDTLS_DES_C
+#ifdef CONFIG_MBEDTLS_DES
 #define MBEDTLS_DES_C
 #endif
 
