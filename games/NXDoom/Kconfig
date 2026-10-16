@@ -157,6 +157,60 @@ config GAMES_NXDOOM_KBDPATH
 
 endif # GAMES_NXDOOM_KEYBOARD
 
+comment "Optimizations"
+
+config GAMES_NXDOOM_MAXVISPLANES
+	int "Maximum number of visplanes"
+	default 96
+	---help---
+		DOOM allocates a static number of 'visplanes' to use for gameplay. The
+		original ChocolateDOOM source uses 128 of these. They take a significant
+		amount of memory, so you may reduce the number. However, too few planes
+		may cause 'visplane overflow' errors, which is more common in complex
+		levels.
+
+config GAMES_NXDOOM_MAXOPENINGS
+	int "Maximum number of openings"
+	default 32
+	---help---
+		DOOM allocates a static number of 'openings' to use for gameplay. These
+		are defined as multiples of the SCREENWIDTH (320). The original
+		ChocolateDOOM source uses 64 as the multiplier. They take a significant
+		amount of memory, so you may reduce the number. However, too few
+		openings will cause 'opening overflow' errors.
+
+config GAMES_NXDOOM_MAXVISSPRITES
+	int "Maximum number of visible sprites"
+	default 96
+	---help---
+		DOOM allocates a static number of 'vissprites' to use for gameplay. The
+		original ChocolateDOOM source uses 128. They take a significant amount
+		of memory, so you may reduce the number. However, too few will cause
+		overflow errors.
+
+config GAMES_NXDOOM_MAXDRAWSEGS
+	int "Maximum number of drawsegs"
+	default 192
+	---help---
+		DOOM allocates a static number of 'drawsegs' to use for gameplay. The
+		original ChocolateDOOM source uses 256. They take a significant amount of
+		memory, so you may reduce the number. However, too few will cause
+		rendering issues (overflow is checked to avoid crashes).
+
+config GAMES_NXDOOM_STATDUMP_MAX_CAPTURES
+	int "Maximum statdump capture buffer entries"
+	default 32
+	range 1 1024
+	---help---
+		Number of diagnostic playtime-statistics capture slots.
+
+config GAMES_NXDOOM_RANGECHECK
+	bool "Perform range checks"
+	default y
+	---help---
+		The ChocolateDOOM source includes the ability to optionally exclude
+		range checking on some array operations.
+
 config GAMES_NXDOOM_FB_CMAP
 	bool "Draw through the frame buffer colour map"
 	default n
@@ -211,59 +265,5 @@ config GAMES_NXDOOM_STATIC_SCRNBUF
 		linker places it in internal RAM along with the rest of .bss.  It
 		costs 64000 bytes of RAM whether DOOM runs or not, so it is only
 		worth it when internal RAM is plentiful and the heap is not.
-
-comment "Optimizations"
-
-config GAMES_NXDOOM_MAXVISPLANES
-	int "Maximum number of visplanes"
-	default 96
-	---help---
-		DOOM allocates a static number of 'visplanes' to use for gameplay. The
-		original ChocolateDOOM source uses 128 of these. They take a significant
-		amount of memory, so you may reduce the number. However, too few planes
-		may cause 'visplane overflow' errors, which is more common in complex
-		levels.
-
-config GAMES_NXDOOM_MAXOPENINGS
-	int "Maximum number of openings"
-	default 32
-	---help---
-		DOOM allocates a static number of 'openings' to use for gameplay. These
-		are defined as multiples of the SCREENWIDTH (320). The original
-		ChocolateDOOM source uses 64 as the multiplier. They take a significant
-		amount of memory, so you may reduce the number. However, too few
-		openings will cause 'opening overflow' errors.
-
-config GAMES_NXDOOM_MAXVISSPRITES
-	int "Maximum number of visible sprites"
-	default 96
-	---help---
-		DOOM allocates a static number of 'vissprites' to use for gameplay. The
-		original ChocolateDOOM source uses 128. They take a significant amount
-		of memory, so you may reduce the number. However, too few will cause
-		overflow errors.
-
-config GAMES_NXDOOM_MAXDRAWSEGS
-	int "Maximum number of drawsegs"
-	default 192
-	---help---
-		DOOM allocates a static number of 'drawsegs' to use for gameplay. The
-		original ChocolateDOOM source uses 256. They take a significant amount of
-		memory, so you may reduce the number. However, too few will cause
-		rendering issues (overflow is checked to avoid crashes).
-
-config GAMES_NXDOOM_STATDUMP_MAX_CAPTURES
-	int "Maximum statdump capture buffer entries"
-	default 32
-	range 1 1024
-	---help---
-		Number of diagnostic playtime-statistics capture slots.
-
-config GAMES_NXDOOM_RANGECHECK
-	bool "Perform range checks"
-	default y
-	---help---
-		The ChocolateDOOM source includes the ability to optionally exclude
-		range checking on some array operations.
 
 endif # GAMES_NXDOOM
