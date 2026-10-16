@@ -284,4 +284,16 @@ choice # Memory allocation implementaiton
 	
 endchoice # Memory allocation implementaiton
 
+if GAMES_NXDOOM_ALLOC_ZZONE
+
+config GAMES_NXDOOM_ALLOC_ZZONESTATIC
+	bool "Use static z_zone"
+	default n
+	---help---
+		When using the `z_zone` allocator, use static memory to back the
+		allocations instead of getting the initial memory from the heap
+		using `malloc()`.
+
+endif # GAMES_NXDOOM_ALLOC_ZZONE
+
 endif # GAMES_NXDOOM
