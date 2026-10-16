@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <syslog.h>
+#include <unistd.h>
 #include <nuttx/ascii.h>
 #include <sys/param.h>
 #include <nxboot.h>
