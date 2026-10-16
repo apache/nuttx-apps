@@ -266,4 +266,22 @@ config GAMES_NXDOOM_STATIC_SCRNBUF
 		costs 64000 bytes of RAM whether DOOM runs or not, so it is only
 		worth it when internal RAM is plentiful and the heap is not.
 
+choice # Memory allocation implementaiton
+	prompt "Memory allocation implementation"
+	default GAMES_NXDOOM_ALLOC_ZNATIVE
+
+	config GAMES_NXDOOM_ALLOC_ZNATIVE
+		bool "z_native"
+		---help---
+			Use the `z_native` allocator, which relies on NuttX's implementation
+			of `malloc()` and `free()` to handle memory allocation.
+
+	config GAMES_NXDOOM_ALLOC_ZZONE
+		bool "z_zone"
+		---help---
+			Use the `z_zone` allocator, which is DOOM's implementation that acts
+			on an up-front allocated chunk of memory given by `i_zone_base()`.
+	
+endchoice # Memory allocation implementaiton
+
 endif # GAMES_NXDOOM

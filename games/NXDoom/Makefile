@@ -22,7 +22,16 @@ CFLAGS += -I$(PCSOUNDSRCDIR)
 # Source files
 
 COMMONSRCS = i_system.c m_argv.c m_misc.c # Excluding i_main.c
+
+# Choose memory allocation method
+
+ifeq ($(CONFIG_GAMES_NXDOOM_ALLOC_ZNATIVE),y)
 COMMONSRCS += z_native.c # Native memory allocation
+endif
+
+ifeq ($(CONFIG_GAMES_NXDOOM_ALLOC_ZZONE),y)
+COMMONSRCS += z_zone.c # DOOM memory allocation
+endif
 
 DEHACKEDSRCS = deh_io.c deh_main.c deh_mapping.c deh_text.c
 
