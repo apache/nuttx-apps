@@ -3089,7 +3089,12 @@
  *            a security risk. We recommend considering stronger ciphers
  *instead.
  */
-#ifdef CONFIG_MBEDTLS_DES_C
+
+/* No Kconfig option: the Espressif HAL reads CONFIG_MBEDTLS_DES_C for its
+ * own Mbed TLS, which does not support DES.
+ */
+
+#ifndef CONFIG_MBEDTLS_MINIMAL
 #define MBEDTLS_DES_C
 #endif
 
