@@ -137,4 +137,11 @@ config GAMES_NXDOOM_ALLOC_ZZONESTATIC
 
 endif # GAMES_NXDOOM_ALLOC_ZZONE
 
+config GAMES_NXDOOM_NOWIPE
+	bool "Disable wipe animation"
+	default n
+	---help---
+		DOOM has a wipe animation between screens which requires costly
+		`z_malloc` allocations. Enabling this option disables that animation.
+
 endmenu # Optimizations

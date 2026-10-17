@@ -43,11 +43,20 @@ enum
  * Public Function Prototypes
  ****************************************************************************/
 
+#ifndef CONFIG_GAMES_NXDOOM_NOWIPE
 int wipe_start_screen(int x, int y, int width, int height);
 
 int wipe_endscreen(int x, int y, int width, int height);
 
 int wipe_screen_wipe(int wipeno, int x, int y, int width, int height,
                      int ticks);
+#else
 
+/* Disable wipe animations with no-ops. */
+
+#define wipe_start_screen(x, y, width, height) ((void)(0))
+#define wipe_endscreen(x, y, width, height) ((void)(0))
+#define wipe_screen_wipe(wipeno, x, y, width, height, ticks) ((int)(1))
+
+#endif /* CONFIG_GAMES_NXDOOM_NOWIPE */
 #endif /* __F_WIPE_H__ */
