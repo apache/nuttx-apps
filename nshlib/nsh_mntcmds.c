@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 #include <sys/mount.h>
+#include <sys/param.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -45,6 +46,106 @@
 
 #include "nsh.h"
 #include "nsh_console.h"
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && !defined(CONFIG_NSH_DISABLE_MOUNT)
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct mount_flag_s
+{
+  FAR const char *name;  /* Option name in the -o list */
+  unsigned long set;     /* Mount flags that the option sets */
+  unsigned long clear;   /* Mount flags that the option clears */
+};
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static const struct mount_flag_s g_mount_flags[] =
+{
+  { "ro",      MS_RDONLY,      0              },
+  { "rw",      0,              MS_RDONLY      },
+  { "noexec",  MS_NOEXEC,      0              },
+  { "exec",    0,              MS_NOEXEC      },
+  { "nosuid",  MS_NOSUID,      0              },
+  { "suid",    0,              MS_NOSUID      },
+  { "nodev",   MS_NODEV,       0              },
+  { "dev",     0,              MS_NODEV       },
+  { "sync",    MS_SYNCHRONOUS, 0              },
+  { "async",   0,              MS_SYNCHRONOUS },
+  { "noatime", MS_NOATIME,     0              },
+  { "atime",   0,              MS_NOATIME     },
+};
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: mount_parse_options
+ *
+ * Description:
+ *   Remove the generic options (ro, noexec, ...) from the comma-separated
+ *   list in options, and return them as mount flags.  The other options
+ *   stay in options for the file system.  options is empty if no option
+ *   is left.
+ *
+ ****************************************************************************/
+
+static unsigned long mount_parse_options(FAR char *options)
+{
+  FAR char *src = options;
+  FAR char *dst = options;
+  unsigned long flags = 0;
+  FAR char *end;
+  size_t len;
+  int i;
+
+  while (*src != '\0')
+    {
+      end = strchrnul(src, ',');
+      len = end - src;
+
+      for (i = 0; i < nitems(g_mount_flags); i++)
+        {
+          if (strncmp(g_mount_flags[i].name, src, len) == 0 &&
+              g_mount_flags[i].name[len] == '\0')
+            {
+              break;
+            }
+        }
+
+      if (i < nitems(g_mount_flags))
+        {
+          flags |= g_mount_flags[i].set;
+          flags &= ~g_mount_flags[i].clear;
+        }
+      else if (len > 0)
+        {
+          /* Keep an option of the file system */
+
+          if (dst != options)
+            {
+              *dst++ = ',';
+            }
+
+          memmove(dst, src, len);
+          dst += len;
+        }
+
+      src += len;
+      if (*src == ',')
+        {
+          src++;
+        }
+    }
+
+  *dst = '\0';
+  return flags;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -92,7 +193,8 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   FAR const char *target;
   FAR char *fulltarget;
   FAR const char *filesystem = NULL;
-  FAR const char *options = NULL;
+  FAR char *options = NULL;
+  unsigned long flags = 0;
   bool badarg = false;
   int option;
   int ret;
@@ -208,9 +310,19 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       goto errout;
     }
 
+  /* Take the generic options (ro, noexec, ...) out of the -o list.  The
+   * rest goes to the file system.
+   */
+
+  if (options)
+    {
+      flags = mount_parse_options(options);
+    }
+
   /* Perform the mount */
 
-  ret = mount(fullsource, fulltarget, filesystem, 0, options);
+  ret = mount(fullsource, fulltarget, filesystem, flags,
+              options && *options != '\0' ? options : NULL);
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "mount", NSH_ERRNO);
