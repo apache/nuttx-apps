@@ -86,19 +86,12 @@ config GAMES_NXDOOM_ROWSTAGE
 		fit is written directly, as if this were disabled.
 
 config GAMES_NXDOOM_STATIC_SCRNBUF
-	bool "Place the render target in .bss"
+	bool "Statically allocate render targets"
 	default n
 	---help---
-		DOOM renders into a 320x200 buffer that is normally taken from the
-		heap.  On a board whose heap is mostly slow external memory the
-		allocation lands there, which is close to the worst case:  the
-		renderer draws in vertical columns, so consecutive writes are one
-		screen width apart and none of them coalesce.
-
-		Enable this to make the buffer a static object instead, so the
-		linker places it in internal RAM along with the rest of .bss.  It
-		costs 64000 bytes of RAM whether DOOM runs or not, so it is only
-		worth it when internal RAM is plentiful and the heap is not.
+		For devices with more space available for .bss and less for the heap,
+		this option enables static memory as the backing memory for rendering
+		targets (i.e. screen, status bar, etc.).
 
 choice # Memory allocation implementation
 	prompt "Memory allocation implementation"
