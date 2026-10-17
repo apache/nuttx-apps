@@ -118,6 +118,7 @@ static int cp_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *srcpath,
   struct stat buf;
   FAR char *allocpath = NULL;
   int oflags = O_WRONLY | O_CREAT | O_TRUNC;
+  mode_t mode = 0666;
   int rdfd;
   int wrfd;
   int ret = ERROR;
@@ -127,6 +128,13 @@ static int cp_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *srcpath,
     {
       nsh_error(vtbl, g_fmtcmdfailed, "cp", "open_rdfd", NSH_ERRNO);
       return ret;
+    }
+
+  /* A new file gets the execute permission of the source file */
+
+  if (fstat(rdfd, &buf) == 0)
+    {
+      mode |= buf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH);
     }
 
   /* Check if the destination is a directory */
@@ -165,7 +173,7 @@ static int cp_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *srcpath,
         }
     }
 
-  wrfd = open(destpath, oflags, 0666);
+  wrfd = open(destpath, oflags, mode);
   if (wrfd < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, "cp", "open_wrfd", NSH_ERRNO);
