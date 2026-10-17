@@ -68,4 +68,6 @@ source "$APPSDIR/games/NXDoom/Kconfig.input"
 
 source "$APPSDIR/games/NXDoom/Kconfig.optimizations"
 
+source "$APPSDIR/games/NXDoom/Kconfig.debug"
+
 endif # GAMES_NXDOOM

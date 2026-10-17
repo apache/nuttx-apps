@@ -45,13 +45,6 @@ config GAMES_NXDOOM_STATDUMP_MAX_CAPTURES
 	---help---
 		Number of diagnostic playtime-statistics capture slots.
 
-config GAMES_NXDOOM_RANGECHECK
-	bool "Perform range checks"
-	default y
-	---help---
-		The ChocolateDOOM source includes the ability to optionally exclude
-		range checking on some array operations.
-
 config GAMES_NXDOOM_FB_CMAP
 	bool "Draw through the frame buffer colour map"
 	default n

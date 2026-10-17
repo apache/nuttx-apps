@@ -87,6 +87,10 @@ static memzone_t *mainzone;
 static boolean zero_on_free;
 static boolean scan_on_free;
 
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+static size_t g_allocated;
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -152,6 +156,10 @@ void z_init(void)
   memblock_t *block;
   int size;
 
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+  g_allocated = 0;
+#endif
+
   mainzone = (memzone_t *)i_zone_base(&size);
   mainzone->size = size;
 
@@ -196,7 +204,10 @@ void z_free(void *ptr)
 
   block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 
-  if (block->id != ZONEID) i_error("z_free: freed a pointer without ZONEID");
+  if (block->id != ZONEID)
+    {
+      i_error("z_free: freed a pointer without ZONEID");
+    }
 
   if (block->tag != PU_FREE && block->user != NULL)
     {
@@ -208,6 +219,10 @@ void z_free(void *ptr)
   block->tag = PU_FREE;
   block->user = NULL;
   block->id = 0;
+
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+  g_allocated -= block->size;
+#endif
 
   /* If the -zonezero flag is provided, we zero out the block on free
    * to break code that depends on reading freed memory.
@@ -233,7 +248,10 @@ void z_free(void *ptr)
       other->next = block->next;
       other->next->prev = other;
 
-      if (block == mainzone->rover) mainzone->rover = other;
+      if (block == mainzone->rover)
+        {
+          mainzone->rover = other;
+        }
 
       block = other;
     }
@@ -247,7 +265,10 @@ void z_free(void *ptr)
       block->next = other->next;
       block->next->prev = block;
 
-      if (other == mainzone->rover) mainzone->rover = block;
+      if (other == mainzone->rover)
+        {
+          mainzone->rover = block;
+        }
     }
 }
 
@@ -282,7 +303,10 @@ void *z_malloc(int size, int tag, void *user)
 
   base = mainzone->rover;
 
-  if (base->prev->tag == PU_FREE) base = base->prev;
+  if (base->prev->tag == PU_FREE)
+    {
+      base = base->prev;
+    }
 
   rover = base;
   start = base->prev;
@@ -345,7 +369,9 @@ void *z_malloc(int size, int tag, void *user)
     }
 
   if (user == NULL && tag >= PU_PURGELEVEL)
-    i_error("z_malloc: an owner is required for purgeable blocks");
+    {
+      i_error("z_malloc: an owner is required for purgeable blocks");
+    }
 
   base->user = user;
   base->tag = tag;
@@ -363,6 +389,10 @@ void *z_malloc(int size, int tag, void *user)
 
   base->id = ZONEID;
 
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+  g_allocated += size;
+  printf("Currently allocated: %zu bytes\n", g_allocated);
+#endif
   return result;
 }
 
@@ -384,10 +414,15 @@ void z_free_tags(int lowtag, int hightag)
 
       /* free block? */
 
-      if (block->tag == PU_FREE) continue;
+      if (block->tag == PU_FREE)
+        {
+          continue;
+        }
 
       if (block->tag >= lowtag && block->tag <= hightag)
-        z_free((byte *)block + sizeof(memblock_t));
+        {
+          z_free((byte *)block + sizeof(memblock_t));
+        }
     }
 }
 
@@ -410,8 +445,10 @@ void z_dump_heap(int lowtag, int hightag)
   for (block = mainzone->blocklist.next; ; block = block->next)
     {
       if (block->tag >= lowtag && block->tag <= hightag)
-        printf("block:%p    size:%7i    user:%p    tag:%3i\n", block,
-               block->size, block->user, block->tag);
+        {
+          printf("block:%p    size:%7i    user:%p    tag:%3i\n", block,
+                 block->size, block->user, block->tag);
+        }
 
       if (block->next == &mainzone->blocklist)
         {
@@ -419,13 +456,19 @@ void z_dump_heap(int lowtag, int hightag)
         }
 
       if ((byte *)block + block->size != (byte *)block->next)
-        printf("ERROR: block size does not touch the next block\n");
+        {
+          printf("ERROR: block size does not touch the next block\n");
+        }
 
       if (block->next->prev != block)
-        printf("ERROR: next block doesn't have proper back link\n");
+        {
+          printf("ERROR: next block doesn't have proper back link\n");
+        }
 
       if (block->tag == PU_FREE && block->next->tag == PU_FREE)
-        printf("ERROR: two consecutive free blocks\n");
+        {
+          printf("ERROR: two consecutive free blocks\n");
+        }
     }
 }
 
@@ -450,13 +493,19 @@ void z_file_dump_heap(FILE *f)
         }
 
       if ((byte *)block + block->size != (byte *)block->next)
-        fprintf(f, "ERROR: block size does not touch the next block\n");
+        {
+          fprintf(f, "ERROR: block size does not touch the next block\n");
+        }
 
       if (block->next->prev != block)
-        fprintf(f, "ERROR: next block doesn't have proper back link\n");
+        {
+          fprintf(f, "ERROR: next block doesn't have proper back link\n");
+        }
 
       if (block->tag == PU_FREE && block->next->tag == PU_FREE)
-        fprintf(f, "ERROR: two consecutive free blocks\n");
+        {
+          fprintf(f, "ERROR: two consecutive free blocks\n");
+        }
     }
 }
 
@@ -476,13 +525,21 @@ void z_check_heap(void)
         }
 
       if ((byte *)block + block->size != (byte *)block->next)
-        i_error("z_check_heap: block size does not touch the next block\n");
+        {
+          i_error(
+            "z_check_heap: block size does not touch the next block\n");
+        }
 
       if (block->next->prev != block)
-        i_error("z_check_heap: next block doesn't have proper back link\n");
+        {
+          i_error(
+            "z_check_heap: next block doesn't have proper back link\n");
+        }
 
       if (block->tag == PU_FREE && block->next->tag == PU_FREE)
-        i_error("z_check_heap: two consecutive free blocks\n");
+        {
+          i_error("z_check_heap: two consecutive free blocks\n");
+        }
     }
 }
 
@@ -497,12 +554,16 @@ void z_change_tag2(void *ptr, int tag, const char *file, int line)
   block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 
   if (block->id != ZONEID)
-    i_error("%s:%i: z_change_tag: block without a ZONEID!", file, line);
+    {
+      i_error("%s:%i: z_change_tag: block without a ZONEID!", file, line);
+    }
 
   if (tag >= PU_PURGELEVEL && block->user == NULL)
-    i_error("%s:%i: z_change_tag: an owner is required "
-            "for purgeable blocks",
-            file, line);
+    {
+      i_error("%s:%i: z_change_tag: an owner is required "
+              "for purgeable blocks",
+              file, line);
+    }
 
   block->tag = tag;
 }
@@ -541,7 +602,9 @@ int z_free_memory(void)
        block = block->next)
     {
       if (block->tag == PU_FREE || block->tag >= PU_PURGELEVEL)
-        free += block->size;
+        {
+          free += block->size;
+        }
     }
 
   return free;
