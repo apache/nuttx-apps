@@ -719,14 +719,6 @@ static default_t extra_defaults_list[] =
 
   CONFIG_VARIABLE_INT(show_endoom),
 
-  /* @game doom strife
-   *
-   * If non-zero, a disk activity indicator is displayed when data is read
-   * from disk. If zero, the disk activity indicator is not displayed.
-   */
-
-  CONFIG_VARIABLE_INT(show_diskicon),
-
   /* If non-zero, save screenshots in PNG format. If zero, screenshots are
    * saved in PCX format, as Vanilla Doom does.
    */
@@ -1875,7 +1867,10 @@ static void save_default_collection(default_collection_t *collection)
   FILE *f;
 
   f = fopen(collection->filename, "w");
-  if (!f) return; /* can't write the file, but don't complain */
+  if (!f)
+    {
+      return; /* can't write the file, but don't complain */
+    }
 
   defaults = collection->defaults;
 
@@ -1895,77 +1890,79 @@ static void save_default_collection(default_collection_t *collection)
       chars_written = fprintf(f, "%s ", defaults[i].name);
 
       for (; chars_written < 30; ++chars_written)
-        fprintf(f, " ");
+        {
+          fprintf(f, " ");
+        }
 
       /* Print the value */
 
       switch (defaults[i].type)
         {
-        case DEFAULT_KEY:
+          case DEFAULT_KEY:
 
-          /* use the untranslated version if we can, to reduce
-           * the possibility of screwing up the user's config
-           * file
-           */
+            /* use the untranslated version if we can, to reduce
+             * the possibility of screwing up the user's config
+             * file
+             */
 
-          v = *defaults[i].location.i;
+            v = *defaults[i].location.i;
 
-          if (v == KEY_RSHIFT)
-            {
-              /* Special case: for shift, force scan code for
-               * right shift, as this is what Vanilla uses.
-               * This overrides the change check below, to fix
-               * configuration files made by old versions that
-               * mistakenly used the scan code for left shift.
-               */
+            if (v == KEY_RSHIFT)
+              {
+                /* Special case: for shift, force scan code for
+                 * right shift, as this is what Vanilla uses.
+                 * This overrides the change check below, to fix
+                 * configuration files made by old versions that
+                 * mistakenly used the scan code for left shift.
+                 */
 
-              v = 54;
-            }
-          else if (defaults[i].untranslated &&
-                   v == defaults[i].original_translated)
-            {
-              /* Has not been changed since the last time we read the config
-               * file.
-               */
+                v = 54;
+              }
+            else if (defaults[i].untranslated &&
+                     v == defaults[i].original_translated)
+              {
+                /* Has not been changed since the last time we read the
+                 * config file.
+                 */
 
-              v = defaults[i].untranslated;
-            }
-          else
-            {
-              /* search for a reverse mapping back to a scancode
-               * in the scantokey table
-               */
+                v = defaults[i].untranslated;
+              }
+            else
+              {
+                /* search for a reverse mapping back to a scancode
+                 * in the scantokey table
+                 */
 
-              int s;
+                int s;
 
-              for (s = 0; s < 128; ++s)
-                {
-                  if (scantokey[s] == v)
-                    {
-                      v = s;
-                      break;
-                    }
-                }
-            }
+                for (s = 0; s < 128; ++s)
+                  {
+                    if (scantokey[s] == v)
+                      {
+                        v = s;
+                        break;
+                      }
+                  }
+              }
 
-          fprintf(f, "%i", v);
-          break;
+            fprintf(f, "%i", v);
+            break;
 
-        case DEFAULT_INT:
-          fprintf(f, "%i", *defaults[i].location.i);
-          break;
+          case DEFAULT_INT:
+            fprintf(f, "%i", *defaults[i].location.i);
+            break;
 
-        case DEFAULT_INT_HEX:
-          fprintf(f, "0x%x", *defaults[i].location.i);
-          break;
+          case DEFAULT_INT_HEX:
+            fprintf(f, "0x%x", *defaults[i].location.i);
+            break;
 
-        case DEFAULT_FLOAT:
-          fprintf(f, "%f", *defaults[i].location.f);
-          break;
+          case DEFAULT_FLOAT:
+            fprintf(f, "%f", *defaults[i].location.f);
+            break;
 
-        case DEFAULT_STRING:
-          fprintf(f, "\"%s\"", *defaults[i].location.s);
-          break;
+          case DEFAULT_STRING:
+            fprintf(f, "\"%s\"", *defaults[i].location.s);
+            break;
         }
 
       fprintf(f, "\n");
@@ -1987,9 +1984,13 @@ static int parse_int_parameter(const char *strparm)
   int param;
 
   if (strparm[0] == '0' && strparm[1] == 'x')
-    sscanf(strparm + 2, "%x", (unsigned int *)&param);
+    {
+      sscanf(strparm + 2, "%x", (unsigned int *)&param);
+    }
   else
-    sscanf(strparm, "%i", &param);
+    {
+      sscanf(strparm, "%i", &param);
+    }
 
   return param;
 }
@@ -2002,77 +2003,77 @@ static void set_variable(default_t *def, const char *value)
 
   switch (def->type)
     {
-    case DEFAULT_STRING:
-      *def->location.s = m_string_duplicate(value);
-      break;
+      case DEFAULT_STRING:
+        *def->location.s = m_string_duplicate(value);
+        break;
 
-    case DEFAULT_INT:
-    case DEFAULT_INT_HEX:
-      *def->location.i = parse_int_parameter(value);
-      break;
+      case DEFAULT_INT:
+      case DEFAULT_INT_HEX:
+        *def->location.i = parse_int_parameter(value);
+        break;
 
-    case DEFAULT_KEY:
+      case DEFAULT_KEY:
 
-      /* translate scancodes read from config
-       * file (save the old value in untranslated)
-       */
-
-      intparm = parse_int_parameter(value);
-      def->untranslated = intparm;
-      if (intparm >= 0 && intparm < 128)
-        {
-          intparm = scantokey[intparm];
-        }
-      else
-        {
-          intparm = 0;
-        }
-
-      def->original_translated = intparm;
-      *def->location.i = intparm;
-      break;
-
-    case DEFAULT_FLOAT:
-      {
-        /* Different locales use different decimal separators.
-         * However, the choice of the current locale isn't always
-         * under our own control. If the atof() function fails to
-         * parse the string representing the floating point number
-         * using the current locale's decimal separator, it will
-         * return 0, resulting in silent sound effects. To
-         * mitigate this, we replace the first non-digit,
-         * non-minus character in the string with the current
-         * locale's decimal separator before passing it to atof().
+        /* translate scancodes read from config
+         * file (save the old value in untranslated)
          */
 
-        struct lconv *lc = localeconv();
-        char dec;
-        char *str;
-        int i = 0;
-
-        dec = lc->decimal_point[0];
-        str = m_string_duplicate(value);
-
-        /* Skip sign indicators. */
-
-        if (str[i] == '-' || str[i] == '+')
+        intparm = parse_int_parameter(value);
+        def->untranslated = intparm;
+        if (intparm >= 0 && intparm < 128)
           {
-            i++;
+            intparm = scantokey[intparm];
+          }
+        else
+          {
+            intparm = 0;
           }
 
-        for (; str[i] != '\0'; i++)
-          {
-            if (!isdigit(str[i]))
-              {
-                str[i] = dec;
-                break;
-              }
-          }
+        def->original_translated = intparm;
+        *def->location.i = intparm;
+        break;
 
-        *def->location.f = (float)atof(str);
-        free(str);
-      }
-      break;
+      case DEFAULT_FLOAT:
+        {
+          /* Different locales use different decimal separators.
+           * However, the choice of the current locale isn't always
+           * under our own control. If the atof() function fails to
+           * parse the string representing the floating point number
+           * using the current locale's decimal separator, it will
+           * return 0, resulting in silent sound effects. To
+           * mitigate this, we replace the first non-digit,
+           * non-minus character in the string with the current
+           * locale's decimal separator before passing it to atof().
+           */
+
+          struct lconv *lc = localeconv();
+          char dec;
+          char *str;
+          int i = 0;
+
+          dec = lc->decimal_point[0];
+          str = m_string_duplicate(value);
+
+          /* Skip sign indicators. */
+
+          if (str[i] == '-' || str[i] == '+')
+            {
+              i++;
+            }
+
+          for (; str[i] != '\0'; i++)
+            {
+              if (!isdigit(str[i]))
+                {
+                  str[i] = dec;
+                  break;
+                }
+            }
+
+          *def->location.f = (float)atof(str);
+          free(str);
+        }
+        break;
     }
 }
 
@@ -2181,6 +2182,7 @@ static char *get_default_config_dir(void)
 
   char *result = CONFIG_GAMES_NXDOOM_PREFDIR "/";
   char *copy = m_string_duplicate(result);
+
   return copy;
 }
 
@@ -2480,6 +2482,7 @@ char *m_get_autoload_dir(const char *iwadname)
   if (autoload_path == NULL || strlen(autoload_path) == 0)
     {
       char *prefdir = CONFIG_GAMES_NXDOOM_PREFDIR "/";
+
       autoload_path = m_string_join(prefdir, "autoload", NULL);
     }
 

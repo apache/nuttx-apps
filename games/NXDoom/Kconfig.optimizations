@@ -137,4 +137,11 @@ config GAMES_NXDOOM_NOWIPE
 		DOOM has a wipe animation between screens which requires costly
 		`z_malloc` allocations. Enabling this option disables that animation.
 
+config GAMES_NXDOOM_SHOWDISKICON
+	bool "Show disk icon"
+	default n
+	---help---
+		DOOM can show a disk activity indicator when reading data. Disabling
+		this option removes the animation, which saves memory allocations.
+
 endmenu # Optimizations
