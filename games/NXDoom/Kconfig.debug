@@ -1,0 +1,23 @@
+menuconfig GAMES_NXDOOM_DEBUG
+	bool "Debug options"
+	default n
+	---help---
+		Enables debugging options for the NXDoom port.
+	
+if GAMES_NXDOOM_DEBUG
+
+config GAMES_NXDOOM_RANGECHECK
+	bool "Perform range checks"
+	default y
+	---help---
+		The ChocolateDOOM source includes the ability to optionally exclude
+		range checking on some array operations.
+
+config GAMES_NXDOOM_ALLOCPROF
+	bool "Profile allocator"
+	default n
+	---help---
+		Print the running tally of allocated memory for NXDoom to the console as
+		allocations are made.
+
+endif # GAMES_NXDOOM_DEBUG

@@ -1,0 +1,9 @@
+menu "Graphics options"
+
+config GAMES_NXDOOM_FBPATH
+	string "Framebuffer path"
+	default "/dev/fb0"
+	---help---
+		Path to the framebuffer character driver to use for rendering.
+
+endmenu # Graphics options

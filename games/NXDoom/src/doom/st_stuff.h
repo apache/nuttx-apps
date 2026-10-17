@@ -50,7 +50,12 @@
  * Public Data
  ****************************************************************************/
 
+#ifdef GAMES_NXDOOM_STATIC_SCRNBUF
+extern pixel_t st_backing_screen[];
+#else
 extern pixel_t *st_backing_screen;
+#endif
+
 extern cheatseq_t cheat_mus;
 extern cheatseq_t cheat_god;
 extern cheatseq_t cheat_ammo;

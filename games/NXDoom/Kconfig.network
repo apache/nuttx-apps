@@ -1,0 +1,38 @@
+menuconfig GAMES_NXDOOM_NET
+	bool "Networking features"
+	default n
+	---help---
+		Not ported! Will not work.
+
+if GAMES_NXDOOM_NET
+
+config GAMES_NXDOOM_NET_LOGS
+	bool "Enable network logging"
+	default n
+	---help---
+		Enables log information from the network features.
+
+config GAMES_NXDOOM_NET_MAXPLAYERS
+	int "Maximum number of players"
+	default 6
+	---help---
+		The maximum number of players, multiplayer/networking.
+		This is the maximum supported by the networking code; individual games
+		have their own values for MAXPLAYERS that can be smaller.
+		ChocolateDOOM default was 8.
+
+config GAMES_NXDOOM_NET_BACKUPTICS
+	int "Maximum number of backup tics"
+	default 32
+	---help---
+		The maximum number of backup tics to store locally during a net game.
+		ChocalateDOOM default was 128.
+
+config GAMES_NXDOOM_NET_MAXPLAYERNAME
+	int "Maximum player name length"
+	default 16
+	---help---
+		The maximum number of characters in a player name for netgames.
+		ChocalateDOOM default was 30.
+
+endif # GAMES_NXDOOM_NET

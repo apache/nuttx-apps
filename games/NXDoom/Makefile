@@ -22,7 +22,16 @@ CFLAGS += -I$(PCSOUNDSRCDIR)
 # Source files
 
 COMMONSRCS = i_system.c m_argv.c m_misc.c # Excluding i_main.c
+
+# Choose memory allocation method
+
+ifeq ($(CONFIG_GAMES_NXDOOM_ALLOC_ZNATIVE),y)
 COMMONSRCS += z_native.c # Native memory allocation
+endif
+
+ifeq ($(CONFIG_GAMES_NXDOOM_ALLOC_ZZONE),y)
+COMMONSRCS += z_zone.c # DOOM memory allocation
+endif
 
 DEHACKEDSRCS = deh_io.c deh_main.c deh_mapping.c deh_text.c
 
@@ -47,7 +56,6 @@ BASESRCS =        \
   p_rejectpad.c   \
   memio.c         \
   tables.c        \
-  v_diskicon.c    \
   v_video.c       \
   w_checksum.c    \
   w_main.c        \
@@ -60,6 +68,10 @@ BASESRCS =        \
 
 ifeq ($(CONFIG_GAMES_NXDOOM_ENDOOM),y)
 BASESRCS += i_endoom.c
+endif
+
+ifeq ($(CONFIG_GAMES_NXDOOM_SHOWDISKICON),y)
+BASESRCS += v_diskicon.c # Show disk icon on data load
 endif
 
 NETSRCS =         \
@@ -93,7 +105,6 @@ DOOMSRCS =     \
   doomstat.c   \
   dstrings.c   \
   f_finale.c   \
-  f_wipe.c     \
   g_game.c     \
   hu_lib.c     \
   hu_stuff.c   \
@@ -131,6 +142,10 @@ DOOMSRCS =     \
   st_lib.c     \
   st_stuff.c   \
   wi_stuff.c   
+
+ifeq ($(CONFIG_GAMES_NXDOOM_NOWIPE),)
+DOOMSRCS += f_wipe.c # Include wipe animation
+endif
 
 TXTSCREENSRCS =       \
   txt_conditional.c   \

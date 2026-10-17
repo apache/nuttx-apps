@@ -70,8 +70,8 @@ struct memblock_s
 
 static memblock_t *allocated_blocks[PU_NUM_TAGS];
 
-#ifdef TESTING
-static int test_malloced = 0;
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+static size_t g_allocated;
 #endif
 
 /****************************************************************************
@@ -210,43 +210,15 @@ static boolean clear_cache(int size)
  * Public Functions
  ****************************************************************************/
 
-#ifdef TESTING
-void *test_malloc(size_t size)
-{
-  int *result;
-
-  if (test_malloced + size > 2 * 1024 * 1024)
-    {
-      return NULL;
-    }
-
-  test_malloced += size;
-
-  result = malloc(size + sizeof(int));
-
-  *result = size;
-
-  return result + 1;
-}
-
-void test_free(void *data)
-{
-  int *i;
-
-  i = ((int *)data) - 1;
-
-  test_malloced -= *i;
-
-  free(i);
-}
-#endif /* #ifdef TESTING */
-
 /****************************************************************************
  * Name: z_init
  ****************************************************************************/
 
 void z_init(void)
 {
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+  g_allocated = 0;
+#endif
   memset(allocated_blocks, 0, sizeof(allocated_blocks));
   printf("zone memory: Using native C allocator.\n");
 }
@@ -273,6 +245,9 @@ void z_free(void *ptr)
       *block->user = NULL;
     }
 
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+  g_allocated -= block->size;
+#endif
   z_remove_block(block);
 
   /* Free back to system */
@@ -287,7 +262,7 @@ void z_free(void *ptr)
  *  You can pass a NULL user if the tag is < PU_PURGELEVEL.
  *
  * Return:
- *   The translated key code.
+ *   Allocated memory pointer.
  *
  ****************************************************************************/
 
@@ -344,6 +319,10 @@ void *z_malloc(int size, int tag, void *user)
       *newblock->user = result;
     }
 
+#ifdef CONFIG_GAMES_NXDOOM_ALLOCPROF
+  g_allocated += size;
+  printf("Currently allocated: %zu bytes\n", g_allocated);
+#endif
   return result;
 }
 
@@ -404,8 +383,10 @@ void z_dump_heap(int lowtag, int hightag)
   for (block = mainzone->blocklist.next; ; block = block->next)
     {
       if (block->tag >= lowtag && block->tag <= hightag)
-        printf("block:%p    size:%7i    user:%p    tag:%3i\n", block,
-               block->size, block->user, block->tag);
+        {
+          printf("block:%p    size:%7i    user:%p    tag:%3i\n", block,
+                 block->size, block->user, block->tag);
+        }
 
       if (block->next == &mainzone->blocklist)
         {
@@ -415,13 +396,19 @@ void z_dump_heap(int lowtag, int hightag)
         }
 
       if ((byte *)block + block->size != (byte *)block->next)
-        printf("ERROR: block size does not touch the next block\n");
+        {
+          printf("ERROR: block size does not touch the next block\n");
+        }
 
       if (block->next->prev != block)
-        printf("ERROR: next block doesn't have proper back link\n");
+        {
+          printf("ERROR: next block doesn't have proper back link\n");
+        }
 
       if (block->tag == PU_FREE && block->next->tag == PU_FREE)
-        printf("ERROR: two consecutive free blocks\n");
+        {
+          printf("ERROR: two consecutive free blocks\n");
+        }
     }
 #endif
 }
@@ -451,13 +438,19 @@ void z_file_dump_heap(FILE *f)
         }
 
       if ((byte *)block + block->size != (byte *)block->next)
-        fprintf(f, "ERROR: block size does not touch the next block\n");
+        {
+          fprintf(f, "ERROR: block size does not touch the next block\n");
+        }
 
       if (block->next->prev != block)
-        fprintf(f, "ERROR: next block doesn't have proper back link\n");
+        {
+          fprintf(f, "ERROR: next block doesn't have proper back link\n");
+        }
 
       if (block->tag == PU_FREE && block->next->tag == PU_FREE)
-        fprintf(f, "ERROR: two consecutive free blocks\n");
+        {
+          fprintf(f, "ERROR: two consecutive free blocks\n");
+        }
     }
 #endif
 }
@@ -506,12 +499,17 @@ void z_change_tag2(void *ptr, int tag, const char *file, int line)
   block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
 
   if (block->id != ZONEID)
-    i_error("%s:%i: z_change_tag: block without a ZONEID!", file, line);
+    {
+      i_error("%s:%i: z_change_tag: block without a ZONEID!",
+              file, line);
+    }
 
   if (tag >= PU_PURGELEVEL && block->user == NULL)
-    i_error("%s:%i: z_change_tag: an owner is required "
-            "for purgeable blocks",
-            file, line);
+    {
+      i_error("%s:%i: z_change_tag: an owner is required "
+              "for purgeable blocks",
+              file, line);
+    }
 
   /* Remove the block from its current list, and rehook it into
    * its new list.

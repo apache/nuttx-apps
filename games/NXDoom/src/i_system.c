@@ -118,6 +118,15 @@ static unsigned char mem_dump_custom[DOS_MEM_DUMP_SIZE];
 
 static const unsigned char *dos_mem_dump = mem_dump_dos622;
 
+/* TODO: Maybe here we can choose to allocate single or double RAM size
+ * memory (same as in `i_zone_base` auto allocation logic) based on pointer
+ * size, too.
+ */
+
+#ifdef CONFIG_GAMES_NXDOOM_ALLOC_ZZONESTATIC
+static byte g_zonemem[MIN_RAM * 1024 * 1024];
+#endif /* CONFIG_GAMES_NXDOOM_ALLOC_ZZONESTATIC */
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -127,14 +136,13 @@ static const unsigned char *dos_mem_dump = mem_dump_dos622;
  * works.
  */
 
+#ifndef CONFIG_GAMES_NXDOOM_ALLOC_ZZONESTATIC
 static byte *auto_alloc_memory(int *size, int default_ram, int min_ram)
 {
   byte *zonemem;
 
   /* Allocate the zone memory.  This loop tries progressively smaller
    * zone sizes until a size is found that can be allocated.
-   * If we used the -mb command line parameter, only the parameter
-   * provided is accepted.
    */
 
   zonemem = NULL;
@@ -166,6 +174,7 @@ static byte *auto_alloc_memory(int *size, int default_ram, int min_ram)
 
   return zonemem;
 }
+#endif /* CONFIG_GAMES_NXDOOM_ALLOC_ZZONESTATIC */
 
 /****************************************************************************
  * Public Functions
@@ -192,46 +201,34 @@ void i_tactile(int on, int off, int total)
 byte *i_zone_base(int *size)
 {
   byte *zonemem;
-  int min_ram;
-  int default_ram;
-  int p;
 
-  /* @category obscure
-   * @arg <mb>
-   *
-   * Specify the heap size, in MiB.
+  /* Because of the 8-byte pointer size in a 64-bit build, the default
+   * heap size (16 MiB) is insufficient compared to a 32-bit build. For
+   * example, the Alien Vendetta avm62402.lmp demo completes successfully
+   * on a 32-bit build, but terminates with an out of memory error on a
+   * 64-bit build. Therefore, to maintain consistency with a 32-bit
+   * build, the heap size should be increased.
    */
 
-  p = m_check_parm_with_args("-mb", 1);
+  /* Determine pointer size */
 
-  if (p > 0)
-    {
-      default_ram = atoi(myargv[p + 1]);
-      min_ram = default_ram;
-    }
-  else
-    {
-      /* Because of the 8-byte pointer size in a 64-bit build, the default
-       * heap size (16 MiB) is insufficient compared to a 32-bit build. For
-       * example, the Alien Vendetta avm62402.lmp demo completes successfully
-       * on a 32-bit build, but terminates with an out of memory error on a
-       * 64-bit build. Therefore, to maintain consistency with a 32-bit
-       * build, the heap size should be increased.
-       */
+  static_assert(sizeof(void *) == sizeof(uintptr_t),
+                "Cannot determine pointer size.");
 
-      if (sizeof(void *) == 8)
-        {
-          default_ram = DEFAULT_RAM * 2;
-        }
-      else
-        {
-          default_ram = DEFAULT_RAM;
-        }
+#ifdef CONFIG_GAMES_NXDOOM_ALLOC_ZZONESTATIC
+  /* Static backing memory */
 
-      min_ram = MIN_RAM;
-    }
+  zonemem = g_zonemem;
+  *size = sizeof(g_zonemem);
+#else
+  /* We're using heap allocation implementation, malloc memory */
 
-  zonemem = auto_alloc_memory(size, default_ram, min_ram);
+#if UINTPTR_MAX == 0xffffffffffffffffu
+  zonemem = auto_alloc_memory(size, DEFAULT_RAM * 2, MIN_RAM);
+#else
+  zonemem = auto_alloc_memory(size, DEFAULT_RAM, MIN_RAM);
+#endif /* UINTPTR_MAX */
+#endif /* CONFIG_GAMES_NXDOOM_ALLOC_ZZONESTATIC */
 
   printf("zone memory: %p, %x allocated for zone\n", zonemem, *size);
 

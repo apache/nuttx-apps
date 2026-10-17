@@ -158,7 +158,6 @@ boolean storedemo;
 boolean main_loop_started = false;
 
 int show_endoom = 1;
-int show_diskicon = 1;
 
 /* wipegamestate can be set to -1 to force a wipe on the next draw */
 
@@ -323,25 +322,24 @@ static const struct pack g_packs[] =
  * Private Functions
  ****************************************************************************/
 
+#ifdef CONFIG_GAMES_NXDOOM_SHOWDISKICON
 static void enable_loading_disk(void)
 {
   const char *disk_lump_name;
 
-  if (show_diskicon)
+  if (m_check_parm("-cdrom") > 0)
     {
-      if (m_check_parm("-cdrom") > 0)
-        {
-          disk_lump_name = ("STCDROM");
-        }
-      else
-        {
-          disk_lump_name = ("STDISK");
-        }
-
-      v_enable_loading_disk(disk_lump_name, SCREENWIDTH - LOADING_DISK_W,
-                            SCREENHEIGHT - LOADING_DISK_H);
+      disk_lump_name = ("STCDROM");
     }
+  else
+    {
+      disk_lump_name = ("STDISK");
+    }
+
+  v_enable_loading_disk(disk_lump_name, SCREENWIDTH - LOADING_DISK_W,
+                        SCREENHEIGHT - LOADING_DISK_H);
 }
+#endif
 
 static void d_bind_variables(void)
 {
@@ -383,7 +381,6 @@ static void d_bind_variables(void)
   m_bind_int_variable("vanilla_savegame_limit", &vanilla_savegame_limit);
   m_bind_int_variable("vanilla_demo_limit", &vanilla_demo_limit);
   m_bind_int_variable("show_endoom", &show_endoom);
-  m_bind_int_variable("show_diskicon", &show_diskicon);
 
   /* Multiplayer chat macros */
 
@@ -1325,7 +1322,9 @@ void d_doomloop(void)
   i_graphics_check_commandline();
   i_set_grab_mouse_callback(d_grab_mouse_callback);
   i_init_graphics();
+#ifdef CONFIG_GAMES_NXDOOM_SHOWDISKICON
   enable_loading_disk();
+#endif
 
   try_run_tics();
 
