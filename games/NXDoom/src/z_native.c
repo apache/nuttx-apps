@@ -287,7 +287,7 @@ void z_free(void *ptr)
  *  You can pass a NULL user if the tag is < PU_PURGELEVEL.
  *
  * Return:
- *   The translated key code.
+ *   Allocated memory pointer.
  *
  ****************************************************************************/
 
