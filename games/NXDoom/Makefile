@@ -102,7 +102,6 @@ DOOMSRCS =     \
   doomstat.c   \
   dstrings.c   \
   f_finale.c   \
-  f_wipe.c     \
   g_game.c     \
   hu_lib.c     \
   hu_stuff.c   \
@@ -140,6 +139,10 @@ DOOMSRCS =     \
   st_lib.c     \
   st_stuff.c   \
   wi_stuff.c   
+
+ifeq ($(CONFIG_GAMES_NXDOOM_NOWIPE),)
+DOOMSRCS += f_wipe.c # Include wipe animation
+endif
 
 TXTSCREENSRCS =       \
   txt_conditional.c   \
