@@ -197,6 +197,15 @@ config GAMES_NXDOOM_ROWSTAGE
 		Costs a few kilobytes of .bss for the buffer.  A row that does not
 		fit is written directly, as if this were disabled.
 
+config GAMES_NXDOOM_NOWIPE
+	bool "Disable the screen wipe"
+	default n
+	---help---
+		DOOM melts the old screen away whenever the game state changes,
+		which takes two more 64000 byte buffers while it runs.  Enable this
+		to cut straight to the new screen instead, on a board whose RAM
+		cannot spare them.
+
 config GAMES_NXDOOM_STATIC_SCRNBUF
 	bool "Place the render target in .bss"
 	default n

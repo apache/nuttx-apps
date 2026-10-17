@@ -579,12 +579,14 @@ static boolean d_display(void)
 
   /* save the current screen if about to wipe */
 
+#ifndef CONFIG_GAMES_NXDOOM_NOWIPE
   if (gamestate != wipegamestate)
     {
       wipe = true;
       wipe_start_screen(0, 0, SCREENWIDTH, SCREENHEIGHT);
     }
   else
+#endif
     {
       wipe = false;
     }
