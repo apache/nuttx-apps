@@ -30,10 +30,10 @@
 #include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>
-#include <stdio.h>
 #include <stdbool.h>
-
-#include <nuttx/atomic.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "ostest.h"
 
@@ -43,9 +43,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* This numbers should be tuned for different processor speeds
- * via .config file.  With default values the test takes about 30s
- * on Cortex-M3 @ 24MHz.  With 32767 range and 10 runs it takes ~320s.
+/* Each thread searches for prime numbers below RR_RANGE, one number at a
+ * time, and counts its time slices.  The test ends when the two threads
+ * have RR_RUNS time slices each.
  */
 
 #ifndef CONFIG_TESTING_OSTEST_RR_RANGE
@@ -68,8 +68,10 @@
  * Private Data
  ****************************************************************************/
 
-static uint8_t g_rr_values[CONFIG_TESTING_OSTEST_RR_RUNS * 2];
-static atomic_t g_rr_value_index;
+static volatile int g_rr_last;
+static volatile int g_rr_slices[2];
+static volatile bool g_rr_stop;
+static volatile unsigned int g_rr_primes[2];
 static sem_t g_rrsem;
 
 /****************************************************************************
@@ -77,70 +79,67 @@ static sem_t g_rrsem;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: get_primes
+ * Name: is_prime
  *
  * Description
- *   This function searches for prime numbers in the most primitive
+ *   This function tests a number for a prime in the most primitive
  *   way possible.
  ****************************************************************************/
 
-static void get_primes(int *count, int *last)
+static bool is_prime(int number)
 {
-  int number;
-  int local_count = 0;
+  int div;
 
-  *last = 0;    /* To make the compiler happy */
-
-  for (number = 1; number < CONFIG_TESTING_OSTEST_RR_RANGE; number++)
+  for (div = 2; div <= number / 2; div++)
     {
-      int div;
-      bool is_prime = true;
-
-      for (div = 2; div <= number / 2; div++)
       if (number % div == 0)
         {
-          is_prime = false;
-          break;
-        }
-
-      if (is_prime)
-        {
-          local_count++;
-          *last = number;
-#if 0 /* We don't really care what the numbers are */
-          printf(" Prime %d: %d\n", local_count, number);
-#endif
+          return false;
         }
     }
 
-  *count = local_count;
+  return true;
 }
 
 /****************************************************************************
  * Name: get_primes_thread
+ *
+ * Description
+ *   Search for primes until the two threads have RR_RUNS time slices each.
+ *   A thread starts a new time slice when the other thread ran after its
+ *   last number.
  ****************************************************************************/
 
 static FAR void *get_primes_thread(FAR void *parameter)
 {
   int id = (int)((intptr_t)parameter);
-  int count;
-  int last;
-  int i;
+  int number = 1;
 
   while (sem_wait(&g_rrsem) < 0);
 
   printf("get_primes_thread id=%d started, "
-         "looking for primes < %d, doing %d run(s)\n",
+         "looking for primes < %d, running %d time slice(s)\n",
          id, CONFIG_TESTING_OSTEST_RR_RANGE, CONFIG_TESTING_OSTEST_RR_RUNS);
 
-  for (i = 0; i < CONFIG_TESTING_OSTEST_RR_RUNS; i++)
+  while (!g_rr_stop &&
+         g_rr_slices[0] + g_rr_slices[1] < 2 * CONFIG_TESTING_OSTEST_RR_RUNS)
     {
-      get_primes(&count, &last);
-      g_rr_values[atomic_add(&g_rr_value_index, 1)] = id;
+      if (is_prime(number))
+        {
+          g_rr_primes[id - 1]++;
+        }
+
+      number = number % CONFIG_TESTING_OSTEST_RR_RANGE + 1;
+
+      if (g_rr_last != id)
+        {
+          g_rr_last = id;
+          g_rr_slices[id - 1]++;
+        }
     }
 
-  printf("get_primes_thread id=%d finished, found %d primes, "
-         "last one was %d\n", id, count, last);
+  printf("get_primes_thread id=%d finished, %d time slice(s), "
+         "found %u primes\n", id, g_rr_slices[id - 1], g_rr_primes[id - 1]);
 
   pthread_exit(NULL);
   return NULL; /* To keep some compilers happy */
@@ -159,13 +158,13 @@ void rr_test(void)
   pthread_t get_primes1_thread;
   pthread_t get_primes2_thread;
   struct sched_param sparam;
-  bool test_passed = false;
   pthread_attr_t attr;
   pthread_addr_t result;
 #ifdef CONFIG_SMP
   cpu_set_t cpuset;
 #endif
   int status;
+  int diff;
   int i;
 
   /* Setup common thread attributes */
@@ -221,8 +220,12 @@ void rr_test(void)
   /* This semaphore will prevent anything from running until we are ready */
 
   sched_lock();
-  atomic_set(&g_rr_value_index, 0);
-  memset(g_rr_values, 0, sizeof(g_rr_values));
+  g_rr_last      = 0;
+  g_rr_slices[0] = 0;
+  g_rr_slices[1] = 0;
+  g_rr_primes[0] = 0;
+  g_rr_primes[1] = 0;
+  g_rr_stop      = false;
   sem_init(&g_rrsem, 0, 0);
 
   /* Start the threads */
@@ -249,29 +252,41 @@ void rr_test(void)
     }
 
   printf("         Second get_primes_thread: %d\n", (int)get_primes2_thread);
-  printf("rr_test: "
-         "Waiting for threads to complete -- this should take awhile\n");
-  printf("         "
-         "If RR scheduling is working, they should start and complete at\n");
-  printf("         about the same time\n");
+  printf("rr_test: Waiting for %d time slices of each thread\n",
+         CONFIG_TESTING_OSTEST_RR_RUNS);
+  printf("         If RR scheduling is working, the threads run the same\n");
+  printf("         number of time slices\n");
 
   sem_post(&g_rrsem);
   sem_post(&g_rrsem);
   sched_unlock();
 
+  /* This thread has a higher priority.  Stop the threads if RR scheduling
+   * does not give them their time slices: one thread would run forever.
+   */
+
+  for (i = 0; i < 20 * CONFIG_TESTING_OSTEST_RR_RUNS; i++)
+    {
+      if (g_rr_slices[0] + g_rr_slices[1] >=
+          2 * CONFIG_TESTING_OSTEST_RR_RUNS)
+        {
+          break;
+        }
+
+      usleep(CONFIG_RR_INTERVAL * 1000);
+    }
+
+  g_rr_stop = true;
+
   pthread_join(get_primes2_thread, &result);
   pthread_join(get_primes1_thread, &result);
 
-  for (i = 1; i < CONFIG_TESTING_OSTEST_RR_RUNS; i++)
-    {
-      if (g_rr_values[i - 1] != g_rr_values[i])
-        {
-          test_passed = true;
-          break;
-        }
-    }
+  diff = g_rr_slices[0] - g_rr_slices[1];
+  printf("rr_test: thread 1 ran %d time slices, thread 2 ran %d\n",
+         g_rr_slices[0], g_rr_slices[1]);
 
-  if (test_passed)
+  if (g_rr_slices[0] + g_rr_slices[1] >= 2 * CONFIG_TESTING_OSTEST_RR_RUNS &&
+      diff >= -1 && diff <= 1)
     {
       printf("rr_test: Done\n");
     }
