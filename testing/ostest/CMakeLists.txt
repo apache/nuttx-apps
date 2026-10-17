@@ -66,6 +66,9 @@ if(CONFIG_TESTING_OSTEST)
 
   if(CONFIG_SCHED_WAITPID)
     list(APPEND SRCS waitpid.c)
+    if(CONFIG_SCHED_CAPABILITIES AND NOT CONFIG_BUILD_KERNEL)
+      list(APPEND SRCS caps.c)
+    endif()
   endif()
 
   if(CONFIG_FS_CHROOT)
