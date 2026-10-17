@@ -391,7 +391,11 @@ static boolean st_stopped = true;
 
 /* graphics are drawn to a backing screen and blitted to the real screen */
 
+#ifdef GAMES_NXDOOM_STATIC_SCRNBUF
+pixel_t st_backing_screen[ST_WIDTH * ST_HEIGHT];
+#else
 pixel_t *st_backing_screen;
+#endif
 
 cheatseq_t cheat_mus = CHEAT("idmus", 2);
 cheatseq_t cheat_god = CHEAT("iddqd", 0);
@@ -417,7 +421,10 @@ cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
 
 static void st_stop(void)
 {
-  if (st_stopped) return;
+  if (st_stopped)
+    {
+      return;
+    }
 
   i_set_palette(w_cache_lump_num(lu_palette, PU_CACHE));
   st_stopped = true;
@@ -433,9 +440,15 @@ static void st_refresh_background(void)
 
       /* draw right side of bar if needed (Doom 1.0) */
 
-      if (sbarr) v_draw_patch(ST_ARMSBGX, 0, sbarr);
+      if (sbarr)
+        {
+          v_draw_patch(ST_ARMSBGX, 0, sbarr);
+        }
 
-      if (netgame) v_draw_patch(ST_FX, 0, faceback);
+      if (netgame)
+        {
+          v_draw_patch(ST_FX, 0, faceback);
+        }
 
       v_restore_buffer();
 
@@ -604,7 +617,9 @@ static void st_update_face_widget(void)
       if (plyr->attackdown)
         {
           if (lastattackdown == -1)
-            lastattackdown = ST_RAMPAGEDELAY;
+            {
+              lastattackdown = ST_RAMPAGEDELAY;
+            }
           else if (!--lastattackdown)
             {
               priority = 5;
@@ -614,7 +629,9 @@ static void st_update_face_widget(void)
             }
         }
       else
-        lastattackdown = -1;
+        {
+          lastattackdown = -1;
+        }
     }
 
   if (priority < 5)
@@ -653,9 +670,13 @@ static void st_update_widgets(void)
    */
 
   if (weaponinfo[plyr->readyweapon].ammo == am_noammo)
-    w_ready.num = &largeammo;
+    {
+      w_ready.num = &largeammo;
+    }
   else
-    w_ready.num = &plyr->ammo[weaponinfo[plyr->readyweapon].ammo];
+    {
+      w_ready.num = &plyr->ammo[weaponinfo[plyr->readyweapon].ammo];
+    }
 
   /* {
    * static int tic=0;
@@ -682,7 +703,10 @@ static void st_update_widgets(void)
     {
       keyboxes[i] = plyr->cards[i] ? i : -1;
 
-      if (plyr->cards[i + 3]) keyboxes[i] = i + 3;
+      if (plyr->cards[i + 3])
+        {
+          keyboxes[i] = i + 3;
+        }
     }
 
   /* refresh everything if this is him coming back to life */
@@ -705,14 +729,21 @@ static void st_update_widgets(void)
   for (i = 0; i < MAXPLAYERS; i++)
     {
       if (i != consoleplayer)
-        st_fragscount += plyr->frags[i];
+        {
+          st_fragscount += plyr->frags[i];
+        }
       else
-        st_fragscount -= plyr->frags[i];
+        {
+          st_fragscount -= plyr->frags[i];
+        }
     }
 
   /* get rid of chat window if up because of message */
 
-  if (!--st_msgcounter) st_chat = st_oldchat;
+  if (!--st_msgcounter)
+    {
+      st_chat = st_oldchat;
+    }
 }
 
 static void st_do_palette_stuff(void)
@@ -730,14 +761,20 @@ static void st_do_palette_stuff(void)
 
       bzc = 12 - (plyr->powers[pw_strength] >> 6);
 
-      if (bzc > cnt) cnt = bzc;
+      if (bzc > cnt)
+        {
+          cnt = bzc;
+        };
     }
 
   if (cnt)
     {
       palette = (cnt + 7) >> 3;
 
-      if (palette >= NUMREDPALS) palette = NUMREDPALS - 1;
+      if (palette >= NUMREDPALS)
+        {
+          palette = NUMREDPALS - 1;
+        }
 
       palette += STARTREDPALS;
     }
@@ -746,16 +783,23 @@ static void st_do_palette_stuff(void)
     {
       palette = (plyr->bonuscount + 7) >> 3;
 
-      if (palette >= NUMBONUSPALS) palette = NUMBONUSPALS - 1;
+      if (palette >= NUMBONUSPALS)
+        {
+          palette = NUMBONUSPALS - 1;
+        }
 
       palette += STARTBONUSPALS;
     }
 
   else if (plyr->powers[pw_ironfeet] > 4 * 32 ||
            plyr->powers[pw_ironfeet] & 8)
-    palette = RADIATIONPAL;
+    {
+      palette = RADIATIONPAL;
+    }
   else
-    palette = 0;
+    {
+      palette = 0;
+    }
 
   /* In Chex Quest, the player never sees red.  Instead, the
    * radiation suit palette is used to tint the screen green,
@@ -803,12 +847,16 @@ static void st_draw_widgets(boolean refresh)
   stlib_update_bin_icon(&w_armsbg, refresh);
 
   for (i = 0; i < 6; i++)
-    stlib_update_mult_icon(&w_arms[i], refresh);
+    {
+      stlib_update_mult_icon(&w_arms[i], refresh);
+    }
 
   stlib_update_mult_icon(&w_faces, refresh);
 
   for (i = 0; i < 3; i++)
-    stlib_update_mult_icon(&w_keyboxes[i], refresh);
+    {
+      stlib_update_mult_icon(&w_keyboxes[i], refresh);
+    }
 
   stlib_update_num(&w_frags, refresh);
 }
@@ -987,10 +1035,14 @@ static void st_init_data(void)
   st_oldhealth = -1;
 
   for (i = 0; i < NUMWEAPONS; i++)
-    oldweaponsowned[i] = plyr->weaponowned[i];
+    {
+      oldweaponsowned[i] = plyr->weaponowned[i];
+    }
 
   for (i = 0; i < 3; i++)
-    keyboxes[i] = -1;
+    {
+      keyboxes[i] = -1;
+    }
 
   stlib_init();
 }
@@ -1099,12 +1151,12 @@ boolean st_responder(event_t *ev)
     {
       switch (ev->data1)
         {
-        case AM_MSGENTERED:
-          st_firsttime = true;
-          break;
+          case AM_MSGENTERED:
+            st_firsttime = true;
+            break;
 
-        case AM_MSGEXITED:
-          break;
+          case AM_MSGEXITED:
+            break;
         }
     }
 
@@ -1121,13 +1173,18 @@ boolean st_responder(event_t *ev)
               plyr->cheats ^= CF_GODMODE;
               if (plyr->cheats & CF_GODMODE)
                 {
-                  if (plyr->mo) plyr->mo->health = deh_god_mode_health;
+                  if (plyr->mo)
+                    {
+                      plyr->mo->health = deh_god_mode_health;
+                    }
 
                   plyr->health = deh_god_mode_health;
                   plyr->message = (STSTR_DQDON);
                 }
               else
-                plyr->message = (STSTR_DQDOFF);
+                {
+                  plyr->message = (STSTR_DQDOFF);
+                }
             }
 
           /* 'fa' cheat for killer fucking arsenal */
@@ -1138,10 +1195,14 @@ boolean st_responder(event_t *ev)
               plyr->armortype = deh_idfa_armor_class;
 
               for (i = 0; i < NUMWEAPONS; i++)
-                plyr->weaponowned[i] = true;
+                {
+                  plyr->weaponowned[i] = true;
+                }
 
               for (i = 0; i < NUMAMMO; i++)
-                plyr->ammo[i] = plyr->maxammo[i];
+                {
+                  plyr->ammo[i] = plyr->maxammo[i];
+                }
 
               plyr->message = (STSTR_FAADDED);
             }
@@ -1154,13 +1215,19 @@ boolean st_responder(event_t *ev)
               plyr->armortype = deh_idkfa_armor_class;
 
               for (i = 0; i < NUMWEAPONS; i++)
-                plyr->weaponowned[i] = true;
+                {
+                  plyr->weaponowned[i] = true;
+                }
 
               for (i = 0; i < NUMAMMO; i++)
-                plyr->ammo[i] = plyr->maxammo[i];
+                {
+                  plyr->ammo[i] = plyr->maxammo[i];
+                }
 
               for (i = 0; i < NUMCARDS; i++)
-                plyr->cards[i] = true;
+                {
+                  plyr->cards[i] = true;
+                }
 
               plyr->message = (STSTR_KFAADDED);
             }
@@ -1192,7 +1259,9 @@ boolean st_responder(event_t *ev)
 
                   if (((buf[0] - '0') * 10 + buf[1] - '0') > 35 &&
                       gameversion >= exe_doom_1_8)
-                    plyr->message = (STSTR_NOMUS);
+                    {
+                      plyr->message = (STSTR_NOMUS);
+                    }
                   else
                     {
 #ifdef CONFIG_GAMES_NXDOOM_SOUND
@@ -1207,7 +1276,9 @@ boolean st_responder(event_t *ev)
 #endif
 
                   if (((buf[0] - '1') * 9 + buf[1] - '1') > 31)
-                    plyr->message = (STSTR_NOMUS);
+                    {
+                      plyr->message = (STSTR_NOMUS);
+                    }
                   else
                     {
 #ifdef CONFIG_GAMES_NXDOOM_SOUND
@@ -1229,9 +1300,13 @@ boolean st_responder(event_t *ev)
               plyr->cheats ^= CF_NOCLIP;
 
               if (plyr->cheats & CF_NOCLIP)
-                plyr->message = (STSTR_NCON);
+                {
+                  plyr->message = (STSTR_NCON);
+                }
               else
-                plyr->message = (STSTR_NCOFF);
+                {
+                  plyr->message = (STSTR_NCOFF);
+                }
             }
 
           /* 'behold?' power-up cheats */
@@ -1241,11 +1316,17 @@ boolean st_responder(event_t *ev)
               if (cht_check_cheat(&cheat_powerup[i], ev->data2))
                 {
                   if (!plyr->powers[i])
-                    p_give_power(plyr, i);
+                    {
+                      p_give_power(plyr, i);
+                    }
                   else if (i != pw_strength)
-                    plyr->powers[i] = 1;
+                    {
+                      plyr->powers[i] = 1;
+                    }
                   else
-                    plyr->powers[i] = 0;
+                    {
+                      plyr->powers[i] = 0;
+                    }
 
                   plyr->message = (STSTR_BEHOLDX);
                 }
@@ -1272,6 +1353,7 @@ boolean st_responder(event_t *ev)
           else if (cht_check_cheat(&cheat_mypos, ev->data2))
             {
               static char buf[ST_MSGWIDTH];
+
               snprintf(buf, sizeof(buf), "ang=0x%x;x,y=(0x%x,0x%x)",
                        players[consoleplayer].mo->angle,
                        players[consoleplayer].mo->x,
@@ -1413,6 +1495,11 @@ void st_start(void)
 void st_init(void)
 {
   st_load_data();
+
+  /* Only allocate memory if we're not using static rendering targets */
+
+#ifndef GAMES_NXDOOM_STATIC_SCRNBUF
   st_backing_screen = (pixel_t *)z_malloc(
       ST_WIDTH * ST_HEIGHT * sizeof(*st_backing_screen), PU_STATIC, 0);
+#endif
 }
