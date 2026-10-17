@@ -645,7 +645,9 @@ void i_finish_update(void)
 
   /* Draw disk icon before blit, if necessary. */
 
+#ifdef CONFIG_GAMES_NXDOOM_SHOWDISKICON
   v_draw_disk_icon();
+#endif
 
   if (palette_to_set)
     {
@@ -659,7 +661,9 @@ void i_finish_update(void)
 
   /* Restore background and undo the disk indicator, if it was drawn. */
 
+#ifdef CONFIG_GAMES_NXDOOM_SHOWDISKICON
   v_restore_disk_background();
+#endif
 }
 
 void i_read_screen(pixel_t *scr)

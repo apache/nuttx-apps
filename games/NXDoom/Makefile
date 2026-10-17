@@ -56,7 +56,6 @@ BASESRCS =        \
   p_rejectpad.c   \
   memio.c         \
   tables.c        \
-  v_diskicon.c    \
   v_video.c       \
   w_checksum.c    \
   w_main.c        \
@@ -69,6 +68,10 @@ BASESRCS =        \
 
 ifeq ($(CONFIG_GAMES_NXDOOM_ENDOOM),y)
 BASESRCS += i_endoom.c
+endif
+
+ifeq ($(CONFIG_GAMES_NXDOOM_SHOWDISKICON),y)
+BASESRCS += v_diskicon.c # Show disk icon on data load
 endif
 
 NETSRCS =         \

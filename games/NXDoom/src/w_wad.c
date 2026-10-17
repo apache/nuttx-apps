@@ -252,6 +252,7 @@ wad_file_t *w_add_file(const char *filename)
   for (i = startlump; i < numlumps; ++i)
     {
       lumpinfo_t *lump_p = &filelumps[i - startlump];
+
       lump_p->wad_file = wad_file;
       lump_p->position = LONG(filerover->filepos);
       lump_p->size = LONG(filerover->size);
@@ -379,7 +380,9 @@ void w_read_lump(lumpindex_t lump, void *dest)
 
   l = lumpinfo[lump];
 
+#ifdef CONFIG_GAMES_NXDOOM_SHOWDISKICON
   v_begin_read(l->size);
+#endif
 
   c = w_read(l->wad_file, l->position, dest, l->size);
 
@@ -515,9 +518,13 @@ void w_profile(void)
         {
           block = (memblock_t *)((byte *)ptr - sizeof(memblock_t));
           if (block->tag < PU_PURGELEVEL)
-            ch = 'S';
+            {
+              ch = 'S';
+            }
           else
-            ch = 'P';
+            {
+              ch = 'P';
+            }
         }
 
       info[i][profilecount] = ch;
