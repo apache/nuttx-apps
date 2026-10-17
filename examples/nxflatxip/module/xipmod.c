@@ -31,22 +31,13 @@
  * is the same in both instances, and the module is executing from it rather
  * than from a copy in RAM.
  *
- * Two things this module deliberately does not have, both because of what
- * the ldnxflat in circulation does with them:
- *
- *   - No global or static variables.  Those are reached through the GOT,
- *     and the GOT entries come out pointing into the import table rather
- *     than into .bss, so the module overwrites the addresses of the
- *     functions it imports and jumps into nothing on its next call out.
- *   - No string constants.  With this linker script .rodata lives in the
- *     text segment and is reached PC-relatively, and the addend already
- *     in the instruction is dropped when that relocation is resolved, so
- *     the pointer lands somewhere in the middle of the code.
- *
- * Hence the reporting callback: the module passes numbers to the firmware
- * and the firmware, which has a working printf and a format string, does
- * the printing.  It also exercises the other direction of the interface --
- * firmware code entered with the module's data base still in r10.
+ * The module has no global or static variables and no string constants.
+ * The old out-of-tree ldnxflat pointed the GOT entries of .bss into the
+ * import table and dropped the addend of PC-relative .rodata references,
+ * so the module avoided both.  The ldnxflat in tools/nxflat handles them,
+ * but the module keeps the reporting callback: it passes numbers to the
+ * firmware, which has printf and the format string, and so it also
+ * exercises firmware code entered with the module's data base in r9.
  *
  ****************************************************************************/
 
