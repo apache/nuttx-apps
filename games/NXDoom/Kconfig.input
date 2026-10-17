@@ -1,0 +1,20 @@
+choice # Input method
+	prompt "NXDoom input method"
+	default GAMES_NXDOOM_KEYBOARD
+
+	config GAMES_NXDOOM_KEYBOARD
+		bool "Keyboard"
+		---help---
+			Use a NuttX keyboard character driver.
+
+endchoice # Input method
+
+if GAMES_NXDOOM_KEYBOARD
+
+config GAMES_NXDOOM_KBDPATH
+	string "Keyboard device path"
+	default "/dev/kbd0"
+	---help---
+		Path to the keyboard device to use as input.
+
+endif # GAMES_NXDOOM_KEYBOARD
