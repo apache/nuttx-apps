@@ -7,6 +7,7 @@ config SYSTEM_BRCTL
 	tristate "Ethernet bridge 'brctl' command"
 	default n
 	depends on NET_BRIDGE
+	select NETUTILS_NETLIB
 	---help---
 		Enable the 'brctl' command to create Ethernet bridges and to add or
 		remove their ports.
