@@ -235,7 +235,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_EXIT
-  CMD_MAP("exit",     cmd_exit,     1, 1, NULL),
+  CMD_MAP("exit",     cmd_exit,     1, 2, "[<status>]"),
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_EXPR
@@ -1161,10 +1161,26 @@ static int cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLE_EXIT
 static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  UNUSED(argc);
-  UNUSED(argv);
+  FAR char *endptr;
+  long status = 0;
 
-  nsh_exit(vtbl, 0);
+  if (argc > 1)
+    {
+      status = strtol(argv[1], &endptr, 10);
+      if (*argv[1] == '\0' || *endptr != '\0')
+        {
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+          return ERROR;
+        }
+
+      if (status < 0 || status > 255)
+        {
+          nsh_error(vtbl, g_fmtargrange, argv[0]);
+          return ERROR;
+        }
+    }
+
+  nsh_exit(vtbl, (int)status);
   return OK;
 }
 #endif
