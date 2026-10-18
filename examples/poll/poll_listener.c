@@ -172,8 +172,8 @@ void *poll_listener(pthread_addr_t pvarg)
 
       if (pollin && nevents != ret)
         {
-           printf("poll_listener: ERROR found %d events, "
-                  "poll reported %d\n", nevents, ret);
+          printf("poll_listener: ERROR found %d events, "
+                 "poll reported %d\n", nevents, ret);
         }
 
       /* In any event, read until the pipe/serial  is empty */
