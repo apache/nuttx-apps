@@ -240,7 +240,7 @@ int CInput::keyboardOpen(void)
 
               if (errcode == ENOENT || errcode == ENODEV)
                 {
-                  // REVIST: Can we inject a constant string here to let the
+                  // REVISIT: Can we inject a constant string here to let the
                   // user know that we are waiting for a USB keyboard to be
                   // connected?
 
@@ -316,7 +316,7 @@ inline int CInput::mouseOpen(void)
 
               if (errcode == ENOENT || errcode == ENODEV)
                 {
-                  // REVIST: Can we inject a constant string here to let the
+                  // REVISIT: Can we inject a constant string here to let the
                   // user know that we are waiting for a USB mouse to be
                   // connected?
 
