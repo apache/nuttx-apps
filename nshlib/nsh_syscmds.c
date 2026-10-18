@@ -32,6 +32,8 @@
 #include <nuttx/streams.h>
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
+#include <sys/param.h>
+#include <sys/resource.h>
 #include <sys/utsname.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -87,6 +89,32 @@
 
 #ifndef CONFIG_NSH_DISABLE_UNAME
 static const char g_unknown[] = "unknown";
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_ULIMIT
+/* The options of ulimit.  The first ones select a resource: its resource,
+ * bytes per unit and name are in the tables below.
+ */
+
+static const char g_ulimit_opts[] = "cdflnstvHSa";
+
+static const int g_ulimit_resources[] =
+{
+  RLIMIT_CORE, RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_MEMLOCK,
+  RLIMIT_NOFILE, RLIMIT_STACK, RLIMIT_CPU, RLIMIT_AS
+};
+
+static const unsigned int g_ulimit_units[] =
+{
+  1024, 1024, 1024, 1024, 1, 1024, 1, 1024
+};
+
+static FAR const char * const g_ulimit_names[] =
+{
+  "core file size (KiB)", "data seg size (KiB)", "file size (KiB)",
+  "max locked memory (KiB)", "open files", "stack size (KiB)",
+  "cpu time (seconds)", "virtual memory (KiB)"
+};
 #endif
 
 #if defined(CONFIG_BOARDCTL_RESET_CAUSE) && !defined(CONFIG_NSH_DISABLE_RESET_CAUSE)
@@ -929,6 +957,153 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   lib_stream_putc(&stream, '\n');
   nsh_write(vtbl, stream.buffer, stream.common.nput);
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_ulimit
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_ULIMIT
+int cmd_ulimit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  unsigned long long number;
+  FAR char *endptr;
+  struct rlimit rl;
+  unsigned long long shown;
+  rlim_t value;
+  bool hard = false;
+  bool soft = false;
+  bool all = false;
+  bool badarg = false;
+  int sel = 2;       /* -f, as POSIX says */
+  int option;
+  int first;
+  int last;
+  int i;
+
+  while ((option = getopt(argc, argv, g_ulimit_opts)) != ERROR)
+    {
+      switch (option)
+        {
+          case 'H':
+            hard = true;
+            break;
+
+          case 'S':
+            soft = true;
+            break;
+
+          case 'a':
+            all = true;
+            break;
+
+          default:
+            for (i = 0; i < nitems(g_ulimit_resources); i++)
+              {
+                if (g_ulimit_opts[i] == option)
+                  {
+                    sel = i;
+                    break;
+                  }
+              }
+
+            if (i == nitems(g_ulimit_resources))
+              {
+                nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+                badarg = true;
+              }
+            break;
+        }
+    }
+
+  if (badarg || argc - optind > 1 || (all && argc - optind > 0))
+    {
+      if (!badarg)
+        {
+          nsh_error(vtbl, g_fmttoomanyargs, argv[0]);
+        }
+
+      return ERROR;
+    }
+
+  /* Show the limits: the soft limit, or the hard limit with -H */
+
+  if (argc == optind)
+    {
+      first = all ? 0 : sel;
+      last  = all ? nitems(g_ulimit_resources) - 1 : sel;
+      for (i = first; i <= last; i++)
+        {
+          if (getrlimit(g_ulimit_resources[i], &rl) < 0)
+            {
+              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "getrlimit",
+                        NSH_ERRNO);
+              return ERROR;
+            }
+
+          shown = hard ? rl.rlim_max : rl.rlim_cur;
+          if (all)
+            {
+              nsh_output(vtbl, "%-26s (-%c) ", g_ulimit_names[i],
+                         g_ulimit_opts[i]);
+            }
+
+          if (shown == RLIM_INFINITY)
+            {
+              nsh_output(vtbl, "unlimited\n");
+            }
+          else
+            {
+              nsh_output(vtbl, "%llu\n", shown / g_ulimit_units[i]);
+            }
+        }
+
+      return OK;
+    }
+
+  /* Set a limit: both the soft and the hard limit without -H or -S */
+
+  if (strcmp(argv[optind], "unlimited") == 0)
+    {
+      value = RLIM_INFINITY;
+    }
+  else
+    {
+      number = strtoull(argv[optind], &endptr, 10);
+      if (*argv[optind] == '\0' || *endptr != '\0' ||
+          number >= RLIM_INFINITY / g_ulimit_units[sel])
+        {
+          nsh_error(vtbl, g_fmtarginvalid, argv[0]);
+          return ERROR;
+        }
+
+      value = number * g_ulimit_units[sel];
+    }
+
+  if (getrlimit(g_ulimit_resources[sel], &rl) < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "getrlimit", NSH_ERRNO);
+      return ERROR;
+    }
+
+  if (hard || !soft)
+    {
+      rl.rlim_max = value;
+    }
+
+  if (soft || !hard)
+    {
+      rl.rlim_cur = value;
+    }
+
+  if (setrlimit(g_ulimit_resources[sel], &rl) < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "setrlimit", NSH_ERRNO);
+      return ERROR;
+    }
+
   return OK;
 }
 #endif

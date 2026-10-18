@@ -1188,6 +1188,10 @@ int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
   int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_ULIMIT
+  int cmd_ulimit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_UNAME
   int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif

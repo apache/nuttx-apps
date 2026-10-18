@@ -722,6 +722,13 @@ config NSH_DISABLE_UNAME
 	bool "Disable uname"
 	default DEFAULT_SMALL
 
+config NSH_DISABLE_ULIMIT
+	bool "Disable ulimit"
+	default y
+	---help---
+		The ulimit command is off by default, because it adds about
+		1 KiB to the image.
+
 config NSH_DISABLE_UNSET
 	bool "Disable unset"
 	default DEFAULT_SMALL
