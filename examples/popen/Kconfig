@@ -6,7 +6,7 @@
 config EXAMPLES_POPEN
 	tristate "popen() example"
 	default n
-	depends on SYSTEM_POPEN
+	depends on SYSTEM_POPEN || (PIPES && LIBC_EXECFUNCS && SCHED_WAITPID)
 	depends on !DISABLE_POSIX_TIMERS
 	---help---
 		Enable the popen() example
