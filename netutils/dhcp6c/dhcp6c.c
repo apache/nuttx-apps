@@ -865,7 +865,7 @@ static int dhcp6c_command(FAR void *handle, enum dhcpv6_msg_e type)
           len = recv(pdhcp6c->sockfd, buf, buf_length, 0);
           if (type != DHCPV6_MSG_UNKNOWN)
             {
-              ninfo("%s[type:%d] recv len[%d]\n", __func__, type, len);
+              ninfo("%s[type:%d] recv len[%zd]\n", __func__, type, len);
             }
 
           if (!dhcp6c_response_is_valid(handle, buf, len, trid, type))
