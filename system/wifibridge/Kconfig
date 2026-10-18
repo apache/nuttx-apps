@@ -1,0 +1,57 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_WIFIBRIDGE
+	tristate "Wi-Fi to Ethernet bridge 'wifibridge' command"
+	default n
+	depends on NET_IPv4 && NET_BRIDGE && WIRELESS_WAPI
+	select NETUTILS_WIFIBRIDGE
+	---help---
+		Enable the 'wifibridge' command to start, stop and inspect a Wi-Fi
+		SoftAP bridged to an Ethernet interface.
+
+if SYSTEM_WIFIBRIDGE
+
+config SYSTEM_WIFIBRIDGE_PRIORITY
+	int "wifibridge task priority"
+	default 100
+
+config SYSTEM_WIFIBRIDGE_STACKSIZE
+	int "wifibridge stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_WIFIBRIDGE_BRIDGE
+	string "Bridge interface name"
+	default "br0"
+
+config SYSTEM_WIFIBRIDGE_ETHIF
+	string "Ethernet interface name"
+	default "eth0"
+
+config SYSTEM_WIFIBRIDGE_WLANIF
+	string "Wi-Fi interface name"
+	default "wlan0"
+
+config SYSTEM_WIFIBRIDGE_SSID
+	string "Default SoftAP SSID"
+	default "NuttX-BR"
+
+config SYSTEM_WIFIBRIDGE_PASSPHRASE
+	string "Default SoftAP passphrase (8..63 characters)"
+	default "nuttxbridge"
+
+config SYSTEM_WIFIBRIDGE_CHANNEL
+	int "Default SoftAP 2.4 GHz channel"
+	default 6
+	range 1 13
+
+config SYSTEM_WIFIBRIDGE_IPADDR
+	hex "Default bridge IPv4 address"
+	default 0x0a000002
+	---help---
+		Address of the bridge interface itself (the ports stay at
+		0.0.0.0).  The netmask is 255.255.255.0.
+
+endif # SYSTEM_WIFIBRIDGE
