@@ -38,6 +38,7 @@
 #include <poll.h>
 #if defined(__NuttX__) && (defined(CONFIG_DEV_RPMSG) || defined(CONFIG_DEV_RPMSG_SERVER))
 #include <nuttx/drivers/rpmsgdev.h>
+#include <nuttx/poll.h>
 #endif
 
 /****************************************************************************
@@ -75,7 +76,7 @@ static off_t   testdev_seek(FAR struct file *filep, off_t offset,
                             int whence);
 static int     testdev_ioctl(FAR struct file *filep, int cmd,
                              unsigned long arg);
-static int     testdev_poll(FAR struct file *filep, FAR struct pollfd *fds,
+static int     testdev_poll(FAR struct file *filep, FAR struct pollfd_s *fds,
                             bool setup);
 
 /****************************************************************************
@@ -223,7 +224,7 @@ static int testdev_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
   return ret;
 }
 
-static int testdev_poll(FAR struct file *filep, FAR struct pollfd *fds,
+static int testdev_poll(FAR struct file *filep, FAR struct pollfd_s *fds,
                         bool setup)
 {
   if (!setup)
