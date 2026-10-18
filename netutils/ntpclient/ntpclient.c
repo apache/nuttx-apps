@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <string.h>
 #include <time.h>
 #include <sched.h>
@@ -1368,6 +1369,22 @@ sock_error:
   return ERROR;
 }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+/****************************************************************************
+ * Name: ntpc_wakeup
+ *
+ * Description:
+ *   An empty handler for CONFIG_NETUTILS_NTPCLIENT_SIGWAKEUP.  ntpc_stop()
+ *   sends the signal to break the daemon out of a blocking call; an ignored
+ *   signal need not interrupt it.
+ *
+ ****************************************************************************/
+
+static void ntpc_wakeup(int signo)
+{
+}
+#endif
+
 /****************************************************************************
  * Name: ntpc_daemon
  *
@@ -1382,6 +1399,9 @@ static int ntpc_daemon(int argc, FAR char **argv)
 {
   FAR struct ntp_sample_s *samples;
   FAR struct ntp_servers_s *srvs;
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  struct sigaction sa;
+#endif
   int exitcode = EXIT_SUCCESS;
   int retries = 0;
   int retry_delay = 1;
@@ -1405,6 +1425,15 @@ static int ntpc_daemon(int argc, FAR char **argv)
       free(samples);
       return EXIT_FAILURE;
     }
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  /* ntpc_stop() wakes the daemon with a signal: install a handler */
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = ntpc_wakeup;
+  sigemptyset(&sa.sa_mask);
+  sigaction(CONFIG_NETUTILS_NTPCLIENT_SIGWAKEUP, &sa, NULL);
+#endif
 
   /* Indicate that we have started */
 
