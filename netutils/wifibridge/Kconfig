@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_WIFIBRIDGE
+	bool "Wi-Fi SoftAP to Ethernet bridge"
+	default n
+	depends on NET_IPv4 && NET_BRIDGE && WIRELESS_WAPI
+	select NETUTILS_NETLIB
+	---help---
+		Library that turns a Wi-Fi interface into a SoftAP and bridges it
+		to an Ethernet interface at layer 2, so that Ethernet devices
+		reach the wireless network without any routing.  The bridge
+		interface carries the IP address and, optionally, a DHCP server.
+
+		The wireless driver must support the master (SoftAP) mode and the
+		Ethernet driver must accept frames for any destination address
+		(NET_PROMISCUOUS).
+
+if NETUTILS_WIFIBRIDGE
+
+config NETUTILS_WIFIBRIDGE_DHCPD
+	bool "Run the DHCP server on the bridge"
+	default n
+	depends on NETUTILS_DHCPD
+	---help---
+		Allow the library to start the DHCP server on the bridge
+		interface.  Leave it unused when another DHCP server is
+		reachable through the Ethernet port.
+
+endif # NETUTILS_WIFIBRIDGE
