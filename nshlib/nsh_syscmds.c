@@ -877,6 +877,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   for (i = 0; set != 0; i++)
     {
       unsigned int mask = (1 << i);
+
       if ((set & mask) != 0)
         {
           set &= ~mask;
