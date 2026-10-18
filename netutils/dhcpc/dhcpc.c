@@ -45,6 +45,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -156,6 +157,21 @@ static const uint8_t magic_cookie[4] =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+/****************************************************************************
+ * Name: dhcpc_wakeup
+ *
+ * Description:
+ *   An empty handler for SIGQUIT.  dhcpc_cancel() sends SIGQUIT to break
+ *   dhcpc_run() out of recv(); an ignored signal need not interrupt recv().
+ *
+ ****************************************************************************/
+
+static void dhcpc_wakeup(int signo)
+{
+}
+#endif
 
 /****************************************************************************
  * Name: dhcpc_add<option>
@@ -757,7 +773,7 @@ void dhcpc_cancel(FAR void *handle)
       if (pdhcpc->thread)
         {
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
-          old = signal(SIGQUIT, SIG_IGN);
+          old = signal(SIGQUIT, dhcpc_wakeup);
 
           /* Signal the dhcpc_run */
 
