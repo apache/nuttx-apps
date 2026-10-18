@@ -382,6 +382,13 @@ int netlib_add_vlan(FAR const char *ifname, int vlanid, int prio);
 int netlib_del_vlan(FAR const char *vlanif);
 #endif
 
+#ifdef CONFIG_NET_BRIDGE
+int netlib_add_bridge(FAR const char *bridge);
+int netlib_del_bridge(FAR const char *bridge);
+int netlib_bridge_addif(FAR const char *bridge, FAR const char *ifname);
+int netlib_bridge_delif(FAR const char *bridge, FAR const char *ifname);
+#endif
+
 #ifdef CONFIG_NET_ARP
 /* ARP Table Support */
 

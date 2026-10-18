@@ -123,6 +123,10 @@ if(CONFIG_NETUTILS_NETLIB)
     list(APPEND SRCS netlib_addvlan.c netlib_delvlan.c)
   endif()
 
+  if(CONFIG_NET_BRIDGE)
+    list(APPEND SRCS netlib_bridge.c)
+  endif()
+
   list(APPEND SRCS netlib_setmtu.c)
 
   if(CONFIG_WIRELESS_IEEE802154)
