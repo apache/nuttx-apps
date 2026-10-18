@@ -31,6 +31,7 @@
 #include <poll.h>
 #include <sched.h>
 #include <stdio.h>
+#include <signal.h>
 #include <string.h>
 #include <sys/boardctl.h>
 #include <sys/param.h>
@@ -57,6 +58,16 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/* An empty handler: SIGCHLD must interrupt ppoll() when a child exits.  A
+ * signal without a handler is ignored and need not interrupt it.
+ */
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+static void init_sigchld(int signo)
+{
+}
+#endif
 
 static void reap_process(FAR struct service_manager_s *sm,
                          FAR struct action_manager_s *am)
@@ -224,6 +235,9 @@ int main(int argc, FAR char *argv[])
     };
 
   struct pollfd pfds[nitems(poller)];
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  struct sigaction sa;
+#endif
   sigset_t mask;
   size_t i;
   int r;
@@ -231,6 +245,13 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_BMP
   snprintf(ACTION_TRIGGER_KEY(&am), sizeof(ACTION_TRIGGER_KEY(&am)),
            ACTION_PROP_KEY_TRIGGER ".core%d", sched_getcpu());
+#endif
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = init_sigchld;
+  sigemptyset(&sa.sa_mask);
+  sigaction(SIGCHLD, &sa, NULL);
 #endif
 
   sigfillset(&mask);
