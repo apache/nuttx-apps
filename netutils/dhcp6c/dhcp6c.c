@@ -287,6 +287,20 @@ static const struct dhcp6c_retx_s g_dhcp6c_retx[DHCPV6_MSG_MAX] =
  * Private Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: dhcp6c_wakeup
+ *
+ * Description:
+ *   An empty handler for SIGQUIT.  dhcp6c_cancel() sends SIGQUIT to break
+ *   dhcp6c_run() out of a blocking call; an ignored signal need not
+ *   interrupt it.
+ *
+ ****************************************************************************/
+
+static void dhcp6c_wakeup(int signo)
+{
+}
+
 static uint64_t dhcp6c_get_milli_time(void)
 {
   struct timespec t;
@@ -1921,7 +1935,7 @@ void dhcp6c_cancel(FAR void *handle)
       pdhcp6c->cancel = true;
       if (pdhcp6c->thread)
         {
-          old = signal(SIGQUIT, SIG_IGN);
+          old = signal(SIGQUIT, dhcp6c_wakeup);
 
           /* Signal the dhcp6c_run */
 
