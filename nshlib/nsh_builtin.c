@@ -130,7 +130,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        *     foreground
        */
 
-       vtbl->np.np_lastpid = ret;
+      vtbl->np.np_lastpid = ret;
 #ifdef CONFIG_SCHED_WAITPID
 
       /* CONFIG_SCHED_WAITPID is selected, so we may run the command in
@@ -184,6 +184,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                */
 
               int errcode = errno;
+
               if (errcode == ECHILD)
                 {
                   ret = OK;
@@ -254,6 +255,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           */
 
           struct sched_param sched;
+
           sched_getparam(ret, &sched);
           nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, sched.sched_priority);
 
