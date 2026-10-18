@@ -158,7 +158,17 @@ int nsh_session(FAR struct console_stdio_s *pstate,
 
           if (argc > 2)
             {
-              return nsh_parse(vtbl, argv[2]);
+              /* Return the exit status of the last command, or a failure
+               * if the command line could not be run.
+               */
+
+              ret = nsh_parse(vtbl, argv[2]);
+              if (vtbl->np.np_status != 0)
+                {
+                  return vtbl->np.np_status;
+                }
+
+              return ret < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
             }
           else
             {

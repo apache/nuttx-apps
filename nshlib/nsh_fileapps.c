@@ -65,9 +65,9 @@
  *               and successfully started.  If CONFIG_SCHED_WAITPID is
  *               defined, this return value also indicates that the
  *               application returned successful status (EXIT_SUCCESS)
- *    1          If CONFIG_SCHED_WAITPID is defined, then this return value
- *               indicates that the application task was spawned successfully
- *               but returned failure exit status.
+ *   >0          If CONFIG_SCHED_WAITPID is defined, the application task
+ *               was spawned successfully and returned this non-zero exit
+ *               status.
  *
  ****************************************************************************/
 
@@ -341,14 +341,10 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
           else
             {
-              /* Ignore the returned child pid */
+              /* Keep the exit status of the application */
 
               ret = OK;
-
-              /* TODO:  Set the environment variable '?' to a string
-               * corresponding to WEXITSTATUS(rc) so that $? will expand
-               * to the exit status of the most recently executed task.
-               */
+              rc  = WIFEXITED(rc) ? WEXITSTATUS(rc) : 1;
             }
 
           if (vtbl->isctty && tc == 0)
@@ -418,14 +414,11 @@ errout:
 
       ret = ERROR;
     }
-  else if (rc != 0)
+  else
     {
-      /* We can't return the exact status (nsh has nowhere to put it)
-       * so just pass back zero/nonzero in a fashion that doesn't look
-       * like an error.
-       */
+      /* Return the exit status of the application */
 
-      ret = 1;
+      ret = rc;
     }
 
   return ret;

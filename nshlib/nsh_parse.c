@@ -163,7 +163,7 @@ static void nsh_alist_free(FAR struct nsh_vtbl_s *vtbl,
                            FAR struct nsh_alist_s *alist);
 #endif
 
-static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result);
+static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, int status);
 static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                int argc, FAR char *argv[],
                FAR const struct nsh_param_s *param);
@@ -278,8 +278,6 @@ static const size_t g_pipeline1_len     = sizeof(g_pipeline1) - 1;
 #ifdef NSH_HAVE_VARS
 static const char   g_exitstatus[]      = "?";
 static const char   g_lastpid[]         = "!";
-static const char   g_success[]         = "0";
-static const char   g_failure[]         = "1";
 #endif
 #ifdef NEED_NULLSTRING
 static const char   g_nullstring[]      = "";
@@ -445,9 +443,10 @@ static void nsh_alist_free(FAR struct nsh_vtbl_s *vtbl,
  * Name: nsh_saveresult
  ****************************************************************************/
 
-static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
+static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, int status)
 {
   struct nsh_parser_s *np = &vtbl->np;
+  bool result = status != 0;
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 #ifndef CONFIG_NSH_DISABLE_LOOPS
@@ -462,7 +461,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 
   if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE)
     {
-      np->np_fail = false;
+      np->np_status = 0;
       np->np_lpstate[np->np_lpndx].lp_enable = (result == OK);
       return OK;
     }
@@ -478,7 +477,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 
   else if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL)
     {
-      np->np_fail = false;
+      np->np_status = 0;
       np->np_lpstate[np->np_lpndx].lp_enable = (result != OK);
       return OK;
     }
@@ -490,7 +489,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 
   if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF)
     {
-      np->np_fail = false;
+      np->np_status = 0;
       np->np_iestate[np->np_iendx].ie_ifcond =
         np->np_iestate[np->np_iendx].ie_inverted ^ result;
       return OK;
@@ -499,7 +498,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 #endif
 #endif
     {
-      np->np_fail = result;
+      np->np_status = status;
       return result ? ERROR : OK;
     }
 }
@@ -544,9 +543,9 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    *               and successfully started.  If CONFIG_SCHED_WAITPID is
    *               defined, this return value also indicates that the
    *               application returned successful status (EXIT_SUCCESS)
-   *    1          If CONFIG_SCHED_WAITPID is defined, then this return value
-   *               indicates that the application task was spawned
-   *               successfully but returned failure exit status.
+   *   >0          If CONFIG_SCHED_WAITPID is defined, the application
+   *               task was spawned successfully and returned this non-zero
+   *               exit status.
    *
    * Note the priority is not effected by nice-ness.
    */
@@ -555,14 +554,14 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
   ret = nsh_builtin(vtbl, argv[0], argv, param);
   if (ret >= 0)
     {
-      /* nsh_builtin() returned 0 or 1.  This means that the built-in
-       * command was successfully started (although it may not have ran
-       * successfully).  So certainly it is not an NSH command.
+      /* nsh_builtin() returned 0 or an exit status.  This means that the
+       * built-in command was successfully started (although it may not
+       * have ran successfully).  So certainly it is not an NSH command.
        */
 
-      /* Save the result:  success if 0; failure if 1 */
+      /* Save the exit status:  success if 0 */
 
-      return nsh_saveresult(vtbl, ret != OK);
+      return nsh_saveresult(vtbl, ret);
     }
 
   /* No, not a built in command (or, at least, we were unable to start a
@@ -581,9 +580,9 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    *               and successfully started.  If CONFIG_SCHED_WAITPID is
    *               defined, this return value also indicates that the
    *               application returned successful status (EXIT_SUCCESS)
-   *    1          If CONFIG_SCHED_WAITPID is defined, then this return value
-   *               indicates that the application task was spawned
-   *               successfully but returned failure exit status.
+   *   >0          If CONFIG_SCHED_WAITPID is defined, the application
+   *               task was spawned successfully and returned this non-zero
+   *               exit status.
    *
    * Note the priority is not effected by nice-ness.
    */
@@ -592,14 +591,14 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
   ret = nsh_fileapp(vtbl, argv[0], argv, param);
   if (ret >= 0)
     {
-      /* nsh_fileapp() returned 0 or 1.  This means that the built-in
-       * command was successfully started (although it may not have ran
-       * successfully).  So certainly it is not an NSH command.
+      /* nsh_fileapp() returned 0 or an exit status.  This means that the
+       * built-in command was successfully started (although it may not
+       * have ran successfully).  So certainly it is not an NSH command.
        */
 
-      /* Save the result:  success if 0; failure if 1 */
+      /* Save the exit status:  success if 0 */
 
-      return nsh_saveresult(vtbl, ret != OK);
+      return nsh_saveresult(vtbl, ret);
     }
 
   /* No, not a file name command (or, at least, we were unable to start a
@@ -1141,14 +1140,8 @@ static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
 
   if (strcmp(varname, g_exitstatus) == 0)
     {
-      if (vtbl->np.np_fail)
-        {
-          return (FAR char *)g_failure;
-        }
-      else
-        {
-          return (FAR char *)g_success;
-        }
+      itoa(vtbl->np.np_status, vtbl->np.np_rcstr, 10);
+      return vtbl->np.np_rcstr;
     }
   else if (strcmp(varname, g_lastpid) == 0)
     {
