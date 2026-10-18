@@ -91,9 +91,9 @@ static int popen_file_close(FAR void *cookie)
   FAR struct popen_file_s *filep = (FAR struct popen_file_s *)cookie;
   int ret;
 
-  ret = dpclose(filep->fd, filep->shell);
+  ret = close(filep->fd);
   free(filep);
-  return ret < 0 ? ERROR : OK;
+  return ret;
 }
 
 /****************************************************************************
@@ -251,12 +251,27 @@ FILE *popen(FAR const char *command, FAR const char *mode)
  *   stream - The stream reference returned by a previous call to popen()
  *
  * Returned Value:
- *   Zero (OK) is returned on success; otherwise -1 (ERROR) is returned and
- *   errno is set appropriately.
+ *   The termination status of the command is returned on success;
+ *   otherwise -1 (ERROR) is returned and errno is set appropriately.
  *
  ****************************************************************************/
 
 int pclose(FILE *stream)
 {
-  return fclose(stream);
+  FAR struct popen_file_s *filep;
+  pid_t shell;
+
+  if (stream == NULL || stream->fs_iofunc.close != popen_file_close)
+    {
+      set_errno(EINVAL);
+      return ERROR;
+    }
+
+  /* fclose() frees the cookie, so keep the process ID */
+
+  filep = stream->fs_cookie;
+  shell = filep->shell;
+  fclose(stream);
+
+  return dpclose(-1, shell);
 }
