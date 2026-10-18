@@ -26,9 +26,11 @@
 
 #include <nuttx/config.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 /****************************************************************************
  * Private Functions
@@ -108,6 +110,34 @@ static int test_pclose_complete(void)
   printf("[PASS]\n");
   return 0;
 }
+
+#ifdef CONFIG_SCHED_CHILD_STATUS
+static int test_pclose_status(void)
+{
+  FILE *fp;
+  char buf[256];
+  int status;
+
+  printf("[TEST 8] pclose returns a failure status...\n");
+  fp = popen("popen_test --exit 3", "r");
+  if (fp == NULL)
+    {
+      printf("[FAIL] popen returned NULL\n");
+      return 1;
+    }
+
+  while (fgets(buf, sizeof(buf), fp) != NULL);
+  status = pclose(fp);
+  if (status == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 0)
+    {
+      printf("[FAIL] pclose returned %d\n", status);
+      return 1;
+    }
+
+  printf("[PASS]\n");
+  return 0;
+}
+#endif
 
 static int test_popen_invalid_mode(void)
 {
@@ -231,6 +261,13 @@ int main(int argc, FAR char *argv[])
       return 0;
     }
 
+  /* Sub-command: exit with a status, used to check pclose() */
+
+  if (argc > 2 && strcmp(argv[1], "--exit") == 0)
+    {
+      return atoi(argv[2]);
+    }
+
   printf("=== popen/dpopen test ===\n\n");
 
   /* popen tests */
@@ -239,6 +276,9 @@ int main(int argc, FAR char *argv[])
   fail += test_popen_multiarg();
   fail += test_pclose_complete();
   fail += test_popen_invalid_mode();
+#ifdef CONFIG_SCHED_CHILD_STATUS
+  fail += test_pclose_status();
+#endif
 
   /* dpopen tests */
 
