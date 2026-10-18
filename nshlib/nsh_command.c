@@ -657,6 +657,11 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("whoami",   cmd_whoami,   1, 1, NULL),
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_ULIMIT
+  CMD_MAP("ulimit",   cmd_ulimit,   1, 4,
+          "[-H|-S] [-a|-c|-d|-f|-l|-n|-s|-t|-v] [<limit>|unlimited]"),
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_UNAME
 #  ifdef CONFIG_NET
   CMD_MAP("uname",    cmd_uname,    1, 7, "[-a | -imnoprsv]"),
