@@ -366,11 +366,11 @@ static bool dhcp6c_commit_state(FAR void *handle, enum dhcpv6_state_e state,
 
   if (new_len != 0 || old_len != 0)
     {
-       upd = (new_len != old_len) ||
-             (memcmp(old_data, new_data, new_len) != 0);
+      upd = (new_len != old_len) ||
+            (memcmp(old_data, new_data, new_len) != 0);
 
-       memmove(old_data, new_data, new_len);
-       dhcp6c_resize_state(handle, state, -old_len);
+      memmove(old_data, new_data, new_len);
+      dhcp6c_resize_state(handle, state, -old_len);
     }
 
   return upd;
@@ -768,6 +768,7 @@ static int dhcp6c_command(FAR void *handle, enum dhcpv6_msg_e type)
   if (retx->delay)
     {
       struct timespec ts;
+
       ts.tv_sec = 0;
       ts.tv_nsec = dhcp6c_rand_delay(handle, 10 * DHCPV6_REQ_DELAY);
       nanosleep(&ts, NULL);
@@ -904,6 +905,7 @@ end:
 static int dhcp6c_poll_reconfigure(FAR void *handle)
 {
   int ret = dhcp6c_command(handle, DHCPV6_MSG_UNKNOWN);
+
   if (ret != -1)
     {
       ret = dhcp6c_command(handle, ret);
@@ -1194,6 +1196,7 @@ static int dhcp6c_handle_reply(FAR void *handle, enum dhcpv6_msg_e orig,
   FAR uint8_t *ia_na = dhcp6c_get_state(handle, STATE_IA_NA, &ia_na_len);
   FAR uint8_t *ia_pd = dhcp6c_get_state(handle, STATE_IA_PD, &ia_pd_len);
   FAR uint8_t *ia_end;
+
   pdhcp6c->t1 = UINT32_MAX;
   pdhcp6c->t2 = UINT32_MAX;
   pdhcp6c->t3 = UINT32_MAX;
@@ -1363,6 +1366,7 @@ static int dhcp6c_handle_reply(FAR void *handle, enum dhcpv6_msg_e orig,
       else if (otype == DHCPV6_OPT_INFO_REFRESH && olen >= 4)
         {
           uint32_t refresh = ntohl(*((FAR uint32_t *)odata));
+
           if (refresh < (uint32_t)pdhcp6c->t1)
             {
               pdhcp6c->t1 = refresh;
@@ -1378,6 +1382,7 @@ static int dhcp6c_handle_reply(FAR void *handle, enum dhcpv6_msg_e orig,
     {
       size_t new_ia_pd_len;
       size_t new_ia_na_len;
+
       have_update |= dhcp6c_commit_state(handle, STATE_DNS, dns_len);
       have_update |= dhcp6c_commit_state(handle, STATE_SEARCH, search_len);
       have_update |= dhcp6c_commit_state(handle, STATE_SNTP_IP,
@@ -1400,6 +1405,7 @@ static int dhcp6c_handle_reply(FAR void *handle, enum dhcpv6_msg_e orig,
   dhcpv6_for_each_option(ite0, ia_pd, ia_end, otype, olen, odata)
     {
       FAR struct dhcpv6_ia_prefix_s *p = (FAR void *)(odata - 4);
+
       while (!p->valid)
         {
           ia_end = ia_pd + dhcp6c_remove_state(handle, STATE_IA_PD,
@@ -1415,6 +1421,7 @@ static int dhcp6c_handle_reply(FAR void *handle, enum dhcpv6_msg_e orig,
   dhcpv6_for_each_option(ite0, ia_na, ia_end, otype, olen, odata)
     {
       FAR struct dhcpv6_ia_addr_s *p = (FAR void *)(odata - 4);
+
       while (!p->valid)
         {
           ia_end = ia_na + dhcp6c_remove_state(handle, STATE_IA_NA,
@@ -1605,9 +1612,13 @@ static int dhcp6c_lease(FAR void *args, uint8_t type)
           /* If we have any IAs, send renew, otherwise request */
 
           if (ia_pd_len == 0 && ia_na_len == 0)
-            ret = dhcp6c_command(pdhcp6c, DHCPV6_MSG_REQUEST);
+            {
+              ret = dhcp6c_command(pdhcp6c, DHCPV6_MSG_REQUEST);
+            }
           else
-            ret = dhcp6c_command(pdhcp6c, DHCPV6_MSG_RENEW);
+            {
+              ret = dhcp6c_command(pdhcp6c, DHCPV6_MSG_RENEW);
+            }
 
           if (pdhcp6c->cancel)
             {
@@ -1831,6 +1842,7 @@ static FAR void *dhcp6c_precise_open(FAR const char *ifname,
   if (opt != NULL && cnt > 0)
     {
       uint16_t opttype;
+
       for (int i = 0; i < cnt; i++)
         {
           opttype = htons(opt[i]);
