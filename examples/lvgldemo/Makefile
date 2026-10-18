@@ -31,4 +31,8 @@ MODULE = $(CONFIG_EXAMPLES_LVGLDEMO)
 
 MAINSRC = lvgldemo.c
 
+ifeq ($(CONFIG_EXAMPLES_LVGLDEMO_PORT_FBDEV),y)
+CSRCS += lv_port_fbdev.c
+endif
+
 include $(APPDIR)/Application.mk
