@@ -49,6 +49,7 @@ static int gdb_monitor(FAR struct gdb_state_s *state, FAR const char *cmd)
       while (1)
         {
           size_t len = fread(buf, 1, sizeof(buf) - 1, file);
+
           if (len == 0 && (feof(file) || ferror(file)))
             {
               break;
@@ -78,6 +79,7 @@ static ssize_t gdb_send(FAR void *priv, FAR const char *buf, size_t len)
   while (i < len)
     {
       ssize_t ret = write(fd, buf + i, len - i);
+
       if (ret < 0)
         {
           return -errno;
@@ -98,6 +100,7 @@ static ssize_t gdb_recv(FAR void *priv, FAR void *buf,
   while (i < len)
     {
       ssize_t ret = read(fd, (FAR char *)buf + i, len - i);
+
       if (ret < 0)
         {
           return -errno;
@@ -144,21 +147,21 @@ int main(int argc, FAR char *argv[])
 #endif
     {
       switch (ret)
-      {
-        case 'd':
-          dev = optarg;
-          break;
+        {
+          case 'd':
+            dev = optarg;
+            break;
 #ifdef CONFIG_NET
-        case 'p':
-          port = optarg;
-          break;
+          case 'p':
+            port = optarg;
+            break;
 #endif
-        case 'h':
-        case '?':
-        default:
-          usage(argv[0]);
-          break;
-      }
+          case 'h':
+          case '?':
+          default:
+            usage(argv[0]);
+            break;
+        }
     }
 
 #ifdef CONFIG_NET
