@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <string.h>
 #include <errno.h>
 #include <nuttx/debug.h>
@@ -37,6 +38,24 @@
 #include "netutils/ftpc.h"
 
 #include "ftpc_internal.h"
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+/****************************************************************************
+ * Name: ftpc_wakeup
+ *
+ * Description:
+ *   An empty handler for CONFIG_FTP_SIGNAL.
+ *
+ ****************************************************************************/
+
+static void ftpc_wakeup(int signo)
+{
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -53,6 +72,9 @@
 SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
 {
   FAR struct ftpc_session_s *session;
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  struct sigaction sa;
+#endif
   int ret;
 
   /* Allocate a session structure */
@@ -74,6 +96,17 @@ SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
   session->replytimeo  = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
   session->conntimeo   = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
   session->pid         = getpid();
+
+  /* ftpc_timeout() wakes this task with CONFIG_FTP_SIGNAL: install a
+   * handler, because an ignored signal need not interrupt a blocking call.
+   */
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = ftpc_wakeup;
+  sigemptyset(&sa.sa_mask);
+  sigaction(CONFIG_FTP_SIGNAL, &sa, NULL);
+#endif
 
   session->cmd.sd       = -1;
   session->data.sd      = -1;
