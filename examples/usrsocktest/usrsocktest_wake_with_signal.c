@@ -24,6 +24,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <signal.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <assert.h>
 #include <netinet/in.h>
@@ -575,6 +577,12 @@ static FAR void *usrsock_blocking_poll_thread(FAR void *param)
   return NULL;
 }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+static void wake_signal(int signo)
+{
+}
+#endif
+
 static void do_wake_test(enum e_test_type type, int flags)
 {
   int ret;
@@ -582,12 +590,26 @@ static void do_wake_test(enum e_test_type type, int flags)
   int tidx;
   bool test_abort = !!(flags & TEST_FLAG_DAEMON_ABORT);
   bool test_hang = !!(flags & TEST_FLAG_PAUSE_USRSOCK_HANDLING);
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  struct sigaction sa;
+#endif
 
   /* Start test daemon. */
 
   TEST_ASSERT_EQUAL(OK,
                     usrsocktest_daemon_start(&usrsocktest_daemon_config));
   TEST_ASSERT_EQUAL(0, usrsocktest_daemon_get_num_active_sockets());
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  /* The test wakes the threads with SIGUSR1: install a handler, because an
+   * ignored signal need not interrupt a blocking call.
+   */
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = wake_signal;
+  sigemptyset(&sa.sa_mask);
+  sigaction(SIGUSR1, &sa, NULL);
+#endif
 
   /* Launch worker threads. */
 
