@@ -221,6 +221,7 @@ int main(int argc, FAR char *argv[])
   if (argc > 1 && strcmp(argv[1], "--echo") == 0)
     {
       int i;
+
       for (i = 2; i < argc; i++)
         {
           printf("%s%s", i > 2 ? " " : "", argv[i]);

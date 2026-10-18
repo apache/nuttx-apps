@@ -204,6 +204,7 @@ FILE *popen(FAR const char *command, FAR const char *mode)
   if (stream == NULL)
     {
       int errcode = errno;
+
       dpclose(fd, container->shell);
       free(container);
       errno = errcode;
