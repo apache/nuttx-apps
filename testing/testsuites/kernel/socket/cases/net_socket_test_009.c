@@ -183,8 +183,8 @@ static int handlereadfds(struct pollfd *fds, int nfds, int lsfd)
           continue;
         }
 
-      syslog(LOG_INFO, "[%d]revents: %04" PRIx32, fds[i].fd,
-             fds[i].revents);
+      syslog(LOG_INFO, "[%d]revents: %04x", fds[i].fd,
+             (unsigned int)fds[i].revents);
       if (fds[i].fd == lsfd)
         {
           ret += handleaccept(lsfd);

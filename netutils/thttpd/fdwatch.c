@@ -288,8 +288,9 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
             {
               /* Yes... save it in a shorter list */
 
-              fwinfo("pollndx: %d fd: %d revents: %08" PRIx32 "\n",
-                    i, fw->pollfds[i].fd, fw->pollfds[i].revents);
+              fwinfo("pollndx: %d fd: %d revents: %08x\n",
+                    i, fw->pollfds[i].fd,
+                    (unsigned int)fw->pollfds[i].revents);
 
               fw->ready[fw->nactive++] = fw->pollfds[i].fd;
               if (fw->nactive == ret)
