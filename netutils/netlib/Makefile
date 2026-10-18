@@ -128,6 +128,10 @@ ifeq ($(CONFIG_NET_VLAN),y)
 CSRCS += netlib_addvlan.c netlib_delvlan.c
 endif
 
+ifeq ($(CONFIG_NET_BRIDGE),y)
+CSRCS += netlib_bridge.c
+endif
+
 CSRCS += netlib_setmtu.c
 
 ifeq ($(CONFIG_WIRELESS_IEEE802154),y)
