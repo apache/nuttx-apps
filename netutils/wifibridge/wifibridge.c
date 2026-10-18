@@ -29,6 +29,8 @@
 #include <sys/socket.h>
 
 #include <errno.h>
+#include <fcntl.h>
+#include <stddef.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -44,9 +46,69 @@
 #  include "netutils/dhcpd.h"
 #endif
 
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+#  include <nuttx/crc32.h>
+#endif
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define WIFIBRIDGE_SAVED_VERSION  1
+#define WIFIBRIDGE_RECORD_MAGIC   0x42574657  /* 'WFWB' */
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+
+/* What is written to the storage: a record that is checked before it is
+ * used.
+ */
+
+struct wifibridge_record_s
+{
+  uint32_t magic;                     /* WIFIBRIDGE_RECORD_MAGIC */
+  uint32_t crc;                       /* CRC-32 of the fields below */
+  uint8_t version;                    /* WIFIBRIDGE_SAVED_VERSION */
+  uint8_t channel;                    /* 2.4 GHz channel, 1..13 */
+  uint8_t security;                   /* enum wifibridge_security_e */
+  uint8_t dhcpd;                      /* Run the DHCP server on the bridge */
+  uint32_t ipaddr;                    /* Bridge address, network byte order */
+  char ssid[WIFIBRIDGE_SSID_MAXLEN + 1];
+  char passphrase[WIFIBRIDGE_PASSPHRASE_MAXLEN + 1];
+};
+
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: wifibridge_validate
+ *
+ * Description:
+ *   Check the parameters of the SoftAP.
+ *
+ ****************************************************************************/
+
+static int wifibridge_validate(FAR const struct wifibridge_config_s *cfg)
+{
+  size_t ssidlen = strnlen(cfg->ssid, WIFIBRIDGE_SSID_MAXLEN + 1);
+  size_t passlen = strnlen(cfg->passphrase,
+                           WIFIBRIDGE_PASSPHRASE_MAXLEN + 1);
+
+  if (ssidlen < 1 || ssidlen > WIFIBRIDGE_SSID_MAXLEN || passlen < 8 ||
+      passlen > WIFIBRIDGE_PASSPHRASE_MAXLEN ||
+      cfg->channel < 1 || cfg->channel > 13)
+    {
+      return -EINVAL;
+    }
+
+  return OK;
+}
 
 /****************************************************************************
  * Name: wifibridge_setup_softap
@@ -60,14 +122,8 @@
 static int wifibridge_setup_softap(int sock,
                                    FAR const struct wifibridge_config_s *cfg)
 {
-  size_t passlen = strnlen(cfg->passphrase, 64);
   int version;
   int ret;
-
-  if (passlen < 8 || passlen > 63 || cfg->channel < 1 || cfg->channel > 13)
-    {
-      return -EINVAL;
-    }
 
   version = cfg->security == WIFIBRIDGE_SEC_WPA3 ?
             IW_AUTH_WPA_VERSION_WPA3 : IW_AUTH_WPA_VERSION_WPA2;
@@ -94,7 +150,8 @@ static int wifibridge_setup_softap(int sock,
     }
 
   ret = wpa_driver_wext_set_key_ext(sock, cfg->wlanif, WPA_ALG_CCMP,
-                                    cfg->passphrase, passlen);
+                                    cfg->passphrase,
+                                    strlen(cfg->passphrase));
   if (ret < 0)
     {
       return ret;
@@ -172,10 +229,15 @@ int wifibridge_start(FAR const struct wifibridge_config_s *config)
   int ret;
 
   if (config == NULL || config->bridge == NULL || config->ethif == NULL ||
-      config->wlanif == NULL || config->ssid == NULL ||
-      config->passphrase == NULL)
+      config->wlanif == NULL)
     {
       return -EINVAL;
+    }
+
+  ret = wifibridge_validate(config);
+  if (ret < 0)
+    {
+      return ret;
     }
 
   if (if_nametoindex(config->bridge) != 0)
@@ -346,3 +408,183 @@ int wifibridge_status(FAR const struct wifibridge_config_s *config,
   close(sock);
   return OK;
 }
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+
+/****************************************************************************
+ * Name: wifibridge_record_crc
+ *
+ * Description:
+ *   CRC-32 of the record after the CRC field.
+ *
+ ****************************************************************************/
+
+static uint32_t wifibridge_record_crc(
+                              FAR const struct wifibridge_record_s *record)
+{
+  return crc32((FAR const uint8_t *)&record->version,
+               sizeof(*record) - offsetof(struct wifibridge_record_s,
+                                          version));
+}
+
+/****************************************************************************
+ * Name: wifibridge_record_io
+ *
+ * Description:
+ *   Read or write the record at the start of the storage.
+ *
+ ****************************************************************************/
+
+static int wifibridge_record_io(FAR struct wifibridge_record_s *record,
+                                bool store)
+{
+  ssize_t nbytes;
+  int ret = OK;
+  int fd;
+
+  fd = open(CONFIG_NETUTILS_WIFIBRIDGE_STORAGE,
+            store ? O_WRONLY | O_CREAT | O_TRUNC : O_RDONLY, 0600);
+  if (fd < 0)
+    {
+      return -errno;
+    }
+
+  if (store)
+    {
+      nbytes = write(fd, record, sizeof(*record));
+      if (nbytes == sizeof(*record))
+        {
+          ret = fsync(fd);
+          if (ret < 0)
+            {
+              ret = -errno;
+            }
+        }
+      else
+        {
+          ret = nbytes < 0 ? -errno : -EIO;
+        }
+    }
+  else
+    {
+      nbytes = read(fd, record, sizeof(*record));
+      if (nbytes != sizeof(*record))
+        {
+          ret = nbytes < 0 ? -errno : -ENOENT;
+        }
+    }
+
+  close(fd);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wifibridge_save
+ ****************************************************************************/
+
+int wifibridge_save(FAR const struct wifibridge_config_s *config)
+{
+  struct wifibridge_record_s record;
+  int ret;
+
+  if (config == NULL)
+    {
+      return -EINVAL;
+    }
+
+  ret = wifibridge_validate(config);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  memset(&record, 0, sizeof(record));
+  record.magic    = WIFIBRIDGE_RECORD_MAGIC;
+  record.version  = WIFIBRIDGE_SAVED_VERSION;
+  record.channel  = config->channel;
+  record.security = config->security;
+  record.dhcpd    = config->dhcpd;
+  record.ipaddr   = config->ipaddr;
+  strlcpy(record.ssid, config->ssid, sizeof(record.ssid));
+  strlcpy(record.passphrase, config->passphrase,
+          sizeof(record.passphrase));
+  record.crc = wifibridge_record_crc(&record);
+
+  return wifibridge_record_io(&record, true);
+}
+
+/****************************************************************************
+ * Name: wifibridge_load
+ ****************************************************************************/
+
+int wifibridge_load(FAR struct wifibridge_config_s *config)
+{
+  struct wifibridge_config_s old_config;
+  struct wifibridge_record_s record;
+  int ret;
+
+  if (config == NULL)
+    {
+      return -EINVAL;
+    }
+
+  ret = wifibridge_record_io(&record, false);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  /* A blank or cleared storage has no record */
+
+  if (record.magic != WIFIBRIDGE_RECORD_MAGIC)
+    {
+      return -ENOENT;
+    }
+
+  /* Do not trust the rest: it can be damaged or come from another version */
+
+  if (record.crc != wifibridge_record_crc(&record) ||
+      record.version != WIFIBRIDGE_SAVED_VERSION)
+    {
+      return -EINVAL;
+    }
+
+  /* The configuration keeps its values if the record is not valid */
+
+  old_config = *config;
+
+  memcpy(config->ssid, record.ssid, sizeof(config->ssid));
+  config->ssid[WIFIBRIDGE_SSID_MAXLEN] = '\0';
+  memcpy(config->passphrase, record.passphrase, sizeof(config->passphrase));
+  config->passphrase[WIFIBRIDGE_PASSPHRASE_MAXLEN] = '\0';
+  config->channel  = record.channel;
+  config->security = record.security;
+  config->ipaddr   = record.ipaddr;
+  config->dhcpd    = record.dhcpd != 0;
+
+  ret = wifibridge_validate(config);
+  if (ret < 0)
+    {
+      *config = old_config;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: wifibridge_clear
+ ****************************************************************************/
+
+int wifibridge_clear(void)
+{
+  struct wifibridge_record_s record;
+
+  /* A record that is not one: a storage that is a device has no way to
+   * delete it.
+   */
+
+  memset(&record, 0, sizeof(record));
+  return wifibridge_record_io(&record, true);
+}
+
+#endif /* CONFIG_NETUTILS_WIFIBRIDGE_PERSIST */

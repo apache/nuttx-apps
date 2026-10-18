@@ -29,4 +29,27 @@ config NETUTILS_WIFIBRIDGE_DHCPD
 		interface.  Leave it unused when another DHCP server is
 		reachable through the Ethernet port.
 
+config NETUTILS_WIFIBRIDGE_PERSIST
+	bool "Keep the configuration in non-volatile memory"
+	default n
+	---help---
+		Allow the library to save the SoftAP configuration (SSID,
+		passphrase, channel, security, address and DHCP server option) in
+		a file or in a block device, and to load it again.  The record has
+		a CRC and is the only thing in the first bytes of the storage.
+		The passphrase is stored as is.
+
+if NETUTILS_WIFIBRIDGE_PERSIST
+
+config NETUTILS_WIFIBRIDGE_STORAGE
+	string "File or device that keeps the configuration"
+	default "/data/wifibridge.conf"
+	---help---
+		A file of a file system that is mounted at boot, or a block device
+		such as the MTD of a part of the flash (it needs BCH to be opened
+		by name).  Writing it also erases the flash that holds it, so it
+		should be a device used for this alone.
+
+endif # NETUTILS_WIFIBRIDGE_PERSIST
+
 endif # NETUTILS_WIFIBRIDGE

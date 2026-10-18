@@ -44,10 +44,15 @@ static void wifibridge_usage(FAR const char *progname)
 {
   fprintf(stderr, "Usage:\n");
   fprintf(stderr, "  %s start [-s <ssid>] [-p <passphrase>] [-c <channel>]"
-          " [-3] [-a <ipaddr>] [-d]\n", progname);
+          " [-3] [-a <ipaddr>] [-d|-D]\n", progname);
   fprintf(stderr, "  %s stop\n", progname);
   fprintf(stderr, "  %s status\n", progname);
-  fprintf(stderr, "\nstart options:\n");
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+  fprintf(stderr, "  %s save [-s <ssid>] [-p <passphrase>] [-c <channel>]"
+          " [-3] [-a <ipaddr>] [-d|-D]\n", progname);
+  fprintf(stderr, "  %s clear\n", progname);
+#endif
+  fprintf(stderr, "\nstart and save options:\n");
   fprintf(stderr, "  -s  SoftAP SSID (default %s)\n",
           CONFIG_SYSTEM_WIFIBRIDGE_SSID);
   fprintf(stderr, "  -p  SoftAP passphrase, 8..63 characters\n");
@@ -56,26 +61,45 @@ static void wifibridge_usage(FAR const char *progname)
   fprintf(stderr, "  -3  WPA3-Personal instead of WPA2-PSK\n");
   fprintf(stderr, "  -a  bridge IPv4 address, netmask 255.255.255.0\n");
   fprintf(stderr, "  -d  run the DHCP server on the bridge\n");
+  fprintf(stderr, "  -D  do not run the DHCP server\n");
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+  fprintf(stderr, "\nThe options are applied over the saved configuration,"
+          " if there is one,\nand over the defaults otherwise.  save keeps"
+          " them, start only uses them.\n");
+#endif
 }
 
-static int wifibridge_start_cmd(FAR struct wifibridge_config_s *config,
-                                int argc, FAR char **argv)
+static int wifibridge_parse(FAR struct wifibridge_config_s *config,
+                            int argc, FAR char **argv)
 {
   struct in_addr addr;
   int option;
-  int ret;
 
   optind = 1;
-  while ((option = getopt(argc, argv, "s:p:c:3a:d")) != ERROR)
+  while ((option = getopt(argc, argv, "s:p:c:3a:dD")) != ERROR)
     {
       switch (option)
         {
           case 's':
-            config->ssid = optarg;
+            if (strlen(optarg) > WIFIBRIDGE_SSID_MAXLEN)
+              {
+                fprintf(stderr, "The SSID has more than %d characters\n",
+                        WIFIBRIDGE_SSID_MAXLEN);
+                return ERROR;
+              }
+
+            strlcpy(config->ssid, optarg, sizeof(config->ssid));
             break;
 
           case 'p':
-            config->passphrase = optarg;
+            if (strlen(optarg) > WIFIBRIDGE_PASSPHRASE_MAXLEN)
+              {
+                fprintf(stderr, "The passphrase has more than %d "
+                        "characters\n", WIFIBRIDGE_PASSPHRASE_MAXLEN);
+                return ERROR;
+              }
+
+            strlcpy(config->passphrase, optarg, sizeof(config->passphrase));
             break;
 
           case 'c':
@@ -90,7 +114,7 @@ static int wifibridge_start_cmd(FAR struct wifibridge_config_s *config,
             if (inet_pton(AF_INET, optarg, &addr) != 1)
               {
                 fprintf(stderr, "Invalid IPv4 address: %s\n", optarg);
-                return EXIT_FAILURE;
+                return ERROR;
               }
 
             config->ipaddr = addr.s_addr;
@@ -102,12 +126,29 @@ static int wifibridge_start_cmd(FAR struct wifibridge_config_s *config,
             break;
 #else
             fprintf(stderr, "The DHCP server is not enabled\n");
-            return EXIT_FAILURE;
+            return ERROR;
 #endif
 
+          case 'D':
+            config->dhcpd = false;
+            break;
+
           default:
-            return EXIT_FAILURE;
+            return ERROR;
         }
+    }
+
+  return OK;
+}
+
+static int wifibridge_start_cmd(FAR struct wifibridge_config_s *config,
+                                int argc, FAR char **argv)
+{
+  int ret;
+
+  if (wifibridge_parse(config, argc, argv) < 0)
+    {
+      return EXIT_FAILURE;
     }
 
   ret = wifibridge_start(config);
@@ -119,6 +160,42 @@ static int wifibridge_start_cmd(FAR struct wifibridge_config_s *config,
 
   return EXIT_SUCCESS;
 }
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+static int wifibridge_save_cmd(FAR struct wifibridge_config_s *config,
+                               int argc, FAR char **argv)
+{
+  int ret;
+
+  if (wifibridge_parse(config, argc, argv) < 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  ret = wifibridge_save(config);
+  if (ret < 0)
+    {
+      fprintf(stderr, "Failed to save the configuration: %d\n", ret);
+      return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+
+static int wifibridge_clear_cmd(void)
+{
+  int ret;
+
+  ret = wifibridge_clear();
+  if (ret < 0 && ret != -ENOENT)
+    {
+      fprintf(stderr, "Failed to clear the configuration: %d\n", ret);
+      return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+#endif
 
 static int
 wifibridge_status_cmd(FAR const struct wifibridge_config_s *config)
@@ -164,8 +241,9 @@ int main(int argc, FAR char *argv[])
   config.bridge     = CONFIG_SYSTEM_WIFIBRIDGE_BRIDGE;
   config.ethif      = CONFIG_SYSTEM_WIFIBRIDGE_ETHIF;
   config.wlanif     = CONFIG_SYSTEM_WIFIBRIDGE_WLANIF;
-  config.ssid       = CONFIG_SYSTEM_WIFIBRIDGE_SSID;
-  config.passphrase = CONFIG_SYSTEM_WIFIBRIDGE_PASSPHRASE;
+  strlcpy(config.ssid, CONFIG_SYSTEM_WIFIBRIDGE_SSID, sizeof(config.ssid));
+  strlcpy(config.passphrase, CONFIG_SYSTEM_WIFIBRIDGE_PASSPHRASE,
+          sizeof(config.passphrase));
   config.channel    = CONFIG_SYSTEM_WIFIBRIDGE_CHANNEL;
   config.security   = WIFIBRIDGE_SEC_WPA2;
   config.ipaddr     = htonl(CONFIG_SYSTEM_WIFIBRIDGE_IPADDR);
@@ -176,6 +254,19 @@ int main(int argc, FAR char *argv[])
       wifibridge_usage(argv[0]);
       return EXIT_FAILURE;
     }
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+  /* The saved configuration, if there is one, replaces the defaults */
+
+  if (strcmp(argv[1], "start") == 0 || strcmp(argv[1], "save") == 0)
+    {
+      ret = wifibridge_load(&config);
+      if (ret < 0 && ret != -ENOENT)
+        {
+          fprintf(stderr, "Ignoring the saved configuration: %d\n", ret);
+        }
+    }
+#endif
 
   if (strcmp(argv[1], "start") == 0)
     {
@@ -196,6 +287,17 @@ int main(int argc, FAR char *argv[])
     {
       return wifibridge_status_cmd(&config);
     }
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+  else if (strcmp(argv[1], "save") == 0)
+    {
+      return wifibridge_save_cmd(&config, argc - 1, argv + 1);
+    }
+  else if (strcmp(argv[1], "clear") == 0)
+    {
+      return wifibridge_clear_cmd();
+    }
+#endif
 
   wifibridge_usage(argv[0]);
   return EXIT_FAILURE;

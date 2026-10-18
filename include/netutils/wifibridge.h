@@ -34,6 +34,13 @@
 #include <netinet/in.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define WIFIBRIDGE_SSID_MAXLEN        32
+#define WIFIBRIDGE_PASSPHRASE_MAXLEN  63
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
@@ -52,8 +59,12 @@ struct wifibridge_config_s
   FAR const char *bridge;     /* Bridge interface to create, e.g. "br0" */
   FAR const char *ethif;      /* Ethernet port, e.g. "eth0" */
   FAR const char *wlanif;     /* Wi-Fi port, e.g. "wlan0" */
-  FAR const char *ssid;       /* SoftAP SSID */
-  FAR const char *passphrase; /* SoftAP passphrase, 8..63 characters */
+
+  /* SoftAP SSID and passphrase (8..63 characters) */
+
+  char ssid[WIFIBRIDGE_SSID_MAXLEN + 1];
+  char passphrase[WIFIBRIDGE_PASSPHRASE_MAXLEN + 1];
+
   uint8_t channel;            /* 2.4 GHz channel, 1..13 */
   enum wifibridge_security_e security;
   in_addr_t ipaddr;           /* Bridge address, network byte order */
@@ -66,8 +77,11 @@ struct wifibridge_status_s
   bool exists;                /* The bridge interface exists */
   bool eth_up;                /* The Ethernet port is up */
   bool wlan_up;               /* The Wi-Fi port is up */
-  char ssid[33];              /* SSID the Wi-Fi port is set to */
   struct in_addr ipaddr;      /* Bridge address */
+
+  /* SSID the Wi-Fi port is set to */
+
+  char ssid[WIFIBRIDGE_SSID_MAXLEN + 1];
 };
 
 /****************************************************************************
@@ -124,6 +138,53 @@ int wifibridge_stop(FAR const struct wifibridge_config_s *config);
 
 int wifibridge_status(FAR const struct wifibridge_config_s *config,
                       FAR struct wifibridge_status_s *status);
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+
+/****************************************************************************
+ * Name: wifibridge_save
+ *
+ * Description:
+ *   Keep the SSID, passphrase, channel, security, address and DHCP server
+ *   option of the configuration in the storage
+ *   (CONFIG_NETUTILS_WIFIBRIDGE_STORAGE), to survive a reset.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int wifibridge_save(FAR const struct wifibridge_config_s *config);
+
+/****************************************************************************
+ * Name: wifibridge_load
+ *
+ * Description:
+ *   Read what wifibridge_save() kept and set the matching fields of the
+ *   configuration.  The other fields of the configuration are left alone.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; -ENOENT if nothing is saved, or another negated
+ *   errno value on failure.
+ *
+ ****************************************************************************/
+
+int wifibridge_load(FAR struct wifibridge_config_s *config);
+
+/****************************************************************************
+ * Name: wifibridge_clear
+ *
+ * Description:
+ *   Forget what wifibridge_save() kept.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int wifibridge_clear(void);
+
+#endif /* CONFIG_NETUTILS_WIFIBRIDGE_PERSIST */
 
 #undef EXTERN
 #ifdef __cplusplus
