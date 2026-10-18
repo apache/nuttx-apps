@@ -508,7 +508,8 @@ static void do_usrsock_blocking_poll_thread(FAR void *param)
   intptr_t tidx = (intptr_t)param;
   struct sockaddr_in addr;
   int ret;
-  struct pollfd pfd = {
+  struct pollfd pfd =
+  {
   };
 
   bool test_abort = !!(test_flags & TEST_FLAG_DAEMON_ABORT);
