@@ -35,7 +35,10 @@ SUBDIRS		+= longjmp
 endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-SUBDIRS		+= mutex pthread
+SUBDIRS		+= mutex pthread tls
+ifeq ($(CONFIG_HAVE_CXX),y)
+SUBDIRS		+= tlsxx
+endif
 endif
 
 ifneq ($(CONFIG_ARCH_ADDRENV),y)
