@@ -34,7 +34,6 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <sched.h>
-#include <signal.h>
 #include <string.h>
 
 #include <nuttx/lib/builtin.h>
@@ -74,14 +73,6 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char **argv,
                 FAR const struct nsh_param_s *param)
 {
-#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS) && \
-    defined(CONFIG_ENABLE_ALL_SIGNALS)
-  struct sigaction act;
-  struct sigaction old;
-#endif /* !CONFIG_NSH_DISABLEBG && CONFIG_SCHED_CHILD_STATUS &&
-        * CONFIG_ENABLE_ALL_SIGNALS
-        */
-
   int ret = OK;
 
   /* Lock the scheduler in an attempt to prevent the application from
@@ -89,23 +80,6 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    */
 
   sched_lock();
-
-#if !defined(CONFIG_NSH_DISABLEBG) && \
-    defined(CONFIG_SCHED_CHILD_STATUS) && defined(CONFIG_ENABLE_ALL_SIGNALS)
-  /* Ignore the child status if run the application on background. */
-
-  if (vtbl->np.np_bg == true)
-    {
-      act.sa_handler = SIG_DFL;
-      act.sa_flags = SA_NOCLDWAIT;
-      sigemptyset(&act.sa_mask);
-
-      sigaction(SIGCHLD, &act, &old);
-    }
-
-#endif /* !CONFIG_NSH_DISABLEBG && !CONFIG_SCHED_CHILD_STATUS &&
-        * CONFIG_ENABLE_ALL_SIGNALS
-        */
 
   /* Try to find and execute the command within the list of builtin
    * applications.
@@ -230,22 +204,6 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if !defined(CONFIG_SCHED_WAITPID) || !defined(CONFIG_NSH_DISABLEBG)
         {
-#if !defined(CONFIG_NSH_DISABLEBG) && defined(CONFIG_SCHED_CHILD_STATUS) && \
-    defined(CONFIG_ENABLE_ALL_SIGNALS)
-
-          /* Restore the old actions */
-
-#  ifndef CONFIG_SCHED_WAITPID
-          if (vtbl->np.np_bg == true)
-#  endif
-            {
-              sigaction(SIGCHLD, &old, NULL);
-            }
-
-#  endif /* !CONFIG_NSH_DISABLEBG && CONFIG_SCHED_CHILD_STATUS && \
-          * CONFIG_ENABLE_ALL_SIGNALS
-          */
-
           struct sched_param sched;
 
           sched_getparam(ret, &sched);
