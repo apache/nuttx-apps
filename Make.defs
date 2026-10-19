@@ -23,6 +23,12 @@
 TOPDIR ?= $(APPDIR)/import
 -include $(TOPDIR)/Make.defs
 
+# Send the emulated TLS calls of loadable modules and of the programs of a
+# kernel build to libc (EMUTLS_LDFLAGS: see tools/Config.mk of NuttX)
+
+LDELFFLAGS += $(EMUTLS_LDFLAGS)
+LDMODULEFLAGS += $(EMUTLS_LDFLAGS)
+
 # Application Directories
 
 # BUILDIRS is the list of top-level directories containing Make.defs files
