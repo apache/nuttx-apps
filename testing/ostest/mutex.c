@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "ostest.h"
 
@@ -198,6 +199,102 @@ static void mutex_move_test(void)
   printf("\tMoved Errors\t%u\t%u\n", moved_nerrors[0], moved_nerrors[1]);
 }
 
+/****************************************************************************
+ * Name: mutex_zero_test
+ *
+ * Description:
+ *   Use a zero-filled mutex without initializing it.  NuttX's
+ *   PTHREAD_MUTEX_INITIALIZER isn't all zeros, but Rust's libc crate and
+ *   other FFI code assume it is, see
+ *   https://github.com/apache/nuttx/issues/20407
+ *
+ ****************************************************************************/
+
+static void mutex_zero_test(void)
+{
+  pthread_t thread1;
+  pthread_t thread2;
+  int status;
+  pthread_mutex_t mutex;
+  volatile int mutex_value = 0;
+  int nloops[2] =
+    {
+      0,
+      0
+    };
+
+  int nerrors[2] =
+    {
+      0,
+      0
+    };
+
+  mutex_thread_args_t thread1_args;
+  mutex_thread_args_t thread2_args;
+
+  printf("\nTesting zero-filled mutex\n");
+
+  /* An unused zero-filled mutex can be destroyed */
+
+  memset(&mutex, 0, sizeof(mutex));
+  status = pthread_mutex_destroy(&mutex);
+  if (status != 0)
+    {
+      printf("ERROR destroying zero-filled mutex, status=%d\n", status);
+      ASSERT(false);
+    }
+
+  /* And locked */
+
+  memset(&mutex, 0, sizeof(mutex));
+  status = pthread_mutex_trylock(&mutex);
+  if (status != 0)
+    {
+      printf("ERROR trylock on zero-filled mutex, status=%d\n", status);
+      ASSERT(false);
+    }
+
+  pthread_mutex_unlock(&mutex);
+
+  /* Two threads racing on a fresh one */
+
+  memset(&mutex, 0, sizeof(mutex));
+
+  thread1_args.mutex_ptr = &mutex;
+  thread1_args.mutex_value = &mutex_value;
+  thread1_args.nloops = nloops;
+  thread1_args.nerrors = nerrors;
+  thread1_args.thread_id = 1;
+
+  thread2_args = thread1_args;
+  thread2_args.thread_id = 2;
+
+  status = pthread_create(&thread1, NULL, mutex_thread_func,
+                          &thread1_args);
+  if (status != 0)
+    {
+      printf("ERROR in zero-filled mutex thread#1 creation\n");
+      ASSERT(false);
+    }
+
+  status = pthread_create(&thread2, NULL, mutex_thread_func,
+                          &thread2_args);
+  if (status != 0)
+    {
+      printf("ERROR in zero-filled mutex thread#2 creation\n");
+      ASSERT(false);
+    }
+
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+
+  pthread_mutex_destroy(&mutex);
+
+  printf("\t\tThread1\tThread2\n");
+  printf("\tZero Loops\t%u\t%u\n", nloops[0], nloops[1]);
+  printf("\tZero Errors\t%u\t%u\n", nerrors[0], nerrors[1]);
+}
+
 void mutex_simple_test(void)
 {
   pthread_t thread1;
@@ -275,4 +372,5 @@ void mutex_test(void)
 {
   mutex_simple_test();
   mutex_move_test();
+  mutex_zero_test();
 }
