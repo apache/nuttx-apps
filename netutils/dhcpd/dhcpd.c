@@ -1525,8 +1525,8 @@ static pid_t dhcpd_get_pid(void)
 
 #if !defined(CONFIG_BUILD_KERNEL)
   pid = g_dhcpd_daemon.ds_pid;
-#elif defined(CONFIG_SYSTEM_POPEN) || (defined(CONFIG_PIPES) && \
-      defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_SCHED_WAITPID))
+#elif defined(CONFIG_PIPES) && defined(CONFIG_LIBC_EXECFUNCS) && \
+      defined(CONFIG_SCHED_WAITPID)
   FAR FILE *fp;
   char line[32];
 

@@ -6,7 +6,7 @@
 config TESTING_POPEN
 	tristate "popen()/dpopen() test"
 	default n
-	depends on SYSTEM_POPEN || (PIPES && LIBC_EXECFUNCS && SCHED_WAITPID)
+	depends on PIPES && LIBC_EXECFUNCS && SCHED_WAITPID
 	---help---
 		Test popen()/pclose() and dpopen()/dpclose() in both shell
 		and no-shell modes. The test binary doubles as its own

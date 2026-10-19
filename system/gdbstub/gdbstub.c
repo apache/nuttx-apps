@@ -38,8 +38,8 @@
 
 static int gdb_monitor(FAR struct gdb_state_s *state, FAR const char *cmd)
 {
-#if defined(CONFIG_SYSTEM_POPEN) || (defined(CONFIG_PIPES) && \
-    defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_SCHED_WAITPID))
+#if defined(CONFIG_PIPES) && defined(CONFIG_LIBC_EXECFUNCS) && \
+    defined(CONFIG_SCHED_WAITPID)
   FAR FILE *file;
 
   file = popen(cmd, "r");

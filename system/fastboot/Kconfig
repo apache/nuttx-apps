@@ -58,7 +58,7 @@ config SYSTEM_FASTBOOTD_SHELL
 	bool "Execute custom commands"
 	default n
 	depends on SCHED_CHILD_STATUS
-	depends on SYSTEM_POPEN || (PIPES && LIBC_EXECFUNCS && SCHED_WAITPID)
+	depends on PIPES && LIBC_EXECFUNCS && SCHED_WAITPID
 	---help---
 		Enable to support executing custom commands.
 		e.g. fastboot oem shell ps
