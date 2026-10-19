@@ -72,14 +72,16 @@ BINDIR_DEBUG ?= $(APPDIR)$(DELIM)bin_debug
 
 BUILD_SHARED_LIBRARY ?= $(APPDIR)$(DELIM)Library.mk
 
-# Locate the compiler runtime used by loadable modules.  GCC and Clang
-# support these queries; other compilers may need an equivalent lookup.
+# Locate the compiler runtime used by loadable modules.  Ask the compiler
+# that builds the modules: on macOS the simulator builds them with an ELF
+# toolchain, not with the host compiler.  GCC and Clang support these
+# queries; other compilers may need an equivalent lookup.
 
 define FIND_COMPILER_RT_LIB
-$(or $(wildcard $(shell $(CC) $(ARCHCPUFLAGS) \
+$(or $(wildcard $(shell $(MODULECC) $(ARCHCPUFLAGS) \
 	--print-libgcc-file-name)), \
-	$(wildcard $(shell $(CC) $(ARCHCPUFLAGS) --print-file-name \
-	$(notdir $(shell $(CC) $(ARCHCPUFLAGS) \
+	$(wildcard $(shell $(MODULECC) $(ARCHCPUFLAGS) --print-file-name \
+	$(notdir $(shell $(MODULECC) $(ARCHCPUFLAGS) \
 	--print-libgcc-file-name)))))
 endef
 
