@@ -92,14 +92,16 @@ all:: $(LOCAL_PREFIX).built
 
 define LOCAL_COMPILE_C
 	$(ECHO_BEGIN)"CC: $1 "
-	$(Q) $(MODULECC) -c $(CMODULEFLAGS) $(LOCAL_CFLAGS) \
+	$(Q) $(MODULECC) -c $(filter-out $(NOCOVERAGE),$(CMODULEFLAGS)) \
+		$(LOCAL_CFLAGS) \
 		$($(strip $1)_CELFFLAGS) $1 -o $2
 	$(ECHO_END)
 endef
 
 define LOCAL_COMPILE_CXX
 	$(ECHO_BEGIN)"CXX: $1 "
-	$(Q) $(CXX) -c $(CXXMODULEFLAGS) $(LOCAL_CXXFLAGS) \
+	$(Q) $(CXX) -c $(filter-out $(NOCOVERAGE),$(CXXMODULEFLAGS)) \
+		$(LOCAL_CXXFLAGS) \
 		$($(strip $1)_CXXELFFLAGS) $1 -o $2
 	$(ECHO_END)
 endef

@@ -88,6 +88,17 @@ endef
 BIN  ?= $(APPDIR)$(DELIM)libapps$(LIBEXT)
 WBIN ?= $(APPDIR)$(DELIM)wasm$(DELIM)libwasm$(LIBEXT)
 
+# A loadable module of a flat or protected build can use the coverage
+# functions of the image only with CONFIG_COVERAGE_MINI and GCC.  Otherwise
+# it is built without the coverage options of CONFIG_COVERAGE_ALL.
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  ifneq ($(CONFIG_COVERAGE_MINI)$(CONFIG_ARCH_TOOLCHAIN_GCC),yy)
+    NOCOVERAGE = -fprofile-arcs -ftest-coverage -fprofile-instr-generate \
+                 -fcoverage-mapping
+  endif
+endif
+
 # Tools
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
