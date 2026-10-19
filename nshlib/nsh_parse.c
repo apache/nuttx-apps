@@ -34,6 +34,7 @@
 #include <nuttx/debug.h>
 #include <sched.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #ifdef CONFIG_NSH_CMDPARMS
 #  include <sys/stat.h>
@@ -2522,6 +2523,17 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 
   strlcpy(tracebuf, cmdline, sizeof(tracebuf));
   sched_note_beginex(NOTE_TAG_APP, tracebuf);
+#endif
+
+#if defined(CONFIG_SCHED_CHILD_STATUS) && defined(CONFIG_SCHED_WAITPID)
+  /* Reap the children that exited and that nobody waits for: background
+   * commands and pipeline stages.  The kernel keeps their exit status
+   * until the parent waits for it.
+   */
+
+  while (waitpid(-1, NULL, WNOHANG) > 0)
+    {
+    }
 #endif
 
   /* Initialize parser state */
