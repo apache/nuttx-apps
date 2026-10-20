@@ -1046,7 +1046,7 @@ static int ptp_get_tx_timestamp(FAR struct ptp_state_s *state,
   else
     {
       ptpwarn("PTP TX HWTS: poll ret=%d revents=0x%04x errno=%d\n",
-              ret, (unsigned int)pfd.revents, errno);
+              ret, pfd.revents, errno);
     }
 
   return ERROR;
