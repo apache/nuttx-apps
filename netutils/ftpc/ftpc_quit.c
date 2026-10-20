@@ -70,7 +70,7 @@ int ftpc_quit(SESSION handle)
 
   if (ftpc_connected(session))
     {
-      session->replytimeo = 10 * CLOCKS_PER_SEC;
+      session->replytimeo = 10 * CLK_TCK;
       ret = ftpc_cmd(session, "QUIT");
     }
 
