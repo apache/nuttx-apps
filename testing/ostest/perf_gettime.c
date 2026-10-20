@@ -206,6 +206,7 @@ void perf_gettime_test(void)
   for (i = 0; i < 5; i++)
     {
       clock_t t = perf_gettime();
+
       printf("perf_gettime_test: Rapid call %d: %lu\n", i + 2,
               (unsigned long)t);
 
