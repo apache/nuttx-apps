@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
+#include <sys/mount.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 
@@ -58,6 +59,14 @@ struct cmd_map_s
   uint8_t maxargs;
   CODE int (*func)(FAR struct action_manager_s *, int, FAR char **);
 };
+
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+struct mount_flag_s
+{
+  FAR const char *name;
+  unsigned long flag;
+};
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -108,10 +117,34 @@ static int cmd_rptun(FAR struct action_manager_s *am,
 #endif
 static int cmd_unlink(FAR struct action_manager_s *am,
                       int argc, FAR char **argv);
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+static int cmd_mount(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv);
+static int cmd_umount(FAR struct action_manager_s *am,
+                      int argc, FAR char **argv);
+#endif
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+/* The flags of the "mount" command, as in the Android init language */
+
+static const struct mount_flag_s g_mount_flags[] =
+{
+  {"defaults", 0},
+  {"rw", 0},
+  {"ro", MS_RDONLY},
+  {"nosuid", MS_NOSUID},
+  {"nodev", MS_NODEV},
+  {"noexec", MS_NOEXEC},
+  {"sync", MS_SYNCHRONOUS},
+  {"remount", MS_REMOUNT},
+  {"dirsync", MS_DIRSYNC},
+  {"noatime", MS_NOATIME},
+};
+#endif
 
 static const struct cmd_map_s g_builtin[] =
 {
@@ -125,6 +158,9 @@ static const struct cmd_map_s g_builtin[] =
   {"class_stop", 2, 2, cmd_class_stop},
   {"exec", 3, 99, cmd_exec},
   {"exec_start", 2, 2, cmd_exec_start},
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+  {"mount", 4, CONFIG_SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX, cmd_mount},
+#endif
 #ifdef CONFIG_NETUTILS_NETINIT
   {"netinit", 1, 1, cmd_netinit},
 #endif
@@ -143,6 +179,9 @@ static const struct cmd_map_s g_builtin[] =
 #endif
   {"stop", 2, 2, cmd_stop},
   {"trigger", 2, 2, cmd_trigger},
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+  {"umount", 2, 2, cmd_umount},
+#endif
   {"unlink", 2, 2, cmd_unlink},
 };
 
@@ -358,6 +397,162 @@ static int cmd_unlink(FAR struct action_manager_s *am,
 
   return ret;
 }
+
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+/* Copy the comma-separated list in options to data without the flags
+ * (g_mount_flags), and return the flags.  options does not change, as the
+ * command can run again.  data has CONFIG_SYSTEM_NXINIT_RC_LINE_MAX bytes,
+ * and an argument is part of one line.
+ */
+
+static unsigned long mount_parse_options(FAR const char *options,
+                                         FAR char *data)
+{
+  FAR const char *end;
+  FAR char *dst = data;
+  unsigned long flags = 0;
+  size_t len;
+  size_t j;
+
+  while (*options != '\0')
+    {
+      end = strchrnul(options, ',');
+      len = end - options;
+
+      for (j = 0; j < nitems(g_mount_flags); j++)
+        {
+          if (!strncmp(g_mount_flags[j].name, options, len) &&
+              g_mount_flags[j].name[len] == '\0')
+            {
+              flags |= g_mount_flags[j].flag;
+              break;
+            }
+        }
+
+      if (j == nitems(g_mount_flags) && len > 0)
+        {
+          if (dst != data)
+            {
+              *dst++ = ',';
+            }
+
+          memcpy(dst, options, len);
+          dst += len;
+        }
+
+      options = *end == ',' ? end + 1 : end;
+    }
+
+  *dst = '\0';
+  return flags;
+}
+
+/* mount <type> <device> <dir> [<flag>]* [<options>]
+ * mount -t <type> [-o <options>] [<device>] <dir>
+ *
+ * <flag> is one of g_mount_flags.  <options> is a comma-separated list of
+ * flags and file system options (the data of mount()), as in the NSH
+ * command.  The second form is the one of the NSH command.
+ */
+
+static int cmd_mount(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv)
+{
+  char data[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
+  FAR const char *options = NULL;
+  FAR const char *source = NULL;
+  FAR const char *target;
+  FAR const char *type = NULL;
+  unsigned long flags = 0;
+  int ret;
+  int i;
+
+  UNUSED(am);
+
+  data[0] = '\0';
+  if (argc > 1 && argv[1][0] == '-')
+    {
+      for (i = 1; i < argc - 1 && argv[i][0] == '-'; i += 2)
+        {
+          if (!strcmp(argv[i], "-t"))
+            {
+              type = argv[i + 1];
+            }
+          else if (!strcmp(argv[i], "-o"))
+            {
+              options = argv[i + 1];
+            }
+          else
+            {
+              break;
+            }
+        }
+
+      if (type == NULL || i >= argc || argv[i][0] == '-' || argc - i > 2)
+        {
+          init_err("mount: bad arguments");
+          return -EINVAL;
+        }
+
+      if (argc - i == 2)
+        {
+          source = argv[i++];
+        }
+
+      target = argv[i];
+      if (options != NULL)
+        {
+          flags = mount_parse_options(options, data);
+        }
+    }
+  else
+    {
+      type   = argv[1];
+      source = argv[2];
+      target = argv[3];
+
+      for (i = 4; i < argc; i++)
+        {
+          flags |= mount_parse_options(argv[i], data);
+          if (data[0] != '\0' && i != argc - 1)
+            {
+              init_err("mount '%s': unknown flag '%s'", target, argv[i]);
+              return -EINVAL;
+            }
+        }
+    }
+
+  if (mount(source, target, type, flags,
+            data[0] != '\0' ? data : NULL) < 0)
+    {
+      ret = -errno;
+      init_err("mount %s '%s' on '%s' failed: %d",
+               type, source ? source : "", target, -ret);
+      return ret;
+    }
+
+  return 0;
+}
+
+/* umount <dir> */
+
+static int cmd_umount(FAR struct action_manager_s *am,
+                      int argc, FAR char **argv)
+{
+  int ret;
+
+  UNUSED(am);
+
+  if (umount(argv[1]) < 0)
+    {
+      ret = errno;
+      init_err("umount '%s' failed: %d", argv[1], ret);
+      return -ret;
+    }
+
+  return 0;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
