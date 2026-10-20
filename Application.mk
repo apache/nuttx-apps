@@ -38,6 +38,14 @@ ifneq ($(MAINSRC),)
       MODCXXFLAGS = $(CXXELFFLAGS)
       MODLDFLAGS = $(LDELFFLAGS)
   endif
+
+  # The compiler driver (CONFIG_LTO_FULL) takes a linker option with -Wl,
+
+  ifneq ($(filter %gcc %clang,$(firstword $(MODULELD))),)
+    MODDEFSYM = -Wl,--defsym=
+  else
+    MODDEFSYM = --defsym=
+  endif
 endif
 
 # The GNU make CURDIR will always be a POSIX-like path with forward slashes
@@ -140,13 +148,13 @@ ifneq ($(strip $(PROGNAME)),)
   # Per-target so each PROGLIST entry picks up its own STACKSIZE_/PRIORITY_.
 
   $(PROGLIST): MODLDFLAGS += \
-    $(if $(STACKSIZE_$@),--defsym nx_stacksize=$(STACKSIZE_$@)) \
-    $(if $(filter-out SCHED_PRIORITY_DEFAULT,$(PRIORITY_$@)),--defsym nx_priority=$(PRIORITY_$@))
+    $(if $(STACKSIZE_$@),$(MODDEFSYM)nx_stacksize=$(STACKSIZE_$@)) \
+    $(if $(filter-out SCHED_PRIORITY_DEFAULT,$(PRIORITY_$@)),$(MODDEFSYM)nx_priority=$(PRIORITY_$@))
 ifeq ($(CONFIG_SCHED_USER_IDENTITY),y)
   $(PROGLIST): MODLDFLAGS += \
-    $(if $(UID_$@),--defsym nx_uid=$(UID_$@)) \
-    $(if $(GID_$@),--defsym nx_gid=$(GID_$@)) \
-    $(if $(MODE_$@),--defsym nx_mode=$(MODE_$@))
+    $(if $(UID_$@),$(MODDEFSYM)nx_uid=$(UID_$@)) \
+    $(if $(GID_$@),$(MODDEFSYM)nx_gid=$(GID_$@)) \
+    $(if $(MODE_$@),$(MODDEFSYM)nx_mode=$(MODE_$@))
 endif
 
   # Keep the attribute symbols through --strip-unneeded so the binary loader
