@@ -47,6 +47,7 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test(test_nxinit_parser_arguments_truncate),
       cmocka_unit_test(test_nxinit_parser_config_sections),
       cmocka_unit_test(test_nxinit_parser_config_skip_blank_lines),
+      cmocka_unit_test(test_nxinit_parser_config_skip_comments),
       cmocka_unit_test(test_nxinit_parser_config_unknown_section),
       cmocka_unit_test(test_nxinit_parser_config_line_too_long),
       cmocka_unit_test(test_nxinit_parser_config_line_crosses_boundary),

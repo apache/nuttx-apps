@@ -313,6 +313,42 @@ void test_nxinit_parser_config_skip_blank_lines(FAR void **state)
 }
 
 /****************************************************************************
+ * Name: test_nxinit_parser_config_skip_comments
+ *
+ * Description:
+ *   Lines whose first character that is not whitespace is '#' are
+ *   comments: before the first section, inside a section and at the end.
+ *   They do not reach the section's parse callback.
+ ****************************************************************************/
+
+void test_nxinit_parser_config_skip_comments(FAR void **state)
+{
+  struct mock_parser_ctx_s ctx =
+    {
+      0
+    };
+
+  struct parser_s table[] =
+    {
+      {"secA", mock_parse, mock_check, &ctx},
+      {NULL},
+    };
+
+  int ret;
+
+  ret = parse_content(table,
+                      "# first line\n"
+                      "secA one\n"
+                      "  # inside the section\n"
+                      "  line-a1\n"
+                      "#last line\n");
+
+  assert_int_equal(ret, 0);
+  assert_int_equal(ctx.section_count, 1);
+  assert_int_equal(ctx.line_count, 1);
+}
+
+/****************************************************************************
  * Name: test_nxinit_parser_config_unknown_section
  *
  * Description:
