@@ -71,6 +71,7 @@ void test_nxinit_action_event_match_invert(FAR void **state);
 void test_nxinit_action_event_match_fnmatch(FAR void **state);
 void test_nxinit_action_event_and_semantics(FAR void **state);
 void test_nxinit_action_empty_skipped(FAR void **state);
+void test_nxinit_action_builtin_mount(FAR void **state);
 
 /****************************************************************************
  * Name: test_nxinit_service_*
