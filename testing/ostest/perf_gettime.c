@@ -28,6 +28,7 @@
 #include <nuttx/arch.h>
 
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -51,7 +52,7 @@
 
 #ifdef CONFIG_ARCH_PERF_EVENTS
 static clock_t g_prev_time = 0;
-static clock_t g_min_interval = ULONG_MAX;
+static clock_t g_min_interval = CLOCK_MAX;
 static clock_t g_max_interval = 0;
 static unsigned long g_total_interval = 0;
 static int g_iteration_count = 0;
@@ -103,7 +104,7 @@ void perf_gettime_test(void)
 
   printf("\nTest 2: Verify monotonically increasing time values\n");
   g_total_interval = 0;
-  g_min_interval = ULONG_MAX;
+  g_min_interval = CLOCK_MAX;
   g_max_interval = 0;
   g_iteration_count = 0;
 
@@ -166,10 +167,10 @@ void perf_gettime_test(void)
 
       /* Verify that intervals are within reasonable bounds */
 
-      if (g_max_interval == 0 || g_min_interval == ULONG_MAX)
+      if (g_max_interval == 0 || g_min_interval == CLOCK_MAX)
         {
-          printf("perf_gettime_test: WARNING - \
-                  No time intervals recorded\n");
+          printf("perf_gettime_test: WARNING - "
+                 "No time intervals recorded\n");
         }
       else
         {
