@@ -74,4 +74,8 @@ void i_handle_mouse_event(void);
 int get_kbd_event(struct keyboard_event_s *sample);
 #endif
 
+#ifdef CONFIG_GAMES_NXDOOM_UARTKBD
+int uartkbd_get_event(int fd, struct keyboard_event_s *sample);
+#endif
+
 #endif /* __I_INPUT__ */

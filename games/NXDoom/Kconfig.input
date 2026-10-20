@@ -11,6 +11,16 @@ endchoice # Input method
 
 if GAMES_NXDOOM_KEYBOARD
 
+config GAMES_NXDOOM_UARTKBD
+	bool "Keys from a serial terminal"
+	default n
+	---help---
+		Read the keys from a serial terminal instead of a keyboard driver.
+		KBDPATH then names a tty, such as /dev/console.  A terminal reports
+		a key press only, so each press is released again once the terminal
+		stops repeating it.  WASD or the arrow keys move, J fires, K runs,
+		L strafes, E or space uses, Q or Esc opens the menu.
+
 config GAMES_NXDOOM_KBDPATH
 	string "Keyboard device path"
 	default "/dev/kbd0"

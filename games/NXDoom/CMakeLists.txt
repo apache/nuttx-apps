@@ -196,6 +196,11 @@ if(CONFIG_GAMES_NXDOOM)
     list(APPEND SRCS src/i_rtttl_music.c)
   endif()
 
+  # Optional keys from a serial terminal
+  if(CONFIG_GAMES_NXDOOM_UARTKBD)
+    list(APPEND SRCS src/i_input_uartkbd.c)
+  endif()
+
   set(INCDIRS src src/doom textscreen pcsound)
 
   nuttx_add_application(

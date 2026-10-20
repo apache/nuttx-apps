@@ -219,6 +219,12 @@ ifeq ($(CONFIG_GAMES_NXDOOM_RTTTL_MUSIC),y)
 CSRCS += $(COMMONSRCDIR)/i_rtttl_music.c
 endif
 
+# If the keys come from a serial terminal, then add that source
+
+ifeq ($(CONFIG_GAMES_NXDOOM_UARTKBD),y)
+CSRCS += $(COMMONSRCDIR)/i_input_uartkbd.c
+endif
+
 MAINSRC  = $(COMMONSRCDIR)/i_main.c
 
 include $(APPDIR)/Application.mk
