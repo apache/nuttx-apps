@@ -63,64 +63,6 @@ struct keyboard_dev g_kbd_dev =
 };
 #endif
 
-#if 0
-static const int g_scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
-
-/* Lookup table for mapping ASCII characters to their equivalent when
- * shift is pressed on a US layout keyboard. This is the original table
- * as found in the Doom sources, comments and all.
- */
-
-static const char shiftxform[] =
-{
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-    11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-    31, ' ', '!', '"', '#', '$', '%', '&',
-    '"', /* shift-' */
-    '(', ')', '*', '+',
-    '<', /* shift-, */
-    '_', /* shift-- */
-    '>', /* shift-. */
-    '?', /* shift-/ */
-    ')', /* shift-0 */
-    '!', /* shift-1 */
-    '@', /* shift-2 */
-    '#', /* shift-3 */
-    '$', /* shift-4 */
-    '%', /* shift-5 */
-    '^', /* shift-6 */
-    '&', /* shift-7 */
-    '*', /* shift-8 */
-    '(', /* shift-9 */
-    ':',
-    ':', /* shift-; */
-    '<',
-    '+', /* shift-= */
-    '>', '?', '@',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    '[', /* shift-[ */
-    '!', /* shift-backslash - OH MY GOD DOES WATCOM SUCK */
-    ']', /* shift-] */
-    '"', '_',
-    '\'', /* shift-` */
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    '{', '|', '}', '~', 127
-};
-
-/* If true, i_start_text_input() has been called, and we are populating
- * the data3 field of ev_keydown events.
- */
-
-static boolean text_input_enabled = true;
-
-/* Bit mask of mouse button state. */
-
-static unsigned int mouse_button_state = 0;
-#endif
-
 /* Disallow mouse and joystick movement to cause forward/backward
  * motion.  Specified with the '-novert' command line parameter.
  * This is an int to allow saving to config file
@@ -385,6 +327,10 @@ int get_kbd_event(struct keyboard_event_s *sample)
     {
       return err;
     }
+
+#ifdef CONFIG_GAMES_NXDOOM_UARTKBD
+  return uartkbd_get_event(g_kbd_dev.fd, sample);
+#endif
 
   /* Read events until we're out of them */
 
