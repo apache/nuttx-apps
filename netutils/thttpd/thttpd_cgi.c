@@ -379,7 +379,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
           nbytes_read = read(cc->connfd, cc->inbuf.buffer,
                              MIN(CONFIG_THTTPD_CGIINBUFFERSIZE,
                              cc->inbuf.contentlength - cc->inbuf.nbytes));
-          ninfo("nbytes_read: %d\n", nbytes_read);
+          ninfo("nbytes_read: %zd\n", nbytes_read);
           if (nbytes_read < 0)
             {
               if (errno != EINTR)
@@ -395,7 +395,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
         {
           nbytes_written = httpd_write(cc->wrfd, cc->inbuf.buffer,
                                        nbytes_read);
-          ninfo("nbytes_written: %d\n", nbytes_written);
+          ninfo("nbytes_written: %zd\n", nbytes_written);
           if (nbytes_written != nbytes_read)
             {
               nerr("ERROR: httpd_write failed\n");
@@ -472,7 +472,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
 
               nbytes_read = read(cc->rdfd, cc->inbuf.buffer,
                                  CONFIG_THTTPD_CGIINBUFFERSIZE);
-              ninfo("Read %d bytes from fd %d\n", nbytes_read, cc->rdfd);
+              ninfo("Read %zd bytes from fd %d\n", nbytes_read, cc->rdfd);
 
               if (nbytes_read < 0)
                 {
@@ -512,7 +512,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                        nbytes_read);
               cc->outbuf.len                   += nbytes_read;
               cc->outbuf.buffer[cc->outbuf.len] = '\0';
-              ninfo("Header bytes accumulated: %d\n", cc->outbuf.len);
+              ninfo("Header bytes accumulated: %zu\n", cc->outbuf.len);
 
               /* Check for end of header */
 
@@ -663,7 +663,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
 
               nbytes_read = read(cc->rdfd, cc->inbuf.buffer,
                                  CONFIG_THTTPD_CGIINBUFFERSIZE);
-              ninfo("Read %d bytes from fd %d\n", nbytes_read, cc->rdfd);
+              ninfo("Read %zd bytes from fd %d\n", nbytes_read, cc->rdfd);
 
               if (nbytes_read < 0)
                 {
@@ -923,7 +923,7 @@ static int cgi_child(int argc, char **argv)
   /* Send any data that is already buffer to the CGI task */
 
   nbytes = hc->read_idx - hc->checked_idx;
-  ninfo("nbytes: %d contentlength: %d\n", nbytes, hc->contentlength);
+  ninfo("nbytes: %d contentlength: %zu\n", nbytes, hc->contentlength);
   if (nbytes > 0)
     {
       if (httpd_write(cc->wrfd, &(hc->read_buf[hc->checked_idx]), nbytes)
