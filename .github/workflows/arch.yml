@@ -9,7 +9,7 @@ on:
         required: true
         type: string
       boards:
-        description: "List of All Builds: [arm-01, risc-v-01, xtensa-01, ...]"
+        description: "List of All Builds: [arm-imx, risc-v-01, xtensa-01, ...]"
         required: true
         type: string
     outputs:
@@ -17,7 +17,7 @@ on:
         description: "Set to 1 if all builds should be skipped"
         value: ${{ jobs.Select-Builds.outputs.skip_all_builds }}
       selected_builds:
-        description: "Selected Builds for the PR: [arm-01, risc-v-01, xtensa-01, ...]"
+        description: "Selected Builds for the PR: [arm-imx, risc-v-01, xtensa-01, ...]"
         value: ${{ jobs.Select-Builds.outputs.selected_builds }}
 
 jobs:
@@ -102,7 +102,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Select the Builds for the PR: arm-01, risc-v-01, xtensa-01, ...
+      # Select the Builds for the PR: arm-imx, risc-v-01, xtensa-01, ...
       - name: Select builds
         id: select-builds
         run: |
@@ -134,7 +134,7 @@ jobs:
           board_contains_x86_64=${{ steps.get-arch.outputs.board_contains_x86_64 }}
           board_contains_xtensa=${{ steps.get-arch.outputs.board_contains_xtensa }}
 
-          # inputs.boards is a JSON Array: ["arm-01", "risc-v-01", "xtensa-01", ...]
+          # inputs.boards is a JSON Array: ["arm-imx", "risc-v-01", "xtensa-01", ...]
           # We compact and remove the newlines
           boards=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
           numboards=$( echo "$boards" | jq "length" )
@@ -194,7 +194,7 @@ jobs:
             board=$( echo "$boards" | jq ".[$i]" )
             skip_build=0
             
-            # For "Arch / Board: arm": Build arm-01, arm-02, ...
+            # For "Arch / Board: arm": Build arm-*
             if [[ "$arch_contains_arm" == "1" || "$board_contains_arm" == "1" ]]; then
               if [[ "$board" != *"arm-"* ]]; then
                 skip_build=1
