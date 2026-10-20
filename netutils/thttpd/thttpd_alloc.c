@@ -83,11 +83,11 @@ FAR void *httpd_malloc(size_t nbytes)
 
   if (!ptr)
     {
-      nerr("ERROR: Allocation of %d bytes failed\n", nbytes);
+      nerr("ERROR: Allocation of %zu bytes failed\n", nbytes);
     }
   else
     {
-      ninfo("Allocated %d bytes at %p\n", nbytes, ptr);
+      ninfo("Allocated %zu bytes at %p\n", nbytes, ptr);
       g_nallocations++;
       g_allocated += nbytes;
     }
@@ -104,12 +104,12 @@ FAR void *httpd_realloc(FAR void *oldptr, size_t oldsize, size_t newsize)
 
   if (!ptr)
     {
-      nerr("ERROR: Re-allocation from %d to %d bytes failed\n",
+      nerr("ERROR: Re-allocation from %zu to %zu bytes failed\n",
            oldsize, newsize);
     }
   else
     {
-      ninfo("Re-allocated form %d to %d bytes (from %p to %p)\n",
+      ninfo("Re-allocated form %zu to %zu bytes (from %p to %p)\n",
             oldsize, newsize, oldptr, ptr);
       g_allocated += (newsize - oldsize);
     }
@@ -175,7 +175,7 @@ void httpd_realloc_str(char **pstr, size_t *maxsize, size_t size)
 
   if (!*pstr)
     {
-      nerr("ERROR: out of memory reallocating a string to %d bytes\n",
+      nerr("ERROR: out of memory reallocating a string to %zu bytes\n",
            *maxsize);
       exit(1);
     }
