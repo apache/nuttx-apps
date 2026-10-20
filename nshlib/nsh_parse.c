@@ -659,6 +659,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 #endif
     {
       uint8_t save[SAVE_SIZE];
+      bool redirected;
 
       /* Redirected output? */
 
@@ -740,8 +741,9 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 
       /* Handle redirection of stdin/stdout/stderr file descriptor */
 
-      if (vtbl->np.np_redir_out || vtbl->np.np_redir_in ||
-          vtbl->np.np_redir_err)
+      redirected = vtbl->np.np_redir_out || vtbl->np.np_redir_in ||
+                   vtbl->np.np_redir_err;
+      if (redirected)
         {
           nsh_redirect(vtbl, fd_in, fd_out, fd_err, save);
         }
@@ -756,11 +758,11 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
       ret = nsh_command(vtbl, argc, argv);
 
       /* Restore the original output.  Undirect will close the redirection
-       * file descriptor.
+       * file descriptor.  Do not test the np_redir_* flags again: a script
+       * ("source") parses its lines with this vtbl, which clears them.
        */
 
-      if (vtbl->np.np_redir_out || vtbl->np.np_redir_in ||
-          vtbl->np.np_redir_err)
+      if (redirected)
         {
           nsh_undirect(vtbl, save);
           fd_out = -1;
