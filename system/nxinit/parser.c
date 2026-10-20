@@ -58,11 +58,13 @@ static int init_parse_config_lines(FAR const struct parser_s *parser,
       *len -= nl - buf;
       init_debug("Line %-3zu '%s'", ++*line, buf);
 
-      /* Skip empty lines and lines containing only whitespace */
+      /* Skip empty lines, lines containing only whitespace and comment
+       * lines (the first character that is not whitespace is '#').
+       */
 
       for (ret = 0; buf[ret] && isblank(buf[ret]); ret++);
 
-      if (buf[ret] == '\0')
+      if (buf[ret] == '\0' || buf[ret] == '#')
         {
           memmove(buf, nl, *len);
           continue;

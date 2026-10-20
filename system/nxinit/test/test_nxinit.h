@@ -56,6 +56,7 @@ void test_nxinit_parser_arguments_long_option(FAR void **state);
 void test_nxinit_parser_arguments_truncate(FAR void **state);
 void test_nxinit_parser_config_sections(FAR void **state);
 void test_nxinit_parser_config_skip_blank_lines(FAR void **state);
+void test_nxinit_parser_config_skip_comments(FAR void **state);
 void test_nxinit_parser_config_unknown_section(FAR void **state);
 void test_nxinit_parser_config_line_too_long(FAR void **state);
 void test_nxinit_parser_config_line_crosses_boundary(FAR void **state);
