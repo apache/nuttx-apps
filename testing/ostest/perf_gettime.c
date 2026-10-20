@@ -26,9 +26,11 @@
 
 #include <nuttx/config.h>
 #include <nuttx/arch.h>
+#include <nuttx/clock.h>
 
 #include <assert.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -45,6 +47,7 @@
 
 #define PERF_ITERATIONS     10
 #define SLEEP_INTERVAL_USEC 100000  /* 100ms */
+#define MOVE_TIMEOUT_NSEC   (100 * NSEC_PER_MSEC)
 
 /****************************************************************************
  * Private Data
@@ -56,6 +59,43 @@ static clock_t g_min_interval = CLOCK_MAX;
 static clock_t g_max_interval = 0;
 static unsigned long g_total_interval = 0;
 static int g_iteration_count = 0;
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_ARCH_PERF_EVENTS
+/****************************************************************************
+ * Name: perf_counter_moves
+ *
+ * Description:
+ *   Busy-wait up to MOVE_TIMEOUT_NSEC for perf_gettime() to change.  Some
+ *   emulators do not model the counter, so it never moves.
+ *
+ ****************************************************************************/
+
+static bool perf_counter_moves(void)
+{
+  struct timespec start;
+  struct timespec now;
+  clock_t first = perf_gettime();
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  do
+    {
+      if (perf_gettime() != first)
+        {
+          return true;
+        }
+
+      clock_gettime(CLOCK_MONOTONIC, &now);
+    }
+  while ((now.tv_sec - start.tv_sec) * NSEC_PER_SEC +
+         (now.tv_nsec - start.tv_nsec) < MOVE_TIMEOUT_NSEC);
+
+  return false;
+}
 #endif
 
 /****************************************************************************
@@ -85,6 +125,12 @@ void perf_gettime_test(void)
   unsigned long perf_freq;
 
   printf("\nperf_gettime_test: Starting performance event test\n");
+
+  if (!perf_counter_moves())
+    {
+      printf("perf_gettime: counter does not move, test skipped\n");
+      return;
+    }
 
   /* Test 1: Get initial time value */
 
