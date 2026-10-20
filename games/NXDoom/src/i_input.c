@@ -227,84 +227,84 @@ static int translate_speckey(uint32_t keycode)
 {
   switch (keycode)
     {
-    case KEYCODE_LEFT:
-      return KEY_LEFTARROW;
-    case KEYCODE_RIGHT:
-      return KEY_RIGHTARROW;
-    case KEYCODE_UP:
-      return KEY_UPARROW;
-    case KEYCODE_DOWN:
-      return KEY_DOWNARROW;
+      case KEYCODE_LEFT:
+        return KEY_LEFTARROW;
+      case KEYCODE_RIGHT:
+        return KEY_RIGHTARROW;
+      case KEYCODE_UP:
+        return KEY_UPARROW;
+      case KEYCODE_DOWN:
+        return KEY_DOWNARROW;
 
-    /* Drivers disagree on Enter:  a USB HID keyboard reports the line feed
-     * that the key produces, while the simulator reports KEYCODE_ENTER.
-     * Both have to land on KEY_ENTER, so both are handled, here and in
-     * translate_key().
-     */
+      /* Drivers disagree on Enter:  a USB HID keyboard reports the line feed
+       * that the key produces, while the simulator reports KEYCODE_ENTER.
+       * Both have to land on KEY_ENTER, so both are handled, here and in
+       * translate_key().
+       */
 
-    case KEYCODE_ENTER:
-      return KEY_ENTER;
+      case KEYCODE_ENTER:
+        return KEY_ENTER;
 
-    case KEYCODE_BACKDEL:
-      return KEY_BACKSPACE;
-    case KEYCODE_FWDDEL:
-      return KEY_DEL;
-    case KEYCODE_INSERT:
-      return KEY_INS;
-    case KEYCODE_HOME:
-      return KEY_HOME;
-    case KEYCODE_END:
-      return KEY_END;
-    case KEYCODE_PAGEUP:
-      return KEY_PGUP;
-    case KEYCODE_PAGEDOWN:
-      return KEY_PGDN;
-    case KEYCODE_PAUSE:
-      return KEY_PAUSE;
-    case KEYCODE_CAPSLOCK:
-      return KEY_CAPSLOCK;
+      case KEYCODE_BACKDEL:
+        return KEY_BACKSPACE;
+      case KEYCODE_FWDDEL:
+        return KEY_DEL;
+      case KEYCODE_INSERT:
+        return KEY_INS;
+      case KEYCODE_HOME:
+        return KEY_HOME;
+      case KEYCODE_END:
+        return KEY_END;
+      case KEYCODE_PAGEUP:
+        return KEY_PGUP;
+      case KEYCODE_PAGEDOWN:
+        return KEY_PGDN;
+      case KEYCODE_PAUSE:
+        return KEY_PAUSE;
+      case KEYCODE_CAPSLOCK:
+        return KEY_CAPSLOCK;
 
-    /* Fire, run and strafe.  The game binds these by default, so a
-     * keyboard that does not report its modifiers cannot play it.
-     */
+      /* Fire, run and strafe.  The game binds these by default, so a
+       * keyboard that does not report its modifiers cannot play it.
+       */
 
-    case KEYCODE_LCTRL:
-    case KEYCODE_RCTRL:
-      return KEY_RCTRL;
-    case KEYCODE_LSHIFT:
-    case KEYCODE_RSHIFT:
-      return KEY_RSHIFT;
-    case KEYCODE_LALT:
-    case KEYCODE_RALT:
-      return KEY_RALT;
+      case KEYCODE_LCTRL:
+      case KEYCODE_RCTRL:
+        return KEY_RCTRL;
+      case KEYCODE_LSHIFT:
+      case KEYCODE_RSHIFT:
+        return KEY_RSHIFT;
+      case KEYCODE_LALT:
+      case KEYCODE_RALT:
+        return KEY_RALT;
 
-    case KEYCODE_F1:
-      return KEY_F1;
-    case KEYCODE_F2:
-      return KEY_F2;
-    case KEYCODE_F3:
-      return KEY_F3;
-    case KEYCODE_F4:
-      return KEY_F4;
-    case KEYCODE_F5:
-      return KEY_F5;
-    case KEYCODE_F6:
-      return KEY_F6;
-    case KEYCODE_F7:
-      return KEY_F7;
-    case KEYCODE_F8:
-      return KEY_F8;
-    case KEYCODE_F9:
-      return KEY_F9;
-    case KEYCODE_F10:
-      return KEY_F10;
-    case KEYCODE_F11:
-      return KEY_F11;
-    case KEYCODE_F12:
-      return KEY_F12;
+      case KEYCODE_F1:
+        return KEY_F1;
+      case KEYCODE_F2:
+        return KEY_F2;
+      case KEYCODE_F3:
+        return KEY_F3;
+      case KEYCODE_F4:
+        return KEY_F4;
+      case KEYCODE_F5:
+        return KEY_F5;
+      case KEYCODE_F6:
+        return KEY_F6;
+      case KEYCODE_F7:
+        return KEY_F7;
+      case KEYCODE_F8:
+        return KEY_F8;
+      case KEYCODE_F9:
+        return KEY_F9;
+      case KEYCODE_F10:
+        return KEY_F10;
+      case KEYCODE_F11:
+        return KEY_F11;
+      case KEYCODE_F12:
+        return KEY_F12;
 
-    default:
-      return 0;
+      default:
+        return 0;
     }
 }
 
@@ -421,20 +421,20 @@ void i_handle_keyboard_event(struct keyboard_event_s *kevent)
 
   switch (kevent->type)
     {
-    case KEYBOARD_PRESS:
-    case KEYBOARD_RELEASE:
-      press = (kevent->type == KEYBOARD_PRESS);
-      event.data1 = translate_key(kevent->code);
-      break;
+      case KEYBOARD_PRESS:
+      case KEYBOARD_RELEASE:
+        press = (kevent->type == KEYBOARD_PRESS);
+        event.data1 = translate_key(kevent->code);
+        break;
 
-    case KEYBOARD_SPECPRESS:
-    case KEYBOARD_SPECREL:
-      press = (kevent->type == KEYBOARD_SPECPRESS);
-      event.data1 = translate_speckey(kevent->code);
-      break;
+      case KEYBOARD_SPECPRESS:
+      case KEYBOARD_SPECREL:
+        press = (kevent->type == KEYBOARD_SPECPRESS);
+        event.data1 = translate_speckey(kevent->code);
+        break;
 
-    default:
-      return;
+      default:
+        return;
     }
 
   if (event.data1 == 0)
