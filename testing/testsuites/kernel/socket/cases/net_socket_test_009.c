@@ -184,7 +184,7 @@ static int handlereadfds(struct pollfd *fds, int nfds, int lsfd)
         }
 
       syslog(LOG_INFO, "[%d]revents: %04x", fds[i].fd,
-             (unsigned int)fds[i].revents);
+             fds[i].revents);
       if (fds[i].fd == lsfd)
         {
           ret += handleaccept(lsfd);

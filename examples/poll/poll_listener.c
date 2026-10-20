@@ -146,14 +146,14 @@ void *poll_listener(pthread_addr_t pvarg)
       for (i = 0; i < NPOLLFDS; i++)
         {
           printf("poll_listener: FIFO revents[%d]=%08x\n", i,
-                 (unsigned int)fds[i].revents);
+                 fds[i].revents);
           if (timeout)
             {
               if (fds[i].revents != 0)
                 {
                   printf("poll_listener: ERROR? expected revents=00, "
                          "received revents[%d]=%08x\n",
-                         i, (unsigned int)fds[i].revents);
+                         i, fds[i].revents);
                 }
             }
           else if (pollin)
@@ -165,7 +165,7 @@ void *poll_listener(pthread_addr_t pvarg)
               else if (fds[i].revents != 0)
                 {
                   printf("poll_listener: ERROR unexpected revents[%d]="
-                         "%08x\n", i, (unsigned int)fds[i].revents);
+                         "%08x\n", i, fds[i].revents);
                 }
             }
         }
