@@ -87,8 +87,8 @@ void ftpc_reset(struct ftpc_session_s *session)
   session->flags     |= FTPC_FLAGS_SET;
   session->xfrmode    = FTPC_XFRMODE_UNKNOWN;
   session->code       = 0;
-  session->replytimeo = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
-  session->conntimeo  = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
+  session->replytimeo = CONFIG_FTP_DEFTIMEO * CLK_TCK;
+  session->conntimeo  = CONFIG_FTP_DEFTIMEO * CLK_TCK;
 }
 
 /****************************************************************************

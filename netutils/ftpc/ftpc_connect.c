@@ -93,8 +93,8 @@ SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server)
 
   session->flags      &= ~FTPC_FLAGS_CLEAR;
   session->flags      |= FTPC_FLAGS_SET;
-  session->replytimeo  = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
-  session->conntimeo   = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
+  session->replytimeo  = CONFIG_FTP_DEFTIMEO * CLK_TCK;
+  session->conntimeo   = CONFIG_FTP_DEFTIMEO * CLK_TCK;
   session->pid         = getpid();
 
   /* ftpc_timeout() wakes this task with CONFIG_FTP_SIGNAL: install a
@@ -186,8 +186,8 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
   /* Re-initialize the session structure */
 
-  session->replytimeo = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
-  session->conntimeo  = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
+  session->replytimeo = CONFIG_FTP_DEFTIMEO * CLK_TCK;
+  session->conntimeo  = CONFIG_FTP_DEFTIMEO * CLK_TCK;
   session->xfrmode    = FTPC_XFRMODE_UNKNOWN;
 
   /* Set up a timer to prevent hangs */
