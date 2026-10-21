@@ -6,7 +6,6 @@
 config SYSTEM_NXINIT
 	tristate "NuttX Init"
 	default n
-	depends on EXPERIMENTAL
 	depends on LIBC_EXECFUNCS
 	depends on SCHED_CHILD_STATUS
 	---help---
