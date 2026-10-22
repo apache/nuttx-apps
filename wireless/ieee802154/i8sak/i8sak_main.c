@@ -296,6 +296,7 @@ int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
   while (str_len > 0)
     {
       int dat;
+
       if (sscanf(str, "%2x", &dat) == 1)
         {
           buf[i++] = dat;
@@ -353,6 +354,7 @@ long i8sak_str2long(FAR const char *str)
 uint8_t i8sak_str2luint8(FAR const char *str)
 {
   long value = i8sak_str2long(str);
+
   if (value < 0 || value > UINT8_MAX)
     {
       fprintf(stderr, "ERROR: 8-bit value out of range\n");
@@ -373,6 +375,7 @@ uint8_t i8sak_str2luint8(FAR const char *str)
 uint16_t i8sak_str2luint16(FAR const char *str)
 {
   long value = i8sak_str2long(str);
+
   if (value < 0 || value > UINT16_MAX)
     {
       fprintf(stderr, "ERROR: 16-bit value out of range\n");
@@ -934,6 +937,7 @@ int main(int argc, FAR char *argv[])
   for (i = 0; i < nitems(g_i8sak_commands); i++)
     {
       FAR const struct i8sak_command_s *cmd = &g_i8sak_commands[i];
+
       if (strcmp(argv[argind], cmd->name) == 0)
         {
           i8sakcmd = cmd;
