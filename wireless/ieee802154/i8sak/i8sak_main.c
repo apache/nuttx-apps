@@ -289,7 +289,7 @@ int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
   if ((str_len & 1) || (ret > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
     {
       fprintf(stderr, "ERROR: Invalid payload\n");
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
 
   /* Decode hex packet */
@@ -307,7 +307,7 @@ int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
       else
         {
           fprintf(stderr, "ERROR: Invalid payload\n");
-          exit(EXIT_FAILURE);
+          i8sak_cmd_error(g_activei8sak);
         }
     }
 
@@ -331,14 +331,13 @@ long i8sak_str2long(FAR const char *str)
   if (*endptr != '\0')
     {
       fprintf(stderr, "ERROR: Garbage after numeric argument\n");
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
 
   if (value > INT_MAX || value < INT_MIN)
     {
       fprintf(stderr, "ERROR: Integer value out of range\n");
-      return LONG_MAX;
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
 
   return value;
@@ -359,7 +358,7 @@ uint8_t i8sak_str2luint8(FAR const char *str)
   if (value < 0 || value > UINT8_MAX)
     {
       fprintf(stderr, "ERROR: 8-bit value out of range\n");
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
 
   return (uint8_t)value;
@@ -380,7 +379,7 @@ uint16_t i8sak_str2luint16(FAR const char *str)
   if (value < 0 || value > UINT16_MAX)
     {
       fprintf(stderr, "ERROR: 16-bit value out of range\n");
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
 
   return (uint16_t)value;
@@ -411,14 +410,16 @@ uint8_t i8sak_char2nibble(char ch)
   else if (ch == '\0')
     {
       fprintf(stderr, "ERROR: Unexpected end hex\n");
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
   else
     {
       fprintf(stderr, "ERROR: Unexpected character in hex value: %02x\n",
               ch);
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
+
+  return 0;
 }
 
 /****************************************************************************
@@ -453,7 +454,7 @@ void i8sak_str2eaddr(FAR const char *str, FAR uint8_t *eaddr)
             {
               fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
               fprintf(stderr, "       Expected xx:xx:xx:xx:xx:xx:xx:xx\n");
-              exit(EXIT_FAILURE);
+              i8sak_cmd_error(g_activei8sak);
             }
         }
     }
@@ -491,7 +492,7 @@ void i8sak_str2saddr(FAR const char *str, FAR uint8_t *saddr)
             {
               fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
               fprintf(stderr, "       Expected xx:xx\n");
-              exit(EXIT_FAILURE);
+              i8sak_cmd_error(g_activei8sak);
             }
         }
     }
@@ -529,7 +530,7 @@ void i8sak_str2panid(FAR const char *str, FAR uint8_t *panid)
             {
               fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
               fprintf(stderr, "       Expected xx:xx\n");
-              exit(EXIT_FAILURE);
+              i8sak_cmd_error(g_activei8sak);
             }
         }
     }
@@ -557,8 +558,10 @@ bool i8sak_str2bool(FAR const char *str)
     {
       fprintf(stderr, "ERROR: Invalid boolean name: %s\n", str);
       fprintf(stderr, "       Expected true or false\n");
-      exit(EXIT_FAILURE);
+      i8sak_cmd_error(g_activei8sak);
     }
+
+  return false;
 }
 
 /****************************************************************************
