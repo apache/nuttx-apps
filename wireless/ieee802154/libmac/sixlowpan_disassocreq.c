@@ -41,7 +41,7 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_desassoc_req(int sock, FAR const char *ifname,
+int sixlowpan_disassoc_req(int sock, FAR const char *ifname,
                            FAR const struct ieee802154_disassoc_req_s *req)
 {
   struct ieee802154_netmac_s arg;
