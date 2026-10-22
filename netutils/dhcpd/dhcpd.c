@@ -546,6 +546,7 @@ static inline bool dhcpd_parseoptions(void)
 {
   uint32_t tmp;
   uint8_t *ptr;
+  uint8_t option;
 #ifndef CONFIG_NET_DHCP_LIGHT
   uint8_t overloaded;
   uint8_t currfield;
@@ -584,18 +585,37 @@ static inline bool dhcpd_parseoptions(void)
 
   do
     {
+      option = ptr[DHCPD_OPTION_CODE];
+
+      if (option == DHCP_OPTION_PAD)
+        {
+          optlen = 1;
+        }
+      else if (option != DHCP_OPTION_END)
+        {
+          if (remaining < 2)
+            {
+              return false;
+            }
+
+          optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
+          if (optlen > remaining)
+            {
+              return false;
+            }
+        }
+
       /* The form of an option is:
        *   code   - 1 byte
        *   length - 1 byte
        *   data   - variable number of bytes
        */
 
-      switch (ptr[DHCPD_OPTION_CODE])
+      switch (option)
         {
           /* Skip over any padding bytes */
 
           case DHCP_OPTION_PAD:
-            optlen = 1;
             break;
 
           /* the Overload option is used to indicate that the DHCP 'sname'
@@ -617,8 +637,7 @@ static inline bool dhcpd_parseoptions(void)
 
 #ifndef CONFIG_NET_DHCP_LIGHT
           case DHCP_OPTION_OVERLOAD:
-            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 3 && optlen < remaining)
+            if (optlen >= 3)
               {
                 overloaded = ptr[DHCPD_OPTION_DATA];
               }
@@ -633,6 +652,7 @@ static inline bool dhcpd_parseoptions(void)
                 ptr       = g_state.ds_inpacket.file;
                 remaining = sizeof(g_state.ds_inpacket.file);
                 currfield = DHCPD_FILE_FIELD;
+                continue;
               }
             else if (currfield == DHCPD_FILE_FIELD &&
                      (overloaded & DHCPD_SNAME_FIELD) != 0)
@@ -640,6 +660,7 @@ static inline bool dhcpd_parseoptions(void)
                 ptr       = g_state.ds_inpacket.sname;
                 remaining = sizeof(g_state.ds_inpacket.sname);
                 currfield = DHCPD_SNAME_FIELD;
+                continue;
               }
             else
               {
@@ -651,8 +672,7 @@ static inline bool dhcpd_parseoptions(void)
 #endif
 
           case DHCP_OPTION_REQ_IPADDR: /* Requested IP Address */
-            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 6 && optlen < remaining)
+            if (optlen >= 6)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
                 g_state.ds_optreqip = (in_addr_t)ntohl(tmp);
@@ -660,8 +680,7 @@ static inline bool dhcpd_parseoptions(void)
             break;
 
           case DHCP_OPTION_LEASE_TIME: /* IP address lease time */
-            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 6 && optlen < remaining)
+            if (optlen >= 6)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
                 g_state.ds_optleasetime = ntohl(tmp);
@@ -669,16 +688,14 @@ static inline bool dhcpd_parseoptions(void)
             break;
 
           case DHCP_OPTION_MSG_TYPE: /* DHCP message type */
-            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 3 && optlen < remaining)
+            if (optlen >= 3)
               {
                 g_state.ds_optmsgtype = ptr[DHCPD_OPTION_DATA];
               }
             break;
 
           case DHCP_OPTION_SERVER_ID: /* Server identifier */
-            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
-            if (optlen >= 6 && optlen < remaining)
+            if (optlen >= 6)
               {
                 memcpy(&tmp, &ptr[DHCPD_OPTION_DATA], 4);
                 g_state.ds_optserverip = (in_addr_t)ntohl(tmp);
@@ -689,7 +706,6 @@ static inline bool dhcpd_parseoptions(void)
 
             /* Skip over unsupported options */
 
-            optlen = ptr[DHCPD_OPTION_LENGTH] + 2;
             break;
         }
 
