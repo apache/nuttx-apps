@@ -260,8 +260,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: Failed to transmit packet: errno=%d\n", errno);
-      close(fd);
-      i8sak_cmd_error(i8sak);
+      i8sak_cmd_abort(i8sak, tx_eventcb);
     }
 
   close(fd);

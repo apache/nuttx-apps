@@ -240,6 +240,25 @@ void i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
 }
 
 /****************************************************************************
+ * Name: i8sak_cmd_abort
+ *
+ * Description:
+ *   Remove the receiver of a pending request, release the daemon and exit.
+ *
+ ****************************************************************************/
+
+void i8sak_cmd_abort(FAR struct i8sak_s *i8sak, i8sak_eventcallback_t cb)
+{
+  if (cb != NULL)
+    {
+      i8sak_eventlistener_removereceiver(i8sak, cb);
+    }
+
+  i8sak_releasedaemon(i8sak);
+  i8sak_cmd_error(i8sak);
+}
+
+/****************************************************************************
  * Name: i8sak_releasedaemon
  *
  * Description:
@@ -581,6 +600,7 @@ bool i8sak_str2bool(FAR const char *str)
 
 static void i8sak_switch_instance(FAR char *ifname)
 {
+  FAR struct i8sak_s *prev = g_activei8sak;
   FAR struct i8sak_s *i8sak;
 
   /* Search list of i8sak instances for one associated with the provided
@@ -620,6 +640,9 @@ static void i8sak_switch_instance(FAR char *ifname)
 
       if (i8sak_setup(i8sak, ifname) < 0)
         {
+          sq_rem((FAR sq_entry_t *)i8sak, &g_i8sak_instances);
+          sq_addlast((FAR sq_entry_t *)i8sak, &g_i8sak_free);
+          g_activei8sak = prev;
           exit(EXIT_FAILURE);
         }
     }
@@ -712,7 +735,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
         {
           fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
                   i8sak->ifname, errno);
-          i8sak_cmd_error(i8sak);
+          return ERROR;
         }
     }
 #ifdef CONFIG_NET_6LOWPAN
@@ -722,13 +745,12 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
       if (fd < 0)
         {
           fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
-          i8sak_cmd_error(i8sak);
+          return ERROR;
         }
     }
 #endif
   else
     {
-      close(fd);
       return ERROR;
     }
 
