@@ -147,6 +147,13 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
 
   i8sak_requestdaemon(i8sak);
 
+  /* Replace the receiver of a previous acceptassoc */
+
+  if (i8sak_eventlistener_removereceiver(i8sak, acceptassoc_eventcb) == OK)
+    {
+      i8sak_releasedaemon(i8sak);
+    }
+
   /* Register new callback for receiving the association notifications */
 
   memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));

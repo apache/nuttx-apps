@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <net/if.h>
 #include <nuttx/fs/ioctl.h>
@@ -49,6 +50,22 @@
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+/****************************************************************************
+ * Name: i8sak_eventthread_wakeup
+ *
+ * Description:
+ *   An empty handler for SIGINT.  i8sak_eventlistener_stop() sends SIGINT
+ *   to break the event thread out of MAC802154IOC_GET_EVENT; an ignored
+ *   signal does not interrupt it.
+ *
+ ****************************************************************************/
+
+static void i8sak_eventthread_wakeup(int signo)
+{
+}
+#endif
 
 /****************************************************************************
  * Name: i8sak_eventthread
@@ -72,6 +89,8 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 #ifdef CONFIG_DISABLE_ALL_SIGNALS
   pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
   pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+#elif defined(CONFIG_ENABLE_ALL_SIGNALS)
+  signal(SIGINT, i8sak_eventthread_wakeup);
 #endif
 
   if (i8sak->mode == I8SAK_MODE_CHAR)
@@ -269,7 +288,7 @@ int i8sak_eventlistener_stop(FAR struct i8sak_s *i8sak)
 #ifdef CONFIG_DISABLE_ALL_SIGNALS
   pthread_cancel(i8sak->eventlistener_threadid);
 #else
-  pthread_kill(i8sak->eventlistener_threadid, 2);
+  pthread_kill(i8sak->eventlistener_threadid, SIGINT);
 #endif
 
   ret = pthread_join(i8sak->eventlistener_threadid, &value);
@@ -409,6 +428,5 @@ int i8sak_eventlistener_removereceiver(FAR struct i8sak_s *i8sak,
     }
 
   sem_post(&i8sak->eventsem);
-  fprintf(stderr, "failed to remove receiver");
-  return ERROR;
+  return -ENOENT;
 }

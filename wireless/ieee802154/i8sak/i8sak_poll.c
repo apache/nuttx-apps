@@ -105,7 +105,13 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   memset(&eventfilter, 0, sizeof(struct i8sak_eventfilter_s));
   eventfilter.confevents.poll = true;
 
-  i8sak_eventlistener_addreceiver(i8sak, poll_eventcb, &eventfilter, true);
+  ret = i8sak_eventlistener_addreceiver(i8sak, poll_eventcb, &eventfilter,
+                                        true);
+  if (ret < 0)
+    {
+      i8sak_releasedaemon(i8sak);
+      return;
+    }
 
   memcpy(&pollreq.coordaddr, &i8sak->ep_addr,
          sizeof(struct ieee802154_addr_s));
