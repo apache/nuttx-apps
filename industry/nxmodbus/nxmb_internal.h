@@ -58,6 +58,8 @@
 #define NXMB_FC_WRITE_COILS        0x0f
 #define NXMB_FC_WRITE_HOLDINGS     0x10
 #define NXMB_FC_REPORT_SERVER_ID   0x11
+#define NXMB_FC_READ_FILE          0x14
+#define NXMB_FC_WRITE_FILE         0x15
 #define NXMB_FC_READWRITE_HOLDINGS 0x17
 
 /* Transport operations interface.
@@ -375,5 +377,7 @@ enum nxmb_exception_e nxmb_fc16_write_holdings(nxmb_handle_t ctx);
 enum nxmb_exception_e nxmb_fc23_readwrite_holding(nxmb_handle_t ctx);
 enum nxmb_exception_e nxmb_fc08_diagnostics(nxmb_handle_t ctx);
 enum nxmb_exception_e nxmb_fc17_report_server_id(nxmb_handle_t ctx);
+enum nxmb_exception_e nxmb_fc20_read_file(nxmb_handle_t ctx);
+enum nxmb_exception_e nxmb_fc21_write_file(nxmb_handle_t ctx);
 
 #endif /* __APPS_INDUSTRY_NXMODBUS_NXMB_INTERNAL_H */

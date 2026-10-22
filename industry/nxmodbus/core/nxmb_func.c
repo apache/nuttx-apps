@@ -98,6 +98,12 @@ static const struct nxmb_fc_entry_s g_nxmb_fc_table[] =
 #ifdef CONFIG_NXMODBUS_FUNC_REPORT_SERVER_ID
   { NXMB_FC_REPORT_SERVER_ID, nxmb_fc17_report_server_id },
 #endif
+#ifdef CONFIG_NXMODBUS_FUNC_READ_FILE
+  { NXMB_FC_READ_FILE, nxmb_fc20_read_file },
+#endif
+#ifdef CONFIG_NXMODBUS_FUNC_WRITE_FILE
+  { NXMB_FC_WRITE_FILE, nxmb_fc21_write_file },
+#endif
 #ifdef CONFIG_NXMODBUS_FUNC_READWRITE_HOLDINGS
   { NXMB_FC_READWRITE_HOLDINGS, nxmb_fc23_readwrite_holding }
 #endif

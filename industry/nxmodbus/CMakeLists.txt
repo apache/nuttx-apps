@@ -33,6 +33,7 @@ if(CONFIG_INDUSTRY_NXMODBUS)
     list(APPEND CSRCS core/nxmb_func_coils.c core/nxmb_func_discrete.c)
     list(APPEND CSRCS core/nxmb_func_holding.c core/nxmb_func_input.c)
     list(APPEND CSRCS core/nxmb_func_diag.c core/nxmb_func_other.c)
+    list(APPEND CSRCS core/nxmb_func_file.c)
   endif()
 
   if(CONFIG_NXMODBUS_CLIENT)

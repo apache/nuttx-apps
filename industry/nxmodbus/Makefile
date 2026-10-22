@@ -39,6 +39,7 @@ CSRCS += core/nxmb_func_holding.c
 CSRCS += core/nxmb_func_input.c
 CSRCS += core/nxmb_func_diag.c
 CSRCS += core/nxmb_func_other.c
+CSRCS += core/nxmb_func_file.c
 endif
 
 ifeq ($(CONFIG_NXMODBUS_CLIENT),y)
