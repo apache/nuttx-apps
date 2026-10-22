@@ -47,6 +47,8 @@
 #define NUM_DISCRETE     100
 #define NUM_INPUT_REGS   100
 #define NUM_HOLDING_REGS 100
+#define NUM_FILES        2
+#define NUM_RECORDS      100
 
 /****************************************************************************
  * Private Types
@@ -69,6 +71,7 @@ struct server_data_s
   uint8_t  discrete[NUM_DISCRETE / 8 + 1];
   uint16_t input_regs[NUM_INPUT_REGS];
   uint16_t holding_regs[NUM_HOLDING_REGS];
+  uint16_t files[NUM_FILES][NUM_RECORDS];
 };
 
 /* Modbus server configuration */
@@ -324,6 +327,45 @@ static int holding_callback(FAR uint8_t *buf, uint16_t addr, uint16_t count,
 }
 
 /****************************************************************************
+ * Name: file_callback
+ *
+ * Description:
+ *   Files 1 to NUM_FILES, with NUM_RECORDS records each, kept in RAM.
+ *
+ ****************************************************************************/
+
+static int file_callback(FAR uint8_t *buf, uint16_t file, uint16_t record,
+                         uint16_t nregs, enum nxmb_regmode_e mode,
+                         FAR void *priv)
+{
+  FAR uint16_t *records;
+  uint16_t      i;
+
+  if (file == 0 || file > NUM_FILES || record + nregs > NUM_RECORDS)
+    {
+      return -ENOENT;
+    }
+
+  records = &g_data.files[file - 1][record];
+
+  for (i = 0; i < nregs; i++)
+    {
+      if (mode == NXMB_REG_READ)
+        {
+          buf[i * 2]     = (uint8_t)(records[i] >> 8);
+          buf[i * 2 + 1] = (uint8_t)(records[i] & 0xff);
+        }
+      else
+        {
+          records[i] = (uint16_t)(buf[i * 2] << 8) |
+                       (uint16_t)buf[i * 2 + 1];
+        }
+    }
+
+  return OK;
+}
+
+/****************************************************************************
  * Name: init_data
  ****************************************************************************/
 
@@ -341,6 +383,12 @@ static void init_data(void)
   for (i = 0; i < NUM_HOLDING_REGS; i++)
     {
       g_data.holding_regs[i] = i * 100;
+    }
+
+  for (i = 0; i < NUM_RECORDS; i++)
+    {
+      g_data.files[0][i] = i;
+      g_data.files[1][i] = 0x1000 + i;
     }
 }
 
@@ -458,6 +506,7 @@ int main(int argc, FAR char *argv[])
   callbacks.discrete_cb = discrete_callback;
   callbacks.input_cb    = input_callback;
   callbacks.holding_cb  = holding_callback;
+  callbacks.file_cb     = file_callback;
 
   memset(&mb_config, 0, sizeof(mb_config));
   mb_config.unit_id   = config.unit_id;
