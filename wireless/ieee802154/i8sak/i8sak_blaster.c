@@ -79,14 +79,9 @@ static inline void i8sak_blaster_start(FAR struct i8sak_s *i8sak)
 
 void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
+  bool start = argc < 2;
+  bool quit = false;
   int option;
-
-  i8sak_requestdaemon(i8sak);
-
-  if (argc < 2)
-    {
-      i8sak_blaster_start(i8sak);
-    }
 
   while ((option = getopt(argc, argv, "hqp:f:")) != ERROR)
     {
@@ -107,18 +102,18 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             optind = -1;
             return;
           case 'q': /* Quit blaster */
-            i8sak->blasterenabled = false;
+            quit = true;
             break;
 
           case 'p': /* Inline change blaster period */
             i8sak->blasterperiod = atoi(optarg);
-            i8sak_blaster_start(i8sak);
+            start = true;
             break;
 
           case 'f': /* Inline change blaster frame */
             i8sak->payload_len = i8sak_str2payload(optarg,
                                                    &i8sak->payload[0]);
-            i8sak_blaster_start(i8sak);
+            start = true;
             break;
 
           case ':':
@@ -138,6 +133,22 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
+    }
+
+  /* The blaster holds the daemon while it runs */
+
+  if (quit)
+    {
+      if (i8sak->blasterenabled)
+        {
+          i8sak->blasterenabled = false;
+          i8sak_releasedaemon(i8sak);
+        }
+    }
+  else if (start && !i8sak->blasterenabled)
+    {
+      i8sak_requestdaemon(i8sak);
+      i8sak_blaster_start(i8sak);
     }
 }
 
@@ -161,7 +172,9 @@ pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)
                sizeof(struct sockaddr_in6)) < 0)
         {
           fprintf(stderr, "ERROR: failure to bind sock: %d\n", errno);
-          exit(1);
+          i8sak->blasterenabled = false;
+          i8sak_releasedaemon(i8sak);
+          return NULL;
         }
     }
 #endif
