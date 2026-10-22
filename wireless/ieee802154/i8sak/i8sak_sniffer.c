@@ -50,10 +50,11 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_sniffer_cmd
+ * Name: i8sak_sniffer_cmd
  *
- * Description :
+ * Description:
  *   Sniff for frames (Promiscuous mode)
+ *
  ****************************************************************************/
 
 void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
@@ -176,10 +177,11 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 }
 
 /****************************************************************************
- * Name : i8sak_sniffer_thread
+ * Name: i8sak_sniffer_thread
  *
- * Description :
+ * Description:
  *   Listen for frames.
+ *
  ****************************************************************************/
 
 pthread_addr_t i8sak_sniffer_thread(pthread_addr_t arg)

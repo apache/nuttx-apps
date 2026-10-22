@@ -52,10 +52,11 @@ static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive,
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8_tx_cmd
+ * Name: i8sak_tx_cmd
  *
- * Description :
+ * Description:
  *   Transmit a data frame.
+ *
  ****************************************************************************/
 
 void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])

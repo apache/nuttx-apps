@@ -54,10 +54,11 @@ static void acceptassoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8_acceptassoc
+ * Name: i8sak_acceptassoc_cmd
  *
- * Description :
+ * Description:
  *   Start accepting association requests.
+ *
  ****************************************************************************/
 
 void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,

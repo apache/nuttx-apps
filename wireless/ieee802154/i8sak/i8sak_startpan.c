@@ -44,10 +44,11 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_startpan_cmd
+ * Name: i8sak_startpan_cmd
  *
- * Description :
+ * Description:
  *   Start PAN and accept association requests
+ *
  ****************************************************************************/
 
 void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak,

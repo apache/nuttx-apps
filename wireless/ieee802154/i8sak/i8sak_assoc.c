@@ -52,10 +52,11 @@ static void assoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_assoc
+ * Name: i8sak_assoc_cmd
  *
- * Description :
+ * Description:
  *   Request association with the Coordinator
+ *
  ****************************************************************************/
 
 void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])

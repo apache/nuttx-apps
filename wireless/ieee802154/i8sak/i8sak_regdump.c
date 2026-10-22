@@ -44,10 +44,11 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_regdump_cmd
+ * Name: i8sak_regdump_cmd
  *
- * Description :
+ * Description:
  *   Print register information of radio device
+ *
  ****************************************************************************/
 
 void i8sak_regdump_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
