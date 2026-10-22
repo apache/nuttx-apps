@@ -168,7 +168,7 @@ FAR const char *g_ieee802154_status_string[] =
  *
  ****************************************************************************/
 
-int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
+void i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
 {
   char daemonname[I8SAK_MAX_DAEMONNAME];
   int ret;
@@ -178,7 +178,7 @@ int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
   if (ret < 0)
     {
       DEBUGASSERT(ret == EINTR);
-      return ret;
+      i8sak_cmd_error(i8sak);
     }
 
   if (++i8sak->daemonusers == 1)
@@ -201,6 +201,7 @@ int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
 #endif
 
       i8sak->daemon_shutdown = false;
+      i8sak->daemon_failed = false;
       i8sak->daemon_pid = task_create(daemonname,
                                       CONFIG_IEEE802154_I8SAK_PRIORITY,
                                       CONFIG_IEEE802154_I8SAK_STACKSIZE,
@@ -209,8 +210,9 @@ int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
       if (i8sak->daemon_pid < 0)
         {
           fprintf(stderr, "failed to start daemon\n");
+          i8sak->daemonusers = 0;
           sem_post(&i8sak->daemonlock);
-          return ERROR;
+          i8sak_cmd_error(i8sak);
         }
 
       /* Use the semaphore to wait for daemon to start before returning */
@@ -219,13 +221,22 @@ int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
       if (ret < 0)
         {
           fprintf(stderr, "i8sak:interrupted while daemon starting\n");
+          i8sak->daemonusers = 0;
           sem_post(&i8sak->daemonlock);
-          return ret;
+          i8sak_cmd_error(i8sak);
+        }
+
+      /* The daemon signals a failed start too */
+
+      if (i8sak->daemon_failed)
+        {
+          i8sak->daemonusers = 0;
+          sem_post(&i8sak->daemonlock);
+          i8sak_cmd_error(i8sak);
         }
     }
 
   sem_post(&i8sak->daemonlock);
-  return 0;
 }
 
 /****************************************************************************
@@ -773,6 +784,8 @@ static int i8sak_daemon(int argc, FAR char *argv[])
           fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
                   i8sak->ifname, errno);
           ret = errno;
+          i8sak->daemon_failed = true;
+          sem_post(&i8sak->sigsem);
           return ret;
         }
     }
@@ -784,6 +797,8 @@ static int i8sak_daemon(int argc, FAR char *argv[])
         {
           fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
           ret = errno;
+          i8sak->daemon_failed = true;
+          sem_post(&i8sak->sigsem);
           return ret;
         }
     }
