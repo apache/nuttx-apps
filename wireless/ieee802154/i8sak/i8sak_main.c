@@ -162,9 +162,9 @@ FAR const char *g_ieee802154_status_string[] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_requestdaemon
+ * Name: i8sak_requestdaemon
  *
- * Description :
+ * Description:
  *
  ****************************************************************************/
 
@@ -229,9 +229,9 @@ int i8sak_requestdaemon(FAR struct i8sak_s *i8sak)
 }
 
 /****************************************************************************
- * Name : i8sak_releasedaemon
+ * Name: i8sak_releasedaemon
  *
- * Description :
+ * Description:
  *
  ****************************************************************************/
 
@@ -259,14 +259,15 @@ int i8sak_releasedaemon(FAR struct i8sak_s *i8sak)
 }
 
 /****************************************************************************
- * Name : i8sak_str2payload
+ * Name: i8sak_str2payload
  *
- * Description :
+ * Description:
  *   Parse string to get buffer of data. Buf is expected to be of size
  *   IEEE802154_MAX_MAC_PAYLOAD_SIZE or larger.
  *
  * Returns:
  *   Positive length value of frame payload
+ *
  ****************************************************************************/
 
 int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
@@ -747,10 +748,11 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
 }
 
 /****************************************************************************
- * Name : i8sak_daemon
+ * Name: i8sak_daemon
  *
- * Description :
+ * Description:
  *   Runs command in separate task
+ *
  ****************************************************************************/
 
 static int i8sak_daemon(int argc, FAR char *argv[])

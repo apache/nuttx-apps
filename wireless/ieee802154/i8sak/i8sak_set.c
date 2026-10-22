@@ -53,11 +53,12 @@ union i8sak_set_u
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_set_cmd
+ * Name: i8sak_set_cmd
  *
- * Description :
+ * Description:
  *   Set various parameters. These can be either i8sak app level options
  *   or attributes fetched via IOCTL to the network/MAC/or radio level.
+ *
  ****************************************************************************/
 
 void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])

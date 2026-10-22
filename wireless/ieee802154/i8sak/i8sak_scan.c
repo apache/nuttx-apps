@@ -51,10 +51,11 @@ static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive,
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_scan_cmd
+ * Name: i8sak_scan_cmd
  *
- * Description :
+ * Description:
  *   Request association with the Coordinator
+ *
  ****************************************************************************/
 
 void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])

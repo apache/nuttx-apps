@@ -70,10 +70,11 @@ static inline void i8sak_blaster_start(FAR struct i8sak_s *i8sak)
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_blaster
+ * Name: i8sak_blaster_cmd
  *
- * Description :
+ * Description:
  *   Continuously transmit a packet
+ *
  ****************************************************************************/
 
 void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
@@ -141,10 +142,11 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 }
 
 /****************************************************************************
- * Name : i8sak_blaster_thread
+ * Name: i8sak_blaster_thread
  *
- * Description :
+ * Description:
  *   Send frames periodically
+ *
  ****************************************************************************/
 
 pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)

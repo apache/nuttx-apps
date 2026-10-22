@@ -51,10 +51,11 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_eventthread
+ * Name: i8sak_eventthread
  *
- * Description :
+ * Description:
  *   Listen for events from the MAC layer
+ *
  ****************************************************************************/
 
 static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)

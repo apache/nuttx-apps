@@ -51,10 +51,11 @@ static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive,
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_poll_cmd
+ * Name: i8sak_poll_cmd
  *
- * Description :
+ * Description:
  *   Try and extract data from the coordinator
+ *
  ****************************************************************************/
 
 void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
