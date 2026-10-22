@@ -261,8 +261,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       if (ret != OK)
         {
           i8sak->assoc = false;
-          i8sak_cmd_error(i8sak);
-          break;
+          i8sak_cmd_abort(i8sak, assoc_eventcb);
         }
 
       /* Check if the association was successful */

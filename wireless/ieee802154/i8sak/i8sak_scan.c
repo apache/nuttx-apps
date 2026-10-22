@@ -167,7 +167,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         {
           fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
                   i8sak->ifname, errno);
-          i8sak_cmd_error(i8sak);
+          i8sak_cmd_abort(i8sak, scan_eventcb);
         }
 
       ieee802154_scan_req(fd, &scan);
@@ -179,7 +179,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       if (fd < 0)
         {
           fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
-          i8sak_cmd_error(i8sak);
+          i8sak_cmd_abort(i8sak, scan_eventcb);
         }
 
       sixlowpan_scan_req(fd, i8sak->ifname, &scan);

@@ -191,6 +191,7 @@ struct i8sak_s
 
 void i8sak_requestdaemon(FAR struct i8sak_s *i8sak);
 int i8sak_releasedaemon(FAR struct i8sak_s *i8sak);
+void i8sak_cmd_abort(FAR struct i8sak_s *i8sak, i8sak_eventcallback_t cb);
 
 uint8_t   i8sak_char2nibble (char ch);
 long      i8sak_str2long    (FAR const char *str);

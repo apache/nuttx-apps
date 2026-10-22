@@ -132,7 +132,7 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         {
           fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
                   i8sak->ifname, errno);
-          i8sak_cmd_error(i8sak);
+          i8sak_cmd_abort(i8sak, poll_eventcb);
         }
 
       ieee802154_poll_req(fd, &pollreq);
@@ -144,7 +144,7 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       if (fd < 0)
         {
           fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
-          i8sak_cmd_error(i8sak);
+          i8sak_cmd_abort(i8sak, poll_eventcb);
         }
 
       sixlowpan_poll_req(fd, i8sak->ifname, &pollreq);
@@ -161,7 +161,7 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   if (ret != OK)
     {
       printf("i8sak: poll cancelled\n");
-      i8sak_cmd_error(i8sak);
+      i8sak_cmd_abort(i8sak, poll_eventcb);
     }
 
   i8sak_releasedaemon(i8sak);
