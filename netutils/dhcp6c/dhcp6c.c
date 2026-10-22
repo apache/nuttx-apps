@@ -421,31 +421,57 @@ static void dhcp6c_get_result(FAR void *handle,
     }
 
   s_data = dhcp6c_get_state(handle, STATE_IA_NA, &s_len);
-  dhcpv6_for_each_option(ite, s_data, s_data + s_len, otype, olen, odata)
+  if (s_data != NULL)
     {
-      addr = (FAR void *)(odata - 4);
-      memcpy(&presult->addr, &addr->addr, sizeof(presult->addr));
-      inet_ntop(AF_INET6, &presult->addr, addr_str, sizeof(addr_str));
-      ninfo("IA_NA %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+      dhcpv6_for_each_option(ite, s_data, s_data + s_len,
+                             otype, olen, odata)
+        {
+          if (otype != DHCPV6_OPT_IA_ADDR ||
+              olen < sizeof(*addr) - sizeof(addr->type) -
+                     sizeof(addr->len))
+            {
+              continue;
+            }
+
+          addr = (FAR void *)(odata - 4);
+          memcpy(&presult->addr, &addr->addr, sizeof(presult->addr));
+          inet_ntop(AF_INET6, &presult->addr, addr_str, sizeof(addr_str));
+          ninfo("IA_NA %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+        }
     }
 
   s_data = dhcp6c_get_state(handle, STATE_IA_PD, &s_len);
-  dhcpv6_for_each_option(ite, s_data, s_data + s_len, otype, olen, odata)
+  if (s_data != NULL)
     {
-      pd = (FAR void *)(odata - 4);
-      memcpy(&presult->pd, &pd->addr, sizeof(presult->pd));
-      presult->pl = pd->prefix;
-      netlib_prefix2ipv6netmask(presult->pl, &presult->netmask);
-      inet_ntop(AF_INET6, &presult->pd, addr_str, sizeof(addr_str));
-      ninfo("IA_PD %s for iface %i\n", addr_str, pdhcp6c->ifindex);
-      inet_ntop(AF_INET6, &presult->netmask, addr_str, sizeof(addr_str));
-      ninfo("netmask %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+      dhcpv6_for_each_option(ite, s_data, s_data + s_len,
+                             otype, olen, odata)
+        {
+          if (otype != DHCPV6_OPT_IA_PREFIX ||
+              olen < sizeof(*pd) - sizeof(pd->type) - sizeof(pd->len))
+            {
+              continue;
+            }
+
+          pd = (FAR void *)(odata - 4);
+          memcpy(&presult->pd, &pd->addr, sizeof(presult->pd));
+          presult->pl = pd->prefix;
+          netlib_prefix2ipv6netmask(presult->pl, &presult->netmask);
+          inet_ntop(AF_INET6, &presult->pd, addr_str, sizeof(addr_str));
+          ninfo("IA_PD %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+          inet_ntop(AF_INET6, &presult->netmask, addr_str,
+                    sizeof(addr_str));
+          ninfo("netmask %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+        }
     }
 
   dns = dhcp6c_get_state(handle, STATE_DNS, &s_len);
-  memcpy(&presult->dns, dns, sizeof(presult->dns));
-  inet_ntop(AF_INET6, &presult->dns, addr_str, sizeof(addr_str));
-  ninfo("DNS server %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+  if (dns != NULL && s_len >= sizeof(presult->dns) &&
+      s_len % sizeof(*dns) == 0)
+    {
+      memcpy(&presult->dns, dns, sizeof(presult->dns));
+      inet_ntop(AF_INET6, &presult->dns, addr_str, sizeof(addr_str));
+      ninfo("DNS server %s for iface %i\n", addr_str, pdhcp6c->ifindex);
+    }
 
   presult->t1 = pdhcp6c->t1;
   presult->t2 = pdhcp6c->t2;
