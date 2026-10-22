@@ -748,9 +748,10 @@ int main(int argc, FAR char **argv)
   int ostest_result = OK;
 #endif
 
-#ifndef CONFIG_BUILD_KERNEL
+#if !defined(CONFIG_BUILD_KERNEL) && !defined(CONFIG_DISABLE_ALL_SIGNALS)
   int result;
 #else
+#ifdef CONFIG_BUILD_KERNEL
   struct sched_param param;
   posix_spawnattr_t attr;
   FAR const char * const arg[7] =
@@ -770,6 +771,7 @@ int main(int argc, FAR char **argv)
     {
       return user_main(argc - 1 , &argv[1]);
     }
+#endif
 #endif
 
 #ifdef CONFIG_TESTING_OSTEST_WQUEUE
@@ -816,6 +818,22 @@ int main(int argc, FAR char **argv)
   show_environment(true, true, true);
 #endif
 
+  /* Verify that we can spawn a new task.  If all signal support is disabled,
+   * execute the test body synchronously instead.  This keeps ostest usable
+   * on configurations where waitpid()/SIGCHLD are intentionally unavailable.
+   */
+
+#if defined(CONFIG_DISABLE_ALL_SIGNALS) && !defined(CONFIG_BUILD_KERNEL)
+  {
+    FAR char * const args[NARGS + 2] =
+    {
+      argv[0], (FAR char *)arg1, (FAR char *)arg2,
+      (FAR char *)arg3, (FAR char *)arg4, NULL
+    };
+
+    ostest_result = user_main(NARGS + 1, (FAR char **)args);
+  }
+#else
   /* Verify that we can spawn a new task */
 
 #ifdef CONFIG_BUILD_KERNEL
@@ -852,6 +870,7 @@ int main(int argc, FAR char **argv)
         }
 #endif
     }
+#endif
 
   printf("ostest_main: Exiting with status %d\n", ostest_result);
 
