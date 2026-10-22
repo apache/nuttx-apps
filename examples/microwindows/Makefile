@@ -44,12 +44,12 @@ $(MW_IMGDIR)/%.c: $(MW_SRC)/images/demos/mwin/%.bmp $(MW_CONVBMP)
 	mkdir -p $(MW_IMGDIR)
 	$(CURDIR)/$(MW_CONVBMP) -o $@ $<
 
-clean::
-	$(call DELFILE, $(MW_IMAGES:%=$(MW_IMGDIR)/%.c))
-	$(Q) rmdir $(MW_IMGDIR) 2>/dev/null || true
-	$(call DELFILE, $(MW_CONVBMP))
-
 CFLAGS += -Wno-undef 
 CFLAGS += -DNOGDI
 
 include $(APPDIR)/Application.mk
+
+clean::
+	$(call DELFILE, $(MW_IMAGES:%=$(MW_IMGDIR)/%.c))
+	$(Q) rmdir $(MW_IMGDIR) 2>/dev/null || true
+	$(call DELFILE, $(MW_CONVBMP))
