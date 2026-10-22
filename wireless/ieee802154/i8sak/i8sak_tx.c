@@ -115,7 +115,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   if (argc == argind + 1)
     {
-      i8sak->payload_len = i8sak_str2payload(argv[1], i8sak->payload);
+      i8sak->payload_len = i8sak_str2payload(argv[argind], i8sak->payload);
     }
 
   if (sendmax)
@@ -281,8 +281,6 @@ static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive,
       printf("i8sak: frame failed to send: %s\n",
              g_ieee802154_status_string[primitive->u.dataconf.status]);
     }
-
-  sem_post(&i8sak->sigsem);
 
   i8sak_releasedaemon(i8sak);
 }
