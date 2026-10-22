@@ -223,8 +223,8 @@ static void *receiver_thread(void *arg)
             {
               if (isprint(msg_buffer[j]))
                 {
-                 printf("receiver_thread:                  "
-                        "%2d %02x (%c) %02x (%c)\n",
+                  printf("receiver_thread:                  "
+                         "%2d %02x (%c) %02x (%c)\n",
                          j, TEST_MESSAGE[j], TEST_MESSAGE[j],
                          msg_buffer[j], msg_buffer[j]);
                 }
