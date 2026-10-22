@@ -46,6 +46,8 @@ int ieee802154_orphan_resp(int fd, FAR struct ieee802154_orphan_resp_s *resp)
   union ieee802154_macarg_u arg;
   int ret;
 
+  memcpy(&arg.orphanresp, resp, sizeof(struct ieee802154_orphan_resp_s));
+
   ret = ioctl(fd, MAC802154IOC_MLME_ORPHAN_RESPONSE,
              (unsigned long)((uintptr_t)&arg));
   if (ret < 0)

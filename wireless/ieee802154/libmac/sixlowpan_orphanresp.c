@@ -48,6 +48,7 @@ int sixlowpan_orphan_resp(int sock, FAR const char *ifname,
   int ret;
 
   strlcpy(arg.ifr_name, ifname, IFNAMSIZ);
+  memcpy(&arg.u.orphanresp, resp, sizeof(struct ieee802154_orphan_resp_s));
 
   ret = ioctl(sock, MAC802154IOC_MLME_ORPHAN_RESPONSE,
               (unsigned long)((uintptr_t)&arg));
