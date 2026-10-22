@@ -223,6 +223,22 @@ config NXMODBUS_FUNC_REPORT_SERVER_ID
 	---help---
 		Enable FC17 Report Server ID function code handler.
 
+config NXMODBUS_FUNC_READ_FILE
+	bool "FC20 Read File Record"
+	default n
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC20 Read File Record function code handler.  The data
+		is provided by the file_cb callback of the application.
+
+config NXMODBUS_FUNC_WRITE_FILE
+	bool "FC21 Write File Record"
+	default n
+	depends on NXMODBUS_SERVER
+	---help---
+		Enable FC21 Write File Record function code handler.  The data
+		is consumed by the file_cb callback of the application.
+
 config NXMODBUS_FUNC_READWRITE_HOLDINGS
 	bool "FC23 Read/Write Multiple Holding Registers"
 	default y

@@ -199,6 +199,19 @@ struct nxmb_callbacks_s
                        FAR void *priv);
   CODE int (*holding_cb)(FAR uint8_t *buf, uint16_t addr, uint16_t nregs,
                          enum nxmb_regmode_e mode, FAR void *priv);
+
+  /* File record access (FC20 Read File Record, FC21 Write File Record).
+   * The callback gets one group of nregs 16-bit records of a file, starting
+   * at the given record: file is 1 to 0xffff and record is 0 to 9999, as on
+   * the wire.  buf holds the registers as on the wire (big endian, 2 bytes
+   * each): the application fills it for NXMB_REG_READ and consumes it for
+   * NXMB_REG_WRITE.  Return -ENOENT for a file or record that does not
+   * exist (Modbus exception 2); any other error is a device failure.
+   */
+
+  CODE int (*file_cb)(FAR uint8_t *buf, uint16_t file, uint16_t record,
+                      uint16_t nregs, enum nxmb_regmode_e mode,
+                      FAR void *priv);
   FAR void *priv;
 };
 
