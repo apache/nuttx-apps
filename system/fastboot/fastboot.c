@@ -546,7 +546,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
             break;
           case FASTBOOT_CHUNK_FILL:
             {
-              uint32_t fill_data = be32toh(*(FAR uint32_t *)chunk_ptr);
+              uint32_t fill_data = le32toh(*(FAR uint32_t *)chunk_ptr);
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
 
               ret = ffastboot_flash_fill(fd, ctx->download_offset, fill_data,
@@ -561,7 +561,10 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
             }
             break;
           case FASTBOOT_CHUNK_DONT_CARE:
+            ctx->download_offset += chunk->chunk_sz * sparse->blk_sz;
+            break;
           case FASTBOOT_CHUNK_CRC32:
+            chunk_ptr += 4;
             break;
           default:
             fb_err("Error chunk type:%d, skip\n", chunk->chunk_type);
