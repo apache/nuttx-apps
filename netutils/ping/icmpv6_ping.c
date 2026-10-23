@@ -341,7 +341,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
               goto done;
             }
 
-          elapsed = TICK2USEC(clock() - start);
+          elapsed = CLOCK2USEC(clock() - start);
           inhdr   = (FAR struct icmpv6_echo_reply_s *)iobuffer;
 
           if (inhdr->type == ICMPv6_ECHO_REPLY)
@@ -419,7 +419,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
 
       /* Wait if necessary to preserved the requested ping rate */
 
-      elapsed = TICK2MSEC(clock() - start);
+      elapsed = CLOCK2MSEC(clock() - start);
       if (elapsed < info->delay)
         {
           struct timespec rqt;
@@ -441,7 +441,7 @@ void icmp6_ping(FAR const struct ping6_info_s *info)
     }
 
 done:
-  icmp6_callback(&result, ICMPv6_I_FINISH, TICK2USEC(clock() - kickoff));
+  icmp6_callback(&result, ICMPv6_I_FINISH, CLOCK2USEC(clock() - kickoff));
   close(sockfd);
   free(iobuffer);
 }

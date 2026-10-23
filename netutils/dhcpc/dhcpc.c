@@ -899,7 +899,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
               return ERROR;
             }
         }
-      while (state == STATE_INITIAL && TICK2MSEC(clock() - start) <
+      while (state == STATE_INITIAL && CLOCK2MSEC(clock() - start) <
              CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT_MS);
     }
   while (state == STATE_INITIAL &&
@@ -1015,7 +1015,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
               return ERROR;
             }
         }
-      while (state == STATE_HAVE_OFFER && TICK2MSEC(clock() - start) <
+      while (state == STATE_HAVE_OFFER && CLOCK2MSEC(clock() - start) <
              CONFIG_NETUTILS_DHCPC_RECV_TIMEOUT_MS);
     }
   while (state == STATE_HAVE_OFFER &&
