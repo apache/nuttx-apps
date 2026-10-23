@@ -233,22 +233,22 @@ static int xmlrpc_parseparam(struct parsebuf_s *pbuf)
 
   switch (g_xmlcall.args[g_xmlcall.argsize])
     {
-    case 'i':
-    case 'b':
-      g_xmlcall.arguments[g_xmlcall.argsize].u.i = atoi(g_data);
-      break;
+      case 'i':
+      case 'b':
+        g_xmlcall.arguments[g_xmlcall.argsize].u.i = atoi(g_data);
+        break;
 
-    case 'd':
-      g_xmlcall.arguments[g_xmlcall.argsize].u.d = atof(g_data);
-      break;
+      case 'd':
+        g_xmlcall.arguments[g_xmlcall.argsize].u.d = atof(g_data);
+        break;
 
-    case 's':
-      strlcpy(g_xmlcall.arguments[g_xmlcall.argsize].u.string, g_data,
-              sizeof(g_xmlcall.arguments[g_xmlcall.argsize].u.string));
-      break;
+      case 's':
+        strlcpy(g_xmlcall.arguments[g_xmlcall.argsize].u.string, g_data,
+                sizeof(g_xmlcall.arguments[g_xmlcall.argsize].u.string));
+        break;
 
-    default:
-      return XMLRPC_PARSE_ERROR;
+      default:
+        return XMLRPC_PARSE_ERROR;
     }
 
   g_xmlcall.argsize++;
