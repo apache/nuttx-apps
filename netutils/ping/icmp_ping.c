@@ -398,7 +398,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
 
           /* Skip IP header, IP header length including options */
 
-          priv->elapsed = TICK2USEC(clock() - priv->start);
+          priv->elapsed = CLOCK2USEC(clock() - priv->start);
           inhdr         = (FAR struct icmp_hdr_s *)
                           (iobuffer + sizeof(struct ipv4_hdr_s));
 
@@ -478,7 +478,7 @@ void icmp_ping(FAR const struct ping_info_s *info)
       /* Wait if necessary to preserved the requested ping rate */
 
 wait:
-      priv->elapsed = TICK2MSEC(clock() - priv->start);
+      priv->elapsed = CLOCK2MSEC(clock() - priv->start);
       if (priv->elapsed < info->delay)
         {
           struct timespec rqt;
@@ -499,7 +499,7 @@ wait:
       priv->outhdr.seqno = htons(++result.seqno);
     }
 
-  icmp_callback(&result, ICMP_I_FINISH, TICK2USEC(clock() - priv->kickoff));
+  icmp_callback(&result, ICMP_I_FINISH, CLOCK2USEC(clock() - priv->kickoff));
   close(priv->sockfd);
   free(priv);
 }
