@@ -1,0 +1,40 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_HIDCOMBO
+	tristate "USB HID keyboard + mouse combo example"
+	default n
+	depends on USBHOST_HIDKBD && USBHOST_HIDMOUSE && !HIDMOUSE_TSCIF
+	---help---
+		Read a USB HID keyboard and a USB HID mouse at the same time from
+		a single task using poll().  Useful to test keyboard + touchpad
+		receivers, which expose both devices on the same USB device.
+
+if EXAMPLES_HIDCOMBO
+
+config EXAMPLES_HIDCOMBO_PROGNAME
+	string "Program name"
+	default "hidcombo"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_HIDCOMBO_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_HIDCOMBO_STACKSIZE
+	int "Task stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_HIDCOMBO_KBDDEV
+	string "Keyboard device"
+	default "/dev/kbda"
+
+config EXAMPLES_HIDCOMBO_MOUSEDEV
+	string "Mouse device"
+	default "/dev/mouse0"
+
+endif # EXAMPLES_HIDCOMBO
