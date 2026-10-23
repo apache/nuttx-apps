@@ -183,9 +183,9 @@ static char *exec_read_output(char **argv)
   close(pipefd[0]);
   close(pipefd[1]);
 
-  /* Must have a success exit code. */
+  /* Must have exited with a success exit code. */
 
-  if (WEXITSTATUS(status) != 0)
+  if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
     {
       free(result);
       result = NULL;
