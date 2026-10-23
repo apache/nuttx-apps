@@ -35,6 +35,7 @@
 #include <time.h>
 #include <signal.h>
 #include <spawn.h>
+#include <sys/ioctl.h>
 #include <sys/param.h>
 #include <unistd.h>
 
@@ -490,6 +491,38 @@ errout:
 }
 
 /****************************************************************************
+ * Name: service_ctty
+ *
+ * Description:
+ *   Make the console device the controlling terminal of the service with
+ *   the PID pid.  A device without TIOCSCTTY is not an error.
+ *
+ ****************************************************************************/
+
+static void service_ctty(FAR struct service_s *service, pid_t pid)
+{
+  FAR const char *dev = service->console ?
+                        service->console :
+                        CONFIG_SYSTEM_NXINIT_CONSOLE_DEV;
+  int fd;
+
+  fd = open(dev, O_RDWR | O_NOCTTY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      init_warn("Open console '%s' %d", dev, errno);
+      return;
+    }
+
+  if (ioctl(fd, TIOCSCTTY, pid) < 0)
+    {
+      init_info("Console '%s' of pid %d: no controlling terminal %d", dev,
+                pid, errno);
+    }
+
+  close(fd);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -708,6 +741,11 @@ int init_service_start(FAR struct service_s *service)
       init_err("Starting service '%s': %d", service->argv[1], ret);
       init_service_reap(service, ret);
       return -ret;
+    }
+
+  if (check_flags(service, SVC_CONSOLE))
+    {
+      service_ctty(service, pid);
     }
 
   service->pid = pid;
