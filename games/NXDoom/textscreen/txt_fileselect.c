@@ -163,6 +163,7 @@ static char *exec_read_output(char **argv)
       else
         {
           char *new_result = realloc(result, result_len + bytes + 1);
+
           if (new_result == NULL)
             {
               break;
@@ -207,7 +208,8 @@ static unsigned int num_extensions(const char **extensions)
   if (extensions != NULL)
     {
       for (result = 0; extensions[result] != NULL; ++result)
-        ;
+        {
+        }
     }
 
   return result;
