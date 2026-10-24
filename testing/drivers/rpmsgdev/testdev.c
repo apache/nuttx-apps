@@ -38,6 +38,7 @@
 #include <poll.h>
 #if defined(__NuttX__) && (defined(CONFIG_DEV_RPMSG) || defined(CONFIG_DEV_RPMSG_SERVER))
 #include <nuttx/drivers/rpmsgdev.h>
+#include <nuttx/poll.h>
 #endif
 
 /****************************************************************************
@@ -75,7 +76,7 @@ static off_t   testdev_seek(FAR struct file *filep, off_t offset,
                             int whence);
 static int     testdev_ioctl(FAR struct file *filep, int cmd,
                              unsigned long arg);
-static int     testdev_poll(FAR struct file *filep, FAR struct pollfd *fds,
+static int     testdev_poll(FAR struct file *filep, FAR struct pollfd_s *fds,
                             bool setup);
 
 /****************************************************************************
@@ -202,17 +203,17 @@ static int testdev_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
           }
         else
           {
-           if (*(int *)arg == IOCTL_ARG)
-             {
-               ret = RET;
-             }
-           else
-             {
-               syslog(LOG_ERR, "test ioctl fail, cmd %d(except %d), "
-                      "whence %d(expect %d)\n",
-                      cmd, IOCTL, *(int *)arg, IOCTL_ARG);
-               ret = -1;
-             }
+            if (*(int *)arg == IOCTL_ARG)
+              {
+                ret = RET;
+              }
+            else
+              {
+                syslog(LOG_ERR, "test ioctl fail, cmd %d(except %d), "
+                       "whence %d(expect %d)\n",
+                       cmd, IOCTL, *(int *)arg, IOCTL_ARG);
+                ret = -1;
+              }
           }
         break;
       default:
@@ -223,7 +224,7 @@ static int testdev_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
   return ret;
 }
 
-static int testdev_poll(FAR struct file *filep, FAR struct pollfd *fds,
+static int testdev_poll(FAR struct file *filep, FAR struct pollfd_s *fds,
                         bool setup)
 {
   if (!setup)
@@ -253,7 +254,7 @@ static void _register_driver(int mode, char *cpu, char *remotepath,
           }
 
         ret = register_driver(remotepath, &g_testdev_ops, 0666, NULL);
-      break;
+        break;
 #ifdef CONFIG_DEV_RPMSG
       case 1:
         if (cpu == NULL || remotepath == NULL || localpath == NULL)
@@ -263,7 +264,7 @@ static void _register_driver(int mode, char *cpu, char *remotepath,
           }
 
         ret = rpmsgdev_register(cpu, remotepath, localpath, 0);
-      break;
+        break;
 #endif
       case 2:
 #ifdef CONFIG_DEV_RPMSG_SERVER
@@ -275,13 +276,13 @@ static void _register_driver(int mode, char *cpu, char *remotepath,
 
         ret = rpmsgdev_export(cpu, localpath);
 #else
-      syslog(LOG_WARNING, "feature of case %d not enabled\n", mode);
+        syslog(LOG_WARNING, "feature of case %d not enabled\n", mode);
 #endif
-      break;
+        break;
       default:
-      syslog(LOG_ERR, "-d must between 0 and 2\n");
+        syslog(LOG_ERR, "-d must between 0 and 2\n");
         exit(1);
-      break;
+        break;
     }
 
   if (ret < 0)
@@ -715,9 +716,9 @@ static int testcase_8(char *path)
 static void show_usage(void)
 {
   syslog(LOG_WARNING,
-         "Usage: CMD [-d <regist driver>] [-c <remote cpu>] "
+         "Usage: CMD [-d <register driver>] [-c <remote cpu>] "
          "[-l <localpath>] [-r <remotepath>] [-h <hour>] [-t <test>]\n"
-         "\t\t-d: regist driver\n"
+         "\t\t-d: register driver\n"
          "\t\t\t 0 for test driver\n"
          "\t\t\t 1 for rpmsgdev(client register)\n"
          "\t\t\t 2 for rpmsgdev(server export)\n"
@@ -766,27 +767,27 @@ int main(int argc, char *argv[])
         {
           case 'd':
             mode = atoi(optarg);
-          break;
+            break;
           case 'c':
             cpu = optarg;
-          break;
+            break;
           case 'l':
             localpath = optarg;
-          break;
+            break;
           case 'r':
             remotepath = optarg;
-          break;
+            break;
           case 't':
             test = atoi(optarg);
-          break;
+            break;
           case 'h':
             hour = atoi(optarg);
-          break;
+            break;
           default:
             show_usage();
-          break;
-      }
-  }
+            break;
+        }
+    }
 
   if (mode >= 0)
     {
@@ -808,35 +809,35 @@ int main(int argc, char *argv[])
         {
           case 1:
             ret = testcase_1(localpath);
-          break;
+            break;
           case 2:
             ret = testcase_2(localpath);
-          break;
+            break;
           case 3:
             ret = testcase_3(localpath);
-          break;
+            break;
 #ifdef __NuttX__
           case 4:
             ret = testcase_4(localpath);
-          break;
+            break;
 #endif
           case 5:
             ret = testcase_5(localpath);
-          break;
+            break;
           case 6:
             ret = testcase_6(localpath);
-          break;
+            break;
           case 7:
             ret = testcase_7(localpath);
-          break;
+            break;
           case 8:
             ret = testcase_8(localpath);
-          break;
+            break;
           default:
             syslog(LOG_ERR, "-t out of range\n");
             exit(1);
-          break;
-      }
+            break;
+        }
 
       if (ret == 0)
         {
@@ -846,7 +847,7 @@ int main(int argc, char *argv[])
         {
           syslog(LOG_INFO, "TEST FAIL, expect 0 (ret %d)\n", ret);
         }
-  }
+    }
 #endif
 
   return 0;
