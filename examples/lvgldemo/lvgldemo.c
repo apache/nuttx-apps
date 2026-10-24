@@ -26,12 +26,17 @@
 
 #include <nuttx/config.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/boardctl.h>
 
 #include <lvgl/lvgl.h>
 #include <lvgl/demos/lv_demos.h>
 #ifdef CONFIG_LV_USE_NUTTX_LIBUV
 #include <uv.h>
+#endif
+
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_PORT_FBDEV
+#include "lv_port_fbdev.h"
 #endif
 
 /****************************************************************************
@@ -96,6 +101,10 @@ int main(int argc, FAR char *argv[])
 
 #ifdef CONFIG_LV_USE_NUTTX_LIBUV
   uv_loop_t ui_loop;
+#endif
+
+  memset(&result, 0, sizeof(result));
+#ifdef CONFIG_LV_USE_NUTTX_LIBUV
   lv_memzero(&ui_loop, sizeof(ui_loop));
 #endif
 
@@ -108,6 +117,26 @@ int main(int argc, FAR char *argv[])
   lv_init();
 
   lv_nuttx_dsc_init(&info);
+
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_PORT_FBDEV
+  /* Initialize display using Safeguard Framebuffer Driver */
+
+  result.disp = lv_port_disp_init();
+  if (result.disp == NULL)
+    {
+      LV_LOG_ERROR("lv_port_disp_init failure!");
+      return 1;
+    }
+
+#ifdef CONFIG_INPUT_TOUCHSCREEN
+  /* Retain input device registration on the framebuffer path */
+
+  info.input_path = CONFIG_EXAMPLES_LVGLDEMO_INPUT_DEVPATH;
+  info.fb_path = NULL;
+  lv_nuttx_init(&info, &result);
+#endif
+
+#else /* !CONFIG_EXAMPLES_LVGLDEMO_PORT_FBDEV */
 
 #ifdef CONFIG_LV_USE_NUTTX_LCD
   info.fb_path = "/dev/lcd0";
@@ -124,6 +153,7 @@ int main(int argc, FAR char *argv[])
       LV_LOG_ERROR("lv_demos initialization failure!");
       return 1;
     }
+#endif
 
   if (!lv_demos_create(&argv[1], argc - 1))
     {
@@ -140,6 +170,7 @@ int main(int argc, FAR char *argv[])
   while (1)
     {
       uint32_t idle;
+
       idle = lv_timer_handler();
 
       /* Minimum sleep of 1ms */
@@ -150,6 +181,10 @@ int main(int argc, FAR char *argv[])
 #endif
 
 demo_end:
+#ifdef CONFIG_EXAMPLES_LVGLDEMO_PORT_FBDEV
+  lv_port_disp_deinit();
+#endif
+
   lv_nuttx_deinit(&result);
   lv_deinit();
 

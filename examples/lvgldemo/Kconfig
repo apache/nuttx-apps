@@ -20,6 +20,31 @@ config EXAMPLES_LVGLDEMO_STACKSIZE
 	int "lvgldemo stack size"
 	default 16384
 
+config EXAMPLES_LVGLDEMO_PORT_FBDEV
+	bool "Enable Custom Safeguard Framebuffer Port (/dev/fb0)"
+	default n
+	depends on !LV_USE_NUTTX_LCD
+	---help---
+		Enables the Safeguard Architecture for /dev/fb0:
+		1. Color probe test (endianness and channel order check)
+		2. Smart flush callback with byte-order adaptation and forced alpha (0xFF)
+		3. Partial draw buffering (40 rows) to prevent heap exhaustion.
+
+config EXAMPLES_LVGLDEMO_COLOR_PROBE
+	bool "Enable Color Probe test pixels on startup"
+	default n
+	depends on EXAMPLES_LVGLDEMO_PORT_FBDEV
+	---help---
+		Writes 3 test pixels (Red, Green, Blue) at (0,0)-(2,0) on startup
+		for hardware color-order diagnostic.
+
+config EXAMPLES_LVGLDEMO_FBDEV_PATH
+	string "Framebuffer device path"
+	default "/dev/fb0"
+	depends on EXAMPLES_LVGLDEMO_PORT_FBDEV
+	---help---
+		The path to the framebuffer device. Default: "/dev/fb0"
+
 config EXAMPLES_LVGLDEMO_INPUT_DEVPATH
 	string "Touchscreen device path"
 	default "/dev/input0"
