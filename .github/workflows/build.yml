@@ -379,7 +379,7 @@ jobs:
               python -m pip install \
                 --default-timeout=100 \
                 --retries 10 \
-                ntfc==0.0.1 && break
+                ntfc==0.0.3 && break
               echo "Retry $i failed..."
               sleep 5
             done
