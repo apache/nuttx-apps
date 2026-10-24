@@ -40,7 +40,7 @@
 #include <unistd.h>
 
 #include <nuttx/irq.h>
-#include <nuttx/timers/taskwdt.h>
+#include <nuttx/timers/watchdog.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -79,6 +79,7 @@ static int case_exit(unsigned int timeout_ms);
 static int case_kill(unsigned int timeout_ms);
 static int case_two(unsigned int timeout_ms);
 static int case_late(unsigned int timeout_ms);
+static int case_handoff(unsigned int sec);
 static int case_hog(unsigned int sec);
 static int case_hang(unsigned int sec);
 
@@ -102,6 +103,7 @@ static const struct testcase_s g_cases[] =
   { "kill", case_kill, 2000, true, "ms: task deleted, channel armed" },
   { "two", case_two, 2000, true, "ms: only one of two threads feeds" },
   { "late", case_late, 1000, true, "ms: feeding resumes after expiry" },
+  { "handoff", case_handoff, 12, false, "sec: one opens, another feeds" },
   { "hog", case_hog, 0, true, "scheduler locked, work queue starves" },
   { "hang", case_hang, 0, true, "interrupts disabled" }
 };
@@ -112,11 +114,11 @@ static const struct testcase_s g_cases[] =
 
 static int chan_open(unsigned int timeout_ms)
 {
-  int fd = open(CONFIG_TASKWDT_DEVPATH, O_WRONLY);
+  int fd = open(CONFIG_WATCHDOG_DEVPATH, O_WRONLY);
 
   if (fd < 0)
     {
-      printf("open %s failed: %d\n", CONFIG_TASKWDT_DEVPATH, errno);
+      printf("open %s failed: %d\n", CONFIG_WATCHDOG_DEVPATH, errno);
       return -1;
     }
 
@@ -381,7 +383,7 @@ static int case_errors(unsigned int arg)
       return fail("errors", "GETSTATUS NULL must fail with EINVAL");
     }
 
-  if (ioctl(fd, WDIOC_CAPTURE, 0) >= 0 || errno != ENOTTY)
+  if (ioctl(fd, _WDIOC(0x7f), 0) >= 0 || errno != ENOTTY)
     {
       return fail("errors", "unknown ioctl must fail with ENOTTY");
     }
@@ -526,6 +528,29 @@ static int case_late(unsigned int timeout_ms)
   feed_for(fd, 60, true);
   printf("FAIL: no reset after the timeout, feeding again\n");
   return EXIT_FAILURE;
+}
+
+static FAR void *thread_handoff(FAR void *arg)
+{
+  feed_for((int)(uintptr_t)arg, 12, false);
+  return NULL;
+}
+
+static int case_handoff(unsigned int sec)
+{
+  pthread_t thread;
+  int fd = chan_open(2000);
+
+  if (fd < 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  pthread_create(&thread, NULL, thread_handoff, (FAR void *)(uintptr_t)fd);
+  pthread_join(thread, NULL);
+  write(fd, "V", 1);
+  close(fd);
+  return pass("handoff");
 }
 
 static int case_hog(unsigned int sec)
