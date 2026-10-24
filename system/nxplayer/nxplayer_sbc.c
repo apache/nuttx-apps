@@ -186,12 +186,17 @@ static int check_sbc_frame_header_info(FAR struct sbc_frame_header *sbc)
  *
  ****************************************************************************/
 
-int nxplayer_parse_sbc(int fd, FAR uint32_t *samplerate,
-                       FAR uint8_t *chans, FAR uint8_t *bps)
+int nxplayer_parse_sbc(FAR struct nxplayer_s *pplayer, int fd,
+                       FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps,
+                       FAR int *subfmt)
 {
   char buffer[SBC_FRAME_HEADER_SIZE];
   struct sbc_frame_header sbc;
   int ret = OK;
+
+  (void)pplayer;
+  (void)subfmt;
 
   ret = read(fd, buffer, SBC_FRAME_HEADER_SIZE);
   if (ret < SBC_FRAME_HEADER_SIZE)

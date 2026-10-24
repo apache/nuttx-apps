@@ -30,6 +30,9 @@ if(CONFIG_SYSTEM_NXPLAYER)
   target_sources(apps PRIVATE nxplayer.c)
 
   set(CSRCS nxplayer.c nxplayer_common.c nxplayer_mp3.c nxplayer_sbc.c)
+  if(CONFIG_AUDIO_FORMAT_PCM AND CONFIG_NXPLAYER_FMT_FROM_EXT)
+    list(APPEND CSRCS nxplayer_wav.c)
+  endif()
 
   target_sources(apps PRIVATE ${CSRCS})
 endif()

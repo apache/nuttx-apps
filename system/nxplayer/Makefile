@@ -29,6 +29,12 @@ CSRCS    += nxplayer_common.c
 CSRCS    += nxplayer_mp3.c
 CSRCS    += nxplayer_sbc.c
 
+ifneq ($(CONFIG_AUDIO_FORMAT_PCM),)
+ifneq ($(CONFIG_NXPLAYER_FMT_FROM_EXT),)
+CSRCS    += nxplayer_wav.c
+endif
+endif
+
 ifneq ($(CONFIG_NXPLAYER_COMMAND_LINE),)
 PROGNAME  = nxplayer
 PRIORITY  = SCHED_PRIORITY_DEFAULT
