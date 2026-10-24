@@ -67,7 +67,7 @@ static int waitpid_main(int argc, char *argv[])
 
   printf("waitpid_main: PID %d Started\n", me);
   sleep(3);
-  printf("waitpid_main: PID %d exitting with result=%d\n",
+  printf("waitpid_main: PID %d exiting with result=%d\n",
           me, RETURN_STATUS);
   return RETURN_STATUS;
 }
@@ -152,13 +152,11 @@ static void waitpid_last(void)
           ASSERT(false);
         }
     }
-  else if (WEXITSTATUS(stat_loc) != RETURN_STATUS)
+  else if (!WIFEXITED(stat_loc) || WEXITSTATUS(stat_loc) != RETURN_STATUS)
     {
       printf("waitpid_last: ERROR: "
-             "PID %d return status is %d, expected %d\n",
-             g_waitpids[NCHILDREN - 1],
-             WEXITSTATUS(stat_loc),
-             RETURN_STATUS);
+             "PID %d stat_loc=%04x, expected exit status %d\n",
+             g_waitpids[NCHILDREN - 1], stat_loc, RETURN_STATUS);
       ASSERT(false);
     }
   else
@@ -220,11 +218,11 @@ int waitpid_test(void)
              g_waitpids[0], ret);
       ASSERT(false);
     }
-  else if (WEXITSTATUS(stat_loc) != RETURN_STATUS)
+  else if (!WIFEXITED(stat_loc) || WEXITSTATUS(stat_loc) != RETURN_STATUS)
     {
       printf("waitpid_test: ERROR: "
-             "PID %d return status is %d, expected %d\n",
-             g_waitpids[0], WEXITSTATUS(stat_loc), RETURN_STATUS);
+             "PID %d stat_loc=%04x, expected exit status %d\n",
+             g_waitpids[0], stat_loc, RETURN_STATUS);
       ASSERT(false);
     }
   else
@@ -376,11 +374,11 @@ int waitpid_test(void)
           ASSERT(false);
         }
     }
-  else if (WEXITSTATUS(stat_loc) != RETURN_STATUS)
+  else if (!WIFEXITED(stat_loc) || WEXITSTATUS(stat_loc) != RETURN_STATUS)
     {
       printf("waitpid_test: ERROR: "
-             "PID %d return status is %d, expected %d\n",
-             ret, WEXITSTATUS(stat_loc), RETURN_STATUS);
+             "PID %d stat_loc=%04x, expected exit status %d\n",
+             ret, stat_loc, RETURN_STATUS);
       ASSERT(false);
     }
   else

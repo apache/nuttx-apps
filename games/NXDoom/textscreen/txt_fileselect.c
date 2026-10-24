@@ -163,6 +163,7 @@ static char *exec_read_output(char **argv)
       else
         {
           char *new_result = realloc(result, result_len + bytes + 1);
+
           if (new_result == NULL)
             {
               break;
@@ -182,9 +183,9 @@ static char *exec_read_output(char **argv)
   close(pipefd[0]);
   close(pipefd[1]);
 
-  /* Must have a success exit code. */
+  /* Must have exited with a success exit code. */
 
-  if (WEXITSTATUS(status) != 0)
+  if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
     {
       free(result);
       result = NULL;
@@ -207,7 +208,8 @@ static unsigned int num_extensions(const char **extensions)
   if (extensions != NULL)
     {
       for (result = 0; extensions[result] != NULL; ++result)
-        ;
+        {
+        }
     }
 
   return result;
