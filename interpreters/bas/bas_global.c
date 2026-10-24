@@ -1899,7 +1899,8 @@ static struct Value *fn_tan(struct Value *v, struct Auto *stack)
 
 static struct Value *fn_timei(struct Value *v, struct Auto *stack)
 {
-  return Value_new_INTEGER(v, (unsigned long)(clock() / (CLK_TCK / 100.0)));
+  return Value_new_INTEGER(v, (unsigned long)(clock() /
+                                              (CLOCKS_PER_SEC / 100.0)));
 }
 
 static struct Value *fn_times(struct Value *v, struct Auto *stack)
