@@ -148,6 +148,13 @@ int waitpid_test(void);
 int chroot_test(void);
 #endif
 
+/* caps.c *******************************************************************/
+
+#if defined(CONFIG_SCHED_CAPABILITIES) && defined(CONFIG_SCHED_WAITPID) && \
+    !defined(CONFIG_BUILD_KERNEL)
+int caps_test(void);
+#endif
+
 /* wqueue.c *****************************************************************/
 
 #ifdef CONFIG_TESTING_OSTEST_WQUEUE
