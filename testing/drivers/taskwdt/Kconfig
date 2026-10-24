@@ -6,9 +6,9 @@
 config TESTING_TASKWDT
 	bool "Task watchdog supervisor test (taskwdt_test)"
 	default n
-	depends on TASKWDT
+	depends on WATCHDOG_TASKMONITOR
 	---help---
-		Test the task watchdog supervisor (CONFIG_TASKWDT). Run
+		Test the task watchdog supervisor (CONFIG_WATCHDOG_TASKMONITOR). Run
 		"taskwdt_test" without arguments for the list of test cases. The
 		cases that must not reset the system print PASS or FAIL, the
 		others stop feeding on purpose and expect the system to reset.
