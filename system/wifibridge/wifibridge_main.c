@@ -197,6 +197,31 @@ static int wifibridge_clear_cmd(void)
 }
 #endif
 
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+static void
+wifibridge_status_saved(FAR const struct wifibridge_config_s *config)
+{
+  struct wifibridge_config_s saved = *config;
+  int ret;
+
+  ret = wifibridge_load(&saved);
+  if (ret == OK)
+    {
+      printf("saved ssid \"%s\" channel %d %s\n", saved.ssid,
+             saved.channel,
+             saved.security == WIFIBRIDGE_SEC_WPA3 ? "WPA3" : "WPA2");
+    }
+  else if (ret == -ENOENT)
+    {
+      printf("saved none\n");
+    }
+  else
+    {
+      printf("saved unreadable (%d)\n", ret);
+    }
+}
+#endif
+
 static int
 wifibridge_status_cmd(FAR const struct wifibridge_config_s *config)
 {
@@ -221,6 +246,11 @@ wifibridge_status_cmd(FAR const struct wifibridge_config_s *config)
   printf("\n%-5s %s\n", config->ethif, status.eth_up ? "up" : "down");
   printf("%-5s %s ssid \"%s\"\n", config->wlanif,
          status.wlan_up ? "up" : "down", status.ssid);
+
+#ifdef CONFIG_NETUTILS_WIFIBRIDGE_PERSIST
+  wifibridge_status_saved(config);
+#endif
+
   return EXIT_SUCCESS;
 }
 

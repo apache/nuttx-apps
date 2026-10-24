@@ -296,33 +296,33 @@ int wifibridge_start(FAR const struct wifibridge_config_s *config)
   ret = netlib_bridge_addif(config->bridge, config->ethif);
   if (ret < 0)
     {
-      goto errout_bridge;
+      goto errout;
     }
 
   ret = netlib_bridge_addif(config->bridge, config->wlanif);
   if (ret < 0)
     {
-      goto errout_bridge;
+      goto errout;
     }
 
   addr.s_addr = config->ipaddr;
   ret = netlib_set_ipv4addr(config->bridge, &addr);
   if (ret < 0)
     {
-      goto errout_bridge;
+      goto errout;
     }
 
   addr.s_addr = config->netmask;
   ret = netlib_set_ipv4netmask(config->bridge, &addr);
   if (ret < 0)
     {
-      goto errout_bridge;
+      goto errout;
     }
 
   ret = netlib_ifup(config->bridge);
   if (ret < 0)
     {
-      goto errout_bridge;
+      goto errout;
     }
 
 #ifdef CONFIG_NETUTILS_WIFIBRIDGE_DHCPD
@@ -331,7 +331,7 @@ int wifibridge_start(FAR const struct wifibridge_config_s *config)
       ret = dhcpd_start(config->bridge);
       if (ret < 0)
         {
-          goto errout_bridge;
+          goto errout;
         }
     }
 #endif
@@ -339,10 +339,8 @@ int wifibridge_start(FAR const struct wifibridge_config_s *config)
   close(sock);
   return OK;
 
-errout_bridge:
-  wifibridge_teardown(sock, config);
-
 errout:
+  wifibridge_teardown(sock, config);
   close(sock);
   return ret;
 }
