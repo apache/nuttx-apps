@@ -37,7 +37,6 @@
 #include <sys/param.h>
 #include <sys/wait.h>
 
-#include <nuttx/lib/builtin.h>
 #include <nuttx/usb/usbdev_trace.h>
 
 #include "action.h"
@@ -198,30 +197,6 @@ static int init_boot_reason(FAR struct action_manager_s *am)
 #endif
 
 /****************************************************************************
- * Name: init_builtins
- *
- * Description:
- *   In a protected build the kernel cannot read the list of builtin
- *   applications in user space, so posix_spawn() of a builtin fails with
- *   ENOENT until the list is given to the kernel.
- *
- ****************************************************************************/
-
-#if defined(CONFIG_BUILD_PROTECTED) && defined(CONFIG_BUILTIN) && \
-    defined(CONFIG_BOARDCTL)
-static void init_builtins(void)
-{
-  struct boardioc_builtin_s builtin;
-
-  builtin.builtins = g_builtins;
-  builtin.count    = g_builtin_count;
-  boardctl(BOARDIOC_BUILTINS, (uintptr_t)&builtin);
-}
-#else
-#  define init_builtins()
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -266,8 +241,6 @@ int main(int argc, FAR char *argv[])
   sigset_t mask;
   size_t i;
   int r;
-
-  init_builtins();
 
 #ifdef CONFIG_BMP
   snprintf(ACTION_TRIGGER_KEY(&am), sizeof(ACTION_TRIGGER_KEY(&am)),
