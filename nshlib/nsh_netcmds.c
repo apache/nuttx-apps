@@ -346,6 +346,7 @@ static int wget_callback(FAR char **buffer, int offset, int datend,
 {
   ssize_t written = write((int)((intptr_t)arg), &((*buffer)[offset]),
                           datend - offset);
+
   if (written == -1)
     {
       return -errno;
@@ -1177,6 +1178,7 @@ int cmd_vconfig(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #if defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
 int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
+  struct addrinfo hints;
   FAR struct addrinfo *info;
   FAR struct addrinfo *next;
   char buffer[48];
@@ -1188,7 +1190,11 @@ int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* Get the matching address + canonical name */
 
-  ret = getaddrinfo(argv[1], NULL, NULL, &info);
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_flags    = AI_CANONNAME;
+  hints.ai_socktype = SOCK_STREAM;
+
+  ret = getaddrinfo(argv[1], NULL, &hints, &info);
   if (ret != OK)
     {
       nsh_error(vtbl, g_fmtcmdfailed,
@@ -1212,7 +1218,9 @@ int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
       /* Print the host name / address mapping */
 
-      nsh_output(vtbl, "Host: %s Addr: %s\n", next->ai_canonname, buffer);
+      nsh_output(vtbl, "Host: %s Addr: %s\n",
+                 info->ai_canonname != NULL ? info->ai_canonname : argv[1],
+                 buffer);
     }
 
   freeaddrinfo(info);
@@ -1509,6 +1517,7 @@ int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLE_WGET
 int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
+  struct webclient_context ctx;
   FAR char *localfile = NULL;
   FAR char *allocfile = NULL;
   FAR char *buffer    = NULL;
@@ -1608,7 +1617,6 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* And perform the wget */
 
-  struct webclient_context ctx;
   webclient_set_defaults(&ctx);
   ctx.method = "GET";
   ctx.url = url;
