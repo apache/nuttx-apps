@@ -1606,7 +1606,12 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
       ctx->tran_fd[0]      = -1;
       ctx->tran_fd[1]      = -1;
 
+#if CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR != 0
+      ctx->download_buffer =
+        (FAR void *)(uintptr_t)CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR;
+#else
       ctx->download_buffer = malloc(CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
+#endif
       if (ctx->download_buffer == NULL)
         {
           fb_err("ERROR: Could not allocate the memory.\n");
@@ -1616,7 +1621,9 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
       ret = ctx->ops->init(ctx);
       if (ret < 0)
         {
+#if CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR == 0
           free(ctx->download_buffer);
+#endif
           ctx->download_buffer = NULL;
           ctx->ops->deinit(ctx);
         }
@@ -1633,7 +1640,9 @@ static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx,
       if (ctx->download_buffer)
         {
           ctx->ops->deinit(ctx);
+#if CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR == 0
           free(ctx->download_buffer);
+#endif
         }
     }
 }

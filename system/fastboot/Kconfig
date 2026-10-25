@@ -30,6 +30,10 @@ config SYSTEM_FASTBOOTD_DOWNLOAD_MAX
 	int "fastboot download buffer size"
 	default 40960
 
+config SYSTEM_FASTBOOTD_DOWNLOAD_ADDR
+	hex "fixed download buffer address (0 = malloc)"
+	default 0x0
+
 config SYSTEM_FASTBOOTD_USB
 	bool "Fastboot USB transport"
 	default y
