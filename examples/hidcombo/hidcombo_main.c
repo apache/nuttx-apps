@@ -140,10 +140,10 @@ int main(int argc, FAR char *argv[])
             {
               nkeys++;
               printf("KEY   %-15s code=0x%02lx '%c'\n",
-                     hidcombo_keytype(key.type), (unsigned long)key.code,
+                     hidcombo_keytype(key.type), key.code,
                      key.type <= KEYBOARD_RELEASE &&
                      key.code >= 0x20 && key.code < 0x7f ?
-                     (int)key.code : '.');
+                     key.code : '.');
             }
         }
 
