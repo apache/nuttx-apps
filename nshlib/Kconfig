@@ -720,6 +720,21 @@ config NSH_DISABLE_TOP
 	default DEFAULT_SMALL
 	depends on !NSH_DISABLE_PS
 
+config NSH_TOP_TASKBUF_SIZE
+	int "top per-task I/O buffer size"
+	default 512
+	depends on !NSH_DISABLE_TOP
+	---help---
+		The 'top' command keeps one I/O buffer alive per task
+		simultaneously (all tasks are collected, sorted, then printed),
+		so peak heap usage is roughly (number of tasks) * this value.
+
+		Each buffer only needs to hold the concatenation of a single
+		task's status + loadavg + cmdline, which is typically a few
+		hundred bytes, so this can be much smaller than NSH_FILEIOSIZE.
+		If a task's combined output exceeds this size it will be
+		truncated (fields may be missing) but will not overflow.
+
 config NSH_DISABLE_TRUNCATE
 	bool "Disable truncate"
 	default DEFAULT_SMALL
