@@ -24,6 +24,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <inttypes.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -37,7 +38,8 @@
 
 #define DEFAULT_CLOCKID   CLOCK_REALTIME
 #define DEFAULT_INTERVAL  (1000 * USEC_PER_TICK)
-#define DEFAULT_ITERATION (USEC_PER_SEC / DEFAULT_INTERVAL)
+#define DEFAULT_ITERATION (USEC_PER_SEC / DEFAULT_INTERVAL > 0 ? \
+                           USEC_PER_SEC / DEFAULT_INTERVAL : 1)
 
 /* Fix compilation error for Non-NuttX OS */
 #ifndef FAR
@@ -63,8 +65,8 @@ struct timerjitter_param_s
   unsigned long max_cnt;
   unsigned long cur_cnt;
   double        avg;
-  unsigned long max;
-  unsigned long min;
+  int64_t       max;
+  int64_t       min;
   int           print;
   unsigned int  missed;
 };
@@ -192,13 +194,11 @@ static FAR void *timerjitter(FAR void *arg)
     }
 
   param->avg = 0;
-  param->max = 0;
-  param->min = (unsigned long)-1;
+  param->max = INT64_MIN;
+  param->min = INT64_MAX;
 
   while (param->cur_cnt < param->max_cnt)
     {
-      param->cur_cnt++;
-
       /* Wait for SIGALRM */
 
       if (sigwait(&sigset, &sigs) < 0)
@@ -206,6 +206,8 @@ static FAR void *timerjitter(FAR void *arg)
           printf("sig wait failed\n");
           break;
         }
+
+      param->cur_cnt++;
 
       ret = clock_gettime(param->clockid, &now);
       if (ret)
@@ -246,7 +248,11 @@ static FAR void *timerjitter(FAR void *arg)
     }
 
   timer_delete(timer);
-  param->avg = param->avg / param->cur_cnt;
+  if (param->cur_cnt > 0)
+    {
+      param->avg = param->avg / param->cur_cnt;
+    }
+
   return NULL;
 }
 
@@ -359,8 +365,15 @@ int main(int argc, FAR char *argv[])
     }
 
   printf("timer jitter in %lu run:\n", param.max_cnt);
-  printf("(latency/us) min: %lu, avg: %.0lf, max %lu\n",
-         param.min, param.avg, param.max);
+  if (param.cur_cnt == 0)
+    {
+      printf("(latency/us) no samples\n");
+    }
+  else
+    {
+      printf("(latency/us) min: %" PRId64 ", avg: %.0lf, max %" PRId64 "\n",
+             param.min, param.avg, param.max);
+    }
 
   return 0;
 }
