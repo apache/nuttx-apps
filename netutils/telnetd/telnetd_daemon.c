@@ -81,6 +81,7 @@ int telnetd_daemon(FAR const struct telnetd_config_s *config)
   socklen_t addrlen;
   int listensd;
   int acceptsd;
+  int nullfd;
 #ifdef CONFIG_NET_SOCKOPTS
   int optval;
 #endif
@@ -114,6 +115,31 @@ int telnetd_daemon(FAR const struct telnetd_config_s *config)
       goto errout;
     }
 #endif /* CONFIG_SCHED_HAVE_PARENT && CONFIG_ENABLE_ALL_SIGNALS */
+
+  /* If the daemon was started without standard streams (e.g. spawned by
+   * nsh_telnetstart() before a USB console exists), descriptors 0..2 are
+   * free and any descriptor created below -- the listen socket, an
+   * accepted socket or a session driver -- could be allocated in the
+   * standard-stream range, where the per-session dup2(0..2) would clobber
+   * it.  Anchor any free slot in 0..2 to /dev/null first so that can
+   * never happen.
+   */
+
+  for (; ; )
+    {
+      nullfd = open("/dev/null", O_RDWR);
+      if (nullfd < 0)
+        {
+          nerr("ERROR: open(/dev/null) failed: %d\n", errno);
+          goto errout;
+        }
+
+      if (nullfd > 2)
+        {
+          close(nullfd);
+          break;
+        }
+    }
 
   /* Create a new TCP socket to use to listen for connections */
 
@@ -190,11 +216,24 @@ int telnetd_daemon(FAR const struct telnetd_config_s *config)
 #endif
       int drvrfd;
 
-      /* Now go silent. */
+      /* Now go silent: detach from the previous session's driver (or the
+       * startup streams) by re-anchoring 0..2 to /dev/null instead of
+       * closing them.  Closing would leave 0..2 free, and accept4() or
+       * open() below could then allocate into the standard-stream range
+       * where the dup2(0..2) for the next session would clobber it.
+       */
 
-      close(0);
-      close(1);
-      close(2);
+      nullfd = open("/dev/null", O_RDWR);
+      if (nullfd >= 0)
+        {
+          dup2(nullfd, 0);
+          dup2(nullfd, 1);
+          dup2(nullfd, 2);
+          if (nullfd > 2)
+            {
+              close(nullfd);
+            }
+        }
 
       ninfo("Accepting connections on port %d\n", ntohs(config->d_port));
 
