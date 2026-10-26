@@ -792,15 +792,21 @@ static int top_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
     }
   else if (topstatus->index >= topstatus->size)
     {
-      topstatus->status =
+      FAR struct nsh_taskstatus_s **newstatus =
         realloc(topstatus->status,
                 sizeof(topstatus->status[0]) * topstatus->size * 2);
-      if (topstatus->status == NULL)
+
+      if (newstatus == NULL)
         {
+          /* Keep the original topstatus->status valid on failure so the
+           * cleanup path in cmd_top() can still free it.
+           */
+
           nsh_error(vtbl, g_fmtcmdfailed, "top", "realloc", NSH_ERRNO);
           return -ENOMEM;
         }
 
+      topstatus->status = newstatus;
       memset(&topstatus->status[topstatus->index], 0,
              sizeof(topstatus->status[0]) * topstatus->size);
       topstatus->size *= 2;
