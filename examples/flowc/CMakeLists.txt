@@ -21,5 +21,48 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_FLOWC)
-  nuttx_add_application(NAME flowc)
+
+  # Target 1: the receiver, or the sender with EXAMPLES_FLOWC_SENDER1
+
+  if(CONFIG_EXAMPLES_FLOWC_SENDER1)
+    set(SRCS1 flowc_sender.c)
+    set(SRCS2 flowc_receiver.c)
+  else()
+    set(SRCS1 flowc_receiver.c)
+    set(SRCS2 flowc_sender.c)
+  endif()
+
+  nuttx_add_application(
+    NAME
+    ${CONFIG_EXAMPLES_FLOWC_PROGNAME1}
+    PRIORITY
+    ${CONFIG_EXAMPLES_FLOWC_PRIORITY1}
+    STACKSIZE
+    ${CONFIG_EXAMPLES_FLOWC_STACKSIZE1}
+    MODULE
+    ${CONFIG_EXAMPLES_FLOWC}
+    INCLUDE_DIRECTORIES
+    ${NUTTX_BINARY_DIR}/include/nuttx
+    SRCS
+    flowc_target1.c
+    ${SRCS1})
+
+  # Target 2: the other end, when it is a NuttX target and not the host
+
+  if(CONFIG_EXAMPLES_FLOWC_TARGET2)
+    nuttx_add_application(
+      NAME
+      ${CONFIG_EXAMPLES_FLOWC_PROGNAME2}
+      PRIORITY
+      ${CONFIG_EXAMPLES_FLOWC_PRIORITY2}
+      STACKSIZE
+      ${CONFIG_EXAMPLES_FLOWC_STACKSIZE2}
+      MODULE
+      ${CONFIG_EXAMPLES_FLOWC}
+      INCLUDE_DIRECTORIES
+      ${NUTTX_BINARY_DIR}/include/nuttx
+      SRCS
+      flowc_target2.c
+      ${SRCS2})
+  endif()
 endif()
