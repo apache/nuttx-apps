@@ -821,14 +821,14 @@ static int top_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         }
 
       topstatus->status[index] = status;
-      status->td_buf = zalloc(IOBUFFERSIZE);
+      status->td_buf = zalloc(CONFIG_NSH_TOP_TASKBUF_SIZE);
       if (status->td_buf == NULL)
         {
           nsh_error(vtbl, g_fmtcmdfailed, "top", "zalloc", NSH_ERRNO);
           return -ENOMEM;
         }
 
-      status->td_bufsize = IOBUFFERSIZE;
+      status->td_bufsize = CONFIG_NSH_TOP_TASKBUF_SIZE;
     }
 
   ret = ps_record(vtbl, dirpath, entryp, topstatus->heap, status);
