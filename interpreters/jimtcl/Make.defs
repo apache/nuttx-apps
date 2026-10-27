@@ -21,5 +21,8 @@
 ############################################################################
 
 ifneq ($(CONFIG_INTERPRETERS_JIMTCL),)
+EXTRA_LIBPATHS += -L$(APPDIR)/interpreters/jimtcl/jimtcl
+EXTRA_LIBS += -ljim
+
 CONFIGURED_APPS += $(APPDIR)/interpreters/jimtcl
 endif
