@@ -125,7 +125,6 @@ static int camera_init(int fd, FAR uint32_t *pixfmt, FAR uint16_t *width,
 
   memset(&frmsize, 0, sizeof(frmsize));
   frmsize.index        = 0;
-  frmsize.buf_type     = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   frmsize.pixel_format = fmtdesc.pixelformat;
 
   ret = ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize);
@@ -181,7 +180,6 @@ static int camera_init(int fd, FAR uint32_t *pixfmt, FAR uint16_t *width,
 
   memset(&frmival, 0, sizeof(frmival));
   frmival.index        = 0;
-  frmival.buf_type     = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   frmival.pixel_format = fmtdesc.pixelformat;
   frmival.width        = frmsize.discrete.width;
   frmival.height       = frmsize.discrete.height;
@@ -235,6 +233,7 @@ static int camera_capture_frame(int camfd, FAR uint8_t *buf, size_t buflen,
   if (do_streamon)
     {
       enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
       ret = ioctl(camfd, VIDIOC_STREAMON, &type);
       if (ret < 0)
         {
@@ -391,6 +390,7 @@ int main(int argc, FAR char *argv[])
   /* Wait for USB host to enumerate and start streaming */
 
   struct pollfd pfd;
+
   pfd.fd     = uvcfd;
   pfd.events = POLLOUT;
 
