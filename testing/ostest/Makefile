@@ -99,6 +99,9 @@ endif
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += cancel.c cond.c mutex.c timedmutex.c sem.c semtimed.c barrier.c
 CSRCS += timedwait.c pthread_rwlock.c pthread_rwlock_cancel.c schedlock.c
+ifeq ($(CONFIG_TESTING_OSTEST_PTHREAD_SIGQUEUE),y)
+CSRCS += pthread_sigqueue.c
+endif
 
 ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += pthread_exit.c

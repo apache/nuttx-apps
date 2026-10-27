@@ -93,6 +93,10 @@ if(CONFIG_TESTING_OSTEST)
     list(APPEND SRCS timedwait.c pthread_rwlock.c pthread_rwlock_cancel.c
          schedlock.c)
 
+    if(CONFIG_TESTING_OSTEST_PTHREAD_SIGQUEUE)
+      list(APPEND SRCS pthread_sigqueue.c)
+    endif()
+
     if(CONFIG_SCHED_WAITPID)
       list(APPEND SRCS pthread_exit.c)
     endif()
