@@ -44,11 +44,8 @@ typedef FAR void *INIHANDLE;
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -117,7 +114,6 @@ long inifile_read_integer(INIHANDLE handle,
 
 void inifile_free_string(FAR char *value);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

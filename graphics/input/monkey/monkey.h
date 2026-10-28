@@ -35,11 +35,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -92,7 +89,6 @@ void monkey_set_period(FAR struct monkey_s *monkey, uint32_t period);
 bool monkey_set_recorder_path(FAR struct monkey_s *monkey,
                               FAR const char *path);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

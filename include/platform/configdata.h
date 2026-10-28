@@ -66,14 +66,11 @@ enum config_data_e
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
 #else
 
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -144,7 +141,6 @@ int platform_setconfig(enum config_data_e id, int instance,
 int platform_getconfig(enum config_data_e id, int instance,
                        FAR uint8_t *configdata, size_t datalen);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

@@ -49,11 +49,8 @@
 #include "lte_fw_def.h"
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -149,7 +146,6 @@ int ltefwupdate_execute(void);
 
 int ltefwupdate_result(void);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

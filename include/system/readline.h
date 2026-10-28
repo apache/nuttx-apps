@@ -77,11 +77,8 @@ struct extmatch_vtable_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -249,7 +246,6 @@ FAR char *readline(FAR const char *prompt);
 
 #define std_readline(b,s) readline_stream(b,s,stdin,stdout)
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

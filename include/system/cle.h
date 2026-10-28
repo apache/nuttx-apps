@@ -43,11 +43,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -71,7 +68,6 @@ int cle(FAR char *line, FAR const char *prompt, uint16_t linelen,
         FAR FILE *instream, FAR FILE *outstream);
 #endif
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

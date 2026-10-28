@@ -352,11 +352,8 @@ struct tiff_info_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -458,7 +455,6 @@ void tiff_put32(FAR uint8_t *dest, uint32_t value);
 uint16_t tiff_get16(FAR uint8_t *dest);
 uint32_t tiff_get32(FAR uint8_t *dest);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

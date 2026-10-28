@@ -55,11 +55,8 @@
   ##__VA_ARGS__)
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -100,7 +97,6 @@ void monkey_log_set_level(enum monkey_log_level_type_e level);
 
 enum monkey_log_level_type_e monkey_log_get_level(void);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

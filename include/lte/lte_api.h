@@ -193,11 +193,8 @@
 #include <nuttx/wireless/lte/lte.h>
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -1574,7 +1571,6 @@ int lte_set_context_save_cb(context_save_cb_t callback);
 
 int lte_hibernation_resume(FAR const uint8_t *res_ctx, int len);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

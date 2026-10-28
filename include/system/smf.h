@@ -151,13 +151,9 @@ struct smf_ctx
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -259,7 +255,6 @@ smf_get_current_executing_state(const struct smf_ctx *ctx)
 #endif /* CONFIG_SYSTEM_SMF_ANCESTOR_SUPPORT */
 }
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

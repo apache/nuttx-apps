@@ -52,11 +52,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -71,7 +68,6 @@ int   smtp_send(FAR void *handle, FAR const char *to, FAR const char *cc,
                 FAR const char *msg, int msglen);
 void  smtp_close(FAR void *handle);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

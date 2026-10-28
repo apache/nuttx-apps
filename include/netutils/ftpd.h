@@ -102,11 +102,8 @@ typedef FAR void *FTPD_SESSION;
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -199,7 +196,6 @@ int ftpd_session(FTPD_SESSION handle, int timeout);
 
 void ftpd_close(FTPD_SESSION handle);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

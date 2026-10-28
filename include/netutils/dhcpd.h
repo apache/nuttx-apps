@@ -54,11 +54,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 int dhcpd_run(FAR const char *interface);
@@ -69,7 +66,6 @@ int dhcpd_set_routerip(in_addr_t routerip);
 int dhcpd_set_netmask(in_addr_t netmask);
 int dhcpd_set_dnsip(in_addr_t dnsip);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

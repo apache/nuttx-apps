@@ -64,11 +64,8 @@ typedef ssize_t (*tftp_callback_t)(FAR void *ctx, uint32_t offset,
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 int tftpget_cb(FAR const char *remote, in_addr_t addr, bool binary,
@@ -80,7 +77,6 @@ int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
 int tftpput(FAR const char *local, FAR const char *remote, in_addr_t addr,
             bool binary);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

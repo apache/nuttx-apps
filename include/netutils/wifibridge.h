@@ -89,11 +89,8 @@ struct wifibridge_status_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -186,7 +183,6 @@ int wifibridge_clear(void);
 
 #endif /* CONFIG_NETUTILS_WIFIBRIDGE_PERSIST */
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

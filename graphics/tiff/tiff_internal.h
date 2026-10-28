@@ -72,13 +72,9 @@
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -191,7 +187,6 @@ int tiff_putstring(int fd, FAR const char *string, int len);
 
 ssize_t tiff_wordalign(int fd, size_t size);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

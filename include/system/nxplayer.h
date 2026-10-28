@@ -101,11 +101,8 @@ typedef int (*nxplayer_func)(FAR struct nxplayer_s *pplayer, char *pargs);
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -592,7 +589,6 @@ int nxplayer_fill_mp3(int fd, FAR struct ap_buffer_s *apb);
 
 int nxplayer_fill_common(int fd, FAR struct ap_buffer_s *apb);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

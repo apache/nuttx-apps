@@ -147,11 +147,8 @@ struct termcurses_colors_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -241,7 +238,6 @@ int termcurses_getkeycode(FAR struct termcurses_s *term, FAR int *specialkey,
 
 bool termcurses_checkkey(FAR struct termcurses_s *term);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

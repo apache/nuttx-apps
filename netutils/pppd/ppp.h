@@ -193,13 +193,9 @@ struct ppp_context_s
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 void ppp_init(FAR struct ppp_context_s *ctx);
@@ -216,7 +212,6 @@ uint16_t scan_packet(FAR struct ppp_context_s *ctx, uint16_t,
                      FAR const uint8_t *list, FAR uint8_t *buffer,
                      FAR uint8_t *options, uint16_t len);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

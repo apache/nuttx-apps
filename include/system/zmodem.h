@@ -203,13 +203,9 @@ enum zm_option_e
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -331,7 +327,6 @@ int zms_send(ZMSHANDLE handle, FAR const char *filename,
 
 int zms_release(ZMSHANDLE handle);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

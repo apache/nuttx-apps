@@ -509,11 +509,8 @@ struct webclient_conn_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 #ifdef WGET_USE_URLENCODE
@@ -572,7 +569,6 @@ ssize_t webclient_conn_recv(FAR struct webclient_conn_s *conn,
 void webclient_conn_close(FAR struct webclient_conn_s *conn);
 void webclient_conn_free(FAR struct webclient_conn_s *conn);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

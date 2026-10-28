@@ -88,11 +88,8 @@ struct ft80x_touchinfo_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -585,7 +582,6 @@ int ft80x_gpio_write(int fd, uint8_t gpio, bool value);
 
 bool ft80x_gpio_read(int fd, uint8_t gpio);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

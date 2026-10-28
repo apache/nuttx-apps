@@ -159,11 +159,8 @@ struct ftpc_dirlist_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -214,7 +211,6 @@ int ftp_putfile(SESSION handle, FAR const char *lname,
 
 FAR char *ftpc_response(SESSION handle);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

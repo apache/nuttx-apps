@@ -88,13 +88,9 @@ typedef struct _pappkt
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /* Function prototypes */
@@ -103,7 +99,6 @@ void pap_init(FAR struct ppp_context_s *ctx);
 void pap_rx(FAR struct ppp_context_s *ctx, FAR uint8_t *, uint16_t);
 void pap_task(FAR struct ppp_context_s *ctx, FAR uint8_t *buffer);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

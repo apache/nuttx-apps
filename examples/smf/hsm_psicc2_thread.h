@@ -40,11 +40,8 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -81,7 +78,6 @@ enum demo_events
 int hsm_psicc2_thread_start(void);
 int hsm_psicc2_post_event(uint32_t event_id);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

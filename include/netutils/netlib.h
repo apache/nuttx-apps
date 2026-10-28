@@ -212,13 +212,9 @@ typedef CODE void (*netlib_dhcp_ntp_callback_t)
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -622,7 +618,6 @@ int netlib_check_httpconnectivity(FAR const char *host,
                                   FAR const char *getmsg,
                                   int port, int expect_code);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

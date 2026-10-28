@@ -34,13 +34,9 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -102,7 +98,6 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize,
 int mksmartfs(FAR const char *pathname, uint16_t sectorsize);
 #endif
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

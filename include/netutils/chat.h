@@ -61,18 +61,13 @@ struct chat_ctl
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 int chat(FAR struct chat_ctl *ctl, FAR const char *script);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

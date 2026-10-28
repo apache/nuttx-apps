@@ -44,11 +44,8 @@
 #include <nuttx/wireless/lte/lte.h>
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -181,7 +178,6 @@ int lte_log_lseek(int fd, off_t offset, int whence);
 
 #endif /* CONFIG_LTE_LAPI_LOG_ACCESS */
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

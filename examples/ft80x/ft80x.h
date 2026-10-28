@@ -104,11 +104,8 @@ extern const struct ft80x_bitmaphdr_s g_lenaface_bmhdr;
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /* GPU Primitive display examples */
@@ -145,7 +142,6 @@ int ft80x_coproc_screensaver(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 #endif
 int ft80x_coproc_logo(int fd, FAR struct ft80x_dlbuffer_s *buffer);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

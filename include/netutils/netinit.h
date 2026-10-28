@@ -83,11 +83,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -108,7 +105,6 @@ int netinit_bringup(void);
 int netinit_associate(FAR const char *ifname);
 #endif
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

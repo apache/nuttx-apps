@@ -161,11 +161,8 @@ struct ipv6cfg_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -214,7 +211,6 @@ int ipcfg_read(FAR const char *netdev, FAR void *ipcfg, sa_family_t af);
 int ipcfg_write(FAR const char *netdev, FAR const void *ipcfg,
                 sa_family_t af);
 #endif
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

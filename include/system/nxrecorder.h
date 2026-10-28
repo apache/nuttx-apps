@@ -76,11 +76,8 @@ typedef int (*nxrecorder_func)(FAR struct nxrecorder_s *precorder,
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -276,7 +273,6 @@ int nxrecorder_write_amr(int fd, uint32_t samplerate,
 
 int nxrecorder_write_common(int fd, FAR struct ap_buffer_s *apb);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

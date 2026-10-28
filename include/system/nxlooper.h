@@ -76,11 +76,8 @@ struct nxlooper_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -278,7 +275,6 @@ int nxlooper_setvolume(FAR struct nxlooper_s *plooper, uint16_t volume);
 int nxlooper_systemreset(FAR struct nxlooper_s *plooper);
 #endif
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif
