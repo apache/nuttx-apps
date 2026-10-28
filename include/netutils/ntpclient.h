@@ -70,11 +70,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -161,7 +158,6 @@ struct ntpc_status_s
 
 int ntpc_status(struct ntpc_status_s *statusp);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

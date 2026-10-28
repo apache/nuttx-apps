@@ -123,11 +123,8 @@ struct ptpd_status_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -191,7 +188,6 @@ int ptpd_status(int pid, FAR struct ptpd_status_s *status);
 
 int ptpd_stop(int pid);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

@@ -44,11 +44,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -214,7 +211,6 @@ void vt100_foreground_color(int chn, uint8_t color);
 
 void vt100_background_color(int chn, uint8_t color);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

@@ -258,11 +258,8 @@ typedef CODE void (*lwm2mstub_operation_cb_t)(int event, int srv_id,
 typedef CODE void (*lwm2mstub_fwupstate_cb_t)(int event);
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -319,7 +316,6 @@ int lte_m2m_observeupdate(FAR char *token,
                           FAR struct lwm2mstub_instance_s *inst,
                           FAR char *value, int len);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

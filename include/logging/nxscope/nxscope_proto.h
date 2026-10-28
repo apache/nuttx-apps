@@ -34,11 +34,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /* Nxscope frame handler */
@@ -112,7 +109,6 @@ int nxscope_proto_ser_init(FAR struct nxscope_proto_s *proto, FAR void *cfg);
 void nxscope_proto_ser_deinit(FAR struct nxscope_proto_s *proto);
 #endif
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

@@ -46,13 +46,9 @@
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -81,7 +77,6 @@ extern "C"
 int exec_builtin(FAR const char *appname, FAR char * const *argv,
                  FAR const struct nsh_param_s *param);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

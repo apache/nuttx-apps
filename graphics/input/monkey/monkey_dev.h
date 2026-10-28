@@ -45,11 +45,8 @@ struct monkey_dev_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -91,7 +88,6 @@ enum monkey_dev_type_e monkey_dev_get_type(FAR struct monkey_dev_s *dev);
 
 int monkey_dev_get_available(FAR struct monkey_dev_s *devs[], int dev_num);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

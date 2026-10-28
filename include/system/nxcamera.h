@@ -89,11 +89,8 @@ struct video_msg_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -249,7 +246,6 @@ int nxcamera_setfb(FAR struct nxcamera_s *pcam, FAR const char *device);
 int nxcamera_setfile(FAR struct nxcamera_s *pcam, FAR const char *pfile,
                      bool isimage);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

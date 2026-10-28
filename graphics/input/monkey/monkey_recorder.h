@@ -60,11 +60,8 @@ enum monkey_recorder_res_e
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -104,7 +101,6 @@ enum monkey_recorder_res_e monkey_recorder_read(
 enum monkey_recorder_res_e monkey_recorder_reset(
                                     FAR struct monkey_recorder_s *recorder);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

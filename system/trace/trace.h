@@ -32,11 +32,8 @@
 #include <stdio.h>
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -98,7 +95,6 @@ void trace_dump_set_overwrite(bool mode);
 
 #endif /* CONFIG_DRIVERS_NOTERAM */
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

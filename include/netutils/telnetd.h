@@ -66,11 +66,8 @@ struct telnetd_config_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -92,7 +89,6 @@ extern "C"
 
 int telnetd_daemon(FAR const struct telnetd_config_s *config);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

@@ -28,11 +28,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -55,7 +52,6 @@ extern "C"
 
 int ws_terminal_start(void);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

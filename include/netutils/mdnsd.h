@@ -40,17 +40,13 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 int mdnsd_start(FAR char *service_name, FAR char *service_port);
 int mdnsd_stop(void);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

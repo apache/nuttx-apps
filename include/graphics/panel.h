@@ -40,9 +40,6 @@
 #if defined(__cplusplus)
 extern "C"
 {
-#  define EXTERN extern "C"
-#else
-#  define EXTERN extern
 #endif
 
 typedef struct panelobs
@@ -84,7 +81,6 @@ int     show_panel(PANEL *pan);
 int     top_panel(PANEL *pan);
 void    update_panels(void);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

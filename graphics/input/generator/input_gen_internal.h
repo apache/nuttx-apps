@@ -45,13 +45,9 @@ struct input_gen_dev_s
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -166,7 +162,6 @@ int input_gen_umouse_write(int fd, int16_t wheel);
 int input_gen_grab(FAR struct input_gen_dev_s *dev);
 int input_gen_ungrab(FAR struct input_gen_dev_s *dev);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

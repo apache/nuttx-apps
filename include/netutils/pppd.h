@@ -74,11 +74,8 @@ struct pppd_settings_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -101,7 +98,6 @@ extern "C"
 
 int pppd(const struct pppd_settings_s *ppp_settings);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

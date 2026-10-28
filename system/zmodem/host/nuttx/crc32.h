@@ -35,11 +35,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -62,7 +59,6 @@ uint32_t crc32part(const uint8_t *src, size_t len, uint32_t crc32val);
 
 uint32_t crc32(const uint8_t *src, size_t len);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

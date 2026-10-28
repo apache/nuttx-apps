@@ -38,11 +38,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /* Forward declaration */
@@ -158,7 +155,6 @@ int nxscope_udp_init(FAR struct nxscope_intf_s *intf,
 void nxscope_udp_deinit(FAR struct nxscope_intf_s *intf);
 #endif
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

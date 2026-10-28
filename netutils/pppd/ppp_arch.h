@@ -66,13 +66,9 @@ struct ppp_context_s;
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 time_t ppp_arch_clock_seconds(void);
@@ -80,7 +76,6 @@ time_t ppp_arch_clock_seconds(void);
 int ppp_arch_getchar(FAR struct ppp_context_s *ctx, FAR uint8_t *p);
 int ppp_arch_putchar(FAR struct ppp_context_s *ctx, uint8_t c);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

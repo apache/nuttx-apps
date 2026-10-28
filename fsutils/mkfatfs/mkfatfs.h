@@ -82,13 +82,9 @@ struct fat_var_s
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 struct fat_format_s; /* Forward reference */
@@ -132,7 +128,6 @@ int mkfatfs_configfatfs(FAR struct fat_format_s *fmt,
 int mkfatfs_writefatfs(FAR struct fat_format_s *fmt,
                        FAR struct fat_var_s *var);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

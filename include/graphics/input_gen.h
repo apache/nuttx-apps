@@ -66,11 +66,8 @@ typedef FAR struct input_gen_ctx_s *input_gen_ctx_t;
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -296,7 +293,6 @@ void input_gen_fill_point(FAR struct touch_point_s *point,
 ssize_t input_gen_write_raw(input_gen_ctx_t ctx, input_gen_dev_t device,
                             FAR const void *buf, size_t nbytes);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

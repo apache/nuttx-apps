@@ -40,16 +40,12 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 int dhcpd_daemon(int argc, FAR char *argv[], bool daemon);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

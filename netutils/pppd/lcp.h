@@ -96,13 +96,9 @@ typedef struct _lcppkt
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 void lcp_init(FAR struct ppp_context_s *ctx);
@@ -111,7 +107,6 @@ void lcp_task(FAR struct ppp_context_s *ctx, FAR uint8_t *buffer);
 void lcp_disconnect(FAR struct ppp_context_s *ctx, uint8_t id);
 void lcp_echo_request(FAR struct ppp_context_s *ctx);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

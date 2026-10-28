@@ -35,11 +35,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -62,7 +59,6 @@ uint16_t crc16part(const uint8_t *src, size_t len, uint16_t crc16val);
 
 uint16_t crc16(const uint8_t *src, size_t len);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

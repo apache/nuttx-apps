@@ -35,11 +35,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -94,7 +91,6 @@ enum monkey_dev_type_e monkey_dev_name2type(FAR const char *name);
 
 FAR const char *monkey_event_type2name(enum monkey_event_e event);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

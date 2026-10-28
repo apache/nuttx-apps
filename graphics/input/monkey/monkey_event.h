@@ -49,11 +49,8 @@ struct monkey_event_param_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -71,7 +68,6 @@ bool monkey_event_exec(FAR struct monkey_s *monkey,
                        FAR struct monkey_dev_s *dev,
                        FAR const struct monkey_event_param_s *param);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

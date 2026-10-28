@@ -47,18 +47,13 @@ struct cmux_settings_s
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 int cmux_create(struct cmux_settings_s *settings);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

@@ -94,11 +94,8 @@ struct nsh_param_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -325,7 +322,6 @@ int nsh_system(int argc, FAR char *argv[]);
 
 int nsh_system_ctty(int argc, FAR char *argv[]);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

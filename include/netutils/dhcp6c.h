@@ -57,11 +57,8 @@ typedef void (*dhcp6c_callback_t)(FAR struct dhcp6c_state *presult);
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 FAR void *dhcp6c_open(FAR const char *interface);
@@ -70,7 +67,6 @@ int dhcp6c_request_async(FAR void *handle, dhcp6c_callback_t callback);
 void dhcp6c_cancel(FAR void *handle);
 void dhcp6c_close(FAR void *handle);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

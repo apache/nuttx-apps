@@ -89,13 +89,9 @@ struct fat_format_s
  * Public Function Prototypes
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -129,7 +125,6 @@ extern "C"
 
 int mkfatfs(FAR const char *pathname, FAR struct fat_format_s *fmt);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

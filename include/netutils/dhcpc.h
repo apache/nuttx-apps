@@ -85,11 +85,8 @@ typedef void (*dhcpc_callback_t)(FAR struct dhcpc_state *presult);
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 FAR void *dhcpc_open(FAR const char *interface,
@@ -100,7 +97,6 @@ int  dhcpc_release(FAR void *handle, FAR struct dhcpc_state *presult);
 void dhcpc_cancel(FAR void *handle);
 void dhcpc_close(FAR void *handle);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

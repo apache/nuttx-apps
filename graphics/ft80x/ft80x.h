@@ -82,11 +82,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 struct ft80x_dlbuffer_s;  /* Forward reference3 */
@@ -286,7 +283,6 @@ int ft80x_ramcmd_waitfifoempty(int fd);
 
 int ft80x_dl_swap(int fd);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

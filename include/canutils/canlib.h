@@ -39,13 +39,9 @@
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -169,7 +165,6 @@ int canlib_setsilent(int fd, bool silent);
 
 int canlib_getsilent(int fd, FAR bool *silent);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif
