@@ -79,6 +79,9 @@ static int case_exit(unsigned int timeout_ms);
 static int case_kill(unsigned int timeout_ms);
 static int case_two(unsigned int timeout_ms);
 static int case_late(unsigned int timeout_ms);
+static int case_latestop(unsigned int timeout_ms);
+static int case_latev(unsigned int timeout_ms);
+static int case_latestart(unsigned int timeout_ms);
 static int case_handoff(unsigned int sec);
 static int case_hog(unsigned int sec);
 static int case_hang(unsigned int sec);
@@ -103,6 +106,9 @@ static const struct testcase_s g_cases[] =
   { "kill", case_kill, 2000, true, "ms: task deleted, channel armed" },
   { "two", case_two, 2000, true, "ms: only one of two threads feeds" },
   { "late", case_late, 1000, true, "ms: feeding resumes after expiry" },
+  { "latestop", case_latestop, 500, true, "ms: WDIOC_STOP after expiry" },
+  { "latev", case_latev, 500, true, "ms: 'V' after expiry" },
+  { "latestart", case_latestart, 500, true, "ms: WDIOC_START after expiry" },
   { "handoff", case_handoff, 12, false, "sec: one opens, another feeds" },
   { "hog", case_hog, 0, true, "scheduler locked, work queue starves" },
   { "hang", case_hang, 0, true, "interrupts disabled" }
@@ -528,6 +534,54 @@ static int case_late(unsigned int timeout_ms)
   feed_for(fd, 60, true);
   printf("FAIL: no reset after the timeout, feeding again\n");
   return EXIT_FAILURE;
+}
+
+/* A task that is late must not escape by changing its channel, before the
+ * monitor notices that it is late.  Wait a little more than the timeout,
+ * less than the keepalive interval, and try.
+ */
+
+static int late_op(unsigned int timeout_ms, int cmd)
+{
+  int fd = chan_open(timeout_ms);
+
+  if (fd < 0)
+    {
+      return EXIT_FAILURE;
+    }
+
+  usleep((timeout_ms + timeout_ms / 5) * 1000);
+
+  if (cmd == 0)
+    {
+      write(fd, "V", 1);
+      printf("channel of %u ms late, then a 'V'\n", timeout_ms);
+    }
+  else
+    {
+      ioctl(fd, cmd, 0);
+      printf("channel of %u ms late, then %s\n", timeout_ms,
+             cmd == WDIOC_STOP ? "WDIOC_STOP" : "WDIOC_START");
+    }
+
+  feed_for(fd, 60, true);
+  printf("FAIL: no reset after the timeout, changing the channel\n");
+  return EXIT_FAILURE;
+}
+
+static int case_latestop(unsigned int timeout_ms)
+{
+  return late_op(timeout_ms, WDIOC_STOP);
+}
+
+static int case_latev(unsigned int timeout_ms)
+{
+  return late_op(timeout_ms, 0);
+}
+
+static int case_latestart(unsigned int timeout_ms)
+{
+  return late_op(timeout_ms, WDIOC_START);
 }
 
 static FAR void *thread_handoff(FAR void *arg)
