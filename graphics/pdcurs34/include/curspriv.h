@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/curspriv.h
+ * apps/graphics/pdcurs34/include/curspriv.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -71,8 +71,9 @@
 
 #define DIVROUND(num, divisor) ((num) + ((divisor) >> 1)) / (divisor)
 
-#define PDC_CLICK_PERIOD 150  /* time to wait for a click, if
-                                 not set by mouseinterval() */
+/* Time to wait for a click, if not set by mouseinterval() */
+
+#define PDC_CLICK_PERIOD 150
 
 /****************************************************************************
  * Public Types

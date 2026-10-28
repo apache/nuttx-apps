@@ -60,7 +60,7 @@ extern "C"
  * Public Function Prototypes
  ****************************************************************************/
 
-/* Initialze injection delta image to LTE modem.
+/* Initialize injection delta image to LTE modem.
  *
  * Initialize LTE modem delta image injection with some data of top of delta
  * image.

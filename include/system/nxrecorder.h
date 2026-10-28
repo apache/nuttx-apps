@@ -253,7 +253,7 @@ int nxrecorder_resume(FAR struct nxrecorder_s *precorder);
  *   bps        - bit width
  *
  * Returned Value:
- *   OK if file writed successfully.
+ *   OK if file written successfully.
  *
  ****************************************************************************/
 

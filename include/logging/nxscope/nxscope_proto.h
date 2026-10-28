@@ -46,7 +46,7 @@ extern "C"
 struct nxscope_frame_s
 {
   uint8_t      id;              /* Frame id */
-  size_t       drop;            /* Data to be droped from recv buffer */
+  size_t       drop;            /* Data to be dropped from recv buffer */
   size_t       dlen;            /* Data len (without header and footer) */
   FAR uint8_t *data;            /* A pointer to a frame data */
 };

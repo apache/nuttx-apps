@@ -24,7 +24,7 @@
 #define __APPS_EXAMPLES_FMSYNTH_UTILS_MUSIC_SCALE_H
 
 /****************************************************************************
- * Pre-processor definisions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define MUSIC_SCALE_C  (0)

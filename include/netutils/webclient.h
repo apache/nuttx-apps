@@ -192,7 +192,7 @@ typedef CODE int (*webclient_header_callback_t)(FAR const char *line,
  * "offset" of the data. (similarly to fread(3))
  *
  * An implementation of this callback should perform either of
- * the followings:
+ * the following:
  *
  * - Fill the buffer (specified by buffer and *sizep) with the data
  *
