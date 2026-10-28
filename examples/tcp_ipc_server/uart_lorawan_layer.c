@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/time.h>

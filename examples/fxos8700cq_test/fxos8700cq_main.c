@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 

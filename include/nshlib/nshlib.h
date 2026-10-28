@@ -30,6 +30,7 @@
 #include <nuttx/config.h>
 
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 /****************************************************************************
  * Pre-processor Definitions
