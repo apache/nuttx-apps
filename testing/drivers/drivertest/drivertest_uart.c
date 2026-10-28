@@ -174,6 +174,7 @@ static int setup(FAR void **state)
   FAR struct test_state_s *test_state = malloc(sizeof(struct test_state_s));
   struct termios ti;
   int ret = 0;
+
   assert_true(test_state != NULL);
 
   test_state->dev_path = confs->dev_path;
@@ -243,6 +244,7 @@ static void drivertest_uart_read(FAR void **state)
   size_t buffer_size = sizeof(DEFAULT_CONTENT);
   int cnt = 0;
   FAR char *buffer = test_state->buffer;
+
   assert_true(buffer != NULL);
 
   buffer[buffer_size - 1] = '\0';
@@ -379,17 +381,17 @@ int main(int argc, FAR char *argv[])
 
   parse_args(argc, argv, &confs);
   switch (confs.test_case_id)
-  {
-    case 1:
-      drivertest_uart = drivertest_uart_read;
-      break;
-    case 2:
-      drivertest_uart = drivertest_uart_burst;
-      break;
-    default:
-      drivertest_uart = drivertest_uart_write;
-      break;
-  }
+    {
+      case 1:
+        drivertest_uart = drivertest_uart_read;
+        break;
+      case 2:
+        drivertest_uart = drivertest_uart_burst;
+        break;
+      default:
+        drivertest_uart = drivertest_uart_write;
+        break;
+    }
 
   const struct CMUnitTest tests[] =
     {

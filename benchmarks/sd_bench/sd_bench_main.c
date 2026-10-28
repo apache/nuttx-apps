@@ -122,6 +122,7 @@ static void usage(void);
 static struct timespec get_abs_time(void)
 {
   struct timespec ts;
+
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ts;
 }
@@ -130,6 +131,7 @@ static uint64_t get_time_delta_us(const struct timespec *start,
                                   const struct timespec *end)
 {
   uint64_t elapsed;
+
   elapsed = (end->tv_sec * NSEC_PER_SEC) + end->tv_nsec;
   elapsed -= (start->tv_sec * NSEC_PER_SEC) + start->tv_nsec;
   return elapsed / 1000.;
@@ -138,12 +140,14 @@ static uint64_t get_time_delta_us(const struct timespec *start,
 static uint64_t get_elapsed_time_us(const struct timespec *start)
 {
   struct timespec now = get_abs_time();
+
   return get_time_delta_us(start, &now);
 }
 
 static uint64_t time_fsync_us(int fd)
 {
   struct timespec start = get_abs_time();
+
   fsync(fd);
   return get_elapsed_time_us(&start);
 }
@@ -393,38 +397,38 @@ int main(int argc, char *argv[])
     {
       switch (ch)
         {
-        case 'b':
-          block_size = strtol(optarg, NULL, 0);
-          break;
+          case 'b':
+            block_size = strtol(optarg, NULL, 0);
+            break;
 
-        case 'r':
-          cfg.num_runs = strtol(optarg, NULL, 0);
-          break;
+          case 'r':
+            cfg.num_runs = strtol(optarg, NULL, 0);
+            break;
 
-        case 'd':
-          cfg.run_duration = strtol(optarg, NULL, 0);
-          break;
+          case 'd':
+            cfg.run_duration = strtol(optarg, NULL, 0);
+            break;
 
-        case 'k':
-          keep = !default_keep_test;
-          break;
+          case 'k':
+            keep = !default_keep_test;
+            break;
 
-        case 's':
-          cfg.synchronized = !default_fsync;
-          break;
+          case 's':
+            cfg.synchronized = !default_fsync;
+            break;
 
-        case 'a':
-          cfg.aligned = !default_aligned;
-          break;
+          case 'a':
+            cfg.aligned = !default_aligned;
+            break;
 
-        case 'v':
-          verify = !default_verify;
-          break;
+          case 'v':
+            verify = !default_verify;
+            break;
 
-        default:
-          usage();
-          return -1;
-          break;
+          default:
+            usage();
+            return -1;
+            break;
         }
     }
 
@@ -497,9 +501,9 @@ int main(int argc, char *argv[])
   close(bench_fd);
 
   if (!keep)
-  {
-    unlink(BENCHMARK_FILE);
-  }
+    {
+      unlink(BENCHMARK_FILE);
+    }
 
   return 0;
 }

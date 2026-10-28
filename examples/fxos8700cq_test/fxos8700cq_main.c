@@ -68,9 +68,9 @@ int main(int argc, FAR char *argv[])
       ret = read(fd, &data, sizeof(fxos8700cq_data));
       if (ret != sizeof(fxos8700cq_data))
         {
-           fprintf(stderr, "Read failed : %d/%d@%d\n",
-                   ret, sizeof(fxos8700cq_data), fd);
-           break;
+          fprintf(stderr, "Read failed : %d/%d@%d\n",
+                  ret, sizeof(fxos8700cq_data), fd);
+          break;
         }
       printf("{\"accel\":[%d, %d, %d],\"magn\":[%d, %d, %d]}\n",
              data.accel.x, data.accel.y, data.accel.z,
