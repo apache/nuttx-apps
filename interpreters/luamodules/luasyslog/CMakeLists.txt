@@ -45,20 +45,6 @@ if(CONFIG_LUA_LSYSLOG_MODULE)
   endif()
 
   # ############################################################################
-  # Flags
-  # ############################################################################
-  set(LUA_SYSTEM_READLINE_DEF
-      [=[
-#define openlog(a,b,c) {(void)a; (void)c;}
-#define closelog() {}
-]=])
-
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/def_lua_readline.h
-       "${LUA_SYSTEM_READLINE_DEF}")
-  list(APPEND CFLAGS
-       "SHELL:-include ${CMAKE_CURRENT_BINARY_DIR}/def_lua_readline.h")
-
-  # ############################################################################
   # Sources
   # ############################################################################
 

@@ -32,9 +32,6 @@ LSYSLOG_SRC      = $(LSYSLOG_UNPACK)
 VPATH += $(LSYSLOG_SRC)
 CSRCS = lsyslog.c
 
-CFLAGS += -D'openlog(a,b,c)={(void)a; (void)c;}'
-CFLAGS += -D'closelog()={}'
-
 $(LSYSLOG_TARBALL):
 	$(Q) echo "Downloading $(LSYSLOG_TARBALL) from $(LSYSLOG_URL)"
 	$(Q) curl -O -L $(LSYSLOG_URL)
