@@ -40,9 +40,6 @@
 #if defined(__cplusplus)
 extern "C"
 {
-#  define EXTERN extern "C"
-#else
-#  define EXTERN extern
 #endif
 
 typedef struct
@@ -55,7 +52,7 @@ typedef struct
  ****************************************************************************/
 
 #ifndef CONFIG_PDCURSES_MULTITHREAD
-EXTERN TERMINAL *cur_term;
+extern TERMINAL *cur_term;
 #endif
 
 /****************************************************************************
@@ -81,7 +78,6 @@ char   *tparm(const char *, long, long, long, long, long,
               long, long, long, long);
 int     tputs(const char *, int, int (*)(int));
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

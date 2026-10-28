@@ -305,44 +305,41 @@ enum wapi_pta_prio_e
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /* Frequency flag names. */
 
-EXTERN FAR const char *g_wapi_freq_flags[];
+extern FAR const char *g_wapi_freq_flags[];
 
 /* ESSID flag names. */
 
-EXTERN FAR const char *g_wapi_essid_flags[];
+extern FAR const char *g_wapi_essid_flags[];
 
 /* Passphrase algorithm flag names. */
 
-EXTERN FAR const char *g_wapi_alg_flags[];
+extern FAR const char *g_wapi_alg_flags[];
 
 /* Passphrase WPA Version flag names. */
 
-EXTERN FAR const char *g_wapi_wpa_ver_flags[];
+extern FAR const char *g_wapi_wpa_ver_flags[];
 
 /* Supported operation mode names. */
 
-EXTERN FAR const char *g_wapi_modes[];
+extern FAR const char *g_wapi_modes[];
 
 /* Bitrate flag names. */
 
-EXTERN FAR const char *g_wapi_bitrate_flags[];
+extern FAR const char *g_wapi_bitrate_flags[];
 
 /* Transmit power flag names. */
 
-EXTERN FAR const char *g_wapi_txpower_flags[];
+extern FAR const char *g_wapi_txpower_flags[];
 
 /* PTA priority flag names. */
 
-EXTERN FAR const char *g_wapi_pta_prio_flags[];
+extern FAR const char *g_wapi_pta_prio_flags[];
 
 /****************************************************************************
  * Public Function Prototyppes
@@ -1007,7 +1004,6 @@ int wapi_set_power_save(int sock, FAR const char *ifname, bool on);
 
 int wapi_get_power_save(int sock, FAR const char *ifname, bool *on);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

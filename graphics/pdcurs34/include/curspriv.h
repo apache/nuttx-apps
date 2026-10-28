@@ -82,9 +82,6 @@
 #if defined(__cplusplus)
 extern "C"
 {
-#  define EXTERN extern "C"
-#else
-#  define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -92,11 +89,11 @@ extern "C"
  ****************************************************************************/
 
 #ifndef CONFIG_PDCURSES_MULTITHREAD
-EXTERN WINDOW *pdc_lastscr;
-EXTERN bool pdc_trace_on;   /* Tracing flag */
-EXTERN bool pdc_color_started;
-EXTERN unsigned long pdc_key_modifiers;
-EXTERN MOUSE_STATUS pdc_mouse_status;
+extern WINDOW *pdc_lastscr;
+extern bool pdc_trace_on;   /* Tracing flag */
+extern bool pdc_color_started;
+extern unsigned long pdc_key_modifiers;
+extern MOUSE_STATUS pdc_mouse_status;
 #endif
 
 /****************************************************************************
@@ -148,7 +145,6 @@ size_t  PDC_mbstowcs(wchar_t *, const char *, size_t);
 size_t  PDC_wcstombs(char *, const wchar_t *, size_t);
 #endif
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

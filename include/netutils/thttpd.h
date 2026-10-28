@@ -35,13 +35,9 @@
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 #ifdef CONFIG_THTTPD_NXFLAT
@@ -57,8 +53,8 @@ extern "C"
  *  table may be created.)
  */
 
-EXTERN FAR const struct symtab_s *g_thttpdsymtab;
-EXTERN int                        g_thttpdnsymbols;
+extern FAR const struct symtab_s *g_thttpdsymtab;
+extern int                        g_thttpdnsymbols;
 #endif
 
 /****************************************************************************
@@ -83,7 +79,6 @@ EXTERN int                        g_thttpdnsymbols;
 
 int thttpd_main(int argc, char **argv);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif
