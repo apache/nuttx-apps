@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/pdcurses/term.h
+ * apps/graphics/pdcurs34/include/term.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *

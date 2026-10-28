@@ -82,7 +82,7 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
@@ -178,7 +178,7 @@ int tiff_putstring(int fd, FAR const char *string, int len);
  * Name: tiff_wordalign
  *
  * Description:
- *  Pad a file with zeros as necessary to achieve word alignament.
+ *  Pad a file with zeros as necessary to achieve word alignment.
  *
  * Input Parameters:
  *   fd - File descriptor to be used.

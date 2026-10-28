@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/nuttx/pdcnuttx.h
+ * apps/graphics/pdcurs34/nuttx/pdcnuttx.h
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -182,7 +182,7 @@
 #define PDCURSES_ALIGN_DOWN(n) (((n) & ~PDCURSES_BPP_MASK) >> 3)
 
 /****************************************************************************
- * Private Types
+ * Public Types
  ****************************************************************************/
 
 #if defined(__cplusplus)
@@ -338,7 +338,7 @@ struct pdc_termscreen_s
 EXTERN struct pdc_fbstate_s g_pdc_fbstate;
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
