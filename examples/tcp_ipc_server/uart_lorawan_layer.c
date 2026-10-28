@@ -271,7 +271,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting Channel Mask to LoRaWAN module");
+      perror("Error when writing Channel Mask to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -288,7 +288,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting Join Mode to LoRaWAN module");
+      perror("Error when writing Join Mode to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -306,7 +306,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting device address to LoRaWAN module");
+      perror("Error when writing device address to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -324,7 +324,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting application EUI to LoRaWAN module");
+      perror("Error when writing application EUI to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -342,7 +342,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting application session key"
+      perror("Error when writing application session key"
              "to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
@@ -361,7 +361,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting network session key"
+      perror("Error when writing network session key"
              "to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
@@ -379,7 +379,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting ADR configuration to LoRaWAN module");
+      perror("Error when writing ADR configuration to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -396,7 +396,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting DR configuration to LoRaWAN module");
+      perror("Error when writing DR configuration to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -413,7 +413,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting LoRaWAN class to LoRaWAN module");
+      perror("Error when writing LoRaWAN class to LoRaWAN module");
       goto END_UART_LORAWAN_MODULE_INIT;
     }
 
@@ -430,7 +430,7 @@ void lorawan_radioenge_init(config_lorawan_radioenge_t config_lorawan)
 
   if (bytes_written_at_cmd <= 0)
     {
-      perror("Error when writting send confirmation to LoRaWAN module");
+      perror("Error when writing send confirmation to LoRaWAN module");
     }
 
   sleep(TIME_BETWEEN_AT_CMDS);
@@ -501,7 +501,7 @@ int lorawan_radioenge_send_msg(unsigned char * pt_uplink_hexstring,
                                                           max_size_downlink,
                                                           time_to_wait_ms);
 
-      /* If a AT_BUSY is received as command responde, command must
+      /* If a AT_BUSY is received as command response, command must
        * be sent again
        */
 

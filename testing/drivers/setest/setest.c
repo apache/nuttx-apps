@@ -156,8 +156,9 @@ static int run_tests(int fd, FAR struct settings_t *settings)
   for (uint32_t id = get_se05x_id(settings, 1);
        (id < get_se05x_id(settings, 4)) && (result == 0); id++)
     {
-      struct se05x_generate_keypair_s args = {
-          .id = id, .cipher = SE05X_ASYM_CIPHER_EC_NIST_P_256
+      struct se05x_generate_keypair_s args =
+      {
+        .id = id, .cipher = SE05X_ASYM_CIPHER_EC_NIST_P_256
       };
 
       result = ioctl(fd, SEIOC_GENERATE_KEYPAIR, &args);
@@ -172,11 +173,18 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Read from pub #1");
 
-      struct se05x_key_transmission_s args = {
-          .entry = {.id = get_se05x_id(settings, 1),
-                    .cipher = SE05X_ASYM_CIPHER_EC_NIST_P_256},
-          .content = {.buffer = public_key,
-                      .buffer_size = sizeof(public_key)}
+      struct se05x_key_transmission_s args =
+      {
+        .entry =
+        {
+          .id = get_se05x_id(settings, 1),
+          .cipher = SE05X_ASYM_CIPHER_EC_NIST_P_256
+        },
+        .content =
+        {
+          .buffer = public_key,
+          .buffer_size = sizeof(public_key)
+        }
       };
 
       result = ioctl(fd, SEIOC_GET_KEY, &args);
@@ -190,12 +198,19 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Write to pub #4");
 
-      struct se05x_key_transmission_s args = {
-          .entry = {.id = get_se05x_id(settings, 4),
-                    .cipher = SE05X_ASYM_CIPHER_EC_NIST_P_256},
-          .content = {.buffer = public_key,
-                      .buffer_size = public_key_size,
-                      .buffer_content_size = public_key_size}
+      struct se05x_key_transmission_s args =
+      {
+        .entry =
+        {
+          .id = get_se05x_id(settings, 4),
+          .cipher = SE05X_ASYM_CIPHER_EC_NIST_P_256
+        },
+        .content =
+        {
+          .buffer = public_key,
+          .buffer_size = public_key_size,
+          .buffer_content_size = public_key_size
+        }
       };
 
       result = ioctl(fd, SEIOC_SET_KEY, &args);
@@ -203,10 +218,11 @@ static int run_tests(int fd, FAR struct settings_t *settings)
       print_result(result == 0);
     }
 
-  uint8_t hash[32] = {
-          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
-          11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-          22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+  uint8_t hash[32] =
+  {
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
+    11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31
   };
 
   uint8_t signature[300];
@@ -216,14 +232,21 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Create signature with priv #1");
 
-      struct se05x_signature_s args = {
-          .key_id = get_se05x_id(settings, 1),
-          .algorithm = SE05X_ALGORITHM_SHA256,
-          .tbs = {.buffer = hash,
-                  .buffer_size = sizeof(hash),
-                  .buffer_content_size = sizeof(hash)},
-          .signature = {.buffer = signature,
-                        .buffer_size = sizeof(signature)},
+      struct se05x_signature_s args =
+      {
+        .key_id = get_se05x_id(settings, 1),
+        .algorithm = SE05X_ALGORITHM_SHA256,
+        .tbs =
+        {
+          .buffer = hash,
+          .buffer_size = sizeof(hash),
+          .buffer_content_size = sizeof(hash)
+        },
+        .signature =
+        {
+          .buffer = signature,
+          .buffer_size = sizeof(signature)
+        },
       };
 
       result = ioctl(fd, SEIOC_CREATE_SIGNATURE, &args);
@@ -235,14 +258,21 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Verify signature with pub #4");
 
-      struct se05x_signature_s args = {
-          .key_id = get_se05x_id(settings, 4),
-          .algorithm = SE05X_ALGORITHM_SHA256,
-          .tbs = {.buffer = hash,
-                  .buffer_size = sizeof(hash),
-                  .buffer_content_size = sizeof(hash)},
-          .signature = {.buffer = signature,
-                        .buffer_content_size = signature_content_size},
+      struct se05x_signature_s args =
+      {
+        .key_id = get_se05x_id(settings, 4),
+        .algorithm = SE05X_ALGORITHM_SHA256,
+        .tbs =
+        {
+          .buffer = hash,
+          .buffer_size = sizeof(hash),
+          .buffer_content_size = sizeof(hash)
+        },
+        .signature =
+        {
+          .buffer = signature,
+          .buffer_content_size = signature_content_size
+        },
       };
 
       result = ioctl(fd, SEIOC_VERIFY_SIGNATURE, &args);
@@ -254,12 +284,19 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Verification of signature with pub #2 should be dissapproved");
 
-      struct se05x_signature_s args = {
-          .key_id = get_se05x_id(settings, 2),
-          .algorithm = SE05X_ALGORITHM_SHA256,
-          .tbs = {.buffer = hash, .buffer_size = sizeof(hash)},
-          .signature = {.buffer = signature,
-                        .buffer_content_size = signature_content_size},
+      struct se05x_signature_s args =
+      {
+        .key_id = get_se05x_id(settings, 2),
+        .algorithm = SE05X_ALGORITHM_SHA256,
+        .tbs =
+        {
+          .buffer = hash, .buffer_size = sizeof(hash)
+        },
+        .signature =
+        {
+          .buffer = signature,
+          .buffer_content_size = signature_content_size
+        },
       };
 
       result = invert_result(ioctl(fd, SEIOC_VERIFY_SIGNATURE, &args));
@@ -273,11 +310,15 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Derive symm key #a from priv #1 and pub #2");
 
-      struct se05x_derive_key_s args = {
-          .private_key_id = get_se05x_id(settings, 1),
-          .public_key_id = get_se05x_id(settings, 2),
-          .content = {.buffer = symm_key_a,
-                      .buffer_size = sizeof(symm_key_a)},
+      struct se05x_derive_key_s args =
+      {
+        .private_key_id = get_se05x_id(settings, 1),
+        .public_key_id = get_se05x_id(settings, 2),
+        .content =
+        {
+          .buffer = symm_key_a,
+          .buffer_size = sizeof(symm_key_a)
+        },
       };
 
       result = ioctl(fd, SEIOC_DERIVE_SYMM_KEY, &args);
@@ -291,11 +332,15 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Derive symm key #b from priv #2 and pub #1");
 
-      struct se05x_derive_key_s args = {
-          .private_key_id = get_se05x_id(settings, 2),
-          .public_key_id = get_se05x_id(settings, 1),
-          .content = {.buffer = symm_key_b,
-                      .buffer_size = sizeof(symm_key_b)},
+      struct se05x_derive_key_s args =
+      {
+        .private_key_id = get_se05x_id(settings, 2),
+        .public_key_id = get_se05x_id(settings, 1),
+        .content =
+        {
+          .buffer = symm_key_b,
+          .buffer_size = sizeof(symm_key_b)
+        },
       };
 
       result = ioctl(fd, SEIOC_DERIVE_SYMM_KEY, &args);
@@ -309,11 +354,15 @@ static int run_tests(int fd, FAR struct settings_t *settings)
     {
       puts("Derive symm key #c from priv #1 and pub #3");
 
-      struct se05x_derive_key_s args = {
-          .private_key_id = get_se05x_id(settings, 1),
-          .public_key_id = get_se05x_id(settings, 3),
-          .content = {.buffer = symm_key_c,
-                      .buffer_size = sizeof(symm_key_c)},
+      struct se05x_derive_key_s args =
+      {
+        .private_key_id = get_se05x_id(settings, 1),
+        .public_key_id = get_se05x_id(settings, 3),
+        .content =
+        {
+          .buffer = symm_key_c,
+          .buffer_size = sizeof(symm_key_c)
+        },
       };
 
       result = ioctl(fd, SEIOC_DERIVE_SYMM_KEY, &args);

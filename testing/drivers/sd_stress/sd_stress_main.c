@@ -214,6 +214,7 @@ static bool create_files(const char *dir, const char *name,
                          size_t num_files, char *bytes, size_t num_bytes)
 {
   bool passed = true;
+
   if (num_files > 999)
     {
       printf("too many files\n");
@@ -240,6 +241,7 @@ static bool create_files(const char *dir, const char *name,
   for (size_t i = 0; i < num_files; ++i)
     {
       char path[MAX_PATH_LEN];
+
       snprintf(path, MAX_PATH_LEN, "%s/%s%03zu", dir, name, i);
 
       memset(read_bytes, 0x0, num_bytes);
@@ -339,6 +341,7 @@ static bool remove_files(const char *dir, const char *name,
   for (size_t i = 0; i < num_files; ++i)
     {
       char path[MAX_PATH_LEN];
+
       snprintf(path, MAX_PATH_LEN, "%s/%s%03zu", dir, name, i);
 
       int ret = unlink(path);
@@ -371,6 +374,7 @@ static bool rename_dir(const char *old_dir, const char *new_dir)
 static struct timespec get_abs_time(void)
 {
   struct timespec ts;
+
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return ts;
 }
@@ -379,6 +383,7 @@ static uint64_t get_time_delta(const struct timespec *start,
                                const struct timespec *end)
 {
   uint64_t elapsed;
+
   elapsed = (end->tv_sec * NSEC_PER_SEC) + end->tv_nsec;
   elapsed -= (start->tv_sec * NSEC_PER_SEC) + start->tv_nsec;
   return elapsed / 1000;
@@ -387,6 +392,7 @@ static uint64_t get_time_delta(const struct timespec *start,
 static float get_elapsed_time_ms(const struct timespec *start)
 {
   struct timespec now = get_abs_time();
+
   return get_time_delta(start, &now) / (float)USEC_PER_MSEC;
 }
 
@@ -410,22 +416,22 @@ int main(int argc, char *argv[])
     {
       switch (ch)
         {
-        case 'r':
-          num_runs = strtol(optarg, NULL, 0);
-          break;
+          case 'r':
+            num_runs = strtol(optarg, NULL, 0);
+            break;
 
-        case 'b':
-          num_bytes = strtol(optarg, NULL, 0);
-          break;
+          case 'b':
+            num_bytes = strtol(optarg, NULL, 0);
+            break;
 
-        case 'f':
-          num_files = strtol(optarg, NULL, 0);
-          break;
+          case 'f':
+            num_files = strtol(optarg, NULL, 0);
+            break;
 
-        default:
-          usage();
-          return -1;
-          break;
+          default:
+            usage();
+            return -1;
+            break;
         }
     }
 

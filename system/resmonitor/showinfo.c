@@ -107,6 +107,7 @@ static void get_cpu(int pid, char *buf)
 {
   char filepath[FILELEN];
   int ret;
+
   if (pid <= 0)
     {
       ret = snprintf(filepath, FILELEN, "%s/%s", PATH, CPULOAD);
@@ -125,6 +126,7 @@ static void get_cpu(int pid, char *buf)
     }
 
   FILE *fp = fopen(filepath, "r");
+
   if (!fp)
     {
       snprintf(buf, 8, "%.1f%%", 0.0);
@@ -153,10 +155,12 @@ static void add_cpu(char *a, char *b, char *buf)
 
   float fa = 0;
   float fb = 0;
+
   sscanf(a, "%f", &fa);
   sscanf(b, "%f", &fb);
   float sum = fa + fb;
   int ret   = snprintf(buf, 8, "%.1f%%", sum);
+
   if (ret < 0)
     {
       syslog(LOG_ERR, "add_cpu error\n");
@@ -168,23 +172,27 @@ static unsigned long get_heap(int pid)
   unsigned long heap = 0;
   char filepath[FILELEN];
   int ret = snprintf(filepath, FILELEN, "%s/%d/%s", PATH, pid, HEAP);
+
   if (ret < 0)
     {
       return heap;
     }
 
   FILE *fp = fopen(filepath, "r");
+
   if (!fp)
     {
       return heap;
     }
 
   char buf[25];
+
   while (fgets(buf, 25, fp) != NULL)
     {
       if (strstr(buf, "AllocSize"))
         {
           int idx = strcspn(buf, "0123456789");
+
           heap    = strtoul(&buf[idx], NULL, 10);
           break;
         }
@@ -199,23 +207,27 @@ static unsigned long get_stack(int pid)
   unsigned long stack = 0;
   char filepath[FILELEN];
   int ret = snprintf(filepath, FILELEN, "%s/%d/%s", PATH, pid, STACK);
+
   if (ret < 0)
     {
       return stack;
     }
 
   FILE *fp = fopen(filepath, "r");
+
   if (!fp)
     {
       return stack;
     }
 
   char buf[25];
+
   while (fgets(buf, 25, fp) != NULL)
     {
       if (strstr(buf, "StackUsed"))
         {
           int idx = strcspn(buf, "0123456789");
+
           stack   = strtoul(&buf[idx], NULL, 10);
           break;
         }
@@ -229,6 +241,7 @@ static int get_total_info(struct t_info *t_info)
 {
   memset(t_info, 0, sizeof(struct t_info));
   struct mallinfo g_alloc_info = mallinfo();
+
   t_info->mem_total            = g_alloc_info.arena;
   t_info->mem_used             = g_alloc_info.uordblks;
   t_info->mem_free             = g_alloc_info.fordblks;
@@ -253,28 +266,33 @@ static int get_pid_info(struct p_info *p_info, int pid, bool all)
     {
       char filepath[FILELEN];
       int ret = snprintf(filepath, FILELEN, "%s/%d/%s", PATH, pid, GROUP);
+
       if (ret < 0)
         {
           return -1;
         }
 
       FILE *fp = fopen(filepath, "r");
+
       if (!fp)
         {
           return -1;
         }
 
       char buf[100];
+
       while (fgets(buf, 100, fp) != NULL)
         {
           if (strstr(buf, "Member IDs"))
             {
               int idx = strcspn(buf, ":");
               char *p = strtok(&buf[idx], " ");
+
               while ((p = strtok(NULL, " ")) != NULL)
                 {
                   int gpid     = strtoul(p, NULL, 10);
                   char gcpu[8] = "0.0%%";
+
                   if (gpid > 0)
                     {
                       get_cpu(gpid, gcpu);
@@ -303,10 +321,12 @@ print_result(struct t_info *t_info, struct p_info *p_info, char *logpath)
       time_t rawtime = 0;
       struct tm info;
       char date[30];
+
       time(&rawtime);
       localtime_r(&rawtime, &info);
       strftime(date, 30, "[%Y-%m-%d %H:%M:%S] ", &info);
       FILE *f;
+
       if ((f = fopen(logpath, "a+")) != NULL)
         {
           if (p_head == 1)
@@ -448,6 +468,7 @@ static void transfer(uintmax_t value, char *res, int len)
   if (value > 1024 * 1024)
     {
       int ret = snprintf(res, len, "%ju", value / 1024 / 1024);
+
       if (ret < 0)
         {
           return;
@@ -458,6 +479,7 @@ static void transfer(uintmax_t value, char *res, int len)
   else if (value > 1024)
     {
       int ret = snprintf(res, len, "%ju", value / 1024);
+
       if (ret < 0)
         {
           return;
@@ -468,6 +490,7 @@ static void transfer(uintmax_t value, char *res, int len)
   else
     {
       int ret = snprintf(res, len, "%ju", value);
+
       if (ret < 0)
         {
           return;
@@ -481,6 +504,7 @@ static void print_diskinfo(char *path, char *logpath)
 {
   struct statfs diskinfo;
   int ret = statfs(path, &diskinfo);
+
   if (ret != 0)
     {
       syslog(LOG_ERR, "statfs fail!\n");
@@ -495,6 +519,7 @@ static void print_diskinfo(char *path, char *logpath)
   uintmax_t bavail = (uintmax_t)diskinfo.f_bavail;
   uintmax_t blocks = (uintmax_t)diskinfo.f_blocks;
   uintmax_t bfree  = (uintmax_t)diskinfo.f_bfree;
+
   transfer(bsize * blocks, c_tsize, 20);
   transfer(bsize * bavail, c_asize, 20);
   transfer(bsize * bfree, c_fsize, 20);
@@ -504,10 +529,12 @@ static void print_diskinfo(char *path, char *logpath)
       time_t rawtime = 0;
       struct tm info;
       char date[30];
+
       time(&rawtime);
       localtime_r(&rawtime, &info);
       strftime(date, 30, "[%Y-%m-%d %H:%M:%S] ", &info);
       FILE *f;
+
       if ((f = fopen(logpath, "a+")) != NULL)
         {
           if (d_head == 1)

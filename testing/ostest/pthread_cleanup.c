@@ -109,7 +109,8 @@ static void test_cleanup(void)
   pthread_t thread1;
   int status;
   void *result;
-  struct sync_s sync = {
+  struct sync_s sync =
+  {
     PTHREAD_COND_INITIALIZER,
     PTHREAD_MUTEX_INITIALIZER
   };
