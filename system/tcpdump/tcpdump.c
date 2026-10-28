@@ -33,6 +33,7 @@
 #include <netinet/if_ether.h>
 #include <netinet/in.h>
 #include <netpacket/packet.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/ioctl.h>

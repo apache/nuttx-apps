@@ -28,6 +28,7 @@
 #include <nuttx/i2c/i2c_master.h>
 #include <sys/ioctl.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

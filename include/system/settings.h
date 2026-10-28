@@ -29,6 +29,7 @@
 
 #include <nuttx/config.h>
 #include <netinet/in.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <pthread.h>

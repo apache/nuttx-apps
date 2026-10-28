@@ -31,6 +31,7 @@
 #include <nuttx/compiler.h>
 
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <logging/nxscope/nxscope_chan.h>
