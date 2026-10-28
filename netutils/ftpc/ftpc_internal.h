@@ -185,11 +185,8 @@ struct ftpc_session_s
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /****************************************************************************
@@ -216,61 +213,60 @@ extern "C"
 
 /* Low-level string management */
 
-EXTERN void ftpc_stripcrlf(FAR char *str);
-EXTERN void ftpc_stripslash(FAR char *str);
-EXTERN FAR char *ftpc_dequote(FAR const char *hostname);
+extern void ftpc_stripcrlf(FAR char *str);
+extern void ftpc_stripslash(FAR char *str);
+extern FAR char *ftpc_dequote(FAR const char *hostname);
 
 /* Connection helpers */
 
-EXTERN int ftpc_reconnect(FAR struct ftpc_session_s *session);
-EXTERN int ftpc_relogin(FAR struct ftpc_session_s *session);
+extern int ftpc_reconnect(FAR struct ftpc_session_s *session);
+extern int ftpc_relogin(FAR struct ftpc_session_s *session);
 
 /* FTP helpers */
 
-EXTERN void ftpc_reset(struct ftpc_session_s *session);
-EXTERN int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
+extern void ftpc_reset(struct ftpc_session_s *session);
+extern int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
            printf_like(2, 3);
-EXTERN int fptc_getreply(struct ftpc_session_s *session);
-EXTERN FAR const char *ftpc_lpwd(void);
-EXTERN int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode);
-EXTERN FAR char *ftpc_absrpath(FAR struct ftpc_session_s *session,
+extern int fptc_getreply(struct ftpc_session_s *session);
+extern FAR const char *ftpc_lpwd(void);
+extern int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode);
+extern FAR char *ftpc_absrpath(FAR struct ftpc_session_s *session,
                                FAR const char *relpath);
-EXTERN FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
+extern FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
                                FAR const char *relpath);
 
 /* Socket helpers */
 
-EXTERN int ftpc_sockinit(FAR struct ftpc_socket_s *sock, sa_family_t family);
-EXTERN void ftpc_sockclose(FAR struct ftpc_socket_s *sock);
-EXTERN int ftpc_sockconnect(FAR struct ftpc_socket_s *sock,
+extern int ftpc_sockinit(FAR struct ftpc_socket_s *sock, sa_family_t family);
+extern void ftpc_sockclose(FAR struct ftpc_socket_s *sock);
+extern int ftpc_sockconnect(FAR struct ftpc_socket_s *sock,
                            FAR struct sockaddr *addr);
-EXTERN int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
+extern int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
                                 FAR union ftpc_sockaddr_u *addr);
-EXTERN int ftpc_sockaccept(FAR struct ftpc_socket_s *acceptor,
+extern int ftpc_sockaccept(FAR struct ftpc_socket_s *acceptor,
                            FAR struct ftpc_socket_s *sock);
-EXTERN int ftpc_socklisten(FAR struct ftpc_socket_s *sock);
-EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
+extern int ftpc_socklisten(FAR struct ftpc_socket_s *sock);
+extern void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
                           FAR const struct ftpc_socket_s *src);
 
 /* Socket I/O helpers */
 
-EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock,
+extern int ftpc_sockprintf(FAR struct ftpc_socket_s *sock,
                            const char *fmt, ...) printf_like(2, 3);
-EXTERN void ftpc_timeout(wdparm_t arg);
+extern void ftpc_timeout(wdparm_t arg);
 
 /* Transfer helpers */
 
-EXTERN int ftpc_xfrinit(FAR struct ftpc_session_s *session);
-EXTERN int ftpc_recvtext(FAR struct ftpc_session_s *session,
+extern int ftpc_xfrinit(FAR struct ftpc_session_s *session);
+extern int ftpc_recvtext(FAR struct ftpc_session_s *session,
                          FAR FILE *rinstream, FAR FILE *loutstream);
-EXTERN int ftpc_waitdata(FAR struct ftpc_session_s *session,
+extern int ftpc_waitdata(FAR struct ftpc_session_s *session,
                          FAR FILE *stream, bool rdwait);
 
-EXTERN void ftpc_xfrreset(struct ftpc_session_s *session);
-EXTERN int ftpc_xfrabort(FAR struct ftpc_session_s *session,
+extern void ftpc_xfrreset(struct ftpc_session_s *session);
+extern int ftpc_xfrabort(FAR struct ftpc_session_s *session,
                          FAR FILE *stream);
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif

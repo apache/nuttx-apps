@@ -414,18 +414,14 @@ struct zms_state_s
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
 /* A handy sequence of 4 zeros */
 
-EXTERN const uint8_t g_zeroes[4];
+extern const uint8_t g_zeroes[4];
 
 /* Paragraph 8.4.  Session Abort Sequence
  *
@@ -441,7 +437,7 @@ EXTERN const uint8_t g_zeroes[4];
 
 #define CANISTR_SIZE (8+10)
 
-EXTERN const uint8_t g_canistr[CANISTR_SIZE];
+extern const uint8_t g_canistr[CANISTR_SIZE];
 
 /****************************************************************************
  * Public Function Prototypes
@@ -810,7 +806,6 @@ int zm_timerrelease(FAR struct zm_state_s *pzm);
 #  define zm_dumpbuffer(m,b,s)
 #endif
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

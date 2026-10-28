@@ -766,9 +766,6 @@
 #if defined(__cplusplus)
 extern "C"
 {
-#  define EXTERN extern "C"
-#else
-#  define EXTERN extern
 #endif
 
 #ifdef CONFIG_PDCURSES_CHTYPE_LONG
@@ -1037,24 +1034,24 @@ void *pdc_alloc_term_ctx(void);
 
 #else
 
-EXTERN  int          LINES;        /* terminal height */
-EXTERN  int          COLS;         /* terminal width */
-EXTERN  WINDOW       *stdscr;      /* the default screen window */
-EXTERN  WINDOW       *curscr;      /* the current screen image */
-EXTERN  SCREEN       *SP;          /* curses variables */
-EXTERN  MOUSE_STATUS Mouse_status;
-EXTERN  int          COLORS;
-EXTERN  int          COLOR_PAIRS;
-EXTERN  int          TABSIZE;
-EXTERN  char         ttytype[];    /* terminal name/description */
+extern  int          LINES;        /* terminal height */
+extern  int          COLS;         /* terminal width */
+extern  WINDOW       *stdscr;      /* the default screen window */
+extern  WINDOW       *curscr;      /* the current screen image */
+extern  SCREEN       *SP;          /* curses variables */
+extern  MOUSE_STATUS Mouse_status;
+extern  int          COLORS;
+extern  int          COLOR_PAIRS;
+extern  int          TABSIZE;
+extern  char         ttytype[];    /* terminal name/description */
 
 #ifdef CONFIG_SYSTEM_TERMCURSES
-EXTERN  bool         graphic_screen;
+extern  bool         graphic_screen;
 #endif
 
 #endif
 
-EXTERN  chtype       acs_map[];    /* alternate character set map */
+extern  chtype       acs_map[];    /* alternate character set map */
 
 /****************************************************************************
  * Public Function Prototypes
@@ -1515,7 +1512,6 @@ unsigned long PDC_get_key_modifiers(void);
 int     PDC_return_key_modifiers(bool);
 int     PDC_save_key_modifiers(bool);
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

@@ -459,16 +459,13 @@ struct xtables_rule_match
  ****************************************************************************/
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
-EXTERN FAR struct xtables_match *xtables_matches;
-EXTERN FAR struct xtables_target *xtables_targets;
-EXTERN FAR struct xtables_globals *xt_params;
+extern FAR struct xtables_match *xtables_matches;
+extern FAR struct xtables_target *xtables_targets;
+extern FAR struct xtables_globals *xt_params;
 
 /****************************************************************************
  * Public Function Prototypes

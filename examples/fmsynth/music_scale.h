@@ -45,18 +45,13 @@
  * Public Data
  ****************************************************************************/
 
-#undef EXTERN
 #if defined(__cplusplus)
-#define EXTERN extern "C"
 extern "C"
 {
-#else
-#define EXTERN extern
 #endif
 
-EXTERN const float musical_scale[];
+extern const float musical_scale[];
 
-#undef EXTERN
 #if defined(__cplusplus)
 }
 #endif

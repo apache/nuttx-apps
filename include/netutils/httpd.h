@@ -178,15 +178,12 @@ static struct httpd_cgi_call name = {NULL, str, function}
  ****************************************************************************/
 
 #ifdef __cplusplus
-#  define EXTERN extern "C"
 extern "C"
 {
-#else
-#  define EXTERN extern
 #endif
 
-EXTERN const struct httpd_fsdata_file g_httpdfs_root[];
-EXTERN const int g_httpd_numfiles;
+extern const struct httpd_fsdata_file g_httpdfs_root[];
+extern const int g_httpd_numfiles;
 
 /****************************************************************************
  * Public Function Prototypes
@@ -274,7 +271,6 @@ bool httpd_is_file(FAR const char *filename);
 ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file);
 #endif
 
-#undef EXTERN
 #ifdef __cplusplus
 }
 #endif
