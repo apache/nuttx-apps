@@ -97,6 +97,33 @@ if(CONFIG_TESTING_NET_TEST)
       ${SRCS})
   endif()
 
+  if(CONFIG_TESTING_NET_MCAST)
+    set(SRCS ${CMAKE_CURRENT_LIST_DIR}/mcast/test_mcast.c
+             ${CMAKE_CURRENT_LIST_DIR}/mcast/test_mcast_common.c)
+
+    if(CONFIG_NET_IGMP)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/mcast/test_mcast_ipv4.c)
+    endif()
+
+    if(CONFIG_NET_MLD)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/mcast/test_mcast_ipv6.c)
+    endif()
+
+    nuttx_add_application(
+      NAME
+      cmocka_net_mcast
+      PRIORITY
+      ${CONFIG_TESTING_NET_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_NET_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_NET_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      ${SRCS})
+  endif()
+
   if(CONFIG_TESTING_NET_TIMESTAMP)
     set(SRCS ${CMAKE_CURRENT_LIST_DIR}/timestamp/test_timestamp.c
              ${CMAKE_CURRENT_LIST_DIR}/timestamp/test_timestamp_common.c)

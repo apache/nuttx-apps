@@ -58,6 +58,21 @@ CSRCS    += others/test_others_common.c others/test_others_bufpool.c \
             others/test_others_chksum.c
 endif
 
+ifeq ($(CONFIG_TESTING_NET_MCAST),y)
+MAINSRC  += mcast/test_mcast.c
+PROGNAME += cmocka_net_mcast
+CSRCS    += mcast/test_mcast_common.c
+
+ifeq ($(CONFIG_NET_IGMP),y)
+CSRCS    += mcast/test_mcast_ipv4.c
+endif
+
+ifeq ($(CONFIG_NET_MLD),y)
+CSRCS    += mcast/test_mcast_ipv6.c
+endif
+
+endif
+
 ifeq ($(CONFIG_TESTING_NET_TIMESTAMP),y)
 MAINSRC  += timestamp/test_timestamp.c
 PROGNAME += cmocka_net_timestamp
