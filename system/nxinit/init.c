@@ -304,18 +304,6 @@ int main(int argc, FAR char *argv[])
       struct timespec timeout;
       int t = MIN(t1, t2);
 
-      if (t1 < 0)
-        {
-          r = t1;
-          break;
-        }
-
-      if (t2 < 0)
-        {
-          r = t2;
-          break;
-        }
-
       r = ppoll(pfds, nitems(pfds), MS2TIMESPEC(&timeout, t), &mask);
       if (r < 0 && errno != EINTR)
         {
