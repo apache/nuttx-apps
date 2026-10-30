@@ -520,12 +520,14 @@ static int rfb_negotiate_version(int sockfd)
 
 static int rfb_negotiate_security(int sockfd, const char *password)
 {
-  uint8_t num_types;
-  uint8_t types[16];
-  uint8_t chosen;
+  uint32_t reason_len;
   uint32_t result;
+  int chunk;
   int ret;
   int i;
+  uint8_t num_types;
+  uint8_t types[16];
+  uint8_t chosen = RFB_SEC_INVALID;
 
   /* Receive number of security types */
 
@@ -539,35 +541,53 @@ static int rfb_negotiate_security(int sockfd, const char *password)
     {
       /* Connection failed - read reason string */
 
-      uint32_t reason_len;
       rfb_recv_exact(sockfd, &reason_len, 4);
       reason_len = ntohl(reason_len);
       printf("vncviewer: connection refused by server\n");
       return -ECONNREFUSED;
     }
 
-  /* Receive security type list */
+  /* Receive and examine security types in chunks to bound stack usage.
+   * Prefer None, fallback to VNC Auth.
+   */
 
-  ret = rfb_recv_exact(sockfd, types, num_types);
-  if (ret < 0)
+  while (num_types > 0)
     {
-      return ret;
-    }
+      chunk = (num_types > (int)sizeof(types)) ?
+              (int)sizeof(types) : num_types;
 
-  /* Choose security type: prefer None, fallback to VNC Auth */
-
-  chosen = RFB_SEC_INVALID;
-  for (i = 0; i < num_types; i++)
-    {
-      if (types[i] == RFB_SEC_NONE)
+      ret = rfb_recv_exact(sockfd, types, chunk);
+      if (ret < 0)
         {
-          chosen = RFB_SEC_NONE;
-          break;
+          return ret;
         }
 
-      if (types[i] == RFB_SEC_VNC_AUTH)
+      num_types -= chunk;
+
+      for (i = 0; i < chunk; i++)
         {
-          chosen = RFB_SEC_VNC_AUTH;
+          if (types[i] == RFB_SEC_NONE)
+            {
+              chosen = RFB_SEC_NONE;
+              break;
+            }
+          else if (types[i] == RFB_SEC_VNC_AUTH)
+            {
+              chosen = RFB_SEC_VNC_AUTH;
+            }
+        }
+
+      if (chosen == RFB_SEC_NONE && num_types > 0)
+        {
+          /* None is the highest preference; drain remaining types */
+
+          ret = rfb_discard_exact(sockfd, num_types);
+          if (ret < 0)
+            {
+              return ret;
+            }
+
+          break;
         }
     }
 
@@ -946,6 +966,7 @@ int rfb_recv_update(struct rfb_conn_s *conn, rfb_rect_cb_t rect_cb,
           for (i = 0; i < num_rects; i++)
             {
               struct rfb_rect_hdr_s rect;
+              FAR uint8_t *rowbuf;
               uint8_t rect_buf[12];
               uint32_t row_bytes;
               uint32_t row;
@@ -975,7 +996,7 @@ int rfb_recv_update(struct rfb_conn_s *conn, rfb_rect_cb_t rect_cb,
 
               row_bytes = rect.w * conn->bpp;
 
-              FAR uint8_t *rowbuf = malloc(row_bytes);
+              rowbuf = malloc(row_bytes);
               if (rowbuf == NULL)
                 {
                   return -ENOMEM;
