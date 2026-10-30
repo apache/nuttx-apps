@@ -1008,7 +1008,7 @@ static void fastboot_upload(FAR struct fastboot_ctx_s *ctx,
   if (!ctx->upload_param.size || !ctx->upload_func)
     {
       fastboot_fail(ctx, "No data staged by the last command");
-      return;
+      goto done;
     }
 
   snprintf(response, FASTBOOT_MSG_LEN, "DATA%08zx", ctx->upload_param.size);
@@ -1032,7 +1032,7 @@ static void fastboot_upload(FAR struct fastboot_ctx_s *ctx,
     }
 
 done:
-  ctx->upload_param.size = 0;
+  memset(&ctx->upload_param, 0, sizeof(ctx->upload_param));
   ctx->upload_func = NULL;
 }
 
@@ -1596,11 +1596,7 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
   for (; nctx-- > 0; ctx++)
     {
       ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
-      ctx->download_offset = 0;
-      ctx->download_size   = 0;
       ctx->flash_fd        = -1;
-      ctx->total_imgsize   = 0;
-      ctx->varlist         = NULL;
       ctx->left            = ctx[0].left;
       ctx->ops             = &g_tran_ops[nctx];
       ctx->tran_fd[0]      = -1;
@@ -1656,6 +1652,7 @@ int fastboot_handler(uint64_t timeout)
   struct fastboot_ctx_s context[nitems(g_tran_ops)];
   int ret;
 
+  memset(context, 0, sizeof(context));
   context[0].left = timeout;
   ret = fastboot_context_initialize(context, nitems(context));
   if (ret < 0)
