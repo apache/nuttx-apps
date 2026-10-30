@@ -39,7 +39,7 @@
  ****************************************************************************/
 
 #define MAX_THREAD_NUM (CONFIG_SMP_NCPUS)
-#define LOOP_TIMES     (CONFIG_TEST_LOOP_SCALE * 100000)
+#define LOOP_TIMES     (CONFIG_TESTING_LOOP_SCALE * 100000)
 
 aligned_data(64) struct spinlock_pub_args_s
 {
@@ -55,6 +55,13 @@ struct spinlock_thread_args_s
   FAR struct spinlock_pub_args_s *pub;
 };
 
+aligned_data(64) union spinlock_test_u
+{
+  spinlock_t  spinlock;
+  rspinlock_t rspinlock;
+  seqcount_t  seqcount;
+};
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -62,10 +69,11 @@ struct spinlock_thread_args_s
 /* Helper functions for timespec calculating */
 
 static inline uint64_t calc_diff(FAR struct timespec *start,
-                                    FAR struct timespec *end)
+                                 FAR struct timespec *end)
 {
   uint64_t diff_sec = end->tv_sec - start->tv_sec;
   long diff_nsec = end->tv_nsec - start->tv_nsec;
+
   if (diff_nsec < 0)
     {
       diff_sec -= 1;
@@ -241,12 +249,7 @@ void run_test_thread(void *lock, FAR void *(*thread_func)(FAR void *arg),
 
 static void spinlock_test_thread_num(unsigned thread_num)
 {
-  aligned_data(64) union
-    {
-      spinlock_t  spinlock;
-      rspinlock_t rspinlock;
-      seqcount_t  seqcount;
-    } lock;
+  union spinlock_test_u lock;
 
   printf("Start Lock test:\n");
   printf("Thread num: %u, Loop times: %d\n\n", thread_num, LOOP_TIMES);
