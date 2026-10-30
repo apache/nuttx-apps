@@ -226,13 +226,18 @@ static int nxplayer_parse_mpeg(uint32_t header, FAR uint32_t *samplerate,
  *
  ****************************************************************************/
 
-int nxplayer_parse_mp3(int fd, FAR uint32_t *samplerate,
-                       FAR uint8_t *chans, FAR uint8_t *bps)
+int nxplayer_parse_mp3(FAR struct nxplayer_s *pplayer, int fd,
+                       FAR uint32_t *samplerate,
+                       FAR uint8_t *chans, FAR uint8_t *bps,
+                       FAR int *subfmt)
 {
   uint32_t mpa_header;
   uint8_t buffer[10];
   off_t position;
   int ret;
+
+  (void)pplayer;
+  (void)subfmt;
 
   ret = read(fd, buffer, sizeof(buffer));
   if (ret < sizeof(buffer))
