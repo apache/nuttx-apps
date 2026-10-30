@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 #include <assert.h>
+#include <errno.h>
 #include <limits.h>
 #include <pthread.h>
 #include <sched.h>
@@ -305,6 +306,8 @@ static size_t poll_performance(void)
 static size_t pipe_performance(void)
 {
   struct performance_time_s result;
+  ssize_t wret;
+  ssize_t rret;
   int pipefd[2];
   int ret;
   char r;
@@ -313,9 +316,14 @@ static size_t pipe_performance(void)
   DEBUGASSERT(ret == 0);
 
   performance_start(&result);
-  write(pipefd[0], "a", 1);
-  read(pipefd[1], &r, 1);
+  wret = write(pipefd[1], "a", 1);
+  rret = read(pipefd[0], &r, 1);
   performance_end(&result);
+
+  if (wret != 1 || rret != 1)
+    {
+      printf("pipe-rw: write %zd, read %zd, errno %d\n", wret, rret, errno);
+    }
 
   close(pipefd[0]);
   close(pipefd[1]);
