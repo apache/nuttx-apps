@@ -213,7 +213,7 @@ static int critmon_process_directory(FAR struct dirent *entryp)
       ret = -errno;
       fprintf(stderr, "Csection Monitor: Failed to read from %s: %d\n",
               filepath, ret);
-      goto errout_with_filepath;
+      goto errout_with_stream;
     }
 
   /* Input Format:   X.XXXXXXXXX,X.XXXXXXXXX,X.XXXXXXXXX
