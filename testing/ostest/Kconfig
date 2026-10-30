@@ -142,7 +142,7 @@ config TESTING_OSTEST_MULTIUSER
 		CONFIG_LIBC_PASSWD_FILEPATH (default /tmp/ostest_passwd when this
 		option is enabled).
 
-config TEST_LOOP_SCALE
+config TESTING_LOOP_SCALE
 	int "Loop scale of spinlock test (N x 10,000)"
 	default 100
 
