@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <assert.h>
 
 #include "nsh.h"
@@ -43,6 +44,15 @@ static int nsh_system_(int argc, FAR char *argv[], int isctty)
   int ret;
 
   DEBUGASSERT(pstate != NULL);
+
+  /* At its prompt an interactive shell is not the foreground process, so
+   * that Ctrl-C and Ctrl-Z do not end or stop it.
+   */
+
+  if (isctty && argc < 2)
+    {
+      nsh_ioctl(&pstate->cn_vtbl, TIOCNOTTY, 0);
+    }
 
   /* Execute the session */
 
