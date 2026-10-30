@@ -403,7 +403,7 @@ static void fastboot_okay(FAR struct fastboot_ctx_s *ctx,
 
 static int fastboot_flash_open(FAR const char *name)
 {
-  int fd = open(name, O_RDWR | O_CLOEXEC);
+  int fd = open(name, O_RDWR | O_CLOEXEC | O_DIRECT);
 
   if (fd < 0)
     {
