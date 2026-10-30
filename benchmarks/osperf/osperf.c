@@ -125,6 +125,7 @@ static void performance_end(FAR struct performance_time_s *result)
 static size_t performance_gettime(FAR struct performance_time_s *result)
 {
   struct timespec ts;
+
   perf_convert(result->end - result->start, &ts);
   return ts.tv_sec * NSEC_PER_SEC + ts.tv_nsec;
 }
@@ -137,6 +138,7 @@ static FAR void *pthread_switch_task(FAR void *arg)
 {
   FAR struct performance_thread_s *perf = arg;
   irqstate_t flags = enter_critical_section();
+
   sem_wait(&perf->sem);
   performance_end(&perf->time);
   leave_critical_section(flags);
@@ -166,6 +168,7 @@ static size_t pthread_switch_performance(void)
 static FAR void *pthread_create_task(FAR void *arg)
 {
   FAR struct performance_time_s *time = arg;
+
   performance_end(time);
   return NULL;
 }
@@ -197,6 +200,7 @@ static size_t pthread_create_performance(void)
 static FAR void *context_switch_task(FAR void *arg)
 {
   FAR struct performance_time_s *time = arg;
+
   sched_yield();
   performance_end(time);
   return 0;
@@ -224,6 +228,7 @@ static void work_handle(void *arg)
 {
   FAR struct performance_time_s *time = ((FAR void **)arg)[2];
   FAR sem_t *sem = ((void **)arg)[1];
+
   performance_end(time);
   sem_post(sem);
 }
@@ -385,6 +390,7 @@ static void performance_run(const FAR struct performance_entry_s *item,
     {
       irqstate_t flags = enter_critical_section();
       size_t time = item->entry();
+
       leave_critical_section(flags);
 
       total += time;
