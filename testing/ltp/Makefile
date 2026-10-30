@@ -193,6 +193,14 @@ BLACKWORDS += shmget
 BLACKWORDS += shmat
 endif
 
+# The CPU-time clocks need the run-time accounting of the critical section
+# monitor.  Without it, _POSIX_CPUTIME and _POSIX_THREAD_CPUTIME are -1.
+
+ifneq ($(shell expr $(CONFIG_SCHED_CRITMONITOR_MAXTIME_THREAD) \>= 0 2>/dev/null),1)
+BLACKWORDS += _POSIX_CPUTIME
+BLACKWORDS += _POSIX_THREAD_CPUTIME
+endif
+
 MAINWORDS += "main("
 
 LTP_ORIGS := $(shell find $(TESTDIR) -name *.c)

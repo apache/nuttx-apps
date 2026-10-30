@@ -270,6 +270,13 @@ if(CONFIG_TESTING_LTP)
       list(APPEND BLACKWORDS "shmget" "shmat")
     endif()
 
+    # The CPU-time clocks need the run-time accounting of the critical section
+    # monitor.  Without it, _POSIX_CPUTIME and _POSIX_THREAD_CPUTIME are -1.
+
+    if(NOT CONFIG_SCHED_CRITMONITOR_MAXTIME_THREAD GREATER_EQUAL 0)
+      list(APPEND BLACKWORDS "_POSIX_CPUTIME" "_POSIX_THREAD_CPUTIME")
+    endif()
+
     file(GLOB_RECURSE LTP_ORIGS ${TESTDIR}/*.c)
 
     if(LTP_ORIGS)
