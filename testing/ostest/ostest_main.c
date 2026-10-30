@@ -96,7 +96,7 @@ static const char g_var3_value[]   = "GoodValue3";
 static const char g_bad_value1[]   = "BadValue1";
 static const char g_bad_value2[]   = "BadValue2";
 
-static const char g_putenv_value[] = "Variable1=BadValue3";
+static char g_putenv_value[] = "Variable1=BadValue3";
 #endif
 
 /****************************************************************************
