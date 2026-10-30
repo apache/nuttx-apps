@@ -1459,8 +1459,16 @@ struct Value *stmt_ENVIRON(struct Value *value)
 
   if (g_pass == INTERPRET && value->u.string.character)
     {
-      if (putenv(value->u.string.character) == -1)
+      char *env;
+
+      /* putenv() puts the string itself into the environment, and
+       * Value_destroy() frees the string of the value: give a copy.
+       */
+
+      env = strdup(value->u.string.character);
+      if (env == NULL || putenv(env) == -1)
         {
+          free(env);
           Value_destroy(value);
           g_pc = epc;
           return Value_new_ERROR(value, ENVIRONFAILED, strerror(errno));
