@@ -33,6 +33,7 @@
 #include <mqueue.h>
 #include <pthread.h>
 #include <sched.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -223,8 +224,8 @@ static void *receiver_thread(void *arg)
             {
               if (isprint(msg_buffer[j]))
                 {
-                 printf("receiver_thread:                  "
-                        "%2d %02x (%c) %02x (%c)\n",
+                  printf("receiver_thread:                  "
+                         "%2d %02x (%c) %02x (%c)\n",
                          j, TEST_MESSAGE[j], TEST_MESSAGE[j],
                          msg_buffer[j], msg_buffer[j]);
                 }
@@ -263,8 +264,19 @@ static void *receiver_thread(void *arg)
   return (pthread_addr_t)((uintptr_t)nerrors);
 }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+static void wakeup_action(int signo)
+{
+  /* Nothing to do: the signal only interrupts mq_receive() */
+}
+#endif
+
 void mqueue_test(void)
 {
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  struct sigaction act;
+  struct sigaction oact;
+#endif
   pthread_t sender;
   pthread_t receiver;
   void *result;
@@ -280,6 +292,17 @@ void mqueue_test(void)
 
   g_send_mqfd = 0;
   g_recv_mqfd = 0;
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  /* SIGUSR1 wakes up the receiver below.  Catch it: its default action
+   * ends the process with CONFIG_SIG_SIGUSR1_ACTION, as POSIX wants.
+   */
+
+  memset(&act, 0, sizeof(act));
+  act.sa_handler = wakeup_action;
+  sigemptyset(&act.sa_mask);
+  sigaction(SIGUSR1, &act, &oact);
+#endif
 
   /* Start the sending thread at higher priority */
 
@@ -462,4 +485,8 @@ void mqueue_test(void)
       printf("mqueue_test: ERROR mq_unlink failed\n");
       ASSERT(false);
     }
+
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  sigaction(SIGUSR1, &oact, NULL);
+#endif
 }
