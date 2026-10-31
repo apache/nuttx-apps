@@ -376,10 +376,18 @@ jobs:
             export ARTIFACTDIR=`pwd`/buildartifacts
 
             for i in 1 2 3; do
-              python -m pip install \
+              if python -m pip install \
                 --default-timeout=100 \
                 --retries 10 \
-                ntfc==0.0.1 && break
+                ntfc==0.0.3; then
+                break
+              fi
+
+              if [ "$i" -eq 3 ]; then
+                echo "Failed to install NTFC after $i attempts"
+                exit 1
+              fi
+
               echo "Retry $i failed..."
               sleep 5
             done
@@ -411,7 +419,6 @@ jobs:
             if [ "X${{matrix.boards}}" = "Xcodechecker" ]; then
                 ./cibuild.sh -c -A -N -R --codechecker testlist/${{matrix.boards}}.dat
             else
-                ( sleep 7200 ; echo Killing pytest after timeout... ; pkill -f pytest )&
                 ./cibuild.sh -c -A -N -R -S testlist/${{matrix.boards}}.dat
             fi
 
