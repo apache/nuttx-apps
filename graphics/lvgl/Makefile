@@ -72,8 +72,6 @@ LVGL_UNPACKNAME = lvgl
 UNPACK ?= unzip -o $(if $(V),,-q)
 CURL ?= curl -L -O $(if $(V),,-Ss)
 
-LVGL_UNPACKDIR =  $(WD)/$(LVGL_UNPACKNAME)
-
 $(LVGL_TARBALL):
 	$(ECHO_BEGIN)"Downloading: $(LVGL_TARBALL)"
 	$(Q) $(CURL) $(CONFIG_GRAPH_LVGL_URL)/$(LVGL_TARBALL)
@@ -82,19 +80,32 @@ ifneq ($(LVGL_TARBALL_SHA256),)
 endif
 	$(ECHO_END)
 
-$(LVGL_UNPACKNAME): $(LVGL_TARBALL)
+# This minimal backport targets the default LVGL 9.2.2 archive.
+
+ifeq ($(LVGL_VERSION),9.2.2)
+LVGL_PATCHES = $(WD)/0001-nuttx-fbdev-use-virtual-framebuffer-offset.patch
+endif
+
+LVGL_STAMP = $(LVGL_UNPACKNAME)/.nuttx_patched-$(LVGL_VERSION)
+
+# Recreate incomplete or outdated archive trees; never modify a git checkout.
+
+ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
+$(LVGL_STAMP): $(LVGL_TARBALL) $(LVGL_PATCHES)
 	$(ECHO_BEGIN)"Unpacking: $(LVGL_TARBALL) -> $(LVGL_UNPACKNAME)"
 ifneq ($(LVGL_TARBALL_SHA256),)
 	$(Q) $(CHECKHASH) sha256 $(LVGL_TARBALL_SHA256) $(LVGL_TARBALL)
 endif
+	$(Q) rm -rf $(LVGL_UNPACKNAME) lvgl-$(LVGL_VERSION)
 	$(Q) $(UNPACK) $(LVGL_TARBALL)
 	$(Q) mv	lvgl-$(LVGL_VERSION) $(LVGL_UNPACKNAME)
-	$(Q) touch $(LVGL_UNPACKNAME)
+	$(Q) for p in $(LVGL_PATCHES); do \
+		patch -s -N -p1 -d $(LVGL_UNPACKNAME) < $$p || exit 1; \
+	done
+	$(Q) touch $@
 	$(ECHO_END)
 
-# Download and unpack tarball if no git repo found
-ifeq ($(wildcard $(LVGL_UNPACKNAME)/.git),)
-context:: $(LVGL_UNPACKNAME)
+context:: $(LVGL_STAMP)
 endif
 
 include $(APPDIR)/Application.mk
