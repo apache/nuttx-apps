@@ -166,8 +166,6 @@ struct fastboot_ctx_s
   int flash_fd;
   size_t download_max;
   size_t download_size;
-  size_t download_offset;
-  size_t total_imgsize;
 
   /* Store wait_ms argument before poll of fastboot_command_loop, and
    * TCP transport remaining data size later.
@@ -405,7 +403,7 @@ static void fastboot_okay(FAR struct fastboot_ctx_s *ctx,
 
 static int fastboot_flash_open(FAR const char *name)
 {
-  int fd = open(name, O_RDWR | O_CLOEXEC);
+  int fd = open(name, O_RDWR | O_CLOEXEC | O_DIRECT);
 
   if (fd < 0)
     {
@@ -500,6 +498,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
   FAR char *end_ptr = chunk_ptr + ctx->download_size;
   FAR struct fastboot_sparse_header_s *sparse;
   uint32_t chunk_num;
+  off_t offset = 0;
   int ret = OK;
 
   /* No sparse header, write flash directly */
@@ -507,14 +506,8 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
   sparse = (FAR struct fastboot_sparse_header_s *)chunk_ptr;
   if (sparse->magic != FASTBOOT_SPARSE_MAGIC)
     {
-      ret = fastboot_flash_write(fd, 0, ctx->download_buffer,
-                                 ctx->download_size);
-      goto end;
-    }
-
-  if (ctx->total_imgsize == 0)
-    {
-      ctx->total_imgsize = sparse->blk_sz * sparse->total_blks;
+      return fastboot_flash_write(fd, 0, ctx->download_buffer,
+                                  ctx->download_size);
     }
 
   chunk_num = sparse->total_chunks;
@@ -533,14 +526,13 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
             {
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
 
-              ret = fastboot_flash_write(fd, ctx->download_offset,
-                                         chunk_ptr, chunk_size);
+              ret = fastboot_flash_write(fd, offset, chunk_ptr, chunk_size);
               if (ret < 0)
                 {
-                  goto end;
+                  return ret;
                 }
 
-              ctx->download_offset += chunk_size;
+              offset += chunk_size;
               chunk_ptr += chunk_size;
             }
             break;
@@ -549,19 +541,19 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
               uint32_t fill_data = le32toh(*(FAR uint32_t *)chunk_ptr);
               uint32_t chunk_size = chunk->chunk_sz * sparse->blk_sz;
 
-              ret = ffastboot_flash_fill(fd, ctx->download_offset, fill_data,
+              ret = ffastboot_flash_fill(fd, offset, fill_data,
                                          sparse->blk_sz, chunk->chunk_sz);
               if (ret < 0)
                 {
-                  goto end;
+                  return ret;
                 }
 
-              ctx->download_offset += chunk_size;
+              offset += chunk_size;
               chunk_ptr += 4;
             }
             break;
           case FASTBOOT_CHUNK_DONT_CARE:
-            ctx->download_offset += chunk->chunk_sz * sparse->blk_sz;
+            offset += chunk->chunk_sz * sparse->blk_sz;
             break;
           case FASTBOOT_CHUNK_CRC32:
             chunk_ptr += 4;
@@ -572,14 +564,6 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
         }
     }
 
-  if (ctx->download_offset < ctx->total_imgsize)
-    {
-      return 1;
-    }
-
-end:
-  ctx->total_imgsize = 0;
-  ctx->download_offset = 0;
   return ret;
 }
 
@@ -1008,7 +992,7 @@ static void fastboot_upload(FAR struct fastboot_ctx_s *ctx,
   if (!ctx->upload_param.size || !ctx->upload_func)
     {
       fastboot_fail(ctx, "No data staged by the last command");
-      return;
+      goto done;
     }
 
   snprintf(response, FASTBOOT_MSG_LEN, "DATA%08zx", ctx->upload_param.size);
@@ -1032,7 +1016,7 @@ static void fastboot_upload(FAR struct fastboot_ctx_s *ctx,
     }
 
 done:
-  ctx->upload_param.size = 0;
+  memset(&ctx->upload_param, 0, sizeof(ctx->upload_param));
   ctx->upload_func = NULL;
 }
 
@@ -1596,11 +1580,7 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
   for (; nctx-- > 0; ctx++)
     {
       ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
-      ctx->download_offset = 0;
-      ctx->download_size   = 0;
       ctx->flash_fd        = -1;
-      ctx->total_imgsize   = 0;
-      ctx->varlist         = NULL;
       ctx->left            = ctx[0].left;
       ctx->ops             = &g_tran_ops[nctx];
       ctx->tran_fd[0]      = -1;
@@ -1656,6 +1636,7 @@ int fastboot_handler(uint64_t timeout)
   struct fastboot_ctx_s context[nitems(g_tran_ops)];
   int ret;
 
+  memset(context, 0, sizeof(context));
   context[0].left = timeout;
   ret = fastboot_context_initialize(context, nitems(context));
   if (ret < 0)
