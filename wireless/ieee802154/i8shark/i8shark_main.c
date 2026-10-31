@@ -75,7 +75,7 @@
 #define I8SHARK_MAX_DEVPATH 15
 
 #define ZEP_MAX_HDRSIZE 32
-#define I8SHARK_MAX_ZEPFRAME IEEE802154_MAX_PHY_PACKET_SIZE + ZEP_MAX_HDRSIZE
+#define I8SHARK_MAX_ZEPFRAME (IEEE802154_MAX_PHY_PACKET_SIZE + ZEP_MAX_HDRSIZE)
 
 /****************************************************************************
  * Private Types
@@ -238,6 +238,31 @@ static int i8shark_daemon(int argc, FAR char *argv[])
           continue;
         }
 
+      /* Validate frame length and offset to prevent out-of-bounds reads
+       * from frame.payload and buffer overflows when writing into zepframe.
+       * A valid 802.15.4 frame has at least a 2-byte Frame Control Field.
+       */
+
+      if (frame.length < 2 ||
+          frame.length > IEEE802154_MAX_PHY_PACKET_SIZE ||
+          frame.offset > frame.length)
+        {
+          continue;
+        }
+
+#ifdef CONFIG_IEEE802154_I8SHARK_XBEE_APPHDR
+      /* XBee app header (2 bytes) and FCS (2 bytes) are both stripped
+       * from the bytes following the MAC header.
+       */
+
+      if (frame.length < frame.offset + 4)
+        {
+          continue;
+        }
+#endif
+
+      memset(zepframe, 0, sizeof(zepframe));
+
       /* First 2 bytes of packet represent preamble. For ZEP, "EX" */
 
       zepframe[i++] = 'E';
@@ -353,12 +378,23 @@ static int i8shark_daemon(int argc, FAR char *argv[])
        */
 
 #ifdef CONFIG_IEEE802154_I8SHARK_SUPPRESS_FCS
-    {
-        uint8_t fcslen;
-        ieee802154_getfcslen(fd, &fcslen);
+      {
+        uint8_t fcslen = 0;
+
+        ret = ieee802154_getfcslen(fd, &fcslen);
+        if (ret < 0 || frame.length < fcslen)
+          {
+            continue;
+          }
+
         frame.length -= fcslen;
-    }
+      }
 #endif
+
+      if ((size_t)(i + frame.length) > sizeof(zepframe))
+        {
+          continue;
+        }
 
       memcpy(&zepframe[i], frame.payload, frame.length);
       i += frame.length;
