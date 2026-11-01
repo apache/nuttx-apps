@@ -1260,8 +1260,11 @@ err_out:
   memset(&pplayer->tone, 0, sizeof(pplayer->tone));
   pplayer->wav_playback = false;
   pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
   pplayer->wav_block_align = 0;
   pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
 
   pplayer->state = NXPLAYER_STATE_IDLE;   /* Go to IDLE */
 
@@ -1877,13 +1880,17 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   struct mq_attr      attr;
   struct sched_param  sparam;
   pthread_attr_t      tattr;
-  struct audio_caps_desc_s cap_desc;
+  struct audio_caps_desc_s cap_desc =
+    {
+      0
+    };
+
   struct ap_buffer_info_s  buf_info;
   struct audio_caps_s      caps;
   int                      min_channels;
-  int                      max_channels;
 #if defined(CONFIG_AUDIO_FORMAT_PCM) && \
     defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  int                      max_channels;
   int                      index;
 #endif
   bool                     reserved = false;
@@ -1895,7 +1902,17 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 
   /* Try to open the device */
 
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  pplayer->wav_passthrough = pplayer->wav_playback;
   ret = nxplayer_opendevice(pplayer, filefmt, subfmt);
+  if (ret < 0 && pplayer->wav_playback)
+    {
+      ret = nxplayer_opendevice(pplayer, filefmt, AUDIO_FMT_UNDEF);
+    }
+#else
+  ret = nxplayer_opendevice(pplayer, filefmt, subfmt);
+#endif
   if (ret < 0)
     {
       /* Error opening the device */
@@ -1931,7 +1948,6 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       (unsigned long)&caps) == caps.ac_len)
     {
       min_channels = caps.ac_channels >> 4;
-      max_channels = caps.ac_channels & 0x0f;
 
       if (min_channels != 0 && nchannels < min_channels)
         {
@@ -1941,6 +1957,8 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
 
 #if defined(CONFIG_AUDIO_FORMAT_PCM) && \
     defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+      max_channels = caps.ac_channels & 0x0f;
+
       if (pplayer->wav_playback &&
           ((max_channels != 0 && nchannels > max_channels) ||
            (caps.ac_controls.hw[0] & nxplayer_wav_rate_cap(samprate)) == 0))
@@ -1950,54 +1968,56 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
           goto err_out;
         }
 #endif
+
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+      if (pplayer->wav_playback)
+        {
+          caps.ac_len = sizeof(caps);
+          caps.ac_type = AUDIO_TYPE_QUERY;
+          caps.ac_subtype = filefmt;
+          caps.ac_format.b[0] = 0;
+          supported = false;
+          if (ioctl(pplayer->dev_fd, AUDIOIOC_GETCAPS,
+                    (unsigned long)&caps) == caps.ac_len)
+            {
+              for (index = 0; index < sizeof(caps.ac_controls.b); index++)
+                {
+                  if (caps.ac_controls.b[index] == subfmt)
+                    {
+                      supported = true;
+                      break;
+                    }
+
+                  if (caps.ac_controls.b[index] == AUDIO_SUBFMT_END)
+                    {
+                      break;
+                    }
+                }
+            }
+
+          pplayer->wav_passthrough = !supported;
+        }
+#endif
     }
 
 #if defined(CONFIG_AUDIO_FORMAT_PCM) && \
     defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
   else if (pplayer->wav_playback)
     {
-      ret = -ENOTSUP;
-      auderr("ERROR: Unable to query audio device capabilities for WAV\n");
-      goto err_out;
-    }
-
-  if (pplayer->wav_playback)
-    {
-      caps.ac_len = sizeof(caps);
-      caps.ac_type = AUDIO_TYPE_QUERY;
-      caps.ac_subtype = filefmt;
-      caps.ac_format.b[0] = 0;
-      supported = false;
-      if (ioctl(pplayer->dev_fd, AUDIOIOC_GETCAPS,
-                (unsigned long)&caps) != caps.ac_len)
-        {
-          ret = -ENOTSUP;
-          auderr("ERROR: Unable to query WAV PCM formats\n");
-          goto err_out;
-        }
-
-      for (index = 0; index < sizeof(caps.ac_controls.b); index++)
-        {
-          if (caps.ac_controls.b[index] == subfmt)
-            {
-              supported = true;
-              break;
-            }
-
-          if (caps.ac_controls.b[index] == AUDIO_SUBFMT_END)
-            {
-              break;
-            }
-        }
-
-      if (!supported)
-        {
-          ret = -ENOTSUP;
-          auderr("ERROR: Audio device does not support 16-bit PCM WAV\n");
-          goto err_out;
-        }
+      pplayer->wav_passthrough = true;
     }
 #endif
+
+  if (pplayer->wav_passthrough)
+    {
+      if (lseek(pplayer->fd, 0, SEEK_SET) != 0)
+        {
+          ret = errno > 0 ? -errno : -EIO;
+          auderr("ERROR: Failed to rewind WAV file: %d\n", ret);
+          goto err_out;
+        }
+    }
 
   if (nchannels && samprate && bpsamp)
     {
@@ -2013,7 +2033,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       cap_desc.caps.ac_controls.b[2]  = bpsamp;
 #if defined(CONFIG_AUDIO_FORMAT_PCM) && \
     defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
-      if (pplayer->wav_playback)
+      if (pplayer->wav_playback && !pplayer->wav_passthrough)
         {
           cap_desc.caps.ac_format.b[0] = subfmt;
         }
@@ -2202,8 +2222,11 @@ static int nxplayer_playfile_impl(FAR struct nxplayer_s *pplayer,
 
   pplayer->wav_playback = false;
   pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
   pplayer->wav_block_align = 0;
   pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
 
   audinfo("==============================\n");
   audinfo("Playing file %s\n", pfilename);
@@ -2349,8 +2372,11 @@ err_out:
   pplayer->fd = -1;
   pplayer->wav_playback = false;
   pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
   pplayer->wav_block_align = 0;
   pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
 
   return ret;
 }
@@ -2465,8 +2491,11 @@ FAR struct nxplayer_s *nxplayer_create(void)
   pplayer->fd = -1;
   pplayer->wav_playback = false;
   pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
   pplayer->wav_block_align = 0;
   pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
   pplayer->prefdevice[0] = '\0';
   pplayer->prefformat = 0;

@@ -99,9 +99,12 @@ struct nxplayer_s
   FAR const struct nxplayer_dec_ops_s *ops;
   struct nxplayer_tone_s tone;
   uint32_t        wav_data_remaining;
+  uint64_t        wav_file_remaining;
+  uint64_t        wav_header_size;
   uint8_t         wav_block_align;
   int             wav_error;
   bool            wav_playback;
+  bool            wav_passthrough;
 };
 
 typedef int (*nxplayer_func)(FAR struct nxplayer_s *pplayer, char *pargs);

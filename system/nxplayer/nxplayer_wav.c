@@ -91,7 +91,9 @@ static int nxplayer_wav_read_exact(int fd, FAR uint8_t *buffer,
 static int nxplayer_parse_wav_data(int fd, FAR uint32_t *samprate,
                                    FAR uint8_t *nchannels,
                                    FAR uint8_t *bpsamp,
-                                   FAR uint32_t *data_length)
+                                   FAR uint32_t *data_length,
+                                   FAR uint64_t *stream_length,
+                                   FAR uint64_t *header_size)
 {
   uint8_t header[12];
   uint8_t chunk[8];
@@ -230,6 +232,8 @@ static int nxplayer_parse_wav_data(int fd, FAR uint32_t *samprate,
   *nchannels = (uint8_t)channels;
   *bpsamp = (uint8_t)bits;
   *data_length = data_size;
+  *stream_length = data_offset + data_size;
+  *header_size = data_offset;
   return OK;
 }
 
@@ -241,7 +245,9 @@ static int nxplayer_parse_wav(FAR struct nxplayer_s *pplayer, int fd,
   int ret;
 
   ret = nxplayer_parse_wav_data(fd, samplerate, nchannels, bpsamp,
-                                &pplayer->wav_data_remaining);
+                                &pplayer->wav_data_remaining,
+                                &pplayer->wav_file_remaining,
+                                &pplayer->wav_header_size);
   if (ret < 0)
     {
       auderr("ERROR: Invalid or unsupported WAV file: %d\n", ret);
@@ -257,6 +263,7 @@ static int nxplayer_parse_wav(FAR struct nxplayer_s *pplayer, int fd,
 
   pplayer->wav_block_align = *nchannels * 2;
   pplayer->wav_playback = true;
+  pplayer->wav_passthrough = false;
   *bpsamp = 16;
   *subfmt = AUDIO_SUBFMT_PCM_S16_LE;
   return OK;
@@ -265,15 +272,78 @@ static int nxplayer_parse_wav(FAR struct nxplayer_s *pplayer, int fd,
 static int nxplayer_fill_wav(FAR struct nxplayer_s *pplayer, int fd,
                              FAR struct ap_buffer_s *apb)
 {
-  size_t wanted = apb->nmaxbytes < pplayer->wav_data_remaining ?
-                  apb->nmaxbytes : pplayer->wav_data_remaining;
+  size_t wanted;
   size_t offset = 0;
+  size_t payload_capacity;
+  bool first = pplayer->wav_passthrough &&
+               pplayer->wav_header_size != 0;
   int error;
 
   apb->nbytes = 0;
   apb->curbyte = 0;
   apb->flags = 0;
 
+  if (pplayer->wav_passthrough)
+    {
+      wanted = pplayer->wav_file_remaining < apb->nmaxbytes ?
+               (size_t)pplayer->wav_file_remaining : apb->nmaxbytes;
+      if (first)
+        {
+          if (pplayer->wav_header_size > wanted)
+            {
+              error = -EMSGSIZE;
+              goto err_out;
+            }
+
+          payload_capacity = wanted - (size_t)pplayer->wav_header_size;
+          if (payload_capacity < pplayer->wav_block_align)
+            {
+              error = -EMSGSIZE;
+              goto err_out;
+            }
+
+          wanted -= payload_capacity % pplayer->wav_block_align;
+        }
+
+      while (offset < wanted)
+        {
+          ssize_t ret = read(fd, apb->samp + offset, wanted - offset);
+
+          if (ret < 0)
+            {
+              if (errno == EINTR)
+                {
+                  continue;
+                }
+
+              error = -errno;
+              goto passthrough_err_out;
+            }
+
+          if (ret == 0)
+            {
+              error = -EIO;
+              goto passthrough_err_out;
+            }
+
+          offset += ret;
+        }
+
+      apb->nbytes = offset;
+      pplayer->wav_file_remaining -= offset;
+      pplayer->wav_header_size = 0;
+      if (pplayer->wav_file_remaining == 0)
+        {
+          apb->flags |= AUDIO_APB_FINAL;
+          close(fd);
+          pplayer->fd = -1;
+        }
+
+      return OK;
+    }
+
+  wanted = apb->nmaxbytes < pplayer->wav_data_remaining ?
+           apb->nmaxbytes : pplayer->wav_data_remaining;
   wanted -= wanted % pplayer->wav_block_align;
   if (wanted == 0)
     {
@@ -317,6 +387,23 @@ static int nxplayer_fill_wav(FAR struct nxplayer_s *pplayer, int fd,
     }
 
   return OK;
+
+passthrough_err_out:
+  if (first && offset < pplayer->wav_header_size)
+    {
+      apb->nbytes = 0;
+    }
+  else if (first)
+    {
+      size_t payload = offset - pplayer->wav_header_size;
+
+      payload -= payload % pplayer->wav_block_align;
+      apb->nbytes = pplayer->wav_header_size + payload;
+    }
+  else
+    {
+      apb->nbytes = offset - offset % pplayer->wav_block_align;
+    }
 
 err_out:
   pplayer->wav_error = error;
