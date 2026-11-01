@@ -554,6 +554,14 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifdef CONFIG_TESTING_OSTEST_PTHREAD_SIGQUEUE
+      /* Verify pthread_sigqueue interface */
+
+      printf("\nuser_main: pthread_sigqueue test\n");
+      pthread_sigqueue_test();
+      check_test_memory_usage();
+#endif
+
       /* Verify pthreads and condition variable timed waits */
 
       printf("\nuser_main: timed wait test\n");

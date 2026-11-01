@@ -288,6 +288,12 @@ void pthread_exit_test(void);
 
 void pthread_cleanup_test(void);
 
+/* pthread_sigqueue.c *******************************************************/
+
+#ifdef CONFIG_TESTING_OSTEST_PTHREAD_SIGQUEUE
+void pthread_sigqueue_test(void);
+#endif
+
 /* barrier.c ****************************************************************/
 
 void barrier_test(void);
