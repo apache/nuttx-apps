@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
+#include <sys/mount.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 
@@ -58,6 +59,14 @@ struct cmd_map_s
   uint8_t maxargs;
   CODE int (*func)(FAR struct action_manager_s *, int, FAR char **);
 };
+
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+struct mount_flag_s
+{
+  FAR const char *name;
+  unsigned long flag;
+};
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -108,10 +117,35 @@ static int cmd_rptun(FAR struct action_manager_s *am,
 #endif
 static int cmd_unlink(FAR struct action_manager_s *am,
                       int argc, FAR char **argv);
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+static int cmd_mount(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv);
+static int cmd_umount(FAR struct action_manager_s *am,
+                      int argc, FAR char **argv);
+#endif
+static int builtin_spawn(int argc, FAR char **argv);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+/* The flags of the "mount" command, as in the Android init language */
+
+static const struct mount_flag_s g_mount_flags[] =
+{
+  {"defaults", 0},
+  {"rw", 0},
+  {"ro", MS_RDONLY},
+  {"nosuid", MS_NOSUID},
+  {"nodev", MS_NODEV},
+  {"noexec", MS_NOEXEC},
+  {"sync", MS_SYNCHRONOUS},
+  {"remount", MS_REMOUNT},
+  {"dirsync", MS_DIRSYNC},
+  {"noatime", MS_NOATIME},
+};
+#endif
 
 static const struct cmd_map_s g_builtin[] =
 {
@@ -125,6 +159,9 @@ static const struct cmd_map_s g_builtin[] =
   {"class_stop", 2, 2, cmd_class_stop},
   {"exec", 3, 99, cmd_exec},
   {"exec_start", 2, 2, cmd_exec_start},
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+  {"mount", 1, CONFIG_SYSTEM_NXINIT_ACTION_CMD_ARGS_MAX, cmd_mount},
+#endif
 #ifdef CONFIG_NETUTILS_NETINIT
   {"netinit", 1, 1, cmd_netinit},
 #endif
@@ -143,6 +180,9 @@ static const struct cmd_map_s g_builtin[] =
 #endif
   {"stop", 2, 2, cmd_stop},
   {"trigger", 2, 2, cmd_trigger},
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+  {"umount", 2, 2, cmd_umount},
+#endif
   {"unlink", 2, 2, cmd_unlink},
 };
 
@@ -359,68 +399,100 @@ static int cmd_unlink(FAR struct action_manager_s *am,
   return ret;
 }
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+#ifndef CONFIG_DISABLE_MOUNTPOINT
+/* mount <type> <device> <dir> [<flag>]* [<options>]
+ *
+ * <flag> is one of g_mount_flags.  A last argument that is not a flag is
+ * the option string of the file system (the data of mount()).  A line in
+ * another form, as the NSH command "mount -t <type> ..." that some board
+ * init.rc files use, runs as a program as before.
+ */
 
-/****************************************************************************
- * Name: init_builtin_run
- *
- * Description:
- *   Execute the builtin command of NxInit, builtin App, or NSH builtin.
- *
- * Input Parameters:
- *   am   - Instance of Action Manager.
- *   argc - Argument count.
- *   argv - A pointer to an array of string arguments. The end of the array
- *          is indicated with a NULL entry.
- *
- * Returned Value:
- *   Returns 0 (for NxInit builtin) or a PID (for builtin App or NSH builtin)
- *   on success; Returns the negative value of errno on failure.
- ****************************************************************************/
-
-int init_builtin_run(FAR struct action_manager_s *am,
+static int cmd_mount(FAR struct action_manager_s *am,
                      int argc, FAR char **argv)
+{
+  FAR const char *data = NULL;
+  unsigned long flags = 0;
+  size_t j;
+  int ret;
+  int i;
+
+  UNUSED(am);
+
+  if (argc < 4 || argv[1][0] == '-')
+    {
+      return builtin_spawn(argc, argv);
+    }
+
+  for (i = 4; i < argc; i++)
+    {
+      for (j = 0; j < nitems(g_mount_flags); j++)
+        {
+          if (!strcmp(argv[i], g_mount_flags[j].name))
+            {
+              flags |= g_mount_flags[j].flag;
+              break;
+            }
+        }
+
+      if (j < nitems(g_mount_flags))
+        {
+          continue;
+        }
+
+      if (i != argc - 1)
+        {
+          init_err("mount '%s': unknown flag '%s'", argv[3], argv[i]);
+          return -EINVAL;
+        }
+
+      data = argv[i];
+    }
+
+  if (mount(argv[2], argv[3], argv[1], flags, data) < 0)
+    {
+      ret = errno;
+      init_err("mount %s '%s' on '%s' failed: %d",
+               argv[1], argv[2], argv[3], ret);
+      return -ret;
+    }
+
+  return 0;
+}
+
+/* umount <dir> */
+
+static int cmd_umount(FAR struct action_manager_s *am,
+                      int argc, FAR char **argv)
+{
+  int ret;
+
+  UNUSED(am);
+
+  if (umount(argv[1]) < 0)
+    {
+      ret = errno;
+      init_err("umount '%s' failed: %d", argv[1], ret);
+      return -ret;
+    }
+
+  return 0;
+}
+#endif
+
+/* Run a command that is not a builtin command of NxInit as a program,
+ * else through "sh -c" (a builtin App or an NSH command).
+ */
+
+static int builtin_spawn(int argc, FAR char **argv)
 {
   char cmd[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
   posix_spawnattr_t attr;
   FAR char *args[4];
-  sigset_t blocked;
-  sigset_t builtin;
   sigset_t mask;
   pid_t pid;
   size_t i;
   int ret;
-
-  for (i = 0; i < nitems(g_builtin); i++)
-    {
-      if (!strcmp(g_builtin[i].cmd, argv[0]))
-        {
-          if (argc < g_builtin[i].minargs || argc > g_builtin[i].maxargs)
-            {
-              init_err("Executing command '%s': invalid argument", argv[0]);
-              init_dump_args(argc, argv);
-              return -EINVAL;
-            }
-
-          init_info("Executing command '%s'", argv[0]);
-
-          /* Init blocks all signals.  Run the builtin command with the
-           * original mask, as tasks and threads it creates (e.g. the NTP
-           * client and the network monitor started by netinit) inherit
-           * the mask of this task.  Keep SIGCHLD blocked so that a child
-           * exiting meanwhile still wakes up ppoll() in init.
-           */
-
-          builtin = am->sigmask;
-          sigaddset(&builtin, SIGCHLD);
-          sigprocmask(SIG_SETMASK, &builtin, &blocked);
-          ret = g_builtin[i].func(am, argc, argv);
-          sigprocmask(SIG_SETMASK, &blocked, NULL);
-          return ret;
-        }
-    }
 
   ret = posix_spawnattr_init(&attr);
   if (ret != 0)
@@ -483,4 +555,65 @@ int init_builtin_run(FAR struct action_manager_s *am,
 
   posix_spawnattr_destroy(&attr);
   return pid;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: init_builtin_run
+ *
+ * Description:
+ *   Execute the builtin command of NxInit, builtin App, or NSH builtin.
+ *
+ * Input Parameters:
+ *   am   - Instance of Action Manager.
+ *   argc - Argument count.
+ *   argv - A pointer to an array of string arguments. The end of the array
+ *          is indicated with a NULL entry.
+ *
+ * Returned Value:
+ *   Returns 0 (for NxInit builtin) or a PID (for builtin App or NSH builtin)
+ *   on success; Returns the negative value of errno on failure.
+ ****************************************************************************/
+
+int init_builtin_run(FAR struct action_manager_s *am,
+                     int argc, FAR char **argv)
+{
+  sigset_t blocked;
+  sigset_t builtin;
+  size_t i;
+  int ret;
+
+  for (i = 0; i < nitems(g_builtin); i++)
+    {
+      if (!strcmp(g_builtin[i].cmd, argv[0]))
+        {
+          if (argc < g_builtin[i].minargs || argc > g_builtin[i].maxargs)
+            {
+              init_err("Executing command '%s': invalid argument", argv[0]);
+              init_dump_args(argc, argv);
+              return -EINVAL;
+            }
+
+          init_info("Executing command '%s'", argv[0]);
+
+          /* Init blocks all signals.  Run the builtin command with the
+           * original mask, as tasks and threads it creates (e.g. the NTP
+           * client and the network monitor started by netinit) inherit
+           * the mask of this task.  Keep SIGCHLD blocked so that a child
+           * exiting meanwhile still wakes up ppoll() in init.
+           */
+
+          builtin = am->sigmask;
+          sigaddset(&builtin, SIGCHLD);
+          sigprocmask(SIG_SETMASK, &builtin, &blocked);
+          ret = g_builtin[i].func(am, argc, argv);
+          sigprocmask(SIG_SETMASK, &blocked, NULL);
+          return ret;
+        }
+    }
+
+  return builtin_spawn(argc, argv);
 }

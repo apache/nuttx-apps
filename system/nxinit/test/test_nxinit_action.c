@@ -27,6 +27,8 @@
 #include <nuttx/config.h>
 #include <nuttx/list.h>
 
+#include <errno.h>
+#include <fcntl.h>
 #include <setjmp.h>
 #include <limits.h>
 #include <stdarg.h>
@@ -34,11 +36,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/param.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
 #include <cmocka.h>
 
 #include "../action.h"
+#include "../builtin.h"
 #include "test_nxinit.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define TEST_MNT "/nxinit_test_mnt"
 
 /****************************************************************************
  * Private Functions
@@ -291,4 +303,60 @@ void test_nxinit_action_empty_skipped(FAR void **state)
   assert_int_equal(init_action_run_command(&am), INT_MAX);
 
   action_manager_free_all(&am);
+}
+
+/****************************************************************************
+ * Name: test_nxinit_action_builtin_mount
+ *
+ * Description:
+ *   "mount" mounts a tmpfs and passes its flag to mount(), "umount"
+ *   unmounts it, and an unknown flag fails with -EINVAL.
+ ****************************************************************************/
+
+void test_nxinit_action_builtin_mount(FAR void **state)
+{
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_TMPFS)
+  FAR char *mnt[] =
+    {
+      "mount", "tmpfs", "none", TEST_MNT, "noexec", NULL
+    };
+
+  FAR char *bad[] =
+    {
+      "mount", "tmpfs", "none", TEST_MNT, "bogus", "size=1", NULL
+    };
+
+  FAR char *umnt[] =
+    {
+      "umount", TEST_MNT, NULL
+    };
+
+  struct action_manager_s am;
+  struct statfs sfs;
+  struct stat st;
+  int fd;
+
+  action_manager_init(&am);
+
+  assert_int_equal(init_builtin_run(&am, 5, mnt), 0);
+  assert_int_equal(statfs(TEST_MNT, &sfs), 0);
+  assert_int_equal(sfs.f_type, TMPFS_MAGIC);
+
+  /* With "noexec", stat() reports no execute permission */
+
+  fd = open(TEST_MNT "/file", O_CREAT | O_WRONLY, 0755);
+  assert_true(fd >= 0);
+  close(fd);
+  assert_int_equal(stat(TEST_MNT "/file", &st), 0);
+  assert_int_equal(st.st_mode & S_IXUSR, 0);
+  unlink(TEST_MNT "/file");
+
+  assert_int_equal(init_builtin_run(&am, 2, umnt), 0);
+  assert_int_not_equal(statfs(TEST_MNT, &sfs), 0);
+
+  assert_int_equal(init_builtin_run(&am, 6, bad), -EINVAL);
+  assert_int_not_equal(statfs(TEST_MNT, &sfs), 0);
+#else
+  skip();
+#endif
 }
