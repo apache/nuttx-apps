@@ -142,6 +142,14 @@ config TESTING_OSTEST_MULTIUSER
 		CONFIG_LIBC_PASSWD_FILEPATH (default /tmp/ostest_passwd when this
 		option is enabled).
 
+config TESTING_OSTEST_PTHREAD_SIGQUEUE
+	bool "pthread_sigqueue test"
+	default !DEFAULT_SMALL
+	depends on ENABLE_ALL_SIGNALS && !DISABLE_PTHREAD
+	---help---
+		Enable automated unit test for pthread_sigqueue() in ostest to
+		verify signal and payload delivery to a target pthread.
+
 config TESTING_LOOP_SCALE
 	int "Loop scale of spinlock test (N x 10,000)"
 	default 100
