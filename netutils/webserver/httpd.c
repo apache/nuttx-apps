@@ -224,6 +224,7 @@ static void httpd_dumppstate(struct httpd_state *pstate, const char *msg)
 static void next_scriptstate(struct httpd_state *pstate)
 {
   char *p;
+
   p = strchr(pstate->ht_scriptptr, ISO_NL) + 1;
   pstate->ht_scriptlen -= (unsigned short)(p - pstate->ht_scriptptr);
   pstate->ht_scriptptr  = p;
@@ -429,20 +430,20 @@ static int httpd_sendfile(struct httpd_state *pstate)
   ninfo("[%d] sending file '%s'\n", pstate->ht_sockfd, pstate->ht_filename);
 
 #ifdef CONFIG_NETUTILS_HTTPD_CGIPATH
-    {
-      httpd_cgifunction f;
+  {
+    httpd_cgifunction f;
 
-      f = httpd_cgi(pstate->ht_filename);
-      if (f != NULL)
-        {
+    f = httpd_cgi(pstate->ht_filename);
+    if (f != NULL)
+      {
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
-          pstate->ht_keepalive = false;
+        pstate->ht_keepalive = false;
 #endif
-          f(pstate, pstate->ht_filename);
+        f(pstate, pstate->ht_filename);
 
-          return OK;
-        }
-    }
+        return OK;
+      }
+  }
 #endif
 
   if (httpd_openindex(pstate) != OK)
@@ -521,34 +522,34 @@ static inline int httpd_parse(struct httpd_state *pstate)
           return 413;
         }
 
-        {
-          ssize_t r;
+      {
+        ssize_t r;
 
-          r = recv(pstate->ht_sockfd, o,
-            sizeof pstate->ht_buffer - (o - pstate->ht_buffer), 0);
-          if (r == 0)
-            {
-              nwarn("WARNING: [%d] connection lost\n", pstate->ht_sockfd);
-              return ERROR;
-            }
+        r = recv(pstate->ht_sockfd, o,
+          sizeof pstate->ht_buffer - (o - pstate->ht_buffer), 0);
+        if (r == 0)
+          {
+            nwarn("WARNING: [%d] connection lost\n", pstate->ht_sockfd);
+            return ERROR;
+          }
 
 #if CONFIG_NETUTILS_HTTPD_TIMEOUT > 0
-          if (r == -1 && errno == EWOULDBLOCK)
-            {
-              nwarn("WARNING: recv timeout\n");
-              return 408;
-            }
+        if (r == -1 && errno == EWOULDBLOCK)
+          {
+            nwarn("WARNING: recv timeout\n");
+            return 408;
+          }
 #endif
 
-          if (r == -1)
-            {
-              nerr("ERROR: [%d] recv failed: %d\n",
-                   pstate->ht_sockfd, errno);
-              return 400;
-            }
+        if (r == -1)
+          {
+            nerr("ERROR: [%d] recv failed: %d\n",
+                 pstate->ht_sockfd, errno);
+            return 400;
+          }
 
-          o += r;
-        }
+        o += r;
+      }
 
       /* Here o marks the end of the total block currently awaiting
        * processing.  There may be multiple lines in a block; next we deal
@@ -559,6 +560,8 @@ static inline int httpd_parse(struct httpd_state *pstate)
            (end = memchr(start, '\r', o - start)), end != NULL;
            start = end)
         {
+          char *v;
+
           *end = '\0';
           end++;
 
@@ -575,82 +578,82 @@ static inline int httpd_parse(struct httpd_state *pstate)
           end++;
 
           switch (state)
-          {
-          char *v;
+            {
+              case STATE_METHOD:
+                if (0 != strncmp(start, "GET ", 4))
+                  {
+                    nwarn("WARNING: method not supported\n");
+                    return 501;
+                  }
 
-          case STATE_METHOD:
-            if (0 != strncmp(start, "GET ", 4))
-              {
-                nwarn("WARNING: method not supported\n");
-                return 501;
-              }
+                start += 4;
+                v = start + strcspn(start, " ");
 
-            start += 4;
-            v = start + strcspn(start, " ");
+                if (0 != strcmp(v, " HTTP/1.0") &&
+                    0 != strcmp(v, " HTTP/1.1"))
+                  {
+                    nwarn("WARNING: HTTP version not supported\n");
+                    return 505;
+                  }
 
-            if (0 != strcmp(v, " HTTP/1.0") && 0 != strcmp(v, " HTTP/1.1"))
-              {
-                nwarn("WARNING: HTTP version not supported\n");
-                return 505;
-              }
+                /* TODO: url decoding */
 
-            /* TODO: url decoding */
+                if (v - start >= sizeof pstate->ht_filename)
+                  {
+                    nerr("ERROR: ht_filename overflow\n");
+                    return 414;
+                  }
 
-            if (v - start >= sizeof pstate->ht_filename)
-              {
-                nerr("ERROR: ht_filename overflow\n");
-                return 414;
-              }
-
-            *v = '\0';
-            strlcpy(pstate->ht_filename, start, sizeof(pstate->ht_filename));
-            state = STATE_HEADER;
-            break;
-
-          case STATE_HEADER:
-            if (*start == '\0')
-              {
-                state = STATE_BODY;
+                *v = '\0';
+                strlcpy(pstate->ht_filename, start,
+                        sizeof(pstate->ht_filename));
+                state = STATE_HEADER;
                 break;
-              }
 
-            v = start + strcspn(start, ":");
-            if (*v != '\0')
-              {
-                *v = '\0', v++;
-                v += strspn(v, ": ");
-              }
+              case STATE_HEADER:
+                if (*start == '\0')
+                  {
+                    state = STATE_BODY;
+                    break;
+                  }
 
-            if (*start == '\0' || *v == '\0')
-              {
-                nwarn("WARNING: header parse error\n");
-                return 400;
-              }
+                v = start + strcspn(start, ":");
+                if (*v != '\0')
+                  {
+                    *v = '\0', v++;
+                    v += strspn(v, ": ");
+                  }
 
-            ninfo("[%d] Request header %s: %s\n",
-                  pstate->ht_sockfd, start, v);
+                if (*start == '\0' || *v == '\0')
+                  {
+                    nwarn("WARNING: header parse error\n");
+                    return 400;
+                  }
 
-            if (0 == strcasecmp(start, "Content-Length") && 0 != atoi(v))
-              {
-                nwarn("WARNING: non-zero request length\n");
-                return 413;
-              }
+                ninfo("[%d] Request header %s: %s\n",
+                      pstate->ht_sockfd, start, v);
+
+                if (0 == strcasecmp(start, "Content-Length") && 0 != atoi(v))
+                  {
+                    nwarn("WARNING: non-zero request length\n");
+                    return 413;
+                  }
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
-            else if (0 == strcasecmp(start, "Connection") &&
-                     0 == strcasecmp(v, "keep-alive"))
-              {
-                pstate->ht_keepalive = true;
-              }
+                else if (0 == strcasecmp(start, "Connection") &&
+                         0 == strcasecmp(v, "keep-alive"))
+                  {
+                    pstate->ht_keepalive = true;
+                  }
 #endif
-            break;
+                break;
 
-          case STATE_BODY:
+              case STATE_BODY:
 
-            /* Not implemented */
+                /* Not implemented */
 
-            break;
-          }
-       }
+                break;
+            }
+        }
 
       /* Shuffle down for the next block */
 
@@ -866,6 +869,7 @@ int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
     {
       int chunked_info_len = snprintf(chunked_info, HTTPD_MAX_CHUNKEDLEN,
            "%X\r\n", len);
+
       ret = send(sockfd, chunked_info, chunked_info_len, 0);
       DEBUGASSERT(ret == chunked_info_len);
     }
@@ -926,7 +930,7 @@ int httpd_send_headers(struct httpd_state *pstate, int status, int len)
   }
 
   a[] =
-    {
+  {
 #ifndef CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE
     {
       "shtml", "text/html"
@@ -972,7 +976,7 @@ int httpd_send_headers(struct httpd_state *pstate, int status, int len)
     {
       "mp3",   "audio/mpeg"
     },
-    };
+  };
 
   ptr = strrchr(pstate->ht_filename, ISO_PERIOD);
   if (ptr == NULL)

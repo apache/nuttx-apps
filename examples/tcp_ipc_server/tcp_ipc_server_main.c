@@ -29,7 +29,7 @@
  * IMPORTANT NOTE:
  * In order to test client_tcp & server_tcp together, there are two
  * ways to proceed:
- * 1) Init server manually (command: SERVER &), and after successfull
+ * 1) Init server manually (command: SERVER &), and after successful
  * server init, also init client manually (CLIENT 127.0.0.1)
  * 2) init server automatically after boot using NuttShell start up scripts.
  */
@@ -97,7 +97,7 @@ static void *thread_socket_client(void *arg);
 
 /****************************************************************************
  * Name: thread_socket_client
- * Description: socket client thread. Each sonnected cleint socket will
+ * Description: socket client thread. Each connected client socket will
  *              instantiate a thread, which handles all data traffic between
  *              this client and server.
  * Parameters: thread arguments (in this case, file descriptor of client
@@ -159,7 +159,7 @@ static void *thread_socket_client(void *arg)
             }
           else
             {
-                printf("ERROR: invalid message size (<0)\n");
+              printf("ERROR: invalid message size (<0)\n");
             }
         }
     }
