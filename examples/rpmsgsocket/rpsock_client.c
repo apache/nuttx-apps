@@ -287,6 +287,7 @@ static int rpsock_stream_client(FAR char *argv[])
   if (ret < 0 && errno == EINPROGRESS)
     {
       struct pollfd pfd;
+
       memset(&pfd, 0, sizeof(struct pollfd));
       pfd.fd = sockfd;
       pfd.events = POLLOUT;
@@ -614,6 +615,7 @@ static int rpsock_dgram_client(char *argv[])
   if (ret < 0 && errno == EINPROGRESS)
     {
       struct pollfd pfd;
+
       memset(&pfd, 0, sizeof(struct pollfd));
       pfd.fd = sockfd;
       pfd.events = POLLOUT;

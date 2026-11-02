@@ -245,7 +245,9 @@ static int rpsock_stream_server(int argc, FAR char *argv[])
       new = accept4(listensd, (FAR struct sockaddr *)&myaddr, &addrlen,
                     SOCK_CLOEXEC);
       if (new < 0)
+        {
           break;
+        }
 
       printf("server: Connection accepted -- %d\n", new);
 
@@ -506,6 +508,7 @@ static int rpsock_dgram_server(int argc, FAR char *argv[])
   if (ret < 0 && errno == EINPROGRESS)
     {
       struct pollfd pfd;
+
       memset(&pfd, 0, sizeof(struct pollfd));
       pfd.fd = fd;
       pfd.events = POLLOUT;
