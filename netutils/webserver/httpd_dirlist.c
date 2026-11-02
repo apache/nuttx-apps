@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <sys/utsname.h>
 #include <limits.h>
 #include <unistd.h>
@@ -170,7 +171,7 @@ ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
                path, path);
     }
 
-  ret = write(outfd, tmp, strlen(tmp));
+  ret = send(outfd, tmp, strlen(tmp), MSG_NOSIGNAL);
 
   if (-1 == ret)
     {
@@ -234,7 +235,7 @@ ssize_t httpd_dirlist(int outfd, FAR struct httpd_fs_file *file)
                    );
         }
 
-      ret = write(outfd, tmp, strlen(tmp));
+      ret = send(outfd, tmp, strlen(tmp), MSG_NOSIGNAL);
 
       if (-1 == ret)
         {
@@ -257,7 +258,7 @@ errout_with_hdr:
            info.machine,
            BOARD_NAME);
 
-  ret = write(outfd, tmp, strlen(tmp));
+  ret = send(outfd, tmp, strlen(tmp), MSG_NOSIGNAL);
 
   if (-1 != ret)
     {
