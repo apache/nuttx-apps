@@ -90,7 +90,6 @@ static void *thread_socket_client(void *arg);
 #define SOCKET_PORT                         5000
 #define TX_BUFFER_SIZE                      200
 #define RX_BUFFER_SIZE                      150
-#define TCP_NO_FLAGS_WHEN_SENDING_DATA      0
 #define IP_SERVER                           "127.0.0.1"
 #define MAX_PENDING_SOCKET_CONNECTIONS      20
 #define TIME_TO_CHECK_FOR_NEW_CLIENTS       500000
@@ -144,7 +143,7 @@ static void *thread_socket_client(void *arg)
               ret_send = send(socket_client_fd,
                               tx_buffer,
                               sizeof(protocolo_ipc),
-                              TCP_NO_FLAGS_WHEN_SENDING_DATA);
+                              MSG_NOSIGNAL);
 
               if (ret_send > 0)
                 {
