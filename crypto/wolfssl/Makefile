@@ -108,6 +108,14 @@ CSRCS += $(WOLFSSL_UNPACKNAME)/wolfcrypt/src/wc_port.c
 CSRCS += $(WOLFSSL_UNPACKNAME)/wolfcrypt/src/wolfevent.c
 CSRCS += $(WOLFSSL_UNPACKNAME)/wolfcrypt/src/wolfmath.c
 
+# QUIC support
+ifeq ($(CONFIG_NETUTILS_QUIC),y)
+
+CSRCS += $(WOLFSSL_UNPACKNAME)/src/quic.c
+CSRCS += $(WOLFSSL_UNPACKNAME)/wolfcrypt/src/evp.c
+
+endif
+
 CFLAGS += -DWOLFSSL_USER_SETTINGS
 
 ifneq ($(CONFIG_WOLFCRYPT_APPS),)
@@ -154,11 +162,14 @@ endif
 
 ifeq ($(CONFIG_WOLFSSL_APP_CLIENT_SERVER),y)
 wolfssl:
-	git clone git@github.com:wolfSSL/wolfssl.git $(WOLFSSL_UNPACKNAME)
+	git clone --depth 1 -b v$(WOLFSSL_VERSION)-stable git@github.com:wolfSSL/wolfssl.git $(WOLFSSL_UNPACKNAME)
 	git clone git@github.com:wolfSSL/wolfssl-examples.git $(WOLFSSL_EXAMPLESNAME)
 else
 wolfssl:
-	git clone git@github.com:wolfSSL/wolfssl.git $(WOLFSSL_UNPACKNAME)
+	git clone --depth 1 -b v$(WOLFSSL_VERSION)-stable git@github.com:wolfSSL/wolfssl.git $(WOLFSSL_UNPACKNAME)
+ifeq ($(CONFIG_NETUTILS_QUIC),y)
+	touch $(WOLFSSL_UNPACKNAME)/wolfssl/options.h
+endif
 endif
 
 context:: wolfssl
@@ -168,7 +179,7 @@ distclean::
 	$(call DELDIR, $(WOLFSSL_UNPACKNAME))
 	$(call DELDIR, $(WOLFSSL_EXAMPLESNAME))
 else
-distclean:
+distclean::
 	$(call DELDIR, $(WOLFSSL_UNPACKNAME))
 endif
 

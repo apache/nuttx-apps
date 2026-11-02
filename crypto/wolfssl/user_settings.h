@@ -19,6 +19,10 @@
  * under the License.
  ****************************************************************************/
 
+//***************************************************************************
+// Included Files
+//***************************************************************************
+
 #include <nuttx/config.h>
 
 /* Library */
@@ -50,7 +54,8 @@
 #define WOLFSSL_BENCHMARK_FIXED_UNITS_MB
 
 /* Development */
-/*#define DEBUG_WOLFSSL*/
+
+/* #define DEBUG_WOLFSSL */
 
 #define HAVE_TLS_EXTENSIONS
 #define HAVE_SUPPORTED_CURVES
@@ -72,3 +77,24 @@
 #define HAVE_CHACHA
 #define HAVE_ENCRYPT_THEN_MAC
 #define NO_OLD_TLS
+
+#ifdef NETUTILS_QUIC
+    #define OPENSSL_ALL
+    #define OPENSSL_EXTRA
+    #define WOLFSSL_QUIC
+    #define WOLFSSL_OPTIONS_H
+
+    #define HAVE_ALPN
+    #define HAVE_CURVE25519
+    #define HAVE_LIMITS_H
+    #define HAVE_SESSION_TICKET
+    #define HAVE_SNI
+    #define WOLFSSL_AES_COUNTER
+    #define WOLFSSL_AES_DIRECT
+    #define WOLFSSL_AES_128
+    #define WOLFSSL_AES_256
+    #define WOLFSSL_EARLY_DATA
+
+    #define NO_INT128
+    #undef HAVE___UINT128_T
+#endif
