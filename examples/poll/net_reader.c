@@ -187,7 +187,7 @@ static void net_receive(int sd)
 
               for (nbytes = ret, ptr = buffer; nbytes > 0; )
                 {
-                  ret = send(sd, ptr, nbytes, 0);
+                  ret = send(sd, ptr, nbytes, MSG_NOSIGNAL);
                   if (ret < 0)
                     {
                       if (errno != EINTR)
