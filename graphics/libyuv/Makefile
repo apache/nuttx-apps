@@ -28,10 +28,11 @@ CXXEXT := .cc
 CXXFLAGS += -Wno-shadow -Wno-undef
 CXXSRCS = $(wildcard $(SRCDIR)/source/*.cc)
 
-# Enable JPEG support when libjpeg or libjpeg-turbo is available
-ifeq ($(CONFIG_LIB_JPEG_TURBO),y)
+# Enable JPEG support when libjpeg is enabled.  libjpeg already exports its
+# include directory through graphics/libjpeg/Make.defs.
+
+ifeq ($(CONFIG_LIBJPEG),y)
 CXXFLAGS += -DHAVE_JPEG
-CXXFLAGS += ${INCDIR_PREFIX}$(APPDIR)/external/libjpeg-turbo/libjpeg-turbo
 endif
 
 libyuv.tar.gz:
