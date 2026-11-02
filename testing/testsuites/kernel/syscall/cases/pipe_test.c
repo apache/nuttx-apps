@@ -89,11 +89,11 @@ void test_nuttx_syscall_pipe02(FAR void **state)
 
   ret = write(fd[0], "A", 1);
   assert_int_equal(ret, -1);
-  assert_int_equal(errno, EACCES);
+  assert_int_equal(errno, EBADF);
 
   ret = read(fd[1], buf, 1);
   assert_int_equal(ret, -1);
-  assert_int_equal(errno, EACCES);
+  assert_int_equal(errno, EBADF);
 
   assert_int_equal(close(fd[0]), 0);
   assert_int_equal(close(fd[1]), 0);
