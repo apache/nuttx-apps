@@ -28,6 +28,17 @@ config SYSTEM_NXINIT_PROGNAME
 	string "Program name"
 	default "init"
 
+config SYSTEM_NXINIT_UMASK
+	string "File mode creation mask"
+	default ""
+	---help---
+		The umask (octal) that init sets when it starts.  Every command
+		and service of init inherits it.  Empty: init keeps the umask that
+		it got (NuttX starts the first task with the umask 0).  A system
+		with file permissions (FS_PERMISSION) can set "022", as sysvinit
+		and systemd do, so that files and directories created with mode
+		0666 or 0777 are not writable by all users.
+
 comment "NXInit Run Control(RC)"
 
 config SYSTEM_NXINIT_RC_FILE_PATH

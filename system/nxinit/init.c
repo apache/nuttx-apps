@@ -32,9 +32,11 @@
 #include <sched.h>
 #include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/boardctl.h>
 #include <sys/param.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <nuttx/usb/usbdev_trace.h>
@@ -242,9 +244,26 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
   struct sigaction sa;
 #endif
+  unsigned long cmask;
+  FAR char *end;
   sigset_t mask;
   size_t i;
   int r;
+
+  /* The file mode creation mask of every command and service */
+
+  if (CONFIG_SYSTEM_NXINIT_UMASK[0] != '\0')
+    {
+      cmask = strtoul(CONFIG_SYSTEM_NXINIT_UMASK, &end, 8);
+      if (*end != '\0' || cmask > 0777)
+        {
+          init_err("Bad umask %s", CONFIG_SYSTEM_NXINIT_UMASK);
+        }
+      else
+        {
+          umask(cmask);
+        }
+    }
 
 #ifdef CONFIG_BMP
   snprintf(ACTION_TRIGGER_KEY(&am), sizeof(ACTION_TRIGGER_KEY(&am)),
