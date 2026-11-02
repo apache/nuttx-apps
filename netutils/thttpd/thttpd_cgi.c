@@ -578,58 +578,58 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
           ninfo("Status: %d\n", status);
           switch (status)
             {
-            case 200:
-              title = ok200title;
-              break;
+              case 200:
+                title = ok200title;
+                break;
 
-            case 302:
-              title = err302title;
-              break;
+              case 302:
+                title = err302title;
+                break;
 
-            case 304:
-              title = err304title;
-              break;
+              case 304:
+                title = err304title;
+                break;
 
-            case 400:
-              BADREQUEST("status");
-              title = httpd_err400title;
-              break;
+              case 400:
+                BADREQUEST("status");
+                title = httpd_err400title;
+                break;
 
 #ifdef CONFIG_THTTPD_AUTH_FILE
-            case 401:
-              title = err401title;
-              break;
+              case 401:
+                title = err401title;
+                break;
 #endif
 
-            case 403:
-              title = err403title;
-              break;
+              case 403:
+                title = err403title;
+                break;
 
-            case 404:
-              title = err404title;
-             break;
+              case 404:
+                title = err404title;
+                break;
 
-            case 408:
-              title = httpd_err408title;
-              break;
+              case 408:
+                title = httpd_err408title;
+                break;
 
-            case 500:
-              INTERNALERROR("status");
-              title = err500title;
-              break;
+              case 500:
+                INTERNALERROR("status");
+                title = err500title;
+                break;
 
-            case 501:
-              NOTIMPLEMENTED("status");
-              title = err501title;
-              break;
+              case 501:
+                NOTIMPLEMENTED("status");
+                title = err501title;
+                break;
 
-            case 503:
-              title = httpd_err503title;
-              break;
+              case 503:
+                title = httpd_err503title;
+                break;
 
-            default:
-              title = "Something";
-              break;
+              default:
+                title = "Something";
+                break;
             }
 
           snprintf(cc->inbuf.buffer, CONFIG_THTTPD_CGIINBUFFERSIZE,
@@ -695,9 +695,9 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
             }
           else
             {
-               /* Forward the data from the CGI program to the client */
+              /* Forward the data from the CGI program to the client */
 
-             httpd_write(cc->connfd, cc->inbuf.buffer, nbytes_read);
+              httpd_write(cc->connfd, cc->inbuf.buffer, nbytes_read);
             }
         }
         break;
