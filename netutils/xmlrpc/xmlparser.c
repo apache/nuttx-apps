@@ -52,6 +52,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/socket.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdio.h>
@@ -412,7 +413,8 @@ int xmlrpc_parse(int sock, char *buffer)
 
   if (ret == 0)
     {
-      write(sock, g_xmlcall.response, strlen(g_xmlcall.response));
+      send(sock, g_xmlcall.response, strlen(g_xmlcall.response),
+           MSG_NOSIGNAL);
     }
   else
     {
@@ -420,7 +422,8 @@ int xmlrpc_parse(int sock, char *buffer)
 
       g_xmlcall.error = 1;
       xmlrpc_sendfault(ret);
-      write(sock, g_xmlcall.response, strlen(g_xmlcall.response));
+      send(sock, g_xmlcall.response, strlen(g_xmlcall.response),
+           MSG_NOSIGNAL);
     }
 
   return ret;
