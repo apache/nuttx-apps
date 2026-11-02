@@ -12,6 +12,7 @@
 
 #include <sys/socket.h>
 #include <setjmp.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -290,6 +291,12 @@ int main(int argc, FAR char *argv[])
     {
       port = argv[1];
     }
+
+  /* As upstream svr-main.c: get EPIPE, not SIGPIPE, when a client closes.
+   * task_spawn() starts the NSH sessions with the default action.
+   */
+
+  signal(SIGPIPE, SIG_IGN);
 
   dropbear_setup(port);
 
