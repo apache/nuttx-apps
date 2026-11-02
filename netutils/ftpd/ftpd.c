@@ -1014,7 +1014,7 @@ static ssize_t ftpd_send(int sd, FAR const void *data, size_t size,
 
   /* Then send the data (waiting if necessary) */
 
-  ret = send(sd, data, size, 0);
+  ret = send(sd, data, size, MSG_NOSIGNAL);
   if (ret < 0)
     {
       int errval = errno;
