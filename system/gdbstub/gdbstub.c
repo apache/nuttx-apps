@@ -72,7 +72,7 @@ static int gdb_monitor(FAR struct gdb_state_s *state, FAR const char *cmd)
 #endif
 }
 
-static ssize_t gdb_send(FAR void *priv, FAR const char *buf, size_t len)
+static ssize_t gdb_write(FAR void *priv, FAR const char *buf, size_t len)
 {
   int fd = *(FAR int *)priv;
   size_t i = 0;
@@ -92,6 +92,28 @@ static ssize_t gdb_send(FAR void *priv, FAR const char *buf, size_t len)
   return len;
 }
 
+#ifdef CONFIG_NET
+static ssize_t gdb_send(FAR void *priv, FAR const char *buf, size_t len)
+{
+  int fd = *(FAR int *)priv;
+  size_t i = 0;
+
+  while (i < len)
+    {
+      ssize_t ret = send(fd, buf + i, len - i, MSG_NOSIGNAL);
+
+      if (ret < 0)
+        {
+          return -errno;
+        }
+
+      i += ret;
+    }
+
+  return len;
+}
+#endif
+
 static ssize_t gdb_recv(FAR void *priv, FAR void *buf,
                         size_t len)
 {
@@ -105,6 +127,10 @@ static ssize_t gdb_recv(FAR void *priv, FAR void *buf,
       if (ret < 0)
         {
           return -errno;
+        }
+      else if (ret == 0)
+        {
+          return -ECONNRESET; /* The peer closed the connection */
         }
 
       i += ret;
@@ -215,7 +241,17 @@ reconnect:
       usage(argv[0]);
     }
 
-  state = gdb_state_init(gdb_send, gdb_recv, gdb_monitor, &fd);
+#ifdef CONFIG_NET
+  if (port)
+    {
+      state = gdb_state_init(gdb_send, gdb_recv, gdb_monitor, &fd);
+    }
+  else
+#endif
+    {
+      state = gdb_state_init(gdb_write, gdb_recv, gdb_monitor, &fd);
+    }
+
   if (state == NULL)
     {
       ret = -ENOMEM;
@@ -225,18 +261,16 @@ reconnect:
   do
     {
       ret = gdb_process(state, 0, NULL);
-      if (ret == -ECONNRESET)
-        {
 #ifdef CONFIG_NET
-          if (port)
-            {
-              close(fd);
-              goto reconnect;
-            }
+      if (ret < 0 && port)
+        {
+          /* The session ended: wait for the next client */
 
-#endif
-          continue;
+          gdb_state_uninit(state);
+          close(fd);
+          goto reconnect;
         }
+#endif
     }
   while (ret >= 0);
 
