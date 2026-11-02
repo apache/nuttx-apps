@@ -40,6 +40,7 @@
 
 #include <net/if.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 
 #include "netutils/netlib.h"
@@ -336,7 +337,7 @@ static int tcpecho_server(void)
                     }
                   else
                     {
-                      write(sockfd, buf, n);
+                      send(sockfd, buf, n, MSG_NOSIGNAL);
                     }
                 }
 
