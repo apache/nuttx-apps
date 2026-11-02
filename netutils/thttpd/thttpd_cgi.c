@@ -897,6 +897,12 @@ static int cgi_child(int argc, char **argv)
       goto errout_with_watch;
     }
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  /* After exec(), so that the CGI program keeps the default action */
+
+  signal(SIGPIPE, SIG_IGN);
+#endif
+
   /* Schedule a kill for the child task in case it runs too long. */
 
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0

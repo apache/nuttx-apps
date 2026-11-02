@@ -1623,6 +1623,10 @@ static void ls_child(int argc, char **argv)
   char *timestr;
   int i;
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  signal(SIGPIPE, SIG_IGN);
+#endif
+
   /* Compiler was warning that dirp was not initialised and it wasn't.
    * But whether this is correct or not I am not sure.
    */
