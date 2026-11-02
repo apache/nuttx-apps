@@ -128,7 +128,9 @@ static FAR void *doit(pthread_addr_t pvarg)
               break;
             }
 
-          ret = write(sock, buf, ret);
+          /* MSG_NOSIGNAL: a closed peer ends this session, not rexecd */
+
+          ret = send(sock, buf, ret, MSG_NOSIGNAL);
           if (ret < 0)
             {
               break;
@@ -143,7 +145,7 @@ static FAR void *doit(pthread_addr_t pvarg)
               break;
             }
 
-          ret = write(fds[0].fd, buf, ret);
+          ret = send(fds[0].fd, buf, ret, MSG_NOSIGNAL);
           if (ret < 0)
             {
               break;
