@@ -678,6 +678,14 @@ int thttpd_main(int argc, char **argv)
 
   ninfo("THTTPD started\n");
 
+#ifdef CONFIG_ENABLE_ALL_SIGNALS
+  /* Get EPIPE, not SIGPIPE, when a client closes.  The CGI and the
+   * indexing tasks set it again: task_create() gives the default action.
+   */
+
+  signal(SIGPIPE, SIG_IGN);
+#endif
+
   /* Setup host address */
 
 #ifdef CONFIG_NET_IPv6
