@@ -352,7 +352,7 @@ static int send_chunk(struct httpd_state *pstate, const char *buf, int len)
   do
     {
       httpd_dumpbuffer("Outgoing chunk", buf, len);
-      ret = send(pstate->ht_sockfd, buf, len, 0);
+      ret = send(pstate->ht_sockfd, buf, len, MSG_NOSIGNAL);
       if (ret < 0)
         {
           return ERROR;
@@ -870,7 +870,7 @@ int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
       int chunked_info_len = snprintf(chunked_info, HTTPD_MAX_CHUNKEDLEN,
            "%X\r\n", len);
 
-      ret = send(sockfd, chunked_info, chunked_info_len, 0);
+      ret = send(sockfd, chunked_info, chunked_info_len, MSG_NOSIGNAL);
       DEBUGASSERT(ret == chunked_info_len);
     }
 #endif
@@ -886,7 +886,7 @@ int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
           data = &len;
         }
 
-      ret = send(sockfd, data, len, 0);
+      ret = send(sockfd, data, len, MSG_NOSIGNAL);
       DEBUGASSERT(ret == len);
     }
 
@@ -897,7 +897,7 @@ int httpd_send_datachunk(int sockfd, void *data, int len, bool chunked)
     {
       if (chunked)
         {
-          ret = send(sockfd, "\r\n", 2, 0);
+          ret = send(sockfd, "\r\n", 2, MSG_NOSIGNAL);
           DEBUGASSERT(ret == 2);
         }
     }
