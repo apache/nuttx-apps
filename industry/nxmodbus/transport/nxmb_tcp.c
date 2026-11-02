@@ -375,6 +375,7 @@ static int nxmb_tcp_send(nxmb_handle_t ctx)
   FAR struct nxmb_tcp_client_s *client;
   uint8_t                       header[MBAP_FC_SIZE];
   struct iovec                  iov[2];
+  struct msghdr                 msg;
   uint16_t                      data_len;
   uint16_t                      total;
   ssize_t                       sent;
@@ -420,7 +421,7 @@ static int nxmb_tcp_send(nxmb_handle_t ctx)
 
   data_len = ctx->adu.length - 2;
 
-  /* Emit MBAP header + PDU data via writev() to avoid a stack-side
+  /* Emit MBAP header + PDU data via sendmsg() to avoid a stack-side
    * copy. The kernel gathers both iovecs into a single TCP segment.
    */
 
@@ -431,10 +432,24 @@ static int nxmb_tcp_send(nxmb_handle_t ctx)
   iov[1].iov_base = ctx->adu.data;
   iov[1].iov_len  = data_len;
 
+  memset(&msg, 0, sizeof(msg));
+  msg.msg_iov    = iov;
+  msg.msg_iovlen = (data_len > 0) ? 2 : 1;
+
   total = MBAP_FC_SIZE + data_len;
-  sent  = writev(fd, iov, (data_len > 0) ? 2 : 1);
+  sent  = sendmsg(fd, &msg, MSG_NOSIGNAL);
   if (sent != total)
     {
+      if (!ctx->is_client)
+        {
+          /* As for a failed read, drop only this client */
+
+          close(fd);
+          client->fd        = -1;
+          state->active_idx = -1;
+          return -EAGAIN;
+        }
+
       return (sent < 0) ? -errno : -EIO;
     }
 
