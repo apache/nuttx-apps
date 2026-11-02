@@ -197,9 +197,9 @@ static void _send(int sock, const char *buffer, unsigned int size)
 
   while (size > 0)
     {
-      if ((ret = send(sock, buffer, size, 0)) == -1)
+      if ((ret = send(sock, buffer, size, MSG_NOSIGNAL)) == -1)
         {
-          if (errno != EINTR && errno != ECONNRESET)
+          if (errno != EINTR && errno != ECONNRESET && errno != EPIPE)
             {
               fprintf(stderr, "send() failed: %d\n", errno);
               cleanup_exit();
