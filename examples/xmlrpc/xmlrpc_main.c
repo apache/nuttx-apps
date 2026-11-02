@@ -261,7 +261,7 @@ static void xmlrpc_handler(int fd)
     }
   else
     {
-      write(fd, notimplemented, strlen(notimplemented));
+      send(fd, notimplemented, strlen(notimplemented), MSG_NOSIGNAL);
     }
 }
 
