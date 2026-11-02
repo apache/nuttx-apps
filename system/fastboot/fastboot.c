@@ -195,6 +195,7 @@ struct fastboot_cmd_s
 };
 
 typedef void (*memdump_print_t)(FAR void *, FAR const char *);
+typedef int (*fastboot_write_t)(int, FAR const void *, size_t);
 
 /****************************************************************************
  * Private Function Prototypes
@@ -1347,7 +1348,8 @@ static ssize_t fastboot_read_all(int fd, FAR void *buf, size_t len)
 
 static ssize_t fastboot_framed_read(FAR struct fastboot_ctx_s *ctx,
                                     int fd, FAR void *buf, size_t len,
-                                    bool detect_handshake)
+                                    bool detect_handshake,
+                                    fastboot_write_t writefn)
 {
   union
     {
@@ -1370,8 +1372,8 @@ static ssize_t fastboot_framed_read(FAR struct fastboot_ctx_s *ctx,
           if (memcmp(u.handshake, FASTBOOT_TCP_HANDSHAKE,
                      FASTBOOT_TCP_HANDSHAKE_LEN) == 0)
             {
-              fastboot_write(fd, FASTBOOT_TCP_HANDSHAKE,
-                             FASTBOOT_TCP_HANDSHAKE_LEN);
+              writefn(fd, FASTBOOT_TCP_HANDSHAKE,
+                      FASTBOOT_TCP_HANDSHAKE_LEN);
               continue;
             }
 
@@ -1456,6 +1458,26 @@ error:
   return -errno;
 }
 
+static int fastboot_tcp_send(int fd, FAR const void *buf, size_t len)
+{
+  FAR const char *data = buf;
+
+  while (len > 0)
+    {
+      ssize_t r = send(fd, data, len, MSG_NOSIGNAL);
+
+      if (r < 0)
+        {
+          return -errno;
+        }
+
+      data += r;
+      len -= r;
+    }
+
+  return OK;
+}
+
 static void fastboot_tcp_disconn(FAR struct fastboot_ctx_s *ctx)
 {
   close(ctx->tran_fd[1]);
@@ -1482,10 +1504,12 @@ static ssize_t fastboot_tcp_read(FAR struct fastboot_ctx_s *ctx,
           return -errno;
         }
 
-      return fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, true);
+      return fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, true,
+                                  fastboot_tcp_send);
     }
 
-  nread = fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, false);
+  nread = fastboot_framed_read(ctx, ctx->tran_fd[1], buf, len, false,
+                               fastboot_tcp_send);
   if (nread <= 0)
     {
       fastboot_tcp_disconn(ctx);
@@ -1500,13 +1524,13 @@ static int fastboot_tcp_write(FAR struct fastboot_ctx_s *ctx,
   uint64_t data_size = htobe64(len);
   int ret;
 
-  ret = fastboot_write(ctx->tran_fd[1], &data_size, sizeof(data_size));
+  ret = fastboot_tcp_send(ctx->tran_fd[1], &data_size, sizeof(data_size));
   if (ret < 0)
     {
       return ret;
     }
 
-  return fastboot_write(ctx->tran_fd[1], buf, len);
+  return fastboot_tcp_send(ctx->tran_fd[1], buf, len);
 }
 #endif
 
@@ -1553,7 +1577,8 @@ static void fastboot_serial_deinit(FAR struct fastboot_ctx_s *ctx)
 static ssize_t fastboot_serial_read(FAR struct fastboot_ctx_s *ctx,
                                     FAR void *buf, size_t len)
 {
-  return fastboot_framed_read(ctx, ctx->tran_fd[0], buf, len, true);
+  return fastboot_framed_read(ctx, ctx->tran_fd[0], buf, len, true,
+                              fastboot_write);
 }
 
 static int fastboot_serial_write(FAR struct fastboot_ctx_s *ctx,
