@@ -156,14 +156,15 @@ static void shut_down(void)
 
   if (hs)
     {
-      httpd_server *ths = hs;
+      httpd_server *server = hs;
+
       hs = NULL;
-      if (ths->listen_fd != -1)
+      if (server->listen_fd != -1)
         {
-          fdwatch_del_fd(fw, ths->listen_fd);
+          fdwatch_del_fd(fw, server->listen_fd);
         }
 
-      httpd_terminate(ths);
+      httpd_terminate(server);
     }
 
   tmr_destroy();
@@ -217,21 +218,21 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
 
       switch (httpd_get_conn(hs, listen_fd, conn->hc))
         {
-          /* Some error happened.  Run the timers, then the  existing
-           * connections.  Maybe the error will clear.
-           */
+            /* Some error happened.  Run the timers, then the  existing
+             * connections.  Maybe the error will clear.
+             */
 
-        case GC_FAIL:
-          tmr_run(tv);
-          return -1;
+          case GC_FAIL:
+            tmr_run(tv);
+            return -1;
 
-          /* No more connections to accept for now */
+            /* No more connections to accept for now */
 
-        case GC_NO_MORE:
-          return 0;
+          case GC_NO_MORE:
+            return 0;
 
-        default:
-          break;
+          default:
+            break;
         }
 
       ninfo("New connection fd %d\n", conn->hc->conn_fd);
@@ -309,11 +310,11 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
 
   switch (httpd_got_request(hc))
     {
-    case GR_NO_REQUEST:
-      return;
-    case GR_BAD_REQUEST:
-     BADREQUEST("httpd_got_request");
-     goto errout_with_400;
+      case GR_NO_REQUEST:
+        return;
+      case GR_BAD_REQUEST:
+        BADREQUEST("httpd_got_request");
+        goto errout_with_400;
     }
 
   /* Yes.  Try parsing and resolving it */
@@ -375,10 +376,10 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
   actual = lseek(hc->file_fd, conn->offset, SEEK_SET);
   if (actual != conn->offset)
     {
-       nerr("ERROR: fseek to %jd failed: offset=%jd errno=%d\n",
-            (intmax_t)conn->offset, (intmax_t)actual, errno);
-       BADREQUEST("lseek");
-       goto errout_with_400;
+      nerr("ERROR: fseek to %jd failed: offset=%jd errno=%d\n",
+           (intmax_t)conn->offset, (intmax_t)actual, errno);
+      BADREQUEST("lseek");
+      goto errout_with_400;
     }
 
   /* We have a valid connection and a file to send to it */
@@ -602,27 +603,27 @@ static void idle(clientdata client_data, struct timeval *nowp)
       conn = &connects[cnum];
       switch (conn->conn_state)
         {
-        case CNST_READING:
-          if (nowp->tv_sec - conn->active_at >=
-              CONFIG_THTTPD_IDLE_READ_LIMIT_SEC)
-            {
-              nerr("ERROR: %s connection timed out reading\n",
-                   httpd_ntoa(&conn->hc->client_addr));
-              httpd_send_err(conn->hc, 408, httpd_err408title, "",
-                             httpd_err408form, "");
-              finish_connection(conn, nowp);
-            }
-          break;
+          case CNST_READING:
+            if (nowp->tv_sec - conn->active_at >=
+                CONFIG_THTTPD_IDLE_READ_LIMIT_SEC)
+              {
+                nerr("ERROR: %s connection timed out reading\n",
+                     httpd_ntoa(&conn->hc->client_addr));
+                httpd_send_err(conn->hc, 408, httpd_err408title, "",
+                               httpd_err408form, "");
+                finish_connection(conn, nowp);
+              }
+            break;
 
-        case CNST_SENDING:
-          if (nowp->tv_sec - conn->active_at >=
-              CONFIG_THTTPD_IDLE_SEND_LIMIT_SEC)
-            {
-              nerr("ERROR: %s connection timed out sending\n",
-                   httpd_ntoa(&conn->hc->client_addr));
-              clear_connection(conn, nowp);
-            }
-          break;
+          case CNST_SENDING:
+            if (nowp->tv_sec - conn->active_at >=
+                CONFIG_THTTPD_IDLE_SEND_LIMIT_SEC)
+              {
+                nerr("ERROR: %s connection timed out sending\n",
+                     httpd_ntoa(&conn->hc->client_addr));
+                clear_connection(conn, nowp);
+              }
+            break;
         }
     }
 }

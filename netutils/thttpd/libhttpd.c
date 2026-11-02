@@ -442,11 +442,15 @@ static void send_response(httpd_conn *hc, int status, const char *title,
   if (!fnmatch("**MSIE**", hc->useragent, 0))
     {
       int n;
+
       add_response(hc, "<!--\n");
       for (n = 0; n < 6; ++n)
-        add_response(hc,
-                     "Padding so that MSIE deigns to show this error "
-                     "instead of its own canned one.\n");
+        {
+          add_response(hc,
+                       "Padding so that MSIE deigns to show this error "
+                       "instead of its own canned one.\n");
+        }
+
       add_response(hc, "-->\n");
     }
 
@@ -474,21 +478,21 @@ static void defang(const char *str, char *dfstr, int dfsize)
     {
       switch (*cp1)
         {
-        case '<':
-          *cp2++ = '&';
-          *cp2++ = 'l';
-          *cp2++ = 't';
-          *cp2 = ';';
-          break;
-        case '>':
-          *cp2++ = '&';
-          *cp2++ = 'g';
-          *cp2++ = 't';
-          *cp2 = ';';
-          break;
-        default:
-          *cp2 = *cp1;
-          break;
+          case '<':
+            *cp2++ = '&';
+            *cp2++ = 'l';
+            *cp2++ = 't';
+            *cp2 = ';';
+            break;
+          case '>':
+            *cp2++ = '&';
+            *cp2++ = 'g';
+            *cp2++ = 't';
+            *cp2 = ';';
+            break;
+          default:
+            *cp2 = *cp1;
+            break;
         }
     }
 
@@ -515,7 +519,10 @@ static int send_err_file(httpd_conn *hc, int status, char *title,
     {
       nread = fread(buf, 1, sizeof(buf) - 1, fp);
       if (nread == 0)
-        break;
+        {
+          break;
+        }
+
       buf[nread] = '\0';
       add_response(hc, buf);
     }
@@ -623,25 +630,26 @@ static int b64_decode(const char *str, unsigned char *space, int size)
         {
           switch (phase)
             {
-            case 0:
-              phase = 1;
-              break;
+              case 0:
+                phase = 1;
+                break;
 
-            case 1:
-              space[ndx++] = ((prev_decoded << 2) | ((decoded & 0x30) >> 4));
-              phase = 2;
-              break;
+              case 1:
+                space[ndx++] = ((prev_decoded << 2) |
+                                ((decoded & 0x30) >> 4));
+                phase = 2;
+                break;
 
-            case 2:
-              space[ndx++] = (((prev_decoded & 0xf) << 4) |
-                              ((decoded & 0x3packed) >> 2));
-              phase = 3;
-              break;
+              case 2:
+                space[ndx++] = (((prev_decoded & 0xf) << 4) |
+                                ((decoded & 0x3packed) >> 2));
+                phase = 3;
+                break;
 
-            case 3:
-              space[ndx++] = (((prev_decoded & 0x03) << 6) | decoded);
-              phase = 0;
-              break;
+              case 3:
+                space[ndx++] = (((prev_decoded & 0x03) << 6) | decoded);
+                phase = 0;
+                break;
             }
 
           prev_decoded = decoded;
@@ -671,10 +679,10 @@ static int auth_check(httpd_conn *hc, char *dirname)
 
   switch (auth_check2(hc, topdir))
     {
-    case -1:
-      return -1;
-    case 1:
-      return 1;
+      case -1:
+        return -1;
+      case 1:
+        return 1;
     }
 #endif /* CONFIG_THTTPD_GLOBALPASSWD */
 
@@ -882,6 +890,7 @@ static void send_dirredirect(httpd_conn *hc)
   if (hc->query[0] != '\0')
     {
       char *cp = strchr(hc->encodedurl, '?');
+
       if (cp)
         {
           *cp = '\0';
@@ -1479,7 +1488,8 @@ static void figure_mime(httpd_conn *hc)
   for (; ; prev_dot = dot)
     {
       for (dot = prev_dot - 1; dot >= hc->expnfilename && *dot != '.'; --dot)
-        ;
+        {
+        }
 
       if (dot < hc->expnfilename)
         {
@@ -1517,7 +1527,7 @@ static void figure_mime(httpd_conn *hc)
 
       break;
 
-    next:;
+next:;
     }
 
   /* Binary search for a matching type extension. */
@@ -1746,34 +1756,34 @@ static void ls_child(int argc, char **argv)
 
       switch (sb.st_mode & S_IFMT)
         {
-        case S_IFIFO:
-          modestr[0] = 'p';
-          break;
+          case S_IFIFO:
+            modestr[0] = 'p';
+            break;
 
-        case S_IFCHR:
-          modestr[0] = 'c';
-          break;
+          case S_IFCHR:
+            modestr[0] = 'c';
+            break;
 
-        case S_IFDIR:
-          modestr[0] = 'd';
-          break;
+          case S_IFDIR:
+            modestr[0] = 'd';
+            break;
 
-        case S_IFBLK:
-          modestr[0] = 'b';
-          break;
+          case S_IFBLK:
+            modestr[0] = 'b';
+            break;
 
-        case S_IFREG:
-          modestr[0] = '-';
-          break;
+          case S_IFREG:
+            modestr[0] = '-';
+            break;
 
-        case S_IFSOCK:
-          modestr[0] = 's';
-          break;
+          case S_IFSOCK:
+            modestr[0] = 's';
+            break;
 
-        case S_IFLNK:
-        default:
-          modestr[0] = '?';
-          break;
+          case S_IFLNK:
+          default:
+            modestr[0] = '?';
+            break;
         }
 
       /* Now the world permissions.  Owner and group permissions are
@@ -1822,21 +1832,21 @@ static void ls_child(int argc, char **argv)
 
       switch (sb.st_mode & S_IFMT)
         {
-        case S_IFDIR:
-          fileclass = "/";
-          break;
+          case S_IFDIR:
+            fileclass = "/";
+            break;
 
-        case S_IFSOCK:
-          fileclass = "=";
-          break;
+          case S_IFSOCK:
+            fileclass = "=";
+            break;
 
-        case S_IFLNK:
-          fileclass = "@";
-          break;
+          case S_IFLNK:
+            fileclass = "@";
+            break;
 
-        default:
-          fileclass = (sb.st_mode & S_IXOTH) ? "*" : "";
-          break;
+          default:
+            fileclass = (sb.st_mode & S_IXOTH) ? "*" : "";
+            break;
         }
 
       /* And print. */
@@ -2104,16 +2114,16 @@ static int sockaddr_check(httpd_sockaddr *sap)
 {
   switch (sap->sin_family)
     {
-    case AF_INET:
-      return 1;
+      case AF_INET:
+        return 1;
 
 #ifdef CONFIG_NET_IPv6
-    case AF_INET6:
-      return 1;
+      case AF_INET6:
+        return 1;
 #endif
 
-    default:
-      return 0;
+      default:
+        return 0;
     }
 }
 #endif /* CONFIG_DEBUG_FEATURES_FEATURES */
@@ -2122,16 +2132,16 @@ static size_t sockaddr_len(httpd_sockaddr *sap)
 {
   switch (sap->sin_family)
     {
-    case AF_INET:
-      return sizeof(struct sockaddr_in);
+      case AF_INET:
+        return sizeof(struct sockaddr_in);
 
 #ifdef CONFIG_NET_IPv6
-    case AF_INET6:
-      return sizeof(struct sockaddr_in6);
+      case AF_INET6:
+        return sizeof(struct sockaddr_in6);
 #endif
 
-    default:
-      break;
+      default:
+        break;
     }
 
   return 0;
@@ -2216,7 +2226,7 @@ void httpd_write_response(httpd_conn *hc)
 
   if (main_thread != gettid())
     {
-       httpd_clear_ndelay(hc->conn_fd);
+      httpd_clear_ndelay(hc->conn_fd);
     }
 
   /* Send the response, if necessary. */
@@ -2240,7 +2250,9 @@ void httpd_set_ndelay(int fd)
     {
       newflags = flags | (int)O_NDELAY;
       if (newflags != flags)
-        fcntl(fd, F_SETFL, newflags);
+        {
+          fcntl(fd, F_SETFL, newflags);
+        }
     }
 }
 
@@ -2312,17 +2324,17 @@ const char *httpd_method_str(int method)
 {
   switch (method)
     {
-    case METHOD_GET:
-      return "GET";
+      case METHOD_GET:
+        return "GET";
 
-    case METHOD_HEAD:
-      return "HEAD";
+      case METHOD_HEAD:
+        return "HEAD";
 
-    case METHOD_POST:
-      return "POST";
+      case METHOD_POST:
+        return "POST";
 
-    default:
-      return "UNKNOWN";
+      default:
+        return "UNKNOWN";
     }
 }
 
@@ -2461,201 +2473,203 @@ int httpd_got_request(httpd_conn *hc)
       c = hc->read_buf[hc->checked_idx];
       switch (hc->checked_state)
         {
-        case CHST_FIRSTWORD:
-          switch (c)
-            {
-            case ' ':
-            case '\t':
-              hc->checked_state = CHST_FIRSTWS;
-              break;
+          case CHST_FIRSTWORD:
+            switch (c)
+              {
+                case ' ':
+                case '\t':
+                  hc->checked_state = CHST_FIRSTWS;
+                  break;
 
-            case '\012':
-            case '\015':
-              hc->checked_state = CHST_BOGUS;
-              return GR_BAD_REQUEST;
-            }
-          break;
+                case '\012':
+                case '\015':
+                  hc->checked_state = CHST_BOGUS;
+                  return GR_BAD_REQUEST;
+              }
+            break;
 
-        case CHST_FIRSTWS:
-          switch (c)
-            {
-            case ' ':
-            case '\t':
-              break;
+          case CHST_FIRSTWS:
+            switch (c)
+              {
+                case ' ':
+                case '\t':
+                  break;
 
-            case '\012':
-            case '\015':
-              hc->checked_state = CHST_BOGUS;
-              return GR_BAD_REQUEST;
+                case '\012':
+                case '\015':
+                  hc->checked_state = CHST_BOGUS;
+                  return GR_BAD_REQUEST;
 
-            default:
-              hc->checked_state = CHST_SECONDWORD;
-              break;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_SECONDWORD;
+                  break;
+              }
+            break;
 
-        case CHST_SECONDWORD:
-          switch (c)
-            {
-            case ' ':
-            case '\t':
-              hc->checked_state = CHST_SECONDWS;
-              break;
+          case CHST_SECONDWORD:
+            switch (c)
+              {
+                case ' ':
+                case '\t':
+                  hc->checked_state = CHST_SECONDWS;
+                  break;
 
-            case '\012':
-            case '\015':
+                case '\012':
+                case '\015':
 
-              /* The first line has only two words - an HTTP/0.9 request. */
+                  /* The first line has only two words - an HTTP/0.9
+                   * request.
+                   */
 
-              return GR_GOT_REQUEST;
-            }
-          break;
+                  return GR_GOT_REQUEST;
+              }
+            break;
 
-        case CHST_SECONDWS:
-          switch (c)
-            {
-            case ' ':
-            case '\t':
-              break;
+          case CHST_SECONDWS:
+            switch (c)
+              {
+                case ' ':
+                case '\t':
+                  break;
 
-            case '\012':
-            case '\015':
-              hc->checked_state = CHST_BOGUS;
-              return GR_BAD_REQUEST;
+                case '\012':
+                case '\015':
+                  hc->checked_state = CHST_BOGUS;
+                  return GR_BAD_REQUEST;
 
-            default:
-              hc->checked_state = CHST_THIRDWORD;
-              break;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_THIRDWORD;
+                  break;
+              }
+            break;
 
-        case CHST_THIRDWORD:
-          switch (c)
-            {
-            case ' ':
-            case '\t':
-              hc->checked_state = CHST_THIRDWS;
-              break;
+          case CHST_THIRDWORD:
+            switch (c)
+              {
+                case ' ':
+                case '\t':
+                  hc->checked_state = CHST_THIRDWS;
+                  break;
 
-            case '\012':
-              hc->checked_state = CHST_LF;
-              break;
+                case '\012':
+                  hc->checked_state = CHST_LF;
+                  break;
 
-            case '\015':
-              hc->checked_state = CHST_CR;
-              break;
-            }
-          break;
+                case '\015':
+                  hc->checked_state = CHST_CR;
+                  break;
+              }
+            break;
 
-        case CHST_THIRDWS:
-          switch (c)
-            {
-            case ' ':
-            case '\t':
-              break;
+          case CHST_THIRDWS:
+            switch (c)
+              {
+                case ' ':
+                case '\t':
+                  break;
 
-            case '\012':
-              hc->checked_state = CHST_LF;
-              break;
+                case '\012':
+                  hc->checked_state = CHST_LF;
+                  break;
 
-            case '\015':
-              hc->checked_state = CHST_CR;
-              break;
+                case '\015':
+                  hc->checked_state = CHST_CR;
+                  break;
 
-            default:
-              hc->checked_state = CHST_BOGUS;
-              return GR_BAD_REQUEST;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_BOGUS;
+                  return GR_BAD_REQUEST;
+              }
+            break;
 
-        case CHST_LINE:
-          switch (c)
-            {
-            case '\012':
-              hc->checked_state = CHST_LF;
-              break;
+          case CHST_LINE:
+            switch (c)
+              {
+                case '\012':
+                  hc->checked_state = CHST_LF;
+                  break;
 
-            case '\015':
-              hc->checked_state = CHST_CR;
-              break;
-            }
-          break;
+                case '\015':
+                  hc->checked_state = CHST_CR;
+                  break;
+              }
+            break;
 
-       case CHST_LF:
-          switch (c)
-            {
-            case '\012':
+          case CHST_LF:
+            switch (c)
+              {
+                case '\012':
 
-              /* Two newlines in a row - a blank line - end of request. */
+                  /* Two newlines in a row - a blank line - end of request. */
 
-              return GR_GOT_REQUEST;
+                  return GR_GOT_REQUEST;
 
-            case '\015':
-              hc->checked_state = CHST_CR;
-              break;
+                case '\015':
+                  hc->checked_state = CHST_CR;
+                  break;
 
-            default:
-              hc->checked_state = CHST_LINE;
-              break;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_LINE;
+                  break;
+              }
+            break;
 
-        case CHST_CR:
-          switch (c)
-            {
-            case '\012':
-              hc->checked_state = CHST_CRLF;
-              break;
+          case CHST_CR:
+            switch (c)
+              {
+                case '\012':
+                  hc->checked_state = CHST_CRLF;
+                  break;
 
-            case '\015':
+                case '\015':
 
-              /* Two returns in a row - end of request. */
+                  /* Two returns in a row - end of request. */
 
-              return GR_GOT_REQUEST;
+                  return GR_GOT_REQUEST;
 
-            default:
-              hc->checked_state = CHST_LINE;
-              break;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_LINE;
+                  break;
+              }
+            break;
 
-        case CHST_CRLF:
-          switch (c)
-            {
-            case '\012':
+          case CHST_CRLF:
+            switch (c)
+              {
+                case '\012':
 
-              /* Two newlines in a row - end of request. */
+                  /* Two newlines in a row - end of request. */
 
-              return GR_GOT_REQUEST;
+                  return GR_GOT_REQUEST;
 
-            case '\015':
-              hc->checked_state = CHST_CRLFCR;
-              break;
+                case '\015':
+                  hc->checked_state = CHST_CRLFCR;
+                  break;
 
-            default:
-              hc->checked_state = CHST_LINE;
-              break;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_LINE;
+                  break;
+              }
+            break;
 
-        case CHST_CRLFCR:
-          switch (c)
-            {
-            case '\012':
-            case '\015':
+          case CHST_CRLFCR:
+            switch (c)
+              {
+                case '\012':
+                case '\015':
 
-              /* Two CRLFs or two CRs in a row - end of request. */
+                  /* Two CRLFs or two CRs in a row - end of request. */
 
-              return GR_GOT_REQUEST;
+                  return GR_GOT_REQUEST;
 
-            default:
-              hc->checked_state = CHST_LINE;
-              break;
-            }
-          break;
+                default:
+                  hc->checked_state = CHST_LINE;
+                  break;
+              }
+            break;
 
-        case CHST_BOGUS:
-          return GR_BAD_REQUEST;
+          case CHST_BOGUS:
+            return GR_BAD_REQUEST;
         }
     }
 
@@ -2915,7 +2929,7 @@ int httpd_parse_request(httpd_conn *hc)
                                     strlen(cp));
                 }
 
-             strlcpy(hc->accepte, cp, hc->maxaccepte + 1);
+              strlcpy(hc->accepte, cp, hc->maxaccepte + 1);
             }
           else if (strncasecmp(buf, "Accept-Language:", 16) == 0)
             {
@@ -2945,6 +2959,7 @@ int httpd_parse_request(httpd_conn *hc)
               if (strchr(buf, ',') == NULL)
                 {
                   char *cp_dash;
+
                   cp = strpbrk(buf, "=");
                   if (cp)
                     {
@@ -2963,7 +2978,9 @@ int httpd_parse_request(httpd_conn *hc)
                             {
                               hc->range_end = atoll(cp_dash + 1);
                               if (hc->range_end < 0)
-                                hc->range_end = -1;
+                                {
+                                  hc->range_end = -1;
+                                }
                             }
                         }
                     }
@@ -3035,7 +3052,9 @@ int httpd_parse_request(httpd_conn *hc)
                    strncasecmp(buf, "User:", 5) == 0 ||
                    strncasecmp(buf, "Via:", 4) == 0 ||
                    strncasecmp(buf, "X-", 2) == 0)
-            ;                   /* ignore */
+            {
+              /* ignore */
+            }
           else
             {
               nwarn("WARNING: unknown request header: %s\n", buf);
@@ -3136,6 +3155,7 @@ int httpd_parse_request(httpd_conn *hc)
   if (hc->pathinfo[0] != '\0')
     {
       int i;
+
       i = strlen(hc->origfilename) - strlen(hc->pathinfo);
       if (i > 0 && strcmp(&hc->origfilename[i], hc->pathinfo) == 0)
         {
@@ -3370,7 +3390,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowp)
       return -1;
 #endif /* CONFIG_THTTPD_GENERATE_INDICES */
 
-    got_one:
+got_one:
 
       /* Got an index file.  Expand again.  More pathinfo means
        * something went wrong.
