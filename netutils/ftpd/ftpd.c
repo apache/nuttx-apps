@@ -328,6 +328,7 @@ static FAR struct ftpd_account_s *ftpd_account_new(FAR const char *user,
 static void ftpd_account_free(FAR struct ftpd_account_s *account)
 {
   struct ftpd_account_s *prev;
+
   DEBUGASSERT(account);
 
   /* Back up to the first entry in the list */
@@ -370,6 +371,7 @@ static int ftpd_account_setpassword(FAR struct ftpd_account_s *account,
                                     FAR const char *passwd)
 {
   FAR char *temp;
+
   DEBUGASSERT(account);
 
   /* Make of copy of the password string (if it is non-null) */
@@ -406,6 +408,7 @@ static int ftpd_account_add(FAR struct ftpd_server_s *server,
 {
   FAR struct ftpd_account_s *head;
   FAR struct ftpd_account_s *tail;
+
   DEBUGASSERT(server && account);
 
   /* Find the beginning of the list */
@@ -850,6 +853,7 @@ static int ftpd_rxpoll(int sd, int timeout)
   else if (ret < 0)
     {
       int errval = errno;
+
       ninfo("poll() failed: %d\n", errval);
       return -errval;
     }
@@ -892,6 +896,7 @@ static int ftpd_txpoll(int sd, int timeout)
   else if (ret < 0)
     {
       int errval = errno;
+
       ninfo("poll() failed: %d\n", errval);
       return -errval;
     }
@@ -939,6 +944,7 @@ static int ftpd_accept(int sd, FAR void *addr, FAR socklen_t *addrlen,
   if (acceptsd < 0)
     {
       int errval = errno;
+
       nerr("ERROR: accept() failed: %d\n", errval);
       return -errval;
     }
@@ -998,6 +1004,7 @@ static ssize_t ftpd_send(int sd, FAR const void *data, size_t size,
   if (timeout >= 0)
     {
       int status = ftpd_txpoll(sd, timeout);
+
       if (status < 0)
         {
           ninfo("ftpd_rxpoll: %d\n", status);
@@ -1011,6 +1018,7 @@ static ssize_t ftpd_send(int sd, FAR const void *data, size_t size,
   if (ret < 0)
     {
       int errval = errno;
+
       nerr("ERROR: send() failed: %d\n", errval);
       return -errval;
     }
@@ -1073,6 +1081,7 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
       if (session->data.sd < 0)
         {
           int errval = errno;
+
           nerr("ERROR: socket() failed: %d\n", errval);
           ftpd_response(session->cmd.sd, session->txtimeout,
                         g_respfmt1, 451, ' ', "Socket error !");
@@ -1086,6 +1095,7 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
       if (ret < 0)
         {
           int errval = errno;
+
           nerr("ERROR: connect() failed: %d\n", errval);
           ftpd_response(session->cmd.sd, session->txtimeout,
                         g_respfmt1, 451, ' ', "Connect error !");
@@ -1094,15 +1104,15 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
         }
 
 #ifdef CONFIG_NET_SOLINGER
-        {
-          struct linger ling;
+      {
+        struct linger ling;
 
-          memset(&ling, 0, sizeof(ling));
-          ling.l_onoff  = 1;
-          ling.l_linger = 4;
-          setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling,
-                     sizeof(ling));
-        }
+        memset(&ling, 0, sizeof(ling));
+        ling.l_onoff  = 1;
+        ling.l_linger = 4;
+        setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER, &ling,
+                   sizeof(ling));
+      }
 #endif
 
       return OK;
@@ -1127,15 +1137,15 @@ static int ftpd_dataopen(FAR struct ftpd_session_s *session)
   session->data.sd = sd;
 
 #ifdef CONFIG_NET_SOLINGER
-    {
-      struct linger ling;
+  {
+    struct linger ling;
 
-      memset(&ling, 0, sizeof(ling));
-      ling.l_onoff = 1;
-      ling.l_linger = 4;
-      setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER,
-                 &ling, sizeof(ling));
-    }
+    memset(&ling, 0, sizeof(ling));
+    ling.l_onoff = 1;
+    ling.l_linger = 4;
+    setsockopt(session->data.sd, SOL_SOCKET, SO_LINGER,
+               &ling, sizeof(ling));
+  }
 #endif
 
   return OK;
@@ -1229,11 +1239,12 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port,
       return NULL;
     }
 
-    {
-      int reuse = 1;
-      setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR,
-                 &reuse, sizeof(reuse));
-    }
+  {
+    int reuse = 1;
+
+    setsockopt(server->sd, SOL_SOCKET, SO_REUSEADDR,
+               &reuse, sizeof(reuse));
+  }
 
   /* Bind the socket to the address */
 
@@ -1725,6 +1736,7 @@ static off_t ftpd_offsatoi(FAR const char *filename, off_t offset)
   if (outstream == NULL)
     {
       int errval = errno;
+
       nerr("ERROR: Failed to open %s: %d\n", filename, errval);
       return -errval;
     }
@@ -1820,7 +1832,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
 
       case 1: /* stor */
         oflags = O_CREAT | O_WRONLY;
-         break;
+        break;
 
       case 2: /* appe */
         oflags = O_CREAT | O_WRONLY | O_APPEND;
@@ -2010,6 +2022,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
           /* Change to ascii */
 
           size_t offset = 0;
+
           buflen = 0;
           while (offset < ((size_t)rdbytes))
             {
@@ -2086,22 +2099,22 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
     }
 
 errout_with_session:;
-    close(session->fd);
-    session->fd = -1;
+  close(session->fd);
+  session->fd = -1;
 
-    if (isnew && ret < 0)
-      {
-        unlink(path);
-      }
+  if (isnew && ret < 0)
+    {
+      unlink(path);
+    }
 
 errout_with_data:;
-    ftpd_dataclose(session);
+  ftpd_dataclose(session);
 
 errout_with_path:
-    free(abspath);
+  free(abspath);
 
 errout:
-    return ret;
+  return ret;
 }
 
 /****************************************************************************
@@ -2420,6 +2433,7 @@ static int fptd_listscan(FAR struct ftpd_session_s *session, FAR char *path,
   if (dir == NULL)
     {
       int errval = errno;
+
       nerr("ERROR: opendir() failed: %d\n", errval);
       return -errval;
     }
@@ -2633,34 +2647,34 @@ static int ftpd_command_type(FAR struct ftpd_session_s *session)
     {
       switch (toupper(session->param[0]))
         {
-        case 'A':
-          {
-            session->type = FTPD_SESSIONTYPE_A;
-            return ftpd_response(session->cmd.sd, session->txtimeout,
-                                 g_respfmt1, 200, ' ', "Type set to A");
-          }
+          case 'A':
+            {
+              session->type = FTPD_SESSIONTYPE_A;
+              return ftpd_response(session->cmd.sd, session->txtimeout,
+                                   g_respfmt1, 200, ' ', "Type set to A");
+            }
 
-        case 'I':
-          {
-            session->type = FTPD_SESSIONTYPE_I;
-            return ftpd_response(session->cmd.sd, session->txtimeout,
-                                 g_respfmt1, 200, ' ', "Type set to I");
-          }
+          case 'I':
+            {
+              session->type = FTPD_SESSIONTYPE_I;
+              return ftpd_response(session->cmd.sd, session->txtimeout,
+                                   g_respfmt1, 200, ' ', "Type set to I");
+            }
 
-        case 'L':
-          {
-            session->type = FTPD_SESSIONTYPE_L8;
-            return ftpd_response(session->cmd.sd, session->txtimeout,
-                                 g_respfmt1, 200, ' ',
-                                 "Type set to L (byte size 8)");
-          }
+          case 'L':
+            {
+              session->type = FTPD_SESSIONTYPE_L8;
+              return ftpd_response(session->cmd.sd, session->txtimeout,
+                                   g_respfmt1, 200, ' ',
+                                   "Type set to L (byte size 8)");
+            }
 
-        default:
-          {
-            session->type = FTPD_SESSIONTYPE_NONE;
-            return ftpd_response(session->cmd.sd, session->txtimeout,
-                                 g_respfmt1, 501, ' ', "Type unknown !");
-          }
+          default:
+            {
+              session->type = FTPD_SESSIONTYPE_NONE;
+              return ftpd_response(session->cmd.sd, session->txtimeout,
+                                   g_respfmt1, 501, ' ', "Type unknown !");
+            }
         }
     }
   else if (parmlen == 3)
@@ -3324,6 +3338,7 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
 #if defined(IPPROTO_IPV6) && defined(IPV6_V6ONLY)
       int ipv6only = 0;
+
       setsockopt(session->data.sd, IPPROTO_IPV6, IPV6_V6ONLY,
                  &ipv6only, sizeof(ipv6only));
 #endif
@@ -3551,92 +3566,92 @@ static int ftpd_command_size(FAR struct ftpd_session_s *session)
   ret = 0;
   switch (session->type)
     {
-    case FTPD_SESSIONTYPE_NONE:
-    case FTPD_SESSIONTYPE_L8:
-    case FTPD_SESSIONTYPE_I:
-      {
-        status = stat(path, &st);
-        if (status < 0)
-          {
-            ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                                g_respfmt2, 550, ' ', session->param,
-                                ": not a regular file.");
-          }
-        else if (!S_ISREG(st.st_mode))
-          {
-             ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                                 g_respfmt2, 550, ' ', session->param,
-                                 ": not a regular file.");
-          }
-        else
-          {
-            ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                                "%03u%c%llu\r\n", 213, ' ',
-                                (unsigned long long)st.st_size);
-          }
-      }
-      break;
+      case FTPD_SESSIONTYPE_NONE:
+      case FTPD_SESSIONTYPE_L8:
+      case FTPD_SESSIONTYPE_I:
+        {
+          status = stat(path, &st);
+          if (status < 0)
+            {
+              ret = ftpd_response(session->cmd.sd, session->txtimeout,
+                                  g_respfmt2, 550, ' ', session->param,
+                                  ": not a regular file.");
+            }
+          else if (!S_ISREG(st.st_mode))
+            {
+              ret = ftpd_response(session->cmd.sd, session->txtimeout,
+                                  g_respfmt2, 550, ' ', session->param,
+                                  ": not a regular file.");
+            }
+          else
+            {
+              ret = ftpd_response(session->cmd.sd, session->txtimeout,
+                                  "%03u%c%llu\r\n", 213, ' ',
+                                  (unsigned long long)st.st_size);
+            }
+        }
+        break;
 
-    case FTPD_SESSIONTYPE_A:
-      {
-        status = stat(path, &st);
-        if (status < 0)
-          {
-            ret = -errno;
-            ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt2, 550, ' ', session->param,
-                          ": not a regular file.");
-            goto errout_with_abspath;
-          }
-        else if (!S_ISREG(st.st_mode))
-          {
-            ret = -EPERM;
-            ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt2, 550, ' ', session->param,
-                          ": not a regular file.");
-            goto errout_with_abspath;
-          }
+      case FTPD_SESSIONTYPE_A:
+        {
+          status = stat(path, &st);
+          if (status < 0)
+            {
+              ret = -errno;
+              ftpd_response(session->cmd.sd, session->txtimeout,
+                            g_respfmt2, 550, ' ', session->param,
+                            ": not a regular file.");
+              goto errout_with_abspath;
+            }
+          else if (!S_ISREG(st.st_mode))
+            {
+              ret = -EPERM;
+              ftpd_response(session->cmd.sd, session->txtimeout,
+                            g_respfmt2, 550, ' ', session->param,
+                            ": not a regular file.");
+              goto errout_with_abspath;
+            }
 
-        outstream = fopen(path, "r");
-        if (outstream == NULL)
-          {
-            ret = -errno;
-            ftpd_response(session->cmd.sd, session->txtimeout,
-                          g_respfmt2, 550, ' ', session->param,
-                          ": Can not open file !");
-            goto errout_with_abspath;
-          }
+          outstream = fopen(path, "r");
+          if (outstream == NULL)
+            {
+              ret = -errno;
+              ftpd_response(session->cmd.sd, session->txtimeout,
+                            g_respfmt2, 550, ' ', session->param,
+                            ": Can not open file !");
+              goto errout_with_abspath;
+            }
 
-        offset = 0;
-        for (; ; )
-          {
-            ch = getc(outstream);
-            if (ch == EOF)
-              {
-                break;
-              }
-            else if (ch == 'c')
-              {
-                offset++;
-              }
+          offset = 0;
+          for (; ; )
+            {
+              ch = getc(outstream);
+              if (ch == EOF)
+                {
+                  break;
+                }
+              else if (ch == 'c')
+                {
+                  offset++;
+                }
 
-            offset++;
-          }
+              offset++;
+            }
 
-        fclose(outstream);
-        ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                            "%03u%c%llu\r\n", 213, ' ',
-                            (unsigned long long)offset);
-      }
-      break;
+          fclose(outstream);
+          ret = ftpd_response(session->cmd.sd, session->txtimeout,
+                              "%03u%c%llu\r\n", 213, ' ',
+                              (unsigned long long)offset);
+        }
+        break;
 
-    default:
-      {
-        ret = ftpd_response(session->cmd.sd, session->txtimeout,
-                            g_respfmt1, 504, ' ',
-                            "SIZE not implemented for type");
-      }
-      break;
+      default:
+        {
+          ret = ftpd_response(session->cmd.sd, session->txtimeout,
+                              g_respfmt1, 504, ' ',
+                              "SIZE not implemented for type");
+        }
+        break;
     }
 
 errout_with_abspath:
@@ -4522,6 +4537,7 @@ errout:
 void ftpd_close(FTPD_SESSION handle)
 {
   struct ftpd_server_s *server;
+
   DEBUGASSERT(handle);
 
   server = (struct ftpd_server_s *)handle;

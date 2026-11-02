@@ -302,49 +302,49 @@ static void _event_handler(struct telnet_s *telnet,
 
   switch (ev->type)
     {
-    /* Data received */
+      /* Data received */
 
-    case TELNET_EV_DATA:
-      _input(user, ev->data.buffer, ev->data.size);
-      telnet_negotiate(telnet, TELNET_WONT, TELNET_TELOPT_ECHO);
-      telnet_negotiate(telnet, TELNET_WILL, TELNET_TELOPT_ECHO);
-      break;
+      case TELNET_EV_DATA:
+        _input(user, ev->data.buffer, ev->data.size);
+        telnet_negotiate(telnet, TELNET_WONT, TELNET_TELOPT_ECHO);
+        telnet_negotiate(telnet, TELNET_WILL, TELNET_TELOPT_ECHO);
+        break;
 
-    /* Data must be sent */
+      /* Data must be sent */
 
-    case TELNET_EV_SEND:
-      _send(user->sock, ev->data.buffer, ev->data.size);
-      break;
+      case TELNET_EV_SEND:
+        _send(user->sock, ev->data.buffer, ev->data.size);
+        break;
 
-    /* Enable compress2 if accepted by client */
+      /* Enable compress2 if accepted by client */
 
-    case TELNET_EV_DO:
-      if (ev->neg.telopt == TELNET_TELOPT_COMPRESS2)
-        {
-          telnet_begin_compress2(telnet);
-        }
-      break;
+      case TELNET_EV_DO:
+        if (ev->neg.telopt == TELNET_TELOPT_COMPRESS2)
+          {
+            telnet_begin_compress2(telnet);
+          }
+        break;
 
-    /* Error */
+      /* Error */
 
-    case TELNET_EV_ERROR:
-      close(user->sock);
-      user->sock = -1;
-      if (user->name != 0)
-        {
-          _message(user->name, "** HAS HAD AN ERROR **");
-          free(user->name);
-          user->name = 0;
-        }
+      case TELNET_EV_ERROR:
+        close(user->sock);
+        user->sock = -1;
+        if (user->name != 0)
+          {
+            _message(user->name, "** HAS HAD AN ERROR **");
+            free(user->name);
+            user->name = 0;
+          }
 
-      telnet_free(user->telnet);
-      break;
+        telnet_free(user->telnet);
+        break;
 
-    default:
+      default:
 
-      /* Ignore */
+        /* Ignore */
 
-      break;
+        break;
     }
 }
 

@@ -203,7 +203,7 @@ static inline bool net_connection(struct net_listener_s *nls)
           FD_SET(sd, &nls->master);
           if (sd > nls->mxsd)
             {
-               nls->mxsd = sd;
+              nls->mxsd = sd;
             }
 
           return true;
