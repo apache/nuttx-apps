@@ -40,6 +40,17 @@ config TESTING_NET_LOCAL
 	depends on NET_LOCAL && NET_LOCAL_SCM
 	default y
 
+config TESTING_NET_LOCAL_DGRAM
+	bool "Enable cmocka net local datagram test"
+	depends on NET_LOCAL && NET_LOCAL_DGRAM
+	depends on !DISABLE_PTHREAD && !DISABLE_POSIX_TIMERS
+	default y
+	---help---
+		Test connect(), send(), getpeername(), poll() and select() of
+		Unix domain datagram sockets (cmocka_net_local_dgram).  The
+		optional argument of the program is a writable directory for
+		the socket names (default P_tmpdir).
+
 config TESTING_NET_OTHERS
 	bool "Enable cmocka net other test"
 	default y

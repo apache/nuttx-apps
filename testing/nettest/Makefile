@@ -51,6 +51,13 @@ PROGNAME += cmocka_net_local
 CSRCS    += local/test_local_common.c local/test_local_scm_rights.c
 endif
 
+ifeq ($(CONFIG_TESTING_NET_LOCAL_DGRAM),y)
+MAINSRC  += local/test_local_dgram.c
+PROGNAME += cmocka_net_local_dgram
+CSRCS    += local/test_local_dgram_common.c local/test_local_dgram_connect.c \
+            local/test_local_dgram_poll.c
+endif
+
 ifeq ($(CONFIG_TESTING_NET_OTHERS),y)
 MAINSRC  += others/test_others.c
 PROGNAME += cmocka_net_others
