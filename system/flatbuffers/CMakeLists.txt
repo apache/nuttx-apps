@@ -30,7 +30,7 @@ if(CONFIG_SYSTEM_FLATBUFFERS)
 
   if(NOT EXISTS ${FLATBUFFERS_DIR})
     set(FLATBUFFERS_URL
-        https://github.com/google/flatbuffers/archive/v23.5.26.tar.gz)
+        https://github.com/google/flatbuffers/archive/v25.9.23.tar.gz)
     FetchContent_Declare(
       flatbuffers_fetch
       URL ${FLATBUFFERS_URL} SOURCE_DIR ${FLATBUFFERS_DIR} BINARY_DIR

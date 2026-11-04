@@ -34,7 +34,7 @@
  *
  * Refer header file for details. Optimal use case for the DSP/MVE
  * implementation is when input and output channels are multiples of 4 or
- * atleast greater than 4.
+ * at least greater than 4.
  */
 
 arm_cmsis_nn_status
@@ -47,6 +47,7 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
                 const int8_t *filter_data,
                 const cmsis_nn_dims *bias_dims,
                 const int32_t *bias_data,
+                const cmsis_nn_dims *upscale_dims,
                 const cmsis_nn_dims *output_dims,
                 int8_t *output_data)
 {
@@ -81,10 +82,27 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
   const int32_t rhs_cols = kernel_x * kernel_y * input_ch;
   const int32_t input_offset = conv_params->input_offset;
 
+  /* Match CMSIS-NN: upscale_dims->h/w == 2 inserts zeroes for transposed
+   * convolution. Index into the real input via rshift.
+   */
+
+  uint32_t y_rshift = 0;
+  uint32_t x_rshift = 0;
+
+  if (upscale_dims)
+    {
+      y_rshift = upscale_dims->h == 2 ? 1 : 0;
+      x_rshift = upscale_dims->w == 2 ? 1 : 0;
+    }
+
+  const int32_t input_x_rshifted = input_x >> x_rshift;
+  const int32_t input_y_rshifted = input_y >> y_rshift;
+
   int32_t *output_mult = quant_params->multiplier;
   int32_t *output_shift = quant_params->shift;
 
   int i_batch;
+
   for (i_batch = 0; i_batch < input_batches; i_batch++)
     {
       const int32_t remainder = rhs_cols % 4;
@@ -106,20 +124,74 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
       for (int i_out_x = 0; i_out_x < output_x; i_out_x++)
         {
           const int32_t base_idx_x = stride_x * i_out_x - pad_x;
+
           for (int i_out_y = 0; i_out_y < output_y; i_out_y++)
             {
               const int32_t base_idx_y = stride_y * i_out_y - pad_y;
-              for (int32_t i_ker_x = 0; i_ker_x < kernel_x; i_ker_x++)
+
+              if (y_rshift == 1 || x_rshift == 1)
                 {
-                  int32_t k_x = base_idx_x + dilation_x * i_ker_x;
-                  int32_t k_y = base_idx_y - dilation_y;
+                  /* Fill with -input_offset; copy only even (non-inserted)
+                   * rows/cols, matching CMSIS-NN arm_convolve_s8().
+                   */
+
+                  arm_memset_s8(im2col_buf, (int8_t)-input_offset,
+                                input_ch * kernel_x * kernel_y);
                   for (int32_t i_ker_y = 0; i_ker_y < kernel_y; i_ker_y++)
                     {
-                      k_y += dilation_y;
-                      arm_memcpy_s8(im2col_buf,
-                          input_data + (k_y * input_x + k_x) * input_ch,
-                          input_ch);
-                      im2col_buf += input_ch;
+                      const int32_t k_y = base_idx_y + dilation_y * i_ker_y;
+
+                      if ((k_y < 0 || k_y >= input_y) ||
+                          (k_y % 2 && y_rshift == 1))
+                        {
+                          im2col_buf += input_ch * kernel_x;
+                        }
+                      else
+                        {
+                          const int32_t k_y_rshifted = k_y >> y_rshift;
+
+                          for (int32_t i_ker_x = 0; i_ker_x < kernel_x;
+                               i_ker_x++)
+                            {
+                              const int32_t k_x =
+                                  base_idx_x + dilation_x * i_ker_x;
+
+                              if ((k_x >= 0 && k_x < input_x) &&
+                                  ((k_x % 2 == 0) ||
+                                   x_rshift == 0))
+                                {
+                                  const int32_t k_x_rshifted =
+                                      k_x >> x_rshift;
+
+                                  arm_memcpy_s8(
+                                      im2col_buf,
+                                      input_data +
+                                          (k_y_rshifted * input_x_rshifted +
+                                           k_x_rshifted) * input_ch,
+                                      input_ch);
+                                }
+
+                              im2col_buf += input_ch;
+                            }
+                        }
+                    }
+                }
+              else
+                {
+                  for (int32_t i_ker_x = 0; i_ker_x < kernel_x; i_ker_x++)
+                    {
+                      int32_t k_x = base_idx_x + dilation_x * i_ker_x;
+                      int32_t k_y = base_idx_y - dilation_y;
+
+                      for (int32_t i_ker_y = 0; i_ker_y < kernel_y;
+                           i_ker_y++)
+                        {
+                          k_y += dilation_y;
+                          arm_memcpy_s8(im2col_buf,
+                              input_data + (k_y * input_x + k_x) * input_ch,
+                              input_ch);
+                          im2col_buf += input_ch;
+                        }
                     }
                 }
 
@@ -169,6 +241,7 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
               int32_t sum = 0;
               const int16_t *ip_as_col = buffer_a;
               int32x4_t res_s32 = vdupq_n_s32(0);
+
               if (bias_data)
                 {
                   sum = bias_data[i];
@@ -179,6 +252,7 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
                   int8x8_t filter_s8 = vld1_s8(ker_a);
                   int16x8_t input_s16 = vld1q_s16(ip_as_col);
                   int16x8_t filter_s16 = vmovl_s8(filter_s8);
+
                   ker_a += 8;
                   ip_as_col += 8;
                   res_s32 = vmlal_s16(res_s32,
@@ -199,6 +273,7 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
                 {
                   int8_t ker_a1 = *ker_a++;
                   int16_t ip_b1 = *ip_as_col++;
+
                   sum += ker_a1 * ip_b1;
                   col_count--;
                 }
@@ -214,7 +289,7 @@ arm_convolve_s8(const cmsis_nn_context *ctx,
 
       /* Advance to the next batch */
 
-      input_data += (input_x * input_y * input_ch);
+      input_data += (input_x_rshifted * input_y_rshifted * input_ch);
       output_data += (output_x * output_y * output_ch);
     }
 

@@ -27,14 +27,13 @@ CXXEXT       := .cc
 CXXSRCS      :=
 COMMON_FLAGS :=
 TFLM_UNPACK  := tflite-micro
-TFLM_VER     := cfa4c91d1b36c37c7c104b9c664615e59f1abfe3
+TFLM_VER     := fd2a85dfb3bedac81920e8667565b1044c6b6a43
 TFLM_DIR     := $(APPDIR)/mlearning/tflite-micro/$(TFLM_UNPACK)
 
 tflite-micro.zip:
 	$(Q) curl -L https://github.com/tensorflow/tflite-micro/archive/$(TFLM_VER).zip -o tflite-micro.zip
 	$(Q) unzip -o tflite-micro.zip
 	$(Q) mv tflite-micro-$(TFLM_VER) $(TFLM_UNPACK)
-	$(Q) patch -d $(TFLM_UNPACK) -p1 < tflite-micro.patch
 	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0001-dequantize-int8.patch
 	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0002-quantize-int8.patch
 	$(Q) patch -d $(TFLM_UNPACK) -p1 < 0003-mean-int8.patch
@@ -68,21 +67,19 @@ ifeq ($(CONFIG_TFLITEMICRO_DEBUG)$(CONFIG_TFLITEMICRO_SYSLOG),)
 COMMON_FLAGS += -DTF_LITE_STRIP_ERROR_STRINGS
 endif
 
-# tflite micro
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/c/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/core/c/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/core/api/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/internal/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/internal/optimized/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/kernels/internal/reference/*.cc)
+# tflite micro (layout as of TFLM fd2a85dfb3bedac81920e8667565b1044c6b6a43)
 CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/*.cc)
 CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/arena_allocator/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/kernels/*.cc)
 CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/memory_planner/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/tflite_bridge/*.cc)
-CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/schema/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/kernels/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/kernels/internal/*.cc)
+CXXSRCS += $(wildcard $(TFLM_DIR)/tensorflow/lite/micro/kernels/internal/reference/*.cc)
 CXXSRCS := $(filter-out %test.cc, $(CXXSRCS))
+CXXSRCS := $(filter-out %fake_micro_context.cc, $(CXXSRCS))
+CXXSRCS := $(filter-out %mock_micro_graph.cc, $(CXXSRCS))
+CXXSRCS := $(filter-out %test_helpers.cc, $(CXXSRCS))
+CXXSRCS := $(filter-out %test_helper_custom_ops.cc, $(CXXSRCS))
+CXXSRCS := $(filter-out %kernel_runner.cc, $(CXXSRCS))
 
 ifneq ($(CONFIG_TFLITEMICRO_SYSLOG),)
   CXXSRCS := $(filter-out %micro_log.cc, $(CXXSRCS))

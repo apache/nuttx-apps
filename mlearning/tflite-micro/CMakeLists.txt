@@ -30,7 +30,7 @@ if(CONFIG_TFLITEMICRO)
 
   if(NOT EXISTS ${TFLITE_MICRO_DIR})
     set(TFLITE_MICRO_URL
-        https://github.com/tensorflow/tflite-micro/archive/cfa4c91d1b36c37c7c104b9c664615e59f1abfe3.zip
+        https://github.com/tensorflow/tflite-micro/archive/fd2a85dfb3bedac81920e8667565b1044c6b6a43.zip
     )
     FetchContent_Declare(
       tflite_micro_fetch
@@ -38,8 +38,6 @@ if(CONFIG_TFLITEMICRO)
           ${NUTTX_BINARY_DIR}/apps/mlearning/tflite-micro/tflite-micro
       PATCH_COMMAND
         patch -d ${TFLITE_MICRO_DIR} -p1 <
-        ${CMAKE_CURRENT_LIST_DIR}/tflite-micro.patch && patch -d
-        ${TFLITE_MICRO_DIR} -p1 <
         ${CMAKE_CURRENT_LIST_DIR}/0001-dequantize-int8.patch && patch -d
         ${TFLITE_MICRO_DIR} -p1 <
         ${CMAKE_CURRENT_LIST_DIR}/0002-quantize-int8.patch && patch -d
@@ -85,22 +83,20 @@ if(CONFIG_TFLITEMICRO)
   file(
     GLOB
     TFLITE_MICRO_SRCS
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/kernels/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/c/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/schema/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/core/c/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/kernels/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/kernels/internal/optimized/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/kernels/internal/reference/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/kernels/internal/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/core/api/*.cc
+    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/*.cc
     ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/arena_allocator/*.cc
     ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/memory_planner/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/*.cc
-    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/tflite_bridge/*.cc)
+    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/kernels/*.cc
+    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/kernels/internal/*.cc
+    ${TFLITE_MICRO_DIR}/tensorflow/lite/micro/kernels/internal/reference/*.cc)
 
-  # Remove test file
+  # Remove test / host-only helpers
   list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX ".*test.cc")
+  list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX ".*fake_micro_context.cc")
+  list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX ".*mock_micro_graph.cc")
+  list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX ".*test_helpers.cc")
+  list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX ".*test_helper_custom_ops.cc")
+  list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX ".*kernel_runner.cc")
   if(CONFIG_TFLITEMICRO_SYSLOG)
     list(FILTER TFLITE_MICRO_SRCS EXCLUDE REGEX "micro_log.cc")
     list(APPEND TFLITE_MICRO_SRCS ${CMAKE_CURRENT_LIST_DIR}/tflm_syslog.cc)
