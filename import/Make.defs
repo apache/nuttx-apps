@@ -86,7 +86,7 @@ ifneq ($(LIBM),".")
   LDLIBPATH += -L "${shell dirname $(LIBM)}"
   LDLIBS += -lm
 endif
-else ifneq ($(CONFIG_LIBM_NONE),)
+else ifeq ($(CONFIG_LIBM_NONE),)
   LDLIBS += -lm
 endif
 endif
