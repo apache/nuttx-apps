@@ -279,7 +279,6 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
        *     foreground
        */
 
-      vtbl->np.np_lastpid = pid;
 #ifdef CONFIG_SCHED_WAITPID
       /* CONFIG_SCHED_WAITPID is selected, so we may run the command in
        * foreground unless we were specifically requested to run the command
@@ -374,6 +373,7 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         {
           struct sched_param sched;
 
+          vtbl->np.np_lastpid = pid;
           sched_getparam(pid, &sched);
           nsh_output(vtbl, "%s [%d:%d]\n", cmd, pid, sched.sched_priority);
 

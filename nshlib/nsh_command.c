@@ -1283,7 +1283,6 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
   const struct builtin_s *builtin;
   int                     index;
 #endif
-  int                     ret;
 
   /* The form of argv is:
    *
@@ -1349,9 +1348,7 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char *argv[])
         }
     }
 
-  ret = handler(vtbl, argc, argv);
-  vtbl->np.np_lastpid = getpid();
-  return ret;
+  return handler(vtbl, argc, argv);
 }
 
 /****************************************************************************
