@@ -111,7 +111,13 @@ int cm_unlink_recursive(FAR char *path)
           continue;
         }
 
-      snprintf(&path[len], PATH_MAX - len, "/%s", d->d_name);
+      if (snprintf(&path[len], PATH_MAX - len, "/%s",
+                   d->d_name) >= PATH_MAX - len)
+        {
+          closedir(dp);
+          return -1;
+        }
+
       ret = cm_unlink_recursive(path);
       if (ret < 0)
         {
@@ -163,7 +169,12 @@ int test_nuttx_fs_test_group_setup(void **state)
         0
       };
 
-      sprintf(testdir, "%s/%s", MOUNT_DIR, CM_FSTESTDIR);
+      if (snprintf(testdir, sizeof(testdir), "%s/%s", MOUNT_DIR,
+                   CM_FSTESTDIR) >= sizeof(testdir))
+        {
+          syslog(LOG_INFO, "ERROR: test directory path too long\n");
+          exit(1);
+        }
 
       /* Delete the existing test directory */
 
@@ -206,14 +217,29 @@ int test_nuttx_fs_test_group_teardown(void **state)
   test_state = (struct fs_testsuites_state_s *)*state;
 
   if (test_state->fd1 > 0)
-    close(test_state->fd1);
+    {
+      close(test_state->fd1);
+    }
+
   if (test_state->fd2 > 0)
-    close(test_state->fd2);
+    {
+      close(test_state->fd2);
+    }
+
   if (test_state->ptr != NULL)
-    free(test_state->ptr);
+    {
+      free(test_state->ptr);
+    }
+
   free(test_state);
 
-  sprintf(testdir, "%s/%s", MOUNT_DIR, CM_FSTESTDIR);
+  if (snprintf(testdir, sizeof(testdir), "%s/%s", MOUNT_DIR,
+               CM_FSTESTDIR) >= sizeof(testdir))
+    {
+      syslog(LOG_INFO, "ERROR: test directory path too long\n");
+      return -1;
+    }
+
   res = chdir(MOUNT_DIR);
   if (res != 0)
     {
