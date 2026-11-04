@@ -653,7 +653,7 @@ struct nsh_parser_s
   bool     np_redir_in;  /* true: Input from the last command was re-directed */
   bool     np_redir_err; /* true: Error from the last command was re-directed */
   int      np_status;    /* Exit status of the last command */
-  pid_t    np_lastpid;   /* Pid of the last command executed */
+  pid_t    np_lastpid;   /* Pid of the last background command */
 #ifdef NSH_HAVE_VARS
   char     np_pids[32];  /* String representation of the last pid */
   char     np_rcstr[4];  /* String representation of the exit status */
