@@ -218,10 +218,12 @@ static int _open_with_http(const char *fullurl)
   setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval));
 
   struct sockaddr_in server;
+
   server.sin_family = AF_INET;
   server.sin_port   = htons(port);
 
   FAR struct hostent *he;
+
   he = gethostbyname(hostname);
 
   memcpy(&server.sin_addr.s_addr,
@@ -326,6 +328,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
       if (pplayer->dev_fd == -1)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: Failed to open %s: %d\n",
@@ -368,6 +371,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pplayer, int format,
       if (dirp == NULL)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: Failed to open /dev/audio: %d\n", -errcode);
@@ -780,6 +784,7 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pplayer,
   if (ret < 0)
     {
       int errcode = errno;
+
       DEBUGASSERT(errcode > 0);
 
       auderr("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
@@ -963,9 +968,9 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
                * been returned.
                */
 
-               streaming = false;
-               failed = true;
-               break;
+              streaming = false;
+              failed = true;
+              break;
             }
 #ifdef CONFIG_DEBUG_FEATURES
           else
@@ -1305,6 +1310,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pplayer, uint16_t volume)
       if (ret < 0)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: AUDIOIOC_CONFIGURE ioctl failed: %d\n", errcode);
@@ -1601,6 +1607,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pplayer, uint8_t subsample)
   if (ret < 0)
     {
       int errcode = errno;
+
       DEBUGASSERT(errcode > 0);
 
       auderr("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
@@ -1659,6 +1666,7 @@ int nxplayer_rewind(FAR struct nxplayer_s *pplayer, uint8_t subsample)
   if (ret < 0)
     {
       int errcode = errno;
+
       DEBUGASSERT(errcode > 0);
 
       auderr("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
@@ -1860,6 +1868,7 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   struct ap_buffer_info_s  buf_info;
   struct audio_caps_s      caps;
   int                      min_channels;
+  bool                     reserved = false;
   int                 ret;
 
   /* Try to open the device */
@@ -1889,6 +1898,8 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       ret = -errno;
       goto err_out;
     }
+
+  reserved = true;
 
   caps.ac_len = sizeof(caps);
   caps.ac_type = AUDIO_TYPE_OUTPUT;
@@ -1993,6 +2004,16 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   return OK;
 
 err_out:
+  if (reserved)
+    {
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+      ioctl(pplayer->dev_fd, AUDIOIOC_RELEASE,
+            (unsigned long)pplayer->session);
+#else
+      ioctl(pplayer->dev_fd, AUDIOIOC_RELEASE, 0);
+#endif
+    }
+
   close(pplayer->dev_fd);
   pplayer->dev_fd = -1;
 
