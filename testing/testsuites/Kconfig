@@ -62,5 +62,13 @@ config CM_MUTEX_TEST
 	bool "enable mutex test"
 	default n
 
+config CM_MSG_TEST
+	bool "enable System V message queue test"
+	default n
+	depends on !DISABLE_MQUEUE_SYSV && !DISABLE_PTHREAD
+	depends on PREALLOC_MQ_MSGS >= 4 && MQ_MAXMSGSIZE >= 8
+	---help---
+		Test msgget(), msgsnd(), msgrcv() and msgctl().
+
 endmenu
 endif # TESTS_TESTSUITES

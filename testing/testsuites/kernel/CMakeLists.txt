@@ -211,3 +211,24 @@ if(CONFIG_CM_MUTEX_TEST)
     DEPENDS
     cmocka)
 endif()
+
+if(CONFIG_CM_MSG_TEST)
+  set(INCDIR ${CMAKE_CURRENT_SOURCE_DIR}/msg/include
+             ${NUTTX_DIR}/../apps/testing/cmocka/include)
+  file(GLOB MSG_CSRCS ${CMAKE_CURRENT_SOURCE_DIR}/msg/cases/*.c
+       ${CMAKE_CURRENT_SOURCE_DIR}/msg/common/*.c)
+  nuttx_add_application(
+    NAME
+    cmocka_msg_test
+    STACKSIZE
+    ${CONFIG_TESTS_TESTSUITES_STACKSIZE}
+    PRIORITY
+    ${CONFIG_TESTS_TESTSUITES_PRIORITY}
+    SRCS
+    msg/cmocka_msg_test.c
+    ${MSG_CSRCS}
+    INCLUDE_DIRECTORIES
+    ${INCDIR}
+    DEPENDS
+    cmocka)
+endif()
