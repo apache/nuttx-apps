@@ -100,9 +100,12 @@ int nxplayer_getmp3subformat(int fd);
 #ifdef CONFIG_AUDIO_FORMAT_SBC
 int nxplayer_getsbcsubformat(int fd);
 #endif
-/****************************************************************************
- * Private Data
- ****************************************************************************/
+
+static int nxplayer_playfile_impl(FAR struct nxplayer_s *pplayer,
+                                  FAR const char *pfilename, int filefmt,
+                                  int subfmt, uint8_t nchannels,
+                                  uint8_t bpsamp, uint32_t samprate,
+                                  uint8_t chmap, bool file_playback);
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
 static const struct nxplayer_ext_fmt_s g_known_ext[] =
@@ -136,6 +139,7 @@ static const struct nxplayer_ext_fmt_s g_known_ext[] =
 
 static const int g_known_ext_count = sizeof(g_known_ext) /
                     sizeof(struct nxplayer_ext_fmt_s);
+#endif /* CONFIG_NXPLAYER_FMT_FROM_EXT */
 
 static const struct nxplayer_dec_ops_s g_dec_ops[] =
 {
@@ -155,8 +159,6 @@ static const struct nxplayer_dec_ops_s g_dec_ops[] =
     nxplayer_fill_common
   }
 };
-
-#endif /* CONFIG_NXPLAYER_FMT_FROM_EXT */
 
 /****************************************************************************
  * Private Functions
@@ -845,6 +847,7 @@ static FAR void *nxplayer_playthread(pthread_addr_t pvarg)
   bool                    running = true;
   bool                    streaming = true;
   bool                    failed = false;
+  int                     wav_error;
   struct ap_buffer_info_s buf_info;
   unsigned int            prio;
 #ifdef CONFIG_DEBUG_FEATURES
@@ -1236,6 +1239,8 @@ err_out:
 
   pthread_mutex_lock(&pplayer->mutex);
 
+  wav_error = pplayer->wav_error;
+
   /* Close the files */
 
   if (0 < pplayer->fd)
@@ -1249,13 +1254,27 @@ err_out:
   mq_close(pplayer->mq);                  /* Close the message queue */
   mq_unlink(pplayer->mqname);             /* Unlink the message queue */
   pplayer->ops   = NULL;                  /* Clear offload parser */
-  pplayer->state = NXPLAYER_STATE_IDLE;   /* Go to IDLE */
 
-  /* Clear the tone field */
+  /* Clear the tone and WAV fields */
 
   memset(&pplayer->tone, 0, sizeof(pplayer->tone));
+  pplayer->wav_playback = false;
+  pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
+  pplayer->wav_block_align = 0;
+  pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
+  pplayer->wav_fallback_ready = false;
+
+  pplayer->state = NXPLAYER_STATE_IDLE;   /* Go to IDLE */
 
   pthread_mutex_unlock(&pplayer->mutex);
+
+  if (wav_error < 0)
+    {
+      printf("ERROR: WAV playback read failed: %d\n", -wav_error);
+    }
 
   /* The playthread is done with the context.  Release it, which may
    * actually cause the context to be freed if the creator has already
@@ -1864,16 +1883,38 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
   struct mq_attr      attr;
   struct sched_param  sparam;
   pthread_attr_t      tattr;
-  struct audio_caps_desc_s cap_desc;
+  struct audio_caps_desc_s cap_desc =
+    {
+      0
+    };
+
   struct ap_buffer_info_s  buf_info;
   struct audio_caps_s      caps;
   int                      min_channels;
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  int                      index;
+#endif
   bool                     reserved = false;
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  bool                     supported;
+#endif
   int                 ret;
 
   /* Try to open the device */
 
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  pplayer->wav_passthrough = pplayer->wav_playback;
   ret = nxplayer_opendevice(pplayer, filefmt, subfmt);
+  if (ret < 0 && pplayer->wav_playback)
+    {
+      ret = nxplayer_opendevice(pplayer, filefmt, AUDIO_FMT_UNDEF);
+    }
+#else
+  ret = nxplayer_opendevice(pplayer, filefmt, subfmt);
+#endif
   if (ret < 0)
     {
       /* Error opening the device */
@@ -1915,6 +1956,55 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
           ret = -EINVAL;
           goto err_out;
         }
+
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+      if (pplayer->wav_playback)
+        {
+          caps.ac_len = sizeof(caps);
+          caps.ac_type = AUDIO_TYPE_QUERY;
+          caps.ac_subtype = filefmt;
+          caps.ac_format.b[0] = 0;
+          supported = false;
+          if (ioctl(pplayer->dev_fd, AUDIOIOC_GETCAPS,
+                    (unsigned long)&caps) == caps.ac_len)
+            {
+              for (index = 0; index < sizeof(caps.ac_controls.b); index++)
+                {
+                  if (caps.ac_controls.b[index] == subfmt)
+                    {
+                      supported = true;
+                      break;
+                    }
+
+                  if (caps.ac_controls.b[index] == AUDIO_SUBFMT_END)
+                    {
+                      break;
+                    }
+                }
+            }
+
+          pplayer->wav_passthrough = !supported;
+        }
+#endif
+    }
+
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  else if (pplayer->wav_playback)
+    {
+      pplayer->wav_passthrough = true;
+    }
+#endif
+
+  if (pplayer->wav_passthrough)
+    {
+      if (lseek(pplayer->fd, 0, SEEK_SET) != 0)
+        {
+          ret = errno > 0 ? -errno : -EIO;
+          auderr("ERROR: Failed to rewind WAV file: %d\n", ret);
+          goto err_out;
+        }
     }
 
   if (nchannels && samprate && bpsamp)
@@ -1929,9 +2019,27 @@ static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
       cap_desc.caps.ac_controls.hw[0] = samprate;
       cap_desc.caps.ac_controls.b[3]  = samprate >> 16;
       cap_desc.caps.ac_controls.b[2]  = bpsamp;
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+      if (pplayer->wav_playback && !pplayer->wav_passthrough)
+        {
+          cap_desc.caps.ac_format.b[0] = subfmt;
+        }
+
+#endif
       cap_desc.caps.ac_subtype        = filefmt;
 
-      ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE, (unsigned long)&cap_desc);
+      ret = ioctl(pplayer->dev_fd, AUDIOIOC_CONFIGURE,
+                  (unsigned long)&cap_desc);
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+      if (pplayer->wav_playback && ret < 0)
+        {
+          ret = -errno;
+          auderr("ERROR: Failed to configure WAV audio format: %d\n", ret);
+          goto err_out;
+        }
+#endif
     }
 
   /* Query the audio device for its preferred buffer count */
@@ -2048,25 +2156,22 @@ err_out:
 int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
                       FAR const char *pfilename, int filefmt, int subfmt)
 {
-  return nxplayer_playraw(pplayer, pfilename, filefmt,
-                          subfmt, 0, 0, 0, 0);
+  return nxplayer_playfile_impl(pplayer, pfilename, filefmt, subfmt,
+                                0, 0, 0, 0, true);
 }
 
 /****************************************************************************
- * Name: nxplayer_playraw
+ * Name: nxplayer_playfile_impl
  *
- *   nxplayer_playraw() tries to play the audio file using the Audio
- *   system.  If a preferred device is specified, it will try to use that
- *   device otherwise it will perform a search of the Audio device files
- *   to find a suitable device.
+ *   Open and configure a file or raw PCM stream for playback.
  *
  * Input:
  *   pplayer    Pointer to the initialized MPlayer context
  *   pfilename  Pointer to the filename to play
  *   filefmt   - Format of audio in filename if known, AUDIO_FMT_UNDEF
- *               to let nxplayer_playraw() determine automatically.
+ *               to determine automatically.
  *   subfmt    - Sub-Format of audio in filename if known, AUDIO_FMT_UNDEF
- *               to let nxplayer_playraw() determine automatically.
+ *               to determine automatically.
  *   nchannels  channel num
  *   bpsampe    bit width
  *   samprate   sample rate
@@ -2081,10 +2186,12 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
  *
  ****************************************************************************/
 
-int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
-                     FAR const char *pfilename,
-                     int filefmt, int subfmt, uint8_t nchannels,
-                     uint8_t bpsamp, uint32_t samprate, uint8_t chmap)
+static int nxplayer_playfile_impl(FAR struct nxplayer_s *pplayer,
+                                  FAR const char *pfilename,
+                                  int filefmt, int subfmt,
+                                  uint8_t nchannels, uint8_t bpsamp,
+                                  uint32_t samprate, uint8_t chmap,
+                                  bool file_playback)
 {
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
   char path[PATH_MAX];
@@ -2092,6 +2199,13 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
   int  tmpsubfmt = AUDIO_FMT_UNDEF;
   int  ret;
   int  c;
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+  uint32_t original_samprate;
+  uint8_t  original_nchannels;
+  uint8_t  original_bpsamp;
+  int      original_subfmt;
+#endif
 
   DEBUGASSERT(pplayer != NULL);
   DEBUGASSERT(pfilename != NULL);
@@ -2100,6 +2214,15 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
     {
       return -EBUSY;
     }
+
+  pplayer->wav_playback = false;
+  pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
+  pplayer->wav_block_align = 0;
+  pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
+  pplayer->wav_fallback_ready = false;
 
   audinfo("==============================\n");
   audinfo("Playing file %s\n", pfilename);
@@ -2178,12 +2301,25 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
       subfmt = tmpsubfmt;
     }
 
-  for (c = 0; c < nitems(g_dec_ops); c++)
+  pplayer->ops = NULL;
+
+#if defined(CONFIG_NXPLAYER_FMT_FROM_EXT) && \
+    defined(CONFIG_AUDIO_FORMAT_PCM)
+  if (file_playback && filefmt == AUDIO_FMT_PCM &&
+      nxplayer_is_wav_file(pfilename))
     {
-      if (g_dec_ops[c].format == filefmt)
+      pplayer->ops = &g_wav_dec_ops;
+    }
+  else
+#endif
+    {
+      for (c = 0; c < nitems(g_dec_ops); c++)
         {
-          pplayer->ops = &g_dec_ops[c];
-          break;
+          if (g_dec_ops[c].format == filefmt)
+            {
+              pplayer->ops = &g_dec_ops[c];
+              break;
+            }
         }
     }
 
@@ -2195,11 +2331,59 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
 
   if (pplayer->ops->pre_parse)
     {
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+      original_samprate = samprate;
+      original_nchannels = nchannels;
+      original_bpsamp = bpsamp;
+      original_subfmt = subfmt;
+#endif
+
       ret = pplayer->ops->pre_parse(pplayer, pplayer->fd, &samprate,
                                     &nchannels, &bpsamp, &subfmt);
       if (ret < 0)
         {
-          goto err_out;
+#if defined(CONFIG_AUDIO_FORMAT_PCM) && \
+    defined(CONFIG_NXPLAYER_FMT_FROM_EXT)
+          if (pplayer->ops == &g_wav_dec_ops &&
+              pplayer->wav_fallback_ready)
+            {
+              pplayer->ops = NULL;
+              for (c = 0; c < nitems(g_dec_ops); c++)
+                {
+                  if (g_dec_ops[c].format == AUDIO_FMT_PCM)
+                    {
+                      pplayer->ops = &g_dec_ops[c];
+                      break;
+                    }
+                }
+
+              if (!pplayer->ops)
+                {
+                  goto err_out;
+                }
+
+              samprate = original_samprate;
+              nchannels = original_nchannels;
+              bpsamp = original_bpsamp;
+              subfmt = original_subfmt;
+              pplayer->wav_playback = false;
+              pplayer->wav_data_remaining = 0;
+              pplayer->wav_file_remaining = 0;
+              pplayer->wav_header_size = 0;
+              pplayer->wav_block_align = 0;
+              pplayer->wav_error = 0;
+              pplayer->wav_passthrough = false;
+              pplayer->wav_fallback_ready = false;
+
+              audinfo("WAV parsing failed; using PCM decoder\n");
+              ret = OK;
+            }
+          else
+#endif
+            {
+              goto err_out;
+            }
         }
     }
 
@@ -2230,8 +2414,32 @@ int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
 err_out:
   close(pplayer->fd);
   pplayer->fd = -1;
+  pplayer->wav_playback = false;
+  pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
+  pplayer->wav_block_align = 0;
+  pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
+  pplayer->wav_fallback_ready = false;
 
   return ret;
+}
+
+/****************************************************************************
+ * Name: nxplayer_playraw
+ *
+ *   Play a raw media stream using the supplied format parameters.
+ *
+ ****************************************************************************/
+
+int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
+                     FAR const char *pfilename,
+                     int filefmt, int subfmt, uint8_t nchannels,
+                     uint8_t bpsamp, uint32_t samprate, uint8_t chmap)
+{
+  return nxplayer_playfile_impl(pplayer, pfilename, filefmt, subfmt,
+                                nchannels, bpsamp, samprate, chmap, false);
 }
 
 /****************************************************************************
@@ -2326,6 +2534,14 @@ FAR struct nxplayer_s *nxplayer_create(void)
   pplayer->state = NXPLAYER_STATE_IDLE;
   pplayer->dev_fd = -1;
   pplayer->fd = -1;
+  pplayer->wav_playback = false;
+  pplayer->wav_data_remaining = 0;
+  pplayer->wav_file_remaining = 0;
+  pplayer->wav_header_size = 0;
+  pplayer->wav_block_align = 0;
+  pplayer->wav_error = 0;
+  pplayer->wav_passthrough = false;
+  pplayer->wav_fallback_ready = false;
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
   pplayer->prefdevice[0] = '\0';
   pplayer->prefformat = 0;
