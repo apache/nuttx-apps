@@ -155,6 +155,8 @@ static int init_boot_reason(FAR struct action_manager_s *am)
       [BOARDIOC_SOFTRESETCAUSE_RESTORE_FACTORY_INQUIRY] =
         "factory_reset_inquiry",
       [BOARDIOC_SOFTRESETCAUSE_THERMAL]                 = "thermal",
+      [BOARDIOC_SOFTRESETCAUSE_POWEROFF]                = "shutdown",
+      [BOARDIOC_SOFTRESETCAUSE_MAX]                     = "unknown",
     };
 
   char buf[CONFIG_SYSTEM_NXINIT_RC_LINE_MAX];
