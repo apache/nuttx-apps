@@ -1,0 +1,38 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FATGAP
+	tristate "FAT write past EOF test"
+	default n
+	depends on FS_FAT && FSUTILS_MKFATFS && BOARDCTL_MKRD
+	---help---
+		Write past the end of a file on a FAT file system and check that
+		the old data stays and that the gap reads as zero.  The old size
+		is on a cluster boundary, one byte below or above it, in the middle
+		of a cluster, or zero.
+
+		The test makes its own RAM disks: 512 KiB for FAT12, about 2 MiB for
+		FAT16 and about 34 MiB for FAT32.  It skips a FAT type when the memory
+		for its RAM disk is not available.  The arguments select the FAT
+		types, for example "fatgap 12".
+
+if TESTING_FATGAP
+
+config TESTING_FATGAP_PROGNAME
+	string "Program name"
+	default "fatgap"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_FATGAP_PRIORITY
+	int "FAT write past EOF test task priority"
+	default 100
+
+config TESTING_FATGAP_STACKSIZE
+	int "FAT write past EOF test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
