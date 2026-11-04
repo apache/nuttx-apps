@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_LIBC_GOTRELOC
+	tristate "GOT relocation test (arm64)"
+	default n
+	depends on ARCH_ARM64
+	---help---
+		A program built with -fPIC, which has GOT relocations.  It checks
+		the GOT slots that the module loader makes.  It tests the loader
+		only when the program is loaded: in a kernel build, or as a
+		module.
