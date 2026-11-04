@@ -86,6 +86,14 @@ PROGNAME += cmocka_socket_test
 MAINSRC += $(CURDIR)/kernel/socket/cmocka_socket_test.c
 endif
 
+ifneq ($(CONFIG_CM_MSG_TEST),)
+CFLAGS += -I$(CURDIR)/kernel/msg/include
+CSRCS += $(wildcard kernel/msg/cases/*.c)
+CSRCS += $(wildcard kernel/msg/common/*.c)
+PROGNAME += cmocka_msg_test
+MAINSRC += $(CURDIR)/kernel/msg/cmocka_msg_test.c
+endif
+
 ifneq ($(CONFIG_CM_SYSCALL_TEST),)
 CFLAGS += -I$(CURDIR)/kernel/syscall/include
 CFLAGS += -I$(APPDIR)/nshlib
