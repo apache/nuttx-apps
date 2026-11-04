@@ -42,8 +42,8 @@
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/micro_profiler.h"
 #include "tensorflow/lite/micro/micro_utils.h"
-#include "tensorflow/lite/schema/schema_generated.h"
-#include "tensorflow/lite/schema/schema_utils.h"
+#include "tensorflow/lite/micro/flatbuffer_utils.h"
+#include "tensorflow/lite/micro/schema/schema_generated.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -462,7 +462,7 @@ static int register_ops(FAR const tflite::Model *model,
 
   for (i = 0; i < codes->size(); i++)
     {
-      op = tflite::GetBuiltinCode(codes->Get(i));
+      op = tflite::micro::GetBuiltinCode(codes->Get(i));
       if (op == tflite::BuiltinOperator_CUSTOM)
         {
           printf("Unsupported custom operator: %s\n",
@@ -511,7 +511,7 @@ static void print_model_info(FAR const tflite::Model *model,
   printf("operators: %" PRIu32 "\n", operators->size());
   for (i = 0; i < codes->size(); i++)
     {
-      op = tflite::GetBuiltinCode(codes->Get(i));
+      op = tflite::micro::GetBuiltinCode(codes->Get(i));
       count = 0;
       for (j = 0; j < operators->size(); j++)
         {
