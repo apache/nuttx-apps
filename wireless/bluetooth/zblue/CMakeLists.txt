@@ -237,4 +237,22 @@ if(CONFIG_ZBLUE)
   nuttx_add_library(zblue STATIC)
   target_sources(zblue PRIVATE ${ZBLUE_GEN}/zblue.o)
   set_target_properties(zblue PROPERTIES LINKER_LANGUAGE C)
+
+  if(CONFIG_ZBLUE_PERIPHERAL_EXAMPLE)
+    nuttx_add_application(
+      NAME
+      zblue_peripheral
+      SRCS
+      examples/peripheral.c
+      STACKSIZE
+      ${CONFIG_DEFAULT_TASK_STACKSIZE}
+      MODULE
+      ${CONFIG_ZBLUE_PERIPHERAL_EXAMPLE}
+      COMPILE_FLAGS
+      ${ZBLUE_FLAGS}
+      INCLUDE_DIRECTORIES
+      ${ZBLUE_INCDIRS}
+      DEPENDS
+      zblue)
+  endif()
 endif()

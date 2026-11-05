@@ -71,4 +71,11 @@ config ZBLUE_THREAD_PRIORITY
 		Zephyr cooperative priorities are mapped below this value,
 		preemptive priorities above it.
 
+config ZBLUE_PERIPHERAL_EXAMPLE
+	tristate "Peripheral example"
+	default n
+	---help---
+		"zblue_peripheral": advertise and accept connections, with
+		the GAP and GATT services only.
+
 endif # ZBLUE
