@@ -33,6 +33,10 @@ MODULE = $(CONFIG_TESTING_OSTEST)
 
 CSRCS  = getopt.c libc_memmem.c libc_strto.c restart.c sighelper.c
 
+ifeq ($(CONFIG_TESTING_OSTEST_POLL_CLOSE),y)
+CSRCS += poll_close.c
+endif
+
 ifeq ($(CONFIG_ENABLE_ALL_SIGNALS),y)
 CSRCS += sighand.c signest.c
 endif

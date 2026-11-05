@@ -288,6 +288,12 @@ static int user_main(int argc, char *argv[])
 
   /* Test misc libc functions. */
 
+#ifdef CONFIG_TESTING_OSTEST_POLL_CLOSE
+  printf("\nuser_main: close during poll test\n");
+  poll_close_test();
+  check_test_memory_usage();
+#endif
+
   printf("\nuser_main: libc tests\n");
   memmem_test();
   strto_test();

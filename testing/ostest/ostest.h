@@ -101,6 +101,10 @@ int memmem_test(void);
 
 int strto_test(void);
 
+/* poll_close.c *************************************************************/
+
+int poll_close_test(void);
+
 /* setvbuf.c ****************************************************************/
 
 #ifndef CONFIG_STDIO_DISABLE_BUFFERING
