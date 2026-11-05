@@ -26,6 +26,7 @@
 
 #include <errno.h>
 #include <poll.h>
+#include <pthread.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -36,6 +37,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <cmocka.h>
 
 #include "test_local_dgram.h"
@@ -57,6 +59,17 @@ FAR const char *g_local_dgram_dir = P_tmpdir;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static FAR void *local_dgram_job_main(FAR void *arg)
+{
+  FAR struct local_dgram_job_s *job = arg;
+
+  usleep(job->ms * 1000);
+  errno    = 0;
+  job->ret = job->action(job);
+  job->err = errno;
+  return NULL;
+}
 
 static void local_dgram_watchdog(int signo)
 {
@@ -227,6 +240,142 @@ void local_dgram_drain(int fd, FAR char *buf, size_t size)
           break;
         }
     }
+}
+
+/****************************************************************************
+ * Name: local_dgram_mkfifo
+ *
+ * Description:
+ *   Make a FIFO.  A FIFO cannot be inside a mounted file system (EPERM), so
+ *   fall back to the pseudo file system.  path gets the name that worked.
+ *
+ ****************************************************************************/
+
+void local_dgram_mkfifo(FAR char *path, size_t size,
+                        FAR const char *first)
+{
+  int ret;
+
+  strlcpy(path, first, size);
+  unlink(path);
+  ret = mkfifo(path, 0666);
+  if (ret < 0 && errno == EPERM)
+    {
+      snprintf(path, size, "/dev/dgramf-%d", getpid());
+      unlink(path);
+      ret = mkfifo(path, 0666);
+    }
+
+  assert_return_code(ret, errno);
+}
+
+/****************************************************************************
+ * Name: local_dgram_job_arg
+ *
+ * Description:
+ *   Start another thread that does an action after ms milliseconds.
+ *
+ ****************************************************************************/
+
+void local_dgram_job_arg(FAR struct local_dgram_job_s *job,
+                         local_dgram_action_t action, int fd,
+                         FAR const char *path, int ms, int arg)
+{
+  int ret;
+
+  memset(job, 0, sizeof(*job));
+  job->action = action;
+  job->fd     = fd;
+  job->path   = path;
+  job->ms     = ms;
+  job->arg    = arg;
+  job->msg    = "later";
+  job->target = pthread_self();
+  ret = pthread_create(&job->thread, NULL, local_dgram_job_main, job);
+  assert_int_equal(ret, 0);
+}
+
+/****************************************************************************
+ * Name: local_dgram_job_start
+ ****************************************************************************/
+
+void local_dgram_job_start(FAR struct local_dgram_job_s *job,
+                           local_dgram_action_t action, int fd,
+                           FAR const char *path, int ms)
+{
+  local_dgram_job_arg(job, action, fd, path, ms, 0);
+}
+
+/****************************************************************************
+ * Name: local_dgram_job_join
+ ****************************************************************************/
+
+void local_dgram_job_join(FAR struct local_dgram_job_s *job)
+{
+  pthread_join(job->thread, NULL);
+}
+
+/****************************************************************************
+ * Name: local_dgram_sendto
+ ****************************************************************************/
+
+ssize_t local_dgram_sendto(int fd, FAR const char *path,
+                           FAR const void *buf, size_t len, int flags)
+{
+  struct sockaddr_un addr;
+  socklen_t addrlen = local_dgram_addr(&addr, path, false);
+
+  return sendto(fd, buf, len, flags, (FAR struct sockaddr *)&addr, addrlen);
+}
+
+/****************************************************************************
+ * Name: local_dgram_do_send
+ ****************************************************************************/
+
+int local_dgram_do_send(FAR struct local_dgram_job_s *job)
+{
+  return send(job->fd, job->msg, strlen(job->msg), 0);
+}
+
+/****************************************************************************
+ * Name: local_dgram_do_sendto
+ ****************************************************************************/
+
+int local_dgram_do_sendto(FAR struct local_dgram_job_s *job)
+{
+  return local_dgram_sendto(job->fd, job->path, job->msg, strlen(job->msg),
+                            0);
+}
+
+/****************************************************************************
+ * Name: local_dgram_do_close
+ ****************************************************************************/
+
+int local_dgram_do_close(FAR struct local_dgram_job_s *job)
+{
+  return close(job->fd);
+}
+
+/****************************************************************************
+ * Name: local_dgram_revents
+ *
+ * Description:
+ *   Return revents of one poll() and check that the result agrees with it.
+ *
+ ****************************************************************************/
+
+int local_dgram_revents(int fd, int events, int ms)
+{
+  struct pollfd pfd;
+  int ret;
+
+  pfd.fd      = fd;
+  pfd.events  = events;
+  pfd.revents = 0;
+  ret = poll(&pfd, 1, ms);
+  assert_return_code(ret, errno);
+  assert_int_equal(ret, pfd.revents != 0 ? 1 : 0);
+  return pfd.revents;
 }
 
 /****************************************************************************

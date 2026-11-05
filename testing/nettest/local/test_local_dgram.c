@@ -51,7 +51,8 @@
  * Name: main
  *
  * Description:
- *   The optional argument is a writable directory for the socket names.
+ *   The first optional argument is a writable directory for the socket
+ *   names.  The second is a cmocka filter, to run some of the cases.
  *
  ****************************************************************************/
 
@@ -79,11 +80,37 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_notsock),
       DGRAM_TEST_CONNECTED(test_local_dgram_closed),
       DGRAM_TEST(test_local_dgram_abstract),
+      DGRAM_TEST(test_local_dgram_reg_inuse),
+      DGRAM_TEST(test_local_dgram_reg_names),
+      DGRAM_TEST(test_local_dgram_reg_sendrecv),
+      DGRAM_TEST(test_local_dgram_reg_source),
+      DGRAM_TEST(test_local_dgram_reg_order),
+      DGRAM_TEST(test_local_dgram_reg_trunc),
+      DGRAM_TEST(test_local_dgram_reg_zero),
+      DGRAM_TEST(test_local_dgram_reg_big),
+      DGRAM_TEST(test_local_dgram_reg_dontwait),
+      DGRAM_TEST(test_local_dgram_reg_peek),
+      DGRAM_TEST(test_local_dgram_reg_missing),
+      DGRAM_TEST(test_local_dgram_reg_unbound),
+      DGRAM_TEST(test_local_dgram_reg_self),
+      DGRAM_TEST(test_local_dgram_reg_msg),
+      DGRAM_TEST(test_local_dgram_reg_cycle),
+      DGRAM_TEST(test_local_dgram_stream_names),
+      DGRAM_TEST(test_local_dgram_stream_unspec),
+      DGRAM_TEST(test_local_dgram_stream_threads),
+      DGRAM_TEST(test_local_dgram_stream_hup),
+      DGRAM_TEST(test_local_dgram_pipe_hup),
+      DGRAM_TEST(test_local_dgram_fifo_hup),
     };
 
   if (argc > 1)
     {
       g_local_dgram_dir = argv[1];
+    }
+
+  if (argc > 2)
+    {
+      cmocka_set_test_filter(argv[2]);
     }
 
   return cmocka_run_group_tests(local_dgram_tests,

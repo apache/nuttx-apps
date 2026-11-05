@@ -29,6 +29,7 @@
 
 #include <nuttx/compiler.h>
 
+#include <pthread.h>
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -57,6 +58,28 @@ struct nettest_local_dgram_state_s
   int r3;
   int s;                         /* Sender */
   int u;
+};
+
+/* One action of another thread, after a delay.  A failed assert in the main
+ * thread does not stop this thread, so each case joins before it asserts.
+ */
+
+struct local_dgram_job_s;
+typedef int (*local_dgram_action_t)(FAR struct local_dgram_job_s *job);
+
+struct local_dgram_job_s
+{
+  local_dgram_action_t action;
+  FAR const char *path;
+  FAR const char *msg;
+  pthread_t target;
+  pthread_t thread;
+  int fd;
+  int ms;
+  int arg;
+  int ret;
+  int err;
+  int revents;
 };
 
 /****************************************************************************
@@ -107,6 +130,24 @@ void local_dgram_expect(int fd, FAR const char *want);
  ****************************************************************************/
 
 void local_dgram_drain(int fd, FAR char *buf, size_t size);
+
+/* The threads of the cases, and helpers */
+
+void local_dgram_job_arg(FAR struct local_dgram_job_s *job,
+                         local_dgram_action_t action, int fd,
+                         FAR const char *path, int ms, int arg);
+void local_dgram_job_start(FAR struct local_dgram_job_s *job,
+                           local_dgram_action_t action, int fd,
+                           FAR const char *path, int ms);
+void local_dgram_job_join(FAR struct local_dgram_job_s *job);
+int local_dgram_do_send(FAR struct local_dgram_job_s *job);
+int local_dgram_do_sendto(FAR struct local_dgram_job_s *job);
+int local_dgram_do_close(FAR struct local_dgram_job_s *job);
+ssize_t local_dgram_sendto(int fd, FAR const char *path,
+                           FAR const void *buf, size_t len, int flags);
+int local_dgram_revents(int fd, int events, int ms);
+void local_dgram_mkfifo(FAR char *path, size_t size,
+                        FAR const char *first);
 
 /****************************************************************************
  * Name: test_local_dgram_group_setup
@@ -257,5 +298,29 @@ void test_local_dgram_dontwait(FAR void **state);
  ****************************************************************************/
 
 void test_local_dgram_nonblock(FAR void **state);
+
+/* The cases of test_local_dgram_regress.c */
+
+void test_local_dgram_reg_inuse(FAR void **state);
+void test_local_dgram_reg_names(FAR void **state);
+void test_local_dgram_reg_sendrecv(FAR void **state);
+void test_local_dgram_reg_source(FAR void **state);
+void test_local_dgram_reg_order(FAR void **state);
+void test_local_dgram_reg_trunc(FAR void **state);
+void test_local_dgram_reg_zero(FAR void **state);
+void test_local_dgram_reg_big(FAR void **state);
+void test_local_dgram_reg_dontwait(FAR void **state);
+void test_local_dgram_reg_peek(FAR void **state);
+void test_local_dgram_reg_missing(FAR void **state);
+void test_local_dgram_reg_unbound(FAR void **state);
+void test_local_dgram_reg_self(FAR void **state);
+void test_local_dgram_reg_msg(FAR void **state);
+void test_local_dgram_reg_cycle(FAR void **state);
+void test_local_dgram_stream_names(FAR void **state);
+void test_local_dgram_stream_unspec(FAR void **state);
+void test_local_dgram_stream_threads(FAR void **state);
+void test_local_dgram_stream_hup(FAR void **state);
+void test_local_dgram_pipe_hup(FAR void **state);
+void test_local_dgram_fifo_hup(FAR void **state);
 
 #endif /* __APPS_TESTING_NETTEST_LOCAL_TEST_LOCAL_DGRAM_H */
