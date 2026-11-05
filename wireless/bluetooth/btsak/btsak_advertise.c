@@ -123,9 +123,9 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak,
   ad[0].data[0] = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;
 
   memset(&sd, 0, 2 * sizeof(struct bt_eir_s));
-  sd[1].len         = sizeof("btsak");
-  sd[1].type        = BT_EIR_NAME_COMPLETE;
-  strlcpy((FAR char *)sd[1].data, "btsak", sizeof(sd[1].data));
+  sd[0].len         = sizeof("btsak");
+  sd[0].type        = BT_EIR_NAME_COMPLETE;
+  strlcpy((FAR char *)sd[0].data, "btsak", sizeof(sd[0].data));
 
   memset(&btreq, 0, sizeof(struct btreq_s));
   strlcpy(btreq.btr_name, btsak->ifname, IFNAMSIZ);
@@ -138,6 +138,9 @@ static void btsak_cmd_advertisestart(FAR struct btsak_s *btsak,
   sockfd = btsak_socket(btsak);
   if (sockfd >= 0)
     {
+      (void)ioctl(sockfd, SIOCBTADVSTOP,
+                  (unsigned long)((uintptr_t)&btreq));
+
       ret = ioctl(sockfd, SIOCBTADVSTART,
                   (unsigned long)((uintptr_t)&btreq));
       if (ret < 0)
