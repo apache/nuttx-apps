@@ -1,0 +1,118 @@
+# Zephyr-side configuration of the zblue Bluetooth host.
+#
+# This file is not part of the NuttX menuconfig (it is not named Kconfig,
+# and a kconfig/ directory next to Kconfig would clash on file systems that
+# ignore case).  tools/zkconfig.py resolves
+# it with the kconfiglib shipped in the downloaded Zephyr tree, using the
+# CONFIG_BT_* fragment selected by CONFIG_ZBLUE_CONF, and writes the result
+# to a separate autoconf.h used only by zblue.
+#
+# The symbols below describe what the NuttX port provides.  They exist only
+# so that the upstream Kconfig dependencies resolve; their values are fixed.
+
+mainmenu "zblue (Zephyr Bluetooth host) configuration"
+
+config ZBLUE_PORT
+	def_bool y
+	select NET_BUF
+	select ATOMIC_OPERATIONS_BUILTIN
+
+config ATOMIC_OPERATIONS_BUILTIN
+	bool
+
+config MULTITHREADING
+	def_bool y
+
+config PRINTK
+	def_bool y
+
+config ASSERT
+	bool "Enable __ASSERT() checks"
+
+# subsys/debug/Kconfig is not sourced: __ASSERT() checks the level of the
+# DEFAULT module, which is verbose when ASSERT is set.
+
+config ASSERT_MODULE_DEFAULT_LEVEL
+	int
+	default 3 if ASSERT
+	default 0
+
+config LOG
+	bool "Logging"
+
+config LOG_DEFAULT_LEVEL
+	int "Default log level"
+	default 3
+	range 0 4
+
+config LOG_MAX_LEVEL
+	int
+	default 4
+
+config SHELL
+	bool "Shell"
+
+config SETTINGS
+	bool "Settings"
+
+config CRC
+	def_bool y
+
+config UUID
+	bool
+
+config PSA_CRYPTO
+	bool
+
+config PSA_CRYPTO_PROVIDER_MBEDTLS
+	def_bool y
+
+config MBEDTLS_PROMPTLESS
+	def_bool y
+
+config NUM_PREEMPT_PRIORITIES
+	int
+	default 15
+
+config NUM_COOP_PRIORITIES
+	int
+	default 16
+
+config SYSTEM_WORKQUEUE_STACK_SIZE
+	int "System work queue stack size"
+	default 2048
+
+config SYSTEM_WORKQUEUE_PRIORITY
+	int
+	default -1
+
+config MAIN_STACK_SIZE
+	int
+	default 4096
+
+config ZEPHYR_BT_HCI
+	string
+	default ""
+
+config SYS_CLOCK_MAX_TIMEOUT_DAYS
+	int
+	default 365
+
+config SYS_CLOCK_EXISTS
+	def_bool y
+
+config TIMEOUT_64BIT
+	def_bool y
+
+config SYS_CLOCK_TICKS_PER_SEC
+	int
+	default 1000
+
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	int
+	default 1000000
+
+source "$(ZEPHYR_BASE)/Kconfig.constants"
+source "$(ZEPHYR_BASE)/modules/mbedtls/Kconfig.psa.auto"
+source "$(ZEPHYR_BASE)/lib/net_buf/Kconfig"
+source "$(ZEPHYR_BASE)/subsys/bluetooth/Kconfig"
