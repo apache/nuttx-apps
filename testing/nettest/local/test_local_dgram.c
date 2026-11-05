@@ -135,6 +135,14 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_stream_hup),
       DGRAM_TEST(test_local_dgram_pipe_hup),
       DGRAM_TEST(test_local_dgram_fifo_hup),
+      DGRAM_TEST(test_local_dgram_poll_pair),
+      DGRAM_TEST(test_local_dgram_poll_full),
+      DGRAM_TEST(test_local_dgram_poll_fullwait),
+      DGRAM_TEST(test_local_dgram_rebind),
+      DGRAM_TEST(test_local_dgram_source),
+      DGRAM_TEST(test_local_dgram_recvmsg_iov),
+      DGRAM_TEST(test_local_dgram_poll_nval),
+      DGRAM_TEST_CONNECTED(test_local_dgram_poll_zero),
     };
 
   if (argc > 1)
