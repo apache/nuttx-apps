@@ -299,6 +299,43 @@ void test_local_dgram_dontwait(FAR void **state);
 
 void test_local_dgram_nonblock(FAR void **state);
 
+/* The cases of test_local_dgram_pollext.c */
+
+void test_local_dgram_connect_empty(FAR void **state);
+void test_local_dgram_poll_unbound(FAR void **state);
+void test_local_dgram_poll_bound(FAR void **state);
+void test_local_dgram_poll_level(FAR void **state);
+void test_local_dgram_poll_trunc(FAR void **state);
+void test_local_dgram_poll_peek(FAR void **state);
+void test_local_dgram_poll_mask(FAR void **state);
+void test_local_dgram_poll_fds(FAR void **state);
+void test_local_dgram_poll_same(FAR void **state);
+void test_local_dgram_poll_sendto(FAR void **state);
+void test_local_dgram_poll_many(FAR void **state);
+void test_local_dgram_poll_timeout(FAR void **state);
+void test_local_dgram_poll_eintr(FAR void **state);
+void test_local_dgram_ppoll(FAR void **state);
+void test_local_dgram_select_rw(FAR void **state);
+void test_local_dgram_epoll(FAR void **state);
+void test_local_dgram_epoll_bind(FAR void **state);
+void test_local_dgram_epoll_close(FAR void **state);
+void test_local_dgram_poll_bindwait(FAR void **state);
+void test_local_dgram_poll_connwait(FAR void **state);
+void test_local_dgram_poll_unspecwait(FAR void **state);
+void test_local_dgram_poll_closepeer(FAR void **state);
+void test_local_dgram_poll_closesend(FAR void **state);
+void test_local_dgram_poll_threads(FAR void **state);
+void test_local_dgram_poll_slots(FAR void **state);
+void test_local_dgram_poll_cycle(FAR void **state);
+void test_local_dgram_poll_big(FAR void **state);
+void test_local_dgram_poll_abstract(FAR void **state);
+void test_local_dgram_poll_self(FAR void **state);
+void test_local_dgram_poll_nonblock(FAR void **state);
+void test_local_dgram_poll_dup(FAR void **state);
+void test_local_dgram_poll_sendmsg(FAR void **state);
+void test_local_dgram_poll_stress(FAR void **state);
+void test_local_dgram_fifo_policy(FAR void **state);
+
 /* The cases of test_local_dgram_regress.c */
 
 void test_local_dgram_reg_inuse(FAR void **state);

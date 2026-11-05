@@ -46,7 +46,7 @@ config TESTING_NET_LOCAL_DGRAM
 	depends on !DISABLE_PTHREAD && !DISABLE_POSIX_TIMERS
 	default y
 	---help---
-		Test connect(), send(), getpeername(), poll() and select()
+		Test connect(), send(), getpeername(), poll(), select() and epoll
 		of Unix domain datagram sockets, and that POLLHUP of pipes and
 		stream sockets stays (cmocka_net_local_dgram).  The first optional
 		argument of the program is a writable directory for the socket
