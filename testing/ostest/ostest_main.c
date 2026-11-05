@@ -702,6 +702,12 @@ static int user_main(int argc, char *argv[])
       smp_call_test();
 #endif
 
+#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT) && \
+    defined(CONFIG_STACK_COLORATION) && CONFIG_ARCH_INTERRUPTSTACK > 3
+      printf("\nuser_main: interrupt stack test\n");
+      intstack_test();
+#endif
+
 #if defined(CONFIG_SCHED_EVENTS) && defined(CONFIG_BUILD_FLAT)
       /* Verify nxevent */
 

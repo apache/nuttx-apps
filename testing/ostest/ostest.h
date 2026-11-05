@@ -326,6 +326,10 @@ void setjmp_test(void);
 
 #ifdef CONFIG_SMP
 void smp_call_test(void);
+
+/* intstack.c ***************************************************************/
+
+void intstack_test(void);
 #endif
 
 /* spinlock.c ***************************************************************/

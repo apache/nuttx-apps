@@ -176,6 +176,7 @@ endif
 
 ifeq ($(CONFIG_SMP),y)
 CSRCS += smp_call.c
+CSRCS += intstack.c
 endif
 
 ifeq ($(CONFIG_SCHED_EVENTS),y)

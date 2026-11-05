@@ -171,7 +171,7 @@ if(CONFIG_TESTING_OSTEST)
   endif()
 
   if(CONFIG_SMP)
-    list(APPEND SRCS smp_call.c)
+    list(APPEND SRCS smp_call.c intstack.c)
   endif()
 
   if(CONFIG_SCHED_EVENTS AND CONFIG_BUILD_FLAT)
