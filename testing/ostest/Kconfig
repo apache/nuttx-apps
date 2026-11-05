@@ -153,6 +153,14 @@ config TESTING_OSTEST_MULTIUSER
 		CONFIG_LIBC_PASSWD_FILEPATH (default /tmp/ostest_passwd when this
 		option is enabled).
 
+config TESTING_OSTEST_POLL_CLOSE
+	bool "close during poll test"
+	default !DEFAULT_SMALL
+	depends on PIPES && !DISABLE_PTHREAD
+	---help---
+		Test that close() of a descriptor while another thread is in poll()
+		on it leaves nothing behind.
+
 config TESTING_OSTEST_PTHREAD_SIGQUEUE
 	bool "pthread_sigqueue test"
 	default !DEFAULT_SMALL
