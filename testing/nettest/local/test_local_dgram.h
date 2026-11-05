@@ -391,4 +391,12 @@ void test_local_dgram_send_intr(FAR void **state);
 void test_local_dgram_pair_intr(FAR void **state);
 void test_local_dgram_stream_send_intr(FAR void **state);
 
+/* The cases of test_local_dgram_follow.c */
+
+void test_local_dgram_rebind(FAR void **state);
+void test_local_dgram_source(FAR void **state);
+void test_local_dgram_recvmsg_iov(FAR void **state);
+void test_local_dgram_poll_nval(FAR void **state);
+void test_local_dgram_poll_zero(FAR void **state);
+
 #endif /* __APPS_TESTING_NETTEST_LOCAL_TEST_LOCAL_DGRAM_H */
