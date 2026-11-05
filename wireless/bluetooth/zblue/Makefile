@@ -198,4 +198,14 @@ clean::
 	$(call DELDIR,$(ZOBJDIR))
 	$(call DELFILE,$(ZBLUE_GEN)/zblue.o)
 
+# Example
+
+ifneq ($(CONFIG_ZBLUE_PERIPHERAL_EXAMPLE),)
+PROGNAME  = zblue_peripheral
+PRIORITY  = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_DEFAULT_TASK_STACKSIZE)
+MODULE    = $(CONFIG_ZBLUE_PERIPHERAL_EXAMPLE)
+MAINSRC   = examples/peripheral.c
+endif
+
 include $(APPDIR)/Application.mk
