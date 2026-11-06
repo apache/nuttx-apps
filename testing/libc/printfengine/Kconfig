@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_PRINTFENGINE
+	tristate "printf() digits test"
+	default n
+	depends on LIBC_FLOATINGPOINT
+	---help---
+		Test the digits of %e, %f and %g, with the exact options of printf()
+		on and off.
+
+if TESTING_PRINTFENGINE
+
+config TESTING_PRINTFENGINE_PROGNAME
+	string "Program name"
+	default "printfengine"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_PRINTFENGINE_PRIORITY
+	int "Printfengine task priority"
+	default 100
+
+config TESTING_PRINTFENGINE_STACKSIZE
+	int "Printfengine stack size"
+	default 8192 if LIBC_PRINTF_EXACT_LDOUBLE
+	default DEFAULT_TASK_STACKSIZE
+
+endif
