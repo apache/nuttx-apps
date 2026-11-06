@@ -107,7 +107,7 @@ struct fastboot_var_s
   FAR struct fastboot_var_s *next;
   FAR const char *name;
   FAR const char *string;
-  int data;
+  FAR const size_t *data;
 };
 
 struct fastboot_sparse_header_s
@@ -718,7 +718,7 @@ static void fastboot_getvar(FAR struct fastboot_ctx_s *ctx,
         {
           if (var->string == NULL)
             {
-              itoa(var->data, buffer, 10);
+              snprintf(buffer, sizeof(buffer), "%zu", *var->data);
               fastboot_okay(ctx, buffer);
             }
           else
@@ -1140,7 +1140,7 @@ epoll_close:
 static void fastboot_publish(FAR struct fastboot_ctx_s *ctx,
                              FAR const char *name,
                              FAR const char *string,
-                             int data)
+                             FAR const size_t *data)
 {
   FAR struct fastboot_var_s *var;
 
@@ -1163,12 +1163,12 @@ static void fastboot_create_publish(FAR struct fastboot_ctx_s *ctx,
 {
   for (; nctx-- > 0; ctx++)
     {
-      fastboot_publish(ctx, "product", "NuttX", 0);
-      fastboot_publish(ctx, "kernel", "NuttX", 0);
-      fastboot_publish(ctx, "version", CONFIG_VERSION_STRING, 0);
-      fastboot_publish(ctx, "slot-count", "1", 0);
+      fastboot_publish(ctx, "product", "NuttX", NULL);
+      fastboot_publish(ctx, "kernel", "NuttX", NULL);
+      fastboot_publish(ctx, "version", CONFIG_VERSION_STRING, NULL);
+      fastboot_publish(ctx, "slot-count", "1", NULL);
       fastboot_publish(ctx, "max-download-size", NULL,
-                       CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX);
+                       &ctx->download_max);
     }
 }
 
