@@ -1,0 +1,16 @@
+--- a/Modules/_hacl/include/krml/types.h
++++ b/Modules/_hacl/include/krml/types.h
+@@ -2,6 +2,13 @@
+ 
+ #include <inttypes.h>
+ 
++/* Platform macros spelling uint128_t (e.g. NuttX FLS128) must be used after
++   "#undef uint128_t". */
++#ifdef __INT128_DEFINED
++#  include "krml/internal/target.h" /* parse system headers first */
++#  define uint128_t __FStar_UInt128_uint128
++#endif
++
+ typedef struct FStar_UInt128_uint128_s {
+   uint64_t low;
+   uint64_t high;
