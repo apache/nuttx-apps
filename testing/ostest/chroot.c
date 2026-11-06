@@ -58,8 +58,36 @@
 #define CHROOT_PRIO    100
 
 /****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+/* The result of each task.  ostest_main() sets SA_NOCLDWAIT on SIGCHLD for
+ * the whole run, so waitpid() gives no exit status after a task ended.
+ * The test is not built in a kernel build, so the tasks share this memory.
+ */
+
+static volatile int g_childret;
+static volatile int g_grandchildret;
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/* Wait for a task to end.  waitpid() blocks on a task that is alive, and
+ * gives ECHILD when the task ended before it.
+ */
+
+static int chroot_wait(pid_t pid)
+{
+  int status;
+
+  if (waitpid(pid, &status, 0) != pid && errno != ECHILD)
+    {
+      return ERROR;
+    }
+
+  return OK;
+}
 
 static int chroot_fail(FAR const char *msg)
 {
@@ -81,6 +109,7 @@ static int chroot_grandchild(int argc, FAR char *argv[])
     }
 
   printf("chroot_test: grandchild still sees the jail\n");
+  g_grandchildret = EXIT_SUCCESS;
   return EXIT_SUCCESS;
 }
 
@@ -88,7 +117,6 @@ static int chroot_child(int argc, FAR char *argv[])
 {
   struct stat st;
   pid_t pid;
-  int status;
   int fd;
   int hostfd;
 
@@ -163,6 +191,7 @@ static int chroot_child(int argc, FAR char *argv[])
   printf("chroot_test: pre-opened host fd still usable after chroot\n");
   close(hostfd);
 
+  g_grandchildret = EXIT_FAILURE;
   pid = task_create("chroot_gc", CHROOT_PRIO, STACKSIZE,
                     chroot_grandchild, NULL);
   if (pid < 0)
@@ -170,18 +199,19 @@ static int chroot_child(int argc, FAR char *argv[])
       return chroot_fail("task_create(grandchild) failed");
     }
 
-  if (waitpid(pid, &status, 0) != pid)
+  if (chroot_wait(pid) < 0)
     {
       return chroot_fail("waitpid(grandchild) failed");
     }
 
-  if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+  if (g_grandchildret != EXIT_SUCCESS)
     {
-      printf("chroot_test: ERROR grandchild status=%d\n", status);
+      printf("chroot_test: ERROR grandchild failed\n");
       ASSERT(false);
       return EXIT_FAILURE;
     }
 
+  g_childret = EXIT_SUCCESS;
   return EXIT_SUCCESS;
 }
 
@@ -245,7 +275,6 @@ static void chroot_cleanup(void)
 int chroot_test(void)
 {
   pid_t pid;
-  int status;
 #ifdef CONFIG_DEV_NULL
   int fd;
 #endif
@@ -257,6 +286,7 @@ int chroot_test(void)
       return ERROR;
     }
 
+  g_childret = EXIT_FAILURE;
   pid = task_create("chroot_child", CHROOT_PRIO, STACKSIZE,
                     chroot_child, NULL);
   if (pid < 0)
@@ -267,7 +297,7 @@ int chroot_test(void)
       return ERROR;
     }
 
-  if (waitpid(pid, &status, 0) != pid)
+  if (chroot_wait(pid) < 0)
     {
       printf("chroot_test: ERROR waitpid failed errno=%d\n", errno);
       ASSERT(false);
@@ -277,9 +307,9 @@ int chroot_test(void)
 
   chroot_cleanup();
 
-  if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
+  if (g_childret != EXIT_SUCCESS)
     {
-      printf("chroot_test: ERROR child status=%d\n", status);
+      printf("chroot_test: ERROR child failed\n");
       ASSERT(false);
       return ERROR;
     }
