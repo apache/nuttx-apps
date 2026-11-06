@@ -117,13 +117,13 @@ static void str_escape(FAR char *s)
             *s++ = *q;
             break;
 
-          CHAR_ESCAPE(s, '\a');
-          CHAR_ESCAPE(s, '\b');
-          CHAR_ESCAPE(s, '\f');
-          CHAR_ESCAPE(s, '\n');
-          CHAR_ESCAPE(s, '\r');
-          CHAR_ESCAPE(s, '\v');
-          CHAR_ESCAPE(s, '\\');
+            CHAR_ESCAPE(s, '\a');
+            CHAR_ESCAPE(s, '\b');
+            CHAR_ESCAPE(s, '\f');
+            CHAR_ESCAPE(s, '\n');
+            CHAR_ESCAPE(s, '\r');
+            CHAR_ESCAPE(s, '\v');
+            CHAR_ESCAPE(s, '\\');
         }
     }
 
