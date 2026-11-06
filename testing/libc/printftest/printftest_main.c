@@ -28,6 +28,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <float.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -47,10 +48,54 @@
 #define CHECKLEN(want, fmt, ...) \
   check_ret(want, fmt, nofmt(g_buf, sizeof(g_buf), fmt, ##__VA_ARGS__))
 
+/* What a correct call prints depends on the options of printf */
+
 #ifdef CONFIG_LIBC_FLOATINGPOINT
 #  define FLT(on, off) on
 #else
 #  define FLT(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_PERCENT_N
+#  define PCN(on, off) on
+#else
+#  define PCN(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_HEXFLOAT
+#  define HXF(on, off) on
+#else
+#  define HXF(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_C23
+#  define C23(on, off) on
+#else
+#  define C23(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_ALT_FORM
+#  define ALT(on, off) on
+#else
+#  define ALT(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_OCTAL
+#  define OCT(on, off) on
+#else
+#  define OCT(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_LEFT_JUSTIFY
+#  define LJT(on, off) on
+#else
+#  define LJT(on, off) off
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_INT_PRECISION
+#  define PRC(on, off) on
+#else
+#  define PRC(on, off) off
 #endif
 
 /****************************************************************************
@@ -108,29 +153,36 @@ int main(int argc, FAR char *argv[])
 
   /* A conversion that is not available takes its argument */
 
-  CHECK("?|str", "%a|%s", 1.5, "str");
-  CHECK("?|str", "%A|%s", 1.5, "str");
-  CHECK("    ?|?    |str", "%5a|%-5A|%s", 1.5, 2.5, "str");
-  CHECK("?|2|s|3|?|5", "%a|%ld|%s|%ld|%a|%ld", 1.0, 2L, "s", 3L, 4.0, 5L);
-  CHECK("?|str", "%La|%s", (long double)1.5, "str");
+  CHECK(HXF("0x1.8p+0", "?") "|str", "%a|%s", 1.5, "str");
+  CHECK(HXF("0X1.8P+0", "?") "|str", "%A|%s", 1.5, "str");
+  CHECK(HXF("0x1.8p+0|0X1.4P+1", LJT("    ?|?    ", "    ?|    ?")) "|str",
+        "%5a|%-5A|%s", 1.5, 2.5, "str");
+  CHECK(HXF("0x1p+0|2|s|3|0x1p+2|5", "?|2|s|3|?|5"),
+        "%a|%ld|%s|%ld|%a|%ld", 1.0, 2L, "s", 3L, 4.0, 5L);
+  CHECK(HXF("0x1.8p+0", "?") "|str", "%La|%s", (long double)1.5, "str");
   CHECK(FLT("1.5|str", "?|str"), "%Lg|%s", (long double)1.5, "str");
   CHECK(FLT("1.500000|str", "?|str"), "%f|%s", 1.5, "str");
 
-  /* %n of any length takes its pointer, stores nothing, prints "?" */
+  /* %n of any length takes its pointer.  Off: it stores nothing and prints
+   * "?".  On: it stores the count at its size, and prints nothing.
+   */
 
-  CHECK("ab?|str", "ab%n|%s", &n, "str");
-  CHECK("ab?|str", "ab%lln|%s", &ll, "str");
-  CHECK("ab?|str", "ab%hhn|%s", &hh, "str");
-  ASSERT(n == 77 && ll == 77 && hh == 77);
+  CHECK(PCN("ab|str", "ab?|str"), "ab%n|%s", &n, "str");
+  ASSERT(n == PCN(2, 77));
+  CHECK(PCN("abc|str", "abc?|str"), "abc%lln|%s", &ll, "str");
+  ASSERT(ll == PCN(3, 77));
+  CHECK(PCN("abcd|str", "abcd?|str"), "abcd%hhn|%s", &hh, "str");
+  ASSERT(hh == PCN(4, 77));
 
-  /* An unknown conversion takes no argument: the rest is text.  A newer
-   * format that printf does not know yet is the same case.
+  /* An unknown conversion takes no argument: the rest is text.  A format
+   * of a feature that is off is the same case.
    */
 
   CHECK("%y|%d|%s", "%y|%d|%s", 1, "str");
   CHECK("1%Y%s", "%d%Y%s", 1, "str");
-  CHECK("%w64d|%s", "%w64d|%s", 1LL, "str");
-  CHECK("%w32d|%s", "%w32d|%s", 1, "str");
+  CHECK("%w7d|%d", "%w7d|%d", 1, 2);
+  CHECK(C23("5|str", "%w32d|%s"), "%w32d|%s", 5, "str");
+  CHECK(C23("101|str", "%b|%s"), "%b|%s", 5, "str");
   CHECK("%Hf|%s", "%Hf|%s", 1.5, "str");
 
   /* The end of the format */
@@ -143,13 +195,15 @@ int main(int argc, FAR char *argv[])
 
   CHECKLEN(300, "%300d", 1);
   CHECKLEN(4095, "%4095d", 1);
-  CHECKLEN(300, "%.300d", 1);
+  CHECKLEN(PRC(300, 1), "%.300d", 1);
   CHECK("abc|", "%.99999999999s|", "abc");
-  CHECK("1||", "%.*d|%.*s|", INT_MIN, 1, INT_MIN, "ab");
+  CHECK("1|ab|", "%.*d|%.*s|", INT_MIN, 1, INT_MIN, "ab");
 
+#ifdef CONFIG_LIBC_PRINTF_INT_PRECISION
   errno = 0;
   CHECKLEN(-1, "%#.2147483647x", 1);
   ASSERT(errno == EOVERFLOW);
+#endif
 
 #ifdef CONFIG_LIBC_FLOATINGPOINT
   CHECKLEN(-1, "%.2147483647f", 1.5);
@@ -158,24 +212,55 @@ int main(int argc, FAR char *argv[])
   CHECK("    1.0e+100|", "%12.1e|", 1e100);
   CHECKLEN(261, "%.255e", 1.0);
   ASSERT(g_buf[0] == '1');
+
+  /* The sign of a negative zero */
+
+  CHECK("-0.000000|-0.000000e+00|-0|str", "%f|%e|%g|%s", -0.0, -0.0, -0.0,
+        "str");
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_HEXFLOAT
+  /* %a */
+
+  CHECK("0x0p+0|-0x0p+0|0x1.999999999999ap-4", "%a|%a|%a", 0.0, -0.0, 0.1);
+  CHECK("0x2p+0|0x1p+0|0x1.2p+0|0x1.0p+0", "%.0a|%.0a|%.1a|%.1a", 1.5, 1.25,
+        1.09375, 1.03125);
+  CHECK("  0x1.8p+0|" LJT("0x1.8p+0  ", "  0x1.8p+0")
+        "|0x0001.8p+0|+0x1.8p+0",
+        "%10a|%-10a|%011a|%+a", 1.5, 1.5, 1.5, 1.5);
+  CHECK("0x1.fffffffffffffp+1023|0x0.0000000000001p-1022", "%a|%a",
+        DBL_MAX, DBL_MIN * DBL_EPSILON);
+  CHECK("inf|-INF", "%a|%A", 1.0 / 0.0, -1.0 / 0.0);
+#endif
+
+#ifdef CONFIG_LIBC_PRINTF_C23
+  /* %b, %B, wN and wfN.  A length with an unknown size stays as text. */
+
+  CHECK("101|0|       101|" LJT("101       ", "       101")
+        "|0000000101|str",
+        "%b|%b|%10b|%-10b|%010b|%s", 5, 0, 5, 5, 5, "str");
+  CHECK(ALT("0b101|0B101", "101|101") "|str", "%#b|%#B|%s", 5, 5, "str");
+  CHECK("4294967295|str", "%w32u|%s", -1, "str");
+  CHECK("abc%w", "abc%w");
 #endif
 
   /* No digits */
 
-  CHECK("||", "%#.0x|%#.0X|", 0, 0);
-  CHECK("0|", "%#.0o|", 0);
+  CHECK(PRC("||", "?|?|"), "%#.0x|%#.0X|", 0, 0);
+  CHECK(OCT(PRC(ALT("0|", "|"), "?|"), "?|"), "%#.0o|", 0);
 
 #ifdef CONFIG_LIBC_NUMBERED_ARGS
   /* Numbered arguments */
 
-  CHECK("str?", "%2$s%1$n", &n, "str");
-  CHECK("str ff FF 10", "%3$s %1$x %2$X %4$o", 255, 255, "str", 8);
-  CHECK("str ?", "%2$s %1$a", 1.5, "str");
-  CHECK("str ?", "%2$s %1$La", (long double)1.5, "str");
-  CHECK("1    |", "%2$*1$d|", -5, 1);
+  CHECK(PCN("str", "str?"), "%2$s%1$n", &n, "str");
+  CHECK("str ff FF " OCT("10", "?"), "%3$s %1$x %2$X %4$o",
+        255, 255, "str", 8);
+  CHECK(HXF("str 0x1.8p+0", "str ?"), "%2$s %1$a", 1.5, "str");
+  CHECK(HXF("str 0x1.8p+0", "str ?"), "%2$s %1$La", (long double)1.5, "str");
+  CHECK(LJT("1    |", "    1|"), "%2$*1$d|", -5, 1);
   CHECK("[", "[%3$s %1$d]", 1, 2, "str");
   CHECK("[", "[%99999999999$d]", 1);
-  ASSERT(n == 77);
+  ASSERT(n == PCN(3, 77));
 #endif
 
   printf("printftest: PASS\n");
