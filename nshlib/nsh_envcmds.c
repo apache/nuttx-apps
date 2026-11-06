@@ -168,6 +168,49 @@ static int nsh_dumpvar(FAR struct nsh_vtbl_s *vtbl, FAR void *arg,
 #endif
 
 /****************************************************************************
+ * Name: nsh_setpwd
+ *
+ * Description:
+ *   After a successful chdir(): set PWD to the new current directory and
+ *   OLDPWD to 'oldpwd' (the PWD before the chdir(), or NULL), as a shell
+ *   does.  chdir() does not change the environment.  Without the
+ *   environment, keep the directory in the console state.
+ *
+ ****************************************************************************/
+
+#if !defined(CONFIG_NSH_DISABLE_CD) || \
+    (defined(CONFIG_FS_CHROOT) && !defined(CONFIG_NSH_DISABLE_CHROOT))
+static void nsh_setpwd(FAR struct nsh_vtbl_s *vtbl, FAR const char *oldpwd)
+{
+#ifndef CONFIG_DISABLE_ENVIRON
+  FAR char *cwd = getcwd(NULL, 0);
+
+  if (cwd != NULL)
+    {
+#  ifndef CONFIG_NSH_DISABLE_CD
+      if (oldpwd != NULL)
+        {
+          setenv(g_oldpwd, oldpwd, TRUE);
+        }
+#  endif
+
+      setenv(g_pwd, cwd, TRUE);
+      free(cwd);
+    }
+
+  UNUSED(oldpwd);
+  UNUSED(vtbl);
+#else
+  UNUSED(oldpwd);
+  if (getcwd(vtbl->cwd, sizeof(vtbl->cwd)) == NULL)
+    {
+      strlcpy(vtbl->cwd, CONFIG_LIBC_HOMEDIR, sizeof(vtbl->cwd));
+    }
+#endif
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -246,6 +289,7 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   FAR const char *path = argv[1];
   FAR char *alloc = NULL;
   FAR char *fullpath = NULL;
+  FAR char *oldpwd = NULL;
   int ret = OK;
 
   /* Check for special arguments */
@@ -295,22 +339,29 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* Set the new working directory */
 
+#ifndef CONFIG_DISABLE_ENVIRON
+  oldpwd = strdup(nsh_getwd(g_pwd));
+#endif
+
   ret = chdir(path);
   if (ret != 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
       ret = ERROR;
     }
-#ifdef CONFIG_DISABLE_ENVIRON
   else
     {
-      strlcpy(vtbl->cwd, path, sizeof(vtbl->cwd));
+      nsh_setpwd(vtbl, oldpwd);
     }
-#endif
 
   /* Free any memory that was allocated */
 
 errout:
+  if (oldpwd)
+    {
+      free(oldpwd);
+    }
+
   if (alloc)
     {
       free(alloc);
@@ -397,6 +448,8 @@ int cmd_chroot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
       return ERROR;
     }
+
+  nsh_setpwd(vtbl, NULL);
 
 #ifdef CONFIG_LIBC_EXECFUNCS
   if (argc > 2)
