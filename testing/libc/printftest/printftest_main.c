@@ -198,6 +198,8 @@ int main(int argc, FAR char *argv[])
   CHECKLEN(PRC(300, 1), "%.300d", 1);
   CHECK("abc|", "%.99999999999s|", "abc");
   CHECK("1|ab|", "%.*d|%.*s|", INT_MIN, 1, INT_MIN, "ab");
+  CHECK("0|abcdef|", "%.*d|%.*s|", -1, 0, -2, "abcdef");
+  CHECK("000042|", "%0*.*d|", 6, -1, 42);
 
 #ifdef CONFIG_LIBC_PRINTF_INT_PRECISION
   errno = 0;
@@ -212,6 +214,12 @@ int main(int argc, FAR char *argv[])
   CHECK("    1.0e+100|", "%12.1e|", 1e100);
   CHECKLEN(261, "%.255e", 1.0);
   ASSERT(g_buf[0] == '1');
+
+  /* The # flag of %g keeps the zeros.  A negative precision is none. */
+
+  CHECK("-3.750000e+00|", "%*.*e|", 0, -1, -3.75);
+  CHECK(ALT("1.00000|1.00000e+06|1.|100000.", "1|1e+06|1|100000"),
+        "%#g|%#g|%#.0g|%#g", 1.0, 1e6, 1.0, 1e5);
 
   /* The sign of a negative zero */
 
