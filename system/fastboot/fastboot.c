@@ -33,6 +33,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -152,6 +154,16 @@ struct fastboot_transport_ops_s
   CODE int (*write)(FAR struct fastboot_ctx_s *, FAR const void *, size_t);
 };
 
+struct fastboot_async_s
+{
+  pthread_t thread;
+  sem_t start;
+  sem_t done;
+  size_t size;
+  bool quit;
+  int ret;
+};
+
 struct fastboot_ctx_s
 {
   /* Transport file descriptors
@@ -166,6 +178,7 @@ struct fastboot_ctx_s
   int flash_fd;
   size_t download_max;
   size_t download_size;
+  int download_half;
 
   /* Store wait_ms argument before poll of fastboot_command_loop, and
    * TCP transport remaining data size later.
@@ -186,6 +199,7 @@ struct fastboot_ctx_s
           struct fastboot_file_s file;
         } u;
     } upload_param;
+  struct fastboot_async_s async;
 };
 
 struct fastboot_cmd_s
@@ -222,6 +236,8 @@ static void fastboot_memdump(FAR struct fastboot_ctx_s *ctx,
                              FAR const char *arg);
 static void fastboot_filedump(FAR struct fastboot_ctx_s *ctx,
                               FAR const char *arg);
+static void fastboot_flash_status(FAR struct fastboot_ctx_s *ctx,
+                                  FAR const char *arg);
 #ifdef CONFIG_SYSTEM_FASTBOOTD_SHELL
 static void fastboot_shell(FAR struct fastboot_ctx_s *ctx,
                            FAR const char *arg);
@@ -283,6 +299,7 @@ static const struct fastboot_cmd_s g_fast_cmd[] =
 static const struct fastboot_cmd_s g_oem_cmd[] =
 {
   { "filedump",           fastboot_filedump         },
+  { "flash",              fastboot_flash_status     },
   { "memdump",            fastboot_memdump          },
 #ifdef CONFIG_SYSTEM_FASTBOOTD_SHELL
   { "shell",              fastboot_shell            },
@@ -493,10 +510,10 @@ static int fastboot_flash_erase(int fd)
   return ret < 0 ? -errno : ret;
 }
 
-static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
+static int fastboot_flash_program(int fd, FAR void *buffer, size_t size)
 {
-  FAR char *chunk_ptr = ctx->download_buffer;
-  FAR char *end_ptr = chunk_ptr + ctx->download_size;
+  FAR char *chunk_ptr = buffer;
+  FAR char *end_ptr = chunk_ptr + size;
   FAR struct fastboot_sparse_header_s *sparse;
   uint32_t chunk_num;
   off_t offset = 0;
@@ -507,8 +524,7 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
   sparse = (FAR struct fastboot_sparse_header_s *)chunk_ptr;
   if (sparse->magic != FASTBOOT_SPARSE_MAGIC)
     {
-      return fastboot_flash_write(fd, 0, ctx->download_buffer,
-                                  ctx->download_size);
+      return fastboot_flash_write(fd, 0, buffer, size);
     }
 
   chunk_num = sparse->total_chunks;
@@ -568,11 +584,45 @@ static int fastboot_flash_program(FAR struct fastboot_ctx_s *ctx, int fd)
   return ret;
 }
 
+static void *fastboot_flash_worker(FAR void *arg)
+{
+  FAR struct fastboot_ctx_s *ctx = arg;
+  FAR char *buffer;
+
+  for (; ; )
+    {
+      while (sem_wait(&ctx->async.start) < 0);
+
+      if (ctx->async.quit)
+        {
+          break;
+        }
+
+      buffer = (FAR char *)ctx->download_buffer +
+               (ctx->download_half ^ 1) * ctx->download_max;
+      ctx->async.ret = fastboot_flash_program(ctx->flash_fd, buffer,
+                                              ctx->async.size);
+      if (ctx->async.ret < 0)
+        {
+          fb_err("flash write failed: %d\n", ctx->async.ret);
+        }
+
+      if (ctx->async.ret <= 0)
+        {
+          fastboot_flash_close(ctx->flash_fd);
+          ctx->flash_fd = -1;
+        }
+
+      sem_post(&ctx->async.done);
+    }
+
+  return NULL;
+}
+
 static void fastboot_flash(FAR struct fastboot_ctx_s *ctx,
                            FAR const char *arg)
 {
   char blkdev[PATH_MAX];
-  int ret;
 
   snprintf(blkdev, PATH_MAX, FASTBOOT_BLKDEV, arg);
 
@@ -586,21 +636,20 @@ static void fastboot_flash(FAR struct fastboot_ctx_s *ctx,
         }
     }
 
-  ret = fastboot_flash_program(ctx, ctx->flash_fd);
-  if (ret < 0)
+  while (sem_wait(&ctx->async.done) < 0);
+
+  if (ctx->async.ret < 0)
     {
+      ctx->async.ret = 0;
+      sem_post(&ctx->async.done);
       fastboot_fail(ctx, "Image flash failure");
-    }
-  else
-    {
-      fastboot_okay(ctx, "");
+      return;
     }
 
-  if (ret <= 0)
-    {
-      fastboot_flash_close(ctx->flash_fd);
-      ctx->flash_fd = -1;
-    }
+  fastboot_okay(ctx, "");
+  ctx->async.size = ctx->download_size;
+  ctx->download_half ^= 1;
+  sem_post(&ctx->async.start);
 }
 
 static void fastboot_erase(FAR struct fastboot_ctx_s *ctx,
@@ -680,7 +729,8 @@ static void fastboot_download(FAR struct fastboot_ctx_s *ctx,
       return;
     }
 
-  download = ctx->download_buffer;
+  download = (FAR char *)ctx->download_buffer +
+             ctx->download_half * ctx->download_max;
   ctx->download_size = len;
 
   while (len > 0)
@@ -1021,6 +1071,19 @@ done:
   ctx->upload_func = NULL;
 }
 
+static void fastboot_flash_status(FAR struct fastboot_ctx_s *ctx,
+                                  FAR const char *arg)
+{
+  if (ctx->async.ret < 0)
+    {
+      fastboot_fail(ctx, "Image flash failure");
+    }
+  else
+    {
+      fastboot_okay(ctx, "");
+    }
+}
+
 static void fastboot_oem(FAR struct fastboot_ctx_s *ctx, FAR const char *arg)
 {
   size_t ncmds = nitems(g_oem_cmd);
@@ -1115,6 +1178,12 @@ static int fastboot_command_loop(FAR struct fastboot_ctx_s *ctx,
 
               if (memcmp(buffer, g_fast_cmd[index].prefix, len) == 0)
                 {
+                  if (g_fast_cmd[index].handle != fastboot_download)
+                    {
+                      while (sem_wait(&c->async.done) < 0);
+                      sem_post(&c->async.done);
+                    }
+
                   g_fast_cmd[index].handle(c, buffer + len);
                   break;
                 }
@@ -1604,7 +1673,7 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
 
   for (; nctx-- > 0; ctx++)
     {
-      ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX;
+      ctx->download_max    = CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_MAX / 2;
       ctx->flash_fd        = -1;
       ctx->left            = ctx[0].left;
       ctx->ops             = &g_tran_ops[nctx];
@@ -1623,9 +1692,30 @@ static int fastboot_context_initialize(FAR struct fastboot_ctx_s *ctx,
           continue;
         }
 
+      sem_init(&ctx->async.start, 0, 0);
+      sem_init(&ctx->async.done, 0, 1);
+      ret = pthread_create(&ctx->async.thread, NULL,
+                           fastboot_flash_worker, ctx);
+      if (ret != 0)
+        {
+          sem_destroy(&ctx->async.start);
+          sem_destroy(&ctx->async.done);
+#if CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR == 0
+          free(ctx->download_buffer);
+#endif
+          ctx->download_buffer = NULL;
+          ret = -ret;
+          continue;
+        }
+
       ret = ctx->ops->init(ctx);
       if (ret < 0)
         {
+          ctx->async.quit = true;
+          sem_post(&ctx->async.start);
+          pthread_join(ctx->async.thread, NULL);
+          sem_destroy(&ctx->async.start);
+          sem_destroy(&ctx->async.done);
 #if CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR == 0
           free(ctx->download_buffer);
 #endif
@@ -1644,6 +1734,14 @@ static void fastboot_context_deinit(FAR struct fastboot_ctx_s *ctx,
     {
       if (ctx->download_buffer)
         {
+          while (sem_wait(&ctx->async.done) < 0);
+
+          ctx->async.quit = true;
+          sem_post(&ctx->async.start);
+          pthread_join(ctx->async.thread, NULL);
+          sem_destroy(&ctx->async.start);
+          sem_destroy(&ctx->async.done);
+
           ctx->ops->deinit(ctx);
 #if CONFIG_SYSTEM_FASTBOOTD_DOWNLOAD_ADDR == 0
           free(ctx->download_buffer);
