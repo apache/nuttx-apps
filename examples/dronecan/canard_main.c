@@ -108,10 +108,10 @@
 
 static CanardInstance canard;
 
-/* Arena for memory allocation, used by the library */
+/* Memory arena, aligned for the library's pointers and 64-bit fields */
 
 static uint8_t canard_memory_pool
-               [CONFIG_EXAMPLES_DRONECAN_NODE_MEM_POOL_SIZE];
+               [CONFIG_EXAMPLES_DRONECAN_NODE_MEM_POOL_SIZE] aligned_data(8);
 
 static uint8_t unique_id[UNIQUE_ID_LENGTH_BYTES] =
 { 0x00, 0x00, 0x00, 0x00,
@@ -202,6 +202,7 @@ static void onTransferReceived(CanardInstance *ins,
       printf("GetNodeInfo request from %d\n", transfer->source_node_id);
 
       uint8_t buffer[UAVCAN_GET_NODE_INFO_RESPONSE_MAX_SIZE];
+
       memset(buffer, 0, UAVCAN_GET_NODE_INFO_RESPONSE_MAX_SIZE);
 
       /* NodeStatus */
@@ -233,6 +234,7 @@ static void onTransferReceived(CanardInstance *ins,
       /* Name */
 
       const size_t name_len = strlen(APP_NODE_NAME);
+
       memcpy(&buffer[41], APP_NODE_NAME, name_len);
 
       const size_t total_size = 41 + name_len;
@@ -243,25 +245,25 @@ static void onTransferReceived(CanardInstance *ins,
 
       const int resp_res =
 #if CANARD_ENABLE_CANFD
-        canardRequestOrRespond(ins,
-                               transfer->source_node_id,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
-                               &transfer->transfer_id,
-                               transfer->priority,
-                               CanardResponse,
-                               &buffer[0],
-                               (uint16_t)total_size, canfd);
+      canardRequestOrRespond(ins,
+                             transfer->source_node_id,
+                             UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
+                             UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
+                             &transfer->transfer_id,
+                             transfer->priority,
+                             CanardResponse,
+                             &buffer[0],
+                             (uint16_t)total_size, canfd);
 #else
-        canardRequestOrRespond(ins,
-                               transfer->source_node_id,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
-                               &transfer->transfer_id,
-                               transfer->priority,
-                               CanardResponse,
-                               &buffer[0],
-                               (uint16_t) total_size);
+      canardRequestOrRespond(ins,
+                             transfer->source_node_id,
+                             UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
+                             UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
+                             &transfer->transfer_id,
+                             transfer->priority,
+                             CanardResponse,
+                             &buffer[0],
+                             (uint16_t) total_size);
 #endif
       if (resp_res <= 0)
         {
@@ -327,83 +329,84 @@ void process1HzTasks(uint64_t timestamp_usec)
 
   /* Printing the memory usage statistics. */
 
-    {
-      const CanardPoolAllocatorStatistics stats =
-        canardGetPoolAllocatorStatistics(&canard);
-      const unsigned peak_percent =
-        100U * stats.peak_usage_blocks / stats.capacity_blocks;
+  {
+    const CanardPoolAllocatorStatistics stats =
+      canardGetPoolAllocatorStatistics(&canard);
+    const unsigned peak_percent =
+      100U * stats.peak_usage_blocks / stats.capacity_blocks;
 
 #ifdef CONFIG_DEBUG_CAN
-      printf("Memory pool stats: capacity %u blocks, usage %u blocks,"
-             " peak usage %u blocks (%u%%)\n",
-         stats.capacity_blocks, stats.current_usage_blocks,
-         stats.peak_usage_blocks, peak_percent);
+    printf("Memory pool stats: capacity %u blocks, usage %u blocks,"
+           " peak usage %u blocks (%u%%)\n",
+       stats.capacity_blocks, stats.current_usage_blocks,
+       stats.peak_usage_blocks, peak_percent);
 #endif
 
-      /* The recommended way to establish the minimal size of the memory pool
-       * is to stress-test the application and record the worst case memory
-       * usage.
-       */
+    /* The recommended way to establish the minimal size of the memory pool
+     * is to stress-test the application and record the worst case memory
+     * usage.
+     */
 
-      if (peak_percent > 70)
-        {
-          puts("WARNING: ENLARGE MEMORY POOL");
-        }
-    }
+    if (peak_percent > 70)
+      {
+        puts("WARNING: ENLARGE MEMORY POOL");
+      }
+  }
 
   /* Transmitting the node status message periodically. */
 
-    {
-      uint8_t buffer[UAVCAN_NODE_STATUS_MESSAGE_SIZE];
-      makeNodeStatusMessage(buffer);
+  {
+    uint8_t buffer[UAVCAN_NODE_STATUS_MESSAGE_SIZE];
 
-      static uint8_t transfer_id;
+    makeNodeStatusMessage(buffer);
 
-      const int bc_res =
+    static uint8_t transfer_id;
+
+    const int bc_res =
 #if CANARD_ENABLE_CANFD
-        canardBroadcast(&canard, UAVCAN_NODE_STATUS_DATA_TYPE_SIGNATURE,
-                        UAVCAN_NODE_STATUS_DATA_TYPE_ID, &transfer_id,
-                        CANARD_TRANSFER_PRIORITY_LOW,
-                        buffer, UAVCAN_NODE_STATUS_MESSAGE_SIZE, canfd);
+    canardBroadcast(&canard, UAVCAN_NODE_STATUS_DATA_TYPE_SIGNATURE,
+                    UAVCAN_NODE_STATUS_DATA_TYPE_ID, &transfer_id,
+                    CANARD_TRANSFER_PRIORITY_LOW,
+                    buffer, UAVCAN_NODE_STATUS_MESSAGE_SIZE, canfd);
 #else
-        canardBroadcast(&canard, UAVCAN_NODE_STATUS_DATA_TYPE_SIGNATURE,
-                        UAVCAN_NODE_STATUS_DATA_TYPE_ID, &transfer_id,
-                        CANARD_TRANSFER_PRIORITY_LOW,
-                        buffer, UAVCAN_NODE_STATUS_MESSAGE_SIZE);
+    canardBroadcast(&canard, UAVCAN_NODE_STATUS_DATA_TYPE_SIGNATURE,
+                    UAVCAN_NODE_STATUS_DATA_TYPE_ID, &transfer_id,
+                    CANARD_TRANSFER_PRIORITY_LOW,
+                    buffer, UAVCAN_NODE_STATUS_MESSAGE_SIZE);
 #endif
-      if (bc_res <= 0)
-        {
-          fprintf(stderr, "Could not broadcast node status; error %d\n",
-                  bc_res);
-        }
-    }
+    if (bc_res <= 0)
+      {
+        fprintf(stderr, "Could not broadcast node status; error %d\n",
+                bc_res);
+      }
+  }
 
-    {
-      static uint8_t transfer_id;
-      uint8_t payload[1];
-      uint8_t dest_id = 2;
-      const int resp_res =
+  {
+    static uint8_t transfer_id;
+    uint8_t payload[1];
+    uint8_t dest_id = 2;
+    const int resp_res =
 #if CANARD_ENABLE_CANFD
-        canardRequestOrRespond(&canard, dest_id,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
-                               &transfer_id,
-                               CANARD_TRANSFER_PRIORITY_LOW, CanardRequest,
-                               payload, 0, canfd);
+    canardRequestOrRespond(&canard, dest_id,
+                           UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
+                           UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
+                           &transfer_id,
+                           CANARD_TRANSFER_PRIORITY_LOW, CanardRequest,
+                           payload, 0, canfd);
 #else
-        canardRequestOrRespond(&canard, dest_id,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
-                               UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
-                               &transfer_id,
-                               CANARD_TRANSFER_PRIORITY_LOW, CanardRequest,
-                               payload, 0);
+    canardRequestOrRespond(&canard, dest_id,
+                           UAVCAN_GET_NODE_INFO_DATA_TYPE_SIGNATURE,
+                           UAVCAN_GET_NODE_INFO_DATA_TYPE_ID,
+                           &transfer_id,
+                           CANARD_TRANSFER_PRIORITY_LOW, CanardRequest,
+                           payload, 0);
 #endif
-      if (resp_res <= 0)
-        {
-          fprintf(stderr, "Could not request GetNodeInfo; error %d\n",
-                  resp_res);
-        }
-    }
+    if (resp_res <= 0)
+      {
+        fprintf(stderr, "Could not request GetNodeInfo; error %d\n",
+                resp_res);
+      }
+  }
 
   node_mode = UAVCAN_NODE_MODE_OPERATIONAL;
 }
@@ -500,7 +503,6 @@ static int canard_daemon(int argc, char *argv[])
 
   /* Open the CAN device for reading */
 
-  
 #ifdef CONFIG_NET_CAN
   const char * const can_iface_name = "can0";
 
@@ -620,6 +622,7 @@ int main(int argc, FAR char *argv[])
   if (ret < 0)
     {
       int errcode = errno;
+
       printf("canard_main: ERROR: Failed to start canard_daemon: %d\n",
              errcode);
       return EXIT_FAILURE;
