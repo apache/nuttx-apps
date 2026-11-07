@@ -256,6 +256,8 @@ static int fpu_task(int argc, char *argv[])
           return EXIT_FAILURE;
         }
 
+      up_saveusercontext(fpu->save1);
+
       /* Now unlock and sleep for a while -- this should result in some
        * context switches
        */
