@@ -34,6 +34,15 @@ ifneq ($(CONFIG_NIMBLE_MESH),)
 NIMBLE_CFG_MESH = 1
 endif
 
+# Namespace NimBLE Host symbols that are also provided by the Espressif
+# Bluetooth Controller.
+
+ifneq ($(CONFIG_ESPRESSIF_BLE),)
+CFLAGS += -Dos_msys_init=nimble_host_os_msys_init
+CFLAGS += -Dble_sm_alg_gen_dhkey=nimble_host_ble_sm_alg_gen_dhkey
+CFLAGS += -Dble_sm_alg_gen_key_pair=nimble_host_ble_sm_alg_gen_key_pair
+endif
+
 # Skip files that don't build for this port
 
 NIMBLE_IGNORE += $(NIMBLE_ROOT)/porting/nimble/src/hal_timer.c
