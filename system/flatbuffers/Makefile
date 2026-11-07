@@ -22,7 +22,7 @@
 
 include $(APPDIR)/Make.defs
 
-FLATBUFFERS_VER = 23.5.26
+FLATBUFFERS_VER = 25.9.23
 FLATBUFFERS_UNPACK = flatbuffers
 
 flatbuffers.tar.gz:

@@ -9,13 +9,13 @@ Signed-off-by: chao an <anchao@lixiang.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc b/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
-index ec23571a..24982e90 100644
+index 83bd2f2..1e1f8fe 100644
 --- a/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
 +++ b/tensorflow/lite/micro/examples/hello_world/hello_world_test.cc
-@@ -149,7 +149,7 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
+@@ -148,7 +148,7 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
    return kTfLiteOk;
  }
-
+ 
 -int main(int argc, char* argv[]) {
 +extern "C" int main(int argc, char* argv[]) {
    tflite::InitializeTarget();

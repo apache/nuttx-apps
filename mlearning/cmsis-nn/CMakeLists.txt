@@ -30,7 +30,7 @@ if(CONFIG_MLEARNING_CMSIS_NN)
 
   if(NOT EXISTS ${CMSIS_NN_DIR})
     set(CMSIS_NN_URL
-        https://github.com/ARM-software/CMSIS-NN/archive/72e1ebf623ab1660a3e14e4e36fdcddce46f1991.zip
+        https://github.com/ARM-software/CMSIS-NN/archive/18bb0fd4ecea4b17a5a3c444c8d3a8cf28b1e68f.zip
     )
     FetchContent_Declare(
       cmsis_nn_fetch

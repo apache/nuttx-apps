@@ -24,7 +24,7 @@ include $(APPDIR)/Make.defs
 
 CMSIS_NN = cmsis-nn/Source
 
-CMSIS_NN_VER = 72e1ebf623ab1660a3e14e4e36fdcddce46f1991
+CMSIS_NN_VER = 18bb0fd4ecea4b17a5a3c444c8d3a8cf28b1e68f
 
 cmsis-nn.zip:
 	$(Q) curl -L https://github.com/ARM-software/CMSIS-NN/archive/$(CMSIS_NN_VER).zip -o cmsis-nn.zip
