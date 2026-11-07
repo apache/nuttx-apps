@@ -91,6 +91,7 @@ $(CPYTHON_UNPACKNAME): $(CPYTHON_ZIP)
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0019-undef-get_errno-set_errno-to-avoid-nuttx-macro-coll.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0020-ctypes-skip-pythonapi-on-nuttx.patch
 	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0021-posixmodule-ignore-utime-enosys-on-nuttx.patch
+	$(Q) patch -p1 -d $(CPYTHON_UNPACKNAME) < patch$(DELIM)0022-hacl-krml-avoid-uint128-typedef-conflict-with-nuttx-stdint.patch
 
 $(HOSTPYTHON):
 	mkdir -p $(HOSTBUILD)
