@@ -23,6 +23,14 @@
 if(CONFIG_NIMBLE)
   nuttx_add_library(nimble)
 
+  if(CONFIG_ESPRESSIF_BLE)
+    target_compile_definitions(
+      nimble
+      PRIVATE os_msys_init=nimble_host_os_msys_init
+              ble_sm_alg_gen_dhkey=nimble_host_ble_sm_alg_gen_dhkey
+              ble_sm_alg_gen_key_pair=nimble_host_ble_sm_alg_gen_key_pair)
+  endif()
+
   if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/mynewt-nimble)
     FetchContent_Declare(
       mynewt-nimble
