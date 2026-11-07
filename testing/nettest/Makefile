@@ -56,7 +56,7 @@ MAINSRC  += local/test_local_dgram.c
 PROGNAME += cmocka_net_local_dgram
 CSRCS    += local/test_local_dgram_common.c local/test_local_dgram_connect.c \
             local/test_local_dgram_poll.c local/test_local_dgram_pollext.c \
-            local/test_local_dgram_regress.c
+            local/test_local_dgram_regress.c local/test_local_dgram_follow.c
 endif
 
 ifeq ($(CONFIG_TESTING_NET_OTHERS),y)
