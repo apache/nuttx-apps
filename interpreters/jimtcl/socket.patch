@@ -1,0 +1,12 @@
+diff -Naur jimtcl-0.83/jim-aio.c jimtcl/jim-aio.c
+--- jimtcl-0.83/jim-aio.c      2024-08-28 01:54:39.000000000 +0000
++++ jimtcl/jim-aio.c   2026-08-18 15:50:10.949864953 +0000
+@@ -57,7 +57,7 @@
+ 
+ #include "jim.h"
+ 
+-#if defined(HAVE_SYS_SOCKET_H) && defined(HAVE_SELECT) && defined(HAVE_NETINET_IN_H) && defined(HAVE_NETDB_H) && defined(HAVE_ARPA_INET_H)
++#if defined(HAVE_SOCKET) && defined(HAVE_SYS_SOCKET_H) && defined(HAVE_SELECT) && defined(HAVE_NETINET_IN_H) && defined(HAVE_NETDB_H) && defined(HAVE_ARPA_INET_H)
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <netinet/tcp.h>
