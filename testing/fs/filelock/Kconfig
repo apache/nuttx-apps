@@ -1,0 +1,37 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FILELOCK
+	tristate "File lock wait test"
+	default n
+	depends on FS_LOCK_BUCKET_SIZE > 0 && !DISABLE_PTHREAD && !DISABLE_ALL_SIGNALS
+	---help---
+		Check that a signal ends the wait for a file lock.  A thread waits
+		for a lock that the main thread holds, with fcntl(F_SETLKW),
+		flock(LOCK_EX) and lockf(F_LOCK).  A signal to the waiting thread
+		must end the wait with EINTR before the lock is free.  The test also
+		checks that the wait without a signal gets the lock after the unlock.
+
+		The argument is the lock file, for example "filelock /tmp/lock".
+		The file system of the file must support F_GETPATH.
+
+if TESTING_FILELOCK
+
+config TESTING_FILELOCK_PROGNAME
+	string "Program name"
+	default "filelock"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_FILELOCK_PRIORITY
+	int "File lock wait test task priority"
+	default 100
+
+config TESTING_FILELOCK_STACKSIZE
+	int "File lock wait test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
