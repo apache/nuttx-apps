@@ -167,4 +167,23 @@ if(CONFIG_TESTING_NET_TEST)
       ${SRCS})
   endif()
 
+  if(CONFIG_TESTING_NET_CAN)
+    set(SRCS ${CMAKE_CURRENT_LIST_DIR}/can/test_can.c
+             ${CMAKE_CURRENT_LIST_DIR}/can/test_can_bind.c)
+
+    nuttx_add_application(
+      NAME
+      cmocka_net_can
+      PRIORITY
+      ${CONFIG_TESTING_NET_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_NET_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_NET_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      ${SRCS})
+  endif()
+
 endif()
