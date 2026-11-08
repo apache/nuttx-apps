@@ -4,7 +4,7 @@
 #
 
 config TESTING_FATGAP
-	tristate "FAT write past EOF test"
+	tristate "FAT file system test"
 	default n
 	depends on FS_FAT && FSUTILS_MKFATFS && BOARDCTL_MKRD
 	---help---
@@ -12,6 +12,16 @@ config TESTING_FATGAP
 		the old data stays and that the gap reads as zero.  The old size
 		is on a cluster boundary, one byte below or above it, in the middle
 		of a cluster, or zero.
+
+		Other cases write with O_APPEND after a seek, after fcntl(F_SETFL),
+		with pwrite() and from two handles, and fill the volume to check the
+		count of the last, short write.
+
+		More cases check that a second handle reads zeros after ftruncate()
+		makes the file longer, that statfs() gives the number of clusters
+		that a file can get, that stat() and fstat() give the size of an
+		open file before a sync, and on FAT32 the free cluster count that
+		mkfatfs writes in the FSINFO sector.
 
 		The test makes its own RAM disks: 512 KiB for FAT12, about 2 MiB for
 		FAT16 and about 34 MiB for FAT32.  It skips a FAT type when the memory
@@ -28,11 +38,11 @@ config TESTING_FATGAP_PROGNAME
 		program is installed.
 
 config TESTING_FATGAP_PRIORITY
-	int "FAT write past EOF test task priority"
+	int "FAT file system test task priority"
 	default 100
 
 config TESTING_FATGAP_STACKSIZE
-	int "FAT write past EOF test stack size"
+	int "FAT file system test stack size"
 	default DEFAULT_TASK_STACKSIZE
 
 endif
