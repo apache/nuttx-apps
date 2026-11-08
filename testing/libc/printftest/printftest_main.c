@@ -163,16 +163,19 @@ int main(int argc, FAR char *argv[])
   CHECK(FLT("1.5|str", "?|str"), "%Lg|%s", (long double)1.5, "str");
   CHECK(FLT("1.500000|str", "?|str"), "%f|%s", 1.5, "str");
 
-  /* %n of any length takes its pointer.  Off: it stores nothing and prints
-   * "?".  On: it stores the count at its size, and prints nothing.
+  /* %n of any length takes its pointer and prints nothing.  Off: it stores
+   * nothing.  On: it stores the count at its size.
    */
 
-  CHECK(PCN("ab|str", "ab?|str"), "ab%n|%s", &n, "str");
+  CHECK("ab|str", "ab%n|%s", &n, "str");
   ASSERT(n == PCN(2, 77));
-  CHECK(PCN("abc|str", "abc?|str"), "abc%lln|%s", &ll, "str");
+  CHECK("abc|str", "abc%lln|%s", &ll, "str");
   ASSERT(ll == PCN(3, 77));
-  CHECK(PCN("abcd|str", "abcd?|str"), "abcd%hhn|%s", &hh, "str");
+  CHECK("abcd|str", "abcd%hhn|%s", &hh, "str");
   ASSERT(hh == PCN(4, 77));
+  n = 77;
+  check_ret(6, "ab%n|%s", nofmt(NULL, 0, "ab%n|%s", &n, "str"));
+  ASSERT(n == PCN(2, 77));
 
   /* An unknown conversion takes no argument: the rest is text.  A format
    * of a feature that is off is the same case.
@@ -260,7 +263,7 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_LIBC_NUMBERED_ARGS
   /* Numbered arguments */
 
-  CHECK(PCN("str", "str?"), "%2$s%1$n", &n, "str");
+  CHECK("str", "%2$s%1$n", &n, "str");
   CHECK("str ff FF " OCT("10", "?"), "%3$s %1$x %2$X %4$o",
         255, 255, "str", 8);
   CHECK(HXF("str 0x1.8p+0", "str ?"), "%2$s %1$a", 1.5, "str");
