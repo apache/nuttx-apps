@@ -49,4 +49,14 @@ int test_local_group_teardown(FAR void **state);
 
 void test_local_scm_rights(FAR void **state);
 
+/****************************************************************************
+ * Name: test_local_peercred_*
+ ****************************************************************************/
+
+void test_local_peercred_pair(FAR void **state);
+void test_local_peercred_unconn(FAR void **state);
+void test_local_peercred_listen(FAR void **state);
+void test_local_peercred_fork(FAR void **state);
+void test_local_peercred_accept(FAR void **state);
+
 #endif /* __APPS_TESTING_NETTEST_LOCAL_TEST_LOCAL_H */

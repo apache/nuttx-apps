@@ -56,6 +56,10 @@ if(CONFIG_TESTING_NET_TEST)
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_common.c
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_scm_rights.c)
 
+    if(CONFIG_TESTING_NET_LOCAL_PEERCRED)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/local/test_local_peercred.c)
+    endif()
+
     nuttx_add_application(
       NAME
       cmocka_net_local

@@ -40,6 +40,16 @@ config TESTING_NET_LOCAL
 	depends on NET_LOCAL && NET_LOCAL_SCM
 	default y
 
+config TESTING_NET_LOCAL_PEERCRED
+	bool "Enable cmocka net local SO_PEERCRED test"
+	depends on TESTING_NET_LOCAL
+	depends on NET_LOCAL_STREAM && NET_LOCAL_DGRAM && NET_SOCKOPTS
+	default y
+	---help---
+		Add the SO_PEERCRED cases to cmocka_net_local: socketpair() ends,
+		an unconnected and a listening socket, and with fork() the two
+		sides of a stream connection.
+
 config TESTING_NET_LOCAL_DGRAM
 	bool "Enable cmocka net local datagram test"
 	depends on NET_LOCAL && NET_LOCAL_DGRAM
