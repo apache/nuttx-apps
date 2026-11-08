@@ -39,8 +39,30 @@ if(CONFIG_BUILTIN)
     get_target_property(APP_NAME ${module} APP_NAME)
     get_target_property(APP_PRIORITY ${module} APP_PRIORITY)
     get_target_property(APP_STACK ${module} APP_STACK)
+
+    # With SCHED_USER_IDENTITY, an entry also has uid, gid and mode: the UID,
+    # GID and MODE of the application, else 0, 0 and 0555, as REGISTER in
+    # Make.defs gives.
+
+    set(APP_IDENTITY)
+    if(CONFIG_SCHED_USER_IDENTITY)
+      get_target_property(APP_UID ${module} APP_UID)
+      get_target_property(APP_GID ${module} APP_GID)
+      get_target_property(APP_MODE ${module} APP_MODE)
+      if(NOT APP_UID)
+        set(APP_UID 0)
+      endif()
+      if(NOT APP_GID)
+        set(APP_GID 0)
+      endif()
+      if(NOT APP_MODE)
+        set(APP_MODE 0555)
+      endif()
+      set(APP_IDENTITY ", ${APP_UID}, ${APP_GID}, ${APP_MODE}")
+    endif()
+
     set(builtin_list_string
-        "${builtin_list_string}\{ \"${APP_NAME}\", ${APP_PRIORITY}, ${APP_STACK}, ${APP_MAIN} \},  \n"
+        "${builtin_list_string}\{ \"${APP_NAME}\", ${APP_PRIORITY}, ${APP_STACK}, ${APP_MAIN}${APP_IDENTITY} \},  \n"
     )
 
     # builtin_proto.h Example: int hello_main(int argc, char *argv[]);
