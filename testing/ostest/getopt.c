@@ -402,6 +402,15 @@ static int getopt_longonly_test(int noptions, int argc, FAR char **argv,
   return OK;
 }
 
+static void getopt_optind_test(int expected)
+{
+  if (optind != expected)
+    {
+      printf("ERROR: optind=%d (expected %d)\n", optind, expected);
+      ASSERT(false);
+    }
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -681,5 +690,78 @@ int getopt_test(void)
 
   getopt_longonly_test(4, 8, argv, g_optstring, long_options, NULL,
                        results);
+
+  printf("getopt():  \"--\" ends the options\n");
+
+  argv[0] = NULL;
+  argv[1] = "-a";
+  argv[2] = "--";
+  argv[3] = "-b";
+  argv[4] = "NoOption";
+  argv[5] = NULL;
+
+  SHORT_RESULT_A(0);
+
+  getopt_short_test(1, 5, argv, g_optstring, results);
+  getopt_optind_test(3);
+
+  printf("getopt():  \"-\" is an operand\n");
+
+  argv[0] = NULL;
+  argv[1] = "-a";
+  argv[2] = "-";
+  argv[3] = "-b";
+  argv[4] = NULL;
+
+  SHORT_RESULT_A(0);
+
+  getopt_short_test(1, 4, argv, g_optstring, results);
+  getopt_optind_test(2);
+
+  printf("getopt_long():  \"--\" ends the options\n");
+
+  argv[0] = NULL;
+  argv[1] = "--OptionA";
+  argv[2] = "--";
+  argv[3] = "--OptionB";
+  argv[4] = NULL;
+
+  LONG_OPTION_A(0);
+  LONG_OPTION_B(1);
+  LONG_OPTION_END(2)
+
+  LONG_RESULT_A(0);
+
+  getopt_long_test(1, 4, argv, g_optstring, long_options, NULL,
+                   results);
+  getopt_optind_test(3);
+
+  printf("getopt_long():  \"-\" is an operand\n");
+
+  argv[2] = "-";
+
+  getopt_long_test(1, 4, argv, g_optstring, long_options, NULL,
+                   results);
+  getopt_optind_test(2);
+
+  printf("getopt_long_only():  \"--\" ends the options\n");
+
+  argv[0] = NULL;
+  argv[1] = "-OptionA";
+  argv[2] = "--";
+  argv[3] = "-b";
+  argv[4] = NULL;
+
+  getopt_longonly_test(1, 4, argv, g_optstring, long_options, NULL,
+                       results);
+  getopt_optind_test(3);
+
+  printf("getopt_long_only():  \"-\" is an operand\n");
+
+  argv[2] = "-";
+
+  getopt_longonly_test(1, 4, argv, g_optstring, long_options, NULL,
+                       results);
+  getopt_optind_test(2);
   return OK;
 }
