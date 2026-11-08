@@ -109,5 +109,11 @@ PROGNAME += cmocka_net_timestamp
 CSRCS    += timestamp/test_timestamp_common.c
 endif
 
+ifeq ($(CONFIG_TESTING_NET_CAN),y)
+MAINSRC  += can/test_can.c
+PROGNAME += cmocka_net_can
+CSRCS    += can/test_can_bind.c
+endif
+
 endif
 include $(APPDIR)/Application.mk

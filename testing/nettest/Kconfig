@@ -89,4 +89,13 @@ config TESTING_NET_TIMESTAMP
 	depends on NET_TIMESTAMP && NET_PKT
 	default n
 
+config TESTING_NET_CAN
+	bool "Enable cmocka net CAN socket test"
+	depends on NET_CAN && NET_LOOPBACK && NETDEV_IFINDEX
+	default y
+	---help---
+		Test that a CAN_RAW socket binds only to a CAN device or to
+		index 0 (all CAN devices), and that an unbound socket cannot send
+		(cmocka_net_can).
+
 endif
