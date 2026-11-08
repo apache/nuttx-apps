@@ -199,6 +199,7 @@ static int iperf_get_socket_error_code(int sockfd)
 static int iperf_show_socket_error_reason(FAR const char *str, int sockfd)
 {
   int err = errno;
+
   if (err != 0)
     {
       printf("%s error, error code: %d, reason: %s\n",
@@ -224,6 +225,7 @@ static void iperf_print_addr(FAR const char *str, FAR struct sockaddr *addr)
       case AF_INET:
         {
           FAR struct sockaddr_in *inaddr = (FAR struct sockaddr_in *)addr;
+
           printf("%s: %s:%d\n", str,
                  inet_ntoa(inaddr->sin_addr), htons(inaddr->sin_port));
           return;
@@ -233,6 +235,7 @@ static void iperf_print_addr(FAR const char *str, FAR struct sockaddr *addr)
       case AF_LOCAL:
         {
           FAR struct sockaddr_un *unaddr = (FAR struct sockaddr_un *)addr;
+
           printf("%s: path=%s\n", str, unaddr->sun_path);
           return;
         }
@@ -241,6 +244,7 @@ static void iperf_print_addr(FAR const char *str, FAR struct sockaddr *addr)
         {
           FAR struct sockaddr_rpmsg *rpaddr =
                                           (FAR struct sockaddr_rpmsg *)addr;
+
           printf("%s: cpu=%s,name=%s\n", str,
                  rpaddr->rp_cpu, rpaddr->rp_name);
           return;
