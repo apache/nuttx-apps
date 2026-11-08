@@ -337,9 +337,11 @@ static inline void mkfatfs_initfsinfo(FAR struct fat_format_s *fmt,
 
   FSI_PUTSTRUCTSIG(var->fv_sect, 0x61417272);
 
-  /* 4@488: Last free cluster count on volume */
+  /* 4@488: Last free cluster count on volume.  fv_nclusters does not
+   * include the root directory cluster.
+   */
 
-  FSI_PUTFREECOUNT(var->fv_sect, var->fv_nclusters - 1);
+  FSI_PUTFREECOUNT(var->fv_sect, var->fv_nclusters);
 
   /* 4@492: Cluster number of 1st free cluster */
 
