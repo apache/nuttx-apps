@@ -22,6 +22,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -39,6 +41,15 @@ int main(int argc, FAR char *argv[])
   const struct CMUnitTest local_tests[] =
     {
       cmocka_unit_test(test_local_scm_rights),
+#ifdef CONFIG_TESTING_NET_LOCAL_PEERCRED
+      cmocka_unit_test(test_local_peercred_pair),
+      cmocka_unit_test(test_local_peercred_unconn),
+      cmocka_unit_test(test_local_peercred_listen),
+#  ifdef CONFIG_ARCH_HAVE_FORK
+      cmocka_unit_test(test_local_peercred_fork),
+      cmocka_unit_test(test_local_peercred_accept),
+#  endif
+#endif
     };
 
   return cmocka_run_group_tests(local_tests, test_local_group_setup,
