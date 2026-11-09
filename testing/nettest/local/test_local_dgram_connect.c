@@ -319,3 +319,70 @@ void test_local_dgram_abstract(FAR void **state)
   assert_int_equal(ret, 5);
   local_dgram_expect(st->r2, "eight");
 }
+
+/****************************************************************************
+ * Name: test_local_dgram_addrlen
+ *
+ * Description:
+ *   bind(), connect() and sendto() use addrlen bytes of the address.  No
+ *   NUL follows the name, and other bytes come after it.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_addrlen(FAR void **state)
+{
+  FAR struct nettest_local_dgram_state_s *st = *state;
+  struct sockaddr_un addr;
+  struct sockaddr_un name;
+  socklen_t addrlen;
+  socklen_t namelen;
+  size_t len;
+  int ret;
+
+  /* A pathname with no NUL in addrlen */
+
+  len = strlen(st->p2);
+  memset(&addr, 'x', sizeof(addr));
+  addr.sun_family = AF_UNIX;
+  memcpy(addr.sun_path, st->p2, len);
+  addrlen = offsetof(struct sockaddr_un, sun_path) + len;
+
+  unlink(st->p2);
+  st->r2 = socket(AF_UNIX, SOCK_DGRAM, 0);
+  assert_return_code(st->r2, errno);
+  ret = bind(st->r2, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+
+  memset(&name, 0, sizeof(name));
+  namelen = sizeof(name);
+  ret = getsockname(st->r2, (FAR struct sockaddr *)&name, &namelen);
+  assert_return_code(ret, errno);
+  assert_string_equal(name.sun_path, st->p2);
+
+  ret = sendto(st->s, "path", 4, 0, (FAR struct sockaddr *)&addr, addrlen);
+  assert_int_equal(ret, 4);
+  local_dgram_expect(st->r2, "path");
+
+  ret = connect(st->s, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+  assert_int_equal(send(st->s, "conn", 4, 0), 4);
+  local_dgram_expect(st->r2, "conn");
+
+  /* An abstract name: it ends at addrlen */
+
+  len = strlen(st->abs);
+  memset(&addr, 'x', sizeof(addr));
+  addr.sun_family = AF_UNIX;
+  addr.sun_path[0] = '\0';
+  memcpy(addr.sun_path + 1, st->abs, len);
+  addrlen = offsetof(struct sockaddr_un, sun_path) + 1 + len;
+
+  st->r3 = socket(AF_UNIX, SOCK_DGRAM, 0);
+  assert_return_code(st->r3, errno);
+  ret = bind(st->r3, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+
+  ret = sendto(st->r1, "abs", 3, 0, (FAR struct sockaddr *)&addr, addrlen);
+  assert_int_equal(ret, 3);
+  local_dgram_expect(st->r3, "abs");
+}

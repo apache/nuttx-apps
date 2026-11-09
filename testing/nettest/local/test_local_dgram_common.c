@@ -243,6 +243,78 @@ void local_dgram_drain(int fd, FAR char *buf, size_t size)
 }
 
 /****************************************************************************
+ * Name: local_dgram_fill
+ *
+ * Description:
+ *   Send datagrams of LOCAL_DGRAM_FILLLEN bytes without a wait until the
+ *   receiver is full: with sendto() to path, or with send() if path is NULL.
+ *   Each datagram starts with its number.  Return the count.
+ *
+ ****************************************************************************/
+
+int local_dgram_fill(int fd, FAR const char *path)
+{
+  unsigned char buf[LOCAL_DGRAM_FILLLEN];
+  ssize_t ret;
+  int count;
+
+  memset(buf, 'f', sizeof(buf));
+  for (count = 0; count < LOCAL_DGRAM_FILLMAX; count++)
+    {
+      buf[0] = count & 0xff;
+      buf[1] = count >> 8;
+      if (path != NULL)
+        {
+          ret = local_dgram_sendto(fd, path, buf, sizeof(buf), MSG_DONTWAIT);
+        }
+      else
+        {
+          ret = send(fd, buf, sizeof(buf), MSG_DONTWAIT);
+        }
+
+      if (ret < 0)
+        {
+          assert_true(errno == EAGAIN || errno == EWOULDBLOCK);
+          break;
+        }
+
+      assert_int_equal(ret, sizeof(buf));
+    }
+
+  assert_in_range(count, 1, LOCAL_DGRAM_FILLMAX - 1);
+  return count;
+}
+
+/****************************************************************************
+ * Name: local_dgram_unfill
+ *
+ * Description:
+ *   Read back what local_dgram_fill() sent: each datagram whole and in
+ *   order.
+ *
+ ****************************************************************************/
+
+void local_dgram_unfill(int fd, int count)
+{
+  unsigned char buf[LOCAL_DGRAM_FILLLEN + 16];
+  ssize_t ret;
+  int i;
+  int j;
+
+  for (i = 0; i < count; i++)
+    {
+      assert_int_equal(local_dgram_revents(fd, POLLIN, 1000), POLLIN);
+      ret = recv(fd, buf, sizeof(buf), 0);
+      assert_int_equal(ret, LOCAL_DGRAM_FILLLEN);
+      assert_int_equal(buf[0] | buf[1] << 8, i);
+      for (j = 2; j < LOCAL_DGRAM_FILLLEN; j++)
+        {
+          assert_int_equal(buf[j], 'f');
+        }
+    }
+}
+
+/****************************************************************************
  * Name: local_dgram_mkfifo
  *
  * Description:
