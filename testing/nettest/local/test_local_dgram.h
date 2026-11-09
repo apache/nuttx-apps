@@ -382,5 +382,10 @@ void test_local_dgram_poll_pair(FAR void **state);
 
 void test_local_dgram_recv_intr(FAR void **state);
 void test_local_dgram_stream_intr(FAR void **state);
+void test_local_dgram_poll_full(FAR void **state);
+void test_local_dgram_poll_fullwait(FAR void **state);
+void test_local_dgram_send_intr(FAR void **state);
+void test_local_dgram_pair_intr(FAR void **state);
+void test_local_dgram_stream_send_intr(FAR void **state);
 
 #endif /* __APPS_TESTING_NETTEST_LOCAL_TEST_LOCAL_DGRAM_H */

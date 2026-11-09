@@ -143,6 +143,11 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_poll_pair),
       DGRAM_TEST(test_local_dgram_recv_intr),
       DGRAM_TEST(test_local_dgram_stream_intr),
+      DGRAM_TEST(test_local_dgram_poll_full),
+      DGRAM_TEST(test_local_dgram_poll_fullwait),
+      DGRAM_TEST(test_local_dgram_send_intr),
+      DGRAM_TEST(test_local_dgram_pair_intr),
+      DGRAM_TEST(test_local_dgram_stream_send_intr),
     };
 
   if (argc > 1)
