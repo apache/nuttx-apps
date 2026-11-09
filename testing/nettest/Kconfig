@@ -78,4 +78,13 @@ config TESTING_NET_CAN
 		index 0 (all CAN devices), and that an unbound socket cannot send
 		(cmocka_net_can).
 
+config TESTING_NET_PKT
+	bool "Enable cmocka net packet socket test"
+	depends on NET_PKT && NET_LOOPBACK && NET_IPv4
+	default y
+	---help---
+		Test packet sockets bound to the loopback device: a frame sent on
+		lo comes back, and the reassembly timeout of an IPv4 fragment sent
+		on lo does not stop the kernel (cmocka_net_pkt).
+
 endif
