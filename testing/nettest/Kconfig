@@ -35,6 +35,17 @@ config TESTING_NET_TCP_PORT
 
 endif
 
+config TESTING_NET_UDP
+	bool "Enable cmocka net udp test"
+	depends on NET_UDP && !NET_UDP_NO_STACK
+	depends on NET_IPv4 && NET_IPv6 && NET_LOOPBACK && NET_SOCKOPTS
+	default y
+	---help---
+		Test UDP sockets of AF_INET and AF_INET6 on one port over the
+		loopback device: IPV6_V6ONLY (also on TCP sockets), the delivery
+		of IPv4 and IPv6 datagrams, and EADDRINUSE from bind()
+		(cmocka_net_udp).
+
 config TESTING_NET_LOCAL
 	bool "Enable cmocka net local test"
 	depends on NET_LOCAL && NET_LOCAL_SCM

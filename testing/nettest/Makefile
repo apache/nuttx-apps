@@ -45,6 +45,13 @@ endif
 
 endif
 
+ifeq ($(CONFIG_TESTING_NET_UDP),y)
+MAINSRC  += udp/test_udp.c
+PROGNAME += cmocka_net_udp
+CSRCS    += udp/test_udp_common.c udp/test_udp_v6only.c
+CSRCS    += udp/test_udp_family.c udp/test_udp_bind.c
+endif
+
 ifeq ($(CONFIG_TESTING_NET_LOCAL),y)
 MAINSRC  += local/test_local.c
 PROGNAME += cmocka_net_local

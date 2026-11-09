@@ -50,6 +50,29 @@ if(CONFIG_TESTING_NET_TEST)
       ${SRCS})
   endif()
 
+  if(CONFIG_TESTING_NET_UDP)
+    set(SRCS
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp.c
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_common.c
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_v6only.c
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_family.c
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_bind.c)
+
+    nuttx_add_application(
+      NAME
+      cmocka_net_udp
+      PRIORITY
+      ${CONFIG_TESTING_NET_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_NET_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_NET_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      ${SRCS})
+  endif()
+
   if(CONFIG_TESTING_NET_LOCAL)
     set(SRCS
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local.c
