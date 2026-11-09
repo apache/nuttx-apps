@@ -271,6 +271,7 @@ static inline void hog_cpu(void)
    */
 
   volatile int i;
+
   for (i = 0; i < INT_MAX; i++);
 #endif
 }
@@ -352,8 +353,8 @@ static FAR void *lowpri_thread(FAR void *parameter)
       while (g_middlestate == NOTSTARTED &&
              nhighpri_waiting() < NHIGHPRI_THREADS)
         {
-          printf("lowpri_thread-%d: Waiting for the midle pri task to run\n",
-                 threadno);
+          printf("lowpri_thread-%d: "
+                 "Waiting for the middle pri task to run\n", threadno);
           printf("    g_middlestate:  %d\n", (int)g_middlestate);
           for (i = 0; i < NHIGHPRI_THREADS; i++)
             {
@@ -403,7 +404,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
            */
 
           printf("lowpri_thread-%d: %s the middle priority task has already"
-                 " exitted!\n",
+                 " exited!\n",
                  threadno, count >= 0 ? "SUCCESS" : "ERROR");
           ASSERT(count >= 0);
           printf("               g_middlestate:  %d sem count=%d\n",
@@ -508,8 +509,15 @@ void priority_inheritance(void)
   printf("priority_inheritance: Started\n");
 
   g_middlestate = NOTSTARTED;
-  for (i = 0; i < NHIGHPRI_THREADS; i++) g_highstate[i] = NOTSTARTED;
-  for (i = 0; i < NLOWPRI_THREADS; i++)  g_lowstate[i]  = NOTSTARTED;
+  for (i = 0; i < NHIGHPRI_THREADS; i++)
+    {
+      g_highstate[i] = NOTSTARTED;
+    }
+
+  for (i = 0; i < NLOWPRI_THREADS; i++)
+    {
+      g_lowstate[i] = NOTSTARTED;
+    }
 
   status = sched_getparam(gettid(), &sparam);
   if (status != 0)
@@ -535,6 +543,7 @@ void priority_inheritance(void)
   for (i = 0; i < NLOWPRI_THREADS; i++)
     {
       int threadno = i + 1;
+
       printf("priority_inheritance: "
              "Starting lowpri_thread-%d (of %d) at %d\n",
              threadno, NLOWPRI_THREADS, g_lowpri);
@@ -623,6 +632,7 @@ void priority_inheritance(void)
   for (i = 0; i < NHIGHPRI_THREADS; i++)
     {
       int threadno = i + 1;
+
       printf("priority_inheritance: "
              "Starting highpri_thread-%d (of %d) at %d\n",
              threadno, NHIGHPRI_THREADS, g_highpri);
@@ -657,7 +667,7 @@ void priority_inheritance(void)
       if (status != 0)
         {
           printf("priority_inheritance: "
-                 "ERRROR pthread_create failed, status=%d\n", status);
+                 "ERROR pthread_create failed, status=%d\n", status);
           ASSERT(false);
         }
     }
