@@ -115,5 +115,11 @@ PROGNAME += cmocka_net_can
 CSRCS    += can/test_can_bind.c
 endif
 
+ifeq ($(CONFIG_TESTING_NET_PKT),y)
+MAINSRC  += pkt/test_pkt.c
+PROGNAME += cmocka_net_pkt
+CSRCS    += pkt/test_pkt_lo.c
+endif
+
 endif
 include $(APPDIR)/Application.mk
