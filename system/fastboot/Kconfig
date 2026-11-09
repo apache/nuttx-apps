@@ -28,7 +28,7 @@ config SYSTEM_FASTBOOTD_STACKSIZE
 
 config SYSTEM_FASTBOOTD_DOWNLOAD_MAX
 	int "fastboot download buffer size"
-	default 40960
+	default 65536
 
 config SYSTEM_FASTBOOTD_DOWNLOAD_ADDR
 	hex "fixed download buffer address (0 = malloc)"
