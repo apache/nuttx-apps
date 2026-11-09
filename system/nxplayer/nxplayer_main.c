@@ -581,9 +581,13 @@ static int nxplayer_cmd_mediadir(FAR struct nxplayer_s *pplayer, char *parg)
   /* If no arg given, then print current media dir */
 
   if (parg == NULL || *parg == '\0')
-    printf("%s\n", pplayer->mediadir);
+    {
+      printf("%s\n", pplayer->mediadir);
+    }
   else
-    nxplayer_setmediadir(pplayer, parg);
+    {
+      nxplayer_setmediadir(pplayer, parg);
+    }
 
   return OK;
 }
