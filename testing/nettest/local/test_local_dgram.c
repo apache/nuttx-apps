@@ -80,6 +80,7 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_notsock),
       DGRAM_TEST_CONNECTED(test_local_dgram_closed),
       DGRAM_TEST(test_local_dgram_abstract),
+      DGRAM_TEST(test_local_dgram_addrlen),
       DGRAM_TEST(test_local_dgram_connect_empty),
       DGRAM_TEST(test_local_dgram_poll_unbound),
       DGRAM_TEST(test_local_dgram_poll_bound),
@@ -133,8 +134,15 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_stream_unspec),
       DGRAM_TEST(test_local_dgram_stream_threads),
       DGRAM_TEST(test_local_dgram_stream_hup),
+      DGRAM_TEST(test_local_dgram_stream_listenclose),
       DGRAM_TEST(test_local_dgram_pipe_hup),
       DGRAM_TEST(test_local_dgram_fifo_hup),
+      DGRAM_TEST(test_local_dgram_pair_send),
+      DGRAM_TEST(test_local_dgram_pair_full),
+      DGRAM_TEST(test_local_dgram_pair_close),
+      DGRAM_TEST(test_local_dgram_poll_pair),
+      DGRAM_TEST(test_local_dgram_recv_intr),
+      DGRAM_TEST(test_local_dgram_stream_intr),
     };
 
   if (argc > 1)

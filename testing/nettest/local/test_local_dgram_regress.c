@@ -673,6 +673,56 @@ void test_local_dgram_stream_hup(FAR void **state)
 }
 
 /****************************************************************************
+ * Name: test_local_dgram_stream_listenclose
+ *
+ * Description:
+ *   A listening stream socket closes with a connection that it did not
+ *   accept.  The client sees the end of the connection, and local sockets
+ *   still work after it.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_stream_listenclose(FAR void **state)
+{
+#ifdef CONFIG_NET_LOCAL_STREAM
+  FAR struct nettest_local_dgram_state_s *st = *state;
+  struct sockaddr_un addr;
+  socklen_t addrlen;
+  char buf[4];
+  ssize_t ret;
+
+  addrlen = local_dgram_addr(&addr, st->p3, false);
+  unlink(st->p3);
+
+  st->r3 = socket(AF_UNIX, SOCK_STREAM, 0);
+  assert_return_code(st->r3, errno);
+  ret = bind(st->r3, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+  ret = listen(st->r3, 2);
+  assert_return_code(ret, errno);
+
+  st->u = socket(AF_UNIX, SOCK_STREAM, 0);
+  assert_return_code(st->u, errno);
+  ret = connect(st->u, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+
+  assert_int_equal(close(st->r3), 0);
+  st->r3 = -1;
+
+  ret = recv(st->u, buf, sizeof(buf), 0);
+  assert_true(ret == 0 || (ret < 0 && errno == ECONNRESET));
+  assert_int_equal(close(st->u), 0);
+  st->u = -1;
+
+  local_dgram_streampair(st);
+  assert_int_equal(send(st->u, "ok", 2, 0), 2);
+  assert_int_equal(recv(st->r2, buf, sizeof(buf), 0), 2);
+#else
+  skip();
+#endif
+}
+
+/****************************************************************************
  * Name: test_local_dgram_pipe_hup
  *
  * Description:

@@ -40,6 +40,8 @@
 
 #define LOCAL_DGRAM_PATHLEN 96
 #define LOCAL_DGRAM_BIGLEN  60000
+#define LOCAL_DGRAM_FILLLEN 100
+#define LOCAL_DGRAM_FILLMAX 4096
 
 /****************************************************************************
  * Public Types
@@ -148,6 +150,8 @@ ssize_t local_dgram_sendto(int fd, FAR const char *path,
 int local_dgram_revents(int fd, int events, int ms);
 void local_dgram_mkfifo(FAR char *path, size_t size,
                         FAR const char *first);
+int local_dgram_fill(int fd, FAR const char *path);
+void local_dgram_unfill(int fd, int count);
 
 /****************************************************************************
  * Name: test_local_dgram_group_setup
@@ -250,6 +254,12 @@ void test_local_dgram_closed(FAR void **state);
  ****************************************************************************/
 
 void test_local_dgram_abstract(FAR void **state);
+
+/****************************************************************************
+ * Name: test_local_dgram_addrlen
+ ****************************************************************************/
+
+void test_local_dgram_addrlen(FAR void **state);
 
 /****************************************************************************
  * Name: test_local_dgram_pollin0
@@ -357,7 +367,20 @@ void test_local_dgram_stream_names(FAR void **state);
 void test_local_dgram_stream_unspec(FAR void **state);
 void test_local_dgram_stream_threads(FAR void **state);
 void test_local_dgram_stream_hup(FAR void **state);
+void test_local_dgram_stream_listenclose(FAR void **state);
 void test_local_dgram_pipe_hup(FAR void **state);
 void test_local_dgram_fifo_hup(FAR void **state);
+
+/* The cases of test_local_dgram_pair.c */
+
+void test_local_dgram_pair_send(FAR void **state);
+void test_local_dgram_pair_full(FAR void **state);
+void test_local_dgram_pair_close(FAR void **state);
+void test_local_dgram_poll_pair(FAR void **state);
+
+/* The cases of test_local_dgram_wait.c */
+
+void test_local_dgram_recv_intr(FAR void **state);
+void test_local_dgram_stream_intr(FAR void **state);
 
 #endif /* __APPS_TESTING_NETTEST_LOCAL_TEST_LOCAL_DGRAM_H */
