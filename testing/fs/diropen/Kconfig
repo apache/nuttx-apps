@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_DIROPEN
+	tristate "open() of a directory test"
+	default n
+	depends on !DISABLE_MOUNTPOINT
+	---help---
+		Check open() of a directory and of a file with O_DIRECTORY, as
+		POSIX says.  An open() of a directory with O_RDONLY gives a
+		directory descriptor that fstat(), openat() and fdopendir() use.
+		An open() of a directory with O_WRONLY or O_RDWR fails with
+		EISDIR.  An open() of a file with O_DIRECTORY and opendir() of a
+		file fail with ENOTDIR.
+
+		The test runs on the pseudo file system (/dev, / and a new
+		directory), on a tmpfs that it mounts when the kernel has one, and
+		in each directory given as an argument, for example a hostfs, v9fs
+		or rpmsgfs mount: "diropen /host".  A directory given as an
+		argument must be writable.
+
+if TESTING_DIROPEN
+
+config TESTING_DIROPEN_PROGNAME
+	string "Program name"
+	default "diropen"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_DIROPEN_PRIORITY
+	int "Directory open test task priority"
+	default 100
+
+config TESTING_DIROPEN_STACKSIZE
+	int "Directory open test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
