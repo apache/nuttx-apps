@@ -31,6 +31,9 @@
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
+#include <dirent.h>
+#include <limits.h>
+#include <unistd.h>
 #include <nuttx/debug.h>
 
 #include <nuttx/ascii.h>
@@ -202,6 +205,356 @@ static void tab_print_match(FAR struct rl_common_s *vtbl,
 #endif
 
 /****************************************************************************
+ * Name: tab_path_completion
+ *
+ * Description:
+ *   Complete the last word of the line against directory entries, so a
+ *   command argument such as "ls /data/lo<TAB>" or "cd ro<TAB>" fills in
+ *   file and directory names the way a host shell does.  Returns false
+ *   without doing anything when the cursor is on the command word (no
+ *   space behind it and not an explicit path), so the caller can fall
+ *   back to command-name completion.
+ *
+ * Returned Value:
+ *   Same contract as tab_completion(): true if the buffer changed and/or
+ *   anything was echoed, false if nothing happened at all.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_READLINE_TABCOMPLETION
+static bool tab_path_completion(FAR struct rl_common_s *vtbl,
+                                FAR char *buf, int buflen, FAR int *nch)
+{
+  char common[NAME_MAX + 1];  /* Common prefix of all matches */
+  char single[NAME_MAX + 1];  /* The one match, when there is exactly one */
+  char dirpath[PATH_MAX];     /* Directory to match against, absolute */
+  FAR struct dirent *entryp;
+  FAR const char *prefix;
+  FAR const char *dirpart;
+  FAR DIR *dirp;
+  int len         = *nch;
+  int word_start  = 0;
+  int prefix_off;
+  int prefix_len;
+  int dirplen;
+  int dirlen;
+  int nr_matches  = 0;
+  char suffix     = ' ';
+  bool dirsonly;
+  int i;
+  int j;
+
+  /* Locate the word being completed: the character after the last space
+   * in the line, or 0 when the cursor is still on the first word.  In the
+   * latter case only an explicit path (leading '/') is completed here;
+   * otherwise defer to command-name completion.
+   */
+
+  for (i = len - 1; i > 0; i--)
+    {
+      if (buf[i] == ' ')
+        {
+          word_start = i + 1;
+          break;
+        }
+    }
+
+  if (word_start == 0 && buf[0] != '/')
+    {
+      return false;
+    }
+
+  /* cd only accepts directories, so drop plain files from its matches
+   * (bash completes cd the same way).
+   */
+
+  dirsonly = strncmp(buf, "cd ", 3) == 0;
+
+  prefix_off = word_start;
+
+  /* Split the word into its directory part and the name prefix:
+   * "cd /data/lo" -> dir "/data/", prefix "lo"; "cd lo" -> dir is the
+   * current working directory, prefix "lo".
+   */
+
+  for (i = len - 1; i >= word_start; i--)
+    {
+      if (buf[i] == '/')
+        {
+          prefix_off = i + 1;
+          break;
+        }
+    }
+
+  prefix     = buf + prefix_off;
+  prefix_len = len - prefix_off;
+
+  /* Build an absolute, dot-free path for the directory to match against:
+   * the word's own directory part when it has one, the current working
+   * directory otherwise.  The kernel hands un-normalized segments to
+   * mounted filesystems, where a '.' or '..' component matches no entry
+   * (nsh's own commands canonicalize their paths for the same reason).
+   */
+
+  dirpart = buf + word_start;
+  dirplen = prefix_off - word_start;
+
+  if (dirplen == 0 || (dirplen == 1 && dirpart[0] == '.'))
+    {
+      if (getcwd(dirpath, sizeof(dirpath)) == NULL)
+        {
+          return false;
+        }
+    }
+  else
+    {
+      dirlen = 0;
+
+      if (dirpart[0] != '/')
+        {
+          if (getcwd(dirpath, sizeof(dirpath)) == NULL)
+            {
+              return false;
+            }
+
+          dirlen = strlen(dirpath);
+        }
+
+      /* Copy the directory part, dropping '.' and '..' components and
+       * duplicate slashes, so the mounted filesystem never sees them.
+       */
+
+      for (i = 0; i < dirplen; i++)
+        {
+          if (dirpart[i] == '/' ||
+              (dirpart[i] == '.' &&
+               (i + 1 == dirplen || dirpart[i + 1] == '/')))
+            {
+              continue;
+            }
+
+          if (dirpart[i] == '.' && dirpart[i + 1] == '.' &&
+              (i + 2 == dirplen || dirpart[i + 2] == '/'))
+            {
+              i++;
+
+              /* Drop the last segment, stopping at the root */
+
+              while (dirlen > 1 && dirpath[dirlen - 1] != '/')
+                {
+                  dirlen--;
+                }
+
+              if (dirlen > 1)
+                {
+                  dirlen--;
+                }
+
+              continue;
+            }
+
+          if (dirlen == 0 || dirpath[dirlen - 1] != '/')
+            {
+              if (dirlen >= (int)sizeof(dirpath) - 1)
+                {
+                  return false;
+                }
+
+              dirpath[dirlen++] = '/';
+            }
+
+          while (i < dirplen && dirpart[i] != '/' &&
+                 dirlen < (int)sizeof(dirpath) - 1)
+            {
+              dirpath[dirlen++] = dirpart[i++];
+            }
+
+          /* Bail out if the buffer cut the segment short: a truncated
+           * name could resolve to a different directory.
+           */
+
+          if (i < dirplen && dirpart[i] != '/')
+            {
+              return false;
+            }
+        }
+
+      if (dirlen == 0)
+        {
+          dirpath[dirlen++] = '/';
+        }
+
+      dirpath[dirlen] = '\0';
+    }
+
+  dirp = opendir(dirpath);
+  if (dirp == NULL)
+    {
+      return false;
+    }
+
+  /* First pass: count the matches and track their common prefix.  With
+   * nothing typed yet, hidden entries stay hidden (the same rule a
+   * host shell follows, and it keeps "." and ".." out of a bare TAB).
+   */
+
+  while ((entryp = readdir(dirp)) != NULL)
+    {
+      FAR const char *name = entryp->d_name;
+
+      if (prefix_len == 0 && name[0] == '.')
+        {
+          continue;
+        }
+
+      if (dirsonly && entryp->d_type != DTYPE_DIRECTORY)
+        {
+          continue;
+        }
+
+      if (strncmp(name, prefix, prefix_len) != 0)
+        {
+          continue;
+        }
+
+      if (nr_matches == 0)
+        {
+          strlcpy(common, name, sizeof(common));
+          strlcpy(single, name, sizeof(single));
+          suffix = entryp->d_type == DTYPE_DIRECTORY ? '/' : ' ';
+        }
+      else
+        {
+          for (j = 0; common[j] != '\0' && common[j] == name[j]; j++)
+            {
+            }
+
+          common[j] = '\0';
+        }
+
+      nr_matches++;
+    }
+
+  closedir(dirp);
+
+  if (nr_matches == 0)
+    {
+      return false;
+    }
+
+  /* One match with something already typed: append what the user has not
+   * typed yet, plus '/' when it is a directory so a following TAB
+   * descends into it.  With an empty prefix the match is only listed
+   * below, so repeated TABs never append the same name over and over.
+   */
+
+  if (nr_matches == 1 && prefix_len > 0)
+    {
+      int add = strlen(single) - prefix_len;
+
+      if (add < 0)
+        {
+          add = 0;
+        }
+
+      if (len + add + 1 >= buflen)
+        {
+          return false;
+        }
+
+      for (i = 0; i < add; i++)
+        {
+          buf[len + i] = single[prefix_len + i];
+          RL_PUTC(vtbl, single[prefix_len + i]);
+        }
+
+      buf[len + add] = suffix;
+      RL_PUTC(vtbl, suffix);
+      *nch = len + add + 1;
+      return true;
+    }
+
+  /* Several matches: list them, then extend the word by whatever the
+   * entries share beyond the typed prefix (a single match gets the
+   * trailing '/' instead, above).
+   */
+
+  RL_PUTC(vtbl, '\n');
+
+  /* Reopen for the listing pass */
+
+  dirp = opendir(dirpath);
+
+  if (dirp != NULL)
+    {
+      while ((entryp = readdir(dirp)) != NULL)
+        {
+          FAR const char *name = entryp->d_name;
+
+          if (prefix_len == 0 && name[0] == '.')
+            {
+              continue;
+            }
+
+          if (dirsonly && entryp->d_type != DTYPE_DIRECTORY)
+            {
+              continue;
+            }
+
+          if (strncmp(name, prefix, prefix_len) != 0)
+            {
+              continue;
+            }
+
+          RL_PUTC(vtbl, ' ');
+          RL_PUTC(vtbl, ' ');
+
+          for (i = 0; name[i] != '\0'; i++)
+            {
+              RL_PUTC(vtbl, name[i]);
+            }
+
+          RL_PUTC(vtbl, '\n');
+        }
+
+      closedir(dirp);
+    }
+
+  {
+    int add = prefix_len > 0 ? strlen(common) - prefix_len : 0;
+
+    if (add > 0 && len + add < buflen)
+      {
+        for (i = 0; i < add; i++)
+          {
+            buf[len + i] = common[prefix_len + i];
+            RL_PUTC(vtbl, common[prefix_len + i]);
+          }
+
+        *nch = len + add;
+      }
+  }
+
+  /* Reprint the prompt and the line, as the listing scrolled it away */
+
+  if (g_readline_prompt != NULL)
+    {
+      for (i = 0; g_readline_prompt[i] != '\0'; i++)
+        {
+          RL_PUTC(vtbl, g_readline_prompt[i]);
+        }
+    }
+
+  for (i = 0; i < *nch; i++)
+    {
+      RL_PUTC(vtbl, buf[i]);
+    }
+
+  return true;
+}
+#endif
+
+/****************************************************************************
  * Name: tab_completion
  *
  * Description:
@@ -246,6 +599,16 @@ static bool tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
   if (len >= 1)
     {
+      /* Path completion for an argument (or an explicit path as the
+       * command): falls through to command-name completion when the
+       * cursor is still on the command word.
+       */
+
+      if (tab_path_completion(vtbl, buf, buflen, nch))
+        {
+          return true;
+        }
+
 #ifdef CONFIG_BUILTIN
       /* Count the matching builtin commands */
 
