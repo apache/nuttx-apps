@@ -136,4 +136,8 @@ config TESTING_CRYPTO_POLY1305
 	bool "poly1305 crypto test"
 	default n
 
+config TESTING_CRYPTO_CAST_CBC
+	bool "cast-cbc crypto test"
+	default n
+
 endif # TESTING_CRYPTO
