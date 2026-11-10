@@ -64,6 +64,15 @@ config TESTING_NET_MCAST
 	depends on NET_IGMP || NET_MLD
 	default y
 
+config TESTING_NET_RADIO
+	bool "Enable cmocka net radio socket test"
+	depends on NET_BLUETOOTH || NET_IEEE802154
+	default y
+	---help---
+		Test that recvfrom() on a Bluetooth or IEEE 802.15.4 socket with
+		no radio device fails with ENODEV and leaves the socket usable
+		(cmocka_net_radio).
+
 config TESTING_NET_TIMESTAMP
 	bool "Enable cmocka net timestamp test"
 	depends on NET_TIMESTAMP && NET_PKT
