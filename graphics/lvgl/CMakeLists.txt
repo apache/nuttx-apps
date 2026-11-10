@@ -35,17 +35,22 @@ if(CONFIG_GRAPHICS_LVGL)
   set(LVGL_FBDEV_PATCH
       ${CMAKE_CURRENT_LIST_DIR}/0001-nuttx-fbdev-use-virtual-framebuffer-offset.patch
   )
+  set(LVGL_IMAGE_CACHE_PATCH
+      ${CMAKE_CURRENT_LIST_DIR}/0002-nuttx-image_cache-include-unistd.h.patch)
 
   if(NOT EXISTS ${LVGL_DIR}/.git)
     if("${LVGL_VERSION}" STREQUAL "9.2.2")
       set_property(
         DIRECTORY
         APPEND
-        PROPERTY CMAKE_CONFIGURE_DEPENDS ${LVGL_FBDEV_PATCH})
+        PROPERTY CMAKE_CONFIGURE_DEPENDS ${LVGL_FBDEV_PATCH}
+                 ${LVGL_IMAGE_CACHE_PATCH})
     endif()
 
     if(NOT EXISTS ${LVGL_STAMP}
        OR ("${LVGL_VERSION}" STREQUAL "9.2.2" AND ${LVGL_FBDEV_PATCH}
+                                                  IS_NEWER_THAN ${LVGL_STAMP})
+       OR ("${LVGL_VERSION}" STREQUAL "9.2.2" AND ${LVGL_IMAGE_CACHE_PATCH}
                                                   IS_NEWER_THAN ${LVGL_STAMP}))
       # Reset download stamps so a failed patch retries from a fresh archive.
       set(LVGL_SUBBUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/lvgl-subbuild)
@@ -59,8 +64,9 @@ if(CONFIG_GRAPHICS_LVGL)
             URL_HASH
             SHA256=b3d33f7aad1360f588762208d0f563574392debbc28d9187bda86012909f2203
         )
-        set(LVGL_PATCH_COMMAND patch -s -N -p1 -d ${LVGL_DIR} -i
-                               ${LVGL_FBDEV_PATCH})
+        set(LVGL_PATCH_COMMAND
+            patch -s -N -p1 -d ${LVGL_DIR} -i ${LVGL_FBDEV_PATCH} COMMAND patch
+            -s -N -p1 -d ${LVGL_DIR} -i ${LVGL_IMAGE_CACHE_PATCH})
       endif()
       FetchContent_Declare(
         lvgl_fetch

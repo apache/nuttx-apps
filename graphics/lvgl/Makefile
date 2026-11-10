@@ -83,7 +83,8 @@ endif
 # This minimal backport targets the default LVGL 9.2.2 archive.
 
 ifeq ($(LVGL_VERSION),9.2.2)
-LVGL_PATCHES = $(WD)/0001-nuttx-fbdev-use-virtual-framebuffer-offset.patch
+LVGL_PATCHES  = $(WD)/0001-nuttx-fbdev-use-virtual-framebuffer-offset.patch
+LVGL_PATCHES += $(WD)/0002-nuttx-image_cache-include-unistd.h.patch
 endif
 
 LVGL_STAMP = $(LVGL_UNPACKNAME)/.nuttx_patched-$(LVGL_VERSION)

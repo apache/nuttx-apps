@@ -1,0 +1,22 @@
+From: yangsong8 <yangsong8@xiaomi.com>
+Date: Tue, 10 Nov 2026 20:00:00 +0800
+Subject: [PATCH] nuttx: image_cache: include unistd.h for gettid
+
+lv_nuttx_image_cache.c calls gettid() but only includes nuttx/mm/mm.h,
+so it relies on NuttX headers pulling in unistd.h indirectly. Include
+unistd.h explicitly so the file keeps building when that indirect
+include goes away.
+
+Signed-off-by: yangsong8 <yangsong8@xiaomi.com>
+---
+diff --git a/src/drivers/nuttx/lv_nuttx_image_cache.c b/src/drivers/nuttx/lv_nuttx_image_cache.c
+--- a/src/drivers/nuttx/lv_nuttx_image_cache.c
++++ b/src/drivers/nuttx/lv_nuttx_image_cache.c
+@@ -15,6 +15,7 @@
+ 
+ #include "../../draw/lv_draw_buf_private.h"
+ #include <nuttx/mm/mm.h>
++#include <unistd.h>
+ 
+ /*********************
+  *      DEFINES
