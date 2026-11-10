@@ -37,8 +37,12 @@
 #endif
 #if !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA224) || \
     !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA256) ||   \
+    !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384) ||   \
     !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512)
 #  include <crypto/sha2.h>
+#endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+#  include <crypto/rmd160.h>
 #endif
 
 #ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
@@ -116,7 +120,8 @@ tb sha_testcase[] =
 };
 #endif
 
-#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512
+#if !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384)    \
+  || !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512)
 tb sha512_testcase[] =
 {
     {
@@ -131,6 +136,45 @@ tb sha512_testcase[] =
     {
       "",
       1000,
+    }
+};
+#endif
+
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+tb ripemd160_testcase[] =
+{
+    {
+      "",
+      0,
+    },
+    {
+      "a",
+      1,
+    },
+    {
+      "abc",
+      3,
+    },
+    {
+      "message digest",
+      14,
+    },
+    {
+      "abcdefghijklmnopqrstuvwxyz",
+      26,
+    },
+    {
+      "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+      56,
+    },
+    {
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+      62,
+    },
+    {
+      "123456789012345678901234567890123456789"
+      "01234567890123456789012345678901234567890",
+      80,
     }
 };
 #endif
@@ -240,6 +284,56 @@ static const unsigned char sha512_result[3][64] =
     0x4c, 0xb0, 0x43, 0x2c, 0xe5, 0x77, 0xc3, 0x1b,
     0xeb, 0x00, 0x9c, 0x5c, 0x2c, 0x49, 0xaa, 0x2e,
     0x4e, 0xad, 0xb2, 0x17, 0xad, 0x8c, 0xc0, 0x9b }
+};
+#endif
+
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384
+/* FIPS-180-2 test vectors */
+
+static const unsigned char sha384_result[3][48] =
+{
+  { 0xcb, 0x00, 0x75, 0x3f, 0x45, 0xa3, 0x5e, 0x8b,
+    0xb5, 0xa0, 0x3d, 0x69, 0x9a, 0xc6, 0x50, 0x07,
+    0x27, 0x2c, 0x32, 0xab, 0x0e, 0xde, 0xd1, 0x63,
+    0x1a, 0x8b, 0x60, 0x5a, 0x43, 0xff, 0x5b, 0xed,
+    0x80, 0x86, 0x07, 0x2b, 0xa1, 0xe7, 0xcc, 0x23,
+    0x58, 0xba, 0xec, 0xa1, 0x34, 0xc8, 0x25, 0xa7 },
+  { 0x09, 0x33, 0x0c, 0x33, 0xf7, 0x11, 0x47, 0xe8,
+    0x3d, 0x19, 0x2f, 0xc7, 0x82, 0xcd, 0x1b, 0x47,
+    0x53, 0x11, 0x1b, 0x17, 0x3b, 0x3b, 0x05, 0xd2,
+    0x2f, 0xa0, 0x80, 0x86, 0xe3, 0xb0, 0xf7, 0x12,
+    0xfc, 0xc7, 0xc7, 0x1a, 0x55, 0x7e, 0x2d, 0xb9,
+    0x66, 0xc3, 0xe9, 0xfa, 0x91, 0x74, 0x60, 0x39 },
+  { 0x9d, 0x0e, 0x18, 0x09, 0x71, 0x64, 0x74, 0xcb,
+    0x08, 0x6e, 0x83, 0x4e, 0x31, 0x0a, 0x4a, 0x1c,
+    0xed, 0x14, 0x9e, 0x9c, 0x00, 0xf2, 0x48, 0x52,
+    0x79, 0x72, 0xce, 0xc5, 0x70, 0x4c, 0x2a, 0x5b,
+    0x07, 0xb8, 0xb3, 0xdc, 0x38, 0xec, 0xc4, 0xeb,
+    0xae, 0x97, 0xdd, 0xd8, 0x7f, 0x3d, 0x89, 0x85 }
+};
+#endif
+
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+/* RIPEMD-160 test vectors from the RIPEMD-160 paper */
+
+static const unsigned char ripemd160_result[8][20] =
+{
+  { 0x9c, 0x11, 0x85, 0xa5, 0xc5, 0xe9, 0xfc, 0x54, 0x61, 0x28,
+    0x08, 0x97, 0x7e, 0xe8, 0xf5, 0x48, 0xb2, 0x25, 0x8d, 0x31 },
+  { 0x0b, 0xdc, 0x9d, 0x2d, 0x25, 0x6b, 0x3e, 0xe9, 0xda, 0xae,
+    0x34, 0x7b, 0xe6, 0xf4, 0xdc, 0x83, 0x5a, 0x46, 0x7f, 0xfe },
+  { 0x8e, 0xb2, 0x08, 0xf7, 0xe0, 0x5d, 0x98, 0x7a, 0x9b, 0x04,
+    0x4a, 0x8e, 0x98, 0xc6, 0xb0, 0x87, 0xf1, 0x5a, 0x0b, 0xfc },
+  { 0x5d, 0x06, 0x89, 0xef, 0x49, 0xd2, 0xfa, 0xe5, 0x72, 0xb8,
+    0x81, 0xb1, 0x23, 0xa8, 0x5f, 0xfa, 0x21, 0x59, 0x5f, 0x36 },
+  { 0xf7, 0x1c, 0x27, 0x10, 0x9c, 0x69, 0x2c, 0x1b, 0x56, 0xbb,
+    0xdc, 0xeb, 0x5b, 0x9d, 0x28, 0x65, 0xb3, 0x70, 0x8d, 0xbc },
+  { 0x12, 0xa0, 0x53, 0x38, 0x4a, 0x9c, 0x0c, 0x88, 0xe4, 0x05,
+    0xa0, 0x6c, 0x27, 0xdc, 0xf4, 0x9a, 0xda, 0x62, 0xeb, 0x2b },
+  { 0xb0, 0xe2, 0x0b, 0x6e, 0x31, 0x16, 0x64, 0x02, 0x86, 0xed,
+    0x3a, 0x87, 0xa5, 0x71, 0x30, 0x79, 0xb2, 0x1f, 0x51, 0x89 },
+  { 0x9b, 0x75, 0x2e, 0x45, 0x57, 0x3d, 0x4b, 0x39, 0xf4, 0xdb,
+    0xd3, 0x32, 0x3c, 0xab, 0x82, 0xbf, 0x63, 0x32, 0x6b, 0xfb }
 };
 #endif
 
@@ -616,6 +710,12 @@ int main(void)
 #ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512
   crypto_context sha2_512_ctx;
 #endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384
+  crypto_context sha2_384_ctx;
+#endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+  crypto_context rmd160_ctx;
+#endif
 #ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
   unsigned char *huge_block = NULL;
   uint32_t huge_block_size = HASH_HUGE_BLOCK_SIZE;
@@ -626,6 +726,7 @@ int main(void)
 #if !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA1) \
   || !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA224) \
   || !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA256) \
+  || !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384) \
   || !defined(CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512)
   unsigned char buf[1024];
   int j;
@@ -645,6 +746,12 @@ int main(void)
 #endif
 #ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512
   ret += syshash_init(&sha2_512_ctx);
+#endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384
+  ret += syshash_init(&sha2_384_ctx);
+#endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+  ret += syshash_init(&rmd160_ctx);
 #endif
   if (ret != 0)
     {
@@ -913,6 +1020,103 @@ int main(void)
     }
 #endif
 
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384
+  for (i = 0; i < nitems(sha512_testcase); i++)
+    {
+      ret = syshash_start(&sha2_384_ctx, CRYPTO_SHA2_384);
+      if (ret != 0)
+        {
+          printf("sha384 start failed\n");
+          goto err;
+        }
+
+      if (i == 2)
+        {
+          memset(buf, 'a', sha512_testcase[i].datalen);
+          for (j = 0; j < 1000; j++)
+            {
+              ret = syshash_update(&sha2_384_ctx, (char *)buf,
+                                   sha512_testcase[i].datalen);
+              if (ret)
+                {
+                  break;
+                }
+            }
+        }
+      else
+        {
+          ret = syshash_update(&sha2_384_ctx, sha512_testcase[i].data,
+                               sha512_testcase[i].datalen);
+        }
+
+      if (ret)
+        {
+          printf("sha384 update failed\n");
+          goto err;
+        }
+
+      ret = syshash_finish(&sha2_384_ctx, output);
+      if (ret)
+        {
+          printf("sha384 finish failed\n");
+          goto err;
+        }
+
+      ret = match((unsigned char *)sha384_result[i],
+                  (unsigned char *)output,
+                  SHA384_DIGEST_LENGTH);
+      if (ret)
+        {
+          printf("match sha384 failed\n");
+          goto err;
+        }
+      else
+        {
+          printf("hash sha384 success\n");
+        }
+    }
+#endif
+
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+  for (i = 0; i < nitems(ripemd160_testcase); i++)
+    {
+      ret = syshash_start(&rmd160_ctx, CRYPTO_RIPEMD160);
+      if (ret != 0)
+        {
+          printf("rmd160 start failed\n");
+          goto err;
+        }
+
+      ret = syshash_update(&rmd160_ctx, ripemd160_testcase[i].data,
+                           ripemd160_testcase[i].datalen);
+      if (ret)
+        {
+          printf("rmd160 update failed\n");
+          goto err;
+        }
+
+      ret = syshash_finish(&rmd160_ctx, output);
+      if (ret)
+        {
+          printf("rmd160 finish failed\n");
+          goto err;
+        }
+
+      ret = match((unsigned char *)ripemd160_result[i],
+                  (unsigned char *)output,
+                  RMD160_DIGEST_LENGTH);
+      if (ret)
+        {
+          printf("match rmd160 failed\n");
+          goto err;
+        }
+      else
+        {
+          printf("hash rmd160 success\n");
+        }
+    }
+#endif
+
 #ifdef CONFIG_TESTING_CRYPTO_HASH_HUGE_BLOCK
   /* Loop trying to allocate a huge block, cutting requested
    * size in half until success.
@@ -1096,6 +1300,12 @@ err:
 #endif
 #ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA512
   syshash_free(&sha2_512_ctx);
+#endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_SHA384
+  syshash_free(&sha2_384_ctx);
+#endif
+#ifndef CONFIG_TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+  syshash_free(&rmd160_ctx);
 #endif
   return 0;
 }
