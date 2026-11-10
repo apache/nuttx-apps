@@ -51,11 +51,11 @@ int mbedtls_cipher_cmac_starts(FAR mbedtls_cipher_context_t *ctx,
   switch (ctx->cipher_info->type)
     {
       case MBEDTLS_CIPHER_AES_128_ECB:
-          cipher_type = CRYPTO_AES_CMAC;
-          mac_type = CRYPTO_AES_128_CMAC;
-          break;
+        cipher_type = CRYPTO_AES_CMAC;
+        mac_type = CRYPTO_AES_128_CMAC;
+        break;
       default:
-          return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
+        return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
   cmac_ctx = mbedtls_calloc(1, sizeof(mbedtls_cmac_context_t));
