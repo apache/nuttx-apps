@@ -117,6 +117,25 @@ int mbedtls_aes_crypt_ecb(FAR mbedtls_aes_context *ctx,
 
 /* AES-CBC buffer encryption/decryption */
 
+/* The cryptodev AES-128-CBC id is CRYPTO_AES_CBC; pick the variant that
+ * matches the key length of the session.
+ */
+
+static uint32_t aes_cbc_cipher_id(unsigned int keylen)
+{
+  if (keylen == 24)
+    {
+      return CRYPTO_AES_192_CBC;
+    }
+
+  if (keylen == 32)
+    {
+      return CRYPTO_AES_256_CBC;
+    }
+
+  return CRYPTO_AES_CBC;
+}
+
 int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
                           int mode,
                           size_t length,
@@ -124,6 +143,7 @@ int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
                           const unsigned char *input,
                           unsigned char *output)
 {
+  unsigned char temp[16];
   int ret;
 
   if (mode != MBEDTLS_AES_ENCRYPT && mode != MBEDTLS_AES_DECRYPT)
@@ -131,12 +151,17 @@ int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
     }
 
-  if ((length % 16) != 0)
+  if (length == 0 || (length % 16) != 0)
     {
       return MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH;
     }
 
-  ctx->dev.session.cipher = CRYPTO_AES_CBC;
+  if (mode == MBEDTLS_AES_DECRYPT)
+    {
+      memcpy(temp, input + length - 16, 16);
+    }
+
+  ctx->dev.session.cipher = aes_cbc_cipher_id(ctx->dev.session.keylen);
   ret = cryptodev_get_session(&ctx->dev);
   if (ret != 0)
     {
@@ -152,6 +177,13 @@ int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
   ctx->dev.crypt.iv = (caddr_t)iv;
   ret = cryptodev_crypt(&ctx->dev);
   cryptodev_free_session(&ctx->dev);
+
+  if (ret == 0)
+    {
+      memcpy(iv, mode == MBEDTLS_AES_ENCRYPT ?
+                 output + length - 16 : temp, 16);
+    }
+
   return ret;
 }
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
