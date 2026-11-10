@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_MEMFD_CREATE
+	tristate "memfd_create() test"
+	default n
+	depends on !LIBC_MEMFD_ERROR
+	---help---
+		Check that memfd_create() makes a file with the flags 0,
+		MFD_CLOEXEC and MFD_ALLOW_SEALING, and with a long name.
+
+if TESTING_MEMFD_CREATE
+
+config TESTING_MEMFD_CREATE_PROGNAME
+	string "Program name"
+	default "memfd_create_test"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_MEMFD_CREATE_PRIORITY
+	int "memfd_create_test task priority"
+	default 100
+
+config TESTING_MEMFD_CREATE_STACKSIZE
+	int "memfd_create_test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
