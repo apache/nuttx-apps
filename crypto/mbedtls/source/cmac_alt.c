@@ -109,6 +109,8 @@ int mbedtls_cipher_cmac_update(FAR mbedtls_cipher_context_t *ctx,
   ctx->cmac_ctx->dev.crypt.len = ilen;
   if (cryptodev_crypt(&ctx->cmac_ctx->dev) != 0)
     {
+      cryptodev_free_session(&ctx->cmac_ctx->dev);
+      cryptodev_free(&ctx->cmac_ctx->dev);
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
