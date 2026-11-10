@@ -148,6 +148,33 @@ if(CONFIG_TESTING_NET_TEST)
       ${SRCS})
   endif()
 
+  if(CONFIG_TESTING_NET_RADIO)
+    set(SRCS ${CMAKE_CURRENT_LIST_DIR}/radio/test_radio.c
+             ${CMAKE_CURRENT_LIST_DIR}/radio/test_radio_common.c)
+
+    if(CONFIG_NET_BLUETOOTH)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/radio/test_radio_bluetooth.c)
+    endif()
+
+    if(CONFIG_NET_IEEE802154)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/radio/test_radio_ieee802154.c)
+    endif()
+
+    nuttx_add_application(
+      NAME
+      cmocka_net_radio
+      PRIORITY
+      ${CONFIG_TESTING_NET_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_NET_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_NET_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      ${SRCS})
+  endif()
+
   if(CONFIG_TESTING_NET_TIMESTAMP)
     set(SRCS ${CMAKE_CURRENT_LIST_DIR}/timestamp/test_timestamp.c
              ${CMAKE_CURRENT_LIST_DIR}/timestamp/test_timestamp_common.c)

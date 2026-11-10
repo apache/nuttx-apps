@@ -81,6 +81,21 @@ endif
 
 endif
 
+ifeq ($(CONFIG_TESTING_NET_RADIO),y)
+MAINSRC  += radio/test_radio.c
+PROGNAME += cmocka_net_radio
+CSRCS    += radio/test_radio_common.c
+
+ifeq ($(CONFIG_NET_BLUETOOTH),y)
+CSRCS    += radio/test_radio_bluetooth.c
+endif
+
+ifeq ($(CONFIG_NET_IEEE802154),y)
+CSRCS    += radio/test_radio_ieee802154.c
+endif
+
+endif
+
 ifeq ($(CONFIG_TESTING_NET_TIMESTAMP),y)
 MAINSRC  += timestamp/test_timestamp.c
 PROGNAME += cmocka_net_timestamp
