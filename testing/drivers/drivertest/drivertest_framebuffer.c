@@ -165,6 +165,7 @@ static int fb_init_mem2(FAR struct fb_state_s *state,
   if (ret < 0)
     {
       int errcode = errno;
+
       printf("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errcode);
       return EXIT_FAILURE;
     }
@@ -265,6 +266,7 @@ static void pan_display(FAR struct fb_state_s *state)
 {
   struct pollfd pfd;
   int ret;
+
   pfd.fd = state->fb_device;
   pfd.events = POLLOUT;
 
@@ -340,6 +342,7 @@ static void draw_rect(FAR struct fb_state_s *fb_state, int x, int y,
 #ifdef CONFIG_FB_UPDATE
   int ret;
   struct fb_area_s area;
+
   area.x = 0;
   area.y = 0;
   area.w = xres;
@@ -385,6 +388,7 @@ static void draw_rect(FAR struct fb_state_s *fb_state, int x, int y,
 static void drivertest_framebuffer_black(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
+
   fb_state = (struct fb_state_s *)*state;
 
   const uint32_t xres = fb_state->fb_info.video_info.xres;
@@ -400,6 +404,7 @@ static void drivertest_framebuffer_black(FAR void **state)
 static void drivertest_framebuffer_white(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
+
   fb_state = (struct fb_state_s *)*state;
 
   const uint32_t xres = fb_state->fb_info.video_info.xres;
@@ -415,6 +420,7 @@ static void drivertest_framebuffer_white(FAR void **state)
 static void drivertest_framebuffer_cross(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
+
   fb_state = (struct fb_state_s *)*state;
   int i = 0;
   int start_x = 0;
@@ -449,6 +455,7 @@ static void drivertest_framebuffer_cross(FAR void **state)
 static void drivertest_framebuffer_vertical(FAR void **state)
 {
   FAR struct fb_state_s * fb_state;
+
   fb_state = (struct fb_state_s *)*state;
   int i = 0;
   int start_y = 0;
