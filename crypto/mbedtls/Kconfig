@@ -594,6 +594,16 @@ config MBEDTLS_PLATFORM_C
 	bool "Enable the platform abstraction layer."
 	default !MBEDTLS_MINIMAL
 
+config MBEDTLS_PLATFORM_TIME_ALT
+	bool "Enable runtime replacement of the platform time function."
+	depends on MBEDTLS_PLATFORM_C
+	default n
+	---help---
+		Provide mbedtls_platform_set_time() so the application can
+		install its own time function pointer at runtime (used for
+		X.509 validity checks and TLS timestamps). Requires
+		MBEDTLS_HAVE_TIME.
+
 config MBEDTLS_POLY1305_C
 	bool "Enable the Poly1305 MAC algorithm."
 	default !MBEDTLS_MINIMAL
