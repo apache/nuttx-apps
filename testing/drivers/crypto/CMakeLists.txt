@@ -245,4 +245,18 @@ if(CONFIG_TESTING_CRYPTO)
       castcbc.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_BLF_CBC)
+    nuttx_add_application(
+      NAME
+      blfcbc
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      blfcbc.c)
+  endif()
+
 endif()

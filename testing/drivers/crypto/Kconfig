@@ -140,4 +140,8 @@ config TESTING_CRYPTO_CAST_CBC
 	bool "cast-cbc crypto test"
 	default n
 
+config TESTING_CRYPTO_BLF_CBC
+	bool "blowfish-cbc crypto test"
+	default n
+
 endif # TESTING_CRYPTO
