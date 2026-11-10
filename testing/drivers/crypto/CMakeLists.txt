@@ -217,4 +217,18 @@ if(CONFIG_TESTING_CRYPTO)
       chachapoly.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_POLY1305)
+    nuttx_add_application(
+      NAME
+      poly1305
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      poly1305.c)
+  endif()
+
 endif()

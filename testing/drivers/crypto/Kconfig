@@ -132,4 +132,8 @@ config TESTING_CRYPTO_STACKSIZE
 	int "crypto test stack size"
 	default DEFAULT_TASK_STACKSIZE
 
+config TESTING_CRYPTO_POLY1305
+	bool "poly1305 crypto test"
+	default n
+
 endif # TESTING_CRYPTO
