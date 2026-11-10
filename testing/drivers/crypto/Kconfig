@@ -73,6 +73,14 @@ config TESTING_CRYPTO_HASH_DISABLE_SHA512
 	bool "disable sha512 tests"
 	default n
 
+config TESTING_CRYPTO_HASH_DISABLE_SHA384
+	bool "disable sha384 tests"
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+	bool "disable ripemd160 tests"
+	default n
+
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_MD5
 	bool "disable unaligned md5 tests"
 	depends on !TESTING_CRYPTO_HASH_DISABLE_MD5
