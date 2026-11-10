@@ -231,4 +231,18 @@ if(CONFIG_TESTING_CRYPTO)
       poly1305.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_CAST_CBC)
+    nuttx_add_application(
+      NAME
+      castcbc
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      castcbc.c)
+  endif()
+
 endif()
