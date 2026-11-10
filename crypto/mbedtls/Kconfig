@@ -56,7 +56,7 @@ config MBEDTLS_PLATFORM_MEMORY
 config MBEDTLS_ENTROPY_HARDWARE_ALT
 	bool "Uncomment this macro to let mbed TLS use your own implementation of a hardware entropy collector."
 	default n
-	depends on DEV_RANDOM
+	depends on DEV_RANDOM || DEV_RPMSG
 	select MBEDTLS_NO_PLATFORM_ENTROPY
 
 config MBEDTLS_AES_ROM_TABLES
