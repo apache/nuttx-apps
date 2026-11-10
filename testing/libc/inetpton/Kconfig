@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_INETPTON
+	tristate "inet_pton() test"
+	default n
+	depends on NET_IPv6 || LIBC_IPv6_ADDRCONV
+	---help---
+		Check that inet_pton(AF_INET6) converts the text forms of RFC 4291
+		section 2.2, also with the IPv4 dotted-decimal form at the end, and
+		that it returns 0 for strings that are not IPv6 addresses.
+
+if TESTING_INETPTON
+
+config TESTING_INETPTON_PROGNAME
+	string "Program name"
+	default "inetpton"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_INETPTON_PRIORITY
+	int "inetpton task priority"
+	default 100
+
+config TESTING_INETPTON_STACKSIZE
+	int "inetpton stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
