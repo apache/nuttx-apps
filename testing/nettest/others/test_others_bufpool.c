@@ -51,6 +51,7 @@ static void test_net_bufpool_alloc_to(FAR struct net_bufpool_s *pool,
                                       FAR sq_queue_t *allocated)
 {
   FAR sq_entry_t *node;
+
   assert_true(NET_BUFPOOL_TEST(*pool) == OK);
   node = NET_BUFPOOL_ALLOC(*pool);
   assert_non_null(node);
@@ -67,6 +68,7 @@ static void test_net_bufpool_free_from(FAR struct net_bufpool_s *pool,
   while (!sq_empty(allocated))
     {
       FAR sq_entry_t *node = sq_remfirst(allocated);
+
       NET_BUFPOOL_FREE(*pool, node);
       assert_true(NET_BUFPOOL_TEST(*pool) == OK);
     }
