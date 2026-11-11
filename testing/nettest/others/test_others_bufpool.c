@@ -29,7 +29,7 @@
 #include <stdint.h>
 #include <cmocka.h>
 
-#include "../../nuttx/net/utils/utils.h"
+#include "utils/utils.h"
 
 /****************************************************************************
  * Pre-processor Definitions
