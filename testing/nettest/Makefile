@@ -36,7 +36,7 @@ PROGNAME += cmocka_net_tcp
 CSRCS    += tcp/test_tcp_common.c utils/nettest_tcpserver.c
 
 ifeq ($(CONFIG_NET_IPv4), y)
-CSRCS    += tcp/test_tcp_connect_ipv4.c
+CSRCS    += tcp/test_tcp_connect_ipv4.c tcp/test_tcp_bind_listen.c
 endif
 
 ifeq ($(CONFIG_NET_IPv6), y)
