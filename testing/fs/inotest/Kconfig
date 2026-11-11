@@ -1,0 +1,36 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_INOTEST
+	tristate "File serial number test"
+	default n
+	---help---
+		Check st_ino, d_ino and st_dev of the entries of some directories:
+		st_ino is not 0 and does not change, readdir() gives the st_ino of
+		lstat() and fstat(), two entries are two files, and a subdirectory
+		does not have the numbers of a parent directory.
+
+		By default the test checks /, /dev and /proc, and makes files in a
+		new tmpfs if FS_TMPFS is enabled.  "inotest -w dir" makes the files
+		in dir, and "inotest dir ..." checks other directories.
+
+if TESTING_INOTEST
+
+config TESTING_INOTEST_PROGNAME
+	string "Program name"
+	default "inotest"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_INOTEST_PRIORITY
+	int "File serial number test task priority"
+	default 100
+
+config TESTING_INOTEST_STACKSIZE
+	int "File serial number test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
