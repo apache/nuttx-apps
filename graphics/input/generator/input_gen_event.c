@@ -113,6 +113,7 @@ input_gen_single_finger(FAR struct touch_point_s *point,
                   finger->move_duration + finger->x1;
       int16_t y = ((int64_t)(finger->y2 - finger->y1) * elapsed) /
                   finger->move_duration + finger->y1;
+
       input_gen_fill_point(point, x, y, TOUCH_MOVE);
 
       return false;
