@@ -1,0 +1,46 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NPZERO
+	tristate "nPZero G1S power-saving IC example"
+	default n
+	depends on NPZERO
+	---help---
+		Example of the nPZero G1S driver for the nPZero G1S Development
+		Kit.  At each wake-up of the host, it shows the wake-up reason
+		and the values of the sensors, configures the nPZero to poll the
+		LIS2DW12 accelerometer (SPI, peripheral 3) and the AS6212
+		temperature sensor (I2C, peripheral 4) and enters Idle state,
+		which switches the host off.
+
+if EXAMPLES_NPZERO
+
+config EXAMPLES_NPZERO_PROGNAME
+	string "Program name"
+	default "npzero"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_NPZERO_PRIORITY
+	int "nPZero task priority"
+	default 100
+
+config EXAMPLES_NPZERO_STACKSIZE
+	int "nPZero stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config EXAMPLES_NPZERO_DEVPATH
+	string "nPZero device path"
+	default "/dev/npzero0"
+
+config EXAMPLES_NPZERO_IDLE_DELAY
+	int "Delay before Idle state (ms)"
+	default 1000
+	---help---
+		Time to wait before sending the Idle command, which switches the
+		host off.  It leaves time to connect a debugger to the host.
+
+endif
