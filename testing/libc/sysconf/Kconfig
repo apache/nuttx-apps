@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_SYSCONF
+	tristate "sysconf() test"
+	default n
+	---help---
+		Check that sysconf() gives a value, or -1 with errno unchanged,
+		for each name of <unistd.h>, EINVAL for a name that is not valid,
+		and the value of the <limits.h> and <unistd.h> constants.
+
+if TESTING_SYSCONF
+
+config TESTING_SYSCONF_PROGNAME
+	string "Program name"
+	default "sysconf_test"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_SYSCONF_PRIORITY
+	int "sysconf_test task priority"
+	default 100
+
+config TESTING_SYSCONF_STACKSIZE
+	int "sysconf_test stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
