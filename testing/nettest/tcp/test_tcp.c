@@ -42,6 +42,26 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv4,
                                       test_tcp_connect_ipv4_setup,
                                       test_tcp_common_teardown),
+#  ifdef CONFIG_NET_SOCKOPTS
+      cmocka_unit_test_setup_teardown(test_tcp_bind_reuseaddr_timewait,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_bind_reuseaddr_connected,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_bind_reuseaddr_listener,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_accept_inherit,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
+#  endif
+      cmocka_unit_test_setup_teardown(test_tcp_listen_again,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_listen_connected,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
 #endif
 #ifdef CONFIG_NET_IPv6
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv6,

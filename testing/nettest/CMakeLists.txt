@@ -26,7 +26,8 @@ if(CONFIG_TESTING_NET_TEST)
         ${CMAKE_CURRENT_LIST_DIR}/utils/nettest_tcpserver.c)
 
     if(CONFIG_NET_IPv4)
-      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_connect_ipv4.c)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_connect_ipv4.c
+           ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_bind_listen.c)
     endif()
 
     if(CONFIG_NET_IPv6)
