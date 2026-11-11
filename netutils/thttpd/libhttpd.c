@@ -1687,10 +1687,10 @@ static void ls_child(int argc, char **argv)
             }
           else
             {
+              names     = RENEW(names, char, maxnames * PATH_MAX,
+                                2 * maxnames * PATH_MAX);
+              nameptrs  = RENEW(nameptrs, char *, maxnames, 2 * maxnames);
               maxnames *= 2;
-              names     = RENEW(names, char, oldmax * PATH_MAX,
-                                maxnames * PATH_MAX);
-              nameptrs  = RENEW(nameptrs, char *, oldmax, maxnames);
             }
 
           if (!names || !nameptrs)
