@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_INETNTOP
+	tristate "inet_ntop() test"
+	default n
+	depends on (NET_IPv4 || LIBC_IPv4_ADDRCONV) && (NET_IPv6 || LIBC_IPv6_ADDRCONV)
+	---help---
+		Check the text that inet_ntop(AF_INET6) makes: "::" only for the
+		longest run of two or more 0 fields, lowercase hexadecimal, and the
+		IPv4 dotted-decimal form for the IPv4-mapped and IPv4-compatible
+		addresses.  Also check that inet_ntop() fails with ENOSPC only when
+		the text does not fit in the buffer, for AF_INET6 and AF_INET.
+
+if TESTING_INETNTOP
+
+config TESTING_INETNTOP_PROGNAME
+	string "Program name"
+	default "inetntop"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_INETNTOP_PRIORITY
+	int "inetntop task priority"
+	default 100
+
+config TESTING_INETNTOP_STACKSIZE
+	int "inetntop stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
