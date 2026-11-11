@@ -1967,9 +1967,8 @@ static int check_referer(httpd_conn *hc)
 #ifdef CONFIG_THTTPD_URLPATTERN
   char *cp;
   int r;
-  int child;
 
-  child = really_check_referer(hc);
+  r = really_check_referer(hc);
 
   if (!r)
     {
