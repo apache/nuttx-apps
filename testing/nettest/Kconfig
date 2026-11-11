@@ -66,7 +66,11 @@ config TESTING_NET_LOCAL_DGRAM
 
 config TESTING_NET_OTHERS
 	bool "Enable cmocka net other test"
+	depends on BUILD_FLAT
 	default y
+	---help---
+		The test calls functions of the network stack directly
+		(net_bufpool_*() and chksum_iob()), so it needs a flat build.
 
 config TESTING_NET_MCAST
 	bool "Enable cmocka net multicast test"

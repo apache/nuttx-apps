@@ -140,6 +140,7 @@ if(CONFIG_TESTING_NET_TEST)
       cmocka
       INCLUDE_DIRECTORIES
       ${CMAKE_CURRENT_LIST_DIR}/utils
+      ${NUTTX_DIR}/net
       SRCS
       ${SRCS})
   endif()

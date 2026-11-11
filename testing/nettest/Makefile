@@ -71,6 +71,7 @@ MAINSRC  += others/test_others.c
 PROGNAME += cmocka_net_others
 CSRCS    += others/test_others_common.c others/test_others_bufpool.c \
             others/test_others_chksum.c
+CFLAGS   += -I$(TOPDIR)/net
 endif
 
 ifeq ($(CONFIG_TESTING_NET_MCAST),y)
