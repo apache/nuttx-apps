@@ -80,6 +80,7 @@ void httpd_memstats(void)
 FAR void *httpd_malloc(size_t nbytes)
 {
   void *ptr = malloc(nbytes);
+
   if (!ptr)
     {
       nerr("ERROR: Allocation of %d bytes failed\n", nbytes);
@@ -100,6 +101,7 @@ FAR void *httpd_malloc(size_t nbytes)
 FAR void *httpd_realloc(FAR void *oldptr, size_t oldsize, size_t newsize)
 {
   void *ptr = realloc(oldptr, newsize);
+
   if (!ptr)
     {
       nerr("ERROR: Re-allocation from %d to %d bytes failed\n",
@@ -131,6 +133,7 @@ void httpd_free(FAR void *ptr)
 FAR char *httpd_strdup(const char *str)
 {
   FAR char *newstr = strdup(str);
+
   if (!newstr)
     {
       nerr("ERROR: strdup of %s failed\n", str);
@@ -152,6 +155,7 @@ FAR char *httpd_strdup(const char *str)
 void httpd_realloc_str(char **pstr, size_t *maxsize, size_t size)
 {
   size_t oldsize;
+
   if (*maxsize == 0)
     {
       *maxsize = MAX(CONFIG_THTTPD_MINSTRSIZE,
