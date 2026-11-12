@@ -252,7 +252,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pplayer,
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
                      FAR const char *filename,
                      int filefmt, int subfmt, uint8_t nchannels,
-                     uint8_t bpsamp, uint32_t samprate, uint8_t chmap);
+                     uint8_t bpsamp, uint32_t samprate, uint32_t chmap);
 
 /****************************************************************************
  * Name: nxplayer_playtone
