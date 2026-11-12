@@ -377,6 +377,9 @@ void test_local_dgram_pair_send(FAR void **state);
 void test_local_dgram_pair_full(FAR void **state);
 void test_local_dgram_pair_close(FAR void **state);
 void test_local_dgram_poll_pair(FAR void **state);
+void test_local_dgram_pair_iov(FAR void **state);
+void test_local_dgram_send_iov(FAR void **state);
+void test_local_dgram_pair_whole(FAR void **state);
 
 /* The cases of test_local_dgram_wait.c */
 

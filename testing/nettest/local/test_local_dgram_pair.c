@@ -21,7 +21,8 @@
  ****************************************************************************/
 
 /* socketpair(AF_UNIX, SOCK_DGRAM): send() and recv() of whole datagrams in
- * both directions.  The ends are r2 and r3.
+ * both directions.  The ends are r2 and r3.  Also sendmsg() of a datagram
+ * in many parts, to a pair and to a bound socket.
  */
 
 /****************************************************************************
@@ -29,6 +30,7 @@
  ****************************************************************************/
 
 #include <errno.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <setjmp.h>
 #include <stdarg.h>
@@ -45,6 +47,9 @@
  ****************************************************************************/
 
 #define LOCAL_DGRAM_PAIRBUF 16
+#define LOCAL_DGRAM_NIOV    12
+#define LOCAL_DGRAM_IOVLEN  500
+#define LOCAL_DGRAM_WHOLE   400
 
 /****************************************************************************
  * Private Functions
@@ -76,6 +81,67 @@ static void local_dgram_pairrecv(int fd, FAR const char *want, size_t size)
   ret = recv(fd, buf, size, MSG_DONTWAIT);
   assert_int_equal(ret, strlen(want));
   assert_memory_equal(buf, want, ret);
+}
+
+/* sendmsg() of LOCAL_DGRAM_IOVLEN bytes in LOCAL_DGRAM_NIOV parts, two of
+ * them empty: to path, or to the peer if path is NULL.  Then recv() it on
+ * rfd as one datagram.
+ */
+
+static void local_dgram_iov(int fd, FAR const char *path, int rfd)
+{
+  unsigned char data[LOCAL_DGRAM_IOVLEN];
+  unsigned char buf[LOCAL_DGRAM_IOVLEN + 16];
+  struct iovec iov[LOCAL_DGRAM_NIOV];
+  struct sockaddr_un addr;
+  struct msghdr msg;
+  size_t pos = 0;
+  ssize_t ret;
+  int i;
+
+  for (i = 0; i < sizeof(data); i++)
+    {
+      data[i] = i % 251;
+    }
+
+  for (i = 0; i < LOCAL_DGRAM_NIOV; i++)
+    {
+      iov[i].iov_base = NULL;
+      iov[i].iov_len  = 0;
+      if (i != 3 && i != 7)
+        {
+          iov[i].iov_base = data + pos;
+          iov[i].iov_len  = LOCAL_DGRAM_IOVLEN / (LOCAL_DGRAM_NIOV - 2);
+          pos += iov[i].iov_len;
+        }
+    }
+
+  memset(&msg, 0, sizeof(msg));
+  if (path != NULL)
+    {
+      msg.msg_name    = &addr;
+      msg.msg_namelen = local_dgram_addr(&addr, path, false);
+    }
+
+  msg.msg_iov    = iov;
+  msg.msg_iovlen = LOCAL_DGRAM_NIOV;
+  ret = sendmsg(fd, &msg, 0);
+  assert_int_equal(ret, sizeof(data));
+
+  assert_true(local_dgram_readable(rfd, 1000));
+  ret = recv(rfd, buf, sizeof(buf), 0);
+  assert_int_equal(ret, sizeof(data));
+  assert_memory_equal(buf, data, sizeof(data));
+}
+
+/* Send one datagram of LOCAL_DGRAM_WHOLE bytes and wait for space */
+
+static int local_dgram_do_sendwhole(FAR struct local_dgram_job_s *job)
+{
+  char buf[LOCAL_DGRAM_WHOLE];
+
+  memset(buf, 'w', sizeof(buf));
+  return send(job->fd, buf, sizeof(buf), 0);
 }
 
 /****************************************************************************
@@ -202,4 +268,104 @@ void test_local_dgram_poll_pair(FAR void **state)
   assert_int_equal(send(st->r3, "ir", 2, 0), 2);
   assert_int_equal(local_dgram_revents(st->r2, POLLIN, 1000), POLLIN);
   local_dgram_expect(st->r2, "ir");
+}
+
+/****************************************************************************
+ * Name: test_local_dgram_pair_iov
+ *
+ * Description:
+ *   sendmsg() of one datagram in 12 parts, two of them empty, on a
+ *   datagram socket pair, in both directions.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_pair_iov(FAR void **state)
+{
+  FAR struct nettest_local_dgram_state_s *st = *state;
+
+  local_dgram_pair(st);
+  local_dgram_iov(st->r2, NULL, st->r3);
+  local_dgram_iov(st->r3, NULL, st->r2);
+}
+
+/****************************************************************************
+ * Name: test_local_dgram_send_iov
+ *
+ * Description:
+ *   sendmsg() of one datagram in 12 parts, two of them empty, to a bound
+ *   socket.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_send_iov(FAR void **state)
+{
+  FAR struct nettest_local_dgram_state_s *st = *state;
+
+  local_dgram_iov(st->s, st->p1, st->r1);
+}
+
+/****************************************************************************
+ * Name: test_local_dgram_pair_whole
+ *
+ * Description:
+ *   A reader that does not wait never gets the start of a datagram without
+ *   the rest, also when the send of that datagram waits for space.  The
+ *   reader reads the full peer with no pause, while the send waits in
+ *   another thread.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_pair_whole(FAR void **state)
+{
+  FAR struct nettest_local_dgram_state_s *st = *state;
+  struct local_dgram_job_s job;
+  unsigned char buf[LOCAL_DGRAM_WHOLE + 16];
+  ssize_t ret;
+  int flags;
+  int count;
+  int tries = 0;
+  int got = 0;
+  int i;
+
+  local_dgram_pair(st);
+  flags = fcntl(st->r3, F_GETFL);
+  assert_return_code(flags, errno);
+  assert_return_code(fcntl(st->r3, F_SETFL, flags | O_NONBLOCK), errno);
+
+  count = local_dgram_fill(st->r2, NULL);
+  local_dgram_job_start(&job, local_dgram_do_sendwhole, st->r2, NULL, 0);
+  usleep(200000);
+
+  for (; ; )
+    {
+      ret = recv(st->r3, buf, sizeof(buf), 0);
+      if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK) &&
+          tries++ < 100)
+        {
+          usleep(10000);
+          continue;
+        }
+
+      if (ret != LOCAL_DGRAM_FILLLEN || got == count ||
+          (buf[0] | buf[1] << 8) != got)
+        {
+          break;
+        }
+
+      got++;
+    }
+
+  /* End the send if it still waits */
+
+  close(st->r3);
+  st->r3 = -1;
+  local_dgram_job_join(&job);
+
+  assert_int_equal(got, count);
+  assert_int_equal(ret, LOCAL_DGRAM_WHOLE);
+  assert_int_equal(job.ret, LOCAL_DGRAM_WHOLE);
+  for (i = 0; i < LOCAL_DGRAM_WHOLE; i++)
+    {
+      assert_int_equal(buf[i], 'w');
+    }
 }

@@ -148,6 +148,9 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_send_intr),
       DGRAM_TEST(test_local_dgram_pair_intr),
       DGRAM_TEST(test_local_dgram_stream_send_intr),
+      DGRAM_TEST(test_local_dgram_pair_iov),
+      DGRAM_TEST(test_local_dgram_send_iov),
+      DGRAM_TEST(test_local_dgram_pair_whole),
     };
 
   if (argc > 1)
