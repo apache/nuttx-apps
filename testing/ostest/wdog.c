@@ -43,7 +43,7 @@
 #define WDOGTEST_THREAD_NR           (CONFIG_SMP_NCPUS * 4)
 #define WDOGTEST_TOLERENT_TICK       10
 
-#define wdtest_assert(x)             _ASSERT(x, __FILE__, __LINE__)
+#define wdtest_assert(x)             _ASSERT(x, __FILE__, __LINE__, #x)
 
 #define wdtest_printf(...)           printf(__VA_ARGS__)
 
