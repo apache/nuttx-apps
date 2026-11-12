@@ -515,9 +515,13 @@ int main(int argc, FAR char **argv)
 
   fprintf(stderr, "%" PRIu64 " bytes (%" PRIu32 " blocks) copied, %u usec, ",
          total, sector, (unsigned int)elapsed);
-  fprintf(stderr, "%u KB/s\n" ,
-         (unsigned int)(((double)total / 1024)
-         / ((double)elapsed / USEC_PER_SEC)));
+
+  /* KB/s in integer arithmetic: the doubles pull the whole floating
+   * point library into the image.
+   */
+
+  fprintf(stderr, "%" PRIu64 " KB/s\n",
+         (total * USEC_PER_SEC / 1024) / elapsed);
 #endif
 
   if (ret == 0 && (dd.oflags & O_ACCMODE) == O_RDWR)
