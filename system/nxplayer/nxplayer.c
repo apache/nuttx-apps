@@ -105,7 +105,7 @@ static int nxplayer_playfile_impl(FAR struct nxplayer_s *pplayer,
                                   FAR const char *pfilename, int filefmt,
                                   int subfmt, uint8_t nchannels,
                                   uint8_t bpsamp, uint32_t samprate,
-                                  uint8_t chmap, bool file_playback);
+                                  uint32_t chmap, bool file_playback);
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
 static const struct nxplayer_ext_fmt_s g_known_ext[] =
@@ -1878,7 +1878,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pplayer)
 static int nxplayer_playinternal(FAR struct nxplayer_s *pplayer,
                                  int filefmt, int subfmt,
                                  uint8_t nchannels, uint8_t bpsamp,
-                                 uint32_t samprate, uint8_t chmap)
+                                 uint32_t samprate, uint32_t chmap)
 {
   struct mq_attr      attr;
   struct sched_param  sparam;
@@ -2190,7 +2190,7 @@ static int nxplayer_playfile_impl(FAR struct nxplayer_s *pplayer,
                                   FAR const char *pfilename,
                                   int filefmt, int subfmt,
                                   uint8_t nchannels, uint8_t bpsamp,
-                                  uint32_t samprate, uint8_t chmap,
+                                  uint32_t samprate, uint32_t chmap,
                                   bool file_playback)
 {
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
@@ -2436,7 +2436,7 @@ err_out:
 int nxplayer_playraw(FAR struct nxplayer_s *pplayer,
                      FAR const char *pfilename,
                      int filefmt, int subfmt, uint8_t nchannels,
-                     uint8_t bpsamp, uint32_t samprate, uint8_t chmap)
+                     uint8_t bpsamp, uint32_t samprate, uint32_t chmap)
 {
   return nxplayer_playfile_impl(pplayer, pfilename, filefmt, subfmt,
                                 nchannels, bpsamp, samprate, chmap, false);
