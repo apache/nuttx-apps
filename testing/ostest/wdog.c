@@ -31,6 +31,7 @@
 
 #include <assert.h>
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <syslog.h>
 #include <unistd.h>
@@ -47,7 +48,12 @@
 
 #define wdtest_printf(...)           printf(__VA_ARGS__)
 
-#define wdtest_delay(delay_ns)       usleep(delay_ns / 1000 + 1)
+/* All delays in this test stay below 2^32 ns, so keep the division in
+ * the macro 32-bit: a 64-bit division would pull the division library
+ * into the image.
+ */
+
+#define wdtest_delay(delay_ns)       usleep((uint32_t)(delay_ns) / 1000 + 1)
 
 /****************************************************************************
  * Private Type
@@ -155,9 +161,12 @@ static void wdtest_rand(FAR struct wdog_s *wdog, FAR wdtest_param_t *param,
     {
       cnt = param->callback_cnt;
 
-      /* Generate a random delay within the specified range. */
+      /* Generate a random delay within the specified range.  rand_ns is
+       * a small positive range bound, so keep the modulo 32-bit like the
+       * wdtest_delay() division.
+       */
 
-      delay_ns = rand() % rand_ns;
+      delay_ns = rand() % (int)rand_ns;
       delay_tick = NSEC2TICK(delay_ns);
 
       /* Enter critical section if the callback count is odd. */
