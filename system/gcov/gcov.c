@@ -69,24 +69,24 @@ int main(int argc, FAR char *argv[])
     {
       switch (option)
         {
-        case 'd':
-          path = optarg;
-          break;
+          case 'd':
+            path = optarg;
+            break;
 
-        case 't':
-          strip = optarg;
-          break;
+          case 't':
+            strip = optarg;
+            break;
 
-        case 'r':
-          __gcov_reset();
-          break;
+          case 'r':
+            __gcov_reset();
+            break;
 
-        case '?':
-        default:
-          fprintf(stderr, "ERROR: Unrecognized option\n");
+          case '?':
+          default:
+            fprintf(stderr, "ERROR: Unrecognized option\n");
 
-        case 'h':
-          show_usage(argv[0]);
+          case 'h':
+            show_usage(argv[0]);
         }
     }
 
