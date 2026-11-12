@@ -988,7 +988,7 @@ int nxlooper_stop(FAR struct nxlooper_s *plooper)
 
 int nxlooper_loopback(FAR struct nxlooper_s *plooper, int format,
                       uint8_t nchannels, uint8_t bpsamp,
-                      uint32_t samprate, uint8_t chmap)
+                      uint32_t samprate, uint32_t chmap)
 {
   struct mq_attr           attr;
   struct sched_param       sparam;

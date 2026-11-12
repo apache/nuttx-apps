@@ -203,10 +203,12 @@ static int nxlooper_cmd_loopback(FAR struct nxlooper_s *plooper, char *parg)
   int channels = 0;
   int bpsamp = 0;
   int samprate = 0;
-  int chmap = 0;
+  char chmap[16] = "";
 
-  sscanf(parg, "%d %d %d %d %d", &channels, &bpsamp,
-                                &samprate, &chmap, &format);
+  /* chmap is read as text so that hex masks and bit 31 both fit */
+
+  sscanf(parg, "%d %d %d %15s %d", &channels, &bpsamp,
+                                  &samprate, chmap, &format);
 
   if (format == AUDIO_FMT_UNDEF)
     {
@@ -216,7 +218,7 @@ static int nxlooper_cmd_loopback(FAR struct nxlooper_s *plooper, char *parg)
   /* Try to loopback raw data with settings specified */
 
   ret = nxlooper_loopback(plooper, format, channels, bpsamp,
-                          samprate, chmap);
+                          samprate, strtoul(chmap, NULL, 0));
 
   /* nxlooper_loopraw returned values:
    *
