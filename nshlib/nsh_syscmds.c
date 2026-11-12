@@ -30,6 +30,7 @@
 #include <nuttx/rpmsg/rpmsg.h>
 #include <nuttx/rptun/rptun.h>
 #include <nuttx/streams.h>
+#include <nuttx/virtio/virtio.h>
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
 #include <sys/param.h>
@@ -1098,6 +1099,93 @@ int cmd_ulimit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (setrlimit(g_ulimit_resources[sel], &rl) < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "setrlimit", NSH_ERRNO);
+      return ERROR;
+    }
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_virtio_usage
+ ****************************************************************************/
+
+#if defined(CONFIG_DRIVERS_VIRTIO) && !defined(CONFIG_NSH_DISABLE_VIRTIO)
+static int cmd_virtio_usage(FAR struct nsh_vtbl_s *vtbl,
+                            FAR char **argv)
+{
+  nsh_output(vtbl, "Usage:\n");
+  nsh_output(vtbl, "  %s dump [type]  - Dump VirtIO device info\n",
+             argv[0]);
+  nsh_output(vtbl, "  %s -h           - Show this help message\n\n",
+             argv[0]);
+  nsh_output(vtbl, "Supported types:\n");
+  nsh_output(vtbl, "  all              - Dump all devices (default)\n");
+  nsh_output(vtbl, "  Network          - Network devices\n");
+  nsh_output(vtbl, "  Block            - Block devices\n");
+  nsh_output(vtbl, "  Console          - Console devices\n");
+  nsh_output(vtbl, "  Entropy          - Entropy/RNG devices\n");
+  nsh_output(vtbl, "  RPMSG            - RPMSG devices\n");
+  nsh_output(vtbl, "  Serial           - Serial devices\n");
+  nsh_output(vtbl, "  GPU              - GPU devices\n");
+  nsh_output(vtbl, "  Input            - Input devices\n");
+  nsh_output(vtbl, "  Vsock            - Vsock devices\n");
+  nsh_output(vtbl, "  Crypto           - Crypto devices\n");
+  nsh_output(vtbl, "  Sound            - Sound devices\n");
+  nsh_output(vtbl, "  RPMB             - RPMB devices\n\n");
+  nsh_output(vtbl, "Description:\n");
+  nsh_output(vtbl, "  Display information about registered VirtIO\n");
+  nsh_output(vtbl, "  devices. Output is sent to syslog.\n");
+  return OK;
+}
+
+/****************************************************************************
+ * Name: cmd_virtio
+ ****************************************************************************/
+
+int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  FAR const char *dev_name = NULL;
+  int fd;
+  int ret;
+
+  if (argc < 2)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+    }
+  else if (strcmp(argv[1], "-h") == 0)
+    {
+      return cmd_virtio_usage(vtbl, argv);
+    }
+  else if (strcmp(argv[1], "dump") != 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[1]);
+      return ERROR;
+    }
+
+  /* Get optional type argument, pass directly to kernel */
+
+  if (argc >= 3)
+    {
+      dev_name = argv[2];
+    }
+
+  fd = open("/dev/virtio", O_CLOEXEC);
+  if (fd < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+      return ERROR;
+    }
+
+  /* Pass type name string to kernel, kernel will parse it */
+
+  ret = ioctl(fd, VIRTIOIOC_DUMP, (unsigned long)dev_name);
+  close(fd);
+
+  if (ret < 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
       return ERROR;
     }
 

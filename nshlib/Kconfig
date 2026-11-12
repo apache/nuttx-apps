@@ -676,6 +676,11 @@ config NSH_DISABLE_RPTUN
 	default DEFAULT_SMALL
 	depends on RPTUN && !NSH_DISABLE_RPMSG
 
+config NSH_DISABLE_VIRTIO
+	bool "Disable virtio"
+	default DEFAULT_SMALL
+	depends on DRIVERS_VIRTIO
+
 config NSH_DISABLE_SET
 	bool "Disable set"
 	default DEFAULT_SMALL
