@@ -189,7 +189,7 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
   int channels = 0;
   int bpsamp = 0;
   int samprate = 0;
-  int chmap = 0;
+  char chmap[16] = "";
   size_t len;
   char filename[PATH_MAX];
 
@@ -203,8 +203,10 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
   memcpy(filename, parg, len);
   filename[len] = '\0';
 
-  sscanf(parg + len, "%d %d %d %d", &channels, &bpsamp,
-         &samprate, &chmap);
+  /* chmap is read as text so that hex masks and bit 31 both fit */
+
+  sscanf(parg + len, "%d %d %d %15s", &channels, &bpsamp,
+         &samprate, chmap);
 
   /* Try to record the file specified */
 
@@ -214,7 +216,7 @@ static int nxrecorder_cmd_recordraw(FAR struct nxrecorder_s *precorder,
                                   channels,
                                   bpsamp,
                                   samprate,
-                                  chmap);
+                                  strtoul(chmap, NULL, 0));
 
   /* nxrecorder_recordfile returned values:
    *
@@ -269,7 +271,7 @@ static int nxrecorder_cmd_record(FAR struct nxrecorder_s *precorder,
   int channels = 0;
   int bpsamp = 0;
   int samprate = 0;
-  int chmap = 0;
+  char chmap[16] = "";
   size_t len;
   char filename[PATH_MAX];
 
@@ -283,8 +285,10 @@ static int nxrecorder_cmd_record(FAR struct nxrecorder_s *precorder,
   memcpy(filename, parg, len);
   filename[len] = '\0';
 
-  sscanf(parg + len, "%d %d %d %d", &channels, &bpsamp,
-         &samprate, &chmap);
+  /* chmap is read as text so that hex masks and bit 31 both fit */
+
+  sscanf(parg + len, "%d %d %d %15s", &channels, &bpsamp,
+         &samprate, chmap);
 
   /* Try to record the file specified */
 
@@ -294,7 +298,7 @@ static int nxrecorder_cmd_record(FAR struct nxrecorder_s *precorder,
                                   channels,
                                   bpsamp,
                                   samprate,
-                                  chmap);
+                                  strtoul(chmap, NULL, 0));
 
   /* nxrecorder_recordfile returned values:
    *
