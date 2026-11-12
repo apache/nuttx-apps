@@ -34,6 +34,12 @@
 #include <nxboot.h>
 #include <sys/boardctl.h>
 
+#ifdef CONFIG_NXBOOT_WATCHDOG
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <nuttx/timers/watchdog.h>
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -47,6 +53,10 @@ static bool g_progress_started = false;
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
 static bool g_progress_percent_started = false;
 #endif
+#endif
+
+#ifdef CONFIG_NXBOOT_WATCHDOG
+static int wdog_fd = -1;
 #endif
 
 /****************************************************************************
@@ -94,6 +104,37 @@ static const char *progress_msgs[] =
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: nxboot_ping_watchdog
+ *
+ * Description:
+ *   If enabled, this function pings the watchdog when called.
+ *
+ * Returned Value:
+ *   Zero on success, negative value on error.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NXBOOT_WATCHDOG
+int nxboot_ping_watchdog(void)
+{
+  int ret;
+
+  if (wdog_fd < 0)
+    {
+      return wdog_fd;
+    }
+
+  ret = ioctl(wdog_fd, WDIOC_KEEPALIVE, 0);
+  if (ret < 0)
+    {
+      syslog(LOG_ERR, "Failed to ping watchdog: %d", errno);
+    }
+
+  return ret;
+}
+#endif
 
 /****************************************************************************
  * Name: nxboot_progress
@@ -278,6 +319,17 @@ int main(int argc, FAR char *argv[])
   syslog(LOG_INFO, "*** nxboot ***\n");
   nxboot_progress(nxboot_info, startup_msg);
 
+#ifdef CONFIG_NXBOOT_WATCHDOG
+  wdog_fd = open(CONFIG_NXBOOT_WATCHDOG_DEVPATH, O_RDONLY);
+  if (wdog_fd < 0)
+    {
+      syslog(LOG_ERR, "Failed to open watchdog device \"%s\": %d",
+             CONFIG_NXBOOT_WATCHDOG_DEVPATH, errno);
+    }
+#endif
+
+  nxboot_ping_watchdog();
+
 #ifdef CONFIG_NXBOOT_SWRESET_ONLY
   check_only = true;
   ret = boardctl(BOARDIOC_RESET_CAUSE, (uintptr_t)&cause);
@@ -310,6 +362,8 @@ int main(int argc, FAR char *argv[])
   syslog(LOG_INFO, "Found bootable image, boot from primary.\n");
   nxboot_progress(nxboot_info, found_bootable_image);
 
+  nxboot_ping_watchdog();
+
 #ifdef CONFIG_NXBOOT_COPY_TO_RAM
   syslog(LOG_INFO, "Copying image to RAM.\n");
   nxboot_ramcopy();
@@ -319,6 +373,13 @@ int main(int argc, FAR char *argv[])
 
   info.path        = CONFIG_NXBOOT_PRIMARY_SLOT_PATH;
   info.header_size = CONFIG_NXBOOT_HEADER_SIZE;
+
+#ifdef CONFIG_NXBOOT_WATCHDOG
+  if (wdog_fd >= 0)
+    {
+      close(wdog_fd);
+    }
+#endif
 
   ret = boardctl(BOARDIOC_BOOT_IMAGE, (uintptr_t)&info);
 

@@ -103,6 +103,7 @@ static uint32_t calculate_crc(int fd, struct nxboot_img_header *header)
 #ifdef CONFIG_NXBOOT_PRINTF_PROGRESS_PERCENT
   total_size = remain;
 #endif
+  nxboot_ping_watchdog();
   while (remain > 0)
     {
       readsiz = remain > info.blocksize ? info.blocksize : remain;
@@ -211,6 +212,7 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
 
   while (remain > 0)
     {
+      nxboot_ping_watchdog();
       readsiz = remain > blocksize ? blocksize : remain;
       if (flash_partition_read(from, buf, readsiz, off) < 0)
         {
@@ -244,6 +246,8 @@ static int copy_partition(int from, int where, struct nxboot_state *state,
 static bool validate_image(int fd)
 {
   struct nxboot_img_header header;
+
+  nxboot_ping_watchdog();
 
   get_image_header(fd, &header);
   if (!validate_image_header(&header))
@@ -343,6 +347,8 @@ static int perform_update(struct nxboot_state *state, bool check_only)
   int secondary;
   int tertiary;
   bool primary_valid;
+
+  nxboot_ping_watchdog();
 
   primary = flash_partition_open(CONFIG_NXBOOT_PRIMARY_SLOT_PATH);
   if (primary < 0)
@@ -548,6 +554,12 @@ int nxboot_get_state(struct nxboot_state *state)
   struct nxboot_img_header *recovery_header;
 
   memset(state, 0, sizeof *state);
+
+  /* Getting the state should be fast enough to avoid the need of pinging
+   * the watchdog in it multiple times
+   */
+
+  nxboot_ping_watchdog();
 
   primary = flash_partition_open(CONFIG_NXBOOT_PRIMARY_SLOT_PATH);
   if (primary < 0)

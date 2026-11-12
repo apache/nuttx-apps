@@ -174,6 +174,12 @@ void nxboot_progress(int type, ...);
 #define nxboot_progress(type, ...) do {} while (0)
 #endif
 
+#ifdef CONFIG_NXBOOT_WATCHDOG
+int nxboot_ping_watchdog(void);
+#else
+#define nxboot_ping_watchdog(void) do {} while (0)
+#endif
+
 /****************************************************************************
  * Name: nxboot_get_state
  *
