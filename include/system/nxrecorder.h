@@ -185,7 +185,7 @@ int nxrecorder_setdevice(FAR struct nxrecorder_s *precorder,
 int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
                               FAR const char *filename, int filefmt,
                               uint8_t nchannels, uint8_t bpsamp,
-                              uint32_t samprate, uint8_t chmap);
+                              uint32_t samprate, uint32_t chmap);
 
 /****************************************************************************
  * Name: nxrecorder_stop

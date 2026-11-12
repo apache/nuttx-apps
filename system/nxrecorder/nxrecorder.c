@@ -1042,7 +1042,7 @@ int nxrecorder_stop(FAR struct nxrecorder_s *precorder)
 int nxrecorder_recordinternal(FAR struct nxrecorder_s *precorder,
                               FAR const char *pfilename, int filefmt,
                               uint8_t nchannels, uint8_t bpsamp,
-                              uint32_t samprate, uint8_t chmap)
+                              uint32_t samprate, uint32_t chmap)
 {
   struct mq_attr           attr;
   struct sched_param       sparam;
