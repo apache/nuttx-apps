@@ -154,6 +154,26 @@ config NXBOOT_PRINTF_PROGRESS_PERCENT
 
 endchoice
 
+config NXBOOT_WATCHDOG
+	bool "Ping watchdog during FW update"
+	default n
+	depends on WATCHDOG
+	---help---
+		This may be needed if the device uses watchdog. Selecting this option
+		ensures the watchdog ping is sent during FW update process. There
+		isn't periodic ping timing, but rather pings during key parts of
+		the update process (typically between chunk writes to the memory).
+
+if NXBOOT_WATCHDOG
+
+config NXBOOT_WATCHDOG_DEVPATH
+	string "Watchdog device path"
+	default "/dev/watchdog0"
+	---help---
+		Path to the device driver the bootloader application will open.
+
+endif # NXBOOT_WATCHDOG
+
 endif # NXBOOT_BOOTLOADER
 
 endif # BOOT_NXBOOT
