@@ -62,7 +62,7 @@ static int init_parse_config_lines(FAR const struct parser_s *parser,
        * lines (the first character that is not whitespace is '#').
        */
 
-      for (ret = 0; buf[ret] && isblank(buf[ret]); ret++);
+      for (ret = 0; buf[ret] && isblank((unsigned char)buf[ret]); ret++);
 
       if (buf[ret] == '\0' || buf[ret] == '#')
         {
@@ -165,7 +165,7 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
 
   for (; ; )
     {
-      while (isblank(*buf))
+      while (isblank((unsigned char)*buf))
         {
           if (!quote)
             {
@@ -177,7 +177,7 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
         }
 
       if (*buf == '-' && *(buf + 1) == '-'
-          && (isblank(*(buf + 2)) || *(buf + 2) == '\0'))
+          && (isblank((unsigned char)*(buf + 2)) || *(buf + 2) == '\0'))
         {
           argv[i++] = buf;
           if (i >= argc || *(buf += 2) == '\0')
@@ -185,7 +185,7 @@ int init_parse_arguments(FAR char *buf, bool dup, int argc, FAR char **argv)
               break;
             }
 
-          while (isblank(*buf))
+          while (isblank((unsigned char)*buf))
             {
               *buf++ = '\0';
             }
