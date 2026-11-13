@@ -558,7 +558,9 @@ static bool tab_path_completion(FAR struct rl_common_s *vtbl,
  * Name: tab_completion
  *
  * Description:
- *   Unix like tab completion, only for builtin apps
+ *   Unix like tab completion: paths in the argument position (see
+ *   tab_path_completion()), falling back to builtin app names in the
+ *   command position.
  *
  * Input Parameters:
  *   vtbl   - vtbl used to access implementation specific interface
