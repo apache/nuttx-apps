@@ -1200,6 +1200,10 @@ int cmd_switchboot(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
   int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif
 
+#if defined(CONFIG_DRIVERS_VHOST) && !defined(CONFIG_NSH_DISABLE_VHOST)
+  int cmd_vhost(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_SET
   int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv);
 #endif

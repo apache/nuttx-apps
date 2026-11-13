@@ -31,6 +31,7 @@
 #include <nuttx/rptun/rptun.h>
 #include <nuttx/streams.h>
 #include <nuttx/virtio/virtio.h>
+#include <nuttx/vhost/vhost.h>
 #include <sys/boardctl.h>
 #include <sys/ioctl.h>
 #include <sys/param.h>
@@ -1110,13 +1111,13 @@ int cmd_ulimit(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  * Name: cmd_virtio_usage
  ****************************************************************************/
 
-#if defined(CONFIG_DRIVERS_VIRTIO) && !defined(CONFIG_NSH_DISABLE_VIRTIO)
-static int cmd_virtio_usage(FAR struct nsh_vtbl_s *vtbl,
-                            FAR char **argv)
+#if (defined(CONFIG_DRIVERS_VIRTIO) && !defined(CONFIG_NSH_DISABLE_VIRTIO)) \
+    || (defined(CONFIG_DRIVERS_VHOST) && !defined(CONFIG_NSH_DISABLE_VHOST))
+static int cmd_virtio_common_usage(FAR struct nsh_vtbl_s *vtbl,
+                                   FAR char **argv)
 {
   nsh_output(vtbl, "Usage:\n");
-  nsh_output(vtbl, "  %s dump [type]  - Dump VirtIO device info\n",
-             argv[0]);
+  nsh_output(vtbl, "  %s dump [type]  - Dump device info\n", argv[0]);
   nsh_output(vtbl, "  %s -h           - Show this help message\n\n",
              argv[0]);
   nsh_output(vtbl, "Supported types:\n");
@@ -1134,16 +1135,14 @@ static int cmd_virtio_usage(FAR struct nsh_vtbl_s *vtbl,
   nsh_output(vtbl, "  Sound            - Sound devices\n");
   nsh_output(vtbl, "  RPMB             - RPMB devices\n\n");
   nsh_output(vtbl, "Description:\n");
-  nsh_output(vtbl, "  Display information about registered VirtIO\n");
+  nsh_output(vtbl, "  Display information about registered %s\n", argv[0]);
   nsh_output(vtbl, "  devices. Output is sent to syslog.\n");
   return OK;
 }
 
-/****************************************************************************
- * Name: cmd_virtio
- ****************************************************************************/
-
-int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+static int cmd_virtio_common(FAR struct nsh_vtbl_s *vtbl, int argc,
+                             FAR char **argv, FAR const char *devpath,
+                             int ioc_cmd)
 {
   FAR const char *dev_name = NULL;
   int fd;
@@ -1156,7 +1155,7 @@ int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
   else if (strcmp(argv[1], "-h") == 0)
     {
-      return cmd_virtio_usage(vtbl, argv);
+      return cmd_virtio_common_usage(vtbl, argv);
     }
   else if (strcmp(argv[1], "dump") != 0)
     {
@@ -1171,7 +1170,7 @@ int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       dev_name = argv[2];
     }
 
-  fd = open("/dev/virtio", O_CLOEXEC);
+  fd = open(devpath, O_CLOEXEC);
   if (fd < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
@@ -1180,7 +1179,7 @@ int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* Pass type name string to kernel, kernel will parse it */
 
-  ret = ioctl(fd, VIRTIOIOC_DUMP, (unsigned long)dev_name);
+  ret = ioctl(fd, ioc_cmd, (unsigned long)dev_name);
   close(fd);
 
   if (ret < 0)
@@ -1190,5 +1189,27 @@ int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
     }
 
   return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_virtio
+ ****************************************************************************/
+
+#if defined(CONFIG_DRIVERS_VIRTIO) && !defined(CONFIG_NSH_DISABLE_VIRTIO)
+int cmd_virtio(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  return cmd_virtio_common(vtbl, argc, argv, "/dev/virtio", VIRTIOIOC_DUMP);
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_vhost
+ ****************************************************************************/
+
+#if defined(CONFIG_DRIVERS_VHOST) && !defined(CONFIG_NSH_DISABLE_VHOST)
+int cmd_vhost(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  return cmd_virtio_common(vtbl, argc, argv, "/dev/vhost", VHOSTIOC_DUMP);
 }
 #endif
