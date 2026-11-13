@@ -315,7 +315,8 @@ int main(int argc, FAR char *argv[])
 
       for (i = 0; i < nitems(poller); i++)
         {
-          if (poller[i].pfd->revents & poller[i].pfd->events)
+          if (poller[i].pfd->fd < 0 ||
+              (poller[i].pfd->revents & poller[i].pfd->events))
             {
               poller[i].handle(&poller[i]);
             }
