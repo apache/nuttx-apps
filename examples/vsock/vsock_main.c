@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -114,7 +115,7 @@ static int safe_recv(int s, char *buf, size_t len, int flags)
  ****************************************************************************/
 
 static int vsock_client(unsigned int port, size_t size,
-                        size_t count, int cid)
+                        size_t count, unsigned int cid)
 {
   struct sockaddr_vm addr;
   size_t sendlen = 0;
@@ -194,7 +195,7 @@ out:
   return ret;
 }
 
-static int vsock_server(unsigned int port, size_t size, int cid)
+static int vsock_server(unsigned int port, size_t size, unsigned int cid)
 {
   struct sockaddr_vm peer_addr;
   struct sockaddr_vm addr;
@@ -426,9 +427,10 @@ static int vsock_server_conn(unsigned int port, int cid)
 
 int main(int argc, char *argv[])
 {
-  int cid = VMADDR_CID_ANY;
+  unsigned int cid = VMADDR_CID_ANY;
   unsigned int port = 9999;
-  const char *type = NULL;
+  FAR const char *type = NULL;
+  FAR char *endptr;
   size_t count = 100;
   size_t size = 64;
   int is_server = 1;
@@ -459,7 +461,13 @@ int main(int argc, char *argv[])
         {
           case 'c':
             is_server = 0;
-            cid = strtoul(optarg, NULL, 0);
+            cid = strtoul(optarg, &endptr, 0);
+            if (errno != 0 || *endptr != '\0')
+              {
+                cid = 0;
+                strncpy((FAR char *)&cid, optarg,
+                        MIN(sizeof(cid), strlen(optarg)));
+              }
             break;
 
           case 't':
