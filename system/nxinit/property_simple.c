@@ -52,6 +52,5 @@ void init_property_deinit(FAR struct init_poller_s *ctx)
 int init_property_init(FAR struct init_poller_s *ctx)
 {
   ctx->am->prop = ctx;
-  ctx->pfd->fd = -1;
   return 0;
 }
