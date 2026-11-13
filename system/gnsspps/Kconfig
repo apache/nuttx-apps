@@ -1,0 +1,44 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_GNSSPPS
+	tristate "GNSS PPS clock discipline (gnsspps)"
+	default n
+	depends on PTP_CLOCK && CLOCK_ADJTIME
+	---help---
+		Discipline a PTP clock (/dev/ptpX) to the PPS output of a GNSS
+		receiver.  Each PPS edge is time stamped in hardware by an
+		external time stamp (EXTTS) input of the clock, for example
+		the PPS disciplined software clock PTP_PPS, and a PI servo
+		steers the clock frequency to align it with the pulses.  The
+		whole seconds are taken from the NMEA RMC/ZDA sentences of
+		the receiver.  Optionally CLOCK_REALTIME follows the clock.
+
+		Boards that each run gnsspps with their own GNSS receiver (or
+		a shared PPS signal) end up on the same UTC time scale.
+
+if SYSTEM_GNSSPPS
+
+config SYSTEM_GNSSPPS_PROGNAME
+	string "Program name"
+	default "gnsspps"
+
+config SYSTEM_GNSSPPS_PRIORITY
+	int "gnsspps task priority"
+	default 200
+	---help---
+		The time stamps are latched by hardware, so the priority does
+		not affect the accuracy.  A high priority makes the frequency
+		corrections happen right after each pulse.
+
+config SYSTEM_GNSSPPS_STACKSIZE
+	int "gnsspps stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config SYSTEM_GNSSPPS_DEVPATH
+	string "Default PTP clock device"
+	default "/dev/ptp0"
+
+endif # SYSTEM_GNSSPPS
