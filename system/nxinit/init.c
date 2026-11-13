@@ -276,6 +276,8 @@ int main(int argc, FAR char *argv[])
       poller[i].sm = &sm;
       poller[i].am = &am;
       poller[i].pfd = &pfds[i];
+      pfds[i].fd = -1;
+      pfds[i].events = 0;
       r = poller[i].init(&poller[i]);
       if (r < 0)
         {
@@ -310,7 +312,7 @@ int main(int argc, FAR char *argv[])
 
       for (i = 0; t > INIT_POLLER_RETRY_MS && i < nitems(poller); i++)
         {
-          if (poller[i].pfd->fd < 0)
+          if (poller[i].pfd->fd < 0 && poller[i].pfd->events)
             {
               t = INIT_POLLER_RETRY_MS;
               break;
