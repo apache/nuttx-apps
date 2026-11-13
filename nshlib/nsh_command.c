@@ -674,6 +674,10 @@ static const struct cmdmap_s g_cmdmap[] =
   CMD_MAP("virtio",   cmd_virtio,   2, 3, "dump [type]"),
 #endif
 
+#if defined(CONFIG_DRIVERS_VHOST) && !defined(CONFIG_NSH_DISABLE_VHOST)
+  CMD_MAP("vhost",    cmd_vhost,    2, 3, "dump [type]"),
+#endif
+
 #if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #  ifndef CONFIG_NSH_DISABLE_UMOUNT
   CMD_MAP("umount",   cmd_umount,   2, 3, "[-f] <dir-path>"),

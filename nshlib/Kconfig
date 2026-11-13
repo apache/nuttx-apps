@@ -681,6 +681,11 @@ config NSH_DISABLE_VIRTIO
 	default DEFAULT_SMALL
 	depends on DRIVERS_VIRTIO
 
+config NSH_DISABLE_VHOST
+	bool "Disable vhost"
+	default DEFAULT_SMALL
+	depends on DRIVERS_VHOST
+
 config NSH_DISABLE_SET
 	bool "Disable set"
 	default DEFAULT_SMALL
