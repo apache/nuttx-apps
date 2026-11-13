@@ -206,6 +206,7 @@ static long arg_decimal(char *arg)
 {
   long ret;
   char *endptr;
+
   ret = strtol(arg, &endptr, 10);
   if (endptr == arg)
     {
@@ -220,6 +221,7 @@ static bool parse_args(int argc, char * const argv[])
   int longindex;
   int opt;
   long decimal;
+
   while ((opt = getopt_long(argc, argv, "c:d:D:h:Hi:l:m:n:p:qt:T:",
                   optargs, &longindex)) != -1)
     {
@@ -231,9 +233,13 @@ static bool parse_args(int argc, char * const argv[])
               {
                 return false;
               }
-            else if (decimal == CLOCK_MONOTONIC || decimal == CLOCK_REALTIME)
+            else if (decimal == 0)
               {
-                config.clock = decimal;
+                config.clock = CLOCK_REALTIME;
+              }
+            else if (decimal == 1)
+              {
+                config.clock = CLOCK_MONOTONIC;
               }
             break;
           case 'd':
@@ -443,6 +449,7 @@ static inline void tsnorm(struct timespec *ts)
 static inline int64_t timediff_us(struct timespec t1, struct timespec t2)
 {
   int64_t ret;
+
   ret = 1000000 * (t1.tv_sec - t2.tv_sec);
   ret += (t1.tv_nsec - t2.tv_nsec) / 1000;
   return ret;
@@ -454,6 +461,7 @@ static inline int64_t timediff_us_timer(struct timer_status_s after,
   int64_t ret = 0;
   uint32_t t1;
   uint32_t t2;
+
   t1 = before.timeleft;
   t2 = after.timeleft;
   if (t2 < t1)
@@ -732,6 +740,7 @@ static void print_hist(struct thread_param_s *par[], int nthreads)
       for (j = 0; j < nthreads; j++)
         {
           unsigned long curr_latency = par[j]->stats->hist_array[i];
+
           printf("%06lu", curr_latency);
           if (j < nthreads - 1)
             {
@@ -824,6 +833,7 @@ static void print_stat(struct thread_param_s *par, int index)
 {
   struct thread_stats_s *stat = par->stats;
   char *fmt;
+
   fmt = "T:%2d (%5d) P:%2d I:%ld C:%7lu "
         "Min:%7ld Act:%5ld Avg:%5ld Max:%8ld\n";
   printf(fmt, index, stat->tid, par->prio, par->interval, stat->cycles,
@@ -1038,6 +1048,7 @@ int main(int argc, char *argv[])
 
       usleep(100 * 1000);
       int ended = 0;
+
       for (i = 0; i < config.threads; ++i)
         {
           if (!config.quiet)
