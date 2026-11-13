@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_RING
+	tristate "cmocka ring queue test"
+	default n
+	depends on TESTING_CMOCKA
+	---help---
+		Enable the lock-free ring queue testing using cmocka framework.
+
+if TESTING_RING
+
+config TESTING_RING_PROGNAME
+	string "Program name"
+	default "ring_test"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_RING_PRIORITY
+	int "Ring test task priority"
+	default 100
+
+config TESTING_RING_STACKSIZE
+	int "Ring test stack size"
+	default 8192
+
+endif
