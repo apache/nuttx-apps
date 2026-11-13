@@ -263,6 +263,7 @@ static int dd_verify(FAR struct dd_s *dd)
         {
 #ifdef __NuttX__
           char msg[32];
+
           snprintf(msg, sizeof(msg), "infile sector %d", sector);
           lib_dumpbuffer(msg, dd->buffer, dd->nbytes);
           snprintf(msg, sizeof(msg), "\noutfile sector %d", sector);
@@ -361,10 +362,12 @@ int main(int argc, FAR char **argv)
       else if (strncmp(argv[i], "conv=", 5) == 0)
         {
           const char *cur = &argv[i][5];
+
           while (true)
             {
               const char *next = strchr(cur, ',');
               size_t len = next != NULL ? next - cur : strlen(cur);
+
               if (len == 7 && !memcmp(cur, "notrunc", 7))
                 {
                   dd.oflags &= ~O_TRUNC;
