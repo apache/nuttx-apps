@@ -138,6 +138,17 @@ struct type_data_s
   } type;
 };
 
+#ifdef CONFIG_HAVE_LONG_DOUBLE
+struct ldouble_data_s
+{
+  FAR const char *input;
+  FAR const char *format;      /* Takes a long double and an int */
+  int rvalue;
+  long double ldvalue;
+  int nvalue;
+};
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -1059,7 +1070,72 @@ static const struct type_data_s type_data[] =
     },
     LL_MOD_U
   },                           /* 25 */
+
+  /* The L modifier with an integer specifier is the same as ll */
+
+  {
+    " 123456789123456789", "%Ld",
+    {
+      .s = (signed long long)123456789123456789LL
+    },
+    LL_MOD_S
+  },                           /* 26 */
+  {
+    "-123456789123456789", "%Li",
+    {
+      .s = (signed long long)-123456789123456789LL
+    },
+    LL_MOD_S
+  },                           /* 27 */
+  {
+    "+123456789123456789", "%Lu",
+    {
+      .u = (unsigned long long)123456789123456789LL
+    },
+    LL_MOD_U
+  },                           /* 28 */
+  {
+    "-123456789123456789", "%Lu",
+    {
+      .u = (unsigned long long)-123456789123456789LL
+    },
+    LL_MOD_U
+  },                           /* 29 */
 };
+
+#ifdef CONFIG_HAVE_LONG_DOUBLE
+/* Test the L modifier with the float specifiers: the whole long double is
+ * stored.  Each value is exact or needs one rounding only.
+ */
+
+static const struct ldouble_data_s ldouble_data[] =
+{
+  {
+    "qwerty   1.25 7", "qwerty  %Lf%i", 2, 1.25L, 7
+  },                           /* 1 */
+  {
+    "-3.75e2 8", "%Le%i", 2, -375.0L, 8
+  },                           /* 2 */
+  {
+    "+6.103515625e-05 9", "%Lg%i", 2, 6.103515625e-05L, 9
+  },                           /* 3 */
+  {
+    "0.1", "%LE%i", 1, 0.1L, 0
+  },                           /* 4 */
+  {
+    "9.87654321", "%LG%i", 1, 9.87654321L, 0
+  },                           /* 5 */
+  {
+    "9007199254740993", "%Lf%i", 1, 9007199254740993.0L, 0
+  },                           /* 6 */
+  {
+    "123.456789", "%5Lf%i", 2, 123.4L, 56789
+  },                           /* 7 */
+  {
+    "1.5 2.5 3", "%*Lf%Lf%i", 2, 2.5L, 3
+  },                           /* 8 */
+};
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -1359,115 +1435,115 @@ int main(int argc, FAR char *argv[])
       ok = true;
       switch (type_data[t].type)
         {
-        case HH_MOD_S:
-          hhs = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &hhs);
-          if (type_data[t].value.s != hhs)
-            {
-              printf("Test #%u assigned %hhd instead of %lli.\n", t + 1,
-                     hhs, type_data[t].value.s);
-              ok = false;
-            }
-          break;
+          case HH_MOD_S:
+            hhs = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &hhs);
+            if (type_data[t].value.s != hhs)
+              {
+                printf("Test #%u assigned %hhd instead of %lli.\n", t + 1,
+                       hhs, type_data[t].value.s);
+                ok = false;
+              }
+            break;
 
-        case HH_MOD_U:
-          hhu = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &hhu);
-          if (type_data[t].value.u != hhu)
-            {
-              printf("Test #%u assigned %hhu instead of %lli.\n",
-                     t + 1, hhu, type_data[t].value.u);
-              ok = false;
-            }
-          break;
+          case HH_MOD_U:
+            hhu = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &hhu);
+            if (type_data[t].value.u != hhu)
+              {
+                printf("Test #%u assigned %hhu instead of %lli.\n",
+                       t + 1, hhu, type_data[t].value.u);
+                ok = false;
+              }
+            break;
 
-        case H_MOD_S:
-          hs = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &hs);
-          if (type_data[t].value.s != hs)
-            {
-              printf("Test #%u assigned %hd instead of %lli.\n",
-                     t + 1, hs, type_data[t].value.s);
-              ok = false;
-            }
-          break;
+          case H_MOD_S:
+            hs = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &hs);
+            if (type_data[t].value.s != hs)
+              {
+                printf("Test #%u assigned %hd instead of %lli.\n",
+                       t + 1, hs, type_data[t].value.s);
+                ok = false;
+              }
+            break;
 
-        case H_MOD_U:
-          hu = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &hu);
-          if (type_data[t].value.u != hu)
-            {
-              printf("Test #%u assigned %hu instead of %lli.\n",
-                     t + 1, hu, type_data[t].value.u);
-              ok = false;
-            }
-          break;
+          case H_MOD_U:
+            hu = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &hu);
+            if (type_data[t].value.u != hu)
+              {
+                printf("Test #%u assigned %hu instead of %lli.\n",
+                       t + 1, hu, type_data[t].value.u);
+                ok = false;
+              }
+            break;
 
-        case NO_MOD_S:
-          nos = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &nos);
-          if (type_data[t].value.s != nos)
-            {
-              printf("Test #%u assigned %d instead of %lli.\n",
-                     t + 1, nos, type_data[t].value.s);
-              ok = false;
-            }
-          break;
+          case NO_MOD_S:
+            nos = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &nos);
+            if (type_data[t].value.s != nos)
+              {
+                printf("Test #%u assigned %d instead of %lli.\n",
+                       t + 1, nos, type_data[t].value.s);
+                ok = false;
+              }
+            break;
 
-        case NO_MOD_U:
-          nou = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &nou);
-          if (type_data[t].value.u != nou)
-            {
-              printf("Test #%u assigned %u instead of %lli.\n",
-                     t + 1, nou, type_data[t].value.u);
-              ok = false;
-            }
-          break;
+          case NO_MOD_U:
+            nou = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &nou);
+            if (type_data[t].value.u != nou)
+              {
+                printf("Test #%u assigned %u instead of %lli.\n",
+                       t + 1, nou, type_data[t].value.u);
+                ok = false;
+              }
+            break;
 
-        case L_MOD_S:
-          ls = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &ls);
-          if (type_data[t].value.s != ls)
-            {
-              printf("Test #%u assigned %ld instead of %lli.\n",
-                     t + 1, ls, type_data[t].value.s);
-              ok = false;
-            }
-          break;
+          case L_MOD_S:
+            ls = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &ls);
+            if (type_data[t].value.s != ls)
+              {
+                printf("Test #%u assigned %ld instead of %lli.\n",
+                       t + 1, ls, type_data[t].value.s);
+                ok = false;
+              }
+            break;
 
-        case L_MOD_U:
-          lu = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &lu);
-          if (type_data[t].value.u != lu)
-            {
-              printf("Test #%u assigned %lu instead of %lli.\n",
-                     t + 1, lu, type_data[t].value.u);
-              ok = false;
-            }
-          break;
+          case L_MOD_U:
+            lu = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &lu);
+            if (type_data[t].value.u != lu)
+              {
+                printf("Test #%u assigned %lu instead of %lli.\n",
+                       t + 1, lu, type_data[t].value.u);
+                ok = false;
+              }
+            break;
 
-        case LL_MOD_S:
-          lls = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &lls);
-          if (type_data[t].value.s != lls)
-            {
-              printf("Test #%u assigned %lld instead of %lli.\n",
-                     t + 1, lls, type_data[t].value.s);
-              ok = false;
-            }
-          break;
+          case LL_MOD_S:
+            lls = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &lls);
+            if (type_data[t].value.s != lls)
+              {
+                printf("Test #%u assigned %lld instead of %lli.\n",
+                       t + 1, lls, type_data[t].value.s);
+                ok = false;
+              }
+            break;
 
-        case LL_MOD_U:
-          llu = 0L;
-          sscanf(type_data[t].input, type_data[t].format, &llu);
-          if (type_data[t].value.u != llu)
-            {
-              printf("Test #%u assigned %llu instead of %lli.\n",
-                     t + 1, llu, type_data[t].value.u);
-              ok = false;
-            }
-          break;
+          case LL_MOD_U:
+            llu = 0L;
+            sscanf(type_data[t].input, type_data[t].format, &llu);
+            if (type_data[t].value.u != llu)
+              {
+                printf("Test #%u assigned %llu instead of %lli.\n",
+                       t + 1, llu, type_data[t].value.u);
+                ok = false;
+              }
+            break;
         }
 
       if (ok)
@@ -1480,6 +1556,51 @@ int main(int argc, FAR char *argv[])
           tests_err += 1;
         }
     }
+
+#ifdef CONFIG_HAVE_LONG_DOUBLE
+  /* Test the L modifier with the float specifiers. */
+
+  printf("\nTesting scanf()'s L modifier with float specifiers...\n");
+  for (t = 0; t < nitems(ldouble_data); ++t)
+    {
+      long double ld = 0;
+
+      n1 = 0;
+      ok = true;
+      c = sscanf(ldouble_data[t].input, ldouble_data[t].format, &ld, &n1);
+      if (c != ldouble_data[t].rvalue)
+        {
+          printf("Test #%u returned %d instead of %d.\n", t + 1, c,
+                 ldouble_data[t].rvalue);
+          ok = false;
+        }
+
+      if (ld != ldouble_data[t].ldvalue)
+        {
+          printf("Test #%u assigned %Le instead of %Le.\n", t + 1, ld,
+                 ldouble_data[t].ldvalue);
+          ok = false;
+        }
+
+      if (n1 != ldouble_data[t].nvalue)
+        {
+          printf("Test #%u assigned %d instead of %d,\n"
+                 "\tto the second argument.\n", t + 1, n1,
+                 ldouble_data[t].nvalue);
+          ok = false;
+        }
+
+      if (ok)
+        {
+          tests_ok += 1;
+          printf("Test #%u PASSED.\n", t + 1);
+        }
+      else
+        {
+          tests_err += 1;
+        }
+    }
+#endif
 
   printf("Scanf tests done... OK: %d, FAILED: %d\n", tests_ok, tests_err);
 
