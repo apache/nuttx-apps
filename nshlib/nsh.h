@@ -518,17 +518,6 @@
 #  define CONFIG_NSH_DISABLE_EXPORT 1
 #endif
 
-/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, env, irqinfo, and
- * mount (with no arguments).
- */
-
-#if !defined(CONFIG_NSH_DISABLE_CAT) && !defined(CONFIG_NSH_DISABLE_IFCONFIG) && \
-    !defined(CONFIG_NSH_DISABLE_IFUPDOWN) && !defined(CONFIG_NSH_DISABLE_DF) && \
-    !defined(CONFIG_NSH_DISABLE_FREE) && !defined(CONFIG_NSH_DISABLE_ENV) && \
-    !defined(HAVE_IRQINFO) && !defined(HAVE_MOUNT_LIST)
-#  undef NSH_HAVE_CATFILE
-#endif
-
 /* nsh_readfile used by ps command */
 
 #if defined(CONFIG_NSH_DISABLE_PS)
