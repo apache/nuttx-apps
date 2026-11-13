@@ -120,7 +120,8 @@ config TESTING_OSTEST_WAITRESULT
 config TESTING_OSTEST_POWEROFF
 	bool "Terminate on test completion"
 	default n
-	depends on BOARDCTL_POWEROFF && TESTING_OSTEST_WAITRESULT
+	depends on BOARDCTL_POWEROFF
+	depends on TESTING_OSTEST_WAITRESULT || DISABLE_ALL_SIGNALS
 
 config TESTING_OSTEST_SPINLOCK_THREADS
 	int "Number of spinlock test threads"
