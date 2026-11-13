@@ -103,7 +103,8 @@ if(CONFIG_TESTING_NET_TEST)
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_dgram_connect.c
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_dgram_poll.c
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_dgram_pollext.c
-        ${CMAKE_CURRENT_LIST_DIR}/local/test_local_dgram_regress.c)
+        ${CMAKE_CURRENT_LIST_DIR}/local/test_local_dgram_regress.c
+        ${CMAKE_CURRENT_LIST_DIR}/local/test_local_dgram_follow.c)
 
     nuttx_add_application(
       NAME
