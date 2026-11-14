@@ -42,9 +42,10 @@ int mbedtls_hardware_poll(FAR void *data,
 {
   int fd;
   size_t read_len;
+
   *olen = 0;
 
-  fd = open("/dev/random", O_RDONLY, 0);
+  fd = open("/dev/random", O_RDONLY | O_NONBLOCK, 0);
   if (fd < 0)
     {
       return -errno;
@@ -71,6 +72,7 @@ psa_status_t mbedtls_psa_external_get_random(
 {
   int fd;
   size_t read_len;
+
   *output_length = 0;
 
   (void)context;
