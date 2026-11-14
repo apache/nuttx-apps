@@ -2,6 +2,7 @@ diff --color -ur duktape/examples/cmdline/duk_cmdline.c duktape-2.5.0-modifed/ex
 --- duktape/examples/cmdline/duk_cmdline.c	2019-11-25 06:04:27.000000000 +0800
 +++ duktape-2.5.0-modifed/examples/cmdline/duk_cmdline.c	2020-08-07 23:20:27.320000000 +0800
 @@ -103,7 +103,7 @@
+ 
  #define  MEM_LIMIT_NORMAL   (128*1024*1024)   /* 128 MB */
  #define  MEM_LIMIT_HIGH     (2047*1024*1024)  /* ~2 GB */
 -#define  LINEBUF_SIZE       65536
@@ -9,10 +10,47 @@ diff --color -ur duktape/examples/cmdline/duk_cmdline.c duktape-2.5.0-modifed/ex
  
  static int main_argc = 0;
  static char **main_argv = NULL;
-
-@@ -810,10 +810,12 @@
+@@ -167,14 +167,28 @@ static void set_resource_limits(rlim_t m
+ #endif  /* DUK_CMDLINE_RLIMIT */
+ 
+ #if defined(DUK_CMDLINE_SIGNAL)
++#include <signal.h>
++
++static volatile sig_atomic_t g_interrupted = 0;
++
++duk_bool_t duk_cmdline_timeout_check(void *udata) {
++	(void) udata;
++	return g_interrupted;
++}
++
+ static void my_sighandler(int x) {
+-	fprintf(stderr, "Got signal %d\n", x);
+-	fflush(stderr);
++	(void) x;
++	g_interrupted = 1;
+ }
+ static void set_sigint_handler(void) {
+ 	(void) signal(SIGINT, my_sighandler);
+ 	(void) signal(SIGPIPE, SIG_IGN);  /* avoid SIGPIPE killing process */
+ }
++#else
++duk_bool_t duk_cmdline_timeout_check(void *udata) {
++	(void) udata;
++	return 0;
++}
+ #endif  /* DUK_CMDLINE_SIGNAL */
+ 
+ static void cmdline_fatal_handler(void *udata, const char *msg) {
+@@ -809,11 +823,19 @@ static int handle_interactive(duk_contex
+ 		fflush(stdout);
  
  		for (;;) {
++#if defined(DUK_CMDLINE_SIGNAL)
++			if (g_interrupted) {
++				got_eof = 1;
++				break;
++			}
++#endif
  			int c = fgetc(stdin);
 +			fputc(c, stdout);
 +			fflush(stdout);
@@ -24,6 +62,29 @@ diff --color -ur duktape/examples/cmdline/duk_cmdline.c duktape-2.5.0-modifed/ex
  				break;
  			} else if (idx >= LINEBUF_SIZE) {
  				fprintf(stderr, "line too long\n");
+@@ -1268,6 +1290,9 @@ int main(int argc, char *argv[]) {
+ 
+ 	main_argc = argc;
+ 	main_argv = (char **) argv;
++#if defined(DUK_CMDLINE_SIGNAL)
++	g_interrupted = 0;
++#endif
+ 
+ #if defined(EMSCRIPTEN)
+ 	/* Try to use NODEFS to provide access to local files.  Mount the
+@@ -1509,6 +1534,12 @@ int main(int argc, char *argv[]) {
+ 		fflush(stderr);
+ 	}
+ 
++#if defined(DUK_CMDLINE_SIGNAL)
++	if (g_interrupted) {
++		retval = 130;
++	}
++#endif
++
+ 	if (ctx && no_heap_destroy) {
+ 		duk_gc(ctx, 0);
+ 	}
 
 diff --color -ur duktape/src-noline/duk_config.h duktape-2.5.0-modifed/src-noline/duk_config.h
 --- duktape/src-noline/duk_config.h	2019-11-25 06:04:27.000000000 +0800
@@ -44,3 +105,33 @@ diff --color -ur duktape/src-noline/duk_config.h duktape-2.5.0-modifed/src-nolin
 -#define DUK_USE_DATE_PRS_STRPTIME
 +#undef DUK_USE_DATE_PRS_STRPTIME
  #define DUK_USE_DATE_FMT_STRFTIME
+ 
+ #if 0  /* XXX: safe condition? */
+@@ -2962,7 +2962,17 @@ typedef struct duk_hthread duk_context;
+ #undef DUK_USE_EXEC_INDIRECT_BOUND_CHECK
+ #undef DUK_USE_EXEC_PREFER_SIZE
+ #define DUK_USE_EXEC_REGCONST_OPTIMIZE
+-#undef DUK_USE_EXEC_TIMEOUT_CHECK
++#define DUK_USE_EXEC_TIMEOUT_CHECK(udata) duk_cmdline_timeout_check(udata)
++#if !defined(DUK_CMDLINE_TIMEOUT_CHECK_DECLARED)
++#define DUK_CMDLINE_TIMEOUT_CHECK_DECLARED
++#ifdef __cplusplus
++extern "C" {
++#endif
++duk_bool_t duk_cmdline_timeout_check(void *udata);
++#ifdef __cplusplus
++}
++#endif
++#endif
+ #undef DUK_USE_EXPLICIT_NULL_INIT
+ #undef DUK_USE_EXTSTR_FREE
+ #undef DUK_USE_EXTSTR_INTERN_CHECK
+@@ -3004,7 +3014,7 @@ typedef struct duk_hthread duk_context;
+ #define DUK_USE_HTML_COMMENTS
+ #define DUK_USE_IDCHAR_FASTPATH
+ #undef DUK_USE_INJECT_HEAP_ALLOC_ERROR
+-#undef DUK_USE_INTERRUPT_COUNTER
++#define DUK_USE_INTERRUPT_COUNTER
+ #undef DUK_USE_INTERRUPT_DEBUG_FIXUP
+ #define DUK_USE_JC
+ #define DUK_USE_JSON_BUILTIN
