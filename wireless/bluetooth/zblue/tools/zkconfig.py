@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+############################################################################
+# apps/wireless/bluetooth/zblue/tools/zkconfig.py
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+"""Resolve the Zephyr Bluetooth Kconfig for zblue.
+
+Reads the CONFIG_BT_* fragment(s), resolves them against the upstream
+Kconfig with Zephyr's own kconfiglib and writes:
+
+  <outdir>/zephyr/autoconf.h   C macros, used with -imacros
+  <outdir>/zblue.config        the same values, for the Makefile
+
+Zephyr symbols that also exist in the NuttX .config are dropped from the
+output: both headers are visible in every zblue translation unit, and the
+NuttX value must win.
+"""
+
+import argparse
+import os
+import re
+import sys
+
+
+def nuttx_config(path):
+    syms = {}
+    with open(path) as f:
+        for line in f:
+            m = re.match(r"^CONFIG_([A-Za-z0-9_]+)=(.*)$", line.strip())
+            if m:
+                syms[m.group(1)] = m.group(2)
+    return syms
+
+
+def arch_facts(nx):
+    """Macros that upstream headers use to select architecture code."""
+
+    facts = {"ATOMIC_OPERATIONS_BUILTIN": "1"}
+    if "ENDIAN_BIG" in nx:
+        facts["BIG_ENDIAN"] = "1"
+    else:
+        facts["LITTLE_ENDIAN"] = "1"
+    if "ARCH_SIM" in nx:
+        if "HOST_X86_64" in nx and "SIM_M32" not in nx:
+            facts.update({"X86": "1", "64BIT": "1"})
+        elif "HOST_ARM64" in nx:
+            facts.update({"ARM64": "1", "64BIT": "1"})
+        else:
+            facts["X86"] = "1"
+    elif "ARCH_ARM" in nx:
+        facts["ARM"] = "1"
+    elif "ARCH_ARM64" in nx:
+        facts.update({"ARM64": "1", "64BIT": "1"})
+    elif "ARCH_RISCV" in nx:
+        facts["RISCV"] = "1"
+        if "ARCH_RV64" in nx:
+            facts["64BIT"] = "1"
+    elif "ARCH_XTENSA" in nx:
+        facts["XTENSA"] = "1"
+    else:
+        sys.exit("zkconfig: unsupported architecture")
+    return facts
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--zephyr", required=True, help="Zephyr source tree")
+    ap.add_argument("--kconfig", required=True, help="wrapper Kconfig")
+    ap.add_argument("--nuttx-config", required=True, help="NuttX .config")
+    ap.add_argument("--outdir", required=True)
+    ap.add_argument("fragments", nargs="+", help="CONFIG_BT_* fragments")
+    args = ap.parse_args()
+
+    zbase = os.path.abspath(args.zephyr)
+    os.environ["ZEPHYR_BASE"] = zbase
+    os.environ["srctree"] = zbase
+    os.environ.setdefault("KCONFIG_WARN_UNDEF_ASSIGN", "y")
+    sys.path.insert(0, os.path.join(zbase, "scripts", "kconfig"))
+    import kconfiglib
+
+    kconf = kconfiglib.Kconfig(os.path.abspath(args.kconfig), warn_to_stderr=False)
+    kconf.load_config(args.fragments[0])
+    for frag in args.fragments[1:]:
+        kconf.load_config(frag, replace=False)
+
+    for w in kconf.warnings:
+        if "was assigned the value" in w or "undefined symbol" in w:
+            print("zkconfig: " + w.splitlines()[0], file=sys.stderr)
+
+    nx = nuttx_config(args.nuttx_config)
+    values = {}
+    for sym in kconf.unique_defined_syms:
+        val = sym.str_value
+        if not sym._write_to_conf:
+            continue
+        if sym.orig_type in (kconfiglib.BOOL, kconfiglib.TRISTATE):
+            if val == "n":
+                continue
+            values[sym.name] = "1"
+        elif sym.orig_type == kconfiglib.STRING:
+            values[sym.name] = '"%s"' % kconfiglib.escape(val)
+        elif sym.orig_type == kconfiglib.HEX and not val.startswith("0x"):
+            values[sym.name] = "0x" + val
+        else:
+            values[sym.name] = val
+
+    values.update(arch_facts(nx))
+
+    clashes = sorted(n for n in values if n in nx)
+    for n in clashes:
+        print("zkconfig: dropping CONFIG_%s, defined by NuttX" % n, file=sys.stderr)
+        del values[n]
+
+    incdir = os.path.join(args.outdir, "zephyr")
+    os.makedirs(incdir, exist_ok=True)
+    hdr = os.path.join(incdir, "autoconf.h")
+    mk = os.path.join(args.outdir, "zblue.config")
+
+    with open(hdr + ".tmp", "w") as f:
+        f.write("/* Generated by tools/zkconfig.py, do not edit */\n")
+        for n in sorted(values):
+            f.write("#define CONFIG_%s %s\n" % (n, values[n]))
+    with open(mk + ".tmp", "w") as f:
+        f.write("# Generated by tools/zkconfig.py, do not edit\n")
+        for n in sorted(values):
+            v = "y" if values[n] == "1" else values[n]
+            f.write("ZCONFIG_%s=%s\n" % (n, v))
+
+    for path in (hdr, mk):
+        new = open(path + ".tmp").read()
+        if not os.path.exists(path) or open(path).read() != new:
+            os.replace(path + ".tmp", path)
+        else:
+            os.remove(path + ".tmp")
+
+
+if __name__ == "__main__":
+    main()
