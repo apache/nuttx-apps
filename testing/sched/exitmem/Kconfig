@@ -1,0 +1,33 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_EXITMEM
+	tristate "Memory of an ended process test"
+	default n
+	depends on ARCH_HAVE_FORK
+	---help---
+		Fork children that take a large part of the free memory and end.
+		After each child the free memory must come back.  With SMP, each
+		child runs on another CPU, and a thread of the child runs on a
+		third CPU first.
+
+if TESTING_EXITMEM
+
+config TESTING_EXITMEM_PROGNAME
+	string "Program name"
+	default "exitmem"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config TESTING_EXITMEM_PRIORITY
+	int "exitmem task priority"
+	default 100
+
+config TESTING_EXITMEM_STACKSIZE
+	int "exitmem stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
