@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_QUIC
+	bool "QUIC - ngtcp2 library"
+	default n
+	depends on CRYPTO_WOLFSSL
+	depends on LIBUV
+	---help---
+		ngtcp2 is a C implementation of QUIC protocol based on RFC9000.
+
+if NETUTILS_QUIC
+
+config NETUTILS_QUIC_VERSION
+	string "QUIC - ngtcp2 version"
+	default "1.21.0"
+
+endif # NETUTILS_QUIC
