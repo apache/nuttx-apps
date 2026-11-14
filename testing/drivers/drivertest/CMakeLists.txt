@@ -182,6 +182,20 @@ if(CONFIG_TESTING_DRIVER_TEST)
       cmocka
       SRCS
       drivertest_adc.c)
+
+    nuttx_add_application(
+      NAME
+      cmocka_driver_adc_open
+      PRIORITY
+      ${CONFIG_TESTING_DRIVER_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_DRIVER_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_DRIVER_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      drivertest_adc_open.c)
   endif()
 
   if(CONFIG_I2C OR CONFIG_SPI)

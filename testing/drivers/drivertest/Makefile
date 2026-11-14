@@ -81,6 +81,8 @@ endif
 ifneq ($(CONFIG_ADC),)
 MAINSRC  += drivertest_adc.c
 PROGNAME += cmocka_driver_adc
+MAINSRC  += drivertest_adc_open.c
+PROGNAME += cmocka_driver_adc_open
 endif
 
 ifneq ($(CONFIG_I2C)$(CONFIG_SPI),)
