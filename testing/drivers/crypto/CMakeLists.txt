@@ -217,4 +217,46 @@ if(CONFIG_TESTING_CRYPTO)
       chachapoly.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_POLY1305)
+    nuttx_add_application(
+      NAME
+      poly1305
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      poly1305.c)
+  endif()
+
+  if(CONFIG_TESTING_CRYPTO_CAST_CBC)
+    nuttx_add_application(
+      NAME
+      castcbc
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      castcbc.c)
+  endif()
+
+  if(CONFIG_TESTING_CRYPTO_BLF_CBC)
+    nuttx_add_application(
+      NAME
+      blfcbc
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      blfcbc.c)
+  endif()
+
 endif()

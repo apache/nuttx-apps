@@ -73,6 +73,14 @@ config TESTING_CRYPTO_HASH_DISABLE_SHA512
 	bool "disable sha512 tests"
 	default n
 
+config TESTING_CRYPTO_HASH_DISABLE_SHA384
+	bool "disable sha384 tests"
+	default n
+
+config TESTING_CRYPTO_HASH_DISABLE_RIPEMD160
+	bool "disable ripemd160 tests"
+	default n
+
 config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_MD5
 	bool "disable unaligned md5 tests"
 	depends on !TESTING_CRYPTO_HASH_DISABLE_MD5
@@ -131,5 +139,17 @@ config TESTING_CRYPTO_PRIORITY
 config TESTING_CRYPTO_STACKSIZE
 	int "crypto test stack size"
 	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_CRYPTO_POLY1305
+	bool "poly1305 crypto test"
+	default n
+
+config TESTING_CRYPTO_CAST_CBC
+	bool "cast-cbc crypto test"
+	default n
+
+config TESTING_CRYPTO_BLF_CBC
+	bool "blowfish-cbc crypto test"
+	default n
 
 endif # TESTING_CRYPTO
