@@ -741,19 +741,6 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
           ptperr("Failed to bind to udp port %d\n", bind_addr.sin_port);
           goto errout;
         }
-
-      /* Bind TX socket to interface address (local addr cannot be
-       * multicast)
-       */
-
-      bind_addr.sin_addr = state->interface_addr.sin_addr;
-      ret = bind(state->tx_socket, (FAR struct sockaddr *)&bind_addr,
-                 sizeof(bind_addr));
-      if (ret < 0)
-        {
-          ptperr("Failed to bind tx to port %d\n", bind_addr.sin_port);
-          goto errout;
-        }
     }
 
   if (state->config->hardware_ts)
@@ -836,14 +823,31 @@ static int ptp_initialize_state(FAR struct ptp_state_s *state)
 
   state->interface_addr = *(FAR struct sockaddr_in *)&req.ifr_ifru.ifru_addr;
 
-  /* Subscribe to PTP multicast address (AF_INET only).
-   * Must be done after interface_addr is populated so the IGMP join
-   * can locate the correct network device.
+  /* Bind the TX socket and subscribe to PTP multicast address (AF_INET
+   * only).  Must be done after interface_addr is populated so the TX
+   * socket gets the interface address and the IGMP join can locate the
+   * correct network device.
    */
 
   if (state->config->af == AF_INET)
     {
+      struct sockaddr_in bind_addr;
       struct in_addr mcast_addr;
+
+      /* Bind TX socket to interface address (local addr cannot be
+       * multicast)
+       */
+
+      bind_addr.sin_family = AF_INET;
+      bind_addr.sin_addr = state->interface_addr.sin_addr;
+      bind_addr.sin_port = HTONS(PTP_UDP_PORT_INFO);
+      ret = bind(state->tx_socket, (FAR struct sockaddr *)&bind_addr,
+                 sizeof(bind_addr));
+      if (ret < 0)
+        {
+          ptperr("Failed to bind tx to port %d\n", bind_addr.sin_port);
+          goto errout;
+        }
 
       mcast_addr.s_addr = HTONL(PTP_MULTICAST_ADDR);
       ret = ipmsfilter(&state->interface_addr.sin_addr,
