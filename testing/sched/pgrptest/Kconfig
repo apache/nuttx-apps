@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_PGRPTEST
+	tristate "Process group and session test"
+	default n
+	depends on SCHED_PROCESS_GROUPS && SCHED_WAITPID && LIBC_EXECFUNCS && PIPES
+	---help---
+		Test setpgid(), getpgid(), setsid(), getsid(), kill() and
+		killpg() to a process group, POSIX_SPAWN_SETPGROUP and
+		POSIX_SPAWN_SETSID.  The children are started with posix_spawn(),
+		so most cases run without fork().
+
+if TESTING_PGRPTEST
+
+config TESTING_PGRPTEST_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_PGRPTEST_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
