@@ -89,6 +89,7 @@ static int nxlooper_opendevice(FAR struct nxlooper_s *plooper)
       if (plooper->playdev_fd == -1)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: Failed to open plooper->playdev %d\n", -errcode);
@@ -99,6 +100,7 @@ static int nxlooper_opendevice(FAR struct nxlooper_s *plooper)
       if (plooper->recorddev_fd == -1)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: Failed to open plooper->recorddev %d\n", -errcode);
@@ -141,6 +143,7 @@ static int nxlooper_opendevice(FAR struct nxlooper_s *plooper)
       if (dirp == NULL)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: Failed to open /dev/audio: %d\n", -errcode);
@@ -270,6 +273,7 @@ static int nxlooper_enqueuerecordbuffer(FAR struct nxlooper_s *plooper,
   if (ret < 0)
     {
       int errcode = errno;
+
       DEBUGASSERT(errcode > 0);
 
       auderr("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
@@ -299,6 +303,7 @@ static int nxlooper_enqueueplaybuffer(FAR struct nxlooper_s *plooper,
   if (ret < 0)
     {
       int errcode = errno;
+
       DEBUGASSERT(errcode > 0);
 
       auderr("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
@@ -757,6 +762,7 @@ int nxlooper_setvolume(FAR struct nxlooper_s *plooper, uint16_t volume)
       if (ret < 0)
         {
           int errcode = errno;
+
           DEBUGASSERT(errcode > 0);
 
           auderr("ERROR: AUDIOIOC_CONFIGURE ioctl failed: %d\n", errcode);
