@@ -28,11 +28,13 @@
 
 #include <errno.h>
 #include <poll.h>
+#include <sched.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <cmocka.h>
@@ -59,6 +61,8 @@
 #define TEST_PKT_TIMXCEED 11      /* ICMP Time Exceeded */
 #define TEST_PKT_FRAGTIME 1       /* Its code: reassembly time exceeded */
 #define TEST_PKT_WAIT_MS  2000    /* Time to wait for a frame */
+#define TEST_PKT_ROUNDS   4       /* Open, send and close rounds */
+#define TEST_PKT_NFRAMES  2       /* Packets sent in one round */
 
 /****************************************************************************
  * Private Functions
@@ -149,6 +153,91 @@ static ssize_t test_pkt_read(int sd, FAR uint8_t *buf, size_t len, int ms)
     }
 
   return recv(sd, buf, len, MSG_DONTWAIT);
+}
+
+/* The number of free IOBs, from /proc/iobinfo; -1 if it is not there */
+
+static int test_pkt_iob_nfree(void)
+{
+  FAR FILE *f;
+  char line[64];
+  int ntotal;
+  int nfree = -1;
+
+  f = fopen("/proc/iobinfo", "re");
+  if (f == NULL)
+    {
+      return -1;
+    }
+
+  /* The first line is the header, the second line has the counts */
+
+  if (fgets(line, sizeof(line), f) == NULL ||
+      fgets(line, sizeof(line), f) == NULL ||
+      sscanf(line, "%d %d", &ntotal, &nfree) != 2)
+    {
+      nfree = -1;
+    }
+
+  fclose(f);
+  return nfree;
+}
+
+/* Open a socket on lo, send IPv4 packets to 127.0.0.1 and close it, in
+ * TEST_PKT_ROUNDS rounds.  With 'high', send() and close() run above the
+ * work queue that sends the packets.  send() does not wait: a lost IOB
+ * gives a failed send, not a hang.  Returns the number of IOBs lost.
+ */
+
+static int test_pkt_close_rounds(bool high, FAR int *nfail)
+{
+  struct sched_param oparam;
+  struct sched_param param;
+  uint8_t frame[64];
+  size_t len;
+  int before;
+  int after;
+  int sd;
+  int i;
+  int j;
+
+  usleep(100 * 1000);
+  before = test_pkt_iob_nfree();
+  assert_true(before > 0);
+
+  assert_return_code(sched_getparam(0, &oparam), errno);
+  param.sched_priority = sched_get_priority_max(SCHED_FIFO) - 1;
+  *nfail = 0;
+
+  for (i = 0; i < TEST_PKT_ROUNDS; i++)
+    {
+      sd = test_pkt_open(ETH_P_ALL);
+      if (high)
+        {
+          assert_return_code(sched_setparam(0, &param), errno);
+        }
+
+      for (j = 0; j < TEST_PKT_NFRAMES; j++)
+        {
+          len = test_pkt_ipv4(frame, 8, (i << 8) | j, 0);
+          if (send(sd, frame, len, MSG_DONTWAIT) < 0)
+            {
+              (*nfail)++;
+            }
+        }
+
+      close(sd);
+      if (high)
+        {
+          assert_return_code(sched_setparam(0, &oparam), errno);
+        }
+    }
+
+  /* Let the work queue finish */
+
+  usleep(200 * 1000);
+  after = test_pkt_iob_nfree();
+  return before - after;
 }
 
 /****************************************************************************
@@ -243,4 +332,34 @@ void test_pkt_lo_frag(FAR void **state)
 #else
   skip();
 #endif
+}
+
+/****************************************************************************
+ * Name: test_pkt_lo_close
+ *
+ * Description:
+ *   close() of a packet socket on lo frees every frame queued on it.  This
+ *   also covers a frame that comes back while close() waits for the write
+ *   buffers of the socket to drain (CONFIG_NET_PKT_WRITE_BUFFERS).
+ *
+ ****************************************************************************/
+
+void test_pkt_lo_close(FAR void **state)
+{
+  int nfail;
+
+  if (test_pkt_iob_nfree() < 0)
+    {
+      skip();
+    }
+
+  /* The frames come back before close() */
+
+  assert_int_equal(test_pkt_close_rounds(false, &nfail), 0);
+  assert_int_equal(nfail, 0);
+
+  /* The frames come back during close() */
+
+  assert_int_equal(test_pkt_close_rounds(true, &nfail), 0);
+  assert_int_equal(nfail, 0);
 }
