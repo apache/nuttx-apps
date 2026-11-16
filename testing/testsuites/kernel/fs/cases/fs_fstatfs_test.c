@@ -26,6 +26,7 @@
 #include <nuttx/config.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
+#include <sys/statvfs.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <syslog.h>
@@ -108,4 +109,45 @@ void test_nuttx_fs_fstatfs01(FAR void **state)
   ret = fstatfs(fd, &statfsbuf);
   assert_int_equal(ret, 0);
   close(fd);
+}
+
+/****************************************************************************
+ * Name: test_nuttx_fs_fstatfs02
+ ****************************************************************************/
+
+void test_nuttx_fs_fstatfs02(FAR void **state)
+{
+  struct statfs fstatfsbuf;
+  struct statfs statfsbuf;
+  struct statvfs fstatvfsbuf;
+  struct statvfs statvfsbuf;
+  struct fs_testsuites_state_s *test_state;
+  int ret;
+  int fd;
+
+  test_state = *state;
+
+  /* A descriptor of a directory gives the file system of the directory.
+   * The teardown closes fd1, also when an assert fails.
+   */
+
+  fd = open(".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+  assert_true(fd > 0);
+  test_state->fd1 = fd;
+
+  ret = fstatfs(fd, &fstatfsbuf);
+  assert_int_equal(ret, 0);
+  ret = statfs(".", &statfsbuf);
+  assert_int_equal(ret, 0);
+  assert_int_equal(fstatfsbuf.f_type, statfsbuf.f_type);
+  assert_int_equal(fstatfsbuf.f_bsize, statfsbuf.f_bsize);
+  assert_int_equal(fstatfsbuf.f_namelen, statfsbuf.f_namelen);
+
+  ret = fstatvfs(fd, &fstatvfsbuf);
+  assert_int_equal(ret, 0);
+  ret = statvfs(".", &statvfsbuf);
+  assert_int_equal(ret, 0);
+  assert_int_equal(fstatvfsbuf.f_bsize, statvfsbuf.f_bsize);
+  assert_int_equal(fstatvfsbuf.f_namemax, statvfsbuf.f_namemax);
+  assert_int_equal(fstatvfsbuf.f_flag, statvfsbuf.f_flag);
 }
