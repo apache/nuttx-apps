@@ -1,0 +1,26 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_SPAWNATTR
+	tristate "posix_spawn() attribute error test"
+	default n
+	depends on LIBC_EXECFUNCS && SCHED_WAITPID
+	---help---
+		Test posix_spawn() with a spawn attribute that the kernel refuses
+		after it made the new task (POSIX_SPAWN_SETSCHEDPARAM with
+		priority 0): posix_spawn() must return EINVAL, and the heap of
+		the caller must stay intact.
+
+if TESTING_SPAWNATTR
+
+config TESTING_SPAWNATTR_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_SPAWNATTR_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
