@@ -42,6 +42,7 @@ int main(int argc, FAR char *argv[])
     {
       cmocka_unit_test(test_pkt_lo_send),
       cmocka_unit_test(test_pkt_lo_frag),
+      cmocka_unit_test(test_pkt_lo_close),
     };
 
   return cmocka_run_group_tests(pkt_tests, NULL, NULL);
