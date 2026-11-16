@@ -52,6 +52,10 @@ if(CONFIG_TESTING_OSTEST)
     endif()
   endif()
 
+  if(NOT CONFIG_DISABLE_PSEUDOFS_OPERATIONS)
+    list(APPEND SRCS cwd.c)
+  endif()
+
   if(NOT CONFIG_STDIO_DISABLE_BUFFERING)
     list(APPEND SRCS setvbuf.c)
   endif()
