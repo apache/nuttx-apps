@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_WAITSTOP
+	tristate "Stopped and continued children test"
+	default n
+	depends on SCHED_CHILD_STATUS && SCHED_WAITPID && SIG_SIGSTOP_ACTION
+	depends on ENABLE_ALL_SIGNALS && LIBC_EXECFUNCS && !DISABLE_POSIX_TIMERS
+	---help---
+		Test that a parent sees the stop and the continue of a child:
+		SIGCHLD with CLD_STOPPED and CLD_CONTINUED, SA_NOCLDSTOP and
+		SA_NOCLDWAIT, waitpid() with WUNTRACED and WCONTINUED, waitid()
+		with WSTOPPED, WCONTINUED and WNOWAIT, waitpid() of a process
+		group, and SIGKILL to a stopped child.  The children are started
+		with posix_spawn(), so the test runs without fork().
+
+if TESTING_WAITSTOP
+
+config TESTING_WAITSTOP_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_WAITSTOP_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
