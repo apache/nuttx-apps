@@ -473,9 +473,13 @@ int main(int argc, FAR char *argv[])
   /* Configure the characteristics of the pulse train */
 
   memset(&info, 0, sizeof(info));
+#ifdef CONFIG_PWM_FREQUENCY_FIXED
+  info.frequency = uitoub32(g_pwmstate.freq);
+#else
   info.frequency = g_pwmstate.freq;
+#endif
   printf("pwm_main: starting output with frequency: %" PRIu32,
-         info.frequency);
+         g_pwmstate.freq);
 
   for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
     {
