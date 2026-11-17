@@ -33,6 +33,7 @@
 #include <string.h>
 #include <syslog.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
@@ -43,6 +44,9 @@
 #define O_FILE "outputFile"
 #define I_FILE1 "inputFile1"
 #define I_FILE2 "inputFile2"
+#define P_FILE "pipeInputFile"
+#define P_SIZE 8192
+#define P_BUFSIZE 256
 
 static void set_test(void)
 {
@@ -57,6 +61,160 @@ static void set_test(void)
   write(fd, "ABCDEFGHIJ", 10);
   close(fd);
 }
+
+#if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
+
+/****************************************************************************
+ * Name: sendfile_pipe_send
+ *
+ * Description:
+ *   Call sendfile() and check that the offset (or the file position if
+ *   offset is NULL) moves by the count that it returns.
+ *
+ * Returned Value:
+ *   The count, 0 for EAGAIN, or -1 on a failure.
+ ****************************************************************************/
+
+static ssize_t sendfile_pipe_send(int outfd, int infd, FAR off_t *offset,
+                                  size_t count)
+{
+  off_t before = offset != NULL ? *offset : lseek(infd, 0, SEEK_CUR);
+  off_t after;
+  ssize_t ret;
+
+  ret = sendfile(outfd, infd, offset, count);
+  if (ret < 0 && errno == EAGAIN)
+    {
+      ret = 0;
+    }
+  else if (ret <= 0)
+    {
+      syslog(LOG_ERR, "sendfile fail, ret %zd, errno %d\n", ret, errno);
+      return -1;
+    }
+
+  after = offset != NULL ? *offset : lseek(infd, 0, SEEK_CUR);
+  if (after - before != ret)
+    {
+      syslog(LOG_ERR, "sendfile sent %zd but the offset moved %" PRIdOFF
+             "\n", ret, after - before);
+      return -1;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: sendfile_pipe
+ *
+ * Description:
+ *   Send a file to a nonblocking pipe that fills up.  Each byte must
+ *   arrive once, and the count that sendfile() returns must match the
+ *   offset and the bytes in the pipe.
+ *
+ * Returned Value:
+ *   0 if all checks pass, else 1.
+ ****************************************************************************/
+
+static int sendfile_pipe(FAR off_t *offset)
+{
+  unsigned char buf[P_BUFSIZE];
+  size_t received = 0;
+  size_t sent = 0;
+  ssize_t ret;
+  ssize_t n;
+  ssize_t i;
+  int fail = 0;
+  int fds[2];
+  int fd;
+
+  fd = open(P_FILE, O_CREAT | O_TRUNC | O_RDWR | O_CLOEXEC, 0777);
+  if (fd < 0)
+    {
+      syslog(LOG_ERR, "open %s fail, errno %d\n", P_FILE, errno);
+      return 1;
+    }
+
+  for (n = 0; n < P_SIZE; n += P_BUFSIZE)
+    {
+      for (i = 0; i < P_BUFSIZE; i++)
+        {
+          buf[i] = (n + i) % 251;
+        }
+
+      if (write(fd, buf, P_BUFSIZE) != P_BUFSIZE)
+        {
+          syslog(LOG_ERR, "write %s fail, errno %d\n", P_FILE, errno);
+          close(fd);
+          return 1;
+        }
+    }
+
+  if (lseek(fd, 0, SEEK_SET) != 0 || pipe2(fds, O_CLOEXEC | O_NONBLOCK) < 0)
+    {
+      syslog(LOG_ERR, "lseek or pipe2 fail, errno %d\n", errno);
+      close(fd);
+      return 1;
+    }
+
+  while (sent < P_SIZE)
+    {
+      /* The pipe is empty: the call must send some bytes */
+
+      ret = sendfile_pipe_send(fds[1], fd, offset, P_SIZE - sent);
+      if (ret <= 0)
+        {
+          fail = 1;
+          break;
+        }
+
+      sent += ret;
+
+      /* The pipe is full now: the next call must send nothing */
+
+      if (sent < P_SIZE &&
+          sendfile_pipe_send(fds[1], fd, offset, P_SIZE - sent) != 0)
+        {
+          fail = 1;
+          break;
+        }
+
+      while ((n = read(fds[0], buf, P_BUFSIZE)) > 0)
+        {
+          for (i = 0; i < n; i++)
+            {
+              if (buf[i] != (received + i) % 251)
+                {
+                  fail = 1;
+                }
+            }
+
+          received += n;
+        }
+
+      if (received != sent)
+        {
+          syslog(LOG_ERR, "the pipe got %zu bytes, sendfile sent %zu\n",
+                 received, sent);
+          fail = 1;
+          break;
+        }
+    }
+
+  /* With an offset, sendfile() must not move the file position */
+
+  if (offset != NULL && lseek(fd, 0, SEEK_CUR) != 0)
+    {
+      syslog(LOG_ERR, "sendfile moved the file position\n");
+      fail = 1;
+    }
+
+  close(fds[0]);
+  close(fds[1]);
+  close(fd);
+  return fail;
+}
+#endif
 
 /****************************************************************************
  * Name: sendfile
@@ -201,3 +359,33 @@ void test_nuttx_fs_sendfile02(FAR void **state)
 
   assert_int_equal(offset, f_stat.st_size);
 }
+
+#if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
+
+/****************************************************************************
+ * Name: sendfile
+ * Example description:
+ *  1.Test sendfile with an offset to a nonblocking pipe that fills up
+ * Expect results: TEST PASSED
+ ****************************************************************************/
+
+void test_nuttx_fs_sendfile03(FAR void **state)
+{
+  off_t offset = 0;
+
+  assert_int_equal(sendfile_pipe(&offset), 0);
+  assert_int_equal(offset, P_SIZE);
+}
+
+/****************************************************************************
+ * Name: sendfile
+ * Example description:
+ *  1.Test sendfile without an offset to a nonblocking pipe that fills up
+ * Expect results: TEST PASSED
+ ****************************************************************************/
+
+void test_nuttx_fs_sendfile04(FAR void **state)
+{
+  assert_int_equal(sendfile_pipe(NULL), 0);
+}
+#endif
