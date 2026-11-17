@@ -101,6 +101,10 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS pthread_sigqueue.c)
     endif()
 
+    if(CONFIG_ENABLE_ALL_SIGNALS)
+      list(APPEND SRCS pwait.c)
+    endif()
+
     if(CONFIG_SCHED_WAITPID)
       list(APPEND SRCS pthread_exit.c)
     endif()

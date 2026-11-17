@@ -107,6 +107,10 @@ ifeq ($(CONFIG_TESTING_OSTEST_PTHREAD_SIGQUEUE),y)
 CSRCS += pthread_sigqueue.c
 endif
 
+ifeq ($(CONFIG_ENABLE_ALL_SIGNALS),y)
+CSRCS += pwait.c
+endif
+
 ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += pthread_exit.c
 endif

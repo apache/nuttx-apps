@@ -590,6 +590,16 @@ static int user_main(int argc, char *argv[])
       sigprocmask_test();
       check_test_memory_usage();
 
+#if defined(CONFIG_ENABLE_ALL_SIGNALS) && !defined(CONFIG_DISABLE_PTHREAD)
+      /* Verify that a wait with a temporary signal mask runs the handler
+       * of a signal that the mask unblocks
+       */
+
+      printf("\nuser_main: wait with a signal mask test\n");
+      pwait_test();
+      check_test_memory_usage();
+#endif
+
 #if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_PTHREAD)
       /* Verify pthreads and message queues */
 
