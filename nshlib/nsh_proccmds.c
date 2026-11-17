@@ -238,6 +238,7 @@ static void nsh_parse_statusline(FAR char *line,
   else if (strncmp(line, g_priority, strlen(g_priority)) == 0)
     {
       FAR char *ptr = nsh_trimspaces(&line[12]);
+
       status->td_priority = ptr;
 
       /* If priority inheritance is enabled, use current pri, ignore base */
@@ -1044,6 +1045,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       for (i = 1; i < argc; i++)
         {
           struct dirent entry;
+
           if (!isdigit(*argv[i]))
             {
               continue;
@@ -1178,18 +1180,18 @@ int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   switch (errno)
     {
-    case EINVAL:
-      goto invalid_arg;
+      case EINVAL:
+        goto invalid_arg;
 
-    case ESRCH:
-      nsh_error(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
-      return ERROR;
+      case ESRCH:
+        nsh_error(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
+        return ERROR;
 
-    case EPERM:
-    case ENOSYS:
-    default:
-      nsh_error(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
-      return ERROR;
+      case EPERM:
+      case ENOSYS:
+      default:
+        nsh_error(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
+        return ERROR;
     }
 
 invalid_arg:
@@ -1276,18 +1278,18 @@ int cmd_pkill(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
         {
           switch (errno)
             {
-            case EINVAL:
-              goto invalid_arg;
+              case EINVAL:
+                goto invalid_arg;
 
-            case ESRCH:
-              nsh_error(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
-              return ERROR;
+              case ESRCH:
+                nsh_error(vtbl, g_fmtnosuch, argv[0], "task", argv[2]);
+                return ERROR;
 
-            case EPERM:
-            case ENOSYS:
-            default:
-              nsh_error(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
-              return ERROR;
+              case EPERM:
+              case ENOSYS:
+              default:
+                nsh_error(vtbl, g_fmtcmdfailed, argv[0], "kill", NSH_ERRNO);
+                return ERROR;
             }
         }
     }
@@ -1535,6 +1537,7 @@ int cmd_top(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
           while (pid != NULL && ret >= 0)
             {
               struct dirent entry;
+
               entry.d_type = DT_DIR;
               strlcpy(entry.d_name, pid, sizeof(entry.d_name));
               ret = top_callback(vtbl, CONFIG_NSH_PROC_MOUNTPOINT,
