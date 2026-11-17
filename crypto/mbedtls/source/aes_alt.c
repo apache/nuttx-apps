@@ -146,6 +146,8 @@ int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
   unsigned char temp[16];
   int ret;
 
+  memset(temp, 0, sizeof(temp));
+
   if (mode != MBEDTLS_AES_ENCRYPT && mode != MBEDTLS_AES_DECRYPT)
     {
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;

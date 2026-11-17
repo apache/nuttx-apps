@@ -215,7 +215,7 @@ int main(int argc, FAR char *argv[])
           return -1;
         }
 
-      printf("aescbc test %d ok\n", i);
+      printf("aescmac test %d ok\n", i);
     }
 
   return 0;
