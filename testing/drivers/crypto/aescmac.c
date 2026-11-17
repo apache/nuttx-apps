@@ -88,7 +88,49 @@ static const unsigned char g_aes_128_expected_result[4][16] =
     }
 };
 
-static int syscrypt(FAR const unsigned char *key, size_t klen,
+/* AES-256-CMAC key (FIPS 197 / SP 800-38B standard 256-bit AES key). The
+ * expected results below are the CMAC tags for the same four message
+ * lengths, computed from the SP 800-38B CMAC algorithm. The algorithm was
+ * validated by reproducing the AES-128-CMAC vectors above.
+ */
+
+static const unsigned char g_aes_256_key[32] =
+{
+    0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
+    0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
+    0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0x72,
+    0x6e, 0x08, 0x16, 0x77, 0x8e, 0xce, 0xb3, 0xce
+};
+
+static const unsigned char g_aes_256_expected_result[4][16] =
+{
+    {
+        /* len = 0 */
+
+        0x6e, 0x01, 0xcc, 0xb4, 0x51, 0x51, 0xa7, 0x46,
+        0x71, 0x51, 0x2c, 0xc4, 0x52, 0x12, 0xcf, 0xb1
+    },
+    {
+        /* len = 16 */
+
+        0x5e, 0x1f, 0x5a, 0x57, 0xcb, 0x2f, 0x6e, 0xd6,
+        0xa6, 0xa8, 0x20, 0x94, 0xdc, 0x8d, 0x25, 0x16
+    },
+    {
+        /* len = 20 */
+
+        0x35, 0x2a, 0xa2, 0xe3, 0x21, 0xf3, 0xf3, 0xf3,
+        0x86, 0xae, 0x64, 0x6c, 0xe7, 0xd7, 0xe6, 0x67
+    },
+    {
+        /* len = 64 */
+
+        0x20, 0x6e, 0x76, 0x33, 0xb2, 0xac, 0x5a, 0x58,
+        0x48, 0xad, 0x38, 0x38, 0xd8, 0xbf, 0x72, 0x7c
+    }
+};
+
+static int syscrypt(FAR const unsigned char *key, int keybits,
                     FAR const unsigned char *message, size_t len,
                     FAR unsigned char *output, size_t outlen)
 {
@@ -96,6 +138,25 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   struct crypt_op cryp;
   int cryptodev_fd = -1;
   int fd = -1;
+  int mac_type;
+  size_t klen;
+
+  /* keybits (128/256) distinguishes AES-128-CMAC from AES-256-CMAC */
+
+  if (keybits == 128)
+    {
+      mac_type = CRYPTO_AES_128_CMAC;
+    }
+  else if (keybits == 256)
+    {
+      mac_type = CRYPTO_AES_256_CMAC;
+    }
+  else
+    {
+      return -1;
+    }
+
+  klen = keybits / 8;
 
   if ((fd = open("/dev/crypto", O_RDWR, 0)) < 0)
     {
@@ -113,7 +174,7 @@ static int syscrypt(FAR const unsigned char *key, size_t klen,
   session.cipher = CRYPTO_AES_CMAC;
   session.key = (caddr_t)key;
   session.keylen = klen;
-  session.mac = CRYPTO_AES_128_CMAC;
+  session.mac = mac_type;
   session.mackey = (caddr_t)key;
   session.mackeylen = klen;
 
@@ -193,30 +254,66 @@ static int match(FAR const unsigned char *a, FAR const unsigned char *b,
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, FAR char *argv[])
+/* Unified AES-CMAC test: keybits (128 for AES-128, 256 for AES-256) selects
+ * the key + expected NIST SP 800-38B vectors; syscrypt derives the mac
+ * type from keybits.
+ */
+
+static int aescmac_test_with_keybits(int keybits)
 {
-  int ret;
+  const unsigned char *key;
+  const unsigned char (*expected)[16];
   unsigned char out[64];
+  int ret;
+  int i;
 
-  for (int i = 0; i < 4; i++)
+  if (keybits == 128)
     {
-      ret = syscrypt(g_aes_128_key, sizeof(g_aes_128_key), g_test_message,
-                     g_message_lengths[i], out, sizeof(out));
+      key = g_aes_128_key;
+      expected = g_aes_128_expected_result;
+    }
+  else
+    {
+      key = g_aes_256_key;
+      expected = g_aes_256_expected_result;
+    }
+
+  for (i = 0; i < 4; i++)
+    {
+      ret = syscrypt(key, keybits, g_test_message, g_message_lengths[i],
+                     out, sizeof(out));
       if (ret)
         {
           printf("aes cmac failed in testcase:%d\n", i);
           return -1;
         }
 
-      ret = match(out, g_aes_128_expected_result[i], 16);
+      ret = match(out, expected[i], 16);
       if (ret)
         {
           printf("aes cmac failed in testcase:%d\n", i);
           return -1;
         }
 
-      printf("aescbc test %d ok\n", i);
+      printf("aes cmac test %d (%d bits) ok\n", i, keybits);
     }
 
   return 0;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
+  int ret;
+
+  ret = aescmac_test_with_keybits(128);
+  if (ret)
+    {
+      return ret;
+    }
+
+  return aescmac_test_with_keybits(256);
 }
