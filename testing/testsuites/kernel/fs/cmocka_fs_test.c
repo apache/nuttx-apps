@@ -180,6 +180,14 @@ int main(int argc, char *argv[])
       cmocka_unit_test_setup_teardown(test_nuttx_fs_sendfile02,
                                       test_nuttx_fs_test_group_setup,
                                       test_nuttx_fs_test_group_teardown),
+#if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
+      cmocka_unit_test_setup_teardown(test_nuttx_fs_sendfile03,
+                                      test_nuttx_fs_test_group_setup,
+                                      test_nuttx_fs_test_group_teardown),
+      cmocka_unit_test_setup_teardown(test_nuttx_fs_sendfile04,
+                                      test_nuttx_fs_test_group_setup,
+                                      test_nuttx_fs_test_group_teardown),
+#endif
       cmocka_unit_test_setup_teardown(test_nuttx_fs_stream01,
                                       test_nuttx_fs_test_group_setup,
                                       test_nuttx_fs_test_group_teardown),
