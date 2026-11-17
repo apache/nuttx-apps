@@ -77,6 +77,7 @@ void test_nuttx_fs_sendfile01(FAR void **state)
   int fd_i;
   int test_flag = 0;
   struct stat f_stat;
+
   set_test();
 
   /* open file readonly */
@@ -156,6 +157,7 @@ void test_nuttx_fs_sendfile02(FAR void **state)
   int fd_i;
   off_t offset;
   struct stat f_stat;
+
   set_test();
 
   /* open file readonly */
