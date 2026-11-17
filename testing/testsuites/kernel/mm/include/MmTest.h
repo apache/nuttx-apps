@@ -97,4 +97,9 @@ void test_nuttx_mm07(FAR void **state);
 
 void test_nuttx_mm08(FAR void **state);
 
+/* cases/mm_test_009.c
+ * *****************************************************/
+
+void test_nuttx_mm09(FAR void **state);
+
 #endif

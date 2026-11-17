@@ -62,6 +62,8 @@ int main(int argc, char *argv[])
                                       test_nuttx_mm_teardown),
       cmocka_unit_test_setup_teardown(test_nuttx_mm08, test_nuttx_mm_setup,
                                       test_nuttx_mm_teardown),
+      cmocka_unit_test_setup_teardown(test_nuttx_mm09, test_nuttx_mm_setup,
+                                      test_nuttx_mm_teardown),
   };
 
   /* Run Test cases */
