@@ -62,6 +62,19 @@ if(CONFIG_TESTING_CRYPTO)
       SRCS
       aesctr.c)
   endif()
+  if(CONFIG_TESTING_CRYPTO_AES_GCM)
+    nuttx_add_application(
+      NAME
+      aesgcm
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      aesgcm.c)
+  endif()
 
   if(CONFIG_TESTING_CRYPTO_AES_CBC)
     nuttx_add_application(
