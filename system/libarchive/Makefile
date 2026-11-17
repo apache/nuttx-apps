@@ -32,7 +32,9 @@ $(LIBARCHIVE_ZIP):
 $(LIBARCHIVE_SRC): $(LIBARCHIVE_ZIP)
 	unzip -o $(LIBARCHIVE_ZIP)
 	mv libarchive-3.7.7 $(LIBARCHIVE_SRC)
-	$(Q) patch -d $(LIBARCHIVE_SRC) -p1 < 0001-fix-conflict-libarchive-for-nuttx.patch
+	$(Q) for p in $(sort $(wildcard 0*.patch)); do \
+		patch -d $(LIBARCHIVE_SRC) -p1 < $$p || exit 1; \
+	done
 
 context:: $(LIBARCHIVE_SRC)
 
