@@ -152,4 +152,8 @@ config TESTING_CRYPTO_BLF_CBC
 	bool "blowfish-cbc crypto test"
 	default n
 
+config TESTING_CRYPTO_CLONE
+	bool "session clone crypto test"
+	default n
+
 endif # TESTING_CRYPTO

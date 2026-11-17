@@ -259,4 +259,18 @@ if(CONFIG_TESTING_CRYPTO)
       blfcbc.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_CLONE)
+    nuttx_add_application(
+      NAME
+      clone
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      clone.c)
+  endif()
+
 endif()
