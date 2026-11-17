@@ -223,6 +223,10 @@ void timedwait_test(void);
 
 void sigprocmask_test(void);
 
+/* pwait.c ******************************************************************/
+
+void pwait_test(void);
+
 /* sighelper.c **************************************************************/
 
 bool sigset_isequal(FAR const sigset_t *left, FAR const sigset_t *right);
