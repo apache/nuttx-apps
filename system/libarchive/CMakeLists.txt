@@ -31,15 +31,20 @@ if(CONFIG_UTILS_LIBARCHIVE)
         https://github.com/libarchive/libarchive/releases/download/v3.7.7/libarchive-3.7.7.zip
     )
 
+    file(GLOB LIBARCHIVE_PATCHES ${CMAKE_CURRENT_LIST_DIR}/0*.patch)
+    set(LIBARCHIVE_PATCH_CMD "true")
+    foreach(p ${LIBARCHIVE_PATCHES})
+      string(APPEND LIBARCHIVE_PATCH_CMD
+             " && patch -p1 -d ${LIBARCHIVE_DIR} -i ${p}")
+    endforeach()
+
     FetchContent_Declare(
       libarchive_fetch
       URL ${LIBARCHIVE_URL} SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/libarchive
           BINARY_DIR ${CMAKE_BINARY_DIR}/apps/system/libarchive/libarchive
       DOWNLOAD_NO_PROGRESS true
       TIMEOUT 30
-      PATCH_COMMAND
-        patch -p1 -d ${CMAKE_CURRENT_LIST_DIR}/libarchive <
-        ${CMAKE_CURRENT_LIST_DIR}/0001-fix-conflict-libarchive-for-nuttx.patch)
+      PATCH_COMMAND sh -c "${LIBARCHIVE_PATCH_CMD}")
 
     FetchContent_GetProperties(libarchive_fetch)
 
