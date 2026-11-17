@@ -38,6 +38,9 @@ if(CONFIG_TESTING_NET_TEST)
            ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_bind_listen.c
            ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_close.c)
       list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_bulk.c)
+      if(CONFIG_ARCH_HAVE_FORK)
+        list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_process.c)
+      endif()
     endif()
 
     if(CONFIG_NET_IPv6)

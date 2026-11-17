@@ -317,6 +317,14 @@ int test_tcp_bulk_teardown(FAR void **state);
 
 void test_tcp_loopback_bulk(FAR void **state);
 #  endif
+
+/****************************************************************************
+ * Name: test_tcp_process_data
+ ****************************************************************************/
+
+#  ifdef CONFIG_ARCH_HAVE_FORK
+void test_tcp_process_data(FAR void **state);
+#  endif
 #endif
 
 /****************************************************************************
