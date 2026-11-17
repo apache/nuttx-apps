@@ -332,6 +332,7 @@ static int listener_update(FAR struct listen_list_s *objlist,
       delta_generation = state.generation - old->generation;
 
       unsigned long frequency = 0;
+
       if (delta_generation && delta_time)
         {
           frequency = (state.max_frequency ? state.max_frequency : 1000000)
@@ -504,6 +505,7 @@ static int listener_generate_object_list(FAR struct listen_list_s *objlist,
            */
 
           FAR const char *str = strstr(filter, name);
+
           if (!str || (str[len] && str[len] != ',' &&
                        str[len] != object.instance + '0'))
             {
@@ -1097,68 +1099,68 @@ int main(int argc, FAR char *argv[])
   while ((ch = getopt(argc, argv, "r:b:n:t:Tfslhiu")) != EOF)
     {
       switch (ch)
-      {
-        case 'r':
-          topic_rate = atof(optarg);
-          if (topic_rate < 0)
-            {
-              goto error;
-            }
-          break;
+        {
+          case 'r':
+            topic_rate = atof(optarg);
+            if (topic_rate < 0)
+              {
+                goto error;
+              }
+            break;
 
-        case 'b':
-          topic_latency = strtol(optarg, NULL, 0);
-          if (topic_latency < 0)
-            {
-              goto error;
-            }
-          break;
+          case 'b':
+            topic_latency = strtol(optarg, NULL, 0);
+            if (topic_latency < 0)
+              {
+                goto error;
+              }
+            break;
 
-        case 'n':
-          nb_msgs = strtol(optarg, NULL, 0);
-          if (nb_msgs < 0)
-            {
-              goto error;
-            }
-          break;
+          case 'n':
+            nb_msgs = strtol(optarg, NULL, 0);
+            if (nb_msgs < 0)
+              {
+                goto error;
+              }
+            break;
 
-        case 't':
-          timeout = strtol(optarg, NULL, 0);
-          if (timeout < 0)
-            {
-              goto error;
-            }
-          break;
+          case 't':
+            timeout = strtol(optarg, NULL, 0);
+            if (timeout < 0)
+              {
+                goto error;
+              }
+            break;
 
-#ifdef CONFIG_UORB_FORMAT
-        case 's':
-          record = true;
-          break;
-#endif
+  #ifdef CONFIG_UORB_FORMAT
+          case 's':
+            record = true;
+            break;
+  #endif
 
-        case 'f':
-          flush = true;
-          break;
+          case 'f':
+            flush = true;
+            break;
 
-        case 'T':
-          top = true;
-          break;
+          case 'T':
+            top = true;
+            break;
 
-        case 'l':
-          only_once = true;
-          break;
+          case 'l':
+            only_once = true;
+            break;
 
-        case 'i':
-          info = true;
-          break;
+          case 'i':
+            info = true;
+            break;
 
-        case 'u':
-          nonwakeup = true;
-          break;
+          case 'u':
+            nonwakeup = true;
+            break;
 
-        case 'h':
-        default:
-          goto error;
+          case 'h':
+          default:
+            goto error;
         }
     }
 
