@@ -27,6 +27,10 @@ config TESTING_CRYPTO_AES_XTS
 	bool "aes-xts crypto test"
 	default y
 
+config TESTING_CRYPTO_AES_GCM
+	bool "aes-gcm crypto test"
+	default n
+
 config TESTING_CRYPTO_CHACHA20
 	bool "chacha20 crypto test"
 	default y
