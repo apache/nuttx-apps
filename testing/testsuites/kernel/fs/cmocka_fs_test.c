@@ -84,9 +84,11 @@ int main(int argc, char *argv[])
       cmocka_unit_test_setup_teardown(test_nuttx_fs_fsync02,
                                       test_nuttx_fs_test_group_setup,
                                       test_nuttx_fs_test_group_teardown),
+#ifdef CONFIG_BUILD_FLAT
       cmocka_unit_test_setup_teardown(test_nuttx_fs_file_get01,
                                       test_nuttx_fs_test_group_setup,
                                       test_nuttx_fs_test_group_teardown),
+#endif
       cmocka_unit_test_setup_teardown(test_nuttx_fs_mkdir01,
                                       test_nuttx_fs_test_group_setup,
                                       test_nuttx_fs_test_group_teardown),

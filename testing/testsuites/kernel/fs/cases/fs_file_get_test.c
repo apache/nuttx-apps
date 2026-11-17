@@ -44,6 +44,8 @@
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_FLAT
+
 /****************************************************************************
  * Name: test_nuttx_fs_file_get01
  ****************************************************************************/
@@ -114,3 +116,5 @@ void test_nuttx_fs_file_get01(FAR void **state)
 
   assert_int_equal(fclose(fp), 0);
 }
+
+#endif /* CONFIG_BUILD_FLAT */
