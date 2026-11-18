@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_RPMSGCHAR
+	tristate "Rpmsg char example"
+	depends on RPMSG_CHAR
+	default n
+	---help---
+		Enable the rpmsg char test example
