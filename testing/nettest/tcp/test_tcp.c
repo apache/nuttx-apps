@@ -68,6 +68,28 @@ int main(int argc, FAR char *argv[])
                                       test_tcp_connect_ipv6_setup,
                                       test_tcp_common_teardown),
 #endif
+#ifdef CONFIG_NET_IPv4
+      cmocka_unit_test_setup_teardown(test_tcp_reset_recv,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_reset_recv_wait,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_reset_recv_waitall,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_reset_send,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_reset_poll,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
+#  ifdef CONFIG_NET_SOCKOPTS
+      cmocka_unit_test_setup_teardown(test_tcp_reset_refused,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
+#  endif
+#endif
     };
 
   return cmocka_run_group_tests(tcp_tests, test_tcp_group_setup,
