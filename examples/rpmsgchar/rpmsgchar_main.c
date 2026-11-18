@@ -26,13 +26,25 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#ifdef __ANDROID__
+#include <linux/rpmsg.h>
+#else
 #include <nuttx/rpmsg/rpmsg.h>
+#endif
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define RPMSG_CHAR_DESTROY_TEST_TIMES 100
 
 /****************************************************************************
  * Private types
@@ -49,6 +61,12 @@ struct rpmsg_char_arg_s
   /* Private use */
 
   int         ctrl_fd;
+};
+
+struct rpmsg_char_test_s
+{
+  struct rpmsg_endpoint_info eptinfo;
+  int fd;
 };
 
 /****************************************************************************
@@ -148,21 +166,45 @@ static ssize_t rpmsg_char_echo_test(struct rpmsg_char_arg_s *args)
       ret = ioctl(args->ctrl_fd, RPMSG_CREATE_EPT_IOCTL, &eptinfo);
     }
 
-  assert(ret >= 0);
+  if (ret < 0)
+    {
+      printf("Failed to create endpoint\n");
+      return ERROR;
+    }
+
+  sleep(1);
 
   snprintf(devname, sizeof(devname), "/dev/rpmsg-%s", args->name);
+  printf("Open rpmsg char device %s\n", devname);
   fd = open(devname, O_RDWR);
-  assert(fd >= 0);
+  if (fd < 0)
+    {
+      printf("Failed to open rpmsg char device %s\n", devname);
+      return ERROR;
+    }
 
   printf("Start the echo test\n");
   for (count = 0; count < 1000; count++)
     {
       ret = write(fd, "Hello World\n", 12);
-      assert(ret == 12);
+      if (ret != 12)
+        {
+          printf("Failed to write data\n");
+          return ERROR;
+        }
 
       ret = read(fd, buf, 12);
-      assert(ret == 12);
-      assert(memcmp(buf, "Hello World\n", 12) == 0);
+      if (ret != 12)
+        {
+          printf("Failed to read data\n");
+          return ERROR;
+        }
+
+      if (memcmp(buf, "Hello World\n", 12) != 0)
+        {
+          printf("Failed to echo data\n");
+          return ERROR;
+        }
     }
 
   printf("Finish the echo test\n");
@@ -171,61 +213,112 @@ static ssize_t rpmsg_char_echo_test(struct rpmsg_char_arg_s *args)
 
   if (args->src == RPMSG_ADDR_ANY && args->dst == RPMSG_ADDR_ANY)
     {
+      close(fd);
       ret = ioctl(args->ctrl_fd, RPMSG_RELEASE_DEV_IOCTL, &eptinfo);
     }
   else /* args->src != RPMSG_ADDR_ANY && args->dst != RPMSG_ADDR_ANY */
     {
       ret = ioctl(fd, RPMSG_DESTROY_EPT_IOCTL, 0);
+      close(fd);
     }
 
-  assert(ret >= 0);
-  close(fd);
+  if (ret < 0)
+    {
+      printf("Failed to destroy endpoint\n");
+      return ERROR;
+    }
+
   return OK;
 }
 
 static ssize_t rpmsg_char_destroy_test(struct rpmsg_char_arg_s *args)
 {
-  struct rpmsg_endpoint_info eptinfo;
+  struct rpmsg_char_test_s *tests;
+  struct rpmsg_endpoint_info *info;
   char devname[32];
   ssize_t ret;
   char buf;
-  int fd;
   int i;
 
   printf("Start the destroy test\n");
-  eptinfo.src = RPMSG_ADDR_ANY;
-  eptinfo.dst = RPMSG_ADDR_ANY;
-  for (i = 0; i < 100; i++)
+
+  tests = calloc(RPMSG_CHAR_DESTROY_TEST_TIMES,
+                 sizeof(struct rpmsg_char_test_s));
+  if (!tests)
     {
-      snprintf(eptinfo.name, sizeof(eptinfo.name), "%s%d", args->name, i);
-      ret = ioctl(args->ctrl_fd, RPMSG_CREATE_EPT_IOCTL, &eptinfo);
+      printf("Failed to allocate test array\n");
+      return ERROR;
+    }
+
+  for (i = 0; i < RPMSG_CHAR_DESTROY_TEST_TIMES; i++)
+    {
+      tests[i].fd = -1;
+    }
+
+  for (i = 0; i < RPMSG_CHAR_DESTROY_TEST_TIMES; i++)
+    {
+      info = &tests[i].eptinfo;
+      info->src = RPMSG_ADDR_ANY;
+      info->dst = RPMSG_ADDR_ANY;
+      snprintf(info->name, sizeof(info->name), "%s%d", args->name, i);
+
+      ret = ioctl(args->ctrl_fd,  RPMSG_CREATE_EPT_IOCTL, info);
       if (ret < 0)
         {
-          printf("Failed to create endpoint i=%d %d\n", i, errno);
-          return ret;
+          printf("Failed to create endpoint i=%d errno=%d\n", i, errno);
+        }
+
+      snprintf(devname, sizeof(devname), "/dev/rpmsg-%s%d", args->name, i);
+      tests[i].fd = open(devname, O_RDWR);
+      if (tests[i].fd < 0)
+        {
+          printf("Failed to open %s errno=%d\n", devname, errno);
+          ret = ERROR;
+          goto errout;
         }
     }
 
-  for (i = 0; i < 100; i++)
+  for (i = 0; i < RPMSG_CHAR_DESTROY_TEST_TIMES; i++)
     {
-      snprintf(devname, sizeof(devname), "/dev/rpmsg-%s%d", args->name, i);
-      fd = open(devname, O_RDWR);
-      assert(fd >= 0);
-
       buf = 0xaa;
-      ret = write(fd, &buf, 1);
-      assert(ret == 1);
 
-      ret = read(fd, &buf, 1);
-      assert(ret == 1 && buf == 0xaa);
+      ret = write(tests[i].fd, &buf, 1);
+      if (ret != 1)
+        {
+          printf("Write failed i=%d\n", i);
+          ret = ERROR;
+          goto errout;
+        }
 
-      ret = ioctl(fd, RPMSG_DESTROY_EPT_IOCTL, 0);
-      assert(ret >= 0);
-
-      close(fd);
+      buf = 0x00;
+      ret = read(tests[i].fd, &buf, 1);
+      if (ret != 1 || buf != 0xaa)
+        {
+          printf("Read failed i=%d buf=0x%x\n", i, buf);
+          ret = ERROR;
+          goto errout;
+        }
     }
 
   printf("End the destroy test\n");
+
+errout:
+  for (i = 0; i < RPMSG_CHAR_DESTROY_TEST_TIMES; i++)
+    {
+      if (tests[i].fd >= 0)
+        {
+          close(tests[i].fd);
+          ret = ioctl(args->ctrl_fd, RPMSG_RELEASE_DEV_IOCTL,
+                      &tests[i].eptinfo);
+          if (ret < 0)
+            {
+              printf("Destroy endpoint failed i=%d errno=%d\n",
+                     i, errno);
+            }
+        }
+    }
+
+  free(tests);
   return ret;
 }
 
