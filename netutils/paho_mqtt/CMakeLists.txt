@@ -86,6 +86,16 @@ if(CONFIG_LIB_MQTT5)
       message("paho_mqtt_01 patching done")
     endif()
 
+    # Apply paho_mqtt_02 patch if exists
+    if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/paho_mqtt_02.patch)
+      execute_process(
+        COMMAND
+          sh -c
+          "patch -p1 --forward --ignore-whitespace < ${CMAKE_CURRENT_LIST_DIR}/paho_mqtt_02.patch"
+        WORKING_DIRECTORY ${PAHO_MQTT_DIR} COMMAND_ERROR_IS_FATAL ANY)
+      message("paho_mqtt_02 patching done")
+    endif()
+
     message("paho_mqtt download done")
   endif()
 

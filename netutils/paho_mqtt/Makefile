@@ -58,6 +58,10 @@ $(PAHO_MQTT_UNPACK): $(PAHO_MQTT_ZIP)
 		echo "Applying paho_mqtt_01 patch to $(PAHO_MQTT_UNPACK)"; \
 		cd $(PAHO_MQTT_UNPACK) && patch -p1 --forward --ignore-whitespace < ../paho_mqtt_01.patch; \
 	fi
+	$(Q) if [ -f paho_mqtt_02.patch ]; then \
+		echo "Applying paho_mqtt_02 patch to $(PAHO_MQTT_UNPACK)"; \
+		cd $(PAHO_MQTT_UNPACK) && patch -p1 --forward --ignore-whitespace < ../paho_mqtt_02.patch; \
+	fi
 	$(Q) touch $(PAHO_MQTT_UNPACK)
 
 endif
