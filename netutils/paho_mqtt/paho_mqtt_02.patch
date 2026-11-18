@@ -1,0 +1,110 @@
+NuttX does not re-initialise .data/.bss between runs of a builtin, so
+the options, MQTT v5 properties, flags and trace callback of a previous
+mqtt_pub/mqtt_sub run stuck to the next run (mqtt_pub -r kept
+retaining).  Reset them at the start of main().
+
+---
+--- a/src/samples/paho_c_pub.c
++++ b/src/samples/paho_c_pub.c
+@@ -39,7 +39,7 @@
+ 
+ volatile int toStop = 0;
+ 
+-struct pubsub_opts opts =
++static const struct pubsub_opts opts_default =
+ {
+ 	1, 0, 0, 0, "\n", 100,  	/* debug/app options */
+ 	NULL, NULL, 1, 0, 0, /* message options */
+@@ -50,6 +50,9 @@
+ 	NULL, NULL, /* HTTP and HTTPS proxies */
+ };
+ 
++/* NuttX does not re-initialise .data between runs of a builtin */
++struct pubsub_opts opts;
++
+ MQTTAsync_responseOptions pub_opts = MQTTAsync_responseOptions_initializer;
+ MQTTProperty property;
+ MQTTProperties props = MQTTProperties_initializer;
+@@ -376,6 +379,7 @@
+ {
+ 	MQTTAsync_disconnectOptions disc_opts = MQTTAsync_disconnectOptions_initializer;
+ 	MQTTAsync_createOptions create_opts = MQTTAsync_createOptions_initializer;
++	MQTTAsync_responseOptions pub_opts_default = MQTTAsync_responseOptions_initializer;
+ 	MQTTAsync client;
+ 	char* buffer = NULL;
+ 	char* url = NULL;
+@@ -387,6 +391,14 @@
+     struct sigaction sa;
+ #endif
+ 
++	opts = opts_default;
++	pub_opts = pub_opts_default;
++	MQTTProperties_free(&props);
++	toStop = 0;
++	disconnected = 0;
++	connected = 0;
++	published = 0;
++
+ 	if (argc < 2)
+ 		usage(&opts, (pubsub_opts_nameValue*)infos, program_name);
+ 
+@@ -409,6 +421,8 @@
+ 		MQTTAsync_setTraceCallback(trace_callback);
+ 		MQTTAsync_setTraceLevel(opts.tracelevel);
+ 	}
++	else
++		MQTTAsync_setTraceCallback(NULL);
+ 
+ 	create_opts.sendWhileDisconnected = 1;
+ 	if (opts.MQTTVersion >= MQTTVERSION_5)
+--- a/src/samples/paho_c_sub.c
++++ b/src/samples/paho_c_sub.c
+@@ -60,7 +60,7 @@
+ }
+ 
+ 
+-struct pubsub_opts opts =
++static const struct pubsub_opts opts_default =
+ {
+ 	0, 0, 0, 0, "\n", 100,  	/* debug/app options */
+ 	NULL, NULL, 1, 0, 0, /* message options */
+@@ -71,6 +71,9 @@
+ 	NULL, NULL, /* HTTP and HTTPS proxies */
+ };
+ 
++/* NuttX does not re-initialise .data between runs of a builtin */
++struct pubsub_opts opts;
++
+ 
+ int messageArrived(void *context, char *topicName, int topicLen, MQTTAsync_message *message)
+ {
+@@ -205,6 +208,7 @@
+ 	MQTTAsync_createOptions create_opts = MQTTAsync_createOptions_initializer;
+ 	MQTTAsync_willOptions will_opts = MQTTAsync_willOptions_initializer;
+ 	MQTTAsync_SSLOptions ssl_opts = MQTTAsync_SSLOptions_initializer;
++	MQTTAsync_connectOptions conn_opts_default = MQTTAsync_connectOptions_initializer;
+ 	int rc = 0;
+ 	char* url = NULL;
+ 	const char* program_name = "paho_c_sub";
+@@ -213,6 +217,12 @@
+     struct sigaction sa;
+ #endif
+ 
++	opts = opts_default;
++	conn_opts = conn_opts_default;
++	finished = 0;
++	subscribed = 0;
++	disconnected = 0;
++
+ 	if (argc < 2)
+ 		usage(&opts, (pubsub_opts_nameValue*)infos, program_name);
+ 
+@@ -237,6 +247,8 @@
+ 		MQTTAsync_setTraceCallback(trace_callback);
+ 		MQTTAsync_setTraceLevel(opts.tracelevel);
+ 	}
++	else
++		MQTTAsync_setTraceCallback(NULL);
+ 
+ 	if (opts.MQTTVersion >= MQTTVERSION_5)
+ 		create_opts.MQTTVersion = MQTTVERSION_5;
