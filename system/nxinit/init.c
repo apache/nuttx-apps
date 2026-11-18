@@ -32,7 +32,6 @@
 #include <sched.h>
 #include <stdio.h>
 #include <signal.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/boardctl.h>
 #include <sys/param.h>
@@ -58,6 +57,17 @@
                               (ts)->tv_nsec = ((ms) % 1000) * 1000000, (ts)))
 
 #define INIT_POLLER_RETRY_MS 100
+
+/* The build gives NXINIT_UMASK, the octal value of a non-empty
+ * CONFIG_SYSTEM_NXINIT_UMASK.  A digit that is not octal stops the build
+ * in the #if below.
+ */
+
+#ifdef NXINIT_UMASK
+#  if NXINIT_UMASK < 0 || NXINIT_UMASK > 0777
+#    error "CONFIG_SYSTEM_NXINIT_UMASK must be an octal number from 0 to 777"
+#  endif
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -244,26 +254,15 @@ int main(int argc, FAR char *argv[])
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
   struct sigaction sa;
 #endif
-  unsigned long cmask;
-  FAR char *end;
   sigset_t mask;
   size_t i;
   int r;
 
+#ifdef NXINIT_UMASK
   /* The file mode creation mask of every command and service */
 
-  if (CONFIG_SYSTEM_NXINIT_UMASK[0] != '\0')
-    {
-      cmask = strtoul(CONFIG_SYSTEM_NXINIT_UMASK, &end, 8);
-      if (*end != '\0' || cmask > 0777)
-        {
-          init_err("Bad umask %s", CONFIG_SYSTEM_NXINIT_UMASK);
-        }
-      else
-        {
-          umask(cmask);
-        }
-    }
+  umask(NXINIT_UMASK);
+#endif
 
 #ifdef CONFIG_BMP
   snprintf(ACTION_TRIGGER_KEY(&am), sizeof(ACTION_TRIGGER_KEY(&am)),

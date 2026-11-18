@@ -26,6 +26,13 @@ if(CONFIG_SYSTEM_NXINIT)
 
   list(APPEND CSRCS property_simple.c)
 
+  # The umask as an octal constant, so that init.c can check it with #if
+
+  set(DEFS)
+  if(NOT "${CONFIG_SYSTEM_NXINIT_UMASK}" STREQUAL "")
+    list(APPEND DEFS NXINIT_UMASK=0${CONFIG_SYSTEM_NXINIT_UMASK})
+  endif()
+
   nuttx_add_application(
     MODULE
     ${CONFIG_SYSTEM_NXINIT}
@@ -35,6 +42,8 @@ if(CONFIG_SYSTEM_NXINIT)
     ${CONFIG_SYSTEM_NXINIT_STACKSIZE}
     PRIORITY
     ${CONFIG_SYSTEM_NXINIT_PRIORITY}
+    DEFINITIONS
+    ${DEFS}
     SRCS
     ${CSRCS})
 
