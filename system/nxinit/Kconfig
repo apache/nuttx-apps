@@ -38,6 +38,7 @@ config SYSTEM_NXINIT_UMASK
 		with file permissions (FS_PERMISSION) can set "022", as sysvinit
 		and systemd do, so that files and directories created with mode
 		0666 or 0777 are not writable by all users.
+		A value that is not an octal number from 0 to 777 stops the build.
 
 comment "NXInit Run Control(RC)"
 

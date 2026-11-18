@@ -37,6 +37,12 @@ PRIORITY += $(CONFIG_SYSTEM_NXINIT_PRIORITY)
 STACKSIZE += $(CONFIG_SYSTEM_NXINIT_STACKSIZE)
 MODULE = $(CONFIG_SYSTEM_NXINIT)
 
+# The umask as an octal constant, so that init.c can check it with #if
+
+ifneq ($(CONFIG_SYSTEM_NXINIT_UMASK),"")
+CFLAGS += ${DEFINE_PREFIX}NXINIT_UMASK=0$(patsubst "%",%,$(CONFIG_SYSTEM_NXINIT_UMASK))
+endif
+
 # NxInit unit tests (cmocka), reusing the same parser/action/service CSRCS
 # built above.
 
