@@ -65,6 +65,25 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_listen_connected,
                                       test_tcp_bind_listen_setup,
                                       test_tcp_bind_listen_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_close_shutdown_queued,
+                                      test_tcp_close_setup,
+                                      test_tcp_close_teardown),
+#  ifdef CONFIG_NET_SOLINGER
+      cmocka_unit_test_setup_teardown(test_tcp_close_shutdown_close,
+                                      test_tcp_close_setup,
+                                      test_tcp_close_teardown),
+#  endif
+#  if defined(CONFIG_NET_LOOPBACK) && defined(CONFIG_NET_SOLINGER)
+      cmocka_unit_test_setup_teardown(test_tcp_close_netdown,
+                                      test_tcp_close_setup,
+                                      test_tcp_close_teardown),
+#  endif
+      cmocka_unit_test_setup_teardown(test_tcp_close_unread,
+                                      test_tcp_close_setup,
+                                      test_tcp_close_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_close_timewait,
+                                      test_tcp_close_setup,
+                                      test_tcp_close_teardown),
 #endif
 #ifdef CONFIG_NET_IPv6
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv6,
