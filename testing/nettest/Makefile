@@ -43,6 +43,10 @@ ifeq ($(CONFIG_NET_IPv6), y)
 CSRCS    += tcp/test_tcp_connect_ipv6.c
 endif
 
+ifeq ($(CONFIG_NET_IPv4), y)
+CSRCS    += tcp/test_tcp_reset.c
+endif
+
 endif
 
 ifeq ($(CONFIG_TESTING_NET_UDP),y)
