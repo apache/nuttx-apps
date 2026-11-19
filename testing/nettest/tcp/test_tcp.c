@@ -39,6 +39,34 @@ int main(int argc, FAR char *argv[])
   const struct CMUnitTest tcp_tests[] =
     {
 #ifdef CONFIG_NET_IPv4
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_accept_data,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_accept,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_accept_half,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_connect,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+#  ifdef CONFIG_NET_SOLINGER
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_rst_accept,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_rst_accept_data,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_rst_connect,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_closewait_rst_race,
+                                      test_tcp_closewait_setup,
+                                      test_tcp_closewait_teardown),
+#  endif
+#endif
+#ifdef CONFIG_NET_IPv4
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv4,
                                       test_tcp_connect_ipv4_setup,
                                       test_tcp_common_teardown),
