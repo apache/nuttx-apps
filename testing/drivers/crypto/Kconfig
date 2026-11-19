@@ -112,6 +112,14 @@ config TESTING_CRYPTO_HASH_DISABLE_UNALIGNED_SHA512
 
 endif # TESTING_CRYPTO_HASH
 
+config TESTING_CRYPTO_CRC8
+	bool "crc8 crypto test"
+	default n
+
+config TESTING_CRYPTO_CRC16
+	bool "crc16 crypto test"
+	default n
+
 config TESTING_CRYPTO_CRC32
 	bool "crc32 crypto test"
 	default n

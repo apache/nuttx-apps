@@ -58,6 +58,16 @@ PROGNAME += hash
 MAINSRC +=  hash.c
 endif
 
+ifeq ($(CONFIG_TESTING_CRYPTO_CRC8),y)
+PROGNAME += crc8
+MAINSRC +=  crc8.c
+endif
+
+ifeq ($(CONFIG_TESTING_CRYPTO_CRC16),y)
+PROGNAME += crc16
+MAINSRC +=  crc16.c
+endif
+
 ifeq ($(CONFIG_TESTING_CRYPTO_CRC32),y)
 PROGNAME += crc32
 MAINSRC +=  crc32.c
