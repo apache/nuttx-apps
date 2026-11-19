@@ -92,7 +92,8 @@ cryptodev_context;
  * Private Functions
  ****************************************************************************/
 
-static int match(FAR unsigned char *a, FAR unsigned char *b, size_t len)
+static int match(FAR const unsigned char *a, FAR const unsigned char *b,
+                 size_t len)
 {
   int i;
 
@@ -290,7 +291,7 @@ static int test_dh_compute_key(void)
 
 free:
   cryptodev_free(&ctx);
-  return 0;
+  return ret;
 }
 
 /****************************************************************************
@@ -299,7 +300,12 @@ free:
 
 int main(void)
 {
-  if (test_dh_compute_key() != 0)
+  int ret;
+
+  setbuf(stdout, NULL);
+
+  ret = test_dh_compute_key();
+  if (ret != 0)
     {
       printf("test dh compute key failed\n");
     }
@@ -308,5 +314,5 @@ int main(void)
       printf("test dh compute key ok\n");
     }
 
-  return 0;
+  return ret;
 }
