@@ -60,11 +60,6 @@
 #define WDG_DEFAULT_TIMEOUT 2000
 #define WDG_DEFAULT_TESTCASE 0
 #define WDG_DEFAULT_DEVIATION 20
-#ifdef CONFIG_ARCH_CHIP_ESP32S3
-#  define WDG_EXPECTED_RESET_CAUSE BOARDIOC_RESETCAUSE_CORE_MWDT
-#else
-#  define WDG_EXPECTED_RESET_CAUSE BOARDIOC_RESETCAUSE_SYS_RWDT
-#endif
 #if defined(CONFIG_ARCH_ARMV7A) && defined(CONFIG_ARCH_HAVE_TRUSTZONE)
 #define WDG_COUNT_TESTCASE 3
 #else
@@ -94,6 +89,7 @@ struct wdg_state_s
   uint32_t pingdelay;
   uint32_t timeout;
   uint32_t deviation;
+  uint32_t reset_cause;
   int test_case;
   bool test_getstatus;
 #ifdef CONFIG_BOARDCTL_RESET_CAUSE
@@ -220,7 +216,8 @@ static void show_usage(FAR const char *progname,
                        FAR struct wdg_state_s *wdg_state, int exitcode)
 {
   printf("Usage: %s -d <devpath> -r <test case> -t <pingtime>"
-         "-l <pingdelay> -o <timeout> -a <deviation> -g\n", progname);
+         "-l <pingdelay> -o <timeout> -a <deviation> -c <reset_cause> -g\n",
+         progname);
   printf("  [-d devpath] selects the WATCHDOG device.\n"
          "  Default: %s Current: %s\n", WDG_DEFAULT_DEV_PATH,
          wdg_state->devpath);
@@ -239,6 +236,9 @@ static void show_usage(FAR const char *progname,
   printf("  [-a deviation] Watchdog getstatus precision.\n"
          "  Default: %d Current: %" PRIu32 "\n",
          WDG_DEFAULT_DEVIATION, wdg_state->deviation);
+  printf("  [-c reset_cause] Expected BOARDIOC_RESETCAUSE value.\n"
+         "  Default: %d Current: %" PRIu32 "\n",
+         BOARDIOC_RESETCAUSE_SYS_RWDT, wdg_state->reset_cause);
   printf("  [-g] don't test getstatus\n");
   printf("  [-h] = Shows this message and exits\n");
 
@@ -255,7 +255,7 @@ static void parse_commandline(FAR struct wdg_state_s *wdg_state, int argc,
   int ch;
   int converted;
 
-  while ((ch = getopt(argc, argv, "d:r:t:l:o:a:gh")) != ERROR)
+  while ((ch = getopt(argc, argv, "d:r:t:l:o:a:c:gh")) != ERROR)
     {
       switch (ch)
         {
@@ -317,6 +317,12 @@ static void parse_commandline(FAR struct wdg_state_s *wdg_state, int argc,
               }
 
             wdg_state->deviation = (uint32_t)converted;
+            break;
+
+          case 'c':
+            OPTARG_TO_VALUE(converted, uint32_t, 0);
+            wdg_state->reset_cause = (uint32_t)converted;
+            break;
 
           case 'g':
             wdg_state->test_getstatus = false;
@@ -611,7 +617,7 @@ static void drivertest_watchdog_interrupts(FAR void **state)
     }
 
   boardctl(BOARDIOC_RESET_CAUSE, (uintptr_t)&reset_cause);
-  assert_int_equal(reset_cause.cause, WDG_EXPECTED_RESET_CAUSE);
+  assert_int_equal(reset_cause.cause, wdg_state->reset_cause);
 
   wdg_init(wdg_state);
 
@@ -656,7 +662,7 @@ static void drivertest_watchdog_loop(FAR void **state)
     }
 
   boardctl(BOARDIOC_RESET_CAUSE, (uintptr_t)&reset_cause);
-  assert_int_equal(reset_cause.cause, WDG_EXPECTED_RESET_CAUSE);
+  assert_int_equal(reset_cause.cause, wdg_state->reset_cause);
 
   wdg_init(wdg_state);
 
@@ -693,7 +699,7 @@ static void drivertest_watchdog_api(FAR void **state)
   assert_int_equal(wdg_state->test_case, 3);
 
   boardctl(BOARDIOC_RESET_CAUSE, (uintptr_t)&reset_cause);
-  assert_int_equal(reset_cause.cause, WDG_EXPECTED_RESET_CAUSE);
+  assert_int_equal(reset_cause.cause, wdg_state->reset_cause);
 
   dev_fd = wdg_init(wdg_state);
 
@@ -798,6 +804,7 @@ int main(int argc, FAR char *argv[])
     .timeout = WDG_DEFAULT_TIMEOUT,
     .test_case = WDG_DEFAULT_TESTCASE,
     .deviation = WDG_DEFAULT_DEVIATION,
+    .reset_cause = BOARDIOC_RESETCAUSE_SYS_RWDT,
     .test_getstatus = true
   };
 
