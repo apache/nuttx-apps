@@ -74,8 +74,8 @@ MAINSRC +=  ecdsa.c
 endif
 
 ifeq ($(CONFIG_TESTING_CRYPTO_ECDH),y)
-PROGNAME += dhm
-MAINSRC +=  dhm.c
+PROGNAME += dhm ecdh
+MAINSRC +=  dhm.c ecdh.c
 endif
 
 ifeq ($(CONFIG_TESTING_CRYPTO_RSA),y)

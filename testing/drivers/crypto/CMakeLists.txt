@@ -172,6 +172,18 @@ if(CONFIG_TESTING_CRYPTO)
       ${CONFIG_TESTING_CRYPTO}
       SRCS
       dhm.c)
+
+    nuttx_add_application(
+      NAME
+      ecdh
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      ecdh.c)
   endif()
 
   if(CONFIG_TESTING_CRYPTO_RSA)
