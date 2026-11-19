@@ -172,4 +172,8 @@ config TESTING_CRYPTO_ASYNC
 	bool "async crypto test"
 	default n
 
+config TESTING_CRYPTO_KEY_MANAGEMENT
+	bool "key management crypto test"
+	default n
+
 endif # TESTING_CRYPTO
