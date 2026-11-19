@@ -326,4 +326,18 @@ if(CONFIG_TESTING_CRYPTO)
       clone.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_ASYNC)
+    nuttx_add_application(
+      NAME
+      async
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      async.c)
+  endif()
+
 endif()
