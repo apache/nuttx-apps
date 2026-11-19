@@ -286,4 +286,18 @@ if(CONFIG_TESTING_CRYPTO)
       clone.c)
   endif()
 
+  if(CONFIG_TESTING_CRYPTO_KEY_MANAGEMENT)
+    nuttx_add_application(
+      NAME
+      keymanagement
+      PRIORITY
+      ${CONFIG_TESTING_CRYPTO_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_CRYPTO_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_CRYPTO}
+      SRCS
+      keymanagement.c)
+  endif()
+
 endif()
