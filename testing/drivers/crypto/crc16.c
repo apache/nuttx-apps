@@ -1,19 +1,22 @@
 /****************************************************************************
  * apps/testing/drivers/crypto/crc16.c
  *
- * SPDX-License-Identifier: ISC
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  ****************************************************************************/
 
 /****************************************************************************
@@ -111,10 +114,22 @@ static const tb g_crc16_testcases[] =
 
 static const crc16_params g_crc16_testparams[] =
 {
+    /* CRC-16/CCITT */
+
+    {
+      0x1021, 0x0000, 0x0000, true, true,
+    },
+
     /* CRC-16/CCITT-FALSE */
 
     {
       0x1021, 0xffff, 0x0000, false, false,
+    },
+
+    /* CRC-16/IBM */
+
+    {
+      0x8005, 0x0000, 0x0000, true, true,
     },
 
     /* CRC-16/XMODEM */
@@ -126,11 +141,25 @@ static const crc16_params g_crc16_testparams[] =
 
 static const uint16_t g_crc16_testresults[][8] =
 {
+    /* CRC-16/CCITT */
+
+    {
+      0x0000, 0x728f, 0x58e9, 0x7bd5,
+      0x80b0, 0xd7d5, 0x4375, 0x4375,
+    },
+
     /* CRC-16/CCITT-FALSE */
 
     {
       0xffff, 0x9d77, 0x514a, 0x32cc,
       0x53e2, 0xb46b, 0xdadf, 0xdadf,
+    },
+
+    /* CRC-16/IBM */
+
+    {
+      0x0000, 0xe8c1, 0x9738, 0x3b44,
+      0x9c1d, 0x57b4, 0x5ec7, 0x5ec7,
     },
 
     /* CRC-16/XMODEM */
@@ -324,7 +353,7 @@ int main(void)
 
   setbuf(stdout, NULL);
 
-  for (i = 0; i < 2; i++)
+  for (i = 0; i < 4; i++)
     {
       fails += syscrc16_case(&g_crc16_testparams[i],
                              g_crc16_testresults[i], i + 1);
