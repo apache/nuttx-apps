@@ -43,6 +43,9 @@ int main(int argc, FAR char *argv[])
                                       test_tcp_connect_ipv4_setup,
                                       test_tcp_common_teardown),
 #  ifdef CONFIG_NET_SOCKOPTS
+      cmocka_unit_test_setup_teardown(test_tcp_send_limit_wakeup,
+                                      test_tcp_sndlimit_setup,
+                                      test_tcp_sndlimit_teardown),
       cmocka_unit_test_setup_teardown(test_tcp_bind_reuseaddr_timewait,
                                       test_tcp_bind_listen_setup,
                                       test_tcp_bind_listen_teardown),
