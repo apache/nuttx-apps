@@ -238,7 +238,7 @@ int input_gen_button_longpress(input_gen_ctx_t ctx, btn_buttonset_t mask,
  * Name: input_gen_mouse_wheel
  *
  * Description:
- *   Perform a mouse wheel operation.
+ *   Perform a single mouse wheel write operation.
  *
  * Input Parameters:
  *   ctx   - The input generator context.
@@ -254,6 +254,33 @@ int input_gen_button_longpress(input_gen_ctx_t ctx, btn_buttonset_t mask,
 int input_gen_mouse_wheel(input_gen_ctx_t ctx, int16_t wheel);
 #else
 #define input_gen_mouse_wheel(ctx, wheel) (-ENODEV)
+#endif
+
+/****************************************************************************
+ * Name: input_gen_scroll
+ *
+ * Description:
+ *   Perform a scroll operation by splitting total value into multiple
+ *   writes with timing control.
+ *
+ * Input Parameters:
+ *   ctx         - The input generator context.
+ *   value       - Total scroll value (positive/negative for direction).
+ *   step        - Units per write (sign is determined by value).
+ *                 If step >= |value|, writes once with full value.
+ *   interval_ms - Delay in milliseconds between each write.
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success.  On failure, a negated errno value is
+ *   returned.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_INPUT_MOUSE_WHEEL
+int input_gen_scroll(input_gen_ctx_t ctx, int16_t value,
+                     int16_t step, uint32_t interval_ms);
+#else
+#define input_gen_scroll(ctx, value, step, interval_ms) (-ENODEV)
 #endif
 
 /****************************************************************************

@@ -39,9 +39,16 @@
 #define SWIPE_DEFAULT_DURATION 300
 #define DRAG_DEFAULT_DURATION 500
 #define BUTTON_LONGPRESS_DEFAULT_DURATION 1000
+#define SCROLL_DEFAULT_INTERVAL_MS 30
+#define SCROLL_DEFAULT_EVENTS 10
+
+#ifdef CONFIG_GRAPHICS_INPUT_TOOL_SCROLL_THRESHOLD
+#define SCROLL_THRESHOLD CONFIG_GRAPHICS_INPUT_TOOL_SCROLL_THRESHOLD
+#else
+#define SCROLL_THRESHOLD 10
+#endif
 
 #define DELAY_MS(ms) usleep((ms) * 1000)
-#define ABS(a)       ((a) > 0 ? (a) : -(a))
 
 /****************************************************************************
  * Private Types
@@ -67,6 +74,7 @@ static int input_help(input_gen_ctx_t ctx, int argc, char **argv);
 static int input_sleep(input_gen_ctx_t ctx, int argc, char **argv);
 static int input_utouch_tap(input_gen_ctx_t ctx, int argc, char **argv);
 static int input_utouch_swipe(input_gen_ctx_t ctx, int argc, char **argv);
+static int input_scroll(input_gen_ctx_t ctx, int argc, char **argv);
 static int input_wheel(input_gen_ctx_t ctx, int argc, char **argv);
 
 /****************************************************************************
@@ -82,6 +90,7 @@ static const struct input_cmd_s g_input_cmd_list[] =
   {"drag",        input_utouch_swipe},
   {"draganddrop", input_utouch_swipe},
   {"button",      input_button      },
+  {"scroll",      input_scroll      },
   {"wheel",       input_wheel       },
   {NULL,          NULL              }
 };
@@ -260,6 +269,96 @@ static int input_button(input_gen_ctx_t ctx, int argc, char **argv)
 }
 
 /****************************************************************************
+ * Name: parse_scroll_value
+ ****************************************************************************/
+
+static int parse_scroll_value(int argc, char **argv, int16_t *value)
+{
+  int i;
+
+  *value = 0;
+
+  /* Simple form: scroll <value> */
+
+  if (argc >= 2 && strncmp(argv[1], "--", 2) != 0)
+    {
+      return parse_arg_to_int16(argv[1], value);
+    }
+
+  /* Android-style form: scroll --axis SCROLL,<value> */
+
+  for (i = 1; i < argc; i++)
+    {
+      if (strcmp(argv[i], "--axis") == 0 && i + 1 < argc)
+        {
+          FAR char *arg = argv[i + 1];
+          FAR char *comma = strchr(arg, ',');
+
+          if (comma == NULL)
+            {
+              return 1;
+            }
+
+          return parse_arg_to_int16(comma + 1, value);
+        }
+    }
+
+  return 1;
+}
+
+/****************************************************************************
+ * Name: input_scroll
+ ****************************************************************************/
+
+static int input_scroll(input_gen_ctx_t ctx, int argc, char **argv)
+{
+  int16_t value;
+  int16_t step;
+  int16_t sign;
+  int     ret;
+
+  if (argc < 2)
+    {
+      return -EINVAL;
+    }
+
+  if (parse_scroll_value(argc, argv, &value))
+    {
+      return -EINVAL;
+    }
+
+  if (value == 0)
+    {
+      return 0;
+    }
+
+  sign = value > 0 ? 1 : -1;
+  step = MAX(1, abs(value) / SCROLL_DEFAULT_EVENTS);
+
+  /* sign and step are unused when input_gen_scroll() is a stub
+   * (CONFIG_INPUT_MOUSE_WHEEL=n).
+   */
+
+  UNUSED(sign);
+  UNUSED(step);
+
+  /* Activation: exceed threshold to trigger SCROLL_BEGIN */
+
+  ret = input_gen_scroll(ctx, sign * (SCROLL_THRESHOLD + 1),
+                         SCROLL_THRESHOLD + 1, 0);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  DELAY_MS(SCROLL_DEFAULT_INTERVAL_MS);
+
+  /* Actual scroll events */
+
+  return input_gen_scroll(ctx, value, step, SCROLL_DEFAULT_INTERVAL_MS);
+}
+
+/****************************************************************************
  * Name: input_wheel
  ****************************************************************************/
 
@@ -294,6 +393,8 @@ static int input_help(input_gen_ctx_t ctx, int argc, char **argv)
          "\tswipe <x1> <y1> <x2> <y2> [duration(ms)]\n"
          "\tdrag | draganddrop <x1> <y1> <x2> <y2> [duration(ms)]\n"
          "\tbutton <buttonvalue> [duration(ms)]\n"
+         "\tscroll <value>\n"
+         "\tscroll --axis SCROLL,<value>\n"
          "\twheel <wheelvalue>\n"
          "\tduration: Duration of sliding\n"
          "\tbuttonvalue: button value in hex format\n"
