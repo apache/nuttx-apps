@@ -39,6 +39,15 @@ int main(int argc, FAR char *argv[])
   const struct CMUnitTest tcp_tests[] =
     {
 #ifdef CONFIG_NET_IPv4
+#  ifdef CONFIG_NET_SOCKOPTS
+      /* First: after the other cases, the devif callbacks that this case
+       * needs at once may not be free (NET_PREALLOC_DEVIF_CALLBACKS).
+       */
+
+      cmocka_unit_test_setup_teardown(test_tcp_loopback_bulk,
+                                      test_tcp_bulk_setup,
+                                      test_tcp_bulk_teardown),
+#  endif
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv4,
                                       test_tcp_connect_ipv4_setup,
                                       test_tcp_common_teardown),
