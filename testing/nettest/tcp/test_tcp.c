@@ -58,6 +58,11 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_accept_inherit,
                                       test_tcp_bind_listen_setup,
                                       test_tcp_bind_listen_teardown),
+#    ifdef CONFIG_NET_TCP_WRITE_BUFFERS
+      cmocka_unit_test_setup_teardown(test_tcp_sndtimeo_iob,
+                                      test_tcp_sndtimeo_setup,
+                                      test_tcp_sndtimeo_teardown),
+#    endif
 #  endif
       cmocka_unit_test_setup_teardown(test_tcp_listen_again,
                                       test_tcp_bind_listen_setup,
