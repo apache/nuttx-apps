@@ -121,4 +121,17 @@ config TESTING_NET_PKT
 		lo comes back, and the reassembly timeout of an IPv4 fragment sent
 		on lo does not stop the kernel (cmocka_net_pkt).
 
+config TESTING_NET_TUN
+	bool "Enable cmocka net TUN test"
+	depends on NET_TUN && NET_TCP && NET_IPv4 && NET_TCPBACKLOG
+	depends on NET_SOCKOPTS && !DISABLE_PTHREAD
+	default y
+	---help---
+		Test TCP against a peer that the program plays on a TUN device
+		(cmocka_net_tun).  The link loses the first transmission of each
+		segment, and the peer acknowledges each retransmission, so the
+		connection makes progress at each timeout.  The server must send
+		the whole stream with each byte at its own sequence number, and
+		must not reset the connection.  The case takes about 30 seconds.
+
 endif

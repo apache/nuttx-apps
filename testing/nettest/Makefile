@@ -134,5 +134,11 @@ PROGNAME += cmocka_net_pkt
 CSRCS    += pkt/test_pkt_lo.c
 endif
 
+ifeq ($(CONFIG_TESTING_NET_TUN),y)
+MAINSRC  += tun/test_tun.c
+PROGNAME += cmocka_net_tun
+CSRCS    += tun/test_tun_tcp.c
+endif
+
 endif
 include $(APPDIR)/Application.mk

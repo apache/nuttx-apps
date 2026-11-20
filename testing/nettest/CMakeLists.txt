@@ -271,4 +271,23 @@ if(CONFIG_TESTING_NET_TEST)
       ${SRCS})
   endif()
 
+  if(CONFIG_TESTING_NET_TUN)
+    set(SRCS ${CMAKE_CURRENT_LIST_DIR}/tun/test_tun.c
+             ${CMAKE_CURRENT_LIST_DIR}/tun/test_tun_tcp.c)
+
+    nuttx_add_application(
+      NAME
+      cmocka_net_tun
+      PRIORITY
+      ${CONFIG_TESTING_NET_TEST_PRIORITY}
+      STACKSIZE
+      ${CONFIG_TESTING_NET_TEST_STACKSIZE}
+      MODULE
+      ${CONFIG_TESTING_NET_TEST}
+      DEPENDS
+      cmocka
+      SRCS
+      ${SRCS})
+  endif()
+
 endif()
