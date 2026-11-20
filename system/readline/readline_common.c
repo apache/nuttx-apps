@@ -442,14 +442,31 @@ static bool tab_path_completion(FAR struct rl_common_s *vtbl,
       return false;
     }
 
-  /* One match with something already typed: append what the user has not
-   * typed yet, plus '/' when it is a directory so a following TAB
-   * descends into it.  With an empty prefix the match is only listed
-   * below, so repeated TABs never append the same name over and over.
+  /* One match: fill in the rest of the name, plus '/' for a directory
+   * so a following TAB descends into it.  On an empty prefix the fill
+   * is skipped when the previous word already holds the match, so
+   * repeated TABs do not pile up copies of a completed file name.
    */
 
-  if (nr_matches == 1 && prefix_len > 0)
+  if (nr_matches == 1)
     {
+      if (prefix_len == 0 && word_start > 1 &&
+          buf[word_start - 1] == ' ')
+        {
+          int pstart = word_start - 1;
+
+          while (pstart > 0 && buf[pstart - 1] != ' ')
+            {
+              pstart--;
+            }
+
+          if (word_start - 1 - pstart == (int)strlen(single) &&
+              strncmp(buf + pstart, single, word_start - 1 - pstart) == 0)
+            {
+              return false;
+            }
+        }
+
       int add = strlen(single) - prefix_len;
 
       if (add < 0)
