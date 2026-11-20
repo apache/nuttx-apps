@@ -38,6 +38,12 @@ if(CONFIG_TESTING_NET_TEST)
       list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_reset.c)
     endif()
 
+    if(CONFIG_NET_IPv4
+       AND CONFIG_NET_SOCKOPTS
+       AND CONFIG_NET_TCP_WRITE_BUFFERS)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_sndtimeo.c)
+    endif()
+
     nuttx_add_application(
       NAME
       cmocka_net_tcp
