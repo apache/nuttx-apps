@@ -423,5 +423,39 @@ void test_tcp_recv_iov_empty(FAR void **state);
  ****************************************************************************/
 
 void test_tcp_recv_iov_nowait(FAR void **state);
+
+#  ifdef CONFIG_NET_TCPBACKLOG
+/****************************************************************************
+ * Name: test_tcp_backlog_setup
+ ****************************************************************************/
+
+int test_tcp_backlog_setup(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_backlog_teardown
+ ****************************************************************************/
+
+int test_tcp_backlog_teardown(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_backlog_relisten_rst
+ ****************************************************************************/
+
+#    ifdef CONFIG_NET_SOLINGER
+void test_tcp_backlog_relisten_rst(FAR void **state);
+#    endif
+
+/****************************************************************************
+ * Name: test_tcp_backlog_relisten_race
+ ****************************************************************************/
+
+void test_tcp_backlog_relisten_race(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_backlog_close_race
+ ****************************************************************************/
+
+void test_tcp_backlog_close_race(FAR void **state);
+#  endif
 #endif
 #endif /* __APPS_TESTING_NETTEST_TCP_TEST_TCP_H */
