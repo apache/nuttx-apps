@@ -42,7 +42,8 @@ if(CONFIG_TESTING_NET_TEST)
 
     if(CONFIG_NET_IPv4)
       list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_reset.c
-           ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_iov.c)
+           ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_iov.c
+           ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_halfclose.c)
     endif()
 
     nuttx_add_application(

@@ -50,6 +50,7 @@ endif
 
 ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_reset.c tcp/test_tcp_iov.c
+CSRCS    += tcp/test_tcp_halfclose.c
 endif
 
 endif
