@@ -263,7 +263,7 @@ static void _register_driver(int mode, char *cpu, char *remotepath,
             exit(1);
           }
 
-        ret = rpmsgdev_register(cpu, remotepath, localpath, 0);
+        ret = rpmsgdev_register(cpu, remotepath, localpath);
         break;
 #endif
       case 2:
