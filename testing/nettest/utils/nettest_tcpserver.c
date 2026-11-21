@@ -154,6 +154,7 @@ static inline void nettest_connection(FAR struct nettest_listener_s *nls,
   for (; ; )
     {
       int sd = accept4(lsd, NULL, NULL, SOCK_CLOEXEC | SOCK_NONBLOCK);
+
       if (sd >= 0)
         {
 #ifdef CONFIG_FDCHECK
@@ -228,22 +229,30 @@ errout:
 socklen_t nettest_lo_addr(FAR struct sockaddr *addr, int family)
 {
   switch (family)
-  {
-    case AF_INET:
-      FAR struct sockaddr_in *addr4 = (FAR struct sockaddr_in *)addr;
-      addr4->sin_family      = AF_INET;
-      addr4->sin_port        = htons(CONFIG_TESTING_NET_TCP_PORT);
-      addr4->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-      return sizeof(struct sockaddr_in);
-    case AF_INET6:
-      FAR struct sockaddr_in6 *addr6 = (FAR struct sockaddr_in6 *)addr;
-      addr6->sin6_family = AF_INET6;
-      addr6->sin6_port   = htons(CONFIG_TESTING_NET_TCP_PORT);
-      addr6->sin6_addr   = (struct in6_addr)IN6ADDR_LOOPBACK_INIT;
-      return sizeof(struct sockaddr_in6);
-    default:
-      return 0;
-  }
+    {
+      case AF_INET:
+        {
+          FAR struct sockaddr_in *addr4 = (FAR struct sockaddr_in *)addr;
+
+          addr4->sin_family      = AF_INET;
+          addr4->sin_port        = htons(CONFIG_TESTING_NET_TCP_PORT);
+          addr4->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+          return sizeof(struct sockaddr_in);
+        }
+
+      case AF_INET6:
+        {
+          FAR struct sockaddr_in6 *addr6 = (FAR struct sockaddr_in6 *)addr;
+
+          addr6->sin6_family = AF_INET6;
+          addr6->sin6_port   = htons(CONFIG_TESTING_NET_TCP_PORT);
+          addr6->sin6_addr   = (struct in6_addr)IN6ADDR_LOOPBACK_INIT;
+          return sizeof(struct sockaddr_in6);
+        }
+
+      default:
+        return 0;
+    }
 }
 
 /****************************************************************************
