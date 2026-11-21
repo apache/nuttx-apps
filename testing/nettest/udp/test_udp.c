@@ -60,6 +60,7 @@ int main(int argc, FAR char *argv[])
       TEST_UDP(test_udp_v6only_tcp_set0),
       TEST_UDP(test_udp_v6only_tcp_ipv4),
       TEST_UDP(test_udp_v6only_tcp_bound),
+      TEST_UDP(test_udp_v6only_tcp_mapped),
 #endif
       TEST_UDP(test_udp_family_alone),
       TEST_UDP(test_udp_family_both),

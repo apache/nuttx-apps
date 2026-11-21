@@ -293,6 +293,41 @@ void test_udp_v6only_tcp_ipv4(FAR void **state)
 }
 
 /****************************************************************************
+ * Name: test_udp_v6only_tcp_mapped
+ *
+ * Description:
+ *   connect() of a TCP socket of AF_INET6 to ::ffff:127.0.0.1 fails with
+ *   ENETUNREACH, as for a UDP socket with the option.
+ *
+ ****************************************************************************/
+
+void test_udp_v6only_tcp_mapped(FAR void **state)
+{
+  struct sockaddr_in6 addr;
+  int ret;
+  int err;
+  int sd;
+
+  /* Non-blocking: a connect() that goes out does not wait here */
+
+  sd = test_udp_socket(state, AF_INET6, SOCK_STREAM | SOCK_NONBLOCK, -1,
+                       false);
+
+  memset(&addr, 0, sizeof(addr));
+  addr.sin6_family           = AF_INET6;
+  addr.sin6_port             = htons(TEST_UDP_PORT + 8);
+  addr.sin6_addr.s6_addr[10] = 0xff;
+  addr.sin6_addr.s6_addr[11] = 0xff;
+  addr.sin6_addr.s6_addr[12] = 127;
+  addr.sin6_addr.s6_addr[15] = 1;
+
+  ret = connect(sd, (FAR struct sockaddr *)&addr, sizeof(addr));
+  err = ret < 0 ? errno : 0;
+  assert_int_equal(ret, -1);
+  assert_int_equal(err, ENETUNREACH);
+}
+
+/****************************************************************************
  * Name: test_udp_v6only_tcp_bound
  *
  * Description:
