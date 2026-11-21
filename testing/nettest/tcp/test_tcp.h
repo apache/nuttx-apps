@@ -28,6 +28,26 @@
 #include <pthread.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* The /proc/net/tcp cases need the file (CONFIG_NET_STATISTICS) and a
+ * dynamic pool of connections and of callbacks: they leave hundreds of
+ * connections in TIME_WAIT, which must stay there while the file is read.
+ * When the pool is full, the oldest of them are freed.
+ */
+
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_FS_PROCFS) && \
+    !defined(CONFIG_FS_PROCFS_EXCLUDE_NET) && \
+    defined(CONFIG_NET_STATISTICS) && \
+    CONFIG_NET_TCP_ALLOC_CONNS > 0 && CONFIG_NET_ALLOC_DEVIF_CALLBACKS > 0
+#  if (CONFIG_NET_TCP_MAX_CONNS == 0 || CONFIG_NET_TCP_MAX_CONNS >= 1024) && \
+      CONFIG_NET_TCP_WAIT_TIMEOUT >= 60
+#    define TEST_TCP_PROCFS 1
+#  endif
+#endif
+
+/****************************************************************************
  * Public Types
  ****************************************************************************/
 
@@ -456,6 +476,34 @@ void test_tcp_backlog_relisten_race(FAR void **state);
  ****************************************************************************/
 
 void test_tcp_backlog_close_race(FAR void **state);
+#  endif
+#endif
+
+#ifdef TEST_TCP_PROCFS
+/****************************************************************************
+ * Name: test_tcp_procfs_setup
+ ****************************************************************************/
+
+int test_tcp_procfs_setup(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_procfs_teardown
+ ****************************************************************************/
+
+int test_tcp_procfs_teardown(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_procfs_many
+ ****************************************************************************/
+
+void test_tcp_procfs_many(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_procfs_close
+ ****************************************************************************/
+
+#  ifdef CONFIG_NET_SOLINGER
+void test_tcp_procfs_close(FAR void **state);
 #  endif
 #endif
 #endif /* __APPS_TESTING_NETTEST_TCP_TEST_TCP_H */
