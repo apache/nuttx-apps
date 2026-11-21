@@ -22,6 +22,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <errno.h>
 #include <netinet/in.h>
 #include <semaphore.h>
 #include <stdbool.h>
@@ -330,6 +331,11 @@ FAR static void *nettest_lo_listener(pthread_addr_t pvarg)
 
       memcpy(&nls.working, &nls.master, sizeof(fd_set));
       ret = select(nls.mxsd + 1, &nls.working, NULL, NULL, NULL);
+      if (ret < 0 && errno == EINTR)
+        {
+          continue;
+        }
+
       if (ret < 0)
         {
           break;
