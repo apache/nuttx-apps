@@ -126,6 +126,7 @@ void test_udp_v6only_tcp_set1(FAR void **state);
 void test_udp_v6only_tcp_set0(FAR void **state);
 void test_udp_v6only_tcp_ipv4(FAR void **state);
 void test_udp_v6only_tcp_bound(FAR void **state);
+void test_udp_v6only_tcp_mapped(FAR void **state);
 #endif
 
 /****************************************************************************
