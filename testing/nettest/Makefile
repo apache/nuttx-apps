@@ -55,6 +55,7 @@ endif
 ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_reset.c tcp/test_tcp_iov.c
 CSRCS    += tcp/test_tcp_halfclose.c tcp/test_tcp_backlog.c
+CSRCS    += tcp/test_tcp_procfs.c
 endif
 
 ifeq ($(CONFIG_NET_IPv4)$(CONFIG_NET_SOCKOPTS)$(CONFIG_NET_TCP_WRITE_BUFFERS),yyy)

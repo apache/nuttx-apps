@@ -173,6 +173,16 @@ int main(int argc, FAR char *argv[])
                                       test_tcp_backlog_teardown),
 #  endif
 #endif
+#ifdef TEST_TCP_PROCFS
+      cmocka_unit_test_setup_teardown(test_tcp_procfs_many,
+                                      test_tcp_procfs_setup,
+                                      test_tcp_procfs_teardown),
+#  ifdef CONFIG_NET_SOLINGER
+      cmocka_unit_test_setup_teardown(test_tcp_procfs_close,
+                                      test_tcp_procfs_setup,
+                                      test_tcp_procfs_teardown),
+#  endif
+#endif
     };
 
   return cmocka_run_group_tests(tcp_tests, test_tcp_group_setup,
