@@ -152,6 +152,12 @@ int waitpid_test(void);
 int chroot_test(void);
 #endif
 
+/* cwd.c ********************************************************************/
+
+#ifndef CONFIG_DISABLE_PSEUDOFS_OPERATIONS
+int cwd_test(void);
+#endif
+
 /* caps.c *******************************************************************/
 
 #if defined(CONFIG_SCHED_CAPABILITIES) && defined(CONFIG_SCHED_WAITPID) && \

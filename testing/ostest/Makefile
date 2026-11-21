@@ -63,6 +63,10 @@ CSRCS += fpu.c
 endif
 endif
 
+ifneq ($(CONFIG_DISABLE_PSEUDOFS_OPERATIONS),y)
+CSRCS += cwd.c
+endif
+
 ifneq ($(CONFIG_STDIO_DISABLE_BUFFERING),y)
 CSRCS += setvbuf.c
 endif
