@@ -45,7 +45,7 @@ CSRCS    += tcp/test_tcp_close.c
 endif
 
 ifeq ($(CONFIG_NET_IPv6), y)
-CSRCS    += tcp/test_tcp_connect_ipv6.c
+CSRCS    += tcp/test_tcp_connect_ipv6.c tcp/test_tcp_peername.c
 endif
 
 ifeq ($(CONFIG_NET_IPv4), y)
