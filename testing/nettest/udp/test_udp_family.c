@@ -134,6 +134,7 @@ void test_udp_family_v6addr(FAR void **state)
  * Description:
  *   connect() to [::]:p connects to ::1, as connect() to 0.0.0.0 connects
  *   to 127.0.0.1: a UDP socket of AF_INET6 on [::]:p gets the datagram.
+ *   getpeername() gives the port p.
  *
  ****************************************************************************/
 
@@ -141,6 +142,7 @@ void test_udp_family_connect(FAR void **state)
 {
   struct sockaddr_in6 from;
   struct sockaddr_in6 addr;
+  socklen_t addrlen;
   int port = TEST_UDP_PORT + 13;
   int ret;
   int err;
@@ -158,6 +160,11 @@ void test_udp_family_connect(FAR void **state)
   addr.sin6_addr   = in6addr_any;
   ret = connect(sd, (FAR struct sockaddr *)&addr, sizeof(addr));
   assert_return_code(ret, errno);
+  addrlen = sizeof(from);
+  memset(&from, 0, sizeof(from));
+  ret = getpeername(sd, (FAR struct sockaddr *)&from, &addrlen);
+  assert_return_code(ret, errno);
+  assert_int_equal(ntohs(from.sin6_port), port);
   ret = send(sd, "v6", 2, 0);
   assert_return_code(ret, errno);
   usleep(TEST_UDP_WAIT_US);

@@ -70,6 +70,9 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv6,
                                       test_tcp_connect_ipv6_setup,
                                       test_tcp_common_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_peername_ipv6,
+                                      test_tcp_peername_setup,
+                                      test_tcp_peername_teardown),
 #endif
 #ifdef CONFIG_NET_IPv4
       cmocka_unit_test_setup_teardown(test_tcp_reset_recv,
