@@ -35,6 +35,10 @@ MAINSRC  += tcp/test_tcp.c
 PROGNAME += cmocka_net_tcp
 CSRCS    += tcp/test_tcp_common.c utils/nettest_tcpserver.c
 
+ifeq ($(CONFIG_NET_IPv4)$(CONFIG_NET_SOCKOPTS),yy)
+CSRCS    += tcp/test_tcp_sndlimit.c
+endif
+
 ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_connect_ipv4.c tcp/test_tcp_bind_listen.c
 endif

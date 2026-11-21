@@ -85,6 +85,26 @@ int test_tcp_bind_listen_setup(FAR void **state);
 int test_tcp_bind_listen_teardown(FAR void **state);
 
 /****************************************************************************
+ * Name: test_tcp_sndlimit_setup
+ ****************************************************************************/
+
+#  ifdef CONFIG_NET_SOCKOPTS
+int test_tcp_sndlimit_setup(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_sndlimit_teardown
+ ****************************************************************************/
+
+int test_tcp_sndlimit_teardown(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_send_limit_wakeup
+ ****************************************************************************/
+
+void test_tcp_send_limit_wakeup(FAR void **state);
+#  endif
+
+/****************************************************************************
  * Name: test_tcp_bind_reuseaddr_timewait
  ****************************************************************************/
 
