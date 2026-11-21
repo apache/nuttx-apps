@@ -49,7 +49,7 @@ CSRCS    += tcp/test_tcp_connect_ipv6.c
 endif
 
 ifeq ($(CONFIG_NET_IPv4), y)
-CSRCS    += tcp/test_tcp_reset.c
+CSRCS    += tcp/test_tcp_reset.c tcp/test_tcp_iov.c
 endif
 
 endif
