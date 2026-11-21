@@ -299,7 +299,6 @@ FAR static void *nettest_lo_listener(pthread_addr_t pvarg)
 {
   FAR sem_t *sem = (FAR sem_t *)pvarg;
   struct nettest_listener_s nls;
-  struct timeval timeout;
   bool exiting = false;
   int nsds;
   int ret;
@@ -319,11 +318,6 @@ FAR static void *nettest_lo_listener(pthread_addr_t pvarg)
 
   nls.mxsd = MAX(nls.listensdv4, nls.listensdv6);
 
-  /* Set up indefinitely timeout */
-
-  timeout.tv_sec  = -1;
-  timeout.tv_usec = 0;
-
   /* Loop waiting for incoming connections or for incoming data
    * on any of the connect sockets.
    */
@@ -332,10 +326,10 @@ FAR static void *nettest_lo_listener(pthread_addr_t pvarg)
 
   while (!exiting)
     {
-      /* Wait on select */
+      /* Wait on select, with no timeout */
 
       memcpy(&nls.working, &nls.master, sizeof(fd_set));
-      ret = select(nls.mxsd + 1, &nls.working, NULL, NULL, &timeout);
+      ret = select(nls.mxsd + 1, &nls.working, NULL, NULL, NULL);
       if (ret < 0)
         {
           break;
