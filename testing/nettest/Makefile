@@ -47,6 +47,10 @@ ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_reset.c
 endif
 
+ifeq ($(CONFIG_NET_IPv4)$(CONFIG_NET_SOCKOPTS)$(CONFIG_NET_TCP_WRITE_BUFFERS),yyy)
+CSRCS    += tcp/test_tcp_sndtimeo.c
+endif
+
 endif
 
 ifeq ($(CONFIG_TESTING_NET_UDP),y)
