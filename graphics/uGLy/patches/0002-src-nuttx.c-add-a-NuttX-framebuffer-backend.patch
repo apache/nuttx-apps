@@ -1,0 +1,426 @@
+From caba3d9b60e3d3a445b8e7968fc1cb212b297f14 Mon Sep 17 00:00:00 2001
+From: Alan Carvalho de Assis <acassis@gmail.com>
+Date: Wed, 16 Sep 2026 15:16:32 -0300
+Subject: [PATCH 2/2] src/nuttx.c: add a NuttX framebuffer backend
+
+The library expects each platform backend to own the render buffers
+("framebuffer", "zBuffer" and "stencilBuffer", which internal.h declares
+as pointers) and to provide initWindow()/swapBuffers(). NuttX had no
+such backend, so the demo application defined these symbols itself as
+fixed-size arrays. The library then read the first bytes of the array
+as a pointer and crashed with SIGSEGV in glClear().
+
+Add a backend similar to sdl2.c/DOS.c that:
+ - allocates the render buffers in initWindow();
+ - opens and mmap()s the framebuffer (CONFIG_GRAPHICS_UGLY_FBDEV,
+   /dev/fb0 by default);
+ - converts BPP24/BPP16 render pixels to 32/24/16 bpp framebuffers,
+   centered on the display;
+ - flips pages with FBIOPAN_DISPLAY when the driver provides a second
+   buffer, and calls FBIO_UPDATE when CONFIG_FB_UPDATE is enabled;
+ - reads keys from stdin and quits on 'q' or ESC;
+ - releases textures and buffers left over from a previous run, since
+   the library globals persist between runs in the FLAT build, and
+   refuses to start while another task is still using the library.
+
+Signed-off-by: Alan C. Assis <acassis@gmail.com>
+---
+ src/nuttx.c | 389 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 389 insertions(+)
+ create mode 100644 src/nuttx.c
+
+diff --git a/src/nuttx.c b/src/nuttx.c
+new file mode 100644
+index 0000000..303d910
+--- /dev/null
++++ b/src/nuttx.c
+@@ -0,0 +1,389 @@
++//
++// NuttX framebuffer (/dev/fbN) backend for uGLy.
++//
++// uGLy renders into a private buffer of XRES_FRAMEBUFFER x YRES_FRAMEBUFFER
++// pixels. swapBuffers() converts it to the pixel format of the NuttX
++// framebuffer, centered on the display, and flips pages when the driver
++// provides a second (panning) buffer.
++//
++#include <nuttx/config.h>
++
++#include <sys/ioctl.h>
++#include <sys/mman.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <poll.h>
++#include <signal.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++
++#include <nuttx/video/fb.h>
++
++#include "internal.h"
++#include <GLES/gl.h>
++
++#ifndef CONFIG_GRAPHICS_UGLY_FBDEV
++#define CONFIG_GRAPHICS_UGLY_FBDEV "/dev/fb0"
++#endif
++
++#if !defined(BPP24) && !defined(BPP16)
++#error "The NuttX backend only supports BPP24 or BPP16"
++#endif
++
++FramebufferPixelFormat *framebuffer;
++
++#ifndef DISABLE_DEPTH_BUFFER
++uint8_t *zBuffer;
++#endif
++
++#ifndef DISABLE_STENCIL_BUFFER
++uint8_t *stencilBuffer;
++#endif
++
++extern struct Texture textures[TOTAL_TEXTURES_SUPPORTED];
++
++void graphicsShutdown(void);
++
++static KeyCallback keyCallback;
++
++/* task currently using the library, whose state lives in globals */
++static pid_t ownerPid;
++
++static int fbFd = -1;
++static void *fbMem = MAP_FAILED;
++static struct fb_videoinfo_s videoInfo;
++static struct fb_planeinfo_s planeInfo;
++
++/* y offset (in lines) of each page inside the mapped framebuffer */
++static uint32_t pageYOffset[2];
++static int pageCount;
++static int backPage;
++
++/* area of the display covered by the uGLy framebuffer */
++static int blitX;
++static int blitY;
++static int blitWidth;
++static int blitHeight;
++
++static void releaseResources(void)
++{
++    /*
++     * In the NuttX FLAT build the library globals survive between runs of
++     * an application, so give back everything a previous run left behind.
++     */
++    for (GLuint c = 0; c < TOTAL_TEXTURES_SUPPORTED; ++c)
++    {
++        if (textures[c].inUse)
++        {
++            glDeleteTextures(1, &c);
++        }
++    }
++
++    if (fbMem != MAP_FAILED)
++    {
++        munmap(fbMem, planeInfo.fblen);
++        fbMem = MAP_FAILED;
++    }
++
++    if (fbFd >= 0)
++    {
++        close(fbFd);
++        fbFd = -1;
++    }
++
++    free(framebuffer);
++    framebuffer = NULL;
++
++#ifndef DISABLE_DEPTH_BUFFER
++    free(zBuffer);
++    zBuffer = NULL;
++#endif
++
++#ifndef DISABLE_STENCIL_BUFFER
++    free(stencilBuffer);
++    stencilBuffer = NULL;
++#endif
++
++    ownerPid = 0;
++}
++
++static void fatal(const char *what)
++{
++    fprintf(stderr, "uGLy: %s failed: %d\n", what, errno);
++    releaseResources();
++    exit(EXIT_FAILURE);
++}
++
++static void panToPage(int page)
++{
++    planeInfo.yoffset = pageYOffset[page];
++
++    if (ioctl(fbFd, FBIOPAN_DISPLAY, (unsigned long)(uintptr_t)&planeInfo) < 0)
++    {
++        fprintf(stderr, "uGLy: FBIOPAN_DISPLAY failed: %d\n", errno);
++    }
++}
++
++static void setupPages(void)
++{
++    struct fb_planeinfo_s secondPlane;
++    uintptr_t offset;
++
++    pageCount = 1;
++    pageYOffset[0] = 0;
++    backPage = 0;
++
++    if (planeInfo.yres_virtual < 2 * videoInfo.yres)
++    {
++        return;
++    }
++
++    /* Find where the second buffer lives (it may not be consecutive) */
++    memset(&secondPlane, 0, sizeof(secondPlane));
++    secondPlane.display = planeInfo.display + 1;
++
++    if (ioctl(fbFd, FBIOGET_PLANEINFO, (unsigned long)(uintptr_t)&secondPlane) < 0 ||
++        secondPlane.bpp != planeInfo.bpp)
++    {
++        return;
++    }
++
++    offset = (uintptr_t)secondPlane.fbmem - (uintptr_t)planeInfo.fbmem;
++    pageYOffset[1] = offset != 0 ? offset / planeInfo.stride : videoInfo.yres;
++
++    if ((pageYOffset[1] + videoInfo.yres) * planeInfo.stride > planeInfo.fblen)
++    {
++        return;
++    }
++
++    pageCount = 2;
++
++    /* Drop stale pan requests and show page 0, then render into page 1 */
++    ioctl(fbFd, FBIOPAN_CLEAR, FB_NO_OVERLAY);
++    panToPage(0);
++    backPage = 1;
++}
++
++void initWindow(KeyCallback callback)
++{
++    /* A second task would free the buffers the first one is rendering to */
++    if (ownerPid > 0 && ownerPid != getpid() && kill(ownerPid, 0) == 0)
++    {
++        fprintf(stderr, "uGLy: already in use by PID %d\n", (int)ownerPid);
++        exit(EXIT_FAILURE);
++    }
++
++    releaseResources();
++    uGLyInit();
++
++    ownerPid = getpid();
++
++    keyCallback = callback;
++
++    fbFd = open(CONFIG_GRAPHICS_UGLY_FBDEV, O_RDWR);
++    if (fbFd < 0)
++    {
++        fatal("open(" CONFIG_GRAPHICS_UGLY_FBDEV ")");
++    }
++
++    if (ioctl(fbFd, FBIOGET_VIDEOINFO, (unsigned long)(uintptr_t)&videoInfo) < 0)
++    {
++        fatal("FBIOGET_VIDEOINFO");
++    }
++
++    memset(&planeInfo, 0, sizeof(planeInfo));
++    if (ioctl(fbFd, FBIOGET_PLANEINFO, (unsigned long)(uintptr_t)&planeInfo) < 0)
++    {
++        fatal("FBIOGET_PLANEINFO");
++    }
++
++    if (planeInfo.bpp != 32 && planeInfo.bpp != 24 && planeInfo.bpp != 16)
++    {
++        fprintf(stderr, "uGLy: unsupported framebuffer bpp: %u\n", planeInfo.bpp);
++        releaseResources();
++        exit(EXIT_FAILURE);
++    }
++
++    fbMem = mmap(NULL, planeInfo.fblen, PROT_READ | PROT_WRITE,
++                 MAP_SHARED | MAP_FILE, fbFd, 0);
++    if (fbMem == MAP_FAILED)
++    {
++        fatal("mmap");
++    }
++
++    blitWidth = MIN(XRES_FRAMEBUFFER, videoInfo.xres);
++    blitHeight = MIN(YRES_FRAMEBUFFER, videoInfo.yres);
++    blitX = (videoInfo.xres - blitWidth) / 2;
++    blitY = (videoInfo.yres - blitHeight) / 2;
++
++    setupPages();
++
++    framebuffer = (FramebufferPixelFormat *) calloc(XRES_FRAMEBUFFER * YRES_FRAMEBUFFER, sizeof(FramebufferPixelFormat));
++
++#ifndef DISABLE_DEPTH_BUFFER
++    zBuffer = (uint8_t *) malloc(XRES_FRAMEBUFFER * YRES_FRAMEBUFFER);
++#endif
++
++#ifndef DISABLE_STENCIL_BUFFER
++    stencilBuffer = (uint8_t *) malloc(XRES_FRAMEBUFFER * YRES_FRAMEBUFFER);
++#endif
++
++    if (framebuffer == NULL
++#ifndef DISABLE_DEPTH_BUFFER
++        || zBuffer == NULL
++#endif
++#ifndef DISABLE_STENCIL_BUFFER
++        || stencilBuffer == NULL
++#endif
++       )
++    {
++        errno = ENOMEM;
++        fatal("malloc");
++    }
++
++    // the viewport must, by default, be configured to the size of the surface
++    glViewport(0, 0, XRES_FRAMEBUFFER, YRES_FRAMEBUFFER);
++}
++
++void graphicsShutdown(void)
++{
++    releaseResources();
++}
++
++struct Bitmap* loadBitmap(const char *filename)
++{
++    /* TODO: implement this somehow */
++    (void)filename;
++
++    return NULL;
++}
++
++static void blit(uint8_t *row)
++{
++    const FramebufferPixelFormat *src = framebuffer;
++
++    for (int y = 0; y < blitHeight; ++y)
++    {
++        uint8_t *dst = row + blitX * (planeInfo.bpp / 8);
++
++        for (int x = 0; x < blitWidth; ++x)
++        {
++            uint8_t r, g, b;
++#ifdef BPP24
++            uint32_t pixel = src[x];
++
++            r = pixel >> 24;
++            g = pixel >> 16;
++            b = pixel >> 8;
++#else
++            uint16_t pixel = src[x];
++
++#ifdef SWAP__FRAMEBUFFER_BYTES
++            pixel = swap16(pixel);
++#endif
++            r = (pixel >> 8) & 0xF8;
++            g = (pixel >> 3) & 0xFC;
++            b = (pixel << 3) & 0xF8;
++#endif
++
++            switch (planeInfo.bpp)
++            {
++            case 32:
++                *(uint32_t *)dst = 0xFF000000 | (r << 16) | (g << 8) | b;
++                dst += 4;
++                break;
++
++            case 24:
++                *dst++ = b;
++                *dst++ = g;
++                *dst++ = r;
++                break;
++
++            default:
++                *(uint16_t *)dst = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
++                dst += 2;
++                break;
++            }
++        }
++
++        src += XRES_FRAMEBUFFER;
++        row += planeInfo.stride;
++    }
++}
++
++static void pollKeyboard(void)
++{
++    struct pollfd pfd;
++    char key;
++
++    pfd.fd = STDIN_FILENO;
++    pfd.events = POLLIN;
++
++    while (poll(&pfd, 1, 0) > 0 && (pfd.revents & POLLIN) != 0)
++    {
++        if (read(STDIN_FILENO, &key, 1) != 1)
++        {
++            break;
++        }
++
++        switch (key)
++        {
++        case 27:
++        case 'q':
++            graphicsShutdown();
++            exit(0);
++            break;
++
++        default:
++            if (keyCallback != NULL)
++            {
++                keyCallback(key);
++            }
++            break;
++        }
++    }
++}
++
++void swapBuffers(void)
++{
++    if (fbMem == MAP_FAILED)
++    {
++        return;
++    }
++
++    if (pageCount > 1)
++    {
++        struct pollfd pfd;
++
++        /*
++         * Wait for the display to pick up the previous pan request, so the
++         * back page is no longer visible. This also paces us to the vsync.
++         */
++        pfd.fd = fbFd;
++        pfd.events = POLLOUT;
++        poll(&pfd, 1, -1);
++    }
++
++    blit((uint8_t *)fbMem + (pageYOffset[backPage] + blitY) * planeInfo.stride);
++
++#ifdef CONFIG_FB_UPDATE
++    struct fb_area_s area;
++
++    area.x = blitX;
++    area.y = pageYOffset[backPage] + blitY;
++    area.w = blitWidth;
++    area.h = blitHeight;
++    ioctl(fbFd, FBIO_UPDATE, (unsigned long)(uintptr_t)&area);
++#endif
++
++    if (pageCount > 1)
++    {
++        panToPage(backPage);
++        backPage = 1 - backPage;
++    }
++
++    pollKeyboard();
++}
