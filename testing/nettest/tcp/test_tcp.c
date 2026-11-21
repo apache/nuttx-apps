@@ -149,6 +149,9 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_reset_refused,
                                       test_tcp_reset_setup,
                                       test_tcp_reset_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_halfclose_answer,
+                                      test_tcp_halfclose_setup,
+                                      test_tcp_halfclose_teardown),
 #  endif
       cmocka_unit_test_setup_teardown(test_tcp_recv_iov_empty,
                                       test_tcp_iov_setup,

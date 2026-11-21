@@ -360,6 +360,24 @@ void test_tcp_reset_poll(FAR void **state);
 
 #  ifdef CONFIG_NET_SOCKOPTS
 void test_tcp_reset_refused(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_halfclose_setup
+ ****************************************************************************/
+
+int test_tcp_halfclose_setup(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_halfclose_teardown
+ ****************************************************************************/
+
+int test_tcp_halfclose_teardown(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_halfclose_answer
+ ****************************************************************************/
+
+void test_tcp_halfclose_answer(FAR void **state);
 #  endif
 
 /****************************************************************************
