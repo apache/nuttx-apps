@@ -151,6 +151,11 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_pair_iov),
       DGRAM_TEST(test_local_dgram_send_iov),
       DGRAM_TEST(test_local_dgram_pair_whole),
+      DGRAM_TEST(test_local_dgram_rebind),
+      DGRAM_TEST(test_local_dgram_source),
+      DGRAM_TEST(test_local_dgram_recvmsg_iov),
+      DGRAM_TEST(test_local_dgram_poll_nval),
+      DGRAM_TEST_CONNECTED(test_local_dgram_poll_zero),
     };
 
   if (argc > 1)
