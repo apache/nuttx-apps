@@ -87,6 +87,7 @@ static bool g_should_exit = false;
 static const struct sensor_info g_sensor_info[] =
 {
   {print_vec3,  sizeof(struct sensor_accel), "accel"},
+  {print_valf,  sizeof(struct sensor_temp),  "ambient_temp"},
   {print_valf2, sizeof(struct sensor_baro),  "baro"},
   {print_cap,   sizeof(struct sensor_cap),   "cap"},
   {print_valf,  sizeof(struct sensor_co2),   "co2"},
