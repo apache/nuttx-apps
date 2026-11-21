@@ -39,6 +39,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <cmocka.h>
@@ -52,6 +53,8 @@
 
 #define TEST_POLL_TIMEOUT 1000 /* ms, loopback answers at once */
 #define TEST_MAX_FDS      8
+#define TEST_FILL_SIZE    1024
+#define TEST_FILL_MAX     1024  /* sends of TEST_FILL_SIZE, at most */
 
 /****************************************************************************
  * Private Types
@@ -498,6 +501,57 @@ void test_tcp_listen_again(FAR void **state)
 
   tcp_bl_close(st, tcp_bl_accept(st, listener));
   tcp_bl_close(st, tcp_bl_accept(st, listener));
+}
+
+/****************************************************************************
+ * Name: test_tcp_listen_recv
+ *
+ * Description:
+ *   recv() on a listener and on a socket that never connected fails with
+ *   ENOTCONN.  A connection whose reader does not read first takes the
+ *   free I/O buffers down to the throttle.
+ *
+ ****************************************************************************/
+
+void test_tcp_listen_recv(FAR void **state)
+{
+  FAR struct tcp_bl_state_s *st = *state;
+  int client = tcp_bl_socket(st, SOCK_NONBLOCK, false);
+  int unconnected = tcp_bl_socket(st, 0, false);
+  FAR char *buf;
+  in_port_t port;
+  int listener;
+  int ret;
+  int i;
+  char c;
+
+  listener = tcp_bl_listener(st, false, 1, &port);
+  ret = tcp_bl_connect(client, port);
+  assert_true(ret == 0 || ret == -EINPROGRESS);
+  tcp_bl_wait(client, POLLOUT);
+  tcp_bl_accept(st, listener);
+
+  /* The accepted socket does not read: the sends stop when the free I/O
+   * buffers reach the throttle (EAGAIN).
+   */
+
+  buf = malloc(TEST_FILL_SIZE);
+  assert_non_null(buf);
+  memset(buf, 'f', TEST_FILL_SIZE);
+  for (i = 0; i < TEST_FILL_MAX; i++)
+    {
+      if (send(client, buf, TEST_FILL_SIZE, 0) < 0)
+        {
+          break;
+        }
+    }
+
+  free(buf);
+
+  assert_int_equal(recv(unconnected, &c, 1, MSG_DONTWAIT), -1);
+  assert_int_equal(errno, ENOTCONN);
+  assert_int_equal(recv(listener, &c, 1, MSG_DONTWAIT), -1);
+  assert_int_equal(errno, ENOTCONN);
 }
 
 /****************************************************************************
