@@ -193,5 +193,29 @@ void test_tcp_reset_poll(FAR void **state);
 #  ifdef CONFIG_NET_SOCKOPTS
 void test_tcp_reset_refused(FAR void **state);
 #  endif
+
+/****************************************************************************
+ * Name: test_tcp_iov_setup
+ ****************************************************************************/
+
+int test_tcp_iov_setup(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_iov_teardown
+ ****************************************************************************/
+
+int test_tcp_iov_teardown(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_recv_iov_empty
+ ****************************************************************************/
+
+void test_tcp_recv_iov_empty(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_recv_iov_nowait
+ ****************************************************************************/
+
+void test_tcp_recv_iov_nowait(FAR void **state);
 #endif
 #endif /* __APPS_TESTING_NETTEST_TCP_TEST_TCP_H */
