@@ -103,6 +103,7 @@ endif
 	$(Q) cd $(TOYBOX_UNPACKNAME) && \
 		CC="$(HOSTCC)" HOSTCC="$(HOSTCC)" CROSS_COMPILE= \
 		KCONFIG_ALLCONFIG=$(WD)$(DELIM).toybox_allconfig \
+		KCONFIG_CONFIG=$(WD)$(DELIM)$(TOYBOX_UNPACKNAME)$(DELIM).config \
 		bash scripts/genconfig.sh -n
 	# scripts/make.sh *appends* its "FILES=..." build recipe to
 	# generated/build.sh instead of overwriting it (upstream only expects
@@ -114,6 +115,7 @@ endif
 	$(Q) rm -f $(TOYBOX_UNPACKNAME)$(DELIM)generated$(DELIM)build.sh
 	$(Q) cd $(TOYBOX_UNPACKNAME) && \
 		CC="$(HOSTCC)" HOSTCC="$(HOSTCC)" CROSS_COMPILE= NOBUILD=1 \
+		KCONFIG_CONFIG=$(WD)$(DELIM)$(TOYBOX_UNPACKNAME)$(DELIM).config \
 		NUTTX_TOYBOX_MULTIPLEX_NAME=toybox_multiplex \
 		bash scripts/make.sh
 	$(Q) awk '/^FILES="/{sub(/^FILES="/,""); if ($$0!="") print; f=1; next} \
