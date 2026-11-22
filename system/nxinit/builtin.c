@@ -39,6 +39,10 @@
 
 #include <netutils/netinit.h>
 
+#if defined(CONFIG_BOARDCTL) && defined(CONFIG_PM)
+#include <nuttx/power/pm.h>
+#endif
+
 #ifdef CONFIG_RPTUN
 #include <nuttx/rptun/rptun.h>
 #endif
@@ -111,6 +115,10 @@ static int cmd_netinit(FAR struct action_manager_s *am,
 static int cmd_board_finalinit(FAR struct action_manager_s *am,
                                int argc, FAR char **argv);
 #endif
+#if defined(CONFIG_BOARDCTL) && defined(CONFIG_PM)
+static int cmd_pmconfig(FAR struct action_manager_s *am,
+                        int argc, FAR char **argv);
+#endif
 #ifdef CONFIG_RPTUN
 static int cmd_rptun(FAR struct action_manager_s *am,
                      int argc, FAR char **argv);
@@ -163,6 +171,9 @@ static const struct cmd_map_s g_builtin[] =
 #endif
 #ifdef CONFIG_NETUTILS_NETINIT
   {"netinit", 1, 1, cmd_netinit},
+#endif
+#if defined(CONFIG_BOARDCTL) && defined(CONFIG_PM)
+  {"pmconfig", 3, 4, cmd_pmconfig},
 #endif
 #ifdef CONFIG_RPTUN
   {"rptun", 3, 3, cmd_rptun},
@@ -379,6 +390,82 @@ static int cmd_rptun(FAR struct action_manager_s *am,
 
   close(fd);
   return ret < 0 ? ret : 0;
+}
+#endif
+
+#if defined(CONFIG_BOARDCTL) && defined(CONFIG_PM)
+static int cmd_pmconfig(FAR struct action_manager_s *am,
+                        int argc, FAR char **argv)
+{
+  struct boardioc_pm_ctrl_s ctrl;
+  int domain = 0;
+  int ret;
+
+  UNUSED(am);
+  memset(&ctrl, 0, sizeof(ctrl));
+
+  if (argc > 3)
+    {
+      FAR char *end;
+      long val;
+
+      val = strtol(argv[3], &end, 10);
+      if (end == argv[3] || *end != '\0' || val < 0 ||
+          val >= CONFIG_PM_NDOMAINS)
+        {
+          init_err("pmconfig: bad domain '%s'", argv[3]);
+          return -EINVAL;
+        }
+
+      domain = val;
+    }
+
+  ctrl.domain = domain;
+
+  if (!strcmp(argv[1], "stay"))
+    {
+      ctrl.action = BOARDIOC_PM_STAY;
+    }
+  else if (!strcmp(argv[1], "relax"))
+    {
+      ctrl.action = BOARDIOC_PM_RELAX;
+    }
+  else
+    {
+      init_err("pmconfig: bad action '%s'", argv[1]);
+      return -EINVAL;
+    }
+
+  if (!strcmp(argv[2], "normal"))
+    {
+      ctrl.state = PM_NORMAL;
+    }
+  else if (!strcmp(argv[2], "idle"))
+    {
+      ctrl.state = PM_IDLE;
+    }
+  else if (!strcmp(argv[2], "standby"))
+    {
+      ctrl.state = PM_STANDBY;
+    }
+  else if (!strcmp(argv[2], "sleep"))
+    {
+      ctrl.state = PM_SLEEP;
+    }
+  else
+    {
+      init_err("pmconfig: bad state '%s'", argv[2]);
+      return -EINVAL;
+    }
+
+  ret = boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+  if (ret < 0)
+    {
+      ret = -errno;
+      init_err("pmconfig %s '%s' failed: %d", argv[1], argv[2], -ret);
+    }
+
+  return ret;
 }
 #endif
 
