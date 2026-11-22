@@ -43,6 +43,9 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tun_tcp_lossy,
                                       test_tun_tcp_setup,
                                       test_tun_tcp_teardown),
+      cmocka_unit_test_setup_teardown(test_tun_tcp_partack,
+                                      test_tun_tcp_setup,
+                                      test_tun_tcp_teardown),
     };
 
   return cmocka_run_group_tests(tun_tests, NULL, NULL);

@@ -58,8 +58,11 @@
 #define TUN_ADDR_P     0x0a4e0002  /* 10.78.0.2: the peer */
 #define TUN_PORT_A     5025
 #define TUN_ISN_P      0x52300000u
-#define TUN_TOTAL      8192        /* Bytes that the server writes */
 #define TUN_PKTSIZE    CONFIG_NET_TUN_PKTSIZE
+#define TUN_MSS        1460        /* MSS of the peer */
+#define TUN_PMSS       256         /* MSS of the peer in the partack case */
+#define TUN_WSEGS      2           /* Its window, in segments */
+#define TUN_QUIET_MS   100         /* No segment this long: the burst ended */
 
 #ifdef CONFIG_NET_TCP_RTO
 #  define TUN_RTO_MS   (CONFIG_NET_TCP_RTO * 500)
@@ -80,6 +83,14 @@
  */
 
 #define TUN_ROUNDS_MS  (TUN_ROUNDS * 4 * TUN_RTO_MS)
+
+/* Bytes that the server writes: more than the rounds take */
+
+#if (TUN_ROUNDS + TUN_WSEGS + 1) * TUN_PMSS > 8192
+#  define TUN_TOTAL    ((TUN_ROUNDS + TUN_WSEGS + 1) * TUN_PMSS)
+#else
+#  define TUN_TOTAL    8192
+#endif
 
 #define TCP_FIN        0x01
 #define TCP_SYN        0x02
@@ -110,6 +121,7 @@ struct tun_state_s
   uint32_t  pisn;           /* The peer's ISN */
   uint32_t  isn;            /* The server's ISN */
   uint32_t  pseq;           /* The peer's next sequence number */
+  uint16_t  pmss;           /* The MSS of the peer's SYN */
   bool      synack;         /* The SYN-ACK came: isn is valid */
   int       mss;            /* The MSS of the server's SYN-ACK */
   bool      fin;
@@ -232,7 +244,7 @@ static void tun_send_tcp(FAR struct tun_state_s *st, uint32_t ack,
     {
       tcp[20] = 2;              /* MSS option */
       tcp[21] = 4;
-      tun_put16(tcp + 22, 1460);
+      tun_put16(tcp + 22, st->pmss);
     }
 
   /* The pseudo header: addresses, protocol and TCP length */
@@ -665,6 +677,7 @@ int test_tun_tcp_setup(FAR void **state)
   memset(st, 0, sizeof(*st));
   st->fd   = -1;
   st->sent = -1;
+  st->pmss = TUN_MSS;
   *state   = st;
 
   /* No assert here: cmocka does not run the teardown after a failed
@@ -779,4 +792,66 @@ void test_tun_tcp_lossy(FAR void **state)
 
   tun_finish(st);
   tun_check(st, "test_tun_tcp_lossy", rounds);
+}
+
+/****************************************************************************
+ * Name: test_tun_tcp_partack
+ *
+ * Description:
+ *   The peer sends an MSS of TUN_PMSS bytes and opens a window of
+ *   TUN_WSEGS segments.  It ignores the first transmission of each
+ *   segment.  Of the segments that come again after a timeout, it keeps
+ *   only the first one, and acknowledges it when no segment comes for
+ *   TUN_QUIET_MS.  So at each timeout the peer acknowledges one segment,
+ *   but not all the data sent: the connection makes progress at each
+ *   timeout.  After TUN_ROUNDS rounds (more than TCP_MAXRTX), the window
+ *   opens.  The server must send every byte at its own sequence number,
+ *   the whole stream and the FIN, and no RST.
+ *
+ ****************************************************************************/
+
+void test_tun_tcp_partack(FAR void **state)
+{
+  FAR struct tun_state_s *st = *state;
+  struct tun_seg_s seg;
+  uint32_t lastack = 0;
+  uint32_t end;
+  bool again;
+  int pending = 0;
+  int rounds = 0;
+
+  st->pmss = TUN_PMSS;
+  tun_handshake(st);
+  tun_send_tcp(st, st->isn + 1, TCP_ACK, TUN_WSEGS * TUN_PMSS);
+
+  end = tun_now_ms() + TUN_ROUNDS_MS;
+  while (rounds < TUN_ROUNDS && !st->rst && st->wrong == 0 &&
+         (int32_t)(end - tun_now_ms()) > 0)
+    {
+      if (tun_recv_seg(st, &seg, TUN_QUIET_MS, &again) == 1)
+        {
+          /* Keep the first segment that comes again at the next byte to
+           * acknowledge.  The other segments are lost.
+           */
+
+          if (pending == 0 && seg.len > 0 && again &&
+              seg.seq == st->isn + 1 + lastack)
+            {
+              pending = seg.len;
+            }
+        }
+      else if (pending > 0)
+        {
+          /* The retransmissions of this timeout ended */
+
+          lastack += pending;
+          pending  = 0;
+          rounds++;
+          tun_send_tcp(st, st->isn + 1 + lastack, TCP_ACK,
+                       TUN_WSEGS * TUN_PMSS);
+        }
+    }
+
+  tun_finish(st);
+  tun_check(st, "test_tun_tcp_partack", rounds);
 }

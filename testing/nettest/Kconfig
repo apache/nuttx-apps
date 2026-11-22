@@ -128,10 +128,11 @@ config TESTING_NET_TUN
 	default y
 	---help---
 		Test TCP against a peer that the program plays on a TUN device
-		(cmocka_net_tun).  The link loses the first transmission of each
-		segment, and the peer acknowledges each retransmission, so the
+		(cmocka_net_tun).  The link loses segments, and the peer
+		acknowledges a part of the data at each timeout, so the
 		connection makes progress at each timeout.  The server must send
 		the whole stream with each byte at its own sequence number, and
-		must not reset the connection.  The case takes about 30 seconds.
+		must not reset the connection.  The two cases take about one
+		minute.
 
 endif
