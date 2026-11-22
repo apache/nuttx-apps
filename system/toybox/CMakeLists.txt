@@ -194,6 +194,8 @@ if(CONFIG_SYSTEM_TOYBOX)
   list(TRANSFORM TOYBOX_APPLET_SRCS PREPEND ${TOYBOX_DIR}/)
   file(GLOB TOYBOX_LIB_SRCS ${TOYBOX_DIR}/lib/*.c)
 
+  set(TOYBOX_GLUE_SRCS ${TOYBOX_DIR}/toybox_entry.c ${TOYBOX_DIR}/main.c)
+
   set(TOYBOX_DEFINITIONS __NuttX__ "TOYBOX_VERSION=\"${TOYBOX_VERSION}-nuttx\"")
 
   # strstart and show_help leak as globals and collide with other apps in a flat
@@ -203,15 +205,14 @@ if(CONFIG_SYSTEM_TOYBOX)
 
   if(CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE)
     list(APPEND TOYBOX_DEFINITIONS CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE=1)
+    list(APPEND TOYBOX_GLUE_SRCS ${TOYBOX_DIR}/nuttx_bridge.c)
   endif()
 
   nuttx_add_application(
     NAME
     toybox
     SRCS
-    ${TOYBOX_DIR}/toybox_entry.c
-    ${TOYBOX_DIR}/nuttx_bridge.c
-    ${TOYBOX_DIR}/main.c
+    ${TOYBOX_GLUE_SRCS}
     ${TOYBOX_LIB_SRCS}
     ${TOYBOX_APPLET_SRCS}
     STACKSIZE
