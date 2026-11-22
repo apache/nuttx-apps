@@ -162,6 +162,9 @@ CFLAGS += -include $(WD)$(DELIM)compat_nuttx.h
 CFLAGS += -D__linux__
 CFLAGS += -D__NuttX__
 CFLAGS += -DTOYBOX_VERSION='"$(TOYBOX_VERSION)-nuttx"'
+# strstart/show_help leak as globals and collide in a flat link (quickjs)
+CFLAGS += -Dstrstart=toybox_strstart
+CFLAGS += -Dshow_help=toybox_show_help
 
 # Upstream Toybox coding conventions NuttX's stricter default warning set
 # (-Wall -Wshadow -Wstrict-prototypes, see arch/sim/src/sim/Toolchain.defs
