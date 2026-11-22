@@ -45,4 +45,10 @@ int test_tun_tcp_teardown(FAR void **state);
 
 void test_tun_tcp_lossy(FAR void **state);
 
+/****************************************************************************
+ * Name: test_tun_tcp_partack
+ ****************************************************************************/
+
+void test_tun_tcp_partack(FAR void **state);
+
 #endif /* __APPS_TESTING_NETTEST_TUN_TEST_TUN_H */
