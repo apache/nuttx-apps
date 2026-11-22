@@ -142,7 +142,9 @@ MAINSRC = $(TOYBOX_UNPACKNAME)/toybox_entry.c
 #  generated/build.sh so enabling more applets is "select it in
 #  menuconfig", not "edit CSRCS by hand".
 
+ifneq ($(CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE),)
 CSRCS += $(TOYBOX_UNPACKNAME)/nuttx_bridge.c
+endif
 CSRCS += $(TOYBOX_UNPACKNAME)/main.c
 # All of lib/*.c, same as upstream's own scripts/make.sh ($BUILD lib/*.c
 # $FILES ...) -- toybox's lib helpers call across files in ways that make
