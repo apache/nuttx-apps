@@ -196,6 +196,11 @@ if(CONFIG_SYSTEM_TOYBOX)
 
   set(TOYBOX_DEFINITIONS __NuttX__ "TOYBOX_VERSION=\"${TOYBOX_VERSION}-nuttx\"")
 
+  # strstart and show_help leak as globals and collide with other apps in a flat
+  # link (e.g. quickjs's strstart); rename them in toybox's compile
+  list(APPEND TOYBOX_DEFINITIONS strstart=toybox_strstart
+       show_help=toybox_show_help)
+
   if(CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE)
     list(APPEND TOYBOX_DEFINITIONS CONFIG_SYSTEM_TOYBOX_BUILTIN_BRIDGE=1)
   endif()
