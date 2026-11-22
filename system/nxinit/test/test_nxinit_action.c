@@ -26,6 +26,7 @@
 
 #include <nuttx/config.h>
 #include <nuttx/list.h>
+#include <nuttx/power/pm.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -34,9 +35,11 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/boardctl.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
@@ -405,6 +408,126 @@ void test_nxinit_action_builtin_mount(FAR void **state)
 
   assert_int_equal(init_builtin_run(&am, 3, shortline), -EINVAL);
   assert_int_not_equal(statfs(TEST_MNT, &sfs), 0);
+#else
+  skip();
+#endif
+}
+
+/****************************************************************************
+ * Name: test_nxinit_action_builtin_pmconfig
+ *
+ * Description:
+ *   "pmconfig stay" raises the stay count of the state and "pmconfig
+ *   relax" lowers it.  The optional fourth argument selects the domain.
+ *   An unknown action, state or domain fails with -EINVAL.
+ ****************************************************************************/
+
+#if defined(CONFIG_BOARDCTL) && defined(CONFIG_PM)
+static uint32_t pm_count(int domain, int state)
+{
+  struct boardioc_pm_ctrl_s ctrl;
+
+  memset(&ctrl, 0, sizeof(ctrl));
+  ctrl.action = BOARDIOC_PM_STAYCOUNT;
+  ctrl.domain = domain;
+  ctrl.state = state;
+  boardctl(BOARDIOC_PM_CONTROL, (uintptr_t)&ctrl);
+  return ctrl.count;
+}
+#endif
+
+void test_nxinit_action_builtin_pmconfig(FAR void **state)
+{
+#if defined(CONFIG_BOARDCTL) && defined(CONFIG_PM)
+  FAR char *stay[] =
+    {
+      "pmconfig", "stay", "normal", NULL
+    };
+
+  FAR char *staydom[] =
+    {
+      "pmconfig", "stay", "normal", "0", NULL
+    };
+
+  FAR char *relax[] =
+    {
+      "pmconfig", "relax", "normal", NULL
+    };
+
+  FAR char *relaxdom[] =
+    {
+      "pmconfig", "relax", "normal", "0", NULL
+    };
+
+  FAR char *badaction[] =
+    {
+      "pmconfig", "bogus", "normal", NULL
+    };
+
+  FAR char *badstate[] =
+    {
+      "pmconfig", "stay", "bogus", NULL
+    };
+
+  char domain[16];
+  FAR char *baddomain[] =
+    {
+      "pmconfig", "stay", "normal", domain, NULL
+    };
+
+  FAR char *badnum[] =
+    {
+      "pmconfig", "stay", "normal", "1x", NULL
+    };
+
+#if CONFIG_PM_NDOMAINS > 1
+  FAR char *staydom1[] =
+    {
+      "pmconfig", "stay", "normal", "1", NULL
+    };
+
+  FAR char *relaxdom1[] =
+    {
+      "pmconfig", "relax", "normal", "1", NULL
+    };
+
+  uint32_t count1;
+#endif
+
+  struct action_manager_s am;
+  uint32_t count;
+
+  snprintf(domain, sizeof(domain), "%d", CONFIG_PM_NDOMAINS);
+
+  action_manager_init(&am);
+
+  count = pm_count(0, PM_NORMAL);
+  assert_int_equal(init_builtin_run(&am, 3, stay), 0);
+  assert_int_equal(pm_count(0, PM_NORMAL), count + 1);
+  assert_int_equal(init_builtin_run(&am, 4, staydom), 0);
+  assert_int_equal(pm_count(0, PM_NORMAL), count + 2);
+  assert_int_equal(init_builtin_run(&am, 4, relaxdom), 0);
+  assert_int_equal(pm_count(0, PM_NORMAL), count + 1);
+  assert_int_equal(init_builtin_run(&am, 3, relax), 0);
+  assert_int_equal(pm_count(0, PM_NORMAL), count);
+
+  assert_int_equal(init_builtin_run(&am, 3, badaction), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 3, badstate), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 4, baddomain), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 4, badnum), -EINVAL);
+  assert_int_equal(pm_count(0, PM_NORMAL), count);
+
+#if CONFIG_PM_NDOMAINS > 1
+  count1 = pm_count(1, PM_NORMAL);
+  assert_int_equal(init_builtin_run(&am, 4, staydom1), 0);
+  assert_int_equal(pm_count(1, PM_NORMAL), count1 + 1);
+  assert_int_equal(pm_count(0, PM_NORMAL), count);
+  assert_int_equal(init_builtin_run(&am, 4, relaxdom1), 0);
+  assert_int_equal(pm_count(1, PM_NORMAL), count1);
+  assert_int_equal(pm_count(0, PM_NORMAL), count);
+#endif
+
+  action_manager_free_all(&am);
 #else
   skip();
 #endif
