@@ -329,6 +329,7 @@ int mbedtls_aes_crypt_cfb128(FAR mbedtls_aes_context *ctx,
                              const unsigned char *input,
                              unsigned char *output)
 {
+  unsigned char temp[16];
   int ret;
 
   if (mode != MBEDTLS_AES_ENCRYPT && mode != MBEDTLS_AES_DECRYPT)
@@ -336,9 +337,15 @@ int mbedtls_aes_crypt_cfb128(FAR mbedtls_aes_context *ctx,
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
     }
 
-  if (*iv_off > 15)
+  if (*iv_off != 0)
     {
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
+    }
+
+  memset(temp, 0, sizeof(temp));
+  if (mode == MBEDTLS_AES_DECRYPT && length >= 16)
+    {
+      memcpy(temp, input + length - 16, 16);
     }
 
   ctx->dev.session.cipher = CRYPTO_AES_CFB_128;
@@ -358,7 +365,17 @@ int mbedtls_aes_crypt_cfb128(FAR mbedtls_aes_context *ctx,
   ret = cryptodev_crypt(&ctx->dev);
   if (ret == 0)
     {
-      *iv_off = length % ECB_BLOCK_SIZE;
+      *iv_off = (*iv_off + length) % ECB_BLOCK_SIZE;
+
+      /* The driver does not return the IV; CFB128 chains on the last
+       * ciphertext block, so only whole-block calls can be continued.
+       */
+
+      if (length >= 16 && *iv_off == 0)
+        {
+          memcpy(iv, mode == MBEDTLS_AES_ENCRYPT ?
+                     output + length - 16 : temp, 16);
+        }
     }
 
   cryptodev_free_session(&ctx->dev);
@@ -374,11 +391,27 @@ int mbedtls_aes_crypt_cfb8(FAR mbedtls_aes_context *ctx,
                            const unsigned char *input,
                            unsigned char *output)
 {
+  unsigned char temp[32];
+  size_t n = length < 16 ? length : 16;
   int ret;
+
+  if (length == 0)
+    {
+      return 0;
+    }
 
   if (mode != MBEDTLS_AES_ENCRYPT && mode != MBEDTLS_AES_DECRYPT)
     {
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
+    }
+
+  /* The next IV is the last 16 bytes of IV || ciphertext. */
+
+  memset(temp, 0, sizeof(temp));
+  memcpy(temp, iv, 16);
+  if (mode == MBEDTLS_AES_DECRYPT)
+    {
+      memcpy(temp + 16, input + length - n, n);
     }
 
   ctx->dev.session.cipher = CRYPTO_AES_CFB_8;
@@ -397,6 +430,17 @@ int mbedtls_aes_crypt_cfb8(FAR mbedtls_aes_context *ctx,
   ctx->dev.crypt.iv = (caddr_t)iv;
   ret = cryptodev_crypt(&ctx->dev);
   cryptodev_free_session(&ctx->dev);
+
+  if (ret == 0)
+    {
+      if (mode == MBEDTLS_AES_ENCRYPT)
+        {
+          memcpy(temp + 16, output + length - n, n);
+        }
+
+      memcpy(iv, temp + n, 16);
+    }
+
   return ret;
 }
 #endif /* MBEDTLS_CIPHER_MODE_CFB */
@@ -412,11 +456,19 @@ int mbedtls_aes_crypt_ofb(FAR mbedtls_aes_context *ctx,
                           const unsigned char *input,
                           unsigned char *output)
 {
+  unsigned char temp[16];
   int ret;
+  int i;
 
-  if (*iv_off > 15)
+  if (*iv_off != 0)
     {
       return MBEDTLS_ERR_AES_BAD_INPUT_DATA;
+    }
+
+  memset(temp, 0, sizeof(temp));
+  if (length >= 16)
+    {
+      memcpy(temp, input + length - 16, 16);
     }
 
   ctx->dev.session.cipher = CRYPTO_AES_OFB;
@@ -435,7 +487,17 @@ int mbedtls_aes_crypt_ofb(FAR mbedtls_aes_context *ctx,
   ret = cryptodev_crypt(&ctx->dev);
   if (ret == 0)
     {
-      *iv_off = length % ECB_BLOCK_SIZE;
+      *iv_off = (*iv_off + length) % ECB_BLOCK_SIZE;
+
+      /* The OFB IV is the last keystream block, i.e. output ^ input. */
+
+      if (length >= 16 && *iv_off == 0)
+        {
+          for (i = 0; i < 16; i++)
+            {
+              iv[i] = output[length - 16 + i] ^ temp[i];
+            }
+        }
     }
 
   cryptodev_free_session(&ctx->dev);
