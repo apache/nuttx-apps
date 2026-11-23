@@ -27,6 +27,10 @@ if(CONFIG_SYSTEM_TOYBOX)
   set(TOYBOX_STAMP ${TOYBOX_DIR}/.nuttx_patched-${TOYBOX_VERSION})
   set(TOYBOX_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/toybox)
 
+  if(CONFIG_SYSTEM_TOYBOX_SHA256)
+    set(TOYBOX_URL_HASH URL_HASH SHA256=${CONFIG_SYSTEM_TOYBOX_SHA256})
+  endif()
+
   # ############################################################################
   # Download and patch the pinned release
   # ############################################################################
@@ -40,6 +44,7 @@ if(CONFIG_SYSTEM_TOYBOX)
       FetchContent_Declare(
         toybox_fetch
         URL "${CONFIG_SYSTEM_TOYBOX_URL}/${TOYBOX_VERSION}.tar.gz"
+            ${TOYBOX_URL_HASH}
             DOWNLOAD_DIR
             ${CMAKE_CURRENT_BINARY_DIR}/toybox-dl
             SOURCE_DIR

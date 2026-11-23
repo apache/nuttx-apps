@@ -41,6 +41,15 @@ config SYSTEM_TOYBOX_URL
 	---help---
 		Base URL Toybox release tarballs are downloaded from.
 
+config SYSTEM_TOYBOX_SHA256
+	string "Toybox tarball SHA256"
+	default "082df8cfd76135ce3c4820c8cf4c0081d61491e0990aff2da48e21fc9bbb24d1"
+	---help---
+		SHA256 of the SYSTEM_TOYBOX_VERSION release tarball. Update it
+		together with the version. It verifies the download and lets a
+		previously downloaded copy be reused instead of downloading it
+		again. Leave it empty to skip verification and always download.
+
 config SYSTEM_TOYBOX_PRIORITY
 	int "Toybox task priority"
 	default 100
