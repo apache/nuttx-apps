@@ -94,7 +94,16 @@ int cryptodev_crypt(FAR cryptodev_context_t *ctx)
 int cryptodev_clone(FAR cryptodev_context_t *dst,
                     FAR const cryptodev_context_t *src)
 {
+  int fd;
+
+  if (ioctl(src->fd, CIOCCLONE, &fd) < 0)
+    {
+      return -errno;
+    }
+
+  close(dst->fd);
+  dst->fd = fd;
   dst->session = src->session;
   dst->crypt = src->crypt;
-  return dup2(src->fd, dst->fd);
+  return OK;
 }
