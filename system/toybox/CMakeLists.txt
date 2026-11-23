@@ -22,7 +22,7 @@
 
 if(CONFIG_SYSTEM_TOYBOX)
 
-  set(TOYBOX_DIR ${CMAKE_CURRENT_LIST_DIR}/toybox)
+  set(TOYBOX_DIR ${CMAKE_CURRENT_BINARY_DIR}/toybox-src)
   set(TOYBOX_VERSION "${CONFIG_SYSTEM_TOYBOX_VERSION}")
   set(TOYBOX_STAMP ${TOYBOX_DIR}/.nuttx_patched-${TOYBOX_VERSION})
   set(TOYBOX_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/toybox)
@@ -41,7 +41,7 @@ if(CONFIG_SYSTEM_TOYBOX)
         toybox_fetch
         URL "${CONFIG_SYSTEM_TOYBOX_URL}/${TOYBOX_VERSION}.tar.gz"
             DOWNLOAD_DIR
-            ${CMAKE_CURRENT_LIST_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/toybox-dl
             SOURCE_DIR
             ${TOYBOX_DIR}
             BINARY_DIR
@@ -81,7 +81,7 @@ if(CONFIG_SYSTEM_TOYBOX)
   # ############################################################################
 
   set(TOYBOX_NUTTX_CONFIG ${NUTTX_BINARY_DIR}/.config)
-  set(TOYBOX_ALLCONFIG ${CMAKE_CURRENT_LIST_DIR}/.toybox_allconfig)
+  set(TOYBOX_ALLCONFIG ${CMAKE_CURRENT_BINARY_DIR}/.toybox_allconfig)
   set(TOYBOX_TOYFILES ${TOYBOX_DIR}/generated/toyfiles.txt)
 
   # Toggling an applet in menuconfig must regenerate the applet list
