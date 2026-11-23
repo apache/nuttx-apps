@@ -61,14 +61,6 @@
 #  define CONFIG_TESTING_OSTEST_NBARRIER_THREADS 8
 #endif
 
-/* Priority inheritance */
-
-#if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_PRIORITY_INHERITANCE) && defined(CONFIG_SEM_PHDEBUG)
-#  define dump_nfreeholders(s) printf(s " nfreeholders: %d\n", sem_nfreeholders())
-#else
-#  define dump_nfreeholders(s)
-#endif
-
 /* If CONFIG_STDIO_LINEBUFFER is defined, the STDIO buffer will be flushed
  * on each new line.  Otherwise, STDIO needs to be explicitly flushed to
  * see the output in context.
@@ -356,10 +348,8 @@ void perf_gettime_test(void);
 
 #if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_PRIORITY_INHERITANCE) && defined(CONFIG_SEM_PHDEBUG)
 void sem_enumholders(FAR sem_t *sem);
-int sem_nfreeholders(void);
 #else
 #  define sem_enumholders(sem)
-#  define sem_nfreeholders()
 #endif
 
 /* nxevent.c ****************************************************************/

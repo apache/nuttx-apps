@@ -141,10 +141,6 @@ static void check_test_memory_usage(void)
   /* Set up for the next test */
 
   g_mmprevious = g_mmafter;
-
-  /* If so enabled, show the use of priority inheritance resources */
-
-  dump_nfreeholders("user_main:");
 }
 
 /****************************************************************************

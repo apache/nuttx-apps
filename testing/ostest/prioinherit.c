@@ -28,7 +28,6 @@
 #include <errno.h>
 #include <pthread.h>
 #include <sched.h>
-#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -47,20 +46,11 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_SEM_PREALLOCHOLDERS
-#  define CONFIG_SEM_PREALLOCHOLDERS 0
-#endif
-
-/* If resources were configured for lots of holders, then run 3 low priority
- * threads.  Otherwise, just one.
+/* Priority inheritance is supported only for mutexes.  A mutex is held by
+ * exactly one thread, so this test uses a single low priority holder.
  */
 
-#if CONFIG_SEM_PREALLOCHOLDERS > 3
-#  define NLOWPRI_THREADS 3
-#else
-#  define NLOWPRI_THREADS 1
-#endif
-
+#define NLOWPRI_THREADS  1
 #define NHIGHPRI_THREADS 1
 
 #define NUMBER_OF_COMPETING_THREADS     3
@@ -76,6 +66,7 @@ enum thstate_e
   NOTSTARTED = 0,
   RUNNING,
   WAITING,
+  HOLDING,
   DONE
 };
 
@@ -83,7 +74,7 @@ enum thstate_e
  * Private Data
  ****************************************************************************/
 
-static sem_t g_sem;
+static pthread_mutex_t g_mutex;
 static volatile enum thstate_e g_middlestate;
 static volatile enum thstate_e g_highstate[NHIGHPRI_THREADS];
 static volatile enum thstate_e g_lowstate[NLOWPRI_THREADS];
@@ -153,12 +144,12 @@ static FAR void *adversary(FAR void *parameter)
 
   sleep_and_display(index, inital_delay);
   printf("priority_inheritance: "
-         "Task%1d Started, waiting %d uS to take count\n", index,
+         "Task%1d Started, waiting %d uS to take the mutex\n", index,
          inital_delay);
-  sem_wait(&g_sem);
+  pthread_mutex_lock(&g_mutex);
   sleep_and_display(index,  hold_delay);
-  sem_post(&g_sem);
-  printf("priority_inheritance: Task%1d Posted\n", index);
+  pthread_mutex_unlock(&g_mutex);
+  printf("priority_inheritance: Task%1d Released\n", index);
   sleep_and_display(index, 0);
   return NULL;
 }
@@ -218,15 +209,15 @@ static FAR void *highpri_thread(FAR void *parameter)
   FFLUSH();
   sleep(1);
 
-  printf("highpri_thread-%d: Calling sem_wait()\n", threadno);
+  printf("highpri_thread-%d: Calling pthread_mutex_lock()\n", threadno);
   g_highstate[threadno - 1] = WAITING;
-  ret                     = sem_wait(&g_sem);
+  ret                       = pthread_mutex_lock(&g_mutex);
   g_highstate[threadno - 1] = DONE;
 
   if (ret != 0)
     {
       printf("highpri_thread-%d: "
-             "ERROR sem_take failed: %d\n", threadno, ret);
+             "ERROR pthread_mutex_lock failed: %d\n", threadno, ret);
       ASSERT(false);
     }
   else if (g_middlestate == RUNNING)
@@ -242,7 +233,7 @@ static FAR void *highpri_thread(FAR void *parameter)
       ASSERT(false);
     }
 
-  sem_post(&g_sem);
+  pthread_mutex_unlock(&g_mutex);
   printf("highpri_thread-%d: Okay... I'm done!\n", threadno);
   FFLUSH();
   return NULL;
@@ -313,7 +304,6 @@ static FAR void *lowpri_thread(FAR void *parameter)
   struct sched_param sparam;
   int threadno = (int)((intptr_t)parameter);
   int expected;
-  int count;
   int policy;
   int ret;
   int nwaiting = 0;
@@ -341,15 +331,27 @@ static FAR void *lowpri_thread(FAR void *parameter)
     }
 
   g_lowstate[threadno - 1] = WAITING;
-  ret = sem_wait(&g_sem);
+  ret = pthread_mutex_lock(&g_mutex);
   if (ret != 0)
     {
-      printf("lowpri_thread-%d: ERROR sem_take failed: %d\n", threadno, ret);
+      printf("lowpri_thread-%d: ERROR pthread_mutex_lock failed: %d\n",
+             threadno, ret);
       ASSERT(false);
     }
   else
     {
-      /* Hang on to the thread until the middle priority thread runs */
+      /* The mutex is now held by this low priority thread.  Publish the
+       * HOLDING state so that priority_inheritance() only starts the middle
+       * priority thread once the mutex is actually owned.
+       */
+
+      g_lowstate[threadno - 1] = HOLDING;
+
+      /* Hold the mutex until the middle priority thread runs and the high
+       * priority thread is waiting on it.  If priority inheritance does not
+       * work, the middle priority thread keeps this holder from running and
+       * the test hangs.
+       */
 
       while (g_middlestate == NOTSTARTED &&
              nhighpri_waiting() < NHIGHPRI_THREADS)
@@ -362,65 +364,45 @@ static FAR void *lowpri_thread(FAR void *parameter)
               printf("    g_highstate[%d]: %d\n", i, (int)g_highstate[i]);
             }
 
-          printf("    I still have a count on the semaphore\n");
-          sem_enumholders(&g_sem);
+          printf("    I still hold the mutex\n");
           FFLUSH();
           sleep(1);
         }
 
-      /* Account for all of the semaphore counts.  At any given time if there
-       * are 'n' running high prioity tasks, then the semaphore count should
-       * be '-n'
-       */
-
       sched_lock(); /* Needs to be atomic */
-      ret      = sem_getvalue(&g_sem, &count);
       nwaiting = nhighpri_waiting();
       sched_unlock();
 
-      if (ret < 0)
+      printf("lowpri_thread-%d: No. highpri thread waiting: %d\n",
+             threadno, nwaiting);
+
+      /* We only get here because priority inheritance boosted this holder
+       * above the middle priority thread, so that thread must still be
+       * running.
+       */
+
+      if (g_middlestate == RUNNING)
         {
-          printf("lowpri_thread-%d: ERROR sem_getvalue failed: %d\n",
-                 threadno, errno);
-          ASSERT(false);
-        }
-
-      printf("lowpri_thread-%d: Sem count: %d, No. highpri thread: %d\n",
-             threadno, count, nwaiting);
-
-      /* The middle priority task is running, let go of the semaphore */
-
-      if (g_middlestate == RUNNING && nwaiting == -count)
-        {
-          /* Good.. the middle priority task is still running and the counts
-           * are okay.
-           */
-
           retval = NULL;
         }
       else
         {
-          /* If the sem count is positive, then there all of the higher
-           * priority threads should have already completed.
-           */
-
-          printf("lowpri_thread-%d: %s the middle priority task has already"
-                 " exited!\n",
-                 threadno, count >= 0 ? "SUCCESS" : "ERROR");
-          ASSERT(count >= 0);
-          printf("               g_middlestate:  %d sem count=%d\n",
-                 (int)g_middlestate, count);
+          printf("lowpri_thread-%d: ERROR the middle priority task has "
+                 "already exited!\n", threadno);
+          printf("               g_middlestate:  %d\n",
+                 (int)g_middlestate);
           for (i = 0; i < NHIGHPRI_THREADS; i++)
             {
               printf("               g_highstate[%d]: %d\n",
                      i, (int)g_highstate[i]);
             }
+
+          ASSERT(false);
         }
     }
 
   ret = pthread_getschedparam(pthread_self(), &policy, &sparam);
-  sem_enumholders(&g_sem);
-  sem_post(&g_sem);
+  pthread_mutex_unlock(&g_mutex);
   if (ret != 0)
     {
       printf("lowpri_thread-%d: ERROR pthread_getschedparam failed: %d\n",
@@ -438,7 +420,7 @@ static FAR void *lowpri_thread(FAR void *parameter)
           expected = g_lowpri;
         }
 
-      printf("lowpri_thread-%d: %s priority before sem_post: %d\n",
+      printf("lowpri_thread-%d: %s priority before unlock: %d\n",
              threadno,
              sparam.sched_priority != expected ? "ERROR" : "SUCCESS",
              sparam.sched_priority);
@@ -471,8 +453,6 @@ static FAR void *lowpri_thread(FAR void *parameter)
         }
     }
 
-  sem_enumholders(&g_sem);
-
   printf("lowpri_thread-%d: Okay... I'm done!\n", threadno);
   FFLUSH();
   g_lowstate[threadno - 1] = DONE;
@@ -496,6 +476,7 @@ void priority_inheritance(void)
   pthread_t highpri[NHIGHPRI_THREADS];
   pthread_addr_t result;
   pthread_attr_t attr;
+  pthread_mutexattr_t mattr;
   struct sched_param sparam;
   int my_pri;
   int status;
@@ -531,10 +512,17 @@ void priority_inheritance(void)
   g_lowpri = sched_get_priority_min(SCHED_FIFO);
   g_medpri = my_pri - 1;
 
-  sem_init(&g_sem, 0, NLOWPRI_THREADS);
-  sem_setprotocol(&g_sem, SEM_PRIO_INHERIT);
+  /* Create the mutex used by the test with priority inheritance enabled */
 
-  dump_nfreeholders("priority_inheritance:");
+  pthread_mutexattr_init(&mattr);
+  pthread_mutexattr_setprotocol(&mattr, PTHREAD_PRIO_INHERIT);
+  status = pthread_mutex_init(&g_mutex, &mattr);
+  if (status != 0)
+    {
+      printf("priority_inheritance: "
+             "ERROR pthread_mutex_init failed, status=%d\n", status);
+      ASSERT(false);
+    }
 
   /* Start the low priority threads */
 
@@ -580,9 +568,20 @@ void priority_inheritance(void)
         }
     }
 
-  printf("priority_inheritance: Waiting...\n");
-  sleep(2);
-  dump_nfreeholders("priority_inheritance:");
+  /* Wait until the low priority thread holds the mutex before starting
+   * the middle priority thread, so that no fixed delay decides whether the
+   * priority inheritance relationship is set up.
+   */
+
+  printf("priority_inheritance: Waiting for lowpri_thread to take the "
+         "mutex\n");
+  for (i = 0; i < NLOWPRI_THREADS; i++)
+    {
+      while (g_lowstate[i] < HOLDING)
+        {
+          usleep(1000);
+        }
+    }
 
   /* Start the medium priority thread */
 
@@ -623,7 +622,6 @@ void priority_inheritance(void)
 
   printf("priority_inheritance: Waiting...\n");
   sleep(1);
-  dump_nfreeholders("priority_inheritance:");
 
   /* Start the high priority threads */
 
@@ -670,7 +668,6 @@ void priority_inheritance(void)
         }
     }
 
-  dump_nfreeholders("priority_inheritance:");
   FFLUSH();
 
   /* Wait for all thread instances to complete */
@@ -681,13 +678,11 @@ void priority_inheritance(void)
              "Waiting for highpri_thread-%d to complete\n", i + 1);
       FFLUSH();
       pthread_join(highpri[i], &result);
-      dump_nfreeholders("priority_inheritance:");
     }
 
   printf("priority_inheritance: Waiting for medpri_thread to complete\n");
   FFLUSH();
   pthread_join(medpri, &result);
-  dump_nfreeholders("priority_inheritance:");
 
   for (i = 0; i < NLOWPRI_THREADS; i++)
     {
@@ -695,7 +690,6 @@ void priority_inheritance(void)
              "Waiting for lowpri_thread-%d to complete\n", i + 1);
       FFLUSH();
       pthread_join(lowpri[i], &result);
-      dump_nfreeholders("priority_inheritance:");
     }
 
   /* Perform restoration test */
@@ -703,10 +697,9 @@ void priority_inheritance(void)
   printf("priority_inheritance: Restoration Test:\n");
 
   /* The competing threads are threads, not tasks: a task of its own
-   * would not share g_sem and g_priority_tracking in a kernel build.
+   * would not share g_mutex and g_priority_tracking in a kernel build.
    */
 
-  sem_init(&g_sem, 0, 1);
   priority = COMPETING_THREAD_START_PRIORITY;
 
   for (i = 0; i < NUMBER_OF_COMPETING_THREADS; i++)
@@ -761,8 +754,7 @@ void priority_inheritance(void)
     }
 
   printf("priority_inheritance: Finished\n");
-  sem_destroy(&g_sem);
-  dump_nfreeholders("priority_inheritance:");
+  pthread_mutex_destroy(&g_mutex);
   FFLUSH();
 #endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_PTHREAD */
 }
