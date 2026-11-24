@@ -45,6 +45,14 @@
 #define DEVNAME_FMT        "/dev/uorb/sensor_%s"
 #define DEVNAME_MAX        64
 
+/* Convert a sensor_data_t value to the float that printf() expects */
+
+#ifdef CONFIG_SENSORS_USE_B16
+#  define SDATA(v) b16tof(v)
+#else
+#  define SDATA(v) (v)
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -140,8 +148,8 @@ static void print_vec3(const char *buffer, const char *name)
 
   printf("%s: timestamp:%" PRIu64 " x:%.2f y:%.2f z:%.2f, "
          "temperature:%.2f\n",
-         name, event->timestamp, event->x, event->y,
-         event->z, event->temperature);
+         name, event->timestamp, SDATA(event->x), SDATA(event->y),
+         SDATA(event->z), SDATA(event->temperature));
 }
 
 static void print_valb(const char *buffer, const char *name)
@@ -165,7 +173,7 @@ static void print_valf(const char *buffer, const char *name)
   FAR struct sensor_prox *event = (FAR struct sensor_prox *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " value:%.2f\n",
-         name, event->timestamp, event->proximity);
+         name, event->timestamp, SDATA(event->proximity));
 }
 
 static void print_valf2(const char *buffer, const char *name)
@@ -173,7 +181,8 @@ static void print_valf2(const char *buffer, const char *name)
   FAR struct sensor_baro *event = (FAR struct sensor_baro *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " value1:%.2f value2:%.2f\n",
-         name, event->timestamp, event->pressure, event->temperature);
+         name, event->timestamp, SDATA(event->pressure),
+         SDATA(event->temperature));
 }
 
 static void print_valf3(const char *buffer, const char *name)
@@ -181,7 +190,8 @@ static void print_valf3(const char *buffer, const char *name)
   FAR struct sensor_rgb *event = (FAR struct sensor_rgb *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " value1:%.2f value2:%.2f, value3:%.2f\n",
-         name, event->timestamp, event->r, event->g, event->b);
+         name, event->timestamp, SDATA(event->r), SDATA(event->g),
+         SDATA(event->b));
 }
 
 static void print_ecg(const char *buffer, const char *name)
@@ -189,7 +199,7 @@ static void print_ecg(const char *buffer, const char *name)
   struct sensor_ecg *event = (struct sensor_ecg *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " ecg:%.4f status:%" PRIu32,
-         name, event->timestamp, event->ecg, event->status);
+         name, event->timestamp, SDATA(event->ecg), event->status);
 }
 
 static void print_force(const char *buffer, const char *name)
@@ -197,7 +207,7 @@ static void print_force(const char *buffer, const char *name)
   FAR struct sensor_force *event = (FAR struct sensor_force *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " value:%.2f event:%" PRIi32 "\n",
-         name, event->timestamp, event->force, event->event);
+         name, event->timestamp, SDATA(event->force), event->event);
 }
 
 static void print_ppgd(const char *buffer, const char *name)
@@ -242,10 +252,12 @@ static void print_gnss(const char *buffer, const char *name)
          "longitude: %f altitude: %f altitude_ellipsoid: %f eph: %f epv: %f "
          "hdop: %f vdop: %f ground_speed: %f course: %f satellites_used: %"
          PRIu32 "\n",
-         name, event->timestamp, event->time_utc, event->latitude,
-         event->longitude, event->altitude, event->altitude_ellipsoid,
-         event->eph, event->epv, event->hdop, event->vdop,
-         event->ground_speed, event->course, event->satellites_used);
+         name, event->timestamp, event->time_utc, SDATA(event->latitude),
+         SDATA(event->longitude), SDATA(event->altitude),
+         SDATA(event->altitude_ellipsoid), SDATA(event->eph),
+         SDATA(event->epv), SDATA(event->hdop), SDATA(event->vdop),
+         SDATA(event->ground_speed), SDATA(event->course),
+         event->satellites_used);
 }
 
 static void print_gnss_satellite(FAR const char *buffer,
@@ -265,7 +277,7 @@ static void print_velocity(const char *buffer, const char *name)
       (FAR struct sensor_velocity *)buffer;
 
   printf("%s: timestamp:%" PRIu64 " value:%.2f\n",
-         name, event->timestamp, event->velocity);
+         name, event->timestamp, SDATA(event->velocity));
 }
 
 static void usage(void)
