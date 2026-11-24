@@ -213,6 +213,18 @@ int SSL_want_read(const SSL *ssl)
   return (SSL_want(ssl) == SSL_READING);
 }
 
+int SSL_want_write(const SSL *ssl)
+{
+  SSL_ASSERT1(ssl);
+
+  if (ssl->err)
+    {
+      return 0;
+    }
+
+  return (SSL_want(ssl) == SSL_WRITING);
+}
+
 int SSL_want_x509_lookup(const SSL *ssl)
 {
   SSL_ASSERT1(ssl);
@@ -994,6 +1006,41 @@ void SSL_set_verify(SSL *ssl, int mode,
 
   ssl->verify_mode = mode;
   ssl->verify_callback = verify_callback;
+}
+
+char *ERR_error_string(unsigned long e, char *buf)
+{
+  if (!buf)
+    {
+      return "unknown";
+    }
+
+  switch (e)
+    {
+      case X509_V_ERR_INVALID_CA:
+        strcpy(buf, "CA is not trusted");
+        break;
+      case X509_V_ERR_HOSTNAME_MISMATCH:
+        strcpy(buf, "Hostname mismatch");
+        break;
+      case X509_V_ERR_CA_KEY_TOO_SMALL:
+        strcpy(buf, "CA key too small");
+        break;
+      case X509_V_ERR_CA_MD_TOO_WEAK:
+        strcpy(buf, "MD key too weak");
+        break;
+      case X509_V_ERR_CERT_NOT_YET_VALID:
+        strcpy(buf, "Cert from the future");
+        break;
+      case X509_V_ERR_CERT_HAS_EXPIRED:
+        strcpy(buf, "Cert expired");
+        break;
+      default:
+        strcpy(buf, "unknown");
+        break;
+    }
+
+  return buf;
 }
 
 void *SSL_CTX_get_ex_data(const SSL_CTX *ctx, int idx)
