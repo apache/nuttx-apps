@@ -127,6 +127,10 @@ ifneq ($(CONFIG_PTHREAD_MUTEX_UNSAFE),y)
 CSRCS += robust.c
 endif
 
+ifeq ($(CONFIG_FILE_STREAM),y)
+CSRCS += flockfile.c
+endif
+
 ifeq ($(CONFIG_PTHREAD_MUTEX_TYPES),y)
 CSRCS += rmutex.c
 endif

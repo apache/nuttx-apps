@@ -125,6 +125,10 @@ if(CONFIG_TESTING_OSTEST)
       list(APPEND SRCS robust.c)
     endif()
 
+    if(CONFIG_FILE_STREAM)
+      list(APPEND SRCS flockfile.c)
+    endif()
+
     if(CONFIG_PTHREAD_MUTEX_TYPES)
       list(APPEND SRCS rmutex.c)
     endif()

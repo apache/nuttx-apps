@@ -501,6 +501,12 @@ static int user_main(int argc, char *argv[])
       robust_test();
       check_test_memory_usage();
 #endif
+
+#ifdef CONFIG_FILE_STREAM
+      printf("\nuser_main: flockfile test\n");
+      flockfile_test();
+      check_test_memory_usage();
+#endif
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD
