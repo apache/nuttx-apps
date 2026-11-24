@@ -229,9 +229,9 @@ static void coredump_restore(FAR char *savepath, size_t maxfile)
   off_t off;
   int ret;
   Elf_Nhdr nhdr =
-    {
-      0
-    };
+  {
+    0
+  };
 
   blkfd = open(CONFIG_SYSTEM_COREDUMP_DEVPATH, O_RDWR);
   if (blkfd < 0)
