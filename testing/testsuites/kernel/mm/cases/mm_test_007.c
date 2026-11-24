@@ -71,6 +71,7 @@ void test_nuttx_mm07(FAR void **state)
   struct mallinfo test_during_info;
   struct mallinfo test_after_info;
   struct mallinfo mem_info;
+
   memset(&mem_info, 0, sizeof(mem_info));
   for (int i = 0; i < MEMORY_LIST_LENGTH; i++)
     {
@@ -145,7 +146,9 @@ void test_nuttx_mm07(FAR void **state)
   for (int l = 0; l < MEMORY_LIST_LENGTH; l++)
     {
       if (mem_list[l] != NULL)
-        free(mem_list[l]);
+        {
+          free(mem_list[l]);
+        }
     }
 
   test_after_info = mallinfo();
