@@ -85,6 +85,7 @@ int trace_dump(FAR FILE *out, bool binary)
   if (binary)
     {
       unsigned int mode = NOTERAM_MODE_READ_BINARY;
+
       ret = ioctl(fd, NOTERAM_SETREADMODE, &mode);
       if (ret < 0)
         {
