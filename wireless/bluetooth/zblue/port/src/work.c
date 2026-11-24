@@ -20,9 +20,11 @@
  *
  ****************************************************************************/
 
-/* Zephyr work queues on NuttX work queues (work_queue_create()).
+/* Zephyr work queues on NuttX work queues (work_queue_init()).
  *
- * Each k_work_q is a NuttX work queue with one thread.  The NuttX work
+ * Each k_work_q is a NuttX work queue served by one zblue thread, a
+ * pthread of the application: the work runs with its file descriptors and
+ * its thread-specific data.  The NuttX work
  * item of a k_work only runs work_entry() on that thread when the item is
  * due.  The Zephyr state (QUEUED, DELAYED, RUNNING, CANCELING) is kept in
  * the k_work flags, under one lock, and gives the Zephyr return values;
@@ -36,8 +38,11 @@
  ****************************************************************************/
 
 #include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 #include "port.h"
+
+LOG_MODULE_REGISTER(zblue_work, CONFIG_LOG_DEFAULT_LEVEL);
 
 /****************************************************************************
  * Private Data
@@ -296,15 +301,31 @@ static void work_entry(FAR void *arg)
   pthread_mutex_unlock(&g_work_lock);
 }
 
-/* First item of every queue: makes k_current_get() the queue thread */
+/* The queue thread runs the NuttX work loop */
 
-static void queue_start_entry(FAR void *arg)
+static void queue_thread_entry(void *p1, void *p2, void *p3)
 {
-  struct k_work_q *queue = arg;
+  struct k_work_q *queue = p1;
+  int depth;
+  int ret;
 
-  queue->thread.pthread = pthread_self();
-  pthread_setname_np(queue->thread.pthread, queue->thread.name);
-  z_zblue_set_self(&queue->thread);
+  ARG_UNUSED(p2);
+  ARG_UNUSED(p3);
+
+  /* Waiting for work must not hold the cooperative lock: work_entry()
+   * takes it for each item of a cooperative queue.
+   */
+
+  depth = z_zblue_block_begin();
+  ret = work_queue_run(queue->wq);
+  z_zblue_block_end(depth);
+
+  /* The queues are never freed, so work_queue_run() must not return:
+   * the work of the queue would then never run.
+   */
+
+  LOG_ERR("work queue %s stopped: %d", queue->thread.name, ret);
+  __ASSERT(0, "work queue %s stopped: %d", queue->thread.name, ret);
 }
 
 /****************************************************************************
@@ -394,15 +415,13 @@ void k_work_queue_start(struct k_work_q *queue, k_thread_stack_t *stack,
 
   queue->thread.name = (cfg != NULL && cfg->name != NULL) ?
                        cfg->name : "zblue_wq";
-  queue->thread.prio = prio;
-  queue->thread.coop = prio < 0;
+  queue->thread.entry = queue_thread_entry;
+  queue->thread.p1 = queue;
   queue->thread_id = &queue->thread;
 
-  queue->wq = work_queue_create(queue->thread.name, z_zblue_priority(prio),
-                                NULL, stack_size + ZBLUE_STACK_EXTRA, 1);
+  queue->wq = work_queue_init(1);
   if (queue->wq == NULL ||
-      work_queue_wq(queue->wq, &queue->start, queue_start_entry,
-                    queue, 0) < 0)
+      z_zblue_thread_start(&queue->thread, stack_size, prio) < 0)
     {
       __ASSERT(0, "cannot start work queue %s", queue->thread.name);
     }

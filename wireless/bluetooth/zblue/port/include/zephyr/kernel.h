@@ -433,7 +433,6 @@ struct k_work_q
   struct k_thread thread;
   k_tid_t thread_id;
   FAR struct kwork_wqueue_s *wq;
-  struct work_s start;
 };
 
 extern struct k_work_q k_sys_work_q;
