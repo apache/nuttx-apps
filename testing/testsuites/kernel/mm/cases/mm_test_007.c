@@ -85,6 +85,7 @@ void test_nuttx_mm07(FAR void **state)
   for (int k = 0; k < MEMORY_LIST_LENGTH; k++)
     {
       int max_size;
+
       get_mem_info(&mem_info);
       malloc_size =
           mmtest_get_rand_size(MALLOC_MIN_SIZE, MALLOC_MAX_SIZE);
