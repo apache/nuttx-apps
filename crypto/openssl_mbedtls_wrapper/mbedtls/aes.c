@@ -133,7 +133,6 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
                       const unsigned char *iv, int enc)
 {
   mbedtls_cipher_context_t *ctx_ = (mbedtls_cipher_context_t *)ctx;
-  mbedtls_cipher_set_padding_mode(ctx_, MBEDTLS_PADDING_PKCS7);
   const mbedtls_operation_t operation = enc
     ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
   int ret = mbedtls_cipher_setup(ctx_,
@@ -157,6 +156,8 @@ int EVP_CipherInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
     {
       goto error;
     }
+
+  mbedtls_cipher_set_padding_mode(ctx_, MBEDTLS_PADDING_PKCS7);
 
   return 1;
 error:

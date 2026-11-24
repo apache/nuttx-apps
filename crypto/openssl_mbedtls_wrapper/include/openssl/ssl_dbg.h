@@ -20,6 +20,12 @@
 #ifndef OPENSSL_MBEDTLS_WRAPPER_SSL_DBG_H
 #define OPENSSL_MBEDTLS_WRAPPER_SSL_DBG_H
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <nuttx/config.h>
+
 #ifdef __cplusplus
 extern "C"
 {
