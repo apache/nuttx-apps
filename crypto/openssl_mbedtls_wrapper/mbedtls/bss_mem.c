@@ -28,6 +28,7 @@
 #include <sys/param.h>
 
 #include <openssl/bio.h>
+#include <mbedtls/platform.h>
 
 /****************************************************************************
  * Pre-processor definitions
@@ -128,10 +129,16 @@ static size_t BUF_MEM_grow_clean(BIO_BUF_MEM *bbm, size_t len)
     }
 
   n = MAX((len + 3) / 3 * 4, bbm->max);
-  ret = realloc(bbm->data, n);
+  ret = mbedtls_calloc(1, n);
   if (ret == NULL)
     {
       return 0;
+    }
+
+  if (bbm->data != NULL)
+    {
+      memcpy(ret, bbm->data, bbm->length);
+      mbedtls_free(bbm->data);
     }
 
   bbm->data = ret;
@@ -196,7 +203,7 @@ static int mem_read(BIO *b, char *out, int outl)
 
 static int mem_new(BIO *bi)
 {
-  BIO_BUF_MEM *bbm = zalloc(sizeof(*bbm));
+  BIO_BUF_MEM *bbm = mbedtls_calloc(1, sizeof(*bbm));
 
   if (bbm == NULL)
     {
@@ -219,10 +226,10 @@ static int mem_free(BIO *a)
   bbm = (BIO_BUF_MEM *)a->ptr;
   if (bbm->data)
     {
-      free(bbm->data);
+      mbedtls_free(bbm->data);
     }
 
-  free(bbm);
+  mbedtls_free(bbm);
   return 1;
 }
 

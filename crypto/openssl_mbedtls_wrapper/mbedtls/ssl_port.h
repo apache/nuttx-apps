@@ -26,6 +26,7 @@
 
 #include "string.h"
 #include "stdlib.h"
+#include "mbedtls/platform.h"
 #if defined(LWS_HAVE_MALLOC_H)
 #include "malloc.h"
 #endif
@@ -37,8 +38,8 @@ extern "C"
 
 void *ssl_mem_zalloc(size_t size);
 
-#define ssl_mem_malloc malloc
-#define ssl_mem_free   free
+#define ssl_mem_malloc(size) mbedtls_calloc(1, (size))
+#define ssl_mem_free   mbedtls_free
 
 #define ssl_memcpy     memcpy
 #define ssl_strlen     strlen

@@ -932,7 +932,7 @@ int X509_VERIFY_PARAM_set1_host(X509_VERIFY_PARAM *param,
 
   if (namelen)
     {
-      name_cstr = malloc(namelen + 1);
+      name_cstr = mbedtls_calloc(1, namelen + 1);
       if (!name_cstr)
         {
           return 0;
@@ -947,7 +947,7 @@ int X509_VERIFY_PARAM_set1_host(X509_VERIFY_PARAM *param,
 
   if (namelen)
     {
-      free(name_cstr);
+      mbedtls_free(name_cstr);
     }
 
   return 1;
