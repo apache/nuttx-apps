@@ -5,7 +5,7 @@
 
 config SYSTEM_GDBSTUB
 	tristate "GDBSTUB"
-	depends on LIB_GDBSTUB
+	depends on LIBC_GDBSTUB || LIB_GDBSTUB
 	---help---
 		Enable support for gdbstub.
 
