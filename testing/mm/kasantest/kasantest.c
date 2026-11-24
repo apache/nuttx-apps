@@ -637,6 +637,7 @@ static bool test_global_overflow(FAR struct mm_heap_s *heap, size_t size)
 static bool test_stack_underflow(FAR struct mm_heap_s *heap, size_t size)
 {
   char stack[0];
+
   memset(stack - 16, 0xef, 16);
   return false;
 }
@@ -644,6 +645,7 @@ static bool test_stack_underflow(FAR struct mm_heap_s *heap, size_t size)
 static bool test_stack_overflow(FAR struct mm_heap_s *heap, size_t size)
 {
   char stack[0];
+
   memset(stack, 0xef, 16);
   return false;
 }
