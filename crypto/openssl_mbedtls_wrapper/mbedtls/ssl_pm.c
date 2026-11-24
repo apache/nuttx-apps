@@ -495,7 +495,7 @@ int ssl_pm_send(SSL *ssl, const void *buffer, int len)
    * If this function returns something other than a positive value or
    * MBEDTLS_ERR_SSL_WANT_READ/WRITE, the ssl context becomes unusable, and
    * you should either free it or call mbedtls_ssl_session_reset() on it
-   * before re-using it for a new connection; the current connection must
+   * before reusing it for a new connection; the current connection must
    * be closed.
    *
    * When this function returns MBEDTLS_ERR_SSL_WANT_WRITE/READ, it must be

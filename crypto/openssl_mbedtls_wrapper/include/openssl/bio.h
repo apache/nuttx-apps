@@ -101,6 +101,8 @@ int BIO_write(BIO *b, const void *data, int dlen);
 
 int BIO_read(BIO *b, void *data, int dlen);
 
+int BIO_free(BIO *a);
+
 void BIO_free_all(BIO *bio);
 
 BIO *BIO_next(BIO *b);

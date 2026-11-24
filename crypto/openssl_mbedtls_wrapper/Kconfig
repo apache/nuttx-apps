@@ -5,6 +5,22 @@
 
 config OPENSSL_MBEDTLS_WRAPPER
 	depends on CRYPTO_MBEDTLS
+	depends on MBEDTLS_ECP_C
+	depends on MBEDTLS_PK_WRITE_C
+	depends on MBEDTLS_GCM_C || MBEDTLS_CHACHAPOLY_C
+	depends on MBEDTLS_PKCS5_C
+	depends on MBEDTLS_CIPHER_PADDING_PKCS7
+	depends on MBEDTLS_SSL_ALPN
+	depends on MBEDTLS_SSL_SERVER_NAME_INDICATION
+	depends on MBEDTLS_SSL_TLS_C
+	depends on MBEDTLS_SSL_CLI_C
+	depends on MBEDTLS_SSL_PROTO_TLS1_2
+	depends on MBEDTLS_X509_CRT_PARSE_C
+	depends on MBEDTLS_PK_PARSE_C
+	depends on MBEDTLS_RSA_C
+	depends on MBEDTLS_MD5_C
+	depends on MBEDTLS_SHA1_C
+	depends on MBEDTLS_FS_IO
 	bool "openssl mbedtls wrapper"
 	default n
 
