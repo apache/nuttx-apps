@@ -65,18 +65,6 @@ struct ssl_pm
   SSL *owner;
 };
 
-struct x509_pm
-{
-  mbedtls_x509_crt x509_crt;
-  mbedtls_x509_crt *ex_crt;
-};
-
-struct pkey_pm
-{
-  mbedtls_pk_context *pkey;
-  mbedtls_pk_context *ex_pkey;
-};
-
 /****************************************************************************
  * Public Data
  ****************************************************************************/

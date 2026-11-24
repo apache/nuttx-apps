@@ -28,10 +28,39 @@
 #include <openssl/ssl.h>
 #include "ssl_port.h"
 
+#include <mbedtls/pk.h>
+#include <mbedtls/x509_crt.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* Private mbedtls-backed representation of an EVP_PKEY.  EVP_PKEY.pkey_pm
+ * points to one of these.  Defined here so that helpers outside ssl_pm.c
+ * (evp.c, pkcs12.c) reference the same layout instead of re-declaring it.
+ */
+
+struct pkey_pm
+{
+  mbedtls_pk_context *pkey;
+  mbedtls_pk_context *ex_pkey;
+};
+
+/* Private mbedtls-backed representation of an X509.  X509.x509_pm points
+ * to one of these.  Defined here so that helpers outside ssl_pm.c
+ * (x509.c, pkcs12.c) reference the same layout instead of re-declaring it.
+ */
+
+struct x509_pm
+{
+  mbedtls_x509_crt x509_crt;
+  mbedtls_x509_crt *ex_crt;
+};
 
 /****************************************************************************
  * Public Function Prototypes

@@ -33,7 +33,10 @@
 
 #include <mbedtls/md.h>
 #include <mbedtls/pk.h>
+#include <mbedtls/platform.h>
 #include <mbedtls/rsa.h>
+
+#include "ssl_pm.h"
 
 /****************************************************************************
  * Private Functions
@@ -331,7 +334,57 @@ int EVP_PKEY_derive(EVP_PKEY_CTX *ctx, uint8_t *key, size_t *out_key_len)
 int EVP_PKEY_get_raw_public_key(const EVP_PKEY *pkey,
                                 uint8_t *out, size_t *out_len)
 {
-  return 0;
+  struct pkey_pm *pm;
+  mbedtls_pk_context *pk;
+  mbedtls_ecp_keypair *ecp;
+  unsigned char buf[MBEDTLS_ECP_MAX_PT_LEN];
+  size_t olen;
+  int ret;
+
+  if (pkey == NULL || out_len == NULL)
+    {
+      return 0;
+    }
+
+  pm = (struct pkey_pm *)pkey->pkey_pm;
+  if (pm == NULL || pm->pkey == NULL)
+    {
+      return 0;
+    }
+
+  pk = pm->pkey;
+  if (!mbedtls_pk_can_do(pk, MBEDTLS_PK_ECKEY))
+    {
+      return 0;
+    }
+
+  /* Raw public key is the X9.62 uncompressed point, not the SPKI DER. */
+
+  ecp = mbedtls_pk_ec(*pk);
+  ret = mbedtls_ecp_point_write_binary(&ecp->MBEDTLS_PRIVATE(grp),
+                                       &ecp->MBEDTLS_PRIVATE(Q),
+                                       MBEDTLS_ECP_PF_UNCOMPRESSED,
+                                       &olen, buf, sizeof(buf));
+  if (ret != 0)
+    {
+      return 0;
+    }
+
+  if (out == NULL)
+    {
+      *out_len = olen;
+      return 1;
+    }
+
+  if (*out_len < olen)
+    {
+      *out_len = olen;
+      return 0;
+    }
+
+  memcpy(out, buf, olen);
+  *out_len = olen;
+  return 1;
 }
 
 EVP_PKEY *d2i_PUBKEY(EVP_PKEY **out, const uint8_t **inp, long len)
@@ -342,7 +395,125 @@ EVP_PKEY *d2i_PUBKEY(EVP_PKEY **out, const uint8_t **inp, long len)
 int EVP_PKEY_get_raw_private_key(const EVP_PKEY *pkey,
                                  uint8_t *out, size_t *out_len)
 {
-  return 0;
+  struct pkey_pm *pm;
+  mbedtls_pk_context *pk;
+  mbedtls_ecp_keypair *ecp;
+  size_t need;
+  int ret;
+
+  if (pkey == NULL || out_len == NULL)
+    {
+      return 0;
+    }
+
+  pm = (struct pkey_pm *)pkey->pkey_pm;
+  if (pm == NULL || pm->pkey == NULL)
+    {
+      return 0;
+    }
+
+  pk = pm->pkey;
+  if (!mbedtls_pk_can_do(pk, MBEDTLS_PK_ECKEY))
+    {
+      return 0;
+    }
+
+  /* Raw private key is the fixed-length big-endian scalar. */
+
+  ecp = mbedtls_pk_ec(*pk);
+  need = (ecp->MBEDTLS_PRIVATE(grp).pbits + 7) / 8;
+
+  if (out == NULL)
+    {
+      *out_len = need;
+      return 1;
+    }
+
+  if (*out_len < need)
+    {
+      *out_len = need;
+      return 0;
+    }
+
+  ret = mbedtls_mpi_write_binary(&ecp->MBEDTLS_PRIVATE(d), out, need);
+  if (ret != 0)
+    {
+      return 0;
+    }
+
+  *out_len = need;
+  return 1;
+}
+
+int EVP_PKEY_eq(const EVP_PKEY *a, const EVP_PKEY *b)
+{
+  unsigned char *buf_a = NULL;
+  unsigned char *buf_b = NULL;
+  struct pkey_pm *pm_a;
+  struct pkey_pm *pm_b;
+  size_t buf_size;
+  int len_a;
+  int len_b;
+  int result;
+
+  if (a == NULL || b == NULL)
+    {
+      return -2;
+    }
+
+  pm_a = (struct pkey_pm *)a->pkey_pm;
+  pm_b = (struct pkey_pm *)b->pkey_pm;
+
+  if (pm_a == NULL || pm_a->pkey == NULL ||
+      pm_b == NULL || pm_b->pkey == NULL)
+    {
+      return -1;
+    }
+
+  /* Size the DER buffer from the key length so large keys (e.g. RSA-4096)
+   * fit while small keys do not over-allocate.  The public key DER adds
+   * only a small SubjectPublicKeyInfo overhead on top of the key material.
+   */
+
+  buf_size = mbedtls_pk_get_len(pm_a->pkey);
+  if (mbedtls_pk_get_len(pm_b->pkey) > buf_size)
+    {
+      buf_size = mbedtls_pk_get_len(pm_b->pkey);
+    }
+
+  buf_size = buf_size * 2 + 128;
+
+  buf_a = mbedtls_calloc(1, buf_size);
+  buf_b = mbedtls_calloc(1, buf_size);
+  if (buf_a == NULL || buf_b == NULL)
+    {
+      result = -1;
+      goto out;
+    }
+
+  len_a = mbedtls_pk_write_pubkey_der(pm_a->pkey, buf_a, buf_size);
+  len_b = mbedtls_pk_write_pubkey_der(pm_b->pkey, buf_b, buf_size);
+  if (len_a < 0 || len_b < 0)
+    {
+      result = -1;
+      goto out;
+    }
+
+  if (len_a != len_b)
+    {
+      result = 0;
+      goto out;
+    }
+
+  /* mbedtls writes DER from the end of the buffer */
+
+  result = memcmp(buf_a + buf_size - len_a,
+                  buf_b + buf_size - len_b, len_a) == 0 ? 1 : 0;
+
+out:
+  mbedtls_free(buf_a);
+  mbedtls_free(buf_b);
+  return result;
 }
 
 int OpenSSL_add_all_algorithms(void)
