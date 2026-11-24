@@ -293,7 +293,7 @@ int main(int argc, FAR char *argv[])
 
   iob_free_chain(iob);
 
-  /* test race conditon between nothrottled and nothrottled */
+  /* test race condition between nothrottled and nothrottled */
 
   failed_count[0] = 0;
   failed_count[1] = 0;
@@ -320,12 +320,12 @@ int main(int argc, FAR char *argv[])
 
   pthread_join(thread[0], NULL);
   pthread_join(thread[1], NULL);
-  printf("nothrottled thread 0 statistc failed_count %d success_count %d\n",
+  printf("nothrottled thread 0 statistic failed_count %d success_count %d\n",
           failed_count[0], success_count[0]);
-  printf("nothrottled thread 1 statistc failed_count %d success_count %d\n",
+  printf("nothrottled thread 1 statistic failed_count %d success_count %d\n",
           failed_count[1], success_count[1]);
 
-  /* test race conditon between throttled and nothrottled */
+  /* test race condition between throttled and nothrottled */
 
   failed_count[0] = 0;
   failed_count[1] = 0;
@@ -352,12 +352,12 @@ int main(int argc, FAR char *argv[])
 
   pthread_join(thread[0], NULL);
   pthread_join(thread[1], NULL);
-  printf("nothrottled thread 0 statistc failed_count %d success_count %d\n",
+  printf("nothrottled thread 0 statistic failed_count %d success_count %d\n",
           failed_count[0], success_count[0]);
-  printf("throttled thread 1 statistc failed_count %d success_count %d\n",
+  printf("throttled thread 1 statistic failed_count %d success_count %d\n",
           failed_count[1], success_count[1]);
 
-  /* test race conditon between throttled and throttled */
+  /* test race condition between throttled and throttled */
 
   failed_count[0] = 0;
   failed_count[1] = 0;
@@ -384,9 +384,9 @@ int main(int argc, FAR char *argv[])
 
   pthread_join(thread[0], NULL);
   pthread_join(thread[1], NULL);
-  printf("throttled thread 0 statistc failed_count %d success_count %d\n",
+  printf("throttled thread 0 statistic failed_count %d success_count %d\n",
           failed_count[0], success_count[0]);
-  printf("throttled thread 1 statistc failed_count %d success_count %d\n",
+  printf("throttled thread 1 statistic failed_count %d success_count %d\n",
           failed_count[1], success_count[1]);
 
   return 0;

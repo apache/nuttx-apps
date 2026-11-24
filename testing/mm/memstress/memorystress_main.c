@@ -141,6 +141,7 @@ static void show_usage(FAR const char *progname)
 static uint32_t randnum(uint32_t max, FAR uint32_t *seed)
 {
   uint32_t x = *seed;
+
   x ^= x << 13;
   x ^= x >> 17;
   x ^= x << 5;
@@ -338,6 +339,7 @@ static bool memorystress_iter(FAR struct memorystress_thread_context_s
 static FAR void *debug_malloc(size_t size)
 {
   void *ptr = malloc(size);
+
   syslog(LOG_INFO, MEMSTRESS_PREFIX "malloc: %zu bytes, ptr = %p\n",
          size, ptr);
   return ptr;
@@ -360,6 +362,7 @@ static void debug_free(FAR void *ptr)
 static FAR void *debug_aligned_alloc(size_t align, size_t nbytes)
 {
   void *ptr = memalign(align, nbytes);
+
   syslog(LOG_INFO, MEMSTRESS_PREFIX "aligned_alloc: %zu bytes, align: %zu,"
          " ptr: %p\n", nbytes, align, ptr);
   return ptr;
@@ -420,36 +423,36 @@ static void global_init(FAR struct memorystress_global_s *global, int argc,
         }
     }
 
-    if (global->debug)
-      {
-        global->func.malloc = debug_malloc;
-        global->func.aligned_alloc = debug_aligned_alloc;
-        global->func.realloc = debug_realloc;
-        global->func.freefunc = debug_free;
-      }
-    else
-      {
-        global->func.malloc = malloc;
-        global->func.aligned_alloc = aligned_alloc;
-        global->func.realloc = realloc;
-        global->func.freefunc = free;
-      }
+  if (global->debug)
+    {
+      global->func.malloc = debug_malloc;
+      global->func.aligned_alloc = debug_aligned_alloc;
+      global->func.realloc = debug_realloc;
+      global->func.freefunc = debug_free;
+    }
+  else
+    {
+      global->func.malloc = malloc;
+      global->func.aligned_alloc = aligned_alloc;
+      global->func.realloc = realloc;
+      global->func.freefunc = free;
+    }
 
-    global->threads = (FAR pthread_t *)malloc(sizeof(pthread_t) *
-                                              global->nthreads);
-    if (global->threads == NULL)
-      {
-        syslog(LOG_ERR, MEMSTRESS_PREFIX "Malloc threads Failed\n");
-        exit(EXIT_FAILURE);
-      }
+  global->threads = (FAR pthread_t *)malloc(sizeof(pthread_t) *
+                                            global->nthreads);
+  if (global->threads == NULL)
+    {
+      syslog(LOG_ERR, MEMSTRESS_PREFIX "Malloc threads Failed\n");
+      exit(EXIT_FAILURE);
+    }
 
-    syslog(LOG_INFO, MEMSTRESS_PREFIX "\n max_allocsize: %zu\n"
-           " nodelen: %zu\n sleep_us: %" PRIu32 "\n nthreads: %zu\n "
-           "debug: %s\n",
-           global->max_allocsize, global->nodelen, global->sleep_us,
-           global->nthreads, global->debug ? "true" : "false");
+  syslog(LOG_INFO, MEMSTRESS_PREFIX "\n max_allocsize: %zu\n"
+         " nodelen: %zu\n sleep_us: %" PRIu32 "\n nthreads: %zu\n "
+         "debug: %s\n",
+         global->max_allocsize, global->nodelen, global->sleep_us,
+         global->nthreads, global->debug ? "true" : "false");
 
-    srand(time(NULL));
+  srand(time(NULL));
 }
 
 /****************************************************************************
