@@ -157,7 +157,9 @@ static void *test_nuttx_08_routine_3(void *arg)
 
 void test_nuttx_mm08(FAR void **state)
 {
-  pthread_t thread1, thread2, thread3;
+  pthread_t thread1;
+  pthread_t thread2;
+  pthread_t thread3;
   int status = 0;
 
   status = pthread_create(&thread1, NULL, test_nuttx_08_routine_1, NULL);
