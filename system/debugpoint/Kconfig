@@ -7,7 +7,7 @@ config SYSTEM_DEBUGPOINT
 	tristate "Debugpoint utility"
 	default n
 	depends on ARCH_HAVE_DEBUG
-	depends on LIB_GDBSTUB
+	depends on LIBC_GDBSTUB || LIB_GDBSTUB
 	---help---
 		Enable the DEBUGPOINT test program. It is a simple
 		utility for testing the debug point support and
