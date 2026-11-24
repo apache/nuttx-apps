@@ -25,6 +25,7 @@
 #include <stdio.h>
 
 #include <openssl/bio.h>
+#include <mbedtls/platform.h>
 
 /****************************************************************************
  * Public Functions
@@ -32,7 +33,7 @@
 
 BIO *BIO_new(const BIO_METHOD *method)
 {
-  BIO *bio = zalloc(sizeof(*bio));
+  BIO *bio = mbedtls_calloc(1, sizeof(*bio));
 
   if (bio == NULL)
     {
@@ -43,7 +44,7 @@ BIO *BIO_new(const BIO_METHOD *method)
 
   if (method->create != NULL && !method->create(bio))
     {
-      free(bio);
+      mbedtls_free(bio);
       return NULL;
     }
 
@@ -121,7 +122,7 @@ int BIO_free(BIO *a)
       a->method->destroy(a);
     }
 
-  free(a);
+  mbedtls_free(a);
   return 1;
 }
 

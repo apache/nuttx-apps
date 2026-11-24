@@ -29,12 +29,5 @@
 
 void *ssl_mem_zalloc(size_t size)
 {
-  void *p = malloc(size);
-
-  if (p)
-    {
-      memset(p, 0, size);
-    }
-
-  return p;
+  return mbedtls_calloc(1, size);
 }
