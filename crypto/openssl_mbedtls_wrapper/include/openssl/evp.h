@@ -170,6 +170,8 @@ int PKCS5_PBKDF2_HMAC(const char *password, size_t password_len,
 
 const PKEY_METHOD *EVP_PKEY_method(void);
 
+int EVP_PKEY_eq(const EVP_PKEY *a, const EVP_PKEY *b);
+
 int OpenSSL_add_all_algorithms(void);
 
 void EVP_cleanup(void);
