@@ -84,7 +84,8 @@ int EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *data, size_t len)
 int EVP_DigestFinal_ex(EVP_MD_CTX *ctx, uint8_t *md_out,
                        unsigned int *size)
 {
-  const mbedtls_md_info_t *md_info = ((mbedtls_md_context_t *)ctx)->md_info;
+  const mbedtls_md_info_t *md_info =
+      mbedtls_md_info_from_ctx((mbedtls_md_context_t *)ctx);
   if (md_info == NULL)
     {
       return 0;

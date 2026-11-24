@@ -121,7 +121,6 @@ int ssl_pm_new(SSL *ssl)
   size_t pers_len = sizeof(pers);
 
   int endpoint;
-  int version;
 
   const SSL_METHOD *method = ssl->method;
 
@@ -178,39 +177,13 @@ int ssl_pm_new(SSL *ssl)
       goto mbedtls_err2;
     }
 
-  if (TLS_ANY_VERSION != ssl->version)
-    {
-      if (TLS1_2_VERSION == ssl->version)
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_3;
-        }
-      else if (TLS1_1_VERSION == ssl->version)
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_2;
-        }
-      else if (TLS1_VERSION == ssl->version)
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_1;
-        }
-      else
-        {
-          version = MBEDTLS_SSL_MINOR_VERSION_0;
-        }
+  mbedtls_ssl_conf_min_version(&ssl_pm->conf,
+                               MBEDTLS_SSL_MAJOR_VERSION_3,
+                               MBEDTLS_SSL_MINOR_VERSION_3);
 
-      mbedtls_ssl_conf_max_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3, version);
-      mbedtls_ssl_conf_min_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3, version);
-    }
-  else
-    {
-      mbedtls_ssl_conf_max_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3,
-                                   MBEDTLS_SSL_MINOR_VERSION_3);
-      mbedtls_ssl_conf_min_version(&ssl_pm->conf,
-                                   MBEDTLS_SSL_MAJOR_VERSION_3,
-                                   MBEDTLS_SSL_MINOR_VERSION_0);
-    }
+  mbedtls_ssl_conf_max_version(&ssl_pm->conf,
+                               MBEDTLS_SSL_MAJOR_VERSION_3,
+                               MBEDTLS_SSL_MINOR_VERSION_3);
 
   mbedtls_ssl_conf_rng(&ssl_pm->conf,
                  mbedtls_ctr_drbg_random, &ssl_pm->ctr_drbg);
@@ -321,7 +294,7 @@ static int mbedtls_handshake(mbedtls_ssl_context *ssl)
 {
   int ret = 0;
 
-  while (ssl->state != MBEDTLS_SSL_HANDSHAKE_OVER)
+  while (ssl->MBEDTLS_PRIVATE(state) != MBEDTLS_SSL_HANDSHAKE_OVER)
     {
       ret = mbedtls_ssl_handshake_step(ssl);
 
@@ -350,7 +323,7 @@ int ssl_pm_handshake(SSL *ssl)
       return 0;
     }
 
-  if (ssl_pm->ssl.state != MBEDTLS_SSL_HANDSHAKE_OVER)
+  if (ssl_pm->ssl.MBEDTLS_PRIVATE(state) != MBEDTLS_SSL_HANDSHAKE_OVER)
     {
       ssl_speed_up_enter();
 
@@ -486,7 +459,7 @@ int ssl_pm_read(SSL *ssl, void *buffer, int len)
       SSL_DEBUG(SSL_PLATFORM_ERROR_LEVEL,
                 "mbedtls_ssl_read() return -0x%x", -ret);
       if (ret == MBEDTLS_ERR_NET_CONN_RESET ||
-          ret <= MBEDTLS_ERR_SSL_NO_USABLE_CIPHERSUITE) /* fatal errors */
+          ret <= MBEDTLS_ERR_SSL_HANDSHAKE_FAILURE) /* fatal errors */
         {
           ssl->err = SSL_ERROR_SYSCALL;
         }
@@ -594,7 +567,7 @@ OSSL_HANDSHAKE_STATE ssl_pm_get_state(const SSL *ssl)
 
   struct ssl_pm *ssl_pm = (struct ssl_pm *)ssl->ssl_pm;
 
-  switch (ssl_pm->ssl.state)
+  switch (ssl_pm->ssl.MBEDTLS_PRIVATE(state))
     {
       case MBEDTLS_SSL_CLIENT_HELLO:
         state = TLS_ST_CW_CLNT_HELLO;
@@ -628,9 +601,6 @@ OSSL_HANDSHAKE_STATE ssl_pm_get_state(const SSL *ssl)
         break;
       case MBEDTLS_SSL_SERVER_KEY_EXCHANGE:
         state = TLS_ST_SR_KEY_EXCH;
-        break;
-      case MBEDTLS_SSL_SERVER_NEW_SESSION_TICKET:
-        state = TLS_ST_SW_SESSION_TICKET;
         break;
       case MBEDTLS_SSL_SERVER_HELLO_VERIFY_REQUEST_SENT:
         state = TLS_ST_SW_CERT_REQ;
@@ -776,7 +746,7 @@ int x509_pm_load_file(X509 *x, const char *path)
   mbedtls_x509_crt_free(&x509_pm->x509_crt);
   mbedtls_x509_crt_init(&x509_pm->x509_crt);
   ret = mbedtls_x509_crt_parse_file(&x509_pm->x509_crt, path);
-  if (ret)
+  if (ret < 0)
     {
       SSL_DEBUG(SSL_PLATFORM_ERROR_LEVEL,
                 "mbedtls_x509_crt_parse_file return -0x%x", -ret);
@@ -795,7 +765,7 @@ int x509_pm_load_path(X509 *x, const char *path)
   mbedtls_x509_crt_free(&x509_pm->x509_crt);
   mbedtls_x509_crt_init(&x509_pm->x509_crt);
   ret = mbedtls_x509_crt_parse_path(&x509_pm->x509_crt, path);
-  if (ret)
+  if (ret < 0)
     {
       SSL_DEBUG(SSL_PLATFORM_ERROR_LEVEL,
                 "mbedtls_x509_crt_parse_file return -0x%x", -ret);

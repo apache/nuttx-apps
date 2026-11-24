@@ -24,6 +24,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/atomic.h>
+
 #include <openssl/ssl.h>
 #include <openssl/statem.h>
 #include <openssl/x509.h>
@@ -111,7 +113,7 @@ struct ssl_session_st
   long time;
   X509 *peer;
   const SSL_CIPHER *cipher;
-  int references;
+  atomic_t references;
   struct
     {
       char hostname[TLSEXT_MAXLEN_host_name];

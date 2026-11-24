@@ -106,7 +106,7 @@ int HMAC_Final(HMAC_CTX *ctx, uint8_t *out, unsigned int *out_len)
   size_t md_size;
 
   const mbedtls_md_info_t *md_info =
-    ((mbedtls_md_context_t *)(ctx))->md_info;
+    mbedtls_md_info_from_ctx((mbedtls_md_context_t *)ctx);
   if (md_info == NULL)
     {
       return 0;

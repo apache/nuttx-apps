@@ -41,9 +41,9 @@ int EVP_DecryptInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER * cipher,
   mbedtls_cipher_context_t *m_ctx = (mbedtls_cipher_context_t *)ctx;
   mbedtls_cipher_init(m_ctx);
   mbedtls_cipher_setup(m_ctx, (const mbedtls_cipher_info_t *)cipher);
-  mbedtls_cipher_setkey(m_ctx, key, m_ctx->cipher_info->key_bitlen,
+  mbedtls_cipher_setkey(m_ctx, key, mbedtls_cipher_get_key_bitlen(m_ctx),
                         MBEDTLS_DECRYPT);
-  mbedtls_cipher_set_iv(m_ctx, iv, m_ctx->cipher_info->iv_size);
+  mbedtls_cipher_set_iv(m_ctx, iv, mbedtls_cipher_get_iv_size(m_ctx));
   return 1;
 }
 
@@ -99,14 +99,15 @@ int EVP_EncryptInit_ex(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *type,
     }
 
   if (mbedtls_cipher_setkey(m_ctx, key,
-                            m_ctx->cipher_info->key_bitlen,
+                            mbedtls_cipher_get_key_bitlen(m_ctx),
                             MBEDTLS_ENCRYPT) != 0)
     {
       mbedtls_cipher_free(m_ctx);
       return 0;
     }
 
-  if (mbedtls_cipher_set_iv(m_ctx, iv, m_ctx->cipher_info->iv_size) != 0)
+  if (mbedtls_cipher_set_iv(m_ctx, iv,
+                            mbedtls_cipher_get_iv_size(m_ctx)) != 0)
     {
       mbedtls_cipher_free(m_ctx);
       return 0;
