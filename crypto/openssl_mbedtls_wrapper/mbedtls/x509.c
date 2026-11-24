@@ -301,3 +301,31 @@ failed:
 no_mem:
   return NULL;
 }
+
+int X509_cmp(const X509 *a, const X509 *b)
+{
+  const struct x509_pm *pm_a;
+  const struct x509_pm *pm_b;
+
+  if (a == NULL || b == NULL)
+    {
+      return a == b ? 0 : (a < b ? -1 : 1);
+    }
+
+  pm_a = (const struct x509_pm *)a->x509_pm;
+  pm_b = (const struct x509_pm *)b->x509_pm;
+
+  if (pm_a == NULL || pm_b == NULL)
+    {
+      return pm_a == pm_b ? 0 : (pm_a < pm_b ? -1 : 1);
+    }
+
+  if (pm_a->x509_crt.raw.len != pm_b->x509_crt.raw.len)
+    {
+      return pm_a->x509_crt.raw.len < pm_b->x509_crt.raw.len ? -1 : 1;
+    }
+
+  return memcmp(pm_a->x509_crt.raw.p,
+                pm_b->x509_crt.raw.p,
+                pm_a->x509_crt.raw.len);
+}

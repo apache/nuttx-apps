@@ -52,6 +52,8 @@ typedef struct evp_pkey_st EVP_PKEY;
 typedef struct x509_method_st X509_METHOD;
 typedef struct pkey_method_st PKEY_METHOD;
 
+#define STACK_OF(type) OPENSSL_STACK
+
 #define ossl_inline inline
 #define OPENSSL_NPN_NEGOTIATED 1
 

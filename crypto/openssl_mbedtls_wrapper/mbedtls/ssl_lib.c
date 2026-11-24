@@ -1327,9 +1327,9 @@ int SSL_CTX_set_default_verify_paths(SSL_CTX *ctx)
   return 0;
 }
 
-long SSL_CTX_set_mode(SSL_CTX *ctx, long larg)
+long SSL_CTX_set_mode(SSL_CTX *ctx, long mode)
 {
-  return ctx->mode |= larg;
+  return ctx->mode |= mode;
 }
 
 void SSL_CTX_set_info_callback(SSL_CTX *ctx,

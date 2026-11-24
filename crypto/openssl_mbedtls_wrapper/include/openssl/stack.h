@@ -39,6 +39,7 @@ extern "C"
 
 struct stack_st
 {
+    int num;
     char **data;
     int num_alloc;
     OPENSSL_sk_compfunc c;

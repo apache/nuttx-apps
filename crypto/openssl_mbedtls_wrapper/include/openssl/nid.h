@@ -32,17 +32,32 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define NID_rsaEncryption 6
-#define NID_commonName 13
-#define NID_key_usage 83
-#define NID_X9_62_id_ecPublicKey 408
-#define NID_X9_62_prime256v1 415
-#define NID_sha256WithRSAEncryption 668
-#define NID_secp224r1 713
-#define NID_secp384r1 715
-#define NID_secp521r1 716
-#define NID_X25519 948
-#define NID_ED25519 949
+#define NID_undef                              0
+#define NID_rsaEncryption                      6
+#define NID_commonName                         13
+#define NID_pkcs7_data                         21
+#define NID_pkcs7_signed                       22
+#define NID_pkcs7_enveloped                    23
+#define NID_pkcs7_encrypted                    26
+#define NID_pbkdf2                             69
+#define NID_key_usage                          83
+#define NID_keyBag                             150
+#define NID_pkcs8ShroudedKeyBag                151
+#define NID_certBag                            152
+#define NID_crlBag                             153
+#define NID_secretBag                          154
+#define NID_safeContentsBag                    155
+#define NID_x509Certificate                    158
+#define NID_pbes2                              161
+#define NID_pbe_WithSHA1And3_Key_TripleDES_CBC 146
+#define NID_X9_62_id_ecPublicKey               408
+#define NID_X9_62_prime256v1                   415
+#define NID_sha256WithRSAEncryption            668
+#define NID_secp224r1                          713
+#define NID_secp384r1                          715
+#define NID_secp521r1                          716
+#define NID_X25519                             1034
+#define NID_ED25519                            1087
 
 /****************************************************************************
  * Public Function Prototypes

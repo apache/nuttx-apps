@@ -149,6 +149,8 @@ const char *X509_verify_cert_error_string(long n);
 
 X509 *__X509_new(X509 *ix);
 
+int X509_cmp(const X509 *a, const X509 *b);
+
 #ifdef __cplusplus
 }
 #endif

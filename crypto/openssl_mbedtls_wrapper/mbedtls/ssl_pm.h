@@ -42,7 +42,7 @@ extern "C"
 
 /* Private mbedtls-backed representation of an EVP_PKEY.  EVP_PKEY.pkey_pm
  * points to one of these.  Defined here so that helpers outside ssl_pm.c
- * (evp.c, pkcs12.c) reference the same layout instead of re-declaring it.
+ * (evp.c, pkcs12.c) reference the same layout instead of redeclaring it.
  */
 
 struct pkey_pm
@@ -53,7 +53,7 @@ struct pkey_pm
 
 /* Private mbedtls-backed representation of an X509.  X509.x509_pm points
  * to one of these.  Defined here so that helpers outside ssl_pm.c
- * (x509.c, pkcs12.c) reference the same layout instead of re-declaring it.
+ * (x509.c, pkcs12.c) reference the same layout instead of redeclaring it.
  */
 
 struct x509_pm
