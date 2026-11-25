@@ -752,6 +752,16 @@ config MBEDTLS_BIGNUM_ALT
 	select MBEDTLS_ALT
 	default n
 
+config MBEDTLS_ECDSA_ALT
+	bool "Enable Mbedt TLS ECDSA module alted by nuttx crypto"
+	select MBEDTLS_ALT
+	default n
+
+config MBEDTLS_ECDH_ALT
+	bool "Enable Mbedt TLS ECDH module alted by nuttx crypto"
+	select MBEDTLS_ALT
+	default n
+
 endif # CRYPTO_CRYPTODEV
 
 config MBEDTLS_HAVE_TIME
