@@ -13,7 +13,7 @@ if CRYPTO_MBEDTLS
 
 config MBEDTLS_VERSION
 	string "Mbed TLS Version"
-	default "3.6.2"
+	default "3.6.5"
 
 config MBEDTLS_MINIMAL
 	bool "Minimal configuration"
@@ -339,6 +339,11 @@ config MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
 	depends on MBEDTLS_ECDH_C && MBEDTLS_ECDSA_C
 	default !MBEDTLS_MINIMAL
 
+config MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED
+	bool "Enable the ECDH-ECDSA based ciphersuite modes in SSL / TLS."
+	depends on MBEDTLS_ECDH_C && MBEDTLS_ECDSA_C
+	default !MBEDTLS_MINIMAL
+
 config MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED
 	bool "Enable the ECDH-RSA based ciphersuite modes in SSL / TLS."
 	depends on MBEDTLS_ECDH_C
@@ -660,6 +665,10 @@ config MBEDTLS_SSL_CACHE_C
 
 config MBEDTLS_SSL_COOKIE_C
 	bool "Enable SSL cookie implementation."
+	default !MBEDTLS_MINIMAL
+
+config MBEDTLS_SSL_KEYING_MATERIAL_EXPORT
+	bool "Enable export of keying material (RFC 5705)."
 	default !MBEDTLS_MINIMAL
 
 config MBEDTLS_SSL_TICKET_C
