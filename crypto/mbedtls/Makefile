@@ -170,6 +170,10 @@ ifeq ($(CONFIG_MBEDTLS_CMAC_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/cmac_alt.c
 endif
 
+ifeq ($(CONFIG_MBEDTLS_GCM_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/gcm_alt.c
+endif
+
 ifeq ($(CONFIG_MBEDTLS_MD5_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/md5_alt.c
 endif
