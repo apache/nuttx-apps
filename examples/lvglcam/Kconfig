@@ -1,0 +1,112 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_LVGLCAM
+	tristate "LVGL camera dashboard"
+	default n
+	depends on GRAPHICS_LVGL && LV_USE_NUTTX && VIDEO_STREAM
+	---help---
+		LVGL dashboard with the live view of a V4L2 camera and live system,
+		sensor and network data.  It uses the V4L2 capture interface and
+		the LVGL NuttX display driver only.  SIGINT or SIGTERM stops it.
+
+if EXAMPLES_LVGLCAM
+
+config EXAMPLES_LVGLCAM_PRIORITY
+	int "lvglcam task priority"
+	default 100
+
+config EXAMPLES_LVGLCAM_STACKSIZE
+	int "lvglcam stack size"
+	default 16384
+
+config EXAMPLES_LVGLCAM_INPUT_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	depends on INPUT_TOUCHSCREEN
+
+config EXAMPLES_LVGLCAM_VIDEO_DEVPATH
+	string "Camera device path"
+	default "/dev/video"
+
+config EXAMPLES_LVGLCAM_NBUFFERS
+	int "Camera buffers"
+	default 3
+	range 2 8
+
+config EXAMPLES_LVGLCAM_WIDTH
+	int "Camera view width"
+	default 0
+	---help---
+		Frame width requested from the camera.  0 picks the largest size
+		that fits the view.
+
+config EXAMPLES_LVGLCAM_HEIGHT
+	int "Camera view height"
+	default 0
+	---help---
+		Frame height requested from the camera.  0 picks the largest size
+		that fits the view.
+
+config EXAMPLES_LVGLCAM_ACCEL
+	bool "Accelerometer card"
+	default n
+	depends on SENSORS
+	---help---
+		Show a uORB accelerometer: roll, pitch and a chart of the three
+		axes.  The card is hidden when the device does not open.
+
+config EXAMPLES_LVGLCAM_ACCEL_DEVPATH
+	string "Accelerometer device path"
+	default "/dev/uorb/sensor_accel0"
+	depends on EXAMPLES_LVGLCAM_ACCEL
+
+config EXAMPLES_LVGLCAM_NET
+	bool "Network card"
+	default n
+	depends on NET
+	select NETUTILS_NETLIB
+	---help---
+		Show the link state and the IPv4 address of a network interface.
+		The card is hidden when the interface does not exist.
+
+config EXAMPLES_LVGLCAM_NETDEV
+	string "Network interface"
+	default "eth0"
+	depends on EXAMPLES_LVGLCAM_NET
+
+config EXAMPLES_LVGLCAM_DEPTH
+	bool "Depth card"
+	default n
+	---help---
+		Show the distances of a V4L2 Z16 depth camera, such as a
+		multi-zone time-of-flight sensor, up to 16x16 zones.
+
+if EXAMPLES_LVGLCAM_DEPTH
+
+config EXAMPLES_LVGLCAM_DEPTH_DEVPATH
+	string "Depth camera device path"
+	default "/dev/video1"
+
+config EXAMPLES_LVGLCAM_DEPTH_FAR
+	int "Far end of the colour scale (mm)"
+	default 2000
+	range 100 10000
+
+endif # EXAMPLES_LVGLCAM_DEPTH
+
+config EXAMPLES_LVGLCAM_SNAPSHOT
+	bool "Snapshot button"
+	default n
+	---help---
+		Save the shown frame as a BMP picture, named IMG_0001.BMP to
+		IMG_9999.BMP, in a writable directory.
+
+config EXAMPLES_LVGLCAM_SNAPDIR
+	string "Snapshot directory"
+	default "/mnt"
+	depends on EXAMPLES_LVGLCAM_SNAPSHOT
+
+endif # EXAMPLES_LVGLCAM
