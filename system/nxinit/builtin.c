@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <spawn.h>
@@ -35,7 +36,11 @@
 #include <sys/ioctl.h>
 #include <sys/mount.h>
 #include <sys/param.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
+#include <time.h>
+
+#include <nuttx/clock.h>
 
 #include <netutils/netinit.h>
 
@@ -125,6 +130,8 @@ static int cmd_rptun(FAR struct action_manager_s *am,
 #endif
 static int cmd_unlink(FAR struct action_manager_s *am,
                       int argc, FAR char **argv);
+static int cmd_wait(FAR struct action_manager_s *am,
+                    int argc, FAR char **argv);
 #ifndef CONFIG_DISABLE_MOUNTPOINT
 static int cmd_mount(FAR struct action_manager_s *am,
                      int argc, FAR char **argv);
@@ -194,6 +201,7 @@ static const struct cmd_map_s g_builtin[] =
   {"umount", 2, 2, cmd_umount},
 #endif
   {"unlink", 2, 2, cmd_unlink},
+  {"wait", 2, 3, cmd_wait},
 };
 
 /****************************************************************************
@@ -483,6 +491,65 @@ static int cmd_unlink(FAR struct action_manager_s *am,
     }
 
   return ret;
+}
+
+/* wait <path> [<timeout_ms>]
+ *
+ * Check for the existence of <path> with stat() every 10 ms and
+ * return when it is found.  <timeout_ms> is an integer number of
+ * milliseconds; it defaults to 5000.  When the timeout is reached,
+ * only warn and continue so a later command still runs.
+ */
+
+static int cmd_wait(FAR struct action_manager_s *am,
+                    int argc, FAR char **argv)
+{
+  int timeout_ms = 5000;
+  struct timespec start;
+  struct timespec diff;
+  struct timespec now;
+  struct stat st;
+  int waited;
+
+  UNUSED(am);
+
+  if (argc > 2)
+    {
+      FAR char *end;
+      long val;
+
+      val = strtol(argv[2], &end, 10);
+      if (end == argv[2] || *end != '\0' || val < 0 ||
+          val > INT_MAX)
+        {
+          init_err("wait: bad timeout '%s'", argv[2]);
+          return -EINVAL;
+        }
+
+      timeout_ms = val;
+    }
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  for (; ; )
+    {
+      clock_gettime(CLOCK_MONOTONIC, &now);
+      clock_timespec_subtract(&now, &start, &diff);
+      waited = TIMESPEC2MS(diff);
+
+      if (stat(argv[1], &st) == 0)
+        {
+          init_info("wait for '%s' took %d ms", argv[1], waited);
+          return 0;
+        }
+
+      if (waited >= timeout_ms)
+        {
+          init_warn("wait for '%s' timed out", argv[1]);
+          return 0;
+        }
+
+      usleep(10 * 1000);
+    }
 }
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT

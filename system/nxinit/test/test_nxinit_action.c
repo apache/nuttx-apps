@@ -37,7 +37,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <sys/boardctl.h>
 #include <sys/param.h>
@@ -527,6 +529,171 @@ void test_nxinit_action_builtin_pmconfig(FAR void **state)
   assert_int_equal(pm_count(0, PM_NORMAL), count);
 #endif
 
+  action_manager_free_all(&am);
+#else
+  skip();
+#endif
+}
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_TMPFS)
+
+/* Create the file of the "late" case of test_nxinit_action_builtin_wait
+ * while the test is blocked in "wait".
+ */
+
+static void *wait_create_late_file(FAR void *arg)
+{
+  int fd;
+
+  UNUSED(arg);
+  usleep(200 * 1000);
+  fd = open(TEST_MNT "/wait_late", O_CREAT | O_WRONLY, 0644);
+  if (fd >= 0)
+    {
+      close(fd);
+    }
+
+  return NULL;
+}
+
+#endif
+
+/****************************************************************************
+ * Name: test_nxinit_action_builtin_wait
+ *
+ * Description:
+ *   "wait" polls for the file and returns when it exists.  A missing
+ *   file only warns and returns 0 once the optional timeout (seconds,
+ *   default 5) is reached, and a bad timeout fails with -EINVAL.
+ ****************************************************************************/
+
+void test_nxinit_action_builtin_wait(FAR void **state)
+{
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_TMPFS)
+  FAR char *mnt[] =
+    {
+      "mount", "tmpfs", "none", TEST_MNT, NULL
+    };
+
+  FAR char *umnt[] =
+    {
+      "umount", TEST_MNT, NULL
+    };
+
+  FAR char *found[] =
+    {
+      "wait", TEST_MNT "/wait_file", NULL
+    };
+
+  FAR char *late[] =
+    {
+      "wait", TEST_MNT "/wait_late", NULL
+    };
+
+  FAR char *badnum[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "bogus", NULL
+    };
+
+  FAR char *negative[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "-1", NULL
+    };
+
+  FAR char *frac[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "0.5", NULL
+    };
+
+  FAR char *exponent[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "1e3", NULL
+    };
+
+  FAR char *empty[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "", NULL
+    };
+
+  FAR char *overflow[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "99999999999999999999", NULL
+    };
+
+  FAR char *twohundred[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "200", NULL
+    };
+
+  FAR char *twothousand[] =
+    {
+      "wait", TEST_MNT "/no_such_file", "2000", NULL
+    };
+
+  struct action_manager_s am;
+  struct timespec start;
+  struct timespec end;
+  pthread_t tid;
+  long waited;
+  int fd;
+
+  action_manager_init(&am);
+  assert_int_equal(init_builtin_run(&am, 4, mnt), 0);
+
+  /* The timeout is an integer number of milliseconds; anything else
+   * fails right away.
+   */
+
+  assert_int_equal(init_builtin_run(&am, 3, badnum), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 3, negative), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 3, frac), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 3, exponent), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 3, empty), -EINVAL);
+  assert_int_equal(init_builtin_run(&am, 3, overflow), -EINVAL);
+
+  /* A missing file waits for the timeout, then warns and returns 0 */
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  assert_int_equal(init_builtin_run(&am, 3, twohundred), 0);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  waited = (end.tv_sec - start.tv_sec) * 1000 +
+           (end.tv_nsec - start.tv_nsec) / 1000000;
+  assert_true(waited >= 150 && waited < 1200);
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  assert_int_equal(init_builtin_run(&am, 3, twothousand), 0);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  waited = (end.tv_sec - start.tv_sec) * 1000 +
+           (end.tv_nsec - start.tv_nsec) / 1000000;
+  assert_true(waited >= 1900 && waited < 3200);
+
+  /* A file that shows up while waiting ends the wait */
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  assert_int_equal(pthread_create(&tid, NULL, wait_create_late_file,
+                                  NULL), 0);
+  assert_int_equal(init_builtin_run(&am, 2, late), 0);
+  assert_int_equal(pthread_join(tid, NULL), 0);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  waited = (end.tv_sec - start.tv_sec) * 1000 +
+           (end.tv_nsec - start.tv_nsec) / 1000000;
+  assert_true(waited >= 150 && waited < 3000);
+  assert_int_equal(unlink(TEST_MNT "/wait_late"), 0);
+
+  /* An existing file returns 0 right away */
+
+  fd = open(TEST_MNT "/wait_file", O_CREAT | O_WRONLY, 0644);
+  assert_true(fd >= 0);
+  close(fd);
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  assert_int_equal(init_builtin_run(&am, 2, found), 0);
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  waited = (end.tv_sec - start.tv_sec) * 1000 +
+           (end.tv_nsec - start.tv_nsec) / 1000000;
+  assert_true(waited < 1000);
+  assert_int_equal(unlink(TEST_MNT "/wait_file"), 0);
+
+  assert_int_equal(init_builtin_run(&am, 2, umnt), 0);
   action_manager_free_all(&am);
 #else
   skip();
