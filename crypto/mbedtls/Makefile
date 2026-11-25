@@ -215,6 +215,10 @@ ifeq ($(CONFIG_MBEDTLS_ECDH_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/ecdh_alt.c
 endif
 
+ifeq ($(CONFIG_MBEDTLS_PSA_CRYPTODEV_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/psa_crypto_se_alt.c
+endif
+
 endif
 
 include $(APPDIR)/Application.mk

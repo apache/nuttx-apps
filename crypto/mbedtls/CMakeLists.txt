@@ -134,6 +134,10 @@ if(CONFIG_CRYPTO_MBEDTLS)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/ecdh_alt.c)
     endif()
 
+    if(CONFIG_MBEDTLS_PSA_CRYPTODEV_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/psa_crypto_se_alt.c)
+    endif()
+
   endif()
 
   # ############################################################################
