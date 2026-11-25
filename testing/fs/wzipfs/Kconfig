@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_WZIPFS
+	tristate "wzipfs cmocka tests"
+	default n
+	depends on FS_ZIPFS_WRITE && TESTING_CMOCKA
+	---help---
+		Enable cmocka unit tests for the wzipfs write-only VFS. The
+		tests exercise file-target streaming, pipe-target streaming
+		(via mkfifo), and method=store|deflate mount options.
+
+if TESTING_WZIPFS
+
+config TESTING_WZIPFS_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+config TESTING_WZIPFS_PRIORITY
+	int "Task priority"
+	default 100
+
+endif
