@@ -44,10 +44,9 @@ int test_others_group_setup(FAR void **state);
 int test_others_group_teardown(FAR void **state);
 
 /****************************************************************************
- * Name: test_others_bufpool
+ * Name: test_others_chksum
  ****************************************************************************/
 
-void test_others_bufpool(FAR void **state);
 void test_others_chksum(FAR void **state);
 
 #endif /* __APPS_TESTING_NETTEST_OTHERS_TEST_OTHERS_H */
