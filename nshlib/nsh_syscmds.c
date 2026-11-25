@@ -728,28 +728,55 @@ int cmd_rpmsg(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
  ****************************************************************************/
 
 #if defined(CONFIG_RPTUN) && !defined(CONFIG_NSH_DISABLE_RPTUN)
-static int cmd_rptun_cb(FAR int *cmd, FAR unsigned long *val,
-                        FAR char **argv)
+static int cmd_rptun_once(FAR struct nsh_vtbl_s *vtbl,
+                          FAR const char *path, FAR char **argv)
 {
+  unsigned long val = 0;
+  int cmd;
+  int fd;
+
   if (strcmp(argv[1], "start") == 0)
     {
-      *cmd = RPTUNIOC_START;
+      cmd = RPTUNIOC_START;
     }
   else if (strcmp(argv[1], "stop") == 0)
     {
-      *cmd = RPTUNIOC_STOP;
+      cmd = RPTUNIOC_STOP;
     }
   else if (strcmp(argv[1], "reset") == 0)
     {
-      *val = atoi(argv[3]);
-      *cmd = RPTUNIOC_RESET;
+      if (argv[3] == NULL)
+        {
+          nsh_error(vtbl, g_fmtargrequired, argv[0]);
+          return ERROR;
+        }
+
+      cmd = RPTUNIOC_RESET;
+      val = atoi(argv[3]);
+    }
+  else if (strcmp(argv[1], "dump") == 0)
+    {
+      cmd = RPTUNIOC_DUMP;
+      val = argv[3] != NULL ? atoi(argv[3]) : RPTUN_DUMP_SYSLOG;
     }
   else
     {
+      nsh_output(vtbl, g_fmtarginvalid, argv[1]);
       return ERROR;
     }
 
-  return OK;
+  fd = open(path, O_CLOEXEC);
+  if (fd < 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, path);
+      return ERROR;
+    }
+
+  cmd = ioctl(fd, cmd, val);
+
+  close(fd);
+
+  return cmd;
 }
 
 static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
@@ -768,7 +795,7 @@ static int cmd_rptun_recursive(FAR struct nsh_vtbl_s *vtbl,
   path = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
   if (path)
     {
-      ret = cmd_rpmsg_once(vtbl, path, pvarg, cmd_rptun_cb);
+      ret = cmd_rptun_once(vtbl, path, pvarg);
       free(path);
     }
 
@@ -780,9 +807,13 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   if (argc >= 2 && strcmp(argv[1], "-h") == 0)
     {
       nsh_output(vtbl, "usage:\n\n");
-      nsh_output(vtbl, "rptun <start|stop> <path>\n");
-      nsh_output(vtbl, "rptun <reset> <path> <resetvalue>\n");
-      return cmd_rpmsg_help(vtbl, argc, argv);
+      nsh_output(vtbl, "%s <start|stop> <path>\n", argv[0]);
+      nsh_output(vtbl, "%s reset <path> <resetvalue>\n", argv[0]);
+      nsh_output(vtbl, "%s dump <path> [mask]\n\n", argv[0]);
+      nsh_output(vtbl, "<path>       Rptun device path, or all.\n");
+      nsh_output(vtbl, "[mask]       What to dump: 1 the peer's syslog "
+                 "(default), 2 the resource table.\n\n");
+      return OK;
     }
 
   if (argc < 3)
@@ -797,7 +828,7 @@ int cmd_rptun(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
                                   cmd_rptun_recursive, argv);
     }
 
-  return cmd_rpmsg_once(vtbl, argv[2], argv, cmd_rptun_cb);
+  return cmd_rptun_once(vtbl, argv[2], argv);
 }
 #endif
 

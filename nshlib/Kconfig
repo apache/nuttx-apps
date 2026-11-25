@@ -678,7 +678,7 @@ config NSH_DISABLE_RPMSG
 config NSH_DISABLE_RPTUN
 	bool "Disable rptun"
 	default DEFAULT_SMALL
-	depends on RPTUN && !NSH_DISABLE_RPMSG
+	depends on RPTUN
 
 config NSH_DISABLE_VIRTIO
 	bool "Disable virtio"
