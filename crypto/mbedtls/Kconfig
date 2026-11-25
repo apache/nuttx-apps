@@ -708,6 +708,11 @@ config MBEDTLS_CMAC_ALT
 	select MBEDTLS_ALT
 	default n
 
+config MBEDTLS_GCM_ALT
+	bool "Enable Mbedt TLS GCM module alted by nuttx crypto"
+	select MBEDTLS_ALT
+	default n
+
 config MBEDTLS_MD5_ALT
 	bool "Enable Mbedt TLS MD5 module alted by nuttx crypto"
 	select MBEDTLS_ALT

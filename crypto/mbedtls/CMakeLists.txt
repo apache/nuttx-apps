@@ -90,6 +90,10 @@ if(CONFIG_CRYPTO_MBEDTLS)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/cmac_alt.c)
     endif()
 
+    if(CONFIG_MBEDTLS_GCM_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/gcm_alt.c)
+    endif()
+
     if(CONFIG_MBEDTLS_MD5_ALT)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/md5_alt.c)
     endif()

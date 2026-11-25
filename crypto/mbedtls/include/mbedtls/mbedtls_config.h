@@ -450,6 +450,9 @@
 #ifdef CONFIG_MBEDTLS_CMAC_ALT
 #define MBEDTLS_CMAC_ALT
 #endif
+#ifdef CONFIG_MBEDTLS_GCM_ALT
+#define MBEDTLS_GCM_ALT
+#endif
 /* #define MBEDTLS_DES_ALT
  * #define MBEDTLS_DHM_ALT
  * #define MBEDTLS_ECJPAKE_ALT
