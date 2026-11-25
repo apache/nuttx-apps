@@ -3741,7 +3741,9 @@
  *
  */
 
-/* #define MBEDTLS_PSA_CRYPTO_SE_C */
+#ifdef CONFIG_MBEDTLS_PSA_CRYPTO_SE_C
+#define MBEDTLS_PSA_CRYPTO_SE_C
+#endif
 
 /**
  * \def MBEDTLS_PSA_CRYPTO_STORAGE_C
@@ -3770,6 +3772,20 @@
  */
 #ifdef CONFIG_MBEDTLS_PSA_ITS_FILE_C
 #define MBEDTLS_PSA_ITS_FILE_C
+#endif
+
+/**
+ * \def PSA_ITS_STORAGE_PREFIX
+ *
+ * Allows storing the key files in a directory other than the current
+ * directory.
+ *
+ * Module:  library/psa_its_file.c
+ *
+ * Requires: MBEDTLS_PSA_ITS_FILE_C
+ */
+#ifdef CONFIG_PSA_ITS_STORAGE_PREFIX
+#define PSA_ITS_STORAGE_PREFIX CONFIG_PSA_ITS_STORAGE_PREFIX
 #endif
 
 /**
