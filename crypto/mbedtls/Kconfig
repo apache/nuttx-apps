@@ -622,9 +622,19 @@ config MBEDTLS_PSA_CRYPTO_STORAGE_C
 	depends on MBEDTLS_PSA_CRYPTO_C
 	default !MBEDTLS_MINIMAL
 
+config MBEDTLS_PSA_CRYPTO_SE_C
+	bool "Enable dynamic secure element support in the Platform Security Architecture cryptography API."
+	depends on MBEDTLS_PSA_CRYPTO_C && MBEDTLS_PSA_CRYPTO_STORAGE_C
+	default n
+
 config MBEDTLS_PSA_ITS_FILE_C
 	bool "Enable the emulation of the Platform Security Architecture Internal Trusted Storage (PSA ITS) over files."
 	default !MBEDTLS_MINIMAL
+
+config PSA_ITS_STORAGE_PREFIX
+	string "Allows storing the key files in a directory other than the current directory."
+	depends on MBEDTLS_PSA_ITS_FILE_C
+	default ""
 
 config MBEDTLS_RIPEMD160_C
 	bool "Enable the RIPEMD-160 hash algorithm."
