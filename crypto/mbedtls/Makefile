@@ -198,6 +198,14 @@ ifeq ($(CONFIG_MBEDTLS_BIGNUM_ALT),y)
 CSRCS += $(APPDIR)/crypto/mbedtls/source/bignum_alt.c
 endif
 
+ifeq ($(CONFIG_MBEDTLS_ECDSA_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/ecdsa_alt.c
+endif
+
+ifeq ($(CONFIG_MBEDTLS_ECDH_ALT),y)
+CSRCS += $(APPDIR)/crypto/mbedtls/source/ecdh_alt.c
+endif
+
 endif
 
 include $(APPDIR)/Application.mk
