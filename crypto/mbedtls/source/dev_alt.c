@@ -91,6 +91,14 @@ int cryptodev_crypt(FAR cryptodev_context_t *ctx)
   return ret < 0 ? -errno : ret;
 }
 
+int cryptodev_cryptk(FAR cryptodev_context_t *ctx)
+{
+  int ret;
+
+  ret = ioctl(ctx->fd, CIOCKEY, &ctx->cryptk);
+  return ret < 0 ? -errno : ret;
+}
+
 int cryptodev_clone(FAR cryptodev_context_t *dst,
                     FAR const cryptodev_context_t *src)
 {
