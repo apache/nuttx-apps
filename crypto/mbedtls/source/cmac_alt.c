@@ -43,17 +43,19 @@ int mbedtls_cipher_cmac_starts(FAR mbedtls_cipher_context_t *ctx,
   uint32_t mac_type;
   int retval;
 
-  if (ctx == NULL || ctx->cipher_info == NULL || key == NULL)
+  if (ctx == NULL || ctx->MBEDTLS_PRIVATE(cipher_info) == NULL ||
+      key == NULL)
     {
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  if (keybits != mbedtls_cipher_info_get_key_bitlen(ctx->cipher_info))
+  if (keybits !=
+      mbedtls_cipher_info_get_key_bitlen(ctx->MBEDTLS_PRIVATE(cipher_info)))
     {
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  switch (ctx->cipher_info->type)
+  switch (ctx->MBEDTLS_PRIVATE(cipher_info)->MBEDTLS_PRIVATE(type))
     {
       case MBEDTLS_CIPHER_AES_128_ECB:
         cipher_type = CRYPTO_AES_CMAC;
@@ -99,7 +101,7 @@ int mbedtls_cipher_cmac_starts(FAR mbedtls_cipher_context_t *ctx,
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  ctx->cmac_ctx = cmac_ctx;
+  ctx->MBEDTLS_PRIVATE(cmac_ctx) = cmac_ctx;
   return retval;
 }
 
@@ -107,19 +109,27 @@ int mbedtls_cipher_cmac_update(FAR mbedtls_cipher_context_t *ctx,
                                FAR const unsigned char *input,
                                size_t ilen)
 {
-  if (ctx == NULL || ctx->cmac_ctx == NULL || input == NULL || ilen < 0)
+  FAR mbedtls_cmac_context_t *cmac_ctx;
+
+  if (ctx == NULL || input == NULL)
     {
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  ctx->cmac_ctx->dev.crypt.op = COP_ENCRYPT;
-  ctx->cmac_ctx->dev.crypt.flags |= COP_FLAG_UPDATE;
-  ctx->cmac_ctx->dev.crypt.src = (caddr_t)input;
-  ctx->cmac_ctx->dev.crypt.len = ilen;
-  if (cryptodev_crypt(&ctx->cmac_ctx->dev) != 0)
+  cmac_ctx = ctx->MBEDTLS_PRIVATE(cmac_ctx);
+  if (cmac_ctx == NULL)
     {
-      cryptodev_free_session(&ctx->cmac_ctx->dev);
-      cryptodev_free(&ctx->cmac_ctx->dev);
+      return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
+    }
+
+  cmac_ctx->dev.crypt.op = COP_ENCRYPT;
+  cmac_ctx->dev.crypt.flags |= COP_FLAG_UPDATE;
+  cmac_ctx->dev.crypt.src = (caddr_t)input;
+  cmac_ctx->dev.crypt.len = ilen;
+  if (cryptodev_crypt(&cmac_ctx->dev) != 0)
+    {
+      cryptodev_free_session(&cmac_ctx->dev);
+      cryptodev_free(&cmac_ctx->dev);
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
@@ -129,23 +139,30 @@ int mbedtls_cipher_cmac_update(FAR mbedtls_cipher_context_t *ctx,
 int mbedtls_cipher_cmac_finish(FAR mbedtls_cipher_context_t *ctx,
                                FAR unsigned char *output)
 {
+  FAR mbedtls_cmac_context_t *cmac_ctx;
   int ret;
 
-  if (ctx == NULL || ctx->cmac_ctx == NULL || output == NULL)
+  if (ctx == NULL || output == NULL)
     {
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  ctx->cmac_ctx->dev.crypt.flags = 0;
-  ctx->cmac_ctx->dev.crypt.mac = (caddr_t)output;
-  ret = cryptodev_crypt(&ctx->cmac_ctx->dev);
+  cmac_ctx = ctx->MBEDTLS_PRIVATE(cmac_ctx);
+  if (cmac_ctx == NULL)
+    {
+      return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
+    }
+
+  cmac_ctx->dev.crypt.flags = 0;
+  cmac_ctx->dev.crypt.mac = (caddr_t)output;
+  ret = cryptodev_crypt(&cmac_ctx->dev);
   if (ret != 0)
     {
       ret = MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  cryptodev_free_session(&ctx->cmac_ctx->dev);
-  cryptodev_free(&ctx->cmac_ctx->dev);
+  cryptodev_free_session(&cmac_ctx->dev);
+  cryptodev_free(&cmac_ctx->dev);
   return ret;
 }
 
@@ -154,12 +171,12 @@ int mbedtls_cipher_cmac_reset(FAR mbedtls_cipher_context_t *ctx)
   FAR mbedtls_cmac_context_t *cmac_ctx;
   int ret;
 
-  if (ctx == NULL || ctx->cmac_ctx == NULL)
+  if (ctx == NULL || ctx->MBEDTLS_PRIVATE(cmac_ctx) == NULL)
     {
       return MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA;
     }
 
-  cmac_ctx = ctx->cmac_ctx;
+  cmac_ctx = ctx->MBEDTLS_PRIVATE(cmac_ctx);
   ret = cryptodev_init(&cmac_ctx->dev);
   if (ret != 0)
     {
