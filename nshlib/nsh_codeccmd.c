@@ -151,16 +151,24 @@ static void urldecode_cb(FAR char *src, int srclen, FAR char *dest,
 static void b64enc_cb(FAR char *src, int srclen, FAR char *dest,
                       FAR int *destlen, int mode)
 {
+  size_t len = *destlen;
+
+  /* The codec reports the output length as a size_t, which is wider than
+   * int on 64-bit targets: do not let it write through an int pointer.
+   */
+
   if (mode == 0)
     {
       base64_encode((unsigned char *)src, srclen,
-                    (unsigned char *)dest, (size_t *)destlen);
+                    (unsigned char *)dest, &len);
     }
   else
     {
       base64w_encode((unsigned char *)src, srclen,
-                     (unsigned char *)dest, (size_t *)destlen);
+                     (unsigned char *)dest, &len);
     }
+
+  *destlen = len;
 }
 #endif
 
@@ -172,16 +180,50 @@ static void b64enc_cb(FAR char *src, int srclen, FAR char *dest,
 static void b64dec_cb(FAR char *src, int srclen, FAR char *dest,
                       FAR int *destlen, int mode)
 {
+  size_t len = *destlen;
+
+  /* The codec reports the output length as a size_t, which is wider than
+   * int on 64-bit targets: do not let it write through an int pointer.
+   */
+
   if (mode == 0)
     {
       base64_decode((unsigned char *)src, srclen,
-                    (unsigned char *)dest, (size_t *)destlen);
+                    (unsigned char *)dest, &len);
     }
   else
     {
       base64w_decode((unsigned char *)src, srclen,
-                     (unsigned char *)dest, (size_t *)destlen);
+                     (unsigned char *)dest, &len);
     }
+
+  *destlen = len;
+}
+#endif
+
+/****************************************************************************
+ * Name: codec_output
+ *
+ * Description:
+ *   Output the result of a codec.  Decoded base64 is binary data that may
+ *   contain NUL bytes, so it is written by length; the other codecs
+ *   produce NUL-terminated text.
+ *
+ ****************************************************************************/
+
+#ifdef NEED_CMD_CODECS_PROC
+static void codec_output(FAR struct nsh_vtbl_s *vtbl, FAR const char *buf,
+                         int buflen, uint8_t mode)
+{
+#ifdef HAVE_CODECS_BASE64DEC
+  if (mode == CODEC_MODE_BASE64DEC)
+    {
+      nsh_write(vtbl, buf, buflen);
+      return;
+    }
+#endif
+
+  nsh_output(vtbl, "%s", buf);
 }
 #endif
 
@@ -378,7 +420,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
           if (func)
             {
               func(srcbuf, ret, destbuf, &buflen, iswebsafe ? 1 : 0);
-              nsh_output(vtbl, "%s", destbuf);
+              codec_output(vtbl, destbuf, buflen, mode);
             }
 
           buflen = calc_codec_buffsize(srclen + 2, mode);
@@ -405,7 +447,8 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc,
           func(srcbuf, srclen, destbuf, &buflen, iswebsafe ? 1 : 0);
         }
 
-      nsh_output(vtbl, "%s\n", destbuf);
+      codec_output(vtbl, destbuf, buflen, mode);
+      nsh_output(vtbl, "\n");
       srcbuf = NULL;
       goto exit;
     }
