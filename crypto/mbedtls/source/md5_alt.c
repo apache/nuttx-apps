@@ -69,6 +69,9 @@ int mbedtls_md5_finish(FAR mbedtls_md5_context *ctx,
 
   ctx->crypt.op = COP_ENCRYPT;
   ctx->crypt.flags = 0;
+  ctx->crypt.len = 0;
+  ctx->crypt.src = NULL;
+  ctx->crypt.olen = 16;
   ctx->crypt.mac = (caddr_t)output;
   ret = cryptodev_crypt(ctx);
   cryptodev_free_session(ctx);

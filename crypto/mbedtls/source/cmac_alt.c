@@ -154,6 +154,9 @@ int mbedtls_cipher_cmac_finish(FAR mbedtls_cipher_context_t *ctx,
     }
 
   cmac_ctx->dev.crypt.flags = 0;
+  cmac_ctx->dev.crypt.len = 0;
+  cmac_ctx->dev.crypt.src = NULL;
+  cmac_ctx->dev.crypt.olen = 16;
   cmac_ctx->dev.crypt.mac = (caddr_t)output;
   ret = cryptodev_crypt(&cmac_ctx->dev);
   if (ret != 0)

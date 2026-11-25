@@ -92,6 +92,9 @@ int mbedtls_sha512_finish(FAR mbedtls_sha512_context *ctx,
 
   ctx->crypt.op = COP_ENCRYPT;
   ctx->crypt.flags = 0;
+  ctx->crypt.len = 0;
+  ctx->crypt.src = NULL;
+  ctx->crypt.olen = 64;
   ctx->crypt.mac = (caddr_t)output;
   ret = cryptodev_crypt(ctx);
   if (ret != 0)
