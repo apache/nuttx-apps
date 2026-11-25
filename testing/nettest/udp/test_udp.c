@@ -74,6 +74,8 @@ int main(int argc, FAR char *argv[])
       TEST_UDP(test_udp_bind_v4_v6only),
       TEST_UDP(test_udp_bind_reuse),
       TEST_UDP(test_udp_bind_v6addr),
+      TEST_UDP(test_udp_epollet_idle),
+      TEST_UDP(test_udp_epollet_send),
     };
 
   return cmocka_run_group_tests(udp_tests, NULL, NULL);

@@ -39,12 +39,15 @@
  * Description:
  *   Packet sockets bound to the loopback device: a frame sent on lo comes
  *   back, the reassembly timeout of an IPv4 fragment sent on lo does not
- *   stop the kernel, and close() frees the frames queued on a socket.
+ *   stop the kernel, close() frees the frames queued on a socket, and an
+ *   idle EPOLLOUT | EPOLLET socket is not reported for the frames of
+ *   another socket.
  *
  ****************************************************************************/
 
 void test_pkt_lo_send(FAR void **state);
 void test_pkt_lo_frag(FAR void **state);
 void test_pkt_lo_close(FAR void **state);
+void test_pkt_lo_epollet(FAR void **state);
 
 #endif /* __APPS_TESTING_NETTEST_PKT_TEST_PKT_H */

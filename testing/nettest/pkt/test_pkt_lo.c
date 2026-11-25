@@ -44,6 +44,7 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netpacket/packet.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 
 #include "test_pkt.h"
@@ -63,6 +64,7 @@
 #define TEST_PKT_WAIT_MS  2000    /* Time to wait for a frame */
 #define TEST_PKT_ROUNDS   4       /* Open, send and close rounds */
 #define TEST_PKT_NFRAMES  2       /* Packets sent in one round */
+#define TEST_PKT_ETROUNDS 5       /* Sends of the EPOLLET case */
 
 /****************************************************************************
  * Private Functions
@@ -362,4 +364,63 @@ void test_pkt_lo_close(FAR void **state)
 
   assert_int_equal(test_pkt_close_rounds(true, &nfail), 0);
   assert_int_equal(nfail, 0);
+}
+
+/****************************************************************************
+ * Name: test_pkt_lo_epollet
+ *
+ * Description:
+ *   An EPOLLOUT | EPOLLET packet socket on lo is reported once.  Frames
+ *   that another packet socket sends on lo make the device poll every
+ *   packet socket of lo, and this is no event.  A frame that the socket
+ *   sends itself is an event.
+ *
+ ****************************************************************************/
+
+void test_pkt_lo_epollet(FAR void **state)
+{
+#ifndef CONFIG_NET_PKT_WRITE_BUFFERS
+  struct epoll_event ev;
+  uint8_t frame[64];
+  size_t len;
+  int epfd;
+  int esd;
+  int ssd;
+  int i;
+
+  /* The two sockets use other protocols: neither reads the frames */
+
+  esd = test_pkt_open(TEST_PKT_TYPE + 1);
+  ssd = test_pkt_open(TEST_PKT_TYPE);
+  epfd = epoll_create1(EPOLL_CLOEXEC);
+  assert_return_code(epfd, errno);
+
+  memset(&ev, 0, sizeof(ev));
+  ev.events = EPOLLOUT | EPOLLET;
+  assert_return_code(epoll_ctl(epfd, EPOLL_CTL_ADD, esd, &ev), errno);
+  assert_int_equal(epoll_wait(epfd, &ev, 1, TEST_PKT_WAIT_MS), 1);
+  assert_true((ev.events & EPOLLOUT) != 0);
+
+  len = test_pkt_ipv4(frame, 8, 3, 0);
+  for (i = 0; i < TEST_PKT_ETROUNDS; i++)
+    {
+      assert_int_equal(send(ssd, frame, len, 0), len);
+      usleep(10 * 1000);
+      assert_int_equal(epoll_wait(epfd, &ev, 1, 0), 0);
+    }
+
+  assert_int_equal(send(esd, frame, len, 0), len);
+  assert_int_equal(epoll_wait(epfd, &ev, 1, TEST_PKT_WAIT_MS), 1);
+  assert_true((ev.events & EPOLLOUT) != 0);
+
+  close(epfd);
+  close(ssd);
+  close(esd);
+#else
+  /* With write buffers a send can fail with EAGAIN: each poll of the
+   * device reports POLLOUT, so that no edge is lost.
+   */
+
+  skip();
+#endif
 }

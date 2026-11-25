@@ -43,8 +43,8 @@ config TESTING_NET_UDP
 	---help---
 		Test UDP sockets of AF_INET and AF_INET6 on one port over the
 		loopback device: IPV6_V6ONLY (also on TCP sockets), the delivery
-		of IPv4 and IPv6 datagrams, and EADDRINUSE from bind()
-		(cmocka_net_udp).
+		of IPv4 and IPv6 datagrams, EADDRINUSE from bind(), and the
+		EPOLLOUT | EPOLLET events of a socket (cmocka_net_udp).
 
 config TESTING_NET_LOCAL
 	bool "Enable cmocka net local test"
@@ -118,8 +118,9 @@ config TESTING_NET_PKT
 	default y
 	---help---
 		Test packet sockets bound to the loopback device: a frame sent on
-		lo comes back, and the reassembly timeout of an IPv4 fragment sent
-		on lo does not stop the kernel (cmocka_net_pkt).
+		lo comes back, the reassembly timeout of an IPv4 fragment sent on
+		lo does not stop the kernel, and the EPOLLOUT | EPOLLET events of
+		a socket (cmocka_net_pkt).
 
 config TESTING_NET_TUN
 	bool "Enable cmocka net TUN test"

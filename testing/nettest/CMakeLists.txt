@@ -53,7 +53,8 @@ if(CONFIG_TESTING_NET_TEST)
         ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_iov.c
         ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_halfclose.c
         ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_backlog.c)
-      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_procfs.c)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_procfs.c
+           ${CMAKE_CURRENT_LIST_DIR}/tcp/test_tcp_epoll.c)
     endif()
 
     if(CONFIG_NET_IPv4
@@ -85,7 +86,8 @@ if(CONFIG_TESTING_NET_TEST)
         ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_common.c
         ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_v6only.c
         ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_family.c
-        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_bind.c)
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_bind.c
+        ${CMAKE_CURRENT_LIST_DIR}/udp/test_udp_epoll.c)
 
     nuttx_add_application(
       NAME

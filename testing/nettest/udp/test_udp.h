@@ -163,4 +163,16 @@ void test_udp_bind_v4_v6only(FAR void **state);
 void test_udp_bind_reuse(FAR void **state);
 void test_udp_bind_v6addr(FAR void **state);
 
+/****************************************************************************
+ * Name: test_udp_epollet_*
+ *
+ * Description:
+ *   EPOLLOUT | EPOLLET on a UDP socket: no event while the socket is idle
+ *   and other sockets send, one event for each datagram that it sends.
+ *
+ ****************************************************************************/
+
+void test_udp_epollet_idle(FAR void **state);
+void test_udp_epollet_send(FAR void **state);
+
 #endif /* __APPS_TESTING_NETTEST_UDP_TEST_UDP_H */

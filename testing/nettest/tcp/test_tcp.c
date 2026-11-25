@@ -168,6 +168,17 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_recv_iov_nowait,
                                       test_tcp_iov_setup,
                                       test_tcp_iov_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_epollet_in,
+                                      test_tcp_epoll_setup,
+                                      test_tcp_epoll_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_epollet_out,
+                                      test_tcp_epoll_setup,
+                                      test_tcp_epoll_teardown),
+#  if defined(CONFIG_NET_TCP_WRITE_BUFFERS) && defined(CONFIG_NET_SOCKOPTS)
+      cmocka_unit_test_setup_teardown(test_tcp_epollet_eagain,
+                                      test_tcp_epoll_setup,
+                                      test_tcp_epoll_teardown),
+#  endif
 #  ifdef CONFIG_NET_TCPBACKLOG
 #    ifdef CONFIG_NET_SOLINGER
       cmocka_unit_test_setup_teardown(test_tcp_backlog_relisten_rst,
