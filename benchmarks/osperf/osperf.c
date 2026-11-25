@@ -41,6 +41,7 @@
 
 #include <nuttx/sched.h>
 #include <nuttx/spinlock.h>
+#include <nuttx/wqueue.h>
 
 /****************************************************************************
  * Private Types
