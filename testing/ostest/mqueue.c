@@ -287,11 +287,32 @@ void mqueue_test(void)
   int prio_max;
   int prio_mid;
   int status;
+  struct mq_attr mqattr;
+  mqd_t mqfd;
 
   /* Reset globals for the beginning of the test */
 
   g_send_mqfd = 0;
   g_recv_mqfd = 0;
+
+  /* A message size above CONFIG_MQ_MAXMSGSIZE is an invalid argument */
+
+  printf("mqueue_test: Opening a queue with an oversized message size\n");
+  mqattr.mq_maxmsg  = 2;
+  mqattr.mq_msgsize = CONFIG_MQ_MAXMSGSIZE + 1;
+  mqattr.mq_flags   = 0;
+  mqfd = mq_open("mqueue_big", O_RDWR | O_CREAT, 0666, &mqattr);
+  if (mqfd != (mqd_t)-1 || errno != EINVAL)
+    {
+      printf("mqueue_test: ERROR mq_open returned %d, errno=%d, "
+             "expected -1 and EINVAL\n", (int)mqfd, errno);
+      ASSERT(false);
+      if (mqfd != (mqd_t)-1)
+        {
+          mq_close(mqfd);
+          mq_unlink("mqueue_big");
+        }
+    }
 
 #ifdef CONFIG_ENABLE_ALL_SIGNALS
   /* SIGUSR1 wakes up the receiver below.  Catch it: its default action
