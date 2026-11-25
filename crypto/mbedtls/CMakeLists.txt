@@ -122,6 +122,10 @@ if(CONFIG_CRYPTO_MBEDTLS)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/bignum_alt.c)
     endif()
 
+    if(CONFIG_MBEDTLS_PKCS5_ALT)
+      list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/pkcs5_alt.c)
+    endif()
+
     if(CONFIG_MBEDTLS_ECDSA_ALT)
       list(APPEND CSRCS ${CMAKE_CURRENT_LIST_DIR}/source/ecdsa_alt.c)
     endif()

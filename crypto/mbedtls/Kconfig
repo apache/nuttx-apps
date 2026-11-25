@@ -758,6 +758,18 @@ config MBEDTLS_ECDH_ALT
 	select MBEDTLS_ALT
 	default n
 
+config MBEDTLS_PKCS5_ALT
+	bool "Enable Mbed TLS PKCS#5 PBKDF2 alted by nuttx crypto"
+	depends on MBEDTLS_PKCS5_C
+	select MBEDTLS_ALT
+	default n
+	---help---
+		Route mbedtls_pkcs5_pbkdf2_hmac[_ext] to the NuttX crypto
+		device (/dev/crypto) so PBKDF2-HMAC-SHA1/SHA256 key derivation
+		runs on the hardware crypto engine. Only SHA1 and SHA256 are
+		supported; other digests return
+		MBEDTLS_ERR_PKCS5_FEATURE_UNAVAILABLE.
+
 endif # CRYPTO_CRYPTODEV
 
 config MBEDTLS_HAVE_TIME
