@@ -36,6 +36,41 @@
 #define NONCE_LENGTH      4
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/* Set the session key by key id instead of key material: the key
+ * buffer carries the 32-bit key id in its first bytes, padded to the
+ * full key size (the kernel reads the id from the first four bytes;
+ * the size only decides which AES variant the session uses).  The
+ * key itself must already live in a key store the backend can reach,
+ * e.g. one allocated through CIOCKEY CRK_ALLOCATE_KEY.
+ */
+
+static int aes_setkey_keyid(FAR mbedtls_aes_context *ctx,
+                            FAR const unsigned char *key,
+                            unsigned int keybits)
+{
+  switch (keybits)
+    {
+      case 128:
+        break;
+      case 192:
+        break;
+      case 256:
+        break;
+      default:
+        return MBEDTLS_ERR_AES_INVALID_KEY_LENGTH;
+    }
+
+  memcpy(ctx->key, key, keybits / 8);
+  ctx->dev.session.key = (caddr_t)ctx->key;
+  ctx->dev.session.keylen = keybits / 8;
+  ctx->dev.session.flags |= SOP_F_KEYID;
+  return 0;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -68,6 +103,7 @@ int mbedtls_aes_setkey_enc(FAR mbedtls_aes_context *ctx,
   memcpy(ctx->key, key, keybits / 8);
   ctx->dev.session.key = (caddr_t)ctx->key;
   ctx->dev.session.keylen = keybits / 8;
+  ctx->dev.session.flags &= ~SOP_F_KEYID;
   return 0;
 }
 
@@ -76,6 +112,48 @@ int mbedtls_aes_setkey_dec(FAR mbedtls_aes_context *ctx,
                            unsigned int keybits)
 {
   return mbedtls_aes_setkey_enc(ctx, key, keybits);
+}
+
+int mbedtls_aes_set128key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return aes_setkey_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set192key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return aes_setkey_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set256key_enc_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return aes_setkey_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set128key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return aes_setkey_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set192key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return aes_setkey_keyid(ctx, key, keybits);
+}
+
+int mbedtls_aes_set256key_dec_keyid(FAR mbedtls_aes_context *ctx,
+                                    FAR const unsigned char *key,
+                                    unsigned int keybits)
+{
+  return aes_setkey_keyid(ctx, key, keybits);
 }
 
 /* AES-ECB block encryption/decryption */
