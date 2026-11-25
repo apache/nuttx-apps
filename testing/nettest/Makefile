@@ -55,7 +55,7 @@ endif
 ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_reset.c tcp/test_tcp_iov.c
 CSRCS    += tcp/test_tcp_halfclose.c tcp/test_tcp_backlog.c
-CSRCS    += tcp/test_tcp_procfs.c
+CSRCS    += tcp/test_tcp_procfs.c tcp/test_tcp_epoll.c
 endif
 
 ifeq ($(CONFIG_NET_IPv4)$(CONFIG_NET_SOCKOPTS)$(CONFIG_NET_TCP_WRITE_BUFFERS),yyy)
@@ -69,6 +69,7 @@ MAINSRC  += udp/test_udp.c
 PROGNAME += cmocka_net_udp
 CSRCS    += udp/test_udp_common.c udp/test_udp_v6only.c
 CSRCS    += udp/test_udp_family.c udp/test_udp_bind.c
+CSRCS    += udp/test_udp_epoll.c
 endif
 
 ifeq ($(CONFIG_TESTING_NET_LOCAL),y)

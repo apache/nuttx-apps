@@ -444,6 +444,38 @@ void test_tcp_recv_iov_empty(FAR void **state);
 
 void test_tcp_recv_iov_nowait(FAR void **state);
 
+/****************************************************************************
+ * Name: test_tcp_epoll_setup
+ ****************************************************************************/
+
+int test_tcp_epoll_setup(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_epoll_teardown
+ ****************************************************************************/
+
+int test_tcp_epoll_teardown(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_epollet_in
+ ****************************************************************************/
+
+void test_tcp_epollet_in(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_epollet_out
+ ****************************************************************************/
+
+void test_tcp_epollet_out(FAR void **state);
+
+#  if defined(CONFIG_NET_TCP_WRITE_BUFFERS) && defined(CONFIG_NET_SOCKOPTS)
+/****************************************************************************
+ * Name: test_tcp_epollet_eagain
+ ****************************************************************************/
+
+void test_tcp_epollet_eagain(FAR void **state);
+#  endif
+
 #  ifdef CONFIG_NET_TCPBACKLOG
 /****************************************************************************
  * Name: test_tcp_backlog_setup
