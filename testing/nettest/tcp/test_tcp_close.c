@@ -67,7 +67,6 @@
 #define TCP_CLOSE_SETTLE  3000  /* ms for a closed connection to go away */
 #define TCP_CLOSE_ROUNDS  5
 #define TCP_CLOSE_TWDATA  512
-#define TCP_CLOSE_LAST    (16 * 1024)
 
 /* Enough connections in TIME_WAIT to hold all preallocated callbacks when
  * each one keeps three of them.
@@ -622,9 +621,10 @@ void test_tcp_close_netdown(FAR void **state)
  *
  * Description:
  *   Leave TCP_CLOSE_NTW connections in TIME_WAIT (the client closes
- *   first).  Then a new client sends data and closes at once: the server
- *   must read every byte, then EOF.  The connections in TIME_WAIT must not
- *   hold the callbacks that this close needs.
+ *   first).  Then a new client fills the window of the server and its own
+ *   write queue, and closes at once: the server must read every byte, then
+ *   EOF.  The connections in TIME_WAIT must not hold the callbacks that
+ *   this close needs.
  *
  ****************************************************************************/
 
@@ -633,9 +633,7 @@ void test_tcp_close_timewait(FAR void **state)
   FAR struct tcp_close_state_s *st = *state;
   struct tcp_close_pair_s pair;
   uint8_t buf[TCP_CLOSE_TWDATA];
-  size_t sent = 0;
-  ssize_t n;
-  size_t i;
+  size_t sent;
   int conn;
 
   memset(buf, 't', sizeof(buf));
@@ -654,18 +652,7 @@ void test_tcp_close_timewait(FAR void **state)
     }
 
   tcp_close_pair(st, &pair);
-  while (sent < TCP_CLOSE_LAST)
-    {
-      for (i = 0; i < sizeof(buf); i++)
-        {
-          buf[i] = tcp_close_byte(sent + i);
-        }
-
-      n = send(pair.client, buf, sizeof(buf), 0);
-      assert_int_equal(n, sizeof(buf));
-      sent += n;
-    }
-
+  sent = tcp_close_fill(pair.client);
   tcp_close_fd(st, pair.client);
   tcp_close_drain(pair.server, sent);
   tcp_close_fd(st, pair.server);
