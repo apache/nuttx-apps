@@ -873,9 +873,11 @@ int main(int argc, FAR char *argv[])
                   continue;
                 }
 
-              /* Remove leading spaces from arg */
+              /* Remove leading spaces from arg.  strtok_r() may set arg to
+               * NULL when the command has no argument (e.g. "q").
+               */
 
-              while (*arg == ' ')
+              while (arg != NULL && *arg == ' ')
                 {
                   arg++;
                 }
