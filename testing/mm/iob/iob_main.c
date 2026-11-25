@@ -455,7 +455,7 @@ static int test_iob_copyin_copyout(void)
       return -1;
     }
 
-  /* Test copyin */
+  /* Test iob_copyin() */
 
   ret = iob_copyin(iob, src_data, TEST_DATA_SIZE, 0, false);
   if (ret < 0)
@@ -538,9 +538,21 @@ static int test_iob_queue_operations(void)
   if (iob1 == NULL || iob2 == NULL || iob3 == NULL)
     {
       printf("ERROR: Failed to allocate IOBs\n");
-      if (iob1) iob_free(iob1);
-      if (iob2) iob_free(iob2);
-      if (iob3) iob_free(iob3);
+      if (iob1)
+        {
+          iob_free(iob1);
+        }
+
+      if (iob2)
+        {
+          iob_free(iob2);
+        }
+
+      if (iob3)
+        {
+          iob_free(iob3);
+        }
+
       return -1;
     }
 
@@ -681,8 +693,16 @@ static int test_iob_chain_operations(void)
   if (iob1 == NULL || iob2 == NULL)
     {
       printf("ERROR: Failed to allocate IOBs\n");
-      if (iob1) iob_free(iob1);
-      if (iob2) iob_free(iob2);
+      if (iob1)
+        {
+          iob_free(iob1);
+        }
+
+      if (iob2)
+        {
+          iob_free(iob2);
+        }
+
       return -1;
     }
 
@@ -1046,9 +1066,21 @@ static int test_iob_queue_concat(void)
   if (iob1 == NULL || iob2 == NULL || iob3 == NULL)
     {
       printf("ERROR: Failed to allocate IOBs\n");
-      if (iob1) iob_free(iob1);
-      if (iob2) iob_free(iob2);
-      if (iob3) iob_free(iob3);
+      if (iob1)
+        {
+          iob_free(iob1);
+        }
+
+      if (iob2)
+        {
+          iob_free(iob2);
+        }
+
+      if (iob3)
+        {
+          iob_free(iob3);
+        }
+
       return -1;
     }
 
