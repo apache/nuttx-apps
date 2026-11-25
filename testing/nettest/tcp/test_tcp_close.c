@@ -412,7 +412,7 @@ static void tcp_close_reset(FAR struct tcp_close_state_s *st, int fd)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_LOOPBACK
+#if defined(CONFIG_NET_LOOPBACK) && defined(CONFIG_NET_SOLINGER)
 static void tcp_close_lo(int fd, bool up)
 {
   struct ifreq req;

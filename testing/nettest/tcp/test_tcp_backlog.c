@@ -231,6 +231,7 @@ static int tcp_backlog_connect(int fd, FAR const struct sockaddr_in *addr,
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NET_SOLINGER
 static int tcp_backlog_port(int fd, bool peer)
 {
   struct sockaddr_in addr;
@@ -248,6 +249,7 @@ static int tcp_backlog_port(int fd, bool peer)
 
   return ret < 0 ? -1 : ntohs(addr.sin_port);
 }
+#endif
 
 /****************************************************************************
  * Name: tcp_backlog_try
