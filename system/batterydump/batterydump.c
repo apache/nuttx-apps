@@ -132,54 +132,59 @@ static void dump_gauge(int fd, uint32_t mask)
   int ret = 0;
   int state = 0;
   bool online = false;
-  b16_t cap = 0;
-  b16_t vol = 0;
-  b16_t current = 0;
-  b8_t temp = 0;
+  int cap = 0;
+  int vol = 0;
+  int current = 0;
+  int temp = 0;
+
+  /* The gauge reports voltage in mV, capacity in percent, current in mA
+   * and temperature in 0.1 degrees Celsius.
+   */
 
   ret = ioctl(fd, BATIOC_STATE, (unsigned long)&state);
   if (ret < 0)
     {
-      printf("BATIOC_STATE failed %d", ret);
+      printf("BATIOC_STATE failed %d\n", ret);
     }
 
   ret = ioctl(fd, BATIOC_ONLINE, (unsigned long)&online);
   if (ret < 0)
     {
-      printf("BATIOC_ONLINE failed %d", ret);
+      printf("BATIOC_ONLINE failed %d\n", ret);
     }
 
   ret = ioctl(fd, BATIOC_VOLTAGE, (unsigned long)&vol);
   if (ret < 0)
     {
-      printf("BATIOC_VOLTAGE failed %d", ret);
+      printf("BATIOC_VOLTAGE failed %d\n", ret);
     }
 
   ret = ioctl(fd, BATIOC_CAPACITY, (unsigned long)&cap);
   if (ret < 0)
     {
-      printf("BATIOC_CAPACITY failed %d", ret);
+      printf("BATIOC_CAPACITY failed %d\n", ret);
     }
 
   ret = ioctl(fd, BATIOC_CURRENT, (unsigned long)&current);
   if (ret < 0)
     {
-       printf("BATIOC_CURRENT failed %d", ret);
+      printf("BATIOC_CURRENT failed %d\n", ret);
     }
 
   ret = ioctl(fd, BATIOC_TEMPERATURE, (unsigned long)&temp);
   if (ret < 0)
     {
-      printf("BATIOC_TEMPERATURE failed %d", ret);
+      printf("BATIOC_TEMPERATURE failed %d\n", ret);
     }
 
-  printf("mask:%"PRIx32", state:%d, online:%d, vol:%f, capacity:%"
-         PRIi32"%%, current:%f, temperature:%f\n",
-         mask, state, online, b16tof(vol), b16toi(cap),
-         b16tof(current), b8tof(temp));
+  printf("mask:%"PRIx32", state:%d, online:%d, vol:%dmV, capacity:%d%%, "
+         "current:%dmA, temperature:%s%d.%dC\n",
+         mask, state, online, vol, cap, current,
+         temp < 0 ? "-" : "", abs(temp) / 10, abs(temp) % 10);
   return;
 }
 
+#ifdef CONFIG_BATTERY_MONITOR
 static void dump_monitor(int fd, uint32_t mask)
 {
   int status = 0;
@@ -233,6 +238,7 @@ static void dump_monitor(int fd, uint32_t mask)
          current.time);
   return;
 }
+#endif /* CONFIG_BATTERY_MONITOR */
 
 static void dump_battery(int fd, int chiptype, uint32_t mask)
 {
@@ -244,9 +250,11 @@ static void dump_battery(int fd, int chiptype, uint32_t mask)
   case CHIP_TYPE_GAUGE:
     dump_gauge(fd, mask);
     break;
+#ifdef CONFIG_BATTERY_MONITOR
   case CHIP_TYPE_MONITOR:
     dump_monitor(fd, mask);
     break;
+#endif
   default:
     break;
   }
