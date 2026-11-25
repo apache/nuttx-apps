@@ -1,0 +1,32 @@
+mbed TLS patch: guard the PBKDF2 implementation with MBEDTLS_PKCS5_ALT.
+
+mbed TLS 3.6 has no MBEDTLS_PKCS5_ALT module guard in library/pkcs5.c,
+so an alternative implementation of mbedtls_pkcs5_pbkdf2_hmac[_ext]
+cannot replace the built-in one: both would be compiled and the link
+would see duplicate symbols.  Wrap the software PBKDF2 path in the
+usual "#if !defined(MBEDTLS_xxx_ALT)" guard, the same convention the
+library already uses for MBEDTLS_GCM_ALT or MBEDTLS_ECDSA_SIGN_ALT.
+Parsing (mbedtls_pkcs5_pbes2 etc.) stays in the library; only the key
+derivation is replaceable.
+
+Upstream-Status: Inappropriate [NuttX carries this patch so the
+cryptodev-backed pkcs5_alt.c can provide the PBKDF2 functions]
+
+--- a/library/pkcs5.c
++++ b/library/pkcs5.c
+@@ -265,6 +265,7 @@
+ }
+ #endif /* MBEDTLS_ASN1_PARSE_C && MBEDTLS_CIPHER_C */
+ 
++#if !defined(MBEDTLS_PKCS5_ALT)
+ static int pkcs5_pbkdf2_hmac(mbedtls_md_context_t *ctx,
+                              const unsigned char *password,
+                              size_t plen, const unsigned char *salt, size_t slen,
+@@ -392,6 +393,7 @@
+     mbedtls_md_free(&md_ctx);
+     return ret;
+ }
++#endif /* !MBEDTLS_PKCS5_ALT */
+ 
+ #if defined(MBEDTLS_SELF_TEST)
+ 
