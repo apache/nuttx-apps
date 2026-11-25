@@ -796,6 +796,45 @@ static void periodic_test(FAR struct kwork_wqueue_s *wqueue)
          periodic.calls);
 }
 
+static void timeleft_test(FAR struct kwork_wqueue_s *wqueue)
+{
+  struct sync_cancel_s busy;
+  struct work_s block;
+  struct work_s work;
+  clock_t left;
+
+  printf("wqueue_test: time left\n");
+  memset(&block, 0, sizeof(block));
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&busy.started, 0, 0) == OK);
+  ASSERT(sem_init(&busy.finished, 0, 0) == OK);
+
+  /* A work that has not expired yet */
+
+  ASSERT(work_queue_wq(wqueue, &work, empty_worker, NULL,
+                       MSEC2TICK(500)) == OK);
+  left = work_timeleft(&work);
+  ASSERT(left > 0 && left <= MSEC2TICK(500) + 1);
+  ASSERT(work_cancel_wq(wqueue, &work) == OK);
+
+  /* Keep the only worker busy, so that an expired work cannot run yet */
+
+  ASSERT(work_queue_wq(wqueue, &block, sync_worker, &busy, 0) == OK);
+  ASSERT(wait_sem(&busy.started) == OK);
+  ASSERT(work_queue_wq(wqueue, &work, empty_worker, NULL, 1) == OK);
+  usleep(SLEEP_TIME / 2);
+  left = work_timeleft(&work);
+  printf("wqueue_test: time left of an expired work = %lld, expect = 0\n",
+         (long long)left);
+  ASSERT(left == 0);
+
+  ASSERT(wait_sem(&busy.finished) == OK);
+  usleep(SLEEP_TIME);
+  ASSERT(work_available(&work));
+  ASSERT(sem_destroy(&busy.started) == OK);
+  ASSERT(sem_destroy(&busy.finished) == OK);
+}
+
 static void pending_replace_test(FAR struct kwork_wqueue_s *wqueue)
 {
   struct replace_arg_s first;
@@ -1167,6 +1206,7 @@ static FAR void *wqueue_test_entry(FAR void *arg)
           api_validation_test(wq);
           periodic_test(wq);
           pending_replace_test(wq);
+          timeleft_test(wq);
         }
 
       sync_cancel_test(wq);
