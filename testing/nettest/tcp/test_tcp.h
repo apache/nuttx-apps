@@ -253,6 +253,18 @@ void test_tcp_listen_recv(FAR void **state);
 void test_tcp_listen_connected(FAR void **state);
 
 /****************************************************************************
+ * Name: test_tcp_connect_listener
+ ****************************************************************************/
+
+void test_tcp_connect_listener(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_connect_family
+ ****************************************************************************/
+
+void test_tcp_connect_family(FAR void **state);
+
+/****************************************************************************
  * Name: test_tcp_close_setup
  ****************************************************************************/
 
@@ -400,6 +412,12 @@ void test_tcp_reset_poll(FAR void **state);
 
 #  ifdef CONFIG_NET_SOCKOPTS
 void test_tcp_reset_refused(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_reset_closewait
+ ****************************************************************************/
+
+void test_tcp_reset_closewait(FAR void **state);
 
 /****************************************************************************
  * Name: test_tcp_halfclose_setup

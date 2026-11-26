@@ -110,6 +110,9 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_listen_connected,
                                       test_tcp_bind_listen_setup,
                                       test_tcp_bind_listen_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_connect_listener,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
       cmocka_unit_test_setup_teardown(test_tcp_close_shutdown_queued,
                                       test_tcp_close_setup,
                                       test_tcp_close_teardown),
@@ -158,6 +161,9 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_reset_refused,
                                       test_tcp_reset_setup,
                                       test_tcp_reset_teardown),
+      cmocka_unit_test_setup_teardown(test_tcp_reset_closewait,
+                                      test_tcp_reset_setup,
+                                      test_tcp_reset_teardown),
       cmocka_unit_test_setup_teardown(test_tcp_halfclose_answer,
                                       test_tcp_halfclose_setup,
                                       test_tcp_halfclose_teardown),
@@ -191,6 +197,11 @@ int main(int argc, FAR char *argv[])
                                       test_tcp_procfs_setup,
                                       test_tcp_procfs_teardown),
 #  endif
+#endif
+#ifdef CONFIG_NET_IPv4
+      cmocka_unit_test_setup_teardown(test_tcp_connect_family,
+                                      test_tcp_bind_listen_setup,
+                                      test_tcp_bind_listen_teardown),
 #endif
     };
 

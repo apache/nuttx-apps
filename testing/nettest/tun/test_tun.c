@@ -24,6 +24,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -40,6 +42,14 @@ int main(int argc, FAR char *argv[])
 {
   const struct CMUnitTest tun_tests[] =
     {
+      cmocka_unit_test_setup_teardown(test_tun_tcp_connect_again,
+                                      test_tun_tcp_client_setup,
+                                      test_tun_tcp_teardown),
+#ifndef CONFIG_DISABLE_ALL_SIGNALS
+      cmocka_unit_test_setup_teardown(test_tun_tcp_connect_intr,
+                                      test_tun_tcp_client_setup,
+                                      test_tun_tcp_teardown),
+#endif
       cmocka_unit_test_setup_teardown(test_tun_tcp_lossy,
                                       test_tun_tcp_setup,
                                       test_tun_tcp_teardown),
