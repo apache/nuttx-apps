@@ -18,7 +18,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-############################################################################/
+############################################################################
 
 ifneq ($(CONFIG_SDR_LIQUID_DSP),)
 CONFIGURED_APPS += $(APPDIR)/sdr/liquid_dsp
