@@ -522,6 +522,14 @@ int test_tcp_backlog_setup(FAR void **state);
 int test_tcp_backlog_teardown(FAR void **state);
 
 /****************************************************************************
+ * Name: test_tcp_backlog_close_reset
+ ****************************************************************************/
+
+#    ifdef CONFIG_NET_SOCKOPTS
+void test_tcp_backlog_close_reset(FAR void **state);
+#    endif
+
+/****************************************************************************
  * Name: test_tcp_backlog_relisten_rst
  ****************************************************************************/
 

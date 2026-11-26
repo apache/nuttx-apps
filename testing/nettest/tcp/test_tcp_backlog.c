@@ -23,7 +23,8 @@
 /* The backlog of an IPv4 TCP listener on the loopback address: listen()
  * again on a listener with connections that wait in its backlog, and the
  * close of a listener while connections to it come in.  The race cases
- * pass when all their rounds end.
+ * pass when all their rounds end.  The connections that wait in the
+ * backlog of a closed listener get a RST.
  */
 
 /****************************************************************************
@@ -47,6 +48,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <cmocka.h>
 
 #include "test_tcp.h"
@@ -66,6 +68,9 @@
 #define TCP_BACKLOG_RACES    50    /* Rounds of a race case */
 #define TCP_BACKLOG_BUSY     2     /* Clients that keep the input busy */
 #define TCP_BACKLOG_MAXRACE  6     /* Clients of one race round */
+#define TCP_BACKLOG_RESETS   3     /* Rounds of the reset case */
+#define TCP_BACKLOG_PENDING  2     /* Pending connections of the reset case */
+#define TCP_BACKLOG_RCVTMO   3     /* s, SO_RCVTIMEO of the reset case */
 
 /****************************************************************************
  * Private Types
@@ -488,6 +493,64 @@ int test_tcp_backlog_teardown(FAR void **state)
   free(st);
   return 0;
 }
+
+/****************************************************************************
+ * Name: test_tcp_backlog_close_reset
+ *
+ * Description:
+ *   The close of a listener ends the connections that wait in its backlog
+ *   with a RST: two clients connect to a listener of backlog 4 and nobody
+ *   accepts them; the listener closes.  Then recv() of each client must
+ *   give ECONNRESET within TCP_BACKLOG_RCVTMO s (without the RST it waits
+ *   for data that never comes).  TCP_BACKLOG_RESETS rounds.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_SOCKOPTS
+void test_tcp_backlog_close_reset(FAR void **state)
+{
+  FAR struct tcp_backlog_state_s *st = *state;
+  int clients[TCP_BACKLOG_PENDING];
+  struct sockaddr_in addr;
+  struct timeval tv;
+  int listener;
+  int round;
+  char c;
+  int i;
+
+  for (round = 0; round < TCP_BACKLOG_RESETS; round++)
+    {
+      listener = tcp_backlog_keep(st, tcp_backlog_listen(&addr, 4));
+      for (i = 0; i < TCP_BACKLOG_PENDING; i++)
+        {
+          clients[i] = tcp_backlog_keep(st, socket(AF_INET,
+                                                   SOCK_STREAM |
+                                                   SOCK_CLOEXEC, 0));
+          assert_return_code(connect(clients[i],
+                                     (FAR struct sockaddr *)&addr,
+                                     sizeof(addr)), errno);
+
+          tv.tv_sec  = TCP_BACKLOG_RCVTMO;
+          tv.tv_usec = 0;
+          assert_return_code(setsockopt(clients[i], SOL_SOCKET,
+                                        SO_RCVTIMEO, &tv, sizeof(tv)),
+                             errno);
+        }
+
+      /* Let the listener put both connections in its backlog */
+
+      usleep(100 * 1000);
+      tcp_backlog_fd(st, listener);
+
+      for (i = 0; i < TCP_BACKLOG_PENDING; i++)
+        {
+          assert_int_equal(recv(clients[i], &c, 1, 0), -1);
+          assert_int_equal(errno, ECONNRESET);
+          tcp_backlog_fd(st, clients[i]);
+        }
+    }
+}
+#endif
 
 /****************************************************************************
  * Name: test_tcp_backlog_relisten_rst
