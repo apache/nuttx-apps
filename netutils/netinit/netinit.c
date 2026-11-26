@@ -347,9 +347,11 @@ static void netinit_set_macaddr(void)
 static inline void netinit_checkpath(void)
 {
   int retries = CONFIG_NETINIT_RETRY_MOUNTPATH;
+
   while (retries > 0)
     {
       DIR * dir = opendir(CONFIG_IPCFG_PATH);
+
       if (dir)
         {
           /* Directory exists. */
@@ -359,7 +361,7 @@ static inline void netinit_checkpath(void)
         }
       else
         {
-        usleep(100000);
+          usleep(100000);
         }
 
       retries--;
