@@ -52,6 +52,7 @@
 
 #include <assert.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <stdint.h>
@@ -1074,6 +1075,50 @@ static int wget_gethostip(FAR char *hostname, FAR struct in_addr *dest)
 }
 
 /****************************************************************************
+ * Name: wget_waitconnect
+ *
+ * Description:
+ *   Wait for the end of a connection that a signal interrupted in
+ *   connect(): the connection goes on (POSIX).
+ *
+ * Input Parameters:
+ *   sockfd  - The socket
+ *   timeout - The timeout in seconds, 0 for none (as SO_SNDTIMEO)
+ *
+ * Returned Value:
+ *   Zero (OK) when the socket is connected, else a negated errno value.
+ *
+ ****************************************************************************/
+
+static int wget_waitconnect(int sockfd, unsigned int timeout)
+{
+  struct pollfd pfd;
+  socklen_t len = sizeof(int);
+  int err;
+  int ret;
+
+  pfd.fd     = sockfd;
+  pfd.events = POLLOUT;
+  do
+    {
+      ret = poll(&pfd, 1, timeout > 0 ? timeout * 1000 : -1);
+    }
+  while (ret < 0 && errno == EINTR);
+
+  if (ret <= 0)
+    {
+      return ret < 0 ? -errno : -ETIMEDOUT;
+    }
+
+  if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &err, &len) < 0)
+    {
+      return -errno;
+    }
+
+  return -err;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -1619,25 +1664,26 @@ int webclient_perform(FAR struct webclient_context *ctx)
                * arbitrary local port that is not in use.
                */
 
-              while (true)
+              ret = connect(conn->sockfd, server_address,
+                            server_address_len);
+              if (ret == -1)
                 {
-                  ret = connect(conn->sockfd, server_address,
-                                server_address_len);
-                  if (ret == -1)
-                    {
-                      ret = -errno;
-                      DEBUGASSERT(ret < 0);
-                      if (ret == -EINTR)
-                        {
-                          continue;
-                        }
+                  ret = -errno;
+                  DEBUGASSERT(ret < 0);
 
-                      if (ret == -EISCONN)
-                        {
-                          ret = 0;
-                        }
+                  /* After a signal the connection goes on: wait for its
+                   * end.  A second connect() would give EALREADY.
+                   */
+
+                  if (ret == -EINTR)
+                    {
+                      ret = wget_waitconnect(conn->sockfd,
+                                             ctx->timeout_sec);
                     }
-                  break;
+                  else if (ret == -EISCONN)
+                    {
+                      ret = 0;
+                    }
                 }
             }
 
