@@ -144,6 +144,13 @@
 #  error "Unsupported CONFIG_EXAMPLES_FBCON_BPP"
 #endif
 
+/* Bytes spanned by n pixels starting at a byte boundary, and the byte
+ * offset of pixel x in a row.
+ */
+
+#define FBCON_BYTES(n)   (((n) * FBCON_BPP + 7) / 8)
+#define FBCON_OFFSET(x)  (((x) * FBCON_BPP) / 8)
+
 /* Background and font color, if defaults chosen */
 
 #ifndef CONFIG_EXAMPLES_FBCON_BGCOLOR
@@ -349,10 +356,11 @@ static int fbcon_fill(FAR struct fbcon_state_s *st,
 static void fbcon_fillspace(FAR struct fbcon_state_s *st,
                             FAR const struct nxgl_rect_s *rect,
                             FAR const struct fbcon_bitmap_s *bm);
-static int fbcon_bitmap(FAR struct fbcon_state_s     *st,
-                        FAR const struct nxgl_rect_s *dest,
-                        FAR const uint32_t           *src,
-                        unsigned int                 stride);
+static int fbcon_bitmap(FAR struct fbcon_state_s      *st,
+                        FAR const struct nxgl_rect_s  *dest,
+                        FAR const struct nxgl_point_s *origin,
+                        FAR const void                *src,
+                        unsigned int                  stride);
 static int fbcon_backspace(FAR struct fbcon_state_s *st);
 static void fbcon_home(FAR struct fbcon_state_s *st);
 static inline void fbcon_movedisplay(FAR struct fbcon_state_s *st,
@@ -626,40 +634,39 @@ static void fbcon_clearline(FAR struct fbcon_state_s *st)
  *   st     - pointer to FBCON status structure
  *   dest   - Describes the rectangular region on the display that will
  *            receive the bit map.
+ *   origin - The display position of the upper left corner of the source
+ *            image, so that dest may be a part of it.
  *   src    - The start of the source image.
- *   stride - The width of the full source image in pixels.
+ *   stride - The width of the full source image in bytes.
  *
  * Returned Value:
  *   OK on success; ERROR on failure with errno set appropriately
  *
  ****************************************************************************/
 
-static int fbcon_bitmap(FAR struct fbcon_state_s     *st,
-                        FAR const struct nxgl_rect_s *dest,
-                        FAR const uint32_t           *src,
-                        unsigned int                 stride)
+static int fbcon_bitmap(FAR struct fbcon_state_s      *st,
+                        FAR const struct nxgl_rect_s  *dest,
+                        FAR const struct nxgl_point_s *origin,
+                        FAR const void                *src,
+                        unsigned int                  stride)
 {
-  FAR uint32_t *dst;
-  FAR uint8_t  *row;
-  struct fb_area_s area;
-  int x;
+  FAR const uint8_t *srow;
+  FAR uint8_t *drow;
+  size_t len;
   int y;
 
-  area.h = dest->pt2.y - dest->pt1.y + 1;
-  area.w = dest->pt2.x - dest->pt1.x + 1;
-  area.x = dest->pt1.x;
-  area.y = dest->pt1.y;
+  len  = FBCON_BYTES(dest->pt2.x - dest->pt1.x + 1);
+  srow = (FAR const uint8_t *)src +
+         stride * (dest->pt1.y - origin->y) +
+         FBCON_OFFSET(dest->pt1.x - origin->x);
+  drow = (FAR uint8_t *)st->fbmem + st->pinfo->stride * dest->pt1.y +
+         FBCON_OFFSET(dest->pt1.x);
 
-  row = (FAR uint8_t *)st->fbmem + st->pinfo->stride * area.y;
-  for (y = 0; y < area.h; y++)
+  for (y = dest->pt1.y; y <= dest->pt2.y; y++)
     {
-      dst = ((FAR uint32_t *)row) + area.x;
-      for (x = 0; x < area.w; x++)
-        {
-          *dst++ = *(uint32_t *)src++;
-        }
-
-      row += st->pinfo->stride;
+      memcpy(drow, srow, len);
+      srow += stride;
+      drow += st->pinfo->stride;
     }
 
   return OK;
@@ -1282,25 +1289,57 @@ static int fbcon_fill(FAR struct fbcon_state_s *st,
                       FAR struct nxgl_rect_s *rect,
                       FAR nxgl_mxpixel_t *color)
 {
-  FAR uint32_t *dest;
   FAR uint8_t *row;
-  struct fb_area_s area;
+  int width;
   int x;
   int y;
 
-  area.h = rect->pt2.y - rect->pt1.y + 1;
-  area.w = rect->pt2.x - rect->pt1.x + 1;
-  area.x = rect->pt1.x;
-  area.y = rect->pt1.y;
+  width = rect->pt2.x - rect->pt1.x + 1;
+  row   = (FAR uint8_t *)st->fbmem + st->pinfo->stride * rect->pt1.y +
+          FBCON_OFFSET(rect->pt1.x);
 
-  row = (FAR uint8_t *)st->fbmem + st->pinfo->stride * area.y;
-  for (y = 0; y < area.h; y++)
+  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
     {
-      dest = (FAR uint32_t *)row + area.x;
-      for (x = 0; x < area.w; x++)
+#if FBCON_BPP == 32
+      FAR uint32_t *dest = (FAR uint32_t *)row;
+
+      for (x = 0; x < width; x++)
         {
           *dest++ = *color;
         }
+#elif FBCON_BPP == 16
+      FAR uint16_t *dest = (FAR uint16_t *)row;
+
+      for (x = 0; x < width; x++)
+        {
+          *dest++ = *color;
+        }
+#elif FBCON_BPP == 8
+      UNUSED(x);
+      memset(row, *color, width);
+#elif FBCON_BPP == 24
+#  error "Additional logic is needed here for 24bpp support"
+#else
+      /* Fill whole bytes with the color packed in them; as for the glyphs,
+       * the area is expected to start on a byte boundary.
+       */
+
+      uint8_t pixel = *color;
+
+#  if FBCON_BPP == 1
+      pixel &= 0x01;
+      pixel  = pixel << 1 | pixel;
+#  endif
+#  if FBCON_BPP < 4
+      pixel &= 0x03;
+      pixel  = pixel << 2 | pixel;
+#  endif
+      pixel &= 0x0f;
+      pixel  = pixel << 4 | pixel;
+
+      UNUSED(x);
+      memset(row, pixel, FBCON_BYTES(width));
+#endif
 
       row += st->pinfo->stride;
     }
@@ -1651,7 +1690,7 @@ void fbcon_fillchar(FAR struct fbcon_state_s *st,
 
       src = (FAR const void *)glyph->bitmap;
 
-      ret = fbcon_bitmap(st, &intersection, src,
+      ret = fbcon_bitmap(st, &intersection, &bounds.pt1, src,
                          (unsigned int)glyph->stride);
       if (ret < 0)
         {
