@@ -18,7 +18,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-############################################################################/
+############################################################################
 
 ifneq ($(CONFIG_CANUTILS_LIBCANUTILS),)
 CONFIGURED_APPS += $(APPDIR)/canutils/libcanutils
