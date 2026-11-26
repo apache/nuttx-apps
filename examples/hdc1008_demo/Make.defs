@@ -18,7 +18,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-############################################################################/
+############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_HDC1008),)
 CONFIGURED_APPS += $(APPDIR)/examples/hdc1008_demo
