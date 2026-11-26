@@ -66,18 +66,22 @@ static void netlib_ct_parse_ip(FAR const struct nfattr *attr,
     {
       switch (NFA_TYPE(subattr))
         {
+#ifdef CONFIG_NET_IPv4
           case CTA_IP_V4_SRC:
             net_ipv4addr_hdrcopy(&tuple->src.ipv4, NFA_DATA(subattr));
             break;
           case CTA_IP_V4_DST:
             net_ipv4addr_hdrcopy(&tuple->dst.ipv4, NFA_DATA(subattr));
             break;
+#endif
+#ifdef CONFIG_NET_IPv6
           case CTA_IP_V6_SRC:
             net_ipv6addr_hdrcopy(&tuple->src.ipv6, NFA_DATA(subattr));
             break;
           case CTA_IP_V6_DST:
             net_ipv6addr_hdrcopy(&tuple->dst.ipv6, NFA_DATA(subattr));
             break;
+#endif
         }
     }
 }
