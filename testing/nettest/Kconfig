@@ -74,6 +74,15 @@ config TESTING_NET_LOCAL_DGRAM
 		names (default P_tmpdir).  The second is a cmocka filter, to run
 		some of the cases.
 
+config TESTING_NET_LOCAL_DGRAM_STACKSIZE
+	int "Stack size of the cmocka net local datagram test"
+	default 16384
+	depends on TESTING_NET_LOCAL_DGRAM
+	---help---
+		In a flat build, the socket calls and the signal handlers of
+		cmocka_net_local_dgram use this stack.  The test uses more than
+		8 KiB on qemu-armv8a:nsh.
+
 config TESTING_NET_OTHERS
 	bool "Enable cmocka net other test"
 	depends on BUILD_FLAT

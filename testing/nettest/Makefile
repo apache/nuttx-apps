@@ -23,7 +23,6 @@ include $(APPDIR)/Make.defs
 NETTEST_UTILS_DIR := $(APPDIR)/testing/nettest/utils
 
 PRIORITY  = $(CONFIG_TESTING_NET_TEST_PRIORITY)
-STACKSIZE = $(CONFIG_TESTING_NET_TEST_STACKSIZE)
 MODULE    = $(CONFIG_TESTING_NET_TEST)
 
 ifeq ($(CONFIG_TESTING_NET_TEST),y)
@@ -151,6 +150,13 @@ MAINSRC  += tun/test_tun.c
 PROGNAME += cmocka_net_tun
 CSRCS    += tun/test_tun_tcp.c
 endif
+
+# One stack size per program: cmocka_net_local_dgram has its own
+
+STACKSIZE = $(foreach p,$(PROGNAME), \
+              $(if $(filter cmocka_net_local_dgram,$(p)), \
+                $(CONFIG_TESTING_NET_LOCAL_DGRAM_STACKSIZE), \
+                $(CONFIG_TESTING_NET_TEST_STACKSIZE)))
 
 endif
 include $(APPDIR)/Application.mk
