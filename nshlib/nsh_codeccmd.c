@@ -235,25 +235,25 @@ static void codec_output(FAR struct nsh_vtbl_s *vtbl, FAR const char *buf,
 static int calc_codec_buffsize(int srclen, uint8_t mode)
 {
   switch (mode)
-  {
-  case CODEC_MODE_URLENCODE:
-    return srclen * 3 + 1;
+    {
+      case CODEC_MODE_URLENCODE:
+        return srclen * 3 + 1;
 
-  case CODEC_MODE_URLDECODE:
-    return srclen + 1;
+      case CODEC_MODE_URLDECODE:
+        return srclen + 1;
 
-  case CODEC_MODE_BASE64ENC:
-    return ((srclen + 2) / 3 * 4) + 1;
+      case CODEC_MODE_BASE64ENC:
+        return ((srclen + 2) / 3 * 4) + 1;
 
-  case CODEC_MODE_BASE64DEC:
-    return (srclen / 4 * 3 + 2) + 1;
+      case CODEC_MODE_BASE64DEC:
+        return (srclen / 4 * 3 + 2) + 1;
 
-  case CODEC_MODE_HASH_MD5:
-    return 32 + 1;
+      case CODEC_MODE_HASH_MD5:
+        return 32 + 1;
 
-  default:
-    return srclen + 1;
-  }
+      default:
+        return srclen + 1;
+    }
 }
 #endif
 
