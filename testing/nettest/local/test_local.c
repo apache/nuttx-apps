@@ -41,6 +41,9 @@ int main(int argc, FAR char *argv[])
   const struct CMUnitTest local_tests[] =
     {
       cmocka_unit_test(test_local_scm_rights),
+#if defined(CONFIG_NET_LOCAL_STREAM) && defined(CONFIG_NET_SOCKOPTS)
+      cmocka_unit_test(test_local_accept_rcvtimeo),
+#endif
 #ifdef CONFIG_TESTING_NET_LOCAL_PEERCRED
       cmocka_unit_test(test_local_peercred_pair),
       cmocka_unit_test(test_local_peercred_unconn),

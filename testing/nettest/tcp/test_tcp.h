@@ -213,6 +213,12 @@ void test_tcp_bind_reuseaddr_listener(FAR void **state);
 
 void test_tcp_accept_inherit(FAR void **state);
 
+/****************************************************************************
+ * Name: test_tcp_accept_rcvtimeo
+ ****************************************************************************/
+
+void test_tcp_accept_rcvtimeo(FAR void **state);
+
 #    ifdef CONFIG_NET_TCP_WRITE_BUFFERS
 /****************************************************************************
  * Name: test_tcp_sndtimeo_setup
@@ -239,6 +245,12 @@ void test_tcp_sndtimeo_iob(FAR void **state);
  ****************************************************************************/
 
 void test_tcp_listen_again(FAR void **state);
+
+/****************************************************************************
+ * Name: test_tcp_accept_addrlen
+ ****************************************************************************/
+
+void test_tcp_accept_addrlen(FAR void **state);
 
 /****************************************************************************
  * Name: test_tcp_listen_recv

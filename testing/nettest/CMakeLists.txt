@@ -108,6 +108,10 @@ if(CONFIG_TESTING_NET_TEST)
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_common.c
         ${CMAKE_CURRENT_LIST_DIR}/local/test_local_scm_rights.c)
 
+    if(CONFIG_NET_LOCAL_STREAM AND CONFIG_NET_SOCKOPTS)
+      list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/local/test_local_accept.c)
+    endif()
+
     if(CONFIG_TESTING_NET_LOCAL_PEERCRED)
       list(APPEND SRCS ${CMAKE_CURRENT_LIST_DIR}/local/test_local_peercred.c)
     endif()

@@ -33,6 +33,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <poll.h>
+#include <pthread.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -40,6 +41,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <cmocka.h>
@@ -55,6 +57,8 @@
 #define TEST_MAX_FDS      8
 #define TEST_FILL_SIZE    1024
 #define TEST_FILL_MAX     1024  /* sends of TEST_FILL_SIZE, at most */
+#define TEST_ACCEPT_TIMEO 300   /* ms, SO_RCVTIMEO of accept() */
+#define TEST_ACCEPT_LATE  3000  /* ms before a client ends a wait */
 
 /****************************************************************************
  * Private Types
@@ -67,6 +71,16 @@
 struct tcp_bl_state_s
 {
   int fds[TEST_MAX_FDS];
+};
+
+/* A client that connects after TEST_ACCEPT_LATE ms, unless the case is
+ * done: an accept() that ignores its timeout still returns.
+ */
+
+struct tcp_bl_late_s
+{
+  in_port_t port;
+  volatile bool done;
 };
 
 /****************************************************************************
@@ -220,6 +234,41 @@ static int tcp_bl_accept(FAR struct tcp_bl_state_s *st, int listener)
   tcp_bl_wait(listener, POLLIN);
   return tcp_bl_keep(st, accept4(listener, NULL, NULL, SOCK_CLOEXEC));
 }
+
+/****************************************************************************
+ * Name: tcp_bl_late
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_SOCKOPTS
+static FAR void *tcp_bl_late(FAR void *arg)
+{
+  FAR struct tcp_bl_late_s *late = arg;
+  int fd;
+  int i;
+
+  for (i = 0; i < TEST_ACCEPT_LATE / 100 && !late->done; i++)
+    {
+      usleep(100 * 1000);
+    }
+
+  if (!late->done)
+    {
+      fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+      if (fd >= 0)
+        {
+          tcp_bl_connect(fd, late->port);
+          while (!late->done)
+            {
+              usleep(100 * 1000);
+            }
+
+          close(fd);
+        }
+    }
+
+  return NULL;
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -465,7 +514,112 @@ void test_tcp_accept_inherit(FAR void **state)
   assert_int_equal(value, cnt);
 #endif
 }
+
+/****************************************************************************
+ * Name: test_tcp_accept_rcvtimeo
+ *
+ * Description:
+ *   accept() on a listener with SO_RCVTIMEO and no client fails with
+ *   EAGAIN after the timeout (Linux).
+ *
+ ****************************************************************************/
+
+void test_tcp_accept_rcvtimeo(FAR void **state)
+{
+  FAR struct tcp_bl_state_s *st = *state;
+  struct tcp_bl_late_s late;
+  struct timespec start;
+  struct timespec end;
+  struct timeval tv;
+  pthread_t tid;
+  int listener;
+  long ms;
+  int err;
+  int fd;
+
+  listener = tcp_bl_listener(st, false, 1, &late.port);
+  tv.tv_sec  = 0;
+  tv.tv_usec = TEST_ACCEPT_TIMEO * 1000;
+  assert_return_code(setsockopt(listener, SOL_SOCKET, SO_RCVTIMEO, &tv,
+                                sizeof(tv)), errno);
+
+  late.done = false;
+  assert_int_equal(pthread_create(&tid, NULL, tcp_bl_late, &late), 0);
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  fd  = accept4(listener, NULL, NULL, SOCK_CLOEXEC);
+  err = errno;
+  clock_gettime(CLOCK_MONOTONIC, &end);
+  late.done = true;
+  assert_int_equal(pthread_join(tid, NULL), 0);
+  if (fd >= 0)
+    {
+      tcp_bl_keep(st, fd);
+    }
+
+  ms = (end.tv_sec - start.tv_sec) * 1000 +
+       (end.tv_nsec - start.tv_nsec) / 1000000;
+  assert_int_equal(fd, -1);
+  assert_int_equal(err, EAGAIN);
+  assert_in_range(ms, TEST_ACCEPT_TIMEO - 50, TEST_ACCEPT_LATE - 500);
+}
 #endif /* CONFIG_NET_SOCKOPTS */
+
+/****************************************************************************
+ * Name: test_tcp_accept_addrlen
+ *
+ * Description:
+ *   accept() gives the address of the client cut to the size of the
+ *   buffer, and the whole length in addrlen (POSIX).  It writes nothing
+ *   after the address.
+ *
+ ****************************************************************************/
+
+void test_tcp_accept_addrlen(FAR void **state)
+{
+  FAR struct tcp_bl_state_s *st = *state;
+  struct sockaddr_storage addr;
+  struct sockaddr_in name;
+  FAR struct sockaddr_in *in = (FAR struct sockaddr_in *)&addr;
+  FAR const uint8_t *p = (FAR const uint8_t *)&addr;
+  socklen_t namelen;
+  socklen_t addrlen;
+  in_port_t port;
+  int listener;
+  int client;
+  size_t cut;
+  size_t i;
+
+  listener = tcp_bl_listener(st, false, 2, &port);
+  for (cut = 0; cut < 2; cut++)
+    {
+      client = tcp_bl_socket(st, 0, false);
+      assert_int_equal(tcp_bl_connect(client, port), 0);
+      namelen = sizeof(name);
+      assert_return_code(getsockname(client, (FAR struct sockaddr *)&name,
+                                     &namelen), errno);
+      tcp_bl_wait(listener, POLLIN);
+
+      /* Room for the family, the port and the IPv4 address only, or for
+       * more than the whole address
+       */
+
+      memset(&addr, 0xaa, sizeof(addr));
+      addrlen = cut ? offsetof(struct sockaddr_in, sin_zero) : sizeof(addr);
+      tcp_bl_keep(st, accept4(listener, (FAR struct sockaddr *)&addr,
+                              &addrlen, SOCK_CLOEXEC));
+
+      assert_int_equal(addrlen, sizeof(struct sockaddr_in));
+      assert_int_equal(in->sin_family, AF_INET);
+      assert_int_equal(in->sin_port, name.sin_port);
+      assert_int_equal(in->sin_addr.s_addr, name.sin_addr.s_addr);
+      for (i = cut ? offsetof(struct sockaddr_in, sin_zero) :
+                     sizeof(struct sockaddr_in);
+           i < sizeof(addr); i++)
+        {
+          assert_int_equal(p[i], 0xaa);
+        }
+    }
+}
 
 /****************************************************************************
  * Name: test_tcp_listen_again
