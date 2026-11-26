@@ -49,7 +49,7 @@
 
 #define TIME_ERROR_MS               (MSEC_PER_TICK * 2)
 #define TIME_ASSERT_RANGE(e,t)      \
-  assert_in_range(e, (t) - TIME_ERROR_MS, (t) + TIME_ERROR_MS) 
+  assert_in_range(e, (t) - TIME_ERROR_MS, (t) + TIME_ERROR_MS)
 
 /****************************************************************************
  * Private Types
