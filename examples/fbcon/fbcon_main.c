@@ -2468,7 +2468,7 @@ static void poll_std_streams(FAR struct fbcon_state_s *st)
         }
 
 #  if defined(CONFIG_NSH_READLINE)
-      fbcon_write(st, buf, num_ch);
+      fbcon_write(st, &ch, 1);
 #  elif defined(CONFIG_NSH_CLE)
       if (ch == ASCII_LF)
         {
