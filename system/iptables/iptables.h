@@ -42,6 +42,15 @@
 
 #define INV_FLAG_STR(flag) ((flag) ? "!" : "")
 
+/* The rule has a TCP flags match (--tcp-flags, --syn).  "--tcp-flags NONE
+ * NONE" matches all packets and needs no match, but its inversion matches
+ * no packet.
+ */
+
+#define IPTABLES_HAS_TCPFLAGS(args) \
+  ((args)->tcp_flg_mask != 0 || (args)->tcp_flg_cmp != 0 || \
+   ((args)->tcpudpinv & XT_TCP_INV_FLAGS) != 0)
+
 /****************************************************************************
  * Public Type Definitions
  ****************************************************************************/
@@ -74,9 +83,14 @@ struct iptables_args_s
   FAR const char *dport;
   FAR const char *icmp_type;
 
+  uint32_t limit_avg;    /* -m limit: seconds * XT_LIMIT_SCALE, 0 = none */
+  uint32_t limit_burst;  /* --limit-burst */
+
   int8_t  verdict;
   int8_t  rulenum;
   uint8_t protocol;
+  uint8_t tcp_flg_mask;  /* --tcp-flags, --syn: flags to examine, 0 = none */
+  uint8_t tcp_flg_cmp;   /* --tcp-flags, --syn: value of those flags */
 
   /* invert flags */
 
@@ -197,10 +211,11 @@ FAR const char *iptables_proto2str(uint8_t proto);
  * Name: iptables_match2str
  *
  * Description:
- *   Get match details from match structure
+ *   Get match details from the matches of an entry (len bytes)
  *
  ****************************************************************************/
 
-FAR const char *iptables_match2str(FAR const struct xt_entry_match *match);
+FAR const char *iptables_match2str(FAR const struct xt_entry_match *match,
+                                   size_t len);
 
 #endif /* __APPS_SYSTEM_IPTABLES_IPTABLES_H */
