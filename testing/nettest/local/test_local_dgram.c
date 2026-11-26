@@ -140,6 +140,8 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_pair_send),
       DGRAM_TEST(test_local_dgram_pair_full),
       DGRAM_TEST(test_local_dgram_pair_close),
+      DGRAM_TEST(test_local_dgram_pair_path),
+      DGRAM_TEST(test_local_dgram_pair_noname),
       DGRAM_TEST(test_local_dgram_poll_pair),
       DGRAM_TEST(test_local_dgram_recv_intr),
       DGRAM_TEST(test_local_dgram_stream_intr),
