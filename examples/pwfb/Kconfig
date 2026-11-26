@@ -35,7 +35,7 @@ config EXAMPLES_PWFB
 
 		WARNING:  Verbose graphics debug output interferes with this
 		test because it introduces some weird timing.  The test probably
-		should use nx_synchronize() to keep syncrhonization even with the
+		should use nx_synchronize() to keep synchronization even with the
 		added delays.
 
 if EXAMPLES_PWFB
