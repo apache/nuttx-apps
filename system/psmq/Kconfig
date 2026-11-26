@@ -33,7 +33,7 @@ menuconfig SYSTEM_PSMQ
 	depends on !DISABLE_MQUEUE && LOGGING_EMBEDLOG
 	---help---
 		psmq is tool set which allows IPC communication in publish/subscribe way
-		created on top of posix messege queue. Full documentation is available
+		created on top of posix message queue. Full documentation is available
 		at: https://psmq.bofc.pl (despite the domain, it is in english).
 
 		Library is licensed under BSD 2-clause license. See LICENSE file in

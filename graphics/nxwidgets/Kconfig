@@ -137,7 +137,7 @@ config NXWIDGETS_TNXARRAY_INITIALSIZE
 		Default dynamic array size (in entries).  Default: 16
 
 config NXWIDGETS_TNXARRAY_SIZEINCREMENT
-	int "Dyanamic Array Reallocation Size Increment"
+	int "Dynamic Array Reallocation Size Increment"
 	default 8
 	---help---
 		Default dynamic array reallocation increment (in entries).  Default: 8

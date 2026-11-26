@@ -48,7 +48,7 @@ config IPCFG_BINARY
 	default n
 	---help---
 		By default, the IP configuration file is an ASCII human readable
-		file with <varialble>=<value> pairs.  A Binary interface may be used
+		file with <variable>=<value> pairs.  A Binary interface may be used
 		for more constrained media such as EEPROM.
 
 config IPCFG_PATH
