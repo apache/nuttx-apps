@@ -47,6 +47,7 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test(test_can_bind_can0),
       cmocka_unit_test(test_can_bind_todev),
       cmocka_unit_test(test_can_bind_sendto),
+      cmocka_unit_test(test_can_name_short),
       cmocka_unit_test(test_can_bind_lo),
     };
 
