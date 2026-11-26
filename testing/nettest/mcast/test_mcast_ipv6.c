@@ -183,17 +183,41 @@ void test_mcast_leave_ipv6(FAR void **state)
 
 /****************************************************************************
  * Name: test_mcast_optlen_ipv6
+ *
+ * Description:
+ *   A multicast option shorter than its structure fails with EINVAL.
+ *
  ****************************************************************************/
 
 void test_mcast_optlen_ipv6(FAR void **state)
 {
   FAR struct nettest_mcast_state_s *mcast_state = *state;
+  struct ipv6_mreq mreq;
   struct group_req gr;
+  int ifindex = 0;
   int ret;
 
   test_mcast_ipv6_group(&gr, mcast_state->ifindex);
   ret = setsockopt(mcast_state->rfd, IPPROTO_IPV6, MCAST_JOIN_GROUP,
                    &gr, sizeof(gr) - 1);
+  assert_int_equal(ret, -1);
+  assert_int_equal(errno, EINVAL);
+
+  memset(&mreq, 0, sizeof(mreq));
+  inet_pton(AF_INET6, TEST_GROUP, &mreq.ipv6mr_multiaddr);
+  mreq.ipv6mr_interface = mcast_state->ifindex;
+  ret = setsockopt(mcast_state->rfd, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                   &mreq, sizeof(mreq) - 1);
+  assert_int_equal(ret, -1);
+  assert_int_equal(errno, EINVAL);
+
+  ret = setsockopt(mcast_state->rfd, IPPROTO_IPV6, IPV6_LEAVE_GROUP,
+                   &mreq, sizeof(mreq) - 1);
+  assert_int_equal(ret, -1);
+  assert_int_equal(errno, EINVAL);
+
+  ret = setsockopt(mcast_state->sfd, IPPROTO_IPV6, IPV6_MULTICAST_IF,
+                   &ifindex, sizeof(ifindex) - 1);
   assert_int_equal(ret, -1);
   assert_int_equal(errno, EINVAL);
 }
