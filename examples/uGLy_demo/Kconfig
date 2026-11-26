@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UGLY_DEMO
+	tristate "uGLy Graphic Demo"
+	default n
+	depends on GRAPHICS_UGLY
+	---help---
+		Enable the uGLy demo.  It renders a rotating textured quad to the
+		framebuffer selected by GRAPHICS_UGLY_FBDEV.  Press 'q' or ESC to
+		quit; 'w', 's', 'a', 'd', 'z', 'x' rotate it and '0' resets it.
+
+if EXAMPLES_UGLY_DEMO
+
+config EXAMPLES_UGLY_DEMO_PROGNAME
+	string "Program name"
+	default "uGLy"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config EXAMPLES_UGLY_DEMO_PRIORITY
+	int "Task priority"
+	default 100
+
+config EXAMPLES_UGLY_DEMO_STACKSIZE
+	int "Stack size"
+	default 8192
+	---help---
+		The uGLy rasterizer needs about 2KB of stack on its own.
+
+endif
