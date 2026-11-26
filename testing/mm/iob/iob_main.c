@@ -75,7 +75,12 @@ FAR static void *thread_nothrottled(FAR void *arg)
   printf("thread_nothrottled %d\n", idx);
   inbuffer = ((idx == 0) ? g_buffer1 : g_buffer2);
   outbuffer = ((idx == 0) ? g_iob_buffer1 : g_iob_buffer2);
-  size = CONFIG_IOB_BUFSIZE * CONFIG_IOB_NBUFFERS;
+
+  /* Other tasks hold part of the pool; size the copy from what is free so
+   * the try-copy can complete, keeping two buffers as headroom.
+   */
+
+  size = CONFIG_IOB_BUFSIZE * (iob_navail(false) - 2);
 
   for (int i = 0; i < TEST_COUNT; i++)
     {
@@ -121,7 +126,10 @@ FAR static void *thread_throttled(FAR void *arg)
   printf("thread_throttled %d\n", idx);
   inbuffer = ((idx == 0) ? g_buffer1 : g_buffer2);
   outbuffer = ((idx == 0) ? g_iob_buffer1 : g_iob_buffer2);
-  size = CONFIG_IOB_BUFSIZE * (CONFIG_IOB_NBUFFERS - CONFIG_IOB_THROTTLE);
+
+  /* iob_navail(true) already excludes the throttle reserve. */
+
+  size = CONFIG_IOB_BUFSIZE * (iob_navail(true) - 2);
 
   for (int i = 0; i < TEST_COUNT; i++)
     {
@@ -176,15 +184,34 @@ int main(int argc, FAR char *argv[])
   struct iob_s *iob;
   int nbytes;
   int i;
+  int navail;
+  int chain_size;
+  int chain_total;
 
   iob = iob_alloc(false);
 
-  for (i = 0; i < IOB_TEST_BUFFER_SIZE; i++)
+  /* Other tasks may hold part of the pool, so size the chain from what is
+   * actually free: a blocking copy that asks for more can never complete.
+   * Keep four buffers as headroom for transient allocations.
+   */
+
+  navail = iob_navail(false);
+  if (navail <= 4)
+    {
+      printf("Only %d IOBs available\n", navail);
+      iob_free(iob);
+      return -1;
+    }
+
+  chain_size  = CONFIG_IOB_BUFSIZE * (navail - 4);
+  chain_total = MAGIC_NUMBER1 + chain_size;
+
+  for (i = 0; i < chain_size; i++)
     {
       g_buffer1[i] = (uint8_t)(i & 0xff);
     }
 
-  memset(g_buffer2, 0xff, IOB_TEST_BUFFER_SIZE);
+  memset(g_buffer2, 0xff, chain_size);
 
   iob_copyin(iob, g_buffer2, MAGIC_NUMBER1, 0, false);
   printf("Copy IN: MAGIC_NUMBER1, offset 0\n");
@@ -192,16 +219,16 @@ int main(int argc, FAR char *argv[])
   ASSERT(iob->io_offset == 0);
   ASSERT(iob->io_len == MAGIC_NUMBER1);
 
-  iob_copyin(iob, g_buffer1, IOB_TEST_BUFFER_SIZE, MAGIC_NUMBER1, false);
-  printf("Copy IN: IOB_TEST_BUFFER_SIZE, offset 0\n");
-  ASSERT(iob->io_pktlen == IOB_TOTAL_BUFFER_SIZE);
+  iob_copyin(iob, g_buffer1, chain_size, MAGIC_NUMBER1, false);
+  printf("Copy IN: %d bytes, offset 0\n", chain_size);
+  ASSERT(iob->io_pktlen == chain_total);
   ASSERT(iob->io_offset == 0);
   ASSERT(iob->io_len == (CONFIG_IOB_BUFSIZE -iob->io_offset));
 
-  nbytes = iob_copyout(g_buffer2, iob, IOB_TEST_BUFFER_SIZE, MAGIC_NUMBER1);
+  nbytes = iob_copyout(g_buffer2, iob, chain_size, MAGIC_NUMBER1);
   printf("Copy OUT: %d, offset 0\n", nbytes);
-  ASSERT(nbytes == IOB_TEST_BUFFER_SIZE);
-  ASSERT(iob->io_pktlen == IOB_TOTAL_BUFFER_SIZE);
+  ASSERT(nbytes == chain_size);
+  ASSERT(iob->io_pktlen == chain_total);
   ASSERT(iob->io_offset == 0);
   ASSERT(iob->io_len == (CONFIG_IOB_BUFSIZE -iob->io_offset));
 
@@ -213,21 +240,21 @@ int main(int argc, FAR char *argv[])
 
   iob = iob_trimhead(iob, MAGIC_NUMBER1);
   printf("Trim: MAGIC_NUMBER1 from the beginning of the list\n");
-  ASSERT(iob->io_pktlen == (IOB_TOTAL_BUFFER_SIZE - MAGIC_NUMBER1));
+  ASSERT(iob->io_pktlen == (chain_total - MAGIC_NUMBER1));
   ASSERT(iob->io_offset == MAGIC_NUMBER1);
   ASSERT(iob->io_len == (CONFIG_IOB_BUFSIZE -iob->io_offset));
 
   iob = iob_trimtail(iob, MAGIC_NUMBER2);
   printf("Trim: MAGIC_NUMBER2 from the end of the list\n");
-  ASSERT(iob->io_pktlen == (IOB_TOTAL_BUFFER_SIZE - MAGIC_NUMBER1 -
+  ASSERT(iob->io_pktlen == (chain_total - MAGIC_NUMBER1 -
          MAGIC_NUMBER2));
   ASSERT(iob->io_offset == MAGIC_NUMBER1);
   ASSERT(iob->io_len == (CONFIG_IOB_BUFSIZE -iob->io_offset));
 
-  nbytes = iob_copyout(g_buffer2, iob, IOB_TEST_BUFFER_SIZE, 0);
+  nbytes = iob_copyout(g_buffer2, iob, chain_size, 0);
   printf("Copy OUT: %d, offset MAGIC_NUMBER1\n", nbytes);
   ASSERT(nbytes == iob->io_pktlen);
-  ASSERT(iob->io_pktlen == (IOB_TOTAL_BUFFER_SIZE - MAGIC_NUMBER1 -
+  ASSERT(iob->io_pktlen == (chain_total - MAGIC_NUMBER1 -
          MAGIC_NUMBER2));
   ASSERT(iob->io_offset == MAGIC_NUMBER1);
   ASSERT(iob->io_len == (CONFIG_IOB_BUFSIZE -iob->io_offset));
@@ -240,13 +267,13 @@ int main(int argc, FAR char *argv[])
 
   iob = iob_trimhead(iob, MAGIC_NUMBER2);
   printf("Trim: MAGIC_NUMBER2 from the beginning of the list\n");
-  ASSERT(iob->io_pktlen == (IOB_TOTAL_BUFFER_SIZE - MAGIC_NUMBER1 -
+  ASSERT(iob->io_pktlen == (chain_total - MAGIC_NUMBER1 -
          MAGIC_NUMBER2 - MAGIC_NUMBER2));
 
-  nbytes = iob_copyout(g_buffer2, iob, IOB_TEST_BUFFER_SIZE, 0);
+  nbytes = iob_copyout(g_buffer2, iob, chain_size, 0);
   printf("Copy OUT: %d, offset xxx\n", nbytes);
   ASSERT(nbytes == iob->io_pktlen);
-  ASSERT(iob->io_pktlen == (IOB_TOTAL_BUFFER_SIZE - MAGIC_NUMBER1 -
+  ASSERT(iob->io_pktlen == (chain_total - MAGIC_NUMBER1 -
          MAGIC_NUMBER2 - MAGIC_NUMBER2));
 
   if (memcmp(&g_buffer1[MAGIC_NUMBER2], g_buffer2, nbytes) != 0)
@@ -257,11 +284,11 @@ int main(int argc, FAR char *argv[])
 
   iob = iob_pack(iob);
   printf("Packed\n");
-  ASSERT(iob->io_pktlen == (IOB_TOTAL_BUFFER_SIZE - MAGIC_NUMBER1 -
+  ASSERT(iob->io_pktlen == (chain_total - MAGIC_NUMBER1 -
          MAGIC_NUMBER2 - MAGIC_NUMBER2));
   ASSERT(iob->io_offset == 0);
 
-  nbytes = iob_copyout(g_buffer2, iob, IOB_TEST_BUFFER_SIZE, 0);
+  nbytes = iob_copyout(g_buffer2, iob, chain_size, 0);
   printf("Copy OUT: %d, offset 0\n", nbytes);
   ASSERT(nbytes == iob->io_pktlen);
   ASSERT(iob->io_offset == 0);
