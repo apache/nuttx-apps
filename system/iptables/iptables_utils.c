@@ -730,6 +730,7 @@ FAR const char *iptables_target2str(FAR const struct xt_entry_target *tgt)
   if (strcmp(tgt->u.user.name, XT_STANDARD_TARGET) == 0)
     {
       int verdict = ((FAR const struct xt_standard_target *)tgt)->verdict;
+
       verdict = -verdict - 1;
 
       if (verdict == NF_ACCEPT)
