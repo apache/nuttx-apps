@@ -18,7 +18,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-############################################################################/
+############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_ISL29023),)
 CONFIGURED_APPS += $(APPDIR)/examples/isl29023
