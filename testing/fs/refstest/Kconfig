@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config TESTING_FS_REFSTEST
+	tristate "FS reference counting tests"
+	default n
+	depends on TESTING_CMOCKA && BUILD_FLAT
+	depends on !DISABLE_PTHREAD && SCHED_WAITPID && SCHED_CHILD_STATUS
+	depends on !FDCLONE_DISABLE && !FDCLONE_STDIO
+	---help---
+		Test file and inode reference counts across open, close, dup,
+		unlink, epoll, task_spawn, concurrent descriptor operations,
+		and mmap/munmap when FS_RAMMAP is enabled. Requires a writable
+		test directory and at least eight available file descriptors.
+
+if TESTING_FS_REFSTEST
+
+config TESTING_FS_REFSTEST_MOUNTDIR
+	string "Parent directory for temporary test files"
+	default "/data"
+	---help---
+		An existing writable directory on a filesystem that supports
+		unlinking open files. Each test creates its own temporary directory.
+
+config TESTING_FS_REFSTEST_PRIORITY
+	int "Task priority"
+	default 100
+
+config TESTING_FS_REFSTEST_STACKSIZE
+	int "Task stack size"
+	default 4096
+
+endif
