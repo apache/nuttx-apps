@@ -108,6 +108,16 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
       goto errout_with_actions;
     }
 
+#ifdef CONFIG_ELF_STACKSIZE
+  ret = posix_spawnattr_setstacksize(&attr, CONFIG_ELF_STACKSIZE);
+  if (ret != 0)
+    {
+      nsh_error(vtbl, g_fmtcmdfailed, cmd,
+                "posix_spawnattr_setstacksize", NSH_ERRNO);
+      goto errout_with_actions;
+    }
+#endif
+
   if (param)
     {
       /* Handle redirection of input */
