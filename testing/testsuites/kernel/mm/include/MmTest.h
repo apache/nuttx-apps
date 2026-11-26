@@ -102,4 +102,19 @@ void test_nuttx_mm08(FAR void **state);
 
 void test_nuttx_mm09(FAR void **state);
 
+/* cases/mm_test_010.c
+ * *****************************************************/
+
+void test_nuttx_mm10(FAR void **state);
+
+/* cases/mm_test_011.c
+ * *****************************************************/
+
+void test_nuttx_mm11(FAR void **state);
+
+/* cases/mm_test_012.c
+ * *****************************************************/
+
+void test_nuttx_mm12(FAR void **state);
+
 #endif
