@@ -169,6 +169,11 @@ int main(int argc, FAR char *argv[])
                                       test_tcp_iov_setup,
                                       test_tcp_iov_teardown),
 #  ifdef CONFIG_NET_TCPBACKLOG
+#    ifdef CONFIG_NET_SOCKOPTS
+      cmocka_unit_test_setup_teardown(test_tcp_backlog_close_reset,
+                                      test_tcp_backlog_setup,
+                                      test_tcp_backlog_teardown),
+#    endif
 #    ifdef CONFIG_NET_SOLINGER
       cmocka_unit_test_setup_teardown(test_tcp_backlog_relisten_rst,
                                       test_tcp_backlog_setup,
