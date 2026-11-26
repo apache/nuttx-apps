@@ -73,7 +73,7 @@ config EXAMPLES_EMBEDLOG_STRIP_ALL_STRINGS
 		functions, just as if embedlog was never built.
 
 		Enabling this will render embedlog example useless - it
-		will not print anything, but example will stil compile
+		will not print anything, but example will still compile
 		and final image will be about 15kB smaller. But YMMV
 		depending how much strings you have in project.
 

@@ -65,7 +65,7 @@ config EXAMPLES_FOC_VERBOSE
 	range 0 2
 
 config EXAMPLES_FOC_PERF
-	bool "Enable performance meassurements"
+	bool "Enable performance measurements"
 	default n
 
 config EXAMPLES_FOC_CONTROL_CRITSEC
@@ -369,7 +369,7 @@ config EXAMPLES_FOC_ANGOBS_MERGE_RATIO
 	---help---
 		This parameter determines how quickly we make the transition from the
 		open-loop angle to the observer angle after reaching the observer threshold
-		velocity. The smaler the value, the smoother the transition.
+		velocity. The smaller the value, the smoother the transition.
 		If set to 0 - smooth transition is disabled.
 
 endif # EXAMPLES_FOC_ANGOBS
@@ -631,8 +631,8 @@ config EXAMPLES_FOC_FEEDFORWARD
 	default n
 	---help---
 		This option enables feed-forward compensation for PI current controller
-		which can help achieve better performace of FOC. This option is not
-		recomended for sensorless operations and for current controllers that
+		which can help achieve better performance of FOC. This option is not
+		recommended for sensorless operations and for current controllers that
 		already has high update frequency.
 
 if EXAMPLES_FOC_CONTROL_PI
