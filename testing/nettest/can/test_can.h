@@ -49,4 +49,15 @@ void test_can_bind_todev(FAR void **state);
 void test_can_bind_sendto(FAR void **state);
 void test_can_bind_lo(FAR void **state);
 
+/****************************************************************************
+ * Name: test_can_name_short
+ *
+ * Description:
+ *   getsockname() of a CAN_RAW socket into a buffer shorter than the
+ *   address: the address is truncated, and *addrlen gives its length.
+ *
+ ****************************************************************************/
+
+void test_can_name_short(FAR void **state);
+
 #endif /* __APPS_TESTING_NETTEST_CAN_TEST_CAN_H */

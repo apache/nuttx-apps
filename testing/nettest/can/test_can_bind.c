@@ -47,6 +47,8 @@
 
 #define TEST_CAN_NODEV   99            /* An interface index with no device */
 #define TEST_CAN_WAIT_US (200 * 1000)  /* Time for the poll after a write */
+#define TEST_CAN_SHORT   2             /* A buffer shorter than the address */
+#define TEST_CAN_FILL    0xa5          /* The bytes after the buffer keep this */
 
 /****************************************************************************
  * Private Functions
@@ -111,6 +113,49 @@ void test_can_bind_any(FAR void **state)
   int err;
 
   assert_int_equal(test_can_bindto(sd, 0, &err), 0);
+  close(sd);
+}
+
+/****************************************************************************
+ * Name: test_can_name_short
+ *
+ * Description:
+ *   getsockname() of a bound CAN_RAW socket into a buffer of 2 bytes: the
+ *   call succeeds, the buffer gets the first 2 bytes of the address, the
+ *   bytes after it do not change, and *addrlen gives the length of the
+ *   whole address.
+ *
+ ****************************************************************************/
+
+void test_can_name_short(FAR void **state)
+{
+  struct sockaddr_can full;
+  unsigned char buf[sizeof(struct sockaddr_can) + 4];
+  socklen_t len;
+  size_t i;
+  int sd = test_can_socket();
+  int err;
+
+  assert_int_equal(test_can_bindto(sd, 0, &err), 0);
+
+  memset(&full, 0, sizeof(full));
+  len = sizeof(full);
+  assert_return_code(getsockname(sd, (FAR struct sockaddr *)&full, &len),
+                     errno);
+  assert_int_equal(len, sizeof(full));
+  assert_int_equal(full.can_family, AF_CAN);
+
+  memset(buf, TEST_CAN_FILL, sizeof(buf));
+  len = TEST_CAN_SHORT;
+  assert_return_code(getsockname(sd, (FAR struct sockaddr *)buf, &len),
+                     errno);
+  assert_int_equal(len, sizeof(full));
+  assert_memory_equal(buf, &full, TEST_CAN_SHORT);
+  for (i = TEST_CAN_SHORT; i < sizeof(buf); i++)
+    {
+      assert_int_equal(buf[i], TEST_CAN_FILL);
+    }
+
   close(sd);
 }
 
