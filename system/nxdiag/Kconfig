@@ -56,7 +56,7 @@ config SYSTEM_NXDIAG_COMP_FLAGS
 		flags. This is useful for debugging the host and target
 		systems. Enables the "-f" and "--nuttx-flags" options.
 
-comment "Host system infromation"
+comment "Host system information"
 
 config SYSTEM_NXDIAG_HOST_PATH
 	bool "Get host system PATH"

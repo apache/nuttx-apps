@@ -30,7 +30,7 @@ config TESTING_SERIAL
 	depends on SERIAL_TIOCGICOUNT
 	---help---
 		Enable the serial error reporting test. This test
-		could report U[S]ART erros like frame, overrun, parity, etc
+		could report U[S]ART errors like frame, overrun, parity, etc
 
 if TESTING_SERIAL
 

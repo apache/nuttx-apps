@@ -78,7 +78,7 @@ if WAKAAMA_EXAMPLES
 if WAKAAMA_CLIENT_MODE
 
 choice
-	prompt "Wakaama clinet example"
+	prompt "Wakaama client example"
 	default WAKAAMA_EXAMPLE_CLIENT_LIGHT
 
 config WAKAAMA_EXAMPLE_CLIENT_LIGHT
@@ -91,7 +91,7 @@ config WAKAAMA_EXAMPLE_CLIENT_DTLS
 	bool "Wakaama client DTLS example"
 	depends on CRYPTO_TINYDTLS
 
-endchoice # "Wakaama clinet example"
+endchoice # "Wakaama client example"
 
 config WAKAAMA_EXAMPLE_CLIENT_STACKSIZE
 	int "Wakaama client example stack size"

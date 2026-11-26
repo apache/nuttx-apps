@@ -25,7 +25,7 @@
 #
 
 config NETUTILS_IPTABLES
-	bool "iptables libary"
+	bool "iptables library"
 	default n
 	---help---
-		iptable libary support.
+		iptable library support.

@@ -722,7 +722,7 @@ config NXWM_CALIBRATION_ANISOTROPIC
 		I have not yet thought of a better name).
 
 		If you have such an LCD, then you may select this option to enable
-		some much more complex scaling alorithms to handle this case.  Not
+		some much more complex scaling algorithms to handle this case.  Not
 		only are these algorithms more complex, but they are (currently)
 		implemented using floating point.  As a result, you should not select
 		this option if you have a lower end MCU without hardware floating

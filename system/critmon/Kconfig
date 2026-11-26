@@ -25,7 +25,7 @@
 #
 
 menuconfig SYSTEM_CRITMONITOR
-	tristate "Critcal Section Monitor"
+	tristate "Critical Section Monitor"
 	default n
 	depends on FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS && SCHED_CRITMONITOR
 	---help---

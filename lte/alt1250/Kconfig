@@ -69,7 +69,7 @@ choice
 	depends on LTE_ALT1250_SMS_TOA
 
 config LTE_ALT1250_SMS_NAI_UNKNOWN
-	bool "Unkown"
+	bool "Unknown"
 
 config LTE_ALT1250_SMS_NAI_INTERNATIONAL
 	bool "International number"
@@ -99,7 +99,7 @@ choice
 	depends on LTE_ALT1250_SMS_TOA
 
 config LTE_ALT1250_SMS_NPI_UNKNOWN
-	bool "Unkown"
+	bool "Unknown"
 
 config LTE_ALT1250_SMS_NPI_ISDN
 	bool "ISDN/telephone numbering plan"
