@@ -135,6 +135,7 @@ int main(int argc, FAR char *argv[])
       DGRAM_TEST(test_local_dgram_stream_threads),
       DGRAM_TEST(test_local_dgram_stream_hup),
       DGRAM_TEST(test_local_dgram_stream_listenclose),
+      DGRAM_TEST(test_local_dgram_stream_listenconn),
       DGRAM_TEST(test_local_dgram_pipe_hup),
       DGRAM_TEST(test_local_dgram_fifo_hup),
       DGRAM_TEST(test_local_dgram_pair_send),
