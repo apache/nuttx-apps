@@ -2549,6 +2549,8 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   FAR char *oldpath;
   FAR char *newpath;
+  FAR char *target = NULL;
+  struct stat st;
   int ret;
 
   /* Get the full path to the old and new file paths */
@@ -2568,9 +2570,30 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
       goto errout_with_oldpath;
     }
 
-  /* Perform the mount */
+  if (stat(newpath, &st) == 0 && S_ISDIR(st.st_mode))
+    {
+      FAR char *name = strdup(oldpath);
 
-  ret = rename(oldpath, newpath);
+      if (name == NULL)
+        {
+          nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
+          ret = ERROR;
+          goto errout_with_newpath;
+        }
+
+      /* Keep a terminal destination symlink for rename() to replace. */
+
+      ret = asprintf(&target, "%s/%s", newpath, basename(name));
+      free(name);
+      if (ret < 0)
+        {
+          nsh_error(vtbl, g_fmtcmdoutofmemory, argv[0]);
+          ret = ERROR;
+          goto errout_with_newpath;
+        }
+    }
+
+  ret = rename(oldpath, target != NULL ? target : newpath);
   if (ret < 0)
     {
       nsh_error(vtbl, g_fmtcmdfailed, argv[0], "rename", NSH_ERRNO);
@@ -2578,6 +2601,9 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 
   /* Free the file paths */
 
+  free(target);
+
+errout_with_newpath:
   nsh_freefullpath(newpath);
 
 errout_with_oldpath:
