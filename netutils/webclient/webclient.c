@@ -691,6 +691,7 @@ static inline int wget_parseheaders(struct webclient_context *ctx,
                   /* Found Content-type field. */
 
                   char *dest = strchr(ws->line, ';');
+
                   if (dest != NULL)
                     {
                       *dest = 0;
@@ -1091,6 +1092,7 @@ ssize_t webclient_conn_send(FAR struct webclient_conn_s *conn,
   while (true)
     {
       ssize_t ret = send(conn->sockfd, buffer, len, 0);
+
       if (ret == -1)
         {
           if (errno == EINTR)
@@ -1125,6 +1127,7 @@ ssize_t webclient_conn_recv(FAR struct webclient_conn_s *conn,
   while (true)
     {
       ssize_t ret = recv(conn->sockfd, buffer, len, 0);
+
       if (ret == -1)
         {
           if (errno == EINTR)
@@ -1414,6 +1417,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               if ((ctx->flags & WEBCLIENT_FLAG_NON_BLOCKING) != 0)
                 {
                   int flags = fcntl(conn->sockfd, F_GETFL, 0);
+
                   ret = fcntl(conn->sockfd, F_SETFL, flags | O_NONBLOCK);
                   if (ret == -1)
                     {
@@ -1853,6 +1857,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               size_t input_buffer_size = ws->buflen;
 
               size_t todo = ws->state_len;
+
               if (input_buffer_size > todo)
                 {
                   input_buffer_size = todo;
@@ -1885,6 +1890,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
                                                 (char *)ws->data_buffer +
                                                 ws->state_offset,
                                                 bytes_to_send);
+
               if (ssz < 0)
                 {
                   ret = ssz;
@@ -2034,6 +2040,7 @@ int webclient_perform(FAR struct webclient_context *ctx)
               if (ws->state == WEBCLIENT_STATE_WAIT_CLOSE)
                 {
                   uintmax_t received = ws->datend - ws->offset;
+
                   if (received != 0)
                     {
                       nerr("Unexpected %ju bytes data received", received);
@@ -2262,6 +2269,7 @@ char *web_post_str(FAR char *buffer, int *size, FAR char *name,
                    FAR char *value)
 {
   char *dst = buffer;
+
   buffer = wget_strcpy(buffer, name);
   buffer = wget_strcpy(buffer, "=");
   buffer = wget_urlencode_strcpy(buffer, value);
@@ -2357,6 +2365,7 @@ int wget(FAR const char *url, FAR char *buffer, int buflen,
 {
   struct webclient_context ctx;
   int ret;
+
   webclient_set_defaults(&ctx);
   ctx.method = "GET";
   ctx.url = url;
@@ -2384,6 +2393,7 @@ int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
   static const char *headers = g_httpform;
   struct webclient_context ctx;
   int ret;
+
   webclient_set_defaults(&ctx);
   ctx.method = "POST";
   ctx.url = url;
