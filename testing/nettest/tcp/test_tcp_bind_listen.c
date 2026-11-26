@@ -579,3 +579,61 @@ void test_tcp_listen_connected(FAR void **state)
   assert_int_equal(listen(server, 1), -1);
   assert_int_equal(errno, EINVAL);
 }
+
+/****************************************************************************
+ * Name: test_tcp_connect_listener
+ *
+ * Description:
+ *   connect() on a listening socket fails with EISCONN (Linux), and the
+ *   socket still listens.
+ *
+ ****************************************************************************/
+
+void test_tcp_connect_listener(FAR void **state)
+{
+  FAR struct tcp_bl_state_s *st = *state;
+  int client = tcp_bl_socket(st, 0, false);
+  int other = tcp_bl_socket(st, 0, false);
+  struct sockaddr_in addr;
+  socklen_t addrlen = sizeof(addr);
+  in_port_t free_port;
+  in_port_t port;
+  int listener;
+
+  /* A free port: bind a socket to port 0, then close it */
+
+  assert_int_equal(tcp_bl_bind(other, 0), 0);
+  assert_return_code(getsockname(other, (FAR struct sockaddr *)&addr,
+                                 &addrlen), errno);
+  free_port = addr.sin_port;
+  tcp_bl_close(st, other);
+
+  listener = tcp_bl_listener(st, false, 1, &port);
+  assert_int_equal(tcp_bl_connect(listener, free_port), -EISCONN);
+  assert_int_equal(tcp_bl_connect(listener, port), -EISCONN);
+
+  assert_int_equal(tcp_bl_connect(client, port), 0);
+  tcp_bl_accept(st, listener);
+}
+
+/****************************************************************************
+ * Name: test_tcp_connect_family
+ *
+ * Description:
+ *   connect() of an AF_INET socket to an address of another family fails
+ *   with EAFNOSUPPORT.
+ *
+ ****************************************************************************/
+
+void test_tcp_connect_family(FAR void **state)
+{
+  FAR struct tcp_bl_state_s *st = *state;
+  int fd = tcp_bl_socket(st, 0, false);
+  struct sockaddr_storage addr;
+
+  memset(&addr, 0, sizeof(addr));
+  addr.ss_family = AF_UNIX;
+  assert_int_equal(connect(fd, (FAR struct sockaddr *)&addr, sizeof(addr)),
+                   -1);
+  assert_int_equal(errno, EAFNOSUPPORT);
+}

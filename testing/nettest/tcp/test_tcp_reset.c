@@ -25,6 +25,7 @@
  * 1122, 4.2.2.13).  The first receive without data, the first send and
  * SO_ERROR give ECONNRESET, once; then a receive gives end-of-file and a
  * send EPIPE.  A RST that refuses a connection still gives ECONNREFUSED.
+ * A RST after the FIN of the peer gives EPIPE in SO_ERROR (CLOSE_WAIT).
  */
 
 /****************************************************************************
@@ -614,5 +615,57 @@ void test_tcp_reset_refused(FAR void **state)
                      errno);
   assert_int_equal(err, ECONNREFUSED);
   tcp_reset_fd(st, fd);
+}
+
+/****************************************************************************
+ * Name: test_tcp_reset_closewait
+ *
+ * Description:
+ *   The peer closes its half of the connection (FIN), then resets it.
+ *   SO_ERROR gives EPIPE once (Linux), not ECONNREFUSED or 0.  poll()
+ *   after it gives POLLHUP and does not set another error.  send() gives
+ *   EPIPE.
+ *
+ ****************************************************************************/
+
+void test_tcp_reset_closewait(FAR void **state)
+{
+  FAR struct tcp_reset_state_s *st = *state;
+  struct tcp_reset_pair_s pair;
+  socklen_t len;
+  int err;
+  char c;
+
+  /* The FIN of the server: the client is in CLOSE_WAIT */
+
+  tcp_reset_pair(st, &pair);
+  assert_return_code(shutdown(pair.server, SHUT_WR), errno);
+  assert_true((tcp_reset_poll(pair.client, POLLIN) & POLLIN) != 0);
+  assert_int_equal(recv(pair.client, &c, 1, 0), 0);
+
+  /* The byte that the server did not read: its close() resets the
+   * connection.
+   */
+
+  tcp_reset_fd(st, pair.server);
+  usleep(TCP_RESET_DELAY * 1000);
+
+  len = sizeof(err);
+  assert_return_code(getsockopt(pair.client, SOL_SOCKET, SO_ERROR, &err,
+                                &len), errno);
+  assert_int_equal(err, EPIPE);
+  assert_return_code(getsockopt(pair.client, SOL_SOCKET, SO_ERROR, &err,
+                                &len), errno);
+  assert_int_equal(err, 0);
+
+  assert_true((tcp_reset_poll(pair.client, POLLIN | POLLOUT) &
+               POLLHUP) != 0);
+  assert_return_code(getsockopt(pair.client, SOL_SOCKET, SO_ERROR, &err,
+                                &len), errno);
+  assert_int_equal(err, 0);
+
+  assert_int_equal(send(pair.client, "s", 1, MSG_NOSIGNAL), -1);
+  assert_int_equal(errno, EPIPE);
+  tcp_reset_fd(st, pair.client);
 }
 #endif

@@ -32,6 +32,7 @@
 #include <poll.h>
 #include <pthread.h>
 #include <setjmp.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -98,6 +99,9 @@
 #define TCP_PSH        0x08
 #define TCP_ACK        0x10
 
+#define TUN_WAIT_MS    3000        /* For a segment or an event */
+#define TUN_INTR_MS    500         /* Before the signal to connect() */
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -114,6 +118,7 @@ struct tun_seg_s
 struct tun_state_s
 {
   int       fd;
+  int       fd2;            /* The socket of a client case */
   char      ifname[IFNAMSIZ];
   pthread_t server;
   bool      started;
@@ -660,6 +665,90 @@ static void tun_check(FAR struct tun_state_s *st, FAR const char *name,
   assert_int_equal(st->sent, TUN_TOTAL);
 }
 
+/* A socket of the TUN interface (port TUN_PORT_A) that connects to the
+ * peer.  The peer takes a new port.
+ */
+
+static int tun_client(FAR struct tun_state_s *st, int type,
+                      FAR struct sockaddr_in *peer)
+{
+  struct sockaddr_in addr;
+  int one = 1;
+  int fd;
+
+  fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | type, 0);
+  assert_true(fd >= 0);
+  st->fd2 = fd;
+
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family      = AF_INET;
+  addr.sin_port        = htons(TUN_PORT_A);
+  addr.sin_addr.s_addr = htonl(TUN_ADDR_A);
+  assert_return_code(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one,
+                                sizeof(one)), errno);
+  assert_return_code(bind(fd, (FAR struct sockaddr *)&addr, sizeof(addr)),
+                     errno);
+
+  st->pport = 40000 + tun_now_ms() % 20000;
+  st->pisn  = TUN_ISN_P + tun_now_ms() * 64;
+  st->pseq  = st->pisn + 1;
+
+  memset(peer, 0, sizeof(*peer));
+  peer->sin_family      = AF_INET;
+  peer->sin_port        = htons(st->pport);
+  peer->sin_addr.s_addr = htonl(TUN_ADDR_P);
+  return fd;
+}
+
+/* The SYN of the client and the SYN-ACK of the peer */
+
+static void tun_client_synack(FAR struct tun_state_s *st)
+{
+  struct tun_seg_s seg;
+  bool again;
+
+  assert_int_equal(tun_recv_seg(st, &seg, TUN_WAIT_MS, &again), 1);
+  assert_int_equal(seg.flags & (TCP_SYN | TCP_ACK | TCP_RST), TCP_SYN);
+  tun_send_tcp(st, seg.seq + 1, TCP_SYN | TCP_ACK, 65535);
+}
+
+/* Wait for the end of the handshake: POLLOUT and no error */
+
+static void tun_client_connected(int fd)
+{
+  struct pollfd pfd;
+  socklen_t len;
+  int err;
+
+  pfd.fd      = fd;
+  pfd.events  = POLLOUT;
+  pfd.revents = 0;
+  assert_int_equal(poll(&pfd, 1, TUN_WAIT_MS), 1);
+  assert_int_equal(pfd.revents, POLLOUT);
+
+  len = sizeof(err);
+  assert_return_code(getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &len),
+                     errno);
+  assert_int_equal(err, 0);
+}
+
+/* A signal handler that does nothing: the signal ends a wait */
+
+#ifndef CONFIG_DISABLE_ALL_SIGNALS
+static void tun_onsignal(int signo)
+{
+}
+
+/* Send SIGUSR1 to the thread arg after TUN_INTR_MS */
+
+static FAR void *tun_interrupter(FAR void *arg)
+{
+  usleep(TUN_INTR_MS * 1000);
+  pthread_kill(*(FAR pthread_t *)arg, SIGUSR1);
+  return NULL;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -676,6 +765,7 @@ int test_tun_tcp_setup(FAR void **state)
 
   memset(st, 0, sizeof(*st));
   st->fd   = -1;
+  st->fd2  = -1;
   st->sent = -1;
   st->pmss = TUN_MSS;
   *state   = st;
@@ -708,6 +798,36 @@ int test_tun_tcp_setup(FAR void **state)
 }
 
 /****************************************************************************
+ * Name: test_tun_tcp_client_setup
+ *
+ * Description:
+ *   The setup of a client case: the TUN interface, no server.
+ *
+ ****************************************************************************/
+
+int test_tun_tcp_client_setup(FAR void **state)
+{
+  FAR struct tun_state_s *st = &g_tun;
+  int ret;
+
+  memset(st, 0, sizeof(*st));
+  st->fd   = -1;
+  st->fd2  = -1;
+  st->sent = -1;
+  *state   = st;
+
+  ret = tun_open(st);
+  if (ret != 0)
+    {
+      printf("test_tun_tcp_client_setup: error %d\n", ret);
+      test_tun_tcp_teardown(state);
+      return -1;
+    }
+
+  return 0;
+}
+
+/****************************************************************************
  * Name: test_tun_tcp_teardown
  ****************************************************************************/
 
@@ -715,6 +835,12 @@ int test_tun_tcp_teardown(FAR void **state)
 {
   FAR struct tun_state_s *st = *state;
   int i;
+
+  if (st->fd2 >= 0)
+    {
+      close(st->fd2);
+      st->fd2 = -1;
+    }
 
   /* Closing the TUN device takes the interface away: a server that still
    * waits on its connection gets an error.
@@ -739,6 +865,92 @@ int test_tun_tcp_teardown(FAR void **state)
 
   return 0;
 }
+
+/****************************************************************************
+ * Name: test_tun_tcp_connect_again
+ *
+ * Description:
+ *   A second connect() of a non-blocking socket while the handshake of the
+ *   first one goes on fails with EALREADY, and the handshake goes on.  The
+ *   peer answers the SYN only after the second connect().
+ *
+ ****************************************************************************/
+
+void test_tun_tcp_connect_again(FAR void **state)
+{
+  FAR struct tun_state_s *st = *state;
+  struct sockaddr_in peer;
+  struct pollfd pfd;
+  int fd;
+
+  fd = tun_client(st, SOCK_NONBLOCK, &peer);
+  assert_int_equal(connect(fd, (FAR struct sockaddr *)&peer, sizeof(peer)),
+                   -1);
+  assert_int_equal(errno, EINPROGRESS);
+  assert_int_equal(connect(fd, (FAR struct sockaddr *)&peer, sizeof(peer)),
+                   -1);
+  assert_int_equal(errno, EALREADY);
+
+  pfd.fd      = fd;
+  pfd.events  = POLLOUT;
+  pfd.revents = 0;
+  assert_int_equal(poll(&pfd, 1, 0), 0);
+
+  tun_client_synack(st);
+  tun_client_connected(fd);
+}
+
+/****************************************************************************
+ * Name: test_tun_tcp_connect_intr
+ *
+ * Description:
+ *   A signal interrupts a blocking connect(): connect() fails with EINTR,
+ *   but the handshake goes on (POSIX).  A second connect() fails with
+ *   EALREADY; when the peer answers, poll() gives POLLOUT and the socket
+ *   is connected.
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_DISABLE_ALL_SIGNALS
+void test_tun_tcp_connect_intr(FAR void **state)
+{
+  FAR struct tun_state_s *st = *state;
+  struct sigaction act;
+  struct sigaction old;
+  struct sockaddr_in peer;
+  struct sockaddr_in addr;
+  socklen_t addrlen = sizeof(addr);
+  pthread_t self = pthread_self();
+  pthread_t tid;
+  int ret;
+  int err;
+  int fd;
+
+  memset(&act, 0, sizeof(act));
+  act.sa_handler = tun_onsignal;
+  sigemptyset(&act.sa_mask);
+  assert_return_code(sigaction(SIGUSR1, &act, &old), errno);
+
+  fd = tun_client(st, 0, &peer);
+  assert_int_equal(pthread_create(&tid, NULL, tun_interrupter, &self), 0);
+  ret = connect(fd, (FAR struct sockaddr *)&peer, sizeof(peer));
+  err = errno;
+  assert_int_equal(pthread_join(tid, NULL), 0);
+  sigaction(SIGUSR1, &old, NULL);
+
+  assert_int_equal(ret, -1);
+  assert_int_equal(err, EINTR);
+  assert_int_equal(connect(fd, (FAR struct sockaddr *)&peer, sizeof(peer)),
+                   -1);
+  assert_int_equal(errno, EALREADY);
+
+  tun_client_synack(st);
+  tun_client_connected(fd);
+  assert_return_code(getpeername(fd, (FAR struct sockaddr *)&addr,
+                                 &addrlen), errno);
+  assert_int_equal(ntohs(addr.sin_port), st->pport);
+}
+#endif
 
 /****************************************************************************
  * Name: test_tun_tcp_lossy
