@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <pthread.h>
+#include <sched.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -110,6 +111,44 @@ static int local_dgram_do_records(FAR struct local_dgram_job_s *job)
     }
 
   return 0;
+}
+
+/* Wait in recv() until the connection ends, then connect() again to the
+ * same name with a new socket.  Return the result of the connect().
+ */
+
+static int local_dgram_do_reconnect(FAR struct local_dgram_job_s *job)
+{
+  struct sockaddr_un addr;
+  socklen_t addrlen = local_dgram_addr(&addr, job->path, false);
+  char buf[4];
+  int ret;
+  int err;
+  int fd;
+
+  recv(job->fd, buf, sizeof(buf), 0);
+
+  fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  if (fd < 0)
+    {
+      return -2;
+    }
+
+  ret = connect(fd, (FAR struct sockaddr *)&addr, addrlen);
+  err = errno;
+  close(fd);
+  errno = err;
+  return ret;
+}
+
+static FAR void *local_dgram_reconnect_main(FAR void *arg)
+{
+  FAR struct local_dgram_job_s *job = arg;
+
+  errno    = 0;
+  job->ret = job->action(job);
+  job->err = errno;
+  return NULL;
 }
 
 /* Make a connected pair of stream sockets: u, the client, and r2, the
@@ -717,6 +756,77 @@ void test_local_dgram_stream_listenclose(FAR void **state)
   local_dgram_streampair(st);
   assert_int_equal(send(st->u, "ok", 2, 0), 2);
   assert_int_equal(recv(st->r2, buf, sizeof(buf), 0), 2);
+#else
+  skip();
+#endif
+}
+
+/****************************************************************************
+ * Name: test_local_dgram_stream_listenconn
+ *
+ * Description:
+ *   A client waits in recv() on a connection that the listener did not
+ *   accept, in a thread of higher priority.  The listener closes: that
+ *   ends the connection, and the client at once connects again to the
+ *   listener.  This connect() must wait for the close() and then fail: it
+ *   must not get a connection on the listener that closes.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_stream_listenconn(FAR void **state)
+{
+#ifdef CONFIG_NET_LOCAL_STREAM
+  FAR struct nettest_local_dgram_state_s *st = *state;
+  struct local_dgram_job_s job;
+  struct sched_param param;
+  struct sockaddr_un addr;
+  pthread_attr_t attr;
+  socklen_t addrlen;
+  int policy;
+  int ret;
+
+  addrlen = local_dgram_addr(&addr, st->p3, false);
+  unlink(st->p3);
+
+  st->r3 = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  assert_return_code(st->r3, errno);
+  ret = bind(st->r3, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+  ret = listen(st->r3, 4);
+  assert_return_code(ret, errno);
+
+  st->u = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+  assert_return_code(st->u, errno);
+  ret = connect(st->u, (FAR struct sockaddr *)&addr, addrlen);
+  assert_return_code(ret, errno);
+
+  /* The client thread runs before this thread when the close() wakes it */
+
+  ret = pthread_getschedparam(pthread_self(), &policy, &param);
+  assert_int_equal(ret, 0);
+  param.sched_priority++;
+  pthread_attr_init(&attr);
+  pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setschedpolicy(&attr, policy);
+  pthread_attr_setschedparam(&attr, &param);
+
+  memset(&job, 0, sizeof(job));
+  job.action = local_dgram_do_reconnect;
+  job.fd     = st->u;
+  job.path   = st->p3;
+  ret = pthread_create(&job.thread, &attr, local_dgram_reconnect_main, &job);
+  pthread_attr_destroy(&attr);
+  assert_int_equal(ret, 0);
+
+  /* Let the client reach its recv() also on another CPU */
+
+  usleep(100 * 1000);
+  ret = close(st->r3);
+  st->r3 = -1;
+  local_dgram_job_join(&job);
+  assert_int_equal(ret, 0);
+  assert_int_equal(job.ret, -1);
+  assert_true(job.err == ECONNREFUSED || job.err == ENOENT);
 #else
   skip();
 #endif

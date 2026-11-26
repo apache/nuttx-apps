@@ -368,6 +368,7 @@ void test_local_dgram_stream_unspec(FAR void **state);
 void test_local_dgram_stream_threads(FAR void **state);
 void test_local_dgram_stream_hup(FAR void **state);
 void test_local_dgram_stream_listenclose(FAR void **state);
+void test_local_dgram_stream_listenconn(FAR void **state);
 void test_local_dgram_pipe_hup(FAR void **state);
 void test_local_dgram_fifo_hup(FAR void **state);
 
