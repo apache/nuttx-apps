@@ -52,6 +52,12 @@ int test_local_group_teardown(FAR void **state);
 void test_local_scm_rights(FAR void **state);
 
 /****************************************************************************
+ * Name: test_local_accept_rcvtimeo
+ ****************************************************************************/
+
+void test_local_accept_rcvtimeo(FAR void **state);
+
+/****************************************************************************
  * Name: test_local_peercred_*
  ****************************************************************************/
 
