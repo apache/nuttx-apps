@@ -94,7 +94,7 @@ static void dump_charger(int fd, uint32_t mask)
   ret = ioctl(fd, BATIOC_STATE, (unsigned long)&status);
   if (ret < 0)
     {
-        printf("BATIOC_STATE failed %d", ret);
+      printf("BATIOC_STATE failed %d", ret);
     }
 
   ret = ioctl(fd, BATIOC_ONLINE, (unsigned long)&online);
@@ -222,14 +222,14 @@ static void dump_monitor(int fd, uint32_t mask)
   ret = ioctl(fd, BATIOC_COULOMBS, (unsigned long)&coulomb);
   if (ret < 0)
     {
-       printf("BATIOC_COULOMBS failed %d", ret);
+      printf("BATIOC_COULOMBS failed %d", ret);
     }
 
   memset(&current, 0, sizeof(struct battery_monitor_current_s));
   ret = ioctl(fd, BATIOC_CURRENT, (unsigned long)&current);
   if (ret < 0)
     {
-       printf("BATIOC_CURRENT failed %d", ret);
+      printf("BATIOC_CURRENT failed %d", ret);
     }
 
   printf("mask:%"PRIx32", state:%d, online:%d, vol:%d, coulombs:%d, "
@@ -243,21 +243,24 @@ static void dump_monitor(int fd, uint32_t mask)
 static void dump_battery(int fd, int chiptype, uint32_t mask)
 {
   switch (chiptype)
-  {
-  case CHIP_TYPE_CHARGER:
-    dump_charger(fd, mask);
-    break;
-  case CHIP_TYPE_GAUGE:
-    dump_gauge(fd, mask);
-    break;
+    {
+      case CHIP_TYPE_CHARGER:
+        dump_charger(fd, mask);
+        break;
+
+      case CHIP_TYPE_GAUGE:
+        dump_gauge(fd, mask);
+        break;
+
 #ifdef CONFIG_BATTERY_MONITOR
-  case CHIP_TYPE_MONITOR:
-    dump_monitor(fd, mask);
-    break;
+      case CHIP_TYPE_MONITOR:
+        dump_monitor(fd, mask);
+        break;
 #endif
-  default:
-    break;
-  }
+
+      default:
+        break;
+    }
 
   return;
 }
