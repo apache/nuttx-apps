@@ -23,6 +23,7 @@ import binascii
 import datetime
 import io
 import os
+import signal
 import sys
 import termios
 import time
@@ -396,6 +397,7 @@ class ymodem:
         maxretry=RETRIESMAX,
         debug="",
         customsize=0,
+        quiet=False,
     ):
         self.read = read
         self.write = write
@@ -405,16 +407,47 @@ class ymodem:
         self.progress = progress
         self.customsize = customsize
         self.retries = 0
+        self.quiet = quiet
+        self._last_pct = -1
 
         if debug != "":
             self.debugfd = open(debug, "w+")
         else:
             self.debugfd = 0
 
+    def cancel(self):
+        self.write(CAN + CAN)
+
+    def sigint_handler(self, signum, frame):
+        self.progress("\nTransfer cancelled\n")
+        self.cancel()
+        sys.exit(1)
+
     def debug(self, data):
         if isinstance(self.debugfd, io.RawIOBase):
             self.debugfd.write(data)
             self.debugfd.flush()
+
+    def log(self, data):
+        if not self.quiet:
+            self.progress(data)
+
+    def emit_progress(self, done, total, start=None):
+        pct = int(float(done) / total * 100)
+        if self.quiet:
+            milestone = (pct // 10) * 10
+            if milestone <= self._last_pct:
+                return
+            self._last_pct = milestone
+            self.progress("%d%%\n" % milestone)
+        else:
+            self.progress("\r%2.1f%% %d:%d" % (float(done) / total * 100, done, total))
+            if start is not None:
+                now = datetime.datetime.now()
+                usedtime = float(int(now.timestamp() * 1000) / 1000) - start
+                realspeed = done / 1024 / usedtime
+                left = (total - done) / 1024 / realspeed
+                self.progress(" left:" + format_time(left))
 
     def init_pkt(self):
         self.head = SOH
@@ -458,6 +491,15 @@ class ymodem:
 
         return PACKET_SIZE
 
+    def select_packet_head(self, sendfilesize, filesize):
+        if self.customsize == 0:
+            return SOH
+        if sendfilesize + PACKET_SIZE >= filesize:
+            return SOH
+        if self.customsize == PACKET_1K_SIZE:
+            return STX
+        return STC
+
     def recv_cmd(self, cmd):
         start_time = time.time()
         unexpected_buffer = b""
@@ -465,15 +507,14 @@ class ymodem:
             chunk = self.read(1)
             if chunk == cmd:
                 if unexpected_buffer:
-                    # try to decode to UTF-8
                     decoded = unexpected_buffer.decode("utf-8", errors="replace")
-                    self.progress(f"Ignored unexpected text: {decoded}\n")
+                    self.log(f"Ignored unexpected text: {decoded}\n")
                 return 0
             elif chunk == NAK:
                 if unexpected_buffer:
                     decoded = unexpected_buffer.decode("utf-8", errors="replace")
-                    self.progress(f"Ignored unexpected text: {decoded}\n")
-                print("EAGAIN!!!")
+                    self.log(f"Ignored unexpected text: {decoded}\n")
+                self.log("EAGAIN!!!\n")
                 return -EAGAIN
             elif chunk == b"":
                 continue
@@ -481,7 +522,7 @@ class ymodem:
                 unexpected_buffer += chunk
         if unexpected_buffer:
             decoded = unexpected_buffer.decode("utf-8", errors="replace")
-            self.progress(f"Ignored unexpected text: {decoded}\n")
+            self.log(f"Ignored unexpected text: {decoded}\n")
         return -EINVAL
 
     def send_handshake(self):
@@ -494,7 +535,7 @@ class ymodem:
                 self.retries += 1
                 self.clear()
 
-        self.progress("too many retries\n")
+        self.log("too many retries\n")
         return False
 
     def send(self, filelist):
@@ -544,12 +585,7 @@ class ymodem:
             readfd = open(filelist[cnt], "rb")
             self.progress("     ")
             while sendfilesize < filesize:
-                if sendfilesize + 128 >= filesize:
-                    self.head = SOH
-                elif self.customsize != 0:
-                    self.head = STC
-                else:
-                    self.head = STX
+                self.head = self.select_packet_head(sendfilesize, filesize)
 
                 self.data = readfd.read(self.get_pkt_size())
                 sendbytes = len(self.data)
@@ -562,6 +598,7 @@ class ymodem:
                     if ret < 0:
                         retry += 1
                     else:
+                        retry = 0
                         break
 
                 if retry >= 10:
@@ -570,14 +607,7 @@ class ymodem:
                 self.add_seq()
                 sendfilesize += sendbytes
                 totolbytes += sendbytes
-                self.progress("\r")
-                self.progress("%2.1f%%" % (float(sendfilesize) / filesize * 100))
-                self.progress(" %d:%d" % (sendfilesize, filesize))
-                now = datetime.datetime.now()
-                usedtime = float(int(now.timestamp() * 1000) / 1000) - start
-                realspeed = sendfilesize / 1024 / usedtime
-                left = (filesize - sendfilesize) / 1024 / (realspeed)
-                self.progress(" left:" + format_time(left))
+                self.emit_progress(sendfilesize, filesize, start)
 
             retries = 0
             while True:
@@ -707,7 +737,7 @@ class ymodem:
                 if self.retries > self.maxretry:
                     return -1
 
-                self.progress("recv ret %d\n" % ret)
+                self.log("recv ret %d\n" % ret)
                 self.debug("recv first packet\n")
                 self.retries += 1
                 continue
@@ -716,6 +746,8 @@ class ymodem:
             if not filename:
                 self.debug("recv a none file\n")
                 break
+
+            self.retries = 0
 
             self.progress("name:" + filename + " ")
             size_str = bytes.decode(self.data.split(b"\x00")[1], "utf-8")
@@ -728,17 +760,22 @@ class ymodem:
             writensize = 0
             while writensize < filesize:
                 ret = self.recv_packet()
-                if ret < 0:
-                    self.debug("recv a bad data packet\n")
+                if ret == -EINVAL:
+                    self.debug("recv unexpected data\n")
+                    continue
+                elif ret < 0:
+                    self.debug("recv bad packet\n")
                     if self.retries > self.maxretry:
                         return -1
                     self.retries += 1
                     continue
 
+                self.retries = 0
+
                 size = 0
                 if self.packetsize > filesize - writensize:
                     self.debug("last data packet\n")
-                    size = self.packetsize - (filesize - writensize)
+                    size = filesize - writensize
                 else:
                     size = self.packetsize
 
@@ -746,13 +783,7 @@ class ymodem:
                 fd.write(data)
                 writensize += size
 
-                self.progress("\r%.2f%%" % (float(writensize) / filesize * 100))
-                self.progress(" %d:%d" % (writensize, filesize))
-                now = datetime.datetime.now()
-                usedtime = float(int(now.timestamp() * 1000) / 1000) - start
-                realspeed = writensize / 1024 / usedtime
-                left = (filesize - writensize) / 1024 / (realspeed)
-                self.progress(" left:" + format_time(left))
+                self.emit_progress(writensize, filesize, start)
 
                 self.write(ACK)
 
@@ -784,8 +815,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "-k",
         "--kblocksize",
-        help="This opthin can set a customsize block size to transfer",
+        help="Use 1K block size (standard) or custom size in KB (e.g., -k 2 for 2KB)",
         type=int,
+        nargs="?",
+        const=1,
         default=0,
     )
 
@@ -806,7 +839,8 @@ if __name__ == "__main__":
         help="""
             recvfile from board path
             like this:
-                ./sbrb.py -r <file1 [file2 [file 3]...]> -t /dev/ttyUBS0
+                ./sbrb.py -r <file1 [file2 [file 3]...]> -t /dev/ttyUSB0
+            Use -k for 1K blocks, -k N for N*1024 byte blocks
             """,
     )
 
@@ -818,7 +852,8 @@ if __name__ == "__main__":
         help="""
             send file to board path
             like this:
-                ./sbrb.py -s <path on board> -t /dev/ttyUBS0 <file1 [file2 [file3] ...]>
+                ./sbrb.py -s <path on board> -t /dev/ttyUSB0 <file1 [file2 [file3] ...]>
+            Use -k for 1K blocks, -k N for N*1024 byte blocks
             """,
     )
 
@@ -854,6 +889,14 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--debug", help="This opthin is save debug log on host", default=""
+    )
+
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Quiet mode: only print progress at 10%% milestones",
     )
 
     args = parser.parse_args()
@@ -903,11 +946,18 @@ if __name__ == "__main__":
             write=ymodem_ser_write,
             clear=ymodem_ser_clear,
             maxretry=args.maxretry,
+            quiet=args.quiet,
         )
     else:
         sbrb = ymodem(
-            debug=args.debug, customsize=args.kblocksize * 1024, maxretry=args.maxretry
+            debug=args.debug,
+            customsize=args.kblocksize * 1024,
+            maxretry=args.maxretry,
+            quiet=args.quiet,
         )
+
+    signal.signal(signal.SIGINT, sbrb.sigint_handler)
+    signal.signal(signal.SIGTERM, sbrb.sigint_handler)
 
     if len(args.filelist) == 0:
         sbrb.progress("receiving\n")
