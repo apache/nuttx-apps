@@ -75,6 +75,7 @@ static int ymodem_recv_buffer(FAR struct ymodem_ctx_s *ctx, FAR uint8_t *buf,
   while (i < size)
     {
       ssize_t ret = read(ctx->recvfd, buf + i, size - i);
+
       if (ret >= 0)
         {
           ymodem_debug("recv buffer data, size %zd\n", ret);
@@ -99,6 +100,7 @@ static int ymodem_send_buffer(FAR struct ymodem_ctx_s *ctx,
   while (i < size)
     {
       ssize_t ret = write(ctx->sendfd, buf + i, size - i);
+
       if (ret >= 0)
         {
           ymodem_debug("send buffer data, size %zd\n", ret);
@@ -151,9 +153,9 @@ static int ymodem_recv_packet(FAR struct ymodem_ctx_s *ctx)
           }
 
       default:
-          ymodem_debug("recv_packet: EBADMSG: header[0]=0x%x\n",
-                       ctx->header[0]);
-          return -EBADMSG;
+        ymodem_debug("recv_packet: EBADMSG: header[0]=0x%x\n",
+                     ctx->header[0]);
+        return -EBADMSG;
     }
 
   ret = ymodem_recv_buffer(ctx, &ctx->header[1],
@@ -356,6 +358,7 @@ static int ymodem_send_file(FAR struct ymodem_ctx_s *ctx)
       return -ETIMEDOUT;
     }
 
+  retries = 0;
   ymodem_debug("ymodem send file start\n");
 send_start:
   ctx->packet_type = YMODEM_FILENAME_PACKET;
@@ -413,20 +416,20 @@ send_name:
 
   ctx->packet_type = YMODEM_DATA_PACKET;
 send_packet:
-  if (ctx->file_length <= YMODEM_PACKET_SIZE)
+  if (ctx->file_length <= YMODEM_PACKET_SIZE || ctx->custom_size == 0)
     {
       ctx->header[0] = SOH;
       ctx->packet_size = YMODEM_PACKET_SIZE;
     }
-  else if (ctx->custom_size != 0)
-    {
-      ctx->header[0] = STC;
-      ctx->packet_size = ctx->custom_size;
-    }
-  else
+  else if (ctx->custom_size == YMODEM_PACKET_1K_SIZE)
     {
       ctx->header[0] = STX;
       ctx->packet_size = YMODEM_PACKET_1K_SIZE;
+    }
+  else
+    {
+      ctx->header[0] = STC;
+      ctx->packet_size = ctx->custom_size;
     }
 
   ymodem_debug("packet_size is %zu\n", ctx->packet_size);
@@ -453,6 +456,12 @@ send_packet_again:
   if (ret == -EAGAIN)
     {
       ymodem_debug("send data packet recv NAK, need send again\n");
+      if (++retries > ctx->retry)
+        {
+          ymodem_debug("send data packet too many retries\n");
+          return -ETIMEDOUT;
+        }
+
       goto send_packet_again;
     }
 
@@ -461,6 +470,8 @@ send_packet_again:
       ymodem_debug("send data packet, recv error\n");
       return ret;
     }
+
+  retries = 0;
 
   if (ctx->file_length != 0)
     {
