@@ -302,6 +302,10 @@ struct fbcon_state_s
   uint32_t                   nchars;    /* Numb of chars in the bm[] array  */
 
   FAR struct fbcon_bitmap_s *bm;        /* List of bitmaps on the display   */
+#ifdef CONFIG_FB_UPDATE
+  struct nxgl_rect_s         dirty;     /* Area changed since the update    */
+  bool                       isdirty;   /* True if dirty holds an area      */
+#endif
   FAR struct fbcon_glyph_s  *glyph;     /* Cache of rendered fonts in use   */
   FAR struct fbcon_bitmap_s  cursor;    /* Character to use for cursor      */
 
@@ -361,6 +365,11 @@ static int fbcon_bitmap(FAR struct fbcon_state_s      *st,
                         FAR const struct nxgl_point_s *origin,
                         FAR const void                *src,
                         unsigned int                  stride);
+#ifdef CONFIG_FB_UPDATE
+static void fbcon_markdirty(FAR struct fbcon_state_s *st,
+                            FAR const struct nxgl_rect_s *rect);
+static void fbcon_update(FAR struct fbcon_state_s *st);
+#endif
 static int fbcon_backspace(FAR struct fbcon_state_s *st);
 static void fbcon_home(FAR struct fbcon_state_s *st);
 static inline void fbcon_movedisplay(FAR struct fbcon_state_s *st,
@@ -669,8 +678,68 @@ static int fbcon_bitmap(FAR struct fbcon_state_s      *st,
       drow += st->pinfo->stride;
     }
 
+#ifdef CONFIG_FB_UPDATE
+  fbcon_markdirty(st, dest);
+#endif
+
   return OK;
 }
+
+#ifdef CONFIG_FB_UPDATE
+/****************************************************************************
+ * Name: fbcon_markdirty
+ *
+ * Description:
+ *   Add a rectangle to the area of the framebuffer that has changed since
+ *   the last fbcon_update().
+ *
+ ****************************************************************************/
+
+static void fbcon_markdirty(FAR struct fbcon_state_s *st,
+                            FAR const struct nxgl_rect_s *rect)
+{
+  if (st->isdirty)
+    {
+      nxgl_rectunion(&st->dirty, &st->dirty, rect);
+    }
+  else
+    {
+      nxgl_rectcopy(&st->dirty, rect);
+      st->isdirty = true;
+    }
+}
+
+/****************************************************************************
+ * Name: fbcon_update
+ *
+ * Description:
+ *   Send the changed area of the framebuffer to the display.  Needed by
+ *   framebuffers that are not memory mapped by the display, such as the
+ *   LCD framebuffer for SPI and QSPI panels.
+ *
+ ****************************************************************************/
+
+static void fbcon_update(FAR struct fbcon_state_s *st)
+{
+  struct fb_area_s area;
+
+  if (!st->isdirty)
+    {
+      return;
+    }
+
+  area.x = st->dirty.pt1.x;
+  area.y = st->dirty.pt1.y;
+  area.w = st->dirty.pt2.x - st->dirty.pt1.x + 1;
+  area.h = st->dirty.pt2.y - st->dirty.pt1.y + 1;
+  st->isdirty = false;
+
+  if (ioctl(st->fd_fb, FBIO_UPDATE, (unsigned long)((uintptr_t)&area)) < 0)
+    {
+      gerr("ERROR: ioctl(FBIO_UPDATE) failed: %d\n", errno);
+    }
+}
+#endif
 
 /****************************************************************************
  * Name: fbcon_movedisplay
@@ -1343,6 +1412,10 @@ static int fbcon_fill(FAR struct fbcon_state_s *st,
 
       row += st->pinfo->stride;
     }
+
+#ifdef CONFIG_FB_UPDATE
+  fbcon_markdirty(st, rect);
+#endif
 
   return OK;
 }
@@ -2177,6 +2250,9 @@ static int fbcon_initialize(FAR struct fbcon_state_s *st)
 
   st->bcolor = FBCON_BGCOLOR;
   st->fcolor = FBCON_FCOLOR;
+#ifdef CONFIG_FB_UPDATE
+  st->isdirty = false;
+#endif
 
   rect.pt1.x = 0;
   rect.pt1.y = 0;
@@ -2709,6 +2785,9 @@ int main(int argc, FAR char *argv[])
   for (; ; )
     {
       poll_std_streams(st);
+#ifdef CONFIG_FB_UPDATE
+      fbcon_update(st);
+#endif
       usleep(10000);
     }
 
