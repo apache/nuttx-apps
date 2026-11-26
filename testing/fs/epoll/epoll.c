@@ -28,6 +28,8 @@
 
 #include <nuttx/debug.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <poll.h>
 #include <sys/epoll.h>
 #include <sys/timerfd.h>
 #include <sys/un.h>
@@ -91,6 +93,10 @@ static void show_usage(FAR const char *progname, int exitcode)
   printf("  Test case 3: epoll_wait with some driver/socket need call\n");
   printf("               poll_setup() again when it's internal state\n");
   printf("               changed.\n");
+  printf("  Test case 4: EPOLL_CTL_DEL and EPOLL_CTL_MOD of an fd that\n");
+  printf("               is not in the set give ENOENT.\n");
+  printf("  Test case 5: the write end of a pipe without readers reports\n");
+  printf("               POLLOUT with POLLERR.\n");
   exit(exitcode);
 }
 
@@ -454,6 +460,91 @@ static int epoll03_teardown(FAR void **state)
 }
 
 /****************************************************************************
+ * Name: epoll04
+ ****************************************************************************/
+
+static void epoll04(FAR void **state)
+{
+  struct epoll_event ev;
+  int efd;
+  int fd;
+  int ret;
+
+  efd = epoll_create1(EPOLL_CLOEXEC);
+  assert_true(efd >= 0);
+  fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+  assert_true(fd >= 0);
+
+  ev.events = EPOLLIN;
+  ev.data.fd = fd;
+
+  /* The fd is not in the set */
+
+  ret = epoll_ctl(efd, EPOLL_CTL_DEL, fd, &ev);
+  assert_int_equal(ret, -1);
+  assert_int_equal(errno, ENOENT);
+  ret = epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev);
+  assert_int_equal(ret, -1);
+  assert_int_equal(errno, ENOENT);
+
+  /* The fd was in the set and is removed */
+
+  ret = epoll_ctl(efd, EPOLL_CTL_ADD, fd, &ev);
+  assert_int_equal(ret, 0);
+  ret = epoll_ctl(efd, EPOLL_CTL_DEL, fd, &ev);
+  assert_int_equal(ret, 0);
+  ret = epoll_ctl(efd, EPOLL_CTL_DEL, fd, &ev);
+  assert_int_equal(ret, -1);
+  assert_int_equal(errno, ENOENT);
+
+  close(fd);
+  close(efd);
+}
+
+/****************************************************************************
+ * Name: epoll05
+ ****************************************************************************/
+
+#ifdef CONFIG_PIPES
+static void epoll05(FAR void **state)
+{
+  struct epoll_event ev;
+  struct pollfd pfd;
+  int efd;
+  int fd[2];
+  int ret;
+
+  ret = pipe2(fd, O_CLOEXEC);
+  assert_int_equal(ret, 0);
+  close(fd[0]);
+
+  /* A write does not block (it fails with EPIPE): POLLOUT and POLLERR */
+
+  pfd.fd = fd[1];
+  pfd.events = POLLOUT;
+  pfd.revents = 0;
+  ret = poll(&pfd, 1, 0);
+  assert_int_equal(ret, 1);
+  assert_int_equal(pfd.revents, POLLOUT | POLLERR);
+
+  efd = epoll_create1(EPOLL_CLOEXEC);
+  assert_true(efd >= 0);
+  ev.events = EPOLLOUT;
+  ev.data.fd = fd[1];
+  ret = epoll_ctl(efd, EPOLL_CTL_ADD, fd[1], &ev);
+  assert_int_equal(ret, 0);
+
+  memset(&ev, 0, sizeof(ev));
+  ret = epoll_wait(efd, &ev, 1, 0);
+  assert_int_equal(ret, 1);
+  assert_int_equal(ev.events, EPOLLOUT | EPOLLERR);
+
+  close(efd);
+  close(fd[1]);
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -486,6 +577,10 @@ int main(int argc, FAR char *argv[])
                                                epoll03_setup,
                                                epoll03_teardown,
                                                &epoll_args),
+      cmocka_unit_test(epoll04),
+#ifdef CONFIG_PIPES
+      cmocka_unit_test(epoll05),
+#endif
     };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
