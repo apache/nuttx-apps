@@ -1077,6 +1077,16 @@ int main(int argc, char *argv[])
       pthread_join(stats[i]->id, NULL);
     }
 
+  /* In quiet mode, print only the final summary */
+
+  if (config.quiet)
+    {
+      for (i = 0; i < config.threads; ++i)
+        {
+          print_stat(params[i], i);
+        }
+    }
+
   if (config.histogram)
     {
       print_hist(params, config.threads);
