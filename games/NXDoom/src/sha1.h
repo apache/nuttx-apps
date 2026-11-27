@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/src/sha1.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Copyright(C) 2005-2014 Simon Howard
  *

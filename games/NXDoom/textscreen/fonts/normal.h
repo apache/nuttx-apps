@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/textscreen/fonts/normal.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Font data generated from normal.png; do not edit. Please see
  * textscreen/fonts/README for copyright information.

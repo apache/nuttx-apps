@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/src/deh_io.c
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Copyright(C) 2005-2014 Simon Howard
  *

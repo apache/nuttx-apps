@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/textscreen/fonts/small.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Font data generated from small.png; do not edit. Please see
  * textscreen/fonts/README for copyright information.
