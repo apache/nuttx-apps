@@ -124,6 +124,14 @@ static void play_pwm(struct rtttl_tone sound)
   struct pwm_info_s info;
   int fd = *((int *)g_player.arg);
 
+  /* A pause is silence for the given time; the previous tone is stopped */
+
+  if (sound.frequency_100hz == 0)
+    {
+      usleep(sound.duration_us);
+      return;
+    }
+
   info.channels[0].channel = 1;
   info.channels[0].duty = b16divi(uitoub16(50) - 1, 100); /* 50% duty cycle */
   info.channels[0].cpol = PWM_CPOL_NDEF;                  /* Default */
