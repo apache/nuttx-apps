@@ -795,7 +795,6 @@ config MBEDTLS_PSA_CRYPTODEV_ALT
 	select MBEDTLS_ALT
 	default n
 
->>>>>>> 3a351d18b9 (crypto/mbedtls: route PSA key management through cryptodev)
 endif # CRYPTO_CRYPTODEV
 
 config MBEDTLS_HAVE_TIME

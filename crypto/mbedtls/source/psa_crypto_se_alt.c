@@ -6,23 +6,28 @@
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.  The
- * ASF licenses this file to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the
+ * ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
  * License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  ****************************************************************************/
 
 /* This is a PSA secure element driver that routes the PSA key management
  * operations to the NuttX cryptodev key management interface (CIOCKEY),
  * so keys can be held by a cryptodev key store instead of the PSA local
- * storage.
+ * storage.  Only AES (128/192/256 bit) keys are supported: the in-tree
+ * software backend implements CRK_GENERATE_AES_KEY, CRK_IMPORT_KEY and
+ * CRK_EXPORT_KEY for those, but its asymmetric generators need a second
+ * key id parameter that the PSA single-slot model does not provide, and
+ * it has no CRK_EXPORT_PUBLIC_KEY.
  */
 
 /****************************************************************************
@@ -30,7 +35,7 @@
  ****************************************************************************/
 
 #include <errno.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "psa_crypto_se_alt.h"
@@ -40,17 +45,34 @@
 #include "dev_alt.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* The cryptodev identifies keys by a 32-bit key id. */
-
-#define KEYID_BITS  (sizeof(uint32_t) * 8)
-#define KEYLEN_BITS (sizeof(uint32_t) * 8)
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/* Check the key attributes against what this driver supports, before any
+ * key id is reserved.  The PSA core calls p_allocate first; rejecting
+ * here avoids burning a key id on a key that can never be created.
+ */
+
+static psa_status_t psa_alt_check_attributes(
+                      FAR const psa_key_attributes_t *attributes)
+{
+  psa_key_type_t type = psa_get_key_type(attributes);
+  size_t bits = psa_get_key_bits(attributes);
+
+  if (type == PSA_KEY_TYPE_AES)
+    {
+      if (bits != 128 && bits != 192 && bits != 256)
+        {
+          return PSA_ERROR_NOT_SUPPORTED;
+        }
+    }
+  else
+    {
+      return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+  return PSA_SUCCESS;
+}
 
 /* Translate a cryptodev error code into a PSA status. */
 
@@ -62,12 +84,18 @@ static psa_status_t psa_alt_map_status(int ret)
         return PSA_SUCCESS;
       case -EINVAL:
         return PSA_ERROR_INVALID_ARGUMENT;
+      case -EEXIST:
+        return PSA_ERROR_ALREADY_EXISTS;
       case -ENOENT:
         return PSA_ERROR_DOES_NOT_EXIST;
       case -ENOMEM:
         return PSA_ERROR_INSUFFICIENT_MEMORY;
       case -ENOSYS:
       case -ENODEV:
+        return PSA_ERROR_NOT_SUPPORTED;
+      case -ENOBUFS:
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+      case -EFBIG:
         return PSA_ERROR_NOT_SUPPORTED;
       case -EPERM:
       case -EACCES:
@@ -82,7 +110,7 @@ static psa_status_t psa_alt_map_status(int ret)
  * kop.
  */
 
-static psa_status_t psa_alt_key_op(FAR const struct crypt_kop *kop)
+static psa_status_t psa_alt_key_op(FAR struct crypt_kop *kop)
 {
   cryptodev_context_t ctx;
   psa_status_t status;
@@ -102,6 +130,42 @@ static psa_status_t psa_alt_key_op(FAR const struct crypt_kop *kop)
   return status;
 }
 
+/* Best effort: release the key id after a failed creation.  The PSA core
+ * does not call p_destroy on a failed creation (mbed-crypto#217), so
+ * without this a generate or import error would leave the id reserved
+ * in the store for good.
+ */
+
+static void psa_alt_release_keyid(uint32_t keyid)
+{
+  struct crypt_kop kop;
+
+  memset(&kop, 0, sizeof(kop));
+  kop.crk_op = CRK_DELETE_KEY;
+  kop.crk_iparams = 1;
+  kop.crk_oparams = 0;
+  kop.crk_param[0].crp_p = (caddr_t)&keyid;
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
+
+  psa_alt_key_op(&kop);
+}
+
+/* Reject slot numbers the cryptodev cannot represent, so an application
+ * asking for slot 0x100000001 does not silently get slot 1.  This is
+ * called from both p_validate_slot_number and the import/generate paths
+ * that carry an explicit slot.
+ */
+
+static psa_status_t psa_alt_check_slot(psa_key_slot_number_t key_slot)
+{
+  if (key_slot > (psa_key_slot_number_t)UINT32_MAX)
+    {
+      return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+  return PSA_SUCCESS;
+}
+
 /* Generate a key inside the cryptodev key store. */
 
 static psa_status_t psa_alt_generate_key(
@@ -113,11 +177,10 @@ static psa_status_t psa_alt_generate_key(
                       FAR size_t *pubkey_length)
 {
   struct crypt_kop kop;
-  psa_key_type_t type;
+  psa_status_t status;
   uint32_t keyid = (uint32_t)key_slot;
   uint32_t keylen;
   size_t bits;
-  int op;
 
   (void)drv_context;
   (void)pubkey;
@@ -125,67 +188,36 @@ static psa_status_t psa_alt_generate_key(
 
   *pubkey_length = 0;
 
-  type = psa_get_key_type(attributes);
-  bits = psa_get_key_bits(attributes);
-  switch (type)
+  status = psa_alt_check_slot(key_slot);
+  if (status != PSA_SUCCESS)
     {
-      case PSA_KEY_TYPE_AES:
-        if (bits != 128 && bits != 192 && bits != 256)
-          {
-            return PSA_ERROR_NOT_SUPPORTED;
-          }
-
-        op = CRK_GENERATE_AES_KEY;
-        keylen = (uint32_t)bits / 8;
-        break;
-
-      case PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1):
-        if (bits != 256)
-          {
-            return PSA_ERROR_NOT_SUPPORTED;
-          }
-
-        op = CRK_GENERATE_SECP256R1_KEY;
-        break;
-
-      case PSA_KEY_TYPE_RSA_KEY_PAIR:
-        if (bits != 1024)
-          {
-            return PSA_ERROR_NOT_SUPPORTED;
-          }
-
-        op = CRK_GENERATE_RSA_KEY;
-        break;
-
-      default:
-        return PSA_ERROR_NOT_SUPPORTED;
+      return status;
     }
+
+  status = psa_alt_check_attributes(attributes);
+  if (status != PSA_SUCCESS)
+    {
+      return status;
+    }
+
+  bits = psa_get_key_bits(attributes);
+  keylen = (uint32_t)bits / 8;
 
   memset(&kop, 0, sizeof(kop));
-  kop.crk_op = (u_int)op;
+  kop.crk_op = CRK_GENERATE_AES_KEY;
+  kop.crk_iparams = 2;
   kop.crk_oparams = 0;
   kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
-
-  /* The kernel expects the AES key length (16/24/32 bytes) as a second
-   * input parameter; the asymmetric generators only take the key id.
-   */
-
-  if (op == CRK_GENERATE_AES_KEY)
-    {
-      kop.crk_iparams = 2;
-      kop.crk_param[1].crp_p = (caddr_t)&keylen;
-      kop.crk_param[1].crp_nbits = KEYLEN_BITS;
-    }
-  else
-    {
-      kop.crk_iparams = 1;
-    }
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
+  kop.crk_param[1].crp_p = (caddr_t)&keylen;
+  kop.crk_param[1].crp_nbits = sizeof(uint32_t) * 8;
 
   return psa_alt_key_op(&kop);
 }
 
-/* Allocate a free key slot in the cryptodev key store. */
+/* Allocate a free key slot in the cryptodev key store.  Unsupported key
+ * attributes are rejected here, before the id is reserved.
+ */
 
 static psa_status_t psa_alt_allocate_key(
                       FAR psa_drv_se_context_t *drv_context,
@@ -199,15 +231,22 @@ static psa_status_t psa_alt_allocate_key(
   uint32_t keyid = 0;
 
   (void)persistent_data;
-  (void)attributes;
   (void)method;
+
+  (void)drv_context;
+
+  status = psa_alt_check_attributes(attributes);
+  if (status != PSA_SUCCESS)
+    {
+      return status;
+    }
 
   memset(&kop, 0, sizeof(kop));
   kop.crk_op = CRK_ALLOCATE_KEY;
   kop.crk_iparams = 0;
   kop.crk_oparams = 1;
   kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
 
   status = psa_alt_key_op(&kop);
   if (status == PSA_SUCCESS)
@@ -218,9 +257,10 @@ static psa_status_t psa_alt_allocate_key(
   return status;
 }
 
-/* Export the raw key material from the cryptodev key store.  The cryptodev
- * does not report how many bytes the driver wrote, so the buffer size is
- * reported; the PSA core sizes export buffers exactly for the key type.
+/* Export the raw key material from the cryptodev key store.  The kernel
+ * updates crp_nbits of the output param with the number of bytes it
+ * wrote; the PSA core passes the caller's buffer size as data_size, which
+ * is an upper bound, not the key size.
  */
 
 static psa_status_t psa_alt_export_key(FAR psa_drv_se_context_t *drv_context,
@@ -235,12 +275,18 @@ static psa_status_t psa_alt_export_key(FAR psa_drv_se_context_t *drv_context,
 
   (void)drv_context;
 
+  status = psa_alt_check_slot(key);
+  if (status != PSA_SUCCESS)
+    {
+      return status;
+    }
+
   memset(&kop, 0, sizeof(kop));
   kop.crk_op = CRK_EXPORT_KEY;
   kop.crk_iparams = 1;
   kop.crk_oparams = 1;
   kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
   kop.crk_param[1].crp_p = (caddr_t)p_data;
   kop.crk_param[1].crp_nbits = data_size * 8;
 
@@ -250,11 +296,15 @@ static psa_status_t psa_alt_export_key(FAR psa_drv_se_context_t *drv_context,
       return status;
     }
 
-  *p_data_length = data_size;
+  /* The kernel writes back the actual byte count in crp_nbits. */
+
+  *p_data_length = kop.crk_param[1].crp_nbits / 8;
   return PSA_SUCCESS;
 }
 
-/* Export the public part of an asymmetric key. */
+/* Export the public part of an asymmetric key.  Not supported: the
+ * in-tree software backend has no CRK_EXPORT_PUBLIC_KEY.
+ */
 
 static psa_status_t psa_alt_export_public_key(
                       FAR psa_drv_se_context_t *drv_context,
@@ -263,29 +313,13 @@ static psa_status_t psa_alt_export_public_key(
                       size_t data_size,
                       FAR size_t *p_data_length)
 {
-  struct crypt_kop kop;
-  psa_status_t status;
-  uint32_t keyid = (uint32_t)key;
-
   (void)drv_context;
+  (void)key;
+  (void)p_data;
+  (void)data_size;
+  (void)p_data_length;
 
-  memset(&kop, 0, sizeof(kop));
-  kop.crk_op = CRK_EXPORT_PUBLIC_KEY;
-  kop.crk_iparams = 1;
-  kop.crk_oparams = 1;
-  kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
-  kop.crk_param[1].crp_p = (caddr_t)p_data;
-  kop.crk_param[1].crp_nbits = data_size * 8;
-
-  status = psa_alt_key_op(&kop);
-  if (status != PSA_SUCCESS)
-    {
-      return status;
-    }
-
-  *p_data_length = data_size;
-  return PSA_SUCCESS;
+  return PSA_ERROR_NOT_SUPPORTED;
 }
 
 /* Destroy the key bound to a key slot. */
@@ -296,22 +330,33 @@ static psa_status_t psa_alt_destroy_key(
                       psa_key_slot_number_t key_slot)
 {
   struct crypt_kop kop;
-  uint32_t keyid = (uint32_t)key_slot;
+  uint32_t keyid;
 
   (void)drv_context;
   (void)persistent_data;
+
+  if (psa_alt_check_slot(key_slot) != PSA_SUCCESS)
+    {
+      return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+  keyid = (uint32_t)key_slot;
 
   memset(&kop, 0, sizeof(kop));
   kop.crk_op = CRK_DELETE_KEY;
   kop.crk_iparams = 1;
   kop.crk_oparams = 0;
   kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
 
   return psa_alt_key_op(&kop);
 }
 
-/* Import raw key material into the cryptodev key store. */
+/* Import raw key material into the cryptodev key store.  Only raw AES
+ * keys of a supported size are accepted; the PSA core checks bits
+ * consistency after p_import returns, so a mismatch would have already
+ * written the key by then.
+ */
 
 static psa_status_t psa_alt_import_key(
                       FAR psa_drv_se_context_t *drv_context,
@@ -323,25 +368,45 @@ static psa_status_t psa_alt_import_key(
 {
   struct crypt_kop kop;
   psa_status_t status;
-  uint32_t keyid = (uint32_t)key_slot;
+  psa_key_type_t type;
+  uint32_t keyid;
+  int persistent;
 
   (void)drv_context;
+
+  status = psa_alt_check_slot(key_slot);
+  if (status != PSA_SUCCESS)
+    {
+      return status;
+    }
+
+  keyid = (uint32_t)key_slot;
+
+  /* Validate the key material against the attributes: the type must be
+   * AES and the length must match the declared bit count.  Doing this
+   * before the import avoids writing a key the PSA core would reject
+   * afterwards (bits mismatch) and leaves nothing behind.
+   */
+
+  type = psa_get_key_type(attributes);
+  *bits = psa_get_key_bits(attributes);
+  if (type != PSA_KEY_TYPE_AES || data_length != (*bits + 7) / 8 ||
+      (data_length != 16 && data_length != 24 && data_length != 32))
+    {
+      return PSA_ERROR_NOT_SUPPORTED;
+    }
 
   memset(&kop, 0, sizeof(kop));
   kop.crk_op = CRK_IMPORT_KEY;
   kop.crk_iparams = 2;
   kop.crk_oparams = 0;
   kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
   kop.crk_param[1].crp_p = (caddr_t)data;
   kop.crk_param[1].crp_nbits = data_length * 8;
 
   status = psa_alt_key_op(&kop);
-  if (status == PSA_SUCCESS)
-    {
-      *bits = data_length * 8;
-    }
-  else
+  if (status != PSA_SUCCESS)
     {
       return status;
     }
@@ -353,17 +418,23 @@ static psa_status_t psa_alt_import_key(
    * along.
    */
 
-  if (PSA_KEY_LIFETIME_GET_PERSISTENCE(psa_get_key_lifetime(attributes))
-      != PSA_KEY_PERSISTENCE_VOLATILE)
+  persistent = PSA_KEY_LIFETIME_GET_PERSISTENCE(
+      psa_get_key_lifetime(attributes)) != PSA_KEY_PERSISTENCE_VOLATILE;
+  if (persistent)
     {
       memset(&kop, 0, sizeof(kop));
       kop.crk_op = CRK_SAVE_KEY;
       kop.crk_iparams = 1;
       kop.crk_oparams = 0;
       kop.crk_param[0].crp_p = (caddr_t)&keyid;
-      kop.crk_param[0].crp_nbits = KEYID_BITS;
+      kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
 
       status = psa_alt_key_op(&kop);
+    }
+
+  if (status != PSA_SUCCESS)
+    {
+      psa_alt_release_keyid(keyid);
     }
 
   return status;
@@ -379,19 +450,33 @@ static psa_status_t psa_alt_validate_slot_number(
                       psa_key_slot_number_t key_slot)
 {
   struct crypt_kop kop;
-  uint32_t keyid = (uint32_t)key_slot;
+  psa_status_t status;
+  uint32_t keyid;
 
   (void)drv_context;
   (void)persistent_data;
-  (void)attributes;
   (void)method;
+
+  status = psa_alt_check_slot(key_slot);
+  if (status != PSA_SUCCESS)
+    {
+      return status;
+    }
+
+  status = psa_alt_check_attributes(attributes);
+  if (status != PSA_SUCCESS)
+    {
+      return status;
+    }
+
+  keyid = (uint32_t)key_slot;
 
   memset(&kop, 0, sizeof(kop));
   kop.crk_op = CRK_VALIDATE_KEYID;
   kop.crk_iparams = 1;
   kop.crk_oparams = 0;
   kop.crk_param[0].crp_p = (caddr_t)&keyid;
-  kop.crk_param[0].crp_nbits = KEYID_BITS;
+  kop.crk_param[0].crp_nbits = sizeof(uint32_t) * 8;
 
   return psa_alt_key_op(&kop);
 }
@@ -400,43 +485,33 @@ static psa_status_t psa_alt_validate_slot_number(
  * Public Functions
  ****************************************************************************/
 
+/* The driver description, as static const tables: no heap, no leak on a
+ * failed registration, and the same object can be reused.
+ */
+
+static const psa_drv_se_key_management_t psa_alt_key_management =
+{
+  .MBEDTLS_PRIVATE(p_allocate) = psa_alt_allocate_key,
+  .MBEDTLS_PRIVATE(p_validate_slot_number) = psa_alt_validate_slot_number,
+  .MBEDTLS_PRIVATE(p_import) = psa_alt_import_key,
+  .MBEDTLS_PRIVATE(p_generate) = psa_alt_generate_key,
+  .MBEDTLS_PRIVATE(p_destroy) = psa_alt_destroy_key,
+  .MBEDTLS_PRIVATE(p_export) = psa_alt_export_key,
+  .MBEDTLS_PRIVATE(p_export_public) = psa_alt_export_public_key,
+};
+
+static const psa_drv_se_t psa_alt_driver =
+{
+  .MBEDTLS_PRIVATE(hal_version) = PSA_DRV_SE_HAL_VERSION,
+  .MBEDTLS_PRIVATE(key_management) = &psa_alt_key_management,
+};
+
 /* Register the cryptodev key management operations as the secure element
- * driver for the PSA_KEY_LOCATION_LOCAL_CRYPTODEV key location.  The two
- * tables are kept for the lifetime of the registration.
+ * driver for the PSA_KEY_LOCATION_LOCAL_CRYPTODEV key location.
  */
 
 psa_status_t psa_alt_register_se_driver(void)
 {
-  FAR psa_drv_se_t *drv;
-  FAR psa_drv_se_key_management_t *key_management;
-
-  drv = malloc(sizeof(psa_drv_se_t));
-  if (drv == NULL)
-    {
-      return PSA_ERROR_INSUFFICIENT_MEMORY;
-    }
-
-  memset(drv, 0, sizeof(psa_drv_se_t));
-  drv->MBEDTLS_PRIVATE(hal_version) = PSA_DRV_SE_HAL_VERSION;
-
-  key_management = malloc(sizeof(psa_drv_se_key_management_t));
-  if (key_management == NULL)
-    {
-      free(drv);
-      return PSA_ERROR_INSUFFICIENT_MEMORY;
-    }
-
-  memset(key_management, 0, sizeof(psa_drv_se_key_management_t));
-  key_management->MBEDTLS_PRIVATE(p_allocate) = psa_alt_allocate_key;
-  key_management->MBEDTLS_PRIVATE(p_validate_slot_number) =
-    psa_alt_validate_slot_number;
-  key_management->MBEDTLS_PRIVATE(p_import) = psa_alt_import_key;
-  key_management->MBEDTLS_PRIVATE(p_generate) = psa_alt_generate_key;
-  key_management->MBEDTLS_PRIVATE(p_destroy) = psa_alt_destroy_key;
-  key_management->MBEDTLS_PRIVATE(p_export) = psa_alt_export_key;
-  key_management->MBEDTLS_PRIVATE(p_export_public) =
-    psa_alt_export_public_key;
-  drv->MBEDTLS_PRIVATE(key_management) = key_management;
-
-  return psa_register_se_driver(PSA_KEY_LOCATION_LOCAL_CRYPTODEV, drv);
+  return psa_register_se_driver(PSA_KEY_LOCATION_LOCAL_CRYPTODEV,
+                                &psa_alt_driver);
 }
