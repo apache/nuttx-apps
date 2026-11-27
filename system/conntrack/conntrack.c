@@ -145,6 +145,7 @@ static int conntrack_print(FAR struct netlib_conntrack_s *ct)
 static void conntrack_dump(sa_family_t family)
 {
   ssize_t ndumped = netlib_get_conntrack(family, conntrack_print);
+
   printf("conntrack: %zd flow entries have been shown.\n", ndumped);
 }
 
@@ -250,6 +251,7 @@ int main(int argc, FAR char *argv[])
 {
   struct conntrack_args_s args;
   sa_family_t family = AF_INET;
+
   int nerrors;
 
   args.dump   = arg_lit0("L", "dump", "List connection tracking");
