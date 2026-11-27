@@ -1,8 +1,6 @@
 /****************************************************************************
  * apps/examples/xrcedds/hello_world.c
  *
- * Implements the HelloWorld type described by HelloWorld.idl.
- *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more

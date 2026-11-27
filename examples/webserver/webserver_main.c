@@ -1,12 +1,12 @@
 /****************************************************************************
  * apps/examples/webserver/webserver_main.c
  *
- *   Copyright (C) 2007, 2009-2012, 2015 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SPDX-FileCopyrightText: 2007, 2009-2012, 2015 Gregory Nutt
+ * SPDX-FileCopyrightText: 2001, Adam Dunkels.
+ * SPDX-FileContributor: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based on uIP which also has a BSD style license:
- *
- *   Copyright (c) 2001, Adam Dunkels.
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
