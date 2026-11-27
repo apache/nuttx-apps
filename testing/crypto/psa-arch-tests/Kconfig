@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config PSA_ARCH_TESTS
+	tristate "psa testing"
+	default n
+	---help---
+		Enable the psa testing
+
+if PSA_ARCH_TESTS
+
+config PSA_ARCH_CRYPTO_TESTS
+	bool "Enable the psa arch crypto tests"
+	default n
+
+config PSA_ARCH_ITS_TESTS
+	bool "ENABLE the psa_arch its tests"
+	default n
+
+config PSA_ARCH_TESTS_PROGNAME
+	string "Program name"
+	default "psa_arch_test"
+
+config PSA_ARCH_TESTS_PRIORITY
+	int "psa arch test task priority"
+	default 100
+
+config PSA_ARCH_TESTS_STACKSIZE
+	int "psa arch test stack size"
+	default 8192
+
+endif
