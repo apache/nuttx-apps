@@ -35,7 +35,7 @@
 #include <errno.h>
 
 #include <net/route.h>
-#include <netpacket/netlink.h>
+#include <netpacket/rtnetlink.h>
 
 #include "netutils/netlib.h"
 

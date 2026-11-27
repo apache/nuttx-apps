@@ -33,7 +33,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <netpacket/netlink.h>
+#include <netpacket/rtnetlink.h>
 
 #include "netutils/netlib.h"
 

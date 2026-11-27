@@ -26,7 +26,7 @@
 
 #include <nuttx/config.h>
 
-#include <netpacket/netlink.h>
+#include <netpacket/nfnetlink.h>
 
 #include <nuttx/net/ip.h>
 

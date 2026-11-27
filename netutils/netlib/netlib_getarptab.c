@@ -33,7 +33,7 @@
 #include <errno.h>
 
 #include <netinet/arp.h>
-#include <netpacket/netlink.h>
+#include <netpacket/rtnetlink.h>
 
 #include "netutils/netlib.h"
 
