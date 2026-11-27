@@ -1,4 +1,5 @@
 /****************************************************************************
+ * apps/canutils/libcanutils/lib.c
  *
  * SPDX-License-Identifier: (GPL-2.0-only OR BSD-3-Clause)
  * SPDX-FileCopyrightText: 2002-2007 Volkswagen Group Electronic Research
