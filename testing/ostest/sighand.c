@@ -179,6 +179,7 @@ static FAR void *waiter_main(FAR void *arg)
   if (status != 0)
     {
       int error = errno;
+
       if (error == EINTR)
         {
           printf("waiter_main: sem_wait() successfully interrupted by "
