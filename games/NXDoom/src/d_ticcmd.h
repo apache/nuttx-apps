@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/src/d_ticcmd.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Copyright(C) 1993-1996 Id Software, Inc.
  * Copyright(C) 1993-2008 Raven Software

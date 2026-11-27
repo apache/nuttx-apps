@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/textscreen/txt_utf8.c
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Copyright(C) 2005-2014 Simon Howard
  *

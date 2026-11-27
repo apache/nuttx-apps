@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/src/config.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * NuttX compatible config.h file.
  *

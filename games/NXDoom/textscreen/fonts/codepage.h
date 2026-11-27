@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/textscreen/fonts/codepage.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Copyright(C) 2017 Simon Howard
  *

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/textscreen/txt_font.h
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  ****************************************************************************/
 

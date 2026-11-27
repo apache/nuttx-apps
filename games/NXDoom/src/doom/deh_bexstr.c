@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/games/NXDoom/src/doom/deh_bexstr.c
  *
- * SPDX-License-Identifer: GPLv2
+ * SPDX-License-Identifier: GPLv2
  *
  * Copyright(C) 2005-2014 Simon Howard
  * Copyright(C) 2014 Fabian Greffrath
