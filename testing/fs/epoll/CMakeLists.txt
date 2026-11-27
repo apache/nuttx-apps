@@ -34,4 +34,17 @@ if(CONFIG_TESTING_EPOLL)
     cmocka
     SRCS
     epoll.c)
+  nuttx_add_application(
+    NAME
+    cmocka_epoll_nest
+    PRIORITY
+    ${CONFIG_TESTING_EPOLL_PRIORITY}
+    STACKSIZE
+    ${CONFIG_TESTING_EPOLL_STACKSIZE}
+    MODULE
+    ${CONFIG_TESTING_EPOLL}
+    DEPENDS
+    cmocka
+    SRCS
+    epoll_nest.c)
 endif()
