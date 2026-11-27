@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_ISOTPPERF
+	tristate "ISO-TP throughput and integrity test tool"
+	default n
+	depends on NET_CAN_ISOTP
+	---help---
+		Send or receive ISO-TP messages of a given length over a
+		SocketCAN interface, check their sequence and contents, and
+		report the message rate, data rate, lost and corrupted messages.
+
+if CANUTILS_ISOTPPERF
+
+config CANUTILS_ISOTPPERF_PROGNAME
+	string "Program name"
+	default "isotpperf"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config CANUTILS_ISOTPPERF_PRIORITY
+	int "isotpperf task priority"
+	default 100
+
+config CANUTILS_ISOTPPERF_STACKSIZE
+	int "isotpperf stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
