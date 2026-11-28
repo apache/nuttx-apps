@@ -41,6 +41,7 @@
 #include <unistd.h>
 
 #include <nuttx/clock.h>
+#include <nuttx/irq.h>
 #include <nuttx/wqueue.h>
 
 #include "ostest.h"
@@ -58,6 +59,15 @@
 #define MULTI_QUEUE_LOOPS       4
 #define MULTI_WORK_PER_QUEUE    8
 #define CUSTOM_PRIORITY         100
+
+#if defined(CONFIG_BUILD_FLAT) && defined(CONFIG_HRTIMER)
+#  define CSECTION_LOOPS        2000
+#  ifdef CONFIG_SMP
+#    define CSECTION_THREADS    (2 * CONFIG_SMP_NCPUS)
+#  else
+#    define CSECTION_THREADS    2
+#  endif
+#endif
 
 /****************************************************************************
  * Private Types
@@ -566,6 +576,16 @@ struct parallel_cancel_s
   struct parallel_worker_s worker[2];
   sem_t finished;
 };
+
+#if defined(CONFIG_BUILD_FLAT) && defined(CONFIG_HRTIMER)
+struct csection_s
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  struct work_s delayed;
+  struct work_s immediate;
+  bool incsection;
+};
+#endif
 
 static void requeue_worker(FAR void *arg)
 {
@@ -1122,6 +1142,78 @@ static void teardown_test(void)
   printf("wqueue_test: teardown done\n");
 }
 
+#if defined(CONFIG_BUILD_FLAT) && defined(CONFIG_HRTIMER)
+static FAR void *csection_thread(FAR void *arg)
+{
+  FAR struct csection_s *test = arg;
+  irqstate_t flags = 0;
+  int i;
+
+  for (i = 0; i < CSECTION_LOOPS; i++)
+    {
+      if (test->incsection)
+        {
+          flags = enter_critical_section();
+        }
+
+      /* A new earliest delayed work starts the queue timer, its cancel
+       * stops or moves the timer, and immediate work wakes a worker.
+       */
+
+      ASSERT(work_queue_wq(test->wqueue, &test->delayed, empty_worker,
+                           NULL, 1 + (i % 3)) == OK);
+      ASSERT(work_queue_wq(test->wqueue, &test->immediate, empty_worker,
+                           NULL, 0) == OK);
+      work_cancel_wq(test->wqueue, &test->delayed);
+
+      if (test->incsection)
+        {
+          leave_critical_section(flags);
+        }
+    }
+
+  work_cancel_sync_wq(test->wqueue, &test->delayed);
+  work_cancel_sync_wq(test->wqueue, &test->immediate);
+  return NULL;
+}
+
+static void csection_test(void)
+{
+  struct csection_s test[CSECTION_THREADS];
+  pthread_t thread[CSECTION_THREADS];
+  FAR struct kwork_wqueue_s *wqueue;
+  int i;
+
+  /* Half of the threads queue and cancel work in the critical section,
+   * the other half do the same outside it.  If the two lock orders stop
+   * the CPUs, ostest hangs here: no ASSERT reports it.
+   */
+
+  printf("wqueue_test: critical section\n");
+  wqueue = work_queue_create("test", CUSTOM_PRIORITY, NULL, STACKSIZE, 2);
+  ASSERT(wqueue != NULL);
+
+  memset(test, 0, sizeof(test));
+  for (i = 0; i < CSECTION_THREADS; i++)
+    {
+      test[i].wqueue = wqueue;
+      test[i].incsection = (i & 1) != 0;
+      ASSERT(pthread_create(&thread[i], NULL, csection_thread,
+                            &test[i]) == OK);
+    }
+
+  for (i = 0; i < CSECTION_THREADS; i++)
+    {
+      ASSERT(pthread_join(thread[i], NULL) == OK);
+      ASSERT(work_available(&test[i].delayed));
+      ASSERT(work_available(&test[i].immediate));
+    }
+
+  ASSERT(work_queue_free(wqueue) == OK);
+  printf("wqueue_test: critical section done\n");
+}
+#endif
+
 static FAR void *wqueue_test_entry(FAR void *arg)
 {
   FAR void *wq;
@@ -1184,6 +1276,9 @@ static FAR void *wqueue_test_entry(FAR void *arg)
   multiple_queue_test();
   self_free_test();
   teardown_test();
+#if defined(CONFIG_BUILD_FLAT) && defined(CONFIG_HRTIMER)
+  csection_test();
+#endif
 
   return NULL;
 }
