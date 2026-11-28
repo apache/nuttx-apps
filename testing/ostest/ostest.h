@@ -215,6 +215,12 @@ void cancel_test(void);
 void robust_test(void);
 #endif
 
+/* flockfile.c **************************************************************/
+
+#ifdef CONFIG_FILE_STREAM
+void flockfile_test(void);
+#endif
+
 /* timedwait.c **************************************************************/
 
 void timedwait_test(void);
