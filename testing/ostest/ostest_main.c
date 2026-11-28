@@ -647,11 +647,9 @@ static int user_main(int argc, char *argv[])
 
       /* Verify hrtimer */
 
-#  ifdef CONFIG_HRTIMER
       printf("\nuser_main: hrtimer test\n");
       hrtimer_test();
       check_test_memory_usage();
-#  endif
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS) && \

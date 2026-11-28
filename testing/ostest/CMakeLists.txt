@@ -194,10 +194,7 @@ if(CONFIG_TESTING_OSTEST)
   endif()
 
   if(CONFIG_BUILD_FLAT)
-    list(APPEND SRCS wdog.c spinlock.c)
-    if(CONFIG_HRTIMER)
-      list(APPEND SRCS hrtimer.c)
-    endif()
+    list(APPEND SRCS wdog.c spinlock.c hrtimer.c)
   endif()
 
   set(OSTEST_SRCS ostest_main.c ${SRCS})

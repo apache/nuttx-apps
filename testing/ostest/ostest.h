@@ -249,9 +249,7 @@ void wdog_test(void);
 
 /* hrtimer.c ****************************************************************/
 
-#ifdef CONFIG_HRTIMER
 void hrtimer_test(void);
-#endif
 
 /* posixtimers.c ************************************************************/
 
