@@ -719,7 +719,8 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT) && \
-    defined(CONFIG_STACK_COLORATION) && CONFIG_ARCH_INTERRUPTSTACK > 3
+    defined(CONFIG_STACK_COLORATION) && \
+    defined(CONFIG_ARCH_INTERRUPTSTACK) && CONFIG_ARCH_INTERRUPTSTACK > 3
       printf("\nuser_main: interrupt stack test\n");
       intstack_test();
 #endif
