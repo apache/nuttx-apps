@@ -465,6 +465,56 @@ void test_tcp_accept_inherit(FAR void **state)
   assert_int_equal(value, cnt);
 #endif
 }
+
+/****************************************************************************
+ * Name: test_tcp_cork
+ *
+ * Description:
+ *   setsockopt(TCP_CORK) takes 1 and 0, and getsockopt() gives the value
+ *   back.  A byte sent while the socket is corked reaches the peer when
+ *   the cork is removed.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_TCPPROTO_OPTIONS
+void test_tcp_cork(FAR void **state)
+{
+  FAR struct tcp_bl_state_s *st = *state;
+  int client = tcp_bl_socket(st, 0, false);
+  in_port_t port;
+  socklen_t len;
+  int listener;
+  int server;
+  int value;
+  int on = 1;
+  int off = 0;
+  char c = 'c';
+
+  listener = tcp_bl_listener(st, false, 1, &port);
+  assert_int_equal(tcp_bl_connect(client, port), 0);
+  server = tcp_bl_accept(st, listener);
+
+  assert_return_code(setsockopt(client, IPPROTO_TCP, TCP_CORK, &on,
+                                sizeof(on)), errno);
+  len = sizeof(value);
+  assert_return_code(getsockopt(client, IPPROTO_TCP, TCP_CORK, &value,
+                                &len), errno);
+  assert_int_equal(value, 1);
+
+  assert_int_equal(send(client, &c, 1, 0), 1);
+  assert_return_code(setsockopt(client, IPPROTO_TCP, TCP_CORK, &off,
+                                sizeof(off)), errno);
+  len = sizeof(value);
+  assert_return_code(getsockopt(client, IPPROTO_TCP, TCP_CORK, &value,
+                                &len), errno);
+  assert_int_equal(value, 0);
+
+  tcp_bl_wait(server, POLLIN);
+  c = 0;
+  assert_int_equal(recv(server, &c, 1, 0), 1);
+  assert_int_equal(c, 'c');
+}
+#endif
 #endif /* CONFIG_NET_SOCKOPTS */
 
 /****************************************************************************

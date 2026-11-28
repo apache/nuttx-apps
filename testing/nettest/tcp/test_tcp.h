@@ -213,6 +213,14 @@ void test_tcp_bind_reuseaddr_listener(FAR void **state);
 
 void test_tcp_accept_inherit(FAR void **state);
 
+/****************************************************************************
+ * Name: test_tcp_cork
+ ****************************************************************************/
+
+#    ifdef CONFIG_NET_TCPPROTO_OPTIONS
+void test_tcp_cork(FAR void **state);
+#    endif
+
 #    ifdef CONFIG_NET_TCP_WRITE_BUFFERS
 /****************************************************************************
  * Name: test_tcp_sndtimeo_setup
