@@ -25,7 +25,7 @@ include $(APPDIR)/Make.defs
 PRIORITY  = $(CONFIG_TESTING_EPOLL_PRIORITY)
 STACKSIZE = $(CONFIG_TESTING_EPOLL_STACKSIZE)
 MODULE    = $(CONFIG_TESTING_EPOLL)
-MAINSRC  += epoll.c
-PROGNAME += cmocka_epoll
+MAINSRC  += epoll.c epoll_nest.c
+PROGNAME += cmocka_epoll cmocka_epoll_nest
 
 include $(APPDIR)/Application.mk
