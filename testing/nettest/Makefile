@@ -46,6 +46,9 @@ ifeq ($(CONFIG_NET_IPv4), y)
 CSRCS    += tcp/test_tcp_connect_ipv4.c tcp/test_tcp_bind_listen.c
 CSRCS    += tcp/test_tcp_close.c
 CSRCS    += tcp/test_tcp_bulk.c
+ifeq ($(CONFIG_ARCH_HAVE_FORK),y)
+CSRCS    += tcp/test_tcp_process.c
+endif
 endif
 
 ifeq ($(CONFIG_NET_IPv6), y)

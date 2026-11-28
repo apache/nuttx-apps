@@ -129,6 +129,9 @@ int main(int argc, FAR char *argv[])
       cmocka_unit_test_setup_teardown(test_tcp_close_timewait,
                                       test_tcp_close_setup,
                                       test_tcp_close_teardown),
+#  ifdef CONFIG_ARCH_HAVE_FORK
+      cmocka_unit_test(test_tcp_process_data),
+#  endif
 #endif
 #ifdef CONFIG_NET_IPv6
       cmocka_unit_test_setup_teardown(test_tcp_connect_ipv6,
