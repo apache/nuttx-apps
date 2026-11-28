@@ -29,13 +29,16 @@
  * Included Files
  ****************************************************************************/
 
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <poll.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <cmocka.h>
@@ -50,6 +53,7 @@
 #define LOCAL_DGRAM_NIOV    12
 #define LOCAL_DGRAM_IOVLEN  500
 #define LOCAL_DGRAM_WHOLE   400
+#define LOCAL_DGRAM_PNAME   16
 
 /****************************************************************************
  * Private Functions
@@ -67,6 +71,38 @@ static void local_dgram_pair(FAR struct nettest_local_dgram_state_s *st)
   st->r2 = sv[0];
   st->r3 = sv[1];
 }
+
+#ifdef CONFIG_FS_IOCTL_FILEPATH
+/* F_GETPATH of fd, the end of a pair: check the form
+ * "local:[socketpairN]" with a decimal N, and return N in name.
+ */
+
+static void local_dgram_pairpath(int fd, FAR char *name, size_t size)
+{
+  static const char prefix[] = "local:[socketpair";
+  char path[PATH_MAX];
+  FAR char *num;
+  size_t len;
+  size_t i;
+  int ret;
+
+  memset(path, 0, sizeof(path));
+  ret = fcntl(fd, F_GETPATH, path);
+  assert_return_code(ret, errno);
+  assert_memory_equal(path, prefix, sizeof(prefix) - 1);
+
+  num = path + sizeof(prefix) - 1;
+  len = strlen(num);
+  assert_in_range(len, 2, size);
+  assert_int_equal(num[len - 1], ']');
+  for (i = 0; i < len - 1; i++)
+    {
+      assert_true(isdigit(num[i]));
+    }
+
+  strlcpy(name, num, len);
+}
+#endif
 
 /* recv() one datagram without a wait into size bytes, and check its length
  * and data.
@@ -239,6 +275,90 @@ void test_local_dgram_pair_close(FAR void **state)
   errno = 0;
   assert_int_equal(send(st->r3, "gone", 4, 0), -1);
   assert_int_equal(errno, ECONNREFUSED);
+}
+
+/****************************************************************************
+ * Name: test_local_dgram_pair_path
+ *
+ * Description:
+ *   F_GETPATH of the ends of a socket pair gives "local:[socketpairN]",
+ *   with N a decimal number from a counter: the same N for both ends of a
+ *   pair, and a different N for the next pair.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_pair_path(FAR void **state)
+{
+#ifdef CONFIG_FS_IOCTL_FILEPATH
+  FAR struct nettest_local_dgram_state_s *st = *state;
+  char name[3][LOCAL_DGRAM_PNAME];
+  int sv[2];
+  int ret;
+
+  ret = socketpair(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0, sv);
+  assert_return_code(ret, errno);
+  st->r2 = sv[0];
+  st->r3 = sv[1];
+  local_dgram_pairpath(st->r2, name[0], sizeof(name[0]));
+  local_dgram_pairpath(st->r3, name[1], sizeof(name[1]));
+  assert_string_equal(name[0], name[1]);
+
+  ret = socketpair(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0, sv);
+  assert_return_code(ret, errno);
+  st->u = sv[0];
+  close(sv[1]);
+  local_dgram_pairpath(st->u, name[2], sizeof(name[2]));
+  assert_string_not_equal(name[0], name[2]);
+#else
+  skip();
+#endif
+}
+
+/****************************************************************************
+ * Name: test_local_dgram_pair_noname
+ *
+ * Description:
+ *   The name of a socket pair is internal: connect() and sendto() of a
+ *   datagram socket to it fail with ENOENT, bind() of it succeeds, and the
+ *   pair still works.
+ *
+ ****************************************************************************/
+
+void test_local_dgram_pair_noname(FAR void **state)
+{
+#ifdef CONFIG_FS_IOCTL_FILEPATH
+  FAR struct nettest_local_dgram_state_s *st = *state;
+  char num[LOCAL_DGRAM_PNAME];
+  char name[LOCAL_DGRAM_PATHLEN];
+  int sv[2];
+  int fd;
+  int ret;
+
+  ret = socketpair(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0, sv);
+  assert_return_code(ret, errno);
+  st->r2 = sv[0];
+  st->r3 = sv[1];
+  local_dgram_pairpath(st->r2, num, sizeof(num));
+  snprintf(name, sizeof(name), "socketpair%s", num);
+
+  errno = 0;
+  assert_int_equal(local_dgram_connect_to(st->s, name, false), -1);
+  assert_int_equal(errno, ENOENT);
+
+  errno = 0;
+  assert_int_equal(local_dgram_sendto(st->s, name, "x", 1, MSG_DONTWAIT),
+                   -1);
+  assert_int_equal(errno, ENOENT);
+
+  fd = local_dgram_bind(name, false);
+  assert_return_code(fd, errno);
+  close(fd);
+
+  assert_int_equal(send(st->r2, "ok", 2, 0), 2);
+  local_dgram_pairrecv(st->r3, "ok", LOCAL_DGRAM_PAIRBUF);
+#else
+  skip();
+#endif
 }
 
 /****************************************************************************

@@ -376,6 +376,8 @@ void test_local_dgram_fifo_hup(FAR void **state);
 void test_local_dgram_pair_send(FAR void **state);
 void test_local_dgram_pair_full(FAR void **state);
 void test_local_dgram_pair_close(FAR void **state);
+void test_local_dgram_pair_path(FAR void **state);
+void test_local_dgram_pair_noname(FAR void **state);
 void test_local_dgram_poll_pair(FAR void **state);
 void test_local_dgram_pair_iov(FAR void **state);
 void test_local_dgram_send_iov(FAR void **state);
