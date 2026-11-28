@@ -35,7 +35,7 @@
 #include <errno.h>
 
 #include <net/route.h>
-#include <netpacket/netlink.h>
+#include <netpacket/rtnetlink.h>
 
 #include "netutils/netlib.h"
 
@@ -119,6 +119,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
   ssize_t nsent;
   ssize_t nrecvd;
   size_t ncopied = 0;
+
   pid_t pid;
   bool enddump;
   int fd;
@@ -136,6 +137,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
   if (fd < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: socket() failed: %d\n", errcode);
       return -errcode;
     }
@@ -153,6 +155,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
   if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: bind() failed: %d\n", errcode);
       ret = -errcode;
       goto errout_with_socket;
@@ -174,6 +177,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
   if (nsent < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: send() failed: %d\n", errcode);
       ret = -errcode;
       goto errout_with_socket;
@@ -191,6 +195,7 @@ ssize_t netlib_get_route(FAR struct rtentry *rtelist,
       if (nrecvd < 0)
         {
           int errcode = errno;
+
           fprintf(stderr, "ERROR: recv() failed: %d\n", errcode);
           ret = -errcode;
           goto errout_with_socket;
