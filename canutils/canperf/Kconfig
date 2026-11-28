@@ -1,0 +1,32 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_CANPERF
+	tristate "CAN throughput and loss test tool"
+	default n
+	depends on CAN || NET_CAN
+	---help---
+		Send, receive or echo CAN frames at full rate through a CAN
+		character device or a SocketCAN interface, and report frame
+		rate, bit rate, lost and reordered frames.
+
+if CANUTILS_CANPERF
+
+config CANUTILS_CANPERF_PROGNAME
+	string "Program name"
+	default "canperf"
+	---help---
+		This is the name of the program that will be used when the NSH ELF
+		program is installed.
+
+config CANUTILS_CANPERF_PRIORITY
+	int "canperf task priority"
+	default 100
+
+config CANUTILS_CANPERF_STACKSIZE
+	int "canperf stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
