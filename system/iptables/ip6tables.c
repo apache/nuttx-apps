@@ -92,8 +92,8 @@ static void ip6tables_print_chain(FAR const struct ip6t_replace *repl,
   char dst[INET6_ADDRSTRLEN + 4];
 
   FAR struct ip6t_entry *entry;
-  FAR struct xt_entry_match *match;
   FAR struct xt_entry_target *target;
+  size_t mlen;
   FAR uint8_t *head = (FAR uint8_t *)repl->entries + repl->hook_entry[hook];
   int size = repl->underflow[hook] - repl->hook_entry[hook];
 
@@ -110,8 +110,8 @@ static void ip6tables_print_chain(FAR const struct ip6t_replace *repl,
   ip6t_entry_for_every(entry, head, size)
     {
       target = IP6T_TARGET(entry);
-      match  = entry->target_offset >= sizeof(struct xt_entry_match) ?
-                                                    IP6T_MATCH(entry) : NULL;
+      mlen   = entry->target_offset > sizeof(struct ip6t_entry) ?
+               entry->target_offset - sizeof(struct ip6t_entry) : 0;
       printf(fmt, iptables_target2str(target),
           INV_FLAG_STR(entry->ipv6.invflags & IP6T_INV_PROTO),
           iptables_proto2str(entry->ipv6.proto),
@@ -125,7 +125,7 @@ static void ip6tables_print_chain(FAR const struct ip6t_replace *repl,
           INV_FLAG_STR(entry->ipv6.invflags & IP6T_INV_DSTIP),
           ip6tables_addr2str(entry->ipv6.dst.s6_addr16,
                              entry->ipv6.dmsk.s6_addr16, dst, sizeof(dst)),
-          iptables_match2str(match));
+          iptables_match2str(IP6T_MATCH(entry), mlen));
     }
 
   printf("\n");
@@ -254,9 +254,17 @@ static int ip6tables_filter_command(FAR const struct iptables_args_s *args)
 
   /* Get entry and fill in proto-specific details. */
 
-  if (args->sport != NULL || args->dport != NULL)
+  if (args->sport != NULL || args->dport != NULL ||
+      IPTABLES_HAS_TCPFLAGS(args))
     {
       FAR struct xt_udp *tcpudp;
+
+      if (IPTABLES_HAS_TCPFLAGS(args) && args->protocol != IPPROTO_TCP)
+        {
+          printf("TCP flags are only supported for TCP!\n");
+          ret = -EINVAL;
+          goto errout;
+        }
 
       if (args->protocol != IPPROTO_TCP && args->protocol != IPPROTO_UDP)
         {
@@ -265,7 +273,12 @@ static int ip6tables_filter_command(FAR const struct iptables_args_s *args)
           goto errout;
         }
 
-      entry = netlib_ip6t_filter_entry(args->target, args->verdict,
+      entry = args->limit_avg != 0 ?
+              netlib_ip6t_filter_entry_limit(args->target, args->verdict,
+                                             args->protocol,
+                                             args->limit_avg,
+                                             args->limit_burst) :
+              netlib_ip6t_filter_entry(args->target, args->verdict,
                                        args->protocol);
       if (entry == NULL)
         {
@@ -279,6 +292,8 @@ static int ip6tables_filter_command(FAR const struct iptables_args_s *args)
         {
           case IPPROTO_TCP:
             ((FAR struct xt_tcp *)tcpudp)->invflags = args->tcpudpinv;
+            ((FAR struct xt_tcp *)tcpudp)->flg_mask = args->tcp_flg_mask;
+            ((FAR struct xt_tcp *)tcpudp)->flg_cmp  = args->tcp_flg_cmp;
             break;
 
           case IPPROTO_UDP:
@@ -311,7 +326,12 @@ static int ip6tables_filter_command(FAR const struct iptables_args_s *args)
           goto errout;
         }
 
-      entry = netlib_ip6t_filter_entry(args->target, args->verdict,
+      entry = args->limit_avg != 0 ?
+              netlib_ip6t_filter_entry_limit(args->target, args->verdict,
+                                             args->protocol,
+                                             args->limit_avg,
+                                             args->limit_burst) :
+              netlib_ip6t_filter_entry(args->target, args->verdict,
                                        args->protocol);
       if (entry == NULL)
         {
@@ -333,7 +353,11 @@ static int ip6tables_filter_command(FAR const struct iptables_args_s *args)
     }
   else
     {
-      entry = netlib_ip6t_filter_entry(args->target, args->verdict, 0);
+      entry = args->limit_avg != 0 ?
+              netlib_ip6t_filter_entry_limit(args->target, args->verdict, 0,
+                                            args->limit_avg,
+                                            args->limit_burst) :
+              netlib_ip6t_filter_entry(args->target, args->verdict, 0);
       if (entry == NULL)
         {
           goto errout_prepare_entry;

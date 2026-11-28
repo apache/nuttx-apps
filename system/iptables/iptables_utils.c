@@ -28,11 +28,13 @@
 
 #include <arpa/inet.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/param.h>
 
 #include <nuttx/net/netfilter/ip_tables.h>
 #include <nuttx/net/netfilter/ip6_tables.h>
@@ -44,7 +46,33 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define MATCH_BUFSIZE sizeof("tcp spts:!65535:65535 dpts:!65535:65535")
+#define MATCH_BUFSIZE 128
+
+/* The TCP header flags, as the Linux iptables tool defines them */
+
+#define IPTABLES_TCP_FIN 0x01
+#define IPTABLES_TCP_SYN 0x02
+#define IPTABLES_TCP_RST 0x04
+#define IPTABLES_TCP_PSH 0x08
+#define IPTABLES_TCP_ACK 0x10
+#define IPTABLES_TCP_URG 0x20
+#define IPTABLES_TCP_ALL 0x3f
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct iptables_tcpflag_s
+{
+  FAR const char *name;
+  uint8_t flag;
+};
+
+struct iptables_rateunit_s
+{
+  FAR const char *name;
+  uint32_t secs;
+};
 
 /****************************************************************************
  * Private Data
@@ -53,6 +81,26 @@
 static FAR const char *g_hooknames[] =
 {
   "PREROUTING", "INPUT", "FORWARD", "OUTPUT", "POSTROUTING"
+};
+
+static const struct iptables_tcpflag_s g_tcpflags[] =
+{
+  {"FIN",  IPTABLES_TCP_FIN},
+  {"SYN",  IPTABLES_TCP_SYN},
+  {"RST",  IPTABLES_TCP_RST},
+  {"PSH",  IPTABLES_TCP_PSH},
+  {"ACK",  IPTABLES_TCP_ACK},
+  {"URG",  IPTABLES_TCP_URG},
+  {"ALL",  IPTABLES_TCP_ALL},
+  {"NONE", 0}
+};
+
+static const struct iptables_rateunit_s g_rateunits[] =
+{
+  {"second", 1},
+  {"minute", 60},
+  {"hour", 60 * 60},
+  {"day", 24 * 60 * 60}
 };
 
 /****************************************************************************
@@ -201,6 +249,204 @@ static FAR const char *iptables_parse_target(FAR const char *str,
       *verdict = 0;
       return str;
     }
+}
+
+/****************************************************************************
+ * Name: iptables_parse_tcpflags
+ *
+ * Description:
+ *   Parse a comma separated list of TCP flag names (an argument of
+ *   --tcp-flags) to a flag mask.  The names can be in upper or lower case.
+ *   "ALL" is all flags, "NONE" is no flag.
+ *
+ * Returned Value:
+ *   The flag mask on success, or a negative error code on failure
+ *
+ ****************************************************************************/
+
+static int iptables_parse_tcpflags(FAR const char *str)
+{
+  FAR const char *p = str;
+  size_t len;
+  size_t i;
+  int mask = 0;
+
+  while (*p != '\0')
+    {
+      len = strcspn(p, ",");
+      for (i = 0; i < nitems(g_tcpflags); i++)
+        {
+          if (strlen(g_tcpflags[i].name) == len &&
+              strncasecmp(p, g_tcpflags[i].name, len) == 0)
+            {
+              mask |= g_tcpflags[i].flag;
+              break;
+            }
+        }
+
+      if (i == nitems(g_tcpflags))
+        {
+          printf("Unknown TCP flag %.*s!\n", (int)len, p);
+          return -EINVAL;
+        }
+
+      p += len;
+      if (*p == ',')
+        {
+          p++;
+        }
+    }
+
+  return mask;
+}
+
+/****************************************************************************
+ * Name: iptables_parse_rate
+ *
+ * Description:
+ *   Parse a rate (an argument of --limit) like "5/second", "3/m" or "100"
+ *   (per second) to the average time between two packets, in seconds *
+ *   XT_LIMIT_SCALE, as struct xt_rateinfo has it.
+ *
+ * Returned Value:
+ *   0 on success, or a negative error code on failure
+ *
+ ****************************************************************************/
+
+static int iptables_parse_rate(FAR const char *str, FAR uint32_t *avg)
+{
+  unsigned long rate;
+  uint32_t per = 1;
+  FAR char *end;
+  size_t len;
+  size_t i;
+
+  rate = strtoul(str, &end, 10);
+  if (end == str || rate == 0)
+    {
+      return -EINVAL;
+    }
+
+  if (*end == '/')
+    {
+      end++;
+      len = strlen(end);
+      for (i = 0; i < nitems(g_rateunits); i++)
+        {
+          if (len > 0 && strncmp(end, g_rateunits[i].name, len) == 0)
+            {
+              per = g_rateunits[i].secs;
+              break;
+            }
+        }
+
+      if (i == nitems(g_rateunits))
+        {
+          return -EINVAL;
+        }
+    }
+  else if (*end != '\0')
+    {
+      return -EINVAL;
+    }
+
+  if (rate > XT_LIMIT_SCALE * per)
+    {
+      return -ERANGE;
+    }
+
+  *avg = XT_LIMIT_SCALE * per / rate;
+  return OK;
+}
+
+/****************************************************************************
+ * Name: iptables_onematch2str
+ *
+ * Description:
+ *   Format the details of one match, after the separator sep
+ *
+ * Returned Value:
+ *   The return value of snprintf()
+ *
+ ****************************************************************************/
+
+static int iptables_onematch2str(FAR const struct xt_entry_match *match,
+                                 FAR const char *sep, FAR char *buf,
+                                 size_t size)
+{
+  FAR const void *data = match + 1;
+
+  if (strcmp(match->u.user.name, XT_MATCH_NAME_TCP) == 0)
+    {
+      FAR const struct xt_tcp *tcp = data;
+      char flags[24] = "";
+
+      if (tcp->flg_mask != 0 || tcp->flg_cmp != 0 ||
+          (tcp->invflags & XT_TCP_INV_FLAGS) != 0)
+        {
+          snprintf(flags, sizeof(flags), " flags:%s0x%02x/0x%02x",
+                   INV_FLAG_STR(tcp->invflags & XT_TCP_INV_FLAGS),
+                   tcp->flg_mask, tcp->flg_cmp);
+        }
+
+      return snprintf(buf, size, "%stcp spts:%s%u:%u dpts:%s%u:%u%s", sep,
+                      INV_FLAG_STR(tcp->invflags & XT_TCP_INV_SRCPT),
+                      tcp->spts[0], tcp->spts[1],
+                      INV_FLAG_STR(tcp->invflags & XT_TCP_INV_DSTPT),
+                      tcp->dpts[0], tcp->dpts[1], flags);
+    }
+  else if (strcmp(match->u.user.name, XT_MATCH_NAME_UDP) == 0)
+    {
+      FAR const struct xt_udp *udp = data;
+
+      return snprintf(buf, size, "%sudp spts:%s%u:%u dpts:%s%u:%u", sep,
+                      INV_FLAG_STR(udp->invflags & XT_UDP_INV_SRCPT),
+                      udp->spts[0], udp->spts[1],
+                      INV_FLAG_STR(udp->invflags & XT_UDP_INV_DSTPT),
+                      udp->dpts[0], udp->dpts[1]);
+    }
+  else if (strcmp(match->u.user.name, XT_MATCH_NAME_ICMP) == 0)
+    {
+      FAR const struct ipt_icmp *icmp = data;
+
+      return snprintf(buf, size, "%sicmp %stype %u", sep,
+                      INV_FLAG_STR(icmp->invflags & IPT_ICMP_INV),
+                      icmp->type);
+    }
+  else if (strcmp(match->u.user.name, XT_MATCH_NAME_ICMP6) == 0)
+    {
+      FAR const struct ip6t_icmp *icmp6 = data;
+
+      return snprintf(buf, size, "%sipv6-icmp %stype %u", sep,
+                      INV_FLAG_STR(icmp6->invflags & IP6T_ICMP_INV),
+                      icmp6->type);
+    }
+  else if (strcmp(match->u.user.name, XT_MATCH_NAME_LIMIT) == 0)
+    {
+      FAR const struct xt_rateinfo *rate = data;
+      uint32_t mult;
+      size_t i;
+
+      /* Show the rate in the smallest unit that keeps it exact enough,
+       * as Linux iptables does.
+       */
+
+      for (i = nitems(g_rateunits) - 1; rate->avg != 0 && i > 0; i--)
+        {
+          mult = XT_LIMIT_SCALE * g_rateunits[i - 1].secs;
+          if (rate->avg > mult || mult / rate->avg < mult % rate->avg)
+            {
+              break;
+            }
+        }
+
+      mult = XT_LIMIT_SCALE * g_rateunits[i].secs;
+      return snprintf(buf, size, "%slimit: avg %" PRIu32 "/%s burst %"
+                      PRIu32, sep, rate->avg != 0 ? mult / rate->avg : 0,
+                      g_rateunits[i].name, rate->burst);
+    }
+
+  return snprintf(buf, size, "%s%s", sep, match->u.user.name);
 }
 
 /****************************************************************************
@@ -428,6 +674,122 @@ int iptables_parse(FAR struct iptables_args_s *args,
             {
               args->tcpudpinv |= XT_TCP_INV_DSTPT;
               inv = false;
+            }
+
+          continue;
+        }
+
+      /* TCP flags.  --syn is "--tcp-flags SYN,RST,ACK,FIN SYN". */
+
+      if (strcmp(argv[i], "--tcp-flags") == 0)
+        {
+          int mask;
+          int cmp;
+
+          if (i + 2 >= argc)
+            {
+              printf("Missing TCP flags!\n");
+              return -EINVAL;
+            }
+
+          mask = iptables_parse_tcpflags(argv[++i]);
+          cmp  = iptables_parse_tcpflags(argv[++i]);
+          if (mask < 0 || cmp < 0)
+            {
+              return -EINVAL;
+            }
+
+          args->tcp_flg_mask = mask;
+          args->tcp_flg_cmp  = cmp;
+          if (inv)
+            {
+              args->tcpudpinv |= XT_TCP_INV_FLAGS;
+              inv = false;
+            }
+
+          continue;
+        }
+
+      if (strcmp(argv[i], "--syn") == 0)
+        {
+          args->tcp_flg_mask = IPTABLES_TCP_SYN | IPTABLES_TCP_RST |
+                               IPTABLES_TCP_ACK | IPTABLES_TCP_FIN;
+          args->tcp_flg_cmp  = IPTABLES_TCP_SYN;
+          if (inv)
+            {
+              args->tcpudpinv |= XT_TCP_INV_FLAGS;
+              inv = false;
+            }
+
+          continue;
+        }
+
+      /* Match extension, only "limit".  As in Linux, "!" cannot invert
+       * the match or its options.
+       */
+
+      if ((strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--match") == 0 ||
+           strcmp(argv[i], "--limit") == 0 ||
+           strcmp(argv[i], "--limit-burst") == 0) && inv)
+        {
+          printf("! is not supported before %s!\n", argv[i]);
+          return -EINVAL;
+        }
+
+      if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--match") == 0)
+        {
+          if (++i >= argc)
+            {
+              printf("Missing match name!\n");
+              return -EINVAL;
+            }
+
+          if (strcmp(argv[i], XT_MATCH_NAME_LIMIT) != 0)
+            {
+              printf("Unsupported match %s!\n", argv[i]);
+              return -EINVAL;
+            }
+
+          /* The defaults of Linux: 3 per hour, burst 5 */
+
+          args->limit_avg   = XT_LIMIT_SCALE * 60 * 60 / 3;
+          args->limit_burst = 5;
+          continue;
+        }
+
+      if (strcmp(argv[i], "--limit") == 0)
+        {
+          if (args->limit_avg == 0 || ++i >= argc)
+            {
+              printf("--limit needs -m limit and a rate!\n");
+              return -EINVAL;
+            }
+
+          if (iptables_parse_rate(argv[i], &args->limit_avg) < 0)
+            {
+              printf("Invalid rate %s!\n", argv[i]);
+              return -EINVAL;
+            }
+
+          continue;
+        }
+
+      if (strcmp(argv[i], "--limit-burst") == 0)
+        {
+          FAR char *end;
+
+          if (args->limit_avg == 0 || ++i >= argc)
+            {
+              printf("--limit-burst needs -m limit and a number!\n");
+              return -EINVAL;
+            }
+
+          args->limit_burst = strtoul(argv[i], &end, 10);
+          if (*end != '\0' || args->limit_burst == 0 ||
+              args->limit_burst > 10000)
+            {
+              printf("Invalid burst %s (1 to 10000)!\n", argv[i]);
+              return -EINVAL;
             }
 
           continue;
@@ -697,6 +1059,15 @@ void iptables_showusage(FAR const char *progname)
   printf(fmt, "   ", "", "", "port[:port]", "Destination port");
   printf(fmt, "[!]", "--icmp-type", "", "type", "ICMP type");
   printf(fmt, "[!]", "--icmpv6-type", "", "type", "ICMPv6 type");
+  printf(fmt, "[!]", "--tcp-flags", "", "mask comp",
+                       "TCP flags (SYN,ACK,FIN,RST,URG,PSH,ALL,NONE)");
+  printf(fmt, "[!]", "--syn", "", "",
+                       "TCP SYN (--tcp-flags SYN,RST,ACK,FIN SYN)");
+  printf(fmt, "   ", "--match", "-m", "limit", "Match a packet rate");
+  printf(fmt, "   ", "--limit", "", "rate[/unit]",
+                       "Packets per s, m, h or d (default: 3/hour)");
+  printf(fmt, "   ", "--limit-burst", "", "number",
+                       "Packets that can come at once (default: 5)");
 }
 
 /****************************************************************************
@@ -730,6 +1101,7 @@ FAR const char *iptables_target2str(FAR const struct xt_entry_target *tgt)
   if (strcmp(tgt->u.user.name, XT_STANDARD_TARGET) == 0)
     {
       int verdict = ((FAR const struct xt_standard_target *)tgt)->verdict;
+
       verdict = -verdict - 1;
 
       if (verdict == NF_ACCEPT)
@@ -788,62 +1160,32 @@ FAR const char *iptables_proto2str(uint8_t proto)
  * Name: iptables_match2str
  *
  * Description:
- *   Get match details from match structure
+ *   Get match details from the matches of an entry
  *
  ****************************************************************************/
 
-FAR const char *iptables_match2str(FAR const struct xt_entry_match *match)
+FAR const char *iptables_match2str(FAR const struct xt_entry_match *match,
+                                   size_t len)
 {
   static char s_buf[MATCH_BUFSIZE];
+  FAR const uint8_t *base = (FAR const uint8_t *)match;
+  FAR const char *sep;
+  size_t off = 0;
+  size_t n = 0;
 
-  if (match == NULL)
+  s_buf[0] = '\0';
+  while (off + sizeof(*match) <= len && n < sizeof(s_buf))
     {
-      return "";
-    }
+      match = (FAR const struct xt_entry_match *)(base + off);
+      if (match->u.match_size < sizeof(*match) ||
+          off + match->u.match_size > len)
+        {
+          break;
+        }
 
-  if (strcmp(match->u.user.name, XT_MATCH_NAME_TCP) == 0)
-    {
-      FAR struct xt_tcp *tcp = (FAR struct xt_tcp *)(match + 1);
-
-      snprintf(s_buf, MATCH_BUFSIZE,
-               "tcp spts:%s%u:%u dpts:%s%u:%u",
-               INV_FLAG_STR(tcp->invflags & XT_TCP_INV_SRCPT),
-               tcp->spts[0], tcp->spts[1],
-               INV_FLAG_STR(tcp->invflags & XT_TCP_INV_DSTPT),
-               tcp->dpts[0], tcp->dpts[1]);
-    }
-  else if (strcmp(match->u.user.name, XT_MATCH_NAME_UDP) == 0)
-    {
-      FAR struct xt_udp *udp = (FAR struct xt_udp *)(match + 1);
-
-      snprintf(s_buf, MATCH_BUFSIZE,
-               "udp spts:%s%u:%u dpts:%s%u:%u",
-               INV_FLAG_STR(udp->invflags & XT_UDP_INV_SRCPT),
-               udp->spts[0], udp->spts[1],
-               INV_FLAG_STR(udp->invflags & XT_UDP_INV_DSTPT),
-               udp->dpts[0], udp->dpts[1]);
-    }
-  else if (strcmp(match->u.user.name, XT_MATCH_NAME_ICMP) == 0)
-    {
-      FAR struct ipt_icmp *icmp = (FAR struct ipt_icmp *)(match + 1);
-
-      snprintf(s_buf, MATCH_BUFSIZE,
-               "icmp %stype %u",
-               INV_FLAG_STR(icmp->invflags & IPT_ICMP_INV),
-               icmp->type);
-    }
-  else if (strcmp(match->u.user.name, XT_MATCH_NAME_ICMP6) == 0)
-    {
-      FAR struct ip6t_icmp *icmp6 = (FAR struct ip6t_icmp *)(match + 1);
-
-      snprintf(s_buf, MATCH_BUFSIZE,
-               "ipv6-icmp %stype %u",
-               INV_FLAG_STR(icmp6->invflags & IP6T_ICMP_INV),
-               icmp6->type);
-    }
-  else
-    {
-      return match->u.user.name;
+      sep = n > 0 ? " " : "";
+      n  += iptables_onematch2str(match, sep, s_buf + n, sizeof(s_buf) - n);
+      off += match->u.match_size;
     }
 
   return s_buf;

@@ -478,6 +478,11 @@ FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname);
 FAR struct ipt_entry *netlib_ipt_filter_entry(FAR const char *target,
                                               int verdict,
                                               uint8_t match_proto);
+FAR struct ipt_entry *netlib_ipt_filter_entry_limit(FAR const char *target,
+                                                    int verdict,
+                                                    uint8_t match_proto,
+                                                    uint32_t avg,
+                                                    uint32_t burst);
 #    endif
 #  endif /* CONFIG_NET_IPv4 */
 #  ifdef CONFIG_NET_IPv6
@@ -502,6 +507,11 @@ int netlib_ip6t_fillifname(FAR struct ip6t_entry *entry,
 FAR struct ip6t_entry *netlib_ip6t_filter_entry(FAR const char *target,
                                                 int verdict,
                                                 uint8_t match_proto);
+FAR struct ip6t_entry *netlib_ip6t_filter_entry_limit(FAR const char *target,
+                                                      int verdict,
+                                                      uint8_t match_proto,
+                                                      uint32_t avg,
+                                                      uint32_t burst);
 #    endif
 #  endif /* CONFIG_NET_IPv6 */
 #endif /* CONFIG_NET_IPTABLES */

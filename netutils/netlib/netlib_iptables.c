@@ -29,6 +29,7 @@
 
 #include <sys/socket.h>
 
+#include <nuttx/compiler.h>
 #include <nuttx/net/netfilter/ip_tables.h>
 #include <nuttx/net/netfilter/nf_nat.h>
 
@@ -38,13 +39,40 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define IPT_FILL_MATCH(e, match_name) \
+/* Each match and the target start at an offset that is a multiple of
+ * XT_ALIGN(), so match_size and target_size are multiples of XT_ALIGN(),
+ * as Linux iptables makes them.  The kernel checks the match sizes.
+ */
+
+#define NETLIB_XT_ALIGNED aligned_data(__alignof__(struct _xt_align))
+
+/* Fill the name of match m, and its size up to the next member.  An entry
+ * can have more than one match, so the target does not always follow.
+ */
+
+#define IPT_FILL_MATCH_TO(e, m, next, match_name) \
   do \
     { \
-      strlcpy((e)->match.u.user.name, (match_name), \
-              sizeof((e)->match.u.user.name)); \
-      (e)->match.u.match_size = offsetof(typeof(*(e)), target) - \
-                                offsetof(typeof(*(e)), match); \
+      strlcpy((e)->m.u.user.name, (match_name), \
+              sizeof((e)->m.u.user.name)); \
+      (e)->m.u.match_size = offsetof(typeof(*(e)), next) - \
+                            offsetof(typeof(*(e)), m); \
+    } \
+  while(0)
+
+#define IPT_FILL_MATCH(e, match_name) \
+  IPT_FILL_MATCH_TO(e, match, target, match_name)
+
+/* Fill the entry, the limit match and the target of a rate limit entry */
+
+#define IPT_FILL_LIMIT(e, target_name, v, a, b) \
+  do \
+    { \
+      IPT_FILL_ENTRY(e, target_name); \
+      IPT_FILL_MATCH_TO(e, lmatch, target, XT_MATCH_NAME_LIMIT); \
+      (e)->rate.avg       = (a); \
+      (e)->rate.burst     = (b); \
+      (e)->target.verdict = (v); \
     } \
   while(0)
 
@@ -72,31 +100,71 @@ struct ipt_filter_entry_s
 
   /* Compatible with ACCEPT/DROP/REJECT target. */
 
-  struct xt_standard_target target;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
 };
 
 struct ipt_filter_tcp_entry_s
 {
   struct ipt_entry entry;
-  struct xt_entry_match match;
+  struct xt_entry_match match NETLIB_XT_ALIGNED;
   struct xt_tcp tcp;
-  struct xt_standard_target target;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
 };
 
 struct ipt_filter_udp_entry_s
 {
   struct ipt_entry entry;
-  struct xt_entry_match match;
+  struct xt_entry_match match NETLIB_XT_ALIGNED;
   struct xt_udp udp;
-  struct xt_standard_target target;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
+};
+
+/* Entries with a rate limit match: the limit alone, or after a match */
+
+struct ipt_filter_limit_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match lmatch NETLIB_XT_ALIGNED;
+  struct xt_rateinfo rate;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
+};
+
+struct ipt_filter_tcp_limit_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match match NETLIB_XT_ALIGNED;
+  struct xt_tcp tcp;
+  struct xt_entry_match lmatch NETLIB_XT_ALIGNED;
+  struct xt_rateinfo rate;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
+};
+
+struct ipt_filter_udp_limit_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match match NETLIB_XT_ALIGNED;
+  struct xt_udp udp;
+  struct xt_entry_match lmatch NETLIB_XT_ALIGNED;
+  struct xt_rateinfo rate;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
+};
+
+struct ipt_filter_icmp_limit_entry_s
+{
+  struct ipt_entry entry;
+  struct xt_entry_match match NETLIB_XT_ALIGNED;
+  struct ipt_icmp icmp;
+  struct xt_entry_match lmatch NETLIB_XT_ALIGNED;
+  struct xt_rateinfo rate;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
 };
 
 struct ipt_filter_icmp_entry_s
 {
   struct ipt_entry entry;
-  struct xt_entry_match match;
+  struct xt_entry_match match NETLIB_XT_ALIGNED;
   struct ipt_icmp icmp;
-  struct xt_standard_target target;
+  struct xt_standard_target target NETLIB_XT_ALIGNED;
 };
 
 /****************************************************************************
@@ -712,6 +780,108 @@ FAR struct ipt_entry *netlib_ipt_masquerade_entry(FAR const char *ifname)
     }
 
   return &entry->entry;
+}
+#endif
+
+/****************************************************************************
+ * Name: netlib_ipt_filter_entry_limit
+ *
+ * Description:
+ *   Alloc an entry with filter target and a rate limit match (-m limit),
+ *   after a TCP, UDP or ICMP match if match_proto is one of them.
+ *
+ * Input Parameters:
+ *   target      - The target name to apply.
+ *   verdict     - The verdict to set.
+ *   match_proto - The protocol of the match before the limit, or 0.
+ *   avg         - Time between packets in seconds * XT_LIMIT_SCALE.
+ *   burst       - Number of packets that can come at once.
+ *
+ * Returned Value:
+ *   The pointer to the entry, or NULL if failed.
+ *   Caller must free it after use.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPFILTER
+FAR struct ipt_entry *netlib_ipt_filter_entry_limit(FAR const char *target,
+                                                    int verdict,
+                                                    uint8_t match_proto,
+                                                    uint32_t avg,
+                                                    uint32_t burst)
+{
+  if (target == NULL)
+    {
+      fprintf(stderr, "Empty target!\n");
+      return NULL;
+    }
+
+  switch (match_proto)
+    {
+      case 0:
+        {
+          FAR struct ipt_filter_limit_entry_s *entry =
+                                                      zalloc(sizeof(*entry));
+
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_LIMIT(entry, target, verdict, avg, burst);
+          return &entry->entry;
+        }
+
+      case IPPROTO_TCP:
+        {
+          FAR struct ipt_filter_tcp_limit_entry_s *entry =
+                                                      zalloc(sizeof(*entry));
+
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_LIMIT(entry, target, verdict, avg, burst);
+          IPT_FILL_MATCH_TO(entry, match, lmatch, XT_MATCH_NAME_TCP);
+          return &entry->entry;
+        }
+
+      case IPPROTO_UDP:
+        {
+          FAR struct ipt_filter_udp_limit_entry_s *entry =
+                                                      zalloc(sizeof(*entry));
+
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_LIMIT(entry, target, verdict, avg, burst);
+          IPT_FILL_MATCH_TO(entry, match, lmatch, XT_MATCH_NAME_UDP);
+          return &entry->entry;
+        }
+
+      case IPPROTO_ICMP:
+        {
+          FAR struct ipt_filter_icmp_limit_entry_s *entry =
+                                                      zalloc(sizeof(*entry));
+
+          if (entry == NULL)
+            {
+              return NULL;
+            }
+
+          IPT_FILL_LIMIT(entry, target, verdict, avg, burst);
+          IPT_FILL_MATCH_TO(entry, match, lmatch, XT_MATCH_NAME_ICMP);
+          return &entry->entry;
+        }
+
+      default:
+        fprintf(stderr, "Rate limit is not supported for protocol %u!\n",
+                match_proto);
+        return NULL;
+    }
 }
 #endif
 
