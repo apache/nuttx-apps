@@ -28,6 +28,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #ifndef CONFIG_DISABLE_PTHREAD
 #include <pthread.h>
 #endif
@@ -1122,6 +1123,239 @@ static void teardown_test(void)
   printf("wqueue_test: teardown done\n");
 }
 
+struct run_work_s
+{
+  sem_t   done;
+  int     fd;
+  pid_t   pid;
+  ssize_t nwritten;
+};
+
+struct run_thread_s
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  pthread_t                  thread;
+  sem_t                      done;
+  useconds_t                 delay;
+  int                        ret;
+};
+
+struct run_free_s
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  pthread_t                  thread;
+  int                        ret;
+};
+
+static void run_worker(FAR void *arg)
+{
+  FAR struct run_work_s *rwork = arg;
+
+  rwork->pid = getpid();
+  rwork->nwritten = write(rwork->fd, "x", 1);
+  sem_post(&rwork->done);
+}
+
+static FAR void *run_thread(FAR void *arg)
+{
+  FAR struct run_thread_s *rthread = arg;
+
+  if (rthread->delay > 0)
+    {
+      usleep(rthread->delay);
+    }
+
+  rthread->ret = work_queue_run(rthread->wqueue);
+  sem_post(&rthread->done);
+  return NULL;
+}
+
+static FAR void *run_free_thread(FAR void *arg)
+{
+  FAR struct run_free_s *rfree = arg;
+
+  rfree->ret = work_queue_free(rfree->wqueue);
+  return NULL;
+}
+
+static void run_thread_start(FAR struct run_thread_s *rthread,
+                             FAR struct kwork_wqueue_s *wqueue,
+                             useconds_t delay)
+{
+  struct sched_param param;
+  pthread_attr_t attr;
+
+  rthread->wqueue = wqueue;
+  rthread->delay = delay;
+  rthread->ret = -EIO;
+  ASSERT(sem_init(&rthread->done, 0, 0) == OK);
+  ASSERT(pthread_attr_init(&attr) == OK);
+  ASSERT(pthread_attr_setstacksize(&attr, STACKSIZE) == OK);
+  ASSERT(pthread_attr_setschedpolicy(&attr, SCHED_FIFO) == OK);
+  param.sched_priority = CUSTOM_PRIORITY;
+  ASSERT(pthread_attr_setschedparam(&attr, &param) == OK);
+  ASSERT(pthread_attr_setinheritsched(&attr,
+                                      PTHREAD_EXPLICIT_SCHED) == OK);
+  ASSERT(pthread_create(&rthread->thread, &attr, run_thread,
+                        rthread) == OK);
+  ASSERT(pthread_attr_destroy(&attr) == OK);
+}
+
+/* Wait until a work_queue_run() thread returns, and check its result */
+
+static void run_thread_join(FAR struct run_thread_s *rthread, int expect)
+{
+  ASSERT(wait_sem(&rthread->done) == OK);
+  ASSERT(pthread_join(rthread->thread, NULL) == OK);
+  printf("wqueue_test: work_queue_run() = %d, expect = %d\n",
+         rthread->ret, expect);
+  ASSERT(rthread->ret == expect);
+  ASSERT(sem_destroy(&rthread->done) == OK);
+}
+
+/* Queue run_worker() and check that it ran in this task */
+
+static void run_work_test(FAR struct kwork_wqueue_s *wqueue,
+                          FAR struct work_s *work,
+                          FAR struct run_work_s *rwork)
+{
+  ASSERT(work_available(work));
+  rwork->pid = -1;
+  rwork->nwritten = -1;
+  ASSERT(work_queue_wq(wqueue, work, run_worker, rwork, 0) == OK);
+  ASSERT(wait_sem(&rwork->done) == OK);
+  printf("wqueue_test: worker pid = %d, expect = %d, write = %zd\n",
+         (int)rwork->pid, (int)getpid(), rwork->nwritten);
+  ASSERT(rwork->pid == getpid());
+  ASSERT(rwork->nwritten == 1);
+}
+
+/* Threads of this task serve a queue of work_queue_init(): the work runs
+ * in this task and uses its file descriptors.
+ */
+
+static void run_queue_test(void)
+{
+  FAR struct kwork_wqueue_s *wqueue;
+  struct run_thread_s rthread[3];
+  struct self_free_s self_free;
+  struct run_free_s rfree;
+  struct run_work_s rwork;
+  struct work_s work;
+  int priority;
+  int i;
+
+  printf("wqueue_test: work_queue_run\n");
+  ASSERT(work_queue_init(0) == NULL);
+  ASSERT(work_queue_run(NULL) == -EINVAL);
+
+  rwork.fd = open("/dev/null", O_WRONLY);
+  ASSERT(rwork.fd >= 0);
+  ASSERT(sem_init(&rwork.done, 0, 0) == OK);
+  memset(&work, 0, sizeof(work));
+
+  /* Work queued before any thread runs the queue */
+
+  wqueue = work_queue_init(2);
+  ASSERT(wqueue != NULL);
+  ASSERT(work_queue_priority_wq(wqueue) == -ESRCH);
+
+  rwork.pid = -1;
+  rwork.nwritten = -1;
+  ASSERT(work_queue_wq(wqueue, &work, run_worker, &rwork, 0) == OK);
+
+  for (i = 0; i < 2; i++)
+    {
+      run_thread_start(&rthread[i], wqueue, 0);
+    }
+
+  ASSERT(wait_sem(&rwork.done) == OK);
+  printf("wqueue_test: worker pid = %d, expect = %d, write = %zd\n",
+         (int)rwork.pid, (int)getpid(), rwork.nwritten);
+  ASSERT(rwork.pid == getpid());
+  ASSERT(rwork.nwritten == 1);
+
+  /* Both threads serve the queue at the same time */
+
+  sync_cancel_test(wqueue);
+  parallel_cancel_test(wqueue);
+
+  /* A third thread gets -EBUSY.  Call it from a thread, so that a
+   * regression that lets it serve the queue fails instead of hanging.
+   */
+
+  run_thread_start(&rthread[2], wqueue, 0);
+  run_thread_join(&rthread[2], -EBUSY);
+
+  /* A work_queue_run() worker cannot free its own queue */
+
+  memset(&work, 0, sizeof(work));
+  ASSERT(sem_init(&self_free.done, 0, 0) == OK);
+  self_free.wqueue = wqueue;
+  self_free.result = OK;
+  ASSERT(work_queue_wq(wqueue, &work, self_free_worker,
+                       &self_free, 0) == OK);
+  ASSERT(wait_sem(&self_free.done) == OK);
+  printf("wqueue_test: self free result = %d, expect = %d\n",
+         self_free.result, -EDEADLK);
+  ASSERT(self_free.result == -EDEADLK);
+  ASSERT(sem_destroy(&self_free.done) == OK);
+
+  priority = work_queue_priority_wq(wqueue);
+  printf("wqueue_test: priority = %d, expect = %d\n",
+         priority, CUSTOM_PRIORITY);
+  ASSERT(priority == CUSTOM_PRIORITY);
+  wqueue_priority_test(0, wqueue, CUSTOM_PRIORITY);
+
+  ASSERT(work_queue_free(wqueue) == OK);
+  for (i = 0; i < 2; i++)
+    {
+      run_thread_join(&rthread[i], OK);
+    }
+
+  /* A slot that no thread took yet: the priority of the queue can still
+   * be changed, and the second thread joins later.
+   */
+
+  wqueue = work_queue_init(2);
+  ASSERT(wqueue != NULL);
+  run_thread_start(&rthread[0], wqueue, 0);
+  run_work_test(wqueue, &work, &rwork);
+
+#ifdef CONFIG_BUILD_FLAT
+  ASSERT(work_queue_setpriority_wq(wqueue, CUSTOM_PRIORITY + 1) == OK);
+  ASSERT(work_queue_priority_wq(wqueue) == CUSTOM_PRIORITY + 1);
+  ASSERT(work_queue_setpriority_wq(wqueue, CUSTOM_PRIORITY) == OK);
+#endif
+
+  run_thread_start(&rthread[1], wqueue, 0);
+  run_work_test(wqueue, &work, &rwork);
+  ASSERT(work_queue_free(wqueue) == OK);
+  for (i = 0; i < 2; i++)
+    {
+      run_thread_join(&rthread[i], OK);
+    }
+
+  /* A thread that calls work_queue_run() after work_queue_free() gets
+   * -ESHUTDOWN, and work_queue_free() waits for it.
+   */
+
+  wqueue = work_queue_init(1);
+  ASSERT(wqueue != NULL);
+  run_thread_start(&rthread[0], wqueue, SLEEP_TIME);
+  rfree.wqueue = wqueue;
+  rfree.ret = -EIO;
+  ASSERT(pthread_create(&rfree.thread, NULL, run_free_thread,
+                        &rfree) == OK);
+  run_thread_join(&rthread[0], -ESHUTDOWN);
+  ASSERT(pthread_join(rfree.thread, NULL) == OK);
+  ASSERT(rfree.ret == OK);
+
+  ASSERT(sem_destroy(&rwork.done) == OK);
+  ASSERT(close(rwork.fd) == OK);
+  printf("wqueue_test: work_queue_run done\n");
+}
+
 static FAR void *wqueue_test_entry(FAR void *arg)
 {
   FAR void *wq;
@@ -1169,6 +1403,9 @@ static FAR void *wqueue_test_entry(FAR void *arg)
           pending_replace_test(wq);
         }
 
+      /* Only a queue of work_queue_init() can be served */
+
+      ASSERT(work_queue_run(wq) == -EINVAL);
       sync_cancel_test(wq);
 
       if (i == 2)
@@ -1184,6 +1421,7 @@ static FAR void *wqueue_test_entry(FAR void *arg)
   multiple_queue_test();
   self_free_test();
   teardown_test();
+  run_queue_test();
 
   return NULL;
 }
