@@ -23,9 +23,6 @@
 /* The HCI device of the host: H4 packets over a NuttX /dev/ttyHCIx
  * character device (drivers/serial/uart_bth4.c).  It is the zephyr,bt-hci
  * chosen node of port/include/zephyr/devicetree_generated.h.
- *
- * The device is opened twice: for reading by the application, which the
- * RX thread shares, and for writing on the TX work queue.
  */
 
 /****************************************************************************
@@ -54,8 +51,7 @@ LOG_MODULE_REGISTER(zblue_hci, CONFIG_LOG_DEFAULT_LEVEL);
 struct hci_data
 {
   struct bt_hci_driver_data common; /* Must be first */
-  int fd;                           /* RX, opened by the application */
-  int txfd;                         /* TX, opened on the TX work queue */
+  int fd;
 };
 
 /****************************************************************************
@@ -65,18 +61,11 @@ struct hci_data
 static struct hci_data g_hci_data =
 {
   .fd = -1,
-  .txfd = -1,
 };
 
 static K_KERNEL_STACK_DEFINE(g_rx_stack, CONFIG_ZBLUE_HCI_RX_STACKSIZE);
 static struct k_thread g_rx_thread;
 static uint8_t g_rx_frame[BT_BUF_RX_SIZE];
-
-static K_KERNEL_STACK_DEFINE(g_tx_stack, CONFIG_BT_HCI_TX_STACK_SIZE);
-static struct k_work_q g_tx_queue;
-static struct k_work g_tx_open;
-static struct k_work g_tx_work;
-static K_FIFO_DEFINE(g_tx_fifo);
 
 /****************************************************************************
  * Private Functions
@@ -259,97 +248,15 @@ static void rx_thread(void *p1, void *p2, void *p3)
     }
 }
 
-/* The host sends from any thread, its work queues among them, which are
- * kernel threads in the flat build and do not share the file descriptors
- * of the application.  So the TX fd is opened on the TX work queue and
- * all the writes are done there, one after the other.
- */
-
-static void tx_open(struct k_work *work)
-{
-  UNUSED(work);
-
-  g_hci_data.txfd = open(CONFIG_ZBLUE_HCI_DEVICE, O_WRONLY | O_CLOEXEC);
-  if (g_hci_data.txfd < 0)
-    {
-      g_hci_data.txfd = -errno;
-    }
-}
-
-static void tx_work(struct k_work *work)
-{
-  struct hci_data *hci = &g_hci_data;
-  struct net_buf *buf;
-  const uint8_t *data;
-  size_t len;
-  ssize_t ret;
-  int depth;
-  int err;
-
-  UNUSED(work);
-
-  while ((buf = k_fifo_get(&g_tx_fifo, K_NO_WAIT)) != NULL)
-    {
-      data = buf->data;
-      len = buf->len;
-
-      while (len > 0)
-        {
-          depth = z_zblue_block_begin();
-          ret = write(hci->txfd, data, len);
-          err = errno;
-          z_zblue_block_end(depth);
-          if (ret < 0)
-            {
-              if (err == EINTR)
-                {
-                  continue;
-                }
-
-              LOG_ERR("write failed: %d", err);
-              break;
-            }
-
-          data += ret;
-          len -= ret;
-        }
-
-      net_buf_unref(buf);
-    }
-}
-
 static int hci_open(const struct device *dev)
 {
   struct hci_data *hci = dev->data;
-  struct k_work_queue_config cfg =
-  {
-    .name = "zblue_hci_tx",
-  };
 
-  struct k_work_sync sync;
-
-  hci->fd = open(CONFIG_ZBLUE_HCI_DEVICE, O_RDONLY | O_CLOEXEC);
+  hci->fd = open(CONFIG_ZBLUE_HCI_DEVICE, O_RDWR | O_CLOEXEC);
   if (hci->fd < 0)
     {
       LOG_ERR("cannot open %s: %d", CONFIG_ZBLUE_HCI_DEVICE, errno);
       return -errno;
-    }
-
-  k_work_queue_init(&g_tx_queue);
-  k_work_queue_start(&g_tx_queue, g_tx_stack,
-                     K_KERNEL_STACK_SIZEOF(g_tx_stack),
-                     K_PRIO_COOP(CONFIG_BT_HCI_TX_PRIO), &cfg);
-  k_work_init(&g_tx_open, tx_open);
-  k_work_init(&g_tx_work, tx_work);
-  k_work_submit_to_queue(&g_tx_queue, &g_tx_open);
-  k_work_flush(&g_tx_open, &sync);
-  if (hci->txfd < 0)
-    {
-      LOG_ERR("cannot open %s for TX: %d", CONFIG_ZBLUE_HCI_DEVICE,
-              hci->txfd);
-      close(hci->fd);
-      hci->fd = -1;
-      return hci->txfd;
     }
 
   k_thread_create(&g_rx_thread, g_rx_stack,
@@ -361,8 +268,17 @@ static int hci_open(const struct device *dev)
 }
 
 /* buf starts with the H4 packet type, as the upstream drivers expect.
- * It is written by the TX work queue, as upstream H4 queues it for the
- * UART.
+ * The send is synchronous, as in the Zephyr userchan driver.  The host
+ * sends from its work queues and, for the host flow control, sends Host
+ * Number of Completed Packets through bt_send() from the thread that
+ * frees an ACL buffer: all are threads of the application and share its
+ * file descriptors.
+ *
+ * Each write() carries one complete H4 packet.  uart_bth4 reassembles the
+ * packets in one buffer per device and sends each one under its send
+ * lock, so complete packets from different threads do not mix.  A part
+ * of a packet would mix with the packets of other threads, so a short
+ * write is an error and is not continued.
  *
  * There is no close(): the RX thread cannot be stopped while it waits in
  * read(), so bt_disable() returns -ENOSYS, as for upstream drivers
@@ -371,10 +287,37 @@ static int hci_open(const struct device *dev)
 
 static int hci_send(const struct device *dev, struct net_buf *buf)
 {
-  UNUSED(dev);
+  struct hci_data *hci = dev->data;
+  ssize_t ret;
+  int depth;
+  int err;
 
-  k_fifo_put(&g_tx_fifo, buf);
-  k_work_submit_to_queue(&g_tx_queue, &g_tx_work);
+  /* The controller driver may block in write(): let the other
+   * cooperative threads, the RX thread among them, run meanwhile.
+   */
+
+  do
+    {
+      depth = z_zblue_block_begin();
+      ret = write(hci->fd, buf->data, buf->len);
+      err = errno;
+      z_zblue_block_end(depth);
+    }
+  while (ret < 0 && err == EINTR);
+
+  if (ret < 0)
+    {
+      LOG_ERR("write failed: %d", err);
+      return -err;
+    }
+
+  if (ret != buf->len)
+    {
+      LOG_ERR("short write: %zd of %u", ret, buf->len);
+      return -EIO;
+    }
+
+  net_buf_unref(buf);
   return 0;
 }
 
